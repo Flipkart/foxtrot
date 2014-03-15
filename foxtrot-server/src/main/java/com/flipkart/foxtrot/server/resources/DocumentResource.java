@@ -5,10 +5,8 @@ import com.flipkart.foxtrot.core.querystore.QueryStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
+import javax.ws.rs.*;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.net.URI;
 import java.util.Collections;
@@ -20,6 +18,8 @@ import java.util.List;
  * Time: 10:55 PM
  */
 @Path("/foxtrot/v1/document/{table}")
+@Consumes(MediaType.APPLICATION_JSON)
+@Produces(MediaType.APPLICATION_JSON)
 public class DocumentResource {
     private static final Logger logger = LoggerFactory.getLogger(DocumentResource.class.getSimpleName());
 
