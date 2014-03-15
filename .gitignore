@@ -3,3 +3,4 @@
 *.iml
 *.sw*
 target
+dependency-reduced-pom.xml

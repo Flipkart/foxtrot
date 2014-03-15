@@ -37,6 +37,7 @@ import java.util.Vector;
 public class ElasticsearchQueryStore implements QueryStore {
     private static final Logger logger = LoggerFactory.getLogger(ElasticsearchQueryStore.class.getSimpleName());
     private static final String TYPE_NAME = "document";
+    private static final String TABLENAME_PREFIX = "foxtrot-";
 
     private ElasticsearchConnection connection;
     private DataStore dataStore;
@@ -51,7 +52,7 @@ public class ElasticsearchQueryStore implements QueryStore {
     @Override
     public void save(String table, Document document) throws QueryStoreException {
         try {
-            dataStore.save(table, document);
+            dataStore.save(getCurrentIndex(table), document);
             IndexResponse response = connection.getClient()
                                                 .prepareIndex()
                                                 .setIndex(table)
@@ -75,7 +76,7 @@ public class ElasticsearchQueryStore implements QueryStore {
     @Override
     public void save(String table, List<Document> documents) throws QueryStoreException {
         try {
-            dataStore.save(table, documents);
+            dataStore.save(getCurrentIndex(table), documents);
             BulkRequestBuilder bulkRequestBuilder = connection.getClient().prepareBulk();
             for(Document document: documents) {
                 IndexRequest indexRequest = new IndexRequest()
@@ -194,10 +195,14 @@ public class ElasticsearchQueryStore implements QueryStore {
         long currentTime = new Date().getTime();
         String names[] = new String[30]; //TODO::USE TABLE METADATA
         for(int i = 0 ; i < 30; i++) {
-            Date currentDate = new Date();
             String postfix = new SimpleDateFormat("dd-mm-yyyy").format(new Date(currentTime));
-            names[i] = String.format("%s-%s", table, postfix);
+            names[i] = String.format("%s-%s-%s", TABLENAME_PREFIX, table, postfix);
         }
         return names;
+    }
+
+    String getCurrentIndex(final String table) {
+        String postfix = new SimpleDateFormat("dd-mm-yyyy").format(new Date());
+        return String.format("%s-%s-%s", TABLENAME_PREFIX, table, postfix);
     }
 }
