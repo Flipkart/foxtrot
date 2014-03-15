@@ -43,6 +43,7 @@ public class DocumentResource {
     }
 
     @POST
+    @Path("/bulk")
     public Response saveDocuments(@PathParam("table")final String table, final List<Document> document) {
         try {
             queryStore.save(table, document);
@@ -68,10 +69,9 @@ public class DocumentResource {
     }
 
     @GET
-    @Path("/{id}")
-    public Response getDocuments(@PathParam("table") final String table, @PathParam("id") final String id) {
+    public Response getDocuments(@PathParam("table") final String table, @QueryParam("id") final List<String> ids) {
         try {
-            return Response.ok(queryStore.get(table, id)).build();
+            return Response.ok(queryStore.get(table, ids)).build();
         } catch (Exception e) {
             return Response.serverError()
                     .entity(Collections.singletonMap("error", "Could not get document: " + e.getMessage()))

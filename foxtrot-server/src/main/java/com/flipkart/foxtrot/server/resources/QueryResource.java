@@ -5,7 +5,10 @@ import com.flipkart.foxtrot.core.querystore.QueryStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.ws.rs.*;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.Collections;
@@ -27,8 +30,8 @@ public class QueryResource {
         this.queryStore = queryStore;
     }
 
-    @GET
-    public Response runQuery(@PathParam("table")final String table, final Query query) {
+    @POST
+    public Response runQuery(final Query query) {
         try {
             return Response.ok(queryStore.runQuery(query)).build();
         } catch (Exception e) {
