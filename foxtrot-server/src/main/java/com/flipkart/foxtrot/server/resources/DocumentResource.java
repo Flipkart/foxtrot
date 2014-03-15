@@ -39,7 +39,7 @@ public class DocumentResource {
                             .entity(Collections.singletonMap("error", "Could not save document: " + e.getMessage()))
                             .build();
         }
-        return Response.created(URI.create("/" + table + "/" + document.getId())).build();
+        return Response.created(URI.create("/" + document.getId())).build();
     }
 
     @POST
@@ -53,7 +53,7 @@ public class DocumentResource {
                     .entity(Collections.singletonMap("error", "Could not save document: " + e.getMessage()))
                     .build();
         }
-        return Response.created(URI.create("/" + table + "/")).build();
+        return Response.created(URI.create("/" + table)).build();
     }
 
     @GET
