@@ -16,6 +16,11 @@
         <!-- Internal -->
         <dependency>
             <groupId>foxtrot</groupId>
+            <artifactId>foxtrot-common</artifactId>
+            <version>0.1</version>
+        </dependency>
+        <dependency>
+            <groupId>foxtrot</groupId>
             <artifactId>foxtrot-core</artifactId>
             <version>0.1</version>
         </dependency>
