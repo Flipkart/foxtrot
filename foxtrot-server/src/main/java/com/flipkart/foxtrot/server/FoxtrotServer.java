@@ -40,7 +40,7 @@ public class FoxtrotServer extends Service<FoxtrotServerConfiguration> {
         ElasticsearchConnection elasticsearchConnection = new ElasticsearchConnection(elasticsearchConfig);
         environment.manage(elasticsearchConnection);
 
-        ClusterConfig clusterConfig = new ClusterConfig();
+        ClusterConfig clusterConfig = configuration.getCluster();
         HazelcastConnection hazelcastConnection = new HazelcastConnection(clusterConfig);
         environment.manage(hazelcastConnection);
 
