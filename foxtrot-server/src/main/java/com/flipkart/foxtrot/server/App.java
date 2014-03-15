@@ -6,4 +6,8 @@ package com.flipkart.foxtrot.server;
  * Time: 9:25 PM
  */
 public class App {
+    public static void main(String[] args) throws Exception {
+        FoxtrotServer foxtrotServer = new FoxtrotServer();
+        foxtrotServer.run(args);
+    }
 }
