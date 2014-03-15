@@ -9,7 +9,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>forxtrot-core</artifactId>
+    <artifactId>foxtrot-core</artifactId>
 
     <dependencies>
         <!--HBase and Hadoop-->
@@ -43,6 +43,13 @@
             <groupId>com.jayway.jsonpath</groupId>
             <artifactId>json-path</artifactId>
             <version>0.9.1</version>
+        </dependency>
+
+        <!-- Hazelcast -->
+        <dependency>
+            <groupId>com.hazelcast</groupId>
+            <artifactId>hazelcast</artifactId>
+            <version>3.1.6</version>
         </dependency>
 
         <!--Internal-->

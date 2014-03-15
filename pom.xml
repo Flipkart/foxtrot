@@ -9,16 +9,12 @@
     <packaging>pom</packaging>
     <version>0.1</version>
     <modules>
-        <module>forxtrot-core</module>
+        <module>foxtrot-core</module>
         <module>foxtrot-common</module>
+        <module>foxtrot-server</module>
     </modules>
 
     <dependencies>
-        <dependency>
-            <groupId>com.yammer.dropwizard</groupId>
-            <artifactId>dropwizard-client</artifactId>
-            <version>0.6.2</version>
-        </dependency>
         <dependency>
             <groupId>com.yammer.dropwizard</groupId>
             <artifactId>dropwizard-core</artifactId>
