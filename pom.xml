@@ -29,6 +29,10 @@
             <name>libs-snapshot</name>
             <url>http://artifactory.nm.flipkart.com:8081/artifactory/libs-snapshot</url>
         </repository>
+        <repository>
+            <id>cloudera</id>
+            <url>https://repository.cloudera.com/artifactory/cloudera-repos/</url>
+        </repository>
     </repositories>
     <pluginRepositories>
         <pluginRepository>
