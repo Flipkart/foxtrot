@@ -1,6 +1,7 @@
 package com.flipkart.foxtrot.server.config;
 
 import com.flipkart.foxtrot.core.datastore.impl.hbase.HbaseConfig;
+import com.flipkart.foxtrot.core.querystore.impl.ClusterConfig;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConfig;
 import com.yammer.dropwizard.config.Configuration;
 
@@ -18,9 +19,13 @@ public class FoxtrotServerConfiguration extends Configuration {
     @Valid
     private ElasticsearchConfig elasticsearch;
 
+    @Valid
+    private ClusterConfig cluster;
+
     public FoxtrotServerConfiguration() {
         this.hbase = new HbaseConfig();
         this.elasticsearch = new ElasticsearchConfig();
+        this.cluster = new ClusterConfig();
     }
 
     public HbaseConfig getHbase() {
@@ -29,5 +34,9 @@ public class FoxtrotServerConfiguration extends Configuration {
 
     public ElasticsearchConfig getElasticsearch() {
         return elasticsearch;
+    }
+
+    public ClusterConfig getCluster() {
+        return cluster;
     }
 }
