@@ -3,26 +3,21 @@ package com.flipkart.foxtrot.core.querystore.impl;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.jsonschema.JsonSchema;
 import com.flipkart.foxtrot.common.Document;
+import com.flipkart.foxtrot.common.query.Query;
+import com.flipkart.foxtrot.common.query.ResultSort;
 import com.flipkart.foxtrot.core.datastore.DataStore;
 import com.flipkart.foxtrot.core.datastore.DataStoreException;
-import com.flipkart.foxtrot.common.query.Query;
 import com.flipkart.foxtrot.core.querystore.QueryStore;
 import com.flipkart.foxtrot.core.querystore.QueryStoreException;
-import com.flipkart.foxtrot.common.query.ResultSort;
 import com.flipkart.foxtrot.core.querystore.query.ElasticSearchQueryGenerator;
 import org.elasticsearch.action.WriteConsistencyLevel;
-import org.elasticsearch.action.admin.cluster.state.ClusterStateResponse;
 import org.elasticsearch.action.bulk.BulkRequestBuilder;
 import org.elasticsearch.action.bulk.BulkResponse;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.index.IndexResponse;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.cluster.metadata.MappingMetaData;
-import org.elasticsearch.common.collect.ImmutableOpenMap;
-import org.elasticsearch.index.query.FilterBuilders;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.sort.SortOrder;
 import org.slf4j.Logger;
@@ -44,8 +39,14 @@ public class ElasticsearchQueryStore implements QueryStore {
     private static final String TYPE_NAME = "document";
 
     private ElasticsearchConnection connection;
-    private ObjectMapper mapper;
     private DataStore dataStore;
+    private ObjectMapper mapper;
+
+    public ElasticsearchQueryStore(ElasticsearchConnection connection, DataStore dataStore, ObjectMapper mapper) {
+        this.connection = connection;
+        this.dataStore = dataStore;
+        this.mapper = mapper;
+    }
 
     @Override
     public void save(String table, Document document) throws QueryStoreException {
@@ -60,14 +61,14 @@ public class ElasticsearchQueryStore implements QueryStore {
                                                 .setConsistencyLevel(WriteConsistencyLevel.QUORUM)
                                                 .setId(document.getId())
                                                 .setSource(mapper.writeValueAsBytes(document))
-                                                .setTTL(864000) //TODO::FROM TABLE CONFIG
                                                 .execute()
                                                 .get();
             if(response.getVersion() > 0) {
                 return;
             }
         } catch (Exception e) {
-
+            throw new QueryStoreException(QueryStoreException.ErrorCode.DOCUMENT_SAVE_ERROR,
+                            "Error saving documents: " + e.getMessage(), e);
         }
     }
 
@@ -92,28 +93,38 @@ public class ElasticsearchQueryStore implements QueryStore {
                                                         .get();
 
         } catch (Exception e) {
-
+            throw new QueryStoreException(QueryStoreException.ErrorCode.DOCUMENT_SAVE_ERROR,
+                    "Error saving documents: " + e.getMessage(), e);
         }
     }
 
     @Override
     public Document get(String table, String id) throws QueryStoreException {
         try {
-            dataStore.get(table, id);
+            return dataStore.get(table, id);
         } catch (DataStoreException e) {
-            e.printStackTrace();
+            throw new QueryStoreException(QueryStoreException.ErrorCode.DOCUMENT_GET_ERROR,
+                    "Error getting documents: " + e.getMessage(), e);
         }
-        return null;
     }
 
     @Override
     public List<Document> get(String table, List<String> ids) throws QueryStoreException {
-        return null;
+        try {
+            return dataStore.get(table, ids);
+        } catch (Exception e) {
+            throw new QueryStoreException(QueryStoreException.ErrorCode.DOCUMENT_GET_ERROR,
+                    "Error getting documents: " + e.getMessage(), e);
+        }
     }
 
     @Override
     public List<Document> runQuery(final Query query) throws QueryStoreException {
         try {
+            /*if(!tableManager.exists(query.getTable())) {
+                throw new QueryStoreException(QueryStoreException.ErrorCode.NO_SUCH_TABLE,
+                        "There is no table called: " + query.getTable());
+            }*/
             SearchRequestBuilder search = connection.getClient().prepareSearch(getIndices(query.getTable()))
                     .setTypes(TYPE_NAME)
                     .setPostFilter(new ElasticSearchQueryGenerator().genFilter(query.getFilter()))
@@ -132,7 +143,7 @@ public class ElasticsearchQueryStore implements QueryStore {
             return dataStore.get(query.getTable(), ids);
         } catch (Exception e) {
             try {
-                throw new QueryStoreException(QueryStoreException.ErrorCode.QUERY_RUN_ERROR,
+                throw new QueryStoreException(QueryStoreException.ErrorCode.QUERY_EXECUTION_ERROR,
                                 "Error running query: " + mapper.writeValueAsString(query), e);
             } catch (JsonProcessingException e1) {
                 e1.printStackTrace();
@@ -154,6 +165,7 @@ public class ElasticsearchQueryStore implements QueryStore {
     }
 
     //@Override
+/*
     public JsonNode getDataForQuery(String table, String queryId) throws QueryStoreException {
         connection.getClient().prepareSearch().setIndices(getIndices(table));
         FilterBuilders.rangeFilter("xx").gt(1);
@@ -166,14 +178,17 @@ public class ElasticsearchQueryStore implements QueryStore {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        /*
+        */
+/*
         1. Create and save json path:type mapping
         2. use path to find type
         3. Use type to convert query to proper filter
 
-        * */
+        * *//*
+
         return null;
     }
+*/
 
     String[] getIndices(final String table) {
         long currentTime = new Date().getTime();

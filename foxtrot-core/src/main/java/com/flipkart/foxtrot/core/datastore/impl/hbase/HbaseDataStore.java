@@ -1,8 +1,9 @@
-package com.flipkart.foxtrot.core.datastore;
+package com.flipkart.foxtrot.core.datastore.impl.hbase;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.flipkart.foxtrot.common.Document;
-import com.flipkart.foxtrot.core.datastore.impl.hbase.HbaseTableConnection;
+import com.flipkart.foxtrot.core.datastore.DataStore;
+import com.flipkart.foxtrot.core.datastore.DataStoreException;
 import org.apache.hadoop.hbase.client.Get;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.client.Result;

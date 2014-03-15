@@ -17,7 +17,10 @@ public class QueryStoreException extends Exception {
     }
 
     public static enum ErrorCode {
-        QUERY_RUN_ERROR
+        NO_SUCH_TABLE,
+        DOCUMENT_SAVE_ERROR,
+        DOCUMENT_GET_ERROR,
+        QUERY_EXECUTION_ERROR,
     }
 
     private ErrorCode errorCode;
