@@ -137,7 +137,7 @@ public class ElasticsearchQueryStore implements QueryStore {
                 search.addSort(query.getSort().getField(),
                         ResultSort.Order.desc == query.getSort().getOrder() ? SortOrder.DESC : SortOrder.ASC);
             }
-
+	        logger.error("Running: " + search);		
             SearchResponse response = search.execute().actionGet();
             Vector<String> ids = new Vector<String>();
             for(SearchHit searchHit : response.getHits()) {
@@ -197,14 +197,15 @@ public class ElasticsearchQueryStore implements QueryStore {
         long currentTime = new Date().getTime();
         String names[] = new String[30]; //TODO::USE TABLE METADATA
         for(int i = 0 ; i < 30; i++) {
-            String postfix = new SimpleDateFormat("dd-MM-yyyy").format(new Date(currentTime));
+            String postfix = new SimpleDateFormat("dd-M-yyyy").format(new Date(currentTime));
             names[i] = String.format("%s-%s-%s", TABLENAME_PREFIX, table, postfix);
         }
         return names;
     }
 
     String getCurrentIndex(final String table) {
-        String postfix = new SimpleDateFormat("dd-MM-yyyy").format(new Date());
+        String postfix = new SimpleDateFormat("dd-M-yyyy").format(new Date());
+	System.out.println("INDEX NAME: " + String.format("%s-%s-%s", TABLENAME_PREFIX, table, postfix));
         return String.format("%s-%s-%s", TABLENAME_PREFIX, table, postfix);
     }
 }
