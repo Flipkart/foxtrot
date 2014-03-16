@@ -57,11 +57,12 @@ public class ElasticsearchQueryStore implements QueryStore {
                                                 .prepareIndex()
                                                 .setIndex(getCurrentIndex(table))
                                                 .setType(TYPE_NAME)
+                                                .setId(document.getId())
+                                                .setTimestamp(Long.toString(System.currentTimeMillis()))
+                                                .setSource(mapper.writeValueAsBytes(document))
                                                 .setRefresh(true)
                                                 .setCreate(true)
                                                 .setConsistencyLevel(WriteConsistencyLevel.QUORUM)
-                                                .setId(document.getId())
-                                                .setSource(mapper.writeValueAsBytes(document))
                                                 .execute()
                                                 .get();
             if(response.getVersion() > 0) {
@@ -78,13 +79,14 @@ public class ElasticsearchQueryStore implements QueryStore {
         try {
             dataStore.save(table, documents);
             BulkRequestBuilder bulkRequestBuilder = connection.getClient().prepareBulk();
+            final String index = getCurrentIndex(table);
             for(Document document: documents) {
                 IndexRequest indexRequest = new IndexRequest()
-                                                    .index(getCurrentIndex(table))
-                                                    .source(mapper.writeValueAsBytes(document))
+                                                    .index(index)
                                                     .type(TYPE_NAME)
                                                     .id(document.getId())
-                                                    .create(true);
+                                                    .timestamp(Long.toString(System.currentTimeMillis()))
+                                                    .source(mapper.writeValueAsBytes(document));
                 bulkRequestBuilder.add(indexRequest);
             }
 
