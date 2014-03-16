@@ -18,6 +18,7 @@ import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.index.IndexResponse;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
+import org.elasticsearch.action.search.SearchType;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.sort.SortOrder;
 import org.slf4j.Logger;
@@ -131,6 +132,7 @@ public class ElasticsearchQueryStore implements QueryStore {
             SearchRequestBuilder search = connection.getClient().prepareSearch(getIndices(query.getTable()))
                     .setTypes(TYPE_NAME)
                     .setQuery(new ElasticSearchQueryGenerator().genFilter(query.getFilter()))
+                    .setSearchType(SearchType.DFS_QUERY_THEN_FETCH)
                     .setFrom(query.getFrom())
                     .setSize(query.getLimit());
             if(null != query.getSort()) {
