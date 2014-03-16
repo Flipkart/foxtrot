@@ -21,37 +21,44 @@ import java.util.List;
  * Time: 2:31 PM
  */
 public class ElasticSearchQueryGenerator extends FilterVisitor {
-    private AndFilterBuilder andFilterBuilder;
-    private OrFilterBuilder orFilterBuilder;
+    //private  andFilterBuilder;
+    //private OrFilterBuilder orFilterBuilder;
+    private BoolQueryBuilder queryBuilder = QueryBuilders.boolQuery();
 
     @Override
     public void visit(BetweenFilter betweenFilter) throws Exception {
-        RangeFilterBuilder rangeFilterBuilder = FilterBuilders.rangeFilter(betweenFilter.getField());
-        rangeFilterBuilder.from(betweenFilter.getFrom())
-              .to(betweenFilter.getTo());
-        addFilter(rangeFilterBuilder);
+        RangeQueryBuilder queryBuilder = QueryBuilders.rangeQuery(betweenFilter.getField())
+                                                                .from(betweenFilter.getFrom())
+                                                                .to(betweenFilter.getTo());
+        this.queryBuilder.must(queryBuilder);
+        //addFilter(rangeFilterBuilder);
     }
 
     @Override
     public void visit(EqualsFilter equalsFilter) throws Exception {
-        addFilter(FilterBuilders.termFilter(equalsFilter.getField(), equalsFilter.getValue()));
+        this.queryBuilder.must(
+                                QueryBuilders.termQuery(equalsFilter.getField(), equalsFilter.getValue()));
     }
 
     @Override
     public void visit(NotEqualsFilter notEqualsFilter) throws Exception {
-        addFilter(FilterBuilders.notFilter(
-                FilterBuilders.termFilter(notEqualsFilter.getField(), notEqualsFilter.getValue())));
+        //addFilter(FilterBuilders.notFilter(
+        //        FilterBuilders.termFilter(notEqualsFilter.getField(), notEqualsFilter.getValue())));
+        this.queryBuilder.mustNot(
+                QueryBuilders.termQuery(notEqualsFilter.getField(), notEqualsFilter.getValue()));
     }
 
     @Override
     public void visit(ContainsFilter stringContainsFilterElement) throws Exception {
-        addFilter(FilterBuilders.regexpFilter(stringContainsFilterElement.getField(),
-                stringContainsFilterElement.getExpression()));
+        this.queryBuilder.must(
+                QueryBuilders.regexpQuery(stringContainsFilterElement.getField(),
+                        stringContainsFilterElement.getExpression()));
     }
 
     @Override
     public void visit(AndCombinerFilter andCombinerFilter) throws Exception {
-        andFilterBuilder = FilterBuilders.andFilter();
+        //
+        //andFilterBuilder = FilterBuilders.andFilter();
         for(Filter filter : andCombinerFilter.getFilters()) {
             filter.accept(this);
         }
@@ -59,7 +66,7 @@ public class ElasticSearchQueryGenerator extends FilterVisitor {
 
     @Override
     public void visit(OrCombinerFilter orCombinerFilter) throws Exception {
-        orFilterBuilder = FilterBuilders.orFilter();
+        //orFilterBuilder = FilterBuilders.orFilter(); TODO:: USE SHOULD
         for(Filter filter : orCombinerFilter.getFilters()) {
             filter.accept(this);
         }
@@ -67,31 +74,35 @@ public class ElasticSearchQueryGenerator extends FilterVisitor {
 
     @Override
     public void visit(GreaterThanFilter greaterThanFilter) throws Exception {
-        addFilter(FilterBuilders.rangeFilter(greaterThanFilter.getField())
-                                        .gt(greaterThanFilter.getValue()));
+        this.queryBuilder.must(
+                QueryBuilders.rangeQuery(greaterThanFilter.getField())
+                        .gt(greaterThanFilter.getValue()));
     }
 
     @Override
     public void visit(GreaterEqualFilter greaterEqualFilter) throws Exception {
-        addFilter(FilterBuilders.rangeFilter(greaterEqualFilter.getField())
+        this.queryBuilder.must(
+                QueryBuilders.rangeQuery(greaterEqualFilter.getField())
                                         .gte(greaterEqualFilter.getValue()));
     }
 
     @Override
     public void visit(LessThanFilter lessThanFilter) throws Exception {
-        addFilter(FilterBuilders.rangeFilter(lessThanFilter.getField())
+        this.queryBuilder.must(
+                QueryBuilders.rangeQuery(lessThanFilter.getField())
                                      .lt(lessThanFilter.getValue()));
 
     }
 
     @Override
     public void visit(LessEqualFilter lessEqualFilter) throws Exception {
-        addFilter(FilterBuilders.rangeFilter(lessEqualFilter.getField())
+        this.queryBuilder.must(
+                QueryBuilders.rangeQuery(lessEqualFilter.getField())
                                     .lte(lessEqualFilter.getValue()));
 
     }
 
-    private void addFilter(FilterBuilder filterBuilder) throws Exception {
+    /*private void addFilter(FilterBuilder filterBuilder) throws Exception {
         if(null != andFilterBuilder) {
             andFilterBuilder.add(filterBuilder);
         } else {
@@ -102,11 +113,11 @@ public class ElasticSearchQueryGenerator extends FilterVisitor {
                 //TODO::Throw exception
             }
         }
-    }
+    }*/
 
-    public FilterBuilder genFilter(Filter filter) throws Exception {
+    public QueryBuilder genFilter(Filter filter) throws Exception {
         filter.accept(this);
-        return andFilterBuilder != null ? andFilterBuilder : orFilterBuilder;
+        return queryBuilder;//andFilterBuilder != null ? andFilterBuilder : orFilterBuilder;
     }
 
     public static void main(String[] args) throws Exception {

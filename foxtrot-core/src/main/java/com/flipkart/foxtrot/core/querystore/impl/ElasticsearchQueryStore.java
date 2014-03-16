@@ -130,10 +130,10 @@ public class ElasticsearchQueryStore implements QueryStore {
             }*/
             SearchRequestBuilder search = connection.getClient().prepareSearch(getIndices(query.getTable()))
                     .setTypes(TYPE_NAME)
-                    .setPostFilter(new ElasticSearchQueryGenerator().genFilter(query.getFilter()))
+                    .setQuery(new ElasticSearchQueryGenerator().genFilter(query.getFilter()))
                     .setFrom(query.getFrom())
                     .setSize(query.getLimit());
-            if(null != query) {
+            if(null != query.getSort()) {
                 search.addSort(query.getSort().getField(),
                         ResultSort.Order.desc == query.getSort().getOrder() ? SortOrder.DESC : SortOrder.ASC);
             }
