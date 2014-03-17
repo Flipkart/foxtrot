@@ -127,8 +127,7 @@ public class ElasticsearchQueryStore implements QueryStore {
                 throw new QueryStoreException(QueryStoreException.ErrorCode.NO_SUCH_TABLE,
                         "There is no table called: " + query.getTable());
             }*/
-            search = connection.getClient().prepareSearch()
-                    .setIndices(getIndices(query.getTable()))
+            search = connection.getClient().prepareSearch(getIndices(query.getTable()))
                     .setTypes(TYPE_NAME)
                     .setQuery(new ElasticSearchQueryGenerator().genFilter(query.getFilter()))
                     .setSearchType(SearchType.DFS_QUERY_THEN_FETCH)
@@ -163,7 +162,6 @@ public class ElasticsearchQueryStore implements QueryStore {
             }
         }
 
-        return null;
     }
 
     @Override
