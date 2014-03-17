@@ -129,7 +129,8 @@ public class ElasticsearchQueryStore implements QueryStore {
                 throw new QueryStoreException(QueryStoreException.ErrorCode.NO_SUCH_TABLE,
                         "There is no table called: " + query.getTable());
             }*/
-            SearchRequestBuilder search = connection.getClient().prepareSearch(getIndices(query.getTable()))
+            SearchRequestBuilder search = connection.getClient().prepareSearch()
+                    .setIndices(getIndices(query.getTable()))
                     .setTypes(TYPE_NAME)
                     .setQuery(new ElasticSearchQueryGenerator().genFilter(query.getFilter()))
                     .setSearchType(SearchType.DFS_QUERY_THEN_FETCH)
@@ -206,8 +207,8 @@ public class ElasticsearchQueryStore implements QueryStore {
     }
 
     String getCurrentIndex(final String table) {
-        String postfix = new SimpleDateFormat("dd-M-yyyy").format(new Date());
-	System.out.println("INDEX NAME: " + String.format("%s-%s-%s", TABLENAME_PREFIX, table, postfix));
-        return String.format("%s-%s-%s", TABLENAME_PREFIX, table, postfix);
+        //String postfix = new SimpleDateFormat("dd-M-yyyy").format(new Date());
+        return String.format("%s-%s-*", TABLENAME_PREFIX, table);
+        //return String.format("%s-%s-%s", TABLENAME_PREFIX, table, postfix);
     }
 }

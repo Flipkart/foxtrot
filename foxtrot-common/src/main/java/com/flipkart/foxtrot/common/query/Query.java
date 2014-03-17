@@ -23,7 +23,7 @@ public class Query {
     private int from = 0;
 
     @Min(10)
-    private int limit = 0;
+    private int limit = 10;
 
     public Query() {
     }
