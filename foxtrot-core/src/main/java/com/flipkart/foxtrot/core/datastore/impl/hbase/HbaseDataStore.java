@@ -64,7 +64,7 @@ public class HbaseDataStore implements DataStore {
             if(!getResult.isEmpty()) {
                 byte[] data = getResult.getValue(COLUMN_FAMILY, DATA_FIELD_NAME);
                 if(null != data) {
-                    return mapper.readValue(data, Document.class);
+                    return new Document(id, mapper.readTree(data));
                 }
             }
         } catch (Throwable t) {
@@ -93,7 +93,7 @@ public class HbaseDataStore implements DataStore {
                 if(!getResult.isEmpty()) {
                     byte[] data = getResult.getValue(COLUMN_FAMILY, DATA_FIELD_NAME);
                     if(null != data) {
-                        results.add(mapper.readValue(data, Document.class));
+                        results.add(new Document(Bytes.toString(getResult.getRow()), mapper.readTree(data)));
                         found = true;
                     }
                 }
