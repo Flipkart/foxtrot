@@ -57,7 +57,7 @@ public class ElasticsearchQueryStore implements QueryStore {
                                                 .setType(TYPE_NAME)
                                                 .setId(document.getId())
                                                 .setTimestamp(Long.toString(System.currentTimeMillis()))
-                                                .setSource(mapper.writeValueAsBytes(document))
+                                                .setSource(mapper.writeValueAsBytes(document.getData()))
                                                 .setRefresh(true)
                                                 .setCreate(true)
                                                 .setConsistencyLevel(WriteConsistencyLevel.QUORUM)
@@ -84,7 +84,7 @@ public class ElasticsearchQueryStore implements QueryStore {
                                                     .type(TYPE_NAME)
                                                     .id(document.getId())
                                                     .timestamp(Long.toString(System.currentTimeMillis()))
-                                                    .source(mapper.writeValueAsBytes(document));
+                                                    .source(mapper.writeValueAsBytes(document.getData()));
                 bulkRequestBuilder.add(indexRequest);
             }
 
