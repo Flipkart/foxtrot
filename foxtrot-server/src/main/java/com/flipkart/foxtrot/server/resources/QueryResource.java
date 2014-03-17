@@ -33,7 +33,7 @@ public class QueryResource {
     @POST
     public Response runQuery(final Query query) {
         try {
-            return Response.ok(queryStore.runQuery(query)).build();
+            return Response.ok(Collections.singletonMap("results", queryStore.runQuery(query))).build();
         } catch (Exception e) {
             logger.error("Error saving document: ", e);
             return Response.serverError()
