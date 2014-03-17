@@ -25,10 +25,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.List;
-import java.util.UUID;
-import java.util.Vector;
+import java.util.*;
 
 /**
  * User: Santanu Sinha (santanu.sinha@flipkart.com)
@@ -124,12 +121,13 @@ public class ElasticsearchQueryStore implements QueryStore {
 
     @Override
     public List<Document> runQuery(final Query query) throws QueryStoreException {
+        SearchRequestBuilder search = null;
         try {
             /*if(!tableManager.exists(query.getTable())) {
                 throw new QueryStoreException(QueryStoreException.ErrorCode.NO_SUCH_TABLE,
                         "There is no table called: " + query.getTable());
             }*/
-            SearchRequestBuilder search = connection.getClient().prepareSearch()
+            search = connection.getClient().prepareSearch()
                     .setIndices(getIndices(query.getTable()))
                     .setTypes(TYPE_NAME)
                     .setQuery(new ElasticSearchQueryGenerator().genFilter(query.getFilter()))
@@ -146,11 +144,20 @@ public class ElasticsearchQueryStore implements QueryStore {
             for(SearchHit searchHit : response.getHits()) {
                 ids.add(searchHit.getId());
             }
+            if(ids.isEmpty()) {
+                return Collections.emptyList();
+            }
             return dataStore.get(query.getTable(), ids);
         } catch (Exception e) {
+            if(null != search) {
+                logger.error("Error running generated query: " + search);
+            }
+            else {
+                logger.error("Query generation error: ", e);
+            }
             try {
                 throw new QueryStoreException(QueryStoreException.ErrorCode.QUERY_EXECUTION_ERROR,
-                                "Error running query: " + mapper.writeValueAsString(query), e);
+                                "Error running query: " + mapper.writeValueAsString(query));
             } catch (JsonProcessingException e1) {
                 e1.printStackTrace();
             }
