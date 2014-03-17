@@ -124,13 +124,13 @@ public class ElasticsearchQueryStore implements QueryStore {
 
     @Override
     public List<Document> runQuery(final Query query) throws QueryStoreException {
+        SearchRequestBuilder search = null;
         try {
             /*if(!tableManager.exists(query.getTable())) {
                 throw new QueryStoreException(QueryStoreException.ErrorCode.NO_SUCH_TABLE,
                         "There is no table called: " + query.getTable());
             }*/
-            SearchRequestBuilder search = connection.getClient().prepareSearch()
-                    .setIndices(getIndices(query.getTable()))
+            search = connection.getClient().prepareSearch(getIndices(query.getTable()))
                     .setTypes(TYPE_NAME)
                     .setQuery(new ElasticSearchQueryGenerator().genFilter(query.getFilter()))
                     .setSearchType(SearchType.DFS_QUERY_THEN_FETCH)
@@ -148,15 +148,10 @@ public class ElasticsearchQueryStore implements QueryStore {
             }
             return dataStore.get(query.getTable(), ids);
         } catch (Exception e) {
-            try {
                 throw new QueryStoreException(QueryStoreException.ErrorCode.QUERY_EXECUTION_ERROR,
-                                "Error running query: " + mapper.writeValueAsString(query), e);
-            } catch (JsonProcessingException e1) {
-                e1.printStackTrace();
-            }
+                                "Error running query: " + search, e);
         }
 
-        return null;
     }
 
     @Override
