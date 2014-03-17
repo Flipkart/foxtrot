@@ -158,7 +158,8 @@ public class ElasticsearchQueryStore implements QueryStore {
                 throw new QueryStoreException(QueryStoreException.ErrorCode.QUERY_EXECUTION_ERROR,
                                 "Error running query: " + mapper.writeValueAsString(query));
             } catch (JsonProcessingException e1) {
-                e1.printStackTrace();
+                throw new QueryStoreException(QueryStoreException.ErrorCode.QUERY_MALFORMED_QUERY_ERROR,
+                                "Malformed query");
             }
         }
 

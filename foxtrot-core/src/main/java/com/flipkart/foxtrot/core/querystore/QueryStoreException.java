@@ -21,6 +21,7 @@ public class QueryStoreException extends Exception {
         DOCUMENT_SAVE_ERROR,
         DOCUMENT_GET_ERROR,
         QUERY_EXECUTION_ERROR,
+        QUERY_MALFORMED_QUERY_ERROR,
     }
 
     private ErrorCode errorCode;
