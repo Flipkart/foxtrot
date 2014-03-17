@@ -192,18 +192,17 @@ public class ElasticsearchQueryStore implements QueryStore {
 */
 
     String[] getIndices(final String table) {
-        long currentTime = new Date().getTime();
+        /*long currentTime = new Date().getTime();
         String names[] = new String[30]; //TODO::USE TABLE METADATA
         for(int i = 0 ; i < 30; i++) {
             String postfix = new SimpleDateFormat("dd-M-yyyy").format(new Date(currentTime));
             names[i] = String.format("%s-%s-%s", TABLENAME_PREFIX, table, postfix);
-        }
-        return names;
+        }*/
+        return new String[]{String.format("%s-%s-*", TABLENAME_PREFIX, table)};
     }
 
     String getCurrentIndex(final String table) {
-        //String postfix = new SimpleDateFormat("dd-M-yyyy").format(new Date());
-        return String.format("%s-%s-*", TABLENAME_PREFIX, table);
-        //return String.format("%s-%s-%s", TABLENAME_PREFIX, table, postfix);
+        String postfix = new SimpleDateFormat("dd-M-yyyy").format(new Date());
+        return String.format("%s-%s-%s", TABLENAME_PREFIX, table, postfix);
     }
 }
