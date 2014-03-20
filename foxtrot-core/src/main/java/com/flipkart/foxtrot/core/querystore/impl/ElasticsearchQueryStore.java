@@ -27,9 +27,8 @@ import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.bucket.histogram.DateHistogram;
 import org.elasticsearch.search.sort.SortOrder;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -39,7 +38,7 @@ import java.util.*;
  * Time: 12:27 AM
  */
 public class ElasticsearchQueryStore implements QueryStore {
-    private static final Logger logger = LoggerFactory.getLogger(ElasticsearchQueryStore.class.getSimpleName());
+    //private static final Logger logger = LoggerFactory.getLogger(ElasticsearchQueryStore.class.getSimpleName());
     private static final String TYPE_NAME = "document";
     private static final String TABLENAME_PREFIX = "foxtrot";
 
@@ -144,7 +143,7 @@ public class ElasticsearchQueryStore implements QueryStore {
                 search.addSort(query.getSort().getField(),
                         ResultSort.Order.desc == query.getSort().getOrder() ? SortOrder.DESC : SortOrder.ASC);
             }
-	        logger.error("Running: " + search);		
+	        //logger.error("Running: " + search);
             SearchResponse response = search.execute().actionGet();
             Vector<String> ids = new Vector<String>();
             for(SearchHit searchHit : response.getHits()) {
@@ -156,10 +155,10 @@ public class ElasticsearchQueryStore implements QueryStore {
             return dataStore.get(query.getTable(), ids);
         } catch (Exception e) {
             if(null != search) {
-                logger.error("Error running generated query: " + search);
+                //logger.error("Error running generated query: " + search);
             }
             else {
-                logger.error("Query generation error: ", e);
+                //logger.error("Query generation error: ", e);
             }
             try {
                 throw new QueryStoreException(QueryStoreException.ErrorCode.QUERY_EXECUTION_ERROR,
@@ -223,13 +222,13 @@ public class ElasticsearchQueryStore implements QueryStore {
             List<HistogramResponse.Count> counts = new ArrayList<HistogramResponse.Count>(buckets.size());
             for(DateHistogram.Bucket bucket : buckets) {
                 HistogramResponse.Count count = new HistogramResponse.Count(
-                                                        Long.parseLong(bucket.getKey()), bucket.getDocCount());
+                                                        bucket.getKeyAsNumber(), bucket.getDocCount());
                 counts.add(count);
             }
             return new HistogramResponse(counts);
         } catch (Exception e) {
             throw new QueryStoreException(QueryStoreException.ErrorCode.HISTOGRAM_GENERATION_ERROR,
-                    "Malformed query");
+                    "Malformed query", e);
         }
     }
 
@@ -273,5 +272,11 @@ public class ElasticsearchQueryStore implements QueryStore {
         //TODO::THROW IF TIMESTAMP IS BEYOND TABLE META.TTL
         String postfix = new SimpleDateFormat("dd-M-yyyy").format(new Date(timestamp));
         return String.format("%s-%s-%s", TABLENAME_PREFIX, table, postfix);
+    }
+
+    public static void main(String[] args) throws ParseException {
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-M-ddHH:m:s.S");
+        Date date = simpleDateFormat.parse("2014-03-13T07:33:00.000Z");
+        System.out.println(date.getTime());
     }
 }

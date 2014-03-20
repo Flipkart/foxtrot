@@ -9,18 +9,18 @@ import java.util.List;
  */
 public class HistogramResponse {
     public static class Count {
-        private long period;
+        private Number period;
         private long count;
 
         public Count() {
         }
 
-        public Count(long period, long count) {
+        public Count(Number period, long count) {
             this.period = period;
             this.count = count;
         }
 
-        public long getPeriod() {
+        public Number getPeriod() {
             return period;
         }
 
