@@ -56,10 +56,9 @@ public class ElasticsearchQueryStore implements QueryStore {
                                                 .setIndex(getCurrentIndex(table))
                                                 .setType(TYPE_NAME)
                                                 .setId(document.getId())
-                                                .setTimestamp(Long.toString(System.currentTimeMillis()))
+                                                .setTimestamp(Long.toString(document.getTimestamp()))
                                                 .setSource(mapper.writeValueAsBytes(document.getData()))
                                                 .setRefresh(true)
-                                                .setCreate(true)
                                                 .setConsistencyLevel(WriteConsistencyLevel.QUORUM)
                                                 .execute()
                                                 .get();
@@ -83,7 +82,7 @@ public class ElasticsearchQueryStore implements QueryStore {
                                                     .index(index)
                                                     .type(TYPE_NAME)
                                                     .id(document.getId())
-                                                    .timestamp(Long.toString(System.currentTimeMillis()))
+                                                    .timestamp(Long.toString(document.getTimestamp()))
                                                     .source(mapper.writeValueAsBytes(document.getData()));
                 bulkRequestBuilder.add(indexRequest);
             }
@@ -129,7 +128,7 @@ public class ElasticsearchQueryStore implements QueryStore {
             }*/
             search = connection.getClient().prepareSearch(getIndices(query.getTable()))
                     .setTypes(TYPE_NAME)
-                    .setQuery(new ElasticSearchQueryGenerator().genFilter(query.getFilter()))
+                    .setQuery(new ElasticSearchQueryGenerator(query.getCombiner()).genFilter(query.getFilters()))
                     .setSearchType(SearchType.DFS_QUERY_THEN_FETCH)
                     .setFrom(query.getFrom())
                     .setSize(query.getLimit());

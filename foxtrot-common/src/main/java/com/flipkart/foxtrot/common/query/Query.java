@@ -1,9 +1,8 @@
 package com.flipkart.foxtrot.common.query;
 
-import com.flipkart.foxtrot.common.query.root.CombinerFilter;
-
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
+import java.util.List;
 
 /**
  * User: Santanu Sinha (santanu.sinha@flipkart.com)
@@ -15,7 +14,10 @@ public class Query {
     private String table;
 
     @NotNull
-    private CombinerFilter filter;
+    private List<Filter> filters;
+
+    @NotNull
+    private FilterCombinerType combiner = FilterCombinerType.and;
 
     private ResultSort sort;
 
@@ -28,12 +30,12 @@ public class Query {
     public Query() {
     }
 
-    public CombinerFilter getFilter() {
-        return filter;
+    public List<Filter> getFilters() {
+        return filters;
     }
 
-    public void setFilter(CombinerFilter filter) {
-        this.filter = filter;
+    public void setFilters(List<Filter> filters) {
+        this.filters = filters;
     }
 
     public ResultSort getSort() {
@@ -66,6 +68,14 @@ public class Query {
 
     public void setTable(String table) {
         this.table = table;
+    }
+
+    public FilterCombinerType getCombiner() {
+        return combiner;
+    }
+
+    public void setCombiner(FilterCombinerType combiner) {
+        this.combiner = combiner;
     }
 
     public static class Sort {

@@ -20,8 +20,4 @@ public interface FilterOperator {
     //String
     public static final String contains = "contains";
 
-    //Combiner
-    public static final String and = "and";
-    public static final String or = "or";
-
 }

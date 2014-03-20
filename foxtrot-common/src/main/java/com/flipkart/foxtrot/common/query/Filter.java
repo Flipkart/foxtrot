@@ -6,8 +6,6 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.flipkart.foxtrot.common.query.general.EqualsFilter;
 import com.flipkart.foxtrot.common.query.general.NotEqualsFilter;
 import com.flipkart.foxtrot.common.query.numeric.*;
-import com.flipkart.foxtrot.common.query.root.AndCombinerFilter;
-import com.flipkart.foxtrot.common.query.root.OrCombinerFilter;
 import com.flipkart.foxtrot.common.query.string.ContainsFilter;
 
 import javax.validation.constraints.NotNull;
@@ -33,9 +31,6 @@ import javax.validation.constraints.NotNull;
         //String
         @JsonSubTypes.Type(value = ContainsFilter.class, name=FilterOperator.contains),
 
-        //Combiner
-        @JsonSubTypes.Type(value = AndCombinerFilter.class, name=FilterOperator.and),
-        @JsonSubTypes.Type(value = OrCombinerFilter.class, name=FilterOperator.or),
 })
 
 public abstract class Filter {

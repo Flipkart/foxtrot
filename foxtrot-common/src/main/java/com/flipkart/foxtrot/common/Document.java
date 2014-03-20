@@ -2,6 +2,9 @@ package com.flipkart.foxtrot.common;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.JsonNode;
+import org.hibernate.validator.constraints.NotEmpty;
+
+import javax.validation.constraints.NotNull;
 
 /**
  * User: Santanu Sinha (santanu.sinha@flipkart.com)
@@ -9,9 +12,15 @@ import com.fasterxml.jackson.databind.JsonNode;
  * Time: 9:17 PM
  */
 public class Document {
+    @NotNull
+    @NotEmpty
     @JsonProperty
     private String id;
 
+    @JsonProperty
+    private long timestamp;
+
+    @NotNull
     @JsonProperty
     private JsonNode data;
 
@@ -21,6 +30,7 @@ public class Document {
     }
 
     public Document() {
+        this.timestamp = System.currentTimeMillis();
     }
 
     public String getId() {
@@ -37,5 +47,13 @@ public class Document {
 
     public void setData(JsonNode data) {
         this.data = data;
+    }
+
+    public long getTimestamp() {
+        return timestamp;
+    }
+
+    public void setTimestamp(long timestamp) {
+        this.timestamp = timestamp;
     }
 }

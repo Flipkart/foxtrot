@@ -93,7 +93,7 @@ public class HbaseDataStore implements DataStore {
                 if(!getResult.isEmpty()) {
                     byte[] data = getResult.getValue(COLUMN_FAMILY, DATA_FIELD_NAME);
                     if(null != data) {
-                        results.add(new Document(Bytes.toString(getResult.getRow()), mapper.readTree(data)));
+                        results.add(new Document(Bytes.toString(getResult.getRow()).split(":")[0], mapper.readTree(data)));
                         found = true;
                     }
                 }

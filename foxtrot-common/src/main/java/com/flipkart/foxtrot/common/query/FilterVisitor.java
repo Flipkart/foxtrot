@@ -1,11 +1,9 @@
 package com.flipkart.foxtrot.common.query;
 
 import com.flipkart.foxtrot.common.query.general.EqualsFilter;
+import com.flipkart.foxtrot.common.query.general.NotEqualsFilter;
 import com.flipkart.foxtrot.common.query.numeric.*;
 import com.flipkart.foxtrot.common.query.string.ContainsFilter;
-import com.flipkart.foxtrot.common.query.general.NotEqualsFilter;
-import com.flipkart.foxtrot.common.query.root.AndCombinerFilter;
-import com.flipkart.foxtrot.common.query.root.OrCombinerFilter;
 
 /**
  * User: Santanu Sinha (santanu.sinha@flipkart.com)
@@ -21,10 +19,6 @@ public abstract class FilterVisitor {
     public abstract void visit(NotEqualsFilter notEqualsFilter) throws Exception;
 
     public abstract void visit(ContainsFilter stringContainsFilterElement) throws Exception;
-
-    public abstract void visit(AndCombinerFilter andCombinerFilter) throws Exception;
-
-    public abstract void visit(OrCombinerFilter orCombinerFilter) throws Exception;
 
     public abstract void visit(GreaterThanFilter greaterThanFilter) throws Exception;
 
