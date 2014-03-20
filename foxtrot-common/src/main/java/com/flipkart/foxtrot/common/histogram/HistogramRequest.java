@@ -23,6 +23,11 @@ public class HistogramRequest {
     private long from;
     @Min(0)
     private long to;
+
+    @NotNull
+    @NotEmpty
+    private String field;
+
     private Period period;
 
     public HistogramRequest() {
@@ -30,6 +35,7 @@ public class HistogramRequest {
         long timestamp = System.currentTimeMillis();
         this.from = timestamp - 86400000;
         this.to = timestamp;
+        this.field = "timestamp";
         this.period = Period.minutes;
     }
 
@@ -71,5 +77,13 @@ public class HistogramRequest {
 
     public void setTable(String table) {
         this.table = table;
+    }
+
+    public String getField() {
+        return field;
+    }
+
+    public void setField(String field) {
+        this.field = field;
     }
 }
