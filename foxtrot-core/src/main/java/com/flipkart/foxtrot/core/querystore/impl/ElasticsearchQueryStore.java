@@ -51,12 +51,13 @@ public class ElasticsearchQueryStore implements QueryStore {
     public void save(String table, Document document) throws QueryStoreException {
         try {
             dataStore.save(table, document);
+            long timestamp = document.getTimestamp();
             IndexResponse response = connection.getClient()
                                                 .prepareIndex()
-                                                .setIndex(getCurrentIndex(table))
+                                                .setIndex(getCurrentIndex(table, timestamp))
                                                 .setType(TYPE_NAME)
                                                 .setId(document.getId())
-                                                .setTimestamp(Long.toString(document.getTimestamp()))
+                                                .setTimestamp(Long.toString(timestamp))
                                                 .setSource(mapper.writeValueAsBytes(document.getData()))
                                                 .setRefresh(true)
                                                 .setConsistencyLevel(WriteConsistencyLevel.QUORUM)
@@ -76,13 +77,14 @@ public class ElasticsearchQueryStore implements QueryStore {
         try {
             dataStore.save(table, documents);
             BulkRequestBuilder bulkRequestBuilder = connection.getClient().prepareBulk();
-            final String index = getCurrentIndex(table);
             for(Document document: documents) {
+                long timestamp = document.getTimestamp();
+                final String index = getCurrentIndex(table, timestamp);
                 IndexRequest indexRequest = new IndexRequest()
                                                     .index(index)
                                                     .type(TYPE_NAME)
                                                     .id(document.getId())
-                                                    .timestamp(Long.toString(document.getTimestamp()))
+                                                    .timestamp(Long.toString(timestamp))
                                                     .source(mapper.writeValueAsBytes(document.getData()));
                 bulkRequestBuilder.add(indexRequest);
             }
@@ -211,8 +213,9 @@ public class ElasticsearchQueryStore implements QueryStore {
         return new String[]{String.format("%s-%s-*", TABLENAME_PREFIX, table)};
     }
 
-    String getCurrentIndex(final String table) {
-        String postfix = new SimpleDateFormat("dd-M-yyyy").format(new Date());
+    String getCurrentIndex(final String table, long timestamp) {
+        //TODO::THROW IF TIMESTAMP IS BEYOND TABLE META.TTL
+        String postfix = new SimpleDateFormat("dd-M-yyyy").format(new Date(timestamp));
         return String.format("%s-%s-%s", TABLENAME_PREFIX, table, postfix);
     }
 }
