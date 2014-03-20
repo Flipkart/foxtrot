@@ -10,6 +10,7 @@ import com.flipkart.foxtrot.core.querystore.QueryStore;
 import com.flipkart.foxtrot.core.querystore.impl.*;
 import com.flipkart.foxtrot.server.config.FoxtrotServerConfiguration;
 import com.flipkart.foxtrot.server.resources.DocumentResource;
+import com.flipkart.foxtrot.server.resources.HistogramResource;
 import com.flipkart.foxtrot.server.resources.QueryResource;
 import com.yammer.dropwizard.Service;
 import com.yammer.dropwizard.config.Bootstrap;
@@ -50,5 +51,6 @@ public class FoxtrotServer extends Service<FoxtrotServerConfiguration> {
 
         environment.addResource(new DocumentResource(queryStore));
         environment.addResource(new QueryResource(queryStore));
+        environment.addResource(new HistogramResource(queryStore));
     }
 }
