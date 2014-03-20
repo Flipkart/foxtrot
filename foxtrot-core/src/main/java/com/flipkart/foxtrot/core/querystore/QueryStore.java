@@ -2,6 +2,8 @@ package com.flipkart.foxtrot.core.querystore;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.flipkart.foxtrot.common.Document;
+import com.flipkart.foxtrot.common.histogram.HistogramRequest;
+import com.flipkart.foxtrot.common.histogram.HistogramResponse;
 import com.flipkart.foxtrot.common.query.Query;
 
 import java.util.List;
@@ -19,4 +21,5 @@ public interface QueryStore {
     public List<Document> runQuery(final Query query) throws QueryStoreException;
     public String runQueryAsync(Query query) throws QueryStoreException;
     public JsonNode getDataForQuery(String queryId) throws QueryStoreException;
+    public HistogramResponse histogram(final HistogramRequest histogramRequest) throws QueryStoreException;
 }

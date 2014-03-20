@@ -93,7 +93,7 @@ public class ElasticSearchQueryGenerator extends FilterVisitor {
         queryBuilder.should(query);
     }
 
-    public QueryBuilder genFilter(List<Filter> filters) throws Exception {
+    public BoolQueryBuilder genFilter(List<Filter> filters) throws Exception {
         for(Filter filter : filters) {
             filter.accept(this);
         }

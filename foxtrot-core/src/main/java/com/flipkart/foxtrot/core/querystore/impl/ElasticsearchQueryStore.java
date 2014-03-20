@@ -4,6 +4,9 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.flipkart.foxtrot.common.Document;
+import com.flipkart.foxtrot.common.histogram.HistogramRequest;
+import com.flipkart.foxtrot.common.histogram.HistogramResponse;
+import com.flipkart.foxtrot.common.query.FilterCombinerType;
 import com.flipkart.foxtrot.common.query.Query;
 import com.flipkart.foxtrot.common.query.ResultSort;
 import com.flipkart.foxtrot.core.datastore.DataStore;
@@ -19,7 +22,10 @@ import org.elasticsearch.action.index.IndexResponse;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.search.SearchType;
+import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
+import org.elasticsearch.search.aggregations.AggregationBuilders;
+import org.elasticsearch.search.aggregations.bucket.histogram.DateHistogram;
 import org.elasticsearch.search.sort.SortOrder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -175,6 +181,56 @@ public class ElasticsearchQueryStore implements QueryStore {
     @Override
     public JsonNode getDataForQuery(String queryId) throws QueryStoreException {
         return null;
+    }
+
+    @Override
+    public HistogramResponse histogram(final HistogramRequest histogramRequest) throws QueryStoreException {
+        final String AGG_NAME = "histogram";
+        try {
+            /*if(!tableManager.exists(query.getTable())) {
+                throw new QueryStoreException(QueryStoreException.ErrorCode.NO_SUCH_TABLE,
+                        "There is no table called: " + query.getTable());
+            }*/
+            DateHistogram.Interval interval = null;
+            switch (histogramRequest.getPeriod()) {
+                case minutes:
+                    interval = DateHistogram.Interval.MINUTE;
+                    break;
+                case hours:
+                    interval = DateHistogram.Interval.HOUR;
+                    break;
+                case days:
+                    interval = DateHistogram.Interval.DAY;
+                    break;
+            }
+            SearchResponse response = connection.getClient().prepareSearch(getIndices(histogramRequest.getTable()))
+                    .setTypes(TYPE_NAME)
+                    .setQuery(new ElasticSearchQueryGenerator(FilterCombinerType.and)
+                            .genFilter(histogramRequest.getFilters())
+                            .must(QueryBuilders.rangeQuery("timestamp")
+                                    .from(histogramRequest.getFrom())
+                                    .to(histogramRequest.getTo()))
+                    )
+                    .setSize(0)
+                    .setSearchType(SearchType.DFS_QUERY_THEN_FETCH)
+                    .addAggregation(AggregationBuilders.dateHistogram(AGG_NAME)
+                            .field("timestamp")
+                            .interval(interval))
+                    .execute()
+                    .actionGet();
+            DateHistogram dateHistogram = response.getAggregations().get(AGG_NAME);
+            Collection<? extends DateHistogram.Bucket> buckets = dateHistogram.getBuckets();
+            List<HistogramResponse.Count> counts = new ArrayList<HistogramResponse.Count>(buckets.size());
+            for(DateHistogram.Bucket bucket : buckets) {
+                HistogramResponse.Count count = new HistogramResponse.Count(
+                                                        Long.parseLong(bucket.getKey()), bucket.getDocCount());
+                counts.add(count);
+            }
+            return new HistogramResponse(counts);
+        } catch (Exception e) {
+            throw new QueryStoreException(QueryStoreException.ErrorCode.HISTOGRAM_GENERATION_ERROR,
+                    "Malformed query");
+        }
     }
 
     //@Override

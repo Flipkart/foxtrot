@@ -22,6 +22,7 @@ public class QueryStoreException extends Exception {
         DOCUMENT_GET_ERROR,
         QUERY_EXECUTION_ERROR,
         QUERY_MALFORMED_QUERY_ERROR,
+        HISTOGRAM_GENERATION_ERROR,
     }
 
     private ErrorCode errorCode;
