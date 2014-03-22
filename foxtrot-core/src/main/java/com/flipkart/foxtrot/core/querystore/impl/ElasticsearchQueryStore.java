@@ -4,6 +4,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.flipkart.foxtrot.common.Document;
+import com.flipkart.foxtrot.common.group.GroupRequest;
+import com.flipkart.foxtrot.common.group.GroupResponse;
 import com.flipkart.foxtrot.common.histogram.HistogramRequest;
 import com.flipkart.foxtrot.common.histogram.HistogramResponse;
 import com.flipkart.foxtrot.common.query.FilterCombinerType;
@@ -25,8 +27,13 @@ import org.elasticsearch.action.search.SearchType;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
+import org.elasticsearch.search.aggregations.Aggregations;
 import org.elasticsearch.search.aggregations.bucket.histogram.DateHistogram;
+import org.elasticsearch.search.aggregations.bucket.terms.Terms;
+import org.elasticsearch.search.aggregations.bucket.terms.TermsBuilder;
 import org.elasticsearch.search.sort.SortOrder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -38,7 +45,7 @@ import java.util.*;
  * Time: 12:27 AM
  */
 public class ElasticsearchQueryStore implements QueryStore {
-    //private static final Logger logger = LoggerFactory.getLogger(ElasticsearchQueryStore.class.getSimpleName());
+    private static final Logger logger = LoggerFactory.getLogger(ElasticsearchQueryStore.class.getSimpleName());
     private static final String TYPE_NAME = "document";
     private static final String TABLENAME_PREFIX = "foxtrot";
 
@@ -155,10 +162,10 @@ public class ElasticsearchQueryStore implements QueryStore {
             return dataStore.get(query.getTable(), ids);
         } catch (Exception e) {
             if(null != search) {
-                //logger.error("Error running generated query: " + search);
+                logger.error("Error running generated query: " + search);
             }
             else {
-                //logger.error("Query generation error: ", e);
+                logger.error("Query generation error: ", e);
             }
             try {
                 throw new QueryStoreException(QueryStoreException.ErrorCode.QUERY_EXECUTION_ERROR,
@@ -230,6 +237,54 @@ public class ElasticsearchQueryStore implements QueryStore {
             throw new QueryStoreException(QueryStoreException.ErrorCode.HISTOGRAM_GENERATION_ERROR,
                     "Malformed query", e);
         }
+    }
+
+    @Override
+    public GroupResponse group(GroupRequest groupRequest) throws QueryStoreException {
+        try {
+            SearchRequestBuilder query = connection.getClient().prepareSearch(getIndices(groupRequest.getTable()));
+            TermsBuilder rootBuilder = null;
+            TermsBuilder termsBuilder = null;
+            for(String field : groupRequest.getNesting()) {
+                if(null == termsBuilder) {
+                    termsBuilder = AggregationBuilders.terms(field).field(field);
+                }
+                else {
+                    termsBuilder.subAggregation(AggregationBuilders.terms(field).field(field));
+                }
+                if(null == rootBuilder) {
+                    rootBuilder = termsBuilder;
+                }
+            }
+            query.addAggregation(rootBuilder);
+            SearchResponse response = query.execute().actionGet();
+            List<String> fields = groupRequest.getNesting();
+            Aggregations aggregations = response.getAggregations();
+            return new GroupResponse(getMap(fields, aggregations));
+        } catch (Exception e) {
+            logger.error("Error running grouping: ", e);
+            throw new QueryStoreException(QueryStoreException.ErrorCode.QUERY_EXECUTION_ERROR,
+                            "Error running group query.", e);
+        }
+    }
+
+    private Map<String, Object> getMap(List<String> fields, Aggregations aggregations) {
+        final String field = fields.get(0);
+        final List<String> remainingFields = fields.subList(1, fields.size() - 1);
+        Terms terms = aggregations.get(field);
+        Map<String, Object> levelCount = new HashMap<String, Object>();
+        if(remainingFields.isEmpty()) { //TERMINAL AGG
+            for(Terms.Bucket bucket : terms.getBuckets()) {
+                levelCount.put(bucket.getKey(), bucket.getDocCount());
+            }
+        }
+        else {
+            for(Terms.Bucket bucket : terms.getBuckets()) {
+                levelCount.put(bucket.getKey(), getMap(remainingFields, bucket.getAggregations()));
+            }
+        }
+        return levelCount;
+
     }
 
     //@Override
