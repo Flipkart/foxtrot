@@ -5,6 +5,7 @@ import com.flipkart.foxtrot.core.querystore.QueryStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.validation.Valid;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -31,7 +32,7 @@ public class GroupResource {
     }
 
     @POST
-    public Response runQuery(final GroupRequest query) {
+    public Response runQuery(@Valid final GroupRequest query) {
         try {
             return Response.ok(queryStore.group(query)).build();
         } catch (Exception e) {

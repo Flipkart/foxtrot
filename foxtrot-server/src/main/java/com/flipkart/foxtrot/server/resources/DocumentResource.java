@@ -5,6 +5,7 @@ import com.flipkart.foxtrot.core.querystore.QueryStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.validation.Valid;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -30,7 +31,7 @@ public class DocumentResource {
     }
 
     @POST
-    public Response saveDocument(@PathParam("table")final String table, final Document document) {
+    public Response saveDocument(@PathParam("table")final String table, @Valid final Document document) {
         try {
             queryStore.save(table, document);
         } catch (Exception e) {
@@ -44,7 +45,7 @@ public class DocumentResource {
 
     @POST
     @Path("/bulk")
-    public Response saveDocuments(@PathParam("table")final String table, final List<Document> document) {
+    public Response saveDocuments(@PathParam("table")final String table, @Valid final List<Document> document) {
         try {
             queryStore.save(table, document);
         } catch (Exception e) {

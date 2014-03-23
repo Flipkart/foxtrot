@@ -5,6 +5,7 @@ import com.flipkart.foxtrot.core.querystore.QueryStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.validation.Valid;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -31,7 +32,7 @@ public class HistogramResource {
     }
 
     @POST
-    public Response runHistogram(final HistogramRequest histogramRequest) {
+    public Response runHistogram(@Valid final HistogramRequest histogramRequest) {
         try {
             return Response.ok(Collections.singletonMap("results", queryStore.histogram(histogramRequest))).build();
         } catch (Exception e) {
