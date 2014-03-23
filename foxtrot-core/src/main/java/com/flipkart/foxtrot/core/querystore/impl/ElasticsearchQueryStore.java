@@ -270,17 +270,15 @@ public class ElasticsearchQueryStore implements QueryStore {
 
     private Map<String, Object> getMap(List<String> fields, Aggregations aggregations) {
         final String field = fields.get(0);
-        final List<String> remainingFields = (fields.size() > 1) ? fields.subList(1, fields.size() - 1)
+        final List<String> remainingFields = (fields.size() > 1) ? fields.subList(1, fields.size())
                                                                 : new ArrayList<String>();
         Terms terms = aggregations.get(field);
         Map<String, Object> levelCount = new HashMap<String, Object>();
-        if(remainingFields.isEmpty()) { //TERMINAL AGG
-            for(Terms.Bucket bucket : terms.getBuckets()) {
+        for(Terms.Bucket bucket : terms.getBuckets()) {
+            if(fields.size() == 1) { //TERMINAL AGG
                 levelCount.put(bucket.getKey(), bucket.getDocCount());
             }
-        }
-        else {
-            for(Terms.Bucket bucket : terms.getBuckets()) {
+            else {
                 levelCount.put(bucket.getKey(), getMap(remainingFields, bucket.getAggregations()));
             }
         }
