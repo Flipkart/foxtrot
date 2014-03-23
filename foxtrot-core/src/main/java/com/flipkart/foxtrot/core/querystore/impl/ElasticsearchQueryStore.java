@@ -270,7 +270,8 @@ public class ElasticsearchQueryStore implements QueryStore {
 
     private Map<String, Object> getMap(List<String> fields, Aggregations aggregations) {
         final String field = fields.get(0);
-        final List<String> remainingFields = fields.subList(1, fields.size() - 1);
+        final List<String> remainingFields = (fields.size() > 1) ? fields.subList(1, fields.size() - 1)
+                                                                : new ArrayList<String>();
         Terms terms = aggregations.get(field);
         Map<String, Object> levelCount = new HashMap<String, Object>();
         if(remainingFields.isEmpty()) { //TERMINAL AGG
