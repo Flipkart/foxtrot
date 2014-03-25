@@ -5,12 +5,15 @@ import com.flipkart.foxtrot.core.common.Action;
 import com.flipkart.foxtrot.core.datastore.DataStore;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConnection;
 
+import java.io.Serializable;
+
 /**
  * User: Santanu Sinha (santanu.sinha@flipkart.com)
  * Date: 24/03/14
  * Time: 6:17 PM
  */
-public abstract class ElasticsearchAction<RequestType extends CachableResponseGenerator, ReturnType>
+public abstract class ElasticsearchAction<RequestType extends CachableResponseGenerator,
+                                            ReturnType extends Serializable>
                                                                 extends Action<RequestType, ReturnType> {
     private DataStore dataStore;
     private ElasticsearchConnection connection;

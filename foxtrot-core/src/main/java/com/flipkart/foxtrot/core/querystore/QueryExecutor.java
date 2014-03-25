@@ -3,6 +3,7 @@ package com.flipkart.foxtrot.core.querystore;
 import com.flipkart.foxtrot.common.query.CachableResponseGenerator;
 import com.flipkart.foxtrot.core.common.Action;
 
+import java.io.Serializable;
 import java.util.concurrent.ExecutorService;
 
 /**
@@ -17,7 +18,8 @@ public class QueryExecutor {
         this.executorService = executorService;
     }
 
-    public <P extends CachableResponseGenerator,T> T execute(Action<P,T> action) throws QueryStoreException {
+    public <P extends CachableResponseGenerator,T extends Serializable> T execute(
+                                            Action<P,T> action) throws QueryStoreException {
         return action.execute();
     }
 

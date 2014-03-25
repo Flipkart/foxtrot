@@ -3,6 +3,7 @@ package com.flipkart.foxtrot.core.common;
 import com.flipkart.foxtrot.common.query.CachableResponseGenerator;
 import com.flipkart.foxtrot.core.querystore.QueryStoreException;
 
+import java.io.Serializable;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 
@@ -11,17 +12,17 @@ import java.util.concurrent.ExecutorService;
  * Date: 24/03/14
  * Time: 12:23 AM
  */
-public abstract class Action<ParameterType extends CachableResponseGenerator, ReturnType> implements Callable<String> {
+public abstract class Action<ParameterType extends CachableResponseGenerator, ReturnType extends Serializable> implements Callable<String> {
     private ParameterType parameter;
     private Cache<ReturnType> cache;
 
     protected Action(ParameterType parameter) {
         this.parameter = parameter;
-        this.cache = CacheUtils.getCacheFor(getName());
+        this.cache = (isCachable())? CacheUtils.<ReturnType>getCacheFor(getName()) : null;
     }
 
     protected Action() {
-        this.cache = CacheUtils.getCacheFor(getName());
+        this.cache = (isCachable())? CacheUtils.<ReturnType>getCacheFor(getName()) : null;
     }
 
     public String cacheKey() {

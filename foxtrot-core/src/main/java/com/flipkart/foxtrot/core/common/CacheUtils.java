@@ -1,5 +1,6 @@
 package com.flipkart.foxtrot.core.common;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -9,23 +10,6 @@ import java.util.Map;
  * Time: 5:20 PM
  */
 public class CacheUtils {
-    private static final class LocalCache<T> implements Cache<T> {
-
-        @Override
-        public T put(String key, T data) {
-            return null;
-        }
-
-        @Override
-        public T get(String key) {
-            return null;
-        }
-
-        @Override
-        public boolean has(String key) {
-            return false;
-        }
-    }
 
     private static Map<String, Cache> cacheMap = new HashMap<String, Cache>();
 
@@ -36,14 +20,14 @@ public class CacheUtils {
     }
 
     @SuppressWarnings("unchecked")
-    private static<T> Cache<T> create() {
-        return cacheFactory.create();
+    private static<T extends Serializable> Cache<T> create(String name) {
+        return cacheFactory.create(name);
     }
 
     @SuppressWarnings("unchecked")
-    public static <T> Cache<T> getCacheFor(String name) {
+    public static <T extends Serializable> Cache<T> getCacheFor(String name) {
         if(!cacheMap.containsKey(name)) {
-            cacheMap.put(name, create());
+            cacheMap.put(name, create(name));
         }
         return cacheMap.get(name);
     }

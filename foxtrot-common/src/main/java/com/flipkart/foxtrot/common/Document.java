@@ -5,13 +5,14 @@ import com.fasterxml.jackson.databind.JsonNode;
 import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.validation.constraints.NotNull;
+import java.io.Serializable;
 
 /**
  * User: Santanu Sinha (santanu.sinha@flipkart.com)
  * Date: 12/03/14
  * Time: 9:17 PM
  */
-public class Document {
+public class Document implements Serializable {
     @NotNull
     @NotEmpty
     @JsonProperty

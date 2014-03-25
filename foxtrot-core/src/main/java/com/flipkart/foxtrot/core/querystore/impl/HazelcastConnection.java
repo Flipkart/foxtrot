@@ -1,5 +1,6 @@
 package com.flipkart.foxtrot.core.querystore.impl;
 
+import com.flipkart.foxtrot.core.common.CacheUtils;
 import com.hazelcast.config.Config;
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
@@ -35,6 +36,7 @@ public class HazelcastConnection implements Managed {
             hzConfig.getNetworkConfig().getJoin().getTcpIpConfig().setEnabled(true);
         }
         hazelcast = Hazelcast.newHazelcastInstance(hzConfig);
+        CacheUtils.setCacheFactory(new DistributedCacheFactory(this));
     }
 
     @Override
