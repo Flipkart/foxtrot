@@ -48,7 +48,7 @@ public class FoxtrotServer extends Service<FoxtrotServerConfiguration> {
         environment.manage(elasticsearchConnection);
 
         ClusterConfig clusterConfig = configuration.getCluster();
-        HazelcastConnection hazelcastConnection = new HazelcastConnection(clusterConfig);
+        HazelcastConnection hazelcastConnection = new HazelcastConnection(clusterConfig, objectMapper);
         environment.manage(hazelcastConnection);
 
 

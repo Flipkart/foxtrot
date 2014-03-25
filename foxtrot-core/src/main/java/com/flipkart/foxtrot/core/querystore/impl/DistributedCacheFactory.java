@@ -1,5 +1,6 @@
 package com.flipkart.foxtrot.core.querystore.impl;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.flipkart.foxtrot.core.common.Cache;
 import com.flipkart.foxtrot.core.common.CacheFactory;
 
@@ -12,13 +13,15 @@ import java.io.Serializable;
  */
 public class DistributedCacheFactory<T extends Serializable> implements CacheFactory<T> {
     private HazelcastConnection connection;
+    private ObjectMapper mapper;
 
-    public DistributedCacheFactory(HazelcastConnection connection) {
+    public DistributedCacheFactory(HazelcastConnection connection, ObjectMapper mapper) {
         this.connection = connection;
+        this.mapper = mapper;
     }
 
     @Override
     public Cache<T> create(String name) {
-        return new DistributedCache<T>(connection, name);
+        return new DistributedCache<T>(connection, name, mapper);
     }
 }

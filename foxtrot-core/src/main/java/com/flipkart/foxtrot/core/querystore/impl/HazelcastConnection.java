@@ -1,5 +1,6 @@
 package com.flipkart.foxtrot.core.querystore.impl;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.flipkart.foxtrot.core.common.CacheUtils;
 import com.hazelcast.config.Config;
 import com.hazelcast.core.Hazelcast;
@@ -17,9 +18,11 @@ public class HazelcastConnection implements Managed {
 
     private ClusterConfig clusterConfig;
     private HazelcastInstance hazelcast;
+    private ObjectMapper mapper;
 
-    public HazelcastConnection(ClusterConfig clusterConfig) {
+    public HazelcastConnection(ClusterConfig clusterConfig, ObjectMapper mapper) {
         this.clusterConfig = clusterConfig;
+        this.mapper = mapper;
     }
 
     @Override
@@ -36,7 +39,7 @@ public class HazelcastConnection implements Managed {
             hzConfig.getNetworkConfig().getJoin().getTcpIpConfig().setEnabled(true);
         }
         hazelcast = Hazelcast.newHazelcastInstance(hzConfig);
-        CacheUtils.setCacheFactory(new DistributedCacheFactory(this));
+        CacheUtils.setCacheFactory(new DistributedCacheFactory(this, mapper));
     }
 
     @Override
