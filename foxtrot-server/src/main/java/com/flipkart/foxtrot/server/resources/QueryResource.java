@@ -1,11 +1,12 @@
 package com.flipkart.foxtrot.server.resources;
 
 import com.flipkart.foxtrot.common.query.Query;
+import com.flipkart.foxtrot.core.common.Cache;
+import com.flipkart.foxtrot.core.common.CacheUtils;
 import com.flipkart.foxtrot.core.querystore.QueryStore;
 import com.flipkart.foxtrot.core.querystore.QueryStoreException;
+import com.flipkart.foxtrot.core.querystore.actions.FilterEventsAction;
 import com.flipkart.foxtrot.core.querystore.actions.QueryResponse;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.validation.Valid;
 import javax.ws.rs.*;
@@ -33,6 +34,33 @@ public class QueryResource {
         try {
             return queryStore.runQuery(query);
         } catch (QueryStoreException e) {
+            throw new WebApplicationException(Response.serverError()
+                    .entity(Collections.singletonMap("error", "Could not save document: " + e.getMessage()))
+                    .build());
+        }
+    }
+
+    @POST
+    @Path("/async")
+    public String runQueryAsync(@Valid final Query query) {
+        try {
+            return queryStore.runQueryAsync(query);
+        } catch (Exception e) {
+            throw new WebApplicationException(Response.serverError()
+                    .entity(Collections.singletonMap("error", "Could not save document: " + e.getMessage()))
+                    .build());
+        }
+    }
+
+    @GET
+    @Path("/{id}")
+    public QueryResponse getResponse(@PathParam("{id}") final String id) {
+        try {
+            Cache<QueryResponse> cache = CacheUtils.getCacheFor(FilterEventsAction.class.getCanonicalName());
+            if(cache.has(id))
+                return cache.get(id);
+            throw new WebApplicationException(Response.noContent().build());
+        } catch (Exception e) {
             throw new WebApplicationException(Response.serverError()
                     .entity(Collections.singletonMap("error", "Could not save document: " + e.getMessage()))
                     .build());

@@ -85,6 +85,6 @@ public class FilterEventsAction extends ElasticsearchAction<Query, QueryResponse
 
     @Override
     public String getName() {
-        return "filter-multi";
+        return this.getClass().getCanonicalName();
     }
 }

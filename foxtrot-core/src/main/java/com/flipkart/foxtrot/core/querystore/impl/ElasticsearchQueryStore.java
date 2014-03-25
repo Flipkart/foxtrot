@@ -135,55 +135,14 @@ public class ElasticsearchQueryStore implements QueryStore {
 
     @Override
     public QueryResponse runQuery(final Query query) throws QueryStoreException {
-/*        SearchRequestBuilder search = null;
-        try {
-            *//*if(!tableManager.exists(query.getTable())) {
-                throw new QueryStoreException(QueryStoreException.ErrorCode.NO_SUCH_TABLE,
-                        "There is no table called: " + query.getTable());
-            }*//*
-            search = connection.getClient().prepareSearch(ElasticsearchUtils.getIndices(query.getTable()))
-                    .setTypes(ElasticsearchUtils.TYPE_NAME)
-                    .setQuery(new ElasticSearchQueryGenerator(query.getCombiner()).genFilter(query.getFilters()))
-                    .setSearchType(SearchType.DFS_QUERY_THEN_FETCH)
-                    .setFrom(query.getFrom())
-                    .setSize(query.getLimit());
-            if(null != query.getSort()) {
-                search.addSort(query.getSort().getField(),
-                        ResultSort.Order.desc == query.getSort().getOrder() ? SortOrder.DESC : SortOrder.ASC);
-            }
-	        //logger.error("Running: " + search);
-            SearchResponse response = search.execute().actionGet();
-            Vector<String> ids = new Vector<String>();
-            for(SearchHit searchHit : response.getHits()) {
-                ids.add(searchHit.getId());
-            }
-            if(ids.isEmpty()) {
-                return Collections.emptyList();
-            }
-            return dataStore.get(query.getTable(), ids);
-        } catch (Exception e) {
-            if(null != search) {
-                logger.error("Error running generated query: " + search);
-            }
-            else {
-                logger.error("Query generation error: ", e);
-            }
-            try {
-                throw new QueryStoreException(QueryStoreException.ErrorCode.QUERY_EXECUTION_ERROR,
-                                "Error running query: " + mapper.writeValueAsString(query));
-            } catch (JsonProcessingException e1) {
-                throw new QueryStoreException(QueryStoreException.ErrorCode.QUERY_MALFORMED_QUERY_ERROR,
-                                "Malformed query");
-            }
-        }*/
         FilterEventsAction filterEventsAction = new FilterEventsAction(query, dataStore, connection);
         return queryExecutor.execute(filterEventsAction);
     }
 
     @Override
     public String runQueryAsync(Query query) throws QueryStoreException {
-        final String id = UUID.randomUUID().toString();
-        return null;
+        FilterEventsAction filterEventsAction = new FilterEventsAction(query, dataStore, connection);
+        return queryExecutor.executeAsync(filterEventsAction);
     }
 
     @Override
