@@ -59,11 +59,11 @@ public class QueryResource {
             Cache<QueryResponse> cache = CacheUtils.getCacheFor(FilterEventsAction.class.getCanonicalName());
             if(cache.has(id))
                 return cache.get(id);
-            throw new WebApplicationException(Response.noContent().build());
         } catch (Exception e) {
             throw new WebApplicationException(Response.serverError()
                     .entity(Collections.singletonMap("error", "Could not save document: " + e.getMessage()))
                     .build());
         }
+        throw new WebApplicationException(Response.noContent().build());
     }
 }
