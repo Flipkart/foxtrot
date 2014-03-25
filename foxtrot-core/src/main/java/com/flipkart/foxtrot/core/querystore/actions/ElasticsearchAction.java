@@ -18,10 +18,6 @@ public abstract class ElasticsearchAction<RequestType extends CachableResponseGe
     private DataStore dataStore;
     private ElasticsearchConnection connection;
 
-    protected ElasticsearchAction(RequestType parameter) {
-        super(parameter);
-    }
-
     protected ElasticsearchAction(RequestType parameter, DataStore dataStore, ElasticsearchConnection connection) {
         super(parameter);
         this.dataStore = dataStore;

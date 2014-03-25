@@ -30,7 +30,7 @@ public class FilterEventsAction extends ElasticsearchAction<Query, QueryResponse
 
 
     public FilterEventsAction(Query parameter, DataStore dataStore, ElasticsearchConnection connection) {
-        super(parameter);
+        super(parameter, dataStore, connection);
     }
 
     @Override
