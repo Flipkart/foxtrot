@@ -14,6 +14,7 @@ import java.util.concurrent.ExecutorService;
 public abstract class Action<ParameterType extends CachableResponseGenerator, ReturnType extends ActionResponse> implements Callable<String> {
     private ParameterType parameter;
     private Cache<ReturnType> cache;
+    private String cacheKey = null;
 
     protected Action(ParameterType parameter) {
         this.parameter = parameter;
@@ -25,7 +26,12 @@ public abstract class Action<ParameterType extends CachableResponseGenerator, Re
     }
 
     public String cacheKey() {
-        return parameter.getCachekey();
+        if(null == cacheKey) {
+            cacheKey = String.format("%s-%d", parameter.getCachekey(),
+                                            System.currentTimeMillis()/30000);
+            System.out.println("CK: " + cacheKey);
+        }
+        return cacheKey;
     }
 
     public String execute(ExecutorService executor) {
@@ -55,13 +61,13 @@ public abstract class Action<ParameterType extends CachableResponseGenerator, Re
 
     public ReturnType execute() throws QueryStoreException {
         if(isCachable()) {
-            if(cache.has(parameter.getCachekey())) {
-                return cache.get(parameter.getCachekey());
+            if(cache.has(cacheKey())) {
+                return cache.get(cacheKey());
             }
         }
         ReturnType result = execute(parameter);
         if(isCachable()) {
-            return cache.put(parameter.getCachekey(), result);
+            return cache.put(cacheKey(), result);
         }
         return result;
     }

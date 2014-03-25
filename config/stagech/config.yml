@@ -1,0 +1,33 @@
+http:
+  port: 17000
+  adminPort: 17000
+  #connectorType: nonblocking
+
+elasticsearch:
+  hosts:
+  - stage-hyperion-store1.digital.ch.flipkart.com
+  - stage-hyperion-store2.digital.ch.flipkart.com
+  - stage-hyperion-store3.digital.ch.flipkart.com
+  - stage-hyperion-store4.digital.ch.flipkart.com
+  cluster: foxtrot
+  index: test
+  type: test
+
+hbase:
+  secure : true
+  keytabFileName: /etc/fk-digital-hyperion-keys/stagech.keytab
+  coreSite: /etc/hadoop/conf/core-site.xml
+  hdfsSite: /etc/hadoop/conf/hdfs-site.xml
+  hbasePolicy: /etc/hbase/conf/hbase-policy.xml
+  hbaseSite: /etc/hbase/conf/hbase-site.xml
+  kerberosConfigFile: /etc/krb5.conf
+  kinitPath: /usr/bin/kinit
+  authString: fk-hyperion@STAGE.CH.FLIPKART.COM
+  tableName: foxtrot
+
+cluster:
+  name: foxtrot
+  disableMulticast: true
+  members:
+    - 10.75.121.41:5701
+#    - 172.23.250.146:5702
