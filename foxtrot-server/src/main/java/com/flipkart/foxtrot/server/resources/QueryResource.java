@@ -2,14 +2,13 @@ package com.flipkart.foxtrot.server.resources;
 
 import com.flipkart.foxtrot.common.query.Query;
 import com.flipkart.foxtrot.core.querystore.QueryStore;
+import com.flipkart.foxtrot.core.querystore.QueryStoreException;
+import com.flipkart.foxtrot.core.querystore.actions.QueryResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.validation.Valid;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
+import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.Collections;
@@ -23,8 +22,6 @@ import java.util.Collections;
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
 public class QueryResource {
-    private static final Logger logger = LoggerFactory.getLogger(QueryResource.class.getSimpleName());
-
     private QueryStore queryStore;
 
     public QueryResource(QueryStore queryStore) {
@@ -32,14 +29,13 @@ public class QueryResource {
     }
 
     @POST
-    public Response runQuery(@Valid final Query query) {
+    public QueryResponse runQuery(@Valid final Query query) {
         try {
-            return Response.ok(Collections.singletonMap("results", queryStore.runQuery(query))).build();
-        } catch (Exception e) {
-            logger.error("Error saving document: ", e);
-            return Response.serverError()
+            return queryStore.runQuery(query);
+        } catch (QueryStoreException e) {
+            throw new WebApplicationException(Response.serverError()
                     .entity(Collections.singletonMap("error", "Could not save document: " + e.getMessage()))
-                    .build();
+                    .build());
         }
     }
 }

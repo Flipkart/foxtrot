@@ -58,4 +58,23 @@ public abstract class Filter {
 
     public abstract void accept(FilterVisitor visitor) throws Exception;
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Filter filter = (Filter) o;
+
+        if (!field.equals(filter.field)) return false;
+        if (!operator.equals(filter.operator)) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = operator.hashCode();
+        result = 31 * result + field.hashCode();
+        return result;
+    }
 }

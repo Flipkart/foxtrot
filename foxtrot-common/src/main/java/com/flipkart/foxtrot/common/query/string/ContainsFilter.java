@@ -31,4 +31,23 @@ public class ContainsFilter extends Filter {
     public void setExpression(String expression) {
         this.expression = expression;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
+
+        ContainsFilter that = (ContainsFilter) o;
+
+        return expression.equals(that.expression);
+
+    }
+
+    @Override
+    public int hashCode() {
+        int result = super.hashCode();
+        result = 31 * result + expression.hashCode();
+        return result;
+    }
 }

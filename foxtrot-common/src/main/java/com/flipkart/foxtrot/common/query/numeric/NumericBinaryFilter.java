@@ -24,4 +24,23 @@ public abstract class NumericBinaryFilter extends Filter {
     public void setValue(Number value) {
         this.value = value;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
+
+        NumericBinaryFilter that = (NumericBinaryFilter) o;
+
+        return value.equals(that.value);
+
+    }
+
+    @Override
+    public int hashCode() {
+        int result = super.hashCode();
+        result = 31 * result + value.hashCode();
+        return result;
+    }
 }

@@ -6,6 +6,7 @@ import com.flipkart.foxtrot.core.datastore.DataStore;
 import com.flipkart.foxtrot.core.datastore.impl.hbase.HbaseConfig;
 import com.flipkart.foxtrot.core.datastore.impl.hbase.HbaseDataStore;
 import com.flipkart.foxtrot.core.datastore.impl.hbase.HbaseTableConnection;
+import com.flipkart.foxtrot.core.querystore.QueryExecutor;
 import com.flipkart.foxtrot.core.querystore.QueryStore;
 import com.flipkart.foxtrot.core.querystore.impl.*;
 import com.flipkart.foxtrot.server.config.FoxtrotServerConfiguration;
@@ -16,6 +17,9 @@ import com.flipkart.foxtrot.server.resources.QueryResource;
 import com.yammer.dropwizard.Service;
 import com.yammer.dropwizard.config.Bootstrap;
 import com.yammer.dropwizard.config.Environment;
+
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.TimeUnit;
 
 /**
  * User: Santanu Sinha (santanu.sinha@flipkart.com)
@@ -33,6 +37,7 @@ public class FoxtrotServer extends Service<FoxtrotServerConfiguration> {
         environment.getObjectMapperFactory().setSerializationInclusion(JsonInclude.Include.NON_NULL);
         environment.getObjectMapperFactory().setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
         ObjectMapper objectMapper = environment.getObjectMapperFactory().build();
+        ExecutorService executorService = environment.managedExecutorService("query-executor-%s", 20,40, 30, TimeUnit.SECONDS);
 
         HbaseConfig hbaseConfig = configuration.getHbase();
         HbaseTableConnection hbaseTableConnection = new HbaseTableConnection(hbaseConfig);
@@ -48,8 +53,8 @@ public class FoxtrotServer extends Service<FoxtrotServerConfiguration> {
 
 
         DataStore dataStore = new HbaseDataStore(hbaseTableConnection, objectMapper);
-        QueryStore queryStore = new ElasticsearchQueryStore(elasticsearchConnection, dataStore, objectMapper);
-
+        QueryExecutor executor = new QueryExecutor(executorService);
+        QueryStore queryStore = new ElasticsearchQueryStore(elasticsearchConnection, dataStore, executor);
         environment.addResource(new DocumentResource(queryStore));
         environment.addResource(new QueryResource(queryStore));
         environment.addResource(new HistogramResource(queryStore));

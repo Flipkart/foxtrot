@@ -3,13 +3,14 @@ package com.flipkart.foxtrot.common.query;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import java.util.List;
+import java.util.UUID;
 
 /**
  * User: Santanu Sinha (santanu.sinha@flipkart.com)
  * Date: 13/03/14
  * Time: 6:38 PM
  */
-public class Query {
+public class Query implements CachableResponseGenerator {
     @NotNull
     private String table;
 
@@ -78,7 +79,15 @@ public class Query {
         this.combiner = combiner;
     }
 
-    public static class Sort {
+    @Override
+    public String getCachekey() {
+        long filterHashKey = 0L;
+        for(Filter filter : filters) {
+            filterHashKey += 31 * filter.hashCode();
+        }
+        final String key = String.format("%s-%d-%d-%d", table, from, limit, filterHashKey);
+
+        return UUID.nameUUIDFromBytes(key.getBytes()).toString();
     }
 
 }

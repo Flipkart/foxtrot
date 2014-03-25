@@ -1,6 +1,5 @@
 package com.flipkart.foxtrot.core.querystore.impl;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.flipkart.foxtrot.common.Document;
@@ -10,11 +9,13 @@ import com.flipkart.foxtrot.common.histogram.HistogramRequest;
 import com.flipkart.foxtrot.common.histogram.HistogramResponse;
 import com.flipkart.foxtrot.common.query.FilterCombinerType;
 import com.flipkart.foxtrot.common.query.Query;
-import com.flipkart.foxtrot.common.query.ResultSort;
 import com.flipkart.foxtrot.core.datastore.DataStore;
 import com.flipkart.foxtrot.core.datastore.DataStoreException;
+import com.flipkart.foxtrot.core.querystore.QueryExecutor;
 import com.flipkart.foxtrot.core.querystore.QueryStore;
 import com.flipkart.foxtrot.core.querystore.QueryStoreException;
+import com.flipkart.foxtrot.core.querystore.actions.FilterEventsAction;
+import com.flipkart.foxtrot.core.querystore.actions.QueryResponse;
 import com.flipkart.foxtrot.core.querystore.query.ElasticSearchQueryGenerator;
 import org.elasticsearch.action.WriteConsistencyLevel;
 import org.elasticsearch.action.bulk.BulkRequestBuilder;
@@ -25,13 +26,11 @@ import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.search.SearchType;
 import org.elasticsearch.index.query.QueryBuilders;
-import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.Aggregations;
 import org.elasticsearch.search.aggregations.bucket.histogram.DateHistogram;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.elasticsearch.search.aggregations.bucket.terms.TermsBuilder;
-import org.elasticsearch.search.sort.SortOrder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,17 +45,19 @@ import java.util.*;
  */
 public class ElasticsearchQueryStore implements QueryStore {
     private static final Logger logger = LoggerFactory.getLogger(ElasticsearchQueryStore.class.getSimpleName());
-    private static final String TYPE_NAME = "document";
-    private static final String TABLENAME_PREFIX = "foxtrot";
 
     private ElasticsearchConnection connection;
     private DataStore dataStore;
     private ObjectMapper mapper;
+    private QueryExecutor queryExecutor;
 
-    public ElasticsearchQueryStore(ElasticsearchConnection connection, DataStore dataStore, ObjectMapper mapper) {
+
+    public ElasticsearchQueryStore(ElasticsearchConnection connection,
+                                   DataStore dataStore, QueryExecutor queryExecutor) {
         this.connection = connection;
         this.dataStore = dataStore;
-        this.mapper = mapper;
+        this.mapper = ElasticsearchUtils.getMapper();
+        this.queryExecutor = queryExecutor;
     }
 
     @Override
@@ -66,8 +67,8 @@ public class ElasticsearchQueryStore implements QueryStore {
             long timestamp = document.getTimestamp();
             IndexResponse response = connection.getClient()
                                                 .prepareIndex()
-                                                .setIndex(getCurrentIndex(table, timestamp))
-                                                .setType(TYPE_NAME)
+                                                .setIndex(ElasticsearchUtils.getCurrentIndex(table, timestamp))
+                                                .setType(ElasticsearchUtils.TYPE_NAME)
                                                 .setId(document.getId())
                                                 .setTimestamp(Long.toString(timestamp))
                                                 .setSource(mapper.writeValueAsBytes(document.getData()))
@@ -91,10 +92,10 @@ public class ElasticsearchQueryStore implements QueryStore {
             BulkRequestBuilder bulkRequestBuilder = connection.getClient().prepareBulk();
             for(Document document: documents) {
                 long timestamp = document.getTimestamp();
-                final String index = getCurrentIndex(table, timestamp);
+                final String index = ElasticsearchUtils.getCurrentIndex(table, timestamp);
                 IndexRequest indexRequest = new IndexRequest()
                                                     .index(index)
-                                                    .type(TYPE_NAME)
+                                                    .type(ElasticsearchUtils.TYPE_NAME)
                                                     .id(document.getId())
                                                     .timestamp(Long.toString(timestamp))
                                                     .source(mapper.writeValueAsBytes(document.getData()));
@@ -133,15 +134,15 @@ public class ElasticsearchQueryStore implements QueryStore {
     }
 
     @Override
-    public List<Document> runQuery(final Query query) throws QueryStoreException {
-        SearchRequestBuilder search = null;
+    public QueryResponse runQuery(final Query query) throws QueryStoreException {
+/*        SearchRequestBuilder search = null;
         try {
-            /*if(!tableManager.exists(query.getTable())) {
+            *//*if(!tableManager.exists(query.getTable())) {
                 throw new QueryStoreException(QueryStoreException.ErrorCode.NO_SUCH_TABLE,
                         "There is no table called: " + query.getTable());
-            }*/
-            search = connection.getClient().prepareSearch(getIndices(query.getTable()))
-                    .setTypes(TYPE_NAME)
+            }*//*
+            search = connection.getClient().prepareSearch(ElasticsearchUtils.getIndices(query.getTable()))
+                    .setTypes(ElasticsearchUtils.TYPE_NAME)
                     .setQuery(new ElasticSearchQueryGenerator(query.getCombiner()).genFilter(query.getFilters()))
                     .setSearchType(SearchType.DFS_QUERY_THEN_FETCH)
                     .setFrom(query.getFrom())
@@ -174,8 +175,9 @@ public class ElasticsearchQueryStore implements QueryStore {
                 throw new QueryStoreException(QueryStoreException.ErrorCode.QUERY_MALFORMED_QUERY_ERROR,
                                 "Malformed query");
             }
-        }
-
+        }*/
+        FilterEventsAction filterEventsAction = new FilterEventsAction(query, dataStore, connection);
+        return queryExecutor.execute(filterEventsAction);
     }
 
     @Override
@@ -209,8 +211,8 @@ public class ElasticsearchQueryStore implements QueryStore {
                     interval = DateHistogram.Interval.DAY;
                     break;
             }
-            SearchResponse response = connection.getClient().prepareSearch(getIndices(histogramRequest.getTable()))
-                    .setTypes(TYPE_NAME)
+            SearchResponse response = connection.getClient().prepareSearch(ElasticsearchUtils.getIndices(histogramRequest.getTable()))
+                    .setTypes(ElasticsearchUtils.TYPE_NAME)
                     .setQuery(new ElasticSearchQueryGenerator(FilterCombinerType.and)
                             .genFilter(histogramRequest.getFilters())
                             .must(QueryBuilders.rangeQuery(histogramRequest.getField())
@@ -242,7 +244,7 @@ public class ElasticsearchQueryStore implements QueryStore {
     @Override
     public GroupResponse group(GroupRequest groupRequest) throws QueryStoreException {
         try {
-            SearchRequestBuilder query = connection.getClient().prepareSearch(getIndices(groupRequest.getTable()));
+            SearchRequestBuilder query = connection.getClient().prepareSearch(ElasticsearchUtils.getIndices(groupRequest.getTable()));
             TermsBuilder rootBuilder = null;
             TermsBuilder termsBuilder = null;
             for(String field : groupRequest.getNesting()) {
@@ -312,21 +314,7 @@ public class ElasticsearchQueryStore implements QueryStore {
     }
 */
 
-    String[] getIndices(final String table) {
-        /*long currentTime = new Date().getTime();
-        String names[] = new String[30]; //TODO::USE TABLE METADATA
-        for(int i = 0 ; i < 30; i++) {
-            String postfix = new SimpleDateFormat("dd-M-yyyy").format(new Date(currentTime));
-            names[i] = String.format("%s-%s-%s", TABLENAME_PREFIX, table, postfix);
-        }*/
-        return new String[]{String.format("%s-%s-*", TABLENAME_PREFIX, table)};
-    }
 
-    String getCurrentIndex(final String table, long timestamp) {
-        //TODO::THROW IF TIMESTAMP IS BEYOND TABLE META.TTL
-        String postfix = new SimpleDateFormat("dd-M-yyyy").format(new Date(timestamp));
-        return String.format("%s-%s-%s", TABLENAME_PREFIX, table, postfix);
-    }
 
     public static void main(String[] args) throws ParseException {
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-M-ddHH:m:s.S");

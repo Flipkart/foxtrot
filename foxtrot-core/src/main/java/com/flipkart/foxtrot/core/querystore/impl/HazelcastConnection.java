@@ -41,4 +41,12 @@ public class HazelcastConnection implements Managed {
     public void stop() throws Exception {
         hazelcast.shutdown();
     }
+
+    public ClusterConfig getClusterConfig() {
+        return clusterConfig;
+    }
+
+    public HazelcastInstance getHazelcast() {
+        return hazelcast;
+    }
 }

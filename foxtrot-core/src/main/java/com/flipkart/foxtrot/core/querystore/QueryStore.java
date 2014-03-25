@@ -7,6 +7,7 @@ import com.flipkart.foxtrot.common.group.GroupResponse;
 import com.flipkart.foxtrot.common.histogram.HistogramRequest;
 import com.flipkart.foxtrot.common.histogram.HistogramResponse;
 import com.flipkart.foxtrot.common.query.Query;
+import com.flipkart.foxtrot.core.querystore.actions.QueryResponse;
 
 import java.util.List;
 
@@ -17,10 +18,10 @@ import java.util.List;
  */
 public interface QueryStore {
     public void save(final String table, final Document document) throws QueryStoreException;
-    public void save(final String table, final List<Document> document) throws QueryStoreException;
+    public void save(final String table, final List<Document> documents) throws QueryStoreException;
     public Document get(final String table, final String id) throws QueryStoreException;
     public List<Document> get(final String table, final List<String> ids) throws QueryStoreException;
-    public List<Document> runQuery(final Query query) throws QueryStoreException;
+    public QueryResponse runQuery(final Query query) throws QueryStoreException;
     public String runQueryAsync(Query query) throws QueryStoreException;
     public JsonNode getDataForQuery(String queryId) throws QueryStoreException;
     public HistogramResponse histogram(final HistogramRequest histogramRequest) throws QueryStoreException;

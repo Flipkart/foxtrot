@@ -42,4 +42,25 @@ public class BetweenFilter extends Filter {
         visitor.visit(this);
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
+
+        BetweenFilter that = (BetweenFilter) o;
+
+        if (!from.equals(that.from)) return false;
+        if (!to.equals(that.to)) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = super.hashCode();
+        result = 31 * result + from.hashCode();
+        result = 31 * result + to.hashCode();
+        return result;
+    }
 }
