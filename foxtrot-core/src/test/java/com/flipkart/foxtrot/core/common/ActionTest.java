@@ -7,7 +7,6 @@ import com.google.common.collect.Maps;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.io.Serializable;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.Executors;
@@ -35,7 +34,7 @@ public class ActionTest {
         }
     }
 
-    private static class TestResponse implements Serializable {
+    private static class TestResponse implements ActionResponse {
         private String value;
 
         public TestResponse(String value) {

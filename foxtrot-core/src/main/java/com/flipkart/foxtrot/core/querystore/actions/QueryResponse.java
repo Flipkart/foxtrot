@@ -1,8 +1,8 @@
 package com.flipkart.foxtrot.core.querystore.actions;
 
 import com.flipkart.foxtrot.common.Document;
+import com.flipkart.foxtrot.core.common.ActionResponse;
 
-import java.io.Serializable;
 import java.util.List;
 
 /**
@@ -10,7 +10,7 @@ import java.util.List;
  * Date: 24/03/14
  * Time: 1:00 PM
  */
-public class QueryResponse implements Serializable {
+public class QueryResponse implements ActionResponse {
     private List<Document> documents;
 
     public QueryResponse() {

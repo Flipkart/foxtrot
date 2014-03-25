@@ -1,6 +1,5 @@
 package com.flipkart.foxtrot.core.common;
 
-import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -20,12 +19,12 @@ public class CacheUtils {
     }
 
     @SuppressWarnings("unchecked")
-    private static<T extends Serializable> Cache<T> create(String name) {
+    private static<T extends ActionResponse> Cache<T> create(String name) {
         return cacheFactory.create(name);
     }
 
     @SuppressWarnings("unchecked")
-    public static <T extends Serializable> Cache<T> getCacheFor(String name) {
+    public static <T extends ActionResponse> Cache<T> getCacheFor(String name) {
         if(!cacheMap.containsKey(name)) {
             cacheMap.put(name, create(name));
         }

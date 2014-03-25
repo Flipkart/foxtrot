@@ -1,8 +1,8 @@
 package com.flipkart.foxtrot.core.querystore.impl;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.flipkart.foxtrot.core.common.ActionResponse;
 import com.flipkart.foxtrot.core.common.Cache;
 import com.hazelcast.config.InMemoryFormat;
 import com.hazelcast.config.MapConfig;
@@ -11,14 +11,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.io.Serializable;
 
 /**
  * User: Santanu Sinha (santanu.sinha@flipkart.com)
  * Date: 25/03/14
  * Time: 7:43 PM
  */
-public class DistributedCache<T extends Serializable> implements Cache<T> {
+public class DistributedCache<T extends ActionResponse> implements Cache<T> {
     private static final Logger logger = LoggerFactory.getLogger(DistributedCache.class.getSimpleName());
     private IMap<String, String> distributedMap;
     private ObjectMapper mapper;
@@ -50,7 +49,7 @@ public class DistributedCache<T extends Serializable> implements Cache<T> {
         }
         String data = distributedMap.get(key);
         try {
-            return mapper.readValue(data, new TypeReference<T>() {});
+            return (T)mapper.readValue(data, ActionResponse.class);
         } catch (IOException e) {
             logger.error("Error deserializing: ", e);
         }

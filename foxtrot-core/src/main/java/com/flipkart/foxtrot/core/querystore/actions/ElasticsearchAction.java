@@ -2,10 +2,9 @@ package com.flipkart.foxtrot.core.querystore.actions;
 
 import com.flipkart.foxtrot.common.query.CachableResponseGenerator;
 import com.flipkart.foxtrot.core.common.Action;
+import com.flipkart.foxtrot.core.common.ActionResponse;
 import com.flipkart.foxtrot.core.datastore.DataStore;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConnection;
-
-import java.io.Serializable;
 
 /**
  * User: Santanu Sinha (santanu.sinha@flipkart.com)
@@ -13,7 +12,7 @@ import java.io.Serializable;
  * Time: 6:17 PM
  */
 public abstract class ElasticsearchAction<RequestType extends CachableResponseGenerator,
-                                            ReturnType extends Serializable>
+                                            ReturnType extends ActionResponse>
                                                                 extends Action<RequestType, ReturnType> {
     private DataStore dataStore;
     private ElasticsearchConnection connection;
