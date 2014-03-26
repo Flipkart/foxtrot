@@ -26,7 +26,7 @@ public class AnalyticsResource {
     }
 
     @POST
-    public<T extends ActionRequest> ActionResponse runSync(final T request) {
+    public ActionResponse runSync(final ActionRequest request) {
         try {
             return queryExecutor.execute(request);
         } catch (QueryStoreException e) {
