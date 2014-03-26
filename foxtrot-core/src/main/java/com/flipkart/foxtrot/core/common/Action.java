@@ -2,6 +2,8 @@ package com.flipkart.foxtrot.core.common;
 
 import com.flipkart.foxtrot.common.query.CachableResponseGenerator;
 import com.flipkart.foxtrot.core.querystore.QueryStoreException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
@@ -12,9 +14,19 @@ import java.util.concurrent.ExecutorService;
  * Time: 12:23 AM
  */
 public abstract class Action<ParameterType extends CachableResponseGenerator, ReturnType extends ActionResponse> implements Callable<String> {
+    private static final Logger logger = LoggerFactory.getLogger(Action.class.getSimpleName());
+
     private ParameterType parameter;
     private Cache<ReturnType> cache;
     private String cacheKey = null;
+
+    public static <T extends ActionResponse> T getResponse(AsyncDataToken dataToken) {
+        Cache<T> cache = CacheUtils.getCacheFor(dataToken.getAction());
+        if(cache.has(dataToken.getKey())) {
+            return cache.get(dataToken.getKey());
+        }
+        return null;
+    }
 
     protected Action(ParameterType parameter) {
         this.parameter = parameter;
@@ -34,15 +46,15 @@ public abstract class Action<ParameterType extends CachableResponseGenerator, Re
         return cacheKey;
     }
 
-    public String execute(ExecutorService executor) {
+    public AsyncDataToken execute(ExecutorService executor) {
         executor.submit(this);
-        return cacheKey();
+        return new AsyncDataToken(getName(),cacheKey());
     }
 
-    public String execute(ParameterType parameter, ExecutorService executor) {
+    public AsyncDataToken execute(ParameterType parameter, ExecutorService executor) {
         this.parameter = parameter;
         executor.submit(this);
-        return cacheKey();
+        return new AsyncDataToken(getName(),cacheKey());
     }
 
     public ReturnType get(String key) throws QueryStoreException {

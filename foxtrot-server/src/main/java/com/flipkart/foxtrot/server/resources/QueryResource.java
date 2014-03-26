@@ -1,11 +1,8 @@
 package com.flipkart.foxtrot.server.resources;
 
 import com.flipkart.foxtrot.common.query.Query;
-import com.flipkart.foxtrot.core.common.Cache;
-import com.flipkart.foxtrot.core.common.CacheUtils;
 import com.flipkart.foxtrot.core.querystore.QueryStore;
 import com.flipkart.foxtrot.core.querystore.QueryStoreException;
-import com.flipkart.foxtrot.core.querystore.actions.FilterEventsAction;
 import com.flipkart.foxtrot.core.querystore.actions.QueryResponse;
 
 import javax.validation.Valid;
@@ -52,18 +49,4 @@ public class QueryResource {
         }
     }
 
-    @GET
-    @Path("/{id}")
-    public QueryResponse getResponse(@PathParam("id") final String id) {
-        try {
-            Cache<QueryResponse> cache = CacheUtils.getCacheFor(FilterEventsAction.class.getCanonicalName());
-            if(cache.has(id))
-                return cache.get(id);
-        } catch (Exception e) {
-            throw new WebApplicationException(Response.serverError()
-                    .entity(Collections.singletonMap("error", "Could not save document: " + e.getMessage()))
-                    .build());
-        }
-        throw new WebApplicationException(Response.noContent().build());
-    }
 }

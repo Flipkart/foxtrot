@@ -43,6 +43,7 @@ public class DistributedCache<T extends ActionResponse> implements Cache<T> {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public T get(String key) {
         if(null == key) {
             return null; //Hazelcast map throws NPE if key is null
