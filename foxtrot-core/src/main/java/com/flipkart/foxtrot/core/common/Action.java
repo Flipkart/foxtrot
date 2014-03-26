@@ -2,8 +2,6 @@ package com.flipkart.foxtrot.core.common;
 
 import com.flipkart.foxtrot.common.query.CachableResponseGenerator;
 import com.flipkart.foxtrot.core.querystore.QueryStoreException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
@@ -14,7 +12,6 @@ import java.util.concurrent.ExecutorService;
  * Time: 12:23 AM
  */
 public abstract class Action<ParameterType extends CachableResponseGenerator, ReturnType extends ActionResponse> implements Callable<String> {
-    private static final Logger logger = LoggerFactory.getLogger(Action.class.getSimpleName());
 
     private ParameterType parameter;
     private Cache<ReturnType> cache;
@@ -41,7 +38,6 @@ public abstract class Action<ParameterType extends CachableResponseGenerator, Re
         if(null == cacheKey) {
             cacheKey = String.format("%s-%d", parameter.getCachekey(),
                                             System.currentTimeMillis()/30000);
-            System.out.println("CK: " + cacheKey);
         }
         return cacheKey;
     }
@@ -58,9 +54,7 @@ public abstract class Action<ParameterType extends CachableResponseGenerator, Re
     }
 
     public ReturnType get(String key) throws QueryStoreException {
-        if(cache.has(key)) {
-            return cache.get(key);
-        }
+        Action.getResponse(new AsyncDataToken(getName(), key));
         return null;
     }
 

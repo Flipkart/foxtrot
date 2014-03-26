@@ -126,18 +126,17 @@ public class ActionTest {
             //System.out.println(new ObjectMapper().writeValueAsString(response));
         }
         TestAction testAction = new TestAction(new TestRequest("Hello Async World"));
-        String key = queryExecutor.executeAsync(testAction);
-        while(null == testAction.get(key)) {
+        AsyncDataToken token = queryExecutor.executeAsync(testAction);
+        while(null == testAction.get(token.getKey())) {
             Thread.sleep(50);
             //System.out.println("Waiting for " + key);
         }
-        Assert.assertEquals("Hello Async World", testAction.get(key).getValue());
-        key = queryExecutor.executeAsync(testAction);
-        while(null == testAction.get(key)) {
+        Assert.assertEquals("Hello Async World", testAction.get(token.getKey()).getValue());
+        token = queryExecutor.executeAsync(testAction);
+        while(null == testAction.get(token.getKey())) {
             Thread.sleep(50);
-            System.out.println("Waiting for " + key);
         }
-        Assert.assertEquals("Hello Async World", testAction.get(key).getValue());
+        Assert.assertEquals("Hello Async World", testAction.get(token.getKey()).getValue());
     }
 
     @Test

@@ -1,6 +1,7 @@
 package com.flipkart.foxtrot.server.resources;
 
 import com.flipkart.foxtrot.common.query.Query;
+import com.flipkart.foxtrot.core.common.AsyncDataToken;
 import com.flipkart.foxtrot.core.querystore.QueryStore;
 import com.flipkart.foxtrot.core.querystore.QueryStoreException;
 import com.flipkart.foxtrot.core.querystore.actions.QueryResponse;
@@ -39,7 +40,7 @@ public class QueryResource {
 
     @POST
     @Path("/async")
-    public String runQueryAsync(@Valid final Query query) {
+    public AsyncDataToken runQueryAsync(@Valid final Query query) {
         try {
             return queryStore.runQueryAsync(query);
         } catch (Exception e) {

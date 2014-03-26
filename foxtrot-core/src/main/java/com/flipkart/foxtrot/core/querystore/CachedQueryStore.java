@@ -7,6 +7,7 @@ import com.flipkart.foxtrot.common.group.GroupResponse;
 import com.flipkart.foxtrot.common.histogram.HistogramRequest;
 import com.flipkart.foxtrot.common.histogram.HistogramResponse;
 import com.flipkart.foxtrot.common.query.Query;
+import com.flipkart.foxtrot.core.common.AsyncDataToken;
 import com.flipkart.foxtrot.core.querystore.actions.QueryResponse;
 import com.flipkart.foxtrot.core.querystore.impl.HazelcastConnection;
 import com.hazelcast.config.InMemoryFormat;
@@ -84,7 +85,7 @@ public class CachedQueryStore implements QueryStore {
     }
 
     @Override
-    public String runQueryAsync(Query query) throws QueryStoreException {
+    public AsyncDataToken runQueryAsync(Query query) throws QueryStoreException {
         return null;
     }
 

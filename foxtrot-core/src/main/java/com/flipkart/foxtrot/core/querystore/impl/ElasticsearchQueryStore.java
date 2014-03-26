@@ -9,6 +9,7 @@ import com.flipkart.foxtrot.common.histogram.HistogramRequest;
 import com.flipkart.foxtrot.common.histogram.HistogramResponse;
 import com.flipkart.foxtrot.common.query.FilterCombinerType;
 import com.flipkart.foxtrot.common.query.Query;
+import com.flipkart.foxtrot.core.common.AsyncDataToken;
 import com.flipkart.foxtrot.core.datastore.DataStore;
 import com.flipkart.foxtrot.core.datastore.DataStoreException;
 import com.flipkart.foxtrot.core.querystore.QueryExecutor;
@@ -140,7 +141,7 @@ public class ElasticsearchQueryStore implements QueryStore {
     }
 
     @Override
-    public String runQueryAsync(Query query) throws QueryStoreException {
+    public AsyncDataToken runQueryAsync(Query query) throws QueryStoreException {
         FilterEventsAction filterEventsAction = new FilterEventsAction(query, dataStore, connection);
         return queryExecutor.executeAsync(filterEventsAction);
     }
