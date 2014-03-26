@@ -3,6 +3,7 @@ package com.flipkart.foxtrot.core.querystore;
 import com.flipkart.foxtrot.common.query.CachableResponseGenerator;
 import com.flipkart.foxtrot.core.common.Action;
 import com.flipkart.foxtrot.core.common.ActionResponse;
+import com.flipkart.foxtrot.core.common.AsyncDataToken;
 
 import java.util.concurrent.ExecutorService;
 
@@ -23,7 +24,7 @@ public class QueryExecutor {
         return action.execute();
     }
 
-    public String executeAsync(Action action) {
+    public AsyncDataToken executeAsync(Action action) {
         return action.execute(executorService);
     }
 }
