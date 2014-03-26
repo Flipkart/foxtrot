@@ -54,7 +54,7 @@ public class QueryResource {
 
     @GET
     @Path("/{id}")
-    public QueryResponse getResponse(@PathParam("{id}") final String id) {
+    public QueryResponse getResponse(@PathParam("id") final String id) {
         try {
             Cache<QueryResponse> cache = CacheUtils.getCacheFor(FilterEventsAction.class.getCanonicalName());
             if(cache.has(id))
