@@ -9,14 +9,13 @@ import com.flipkart.foxtrot.common.histogram.HistogramRequest;
 import com.flipkart.foxtrot.common.histogram.HistogramResponse;
 import com.flipkart.foxtrot.common.query.FilterCombinerType;
 import com.flipkart.foxtrot.common.query.Query;
+import com.flipkart.foxtrot.core.common.ActionResponse;
 import com.flipkart.foxtrot.core.common.AsyncDataToken;
 import com.flipkart.foxtrot.core.datastore.DataStore;
 import com.flipkart.foxtrot.core.datastore.DataStoreException;
 import com.flipkart.foxtrot.core.querystore.QueryExecutor;
 import com.flipkart.foxtrot.core.querystore.QueryStore;
 import com.flipkart.foxtrot.core.querystore.QueryStoreException;
-import com.flipkart.foxtrot.core.querystore.actions.FilterEventsAction;
-import com.flipkart.foxtrot.core.querystore.actions.QueryResponse;
 import com.flipkart.foxtrot.core.querystore.query.ElasticSearchQueryGenerator;
 import org.elasticsearch.action.WriteConsistencyLevel;
 import org.elasticsearch.action.bulk.BulkRequestBuilder;
@@ -135,15 +134,13 @@ public class ElasticsearchQueryStore implements QueryStore {
     }
 
     @Override
-    public QueryResponse runQuery(final Query query) throws QueryStoreException {
-        FilterEventsAction filterEventsAction = new FilterEventsAction(query, dataStore, connection);
-        return queryExecutor.execute(filterEventsAction);
+    public ActionResponse runQuery(final Query query) throws QueryStoreException {
+        return queryExecutor.execute(query);
     }
 
     @Override
     public AsyncDataToken runQueryAsync(Query query) throws QueryStoreException {
-        FilterEventsAction filterEventsAction = new FilterEventsAction(query, dataStore, connection);
-        return queryExecutor.executeAsync(filterEventsAction);
+        return queryExecutor.executeAsync(query);
     }
 
     @Override

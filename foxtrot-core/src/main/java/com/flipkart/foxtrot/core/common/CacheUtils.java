@@ -18,16 +18,11 @@ public class CacheUtils {
         CacheUtils.cacheFactory = cacheFactory;
     }
 
-    @SuppressWarnings("unchecked")
-    private static<T extends ActionResponse> Cache<T> create(String name) {
-        return cacheFactory.create(name);
+    public static void create(String name) {
+        cacheMap.put(name,cacheFactory.create(name));
     }
 
-    @SuppressWarnings("unchecked")
-    public static <T extends ActionResponse> Cache<T> getCacheFor(String name) {
-        if(!cacheMap.containsKey(name)) {
-            cacheMap.put(name, create(name));
-        }
+    public static Cache getCacheFor(String name) {
         return cacheMap.get(name);
     }
 }

@@ -1,16 +1,17 @@
 package com.flipkart.foxtrot.common.query;
 
+import com.flipkart.foxtrot.common.ActionRequest;
+
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import java.util.List;
-import java.util.UUID;
 
 /**
  * User: Santanu Sinha (santanu.sinha@flipkart.com)
  * Date: 13/03/14
  * Time: 6:38 PM
  */
-public class Query implements CachableResponseGenerator {
+public class Query implements ActionRequest {
     @NotNull
     private String table;
 
@@ -77,17 +78,6 @@ public class Query implements CachableResponseGenerator {
 
     public void setCombiner(FilterCombinerType combiner) {
         this.combiner = combiner;
-    }
-
-    @Override
-    public String getCachekey() {
-        long filterHashKey = 0L;
-        for(Filter filter : filters) {
-            filterHashKey += 31 * filter.hashCode();
-        }
-        final String key = String.format("%s-%d-%d-%d", table, from, limit, filterHashKey);
-
-        return UUID.nameUUIDFromBytes(key.getBytes()).toString();
     }
 
 }

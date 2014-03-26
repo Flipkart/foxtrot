@@ -13,6 +13,13 @@
 
     <dependencies>
 
+        <!-- Reflections for scanning classpath to get analytics providers-->
+        <dependency>
+            <groupId>org.reflections</groupId>
+            <artifactId>reflections</artifactId>
+            <version>0.9.9-RC1</version>
+        </dependency>
+
         <!-- Internal -->
         <dependency>
             <groupId>foxtrot</groupId>

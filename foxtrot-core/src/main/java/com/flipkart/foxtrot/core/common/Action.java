@@ -1,8 +1,11 @@
 package com.flipkart.foxtrot.core.common;
 
-import com.flipkart.foxtrot.common.query.CachableResponseGenerator;
+import com.flipkart.foxtrot.common.ActionRequest;
+import com.flipkart.foxtrot.core.datastore.DataStore;
 import com.flipkart.foxtrot.core.querystore.QueryStoreException;
+import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConnection;
 
+import java.util.UUID;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 
@@ -11,51 +14,39 @@ import java.util.concurrent.ExecutorService;
  * Date: 24/03/14
  * Time: 12:23 AM
  */
-public abstract class Action<ParameterType extends CachableResponseGenerator, ReturnType extends ActionResponse> implements Callable<String> {
-
+public abstract class Action<ParameterType extends ActionRequest> implements Callable<String> {
     private ParameterType parameter;
-    private Cache<ReturnType> cache;
+    private DataStore dataStore;
+    private ElasticsearchConnection connection;
+    private String cacheToken;
+    private Cache cache;
     private String cacheKey = null;
 
-    public static <T extends ActionResponse> T getResponse(AsyncDataToken dataToken) {
-        Cache<T> cache = CacheUtils.getCacheFor(dataToken.getAction());
-        if(cache.has(dataToken.getKey())) {
-            return cache.get(dataToken.getKey());
-        }
-        return null;
-    }
-
-    protected Action(ParameterType parameter) {
+    protected Action(ParameterType parameter, DataStore dataStore, ElasticsearchConnection connection, String cacheToken) {
         this.parameter = parameter;
-        this.cache = (isCachable())? CacheUtils.<ReturnType>getCacheFor(getName()) : null;
-    }
-
-    protected Action() {
-        this.cache = (isCachable())? CacheUtils.<ReturnType>getCacheFor(getName()) : null;
+        this.cacheToken = cacheToken;
+        this.cache = CacheUtils.getCacheFor(this.cacheToken);
+        this.connection = connection;
+        this.dataStore = dataStore;
     }
 
     public String cacheKey() {
         if(null == cacheKey) {
-            cacheKey = String.format("%s-%d", parameter.getCachekey(),
-                                            System.currentTimeMillis()/30000);
+            final String childKey = String.format("%s-%d", getRequestCacheKey(), System.currentTimeMillis() / 30000);
+            cacheKey = UUID.nameUUIDFromBytes(childKey.getBytes()).toString();
         }
         return cacheKey;
     }
 
     public AsyncDataToken execute(ExecutorService executor) {
         executor.submit(this);
-        return new AsyncDataToken(getName(),cacheKey());
+        return new AsyncDataToken(cacheToken,cacheKey());
     }
 
     public AsyncDataToken execute(ParameterType parameter, ExecutorService executor) {
         this.parameter = parameter;
         executor.submit(this);
-        return new AsyncDataToken(getName(),cacheKey());
-    }
-
-    public ReturnType get(String key) throws QueryStoreException {
-        Action.getResponse(new AsyncDataToken(getName(), key));
-        return null;
+        return new AsyncDataToken(cacheToken,cacheKey());
     }
 
     @Override
@@ -65,21 +56,42 @@ public abstract class Action<ParameterType extends CachableResponseGenerator, Re
         return cacheKey;
     }
 
-    public ReturnType execute() throws QueryStoreException {
+    public ActionResponse execute() throws QueryStoreException {
         if(isCachable()) {
             if(cache.has(cacheKey())) {
                 return cache.get(cacheKey());
             }
         }
-        ReturnType result = execute(parameter);
+        ActionResponse result = execute(parameter);
         if(isCachable()) {
             return cache.put(cacheKey(), result);
         }
         return result;
     }
 
-    abstract public boolean isCachable();
-    abstract public ReturnType execute(ParameterType parameter) throws QueryStoreException;
+    protected ParameterType getParameter() {
+        return parameter;
+    }
 
-    abstract public String getName();
+    public final boolean isCachable() {
+        return cache != null;
+    }
+    abstract protected String getRequestCacheKey();
+    abstract public ActionResponse execute(ParameterType parameter) throws QueryStoreException;
+
+    public DataStore getDataStore() {
+        return dataStore;
+    }
+
+    public void setDataStore(DataStore dataStore) {
+        this.dataStore = dataStore;
+    }
+
+    public ElasticsearchConnection getConnection() {
+        return connection;
+    }
+
+    public void setConnection(ElasticsearchConnection connection) {
+        this.connection = connection;
+    }
 }

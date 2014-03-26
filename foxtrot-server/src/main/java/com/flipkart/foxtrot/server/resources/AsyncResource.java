@@ -1,8 +1,8 @@
 package com.flipkart.foxtrot.server.resources;
 
-import com.flipkart.foxtrot.core.common.Action;
 import com.flipkart.foxtrot.core.common.ActionResponse;
 import com.flipkart.foxtrot.core.common.AsyncDataToken;
+import com.flipkart.foxtrot.core.common.CacheUtils;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
@@ -30,7 +30,7 @@ public class AsyncResource {
 
     private ActionResponse getData(final AsyncDataToken dataToken) {
         try {
-            return Action.getResponse(dataToken);
+            return CacheUtils.getCacheFor(dataToken.getAction()).get(dataToken.getKey());
         } catch (Exception e) {
             throw new WebApplicationException(Response.serverError()
                     .entity(Collections.singletonMap("error", "Could not save document: " + e.getMessage()))

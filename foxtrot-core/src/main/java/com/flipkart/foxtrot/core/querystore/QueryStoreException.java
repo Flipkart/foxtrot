@@ -23,6 +23,8 @@ public class QueryStoreException extends Exception {
         QUERY_EXECUTION_ERROR,
         QUERY_MALFORMED_QUERY_ERROR,
         HISTOGRAM_GENERATION_ERROR,
+        UNRESOLVABLE_OPERATION,
+        ACTION_RESOLUTION_ERROR
     }
 
     private ErrorCode errorCode;

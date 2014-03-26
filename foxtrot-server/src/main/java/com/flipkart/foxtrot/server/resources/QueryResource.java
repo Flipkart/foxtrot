@@ -1,10 +1,10 @@
 package com.flipkart.foxtrot.server.resources;
 
 import com.flipkart.foxtrot.common.query.Query;
+import com.flipkart.foxtrot.core.common.ActionResponse;
 import com.flipkart.foxtrot.core.common.AsyncDataToken;
 import com.flipkart.foxtrot.core.querystore.QueryStore;
 import com.flipkart.foxtrot.core.querystore.QueryStoreException;
-import com.flipkart.foxtrot.core.querystore.actions.QueryResponse;
 
 import javax.validation.Valid;
 import javax.ws.rs.*;
@@ -28,7 +28,7 @@ public class QueryResource {
     }
 
     @POST
-    public QueryResponse runQuery(@Valid final Query query) {
+    public ActionResponse runQuery(@Valid final Query query) {
         try {
             return queryStore.runQuery(query);
         } catch (QueryStoreException e) {

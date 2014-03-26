@@ -2,10 +2,14 @@ package com.flipkart.foxtrot.core.querystore.actions;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.flipkart.foxtrot.common.Document;
+import com.flipkart.foxtrot.common.query.Filter;
 import com.flipkart.foxtrot.common.query.Query;
 import com.flipkart.foxtrot.common.query.ResultSort;
+import com.flipkart.foxtrot.core.common.Action;
+import com.flipkart.foxtrot.core.common.Cache;
 import com.flipkart.foxtrot.core.datastore.DataStore;
 import com.flipkart.foxtrot.core.querystore.QueryStoreException;
+import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsProvider;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConnection;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
 import com.flipkart.foxtrot.core.querystore.query.ElasticSearchQueryGenerator;
@@ -25,17 +29,27 @@ import java.util.Vector;
  * Date: 24/03/14
  * Time: 1:00 PM
  */
-public class FilterEventsAction extends ElasticsearchAction<Query, QueryResponse> {
+@AnalyticsProvider(request = Query.class, cacheable = true)
+public class FilterEventsAction extends Action<Query> {
     private static final Logger logger = LoggerFactory.getLogger(FilterEventsAction.class);
 
-
-    public FilterEventsAction(Query parameter, DataStore dataStore, ElasticsearchConnection connection) {
-        super(parameter, dataStore, connection);
+    public FilterEventsAction(Query parameter,
+                              DataStore dataStore,
+                              ElasticsearchConnection connection,
+                              String cacheToken) {
+        super(parameter, dataStore, connection, cacheToken);
     }
 
     @Override
-    public boolean isCachable() {
-        return true;
+    protected String getRequestCacheKey() {
+        long filterHashKey = 0L;
+        Query query = getParameter();
+        for(Filter filter : query.getFilters()) {
+            filterHashKey += 31 * filter.hashCode();
+        }
+
+        return String.format("%s-%d-%d-%d", query.getTable(),
+                                                        query.getFrom(), query.getLimit(), filterHashKey);
     }
 
     @Override
@@ -81,10 +95,5 @@ public class FilterEventsAction extends ElasticsearchAction<Query, QueryResponse
                         "Malformed query");
             }
         }
-    }
-
-    @Override
-    public String getName() {
-        return this.getClass().getCanonicalName();
     }
 }

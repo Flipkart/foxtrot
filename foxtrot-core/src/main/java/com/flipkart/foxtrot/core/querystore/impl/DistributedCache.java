@@ -17,7 +17,7 @@ import java.io.IOException;
  * Date: 25/03/14
  * Time: 7:43 PM
  */
-public class DistributedCache<T extends ActionResponse> implements Cache<T> {
+public class DistributedCache implements Cache {
     private static final Logger logger = LoggerFactory.getLogger(DistributedCache.class.getSimpleName());
     private IMap<String, String> distributedMap;
     private ObjectMapper mapper;
@@ -33,7 +33,7 @@ public class DistributedCache<T extends ActionResponse> implements Cache<T> {
     }
 
     @Override
-    public T put(String key, T data) {
+    public ActionResponse put(String key, ActionResponse data) {
         try {
             distributedMap.put(key, mapper.writeValueAsString(data));
         } catch (JsonProcessingException e) {
@@ -43,14 +43,13 @@ public class DistributedCache<T extends ActionResponse> implements Cache<T> {
     }
 
     @Override
-    @SuppressWarnings("unchecked")
-    public T get(String key) {
+    public ActionResponse get(String key) {
         if(null == key) {
             return null; //Hazelcast map throws NPE if key is null
         }
         String data = distributedMap.get(key);
         try {
-            return (T)mapper.readValue(data, ActionResponse.class);
+            return mapper.readValue(data, ActionResponse.class);
         } catch (IOException e) {
             logger.error("Error deserializing: ", e);
         }

@@ -1,9 +1,10 @@
 package com.flipkart.foxtrot.core.querystore;
 
-import com.flipkart.foxtrot.common.query.CachableResponseGenerator;
+import com.flipkart.foxtrot.common.ActionRequest;
 import com.flipkart.foxtrot.core.common.Action;
 import com.flipkart.foxtrot.core.common.ActionResponse;
 import com.flipkart.foxtrot.core.common.AsyncDataToken;
+import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsLoader;
 
 import java.util.concurrent.ExecutorService;
 
@@ -13,18 +14,36 @@ import java.util.concurrent.ExecutorService;
  * Time: 12:51 PM
  */
 public class QueryExecutor {
+    private AnalyticsLoader analyticsLoader;
     private ExecutorService executorService;
 
-    public QueryExecutor(ExecutorService executorService) {
+    public QueryExecutor(AnalyticsLoader analyticsLoader, ExecutorService executorService) {
+        this.analyticsLoader = analyticsLoader;
         this.executorService = executorService;
     }
 
-    public <P extends CachableResponseGenerator,T extends ActionResponse> T execute(
-                                            Action<P,T> action) throws QueryStoreException {
+    public<T extends ActionRequest> ActionResponse execute(T request) throws QueryStoreException {
+        Action action = resolve(request);
         return action.execute();
     }
 
-    public AsyncDataToken executeAsync(Action action) {
-        return action.execute(executorService);
+    public<T extends ActionRequest> AsyncDataToken executeAsync(T request) throws QueryStoreException {
+        return resolve(request).execute(executorService);
     }
+
+    public<T extends ActionRequest> Action resolve(T request) throws QueryStoreException {
+        Action action;
+        try {
+            action = analyticsLoader.getAction(request);
+        } catch (Exception e) {
+            throw new QueryStoreException(QueryStoreException.ErrorCode.ACTION_RESOLUTION_ERROR,
+                    "Error resolving action for: " + request.getClass().getCanonicalName(), e);
+        }
+        if(null == action) {
+            throw new QueryStoreException(QueryStoreException.ErrorCode.UNRESOLVABLE_OPERATION,
+                "No resolvable action could be found for: " + request.getClass().getCanonicalName());
+        }
+        return action;
+    }
+
 }

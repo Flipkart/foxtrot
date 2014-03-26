@@ -8,9 +8,11 @@ import com.flipkart.foxtrot.core.datastore.impl.hbase.HbaseDataStore;
 import com.flipkart.foxtrot.core.datastore.impl.hbase.HbaseTableConnection;
 import com.flipkart.foxtrot.core.querystore.QueryExecutor;
 import com.flipkart.foxtrot.core.querystore.QueryStore;
+import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsLoader;
 import com.flipkart.foxtrot.core.querystore.impl.*;
 import com.flipkart.foxtrot.server.config.FoxtrotServerConfiguration;
 import com.flipkart.foxtrot.server.resources.*;
+import com.flipkart.foxtrot.server.util.ManagedActionScanner;
 import com.yammer.dropwizard.Service;
 import com.yammer.dropwizard.config.Bootstrap;
 import com.yammer.dropwizard.config.Environment;
@@ -50,12 +52,17 @@ public class FoxtrotServer extends Service<FoxtrotServerConfiguration> {
 
 
         DataStore dataStore = new HbaseDataStore(hbaseTableConnection, objectMapper);
-        QueryExecutor executor = new QueryExecutor(executorService);
+        AnalyticsLoader analyticsLoader = new AnalyticsLoader(dataStore, elasticsearchConnection);
+        environment.manage(new ManagedActionScanner(analyticsLoader));
+
+        QueryExecutor executor = new QueryExecutor(analyticsLoader, executorService);
         QueryStore queryStore = new ElasticsearchQueryStore(elasticsearchConnection, dataStore, executor);
+
         environment.addResource(new DocumentResource(queryStore));
         environment.addResource(new QueryResource(queryStore));
         environment.addResource(new HistogramResource(queryStore));
         environment.addResource(new GroupResource(queryStore));
         environment.addResource(new AsyncResource());
+        environment.addResource(new AnalyticsResource(executor));
     }
 }
