@@ -1,5 +1,6 @@
 package com.flipkart.foxtrot.core.querystore.actions;
 
+import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.flipkart.foxtrot.common.ActionResponse;
 import com.flipkart.foxtrot.common.group.GroupRequest;
 import com.flipkart.foxtrot.common.group.GroupResponse;
@@ -29,6 +30,7 @@ import java.util.Map;
  * Date: 27/03/14
  * Time: 7:16 PM
  */
+@JsonTypeName("group")
 @AnalyticsProvider(opcode = "group", request = GroupRequest.class, cacheable = true)
 public class GroupAction extends Action<GroupRequest> {
     private static final Logger logger = LoggerFactory.getLogger(GroupAction.class.getSimpleName());
