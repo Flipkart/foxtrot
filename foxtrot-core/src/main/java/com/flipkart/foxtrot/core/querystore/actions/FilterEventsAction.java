@@ -1,6 +1,5 @@
 package com.flipkart.foxtrot.core.querystore.actions;
 
-import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.flipkart.foxtrot.common.Document;
 import com.flipkart.foxtrot.common.query.Filter;
@@ -30,7 +29,6 @@ import java.util.Vector;
  * Date: 24/03/14
  * Time: 1:00 PM
  */
-@JsonTypeName("query")
 @AnalyticsProvider(opcode = "query", request = Query.class, cacheable = true)
 public class FilterEventsAction extends Action<Query> {
     private static final Logger logger = LoggerFactory.getLogger(FilterEventsAction.class);

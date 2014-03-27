@@ -6,7 +6,6 @@ import com.flipkart.foxtrot.core.querystore.actions.spi.ActionMetadata;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsLoader;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsProvider;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import com.yammer.dropwizard.config.Environment;
 import com.yammer.dropwizard.lifecycle.Managed;
 import org.reflections.Reflections;
@@ -15,7 +14,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 /**
@@ -41,7 +39,7 @@ public class ManagedActionScanner implements Managed {
         if(actions.isEmpty()) {
             throw new Exception("No analytics actions found!!");
         }
-        Map<Class<?>, Class<?>> maps = Maps.newHashMap();
+        List<NamedType> analysisProviders = Lists.newArrayList();
         for(Class<? extends Action> action : actions) {
             AnalyticsProvider analyticsProvider = action.getAnnotation(AnalyticsProvider.class);
             if(null == analyticsProvider.request()
@@ -52,10 +50,11 @@ public class ManagedActionScanner implements Managed {
             analyticsLoader.register(new ActionMetadata(
                     analyticsProvider.request(), action,
                     analyticsProvider.cacheable(), analyticsProvider.opcode()));
-            maps.put(action, Action.class);
+            analysisProviders.add(new NamedType(action, analyticsProvider.opcode()));
             logger.info("Registered action: " + action.getCanonicalName());
         }
-        environment.getObjectMapperFactory().setMixinAnnotations(maps);
+        environment.getObjectMapperFactory().getSubtypeResolver()
+                        .registerSubtypes(analysisProviders.toArray(new NamedType[analysisProviders.size()]));
     }
 
     @Override
