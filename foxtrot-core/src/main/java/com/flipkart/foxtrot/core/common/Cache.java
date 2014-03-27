@@ -1,5 +1,7 @@
 package com.flipkart.foxtrot.core.common;
 
+import com.flipkart.foxtrot.common.ActionResponse;
+
 /**
  * User: Santanu Sinha (santanu.sinha@flipkart.com)
  * Date: 24/03/14

@@ -1,7 +1,7 @@
-package com.flipkart.foxtrot.core.querystore.actions;
+package com.flipkart.foxtrot.common.query;
 
 import com.flipkart.foxtrot.common.Document;
-import com.flipkart.foxtrot.core.common.ActionResponse;
+import com.flipkart.foxtrot.common.ActionResponse;
 
 import java.util.List;
 

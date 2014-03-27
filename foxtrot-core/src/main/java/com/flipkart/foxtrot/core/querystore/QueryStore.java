@@ -7,9 +7,8 @@ import com.flipkart.foxtrot.common.group.GroupResponse;
 import com.flipkart.foxtrot.common.histogram.HistogramRequest;
 import com.flipkart.foxtrot.common.histogram.HistogramResponse;
 import com.flipkart.foxtrot.common.query.Query;
-import com.flipkart.foxtrot.core.common.ActionResponse;
+import com.flipkart.foxtrot.common.ActionResponse;
 import com.flipkart.foxtrot.core.common.AsyncDataToken;
-import com.flipkart.foxtrot.core.querystore.actions.QueryResponse;
 
 import java.util.List;
 

@@ -1,8 +1,8 @@
-package com.flipkart.foxtrot.core.common;
+package com.flipkart.foxtrot.common;
 
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import com.flipkart.foxtrot.core.querystore.actions.QueryResponse;
+import com.flipkart.foxtrot.common.query.QueryResponse;
 
 /**
  * User: Santanu Sinha (santanu.sinha@flipkart.com)

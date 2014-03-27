@@ -1,7 +1,7 @@
 package com.flipkart.foxtrot.server.resources;
 
 import com.flipkart.foxtrot.common.ActionRequest;
-import com.flipkart.foxtrot.core.common.ActionResponse;
+import com.flipkart.foxtrot.common.ActionResponse;
 import com.flipkart.foxtrot.core.common.AsyncDataToken;
 import com.flipkart.foxtrot.core.querystore.QueryExecutor;
 import com.flipkart.foxtrot.core.querystore.QueryStoreException;

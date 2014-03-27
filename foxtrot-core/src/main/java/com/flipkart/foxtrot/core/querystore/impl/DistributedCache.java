@@ -2,7 +2,7 @@ package com.flipkart.foxtrot.core.querystore.impl;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.flipkart.foxtrot.core.common.ActionResponse;
+import com.flipkart.foxtrot.common.ActionResponse;
 import com.flipkart.foxtrot.core.common.Cache;
 import com.hazelcast.config.InMemoryFormat;
 import com.hazelcast.config.MapConfig;
