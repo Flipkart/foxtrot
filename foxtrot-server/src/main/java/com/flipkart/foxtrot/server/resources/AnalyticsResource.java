@@ -2,6 +2,7 @@ package com.flipkart.foxtrot.server.resources;
 
 import com.flipkart.foxtrot.common.ActionRequest;
 import com.flipkart.foxtrot.core.common.ActionResponse;
+import com.flipkart.foxtrot.core.common.AsyncDataToken;
 import com.flipkart.foxtrot.core.querystore.QueryExecutor;
 import com.flipkart.foxtrot.core.querystore.QueryStoreException;
 
@@ -32,6 +33,17 @@ public class AnalyticsResource {
         } catch (QueryStoreException e) {
             throw new WebApplicationException(
                         Response.serverError().entity(Collections.singletonMap("error", e.getMessage())).build());
+        }
+    }
+
+    @POST
+    @Path("/async")
+    public AsyncDataToken runSyncAsync(final ActionRequest request) {
+        try {
+            return queryExecutor.executeAsync(request);
+        } catch (QueryStoreException e) {
+            throw new WebApplicationException(
+                    Response.serverError().entity(Collections.singletonMap("error", e.getMessage())).build());
         }
     }
 }
