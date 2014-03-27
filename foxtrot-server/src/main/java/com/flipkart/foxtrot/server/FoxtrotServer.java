@@ -53,7 +53,7 @@ public class FoxtrotServer extends Service<FoxtrotServerConfiguration> {
 
         DataStore dataStore = new HbaseDataStore(hbaseTableConnection, objectMapper);
         AnalyticsLoader analyticsLoader = new AnalyticsLoader(dataStore, elasticsearchConnection);
-        environment.manage(new ManagedActionScanner(analyticsLoader));
+        environment.manage(new ManagedActionScanner(analyticsLoader, environment));
 
         QueryExecutor executor = new QueryExecutor(analyticsLoader, executorService);
         QueryStore queryStore = new ElasticsearchQueryStore(elasticsearchConnection, dataStore, executor);

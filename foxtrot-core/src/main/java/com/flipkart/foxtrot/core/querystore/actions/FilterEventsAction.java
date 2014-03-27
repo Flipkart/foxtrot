@@ -7,7 +7,6 @@ import com.flipkart.foxtrot.common.query.Query;
 import com.flipkart.foxtrot.common.query.QueryResponse;
 import com.flipkart.foxtrot.common.query.ResultSort;
 import com.flipkart.foxtrot.core.common.Action;
-import com.flipkart.foxtrot.core.common.Cache;
 import com.flipkart.foxtrot.core.datastore.DataStore;
 import com.flipkart.foxtrot.core.querystore.QueryStoreException;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsProvider;
@@ -30,7 +29,7 @@ import java.util.Vector;
  * Date: 24/03/14
  * Time: 1:00 PM
  */
-@AnalyticsProvider(request = Query.class, cacheable = true)
+@AnalyticsProvider(opcode = "query", request = Query.class, cacheable = true)
 public class FilterEventsAction extends Action<Query> {
     private static final Logger logger = LoggerFactory.getLogger(FilterEventsAction.class);
 
