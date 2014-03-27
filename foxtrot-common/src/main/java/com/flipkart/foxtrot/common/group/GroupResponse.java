@@ -1,5 +1,7 @@
 package com.flipkart.foxtrot.common.group;
 
+import com.flipkart.foxtrot.common.ActionResponse;
+
 import java.util.Map;
 
 /**
@@ -7,7 +9,7 @@ import java.util.Map;
  * Date: 21/03/14
  * Time: 5:07 PM
  */
-public class GroupResponse {
+public class GroupResponse implements ActionResponse {
     private Map<String, Object> result;
 
     public GroupResponse() {

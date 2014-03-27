@@ -1,5 +1,6 @@
 package com.flipkart.foxtrot.common.group;
 
+import com.flipkart.foxtrot.common.ActionRequest;
 import com.flipkart.foxtrot.common.query.Filter;
 import org.hibernate.validator.constraints.NotEmpty;
 
@@ -11,7 +12,7 @@ import java.util.List;
  * Date: 21/03/14
  * Time: 4:52 PM
  */
-public class GroupRequest {
+public class GroupRequest implements ActionRequest {
     @NotNull
     @NotEmpty
     private String table;
