@@ -1,5 +1,6 @@
 package com.flipkart.foxtrot.common.histogram;
 
+import com.flipkart.foxtrot.common.ActionRequest;
 import com.flipkart.foxtrot.common.query.Filter;
 import org.hibernate.validator.constraints.NotEmpty;
 
@@ -13,7 +14,7 @@ import java.util.List;
  * Date: 21/03/14
  * Time: 12:06 AM
  */
-public class HistogramRequest {
+public class HistogramRequest implements ActionRequest {
     @NotNull
     @NotEmpty
     private String table;

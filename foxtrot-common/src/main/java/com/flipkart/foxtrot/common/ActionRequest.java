@@ -3,6 +3,7 @@ package com.flipkart.foxtrot.common;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.flipkart.foxtrot.common.group.GroupRequest;
+import com.flipkart.foxtrot.common.histogram.HistogramRequest;
 import com.flipkart.foxtrot.common.query.Query;
 
 /**
@@ -13,7 +14,8 @@ import com.flipkart.foxtrot.common.query.Query;
 @JsonTypeInfo(use= JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "opcode")
 @JsonSubTypes({
         @JsonSubTypes.Type(value = Query.class, name= "query"),
-        @JsonSubTypes.Type(value = GroupRequest.class, name= "group")
+        @JsonSubTypes.Type(value = GroupRequest.class, name= "group"),
+        @JsonSubTypes.Type(value = HistogramRequest.class, name= "histogram")
 })
 public interface ActionRequest {
 }
