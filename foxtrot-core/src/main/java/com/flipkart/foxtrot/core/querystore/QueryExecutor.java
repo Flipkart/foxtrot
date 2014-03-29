@@ -5,6 +5,8 @@ import com.flipkart.foxtrot.core.common.Action;
 import com.flipkart.foxtrot.common.ActionResponse;
 import com.flipkart.foxtrot.core.common.AsyncDataToken;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsLoader;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.ExecutorService;
 
@@ -14,6 +16,8 @@ import java.util.concurrent.ExecutorService;
  * Time: 12:51 PM
  */
 public class QueryExecutor {
+    private static final Logger logger = LoggerFactory.getLogger(QueryExecutor.class.getSimpleName());
+
     private AnalyticsLoader analyticsLoader;
     private ExecutorService executorService;
 
@@ -36,6 +40,7 @@ public class QueryExecutor {
         try {
             action = analyticsLoader.getAction(request);
         } catch (Exception e) {
+            logger.error("Error resolving action: ", e);
             throw new QueryStoreException(QueryStoreException.ErrorCode.ACTION_RESOLUTION_ERROR,
                     "Error resolving action for: " + request.getClass().getCanonicalName(), e);
         }
