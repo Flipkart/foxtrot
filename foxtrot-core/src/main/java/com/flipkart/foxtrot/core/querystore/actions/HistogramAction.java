@@ -1,6 +1,5 @@
 package com.flipkart.foxtrot.core.querystore.actions;
 
-import com.flipkart.foxtrot.common.ActionRequest;
 import com.flipkart.foxtrot.common.ActionResponse;
 import com.flipkart.foxtrot.common.histogram.HistogramRequest;
 import com.flipkart.foxtrot.common.histogram.HistogramResponse;
@@ -28,7 +27,7 @@ import java.util.List;
  * Date: 29/03/14
  * Time: 9:22 PM
  */
-@AnalyticsProvider(request = ActionRequest.class, cacheable = true, cacheToken = "histogram")
+@AnalyticsProvider(request = HistogramRequest.class, cacheable = true, cacheToken = "histogram")
 public class HistogramAction extends Action<HistogramRequest> {
     protected HistogramAction(HistogramRequest parameter,
                               DataStore dataStore,
