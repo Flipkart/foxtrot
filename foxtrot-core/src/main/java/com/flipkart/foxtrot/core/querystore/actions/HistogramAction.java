@@ -29,7 +29,7 @@ import java.util.List;
  */
 @AnalyticsProvider(request = HistogramRequest.class, cacheable = true, cacheToken = "histogram")
 public class HistogramAction extends Action<HistogramRequest> {
-    protected HistogramAction(HistogramRequest parameter,
+    public HistogramAction(HistogramRequest parameter,
                               DataStore dataStore,
                               ElasticsearchConnection connection,
                               String cacheToken) {
