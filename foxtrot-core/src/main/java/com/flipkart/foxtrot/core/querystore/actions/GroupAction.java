@@ -4,12 +4,14 @@ import com.flipkart.foxtrot.common.ActionResponse;
 import com.flipkart.foxtrot.common.group.GroupRequest;
 import com.flipkart.foxtrot.common.group.GroupResponse;
 import com.flipkart.foxtrot.common.query.Filter;
+import com.flipkart.foxtrot.common.query.FilterCombinerType;
 import com.flipkart.foxtrot.core.common.Action;
 import com.flipkart.foxtrot.core.datastore.DataStore;
 import com.flipkart.foxtrot.core.querystore.QueryStoreException;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsProvider;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConnection;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
+import com.flipkart.foxtrot.core.querystore.query.ElasticSearchQueryGenerator;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
@@ -71,7 +73,9 @@ public class GroupAction extends Action<GroupRequest> {
                     rootBuilder = termsBuilder;
                 }
             }
-            query.addAggregation(rootBuilder);
+            query.setQuery(new ElasticSearchQueryGenerator(FilterCombinerType.and)
+                            .genFilter(parameter.getFilters()))
+                 .addAggregation(rootBuilder);
             SearchResponse response = query.execute().actionGet();
             List<String> fields = parameter.getNesting();
             Aggregations aggregations = response.getAggregations();

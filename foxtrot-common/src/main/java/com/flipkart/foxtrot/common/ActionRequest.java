@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.flipkart.foxtrot.common.group.GroupRequest;
 import com.flipkart.foxtrot.common.histogram.HistogramRequest;
 import com.flipkart.foxtrot.common.query.Query;
+import com.flipkart.foxtrot.common.trend.TrendRequest;
 
 /**
  * User: Santanu Sinha (santanu.sinha@flipkart.com)
@@ -15,7 +16,8 @@ import com.flipkart.foxtrot.common.query.Query;
 @JsonSubTypes({
         @JsonSubTypes.Type(value = Query.class, name= "query"),
         @JsonSubTypes.Type(value = GroupRequest.class, name= "group"),
-        @JsonSubTypes.Type(value = HistogramRequest.class, name= "histogram")
+        @JsonSubTypes.Type(value = HistogramRequest.class, name= "histogram"),
+        @JsonSubTypes.Type(value = TrendRequest.class, name= "trend")
 })
 public interface ActionRequest {
 }
