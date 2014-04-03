@@ -64,7 +64,7 @@ public class TrendAction extends Action<TrendRequest> {
             parameter.setTo(currentTime);
         }
         final String field = parameter.getField();
-        if(null != parameter.getValues() || parameter.getField().equalsIgnoreCase("all")) {
+        if(null != parameter.getValues() && parameter.getField().equalsIgnoreCase("all")) {
             List<Filter> filters = Lists.newArrayList();
             for(String value : parameter.getValues()) {
                 filters.add(new EqualsFilter(field, value));
