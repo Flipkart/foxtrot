@@ -19,6 +19,11 @@ public class EqualsFilter extends Filter {
         super(FilterOperator.equals);
     }
 
+    public EqualsFilter(String field, Object value) {
+        super(FilterOperator.equals, field);
+        this.value = value;
+    }
+
     @Override
     public void accept(FilterVisitor visitor) throws Exception {
         visitor.visit(this);

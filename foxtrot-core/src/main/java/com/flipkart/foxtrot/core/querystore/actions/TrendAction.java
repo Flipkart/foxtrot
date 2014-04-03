@@ -2,6 +2,7 @@ package com.flipkart.foxtrot.core.querystore.actions;
 
 import com.flipkart.foxtrot.common.ActionResponse;
 import com.flipkart.foxtrot.common.query.Filter;
+import com.flipkart.foxtrot.common.query.general.EqualsFilter;
 import com.flipkart.foxtrot.common.trend.TrendRequest;
 import com.flipkart.foxtrot.common.trend.TrendResponse;
 import com.flipkart.foxtrot.core.common.Action;
@@ -40,11 +41,15 @@ public class TrendAction extends Action<TrendRequest> {
     protected String getRequestCacheKey() {
         TrendRequest query = getParameter();
         long filterHashKey = 0L;
-        for(Filter filter : query.getFilters()) {
-            filterHashKey += 31 * filter.hashCode();
+        if(query.getFilters() != null) {
+            for(Filter filter : query.getFilters()) {
+                filterHashKey += 31 * filter.hashCode();
+            }
         }
-        for(String value : query.getValues()) {
-            filterHashKey += 31 * value.hashCode();
+        if(query.getValues() != null) {
+            for(String value : query.getValues()) {
+                filterHashKey += 31 * value.hashCode();
+            }
         }
 
         return String.format("%s-%s-%d-%d-%d", query.getTable(),
@@ -58,6 +63,19 @@ public class TrendAction extends Action<TrendRequest> {
             parameter.setFrom(currentTime - 86400000L);
             parameter.setTo(currentTime);
         }
+        final String field = parameter.getField();
+        if(null != parameter.getValues() || parameter.getField().equalsIgnoreCase("all")) {
+            List<Filter> filters = Lists.newArrayList();
+            for(String value : parameter.getValues()) {
+                filters.add(new EqualsFilter(field, value));
+            }
+            if( parameter.getFilters() != null) {
+                parameter.getFilters().addAll(filters);
+            }
+            else {
+                parameter.setFilters(filters);
+            }
+        }
         SearchRequestBuilder query = getConnection().getClient().prepareSearch(ElasticsearchUtils.getIndices(
                 parameter.getTable()));
         query.addAggregation(AggregationBuilders.terms(parameter.getField())
@@ -65,7 +83,6 @@ public class TrendAction extends Action<TrendRequest> {
                         parameter.getField()).interval(864000L)));
 //                .addAggregation(rootBuilder);
         SearchResponse response = query.execute().actionGet();
-        String field = parameter.getField();
         Map<String, List<TrendResponse.Count>> trendCounts = new TreeMap<String, List<TrendResponse.Count>>();
         Terms terms = response.getAggregations().get(field);
         for(Terms.Bucket bucket : terms.getBuckets()) {
