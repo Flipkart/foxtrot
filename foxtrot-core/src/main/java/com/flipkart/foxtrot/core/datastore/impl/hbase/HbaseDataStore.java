@@ -114,7 +114,7 @@ public class HbaseDataStore implements DataStore {
         }
     }
 
-    private Put getPutForDocument(final String table, Document document) throws Throwable {
+    public Put getPutForDocument(final String table, Document document) throws Throwable {
         return new Put(Bytes.toBytes(document.getId() + ":" + table))
                     .add(COLUMN_FAMILY, DATA_FIELD_NAME, mapper.writeValueAsBytes(document.getData()));
     }
