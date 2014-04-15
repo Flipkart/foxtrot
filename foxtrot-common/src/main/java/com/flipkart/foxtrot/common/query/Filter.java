@@ -29,8 +29,7 @@ import javax.validation.constraints.NotNull;
         @JsonSubTypes.Type(value = NotEqualsFilter.class, name=FilterOperator.not_equals),
 
         //String
-        @JsonSubTypes.Type(value = ContainsFilter.class, name=FilterOperator.contains),
-
+        @JsonSubTypes.Type(value = ContainsFilter.class, name=FilterOperator.contains)
 })
 
 public abstract class Filter {
