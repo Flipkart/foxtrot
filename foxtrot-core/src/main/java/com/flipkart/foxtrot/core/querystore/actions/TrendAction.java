@@ -63,7 +63,10 @@ public class TrendAction extends Action<TrendRequest> {
             parameter.setFrom(currentTime - 86400000L);
             parameter.setTo(currentTime);
         }
-        final String field = parameter.getField();
+        String field = parameter.getField();
+        if(null == field) {
+            field = "all";
+        }
         if(null != parameter.getValues() && parameter.getField().equalsIgnoreCase("all")) {
             List<Filter> filters = Lists.newArrayList();
             for(String value : parameter.getValues()) {
@@ -78,9 +81,8 @@ public class TrendAction extends Action<TrendRequest> {
         }
         SearchRequestBuilder query = getConnection().getClient().prepareSearch(ElasticsearchUtils.getIndices(
                 parameter.getTable()));
-        query.addAggregation(AggregationBuilders.terms(parameter.getField())
-                .subAggregation(AggregationBuilders.histogram(
-                        parameter.getField()).interval(864000L)));
+        query = query.addAggregation(AggregationBuilders.terms(field).field(field)
+                .subAggregation(AggregationBuilders.histogram(field).field("timestamp").interval(86400000L)));
 //                .addAggregation(rootBuilder);
         SearchResponse response = query.execute().actionGet();
         Map<String, List<TrendResponse.Count>> trendCounts = new TreeMap<String, List<TrendResponse.Count>>();
