@@ -1,5 +1,7 @@
 package com.flipkart.foxtrot.server;
 
+import com.fasterxml.jackson.databind.jsontype.SubtypeResolver;
+import com.fasterxml.jackson.databind.jsontype.impl.StdSubtypeResolver;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.flipkart.foxtrot.core.datastore.DataStore;
@@ -35,6 +37,9 @@ public class FoxtrotServer extends Service<FoxtrotServerConfiguration> {
     public void run(FoxtrotServerConfiguration configuration, Environment environment) throws Exception {
         environment.getObjectMapperFactory().setSerializationInclusion(JsonInclude.Include.NON_NULL);
         environment.getObjectMapperFactory().setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
+        SubtypeResolver subtypeResolver = new StdSubtypeResolver();
+        environment.getObjectMapperFactory().setSubtypeResolver(subtypeResolver);
+
         ObjectMapper objectMapper = environment.getObjectMapperFactory().build();
         ExecutorService executorService = environment.managedExecutorService("query-executor-%s", 20,40, 30, TimeUnit.SECONDS);
 

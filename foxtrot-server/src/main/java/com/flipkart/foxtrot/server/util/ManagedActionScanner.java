@@ -61,10 +61,10 @@ public class ManagedActionScanner implements Managed {
                                                     analyticsProvider.cacheable(), analyticsProvider.cacheToken()));
             logger.info("Registered action: " + action.getCanonicalName());
         }
-        SubtypeResolver subtypeResolver = new StdSubtypeResolver();
+        SubtypeResolver subtypeResolver
+                            = environment.getObjectMapperFactory().getSubtypeResolver();
         scanRequests(reflections, subtypeResolver);
         scanResponses(reflections, subtypeResolver);
-        environment.getObjectMapperFactory().setSubtypeResolver(subtypeResolver);
     }
 
     @Override
