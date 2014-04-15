@@ -31,7 +31,7 @@ import java.util.Map;
  * Date: 27/03/14
  * Time: 7:16 PM
  */
-@AnalyticsProvider(request = GroupRequest.class, cacheable = true, cacheToken = "group")
+@AnalyticsProvider(opcode="group", request = GroupRequest.class, response = GroupResponse.class, cacheable = true)
 public class GroupAction extends Action<GroupRequest> {
     private static final Logger logger = LoggerFactory.getLogger(GroupAction.class.getSimpleName());
 

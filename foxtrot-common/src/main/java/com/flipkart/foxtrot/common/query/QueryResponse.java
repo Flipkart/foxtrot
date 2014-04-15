@@ -1,8 +1,7 @@
 package com.flipkart.foxtrot.common.query;
 
-import com.flipkart.foxtrot.common.Document;
 import com.flipkart.foxtrot.common.ActionResponse;
-import com.flipkart.foxtrot.common.spi.AnalyticsResponse;
+import com.flipkart.foxtrot.common.Document;
 
 import java.util.List;
 
@@ -11,7 +10,6 @@ import java.util.List;
  * Date: 24/03/14
  * Time: 1:00 PM
  */
-@AnalyticsResponse("query")
 public class QueryResponse implements ActionResponse {
     private List<Document> documents;
 

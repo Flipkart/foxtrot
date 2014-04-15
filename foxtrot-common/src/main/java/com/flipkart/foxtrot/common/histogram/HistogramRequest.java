@@ -2,7 +2,6 @@ package com.flipkart.foxtrot.common.histogram;
 
 import com.flipkart.foxtrot.common.ActionRequest;
 import com.flipkart.foxtrot.common.query.Filter;
-import com.flipkart.foxtrot.common.spi.AnalyticsRequest;
 import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.validation.constraints.Min;
@@ -15,7 +14,6 @@ import java.util.List;
  * Date: 21/03/14
  * Time: 12:06 AM
  */
-@AnalyticsRequest("histogram")
 public class HistogramRequest implements ActionRequest {
     @NotNull
     @NotEmpty

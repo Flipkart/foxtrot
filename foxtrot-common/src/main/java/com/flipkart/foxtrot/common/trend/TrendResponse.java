@@ -1,7 +1,6 @@
 package com.flipkart.foxtrot.common.trend;
 
 import com.flipkart.foxtrot.common.ActionResponse;
-import com.flipkart.foxtrot.common.spi.AnalyticsResponse;
 
 import java.util.List;
 import java.util.Map;
@@ -11,7 +10,6 @@ import java.util.Map;
  * Date: 30/03/14
  * Time: 2:31 PM
  */
-@AnalyticsResponse("trend")
 public class TrendResponse implements ActionResponse {
 
     public static class Count {

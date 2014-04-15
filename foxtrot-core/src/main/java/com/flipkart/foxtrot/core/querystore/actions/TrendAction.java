@@ -28,7 +28,7 @@ import java.util.TreeMap;
  * Date: 30/03/14
  * Time: 10:27 PM
  */
-@AnalyticsProvider(request = TrendRequest.class, cacheable = true, cacheToken = "trend")
+@AnalyticsProvider(opcode = "trend", request = TrendRequest.class, response = TrendResponse.class, cacheable = true)
 public class TrendAction extends Action<TrendRequest> {
     public TrendAction(TrendRequest parameter,
                        DataStore dataStore,

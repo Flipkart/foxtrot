@@ -2,11 +2,6 @@ package com.flipkart.foxtrot.server.util;
 
 import com.fasterxml.jackson.databind.jsontype.NamedType;
 import com.fasterxml.jackson.databind.jsontype.SubtypeResolver;
-import com.fasterxml.jackson.databind.jsontype.impl.StdSubtypeResolver;
-import com.flipkart.foxtrot.common.ActionRequest;
-import com.flipkart.foxtrot.common.ActionResponse;
-import com.flipkart.foxtrot.common.spi.AnalyticsRequest;
-import com.flipkart.foxtrot.common.spi.AnalyticsResponse;
 import com.flipkart.foxtrot.core.common.Action;
 import com.flipkart.foxtrot.core.querystore.actions.spi.ActionMetadata;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsLoader;
@@ -45,61 +40,34 @@ public class ManagedActionScanner implements Managed {
         if(actions.isEmpty()) {
             throw new Exception("No analytics actions found!!");
         }
+        List<NamedType> types = new Vector<NamedType>();
         for(Class<? extends Action> action : actions) {
             AnalyticsProvider analyticsProvider = action.getAnnotation(AnalyticsProvider.class);
             if(null == analyticsProvider.request()
-                    || null == analyticsProvider.cacheToken()
-                    || analyticsProvider.cacheToken().isEmpty()) {
+                    || null == analyticsProvider.opcode()
+                    || analyticsProvider.opcode().isEmpty()
+                    || null == analyticsProvider.response()) {
                 throw new Exception("Invalid annotation on " + action.getCanonicalName());
             }
-            if(analyticsProvider.cacheToken().equalsIgnoreCase("default")) {
+            if(analyticsProvider.opcode().equalsIgnoreCase("default")) {
                 logger.warn("Action " + action.getCanonicalName() + " does not specify cache token. " +
                             "Using default cache.");
             }
             analyticsLoader.register(new ActionMetadata(
                                                     analyticsProvider.request(), action,
-                                                    analyticsProvider.cacheable(), analyticsProvider.cacheToken()));
+                                                    analyticsProvider.cacheable(), analyticsProvider.opcode()));
+            types.add(new NamedType(analyticsProvider.request(), analyticsProvider.opcode()));
+            types.add(new NamedType(analyticsProvider.response(), analyticsProvider.opcode()));
             logger.info("Registered action: " + action.getCanonicalName());
         }
         SubtypeResolver subtypeResolver
                             = environment.getObjectMapperFactory().getSubtypeResolver();
-        scanRequests(reflections, subtypeResolver);
-        scanResponses(reflections, subtypeResolver);
+        subtypeResolver.registerSubtypes(types.toArray(new NamedType[types.size()]));
     }
 
     @Override
     public void stop() throws Exception {
 
-    }
-
-    private void scanRequests(Reflections reflections, SubtypeResolver subtypeResolver) {
-        Set<Class<? extends ActionRequest>> requestClasses = reflections.getSubTypesOf(ActionRequest.class);
-        List<NamedType> types = new Vector<NamedType>();
-        for(Class<?> requestClass : requestClasses) {
-            String name = requestClass.getSimpleName();
-            AnalyticsRequest actionRequest = requestClass.getAnnotation(AnalyticsRequest.class);
-            if(null != actionRequest) {
-                name = actionRequest.value();
-            }
-            types.add(new NamedType(requestClass, name));
-            logger.info("Added response " + requestClass.getSimpleName() + ": " + name);
-        }
-        subtypeResolver.registerSubtypes(types.toArray(new NamedType[types.size()]));
-    }
-
-    private void scanResponses(Reflections reflections, SubtypeResolver subtypeResolver) {
-        Set<Class<? extends ActionResponse>> requestClasses = reflections.getSubTypesOf(ActionResponse.class);
-        List<NamedType> types = new Vector<NamedType>();
-        for(Class<?> requestClass : requestClasses) {
-            String name = requestClass.getSimpleName();
-            AnalyticsResponse actionRequest = requestClass.getAnnotation(AnalyticsResponse.class);
-            if(null != actionRequest) {
-                name = actionRequest.value();
-            }
-            types.add(new NamedType(requestClass, name));
-            logger.info("Added response " + requestClass.getSimpleName() + ": " + name);
-        }
-        subtypeResolver.registerSubtypes(types.toArray(new NamedType[types.size()]));
     }
 
 }

@@ -1,7 +1,6 @@
 package com.flipkart.foxtrot.common.query;
 
 import com.flipkart.foxtrot.common.ActionRequest;
-import com.flipkart.foxtrot.common.spi.AnalyticsRequest;
 
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
@@ -12,7 +11,6 @@ import java.util.List;
  * Date: 13/03/14
  * Time: 6:38 PM
  */
-@AnalyticsRequest("query")
 public class Query implements ActionRequest {
     @NotNull
     private String table;

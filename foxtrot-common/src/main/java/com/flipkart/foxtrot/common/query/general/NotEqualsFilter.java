@@ -1,8 +1,8 @@
 package com.flipkart.foxtrot.common.query.general;
 
 import com.flipkart.foxtrot.common.query.Filter;
-import com.flipkart.foxtrot.common.query.FilterVisitor;
 import com.flipkart.foxtrot.common.query.FilterOperator;
+import com.flipkart.foxtrot.common.query.FilterVisitor;
 
 import javax.validation.constraints.NotNull;
 

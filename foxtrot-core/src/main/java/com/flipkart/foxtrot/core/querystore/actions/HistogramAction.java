@@ -27,7 +27,7 @@ import java.util.List;
  * Date: 29/03/14
  * Time: 9:22 PM
  */
-@AnalyticsProvider(request = HistogramRequest.class, cacheable = true, cacheToken = "histogram")
+@AnalyticsProvider(opcode = "histogram", request = HistogramRequest.class, response = HistogramResponse.class, cacheable = true )
 public class HistogramAction extends Action<HistogramRequest> {
     public HistogramAction(HistogramRequest parameter,
                               DataStore dataStore,
