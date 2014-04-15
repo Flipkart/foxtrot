@@ -2,6 +2,7 @@ package com.flipkart.foxtrot.common.trend;
 
 import com.flipkart.foxtrot.common.ActionRequest;
 import com.flipkart.foxtrot.common.query.Filter;
+import com.flipkart.foxtrot.common.spi.AnalyticsRequest;
 import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.validation.constraints.Max;
@@ -14,6 +15,7 @@ import java.util.List;
  * Date: 30/03/14
  * Time: 2:30 PM
  */
+@AnalyticsRequest("trend")
 public class TrendRequest implements ActionRequest {
     @NotNull
     @NotEmpty

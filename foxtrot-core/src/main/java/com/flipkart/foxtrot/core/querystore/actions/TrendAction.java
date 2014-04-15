@@ -79,11 +79,10 @@ public class TrendAction extends Action<TrendRequest> {
                 parameter.setFilters(filters);
             }
         }
-        SearchRequestBuilder query = getConnection().getClient().prepareSearch(ElasticsearchUtils.getIndices(
-                parameter.getTable()));
-        query = query.addAggregation(AggregationBuilders.terms(field).field(field)
+        SearchRequestBuilder query = getConnection().getClient()
+                .prepareSearch(ElasticsearchUtils.getIndices(parameter.getTable()))
+                .addAggregation(AggregationBuilders.terms(field).field(field)
                 .subAggregation(AggregationBuilders.histogram(field).field("timestamp").interval(86400000L)));
-//                .addAggregation(rootBuilder);
         SearchResponse response = query.execute().actionGet();
         Map<String, List<TrendResponse.Count>> trendCounts = new TreeMap<String, List<TrendResponse.Count>>();
         Terms terms = response.getAggregations().get(field);
