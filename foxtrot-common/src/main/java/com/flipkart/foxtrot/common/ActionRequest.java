@@ -1,11 +1,6 @@
 package com.flipkart.foxtrot.common;
 
-import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import com.flipkart.foxtrot.common.group.GroupRequest;
-import com.flipkart.foxtrot.common.histogram.HistogramRequest;
-import com.flipkart.foxtrot.common.query.Query;
-import com.flipkart.foxtrot.common.trend.TrendRequest;
 
 /**
  * User: Santanu Sinha (santanu.sinha@flipkart.com)
@@ -13,11 +8,5 @@ import com.flipkart.foxtrot.common.trend.TrendRequest;
  * Time: 7:49 PM
  */
 @JsonTypeInfo(use= JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "opcode")
-@JsonSubTypes({
-        @JsonSubTypes.Type(value = Query.class, name= "query"),
-        @JsonSubTypes.Type(value = GroupRequest.class, name= "group"),
-        @JsonSubTypes.Type(value = HistogramRequest.class, name= "histogram"),
-        @JsonSubTypes.Type(value = TrendRequest.class, name= "trend")
-})
 public interface ActionRequest {
 }
