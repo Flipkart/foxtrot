@@ -2,6 +2,7 @@ package com.flipkart.foxtrot.common.trend;
 
 import com.flipkart.foxtrot.common.ActionRequest;
 import com.flipkart.foxtrot.common.query.Filter;
+import com.google.common.collect.Lists;
 import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.validation.constraints.Max;
@@ -19,7 +20,7 @@ public class TrendRequest implements ActionRequest {
     @NotEmpty
     private String table;
 
-    private List<Filter> filters;
+    private List<Filter> filters = Lists.newArrayList();
 
     private String field = "all";
 

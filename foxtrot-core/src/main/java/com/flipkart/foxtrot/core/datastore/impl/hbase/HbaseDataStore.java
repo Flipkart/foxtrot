@@ -21,6 +21,7 @@ import java.util.Vector;
 public class HbaseDataStore implements DataStore {
     private static final byte[] COLUMN_FAMILY = Bytes.toBytes("d");
     private static final byte[] DATA_FIELD_NAME = Bytes.toBytes("data");
+    private static final byte[] TIMESTAMP_FIELD_NAME = Bytes.toBytes("timestamp");
 
     private HbaseTableConnection tableWrapper;
     private ObjectMapper mapper;
@@ -59,12 +60,16 @@ public class HbaseDataStore implements DataStore {
         try {
             Get get = new Get(Bytes.toBytes(id + ":" + table))
                     .addColumn(COLUMN_FAMILY, DATA_FIELD_NAME)
+                    .addColumn(COLUMN_FAMILY, TIMESTAMP_FIELD_NAME)
                     .setMaxVersions(1);
             Result getResult = tableWrapper.getTable().get(get);
             if(!getResult.isEmpty()) {
                 byte[] data = getResult.getValue(COLUMN_FAMILY, DATA_FIELD_NAME);
+                byte[] timestamp = getResult.getValue(COLUMN_FAMILY, TIMESTAMP_FIELD_NAME);
+                System.out.println("TIMESTAMP: " + (null == timestamp));
+                long time = (null != timestamp) ? Bytes.toLong(timestamp) : System.currentTimeMillis();
                 if(null != data) {
-                    return new Document(id, mapper.readTree(data));
+                    return new Document(id, time, mapper.readTree(data));
                 }
             }
         } catch (Throwable t) {
@@ -82,6 +87,7 @@ public class HbaseDataStore implements DataStore {
             for(String id: ids) {
                 Get get = new Get(Bytes.toBytes(id + ":" + table))
                     .addColumn(COLUMN_FAMILY, DATA_FIELD_NAME)
+                    .addColumn(COLUMN_FAMILY, TIMESTAMP_FIELD_NAME)
                     .setMaxVersions(1);
                 gets.add(get);
             }
@@ -93,7 +99,10 @@ public class HbaseDataStore implements DataStore {
                 if(!getResult.isEmpty()) {
                     byte[] data = getResult.getValue(COLUMN_FAMILY, DATA_FIELD_NAME);
                     if(null != data) {
-                        results.add(new Document(Bytes.toString(getResult.getRow()).split(":")[0], mapper.readTree(data)));
+                        byte[] timestamp = getResult.getValue(COLUMN_FAMILY, TIMESTAMP_FIELD_NAME);
+                        long time = (null != timestamp) ? Bytes.toLong(timestamp) : System.currentTimeMillis();
+                        results.add(new Document(Bytes.toString(getResult.getRow()).split(":")[0],
+                                                    time, mapper.readTree(data)));
                         found = true;
                     }
                 }
@@ -116,6 +125,7 @@ public class HbaseDataStore implements DataStore {
 
     public Put getPutForDocument(final String table, Document document) throws Throwable {
         return new Put(Bytes.toBytes(document.getId() + ":" + table))
-                    .add(COLUMN_FAMILY, DATA_FIELD_NAME, mapper.writeValueAsBytes(document.getData()));
+                    .add(COLUMN_FAMILY, DATA_FIELD_NAME, mapper.writeValueAsBytes(document.getData()))
+                    .add(COLUMN_FAMILY, TIMESTAMP_FIELD_NAME, Bytes.toBytes(document.getTimestamp()));
     }
 }

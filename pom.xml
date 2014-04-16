@@ -12,7 +12,8 @@
         <module>foxtrot-core</module>
         <module>foxtrot-common</module>
         <module>foxtrot-server</module>
-    </modules>
+		<module>event-push-tester</module>
+	</modules>
 
     <repositories>
         <repository>

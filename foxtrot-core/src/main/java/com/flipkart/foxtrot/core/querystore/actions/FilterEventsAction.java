@@ -6,6 +6,7 @@ import com.flipkart.foxtrot.common.query.Filter;
 import com.flipkart.foxtrot.common.query.Query;
 import com.flipkart.foxtrot.common.query.QueryResponse;
 import com.flipkart.foxtrot.common.query.ResultSort;
+import com.flipkart.foxtrot.common.query.general.AnyFilter;
 import com.flipkart.foxtrot.core.common.Action;
 import com.flipkart.foxtrot.core.datastore.DataStore;
 import com.flipkart.foxtrot.core.querystore.QueryStoreException;
@@ -13,6 +14,7 @@ import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsProvider;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConnection;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
 import com.flipkart.foxtrot.core.querystore.query.ElasticSearchQueryGenerator;
+import com.google.common.collect.Lists;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.search.SearchType;
@@ -44,6 +46,9 @@ public class FilterEventsAction extends Action<Query> {
     protected String getRequestCacheKey() {
         long filterHashKey = 0L;
         Query query = getParameter();
+        if(null == query.getFilters()) {
+            query.setFilters(Lists.<Filter>newArrayList(new AnyFilter(query.getTable())));
+        }
         for(Filter filter : query.getFilters()) {
             filterHashKey += 31 * filter.hashCode();
         }

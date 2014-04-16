@@ -56,6 +56,7 @@ public class FoxtrotServer extends Service<FoxtrotServerConfiguration> {
         HazelcastConnection hazelcastConnection = new HazelcastConnection(clusterConfig, objectMapper);
         environment.manage(hazelcastConnection);
 
+        ElasticsearchUtils.setMapper(objectMapper);
 
         DataStore dataStore = new HbaseDataStore(hbaseTableConnection, objectMapper);
         AnalyticsLoader analyticsLoader = new AnalyticsLoader(dataStore, elasticsearchConnection);
@@ -73,5 +74,6 @@ public class FoxtrotServer extends Service<FoxtrotServerConfiguration> {
         environment.addResource(new GroupResource(queryStore));
         environment.addResource(new AsyncResource());
         environment.addResource(new AnalyticsResource(executor));
+        environment.addResource(new TableMetadataResource(tableMetadataManager));
     }
 }

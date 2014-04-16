@@ -25,13 +25,14 @@ public class Document implements Serializable {
     @JsonProperty
     private JsonNode data;
 
-    public Document(String id, JsonNode data) {
-        this.id = id;
-        this.data = data;
-    }
-
     public Document() {
         this.timestamp = System.currentTimeMillis();
+    }
+
+    public Document(String id, long timestamp, JsonNode data) {
+        this.id = id;
+        this.timestamp = timestamp;
+        this.data = data;
     }
 
     public String getId() {

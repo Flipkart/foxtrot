@@ -3,6 +3,7 @@ package com.flipkart.foxtrot.core.querystore.query;
 import com.flipkart.foxtrot.common.query.Filter;
 import com.flipkart.foxtrot.common.query.FilterCombinerType;
 import com.flipkart.foxtrot.common.query.FilterVisitor;
+import com.flipkart.foxtrot.common.query.general.AnyFilter;
 import com.flipkart.foxtrot.common.query.general.EqualsFilter;
 import com.flipkart.foxtrot.common.query.general.NotEqualsFilter;
 import com.flipkart.foxtrot.common.query.numeric.*;
@@ -84,6 +85,11 @@ public class ElasticSearchQueryGenerator extends FilterVisitor {
                 QueryBuilders.rangeQuery(lessEqualFilter.getField())
                                     .lte(lessEqualFilter.getValue()));
 
+    }
+
+    @Override
+    public void visit(AnyFilter anyFilter) throws Exception {
+        addFilter(QueryBuilders.matchAllQuery());
     }
 
     private void addFilter(QueryBuilder query) throws Exception {
