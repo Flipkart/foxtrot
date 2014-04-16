@@ -9,6 +9,7 @@ public interface FilterOperator {
     //All
     public static final String equals = "equals";
     public static final String not_equals = "not_equals";
+    public static final String any = "any";
 
     //Numeric
     public static final String less_than = "less_than";

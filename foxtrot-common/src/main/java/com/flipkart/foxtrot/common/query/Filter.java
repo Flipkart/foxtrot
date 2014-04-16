@@ -3,6 +3,7 @@ package com.flipkart.foxtrot.common.query;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.flipkart.foxtrot.common.query.general.AnyFilter;
 import com.flipkart.foxtrot.common.query.general.EqualsFilter;
 import com.flipkart.foxtrot.common.query.general.NotEqualsFilter;
 import com.flipkart.foxtrot.common.query.numeric.*;
@@ -27,6 +28,7 @@ import javax.validation.constraints.NotNull;
         //General
         @JsonSubTypes.Type(value = EqualsFilter.class, name=FilterOperator.equals),
         @JsonSubTypes.Type(value = NotEqualsFilter.class, name=FilterOperator.not_equals),
+        @JsonSubTypes.Type(value = AnyFilter.class, name=FilterOperator.any),
 
         //String
         @JsonSubTypes.Type(value = ContainsFilter.class, name=FilterOperator.contains),

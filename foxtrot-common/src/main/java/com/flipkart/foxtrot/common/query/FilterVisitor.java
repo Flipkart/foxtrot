@@ -1,5 +1,6 @@
 package com.flipkart.foxtrot.common.query;
 
+import com.flipkart.foxtrot.common.query.general.AnyFilter;
 import com.flipkart.foxtrot.common.query.general.EqualsFilter;
 import com.flipkart.foxtrot.common.query.general.NotEqualsFilter;
 import com.flipkart.foxtrot.common.query.numeric.*;
@@ -27,4 +28,6 @@ public abstract class FilterVisitor {
     public abstract void visit(LessThanFilter lessThanFilter) throws Exception;
 
     public abstract void visit(LessEqualFilter lessEqualFilter) throws Exception;
+
+    public abstract void visit(AnyFilter anyFilter) throws Exception;
 }
