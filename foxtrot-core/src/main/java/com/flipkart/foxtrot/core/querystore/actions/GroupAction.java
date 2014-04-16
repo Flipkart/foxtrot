@@ -67,7 +67,7 @@ public class GroupAction extends Action<GroupRequest> {
                     termsBuilder = AggregationBuilders.terms(field).field(field);
                 }
                 else {
-                    termsBuilder.subAggregation(AggregationBuilders.terms(field).field(field));
+                    termsBuilder = termsBuilder.subAggregation(AggregationBuilders.terms(field).field(field));
                 }
                 if(null == rootBuilder) {
                     rootBuilder = termsBuilder;
