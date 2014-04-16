@@ -1,6 +1,9 @@
 package com.flipkart.foxtrot.core.querystore.impl;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.elasticsearch.action.admin.indices.template.put.PutIndexTemplateRequest;
+import org.elasticsearch.action.admin.indices.template.put.PutIndexTemplateRequestBuilder;
+import org.elasticsearch.client.IndicesAdminClient;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -37,5 +40,36 @@ public class ElasticsearchUtils {
         //TODO::THROW IF TIMESTAMP IS BEYOND TABLE META.TTL
         String postfix = new SimpleDateFormat("dd-M-yyyy").format(new Date(timestamp));
         return String.format("%s-%s-%s", ElasticsearchUtils.TABLENAME_PREFIX, table, postfix);
+    }
+
+    public static PutIndexTemplateRequest getClusterTemplateMapping(IndicesAdminClient indicesAdminClient){
+        PutIndexTemplateRequestBuilder builder = new PutIndexTemplateRequestBuilder(indicesAdminClient, "generic_template");
+        builder.setTemplate("foxtrot-*");
+        builder.addMapping(TYPE_NAME, "{\n" +
+                "        \"dynamic_templates\" : [ {\n" +
+                "          \"template_timestamp\" : {\n" +
+                "            \"mapping\" : {\n" +
+                "              \"index\" : \"not_analyzed\",\n" +
+                "              \"store\" : false,\n" +
+                "              \"type\" : \"date\"\n" +
+                "            },\n" +
+                "            \"match\" : \"timestamp\"\n" +
+                "          }\n" +
+                "        }, {\n" +
+                "          \"template_no_store\" : {\n" +
+                "            \"mapping\" : {\n" +
+                "              \"index\" : \"not_analyzed\",\n" +
+                "              \"store\" : false\n" +
+                "            },\n" +
+                "            \"match\" : \"*\"\n" +
+                "          }\n" +
+                "        } ],\n" +
+                "        \"_all\" : {\n" +
+                "          \"enabled\" : false\n" +
+                "        },\n" +
+                "        \"_source\" : {\n" +
+                "          \"enabled\" : false\n" +
+                "        }}");
+        return builder.request();
     }
 }

@@ -10,6 +10,7 @@ import com.flipkart.foxtrot.core.datastore.DataStoreException;
 import com.flipkart.foxtrot.core.datastore.impl.hbase.HbaseDataStore;
 import com.flipkart.foxtrot.core.datastore.impl.hbase.HbaseTableConnection;
 import com.flipkart.foxtrot.core.querystore.QueryExecutor;
+import com.flipkart.foxtrot.core.querystore.TableMetadataManager;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsLoader;
 import org.apache.hadoop.hbase.client.HTableInterface;
 import org.elasticsearch.action.get.GetRequest;
@@ -38,6 +39,9 @@ public class ElasticsearchQueryStoreTest {
 
     @Before
     public void setUp() throws Exception {
+        mapper = new ObjectMapper();
+        ElasticsearchUtils.setMapper(mapper);
+
         elasticsearchServer = new MockElasticsearchServer();
         dataStore = getDataStore();
         ElasticsearchConnection elasticsearchConnection = Mockito.mock(ElasticsearchConnection.class);
@@ -45,9 +49,9 @@ public class ElasticsearchQueryStoreTest {
         AnalyticsLoader analyticsLoader = new AnalyticsLoader(dataStore, elasticsearchConnection);
         ExecutorService executorService = Executors.newFixedThreadPool(1);
         QueryExecutor queryExecutor  = new QueryExecutor(analyticsLoader, executorService);
-        ElasticsearchUtils.setMapper(new ObjectMapper());
-        queryStore = new ElasticsearchQueryStore(elasticsearchConnection, dataStore, queryExecutor);
-        mapper = ElasticsearchUtils.getMapper();
+        TableMetadataManager tableMetadataManager = Mockito.mock(TableMetadataManager.class);
+        when(tableMetadataManager.exists(TEST_APP)).thenReturn(true);
+        queryStore = new ElasticsearchQueryStore(tableMetadataManager, elasticsearchConnection, dataStore, queryExecutor);
     }
 
     @After
