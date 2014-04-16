@@ -2,6 +2,7 @@ package com.flipkart.foxtrot.common.group;
 
 import com.flipkart.foxtrot.common.ActionRequest;
 import com.flipkart.foxtrot.common.query.Filter;
+import com.google.common.collect.Lists;
 import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.validation.constraints.NotNull;
@@ -17,7 +18,7 @@ public class GroupRequest implements ActionRequest {
     @NotEmpty
     private String table;
 
-    private List<Filter> filters;
+    private List<Filter> filters = Lists.newArrayList();
 
     @NotNull
     @NotEmpty

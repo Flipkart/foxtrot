@@ -46,10 +46,8 @@ public class GroupAction extends Action<GroupRequest> {
     protected String getRequestCacheKey() {
         long filterHashKey = 0L;
         GroupRequest query = getParameter();
-        if(null != query.getFilters()) {
-            for(Filter filter : query.getFilters()) {
-                filterHashKey += 31 * filter.hashCode();
-            }
+        for(Filter filter : query.getFilters()) {
+            filterHashKey += 31 * filter.hashCode();
         }
         for(String field : query.getNesting()) {
             filterHashKey += 31 * field.hashCode();

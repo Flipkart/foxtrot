@@ -2,6 +2,7 @@ package com.flipkart.foxtrot.common.histogram;
 
 import com.flipkart.foxtrot.common.ActionRequest;
 import com.flipkart.foxtrot.common.query.Filter;
+import com.google.common.collect.Lists;
 import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.validation.constraints.Min;
@@ -19,7 +20,7 @@ public class HistogramRequest implements ActionRequest {
     @NotEmpty
     private String table;
 
-    private List<Filter> filters;
+    private List<Filter> filters = Lists.newArrayList();
     @Min(0)
     private long from;
     @Min(0)
