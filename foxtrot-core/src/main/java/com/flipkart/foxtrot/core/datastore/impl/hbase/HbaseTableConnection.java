@@ -4,9 +4,9 @@ import com.flipkart.foxtrot.core.datastore.DataStoreException;
 import com.yammer.dropwizard.lifecycle.Managed;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.HBaseConfiguration;
-import org.apache.hadoop.hbase.client.HTableFactory;
 import org.apache.hadoop.hbase.client.HTableInterface;
-import org.apache.hadoop.hbase.util.Bytes;
+import org.apache.hadoop.hbase.client.HTablePool;
+import org.apache.hadoop.hbase.util.PoolMap;
 import org.apache.hadoop.security.UserGroupInformation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,7 +22,7 @@ public class HbaseTableConnection implements Managed {
     private static final Logger logger = LoggerFactory.getLogger(HbaseTableConnection.class.getSimpleName());
 
     private HbaseConfig hbaseConfig;
-    private HTableInterface table;
+    private HTablePool tablePool;
 
     public HbaseTableConnection(HbaseConfig hbaseConfig) {
         this.hbaseConfig = hbaseConfig;
@@ -34,7 +34,7 @@ public class HbaseTableConnection implements Managed {
             if (UserGroupInformation.isSecurityEnabled()) {
                 UserGroupInformation.getCurrentUser().reloginFromKeytab();
             }
-            return table;
+            return tablePool.getTable(hbaseConfig.getTableName());
         } catch (Throwable t) {
             throw new DataStoreException(DataStoreException.ErrorCode.STORE_CONNECTION,
                     t.getMessage(), t);
@@ -60,12 +60,13 @@ public class HbaseTableConnection implements Managed {
                 logger.info("Logged into Hbase with User: " + UserGroupInformation.getLoginUser());
             }
         }
-        HTableFactory hTableFactory = new HTableFactory();
-        this.table = hTableFactory.createHTableInterface(configuration, Bytes.toBytes(this.hbaseConfig.getTableName()));
+        tablePool = new HTablePool(configuration, 10, PoolMap.PoolType.Reusable);
+        //HTableFactory hTableFactory = new HTableFactory();
+        //this.table = hTableFactory.createHTableInterface(configuration, Bytes.toBytes(this.hbaseConfig.getTableName()));
     }
 
     @Override
     public void stop() throws Exception {
-        table.close();
+        tablePool.close();
     }
 }
