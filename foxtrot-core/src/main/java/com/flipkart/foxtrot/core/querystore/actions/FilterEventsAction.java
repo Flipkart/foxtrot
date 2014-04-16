@@ -47,7 +47,7 @@ public class FilterEventsAction extends Action<Query> {
         long filterHashKey = 0L;
         Query query = getParameter();
         if(null == query.getFilters()) {
-            query.setFilters(Lists.<Filter>newArrayList(new AnyFilter()));
+            query.setFilters(Lists.<Filter>newArrayList(new AnyFilter(query.getTable())));
         }
         for(Filter filter : query.getFilters()) {
             filterHashKey += 31 * filter.hashCode();
