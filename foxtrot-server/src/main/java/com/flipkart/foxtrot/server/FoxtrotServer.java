@@ -73,5 +73,6 @@ public class FoxtrotServer extends Service<FoxtrotServerConfiguration> {
         environment.addResource(new GroupResource(queryStore));
         environment.addResource(new AsyncResource());
         environment.addResource(new AnalyticsResource(executor));
+        environment.addResource(new TableMetadataResource(tableMetadataManager));
     }
 }
