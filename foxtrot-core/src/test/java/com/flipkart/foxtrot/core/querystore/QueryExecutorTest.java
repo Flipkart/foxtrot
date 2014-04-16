@@ -2,9 +2,14 @@ package com.flipkart.foxtrot.core.querystore;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.flipkart.foxtrot.common.ActionResponse;
 import com.flipkart.foxtrot.common.Document;
 import com.flipkart.foxtrot.common.group.GroupRequest;
 import com.flipkart.foxtrot.common.query.Filter;
+import com.flipkart.foxtrot.common.query.FilterCombinerType;
+import com.flipkart.foxtrot.common.query.Query;
+import com.flipkart.foxtrot.common.query.ResultSort;
+import com.flipkart.foxtrot.common.query.general.EqualsFilter;
 import com.flipkart.foxtrot.core.MockElasticsearchServer;
 import com.flipkart.foxtrot.core.MockHTable;
 import com.flipkart.foxtrot.core.common.Action;
@@ -73,13 +78,30 @@ public class QueryExecutorTest {
     @Test
     public void testExecute() throws Exception {
         testFilterAction();
-        testGroupAction();
-        testHistogramAction();
-        testTrendAction();
+//        testGroupAction();
+//        testHistogramAction();
+//        testTrendAction();
     }
 
-    private void testFilterAction() {
-
+    private void testFilterAction() throws QueryStoreException, JsonProcessingException {
+//        List<Document> testDocuments = getTestDocuments();
+//        queryStore.save(TEST_APP, testDocuments);
+//
+////       Check 1
+//        Query query = new Query();
+//        Filter filter =  new EqualsFilter("os", "android");
+//        query.setLimit(2);
+//        query.setCombiner(FilterCombinerType.and);
+//        query.setTable(TEST_APP);
+//        query.setFilters(Arrays.asList(filter));
+//        ResultSort sort = new ResultSort();
+//        sort.setField("_timestamp");
+//        sort.setOrder(ResultSort.Order.desc);
+//        query.setSort(sort);
+//        ActionResponse response = queryExecutor.execute(query);
+//        String expectedResponse = "{\"opcode\":\"QueryResponse\",\"documents\":[{\"id\":\"B\",\"timestamp\":1397658118001,\"data\":{\"os\":\"android\",\"device\":\"galaxy\",\"version\":1}},{\"id\":\"A\",\"timestamp\":1397658118000L,\"data\":{\"os\":\"android\",\"device\":\"nexus\",\"version\":1}}]}";
+//        String actualResponse = mapper.writeValueAsString(response);
+//        assertEquals(expectedResponse, actualResponse);
     }
 
     private void testGroupAction() throws QueryStoreException, JsonProcessingException {
@@ -122,11 +144,11 @@ public class QueryExecutorTest {
 
     private List<Document> getTestDocuments(){
         List<Document> documents = new Vector<Document>();
-        documents.add(getDocument(UUID.randomUUID().toString(), System.currentTimeMillis(), new Object[]{ "os", "android", "version", 1, "device", "nexus"}));
-        documents.add(getDocument(UUID.randomUUID().toString(), System.currentTimeMillis(), new Object[]{ "os", "android", "version", 1, "device", "galaxy"}));
-        documents.add(getDocument(UUID.randomUUID().toString(), System.currentTimeMillis(), new Object[]{ "os", "android", "version", 2, "device", "nexus"}));
-        documents.add(getDocument(UUID.randomUUID().toString(), System.currentTimeMillis(), new Object[]{ "os", "iphone", "version", 1, "device", "iphone"}));
-        documents.add(getDocument(UUID.randomUUID().toString(), System.currentTimeMillis(), new Object[]{ "os", "iphone", "version", 2, "device", "ipad"}));
+        documents.add(getDocument("A", 1397658118000L, new Object[]{ "os", "android", "version", 1, "device", "nexus"}));
+        documents.add(getDocument("B", 1397658118001L, new Object[]{ "os", "android", "version", 1, "device", "galaxy"}));
+        documents.add(getDocument("C", 1397658118002L, new Object[]{ "os", "android", "version", 2, "device", "nexus"}));
+        documents.add(getDocument("D", 1397658118003L, new Object[]{ "os", "iphone", "version", 1, "device", "iphone"}));
+        documents.add(getDocument("E", 1397658118004L, new Object[]{ "os", "iphone", "version", 2, "device", "ipad"}));
         return documents;
     }
 
@@ -135,7 +157,7 @@ public class QueryExecutorTest {
         for ( int i = 0; i < args.length; i+= 2){
             data.put((String) args[i], args[i+1]);
         }
-        return new Document(id, mapper.valueToTree(data));
+        return new Document(id, System.currentTimeMillis(), mapper.valueToTree(data));
     }
 
     private void registerActions(AnalyticsLoader analyticsLoader) throws Exception {

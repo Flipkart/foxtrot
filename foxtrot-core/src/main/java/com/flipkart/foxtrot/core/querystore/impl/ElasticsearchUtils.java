@@ -67,6 +67,9 @@ public class ElasticsearchUtils {
                 "        \"_all\" : {\n" +
                 "          \"enabled\" : false\n" +
                 "        },\n" +
+                "        \"_timestamp\" : {\n" +
+                "          \"enabled\" : true\n" +
+                "        },\n" +
                 "        \"_source\" : {\n" +
                 "          \"enabled\" : false\n" +
                 "        }}");

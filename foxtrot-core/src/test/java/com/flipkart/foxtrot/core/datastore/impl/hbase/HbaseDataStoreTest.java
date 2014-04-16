@@ -74,6 +74,7 @@ public class HbaseDataStoreTest {
         List<Document> documents = new Vector<Document>();
         for( int i = 0 ; i < 10; i++){
             documents.add(new Document(UUID.randomUUID().toString(),
+                    System.currentTimeMillis(),
                     mapper.valueToTree(Collections.singletonMap("TEST_NAME", "SINGLE_SAVE_TEST")) ));
         }
         hbaseDataStore.save(TEST_APP, documents);
@@ -90,6 +91,7 @@ public class HbaseDataStoreTest {
         Result result = tableInterface.get(get);
         assertNotNull("Get for Id should not be null", result);
         Document actualDocument = new Document(savedDocument.getId(),
+                System.currentTimeMillis(),
                 mapper.readTree(result.getValue(COLUMN_FAMILY, DATA_FIELD_NAME)));
         compare(savedDocument, actualDocument);
     }
@@ -100,7 +102,7 @@ public class HbaseDataStoreTest {
         String id = UUID.randomUUID().toString();
         JsonNode data = mapper.valueToTree(Collections.singletonMap("TEST_NAME", "SINGLE_SAVE_TEST"));
 
-        Document expectedDocument = new Document(id, data);
+        Document expectedDocument = new Document(id, System.currentTimeMillis(), data);
         tableInterface.put(hbaseDataStore.getPutForDocument(TEST_APP, expectedDocument));
         Document actualDocument = hbaseDataStore.get(TEST_APP, id);
         verify(tableConnection, times(1)).getTable();
@@ -118,7 +120,7 @@ public class HbaseDataStoreTest {
             String id = UUID.randomUUID().toString();
             ids.add(id);
             idValues.put(id,
-                    new Document(id, mapper.valueToTree(Collections.singletonMap("TEST_NAME", "SINGLE_SAVE_TEST"))));
+                    new Document(id, System.currentTimeMillis(), mapper.valueToTree(Collections.singletonMap("TEST_NAME", "SINGLE_SAVE_TEST"))));
             putList.add(hbaseDataStore.getPutForDocument(TEST_APP, idValues.get(id)));
         }
         tableInterface.put(putList);

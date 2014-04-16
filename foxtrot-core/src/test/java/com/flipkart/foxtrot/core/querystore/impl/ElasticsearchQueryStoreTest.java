@@ -81,6 +81,7 @@ public class ElasticsearchQueryStoreTest {
         List<Document> documents = new Vector<Document>();
         for( int i = 0 ; i < 10; i++){
             documents.add(new Document(UUID.randomUUID().toString(),
+                    System.currentTimeMillis(),
                     mapper.valueToTree(Collections.singletonMap("TEST_NAME", "SINGLE_SAVE_TEST")) ));
         }
         queryStore.save(TEST_APP, documents);
@@ -100,7 +101,7 @@ public class ElasticsearchQueryStoreTest {
         String id = UUID.randomUUID().toString();
         long timestamp = System.currentTimeMillis();
         JsonNode data = mapper.valueToTree(Collections.singletonMap("TEST_NAME", "SINGLE_SAVE_TEST"));
-        Document document = new Document(id, data);
+        Document document = new Document(id, System.currentTimeMillis(), data);
         document.setTimestamp(timestamp);
         dataStore.save(TEST_APP, document);
 
@@ -117,7 +118,9 @@ public class ElasticsearchQueryStoreTest {
             String id = UUID.randomUUID().toString();
             ids.add(id);
             idValues.put(id,
-                    new Document(id, mapper.valueToTree(Collections.singletonMap("TEST_NAME", "SINGLE_SAVE_TEST"))));
+                    new Document(id,
+                            System.currentTimeMillis(),
+                            mapper.valueToTree(Collections.singletonMap("TEST_NAME", "SINGLE_SAVE_TEST"))));
            idValues.get(id).setTimestamp(System.currentTimeMillis());
         }
         for(Document document : idValues.values()){
