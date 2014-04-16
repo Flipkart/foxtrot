@@ -60,11 +60,13 @@ public class HbaseDataStore implements DataStore {
         try {
             Get get = new Get(Bytes.toBytes(id + ":" + table))
                     .addColumn(COLUMN_FAMILY, DATA_FIELD_NAME)
+                    .addColumn(COLUMN_FAMILY, TIMESTAMP_FIELD_NAME)
                     .setMaxVersions(1);
             Result getResult = tableWrapper.getTable().get(get);
             if(!getResult.isEmpty()) {
                 byte[] data = getResult.getValue(COLUMN_FAMILY, DATA_FIELD_NAME);
                 byte[] timestamp = getResult.getValue(COLUMN_FAMILY, TIMESTAMP_FIELD_NAME);
+                System.out.println("TIMESTAMP: " + (null == timestamp));
                 long time = (null != timestamp) ? Bytes.toLong(timestamp) : System.currentTimeMillis();
                 if(null != data) {
                     return new Document(id, time, mapper.readTree(data));
@@ -85,6 +87,7 @@ public class HbaseDataStore implements DataStore {
             for(String id: ids) {
                 Get get = new Get(Bytes.toBytes(id + ":" + table))
                     .addColumn(COLUMN_FAMILY, DATA_FIELD_NAME)
+                    .addColumn(COLUMN_FAMILY, TIMESTAMP_FIELD_NAME)
                     .setMaxVersions(1);
                 gets.add(get);
             }
