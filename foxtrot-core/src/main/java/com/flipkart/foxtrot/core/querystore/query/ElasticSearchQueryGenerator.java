@@ -100,7 +100,7 @@ public class ElasticSearchQueryGenerator extends FilterVisitor {
     }
 
     public BoolQueryBuilder genFilter(List<Filter> filters) throws Exception {
-        if(null == filters && filters.isEmpty()) {
+        if(null == filters || filters.isEmpty()) {
             addFilter(QueryBuilders.matchAllQuery());
         }
         else {
