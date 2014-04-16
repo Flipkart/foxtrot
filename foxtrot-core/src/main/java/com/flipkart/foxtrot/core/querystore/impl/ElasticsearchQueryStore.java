@@ -16,6 +16,7 @@ import com.flipkart.foxtrot.core.datastore.DataStoreException;
 import com.flipkart.foxtrot.core.querystore.QueryExecutor;
 import com.flipkart.foxtrot.core.querystore.QueryStore;
 import com.flipkart.foxtrot.core.querystore.QueryStoreException;
+import com.flipkart.foxtrot.core.querystore.TableMetadataManager;
 import com.flipkart.foxtrot.core.querystore.query.ElasticSearchQueryGenerator;
 import org.elasticsearch.action.WriteConsistencyLevel;
 import org.elasticsearch.action.bulk.BulkRequestBuilder;
@@ -46,14 +47,17 @@ import java.util.*;
 public class ElasticsearchQueryStore implements QueryStore {
     private static final Logger logger = LoggerFactory.getLogger(ElasticsearchQueryStore.class.getSimpleName());
 
+    private TableMetadataManager tableMetadataManager;
     private ElasticsearchConnection connection;
     private DataStore dataStore;
     private ObjectMapper mapper;
     private QueryExecutor queryExecutor;
 
 
-    public ElasticsearchQueryStore(ElasticsearchConnection connection,
+    public ElasticsearchQueryStore(TableMetadataManager tableMetadataManager,
+                                   ElasticsearchConnection connection,
                                    DataStore dataStore, QueryExecutor queryExecutor) {
+        this.tableMetadataManager = tableMetadataManager;
         this.connection = connection;
         this.dataStore = dataStore;
         this.mapper = ElasticsearchUtils.getMapper();
@@ -63,6 +67,10 @@ public class ElasticsearchQueryStore implements QueryStore {
     @Override
     public void save(String table, Document document) throws QueryStoreException {
         try {
+            if(!tableMetadataManager.exists(table)) {
+                throw new QueryStoreException(QueryStoreException.ErrorCode.NO_SUCH_TABLE,
+                                                "No table exists with the name: " + table);
+            }
             dataStore.save(table, document);
             long timestamp = document.getTimestamp();
             IndexResponse response = connection.getClient()
@@ -88,6 +96,10 @@ public class ElasticsearchQueryStore implements QueryStore {
     @Override
     public void save(String table, List<Document> documents) throws QueryStoreException {
         try {
+            if(!tableMetadataManager.exists(table)) {
+                throw new QueryStoreException(QueryStoreException.ErrorCode.NO_SUCH_TABLE,
+                        "No table exists with the name: " + table);
+            }
             dataStore.save(table, documents);
             BulkRequestBuilder bulkRequestBuilder = connection.getClient().prepareBulk();
             for(Document document: documents) {

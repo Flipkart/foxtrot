@@ -10,6 +10,7 @@ import com.flipkart.foxtrot.core.datastore.impl.hbase.HbaseDataStore;
 import com.flipkart.foxtrot.core.datastore.impl.hbase.HbaseTableConnection;
 import com.flipkart.foxtrot.core.querystore.QueryExecutor;
 import com.flipkart.foxtrot.core.querystore.QueryStore;
+import com.flipkart.foxtrot.core.querystore.TableMetadataManager;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsLoader;
 import com.flipkart.foxtrot.core.querystore.impl.*;
 import com.flipkart.foxtrot.server.config.FoxtrotServerConfiguration;
@@ -60,8 +61,11 @@ public class FoxtrotServer extends Service<FoxtrotServerConfiguration> {
         AnalyticsLoader analyticsLoader = new AnalyticsLoader(dataStore, elasticsearchConnection);
         environment.manage(new ManagedActionScanner(analyticsLoader, environment));
 
+        TableMetadataManager tableMetadataManager = new DistributedTableMetadataManager(hazelcastConnection, elasticsearchConnection);
+        environment.manage(tableMetadataManager);
+
         QueryExecutor executor = new QueryExecutor(analyticsLoader, executorService);
-        QueryStore queryStore = new ElasticsearchQueryStore(elasticsearchConnection, dataStore, executor);
+        QueryStore queryStore = new ElasticsearchQueryStore(tableMetadataManager, elasticsearchConnection, dataStore, executor);
 
         environment.addResource(new DocumentResource(queryStore));
         environment.addResource(new QueryResource(queryStore));
