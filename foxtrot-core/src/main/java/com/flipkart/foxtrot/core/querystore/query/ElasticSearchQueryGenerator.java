@@ -100,8 +100,13 @@ public class ElasticSearchQueryGenerator extends FilterVisitor {
     }
 
     public BoolQueryBuilder genFilter(List<Filter> filters) throws Exception {
-        for(Filter filter : filters) {
-            filter.accept(this);
+        if(null == filters || filters.isEmpty()) {
+            addFilter(QueryBuilders.matchAllQuery());
+        }
+        else {
+            for(Filter filter : filters) {
+                filter.accept(this);
+            }
         }
         return queryBuilder;//andFilterBuilder != null ? andFilterBuilder : orFilterBuilder;
     }
