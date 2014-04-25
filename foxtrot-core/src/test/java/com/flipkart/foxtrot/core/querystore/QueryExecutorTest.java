@@ -155,6 +155,67 @@ public class QueryExecutorTest {
         logger.info("Tested Query - No Filter - Limit 2");
     }
 
+    @Test
+    public void testFilterActionEqualsFilter() throws QueryStoreException, JsonProcessingException {
+        List<Document> testDocuments = getTestDocuments();
+        queryStore.save(TEST_APP, testDocuments);
+
+        logger.info("Testing Query - Equals Filter");
+        Query query = new Query();
+        query.setTable(TEST_APP);
+
+        ResultSort resultSort = new ResultSort();
+        resultSort.setOrder(ResultSort.Order.desc);
+        resultSort.setField("_timestamp");
+        query.setSort(resultSort);
+
+        EqualsFilter equalsFilter = new EqualsFilter();
+        equalsFilter.setField("os");
+        equalsFilter.setValue("ios");
+        query.setFilters(Collections.<Filter>singletonList(equalsFilter));
+
+        ActionResponse response = queryExecutor.execute(query);
+        String expectedResponse = "{\"opcode\":\"QueryResponse\",\"documents\":[" +
+                "{\"id\":\"E\",\"timestamp\":1397658118004,\"data\":{\"os\":\"ios\",\"device\":\"ipad\",\"version\":2}}," +
+                "{\"id\":\"D\",\"timestamp\":1397658118003,\"data\":{\"os\":\"ios\",\"device\":\"iphone\",\"version\":1}}" +
+                "]}";
+
+        String actualResponse = mapper.writeValueAsString(response);
+        assertEquals(expectedResponse, actualResponse);
+        logger.info("Tested Query - Equals Filter");
+    }
+
+    @Test
+    public void testFilterActionNotEqualsFilter() throws QueryStoreException, JsonProcessingException {
+        List<Document> testDocuments = getTestDocuments();
+        queryStore.save(TEST_APP, testDocuments);
+
+        logger.info("Testing Query - Not Equals Filter");
+        Query query = new Query();
+        query.setTable(TEST_APP);
+
+        ResultSort resultSort = new ResultSort();
+        resultSort.setOrder(ResultSort.Order.desc);
+        resultSort.setField("_timestamp");
+        query.setSort(resultSort);
+
+        NotEqualsFilter notEqualsFilter = new NotEqualsFilter();
+        notEqualsFilter.setField("os");
+        notEqualsFilter.setValue("ios");
+        query.setFilters(Collections.<Filter>singletonList(notEqualsFilter));
+
+        ActionResponse response = queryExecutor.execute(query);
+        String expectedResponse = "{\"opcode\":\"QueryResponse\",\"documents\":[" +
+                "{\"id\":\"C\",\"timestamp\":1397658118002,\"data\":{\"os\":\"android\",\"device\":\"nexus\",\"version\":2}}," +
+                "{\"id\":\"B\",\"timestamp\":1397658118001,\"data\":{\"os\":\"android\",\"device\":\"galaxy\",\"version\":1}}," +
+                "{\"id\":\"A\",\"timestamp\":1397658118000,\"data\":{\"os\":\"android\",\"device\":\"nexus\",\"version\":1}}" +
+                "]}";
+
+        String actualResponse = mapper.writeValueAsString(response);
+        assertEquals(expectedResponse, actualResponse);
+        logger.info("Tested Query - Not Equals Filter");
+    }
+
     private void testGroupAction() throws QueryStoreException, JsonProcessingException {
         List<Document> testDocuments = getTestDocuments();
         queryStore.save(TEST_APP, testDocuments);
