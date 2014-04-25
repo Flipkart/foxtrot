@@ -10,6 +10,7 @@ import com.flipkart.foxtrot.common.query.Query;
 import com.flipkart.foxtrot.common.query.ResultSort;
 import com.flipkart.foxtrot.common.query.general.EqualsFilter;
 import com.flipkart.foxtrot.common.query.general.NotEqualsFilter;
+import com.flipkart.foxtrot.common.query.numeric.*;
 import com.flipkart.foxtrot.core.MockElasticsearchServer;
 import com.flipkart.foxtrot.core.MockHTable;
 import com.flipkart.foxtrot.core.common.Action;
@@ -75,13 +76,6 @@ public class QueryExecutorTest {
         elasticsearchServer.shutdown();
     }
 
-//        Check 1 :: No Filter
-//        Check 2 :: One Filter - equals
-//        Check 3 :: One Filter - not_equals
-//        Check 4 :: One Filter - greater_than
-//        Check 5 :: One Filter - less_than
-//        Check 6 :: One Filter - greater_equal
-//        Check 7 :: One Filter - less_equal
 //        Check 8 :: One Filter - between
 //        Check 9 :: One Filter - any
 //        Check 10 :: Multiple Filters
@@ -107,7 +101,11 @@ public class QueryExecutorTest {
                 "{\"id\":\"D\",\"timestamp\":1397658118003,\"data\":{\"os\":\"ios\",\"device\":\"iphone\",\"version\":1}}," +
                 "{\"id\":\"C\",\"timestamp\":1397658118002,\"data\":{\"os\":\"android\",\"device\":\"nexus\",\"version\":2}}," +
                 "{\"id\":\"B\",\"timestamp\":1397658118001,\"data\":{\"os\":\"android\",\"device\":\"galaxy\",\"version\":1}}," +
-                "{\"id\":\"A\",\"timestamp\":1397658118000,\"data\":{\"os\":\"android\",\"device\":\"nexus\",\"version\":1}}" +
+                "{\"id\":\"A\",\"timestamp\":1397658118000,\"data\":{\"os\":\"android\",\"device\":\"nexus\",\"version\":1}}," +
+                "{\"id\":\"W\",\"timestamp\":1397658117000,\"data\":{\"os\":\"android\",\"battery\":99,\"device\":\"nexus\"}}," +
+                "{\"id\":\"X\",\"timestamp\":1397658117000,\"data\":{\"os\":\"android\",\"battery\":74,\"device\":\"nexus\"}}," +
+                "{\"id\":\"Y\",\"timestamp\":1397658117000,\"data\":{\"os\":\"android\",\"battery\":48,\"device\":\"nexus\"}}," +
+                "{\"id\":\"Z\",\"timestamp\":1397658117000,\"data\":{\"os\":\"android\",\"battery\":24,\"device\":\"nexus\"}}" +
                 "]}";
 
         String actualResponse = mapper.writeValueAsString(response);
@@ -124,13 +122,16 @@ public class QueryExecutorTest {
         query.setSort(resultSort);
         response = queryExecutor.execute(query);
         expectedResponse = "{\"opcode\":\"QueryResponse\",\"documents\":[" +
+                "{\"id\":\"W\",\"timestamp\":1397658117000,\"data\":{\"os\":\"android\",\"battery\":99,\"device\":\"nexus\"}}," +
+                "{\"id\":\"X\",\"timestamp\":1397658117000,\"data\":{\"os\":\"android\",\"battery\":74,\"device\":\"nexus\"}}," +
+                "{\"id\":\"Y\",\"timestamp\":1397658117000,\"data\":{\"os\":\"android\",\"battery\":48,\"device\":\"nexus\"}}," +
+                "{\"id\":\"Z\",\"timestamp\":1397658117000,\"data\":{\"os\":\"android\",\"battery\":24,\"device\":\"nexus\"}}," +
                 "{\"id\":\"A\",\"timestamp\":1397658118000,\"data\":{\"os\":\"android\",\"device\":\"nexus\",\"version\":1}}," +
                 "{\"id\":\"B\",\"timestamp\":1397658118001,\"data\":{\"os\":\"android\",\"device\":\"galaxy\",\"version\":1}}," +
                 "{\"id\":\"C\",\"timestamp\":1397658118002,\"data\":{\"os\":\"android\",\"device\":\"nexus\",\"version\":2}}," +
                 "{\"id\":\"D\",\"timestamp\":1397658118003,\"data\":{\"os\":\"ios\",\"device\":\"iphone\",\"version\":1}}," +
                 "{\"id\":\"E\",\"timestamp\":1397658118004,\"data\":{\"os\":\"ios\",\"device\":\"ipad\",\"version\":2}}" +
                 "]}";
-
         actualResponse = mapper.writeValueAsString(response);
         assertEquals(expectedResponse, actualResponse);
         logger.info("Tested Query - No Filter - Sort Ascending");
@@ -160,7 +161,7 @@ public class QueryExecutorTest {
         List<Document> testDocuments = getTestDocuments();
         queryStore.save(TEST_APP, testDocuments);
 
-        logger.info("Testing Query - Equals Filter");
+        logger.info("Testing Query - equals Filter");
         Query query = new Query();
         query.setTable(TEST_APP);
 
@@ -182,7 +183,7 @@ public class QueryExecutorTest {
 
         String actualResponse = mapper.writeValueAsString(response);
         assertEquals(expectedResponse, actualResponse);
-        logger.info("Tested Query - Equals Filter");
+        logger.info("Tested Query - equals Filter");
     }
 
     @Test
@@ -190,9 +191,10 @@ public class QueryExecutorTest {
         List<Document> testDocuments = getTestDocuments();
         queryStore.save(TEST_APP, testDocuments);
 
-        logger.info("Testing Query - Not Equals Filter");
+        logger.info("Testing Query - not_equals Filter");
         Query query = new Query();
         query.setTable(TEST_APP);
+        query.setLimit(3);
 
         ResultSort resultSort = new ResultSort();
         resultSort.setOrder(ResultSort.Order.desc);
@@ -213,7 +215,163 @@ public class QueryExecutorTest {
 
         String actualResponse = mapper.writeValueAsString(response);
         assertEquals(expectedResponse, actualResponse);
-        logger.info("Tested Query - Not Equals Filter");
+        logger.info("Tested Query - not_equals Filter");
+    }
+
+    @Test
+    public void testFilterActionGreaterThanFilter() throws QueryStoreException, JsonProcessingException {
+        List<Document> testDocuments = getTestDocuments();
+        queryStore.save(TEST_APP, testDocuments);
+
+        logger.info("Testing Query - greater_than Filter");
+        Query query = new Query();
+        query.setTable(TEST_APP);
+        query.setLimit(3);
+
+        ResultSort resultSort = new ResultSort();
+        resultSort.setOrder(ResultSort.Order.desc);
+        resultSort.setField("_timestamp");
+        query.setSort(resultSort);
+
+        GreaterThanFilter greaterThanFilter = new GreaterThanFilter();
+        greaterThanFilter.setField("battery");
+        greaterThanFilter.setValue(48);
+        query.setFilters(Collections.<Filter>singletonList(greaterThanFilter));
+
+        ActionResponse response = queryExecutor.execute(query);
+        String expectedResponse = "{\"opcode\":\"QueryResponse\",\"documents\":[" +
+                "{\"id\":\"W\",\"timestamp\":1397658117000,\"data\":{\"os\":\"android\",\"battery\":99,\"device\":\"nexus\"}}," +
+                "{\"id\":\"X\",\"timestamp\":1397658117000,\"data\":{\"os\":\"android\",\"battery\":74,\"device\":\"nexus\"}}" +
+                "]}";
+
+        String actualResponse = mapper.writeValueAsString(response);
+        assertEquals(expectedResponse, actualResponse);
+        logger.info("Tested Query - greater_than Filter");
+    }
+
+    @Test
+    public void testFilterActionGreaterEqualFilter() throws QueryStoreException, JsonProcessingException {
+        List<Document> testDocuments = getTestDocuments();
+        queryStore.save(TEST_APP, testDocuments);
+
+        logger.info("Testing Query - greater_equal Filter");
+        Query query = new Query();
+        query.setTable(TEST_APP);
+        query.setLimit(3);
+
+        ResultSort resultSort = new ResultSort();
+        resultSort.setOrder(ResultSort.Order.desc);
+        resultSort.setField("_timestamp");
+        query.setSort(resultSort);
+
+        GreaterEqualFilter greaterEqualFilter = new GreaterEqualFilter();
+        greaterEqualFilter.setField("battery");
+        greaterEqualFilter.setValue(48);
+        query.setFilters(Collections.<Filter>singletonList(greaterEqualFilter));
+
+        ActionResponse response = queryExecutor.execute(query);
+        String expectedResponse = "{\"opcode\":\"QueryResponse\",\"documents\":[" +
+                "{\"id\":\"W\",\"timestamp\":1397658117000,\"data\":{\"os\":\"android\",\"battery\":99,\"device\":\"nexus\"}}," +
+                "{\"id\":\"X\",\"timestamp\":1397658117000,\"data\":{\"os\":\"android\",\"battery\":74,\"device\":\"nexus\"}}," +
+                "{\"id\":\"Y\",\"timestamp\":1397658117000,\"data\":{\"os\":\"android\",\"battery\":48,\"device\":\"nexus\"}}" +
+                "]}";
+
+        String actualResponse = mapper.writeValueAsString(response);
+        assertEquals(expectedResponse, actualResponse);
+        logger.info("Tested Query - greater_equal Filter");
+    }
+
+    @Test
+    public void testFilterActionLessThanFilter() throws QueryStoreException, JsonProcessingException {
+        List<Document> testDocuments = getTestDocuments();
+        queryStore.save(TEST_APP, testDocuments);
+
+        logger.info("Testing Query - less_than Filter");
+        Query query = new Query();
+        query.setTable(TEST_APP);
+        query.setLimit(3);
+
+        ResultSort resultSort = new ResultSort();
+        resultSort.setOrder(ResultSort.Order.desc);
+        resultSort.setField("_timestamp");
+        query.setSort(resultSort);
+
+        LessThanFilter lessThanFilter = new LessThanFilter();
+        lessThanFilter.setField("battery");
+        lessThanFilter.setValue(48);
+        query.setFilters(Collections.<Filter>singletonList(lessThanFilter));
+
+        ActionResponse response = queryExecutor.execute(query);
+        String expectedResponse = "{\"opcode\":\"QueryResponse\",\"documents\":[" +
+                "{\"id\":\"Z\",\"timestamp\":1397658117000,\"data\":{\"os\":\"android\",\"battery\":24,\"device\":\"nexus\"}}" +
+                "]}";
+
+        String actualResponse = mapper.writeValueAsString(response);
+        assertEquals(expectedResponse, actualResponse);
+        logger.info("Tested Query - less_than Filter");
+    }
+
+    @Test
+    public void testFilterActionLessEqualFilter() throws QueryStoreException, JsonProcessingException {
+        List<Document> testDocuments = getTestDocuments();
+        queryStore.save(TEST_APP, testDocuments);
+
+        logger.info("Testing Query - greater_equal Filter");
+        Query query = new Query();
+        query.setTable(TEST_APP);
+        query.setLimit(3);
+
+        ResultSort resultSort = new ResultSort();
+        resultSort.setOrder(ResultSort.Order.desc);
+        resultSort.setField("_timestamp");
+        query.setSort(resultSort);
+
+        LessEqualFilter lessEqualFilter = new LessEqualFilter();
+        lessEqualFilter.setField("battery");
+        lessEqualFilter.setValue(48);
+        query.setFilters(Collections.<Filter>singletonList(lessEqualFilter));
+
+        ActionResponse response = queryExecutor.execute(query);
+        String expectedResponse = "{\"opcode\":\"QueryResponse\",\"documents\":[" +
+                "{\"id\":\"Y\",\"timestamp\":1397658117000,\"data\":{\"os\":\"android\",\"battery\":48,\"device\":\"nexus\"}}," +
+                "{\"id\":\"Z\",\"timestamp\":1397658117000,\"data\":{\"os\":\"android\",\"battery\":24,\"device\":\"nexus\"}}" +
+                "]}";
+
+        String actualResponse = mapper.writeValueAsString(response);
+        assertEquals(expectedResponse, actualResponse);
+        logger.info("Tested Query - greater_equal Filter");
+    }
+
+    @Test
+    public void testFilterActionBetweenFilter() throws QueryStoreException, JsonProcessingException {
+        List<Document> testDocuments = getTestDocuments();
+        queryStore.save(TEST_APP, testDocuments);
+
+        logger.info("Testing Query - between Filter");
+        Query query = new Query();
+        query.setTable(TEST_APP);
+        query.setLimit(3);
+
+        ResultSort resultSort = new ResultSort();
+        resultSort.setOrder(ResultSort.Order.desc);
+        resultSort.setField("_timestamp");
+        query.setSort(resultSort);
+
+        BetweenFilter betweenFilter = new BetweenFilter();
+        betweenFilter.setField("battery");
+        betweenFilter.setFrom(47);
+        betweenFilter.setTo(75);
+        query.setFilters(Collections.<Filter>singletonList(betweenFilter));
+
+        ActionResponse response = queryExecutor.execute(query);
+        String expectedResponse = "{\"opcode\":\"QueryResponse\",\"documents\":[" +
+                "{\"id\":\"X\",\"timestamp\":1397658117000,\"data\":{\"os\":\"android\",\"battery\":74,\"device\":\"nexus\"}}," +
+                "{\"id\":\"Y\",\"timestamp\":1397658117000,\"data\":{\"os\":\"android\",\"battery\":48,\"device\":\"nexus\"}}" +
+                "]}";
+
+        String actualResponse = mapper.writeValueAsString(response);
+        assertEquals(expectedResponse, actualResponse);
+        logger.info("Tested Query - between Filter");
     }
 
     private void testGroupAction() throws QueryStoreException, JsonProcessingException {
@@ -256,6 +414,11 @@ public class QueryExecutorTest {
 
     private List<Document> getTestDocuments(){
         List<Document> documents = new Vector<Document>();
+
+        documents.add(getDocument("Z", 1397658117000L, new Object[]{ "os", "android", "device", "nexus", "battery", 24}));
+        documents.add(getDocument("Y", 1397658117000L, new Object[]{ "os", "android", "device", "nexus", "battery", 48}));
+        documents.add(getDocument("X", 1397658117000L, new Object[]{ "os", "android", "device", "nexus", "battery", 74}));
+        documents.add(getDocument("W", 1397658117000L, new Object[]{ "os", "android", "device", "nexus", "battery", 99}));
         documents.add(getDocument("A", 1397658118000L, new Object[]{ "os", "android", "version", 1, "device", "nexus"}));
         documents.add(getDocument("B", 1397658118001L, new Object[]{ "os", "android", "version", 1, "device", "galaxy"}));
         documents.add(getDocument("C", 1397658118002L, new Object[]{ "os", "android", "version", 2, "device", "nexus"}));
