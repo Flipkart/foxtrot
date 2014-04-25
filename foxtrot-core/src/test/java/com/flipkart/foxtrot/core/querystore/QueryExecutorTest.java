@@ -393,7 +393,70 @@ public class QueryExecutorTest {
         logger.info("Tested Query - Empty Result Test");
     }
 
-    private void testGroupAction() throws QueryStoreException, JsonProcessingException {
+    @Test
+    public void testFilterActionMultipleFiltersEmptyResult() throws QueryStoreException, JsonProcessingException {
+        List<Document> testDocuments = getTestDocuments();
+        queryStore.save(TEST_APP, testDocuments);
+
+        logger.info("Testing Query - Multiple Filters - Empty Result");
+        Query query = new Query();
+        query.setTable(TEST_APP);
+
+        EqualsFilter equalsFilter = new EqualsFilter();
+        equalsFilter.setField("os");
+        equalsFilter.setValue("android");
+
+        GreaterEqualFilter greaterEqualFilter = new GreaterEqualFilter();
+        greaterEqualFilter.setField("battery");
+        greaterEqualFilter.setValue(100);
+
+        List<Filter> filters = new Vector<Filter>();
+        filters.add(equalsFilter);
+        filters.add(greaterEqualFilter);
+        query.setFilters(filters);
+
+        ActionResponse response = queryExecutor.execute(query);
+        String expectedResponse = "{\"opcode\":\"QueryResponse\",\"documents\":[" +
+                "]}";
+
+        String actualResponse = mapper.writeValueAsString(response);
+        assertEquals(expectedResponse, actualResponse);
+        logger.info("Tested Query - Multiple Filters - Empty Result");
+    }
+
+    @Test
+    public void testFilterActionMultipleFilters() throws QueryStoreException, JsonProcessingException {
+        List<Document> testDocuments = getTestDocuments();
+        queryStore.save(TEST_APP, testDocuments);
+        logger.info("Testing Query - Multiple Filters - Non Empty Result");
+        Query query = new Query();
+        query.setTable(TEST_APP);
+
+        EqualsFilter equalsFilter = new EqualsFilter();
+        equalsFilter.setField("os");
+        equalsFilter.setValue("android");
+
+        GreaterEqualFilter greaterEqualFilter = new GreaterEqualFilter();
+        greaterEqualFilter.setField("battery");
+        greaterEqualFilter.setValue(98);
+
+        List<Filter> filters = new Vector<Filter>();
+        filters.add(equalsFilter);
+        filters.add(greaterEqualFilter);
+        query.setFilters(filters);
+
+        ActionResponse response = queryExecutor.execute(query);
+        String expectedResponse = "{\"opcode\":\"QueryResponse\",\"documents\":[" +
+                "{\"id\":\"W\",\"timestamp\":1397658117000,\"data\":{\"os\":\"android\",\"battery\":99,\"device\":\"nexus\"}}" +
+                "]}";
+
+        String actualResponse = mapper.writeValueAsString(response);
+        assertEquals(expectedResponse, actualResponse);
+        logger.info("Tested Query - Multiple Filters - Non Empty Result");
+    }
+
+    @Test
+    public void testGroupAction() throws QueryStoreException, JsonProcessingException {
         List<Document> testDocuments = getTestDocuments();
         queryStore.save(TEST_APP, testDocuments);
         GroupRequest groupRequest = new GroupRequest();
@@ -404,24 +467,6 @@ public class QueryExecutorTest {
         String expectedResult = "{\"opcode\":\"group\",\"result\":{\"android\":{\"1\":2,\"2\":1},\"iphone\":{\"1\":1,\"2\":1}}}";
         String actualResult = mapper.writeValueAsString(queryExecutor.execute(groupRequest));
         assertEquals(expectedResult, actualResult);
-    }
-
-    private void testHistogramAction() {
-
-    }
-
-    private void testTrendAction(){
-
-    }
-
-    @Test
-    public void testExecuteAsync() throws Exception {
-
-    }
-
-    @Test
-    public void testResolve() throws Exception {
-
     }
 
     private DataStore getDataStore() throws DataStoreException {
