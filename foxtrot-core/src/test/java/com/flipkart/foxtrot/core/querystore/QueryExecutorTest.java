@@ -54,7 +54,6 @@ public class QueryExecutorTest {
 
     @Before
     public void setUp() throws Exception {
-
         ElasticsearchUtils.setMapper(mapper);
         DataStore dataStore = getDataStore();
 
@@ -76,10 +75,7 @@ public class QueryExecutorTest {
         elasticsearchServer.shutdown();
     }
 
-//        Check 8 :: One Filter - between
-//        Check 9 :: One Filter - any
 //        Check 10 :: Multiple Filters
-//        Check 11 :: Filter with Sort
 //        Check 12 :: Filter with Pagination
 
     @Test
@@ -372,6 +368,29 @@ public class QueryExecutorTest {
         String actualResponse = mapper.writeValueAsString(response);
         assertEquals(expectedResponse, actualResponse);
         logger.info("Tested Query - between Filter");
+    }
+
+    @Test
+    public void testFilterActionEmptyResult() throws QueryStoreException, JsonProcessingException {
+        List<Document> testDocuments = getTestDocuments();
+        queryStore.save(TEST_APP, testDocuments);
+
+        logger.info("Testing Query - Empty Result Test");
+        Query query = new Query();
+        query.setTable(TEST_APP);
+
+        EqualsFilter equalsFilter = new EqualsFilter();
+        equalsFilter.setField("os");
+        equalsFilter.setValue("wp8");
+        query.setFilters(Collections.<Filter>singletonList(equalsFilter));
+
+        ActionResponse response = queryExecutor.execute(query);
+        String expectedResponse = "{\"opcode\":\"QueryResponse\",\"documents\":[" +
+                "]}";
+
+        String actualResponse = mapper.writeValueAsString(response);
+        assertEquals(expectedResponse, actualResponse);
+        logger.info("Tested Query - Empty Result Test");
     }
 
     private void testGroupAction() throws QueryStoreException, JsonProcessingException {
