@@ -2,6 +2,7 @@ package com.flipkart.foxtrot.core.datastore.impl.hbase;
 
 import com.flipkart.foxtrot.core.datastore.DataStoreException;
 import com.yammer.dropwizard.lifecycle.Managed;
+import net.sourceforge.cobertura.CoverageIgnore;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.HBaseConfiguration;
 import org.apache.hadoop.hbase.client.HTableInterface;
@@ -18,6 +19,7 @@ import java.io.File;
  * Date: 13/03/14
  * Time: 7:35 PM
  */
+@CoverageIgnore
 public class HbaseTableConnection implements Managed {
     private static final Logger logger = LoggerFactory.getLogger(HbaseTableConnection.class.getSimpleName());
 
@@ -61,8 +63,6 @@ public class HbaseTableConnection implements Managed {
             }
         }
         tablePool = new HTablePool(configuration, 10, PoolMap.PoolType.Reusable);
-        //HTableFactory hTableFactory = new HTableFactory();
-        //this.table = hTableFactory.createHTableInterface(configuration, Bytes.toBytes(this.hbaseConfig.getTableName()));
     }
 
     @Override
