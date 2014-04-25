@@ -4,8 +4,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.flipkart.foxtrot.common.ActionResponse;
 import com.flipkart.foxtrot.common.Document;
-import com.flipkart.foxtrot.common.group.GroupRequest;
 import com.flipkart.foxtrot.common.query.Filter;
+import com.flipkart.foxtrot.common.query.FilterCombinerType;
 import com.flipkart.foxtrot.common.query.Query;
 import com.flipkart.foxtrot.common.query.ResultSort;
 import com.flipkart.foxtrot.common.query.general.EqualsFilter;
@@ -75,13 +75,11 @@ public class QueryExecutorTest {
         elasticsearchServer.shutdown();
     }
 
-//        Check 12 :: Filter with Pagination
-
     @Test
     public void testFilterActionNoFilterAscending() throws QueryStoreException, JsonProcessingException {
+        logger.info("Testing Query - No Filter - Sort Ascending");
         List<Document> testDocuments = getTestDocuments();
         queryStore.save(TEST_APP, testDocuments);
-        logger.info("Testing Query - No Filter - Sort Ascending");
         Query query = new Query();
         query.setTable(TEST_APP);
         ResultSort resultSort = new ResultSort();
@@ -107,11 +105,9 @@ public class QueryExecutorTest {
 
     @Test
     public void testFilterActionNoFilterDescending() throws QueryStoreException, JsonProcessingException {
+        logger.info("Testing Query - No Filter - Sort Descending");
         List<Document> testDocuments = getTestDocuments();
         queryStore.save(TEST_APP, testDocuments);
-
-//        Check 1 :: No filter - Sort Descending
-        logger.info("Testing Query - No Filter - Sort Descending");
         Query query = new Query();
         query.setTable(TEST_APP);
         ResultSort resultSort = new ResultSort();
@@ -432,7 +428,7 @@ public class QueryExecutorTest {
     }
 
     @Test
-    public void testFilterActionMultipleFilters() throws QueryStoreException, JsonProcessingException {
+    public void testFilterActionMultipleFiltersAndCombiner() throws QueryStoreException, JsonProcessingException {
         List<Document> testDocuments = getTestDocuments();
         queryStore.save(TEST_APP, testDocuments);
         logger.info("Testing Query - Multiple Filters - Non Empty Result");
@@ -463,18 +459,95 @@ public class QueryExecutorTest {
     }
 
     @Test
-    public void testGroupAction() throws QueryStoreException, JsonProcessingException {
+    public void testFilterActionMultipleFiltersOrCombiner() throws QueryStoreException, JsonProcessingException {
         List<Document> testDocuments = getTestDocuments();
         queryStore.save(TEST_APP, testDocuments);
-        GroupRequest groupRequest = new GroupRequest();
-        groupRequest.setTable(TEST_APP);
-        groupRequest.setFilters(new ArrayList<Filter>());
-        groupRequest.setNesting(Arrays.asList("os", "version"));
+        logger.info("Testing Query - Multiple Filters - Or Combiner - Non Empty Result");
+        Query query = new Query();
+        query.setTable(TEST_APP);
 
-        String expectedResult = "{\"opcode\":\"GroupResponse\",\"result\":{\"android\":{\"1\":2,\"2\":1},\"iphone\":{\"1\":1,\"2\":1}}}";
-        String actualResult = mapper.writeValueAsString(queryExecutor.execute(groupRequest));
-        assertEquals(expectedResult, actualResult);
+        ResultSort resultSort = new ResultSort();
+        resultSort.setOrder(ResultSort.Order.desc);
+        resultSort.setField("_timestamp");
+        query.setSort(resultSort);
+
+        EqualsFilter equalsFilter = new EqualsFilter();
+        equalsFilter.setField("os");
+        equalsFilter.setValue("ios");
+
+        EqualsFilter equalsFilter2 = new EqualsFilter();
+        equalsFilter2.setField("device");
+        equalsFilter2.setValue("nexus");
+
+        List<Filter> filters = new Vector<Filter>();
+        filters.add(equalsFilter);
+        filters.add(equalsFilter2);
+        query.setFilters(filters);
+
+        query.setCombiner(FilterCombinerType.or);
+
+        ActionResponse response = queryExecutor.execute(query);
+        String expectedResponse = "{\"opcode\":\"QueryResponse\",\"documents\":[" +
+                "{\"id\":\"E\",\"timestamp\":1397658118004,\"data\":{\"os\":\"ios\",\"device\":\"ipad\",\"version\":2}}," +
+                "{\"id\":\"D\",\"timestamp\":1397658118003,\"data\":{\"os\":\"ios\",\"device\":\"iphone\",\"version\":1}}," +
+                "{\"id\":\"C\",\"timestamp\":1397658118002,\"data\":{\"os\":\"android\",\"device\":\"nexus\",\"version\":2}}," +
+                "{\"id\":\"A\",\"timestamp\":1397658118000,\"data\":{\"os\":\"android\",\"device\":\"nexus\",\"version\":1}}," +
+                "{\"id\":\"W\",\"timestamp\":1397658117000,\"data\":{\"os\":\"android\",\"battery\":99,\"device\":\"nexus\"}}," +
+                "{\"id\":\"X\",\"timestamp\":1397658117000,\"data\":{\"os\":\"android\",\"battery\":74,\"device\":\"nexus\"}}," +
+                "{\"id\":\"Y\",\"timestamp\":1397658117000,\"data\":{\"os\":\"android\",\"battery\":48,\"device\":\"nexus\"}}," +
+                "{\"id\":\"Z\",\"timestamp\":1397658117000,\"data\":{\"os\":\"android\",\"battery\":24,\"device\":\"nexus\"}}" +
+                "]}";
+
+        String actualResponse = mapper.writeValueAsString(response);
+        assertEquals(expectedResponse, actualResponse);
+        logger.info("Tested Query - Multiple Filters - Or Combiner - Non Empty Result");
     }
+
+    @Test
+    public void testFilterActionPagination() throws QueryStoreException, JsonProcessingException {
+        List<Document> testDocuments = getTestDocuments();
+        queryStore.save(TEST_APP, testDocuments);
+
+        logger.info("Testing Query - Filter with Pagination");
+        Query query = new Query();
+        query.setTable(TEST_APP);
+
+        ResultSort resultSort = new ResultSort();
+        resultSort.setOrder(ResultSort.Order.desc);
+        resultSort.setField("_timestamp");
+        query.setSort(resultSort);
+
+        EqualsFilter equalsFilter = new EqualsFilter();
+        equalsFilter.setField("os");
+        equalsFilter.setValue("ios");
+        query.setFilters(Collections.<Filter>singletonList(equalsFilter));
+
+        query.setFrom(1);
+        query.setLimit(1);
+
+        ActionResponse response = queryExecutor.execute(query);
+        String expectedResponse = "{\"opcode\":\"QueryResponse\",\"documents\":[" +
+                "{\"id\":\"D\",\"timestamp\":1397658118003,\"data\":{\"os\":\"ios\",\"device\":\"iphone\",\"version\":1}}" +
+                "]}";
+
+        String actualResponse = mapper.writeValueAsString(response);
+        assertEquals(expectedResponse, actualResponse);
+        logger.info("Tested Query - Filter with Pagination");
+    }
+
+//    @Test
+//    public void testGroupAction() throws QueryStoreException, JsonProcessingException {
+//        List<Document> testDocuments = getTestDocuments();
+//        queryStore.save(TEST_APP, testDocuments);
+//        GroupRequest groupRequest = new GroupRequest();
+//        groupRequest.setTable(TEST_APP);
+//        groupRequest.setFilters(new ArrayList<Filter>());
+//        groupRequest.setNesting(Arrays.asList("os", "version"));
+//
+//        String expectedResult = "{\"opcode\":\"GroupResponse\",\"result\":{\"android\":{\"1\":2,\"2\":1},\"iphone\":{\"1\":1,\"2\":1}}}";
+//        String actualResult = mapper.writeValueAsString(queryExecutor.execute(groupRequest));
+//        assertEquals(expectedResult, actualResult);
+//    }
 
     private DataStore getDataStore() throws DataStoreException {
         HTableInterface tableInterface = MockHTable.create();
