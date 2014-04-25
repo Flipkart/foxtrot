@@ -1,5 +1,6 @@
 package com.flipkart.foxtrot.core;
 
+import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
 import org.apache.commons.io.FileUtils;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.common.settings.ImmutableSettings;
@@ -27,6 +28,7 @@ public class MockElasticsearchServer {
                 .local(true)
                 .settings(elasticsearchSettings.build())
                 .node();
+        ElasticsearchUtils.initializeMappings(node.client());
     }
 
     public Client getClient() {

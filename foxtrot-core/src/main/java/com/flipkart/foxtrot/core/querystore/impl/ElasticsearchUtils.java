@@ -3,6 +3,7 @@ package com.flipkart.foxtrot.core.querystore.impl;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.elasticsearch.action.admin.indices.template.put.PutIndexTemplateRequest;
 import org.elasticsearch.action.admin.indices.template.put.PutIndexTemplateRequestBuilder;
+import org.elasticsearch.client.Client;
 import org.elasticsearch.client.IndicesAdminClient;
 
 import java.text.SimpleDateFormat;
@@ -68,11 +69,17 @@ public class ElasticsearchUtils {
                 "          \"enabled\" : false\n" +
                 "        },\n" +
                 "        \"_timestamp\" : {\n" +
-                "          \"enabled\" : true\n" +
+                "          \"enabled\" : true\n," +
+                "          \"store\" : true\n" +
                 "        },\n" +
                 "        \"_source\" : {\n" +
                 "          \"enabled\" : false\n" +
                 "        }}");
         return builder.request();
+    }
+
+    public static void initializeMappings(Client client){
+        PutIndexTemplateRequest templateRequest = getClusterTemplateMapping(client.admin().indices());
+        client.admin().indices().putTemplate(templateRequest).actionGet();
     }
 }

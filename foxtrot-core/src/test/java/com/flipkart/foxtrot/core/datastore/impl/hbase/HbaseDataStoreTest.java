@@ -91,7 +91,7 @@ public class HbaseDataStoreTest {
         Result result = tableInterface.get(get);
         assertNotNull("Get for Id should not be null", result);
         Document actualDocument = new Document(savedDocument.getId(),
-                System.currentTimeMillis(),
+                savedDocument.getTimestamp(),
                 mapper.readTree(result.getValue(COLUMN_FAMILY, DATA_FIELD_NAME)));
         compare(savedDocument, actualDocument);
     }
@@ -147,6 +147,7 @@ public class HbaseDataStoreTest {
         assertNotNull("Actual document Id should not be null", actual.getId());
         assertNotNull("Actual document data should not be null", actual.getData());
         assertEquals("Actual Doc Id should match expected Doc Id", expected.getId(), actual.getId());
+        assertEquals("Actual Doc Timestamp should match expected Doc Timestamp", expected.getTimestamp(), actual.getTimestamp());
         String expectedData = mapper.writeValueAsString(expected.getData());
         String actualData = mapper.writeValueAsString(actual.getData());
         assertEquals("Actual data should match expected data", expectedData, actualData);

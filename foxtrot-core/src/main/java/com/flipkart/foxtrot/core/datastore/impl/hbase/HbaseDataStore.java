@@ -91,7 +91,6 @@ public class HbaseDataStore implements DataStore {
             if(!getResult.isEmpty()) {
                 byte[] data = getResult.getValue(COLUMN_FAMILY, DATA_FIELD_NAME);
                 byte[] timestamp = getResult.getValue(COLUMN_FAMILY, TIMESTAMP_FIELD_NAME);
-                System.out.println("TIMESTAMP: " + (null == timestamp));
                 long time = (null != timestamp) ? Bytes.toLong(timestamp) : System.currentTimeMillis();
                 if(null != data) {
                     return new Document(id, time, mapper.readTree(data));

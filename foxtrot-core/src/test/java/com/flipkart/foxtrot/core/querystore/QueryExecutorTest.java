@@ -6,10 +6,10 @@ import com.flipkart.foxtrot.common.ActionResponse;
 import com.flipkart.foxtrot.common.Document;
 import com.flipkart.foxtrot.common.group.GroupRequest;
 import com.flipkart.foxtrot.common.query.Filter;
-import com.flipkart.foxtrot.common.query.FilterCombinerType;
 import com.flipkart.foxtrot.common.query.Query;
 import com.flipkart.foxtrot.common.query.ResultSort;
 import com.flipkart.foxtrot.common.query.general.EqualsFilter;
+import com.flipkart.foxtrot.common.query.general.NotEqualsFilter;
 import com.flipkart.foxtrot.core.MockElasticsearchServer;
 import com.flipkart.foxtrot.core.MockHTable;
 import com.flipkart.foxtrot.core.common.Action;
@@ -24,13 +24,14 @@ import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConnection;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchQueryStore;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
 import org.apache.hadoop.hbase.client.HTableInterface;
-import org.elasticsearch.action.admin.indices.template.put.PutIndexTemplateRequest;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.reflections.Reflections;
 import org.reflections.scanners.SubTypesScanner;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
 import java.util.concurrent.ExecutorService;
@@ -43,6 +44,7 @@ import static org.mockito.Mockito.when;
  * Created by rishabh.goyal on 16/04/14.
  */
 public class QueryExecutorTest {
+    private static final Logger logger = LoggerFactory.getLogger(QueryExecutorTest.class.getSimpleName());
     QueryExecutor queryExecutor;
     QueryStore queryStore;
     ObjectMapper mapper = new ObjectMapper();
@@ -57,8 +59,6 @@ public class QueryExecutorTest {
 
         ElasticsearchConnection elasticsearchConnection = Mockito.mock(ElasticsearchConnection.class);
         when(elasticsearchConnection.getClient()).thenReturn(elasticsearchServer.getClient());
-        PutIndexTemplateRequest templateRequest = ElasticsearchUtils.getClusterTemplateMapping(elasticsearchConnection.getClient().admin().indices());
-        elasticsearchConnection.getClient().admin().indices().putTemplate(templateRequest).actionGet();
         AnalyticsLoader analyticsLoader = new AnalyticsLoader(dataStore, elasticsearchConnection);
         registerActions(analyticsLoader);
         ExecutorService executorService = Executors.newFixedThreadPool(1);
@@ -75,33 +75,84 @@ public class QueryExecutorTest {
         elasticsearchServer.shutdown();
     }
 
-    @Test
-    public void testExecute() throws Exception {
-        testFilterAction();
-//        testGroupAction();
-//        testHistogramAction();
-//        testTrendAction();
-    }
+//        Check 1 :: No Filter
+//        Check 2 :: One Filter - equals
+//        Check 3 :: One Filter - not_equals
+//        Check 4 :: One Filter - greater_than
+//        Check 5 :: One Filter - less_than
+//        Check 6 :: One Filter - greater_equal
+//        Check 7 :: One Filter - less_equal
+//        Check 8 :: One Filter - between
+//        Check 9 :: One Filter - any
+//        Check 10 :: Multiple Filters
+//        Check 11 :: Filter with Sort
+//        Check 12 :: Filter with Pagination
 
-    private void testFilterAction() throws QueryStoreException, JsonProcessingException {
-//        List<Document> testDocuments = getTestDocuments();
-//        queryStore.save(TEST_APP, testDocuments);
-//
-////       Check 1
-//        Query query = new Query();
-//        Filter filter =  new EqualsFilter("os", "android");
-//        query.setLimit(2);
-//        query.setCombiner(FilterCombinerType.and);
-//        query.setTable(TEST_APP);
-//        query.setFilters(Arrays.asList(filter));
-//        ResultSort sort = new ResultSort();
-//        sort.setField("_timestamp");
-//        sort.setOrder(ResultSort.Order.desc);
-//        query.setSort(sort);
-//        ActionResponse response = queryExecutor.execute(query);
-//        String expectedResponse = "{\"opcode\":\"QueryResponse\",\"documents\":[{\"id\":\"B\",\"timestamp\":1397658118001,\"data\":{\"os\":\"android\",\"device\":\"galaxy\",\"version\":1}},{\"id\":\"A\",\"timestamp\":1397658118000L,\"data\":{\"os\":\"android\",\"device\":\"nexus\",\"version\":1}}]}";
-//        String actualResponse = mapper.writeValueAsString(response);
-//        assertEquals(expectedResponse, actualResponse);
+    @Test
+    public void testFilterActionNoFilter() throws QueryStoreException, JsonProcessingException {
+        List<Document> testDocuments = getTestDocuments();
+        queryStore.save(TEST_APP, testDocuments);
+
+//        Check 1 :: No filter - Sort Descending
+        logger.info("Testing Query - No Filter - Sort Descending");
+        Query query = new Query();
+        query.setTable(TEST_APP);
+        ResultSort resultSort = new ResultSort();
+        resultSort.setOrder(ResultSort.Order.desc);
+        resultSort.setField("_timestamp");
+        query.setSort(resultSort);
+        ActionResponse response = queryExecutor.execute(query);
+        String expectedResponse = "{\"opcode\":\"QueryResponse\",\"documents\":[" +
+                "{\"id\":\"E\",\"timestamp\":1397658118004,\"data\":{\"os\":\"ios\",\"device\":\"ipad\",\"version\":2}}," +
+                "{\"id\":\"D\",\"timestamp\":1397658118003,\"data\":{\"os\":\"ios\",\"device\":\"iphone\",\"version\":1}}," +
+                "{\"id\":\"C\",\"timestamp\":1397658118002,\"data\":{\"os\":\"android\",\"device\":\"nexus\",\"version\":2}}," +
+                "{\"id\":\"B\",\"timestamp\":1397658118001,\"data\":{\"os\":\"android\",\"device\":\"galaxy\",\"version\":1}}," +
+                "{\"id\":\"A\",\"timestamp\":1397658118000,\"data\":{\"os\":\"android\",\"device\":\"nexus\",\"version\":1}}" +
+                "]}";
+
+        String actualResponse = mapper.writeValueAsString(response);
+        assertEquals(expectedResponse, actualResponse);
+        logger.info("Tested Query - No Filter - Sort Descending");
+
+//        Check 2 :: No filter
+        logger.info("Testing Query - No Filter - Sort Ascending");
+        query = new Query();
+        query.setTable(TEST_APP);
+        resultSort = new ResultSort();
+        resultSort.setOrder(ResultSort.Order.asc);
+        resultSort.setField("_timestamp");
+        query.setSort(resultSort);
+        response = queryExecutor.execute(query);
+        expectedResponse = "{\"opcode\":\"QueryResponse\",\"documents\":[" +
+                "{\"id\":\"A\",\"timestamp\":1397658118000,\"data\":{\"os\":\"android\",\"device\":\"nexus\",\"version\":1}}," +
+                "{\"id\":\"B\",\"timestamp\":1397658118001,\"data\":{\"os\":\"android\",\"device\":\"galaxy\",\"version\":1}}," +
+                "{\"id\":\"C\",\"timestamp\":1397658118002,\"data\":{\"os\":\"android\",\"device\":\"nexus\",\"version\":2}}," +
+                "{\"id\":\"D\",\"timestamp\":1397658118003,\"data\":{\"os\":\"ios\",\"device\":\"iphone\",\"version\":1}}," +
+                "{\"id\":\"E\",\"timestamp\":1397658118004,\"data\":{\"os\":\"ios\",\"device\":\"ipad\",\"version\":2}}" +
+                "]}";
+
+        actualResponse = mapper.writeValueAsString(response);
+        assertEquals(expectedResponse, actualResponse);
+        logger.info("Tested Query - No Filter - Sort Ascending");
+
+//        Check 3 :: No filter Limit 2
+        logger.info("Testing Query - No Filter - Limit 2");
+        query = new Query();
+        query.setTable(TEST_APP);
+        query.setLimit(2);
+        resultSort = new ResultSort();
+        resultSort.setOrder(ResultSort.Order.desc);
+        resultSort.setField("_timestamp");
+        query.setSort(resultSort);
+        response = queryExecutor.execute(query);
+        expectedResponse = "{\"opcode\":\"QueryResponse\",\"documents\":[" +
+                "{\"id\":\"E\",\"timestamp\":1397658118004,\"data\":{\"os\":\"ios\",\"device\":\"ipad\",\"version\":2}}," +
+                "{\"id\":\"D\",\"timestamp\":1397658118003,\"data\":{\"os\":\"ios\",\"device\":\"iphone\",\"version\":1}}" +
+                "]}";
+
+        actualResponse = mapper.writeValueAsString(response);
+        assertEquals(expectedResponse, actualResponse);
+        logger.info("Tested Query - No Filter - Limit 2");
     }
 
     private void testGroupAction() throws QueryStoreException, JsonProcessingException {
@@ -147,8 +198,8 @@ public class QueryExecutorTest {
         documents.add(getDocument("A", 1397658118000L, new Object[]{ "os", "android", "version", 1, "device", "nexus"}));
         documents.add(getDocument("B", 1397658118001L, new Object[]{ "os", "android", "version", 1, "device", "galaxy"}));
         documents.add(getDocument("C", 1397658118002L, new Object[]{ "os", "android", "version", 2, "device", "nexus"}));
-        documents.add(getDocument("D", 1397658118003L, new Object[]{ "os", "iphone", "version", 1, "device", "iphone"}));
-        documents.add(getDocument("E", 1397658118004L, new Object[]{ "os", "iphone", "version", 2, "device", "ipad"}));
+        documents.add(getDocument("D", 1397658118003L, new Object[]{ "os", "ios", "version", 1, "device", "iphone"}));
+        documents.add(getDocument("E", 1397658118004L, new Object[]{ "os", "ios", "version", 2, "device", "ipad"}));
         return documents;
     }
 
@@ -157,7 +208,7 @@ public class QueryExecutorTest {
         for ( int i = 0; i < args.length; i+= 2){
             data.put((String) args[i], args[i+1]);
         }
-        return new Document(id, System.currentTimeMillis(), mapper.valueToTree(data));
+        return new Document(id, timestamp, mapper.valueToTree(data));
     }
 
     private void registerActions(AnalyticsLoader analyticsLoader) throws Exception {

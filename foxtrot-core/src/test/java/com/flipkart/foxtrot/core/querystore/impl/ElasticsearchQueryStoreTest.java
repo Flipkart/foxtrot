@@ -13,24 +13,29 @@ import com.flipkart.foxtrot.core.querystore.QueryExecutor;
 import com.flipkart.foxtrot.core.querystore.TableMetadataManager;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsLoader;
 import org.apache.hadoop.hbase.client.HTableInterface;
+import org.elasticsearch.action.admin.indices.template.put.PutIndexTemplateRequest;
 import org.elasticsearch.action.get.GetRequest;
 import org.elasticsearch.action.get.GetResponse;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.when;
 
 /**
  * Created by rishabh.goyal on 16/04/14.
  */
 public class ElasticsearchQueryStoreTest {
+    private static final Logger logger = LoggerFactory.getLogger(ElasticsearchQueryStoreTest.class.getSimpleName());
     MockElasticsearchServer elasticsearchServer;
     DataStore dataStore;
     ElasticsearchQueryStore queryStore;
@@ -61,6 +66,7 @@ public class ElasticsearchQueryStoreTest {
 
     @Test
     public void testSaveSingle() throws Exception {
+        logger.info("Testing Single Save");
         Document expectedDocument = new Document();
         expectedDocument.setId(UUID.randomUUID().toString());
         expectedDocument.setTimestamp(System.currentTimeMillis());
@@ -68,16 +74,21 @@ public class ElasticsearchQueryStoreTest {
         expectedDocument.setData(data);
         queryStore.save(TEST_APP, expectedDocument);
 
-        GetRequest getRequest = new GetRequest(ElasticsearchUtils.getCurrentIndex(TEST_APP, expectedDocument.getTimestamp()),
-                ElasticsearchUtils.TYPE_NAME,
-                expectedDocument.getId());
-        GetResponse getResponse = elasticsearchServer.getClient().get(getRequest).actionGet();
-        assertTrue("Id should exist in ES ", getResponse.isExists());
+        GetResponse getResponse = elasticsearchServer
+                .getClient()
+                .prepareGet(ElasticsearchUtils.getCurrentIndex(TEST_APP, expectedDocument.getTimestamp()),
+                        ElasticsearchUtils.TYPE_NAME,
+                        expectedDocument.getId())
+                .setFields("_timestamp").execute().actionGet();
+        assertTrue("Id should exist in ES", getResponse.isExists());
         assertEquals("Id should match requestId", expectedDocument.getId(), getResponse.getId());
+        assertEquals("Timestamp should match request timestamp", expectedDocument.getTimestamp(), getResponse.getField("_timestamp").getValue());
+        logger.info("Tested Single Save");
     }
 
     @Test
     public void testSaveBulk() throws Exception {
+        logger.info("Testing Bulk Save");
         List<Document> documents = new Vector<Document>();
         for( int i = 0 ; i < 10; i++){
             documents.add(new Document(UUID.randomUUID().toString(),
@@ -87,17 +98,23 @@ public class ElasticsearchQueryStoreTest {
         queryStore.save(TEST_APP, documents);
 
         for (Document document : documents){
-            GetRequest getRequest = new GetRequest(ElasticsearchUtils.getCurrentIndex(TEST_APP, document.getTimestamp()),
-                    ElasticsearchUtils.TYPE_NAME,
-                    document.getId());
-            GetResponse getResponse = elasticsearchServer.getClient().get(getRequest).actionGet();
+
+            GetResponse getResponse = elasticsearchServer
+                    .getClient()
+                    .prepareGet(ElasticsearchUtils.getCurrentIndex(TEST_APP, document.getTimestamp()),
+                            ElasticsearchUtils.TYPE_NAME,
+                            document.getId())
+                    .setFields("_timestamp").execute().actionGet();
             assertTrue("Id should exist in ES" , getResponse.isExists());
             assertEquals("Id should match requestId", document.getId(), getResponse.getId());
+            assertEquals("Timestamp should match request timestamp", document.getTimestamp(), getResponse.getField("_timestamp").getValue());
         }
+        logger.info("Tested Bulk Save");
     }
 
     @Test
     public void testGetSingle() throws Exception {
+        logger.info("Testing Single Get");
         String id = UUID.randomUUID().toString();
         long timestamp = System.currentTimeMillis();
         JsonNode data = mapper.valueToTree(Collections.singletonMap("TEST_NAME", "SINGLE_SAVE_TEST"));
@@ -108,10 +125,13 @@ public class ElasticsearchQueryStoreTest {
         Document responseDocument = queryStore.get(TEST_APP, id);
         assertNotNull(responseDocument);
         assertEquals(id, responseDocument.getId());
+        assertEquals("Timestamp should match request timestamp", document.getTimestamp(), responseDocument.getTimestamp());
+        logger.info("Tested Single Get");
     }
 
     @Test
     public void testGetBulk() throws Exception {
+        logger.info("Testing Bulk Get");
         Map<String, Document> idValues = new HashMap<String, Document>();
         List<String> ids = new Vector<String>();
         for( int i = 0 ; i < 10; i++){
@@ -137,7 +157,9 @@ public class ElasticsearchQueryStoreTest {
             assertTrue("Requested Id should be present in response", responseIdValues.containsKey(id));
             assertNotNull(responseIdValues.get(id));
             assertEquals(id, responseIdValues.get(id).getId());
+            assertEquals("Timestamp should match request timestamp", idValues.get(id).getTimestamp(), responseIdValues.get(id).getTimestamp());
         }
+        logger.info("Tested Bulk Get");
     }
 
     private DataStore getDataStore() throws DataStoreException {
