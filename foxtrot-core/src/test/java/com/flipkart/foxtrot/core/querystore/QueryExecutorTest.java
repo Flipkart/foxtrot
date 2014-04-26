@@ -81,7 +81,7 @@ public class QueryExecutorTest {
     @Test
     public void testQueryNoFilterAscending() throws QueryStoreException, JsonProcessingException {
         logger.info("Testing Query - No Filter - Sort Ascending");
-        List<Document> testDocuments = getTestDocuments();
+        List<Document> testDocuments = getQueryDocuments();
         queryStore.save(TEST_APP, testDocuments);
         Query query = new Query();
         query.setTable(TEST_APP);
@@ -109,7 +109,7 @@ public class QueryExecutorTest {
     @Test
     public void testQueryNoFilterDescending() throws QueryStoreException, JsonProcessingException {
         logger.info("Testing Query - No Filter - Sort Descending");
-        List<Document> testDocuments = getTestDocuments();
+        List<Document> testDocuments = getQueryDocuments();
         queryStore.save(TEST_APP, testDocuments);
         Query query = new Query();
         query.setTable(TEST_APP);
@@ -137,7 +137,7 @@ public class QueryExecutorTest {
 
     @Test
     public void testQueryNoFilterWithLimit() throws QueryStoreException, JsonProcessingException {
-        List<Document> testDocuments = getTestDocuments();
+        List<Document> testDocuments = getQueryDocuments();
         queryStore.save(TEST_APP, testDocuments);
         logger.info("Testing Query - No Filter - Limit 2");
         Query query = new Query();
@@ -161,7 +161,7 @@ public class QueryExecutorTest {
     @Test
     public void testQueryAnyFilter() throws QueryStoreException, JsonProcessingException {
         logger.info("Testing Query - Any Filter");
-        List<Document> testDocuments = getTestDocuments();
+        List<Document> testDocuments = getQueryDocuments();
         queryStore.save(TEST_APP, testDocuments);
         Query query = new Query();
         query.setTable(TEST_APP);
@@ -194,7 +194,7 @@ public class QueryExecutorTest {
 
     @Test
     public void testQueryEqualsFilter() throws QueryStoreException, JsonProcessingException {
-        List<Document> testDocuments = getTestDocuments();
+        List<Document> testDocuments = getQueryDocuments();
         queryStore.save(TEST_APP, testDocuments);
 
         logger.info("Testing Query - equals Filter");
@@ -224,7 +224,7 @@ public class QueryExecutorTest {
 
     @Test
     public void testQueryNotEqualsFilter() throws QueryStoreException, JsonProcessingException {
-        List<Document> testDocuments = getTestDocuments();
+        List<Document> testDocuments = getQueryDocuments();
         queryStore.save(TEST_APP, testDocuments);
 
         logger.info("Testing Query - not_equals Filter");
@@ -256,7 +256,7 @@ public class QueryExecutorTest {
 
     @Test
     public void testQueryGreaterThanFilter() throws QueryStoreException, JsonProcessingException {
-        List<Document> testDocuments = getTestDocuments();
+        List<Document> testDocuments = getQueryDocuments();
         queryStore.save(TEST_APP, testDocuments);
 
         logger.info("Testing Query - greater_than Filter");
@@ -287,7 +287,7 @@ public class QueryExecutorTest {
 
     @Test
     public void testQueryGreaterEqualFilter() throws QueryStoreException, JsonProcessingException {
-        List<Document> testDocuments = getTestDocuments();
+        List<Document> testDocuments = getQueryDocuments();
         queryStore.save(TEST_APP, testDocuments);
 
         logger.info("Testing Query - greater_equal Filter");
@@ -319,7 +319,7 @@ public class QueryExecutorTest {
 
     @Test
     public void testQueryLessThanFilter() throws QueryStoreException, JsonProcessingException {
-        List<Document> testDocuments = getTestDocuments();
+        List<Document> testDocuments = getQueryDocuments();
         queryStore.save(TEST_APP, testDocuments);
 
         logger.info("Testing Query - less_than Filter");
@@ -349,7 +349,7 @@ public class QueryExecutorTest {
 
     @Test
     public void testQueryLessEqualFilter() throws QueryStoreException, JsonProcessingException {
-        List<Document> testDocuments = getTestDocuments();
+        List<Document> testDocuments = getQueryDocuments();
         queryStore.save(TEST_APP, testDocuments);
 
         logger.info("Testing Query - greater_equal Filter");
@@ -380,7 +380,7 @@ public class QueryExecutorTest {
 
     @Test
     public void testQueryBetweenFilter() throws QueryStoreException, JsonProcessingException {
-        List<Document> testDocuments = getTestDocuments();
+        List<Document> testDocuments = getQueryDocuments();
         queryStore.save(TEST_APP, testDocuments);
 
         logger.info("Testing Query - between Filter");
@@ -412,7 +412,7 @@ public class QueryExecutorTest {
 
     @Test
     public void testQueryContainsFilter() throws QueryStoreException, JsonProcessingException {
-        List<Document> testDocuments = getTestDocuments();
+        List<Document> testDocuments = getQueryDocuments();
         queryStore.save(TEST_APP, testDocuments);
 
         logger.info("Testing Query - contains Filter");
@@ -447,7 +447,7 @@ public class QueryExecutorTest {
 
     @Test
     public void testQueryEmptyResult() throws QueryStoreException, JsonProcessingException {
-        List<Document> testDocuments = getTestDocuments();
+        List<Document> testDocuments = getQueryDocuments();
         queryStore.save(TEST_APP, testDocuments);
 
         logger.info("Testing Query - Empty Result Test");
@@ -470,7 +470,7 @@ public class QueryExecutorTest {
 
     @Test
     public void testQueryMultipleFiltersEmptyResult() throws QueryStoreException, JsonProcessingException {
-        List<Document> testDocuments = getTestDocuments();
+        List<Document> testDocuments = getQueryDocuments();
         queryStore.save(TEST_APP, testDocuments);
 
         logger.info("Testing Query - Multiple Filters - Empty Result");
@@ -501,7 +501,7 @@ public class QueryExecutorTest {
 
     @Test
     public void testQueryMultipleFiltersAndCombiner() throws QueryStoreException, JsonProcessingException {
-        List<Document> testDocuments = getTestDocuments();
+        List<Document> testDocuments = getQueryDocuments();
         queryStore.save(TEST_APP, testDocuments);
         logger.info("Testing Query - Multiple Filters - Non Empty Result");
         Query query = new Query();
@@ -532,7 +532,7 @@ public class QueryExecutorTest {
 
     @Test
     public void testQueryMultipleFiltersOrCombiner() throws QueryStoreException, JsonProcessingException {
-        List<Document> testDocuments = getTestDocuments();
+        List<Document> testDocuments = getQueryDocuments();
         queryStore.save(TEST_APP, testDocuments);
         logger.info("Testing Query - Multiple Filters - Or Combiner - Non Empty Result");
         Query query = new Query();
@@ -577,7 +577,7 @@ public class QueryExecutorTest {
 
     @Test
     public void testQueryPagination() throws QueryStoreException, JsonProcessingException {
-        List<Document> testDocuments = getTestDocuments();
+        List<Document> testDocuments = getQueryDocuments();
         queryStore.save(TEST_APP, testDocuments);
 
         logger.info("Testing Query - Filter with Pagination");
@@ -607,41 +607,9 @@ public class QueryExecutorTest {
         logger.info("Tested Query - Filter with Pagination");
     }
 
-    //TODO
-    @Test
-    public void testGroupActionNoFilter() throws QueryStoreException, JsonProcessingException {
-        logger.info("Testing Group - No Filter");
-        List<Document> testDocuments = getTestDocuments();
-        queryStore.save(TEST_APP, testDocuments);
-        GroupRequest groupRequest = new GroupRequest();
-        groupRequest.setTable(TEST_APP);
-        groupRequest.setFilters(new ArrayList<Filter>());
-        groupRequest.setNesting(Arrays.asList("os"));
 
-        String expectedResult = "{\"opcode\":\"GroupResponse\",\"result\":{\"android\":7,\"ios\":2}}";
-        String actualResult = mapper.writeValueAsString(queryExecutor.execute(groupRequest));
-        assertEquals(expectedResult, actualResult);
-        logger.info("Tested Group - No Filter");
-    }
-
-    @Test
-    public void testGroupActionSingleField() throws QueryStoreException, JsonProcessingException {
-    }
-
-    @Test
-    public void testGroupActionMultipleFields() throws QueryStoreException, JsonProcessingException {
-    }
-
-    private DataStore getDataStore() throws DataStoreException {
-        HTableInterface tableInterface = MockHTable.create();
-        HbaseTableConnection tableConnection = Mockito.mock(HbaseTableConnection.class);
-        when(tableConnection.getTable()).thenReturn(tableInterface);
-        return new HbaseDataStore(tableConnection, new ObjectMapper());
-    }
-
-    private List<Document> getTestDocuments(){
+    private List<Document> getQueryDocuments(){
         List<Document> documents = new Vector<Document>();
-
         documents.add(getDocument("Z", 1397658117000L, new Object[]{ "os", "android", "device", "nexus", "battery", 24}));
         documents.add(getDocument("Y", 1397658117000L, new Object[]{ "os", "android", "device", "nexus", "battery", 48}));
         documents.add(getDocument("X", 1397658117000L, new Object[]{ "os", "android", "device", "nexus", "battery", 74}));
@@ -653,6 +621,113 @@ public class QueryExecutorTest {
         documents.add(getDocument("E", 1397658118004L, new Object[]{ "os", "ios", "version", 2, "device", "ipad"}));
         return documents;
     }
+
+    @Test
+    public void testGroupActionSingleFieldNoFilter() throws QueryStoreException, JsonProcessingException {
+        logger.info("Testing Group - Single Field - No Filter");
+        List<Document> testDocuments = getGroupDocuments();
+        queryStore.save(TEST_APP, testDocuments);
+        GroupRequest groupRequest = new GroupRequest();
+        groupRequest.setTable(TEST_APP);
+        groupRequest.setNesting(Arrays.asList("os"));
+
+        String expectedResult = "{\"opcode\":\"GroupResponse\",\"result\":{\"android\":7,\"ios\":4}}";
+        String actualResult = mapper.writeValueAsString(queryExecutor.execute(groupRequest));
+        assertEquals(expectedResult, actualResult);
+        logger.info("Tested Group - Single Field - No Filter");
+    }
+
+    @Test
+    public void testGroupActionSingleFieldWithFilter() throws QueryStoreException, JsonProcessingException {
+        logger.info("Testing Group - Single Field - With Filter");
+        List<Document> testDocuments = getGroupDocuments();
+        queryStore.save(TEST_APP, testDocuments);
+        GroupRequest groupRequest = new GroupRequest();
+        groupRequest.setTable(TEST_APP);
+
+        EqualsFilter equalsFilter = new EqualsFilter();
+        equalsFilter.setField("device");
+        equalsFilter.setValue("nexus");
+        groupRequest.setFilters(Collections.<Filter>singletonList(equalsFilter));
+
+        groupRequest.setNesting(Arrays.asList("os"));
+
+        String expectedResult = "{\"opcode\":\"GroupResponse\",\"result\":{\"android\":5,\"ios\":1}}";
+        String actualResult = mapper.writeValueAsString(queryExecutor.execute(groupRequest));
+        assertEquals(expectedResult, actualResult);
+        logger.info("Tested Group - Single Field - With Filter");
+    }
+
+    @Test
+    public void testGroupActionTwoFieldsNoFilter() throws QueryStoreException, JsonProcessingException {
+        logger.info("Testing Group - Single Field - No Filter");
+        List<Document> testDocuments = getGroupDocuments();
+        queryStore.save(TEST_APP, testDocuments);
+        GroupRequest groupRequest = new GroupRequest();
+        groupRequest.setTable(TEST_APP);
+        groupRequest.setNesting(Arrays.asList("os", "device"));
+
+        String expectedResult = "{\"opcode\":\"GroupResponse\"," +
+                "\"result\":" + "{" +
+                "\"android\":{\"nexus\":5,\"galaxy\":2}," +
+                "\"ios\":{\"nexus\":1,\"ipad\":2,\"iphone\":1}}}";
+        String actualResult = mapper.writeValueAsString(queryExecutor.execute(groupRequest));
+        assertEquals(expectedResult, actualResult);
+        logger.info("Tested Group - Single Field - No Filter");
+    }
+
+    @Test
+    public void testGroupActionTwoFieldsWithFilter() throws QueryStoreException, JsonProcessingException {
+        logger.info("Testing Group - Multiple Fields - With Filter");
+        List<Document> testDocuments = getGroupDocuments();
+        queryStore.save(TEST_APP, testDocuments);
+        GroupRequest groupRequest = new GroupRequest();
+        groupRequest.setTable(TEST_APP);
+        groupRequest.setNesting(Arrays.asList("os", "device"));
+
+        GreaterThanFilter greaterThanFilter = new GreaterThanFilter();
+        greaterThanFilter.setField("battery");
+        greaterThanFilter.setValue(48);
+        groupRequest.setFilters(Collections.<Filter>singletonList(greaterThanFilter));
+
+        String expectedResult = "{\"opcode\":\"GroupResponse\"," +
+                "\"result\":" + "{" +
+                "\"android\":{\"nexus\":3,\"galaxy\":2}," +
+                "\"ios\":{\"ipad\":1}}}";
+        String actualResult = mapper.writeValueAsString(queryExecutor.execute(groupRequest));
+        assertEquals(expectedResult, actualResult);
+        logger.info("Tested Group - Multiple Fields - With Filter");
+    }
+
+    @Test
+    public void testGroupActionMultipleFields() throws QueryStoreException, JsonProcessingException {
+    }
+
+    private List<Document> getGroupDocuments(){
+        List<Document> documents = new Vector<Document>();
+        documents.add(getDocument("Z", 1397658117000L, new Object[]{ "os", "android", "device", "nexus", "battery", 24}));
+        documents.add(getDocument("Y", 1397658117000L, new Object[]{ "os", "android", "device", "nexus", "battery", 48}));
+        documents.add(getDocument("X", 1397658117000L, new Object[]{ "os", "android", "device", "galaxy", "battery", 74}));
+        documents.add(getDocument("W", 1397658117000L, new Object[]{ "os", "android", "device", "nexus", "battery", 99}));
+        documents.add(getDocument("A", 1397658118000L, new Object[]{ "os", "android", "version", 1, "device", "nexus", "battery", 87}));
+        documents.add(getDocument("B", 1397658118001L, new Object[]{ "os", "android", "version", 1, "device", "galaxy", "battery", 76}));
+        documents.add(getDocument("C", 1397658118002L, new Object[]{ "os", "android", "version", 2, "device", "nexus", "battery", 78}));
+        documents.add(getDocument("D", 1397658118003L, new Object[]{ "os", "ios", "version", 1, "device", "iphone", "battery", 24}));
+        documents.add(getDocument("E", 1397658118004L, new Object[]{ "os", "ios", "version", 2, "device", "ipad", "battery", 56}));
+        documents.add(getDocument("F", 1397658118005L, new Object[]{ "os", "ios", "version", 2, "device", "nexus", "battery", 35}));
+        documents.add(getDocument("G", 1397658118006L, new Object[]{ "os", "ios", "version", 2, "device", "ipad", "battery", 44}));
+        return documents;
+    }
+
+    private DataStore getDataStore() throws DataStoreException {
+        HTableInterface tableInterface = MockHTable.create();
+        HbaseTableConnection tableConnection = Mockito.mock(HbaseTableConnection.class);
+        when(tableConnection.getTable()).thenReturn(tableInterface);
+        return new HbaseDataStore(tableConnection, new ObjectMapper());
+    }
+
+
+
 
     private Document getDocument(String id, long timestamp, Object[] args){
         Map<String, Object> data = new HashMap<String, Object>();
