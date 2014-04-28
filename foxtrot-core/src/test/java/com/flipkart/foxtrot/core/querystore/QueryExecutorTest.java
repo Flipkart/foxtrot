@@ -3,11 +3,14 @@ package com.flipkart.foxtrot.core.querystore;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.flipkart.foxtrot.common.ActionResponse;
 import com.flipkart.foxtrot.common.Document;
 import com.flipkart.foxtrot.common.group.GroupRequest;
+import com.flipkart.foxtrot.common.histogram.HistogramRequest;
+import com.flipkart.foxtrot.common.histogram.Period;
 import com.flipkart.foxtrot.common.query.Filter;
 import com.flipkart.foxtrot.common.query.FilterCombinerType;
 import com.flipkart.foxtrot.common.query.Query;
@@ -52,11 +55,12 @@ import static org.mockito.Mockito.when;
  */
 public class QueryExecutorTest {
     private static final Logger logger = LoggerFactory.getLogger(QueryExecutorTest.class.getSimpleName());
-    QueryExecutor queryExecutor;
-    QueryStore queryStore;
-    ObjectMapper mapper = new ObjectMapper();
-    MockElasticsearchServer elasticsearchServer = new MockElasticsearchServer();
-    String TEST_APP = "test-app";
+    private QueryExecutor queryExecutor;
+    private QueryStore queryStore;
+    private ObjectMapper mapper = new ObjectMapper();
+    private MockElasticsearchServer elasticsearchServer = new MockElasticsearchServer();
+    private String TEST_APP = "test-app";
+    private JsonNodeFactory factory;
 
     @Before
     public void setUp() throws Exception {
@@ -72,7 +76,7 @@ public class QueryExecutorTest {
 
         TableMetadataManager tableMetadataManager = Mockito.mock(TableMetadataManager.class);
         when(tableMetadataManager.exists(TEST_APP)).thenReturn(true);
-
+        factory = JsonNodeFactory.instance;
         this.queryStore = new ElasticsearchQueryStore(tableMetadataManager, elasticsearchConnection, dataStore, queryExecutor);
     }
 
@@ -610,7 +614,6 @@ public class QueryExecutorTest {
         logger.info("Tested Query - Filter with Pagination");
     }
 
-
     private List<Document> getQueryDocuments(){
         List<Document> documents = new Vector<Document>();
         documents.add(getDocument("Z", 1397658117000L, new Object[]{ "os", "android", "device", "nexus", "battery", 24}));
@@ -734,7 +737,6 @@ public class QueryExecutorTest {
         greaterThanFilter.setValue(48);
         groupRequest.setFilters(Collections.<Filter>singletonList(greaterThanFilter));
 
-        JsonNodeFactory factory = JsonNodeFactory.instance;
         ObjectNode resultNode = factory.objectNode();
 
         ObjectNode temp = factory.objectNode();
@@ -749,7 +751,7 @@ public class QueryExecutorTest {
         finalNode.put("opcode", "GroupResponse");
         finalNode.put("result", resultNode);
 
-        String expectedResult = new ObjectMapper().writeValueAsString(finalNode);
+        String expectedResult = mapper.writeValueAsString(finalNode);
         String actualResult = mapper.writeValueAsString(queryExecutor.execute(groupRequest));
         assertEquals(expectedResult, actualResult);
         logger.info("Tested Group - Multiple Fields - With Filter");
@@ -768,6 +770,145 @@ public class QueryExecutorTest {
         documents.add(getDocument("E", 1397658118004L, new Object[]{ "os", "ios", "version", 2, "device", "ipad", "battery", 56}));
         documents.add(getDocument("F", 1397658118005L, new Object[]{ "os", "ios", "version", 2, "device", "nexus", "battery", 35}));
         documents.add(getDocument("G", 1397658118006L, new Object[]{ "os", "ios", "version", 2, "device", "ipad", "battery", 44}));
+        return documents;
+    }
+
+    @Test
+    public void testHistogramActionIntervalHourNoFilter() throws QueryStoreException, JsonProcessingException {
+        logger.info("Testing Histogram - Interval hour - No Filter");
+        List<Document> testDocuments = getHistogramDocuments();
+        queryStore.save(TEST_APP, testDocuments);
+
+        HistogramRequest histogramRequest = new HistogramRequest();
+        histogramRequest.setTable(TEST_APP);
+        histogramRequest.setPeriod(Period.hours);
+        histogramRequest.setFrom(0);
+        histogramRequest.setField("_timestamp");
+
+        ArrayNode countsNode = factory.arrayNode();
+        countsNode.add(factory.objectNode().put("period", 1397649600000L).put("count", 2));
+        countsNode.add(factory.objectNode().put("period", 1397656800000L).put("count", 4));
+        countsNode.add(factory.objectNode().put("period", 1397757600000L).put("count", 1));
+        countsNode.add(factory.objectNode().put("period", 1397955600000L).put("count", 1));
+        countsNode.add(factory.objectNode().put("period", 1398650400000L).put("count", 2));
+        countsNode.add(factory.objectNode().put("period", 1398657600000L).put("count", 1));
+
+        ObjectNode finalNode = factory.objectNode();
+        finalNode.put("opcode", "HistogramResponse");
+        finalNode.put("counts", countsNode);
+
+        String expectedResponse = mapper.writeValueAsString(finalNode);
+        String actualResponse = mapper.writeValueAsString(queryExecutor.execute(histogramRequest));
+        assertEquals(expectedResponse, actualResponse);
+        logger.info("Tested Histogram - Interval hour - No Filter");
+    }
+
+    @Test
+    public void testHistogramActionIntervalHourWithFilter() throws QueryStoreException, JsonProcessingException {
+        logger.info("Testing Histogram - Interval hour - No Filter");
+        List<Document> testDocuments = getHistogramDocuments();
+        queryStore.save(TEST_APP, testDocuments);
+
+        HistogramRequest histogramRequest = new HistogramRequest();
+        histogramRequest.setTable(TEST_APP);
+        histogramRequest.setPeriod(Period.hours);
+        histogramRequest.setFrom(0);
+        histogramRequest.setField("_timestamp");
+
+        GreaterThanFilter greaterThanFilter = new GreaterThanFilter();
+        greaterThanFilter.setField("battery");
+        greaterThanFilter.setValue(48);
+        histogramRequest.setFilters(Collections.<Filter>singletonList(greaterThanFilter));
+
+        ArrayNode countsNode = factory.arrayNode();
+        countsNode.add(factory.objectNode().put("period", 1397649600000L).put("count", 1));
+        countsNode.add(factory.objectNode().put("period", 1397656800000L).put("count", 3));
+        countsNode.add(factory.objectNode().put("period", 1397955600000L).put("count", 1));
+        countsNode.add(factory.objectNode().put("period", 1398657600000L).put("count", 1));
+
+        ObjectNode finalNode = factory.objectNode();
+        finalNode.put("opcode", "HistogramResponse");
+        finalNode.put("counts", countsNode);
+
+        String expectedResponse = mapper.writeValueAsString(finalNode);
+        String actualResponse = mapper.writeValueAsString(queryExecutor.execute(histogramRequest));
+        assertEquals(expectedResponse, actualResponse);
+        logger.info("Tested Histogram - Interval hour - No Filter");
+    }
+
+    @Test
+    public void testHistogramActionIntervalDayNoFilter() throws QueryStoreException, JsonProcessingException {
+        logger.info("Testing Histogram - Interval Day - No Filter");
+        List<Document> testDocuments = getHistogramDocuments();
+        queryStore.save(TEST_APP, testDocuments);
+
+        HistogramRequest histogramRequest = new HistogramRequest();
+        histogramRequest.setTable(TEST_APP);
+        histogramRequest.setPeriod(Period.days);
+        histogramRequest.setFrom(0);
+        histogramRequest.setField("_timestamp");
+
+        ArrayNode countsNode = factory.arrayNode();
+        countsNode.add(factory.objectNode().put("period", 1397606400000L).put("count", 6));
+        countsNode.add(factory.objectNode().put("period", 1397692800000L).put("count", 1));
+        countsNode.add(factory.objectNode().put("period", 1397952000000L).put("count", 1));
+        countsNode.add(factory.objectNode().put("period", 1398643200000L).put("count", 3));
+
+        ObjectNode finalNode = factory.objectNode();
+        finalNode.put("opcode", "HistogramResponse");
+        finalNode.put("counts", countsNode);
+
+        String expectedResponse = mapper.writeValueAsString(finalNode);
+        String actualResponse = mapper.writeValueAsString(queryExecutor.execute(histogramRequest));
+        assertEquals(expectedResponse, actualResponse);
+        logger.info("Tested Histogram - Interval Day - No Filter");
+    }
+
+    @Test
+    public void testHistogramActionIntervalDayWithFilter() throws QueryStoreException, JsonProcessingException {
+        logger.info("Testing Histogram - Interval Day - With Filter");
+        List<Document> testDocuments = getHistogramDocuments();
+        queryStore.save(TEST_APP, testDocuments);
+
+        HistogramRequest histogramRequest = new HistogramRequest();
+        histogramRequest.setTable(TEST_APP);
+        histogramRequest.setPeriod(Period.days);
+        histogramRequest.setFrom(0);
+        histogramRequest.setField("_timestamp");
+
+        GreaterThanFilter greaterThanFilter = new GreaterThanFilter();
+        greaterThanFilter.setField("battery");
+        greaterThanFilter.setValue(48);
+        histogramRequest.setFilters(Collections.<Filter>singletonList(greaterThanFilter));
+
+        ArrayNode countsNode = factory.arrayNode();
+        countsNode.add(factory.objectNode().put("period", 1397606400000L).put("count", 4));
+        countsNode.add(factory.objectNode().put("period", 1397952000000L).put("count", 1));
+        countsNode.add(factory.objectNode().put("period", 1398643200000L).put("count", 1));
+
+        ObjectNode finalNode = factory.objectNode();
+        finalNode.put("opcode", "HistogramResponse");
+        finalNode.put("counts", countsNode);
+
+        String expectedResponse = mapper.writeValueAsString(finalNode);
+        String actualResponse = mapper.writeValueAsString(queryExecutor.execute(histogramRequest));
+        assertEquals(expectedResponse, actualResponse);
+        logger.info("Tested Histogram - Interval Day - With Filter");
+    }
+
+    private List<Document> getHistogramDocuments(){
+        List<Document> documents = new Vector<Document>();
+        documents.add(getDocument("Z", 1397658117000L, new Object[]{ "os", "android", "version", 1, "device", "nexus", "battery", 24}));
+        documents.add(getDocument("Y", 1397651117000L, new Object[]{ "os", "android", "version", 1, "device", "nexus", "battery", 48}));
+        documents.add(getDocument("X", 1397651117000L, new Object[]{ "os", "android", "version", 3, "device", "galaxy", "battery", 74}));
+        documents.add(getDocument("W", 1397658117000L, new Object[]{ "os", "android", "version", 2, "device", "nexus", "battery", 99}));
+        documents.add(getDocument("A", 1397658118000L, new Object[]{ "os", "android", "version", 3, "device", "nexus", "battery", 87}));
+        documents.add(getDocument("B", 1397658218001L, new Object[]{ "os", "android", "version", 2, "device", "galaxy", "battery", 76}));
+        documents.add(getDocument("C", 1398658218002L, new Object[]{ "os", "android", "version", 2, "device", "nexus", "battery", 78}));
+        documents.add(getDocument("D", 1397758218003L, new Object[]{ "os", "ios", "version", 1, "device", "iphone", "battery", 24}));
+        documents.add(getDocument("E", 1397958118004L, new Object[]{ "os", "ios", "version", 2, "device", "ipad", "battery", 56}));
+        documents.add(getDocument("F", 1398653118005L, new Object[]{ "os", "ios", "version", 2, "device", "nexus", "battery", 35}));
+        documents.add(getDocument("G", 1398653118006L, new Object[]{ "os", "ios", "version", 2, "device", "ipad", "battery", 44}));
         return documents;
     }
 
