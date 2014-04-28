@@ -14,7 +14,7 @@ import java.util.Collections;
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
 public class TableMetadataResource {
-    private TableMetadataManager tableMetadataManager;
+    private final TableMetadataManager tableMetadataManager;
 
     public TableMetadataResource(TableMetadataManager tableMetadataManager) {
         this.tableMetadataManager = tableMetadataManager;

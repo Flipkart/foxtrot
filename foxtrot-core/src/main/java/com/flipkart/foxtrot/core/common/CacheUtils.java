@@ -10,7 +10,7 @@ import java.util.Map;
  */
 public class CacheUtils {
 
-    private static Map<String, Cache> cacheMap = new HashMap<String, Cache>();
+    private static final Map<String, Cache> cacheMap = new HashMap<String, Cache>();
 
     private static CacheFactory cacheFactory = null;
 
@@ -19,7 +19,7 @@ public class CacheUtils {
     }
 
     public static void create(String name) {
-        cacheMap.put(name,cacheFactory.create(name));
+        cacheMap.put(name, cacheFactory.create(name));
     }
 
     public static Cache getCacheFor(String name) {

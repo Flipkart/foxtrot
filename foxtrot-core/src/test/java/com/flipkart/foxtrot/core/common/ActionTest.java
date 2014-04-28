@@ -108,7 +108,7 @@
 //    public void testCacheKey() throws Exception {
 ///*
 //        Assert.assertEquals(UUID.nameUUIDFromBytes("HelloWorld".getBytes()).toString(),
-//                            new TestRequest("HelloWorld").getCachekey());
+//                            new TestRequest("HelloWorld").getCacheKey());
 //*/
 //    }
 //

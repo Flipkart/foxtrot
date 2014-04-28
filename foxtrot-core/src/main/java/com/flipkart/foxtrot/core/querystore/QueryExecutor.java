@@ -18,8 +18,8 @@ import java.util.concurrent.ExecutorService;
 public class QueryExecutor {
     private static final Logger logger = LoggerFactory.getLogger(QueryExecutor.class.getSimpleName());
 
-    private AnalyticsLoader analyticsLoader;
-    private ExecutorService executorService;
+    private final AnalyticsLoader analyticsLoader;
+    private final ExecutorService executorService;
 
     public QueryExecutor(AnalyticsLoader analyticsLoader, ExecutorService executorService) {
         this.analyticsLoader = analyticsLoader;

@@ -5,6 +5,6 @@ package com.flipkart.foxtrot.common.query;
  * Date: 24/03/14
  * Time: 12:49 AM
  */
-public interface CachableResponseGenerator {
-    public String getCachekey();
+public interface CacheableResponseGenerator {
+    public String getCacheKey();
 }

@@ -14,9 +14,7 @@ import com.flipkart.foxtrot.core.querystore.QueryStoreException;
 import com.flipkart.foxtrot.core.querystore.TableMetadataManager;
 import org.elasticsearch.action.WriteConsistencyLevel;
 import org.elasticsearch.action.bulk.BulkRequestBuilder;
-import org.elasticsearch.action.bulk.BulkResponse;
 import org.elasticsearch.action.index.IndexRequest;
-import org.elasticsearch.action.index.IndexResponse;
 import org.elasticsearch.search.aggregations.Aggregations;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.slf4j.Logger;
@@ -35,11 +33,11 @@ import java.util.Map;
 public class ElasticsearchQueryStore implements QueryStore {
     private static final Logger logger = LoggerFactory.getLogger(ElasticsearchQueryStore.class.getSimpleName());
 
-    private TableMetadataManager tableMetadataManager;
-    private ElasticsearchConnection connection;
-    private DataStore dataStore;
-    private ObjectMapper mapper;
-    private QueryExecutor queryExecutor;
+    private final TableMetadataManager tableMetadataManager;
+    private final ElasticsearchConnection connection;
+    private final DataStore dataStore;
+    private final ObjectMapper mapper;
+    private final QueryExecutor queryExecutor;
 
 
     public ElasticsearchQueryStore(TableMetadataManager tableMetadataManager,
@@ -61,7 +59,7 @@ public class ElasticsearchQueryStore implements QueryStore {
             }
             dataStore.save(table, document);
             long timestamp = document.getTimestamp();
-            IndexResponse response = connection.getClient()
+            connection.getClient()
                     .prepareIndex()
                     .setIndex(ElasticsearchUtils.getCurrentIndex(table, timestamp))
                     .setType(ElasticsearchUtils.TYPE_NAME)
@@ -72,9 +70,6 @@ public class ElasticsearchQueryStore implements QueryStore {
                     .setConsistencyLevel(WriteConsistencyLevel.QUORUM)
                     .execute()
                     .get();
-            if (response.getVersion() > 0) {
-                return;
-            }
         } catch (Exception e) {
             throw new QueryStoreException(QueryStoreException.ErrorCode.DOCUMENT_SAVE_ERROR,
                     "Error saving documents: " + e.getMessage(), e);
@@ -101,8 +96,7 @@ public class ElasticsearchQueryStore implements QueryStore {
                         .source(mapper.writeValueAsBytes(document.getData()));
                 bulkRequestBuilder.add(indexRequest);
             }
-
-            BulkResponse response = bulkRequestBuilder.setRefresh(true)
+            bulkRequestBuilder.setRefresh(true)
                     .setConsistencyLevel(WriteConsistencyLevel.QUORUM)
                     .execute()
                     .get();

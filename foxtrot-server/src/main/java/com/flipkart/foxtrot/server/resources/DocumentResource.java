@@ -24,28 +24,28 @@ import java.util.List;
 public class DocumentResource {
     private static final Logger logger = LoggerFactory.getLogger(DocumentResource.class.getSimpleName());
 
-    private QueryStore queryStore;
+    private final QueryStore queryStore;
 
     public DocumentResource(QueryStore queryStore) {
         this.queryStore = queryStore;
     }
 
     @POST
-    public Response saveDocument(@PathParam("table")final String table, @Valid final Document document) {
+    public Response saveDocument(@PathParam("table") final String table, @Valid final Document document) {
         try {
             queryStore.save(table, document);
         } catch (Exception e) {
             logger.error("Error saving document: ", e);
             return Response.serverError()
-                            .entity(Collections.singletonMap("error", "Could not save document: " + e.getMessage()))
-                            .build();
+                    .entity(Collections.singletonMap("error", "Could not save document: " + e.getMessage()))
+                    .build();
         }
         return Response.created(URI.create("/" + document.getId())).build();
     }
 
     @POST
     @Path("/bulk")
-    public Response saveDocuments(@PathParam("table")final String table, @Valid final List<Document> document) {
+    public Response saveDocuments(@PathParam("table") final String table, @Valid final List<Document> document) {
         try {
             queryStore.save(table, document);
         } catch (Exception e) {

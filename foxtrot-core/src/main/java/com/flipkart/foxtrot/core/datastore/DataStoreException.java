@@ -17,7 +17,7 @@ public class DataStoreException extends Exception {
         STORE_CLOSE,
     }
 
-    private ErrorCode errorCode;
+    private final ErrorCode errorCode;
 
     public DataStoreException(ErrorCode errorCode, String message) {
         super(message);

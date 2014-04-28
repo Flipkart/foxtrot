@@ -20,7 +20,7 @@ import java.util.Collections;
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
 public class AnalyticsResource {
-    private QueryExecutor queryExecutor;
+    private final QueryExecutor queryExecutor;
 
     public AnalyticsResource(QueryExecutor queryExecutor) {
         this.queryExecutor = queryExecutor;
@@ -32,7 +32,7 @@ public class AnalyticsResource {
             return queryExecutor.execute(request);
         } catch (QueryStoreException e) {
             throw new WebApplicationException(
-                        Response.serverError().entity(Collections.singletonMap("error", e.getMessage())).build());
+                    Response.serverError().entity(Collections.singletonMap("error", e.getMessage())).build());
         }
     }
 

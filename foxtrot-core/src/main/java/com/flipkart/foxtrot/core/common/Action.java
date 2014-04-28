@@ -19,8 +19,8 @@ public abstract class Action<ParameterType extends ActionRequest> implements Cal
     private ParameterType parameter;
     private DataStore dataStore;
     private ElasticsearchConnection connection;
-    private String cacheToken;
-    private Cache cache;
+    private final String cacheToken;
+    private final Cache cache;
     private String cacheKey = null;
 
     protected Action(ParameterType parameter, DataStore dataStore, ElasticsearchConnection connection, String cacheToken) {
@@ -32,7 +32,7 @@ public abstract class Action<ParameterType extends ActionRequest> implements Cal
     }
 
     public String cacheKey() {
-        if(null == cacheKey) {
+        if (null == cacheKey) {
             final String childKey = String.format("%s-%d", getRequestCacheKey(), System.currentTimeMillis() / 30000);
             cacheKey = UUID.nameUUIDFromBytes(childKey.getBytes()).toString();
         }
@@ -41,13 +41,13 @@ public abstract class Action<ParameterType extends ActionRequest> implements Cal
 
     public AsyncDataToken execute(ExecutorService executor) {
         executor.submit(this);
-        return new AsyncDataToken(cacheToken,cacheKey());
+        return new AsyncDataToken(cacheToken, cacheKey());
     }
 
     public AsyncDataToken execute(ParameterType parameter, ExecutorService executor) {
         this.parameter = parameter;
         executor.submit(this);
-        return new AsyncDataToken(cacheToken,cacheKey());
+        return new AsyncDataToken(cacheToken, cacheKey());
     }
 
     @Override
@@ -58,13 +58,13 @@ public abstract class Action<ParameterType extends ActionRequest> implements Cal
     }
 
     public ActionResponse execute() throws QueryStoreException {
-        if(isCachable()) {
-            if(cache.has(cacheKey())) {
+        if (isCacheable()) {
+            if (cache.has(cacheKey())) {
                 return cache.get(cacheKey());
             }
         }
         ActionResponse result = execute(parameter);
-        if(isCachable()) {
+        if (isCacheable()) {
             return cache.put(cacheKey(), result);
         }
         return result;
@@ -74,10 +74,12 @@ public abstract class Action<ParameterType extends ActionRequest> implements Cal
         return parameter;
     }
 
-    public final boolean isCachable() {
+    public final boolean isCacheable() {
         return cache != null;
     }
+
     abstract protected String getRequestCacheKey();
+
     abstract public ActionResponse execute(ParameterType parameter) throws QueryStoreException;
 
     public DataStore getDataStore() {

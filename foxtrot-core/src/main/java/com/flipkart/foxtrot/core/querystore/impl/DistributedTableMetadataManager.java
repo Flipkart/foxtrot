@@ -13,8 +13,8 @@ import com.hazelcast.core.IMap;
  */
 public class DistributedTableMetadataManager implements TableMetadataManager {
     public static final String DATA_MAP = "tablemetadatamap";
-    private HazelcastConnection hazelcastConnection;
-    private ElasticsearchConnection elasticsearchConnection;
+    private final HazelcastConnection hazelcastConnection;
+    private final ElasticsearchConnection elasticsearchConnection;
     private IMap<String, Table> tableDataStore;
 
     public DistributedTableMetadataManager(HazelcastConnection hazelcastConnection,

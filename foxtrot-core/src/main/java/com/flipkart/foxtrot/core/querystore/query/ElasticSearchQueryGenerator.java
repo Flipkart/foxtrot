@@ -20,8 +20,8 @@ import java.util.List;
  * Time: 2:31 PM
  */
 public class ElasticSearchQueryGenerator extends FilterVisitor {
-    private BoolQueryBuilder queryBuilder;
-    private FilterCombinerType combinerType;
+    private final BoolQueryBuilder queryBuilder;
+    private final FilterCombinerType combinerType;
 
     public ElasticSearchQueryGenerator(FilterCombinerType combinerType) {
         this.queryBuilder = QueryBuilders.boolQuery();

@@ -19,8 +19,8 @@ import java.io.IOException;
  */
 public class DistributedCache implements Cache {
     private static final Logger logger = LoggerFactory.getLogger(DistributedCache.class.getSimpleName());
-    private IMap<String, String> distributedMap;
-    private ObjectMapper mapper;
+    private final IMap<String, String> distributedMap;
+    private final ObjectMapper mapper;
 
     public DistributedCache(HazelcastConnection hazelcastConnection, String name, ObjectMapper mapper) {
         MapConfig mapConfig = hazelcastConnection.getHazelcast().getConfig().getMapConfig(name);
@@ -44,7 +44,7 @@ public class DistributedCache implements Cache {
 
     @Override
     public ActionResponse get(String key) {
-        if(null == key) {
+        if (null == key) {
             return null; //Hazelcast map throws NPE if key is null
         }
         String data = distributedMap.get(key);

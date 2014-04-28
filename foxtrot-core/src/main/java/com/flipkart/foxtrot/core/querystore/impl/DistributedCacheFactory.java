@@ -10,8 +10,8 @@ import com.flipkart.foxtrot.core.common.CacheFactory;
  * Time: 7:51 PM
  */
 public class DistributedCacheFactory implements CacheFactory {
-    private HazelcastConnection connection;
-    private ObjectMapper mapper;
+    private final HazelcastConnection connection;
+    private final ObjectMapper mapper;
 
     public DistributedCacheFactory(HazelcastConnection connection, ObjectMapper mapper) {
         this.connection = connection;

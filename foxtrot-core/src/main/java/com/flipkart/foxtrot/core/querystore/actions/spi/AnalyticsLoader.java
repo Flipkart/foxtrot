@@ -18,8 +18,8 @@ import java.util.Map;
 public class AnalyticsLoader {
 
     private final Map<String, ActionMetadata> actions = Maps.newHashMap();
-    private DataStore dataStore;
-    private ElasticsearchConnection elasticsearchConnection;
+    private final DataStore dataStore;
+    private final ElasticsearchConnection elasticsearchConnection;
 
     public AnalyticsLoader(DataStore dataStore,
                            ElasticsearchConnection elasticsearchConnection) {
@@ -31,15 +31,15 @@ public class AnalyticsLoader {
     public <R extends ActionRequest> Action<R>
     getAction(R request) throws Exception {
         final String className = request.getClass().getCanonicalName();
-        if(actions.containsKey(className)) {
+        if (actions.containsKey(className)) {
             ActionMetadata metadata = actions.get(className);
-            if(metadata.getRequest().isInstance(request)) {
-                R r = (R)metadata.getRequest().cast(request);
+            if (metadata.getRequest().isInstance(request)) {
+                R r = (R) metadata.getRequest().cast(request);
                 Constructor<? extends Action> constructor
-                                = metadata.getAction().getConstructor(metadata.getRequest(),
-                                                                        DataStore.class,
-                                                                        ElasticsearchConnection.class,
-                                                                        String.class);
+                        = metadata.getAction().getConstructor(metadata.getRequest(),
+                        DataStore.class,
+                        ElasticsearchConnection.class,
+                        String.class);
                 return constructor.newInstance(r, dataStore, elasticsearchConnection, metadata.getCacheToken());
             }
         }
@@ -48,7 +48,7 @@ public class AnalyticsLoader {
 
     public void register(ActionMetadata actionMetadata) {
         actions.put(actionMetadata.getRequest().getCanonicalName(), actionMetadata);
-        if(actionMetadata.isCacheable()) {
+        if (actionMetadata.isCacheable()) {
             CacheUtils.create(actionMetadata.getCacheToken());
         }
     }

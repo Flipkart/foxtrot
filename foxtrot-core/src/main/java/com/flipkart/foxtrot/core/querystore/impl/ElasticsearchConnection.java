@@ -16,7 +16,7 @@ import org.elasticsearch.common.transport.InetSocketTransportAddress;
 
 @CoverageIgnore
 public class ElasticsearchConnection implements Managed {
-    private ElasticsearchConfig config;
+    private final ElasticsearchConfig config;
     private Client client;
 
     public ElasticsearchConnection(ElasticsearchConfig config) {

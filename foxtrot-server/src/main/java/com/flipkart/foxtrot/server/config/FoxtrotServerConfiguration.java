@@ -14,13 +14,13 @@ import javax.validation.Valid;
  */
 public class FoxtrotServerConfiguration extends Configuration {
     @Valid
-    private HbaseConfig hbase;
+    private final HbaseConfig hbase;
 
     @Valid
-    private ElasticsearchConfig elasticsearch;
+    private final ElasticsearchConfig elasticsearch;
 
     @Valid
-    private ClusterConfig cluster;
+    private final ClusterConfig cluster;
 
     public FoxtrotServerConfiguration() {
         this.hbase = new HbaseConfig();

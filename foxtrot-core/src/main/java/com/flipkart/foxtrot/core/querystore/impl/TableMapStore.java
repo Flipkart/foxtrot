@@ -36,7 +36,7 @@ public class TableMapStore implements MapStore<String, Table> {
     public static final String TABLE_META_TYPE = "table-meta";
 
     public static class Factory implements MapStoreFactory<String, Table> {
-        private ElasticsearchConnection elasticsearchConnection;
+        private final ElasticsearchConnection elasticsearchConnection;
 
         public Factory(ElasticsearchConnection elasticsearchConnection) {
             this.elasticsearchConnection = elasticsearchConnection;
@@ -52,8 +52,8 @@ public class TableMapStore implements MapStore<String, Table> {
         return new Factory(elasticsearchConnection);
     }
 
-    private ElasticsearchConnection elasticsearchConnection;
-    private ObjectMapper objectMapper;
+    private final ElasticsearchConnection elasticsearchConnection;
+    private final ObjectMapper objectMapper;
 
     public TableMapStore(ElasticsearchConnection elasticsearchConnection) {
         this.elasticsearchConnection = elasticsearchConnection;

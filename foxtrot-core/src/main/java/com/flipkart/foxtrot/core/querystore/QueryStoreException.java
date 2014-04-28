@@ -27,5 +27,5 @@ public class QueryStoreException extends Exception {
         ACTION_RESOLUTION_ERROR
     }
 
-    private ErrorCode errorCode;
+    private final ErrorCode errorCode;
 }

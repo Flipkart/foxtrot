@@ -23,7 +23,7 @@ import java.io.File;
 public class HbaseTableConnection implements Managed {
     private static final Logger logger = LoggerFactory.getLogger(HbaseTableConnection.class.getSimpleName());
 
-    private HbaseConfig hbaseConfig;
+    private final HbaseConfig hbaseConfig;
     private HTablePool tablePool;
 
     public HbaseTableConnection(HbaseConfig hbaseConfig) {
@@ -31,7 +31,7 @@ public class HbaseTableConnection implements Managed {
     }
 
 
-    public synchronized HTableInterface getTable()  throws DataStoreException {
+    public synchronized HTableInterface getTable() throws DataStoreException {
         try {
             if (UserGroupInformation.isSecurityEnabled()) {
                 UserGroupInformation.getCurrentUser().reloginFromKeytab();
@@ -56,7 +56,7 @@ public class HbaseTableConnection implements Managed {
             configuration.set("hadoop.kerberos.kinit.command", hbaseConfig.getKinitPath());
             UserGroupInformation.setConfiguration(configuration);
             System.setProperty("java.security.krb5.conf", hbaseConfig.getKerberosConfigFile());
-            if(hbaseConfig.isSecure()) {
+            if (hbaseConfig.isSecure()) {
                 UserGroupInformation.loginUserFromKeytab(
                         hbaseConfig.getAuthString(), hbaseConfig.getKeytabFileName());
                 logger.info("Logged into Hbase with User: " + UserGroupInformation.getLoginUser());

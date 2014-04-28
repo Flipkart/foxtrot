@@ -16,9 +16,9 @@ import java.net.InetAddress;
  */
 public class HazelcastConnection implements Managed {
 
-    private ClusterConfig clusterConfig;
+    private final ClusterConfig clusterConfig;
     private HazelcastInstance hazelcast;
-    private ObjectMapper mapper;
+    private final ObjectMapper mapper;
 
     public HazelcastConnection(ClusterConfig clusterConfig, ObjectMapper mapper) {
         this.clusterConfig = clusterConfig;
@@ -31,9 +31,9 @@ public class HazelcastConnection implements Managed {
         Config hzConfig = new Config();
         hzConfig.getGroupConfig().setName(clusterConfig.getName());
         hzConfig.setInstanceName(String.format("foxtrot-%s-%d", hostName, System.currentTimeMillis()));
-        if(clusterConfig.isDisableMulticast()) {
+        if (clusterConfig.isDisableMulticast()) {
             hzConfig.getNetworkConfig().getJoin().getMulticastConfig().setEnabled(false);
-            for(String member: clusterConfig.getMembers()) {
+            for (String member : clusterConfig.getMembers()) {
                 hzConfig.getNetworkConfig().getJoin().getTcpIpConfig().addMember(member);
             }
             hzConfig.getNetworkConfig().getJoin().getTcpIpConfig().setEnabled(true);

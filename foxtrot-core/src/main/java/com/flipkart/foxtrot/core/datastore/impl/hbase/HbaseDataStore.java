@@ -29,8 +29,8 @@ public class HbaseDataStore implements DataStore {
     private static final byte[] DATA_FIELD_NAME = Bytes.toBytes("data");
     private static final byte[] TIMESTAMP_FIELD_NAME = Bytes.toBytes("timestamp");
 
-    private HbaseTableConnection tableWrapper;
-    private ObjectMapper mapper;
+    private final HbaseTableConnection tableWrapper;
+    private final ObjectMapper mapper;
 
     public HbaseDataStore(HbaseTableConnection tableWrapper, ObjectMapper mapper) {
         this.tableWrapper = tableWrapper;
