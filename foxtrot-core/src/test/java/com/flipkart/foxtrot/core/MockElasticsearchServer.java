@@ -28,7 +28,6 @@ public class MockElasticsearchServer {
                 .local(true)
                 .settings(elasticsearchSettings.build())
                 .node();
-        ElasticsearchUtils.initializeMappings(node.client());
     }
 
     public Client getClient() {

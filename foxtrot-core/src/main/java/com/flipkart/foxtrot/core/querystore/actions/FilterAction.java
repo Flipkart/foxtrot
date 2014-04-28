@@ -52,6 +52,8 @@ public class FilterAction extends Action<Query> {
         for(Filter filter : query.getFilters()) {
             filterHashKey += 31 * filter.hashCode();
         }
+        filterHashKey += 31 * (query.getCombiner() != null ? query.getCombiner().hashCode() : "COMBINER".hashCode());
+        filterHashKey += 31 * (query.getSort() != null ? query.getSort().hashCode() : "SORT".hashCode());
 
         return String.format("%s-%d-%d-%d", query.getTable(),
                                                         query.getFrom(), query.getLimit(), filterHashKey);
