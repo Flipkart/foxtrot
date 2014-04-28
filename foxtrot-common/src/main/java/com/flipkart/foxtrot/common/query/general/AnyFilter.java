@@ -33,7 +33,7 @@ public class AnyFilter extends Filter {
 
     @Override
     public int hashCode() {
-        return super.hashCode();
+        return "any".hashCode();
     }
 }
 

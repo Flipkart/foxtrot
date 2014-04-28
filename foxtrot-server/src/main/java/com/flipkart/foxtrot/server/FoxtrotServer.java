@@ -69,9 +69,6 @@ public class FoxtrotServer extends Service<FoxtrotServerConfiguration> {
         QueryStore queryStore = new ElasticsearchQueryStore(tableMetadataManager, elasticsearchConnection, dataStore, executor);
 
         environment.addResource(new DocumentResource(queryStore));
-        environment.addResource(new QueryResource(queryStore));
-        environment.addResource(new HistogramResource(queryStore));
-        environment.addResource(new GroupResource(queryStore));
         environment.addResource(new AsyncResource());
         environment.addResource(new AnalyticsResource(executor));
         environment.addResource(new TableMetadataResource(tableMetadataManager));

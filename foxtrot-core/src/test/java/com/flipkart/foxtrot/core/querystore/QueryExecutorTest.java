@@ -3,6 +3,7 @@ package com.flipkart.foxtrot.core.querystore;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.jsontype.NamedType;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -22,7 +23,11 @@ import com.flipkart.foxtrot.common.query.numeric.*;
 import com.flipkart.foxtrot.common.query.string.ContainsFilter;
 import com.flipkart.foxtrot.core.MockElasticsearchServer;
 import com.flipkart.foxtrot.core.MockHTable;
+import com.flipkart.foxtrot.core.cache.TestCacheFactory;
 import com.flipkart.foxtrot.core.common.Action;
+import com.flipkart.foxtrot.core.common.AsyncDataToken;
+import com.flipkart.foxtrot.core.common.Cache;
+import com.flipkart.foxtrot.core.common.CacheUtils;
 import com.flipkart.foxtrot.core.datastore.DataStore;
 import com.flipkart.foxtrot.core.datastore.DataStoreException;
 import com.flipkart.foxtrot.core.datastore.impl.hbase.HbaseDataStore;
@@ -66,7 +71,7 @@ public class QueryExecutorTest {
     public void setUp() throws Exception {
         ElasticsearchUtils.setMapper(mapper);
         DataStore dataStore = getDataStore();
-
+        CacheUtils.setCacheFactory(new TestCacheFactory());
         ElasticsearchConnection elasticsearchConnection = Mockito.mock(ElasticsearchConnection.class);
         when(elasticsearchConnection.getClient()).thenReturn(elasticsearchServer.getClient());
         AnalyticsLoader analyticsLoader = new AnalyticsLoader(dataStore, elasticsearchConnection);
@@ -111,6 +116,40 @@ public class QueryExecutorTest {
         String actualResponse = mapper.writeValueAsString(response);
         assertEquals(expectedResponse, actualResponse);
         logger.info("Tested Query - No Filter - Sort Ascending");
+    }
+
+    @Test
+    public void testQueryNoFilterAscendingAsync() throws QueryStoreException, JsonProcessingException {
+        logger.info("Testing Query - No Filter - Sort Ascending - Async");
+        List<Document> testDocuments = getQueryDocuments();
+        queryStore.save(TEST_APP, testDocuments);
+        Query query = new Query();
+        query.setTable(TEST_APP);
+        ResultSort resultSort = new ResultSort();
+        resultSort.setOrder(ResultSort.Order.asc);
+        resultSort.setField("_timestamp");
+        query.setSort(resultSort);
+        AsyncDataToken response = queryExecutor.executeAsync(query);
+        String expectedResponse = "{\"opcode\":\"QueryResponse\",\"documents\":[" +
+                "{\"id\":\"W\",\"timestamp\":1397658117000,\"data\":{\"os\":\"android\",\"battery\":99,\"device\":\"nexus\"}}," +
+                "{\"id\":\"X\",\"timestamp\":1397658117000,\"data\":{\"os\":\"android\",\"battery\":74,\"device\":\"nexus\"}}," +
+                "{\"id\":\"Y\",\"timestamp\":1397658117000,\"data\":{\"os\":\"android\",\"battery\":48,\"device\":\"nexus\"}}," +
+                "{\"id\":\"Z\",\"timestamp\":1397658117000,\"data\":{\"os\":\"android\",\"battery\":24,\"device\":\"nexus\"}}," +
+                "{\"id\":\"A\",\"timestamp\":1397658118000,\"data\":{\"os\":\"android\",\"device\":\"nexus\",\"version\":1}}," +
+                "{\"id\":\"B\",\"timestamp\":1397658118001,\"data\":{\"os\":\"android\",\"device\":\"galaxy\",\"version\":1}}," +
+                "{\"id\":\"C\",\"timestamp\":1397658118002,\"data\":{\"os\":\"android\",\"device\":\"nexus\",\"version\":2}}," +
+                "{\"id\":\"D\",\"timestamp\":1397658118003,\"data\":{\"os\":\"ios\",\"device\":\"iphone\",\"version\":1}}," +
+                "{\"id\":\"E\",\"timestamp\":1397658118004,\"data\":{\"os\":\"ios\",\"device\":\"ipad\",\"version\":2}}" +
+                "]}";
+        try {
+            Thread.sleep(200);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        ActionResponse actionResponse = CacheUtils.getCacheFor(response.getAction()).get(response.getKey());
+        String actualResponse = mapper.writeValueAsString(actionResponse);
+        assertEquals(expectedResponse, actualResponse);
+        logger.info("Tested Query - No Filter - Sort Ascending - Async");
     }
 
     @Test
@@ -928,25 +967,31 @@ public class QueryExecutorTest {
     }
 
     private void registerActions(AnalyticsLoader analyticsLoader) throws Exception {
+
         Reflections reflections = new Reflections("com.flipkart.foxtrot", new SubTypesScanner());
         Set<Class<? extends Action>> actions = reflections.getSubTypesOf(Action.class);
+        if(actions.isEmpty()) {
+            throw new Exception("No analytics actions found!!");
+        }
+        List<NamedType> types = new Vector<NamedType>();
         for(Class<? extends Action> action : actions) {
             AnalyticsProvider analyticsProvider = action.getAnnotation(AnalyticsProvider.class);
-            if(null == analyticsProvider
-                    || null == analyticsProvider.request()
-                    || null == analyticsProvider.opcode()
+            if(null == analyticsProvider.request()
                     || null == analyticsProvider.opcode()
                     || analyticsProvider.opcode().isEmpty()
                     || null == analyticsProvider.response()) {
-//                throw new Exception("Invalid annotation on " + action.getCanonicalName());
-            } else {
+                throw new Exception("Invalid annotation on " + action.getCanonicalName());
+            }
+            if(analyticsProvider.opcode().equalsIgnoreCase("default")) {
+                logger.warn("Action " + action.getCanonicalName() + " does not specify cache token. " +
+                        "Using default cache.");
+            }
             analyticsLoader.register(new ActionMetadata(
                     analyticsProvider.request(), action,
-                    false, analyticsProvider.opcode()));
-            }
+                    analyticsProvider.cacheable(), analyticsProvider.opcode()));
+            types.add(new NamedType(analyticsProvider.request(), analyticsProvider.opcode()));
+            types.add(new NamedType(analyticsProvider.response(), analyticsProvider.opcode()));
+            logger.info("Registered action: " + action.getCanonicalName());
         }
     }
-
-
-
 }

@@ -25,6 +25,4 @@ public interface QueryStore {
     public ActionResponse runQuery(final Query query) throws QueryStoreException;
     public AsyncDataToken runQueryAsync(Query query) throws QueryStoreException;
     public JsonNode getDataForQuery(String queryId) throws QueryStoreException;
-    public HistogramResponse histogram(final HistogramRequest histogramRequest) throws QueryStoreException;
-    public GroupResponse group(final GroupRequest groupRequest) throws QueryStoreException;
 }

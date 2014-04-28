@@ -160,85 +160,6 @@ public class ElasticsearchQueryStore implements QueryStore {
         return null;
     }
 
-    @Override
-    public HistogramResponse histogram(final HistogramRequest histogramRequest) throws QueryStoreException {
-        final String AGG_NAME = "histogram";
-        try {
-            /*if(!tableManager.exists(query.getTable())) {
-                throw new QueryStoreException(QueryStoreException.ErrorCode.NO_SUCH_TABLE,
-                        "There is no table called: " + query.getTable());
-            }*/
-            DateHistogram.Interval interval = null;
-            switch (histogramRequest.getPeriod()) {
-                case minutes:
-                    interval = DateHistogram.Interval.MINUTE;
-                    break;
-                case hours:
-                    interval = DateHistogram.Interval.HOUR;
-                    break;
-                case days:
-                    interval = DateHistogram.Interval.DAY;
-                    break;
-            }
-            SearchResponse response = connection.getClient().prepareSearch(ElasticsearchUtils.getIndices(histogramRequest.getTable()))
-                    .setTypes(ElasticsearchUtils.TYPE_NAME)
-                    .setQuery(new ElasticSearchQueryGenerator(FilterCombinerType.and)
-                            .genFilter(histogramRequest.getFilters())
-                            .must(QueryBuilders.rangeQuery(histogramRequest.getField())
-                                    .from(histogramRequest.getFrom())
-                                    .to(histogramRequest.getTo()))
-                    )
-                    .setSize(0)
-                    .setSearchType(SearchType.DFS_QUERY_THEN_FETCH)
-                    .addAggregation(AggregationBuilders.dateHistogram(AGG_NAME)
-                            .field(histogramRequest.getField())
-                            .interval(interval))
-                    .execute()
-                    .actionGet();
-            DateHistogram dateHistogram = response.getAggregations().get(AGG_NAME);
-            Collection<? extends DateHistogram.Bucket> buckets = dateHistogram.getBuckets();
-            List<HistogramResponse.Count> counts = new ArrayList<HistogramResponse.Count>(buckets.size());
-            for(DateHistogram.Bucket bucket : buckets) {
-                HistogramResponse.Count count = new HistogramResponse.Count(
-                                                        bucket.getKeyAsNumber(), bucket.getDocCount());
-                counts.add(count);
-            }
-            return new HistogramResponse(counts);
-        } catch (Exception e) {
-            throw new QueryStoreException(QueryStoreException.ErrorCode.HISTOGRAM_GENERATION_ERROR,
-                    "Malformed query", e);
-        }
-    }
-
-    @Override
-    public GroupResponse group(GroupRequest groupRequest) throws QueryStoreException {
-        try {
-            SearchRequestBuilder query = connection.getClient().prepareSearch(ElasticsearchUtils.getIndices(groupRequest.getTable()));
-            TermsBuilder rootBuilder = null;
-            TermsBuilder termsBuilder = null;
-            for(String field : groupRequest.getNesting()) {
-                if(null == termsBuilder) {
-                    termsBuilder = AggregationBuilders.terms(field).field(field);
-                }
-                else {
-                    termsBuilder.subAggregation(AggregationBuilders.terms(field).field(field));
-                }
-                if(null == rootBuilder) {
-                    rootBuilder = termsBuilder;
-                }
-            }
-            query.addAggregation(rootBuilder);
-            SearchResponse response = query.execute().actionGet();
-            List<String> fields = groupRequest.getNesting();
-            Aggregations aggregations = response.getAggregations();
-            return new GroupResponse(getMap(fields, aggregations));
-        } catch (Exception e) {
-            logger.error("Error running grouping: ", e);
-            throw new QueryStoreException(QueryStoreException.ErrorCode.QUERY_EXECUTION_ERROR,
-                            "Error running group query.", e);
-        }
-    }
-
     private Map<String, Object> getMap(List<String> fields, Aggregations aggregations) {
         final String field = fields.get(0);
         final List<String> remainingFields = (fields.size() > 1) ? fields.subList(1, fields.size())
@@ -255,39 +176,5 @@ public class ElasticsearchQueryStore implements QueryStore {
         }
         return levelCount;
 
-    }
-
-    //@Override
-/*
-    public JsonNode getDataForQuery(String table, String queryId) throws QueryStoreException {
-        connection.getClient().prepareSearch().setIndices(getIndices(table));
-        FilterBuilders.rangeFilter("xx").gt(1);
-        ClusterStateResponse clusterStateResponse = connection.getClient().admin().cluster().prepareState().execute().actionGet();
-        ImmutableOpenMap<String, MappingMetaData> indexMappings = clusterStateResponse.getState().getMetaData().index(table).getMappings();
-        try {
-            byte data[] = mapper.writeValueAsBytes(indexMappings.get(TYPE_NAME).source().string());
-            JsonSchema schema = mapper.generateJsonSchema(Document.class);
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        */
-/*
-        1. Create and save json path:type mapping
-        2. use path to find type
-        3. Use type to convert query to proper filter
-
-        * *//*
-
-        return null;
-    }
-*/
-
-
-
-    public static void main(String[] args) throws ParseException {
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-M-ddHH:m:s.S");
-        Date date = simpleDateFormat.parse("2014-03-13T07:33:00.000Z");
-        System.out.println(date.getTime());
     }
 }

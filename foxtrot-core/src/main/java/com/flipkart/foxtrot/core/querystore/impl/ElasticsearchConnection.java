@@ -1,6 +1,7 @@
 package com.flipkart.foxtrot.core.querystore.impl;
 
 import com.yammer.dropwizard.lifecycle.Managed;
+import net.sourceforge.cobertura.CoverageIgnore;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.client.transport.TransportClient;
 import org.elasticsearch.common.settings.ImmutableSettings;
@@ -12,6 +13,8 @@ import org.elasticsearch.common.transport.InetSocketTransportAddress;
  * Date: 14/03/14
  * Time: 12:38 AM
  */
+
+@CoverageIgnore
 public class ElasticsearchConnection implements Managed {
     private ElasticsearchConfig config;
     private Client client;
