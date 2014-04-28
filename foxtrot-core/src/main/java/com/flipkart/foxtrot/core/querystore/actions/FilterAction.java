@@ -32,13 +32,13 @@ import java.util.Vector;
  * Time: 1:00 PM
  */
 @AnalyticsProvider(opcode = "query", request = Query.class, response = QueryResponse.class, cacheable = true)
-public class FilterEventsAction extends Action<Query> {
-    private static final Logger logger = LoggerFactory.getLogger(FilterEventsAction.class);
+public class FilterAction extends Action<Query> {
+    private static final Logger logger = LoggerFactory.getLogger(FilterAction.class);
 
-    public FilterEventsAction(Query parameter,
-                              DataStore dataStore,
-                              ElasticsearchConnection connection,
-                              String cacheToken) {
+    public FilterAction(Query parameter,
+                        DataStore dataStore,
+                        ElasticsearchConnection connection,
+                        String cacheToken) {
         super(parameter, dataStore, connection, cacheToken);
     }
 
@@ -75,7 +75,6 @@ public class FilterEventsAction extends Action<Query> {
                 search.addSort(parameter.getSort().getField(),
                         ResultSort.Order.desc == parameter.getSort().getOrder() ? SortOrder.DESC : SortOrder.ASC);
             }
-            //logger.error("Running: " + search);
             SearchResponse response = search.execute().actionGet();
             Vector<String> ids = new Vector<String>();
             for(SearchHit searchHit : response.getHits()) {
