@@ -1,6 +1,5 @@
 package com.flipkart.foxtrot.core.querystore.actions;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.flipkart.foxtrot.common.ActionResponse;
 import com.flipkart.foxtrot.common.group.GroupRequest;
 import com.flipkart.foxtrot.common.group.GroupResponse;
@@ -32,14 +31,14 @@ import java.util.Map;
  * Date: 27/03/14
  * Time: 7:16 PM
  */
-@AnalyticsProvider(opcode="group", request = GroupRequest.class, response = GroupResponse.class, cacheable = true)
+@AnalyticsProvider(opcode = "group", request = GroupRequest.class, response = GroupResponse.class, cacheable = true)
 public class GroupAction extends Action<GroupRequest> {
     private static final Logger logger = LoggerFactory.getLogger(GroupAction.class.getSimpleName());
 
     public GroupAction(GroupRequest parameter,
-                          DataStore dataStore,
-                          ElasticsearchConnection connection,
-                          String cacheToken) {
+                       DataStore dataStore,
+                       ElasticsearchConnection connection,
+                       String cacheToken) {
         super(parameter, dataStore, connection, cacheToken);
     }
 
@@ -47,10 +46,10 @@ public class GroupAction extends Action<GroupRequest> {
     protected String getRequestCacheKey() {
         long filterHashKey = 0L;
         GroupRequest query = getParameter();
-        for(Filter filter : query.getFilters()) {
+        for (Filter filter : query.getFilters()) {
             filterHashKey += 31 * filter.hashCode();
         }
-        for(String field : query.getNesting()) {
+        for (String field : query.getNesting()) {
             filterHashKey += 31 * field.hashCode();
         }
         return String.format("%s-%d", query.getTable(), filterHashKey);
@@ -60,25 +59,24 @@ public class GroupAction extends Action<GroupRequest> {
     public ActionResponse execute(GroupRequest parameter) throws QueryStoreException {
         try {
             SearchRequestBuilder query = getConnection().getClient().prepareSearch(ElasticsearchUtils.getIndices(
-                                                parameter.getTable()));
+                    parameter.getTable()));
             TermsBuilder rootBuilder = null;
             TermsBuilder termsBuilder = null;
-            for(String field : parameter.getNesting()) {
-                if(null == termsBuilder) {
+            for (String field : parameter.getNesting()) {
+                if (null == termsBuilder) {
                     termsBuilder = AggregationBuilders.terms(field).field(field);
-                }
-                else {
+                } else {
                     TermsBuilder tempBuilder = AggregationBuilders.terms(field).field(field);
                     termsBuilder.subAggregation(tempBuilder);
                     termsBuilder = tempBuilder;
                 }
-                if(null == rootBuilder) {
+                if (null == rootBuilder) {
                     rootBuilder = termsBuilder;
                 }
             }
             query.setQuery(new ElasticSearchQueryGenerator(FilterCombinerType.and)
-                            .genFilter(parameter.getFilters()))
-                 .addAggregation(rootBuilder);
+                    .genFilter(parameter.getFilters()))
+                    .addAggregation(rootBuilder);
             SearchResponse response = query.execute().actionGet();
             List<String> fields = parameter.getNesting();
             Aggregations aggregations = response.getAggregations();
@@ -96,11 +94,10 @@ public class GroupAction extends Action<GroupRequest> {
                 : new ArrayList<String>();
         Terms terms = aggregations.get(field);
         Map<String, Object> levelCount = new HashMap<String, Object>();
-        for(Terms.Bucket bucket : terms.getBuckets()) {
-            if(fields.size() == 1) { //TERMINAL AGG
+        for (Terms.Bucket bucket : terms.getBuckets()) {
+            if (fields.size() == 1) { //TERMINAL AGG
                 levelCount.put(bucket.getKey(), bucket.getDocCount());
-            }
-            else {
+            } else {
                 levelCount.put(bucket.getKey(), getMap(remainingFields, bucket.getAggregations()));
             }
         }

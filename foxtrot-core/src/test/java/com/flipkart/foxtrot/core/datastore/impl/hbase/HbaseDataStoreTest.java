@@ -12,24 +12,19 @@ import org.apache.hadoop.hbase.util.Bytes;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mockito;
-import org.mockito.runners.MockitoJUnitRunner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
 import static org.junit.Assert.*;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 /**
  * Created by rishabh.goyal on 15/04/14.
  */
 
-@RunWith(MockitoJUnitRunner.class)
 public class HbaseDataStoreTest {
     private HbaseDataStore hbaseDataStore;
     private HTableInterface tableInterface;
@@ -72,14 +67,14 @@ public class HbaseDataStoreTest {
     public void testSaveBulk() throws Exception {
         logger.info("Testing Bulk Save");
         List<Document> documents = new Vector<Document>();
-        for( int i = 0 ; i < 10; i++){
+        for (int i = 0; i < 10; i++) {
             documents.add(new Document(UUID.randomUUID().toString(),
                     System.currentTimeMillis(),
-                    mapper.valueToTree(Collections.singletonMap("TEST_NAME", "SINGLE_SAVE_TEST")) ));
+                    mapper.valueToTree(Collections.singletonMap("TEST_NAME", "SINGLE_SAVE_TEST"))));
         }
         hbaseDataStore.save(TEST_APP, documents);
         verify(tableConnection, times(1)).getTable();
-        for (Document document : documents){
+        for (Document document : documents) {
             validateSave(document);
         }
         logger.info("Tested Bulk Save");
@@ -116,7 +111,7 @@ public class HbaseDataStoreTest {
         Map<String, Document> idValues = new HashMap<String, Document>();
         List<String> ids = new Vector<String>();
         List<Put> putList = new Vector<Put>();
-        for( int i = 0 ; i < 10; i++){
+        for (int i = 0; i < 10; i++) {
             String id = UUID.randomUUID().toString();
             ids.add(id);
             idValues.put(id,
@@ -128,11 +123,11 @@ public class HbaseDataStoreTest {
         List<Document> actualDocuments = hbaseDataStore.get(TEST_APP, ids);
         verify(tableConnection, times(1)).getTable();
         HashMap<String, Document> actualIdValues = new HashMap<String, Document>();
-        for ( Document doc : actualDocuments) {
+        for (Document doc : actualDocuments) {
             actualIdValues.put(doc.getId(), doc);
         }
         assertNotNull("List of returned Documents should not be null", actualDocuments);
-        for (String id : ids){
+        for (String id : ids) {
             assertTrue("Requested Id should be present in response", actualIdValues.containsKey(id));
             compare(idValues.get(id), actualIdValues.get(id));
         }
@@ -140,8 +135,7 @@ public class HbaseDataStoreTest {
     }
 
 
-
-    public void compare(Document expected, Document actual) throws Exception{
+    public void compare(Document expected, Document actual) throws Exception {
         assertNotNull(expected);
         assertNotNull(actual);
         assertNotNull("Actual document Id should not be null", actual.getId());

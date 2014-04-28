@@ -20,6 +20,7 @@ import com.flipkart.foxtrot.core.querystore.TableMetadataManager;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsLoader;
 import com.flipkart.foxtrot.core.querystore.impl.*;
 import com.hazelcast.core.Hazelcast;
+import com.hazelcast.core.HazelcastInstance;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -45,6 +46,7 @@ public class HistogramActionTest {
     private static QueryExecutor queryExecutor;
     private static final ObjectMapper mapper = new ObjectMapper();
     private static final MockElasticsearchServer elasticsearchServer = new MockElasticsearchServer();
+    private static HazelcastInstance hazelcastInstance;
     private static String TEST_TABLE = "test-app";
     private static JsonNodeFactory factory;
 
@@ -55,8 +57,9 @@ public class HistogramActionTest {
         factory = JsonNodeFactory.instance;
 
         //Initializing Cache Factory
+        hazelcastInstance = Hazelcast.newHazelcastInstance();
         HazelcastConnection hazelcastConnection = Mockito.mock(HazelcastConnection.class);
-        when(hazelcastConnection.getHazelcast()).thenReturn(Hazelcast.newHazelcastInstance());
+        when(hazelcastConnection.getHazelcast()).thenReturn(hazelcastInstance);
         CacheUtils.setCacheFactory(new DistributedCacheFactory(hazelcastConnection, mapper));
 
         ElasticsearchConnection elasticsearchConnection = Mockito.mock(ElasticsearchConnection.class);
@@ -78,6 +81,7 @@ public class HistogramActionTest {
     @AfterClass
     public static void tearDown() throws IOException {
         elasticsearchServer.shutdown();
+        hazelcastInstance.shutdown();
     }
 
     @Test
@@ -191,7 +195,7 @@ public class HistogramActionTest {
         logger.info("Tested Histogram - Interval Day - With Filter");
     }
 
-    private static List<Document> getHistogramDocuments(){
+    private static List<Document> getHistogramDocuments() {
         List<Document> documents = new Vector<Document>();
         documents.add(TestUtils.getDocument("Z", 1397658117000L, new Object[]{"os", "android", "version", 1, "device", "nexus", "battery", 24}, mapper));
         documents.add(TestUtils.getDocument("Y", 1397651117000L, new Object[]{"os", "android", "version", 1, "device", "nexus", "battery", 48}, mapper));

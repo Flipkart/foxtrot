@@ -1,13 +1,15 @@
 package com.flipkart.foxtrot.eventpush;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.apache.commons.cli.*;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 
 import java.net.Inet4Address;
-import java.util.concurrent.*;
+import java.util.concurrent.CompletionService;
+import java.util.concurrent.ExecutorCompletionService;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class App {
     public static void main(String[] args) throws Exception {

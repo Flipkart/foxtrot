@@ -24,9 +24,9 @@ import com.flipkart.foxtrot.core.querystore.TableMetadataManager;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsLoader;
 import com.flipkart.foxtrot.core.querystore.impl.*;
 import com.hazelcast.core.Hazelcast;
+import com.hazelcast.core.HazelcastInstance;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.slf4j.Logger;
@@ -50,6 +50,7 @@ public class FilterActionTest {
     private static QueryExecutor queryExecutor;
     private static ObjectMapper mapper = new ObjectMapper();
     private static MockElasticsearchServer elasticsearchServer = new MockElasticsearchServer();
+    private static HazelcastInstance hazelcastInstance;
     private static String TEST_APP = "test-app";
 
     @BeforeClass
@@ -58,8 +59,9 @@ public class FilterActionTest {
         DataStore dataStore = TestUtils.getDataStore();
 
         //Initializing Cache Factory
+        hazelcastInstance = Hazelcast.newHazelcastInstance();
         HazelcastConnection hazelcastConnection = Mockito.mock(HazelcastConnection.class);
-        when(hazelcastConnection.getHazelcast()).thenReturn(Hazelcast.newHazelcastInstance());
+        when(hazelcastConnection.getHazelcast()).thenReturn(hazelcastInstance);
         CacheUtils.setCacheFactory(new DistributedCacheFactory(hazelcastConnection, mapper));
 
         ElasticsearchConnection elasticsearchConnection = Mockito.mock(ElasticsearchConnection.class);
@@ -81,6 +83,7 @@ public class FilterActionTest {
     @AfterClass
     public static void tearDown() throws IOException {
         elasticsearchServer.shutdown();
+        hazelcastInstance.shutdown();
     }
 
     @Test
@@ -599,7 +602,7 @@ public class FilterActionTest {
         logger.info("Tested Query - Filter with Pagination");
     }
 
-    private static List<Document> getQueryDocuments(){
+    private static List<Document> getQueryDocuments() {
         List<Document> documents = new Vector<Document>();
         documents.add(TestUtils.getDocument("Z", 1397658117000L, new Object[]{"os", "android", "device", "nexus", "battery", 24}, mapper));
         documents.add(TestUtils.getDocument("Y", 1397658117000L, new Object[]{"os", "android", "device", "nexus", "battery", 48}, mapper));

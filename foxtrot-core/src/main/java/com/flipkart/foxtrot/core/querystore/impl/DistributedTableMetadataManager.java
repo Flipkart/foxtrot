@@ -12,7 +12,7 @@ import com.hazelcast.core.IMap;
  * Time: 10:11 PM
  */
 public class DistributedTableMetadataManager implements TableMetadataManager {
-    private static final String DATA_MAP = "tablemetadatamap";
+    public static final String DATA_MAP = "tablemetadatamap";
     private HazelcastConnection hazelcastConnection;
     private ElasticsearchConnection elasticsearchConnection;
     private IMap<String, Table> tableDataStore;
@@ -31,7 +31,7 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
 
     @Override
     public Table get(String tableName) throws Exception {
-        if(tableDataStore.containsKey(tableName)) {
+        if (tableDataStore.containsKey(tableName)) {
             return tableDataStore.get(tableName);
         }
         return null;

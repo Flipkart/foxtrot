@@ -8,7 +8,9 @@ import com.flipkart.foxtrot.common.query.general.EqualsFilter;
 import com.flipkart.foxtrot.common.query.general.NotEqualsFilter;
 import com.flipkart.foxtrot.common.query.numeric.*;
 import com.flipkart.foxtrot.common.query.string.ContainsFilter;
-import org.elasticsearch.index.query.*;
+import org.elasticsearch.index.query.BoolQueryBuilder;
+import org.elasticsearch.index.query.QueryBuilder;
+import org.elasticsearch.index.query.QueryBuilders;
 
 import java.util.List;
 
@@ -62,14 +64,14 @@ public class ElasticSearchQueryGenerator extends FilterVisitor {
     public void visit(GreaterEqualFilter greaterEqualFilter) throws Exception {
         addFilter(
                 QueryBuilders.rangeQuery(greaterEqualFilter.getField())
-                                        .gte(greaterEqualFilter.getValue()));
+                        .gte(greaterEqualFilter.getValue()));
     }
 
     @Override
     public void visit(LessThanFilter lessThanFilter) throws Exception {
         addFilter(
                 QueryBuilders.rangeQuery(lessThanFilter.getField())
-                                     .lt(lessThanFilter.getValue()));
+                        .lt(lessThanFilter.getValue()));
 
     }
 
@@ -77,7 +79,7 @@ public class ElasticSearchQueryGenerator extends FilterVisitor {
     public void visit(LessEqualFilter lessEqualFilter) throws Exception {
         addFilter(
                 QueryBuilders.rangeQuery(lessEqualFilter.getField())
-                                    .lte(lessEqualFilter.getValue()));
+                        .lte(lessEqualFilter.getValue()));
 
     }
 
@@ -87,18 +89,17 @@ public class ElasticSearchQueryGenerator extends FilterVisitor {
     }
 
     private void addFilter(QueryBuilder query) throws Exception {
-        if(combinerType == FilterCombinerType.and) {
+        if (combinerType == FilterCombinerType.and) {
             queryBuilder.must(query);
         }
         queryBuilder.should(query);
     }
 
     public BoolQueryBuilder genFilter(List<Filter> filters) throws Exception {
-        if(null == filters || filters.isEmpty()) {
+        if (null == filters || filters.isEmpty()) {
             addFilter(QueryBuilders.matchAllQuery());
-        }
-        else {
-            for(Filter filter : filters) {
+        } else {
+            for (Filter filter : filters) {
                 filter.accept(this);
             }
         }

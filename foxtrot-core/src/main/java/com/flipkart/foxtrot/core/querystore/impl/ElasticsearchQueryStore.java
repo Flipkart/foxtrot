@@ -2,14 +2,9 @@ package com.flipkart.foxtrot.core.querystore.impl;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.flipkart.foxtrot.common.Document;
-import com.flipkart.foxtrot.common.group.GroupRequest;
-import com.flipkart.foxtrot.common.group.GroupResponse;
-import com.flipkart.foxtrot.common.histogram.HistogramRequest;
-import com.flipkart.foxtrot.common.histogram.HistogramResponse;
-import com.flipkart.foxtrot.common.query.FilterCombinerType;
-import com.flipkart.foxtrot.common.query.Query;
 import com.flipkart.foxtrot.common.ActionResponse;
+import com.flipkart.foxtrot.common.Document;
+import com.flipkart.foxtrot.common.query.Query;
 import com.flipkart.foxtrot.core.common.AsyncDataToken;
 import com.flipkart.foxtrot.core.datastore.DataStore;
 import com.flipkart.foxtrot.core.datastore.DataStoreException;
@@ -17,27 +12,20 @@ import com.flipkart.foxtrot.core.querystore.QueryExecutor;
 import com.flipkart.foxtrot.core.querystore.QueryStore;
 import com.flipkart.foxtrot.core.querystore.QueryStoreException;
 import com.flipkart.foxtrot.core.querystore.TableMetadataManager;
-import com.flipkart.foxtrot.core.querystore.query.ElasticSearchQueryGenerator;
 import org.elasticsearch.action.WriteConsistencyLevel;
 import org.elasticsearch.action.bulk.BulkRequestBuilder;
 import org.elasticsearch.action.bulk.BulkResponse;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.index.IndexResponse;
-import org.elasticsearch.action.search.SearchRequestBuilder;
-import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.action.search.SearchType;
-import org.elasticsearch.index.query.QueryBuilders;
-import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.Aggregations;
-import org.elasticsearch.search.aggregations.bucket.histogram.DateHistogram;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
-import org.elasticsearch.search.aggregations.bucket.terms.TermsBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * User: Santanu Sinha (santanu.sinha@flipkart.com)
@@ -67,57 +55,57 @@ public class ElasticsearchQueryStore implements QueryStore {
     @Override
     public void save(String table, Document document) throws QueryStoreException {
         try {
-            if(!tableMetadataManager.exists(table)) {
+            if (!tableMetadataManager.exists(table)) {
                 throw new QueryStoreException(QueryStoreException.ErrorCode.NO_SUCH_TABLE,
-                                                "No table exists with the name: " + table);
+                        "No table exists with the name: " + table);
             }
             dataStore.save(table, document);
             long timestamp = document.getTimestamp();
             IndexResponse response = connection.getClient()
-                                                .prepareIndex()
-                                                .setIndex(ElasticsearchUtils.getCurrentIndex(table, timestamp))
-                                                .setType(ElasticsearchUtils.TYPE_NAME)
-                                                .setId(document.getId())
-                                                .setTimestamp(Long.toString(timestamp))
-                                                .setSource(mapper.writeValueAsBytes(document.getData()))
-                                                .setRefresh(true)
-                                                .setConsistencyLevel(WriteConsistencyLevel.QUORUM)
-                                                .execute()
-                                                .get();
-            if(response.getVersion() > 0) {
+                    .prepareIndex()
+                    .setIndex(ElasticsearchUtils.getCurrentIndex(table, timestamp))
+                    .setType(ElasticsearchUtils.TYPE_NAME)
+                    .setId(document.getId())
+                    .setTimestamp(Long.toString(timestamp))
+                    .setSource(mapper.writeValueAsBytes(document.getData()))
+                    .setRefresh(true)
+                    .setConsistencyLevel(WriteConsistencyLevel.QUORUM)
+                    .execute()
+                    .get();
+            if (response.getVersion() > 0) {
                 return;
             }
         } catch (Exception e) {
             throw new QueryStoreException(QueryStoreException.ErrorCode.DOCUMENT_SAVE_ERROR,
-                            "Error saving documents: " + e.getMessage(), e);
+                    "Error saving documents: " + e.getMessage(), e);
         }
     }
 
     @Override
     public void save(String table, List<Document> documents) throws QueryStoreException {
         try {
-            if(!tableMetadataManager.exists(table)) {
+            if (!tableMetadataManager.exists(table)) {
                 throw new QueryStoreException(QueryStoreException.ErrorCode.NO_SUCH_TABLE,
                         "No table exists with the name: " + table);
             }
             dataStore.save(table, documents);
             BulkRequestBuilder bulkRequestBuilder = connection.getClient().prepareBulk();
-            for(Document document: documents) {
+            for (Document document : documents) {
                 long timestamp = document.getTimestamp();
                 final String index = ElasticsearchUtils.getCurrentIndex(table, timestamp);
                 IndexRequest indexRequest = new IndexRequest()
-                                                    .index(index)
-                                                    .type(ElasticsearchUtils.TYPE_NAME)
-                                                    .id(document.getId())
-                                                    .timestamp(Long.toString(timestamp))
-                                                    .source(mapper.writeValueAsBytes(document.getData()));
+                        .index(index)
+                        .type(ElasticsearchUtils.TYPE_NAME)
+                        .id(document.getId())
+                        .timestamp(Long.toString(timestamp))
+                        .source(mapper.writeValueAsBytes(document.getData()));
                 bulkRequestBuilder.add(indexRequest);
             }
 
             BulkResponse response = bulkRequestBuilder.setRefresh(true)
-                                                        .setConsistencyLevel(WriteConsistencyLevel.QUORUM)
-                                                        .execute()
-                                                        .get();
+                    .setConsistencyLevel(WriteConsistencyLevel.QUORUM)
+                    .execute()
+                    .get();
 
         } catch (Exception e) {
             throw new QueryStoreException(QueryStoreException.ErrorCode.DOCUMENT_SAVE_ERROR,
@@ -163,14 +151,13 @@ public class ElasticsearchQueryStore implements QueryStore {
     private Map<String, Object> getMap(List<String> fields, Aggregations aggregations) {
         final String field = fields.get(0);
         final List<String> remainingFields = (fields.size() > 1) ? fields.subList(1, fields.size())
-                                                                : new ArrayList<String>();
+                : new ArrayList<String>();
         Terms terms = aggregations.get(field);
         Map<String, Object> levelCount = new HashMap<String, Object>();
-        for(Terms.Bucket bucket : terms.getBuckets()) {
-            if(fields.size() == 1) { //TERMINAL AGG
+        for (Terms.Bucket bucket : terms.getBuckets()) {
+            if (fields.size() == 1) { //TERMINAL AGG
                 levelCount.put(bucket.getKey(), bucket.getDocCount());
-            }
-            else {
+            } else {
                 levelCount.put(bucket.getKey(), getMap(remainingFields, bucket.getAggregations()));
             }
         }

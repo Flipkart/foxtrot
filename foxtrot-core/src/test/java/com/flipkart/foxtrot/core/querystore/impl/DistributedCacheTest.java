@@ -43,6 +43,7 @@ public class DistributedCacheTest {
 
     @AfterClass
     public static void tearDown() throws Exception {
+        hazelcastInstance.shutdown();
     }
 
     @Test
@@ -81,6 +82,6 @@ public class DistributedCacheTest {
         assertTrue(response);
         response = distributedCache.has("INVALID_KEY");
         assertFalse(response);
-        logger.info("Tested Distributed Cache - GET");
+        logger.info("Tested Distributed Cache - HAS");
     }
 }

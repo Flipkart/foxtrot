@@ -1,9 +1,9 @@
 package com.flipkart.foxtrot.server;
 
-import com.fasterxml.jackson.databind.jsontype.SubtypeResolver;
-import com.fasterxml.jackson.databind.jsontype.impl.StdSubtypeResolver;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.jsontype.SubtypeResolver;
+import com.fasterxml.jackson.databind.jsontype.impl.StdSubtypeResolver;
 import com.flipkart.foxtrot.core.datastore.DataStore;
 import com.flipkart.foxtrot.core.datastore.impl.hbase.HbaseConfig;
 import com.flipkart.foxtrot.core.datastore.impl.hbase.HbaseDataStore;
@@ -14,7 +14,10 @@ import com.flipkart.foxtrot.core.querystore.TableMetadataManager;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsLoader;
 import com.flipkart.foxtrot.core.querystore.impl.*;
 import com.flipkart.foxtrot.server.config.FoxtrotServerConfiguration;
-import com.flipkart.foxtrot.server.resources.*;
+import com.flipkart.foxtrot.server.resources.AnalyticsResource;
+import com.flipkart.foxtrot.server.resources.AsyncResource;
+import com.flipkart.foxtrot.server.resources.DocumentResource;
+import com.flipkart.foxtrot.server.resources.TableMetadataResource;
 import com.flipkart.foxtrot.server.util.ManagedActionScanner;
 import com.yammer.dropwizard.Service;
 import com.yammer.dropwizard.config.Bootstrap;
@@ -42,7 +45,7 @@ public class FoxtrotServer extends Service<FoxtrotServerConfiguration> {
         environment.getObjectMapperFactory().setSubtypeResolver(subtypeResolver);
 
         ObjectMapper objectMapper = environment.getObjectMapperFactory().build();
-        ExecutorService executorService = environment.managedExecutorService("query-executor-%s", 20,40, 30, TimeUnit.SECONDS);
+        ExecutorService executorService = environment.managedExecutorService("query-executor-%s", 20, 40, 30, TimeUnit.SECONDS);
 
         HbaseConfig hbaseConfig = configuration.getHbase();
         HbaseTableConnection hbaseTableConnection = new HbaseTableConnection(hbaseConfig);

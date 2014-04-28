@@ -32,8 +32,8 @@ import java.util.concurrent.TimeUnit;
 public class TableMapStore implements MapStore<String, Table> {
     private static final Logger logger = LoggerFactory.getLogger(TableMapStore.class.getSimpleName());
 
-    private static final String TABLE_META_INDEX = "table-meta";
-    private static final String TABLE_META_TYPE = "table-meta";
+    public static final String TABLE_META_INDEX = "table-meta";
+    public static final String TABLE_META_TYPE = "table-meta";
 
     public static class Factory implements MapStoreFactory<String, Table> {
         private ElasticsearchConnection elasticsearchConnection;
@@ -66,14 +66,14 @@ public class TableMapStore implements MapStore<String, Table> {
     public void store(String key, Table value) {
         try {
             elasticsearchConnection.getClient().prepareIndex()
-                                            .setIndex(TABLE_META_INDEX)
-                                            .setType(TABLE_META_TYPE)
-                                            .setConsistencyLevel(WriteConsistencyLevel.ALL)
-                                            .setSource(objectMapper.writeValueAsString(value))
-                                            .setId(key)
-                                            .setRefresh(true)
-                                            .execute()
-                                            .actionGet();
+                    .setIndex(TABLE_META_INDEX)
+                    .setType(TABLE_META_TYPE)
+                    .setConsistencyLevel(WriteConsistencyLevel.ALL)
+                    .setSource(objectMapper.writeValueAsString(value))
+                    .setId(key)
+                    .setRefresh(true)
+                    .execute()
+                    .actionGet();
         } catch (JsonProcessingException e) {
             throw new RuntimeException("Error saving meta: ", e);
         }
@@ -82,11 +82,11 @@ public class TableMapStore implements MapStore<String, Table> {
     @Override
     public void storeAll(Map<String, Table> map) {
         BulkRequestBuilder bulRequestBuilder = elasticsearchConnection.getClient().prepareBulk().setConsistencyLevel(WriteConsistencyLevel.ALL).setRefresh(true);
-        for(Map.Entry<String, Table> mapEntry : map.entrySet()) {
+        for (Map.Entry<String, Table> mapEntry : map.entrySet()) {
             try {
                 bulRequestBuilder.add(elasticsearchConnection.getClient()
-                                                    .prepareIndex(TABLE_META_INDEX, TABLE_META_TYPE, mapEntry.getKey())
-                                                    .setSource(objectMapper.writeValueAsString(mapEntry.getValue())));
+                        .prepareIndex(TABLE_META_INDEX, TABLE_META_TYPE, mapEntry.getKey())
+                        .setSource(objectMapper.writeValueAsString(mapEntry.getValue())));
             } catch (JsonProcessingException e) {
                 throw new RuntimeException("Error bulk saving meta: ", e);
             }
@@ -97,19 +97,19 @@ public class TableMapStore implements MapStore<String, Table> {
     @Override
     public void delete(String key) {
         elasticsearchConnection.getClient().prepareDelete()
-                                            .setIndex(TABLE_META_INDEX)
-                                            .setType(TABLE_META_TYPE)
-                                            .setId(key)
-                                            .execute()
-                                            .actionGet();
+                .setIndex(TABLE_META_INDEX)
+                .setType(TABLE_META_TYPE)
+                .setId(key)
+                .execute()
+                .actionGet();
     }
 
     @Override
     public void deleteAll(Collection<String> keys) {
         BulkRequestBuilder bulRequestBuilder = elasticsearchConnection.getClient().prepareBulk().setConsistencyLevel(WriteConsistencyLevel.ALL).setRefresh(true);
-        for(String key : keys) {
-                bulRequestBuilder.add(elasticsearchConnection.getClient()
-                                            .prepareDelete(TABLE_META_INDEX, TABLE_META_TYPE, key));
+        for (String key : keys) {
+            bulRequestBuilder.add(elasticsearchConnection.getClient()
+                    .prepareDelete(TABLE_META_INDEX, TABLE_META_TYPE, key));
         }
         bulRequestBuilder.execute().actionGet();
     }
@@ -122,7 +122,7 @@ public class TableMapStore implements MapStore<String, Table> {
                 .setId(key)
                 .execute()
                 .actionGet();
-        if(!response.isExists()) {
+        if (!response.isExists()) {
             return null;
         }
         try {
@@ -140,10 +140,10 @@ public class TableMapStore implements MapStore<String, Table> {
                 .execute()
                 .actionGet();
         Map<String, Table> tables = Maps.newHashMap();
-        for(MultiGetItemResponse multiGetItemResponse: response) {
+        for (MultiGetItemResponse multiGetItemResponse : response) {
             try {
                 Table table = objectMapper.readValue(multiGetItemResponse.getResponse().getSourceAsString(),
-                                                    Table.class);
+                        Table.class);
                 tables.put(table.getName(), table);
             } catch (IOException e) {
                 e.printStackTrace();
@@ -170,10 +170,10 @@ public class TableMapStore implements MapStore<String, Table> {
                     .execute()
                     .actionGet();
             SearchHits hits = response.getHits();
-            for(SearchHit hit:hits) {
+            for (SearchHit hit : hits) {
                 ids.add(hit.getId());
             }
-            if(0 == response.getHits().hits().length) {
+            if (0 == response.getHits().hits().length) {
                 break;
             }
         }

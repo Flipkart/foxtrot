@@ -4,7 +4,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.flipkart.foxtrot.common.Document;
 import com.flipkart.foxtrot.core.datastore.DataStore;
 import com.flipkart.foxtrot.core.datastore.DataStoreException;
-import org.apache.hadoop.hbase.client.*;
+import org.apache.hadoop.hbase.client.Get;
+import org.apache.hadoop.hbase.client.HTableInterface;
+import org.apache.hadoop.hbase.client.Put;
+import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,9 +45,9 @@ public class HbaseDataStore implements DataStore {
             hTable.put(getPutForDocument(table, document));
         } catch (Throwable t) {
             throw new DataStoreException(DataStoreException.ErrorCode.STORE_SINGLE_SAVE,
-                                                        "Saving document error: " + t.getMessage(), t);
-        }  finally {
-            if(null != hTable) {
+                    "Saving document error: " + t.getMessage(), t);
+        } finally {
+            if (null != hTable) {
                 try {
                     hTable.close();
                 } catch (IOException e) {
@@ -60,15 +63,15 @@ public class HbaseDataStore implements DataStore {
         try {
             hTable = tableWrapper.getTable();
             List<Put> puts = new Vector<Put>();
-            for(Document document : documents) {
+            for (Document document : documents) {
                 puts.add(getPutForDocument(table, document));
             }
             hTable.put(puts);
         } catch (Throwable t) {
             throw new DataStoreException(DataStoreException.ErrorCode.STORE_MULTI_SAVE,
                     "Saving document error: " + t.getMessage(), t);
-        }  finally {
-            if(null != hTable) {
+        } finally {
+            if (null != hTable) {
                 try {
                     hTable.close();
                 } catch (IOException e) {
@@ -88,19 +91,19 @@ public class HbaseDataStore implements DataStore {
                     .setMaxVersions(1);
             hTable = tableWrapper.getTable();
             Result getResult = hTable.get(get);
-            if(!getResult.isEmpty()) {
+            if (!getResult.isEmpty()) {
                 byte[] data = getResult.getValue(COLUMN_FAMILY, DATA_FIELD_NAME);
                 byte[] timestamp = getResult.getValue(COLUMN_FAMILY, TIMESTAMP_FIELD_NAME);
                 long time = (null != timestamp) ? Bytes.toLong(timestamp) : System.currentTimeMillis();
-                if(null != data) {
+                if (null != data) {
                     return new Document(id, time, mapper.readTree(data));
                 }
             }
         } catch (Throwable t) {
             throw new DataStoreException(DataStoreException.ErrorCode.STORE_SINGLE_GET,
-                                t.getMessage(), t);
-        }  finally {
-            if(null != hTable) {
+                    t.getMessage(), t);
+        } finally {
+            if (null != hTable) {
                 try {
                     hTable.close();
                 } catch (IOException e) {
@@ -109,7 +112,7 @@ public class HbaseDataStore implements DataStore {
             }
         }
         throw new DataStoreException(DataStoreException.ErrorCode.STORE_NO_DATA_FOUND_FOR_ID,
-                            String.format("No data found for ID: %s", id));
+                String.format("No data found for ID: %s", id));
     }
 
     @Override
@@ -117,45 +120,44 @@ public class HbaseDataStore implements DataStore {
         HTableInterface hTable = null;
         try {
             List<Get> gets = new ArrayList<Get>(ids.size());
-            for(String id: ids) {
+            for (String id : ids) {
                 Get get = new Get(Bytes.toBytes(id + ":" + table))
-                    .addColumn(COLUMN_FAMILY, DATA_FIELD_NAME)
-                    .addColumn(COLUMN_FAMILY, TIMESTAMP_FIELD_NAME)
-                    .setMaxVersions(1);
+                        .addColumn(COLUMN_FAMILY, DATA_FIELD_NAME)
+                        .addColumn(COLUMN_FAMILY, TIMESTAMP_FIELD_NAME)
+                        .setMaxVersions(1);
                 gets.add(get);
             }
             hTable = tableWrapper.getTable();
             Result[] getResults = hTable.get(gets);
             List<Document> results = new ArrayList<Document>(ids.size());
-            for(int index = 0; index < getResults.length; index++) {
+            for (int index = 0; index < getResults.length; index++) {
                 boolean found = false;
                 Result getResult = getResults[index];
-                if(!getResult.isEmpty()) {
+                if (!getResult.isEmpty()) {
                     byte[] data = getResult.getValue(COLUMN_FAMILY, DATA_FIELD_NAME);
-                    if(null != data) {
+                    if (null != data) {
                         byte[] timestamp = getResult.getValue(COLUMN_FAMILY, TIMESTAMP_FIELD_NAME);
                         long time = (null != timestamp) ? Bytes.toLong(timestamp) : System.currentTimeMillis();
                         results.add(new Document(Bytes.toString(getResult.getRow()).split(":")[0],
-                                                    time, mapper.readTree(data)));
+                                time, mapper.readTree(data)));
                         found = true;
                     }
                 }
-                if(!found)
-                {
+                if (!found) {
                     throw new DataStoreException(DataStoreException.ErrorCode.STORE_NO_DATA_FOUND_FOR_IDS,
                             String.format("No data found for ID: %s", ids.get(index)));
                 }
             }
-            if(results.isEmpty()) {
+            if (results.isEmpty()) {
                 throw new DataStoreException(DataStoreException.ErrorCode.STORE_NO_DATA_FOUND_FOR_IDS,
                         String.format("No data found for ID: %s", mapper.writeValueAsString(ids)));
             }
             return results;
         } catch (Throwable t) {
             throw new DataStoreException(DataStoreException.ErrorCode.STORE_MULTI_GET,
-                                            t.getMessage(), t);
+                    t.getMessage(), t);
         } finally {
-            if(null != hTable) {
+            if (null != hTable) {
                 try {
                     hTable.close();
                 } catch (IOException e) {
@@ -167,7 +169,7 @@ public class HbaseDataStore implements DataStore {
 
     public Put getPutForDocument(final String table, Document document) throws Throwable {
         return new Put(Bytes.toBytes(document.getId() + ":" + table))
-                    .add(COLUMN_FAMILY, DATA_FIELD_NAME, mapper.writeValueAsBytes(document.getData()))
-                    .add(COLUMN_FAMILY, TIMESTAMP_FIELD_NAME, Bytes.toBytes(document.getTimestamp()));
+                .add(COLUMN_FAMILY, DATA_FIELD_NAME, mapper.writeValueAsBytes(document.getData()))
+                .add(COLUMN_FAMILY, TIMESTAMP_FIELD_NAME, Bytes.toBytes(document.getTimestamp()));
     }
 }
