@@ -1,5 +1,6 @@
 package com.flipkart.foxtrot.core.querystore.actions;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.flipkart.foxtrot.common.ActionResponse;
 import com.flipkart.foxtrot.common.group.GroupRequest;
 import com.flipkart.foxtrot.common.group.GroupResponse;
@@ -67,7 +68,9 @@ public class GroupAction extends Action<GroupRequest> {
                     termsBuilder = AggregationBuilders.terms(field).field(field);
                 }
                 else {
-                    termsBuilder = termsBuilder.subAggregation(AggregationBuilders.terms(field).field(field));
+                    TermsBuilder tempBuilder = AggregationBuilders.terms(field).field(field);
+                    termsBuilder.subAggregation(tempBuilder);
+                    termsBuilder = tempBuilder;
                 }
                 if(null == rootBuilder) {
                     rootBuilder = termsBuilder;

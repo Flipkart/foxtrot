@@ -1,7 +1,10 @@
 package com.flipkart.foxtrot.core.querystore;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.flipkart.foxtrot.common.ActionResponse;
 import com.flipkart.foxtrot.common.Document;
 import com.flipkart.foxtrot.common.group.GroupRequest;
@@ -678,7 +681,7 @@ public class QueryExecutorTest {
 
     @Test
     public void testGroupActionTwoFieldsWithFilter() throws QueryStoreException, JsonProcessingException {
-        logger.info("Testing Group - Multiple Fields - With Filter");
+        logger.info("Testing Group - Two Fields - With Filter");
         List<Document> testDocuments = getGroupDocuments();
         queryStore.save(TEST_APP, testDocuments);
         GroupRequest groupRequest = new GroupRequest();
@@ -696,21 +699,70 @@ public class QueryExecutorTest {
                 "\"ios\":{\"ipad\":1}}}";
         String actualResult = mapper.writeValueAsString(queryExecutor.execute(groupRequest));
         assertEquals(expectedResult, actualResult);
+        logger.info("Tested Group - Two Fields - With Filter");
+    }
+
+    @Test
+    public void testGroupActionMultipleFieldsNoFilter() throws QueryStoreException, JsonProcessingException {
+        logger.info("Testing Group - Multiple Fields - With Filter");
+        List<Document> testDocuments = getGroupDocuments();
+        queryStore.save(TEST_APP, testDocuments);
+        GroupRequest groupRequest = new GroupRequest();
+        groupRequest.setTable(TEST_APP);
+        groupRequest.setNesting(Arrays.asList("os", "device", "version"));
+
+        String expectedResult = "{\"opcode\":\"GroupResponse\"," +
+                "\"result\":" + "{" +
+                "\"android\":{\"nexus\":{\"3\":1,\"2\":2,\"1\":2},\"galaxy\":{\"3\":1,\"2\":1}}," +
+                "\"ios\":{\"nexus\":{\"2\":1},\"ipad\":{\"2\":2},\"iphone\":{\"1\":1}}}}";
+        String actualResult = mapper.writeValueAsString(queryExecutor.execute(groupRequest));
+        assertEquals(expectedResult, actualResult);
         logger.info("Tested Group - Multiple Fields - With Filter");
     }
 
     @Test
-    public void testGroupActionMultipleFields() throws QueryStoreException, JsonProcessingException {
+    public void testGroupActionMultipleFieldsWithFilter() throws QueryStoreException, JsonProcessingException {
+        logger.info("Testing Group - Multiple Fields - With Filter");
+        List<Document> testDocuments = getGroupDocuments();
+        queryStore.save(TEST_APP, testDocuments);
+        GroupRequest groupRequest = new GroupRequest();
+        groupRequest.setTable(TEST_APP);
+        groupRequest.setNesting(Arrays.asList("os", "device", "version"));
+
+        GreaterThanFilter greaterThanFilter = new GreaterThanFilter();
+        greaterThanFilter.setField("battery");
+        greaterThanFilter.setValue(48);
+        groupRequest.setFilters(Collections.<Filter>singletonList(greaterThanFilter));
+
+        JsonNodeFactory factory = JsonNodeFactory.instance;
+        ObjectNode resultNode = factory.objectNode();
+
+        ObjectNode temp = factory.objectNode();
+        temp.put("nexus", factory.objectNode().put("3", 1).put("2", 2));
+        temp.put("galaxy", factory.objectNode().put("3", 1).put("2", 1));
+        resultNode.put("android", temp);
+
+        temp = factory.objectNode();
+        temp.put("ipad", factory.objectNode().put("2", 1));
+        resultNode.put("ios", temp);
+        ObjectNode finalNode = factory.objectNode();
+        finalNode.put("opcode", "GroupResponse");
+        finalNode.put("result", resultNode);
+
+        String expectedResult = new ObjectMapper().writeValueAsString(finalNode);
+        String actualResult = mapper.writeValueAsString(queryExecutor.execute(groupRequest));
+        assertEquals(expectedResult, actualResult);
+        logger.info("Tested Group - Multiple Fields - With Filter");
     }
 
     private List<Document> getGroupDocuments(){
         List<Document> documents = new Vector<Document>();
-        documents.add(getDocument("Z", 1397658117000L, new Object[]{ "os", "android", "device", "nexus", "battery", 24}));
-        documents.add(getDocument("Y", 1397658117000L, new Object[]{ "os", "android", "device", "nexus", "battery", 48}));
-        documents.add(getDocument("X", 1397658117000L, new Object[]{ "os", "android", "device", "galaxy", "battery", 74}));
-        documents.add(getDocument("W", 1397658117000L, new Object[]{ "os", "android", "device", "nexus", "battery", 99}));
-        documents.add(getDocument("A", 1397658118000L, new Object[]{ "os", "android", "version", 1, "device", "nexus", "battery", 87}));
-        documents.add(getDocument("B", 1397658118001L, new Object[]{ "os", "android", "version", 1, "device", "galaxy", "battery", 76}));
+        documents.add(getDocument("Z", 1397658117000L, new Object[]{ "os", "android", "version", 1, "device", "nexus", "battery", 24}));
+        documents.add(getDocument("Y", 1397658117000L, new Object[]{ "os", "android", "version", 1, "device", "nexus", "battery", 48}));
+        documents.add(getDocument("X", 1397658117000L, new Object[]{ "os", "android", "version", 3, "device", "galaxy", "battery", 74}));
+        documents.add(getDocument("W", 1397658117000L, new Object[]{ "os", "android", "version", 2, "device", "nexus", "battery", 99}));
+        documents.add(getDocument("A", 1397658118000L, new Object[]{ "os", "android", "version", 3, "device", "nexus", "battery", 87}));
+        documents.add(getDocument("B", 1397658118001L, new Object[]{ "os", "android", "version", 2, "device", "galaxy", "battery", 76}));
         documents.add(getDocument("C", 1397658118002L, new Object[]{ "os", "android", "version", 2, "device", "nexus", "battery", 78}));
         documents.add(getDocument("D", 1397658118003L, new Object[]{ "os", "ios", "version", 1, "device", "iphone", "battery", 24}));
         documents.add(getDocument("E", 1397658118004L, new Object[]{ "os", "ios", "version", 2, "device", "ipad", "battery", 56}));
@@ -725,9 +777,6 @@ public class QueryExecutorTest {
         when(tableConnection.getTable()).thenReturn(tableInterface);
         return new HbaseDataStore(tableConnection, new ObjectMapper());
     }
-
-
-
 
     private Document getDocument(String id, long timestamp, Object[] args){
         Map<String, Object> data = new HashMap<String, Object>();
