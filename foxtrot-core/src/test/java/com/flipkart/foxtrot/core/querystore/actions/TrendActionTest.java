@@ -134,6 +134,34 @@ public class TrendActionTest {
         logger.info("Tested Trend - With Field");
     }
 
+    @Test
+    public void testTrendActionWithFieldWithFilterWithInterval() throws QueryStoreException, JsonProcessingException {
+        logger.info("Testing Trend - With Field - With Interval");
+        TrendRequest trendRequest = new TrendRequest();
+        trendRequest.setTable(TEST_APP);
+        trendRequest.setFrom(1L);
+        trendRequest.setField("os");
+        trendRequest.setTo(System.currentTimeMillis());
+        trendRequest.setInterval(1000L * 60 * 60 * 12);
+
+        EqualsFilter equalsFilter = new EqualsFilter();
+        equalsFilter.setField("version");
+        equalsFilter.setValue(1);
+        trendRequest.setFilters(Collections.<Filter>singletonList(equalsFilter));
+
+        ObjectNode result = factory.objectNode();
+        result.put("opcode", "trend");
+        ObjectNode trends = factory.objectNode();
+        trends.put("android", factory.arrayNode().add(factory.objectNode().put("period", 1397649600000L).put("count", 2)));
+        trends.put("ios", factory.arrayNode().add(factory.objectNode().put("period", 1397736000000L).put("count", 1)));
+        result.put("trends", trends);
+
+        String expectedResponse = mapper.writeValueAsString(result);
+        String actualResponse = mapper.writeValueAsString(queryExecutor.execute(trendRequest));
+        assertEquals(expectedResponse, actualResponse);
+        logger.info("Tested Trend - With Field - With Interval");
+    }
+
 
     private static List<Document> getTrendDocuments() {
         List<Document> documents = new Vector<Document>();

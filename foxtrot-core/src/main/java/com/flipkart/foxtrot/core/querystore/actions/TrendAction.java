@@ -58,6 +58,10 @@ public class TrendAction extends Action<TrendRequest> {
             }
         }
 
+        filterHashKey += 31 * query.getInterval();
+        filterHashKey += 31 * query.getTimestamp().hashCode();
+        filterHashKey += 31 * query.getField().hashCode();
+
         return String.format("%s-%s-%d-%d-%d", query.getTable(),
                 query.getField(), query.getFrom() / 30000, query.getTo() / 30000, filterHashKey);
     }
