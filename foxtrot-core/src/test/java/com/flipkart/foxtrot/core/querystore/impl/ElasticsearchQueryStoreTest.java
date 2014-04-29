@@ -7,6 +7,7 @@ import com.flipkart.foxtrot.core.MockElasticsearchServer;
 import com.flipkart.foxtrot.core.TestUtils;
 import com.flipkart.foxtrot.core.datastore.DataStore;
 import com.flipkart.foxtrot.core.querystore.QueryExecutor;
+import com.flipkart.foxtrot.core.querystore.QueryStoreException;
 import com.flipkart.foxtrot.core.querystore.TableMetadataManager;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsLoader;
 import org.elasticsearch.action.get.GetResponse;
@@ -80,6 +81,18 @@ public class ElasticsearchQueryStoreTest {
         logger.info("Tested Single Save");
     }
 
+    @Test(expected = QueryStoreException.class)
+    public void testSaveSingleInvalidTable() throws Exception {
+        logger.info("Testing Single Save - Invalid Table");
+        Document expectedDocument = new Document();
+        expectedDocument.setId(UUID.randomUUID().toString());
+        expectedDocument.setTimestamp(System.currentTimeMillis());
+        JsonNode data = mapper.valueToTree(Collections.singletonMap("TEST_NAME", "SINGLE_SAVE_TEST"));
+        expectedDocument.setData(data);
+        queryStore.save(TEST_APP + "-missing", expectedDocument);
+        logger.info("Tested Single Save - Invalid Table");
+    }
+
     @Test
     public void testSaveBulk() throws Exception {
         logger.info("Testing Bulk Save");
@@ -92,7 +105,6 @@ public class ElasticsearchQueryStoreTest {
         queryStore.save(TEST_APP, documents);
 
         for (Document document : documents) {
-
             GetResponse getResponse = elasticsearchServer
                     .getClient()
                     .prepareGet(ElasticsearchUtils.getCurrentIndex(TEST_APP, document.getTimestamp()),
@@ -104,6 +116,19 @@ public class ElasticsearchQueryStoreTest {
             assertEquals("Timestamp should match request timestamp", document.getTimestamp(), getResponse.getField("_timestamp").getValue());
         }
         logger.info("Tested Bulk Save");
+    }
+
+    @Test(expected = QueryStoreException.class)
+    public void testSaveBulkInvalidTable() throws Exception {
+        logger.info("Testing Bulk Save - Invalid Table");
+        List<Document> documents = new Vector<Document>();
+        for (int i = 0; i < 10; i++) {
+            documents.add(new Document(UUID.randomUUID().toString(),
+                    System.currentTimeMillis(),
+                    mapper.valueToTree(Collections.singletonMap("TEST_NAME", "SINGLE_SAVE_TEST"))));
+        }
+        queryStore.save(TEST_APP + "-missing", documents);
+        logger.info("Tested Bulk Save - Invalid Table");
     }
 
     @Test
@@ -121,6 +146,13 @@ public class ElasticsearchQueryStoreTest {
         assertEquals(id, responseDocument.getId());
         assertEquals("Timestamp should match request timestamp", document.getTimestamp(), responseDocument.getTimestamp());
         logger.info("Tested Single Get");
+    }
+
+    @Test(expected = QueryStoreException.class)
+    public void testGetSingleInvalidId() throws Exception {
+        logger.info("Testing Single Get - Invalid Id");
+        queryStore.get(TEST_APP, UUID.randomUUID().toString());
+        logger.info("Tested Single Get - Invalid Id");
     }
 
     @Test
@@ -154,5 +186,12 @@ public class ElasticsearchQueryStoreTest {
             assertEquals("Timestamp should match request timestamp", idValues.get(id).getTimestamp(), responseIdValues.get(id).getTimestamp());
         }
         logger.info("Tested Bulk Get");
+    }
+
+    @Test(expected = QueryStoreException.class)
+    public void testGetBulkInvalidIds() throws Exception {
+        logger.info("Testing Bulk Get - Invalid Ids");
+        queryStore.get(TEST_APP, Arrays.asList(UUID.randomUUID().toString(), UUID.randomUUID().toString()));
+        logger.info("Tested Bulk Get - Invalid Ids");
     }
 }

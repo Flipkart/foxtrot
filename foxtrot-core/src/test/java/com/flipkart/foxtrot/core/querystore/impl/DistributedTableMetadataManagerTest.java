@@ -43,7 +43,6 @@ public class DistributedTableMetadataManagerTest {
         factory = JsonNodeFactory.instance;
 
         //Create index for table meta. Not created automatically
-
         CreateIndexRequest createRequest = new CreateIndexRequest(TableMapStore.TABLE_META_INDEX);
         Settings indexSettings = ImmutableSettings.settingsBuilder().put("number_of_replicas", 0).build();
         createRequest.settings(indexSettings);
