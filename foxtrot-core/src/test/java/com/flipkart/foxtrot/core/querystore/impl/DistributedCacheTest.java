@@ -75,12 +75,22 @@ public class DistributedCacheTest {
     }
 
     @Test
+    public void testGetMissing() throws Exception {
+        logger.info("Testing Distributed Cache - GET - Missing Key");
+        ActionResponse actionResponse = distributedCache.get("DUMMY_KEY_GET");
+        assertEquals(null, actionResponse);
+        logger.info("Tested Distributed Cache - GET - Missing Key");
+    }
+
+    @Test
     public void testHas() throws Exception {
         logger.info("Testing Distributed Cache - HAS");
         hazelcastInstance.getMap("TEST").put("DUMMY_KEY_HAS", Collections.singletonMap("Hello", "world"));
         boolean response = distributedCache.has("DUMMY_KEY_HAS");
         assertTrue(response);
         response = distributedCache.has("INVALID_KEY");
+        assertFalse(response);
+        response = distributedCache.has(null);
         assertFalse(response);
         logger.info("Tested Distributed Cache - HAS");
     }

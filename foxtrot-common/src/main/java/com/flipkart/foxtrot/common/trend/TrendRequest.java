@@ -3,6 +3,7 @@ package com.flipkart.foxtrot.common.trend;
 import com.flipkart.foxtrot.common.ActionRequest;
 import com.flipkart.foxtrot.common.query.Filter;
 import com.google.common.collect.Lists;
+import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.validation.constraints.Max;
@@ -23,6 +24,10 @@ public class TrendRequest implements ActionRequest {
     private List<Filter> filters = Lists.newArrayList();
 
     private String field = "all";
+
+    private String timestamp = "_timestamp";
+
+    private long interval = 86400000L;
 
     private List<String> values;
 
@@ -61,6 +66,22 @@ public class TrendRequest implements ActionRequest {
         this.field = field;
     }
 
+    public String getTimestamp() {
+        return timestamp;
+    }
+
+    public void setTimestamp(String timestamp) {
+        this.timestamp = timestamp;
+    }
+
+    public long getInterval() {
+        return interval;
+    }
+
+    public void setInterval(long interval) {
+        this.interval = interval;
+    }
+
     public List<String> getValues() {
         return values;
     }
@@ -83,5 +104,17 @@ public class TrendRequest implements ActionRequest {
 
     public void setTo(long to) {
         this.to = to;
+    }
+
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this)
+                .append("table", table)
+                .append("filters", filters)
+                .append("field", field)
+                .append("values", values)
+                .append("from", from)
+                .append("to", to)
+                .toString();
     }
 }
