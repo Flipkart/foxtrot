@@ -74,11 +74,10 @@ public class DistributedCacheTest {
         logger.info("Tested Distributed Cache - GET");
     }
 
-    @Test
+    @Test(expected = NullPointerException.class)
     public void testGetMissing() throws Exception {
         logger.info("Testing Distributed Cache - GET - Missing Key");
-        ActionResponse actionResponse = distributedCache.get("DUMMY_KEY_GET");
-        assertEquals(null, actionResponse);
+        distributedCache.get("DUMMY_KEY_GET");
         logger.info("Tested Distributed Cache - GET - Missing Key");
     }
 
