@@ -6,6 +6,7 @@ import com.hazelcast.config.Config;
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
 import com.yammer.dropwizard.lifecycle.Managed;
+import net.sourceforge.cobertura.CoverageIgnore;
 
 import java.net.InetAddress;
 
@@ -14,6 +15,8 @@ import java.net.InetAddress;
  * Date: 15/03/14
  * Time: 10:01 PM
  */
+
+@CoverageIgnore
 public class HazelcastConnection implements Managed {
 
     private final ClusterConfig clusterConfig;

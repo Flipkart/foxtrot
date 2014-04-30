@@ -85,6 +85,64 @@ public class HistogramActionTest {
     }
 
     @Test
+    public void testHistogramActionIntervalMinuteNoFilter() throws QueryStoreException, JsonProcessingException {
+        logger.info("Testing Histogram - Interval minute - No Filter");
+        HistogramRequest histogramRequest = new HistogramRequest();
+        histogramRequest.setTable(TEST_TABLE);
+        histogramRequest.setPeriod(Period.minutes);
+        histogramRequest.setFrom(0);
+        histogramRequest.setField("_timestamp");
+
+        ArrayNode countsNode = factory.arrayNode();
+        countsNode.add(factory.objectNode().put("period", 1397651100000L).put("count", 2));
+        countsNode.add(factory.objectNode().put("period", 1397658060000L).put("count", 3));
+        countsNode.add(factory.objectNode().put("period", 1397658180000L).put("count", 1));
+        countsNode.add(factory.objectNode().put("period", 1397758200000L).put("count", 1));
+        countsNode.add(factory.objectNode().put("period", 1397958060000L).put("count", 1));
+        countsNode.add(factory.objectNode().put("period", 1398653100000L).put("count", 2));
+        countsNode.add(factory.objectNode().put("period", 1398658200000L).put("count", 1));
+
+        ObjectNode finalNode = factory.objectNode();
+        finalNode.put("opcode", "histogram");
+        finalNode.put("counts", countsNode);
+
+        String expectedResponse = mapper.writeValueAsString(finalNode);
+        String actualResponse = mapper.writeValueAsString(queryExecutor.execute(histogramRequest));
+        assertEquals(expectedResponse, actualResponse);
+        logger.info("Tested Histogram - Interval minute - No Filter");
+    }
+
+    @Test
+    public void testHistogramActionIntervalMinuteWithFilter() throws QueryStoreException, JsonProcessingException {
+        logger.info("Testing Histogram - Interval minute - No Filter");
+        HistogramRequest histogramRequest = new HistogramRequest();
+        histogramRequest.setTable(TEST_TABLE);
+        histogramRequest.setPeriod(Period.minutes);
+        histogramRequest.setFrom(0);
+        histogramRequest.setField("_timestamp");
+
+        GreaterThanFilter greaterThanFilter = new GreaterThanFilter();
+        greaterThanFilter.setField("battery");
+        greaterThanFilter.setValue(48);
+        histogramRequest.setFilters(Collections.<Filter>singletonList(greaterThanFilter));
+
+        ArrayNode countsNode = factory.arrayNode();
+        countsNode.add(factory.objectNode().put("period", 1397651100000L).put("count", 1));
+        countsNode.add(factory.objectNode().put("period", 1397658060000L).put("count", 2));
+        countsNode.add(factory.objectNode().put("period", 1397658180000L).put("count", 1));
+        countsNode.add(factory.objectNode().put("period", 1397958060000L).put("count", 1));
+        countsNode.add(factory.objectNode().put("period", 1398658200000L).put("count", 1));
+        ObjectNode finalNode = factory.objectNode();
+        finalNode.put("opcode", "histogram");
+        finalNode.put("counts", countsNode);
+
+        String expectedResponse = mapper.writeValueAsString(finalNode);
+        String actualResponse = mapper.writeValueAsString(queryExecutor.execute(histogramRequest));
+        assertEquals(expectedResponse, actualResponse);
+        logger.info("Tested Histogram - Interval minute - No Filter");
+    }
+
+    @Test
     public void testHistogramActionIntervalHourNoFilter() throws QueryStoreException, JsonProcessingException {
         logger.info("Testing Histogram - Interval hour - No Filter");
         HistogramRequest histogramRequest = new HistogramRequest();

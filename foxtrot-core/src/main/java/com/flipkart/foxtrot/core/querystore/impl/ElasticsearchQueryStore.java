@@ -15,15 +15,10 @@ import com.flipkart.foxtrot.core.querystore.TableMetadataManager;
 import org.elasticsearch.action.WriteConsistencyLevel;
 import org.elasticsearch.action.bulk.BulkRequestBuilder;
 import org.elasticsearch.action.index.IndexRequest;
-import org.elasticsearch.search.aggregations.Aggregations;
-import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * User: Santanu Sinha (santanu.sinha@flipkart.com)
@@ -140,22 +135,5 @@ public class ElasticsearchQueryStore implements QueryStore {
     @Override
     public JsonNode getDataForQuery(String queryId) throws QueryStoreException {
         return null;
-    }
-
-    private Map<String, Object> getMap(List<String> fields, Aggregations aggregations) {
-        final String field = fields.get(0);
-        final List<String> remainingFields = (fields.size() > 1) ? fields.subList(1, fields.size())
-                : new ArrayList<String>();
-        Terms terms = aggregations.get(field);
-        Map<String, Object> levelCount = new HashMap<String, Object>();
-        for (Terms.Bucket bucket : terms.getBuckets()) {
-            if (fields.size() == 1) { //TERMINAL AGG
-                levelCount.put(bucket.getKey(), bucket.getDocCount());
-            } else {
-                levelCount.put(bucket.getKey(), getMap(remainingFields, bucket.getAggregations()));
-            }
-        }
-        return levelCount;
-
     }
 }
