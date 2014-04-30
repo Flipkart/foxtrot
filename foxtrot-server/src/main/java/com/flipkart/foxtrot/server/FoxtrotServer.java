@@ -5,9 +5,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.jsontype.SubtypeResolver;
 import com.fasterxml.jackson.databind.jsontype.impl.StdSubtypeResolver;
 import com.flipkart.foxtrot.core.datastore.DataStore;
+import com.flipkart.foxtrot.core.datastore.impl.hbase.HBaseDataStore;
+import com.flipkart.foxtrot.core.datastore.impl.hbase.HBaseTableConnection;
 import com.flipkart.foxtrot.core.datastore.impl.hbase.HbaseConfig;
-import com.flipkart.foxtrot.core.datastore.impl.hbase.HbaseDataStore;
-import com.flipkart.foxtrot.core.datastore.impl.hbase.HbaseTableConnection;
 import com.flipkart.foxtrot.core.querystore.QueryExecutor;
 import com.flipkart.foxtrot.core.querystore.QueryStore;
 import com.flipkart.foxtrot.core.querystore.TableMetadataManager;
@@ -48,8 +48,8 @@ public class FoxtrotServer extends Service<FoxtrotServerConfiguration> {
         ExecutorService executorService = environment.managedExecutorService("query-executor-%s", 20, 40, 30, TimeUnit.SECONDS);
 
         HbaseConfig hbaseConfig = configuration.getHbase();
-        HbaseTableConnection hbaseTableConnection = new HbaseTableConnection(hbaseConfig);
-        environment.manage(hbaseTableConnection);
+        HBaseTableConnection HBaseTableConnection = new HBaseTableConnection(hbaseConfig);
+        environment.manage(HBaseTableConnection);
 
         ElasticsearchConfig elasticsearchConfig = configuration.getElasticsearch();
         ElasticsearchConnection elasticsearchConnection = new ElasticsearchConnection(elasticsearchConfig);
@@ -61,7 +61,7 @@ public class FoxtrotServer extends Service<FoxtrotServerConfiguration> {
 
         ElasticsearchUtils.setMapper(objectMapper);
 
-        DataStore dataStore = new HbaseDataStore(hbaseTableConnection, objectMapper);
+        DataStore dataStore = new HBaseDataStore(HBaseTableConnection, objectMapper);
         AnalyticsLoader analyticsLoader = new AnalyticsLoader(dataStore, elasticsearchConnection);
         environment.manage(new ManagedActionScanner(analyticsLoader, environment));
 

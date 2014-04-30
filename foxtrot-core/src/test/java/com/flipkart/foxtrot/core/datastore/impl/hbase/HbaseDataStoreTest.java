@@ -10,7 +10,6 @@ import org.apache.hadoop.hbase.client.HTableInterface;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.util.Bytes;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Matchers;
@@ -28,28 +27,24 @@ import static org.mockito.Mockito.*;
  * Created by rishabh.goyal on 15/04/14.
  */
 
-public class HbaseDataStoreTest {
-    private HbaseDataStore hbaseDataStore;
+public class HBaseDataStoreTest {
+    private HBaseDataStore HBaseDataStore;
     private HTableInterface tableInterface;
-    private final ObjectMapper mapper = new ObjectMapper();
+    private HBaseTableConnection hBaseTableConnection;
+    private ObjectMapper mapper = new ObjectMapper();
 
-    private static final Logger logger = LoggerFactory.getLogger(HbaseDataStoreTest.class.getSimpleName());
+    private static final Logger logger = LoggerFactory.getLogger(HBaseDataStoreTest.class.getSimpleName());
     private static final byte[] COLUMN_FAMILY = Bytes.toBytes("d");
     private static final byte[] DATA_FIELD_NAME = Bytes.toBytes("data");
     private static final String TEST_APP = "test-app";
 
     @Before
     public void setUp() throws Exception {
-        this.tableInterface = MockHTable.create();
-        this.tableInterface = spy(this.tableInterface);
-        HbaseTableConnection tableConnection = Mockito.mock(HbaseTableConnection.class);
-        when(tableConnection.getTable()).thenReturn(tableInterface);
-        hbaseDataStore = new HbaseDataStore(tableConnection, mapper);
-    }
-
-    @After
-    public void tearDown() throws Exception {
-
+        tableInterface = MockHTable.create();
+        tableInterface = spy(tableInterface);
+        hBaseTableConnection = Mockito.mock(HBaseTableConnection.class);
+        when(hBaseTableConnection.getTable()).thenReturn(tableInterface);
+        HBaseDataStore = new HBaseDataStore(hBaseTableConnection, mapper);
     }
 
     @Test
@@ -60,14 +55,38 @@ public class HbaseDataStoreTest {
         expectedDocument.setTimestamp(System.currentTimeMillis());
         JsonNode data = mapper.valueToTree(Collections.singletonMap("TEST_NAME", "SINGLE_SAVE_TEST"));
         expectedDocument.setData(data);
-        hbaseDataStore.save(TEST_APP, expectedDocument);
+        HBaseDataStore.save(TEST_APP, expectedDocument);
         validateSave(expectedDocument);
         logger.info("Tested Single Save");
     }
 
     @Test(expected = DataStoreException.class)
-    public void testSaveSingleException() throws Throwable {
-        logger.info("Testing Single Save - Exception");
+    public void testSaveSingleNullDocument() throws Exception {
+        logger.info("Testing Single Save - Null document");
+        Document document = null;
+        HBaseDataStore.save(TEST_APP, document);
+        logger.info("Tested Single Save - Null document");
+    }
+
+    @Test(expected = DataStoreException.class)
+    public void testSaveSingleNullId() throws Exception {
+        logger.info("Testing Single Save - Null Id");
+        Document document = new Document(null, System.currentTimeMillis(), mapper.valueToTree(Collections.singletonMap("TEST_NAME", "SINGLE_SAVE_TEST")));
+        HBaseDataStore.save(TEST_APP, document);
+        logger.info("Tested Single Save - Null Id");
+    }
+
+    @Test(expected = DataStoreException.class)
+    public void testSaveSingleNullData() throws Exception {
+        logger.info("Testing Single Save - Null Data");
+        Document document = new Document(UUID.randomUUID().toString(), System.currentTimeMillis(), null);
+        HBaseDataStore.save(TEST_APP, document);
+        logger.info("Tested Single Save - Null Data");
+    }
+
+    @Test(expected = DataStoreException.class)
+    public void testSaveSingleHBaseException() throws Throwable {
+        logger.info("Testing Single Save - HBase Exception");
         Document expectedDocument = new Document();
         expectedDocument.setId(UUID.randomUUID().toString());
         expectedDocument.setTimestamp(System.currentTimeMillis());
@@ -76,9 +95,22 @@ public class HbaseDataStoreTest {
         doThrow(new IOException())
                 .when(tableInterface)
                 .put(Matchers.<Put>any());
-        hbaseDataStore.save(TEST_APP, expectedDocument);
+        HBaseDataStore.save(TEST_APP, expectedDocument);
         validateSave(expectedDocument);
-        logger.info("Tested Single Save");
+        logger.info("Tested Single Save - HBase Exception");
+    }
+
+    @Test(expected = DataStoreException.class)
+    public void testSaveSingleNullHBaseTableConnection() throws Throwable {
+        logger.info("Testing Single Save - Null HBaseTableConnection");
+        Document expectedDocument = new Document();
+        expectedDocument.setId(UUID.randomUUID().toString());
+        expectedDocument.setTimestamp(System.currentTimeMillis());
+        JsonNode data = mapper.valueToTree(Collections.singletonMap("TEST_NAME", "SINGLE_SAVE_TEST"));
+        expectedDocument.setData(data);
+        when(hBaseTableConnection.getTable()).thenReturn(null);
+        HBaseDataStore.save(TEST_APP, expectedDocument);
+        logger.info("Tested Single Save - Null HBaseTableConnection");
     }
 
     @Test
@@ -90,7 +122,7 @@ public class HbaseDataStoreTest {
                     System.currentTimeMillis(),
                     mapper.valueToTree(Collections.singletonMap("TEST_NAME", "SINGLE_SAVE_TEST"))));
         }
-        hbaseDataStore.save(TEST_APP, documents);
+        HBaseDataStore.save(TEST_APP, documents);
         for (Document document : documents) {
             validateSave(document);
         }
@@ -98,7 +130,48 @@ public class HbaseDataStoreTest {
     }
 
     @Test(expected = DataStoreException.class)
-    public void testSaveBulkException() throws Exception {
+    public void testSaveBulkNullDocuments() throws Exception {
+        logger.info("Testing Bulk Save - Null Documents");
+        List<Document> documents = new Vector<Document>();
+        for (int i = 0; i < 10; i++) {
+            documents.add(null);
+        }
+        HBaseDataStore.save(TEST_APP, documents);
+        logger.info("Tested Bulk Save - Null Documents");
+    }
+
+    @Test(expected = DataStoreException.class)
+    public void testSaveBulkNullIdList() throws Exception {
+        logger.info("Testing Bulk Save - Null List");
+        List<Document> documents = null;
+        HBaseDataStore.save(TEST_APP, documents);
+        logger.info("Tested Bulk Save - Null List");
+    }
+
+    @Test(expected = DataStoreException.class)
+    public void testSaveBulkNullId() throws Exception {
+        logger.info("Testing Bulk Save - Null Id");
+        List<Document> documents = new Vector<Document>();
+        for (int i = 0; i < 10; i++) {
+            documents.add(new Document(null, System.currentTimeMillis(), mapper.valueToTree(Collections.singletonMap("TEST_NAME", "SINGLE_SAVE_TEST"))));
+        }
+        HBaseDataStore.save(TEST_APP, documents);
+        logger.info("Tested Bulk Save - Null Id");
+    }
+
+    @Test(expected = DataStoreException.class)
+    public void testSaveBulkNullData() throws Exception {
+        logger.info("Testing Bulk Save - Null Data");
+        List<Document> documents = new Vector<Document>();
+        for (int i = 0; i < 10; i++) {
+            documents.add(new Document(UUID.randomUUID().toString(), System.currentTimeMillis(), null));
+        }
+        HBaseDataStore.save(TEST_APP, documents);
+        logger.info("Tested Bulk Save - Null Data");
+    }
+
+    @Test(expected = DataStoreException.class)
+    public void testSaveBulkHBaseException() throws Exception {
         logger.info("Testing Bulk Save - Exception");
         List<Document> documents = new Vector<Document>();
         for (int i = 0; i < 10; i++) {
@@ -109,11 +182,25 @@ public class HbaseDataStoreTest {
         doThrow(new IOException())
                 .when(tableInterface)
                 .put(Matchers.<Put>any());
-        hbaseDataStore.save(TEST_APP, documents);
+        HBaseDataStore.save(TEST_APP, documents);
         for (Document document : documents) {
             validateSave(document);
         }
         logger.info("Tested Bulk Save");
+    }
+
+    @Test(expected = DataStoreException.class)
+    public void testSaveBulkNullHBaseTableConnection() throws Throwable {
+        logger.info("Testing Bulk Save - Null HBaseTableConnection");
+        List<Document> documents = new Vector<Document>();
+        for (int i = 0; i < 10; i++) {
+            documents.add(new Document(UUID.randomUUID().toString(),
+                    System.currentTimeMillis(),
+                    mapper.valueToTree(Collections.singletonMap("TEST_NAME", "BULK_SAVE_TEST"))));
+        }
+        when(hBaseTableConnection.getTable()).thenReturn(null);
+        HBaseDataStore.save(TEST_APP, documents);
+        logger.info("Tested Bulk Save - Null HBaseTableConnection");
     }
 
     public void validateSave(Document savedDocument) throws Exception {
@@ -132,10 +219,9 @@ public class HbaseDataStoreTest {
         logger.info("Testing Single Get");
         String id = UUID.randomUUID().toString();
         JsonNode data = mapper.valueToTree(Collections.singletonMap("TEST_NAME", "SINGLE_SAVE_TEST"));
-
         Document expectedDocument = new Document(id, System.currentTimeMillis(), data);
-        tableInterface.put(hbaseDataStore.getPutForDocument(TEST_APP, expectedDocument));
-        Document actualDocument = hbaseDataStore.get(TEST_APP, id);
+        tableInterface.put(HBaseDataStore.getPutForDocument(TEST_APP, expectedDocument));
+        Document actualDocument = HBaseDataStore.get(TEST_APP, id);
         compare(expectedDocument, actualDocument);
         logger.info("Tested Single Get");
     }
@@ -143,24 +229,36 @@ public class HbaseDataStoreTest {
     @Test(expected = DataStoreException.class)
     public void testGetSingleMissingDocument() throws Throwable {
         logger.info("Testing Single Get - Missing ID");
-        hbaseDataStore.get(TEST_APP, UUID.randomUUID().toString());
+        HBaseDataStore.get(TEST_APP, UUID.randomUUID().toString());
         logger.info("Tested Single Get - Missing ID");
     }
 
     @Test(expected = DataStoreException.class)
-    public void testGetSingleException() throws Throwable {
+    public void testGetSingleHBaseException() throws Throwable {
         logger.info("Testing Single Get - Exception");
         String id = UUID.randomUUID().toString();
         JsonNode data = mapper.valueToTree(Collections.singletonMap("TEST_NAME", "SINGLE_SAVE_TEST"));
 
         Document expectedDocument = new Document(id, System.currentTimeMillis(), data);
-        tableInterface.put(hbaseDataStore.getPutForDocument(TEST_APP, expectedDocument));
+        tableInterface.put(HBaseDataStore.getPutForDocument(TEST_APP, expectedDocument));
         doThrow(new IOException())
                 .when(tableInterface)
                 .get(Matchers.<Get>any());
-        Document actualDocument = hbaseDataStore.get(TEST_APP, id);
+        Document actualDocument = HBaseDataStore.get(TEST_APP, id);
         compare(expectedDocument, actualDocument);
         logger.info("Tested Single Get - Exception");
+    }
+
+    @Test(expected = DataStoreException.class)
+    public void testGetSingleNullHBaseTableConnection() throws Throwable {
+        logger.info("Testing Single Get - Null HBaseTableConnection");
+        String id = UUID.randomUUID().toString();
+        JsonNode data = mapper.valueToTree(Collections.singletonMap("TEST_NAME", "SINGLE_SAVE_TEST"));
+        Document expectedDocument = new Document(id, System.currentTimeMillis(), data);
+        tableInterface.put(HBaseDataStore.getPutForDocument(TEST_APP, expectedDocument));
+        when(hBaseTableConnection.getTable()).thenReturn(null);
+        Document actualDocument = HBaseDataStore.get(TEST_APP, id);
+        logger.info("Tested Single Get - Null HBaseTableConnection");
     }
 
     @Test
@@ -174,11 +272,11 @@ public class HbaseDataStoreTest {
             ids.add(id);
             idValues.put(id,
                     new Document(id, System.currentTimeMillis(), mapper.valueToTree(Collections.singletonMap("TEST_NAME", "SINGLE_SAVE_TEST"))));
-            putList.add(hbaseDataStore.getPutForDocument(TEST_APP, idValues.get(id)));
+            putList.add(HBaseDataStore.getPutForDocument(TEST_APP, idValues.get(id)));
         }
         tableInterface.put(putList);
 
-        List<Document> actualDocuments = hbaseDataStore.get(TEST_APP, ids);
+        List<Document> actualDocuments = HBaseDataStore.get(TEST_APP, ids);
         HashMap<String, Document> actualIdValues = new HashMap<String, Document>();
         for (Document doc : actualDocuments) {
             actualIdValues.put(doc.getId(), doc);
@@ -192,14 +290,22 @@ public class HbaseDataStoreTest {
     }
 
     @Test(expected = DataStoreException.class)
+    public void testGetBulkNullIdList() throws Throwable {
+        logger.info("Testing Bulk Get - Null ID List");
+        List<String> ids = null;
+        HBaseDataStore.get(TEST_APP, ids);
+        logger.info("Tested Bulk Get - Null ID List");
+    }
+
+    @Test(expected = DataStoreException.class)
     public void testGetBulkMissingDocument() throws Throwable {
         logger.info("Testing Bulk Get - Missing ID");
-        hbaseDataStore.get(TEST_APP, Arrays.asList(UUID.randomUUID().toString(), UUID.randomUUID().toString()));
+        HBaseDataStore.get(TEST_APP, Arrays.asList(UUID.randomUUID().toString(), UUID.randomUUID().toString()));
         logger.info("Tested Bulk Get - Missing ID");
     }
 
     @Test(expected = DataStoreException.class)
-    public void testGetBulkException() throws Throwable {
+    public void testGetBulkHBaseException() throws Throwable {
         logger.info("Testing Bulk Get - Exception");
         Map<String, Document> idValues = new HashMap<String, Document>();
         List<String> ids = new Vector<String>();
@@ -209,13 +315,13 @@ public class HbaseDataStoreTest {
             ids.add(id);
             idValues.put(id,
                     new Document(id, System.currentTimeMillis(), mapper.valueToTree(Collections.singletonMap("TEST_NAME", "SINGLE_SAVE_TEST"))));
-            putList.add(hbaseDataStore.getPutForDocument(TEST_APP, idValues.get(id)));
+            putList.add(HBaseDataStore.getPutForDocument(TEST_APP, idValues.get(id)));
         }
         tableInterface.put(putList);
         doThrow(new IOException())
                 .when(tableInterface)
                 .get(Matchers.<Get>any());
-        List<Document> actualDocuments = hbaseDataStore.get(TEST_APP, ids);
+        List<Document> actualDocuments = HBaseDataStore.get(TEST_APP, ids);
         HashMap<String, Document> actualIdValues = new HashMap<String, Document>();
         for (Document doc : actualDocuments) {
             actualIdValues.put(doc.getId(), doc);
@@ -228,6 +334,23 @@ public class HbaseDataStoreTest {
         logger.info("Tested Bulk Get - Exception");
     }
 
+    @Test(expected = DataStoreException.class)
+    public void testGetBulkNullHBaseTableConnection() throws Throwable {
+        logger.info("Testing Bulk Get - NullHBaseTableConnection");
+        Map<String, Document> idValues = new HashMap<String, Document>();
+        List<String> ids = new Vector<String>();
+        List<Put> putList = new Vector<Put>();
+        for (int i = 0; i < 10; i++) {
+            String id = UUID.randomUUID().toString();
+            ids.add(id);
+            idValues.put(id,
+                    new Document(id, System.currentTimeMillis(), mapper.valueToTree(Collections.singletonMap("TEST_NAME", "SINGLE_SAVE_TEST"))));
+            putList.add(HBaseDataStore.getPutForDocument(TEST_APP, idValues.get(id)));
+        }
+        tableInterface.put(putList);
+        when(hBaseTableConnection.getTable()).thenReturn(null);
+        HBaseDataStore.get(TEST_APP, ids);
+    }
 
     public void compare(Document expected, Document actual) throws Exception {
         assertNotNull(expected);

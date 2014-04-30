@@ -12,6 +12,8 @@ public class DataStoreException extends Exception {
         STORE_MULTI_SAVE,
         STORE_SINGLE_GET,
         STORE_MULTI_GET,
+        STORE_INVALID_DOCUMENT,
+        STORE_INVALID_REQUEST,
         STORE_NO_DATA_FOUND_FOR_ID,
         STORE_NO_DATA_FOUND_FOR_IDS,
         STORE_CLOSE,

@@ -22,23 +22,26 @@ import java.util.Vector;
  * Date: 13/03/14
  * Time: 7:54 PM
  */
-public class HbaseDataStore implements DataStore {
-    private static final Logger logger = LoggerFactory.getLogger(HbaseDataStore.class.getSimpleName());
+public class HBaseDataStore implements DataStore {
+    private static final Logger logger = LoggerFactory.getLogger(HBaseDataStore.class.getSimpleName());
 
     private static final byte[] COLUMN_FAMILY = Bytes.toBytes("d");
     private static final byte[] DATA_FIELD_NAME = Bytes.toBytes("data");
     private static final byte[] TIMESTAMP_FIELD_NAME = Bytes.toBytes("timestamp");
 
-    private final HbaseTableConnection tableWrapper;
+    private final HBaseTableConnection tableWrapper;
     private final ObjectMapper mapper;
 
-    public HbaseDataStore(HbaseTableConnection tableWrapper, ObjectMapper mapper) {
+    public HBaseDataStore(HBaseTableConnection tableWrapper, ObjectMapper mapper) {
         this.tableWrapper = tableWrapper;
         this.mapper = mapper;
     }
 
     @Override
     public void save(final String table, Document document) throws DataStoreException {
+        if (document == null || document.getData() == null || document.getId() == null) {
+            throw new DataStoreException(DataStoreException.ErrorCode.STORE_INVALID_DOCUMENT, "Saving document error");
+        }
         HTableInterface hTable = null;
         try {
             hTable = tableWrapper.getTable();
@@ -59,11 +62,18 @@ public class HbaseDataStore implements DataStore {
 
     @Override
     public void save(final String table, List<Document> documents) throws DataStoreException {
+        if (documents == null) {
+            throw new DataStoreException(DataStoreException.ErrorCode.STORE_INVALID_REQUEST, "Invalid Documents List");
+        }
         HTableInterface hTable = null;
         try {
             hTable = tableWrapper.getTable();
             List<Put> puts = new Vector<Put>();
             for (Document document : documents) {
+                if (document == null || document.getData() == null || document.getId() == null) {
+                    throw new DataStoreException(DataStoreException.ErrorCode.STORE_INVALID_DOCUMENT,
+                            "Saving document error");
+                }
                 puts.add(getPutForDocument(table, document));
             }
             hTable.put(puts);
@@ -94,10 +104,8 @@ public class HbaseDataStore implements DataStore {
             if (!getResult.isEmpty()) {
                 byte[] data = getResult.getValue(COLUMN_FAMILY, DATA_FIELD_NAME);
                 byte[] timestamp = getResult.getValue(COLUMN_FAMILY, TIMESTAMP_FIELD_NAME);
-                long time = (null != timestamp) ? Bytes.toLong(timestamp) : System.currentTimeMillis();
-                if (null != data) {
-                    return new Document(id, time, mapper.readTree(data));
-                }
+                long time = Bytes.toLong(timestamp);
+                return new Document(id, time, mapper.readTree(data));
             }
         } catch (Throwable t) {
             throw new DataStoreException(DataStoreException.ErrorCode.STORE_SINGLE_GET,
@@ -117,6 +125,10 @@ public class HbaseDataStore implements DataStore {
 
     @Override
     public List<Document> get(final String table, List<String> ids) throws DataStoreException {
+        if (ids == null) {
+            throw new DataStoreException(DataStoreException.ErrorCode.STORE_INVALID_REQUEST, "Invalid Request IDs");
+        }
+
         HTableInterface hTable = null;
         try {
             List<Get> gets = new ArrayList<Get>(ids.size());
@@ -131,26 +143,17 @@ public class HbaseDataStore implements DataStore {
             Result[] getResults = hTable.get(gets);
             List<Document> results = new ArrayList<Document>(ids.size());
             for (int index = 0; index < getResults.length; index++) {
-                boolean found = false;
                 Result getResult = getResults[index];
                 if (!getResult.isEmpty()) {
                     byte[] data = getResult.getValue(COLUMN_FAMILY, DATA_FIELD_NAME);
-                    if (null != data) {
-                        byte[] timestamp = getResult.getValue(COLUMN_FAMILY, TIMESTAMP_FIELD_NAME);
-                        long time = (null != timestamp) ? Bytes.toLong(timestamp) : System.currentTimeMillis();
-                        results.add(new Document(Bytes.toString(getResult.getRow()).split(":")[0],
-                                time, mapper.readTree(data)));
-                        found = true;
-                    }
-                }
-                if (!found) {
+                    byte[] timestamp = getResult.getValue(COLUMN_FAMILY, TIMESTAMP_FIELD_NAME);
+                    long time = Bytes.toLong(timestamp);
+                    results.add(new Document(Bytes.toString(getResult.getRow()).split(":")[0],
+                            time, mapper.readTree(data)));
+                } else {
                     throw new DataStoreException(DataStoreException.ErrorCode.STORE_NO_DATA_FOUND_FOR_IDS,
                             String.format("No data found for ID: %s", ids.get(index)));
                 }
-            }
-            if (results.isEmpty()) {
-                throw new DataStoreException(DataStoreException.ErrorCode.STORE_NO_DATA_FOUND_FOR_IDS,
-                        String.format("No data found for ID: %s", mapper.writeValueAsString(ids)));
             }
             return results;
         } catch (Throwable t) {

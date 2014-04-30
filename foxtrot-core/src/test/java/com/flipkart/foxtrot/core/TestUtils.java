@@ -6,8 +6,8 @@ import com.flipkart.foxtrot.common.Document;
 import com.flipkart.foxtrot.core.common.Action;
 import com.flipkart.foxtrot.core.datastore.DataStore;
 import com.flipkart.foxtrot.core.datastore.DataStoreException;
-import com.flipkart.foxtrot.core.datastore.impl.hbase.HbaseDataStore;
-import com.flipkart.foxtrot.core.datastore.impl.hbase.HbaseTableConnection;
+import com.flipkart.foxtrot.core.datastore.impl.hbase.HBaseDataStore;
+import com.flipkart.foxtrot.core.datastore.impl.hbase.HBaseTableConnection;
 import com.flipkart.foxtrot.core.querystore.actions.spi.ActionMetadata;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsLoader;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsProvider;
@@ -31,15 +31,15 @@ public class TestUtils {
 
     public static DataStore getDataStore() throws DataStoreException {
         HTableInterface tableInterface = MockHTable.create();
-        HbaseTableConnection tableConnection = Mockito.mock(HbaseTableConnection.class);
+        HBaseTableConnection tableConnection = Mockito.mock(HBaseTableConnection.class);
         when(tableConnection.getTable()).thenReturn(tableInterface);
-        return new HbaseDataStore(tableConnection, new ObjectMapper());
+        return new HBaseDataStore(tableConnection, new ObjectMapper());
     }
 
-    public static Document getDocument(String id, long timestamp, Object[] args, ObjectMapper mapper){
+    public static Document getDocument(String id, long timestamp, Object[] args, ObjectMapper mapper) {
         Map<String, Object> data = new HashMap<String, Object>();
-        for ( int i = 0; i < args.length; i+= 2){
-            data.put((String) args[i], args[i+1]);
+        for (int i = 0; i < args.length; i += 2) {
+            data.put((String) args[i], args[i + 1]);
         }
         return new Document(id, timestamp, mapper.valueToTree(data));
     }
@@ -47,19 +47,19 @@ public class TestUtils {
     public static void registerActions(AnalyticsLoader analyticsLoader, ObjectMapper mapper) throws Exception {
         Reflections reflections = new Reflections("com.flipkart.foxtrot", new SubTypesScanner());
         Set<Class<? extends Action>> actions = reflections.getSubTypesOf(Action.class);
-        if(actions.isEmpty()) {
+        if (actions.isEmpty()) {
             throw new Exception("No analytics actions found!!");
         }
         List<NamedType> types = new Vector<NamedType>();
-        for(Class<? extends Action> action : actions) {
+        for (Class<? extends Action> action : actions) {
             AnalyticsProvider analyticsProvider = action.getAnnotation(AnalyticsProvider.class);
-            if(null == analyticsProvider.request()
+            if (null == analyticsProvider.request()
                     || null == analyticsProvider.opcode()
                     || analyticsProvider.opcode().isEmpty()
                     || null == analyticsProvider.response()) {
                 throw new Exception("Invalid annotation on " + action.getCanonicalName());
             }
-            if(analyticsProvider.opcode().equalsIgnoreCase("default")) {
+            if (analyticsProvider.opcode().equalsIgnoreCase("default")) {
                 logger.warn("Action " + action.getCanonicalName() + " does not specify cache token. " +
                         "Using default cache.");
             }
