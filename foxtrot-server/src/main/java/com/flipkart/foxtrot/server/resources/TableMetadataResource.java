@@ -4,7 +4,6 @@ import com.flipkart.foxtrot.common.Table;
 import com.flipkart.foxtrot.core.querystore.TableMetadataManager;
 
 import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -31,7 +30,8 @@ public class TableMetadataResource {
     }
 
     @GET
-    public Table get(@NotNull final String name) throws Exception {
+    @Path("/{name}")
+    public Table get(@PathParam("name") final String name) throws Exception {
         return tableMetadataManager.get(name);
     }
 }
