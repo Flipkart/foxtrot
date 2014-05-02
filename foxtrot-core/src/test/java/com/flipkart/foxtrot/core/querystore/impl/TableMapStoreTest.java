@@ -21,6 +21,7 @@ import org.mockito.Mockito;
 import java.util.*;
 
 import static org.junit.Assert.*;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
 
@@ -40,6 +41,7 @@ public class TableMapStoreTest {
 
     @Before
     public void setUp() throws Exception {
+        mapper = spy(mapper);
         elasticsearchServer = new MockElasticsearchServer(UUID.randomUUID().toString());
         ElasticsearchUtils.initializeMappings(elasticsearchServer.getClient());
         elasticsearchConnection = Mockito.mock(ElasticsearchConnection.class);
@@ -50,7 +52,8 @@ public class TableMapStoreTest {
         CreateIndexRequest createRequest = new CreateIndexRequest(TableMapStore.TABLE_META_INDEX).settings(indexSettings);
         elasticsearchServer.getClient().admin().indices().create(createRequest).actionGet();
         elasticsearchServer.getClient().admin().cluster().prepareHealth().setWaitForGreenStatus().execute().actionGet();
-        tableMapStore = new TableMapStore(elasticsearchConnection);
+        TableMapStore.Factory factory = new TableMapStore.Factory(elasticsearchConnection);
+        tableMapStore = factory.newMapStore(null, null);
     }
 
     @After
@@ -91,6 +94,13 @@ public class TableMapStoreTest {
         tableMapStore.store(table.getName(), null);
     }
 
+    @Test(expected = RuntimeException.class)
+    public void testStoreNullTableName() throws Exception {
+        Table table = new Table();
+        table.setName(null);
+        table.setTtl(30);
+        tableMapStore.store(TEST_TABLE, table);
+    }
 
     @Test
     public void testStoreAll() throws Exception {
