@@ -63,6 +63,12 @@ public class FilterAction extends Action<Query> {
         if (null == parameter.getFilters() || parameter.getFilters().isEmpty()) {
             parameter.setFilters(Lists.<Filter>newArrayList(new AnyFilter(parameter.getTable())));
         }
+        if (null == parameter.getSort()) {
+            ResultSort resultSort = new ResultSort();
+            resultSort.setField("_timestamp");
+            resultSort.setOrder(ResultSort.Order.desc);
+            parameter.setSort(resultSort);
+        }
         SearchRequestBuilder search = null;
         try {
             /*if(!tableManager.exists(query.getTable())) {
@@ -75,10 +81,8 @@ public class FilterAction extends Action<Query> {
                     .setSearchType(SearchType.DFS_QUERY_THEN_FETCH)
                     .setFrom(parameter.getFrom())
                     .setSize(parameter.getLimit());
-            if (null != parameter.getSort()) {
-                search.addSort(parameter.getSort().getField(),
-                        ResultSort.Order.desc == parameter.getSort().getOrder() ? SortOrder.DESC : SortOrder.ASC);
-            }
+            search.addSort(parameter.getSort().getField(),
+                    ResultSort.Order.desc == parameter.getSort().getOrder() ? SortOrder.DESC : SortOrder.ASC);
             SearchResponse response = search.execute().actionGet();
             Vector<String> ids = new Vector<String>();
             for (SearchHit searchHit : response.getHits()) {

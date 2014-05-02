@@ -5,9 +5,9 @@ import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.flipkart.foxtrot.common.Table;
 import com.flipkart.foxtrot.common.group.GroupResponse;
 import com.flipkart.foxtrot.core.MockElasticsearchServer;
-import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
+import com.hazelcast.test.TestHazelcastInstanceFactory;
 import org.elasticsearch.action.admin.indices.create.CreateIndexRequest;
 import org.elasticsearch.common.settings.ImmutableSettings;
 import org.elasticsearch.common.settings.Settings;
@@ -40,7 +40,7 @@ public class DistributedTableMetadataManagerTest {
     @Before
     public void setUp() throws Exception {
         HazelcastConnection hazelcastConnection = Mockito.mock(HazelcastConnection.class);
-        hazelcastInstance = Hazelcast.newHazelcastInstance();
+        hazelcastInstance = new TestHazelcastInstanceFactory(1).newHazelcastInstance();
         mapper = new ObjectMapper();
         mapper.registerSubtypes(GroupResponse.class);
         when(hazelcastConnection.getHazelcast()).thenReturn(hazelcastInstance);

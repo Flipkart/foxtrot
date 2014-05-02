@@ -23,16 +23,17 @@ import com.flipkart.foxtrot.core.querystore.QueryStoreException;
 import com.flipkart.foxtrot.core.querystore.TableMetadataManager;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsLoader;
 import com.flipkart.foxtrot.core.querystore.impl.*;
-import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
+import com.hazelcast.test.TestHazelcastInstanceFactory;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Vector;
@@ -45,21 +46,22 @@ import static org.mockito.Mockito.when;
 /**
  * Created by rishabh.goyal on 28/04/14.
  */
-public class FilterActionTest {
-    private static final Logger logger = LoggerFactory.getLogger(FilterActionTest.class.getSimpleName());
-    private static QueryExecutor queryExecutor;
-    private static ObjectMapper mapper = new ObjectMapper();
-    private static MockElasticsearchServer elasticsearchServer = new MockElasticsearchServer();
-    private static HazelcastInstance hazelcastInstance;
-    private static String TEST_APP = "test-app";
 
-    @BeforeClass
-    public static void setUp() throws Exception {
+public class FilterActionTest {
+    private final Logger logger = LoggerFactory.getLogger(FilterActionTest.class.getSimpleName());
+    private QueryExecutor queryExecutor;
+    private ObjectMapper mapper = new ObjectMapper();
+    private MockElasticsearchServer elasticsearchServer = new MockElasticsearchServer();
+    private HazelcastInstance hazelcastInstance;
+    private String TEST_APP = "test-app";
+
+    @Before
+    public void setUp() throws Exception {
         ElasticsearchUtils.setMapper(mapper);
         DataStore dataStore = TestUtils.getDataStore();
 
         //Initializing Cache Factory
-        hazelcastInstance = Hazelcast.newHazelcastInstance();
+        hazelcastInstance = new TestHazelcastInstanceFactory(1).newHazelcastInstance();
         HazelcastConnection hazelcastConnection = Mockito.mock(HazelcastConnection.class);
         when(hazelcastConnection.getHazelcast()).thenReturn(hazelcastInstance);
         CacheUtils.setCacheFactory(new DistributedCacheFactory(hazelcastConnection, mapper));
@@ -80,10 +82,24 @@ public class FilterActionTest {
                 .save(TEST_APP, getQueryDocuments());
     }
 
-    @AfterClass
-    public static void tearDown() throws IOException {
+    @After
+    public void tearDown() throws IOException {
         elasticsearchServer.shutdown();
         hazelcastInstance.shutdown();
+    }
+
+    @Test(expected = QueryStoreException.class)
+    public void testQueryException() throws QueryStoreException, JsonProcessingException {
+        logger.info("Testing Query - Any Exception");
+        Query query = new Query();
+        query.setTable(TEST_APP);
+        ResultSort resultSort = new ResultSort();
+        resultSort.setOrder(ResultSort.Order.asc);
+        resultSort.setField("_timestamp");
+        query.setSort(resultSort);
+        when(elasticsearchServer.getClient()).thenReturn(null);
+        queryExecutor.execute(query);
+        logger.info("Tested Query - Any Exception");
     }
 
     @Test
@@ -634,12 +650,68 @@ public class FilterActionTest {
     }
 
     @Test
-    public void testQueryNullQueryParams() throws QueryStoreException, JsonProcessingException, InterruptedException {
-        logger.info("Testing Query - Null Params");
+    public void testQueryNullFilters() throws QueryStoreException, JsonProcessingException, InterruptedException {
+        logger.info("Testing Query - Null Filters");
         Query query = new Query();
         query.setTable(TEST_APP);
         query.setFilters(null);
+        query.setCombiner(FilterCombinerType.and);
+        ResultSort resultSort = new ResultSort();
+        resultSort.setOrder(ResultSort.Order.desc);
+        resultSort.setField("_timestamp");
+        query.setSort(resultSort);
+        String expectedResponse = "{\"opcode\":\"query\",\"documents\":[" +
+                "{\"id\":\"E\",\"timestamp\":1397658118004,\"data\":{\"os\":\"ios\",\"device\":\"ipad\",\"version\":2}}," +
+                "{\"id\":\"D\",\"timestamp\":1397658118003,\"data\":{\"os\":\"ios\",\"device\":\"iphone\",\"version\":1}}," +
+                "{\"id\":\"C\",\"timestamp\":1397658118002,\"data\":{\"os\":\"android\",\"device\":\"nexus\",\"version\":2}}," +
+                "{\"id\":\"B\",\"timestamp\":1397658118001,\"data\":{\"os\":\"android\",\"device\":\"galaxy\",\"version\":1}}," +
+                "{\"id\":\"A\",\"timestamp\":1397658118000,\"data\":{\"os\":\"android\",\"device\":\"nexus\",\"version\":1}}," +
+                "{\"id\":\"W\",\"timestamp\":1397658117000,\"data\":{\"os\":\"android\",\"battery\":99,\"device\":\"nexus\"}}," +
+                "{\"id\":\"X\",\"timestamp\":1397658117000,\"data\":{\"os\":\"android\",\"battery\":74,\"device\":\"nexus\"}}," +
+                "{\"id\":\"Y\",\"timestamp\":1397658117000,\"data\":{\"os\":\"android\",\"battery\":48,\"device\":\"nexus\"}}," +
+                "{\"id\":\"Z\",\"timestamp\":1397658117000,\"data\":{\"os\":\"android\",\"battery\":24,\"device\":\"nexus\"}}" +
+                "]}";
+
+        String actualResponse = mapper.writeValueAsString(queryExecutor.execute(query));
+        assertEquals(expectedResponse, actualResponse);
+        logger.info("Tested Query - Null Filters");
+    }
+
+    @Test
+    public void testQueryNullCombiner() throws QueryStoreException, JsonProcessingException, InterruptedException {
+        logger.info("Testing Query - Null Combiner");
+        Query query = new Query();
+        query.setTable(TEST_APP);
+        query.setFilters(new ArrayList<Filter>());
         query.setCombiner(null);
+        ResultSort resultSort = new ResultSort();
+        resultSort.setOrder(ResultSort.Order.desc);
+        resultSort.setField("_timestamp");
+        query.setSort(resultSort);
+        String expectedResponse = "{\"opcode\":\"query\",\"documents\":[" +
+                "{\"id\":\"E\",\"timestamp\":1397658118004,\"data\":{\"os\":\"ios\",\"device\":\"ipad\",\"version\":2}}," +
+                "{\"id\":\"D\",\"timestamp\":1397658118003,\"data\":{\"os\":\"ios\",\"device\":\"iphone\",\"version\":1}}," +
+                "{\"id\":\"C\",\"timestamp\":1397658118002,\"data\":{\"os\":\"android\",\"device\":\"nexus\",\"version\":2}}," +
+                "{\"id\":\"B\",\"timestamp\":1397658118001,\"data\":{\"os\":\"android\",\"device\":\"galaxy\",\"version\":1}}," +
+                "{\"id\":\"A\",\"timestamp\":1397658118000,\"data\":{\"os\":\"android\",\"device\":\"nexus\",\"version\":1}}," +
+                "{\"id\":\"W\",\"timestamp\":1397658117000,\"data\":{\"os\":\"android\",\"battery\":99,\"device\":\"nexus\"}}," +
+                "{\"id\":\"X\",\"timestamp\":1397658117000,\"data\":{\"os\":\"android\",\"battery\":74,\"device\":\"nexus\"}}," +
+                "{\"id\":\"Y\",\"timestamp\":1397658117000,\"data\":{\"os\":\"android\",\"battery\":48,\"device\":\"nexus\"}}," +
+                "{\"id\":\"Z\",\"timestamp\":1397658117000,\"data\":{\"os\":\"android\",\"battery\":24,\"device\":\"nexus\"}}" +
+                "]}";
+
+        String actualResponse = mapper.writeValueAsString(queryExecutor.execute(query));
+        assertEquals(expectedResponse, actualResponse);
+        logger.info("Tested Query - Null Combiner");
+    }
+
+    @Test
+    public void testQueryNullSort() throws QueryStoreException, JsonProcessingException, InterruptedException {
+        logger.info("Testing Query - Null Sort");
+        Query query = new Query();
+        query.setTable(TEST_APP);
+        query.setFilters(new ArrayList<Filter>());
+        query.setCombiner(FilterCombinerType.and);
         query.setSort(null);
         String expectedResponse = "{\"opcode\":\"query\",\"documents\":[" +
                 "{\"id\":\"E\",\"timestamp\":1397658118004,\"data\":{\"os\":\"ios\",\"device\":\"ipad\",\"version\":2}}," +
@@ -653,15 +725,12 @@ public class FilterActionTest {
                 "{\"id\":\"Z\",\"timestamp\":1397658117000,\"data\":{\"os\":\"android\",\"battery\":24,\"device\":\"nexus\"}}" +
                 "]}";
 
-        AsyncDataToken response = queryExecutor.executeAsync(query);
-        Thread.sleep(200);
-        ActionResponse actionResponse = CacheUtils.getCacheFor(response.getAction()).get(response.getKey());
-        String actualResponse = mapper.writeValueAsString(actionResponse);
+        String actualResponse = mapper.writeValueAsString(queryExecutor.execute(query));
         assertEquals(expectedResponse, actualResponse);
-        logger.info("Tested Query - Null Params");
+        logger.info("Tested Query - Null Sort");
     }
 
-    //TODO
+    //TODO How to verify if cached data is returned.
     @Test
     public void testQueryCaching() throws QueryStoreException, JsonProcessingException {
         logger.info("Testing Query - Query Caching");
@@ -690,7 +759,7 @@ public class FilterActionTest {
         logger.info("Tested Query - Query Caching");
     }
 
-    private static List<Document> getQueryDocuments() {
+    private List<Document> getQueryDocuments() {
         List<Document> documents = new Vector<Document>();
         documents.add(TestUtils.getDocument("Z", 1397658117000L, new Object[]{"os", "android", "device", "nexus", "battery", 24}, mapper));
         documents.add(TestUtils.getDocument("Y", 1397658117000L, new Object[]{"os", "android", "device", "nexus", "battery", 48}, mapper));

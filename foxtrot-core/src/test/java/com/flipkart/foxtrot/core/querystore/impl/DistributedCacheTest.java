@@ -9,8 +9,8 @@ import com.flipkart.foxtrot.common.group.GroupResponse;
 import com.flipkart.foxtrot.core.TestUtils;
 import com.flipkart.foxtrot.core.common.CacheUtils;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsLoader;
-import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
+import com.hazelcast.test.TestHazelcastInstanceFactory;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -38,7 +38,7 @@ public class DistributedCacheTest {
     public void setUp() throws Exception {
         mapper = new ObjectMapper();
         mapper = spy(mapper);
-        hazelcastInstance = Hazelcast.newHazelcastInstance();
+        hazelcastInstance = new TestHazelcastInstanceFactory(1).newHazelcastInstance();
         HazelcastConnection hazelcastConnection = Mockito.mock(HazelcastConnection.class);
         when(hazelcastConnection.getHazelcast()).thenReturn(hazelcastInstance);
         distributedCache = new DistributedCache(hazelcastConnection, "TEST", mapper);

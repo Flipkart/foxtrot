@@ -19,10 +19,10 @@ import com.flipkart.foxtrot.core.querystore.QueryStoreException;
 import com.flipkart.foxtrot.core.querystore.TableMetadataManager;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsLoader;
 import com.flipkart.foxtrot.core.querystore.impl.*;
-import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
+import com.hazelcast.test.TestHazelcastInstanceFactory;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.slf4j.Logger;
@@ -42,22 +42,22 @@ import static org.mockito.Mockito.when;
  * Created by rishabh.goyal on 28/04/14.
  */
 public class HistogramActionTest {
-    private static final Logger logger = LoggerFactory.getLogger(FilterActionTest.class.getSimpleName());
-    private static QueryExecutor queryExecutor;
-    private static final ObjectMapper mapper = new ObjectMapper();
-    private static final MockElasticsearchServer elasticsearchServer = new MockElasticsearchServer();
-    private static HazelcastInstance hazelcastInstance;
-    private static String TEST_TABLE = "test-app";
-    private static JsonNodeFactory factory;
+    private final Logger logger = LoggerFactory.getLogger(FilterActionTest.class.getSimpleName());
+    private QueryExecutor queryExecutor;
+    private final ObjectMapper mapper = new ObjectMapper();
+    private final MockElasticsearchServer elasticsearchServer = new MockElasticsearchServer();
+    private HazelcastInstance hazelcastInstance;
+    private String TEST_TABLE = "test-app";
+    private JsonNodeFactory factory;
 
-    @BeforeClass
-    public static void setUp() throws Exception {
+    @Before
+    public void setUp() throws Exception {
         ElasticsearchUtils.setMapper(mapper);
         DataStore dataStore = TestUtils.getDataStore();
         factory = JsonNodeFactory.instance;
 
         //Initializing Cache Factory
-        hazelcastInstance = Hazelcast.newHazelcastInstance();
+        hazelcastInstance = new TestHazelcastInstanceFactory(1).newHazelcastInstance();
         HazelcastConnection hazelcastConnection = Mockito.mock(HazelcastConnection.class);
         when(hazelcastConnection.getHazelcast()).thenReturn(hazelcastInstance);
         CacheUtils.setCacheFactory(new DistributedCacheFactory(hazelcastConnection, mapper));
@@ -78,10 +78,23 @@ public class HistogramActionTest {
                 .save(TEST_TABLE, getHistogramDocuments());
     }
 
-    @AfterClass
-    public static void tearDown() throws IOException {
+    @After
+    public void tearDown() throws IOException {
         elasticsearchServer.shutdown();
         hazelcastInstance.shutdown();
+    }
+
+    @Test(expected = QueryStoreException.class)
+    public void testHistogramActionAnyException() throws QueryStoreException, JsonProcessingException {
+        logger.info("Testing Histogram - Any Exception");
+        HistogramRequest histogramRequest = new HistogramRequest();
+        histogramRequest.setTable(TEST_TABLE);
+        histogramRequest.setPeriod(Period.minutes);
+        histogramRequest.setFrom(0);
+        histogramRequest.setField("_timestamp");
+        when(elasticsearchServer.getClient()).thenReturn(null);
+        queryExecutor.execute(histogramRequest);
+        logger.info("Tested Histogram - Any Exception");
     }
 
     @Test
@@ -253,7 +266,7 @@ public class HistogramActionTest {
         logger.info("Tested Histogram - Interval Day - With Filter");
     }
 
-    private static List<Document> getHistogramDocuments() {
+    private List<Document> getHistogramDocuments() {
         List<Document> documents = new Vector<Document>();
         documents.add(TestUtils.getDocument("Z", 1397658117000L, new Object[]{"os", "android", "version", 1, "device", "nexus", "battery", 24}, mapper));
         documents.add(TestUtils.getDocument("Y", 1397651117000L, new Object[]{"os", "android", "version", 1, "device", "nexus", "battery", 48}, mapper));

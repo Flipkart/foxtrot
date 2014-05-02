@@ -18,10 +18,10 @@ import com.flipkart.foxtrot.core.querystore.QueryStoreException;
 import com.flipkart.foxtrot.core.querystore.TableMetadataManager;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsLoader;
 import com.flipkart.foxtrot.core.querystore.impl.*;
-import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
+import com.hazelcast.test.TestHazelcastInstanceFactory;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.slf4j.Logger;
@@ -43,22 +43,22 @@ import static org.mockito.Mockito.when;
  */
 public class GroupActionTest {
 
-    private static final Logger logger = LoggerFactory.getLogger(FilterActionTest.class.getSimpleName());
-    private static QueryExecutor queryExecutor;
-    private static final ObjectMapper mapper = new ObjectMapper();
-    private static final MockElasticsearchServer elasticsearchServer = new MockElasticsearchServer();
-    private static HazelcastInstance hazelcastInstance;
-    private static String TEST_TABLE = "test-app";
-    private static JsonNodeFactory factory;
+    private final Logger logger = LoggerFactory.getLogger(FilterActionTest.class.getSimpleName());
+    private QueryExecutor queryExecutor;
+    private final ObjectMapper mapper = new ObjectMapper();
+    private final MockElasticsearchServer elasticsearchServer = new MockElasticsearchServer();
+    private HazelcastInstance hazelcastInstance;
+    private String TEST_TABLE = "test-app";
+    private JsonNodeFactory factory;
 
-    @BeforeClass
-    public static void setUp() throws Exception {
+    @Before
+    public void setUp() throws Exception {
         ElasticsearchUtils.setMapper(mapper);
         DataStore dataStore = TestUtils.getDataStore();
         factory = JsonNodeFactory.instance;
 
         //Initializing Cache Factory
-        hazelcastInstance = Hazelcast.newHazelcastInstance();
+        hazelcastInstance = new TestHazelcastInstanceFactory(1).newHazelcastInstance();
         HazelcastConnection hazelcastConnection = Mockito.mock(HazelcastConnection.class);
         when(hazelcastConnection.getHazelcast()).thenReturn(hazelcastInstance);
         CacheUtils.setCacheFactory(new DistributedCacheFactory(hazelcastConnection, mapper));
@@ -79,10 +79,21 @@ public class GroupActionTest {
                 .save(TEST_TABLE, getGroupDocuments());
     }
 
-    @AfterClass
-    public static void tearDown() throws IOException {
+    @After
+    public void tearDown() throws IOException {
         elasticsearchServer.shutdown();
         hazelcastInstance.shutdown();
+    }
+
+    @Test(expected = QueryStoreException.class)
+    public void testGroupActionSingleQueryException() throws QueryStoreException, JsonProcessingException {
+        logger.info("Testing Group - Single Field - Any Exception");
+        GroupRequest groupRequest = new GroupRequest();
+        groupRequest.setTable(TEST_TABLE);
+        groupRequest.setNesting(Arrays.asList("os"));
+        when(elasticsearchServer.getClient()).thenReturn(null);
+        queryExecutor.execute(groupRequest);
+        logger.info("Tested Group - Single Field - Any Exception");
     }
 
     @Test
@@ -202,7 +213,7 @@ public class GroupActionTest {
         logger.info("Tested Group - Multiple Fields - With Filter");
     }
 
-    private static List<Document> getGroupDocuments() {
+    private List<Document> getGroupDocuments() {
         List<Document> documents = new Vector<Document>();
         documents.add(TestUtils.getDocument("Z", 1397658117000L, new Object[]{"os", "android", "version", 1, "device", "nexus", "battery", 24}, mapper));
         documents.add(TestUtils.getDocument("Y", 1397658117000L, new Object[]{"os", "android", "version", 1, "device", "nexus", "battery", 48}, mapper));

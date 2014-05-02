@@ -17,18 +17,16 @@ import com.flipkart.foxtrot.core.querystore.QueryStoreException;
 import com.flipkart.foxtrot.core.querystore.TableMetadataManager;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsLoader;
 import com.flipkart.foxtrot.core.querystore.impl.*;
-import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
+import com.hazelcast.test.TestHazelcastInstanceFactory;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Vector;
+import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -41,21 +39,21 @@ import static org.mockito.Mockito.when;
 public class TrendActionTest {
 
     private static final Logger logger = LoggerFactory.getLogger(TrendActionTest.class.getSimpleName());
-    private static QueryExecutor queryExecutor;
-    private static ObjectMapper mapper = new ObjectMapper();
-    private static MockElasticsearchServer elasticsearchServer = new MockElasticsearchServer();
-    private static HazelcastInstance hazelcastInstance;
-    private static String TEST_APP = "test-app";
-    private static JsonNodeFactory factory;
+    private QueryExecutor queryExecutor;
+    private ObjectMapper mapper = new ObjectMapper();
+    private MockElasticsearchServer elasticsearchServer = new MockElasticsearchServer();
+    private HazelcastInstance hazelcastInstance;
+    private String TEST_APP = "test-app";
+    private JsonNodeFactory factory;
 
-    @BeforeClass
-    public static void setUp() throws Exception {
+    @Before
+    public void setUp() throws Exception {
         ElasticsearchUtils.setMapper(mapper);
         DataStore dataStore = TestUtils.getDataStore();
         factory = JsonNodeFactory.instance;
 
         //Initializing Cache Factory
-        hazelcastInstance = Hazelcast.newHazelcastInstance();
+        hazelcastInstance = new TestHazelcastInstanceFactory(1).newHazelcastInstance();
         HazelcastConnection hazelcastConnection = Mockito.mock(HazelcastConnection.class);
         when(hazelcastConnection.getHazelcast()).thenReturn(hazelcastInstance);
         CacheUtils.setCacheFactory(new DistributedCacheFactory(hazelcastConnection, mapper));
@@ -76,10 +74,56 @@ public class TrendActionTest {
                 .save(TEST_APP, getTrendDocuments());
     }
 
-    @AfterClass
-    public static void tearDown() throws Exception {
+    @After
+    public void tearDown() throws Exception {
         elasticsearchServer.shutdown();
         hazelcastInstance.shutdown();
+    }
+
+    @Test(expected = QueryStoreException.class)
+    public void testTrendActionAnyException() throws QueryStoreException, JsonProcessingException {
+        logger.info("Testing Trend - Any Exception");
+        TrendRequest trendRequest = new TrendRequest();
+        trendRequest.setTable(null);
+        trendRequest.setFrom(1L);
+        trendRequest.setField("os");
+        trendRequest.setTo(System.currentTimeMillis());
+        when(elasticsearchServer.getClient()).thenReturn(null);
+        queryExecutor.execute(trendRequest);
+        logger.info("Tested Trend - Any Exception");
+    }
+
+    //TODO trend action with no field is not working
+    @Test
+    public void testTrendActionNullField() throws QueryStoreException, JsonProcessingException {
+        logger.info("Testing Trend - With Field");
+        TrendRequest trendRequest = new TrendRequest();
+        trendRequest.setTable(TEST_APP);
+        trendRequest.setFrom(1L);
+        trendRequest.setTo(System.currentTimeMillis());
+        trendRequest.setField(null);
+
+        ObjectNode result = factory.objectNode();
+        result.put("opcode", "trend");
+        ObjectNode trends = factory.objectNode();
+        result.put("trends", trends);
+
+        String expectedResponse = mapper.writeValueAsString(result);
+        String actualResponse = mapper.writeValueAsString(queryExecutor.execute(trendRequest));
+        assertEquals(expectedResponse, actualResponse);
+        logger.info("Tested Trend - With Field");
+    }
+
+    @Test(expected = QueryStoreException.class)
+    public void testTrendActionNullTable() throws QueryStoreException, JsonProcessingException {
+        logger.info("Testing Trend - With Field");
+        TrendRequest trendRequest = new TrendRequest();
+        trendRequest.setTable(null);
+        trendRequest.setFrom(1L);
+        trendRequest.setField("os");
+        trendRequest.setTo(System.currentTimeMillis());
+        queryExecutor.execute(trendRequest);
+        logger.info("Tested Trend - With Field");
     }
 
     @Test
@@ -99,6 +143,108 @@ public class TrendActionTest {
         trends.put("ios", factory.arrayNode().add(factory.objectNode().put("period", 1397692800000L).put("count", 1))
                 .add(factory.objectNode().put("period", 1397952000000L).put("count", 1))
                 .add(factory.objectNode().put("period", 1398643200000L).put("count", 2)));
+        result.put("trends", trends);
+
+        String expectedResponse = mapper.writeValueAsString(result);
+        String actualResponse = mapper.writeValueAsString(queryExecutor.execute(trendRequest));
+        assertEquals(expectedResponse, actualResponse);
+        logger.info("Tested Trend - With Field");
+    }
+
+    @Test
+    public void testTrendActionWithFieldZeroTo() throws QueryStoreException, JsonProcessingException {
+        logger.info("Testing Trend - With Field");
+        TrendRequest trendRequest = new TrendRequest();
+        trendRequest.setTable(TEST_APP);
+        trendRequest.setFrom(0L);
+        trendRequest.setField("os");
+        trendRequest.setTo(System.currentTimeMillis());
+
+        ObjectNode result = factory.objectNode();
+        result.put("opcode", "trend");
+        ObjectNode trends = factory.objectNode();
+        trends.put("android", factory.arrayNode().add(factory.objectNode().put("period", 1397606400000L).put("count", 6))
+                .add(factory.objectNode().put("period", 1398643200000L).put("count", 1)));
+        trends.put("ios", factory.arrayNode().add(factory.objectNode().put("period", 1397692800000L).put("count", 1))
+                .add(factory.objectNode().put("period", 1397952000000L).put("count", 1))
+                .add(factory.objectNode().put("period", 1398643200000L).put("count", 2)));
+        result.put("trends", trends);
+
+        String expectedResponse = mapper.writeValueAsString(result);
+        String actualResponse = mapper.writeValueAsString(queryExecutor.execute(trendRequest));
+        assertEquals(expectedResponse, actualResponse);
+        logger.info("Tested Trend - With Field");
+    }
+
+    @Test
+    public void testTrendActionWithFieldZeroFrom() throws QueryStoreException, JsonProcessingException {
+        logger.info("Testing Trend - With Field");
+        TrendRequest trendRequest = new TrendRequest();
+        trendRequest.setTable(TEST_APP);
+        trendRequest.setTo(0L);
+        trendRequest.setField("os");
+        trendRequest.setTo(System.currentTimeMillis());
+
+        ObjectNode result = factory.objectNode();
+        result.put("opcode", "trend");
+        ObjectNode trends = factory.objectNode();
+        trends.put("android", factory.arrayNode().add(factory.objectNode().put("period", 1397606400000L).put("count", 6))
+                .add(factory.objectNode().put("period", 1398643200000L).put("count", 1)));
+        trends.put("ios", factory.arrayNode().add(factory.objectNode().put("period", 1397692800000L).put("count", 1))
+                .add(factory.objectNode().put("period", 1397952000000L).put("count", 1))
+                .add(factory.objectNode().put("period", 1398643200000L).put("count", 2)));
+        result.put("trends", trends);
+
+        String expectedResponse = mapper.writeValueAsString(result);
+        String actualResponse = mapper.writeValueAsString(queryExecutor.execute(trendRequest));
+        assertEquals(expectedResponse, actualResponse);
+        logger.info("Tested Trend - With Field");
+    }
+
+    @Test
+    public void testTrendActionWithFieldWithValues() throws QueryStoreException, JsonProcessingException {
+        logger.info("Testing Trend - With Field");
+        TrendRequest trendRequest = new TrendRequest();
+        trendRequest.setTable(TEST_APP);
+        trendRequest.setFrom(1L);
+        trendRequest.setField("os");
+        trendRequest.setTo(System.currentTimeMillis());
+        trendRequest.setValues(Arrays.asList("android"));
+
+        ObjectNode result = factory.objectNode();
+        result.put("opcode", "trend");
+        ObjectNode trends = factory.objectNode();
+        trends.put("android", factory.arrayNode().add(factory.objectNode().put("period", 1397606400000L).put("count", 6))
+                .add(factory.objectNode().put("period", 1398643200000L).put("count", 1)));
+        result.put("trends", trends);
+
+        String expectedResponse = mapper.writeValueAsString(result);
+        String actualResponse = mapper.writeValueAsString(queryExecutor.execute(trendRequest));
+        assertEquals(expectedResponse, actualResponse);
+        logger.info("Tested Trend - With Field");
+    }
+
+    @Test
+    public void testTrendActionWithFieldWithFilterWithValues() throws QueryStoreException, JsonProcessingException {
+        logger.info("Testing Trend - With Field");
+        TrendRequest trendRequest = new TrendRequest();
+        trendRequest.setTable(TEST_APP);
+        trendRequest.setFrom(1L);
+        trendRequest.setField("os");
+        trendRequest.setTo(System.currentTimeMillis());
+        trendRequest.setValues(Arrays.asList("android"));
+
+        EqualsFilter equalsFilter = new EqualsFilter();
+        equalsFilter.setField("version");
+        equalsFilter.setValue(1);
+        List<Filter> filters = new ArrayList<Filter>();
+        filters.add(equalsFilter);
+        trendRequest.setFilters(filters);
+
+        ObjectNode result = factory.objectNode();
+        result.put("opcode", "trend");
+        ObjectNode trends = factory.objectNode();
+        trends.put("android", factory.arrayNode().add(factory.objectNode().put("period", 1397606400000L).put("count", 2)));
         result.put("trends", trends);
 
         String expectedResponse = mapper.writeValueAsString(result);
@@ -163,7 +309,7 @@ public class TrendActionTest {
     }
 
 
-    private static List<Document> getTrendDocuments() {
+    private List<Document> getTrendDocuments() {
         List<Document> documents = new Vector<Document>();
         documents.add(TestUtils.getDocument("Z", 1397658117000L, new Object[]{"os", "android", "version", 1, "device", "nexus", "battery", 24}, mapper));
         documents.add(TestUtils.getDocument("Y", 1397651117000L, new Object[]{"os", "android", "version", 1, "device", "nexus", "battery", 48}, mapper));
