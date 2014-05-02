@@ -3,6 +3,7 @@ package com.flipkart.foxtrot.common.query.numeric;
 import com.flipkart.foxtrot.common.query.Filter;
 import com.flipkart.foxtrot.common.query.FilterOperator;
 import com.flipkart.foxtrot.common.query.FilterVisitor;
+import org.apache.commons.lang3.builder.ToStringBuilder;
 
 import javax.validation.constraints.NotNull;
 
@@ -62,5 +63,15 @@ public class BetweenFilter extends Filter {
         result = 31 * result + from.hashCode();
         result = 31 * result + to.hashCode();
         return result;
+    }
+
+
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this)
+                .appendSuper(super.toString())
+                .append("from", from)
+                .append("to", to)
+                .toString();
     }
 }

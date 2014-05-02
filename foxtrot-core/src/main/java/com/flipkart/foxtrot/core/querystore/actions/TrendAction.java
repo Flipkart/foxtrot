@@ -86,11 +86,7 @@ public class TrendAction extends Action<TrendRequest> {
             for (String value : parameter.getValues()) {
                 filters.add(new EqualsFilter(field, value));
             }
-            if (parameter.getFilters() != null) {
-                parameter.getFilters().addAll(filters);
-            } else {
-                parameter.setFilters(filters);
-            }
+            parameter.getFilters().addAll(filters);
         }
 
         try {

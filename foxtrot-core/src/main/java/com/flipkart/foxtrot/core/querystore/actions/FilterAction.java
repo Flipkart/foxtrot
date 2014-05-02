@@ -1,6 +1,5 @@
 package com.flipkart.foxtrot.core.querystore.actions;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.flipkart.foxtrot.common.Document;
 import com.flipkart.foxtrot.common.query.Filter;
 import com.flipkart.foxtrot.common.query.Query;
@@ -98,13 +97,8 @@ public class FilterAction extends Action<Query> {
             } else {
                 logger.error("Query generation error: ", e);
             }
-            try {
-                throw new QueryStoreException(QueryStoreException.ErrorCode.QUERY_EXECUTION_ERROR,
-                        "Error running query: " + ElasticsearchUtils.getMapper().writeValueAsString(parameter));
-            } catch (JsonProcessingException e1) {
-                throw new QueryStoreException(QueryStoreException.ErrorCode.QUERY_MALFORMED_QUERY_ERROR,
-                        "Malformed query");
-            }
+            throw new QueryStoreException(QueryStoreException.ErrorCode.QUERY_EXECUTION_ERROR,
+                    "Error running query: " + parameter.toString());
         }
     }
 }

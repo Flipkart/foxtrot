@@ -2,6 +2,7 @@ package com.flipkart.foxtrot.common.group;
 
 import com.flipkart.foxtrot.common.ActionRequest;
 import com.flipkart.foxtrot.common.query.Filter;
+import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.validation.constraints.NotNull;
@@ -48,5 +49,15 @@ public class GroupRequest implements ActionRequest {
 
     public void setTable(String table) {
         this.table = table;
+    }
+
+
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this)
+                .append("table", table)
+                .append("filters", filters)
+                .append("nesting", nesting)
+                .toString();
     }
 }

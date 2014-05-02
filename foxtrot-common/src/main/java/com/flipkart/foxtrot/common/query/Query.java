@@ -1,6 +1,7 @@
 package com.flipkart.foxtrot.common.query;
 
 import com.flipkart.foxtrot.common.ActionRequest;
+import org.apache.commons.lang3.builder.ToStringBuilder;
 
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
@@ -83,4 +84,15 @@ public class Query implements ActionRequest {
         this.combiner = combiner;
     }
 
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this)
+                .append("table", table)
+                .append("filters", filters)
+                .append("combiner", combiner)
+                .append("sort", sort)
+                .append("from", from)
+                .append("limit", limit)
+                .toString();
+    }
 }

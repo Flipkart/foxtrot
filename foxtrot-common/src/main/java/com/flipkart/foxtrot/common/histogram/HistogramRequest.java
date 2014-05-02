@@ -2,6 +2,7 @@ package com.flipkart.foxtrot.common.histogram;
 
 import com.flipkart.foxtrot.common.ActionRequest;
 import com.flipkart.foxtrot.common.query.Filter;
+import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.validation.constraints.Min;
@@ -84,5 +85,17 @@ public class HistogramRequest implements ActionRequest {
 
     public void setField(String field) {
         this.field = field;
+    }
+
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this)
+                .append("table", table)
+                .append("filters", filters)
+                .append("from", from)
+                .append("to", to)
+                .append("field", field)
+                .append("period", period)
+                .toString();
     }
 }

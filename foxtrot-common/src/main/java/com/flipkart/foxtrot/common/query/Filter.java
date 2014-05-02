@@ -8,6 +8,7 @@ import com.flipkart.foxtrot.common.query.general.EqualsFilter;
 import com.flipkart.foxtrot.common.query.general.NotEqualsFilter;
 import com.flipkart.foxtrot.common.query.numeric.*;
 import com.flipkart.foxtrot.common.query.string.ContainsFilter;
+import org.apache.commons.lang3.builder.ToStringBuilder;
 
 import javax.validation.constraints.NotNull;
 
@@ -16,22 +17,22 @@ import javax.validation.constraints.NotNull;
  * Date: 14/03/14
  * Time: 2:09 AM
  */
-@JsonTypeInfo(use= JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "operator")
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "operator")
 @JsonSubTypes({
         //Numeric
-        @JsonSubTypes.Type(value = GreaterEqualFilter.class, name=FilterOperator.greater_equal),
-        @JsonSubTypes.Type(value = GreaterThanFilter.class, name=FilterOperator.greater_than),
-        @JsonSubTypes.Type(value = LessEqualFilter.class, name=FilterOperator.less_equal),
-        @JsonSubTypes.Type(value = LessThanFilter.class, name=FilterOperator.less_than),
-        @JsonSubTypes.Type(value = BetweenFilter.class, name=FilterOperator.between),
+        @JsonSubTypes.Type(value = GreaterEqualFilter.class, name = FilterOperator.greater_equal),
+        @JsonSubTypes.Type(value = GreaterThanFilter.class, name = FilterOperator.greater_than),
+        @JsonSubTypes.Type(value = LessEqualFilter.class, name = FilterOperator.less_equal),
+        @JsonSubTypes.Type(value = LessThanFilter.class, name = FilterOperator.less_than),
+        @JsonSubTypes.Type(value = BetweenFilter.class, name = FilterOperator.between),
 
         //General
-        @JsonSubTypes.Type(value = EqualsFilter.class, name=FilterOperator.equals),
-        @JsonSubTypes.Type(value = NotEqualsFilter.class, name=FilterOperator.not_equals),
-        @JsonSubTypes.Type(value = AnyFilter.class, name=FilterOperator.any),
+        @JsonSubTypes.Type(value = EqualsFilter.class, name = FilterOperator.equals),
+        @JsonSubTypes.Type(value = NotEqualsFilter.class, name = FilterOperator.not_equals),
+        @JsonSubTypes.Type(value = AnyFilter.class, name = FilterOperator.any),
 
         //String
-        @JsonSubTypes.Type(value = ContainsFilter.class, name=FilterOperator.contains)
+        @JsonSubTypes.Type(value = ContainsFilter.class, name = FilterOperator.contains)
 })
 
 public abstract class Filter {
@@ -82,5 +83,14 @@ public abstract class Filter {
         int result = operator.hashCode();
         result = 31 * result + field.hashCode();
         return result;
+    }
+
+
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this)
+                .append("operator", operator)
+                .append("field", field)
+                .toString();
     }
 }

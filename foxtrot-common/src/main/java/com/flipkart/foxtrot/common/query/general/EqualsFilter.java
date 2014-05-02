@@ -3,6 +3,7 @@ package com.flipkart.foxtrot.common.query.general;
 import com.flipkart.foxtrot.common.query.Filter;
 import com.flipkart.foxtrot.common.query.FilterOperator;
 import com.flipkart.foxtrot.common.query.FilterVisitor;
+import org.apache.commons.lang3.builder.ToStringBuilder;
 
 import javax.validation.constraints.NotNull;
 
@@ -54,5 +55,14 @@ public class EqualsFilter extends Filter {
         int result = super.hashCode();
         result = 31 * result + value.hashCode();
         return result;
+    }
+
+
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this)
+                .appendSuper(super.toString())
+                .append("value", value)
+                .toString();
     }
 }
