@@ -29,10 +29,10 @@ public class HBaseDataStore implements DataStore {
     private static final byte[] DATA_FIELD_NAME = Bytes.toBytes("data");
     private static final byte[] TIMESTAMP_FIELD_NAME = Bytes.toBytes("timestamp");
 
-    private final HBaseTableConnection tableWrapper;
+    private final HbaseTableConnection tableWrapper;
     private final ObjectMapper mapper;
 
-    public HBaseDataStore(HBaseTableConnection tableWrapper, ObjectMapper mapper) {
+    public HBaseDataStore(HbaseTableConnection tableWrapper, ObjectMapper mapper) {
         this.tableWrapper = tableWrapper;
         this.mapper = mapper;
     }

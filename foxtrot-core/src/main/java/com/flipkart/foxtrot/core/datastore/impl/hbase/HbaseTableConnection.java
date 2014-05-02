@@ -20,13 +20,13 @@ import java.io.File;
  * Time: 7:35 PM
  */
 @CoverageIgnore
-public class HBaseTableConnection implements Managed {
-    private static final Logger logger = LoggerFactory.getLogger(HBaseTableConnection.class.getSimpleName());
+public class HbaseTableConnection implements Managed {
+    private static final Logger logger = LoggerFactory.getLogger(HbaseTableConnection.class.getSimpleName());
 
     private final HbaseConfig hbaseConfig;
     private HTablePool tablePool;
 
-    public HBaseTableConnection(HbaseConfig hbaseConfig) {
+    public HbaseTableConnection(HbaseConfig hbaseConfig) {
         this.hbaseConfig = hbaseConfig;
     }
 

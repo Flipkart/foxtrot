@@ -6,7 +6,7 @@ import com.fasterxml.jackson.databind.jsontype.SubtypeResolver;
 import com.fasterxml.jackson.databind.jsontype.impl.StdSubtypeResolver;
 import com.flipkart.foxtrot.core.datastore.DataStore;
 import com.flipkart.foxtrot.core.datastore.impl.hbase.HBaseDataStore;
-import com.flipkart.foxtrot.core.datastore.impl.hbase.HBaseTableConnection;
+import com.flipkart.foxtrot.core.datastore.impl.hbase.HbaseTableConnection;
 import com.flipkart.foxtrot.core.datastore.impl.hbase.HbaseConfig;
 import com.flipkart.foxtrot.core.querystore.QueryExecutor;
 import com.flipkart.foxtrot.core.querystore.QueryStore;
@@ -48,7 +48,7 @@ public class FoxtrotServer extends Service<FoxtrotServerConfiguration> {
         ExecutorService executorService = environment.managedExecutorService("query-executor-%s", 20, 40, 30, TimeUnit.SECONDS);
 
         HbaseConfig hbaseConfig = configuration.getHbase();
-        HBaseTableConnection HBaseTableConnection = new HBaseTableConnection(hbaseConfig);
+        HbaseTableConnection HBaseTableConnection = new HbaseTableConnection(hbaseConfig);
         environment.manage(HBaseTableConnection);
 
         ElasticsearchConfig elasticsearchConfig = configuration.getElasticsearch();
