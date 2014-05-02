@@ -44,12 +44,6 @@ public abstract class Action<ParameterType extends ActionRequest> implements Cal
         return new AsyncDataToken(cacheToken, cacheKey());
     }
 
-    public AsyncDataToken execute(ParameterType parameter, ExecutorService executor) {
-        this.parameter = parameter;
-        executor.submit(this);
-        return new AsyncDataToken(cacheToken, cacheKey());
-    }
-
     @Override
     public String call() throws Exception {
         final String cacheKey = cacheKey();
