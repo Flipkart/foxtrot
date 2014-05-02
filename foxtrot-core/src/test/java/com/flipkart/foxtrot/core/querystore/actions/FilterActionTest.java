@@ -36,10 +36,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Vector;
+import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -54,7 +51,7 @@ public class FilterActionTest {
     private final Logger logger = LoggerFactory.getLogger(FilterActionTest.class.getSimpleName());
     private QueryExecutor queryExecutor;
     private ObjectMapper mapper = new ObjectMapper();
-    private MockElasticsearchServer elasticsearchServer = new MockElasticsearchServer();
+    private MockElasticsearchServer elasticsearchServer;
     private HazelcastInstance hazelcastInstance;
     private String TEST_APP = "test-app";
     private JsonNodeFactory factory = JsonNodeFactory.instance;
@@ -70,6 +67,7 @@ public class FilterActionTest {
         when(hazelcastConnection.getHazelcast()).thenReturn(hazelcastInstance);
         CacheUtils.setCacheFactory(new DistributedCacheFactory(hazelcastConnection, mapper));
 
+        elasticsearchServer = new MockElasticsearchServer(UUID.randomUUID().toString());
         ElasticsearchConnection elasticsearchConnection = Mockito.mock(ElasticsearchConnection.class);
         when(elasticsearchConnection.getClient()).thenReturn(elasticsearchServer.getClient());
         ElasticsearchUtils.initializeMappings(elasticsearchServer.getClient());

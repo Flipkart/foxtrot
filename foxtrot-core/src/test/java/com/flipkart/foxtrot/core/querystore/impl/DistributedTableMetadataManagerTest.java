@@ -1,7 +1,6 @@
 package com.flipkart.foxtrot.core.querystore.impl;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.flipkart.foxtrot.common.Table;
 import com.flipkart.foxtrot.common.group.GroupResponse;
 import com.flipkart.foxtrot.core.MockElasticsearchServer;
@@ -18,6 +17,8 @@ import org.mockito.Mockito;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.UUID;
+
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.when;
 
@@ -29,34 +30,31 @@ public class DistributedTableMetadataManagerTest {
 
     private static final Logger logger = LoggerFactory.getLogger(DistributedTableMetadataManagerTest.class.getSimpleName());
     private HazelcastInstance hazelcastInstance;
-    private ObjectMapper mapper;
-    private JsonNodeFactory factory;
     private DistributedTableMetadataManager distributedTableMetadataManager;
-    private MockElasticsearchServer elasticsearchServer = new MockElasticsearchServer();
+    private MockElasticsearchServer elasticsearchServer;
     private IMap<String, Table> tableDataStore;
-    private final String DATA_MAP = "tablemetadatamap";
     private final String TEST_APP = "test-app";
 
     @Before
     public void setUp() throws Exception {
         HazelcastConnection hazelcastConnection = Mockito.mock(HazelcastConnection.class);
         hazelcastInstance = new TestHazelcastInstanceFactory(1).newHazelcastInstance();
-        mapper = new ObjectMapper();
+        ObjectMapper mapper = new ObjectMapper();
         mapper.registerSubtypes(GroupResponse.class);
         when(hazelcastConnection.getHazelcast()).thenReturn(hazelcastInstance);
-        factory = JsonNodeFactory.instance;
 
         //Create index for table meta. Not created automatically
+        elasticsearchServer = new MockElasticsearchServer(UUID.randomUUID().toString());
         CreateIndexRequest createRequest = new CreateIndexRequest(TableMapStore.TABLE_META_INDEX);
         Settings indexSettings = ImmutableSettings.settingsBuilder().put("number_of_replicas", 0).build();
         createRequest.settings(indexSettings);
-        elasticsearchServer.getClient().admin().indices()
-                .create(createRequest)
-                .actionGet();
+        elasticsearchServer.getClient().admin().indices().create(createRequest).actionGet();
+        elasticsearchServer.getClient().admin().cluster().prepareHealth().setWaitForGreenStatus().execute().actionGet();
         ElasticsearchConnection elasticsearchConnection = Mockito.mock(ElasticsearchConnection.class);
         when(elasticsearchConnection.getClient()).thenReturn(elasticsearchServer.getClient());
         ElasticsearchUtils.initializeMappings(elasticsearchServer.getClient());
 
+        String DATA_MAP = "tablemetadatamap";
         tableDataStore = hazelcastInstance.getMap(DATA_MAP);
         distributedTableMetadataManager = new DistributedTableMetadataManager(hazelcastConnection,
                 elasticsearchConnection);

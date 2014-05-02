@@ -41,7 +41,7 @@ public class TrendActionTest {
     private static final Logger logger = LoggerFactory.getLogger(TrendActionTest.class.getSimpleName());
     private QueryExecutor queryExecutor;
     private ObjectMapper mapper = new ObjectMapper();
-    private MockElasticsearchServer elasticsearchServer = new MockElasticsearchServer();
+    private MockElasticsearchServer elasticsearchServer;
     private HazelcastInstance hazelcastInstance;
     private String TEST_APP = "test-app";
     private JsonNodeFactory factory = JsonNodeFactory.instance;
@@ -57,6 +57,7 @@ public class TrendActionTest {
         when(hazelcastConnection.getHazelcast()).thenReturn(hazelcastInstance);
         CacheUtils.setCacheFactory(new DistributedCacheFactory(hazelcastConnection, mapper));
 
+        elasticsearchServer = new MockElasticsearchServer(UUID.randomUUID().toString());
         ElasticsearchConnection elasticsearchConnection = Mockito.mock(ElasticsearchConnection.class);
         when(elasticsearchConnection.getClient()).thenReturn(elasticsearchServer.getClient());
         ElasticsearchUtils.initializeMappings(elasticsearchServer.getClient());

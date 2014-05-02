@@ -22,7 +22,6 @@ import org.elasticsearch.search.SearchHits;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Properties;
@@ -64,6 +63,9 @@ public class TableMapStore implements MapStore<String, Table> {
 
     @Override
     public void store(String key, Table value) {
+        if (key == null || value == null || value.getName() == null) {
+            throw new RuntimeException(String.format("Illegal Store Request - %s - %s", key, value));
+        }
         try {
             elasticsearchConnection.getClient().prepareIndex()
                     .setIndex(TABLE_META_INDEX)
@@ -81,17 +83,28 @@ public class TableMapStore implements MapStore<String, Table> {
 
     @Override
     public void storeAll(Map<String, Table> map) {
-        BulkRequestBuilder bulRequestBuilder = elasticsearchConnection.getClient().prepareBulk().setConsistencyLevel(WriteConsistencyLevel.ALL).setRefresh(true);
+        if (map == null) {
+            throw new RuntimeException("Illegal Store Request - Null Map");
+        }
+        if (map.containsKey(null)) {
+            throw new RuntimeException("Illegal Store Request - Null Key is Present");
+        }
+
+
+        BulkRequestBuilder bulkRequestBuilder = elasticsearchConnection.getClient().prepareBulk().setConsistencyLevel(WriteConsistencyLevel.ALL).setRefresh(true);
         for (Map.Entry<String, Table> mapEntry : map.entrySet()) {
             try {
-                bulRequestBuilder.add(elasticsearchConnection.getClient()
+                if (mapEntry.getValue() == null) {
+                    throw new RuntimeException(String.format("Illegal Store Request - Object is Null for Table - %s", mapEntry.getKey()));
+                }
+                bulkRequestBuilder.add(elasticsearchConnection.getClient()
                         .prepareIndex(TABLE_META_INDEX, TABLE_META_TYPE, mapEntry.getKey())
                         .setSource(objectMapper.writeValueAsString(mapEntry.getValue())));
             } catch (JsonProcessingException e) {
                 throw new RuntimeException("Error bulk saving meta: ", e);
             }
         }
-        bulRequestBuilder.execute().actionGet();
+        bulkRequestBuilder.execute().actionGet();
     }
 
     @Override
@@ -127,7 +140,7 @@ public class TableMapStore implements MapStore<String, Table> {
         }
         try {
             return objectMapper.readValue(response.getSourceAsBytes(), Table.class);
-        } catch (IOException e) {
+        } catch (Exception e) {
             throw new RuntimeException("Error getting data for table: " + key);
         }
     }
@@ -145,8 +158,8 @@ public class TableMapStore implements MapStore<String, Table> {
                 Table table = objectMapper.readValue(multiGetItemResponse.getResponse().getSourceAsString(),
                         Table.class);
                 tables.put(table.getName(), table);
-            } catch (IOException e) {
-                e.printStackTrace();
+            } catch (Exception e) {
+                throw new RuntimeException("Error getting data for table: " + multiGetItemResponse.getId());
             }
         }
         return tables;

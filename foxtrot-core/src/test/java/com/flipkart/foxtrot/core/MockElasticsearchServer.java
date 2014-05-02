@@ -15,13 +15,14 @@ import static org.elasticsearch.node.NodeBuilder.nodeBuilder;
  */
 
 public class MockElasticsearchServer {
-    private static final String DEFAULT_DATA_DIRECTORY = "target/elasticsearch-data";
+    private String DATA_DIRECTORY = "target/elasticsearch-data";
     private final Node node;
 
-    public MockElasticsearchServer() {
+    public MockElasticsearchServer(String directory) {
+        this.DATA_DIRECTORY = "target/" + directory;
         ImmutableSettings.Builder elasticsearchSettings = ImmutableSettings.settingsBuilder()
                 .put("http.enabled", "false")
-                .put("path.data", DEFAULT_DATA_DIRECTORY);
+                .put("path.data", "target/" + DATA_DIRECTORY);
 
         node = nodeBuilder()
                 .local(true)
@@ -39,6 +40,6 @@ public class MockElasticsearchServer {
     }
 
     private void deleteDataDirectory() throws IOException {
-        FileUtils.deleteDirectory(new File(DEFAULT_DATA_DIRECTORY));
+        FileUtils.deleteDirectory(new File(DATA_DIRECTORY));
     }
 }

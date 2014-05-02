@@ -1,5 +1,6 @@
 package com.flipkart.foxtrot.common;
 
+import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.validation.constraints.Max;
@@ -24,6 +25,11 @@ public class Table implements Serializable {
     public Table() {
     }
 
+    public Table(String name, int ttl) {
+        this.name = name;
+        this.ttl = ttl;
+    }
+
     public String getName() {
         return name;
     }
@@ -38,5 +44,14 @@ public class Table implements Serializable {
 
     public void setTtl(int ttl) {
         this.ttl = ttl;
+    }
+
+
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this)
+                .append("name", name)
+                .append("ttl", ttl)
+                .toString();
     }
 }

@@ -40,12 +40,13 @@ public class ElasticsearchQueryStoreTest {
     public void setUp() throws Exception {
         mapper = new ObjectMapper();
         ElasticsearchUtils.setMapper(mapper);
-
-        elasticsearchServer = new MockElasticsearchServer();
         dataStore = TestUtils.getDataStore();
+
+        elasticsearchServer = new MockElasticsearchServer(UUID.randomUUID().toString());
         ElasticsearchConnection elasticsearchConnection = Mockito.mock(ElasticsearchConnection.class);
         when(elasticsearchConnection.getClient()).thenReturn(elasticsearchServer.getClient());
         ElasticsearchUtils.initializeMappings(elasticsearchConnection.getClient());
+
         AnalyticsLoader analyticsLoader = new AnalyticsLoader(dataStore, elasticsearchConnection);
         ExecutorService executorService = Executors.newFixedThreadPool(1);
         QueryExecutor queryExecutor = new QueryExecutor(analyticsLoader, executorService);
