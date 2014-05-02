@@ -49,13 +49,12 @@ public class GroupActionTest {
     private final MockElasticsearchServer elasticsearchServer = new MockElasticsearchServer();
     private HazelcastInstance hazelcastInstance;
     private String TEST_TABLE = "test-app";
-    private JsonNodeFactory factory;
+    private JsonNodeFactory factory = JsonNodeFactory.instance;
 
     @Before
     public void setUp() throws Exception {
         ElasticsearchUtils.setMapper(mapper);
         DataStore dataStore = TestUtils.getDataStore();
-        factory = JsonNodeFactory.instance;
 
         //Initializing Cache Factory
         hazelcastInstance = new TestHazelcastInstanceFactory(1).newHazelcastInstance();
@@ -103,7 +102,15 @@ public class GroupActionTest {
         groupRequest.setTable(TEST_TABLE);
         groupRequest.setNesting(Arrays.asList("os"));
 
-        String expectedResult = "{\"opcode\":\"group\",\"result\":{\"android\":7,\"ios\":4}}";
+        ObjectNode resultNode = factory.objectNode();
+        resultNode.put("android", 7);
+        resultNode.put("ios", 4);
+
+        ObjectNode finalNode = factory.objectNode();
+        finalNode.put("opcode", "group");
+        finalNode.put("result", resultNode);
+        String expectedResult = mapper.writeValueAsString(finalNode);
+
         String actualResult = mapper.writeValueAsString(queryExecutor.execute(groupRequest));
         assertEquals(expectedResult, actualResult);
         logger.info("Tested Group - Single Field - No Filter");
@@ -119,10 +126,17 @@ public class GroupActionTest {
         equalsFilter.setField("device");
         equalsFilter.setValue("nexus");
         groupRequest.setFilters(Collections.<Filter>singletonList(equalsFilter));
-
         groupRequest.setNesting(Arrays.asList("os"));
 
-        String expectedResult = "{\"opcode\":\"group\",\"result\":{\"android\":5,\"ios\":1}}";
+        ObjectNode resultNode = factory.objectNode();
+        resultNode.put("android", 5);
+        resultNode.put("ios", 1);
+
+        ObjectNode finalNode = factory.objectNode();
+        finalNode.put("opcode", "group");
+        finalNode.put("result", resultNode);
+        String expectedResult = mapper.writeValueAsString(finalNode);
+
         String actualResult = mapper.writeValueAsString(queryExecutor.execute(groupRequest));
         assertEquals(expectedResult, actualResult);
         logger.info("Tested Group - Single Field - With Filter");
@@ -135,10 +149,15 @@ public class GroupActionTest {
         groupRequest.setTable(TEST_TABLE);
         groupRequest.setNesting(Arrays.asList("os", "device"));
 
-        String expectedResult = "{\"opcode\":\"group\"," +
-                "\"result\":" + "{" +
-                "\"android\":{\"nexus\":5,\"galaxy\":2}," +
-                "\"ios\":{\"nexus\":1,\"ipad\":2,\"iphone\":1}}}";
+        ObjectNode resultNode = factory.objectNode();
+        resultNode.put("android", factory.objectNode().put("nexus", 5).put("galaxy", 2));
+        resultNode.put("ios", factory.objectNode().put("nexus", 1).put("ipad", 2).put("iphone", 1));
+
+        ObjectNode finalNode = factory.objectNode();
+        finalNode.put("opcode", "group");
+        finalNode.put("result", resultNode);
+        String expectedResult = mapper.writeValueAsString(finalNode);
+
         String actualResult = mapper.writeValueAsString(queryExecutor.execute(groupRequest));
         assertEquals(expectedResult, actualResult);
         logger.info("Tested Group - Single Field - No Filter");
@@ -156,10 +175,15 @@ public class GroupActionTest {
         greaterThanFilter.setValue(48);
         groupRequest.setFilters(Collections.<Filter>singletonList(greaterThanFilter));
 
-        String expectedResult = "{\"opcode\":\"group\"," +
-                "\"result\":" + "{" +
-                "\"android\":{\"nexus\":3,\"galaxy\":2}," +
-                "\"ios\":{\"ipad\":1}}}";
+        ObjectNode resultNode = factory.objectNode();
+        resultNode.put("android", factory.objectNode().put("nexus", 3).put("galaxy", 2));
+        resultNode.put("ios", factory.objectNode().put("ipad", 1));
+
+        ObjectNode finalNode = factory.objectNode();
+        finalNode.put("opcode", "group");
+        finalNode.put("result", resultNode);
+        String expectedResult = mapper.writeValueAsString(finalNode);
+
         String actualResult = mapper.writeValueAsString(queryExecutor.execute(groupRequest));
         assertEquals(expectedResult, actualResult);
         logger.info("Tested Group - Two Fields - With Filter");
@@ -172,10 +196,24 @@ public class GroupActionTest {
         groupRequest.setTable(TEST_TABLE);
         groupRequest.setNesting(Arrays.asList("os", "device", "version"));
 
-        String expectedResult = "{\"opcode\":\"group\"," +
-                "\"result\":" + "{" +
-                "\"android\":{\"nexus\":{\"3\":1,\"2\":2,\"1\":2},\"galaxy\":{\"3\":1,\"2\":1}}," +
-                "\"ios\":{\"nexus\":{\"2\":1},\"ipad\":{\"2\":2},\"iphone\":{\"1\":1}}}}";
+        ObjectNode resultNode = factory.objectNode();
+
+        ObjectNode temp = factory.objectNode();
+        temp.put("nexus", factory.objectNode().put("3", 1).put("2", 2).put("1", 2));
+        temp.put("galaxy", factory.objectNode().put("3", 1).put("2", 1));
+        resultNode.put("android", temp);
+
+        temp = factory.objectNode();
+        temp.put("nexus", factory.objectNode().put("2", 1));
+        temp.put("ipad", factory.objectNode().put("2", 2));
+        temp.put("iphone", factory.objectNode().put("1", 1));
+        resultNode.put("ios", temp);
+
+        ObjectNode finalNode = factory.objectNode();
+        finalNode.put("opcode", "group");
+        finalNode.put("result", resultNode);
+
+        String expectedResult = mapper.writeValueAsString(finalNode);
         String actualResult = mapper.writeValueAsString(queryExecutor.execute(groupRequest));
         assertEquals(expectedResult, actualResult);
         logger.info("Tested Group - Multiple Fields - With Filter");
@@ -203,6 +241,7 @@ public class GroupActionTest {
         temp = factory.objectNode();
         temp.put("ipad", factory.objectNode().put("2", 1));
         resultNode.put("ios", temp);
+
         ObjectNode finalNode = factory.objectNode();
         finalNode.put("opcode", "group");
         finalNode.put("result", resultNode);

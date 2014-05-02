@@ -2,6 +2,9 @@ package com.flipkart.foxtrot.core.querystore.actions;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.flipkart.foxtrot.common.ActionResponse;
 import com.flipkart.foxtrot.common.Document;
 import com.flipkart.foxtrot.common.query.Filter;
@@ -54,6 +57,7 @@ public class FilterActionTest {
     private MockElasticsearchServer elasticsearchServer = new MockElasticsearchServer();
     private HazelcastInstance hazelcastInstance;
     private String TEST_APP = "test-app";
+    private JsonNodeFactory factory = JsonNodeFactory.instance;
 
     @Before
     public void setUp() throws Exception {
@@ -111,53 +115,25 @@ public class FilterActionTest {
         resultSort.setOrder(ResultSort.Order.asc);
         resultSort.setField("_timestamp");
         query.setSort(resultSort);
-        ActionResponse response = queryExecutor.execute(query);
-        String expectedResponse = "{\"opcode\":\"query\",\"documents\":[" +
-                "{\"id\":\"W\",\"timestamp\":1397658117000,\"data\":{\"os\":\"android\",\"battery\":99,\"device\":\"nexus\"}}," +
-                "{\"id\":\"X\",\"timestamp\":1397658117000,\"data\":{\"os\":\"android\",\"battery\":74,\"device\":\"nexus\"}}," +
-                "{\"id\":\"Y\",\"timestamp\":1397658117000,\"data\":{\"os\":\"android\",\"battery\":48,\"device\":\"nexus\"}}," +
-                "{\"id\":\"Z\",\"timestamp\":1397658117000,\"data\":{\"os\":\"android\",\"battery\":24,\"device\":\"nexus\"}}," +
-                "{\"id\":\"A\",\"timestamp\":1397658118000,\"data\":{\"os\":\"android\",\"device\":\"nexus\",\"version\":1}}," +
-                "{\"id\":\"B\",\"timestamp\":1397658118001,\"data\":{\"os\":\"android\",\"device\":\"galaxy\",\"version\":1}}," +
-                "{\"id\":\"C\",\"timestamp\":1397658118002,\"data\":{\"os\":\"android\",\"device\":\"nexus\",\"version\":2}}," +
-                "{\"id\":\"D\",\"timestamp\":1397658118003,\"data\":{\"os\":\"ios\",\"device\":\"iphone\",\"version\":1}}," +
-                "{\"id\":\"E\",\"timestamp\":1397658118004,\"data\":{\"os\":\"ios\",\"device\":\"ipad\",\"version\":2}}" +
-                "]}";
-        String actualResponse = mapper.writeValueAsString(response);
+
+        ArrayNode arrayNode = factory.arrayNode();
+        arrayNode.addPOJO(TestUtils.getDocument("W", 1397658117000L, new Object[]{"os", "android", "device", "nexus", "battery", 99}, mapper));
+        arrayNode.addPOJO(TestUtils.getDocument("X", 1397658117000L, new Object[]{"os", "android", "device", "nexus", "battery", 74}, mapper));
+        arrayNode.addPOJO(TestUtils.getDocument("Y", 1397658117000L, new Object[]{"os", "android", "device", "nexus", "battery", 48}, mapper));
+        arrayNode.addPOJO(TestUtils.getDocument("Z", 1397658117000L, new Object[]{"os", "android", "device", "nexus", "battery", 24}, mapper));
+        arrayNode.addPOJO(TestUtils.getDocument("A", 1397658118000L, new Object[]{"os", "android", "version", 1, "device", "nexus"}, mapper));
+        arrayNode.addPOJO(TestUtils.getDocument("B", 1397658118001L, new Object[]{"os", "android", "version", 1, "device", "galaxy"}, mapper));
+        arrayNode.addPOJO(TestUtils.getDocument("C", 1397658118002L, new Object[]{"os", "android", "version", 2, "device", "nexus"}, mapper));
+        arrayNode.addPOJO(TestUtils.getDocument("D", 1397658118003L, new Object[]{"os", "ios", "version", 1, "device", "iphone"}, mapper));
+        arrayNode.addPOJO(TestUtils.getDocument("E", 1397658118004L, new Object[]{"os", "ios", "version", 2, "device", "ipad"}, mapper));
+        ObjectNode expectedResponseNode = factory.objectNode();
+        expectedResponseNode.put("opcode", "query");
+        expectedResponseNode.put("documents", arrayNode);
+        String expectedResponse = mapper.writeValueAsString(expectedResponseNode);
+
+        String actualResponse = mapper.writeValueAsString(queryExecutor.execute(query));
         assertEquals(expectedResponse, actualResponse);
         logger.info("Tested Query - No Filter - Sort Ascending");
-    }
-
-    @Test
-    public void testQueryNoFilterAscendingAsync() throws QueryStoreException, JsonProcessingException {
-        logger.info("Testing Query - No Filter - Sort Ascending - Async");
-        Query query = new Query();
-        query.setTable(TEST_APP);
-        ResultSort resultSort = new ResultSort();
-        resultSort.setOrder(ResultSort.Order.asc);
-        resultSort.setField("_timestamp");
-        query.setSort(resultSort);
-        AsyncDataToken response = queryExecutor.executeAsync(query);
-        String expectedResponse = "{\"opcode\":\"query\",\"documents\":[" +
-                "{\"id\":\"W\",\"timestamp\":1397658117000,\"data\":{\"os\":\"android\",\"battery\":99,\"device\":\"nexus\"}}," +
-                "{\"id\":\"X\",\"timestamp\":1397658117000,\"data\":{\"os\":\"android\",\"battery\":74,\"device\":\"nexus\"}}," +
-                "{\"id\":\"Y\",\"timestamp\":1397658117000,\"data\":{\"os\":\"android\",\"battery\":48,\"device\":\"nexus\"}}," +
-                "{\"id\":\"Z\",\"timestamp\":1397658117000,\"data\":{\"os\":\"android\",\"battery\":24,\"device\":\"nexus\"}}," +
-                "{\"id\":\"A\",\"timestamp\":1397658118000,\"data\":{\"os\":\"android\",\"device\":\"nexus\",\"version\":1}}," +
-                "{\"id\":\"B\",\"timestamp\":1397658118001,\"data\":{\"os\":\"android\",\"device\":\"galaxy\",\"version\":1}}," +
-                "{\"id\":\"C\",\"timestamp\":1397658118002,\"data\":{\"os\":\"android\",\"device\":\"nexus\",\"version\":2}}," +
-                "{\"id\":\"D\",\"timestamp\":1397658118003,\"data\":{\"os\":\"ios\",\"device\":\"iphone\",\"version\":1}}," +
-                "{\"id\":\"E\",\"timestamp\":1397658118004,\"data\":{\"os\":\"ios\",\"device\":\"ipad\",\"version\":2}}" +
-                "]}";
-        try {
-            Thread.sleep(200);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        ActionResponse actionResponse = CacheUtils.getCacheFor(response.getAction()).get(response.getKey());
-        String actualResponse = mapper.writeValueAsString(actionResponse);
-        assertEquals(expectedResponse, actualResponse);
-        logger.info("Tested Query - No Filter - Sort Ascending - Async");
     }
 
     @Test
@@ -169,20 +145,23 @@ public class FilterActionTest {
         resultSort.setOrder(ResultSort.Order.desc);
         resultSort.setField("_timestamp");
         query.setSort(resultSort);
-        ActionResponse response = queryExecutor.execute(query);
-        String expectedResponse = "{\"opcode\":\"query\",\"documents\":[" +
-                "{\"id\":\"E\",\"timestamp\":1397658118004,\"data\":{\"os\":\"ios\",\"device\":\"ipad\",\"version\":2}}," +
-                "{\"id\":\"D\",\"timestamp\":1397658118003,\"data\":{\"os\":\"ios\",\"device\":\"iphone\",\"version\":1}}," +
-                "{\"id\":\"C\",\"timestamp\":1397658118002,\"data\":{\"os\":\"android\",\"device\":\"nexus\",\"version\":2}}," +
-                "{\"id\":\"B\",\"timestamp\":1397658118001,\"data\":{\"os\":\"android\",\"device\":\"galaxy\",\"version\":1}}," +
-                "{\"id\":\"A\",\"timestamp\":1397658118000,\"data\":{\"os\":\"android\",\"device\":\"nexus\",\"version\":1}}," +
-                "{\"id\":\"W\",\"timestamp\":1397658117000,\"data\":{\"os\":\"android\",\"battery\":99,\"device\":\"nexus\"}}," +
-                "{\"id\":\"X\",\"timestamp\":1397658117000,\"data\":{\"os\":\"android\",\"battery\":74,\"device\":\"nexus\"}}," +
-                "{\"id\":\"Y\",\"timestamp\":1397658117000,\"data\":{\"os\":\"android\",\"battery\":48,\"device\":\"nexus\"}}," +
-                "{\"id\":\"Z\",\"timestamp\":1397658117000,\"data\":{\"os\":\"android\",\"battery\":24,\"device\":\"nexus\"}}" +
-                "]}";
 
-        String actualResponse = mapper.writeValueAsString(response);
+        ArrayNode arrayNode = factory.arrayNode();
+        arrayNode.addPOJO(TestUtils.getDocument("E", 1397658118004L, new Object[]{"os", "ios", "version", 2, "device", "ipad"}, mapper));
+        arrayNode.addPOJO(TestUtils.getDocument("D", 1397658118003L, new Object[]{"os", "ios", "version", 1, "device", "iphone"}, mapper));
+        arrayNode.addPOJO(TestUtils.getDocument("C", 1397658118002L, new Object[]{"os", "android", "version", 2, "device", "nexus"}, mapper));
+        arrayNode.addPOJO(TestUtils.getDocument("B", 1397658118001L, new Object[]{"os", "android", "version", 1, "device", "galaxy"}, mapper));
+        arrayNode.addPOJO(TestUtils.getDocument("A", 1397658118000L, new Object[]{"os", "android", "version", 1, "device", "nexus"}, mapper));
+        arrayNode.addPOJO(TestUtils.getDocument("W", 1397658117000L, new Object[]{"os", "android", "device", "nexus", "battery", 99}, mapper));
+        arrayNode.addPOJO(TestUtils.getDocument("X", 1397658117000L, new Object[]{"os", "android", "device", "nexus", "battery", 74}, mapper));
+        arrayNode.addPOJO(TestUtils.getDocument("Y", 1397658117000L, new Object[]{"os", "android", "device", "nexus", "battery", 48}, mapper));
+        arrayNode.addPOJO(TestUtils.getDocument("Z", 1397658117000L, new Object[]{"os", "android", "device", "nexus", "battery", 24}, mapper));
+        ObjectNode expectedResponseNode = factory.objectNode();
+        expectedResponseNode.put("opcode", "query");
+        expectedResponseNode.put("documents", arrayNode);
+        String expectedResponse = mapper.writeValueAsString(expectedResponseNode);
+
+        String actualResponse = mapper.writeValueAsString(queryExecutor.execute(query));
         assertEquals(expectedResponse, actualResponse);
         logger.info("Tested Query - No Filter - Sort Descending");
     }
@@ -197,13 +176,16 @@ public class FilterActionTest {
         resultSort.setOrder(ResultSort.Order.desc);
         resultSort.setField("_timestamp");
         query.setSort(resultSort);
-        ActionResponse response = queryExecutor.execute(query);
-        String expectedResponse = "{\"opcode\":\"query\",\"documents\":[" +
-                "{\"id\":\"E\",\"timestamp\":1397658118004,\"data\":{\"os\":\"ios\",\"device\":\"ipad\",\"version\":2}}," +
-                "{\"id\":\"D\",\"timestamp\":1397658118003,\"data\":{\"os\":\"ios\",\"device\":\"iphone\",\"version\":1}}" +
-                "]}";
 
-        String actualResponse = mapper.writeValueAsString(response);
+        ArrayNode arrayNode = factory.arrayNode();
+        arrayNode.addPOJO(TestUtils.getDocument("E", 1397658118004L, new Object[]{"os", "ios", "version", 2, "device", "ipad"}, mapper));
+        arrayNode.addPOJO(TestUtils.getDocument("D", 1397658118003L, new Object[]{"os", "ios", "version", 1, "device", "iphone"}, mapper));
+        ObjectNode expectedResponseNode = factory.objectNode();
+        expectedResponseNode.put("opcode", "query");
+        expectedResponseNode.put("documents", arrayNode);
+        String expectedResponse = mapper.writeValueAsString(expectedResponseNode);
+
+        String actualResponse = mapper.writeValueAsString(queryExecutor.execute(query));
         assertEquals(expectedResponse, actualResponse);
         logger.info("Tested Query - No Filter - Limit 2");
     }
@@ -222,20 +204,22 @@ public class FilterActionTest {
         AnyFilter filter = new AnyFilter();
         query.setFilters(Collections.<Filter>singletonList(filter));
 
-        ActionResponse response = queryExecutor.execute(query);
-        String expectedResponse = "{\"opcode\":\"query\",\"documents\":[" +
-                "{\"id\":\"E\",\"timestamp\":1397658118004,\"data\":{\"os\":\"ios\",\"device\":\"ipad\",\"version\":2}}," +
-                "{\"id\":\"D\",\"timestamp\":1397658118003,\"data\":{\"os\":\"ios\",\"device\":\"iphone\",\"version\":1}}," +
-                "{\"id\":\"C\",\"timestamp\":1397658118002,\"data\":{\"os\":\"android\",\"device\":\"nexus\",\"version\":2}}," +
-                "{\"id\":\"B\",\"timestamp\":1397658118001,\"data\":{\"os\":\"android\",\"device\":\"galaxy\",\"version\":1}}," +
-                "{\"id\":\"A\",\"timestamp\":1397658118000,\"data\":{\"os\":\"android\",\"device\":\"nexus\",\"version\":1}}," +
-                "{\"id\":\"W\",\"timestamp\":1397658117000,\"data\":{\"os\":\"android\",\"battery\":99,\"device\":\"nexus\"}}," +
-                "{\"id\":\"X\",\"timestamp\":1397658117000,\"data\":{\"os\":\"android\",\"battery\":74,\"device\":\"nexus\"}}," +
-                "{\"id\":\"Y\",\"timestamp\":1397658117000,\"data\":{\"os\":\"android\",\"battery\":48,\"device\":\"nexus\"}}," +
-                "{\"id\":\"Z\",\"timestamp\":1397658117000,\"data\":{\"os\":\"android\",\"battery\":24,\"device\":\"nexus\"}}" +
-                "]}";
+        ArrayNode arrayNode = factory.arrayNode();
+        arrayNode.addPOJO(TestUtils.getDocument("E", 1397658118004L, new Object[]{"os", "ios", "version", 2, "device", "ipad"}, mapper));
+        arrayNode.addPOJO(TestUtils.getDocument("D", 1397658118003L, new Object[]{"os", "ios", "version", 1, "device", "iphone"}, mapper));
+        arrayNode.addPOJO(TestUtils.getDocument("C", 1397658118002L, new Object[]{"os", "android", "version", 2, "device", "nexus"}, mapper));
+        arrayNode.addPOJO(TestUtils.getDocument("B", 1397658118001L, new Object[]{"os", "android", "version", 1, "device", "galaxy"}, mapper));
+        arrayNode.addPOJO(TestUtils.getDocument("A", 1397658118000L, new Object[]{"os", "android", "version", 1, "device", "nexus"}, mapper));
+        arrayNode.addPOJO(TestUtils.getDocument("W", 1397658117000L, new Object[]{"os", "android", "device", "nexus", "battery", 99}, mapper));
+        arrayNode.addPOJO(TestUtils.getDocument("X", 1397658117000L, new Object[]{"os", "android", "device", "nexus", "battery", 74}, mapper));
+        arrayNode.addPOJO(TestUtils.getDocument("Y", 1397658117000L, new Object[]{"os", "android", "device", "nexus", "battery", 48}, mapper));
+        arrayNode.addPOJO(TestUtils.getDocument("Z", 1397658117000L, new Object[]{"os", "android", "device", "nexus", "battery", 24}, mapper));
+        ObjectNode expectedResponseNode = factory.objectNode();
+        expectedResponseNode.put("opcode", "query");
+        expectedResponseNode.put("documents", arrayNode);
+        String expectedResponse = mapper.writeValueAsString(expectedResponseNode);
 
-        String actualResponse = mapper.writeValueAsString(response);
+        String actualResponse = mapper.writeValueAsString(queryExecutor.execute(query));
         assertEquals(expectedResponse, actualResponse);
         logger.info("Tested Query - Any Filter");
     }
@@ -256,13 +240,15 @@ public class FilterActionTest {
         equalsFilter.setValue("ios");
         query.setFilters(Collections.<Filter>singletonList(equalsFilter));
 
-        ActionResponse response = queryExecutor.execute(query);
-        String expectedResponse = "{\"opcode\":\"query\",\"documents\":[" +
-                "{\"id\":\"E\",\"timestamp\":1397658118004,\"data\":{\"os\":\"ios\",\"device\":\"ipad\",\"version\":2}}," +
-                "{\"id\":\"D\",\"timestamp\":1397658118003,\"data\":{\"os\":\"ios\",\"device\":\"iphone\",\"version\":1}}" +
-                "]}";
+        ArrayNode arrayNode = factory.arrayNode();
+        arrayNode.addPOJO(TestUtils.getDocument("E", 1397658118004L, new Object[]{"os", "ios", "version", 2, "device", "ipad"}, mapper));
+        arrayNode.addPOJO(TestUtils.getDocument("D", 1397658118003L, new Object[]{"os", "ios", "version", 1, "device", "iphone"}, mapper));
+        ObjectNode expectedResponseNode = factory.objectNode();
+        expectedResponseNode.put("opcode", "query");
+        expectedResponseNode.put("documents", arrayNode);
+        String expectedResponse = mapper.writeValueAsString(expectedResponseNode);
 
-        String actualResponse = mapper.writeValueAsString(response);
+        String actualResponse = mapper.writeValueAsString(queryExecutor.execute(query));
         assertEquals(expectedResponse, actualResponse);
         logger.info("Tested Query - equals Filter");
     }
@@ -284,14 +270,16 @@ public class FilterActionTest {
         notEqualsFilter.setValue("ios");
         query.setFilters(Collections.<Filter>singletonList(notEqualsFilter));
 
-        ActionResponse response = queryExecutor.execute(query);
-        String expectedResponse = "{\"opcode\":\"query\",\"documents\":[" +
-                "{\"id\":\"C\",\"timestamp\":1397658118002,\"data\":{\"os\":\"android\",\"device\":\"nexus\",\"version\":2}}," +
-                "{\"id\":\"B\",\"timestamp\":1397658118001,\"data\":{\"os\":\"android\",\"device\":\"galaxy\",\"version\":1}}," +
-                "{\"id\":\"A\",\"timestamp\":1397658118000,\"data\":{\"os\":\"android\",\"device\":\"nexus\",\"version\":1}}" +
-                "]}";
+        ArrayNode arrayNode = factory.arrayNode();
+        arrayNode.addPOJO(TestUtils.getDocument("C", 1397658118002L, new Object[]{"os", "android", "version", 2, "device", "nexus"}, mapper));
+        arrayNode.addPOJO(TestUtils.getDocument("B", 1397658118001L, new Object[]{"os", "android", "version", 1, "device", "galaxy"}, mapper));
+        arrayNode.addPOJO(TestUtils.getDocument("A", 1397658118000L, new Object[]{"os", "android", "version", 1, "device", "nexus"}, mapper));
+        ObjectNode expectedResponseNode = factory.objectNode();
+        expectedResponseNode.put("opcode", "query");
+        expectedResponseNode.put("documents", arrayNode);
+        String expectedResponse = mapper.writeValueAsString(expectedResponseNode);
 
-        String actualResponse = mapper.writeValueAsString(response);
+        String actualResponse = mapper.writeValueAsString(queryExecutor.execute(query));
         assertEquals(expectedResponse, actualResponse);
         logger.info("Tested Query - not_equals Filter");
     }
@@ -313,13 +301,15 @@ public class FilterActionTest {
         greaterThanFilter.setValue(48);
         query.setFilters(Collections.<Filter>singletonList(greaterThanFilter));
 
-        ActionResponse response = queryExecutor.execute(query);
-        String expectedResponse = "{\"opcode\":\"query\",\"documents\":[" +
-                "{\"id\":\"W\",\"timestamp\":1397658117000,\"data\":{\"os\":\"android\",\"battery\":99,\"device\":\"nexus\"}}," +
-                "{\"id\":\"X\",\"timestamp\":1397658117000,\"data\":{\"os\":\"android\",\"battery\":74,\"device\":\"nexus\"}}" +
-                "]}";
+        ArrayNode arrayNode = factory.arrayNode();
+        arrayNode.addPOJO(TestUtils.getDocument("W", 1397658117000L, new Object[]{"os", "android", "device", "nexus", "battery", 99}, mapper));
+        arrayNode.addPOJO(TestUtils.getDocument("X", 1397658117000L, new Object[]{"os", "android", "device", "nexus", "battery", 74}, mapper));
+        ObjectNode expectedResponseNode = factory.objectNode();
+        expectedResponseNode.put("opcode", "query");
+        expectedResponseNode.put("documents", arrayNode);
+        String expectedResponse = mapper.writeValueAsString(expectedResponseNode);
 
-        String actualResponse = mapper.writeValueAsString(response);
+        String actualResponse = mapper.writeValueAsString(queryExecutor.execute(query));
         assertEquals(expectedResponse, actualResponse);
         logger.info("Tested Query - greater_than Filter");
     }
@@ -341,14 +331,16 @@ public class FilterActionTest {
         greaterEqualFilter.setValue(48);
         query.setFilters(Collections.<Filter>singletonList(greaterEqualFilter));
 
-        ActionResponse response = queryExecutor.execute(query);
-        String expectedResponse = "{\"opcode\":\"query\",\"documents\":[" +
-                "{\"id\":\"W\",\"timestamp\":1397658117000,\"data\":{\"os\":\"android\",\"battery\":99,\"device\":\"nexus\"}}," +
-                "{\"id\":\"X\",\"timestamp\":1397658117000,\"data\":{\"os\":\"android\",\"battery\":74,\"device\":\"nexus\"}}," +
-                "{\"id\":\"Y\",\"timestamp\":1397658117000,\"data\":{\"os\":\"android\",\"battery\":48,\"device\":\"nexus\"}}" +
-                "]}";
+        ArrayNode arrayNode = factory.arrayNode();
+        arrayNode.addPOJO(TestUtils.getDocument("W", 1397658117000L, new Object[]{"os", "android", "device", "nexus", "battery", 99}, mapper));
+        arrayNode.addPOJO(TestUtils.getDocument("X", 1397658117000L, new Object[]{"os", "android", "device", "nexus", "battery", 74}, mapper));
+        arrayNode.addPOJO(TestUtils.getDocument("Y", 1397658117000L, new Object[]{"os", "android", "device", "nexus", "battery", 48}, mapper));
+        ObjectNode expectedResponseNode = factory.objectNode();
+        expectedResponseNode.put("opcode", "query");
+        expectedResponseNode.put("documents", arrayNode);
+        String expectedResponse = mapper.writeValueAsString(expectedResponseNode);
 
-        String actualResponse = mapper.writeValueAsString(response);
+        String actualResponse = mapper.writeValueAsString(queryExecutor.execute(query));
         assertEquals(expectedResponse, actualResponse);
         logger.info("Tested Query - greater_equal Filter");
     }
@@ -370,12 +362,14 @@ public class FilterActionTest {
         lessThanFilter.setValue(48);
         query.setFilters(Collections.<Filter>singletonList(lessThanFilter));
 
-        ActionResponse response = queryExecutor.execute(query);
-        String expectedResponse = "{\"opcode\":\"query\",\"documents\":[" +
-                "{\"id\":\"Z\",\"timestamp\":1397658117000,\"data\":{\"os\":\"android\",\"battery\":24,\"device\":\"nexus\"}}" +
-                "]}";
+        ArrayNode arrayNode = factory.arrayNode();
+        arrayNode.addPOJO(TestUtils.getDocument("Z", 1397658117000L, new Object[]{"os", "android", "device", "nexus", "battery", 24}, mapper));
+        ObjectNode expectedResponseNode = factory.objectNode();
+        expectedResponseNode.put("opcode", "query");
+        expectedResponseNode.put("documents", arrayNode);
+        String expectedResponse = mapper.writeValueAsString(expectedResponseNode);
 
-        String actualResponse = mapper.writeValueAsString(response);
+        String actualResponse = mapper.writeValueAsString(queryExecutor.execute(query));
         assertEquals(expectedResponse, actualResponse);
         logger.info("Tested Query - less_than Filter");
     }
@@ -397,13 +391,15 @@ public class FilterActionTest {
         lessEqualFilter.setValue(48);
         query.setFilters(Collections.<Filter>singletonList(lessEqualFilter));
 
-        ActionResponse response = queryExecutor.execute(query);
-        String expectedResponse = "{\"opcode\":\"query\",\"documents\":[" +
-                "{\"id\":\"Y\",\"timestamp\":1397658117000,\"data\":{\"os\":\"android\",\"battery\":48,\"device\":\"nexus\"}}," +
-                "{\"id\":\"Z\",\"timestamp\":1397658117000,\"data\":{\"os\":\"android\",\"battery\":24,\"device\":\"nexus\"}}" +
-                "]}";
+        ArrayNode arrayNode = factory.arrayNode();
+        arrayNode.addPOJO(TestUtils.getDocument("Y", 1397658117000L, new Object[]{"os", "android", "device", "nexus", "battery", 48}, mapper));
+        arrayNode.addPOJO(TestUtils.getDocument("Z", 1397658117000L, new Object[]{"os", "android", "device", "nexus", "battery", 24}, mapper));
+        ObjectNode expectedResponseNode = factory.objectNode();
+        expectedResponseNode.put("opcode", "query");
+        expectedResponseNode.put("documents", arrayNode);
+        String expectedResponse = mapper.writeValueAsString(expectedResponseNode);
 
-        String actualResponse = mapper.writeValueAsString(response);
+        String actualResponse = mapper.writeValueAsString(queryExecutor.execute(query));
         assertEquals(expectedResponse, actualResponse);
         logger.info("Tested Query - greater_equal Filter");
     }
@@ -426,13 +422,15 @@ public class FilterActionTest {
         betweenFilter.setTo(75);
         query.setFilters(Collections.<Filter>singletonList(betweenFilter));
 
-        ActionResponse response = queryExecutor.execute(query);
-        String expectedResponse = "{\"opcode\":\"query\",\"documents\":[" +
-                "{\"id\":\"X\",\"timestamp\":1397658117000,\"data\":{\"os\":\"android\",\"battery\":74,\"device\":\"nexus\"}}," +
-                "{\"id\":\"Y\",\"timestamp\":1397658117000,\"data\":{\"os\":\"android\",\"battery\":48,\"device\":\"nexus\"}}" +
-                "]}";
+        ArrayNode arrayNode = factory.arrayNode();
+        arrayNode.addPOJO(TestUtils.getDocument("X", 1397658117000L, new Object[]{"os", "android", "device", "nexus", "battery", 74}, mapper));
+        arrayNode.addPOJO(TestUtils.getDocument("Y", 1397658117000L, new Object[]{"os", "android", "device", "nexus", "battery", 48}, mapper));
+        ObjectNode expectedResponseNode = factory.objectNode();
+        expectedResponseNode.put("opcode", "query");
+        expectedResponseNode.put("documents", arrayNode);
+        String expectedResponse = mapper.writeValueAsString(expectedResponseNode);
 
-        String actualResponse = mapper.writeValueAsString(response);
+        String actualResponse = mapper.writeValueAsString(queryExecutor.execute(query));
         assertEquals(expectedResponse, actualResponse);
         logger.info("Tested Query - between Filter");
     }
@@ -453,18 +451,20 @@ public class FilterActionTest {
         containsFilter.setExpression(".*droid.*");
         query.setFilters(Collections.<Filter>singletonList(containsFilter));
 
-        ActionResponse response = queryExecutor.execute(query);
-        String expectedResponse = "{\"opcode\":\"query\",\"documents\":[" +
-                "{\"id\":\"C\",\"timestamp\":1397658118002,\"data\":{\"os\":\"android\",\"device\":\"nexus\",\"version\":2}}," +
-                "{\"id\":\"B\",\"timestamp\":1397658118001,\"data\":{\"os\":\"android\",\"device\":\"galaxy\",\"version\":1}}," +
-                "{\"id\":\"A\",\"timestamp\":1397658118000,\"data\":{\"os\":\"android\",\"device\":\"nexus\",\"version\":1}}," +
-                "{\"id\":\"W\",\"timestamp\":1397658117000,\"data\":{\"os\":\"android\",\"battery\":99,\"device\":\"nexus\"}}," +
-                "{\"id\":\"X\",\"timestamp\":1397658117000,\"data\":{\"os\":\"android\",\"battery\":74,\"device\":\"nexus\"}}," +
-                "{\"id\":\"Y\",\"timestamp\":1397658117000,\"data\":{\"os\":\"android\",\"battery\":48,\"device\":\"nexus\"}}," +
-                "{\"id\":\"Z\",\"timestamp\":1397658117000,\"data\":{\"os\":\"android\",\"battery\":24,\"device\":\"nexus\"}}" +
-                "]}";
+        ArrayNode arrayNode = factory.arrayNode();
+        arrayNode.addPOJO(TestUtils.getDocument("C", 1397658118002L, new Object[]{"os", "android", "version", 2, "device", "nexus"}, mapper));
+        arrayNode.addPOJO(TestUtils.getDocument("B", 1397658118001L, new Object[]{"os", "android", "version", 1, "device", "galaxy"}, mapper));
+        arrayNode.addPOJO(TestUtils.getDocument("A", 1397658118000L, new Object[]{"os", "android", "version", 1, "device", "nexus"}, mapper));
+        arrayNode.addPOJO(TestUtils.getDocument("W", 1397658117000L, new Object[]{"os", "android", "device", "nexus", "battery", 99}, mapper));
+        arrayNode.addPOJO(TestUtils.getDocument("X", 1397658117000L, new Object[]{"os", "android", "device", "nexus", "battery", 74}, mapper));
+        arrayNode.addPOJO(TestUtils.getDocument("Y", 1397658117000L, new Object[]{"os", "android", "device", "nexus", "battery", 48}, mapper));
+        arrayNode.addPOJO(TestUtils.getDocument("Z", 1397658117000L, new Object[]{"os", "android", "device", "nexus", "battery", 24}, mapper));
+        ObjectNode expectedResponseNode = factory.objectNode();
+        expectedResponseNode.put("opcode", "query");
+        expectedResponseNode.put("documents", arrayNode);
+        String expectedResponse = mapper.writeValueAsString(expectedResponseNode);
 
-        String actualResponse = mapper.writeValueAsString(response);
+        String actualResponse = mapper.writeValueAsString(queryExecutor.execute(query));
         assertEquals(expectedResponse, actualResponse);
         logger.info("Tested Query - contains Filter");
     }
@@ -480,11 +480,13 @@ public class FilterActionTest {
         equalsFilter.setValue("wp8");
         query.setFilters(Collections.<Filter>singletonList(equalsFilter));
 
-        ActionResponse response = queryExecutor.execute(query);
-        String expectedResponse = "{\"opcode\":\"query\",\"documents\":[" +
-                "]}";
+        ArrayNode arrayNode = factory.arrayNode();
+        ObjectNode expectedResponseNode = factory.objectNode();
+        expectedResponseNode.put("opcode", "query");
+        expectedResponseNode.put("documents", arrayNode);
+        String expectedResponse = mapper.writeValueAsString(expectedResponseNode);
 
-        String actualResponse = mapper.writeValueAsString(response);
+        String actualResponse = mapper.writeValueAsString(queryExecutor.execute(query));
         assertEquals(expectedResponse, actualResponse);
         logger.info("Tested Query - Empty Result Test");
     }
@@ -508,11 +510,13 @@ public class FilterActionTest {
         filters.add(greaterEqualFilter);
         query.setFilters(filters);
 
-        ActionResponse response = queryExecutor.execute(query);
-        String expectedResponse = "{\"opcode\":\"query\",\"documents\":[" +
-                "]}";
+        ArrayNode arrayNode = factory.arrayNode();
+        ObjectNode expectedResponseNode = factory.objectNode();
+        expectedResponseNode.put("opcode", "query");
+        expectedResponseNode.put("documents", arrayNode);
+        String expectedResponse = mapper.writeValueAsString(expectedResponseNode);
 
-        String actualResponse = mapper.writeValueAsString(response);
+        String actualResponse = mapper.writeValueAsString(queryExecutor.execute(query));
         assertEquals(expectedResponse, actualResponse);
         logger.info("Tested Query - Multiple Filters - Empty Result");
     }
@@ -536,12 +540,14 @@ public class FilterActionTest {
         filters.add(greaterEqualFilter);
         query.setFilters(filters);
 
-        ActionResponse response = queryExecutor.execute(query);
-        String expectedResponse = "{\"opcode\":\"query\",\"documents\":[" +
-                "{\"id\":\"W\",\"timestamp\":1397658117000,\"data\":{\"os\":\"android\",\"battery\":99,\"device\":\"nexus\"}}" +
-                "]}";
+        ArrayNode arrayNode = factory.arrayNode();
+        arrayNode.addPOJO(TestUtils.getDocument("W", 1397658117000L, new Object[]{"os", "android", "device", "nexus", "battery", 99}, mapper));
+        ObjectNode expectedResponseNode = factory.objectNode();
+        expectedResponseNode.put("opcode", "query");
+        expectedResponseNode.put("documents", arrayNode);
+        String expectedResponse = mapper.writeValueAsString(expectedResponseNode);
 
-        String actualResponse = mapper.writeValueAsString(response);
+        String actualResponse = mapper.writeValueAsString(queryExecutor.execute(query));
         assertEquals(expectedResponse, actualResponse);
         logger.info("Tested Query - Multiple Filters - Non Empty Result");
     }
@@ -572,19 +578,21 @@ public class FilterActionTest {
 
         query.setCombiner(FilterCombinerType.or);
 
-        ActionResponse response = queryExecutor.execute(query);
-        String expectedResponse = "{\"opcode\":\"query\",\"documents\":[" +
-                "{\"id\":\"E\",\"timestamp\":1397658118004,\"data\":{\"os\":\"ios\",\"device\":\"ipad\",\"version\":2}}," +
-                "{\"id\":\"D\",\"timestamp\":1397658118003,\"data\":{\"os\":\"ios\",\"device\":\"iphone\",\"version\":1}}," +
-                "{\"id\":\"C\",\"timestamp\":1397658118002,\"data\":{\"os\":\"android\",\"device\":\"nexus\",\"version\":2}}," +
-                "{\"id\":\"A\",\"timestamp\":1397658118000,\"data\":{\"os\":\"android\",\"device\":\"nexus\",\"version\":1}}," +
-                "{\"id\":\"W\",\"timestamp\":1397658117000,\"data\":{\"os\":\"android\",\"battery\":99,\"device\":\"nexus\"}}," +
-                "{\"id\":\"X\",\"timestamp\":1397658117000,\"data\":{\"os\":\"android\",\"battery\":74,\"device\":\"nexus\"}}," +
-                "{\"id\":\"Y\",\"timestamp\":1397658117000,\"data\":{\"os\":\"android\",\"battery\":48,\"device\":\"nexus\"}}," +
-                "{\"id\":\"Z\",\"timestamp\":1397658117000,\"data\":{\"os\":\"android\",\"battery\":24,\"device\":\"nexus\"}}" +
-                "]}";
+        ArrayNode arrayNode = factory.arrayNode();
+        arrayNode.addPOJO(TestUtils.getDocument("E", 1397658118004L, new Object[]{"os", "ios", "version", 2, "device", "ipad"}, mapper));
+        arrayNode.addPOJO(TestUtils.getDocument("D", 1397658118003L, new Object[]{"os", "ios", "version", 1, "device", "iphone"}, mapper));
+        arrayNode.addPOJO(TestUtils.getDocument("C", 1397658118002L, new Object[]{"os", "android", "version", 2, "device", "nexus"}, mapper));
+        arrayNode.addPOJO(TestUtils.getDocument("A", 1397658118000L, new Object[]{"os", "android", "version", 1, "device", "nexus"}, mapper));
+        arrayNode.addPOJO(TestUtils.getDocument("W", 1397658117000L, new Object[]{"os", "android", "device", "nexus", "battery", 99}, mapper));
+        arrayNode.addPOJO(TestUtils.getDocument("X", 1397658117000L, new Object[]{"os", "android", "device", "nexus", "battery", 74}, mapper));
+        arrayNode.addPOJO(TestUtils.getDocument("Y", 1397658117000L, new Object[]{"os", "android", "device", "nexus", "battery", 48}, mapper));
+        arrayNode.addPOJO(TestUtils.getDocument("Z", 1397658117000L, new Object[]{"os", "android", "device", "nexus", "battery", 24}, mapper));
+        ObjectNode expectedResponseNode = factory.objectNode();
+        expectedResponseNode.put("opcode", "query");
+        expectedResponseNode.put("documents", arrayNode);
+        String expectedResponse = mapper.writeValueAsString(expectedResponseNode);
 
-        String actualResponse = mapper.writeValueAsString(response);
+        String actualResponse = mapper.writeValueAsString(queryExecutor.execute(query));
         assertEquals(expectedResponse, actualResponse);
         logger.info("Tested Query - Multiple Filters - Or Combiner - Non Empty Result");
     }
@@ -608,12 +616,14 @@ public class FilterActionTest {
         query.setFrom(1);
         query.setLimit(1);
 
-        ActionResponse response = queryExecutor.execute(query);
-        String expectedResponse = "{\"opcode\":\"query\",\"documents\":[" +
-                "{\"id\":\"D\",\"timestamp\":1397658118003,\"data\":{\"os\":\"ios\",\"device\":\"iphone\",\"version\":1}}" +
-                "]}";
+        ArrayNode arrayNode = factory.arrayNode();
+        arrayNode.addPOJO(TestUtils.getDocument("D", 1397658118003L, new Object[]{"os", "ios", "version", 1, "device", "iphone"}, mapper));
+        ObjectNode expectedResponseNode = factory.objectNode();
+        expectedResponseNode.put("opcode", "query");
+        expectedResponseNode.put("documents", arrayNode);
+        String expectedResponse = mapper.writeValueAsString(expectedResponseNode);
 
-        String actualResponse = mapper.writeValueAsString(response);
+        String actualResponse = mapper.writeValueAsString(queryExecutor.execute(query));
         assertEquals(expectedResponse, actualResponse);
         logger.info("Tested Query - Filter with Pagination");
     }
@@ -637,9 +647,12 @@ public class FilterActionTest {
         query.setFrom(1);
         query.setLimit(1);
 
-        String expectedResponse = "{\"opcode\":\"query\",\"documents\":[" +
-                "{\"id\":\"D\",\"timestamp\":1397658118003,\"data\":{\"os\":\"ios\",\"device\":\"iphone\",\"version\":1}}" +
-                "]}";
+        ArrayNode arrayNode = factory.arrayNode();
+        arrayNode.addPOJO(TestUtils.getDocument("D", 1397658118003L, new Object[]{"os", "ios", "version", 1, "device", "iphone"}, mapper));
+        ObjectNode expectedResponseNode = factory.objectNode();
+        expectedResponseNode.put("opcode", "query");
+        expectedResponseNode.put("documents", arrayNode);
+        String expectedResponse = mapper.writeValueAsString(expectedResponseNode);
 
         AsyncDataToken response = queryExecutor.executeAsync(query);
         Thread.sleep(200);
@@ -660,17 +673,21 @@ public class FilterActionTest {
         resultSort.setOrder(ResultSort.Order.desc);
         resultSort.setField("_timestamp");
         query.setSort(resultSort);
-        String expectedResponse = "{\"opcode\":\"query\",\"documents\":[" +
-                "{\"id\":\"E\",\"timestamp\":1397658118004,\"data\":{\"os\":\"ios\",\"device\":\"ipad\",\"version\":2}}," +
-                "{\"id\":\"D\",\"timestamp\":1397658118003,\"data\":{\"os\":\"ios\",\"device\":\"iphone\",\"version\":1}}," +
-                "{\"id\":\"C\",\"timestamp\":1397658118002,\"data\":{\"os\":\"android\",\"device\":\"nexus\",\"version\":2}}," +
-                "{\"id\":\"B\",\"timestamp\":1397658118001,\"data\":{\"os\":\"android\",\"device\":\"galaxy\",\"version\":1}}," +
-                "{\"id\":\"A\",\"timestamp\":1397658118000,\"data\":{\"os\":\"android\",\"device\":\"nexus\",\"version\":1}}," +
-                "{\"id\":\"W\",\"timestamp\":1397658117000,\"data\":{\"os\":\"android\",\"battery\":99,\"device\":\"nexus\"}}," +
-                "{\"id\":\"X\",\"timestamp\":1397658117000,\"data\":{\"os\":\"android\",\"battery\":74,\"device\":\"nexus\"}}," +
-                "{\"id\":\"Y\",\"timestamp\":1397658117000,\"data\":{\"os\":\"android\",\"battery\":48,\"device\":\"nexus\"}}," +
-                "{\"id\":\"Z\",\"timestamp\":1397658117000,\"data\":{\"os\":\"android\",\"battery\":24,\"device\":\"nexus\"}}" +
-                "]}";
+
+        ArrayNode arrayNode = factory.arrayNode();
+        arrayNode.addPOJO(TestUtils.getDocument("E", 1397658118004L, new Object[]{"os", "ios", "version", 2, "device", "ipad"}, mapper));
+        arrayNode.addPOJO(TestUtils.getDocument("D", 1397658118003L, new Object[]{"os", "ios", "version", 1, "device", "iphone"}, mapper));
+        arrayNode.addPOJO(TestUtils.getDocument("C", 1397658118002L, new Object[]{"os", "android", "version", 2, "device", "nexus"}, mapper));
+        arrayNode.addPOJO(TestUtils.getDocument("B", 1397658118001L, new Object[]{"os", "android", "version", 1, "device", "galaxy"}, mapper));
+        arrayNode.addPOJO(TestUtils.getDocument("A", 1397658118000L, new Object[]{"os", "android", "version", 1, "device", "nexus"}, mapper));
+        arrayNode.addPOJO(TestUtils.getDocument("W", 1397658117000L, new Object[]{"os", "android", "device", "nexus", "battery", 99}, mapper));
+        arrayNode.addPOJO(TestUtils.getDocument("X", 1397658117000L, new Object[]{"os", "android", "device", "nexus", "battery", 74}, mapper));
+        arrayNode.addPOJO(TestUtils.getDocument("Y", 1397658117000L, new Object[]{"os", "android", "device", "nexus", "battery", 48}, mapper));
+        arrayNode.addPOJO(TestUtils.getDocument("Z", 1397658117000L, new Object[]{"os", "android", "device", "nexus", "battery", 24}, mapper));
+        ObjectNode expectedResponseNode = factory.objectNode();
+        expectedResponseNode.put("opcode", "query");
+        expectedResponseNode.put("documents", arrayNode);
+        String expectedResponse = mapper.writeValueAsString(expectedResponseNode);
 
         String actualResponse = mapper.writeValueAsString(queryExecutor.execute(query));
         assertEquals(expectedResponse, actualResponse);
@@ -688,17 +705,21 @@ public class FilterActionTest {
         resultSort.setOrder(ResultSort.Order.desc);
         resultSort.setField("_timestamp");
         query.setSort(resultSort);
-        String expectedResponse = "{\"opcode\":\"query\",\"documents\":[" +
-                "{\"id\":\"E\",\"timestamp\":1397658118004,\"data\":{\"os\":\"ios\",\"device\":\"ipad\",\"version\":2}}," +
-                "{\"id\":\"D\",\"timestamp\":1397658118003,\"data\":{\"os\":\"ios\",\"device\":\"iphone\",\"version\":1}}," +
-                "{\"id\":\"C\",\"timestamp\":1397658118002,\"data\":{\"os\":\"android\",\"device\":\"nexus\",\"version\":2}}," +
-                "{\"id\":\"B\",\"timestamp\":1397658118001,\"data\":{\"os\":\"android\",\"device\":\"galaxy\",\"version\":1}}," +
-                "{\"id\":\"A\",\"timestamp\":1397658118000,\"data\":{\"os\":\"android\",\"device\":\"nexus\",\"version\":1}}," +
-                "{\"id\":\"W\",\"timestamp\":1397658117000,\"data\":{\"os\":\"android\",\"battery\":99,\"device\":\"nexus\"}}," +
-                "{\"id\":\"X\",\"timestamp\":1397658117000,\"data\":{\"os\":\"android\",\"battery\":74,\"device\":\"nexus\"}}," +
-                "{\"id\":\"Y\",\"timestamp\":1397658117000,\"data\":{\"os\":\"android\",\"battery\":48,\"device\":\"nexus\"}}," +
-                "{\"id\":\"Z\",\"timestamp\":1397658117000,\"data\":{\"os\":\"android\",\"battery\":24,\"device\":\"nexus\"}}" +
-                "]}";
+
+        ArrayNode arrayNode = factory.arrayNode();
+        arrayNode.addPOJO(TestUtils.getDocument("E", 1397658118004L, new Object[]{"os", "ios", "version", 2, "device", "ipad"}, mapper));
+        arrayNode.addPOJO(TestUtils.getDocument("D", 1397658118003L, new Object[]{"os", "ios", "version", 1, "device", "iphone"}, mapper));
+        arrayNode.addPOJO(TestUtils.getDocument("C", 1397658118002L, new Object[]{"os", "android", "version", 2, "device", "nexus"}, mapper));
+        arrayNode.addPOJO(TestUtils.getDocument("B", 1397658118001L, new Object[]{"os", "android", "version", 1, "device", "galaxy"}, mapper));
+        arrayNode.addPOJO(TestUtils.getDocument("A", 1397658118000L, new Object[]{"os", "android", "version", 1, "device", "nexus"}, mapper));
+        arrayNode.addPOJO(TestUtils.getDocument("W", 1397658117000L, new Object[]{"os", "android", "device", "nexus", "battery", 99}, mapper));
+        arrayNode.addPOJO(TestUtils.getDocument("X", 1397658117000L, new Object[]{"os", "android", "device", "nexus", "battery", 74}, mapper));
+        arrayNode.addPOJO(TestUtils.getDocument("Y", 1397658117000L, new Object[]{"os", "android", "device", "nexus", "battery", 48}, mapper));
+        arrayNode.addPOJO(TestUtils.getDocument("Z", 1397658117000L, new Object[]{"os", "android", "device", "nexus", "battery", 24}, mapper));
+        ObjectNode expectedResponseNode = factory.objectNode();
+        expectedResponseNode.put("opcode", "query");
+        expectedResponseNode.put("documents", arrayNode);
+        String expectedResponse = mapper.writeValueAsString(expectedResponseNode);
 
         String actualResponse = mapper.writeValueAsString(queryExecutor.execute(query));
         assertEquals(expectedResponse, actualResponse);
@@ -713,17 +734,21 @@ public class FilterActionTest {
         query.setFilters(new ArrayList<Filter>());
         query.setCombiner(FilterCombinerType.and);
         query.setSort(null);
-        String expectedResponse = "{\"opcode\":\"query\",\"documents\":[" +
-                "{\"id\":\"E\",\"timestamp\":1397658118004,\"data\":{\"os\":\"ios\",\"device\":\"ipad\",\"version\":2}}," +
-                "{\"id\":\"D\",\"timestamp\":1397658118003,\"data\":{\"os\":\"ios\",\"device\":\"iphone\",\"version\":1}}," +
-                "{\"id\":\"C\",\"timestamp\":1397658118002,\"data\":{\"os\":\"android\",\"device\":\"nexus\",\"version\":2}}," +
-                "{\"id\":\"B\",\"timestamp\":1397658118001,\"data\":{\"os\":\"android\",\"device\":\"galaxy\",\"version\":1}}," +
-                "{\"id\":\"A\",\"timestamp\":1397658118000,\"data\":{\"os\":\"android\",\"device\":\"nexus\",\"version\":1}}," +
-                "{\"id\":\"W\",\"timestamp\":1397658117000,\"data\":{\"os\":\"android\",\"battery\":99,\"device\":\"nexus\"}}," +
-                "{\"id\":\"X\",\"timestamp\":1397658117000,\"data\":{\"os\":\"android\",\"battery\":74,\"device\":\"nexus\"}}," +
-                "{\"id\":\"Y\",\"timestamp\":1397658117000,\"data\":{\"os\":\"android\",\"battery\":48,\"device\":\"nexus\"}}," +
-                "{\"id\":\"Z\",\"timestamp\":1397658117000,\"data\":{\"os\":\"android\",\"battery\":24,\"device\":\"nexus\"}}" +
-                "]}";
+
+        ArrayNode arrayNode = factory.arrayNode();
+        arrayNode.addPOJO(TestUtils.getDocument("E", 1397658118004L, new Object[]{"os", "ios", "version", 2, "device", "ipad"}, mapper));
+        arrayNode.addPOJO(TestUtils.getDocument("D", 1397658118003L, new Object[]{"os", "ios", "version", 1, "device", "iphone"}, mapper));
+        arrayNode.addPOJO(TestUtils.getDocument("C", 1397658118002L, new Object[]{"os", "android", "version", 2, "device", "nexus"}, mapper));
+        arrayNode.addPOJO(TestUtils.getDocument("B", 1397658118001L, new Object[]{"os", "android", "version", 1, "device", "galaxy"}, mapper));
+        arrayNode.addPOJO(TestUtils.getDocument("A", 1397658118000L, new Object[]{"os", "android", "version", 1, "device", "nexus"}, mapper));
+        arrayNode.addPOJO(TestUtils.getDocument("W", 1397658117000L, new Object[]{"os", "android", "device", "nexus", "battery", 99}, mapper));
+        arrayNode.addPOJO(TestUtils.getDocument("X", 1397658117000L, new Object[]{"os", "android", "device", "nexus", "battery", 74}, mapper));
+        arrayNode.addPOJO(TestUtils.getDocument("Y", 1397658117000L, new Object[]{"os", "android", "device", "nexus", "battery", 48}, mapper));
+        arrayNode.addPOJO(TestUtils.getDocument("Z", 1397658117000L, new Object[]{"os", "android", "device", "nexus", "battery", 24}, mapper));
+        ObjectNode expectedResponseNode = factory.objectNode();
+        expectedResponseNode.put("opcode", "query");
+        expectedResponseNode.put("documents", arrayNode);
+        String expectedResponse = mapper.writeValueAsString(expectedResponseNode);
 
         String actualResponse = mapper.writeValueAsString(queryExecutor.execute(query));
         assertEquals(expectedResponse, actualResponse);
@@ -750,9 +775,12 @@ public class FilterActionTest {
         query.setFrom(1);
         query.setLimit(1);
 
-        String expectedResponse = "{\"opcode\":\"query\",\"documents\":[" +
-                "{\"id\":\"D\",\"timestamp\":1397658118003,\"data\":{\"os\":\"ios\",\"device\":\"iphone\",\"version\":1}}" +
-                "]}";
+        ArrayNode arrayNode = factory.arrayNode();
+        arrayNode.addPOJO(TestUtils.getDocument("D", 1397658118003L, new Object[]{"os", "ios", "version", 1, "device", "iphone"}, mapper));
+        ObjectNode expectedResponseNode = factory.objectNode();
+        expectedResponseNode.put("opcode", "query");
+        expectedResponseNode.put("documents", arrayNode);
+        String expectedResponse = mapper.writeValueAsString(expectedResponseNode);
 
         assertEquals(expectedResponse, mapper.writeValueAsString(queryExecutor.execute(query)));
         assertEquals(expectedResponse, mapper.writeValueAsString(queryExecutor.execute(query)));

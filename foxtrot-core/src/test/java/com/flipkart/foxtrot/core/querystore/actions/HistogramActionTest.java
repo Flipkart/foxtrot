@@ -48,13 +48,12 @@ public class HistogramActionTest {
     private final MockElasticsearchServer elasticsearchServer = new MockElasticsearchServer();
     private HazelcastInstance hazelcastInstance;
     private String TEST_TABLE = "test-app";
-    private JsonNodeFactory factory;
+    private JsonNodeFactory factory = JsonNodeFactory.instance;
 
     @Before
     public void setUp() throws Exception {
         ElasticsearchUtils.setMapper(mapper);
         DataStore dataStore = TestUtils.getDataStore();
-        factory = JsonNodeFactory.instance;
 
         //Initializing Cache Factory
         hazelcastInstance = new TestHazelcastInstanceFactory(1).newHazelcastInstance();
