@@ -5,6 +5,7 @@ import com.flipkart.foxtrot.common.group.GroupRequest;
 import com.flipkart.foxtrot.common.group.GroupResponse;
 import com.flipkart.foxtrot.common.query.Filter;
 import com.flipkart.foxtrot.common.query.FilterCombinerType;
+import com.flipkart.foxtrot.common.query.general.AnyFilter;
 import com.flipkart.foxtrot.core.common.Action;
 import com.flipkart.foxtrot.core.datastore.DataStore;
 import com.flipkart.foxtrot.core.querystore.QueryStoreException;
@@ -12,6 +13,7 @@ import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsProvider;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConnection;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
 import com.flipkart.foxtrot.core.querystore.query.ElasticSearchQueryGenerator;
+import com.google.common.collect.Lists;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
@@ -46,8 +48,10 @@ public class GroupAction extends Action<GroupRequest> {
     protected String getRequestCacheKey() {
         long filterHashKey = 0L;
         GroupRequest query = getParameter();
-        for (Filter filter : query.getFilters()) {
-            filterHashKey += 31 * filter.hashCode();
+        if (null != query.getFilters()) {
+            for (Filter filter : query.getFilters()) {
+                filterHashKey += 31 * filter.hashCode();
+            }
         }
         for (String field : query.getNesting()) {
             filterHashKey += 31 * field.hashCode();
@@ -57,6 +61,9 @@ public class GroupAction extends Action<GroupRequest> {
 
     @Override
     public ActionResponse execute(GroupRequest parameter) throws QueryStoreException {
+        if (null == parameter.getFilters()) {
+            parameter.setFilters(Lists.<Filter>newArrayList(new AnyFilter(parameter.getTable())));
+        }
         try {
             SearchRequestBuilder query = getConnection().getClient().prepareSearch(ElasticsearchUtils.getIndices(
                     parameter.getTable()));

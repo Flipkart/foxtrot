@@ -5,6 +5,7 @@ import com.flipkart.foxtrot.common.histogram.HistogramRequest;
 import com.flipkart.foxtrot.common.histogram.HistogramResponse;
 import com.flipkart.foxtrot.common.query.Filter;
 import com.flipkart.foxtrot.common.query.FilterCombinerType;
+import com.flipkart.foxtrot.common.query.general.AnyFilter;
 import com.flipkart.foxtrot.core.common.Action;
 import com.flipkart.foxtrot.core.datastore.DataStore;
 import com.flipkart.foxtrot.core.querystore.QueryStoreException;
@@ -12,6 +13,7 @@ import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsProvider;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConnection;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
 import com.flipkart.foxtrot.core.querystore.query.ElasticSearchQueryGenerator;
+import com.google.common.collect.Lists;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.search.SearchType;
 import org.elasticsearch.index.query.QueryBuilders;
@@ -27,12 +29,12 @@ import java.util.List;
  * Date: 29/03/14
  * Time: 9:22 PM
  */
-@AnalyticsProvider(opcode = "histogram", request = HistogramRequest.class, response = HistogramResponse.class, cacheable = true )
+@AnalyticsProvider(opcode = "histogram", request = HistogramRequest.class, response = HistogramResponse.class, cacheable = true)
 public class HistogramAction extends Action<HistogramRequest> {
     public HistogramAction(HistogramRequest parameter,
-                              DataStore dataStore,
-                              ElasticsearchConnection connection,
-                              String cacheToken) {
+                           DataStore dataStore,
+                           ElasticsearchConnection connection,
+                           String cacheToken) {
         super(parameter, dataStore, connection, cacheToken);
     }
 
@@ -40,8 +42,10 @@ public class HistogramAction extends Action<HistogramRequest> {
     protected String getRequestCacheKey() {
         long filterHashKey = 0L;
         HistogramRequest query = getParameter();
-        for(Filter filter : query.getFilters()) {
-            filterHashKey += 31 * filter.hashCode();
+        if (null != query.getFilters()) {
+            for (Filter filter : query.getFilters()) {
+                filterHashKey += 31 * filter.hashCode();
+            }
         }
 
         return String.format("%s-%d-%d-%d-%s-%s", query.getTable(),
@@ -50,6 +54,9 @@ public class HistogramAction extends Action<HistogramRequest> {
 
     @Override
     public ActionResponse execute(HistogramRequest parameter) throws QueryStoreException {
+        if (null == parameter.getFilters()) {
+            parameter.setFilters(Lists.<Filter>newArrayList(new AnyFilter(parameter.getTable())));
+        }
         try {
             /*if(!tableManager.exists(query.getTable())) {
                 throw new QueryStoreException(QueryStoreException.ErrorCode.NO_SUCH_TABLE,
@@ -68,7 +75,7 @@ public class HistogramAction extends Action<HistogramRequest> {
                     break;
             }
             SearchResponse response = getConnection().getClient().prepareSearch(
-                                                    ElasticsearchUtils.getIndices(parameter.getTable()))
+                    ElasticsearchUtils.getIndices(parameter.getTable()))
                     .setTypes(ElasticsearchUtils.TYPE_NAME)
                     .setQuery(new ElasticSearchQueryGenerator(FilterCombinerType.and)
                             .genFilter(parameter.getFilters())
@@ -86,10 +93,10 @@ public class HistogramAction extends Action<HistogramRequest> {
             DateHistogram dateHistogram = response.getAggregations().get(parameter.getField());
             Collection<? extends DateHistogram.Bucket> buckets = dateHistogram.getBuckets();
             List<HistogramResponse.Count> counts
-                                            = new ArrayList<HistogramResponse.Count>(buckets.size());
-            for(DateHistogram.Bucket bucket : buckets) {
+                    = new ArrayList<HistogramResponse.Count>(buckets.size());
+            for (DateHistogram.Bucket bucket : buckets) {
                 HistogramResponse.Count count = new HistogramResponse.Count(
-                                                        bucket.getKeyAsNumber(), bucket.getDocCount());
+                        bucket.getKeyAsNumber(), bucket.getDocCount());
                 counts.add(count);
             }
             return new HistogramResponse(counts);

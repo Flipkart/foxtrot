@@ -1,11 +1,7 @@
 package com.flipkart.foxtrot.core.querystore.impl;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.flipkart.foxtrot.common.ActionResponse;
 import com.flipkart.foxtrot.common.Document;
-import com.flipkart.foxtrot.common.query.Query;
-import com.flipkart.foxtrot.core.common.AsyncDataToken;
 import com.flipkart.foxtrot.core.datastore.DataStore;
 import com.flipkart.foxtrot.core.datastore.DataStoreException;
 import com.flipkart.foxtrot.core.querystore.QueryExecutor;
@@ -120,20 +116,5 @@ public class ElasticsearchQueryStore implements QueryStore {
             throw new QueryStoreException(QueryStoreException.ErrorCode.DOCUMENT_GET_ERROR,
                     "Error getting documents: " + e.getMessage(), e);
         }
-    }
-
-    @Override
-    public ActionResponse runQuery(final Query query) throws QueryStoreException {
-        return queryExecutor.execute(query);
-    }
-
-    @Override
-    public AsyncDataToken runQueryAsync(Query query) throws QueryStoreException {
-        return queryExecutor.executeAsync(query);
-    }
-
-    @Override
-    public JsonNode getDataForQuery(String queryId) throws QueryStoreException {
-        return null;
     }
 }

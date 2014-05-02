@@ -3,6 +3,7 @@ package com.flipkart.foxtrot.core.querystore.actions;
 import com.flipkart.foxtrot.common.ActionResponse;
 import com.flipkart.foxtrot.common.query.Filter;
 import com.flipkart.foxtrot.common.query.FilterCombinerType;
+import com.flipkart.foxtrot.common.query.general.AnyFilter;
 import com.flipkart.foxtrot.common.query.general.EqualsFilter;
 import com.flipkart.foxtrot.common.trend.TrendRequest;
 import com.flipkart.foxtrot.common.trend.TrendResponse;
@@ -68,6 +69,9 @@ public class TrendAction extends Action<TrendRequest> {
 
     @Override
     public ActionResponse execute(TrendRequest parameter) throws QueryStoreException {
+        if (null == parameter.getFilters()) {
+            parameter.setFilters(Lists.<Filter>newArrayList(new AnyFilter(parameter.getTable())));
+        }
         long currentTime = System.currentTimeMillis();
         if (0L == parameter.getFrom() || 0L == parameter.getTo()) {
             parameter.setFrom(currentTime - 86400000L);

@@ -2,12 +2,10 @@ package com.flipkart.foxtrot.common.histogram;
 
 import com.flipkart.foxtrot.common.ActionRequest;
 import com.flipkart.foxtrot.common.query.Filter;
-import com.google.common.collect.Lists;
 import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -20,7 +18,7 @@ public class HistogramRequest implements ActionRequest {
     @NotEmpty
     private String table;
 
-    private List<Filter> filters = Lists.newArrayList();
+    private List<Filter> filters;
     @Min(0)
     private long from;
     @Min(0)
@@ -33,7 +31,6 @@ public class HistogramRequest implements ActionRequest {
     private Period period;
 
     public HistogramRequest() {
-        this.filters = Collections.emptyList();
         long timestamp = System.currentTimeMillis();
         this.from = timestamp - 86400000;
         this.to = timestamp;

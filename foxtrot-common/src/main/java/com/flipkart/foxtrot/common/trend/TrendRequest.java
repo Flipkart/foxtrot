@@ -2,7 +2,6 @@ package com.flipkart.foxtrot.common.trend;
 
 import com.flipkart.foxtrot.common.ActionRequest;
 import com.flipkart.foxtrot.common.query.Filter;
-import com.google.common.collect.Lists;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.hibernate.validator.constraints.NotEmpty;
 
@@ -21,7 +20,7 @@ public class TrendRequest implements ActionRequest {
     @NotEmpty
     private String table;
 
-    private List<Filter> filters = Lists.newArrayList();
+    private List<Filter> filters;
 
     private String field = "all";
 

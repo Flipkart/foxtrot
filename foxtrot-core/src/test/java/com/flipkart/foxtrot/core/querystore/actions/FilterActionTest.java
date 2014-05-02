@@ -602,6 +602,94 @@ public class FilterActionTest {
         logger.info("Tested Query - Filter with Pagination");
     }
 
+    @Test
+    public void testQueryAsync() throws QueryStoreException, JsonProcessingException, InterruptedException {
+        logger.info("Testing Query - Async");
+        Query query = new Query();
+        query.setTable(TEST_APP);
+
+        ResultSort resultSort = new ResultSort();
+        resultSort.setOrder(ResultSort.Order.desc);
+        resultSort.setField("_timestamp");
+        query.setSort(resultSort);
+
+        EqualsFilter equalsFilter = new EqualsFilter();
+        equalsFilter.setField("os");
+        equalsFilter.setValue("ios");
+        query.setFilters(Collections.<Filter>singletonList(equalsFilter));
+
+        query.setFrom(1);
+        query.setLimit(1);
+
+        String expectedResponse = "{\"opcode\":\"query\",\"documents\":[" +
+                "{\"id\":\"D\",\"timestamp\":1397658118003,\"data\":{\"os\":\"ios\",\"device\":\"iphone\",\"version\":1}}" +
+                "]}";
+
+        AsyncDataToken response = queryExecutor.executeAsync(query);
+        Thread.sleep(200);
+        ActionResponse actionResponse = CacheUtils.getCacheFor(response.getAction()).get(response.getKey());
+        String actualResponse = mapper.writeValueAsString(actionResponse);
+        assertEquals(expectedResponse, actualResponse);
+        logger.info("Tested Query - Async");
+    }
+
+    @Test
+    public void testQueryNullQueryParams() throws QueryStoreException, JsonProcessingException, InterruptedException {
+        logger.info("Testing Query - Null Params");
+        Query query = new Query();
+        query.setTable(TEST_APP);
+        query.setFilters(null);
+        query.setCombiner(null);
+        query.setSort(null);
+        String expectedResponse = "{\"opcode\":\"query\",\"documents\":[" +
+                "{\"id\":\"E\",\"timestamp\":1397658118004,\"data\":{\"os\":\"ios\",\"device\":\"ipad\",\"version\":2}}," +
+                "{\"id\":\"D\",\"timestamp\":1397658118003,\"data\":{\"os\":\"ios\",\"device\":\"iphone\",\"version\":1}}," +
+                "{\"id\":\"C\",\"timestamp\":1397658118002,\"data\":{\"os\":\"android\",\"device\":\"nexus\",\"version\":2}}," +
+                "{\"id\":\"B\",\"timestamp\":1397658118001,\"data\":{\"os\":\"android\",\"device\":\"galaxy\",\"version\":1}}," +
+                "{\"id\":\"A\",\"timestamp\":1397658118000,\"data\":{\"os\":\"android\",\"device\":\"nexus\",\"version\":1}}," +
+                "{\"id\":\"W\",\"timestamp\":1397658117000,\"data\":{\"os\":\"android\",\"battery\":99,\"device\":\"nexus\"}}," +
+                "{\"id\":\"X\",\"timestamp\":1397658117000,\"data\":{\"os\":\"android\",\"battery\":74,\"device\":\"nexus\"}}," +
+                "{\"id\":\"Y\",\"timestamp\":1397658117000,\"data\":{\"os\":\"android\",\"battery\":48,\"device\":\"nexus\"}}," +
+                "{\"id\":\"Z\",\"timestamp\":1397658117000,\"data\":{\"os\":\"android\",\"battery\":24,\"device\":\"nexus\"}}" +
+                "]}";
+
+        AsyncDataToken response = queryExecutor.executeAsync(query);
+        Thread.sleep(200);
+        ActionResponse actionResponse = CacheUtils.getCacheFor(response.getAction()).get(response.getKey());
+        String actualResponse = mapper.writeValueAsString(actionResponse);
+        assertEquals(expectedResponse, actualResponse);
+        logger.info("Tested Query - Null Params");
+    }
+
+    //TODO
+    @Test
+    public void testQueryCaching() throws QueryStoreException, JsonProcessingException {
+        logger.info("Testing Query - Query Caching");
+        Query query = new Query();
+        query.setTable(TEST_APP);
+
+        ResultSort resultSort = new ResultSort();
+        resultSort.setOrder(ResultSort.Order.desc);
+        resultSort.setField("_timestamp");
+        query.setSort(resultSort);
+
+        EqualsFilter equalsFilter = new EqualsFilter();
+        equalsFilter.setField("os");
+        equalsFilter.setValue("ios");
+        query.setFilters(Collections.<Filter>singletonList(equalsFilter));
+
+        query.setFrom(1);
+        query.setLimit(1);
+
+        String expectedResponse = "{\"opcode\":\"query\",\"documents\":[" +
+                "{\"id\":\"D\",\"timestamp\":1397658118003,\"data\":{\"os\":\"ios\",\"device\":\"iphone\",\"version\":1}}" +
+                "]}";
+
+        assertEquals(expectedResponse, mapper.writeValueAsString(queryExecutor.execute(query)));
+        assertEquals(expectedResponse, mapper.writeValueAsString(queryExecutor.execute(query)));
+        logger.info("Tested Query - Query Caching");
+    }
+
     private static List<Document> getQueryDocuments() {
         List<Document> documents = new Vector<Document>();
         documents.add(TestUtils.getDocument("Z", 1397658117000L, new Object[]{"os", "android", "device", "nexus", "battery", 24}, mapper));

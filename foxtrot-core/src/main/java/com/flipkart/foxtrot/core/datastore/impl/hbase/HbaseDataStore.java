@@ -106,6 +106,9 @@ public class HBaseDataStore implements DataStore {
                 byte[] timestamp = getResult.getValue(COLUMN_FAMILY, TIMESTAMP_FIELD_NAME);
                 long time = Bytes.toLong(timestamp);
                 return new Document(id, time, mapper.readTree(data));
+            } else {
+                throw new DataStoreException(DataStoreException.ErrorCode.STORE_NO_DATA_FOUND_FOR_ID,
+                        String.format("No data found for ID: %s", id));
             }
         } catch (Throwable t) {
             throw new DataStoreException(DataStoreException.ErrorCode.STORE_SINGLE_GET,
@@ -119,8 +122,6 @@ public class HBaseDataStore implements DataStore {
                 }
             }
         }
-        throw new DataStoreException(DataStoreException.ErrorCode.STORE_NO_DATA_FOUND_FOR_ID,
-                String.format("No data found for ID: %s", id));
     }
 
     @Override

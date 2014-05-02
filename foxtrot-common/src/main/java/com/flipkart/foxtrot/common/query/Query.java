@@ -30,6 +30,9 @@ public class Query implements ActionRequest {
     private int limit = 10;
 
     public Query() {
+        this.sort = new ResultSort();
+        this.sort.setField("_timestamp");
+        this.sort.setOrder(ResultSort.Order.desc);
     }
 
     public List<Filter> getFilters() {

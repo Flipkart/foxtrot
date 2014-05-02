@@ -46,21 +46,23 @@ public class FilterAction extends Action<Query> {
     protected String getRequestCacheKey() {
         long filterHashKey = 0L;
         Query query = getParameter();
-        if(null == query.getFilters()) {
-            query.setFilters(Lists.<Filter>newArrayList(new AnyFilter(query.getTable())));
-        }
-        for(Filter filter : query.getFilters()) {
-            filterHashKey += 31 * filter.hashCode();
+        if (null != query.getFilters()) {
+            for (Filter filter : query.getFilters()) {
+                filterHashKey += 31 * filter.hashCode();
+            }
         }
         filterHashKey += 31 * (query.getCombiner() != null ? query.getCombiner().hashCode() : "COMBINER".hashCode());
         filterHashKey += 31 * (query.getSort() != null ? query.getSort().hashCode() : "SORT".hashCode());
 
         return String.format("%s-%d-%d-%d", query.getTable(),
-                                                        query.getFrom(), query.getLimit(), filterHashKey);
+                query.getFrom(), query.getLimit(), filterHashKey);
     }
 
     @Override
     public QueryResponse execute(Query parameter) throws QueryStoreException {
+        if (null == parameter.getFilters() || parameter.getFilters().isEmpty()) {
+            parameter.setFilters(Lists.<Filter>newArrayList(new AnyFilter(parameter.getTable())));
+        }
         SearchRequestBuilder search = null;
         try {
             /*if(!tableManager.exists(query.getTable())) {
@@ -73,24 +75,23 @@ public class FilterAction extends Action<Query> {
                     .setSearchType(SearchType.DFS_QUERY_THEN_FETCH)
                     .setFrom(parameter.getFrom())
                     .setSize(parameter.getLimit());
-            if(null != parameter.getSort()) {
+            if (null != parameter.getSort()) {
                 search.addSort(parameter.getSort().getField(),
                         ResultSort.Order.desc == parameter.getSort().getOrder() ? SortOrder.DESC : SortOrder.ASC);
             }
             SearchResponse response = search.execute().actionGet();
             Vector<String> ids = new Vector<String>();
-            for(SearchHit searchHit : response.getHits()) {
+            for (SearchHit searchHit : response.getHits()) {
                 ids.add(searchHit.getId());
             }
-            if(ids.isEmpty()) {
+            if (ids.isEmpty()) {
                 return new QueryResponse(Collections.<Document>emptyList());
             }
             return new QueryResponse(getDataStore().get(parameter.getTable(), ids));
         } catch (Exception e) {
-            if(null != search) {
+            if (null != search) {
                 logger.error("Error running generated query: " + search);
-            }
-            else {
+            } else {
                 logger.error("Query generation error: ", e);
             }
             try {

@@ -7,11 +7,12 @@ import com.flipkart.foxtrot.common.group.GroupResponse;
 import com.flipkart.foxtrot.core.MockElasticsearchServer;
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
+import com.hazelcast.core.IMap;
 import org.elasticsearch.action.admin.indices.create.CreateIndexRequest;
 import org.elasticsearch.common.settings.ImmutableSettings;
 import org.elasticsearch.common.settings.Settings;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.slf4j.Logger;
@@ -27,14 +28,17 @@ import static org.mockito.Mockito.when;
 public class DistributedTableMetadataManagerTest {
 
     private static final Logger logger = LoggerFactory.getLogger(DistributedTableMetadataManagerTest.class.getSimpleName());
-    private static HazelcastInstance hazelcastInstance;
-    private static ObjectMapper mapper;
-    private static JsonNodeFactory factory;
-    private static DistributedTableMetadataManager distributedTableMetadataManager;
-    private static MockElasticsearchServer elasticsearchServer = new MockElasticsearchServer();
+    private HazelcastInstance hazelcastInstance;
+    private ObjectMapper mapper;
+    private JsonNodeFactory factory;
+    private DistributedTableMetadataManager distributedTableMetadataManager;
+    private MockElasticsearchServer elasticsearchServer = new MockElasticsearchServer();
+    private IMap<String, Table> tableDataStore;
+    private final String DATA_MAP = "tablemetadatamap";
+    private final String TEST_APP = "test-app";
 
-    @BeforeClass
-    public static void setUp() throws Exception {
+    @Before
+    public void setUp() throws Exception {
         HazelcastConnection hazelcastConnection = Mockito.mock(HazelcastConnection.class);
         hazelcastInstance = Hazelcast.newHazelcastInstance();
         mapper = new ObjectMapper();
@@ -53,13 +57,14 @@ public class DistributedTableMetadataManagerTest {
         when(elasticsearchConnection.getClient()).thenReturn(elasticsearchServer.getClient());
         ElasticsearchUtils.initializeMappings(elasticsearchServer.getClient());
 
+        tableDataStore = hazelcastInstance.getMap(DATA_MAP);
         distributedTableMetadataManager = new DistributedTableMetadataManager(hazelcastConnection,
                 elasticsearchConnection);
         distributedTableMetadataManager.start();
     }
 
-    @AfterClass
-    public static void tearDown() throws Exception {
+    @After
+    public void tearDown() throws Exception {
         hazelcastInstance.shutdown();
         elasticsearchServer.shutdown();
         distributedTableMetadataManager.stop();
@@ -80,7 +85,23 @@ public class DistributedTableMetadataManagerTest {
 
     @Test
     public void testGet() throws Exception {
+        logger.info("Testing - Distributed Table Metadata Manager - GET");
+        Table table = new Table();
+        table.setName(TEST_APP);
+        table.setTtl(60);
+        tableDataStore.put(TEST_APP, table);
+        Table response = distributedTableMetadataManager.get(table.getName());
+        assertEquals(table.getName(), response.getName());
+        assertEquals(table.getTtl(), response.getTtl());
+        logger.info("Tested - Distributed Table Metadata Manager - GET");
+    }
 
+    @Test
+    public void testGetMissingTable() throws Exception {
+        logger.info("Tested - Distributed Table Metadata Manager - GET - Missing Table");
+        Table response = distributedTableMetadataManager.get(TEST_APP + "-missing");
+        assertNull(response);
+        logger.info("Tested - Distributed Table Metadata Manager - GET - Missing Table");
     }
 
     @Test
