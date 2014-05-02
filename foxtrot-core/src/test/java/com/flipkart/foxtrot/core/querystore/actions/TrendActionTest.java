@@ -93,7 +93,7 @@ public class TrendActionTest {
         logger.info("Tested Trend - Any Exception");
     }
 
-    //TODO trend action with no field is not working
+    //TODO trend action with null field is not working
     @Test
     public void testTrendActionNullField() throws QueryStoreException, JsonProcessingException {
         logger.info("Testing Trend - With Field");
@@ -102,6 +102,28 @@ public class TrendActionTest {
         trendRequest.setFrom(1L);
         trendRequest.setTo(System.currentTimeMillis());
         trendRequest.setField(null);
+
+        ObjectNode result = factory.objectNode();
+        result.put("opcode", "trend");
+        ObjectNode trends = factory.objectNode();
+        result.put("trends", trends);
+
+        String expectedResponse = mapper.writeValueAsString(result);
+        String actualResponse = mapper.writeValueAsString(queryExecutor.execute(trendRequest));
+        assertEquals(expectedResponse, actualResponse);
+        logger.info("Tested Trend - With Field");
+    }
+
+    //TODO trend action with all field is not working
+    @Test
+    public void testTrendActionFieldAll() throws QueryStoreException, JsonProcessingException {
+        logger.info("Testing Trend - With Field");
+        TrendRequest trendRequest = new TrendRequest();
+        trendRequest.setTable(TEST_APP);
+        trendRequest.setFrom(1L);
+        trendRequest.setTo(System.currentTimeMillis());
+        trendRequest.setField("all");
+        trendRequest.setValues(Collections.<String>emptyList());
 
         ObjectNode result = factory.objectNode();
         result.put("opcode", "trend");
@@ -181,9 +203,9 @@ public class TrendActionTest {
         logger.info("Testing Trend - With Field");
         TrendRequest trendRequest = new TrendRequest();
         trendRequest.setTable(TEST_APP);
+        trendRequest.setFrom(1L);
         trendRequest.setTo(0L);
         trendRequest.setField("os");
-        trendRequest.setTo(System.currentTimeMillis());
 
         ObjectNode result = factory.objectNode();
         result.put("opcode", "trend");
