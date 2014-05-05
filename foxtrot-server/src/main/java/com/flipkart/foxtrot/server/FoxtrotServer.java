@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.jsontype.SubtypeResolver;
 import com.fasterxml.jackson.databind.jsontype.impl.StdSubtypeResolver;
 import com.flipkart.foxtrot.core.datastore.DataStore;
-import com.flipkart.foxtrot.core.datastore.impl.hbase.HBaseDataStore;
+import com.flipkart.foxtrot.core.datastore.impl.hbase.HbaseDataStore;
 import com.flipkart.foxtrot.core.datastore.impl.hbase.HbaseTableConnection;
 import com.flipkart.foxtrot.core.datastore.impl.hbase.HbaseConfig;
 import com.flipkart.foxtrot.core.querystore.QueryExecutor;
@@ -64,7 +64,7 @@ public class FoxtrotServer extends Service<FoxtrotServerConfiguration> {
 
         ElasticsearchUtils.setMapper(objectMapper);
 
-        DataStore dataStore = new HBaseDataStore(HBaseTableConnection, objectMapper);
+        DataStore dataStore = new HbaseDataStore(HBaseTableConnection, objectMapper);
         AnalyticsLoader analyticsLoader = new AnalyticsLoader(dataStore, elasticsearchConnection);
         environment.manage(new ManagedActionScanner(analyticsLoader, environment));
 
