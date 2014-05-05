@@ -27,6 +27,7 @@ import static org.mockito.Mockito.when;
  */
 public class TestUtils {
 
+    public static String TEST_TABLE = "test-table";
     private static final Logger logger = LoggerFactory.getLogger(TestUtils.class.getSimpleName());
 
     public static DataStore getDataStore() throws DataStoreException {

@@ -22,6 +22,7 @@ import com.flipkart.foxtrot.server.util.ManagedActionScanner;
 import com.yammer.dropwizard.Service;
 import com.yammer.dropwizard.config.Bootstrap;
 import com.yammer.dropwizard.config.Environment;
+import net.sourceforge.cobertura.CoverageIgnore;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -31,6 +32,8 @@ import java.util.concurrent.TimeUnit;
  * Date: 15/03/14
  * Time: 9:38 PM
  */
+
+@CoverageIgnore
 public class FoxtrotServer extends Service<FoxtrotServerConfiguration> {
     @Override
     public void initialize(Bootstrap<FoxtrotServerConfiguration> bootstrap) {

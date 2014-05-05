@@ -32,6 +32,10 @@ public class TableMetadataResource {
     @GET
     @Path("/{name}")
     public Table get(@PathParam("name") final String name) throws Exception {
-        return tableMetadataManager.get(name);
+        Table table = tableMetadataManager.get(name);
+        if (table == null) {
+            throw new WebApplicationException(Response.status(Response.Status.NOT_FOUND).build());
+        }
+        return table;
     }
 }

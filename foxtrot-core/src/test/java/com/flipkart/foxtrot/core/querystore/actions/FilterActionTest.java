@@ -53,7 +53,6 @@ public class FilterActionTest {
     private ObjectMapper mapper = new ObjectMapper();
     private MockElasticsearchServer elasticsearchServer;
     private HazelcastInstance hazelcastInstance;
-    private String TEST_APP = "test-app";
     private JsonNodeFactory factory = JsonNodeFactory.instance;
 
     @Before
@@ -74,14 +73,14 @@ public class FilterActionTest {
 
         // Ensure that table exists before saving/reading data from it
         TableMetadataManager tableMetadataManager = Mockito.mock(TableMetadataManager.class);
-        when(tableMetadataManager.exists(TEST_APP)).thenReturn(true);
+        when(tableMetadataManager.exists(TestUtils.TEST_TABLE)).thenReturn(true);
 
         AnalyticsLoader analyticsLoader = new AnalyticsLoader(dataStore, elasticsearchConnection);
         TestUtils.registerActions(analyticsLoader, mapper);
         ExecutorService executorService = Executors.newFixedThreadPool(1);
         queryExecutor = new QueryExecutor(analyticsLoader, executorService);
         new ElasticsearchQueryStore(tableMetadataManager, elasticsearchConnection, dataStore, queryExecutor)
-                .save(TEST_APP, getQueryDocuments());
+                .save(TestUtils.TEST_TABLE, getQueryDocuments());
     }
 
     @After
@@ -94,7 +93,7 @@ public class FilterActionTest {
     public void testQueryException() throws QueryStoreException, JsonProcessingException {
         logger.info("Testing Query - Any Exception");
         Query query = new Query();
-        query.setTable(TEST_APP);
+        query.setTable(TestUtils.TEST_TABLE);
         ResultSort resultSort = new ResultSort();
         resultSort.setOrder(ResultSort.Order.asc);
         resultSort.setField("_timestamp");
@@ -108,17 +107,17 @@ public class FilterActionTest {
     public void testQueryNoFilterAscending() throws QueryStoreException, JsonProcessingException {
         logger.info("Testing Query - No Filter - Sort Ascending");
         Query query = new Query();
-        query.setTable(TEST_APP);
+        query.setTable(TestUtils.TEST_TABLE);
         ResultSort resultSort = new ResultSort();
         resultSort.setOrder(ResultSort.Order.asc);
         resultSort.setField("_timestamp");
         query.setSort(resultSort);
 
         ArrayNode arrayNode = factory.arrayNode();
-        arrayNode.addPOJO(TestUtils.getDocument("W", 1397658117000L, new Object[]{"os", "android", "device", "nexus", "battery", 99}, mapper));
-        arrayNode.addPOJO(TestUtils.getDocument("X", 1397658117000L, new Object[]{"os", "android", "device", "nexus", "battery", 74}, mapper));
-        arrayNode.addPOJO(TestUtils.getDocument("Y", 1397658117000L, new Object[]{"os", "android", "device", "nexus", "battery", 48}, mapper));
-        arrayNode.addPOJO(TestUtils.getDocument("Z", 1397658117000L, new Object[]{"os", "android", "device", "nexus", "battery", 24}, mapper));
+        arrayNode.addPOJO(TestUtils.getDocument("W", 1397658117001L, new Object[]{"os", "android", "device", "nexus", "battery", 99}, mapper));
+        arrayNode.addPOJO(TestUtils.getDocument("X", 1397658117002L, new Object[]{"os", "android", "device", "nexus", "battery", 74}, mapper));
+        arrayNode.addPOJO(TestUtils.getDocument("Y", 1397658117003L, new Object[]{"os", "android", "device", "nexus", "battery", 48}, mapper));
+        arrayNode.addPOJO(TestUtils.getDocument("Z", 1397658117004L, new Object[]{"os", "android", "device", "nexus", "battery", 24}, mapper));
         arrayNode.addPOJO(TestUtils.getDocument("A", 1397658118000L, new Object[]{"os", "android", "version", 1, "device", "nexus"}, mapper));
         arrayNode.addPOJO(TestUtils.getDocument("B", 1397658118001L, new Object[]{"os", "android", "version", 1, "device", "galaxy"}, mapper));
         arrayNode.addPOJO(TestUtils.getDocument("C", 1397658118002L, new Object[]{"os", "android", "version", 2, "device", "nexus"}, mapper));
@@ -138,7 +137,7 @@ public class FilterActionTest {
     public void testQueryNoFilterDescending() throws QueryStoreException, JsonProcessingException {
         logger.info("Testing Query - No Filter - Sort Descending");
         Query query = new Query();
-        query.setTable(TEST_APP);
+        query.setTable(TestUtils.TEST_TABLE);
         ResultSort resultSort = new ResultSort();
         resultSort.setOrder(ResultSort.Order.desc);
         resultSort.setField("_timestamp");
@@ -150,10 +149,10 @@ public class FilterActionTest {
         arrayNode.addPOJO(TestUtils.getDocument("C", 1397658118002L, new Object[]{"os", "android", "version", 2, "device", "nexus"}, mapper));
         arrayNode.addPOJO(TestUtils.getDocument("B", 1397658118001L, new Object[]{"os", "android", "version", 1, "device", "galaxy"}, mapper));
         arrayNode.addPOJO(TestUtils.getDocument("A", 1397658118000L, new Object[]{"os", "android", "version", 1, "device", "nexus"}, mapper));
-        arrayNode.addPOJO(TestUtils.getDocument("W", 1397658117000L, new Object[]{"os", "android", "device", "nexus", "battery", 99}, mapper));
-        arrayNode.addPOJO(TestUtils.getDocument("X", 1397658117000L, new Object[]{"os", "android", "device", "nexus", "battery", 74}, mapper));
-        arrayNode.addPOJO(TestUtils.getDocument("Y", 1397658117000L, new Object[]{"os", "android", "device", "nexus", "battery", 48}, mapper));
-        arrayNode.addPOJO(TestUtils.getDocument("Z", 1397658117000L, new Object[]{"os", "android", "device", "nexus", "battery", 24}, mapper));
+        arrayNode.addPOJO(TestUtils.getDocument("Z", 1397658117004L, new Object[]{"os", "android", "device", "nexus", "battery", 24}, mapper));
+        arrayNode.addPOJO(TestUtils.getDocument("Y", 1397658117003L, new Object[]{"os", "android", "device", "nexus", "battery", 48}, mapper));
+        arrayNode.addPOJO(TestUtils.getDocument("X", 1397658117002L, new Object[]{"os", "android", "device", "nexus", "battery", 74}, mapper));
+        arrayNode.addPOJO(TestUtils.getDocument("W", 1397658117001L, new Object[]{"os", "android", "device", "nexus", "battery", 99}, mapper));
         ObjectNode expectedResponseNode = factory.objectNode();
         expectedResponseNode.put("opcode", "query");
         expectedResponseNode.put("documents", arrayNode);
@@ -168,7 +167,7 @@ public class FilterActionTest {
     public void testQueryNoFilterWithLimit() throws QueryStoreException, JsonProcessingException {
         logger.info("Testing Query - No Filter - Limit 2");
         Query query = new Query();
-        query.setTable(TEST_APP);
+        query.setTable(TestUtils.TEST_TABLE);
         query.setLimit(2);
         ResultSort resultSort = new ResultSort();
         resultSort.setOrder(ResultSort.Order.desc);
@@ -192,7 +191,7 @@ public class FilterActionTest {
     public void testQueryAnyFilter() throws QueryStoreException, JsonProcessingException {
         logger.info("Testing Query - Any Filter");
         Query query = new Query();
-        query.setTable(TEST_APP);
+        query.setTable(TestUtils.TEST_TABLE);
 
         ResultSort resultSort = new ResultSort();
         resultSort.setOrder(ResultSort.Order.desc);
@@ -208,10 +207,10 @@ public class FilterActionTest {
         arrayNode.addPOJO(TestUtils.getDocument("C", 1397658118002L, new Object[]{"os", "android", "version", 2, "device", "nexus"}, mapper));
         arrayNode.addPOJO(TestUtils.getDocument("B", 1397658118001L, new Object[]{"os", "android", "version", 1, "device", "galaxy"}, mapper));
         arrayNode.addPOJO(TestUtils.getDocument("A", 1397658118000L, new Object[]{"os", "android", "version", 1, "device", "nexus"}, mapper));
-        arrayNode.addPOJO(TestUtils.getDocument("W", 1397658117000L, new Object[]{"os", "android", "device", "nexus", "battery", 99}, mapper));
-        arrayNode.addPOJO(TestUtils.getDocument("X", 1397658117000L, new Object[]{"os", "android", "device", "nexus", "battery", 74}, mapper));
-        arrayNode.addPOJO(TestUtils.getDocument("Y", 1397658117000L, new Object[]{"os", "android", "device", "nexus", "battery", 48}, mapper));
-        arrayNode.addPOJO(TestUtils.getDocument("Z", 1397658117000L, new Object[]{"os", "android", "device", "nexus", "battery", 24}, mapper));
+        arrayNode.addPOJO(TestUtils.getDocument("Z", 1397658117004L, new Object[]{"os", "android", "device", "nexus", "battery", 24}, mapper));
+        arrayNode.addPOJO(TestUtils.getDocument("Y", 1397658117003L, new Object[]{"os", "android", "device", "nexus", "battery", 48}, mapper));
+        arrayNode.addPOJO(TestUtils.getDocument("X", 1397658117002L, new Object[]{"os", "android", "device", "nexus", "battery", 74}, mapper));
+        arrayNode.addPOJO(TestUtils.getDocument("W", 1397658117001L, new Object[]{"os", "android", "device", "nexus", "battery", 99}, mapper));
         ObjectNode expectedResponseNode = factory.objectNode();
         expectedResponseNode.put("opcode", "query");
         expectedResponseNode.put("documents", arrayNode);
@@ -226,7 +225,7 @@ public class FilterActionTest {
     public void testQueryEqualsFilter() throws QueryStoreException, JsonProcessingException {
         logger.info("Testing Query - equals Filter");
         Query query = new Query();
-        query.setTable(TEST_APP);
+        query.setTable(TestUtils.TEST_TABLE);
 
         ResultSort resultSort = new ResultSort();
         resultSort.setOrder(ResultSort.Order.desc);
@@ -255,7 +254,7 @@ public class FilterActionTest {
     public void testQueryNotEqualsFilter() throws QueryStoreException, JsonProcessingException {
         logger.info("Testing Query - not_equals Filter");
         Query query = new Query();
-        query.setTable(TEST_APP);
+        query.setTable(TestUtils.TEST_TABLE);
         query.setLimit(3);
 
         ResultSort resultSort = new ResultSort();
@@ -286,7 +285,7 @@ public class FilterActionTest {
     public void testQueryGreaterThanFilter() throws QueryStoreException, JsonProcessingException {
         logger.info("Testing Query - greater_than Filter");
         Query query = new Query();
-        query.setTable(TEST_APP);
+        query.setTable(TestUtils.TEST_TABLE);
         query.setLimit(3);
 
         ResultSort resultSort = new ResultSort();
@@ -300,8 +299,8 @@ public class FilterActionTest {
         query.setFilters(Collections.<Filter>singletonList(greaterThanFilter));
 
         ArrayNode arrayNode = factory.arrayNode();
-        arrayNode.addPOJO(TestUtils.getDocument("W", 1397658117000L, new Object[]{"os", "android", "device", "nexus", "battery", 99}, mapper));
-        arrayNode.addPOJO(TestUtils.getDocument("X", 1397658117000L, new Object[]{"os", "android", "device", "nexus", "battery", 74}, mapper));
+        arrayNode.addPOJO(TestUtils.getDocument("X", 1397658117002L, new Object[]{"os", "android", "device", "nexus", "battery", 74}, mapper));
+        arrayNode.addPOJO(TestUtils.getDocument("W", 1397658117001L, new Object[]{"os", "android", "device", "nexus", "battery", 99}, mapper));
         ObjectNode expectedResponseNode = factory.objectNode();
         expectedResponseNode.put("opcode", "query");
         expectedResponseNode.put("documents", arrayNode);
@@ -316,7 +315,7 @@ public class FilterActionTest {
     public void testQueryGreaterEqualFilter() throws QueryStoreException, JsonProcessingException {
         logger.info("Testing Query - greater_equal Filter");
         Query query = new Query();
-        query.setTable(TEST_APP);
+        query.setTable(TestUtils.TEST_TABLE);
         query.setLimit(3);
 
         ResultSort resultSort = new ResultSort();
@@ -330,9 +329,9 @@ public class FilterActionTest {
         query.setFilters(Collections.<Filter>singletonList(greaterEqualFilter));
 
         ArrayNode arrayNode = factory.arrayNode();
-        arrayNode.addPOJO(TestUtils.getDocument("W", 1397658117000L, new Object[]{"os", "android", "device", "nexus", "battery", 99}, mapper));
-        arrayNode.addPOJO(TestUtils.getDocument("X", 1397658117000L, new Object[]{"os", "android", "device", "nexus", "battery", 74}, mapper));
-        arrayNode.addPOJO(TestUtils.getDocument("Y", 1397658117000L, new Object[]{"os", "android", "device", "nexus", "battery", 48}, mapper));
+        arrayNode.addPOJO(TestUtils.getDocument("Y", 1397658117003L, new Object[]{"os", "android", "device", "nexus", "battery", 48}, mapper));
+        arrayNode.addPOJO(TestUtils.getDocument("X", 1397658117002L, new Object[]{"os", "android", "device", "nexus", "battery", 74}, mapper));
+        arrayNode.addPOJO(TestUtils.getDocument("W", 1397658117001L, new Object[]{"os", "android", "device", "nexus", "battery", 99}, mapper));
         ObjectNode expectedResponseNode = factory.objectNode();
         expectedResponseNode.put("opcode", "query");
         expectedResponseNode.put("documents", arrayNode);
@@ -347,7 +346,7 @@ public class FilterActionTest {
     public void testQueryLessThanFilter() throws QueryStoreException, JsonProcessingException {
         logger.info("Testing Query - less_than Filter");
         Query query = new Query();
-        query.setTable(TEST_APP);
+        query.setTable(TestUtils.TEST_TABLE);
         query.setLimit(3);
 
         ResultSort resultSort = new ResultSort();
@@ -361,7 +360,7 @@ public class FilterActionTest {
         query.setFilters(Collections.<Filter>singletonList(lessThanFilter));
 
         ArrayNode arrayNode = factory.arrayNode();
-        arrayNode.addPOJO(TestUtils.getDocument("Z", 1397658117000L, new Object[]{"os", "android", "device", "nexus", "battery", 24}, mapper));
+        arrayNode.addPOJO(TestUtils.getDocument("Z", 1397658117004L, new Object[]{"os", "android", "device", "nexus", "battery", 24}, mapper));
         ObjectNode expectedResponseNode = factory.objectNode();
         expectedResponseNode.put("opcode", "query");
         expectedResponseNode.put("documents", arrayNode);
@@ -376,7 +375,7 @@ public class FilterActionTest {
     public void testQueryLessEqualFilter() throws QueryStoreException, JsonProcessingException {
         logger.info("Testing Query - greater_equal Filter");
         Query query = new Query();
-        query.setTable(TEST_APP);
+        query.setTable(TestUtils.TEST_TABLE);
         query.setLimit(3);
 
         ResultSort resultSort = new ResultSort();
@@ -390,8 +389,8 @@ public class FilterActionTest {
         query.setFilters(Collections.<Filter>singletonList(lessEqualFilter));
 
         ArrayNode arrayNode = factory.arrayNode();
-        arrayNode.addPOJO(TestUtils.getDocument("Y", 1397658117000L, new Object[]{"os", "android", "device", "nexus", "battery", 48}, mapper));
-        arrayNode.addPOJO(TestUtils.getDocument("Z", 1397658117000L, new Object[]{"os", "android", "device", "nexus", "battery", 24}, mapper));
+        arrayNode.addPOJO(TestUtils.getDocument("Z", 1397658117004L, new Object[]{"os", "android", "device", "nexus", "battery", 24}, mapper));
+        arrayNode.addPOJO(TestUtils.getDocument("Y", 1397658117003L, new Object[]{"os", "android", "device", "nexus", "battery", 48}, mapper));
         ObjectNode expectedResponseNode = factory.objectNode();
         expectedResponseNode.put("opcode", "query");
         expectedResponseNode.put("documents", arrayNode);
@@ -406,7 +405,7 @@ public class FilterActionTest {
     public void testQueryBetweenFilter() throws QueryStoreException, JsonProcessingException {
         logger.info("Testing Query - between Filter");
         Query query = new Query();
-        query.setTable(TEST_APP);
+        query.setTable(TestUtils.TEST_TABLE);
         query.setLimit(3);
 
         ResultSort resultSort = new ResultSort();
@@ -421,8 +420,8 @@ public class FilterActionTest {
         query.setFilters(Collections.<Filter>singletonList(betweenFilter));
 
         ArrayNode arrayNode = factory.arrayNode();
-        arrayNode.addPOJO(TestUtils.getDocument("X", 1397658117000L, new Object[]{"os", "android", "device", "nexus", "battery", 74}, mapper));
-        arrayNode.addPOJO(TestUtils.getDocument("Y", 1397658117000L, new Object[]{"os", "android", "device", "nexus", "battery", 48}, mapper));
+        arrayNode.addPOJO(TestUtils.getDocument("Y", 1397658117003L, new Object[]{"os", "android", "device", "nexus", "battery", 48}, mapper));
+        arrayNode.addPOJO(TestUtils.getDocument("X", 1397658117002L, new Object[]{"os", "android", "device", "nexus", "battery", 74}, mapper));
         ObjectNode expectedResponseNode = factory.objectNode();
         expectedResponseNode.put("opcode", "query");
         expectedResponseNode.put("documents", arrayNode);
@@ -437,7 +436,7 @@ public class FilterActionTest {
     public void testQueryContainsFilter() throws QueryStoreException, JsonProcessingException {
         logger.info("Testing Query - contains Filter");
         Query query = new Query();
-        query.setTable(TEST_APP);
+        query.setTable(TestUtils.TEST_TABLE);
 
         ResultSort resultSort = new ResultSort();
         resultSort.setOrder(ResultSort.Order.desc);
@@ -453,10 +452,10 @@ public class FilterActionTest {
         arrayNode.addPOJO(TestUtils.getDocument("C", 1397658118002L, new Object[]{"os", "android", "version", 2, "device", "nexus"}, mapper));
         arrayNode.addPOJO(TestUtils.getDocument("B", 1397658118001L, new Object[]{"os", "android", "version", 1, "device", "galaxy"}, mapper));
         arrayNode.addPOJO(TestUtils.getDocument("A", 1397658118000L, new Object[]{"os", "android", "version", 1, "device", "nexus"}, mapper));
-        arrayNode.addPOJO(TestUtils.getDocument("W", 1397658117000L, new Object[]{"os", "android", "device", "nexus", "battery", 99}, mapper));
-        arrayNode.addPOJO(TestUtils.getDocument("X", 1397658117000L, new Object[]{"os", "android", "device", "nexus", "battery", 74}, mapper));
-        arrayNode.addPOJO(TestUtils.getDocument("Y", 1397658117000L, new Object[]{"os", "android", "device", "nexus", "battery", 48}, mapper));
-        arrayNode.addPOJO(TestUtils.getDocument("Z", 1397658117000L, new Object[]{"os", "android", "device", "nexus", "battery", 24}, mapper));
+        arrayNode.addPOJO(TestUtils.getDocument("Z", 1397658117004L, new Object[]{"os", "android", "device", "nexus", "battery", 24}, mapper));
+        arrayNode.addPOJO(TestUtils.getDocument("Y", 1397658117003L, new Object[]{"os", "android", "device", "nexus", "battery", 48}, mapper));
+        arrayNode.addPOJO(TestUtils.getDocument("X", 1397658117002L, new Object[]{"os", "android", "device", "nexus", "battery", 74}, mapper));
+        arrayNode.addPOJO(TestUtils.getDocument("W", 1397658117001L, new Object[]{"os", "android", "device", "nexus", "battery", 99}, mapper));
         ObjectNode expectedResponseNode = factory.objectNode();
         expectedResponseNode.put("opcode", "query");
         expectedResponseNode.put("documents", arrayNode);
@@ -471,7 +470,7 @@ public class FilterActionTest {
     public void testQueryEmptyResult() throws QueryStoreException, JsonProcessingException {
         logger.info("Testing Query - Empty Result Test");
         Query query = new Query();
-        query.setTable(TEST_APP);
+        query.setTable(TestUtils.TEST_TABLE);
 
         EqualsFilter equalsFilter = new EqualsFilter();
         equalsFilter.setField("os");
@@ -493,7 +492,7 @@ public class FilterActionTest {
     public void testQueryMultipleFiltersEmptyResult() throws QueryStoreException, JsonProcessingException {
         logger.info("Testing Query - Multiple Filters - Empty Result");
         Query query = new Query();
-        query.setTable(TEST_APP);
+        query.setTable(TestUtils.TEST_TABLE);
 
         EqualsFilter equalsFilter = new EqualsFilter();
         equalsFilter.setField("os");
@@ -523,7 +522,7 @@ public class FilterActionTest {
     public void testQueryMultipleFiltersAndCombiner() throws QueryStoreException, JsonProcessingException {
         logger.info("Testing Query - Multiple Filters - Non Empty Result");
         Query query = new Query();
-        query.setTable(TEST_APP);
+        query.setTable(TestUtils.TEST_TABLE);
 
         EqualsFilter equalsFilter = new EqualsFilter();
         equalsFilter.setField("os");
@@ -539,7 +538,7 @@ public class FilterActionTest {
         query.setFilters(filters);
 
         ArrayNode arrayNode = factory.arrayNode();
-        arrayNode.addPOJO(TestUtils.getDocument("W", 1397658117000L, new Object[]{"os", "android", "device", "nexus", "battery", 99}, mapper));
+        arrayNode.addPOJO(TestUtils.getDocument("W", 1397658117001L, new Object[]{"os", "android", "device", "nexus", "battery", 99}, mapper));
         ObjectNode expectedResponseNode = factory.objectNode();
         expectedResponseNode.put("opcode", "query");
         expectedResponseNode.put("documents", arrayNode);
@@ -554,7 +553,7 @@ public class FilterActionTest {
     public void testQueryMultipleFiltersOrCombiner() throws QueryStoreException, JsonProcessingException {
         logger.info("Testing Query - Multiple Filters - Or Combiner - Non Empty Result");
         Query query = new Query();
-        query.setTable(TEST_APP);
+        query.setTable(TestUtils.TEST_TABLE);
 
         ResultSort resultSort = new ResultSort();
         resultSort.setOrder(ResultSort.Order.desc);
@@ -581,10 +580,10 @@ public class FilterActionTest {
         arrayNode.addPOJO(TestUtils.getDocument("D", 1397658118003L, new Object[]{"os", "ios", "version", 1, "device", "iphone"}, mapper));
         arrayNode.addPOJO(TestUtils.getDocument("C", 1397658118002L, new Object[]{"os", "android", "version", 2, "device", "nexus"}, mapper));
         arrayNode.addPOJO(TestUtils.getDocument("A", 1397658118000L, new Object[]{"os", "android", "version", 1, "device", "nexus"}, mapper));
-        arrayNode.addPOJO(TestUtils.getDocument("W", 1397658117000L, new Object[]{"os", "android", "device", "nexus", "battery", 99}, mapper));
-        arrayNode.addPOJO(TestUtils.getDocument("X", 1397658117000L, new Object[]{"os", "android", "device", "nexus", "battery", 74}, mapper));
-        arrayNode.addPOJO(TestUtils.getDocument("Y", 1397658117000L, new Object[]{"os", "android", "device", "nexus", "battery", 48}, mapper));
-        arrayNode.addPOJO(TestUtils.getDocument("Z", 1397658117000L, new Object[]{"os", "android", "device", "nexus", "battery", 24}, mapper));
+        arrayNode.addPOJO(TestUtils.getDocument("Z", 1397658117004L, new Object[]{"os", "android", "device", "nexus", "battery", 24}, mapper));
+        arrayNode.addPOJO(TestUtils.getDocument("Y", 1397658117003L, new Object[]{"os", "android", "device", "nexus", "battery", 48}, mapper));
+        arrayNode.addPOJO(TestUtils.getDocument("X", 1397658117002L, new Object[]{"os", "android", "device", "nexus", "battery", 74}, mapper));
+        arrayNode.addPOJO(TestUtils.getDocument("W", 1397658117001L, new Object[]{"os", "android", "device", "nexus", "battery", 99}, mapper));
         ObjectNode expectedResponseNode = factory.objectNode();
         expectedResponseNode.put("opcode", "query");
         expectedResponseNode.put("documents", arrayNode);
@@ -599,7 +598,7 @@ public class FilterActionTest {
     public void testQueryPagination() throws QueryStoreException, JsonProcessingException {
         logger.info("Testing Query - Filter with Pagination");
         Query query = new Query();
-        query.setTable(TEST_APP);
+        query.setTable(TestUtils.TEST_TABLE);
 
         ResultSort resultSort = new ResultSort();
         resultSort.setOrder(ResultSort.Order.desc);
@@ -630,7 +629,7 @@ public class FilterActionTest {
     public void testQueryAsync() throws QueryStoreException, JsonProcessingException, InterruptedException {
         logger.info("Testing Query - Async");
         Query query = new Query();
-        query.setTable(TEST_APP);
+        query.setTable(TestUtils.TEST_TABLE);
 
         ResultSort resultSort = new ResultSort();
         resultSort.setOrder(ResultSort.Order.desc);
@@ -664,7 +663,7 @@ public class FilterActionTest {
     public void testQueryNullFilters() throws QueryStoreException, JsonProcessingException, InterruptedException {
         logger.info("Testing Query - Null Filters");
         Query query = new Query();
-        query.setTable(TEST_APP);
+        query.setTable(TestUtils.TEST_TABLE);
         query.setFilters(null);
         query.setCombiner(FilterCombinerType.and);
         ResultSort resultSort = new ResultSort();
@@ -678,10 +677,10 @@ public class FilterActionTest {
         arrayNode.addPOJO(TestUtils.getDocument("C", 1397658118002L, new Object[]{"os", "android", "version", 2, "device", "nexus"}, mapper));
         arrayNode.addPOJO(TestUtils.getDocument("B", 1397658118001L, new Object[]{"os", "android", "version", 1, "device", "galaxy"}, mapper));
         arrayNode.addPOJO(TestUtils.getDocument("A", 1397658118000L, new Object[]{"os", "android", "version", 1, "device", "nexus"}, mapper));
-        arrayNode.addPOJO(TestUtils.getDocument("W", 1397658117000L, new Object[]{"os", "android", "device", "nexus", "battery", 99}, mapper));
-        arrayNode.addPOJO(TestUtils.getDocument("X", 1397658117000L, new Object[]{"os", "android", "device", "nexus", "battery", 74}, mapper));
-        arrayNode.addPOJO(TestUtils.getDocument("Y", 1397658117000L, new Object[]{"os", "android", "device", "nexus", "battery", 48}, mapper));
-        arrayNode.addPOJO(TestUtils.getDocument("Z", 1397658117000L, new Object[]{"os", "android", "device", "nexus", "battery", 24}, mapper));
+        arrayNode.addPOJO(TestUtils.getDocument("Z", 1397658117004L, new Object[]{"os", "android", "device", "nexus", "battery", 24}, mapper));
+        arrayNode.addPOJO(TestUtils.getDocument("Y", 1397658117003L, new Object[]{"os", "android", "device", "nexus", "battery", 48}, mapper));
+        arrayNode.addPOJO(TestUtils.getDocument("X", 1397658117002L, new Object[]{"os", "android", "device", "nexus", "battery", 74}, mapper));
+        arrayNode.addPOJO(TestUtils.getDocument("W", 1397658117001L, new Object[]{"os", "android", "device", "nexus", "battery", 99}, mapper));
         ObjectNode expectedResponseNode = factory.objectNode();
         expectedResponseNode.put("opcode", "query");
         expectedResponseNode.put("documents", arrayNode);
@@ -696,7 +695,7 @@ public class FilterActionTest {
     public void testQueryNullCombiner() throws QueryStoreException, JsonProcessingException, InterruptedException {
         logger.info("Testing Query - Null Combiner");
         Query query = new Query();
-        query.setTable(TEST_APP);
+        query.setTable(TestUtils.TEST_TABLE);
         query.setFilters(new ArrayList<Filter>());
         query.setCombiner(null);
         ResultSort resultSort = new ResultSort();
@@ -710,10 +709,10 @@ public class FilterActionTest {
         arrayNode.addPOJO(TestUtils.getDocument("C", 1397658118002L, new Object[]{"os", "android", "version", 2, "device", "nexus"}, mapper));
         arrayNode.addPOJO(TestUtils.getDocument("B", 1397658118001L, new Object[]{"os", "android", "version", 1, "device", "galaxy"}, mapper));
         arrayNode.addPOJO(TestUtils.getDocument("A", 1397658118000L, new Object[]{"os", "android", "version", 1, "device", "nexus"}, mapper));
-        arrayNode.addPOJO(TestUtils.getDocument("W", 1397658117000L, new Object[]{"os", "android", "device", "nexus", "battery", 99}, mapper));
-        arrayNode.addPOJO(TestUtils.getDocument("X", 1397658117000L, new Object[]{"os", "android", "device", "nexus", "battery", 74}, mapper));
-        arrayNode.addPOJO(TestUtils.getDocument("Y", 1397658117000L, new Object[]{"os", "android", "device", "nexus", "battery", 48}, mapper));
-        arrayNode.addPOJO(TestUtils.getDocument("Z", 1397658117000L, new Object[]{"os", "android", "device", "nexus", "battery", 24}, mapper));
+        arrayNode.addPOJO(TestUtils.getDocument("Z", 1397658117004L, new Object[]{"os", "android", "device", "nexus", "battery", 24}, mapper));
+        arrayNode.addPOJO(TestUtils.getDocument("Y", 1397658117003L, new Object[]{"os", "android", "device", "nexus", "battery", 48}, mapper));
+        arrayNode.addPOJO(TestUtils.getDocument("X", 1397658117002L, new Object[]{"os", "android", "device", "nexus", "battery", 74}, mapper));
+        arrayNode.addPOJO(TestUtils.getDocument("W", 1397658117001L, new Object[]{"os", "android", "device", "nexus", "battery", 99}, mapper));
         ObjectNode expectedResponseNode = factory.objectNode();
         expectedResponseNode.put("opcode", "query");
         expectedResponseNode.put("documents", arrayNode);
@@ -728,7 +727,7 @@ public class FilterActionTest {
     public void testQueryNullSort() throws QueryStoreException, JsonProcessingException, InterruptedException {
         logger.info("Testing Query - Null Sort");
         Query query = new Query();
-        query.setTable(TEST_APP);
+        query.setTable(TestUtils.TEST_TABLE);
         query.setFilters(new ArrayList<Filter>());
         query.setCombiner(FilterCombinerType.and);
         query.setSort(null);
@@ -739,10 +738,10 @@ public class FilterActionTest {
         arrayNode.addPOJO(TestUtils.getDocument("C", 1397658118002L, new Object[]{"os", "android", "version", 2, "device", "nexus"}, mapper));
         arrayNode.addPOJO(TestUtils.getDocument("B", 1397658118001L, new Object[]{"os", "android", "version", 1, "device", "galaxy"}, mapper));
         arrayNode.addPOJO(TestUtils.getDocument("A", 1397658118000L, new Object[]{"os", "android", "version", 1, "device", "nexus"}, mapper));
-        arrayNode.addPOJO(TestUtils.getDocument("W", 1397658117000L, new Object[]{"os", "android", "device", "nexus", "battery", 99}, mapper));
-        arrayNode.addPOJO(TestUtils.getDocument("X", 1397658117000L, new Object[]{"os", "android", "device", "nexus", "battery", 74}, mapper));
-        arrayNode.addPOJO(TestUtils.getDocument("Y", 1397658117000L, new Object[]{"os", "android", "device", "nexus", "battery", 48}, mapper));
-        arrayNode.addPOJO(TestUtils.getDocument("Z", 1397658117000L, new Object[]{"os", "android", "device", "nexus", "battery", 24}, mapper));
+        arrayNode.addPOJO(TestUtils.getDocument("Z", 1397658117004L, new Object[]{"os", "android", "device", "nexus", "battery", 24}, mapper));
+        arrayNode.addPOJO(TestUtils.getDocument("Y", 1397658117003L, new Object[]{"os", "android", "device", "nexus", "battery", 48}, mapper));
+        arrayNode.addPOJO(TestUtils.getDocument("X", 1397658117002L, new Object[]{"os", "android", "device", "nexus", "battery", 74}, mapper));
+        arrayNode.addPOJO(TestUtils.getDocument("W", 1397658117001L, new Object[]{"os", "android", "device", "nexus", "battery", 99}, mapper));
         ObjectNode expectedResponseNode = factory.objectNode();
         expectedResponseNode.put("opcode", "query");
         expectedResponseNode.put("documents", arrayNode);
@@ -758,7 +757,7 @@ public class FilterActionTest {
     public void testQueryCaching() throws QueryStoreException, JsonProcessingException {
         logger.info("Testing Query - Query Caching");
         Query query = new Query();
-        query.setTable(TEST_APP);
+        query.setTable(TestUtils.TEST_TABLE);
 
         ResultSort resultSort = new ResultSort();
         resultSort.setOrder(ResultSort.Order.desc);
@@ -787,10 +786,10 @@ public class FilterActionTest {
 
     private List<Document> getQueryDocuments() {
         List<Document> documents = new Vector<Document>();
-        documents.add(TestUtils.getDocument("Z", 1397658117000L, new Object[]{"os", "android", "device", "nexus", "battery", 24}, mapper));
-        documents.add(TestUtils.getDocument("Y", 1397658117000L, new Object[]{"os", "android", "device", "nexus", "battery", 48}, mapper));
-        documents.add(TestUtils.getDocument("X", 1397658117000L, new Object[]{"os", "android", "device", "nexus", "battery", 74}, mapper));
-        documents.add(TestUtils.getDocument("W", 1397658117000L, new Object[]{"os", "android", "device", "nexus", "battery", 99}, mapper));
+        documents.add(TestUtils.getDocument("Z", 1397658117004L, new Object[]{"os", "android", "device", "nexus", "battery", 24}, mapper));
+        documents.add(TestUtils.getDocument("Y", 1397658117003L, new Object[]{"os", "android", "device", "nexus", "battery", 48}, mapper));
+        documents.add(TestUtils.getDocument("X", 1397658117002L, new Object[]{"os", "android", "device", "nexus", "battery", 74}, mapper));
+        documents.add(TestUtils.getDocument("W", 1397658117001L, new Object[]{"os", "android", "device", "nexus", "battery", 99}, mapper));
         documents.add(TestUtils.getDocument("A", 1397658118000L, new Object[]{"os", "android", "version", 1, "device", "nexus"}, mapper));
         documents.add(TestUtils.getDocument("B", 1397658118001L, new Object[]{"os", "android", "version", 1, "device", "galaxy"}, mapper));
         documents.add(TestUtils.getDocument("C", 1397658118002L, new Object[]{"os", "android", "version", 2, "device", "nexus"}, mapper));

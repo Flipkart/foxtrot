@@ -41,7 +41,6 @@ public class NonCacheableActionTest {
     private ObjectMapper mapper = new ObjectMapper();
     private MockElasticsearchServer elasticsearchServer;
     private HazelcastInstance hazelcastInstance;
-    private String TEST_APP = "test-app";
     private JsonNodeFactory factory = JsonNodeFactory.instance;
 
     @Before
@@ -62,14 +61,14 @@ public class NonCacheableActionTest {
 
         // Ensure that table exists before saving/reading data from it
         TableMetadataManager tableMetadataManager = Mockito.mock(TableMetadataManager.class);
-        when(tableMetadataManager.exists(TEST_APP)).thenReturn(true);
+        when(tableMetadataManager.exists(TestUtils.TEST_TABLE)).thenReturn(true);
 
         AnalyticsLoader analyticsLoader = new AnalyticsLoader(dataStore, elasticsearchConnection);
         TestUtils.registerActions(analyticsLoader, mapper);
         ExecutorService executorService = Executors.newFixedThreadPool(1);
         queryExecutor = new QueryExecutor(analyticsLoader, executorService);
         new ElasticsearchQueryStore(tableMetadataManager, elasticsearchConnection, dataStore, queryExecutor)
-                .save(TEST_APP, getQueryDocuments());
+                .save(TestUtils.TEST_TABLE, getQueryDocuments());
     }
 
     @After

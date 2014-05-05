@@ -2,6 +2,7 @@ package com.flipkart.foxtrot.server.resources;
 
 import com.flipkart.foxtrot.common.Document;
 import com.flipkart.foxtrot.core.querystore.QueryStore;
+import com.sun.istack.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -59,7 +60,7 @@ public class DocumentResource {
 
     @GET
     @Path("/{id}")
-    public Response getDocument(@PathParam("table") final String table, @PathParam("id") final String id) {
+    public Response getDocument(@PathParam("table") final String table, @PathParam("id") @NotNull final String id) {
         try {
             return Response.ok(queryStore.get(table, id)).build();
         } catch (Exception e) {
@@ -70,7 +71,8 @@ public class DocumentResource {
     }
 
     @GET
-    public Response getDocuments(@PathParam("table") final String table, @QueryParam("id") final List<String> ids) {
+    public Response getDocuments(@PathParam("table") final String table, @QueryParam("id") @NotNull final List<String> ids) {
+        System.out.println("Ids are : " + ids);
         try {
             return Response.ok(queryStore.get(table, ids)).build();
         } catch (Exception e) {

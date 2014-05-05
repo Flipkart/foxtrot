@@ -48,7 +48,6 @@ public class HistogramActionTest {
     private final ObjectMapper mapper = new ObjectMapper();
     private MockElasticsearchServer elasticsearchServer;
     private HazelcastInstance hazelcastInstance;
-    private String TEST_TABLE = "test-app";
     private JsonNodeFactory factory = JsonNodeFactory.instance;
 
     @Before
@@ -69,14 +68,14 @@ public class HistogramActionTest {
 
         // Ensure that table exists before saving/reading data from it
         TableMetadataManager tableMetadataManager = Mockito.mock(TableMetadataManager.class);
-        when(tableMetadataManager.exists(TEST_TABLE)).thenReturn(true);
+        when(tableMetadataManager.exists(TestUtils.TEST_TABLE)).thenReturn(true);
 
         AnalyticsLoader analyticsLoader = new AnalyticsLoader(dataStore, elasticsearchConnection);
         TestUtils.registerActions(analyticsLoader, mapper);
         ExecutorService executorService = Executors.newFixedThreadPool(1);
         queryExecutor = new QueryExecutor(analyticsLoader, executorService);
         new ElasticsearchQueryStore(tableMetadataManager, elasticsearchConnection, dataStore, queryExecutor)
-                .save(TEST_TABLE, getHistogramDocuments());
+                .save(TestUtils.TEST_TABLE, getHistogramDocuments());
     }
 
     @After
@@ -89,7 +88,7 @@ public class HistogramActionTest {
     public void testHistogramActionAnyException() throws QueryStoreException, JsonProcessingException {
         logger.info("Testing Histogram - Any Exception");
         HistogramRequest histogramRequest = new HistogramRequest();
-        histogramRequest.setTable(TEST_TABLE);
+        histogramRequest.setTable(TestUtils.TEST_TABLE);
         histogramRequest.setPeriod(Period.minutes);
         histogramRequest.setFrom(0);
         histogramRequest.setField("_timestamp");
@@ -102,7 +101,7 @@ public class HistogramActionTest {
     public void testHistogramActionIntervalMinuteNoFilter() throws QueryStoreException, JsonProcessingException {
         logger.info("Testing Histogram - Interval minute - No Filter");
         HistogramRequest histogramRequest = new HistogramRequest();
-        histogramRequest.setTable(TEST_TABLE);
+        histogramRequest.setTable(TestUtils.TEST_TABLE);
         histogramRequest.setPeriod(Period.minutes);
         histogramRequest.setFrom(0);
         histogramRequest.setField("_timestamp");
@@ -130,7 +129,7 @@ public class HistogramActionTest {
     public void testHistogramActionIntervalMinuteWithFilter() throws QueryStoreException, JsonProcessingException {
         logger.info("Testing Histogram - Interval minute - No Filter");
         HistogramRequest histogramRequest = new HistogramRequest();
-        histogramRequest.setTable(TEST_TABLE);
+        histogramRequest.setTable(TestUtils.TEST_TABLE);
         histogramRequest.setPeriod(Period.minutes);
         histogramRequest.setFrom(0);
         histogramRequest.setField("_timestamp");
@@ -160,7 +159,7 @@ public class HistogramActionTest {
     public void testHistogramActionIntervalHourNoFilter() throws QueryStoreException, JsonProcessingException {
         logger.info("Testing Histogram - Interval hour - No Filter");
         HistogramRequest histogramRequest = new HistogramRequest();
-        histogramRequest.setTable(TEST_TABLE);
+        histogramRequest.setTable(TestUtils.TEST_TABLE);
         histogramRequest.setPeriod(Period.hours);
         histogramRequest.setFrom(0);
         histogramRequest.setField("_timestamp");
@@ -187,7 +186,7 @@ public class HistogramActionTest {
     public void testHistogramActionIntervalHourWithFilter() throws QueryStoreException, JsonProcessingException {
         logger.info("Testing Histogram - Interval hour - No Filter");
         HistogramRequest histogramRequest = new HistogramRequest();
-        histogramRequest.setTable(TEST_TABLE);
+        histogramRequest.setTable(TestUtils.TEST_TABLE);
         histogramRequest.setPeriod(Period.hours);
         histogramRequest.setFrom(0);
         histogramRequest.setField("_timestamp");
@@ -217,7 +216,7 @@ public class HistogramActionTest {
     public void testHistogramActionIntervalDayNoFilter() throws QueryStoreException, JsonProcessingException {
         logger.info("Testing Histogram - Interval Day - No Filter");
         HistogramRequest histogramRequest = new HistogramRequest();
-        histogramRequest.setTable(TEST_TABLE);
+        histogramRequest.setTable(TestUtils.TEST_TABLE);
         histogramRequest.setPeriod(Period.days);
         histogramRequest.setFrom(0);
         histogramRequest.setField("_timestamp");
@@ -242,7 +241,7 @@ public class HistogramActionTest {
     public void testHistogramActionIntervalDayWithFilter() throws QueryStoreException, JsonProcessingException {
         logger.info("Testing Histogram - Interval Day - With Filter");
         HistogramRequest histogramRequest = new HistogramRequest();
-        histogramRequest.setTable(TEST_TABLE);
+        histogramRequest.setTable(TestUtils.TEST_TABLE);
         histogramRequest.setPeriod(Period.days);
         histogramRequest.setFrom(0);
         histogramRequest.setField("_timestamp");
