@@ -27,13 +27,13 @@ import static org.mockito.Mockito.*;
  * Created by rishabh.goyal on 15/04/14.
  */
 
-public class HBaseDataStoreTest {
+public class HbaseDataStoreTest {
     private HBaseDataStore hBaseDataStore;
     private HTableInterface tableInterface;
-    private HBaseTableConnection hBaseTableConnection;
+    private HbaseTableConnection hBaseTableConnection;
     private ObjectMapper mapper = new ObjectMapper();
 
-    private static final Logger logger = LoggerFactory.getLogger(HBaseDataStoreTest.class.getSimpleName());
+    private static final Logger logger = LoggerFactory.getLogger(HbaseDataStoreTest.class.getSimpleName());
     private static final byte[] COLUMN_FAMILY = Bytes.toBytes("d");
     private static final byte[] DATA_FIELD_NAME = Bytes.toBytes("data");
     private static final String TEST_APP = "test-app";
@@ -42,7 +42,7 @@ public class HBaseDataStoreTest {
     public void setUp() throws Exception {
         tableInterface = MockHTable.create();
         tableInterface = spy(tableInterface);
-        hBaseTableConnection = Mockito.mock(HBaseTableConnection.class);
+        hBaseTableConnection = Mockito.mock(HbaseTableConnection.class);
         when(hBaseTableConnection.getTable()).thenReturn(tableInterface);
         hBaseDataStore = new HBaseDataStore(hBaseTableConnection, mapper);
     }
