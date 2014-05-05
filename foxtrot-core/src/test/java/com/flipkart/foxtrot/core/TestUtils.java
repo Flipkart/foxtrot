@@ -6,7 +6,7 @@ import com.flipkart.foxtrot.common.Document;
 import com.flipkart.foxtrot.core.common.Action;
 import com.flipkart.foxtrot.core.datastore.DataStore;
 import com.flipkart.foxtrot.core.datastore.DataStoreException;
-import com.flipkart.foxtrot.core.datastore.impl.hbase.HbaseDataStore;
+import com.flipkart.foxtrot.core.datastore.impl.hbase.HBaseDataStore;
 import com.flipkart.foxtrot.core.datastore.impl.hbase.HbaseTableConnection;
 import com.flipkart.foxtrot.core.querystore.actions.spi.ActionMetadata;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsLoader;
@@ -34,7 +34,7 @@ public class TestUtils {
         HTableInterface tableInterface = MockHTable.create();
         HbaseTableConnection tableConnection = Mockito.mock(HbaseTableConnection.class);
         when(tableConnection.getTable()).thenReturn(tableInterface);
-        return new HbaseDataStore(tableConnection, new ObjectMapper());
+        return new HBaseDataStore(tableConnection, new ObjectMapper());
     }
 
     public static Document getDocument(String id, long timestamp, Object[] args, ObjectMapper mapper) {

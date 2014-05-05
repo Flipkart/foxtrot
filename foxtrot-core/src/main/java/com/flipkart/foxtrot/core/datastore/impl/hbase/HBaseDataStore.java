@@ -22,8 +22,8 @@ import java.util.Vector;
  * Date: 13/03/14
  * Time: 7:54 PM
  */
-public class HbaseDataStore implements DataStore {
-    private static final Logger logger = LoggerFactory.getLogger(HbaseDataStore.class.getSimpleName());
+public class HBaseDataStore implements DataStore {
+    private static final Logger logger = LoggerFactory.getLogger(HBaseDataStore.class.getSimpleName());
 
     private static final byte[] COLUMN_FAMILY = Bytes.toBytes("d");
     private static final byte[] DATA_FIELD_NAME = Bytes.toBytes("data");
@@ -32,7 +32,7 @@ public class HbaseDataStore implements DataStore {
     private final HbaseTableConnection tableWrapper;
     private final ObjectMapper mapper;
 
-    public HbaseDataStore(HbaseTableConnection tableWrapper, ObjectMapper mapper) {
+    public HBaseDataStore(HbaseTableConnection tableWrapper, ObjectMapper mapper) {
         this.tableWrapper = tableWrapper;
         this.mapper = mapper;
     }
