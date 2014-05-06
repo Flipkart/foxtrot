@@ -2,19 +2,27 @@ package com.flipkart.foxtrot.core.querystore.impl;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.flipkart.foxtrot.common.Document;
+import com.flipkart.foxtrot.common.FieldTypeMapping;
+import com.flipkart.foxtrot.common.TableFieldMapping;
 import com.flipkart.foxtrot.core.datastore.DataStore;
 import com.flipkart.foxtrot.core.datastore.DataStoreException;
+import com.flipkart.foxtrot.core.parsers.ElasticsearchMappingParser;
 import com.flipkart.foxtrot.core.querystore.QueryExecutor;
 import com.flipkart.foxtrot.core.querystore.QueryStore;
 import com.flipkart.foxtrot.core.querystore.QueryStoreException;
 import com.flipkart.foxtrot.core.querystore.TableMetadataManager;
 import org.elasticsearch.action.WriteConsistencyLevel;
+import org.elasticsearch.action.admin.indices.mapping.get.GetMappingsResponse;
 import org.elasticsearch.action.bulk.BulkRequestBuilder;
 import org.elasticsearch.action.index.IndexRequest;
+import org.elasticsearch.cluster.metadata.MappingMetaData;
+import org.elasticsearch.common.hppc.cursors.ObjectCursor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * User: Santanu Sinha (santanu.sinha@flipkart.com)
@@ -115,6 +123,37 @@ public class ElasticsearchQueryStore implements QueryStore {
         } catch (Exception e) {
             throw new QueryStoreException(QueryStoreException.ErrorCode.DOCUMENT_GET_ERROR,
                     "Error getting documents: " + e.getMessage(), e);
+        }
+    }
+
+    @Override
+    public void updateFieldMappings(String table, List<Document> documents) {
+
+    }
+
+    @Override
+    public TableFieldMapping getFieldMappings(String table) throws QueryStoreException {
+        try {
+            if (!tableMetadataManager.exists(table)) {
+                throw new QueryStoreException(QueryStoreException.ErrorCode.NO_SUCH_TABLE,
+                        "No table exists with the name: " + table);
+            }
+
+            ElasticsearchMappingParser mappingParser = new ElasticsearchMappingParser(mapper);
+            Set<FieldTypeMapping> mappings = new HashSet<FieldTypeMapping>();
+            GetMappingsResponse mappingsResponse = connection.getClient().admin()
+                    .indices().prepareGetMappings(ElasticsearchUtils.getIndices(table)).execute().actionGet();
+
+            for (ObjectCursor<String> index : mappingsResponse.getMappings().keys()) {
+                MappingMetaData mappingData = mappingsResponse.mappings().get(index.value).get(ElasticsearchUtils.TYPE_NAME);
+                mappings.addAll(mappingParser.getFieldMappings(mappingData));
+            }
+            return new TableFieldMapping(table, mappings);
+        } catch (Exception e) {
+            throw new QueryStoreException(
+                    QueryStoreException.ErrorCode.METADATA_FETCH_ERROR,
+                    String.format("Metadata fetch Failed %s", e.getMessage()),
+                    e);
         }
     }
 }

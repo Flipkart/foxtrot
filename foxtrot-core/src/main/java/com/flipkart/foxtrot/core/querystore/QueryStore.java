@@ -1,6 +1,7 @@
 package com.flipkart.foxtrot.core.querystore;
 
 import com.flipkart.foxtrot.common.Document;
+import com.flipkart.foxtrot.common.TableFieldMapping;
 
 import java.util.List;
 
@@ -17,4 +18,8 @@ public interface QueryStore {
     public Document get(final String table, final String id) throws QueryStoreException;
 
     public List<Document> get(final String table, final List<String> ids) throws QueryStoreException;
+
+    public void updateFieldMappings(final String table, final List<Document> documents);
+
+    public TableFieldMapping getFieldMappings(final String table) throws QueryStoreException;
 }

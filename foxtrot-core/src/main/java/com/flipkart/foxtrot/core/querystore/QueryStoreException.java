@@ -24,8 +24,14 @@ public class QueryStoreException extends Exception {
         QUERY_MALFORMED_QUERY_ERROR,
         HISTOGRAM_GENERATION_ERROR,
         UNRESOLVABLE_OPERATION,
-        ACTION_RESOLUTION_ERROR
+        ACTION_RESOLUTION_ERROR,
+        METADATA_FETCH_ERROR,
+        NO_METADATA_FOUND
     }
 
     private final ErrorCode errorCode;
+
+    public ErrorCode getErrorCode() {
+        return errorCode;
+    }
 }
