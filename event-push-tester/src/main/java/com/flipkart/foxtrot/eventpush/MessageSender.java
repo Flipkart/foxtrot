@@ -11,6 +11,7 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.message.BasicHeader;
 import org.apache.http.util.EntityUtils;
+import org.slf4j.Logger;
 
 import javax.ws.rs.core.MediaType;
 import java.nio.charset.Charset;
@@ -18,25 +19,30 @@ import java.util.UUID;
 import java.util.concurrent.Callable;
 
 public class MessageSender implements Callable<Void> {
+    private static final Logger logger = org.slf4j.LoggerFactory.getLogger(MessageSender.class.getSimpleName());
     private int numEvents;
     private ObjectMapper objectMapper;
     private int threadID;
     private String hostName;
     private CloseableHttpClient httpClient;
     private HttpClientContext httpContext;
+    private String targetHost;
+    private int targetPort;
 
 
     public MessageSender(int numEvents,
                          ObjectMapper objectMapper,
                          int threadID,
                          String hostName,
-                         CloseableHttpClient httpClient) {
+                         CloseableHttpClient httpClient, String targetHost, int targetPort) {
         this.numEvents = numEvents;
         this.objectMapper = objectMapper;
         this.threadID = threadID;
         this.hostName = hostName;
         this.httpClient = httpClient;
         this.httpContext = HttpClientContext.create();
+        this.targetHost = targetHost;
+        this.targetPort = targetPort;
     }
 
     @Override
@@ -52,17 +58,16 @@ public class MessageSender implements Callable<Void> {
             document.setId(UUID.randomUUID().toString());
             document.setTimestamp(System.currentTimeMillis());
             document.setData(rootNode);
-            System.out.println("Entity: " + objectMapper.writeValueAsString(document));
-            HttpPost httpPost = new HttpPost("http://stage-ingester.digital.ch.flipkart.com:17000/foxtrot/v1/document/test");
+            HttpPost httpPost = new HttpPost(String.format("http://%s:%d/foxtrot/v1/document/test", targetHost, targetPort));
             httpPost.setHeader(new BasicHeader("Content-Type", MediaType.APPLICATION_JSON));
             httpPost.setEntity(new StringEntity(objectMapper.writeValueAsString(document), Charset.defaultCharset()));
             CloseableHttpResponse entity = httpClient.execute(httpPost, httpContext);
             try {
                 if(entity.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
-                    System.out.println(EntityUtils.toString(entity.getEntity()));
+                    logger.info(EntityUtils.toString(entity.getEntity()));
                 }
                 else {
-                    System.err.println(entity.getStatusLine().getStatusCode() + ":" + entity.getStatusLine().getReasonPhrase());
+                    logger.error(entity.getStatusLine().getStatusCode() + ":" + entity.getStatusLine().getReasonPhrase());
                 }
 
             } finally {

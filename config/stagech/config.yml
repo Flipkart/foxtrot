@@ -1,7 +1,8 @@
 http:
   port: 17000
   adminPort: 17000
-  #connectorType: nonblocking
+  connectorType: nonblocking
+  selectorThreads: 8
 
 elasticsearch:
   hosts:
