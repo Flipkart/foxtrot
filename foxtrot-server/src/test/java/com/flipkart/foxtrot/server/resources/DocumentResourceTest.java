@@ -24,6 +24,7 @@ import org.elasticsearch.common.settings.ImmutableSettings;
 import org.elasticsearch.common.settings.Settings;
 import org.junit.After;
 import org.junit.Test;
+import org.mockito.Matchers;
 import org.mockito.Mockito;
 
 import javax.ws.rs.core.MediaType;
@@ -37,8 +38,11 @@ import java.util.concurrent.Executors;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.mockito.Matchers.anyList;
+import static org.mockito.Matchers.anyListOf;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
 /**
@@ -85,6 +89,7 @@ public class DocumentResourceTest extends ResourceTest {
         ExecutorService executorService = Executors.newFixedThreadPool(1);
         QueryExecutor queryExecutor = new QueryExecutor(analyticsLoader, executorService);
         queryStore = new ElasticsearchQueryStore(tableMetadataManager, elasticsearchConnection, dataStore, queryExecutor);
+        queryStore = spy(queryStore);
     }
 
     @Override
@@ -119,11 +124,12 @@ public class DocumentResourceTest extends ResourceTest {
                 id,
                 System.currentTimeMillis(),
                 factory.objectNode().put("hello", "world"));
-        doThrow(new QueryStoreException(QueryStoreException.ErrorCode.NO_SUCH_TABLE, "Dummy Exception")).when(tableMetadataManager).exists(anyString());
+        doThrow(new QueryStoreException(QueryStoreException.ErrorCode.DOCUMENT_SAVE_ERROR, "Dummy Exception"))
+                .when(queryStore).save(anyString(), Matchers.<Document>any());
         try {
             client().resource("/foxtrot/v1/document/" + TestUtils.TEST_TABLE).type(MediaType.APPLICATION_JSON_TYPE).post(document);
         } catch (UniformInterfaceException ex) {
-            assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), ex.getResponse().getStatus());
+            assertEquals(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode(), ex.getResponse().getStatus());
         }
     }
 
@@ -180,11 +186,12 @@ public class DocumentResourceTest extends ResourceTest {
         Document document2 = new Document(id2, System.currentTimeMillis(), factory.objectNode().put("D", "data"));
         documents.add(document1);
         documents.add(document2);
-        doThrow(new QueryStoreException(QueryStoreException.ErrorCode.NO_SUCH_TABLE, "Dummy Exception")).when(tableMetadataManager).exists(anyString());
+        doThrow(new QueryStoreException(QueryStoreException.ErrorCode.DOCUMENT_SAVE_ERROR, "Dummy Exception"))
+                .when(queryStore).save(anyString(), anyListOf(Document.class));
         try {
             client().resource(String.format("/foxtrot/v1/document/%s/bulk", TestUtils.TEST_TABLE)).type(MediaType.APPLICATION_JSON_TYPE).post(documents);
         } catch (UniformInterfaceException ex) {
-            assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), ex.getResponse().getStatus());
+            assertEquals(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode(), ex.getResponse().getStatus());
         }
     }
 
@@ -275,6 +282,19 @@ public class DocumentResourceTest extends ResourceTest {
         }
     }
 
+    @Test
+    public void testGetDocumentInternalError() throws Exception {
+        String id = UUID.randomUUID().toString();
+        try {
+            doThrow(new QueryStoreException(QueryStoreException.ErrorCode.DOCUMENT_GET_ERROR, "Error"))
+                    .when(queryStore).get(anyString(), anyString());
+            client().resource(String.format("/foxtrot/v1/document/%s/%s", TestUtils.TEST_TABLE, id))
+                    .get(Document.class);
+        } catch (UniformInterfaceException ex) {
+            assertEquals(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode(), ex.getResponse().getStatus());
+        }
+    }
+
 
     @Test
     public void testGetDocuments() throws Exception {
@@ -297,14 +317,6 @@ public class DocumentResourceTest extends ResourceTest {
 
     @Test
     public void testGetDocumentsNoIds() throws Exception {
-        List<Document> documents = new ArrayList<Document>();
-        String id1 = UUID.randomUUID().toString();
-        Document document1 = new Document(id1, System.currentTimeMillis(), factory.objectNode().put("D", "data"));
-        String id2 = UUID.randomUUID().toString();
-        Document document2 = new Document(id2, System.currentTimeMillis(), factory.objectNode().put("D", "data"));
-        documents.add(document1);
-        documents.add(document2);
-        queryStore.save(TestUtils.TEST_TABLE, documents);
         String response = client().resource(String.format("/foxtrot/v1/document/%s", TestUtils.TEST_TABLE))
                 .get(String.class);
         String expectedResponse = mapper.writeValueAsString(new ArrayList<Document>());
@@ -319,6 +331,19 @@ public class DocumentResourceTest extends ResourceTest {
                     .get(String.class);
         } catch (UniformInterfaceException ex) {
             assertEquals(Response.Status.NOT_FOUND.getStatusCode(), ex.getResponse().getStatus());
+        }
+    }
+
+    @Test
+    public void testGetDocumentsInternalError() throws Exception {
+        try {
+            doThrow(new QueryStoreException(QueryStoreException.ErrorCode.DOCUMENT_GET_ERROR, "Error"))
+                    .when(queryStore).get(anyString(), anyListOf(String.class));
+            client().resource(String.format("/foxtrot/v1/document/%s", TestUtils.TEST_TABLE))
+                    .queryParam("id", UUID.randomUUID().toString())
+                    .get(String.class);
+        } catch (UniformInterfaceException ex) {
+            assertEquals(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode(), ex.getResponse().getStatus());
         }
     }
 
