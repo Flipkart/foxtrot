@@ -53,6 +53,9 @@ public class HBaseDataStore implements DataStore {
         } catch (IOException e) {
             throw new DataStoreException(DataStoreException.ErrorCode.STORE_SINGLE_SAVE,
                     e.getMessage(), e);
+        } catch (Exception e) {
+            throw new DataStoreException(DataStoreException.ErrorCode.STORE_SINGLE_SAVE,
+                    e.getMessage(), e);
         } finally {
             if (null != hTable) {
                 try {
@@ -90,6 +93,9 @@ public class HBaseDataStore implements DataStore {
         } catch (IOException e) {
             throw new DataStoreException(DataStoreException.ErrorCode.STORE_MULTI_SAVE,
                     e.getMessage(), e);
+        } catch (Exception e) {
+            throw new DataStoreException(DataStoreException.ErrorCode.STORE_MULTI_SAVE,
+                    e.getMessage(), e);
         } finally {
             if (null != hTable) {
                 try {
@@ -120,7 +126,12 @@ public class HBaseDataStore implements DataStore {
                 throw new DataStoreException(DataStoreException.ErrorCode.STORE_NO_DATA_FOUND_FOR_ID,
                         String.format("No data found for ID: %s", id));
             }
+        } catch (DataStoreException ex) {
+            throw ex;
         } catch (IOException ex) {
+            throw new DataStoreException(DataStoreException.ErrorCode.STORE_SINGLE_GET,
+                    ex.getMessage(), ex);
+        } catch (Exception ex) {
             throw new DataStoreException(DataStoreException.ErrorCode.STORE_SINGLE_GET,
                     ex.getMessage(), ex);
         } finally {
@@ -167,12 +178,17 @@ public class HBaseDataStore implements DataStore {
                 }
             }
             return results;
+        } catch (DataStoreException ex) {
+            throw ex;
         } catch (JsonProcessingException e) {
-            throw new DataStoreException(DataStoreException.ErrorCode.STORE_MULTI_GET,
+            throw new DataStoreException(DataStoreException.ErrorCode.STORE_INVALID_REQUEST,
                     e.getMessage(), e);
         } catch (IOException e) {
             throw new DataStoreException(DataStoreException.ErrorCode.STORE_MULTI_GET,
                     e.getMessage(), e);
+        } catch (Exception ex) {
+            throw new DataStoreException(DataStoreException.ErrorCode.STORE_MULTI_GET,
+                    ex.getMessage(), ex);
         } finally {
             if (null != hTable) {
                 try {
