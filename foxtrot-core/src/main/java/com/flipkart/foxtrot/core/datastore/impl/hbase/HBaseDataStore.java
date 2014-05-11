@@ -1,5 +1,6 @@
 package com.flipkart.foxtrot.core.datastore.impl.hbase;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.flipkart.foxtrot.common.Document;
 import com.flipkart.foxtrot.core.datastore.DataStore;
@@ -40,15 +41,18 @@ public class HBaseDataStore implements DataStore {
     @Override
     public void save(final String table, Document document) throws DataStoreException {
         if (document == null || document.getData() == null || document.getId() == null) {
-            throw new DataStoreException(DataStoreException.ErrorCode.STORE_INVALID_DOCUMENT, "Saving document error");
+            throw new DataStoreException(DataStoreException.ErrorCode.STORE_INVALID_REQUEST, "Invalid Document");
         }
         HTableInterface hTable = null;
         try {
             hTable = tableWrapper.getTable();
             hTable.put(getPutForDocument(table, document));
-        } catch (Throwable t) {
+        } catch (JsonProcessingException e) {
+            throw new DataStoreException(DataStoreException.ErrorCode.STORE_INVALID_REQUEST,
+                    e.getMessage(), e);
+        } catch (IOException e) {
             throw new DataStoreException(DataStoreException.ErrorCode.STORE_SINGLE_SAVE,
-                    "Saving document error: " + t.getMessage(), t);
+                    e.getMessage(), e);
         } finally {
             if (null != hTable) {
                 try {
@@ -65,21 +69,27 @@ public class HBaseDataStore implements DataStore {
         if (documents == null) {
             throw new DataStoreException(DataStoreException.ErrorCode.STORE_INVALID_REQUEST, "Invalid Documents List");
         }
-        HTableInterface hTable = null;
+        List<Put> puts = new Vector<Put>();
         try {
-            hTable = tableWrapper.getTable();
-            List<Put> puts = new Vector<Put>();
             for (Document document : documents) {
                 if (document == null || document.getData() == null || document.getId() == null) {
-                    throw new DataStoreException(DataStoreException.ErrorCode.STORE_INVALID_DOCUMENT,
-                            "Saving document error");
+                    throw new DataStoreException(DataStoreException.ErrorCode.STORE_INVALID_REQUEST,
+                            "Invalid Document");
                 }
                 puts.add(getPutForDocument(table, document));
             }
+        } catch (JsonProcessingException e) {
+            throw new DataStoreException(DataStoreException.ErrorCode.STORE_INVALID_REQUEST,
+                    e.getMessage(), e);
+        }
+
+        HTableInterface hTable = null;
+        try {
+            hTable = tableWrapper.getTable();
             hTable.put(puts);
-        } catch (Throwable t) {
+        } catch (IOException e) {
             throw new DataStoreException(DataStoreException.ErrorCode.STORE_MULTI_SAVE,
-                    "Saving document error: " + t.getMessage(), t);
+                    e.getMessage(), e);
         } finally {
             if (null != hTable) {
                 try {
@@ -110,9 +120,9 @@ public class HBaseDataStore implements DataStore {
                 throw new DataStoreException(DataStoreException.ErrorCode.STORE_NO_DATA_FOUND_FOR_ID,
                         String.format("No data found for ID: %s", id));
             }
-        } catch (Throwable t) {
+        } catch (IOException ex) {
             throw new DataStoreException(DataStoreException.ErrorCode.STORE_SINGLE_GET,
-                    t.getMessage(), t);
+                    ex.getMessage(), ex);
         } finally {
             if (null != hTable) {
                 try {
@@ -157,9 +167,12 @@ public class HBaseDataStore implements DataStore {
                 }
             }
             return results;
-        } catch (Throwable t) {
+        } catch (JsonProcessingException e) {
             throw new DataStoreException(DataStoreException.ErrorCode.STORE_MULTI_GET,
-                    t.getMessage(), t);
+                    e.getMessage(), e);
+        } catch (IOException e) {
+            throw new DataStoreException(DataStoreException.ErrorCode.STORE_MULTI_GET,
+                    e.getMessage(), e);
         } finally {
             if (null != hTable) {
                 try {
@@ -171,7 +184,7 @@ public class HBaseDataStore implements DataStore {
         }
     }
 
-    public Put getPutForDocument(final String table, Document document) throws Throwable {
+    public Put getPutForDocument(final String table, Document document) throws JsonProcessingException {
         return new Put(Bytes.toBytes(document.getId() + ":" + table))
                 .add(COLUMN_FAMILY, DATA_FIELD_NAME, mapper.writeValueAsBytes(document.getData()))
                 .add(COLUMN_FAMILY, TIMESTAMP_FIELD_NAME, Bytes.toBytes(document.getTimestamp()));

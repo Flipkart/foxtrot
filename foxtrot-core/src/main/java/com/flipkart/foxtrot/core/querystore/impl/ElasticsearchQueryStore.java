@@ -1,5 +1,6 @@
 package com.flipkart.foxtrot.core.querystore.impl;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.flipkart.foxtrot.common.Document;
 import com.flipkart.foxtrot.common.FieldTypeMapping;
@@ -20,9 +21,11 @@ import org.elasticsearch.common.hppc.cursors.ObjectCursor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.ExecutionException;
 
 /**
  * User: Santanu Sinha (santanu.sinha@flipkart.com)
@@ -69,9 +72,28 @@ public class ElasticsearchQueryStore implements QueryStore {
                     .setConsistencyLevel(WriteConsistencyLevel.QUORUM)
                     .execute()
                     .get();
-        } catch (Exception e) {
+        } catch (JsonProcessingException ex) {
+            throw new QueryStoreException(QueryStoreException.ErrorCode.INVALID_REQUEST,
+                    ex.getMessage(), ex);
+        } catch (ExecutionException ex) {
             throw new QueryStoreException(QueryStoreException.ErrorCode.DOCUMENT_SAVE_ERROR,
-                    "Error saving documents: " + e.getMessage(), e);
+                    ex.getMessage(), ex);
+        } catch (InterruptedException ex) {
+            throw new QueryStoreException(QueryStoreException.ErrorCode.DOCUMENT_SAVE_ERROR,
+                    ex.getMessage(), ex);
+        } catch (DataStoreException ex) {
+            DataStoreException.ErrorCode code = ex.getErrorCode();
+            if (code.equals(DataStoreException.ErrorCode.STORE_INVALID_REQUEST)
+                    || code.equals(DataStoreException.ErrorCode.STORE_INVALID_DOCUMENT)) {
+                throw new QueryStoreException(QueryStoreException.ErrorCode.INVALID_REQUEST,
+                        ex.getMessage(), ex);
+            } else {
+                throw new QueryStoreException(QueryStoreException.ErrorCode.DOCUMENT_SAVE_ERROR,
+                        ex.getMessage(), ex);
+            }
+        } catch (Exception ex) {
+            throw new QueryStoreException(QueryStoreException.ErrorCode.DOCUMENT_SAVE_ERROR,
+                    ex.getMessage(), ex);
         }
     }
 
@@ -100,9 +122,28 @@ public class ElasticsearchQueryStore implements QueryStore {
                     .execute()
                     .get();
 
-        } catch (Exception e) {
+        } catch (JsonProcessingException ex) {
+            throw new QueryStoreException(QueryStoreException.ErrorCode.INVALID_REQUEST,
+                    ex.getMessage(), ex);
+        } catch (ExecutionException ex) {
             throw new QueryStoreException(QueryStoreException.ErrorCode.DOCUMENT_SAVE_ERROR,
-                    "Error saving documents: " + e.getMessage(), e);
+                    ex.getMessage(), ex);
+        } catch (InterruptedException ex) {
+            throw new QueryStoreException(QueryStoreException.ErrorCode.DOCUMENT_SAVE_ERROR,
+                    ex.getMessage(), ex);
+        } catch (DataStoreException ex) {
+            DataStoreException.ErrorCode code = ex.getErrorCode();
+            if (code.equals(DataStoreException.ErrorCode.STORE_INVALID_REQUEST)
+                    || code.equals(DataStoreException.ErrorCode.STORE_INVALID_DOCUMENT)) {
+                throw new QueryStoreException(QueryStoreException.ErrorCode.INVALID_REQUEST,
+                        ex.getMessage(), ex);
+            } else {
+                throw new QueryStoreException(QueryStoreException.ErrorCode.DOCUMENT_SAVE_ERROR,
+                        ex.getMessage(), ex);
+            }
+        } catch (Exception ex) {
+            throw new QueryStoreException(QueryStoreException.ErrorCode.DOCUMENT_SAVE_ERROR,
+                    ex.getMessage(), ex);
         }
     }
 
@@ -110,9 +151,13 @@ public class ElasticsearchQueryStore implements QueryStore {
     public Document get(String table, String id) throws QueryStoreException {
         try {
             return dataStore.get(table, id);
-        } catch (DataStoreException e) {
+        } catch (DataStoreException ex) {
+            if (ex.getErrorCode().equals(DataStoreException.ErrorCode.STORE_NO_DATA_FOUND_FOR_ID)) {
+                throw new QueryStoreException(QueryStoreException.ErrorCode.INVALID_REQUEST,
+                        ex.getMessage(), ex);
+            }
             throw new QueryStoreException(QueryStoreException.ErrorCode.DOCUMENT_GET_ERROR,
-                    "Error getting documents: " + e.getMessage(), e);
+                    ex.getMessage(), ex);
         }
     }
 
@@ -120,15 +165,14 @@ public class ElasticsearchQueryStore implements QueryStore {
     public List<Document> get(String table, List<String> ids) throws QueryStoreException {
         try {
             return dataStore.get(table, ids);
-        } catch (Exception e) {
+        } catch (DataStoreException ex) {
+            if (ex.getErrorCode().equals(DataStoreException.ErrorCode.STORE_NO_DATA_FOUND_FOR_IDS)) {
+                throw new QueryStoreException(QueryStoreException.ErrorCode.INVALID_REQUEST,
+                        ex.getMessage(), ex);
+            }
             throw new QueryStoreException(QueryStoreException.ErrorCode.DOCUMENT_GET_ERROR,
-                    "Error getting documents: " + e.getMessage(), e);
+                    ex.getMessage(), ex);
         }
-    }
-
-    @Override
-    public void updateFieldMappings(String table, List<Document> documents) {
-
     }
 
     @Override
@@ -149,11 +193,12 @@ public class ElasticsearchQueryStore implements QueryStore {
                 mappings.addAll(mappingParser.getFieldMappings(mappingData));
             }
             return new TableFieldMapping(table, mappings);
-        } catch (Exception e) {
-            throw new QueryStoreException(
-                    QueryStoreException.ErrorCode.METADATA_FETCH_ERROR,
-                    String.format("Metadata fetch Failed %s", e.getMessage()),
-                    e);
+        } catch (IOException ex) {
+            throw new QueryStoreException(QueryStoreException.ErrorCode.METADATA_FETCH_ERROR,
+                    ex.getMessage(), ex);
+        } catch (Exception ex) {
+            throw new QueryStoreException(QueryStoreException.ErrorCode.METADATA_FETCH_ERROR,
+                    ex.getMessage(), ex);
         }
     }
 }

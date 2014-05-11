@@ -105,7 +105,7 @@ public class TableFieldMappingResourceTest extends ResourceTest {
 
         TableFieldMapping mapping = mapper.readValue(response, TableFieldMapping.class);
         assertEquals(tableFieldMapping.getTable(), mapping.getTable());
-        assertTrue(tableFieldMapping.getFieldMappings().equals(mapping.getFieldMappings()));
+        assertTrue(tableFieldMapping.getMappings().equals(mapping.getMappings()));
     }
 
     @Test(expected = UniformInterfaceException.class)
@@ -121,6 +121,6 @@ public class TableFieldMappingResourceTest extends ResourceTest {
                 .get(TableFieldMapping.class);
 
         assertEquals(request.getTable(), response.getTable());
-        assertTrue(request.getFieldMappings().equals(response.getFieldMappings()));
+        assertTrue(request.getMappings().equals(response.getMappings()));
     }
 }

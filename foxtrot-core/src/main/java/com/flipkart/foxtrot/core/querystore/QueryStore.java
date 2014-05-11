@@ -19,7 +19,5 @@ public interface QueryStore {
 
     public List<Document> get(final String table, final List<String> ids) throws QueryStoreException;
 
-    public void updateFieldMappings(final String table, final List<Document> documents);
-
     public TableFieldMapping getFieldMappings(final String table) throws QueryStoreException;
 }

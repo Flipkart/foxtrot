@@ -213,7 +213,7 @@ public class ElasticsearchQueryStoreTest {
         TableFieldMapping responseMapping = queryStore.getFieldMappings(TestUtils.TEST_TABLE);
 
         assertEquals(tableFieldMapping.getTable(), responseMapping.getTable());
-        assertTrue(tableFieldMapping.getFieldMappings().equals(responseMapping.getFieldMappings()));
+        assertTrue(tableFieldMapping.getMappings().equals(responseMapping.getMappings()));
     }
 
     @Test
@@ -232,6 +232,6 @@ public class ElasticsearchQueryStoreTest {
         TableFieldMapping response = queryStore.getFieldMappings(TestUtils.TEST_TABLE);
 
         assertEquals(request.getTable(), response.getTable());
-        assertTrue(request.getFieldMappings().equals(response.getFieldMappings()));
+        assertTrue(request.getMappings().equals(response.getMappings()));
     }
 }

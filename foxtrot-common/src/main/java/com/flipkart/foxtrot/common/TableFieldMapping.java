@@ -9,14 +9,14 @@ import java.util.Set;
  */
 public class TableFieldMapping {
     private String table;
-    private Set<FieldTypeMapping> fieldMappings;
+    private Set<FieldTypeMapping> mappings;
 
     public TableFieldMapping() {
     }
 
-    public TableFieldMapping(String table, Set<FieldTypeMapping> fieldMappings) {
+    public TableFieldMapping(String table, Set<FieldTypeMapping> mappings) {
         this.table = table;
-        this.fieldMappings = fieldMappings;
+        this.mappings = mappings;
     }
 
     public String getTable() {
@@ -27,12 +27,12 @@ public class TableFieldMapping {
         this.table = table;
     }
 
-    public Set<FieldTypeMapping> getFieldMappings() {
-        return fieldMappings;
+    public Set<FieldTypeMapping> getMappings() {
+        return mappings;
     }
 
-    public void setFieldMappings(Set<FieldTypeMapping> fieldMappings) {
-        this.fieldMappings = fieldMappings;
+    public void setMappings(Set<FieldTypeMapping> mappings) {
+        this.mappings = mappings;
     }
 
 
@@ -40,7 +40,7 @@ public class TableFieldMapping {
     public String toString() {
         return new ToStringBuilder(this)
                 .append("table", table)
-                .append("fieldMappings", fieldMappings)
+                .append("mappings", mappings)
                 .toString();
     }
 }
