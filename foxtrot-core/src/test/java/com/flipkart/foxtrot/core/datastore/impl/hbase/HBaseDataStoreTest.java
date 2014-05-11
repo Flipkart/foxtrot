@@ -202,6 +202,9 @@ public class HBaseDataStoreTest {
     @Test
     public void testSaveBulkHBaseWriteException() throws Exception {
         List<Document> documents = new Vector<Document>();
+        documents.add(new Document(UUID.randomUUID().toString(),
+                System.currentTimeMillis(),
+                mapper.valueToTree(Collections.singletonMap("TEST", "TEST"))));
         doThrow(new IOException())
                 .when(tableInterface)
                 .put(Matchers.anyListOf(Put.class));
@@ -216,6 +219,9 @@ public class HBaseDataStoreTest {
     @Test
     public void testSaveBulkHBaseCloseException() throws Exception {
         List<Document> documents = new Vector<Document>();
+        documents.add(new Document(UUID.randomUUID().toString(),
+                System.currentTimeMillis(),
+                mapper.valueToTree(Collections.singletonMap("TEST_NAME", "BULK_SAVE_TEST"))));
         doThrow(new IOException())
                 .when(tableInterface)
                 .close();

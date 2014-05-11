@@ -90,7 +90,7 @@ public class ElasticsearchQueryStoreTest {
             queryStore.save(TestUtils.TEST_TABLE + "-missing", expectedDocument);
             fail();
         } catch (QueryStoreException qse) {
-            assertEquals(QueryStoreException.ErrorCode.DOCUMENT_SAVE_ERROR, qse.getErrorCode());
+            assertEquals(QueryStoreException.ErrorCode.NO_SUCH_TABLE, qse.getErrorCode());
         }
     }
 
