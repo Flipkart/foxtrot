@@ -69,7 +69,7 @@ public class HBaseDataStore implements DataStore {
 
     @Override
     public void save(final String table, List<Document> documents) throws DataStoreException {
-        if (documents == null) {
+        if (documents == null || documents.isEmpty()) {
             throw new DataStoreException(DataStoreException.ErrorCode.STORE_INVALID_REQUEST, "Invalid Documents List");
         }
         List<Put> puts = new Vector<Put>();

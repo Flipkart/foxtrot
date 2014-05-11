@@ -123,7 +123,7 @@ public class DocumentResourceTest extends ResourceTest {
         try {
             client().resource("/foxtrot/v1/document/" + TestUtils.TEST_TABLE).type(MediaType.APPLICATION_JSON_TYPE).post(document);
         } catch (UniformInterfaceException ex) {
-            assertEquals(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode(), ex.getResponse().getStatus());
+            assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), ex.getResponse().getStatus());
         }
     }
 
@@ -184,7 +184,7 @@ public class DocumentResourceTest extends ResourceTest {
         try {
             client().resource(String.format("/foxtrot/v1/document/%s/bulk", TestUtils.TEST_TABLE)).type(MediaType.APPLICATION_JSON_TYPE).post(documents);
         } catch (UniformInterfaceException ex) {
-            assertEquals(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode(), ex.getResponse().getStatus());
+            assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), ex.getResponse().getStatus());
         }
     }
 
@@ -204,7 +204,7 @@ public class DocumentResourceTest extends ResourceTest {
                     .type(MediaType.APPLICATION_JSON_TYPE)
                     .post(documents);
         } catch (UniformInterfaceException ex) {
-            assertEquals(500, ex.getResponse().getStatus());
+            assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), ex.getResponse().getStatus());
         }
     }
 
@@ -217,7 +217,7 @@ public class DocumentResourceTest extends ResourceTest {
                     .type(MediaType.APPLICATION_JSON_TYPE)
                     .post(documents);
         } catch (UniformInterfaceException ex) {
-            assertEquals(500, ex.getResponse().getStatus());
+            assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), ex.getResponse().getStatus());
         }
     }
 
@@ -230,7 +230,7 @@ public class DocumentResourceTest extends ResourceTest {
                     .type(MediaType.APPLICATION_JSON_TYPE)
                     .post(documents);
         } catch (UniformInterfaceException ex) {
-            assertEquals(500, ex.getResponse().getStatus());
+            assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), ex.getResponse().getStatus());
         }
     }
 
@@ -248,10 +248,10 @@ public class DocumentResourceTest extends ResourceTest {
                     .type(MediaType.APPLICATION_JSON_TYPE)
                     .post("[]");
         } catch (UniformInterfaceException ex) {
-            assertEquals(500, ex.getResponse().getStatus());
+            System.out.println(ex);
+            assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), ex.getResponse().getStatus());
         }
     }
-
 
     @Test
     public void testGetDocument() throws Exception {
@@ -271,7 +271,7 @@ public class DocumentResourceTest extends ResourceTest {
             client().resource(String.format("/foxtrot/v1/document/%s/%s", TestUtils.TEST_TABLE, id))
                     .get(Document.class);
         } catch (UniformInterfaceException ex) {
-            assertEquals(500, ex.getResponse().getStatus());
+            assertEquals(Response.Status.NOT_FOUND.getStatusCode(), ex.getResponse().getStatus());
         }
     }
 
@@ -318,7 +318,7 @@ public class DocumentResourceTest extends ResourceTest {
                     .queryParam("id", UUID.randomUUID().toString())
                     .get(String.class);
         } catch (UniformInterfaceException ex) {
-            assertEquals(500, ex.getResponse().getStatus());
+            assertEquals(Response.Status.NOT_FOUND.getStatusCode(), ex.getResponse().getStatus());
         }
     }
 

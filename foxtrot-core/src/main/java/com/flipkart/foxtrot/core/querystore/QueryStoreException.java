@@ -26,6 +26,7 @@ public class QueryStoreException extends Exception {
         UNRESOLVABLE_OPERATION,
         ACTION_RESOLUTION_ERROR,
         METADATA_FETCH_ERROR,
+        DOCUMENT_NOT_FOUND,
         INVALID_REQUEST,
         NO_METADATA_FOUND
     }

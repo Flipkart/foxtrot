@@ -2,6 +2,7 @@ package com.flipkart.foxtrot.server.resources;
 
 import com.flipkart.foxtrot.common.Document;
 import com.flipkart.foxtrot.core.querystore.QueryStore;
+import com.flipkart.foxtrot.core.querystore.QueryStoreException;
 import com.sun.istack.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,11 +36,21 @@ public class DocumentResource {
     public Response saveDocument(@PathParam("table") final String table, @Valid final Document document) {
         try {
             queryStore.save(table, document);
-        } catch (Exception e) {
-            logger.error("Error saving document: ", e);
-            return Response.serverError()
-                    .entity(Collections.singletonMap("error", "Could not save document: " + e.getMessage()))
-                    .build();
+        } catch (QueryStoreException ex) {
+            logger.error("Save error : ", ex);
+            switch (ex.getErrorCode()) {
+                case NO_SUCH_TABLE:
+                case INVALID_REQUEST:
+                    return Response.status(Response.Status.BAD_REQUEST)
+                            .entity(Collections.singletonMap("error", ex.getErrorCode()))
+                            .build();
+                case DOCUMENT_SAVE_ERROR:
+                default:
+                    return Response.serverError()
+                            .entity(Collections.singletonMap("error", ex.getErrorCode()))
+                            .build();
+
+            }
         }
         return Response.created(URI.create("/" + document.getId())).build();
     }
@@ -49,11 +60,21 @@ public class DocumentResource {
     public Response saveDocuments(@PathParam("table") final String table, @Valid final List<Document> document) {
         try {
             queryStore.save(table, document);
-        } catch (Exception e) {
-            logger.error("Error saving document: ", e);
-            return Response.serverError()
-                    .entity(Collections.singletonMap("error", "Could not save document: " + e.getMessage()))
-                    .build();
+        } catch (QueryStoreException ex) {
+            logger.error("Save error: ", ex);
+            switch (ex.getErrorCode()) {
+                case NO_SUCH_TABLE:
+                case INVALID_REQUEST:
+                    return Response.status(Response.Status.BAD_REQUEST)
+                            .entity(Collections.singletonMap("error", ex.getErrorCode()))
+                            .build();
+                case DOCUMENT_SAVE_ERROR:
+                default:
+                    return Response.serverError()
+                            .entity(Collections.singletonMap("error", ex.getErrorCode()))
+                            .build();
+
+            }
         }
         return Response.created(URI.create("/" + table)).build();
     }
@@ -63,22 +84,41 @@ public class DocumentResource {
     public Response getDocument(@PathParam("table") final String table, @PathParam("id") @NotNull final String id) {
         try {
             return Response.ok(queryStore.get(table, id)).build();
-        } catch (Exception e) {
-            return Response.serverError()
-                    .entity(Collections.singletonMap("error", "Could not get document: " + e.getMessage()))
-                    .build();
+        } catch (QueryStoreException ex) {
+            logger.error("Get error : ", ex);
+            switch (ex.getErrorCode()) {
+                case DOCUMENT_NOT_FOUND:
+                    return Response.status(Response.Status.NOT_FOUND)
+                            .entity(Collections.singletonMap("error", ex.getErrorCode()))
+                            .build();
+                case DOCUMENT_GET_ERROR:
+                default:
+                    return Response.serverError()
+                            .entity(Collections.singletonMap("error", ex.getErrorCode()))
+                            .build();
+
+            }
         }
     }
 
     @GET
     public Response getDocuments(@PathParam("table") final String table, @QueryParam("id") @NotNull final List<String> ids) {
-        System.out.println("Ids are : " + ids);
         try {
             return Response.ok(queryStore.get(table, ids)).build();
-        } catch (Exception e) {
-            return Response.serverError()
-                    .entity(Collections.singletonMap("error", "Could not get document: " + e.getMessage()))
-                    .build();
+        } catch (QueryStoreException ex) {
+            logger.error("Get error : ", ex);
+            switch (ex.getErrorCode()) {
+                case DOCUMENT_NOT_FOUND:
+                    return Response.status(Response.Status.NOT_FOUND)
+                            .entity(Collections.singletonMap("error", ex.getErrorCode()))
+                            .build();
+                case DOCUMENT_GET_ERROR:
+                default:
+                    return Response.serverError()
+                            .entity(Collections.singletonMap("error", ex.getErrorCode()))
+                            .build();
+
+            }
         }
     }
 }

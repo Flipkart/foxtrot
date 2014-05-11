@@ -91,6 +91,8 @@ public class ElasticsearchQueryStore implements QueryStore {
                 throw new QueryStoreException(QueryStoreException.ErrorCode.DOCUMENT_SAVE_ERROR,
                         ex.getMessage(), ex);
             }
+        } catch (QueryStoreException ex) {
+            throw ex;
         } catch (Exception ex) {
             throw new QueryStoreException(QueryStoreException.ErrorCode.DOCUMENT_SAVE_ERROR,
                     ex.getMessage(), ex);
@@ -103,6 +105,10 @@ public class ElasticsearchQueryStore implements QueryStore {
             if (!tableMetadataManager.exists(table)) {
                 throw new QueryStoreException(QueryStoreException.ErrorCode.NO_SUCH_TABLE,
                         "No table exists with the name: " + table);
+            }
+            if (documents == null || documents.size() == 0) {
+                throw new QueryStoreException(QueryStoreException.ErrorCode.INVALID_REQUEST,
+                        "Invalid Document List");
             }
             dataStore.save(table, documents);
             BulkRequestBuilder bulkRequestBuilder = connection.getClient().prepareBulk();
@@ -141,6 +147,8 @@ public class ElasticsearchQueryStore implements QueryStore {
                 throw new QueryStoreException(QueryStoreException.ErrorCode.DOCUMENT_SAVE_ERROR,
                         ex.getMessage(), ex);
             }
+        } catch (QueryStoreException ex) {
+            throw ex;
         } catch (Exception ex) {
             throw new QueryStoreException(QueryStoreException.ErrorCode.DOCUMENT_SAVE_ERROR,
                     ex.getMessage(), ex);
@@ -153,7 +161,7 @@ public class ElasticsearchQueryStore implements QueryStore {
             return dataStore.get(table, id);
         } catch (DataStoreException ex) {
             if (ex.getErrorCode().equals(DataStoreException.ErrorCode.STORE_NO_DATA_FOUND_FOR_ID)) {
-                throw new QueryStoreException(QueryStoreException.ErrorCode.INVALID_REQUEST,
+                throw new QueryStoreException(QueryStoreException.ErrorCode.DOCUMENT_NOT_FOUND,
                         ex.getMessage(), ex);
             }
             throw new QueryStoreException(QueryStoreException.ErrorCode.DOCUMENT_GET_ERROR,
@@ -167,7 +175,7 @@ public class ElasticsearchQueryStore implements QueryStore {
             return dataStore.get(table, ids);
         } catch (DataStoreException ex) {
             if (ex.getErrorCode().equals(DataStoreException.ErrorCode.STORE_NO_DATA_FOUND_FOR_IDS)) {
-                throw new QueryStoreException(QueryStoreException.ErrorCode.INVALID_REQUEST,
+                throw new QueryStoreException(QueryStoreException.ErrorCode.DOCUMENT_NOT_FOUND,
                         ex.getMessage(), ex);
             }
             throw new QueryStoreException(QueryStoreException.ErrorCode.DOCUMENT_GET_ERROR,
@@ -193,6 +201,8 @@ public class ElasticsearchQueryStore implements QueryStore {
                 mappings.addAll(mappingParser.getFieldMappings(mappingData));
             }
             return new TableFieldMapping(table, mappings);
+        } catch (QueryStoreException ex) {
+            throw ex;
         } catch (IOException ex) {
             throw new QueryStoreException(QueryStoreException.ErrorCode.METADATA_FETCH_ERROR,
                     ex.getMessage(), ex);

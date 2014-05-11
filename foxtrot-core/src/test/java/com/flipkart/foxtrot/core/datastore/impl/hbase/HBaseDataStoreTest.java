@@ -62,7 +62,7 @@ public class HBaseDataStoreTest {
             HBaseDataStore.save(TEST_APP, document);
             fail();
         } catch (DataStoreException ex) {
-            assertEquals(ex.getErrorCode(), DataStoreException.ErrorCode.STORE_INVALID_REQUEST);
+            assertEquals(DataStoreException.ErrorCode.STORE_INVALID_REQUEST, ex.getErrorCode());
         }
     }
 
@@ -73,7 +73,7 @@ public class HBaseDataStoreTest {
             HBaseDataStore.save(TEST_APP, document);
             fail();
         } catch (DataStoreException ex) {
-            assertEquals(ex.getErrorCode(), DataStoreException.ErrorCode.STORE_INVALID_REQUEST);
+            assertEquals(DataStoreException.ErrorCode.STORE_INVALID_REQUEST, ex.getErrorCode());
         }
     }
 
@@ -84,7 +84,7 @@ public class HBaseDataStoreTest {
             HBaseDataStore.save(TEST_APP, document);
             fail();
         } catch (DataStoreException ex) {
-            assertEquals(ex.getErrorCode(), DataStoreException.ErrorCode.STORE_INVALID_REQUEST);
+            assertEquals(DataStoreException.ErrorCode.STORE_INVALID_REQUEST, ex.getErrorCode());
         }
     }
 
@@ -100,7 +100,7 @@ public class HBaseDataStoreTest {
             HBaseDataStore.save(TEST_APP, document);
             fail();
         } catch (DataStoreException ex) {
-            assertEquals(ex.getErrorCode(), DataStoreException.ErrorCode.STORE_SINGLE_SAVE);
+            assertEquals(DataStoreException.ErrorCode.STORE_SINGLE_SAVE, ex.getErrorCode());
         }
     }
 
@@ -128,7 +128,7 @@ public class HBaseDataStoreTest {
             HBaseDataStore.save(TEST_APP, expectedDocument);
             fail();
         } catch (DataStoreException ex) {
-            assertEquals(ex.getErrorCode(), DataStoreException.ErrorCode.STORE_SINGLE_SAVE);
+            assertEquals(DataStoreException.ErrorCode.STORE_SINGLE_SAVE, ex.getErrorCode());
         }
     }
 
@@ -156,7 +156,7 @@ public class HBaseDataStoreTest {
             HBaseDataStore.save(TEST_APP, documents);
             fail();
         } catch (DataStoreException ex) {
-            assertEquals(ex.getErrorCode(), DataStoreException.ErrorCode.STORE_INVALID_REQUEST);
+            assertEquals(DataStoreException.ErrorCode.STORE_INVALID_REQUEST, ex.getErrorCode());
         }
     }
 
@@ -167,7 +167,7 @@ public class HBaseDataStoreTest {
             HBaseDataStore.save(TEST_APP, documents);
             fail();
         } catch (DataStoreException ex) {
-            assertEquals(ex.getErrorCode(), DataStoreException.ErrorCode.STORE_INVALID_REQUEST);
+            assertEquals(DataStoreException.ErrorCode.STORE_INVALID_REQUEST, ex.getErrorCode());
         }
     }
 
@@ -181,7 +181,7 @@ public class HBaseDataStoreTest {
             HBaseDataStore.save(TEST_APP, documents);
             fail();
         } catch (DataStoreException ex) {
-            assertEquals(ex.getErrorCode(), DataStoreException.ErrorCode.STORE_INVALID_REQUEST);
+            assertEquals(DataStoreException.ErrorCode.STORE_INVALID_REQUEST, ex.getErrorCode());
         }
     }
 
@@ -195,7 +195,7 @@ public class HBaseDataStoreTest {
             HBaseDataStore.save(TEST_APP, documents);
             fail();
         } catch (DataStoreException ex) {
-            assertEquals(ex.getErrorCode(), DataStoreException.ErrorCode.STORE_INVALID_REQUEST);
+            assertEquals(DataStoreException.ErrorCode.STORE_INVALID_REQUEST, ex.getErrorCode());
         }
     }
 
@@ -209,7 +209,7 @@ public class HBaseDataStoreTest {
             HBaseDataStore.save(TEST_APP, documents);
             fail();
         } catch (DataStoreException ex) {
-            assertEquals(ex.getErrorCode(), DataStoreException.ErrorCode.STORE_MULTI_SAVE);
+            assertEquals(DataStoreException.ErrorCode.STORE_MULTI_SAVE, ex.getErrorCode());
         }
     }
 
@@ -236,7 +236,7 @@ public class HBaseDataStoreTest {
             HBaseDataStore.save(TEST_APP, documents);
             fail();
         } catch (DataStoreException ex) {
-            assertEquals(ex.getErrorCode(), DataStoreException.ErrorCode.STORE_MULTI_SAVE);
+            assertEquals(DataStoreException.ErrorCode.STORE_MULTI_SAVE, ex.getErrorCode());
         }
     }
 

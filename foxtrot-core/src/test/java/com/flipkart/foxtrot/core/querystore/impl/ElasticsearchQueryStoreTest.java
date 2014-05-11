@@ -129,7 +129,7 @@ public class ElasticsearchQueryStoreTest {
             queryStore.save(TestUtils.TEST_TABLE + "-missing", documents);
             fail();
         } catch (QueryStoreException qse) {
-            assertEquals(QueryStoreException.ErrorCode.DOCUMENT_SAVE_ERROR, qse.getErrorCode());
+            assertEquals(QueryStoreException.ErrorCode.NO_SUCH_TABLE, qse.getErrorCode());
         }
     }
 
@@ -153,7 +153,7 @@ public class ElasticsearchQueryStoreTest {
         try {
             queryStore.get(TestUtils.TEST_TABLE, UUID.randomUUID().toString());
         } catch (QueryStoreException qse) {
-            assertEquals(QueryStoreException.ErrorCode.DOCUMENT_GET_ERROR, qse.getErrorCode());
+            assertEquals(QueryStoreException.ErrorCode.DOCUMENT_NOT_FOUND, qse.getErrorCode());
         }
     }
 
@@ -194,7 +194,7 @@ public class ElasticsearchQueryStoreTest {
             queryStore.get(TestUtils.TEST_TABLE, Arrays.asList(UUID.randomUUID().toString(), UUID.randomUUID().toString()));
             fail();
         } catch (QueryStoreException qse) {
-            assertEquals(QueryStoreException.ErrorCode.DOCUMENT_GET_ERROR, qse.getErrorCode());
+            assertEquals(QueryStoreException.ErrorCode.DOCUMENT_NOT_FOUND, qse.getErrorCode());
         }
     }
 
@@ -222,7 +222,7 @@ public class ElasticsearchQueryStoreTest {
             queryStore.getFieldMappings(TestUtils.TEST_TABLE + "-test");
             fail();
         } catch (QueryStoreException qse) {
-            assertEquals(QueryStoreException.ErrorCode.METADATA_FETCH_ERROR, qse.getErrorCode());
+            assertEquals(QueryStoreException.ErrorCode.NO_SUCH_TABLE, qse.getErrorCode());
         }
     }
 
