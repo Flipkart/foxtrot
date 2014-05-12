@@ -25,6 +25,7 @@ chown -R $USER_ID:$GROUP_ID /var/lib/$PKG_NAME
 chown -R $USER_ID:$GROUP_ID /var/log/flipkart/$PKG_NAME
 chown -R $USER_ID:$GROUP_ID /var/run/$PKG_NAME
 
+chmod 777 /etc/$PKG_NAME/config.yml
 chmod 777 /etc/init.d/$PKG_NAME
 update-rc.d $PKG_NAME defaults
 /sbin/chkconfig --add $PKG_NAME
