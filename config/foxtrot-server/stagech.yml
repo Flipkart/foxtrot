@@ -50,6 +50,4 @@ logging:
 cluster:
   name: foxtrot
   disableMulticast: true
-  members:
-    - 10.75.121.41:5701
-#    - 172.23.250.146:5702
+  members: []
