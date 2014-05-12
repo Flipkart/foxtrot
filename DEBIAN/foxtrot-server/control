@@ -1,0 +1,9 @@
+Package: foxtrot-server
+Version: 1._VERSION_
+Priority: optional
+Section: flipkart/digital
+Architecture: all
+Depends: bash, chkconfig,fk-digital-hyperion-keys
+Installed-Size: 77
+Maintainer: Rishabh Goyal <rishabh.goyal@flipkart.com>
+Description: Package for foxtrot data layer

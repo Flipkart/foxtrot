@@ -1,0 +1,7 @@
+#! /bin/bash
+set -e
+
+PKG_NAME=foxtrot-server
+update-rc.d -f $PKG_NAME remove
+
+exit 0

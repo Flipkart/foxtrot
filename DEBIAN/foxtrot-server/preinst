@@ -1,0 +1,14 @@
+#! /bin/bash
+#set -e
+
+#PKG_NAME=foxtrot-server
+#PID_FILE=/var/run/$PKG_NAME/$PKG_NAME.pid
+
+#if [ -e /etc/init.d/$PKG_NAME ]; then
+#    if [ -e $PID_FILE ]; then
+#        service $PKG_NAME force_stop
+#    fi
+#    rm -rf /var/run/$PKG_NAME
+#fi
+
+#exit 0

@@ -1,0 +1,33 @@
+#! /bin/bash
+set -e
+
+PKG_NAME=foxtrot-server
+USER=foxtrot
+GROUP=fk-digital
+USER_ID=9010
+GROUP_ID=9000
+
+if ! getent group $GROUP > /dev/null; then
+    groupadd -g $GROUP_ID $GROUP
+fi
+
+if ! getent passwd $USER_ID > /dev/null; then
+    adduser --system --uid $USER_ID --home /usr/local/$PKG_NAME --no-create-home \
+        --ingroup $GROUP --disabled-password --shell /bin/false \
+        $USER
+fi
+
+mkdir -p /var/log/$PKG_NAME
+mkdir -p /var/run/$PKG_NAME
+chown  $USER_ID:$GROUP_ID /etc/$PKG_NAME
+chown  $USER_ID:$GROUP_ID /etc/init.d/$PKG_NAME
+chown -R $USER_ID:$GROUP_ID /var/lib/$PKG_NAME
+chown -R $USER_ID:$GROUP_ID /var/log/$PKG_NAME
+chown -R $USER_ID:$GROUP_ID /var/run/$PKG_NAME
+chown -R $USER_ID:$GROUP_ID /usr/share/doc/$PKG_NAME
+
+chmod 777 /etc/init.d/$PKG_NAME
+update-rc.d $PKG_NAME defaults
+/sbin/chkconfig --add $PKG_NAME
+#service $PKG_NAME restart
+exit 0

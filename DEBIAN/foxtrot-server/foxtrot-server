@@ -1,0 +1,103 @@
+#! /bin/sh
+#  /etc/init.d/foxtrot-server
+
+set -e
+
+### BEGIN INIT INFO
+# Provides:          foxtrot-server
+# Required-Start:    $remote_fs $syslog
+# Required-Stop:     $remote_fs $syslog
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: Starts the foxtrot-server
+# Description:       This file is used to start the daemon
+#                    and should be placed in /etc/init.d
+### END INIT INFO
+
+# Author:  Rishabh Goyal <rishabh.goyal[AT]flipkart.com>
+
+PKG_NAME=foxtrot-server
+DESC="Server for Serving foxtrot data"
+
+JAVA_HOME=`echo $JAVA_HOME`
+
+JAR_PATH=/var/lib/$PKG_NAME/foxtrot-server.jar
+CONFIG_PATH=/etc/$PKG_NAME/config.yml
+PID_PATH=/var/run/$PKG_NAME
+JAVA_OPTIONS="-Dfile.encoding=utf-8 -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false"
+
+if [ ! -e $PID_PATH ]; then
+	mkdir -m 755 -p /var/run/$PKG_NAME
+fi
+
+PIDFILE="${PID_PATH}/$PKG_NAME.pid"
+DAEMONUSER=foxtrot
+export PATH="${PATH:+$PATH:}/usr/sbin:/sbin"
+
+
+function exit_process() {
+    exit -1
+}
+
+function start() {
+    start-stop-daemon --start --background --oknodo \
+                    --umask 000 --user ${DAEMONUSER} --chuid ${DAEMONUSER} \
+                    --make-pidfile --pidfile ${PIDFILE} \
+                    --exec /usr/bin/java -- ${JAVA_OPTIONS} -jar ${JAR_PATH} server CONFIG_PATH 2>&1 > /dev/null
+    return $?
+}
+
+function stop() {
+    start-stop-daemon --stop --signal 9 \
+                    --quiet --pidfile $PIDFILE \
+                    --retry 300 \
+                    --user $DAEMONUSER \
+                    --exec /usr/bin/java -- ${JAVA_OPTIONS} -jar ${JAR_PATH} server CONFIG_PATH 2>&1 > /dev/null
+    return $?
+}
+
+function restart() {
+    stop
+    start
+}
+
+function force_stop() {
+    stop
+}
+
+function status() {
+    if [ ! -z ${PIDFILE} ]; then
+        if [ -f ${PIDFILE} ]; then
+            if [ -s ${PIDFILE} ]; then
+                if [ -r ${PIDFILE} ]; then
+                    PID=`cat ${PIDFILE}`
+                    ps -p $PID >/dev/null 2>&1
+                    if [ $? -eq 0 ] ; then
+                        echo "Existing instance of foxtrot-server running with pid: " `cat ${PIDFILE}`
+                        return 0
+                    fi
+                fi
+            fi
+        fi
+    fi
+    echo "No valid PID file found"
+    return 1
+}
+
+function print_help() {
+    echo "Usage: foxtrot-server start|stop|restart|force_stop|status"
+}
+
+if [ $# -eq 0 ]; then
+    print_help
+    exit 1
+fi
+
+if [ ${1} = "start" -o ${1} = "stop"  -o ${1} = "restart" -o ${1} = "force_stop" -o ${1} = "status" ]; then
+    :
+else
+   print_help
+   exit 1
+fi
+
+${1}
