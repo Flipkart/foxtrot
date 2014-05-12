@@ -24,10 +24,8 @@ chown  $USER_ID:$GROUP_ID /etc/init.d/$PKG_NAME
 chown -R $USER_ID:$GROUP_ID /var/lib/$PKG_NAME
 chown -R $USER_ID:$GROUP_ID /var/log/$PKG_NAME
 chown -R $USER_ID:$GROUP_ID /var/run/$PKG_NAME
-chown -R $USER_ID:$GROUP_ID /usr/share/doc/$PKG_NAME
 
 chmod 777 /etc/init.d/$PKG_NAME
 update-rc.d $PKG_NAME defaults
 /sbin/chkconfig --add $PKG_NAME
-#service $PKG_NAME restart
 exit 0
