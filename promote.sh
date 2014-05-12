@@ -8,4 +8,4 @@ case $# in
 esac
 ENV=$1
 git tag -m "Promoting to $ENV" release/${ENV}-$(date +%Y%m%d-%H%M)
-git push gitcorp --tags
+git push origin --tags
