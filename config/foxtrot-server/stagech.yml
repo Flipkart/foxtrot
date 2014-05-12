@@ -4,6 +4,14 @@ http:
   connectorType: nonblocking
   minThreads: 20
   maxThreads: 40
+  requestLog:
+    console:
+      enabled: false
+    file:
+      enabled: true
+      currentLogFilename: /var/log/flipkart/foxtrot-server/access.log
+      archivedLogFilenamePattern: /var/log/flipkart/foxtrot-server/access.%d.log.gz
+      archivedFileCount: 5
 
 elasticsearch:
   hosts:
