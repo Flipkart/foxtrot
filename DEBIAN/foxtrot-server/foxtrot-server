@@ -43,7 +43,7 @@ function start() {
     start-stop-daemon --start --background --oknodo \
                     --umask 000 --user ${DAEMONUSER} --chuid ${DAEMONUSER} \
                     --make-pidfile --pidfile ${PIDFILE} \
-                    --exec /usr/bin/java -- ${JAVA_OPTIONS} -jar ${JAR_PATH} server CONFIG_PATH 2>&1 > /dev/null
+                    --exec /usr/bin/java -- ${JAVA_OPTIONS} -jar ${JAR_PATH} server ${CONFIG_PATH} 2>&1 > /dev/null
     return $?
 }
 
@@ -52,7 +52,7 @@ function stop() {
                     --quiet --pidfile $PIDFILE \
                     --retry 300 \
                     --user $DAEMONUSER \
-                    --exec /usr/bin/java -- ${JAVA_OPTIONS} -jar ${JAR_PATH} server CONFIG_PATH 2>&1 > /dev/null
+                    --exec /usr/bin/java -- ${JAVA_OPTIONS} -jar ${JAR_PATH} server ${CONFIG_PATH} 2>&1 > /dev/null
     return $?
 }
 
