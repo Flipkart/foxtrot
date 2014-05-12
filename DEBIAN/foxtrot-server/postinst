@@ -17,12 +17,12 @@ if ! getent passwd $USER_ID > /dev/null; then
         $USER
 fi
 
-mkdir -p /var/log/$PKG_NAME
+mkdir -p /var/log/flipkart/$PKG_NAME
 mkdir -p /var/run/$PKG_NAME
 chown  $USER_ID:$GROUP_ID /etc/$PKG_NAME
 chown  $USER_ID:$GROUP_ID /etc/init.d/$PKG_NAME
 chown -R $USER_ID:$GROUP_ID /var/lib/$PKG_NAME
-chown -R $USER_ID:$GROUP_ID /var/log/$PKG_NAME
+chown -R $USER_ID:$GROUP_ID /var/log/flipkart/$PKG_NAME
 chown -R $USER_ID:$GROUP_ID /var/run/$PKG_NAME
 
 chmod 777 /etc/init.d/$PKG_NAME

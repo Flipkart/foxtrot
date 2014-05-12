@@ -27,6 +27,18 @@ hbase:
   authString: fk-hyperion@STAGE.CH.FLIPKART.COM
   tableName: foxtrot
 
+logging:
+  level: INFO
+  console:
+    enabled: false
+  file:
+    enabled: true
+    threshold: ALL
+    currentLogFilename: /var/log/flipkart/foxtrot-server/server.log
+    archivedLogFilenamePattern: /var/log/flipkart/foxtrot-server/server-%d.log.gz
+    archivedFileCount: 5
+    timeZone: UTC
+
 cluster:
   name: foxtrot
   disableMulticast: true
