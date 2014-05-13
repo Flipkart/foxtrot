@@ -11,7 +11,7 @@ import java.util.Collections;
 /**
  * Created by rishabh.goyal on 06/05/14.
  */
-@Path("/foxtrot/v1/fields/{table}")
+@Path("/foxtrot/v1/tables/{name}/fields")
 @Produces(MediaType.APPLICATION_JSON)
 public class TableFieldMappingResource {
 
@@ -22,7 +22,7 @@ public class TableFieldMappingResource {
     }
 
     @GET
-    public Response get(@PathParam("table") final String table) {
+    public Response get(@PathParam("name") final String table) {
         try {
             return Response.ok(queryStore.getFieldMappings(table)).build();
         } catch (QueryStoreException ex) {
