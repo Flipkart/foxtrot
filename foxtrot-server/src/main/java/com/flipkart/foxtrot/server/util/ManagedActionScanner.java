@@ -8,6 +8,7 @@ import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsLoader;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsProvider;
 import com.yammer.dropwizard.config.Environment;
 import com.yammer.dropwizard.lifecycle.Managed;
+import net.sourceforge.cobertura.CoverageIgnore;
 import org.reflections.Reflections;
 import org.reflections.scanners.SubTypesScanner;
 import org.slf4j.Logger;
@@ -22,6 +23,8 @@ import java.util.Vector;
  * Date: 27/03/14
  * Time: 2:23 AM
  */
+
+@CoverageIgnore
 public class ManagedActionScanner implements Managed {
     private static final Logger logger = LoggerFactory.getLogger(ManagedActionScanner.class.getSimpleName());
 

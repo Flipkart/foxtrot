@@ -4,7 +4,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.flipkart.foxtrot.common.Document;
 import com.flipkart.foxtrot.common.query.Filter;
 import com.flipkart.foxtrot.common.query.general.EqualsFilter;
 import com.flipkart.foxtrot.common.trend.TrendRequest;
@@ -43,7 +42,6 @@ public class TrendActionTest {
     private ObjectMapper mapper = new ObjectMapper();
     private MockElasticsearchServer elasticsearchServer;
     private HazelcastInstance hazelcastInstance;
-    private String TEST_APP = "test-app";
     private JsonNodeFactory factory = JsonNodeFactory.instance;
 
     @Before
@@ -64,14 +62,14 @@ public class TrendActionTest {
 
         // Ensure that table exists before saving/reading data from it
         TableMetadataManager tableMetadataManager = Mockito.mock(TableMetadataManager.class);
-        when(tableMetadataManager.exists(TEST_APP)).thenReturn(true);
+        when(tableMetadataManager.exists(TestUtils.TEST_TABLE)).thenReturn(true);
 
         AnalyticsLoader analyticsLoader = new AnalyticsLoader(dataStore, elasticsearchConnection);
         TestUtils.registerActions(analyticsLoader, mapper);
         ExecutorService executorService = Executors.newFixedThreadPool(1);
         queryExecutor = new QueryExecutor(analyticsLoader, executorService);
         new ElasticsearchQueryStore(tableMetadataManager, elasticsearchConnection, dataStore, queryExecutor)
-                .save(TEST_APP, getTrendDocuments());
+                .save(TestUtils.TEST_TABLE, TestUtils.getTrendDocuments(mapper));
     }
 
     @After
@@ -98,7 +96,7 @@ public class TrendActionTest {
     public void testTrendActionNullField() throws QueryStoreException, JsonProcessingException {
         logger.info("Testing Trend - With Field");
         TrendRequest trendRequest = new TrendRequest();
-        trendRequest.setTable(TEST_APP);
+        trendRequest.setTable(TestUtils.TEST_TABLE);
         trendRequest.setFrom(1L);
         trendRequest.setTo(System.currentTimeMillis());
         trendRequest.setField(null);
@@ -119,7 +117,7 @@ public class TrendActionTest {
     public void testTrendActionFieldAll() throws QueryStoreException, JsonProcessingException {
         logger.info("Testing Trend - With Field");
         TrendRequest trendRequest = new TrendRequest();
-        trendRequest.setTable(TEST_APP);
+        trendRequest.setTable(TestUtils.TEST_TABLE);
         trendRequest.setFrom(1L);
         trendRequest.setTo(System.currentTimeMillis());
         trendRequest.setField("all");
@@ -152,7 +150,7 @@ public class TrendActionTest {
     public void testTrendActionWithField() throws QueryStoreException, JsonProcessingException {
         logger.info("Testing Trend - With Field");
         TrendRequest trendRequest = new TrendRequest();
-        trendRequest.setTable(TEST_APP);
+        trendRequest.setTable(TestUtils.TEST_TABLE);
         trendRequest.setFrom(1L);
         trendRequest.setField("os");
         trendRequest.setTo(System.currentTimeMillis());
@@ -177,7 +175,7 @@ public class TrendActionTest {
     public void testTrendActionWithFieldZeroTo() throws QueryStoreException, JsonProcessingException {
         logger.info("Testing Trend - With Field");
         TrendRequest trendRequest = new TrendRequest();
-        trendRequest.setTable(TEST_APP);
+        trendRequest.setTable(TestUtils.TEST_TABLE);
         trendRequest.setFrom(0L);
         trendRequest.setField("os");
         trendRequest.setTo(System.currentTimeMillis());
@@ -202,7 +200,7 @@ public class TrendActionTest {
     public void testTrendActionWithFieldZeroFrom() throws QueryStoreException, JsonProcessingException {
         logger.info("Testing Trend - With Field");
         TrendRequest trendRequest = new TrendRequest();
-        trendRequest.setTable(TEST_APP);
+        trendRequest.setTable(TestUtils.TEST_TABLE);
         trendRequest.setFrom(1L);
         trendRequest.setTo(0L);
         trendRequest.setField("os");
@@ -225,9 +223,9 @@ public class TrendActionTest {
 
     @Test
     public void testTrendActionWithFieldWithValues() throws QueryStoreException, JsonProcessingException {
-        logger.info("Testing Trend - With Field");
+        logger.info("Testing Trend - With Field - With Values");
         TrendRequest trendRequest = new TrendRequest();
-        trendRequest.setTable(TEST_APP);
+        trendRequest.setTable(TestUtils.TEST_TABLE);
         trendRequest.setFrom(1L);
         trendRequest.setField("os");
         trendRequest.setTo(System.currentTimeMillis());
@@ -243,14 +241,14 @@ public class TrendActionTest {
         String expectedResponse = mapper.writeValueAsString(result);
         String actualResponse = mapper.writeValueAsString(queryExecutor.execute(trendRequest));
         assertEquals(expectedResponse, actualResponse);
-        logger.info("Tested Trend - With Field");
+        logger.info("Tested Trend - With Field - With Values");
     }
 
     @Test
     public void testTrendActionWithFieldWithFilterWithValues() throws QueryStoreException, JsonProcessingException {
-        logger.info("Testing Trend - With Field");
+        logger.info("Testing Trend - With Field - With Filter - With Values");
         TrendRequest trendRequest = new TrendRequest();
-        trendRequest.setTable(TEST_APP);
+        trendRequest.setTable(TestUtils.TEST_TABLE);
         trendRequest.setFrom(1L);
         trendRequest.setField("os");
         trendRequest.setTo(System.currentTimeMillis());
@@ -272,14 +270,14 @@ public class TrendActionTest {
         String expectedResponse = mapper.writeValueAsString(result);
         String actualResponse = mapper.writeValueAsString(queryExecutor.execute(trendRequest));
         assertEquals(expectedResponse, actualResponse);
-        logger.info("Tested Trend - With Field");
+        logger.info("Tested Trend - With Field - With Filter - With Values ");
     }
 
     @Test
     public void testTrendActionWithFieldWithFilter() throws QueryStoreException, JsonProcessingException {
         logger.info("Testing Trend - With Field");
         TrendRequest trendRequest = new TrendRequest();
-        trendRequest.setTable(TEST_APP);
+        trendRequest.setTable(TestUtils.TEST_TABLE);
         trendRequest.setFrom(1L);
         trendRequest.setField("os");
         trendRequest.setTo(System.currentTimeMillis());
@@ -306,7 +304,7 @@ public class TrendActionTest {
     public void testTrendActionWithFieldWithFilterWithInterval() throws QueryStoreException, JsonProcessingException {
         logger.info("Testing Trend - With Field - With Interval");
         TrendRequest trendRequest = new TrendRequest();
-        trendRequest.setTable(TEST_APP);
+        trendRequest.setTable(TestUtils.TEST_TABLE);
         trendRequest.setFrom(1L);
         trendRequest.setField("os");
         trendRequest.setTo(System.currentTimeMillis());
@@ -328,22 +326,5 @@ public class TrendActionTest {
         String actualResponse = mapper.writeValueAsString(queryExecutor.execute(trendRequest));
         assertEquals(expectedResponse, actualResponse);
         logger.info("Tested Trend - With Field - With Interval");
-    }
-
-
-    private List<Document> getTrendDocuments() {
-        List<Document> documents = new Vector<Document>();
-        documents.add(TestUtils.getDocument("Z", 1397658117000L, new Object[]{"os", "android", "version", 1, "device", "nexus", "battery", 24}, mapper));
-        documents.add(TestUtils.getDocument("Y", 1397651117000L, new Object[]{"os", "android", "version", 1, "device", "nexus", "battery", 48}, mapper));
-        documents.add(TestUtils.getDocument("X", 1397651117000L, new Object[]{"os", "android", "version", 3, "device", "galaxy", "battery", 74}, mapper));
-        documents.add(TestUtils.getDocument("W", 1397658117000L, new Object[]{"os", "android", "version", 2, "device", "nexus", "battery", 99}, mapper));
-        documents.add(TestUtils.getDocument("A", 1397658118000L, new Object[]{"os", "android", "version", 3, "device", "nexus", "battery", 87}, mapper));
-        documents.add(TestUtils.getDocument("B", 1397658218001L, new Object[]{"os", "android", "version", 2, "device", "galaxy", "battery", 76}, mapper));
-        documents.add(TestUtils.getDocument("C", 1398658218002L, new Object[]{"os", "android", "version", 2, "device", "nexus", "battery", 78}, mapper));
-        documents.add(TestUtils.getDocument("D", 1397758218003L, new Object[]{"os", "ios", "version", 1, "device", "iphone", "battery", 24}, mapper));
-        documents.add(TestUtils.getDocument("E", 1397958118004L, new Object[]{"os", "ios", "version", 2, "device", "ipad", "battery", 56}, mapper));
-        documents.add(TestUtils.getDocument("F", 1398653118005L, new Object[]{"os", "ios", "version", 2, "device", "nexus", "battery", 35}, mapper));
-        documents.add(TestUtils.getDocument("G", 1398653118006L, new Object[]{"os", "ios", "version", 2, "device", "ipad", "battery", 44}, mapper));
-        return documents;
     }
 }
