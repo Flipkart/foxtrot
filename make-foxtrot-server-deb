@@ -41,9 +41,9 @@ cp DEBIAN/foxtrot-server/prerm        $DEB_DIR/DEBIAN/prerm
 cp DEBIAN/foxtrot-server/$PKG_NAME    $DEB_DIR/etc/init.d/$PKG_NAME
 chmod -R 777 $DEB_DIR/var/log/flipkart/foxtrot-server
 
-mvn clean install -DskipTests
+/usr/share/fk-ops-maven2/bin/mvn clean install -DskipTests
 cd foxtrot-server
-mvn package -DskipTests
+/usr/share/fk-ops-maven2/bin/mvn package -DskipTests
 cd ..
 
 if [ "$ENV" = "stagech" ]; then
