@@ -23,6 +23,7 @@ import com.yammer.dropwizard.Service;
 import com.yammer.dropwizard.config.Bootstrap;
 import com.yammer.dropwizard.config.Environment;
 import net.sourceforge.cobertura.CoverageIgnore;
+import org.eclipse.jetty.servlets.CrossOriginFilter;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -78,5 +79,7 @@ public class FoxtrotServer extends Service<FoxtrotServerConfiguration> {
         environment.addResource(new AsyncResource());
         environment.addResource(new AnalyticsResource(executor));
         environment.addResource(new TableMetadataResource(tableMetadataManager));
+
+        environment.addFilter(CrossOriginFilter.class, "/*");
     }
 }
