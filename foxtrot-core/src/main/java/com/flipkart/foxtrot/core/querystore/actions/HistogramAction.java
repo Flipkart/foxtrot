@@ -85,15 +85,14 @@ public class HistogramAction extends Action<HistogramRequest> {
                     )
                     .setSize(0)
                     .setSearchType(SearchType.DFS_QUERY_THEN_FETCH)
-                    .addAggregation(AggregationBuilders.dateHistogram(parameter.getField())
+                    .addAggregation(AggregationBuilders.dateHistogram(parameter.getField().replaceAll(".","_"))
                             .field(parameter.getField())
                             .interval(interval))
                     .execute()
                     .actionGet();
-            DateHistogram dateHistogram = response.getAggregations().get(parameter.getField());
+            DateHistogram dateHistogram = response.getAggregations().get(parameter.getField().replaceAll(".","_"));
             Collection<? extends DateHistogram.Bucket> buckets = dateHistogram.getBuckets();
-            List<HistogramResponse.Count> counts
-                    = new ArrayList<HistogramResponse.Count>(buckets.size());
+            List<HistogramResponse.Count> counts = new ArrayList<HistogramResponse.Count>(buckets.size());
             for (DateHistogram.Bucket bucket : buckets) {
                 HistogramResponse.Count count = new HistogramResponse.Count(
                         bucket.getKeyAsNumber(), bucket.getDocCount());

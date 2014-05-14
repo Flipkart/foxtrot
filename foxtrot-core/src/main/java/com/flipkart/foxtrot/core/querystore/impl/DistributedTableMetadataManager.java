@@ -2,9 +2,12 @@ package com.flipkart.foxtrot.core.querystore.impl;
 
 import com.flipkart.foxtrot.common.Table;
 import com.flipkart.foxtrot.core.querystore.TableMetadataManager;
+import com.google.common.collect.Lists;
 import com.hazelcast.config.MapConfig;
 import com.hazelcast.config.MapStoreConfig;
 import com.hazelcast.core.IMap;
+
+import java.util.*;
 
 /**
  * User: Santanu Sinha (santanu.sinha@flipkart.com)
@@ -35,6 +38,18 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
             return tableDataStore.get(tableName);
         }
         return null;
+    }
+
+    @Override
+    public List<Table> get() throws Exception {
+        ArrayList<Table> tables = Lists.newArrayList(tableDataStore.values());
+        Collections.sort(tables, new Comparator<Table>() {
+            @Override
+            public int compare(Table lhs, Table rhs) {
+                return lhs.getName().toLowerCase().compareTo(rhs.getName().toLowerCase());
+            }
+        });
+        return tables;
     }
 
     @Override

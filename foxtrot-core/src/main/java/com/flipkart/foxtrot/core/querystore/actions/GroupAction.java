@@ -71,9 +71,9 @@ public class GroupAction extends Action<GroupRequest> {
             TermsBuilder termsBuilder = null;
             for (String field : parameter.getNesting()) {
                 if (null == termsBuilder) {
-                    termsBuilder = AggregationBuilders.terms(field).field(field);
+                    termsBuilder = AggregationBuilders.terms(field.replaceAll(".","_")).field(field);
                 } else {
-                    TermsBuilder tempBuilder = AggregationBuilders.terms(field).field(field);
+                    TermsBuilder tempBuilder = AggregationBuilders.terms(field.replaceAll(".","_")).field(field);
                     termsBuilder.subAggregation(tempBuilder);
                     termsBuilder = tempBuilder;
                 }
@@ -99,7 +99,7 @@ public class GroupAction extends Action<GroupRequest> {
         final String field = fields.get(0);
         final List<String> remainingFields = (fields.size() > 1) ? fields.subList(1, fields.size())
                 : new ArrayList<String>();
-        Terms terms = aggregations.get(field);
+        Terms terms = aggregations.get(field.replaceAll(".", "_"));
         Map<String, Object> levelCount = new HashMap<String, Object>();
         for (Terms.Bucket bucket : terms.getBuckets()) {
             if (fields.size() == 1) { //TERMINAL AGG
