@@ -1,5 +1,6 @@
 package com.flipkart.foxtrot.core.querystore.actions;
 
+import ch.qos.logback.core.joran.action.ActionUtil;
 import com.flipkart.foxtrot.common.ActionResponse;
 import com.flipkart.foxtrot.common.histogram.HistogramRequest;
 import com.flipkart.foxtrot.common.histogram.HistogramResponse;
@@ -57,6 +58,11 @@ public class HistogramAction extends Action<HistogramRequest> {
         if (null == parameter.getFilters()) {
             parameter.setFilters(Lists.<Filter>newArrayList(new AnyFilter(parameter.getTable())));
         }
+
+        if ( parameter.getField() == null || parameter.getField().trim().isEmpty()){
+            throw new QueryStoreException(QueryStoreException.ErrorCode.INVALID_REQUEST, "Illegal Nesting Parameters");
+        }
+
         try {
             /*if(!tableManager.exists(query.getTable())) {
                 throw new QueryStoreException(QueryStoreException.ErrorCode.NO_SUCH_TABLE,
@@ -74,6 +80,7 @@ public class HistogramAction extends Action<HistogramRequest> {
                     interval = DateHistogram.Interval.DAY;
                     break;
             }
+
             SearchResponse response = getConnection().getClient().prepareSearch(
                     ElasticsearchUtils.getIndices(parameter.getTable()))
                     .setTypes(ElasticsearchUtils.TYPE_NAME)
@@ -85,12 +92,16 @@ public class HistogramAction extends Action<HistogramRequest> {
                     )
                     .setSize(0)
                     .setSearchType(SearchType.DFS_QUERY_THEN_FETCH)
-                    .addAggregation(AggregationBuilders.dateHistogram(parameter.getField().replaceAll(".","_"))
+                    .addAggregation(AggregationBuilders.dateHistogram(parameter.getField()
+                            .replaceAll(ActionConstants.AGGREGATION_FIELD_REPLACEMENT_REGEX,
+                                    ActionConstants.AGGREGATION_FIELD_REPLACEMENT_VALUE))
                             .field(parameter.getField())
                             .interval(interval))
                     .execute()
                     .actionGet();
-            DateHistogram dateHistogram = response.getAggregations().get(parameter.getField().replaceAll(".","_"));
+            DateHistogram dateHistogram = response.getAggregations().get(parameter.getField()
+                    .replaceAll(ActionConstants.AGGREGATION_FIELD_REPLACEMENT_REGEX,
+                            ActionConstants.AGGREGATION_FIELD_REPLACEMENT_VALUE));
             Collection<? extends DateHistogram.Bucket> buckets = dateHistogram.getBuckets();
             List<HistogramResponse.Count> counts = new ArrayList<HistogramResponse.Count>(buckets.size());
             for (DateHistogram.Bucket bucket : buckets) {
@@ -99,6 +110,8 @@ public class HistogramAction extends Action<HistogramRequest> {
                 counts.add(count);
             }
             return new HistogramResponse(counts);
+        } catch (QueryStoreException ex){
+            throw ex;
         } catch (Exception e) {
             throw new QueryStoreException(QueryStoreException.ErrorCode.HISTOGRAM_GENERATION_ERROR,
                     "Malformed query", e);

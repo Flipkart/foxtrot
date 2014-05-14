@@ -70,10 +70,16 @@ public class GroupAction extends Action<GroupRequest> {
             TermsBuilder rootBuilder = null;
             TermsBuilder termsBuilder = null;
             for (String field : parameter.getNesting()) {
+                if ( field == null || field.trim().isEmpty() ){
+                    throw new QueryStoreException(QueryStoreException.ErrorCode.INVALID_REQUEST, "Illegal Nesting Parameters");
+                }
                 if (null == termsBuilder) {
-                    termsBuilder = AggregationBuilders.terms(field.replaceAll(".","_")).field(field);
+                    termsBuilder = AggregationBuilders.terms(field.replaceAll(ActionConstants.AGGREGATION_FIELD_REPLACEMENT_REGEX,
+                            ActionConstants.AGGREGATION_FIELD_REPLACEMENT_VALUE)).field(field);
                 } else {
-                    TermsBuilder tempBuilder = AggregationBuilders.terms(field.replaceAll(".","_")).field(field);
+                    TermsBuilder tempBuilder = AggregationBuilders.terms(
+                            field.replaceAll(ActionConstants.AGGREGATION_FIELD_REPLACEMENT_REGEX,
+                                    ActionConstants.AGGREGATION_FIELD_REPLACEMENT_VALUE)).field(field);
                     termsBuilder.subAggregation(tempBuilder);
                     termsBuilder = tempBuilder;
                 }
@@ -88,6 +94,8 @@ public class GroupAction extends Action<GroupRequest> {
             List<String> fields = parameter.getNesting();
             Aggregations aggregations = response.getAggregations();
             return new GroupResponse(getMap(fields, aggregations));
+        } catch (QueryStoreException ex){
+          throw ex;
         } catch (Exception e) {
             logger.error("Error running grouping: ", e);
             throw new QueryStoreException(QueryStoreException.ErrorCode.QUERY_EXECUTION_ERROR,
@@ -99,10 +107,11 @@ public class GroupAction extends Action<GroupRequest> {
         final String field = fields.get(0);
         final List<String> remainingFields = (fields.size() > 1) ? fields.subList(1, fields.size())
                 : new ArrayList<String>();
-        Terms terms = aggregations.get(field.replaceAll(".", "_"));
+        Terms terms = aggregations.get(field.replaceAll(ActionConstants.AGGREGATION_FIELD_REPLACEMENT_REGEX,
+                ActionConstants.AGGREGATION_FIELD_REPLACEMENT_VALUE));
         Map<String, Object> levelCount = new HashMap<String, Object>();
         for (Terms.Bucket bucket : terms.getBuckets()) {
-            if (fields.size() == 1) { //TERMINAL AGG
+            if (fields.size() == 1) {
                 levelCount.put(bucket.getKey(), bucket.getDocCount());
             } else {
                 levelCount.put(bucket.getKey(), getMap(remainingFields, bucket.getAggregations()));

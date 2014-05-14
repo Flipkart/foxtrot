@@ -34,6 +34,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 import static org.mockito.Mockito.when;
 
 /**
@@ -112,6 +113,75 @@ public class GroupActionTest {
         String actualResult = mapper.writeValueAsString(queryExecutor.execute(groupRequest));
         assertEquals(expectedResult, actualResult);
         logger.info("Tested Group - Single Field - No Filter");
+    }
+
+    @Test
+    public void testGroupActionSingleFieldSpecialCharacterNoFilter() throws QueryStoreException, JsonProcessingException {
+        logger.info("Testing Group - Single Field Special Character- No Filter");
+        GroupRequest groupRequest = new GroupRequest();
+        groupRequest.setTable(TestUtils.TEST_TABLE);
+        groupRequest.setNesting(Arrays.asList("header.data"));
+
+        ObjectNode resultNode = factory.objectNode();
+        resultNode.put("ios", 1);
+
+        ObjectNode finalNode = factory.objectNode();
+        finalNode.put("opcode", "group");
+        finalNode.put("result", resultNode);
+        String expectedResult = mapper.writeValueAsString(finalNode);
+
+        String actualResult = mapper.writeValueAsString(queryExecutor.execute(groupRequest));
+        assertEquals(expectedResult, actualResult);
+        logger.info("Tested Group - Single Field - No Filter");
+    }
+
+    @Test
+    public void testGroupActionSingleFieldEmptyFieldNoFilter() throws QueryStoreException, JsonProcessingException {
+        GroupRequest groupRequest = new GroupRequest();
+        groupRequest.setTable(TestUtils.TEST_TABLE);
+        groupRequest.setNesting(Arrays.asList(""));
+
+        try{
+            queryExecutor.execute(groupRequest);
+            fail();
+        } catch (QueryStoreException ex){
+            assertEquals(QueryStoreException.ErrorCode.INVALID_REQUEST, ex.getErrorCode());
+        }
+    }
+
+    @Test
+    public void testGroupActionSingleFieldSpecialCharactersNoFilter() throws QueryStoreException, JsonProcessingException {
+        GroupRequest groupRequest = new GroupRequest();
+        groupRequest.setTable(TestUtils.TEST_TABLE);
+        groupRequest.setNesting(Arrays.asList(""));
+
+        try{
+            queryExecutor.execute(groupRequest);
+            fail();
+        } catch (QueryStoreException ex){
+            assertEquals(QueryStoreException.ErrorCode.INVALID_REQUEST, ex.getErrorCode());
+        }
+    }
+
+    @Test
+    public void testGroupActionSingleFieldHavingSpecialCharactersWithFilter() throws QueryStoreException, JsonProcessingException {
+        logger.info("Testing Group - Single Field - With Filter");
+        GroupRequest groupRequest = new GroupRequest();
+        groupRequest.setTable(TestUtils.TEST_TABLE);
+
+        EqualsFilter equalsFilter = new EqualsFilter();
+        equalsFilter.setField("device");
+        equalsFilter.setValue("nexus");
+        groupRequest.setFilters(Collections.<Filter>singletonList(equalsFilter));
+        groupRequest.setNesting(Arrays.asList("!@#$%^&*()"));
+
+        ObjectNode finalNode = factory.objectNode();
+        finalNode.put("opcode", "group");
+        finalNode.put("result", factory.objectNode());
+        String expectedResult = mapper.writeValueAsString(finalNode);
+        String actualResult = mapper.writeValueAsString(queryExecutor.execute(groupRequest));
+        assertEquals(expectedResult, actualResult);
+        logger.info("Tested Group - Single Field - With Filter");
     }
 
     @Test

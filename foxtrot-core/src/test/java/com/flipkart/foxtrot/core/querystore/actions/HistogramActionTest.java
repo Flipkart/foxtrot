@@ -95,6 +95,27 @@ public class HistogramActionTest {
     }
 
     @Test
+    public void testHistogramActionFieldWithSpecialCharacterNoFilter() throws QueryStoreException, JsonProcessingException {
+        logger.info("Testing Histogram - Interval minute - No Filter");
+        HistogramRequest histogramRequest = new HistogramRequest();
+        histogramRequest.setTable(TestUtils.TEST_TABLE);
+        histogramRequest.setPeriod(Period.minutes);
+        histogramRequest.setFrom(0);
+        histogramRequest.setField("header.timestamp");
+
+        ArrayNode countsNode = factory.arrayNode();
+        countsNode.add(factory.objectNode().put("period", 1398653100000L).put("count", 1));
+        ObjectNode finalNode = factory.objectNode();
+        finalNode.put("opcode", "histogram");
+        finalNode.put("counts", countsNode);
+
+        String expectedResponse = mapper.writeValueAsString(finalNode);
+        String actualResponse = mapper.writeValueAsString(queryExecutor.execute(histogramRequest));
+        assertEquals(expectedResponse, actualResponse);
+        logger.info("Tested Histogram - Interval minute - No Filter");
+    }
+
+    @Test
     public void testHistogramActionIntervalMinuteNoFilter() throws QueryStoreException, JsonProcessingException {
         logger.info("Testing Histogram - Interval minute - No Filter");
         HistogramRequest histogramRequest = new HistogramRequest();

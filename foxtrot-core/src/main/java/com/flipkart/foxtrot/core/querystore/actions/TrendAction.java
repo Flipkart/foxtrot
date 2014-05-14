@@ -93,17 +93,21 @@ public class TrendAction extends Action<TrendRequest> {
             SearchRequestBuilder query = getConnection().getClient()
                     .prepareSearch(ElasticsearchUtils.getIndices(parameter.getTable()))
                     .setQuery(new ElasticSearchQueryGenerator(FilterCombinerType.and).genFilter(parameter.getFilters()))
-                    .addAggregation(AggregationBuilders.terms(field.replaceAll(".", "_")).field(field)
-                            .subAggregation(AggregationBuilders.histogram(field.replaceAll(".", "_"))
+                    .addAggregation(AggregationBuilders.terms(field.replaceAll(ActionConstants.AGGREGATION_FIELD_REPLACEMENT_REGEX,
+                            ActionConstants.AGGREGATION_FIELD_REPLACEMENT_VALUE)).field(field)
+                            .subAggregation(AggregationBuilders.histogram(field.replaceAll(ActionConstants.AGGREGATION_FIELD_REPLACEMENT_REGEX,
+                                    ActionConstants.AGGREGATION_FIELD_REPLACEMENT_VALUE))
                                     .field(parameter.getTimestamp()).interval(parameter.getInterval())));
             SearchResponse response = query.execute().actionGet();
             Map<String, List<TrendResponse.Count>> trendCounts = new TreeMap<String, List<TrendResponse.Count>>();
-            Terms terms = response.getAggregations().get(field.replaceAll(".", "_"));
+            Terms terms = response.getAggregations().get(field.replaceAll(ActionConstants.AGGREGATION_FIELD_REPLACEMENT_REGEX,
+                    ActionConstants.AGGREGATION_FIELD_REPLACEMENT_VALUE));
             for (Terms.Bucket bucket : terms.getBuckets()) {
                 final String key = bucket.getKeyAsText().string();
                 List<TrendResponse.Count> counts = Lists.newArrayList();
                 Aggregations subAggregations = bucket.getAggregations();
-                Histogram histogram = subAggregations.get(field.replaceAll(".", "_"));
+                Histogram histogram = subAggregations.get(field.replaceAll(ActionConstants.AGGREGATION_FIELD_REPLACEMENT_REGEX,
+                        ActionConstants.AGGREGATION_FIELD_REPLACEMENT_VALUE));
                 for (Histogram.Bucket histogramBucket : histogram.getBuckets()) {
                     counts.add(new TrendResponse.Count(histogramBucket.getKeyAsNumber(), histogramBucket.getDocCount()));
                 }
