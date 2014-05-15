@@ -1,6 +1,6 @@
 http:
   port: 17000
-  adminPort: 17000
+  adminPort: 17001
   connectorType: nonblocking
   minThreads: 20
   maxThreads: 40

@@ -77,6 +77,7 @@ public class FoxtrotServer extends Service<FoxtrotServerConfiguration> {
         environment.addResource(new AnalyticsResource(executor));
         environment.addResource(new TableMetadataResource(tableMetadataManager));
         environment.addResource(new TableFieldMappingResource(queryStore));
+        environment.addHealthCheck(new ElasticSearchHealthCheck("ES Health Check", elasticsearchConnection));
         environment.addFilter(CrossOriginFilter.class, "/*");
     }
 }

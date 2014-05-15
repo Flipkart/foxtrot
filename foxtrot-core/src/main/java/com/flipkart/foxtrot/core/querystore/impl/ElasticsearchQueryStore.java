@@ -14,7 +14,9 @@ import com.flipkart.foxtrot.core.querystore.QueryStoreException;
 import com.flipkart.foxtrot.core.querystore.TableMetadataManager;
 import org.elasticsearch.action.WriteConsistencyLevel;
 import org.elasticsearch.action.admin.indices.mapping.get.GetMappingsResponse;
+import org.elasticsearch.action.bulk.BulkItemResponse;
 import org.elasticsearch.action.bulk.BulkRequestBuilder;
+import org.elasticsearch.action.bulk.BulkResponse;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.cluster.metadata.MappingMetaData;
 import org.elasticsearch.common.hppc.cursors.ObjectCursor;
@@ -117,10 +119,22 @@ public class ElasticsearchQueryStore implements QueryStore {
                         .source(mapper.writeValueAsBytes(document.getData()));
                 bulkRequestBuilder.add(indexRequest);
             }
-            bulkRequestBuilder.setRefresh(true)
+            BulkResponse responses = bulkRequestBuilder.setRefresh(true)
                     .setConsistencyLevel(WriteConsistencyLevel.QUORUM)
                     .execute()
                     .get();
+
+            int failedCount = 0;
+            for (BulkItemResponse itemResponse : responses){
+                failedCount += (itemResponse.isFailed() ? 1 : 0);
+                if (itemResponse.isFailed()){
+                    logger.error(itemResponse.getFailureMessage());
+                }
+            }
+            if (failedCount > 0){
+                logger.error("Failed : " + failedCount);
+            }
+
 
         } catch (QueryStoreException ex) {
             throw ex;
