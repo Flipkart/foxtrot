@@ -72,15 +72,8 @@ public class ElasticsearchQueryStore implements QueryStore {
                     .setConsistencyLevel(WriteConsistencyLevel.QUORUM)
                     .execute()
                     .get();
-        } catch (JsonProcessingException ex) {
-            throw new QueryStoreException(QueryStoreException.ErrorCode.INVALID_REQUEST,
-                    ex.getMessage(), ex);
-        } catch (ExecutionException ex) {
-            throw new QueryStoreException(QueryStoreException.ErrorCode.DOCUMENT_SAVE_ERROR,
-                    ex.getMessage(), ex);
-        } catch (InterruptedException ex) {
-            throw new QueryStoreException(QueryStoreException.ErrorCode.DOCUMENT_SAVE_ERROR,
-                    ex.getMessage(), ex);
+        } catch (QueryStoreException ex) {
+            throw ex;
         } catch (DataStoreException ex) {
             DataStoreException.ErrorCode code = ex.getErrorCode();
             if (code.equals(DataStoreException.ErrorCode.STORE_INVALID_REQUEST)
@@ -91,11 +84,12 @@ public class ElasticsearchQueryStore implements QueryStore {
                 throw new QueryStoreException(QueryStoreException.ErrorCode.DOCUMENT_SAVE_ERROR,
                         ex.getMessage(), ex);
             }
-        } catch (QueryStoreException ex) {
-            throw ex;
+        } catch (JsonProcessingException ex) {
+            throw new QueryStoreException(QueryStoreException.ErrorCode.INVALID_REQUEST,
+            ex.getMessage(), ex);
         } catch (Exception ex) {
             throw new QueryStoreException(QueryStoreException.ErrorCode.DOCUMENT_SAVE_ERROR,
-                    ex.getMessage(), ex);
+            ex.getMessage(), ex);
         }
     }
 
@@ -128,15 +122,8 @@ public class ElasticsearchQueryStore implements QueryStore {
                     .execute()
                     .get();
 
-        } catch (JsonProcessingException ex) {
-            throw new QueryStoreException(QueryStoreException.ErrorCode.INVALID_REQUEST,
-                    ex.getMessage(), ex);
-        } catch (ExecutionException ex) {
-            throw new QueryStoreException(QueryStoreException.ErrorCode.DOCUMENT_SAVE_ERROR,
-                    ex.getMessage(), ex);
-        } catch (InterruptedException ex) {
-            throw new QueryStoreException(QueryStoreException.ErrorCode.DOCUMENT_SAVE_ERROR,
-                    ex.getMessage(), ex);
+        } catch (QueryStoreException ex) {
+            throw ex;
         } catch (DataStoreException ex) {
             DataStoreException.ErrorCode code = ex.getErrorCode();
             if (code.equals(DataStoreException.ErrorCode.STORE_INVALID_REQUEST)
@@ -147,11 +134,12 @@ public class ElasticsearchQueryStore implements QueryStore {
                 throw new QueryStoreException(QueryStoreException.ErrorCode.DOCUMENT_SAVE_ERROR,
                         ex.getMessage(), ex);
             }
-        } catch (QueryStoreException ex) {
-            throw ex;
+        } catch (JsonProcessingException ex) {
+            throw new QueryStoreException(QueryStoreException.ErrorCode.INVALID_REQUEST,
+            ex.getMessage(), ex);
         } catch (Exception ex) {
             throw new QueryStoreException(QueryStoreException.ErrorCode.DOCUMENT_SAVE_ERROR,
-                    ex.getMessage(), ex);
+            ex.getMessage(), ex);
         }
     }
 
@@ -203,9 +191,6 @@ public class ElasticsearchQueryStore implements QueryStore {
             return new TableFieldMapping(table, mappings);
         } catch (QueryStoreException ex) {
             throw ex;
-        } catch (IOException ex) {
-            throw new QueryStoreException(QueryStoreException.ErrorCode.METADATA_FETCH_ERROR,
-                    ex.getMessage(), ex);
         } catch (Exception ex) {
             throw new QueryStoreException(QueryStoreException.ErrorCode.METADATA_FETCH_ERROR,
                     ex.getMessage(), ex);

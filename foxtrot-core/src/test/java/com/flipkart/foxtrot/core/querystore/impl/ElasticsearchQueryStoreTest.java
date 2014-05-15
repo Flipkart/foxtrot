@@ -9,6 +9,7 @@ import com.flipkart.foxtrot.common.TableFieldMapping;
 import com.flipkart.foxtrot.core.MockElasticsearchServer;
 import com.flipkart.foxtrot.core.TestUtils;
 import com.flipkart.foxtrot.core.datastore.DataStore;
+import com.flipkart.foxtrot.core.datastore.DataStoreException;
 import com.flipkart.foxtrot.core.querystore.QueryExecutor;
 import com.flipkart.foxtrot.core.querystore.QueryStoreException;
 import com.flipkart.foxtrot.core.querystore.TableMetadataManager;
@@ -114,6 +115,28 @@ public class ElasticsearchQueryStoreTest {
             assertTrue("Id should exist in ES", getResponse.isExists());
             assertEquals("Id should match requestId", document.getId(), getResponse.getId());
             assertEquals("Timestamp should match request timestamp", document.getTimestamp(), getResponse.getField("_timestamp").getValue());
+        }
+    }
+
+    @Test
+    public void testSaveBulkNullList() throws Exception {
+        List<Document> list = null;
+        try{
+            queryStore.save(TestUtils.TEST_TABLE, list);
+            fail();
+        }catch (QueryStoreException ex){
+            assertEquals(QueryStoreException.ErrorCode.INVALID_REQUEST, ex.getErrorCode());
+        }
+    }
+
+    @Test
+    public void testSaveBulkEmptyList() throws Exception {
+        List<Document> list = new Vector<Document>();
+        try{
+            queryStore.save(TestUtils.TEST_TABLE, list);
+            fail();
+        }catch (QueryStoreException ex){
+            assertEquals(QueryStoreException.ErrorCode.INVALID_REQUEST, ex.getErrorCode());
         }
     }
 
