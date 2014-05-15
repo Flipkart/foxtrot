@@ -22,7 +22,6 @@ import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.test.TestHazelcastInstanceFactory;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Mockito;
 
@@ -85,30 +84,8 @@ public class HistogramActionTest {
         histogramRequest.setTable(TestUtils.TEST_TABLE);
         histogramRequest.setPeriod(Period.minutes);
         histogramRequest.setFrom(0);
-        histogramRequest.setField("_timestamp");
         when(elasticsearchServer.getClient()).thenReturn(null);
         queryExecutor.execute(histogramRequest);
-    }
-
-    // TODO Need to correct this test case. Date fields are converting to long due to jsonnode
-    @Ignore
-    @Test(expected = Exception.class)
-    public void testHistogramActionFieldWithSpecialCharacterNoFilter() throws QueryStoreException, JsonProcessingException {
-        HistogramRequest histogramRequest = new HistogramRequest();
-        histogramRequest.setTable(TestUtils.TEST_TABLE);
-        histogramRequest.setPeriod(Period.minutes);
-        histogramRequest.setFrom(0);
-        histogramRequest.setField("header.timestamp");
-
-        ArrayNode countsNode = factory.arrayNode();
-        countsNode.add(factory.objectNode().put("period", 1398653100000L).put("count", 1));
-        ObjectNode finalNode = factory.objectNode();
-        finalNode.put("opcode", "histogram");
-        finalNode.put("counts", countsNode);
-
-        String expectedResponse = mapper.writeValueAsString(finalNode);
-        String actualResponse = mapper.writeValueAsString(queryExecutor.execute(histogramRequest));
-        assertEquals(expectedResponse, actualResponse);
     }
 
     @Test
@@ -117,7 +94,6 @@ public class HistogramActionTest {
         histogramRequest.setTable(TestUtils.TEST_TABLE);
         histogramRequest.setPeriod(Period.minutes);
         histogramRequest.setFrom(0);
-        histogramRequest.setField("_timestamp");
 
         ArrayNode countsNode = factory.arrayNode();
         countsNode.add(factory.objectNode().put("period", 1397651100000L).put("count", 2));
@@ -143,7 +119,6 @@ public class HistogramActionTest {
         histogramRequest.setTable(TestUtils.TEST_TABLE);
         histogramRequest.setPeriod(Period.minutes);
         histogramRequest.setFrom(0);
-        histogramRequest.setField("_timestamp");
 
         GreaterThanFilter greaterThanFilter = new GreaterThanFilter();
         greaterThanFilter.setField("battery");
@@ -171,7 +146,6 @@ public class HistogramActionTest {
         histogramRequest.setTable(TestUtils.TEST_TABLE);
         histogramRequest.setPeriod(Period.hours);
         histogramRequest.setFrom(0);
-        histogramRequest.setField("_timestamp");
 
         ArrayNode countsNode = factory.arrayNode();
         countsNode.add(factory.objectNode().put("period", 1397649600000L).put("count", 2));
@@ -196,7 +170,6 @@ public class HistogramActionTest {
         histogramRequest.setTable(TestUtils.TEST_TABLE);
         histogramRequest.setPeriod(Period.hours);
         histogramRequest.setFrom(0);
-        histogramRequest.setField("_timestamp");
 
         GreaterThanFilter greaterThanFilter = new GreaterThanFilter();
         greaterThanFilter.setField("battery");
@@ -224,7 +197,6 @@ public class HistogramActionTest {
         histogramRequest.setTable(TestUtils.TEST_TABLE);
         histogramRequest.setPeriod(Period.days);
         histogramRequest.setFrom(0);
-        histogramRequest.setField("_timestamp");
 
         ArrayNode countsNode = factory.arrayNode();
         countsNode.add(factory.objectNode().put("period", 1397606400000L).put("count", 6));
@@ -247,7 +219,6 @@ public class HistogramActionTest {
         histogramRequest.setTable(TestUtils.TEST_TABLE);
         histogramRequest.setPeriod(Period.days);
         histogramRequest.setFrom(0);
-        histogramRequest.setField("_timestamp");
 
         GreaterThanFilter greaterThanFilter = new GreaterThanFilter();
         greaterThanFilter.setField("battery");

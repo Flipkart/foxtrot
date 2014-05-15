@@ -27,7 +27,7 @@ public class HistogramRequest implements ActionRequest {
 
     @NotNull
     @NotEmpty
-    private String field;
+    private String field = "_timestamp";
 
     private Period period;
 
@@ -35,7 +35,7 @@ public class HistogramRequest implements ActionRequest {
         long timestamp = System.currentTimeMillis();
         this.from = timestamp - 86400000;
         this.to = timestamp;
-        this.field = "timestamp";
+        this.field = "_timestamp";
         this.period = Period.minutes;
     }
 
@@ -81,10 +81,6 @@ public class HistogramRequest implements ActionRequest {
 
     public String getField() {
         return field;
-    }
-
-    public void setField(String field) {
-        this.field = field;
     }
 
     @Override
