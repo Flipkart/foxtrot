@@ -3,7 +3,7 @@ Version: 1._VERSION_
 Priority: optional
 Section: flipkart/digital
 Architecture: all
-Depends: bash, chkconfig,fk-digital-hyperion-keys,fk-ops-krbclient
+Depends: bash, chkconfig,fk-digital-hyperion-keys,fk-ops-krbclient,fk-ops-hostdb-cli
 Installed-Size: 77
 Maintainer: Rishabh Goyal <rishabh.goyal@flipkart.com>
 Description: Package for foxtrot data layer
