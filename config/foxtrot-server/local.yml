@@ -15,13 +15,8 @@ http:
 
 elasticsearch:
   hosts:
-  - stage-hyperion-store1.digital.ch.flipkart.com
-  - stage-hyperion-store2.digital.ch.flipkart.com
-  - stage-hyperion-store3.digital.ch.flipkart.com
-  - stage-hyperion-store4.digital.ch.flipkart.com
+  - localhost
   cluster: foxtrot
-  index: test
-  type: test
 
 hbase:
   secure : false

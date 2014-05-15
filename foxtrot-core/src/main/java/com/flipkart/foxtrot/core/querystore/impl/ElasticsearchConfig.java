@@ -20,14 +20,6 @@ public class ElasticsearchConfig {
     @NotNull
     @JsonProperty
     private String cluster;
-    @Valid
-    @NotNull
-    @JsonProperty
-    private String index;
-    @Valid
-    @NotNull
-    @JsonProperty
-    private String type;
 
     public ElasticsearchConfig() {
     }
@@ -46,21 +38,5 @@ public class ElasticsearchConfig {
 
     public void setCluster(String cluster) {
         this.cluster = cluster;
-    }
-
-    public String getIndex() {
-        return index;
-    }
-
-    public void setIndex(String index) {
-        this.index = index;
-    }
-
-    public String getType() {
-        return type;
-    }
-
-    public void setType(String type) {
-        this.type = type;
     }
 }

@@ -20,8 +20,6 @@ elasticsearch:
   - stage-hyperion-store3.digital.ch.flipkart.com
   - stage-hyperion-store4.digital.ch.flipkart.com
   cluster: foxtrot
-  index: test
-  type: test
 
 hbase:
   secure : true
