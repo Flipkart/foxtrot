@@ -15,8 +15,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.Collections;
 
@@ -28,7 +26,6 @@ import static org.mockito.Mockito.*;
  * Created by rishabh.goyal on 28/04/14.
  */
 public class DistributedCacheTest {
-    private final Logger logger = LoggerFactory.getLogger(DistributedCacheTest.class.getSimpleName());
     private DistributedCache distributedCache;
     private HazelcastInstance hazelcastInstance;
     private ObjectMapper mapper;
@@ -55,7 +52,6 @@ public class DistributedCacheTest {
 
     @Test
     public void testPut() throws Exception {
-        logger.info("Testing Distributed Cache - PUT");
         ActionResponse actionResponse = new GroupResponse(Collections.<String, Object>singletonMap("Hello", "world"));
         ActionResponse returnResponse = distributedCache.put("DUMMY_KEY_PUT", actionResponse);
         assertEquals(actionResponse, returnResponse);
@@ -65,12 +61,10 @@ public class DistributedCacheTest {
         String expectedResponse = mapper.writeValueAsString(resultNode);
         String actualResponse = hazelcastInstance.getMap("TEST").get("DUMMY_KEY_PUT").toString();
         assertEquals(expectedResponse, actualResponse);
-        logger.info("Tested Distributed Cache - PUT");
     }
 
     @Test
     public void testPutCacheException() throws Exception {
-        logger.info("Testing Distributed Cache - PUT");
         doThrow(new JsonGenerationException("TEST_EXCEPTION")).when(mapper).writeValueAsString(any());
 
         ActionResponse returnResponse = distributedCache.put("DUMMY_KEY_PUT", null);
@@ -78,12 +72,10 @@ public class DistributedCacheTest {
         assertNull(returnResponse);
 
         assertNull(hazelcastInstance.getMap("TEST").get("DUMMY_KEY_PUT"));
-        logger.info("Tested Distributed Cache - PUT");
     }
 
     @Test
     public void testGet() throws Exception {
-        logger.info("Testing Distributed Cache - GET");
         GroupResponse baseRequest = new GroupResponse();
         baseRequest.setResult(Collections.<String, Object>singletonMap("Hello", "World"));
         String requestString = mapper.writeValueAsString(baseRequest);
@@ -91,37 +83,29 @@ public class DistributedCacheTest {
         ActionResponse actionResponse = distributedCache.get("DUMMY_KEY_GET");
         String actualResponse = mapper.writeValueAsString(actionResponse);
         assertEquals(requestString, actualResponse);
-        logger.info("Tested Distributed Cache - GET");
     }
 
     @Test
     public void testGetInvalidKeyValue() throws Exception {
-        logger.info("Testing Distributed Cache - GET");
         GroupResponse baseRequest = new GroupResponse();
         baseRequest.setResult(Collections.<String, Object>singletonMap("Hello", "World"));
         String requestString = "TEST-" + mapper.writeValueAsString(baseRequest) + "-TEST";
         hazelcastInstance.getMap("TEST").put("DUMMY_KEY_GET", requestString);
         assertNull(distributedCache.get("DUMMY_KEY_GET"));
-        logger.info("Tested Distributed Cache - GET");
     }
 
     @Test(expected = NullPointerException.class)
     public void testGetMissing() throws Exception {
-        logger.info("Testing Distributed Cache - GET - Missing Key");
         distributedCache.get("DUMMY_KEY_MISSING");
-        logger.info("Tested Distributed Cache - GET - Missing Key");
     }
 
     @Test
     public void testGetNullKey() throws Exception {
-        logger.info("Testing Distributed Cache - GET - Missing Key");
         assertNull(distributedCache.get(null));
-        logger.info("Tested Distributed Cache - GET - Missing Key");
     }
 
     @Test
     public void testHas() throws Exception {
-        logger.info("Testing Distributed Cache - HAS");
         hazelcastInstance.getMap("TEST").put("DUMMY_KEY_HAS", Collections.singletonMap("Hello", "world"));
         boolean response = distributedCache.has("DUMMY_KEY_HAS");
         assertTrue(response);
@@ -129,6 +113,5 @@ public class DistributedCacheTest {
         assertFalse(response);
         response = distributedCache.has(null);
         assertFalse(response);
-        logger.info("Tested Distributed Cache - HAS");
     }
 }

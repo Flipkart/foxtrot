@@ -23,8 +23,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -41,8 +39,6 @@ import static org.mockito.Mockito.when;
  * Created by rishabh.goyal on 28/04/14.
  */
 public class GroupActionTest {
-
-    private final Logger logger = LoggerFactory.getLogger(FilterActionTest.class.getSimpleName());
     private QueryExecutor queryExecutor;
     private final ObjectMapper mapper = new ObjectMapper();
     private MockElasticsearchServer elasticsearchServer;
@@ -83,20 +79,22 @@ public class GroupActionTest {
         hazelcastInstance.shutdown();
     }
 
-    @Test(expected = QueryStoreException.class)
+    @Test
     public void testGroupActionSingleQueryException() throws QueryStoreException, JsonProcessingException {
-        logger.info("Testing Group - Single Field - Any Exception");
         GroupRequest groupRequest = new GroupRequest();
         groupRequest.setTable(TestUtils.TEST_TABLE);
         groupRequest.setNesting(Arrays.asList("os"));
         when(elasticsearchServer.getClient()).thenReturn(null);
-        queryExecutor.execute(groupRequest);
-        logger.info("Tested Group - Single Field - Any Exception");
+        try {
+            queryExecutor.execute(groupRequest);
+            fail();
+        } catch (QueryStoreException ex) {
+            assertEquals(QueryStoreException.ErrorCode.QUERY_EXECUTION_ERROR, ex.getErrorCode());
+        }
     }
 
     @Test
     public void testGroupActionSingleFieldNoFilter() throws QueryStoreException, JsonProcessingException {
-        logger.info("Testing Group - Single Field - No Filter");
         GroupRequest groupRequest = new GroupRequest();
         groupRequest.setTable(TestUtils.TEST_TABLE);
         groupRequest.setNesting(Arrays.asList("os"));
@@ -112,12 +110,10 @@ public class GroupActionTest {
 
         String actualResult = mapper.writeValueAsString(queryExecutor.execute(groupRequest));
         assertEquals(expectedResult, actualResult);
-        logger.info("Tested Group - Single Field - No Filter");
     }
 
     @Test
     public void testGroupActionSingleFieldSpecialCharacterNoFilter() throws QueryStoreException, JsonProcessingException {
-        logger.info("Testing Group - Single Field Special Character- No Filter");
         GroupRequest groupRequest = new GroupRequest();
         groupRequest.setTable(TestUtils.TEST_TABLE);
         groupRequest.setNesting(Arrays.asList("header.data"));
@@ -132,7 +128,6 @@ public class GroupActionTest {
 
         String actualResult = mapper.writeValueAsString(queryExecutor.execute(groupRequest));
         assertEquals(expectedResult, actualResult);
-        logger.info("Tested Group - Single Field - No Filter");
     }
 
     @Test
@@ -165,7 +160,6 @@ public class GroupActionTest {
 
     @Test
     public void testGroupActionSingleFieldHavingSpecialCharactersWithFilter() throws QueryStoreException, JsonProcessingException {
-        logger.info("Testing Group - Single Field - With Filter");
         GroupRequest groupRequest = new GroupRequest();
         groupRequest.setTable(TestUtils.TEST_TABLE);
 
@@ -181,12 +175,10 @@ public class GroupActionTest {
         String expectedResult = mapper.writeValueAsString(finalNode);
         String actualResult = mapper.writeValueAsString(queryExecutor.execute(groupRequest));
         assertEquals(expectedResult, actualResult);
-        logger.info("Tested Group - Single Field - With Filter");
     }
 
     @Test
     public void testGroupActionSingleFieldWithFilter() throws QueryStoreException, JsonProcessingException {
-        logger.info("Testing Group - Single Field - With Filter");
         GroupRequest groupRequest = new GroupRequest();
         groupRequest.setTable(TestUtils.TEST_TABLE);
 
@@ -207,12 +199,10 @@ public class GroupActionTest {
 
         String actualResult = mapper.writeValueAsString(queryExecutor.execute(groupRequest));
         assertEquals(expectedResult, actualResult);
-        logger.info("Tested Group - Single Field - With Filter");
     }
 
     @Test
     public void testGroupActionTwoFieldsNoFilter() throws QueryStoreException, JsonProcessingException {
-        logger.info("Testing Group - Single Field - No Filter");
         GroupRequest groupRequest = new GroupRequest();
         groupRequest.setTable(TestUtils.TEST_TABLE);
         groupRequest.setNesting(Arrays.asList("os", "device"));
@@ -228,12 +218,10 @@ public class GroupActionTest {
 
         String actualResult = mapper.writeValueAsString(queryExecutor.execute(groupRequest));
         assertEquals(expectedResult, actualResult);
-        logger.info("Tested Group - Single Field - No Filter");
     }
 
     @Test
     public void testGroupActionTwoFieldsWithFilter() throws QueryStoreException, JsonProcessingException {
-        logger.info("Testing Group - Two Fields - With Filter");
         GroupRequest groupRequest = new GroupRequest();
         groupRequest.setTable(TestUtils.TEST_TABLE);
         groupRequest.setNesting(Arrays.asList("os", "device"));
@@ -254,12 +242,10 @@ public class GroupActionTest {
 
         String actualResult = mapper.writeValueAsString(queryExecutor.execute(groupRequest));
         assertEquals(expectedResult, actualResult);
-        logger.info("Tested Group - Two Fields - With Filter");
     }
 
     @Test
     public void testGroupActionMultipleFieldsNoFilter() throws QueryStoreException, JsonProcessingException {
-        logger.info("Testing Group - Multiple Fields - With Filter");
         GroupRequest groupRequest = new GroupRequest();
         groupRequest.setTable(TestUtils.TEST_TABLE);
         groupRequest.setNesting(Arrays.asList("os", "device", "version"));
@@ -284,12 +270,10 @@ public class GroupActionTest {
         String expectedResult = mapper.writeValueAsString(finalNode);
         String actualResult = mapper.writeValueAsString(queryExecutor.execute(groupRequest));
         assertEquals(expectedResult, actualResult);
-        logger.info("Tested Group - Multiple Fields - With Filter");
     }
 
     @Test
     public void testGroupActionMultipleFieldsWithFilter() throws QueryStoreException, JsonProcessingException {
-        logger.info("Testing Group - Multiple Fields - With Filter");
         GroupRequest groupRequest = new GroupRequest();
         groupRequest.setTable(TestUtils.TEST_TABLE);
         groupRequest.setNesting(Arrays.asList("os", "device", "version"));
@@ -317,6 +301,5 @@ public class GroupActionTest {
         String expectedResult = mapper.writeValueAsString(finalNode);
         String actualResult = mapper.writeValueAsString(queryExecutor.execute(groupRequest));
         assertEquals(expectedResult, actualResult);
-        logger.info("Tested Group - Multiple Fields - With Filter");
     }
 }

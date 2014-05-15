@@ -14,8 +14,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.UUID;
 
@@ -27,8 +25,6 @@ import static org.mockito.Mockito.when;
  * Created by rishabh.goyal on 29/04/14.
  */
 public class DistributedTableMetadataManagerTest {
-
-    private static final Logger logger = LoggerFactory.getLogger(DistributedTableMetadataManagerTest.class.getSimpleName());
     private HazelcastInstance hazelcastInstance;
     private DistributedTableMetadataManager distributedTableMetadataManager;
     private MockElasticsearchServer elasticsearchServer;
@@ -70,7 +66,6 @@ public class DistributedTableMetadataManagerTest {
 
     @Test
     public void testSave() throws Exception {
-        logger.info("Testing - Distributed Table Metadata Manager - Save");
         Table table = new Table();
         table.setName("TEST_TABLE");
         table.setTtl(15);
@@ -78,12 +73,10 @@ public class DistributedTableMetadataManagerTest {
         Table responseTable = (Table) hazelcastInstance.getMap(DistributedTableMetadataManager.DATA_MAP).get(table.getName());
         assertEquals(table.getName(), responseTable.getName());
         assertEquals(table.getTtl(), responseTable.getTtl());
-        logger.info("Tested - Distributed Table Metadata Manager - Save");
     }
 
     @Test
     public void testGet() throws Exception {
-        logger.info("Testing - Distributed Table Metadata Manager - GET");
         Table table = new Table();
         table.setName(TEST_APP);
         table.setTtl(60);
@@ -91,26 +84,21 @@ public class DistributedTableMetadataManagerTest {
         Table response = distributedTableMetadataManager.get(table.getName());
         assertEquals(table.getName(), response.getName());
         assertEquals(table.getTtl(), response.getTtl());
-        logger.info("Tested - Distributed Table Metadata Manager - GET");
     }
 
     @Test
     public void testGetMissingTable() throws Exception {
-        logger.info("Tested - Distributed Table Metadata Manager - GET - Missing Table");
         Table response = distributedTableMetadataManager.get(TEST_APP + "-missing");
         assertNull(response);
-        logger.info("Tested - Distributed Table Metadata Manager - GET - Missing Table");
     }
 
     @Test
     public void testExists() throws Exception {
-        logger.info("Testing - Distributed Table Metadata Manager - Exists");
         Table table = new Table();
         table.setName("TEST_TABLE");
         table.setTtl(15);
         distributedTableMetadataManager.save(table);
         assertTrue(distributedTableMetadataManager.exists(table.getName()));
         assertFalse(distributedTableMetadataManager.exists("DUMMY_TEST_NAME_NON_EXISTENT"));
-        logger.info("Tested - Distributed Table Metadata Manager - Exists");
     }
 }

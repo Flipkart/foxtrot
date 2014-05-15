@@ -29,7 +29,6 @@ import static org.mockito.Mockito.when;
  * Created by rishabh.goyal on 02/05/14.
  */
 public class TableMapStoreTest {
-
     private MockElasticsearchServer elasticsearchServer;
     private ObjectMapper mapper = new ObjectMapper();
     private ElasticsearchConnection elasticsearchConnection;

@@ -81,6 +81,9 @@ public class TrendAction extends Action<TrendRequest> {
         if (null == field) {
             field = "all";
         }
+        if (field.isEmpty()) {
+            throw new QueryStoreException(QueryStoreException.ErrorCode.INVALID_REQUEST, "Invalid field name");
+        }
         if (null != parameter.getValues() && !parameter.getField().equalsIgnoreCase("all")) {
             List<Filter> filters = Lists.newArrayList();
             for (String value : parameter.getValues()) {

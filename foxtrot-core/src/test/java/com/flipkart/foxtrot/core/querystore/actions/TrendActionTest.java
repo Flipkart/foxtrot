@@ -22,27 +22,25 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 import static org.mockito.Mockito.when;
 
 /**
  * Created by rishabh.goyal on 29/04/14.
  */
 public class TrendActionTest {
-
-    private static final Logger logger = LoggerFactory.getLogger(TrendActionTest.class.getSimpleName());
     private QueryExecutor queryExecutor;
     private ObjectMapper mapper = new ObjectMapper();
     private MockElasticsearchServer elasticsearchServer;
     private HazelcastInstance hazelcastInstance;
     private JsonNodeFactory factory = JsonNodeFactory.instance;
+    private ElasticsearchQueryStore queryStore;
 
     @Before
     public void setUp() throws Exception {
@@ -68,8 +66,8 @@ public class TrendActionTest {
         TestUtils.registerActions(analyticsLoader, mapper);
         ExecutorService executorService = Executors.newFixedThreadPool(1);
         queryExecutor = new QueryExecutor(analyticsLoader, executorService);
-        new ElasticsearchQueryStore(tableMetadataManager, elasticsearchConnection, dataStore, queryExecutor)
-                .save(TestUtils.TEST_TABLE, TestUtils.getTrendDocuments(mapper));
+        queryStore = new ElasticsearchQueryStore(tableMetadataManager, elasticsearchConnection, dataStore, queryExecutor);
+        queryStore.save(TestUtils.TEST_TABLE, TestUtils.getTrendDocuments(mapper));
     }
 
     @After
@@ -80,7 +78,6 @@ public class TrendActionTest {
 
     @Test(expected = QueryStoreException.class)
     public void testTrendActionAnyException() throws QueryStoreException, JsonProcessingException {
-        logger.info("Testing Trend - Any Exception");
         TrendRequest trendRequest = new TrendRequest();
         trendRequest.setTable(null);
         trendRequest.setFrom(1L);
@@ -88,13 +85,11 @@ public class TrendActionTest {
         trendRequest.setTo(System.currentTimeMillis());
         when(elasticsearchServer.getClient()).thenReturn(null);
         queryExecutor.execute(trendRequest);
-        logger.info("Tested Trend - Any Exception");
     }
 
     //TODO trend action with null field is not working
     @Test
     public void testTrendActionNullField() throws QueryStoreException, JsonProcessingException {
-        logger.info("Testing Trend - With Field");
         TrendRequest trendRequest = new TrendRequest();
         trendRequest.setTable(TestUtils.TEST_TABLE);
         trendRequest.setFrom(1L);
@@ -109,13 +104,11 @@ public class TrendActionTest {
         String expectedResponse = mapper.writeValueAsString(result);
         String actualResponse = mapper.writeValueAsString(queryExecutor.execute(trendRequest));
         assertEquals(expectedResponse, actualResponse);
-        logger.info("Tested Trend - With Field");
     }
 
     //TODO trend action with all field is not working
     @Test
     public void testTrendActionFieldAll() throws QueryStoreException, JsonProcessingException {
-        logger.info("Testing Trend - With Field");
         TrendRequest trendRequest = new TrendRequest();
         trendRequest.setTable(TestUtils.TEST_TABLE);
         trendRequest.setFrom(1L);
@@ -131,24 +124,77 @@ public class TrendActionTest {
         String expectedResponse = mapper.writeValueAsString(result);
         String actualResponse = mapper.writeValueAsString(queryExecutor.execute(trendRequest));
         assertEquals(expectedResponse, actualResponse);
-        logger.info("Tested Trend - With Field");
     }
+
+    @Test
+    public void testTrendActionFieldWithDot() throws QueryStoreException, JsonProcessingException {
+        queryStore.save(TestUtils.TEST_TABLE, (TestUtils.getDocument("G", 1398653118006L, new Object[]{"data.version", 1}, mapper)));
+        TrendRequest trendRequest = new TrendRequest();
+        trendRequest.setTable(TestUtils.TEST_TABLE);
+        trendRequest.setFrom(1L);
+        trendRequest.setTo(System.currentTimeMillis());
+        trendRequest.setField("data.version");
+        trendRequest.setValues(Collections.<String>emptyList());
+
+        ObjectNode result = factory.objectNode();
+        result.put("opcode", "trend");
+        ObjectNode trends = factory.objectNode();
+        trends.put("1", factory.arrayNode().add(factory.objectNode().put("period", 1398643200000L).put("count", 1)));
+        result.put("trends", trends);
+
+        String expectedResponse = mapper.writeValueAsString(result);
+        String actualResponse = mapper.writeValueAsString(queryExecutor.execute(trendRequest));
+        assertEquals(expectedResponse, actualResponse);
+    }
+
+    @Test
+    public void testTrendActionEmptyField() throws QueryStoreException, JsonProcessingException {
+        TrendRequest trendRequest = new TrendRequest();
+        trendRequest.setTable(TestUtils.TEST_TABLE);
+        trendRequest.setFrom(1L);
+        trendRequest.setTo(System.currentTimeMillis());
+        trendRequest.setField("");
+        trendRequest.setValues(Collections.<String>emptyList());
+        try {
+            queryExecutor.execute(trendRequest);
+            fail();
+        } catch (QueryStoreException ex) {
+            assertEquals(QueryStoreException.ErrorCode.INVALID_REQUEST, ex.getErrorCode());
+        }
+    }
+
+    @Test
+    public void testTrendActionFieldWithSpecialCharacters() throws QueryStoreException, JsonProcessingException {
+        TrendRequest trendRequest = new TrendRequest();
+        trendRequest.setTable(TestUtils.TEST_TABLE);
+        trendRequest.setFrom(1L);
+        trendRequest.setTo(System.currentTimeMillis());
+        trendRequest.setField("!@!41242$");
+        trendRequest.setValues(Collections.<String>emptyList());
+
+        ObjectNode result = factory.objectNode();
+        result.put("opcode", "trend");
+        ObjectNode trends = factory.objectNode();
+        result.put("trends", trends);
+
+        String expectedResponse = mapper.writeValueAsString(result);
+        String actualResponse = mapper.writeValueAsString(queryExecutor.execute(trendRequest));
+        assertEquals(expectedResponse, actualResponse);
+    }
+
 
     @Test(expected = QueryStoreException.class)
     public void testTrendActionNullTable() throws QueryStoreException, JsonProcessingException {
-        logger.info("Testing Trend - With Field");
         TrendRequest trendRequest = new TrendRequest();
         trendRequest.setTable(null);
         trendRequest.setFrom(1L);
         trendRequest.setField("os");
         trendRequest.setTo(System.currentTimeMillis());
         queryExecutor.execute(trendRequest);
-        logger.info("Tested Trend - With Field");
     }
 
     @Test
     public void testTrendActionWithField() throws QueryStoreException, JsonProcessingException {
-        logger.info("Testing Trend - With Field");
         TrendRequest trendRequest = new TrendRequest();
         trendRequest.setTable(TestUtils.TEST_TABLE);
         trendRequest.setFrom(1L);
@@ -168,12 +214,10 @@ public class TrendActionTest {
         String expectedResponse = mapper.writeValueAsString(result);
         String actualResponse = mapper.writeValueAsString(queryExecutor.execute(trendRequest));
         assertEquals(expectedResponse, actualResponse);
-        logger.info("Tested Trend - With Field");
     }
 
     @Test
     public void testTrendActionWithFieldZeroTo() throws QueryStoreException, JsonProcessingException {
-        logger.info("Testing Trend - With Field");
         TrendRequest trendRequest = new TrendRequest();
         trendRequest.setTable(TestUtils.TEST_TABLE);
         trendRequest.setFrom(0L);
@@ -193,12 +237,10 @@ public class TrendActionTest {
         String expectedResponse = mapper.writeValueAsString(result);
         String actualResponse = mapper.writeValueAsString(queryExecutor.execute(trendRequest));
         assertEquals(expectedResponse, actualResponse);
-        logger.info("Tested Trend - With Field");
     }
 
     @Test
     public void testTrendActionWithFieldZeroFrom() throws QueryStoreException, JsonProcessingException {
-        logger.info("Testing Trend - With Field");
         TrendRequest trendRequest = new TrendRequest();
         trendRequest.setTable(TestUtils.TEST_TABLE);
         trendRequest.setFrom(1L);
@@ -218,12 +260,10 @@ public class TrendActionTest {
         String expectedResponse = mapper.writeValueAsString(result);
         String actualResponse = mapper.writeValueAsString(queryExecutor.execute(trendRequest));
         assertEquals(expectedResponse, actualResponse);
-        logger.info("Tested Trend - With Field");
     }
 
     @Test
     public void testTrendActionWithFieldWithValues() throws QueryStoreException, JsonProcessingException {
-        logger.info("Testing Trend - With Field - With Values");
         TrendRequest trendRequest = new TrendRequest();
         trendRequest.setTable(TestUtils.TEST_TABLE);
         trendRequest.setFrom(1L);
@@ -241,12 +281,10 @@ public class TrendActionTest {
         String expectedResponse = mapper.writeValueAsString(result);
         String actualResponse = mapper.writeValueAsString(queryExecutor.execute(trendRequest));
         assertEquals(expectedResponse, actualResponse);
-        logger.info("Tested Trend - With Field - With Values");
     }
 
     @Test
     public void testTrendActionWithFieldWithFilterWithValues() throws QueryStoreException, JsonProcessingException {
-        logger.info("Testing Trend - With Field - With Filter - With Values");
         TrendRequest trendRequest = new TrendRequest();
         trendRequest.setTable(TestUtils.TEST_TABLE);
         trendRequest.setFrom(1L);
@@ -270,12 +308,10 @@ public class TrendActionTest {
         String expectedResponse = mapper.writeValueAsString(result);
         String actualResponse = mapper.writeValueAsString(queryExecutor.execute(trendRequest));
         assertEquals(expectedResponse, actualResponse);
-        logger.info("Tested Trend - With Field - With Filter - With Values ");
     }
 
     @Test
     public void testTrendActionWithFieldWithFilter() throws QueryStoreException, JsonProcessingException {
-        logger.info("Testing Trend - With Field");
         TrendRequest trendRequest = new TrendRequest();
         trendRequest.setTable(TestUtils.TEST_TABLE);
         trendRequest.setFrom(1L);
@@ -297,12 +333,10 @@ public class TrendActionTest {
         String expectedResponse = mapper.writeValueAsString(result);
         String actualResponse = mapper.writeValueAsString(queryExecutor.execute(trendRequest));
         assertEquals(expectedResponse, actualResponse);
-        logger.info("Tested Trend - With Field");
     }
 
     @Test
     public void testTrendActionWithFieldWithFilterWithInterval() throws QueryStoreException, JsonProcessingException {
-        logger.info("Testing Trend - With Field - With Interval");
         TrendRequest trendRequest = new TrendRequest();
         trendRequest.setTable(TestUtils.TEST_TABLE);
         trendRequest.setFrom(1L);
@@ -325,6 +359,5 @@ public class TrendActionTest {
         String expectedResponse = mapper.writeValueAsString(result);
         String actualResponse = mapper.writeValueAsString(queryExecutor.execute(trendRequest));
         assertEquals(expectedResponse, actualResponse);
-        logger.info("Tested Trend - With Field - With Interval");
     }
 }

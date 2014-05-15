@@ -31,8 +31,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.*;
@@ -47,7 +45,6 @@ import static org.mockito.Mockito.when;
  */
 
 public class FilterActionTest {
-    private final Logger logger = LoggerFactory.getLogger(FilterActionTest.class.getSimpleName());
     private QueryExecutor queryExecutor;
     private ObjectMapper mapper = new ObjectMapper();
     private MockElasticsearchServer elasticsearchServer;
@@ -90,7 +87,6 @@ public class FilterActionTest {
 
     @Test(expected = QueryStoreException.class)
     public void testQueryException() throws QueryStoreException, JsonProcessingException {
-        logger.info("Testing Query - Any Exception");
         Query query = new Query();
         query.setTable(TestUtils.TEST_TABLE);
         ResultSort resultSort = new ResultSort();
@@ -99,12 +95,10 @@ public class FilterActionTest {
         query.setSort(resultSort);
         when(elasticsearchServer.getClient()).thenReturn(null);
         queryExecutor.execute(query);
-        logger.info("Tested Query - Any Exception");
     }
 
     @Test
     public void testQueryNoFilterAscending() throws QueryStoreException, JsonProcessingException {
-        logger.info("Testing Query - No Filter - Sort Ascending");
         Query query = new Query();
         query.setTable(TestUtils.TEST_TABLE);
         ResultSort resultSort = new ResultSort();
@@ -129,12 +123,10 @@ public class FilterActionTest {
 
         String actualResponse = mapper.writeValueAsString(queryExecutor.execute(query));
         assertEquals(expectedResponse, actualResponse);
-        logger.info("Tested Query - No Filter - Sort Ascending");
     }
 
     @Test
     public void testQueryNoFilterDescending() throws QueryStoreException, JsonProcessingException {
-        logger.info("Testing Query - No Filter - Sort Descending");
         Query query = new Query();
         query.setTable(TestUtils.TEST_TABLE);
         ResultSort resultSort = new ResultSort();
@@ -159,12 +151,10 @@ public class FilterActionTest {
 
         String actualResponse = mapper.writeValueAsString(queryExecutor.execute(query));
         assertEquals(expectedResponse, actualResponse);
-        logger.info("Tested Query - No Filter - Sort Descending");
     }
 
     @Test
     public void testQueryNoFilterWithLimit() throws QueryStoreException, JsonProcessingException {
-        logger.info("Testing Query - No Filter - Limit 2");
         Query query = new Query();
         query.setTable(TestUtils.TEST_TABLE);
         query.setLimit(2);
@@ -183,12 +173,10 @@ public class FilterActionTest {
 
         String actualResponse = mapper.writeValueAsString(queryExecutor.execute(query));
         assertEquals(expectedResponse, actualResponse);
-        logger.info("Tested Query - No Filter - Limit 2");
     }
 
     @Test
     public void testQueryAnyFilter() throws QueryStoreException, JsonProcessingException {
-        logger.info("Testing Query - Any Filter");
         Query query = new Query();
         query.setTable(TestUtils.TEST_TABLE);
 
@@ -217,12 +205,10 @@ public class FilterActionTest {
 
         String actualResponse = mapper.writeValueAsString(queryExecutor.execute(query));
         assertEquals(expectedResponse, actualResponse);
-        logger.info("Tested Query - Any Filter");
     }
 
     @Test
     public void testQueryEqualsFilter() throws QueryStoreException, JsonProcessingException {
-        logger.info("Testing Query - equals Filter");
         Query query = new Query();
         query.setTable(TestUtils.TEST_TABLE);
 
@@ -246,12 +232,10 @@ public class FilterActionTest {
 
         String actualResponse = mapper.writeValueAsString(queryExecutor.execute(query));
         assertEquals(expectedResponse, actualResponse);
-        logger.info("Tested Query - equals Filter");
     }
 
     @Test
     public void testQueryNotEqualsFilter() throws QueryStoreException, JsonProcessingException {
-        logger.info("Testing Query - not_equals Filter");
         Query query = new Query();
         query.setTable(TestUtils.TEST_TABLE);
         query.setLimit(3);
@@ -277,12 +261,10 @@ public class FilterActionTest {
 
         String actualResponse = mapper.writeValueAsString(queryExecutor.execute(query));
         assertEquals(expectedResponse, actualResponse);
-        logger.info("Tested Query - not_equals Filter");
     }
 
     @Test
     public void testQueryGreaterThanFilter() throws QueryStoreException, JsonProcessingException {
-        logger.info("Testing Query - greater_than Filter");
         Query query = new Query();
         query.setTable(TestUtils.TEST_TABLE);
         query.setLimit(3);
@@ -307,12 +289,10 @@ public class FilterActionTest {
 
         String actualResponse = mapper.writeValueAsString(queryExecutor.execute(query));
         assertEquals(expectedResponse, actualResponse);
-        logger.info("Tested Query - greater_than Filter");
     }
 
     @Test
     public void testQueryGreaterEqualFilter() throws QueryStoreException, JsonProcessingException {
-        logger.info("Testing Query - greater_equal Filter");
         Query query = new Query();
         query.setTable(TestUtils.TEST_TABLE);
         query.setLimit(3);
@@ -338,12 +318,10 @@ public class FilterActionTest {
 
         String actualResponse = mapper.writeValueAsString(queryExecutor.execute(query));
         assertEquals(expectedResponse, actualResponse);
-        logger.info("Tested Query - greater_equal Filter");
     }
 
     @Test
     public void testQueryLessThanFilter() throws QueryStoreException, JsonProcessingException {
-        logger.info("Testing Query - less_than Filter");
         Query query = new Query();
         query.setTable(TestUtils.TEST_TABLE);
         query.setLimit(3);
@@ -367,12 +345,10 @@ public class FilterActionTest {
 
         String actualResponse = mapper.writeValueAsString(queryExecutor.execute(query));
         assertEquals(expectedResponse, actualResponse);
-        logger.info("Tested Query - less_than Filter");
     }
 
     @Test
     public void testQueryLessEqualFilter() throws QueryStoreException, JsonProcessingException {
-        logger.info("Testing Query - greater_equal Filter");
         Query query = new Query();
         query.setTable(TestUtils.TEST_TABLE);
         query.setLimit(3);
@@ -397,12 +373,10 @@ public class FilterActionTest {
 
         String actualResponse = mapper.writeValueAsString(queryExecutor.execute(query));
         assertEquals(expectedResponse, actualResponse);
-        logger.info("Tested Query - greater_equal Filter");
     }
 
     @Test
     public void testQueryBetweenFilter() throws QueryStoreException, JsonProcessingException {
-        logger.info("Testing Query - between Filter");
         Query query = new Query();
         query.setTable(TestUtils.TEST_TABLE);
         query.setLimit(3);
@@ -428,12 +402,10 @@ public class FilterActionTest {
 
         String actualResponse = mapper.writeValueAsString(queryExecutor.execute(query));
         assertEquals(expectedResponse, actualResponse);
-        logger.info("Tested Query - between Filter");
     }
 
     @Test
     public void testQueryContainsFilter() throws QueryStoreException, JsonProcessingException {
-        logger.info("Testing Query - contains Filter");
         Query query = new Query();
         query.setTable(TestUtils.TEST_TABLE);
 
@@ -462,12 +434,10 @@ public class FilterActionTest {
 
         String actualResponse = mapper.writeValueAsString(queryExecutor.execute(query));
         assertEquals(expectedResponse, actualResponse);
-        logger.info("Tested Query - contains Filter");
     }
 
     @Test
     public void testQueryEmptyResult() throws QueryStoreException, JsonProcessingException {
-        logger.info("Testing Query - Empty Result Test");
         Query query = new Query();
         query.setTable(TestUtils.TEST_TABLE);
 
@@ -484,12 +454,10 @@ public class FilterActionTest {
 
         String actualResponse = mapper.writeValueAsString(queryExecutor.execute(query));
         assertEquals(expectedResponse, actualResponse);
-        logger.info("Tested Query - Empty Result Test");
     }
 
     @Test
     public void testQueryMultipleFiltersEmptyResult() throws QueryStoreException, JsonProcessingException {
-        logger.info("Testing Query - Multiple Filters - Empty Result");
         Query query = new Query();
         query.setTable(TestUtils.TEST_TABLE);
 
@@ -514,12 +482,10 @@ public class FilterActionTest {
 
         String actualResponse = mapper.writeValueAsString(queryExecutor.execute(query));
         assertEquals(expectedResponse, actualResponse);
-        logger.info("Tested Query - Multiple Filters - Empty Result");
     }
 
     @Test
     public void testQueryMultipleFiltersAndCombiner() throws QueryStoreException, JsonProcessingException {
-        logger.info("Testing Query - Multiple Filters - Non Empty Result");
         Query query = new Query();
         query.setTable(TestUtils.TEST_TABLE);
 
@@ -545,12 +511,10 @@ public class FilterActionTest {
 
         String actualResponse = mapper.writeValueAsString(queryExecutor.execute(query));
         assertEquals(expectedResponse, actualResponse);
-        logger.info("Tested Query - Multiple Filters - Non Empty Result");
     }
 
     @Test
     public void testQueryMultipleFiltersOrCombiner() throws QueryStoreException, JsonProcessingException {
-        logger.info("Testing Query - Multiple Filters - Or Combiner - Non Empty Result");
         Query query = new Query();
         query.setTable(TestUtils.TEST_TABLE);
 
@@ -590,12 +554,10 @@ public class FilterActionTest {
 
         String actualResponse = mapper.writeValueAsString(queryExecutor.execute(query));
         assertEquals(expectedResponse, actualResponse);
-        logger.info("Tested Query - Multiple Filters - Or Combiner - Non Empty Result");
     }
 
     @Test
     public void testQueryPagination() throws QueryStoreException, JsonProcessingException {
-        logger.info("Testing Query - Filter with Pagination");
         Query query = new Query();
         query.setTable(TestUtils.TEST_TABLE);
 
@@ -621,12 +583,10 @@ public class FilterActionTest {
 
         String actualResponse = mapper.writeValueAsString(queryExecutor.execute(query));
         assertEquals(expectedResponse, actualResponse);
-        logger.info("Tested Query - Filter with Pagination");
     }
 
     @Test
     public void testQueryAsync() throws QueryStoreException, JsonProcessingException, InterruptedException {
-        logger.info("Testing Query - Async");
         Query query = new Query();
         query.setTable(TestUtils.TEST_TABLE);
 
@@ -655,12 +615,10 @@ public class FilterActionTest {
         ActionResponse actionResponse = CacheUtils.getCacheFor(response.getAction()).get(response.getKey());
         String actualResponse = mapper.writeValueAsString(actionResponse);
         assertEquals(expectedResponse, actualResponse);
-        logger.info("Tested Query - Async");
     }
 
     @Test
     public void testQueryNullFilters() throws QueryStoreException, JsonProcessingException, InterruptedException {
-        logger.info("Testing Query - Null Filters");
         Query query = new Query();
         query.setTable(TestUtils.TEST_TABLE);
         query.setFilters(null);
@@ -687,12 +645,10 @@ public class FilterActionTest {
 
         String actualResponse = mapper.writeValueAsString(queryExecutor.execute(query));
         assertEquals(expectedResponse, actualResponse);
-        logger.info("Tested Query - Null Filters");
     }
 
     @Test
     public void testQueryNullCombiner() throws QueryStoreException, JsonProcessingException, InterruptedException {
-        logger.info("Testing Query - Null Combiner");
         Query query = new Query();
         query.setTable(TestUtils.TEST_TABLE);
         query.setFilters(new ArrayList<Filter>());
@@ -719,12 +675,10 @@ public class FilterActionTest {
 
         String actualResponse = mapper.writeValueAsString(queryExecutor.execute(query));
         assertEquals(expectedResponse, actualResponse);
-        logger.info("Tested Query - Null Combiner");
     }
 
     @Test
     public void testQueryNullSort() throws QueryStoreException, JsonProcessingException, InterruptedException {
-        logger.info("Testing Query - Null Sort");
         Query query = new Query();
         query.setTable(TestUtils.TEST_TABLE);
         query.setFilters(new ArrayList<Filter>());
@@ -748,13 +702,11 @@ public class FilterActionTest {
 
         String actualResponse = mapper.writeValueAsString(queryExecutor.execute(query));
         assertEquals(expectedResponse, actualResponse);
-        logger.info("Tested Query - Null Sort");
     }
 
     //TODO How to verify if cached data is returned.
     @Test
     public void testQueryCaching() throws QueryStoreException, JsonProcessingException {
-        logger.info("Testing Query - Query Caching");
         Query query = new Query();
         query.setTable(TestUtils.TEST_TABLE);
 
@@ -780,6 +732,5 @@ public class FilterActionTest {
 
         assertEquals(expectedResponse, mapper.writeValueAsString(queryExecutor.execute(query)));
         assertEquals(expectedResponse, mapper.writeValueAsString(queryExecutor.execute(query)));
-        logger.info("Tested Query - Query Caching");
     }
 }
