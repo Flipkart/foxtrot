@@ -48,4 +48,7 @@ logging:
 cluster:
   name: foxtrot
   disableMulticast: true
-  members: []
+  members:
+  - stage-athena.digital.ch.flipkart.com
+  - stage-reporting-client.digital.ch.flipkart.com
+  - stage-hyperion-api.digital.ch.flipkart.com
