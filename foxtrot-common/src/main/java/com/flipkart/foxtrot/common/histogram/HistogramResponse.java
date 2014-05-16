@@ -10,6 +10,9 @@ import java.util.List;
  * Time: 12:14 AM
  */
 public class HistogramResponse implements ActionResponse {
+    private long from;
+    private long to;
+
     public static class Count {
         private Number period;
         private long count;
@@ -43,7 +46,9 @@ public class HistogramResponse implements ActionResponse {
     public HistogramResponse() {
     }
 
-    public HistogramResponse(List<Count> counts) {
+    public HistogramResponse(long from, long to, List<Count> counts) {
+        this.from = from;
+        this.to = to;
         this.counts = counts;
     }
 
@@ -53,5 +58,22 @@ public class HistogramResponse implements ActionResponse {
 
     public void setCounts(List<Count> counts) {
         this.counts = counts;
+    }
+
+
+    public long getFrom() {
+        return from;
+    }
+
+    public void setFrom(long from) {
+        this.from = from;
+    }
+
+    public long getTo() {
+        return to;
+    }
+
+    public void setTo(long to) {
+        this.to = to;
     }
 }

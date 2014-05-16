@@ -109,7 +109,7 @@ public class HistogramAction extends Action<HistogramRequest> {
                         bucket.getKeyAsNumber(), bucket.getDocCount());
                 counts.add(count);
             }
-            return new HistogramResponse(counts);
+            return new HistogramResponse(parameter.getFrom(), parameter.getTo(), counts);
         } catch (QueryStoreException ex){
             throw ex;
         } catch (Exception e) {
