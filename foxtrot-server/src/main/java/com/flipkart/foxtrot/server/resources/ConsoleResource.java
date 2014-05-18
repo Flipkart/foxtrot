@@ -39,7 +39,7 @@ public class ConsoleResource {
 
     @GET
     @Path("/{id}")
-    public Console get(final String id) {
+    public Console get(@PathParam("id") final String id) {
         try {
             return consolePersistence.get(id);
         } catch (ConsolePersistenceException e) {
