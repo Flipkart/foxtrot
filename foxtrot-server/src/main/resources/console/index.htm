@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="">
+  <meta name="author" content="">
+  <link rel="shortcut icon" href="../../assets/ico/favicon.ico">
+
+  <title>Foxtrot</title>
+
+  <!-- Bootstrap core CSS -->
+  <link href="css/bootstrap.min.css" rel="stylesheet">
+  <link href="css/bootstrap-select.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="//code.jquery.com/ui/1.10.4/themes/smoothness/jquery-ui.css">
+  <link rel="stylesheet" href="css/bootstrapValidator.min.css">
+  <link href="css/foxtrot.css" rel="stylesheet">
+  <!--link href="css/jumbotron-narrow.css" rel="stylesheet"-->
+
+  <!-- Custom styles for this template -->
+
+  <!-- Just for debugging purposes. Don't actually copy this line! -->
+  <!--[if lt IE 9]><script src="../../assets/js/ie8-responsive-file-warning.js"></script><![endif]-->
+
+  <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+      <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+      <![endif]-->
+    </head>
+
+    <body>
+
+      <div class="container container-full">
+        <div class="header pageheader">
+          <!-- <ul class="nav nav-pills pull-right">
+            <li class="active"><a href="#">Home</a></li>
+            <li><a href="#">About</a></li>
+            <li><a href="#">Contact</a></li>
+            <li></li>
+            <li></li>  
+          </ul> -->
+          <h1>
+          <div class="row">
+            <div class="col-sm-4"><img src="images/logo-1.png"/> <span class="console-name">FoxTrot</span></div>
+            <div class="col-sm-4" style="margin-top: 8px">
+            </div>
+            <div class="col-sm-3" style="margin-top: 8px">
+              <select class="selectpicker" id="tables" style="text-align: left">
+              </select>
+            </div>
+            <div class="col-sm-1" style="margin-top: 8px">
+              <div class="header-button" data-toggle="modal" data-target="#addWidgetModal" style="left: -72px">
+                <span class='glyphicon glyphicon-plus header-button-icon' id="newTile" ></span>
+              </div>
+              <div class="header-button" data-toggle="modal" data-target="#saveConsoleModal" style="left: -23px">
+              <!-- <div class="header-button" style="left: -23px"> -->
+                <span class='glyphicon glyphicon-floppy-disk header-button-icon' id="saveConsole"></span>
+              </div>
+
+              <div class="header-button" data-toggle="modal" data-target="#loadConsoleModal" style="left: 26px">
+                <span class='glyphicon glyphicon-eye-open header-button-icon' id="loadConsole" ></span>
+              </div>
+
+            </div>
+          </div>
+          </h1>
+        </div>
+        <hr style="margin-top: 0px">
+        <div class="alert alert-dismissable">
+          <button type="button" class="close" data-hide="alert" aria-hidden="true">&times;</button>
+          <div class="alert-message"></div>
+        </div>
+        <div class="tile-container" id="tileContainer">
+          <div class="float-clear"></div>
+        </div>
+        <div class="footer">
+          <p>&copy; flipkart.com 2014</p>
+        </div>
+
+      </div> <!-- /container -->
+
+      <!-- Modal -->
+      <div class="modal fade" id="addWidgetModal" tabindex="-1" role="dialog" aria-labelledby="addWidgetModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+              <h4 class="modal-title" id="addWidgetModalLabel">Create new widget</h4>
+            </div>
+            <div class="modal-body">
+              <!-- <form class="form-inline" role="form"> -->
+              <form class="row">
+                <div class="col-xs-7">
+                  <input type="text" class="form-control black-input" id="widgetTitle" placeholder="Enter widget title" >
+                </div>
+                <div class="col-xs-2">
+                  <select class="selectpicker"  data-style="btn-warning" id="widgetType">
+                    <option value="donut">Event Type Split Donut</option>
+                    <option value="bar">Event Type Split Bars</option>
+                    <!-- <option value="line">Lines</option> -->
+                    <!-- <option value="search">Search</option> -->
+                    <!-- <option value="trends">Trends</option> -->
+                    <!-- <option value="tree">Event Tree</option> -->
+                    <option value="histogram">Event Ingestion Histogram</option>
+                    <option value="eventbrowser">Event Browser</option>
+                  </select>
+                </div>
+              </form>
+              <!-- <div class="form-group">
+                <textarea rows="10" id="flow-create-modal-text" class="form-control scrollable black" placeholder="Enter foxtrot query" style="resize: none"></textarea>
+              </div> -->
+            </div>
+            <div class="modal-footer" style="margin-top: 0px;">
+              <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+              <button type="button" class="btn btn-primary" id="addWidgetConfirm">Save changes</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!--Console-->
+      <div class="modal fade" id="saveConsoleModal" tabindex="-1" role="dialog" aria-labelledby="saveConsoleModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+          <form class="form-horizontal settings-form" role="form" data-toggle="validate" data-delay="" id="consoleSaveForm">
+            <div class="modal-content">
+              <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title" id="saveConsoleModalLabel">Save Console</h4>
+              </div>
+              <div class="modal-body">
+                <div class="form-group">
+                  <div class="col-sm-12">
+                    <input type="hidden" class="tileId">
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label class="col-sm-4 control-label" for="console_name"><strong>Console Name</strong></label>
+                  <div class="col-sm-8">
+                    <input type="text" class="form-control console-name" placeholder="Enter Console Name" required id="console_name">
+                    <div class="help-block with-errors">Enter a name for the console.</div>
+                  </div>
+                </div>
+              </div>
+              <div class="modal-footer">
+                  <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                  <button type="submit" class="btn btn-primary save-changes" disabled="disabled">Done</button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <div class="modal fade" id="loadConsoleModal" tabindex="-1" role="dialog" aria-labelledby="loadConsoleModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+          <form class="form-horizontal settings-form" role="form" data-toggle="validate" data-delay="" id="consoleLoadForm">
+            <div class="modal-content">
+              <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title" id="loadConsoleModalLabel">Load Console</h4>
+              </div>
+              <div class="modal-body">
+                <div class="form-group">
+                  <div class="col-sm-12">
+                    <input type="hidden" class="tileId">
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label class="col-sm-4 control-label" for="select_console_name"><strong>Console Name</strong></label>
+                  <div class="col-sm-8">
+                    <select class="selectpicker pie-chart-field"  data-style="btn-warning" required id="select_console_name">
+                    </select>
+                    <div class="help-block with-errors">Select the console to load.</div>
+                  </div>
+                </div>
+              </div>
+              <div class="modal-footer">
+                  <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                  <button type="submit" class="btn btn-primary save-changes" disabled="disabled">Done</button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- Settings Modal Windows-->
+
+      <!--Pie-->
+      <div class="modal fade" id="setupPieChartModal" tabindex="-1" role="dialog" aria-labelledby="setupPieChartModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+          <form class="form-horizontal settings-form" role="form" data-toggle="validate" data-delay="" id="setupPieChartForm">
+            <div class="modal-content">
+              <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title" id="setupPieChartModalLabel">Setup Donut Chart</h4>
+              </div>
+              <div class="modal-body">
+                <div class="form-group">
+                  <div class="col-sm-12">
+                    <input type="hidden" class="tileId">
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label class="col-sm-4 control-label" for="pie_rt"><strong>Refresh Interval (minutes)</strong></label>
+                  <div class="col-sm-8">
+                    <input type="number" min="5" max="10080" class="form-control refresh-period" placeholder="Between 5 mins and 10080 mins (7 days)" required id="pie_rt">
+                    <div class="help-block with-errors">Between 5 mins and 10080 mins (7 days)</div>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label class="col-sm-4 control-label" for="pie_rt"><strong>Event Type Field</strong></label>
+                  <div class="col-sm-8">
+                    <select class="selectpicker pie-chart-field"  data-style="btn-warning" id="">
+                    </select>
+                    <div class="help-block with-errors">Select the field from the above list.</div>
+                  </div>
+                </div>
+              </div>
+              <div class="modal-footer">
+                  <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                  <button type="submit" class="btn btn-primary save-changes" disabled="disabled">Done</button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!--Bar-->
+      <div class="modal fade" id="setupBarChartModal" tabindex="-1" role="dialog" aria-labelledby="setupBarChartModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+          <form class="form-horizontal settings-form" role="form" data-toggle="validate" data-delay="" id="setupBarChartForm">
+            <div class="modal-content">
+              <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title" id="setupBarChartModalLabel">Setup Bar Chart</h4>
+              </div>
+              <div class="modal-body">
+                <div class="form-group">
+                  <div class="col-sm-12">
+                    <input type="hidden" class="tileId">
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label class="col-sm-4 control-label" for="bar_rt"><strong>Refresh Interval (minutes)</strong></label>
+                  <div class="col-sm-8">
+                    <input type="number" min="5" max="10080" class="form-control refresh-period" placeholder="Between 5 mins and 10080 mins (7 days)" required id="bar_rt">
+                    <div class="help-block with-errors">Between 5 mins and 10080 mins (7 days)</div>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label class="col-sm-4 control-label" for="bar-chart-field"><strong>Event Type Field</strong></label>
+                  <div class="col-sm-8">
+                    <select class="selectpicker bar-chart-field"  data-style="btn-warning" id="bar-chart-field">
+                    </select>
+                    <div class="help-block with-errors">Select the field from the above list.</div>
+                  </div>
+                </div>
+              </div>
+              <div class="modal-footer">
+                  <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                  <button type="submit" class="btn btn-primary save-changes" disabled="disabled">Done</button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!--Histogram-->
+      <div class="modal fade" id="setupHistogram" tabindex="-1" role="dialog" aria-labelledby="setupHistogramModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+          <form class="form-horizontal settings-form" role="form" data-toggle="validate" data-delay="" id="setupHistogramForm">
+            <div class="modal-content">
+              <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title" id="setupHistogramModalLabel">Setup Histogram</h4>
+              </div>
+              <div class="modal-body">
+                <div class="form-group">
+                  <div class="col-sm-12">
+                    <input type="hidden" class="tileId">
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label class="col-sm-4 control-label" for="histogram_rt"><strong>Refresh Interval (minutes)</strong></label>
+                  <div class="col-sm-8">
+                    <input type="number" min="5" max="10080" class="form-control refresh-period" placeholder="Between 5 mins and 10080 mins (7 days)" required id="histogram_rt">
+                    <div class="help-block with-errors">Between 5 mins and 10080 mins (7 days)</div>
+                  </div>
+                </div>
+              </div>
+              <div class="modal-footer">
+                  <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                  <button type="submit" class="btn btn-primary save-changes" disabled="disabled">Done</button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!--EventBrowser-->
+      <div class="modal fade" id="setupEventBrowser" tabindex="-1" role="dialog" aria-labelledby="setupEventBrowserModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+          <form class="form-horizontal settings-form" role="form" data-toggle="validate" data-delay="" id="setupEventBrowserForm">
+            <div class="modal-content">
+              <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title" id="setupEventBrowserModalLabel">Setup Event Browser</h4>
+              </div>
+              <div class="modal-body">
+                <div class="form-group">
+                  <div class="col-sm-12">
+                    <input type="hidden" class="tileId">
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label class="col-sm-4 control-label" for="eventbrowser_count"><strong>Record count per page</strong></label>
+                  <div class="col-sm-8">
+                    <input type="number" min="10" max="100" class="form-control event-count" placeholder="Between 10 and 100" required id="eventbrowser_count">
+                    <div class="help-block with-errors">Between 10 and 100 events per page</div>
+                  </div>
+                </div>
+              </div>
+              <div class="modal-footer">
+                  <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                  <button type="submit" class="btn btn-primary save-changes" disabled="disabled">Done</button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+
+
+      <!--Templates-->
+      <script id="tile-template" type="text/x-handlebars-template">
+        <div class='tile tile-gradient size1' id='{{tileId}}' draggable='true'>
+          <div class='widget-toolbox'>
+            <span class='glyphicon glyphicon-wrench'></span>
+            <span class='glyphicon glyphicon-trash'></span>
+          </div>
+          <div class='chart-content' id='content-for-{{tileId}}'>
+          </div>
+        </div>
+      </script>
+
+      <script id="eventbrowser-template" type="text/x-handlebars-template">
+        <table class="table table-bordered table-hover table-condensed">
+            <thead>
+              <tr>
+                {{#each headers}}
+                  <th>{{this}}</th>
+                {{/each}}
+              </tr>
+            </thead>
+            <tbody>
+              {{#each data}}
+                <tr>
+                  {{#each this}}
+                    <td>{{this}}</th>
+                  {{/each}}
+                </tr>
+              {{/each}}
+            </tbody>
+
+        </table>
+      </script>
+
+
+
+
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="js/jquery.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <script src="js/bootstrap-select.min.js"></script>
+    <script src="js/d3.js"></script>
+    <!--script src="js/c3.js"></script-->
+    <script src="js/handlebars-v1.3.0.js"></script>
+    <script src="js/jquery-ui.js"></script>    
+    <script src="js/validator.js"></script>
+    <script src="js/flot/jquery.flot.min.js"></script>
+    <script src="js/flot/jquery.flot.tooltip.js"></script>
+    <script src="js/flot/jquery.flot.time.min.js"></script>
+    <script src="js/flot/jquery.flot.selection.min.js"></script>
+    <script src="js/flot/jquery.flot.pie.min.js"></script>    
+    <script src="js/flat.js"></script>    
+
+    <!--Application-->
+    <script src="js/handlebars-helper.js"></script>
+    <script src="js/common-utils.js"></script>
+    <script src="js/hostdetails.js"></script>
+    <script src="js/config.js"></script>
+    <script src="js/colorgen.js"></script>
+    <script src="js/tables.js"></script>
+    <script src="js/tile.js"></script>
+    <script src="js/donut-tile.js"></script>
+    <script src="js/bar-tile.js"></script>
+    <script src="js/line-tile.js"></script>
+    <script src="js/histogram.js"></script>
+    <script src="js/eventbrowser-tile.js"></script>
+    <script src="js/consolemanager.js"></script>
+    <script src="js/foxtrot-main.js"></script>
+
+  </body>
+  </html>

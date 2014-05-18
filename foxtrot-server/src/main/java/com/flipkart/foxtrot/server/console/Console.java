@@ -22,7 +22,7 @@ public class Console {
     private String appName;
 
     @JsonProperty
-    private long created;
+    private long updated;
 
     @JsonProperty
     private List<String> tileList;
@@ -49,12 +49,12 @@ public class Console {
         this.name = name;
     }
 
-    public long getCreated() {
-        return created;
+    public long getUpdated() {
+        return updated;
     }
 
-    public void setCreated(long created) {
-        this.created = created;
+    public void setUpdated(long updated) {
+        this.updated = updated;
     }
 
     public List<String> getTileList() {

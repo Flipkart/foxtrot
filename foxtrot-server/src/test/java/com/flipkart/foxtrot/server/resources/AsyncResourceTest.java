@@ -133,7 +133,7 @@ public class AsyncResourceTest extends ResourceTest {
         AsyncDataToken dataToken = queryExecutor.executeAsync(groupRequest);
         Thread.sleep(1000);
 
-        WebResource webResource = client().resource("/foxtrot/v1/async/" + dataToken.getAction() + "/" + dataToken.getKey());
+        WebResource webResource = client().resource("/v1/async/" + dataToken.getAction() + "/" + dataToken.getKey());
         GroupResponse response = webResource.type(MediaType.APPLICATION_JSON_TYPE).get(GroupResponse.class);
 
         String expectedResult = mapper.writeValueAsString(finalNode);
@@ -151,7 +151,7 @@ public class AsyncResourceTest extends ResourceTest {
         Thread.sleep(1000);
 
         try {
-            client().resource(String.format("/foxtrot/v1/async/distinct/%s", dataToken.getKey())).type(MediaType.APPLICATION_JSON_TYPE).get(GroupResponse.class);
+            client().resource(String.format("/v1/async/distinct/%s", dataToken.getKey())).type(MediaType.APPLICATION_JSON_TYPE).get(GroupResponse.class);
         } catch (UniformInterfaceException ex) {
             assertEquals(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode(), ex.getResponse().getStatus());
         }
@@ -167,7 +167,7 @@ public class AsyncResourceTest extends ResourceTest {
         Thread.sleep(1000);
 
         try {
-            client().resource(String.format("/foxtrot/v1/async/%s/dummy", dataToken.getAction())).type(MediaType.APPLICATION_JSON_TYPE).get(GroupResponse.class);
+            client().resource(String.format("/v1/async/%s/dummy", dataToken.getAction())).type(MediaType.APPLICATION_JSON_TYPE).get(GroupResponse.class);
         } catch (UniformInterfaceException ex) {
             assertEquals(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode(), ex.getResponse().getStatus());
         }
@@ -199,7 +199,7 @@ public class AsyncResourceTest extends ResourceTest {
         AsyncDataToken dataToken = queryExecutor.executeAsync(groupRequest);
         Thread.sleep(1000);
 
-        GroupResponse response = client().resource("/foxtrot/v1/async")
+        GroupResponse response = client().resource("/v1/async")
                 .type(MediaType.APPLICATION_JSON_TYPE)
                 .post(GroupResponse.class, dataToken);
 
@@ -212,7 +212,7 @@ public class AsyncResourceTest extends ResourceTest {
     @Test
     public void testGetResponsePostInvalidKey() throws Exception {
         AsyncDataToken dataToken = new AsyncDataToken("group", null);
-        GroupResponse response = client().resource("/foxtrot/v1/async").type(MediaType.APPLICATION_JSON_TYPE).post(GroupResponse.class, dataToken);
+        GroupResponse response = client().resource("/v1/async").type(MediaType.APPLICATION_JSON_TYPE).post(GroupResponse.class, dataToken);
         assertNull(response);
     }
 
@@ -221,7 +221,7 @@ public class AsyncResourceTest extends ResourceTest {
         AsyncDataToken dataToken = new AsyncDataToken(null, UUID.randomUUID().toString());
 
         try {
-            client().resource("/foxtrot/v1/async")
+            client().resource("/v1/async")
                     .type(MediaType.APPLICATION_JSON_TYPE)
                     .post(GroupResponse.class, dataToken);
         } catch (UniformInterfaceException ex) {
