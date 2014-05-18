@@ -1,6 +1,5 @@
 package com.flipkart.foxtrot.core.querystore.actions;
 
-import ch.qos.logback.core.joran.action.ActionUtil;
 import com.flipkart.foxtrot.common.ActionResponse;
 import com.flipkart.foxtrot.common.histogram.HistogramRequest;
 import com.flipkart.foxtrot.common.histogram.HistogramResponse;

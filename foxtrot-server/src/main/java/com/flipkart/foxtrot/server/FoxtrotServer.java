@@ -14,6 +14,7 @@ import com.flipkart.foxtrot.core.querystore.TableMetadataManager;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsLoader;
 import com.flipkart.foxtrot.core.querystore.impl.*;
 import com.flipkart.foxtrot.server.config.FoxtrotServerConfiguration;
+import com.flipkart.foxtrot.server.console.ElasticsearchConsolePersistence;
 import com.flipkart.foxtrot.server.resources.*;
 import com.flipkart.foxtrot.server.util.ManagedActionScanner;
 import com.yammer.dropwizard.Service;
@@ -77,7 +78,11 @@ public class FoxtrotServer extends Service<FoxtrotServerConfiguration> {
         environment.addResource(new AnalyticsResource(executor));
         environment.addResource(new TableMetadataResource(tableMetadataManager));
         environment.addResource(new TableFieldMappingResource(queryStore));
+        environment.addResource(new ConsoleResource(
+                                    new ElasticsearchConsolePersistence(elasticsearchConnection, objectMapper)));
+
         environment.addHealthCheck(new ElasticSearchHealthCheck("ES Health Check", elasticsearchConnection));
+
         environment.addFilter(CrossOriginFilter.class, "/*");
     }
 }
