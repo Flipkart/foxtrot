@@ -49,7 +49,8 @@ public class HistogramAction extends Action<HistogramRequest> {
         }
 
         return String.format("%s-%d-%d-%d-%s-%s", query.getTable(),
-                query.getFrom(), query.getTo(), filterHashKey, query.getPeriod().name(), query.getField());
+                                query.getFrom()/30000, query.getTo()/30000,
+                                filterHashKey, query.getPeriod().name(), query.getField());
     }
 
     @Override

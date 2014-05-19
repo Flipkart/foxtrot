@@ -13,6 +13,7 @@ import javax.validation.constraints.NotNull;
  * Time: 2:10 AM
  */
 public class BetweenFilter extends Filter {
+    private boolean temporal = false;
     @NotNull
     private Number from;
     @NotNull
@@ -60,8 +61,14 @@ public class BetweenFilter extends Filter {
     @Override
     public int hashCode() {
         int result = super.hashCode();
-        result = 31 * result + from.hashCode();
-        result = 31 * result + to.hashCode();
+        if(!temporal) {
+            result = 31 * result + from.hashCode();
+            result = 31 * result + to.hashCode();
+        }
+        else {
+            result = 31 * result + Long.valueOf(from.longValue() / 30000).hashCode();
+            result = 31 * result + Long.valueOf(to.longValue()/30000).hashCode();
+        }
         return result;
     }
 
@@ -73,5 +80,13 @@ public class BetweenFilter extends Filter {
                 .append("from", from)
                 .append("to", to)
                 .toString();
+    }
+
+    public boolean isTemporal() {
+        return temporal;
+    }
+
+    public void setTemporal(boolean temporal) {
+        this.temporal = temporal;
     }
 }

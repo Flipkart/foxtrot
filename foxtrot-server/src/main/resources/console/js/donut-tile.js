@@ -95,6 +95,7 @@ DonutTile.prototype.getQuery = function() {
 			filters : [{
 				field: "_timestamp",
 				operator: "between",
+				temporal: true,
 				from: (timestamp - (this.period * 60000)),
 				to: timestamp
 			}],

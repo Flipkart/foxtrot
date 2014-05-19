@@ -13,6 +13,8 @@ public abstract class NumericBinaryFilter extends Filter {
     @NotNull
     private Number value;
 
+    private boolean temporal = false;
+
     protected NumericBinaryFilter(final String operator) {
         super(operator);
     }
@@ -40,7 +42,20 @@ public abstract class NumericBinaryFilter extends Filter {
     @Override
     public int hashCode() {
         int result = super.hashCode();
-        result = 31 * result + value.hashCode();
+        if(!temporal) {
+            result = 31 * result + value.hashCode();
+        }
+        else {
+            result = 31 * result + Long.valueOf(value.longValue()/30000).hashCode();
+        }
         return result;
+    }
+
+    public boolean isTemporal() {
+        return temporal;
+    }
+
+    public void setTemporal(boolean temporal) {
+        this.temporal = temporal;
     }
 }

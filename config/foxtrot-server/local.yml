@@ -16,3 +16,6 @@ cluster:
   name: foxtrot
   disableMulticast: true
   members: []
+
+logging:
+  level: INFO
