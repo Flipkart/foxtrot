@@ -18,10 +18,14 @@ import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.search.SearchType;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
+import org.elasticsearch.search.aggregations.Aggregations;
 import org.elasticsearch.search.aggregations.bucket.histogram.DateHistogram;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -31,6 +35,9 @@ import java.util.List;
  */
 @AnalyticsProvider(opcode = "histogram", request = HistogramRequest.class, response = HistogramResponse.class, cacheable = true)
 public class HistogramAction extends Action<HistogramRequest> {
+
+    private static final Logger logger = LoggerFactory.getLogger(HistogramAction.class.getSimpleName());
+
     public HistogramAction(HistogramRequest parameter,
                            DataStore dataStore,
                            ElasticsearchConnection connection,
@@ -99,7 +106,12 @@ public class HistogramAction extends Action<HistogramRequest> {
                             .interval(interval))
                     .execute()
                     .actionGet();
-            DateHistogram dateHistogram = response.getAggregations().get(parameter.getField()
+            Aggregations aggregations = response.getAggregations();
+            if ( aggregations == null ){
+                logger.error("Null response for Histogram. Request : " + parameter.toString());
+                return new HistogramResponse(parameter.getFrom(), parameter.getTo(), Collections.<HistogramResponse.Count>emptyList());
+            }
+            DateHistogram dateHistogram = aggregations.get(parameter.getField()
                     .replaceAll(ActionConstants.AGGREGATION_FIELD_REPLACEMENT_REGEX,
                             ActionConstants.AGGREGATION_FIELD_REPLACEMENT_VALUE));
             Collection<? extends DateHistogram.Bucket> buckets = dateHistogram.getBuckets();
@@ -109,7 +121,7 @@ public class HistogramAction extends Action<HistogramRequest> {
                         bucket.getKeyAsNumber(), bucket.getDocCount());
                 counts.add(count);
             }
-            return new HistogramResponse(counts);
+            return new HistogramResponse(parameter.getFrom(), parameter.getTo(), counts);
         } catch (QueryStoreException ex){
             throw ex;
         } catch (Exception e) {

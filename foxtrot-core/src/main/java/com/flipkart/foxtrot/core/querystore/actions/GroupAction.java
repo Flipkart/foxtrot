@@ -23,10 +23,7 @@ import org.elasticsearch.search.aggregations.bucket.terms.TermsBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * User: Santanu Sinha (santanu.sinha@flipkart.com)
@@ -64,6 +61,9 @@ public class GroupAction extends Action<GroupRequest> {
         if (null == parameter.getFilters()) {
             parameter.setFilters(Lists.<Filter>newArrayList(new AnyFilter(parameter.getTable())));
         }
+        if ( parameter.getTable() == null ){
+            throw new QueryStoreException(QueryStoreException.ErrorCode.INVALID_REQUEST, "Invalid Table");
+        }
         try {
             SearchRequestBuilder query = getConnection().getClient().prepareSearch(ElasticsearchUtils.getIndices(
                     parameter.getTable()));
@@ -93,6 +93,11 @@ public class GroupAction extends Action<GroupRequest> {
             SearchResponse response = query.execute().actionGet();
             List<String> fields = parameter.getNesting();
             Aggregations aggregations = response.getAggregations();
+            // Check if any aggregation is present or not
+            if (aggregations == null){
+                logger.error("Null response for Group. Request : " + parameter.toString());
+                return new GroupResponse(Collections.<String, Object>emptyMap());
+            }
             return new GroupResponse(getMap(fields, aggregations));
         } catch (QueryStoreException ex){
           throw ex;

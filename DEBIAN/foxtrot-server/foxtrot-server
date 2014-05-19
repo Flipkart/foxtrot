@@ -24,7 +24,7 @@ JAVA_HOME=`echo $JAVA_HOME`
 JAR_PATH=/var/lib/$PKG_NAME/foxtrot-server.jar
 CONFIG_PATH=/etc/$PKG_NAME/config.yml
 PID_PATH=/var/run/$PKG_NAME
-JAVA_OPTIONS="-Dfile.encoding=utf-8 -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false"
+JAVA_OPTIONS="-Dcom.sun.management.jmxremote.port=17002 -Dfile.encoding=utf-8 -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false"
 
 if [ ! -e $PID_PATH ]; then
 	mkdir -m 755 -p /var/run/$PKG_NAME

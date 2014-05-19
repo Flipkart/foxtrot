@@ -84,6 +84,7 @@ public class HistogramActionTest {
         histogramRequest.setTable(TestUtils.TEST_TABLE);
         histogramRequest.setPeriod(Period.minutes);
         histogramRequest.setFrom(0);
+        histogramRequest.setTo(System.currentTimeMillis());
         when(elasticsearchServer.getClient()).thenReturn(null);
         queryExecutor.execute(histogramRequest);
     }
@@ -94,6 +95,7 @@ public class HistogramActionTest {
         histogramRequest.setTable(TestUtils.TEST_TABLE);
         histogramRequest.setPeriod(Period.minutes);
         histogramRequest.setFrom(0);
+        histogramRequest.setTo(System.currentTimeMillis());
 
         ArrayNode countsNode = factory.arrayNode();
         countsNode.add(factory.objectNode().put("period", 1397651100000L).put("count", 2));
@@ -106,6 +108,8 @@ public class HistogramActionTest {
 
         ObjectNode finalNode = factory.objectNode();
         finalNode.put("opcode", "histogram");
+        finalNode.put("from", histogramRequest.getFrom());
+        finalNode.put("to", histogramRequest.getTo());
         finalNode.put("counts", countsNode);
 
         String expectedResponse = mapper.writeValueAsString(finalNode);
@@ -133,6 +137,8 @@ public class HistogramActionTest {
         countsNode.add(factory.objectNode().put("period", 1398658200000L).put("count", 1));
         ObjectNode finalNode = factory.objectNode();
         finalNode.put("opcode", "histogram");
+        finalNode.put("from", histogramRequest.getFrom());
+        finalNode.put("to", histogramRequest.getTo());
         finalNode.put("counts", countsNode);
 
         String expectedResponse = mapper.writeValueAsString(finalNode);
@@ -146,6 +152,7 @@ public class HistogramActionTest {
         histogramRequest.setTable(TestUtils.TEST_TABLE);
         histogramRequest.setPeriod(Period.hours);
         histogramRequest.setFrom(0);
+        histogramRequest.setTo(System.currentTimeMillis());
 
         ArrayNode countsNode = factory.arrayNode();
         countsNode.add(factory.objectNode().put("period", 1397649600000L).put("count", 2));
@@ -157,6 +164,8 @@ public class HistogramActionTest {
 
         ObjectNode finalNode = factory.objectNode();
         finalNode.put("opcode", "histogram");
+        finalNode.put("from", histogramRequest.getFrom());
+        finalNode.put("to", histogramRequest.getTo());
         finalNode.put("counts", countsNode);
 
         String expectedResponse = mapper.writeValueAsString(finalNode);
@@ -170,6 +179,7 @@ public class HistogramActionTest {
         histogramRequest.setTable(TestUtils.TEST_TABLE);
         histogramRequest.setPeriod(Period.hours);
         histogramRequest.setFrom(0);
+        histogramRequest.setTo(System.currentTimeMillis());
 
         GreaterThanFilter greaterThanFilter = new GreaterThanFilter();
         greaterThanFilter.setField("battery");
@@ -184,6 +194,8 @@ public class HistogramActionTest {
 
         ObjectNode finalNode = factory.objectNode();
         finalNode.put("opcode", "histogram");
+        finalNode.put("from", histogramRequest.getFrom());
+        finalNode.put("to", histogramRequest.getTo());
         finalNode.put("counts", countsNode);
 
         String expectedResponse = mapper.writeValueAsString(finalNode);
@@ -197,6 +209,7 @@ public class HistogramActionTest {
         histogramRequest.setTable(TestUtils.TEST_TABLE);
         histogramRequest.setPeriod(Period.days);
         histogramRequest.setFrom(0);
+        histogramRequest.setTo(System.currentTimeMillis());
 
         ArrayNode countsNode = factory.arrayNode();
         countsNode.add(factory.objectNode().put("period", 1397606400000L).put("count", 6));
@@ -206,6 +219,8 @@ public class HistogramActionTest {
 
         ObjectNode finalNode = factory.objectNode();
         finalNode.put("opcode", "histogram");
+        finalNode.put("from", histogramRequest.getFrom());
+        finalNode.put("to", histogramRequest.getTo());
         finalNode.put("counts", countsNode);
 
         String expectedResponse = mapper.writeValueAsString(finalNode);
@@ -219,6 +234,7 @@ public class HistogramActionTest {
         histogramRequest.setTable(TestUtils.TEST_TABLE);
         histogramRequest.setPeriod(Period.days);
         histogramRequest.setFrom(0);
+        histogramRequest.setTo(System.currentTimeMillis());
 
         GreaterThanFilter greaterThanFilter = new GreaterThanFilter();
         greaterThanFilter.setField("battery");
@@ -232,6 +248,8 @@ public class HistogramActionTest {
 
         ObjectNode finalNode = factory.objectNode();
         finalNode.put("opcode", "histogram");
+        finalNode.put("from", histogramRequest.getFrom());
+        finalNode.put("to", histogramRequest.getTo());
         finalNode.put("counts", countsNode);
 
         String expectedResponse = mapper.writeValueAsString(finalNode);

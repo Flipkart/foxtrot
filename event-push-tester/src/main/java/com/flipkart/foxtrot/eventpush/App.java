@@ -37,7 +37,7 @@ public class App {
         }
         int threads = Integer.parseInt(commandLine.getOptionValue("t", "1"));
         int eventCount = Integer.parseInt(commandLine.getOptionValue("n", "100"));
-        String host = commandLine.getOptionValue("h", "stage-hyperion-api.digital.ch.flipkart.com");
+        String host = commandLine.getOptionValue("h", "stage-foxtrot.ch.flipkart.com");
         int port = Integer.parseInt(commandLine.getOptionValue("p", "17000"));
         int batchSize = Integer.parseInt(commandLine.getOptionValue("bsize", "1"));
         int batchCount = Integer.parseInt(commandLine.getOptionValue("bcount", "1"));

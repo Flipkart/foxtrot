@@ -183,14 +183,19 @@ public class TrendActionTest {
     }
 
 
-    @Test(expected = QueryStoreException.class)
+    @Test
     public void testTrendActionNullTable() throws QueryStoreException, JsonProcessingException {
         TrendRequest trendRequest = new TrendRequest();
         trendRequest.setTable(null);
         trendRequest.setFrom(1L);
         trendRequest.setField("os");
         trendRequest.setTo(System.currentTimeMillis());
-        queryExecutor.execute(trendRequest);
+        try{
+            queryExecutor.execute(trendRequest);
+            fail();
+        }catch (QueryStoreException ex){
+            assertEquals(QueryStoreException.ErrorCode.INVALID_REQUEST, ex.getErrorCode());
+        }
     }
 
     @Test

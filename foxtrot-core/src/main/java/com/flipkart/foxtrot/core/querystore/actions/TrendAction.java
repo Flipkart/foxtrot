@@ -1,6 +1,7 @@
 package com.flipkart.foxtrot.core.querystore.actions;
 
 import com.flipkart.foxtrot.common.ActionResponse;
+import com.flipkart.foxtrot.common.group.GroupResponse;
 import com.flipkart.foxtrot.common.query.Filter;
 import com.flipkart.foxtrot.common.query.FilterCombinerType;
 import com.flipkart.foxtrot.common.query.general.AnyFilter;
@@ -24,9 +25,7 @@ import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.*;
 
 /**
  * User: Santanu Sinha (santanu.sinha@flipkart.com)
@@ -81,6 +80,9 @@ public class TrendAction extends Action<TrendRequest> {
         if (null == field) {
             field = "all";
         }
+        if (parameter.getTable() == null ){
+            throw new QueryStoreException(QueryStoreException.ErrorCode.INVALID_REQUEST, "Invalid table name");
+        }
         if (field.isEmpty()) {
             throw new QueryStoreException(QueryStoreException.ErrorCode.INVALID_REQUEST, "Invalid field name");
         }
@@ -91,6 +93,8 @@ public class TrendAction extends Action<TrendRequest> {
             }
             parameter.getFilters().addAll(filters);
         }
+
+        logger.error(Arrays.toString(ElasticsearchUtils.getIndices(parameter.getTable())) + ":");
 
         try {
             SearchRequestBuilder query = getConnection().getClient()
@@ -103,7 +107,13 @@ public class TrendAction extends Action<TrendRequest> {
                                     .field(parameter.getTimestamp()).interval(parameter.getInterval())));
             SearchResponse response = query.execute().actionGet();
             Map<String, List<TrendResponse.Count>> trendCounts = new TreeMap<String, List<TrendResponse.Count>>();
-            Terms terms = response.getAggregations().get(field.replaceAll(ActionConstants.AGGREGATION_FIELD_REPLACEMENT_REGEX,
+            Aggregations aggregations = response.getAggregations();
+            // Check if any aggregation is present or not
+            if (aggregations == null){
+                logger.error("Null response for Trend. Request : " + parameter.toString());
+                return new GroupResponse(Collections.<String, Object>emptyMap());
+            }
+            Terms terms = aggregations.get(field.replaceAll(ActionConstants.AGGREGATION_FIELD_REPLACEMENT_REGEX,
                     ActionConstants.AGGREGATION_FIELD_REPLACEMENT_VALUE));
             for (Terms.Bucket bucket : terms.getBuckets()) {
                 final String key = bucket.getKeyAsText().string();

@@ -11,6 +11,7 @@ import com.flipkart.foxtrot.common.group.GroupRequest;
 import com.flipkart.foxtrot.common.group.GroupResponse;
 import com.flipkart.foxtrot.core.MockElasticsearchServer;
 import com.flipkart.foxtrot.core.TestUtils;
+import com.flipkart.foxtrot.core.common.Action;
 import com.flipkart.foxtrot.core.common.AsyncDataToken;
 import com.flipkart.foxtrot.core.common.CacheUtils;
 import com.flipkart.foxtrot.core.datastore.DataStore;
@@ -145,7 +146,7 @@ public class AnalyticsResourceTest extends ResourceTest {
         try {
             webResource.type(MediaType.APPLICATION_JSON_TYPE).post(GroupResponse.class, groupRequest);
         } catch (UniformInterfaceException ex) {
-            assertEquals(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode(), ex.getResponse().getStatus());
+            assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), ex.getResponse().getStatus());
         }
     }
 
@@ -182,15 +183,17 @@ public class AnalyticsResourceTest extends ResourceTest {
         assertEquals(expectedResult, actualResult);
     }
 
-    @Test(expected = NullPointerException.class)
+    @Test
     public void testRunSyncAsyncInvalidTable() throws Exception {
         GroupRequest groupRequest = new GroupRequest();
         groupRequest.setTable(TestUtils.TEST_TABLE + "-dummy");
         groupRequest.setNesting(Arrays.asList("os", "device", "version"));
-
+        ObjectNode finalNode = factory.objectNode();
+        finalNode.put("opcode", "group");
         WebResource webResource = client().resource("/v1/analytics/async");
         AsyncDataToken asyncDataToken = webResource.type(MediaType.APPLICATION_JSON_TYPE).post(AsyncDataToken.class, groupRequest);
         Thread.sleep(2000);
-        CacheUtils.getCacheFor(asyncDataToken.getAction()).get(asyncDataToken.getKey());
+        ActionResponse response = CacheUtils.getCacheFor(asyncDataToken.getAction()).get(asyncDataToken.getKey());
+        assertEquals(finalNode.toString(), mapper.writeValueAsString(response));
     }
 }
