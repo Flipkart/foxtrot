@@ -1,3 +1,18 @@
+/**
+ * Copyright 2014 Flipkart Internet Pvt. Ltd.
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.flipkart.foxtrot.core.querystore.impl;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -66,6 +81,7 @@ public class TableMapStore implements MapStore<String, Table> {
         if (key == null || value == null || value.getName() == null) {
             throw new RuntimeException(String.format("Illegal Store Request - %s - %s", key, value));
         }
+        logger.info("Storing key: " + key);
         try {
             elasticsearchConnection.getClient().prepareIndex()
                     .setIndex(TABLE_META_INDEX)
@@ -90,7 +106,7 @@ public class TableMapStore implements MapStore<String, Table> {
             throw new RuntimeException("Illegal Store Request - Null Key is Present");
         }
 
-
+        logger.info("Store all called for multiple values");
         BulkRequestBuilder bulkRequestBuilder = elasticsearchConnection.getClient().prepareBulk().setConsistencyLevel(WriteConsistencyLevel.ALL).setRefresh(true);
         for (Map.Entry<String, Table> mapEntry : map.entrySet()) {
             try {
@@ -109,6 +125,7 @@ public class TableMapStore implements MapStore<String, Table> {
 
     @Override
     public void delete(String key) {
+        logger.info("Delete called for values: " + key);
         elasticsearchConnection.getClient().prepareDelete()
                 .setIndex(TABLE_META_INDEX)
                 .setType(TABLE_META_TYPE)
@@ -119,6 +136,7 @@ public class TableMapStore implements MapStore<String, Table> {
 
     @Override
     public void deleteAll(Collection<String> keys) {
+        logger.info("Delete all called for multiple values");
         BulkRequestBuilder bulRequestBuilder = elasticsearchConnection.getClient().prepareBulk().setConsistencyLevel(WriteConsistencyLevel.ALL).setRefresh(true);
         for (String key : keys) {
             bulRequestBuilder.add(elasticsearchConnection.getClient()
@@ -129,6 +147,7 @@ public class TableMapStore implements MapStore<String, Table> {
 
     @Override
     public Table load(String key) {
+        logger.info("Load called for: " + key);
         GetResponse response = elasticsearchConnection.getClient().prepareGet()
                 .setIndex(TABLE_META_INDEX)
                 .setType(TABLE_META_TYPE)
@@ -147,6 +166,7 @@ public class TableMapStore implements MapStore<String, Table> {
 
     @Override
     public Map<String, Table> loadAll(Collection<String> keys) {
+        logger.info("Load all called for multiple keys");
         MultiGetResponse response = elasticsearchConnection.getClient()
                 .prepareMultiGet()
                 .add(TABLE_META_INDEX, TABLE_META_TYPE, keys)
@@ -167,6 +187,7 @@ public class TableMapStore implements MapStore<String, Table> {
 
     @Override
     public Set<String> loadAllKeys() {
+        logger.info("Load all keys called");
         SearchResponse response = elasticsearchConnection.getClient()
                 .prepareSearch(TABLE_META_INDEX)
                 .setTypes(TABLE_META_TYPE)

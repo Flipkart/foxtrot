@@ -4,11 +4,49 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
+	<name>Foxtrot</name>
+	<description>Foxtrot is a scalable data and query store service for for real-time event data.</description>
+	<url>https://git@github.com/flipkart-incubator/foxtrot</url>
+
     <groupId>foxtrot</groupId>
     <artifactId>foxtrot</artifactId>
     <packaging>pom</packaging>
     <version>0.1</version>
-    <modules>
+
+	<scm>
+		<connection>scm:git:https://github.com/flipkart-incubator/foxtrot.git</connection>
+		<developerConnection>scm:git:https://github.com/flipkart-incubator/foxtrot.git</developerConnection>
+		<tag>HEAD</tag>
+		<url>https://github.com/flipkart-incubator/foxtrot</url>
+	</scm>
+
+	<licenses>
+		<license>
+			<name>The Apache Software License, Version 2.0</name>
+			<url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+			<distribution>repo</distribution>
+			<comments>A business-friendly OSS license</comments>
+		</license>
+	</licenses>
+
+	<developers>
+		<developer>
+			<id>santanusinha</id>
+			<name>Santanu Sinha</name>
+			<email>santanu.sinha@gmail.com</email>
+		</developer>
+		<developer>
+			<id>r0goyal</id>
+			<name>Rishabh Goyal</name>
+			<email>rgoyal2191@gmail.com</email>
+		</developer>
+	</developers>
+
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+	</properties>
+
+	<modules>
         <module>foxtrot-core</module>
         <module>foxtrot-common</module>
         <module>foxtrot-server</module>
@@ -153,6 +191,7 @@
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>cobertura-maven-plugin</artifactId>
+				<version>2.6</version>
             </plugin>
         </plugins>
     </reporting>
