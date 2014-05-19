@@ -32,3 +32,5 @@
 *.log
 *.sql
 *.sqlite
+
+*/dependency-reduced-pom.xml
