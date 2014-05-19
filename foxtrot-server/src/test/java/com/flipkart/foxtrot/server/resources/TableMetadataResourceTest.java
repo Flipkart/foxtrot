@@ -79,7 +79,7 @@ public class TableMetadataResourceTest extends ResourceTest {
     @Test
     public void testSave() throws Exception {
         Table table = new Table(TestUtils.TEST_TABLE, 30);
-        client().resource("/foxtrot/v1/tables").type(MediaType.APPLICATION_JSON_TYPE).post(table);
+        client().resource("/v1/tables").type(MediaType.APPLICATION_JSON_TYPE).post(table);
 
         Table response = tableMetadataManager.get(table.getName());
         assertNotNull(response);
@@ -90,13 +90,13 @@ public class TableMetadataResourceTest extends ResourceTest {
     @Test(expected = InvalidEntityException.class)
     public void testSaveNullTable() throws Exception {
         Table table = null;
-        client().resource("/foxtrot/v1/tables").type(MediaType.APPLICATION_JSON_TYPE).post(table);
+        client().resource("/v1/tables").type(MediaType.APPLICATION_JSON_TYPE).post(table);
     }
 
     @Test(expected = InvalidEntityException.class)
     public void testSaveNullTableName() throws Exception {
         Table table = new Table(null, 30);
-        client().resource("/foxtrot/v1/tables").type(MediaType.APPLICATION_JSON_TYPE).post(table);
+        client().resource("/v1/tables").type(MediaType.APPLICATION_JSON_TYPE).post(table);
     }
 
     @Test
@@ -104,7 +104,7 @@ public class TableMetadataResourceTest extends ResourceTest {
         Table table = new Table(UUID.randomUUID().toString(), 30);
         doThrow(new Exception()).when(tableMetadataManager).save(Matchers.<Table>any());
         try {
-            client().resource("/foxtrot/v1/tables").type(MediaType.APPLICATION_JSON_TYPE).post(table);
+            client().resource("/v1/tables").type(MediaType.APPLICATION_JSON_TYPE).post(table);
         } catch (UniformInterfaceException ex) {
             assertEquals(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode(), ex.getResponse().getStatus());
         }
@@ -113,7 +113,7 @@ public class TableMetadataResourceTest extends ResourceTest {
     @Test(expected = InvalidEntityException.class)
     public void testSaveIllegalTtl() throws Exception {
         Table table = new Table(TestUtils.TEST_TABLE, 0);
-        client().resource("/foxtrot/v1/tables").type(MediaType.APPLICATION_JSON_TYPE).post(table);
+        client().resource("/v1/tables").type(MediaType.APPLICATION_JSON_TYPE).post(table);
     }
 
 
@@ -122,7 +122,7 @@ public class TableMetadataResourceTest extends ResourceTest {
         Table table = new Table(TestUtils.TEST_TABLE, 30);
         tableMetadataManager.save(table);
 
-        Table response = client().resource(String.format("/foxtrot/v1/tables/%s", table.getName())).get(Table.class);
+        Table response = client().resource(String.format("/v1/tables/%s", table.getName())).get(Table.class);
         assertNotNull(response);
         assertEquals(table.getName(), response.getName());
         assertEquals(table.getTtl(), response.getTtl());
@@ -131,7 +131,7 @@ public class TableMetadataResourceTest extends ResourceTest {
     @Test
     public void testGetMissingTable() throws Exception {
         try {
-            client().resource(String.format("/foxtrot/v1/tables/%s", TestUtils.TEST_TABLE)).get(Table.class);
+            client().resource(String.format("/v1/tables/%s", TestUtils.TEST_TABLE)).get(Table.class);
         } catch (UniformInterfaceException ex) {
             assertEquals(Response.Status.NOT_FOUND.getStatusCode(), ex.getResponse().getStatus());
         }

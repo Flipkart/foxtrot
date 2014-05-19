@@ -32,5 +32,24 @@ public class ResultSort {
         this.order = order;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        ResultSort that = (ResultSort) o;
+
+        if (!field.equals(that.field)) return false;
+        if (order != that.order) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = field.hashCode();
+        result = 31 * result + order.hashCode();
+        return result;
+    }
 
 }

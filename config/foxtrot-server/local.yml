@@ -2,16 +2,6 @@ http:
   port: 17000
   adminPort: 17001
   connectorType: nonblocking
-  minThreads: 20
-  maxThreads: 40
-  requestLog:
-    console:
-      enabled: false
-    file:
-      enabled: true
-      currentLogFilename: /var/log/flipkart/foxtrot-server/access.log
-      archivedLogFilenamePattern: /var/log/flipkart/foxtrot-server/access.%d.log.gz
-      archivedFileCount: 5
 
 elasticsearch:
   hosts:
@@ -20,29 +10,12 @@ elasticsearch:
 
 hbase:
   secure : false
-  keytabFileName: /etc/fk-digital-hyperion-keys/stagech.keytab
-  coreSite: /etc/hadoop/conf/core-site.xml
-  hdfsSite: /etc/hadoop/conf/hdfs-site.xml
-  hbasePolicy: /etc/hbase/conf/hbase-policy.xml
-  hbaseSite: /etc/hbase/conf/hbase-site.xml
-  kerberosConfigFile: /etc/krb5.conf
-  kinitPath: /usr/bin/kinit
-  authString: fk-hyperion@STAGE.CH.FLIPKART.COM
   tableName: foxtrot
-
-logging:
-  level: INFO
-  console:
-    enabled: false
-  file:
-    enabled: true
-    threshold: ALL
-    currentLogFilename: /var/log/flipkart/foxtrot-server/server.log
-    archivedLogFilenamePattern: /var/log/flipkart/foxtrot-server/server-%d.log.gz
-    archivedFileCount: 5
-    timeZone: UTC
 
 cluster:
   name: foxtrot
   disableMulticast: true
   members: []
+
+logging:
+  level: INFO

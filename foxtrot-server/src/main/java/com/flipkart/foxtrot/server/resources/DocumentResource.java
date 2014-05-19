@@ -20,7 +20,7 @@ import java.util.List;
  * Date: 15/03/14
  * Time: 10:55 PM
  */
-@Path("/foxtrot/v1/document/{table}")
+@Path("/v1/document/{table}")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
 public class DocumentResource {

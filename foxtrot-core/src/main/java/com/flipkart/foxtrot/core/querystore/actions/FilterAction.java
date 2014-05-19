@@ -50,7 +50,7 @@ public class FilterAction extends Action<Query> {
                 filterHashKey += 31 * filter.hashCode();
             }
         }
-        filterHashKey += 31 * (query.getCombiner() != null ? query.getCombiner().hashCode() : "COMBINER".hashCode());
+        filterHashKey += 31 * (query.getCombiner() != null ? query.getCombiner().name().hashCode() : "COMBINER".hashCode());
         filterHashKey += 31 * (query.getSort() != null ? query.getSort().hashCode() : "SORT".hashCode());
 
         return String.format("%s-%d-%d-%d", query.getTable(),

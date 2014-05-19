@@ -100,7 +100,7 @@ public class TableFieldMappingResourceTest extends ResourceTest {
         mappings.add(new FieldTypeMapping("head.hello", FieldType.LONG));
 
         TableFieldMapping tableFieldMapping = new TableFieldMapping(TestUtils.TEST_TABLE, mappings);
-        String response = client().resource(String.format("/foxtrot/v1/tables/%s/fields", TestUtils.TEST_TABLE))
+        String response = client().resource(String.format("/v1/tables/%s/fields", TestUtils.TEST_TABLE))
                 .get(String.class);
 
         TableFieldMapping mapping = mapper.readValue(response, TableFieldMapping.class);
@@ -110,14 +110,14 @@ public class TableFieldMappingResourceTest extends ResourceTest {
 
     @Test(expected = UniformInterfaceException.class)
     public void testGetInvalidTable() throws Exception {
-        client().resource(String.format("/foxtrot/v1/tables/%s/fields", TestUtils.TEST_TABLE + "-missing"))
+        client().resource(String.format("/v1/tables/%s/fields", TestUtils.TEST_TABLE + "-missing"))
                 .get(String.class);
     }
 
     @Test
     public void testGetTableWithNoDocument() throws Exception {
         TableFieldMapping request = new TableFieldMapping(TestUtils.TEST_TABLE, new HashSet<FieldTypeMapping>());
-        TableFieldMapping response = client().resource(String.format("/foxtrot/v1/tables/%s/fields", TestUtils.TEST_TABLE))
+        TableFieldMapping response = client().resource(String.format("/v1/tables/%s/fields", TestUtils.TEST_TABLE))
                 .get(TableFieldMapping.class);
 
         assertEquals(request.getTable(), response.getTable());

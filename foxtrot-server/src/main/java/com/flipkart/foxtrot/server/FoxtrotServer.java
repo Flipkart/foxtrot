@@ -14,9 +14,11 @@ import com.flipkart.foxtrot.core.querystore.TableMetadataManager;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsLoader;
 import com.flipkart.foxtrot.core.querystore.impl.*;
 import com.flipkart.foxtrot.server.config.FoxtrotServerConfiguration;
+import com.flipkart.foxtrot.server.console.ElasticsearchConsolePersistence;
 import com.flipkart.foxtrot.server.resources.*;
 import com.flipkart.foxtrot.server.util.ManagedActionScanner;
 import com.yammer.dropwizard.Service;
+import com.yammer.dropwizard.assets.AssetsBundle;
 import com.yammer.dropwizard.config.Bootstrap;
 import com.yammer.dropwizard.config.Environment;
 import net.sourceforge.cobertura.CoverageIgnore;
@@ -36,10 +38,12 @@ public class FoxtrotServer extends Service<FoxtrotServerConfiguration> {
     @Override
     public void initialize(Bootstrap<FoxtrotServerConfiguration> bootstrap) {
         bootstrap.setName("foxtrot");
+        bootstrap.addBundle(new AssetsBundle("/console/", "/"));
     }
 
     @Override
     public void run(FoxtrotServerConfiguration configuration, Environment environment) throws Exception {
+        configuration.getHttpConfiguration().setRootPath("/foxtrot/*");
         environment.getObjectMapperFactory().setSerializationInclusion(JsonInclude.Include.NON_NULL);
         environment.getObjectMapperFactory().setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
         SubtypeResolver subtypeResolver = new StdSubtypeResolver();
@@ -77,7 +81,11 @@ public class FoxtrotServer extends Service<FoxtrotServerConfiguration> {
         environment.addResource(new AnalyticsResource(executor));
         environment.addResource(new TableMetadataResource(tableMetadataManager));
         environment.addResource(new TableFieldMappingResource(queryStore));
+        environment.addResource(new ConsoleResource(
+                                    new ElasticsearchConsolePersistence(elasticsearchConnection, objectMapper)));
+
         environment.addHealthCheck(new ElasticSearchHealthCheck("ES Health Check", elasticsearchConnection));
+
         environment.addFilter(CrossOriginFilter.class, "/*");
     }
 }

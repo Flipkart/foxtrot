@@ -129,7 +129,7 @@ public class AnalyticsResourceTest extends ResourceTest {
         finalNode.put("opcode", "group");
         finalNode.put("result", resultNode);
 
-        WebResource webResource = client().resource("/foxtrot/v1/analytics");
+        WebResource webResource = client().resource("/v1/analytics");
         GroupResponse response = webResource.type(MediaType.APPLICATION_JSON_TYPE).post(GroupResponse.class, groupRequest);
         String expectedResult = mapper.writeValueAsString(finalNode);
         String actualResult = mapper.writeValueAsString(response);
@@ -142,7 +142,7 @@ public class AnalyticsResourceTest extends ResourceTest {
         groupRequest.setTable(TestUtils.TEST_TABLE + "-dummy");
         groupRequest.setNesting(Arrays.asList("os", "device", "version"));
 
-        WebResource webResource = client().resource("/foxtrot/v1/analytics");
+        WebResource webResource = client().resource("/v1/analytics");
         try {
             webResource.type(MediaType.APPLICATION_JSON_TYPE).post(GroupResponse.class, groupRequest);
         } catch (UniformInterfaceException ex) {
@@ -173,7 +173,7 @@ public class AnalyticsResourceTest extends ResourceTest {
         finalNode.put("opcode", "group");
         finalNode.put("result", resultNode);
 
-        WebResource webResource = client().resource("/foxtrot/v1/analytics/async");
+        WebResource webResource = client().resource("/v1/analytics/async");
         AsyncDataToken response = webResource.type(MediaType.APPLICATION_JSON_TYPE).post(AsyncDataToken.class, groupRequest);
         Thread.sleep(2000);
         ActionResponse completeResponse = CacheUtils.getCacheFor(response.getAction()).get(response.getKey());
@@ -188,11 +188,9 @@ public class AnalyticsResourceTest extends ResourceTest {
         GroupRequest groupRequest = new GroupRequest();
         groupRequest.setTable(TestUtils.TEST_TABLE + "-dummy");
         groupRequest.setNesting(Arrays.asList("os", "device", "version"));
-
         ObjectNode finalNode = factory.objectNode();
         finalNode.put("opcode", "group");
-
-        WebResource webResource = client().resource("/foxtrot/v1/analytics/async");
+        WebResource webResource = client().resource("/v1/analytics/async");
         AsyncDataToken asyncDataToken = webResource.type(MediaType.APPLICATION_JSON_TYPE).post(AsyncDataToken.class, groupRequest);
         Thread.sleep(2000);
         ActionResponse response = CacheUtils.getCacheFor(asyncDataToken.getAction()).get(asyncDataToken.getKey());

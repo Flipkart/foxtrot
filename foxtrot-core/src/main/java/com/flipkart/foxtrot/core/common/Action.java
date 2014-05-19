@@ -5,8 +5,9 @@ import com.flipkart.foxtrot.common.ActionResponse;
 import com.flipkart.foxtrot.core.datastore.DataStore;
 import com.flipkart.foxtrot.core.querystore.QueryStoreException;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConnection;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import java.util.UUID;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 
@@ -16,6 +17,8 @@ import java.util.concurrent.ExecutorService;
  * Time: 12:23 AM
  */
 public abstract class Action<ParameterType extends ActionRequest> implements Callable<String> {
+    private static final Logger logger = LoggerFactory.getLogger(Action.class.getSimpleName());
+
     private ParameterType parameter;
     private DataStore dataStore;
     private ElasticsearchConnection connection;
@@ -34,7 +37,7 @@ public abstract class Action<ParameterType extends ActionRequest> implements Cal
     public String cacheKey() {
         if (null == cacheKey) {
             final String childKey = String.format("%s-%d", getRequestCacheKey(), System.currentTimeMillis() / 30000);
-            cacheKey = UUID.nameUUIDFromBytes(childKey.getBytes()).toString();
+            cacheKey = childKey;//UUID.nameUUIDFromBytes(childKey.getBytes()).toString();
         }
         return cacheKey;
     }
@@ -52,13 +55,17 @@ public abstract class Action<ParameterType extends ActionRequest> implements Cal
     }
 
     public ActionResponse execute() throws QueryStoreException {
+        final String cacheKeyValue = cacheKey();
         if (isCacheable()) {
-            if (cache.has(cacheKey())) {
+            if (cache.has(cacheKeyValue)) {
+                logger.info("Cache hit for key: " + cacheKeyValue);
                 return cache.get(cacheKey());
             }
         }
+        logger.info("Cache miss for key: " + cacheKeyValue);
         ActionResponse result = execute(parameter);
         if (isCacheable()) {
+            logger.info("Cache load for key: " + cacheKeyValue);
             return cache.put(cacheKey(), result);
         }
         return result;

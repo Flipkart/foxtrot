@@ -13,7 +13,7 @@ import java.util.Collections;
 /**
  * Created by rishabh.goyal on 06/05/14.
  */
-@Path("/foxtrot/v1/tables/{name}/fields")
+@Path("/v1/tables/{name}/fields")
 @Produces(MediaType.APPLICATION_JSON)
 public class TableFieldMappingResource {
     private static final Logger logger = LoggerFactory.getLogger(TableFieldMappingResource.class.getSimpleName());
