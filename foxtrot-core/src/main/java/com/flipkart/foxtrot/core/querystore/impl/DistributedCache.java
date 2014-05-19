@@ -6,6 +6,7 @@ import com.flipkart.foxtrot.common.ActionResponse;
 import com.flipkart.foxtrot.core.common.Cache;
 import com.hazelcast.config.InMemoryFormat;
 import com.hazelcast.config.MapConfig;
+import com.hazelcast.config.NearCacheConfig;
 import com.hazelcast.core.IMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,8 +27,14 @@ public class DistributedCache implements Cache {
         MapConfig mapConfig = hazelcastConnection.getHazelcast().getConfig().getMapConfig(name);
         mapConfig.setInMemoryFormat(InMemoryFormat.BINARY);
         mapConfig.setTimeToLiveSeconds(30);
-        mapConfig.setEvictionPolicy(MapConfig.EvictionPolicy.LRU);
+        mapConfig.setMaxIdleSeconds(30);
         mapConfig.setBackupCount(0);
+        NearCacheConfig nearCacheConfig = new NearCacheConfig();
+        nearCacheConfig.setName("local-cache");
+        nearCacheConfig.setTimeToLiveSeconds(30);
+        nearCacheConfig.setInvalidateOnChange(true);
+        nearCacheConfig.setMaxIdleSeconds(60);
+        mapConfig.setNearCacheConfig(nearCacheConfig);
         this.distributedMap = hazelcastConnection.getHazelcast().getMap(name);
         this.mapper = mapper;
     }
