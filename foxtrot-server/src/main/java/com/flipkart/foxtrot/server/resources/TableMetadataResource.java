@@ -2,6 +2,8 @@ package com.flipkart.foxtrot.server.resources;
 
 import com.flipkart.foxtrot.common.Table;
 import com.flipkart.foxtrot.core.querystore.TableMetadataManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.validation.Valid;
 import javax.ws.rs.*;
@@ -14,6 +16,7 @@ import java.util.List;
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
 public class TableMetadataResource {
+    private static final Logger logger = LoggerFactory.getLogger(TableMetadataResource.class);
     private final TableMetadataManager tableMetadataManager;
 
     public TableMetadataResource(TableMetadataManager tableMetadataManager) {
@@ -25,6 +28,7 @@ public class TableMetadataResource {
         try {
             tableMetadataManager.save(table);
         } catch (Exception e) {
+            logger.error(String.format("Unable to save table %s", table), e);
             throw new WebApplicationException(Response.serverError().entity(Collections.singletonMap("error", e.getMessage())).build());
         }
         return table;

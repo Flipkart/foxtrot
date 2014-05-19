@@ -4,6 +4,8 @@ import com.flipkart.foxtrot.common.ActionResponse;
 import com.flipkart.foxtrot.core.common.AsyncDataToken;
 import com.flipkart.foxtrot.core.common.CacheUtils;
 import com.sun.istack.NotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
@@ -18,6 +20,8 @@ import java.util.Collections;
 @Path("/v1/async")
 @Produces(MediaType.APPLICATION_JSON)
 public class AsyncResource {
+    private static final Logger logger = LoggerFactory.getLogger(AsyncResource.class);
+
     @GET
     @Path("/{action}/{id}")
     public Response getResponse(@PathParam("action") final String action, @NotNull @PathParam("id") final String id) {
@@ -33,6 +37,7 @@ public class AsyncResource {
         try {
             return CacheUtils.getCacheFor(dataToken.getAction()).get(dataToken.getKey());
         } catch (Exception e) {
+            logger.error(String.format("Error fetching data for Action %s Key %s", dataToken.getAction(), dataToken.getKey()), e);
             throw new WebApplicationException(Response.serverError()
                     .entity(Collections.singletonMap("error", "Could not save document: " + e.getMessage()))
                     .build());
