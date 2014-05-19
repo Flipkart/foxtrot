@@ -1,12 +1,12 @@
 /**
  * Copyright 2014 Flipkart Internet Pvt. Ltd.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -83,6 +83,7 @@ public class TrendAction extends Action<TrendRequest> {
 
     @Override
     public ActionResponse execute(TrendRequest parameter) throws QueryStoreException {
+        parameter.setTable(ElasticsearchUtils.getValidTableName(parameter.getTable()));
         if (null == parameter.getFilters()) {
             parameter.setFilters(Lists.<Filter>newArrayList(new AnyFilter(parameter.getTable())));
         }
@@ -95,7 +96,7 @@ public class TrendAction extends Action<TrendRequest> {
         if (null == field) {
             field = "all";
         }
-        if (parameter.getTable() == null ){
+        if (parameter.getTable() == null) {
             throw new QueryStoreException(QueryStoreException.ErrorCode.INVALID_REQUEST, "Invalid table name");
         }
         if (field.isEmpty()) {
@@ -124,7 +125,7 @@ public class TrendAction extends Action<TrendRequest> {
             Map<String, List<TrendResponse.Count>> trendCounts = new TreeMap<String, List<TrendResponse.Count>>();
             Aggregations aggregations = response.getAggregations();
             // Check if any aggregation is present or not
-            if (aggregations == null){
+            if (aggregations == null) {
                 logger.error("Null response for Trend. Request : " + parameter.toString());
                 return new GroupResponse(Collections.<String, Object>emptyMap());
             }
