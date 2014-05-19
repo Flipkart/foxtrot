@@ -5,6 +5,8 @@ import com.flipkart.foxtrot.common.ActionResponse;
 import com.flipkart.foxtrot.core.datastore.DataStore;
 import com.flipkart.foxtrot.core.querystore.QueryStoreException;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConnection;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.UUID;
 import java.util.concurrent.Callable;
@@ -16,6 +18,8 @@ import java.util.concurrent.ExecutorService;
  * Time: 12:23 AM
  */
 public abstract class Action<ParameterType extends ActionRequest> implements Callable<String> {
+    private static final Logger logger = LoggerFactory.getLogger(Action.class.getSimpleName());
+
     private ParameterType parameter;
     private DataStore dataStore;
     private ElasticsearchConnection connection;
@@ -54,9 +58,11 @@ public abstract class Action<ParameterType extends ActionRequest> implements Cal
     public ActionResponse execute() throws QueryStoreException {
         if (isCacheable()) {
             if (cache.has(cacheKey())) {
+                logger.info("Cache hit for key: " + cacheKey());
                 return cache.get(cacheKey());
             }
         }
+        logger.info("Cache miss for key: " + cacheKey());
         ActionResponse result = execute(parameter);
         if (isCacheable()) {
             return cache.put(cacheKey(), result);
