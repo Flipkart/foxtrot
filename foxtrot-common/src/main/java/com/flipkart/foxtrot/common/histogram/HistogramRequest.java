@@ -54,6 +54,14 @@ public class HistogramRequest implements ActionRequest {
         this.period = Period.minutes;
     }
 
+    public String getTable() {
+        return table;
+    }
+
+    public void setTable(String table) {
+        this.table = table;
+    }
+
     public List<Filter> getFilters() {
         return filters;
     }
@@ -84,16 +92,6 @@ public class HistogramRequest implements ActionRequest {
 
     public void setPeriod(Period period) {
         this.period = period;
-    }
-
-    @Override
-    public String getTable() {
-        return table;
-    }
-
-    @Override
-    public void setTable(String table) {
-        this.table = table;
     }
 
     public String getField() {

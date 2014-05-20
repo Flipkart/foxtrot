@@ -56,12 +56,10 @@ public class TrendRequest implements ActionRequest {
     public TrendRequest() {
     }
 
-    @Override
     public String getTable() {
         return table;
     }
 
-    @Override
     public void setTable(String table) {
         this.table = table;
     }

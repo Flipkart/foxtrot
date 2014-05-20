@@ -42,6 +42,14 @@ public class GroupRequest implements ActionRequest {
     public GroupRequest() {
     }
 
+    public String getTable() {
+        return table;
+    }
+
+    public void setTable(String table) {
+        this.table = table;
+    }
+
     public List<Filter> getFilters() {
         return filters;
     }
@@ -57,17 +65,6 @@ public class GroupRequest implements ActionRequest {
     public void setNesting(List<String> nesting) {
         this.nesting = nesting;
     }
-
-    @Override
-    public String getTable() {
-        return table;
-    }
-
-    @Override
-    public void setTable(String table) {
-        this.table = table;
-    }
-
 
     @Override
     public String toString() {

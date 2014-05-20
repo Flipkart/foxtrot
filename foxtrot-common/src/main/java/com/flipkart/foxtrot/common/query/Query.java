@@ -51,6 +51,14 @@ public class Query implements ActionRequest {
         this.sort.setOrder(ResultSort.Order.desc);
     }
 
+    public String getTable() {
+        return table;
+    }
+
+    public void setTable(String table) {
+        this.table = table;
+    }
+
     public List<Filter> getFilters() {
         return filters;
     }
@@ -81,16 +89,6 @@ public class Query implements ActionRequest {
 
     public void setLimit(int limit) {
         this.limit = limit;
-    }
-
-    @Override
-    public String getTable() {
-        return table;
-    }
-
-    @Override
-    public void setTable(String table) {
-        this.table = table;
     }
 
     public FilterCombinerType getCombiner() {
