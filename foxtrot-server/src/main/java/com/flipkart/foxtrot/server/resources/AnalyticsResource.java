@@ -20,6 +20,8 @@ import com.flipkart.foxtrot.common.ActionResponse;
 import com.flipkart.foxtrot.core.common.AsyncDataToken;
 import com.flipkart.foxtrot.core.querystore.QueryExecutor;
 import com.flipkart.foxtrot.core.querystore.QueryStoreException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
@@ -35,6 +37,7 @@ import java.util.Collections;
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
 public class AnalyticsResource {
+    private static final Logger logger = LoggerFactory.getLogger(AnalyticsResource.class);
     private final QueryExecutor queryExecutor;
 
     public AnalyticsResource(QueryExecutor queryExecutor) {
@@ -46,6 +49,7 @@ public class AnalyticsResource {
         try {
             return queryExecutor.execute(request);
         } catch (QueryStoreException e) {
+            logger.error(String.format("Error running sync request %s", request), e);
             throw new WebApplicationException(
                     Response.serverError().entity(Collections.singletonMap("error", e.getMessage())).build());
         }
@@ -57,6 +61,7 @@ public class AnalyticsResource {
         try {
             return queryExecutor.executeAsync(request);
         } catch (QueryStoreException e) {
+            logger.error(String.format("Error running async request %s", request), e);
             throw new WebApplicationException(
                     Response.serverError().entity(Collections.singletonMap("error", e.getMessage())).build());
         }
