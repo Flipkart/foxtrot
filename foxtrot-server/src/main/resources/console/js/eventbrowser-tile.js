@@ -53,7 +53,6 @@ EventBrowser.prototype.render = function(data, animate) {
 		flatRows.push(flatObject);
 	}
 	headers = Object.keys(headerMap);
-	headers.sort()
 	for (var i = flatRows.length - 1; i >= 0; i--) {
 		var row = [];
 		var flatData = flatRows[i];
@@ -68,6 +67,9 @@ EventBrowser.prototype.render = function(data, animate) {
 		}
 		rows.push(row);
 	}
+    for (var j = 0; j < headers.length - 1; j++) {
+        headers[i] = headers[i].replace("data.","");
+    }
 	var tableData = {headers : headers, data: rows};
 	console.log(tableData);
 	parent.html(handlebars("#eventbrowser-template", tableData));	
@@ -145,7 +147,7 @@ EventBrowser.prototype.getQuery = function() {
 		table : this.tables.selectedTable.name,
 		sort : {
 			field:"_timestamp",
-			order:"asc"
+			order:"desc"
 		},
 		from:0,
 		limit:this.count
