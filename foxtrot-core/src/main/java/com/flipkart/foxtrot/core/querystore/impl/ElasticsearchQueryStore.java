@@ -1,12 +1,12 @@
 /**
  * Copyright 2014 Flipkart Internet Pvt. Ltd.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -38,11 +38,9 @@ import org.elasticsearch.common.hppc.cursors.ObjectCursor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.ExecutionException;
 
 /**
  * User: Santanu Sinha (santanu.sinha@flipkart.com)
@@ -71,6 +69,7 @@ public class ElasticsearchQueryStore implements QueryStore {
 
     @Override
     public void save(String table, Document document) throws QueryStoreException {
+        table = ElasticsearchUtils.getValidTableName(table);
         try {
             if (!tableMetadataManager.exists(table)) {
                 throw new QueryStoreException(QueryStoreException.ErrorCode.NO_SUCH_TABLE,
@@ -103,15 +102,16 @@ public class ElasticsearchQueryStore implements QueryStore {
             }
         } catch (JsonProcessingException ex) {
             throw new QueryStoreException(QueryStoreException.ErrorCode.INVALID_REQUEST,
-            ex.getMessage(), ex);
+                    ex.getMessage(), ex);
         } catch (Exception ex) {
             throw new QueryStoreException(QueryStoreException.ErrorCode.DOCUMENT_SAVE_ERROR,
-            ex.getMessage(), ex);
+                    ex.getMessage(), ex);
         }
     }
 
     @Override
     public void save(String table, List<Document> documents) throws QueryStoreException {
+        table = ElasticsearchUtils.getValidTableName(table);
         try {
             if (!tableMetadataManager.exists(table)) {
                 throw new QueryStoreException(QueryStoreException.ErrorCode.NO_SUCH_TABLE,
@@ -140,13 +140,13 @@ public class ElasticsearchQueryStore implements QueryStore {
                     .get();
 
             int failedCount = 0;
-            for (BulkItemResponse itemResponse : responses){
+            for (BulkItemResponse itemResponse : responses) {
                 failedCount += (itemResponse.isFailed() ? 1 : 0);
-                if (itemResponse.isFailed()){
+                if (itemResponse.isFailed()) {
                     logger.error(itemResponse.getFailureMessage());
                 }
             }
-            if (failedCount > 0){
+            if (failedCount > 0) {
                 logger.error("Failed : " + failedCount);
             }
 
@@ -165,15 +165,16 @@ public class ElasticsearchQueryStore implements QueryStore {
             }
         } catch (JsonProcessingException ex) {
             throw new QueryStoreException(QueryStoreException.ErrorCode.INVALID_REQUEST,
-            ex.getMessage(), ex);
+                    ex.getMessage(), ex);
         } catch (Exception ex) {
             throw new QueryStoreException(QueryStoreException.ErrorCode.DOCUMENT_SAVE_ERROR,
-            ex.getMessage(), ex);
+                    ex.getMessage(), ex);
         }
     }
 
     @Override
     public Document get(String table, String id) throws QueryStoreException {
+        table = ElasticsearchUtils.getValidTableName(table);
         try {
             return dataStore.get(table, id);
         } catch (DataStoreException ex) {
@@ -188,6 +189,7 @@ public class ElasticsearchQueryStore implements QueryStore {
 
     @Override
     public List<Document> get(String table, List<String> ids) throws QueryStoreException {
+        table = ElasticsearchUtils.getValidTableName(table);
         try {
             return dataStore.get(table, ids);
         } catch (DataStoreException ex) {
@@ -202,6 +204,7 @@ public class ElasticsearchQueryStore implements QueryStore {
 
     @Override
     public TableFieldMapping getFieldMappings(String table) throws QueryStoreException {
+        table = ElasticsearchUtils.getValidTableName(table);
         try {
             if (!tableMetadataManager.exists(table)) {
                 throw new QueryStoreException(QueryStoreException.ErrorCode.NO_SUCH_TABLE,

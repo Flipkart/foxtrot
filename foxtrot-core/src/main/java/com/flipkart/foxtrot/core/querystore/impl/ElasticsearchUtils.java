@@ -1,12 +1,12 @@
 /**
  * Copyright 2014 Flipkart Internet Pvt. Ltd.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -58,7 +58,7 @@ public class ElasticsearchUtils {
         return String.format("%s-%s-%s", ElasticsearchUtils.TABLENAME_PREFIX, table, postfix);
     }
 
-    public static PutIndexTemplateRequest getClusterTemplateMapping(IndicesAdminClient indicesAdminClient){
+    public static PutIndexTemplateRequest getClusterTemplateMapping(IndicesAdminClient indicesAdminClient) {
         PutIndexTemplateRequestBuilder builder = new PutIndexTemplateRequestBuilder(indicesAdminClient, "generic_template");
         builder.setTemplate("foxtrot-*");
         builder.addMapping(TYPE_NAME, "{\n" +
@@ -93,8 +93,13 @@ public class ElasticsearchUtils {
         return builder.request();
     }
 
-    public static void initializeMappings(Client client){
+    public static void initializeMappings(Client client) {
         PutIndexTemplateRequest templateRequest = getClusterTemplateMapping(client.admin().indices());
         client.admin().indices().putTemplate(templateRequest).actionGet();
+    }
+
+    public static String getValidTableName(String table) {
+        if (table == null) return null;
+        return table.toLowerCase();
     }
 }

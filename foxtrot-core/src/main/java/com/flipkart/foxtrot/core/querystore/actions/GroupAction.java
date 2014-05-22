@@ -1,12 +1,12 @@
 /**
  * Copyright 2014 Flipkart Internet Pvt. Ltd.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -73,10 +73,11 @@ public class GroupAction extends Action<GroupRequest> {
 
     @Override
     public ActionResponse execute(GroupRequest parameter) throws QueryStoreException {
+        parameter.setTable(ElasticsearchUtils.getValidTableName(parameter.getTable()));
         if (null == parameter.getFilters()) {
             parameter.setFilters(Lists.<Filter>newArrayList(new AnyFilter(parameter.getTable())));
         }
-        if ( parameter.getTable() == null ){
+        if (parameter.getTable() == null) {
             throw new QueryStoreException(QueryStoreException.ErrorCode.INVALID_REQUEST, "Invalid Table");
         }
         try {
@@ -85,7 +86,7 @@ public class GroupAction extends Action<GroupRequest> {
             TermsBuilder rootBuilder = null;
             TermsBuilder termsBuilder = null;
             for (String field : parameter.getNesting()) {
-                if ( field == null || field.trim().isEmpty() ){
+                if (field == null || field.trim().isEmpty()) {
                     throw new QueryStoreException(QueryStoreException.ErrorCode.INVALID_REQUEST, "Illegal Nesting Parameters");
                 }
                 if (null == termsBuilder) {
@@ -109,13 +110,13 @@ public class GroupAction extends Action<GroupRequest> {
             List<String> fields = parameter.getNesting();
             Aggregations aggregations = response.getAggregations();
             // Check if any aggregation is present or not
-            if (aggregations == null){
+            if (aggregations == null) {
                 logger.error("Null response for Group. Request : " + parameter.toString());
                 return new GroupResponse(Collections.<String, Object>emptyMap());
             }
             return new GroupResponse(getMap(fields, aggregations));
-        } catch (QueryStoreException ex){
-          throw ex;
+        } catch (QueryStoreException ex) {
+            throw ex;
         } catch (Exception e) {
             logger.error("Error running grouping: ", e);
             throw new QueryStoreException(QueryStoreException.ErrorCode.QUERY_EXECUTION_ERROR,

@@ -1,12 +1,12 @@
 /**
  * Copyright 2014 Flipkart Internet Pvt. Ltd.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -71,17 +71,18 @@ public class HistogramAction extends Action<HistogramRequest> {
         }
 
         return String.format("%s-%d-%d-%d-%s-%s", query.getTable(),
-                                query.getFrom()/30000, query.getTo()/30000,
-                                filterHashKey, query.getPeriod().name(), query.getField());
+                query.getFrom() / 30000, query.getTo() / 30000,
+                filterHashKey, query.getPeriod().name(), query.getField());
     }
 
     @Override
     public ActionResponse execute(HistogramRequest parameter) throws QueryStoreException {
+        parameter.setTable(ElasticsearchUtils.getValidTableName(parameter.getTable()));
         if (null == parameter.getFilters()) {
             parameter.setFilters(Lists.<Filter>newArrayList(new AnyFilter(parameter.getTable())));
         }
 
-        if ( parameter.getField() == null || parameter.getField().trim().isEmpty()){
+        if (parameter.getField() == null || parameter.getField().trim().isEmpty()) {
             throw new QueryStoreException(QueryStoreException.ErrorCode.INVALID_REQUEST, "Illegal Nesting Parameters");
         }
 
@@ -122,7 +123,7 @@ public class HistogramAction extends Action<HistogramRequest> {
                     .execute()
                     .actionGet();
             Aggregations aggregations = response.getAggregations();
-            if ( aggregations == null ){
+            if (aggregations == null) {
                 logger.error("Null response for Histogram. Request : " + parameter.toString());
                 return new HistogramResponse(parameter.getFrom(), parameter.getTo(), Collections.<HistogramResponse.Count>emptyList());
             }
@@ -137,7 +138,7 @@ public class HistogramAction extends Action<HistogramRequest> {
                 counts.add(count);
             }
             return new HistogramResponse(parameter.getFrom(), parameter.getTo(), counts);
-        } catch (QueryStoreException ex){
+        } catch (QueryStoreException ex) {
             throw ex;
         } catch (Exception e) {
             throw new QueryStoreException(QueryStoreException.ErrorCode.HISTOGRAM_GENERATION_ERROR,

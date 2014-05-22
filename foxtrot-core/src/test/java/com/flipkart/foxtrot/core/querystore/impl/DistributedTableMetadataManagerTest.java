@@ -1,12 +1,12 @@
 /**
  * Copyright 2014 Flipkart Internet Pvt. Ltd.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -19,6 +19,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.flipkart.foxtrot.common.Table;
 import com.flipkart.foxtrot.common.group.GroupResponse;
 import com.flipkart.foxtrot.core.MockElasticsearchServer;
+import com.flipkart.foxtrot.core.TestUtils;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
 import com.hazelcast.test.TestHazelcastInstanceFactory;
@@ -44,7 +45,6 @@ public class DistributedTableMetadataManagerTest {
     private DistributedTableMetadataManager distributedTableMetadataManager;
     private MockElasticsearchServer elasticsearchServer;
     private IMap<String, Table> tableDataStore;
-    private final String TEST_APP = "test-app";
 
     @Before
     public void setUp() throws Exception {
@@ -93,9 +93,9 @@ public class DistributedTableMetadataManagerTest {
     @Test
     public void testGet() throws Exception {
         Table table = new Table();
-        table.setName(TEST_APP);
+        table.setName(TestUtils.TEST_TABLE);
         table.setTtl(60);
-        tableDataStore.put(TEST_APP, table);
+        tableDataStore.put(TestUtils.TEST_TABLE, table);
         Table response = distributedTableMetadataManager.get(table.getName());
         assertEquals(table.getName(), response.getName());
         assertEquals(table.getTtl(), response.getTtl());
@@ -103,14 +103,14 @@ public class DistributedTableMetadataManagerTest {
 
     @Test
     public void testGetMissingTable() throws Exception {
-        Table response = distributedTableMetadataManager.get(TEST_APP + "-missing");
+        Table response = distributedTableMetadataManager.get(TestUtils.TEST_TABLE + "-missing");
         assertNull(response);
     }
 
     @Test
     public void testExists() throws Exception {
         Table table = new Table();
-        table.setName("TEST_TABLE");
+        table.setName(TestUtils.TEST_TABLE);
         table.setTtl(15);
         distributedTableMetadataManager.save(table);
         assertTrue(distributedTableMetadataManager.exists(table.getName()));
