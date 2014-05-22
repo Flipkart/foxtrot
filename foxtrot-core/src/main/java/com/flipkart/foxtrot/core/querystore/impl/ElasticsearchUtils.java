@@ -32,6 +32,7 @@ import java.util.Date;
 public class ElasticsearchUtils {
     public static final String TYPE_NAME = "document";
     public static final String TABLENAME_PREFIX = "foxtrot";
+    public static final String TABLENAME_POSTFIX = "table";
     private static ObjectMapper mapper;
 
     public static void setMapper(ObjectMapper mapper) {
@@ -49,7 +50,8 @@ public class ElasticsearchUtils {
             String postfix = new SimpleDateFormat("dd-M-yyyy").format(new Date(currentTime));
             names[i] = String.format("%s-%s-%s", TABLENAME_PREFIX, table, postfix);
         }*/
-        return new String[]{String.format("%s-%s-*", ElasticsearchUtils.TABLENAME_PREFIX, table)};
+        return new String[]{String.format("%s-%s-%s-*",
+                ElasticsearchUtils.TABLENAME_PREFIX, table, ElasticsearchUtils.TABLENAME_POSTFIX)};
     }
 
     public static String getCurrentIndex(final String table, long timestamp) {
