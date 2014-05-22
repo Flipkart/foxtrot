@@ -23,28 +23,22 @@
 	this.count = 0;
 	this.from = 0;
 	this.renderingFunction = null;
-
 }
 
 EventBrowser.prototype = new Tile();
 
 EventBrowser.prototype.render = function(data, animate) {
-	if(data.documents.length == 0) {
+	if(!data.hasOwnProperty("documents") || data.documents.length == 0) {
 		return;
 	}
 	var parent = $("#content-for-" + this.id);
 	var headers = [];
 	var headerMap = new Object();
-	// for (var i = this.tables.currentTableFieldMappings.length - 1; i >= 0; i--) {
-	// 	headers.push(this.tables.currentTableFieldMappings[i].name);
-	// 	headerMap[this.tables.currentTableFieldMappings[i].name] = null;
-	// }
 	var rows = [];
 	var flatRows = [];
 
 	for (var i = data.documents.length - 1; i >= 0; i--) {
 		var flatObject = flat.flatten(data.documents[i]);
-		//console.log(flatObject);
 		for(field in flatObject) {
 			if(flatObject.hasOwnProperty(field)) {
 				headerMap[field]=1;
@@ -56,86 +50,24 @@ EventBrowser.prototype.render = function(data, animate) {
 	for (var i = flatRows.length - 1; i >= 0; i--) {
 		var row = [];
 		var flatData = flatRows[i];
-		for (var j = 0; j < headers.length - 1; j++) {
+		for (var j = 0; j < headers.length; j++) {
 			var header = headers[j];
 			if(flatData.hasOwnProperty(header)) {
 				row.push(flatData[header]);
 			}
 			else {
+			    console.log("Here for " + header);
 				row.push("");
 			}
 		}
 		rows.push(row);
 	}
-    for (var j = 0; j < headers.length - 1; j++) {
-        headers[i] = headers[i].replace("data.","");
+    for (var j = 0; j < headers.length; j++) {
+        headers[j] = headers[j].replace("data.","");
     }
 	var tableData = {headers : headers, data: rows};
 	console.log(tableData);
-	parent.html(handlebars("#eventbrowser-template", tableData));	
-	// var chartLabel = null;
-	// if(0 == parent.find(".pielabel").length) {
-	// 	chartLabel = $("<div>", {class: "pielabel"});
-	// 	parent.append(chartLabel);
-	// }
-	// else {
-	// 	chartLabel = parent.find(".pielabel");
-	// }
-	// chartLabel.text((this.period >= 60) ? ((this.period / 60) + "h"): (this.period + "m"));
-
-	// var canvas = null;
-	// if(0 == parent.find(".chartcanvas").length) {
-	// 	canvas = $("<div>", {class: "chartcanvas"});
-	// 	parent.append(canvas);
-	// }
-	// else {
-	// 	canvas = parent.find(".chartcanvas");
-	// }
-	// var colors = new Colors(Object.keys(data.result).length);
-	// var columns =[];
-	// var ticks = [];
-	// var i = 0;
-	// for(property in data.result) {
-	// 	columns.push({label: property, data: [[i, data.result[property]]], color: colors.nextColor()});
-	// 	ticks.push([i, property]);
-	// 	i++;
-	// }
-
-	// var chartOptions = {
- //        series: {
- //            bars: {
- //                show: true,
- //                label:{
- //                    show: true
- //                },
- //                barWidth: 0.5,
- //            	align: "center",
- //            	lineWidth: 0,
- //            	fill: 1.0
- //            }
- //        },
- //        legend : {
- //            show: false
- //        },
- //        xaxis : {
- //        	ticks: ticks,
- //        	tickLength: 0        	
- //        },
- //        yaxis: {
- //        	tickLength: 0
- //        },
- //        grid: {
- //        	hoverable: true,
- //        	borderWidth: {top: 0, right: 0, bottom: 1, left: 1},
- //        },
- //        tooltip: true,
- //        tooltipOpts: {
- //    		content: function(label, x, y) {
- //    			return label + ": " + y;
- //    		}
- //    	}
- //    };
- //    $.plot(canvas, columns, chartOptions);
+	parent.html(handlebars("#eventbrowser-template", tableData));
 };
 
 EventBrowser.prototype.getQuery = function() {

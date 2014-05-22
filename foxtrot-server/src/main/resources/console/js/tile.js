@@ -31,13 +31,16 @@ Queue.prototype.remove = function(key) {
 };
 
 Queue.prototype.start = function() {
-	setInterval($.proxy(function(){
-		for (var property in this.requests) {
-		    if (this.requests.hasOwnProperty(property)) {
-		    	this.requests[property]();    
-		    }
-		}
-	}, this), this.refreshTime * 1000);
+	setInterval($.proxy(this.executeCalls, this),
+	                    this.refreshTime * 1000);
+};
+
+Queue.prototype.executeCalls = function(){
+    for (var property in this.requests) {
+        if (this.requests.hasOwnProperty(property)) {
+            this.requests[property]();
+        }
+    }
 };
 
 function Tile() {
