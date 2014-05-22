@@ -85,6 +85,7 @@ FoxTrot.prototype.init = function() {
 	}, this));
 	this.tablesView.init();
 	this.queue.start();
+	//this.tablesView.registerTableSelectionChangeHandler($.proxy(this.queue.executeCalls, this.queue));
 };
 
 FoxTrot.prototype.registerTableSelectionChangeHandler = function(handler) {
@@ -98,6 +99,7 @@ FoxTrot.prototype.addTile = function() {
 	this.tileSet.register(tile);
 	$("#addWidgetModal").modal('hide');
 	success("<strong>Tile added!!</strong> Click the settings icon on the widget to setup the tile and see your data..");
+	this.queue.executeCalls();
 };
 
 FoxTrot.prototype.saveConsole = function(e) {

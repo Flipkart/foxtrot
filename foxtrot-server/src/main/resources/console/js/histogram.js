@@ -31,8 +31,9 @@ Histogram.prototype.render = function(data, animate) {
 	var chartAreaId = "#content-for-" + this.id;
 	var chartContent = $("#" + this.id).find(chartAreaId);
 	var times = [];
-	if(!data.hasOwnProperty(data)) {
+	if(!data.hasOwnProperty('counts')) {
 		chartContent.empty();
+		return;
 	}
 	var rows = [];
 	rows.push(['date', 'count']);
