@@ -62,7 +62,7 @@ EventBrowser.prototype.render = function(data, animate) {
 		}
 		rows.push(row);
 	}
-    for (var j = 0; j < headers.length - 1; j++) {
+    for (var j = 0; j < headers.length; j++) {
         headers[j] = headers[j].replace("data.","");
     }
 	var tableData = {headers : headers, data: rows};
