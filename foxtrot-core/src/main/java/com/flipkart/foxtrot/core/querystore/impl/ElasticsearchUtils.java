@@ -99,6 +99,7 @@ public class ElasticsearchUtils {
     }
 
     public static String getValidTableName(String table) {
+        if (table == null) return null;
         return table.toLowerCase();
     }
 }
