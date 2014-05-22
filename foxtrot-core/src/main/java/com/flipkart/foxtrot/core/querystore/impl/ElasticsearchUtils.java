@@ -56,8 +56,9 @@ public class ElasticsearchUtils {
 
     public static String getCurrentIndex(final String table, long timestamp) {
         //TODO::THROW IF TIMESTAMP IS BEYOND TABLE META.TTL
-        String postfix = new SimpleDateFormat("dd-M-yyyy").format(new Date(timestamp));
-        return String.format("%s-%s-%s", ElasticsearchUtils.TABLENAME_PREFIX, table, postfix);
+        String datePostfix = new SimpleDateFormat("dd-M-yyyy").format(new Date(timestamp));
+        return String.format("%s-%s-%s-%s", ElasticsearchUtils.TABLENAME_PREFIX, table,
+                ElasticsearchUtils.TABLENAME_POSTFIX, datePostfix);
     }
 
     public static PutIndexTemplateRequest getClusterTemplateMapping(IndicesAdminClient indicesAdminClient) {
