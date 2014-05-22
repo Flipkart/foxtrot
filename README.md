@@ -7,7 +7,6 @@ Foxtrot is a data store abstraction service for storing event data for real-time
   - Reconfigurable console builder to build useful consoles that can be shared among people
   - Intelligent caching of queries to load-balance on console heavy query loads
   - A very extensible design that needs three annotated classes to be added to the source for adding a new kind of analytics operation
-  - Well tested code with high coverage
 
 Documentation
 -------------
