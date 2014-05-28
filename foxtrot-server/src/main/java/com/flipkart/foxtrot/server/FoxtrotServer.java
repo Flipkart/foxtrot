@@ -69,27 +69,28 @@ public class FoxtrotServer extends Service<FoxtrotServerConfiguration> {
 
         HbaseConfig hbaseConfig = configuration.getHbase();
         HbaseTableConnection HBaseTableConnection = new HbaseTableConnection(hbaseConfig);
-        environment.manage(HBaseTableConnection);
 
         ElasticsearchConfig elasticsearchConfig = configuration.getElasticsearch();
         ElasticsearchConnection elasticsearchConnection = new ElasticsearchConnection(elasticsearchConfig);
-        environment.manage(elasticsearchConnection);
 
         ClusterConfig clusterConfig = configuration.getCluster();
         HazelcastConnection hazelcastConnection = new HazelcastConnection(clusterConfig, objectMapper);
-        environment.manage(hazelcastConnection);
 
         ElasticsearchUtils.setMapper(objectMapper);
 
         DataStore dataStore = new HBaseDataStore(HBaseTableConnection, objectMapper);
         AnalyticsLoader analyticsLoader = new AnalyticsLoader(dataStore, elasticsearchConnection);
-        environment.manage(new ManagedActionScanner(analyticsLoader, environment));
 
         TableMetadataManager tableMetadataManager = new DistributedTableMetadataManager(hazelcastConnection, elasticsearchConnection);
-        environment.manage(tableMetadataManager);
 
         QueryExecutor executor = new QueryExecutor(analyticsLoader, executorService);
         QueryStore queryStore = new ElasticsearchQueryStore(tableMetadataManager, elasticsearchConnection, dataStore, executor);
+
+        environment.manage(HBaseTableConnection);
+        environment.manage(elasticsearchConnection);
+        environment.manage(hazelcastConnection);
+        environment.manage(tableMetadataManager);
+        environment.manage(new ManagedActionScanner(analyticsLoader, environment));
 
         environment.addResource(new DocumentResource(queryStore));
         environment.addResource(new AsyncResource());

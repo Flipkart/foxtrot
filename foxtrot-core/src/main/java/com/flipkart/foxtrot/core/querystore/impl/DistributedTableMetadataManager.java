@@ -22,7 +22,10 @@ import com.hazelcast.config.MapConfig;
 import com.hazelcast.config.MapStoreConfig;
 import com.hazelcast.core.IMap;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 
 /**
  * User: Santanu Sinha (santanu.sinha@flipkart.com)
@@ -39,12 +42,23 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
                                            ElasticsearchConnection elasticsearchConnection) {
         this.hazelcastConnection = hazelcastConnection;
         this.elasticsearchConnection = elasticsearchConnection;
+
+        MapStoreConfig mapStoreConfig = new MapStoreConfig();
+        mapStoreConfig.setFactoryImplementation(TableMapStore.factory(elasticsearchConnection));
+        mapStoreConfig.setEnabled(true);
+        mapStoreConfig.setInitialLoadMode(MapStoreConfig.InitialLoadMode.EAGER);
+        MapConfig mapConfig = new MapConfig(DATA_MAP);
+        mapConfig.setMapStoreConfig(mapStoreConfig);
+        mapConfig.setReadBackupData(true);
+        hazelcastConnection.getHazelcastConfig().addMapConfig(mapConfig);
+        DistributedCache.setupConfig(hazelcastConnection);
     }
 
 
     @Override
     public void save(Table table) throws Exception {
         tableDataStore.put(table.getName(), table);
+        tableDataStore.flush();
     }
 
     @Override
@@ -57,6 +71,9 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
 
     @Override
     public List<Table> get() throws Exception {
+        if(0 == tableDataStore.size()) { //HACK::Check https://github.com/hazelcast/hazelcast/issues/1404
+            return Collections.emptyList();
+        }
         ArrayList<Table> tables = Lists.newArrayList(tableDataStore.values());
         Collections.sort(tables, new Comparator<Table>() {
             @Override
@@ -74,13 +91,6 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
 
     @Override
     public void start() throws Exception {
-        MapStoreConfig mapStoreConfig = new MapStoreConfig();
-        mapStoreConfig.setClassName(TableMapStore.class.getCanonicalName());
-        mapStoreConfig.setWriteDelaySeconds(0);
-        mapStoreConfig.setFactoryImplementation(TableMapStore.factory(elasticsearchConnection));
-        MapConfig mapConfig = new MapConfig(DATA_MAP);
-        mapConfig.setMapStoreConfig(mapStoreConfig);
-        hazelcastConnection.getHazelcast().getConfig().addMapConfig(mapConfig);
         tableDataStore = hazelcastConnection.getHazelcast().getMap(DATA_MAP);
     }
 

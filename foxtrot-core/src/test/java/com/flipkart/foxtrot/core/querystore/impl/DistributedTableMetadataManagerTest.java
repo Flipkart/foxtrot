@@ -20,6 +20,7 @@ import com.flipkart.foxtrot.common.Table;
 import com.flipkart.foxtrot.common.group.GroupResponse;
 import com.flipkart.foxtrot.core.MockElasticsearchServer;
 import com.flipkart.foxtrot.core.TestUtils;
+import com.hazelcast.config.Config;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
 import com.hazelcast.test.TestHazelcastInstanceFactory;
@@ -53,6 +54,8 @@ public class DistributedTableMetadataManagerTest {
         ObjectMapper mapper = new ObjectMapper();
         mapper.registerSubtypes(GroupResponse.class);
         when(hazelcastConnection.getHazelcast()).thenReturn(hazelcastInstance);
+        Config config = new Config();
+        when(hazelcastConnection.getHazelcastConfig()).thenReturn(config);
 
         //Create index for table meta. Not created automatically
         elasticsearchServer = new MockElasticsearchServer(UUID.randomUUID().toString());
@@ -68,7 +71,7 @@ public class DistributedTableMetadataManagerTest {
         String DATA_MAP = "tablemetadatamap";
         tableDataStore = hazelcastInstance.getMap(DATA_MAP);
         distributedTableMetadataManager = new DistributedTableMetadataManager(hazelcastConnection,
-                elasticsearchConnection);
+                                                                                elasticsearchConnection);
         distributedTableMetadataManager.start();
     }
 
@@ -85,7 +88,7 @@ public class DistributedTableMetadataManagerTest {
         table.setName("TEST_TABLE");
         table.setTtl(15);
         distributedTableMetadataManager.save(table);
-        Table responseTable = (Table) hazelcastInstance.getMap(DistributedTableMetadataManager.DATA_MAP).get(table.getName());
+        Table responseTable = distributedTableMetadataManager.get("TEST_TABLE");
         assertEquals(table.getName(), responseTable.getName());
         assertEquals(table.getTtl(), responseTable.getTtl());
     }

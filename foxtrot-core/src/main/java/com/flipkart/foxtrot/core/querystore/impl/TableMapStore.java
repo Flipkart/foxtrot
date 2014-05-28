@@ -182,6 +182,7 @@ public class TableMapStore implements MapStore<String, Table> {
                 throw new RuntimeException("Error getting data for table: " + multiGetItemResponse.getId());
             }
         }
+        logger.info("Loaded value count: " + tables.size());
         return tables;
     }
 
@@ -211,7 +212,7 @@ public class TableMapStore implements MapStore<String, Table> {
                 break;
             }
         }
-
+        logger.info("Loaded value count: " + ids.size());
         return ids;
     }
 }

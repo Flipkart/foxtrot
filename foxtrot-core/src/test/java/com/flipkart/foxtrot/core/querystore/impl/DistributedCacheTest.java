@@ -74,7 +74,7 @@ public class DistributedCacheTest {
         resultNode.put("opcode", "group");
         resultNode.put("result", factory.objectNode().put("Hello", "world"));
         String expectedResponse = mapper.writeValueAsString(resultNode);
-        String actualResponse = hazelcastInstance.getMap("TEST").get("DUMMY_KEY_PUT").toString();
+        String actualResponse = mapper.writeValueAsString(distributedCache.get("DUMMY_KEY_PUT"));
         assertEquals(expectedResponse, actualResponse);
     }
 
@@ -94,7 +94,7 @@ public class DistributedCacheTest {
         GroupResponse baseRequest = new GroupResponse();
         baseRequest.setResult(Collections.<String, Object>singletonMap("Hello", "World"));
         String requestString = mapper.writeValueAsString(baseRequest);
-        hazelcastInstance.getMap("TEST").put("DUMMY_KEY_GET", requestString);
+        distributedCache.put("DUMMY_KEY_GET", mapper.readValue(requestString, ActionResponse.class));
         ActionResponse actionResponse = distributedCache.get("DUMMY_KEY_GET");
         String actualResponse = mapper.writeValueAsString(actionResponse);
         assertEquals(requestString, actualResponse);
@@ -102,16 +102,11 @@ public class DistributedCacheTest {
 
     @Test
     public void testGetInvalidKeyValue() throws Exception {
-        GroupResponse baseRequest = new GroupResponse();
-        baseRequest.setResult(Collections.<String, Object>singletonMap("Hello", "World"));
-        String requestString = "TEST-" + mapper.writeValueAsString(baseRequest) + "-TEST";
-        hazelcastInstance.getMap("TEST").put("DUMMY_KEY_GET", requestString);
         assertNull(distributedCache.get("DUMMY_KEY_GET"));
     }
 
-    @Test(expected = NullPointerException.class)
     public void testGetMissing() throws Exception {
-        distributedCache.get("DUMMY_KEY_MISSING");
+        assertNull(distributedCache.get("DUMMY_KEY_MISSING"));
     }
 
     @Test
@@ -121,7 +116,9 @@ public class DistributedCacheTest {
 
     @Test
     public void testHas() throws Exception {
-        hazelcastInstance.getMap("TEST").put("DUMMY_KEY_HAS", Collections.singletonMap("Hello", "world"));
+        GroupResponse baseRequest = new GroupResponse();
+        baseRequest.setResult(Collections.<String, Object>singletonMap("Hello", "World"));
+        distributedCache.put("DUMMY_KEY_HAS", baseRequest);
         boolean response = distributedCache.has("DUMMY_KEY_HAS");
         assertTrue(response);
         response = distributedCache.has("INVALID_KEY");

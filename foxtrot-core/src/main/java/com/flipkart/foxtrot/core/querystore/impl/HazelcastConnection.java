@@ -37,14 +37,11 @@ public class HazelcastConnection implements Managed {
     private final ClusterConfig clusterConfig;
     private HazelcastInstance hazelcast;
     private final ObjectMapper mapper;
+    private Config hazelcastConfig;
 
-    public HazelcastConnection(ClusterConfig clusterConfig, ObjectMapper mapper) {
+    public HazelcastConnection(ClusterConfig clusterConfig, ObjectMapper mapper) throws Exception {
         this.clusterConfig = clusterConfig;
         this.mapper = mapper;
-    }
-
-    @Override
-    public void start() throws Exception {
         final String hostName = InetAddress.getLocalHost().getCanonicalHostName();
         Config hzConfig = new Config();
         hzConfig.getGroupConfig().setName(clusterConfig.getName());
@@ -56,7 +53,12 @@ public class HazelcastConnection implements Managed {
             }
             hzConfig.getNetworkConfig().getJoin().getTcpIpConfig().setEnabled(true);
         }
-        hazelcast = Hazelcast.newHazelcastInstance(hzConfig);
+        this.hazelcastConfig = hzConfig;
+    }
+
+    @Override
+    public void start() throws Exception {
+        hazelcast = Hazelcast.newHazelcastInstance(hazelcastConfig);
         CacheUtils.setCacheFactory(new DistributedCacheFactory(this, mapper));
     }
 
@@ -71,5 +73,9 @@ public class HazelcastConnection implements Managed {
 
     public HazelcastInstance getHazelcast() {
         return hazelcast;
+    }
+
+    public Config getHazelcastConfig() {
+        return hazelcastConfig;
     }
 }

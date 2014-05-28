@@ -34,23 +34,27 @@ import java.io.IOException;
  * Time: 7:43 PM
  */
 public class DistributedCache implements Cache {
+    private static final String NAME_PREFIX="cache-for-";
+
     private static final Logger logger = LoggerFactory.getLogger(DistributedCache.class.getSimpleName());
     private final IMap<String, String> distributedMap;
     private final ObjectMapper mapper;
 
-    public DistributedCache(HazelcastConnection hazelcastConnection, String name, ObjectMapper mapper) {
-        MapConfig mapConfig = hazelcastConnection.getHazelcast().getConfig().getMapConfig(name);
+    public static void setupConfig(HazelcastConnection hazelcastConnection) {
+        MapConfig mapConfig = hazelcastConnection.getHazelcastConfig().getMapConfig(NAME_PREFIX + "*");
         mapConfig.setInMemoryFormat(InMemoryFormat.BINARY);
         mapConfig.setTimeToLiveSeconds(30);
         mapConfig.setMaxIdleSeconds(30);
         mapConfig.setBackupCount(0);
         NearCacheConfig nearCacheConfig = new NearCacheConfig();
-        nearCacheConfig.setName("local-cache");
         nearCacheConfig.setTimeToLiveSeconds(30);
         nearCacheConfig.setInvalidateOnChange(true);
         nearCacheConfig.setMaxIdleSeconds(60);
         mapConfig.setNearCacheConfig(nearCacheConfig);
-        this.distributedMap = hazelcastConnection.getHazelcast().getMap(name);
+    }
+
+    public DistributedCache(HazelcastConnection hazelcastConnection, String name, ObjectMapper mapper) {
+        this.distributedMap = hazelcastConnection.getHazelcast().getMap(NAME_PREFIX + name);
         this.mapper = mapper;
     }
 
@@ -70,10 +74,12 @@ public class DistributedCache implements Cache {
             return null; //Hazelcast map throws NPE if key is null
         }
         String data = distributedMap.get(key);
-        try {
-            return mapper.readValue(data, ActionResponse.class);
-        } catch (IOException e) {
-            logger.error("Error deserializing: ", e);
+        if(null != data) {
+            try {
+                return mapper.readValue(data, ActionResponse.class);
+            } catch (IOException e) {
+                logger.error("Error deserializing: ", e);
+            }
         }
         return null;
     }
