@@ -24,6 +24,7 @@ function Tables() {
 	this.tableChangeHandlers = []
 	this.selectedTable = null;
 	this.currentTableFieldMappings = null;
+	this.metaLoadHandlers = [];
 }
 
 Tables.prototype.init = function(callback) {
@@ -49,6 +50,10 @@ Tables.prototype.registerTableChangeHandler = function(tableChangeHandler) {
 	this.tableChangeHandlers.push(tableChangeHandler);
 };
 
+Tables.prototype.registerMetaLoadHandler = function(metaLoadHandler) {
+	this.metaLoadHandlers.push(metaLoadHandler);
+};
+
 Tables.prototype.loadTableMeta = function(table) {
 	$.ajax({
 		url: hostDetails.url("/foxtrot/v1/tables/" + table + "/fields"),
@@ -56,6 +61,9 @@ Tables.prototype.loadTableMeta = function(table) {
 		context: this,
 		success: $.proxy(function(data){
 			this.currentTableFieldMappings = data.mappings;
+            for (var i = this.metaLoadHandlers.length - 1; i >= 0; i--) {
+                this.metaLoadHandlers[i](this.tables);
+            };
 		}, this)
 	});	
 };

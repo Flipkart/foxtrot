@@ -1,4 +1,6 @@
-curl -XPUT localhost:9200/_template/template_1 -d '
+#!/bin/bash
+
+curl -XPUT ${1}:9200/_template/template_foxtrot_table_main -d '
 {
     "template" : "foxtrot-*",
     "settings" : {
@@ -36,20 +38,20 @@ curl -XPUT localhost:9200/_template/template_1 -d '
     }
 }'
 
-curl -XPUT 'http://localhost:9200/consoles/' -d '{
+curl -XPUT "http://${1}:9200/consoles/" -d '{
     "settings" : {
         "index" : {
             "number_of_shards" : 1,
-            "number_of_replicas" : 0
+            "number_of_replicas" : 2
         }
     }
 }'
 
-curl -XPUT 'http://localhost:9200/table-meta/' -d '{
+curl -XPUT "http://${1}:9200/table-meta/" -d '{
     "settings" : {
         "index" : {
             "number_of_shards" : 1,
-            "number_of_replicas" : 0
+            "number_of_replicas" : 2
         }
     }
 }'

@@ -1,0 +1,21 @@
+http:
+  port: 17000
+  adminPort: 17001
+  connectorType: nonblocking
+
+elasticsearch:
+  hosts:
+  - localhost
+  cluster: foxtrot
+
+hbase:
+  secure : false
+  tableName: foxtrot
+
+cluster:
+  name: foxtrot
+  disableMulticast: true
+  members: ["localhost:5701", "localhost:5702"]
+
+logging:
+  level: INFO

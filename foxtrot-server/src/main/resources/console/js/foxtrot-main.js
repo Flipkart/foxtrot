@@ -61,6 +61,7 @@ function FoxTrot() {
 	this.queue = new Queue();
 	this.tileSet = new TileSet("#tileContainer", tables);
 	this.consoleManager = new ConsoleManager(this.tileSet, this.queue, this.tables);
+	this.filterSection = new FilterSection(".filter-main", this.tables);
 	$("#tileContainer").sortable();
 	$("#tileContainer").on("sortstart", function(){
 		$(".tile").addClass("tile-drag");
@@ -171,6 +172,7 @@ $(document).ready(function(){
 	$("#setupEventBrowser").validator();
 	$("#saveConsoleModal").validator();
 	$("#loadConsoleModal").validator();
+	$(".filter-condition-form").validator();
 	// $("#histogram_settings_form").bootstrapValidator();
 	var foxtrot = new FoxTrot();
 

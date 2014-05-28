@@ -186,3 +186,19 @@ path {
   cursor: hand;
 
 }
+
+.control-table-cell {
+  width: 240px;
+}
+
+.row {
+  margin-left: 0px;
+  margin-right: 0px;
+}
+
+.filter-nav-button {
+    padding-top: 6px;
+    padding-bottom: 6px;
+    padding-left: 12px;
+    padding-right: 12px;
+}
