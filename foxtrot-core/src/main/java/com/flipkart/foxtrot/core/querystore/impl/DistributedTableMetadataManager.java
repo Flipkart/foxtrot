@@ -21,6 +21,8 @@ import com.google.common.collect.Lists;
 import com.hazelcast.config.MapConfig;
 import com.hazelcast.config.MapStoreConfig;
 import com.hazelcast.core.IMap;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -33,6 +35,7 @@ import java.util.List;
  * Time: 10:11 PM
  */
 public class DistributedTableMetadataManager implements TableMetadataManager {
+    private static final Logger logger = LoggerFactory.getLogger(DistributedTableMetadataManager.class);
     public static final String DATA_MAP = "tablemetadatamap";
     private final HazelcastConnection hazelcastConnection;
     private final ElasticsearchConnection elasticsearchConnection;
@@ -57,12 +60,14 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
 
     @Override
     public void save(Table table) throws Exception {
+        logger.info(String.format("Saving Table : %s", table));
         tableDataStore.put(table.getName(), table);
         tableDataStore.flush();
     }
 
     @Override
     public Table get(String tableName) throws Exception {
+        logger.info(String.format("Getting Table : %s", tableName));
         if (tableDataStore.containsKey(tableName)) {
             return tableDataStore.get(tableName);
         }
