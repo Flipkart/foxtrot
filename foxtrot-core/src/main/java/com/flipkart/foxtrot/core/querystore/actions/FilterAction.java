@@ -85,6 +85,7 @@ public class FilterAction extends Action<Query> {
             parameter.setSort(resultSort);
         }
         SearchRequestBuilder search = null;
+        SearchResponse response = null;
         try {
             /*if(!tableManager.exists(query.getTable())) {
                 throw new QueryStoreException(QueryStoreException.ErrorCode.NO_SUCH_TABLE,
@@ -98,7 +99,7 @@ public class FilterAction extends Action<Query> {
                     .setSize(parameter.getLimit());
             search.addSort(parameter.getSort().getField(),
                     ResultSort.Order.desc == parameter.getSort().getOrder() ? SortOrder.DESC : SortOrder.ASC);
-            SearchResponse response = search.execute().actionGet();
+            response = search.execute().actionGet();
             Vector<String> ids = new Vector<String>();
             for (SearchHit searchHit : response.getHits()) {
                 ids.add(searchHit.getId());
@@ -109,7 +110,7 @@ public class FilterAction extends Action<Query> {
             return new QueryResponse(getDataStore().get(parameter.getTable(), ids));
         } catch (Exception e) {
             if (null != search) {
-                logger.error("Error running generated query: " + search);
+                logger.error("Error running generated query: " + search, e);
             } else {
                 logger.error("Query generation error: ", e);
             }
