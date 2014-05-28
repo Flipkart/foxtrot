@@ -3,12 +3,16 @@ html, body {
 }
 
 .pageheader {
-  margin-left: -15px;
+  /*margin-left: -15px;
   margin-right: -15px;
   padding-left: 14px;
   padding-right: 14px;
   background-color: black;
-  color: #F2F2D5;
+  color: #F2F2D5;*/
+  height: 56px;
+  margin-top: 12px;
+  margin-bottom: 12px;
+  padding-right: 20px;
 }
 
 h1 {
@@ -97,6 +101,7 @@ display: none;
   clear:both;
 }
 .tile-container{
+  min-height: 175px;
   height: 95%;
 }
 .chartcanvas {
@@ -201,4 +206,37 @@ path {
     padding-bottom: 6px;
     padding-left: 12px;
     padding-right: 12px;
+}
+
+.removable-text {
+  font-size: 36px;
+  color: #CCCCCC;
+  text-align: center;
+  vertical-align: middle;
+  padding-top: 50px;
+}
+
+.alert-customization {
+  margin-bottom: 5px;
+  margin-left: 20px;
+  margin-right: 20px;
+  margin-top: 5px;
+}
+
+.header-container {
+    position: fixed;
+    width: 100%;
+    top: 0px;
+    left: 0px;
+    background: white;
+    z-index: 1000;
+}
+
+.content {
+  margin-top: 84px;
+}
+
+.hr-thin {
+ margin-top: 0px;
+ margin-bottom: 0px;
 }

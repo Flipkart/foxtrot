@@ -49,182 +49,184 @@
     <body>
 
       <div class="container container-full">
-        <div class="header pageheader">
-          <!-- <ul class="nav nav-pills pull-right">
-            <li class="active"><a href="#">Home</a></li>
-            <li><a href="#">About</a></li>
-            <li><a href="#">Contact</a></li>
-            <li></li>
-            <li></li>  
-          </ul> -->
-          <h1>
-          <div class="row">
-            <div class="col-sm-4"><img src="images/logo-1.png"/> <span class="console-name">FoxTrot</span></div>
-            <div class="col-sm-4" style="margin-top: 8px">
+        <div class="header-container">
+            <div class="header pageheader">
+                <h1>
+                    <div class="col-sm-4"><img src="images/logo-1.png"/> <span class="console-name">FoxTrot</span></div>
+                </h1>
+                <ul class="nav nav-pills pull-right">
+                    <li><a href="#monitoring">Monitoring</a></li>
+                    <li><a href="#browse_events">Events</a></li>
+                    <li>
+                        <select class="selectpicker" id="tables" data-style="btn-primary">
+                        </select>
+                    </li>
+                    <li>
+                        <div class="btn-group">
+                            <button type="button" class="btn btn-primary filter-nav-button" data-toggle="modal" data-target="#addWidgetModal">
+                                <span class='glyphicon glyphicon-plus ' id="newTile" ></span>
+                            </button>
+                            <button type="button" class="btn btn-primary filter-nav-button" data-toggle="modal" data-target="#loadConsoleModal">
+                                <span class='glyphicon glyphicon-eye-open' id="loadConsole" ></span>
+                            </button>
+                            <button type="button" class="btn btn-primary filter-nav-button" data-toggle="modal" data-target="#saveConsoleModal">
+                                <span class='glyphicon glyphicon-floppy-disk' id="saveConsole"></span>
+                            </button>
+                        </div>
+                    </li>
+                </ul>
             </div>
-            <div class="col-sm-3" style="margin-top: 8px">
-              <select class="selectpicker" id="tables" style="text-align: left">
-              </select>
+            <hr class="hr-thin">
+            <div class="alert alert-dismissable alert-customization">
+                <button type="button" class="close" data-hide="alert" aria-hidden="true">&times;</button>
+                <div class="alert-message"></div>
             </div>
-            <div class="col-sm-1" style="margin-top: 8px">
-              <div class="header-button" data-toggle="modal" data-target="#addWidgetModal" style="left: -72px">
-                <span class='glyphicon glyphicon-plus header-button-icon' id="newTile" ></span>
-              </div>
-              <div class="header-button" data-toggle="modal" data-target="#saveConsoleModal" style="left: -23px">
-              <!-- <div class="header-button" style="left: -23px"> -->
-                <span class='glyphicon glyphicon-floppy-disk header-button-icon' id="saveConsole"></span>
-              </div>
-
-              <div class="header-button" data-toggle="modal" data-target="#loadConsoleModal" style="left: 26px">
-                <span class='glyphicon glyphicon-eye-open header-button-icon' id="loadConsole" ></span>
-              </div>
-
-            </div>
-          </div>
-          </h1>
         </div>
-        <hr style="margin-top: 0px">
-        <div class="alert alert-dismissable">
-          <button type="button" class="close" data-hide="alert" aria-hidden="true">&times;</button>
-          <div class="alert-message"></div>
-        </div>
-          <div class="row">
-              <div class="tile-container" id="tileContainer">
-                  <div class="float-clear"></div>
-              </div>
-          </div>
-          <div class="row">
-              <div class="row">
-                  <table class="table table-bordered filter-main" style="width: 97%; margin-left: 22px">
-                      <tbody>
-                      <!--<tr>-->
-                          <!--<td class="control-table-cell field"></td>-->
-                          <!--<td class="control-table-cell operator"></td>-->
-                          <!--<td class="col-lg-5 operand1"></td>-->
-                          <!--<td class="col-lg-5 operand2"></td>-->
-                          <!--<td style="width: 50px">-->
-                              <!--<button style="padding: 9px">-->
-                                  <!--<span class='glyphicon glyphicon-minus'></span>-->
-                              <!--</button>-->
-                          <!--</td>-->
-                      <!--</tr>-->
-                      <tr class="filter-control">
-                          <td class="control-table-cell">
-                              <select class="selectpicker event-fields" data-style="btn-success"></select> </td>
-                          <td class="control-table-cell"><select class="selectpicker field-operator" data-style="btn-primary"></select> </td>
-                          <td>
-                              <div class="form-group">
-                                  <input type="text" class="form-control col-lg-5 filter-operator-1">
-                              </div>
-                          </td>
-                          <td>
-                              <div class="form-group">
-                                  <input type="text" class="form-control col-lg-5 filter-operator-2">
-                              </div>
-                          </td>
-                          <td style="width: 50px">
-                              <button style="vertical-align: middle; padding: 9px" class="filter-condition-add">
-                                  <span class='glyphicon glyphicon-plus'></span>
-                              </button>
-                          </td>
-                      </tr>
-                      <tr>
-                          <td class="control-table-cell">
-                              <div class='input-group date' id='datetimeFrom'>
-                                  <input type='text' class="form-control date-from" />
+        <div class="content">
+            <div class="row" id="monitoring">
+                <div class="tile-container" id="tileContainer">
+                    <div class="removable-text">Add widgets here by clicking the <b>+</b> button.</div>
+                    <div class="float-clear"></div>
+                </div>
+            </div>
+            <div class="row" id="browse_events">
+                <h2>Browse Events</h2>
+                <hr class="hr-thin" style="margin-bottom: 10px">
+            </div>
+            <div class="row">
+                <div class="row">
+                    <table class="table table-bordered filter-main" style="width: 97%; margin-left: 22px">
+                        <tbody>
+                        <!--<tr>-->
+                        <!--<td class="control-table-cell field"></td>-->
+                        <!--<td class="control-table-cell operator"></td>-->
+                        <!--<td class="col-lg-5 operand1"></td>-->
+                        <!--<td class="col-lg-5 operand2"></td>-->
+                        <!--<td style="width: 50px">-->
+                        <!--<button style="padding: 9px">-->
+                        <!--<span class='glyphicon glyphicon-minus'></span>-->
+                        <!--</button>-->
+                        <!--</td>-->
+                        <!--</tr>-->
+                        <tr class="filter-control">
+                            <td class="control-table-cell">
+                                <select class="selectpicker event-fields" data-style="btn-success"></select> </td>
+                            <td class="control-table-cell"><select class="selectpicker field-operator" data-style="btn-primary"></select> </td>
+                            <td>
+                                <div class="form-group">
+                                    <input type="text" class="form-control col-lg-5 filter-operator-1">
+                                </div>
+                            </td>
+                            <td>
+                                <div class="form-group">
+                                    <input type="text" class="form-control col-lg-5 filter-operator-2">
+                                </div>
+                            </td>
+                            <td style="width: 50px">
+                                <button style="vertical-align: middle; padding: 9px" class="filter-condition-add">
+                                    <span class='glyphicon glyphicon-plus'></span>
+                                </button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="control-table-cell">
+                                <div class='input-group date' id='datetimeFrom'>
+                                    <input type='text' class="form-control date-from" />
                                   <span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span>
                                   </span>
-                              </div>
-                          </td>
-                          <td class="control-table-cell">
-                              <div class='input-group date' id='datetimeTo'>
-                                  <input type='text' class="form-control date-to" />
+                                </div>
+                            </td>
+                            <td class="control-table-cell">
+                                <div class='input-group date' id='datetimeTo'>
+                                    <input type='text' class="form-control date-to" />
                                   <span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span>
                                   </span>
-                              </div>
-                          </td>
-                          <td colspan="2" class="control-table-cell">
-                              <select class="selectpicker datasort" data-style="btn-warning">
-                                  <option value="desc">Latest First</option>
-                                  <option value="asc">Oldest First</option>
-                              </select> </td>
-                          <td style="width: 50px">
-                              <button style="padding: 9px" class="run-query">
-                                  <span class='glyphicon glyphicon-search'></span>
-                              </button>
-                          </td>
-                      </tr>
-                      </tbody>
-                  </table>
-              </div>
-              <div class="row">
-                  <div class="col-md-8">
-                      <h3>Events</h3>
-                  </div>
-                  <div class="col-md-4">
-                      <div class="btn-group pull-right" style=" height: 60px; padding-top: 20px; ">
-                          <button type="button" class="btn btn-primary filter-nav-button filter-event-prev">
-                              <span class="glyphicon glyphicon-chevron-left"></span>
-                          </button>
-                          <button type="button" class="btn btn-primary filter-nav-button filter-event-next">
-                              <span class="glyphicon glyphicon-chevron-right"></span>
-                          </button>
-                      </div>
-                  </div>
-              </div>
+                                </div>
+                            </td>
+                            <td colspan="2" class="control-table-cell">
+                                <select class="selectpicker datasort" data-style="btn-warning">
+                                    <option value="desc">Latest First</option>
+                                    <option value="asc">Oldest First</option>
+                                </select> </td>
+                            <td style="width: 50px">
+                                <button style="padding: 9px" class="run-query btn btn-primary">
+                                    <span class='glyphicon glyphicon-search'></span>
+                                </button>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="row">
+                    <div class="col-md-8">
+                        <h3>Events</h3>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="btn-group pull-right" style=" height: 60px; padding-top: 20px; ">
+                            <button type="button" class="btn btn-primary filter-nav-button filter-event-prev">
+                                <span class="glyphicon glyphicon-chevron-left"></span>
+                            </button>
+                            <button type="button" class="btn btn-primary filter-nav-button filter-event-next">
+                                <span class="glyphicon glyphicon-chevron-right"></span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
 
-            <!--<script id="search-template" type="text/x-handlebars-template">-->
-              <!--<table class="table table-bordered table-hover table-condensed">-->
-                  <!--<thead>-->
-                      <!--<tr>-->
-                          <!--{{#each headers}}-->
-                            <!--<th>{{this}}</th>-->
-                          <!--{{/each}}-->
-                      <!--</tr>-->
-                  <!--</thead>-->
-                  <!--<tbody>-->
-                      <!--{{#each data}}-->
-                          <!--<tr>-->
-                              <!--{{#each this}}-->
-                                <!--<td>{{this}}</th>-->
-                              <!--{{/each}}-->
-                          <!--</tr>-->
-                      <!--{{/each}}-->
-                  <!--</tbody>-->
+                <!--<script id="search-template" type="text/x-handlebars-template">-->
+                <!--<table class="table table-bordered table-hover table-condensed">-->
+                <!--<thead>-->
+                <!--<tr>-->
+                <!--{{#each headers}}-->
+                <!--<th>{{this}}</th>-->
+                <!--{{/each}}-->
+                <!--</tr>-->
+                <!--</thead>-->
+                <!--<tbody>-->
+                <!--{{#each data}}-->
+                <!--<tr>-->
+                <!--{{#each this}}-->
+                <!--<td>{{this}}</th>-->
+                <!--{{/each}}-->
+                <!--</tr>-->
+                <!--{{/each}}-->
+                <!--</tbody>-->
 
-              <!--</table>-->
-            <!--</script>-->
-              <div class="row filter-event-container">
-                  <!--<div class="table-responsive">
-                      <table class="table table-striped table-bordered table-hover table-condensed" id="filter_results">
-                          <thead>
-                          <tr>
-                              <th nowrap="">Config Name</th>
-                              <th nowrap="">Profile</th>
-                              <th nowrap="">Instance ID</th>
-                              <th nowrap="">Event ID</th>
-                              <th nowrap="">Time</th>
-                              <th>Data</th>
-                          </tr>
-                          </thead>
-                          <tbody id="search_result_rows">
-                          <script id="filter-results" type="text/x-handlebars-template">
-                              {{#each events}}
-                              <tr>
-                                  <td width="1%" nowrap>{{header.configName}}</td>
-                                  <td width="1%" nowrap>{{header.profile}}</td>
-                                  <td width="1%" nowrap>{{header.instanceId}}</td>
-                                  <td width="1%" nowrap>{{header.eventId}}</td>
-                                  <td width="1%" nowrap>{{header.time}}</td>
-                                  <td>{{{data}}}</td>
-                              </tr>
-                              {{/each}}
-                          </script>
-                          </tbody>
-                      </table>
-                  </div>-->
-              </div>
-          </div>
+                <!--</table>-->
+                <!--</script>-->
+                <div class="row filter-event-container" style="min-height: 200px">
+                    <!--<div class="table-responsive">
+                        <table class="table table-striped table-bordered table-hover table-condensed" id="filter_results">
+                            <thead>
+                            <tr>
+                                <th nowrap="">Config Name</th>
+                                <th nowrap="">Profile</th>
+                                <th nowrap="">Instance ID</th>
+                                <th nowrap="">Event ID</th>
+                                <th nowrap="">Time</th>
+                                <th>Data</th>
+                            </tr>
+                            </thead>
+                            <tbody id="search_result_rows">
+                            <script id="filter-results" type="text/x-handlebars-template">
+                                {{#each events}}
+                                <tr>
+                                    <td width="1%" nowrap>{{header.configName}}</td>
+                                    <td width="1%" nowrap>{{header.profile}}</td>
+                                    <td width="1%" nowrap>{{header.instanceId}}</td>
+                                    <td width="1%" nowrap>{{header.eventId}}</td>
+                                    <td width="1%" nowrap>{{header.time}}</td>
+                                    <td>{{{data}}}</td>
+                                </tr>
+                                {{/each}}
+                            </script>
+                            </tbody>
+                        </table>
+                    </div>-->
+                </div>
+            </div>
+        </div>
+
         <div class="footer">
           <p>&copy; flipkart.com 2014</p>
         </div>

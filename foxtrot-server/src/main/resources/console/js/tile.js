@@ -157,12 +157,17 @@ function TileSet(id, tables) {
 TileSet.prototype.closeHandler = function(eventData) {
 	var tileId = eventData.currentTarget.parentNode.parentNode.getAttribute('id');
 	this.unregister(tileId);
+	var tileContainer = $(this.id);
+	if(tileContainer.find(".tile").length  == 0) {
+    	tileContainer.find(".removable-text").css("display", "block");
+	}
 };
 
 TileSet.prototype.register = function(tile) {
 	var tileContainer = $(this.id);
 	this.currentTiles[tile.id] = tile;
 	var newDiv = $(handlebars("#tile-template", {tileId: tile.id}));
+	tileContainer.find(".removable-text").css("display", "none");
 	newDiv.insertBefore('.float-clear');
 	if(tile.height != 0 && tile.width != 0) {
 		newDiv.height(tile.height);

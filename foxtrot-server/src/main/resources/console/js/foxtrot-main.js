@@ -165,7 +165,8 @@ FoxTrot.prototype.loadConsoleList = function() {
 };
 
 $(document).ready(function(){
-	$(".alert").alert();	
+	$(".alert").alert();
+    $(".alert").hide();
 	$("#setupPieChartModal").validator();
 	$("#setupBarChartModal").validator();
 	$("#setupHistogramForm").validator();
