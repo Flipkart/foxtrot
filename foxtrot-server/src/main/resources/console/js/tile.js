@@ -15,9 +15,9 @@
  */
 
 function Queue() {
-	this.requests = new Object();
-	this.refreshTime = 10;
-	this.timeout = 8000;
+	this.requests = {};
+	this.refreshTime = 5;
+	this.timeout = 4000;
 };
 
 Queue.prototype.enqueue = function(key, ajaxRequest) {
