@@ -97,7 +97,7 @@ public class TrendAction extends Action<TrendRequest> {
         if (parameter.getTable() == null) {
             throw new QueryStoreException(QueryStoreException.ErrorCode.INVALID_REQUEST, "Invalid table name");
         }
-        if (field.isEmpty()) {
+        if (null == field || field.isEmpty()) {
             throw new QueryStoreException(QueryStoreException.ErrorCode.INVALID_REQUEST, "Invalid field name");
         }
         if (null != parameter.getValues()) {

@@ -118,8 +118,13 @@ public class TrendActionTest {
         result.put("trends", trends);
 
         String expectedResponse = mapper.writeValueAsString(result);
-        String actualResponse = mapper.writeValueAsString(queryExecutor.execute(trendRequest));
-        assertEquals(expectedResponse, actualResponse);
+        try {
+            queryExecutor.execute(trendRequest);
+        } catch (Exception e) {
+            assertEquals("Invalid field name", e.getMessage());
+            return;
+        }
+        fail("Should have thrown exception");
     }
 
     //TODO trend action with all field is not working
