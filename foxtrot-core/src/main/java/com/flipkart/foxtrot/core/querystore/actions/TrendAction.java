@@ -35,6 +35,7 @@ import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.Aggregations;
+import org.elasticsearch.search.aggregations.bucket.histogram.DateHistogram;
 import org.elasticsearch.search.aggregations.bucket.histogram.Histogram;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.slf4j.Logger;
@@ -73,7 +74,7 @@ public class TrendAction extends Action<TrendRequest> {
             }
         }
 
-        filterHashKey += 31 * query.getInterval();
+        filterHashKey += 31 * query.getPeriod().name().hashCode();
         filterHashKey += 31 * query.getTimestamp().hashCode();
         filterHashKey += 31 * (query.getField() != null ? query.getField().hashCode() : "FIELD".hashCode());
 
@@ -93,16 +94,13 @@ public class TrendAction extends Action<TrendRequest> {
             parameter.setTo(currentTime);
         }
         String field = parameter.getField();
-        if (null == field) {
-            field = "all";
-        }
         if (parameter.getTable() == null) {
             throw new QueryStoreException(QueryStoreException.ErrorCode.INVALID_REQUEST, "Invalid table name");
         }
         if (field.isEmpty()) {
             throw new QueryStoreException(QueryStoreException.ErrorCode.INVALID_REQUEST, "Invalid field name");
         }
-        if (null != parameter.getValues() && !parameter.getField().equalsIgnoreCase("all")) {
+        if (null != parameter.getValues()) {
             List<Filter> filters = Lists.newArrayList();
             for (String value : parameter.getValues()) {
                 filters.add(new EqualsFilter(field, value));
@@ -113,14 +111,26 @@ public class TrendAction extends Action<TrendRequest> {
         logger.error(Arrays.toString(ElasticsearchUtils.getIndices(parameter.getTable())) + ":");
 
         try {
+            DateHistogram.Interval interval = null;
+            switch (parameter.getPeriod()) {
+                case minutes:
+                    interval = DateHistogram.Interval.MINUTE;
+                    break;
+                case hours:
+                    interval = DateHistogram.Interval.HOUR;
+                    break;
+                case days:
+                    interval = DateHistogram.Interval.DAY;
+                    break;
+            }
             SearchRequestBuilder query = getConnection().getClient()
                     .prepareSearch(ElasticsearchUtils.getIndices(parameter.getTable()))
                     .setQuery(new ElasticSearchQueryGenerator(FilterCombinerType.and).genFilter(parameter.getFilters()))
                     .addAggregation(AggregationBuilders.terms(field.replaceAll(ActionConstants.AGGREGATION_FIELD_REPLACEMENT_REGEX,
                             ActionConstants.AGGREGATION_FIELD_REPLACEMENT_VALUE)).field(field)
-                            .subAggregation(AggregationBuilders.histogram(field.replaceAll(ActionConstants.AGGREGATION_FIELD_REPLACEMENT_REGEX,
+                            .subAggregation(AggregationBuilders.dateHistogram(field.replaceAll(ActionConstants.AGGREGATION_FIELD_REPLACEMENT_REGEX,
                                     ActionConstants.AGGREGATION_FIELD_REPLACEMENT_VALUE))
-                                    .field(parameter.getTimestamp()).interval(parameter.getInterval())));
+                                    .field(parameter.getTimestamp()).interval(interval)));
             SearchResponse response = query.execute().actionGet();
             Map<String, List<TrendResponse.Count>> trendCounts = new TreeMap<String, List<TrendResponse.Count>>();
             Aggregations aggregations = response.getAggregations();

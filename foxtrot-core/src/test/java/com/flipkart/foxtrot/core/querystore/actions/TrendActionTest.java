@@ -19,6 +19,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.flipkart.foxtrot.common.histogram.Period;
 import com.flipkart.foxtrot.common.query.Filter;
 import com.flipkart.foxtrot.common.query.general.EqualsFilter;
 import com.flipkart.foxtrot.common.trend.TrendRequest;
@@ -362,7 +363,7 @@ public class TrendActionTest {
         trendRequest.setFrom(1L);
         trendRequest.setField("os");
         trendRequest.setTo(System.currentTimeMillis());
-        trendRequest.setInterval(1000L * 60 * 60 * 12);
+        trendRequest.setPeriod(Period.days);
 
         EqualsFilter equalsFilter = new EqualsFilter();
         equalsFilter.setField("version");
@@ -372,8 +373,8 @@ public class TrendActionTest {
         ObjectNode result = factory.objectNode();
         result.put("opcode", "trend");
         ObjectNode trends = factory.objectNode();
-        trends.put("android", factory.arrayNode().add(factory.objectNode().put("period", 1397649600000L).put("count", 2)));
-        trends.put("ios", factory.arrayNode().add(factory.objectNode().put("period", 1397736000000L).put("count", 1)));
+        trends.put("android", factory.arrayNode().add(factory.objectNode().put("period", 1397606400000L).put("count", 2)));
+        trends.put("ios", factory.arrayNode().add(factory.objectNode().put("period", 1397692800000L).put("count", 1)));
         result.put("trends", trends);
 
         String expectedResponse = mapper.writeValueAsString(result);

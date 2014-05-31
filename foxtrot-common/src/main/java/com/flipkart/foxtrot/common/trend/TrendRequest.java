@@ -16,6 +16,7 @@
 package com.flipkart.foxtrot.common.trend;
 
 import com.flipkart.foxtrot.common.ActionRequest;
+import com.flipkart.foxtrot.common.histogram.Period;
 import com.flipkart.foxtrot.common.query.Filter;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.hibernate.validator.constraints.NotEmpty;
@@ -35,13 +36,15 @@ public class TrendRequest implements ActionRequest {
     @NotEmpty
     private String table;
 
-    private List<Filter> filters;
+    @NotNull
+    @NotEmpty
+    private String field;
 
-    private String field = "all";
+    private List<Filter> filters;
 
     private String timestamp = "_timestamp";
 
-    private long interval = 86400000L;
+    private Period period = Period.days;
 
     private List<String> values;
 
@@ -88,14 +91,6 @@ public class TrendRequest implements ActionRequest {
         this.timestamp = timestamp;
     }
 
-    public long getInterval() {
-        return interval;
-    }
-
-    public void setInterval(long interval) {
-        this.interval = interval;
-    }
-
     public List<String> getValues() {
         return values;
     }
@@ -130,5 +125,13 @@ public class TrendRequest implements ActionRequest {
                 .append("from", from)
                 .append("to", to)
                 .toString();
+    }
+
+    public Period getPeriod() {
+        return period;
+    }
+
+    public void setPeriod(Period period) {
+        this.period = period;
     }
 }
