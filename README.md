@@ -10,7 +10,7 @@ Foxtrot is a data store abstraction service for storing event data for real-time
 
 Documentation
 -------------
-Check the wiki for detailed documentation.
+Check the [Wiki](https://github.com/flipkart-incubator/foxtrot/wiki/Introduction) for detailed documentation.
 
 Version
 ----
