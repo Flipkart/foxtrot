@@ -67,7 +67,7 @@ Histogram.prototype.render = function(data, animate) {
             defaultFormat: true
         }
     });
-	console.log(data);
+	//console.log(data);
 };
 
 Histogram.prototype.isSetupDone = function() {

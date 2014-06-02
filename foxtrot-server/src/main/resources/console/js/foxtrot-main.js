@@ -171,6 +171,7 @@ $(document).ready(function(){
 	$("#setupBarChartModal").validator();
 	$("#setupHistogramForm").validator();
 	$("#setupEventBrowser").validator();
+	$("#setupStackedBarChartModal").validator();
 	$("#saveConsoleModal").validator();
 	$("#loadConsoleModal").validator();
 	$(".filter-condition-form").validator();

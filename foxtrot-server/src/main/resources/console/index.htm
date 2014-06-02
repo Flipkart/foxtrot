@@ -258,6 +258,7 @@
                         <!-- <option value="trends">Trends</option> -->
                         <!-- <option value="tree">Event Tree</option> -->
                         <option value="histogram">Event Ingestion Histogram</option>
+                        <option value="stacked_bar">Classified Event Ingestion Histogram</option>
                         <!--<option value="eventbrowser">Event Browser</option>-->
                       </select>
                   </div>
@@ -357,7 +358,7 @@
                   </div>
                 </div>
                 <div class="form-group">
-                  <label class="col-sm-4 control-label" for="pie_rt"><strong>Refresh Interval (minutes)</strong></label>
+                  <label class="col-sm-4 control-label" for="pie_rt"><strong>Timeframe (minutes)</strong></label>
                   <div class="col-sm-8">
                     <input type="number" min="5" max="10080" class="form-control refresh-period" placeholder="Between 5 mins and 10080 mins (7 days)" required id="pie_rt">
                     <div class="help-block with-errors">Between 5 mins and 10080 mins (7 days)</div>
@@ -397,7 +398,7 @@
                   </div>
                 </div>
                 <div class="form-group">
-                  <label class="col-sm-4 control-label" for="bar_rt"><strong>Refresh Interval (minutes)</strong></label>
+                  <label class="col-sm-4 control-label" for="bar_rt"><strong>Timeframe (minutes)</strong></label>
                   <div class="col-sm-8">
                     <input type="number" min="5" max="10080" class="form-control refresh-period" placeholder="Between 5 mins and 10080 mins (7 days)" required id="bar_rt">
                     <div class="help-block with-errors">Between 5 mins and 10080 mins (7 days)</div>
@@ -437,7 +438,7 @@
                   </div>
                 </div>
                 <div class="form-group">
-                  <label class="col-sm-4 control-label" for="histogram_rt"><strong>Refresh Interval (minutes)</strong></label>
+                  <label class="col-sm-4 control-label" for="histogram_rt"><strong>Timeframe (minutes)</strong></label>
                   <div class="col-sm-8">
                     <input type="number" min="5" max="10080" class="form-control refresh-period" placeholder="Between 5 mins and 10080 mins (7 days)" required id="histogram_rt">
                     <div class="help-block with-errors">Between 5 mins and 10080 mins (7 days)</div>
@@ -485,6 +486,45 @@
         </div>
       </div>
 
+      <!--Stacked bar chart-->
+      <div class="modal fade" id="setupStackedBarChartModal" tabindex="-1" role="dialog" aria-labelledby="setupStackedBarChartModalLabel" aria-hidden="true">
+          <div class="modal-dialog">
+              <form class="form-horizontal settings-form" role="form" data-toggle="validate" data-delay="" id="setupStackedBarChartModalForm">
+                  <div class="modal-content">
+                      <div class="modal-header">
+                          <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                          <h4 class="modal-title" id="setupStackedBarChartModalLabel">Setup Stacked Bar Chart</h4>
+                      </div>
+                      <div class="modal-body">
+                          <div class="form-group">
+                              <div class="col-sm-12">
+                                  <input type="hidden" class="tileId">
+                              </div>
+                          </div>
+                          <div class="form-group">
+                              <label class="col-sm-4 control-label" for="stacked_bar_rt"><strong>Timeframe (minutes)</strong></label>
+                              <div class="col-sm-8">
+                                  <input type="number" min="5" max="10080" class="form-control refresh-period" placeholder="Between 5 mins and 10080 mins (7 days)" required id="stacked_bar_rt">
+                                  <div class="help-block with-errors">Between 5 mins and 10080 mins (7 days)</div>
+                              </div>
+                          </div>
+                          <div class="form-group">
+                              <label class="col-sm-4 control-label" for="pie_rt"><strong>Field to classify</strong></label>
+                              <div class="col-sm-8">
+                                  <select class="selectpicker stacked-bar-chart-field"  data-style="btn-warning">
+                                  </select>
+                                  <div class="help-block with-errors">Select the field from the above list.</div>
+                              </div>
+                          </div>
+                      </div>
+                      <div class="modal-footer">
+                          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                          <button type="submit" class="btn btn-primary save-changes" disabled="disabled">Done</button>
+                      </div>
+                  </div>
+              </form>
+          </div>
+      </div>
 
       <!--Templates-->
       <script id="tile-template" type="text/x-handlebars-template">
@@ -539,7 +579,8 @@
     <script src="js/flot/jquery.flot.time.min.js"></script>
     <script src="js/flot/jquery.flot.selection.min.js"></script>
     <script src="js/flot/jquery.flot.pie.min.js"></script>    
-    <script src="js/flat.js"></script>    
+    <script src="js/flot/jquery.flot.stack.min.js"></script>
+    <script src="js/flat.js"></script>
     <script src="js/moment.min.js"></script>
     <script src="js/bootstrap-datetimepicker.min.js"></script>
 
@@ -556,6 +597,7 @@
     <script src="js/line-tile.js"></script>
     <script src="js/histogram.js"></script>
     <script src="js/eventbrowser-tile.js"></script>
+    <script src="js/stacked-bar-tile.js"></script>
     <script src="js/consolemanager.js"></script>
     <script src="js/eventsearch.js"></script>
     <script src="js/foxtrot-main.js"></script>

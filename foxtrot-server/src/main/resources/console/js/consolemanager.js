@@ -33,6 +33,9 @@ TileFactory.create = function(type) {
 	else if(type === "eventbrowser") {
 		return new EventBrowser();
 	}
+	else if(type === "stacked_bar") {
+		return new StackedBar();
+	}
 }
 
 function ConsoleManager (tileSet, queue, tables) {
