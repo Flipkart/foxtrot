@@ -21,6 +21,7 @@ import com.fasterxml.jackson.databind.jsontype.SubtypeResolver;
 import com.fasterxml.jackson.databind.jsontype.impl.StdSubtypeResolver;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.flipkart.foxtrot.common.Document;
 import com.flipkart.foxtrot.common.group.GroupRequest;
 import com.flipkart.foxtrot.common.group.GroupResponse;
 import com.flipkart.foxtrot.core.MockElasticsearchServer;
@@ -47,6 +48,7 @@ import org.mockito.Mockito;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.Arrays;
+import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -104,8 +106,14 @@ public class AsyncResourceTest extends ResourceTest {
         TestUtils.registerActions(analyticsLoader, mapper);
         ExecutorService executorService = Executors.newFixedThreadPool(1);
         queryExecutor = new QueryExecutor(analyticsLoader, executorService);
+        List<Document> documents = TestUtils.getGroupDocuments(mapper);
         new ElasticsearchQueryStore(tableMetadataManager, elasticsearchConnection, dataStore, queryExecutor)
-                .save(TestUtils.TEST_TABLE, TestUtils.getGroupDocuments(mapper));
+                .save(TestUtils.TEST_TABLE, documents);
+        for(Document document : documents) {
+            elasticsearchServer.getClient().admin().indices()
+                    .prepareRefresh(ElasticsearchUtils.getCurrentIndex(TestUtils.TEST_TABLE, document.getTimestamp()))
+                    .setForce(true).execute().actionGet();
+        }
     }
 
 

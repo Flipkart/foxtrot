@@ -84,7 +84,6 @@ public class ElasticsearchQueryStore implements QueryStore {
                     .setId(document.getId())
                     .setTimestamp(Long.toString(timestamp))
                     .setSource(mapper.writeValueAsBytes(document.getData()))
-                    .setRefresh(true)
                     .setConsistencyLevel(WriteConsistencyLevel.QUORUM)
                     .execute()
                     .get();
@@ -134,7 +133,7 @@ public class ElasticsearchQueryStore implements QueryStore {
                         .source(mapper.writeValueAsBytes(document.getData()));
                 bulkRequestBuilder.add(indexRequest);
             }
-            BulkResponse responses = bulkRequestBuilder.setRefresh(true)
+            BulkResponse responses = bulkRequestBuilder
                     .setConsistencyLevel(WriteConsistencyLevel.QUORUM)
                     .execute()
                     .get();

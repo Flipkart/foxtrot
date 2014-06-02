@@ -19,6 +19,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.flipkart.foxtrot.common.Document;
 import com.flipkart.foxtrot.common.histogram.Period;
 import com.flipkart.foxtrot.common.query.Filter;
 import com.flipkart.foxtrot.common.query.general.EqualsFilter;
@@ -83,7 +84,13 @@ public class TrendActionTest {
         ExecutorService executorService = Executors.newFixedThreadPool(1);
         queryExecutor = new QueryExecutor(analyticsLoader, executorService);
         queryStore = new ElasticsearchQueryStore(tableMetadataManager, elasticsearchConnection, dataStore, queryExecutor);
-        queryStore.save(TestUtils.TEST_TABLE, TestUtils.getTrendDocuments(mapper));
+        List<Document> documents = TestUtils.getTrendDocuments(mapper);
+        queryStore.save(TestUtils.TEST_TABLE, documents);
+        for(Document document : documents) {
+            elasticsearchServer.getClient().admin().indices()
+                    .prepareRefresh(ElasticsearchUtils.getCurrentIndex(TestUtils.TEST_TABLE, document.getTimestamp()))
+                    .setForce(true).execute().actionGet();
+        }
     }
 
     @After
@@ -149,7 +156,13 @@ public class TrendActionTest {
 
     @Test
     public void testTrendActionFieldWithDot() throws QueryStoreException, JsonProcessingException {
-        queryStore.save(TestUtils.TEST_TABLE, (TestUtils.getDocument("G", 1398653118006L, new Object[]{"data.version", 1}, mapper)));
+        Document document = TestUtils.getDocument("G", 1398653118006L, new Object[]{"data.version", 1}, mapper);
+        queryStore.save(TestUtils.TEST_TABLE, document);
+        elasticsearchServer.getClient().admin().indices()
+                            .prepareRefresh(ElasticsearchUtils.getCurrentIndex(TestUtils.TEST_TABLE, document.getTimestamp()))
+                            .setForce(true)
+                            .execute()
+                            .actionGet();
         TrendRequest trendRequest = new TrendRequest();
         trendRequest.setTable(TestUtils.TEST_TABLE);
         trendRequest.setFrom(1L);

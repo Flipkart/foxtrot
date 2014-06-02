@@ -20,6 +20,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.flipkart.foxtrot.common.Document;
 import com.flipkart.foxtrot.common.histogram.HistogramRequest;
 import com.flipkart.foxtrot.common.histogram.Period;
 import com.flipkart.foxtrot.common.query.Filter;
@@ -42,6 +43,7 @@ import org.mockito.Mockito;
 
 import java.io.IOException;
 import java.util.Collections;
+import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -83,8 +85,15 @@ public class HistogramActionTest {
         TestUtils.registerActions(analyticsLoader, mapper);
         ExecutorService executorService = Executors.newFixedThreadPool(1);
         queryExecutor = new QueryExecutor(analyticsLoader, executorService);
+        queryExecutor = new QueryExecutor(analyticsLoader, executorService);
+        List<Document> documents = TestUtils.getHistogramDocuments(mapper);
         new ElasticsearchQueryStore(tableMetadataManager, elasticsearchConnection, dataStore, queryExecutor)
-                .save(TestUtils.TEST_TABLE, TestUtils.getHistogramDocuments(mapper));
+                .save(TestUtils.TEST_TABLE, documents);
+        for(Document document : documents) {
+            elasticsearchServer.getClient().admin().indices()
+                    .prepareRefresh(ElasticsearchUtils.getCurrentIndex(TestUtils.TEST_TABLE, document.getTimestamp()))
+                    .setForce(true).execute().actionGet();
+        }
     }
 
     @After

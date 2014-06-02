@@ -21,6 +21,7 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.flipkart.foxtrot.common.ActionResponse;
+import com.flipkart.foxtrot.common.Document;
 import com.flipkart.foxtrot.common.query.Filter;
 import com.flipkart.foxtrot.common.query.FilterCombinerType;
 import com.flipkart.foxtrot.common.query.Query;
@@ -90,8 +91,14 @@ public class FilterActionTest {
         TestUtils.registerActions(analyticsLoader, mapper);
         ExecutorService executorService = Executors.newFixedThreadPool(1);
         queryExecutor = new QueryExecutor(analyticsLoader, executorService);
+        List<Document> documents = TestUtils.getQueryDocuments(mapper);
         new ElasticsearchQueryStore(tableMetadataManager, elasticsearchConnection, dataStore, queryExecutor)
-                .save(TestUtils.TEST_TABLE, TestUtils.getQueryDocuments(mapper));
+                .save(TestUtils.TEST_TABLE, documents);
+        for(Document document : documents) {
+            elasticsearchServer.getClient().admin().indices()
+                    .prepareRefresh(ElasticsearchUtils.getCurrentIndex(TestUtils.TEST_TABLE, document.getTimestamp()))
+                    .setForce(true).execute().actionGet();
+        }
     }
 
     @After
