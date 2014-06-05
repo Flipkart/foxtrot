@@ -99,6 +99,7 @@ public class GroupAction extends Action<GroupRequest> {
                     termsBuilder.subAggregation(tempBuilder);
                     termsBuilder = tempBuilder;
                 }
+                termsBuilder.size(0);
                 if (null == rootBuilder) {
                     rootBuilder = termsBuilder;
                 }
