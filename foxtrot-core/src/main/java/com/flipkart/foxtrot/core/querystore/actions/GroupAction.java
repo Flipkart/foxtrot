@@ -65,8 +65,8 @@ public class GroupAction extends Action<GroupRequest> {
                 filterHashKey += 31 * filter.hashCode();
             }
         }
-        for (String field : query.getNesting()) {
-            filterHashKey += 31 * field.hashCode();
+        for (int i = 0; i < query.getNesting().size(); i++){
+            filterHashKey += 31 * query.getNesting().get(i).hashCode() * (i+1);
         }
         return String.format("%s-%d", query.getTable(), filterHashKey);
     }
