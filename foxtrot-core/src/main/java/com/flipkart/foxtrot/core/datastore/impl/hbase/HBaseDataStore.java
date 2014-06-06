@@ -128,8 +128,7 @@ public class HBaseDataStore implements DataStore {
         try {
             Get get = new Get(Bytes.toBytes(id + ":" + table))
                     .addColumn(COLUMN_FAMILY, DATA_FIELD_NAME)
-                    .addColumn(COLUMN_FAMILY, TIMESTAMP_FIELD_NAME)
-                    .setMaxVersions(1);
+                    .addColumn(COLUMN_FAMILY, TIMESTAMP_FIELD_NAME);
             hTable = tableWrapper.getTable();
             Result getResult = hTable.get(get);
             if (!getResult.isEmpty()) {
@@ -172,8 +171,7 @@ public class HBaseDataStore implements DataStore {
             for (String id : ids) {
                 Get get = new Get(Bytes.toBytes(id + ":" + table))
                         .addColumn(COLUMN_FAMILY, DATA_FIELD_NAME)
-                        .addColumn(COLUMN_FAMILY, TIMESTAMP_FIELD_NAME)
-                        .setMaxVersions(1);
+                        .addColumn(COLUMN_FAMILY, TIMESTAMP_FIELD_NAME);
                 gets.add(get);
             }
             hTable = tableWrapper.getTable();
