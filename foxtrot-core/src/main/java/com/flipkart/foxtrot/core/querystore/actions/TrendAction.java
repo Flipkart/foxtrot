@@ -127,7 +127,7 @@ public class TrendAction extends Action<TrendRequest> {
                     .prepareSearch(ElasticsearchUtils.getIndices(parameter.getTable()))
                     .setQuery(new ElasticSearchQueryGenerator(FilterCombinerType.and).genFilter(parameter.getFilters()))
                     .addAggregation(AggregationBuilders.terms(field.replaceAll(ActionConstants.AGGREGATION_FIELD_REPLACEMENT_REGEX,
-                            ActionConstants.AGGREGATION_FIELD_REPLACEMENT_VALUE)).field(field)
+                            ActionConstants.AGGREGATION_FIELD_REPLACEMENT_VALUE)).field(field).size(0)
                             .subAggregation(AggregationBuilders.dateHistogram(field.replaceAll(ActionConstants.AGGREGATION_FIELD_REPLACEMENT_REGEX,
                                     ActionConstants.AGGREGATION_FIELD_REPLACEMENT_VALUE))
                                     .field(parameter.getTimestamp()).interval(interval)));

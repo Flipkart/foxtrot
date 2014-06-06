@@ -16,7 +16,7 @@
 
  function Colors (colorCount) {
 	this.palette = this.generatePalette(colorCount);
-	this.colorCount = 10;//TODO::GENERATE PALETTE::colorCount;
+	this.colorCount = 10;
 	this.nextColorId = 0;
 }
 
@@ -36,5 +36,23 @@ Colors.prototype.generatePalette = function(colorCount) {
 		}
 		return colors;
 	}
-	//TODO::GENERATE PALETTE
+	this.colorCount = colorCount;
+	var steps=Math.ceil(Colors.paletteTemplate.length/colorCount);
+	var colors=[];
+	for(var pi=0;pi<Colors.paletteTemplate.length;pi+=steps){
+	    var currentColor=Colors.paletteTemplate[pi];
+	    var r1=parseInt(currentColor.substr(1,2),16);
+	    var g1=parseInt(currentColor.substr(3,2),16);
+	    var b1=parseInt(currentColor.substr(5,2),16);
+	    var nextColor=Colors.paletteTemplate[pi+1];
+	    var rd=parseInt(currentColor.substr(1,2),16)-r1;
+	    var gd=parseInt(currentColor.substr(3,2),16)-g1;
+	    var bd=parseInt(currentColor.substr(5,2),16)-b1;
+	    for(var counter=1;counter<=steps;counter++){
+	       colors.push("#"+new Number(r1+counter*(rd)).toString(16).substr(0,2)
+	                            +new Number(g1+counter*(gd)).toString(16).substr(0,2)
+	                            +new Number(b1+counter*(bd)).toString(16).substr(0,2));
+	    }
+	}
+	return colors;
 };
