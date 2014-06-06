@@ -59,6 +59,18 @@ public class TableMetadataResource {
         return table;
     }
 
+    @DELETE
+    @Path("/{name}/delete")
+    public void delete(@PathParam("name") final String name) throws Exception {
+        try {
+            tableMetadataManager.delete(name);
+        } catch (Exception ex){
+            throw new WebApplicationException(Response.serverError()
+                    .entity(Collections.singletonMap("error", ex.getMessage()))
+                    .build());
+        }
+    }
+
     @GET
     public List<Table> get() throws Exception {
         return tableMetadataManager.get();

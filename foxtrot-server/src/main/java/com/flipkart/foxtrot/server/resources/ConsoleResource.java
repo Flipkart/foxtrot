@@ -65,6 +65,19 @@ public class ConsoleResource {
         }
     }
 
+    @DELETE
+    @Path("/{id}/delete")
+    public void delete(@PathParam("id") final String id) {
+        try {
+            consolePersistence.delete(id);
+        } catch (ConsolePersistenceException e) {
+            logger.error("Error deleting console: ", e);
+            throw new WebApplicationException(Response.serverError()
+                    .entity(Collections.singletonMap("error", e.getMessage()))
+                    .build());
+        }
+    }
+
     @GET
     public List<Console> getList() {
         try {
