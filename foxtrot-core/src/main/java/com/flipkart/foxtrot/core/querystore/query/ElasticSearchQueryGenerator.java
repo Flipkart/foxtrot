@@ -64,8 +64,9 @@ public class ElasticSearchQueryGenerator extends FilterVisitor {
     @Override
     public void visit(ContainsFilter stringContainsFilterElement) throws Exception {
         addFilter(
-                QueryBuilders.regexpQuery(stringContainsFilterElement.getField(),
-                        stringContainsFilterElement.getExpression()));
+                QueryBuilders.queryString(
+                        stringContainsFilterElement.getValue())
+                        .defaultField(stringContainsFilterElement.getField()));
     }
 
     @Override

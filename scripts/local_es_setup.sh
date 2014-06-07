@@ -28,8 +28,7 @@ curl -XPUT ${1}:9200/_template/template_foxtrot_table_main -d '
 	                "template_no_store" : {
 	                    "match" : "*",
 	                    "mapping" : {
-	                        "store" : false,
-	                        "index" : "not_analyzed"
+	                        "store" : false
 	                    }
 	                }
 	            }
@@ -38,20 +37,20 @@ curl -XPUT ${1}:9200/_template/template_foxtrot_table_main -d '
     }
 }'
 
-curl -XPUT "http://${1}:9200/consoles/" -d '{
-    "settings" : {
-        "index" : {
-            "number_of_shards" : 1,
-            "number_of_replicas" : 2
-        }
-    }
-}'
-
-curl -XPUT "http://${1}:9200/table-meta/" -d '{
-    "settings" : {
-        "index" : {
-            "number_of_shards" : 1,
-            "number_of_replicas" : 2
-        }
-    }
-}'
+#curl -XPUT "http://${1}:9200/consoles/" -d '{
+#    "settings" : {
+#        "index" : {
+#            "number_of_shards" : 1,
+#            "number_of_replicas" : 2
+#        }
+#    }
+#}'
+#
+#curl -XPUT "http://${1}:9200/table-meta/" -d '{
+#    "settings" : {
+#        "index" : {
+#            "number_of_shards" : 1,
+#            "number_of_replicas" : 2
+#        }
+#    }
+#}'

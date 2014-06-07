@@ -438,7 +438,7 @@ public class FilterActionTest {
 
         ContainsFilter containsFilter = new ContainsFilter();
         containsFilter.setField("os");
-        containsFilter.setExpression(".*droid.*");
+        containsFilter.setValue("*droid*");
         query.setFilters(Collections.<Filter>singletonList(containsFilter));
 
         ArrayNode arrayNode = factory.arrayNode();

@@ -29,7 +29,7 @@ import javax.validation.constraints.NotNull;
  */
 public class ContainsFilter extends Filter {
     @NotNull
-    private String expression;
+    private String value;
 
     public ContainsFilter() {
         super(FilterOperator.contains);
@@ -40,12 +40,12 @@ public class ContainsFilter extends Filter {
         visitor.visit(this);
     }
 
-    public String getExpression() {
-        return expression;
+    public String getValue() {
+        return value;
     }
 
-    public void setExpression(String expression) {
-        this.expression = expression;
+    public void setValue(String value) {
+        this.value = value;
     }
 
     @Override
@@ -56,14 +56,14 @@ public class ContainsFilter extends Filter {
 
         ContainsFilter that = (ContainsFilter) o;
 
-        return expression.equals(that.expression);
+        return value.equals(that.value);
 
     }
 
     @Override
     public int hashCode() {
         int result = super.hashCode();
-        result = 31 * result + expression.hashCode();
+        result = 31 * result + value.hashCode();
         return result;
     }
 
@@ -72,7 +72,7 @@ public class ContainsFilter extends Filter {
     public String toString() {
         return new ToStringBuilder(this)
                 .appendSuper(super.toString())
-                .append("expression", expression)
+                .append("value", value)
                 .toString();
     }
 }

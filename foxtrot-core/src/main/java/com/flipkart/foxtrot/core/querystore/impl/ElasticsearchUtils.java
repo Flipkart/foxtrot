@@ -77,7 +77,6 @@ public class ElasticsearchUtils {
                 "        }, {\n" +
                 "          \"template_no_store\" : {\n" +
                 "            \"mapping\" : {\n" +
-                "              \"index\" : \"not_analyzed\",\n" +
                 "              \"store\" : false\n" +
                 "            },\n" +
                 "            \"match\" : \"*\"\n" +
