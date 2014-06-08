@@ -16,6 +16,7 @@
 package com.flipkart.foxtrot.server.console;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.validation.constraints.NotNull;
@@ -94,5 +95,18 @@ public class Console {
 
     public void setAppName(String appName) {
         this.appName = appName;
+    }
+
+
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this)
+                .append("id", id)
+                .append("name", name)
+                .append("appName", appName)
+                .append("updated", updated)
+                .append("tileList", tileList)
+                .append("tiles", tiles)
+                .toString();
     }
 }

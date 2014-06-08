@@ -125,24 +125,28 @@ public class TableMapStore implements MapStore<String, Table> {
 
     @Override
     public void delete(String key) {
-        logger.info("Delete called for values: " + key);
+        logger.info("Delete called for value: " + key);
         elasticsearchConnection.getClient().prepareDelete()
+                .setConsistencyLevel(WriteConsistencyLevel.ALL)
+                .setRefresh(true)
                 .setIndex(TABLE_META_INDEX)
                 .setType(TABLE_META_TYPE)
                 .setId(key)
                 .execute()
                 .actionGet();
+        logger.info("Deleted value: " + key);
     }
 
     @Override
     public void deleteAll(Collection<String> keys) {
-        logger.info("Delete all called for multiple values");
+        logger.info(String.format("Delete all called for multiple values: %s", keys));
         BulkRequestBuilder bulRequestBuilder = elasticsearchConnection.getClient().prepareBulk().setConsistencyLevel(WriteConsistencyLevel.ALL).setRefresh(true);
         for (String key : keys) {
             bulRequestBuilder.add(elasticsearchConnection.getClient()
                     .prepareDelete(TABLE_META_INDEX, TABLE_META_TYPE, key));
         }
         bulRequestBuilder.execute().actionGet();
+        logger.info(String.format("Deleted multiple values: %s", keys));
     }
 
     @Override

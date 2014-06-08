@@ -30,4 +30,5 @@ public interface TableMetadataManager extends Managed {
     public Table get(String tableName) throws Exception;
     public List<Table> get() throws Exception;
     public boolean exists(String tableName) throws Exception;
+    public void delete(String tableName) throws Exception;
 }

@@ -25,6 +25,8 @@ import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
 import org.elasticsearch.search.sort.SortOrder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Vector;
@@ -34,6 +36,7 @@ import static org.elasticsearch.index.query.QueryBuilders.matchAllQuery;
 import static org.elasticsearch.search.sort.SortBuilders.fieldSort;
 
 public class ElasticsearchConsolePersistence implements ConsolePersistence {
+    private static final Logger logger = LoggerFactory.getLogger(ElasticsearchConsolePersistence.class);
     private static final String INDEX = "consoles";
     private static final String TYPE = "console_data";
 
@@ -46,7 +49,7 @@ public class ElasticsearchConsolePersistence implements ConsolePersistence {
     }
 
     @Override
-    public void save(Console console) throws ConsolePersistenceException {
+    public void save(final Console console) throws ConsolePersistenceException {
         try {
             connection.getClient()
                     .prepareIndex()
@@ -58,13 +61,14 @@ public class ElasticsearchConsolePersistence implements ConsolePersistence {
                     .setConsistencyLevel(WriteConsistencyLevel.ALL)
                     .execute()
                     .get();
+            logger.info(String.format("Saved Console : %s", console));
         } catch (Exception e) {
             throw new ConsolePersistenceException("Error saving console: " + console.getId(), e);
         }
     }
 
     @Override
-    public Console get(String id) throws ConsolePersistenceException {
+    public Console get(final String id) throws ConsolePersistenceException {
         try {
             GetResponse result = connection.getClient()
                     .prepareGet()
@@ -79,6 +83,24 @@ public class ElasticsearchConsolePersistence implements ConsolePersistence {
             return mapper.readValue(result.getSourceAsBytes(), Console.class);
         } catch (Exception e) {
             throw new ConsolePersistenceException("Error saving console: " + id, e);
+        }
+    }
+
+    @Override
+    public void delete(final String id) throws ConsolePersistenceException {
+        try {
+            connection.getClient()
+                    .prepareDelete()
+                    .setConsistencyLevel(WriteConsistencyLevel.ALL)
+                    .setRefresh(true)
+                    .setIndex(INDEX)
+                    .setType(TYPE)
+                    .setId(id)
+                    .execute()
+                    .actionGet();
+            logger.info(String.format("Deleted Console : %s", id));
+        } catch (Exception e){
+            throw new ConsolePersistenceException("Error Deleting Console : " + id, e);
         }
     }
 

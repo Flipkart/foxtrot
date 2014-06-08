@@ -21,4 +21,5 @@ public interface ConsolePersistence {
     public void save(Console console) throws ConsolePersistenceException;
     public Console get(final String id) throws ConsolePersistenceException;
     public List<Console> get() throws ConsolePersistenceException;
+    public void delete(final String id) throws ConsolePersistenceException;
 }

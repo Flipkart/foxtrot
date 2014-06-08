@@ -95,6 +95,15 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
     }
 
     @Override
+    public void delete(String tableName) throws Exception {
+        logger.info(String.format("Deleting Table : %s", tableName));
+        if (tableDataStore.containsKey(tableName)){
+            tableDataStore.delete(tableName);
+        }
+        logger.info(String.format("Deleted Table : %s", tableName));
+    }
+
+    @Override
     public void start() throws Exception {
         tableDataStore = hazelcastConnection.getHazelcast().getMap(DATA_MAP);
     }
