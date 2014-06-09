@@ -66,7 +66,7 @@ public class ElasticSearchQueryGenerator extends FilterVisitor {
         addFilter(
                 QueryBuilders.queryString(
                         stringContainsFilterElement.getValue())
-                        .defaultField(stringContainsFilterElement.getField()));
+                        .defaultField(stringContainsFilterElement.getField() + ".analyzed"));
     }
 
     @Override

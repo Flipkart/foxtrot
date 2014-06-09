@@ -65,33 +65,51 @@ public class ElasticsearchUtils {
         PutIndexTemplateRequestBuilder builder = new PutIndexTemplateRequestBuilder(indicesAdminClient, "generic_template");
         builder.setTemplate("foxtrot-*");
         builder.addMapping(TYPE_NAME, "{\n" +
-                "        \"dynamic_templates\" : [ {\n" +
-                "          \"template_timestamp\" : {\n" +
-                "            \"mapping\" : {\n" +
-                "              \"index\" : \"not_analyzed\",\n" +
-                "              \"store\" : false,\n" +
-                "              \"type\" : \"date\"\n" +
-                "            },\n" +
-                "            \"match\" : \"timestamp\"\n" +
-                "          }\n" +
-                "        }, {\n" +
-                "          \"template_no_store\" : {\n" +
-                "            \"mapping\" : {\n" +
-                "              \"store\" : false\n" +
-                "            },\n" +
-                "            \"match\" : \"*\"\n" +
-                "          }\n" +
-                "        } ],\n" +
-                "        \"_all\" : {\n" +
-                "          \"enabled\" : false\n" +
-                "        },\n" +
-                "        \"_timestamp\" : {\n" +
-                "          \"enabled\" : true\n," +
-                "          \"store\" : true\n" +
-                "        },\n" +
-                "        \"_source\" : {\n" +
-                "          \"enabled\" : false\n" +
-                "        }}");
+                "            \"_source\" : { \"enabled\" : false },\n" +
+                "            \"_all\" : { \"enabled\" : false },\n" +
+                "            \"_timestamp\" : { \"enabled\" : true, \"store\" : true },\n" +
+                "\n" +
+                "            \"dynamic_templates\" : [\n" +
+                "                {\n" +
+                "                    \"template_timestamp\" : {\n" +
+                "                        \"match\" : \"timestamp\",\n" +
+                "                        \"mapping\" : {\n" +
+                "                            \"store\" : false,\n" +
+                "                            \"index\" : \"not_analyzed\",\n" +
+                "                            \"type\" : \"date\"\n" +
+                "                        }\n" +
+                "                    }\n" +
+                "                },\n" +
+                "                {\n" +
+                "                    \"template_no_store_analyzed\" : {\n" +
+                "                        \"match\" : \"*\",\n" +
+                "                        \"match_mapping_type\" : \"string\",\n" +
+                "                        \"mapping\" : {\n" +
+                "                            \"store\" : false,\n" +
+                "                            \"index\" : \"not_analyzed\",\n" +
+                "                            \"fields\" : {\n" +
+                "                                \"analyzed\": {\n" +
+                "                                    \"store\" : false,\n" +
+                "                                    \"type\": \"string\",\n" +
+                "                                    \"index\": \"analyzed\"\n" +
+                "                                }\n" +
+                "                            }\n" +
+                "                        }\n" +
+                "                    }\n" +
+                "                },\n" +
+                "                {\n" +
+                "                    \"template_no_store\" : {\n" +
+                "                        \"match_mapping_type\": \"date|boolean|double|long|integer\",\n" +
+                "                        \"match_pattern\": \"regex\",\n" +
+                "                        \"path_match\": \".*\",\n" +
+                "                        \"mapping\" : {\n" +
+                "                            \"store\" : false,\n" +
+                "                            \"index\" : \"not_analyzed\"\n" +
+                "                        }\n" +
+                "                    }\n" +
+                "                }\n" +
+                "            ]\n" +
+                "        }");
         return builder.request();
     }
 
