@@ -139,14 +139,15 @@ public class ElasticsearchQueryStore implements QueryStore {
                     .get();
 
             int failedCount = 0;
-            for (BulkItemResponse itemResponse : responses) {
+            for (int i = 0; i < responses.getItems().length; i++) {
+                BulkItemResponse itemResponse = responses.getItems()[i];
                 failedCount += (itemResponse.isFailed() ? 1 : 0);
                 if (itemResponse.isFailed()) {
-                    logger.error(itemResponse.getFailureMessage());
+                    logger.error(String.format("Table : %s Failure Message : %s Document : %s", table, itemResponse.getFailureMessage(), documents.get(i)));
                 }
             }
             if (failedCount > 0) {
-                logger.error("Failed : " + failedCount);
+                logger.error(String.format("Table : %s Failed Documents : %d", table, failedCount));
             }
 
 
