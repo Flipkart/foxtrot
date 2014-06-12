@@ -27,7 +27,7 @@ BarTile.prototype = new Tile();
 
 BarTile.prototype.render = function(data, animate) {
 	var parent = $("#content-for-" + this.id);
-
+	var parentWidth = parent.width();
 	var chartLabel = null;
 	if(0 == parent.find(".pielabel").length) {
 		chartLabel = $("<div>", {class: "pielabel"});
@@ -59,7 +59,24 @@ BarTile.prototype.render = function(data, animate) {
 		ticks.push([i, property]);
 		i++;
 	}
-
+    var xAxisOptions = {
+                           tickLength: 0,
+                           labelWidth: 0
+                       };
+    var tmpLabel = "";
+    for(var i = 0; i < ticks.length; i++) {
+        tmpLabel += (ticks[i][1] + " ");
+    }
+    if(tmpLabel.visualLength() <= parentWidth) {
+        xAxisOptions['ticks'] = ticks;
+        xAxisOptions['tickFormatter'] = null;
+    }
+    else {
+        xAxisOptions['ticks'] = null;
+        xAxisOptions['tickFormatter'] = function() {
+            return "";
+        }
+    }
 	var chartOptions = {
         series: {
             bars: {
@@ -71,15 +88,15 @@ BarTile.prototype.render = function(data, animate) {
             	align: "center",
             	lineWidth: 0,
             	fill: 1.0
+            },
+            valueLabels: {
+               show: true
             }
         },
         legend : {
             show: false
         },
-        xaxis : {
-        	ticks: ticks,
-        	tickLength: 0        	
-        },
+        xaxis : xAxisOptions,
         yaxis: {
         	tickLength: 0
         },

@@ -78,4 +78,7 @@ ConsoleManager.prototype.buildConsoleFromRepresentation = function(representatio
 	var modal = $("#saveConsoleModal");
 	modal.find(".console-name").val(representation.name);
 	$(".console-name").text(representation.name);
+	if(this.tables.selectedTable) {
+    	this.queue.executeCalls();
+	}
 }

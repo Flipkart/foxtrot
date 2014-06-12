@@ -20,6 +20,6 @@
 }
 
 HostDetails.prototype.url = function(path) {
-//	return "http://" + this.hostname + ":" + this.port + path
-	return path
+	return "http://" + this.hostname + ":" + this.port + path
+//	return path
 };

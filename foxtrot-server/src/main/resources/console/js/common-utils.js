@@ -64,3 +64,9 @@ function getParameterByName(name) {
 function isNumber(n) {
   return !isNaN(parseFloat(n)) && isFinite(n);
 }
+
+String.prototype.visualLength = function() {
+    var ruler = $("#ruler");
+    ruler.html(this);
+    return ruler.width();
+}

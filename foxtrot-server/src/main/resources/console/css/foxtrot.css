@@ -240,3 +240,8 @@ path {
  margin-top: 0px;
  margin-bottom: 0px;
 }
+
+#ruler {
+  visibility: hidden;
+  white-space: nowrap;
+}
