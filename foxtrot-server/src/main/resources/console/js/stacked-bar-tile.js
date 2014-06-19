@@ -41,24 +41,74 @@ StackedBar.prototype.render = function(data, animate) {
 		return;
 	}
 
-    console.log(data);
     var colors = new Colors(Object.keys(data.trends).length);
     var d = [];
     var colorIdx = 0;
+    var timestamp = new Date().getTime();
+    var tmpData = new Object();
     for(var trend in data.trends) {
+        var trendData = data.trends[trend];
+        for (var i = 0; i < trendData.length; i++) {
+            var time = trendData[i].period;
+            var count = trendData[i].count;
+            if(!tmpData.hasOwnProperty(time)) {
+                tmpData[time] = new Object();
+            }
+            tmpData[time][trend] = count;
+        }
+    }
+    //console.log(tmpData);
+/*    for(var trend in data.trends) {
+        var tmpData = new Object();
         var rows = [];
         rows.push(['date', 'count']);
         var trendData = data.trends[trend];
-        for (var i = trendData.length - 1; i >= 0; i--) {
-            rows.push([trendData[i].period, trendData[i].count]);
+        for (var i = 0; i < trendData.length; i++) {
+            tmpData[trendData[i].period] = trendData[i].count;
         };
+        console.log(tmpData);
+        for (var t = timestamp - (this.period * 60000); t <= timestamp; t += 60000) {
+            if(tmpData.hasOwnProperty(t)) {
+                rows.push([t, tmpData[t]]);
+                console.log("Found: " + t);
+            }
+            else {
+                rows.push([t, 0]);
+            }
+        }
         d.push({ data: rows, color: colors[colorIdx], label : trend, fill: true, fillColor: colors[colorIdx] });
         colorIdx++;
+    }*/
+    var trendWiseData = new Object();
+    for(var time in tmpData) {
+        for(var trend in data.trends) {
+            var count = 0;
+            var timeData = tmpData[time];
+            if(timeData.hasOwnProperty(trend)) {
+                count = timeData[trend];
+                console.log("time found ");
+            }
+            var rows = null;
+            if(!trendWiseData.hasOwnProperty(trend)) {
+                rows = [];
+                trendWiseData[trend] = rows;
+            }
+            rows = trendWiseData[trend];
+            var timeVal = parseInt(time);
+            rows.push([timeVal, count]);
+        }
     }
-    var timestamp = new Date().getTime();
+    console.log(trendWiseData);
+    for(var trend in trendWiseData) {
+        var rows = trendWiseData[trend];
+        rows.sort(function(lhs, rhs) {
+            return (lhs[0] < rhs[0]) ? -1 : ((lhs[0] == rhs[0])? 0 : 1);
+        })
+        d.push({ data: rows, color: colors[colorIdx], label : trend, fill: true, fillColor: colors[colorIdx] });
+    }
     $.plot(canvas, d, {
             series: {
-                stack: 0,
+                stack: true,
                 lines: {show: true, fill: 1}
             },
             grid: {
@@ -81,60 +131,10 @@ StackedBar.prototype.render = function(data, animate) {
                 content: "%y events at %x",
                 defaultFormat: true
             },
-            legend: { show:true, position: 'nw', noColumns: 0, labelFormatter: function(label, series){
+            legend: { show:true, position: 'nw', noColumns: 0, noRows: 0, labelFormatter: function(label, series){
                 return '<font color="black"> &nbsp;' + label +' &nbsp;</font>';
             }}
         });
-	/*var colors = new Colors(Object.keys(data.result).length);
-	var columns =[];
-	for(property in data.result) {
-		columns.push({label: property, data: data.result[property], color: colors.nextColor()});
-	}
-	var chartOptions = {
-        series: {
-            pie: {
-                innerRadius: 0.8,
-                show: true,
-                label:{
-                    show: false
-                }
-            }
-        },
-        legend : {
-            show: false
-        },
-        grid: {
-        	hoverable: true
-        },
-        tooltip: true,
-        tooltipOpts: {
-    		content: function(label, x, y) {
-    			return label + ": " + y;
-    		}
-    	}
-    };
-    $.plot(canvas, columns, chartOptions);*/
-
-        
-	// var chart = c3.generate({
-	// 	bindto: chartAreaId,
-	// 	size: {
-	// 		height: parentHeight,
-	// 		width: parentWidth
-	// 	},
-	// 	data: {
-	// 		columns: columns,
-	// 		type : 'pie'
-	// 	},
-	// 	legend: {
-	// 		show: false
-	// 	},
-	// 	transition: {
-	// 		duration: transitionTime
-	// 	}
-
-	// });
-
 };
 
 StackedBar.prototype.getQuery = function() {
