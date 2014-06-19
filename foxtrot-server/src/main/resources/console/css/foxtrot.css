@@ -106,7 +106,7 @@ display: none;
 }
 .chartcanvas {
   width: 100%;
-  height: 100%;
+  height: 85%%;
 }
 .size1{
   width: 175px;height:175px;
@@ -144,6 +144,7 @@ background-image: linear-gradient(to right bottom, #828D94 36%, #475361 100%);
   width: 100%;
   height: 100%;
 }
+
 .c3-chart-line {
   stroke-width: 2px;
   fill: rgba(255,255,255,0);

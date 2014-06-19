@@ -29,8 +29,11 @@ StackedBar.prototype.render = function(data, animate) {
     var parent = $("#content-for-" + this.id);
 
 	var canvas = null;
-	if(0 == parent.find(".chartcanvas").length) {
-		canvas = $("<div>", {class: "chartcanvas"});
+	if(!parent || 0 == parent.find(".chartcanvas").length) {
+        //$("#content-for-" + this.id).append("<div class='chart-content'/>");
+        parent = $("#content-for-" + this.id);//.find(".chart-content");
+    	parent.append("<div style='height: 15%'><input type='text' class='form-control col-lg-12 eventfilter' placeholder='Start typing here to filter event type...'/></div>");
+        canvas = $("<div>", {class: "chartcanvas"});
 		parent.append(canvas);
 	}
 	else {
@@ -46,7 +49,16 @@ StackedBar.prototype.render = function(data, animate) {
     var colorIdx = 0;
     var timestamp = new Date().getTime();
     var tmpData = new Object();
+    var filterField = parent.find(".eventfilter").val();
+    var regexp = null;
+    if(filterField) {
+        regexp = new RegExp(filterField, 'i');
+    }
+
     for(var trend in data.trends) {
+        if(regexp && !regexp.test(trend)) {
+            continue;
+        }
         var trendData = data.trends[trend];
         for (var i = 0; i < trendData.length; i++) {
             var time = trendData[i].period;
@@ -56,6 +68,10 @@ StackedBar.prototype.render = function(data, animate) {
             }
             tmpData[time][trend] = count;
         }
+    }
+    if(0 == Object.keys(tmpData).length) {
+        canvas.empty();
+        return;
     }
     //console.log(tmpData);
 /*    for(var trend in data.trends) {
@@ -82,6 +98,9 @@ StackedBar.prototype.render = function(data, animate) {
     var trendWiseData = new Object();
     for(var time in tmpData) {
         for(var trend in data.trends) {
+            if(regexp && !regexp.test(trend)) {
+                continue;
+            }
             var count = 0;
             var timeData = tmpData[time];
             if(timeData.hasOwnProperty(trend)) {
@@ -101,6 +120,9 @@ StackedBar.prototype.render = function(data, animate) {
     console.log(trendWiseData);
     for(var trend in trendWiseData) {
         var rows = trendWiseData[trend];
+        if(regexp && !regexp.test(trend)) {
+            continue;
+        }
         rows.sort(function(lhs, rhs) {
             return (lhs[0] < rhs[0]) ? -1 : ((lhs[0] == rhs[0])? 0 : 1);
         })
