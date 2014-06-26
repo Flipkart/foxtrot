@@ -30,7 +30,7 @@
         <dependency>
             <groupId>foxtrot</groupId>
             <artifactId>foxtrot-common</artifactId>
-            <version>0.1</version>
+            <version>0.2</version>
         </dependency>
         <dependency>
             <groupId>foxtrot</groupId>
