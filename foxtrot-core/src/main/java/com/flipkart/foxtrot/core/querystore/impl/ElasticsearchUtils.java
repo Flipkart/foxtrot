@@ -20,6 +20,9 @@ import org.elasticsearch.action.admin.indices.template.put.PutIndexTemplateReque
 import org.elasticsearch.action.admin.indices.template.put.PutIndexTemplateRequestBuilder;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.client.IndicesAdminClient;
+import org.joda.time.DateTime;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -33,6 +36,7 @@ public class ElasticsearchUtils {
     public static final String TYPE_NAME = "document";
     public static final String TABLENAME_PREFIX = "foxtrot";
     public static final String TABLENAME_POSTFIX = "table";
+    public static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormat.forPattern("dd-M-yyyy");
     private static ObjectMapper mapper;
 
     public static void setMapper(ObjectMapper mapper) {
@@ -41,6 +45,10 @@ public class ElasticsearchUtils {
 
     public static ObjectMapper getMapper() {
         return mapper;
+    }
+
+    public static String getIndexPrefix(final String table) {
+        return String.format("%s-%s-%s-", ElasticsearchUtils.TABLENAME_PREFIX, table, ElasticsearchUtils.TABLENAME_POSTFIX);
     }
 
     public static String[] getIndices(final String table) {
@@ -121,5 +129,32 @@ public class ElasticsearchUtils {
     public static String getValidTableName(String table) {
         if (table == null) return null;
         return table.toLowerCase();
+    }
+
+    public static boolean isIndexValidForTable(String index, String table) {
+        String indexPrefix = getIndexPrefix(table);
+        return index.startsWith(indexPrefix);
+    }
+
+    public static boolean isIndexEligibleForDeletion(String index, String table, int days) {
+        if (index == null || table == null || !isIndexValidForTable(index, table)) {
+            return false;
+        }
+
+        String indexPrefix = getIndexPrefix(table);
+        String creationDateString = index.substring(index.indexOf(indexPrefix) + indexPrefix.length());
+        DateTime creationDate = DATE_TIME_FORMATTER.parseDateTime(creationDateString);
+        DateTime currentDate = new DateTime();
+        return creationDate.plusDays(days).isBefore(currentDate);
+    }
+
+    public static String getTableNameFromIndex(String currentIndex) {
+        if (currentIndex.contains(TABLENAME_PREFIX) && currentIndex.contains(TABLENAME_POSTFIX)) {
+            String tempIndex = currentIndex.substring(currentIndex.indexOf(TABLENAME_PREFIX) + TABLENAME_PREFIX.length() + 1);
+            int position = tempIndex.lastIndexOf(String.format("-%s", TABLENAME_POSTFIX));
+            return tempIndex.substring(0, position);
+        } else {
+            return null;
+        }
     }
 }

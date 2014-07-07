@@ -29,17 +29,20 @@ import com.flipkart.foxtrot.core.querystore.QueryStoreException;
 import com.flipkart.foxtrot.core.querystore.TableMetadataManager;
 import org.elasticsearch.action.WriteConsistencyLevel;
 import org.elasticsearch.action.admin.indices.mapping.get.GetMappingsResponse;
+import org.elasticsearch.action.admin.indices.status.IndicesStatusResponse;
 import org.elasticsearch.action.bulk.BulkItemResponse;
 import org.elasticsearch.action.bulk.BulkRequestBuilder;
 import org.elasticsearch.action.bulk.BulkResponse;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.cluster.metadata.MappingMetaData;
 import org.elasticsearch.common.hppc.cursors.ObjectCursor;
+import org.elasticsearch.common.unit.TimeValue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -227,5 +230,63 @@ public class ElasticsearchQueryStore implements QueryStore {
             throw new QueryStoreException(QueryStoreException.ErrorCode.METADATA_FETCH_ERROR,
                     ex.getMessage(), ex);
         }
+    }
+
+    @Override
+    public boolean delete(String table, int numDaysToKeep) {
+        IndicesStatusResponse response = connection.getClient().admin().indices().prepareStatus().execute().actionGet();
+        Set<String> currentIndices = response.getIndices().keySet();
+        Set<String> indicesToDelete = new HashSet<String>();
+
+        for (String currentIndex : currentIndices) {
+            boolean validIndexTable = ElasticsearchUtils.isIndexValidForTable(currentIndex, table);
+            if (validIndexTable) {
+                boolean indexEligibleForDeletion = ElasticsearchUtils.isIndexEligibleForDeletion(currentIndex, table, numDaysToKeep);
+                if (indexEligibleForDeletion) {
+                    indicesToDelete.add(currentIndex);
+                }
+            }
+        }
+
+        logger.warn(String.format("Deleting - Table - %s Indexes - %s", table, indicesToDelete));
+        try {
+            if (indicesToDelete.size() > 0) {
+                connection.getClient().admin().indices().prepareDelete(indicesToDelete.toArray(new String[indicesToDelete.size()]))
+                        .execute().actionGet(TimeValue.timeValueMinutes(10));
+            }
+        } catch (Exception ex) {
+            logger.error(String.format("Unable to delete Indexes - %s", indicesToDelete), ex);
+            return false;
+        }
+        return true;
+    }
+
+    @Override
+    public boolean delete(Map<String, Integer> tables) {
+        IndicesStatusResponse response = connection.getClient().admin().indices().prepareStatus().execute().actionGet();
+        Set<String> currentIndices = response.getIndices().keySet();
+        Set<String> indicesToDelete = new HashSet<String>();
+
+        for (String currentIndex : currentIndices) {
+            String table = ElasticsearchUtils.getTableNameFromIndex(currentIndex);
+            if (table != null && tables.containsKey(table)) {
+                boolean indexEligibleForDeletion = ElasticsearchUtils.isIndexEligibleForDeletion(currentIndex, table, tables.get(table));
+                if (indexEligibleForDeletion) {
+                    indicesToDelete.add(currentIndex);
+                }
+            }
+        }
+
+        logger.warn(String.format("Deleting Indexes - Indexes - %s", indicesToDelete));
+        try {
+            if (indicesToDelete.size() > 0) {
+                connection.getClient().admin().indices().prepareDelete(indicesToDelete.toArray(new String[indicesToDelete.size()]))
+                        .execute().actionGet(TimeValue.timeValueMinutes(10));
+            }
+        } catch (Exception ex) {
+            logger.error(String.format("Unable to delete Indexes - %s", indicesToDelete), ex);
+            return false;
+        }
+        return true;
     }
 }

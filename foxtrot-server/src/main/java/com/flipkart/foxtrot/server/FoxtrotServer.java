@@ -1,12 +1,12 @@
 /**
  * Copyright 2014 Flipkart Internet Pvt. Ltd.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -30,6 +30,7 @@ import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsLoader;
 import com.flipkart.foxtrot.core.querystore.impl.*;
 import com.flipkart.foxtrot.server.config.FoxtrotServerConfiguration;
 import com.flipkart.foxtrot.server.console.ElasticsearchConsolePersistence;
+import com.flipkart.foxtrot.server.managed.TableDataManager;
 import com.flipkart.foxtrot.server.resources.*;
 import com.flipkart.foxtrot.server.util.ManagedActionScanner;
 import com.yammer.dropwizard.Service;
@@ -91,6 +92,7 @@ public class FoxtrotServer extends Service<FoxtrotServerConfiguration> {
         environment.manage(hazelcastConnection);
         environment.manage(tableMetadataManager);
         environment.manage(new ManagedActionScanner(analyticsLoader, environment));
+        environment.manage(new TableDataManager(tableMetadataManager, queryStore));
 
         environment.addResource(new DocumentResource(queryStore));
         environment.addResource(new AsyncResource());
@@ -98,7 +100,7 @@ public class FoxtrotServer extends Service<FoxtrotServerConfiguration> {
         environment.addResource(new TableMetadataResource(tableMetadataManager));
         environment.addResource(new TableFieldMappingResource(queryStore));
         environment.addResource(new ConsoleResource(
-                                    new ElasticsearchConsolePersistence(elasticsearchConnection, objectMapper)));
+                new ElasticsearchConsolePersistence(elasticsearchConnection, objectMapper)));
 
         environment.addHealthCheck(new ElasticSearchHealthCheck("ES Health Check", elasticsearchConnection));
 
