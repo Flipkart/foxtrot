@@ -231,55 +231,56 @@ public class ElasticsearchQueryStore implements QueryStore {
     }
 
     @Override
-    public boolean cleanupAll() {
+    public void cleanupAll() throws QueryStoreException {
         Set<String> tables = new HashSet<String>();
         try {
             for (Table table : tableMetadataManager.get()) {
                 tables.add(table.getName());
             }
-            return cleanup(tables);
         } catch (Exception ex) {
-            logger.error("Unable to fetch Table names for Deletion.", ex);
-            return false;
+            logger.error("Unable to fetch table names for deletion.", ex);
+            throw new QueryStoreException(QueryStoreException.ErrorCode.TABLE_LIST_FETCH_ERROR,
+                    "Unable to fetch table names for deletion", ex);
         }
+        cleanup(tables);
     }
 
     @Override
-    public boolean cleanup(final String table) {
-        return cleanup(new HashSet<String>(Arrays.asList(table)));
+    public void cleanup(final String table) throws QueryStoreException {
+        cleanup(new HashSet<String>(Arrays.asList(table)));
     }
 
     @Override
-    public boolean cleanup(Set<String> tables) {
-        IndicesStatusResponse response = connection.getClient().admin().indices().prepareStatus().execute().actionGet();
-        Set<String> currentIndices = response.getIndices().keySet();
+    public void cleanup(Set<String> tables) throws QueryStoreException {
         Set<String> indicesToDelete = new HashSet<String>();
+        try {
+            IndicesStatusResponse response = connection.getClient().admin().indices().prepareStatus().execute().actionGet();
+            Set<String> currentIndices = response.getIndices().keySet();
 
-        for (String currentIndex : currentIndices) {
-            String table = ElasticsearchUtils.getTableNameFromIndex(currentIndex);
-            if (table != null && tables.contains(table)) {
-                boolean indexEligibleForDeletion;
-                try {
-                    indexEligibleForDeletion = ElasticsearchUtils.isIndexEligibleForDeletion(currentIndex, tableMetadataManager.get(table));
-                    if (indexEligibleForDeletion) {
-                        indicesToDelete.add(currentIndex);
+            for (String currentIndex : currentIndices) {
+                String table = ElasticsearchUtils.getTableNameFromIndex(currentIndex);
+                if (table != null && tables.contains(table)) {
+                    boolean indexEligibleForDeletion;
+                    try {
+                        indexEligibleForDeletion = ElasticsearchUtils.isIndexEligibleForDeletion(currentIndex, tableMetadataManager.get(table));
+                        if (indexEligibleForDeletion) {
+                            indicesToDelete.add(currentIndex);
+                        }
+                    } catch (Exception ex) {
+                        logger.error(String.format("Unable to Get Table details for Table : %s", table), ex);
                     }
-                } catch (Exception ex) {
-                    logger.error(String.format("Unable to Get Table details for Table : %s", table), ex);
                 }
             }
-        }
-
-        logger.warn(String.format("Deleting Indexes - Indexes - %s", indicesToDelete));
-        try {
+            logger.warn(String.format("Deleting Indexes - Indexes - %s", indicesToDelete));
             if (indicesToDelete.size() > 0) {
                 connection.getClient().admin().indices().prepareDelete(indicesToDelete.toArray(new String[indicesToDelete.size()]))
                         .execute().actionGet(TimeValue.timeValueMinutes(10));
             }
+            logger.warn(String.format("Deleted Indexes - Indexes - %s", indicesToDelete));
         } catch (Exception ex) {
             logger.error(String.format("Unable to delete Indexes - %s", indicesToDelete), ex);
-            return false;
+            throw new QueryStoreException(QueryStoreException.ErrorCode.DATA_CLEANUP_ERROR,
+                    String.format("Unable to delete Indexes - %s", indicesToDelete), ex);
         }
-        return true;
     }
 }

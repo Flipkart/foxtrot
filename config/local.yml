@@ -19,3 +19,7 @@ cluster:
 
 logging:
   level: INFO
+
+deletionconfig:
+  schedule: 0 0 0 * * ?
+  active: true

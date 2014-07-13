@@ -38,9 +38,9 @@ public interface QueryStore {
 
     public TableFieldMapping getFieldMappings(final String table) throws QueryStoreException;
 
-    public boolean cleanupAll();
+    public void cleanupAll() throws QueryStoreException;
 
-    public boolean cleanup(final String table);
+    public void cleanup(final String table) throws QueryStoreException;
 
-    public boolean cleanup(final Set<String> tables);
+    public void cleanup(final Set<String> tables) throws QueryStoreException;
 }

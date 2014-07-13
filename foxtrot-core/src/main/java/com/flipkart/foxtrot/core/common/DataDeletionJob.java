@@ -1,6 +1,7 @@
 package com.flipkart.foxtrot.core.common;
 
 import com.flipkart.foxtrot.core.querystore.QueryStore;
+import com.flipkart.foxtrot.core.querystore.QueryStoreException;
 import com.flipkart.foxtrot.core.querystore.actions.ActionConstants;
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
@@ -19,7 +20,12 @@ public class DataDeletionJob implements Job {
         logger.info("Starting Deletion Job");
         QueryStore queryStore = (QueryStore) jobExecutionContext.getJobDetail().getJobDataMap()
                 .get(ActionConstants.JOB_QUERY_STORE_KEY);
-        queryStore.cleanupAll();
+        try {
+            queryStore.cleanupAll();
+        } catch (QueryStoreException ex) {
+            logger.error("Deletion Job Failed ", ex);
+            throw new JobExecutionException(ex);
+        }
         logger.info("Finished Deletion Job");
     }
 }
