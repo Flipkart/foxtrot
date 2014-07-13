@@ -1,12 +1,12 @@
 /**
  * Copyright 2014 Flipkart Internet Pvt. Ltd.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -87,9 +87,9 @@ public class HistogramActionTest {
         queryExecutor = new QueryExecutor(analyticsLoader, executorService);
         queryExecutor = new QueryExecutor(analyticsLoader, executorService);
         List<Document> documents = TestUtils.getHistogramDocuments(mapper);
-        new ElasticsearchQueryStore(tableMetadataManager, elasticsearchConnection, dataStore, queryExecutor)
+        new ElasticsearchQueryStore(tableMetadataManager, elasticsearchConnection, dataStore)
                 .save(TestUtils.TEST_TABLE, documents);
-        for(Document document : documents) {
+        for (Document document : documents) {
             elasticsearchServer.getClient().admin().indices()
                     .prepareRefresh(ElasticsearchUtils.getCurrentIndex(TestUtils.TEST_TABLE, document.getTimestamp()))
                     .setForce(true).execute().actionGet();

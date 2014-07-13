@@ -1,12 +1,12 @@
 /**
  * Copyright 2014 Flipkart Internet Pvt. Ltd.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -51,8 +51,7 @@ public abstract class Action<ParameterType extends ActionRequest> implements Cal
 
     public String cacheKey() {
         if (null == cacheKey) {
-            final String childKey = String.format("%s-%d", getRequestCacheKey(), System.currentTimeMillis() / 30000);
-            cacheKey = childKey;//UUID.nameUUIDFromBytes(childKey.getBytes()).toString();
+            cacheKey = String.format("%s-%d", getRequestCacheKey(), System.currentTimeMillis() / 30000);//UUID.nameUUIDFromBytes(childKey.getBytes()).toString();
         }
         return cacheKey;
     }

@@ -1,12 +1,12 @@
 /**
  * Copyright 2014 Flipkart Internet Pvt. Ltd.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -21,4 +21,5 @@ package com.flipkart.foxtrot.core.querystore.actions;
 public class ActionConstants {
     public static final String AGGREGATION_FIELD_REPLACEMENT_REGEX = "[^a-zA-Z0-9\\-_]";
     public static final String AGGREGATION_FIELD_REPLACEMENT_VALUE = "_";
+    public static final String JOB_QUERY_STORE_KEY = "JobQueryStoreKey";
 }

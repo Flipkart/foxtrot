@@ -19,11 +19,11 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.flipkart.foxtrot.common.Document;
 import com.flipkart.foxtrot.common.FieldTypeMapping;
+import com.flipkart.foxtrot.common.Table;
 import com.flipkart.foxtrot.common.TableFieldMapping;
 import com.flipkart.foxtrot.core.datastore.DataStore;
 import com.flipkart.foxtrot.core.datastore.DataStoreException;
 import com.flipkart.foxtrot.core.parsers.ElasticsearchMappingParser;
-import com.flipkart.foxtrot.core.querystore.QueryExecutor;
 import com.flipkart.foxtrot.core.querystore.QueryStore;
 import com.flipkart.foxtrot.core.querystore.QueryStoreException;
 import com.flipkart.foxtrot.core.querystore.TableMetadataManager;
@@ -40,9 +40,9 @@ import org.elasticsearch.common.unit.TimeValue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 /**
@@ -57,17 +57,15 @@ public class ElasticsearchQueryStore implements QueryStore {
     private final ElasticsearchConnection connection;
     private final DataStore dataStore;
     private final ObjectMapper mapper;
-    private final QueryExecutor queryExecutor;
 
 
     public ElasticsearchQueryStore(TableMetadataManager tableMetadataManager,
                                    ElasticsearchConnection connection,
-                                   DataStore dataStore, QueryExecutor queryExecutor) {
+                                   DataStore dataStore) {
         this.tableMetadataManager = tableMetadataManager;
         this.connection = connection;
         this.dataStore = dataStore;
         this.mapper = ElasticsearchUtils.getMapper();
-        this.queryExecutor = queryExecutor;
     }
 
     @Override
@@ -233,46 +231,41 @@ public class ElasticsearchQueryStore implements QueryStore {
     }
 
     @Override
-    public boolean delete(String table, int numDaysToKeep) {
-        IndicesStatusResponse response = connection.getClient().admin().indices().prepareStatus().execute().actionGet();
-        Set<String> currentIndices = response.getIndices().keySet();
-        Set<String> indicesToDelete = new HashSet<String>();
-
-        for (String currentIndex : currentIndices) {
-            boolean validIndexTable = ElasticsearchUtils.isIndexValidForTable(currentIndex, table);
-            if (validIndexTable) {
-                boolean indexEligibleForDeletion = ElasticsearchUtils.isIndexEligibleForDeletion(currentIndex, table, numDaysToKeep);
-                if (indexEligibleForDeletion) {
-                    indicesToDelete.add(currentIndex);
-                }
-            }
-        }
-
-        logger.warn(String.format("Deleting - Table - %s Indexes - %s", table, indicesToDelete));
+    public boolean cleanupAll() {
+        Set<String> tables = new HashSet<String>();
         try {
-            if (indicesToDelete.size() > 0) {
-                connection.getClient().admin().indices().prepareDelete(indicesToDelete.toArray(new String[indicesToDelete.size()]))
-                        .execute().actionGet(TimeValue.timeValueMinutes(10));
+            for (Table table : tableMetadataManager.get()) {
+                tables.add(table.getName());
             }
+            return cleanup(tables);
         } catch (Exception ex) {
-            logger.error(String.format("Unable to delete Indexes - %s", indicesToDelete), ex);
+            logger.error("Unable to fetch Table names for Deletion.", ex);
             return false;
         }
-        return true;
     }
 
     @Override
-    public boolean delete(Map<String, Integer> tables) {
+    public boolean cleanup(final String table) {
+        return cleanup(new HashSet<String>(Arrays.asList(table)));
+    }
+
+    @Override
+    public boolean cleanup(Set<String> tables) {
         IndicesStatusResponse response = connection.getClient().admin().indices().prepareStatus().execute().actionGet();
         Set<String> currentIndices = response.getIndices().keySet();
         Set<String> indicesToDelete = new HashSet<String>();
 
         for (String currentIndex : currentIndices) {
             String table = ElasticsearchUtils.getTableNameFromIndex(currentIndex);
-            if (table != null && tables.containsKey(table)) {
-                boolean indexEligibleForDeletion = ElasticsearchUtils.isIndexEligibleForDeletion(currentIndex, table, tables.get(table));
-                if (indexEligibleForDeletion) {
-                    indicesToDelete.add(currentIndex);
+            if (table != null && tables.contains(table)) {
+                boolean indexEligibleForDeletion;
+                try {
+                    indexEligibleForDeletion = ElasticsearchUtils.isIndexEligibleForDeletion(currentIndex, tableMetadataManager.get(table));
+                    if (indexEligibleForDeletion) {
+                        indicesToDelete.add(currentIndex);
+                    }
+                } catch (Exception ex) {
+                    logger.error(String.format("Unable to Get Table details for Table : %s", table), ex);
                 }
             }
         }

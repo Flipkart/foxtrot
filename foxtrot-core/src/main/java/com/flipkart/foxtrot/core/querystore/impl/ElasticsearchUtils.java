@@ -16,6 +16,7 @@
 package com.flipkart.foxtrot.core.querystore.impl;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.flipkart.foxtrot.common.Table;
 import org.elasticsearch.action.admin.indices.template.put.PutIndexTemplateRequest;
 import org.elasticsearch.action.admin.indices.template.put.PutIndexTemplateRequestBuilder;
 import org.elasticsearch.client.Client;
@@ -136,16 +137,17 @@ public class ElasticsearchUtils {
         return index.startsWith(indexPrefix);
     }
 
-    public static boolean isIndexEligibleForDeletion(String index, String table, int days) {
-        if (index == null || table == null || !isIndexValidForTable(index, table)) {
+    public static boolean isIndexEligibleForDeletion(String index, Table table) {
+        if (index == null || table == null || !isIndexValidForTable(index, table.getName())) {
             return false;
         }
 
-        String indexPrefix = getIndexPrefix(table);
+        String indexPrefix = getIndexPrefix(table.getName());
         String creationDateString = index.substring(index.indexOf(indexPrefix) + indexPrefix.length());
         DateTime creationDate = DATE_TIME_FORMATTER.parseDateTime(creationDateString);
-        DateTime currentDate = new DateTime();
-        return creationDate.plusDays(days).isBefore(currentDate);
+        DateTime startTime = new DateTime(0L);
+        DateTime endTime = new DateTime().minusDays(table.getTtl());
+        return creationDate.isAfter(startTime) && creationDate.isBefore(endTime);
     }
 
     public static String getTableNameFromIndex(String currentIndex) {

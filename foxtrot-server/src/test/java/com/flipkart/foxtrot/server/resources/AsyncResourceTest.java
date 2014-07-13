@@ -107,7 +107,7 @@ public class AsyncResourceTest extends ResourceTest {
         ExecutorService executorService = Executors.newFixedThreadPool(1);
         queryExecutor = new QueryExecutor(analyticsLoader, executorService);
         List<Document> documents = TestUtils.getGroupDocuments(mapper);
-        new ElasticsearchQueryStore(tableMetadataManager, elasticsearchConnection, dataStore, queryExecutor)
+        new ElasticsearchQueryStore(tableMetadataManager, elasticsearchConnection, dataStore)
                 .save(TestUtils.TEST_TABLE, documents);
         for (Document document : documents) {
             elasticsearchServer.getClient().admin().indices()

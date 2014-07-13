@@ -85,7 +85,7 @@ public class FilterAction extends Action<Query> {
             parameter.setSort(resultSort);
         }
         SearchRequestBuilder search = null;
-        SearchResponse response = null;
+        SearchResponse response;
         try {
             /*if(!tableManager.exists(query.getTable())) {
                 throw new QueryStoreException(QueryStoreException.ErrorCode.NO_SUCH_TABLE,

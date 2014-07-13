@@ -19,7 +19,7 @@ import com.flipkart.foxtrot.common.Document;
 import com.flipkart.foxtrot.common.TableFieldMapping;
 
 import java.util.List;
-import java.util.Map;
+import java.util.Set;
 
 /**
  * User: Santanu Sinha (santanu.sinha@flipkart.com)
@@ -38,8 +38,9 @@ public interface QueryStore {
 
     public TableFieldMapping getFieldMappings(final String table) throws QueryStoreException;
 
-    public boolean delete(final String table, final int numDaysToKeep);
+    public boolean cleanupAll();
 
-    public boolean delete(final Map<String, Integer> tables);
+    public boolean cleanup(final String table);
 
+    public boolean cleanup(final Set<String> tables);
 }

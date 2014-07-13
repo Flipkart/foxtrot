@@ -1,12 +1,12 @@
 /**
  * Copyright 2014 Flipkart Internet Pvt. Ltd.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -24,7 +24,6 @@ import com.flipkart.foxtrot.common.TableFieldMapping;
 import com.flipkart.foxtrot.core.MockElasticsearchServer;
 import com.flipkart.foxtrot.core.TestUtils;
 import com.flipkart.foxtrot.core.datastore.DataStore;
-import com.flipkart.foxtrot.core.datastore.DataStoreException;
 import com.flipkart.foxtrot.core.querystore.QueryExecutor;
 import com.flipkart.foxtrot.core.querystore.QueryStoreException;
 import com.flipkart.foxtrot.core.querystore.TableMetadataManager;
@@ -67,7 +66,7 @@ public class ElasticsearchQueryStoreTest {
         QueryExecutor queryExecutor = new QueryExecutor(analyticsLoader, executorService);
         TableMetadataManager tableMetadataManager = Mockito.mock(TableMetadataManager.class);
         when(tableMetadataManager.exists(TestUtils.TEST_TABLE)).thenReturn(true);
-        queryStore = new ElasticsearchQueryStore(tableMetadataManager, elasticsearchConnection, dataStore, queryExecutor);
+        queryStore = new ElasticsearchQueryStore(tableMetadataManager, elasticsearchConnection, dataStore);
     }
 
     @After
@@ -136,10 +135,10 @@ public class ElasticsearchQueryStoreTest {
     @Test
     public void testSaveBulkNullList() throws Exception {
         List<Document> list = null;
-        try{
+        try {
             queryStore.save(TestUtils.TEST_TABLE, list);
             fail();
-        }catch (QueryStoreException ex){
+        } catch (QueryStoreException ex) {
             assertEquals(QueryStoreException.ErrorCode.INVALID_REQUEST, ex.getErrorCode());
         }
     }
@@ -147,10 +146,10 @@ public class ElasticsearchQueryStoreTest {
     @Test
     public void testSaveBulkEmptyList() throws Exception {
         List<Document> list = new Vector<Document>();
-        try{
+        try {
             queryStore.save(TestUtils.TEST_TABLE, list);
             fail();
-        }catch (QueryStoreException ex){
+        } catch (QueryStoreException ex) {
             assertEquals(QueryStoreException.ErrorCode.INVALID_REQUEST, ex.getErrorCode());
         }
     }

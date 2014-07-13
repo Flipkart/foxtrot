@@ -19,6 +19,8 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.jsontype.SubtypeResolver;
 import com.fasterxml.jackson.databind.jsontype.impl.StdSubtypeResolver;
+import com.flipkart.foxtrot.core.common.DataDeletionManager;
+import com.flipkart.foxtrot.core.common.DataDeletionManagerConfig;
 import com.flipkart.foxtrot.core.datastore.DataStore;
 import com.flipkart.foxtrot.core.datastore.impl.hbase.HBaseDataStore;
 import com.flipkart.foxtrot.core.datastore.impl.hbase.HbaseConfig;
@@ -30,7 +32,6 @@ import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsLoader;
 import com.flipkart.foxtrot.core.querystore.impl.*;
 import com.flipkart.foxtrot.server.config.FoxtrotServerConfiguration;
 import com.flipkart.foxtrot.server.console.ElasticsearchConsolePersistence;
-import com.flipkart.foxtrot.server.managed.TableDataManager;
 import com.flipkart.foxtrot.server.resources.*;
 import com.flipkart.foxtrot.server.util.ManagedActionScanner;
 import com.yammer.dropwizard.Service;
@@ -85,14 +86,18 @@ public class FoxtrotServer extends Service<FoxtrotServerConfiguration> {
         TableMetadataManager tableMetadataManager = new DistributedTableMetadataManager(hazelcastConnection, elasticsearchConnection);
 
         QueryExecutor executor = new QueryExecutor(analyticsLoader, executorService);
-        QueryStore queryStore = new ElasticsearchQueryStore(tableMetadataManager, elasticsearchConnection, dataStore, executor);
+        QueryStore queryStore = new ElasticsearchQueryStore(tableMetadataManager, elasticsearchConnection, dataStore);
+
+        DataDeletionManagerConfig dataDeletionManagerConfig = configuration.getTableDataManagerConfig();
+        DataDeletionManager dataDeletionManager = new DataDeletionManager(dataDeletionManagerConfig, queryStore);
+
 
         environment.manage(HBaseTableConnection);
         environment.manage(elasticsearchConnection);
         environment.manage(hazelcastConnection);
         environment.manage(tableMetadataManager);
         environment.manage(new ManagedActionScanner(analyticsLoader, environment));
-        environment.manage(new TableDataManager(tableMetadataManager, queryStore));
+        environment.manage(dataDeletionManager);
 
         environment.addResource(new DocumentResource(queryStore));
         environment.addResource(new AsyncResource());
