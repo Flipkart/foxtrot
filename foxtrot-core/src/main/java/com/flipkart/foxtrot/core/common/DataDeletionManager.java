@@ -35,9 +35,11 @@ public class DataDeletionManager implements Managed {
         scheduler.start();
         logger.info("Started Quartz Scheduler");
         if (config.isActive()) {
-            logger.info("Scheduling Data Deletion Job");
+            logger.info("Scheduling data deletion Job");
             scheduler.scheduleJob(jobDetail, trigger);
-            logger.info("Scheduled Data Deletion Job");
+            logger.info("Scheduled data deletion Job");
+        } else {
+            logger.info("Not scheduling data deletion Job");
         }
     }
 
