@@ -1,52 +1,44 @@
 package com.flipkart.foxtrot.core.common;
 
 import com.flipkart.foxtrot.core.querystore.QueryStore;
-import com.flipkart.foxtrot.core.querystore.actions.ActionConstants;
 import com.yammer.dropwizard.lifecycle.Managed;
-import org.quartz.*;
-import org.quartz.impl.StdSchedulerFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.Timer;
 
 /**
  * Created by rishabh.goyal on 07/07/14.
  */
 public class DataDeletionManager implements Managed {
     private static final Logger logger = LoggerFactory.getLogger(DataDeletionManager.class.getSimpleName());
-    final Scheduler scheduler;
-    final JobDetail jobDetail;
-    final Trigger trigger;
     final DataDeletionManagerConfig config;
+    final Timer timer;
+    final QueryStore queryStore;
 
-    public DataDeletionManager(DataDeletionManagerConfig deletionManagerConfig, QueryStore queryStore) throws SchedulerException {
+    public DataDeletionManager(DataDeletionManagerConfig deletionManagerConfig, QueryStore queryStore) {
         this.config = deletionManagerConfig;
-        this.jobDetail = JobBuilder.newJob(DataDeletionJob.class).withIdentity("DataDeletionJob").build();
-        this.jobDetail.getJobDataMap().put(ActionConstants.JOB_QUERY_STORE_KEY, queryStore);
-        this.trigger = TriggerBuilder.newTrigger()
-                .withIdentity("DataDeletionTrigger")
-                .withSchedule(CronScheduleBuilder.cronSchedule(deletionManagerConfig.getDeletionSchedule()))
-                .build();
-        this.scheduler = new StdSchedulerFactory().getScheduler();
+        this.queryStore = queryStore;
+        this.timer = new Timer(true);
     }
 
     @Override
     public void start() throws Exception {
-        logger.info("Starting Quartz Scheduler");
-        scheduler.start();
-        logger.info("Started Quartz Scheduler");
+        logger.info("Starting Deletion Manager");
         if (config.isActive()) {
             logger.info("Scheduling data deletion Job");
-            scheduler.scheduleJob(jobDetail, trigger);
+            this.timer.scheduleAtFixedRate(new DataDeletionTask(queryStore), 0, 86400000L);
             logger.info("Scheduled data deletion Job");
         } else {
             logger.info("Not scheduling data deletion Job");
         }
+        logger.info("Started Deletion Manager");
     }
 
     @Override
     public void stop() throws Exception {
-        logger.info("Stopping Quartz Scheduler");
-        scheduler.shutdown();
-        logger.info("Stopped Quartz Scheduler");
+        logger.info("Stopping Deletion Manager");
+        timer.cancel();
+        logger.info("Stopped Deletion Manager");
     }
 }
