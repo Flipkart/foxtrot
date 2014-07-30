@@ -27,7 +27,9 @@ public class DataDeletionManager implements Managed {
         logger.info("Starting Deletion Manager");
         if (config.isActive()) {
             logger.info("Scheduling data deletion Job");
-            this.timer.scheduleAtFixedRate(new DataDeletionTask(queryStore), 0, 86400000L);
+            this.timer.scheduleAtFixedRate(new DataDeletionTask(queryStore),
+                    config.getInitialDelay() * 1000L,
+                    config.getInterval() * 1000L);
             logger.info("Scheduled data deletion Job");
         } else {
             logger.info("Not scheduling data deletion Job");

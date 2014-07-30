@@ -21,5 +21,6 @@ logging:
   level: INFO
 
 deletionconfig:
-  schedule: 0 0 0 * * ?
   active: true
+  interval: 86400
+  initialdelay: 60

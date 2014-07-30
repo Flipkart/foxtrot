@@ -1,8 +1,8 @@
 package com.flipkart.foxtrot.core.common;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import org.hibernate.validator.constraints.NotEmpty;
 
+import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 
 /**
@@ -10,10 +10,12 @@ import javax.validation.constraints.NotNull;
  */
 public class DataDeletionManagerConfig {
 
-    @NotNull
-    @NotEmpty
-    @JsonProperty("schedule")
-    private String deletionSchedule;
+    @Min(86400)
+    private int interval;
+
+    @Min(1)
+    @JsonProperty("initialdelay")
+    private int initialDelay;
 
     @NotNull
     private boolean active;
@@ -21,12 +23,20 @@ public class DataDeletionManagerConfig {
     public DataDeletionManagerConfig() {
     }
 
-    public String getDeletionSchedule() {
-        return deletionSchedule;
+    public int getInterval() {
+        return interval;
     }
 
-    public void setDeletionSchedule(String deletionSchedule) {
-        this.deletionSchedule = deletionSchedule;
+    public void setInterval(int interval) {
+        this.interval = interval;
+    }
+
+    public int getInitialDelay() {
+        return initialDelay;
+    }
+
+    public void setInitialDelay(int initialDelay) {
+        this.initialDelay = initialDelay;
     }
 
     public boolean isActive() {
