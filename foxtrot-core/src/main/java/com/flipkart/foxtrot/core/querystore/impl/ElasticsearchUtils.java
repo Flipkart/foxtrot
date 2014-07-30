@@ -146,7 +146,7 @@ public class ElasticsearchUtils {
         String creationDateString = index.substring(index.indexOf(indexPrefix) + indexPrefix.length());
         DateTime creationDate = DATE_TIME_FORMATTER.parseDateTime(creationDateString);
         DateTime startTime = new DateTime(0L);
-        DateTime endTime = new DateTime().minusDays(table.getTtl());
+        DateTime endTime = new DateTime().minusDays(table.getTtl()).toDateMidnight().toDateTime();
         return creationDate.isAfter(startTime) && creationDate.isBefore(endTime);
     }
 
