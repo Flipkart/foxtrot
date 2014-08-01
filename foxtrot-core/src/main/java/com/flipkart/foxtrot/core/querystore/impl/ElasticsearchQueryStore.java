@@ -19,25 +19,28 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.flipkart.foxtrot.common.Document;
 import com.flipkart.foxtrot.common.FieldTypeMapping;
+import com.flipkart.foxtrot.common.Table;
 import com.flipkart.foxtrot.common.TableFieldMapping;
 import com.flipkart.foxtrot.core.datastore.DataStore;
 import com.flipkart.foxtrot.core.datastore.DataStoreException;
 import com.flipkart.foxtrot.core.parsers.ElasticsearchMappingParser;
-import com.flipkart.foxtrot.core.querystore.QueryExecutor;
 import com.flipkart.foxtrot.core.querystore.QueryStore;
 import com.flipkart.foxtrot.core.querystore.QueryStoreException;
 import com.flipkart.foxtrot.core.querystore.TableMetadataManager;
 import org.elasticsearch.action.WriteConsistencyLevel;
 import org.elasticsearch.action.admin.indices.mapping.get.GetMappingsResponse;
+import org.elasticsearch.action.admin.indices.status.IndicesStatusResponse;
 import org.elasticsearch.action.bulk.BulkItemResponse;
 import org.elasticsearch.action.bulk.BulkRequestBuilder;
 import org.elasticsearch.action.bulk.BulkResponse;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.cluster.metadata.MappingMetaData;
 import org.elasticsearch.common.hppc.cursors.ObjectCursor;
+import org.elasticsearch.common.unit.TimeValue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -54,17 +57,15 @@ public class ElasticsearchQueryStore implements QueryStore {
     private final ElasticsearchConnection connection;
     private final DataStore dataStore;
     private final ObjectMapper mapper;
-    private final QueryExecutor queryExecutor;
 
 
     public ElasticsearchQueryStore(TableMetadataManager tableMetadataManager,
                                    ElasticsearchConnection connection,
-                                   DataStore dataStore, QueryExecutor queryExecutor) {
+                                   DataStore dataStore) {
         this.tableMetadataManager = tableMetadataManager;
         this.connection = connection;
         this.dataStore = dataStore;
         this.mapper = ElasticsearchUtils.getMapper();
-        this.queryExecutor = queryExecutor;
     }
 
     @Override
@@ -226,6 +227,60 @@ public class ElasticsearchQueryStore implements QueryStore {
         } catch (Exception ex) {
             throw new QueryStoreException(QueryStoreException.ErrorCode.METADATA_FETCH_ERROR,
                     ex.getMessage(), ex);
+        }
+    }
+
+    @Override
+    public void cleanupAll() throws QueryStoreException {
+        Set<String> tables = new HashSet<String>();
+        try {
+            for (Table table : tableMetadataManager.get()) {
+                tables.add(table.getName());
+            }
+        } catch (Exception ex) {
+            logger.error("Unable to fetch table names for deletion.", ex);
+            throw new QueryStoreException(QueryStoreException.ErrorCode.TABLE_LIST_FETCH_ERROR,
+                    "Unable to fetch table names for deletion", ex);
+        }
+        cleanup(tables);
+    }
+
+    @Override
+    public void cleanup(final String table) throws QueryStoreException {
+        cleanup(new HashSet<String>(Arrays.asList(table)));
+    }
+
+    @Override
+    public void cleanup(Set<String> tables) throws QueryStoreException {
+        Set<String> indicesToDelete = new HashSet<String>();
+        try {
+            IndicesStatusResponse response = connection.getClient().admin().indices().prepareStatus().execute().actionGet();
+            Set<String> currentIndices = response.getIndices().keySet();
+
+            for (String currentIndex : currentIndices) {
+                String table = ElasticsearchUtils.getTableNameFromIndex(currentIndex);
+                if (table != null && tables.contains(table)) {
+                    boolean indexEligibleForDeletion;
+                    try {
+                        indexEligibleForDeletion = ElasticsearchUtils.isIndexEligibleForDeletion(currentIndex, tableMetadataManager.get(table));
+                        if (indexEligibleForDeletion) {
+                            indicesToDelete.add(currentIndex);
+                        }
+                    } catch (Exception ex) {
+                        logger.error(String.format("Unable to Get Table details for Table : %s", table), ex);
+                    }
+                }
+            }
+            logger.warn(String.format("Deleting Indexes - Indexes - %s", indicesToDelete));
+            if (indicesToDelete.size() > 0) {
+                connection.getClient().admin().indices().prepareDelete(indicesToDelete.toArray(new String[indicesToDelete.size()]))
+                        .execute().actionGet(TimeValue.timeValueMinutes(10));
+            }
+            logger.warn(String.format("Deleted Indexes - Indexes - %s", indicesToDelete));
+        } catch (Exception ex) {
+            logger.error(String.format("Unable to delete Indexes - %s", indicesToDelete), ex);
+            throw new QueryStoreException(QueryStoreException.ErrorCode.DATA_CLEANUP_ERROR,
+                    String.format("Unable to delete Indexes - %s", indicesToDelete), ex);
         }
     }
 }

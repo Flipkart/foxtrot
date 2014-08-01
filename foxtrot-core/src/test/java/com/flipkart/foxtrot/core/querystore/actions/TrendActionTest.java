@@ -1,12 +1,12 @@
 /**
  * Copyright 2014 Flipkart Internet Pvt. Ltd.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -83,10 +83,10 @@ public class TrendActionTest {
         TestUtils.registerActions(analyticsLoader, mapper);
         ExecutorService executorService = Executors.newFixedThreadPool(1);
         queryExecutor = new QueryExecutor(analyticsLoader, executorService);
-        queryStore = new ElasticsearchQueryStore(tableMetadataManager, elasticsearchConnection, dataStore, queryExecutor);
+        queryStore = new ElasticsearchQueryStore(tableMetadataManager, elasticsearchConnection, dataStore);
         List<Document> documents = TestUtils.getTrendDocuments(mapper);
         queryStore.save(TestUtils.TEST_TABLE, documents);
-        for(Document document : documents) {
+        for (Document document : documents) {
             elasticsearchServer.getClient().admin().indices()
                     .prepareRefresh(ElasticsearchUtils.getCurrentIndex(TestUtils.TEST_TABLE, document.getTimestamp()))
                     .setForce(true).execute().actionGet();
@@ -159,10 +159,10 @@ public class TrendActionTest {
         Document document = TestUtils.getDocument("G", 1398653118006L, new Object[]{"data.version", 1}, mapper);
         queryStore.save(TestUtils.TEST_TABLE, document);
         elasticsearchServer.getClient().admin().indices()
-                            .prepareRefresh(ElasticsearchUtils.getCurrentIndex(TestUtils.TEST_TABLE, document.getTimestamp()))
-                            .setForce(true)
-                            .execute()
-                            .actionGet();
+                .prepareRefresh(ElasticsearchUtils.getCurrentIndex(TestUtils.TEST_TABLE, document.getTimestamp()))
+                .setForce(true)
+                .execute()
+                .actionGet();
         TrendRequest trendRequest = new TrendRequest();
         trendRequest.setTable(TestUtils.TEST_TABLE);
         trendRequest.setFrom(1L);
@@ -224,10 +224,10 @@ public class TrendActionTest {
         trendRequest.setFrom(1L);
         trendRequest.setField("os");
         trendRequest.setTo(System.currentTimeMillis());
-        try{
+        try {
             queryExecutor.execute(trendRequest);
             fail();
-        }catch (QueryStoreException ex){
+        } catch (QueryStoreException ex) {
             assertEquals(QueryStoreException.ErrorCode.INVALID_REQUEST, ex.getErrorCode());
         }
     }

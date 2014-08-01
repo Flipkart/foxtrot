@@ -42,20 +42,21 @@
             <artifactId>foxtrot-core</artifactId>
             <version>0.1</version>
             <type>test-jar</type>
-			<scope>test</scope>
+            <scope>test</scope>
         </dependency>
-		<dependency>
-			<groupId>org.eclipse.jetty</groupId>
-			<artifactId>jetty-servlets</artifactId>
-			<version>8.1.10.v20130312</version>
-		</dependency>
-		<dependency>
-			<groupId>com.hazelcast</groupId>
-			<artifactId>hazelcast</artifactId>
-			<version>3.2.1</version>
-			<type>test-jar</type>
-		</dependency>
-	</dependencies>
+        <dependency>
+            <groupId>org.eclipse.jetty</groupId>
+            <artifactId>jetty-servlets</artifactId>
+            <version>8.1.10.v20130312</version>
+        </dependency>
+        <dependency>
+            <groupId>com.hazelcast</groupId>
+            <artifactId>hazelcast</artifactId>
+            <version>3.2.1</version>
+            <type>test-jar</type>
+        </dependency>
+
+    </dependencies>
 
     <build>
         <plugins>

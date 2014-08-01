@@ -1,12 +1,12 @@
 /**
  * Copyright 2014 Flipkart Internet Pvt. Ltd.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -38,14 +38,11 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
     private static final Logger logger = LoggerFactory.getLogger(DistributedTableMetadataManager.class);
     public static final String DATA_MAP = "tablemetadatamap";
     private final HazelcastConnection hazelcastConnection;
-    private final ElasticsearchConnection elasticsearchConnection;
     private IMap<String, Table> tableDataStore;
 
     public DistributedTableMetadataManager(HazelcastConnection hazelcastConnection,
                                            ElasticsearchConnection elasticsearchConnection) {
         this.hazelcastConnection = hazelcastConnection;
-        this.elasticsearchConnection = elasticsearchConnection;
-
         MapStoreConfig mapStoreConfig = new MapStoreConfig();
         mapStoreConfig.setFactoryImplementation(TableMapStore.factory(elasticsearchConnection));
         mapStoreConfig.setEnabled(true);
@@ -76,7 +73,7 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
 
     @Override
     public List<Table> get() throws Exception {
-        if(0 == tableDataStore.size()) { //HACK::Check https://github.com/hazelcast/hazelcast/issues/1404
+        if (0 == tableDataStore.size()) { //HACK::Check https://github.com/hazelcast/hazelcast/issues/1404
             return Collections.emptyList();
         }
         ArrayList<Table> tables = Lists.newArrayList(tableDataStore.values());
@@ -97,7 +94,7 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
     @Override
     public void delete(String tableName) throws Exception {
         logger.info(String.format("Deleting Table : %s", tableName));
-        if (tableDataStore.containsKey(tableName)){
+        if (tableDataStore.containsKey(tableName)) {
             tableDataStore.delete(tableName);
         }
         logger.info(String.format("Deleted Table : %s", tableName));

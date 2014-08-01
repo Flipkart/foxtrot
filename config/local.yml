@@ -19,3 +19,8 @@ cluster:
 
 logging:
   level: INFO
+
+deletionconfig:
+  active: true
+  interval: 86400
+  initialdelay: 60

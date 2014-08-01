@@ -1,12 +1,12 @@
 /**
  * Copyright 2014 Flipkart Internet Pvt. Ltd.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -19,6 +19,8 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.jsontype.SubtypeResolver;
 import com.fasterxml.jackson.databind.jsontype.impl.StdSubtypeResolver;
+import com.flipkart.foxtrot.core.common.DataDeletionManager;
+import com.flipkart.foxtrot.core.common.DataDeletionManagerConfig;
 import com.flipkart.foxtrot.core.datastore.DataStore;
 import com.flipkart.foxtrot.core.datastore.impl.hbase.HBaseDataStore;
 import com.flipkart.foxtrot.core.datastore.impl.hbase.HbaseConfig;
@@ -84,13 +86,18 @@ public class FoxtrotServer extends Service<FoxtrotServerConfiguration> {
         TableMetadataManager tableMetadataManager = new DistributedTableMetadataManager(hazelcastConnection, elasticsearchConnection);
 
         QueryExecutor executor = new QueryExecutor(analyticsLoader, executorService);
-        QueryStore queryStore = new ElasticsearchQueryStore(tableMetadataManager, elasticsearchConnection, dataStore, executor);
+        QueryStore queryStore = new ElasticsearchQueryStore(tableMetadataManager, elasticsearchConnection, dataStore);
+
+        DataDeletionManagerConfig dataDeletionManagerConfig = configuration.getTableDataManagerConfig();
+        DataDeletionManager dataDeletionManager = new DataDeletionManager(dataDeletionManagerConfig, queryStore);
+
 
         environment.manage(HBaseTableConnection);
         environment.manage(elasticsearchConnection);
         environment.manage(hazelcastConnection);
         environment.manage(tableMetadataManager);
         environment.manage(new ManagedActionScanner(analyticsLoader, environment));
+        environment.manage(dataDeletionManager);
 
         environment.addResource(new DocumentResource(queryStore));
         environment.addResource(new AsyncResource());
@@ -98,7 +105,7 @@ public class FoxtrotServer extends Service<FoxtrotServerConfiguration> {
         environment.addResource(new TableMetadataResource(tableMetadataManager));
         environment.addResource(new TableFieldMappingResource(queryStore));
         environment.addResource(new ConsoleResource(
-                                    new ElasticsearchConsolePersistence(elasticsearchConnection, objectMapper)));
+                new ElasticsearchConsolePersistence(elasticsearchConnection, objectMapper)));
 
         environment.addHealthCheck(new ElasticSearchHealthCheck("ES Health Check", elasticsearchConnection));
 

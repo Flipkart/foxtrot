@@ -16,10 +16,14 @@
 package com.flipkart.foxtrot.core.querystore.impl;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.flipkart.foxtrot.common.Table;
 import org.elasticsearch.action.admin.indices.template.put.PutIndexTemplateRequest;
 import org.elasticsearch.action.admin.indices.template.put.PutIndexTemplateRequestBuilder;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.client.IndicesAdminClient;
+import org.joda.time.DateTime;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -33,6 +37,7 @@ public class ElasticsearchUtils {
     public static final String TYPE_NAME = "document";
     public static final String TABLENAME_PREFIX = "foxtrot";
     public static final String TABLENAME_POSTFIX = "table";
+    public static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormat.forPattern("dd-M-yyyy");
     private static ObjectMapper mapper;
 
     public static void setMapper(ObjectMapper mapper) {
@@ -41,6 +46,10 @@ public class ElasticsearchUtils {
 
     public static ObjectMapper getMapper() {
         return mapper;
+    }
+
+    public static String getIndexPrefix(final String table) {
+        return String.format("%s-%s-%s-", ElasticsearchUtils.TABLENAME_PREFIX, table, ElasticsearchUtils.TABLENAME_POSTFIX);
     }
 
     public static String[] getIndices(final String table) {
@@ -121,5 +130,33 @@ public class ElasticsearchUtils {
     public static String getValidTableName(String table) {
         if (table == null) return null;
         return table.toLowerCase();
+    }
+
+    public static boolean isIndexValidForTable(String index, String table) {
+        String indexPrefix = getIndexPrefix(table);
+        return index.startsWith(indexPrefix);
+    }
+
+    public static boolean isIndexEligibleForDeletion(String index, Table table) {
+        if (index == null || table == null || !isIndexValidForTable(index, table.getName())) {
+            return false;
+        }
+
+        String indexPrefix = getIndexPrefix(table.getName());
+        String creationDateString = index.substring(index.indexOf(indexPrefix) + indexPrefix.length());
+        DateTime creationDate = DATE_TIME_FORMATTER.parseDateTime(creationDateString);
+        DateTime startTime = new DateTime(0L);
+        DateTime endTime = new DateTime().minusDays(table.getTtl()).toDateMidnight().toDateTime();
+        return creationDate.isAfter(startTime) && creationDate.isBefore(endTime);
+    }
+
+    public static String getTableNameFromIndex(String currentIndex) {
+        if (currentIndex.contains(TABLENAME_PREFIX) && currentIndex.contains(TABLENAME_POSTFIX)) {
+            String tempIndex = currentIndex.substring(currentIndex.indexOf(TABLENAME_PREFIX) + TABLENAME_PREFIX.length() + 1);
+            int position = tempIndex.lastIndexOf(String.format("-%s", TABLENAME_POSTFIX));
+            return tempIndex.substring(0, position);
+        } else {
+            return null;
+        }
     }
 }
