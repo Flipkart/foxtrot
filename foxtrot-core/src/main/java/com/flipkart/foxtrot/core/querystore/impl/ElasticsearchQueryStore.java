@@ -264,6 +264,7 @@ public class ElasticsearchQueryStore implements QueryStore {
                     try {
                         indexEligibleForDeletion = ElasticsearchUtils.isIndexEligibleForDeletion(currentIndex, tableMetadataManager.get(table));
                         if (indexEligibleForDeletion) {
+                            logger.warn(String.format("Index eligible for deletion : %s", currentIndex));
                             indicesToDelete.add(currentIndex);
                         }
                     } catch (Exception ex) {
