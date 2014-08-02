@@ -27,6 +27,7 @@ import com.flipkart.foxtrot.core.parsers.ElasticsearchMappingParser;
 import com.flipkart.foxtrot.core.querystore.QueryStore;
 import com.flipkart.foxtrot.core.querystore.QueryStoreException;
 import com.flipkart.foxtrot.core.querystore.TableMetadataManager;
+import com.google.common.collect.Lists;
 import org.elasticsearch.action.WriteConsistencyLevel;
 import org.elasticsearch.action.admin.indices.mapping.get.GetMappingsResponse;
 import org.elasticsearch.action.admin.indices.status.IndicesStatusResponse;
@@ -40,10 +41,7 @@ import org.elasticsearch.common.unit.TimeValue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * User: Santanu Sinha (santanu.sinha@flipkart.com)
@@ -252,7 +250,7 @@ public class ElasticsearchQueryStore implements QueryStore {
 
     @Override
     public void cleanup(Set<String> tables) throws QueryStoreException {
-        Set<String> indicesToDelete = new HashSet<String>();
+        List<String> indicesToDelete = new ArrayList<String>();
         try {
             IndicesStatusResponse response = connection.getClient().admin().indices().prepareStatus().execute().actionGet();
             Set<String> currentIndices = response.getIndices().keySet();
@@ -274,10 +272,13 @@ public class ElasticsearchQueryStore implements QueryStore {
             }
             logger.warn(String.format("Deleting Indexes - Indexes - %s", indicesToDelete));
             if (indicesToDelete.size() > 0) {
-                connection.getClient().admin().indices().prepareDelete(indicesToDelete.toArray(new String[indicesToDelete.size()]))
-                        .execute().actionGet(TimeValue.timeValueMinutes(10));
+                List<List<String>> subLists = Lists.partition(indicesToDelete, 10);
+                for ( List<String> subList : subLists ){
+                    connection.getClient().admin().indices().prepareDelete(subList.toArray(new String[subList.size()]))
+                            .execute().actionGet(TimeValue.timeValueMinutes(10));
+                    logger.warn(String.format("Deleted Indexes - Indexes - %s", subList ));
+                }
             }
-            logger.warn(String.format("Deleted Indexes - Indexes - %s", indicesToDelete));
         } catch (Exception ex) {
             logger.error(String.format("Unable to delete Indexes - %s", indicesToDelete), ex);
             throw new QueryStoreException(QueryStoreException.ErrorCode.DATA_CLEANUP_ERROR,
