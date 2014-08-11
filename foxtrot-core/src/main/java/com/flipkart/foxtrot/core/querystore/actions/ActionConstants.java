@@ -21,5 +21,5 @@ package com.flipkart.foxtrot.core.querystore.actions;
 public class ActionConstants {
     public static final String AGGREGATION_FIELD_REPLACEMENT_REGEX = "[^a-zA-Z0-9\\-_]";
     public static final String AGGREGATION_FIELD_REPLACEMENT_VALUE = "_";
-    public static final String JOB_QUERY_STORE_KEY = "JobQueryStoreKey";
+    public static final String TIMESTAMP_FIELD = "header.timestamp";
 }
