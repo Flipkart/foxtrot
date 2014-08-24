@@ -8,21 +8,22 @@ import java.util.Map;
  * Created by rishabh.goyal on 07/08/14.
  */
 public class StatsResponse implements ActionResponse {
-    private Map<String, Object> result;
+
+    private StatsValue result;
 
     public StatsResponse() {
 
     }
 
-    public StatsResponse(Map<String, Object> result) {
-        this.result = result;
+    public StatsResponse(StatsValue statsValue) {
+        this.result = statsValue;
     }
 
-    public Map<String, Object> getResult() {
+    public StatsValue getResult() {
         return result;
     }
 
-    public void setResult(Map<String, Object> result) {
+    public void setResult(StatsValue result) {
         this.result = result;
     }
 }

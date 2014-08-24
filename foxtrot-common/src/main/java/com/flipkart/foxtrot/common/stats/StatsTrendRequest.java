@@ -24,9 +24,6 @@ public class StatsTrendRequest implements ActionRequest {
     private String field;
 
     @NotNull
-    private StatsMetric metric = StatsMetric.all;
-
-    @NotNull
     private Period period = Period.hours;
 
     @NotNull
@@ -53,14 +50,6 @@ public class StatsTrendRequest implements ActionRequest {
 
     public void setField(String field) {
         this.field = field;
-    }
-
-    public StatsMetric getMetric() {
-        return metric;
-    }
-
-    public void setMetric(StatsMetric metric) {
-        this.metric = metric;
     }
 
     public Period getPeriod() {
