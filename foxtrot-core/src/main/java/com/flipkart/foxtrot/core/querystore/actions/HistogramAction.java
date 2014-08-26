@@ -104,6 +104,10 @@ public class HistogramAction extends Action<HistogramRequest> {
                     break;
             }
 
+            String dateHistogramKey = parameter.getField()
+                    .replaceAll(ActionConstants.AGGREGATION_FIELD_REPLACEMENT_REGEX,
+                            ActionConstants.AGGREGATION_FIELD_REPLACEMENT_VALUE);
+
             SearchResponse response = getConnection().getClient().prepareSearch(
                     ElasticsearchUtils.getIndices(parameter.getTable()))
                     .setTypes(ElasticsearchUtils.TYPE_NAME)
@@ -115,9 +119,7 @@ public class HistogramAction extends Action<HistogramRequest> {
                     )
                     .setSize(0)
                     .setSearchType(SearchType.DFS_QUERY_THEN_FETCH)
-                    .addAggregation(AggregationBuilders.dateHistogram(parameter.getField()
-                            .replaceAll(ActionConstants.AGGREGATION_FIELD_REPLACEMENT_REGEX,
-                                    ActionConstants.AGGREGATION_FIELD_REPLACEMENT_VALUE))
+                    .addAggregation(AggregationBuilders.dateHistogram(dateHistogramKey)
                             .field(parameter.getField())
                             .interval(interval))
                     .execute()
@@ -127,9 +129,7 @@ public class HistogramAction extends Action<HistogramRequest> {
                 logger.error("Null response for Histogram. Request : " + parameter.toString());
                 return new HistogramResponse(parameter.getFrom(), parameter.getTo(), Collections.<HistogramResponse.Count>emptyList());
             }
-            DateHistogram dateHistogram = aggregations.get(parameter.getField()
-                    .replaceAll(ActionConstants.AGGREGATION_FIELD_REPLACEMENT_REGEX,
-                            ActionConstants.AGGREGATION_FIELD_REPLACEMENT_VALUE));
+            DateHistogram dateHistogram = aggregations.get(dateHistogramKey);
             Collection<? extends DateHistogram.Bucket> buckets = dateHistogram.getBuckets();
             List<HistogramResponse.Count> counts = new ArrayList<HistogramResponse.Count>(buckets.size());
             for (DateHistogram.Bucket bucket : buckets) {
