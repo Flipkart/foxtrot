@@ -10,6 +10,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>foxtrot-core</artifactId>
+    <version>0.2</version>
 
     <dependencies>
         <!--HBase and Hadoop-->
@@ -85,7 +86,7 @@
         <dependency>
             <groupId>foxtrot</groupId>
             <artifactId>foxtrot-common</artifactId>
-            <version>0.2</version>
+            <version>0.3</version>
         </dependency>
 
         <!-- Reflections for scanning classpath to get analytics providers-->
