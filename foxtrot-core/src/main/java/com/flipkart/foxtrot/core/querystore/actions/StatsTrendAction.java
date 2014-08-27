@@ -12,6 +12,7 @@ import com.flipkart.foxtrot.core.querystore.QueryStoreException;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsProvider;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConnection;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
+import com.flipkart.foxtrot.core.querystore.query.ElasticSearchQueryGenerator;
 import com.google.common.collect.Lists;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.search.SearchType;
@@ -70,6 +71,7 @@ public class StatsTrendAction extends Action<StatsTrendRequest> {
             SearchResponse response = getConnection().getClient().prepareSearch(
                     ElasticsearchUtils.getIndices(parameter.getTable()))
                     .setTypes(ElasticsearchUtils.TYPE_NAME)
+                    .setQuery(new ElasticSearchQueryGenerator(parameter.getCombiner()).genFilter(parameter.getFilters()))
                     .setSize(0)
                     .setSearchType(SearchType.DFS_QUERY_THEN_FETCH)
                     .addAggregation(aggregation)
