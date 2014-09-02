@@ -1,12 +1,12 @@
 /**
  * Copyright 2014 Flipkart Internet Pvt. Ltd.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -20,6 +20,7 @@ import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.flipkart.foxtrot.common.query.general.AnyFilter;
 import com.flipkart.foxtrot.common.query.general.EqualsFilter;
+import com.flipkart.foxtrot.common.query.general.InFilter;
 import com.flipkart.foxtrot.common.query.general.NotEqualsFilter;
 import com.flipkart.foxtrot.common.query.numeric.*;
 import com.flipkart.foxtrot.common.query.string.ContainsFilter;
@@ -43,6 +44,7 @@ import javax.validation.constraints.NotNull;
 
         //General
         @JsonSubTypes.Type(value = EqualsFilter.class, name = FilterOperator.equals),
+        @JsonSubTypes.Type(value = InFilter.class, name = FilterOperator.in),
         @JsonSubTypes.Type(value = NotEqualsFilter.class, name = FilterOperator.not_equals),
         @JsonSubTypes.Type(value = AnyFilter.class, name = FilterOperator.any),
 
