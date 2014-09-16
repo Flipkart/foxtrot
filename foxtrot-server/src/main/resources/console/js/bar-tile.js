@@ -150,13 +150,13 @@ BarTile.prototype.configChanged = function() {
 	var modal = $(this.setupModalName);
 	this.period = parseInt(modal.find(".refresh-period").val());
 	this.eventTypeFieldName = modal.find(".bar-chart-field").val();
-		var values = modal.find(".selected-values").val();
-    	if(values) {
-    	    this.selectedValues = values.replace(/ /g, "").split(",");
-    	}
-    	else {
-    	    this.selectedValues = null;
-    	}
+    var values = modal.find(".selected-values").val();
+    if(values) {
+        this.selectedValues = values.replace(/ /g, "").split(",");
+    }
+    else {
+        this.selectedValues = null;
+    }
 };
 
 BarTile.prototype.populateSetupDialog = function() {
