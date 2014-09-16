@@ -20,6 +20,7 @@ function BarTile () {
 	this.setupModalName = "#setupBarChartModal";
 	//Instance properties
 	this.eventTypeFieldName = null;
+    this.selectedValues = null;
 	this.period = 0;		
 }
 
@@ -117,16 +118,25 @@ BarTile.prototype.render = function(data, animate) {
 BarTile.prototype.getQuery = function() {
 	if(this.eventTypeFieldName && this.period != 0) {
 		var timestamp = new Date().getTime();
+        var filters = [];
+        filters.push({
+                        field: "_timestamp",
+                        operator: "between",
+                        temporal: true,
+                        from: (timestamp - (this.period * 60000)),
+                        to: timestamp
+                    });
+        if(this.selectedValues) {
+            filters.push({
+                field: this.eventTypeFieldName,
+                operator: "in",
+                values: this.selectedValues
+            });
+        }
 		return JSON.stringify({
 			opcode : "group",
 			table : this.tables.selectedTable.name,
-			filters : [{
-				field: "_timestamp",
-				operator: "between",
-				temporal: true,
-				from: (timestamp - (this.period * 60000)),
-				to: timestamp
-			}],
+			filters : filters,
 			nesting : [this.eventTypeFieldName]
 		});
 	}
@@ -140,6 +150,13 @@ BarTile.prototype.configChanged = function() {
 	var modal = $(this.setupModalName);
 	this.period = parseInt(modal.find(".refresh-period").val());
 	this.eventTypeFieldName = modal.find(".bar-chart-field").val();
+		var values = modal.find(".selected-values").val();
+    	if(values) {
+    	    this.selectedValues = values.replace(/ /g, "").split(",");
+    	}
+    	else {
+    	    this.selectedValues = null;
+    	}
 };
 
 BarTile.prototype.populateSetupDialog = function() {
@@ -153,15 +170,20 @@ BarTile.prototype.populateSetupDialog = function() {
 		select.val(this.eventTypeFieldName);
 	}
 	select.selectpicker('refresh');
-	modal.find(".refresh-period").val(( 0 != this.period)?this.period:"");	
+	modal.find(".refresh-period").val(( 0 != this.period)?this.period:"");
+    if(this.selectedValues) {
+        modal.find(".selected-values").val(this.selectedValues.join(", "));
+    }
 }
 
 BarTile.prototype.registerSpecificData = function(representation) {
 	representation['period'] = this.period;
 	representation['eventTypeFieldName'] = this.eventTypeFieldName;
+    representation['selectedValues'] = this.selectedValues;
 };
 
 BarTile.prototype.loadSpecificData = function(representation) {
 	this.period = representation['period'];
 	this.eventTypeFieldName = representation['eventTypeFieldName'];
+    this.selectedValues = representation['selectedValues'];
 };
