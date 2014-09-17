@@ -25,6 +25,7 @@ function Tables() {
 	this.selectedTable = null;
 	this.currentTableFieldMappings = null;
 	this.metaLoadHandlers = [];
+	this.initialSelectedTable = null;
 }
 
 Tables.prototype.init = function(callback) {
@@ -38,13 +39,28 @@ Tables.prototype.init = function(callback) {
 				var table = tables[i];
 				this.tables.push(new Table(table.name, table.ttl));
 			};
+			this.selectedTable = this.tables[this.getSelectionIndex()];
 			for (var i = this.tableChangeHandlers.length - 1; i >= 0; i--) {
 				this.tableChangeHandlers[i](this.tables);
 			};
-			this.selectedTable = this.tables[0];
 		}
 	});	
 };
+
+Tables.prototype.forceSelectedTableAfterInit = function(tableName) {
+    this.initialSelectedTable = tableName;
+}
+
+Tables.prototype.getSelectionIndex = function() {
+    if(!this.initialSelectedTable) {
+        return 0;
+    }
+    for (var i = 0; i < tables.length; i++) {
+        if(this.tables[i].name === this.initialSelectedTable) {
+            return i;
+        }
+    }
+}
 
 Tables.prototype.registerTableChangeHandler = function(tableChangeHandler) {
 	this.tableChangeHandlers.push(tableChangeHandler);

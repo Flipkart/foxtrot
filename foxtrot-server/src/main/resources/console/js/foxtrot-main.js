@@ -27,7 +27,7 @@ TablesView.prototype.load = function(tables) {
 	for (var i = tables.length - 1; i >= 0; i--) {
 		select.append("<option value='" + i + "'>" + tables[i].name + '</option>');
 	};
-	select.val(0);
+	select.val(this.tables.getSelectionIndex());
 	select.selectpicker('refresh');
 	select.change();
 };

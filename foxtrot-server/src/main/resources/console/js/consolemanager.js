@@ -61,6 +61,11 @@ ConsoleManager.prototype.getConsoleRepresentation = function() {
 		tileList: tileList,
 		tiles: tiles
 	}
+	if($('#pinConsoleToApp').is(":checked")) {
+	    if(this.tables.selectedTable) {
+    	    representation['appName'] = this.tables.selectedTable.name;
+	    }
+	}
 	return representation;
 }
 
@@ -78,6 +83,9 @@ ConsoleManager.prototype.buildConsoleFromRepresentation = function(representatio
 	var modal = $("#saveConsoleModal");
 	modal.find(".console-name").val(representation.name);
 	$(".console-name").text(representation.name);
+	if(representation.hasOwnProperty('appName') && representation['appName']) {
+        this.tables.forceSelectedTableAfterInit(representation['appName']);
+	}
 	if(this.tables.selectedTable) {
     	this.queue.executeCalls();
 	}
