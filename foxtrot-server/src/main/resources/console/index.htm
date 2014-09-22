@@ -386,7 +386,14 @@
                       <div class="help-block with-errors">Between 5 mins and 10080 mins (7 days)</div>
                   </div>
               </div>
+              <div class="form-group">
+                <label class="col-sm-4 control-label" for="pie_selected_filters"><strong>Filters</strong></label>
+                <div class="col-sm-8">
+                    <textarea class="form-control selected-filters" placeholder="JSON string containing the filters" id="pie_selected_filters"></textarea>
+                    <div class="help-block with-errors">Enter a JSON string</div>
+                </div>
               </div>
+            </div>
               <div class="modal-footer">
                   <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
                   <button type="submit" class="btn btn-primary save-changes" disabled="disabled">Done</button>
@@ -433,7 +440,13 @@
                           <div class="help-block with-errors">Comma separated list of values to select</div>
                       </div>
                   </div>
-
+                <div class="form-group">
+                  <label class="col-sm-4 control-label" for="bar_selected_filters"><strong>Filters</strong></label>
+                  <div class="col-sm-8">
+                      <textarea class="form-control selected-filters" placeholder="JSON string containing the filters" id="bar_selected_filters"></textarea>
+                      <div class="help-block with-errors">Enter a JSON string</div>
+                  </div>
+                </div>
               </div>
               <div class="modal-footer">
                   <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
@@ -544,6 +557,13 @@
                                   </select>
                                   <div class="help-block with-errors">Select the field from the above list.</div>
                               </div>
+                          </div>
+                          <div class="form-group">
+                            <label class="col-sm-4 control-label" for="stacked_bar_selected_filters"><strong>Filters</strong></label>
+                            <div class="col-sm-8">
+                                <textarea class="form-control selected-filters" placeholder="JSON string containing the filters" id="stacked_bar_selected_filters"></textarea>
+                                <div class="help-block with-errors">Enter a JSON string</div>
+                            </div>
                           </div>
                       </div>
                       <div class="modal-footer">

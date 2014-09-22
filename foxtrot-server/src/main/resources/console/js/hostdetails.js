@@ -15,11 +15,11 @@
  */
 
  function HostDetails(hostname, port) {
-	this.hostname = hostname;
-	this.port = port;
+	this.hostname = "foxtrot.nm.flipkart.com";
+	this.port = 80;
 }
 
 HostDetails.prototype.url = function(path) {
-//	return "http://" + this.hostname + ":" + this.port + path
-	return path
+	return "http://" + this.hostname + ":" + this.port + path;
+	//return path
 };

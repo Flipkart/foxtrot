@@ -20,7 +20,8 @@ function StackedBar () {
 	this.setupModalName = "#setupStackedBarChartModal";
 	//Instance properties
 	this.eventTypeFieldName = null;
-	this.period = 0;		
+	this.period = 0;
+    this.selectedFilters = null;
 }
 
 StackedBar.prototype = new Tile();
@@ -162,16 +163,23 @@ StackedBar.prototype.render = function(data, animate) {
 StackedBar.prototype.getQuery = function() {
 	if(this.eventTypeFieldName && this.period != 0) {
 		var timestamp = new Date().getTime();
+        var filters = [];
+        filters.push({
+            field: "_timestamp",
+            operator: "between",
+            temporal: true,
+            from: (timestamp - (this.period * 60000)),
+            to: timestamp
+        });
+        if(this.selectedFilters && this.selectedFilters.filters){
+            for(var i = 0; i<this.selectedFilters.filters.length; i++){
+                filters.push(this.selectedFilters.filters[i]);
+            }
+        }
 		return JSON.stringify({
 			opcode : "trend",
 			table : this.tables.selectedTable.name,
-			filters : [{
-				field: "_timestamp",
-				operator: "between",
-				temporal: true,
-				from: (timestamp - (this.period * 60000)),
-				to: timestamp
-			}],
+			filters : filters,
 			field : this.eventTypeFieldName,
             period: "minutes"
 		});
@@ -186,6 +194,15 @@ StackedBar.prototype.configChanged = function() {
 	var modal = $(this.setupModalName);
 	this.period = parseInt(modal.find(".refresh-period").val());
 	this.eventTypeFieldName = modal.find(".stacked-bar-chart-field").val();
+    var filters = modal.find(".selected-filters").val();
+    if(filters != undefined && filters != ""){
+        var selectedFilters = JSON.parse(filters);
+        if(selectedFilters != undefined){
+            this.selectedFilters = selectedFilters;
+        }
+    }else{
+        this.selectedFilters = null;
+    }
 };
 
 StackedBar.prototype.populateSetupDialog = function() {
@@ -199,15 +216,24 @@ StackedBar.prototype.populateSetupDialog = function() {
 		select.val(this.eventTypeFieldName);
 	}
 	select.selectpicker('refresh');
-	modal.find(".refresh-period").val(( 0 != this.period)?this.period:"");	
+	modal.find(".refresh-period").val(( 0 != this.period)?this.period:"");
+    if(this.selectedFilters){
+       modal.find(".selected-filters").val(JSON.stringify(this.selectedFilters));
+    }
 }
 
 StackedBar.prototype.registerSpecificData = function(representation) {
 	representation['period'] = this.period;
 	representation['eventTypeFieldName'] = this.eventTypeFieldName;
+    if(this.selectedFilters) {
+        representation['selectedFilters'] = btoa(JSON.stringify(this.selectedFilters));
+    }
 };
 
 StackedBar.prototype.loadSpecificData = function(representation) {
 	this.period = representation['period'];
 	this.eventTypeFieldName = representation['eventTypeFieldName'];
+    if(representation.hasOwnProperty('selectedFilters')) {
+        this.selectedFilters = JSON.parse(atob(representation['selectedFilters']));
+    }
 };

@@ -21,7 +21,8 @@ function BarTile () {
 	//Instance properties
 	this.eventTypeFieldName = null;
     this.selectedValues = null;
-	this.period = 0;		
+	this.period = 0;
+    this.selectedFilters = null;
 }
 
 BarTile.prototype = new Tile();
@@ -133,6 +134,11 @@ BarTile.prototype.getQuery = function() {
                 values: this.selectedValues
             });
         }
+        if(this.selectedFilters && this.selectedFilters.filters){
+           for(var i = 0; i<this.selectedFilters.filters.length; i++){
+               filters.push(this.selectedFilters.filters[i]);
+           }
+        }
 		return JSON.stringify({
 			opcode : "group",
 			table : this.tables.selectedTable.name,
@@ -157,6 +163,15 @@ BarTile.prototype.configChanged = function() {
     else {
         this.selectedValues = null;
     }
+    var filters = modal.find(".selected-filters").val();
+    if(filters != undefined && filters != ""){
+        var selectedFilters = JSON.parse(filters);
+        if(selectedFilters != undefined){
+            this.selectedFilters = selectedFilters;
+        }
+    }else{
+        this.selectedFilters = null;
+    }
 };
 
 BarTile.prototype.populateSetupDialog = function() {
@@ -174,16 +189,25 @@ BarTile.prototype.populateSetupDialog = function() {
     if(this.selectedValues) {
         modal.find(".selected-values").val(this.selectedValues.join(", "));
     }
+    if(this.selectedFilters){
+       modal.find(".selected-filters").val(JSON.stringify(this.selectedFilters));
+    }
 }
 
 BarTile.prototype.registerSpecificData = function(representation) {
 	representation['period'] = this.period;
 	representation['eventTypeFieldName'] = this.eventTypeFieldName;
     representation['selectedValues'] = this.selectedValues;
+    if(this.selectedFilters) {
+        representation['selectedFilters'] = btoa(JSON.stringify(this.selectedFilters));
+    }
 };
 
 BarTile.prototype.loadSpecificData = function(representation) {
 	this.period = representation['period'];
 	this.eventTypeFieldName = representation['eventTypeFieldName'];
     this.selectedValues = representation['selectedValues'];
+    if(representation.hasOwnProperty('selectedFilters')) {
+        this.selectedFilters = JSON.parse(atob(representation['selectedFilters']));
+    }
 };
