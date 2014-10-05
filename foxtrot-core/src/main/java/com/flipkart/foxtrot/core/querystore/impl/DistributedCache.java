@@ -43,13 +43,13 @@ public class DistributedCache implements Cache {
     public static void setupConfig(HazelcastConnection hazelcastConnection) {
         MapConfig mapConfig = hazelcastConnection.getHazelcastConfig().getMapConfig(NAME_PREFIX + "*");
         mapConfig.setInMemoryFormat(InMemoryFormat.BINARY);
-        mapConfig.setTimeToLiveSeconds(30);
-        mapConfig.setMaxIdleSeconds(30);
+        mapConfig.setTimeToLiveSeconds(10);
+        mapConfig.setMaxIdleSeconds(10);
         mapConfig.setBackupCount(0);
         NearCacheConfig nearCacheConfig = new NearCacheConfig();
-        nearCacheConfig.setTimeToLiveSeconds(30);
+        nearCacheConfig.setTimeToLiveSeconds(10);
         nearCacheConfig.setInvalidateOnChange(true);
-        nearCacheConfig.setMaxIdleSeconds(60);
+        nearCacheConfig.setMaxIdleSeconds(10);
         mapConfig.setNearCacheConfig(nearCacheConfig);
     }
 
