@@ -65,7 +65,7 @@ public class HBaseDataStore implements DataStore {
             Stopwatch stopwatch = new Stopwatch();
             stopwatch.start();
             hTable.put(getPutForDocument(table, document));
-            logger.info(String.format("HBASE put took : %d table : %s", stopwatch.elapsedMillis(), table));
+            logger.error(String.format("HBASE put took : %d table : %s", stopwatch.elapsedMillis(), table));
         } catch (JsonProcessingException e) {
             throw new DataStoreException(DataStoreException.ErrorCode.STORE_INVALID_REQUEST,
                     e.getMessage(), e);
@@ -108,7 +108,10 @@ public class HBaseDataStore implements DataStore {
         HTableInterface hTable = null;
         try {
             hTable = tableWrapper.getTable();
+            Stopwatch stopwatch = new Stopwatch();
+            stopwatch.start();
             hTable.put(puts);
+            logger.error(String.format("HBASE put took : %d table : %s", stopwatch.elapsedMillis(), table));
         } catch (IOException e) {
             throw new DataStoreException(DataStoreException.ErrorCode.STORE_MULTI_SAVE,
                     e.getMessage(), e);

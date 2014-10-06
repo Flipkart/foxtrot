@@ -136,10 +136,13 @@ public class ElasticsearchQueryStore implements QueryStore {
                         .source(mapper.writeValueAsBytes(document.getData()));
                 bulkRequestBuilder.add(indexRequest);
             }
+            Stopwatch stopwatch = new Stopwatch();
+            stopwatch.start();
             BulkResponse responses = bulkRequestBuilder
                     .setConsistencyLevel(WriteConsistencyLevel.QUORUM)
                     .execute()
                     .get();
+            logger.error(String.format("ES took : %d table : %s", stopwatch.elapsedMillis(), table));
 
             int failedCount = 0;
             for (int i = 0; i < responses.getItems().length; i++) {
