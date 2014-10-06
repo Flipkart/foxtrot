@@ -20,6 +20,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.flipkart.foxtrot.common.Document;
 import com.flipkart.foxtrot.core.datastore.DataStore;
 import com.flipkart.foxtrot.core.datastore.DataStoreException;
+import com.google.common.base.Stopwatch;
 import org.apache.hadoop.hbase.client.Get;
 import org.apache.hadoop.hbase.client.HTableInterface;
 import org.apache.hadoop.hbase.client.Put;
@@ -61,7 +62,10 @@ public class HBaseDataStore implements DataStore {
         HTableInterface hTable = null;
         try {
             hTable = tableWrapper.getTable();
+            Stopwatch stopwatch = new Stopwatch();
+            stopwatch.start();
             hTable.put(getPutForDocument(table, document));
+            logger.info(String.format("HBASE put took : %d table : %s", stopwatch.elapsedMillis(), table));
         } catch (JsonProcessingException e) {
             throw new DataStoreException(DataStoreException.ErrorCode.STORE_INVALID_REQUEST,
                     e.getMessage(), e);

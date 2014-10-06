@@ -27,6 +27,7 @@ import com.flipkart.foxtrot.core.parsers.ElasticsearchMappingParser;
 import com.flipkart.foxtrot.core.querystore.QueryStore;
 import com.flipkart.foxtrot.core.querystore.QueryStoreException;
 import com.flipkart.foxtrot.core.querystore.TableMetadataManager;
+import com.google.common.base.Stopwatch;
 import com.google.common.collect.Lists;
 import org.elasticsearch.action.WriteConsistencyLevel;
 import org.elasticsearch.action.admin.indices.mapping.get.GetMappingsResponse;
@@ -76,6 +77,8 @@ public class ElasticsearchQueryStore implements QueryStore {
             }
             dataStore.save(table, document);
             long timestamp = document.getTimestamp();
+            Stopwatch stopwatch = new Stopwatch();
+            stopwatch.start();
             connection.getClient()
                     .prepareIndex()
                     .setIndex(ElasticsearchUtils.getCurrentIndex(table, timestamp))
@@ -86,6 +89,7 @@ public class ElasticsearchQueryStore implements QueryStore {
                     .setConsistencyLevel(WriteConsistencyLevel.QUORUM)
                     .execute()
                     .get();
+            logger.error(String.format("ES took : %d table : %s", stopwatch.elapsedMillis(), table));
         } catch (QueryStoreException ex) {
             throw ex;
         } catch (DataStoreException ex) {
