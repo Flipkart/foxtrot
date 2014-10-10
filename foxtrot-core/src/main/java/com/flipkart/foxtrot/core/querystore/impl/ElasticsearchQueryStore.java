@@ -78,6 +78,10 @@ public class ElasticsearchQueryStore implements QueryStore {
             }
             dataStore.save(table, document);
             long timestamp = document.getTimestamp();
+            if (timestamp > System.currentTimeMillis()){
+                logger.error("Skipping document. Invalid timestamp. document --> " + mapper.writeValueAsString(document));
+                return;
+            }
             Stopwatch stopwatch = new Stopwatch();
             stopwatch.start();
             connection.getClient()
@@ -90,7 +94,7 @@ public class ElasticsearchQueryStore implements QueryStore {
                     .setConsistencyLevel(WriteConsistencyLevel.QUORUM)
                     .execute()
                     .get(2, TimeUnit.SECONDS);
-            logger.error(String.format("ES took : %d table : %s", stopwatch.elapsedMillis(), table));
+            logger.info(String.format("ES took : %d table : %s", stopwatch.elapsedMillis(), table));
         } catch (QueryStoreException ex) {
             throw ex;
         } catch (DataStoreException ex) {
@@ -128,6 +132,10 @@ public class ElasticsearchQueryStore implements QueryStore {
             BulkRequestBuilder bulkRequestBuilder = connection.getClient().prepareBulk();
             for (Document document : documents) {
                 long timestamp = document.getTimestamp();
+                if (timestamp > System.currentTimeMillis()){
+                    logger.error("Skipping document. Invalid timestamp. document --> " + mapper.writeValueAsString(document));
+                    continue;
+                }
                 final String index = ElasticsearchUtils.getCurrentIndex(table, timestamp);
                 IndexRequest indexRequest = new IndexRequest()
                         .index(index)
@@ -137,27 +145,26 @@ public class ElasticsearchQueryStore implements QueryStore {
                         .source(mapper.writeValueAsBytes(document.getData()));
                 bulkRequestBuilder.add(indexRequest);
             }
-            Stopwatch stopwatch = new Stopwatch();
-            stopwatch.start();
-            BulkResponse responses = bulkRequestBuilder
-                    .setConsistencyLevel(WriteConsistencyLevel.QUORUM)
-                    .execute()
-                    .get(10, TimeUnit.SECONDS);
-            logger.error(String.format("ES took : %d table : %s", stopwatch.elapsedMillis(), table));
-
-            int failedCount = 0;
-            for (int i = 0; i < responses.getItems().length; i++) {
-                BulkItemResponse itemResponse = responses.getItems()[i];
-                failedCount += (itemResponse.isFailed() ? 1 : 0);
-                if (itemResponse.isFailed()) {
-                    logger.error(String.format("Table : %s Failure Message : %s Document : %s", table, itemResponse.getFailureMessage(), mapper.writeValueAsString(documents.get(i))));
+            if (bulkRequestBuilder.numberOfActions() > 0){
+                Stopwatch stopwatch = new Stopwatch();
+                stopwatch.start();
+                BulkResponse responses = bulkRequestBuilder
+                        .setConsistencyLevel(WriteConsistencyLevel.QUORUM)
+                        .execute()
+                        .get(10, TimeUnit.SECONDS);
+                logger.info(String.format("ES took : %d table : %s", stopwatch.elapsedMillis(), table));
+                int failedCount = 0;
+                for (int i = 0; i < responses.getItems().length; i++) {
+                    BulkItemResponse itemResponse = responses.getItems()[i];
+                    failedCount += (itemResponse.isFailed() ? 1 : 0);
+                    if (itemResponse.isFailed()) {
+                        logger.error(String.format("Table : %s Failure Message : %s Document : %s", table, itemResponse.getFailureMessage(), mapper.writeValueAsString(documents.get(i))));
+                    }
+                }
+                if (failedCount > 0) {
+                    logger.error(String.format("Table : %s Failed Documents : %d", table, failedCount));
                 }
             }
-            if (failedCount > 0) {
-                logger.error(String.format("Table : %s Failed Documents : %d", table, failedCount));
-            }
-
-
         } catch (QueryStoreException ex) {
             throw ex;
         } catch (DataStoreException ex) {
