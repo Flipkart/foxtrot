@@ -276,8 +276,8 @@ public class GroupActionTest {
         ObjectNode resultNode = factory.objectNode();
 
         ObjectNode temp = factory.objectNode();
-        temp.put("nexus", factory.objectNode().put("3", 1).put("2", 2).put("1", 2));
-        temp.put("galaxy", factory.objectNode().put("3", 1).put("2", 1));
+        temp.put("nexus", factory.objectNode().put("1", 2).put("2", 2).put("3", 1));
+        temp.put("galaxy", factory.objectNode().put("2", 1).put("3", 1));
         resultNode.put("android", temp);
 
         temp = factory.objectNode();
@@ -309,8 +309,8 @@ public class GroupActionTest {
         ObjectNode resultNode = factory.objectNode();
 
         ObjectNode temp = factory.objectNode();
-        temp.put("nexus", factory.objectNode().put("3", 1).put("2", 2));
-        temp.put("galaxy", factory.objectNode().put("3", 1).put("2", 1));
+        temp.put("nexus", factory.objectNode().put("2", 2).put("3", 1));
+        temp.put("galaxy", factory.objectNode().put("2", 1).put("3", 1));
         resultNode.put("android", temp);
 
         temp = factory.objectNode();
