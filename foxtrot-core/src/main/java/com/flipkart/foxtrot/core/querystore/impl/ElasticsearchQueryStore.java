@@ -43,6 +43,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 /**
  * User: Santanu Sinha (santanu.sinha@flipkart.com)
@@ -88,7 +89,7 @@ public class ElasticsearchQueryStore implements QueryStore {
                     .setSource(mapper.writeValueAsBytes(document.getData()))
                     .setConsistencyLevel(WriteConsistencyLevel.QUORUM)
                     .execute()
-                    .get();
+                    .get(2, TimeUnit.SECONDS);
             logger.error(String.format("ES took : %d table : %s", stopwatch.elapsedMillis(), table));
         } catch (QueryStoreException ex) {
             throw ex;
@@ -141,7 +142,7 @@ public class ElasticsearchQueryStore implements QueryStore {
             BulkResponse responses = bulkRequestBuilder
                     .setConsistencyLevel(WriteConsistencyLevel.QUORUM)
                     .execute()
-                    .get();
+                    .get(10, TimeUnit.SECONDS);
             logger.error(String.format("ES took : %d table : %s", stopwatch.elapsedMillis(), table));
 
             int failedCount = 0;
