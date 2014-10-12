@@ -14,4 +14,4 @@
  * limitations under the License.
  */
 
- var hostDetails = new HostDetails("foxtrot.nm.flipkart.com", 80);
+ var hostDetails = new HostDetails(window.location.hostname, window.location.port);
