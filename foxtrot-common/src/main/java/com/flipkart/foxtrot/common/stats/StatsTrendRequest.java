@@ -1,7 +1,7 @@
 package com.flipkart.foxtrot.common.stats;
 
 import com.flipkart.foxtrot.common.ActionRequest;
-import com.flipkart.foxtrot.common.histogram.Period;
+import com.flipkart.foxtrot.common.Period;
 import com.flipkart.foxtrot.common.query.Filter;
 import com.flipkart.foxtrot.common.query.FilterCombinerType;
 import org.apache.commons.lang3.builder.ToStringBuilder;

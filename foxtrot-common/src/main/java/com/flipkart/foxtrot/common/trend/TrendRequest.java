@@ -16,7 +16,7 @@
 package com.flipkart.foxtrot.common.trend;
 
 import com.flipkart.foxtrot.common.ActionRequest;
-import com.flipkart.foxtrot.common.histogram.Period;
+import com.flipkart.foxtrot.common.Period;
 import com.flipkart.foxtrot.common.query.Filter;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.hibernate.validator.constraints.NotEmpty;

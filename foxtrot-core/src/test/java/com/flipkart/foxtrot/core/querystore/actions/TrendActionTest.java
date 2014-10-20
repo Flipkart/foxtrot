@@ -20,7 +20,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.flipkart.foxtrot.common.Document;
-import com.flipkart.foxtrot.common.histogram.Period;
+import com.flipkart.foxtrot.common.Period;
 import com.flipkart.foxtrot.common.query.Filter;
 import com.flipkart.foxtrot.common.query.general.EqualsFilter;
 import com.flipkart.foxtrot.common.trend.TrendRequest;

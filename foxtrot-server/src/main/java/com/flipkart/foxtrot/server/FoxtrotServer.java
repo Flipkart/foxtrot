@@ -106,6 +106,7 @@ public class FoxtrotServer extends Service<FoxtrotServerConfiguration> {
         environment.addResource(new TableFieldMappingResource(queryStore));
         environment.addResource(new ConsoleResource(
                 new ElasticsearchConsolePersistence(elasticsearchConnection, objectMapper)));
+        environment.addResource(new FqlResource(executor));
 
         environment.addHealthCheck(new ElasticSearchHealthCheck("ES Health Check", elasticsearchConnection));
 

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.flipkart.foxtrot.common.histogram;
+package com.flipkart.foxtrot.common;
 
 /**
  * User: Santanu Sinha (santanu.sinha@flipkart.com)
