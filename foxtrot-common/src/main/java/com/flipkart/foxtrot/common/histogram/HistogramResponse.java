@@ -16,6 +16,7 @@
 package com.flipkart.foxtrot.common.histogram;
 
 import com.flipkart.foxtrot.common.ActionResponse;
+import com.flipkart.foxtrot.common.ResponseVisitor;
 
 import java.util.List;
 
@@ -91,4 +92,10 @@ public class HistogramResponse implements ActionResponse {
     public void setTo(long to) {
         this.to = to;
     }
+
+    @Override
+    public void accept(ResponseVisitor visitor) {
+        visitor.visit(this);
+    }
+    
 }

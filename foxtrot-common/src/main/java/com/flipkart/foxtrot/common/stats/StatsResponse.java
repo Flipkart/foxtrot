@@ -1,6 +1,7 @@
 package com.flipkart.foxtrot.common.stats;
 
 import com.flipkart.foxtrot.common.ActionResponse;
+import com.flipkart.foxtrot.common.ResponseVisitor;
 
 import java.util.Map;
 
@@ -26,4 +27,10 @@ public class StatsResponse implements ActionResponse {
     public void setResult(StatsValue result) {
         this.result = result;
     }
+
+    @Override
+    public void accept(ResponseVisitor visitor) {
+        visitor.visit(this);
+    }
+
 }

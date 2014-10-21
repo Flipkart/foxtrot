@@ -16,6 +16,7 @@
 package com.flipkart.foxtrot.common.group;
 
 import com.flipkart.foxtrot.common.ActionResponse;
+import com.flipkart.foxtrot.common.ResponseVisitor;
 
 import java.util.Map;
 
@@ -40,5 +41,10 @@ public class GroupResponse implements ActionResponse {
 
     public void setResult(Map<String, Object> result) {
         this.result = result;
+    }
+
+    @Override
+    public void accept(ResponseVisitor visitor) {
+        visitor.visit(this);
     }
 }

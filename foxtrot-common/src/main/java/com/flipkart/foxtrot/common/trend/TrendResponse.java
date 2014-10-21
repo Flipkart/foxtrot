@@ -16,6 +16,7 @@
 package com.flipkart.foxtrot.common.trend;
 
 import com.flipkart.foxtrot.common.ActionResponse;
+import com.flipkart.foxtrot.common.ResponseVisitor;
 
 import java.util.List;
 import java.util.Map;
@@ -72,6 +73,11 @@ public class TrendResponse implements ActionResponse {
 
     public void setTrends(Map<String, List<Count>> trends) {
         this.trends = trends;
+    }
+
+    @Override
+    public void accept(ResponseVisitor visitor) {
+        visitor.visit(this);
     }
 
 }

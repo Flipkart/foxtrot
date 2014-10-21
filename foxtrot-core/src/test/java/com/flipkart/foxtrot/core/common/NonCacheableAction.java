@@ -43,6 +43,6 @@ public class NonCacheableAction extends Action<NonCacheableActionRequest> {
 
     @Override
     public ActionResponse execute(NonCacheableActionRequest parameter) throws QueryStoreException {
-        return new NonCacheableActionResponse();
+        return null;//new NonCacheableActionResponse();
     }
 }

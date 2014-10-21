@@ -17,6 +17,7 @@ package com.flipkart.foxtrot.common.query;
 
 import com.flipkart.foxtrot.common.ActionResponse;
 import com.flipkart.foxtrot.common.Document;
+import com.flipkart.foxtrot.common.ResponseVisitor;
 
 import java.util.List;
 
@@ -42,4 +43,10 @@ public class QueryResponse implements ActionResponse {
     public void setDocuments(List<Document> documents) {
         this.documents = documents;
     }
+
+    @Override
+    public void accept(ResponseVisitor visitor) {
+        visitor.visit(this);
+    }
+
 }
