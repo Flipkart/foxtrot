@@ -1,7 +1,6 @@
-package com.flipkart.foxtrot.server.responseprocessors;
+package com.flipkart.foxtrot.sql.responseprocessors.model;
 
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 
 import java.util.List;
 import java.util.Map;

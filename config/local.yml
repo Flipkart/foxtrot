@@ -5,7 +5,16 @@ http:
 
 elasticsearch:
   hosts:
-  - localhost
+  - w3-hyperion-db7.nm.flipkart.com
+  - w3-hyperion-db8.nm.flipkart.com
+  - w3-hyperion-db9.nm.flipkart.com
+  - w3-hyperion-db10.nm.flipkart.com
+  - w3-hyperion-db11.nm.flipkart.com
+  - w3-hyperion-db12.nm.flipkart.com
+  - w3-hyperion-db13.nm.flipkart.com
+  - w3-hyperion-db14.nm.flipkart.com
+  - w3-hyperion-db15.nm.flipkart.com
+  - w3-hyperion-db16.nm.flipkart.com
   cluster: foxtrot
 
 hbase:

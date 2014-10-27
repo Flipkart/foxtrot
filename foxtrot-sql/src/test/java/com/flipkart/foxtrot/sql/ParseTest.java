@@ -4,13 +4,22 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.flipkart.foxtrot.common.ActionRequest;
+import org.junit.Test;
 
-public class SqlParser {
-    public static void main(String[] args) throws Exception {
-        ObjectMapper objectMapper = new ObjectMapper();
+public class ParseTest {
+    @Test
+    public void test() {
+        //TODO
+        /*ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
         objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
         ObjectWriter writer = objectMapper.writerWithDefaultPrettyPrinter();
+        {
+            String sql = "select abc.xyz, def from europa order by test.name limit 20 offset 5";
+            QueryTranslator queryTranslator = new QueryTranslator();
+            ActionRequest request = queryTranslator.translate(sql);
+            System.out.println(writer.writeValueAsString(request));
+        }
         {
             String sql = "select * from europa order by test.name limit 20 offset 5";
             QueryTranslator queryTranslator = new QueryTranslator();
@@ -59,6 +68,6 @@ public class SqlParser {
             QueryTranslator queryTranslator = new QueryTranslator();
             ActionRequest request = queryTranslator.translate(sql);
             System.out.println(writer.writeValueAsString(request));
-        }
+        }*/
     }
 }

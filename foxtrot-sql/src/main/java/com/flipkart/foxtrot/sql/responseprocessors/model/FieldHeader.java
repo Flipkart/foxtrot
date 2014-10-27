@@ -1,4 +1,4 @@
-package com.flipkart.foxtrot.server.responseprocessors;
+package com.flipkart.foxtrot.sql.responseprocessors.model;
 
 public class FieldHeader {
     private String name;

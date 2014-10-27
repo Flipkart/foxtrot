@@ -32,8 +32,10 @@ import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsLoader;
 import com.flipkart.foxtrot.core.querystore.impl.*;
 import com.flipkart.foxtrot.server.config.FoxtrotServerConfiguration;
 import com.flipkart.foxtrot.server.console.ElasticsearchConsolePersistence;
+import com.flipkart.foxtrot.server.providers.ResponseTextProvider;
 import com.flipkart.foxtrot.server.resources.*;
 import com.flipkart.foxtrot.server.util.ManagedActionScanner;
+import com.flipkart.foxtrot.sql.FqlEngine;
 import com.yammer.dropwizard.Service;
 import com.yammer.dropwizard.assets.AssetsBundle;
 import com.yammer.dropwizard.config.Bootstrap;
@@ -106,7 +108,8 @@ public class FoxtrotServer extends Service<FoxtrotServerConfiguration> {
         environment.addResource(new TableFieldMappingResource(queryStore));
         environment.addResource(new ConsoleResource(
                 new ElasticsearchConsolePersistence(elasticsearchConnection, objectMapper)));
-        environment.addResource(new FqlResource(executor, objectMapper));
+        FqlEngine fqlEngine = new FqlEngine(tableMetadataManager, queryStore, executor, objectMapper);
+        environment.addResource(new FqlResource(fqlEngine));
 
         environment.addHealthCheck(new ElasticSearchHealthCheck("ES Health Check", elasticsearchConnection));
 

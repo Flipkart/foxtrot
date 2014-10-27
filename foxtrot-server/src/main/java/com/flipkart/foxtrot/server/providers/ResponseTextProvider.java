@@ -1,9 +1,7 @@
-package com.flipkart.foxtrot.server;
+package com.flipkart.foxtrot.server.providers;
 
-import com.flipkart.foxtrot.common.ActionResponse;
-import com.flipkart.foxtrot.server.responseprocessors.FieldHeader;
-import com.flipkart.foxtrot.server.responseprocessors.FlatRepresentation;
-import com.flipkart.foxtrot.server.responseprocessors.Flattener;
+import com.flipkart.foxtrot.sql.responseprocessors.model.FieldHeader;
+import com.flipkart.foxtrot.sql.responseprocessors.model.FlatRepresentation;
 
 import javax.ws.rs.Produces;
 import javax.ws.rs.WebApplicationException;
