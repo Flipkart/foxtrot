@@ -14,10 +14,14 @@ import com.flipkart.foxtrot.sql.responseprocessors.model.FlatRepresentation;
 import com.flipkart.foxtrot.sql.responseprocessors.Flattener;
 import com.flipkart.foxtrot.sql.responseprocessors.FlatteningUtils;
 import com.google.common.collect.Lists;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
 public class FqlEngine {
+    private static final Logger logger = LoggerFactory.getLogger(FqlEngine.class.getSimpleName());
+
     private TableMetadataManager tableMetadataManager;
     private QueryStore queryStore;
     private QueryExecutor queryExecutor;
@@ -33,7 +37,9 @@ public class FqlEngine {
     public FlatRepresentation parse(final String fql) throws Exception {
         QueryTranslator translator = new QueryTranslator();
         FqlQuery query = translator.translate(fql);
-        return new QueryProcessor(tableMetadataManager, queryStore, queryExecutor, mapper).process(query);
+        FlatRepresentation response = new QueryProcessor(tableMetadataManager, queryStore, queryExecutor, mapper).process(query);
+        logger.info("Flat Response: " + mapper.writerWithDefaultPrettyPrinter().writeValueAsString(response));
+        return response;
     }
 
     private static final class QueryProcessor implements FqlQueryVisitor {
@@ -76,7 +82,11 @@ public class FqlEngine {
         public void visit(FqlActionQuery fqlActionQuery) throws Exception {
             ActionResponse actionResponse = queryExecutor.execute(fqlActionQuery.getActionRequest());
             Flattener flattener = new Flattener(mapper, fqlActionQuery.getActionRequest(), fqlActionQuery.getSelectedFields());
-            actionResponse.accept(flattener);
+            try {
+                actionResponse.accept(flattener);
+            } catch (Throwable t) {
+                logger.error("Error running query: ", t);
+            }
             result = flattener.getFlatRepresentation();
         }
 

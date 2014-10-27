@@ -7,6 +7,7 @@ import com.flipkart.foxtrot.common.ResponseVisitor;
 import com.flipkart.foxtrot.common.group.GroupRequest;
 import com.flipkart.foxtrot.common.group.GroupResponse;
 import com.flipkart.foxtrot.common.histogram.HistogramResponse;
+import com.flipkart.foxtrot.common.query.Query;
 import com.flipkart.foxtrot.common.query.QueryResponse;
 import com.flipkart.foxtrot.common.stats.StatsResponse;
 import com.flipkart.foxtrot.common.stats.StatsTrendResponse;
@@ -78,15 +79,16 @@ public class Flattener implements ResponseVisitor {
         Map<String, Integer> fieldNames = Maps.newTreeMap();
         List<Map<String, Object>> rows = Lists.newArrayList();
         Set<String> fieldToLookup = (null == fieldsToReturn) ? Collections.<String>emptySet() : new HashSet<String>(fieldsToReturn);
+        boolean isAllFields = fieldToLookup.isEmpty();
         for(Document document : queryResponse.getDocuments()) {
             Map<String, MetaData> docFields = generateFieldMappings(null, objectMapper.valueToTree(document));
             Map<String, Object> row = Maps.newTreeMap();
             for(Map.Entry<String, MetaData> docField : docFields.entrySet()) {
                 String fieldName = docField.getKey();
                 String prettyFieldName = fieldName.replaceFirst("data.", "");
-                //if(!isAllFields && !fieldToLookup.contains(fieldName)) {
-                //    continue;
-                //}
+                if(!isAllFields && !fieldToLookup.contains(prettyFieldName)) {
+                    continue;
+                }
                 row.put(prettyFieldName, docField.getValue().getData());
                 if(!fieldNames.containsKey(prettyFieldName)) {
                     fieldNames.put(prettyFieldName, 0);
@@ -96,8 +98,9 @@ public class Flattener implements ResponseVisitor {
             }
             rows.add(row);
         }
-        flatRepresentation = new FlatRepresentation(getFieldsFromList(fieldNames), rows);
-
+        if(null != rows && !rows.isEmpty()) {
+            flatRepresentation = new FlatRepresentation(getFieldsFromList(fieldNames), rows);
+        }
     }
 
     @Override
@@ -210,7 +213,7 @@ public class Flattener implements ResponseVisitor {
                 "        }" +
                 "    }\n" +
                 "}";*/
-        StatsValue statsValue = new StatsValue();
+        /*StatsValue statsValue = new StatsValue();
         Map<Number, Number> percentiles = Maps.newHashMap();
         percentiles.put(99.0, 332.04164711863444);
         percentiles.put(25.0, 5);
@@ -220,46 +223,16 @@ public class Flattener implements ResponseVisitor {
         stats.put("max", 23860);
         statsValue.setStats(stats);
         StatsResponse statsResponse = new StatsResponse();
-        statsResponse.setResult(statsValue);
+        statsResponse.setResult(statsValue);*/
         ObjectMapper objectMapper = new ObjectMapper();
         //objectMapper.enable(DeserializationFeature.)
-        GroupRequest groupRequest = new GroupRequest();
-        groupRequest.setNesting(Lists.newArrayList("header.configName", "data.checkoutType"));
-        Flattener flattener = new Flattener(objectMapper, groupRequest, Lists.newArrayList("data.accountId", "data.actionType.type"));
-        new ObjectMapper().readValue(json, QueryResponse.class).accept(flattener);
-        //statsResponse.accept(flattener);
-        //System.out.println(objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(flattener.getFlatRepresentation()));
-        List<FieldHeader> headers = flattener.getFlatRepresentation().getHeaders();
-        PrintStream entityStream = System.out;
-        StringBuilder headerLineBuilder = new StringBuilder();
-        headerLineBuilder.append("|");
-        for(FieldHeader fieldHeader : headers) {
-            final String name = fieldHeader.getName();
-            if(name.length() > fieldHeader.getMaxLength()) {
-                fieldHeader.setMaxLength(name.length());
-            }
-            headerLineBuilder.append(" ");
-            headerLineBuilder.append(String.format("%" + fieldHeader.getMaxLength() + "s", fieldHeader.getName()));
-            headerLineBuilder.append(" |");
-        }
-        headerLineBuilder.append("\r\n");
-        final String headerLine = headerLineBuilder.toString();
-        entityStream.write(hrLine(headerLine.length()).getBytes());
-        entityStream.write(headerLine.getBytes());
-        entityStream.write(hrLine(headerLine.length()).getBytes());
-        List<Map<String, Object>> rows = flattener.getFlatRepresentation().getRows();
-        for(Map<String, Object> row : rows) {
-            StringBuilder rowBuilder = new StringBuilder();
-            rowBuilder.append("|");
-            for(FieldHeader fieldHeader : headers) {
-                rowBuilder.append(" ");
-                rowBuilder.append(String.format("%" + fieldHeader.getMaxLength() + "s", row.get(fieldHeader.getName())));
-                rowBuilder.append(" |");
-            }
-            rowBuilder.append("\r\n");
-            entityStream.write(rowBuilder.toString().replaceAll("\"", " ").replaceAll("null", "    ").getBytes());
-        }
-        entityStream.write(hrLine(headerLine.length()).getBytes());
+        /*GroupRequest groupRequest = new GroupRequest();
+        groupRequest.setNesting(Lists.newArrayList("header.configName", "data.checkoutType"));*/
+        Query query = new Query();
+        query.setTable("europa");
+        Flattener flattener = new Flattener(objectMapper, query, Lists.newArrayList("data.accountId", "data.actionType.type"));
+        objectMapper.readValue(json, QueryResponse.class).accept(flattener);
+        System.out.println(objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(flattener.getFlatRepresentation()));
 
     }
 
