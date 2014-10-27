@@ -19,7 +19,7 @@ import java.util.Map;
 
 @Provider
 @Produces(MediaType.TEXT_PLAIN)
-public class ResponseTextProvider implements MessageBodyWriter<FlatRepresentation> {
+public class FlatResponseTextProvider implements MessageBodyWriter<FlatRepresentation> {
     @Override
     public boolean isWriteable(Class<?> type, Type genericType, Annotation[] annotations, MediaType mediaType) {
         return type == FlatRepresentation.class && mediaType.toString().equals(MediaType.TEXT_PLAIN);

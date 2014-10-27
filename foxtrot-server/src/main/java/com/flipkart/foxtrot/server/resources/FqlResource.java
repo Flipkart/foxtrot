@@ -12,7 +12,6 @@ import javax.ws.rs.core.Response;
 import java.util.Collections;
 
 @Produces({MediaType.TEXT_PLAIN, MediaType.APPLICATION_JSON })
-@Consumes({MediaType.TEXT_PLAIN})
 @Path("/v1/fql")
 public class FqlResource {
     private static final Logger logger = LoggerFactory.getLogger(AnalyticsResource.class);
