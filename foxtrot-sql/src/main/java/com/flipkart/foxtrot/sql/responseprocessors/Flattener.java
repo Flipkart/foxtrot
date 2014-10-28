@@ -109,6 +109,23 @@ public class Flattener implements ResponseVisitor {
     @Override
     public void visit(StatsResponse statsResponse) {
         flatRepresentation = genericParse(objectMapper.valueToTree(statsResponse.getResult()));
+        List<FieldHeader> headers = Lists.newArrayList();
+        headers.add(new FieldHeader("percentiles.1.0", 20));
+        headers.add(new FieldHeader("percentiles.5.0", 20));
+        headers.add(new FieldHeader("percentiles.25.0", 20));
+        headers.add(new FieldHeader("percentiles.50.0", 20));
+        headers.add(new FieldHeader("percentiles.75.0", 20));
+        headers.add(new FieldHeader("percentiles.95.0", 20));
+        headers.add(new FieldHeader("percentiles.99.0", 20));
+        headers.add(new FieldHeader("stats.count", 20));
+        headers.add(new FieldHeader("stats.avg", 20));
+        headers.add(new FieldHeader("stats.max", 20));
+        headers.add(new FieldHeader("stats.min", 20));
+        headers.add(new FieldHeader("stats.sum", 20));
+        headers.add(new FieldHeader("stats.sum_of_squares", 20));
+        headers.add(new FieldHeader("stats.variance", 20));
+        headers.add(new FieldHeader("stats.std_deviation", 20));
+        flatRepresentation.setHeaders(headers);
     }
 
 
@@ -121,7 +138,24 @@ public class Flattener implements ResponseVisitor {
             headers.addAll(tmpFlatR.getHeaders());
             rows.add(tmpFlatR.getRows().get(0));
         }
-        flatRepresentation = new FlatRepresentation(new ArrayList<FieldHeader>(headers), rows);
+        List<FieldHeader> fieldHeaders = Lists.newArrayList();
+        fieldHeaders.add(new FieldHeader("period", 20));
+        fieldHeaders.add(new FieldHeader("percentiles.1.0", 20));
+        fieldHeaders.add(new FieldHeader("percentiles.5.0", 20));
+        fieldHeaders.add(new FieldHeader("percentiles.25.0", 20));
+        fieldHeaders.add(new FieldHeader("percentiles.50.0", 20));
+        fieldHeaders.add(new FieldHeader("percentiles.75.0", 20));
+        fieldHeaders.add(new FieldHeader("percentiles.95.0", 20));
+        fieldHeaders.add(new FieldHeader("percentiles.99.0", 20));
+        fieldHeaders.add(new FieldHeader("stats.count", 20));
+        fieldHeaders.add(new FieldHeader("stats.avg", 20));
+        fieldHeaders.add(new FieldHeader("stats.max", 20));
+        fieldHeaders.add(new FieldHeader("stats.min", 20));
+        fieldHeaders.add(new FieldHeader("stats.sum", 20));
+        fieldHeaders.add(new FieldHeader("stats.sum_of_squares", 20));
+        fieldHeaders.add(new FieldHeader("stats.variance", 20));
+        fieldHeaders.add(new FieldHeader("stats.std_deviation", 20));
+        flatRepresentation = new FlatRepresentation(fieldHeaders, rows);
     }
 
     @Override
@@ -172,10 +206,6 @@ public class Flattener implements ResponseVisitor {
         return currMax > rhs.length() ? currMax : rhs.length();
     }
 
-    private int lengthMax(final String lhs, final String rhs) {
-        return lhs.length() > rhs.length() ? lhs.length() : rhs.length();
-    }
-
     private List<FieldHeader> getFieldsFromList(Map<String, Integer> fieldNames) {
         List<FieldHeader> headers = Lists.newArrayList();
         if( null == fieldsToReturn || fieldsToReturn.isEmpty()) {
@@ -191,43 +221,4 @@ public class Flattener implements ResponseVisitor {
         return headers;
     }
 
-
-    public static String hrLine(int length) {
-        char[] chars = new char[length - 4];
-        Arrays.fill(chars, '-');
-        return "+" + new String(chars) + "+\r\n";
-    }
-
-    public static void main(String[] args) throws Exception {
-        String jsonRequest = "{\n" +
-                "    \"opcode\": \"TrendRequest\",\n" +
-                "    \"table\": \"europa\",\n" +
-                "    \"filters\": [\n" +
-                "        {\n" +
-                "            \"field\": \"_timestamp\",\n" +
-                "            \"operator\": \"between\",\n" +
-                "            \"temporal\": true,\n" +
-                "            \"from\": 1412562600000,\n" +
-                "            \"to\": 1412584200000\n" +
-                "        },\n" +
-                "      {\n" +
-                "          \"field\": \"header.configName\",\n" +
-                "          \"operator\": \"in\",\n" +
-                "          \"values\": [\"CHECKOUT_INIT\", \"CHECKOUT_COMPLETE\"]\n" +
-                "      }      \n" +
-                "    ],\n" +
-                "    \"field\": \"header.configName\",\n" +
-                "    \"period\": \"hours\"\n" +
-                "}";
-
-        String json = "{\"opcode\":\"TrendResponse\",\"trends\":{\"CHECKOUT_COMPLETE\":[{\"period\":1412560800000,\"count\":136271},{\"period\":1412564400000,\"count\":258107},{\"period\":1412568000000,\"count\":165422},{\"period\":1412571600000,\"count\":203263},{\"period\":1412575200000,\"count\":181267},{\"period\":1412578800000,\"count\":165814},{\"period\":1412582400000,\"count\":68814}],\"CHECKOUT_INIT\":[{\"period\":1412560800000,\"count\":687813},{\"period\":1412564400000,\"count\":1275330},{\"period\":1412568000000,\"count\":1686986},{\"period\":1412571600000,\"count\":1127714},{\"period\":1412575200000,\"count\":1057421},{\"period\":1412578800000,\"count\":949818},{\"period\":1412582400000,\"count\":420226}]}}";
-
-        ObjectMapper mapper = new ObjectMapper();
-        TrendRequest trendRequest = mapper.readValue(jsonRequest, TrendRequest.class);
-        TrendResponse trendResponse = mapper.readValue(json, TrendResponse.class);
-
-        Flattener flattener = new Flattener(mapper, trendRequest, null);
-        trendResponse.accept(flattener);
-        System.out.println(mapper.writerWithDefaultPrettyPrinter().writeValueAsString(flattener.getFlatRepresentation()));
-    }
 }

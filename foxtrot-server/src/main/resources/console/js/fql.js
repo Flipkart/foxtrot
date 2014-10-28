@@ -5,7 +5,7 @@ function runFql() {
         alert("Please enter a valid query"); //TODO::ALERT PROPERLY
     }
     $("#wait-dialog").modal();
-    var hostDetails = new HostDetails("hyperion-foxtrot-api1.nm.flipkart.com", 17000);
+    var hostDetails = new HostDetails("foxtrot.nm.flipkart.com", 80);
     $.ajax({
         method: 'POST',
         url: hostDetails.url("/foxtrot/v1/fql"),
