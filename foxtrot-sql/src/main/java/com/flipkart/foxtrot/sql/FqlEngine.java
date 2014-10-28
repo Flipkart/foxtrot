@@ -80,6 +80,7 @@ public class FqlEngine {
 
         @Override
         public void visit(FqlActionQuery fqlActionQuery) throws Exception {
+            logger.info("Generated query: " + mapper.writeValueAsString(fqlActionQuery.getActionRequest()));
             ActionResponse actionResponse = queryExecutor.execute(fqlActionQuery.getActionRequest());
             Flattener flattener = new Flattener(mapper, fqlActionQuery.getActionRequest(), fqlActionQuery.getSelectedFields());
             try {
