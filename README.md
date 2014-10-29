@@ -4,9 +4,24 @@ Foxtrot
 Foxtrot is a data store abstraction service for storing event data for real-time systems. It combines the power of fast row get/put by HBase and powerful indexing and aggregation features provided by Elasticsearch. Foxtrot provides:
 
   - REST api's for event ingestion with batched input, simple analytics and other functionality
+  - SQL subset (FQL) for querying and running analytics on ingested events
   - Reconfigurable console builder to build useful consoles that can be shared among people
   - Intelligent caching of queries to load-balance on console heavy query loads
   - A very extensible design that needs three annotated classes to be added to the source for adding a new kind of analytics operation
+
+##Web console and console builder
+Foxtrot has built in support for building, saving and managing your own custom consoles. Foxtrot container itself will host and render your console for you. The backend is optimized for serving aggregated views to large number of open monitoring consoles, without bringing the ES cluster to it's knees.
+
+There are several customizable widgets including donuts, bars and trend views with support for filtering and visualizing the data that you need to see. 
+
+![Console build using out of the box console builder and served by foxtrot](https://github.com/flipkart-incubator/foxtrot/blob/master/support/images/FoxtrotScreen.png)
+  
+##Foxtrot query language
+Besides the console, foxtrot supports a SQL compatible query language for querying as well as running aggregations on the ingested events. FQL commands can be run on the foxtrot web console or (for the unix nerd in us) from the command line.
+
+![Command-line FQL output](https://github.com/flipkart-incubator/foxtrot/blob/master/support/images/FQL.png)
+
+![Web console output](https://github.com/flipkart-incubator/foxtrot/blob/master/support/images/FQL-UI.png)
 
 Documentation
 -------------
