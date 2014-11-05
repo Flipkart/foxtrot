@@ -113,6 +113,9 @@ public class TrendAction extends Action<TrendRequest> {
         try {
             DateHistogram.Interval interval = null;
             switch (parameter.getPeriod()) {
+                case seconds:
+                    interval = DateHistogram.Interval.SECOND;
+                    break;
                 case minutes:
                     interval = DateHistogram.Interval.MINUTE;
                     break;

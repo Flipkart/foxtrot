@@ -93,6 +93,9 @@ public class StatsTrendAction extends Action<StatsTrendRequest> {
     private AbstractAggregationBuilder buildAggregation(StatsTrendRequest request) {
         DateHistogram.Interval interval;
         switch (request.getPeriod()) {
+            case seconds:
+                interval = DateHistogram.Interval.SECOND;
+                break;
             case minutes:
                 interval = DateHistogram.Interval.MINUTE;
                 break;
