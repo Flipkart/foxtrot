@@ -37,4 +37,7 @@ public interface FilterOperator {
     //String
     public static final String contains = "contains";
 
+    //Date time
+    public static final String last = "last";
+
 }

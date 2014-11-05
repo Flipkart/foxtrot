@@ -18,6 +18,7 @@ package com.flipkart.foxtrot.common.query;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.flipkart.foxtrot.common.query.datetime.LastFilter;
 import com.flipkart.foxtrot.common.query.general.AnyFilter;
 import com.flipkart.foxtrot.common.query.general.EqualsFilter;
 import com.flipkart.foxtrot.common.query.general.InFilter;
@@ -49,7 +50,10 @@ import javax.validation.constraints.NotNull;
         @JsonSubTypes.Type(value = AnyFilter.class, name = FilterOperator.any),
 
         //String
-        @JsonSubTypes.Type(value = ContainsFilter.class, name = FilterOperator.contains)
+        @JsonSubTypes.Type(value = ContainsFilter.class, name = FilterOperator.contains),
+
+        //String
+        @JsonSubTypes.Type(value = LastFilter.class, name = FilterOperator.last)
 })
 
 public abstract class Filter {

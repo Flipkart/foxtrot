@@ -18,6 +18,7 @@ package com.flipkart.foxtrot.common.query.numeric;
 import com.flipkart.foxtrot.common.query.Filter;
 import com.flipkart.foxtrot.common.query.FilterOperator;
 import com.flipkart.foxtrot.common.query.FilterVisitor;
+import com.flipkart.foxtrot.common.query.datetime.TimeWindow;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
 import javax.validation.constraints.NotNull;
@@ -81,8 +82,7 @@ public class BetweenFilter extends Filter {
             result = 31 * result + to.hashCode();
         }
         else {
-            result = 31 * result + Long.valueOf(from.longValue() / 30000).hashCode();
-            result = 31 * result + Long.valueOf(to.longValue()/30000).hashCode();
+            result = new TimeWindow(from.longValue(), to.longValue()).hashCode();
         }
         return result;
     }
