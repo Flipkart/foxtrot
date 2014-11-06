@@ -106,7 +106,7 @@ public class QueryTranslator extends SqlElementVisitor {
 
     @Override
     public void visit(Table tableName) {
-        this.tableName = tableName.getName();
+        this.tableName = tableName.getName().replaceAll("[^a-zA-Z0-9\\-_]", "");
     }
 
     @Override
