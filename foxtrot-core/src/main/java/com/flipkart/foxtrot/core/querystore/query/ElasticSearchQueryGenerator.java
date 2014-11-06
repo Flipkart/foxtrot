@@ -19,6 +19,12 @@ import com.flipkart.foxtrot.common.query.Filter;
 import com.flipkart.foxtrot.common.query.FilterCombinerType;
 import com.flipkart.foxtrot.common.query.FilterVisitor;
 import com.flipkart.foxtrot.common.query.general.*;
+import com.flipkart.foxtrot.common.query.datetime.TimeWindow;
+import com.flipkart.foxtrot.common.query.datetime.LastFilter;
+import com.flipkart.foxtrot.common.query.general.AnyFilter;
+import com.flipkart.foxtrot.common.query.general.EqualsFilter;
+import com.flipkart.foxtrot.common.query.general.InFilter;
+import com.flipkart.foxtrot.common.query.general.NotEqualsFilter;
 import com.flipkart.foxtrot.common.query.numeric.*;
 import com.flipkart.foxtrot.common.query.string.ContainsFilter;
 import org.elasticsearch.index.query.BoolQueryBuilder;
@@ -113,6 +119,12 @@ public class ElasticSearchQueryGenerator extends FilterVisitor {
         addFilter(QueryBuilders.filteredQuery(QueryBuilders.matchAllQuery(), FilterBuilders.existsFilter(existsFilter.getField())));
     }
 
+    public void visit(LastFilter lastFilter) throws Exception {
+        TimeWindow timeWindow = lastFilter.getWindow();
+        addFilter(QueryBuilders.rangeQuery(lastFilter.getField())
+                    .from(timeWindow.getStartTime())
+                    .to(timeWindow.getEndTime()));
+    }
 
     private void addFilter(QueryBuilder query) throws Exception {
         if (combinerType == FilterCombinerType.and) {

@@ -9,6 +9,7 @@ import com.flipkart.foxtrot.common.histogram.HistogramRequest;
 import com.flipkart.foxtrot.common.query.Filter;
 import com.flipkart.foxtrot.common.query.Query;
 import com.flipkart.foxtrot.common.query.ResultSort;
+import com.flipkart.foxtrot.common.query.datetime.LastFilter;
 import com.flipkart.foxtrot.common.query.general.EqualsFilter;
 import com.flipkart.foxtrot.common.query.general.InFilter;
 import com.flipkart.foxtrot.common.query.general.NotEqualsFilter;
@@ -22,7 +23,9 @@ import com.flipkart.foxtrot.sql.extendedsql.showtables.ShowTables;
 import com.flipkart.foxtrot.sql.query.FqlActionQuery;
 import com.flipkart.foxtrot.sql.query.FqlDescribeTable;
 import com.flipkart.foxtrot.sql.query.FqlShowTablesQuery;
+import com.flipkart.foxtrot.sql.util.QueryUtils;
 import com.google.common.collect.Lists;
+import com.yammer.dropwizard.util.Duration;
 import net.sf.jsqlparser.expression.*;
 import net.sf.jsqlparser.expression.operators.conditional.AndExpression;
 import net.sf.jsqlparser.expression.operators.relational.*;
@@ -283,12 +286,12 @@ public class QueryTranslator extends SqlElementVisitor {
                 throw new RuntimeException("trend function has following format: trend(fieldname, [period, [timestamp field]])");
             }
             TrendRequest trendRequest = new TrendRequest();
-            trendRequest.setField(expressionToString((Expression) expressions.get(0)));
+            trendRequest.setField(QueryUtils.expressionToString((Expression) expressions.get(0)));
             if(expressions.size() > 1) {
-                trendRequest.setPeriod(Period.valueOf(expressionToString((Expression) expressions.get(1)).toLowerCase()));
+                trendRequest.setPeriod(Period.valueOf(QueryUtils.expressionToString((Expression) expressions.get(1)).toLowerCase()));
             }
             if(expressions.size() > 2) {
-                trendRequest.setTimestamp(expressionToString((Expression) expressions.get(2)));
+                trendRequest.setTimestamp(QueryUtils.expressionToString((Expression) expressions.get(2)));
             }
             return trendRequest;
         }
@@ -298,9 +301,9 @@ public class QueryTranslator extends SqlElementVisitor {
                 throw new RuntimeException("statstrend function has following format: statstrend(fieldname, [period])");
             }
             StatsTrendRequest statsTrendRequest = new StatsTrendRequest();
-            statsTrendRequest.setField(expressionToString((Expression) expressions.get(0)));
+            statsTrendRequest.setField(QueryUtils.expressionToString((Expression) expressions.get(0)));
             if(expressions.size() > 1) {
-                statsTrendRequest.setPeriod(Period.valueOf(expressionToString((Expression) expressions.get(1)).toLowerCase()));
+                statsTrendRequest.setPeriod(Period.valueOf(QueryUtils.expressionToString((Expression) expressions.get(1)).toLowerCase()));
             }
             return statsTrendRequest;
         }
@@ -310,7 +313,7 @@ public class QueryTranslator extends SqlElementVisitor {
                 throw new RuntimeException("stats function has following format: stats(fieldname)");
             }
             StatsRequest statsRequest = new StatsRequest();
-            statsRequest.setField(expressionToString((Expression) expressions.get(0)));
+            statsRequest.setField(QueryUtils.expressionToString((Expression) expressions.get(0)));
             return statsRequest;
         }
 
@@ -321,9 +324,9 @@ public class QueryTranslator extends SqlElementVisitor {
             HistogramRequest histogramRequest = new HistogramRequest();
             if(null != expressionList) {
                 List expressions = expressionList.getExpressions();
-                histogramRequest.setPeriod(Period.valueOf(expressionToString((Expression) expressions.get(0)).toLowerCase()));
+                histogramRequest.setPeriod(Period.valueOf(QueryUtils.expressionToString((Expression) expressions.get(0)).toLowerCase()));
                 if(expressions.size() > 1) {
-                    histogramRequest.setField(expressionToString((Expression) expressions.get(1)));
+                    histogramRequest.setField(QueryUtils.expressionToString((Expression) expressions.get(1)));
                 }
             }
             return histogramRequest;
@@ -471,6 +474,32 @@ public class QueryTranslator extends SqlElementVisitor {
             filters.add(lessEqualFilter);
         }
 
+        @Override
+        public void visit(Function function) {
+            if(function.getName().equalsIgnoreCase("last")) {
+                LastFilter lastFilter = parseWindowFunction(function.getParameters().getExpressions());
+                filters.add(lastFilter);
+                return;
+            }
+            throw new RuntimeException("Only last() function is supported");
+        }
+
+
+        private LastFilter parseWindowFunction(List expressions) {
+            if(expressions == null || expressions.isEmpty() || expressions.size() > 3) {
+                throw new RuntimeException("last function has following format: last(duration, [start-time, [timestamp field]])");
+            }
+            LastFilter lastFilter = new LastFilter();
+            lastFilter.setDuration(Duration.parse(QueryUtils.expressionToString((Expression) expressions.get(0))));
+            if(expressions.size() > 1) {
+                lastFilter.setCurrentTime(Long.valueOf(QueryUtils.expressionToString((Expression) expressions.get(1)).toLowerCase()));
+            }
+            if(expressions.size() > 2) {
+                lastFilter.setField(QueryUtils.expressionToString((Expression) expressions.get(2)));
+            }
+            return lastFilter;
+        }
+
         private Object getValueFromExpression(Expression expression) {
             if(expression instanceof StringValue) {
                 return ((StringValue) expression).getValue();
@@ -498,14 +527,22 @@ public class QueryTranslator extends SqlElementVisitor {
         private static final class ColumnData {
             private final String columnName;
             private boolean temporal = false;
+            private boolean window = false;
 
             private ColumnData(String columnName) {
                 this.columnName = columnName;
             }
 
-            private ColumnData(String columnName, boolean temporal) {
-                this.columnName = columnName;
-                this.temporal = temporal;
+            static ColumnData temporal(String columnName) {
+                ColumnData columnData = new ColumnData(columnName);
+                columnData.temporal = true;
+                return columnData;
+            }
+
+            static ColumnData window(String columnName) {
+                ColumnData columnData = new ColumnData(columnName);
+                columnData.window = true;
+                return columnData;
             }
 
             public String getColumnName() {
@@ -514,6 +551,10 @@ public class QueryTranslator extends SqlElementVisitor {
 
             public boolean isTemporal() {
                 return temporal;
+            }
+
+            public boolean isWindow() {
+                return window;
             }
         }
         private ColumnData setupColumn(Expression expression) {
@@ -524,7 +565,7 @@ public class QueryTranslator extends SqlElementVisitor {
                     if(parameters.size() != 1 || ! (parameters.get(0) instanceof Column)) {
                         throw new RuntimeException("temporal function must have a fieldname as parameter");
                     }
-                    return new ColumnData(((Column)parameters.get(0)).getFullyQualifiedName(), true);
+                    return ColumnData.temporal(((Column)parameters.get(0)).getFullyQualifiedName());
                 }
                 throw new RuntimeException("Only the function 'temporal' is supported in where clause");
             }

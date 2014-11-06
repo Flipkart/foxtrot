@@ -133,6 +133,9 @@ public class TrendAction extends Action<TrendRequest> {
     private AbstractAggregationBuilder buildAggregation(TrendRequest request) {
         DateHistogram.Interval interval;
         switch (request.getPeriod()) {
+            case seconds:
+                interval = DateHistogram.Interval.SECOND;
+                break;
             case minutes:
                 interval = DateHistogram.Interval.MINUTE;
                 break;
