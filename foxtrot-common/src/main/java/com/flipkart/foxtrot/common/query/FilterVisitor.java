@@ -15,6 +15,7 @@
  */
 package com.flipkart.foxtrot.common.query;
 
+import com.flipkart.foxtrot.common.query.general.*;
 import com.flipkart.foxtrot.common.query.datetime.LastFilter;
 import com.flipkart.foxtrot.common.query.general.AnyFilter;
 import com.flipkart.foxtrot.common.query.general.EqualsFilter;
@@ -49,6 +50,8 @@ public abstract class FilterVisitor {
     public abstract void visit(AnyFilter anyFilter) throws Exception;
 
     public abstract void visit(InFilter inFilter) throws Exception;
+
+    public abstract void visit(ExistsFilter existsFilter) throws Exception;
 
     public abstract void visit(LastFilter lastFilter) throws Exception;
 }

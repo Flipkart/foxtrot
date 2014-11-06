@@ -56,6 +56,34 @@ public class HistogramResponse implements ActionResponse {
         public void setCount(long count) {
             this.count = count;
         }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (!(o instanceof Count)) return false;
+
+            Count count1 = (Count) o;
+
+            if (count != count1.count) return false;
+            if (!period.equals(count1.period)) return false;
+
+            return true;
+        }
+
+        @Override
+        public int hashCode() {
+            int result = period.hashCode();
+            result = 31 * result + (int) (count ^ (count >>> 32));
+            return result;
+        }
+
+        @Override
+        public String toString() {
+            return "Count{" +
+                    "period=" + period +
+                    ", count=" + count +
+                    '}';
+        }
     }
     private List<Count> counts;
 

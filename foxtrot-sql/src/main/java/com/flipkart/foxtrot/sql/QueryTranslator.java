@@ -2,6 +2,7 @@ package com.flipkart.foxtrot.sql;
 
 
 import com.flipkart.foxtrot.common.ActionRequest;
+import com.flipkart.foxtrot.common.count.CountRequest;
 import com.flipkart.foxtrot.common.group.GroupRequest;
 import com.flipkart.foxtrot.common.Period;
 import com.flipkart.foxtrot.common.histogram.HistogramRequest;
@@ -105,7 +106,7 @@ public class QueryTranslator extends SqlElementVisitor {
 
     @Override
     public void visit(Table tableName) {
-        this.tableName = tableName.getName();
+        this.tableName = tableName.getName().replaceAll("[^a-zA-Z0-9\\-_]", "");
     }
 
     @Override
@@ -190,6 +191,14 @@ public class QueryTranslator extends SqlElementVisitor {
                 request = histogram;
                 break;
             }
+            case count: {
+                CountRequest countRequest = (CountRequest)calledAction;
+                countRequest.setTable(tableName);
+                countRequest.setFilters(filters);
+                request = countRequest;
+                break;
+            }
+
         }
         if(null == request) {
             throw new Exception("Could not parse provided FQL.");
@@ -238,6 +247,8 @@ public class QueryTranslator extends SqlElementVisitor {
                     case histogram:
                         actionRequest = parseHistogramRequest(function.getParameters());
                         break;
+                    case count:
+                        actionRequest = parseCountRequest(function.getParameters(), function.isAllColumns(), function.isDistinct());
                     case desc:
                     case select:
                     case group:
@@ -263,6 +274,9 @@ public class QueryTranslator extends SqlElementVisitor {
             }
             if(function.equalsIgnoreCase("histogram")) {
                 return FqlQueryType.histogram;
+            }
+            if(function.equalsIgnoreCase("count")) {
+                return FqlQueryType.count;
             }
             return FqlQueryType.select;
         }
@@ -316,6 +330,37 @@ public class QueryTranslator extends SqlElementVisitor {
                 }
             }
             return histogramRequest;
+        }
+
+        private ActionRequest parseCountRequest(ExpressionList expressionList, boolean allColumns, boolean isDistinct) {
+
+            CountRequest countRequest = new CountRequest();
+            if (allColumns){
+                countRequest.setField(null);
+                return countRequest;
+            }
+
+            if (expressionList != null && (expressionList.getExpressions() != null && expressionList.getExpressions().size() == 1)) {
+                List<Expression> expressions = expressionList.getExpressions();
+                if (allColumns){
+                    countRequest.setField(null);
+                } else {
+                    countRequest.setField(expressionToString(expressions.get(0)));
+                    countRequest.setDistinct(isDistinct);
+                }
+                return countRequest;
+            }
+            throw new RuntimeException("count function has the following format: count([distinct] */column_name)");
+        }
+
+        private String expressionToString(Expression expression) {
+            if(expression instanceof Column) {
+                return ((Column)expression).getFullyQualifiedName();
+            }
+            if(expression instanceof StringValue) {
+                return ((StringValue)expression).getValue();
+            }
+            return null;
         }
 
         @Override

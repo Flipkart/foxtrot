@@ -16,7 +16,6 @@
 package com.flipkart.foxtrot.core.querystore.actions;
 
 import com.flipkart.foxtrot.common.ActionResponse;
-import com.flipkart.foxtrot.common.group.GroupResponse;
 import com.flipkart.foxtrot.common.query.Filter;
 import com.flipkart.foxtrot.common.query.FilterCombinerType;
 import com.flipkart.foxtrot.common.query.general.AnyFilter;
@@ -31,8 +30,8 @@ import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConnection;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
 import com.flipkart.foxtrot.core.querystore.query.ElasticSearchQueryGenerator;
 import com.google.common.collect.Lists;
-import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
+import org.elasticsearch.search.aggregations.AbstractAggregationBuilder;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.Aggregations;
 import org.elasticsearch.search.aggregations.bucket.histogram.DateHistogram;
@@ -108,54 +107,22 @@ public class TrendAction extends Action<TrendRequest> {
             parameter.getFilters().addAll(filters);
         }
 
-        logger.error(Arrays.toString(ElasticsearchUtils.getIndices(parameter.getTable())) + ":");
-
         try {
-            DateHistogram.Interval interval = null;
-            switch (parameter.getPeriod()) {
-                case seconds:
-                    interval = DateHistogram.Interval.SECOND;
-                    break;
-                case minutes:
-                    interval = DateHistogram.Interval.MINUTE;
-                    break;
-                case hours:
-                    interval = DateHistogram.Interval.HOUR;
-                    break;
-                case days:
-                    interval = DateHistogram.Interval.DAY;
-                    break;
-            }
-            SearchRequestBuilder query = getConnection().getClient()
+            AbstractAggregationBuilder aggregationBuilder = buildAggregation(parameter);
+            SearchResponse searchResponse = getConnection().getClient()
                     .prepareSearch(ElasticsearchUtils.getIndices(parameter.getTable()))
                     .setQuery(new ElasticSearchQueryGenerator(FilterCombinerType.and).genFilter(parameter.getFilters()))
-                    .addAggregation(AggregationBuilders.terms(field.replaceAll(ActionConstants.AGGREGATION_FIELD_REPLACEMENT_REGEX,
-                            ActionConstants.AGGREGATION_FIELD_REPLACEMENT_VALUE)).field(field).size(0)
-                            .subAggregation(AggregationBuilders.dateHistogram(field.replaceAll(ActionConstants.AGGREGATION_FIELD_REPLACEMENT_REGEX,
-                                    ActionConstants.AGGREGATION_FIELD_REPLACEMENT_VALUE))
-                                    .field(parameter.getTimestamp()).interval(interval)));
-            SearchResponse response = query.execute().actionGet();
-            Map<String, List<TrendResponse.Count>> trendCounts = new TreeMap<String, List<TrendResponse.Count>>();
-            Aggregations aggregations = response.getAggregations();
-            // Check if any aggregation is present or not
-            if (aggregations == null) {
+                    .addAggregation(aggregationBuilder)
+                    .execute()
+                    .get();
+
+            Aggregations aggregations = searchResponse.getAggregations();
+            if (aggregations != null) {
+                return buildResponse(parameter, aggregations);
+            } else {
                 logger.error("Null response for Trend. Request : " + parameter.toString());
-                return new GroupResponse(Collections.<String, Object>emptyMap());
+                return new TrendResponse(Collections.<String, List<TrendResponse.Count>>emptyMap());
             }
-            Terms terms = aggregations.get(field.replaceAll(ActionConstants.AGGREGATION_FIELD_REPLACEMENT_REGEX,
-                    ActionConstants.AGGREGATION_FIELD_REPLACEMENT_VALUE));
-            for (Terms.Bucket bucket : terms.getBuckets()) {
-                final String key = bucket.getKeyAsText().string();
-                List<TrendResponse.Count> counts = Lists.newArrayList();
-                Aggregations subAggregations = bucket.getAggregations();
-                Histogram histogram = subAggregations.get(field.replaceAll(ActionConstants.AGGREGATION_FIELD_REPLACEMENT_REGEX,
-                        ActionConstants.AGGREGATION_FIELD_REPLACEMENT_VALUE));
-                for (Histogram.Bucket histogramBucket : histogram.getBuckets()) {
-                    counts.add(new TrendResponse.Count(histogramBucket.getKeyAsNumber(), histogramBucket.getDocCount()));
-                }
-                trendCounts.put(key, counts);
-            }
-            return new TrendResponse(trendCounts);
         } catch (Exception e) {
             logger.error("Error running trend action: ", e);
             throw new QueryStoreException(QueryStoreException.ErrorCode.QUERY_EXECUTION_ERROR,
@@ -163,4 +130,47 @@ public class TrendAction extends Action<TrendRequest> {
         }
     }
 
+    private AbstractAggregationBuilder buildAggregation(TrendRequest request) {
+        DateHistogram.Interval interval;
+        switch (request.getPeriod()) {
+            case seconds:
+                interval = DateHistogram.Interval.SECOND;
+                break;
+            case minutes:
+                interval = DateHistogram.Interval.MINUTE;
+                break;
+            case hours:
+                interval = DateHistogram.Interval.HOUR;
+                break;
+            case days:
+                interval = DateHistogram.Interval.DAY;
+                break;
+            default:
+                interval = DateHistogram.Interval.HOUR;
+                break;
+        }
+
+        String field = request.getField();
+        return AggregationBuilders.terms(Utils.sanitizeFieldForAggregation(field))
+                .field(field)
+                .size(0)
+                .subAggregation(Utils.buildDateHistogramAggregation(request.getTimestamp(), interval));
+    }
+
+    private TrendResponse buildResponse(TrendRequest request, Aggregations aggregations){
+        String field = request.getField();
+        Map<String, List<TrendResponse.Count>> trendCounts = new TreeMap<String, List<TrendResponse.Count>>();
+        Terms terms = aggregations.get(Utils.sanitizeFieldForAggregation(field));
+        for (Terms.Bucket bucket : terms.getBuckets()) {
+            final String key = bucket.getKeyAsText().string();
+            List<TrendResponse.Count> counts = Lists.newArrayList();
+            Aggregations subAggregations = bucket.getAggregations();
+            Histogram histogram = subAggregations.get(Utils.getDateHistogramKey(request.getTimestamp()));
+            for (Histogram.Bucket histogramBucket : histogram.getBuckets()) {
+                counts.add(new TrendResponse.Count(histogramBucket.getKeyAsNumber(), histogramBucket.getDocCount()));
+            }
+            trendCounts.put(key, counts);
+        }
+        return new TrendResponse(trendCounts);
+    }
 }

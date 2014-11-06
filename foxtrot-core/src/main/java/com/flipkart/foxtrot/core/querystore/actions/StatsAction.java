@@ -23,7 +23,6 @@ import org.elasticsearch.search.aggregations.metrics.stats.extended.InternalExte
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -70,8 +69,8 @@ public class StatsAction extends Action<StatsRequest> {
                     .setQuery(new ElasticSearchQueryGenerator(request.getCombiner()).genFilter(request.getFilters()))
                     .setSize(0)
                     .setSearchType(SearchType.DFS_QUERY_THEN_FETCH)
-                    .addAggregation(StatsUtils.buildSingleStatsAggregation(request.getField()))
-                    .addAggregation(StatsUtils.buildPercentileAggregation(request.getField()))
+                    .addAggregation(Utils.buildExtendedStatsAggregation(request.getField()))
+                    .addAggregation(Utils.buildPercentileAggregation(request.getField()))
                     .execute()
                     .actionGet();
 
@@ -88,8 +87,8 @@ public class StatsAction extends Action<StatsRequest> {
     }
 
     private StatsResponse buildResponse(StatsRequest request, Aggregations aggregations) {
-        String metricKey = StatsUtils.getExtendedStatsAggregationKey(request.getField());
-        String percentileMetricKey = StatsUtils.getPercentileAggregationKey(request.getField());
+        String metricKey = Utils.getExtendedStatsAggregationKey(request.getField());
+        String percentileMetricKey = Utils.getPercentileAggregationKey(request.getField());
 
         StatsValue statsValue = new StatsValue();
 
@@ -111,7 +110,6 @@ public class StatsAction extends Action<StatsRequest> {
             percentiles.put(percentile.getPercent(), percentile.getValue());
         }
         statsValue.setPercentiles(percentiles);
-
         return new StatsResponse(statsValue);
     }
 }

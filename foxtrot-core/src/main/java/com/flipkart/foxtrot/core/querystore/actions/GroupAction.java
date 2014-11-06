@@ -90,12 +90,9 @@ public class GroupAction extends Action<GroupRequest> {
                     throw new QueryStoreException(QueryStoreException.ErrorCode.INVALID_REQUEST, "Illegal Nesting Parameters");
                 }
                 if (null == termsBuilder) {
-                    termsBuilder = AggregationBuilders.terms(field.replaceAll(ActionConstants.AGGREGATION_FIELD_REPLACEMENT_REGEX,
-                            ActionConstants.AGGREGATION_FIELD_REPLACEMENT_VALUE)).field(field);
+                    termsBuilder = AggregationBuilders.terms(Utils.sanitizeFieldForAggregation(field)).field(field);
                 } else {
-                    TermsBuilder tempBuilder = AggregationBuilders.terms(
-                            field.replaceAll(ActionConstants.AGGREGATION_FIELD_REPLACEMENT_REGEX,
-                                    ActionConstants.AGGREGATION_FIELD_REPLACEMENT_VALUE)).field(field);
+                    TermsBuilder tempBuilder = AggregationBuilders.terms(Utils.sanitizeFieldForAggregation(field)).field(field);
                     termsBuilder.subAggregation(tempBuilder);
                     termsBuilder = tempBuilder;
                 }
@@ -129,8 +126,7 @@ public class GroupAction extends Action<GroupRequest> {
         final String field = fields.get(0);
         final List<String> remainingFields = (fields.size() > 1) ? fields.subList(1, fields.size())
                 : new ArrayList<String>();
-        Terms terms = aggregations.get(field.replaceAll(ActionConstants.AGGREGATION_FIELD_REPLACEMENT_REGEX,
-                ActionConstants.AGGREGATION_FIELD_REPLACEMENT_VALUE));
+        Terms terms = aggregations.get(Utils.sanitizeFieldForAggregation(field));
         Map<String, Object> levelCount = new HashMap<String, Object>();
         for (Terms.Bucket bucket : terms.getBuckets()) {
             if (fields.size() == 1) {

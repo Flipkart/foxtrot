@@ -18,6 +18,7 @@ package com.flipkart.foxtrot.core.querystore.query;
 import com.flipkart.foxtrot.common.query.Filter;
 import com.flipkart.foxtrot.common.query.FilterCombinerType;
 import com.flipkart.foxtrot.common.query.FilterVisitor;
+import com.flipkart.foxtrot.common.query.general.*;
 import com.flipkart.foxtrot.common.query.datetime.TimeWindow;
 import com.flipkart.foxtrot.common.query.datetime.LastFilter;
 import com.flipkart.foxtrot.common.query.general.AnyFilter;
@@ -27,6 +28,7 @@ import com.flipkart.foxtrot.common.query.general.NotEqualsFilter;
 import com.flipkart.foxtrot.common.query.numeric.*;
 import com.flipkart.foxtrot.common.query.string.ContainsFilter;
 import org.elasticsearch.index.query.BoolQueryBuilder;
+import org.elasticsearch.index.query.FilterBuilders;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 
@@ -113,6 +115,10 @@ public class ElasticSearchQueryGenerator extends FilterVisitor {
     }
 
     @Override
+    public void visit(ExistsFilter existsFilter) throws Exception {
+        addFilter(QueryBuilders.filteredQuery(QueryBuilders.matchAllQuery(), FilterBuilders.existsFilter(existsFilter.getField())));
+    }
+
     public void visit(LastFilter lastFilter) throws Exception {
         TimeWindow timeWindow = lastFilter.getWindow();
         addFilter(QueryBuilders.rangeQuery(lastFilter.getField())

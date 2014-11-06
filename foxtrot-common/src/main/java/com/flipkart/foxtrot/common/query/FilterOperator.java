@@ -26,12 +26,14 @@ public interface FilterOperator {
     public static final String not_equals = "not_equals";
     public static final String any = "any";
     public static final String in = "in";
+    public static final String exists = "exists";
 
     //Numeric
     public static final String less_than = "less_than";
     public static final String less_equal = "less_equal";
     public static final String greater_than = "greater_than";
     public static final String greater_equal = "greater_equal";
+
     public static final String between = "between";
 
     //String
@@ -39,5 +41,4 @@ public interface FilterOperator {
 
     //Date time
     public static final String last = "last";
-
 }
