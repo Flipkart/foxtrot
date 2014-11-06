@@ -18,13 +18,11 @@ package com.flipkart.foxtrot.core.querystore.query;
 import com.flipkart.foxtrot.common.query.Filter;
 import com.flipkart.foxtrot.common.query.FilterCombinerType;
 import com.flipkart.foxtrot.common.query.FilterVisitor;
-import com.flipkart.foxtrot.common.query.general.AnyFilter;
-import com.flipkart.foxtrot.common.query.general.EqualsFilter;
-import com.flipkart.foxtrot.common.query.general.InFilter;
-import com.flipkart.foxtrot.common.query.general.NotEqualsFilter;
+import com.flipkart.foxtrot.common.query.general.*;
 import com.flipkart.foxtrot.common.query.numeric.*;
 import com.flipkart.foxtrot.common.query.string.ContainsFilter;
 import org.elasticsearch.index.query.BoolQueryBuilder;
+import org.elasticsearch.index.query.FilterBuilders;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 
@@ -108,6 +106,11 @@ public class ElasticSearchQueryGenerator extends FilterVisitor {
     @Override
     public void visit(InFilter inFilter) throws Exception {
         addFilter(QueryBuilders.inQuery(inFilter.getField(), inFilter.getValues()));
+    }
+
+    @Override
+    public void visit(ExistsFilter existsFilter) throws Exception {
+        addFilter(QueryBuilders.filteredQuery(QueryBuilders.matchAllQuery(), FilterBuilders.existsFilter(existsFilter.getField())));
     }
 
 

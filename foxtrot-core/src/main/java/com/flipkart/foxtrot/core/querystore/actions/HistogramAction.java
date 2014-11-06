@@ -110,10 +110,7 @@ public class HistogramAction extends Action<HistogramRequest> {
                     break;
             }
 
-            String dateHistogramKey = parameter.getField()
-                    .replaceAll(ActionConstants.AGGREGATION_FIELD_REPLACEMENT_REGEX,
-                            ActionConstants.AGGREGATION_FIELD_REPLACEMENT_VALUE);
-
+            String dateHistogramKey = Utils.sanitizeFieldForAggregation(parameter.getField());
             SearchResponse response = getConnection().getClient().prepareSearch(
                     ElasticsearchUtils.getIndices(parameter.getTable()))
                     .setTypes(ElasticsearchUtils.TYPE_NAME)

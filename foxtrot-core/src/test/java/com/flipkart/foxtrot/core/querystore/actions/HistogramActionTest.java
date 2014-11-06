@@ -17,12 +17,11 @@ package com.flipkart.foxtrot.core.querystore.actions;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.flipkart.foxtrot.common.Document;
 import com.flipkart.foxtrot.common.histogram.HistogramRequest;
 import com.flipkart.foxtrot.common.Period;
+import com.flipkart.foxtrot.common.histogram.HistogramResponse;
 import com.flipkart.foxtrot.common.query.Filter;
 import com.flipkart.foxtrot.common.query.numeric.GreaterThanFilter;
 import com.flipkart.foxtrot.core.MockElasticsearchServer;
@@ -42,13 +41,14 @@ import org.junit.Test;
 import org.mockito.Mockito;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.when;
 
 /**
@@ -118,27 +118,19 @@ public class HistogramActionTest {
         HistogramRequest histogramRequest = new HistogramRequest();
         histogramRequest.setTable(TestUtils.TEST_TABLE);
         histogramRequest.setPeriod(Period.minutes);
-        histogramRequest.setFrom(0);
+        histogramRequest.setFrom(1);
         histogramRequest.setTo(System.currentTimeMillis());
+        HistogramResponse response = HistogramResponse.class.cast(queryExecutor.execute(histogramRequest));
 
-        ArrayNode countsNode = factory.arrayNode();
-        countsNode.add(factory.objectNode().put("period", 1397651100000L).put("count", 2));
-        countsNode.add(factory.objectNode().put("period", 1397658060000L).put("count", 3));
-        countsNode.add(factory.objectNode().put("period", 1397658180000L).put("count", 1));
-        countsNode.add(factory.objectNode().put("period", 1397758200000L).put("count", 1));
-        countsNode.add(factory.objectNode().put("period", 1397958060000L).put("count", 1));
-        countsNode.add(factory.objectNode().put("period", 1398653100000L).put("count", 2));
-        countsNode.add(factory.objectNode().put("period", 1398658200000L).put("count", 1));
-
-        ObjectNode finalNode = factory.objectNode();
-        finalNode.put("opcode", "histogram");
-        finalNode.put("from", histogramRequest.getFrom());
-        finalNode.put("to", histogramRequest.getTo());
-        finalNode.put("counts", countsNode);
-
-        String expectedResponse = mapper.writeValueAsString(finalNode);
-        String actualResponse = mapper.writeValueAsString(queryExecutor.execute(histogramRequest));
-        assertEquals(expectedResponse, actualResponse);
+        List<HistogramResponse.Count> counts = new ArrayList<HistogramResponse.Count>();
+        counts.add(new HistogramResponse.Count(1397651100000L, 2));
+        counts.add(new HistogramResponse.Count(1397658060000L, 3));
+        counts.add(new HistogramResponse.Count(1397658180000L, 1));
+        counts.add(new HistogramResponse.Count(1397758200000L, 1));
+        counts.add(new HistogramResponse.Count(1397958060000L, 1));
+        counts.add(new HistogramResponse.Count(1398653100000L, 2));
+        counts.add(new HistogramResponse.Count(1398658200000L, 1));
+        assertTrue(response.getCounts().equals(counts));
     }
 
     @Test
@@ -146,28 +138,20 @@ public class HistogramActionTest {
         HistogramRequest histogramRequest = new HistogramRequest();
         histogramRequest.setTable(TestUtils.TEST_TABLE);
         histogramRequest.setPeriod(Period.minutes);
-        histogramRequest.setFrom(0);
-
+        histogramRequest.setFrom(1);
         GreaterThanFilter greaterThanFilter = new GreaterThanFilter();
         greaterThanFilter.setField("battery");
         greaterThanFilter.setValue(48);
         histogramRequest.setFilters(Collections.<Filter>singletonList(greaterThanFilter));
+        HistogramResponse response = HistogramResponse.class.cast(queryExecutor.execute(histogramRequest));
 
-        ArrayNode countsNode = factory.arrayNode();
-        countsNode.add(factory.objectNode().put("period", 1397651100000L).put("count", 1));
-        countsNode.add(factory.objectNode().put("period", 1397658060000L).put("count", 2));
-        countsNode.add(factory.objectNode().put("period", 1397658180000L).put("count", 1));
-        countsNode.add(factory.objectNode().put("period", 1397958060000L).put("count", 1));
-        countsNode.add(factory.objectNode().put("period", 1398658200000L).put("count", 1));
-        ObjectNode finalNode = factory.objectNode();
-        finalNode.put("opcode", "histogram");
-        finalNode.put("from", histogramRequest.getFrom());
-        finalNode.put("to", histogramRequest.getTo());
-        finalNode.put("counts", countsNode);
-
-        String expectedResponse = mapper.writeValueAsString(finalNode);
-        String actualResponse = mapper.writeValueAsString(queryExecutor.execute(histogramRequest));
-        assertEquals(expectedResponse, actualResponse);
+        List<HistogramResponse.Count> counts = new ArrayList<HistogramResponse.Count>();
+        counts.add(new HistogramResponse.Count(1397651100000L, 1));
+        counts.add(new HistogramResponse.Count(1397658060000L, 2));
+        counts.add(new HistogramResponse.Count(1397658180000L, 1));
+        counts.add(new HistogramResponse.Count(1397958060000L, 1));
+        counts.add(new HistogramResponse.Count(1398658200000L, 1));
+        assertTrue(response.getCounts().equals(counts));
     }
 
     @Test
@@ -175,26 +159,18 @@ public class HistogramActionTest {
         HistogramRequest histogramRequest = new HistogramRequest();
         histogramRequest.setTable(TestUtils.TEST_TABLE);
         histogramRequest.setPeriod(Period.hours);
-        histogramRequest.setFrom(0);
+        histogramRequest.setFrom(1);
         histogramRequest.setTo(System.currentTimeMillis());
+        HistogramResponse response = HistogramResponse.class.cast(queryExecutor.execute(histogramRequest));
 
-        ArrayNode countsNode = factory.arrayNode();
-        countsNode.add(factory.objectNode().put("period", 1397649600000L).put("count", 2));
-        countsNode.add(factory.objectNode().put("period", 1397656800000L).put("count", 4));
-        countsNode.add(factory.objectNode().put("period", 1397757600000L).put("count", 1));
-        countsNode.add(factory.objectNode().put("period", 1397955600000L).put("count", 1));
-        countsNode.add(factory.objectNode().put("period", 1398650400000L).put("count", 2));
-        countsNode.add(factory.objectNode().put("period", 1398657600000L).put("count", 1));
-
-        ObjectNode finalNode = factory.objectNode();
-        finalNode.put("opcode", "histogram");
-        finalNode.put("from", histogramRequest.getFrom());
-        finalNode.put("to", histogramRequest.getTo());
-        finalNode.put("counts", countsNode);
-
-        String expectedResponse = mapper.writeValueAsString(finalNode);
-        String actualResponse = mapper.writeValueAsString(queryExecutor.execute(histogramRequest));
-        assertEquals(expectedResponse, actualResponse);
+        List<HistogramResponse.Count> counts = new ArrayList<HistogramResponse.Count>();
+        counts.add(new HistogramResponse.Count(1397649600000L, 2));
+        counts.add(new HistogramResponse.Count(1397656800000L, 4));
+        counts.add(new HistogramResponse.Count(1397757600000L, 1));
+        counts.add(new HistogramResponse.Count(1397955600000L, 1));
+        counts.add(new HistogramResponse.Count(1398650400000L, 2));
+        counts.add(new HistogramResponse.Count(1398657600000L, 1));
+        assertTrue(response.getCounts().equals(counts));
     }
 
     @Test
@@ -202,7 +178,7 @@ public class HistogramActionTest {
         HistogramRequest histogramRequest = new HistogramRequest();
         histogramRequest.setTable(TestUtils.TEST_TABLE);
         histogramRequest.setPeriod(Period.hours);
-        histogramRequest.setFrom(0);
+        histogramRequest.setFrom(1);
         histogramRequest.setTo(System.currentTimeMillis());
 
         GreaterThanFilter greaterThanFilter = new GreaterThanFilter();
@@ -210,21 +186,13 @@ public class HistogramActionTest {
         greaterThanFilter.setValue(48);
         histogramRequest.setFilters(Collections.<Filter>singletonList(greaterThanFilter));
 
-        ArrayNode countsNode = factory.arrayNode();
-        countsNode.add(factory.objectNode().put("period", 1397649600000L).put("count", 1));
-        countsNode.add(factory.objectNode().put("period", 1397656800000L).put("count", 3));
-        countsNode.add(factory.objectNode().put("period", 1397955600000L).put("count", 1));
-        countsNode.add(factory.objectNode().put("period", 1398657600000L).put("count", 1));
-
-        ObjectNode finalNode = factory.objectNode();
-        finalNode.put("opcode", "histogram");
-        finalNode.put("from", histogramRequest.getFrom());
-        finalNode.put("to", histogramRequest.getTo());
-        finalNode.put("counts", countsNode);
-
-        String expectedResponse = mapper.writeValueAsString(finalNode);
-        String actualResponse = mapper.writeValueAsString(queryExecutor.execute(histogramRequest));
-        assertEquals(expectedResponse, actualResponse);
+        HistogramResponse response = HistogramResponse.class.cast(queryExecutor.execute(histogramRequest));
+        List<HistogramResponse.Count> counts = new ArrayList<HistogramResponse.Count>();
+        counts.add(new HistogramResponse.Count(1397649600000L, 1));
+        counts.add(new HistogramResponse.Count(1397656800000L, 3));
+        counts.add(new HistogramResponse.Count(1397955600000L, 1));
+        counts.add(new HistogramResponse.Count(1398657600000L, 1));
+        assertTrue(response.getCounts().equals(counts));
     }
 
     @Test
@@ -232,24 +200,16 @@ public class HistogramActionTest {
         HistogramRequest histogramRequest = new HistogramRequest();
         histogramRequest.setTable(TestUtils.TEST_TABLE);
         histogramRequest.setPeriod(Period.days);
-        histogramRequest.setFrom(0);
+        histogramRequest.setFrom(1);
         histogramRequest.setTo(System.currentTimeMillis());
 
-        ArrayNode countsNode = factory.arrayNode();
-        countsNode.add(factory.objectNode().put("period", 1397606400000L).put("count", 6));
-        countsNode.add(factory.objectNode().put("period", 1397692800000L).put("count", 1));
-        countsNode.add(factory.objectNode().put("period", 1397952000000L).put("count", 1));
-        countsNode.add(factory.objectNode().put("period", 1398643200000L).put("count", 3));
-
-        ObjectNode finalNode = factory.objectNode();
-        finalNode.put("opcode", "histogram");
-        finalNode.put("from", histogramRequest.getFrom());
-        finalNode.put("to", histogramRequest.getTo());
-        finalNode.put("counts", countsNode);
-
-        String expectedResponse = mapper.writeValueAsString(finalNode);
-        String actualResponse = mapper.writeValueAsString(queryExecutor.execute(histogramRequest));
-        assertEquals(expectedResponse, actualResponse);
+        HistogramResponse response = HistogramResponse.class.cast(queryExecutor.execute(histogramRequest));
+        List<HistogramResponse.Count> counts = new ArrayList<HistogramResponse.Count>();
+        counts.add(new HistogramResponse.Count(1397606400000L, 6));
+        counts.add(new HistogramResponse.Count(1397692800000L, 1));
+        counts.add(new HistogramResponse.Count(1397952000000L, 1));
+        counts.add(new HistogramResponse.Count(1398643200000L, 3));
+        assertTrue(response.getCounts().equals(counts));
     }
 
     @Test
@@ -257,7 +217,7 @@ public class HistogramActionTest {
         HistogramRequest histogramRequest = new HistogramRequest();
         histogramRequest.setTable(TestUtils.TEST_TABLE);
         histogramRequest.setPeriod(Period.days);
-        histogramRequest.setFrom(0);
+        histogramRequest.setFrom(1);
         histogramRequest.setTo(System.currentTimeMillis());
 
         GreaterThanFilter greaterThanFilter = new GreaterThanFilter();
@@ -265,19 +225,11 @@ public class HistogramActionTest {
         greaterThanFilter.setValue(48);
         histogramRequest.setFilters(Collections.<Filter>singletonList(greaterThanFilter));
 
-        ArrayNode countsNode = factory.arrayNode();
-        countsNode.add(factory.objectNode().put("period", 1397606400000L).put("count", 4));
-        countsNode.add(factory.objectNode().put("period", 1397952000000L).put("count", 1));
-        countsNode.add(factory.objectNode().put("period", 1398643200000L).put("count", 1));
-
-        ObjectNode finalNode = factory.objectNode();
-        finalNode.put("opcode", "histogram");
-        finalNode.put("from", histogramRequest.getFrom());
-        finalNode.put("to", histogramRequest.getTo());
-        finalNode.put("counts", countsNode);
-
-        String expectedResponse = mapper.writeValueAsString(finalNode);
-        String actualResponse = mapper.writeValueAsString(queryExecutor.execute(histogramRequest));
-        assertEquals(expectedResponse, actualResponse);
+        HistogramResponse response = HistogramResponse.class.cast(queryExecutor.execute(histogramRequest));
+        List<HistogramResponse.Count> counts = new ArrayList<HistogramResponse.Count>();
+        counts.add(new HistogramResponse.Count(1397606400000L, 4));
+        counts.add(new HistogramResponse.Count(1397952000000L, 1));
+        counts.add(new HistogramResponse.Count(1398643200000L, 1));
+        assertTrue(response.getCounts().equals(counts));
     }
 }

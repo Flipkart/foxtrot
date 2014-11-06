@@ -43,17 +43,18 @@ public class StatsTrendAction extends Action<StatsTrendRequest> {
 
     @Override
     protected String getRequestCacheKey() {
-        long statsHashKey = 0L;
         StatsTrendRequest statsRequest = getParameter();
-        if (null != statsRequest.getFilters()) {
+        long hashKey = 0L;
+        if (statsRequest.getFilters() != null) {
             for (Filter filter : statsRequest.getFilters()) {
-                statsHashKey += 31 * filter.hashCode();
+                hashKey += 31 * filter.hashCode();
             }
         }
-
-        statsHashKey += 31 * statsRequest.getPeriod().hashCode();
-        statsHashKey += 31 * statsRequest.getCombiner().hashCode();
-        return String.format("%s-trend-%s-%d", statsRequest.getTable(), statsRequest.getField(), statsHashKey);
+        hashKey += 31 * statsRequest.getPeriod().name().hashCode();
+        hashKey += 31 * statsRequest.getTimestamp().hashCode();
+        hashKey += 31 * (statsRequest.getField() != null ? statsRequest.getField().hashCode() : "FIELD".hashCode());
+        return String.format("stats-trend-%s-%s-%d-%d-%d", statsRequest.getTable(),
+                statsRequest.getField(), statsRequest.getFrom() / 30000, statsRequest.getTo() / 30000, hashKey);
     }
 
     @Override
@@ -64,6 +65,17 @@ public class StatsTrendAction extends Action<StatsTrendRequest> {
         }
         if (null == parameter.getTable()) {
             throw new QueryStoreException(QueryStoreException.ErrorCode.INVALID_REQUEST, "Invalid Table");
+        }
+
+        long currentTime = System.currentTimeMillis();
+        if (0L == parameter.getFrom() || 0L == parameter.getTo()) {
+            parameter.setFrom(currentTime - 86400000L);
+            parameter.setTo(currentTime);
+        }
+
+        String field = parameter.getField();
+        if (null == field || field.isEmpty()) {
+            throw new QueryStoreException(QueryStoreException.ErrorCode.INVALID_REQUEST, "Invalid field name");
         }
 
         try {
@@ -107,23 +119,21 @@ public class StatsTrendAction extends Action<StatsTrendRequest> {
                 break;
         }
 
-        String dateHistogramKey = StatsUtils.getDateHistogramKey();
+        String dateHistogramKey = Utils.getDateHistogramKey(request.getTimestamp());
         return AggregationBuilders.dateHistogram(dateHistogramKey)
-                .field(ActionConstants.TIMESTAMP_FIELD)
+                .field(request.getTimestamp())
                 .interval(interval)
-                .subAggregation(StatsUtils.buildSingleStatsAggregation(request.getField()))
-                .subAggregation(StatsUtils.buildPercentileAggregation(request.getField()));
+                .subAggregation(Utils.buildExtendedStatsAggregation(request.getField()))
+                .subAggregation(Utils.buildPercentileAggregation(request.getField()));
     }
 
     private StatsTrendResponse buildResponse(StatsTrendRequest request, Aggregations aggregations) {
-
-        String dateHistogramKey = StatsUtils.getDateHistogramKey();
-
+        String dateHistogramKey = Utils.getDateHistogramKey(request.getTimestamp());
         DateHistogram dateHistogram = aggregations.get(dateHistogramKey);
         Collection<? extends DateHistogram.Bucket> buckets = dateHistogram.getBuckets();
 
-        String metricKey = StatsUtils.getExtendedStatsAggregationKey(request.getField());
-        String percentileMetricKey = StatsUtils.getPercentileAggregationKey(request.getField());
+        String metricKey = Utils.getExtendedStatsAggregationKey(request.getField());
+        String percentileMetricKey = Utils.getPercentileAggregationKey(request.getField());
 
         List<StatsTrendValue> statsValueList = new ArrayList<StatsTrendValue>();
         for (DateHistogram.Bucket bucket : buckets) {

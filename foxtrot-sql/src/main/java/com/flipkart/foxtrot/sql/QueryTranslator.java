@@ -2,6 +2,7 @@ package com.flipkart.foxtrot.sql;
 
 
 import com.flipkart.foxtrot.common.ActionRequest;
+import com.flipkart.foxtrot.common.count.CountRequest;
 import com.flipkart.foxtrot.common.group.GroupRequest;
 import com.flipkart.foxtrot.common.Period;
 import com.flipkart.foxtrot.common.histogram.HistogramRequest;
@@ -187,6 +188,14 @@ public class QueryTranslator extends SqlElementVisitor {
                 request = histogram;
                 break;
             }
+            case count: {
+                CountRequest countRequest = (CountRequest)calledAction;
+                countRequest.setTable(tableName);
+                countRequest.setFilters(filters);
+                request = countRequest;
+                break;
+            }
+
         }
         if(null == request) {
             throw new Exception("Could not parse provided FQL.");
@@ -235,6 +244,8 @@ public class QueryTranslator extends SqlElementVisitor {
                     case histogram:
                         actionRequest = parseHistogramRequest(function.getParameters());
                         break;
+                    case count:
+                        actionRequest = parseCountRequest(function.getParameters());
                     case desc:
                     case select:
                     case group:
@@ -260,6 +271,9 @@ public class QueryTranslator extends SqlElementVisitor {
             }
             if(function.equalsIgnoreCase("histogram")) {
                 return FqlQueryType.histogram;
+            }
+            if(function.equalsIgnoreCase("count")) {
+                return FqlQueryType.count;
             }
             return FqlQueryType.select;
         }
@@ -313,6 +327,19 @@ public class QueryTranslator extends SqlElementVisitor {
                 }
             }
             return histogramRequest;
+        }
+
+        private ActionRequest parseCountRequest(ExpressionList expressionList) {
+            if (expressionList != null && (expressionList.getExpressions() != null && expressionList.getExpressions().size() > 1)) {
+                throw new RuntimeException("count function has the following format: count(*/column_name)");
+            }
+
+            CountRequest countRequest = new CountRequest();
+            if (null != expressionList){
+                List<Expression> expressions = expressionList.getExpressions();
+                countRequest.setColumn(expressionToString(expressions.get(0)));
+            }
+            return countRequest;
         }
 
         private String expressionToString(Expression expression) {

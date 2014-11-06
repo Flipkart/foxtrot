@@ -1,21 +1,18 @@
 package com.flipkart.foxtrot.sql.responseprocessors;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.flipkart.foxtrot.common.ActionRequest;
 import com.flipkart.foxtrot.common.Document;
 import com.flipkart.foxtrot.common.ResponseVisitor;
+import com.flipkart.foxtrot.common.count.CountResponse;
 import com.flipkart.foxtrot.common.group.GroupRequest;
 import com.flipkart.foxtrot.common.group.GroupResponse;
 import com.flipkart.foxtrot.common.histogram.HistogramResponse;
-import com.flipkart.foxtrot.common.query.Query;
 import com.flipkart.foxtrot.common.query.QueryResponse;
 import com.flipkart.foxtrot.common.stats.StatsResponse;
 import com.flipkart.foxtrot.common.stats.StatsTrendResponse;
 import com.flipkart.foxtrot.common.stats.StatsTrendValue;
-import com.flipkart.foxtrot.common.stats.StatsValue;
-import com.flipkart.foxtrot.common.trend.TrendRequest;
 import com.flipkart.foxtrot.common.trend.TrendResponse;
 import com.flipkart.foxtrot.sql.responseprocessors.model.FieldHeader;
 import com.flipkart.foxtrot.sql.responseprocessors.model.FlatRepresentation;
@@ -24,7 +21,6 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
-import java.io.PrintStream;
 import java.util.*;
 
 import static com.flipkart.foxtrot.sql.responseprocessors.FlatteningUtils.generateFieldMappings;
@@ -196,6 +192,14 @@ public class Flattener implements ResponseVisitor {
             rows.add(row);
         }
         flatRepresentation = new FlatRepresentation(new ArrayList<FieldHeader>(headers), rows);
+    }
+
+    @Override
+    public void visit(CountResponse countResponse) {
+        FieldHeader fieldHeader = new FieldHeader("count", 20);
+        List<Map<String, Object>> rows = Lists.newArrayList();
+        rows.add(Collections.<String, Object>singletonMap("count", countResponse.getCount()));
+        flatRepresentation = new FlatRepresentation(Arrays.asList(fieldHeader), rows);
     }
 
     public FlatRepresentation getFlatRepresentation() {
