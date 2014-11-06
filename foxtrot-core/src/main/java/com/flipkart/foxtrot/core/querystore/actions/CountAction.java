@@ -41,7 +41,7 @@ public class CountAction extends Action<CountRequest> {
                 filterHashKey += 31 * filter.hashCode();
             }
         }
-        filterHashKey += 31 * (request.getColumn() != null ? request.getColumn().hashCode() : "COLUMN".hashCode());
+        filterHashKey += 31 * (request.getField() != null ? request.getField().hashCode() : "COLUMN".hashCode());
         return String.format("count-%s-%d", request.getTable(), filterHashKey);
     }
 
@@ -52,8 +52,8 @@ public class CountAction extends Action<CountRequest> {
             parameter.setFilters(Lists.<Filter>newArrayList(new AnyFilter(parameter.getTable())));
         }
 
-        if (parameter.getColumn() != null) {
-            parameter.getFilters().add(new ExistsFilter(parameter.getColumn()));
+        if (parameter.getField() != null) {
+            parameter.getFilters().add(new ExistsFilter(parameter.getField()));
         }
         CountRequestBuilder countRequestBuilder = null;
         org.elasticsearch.action.count.CountResponse countResponse;

@@ -18,7 +18,7 @@ public class CountRequest implements ActionRequest {
     @NotEmpty
     private String table;
 
-    private String column;
+    private String field;
 
     private List<Filter> filters;
 
@@ -41,12 +41,12 @@ public class CountRequest implements ActionRequest {
         this.table = table;
     }
 
-    public String getColumn() {
-        return column;
+    public String getField() {
+        return field;
     }
 
-    public void setColumn(String column) {
-        this.column = column;
+    public void setField(String field) {
+        this.field = field;
     }
 
     public List<Filter> getFilters() {
@@ -77,7 +77,7 @@ public class CountRequest implements ActionRequest {
     public String toString() {
         return "CountRequest{" +
                 "table='" + table + '\'' +
-                ", column='" + column + '\'' +
+                ", field='" + field + '\'' +
                 ", filters=" + filters +
                 ", from=" + from +
                 ", to=" + to +

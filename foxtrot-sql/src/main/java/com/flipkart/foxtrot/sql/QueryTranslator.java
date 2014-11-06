@@ -337,7 +337,7 @@ public class QueryTranslator extends SqlElementVisitor {
             CountRequest countRequest = new CountRequest();
             if (null != expressionList){
                 List<Expression> expressions = expressionList.getExpressions();
-                countRequest.setColumn(expressionToString(expressions.get(0)));
+                countRequest.setField(expressionToString(expressions.get(0)));
             }
             return countRequest;
         }
