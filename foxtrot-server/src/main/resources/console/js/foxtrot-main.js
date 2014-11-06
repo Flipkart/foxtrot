@@ -167,11 +167,76 @@ FoxTrot.prototype.loadConsoleList = function() {
 $(document).ready(function(){
 	$(".alert").alert();
     $(".alert").hide();
+    	    var data = [
+                {
+                    id: "percentiles.1.0",
+                    label: "1% Value"
+                },
+                {
+                    id: "percentiles.5.0",
+                    label: "5% Value"
+                },
+                {
+                    id: "percentiles.25.0",
+                    label: "25% Value"
+                },
+                {
+                    id: "percentiles.50.0",
+                    label: "50% Value"
+                },
+                {
+                    id: "percentiles.75.0",
+                    label: "75% Value"
+                },
+                {
+                    id: "percentiles.95.0",
+                 label: "95% Value"
+                },
+                {
+                   id: "percentiles.99.0",
+                   label: "99% Value"
+                },
+                {
+                   id: "stats.avg",
+                   label: "Average"
+                },
+                {
+                    id: "stats.count",
+                    label: "Count"
+                 },
+                 {
+                    id: "stats.max",
+                    label: "Max"
+                },
+                {
+                    id: "stats.min",
+                    label: "Min"
+                },
+                {
+                    id: "stats.std_deviation",
+                    label: "Std Deviation Value"
+                },
+                {
+                    id: "stats.sum",
+                    label: "Sum"
+                },
+                {
+                    id: "stats.sum_of_squares",
+                    label: "Sum of Squares"
+                },
+                {
+                    id: "stats.variance",
+                    label: "Variance"
+                }
+            ];
+            $(".stats_to_plot").multiselect();
+
 	$("#setupPieChartModal").validator();
 	$("#setupBarChartModal").validator();
 	$("#setupHistogramForm").validator();
 	$("#setupEventBrowser").validator();
 	$("#setupStackedBarChartModal").validator();
+	$("#setupStatsTrendChartModal").validator();
 	$("#saveConsoleModal").validator();
 	$("#loadConsoleModal").validator();
 	$(".filter-condition-form").validator();

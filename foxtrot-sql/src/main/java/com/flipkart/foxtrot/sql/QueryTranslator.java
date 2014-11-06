@@ -361,8 +361,10 @@ public class QueryTranslator extends SqlElementVisitor {
             ColumnData columnData = setupColumn(between.getLeftExpression());
             betweenFilter.setField(columnData.getColumnName());
             betweenFilter.setTemporal(columnData.isTemporal());
-            betweenFilter.setFrom(getNumbericValue(between.getBetweenExpressionStart()));
-            betweenFilter.setTo(getNumbericValue(between.getBetweenExpressionEnd()));
+            Number from = getNumbericValue(between.getBetweenExpressionStart());
+            Number to = getNumbericValue(between.getBetweenExpressionEnd());
+            betweenFilter.setFrom(from);
+            betweenFilter.setTo(to);
             filters.add(betweenFilter);
         }
 
@@ -455,7 +457,7 @@ public class QueryTranslator extends SqlElementVisitor {
             LastFilter lastFilter = new LastFilter();
             lastFilter.setDuration(Duration.parse(QueryUtils.expressionToString((Expression) expressions.get(0))));
             if(expressions.size() > 1) {
-                lastFilter.setCurrentTime(Long.valueOf(QueryUtils.expressionToString((Expression) expressions.get(1)).toLowerCase()));
+                lastFilter.setCurrentTime(QueryUtils.expressionToNumber((Expression) expressions.get(1)).longValue());
             }
             if(expressions.size() > 2) {
                 lastFilter.setField(QueryUtils.expressionToString((Expression) expressions.get(2)));

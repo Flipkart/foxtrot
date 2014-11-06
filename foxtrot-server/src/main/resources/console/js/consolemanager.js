@@ -36,6 +36,9 @@ TileFactory.create = function(type) {
 	else if(type === "stacked_bar") {
 		return new StackedBar();
 	}
+	else if(type === "statstrend") {
+		return new StatsTrend();
+	}
 }
 
 function ConsoleManager (tileSet, queue, tables) {
