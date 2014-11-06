@@ -20,6 +20,8 @@ public class CountRequest implements ActionRequest {
 
     private String field;
 
+    private boolean isDistinct = false;
+
     private List<Filter> filters;
 
     @Min(0)
@@ -47,6 +49,14 @@ public class CountRequest implements ActionRequest {
 
     public void setField(String field) {
         this.field = field;
+    }
+
+    public boolean isDistinct() {
+        return isDistinct;
+    }
+
+    public void setDistinct(boolean isDistinct) {
+        this.isDistinct = isDistinct;
     }
 
     public List<Filter> getFilters() {
@@ -78,6 +88,7 @@ public class CountRequest implements ActionRequest {
         return "CountRequest{" +
                 "table='" + table + '\'' +
                 ", field='" + field + '\'' +
+                ", isDistinct=" + isDistinct +
                 ", filters=" + filters +
                 ", from=" + from +
                 ", to=" + to +

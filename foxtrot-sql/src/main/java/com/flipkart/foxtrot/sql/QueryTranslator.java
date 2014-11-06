@@ -248,7 +248,7 @@ public class QueryTranslator extends SqlElementVisitor {
                         actionRequest = parseHistogramRequest(function.getParameters());
                         break;
                     case count:
-                        actionRequest = parseCountRequest(function.getParameters());
+                        actionRequest = parseCountRequest(function.getParameters(), function.isAllColumns(), function.isDistinct());
                     case desc:
                     case select:
                     case group:
@@ -332,17 +332,25 @@ public class QueryTranslator extends SqlElementVisitor {
             return histogramRequest;
         }
 
-        private ActionRequest parseCountRequest(ExpressionList expressionList) {
-            if (expressionList != null && (expressionList.getExpressions() != null && expressionList.getExpressions().size() > 1)) {
-                throw new RuntimeException("count function has the following format: count(*/column_name)");
-            }
+        private ActionRequest parseCountRequest(ExpressionList expressionList, boolean allColumns, boolean isDistinct) {
 
             CountRequest countRequest = new CountRequest();
-            if (null != expressionList){
-                List<Expression> expressions = expressionList.getExpressions();
-                countRequest.setField(expressionToString(expressions.get(0)));
+            if (allColumns){
+                countRequest.setField(null);
+                return countRequest;
             }
-            return countRequest;
+
+            if (expressionList != null && (expressionList.getExpressions() != null && expressionList.getExpressions().size() == 1)) {
+                List<Expression> expressions = expressionList.getExpressions();
+                if (allColumns){
+                    countRequest.setField(null);
+                } else {
+                    countRequest.setField(expressionToString(expressions.get(0)));
+                    countRequest.setDistinct(isDistinct);
+                }
+                return countRequest;
+            }
+            throw new RuntimeException("count function has the following format: count([distinct] */column_name)");
         }
 
         private String expressionToString(Expression expression) {
