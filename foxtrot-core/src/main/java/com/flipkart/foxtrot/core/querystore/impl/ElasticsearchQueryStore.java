@@ -78,10 +78,6 @@ public class ElasticsearchQueryStore implements QueryStore {
             }
             dataStore.save(table, document);
             long timestamp = document.getTimestamp();
-            if (timestamp > System.currentTimeMillis()){
-                logger.error("Skipping document. Invalid timestamp. document --> " + mapper.writeValueAsString(document));
-                return;
-            }
             Stopwatch stopwatch = new Stopwatch();
             stopwatch.start();
             connection.getClient()
