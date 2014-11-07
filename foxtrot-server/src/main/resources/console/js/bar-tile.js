@@ -28,6 +28,7 @@ function BarTile () {
 BarTile.prototype = new Tile();
 
 BarTile.prototype.render = function(data, animate) {
+    $("#" + this.id).find(".tile-header").text("Group by " + this.eventTypeFieldName);
 	var parent = $("#content-for-" + this.id);
 	var parentWidth = parent.width();
 	var chartLabel = null;
@@ -38,7 +39,7 @@ BarTile.prototype.render = function(data, animate) {
 	else {
 		chartLabel = parent.find(".pielabel");
 	}
-	chartLabel.text((this.period >= 60) ? ((this.period / 60) + "h"): (this.period + "m"));
+	chartLabel.text(getPeriodString(this.period, $("#" + this.id).find(".period-select").val()));
 
 	var canvas = null;
 	if(0 == parent.find(".chartcanvas").length) {
@@ -88,8 +89,9 @@ BarTile.prototype.render = function(data, animate) {
                 },
                 barWidth: 0.5,
             	align: "center",
-            	lineWidth: 0,
-            	fill: 1.0
+            	lineWidth: 1.0,
+                fill: true,
+                fillColor: { colors: [{ opacity: 0.3 }, { opacity: 0.7}] }
             },
             valueLabels: {
                show: true
@@ -98,14 +100,22 @@ BarTile.prototype.render = function(data, animate) {
         legend : {
             show: false
         },
-        xaxis : xAxisOptions,
+        xaxis : xAxisOptions/*,
         yaxis: {
-        	tickLength: 0
-        },
-        grid: {
+        	tickLength: 1,
+
+        }*/,
+        /*grid: {
         	hoverable: true,
         	borderWidth: {top: 0, right: 0, bottom: 1, left: 1},
-        },
+        },*/
+        grid: {
+                hoverable: true,
+                color: "#B2B2B2",
+                show: true,
+                borderWidth: 1,
+                borderColor: "#EEEEEE"
+            },
         tooltip: true,
         tooltipOpts: {
     		content: function(label, x, y) {
@@ -120,13 +130,7 @@ BarTile.prototype.getQuery = function() {
 	if(this.eventTypeFieldName && this.period != 0) {
 		var timestamp = new Date().getTime();
         var filters = [];
-        filters.push({
-                        field: "_timestamp",
-                        operator: "between",
-                        temporal: true,
-                        from: (timestamp - (this.period * 60000)),
-                        to: timestamp
-                    });
+        filters.push(timeValue(this.period, $("#" + this.id).find(".period-select").val()));
         if(this.selectedValues) {
             filters.push({
                 field: this.eventTypeFieldName,

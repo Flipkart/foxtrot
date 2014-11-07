@@ -86,12 +86,6 @@ public class HistogramAction extends Action<HistogramRequest> {
             throw new QueryStoreException(QueryStoreException.ErrorCode.INVALID_REQUEST, "Illegal Nesting Parameters");
         }
 
-        long currentTime = System.currentTimeMillis();
-        if (0L == parameter.getFrom() || 0L == parameter.getTo()) {
-            parameter.setFrom(currentTime - 86400000L);
-            parameter.setTo(currentTime);
-        }
-
         try {
             /*if(!tableManager.exists(query.getTable())) {
                 throw new QueryStoreException(QueryStoreException.ErrorCode.NO_SUCH_TABLE,

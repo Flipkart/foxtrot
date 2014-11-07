@@ -53,7 +53,7 @@
         <div class="header-container">
             <div class="header pageheader">
                 <h1>
-                    <div class="col-sm-4"><img src="images/logo-1.png"/> <span class="console-name">FoxTrot</span></div>
+                    <div class="col-sm-4"><img src="images/logo-1.png" style="height: 40px;"/> <span class="console-name">FoxTrot</span></div>
                 </h1>
                 <ul class="nav nav-pills pull-right">
                     <li><a href="#monitoring">Monitoring</a></li>
@@ -648,12 +648,67 @@
           </div>
       </div>
 
+      <!--Filter-->
+      <div class="modal fade" tabindex="-1" id="setupFiltersModal" role="dialog" aria-labelledby="setupFilterModalLabel" aria-hidden="true">
+          <div class="modal-dialog">
+              <form class="form-horizontal settings-form" role="form" data-toggle="validate" data-delay="" id="setupFilterModalForm">
+                  <div class="modal-content">
+                      <div class="modal-header">
+                          <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                          <h4 class="modal-title" id="setupFilterModalLabel">Setup Filters</h4>
+                      </div>
+                      <div class="modal-body">
+                          <div class="form-group">
+                              <div class="col-sm-12">
+                                  <input type="hidden" class="tileId">
+                              </div>
+                          </div>
+                          <div class="form-group">
+                              <label class="col-sm-4 control-label" for="stats_to_plot"><strong>Stats to plot</strong></label>
+                              <div class="col-sm-8">
+                                  <select id="filter_values" class="filter_values" multiple="multiple">
+                                  </select>
+                                  <div class="help-block with-errors">Select the field from the above list.</div>
+                              </div>
+                          </div>
+                      </div>
+                      <div class="modal-footer">
+                          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                          <button type="submit" class="btn btn-primary save-changes">Done</button>
+                      </div>
+                  </div>
+              </form>
+          </div>
+      </div>
+
       <!--Templates-->
       <script id="tile-template" type="text/x-handlebars-template">
         <div class='tile tile-gradient size1' id='{{tileId}}' draggable='true'>
+          <div class="tile-header"></div>
           <div class='widget-toolbox'>
-            <span class='glyphicon glyphicon-wrench'></span>
-            <span class='glyphicon glyphicon-trash'></span>
+              <div class="title-header-toolbar-icon-container" style="right: 144px;">
+                  <span class="glyphicon glyphicon-filter"></span>
+              </div>
+              <div class="title-header-toolbar-period-select-container">
+                  <select class="period-select">
+                      <option value="custom" selected>Custom</option>
+                      <option value="5m">5 Minutes</option>
+                      <option value="15m">15 Minutes</option>
+                      <option value="30m">30 Minutes</option>
+                      <option value="1h"> 1 Hour</option>
+                      <option value="6h"> 6 Hours</option>
+                      <option value="12h"> 12 Hours</option>
+                      <option value="1d"> 1 Day</option>
+                      <option value="2d"> 2 Days</option>
+                      <option value="5d"> 5 Days</option>
+                      <option value="7d"> 7 Days</option>
+                      <option value="15d"> 15 Days</option>
+                  </select>
+              </div>
+              <div class="title-header-toolbar-icon-container">
+                  <span class='glyphicon glyphicon-cog'></span>
+                  <span class='glyphicon glyphicon-remove'></span>
+              </div>
           </div>
           <div class='chart-content' id='content-for-{{tileId}}'>
           </div>
@@ -697,6 +752,7 @@
     <script src="js/jquery-ui.js"></script>    
     <script src="js/validator.js"></script>
     <script src="js/stringutils.js"></script>
+    <script src="js/periodhelper.js"></script>
     <script src="js/flot/jquery.flot.min.js"></script>
     <script src="js/flot/jquery.flot.tooltip.js"></script>
     <script src="js/flot/jquery.flot.time.min.js"></script>

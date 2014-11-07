@@ -28,6 +28,7 @@ function DonutTile () {
 DonutTile.prototype = new Tile();
 
 DonutTile.prototype.render = function(data, animate) {
+    $("#" + this.id).find(".tile-header").text(this.eventTypeFieldName);
 	var parent = $("#content-for-" + this.id);
 
 	var chartLabel = null;
@@ -38,7 +39,7 @@ DonutTile.prototype.render = function(data, animate) {
 	else {
 		chartLabel = parent.find(".pielabel");
 	}
-	chartLabel.text((this.period >= 60) ? ((this.period / 60) + "h"): (this.period + "m"));
+    chartLabel.text(getPeriodString(this.period, $("#" + this.id).find(".period-select").val()));
 
 	var canvas = null;
 	if(0 == parent.find(".chartcanvas").length) {
@@ -56,7 +57,7 @@ DonutTile.prototype.render = function(data, animate) {
 	var colors = new Colors(Object.keys(data.result).length);
 	var columns =[];
 	for(property in data.result) {
-		columns.push({label: property, data: data.result[property], color: colors.nextColor()});
+		columns.push({label: property, data: data.result[property], color: colors.nextColor(), lines: {show:true}, shadowSize: 0});
 	}
 	var chartOptions = {
         series: {
@@ -65,7 +66,10 @@ DonutTile.prototype.render = function(data, animate) {
                 show: true,
                 label:{
                     show: false
-                }
+                },
+                lineWidth: 1.0,
+                fill: true,
+                fillColor: { colors: [{ opacity: 0.7 }, { opacity: 0.1}] }
             }
         },
         legend : {
@@ -108,13 +112,7 @@ DonutTile.prototype.getQuery = function() {
 	if(this.eventTypeFieldName && this.period != 0) {
 		var timestamp = new Date().getTime();
 		var filters = [];
-		filters.push({
-                        field: "_timestamp",
-                        operator: "between",
-                        temporal: true,
-                        from: (timestamp - (this.period * 60000)),
-                        to: timestamp
-                    });
+		filters.push(timeValue(this.period, $("#" + this.id).find(".period-select").val()));
         if(this.selectedValues) {
             filters.push({
                 field: this.eventTypeFieldName,

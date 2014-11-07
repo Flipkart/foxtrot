@@ -148,6 +148,15 @@ Tile.prototype.loadSpecificData = function(representation) {
 	console.log("Base load called for " + this.typeName + ": " + this.id)
 };
 
+Tile.prototype.registerComplete = function() {
+}
+
+Tile.prototype.getUniqueValues = function() {
+}
+
+Tile.prototype.filterValues = function(values) {
+}
+
 function TileSet(id, tables) {
 	this.id = id;
 	this.tables = tables;
@@ -155,7 +164,7 @@ function TileSet(id, tables) {
 };
 
 TileSet.prototype.closeHandler = function(eventData) {
-	var tileId = eventData.currentTarget.parentNode.parentNode.getAttribute('id');
+	var tileId = eventData.currentTarget.parentNode.parentNode.parentNode.getAttribute('id');
 	this.unregister(tileId);
 	var tileContainer = $(this.id);
 	if(tileContainer.find(".tile").length  == 0) {
@@ -173,8 +182,8 @@ TileSet.prototype.register = function(tile) {
 		newDiv.height(tile.height);
 		newDiv.width(tile.width);
 	}
-	newDiv.find(".widget-toolbox").find(".glyphicon-trash").click($.proxy(this.closeHandler, this));
-	newDiv.find(".widget-toolbox").find(".glyphicon-wrench").click(function(){
+	newDiv.find(".widget-toolbox").find(".glyphicon-remove").click($.proxy(this.closeHandler, this));
+	newDiv.find(".widget-toolbox").find(".glyphicon-cog").click(function(){
 		if(tile.setupModalName) {
 			var modal = null;
 			modal = $(tile.setupModalName);
@@ -193,9 +202,28 @@ TileSet.prototype.register = function(tile) {
 			modal.modal('show');
 		}
 	});
+    newDiv.find(".widget-toolbox").find(".glyphicon-filter").click(function() {
+        var modal = $("#setupFiltersModal");
+        modal.find(".tileId").val(tile.id);
+        var fv = $("#filter_values");
+        fv.multiselect('dataprovider', tile.getUniqueValues());
+        fv.multiselect('refresh');
+        var form = modal.find("form");
+        form.off('submit');
+        form.on('submit', $.proxy(function(e) {
+            this.filterValues($("#filter_values").val());
+            $("#setupFiltersModal").modal('hide');
+            e.preventDefault();
+        }, tile));
+        tile.populateSetupDialog();
+        modal.modal('show');
+    });
+
 	if(!tile.isSetupDone()) {
 		newDiv.addClass("tile-drag");
 	}
+    tile.registerComplete();
+
 };
 
 TileSet.prototype.unregister = function(tileId) {
