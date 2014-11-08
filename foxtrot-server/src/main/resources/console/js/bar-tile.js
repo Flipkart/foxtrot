@@ -23,6 +23,9 @@ function BarTile () {
     this.selectedValues = null;
 	this.period = 0;
     this.selectedFilters = null;
+    this.uniqueValues = [];
+    this.uiFilteredValues;
+
 }
 
 BarTile.prototype = new Tile();
@@ -57,9 +60,13 @@ BarTile.prototype.render = function(data, animate) {
 	var columns =[];
 	var ticks = [];
 	var i = 0;
+	this.uniqueValues = [];
 	for(property in data.result) {
-		columns.push({label: property, data: [[i, data.result[property]]], color: colors.nextColor()});
-		ticks.push([i, property]);
+	    if(this.isValueVisible(property)) {
+    		columns.push({label: property, data: [[i, data.result[property]]], color: colors.nextColor()});
+    		ticks.push([i, property]);
+	    }
+		this.uniqueValues.push(property);
 		i++;
 	}
     var xAxisOptions = {
@@ -215,3 +222,33 @@ BarTile.prototype.loadSpecificData = function(representation) {
         this.selectedFilters = JSON.parse(atob(representation['selectedFilters']));
     }
 };
+
+BarTile.prototype.isValueVisible = function(value) {
+   return !this.uiFilteredValues || this.uiFilteredValues.hasOwnProperty(value);
+}
+
+BarTile.prototype.getUniqueValues = function() {
+    var options = [];
+    for(var i = 0; i < this.uniqueValues.length; i++) {
+        var value = this.uniqueValues[i];
+        options.push(
+            {
+                label: value,
+                title: value,
+                value: value,
+                selected: this.isValueVisible(value)
+            }
+        );
+    }
+    return options;
+}
+
+BarTile.prototype.filterValues = function(values) {
+    if(!values || values.length == 0) {
+        values = this.uniqueValues;
+    }
+    this.uiFilteredValues = new Object();
+    for(var i = 0; i < values.length; i++) {
+        this.uiFilteredValues[values[i]] = 1;
+    }
+}

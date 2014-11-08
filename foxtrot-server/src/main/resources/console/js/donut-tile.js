@@ -23,6 +23,9 @@ function DonutTile () {
 	this.selectedValues = null;
 	this.period = 0;
     this.selectedFilters = null;
+    this.uniqueValues = [];
+    this.uiFilteredValues;
+
 }
 
 DonutTile.prototype = new Tile();
@@ -56,8 +59,12 @@ DonutTile.prototype.render = function(data, animate) {
 
 	var colors = new Colors(Object.keys(data.result).length);
 	var columns =[];
+	this.uniqueValues = [];
 	for(property in data.result) {
-		columns.push({label: property, data: data.result[property], color: colors.nextColor(), lines: {show:true}, shadowSize: 0});
+	    if(this.isValueVisible(property)) {
+    		columns.push({label: property, data: data.result[property], color: colors.nextColor(), lines: {show:true}, shadowSize: 0});
+	    }
+	    this.uniqueValues.push(property);
 	}
 	var chartOptions = {
         series: {
@@ -198,3 +205,34 @@ DonutTile.prototype.loadSpecificData = function(representation) {
         this.selectedFilters = JSON.parse(atob(representation['selectedFilters']));
     }
 };
+
+
+DonutTile.prototype.isValueVisible = function(value) {
+   return !this.uiFilteredValues || this.uiFilteredValues.hasOwnProperty(value);
+}
+
+DonutTile.prototype.getUniqueValues = function() {
+    var options = [];
+    for(var i = 0; i < this.uniqueValues.length; i++) {
+        var value = this.uniqueValues[i];
+        options.push(
+            {
+                label: value,
+                title: value,
+                value: value,
+                selected: this.isValueVisible(value)
+            }
+        );
+    }
+    return options;
+}
+
+DonutTile.prototype.filterValues = function(values) {
+    if(!values || values.length == 0) {
+        values = this.uniqueValues;
+    }
+    this.uiFilteredValues = new Object();
+    for(var i = 0; i < values.length; i++) {
+        this.uiFilteredValues[values[i]] = 1;
+    }
+}
