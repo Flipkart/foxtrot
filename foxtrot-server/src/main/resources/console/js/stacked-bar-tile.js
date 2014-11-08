@@ -111,7 +111,6 @@ StackedBar.prototype.render = function(data, animate) {
             var timeData = tmpData[time];
             if(timeData.hasOwnProperty(trend)) {
                 count = timeData[trend];
-                console.log("time found ");
             }
             var rows = null;
             if(!trendWiseData.hasOwnProperty(trend)) {
@@ -123,7 +122,6 @@ StackedBar.prototype.render = function(data, animate) {
             rows.push([timeVal, count]);
         }
     }
-    console.log(trendWiseData);
     this.uniqueValues = [];
     for(var trend in trendWiseData) {
         var rows = trendWiseData[trend];
