@@ -226,7 +226,7 @@ StatsTrend.prototype.isSetupDone = function() {
 StatsTrend.prototype.configChanged = function() {
 	var modal = $(this.setupModalName);
 	this.period = parseInt(modal.find(".refresh-period").val());
-	this.eventTypeFieldName = modal.find(".stacked-bar-chart-field").val();
+	this.eventTypeFieldName = modal.find(".statstrend-bar-chart-field").val();
     var filters = modal.find(".selected-filters").val();
     if(filters != undefined && filters != ""){
         var selectedFilters = JSON.parse(filters);
@@ -242,7 +242,7 @@ StatsTrend.prototype.configChanged = function() {
 
 StatsTrend.prototype.populateSetupDialog = function() {
 	var modal = $(this.setupModalName);
-	var select = modal.find(".stacked-bar-chart-field");
+	var select = $("#statstrend-bar-chart-field");
 	select.find('option').remove();
 	for (var i = this.tables.currentTableFieldMappings.length - 1; i >= 0; i--) {
 		select.append('<option>' + this.tables.currentTableFieldMappings[i].field + '</option>');

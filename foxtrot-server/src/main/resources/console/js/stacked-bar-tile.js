@@ -111,7 +111,6 @@ StackedBar.prototype.render = function(data, animate) {
             var timeData = tmpData[time];
             if(timeData.hasOwnProperty(trend)) {
                 count = timeData[trend];
-                console.log("time found ");
             }
             var rows = null;
             if(!trendWiseData.hasOwnProperty(trend)) {
@@ -123,7 +122,6 @@ StackedBar.prototype.render = function(data, animate) {
             rows.push([timeVal, count]);
         }
     }
-    console.log(trendWiseData);
     this.uniqueValues = [];
     for(var trend in trendWiseData) {
         var rows = trendWiseData[trend];
@@ -234,7 +232,7 @@ StackedBar.prototype.configChanged = function() {
 
 StackedBar.prototype.populateSetupDialog = function() {
 	var modal = $(this.setupModalName);
-	var select = modal.find(".stacked-bar-chart-field");
+	var select = $("#stacked-bar-chart-field");
 	select.find('option').remove();
 	for (var i = this.tables.currentTableFieldMappings.length - 1; i >= 0; i--) {
 		select.append('<option>' + this.tables.currentTableFieldMappings[i].field + '</option>');

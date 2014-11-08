@@ -169,7 +169,7 @@ DonutTile.prototype.configChanged = function() {
 
 DonutTile.prototype.populateSetupDialog = function() {
 	var modal = $(this.setupModalName);
-	var select = modal.find(".pie-chart-field");
+	var select = $("#pie_field");
 	select.find('option').remove();
 	for (var i = this.tables.currentTableFieldMappings.length - 1; i >= 0; i--) {
 		select.append('<option>' + this.tables.currentTableFieldMappings[i].field + '</option>');

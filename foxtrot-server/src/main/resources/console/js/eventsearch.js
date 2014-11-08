@@ -201,8 +201,9 @@ FilterSection.prototype.renderData = function(data) {
 };
 
 FilterSection.prototype.tableChanged = function(table) {
-    var fieldList = $(this.filterId).find(".event-fields");
+    var fieldList = $("#event-fields");
     fieldList.find('option').remove();
+    fieldList.selectpicker('refresh');
     var filterSection = $(this.filterId);
     filterSection.find(".field-operator").find("option").remove();
     filterSection.find(".filter-operator-1").closest(".form-group").removeClass("has-error");
@@ -238,7 +239,7 @@ FilterSection.prototype.fieldSelectionChanged = function() {
     $(this.filterId).find(".filter-operator-1").closest(".form-group").removeClass("has-error");
     $(this.filterId).find(".filter-operator-2").closest(".form-group").removeClass("has-error");
     if(opList) {
-        var select = $(this.filterId).find(".field-operator");
+        var select = $("#field-operator");
         select.find("option").remove();
         for(var i = 0; i < opList.length; i++) {
             select.append("<option value='" + i + "'>" + opTable.opTableMap[opList[i]].label + '</option>');

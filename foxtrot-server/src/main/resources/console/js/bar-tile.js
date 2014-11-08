@@ -187,7 +187,7 @@ BarTile.prototype.configChanged = function() {
 
 BarTile.prototype.populateSetupDialog = function() {
 	var modal = $(this.setupModalName);
-	var select = modal.find(".bar-chart-field");
+	var select = modal.find("#bar-chart-field");
 	select.find('option').remove();
 	for (var i = this.tables.currentTableFieldMappings.length - 1; i >= 0; i--) {
 		select.append('<option>' + this.tables.currentTableFieldMappings[i].field + '</option>');

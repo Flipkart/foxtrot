@@ -112,8 +112,11 @@
                         <!--</tr>-->
                         <tr class="filter-control">
                             <td class="control-table-cell">
-                                <select class="selectpicker event-fields" data-style="btn-success"></select> </td>
-                            <td class="control-table-cell"><select class="selectpicker field-operator" data-style="btn-primary"></select> </td>
+                                <select class="selectpicker event-fields" data-style="btn-success" id="event-fields"></select>
+                            </td>
+                            <td class="control-table-cell">
+                                <select class="selectpicker field-operator" data-style="btn-primary" id="field-operator"></select>
+                            </td>
                             <td>
                                 <div class="form-group">
                                     <input type="text" class="form-control col-lg-5 filter-operator-1">
@@ -556,7 +559,7 @@
                           <div class="form-group">
                               <label class="col-sm-4 control-label" for="pie_rt"><strong>Field to classify</strong></label>
                               <div class="col-sm-8">
-                                  <select class="selectpicker stacked-bar-chart-field"  data-style="btn-warning">
+                                  <select class="selectpicker stacked-bar-chart-field"  data-style="btn-warning" id="stacked-bar-chart-field">
                                   </select>
                                   <div class="help-block with-errors">Select the field from the above list.</div>
                               </div>
@@ -603,7 +606,7 @@
                           <div class="form-group">
                               <label class="col-sm-4 control-label" for="pie_rt"><strong>Field to run stats on</strong></label>
                               <div class="col-sm-8">
-                                  <select class="selectpicker stacked-bar-chart-field"  data-style="btn-warning">
+                                  <select class="selectpicker statstrend-bar-chart-field"  data-style="btn-warning" id="statstrend-bar-chart-field">
                                   </select>
                                   <div class="help-block with-errors">Select the field from the above list.</div>
                               </div>
