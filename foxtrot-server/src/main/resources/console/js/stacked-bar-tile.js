@@ -23,7 +23,7 @@ function StackedBar () {
 	this.period = 0;
     this.selectedFilters = null;
     this.uniqueValues = [];
-    this.uiFilteredValues = new Object();
+    this.uiFilteredValues;
 }
 
 StackedBar.prototype = new Tile();
@@ -133,7 +133,9 @@ StackedBar.prototype.render = function(data, animate) {
         rows.sort(function(lhs, rhs) {
             return (lhs[0] < rhs[0]) ? -1 : ((lhs[0] == rhs[0])? 0 : 1);
         })
-        d.push({ data: rows, color: colors[colorIdx], label : trend, fill: 0.3, fillColor: "#A3A3A3", lines: {show:true}, shadowSize: 0/*, curvedLines: {apply: true}*/ });
+        if(this.isValueVisible(trend)) {
+            d.push({ data: rows, color: colors[colorIdx], label : trend, fill: 0.3, fillColor: "#A3A3A3", lines: {show:true}, shadowSize: 0/*, curvedLines: {apply: true}*/ });
+        }
         this.uniqueValues.push(trend);
     }
     $.plot(canvas, d, {
@@ -211,7 +213,7 @@ StackedBar.prototype.getQuery = function() {
 };
 
 StackedBar.prototype.isSetupDone = function() {
-	return this.eventTypeFieldName && this.period != 0;	
+	return this.eventTypeFieldName && this.period != 0;
 };
 
 StackedBar.prototype.configChanged = function() {
@@ -264,7 +266,7 @@ StackedBar.prototype.loadSpecificData = function(representation) {
 };
 
 StackedBar.prototype.isValueVisible = function(value) {
-    return this.uiFilteredValues && this.uiFilteredValues.hasOwnProperty(value);
+    return !this.uiFilteredValues || this.uiFilteredValues.hasOwnProperty(value);
 }
 
 StackedBar.prototype.getUniqueValues = function() {
@@ -284,6 +286,9 @@ StackedBar.prototype.getUniqueValues = function() {
 }
 
 StackedBar.prototype.filterValues = function(values) {
+    if(!values || values.length == 0) {
+        values = this.uniqueValues;
+    }
     this.uiFilteredValues = new Object();
     for(var i = 0; i < values.length; i++) {
         this.uiFilteredValues[values[i]] = 1;
