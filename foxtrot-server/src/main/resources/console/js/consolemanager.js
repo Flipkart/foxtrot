@@ -88,6 +88,16 @@ ConsoleManager.prototype.buildConsoleFromRepresentation = function(representatio
 	$(".console-name").text(representation.name);
 	if(representation.hasOwnProperty('appName') && representation['appName']) {
         this.tables.forceSelectedTableAfterInit(representation['appName']);
+        var tables = this.tables.tables;
+        if(tables && tables.length > 0) {
+            for (var i = 0; i < tables.length; i++) {
+                if(tables[i].name === representation['appName']) {
+                    var tableSelect = $("#tables");
+                    tableSelect.val(i);
+                    tableSelect.change();
+                }
+            }
+        }
 	}
 	if(this.tables.selectedTable) {
     	this.queue.executeCalls();
