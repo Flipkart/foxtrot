@@ -129,6 +129,8 @@ font-size: small;
     color: white;
     font-style: italic;
     padding-left: 10px;
+    padding-top: 3px;
+    font-size: small;
 }
 
 .tile-container{
@@ -332,6 +334,17 @@ path {
     border-color: black;
     border-style: solid;
     border-width: 1px;
+}
+
+.dataview-table {
+    background: white;
+    border: 1px solid black !important;
+}
+
+.dataview-tablehead {
+    background-color: black;
+    color: white;
+    font-style: italic;
 }
 
 #ruler {

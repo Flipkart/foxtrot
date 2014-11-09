@@ -31,7 +31,6 @@ function DonutTile () {
 DonutTile.prototype = new Tile();
 
 DonutTile.prototype.render = function(data, animate) {
-    $("#" + this.id).find(".tile-header").text(this.eventTypeFieldName);
      var parent = $("#content-for-" + this.id);
 
      var chartLabel = null;
@@ -64,6 +63,7 @@ DonutTile.prototype.render = function(data, animate) {
         legendArea.width(canvas.parent().width() - canvas.width() - 50);
         chartLabel.width(canvas.width());
         chartLabel.height(canvas.height());
+        $("#" + this.id).find(".tile-header").text("hGroup by " + this.eventTypeFieldName);
      }
      else {
        if(0 == parent.find(".chartcanvas").length) {

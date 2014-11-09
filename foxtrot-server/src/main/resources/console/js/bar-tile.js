@@ -64,6 +64,7 @@ BarTile.prototype.render = function(data, animate) {
         canvas.width( 0.58 * canvas.parent().width());
         legendArea.width(canvas.parent().width() - canvas.width() - 50);
         chartLabel.width(canvas.width());
+        parentWidth = canvasWidth;
         //chartLabel.height(canvas.height());
      }
      else {
