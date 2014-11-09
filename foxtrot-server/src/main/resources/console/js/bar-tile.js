@@ -45,13 +45,37 @@ BarTile.prototype.render = function(data, animate) {
 	chartLabel.text(getPeriodString(this.period, $("#" + this.id).find(".period-select").val()));
 
 	var canvas = null;
-	if(0 == parent.find(".chartcanvas").length) {
-		canvas = $("<div>", {class: "chartcanvas"});
-		parent.append(canvas);
-	}
-	else {
-		canvas = parent.find(".chartcanvas");
-	}
+     var legendArea = null;
+     if(this.showLegend) {
+         if(0 == parent.find(".chartcanvas").length) {
+              canvasParent = $("<div>", {class: "chartcanvas"});
+              canvas = $("<div>", {class: "group-chart-area"})
+              canvasParent.append(canvas)
+              legendArea = $("<div>", {class: "group-legend-area"})
+              canvasParent.append(legendArea)
+              parent.append(canvasParent);
+         }
+         else {
+              canvas = parent.find(".chartcanvas").find(".group-chart-area");
+              legendArea = parent.find(".chartcanvas").find(".group-legend-area");
+         }
+        var canvasHeight = canvas.height();
+        var canvasWidth = canvas.width();
+        canvas.width( 0.58 * canvas.parent().width());
+        legendArea.width(canvas.parent().width() - canvas.width() - 50);
+        chartLabel.width(canvas.width());
+        //chartLabel.height(canvas.height());
+     }
+     else {
+       if(0 == parent.find(".chartcanvas").length) {
+     		canvas = $("<div>", {class: "chartcanvas"});
+     		parent.append(canvas);
+     	}
+     	else {
+     		canvas = parent.find(".chartcanvas");
+     	}
+     }
+
 	if(!data.hasOwnProperty("result")) {
 		canvas.empty();
 		return;
@@ -61,10 +85,13 @@ BarTile.prototype.render = function(data, animate) {
 	var ticks = [];
 	var i = 0;
 	this.uniqueValues = [];
+	var flatData = [];
 	for(property in data.result) {
 	    if(this.isValueVisible(property)) {
-    		columns.push({label: property, data: [[i, data.result[property]]], color: colors.nextColor()});
+	        var dataElement = {label: property, data: [[i, data.result[property]]], color: colors.nextColor()};
+    		columns.push(dataElement);
     		ticks.push([i, property]);
+    		flatData.push({label: property, data: data.result[property], color: dataElement.color});
 	    }
 		this.uniqueValues.push(property);
 		i++;
@@ -131,6 +158,7 @@ BarTile.prototype.render = function(data, animate) {
     	}
     };
     $.plot(canvas, columns, chartOptions);
+    drawLegend(flatData, legendArea);
 };
 
 BarTile.prototype.getQuery = function() {
@@ -183,6 +211,9 @@ BarTile.prototype.configChanged = function() {
     }else{
         this.selectedFilters = null;
     }
+    this.showLegend = modal.find(".bar-show-legend").prop('checked');
+    $("#content-for-" + this.id).find(".chartcanvas").remove();
+    $("#content-for-" + this.id).find(".pielabel").remove();
 };
 
 BarTile.prototype.populateSetupDialog = function() {
@@ -203,12 +234,14 @@ BarTile.prototype.populateSetupDialog = function() {
     if(this.selectedFilters){
        modal.find(".selected-filters").val(JSON.stringify(this.selectedFilters));
     }
+    modal.find(".bar-show-legend").prop('checked', this.showLegend);
 }
 
 BarTile.prototype.registerSpecificData = function(representation) {
 	representation['period'] = this.period;
 	representation['eventTypeFieldName'] = this.eventTypeFieldName;
     representation['selectedValues'] = this.selectedValues;
+    representation['showLegend'] = this.showLegend;
     if(this.selectedFilters) {
         representation['selectedFilters'] = btoa(JSON.stringify(this.selectedFilters));
     }
@@ -221,6 +254,9 @@ BarTile.prototype.loadSpecificData = function(representation) {
     if(representation.hasOwnProperty('selectedFilters')) {
         this.selectedFilters = JSON.parse(atob(representation['selectedFilters']));
     }
+    if(representation.hasOwnProperty('showLegend')) {
+        this.showLegend = representation['showLegend'];
+     }
 };
 
 BarTile.prototype.isValueVisible = function(value) {
