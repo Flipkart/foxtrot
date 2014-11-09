@@ -399,6 +399,12 @@
                     <div class="help-block with-errors">Enter a JSON string</div>
                 </div>
               </div>
+              <div class="form-group">
+                  <label class="control-label col-sm-4" for="pie-show-legend"><strong>Show legend</strong> </label>
+                  <div class="checkbox" style="padding-left: 230px;">
+                      <input type="checkbox" class="pie-show-legend" id="pie-show-legend"/>
+                  </div>
+              </div>
             </div>
               <div class="modal-footer">
                   <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
@@ -741,6 +747,19 @@
         </table>
       </script>
 
+    <script id="group-legend-template" type="text/x-handlebars-template">
+        <table class="table table-bordered table-hover table-condensed">
+            <tbody>
+            {{#each data}}
+                <tr>
+                    <td style="width: 10px; background-color: {{color}}"></td>
+                    <td>{{label}}</td>
+                    <td>{{data}}</td>
+                </tr>
+            {{/each}}
+            </tbody>
+        </table>
+    </script>
 
 
     <!-- Bootstrap core JavaScript

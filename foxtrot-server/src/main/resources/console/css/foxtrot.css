@@ -321,8 +321,17 @@ path {
   float: left;
   margin-left: 20px;
   border-color: #B2B2B2;
-  border-left: 1px solid;
+  /*border-left: 1px solid;*/
   padding-left: 10px;
+  overflow: auto;
+}
+
+.legend-color-box {
+    height: 15px;
+    width: 15px;
+    border-color: black;
+    border-style: solid;
+    border-width: 1px;
 }
 
 #ruler {
