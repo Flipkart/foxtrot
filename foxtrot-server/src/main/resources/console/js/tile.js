@@ -202,6 +202,9 @@ TileSet.prototype.register = function(tile) {
 			modal.modal('show');
 		}
 	});
+	newDiv.find(".widget-toolbox").find(".glyphicon-fullscreen").click($.proxy(function(){
+	    launchIntoFullscreen(document.getElementById("content-for-" + this.id));
+	}, tile));
     newDiv.find(".widget-toolbox").find(".glyphicon-filter").click(function() {
         var modal = $("#setupFiltersModal");
         modal.find(".tileId").val(tile.id);

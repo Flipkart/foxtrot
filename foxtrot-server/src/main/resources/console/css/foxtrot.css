@@ -98,9 +98,10 @@ box-sizing: content-box;
 float: right;
 position: absolute;
 right: 3px;
-top: 0px;
+top: 2px;
 z-index: 100;
 color: white;
+font-size: small;
 }
 .tile:hover  .widget-toolbox{
   display: inline-block;
@@ -302,7 +303,7 @@ path {
 
 .title-header-toolbar-period-select-container {
     position: absolute;
-    right: 45px;
+    right: 52px;
     top: 0px;
 }
 
