@@ -63,7 +63,7 @@ DonutTile.prototype.render = function(data, animate) {
         legendArea.width(canvas.parent().width() - canvas.width() - 50);
         chartLabel.width(canvas.width());
         chartLabel.height(canvas.height());
-        $("#" + this.id).find(".tile-header").text("hGroup by " + this.eventTypeFieldName);
+        $("#" + this.id).find(".tile-header").text("Group by " + this.eventTypeFieldName);
      }
      else {
        if(0 == parent.find(".chartcanvas").length) {
