@@ -1,5 +1,6 @@
 html, body {
   height: 100%;
+  background: rgb(239, 239, 239)
 }
 
 .pageheader {
@@ -9,15 +10,23 @@ html, body {
   padding-right: 14px;
   background-color: black;
   color: #F2F2D5;*/
-  height: 56px;
+  /*height: 56px;
   margin-top: 12px;
   margin-bottom: 12px;
+  padding-right: 20px;*/
+  height: 44px;
+  margin-top: 4px;
+  margin-bottom: 4px;
   padding-right: 20px;
 }
 
 h1 {
   margin-top: 0px;
   margin-bottom: 0px;
+  font-weight: bold;
+  font-style: italic;
+  font-variant: small-caps;
+  font-size: 30px;
 }
 
 .container-full {
@@ -27,7 +36,7 @@ h1 {
 }
 .tile {
   float: left;
-  margin: 8px;
+  margin: 5px;
   border-radius: 2px;
   background-color: #ffffff;
   resize: both;
@@ -37,6 +46,10 @@ h1 {
   font-weight: 400;*/
   padding: 5px;
   position: relative;
+  border: 1px;
+  border-color: #B2B2B2;
+  border-style: solid;
+  //box-shadow: 1px 1px 2px #A3A3A3;
 }
 
 /*.tile:hover {
@@ -78,14 +91,17 @@ left: 50%;
 }
 
 .tile .widget-toolbox {
+width: 100%;
+height: 25px;
 box-sizing: content-box;
 /* width: 20px; */
 float: right;
 position: absolute;
-left: 10px;
-bottom: 10px;
+right: 3px;
+top: 2px;
 z-index: 100;
-display: none;
+color: white;
+font-size: small;
 }
 .tile:hover  .widget-toolbox{
   display: inline-block;
@@ -100,13 +116,47 @@ display: none;
 .float-clear{
   clear:both;
 }
+
+.tile-header {
+    width: 100%;
+    height: 25px;
+    background: rgb(76, 79, 83);
+    margin: 0px;
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    font-weight: bold;
+    color: white;
+    font-style: italic;
+    padding-left: 10px;
+    padding-top: 3px;
+    font-size: small;
+}
+
 .tile-container{
   min-height: 175px;
   height: 95%;
 }
 .chartcanvas {
   width: 100%;
-  height: 85%%;
+  height: 90%;
+  /*position: absolute;
+  top: 28px;*/
+}
+
+.content {
+    margin-top: 35px;
+}
+
+.legendArea {
+    height: 10%;
+    width: 90%;
+    /* align-content: stretch; */
+    /* position: absolute; */
+    /* position: relative; */
+    right: 0px;
+    margin-left: 20px;
+    margin-top: 5px;
 }
 .size1{
   width: 175px;height:175px;
@@ -143,6 +193,8 @@ background-image: linear-gradient(to right bottom, #828D94 36%, #475361 100%);
 .chart-content {
   width: 100%;
   height: 100%;
+  box-sizing: border-box;
+  padding-top: 28px;
 }
 
 .c3-chart-line {
@@ -163,7 +215,7 @@ path {
     width: 100%;
     height: 50%;
     position: absolute;
-    top: 30%;
+    top: 40%;
     left: 0;
     text-align: center;
     color: #CCCCCC;
@@ -233,13 +285,66 @@ path {
     z-index: 1000;
 }
 
-.content {
-  margin-top: 84px;
-}
-
 .hr-thin {
  margin-top: 0px;
  margin-bottom: 0px;
+}
+
+.period-select {
+  color: black;
+  margin-top: -1px;
+  font-size: smaller;
+  background: rgb(245, 245, 245);
+}
+
+.title-header-toolbar-icon-container {
+    position: absolute;
+    right: 3px;
+    top: 3px;
+}
+
+.title-header-toolbar-period-select-container {
+    position: absolute;
+    right: 52px;
+    top: 0px;
+}
+
+.group-chart-area {
+  padding: 0px;
+  width: 60%;
+  height: 100%;
+  float: left;
+}
+
+.group-legend-area {
+  padding: 0px;
+  width: 40%;
+  height: 100%;
+  float: left;
+  margin-left: 20px;
+  border-color: #B2B2B2;
+  /*border-left: 1px solid;*/
+  padding-left: 10px;
+  overflow: auto;
+}
+
+.legend-color-box {
+    height: 15px;
+    width: 15px;
+    border-color: black;
+    border-style: solid;
+    border-width: 1px;
+}
+
+.dataview-table {
+    background: white;
+    border: 1px solid black !important;
+}
+
+.dataview-tablehead {
+    background-color: black;
+    color: white;
+    font-style: italic;
 }
 
 #ruler {

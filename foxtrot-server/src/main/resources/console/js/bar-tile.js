@@ -23,11 +23,15 @@ function BarTile () {
     this.selectedValues = null;
 	this.period = 0;
     this.selectedFilters = null;
+    this.uniqueValues = [];
+    this.uiFilteredValues;
+
 }
 
 BarTile.prototype = new Tile();
 
 BarTile.prototype.render = function(data, animate) {
+    $("#" + this.id).find(".tile-header").text("Group by " + this.eventTypeFieldName);
 	var parent = $("#content-for-" + this.id);
 	var parentWidth = parent.width();
 	var chartLabel = null;
@@ -38,16 +42,41 @@ BarTile.prototype.render = function(data, animate) {
 	else {
 		chartLabel = parent.find(".pielabel");
 	}
-	chartLabel.text((this.period >= 60) ? ((this.period / 60) + "h"): (this.period + "m"));
+	chartLabel.text(getPeriodString(this.period, $("#" + this.id).find(".period-select").val()));
 
 	var canvas = null;
-	if(0 == parent.find(".chartcanvas").length) {
-		canvas = $("<div>", {class: "chartcanvas"});
-		parent.append(canvas);
-	}
-	else {
-		canvas = parent.find(".chartcanvas");
-	}
+     var legendArea = null;
+     if(this.showLegend) {
+         if(0 == parent.find(".chartcanvas").length) {
+              canvasParent = $("<div>", {class: "chartcanvas"});
+              canvas = $("<div>", {class: "group-chart-area"})
+              canvasParent.append(canvas)
+              legendArea = $("<div>", {class: "group-legend-area"})
+              canvasParent.append(legendArea)
+              parent.append(canvasParent);
+         }
+         else {
+              canvas = parent.find(".chartcanvas").find(".group-chart-area");
+              legendArea = parent.find(".chartcanvas").find(".group-legend-area");
+         }
+        var canvasHeight = canvas.height();
+        var canvasWidth = canvas.width();
+        canvas.width( 0.58 * canvas.parent().width());
+        legendArea.width(canvas.parent().width() - canvas.width() - 50);
+        chartLabel.width(canvas.width());
+        parentWidth = canvasWidth;
+        //chartLabel.height(canvas.height());
+     }
+     else {
+       if(0 == parent.find(".chartcanvas").length) {
+     		canvas = $("<div>", {class: "chartcanvas"});
+     		parent.append(canvas);
+     	}
+     	else {
+     		canvas = parent.find(".chartcanvas");
+     	}
+     }
+
 	if(!data.hasOwnProperty("result")) {
 		canvas.empty();
 		return;
@@ -56,9 +85,16 @@ BarTile.prototype.render = function(data, animate) {
 	var columns =[];
 	var ticks = [];
 	var i = 0;
+	this.uniqueValues = [];
+	var flatData = [];
 	for(property in data.result) {
-		columns.push({label: property, data: [[i, data.result[property]]], color: colors.nextColor()});
-		ticks.push([i, property]);
+	    if(this.isValueVisible(property)) {
+	        var dataElement = {label: property, data: [[i, data.result[property]]], color: colors.nextColor()};
+    		columns.push(dataElement);
+    		ticks.push([i, property]);
+    		flatData.push({label: property, data: data.result[property], color: dataElement.color});
+	    }
+		this.uniqueValues.push(property);
 		i++;
 	}
     var xAxisOptions = {
@@ -88,8 +124,9 @@ BarTile.prototype.render = function(data, animate) {
                 },
                 barWidth: 0.5,
             	align: "center",
-            	lineWidth: 0,
-            	fill: 1.0
+            	lineWidth: 1.0,
+                fill: true,
+                fillColor: { colors: [{ opacity: 0.3 }, { opacity: 0.7}] }
             },
             valueLabels: {
                show: true
@@ -98,14 +135,22 @@ BarTile.prototype.render = function(data, animate) {
         legend : {
             show: false
         },
-        xaxis : xAxisOptions,
+        xaxis : xAxisOptions/*,
         yaxis: {
-        	tickLength: 0
-        },
-        grid: {
+        	tickLength: 1,
+
+        }*/,
+        /*grid: {
         	hoverable: true,
         	borderWidth: {top: 0, right: 0, bottom: 1, left: 1},
-        },
+        },*/
+        grid: {
+                hoverable: true,
+                color: "#B2B2B2",
+                show: true,
+                borderWidth: 1,
+                borderColor: "#EEEEEE"
+            },
         tooltip: true,
         tooltipOpts: {
     		content: function(label, x, y) {
@@ -114,19 +159,14 @@ BarTile.prototype.render = function(data, animate) {
     	}
     };
     $.plot(canvas, columns, chartOptions);
+    drawLegend(flatData, legendArea);
 };
 
 BarTile.prototype.getQuery = function() {
 	if(this.eventTypeFieldName && this.period != 0) {
 		var timestamp = new Date().getTime();
         var filters = [];
-        filters.push({
-                        field: "_timestamp",
-                        operator: "between",
-                        temporal: true,
-                        from: (timestamp - (this.period * 60000)),
-                        to: timestamp
-                    });
+        filters.push(timeValue(this.period, $("#" + this.id).find(".period-select").val()));
         if(this.selectedValues) {
             filters.push({
                 field: this.eventTypeFieldName,
@@ -172,11 +212,14 @@ BarTile.prototype.configChanged = function() {
     }else{
         this.selectedFilters = null;
     }
+    this.showLegend = modal.find(".bar-show-legend").prop('checked');
+    $("#content-for-" + this.id).find(".chartcanvas").remove();
+    $("#content-for-" + this.id).find(".pielabel").remove();
 };
 
 BarTile.prototype.populateSetupDialog = function() {
 	var modal = $(this.setupModalName);
-	var select = modal.find(".bar-chart-field");
+	var select = modal.find("#bar-chart-field");
 	select.find('option').remove();
 	for (var i = this.tables.currentTableFieldMappings.length - 1; i >= 0; i--) {
 		select.append('<option>' + this.tables.currentTableFieldMappings[i].field + '</option>');
@@ -192,12 +235,14 @@ BarTile.prototype.populateSetupDialog = function() {
     if(this.selectedFilters){
        modal.find(".selected-filters").val(JSON.stringify(this.selectedFilters));
     }
+    modal.find(".bar-show-legend").prop('checked', this.showLegend);
 }
 
 BarTile.prototype.registerSpecificData = function(representation) {
 	representation['period'] = this.period;
 	representation['eventTypeFieldName'] = this.eventTypeFieldName;
     representation['selectedValues'] = this.selectedValues;
+    representation['showLegend'] = this.showLegend;
     if(this.selectedFilters) {
         representation['selectedFilters'] = btoa(JSON.stringify(this.selectedFilters));
     }
@@ -210,4 +255,37 @@ BarTile.prototype.loadSpecificData = function(representation) {
     if(representation.hasOwnProperty('selectedFilters')) {
         this.selectedFilters = JSON.parse(atob(representation['selectedFilters']));
     }
+    if(representation.hasOwnProperty('showLegend')) {
+        this.showLegend = representation['showLegend'];
+     }
 };
+
+BarTile.prototype.isValueVisible = function(value) {
+   return !this.uiFilteredValues || this.uiFilteredValues.hasOwnProperty(value);
+}
+
+BarTile.prototype.getUniqueValues = function() {
+    var options = [];
+    for(var i = 0; i < this.uniqueValues.length; i++) {
+        var value = this.uniqueValues[i];
+        options.push(
+            {
+                label: value,
+                title: value,
+                value: value,
+                selected: this.isValueVisible(value)
+            }
+        );
+    }
+    return options;
+}
+
+BarTile.prototype.filterValues = function(values) {
+    if(!values || values.length == 0) {
+        values = this.uniqueValues;
+    }
+    this.uiFilteredValues = new Object();
+    for(var i = 0; i < values.length; i++) {
+        this.uiFilteredValues[values[i]] = 1;
+    }
+}

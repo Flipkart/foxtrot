@@ -55,8 +55,8 @@ Tables.prototype.getSelectionIndex = function() {
     if(!this.initialSelectedTable) {
         return 0;
     }
-    for (var i = 0; i < tables.length; i++) {
-        if(this.tables[i].name === this.initialSelectedTable) {
+    for (var i = 0; i < this.tables.length; i++) {
+            if(this.tables[i].name === this.initialSelectedTable) {
             return i;
         }
     }

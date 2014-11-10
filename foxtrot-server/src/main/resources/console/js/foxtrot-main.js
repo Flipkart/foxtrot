@@ -230,6 +230,10 @@ $(document).ready(function(){
                 }
             ];
             $(".stats_to_plot").multiselect();
+            $(".filter_values").multiselect({
+                numberDisplayed: 0
+            });
+            //$(".period-select").multiselect();
 
 	$("#setupPieChartModal").validator();
 	$("#setupBarChartModal").validator();

@@ -28,8 +28,23 @@ Histogram.prototype.render = function(data, animate) {
 	if(this.period == 0) {
 		return;
 	}
-	var chartAreaId = "#content-for-" + this.id;
-	var chartContent = $("#" + this.id).find(chartAreaId);
+	$("#" + this.id).find(".tile-header").text("Event rate for " + this.tables.selectedTable.name + " table");
+    var parent = $("#content-for-" + this.id);
+    var canvas = null;
+    if(!parent || 0 == parent.find(".chartcanvas").length) {
+        //$("#content-for-" + this.id).append("<div class='chart-content'/>");
+        parent = $("#content-for-" + this.id);//.find(".chart-content");
+        //parent.append("<div style='height: 15%'><input type='text' class='form-control col-lg-12 eventfilter' placeholder='Start typing here to filter event type...'/></div>");
+        canvas = $("<div>", {class: "chartcanvas"});
+        parent.append(canvas);
+        legendArea = $("<div>", {class: "legendArea"});
+        //legendArea.height("10%");
+        //legendArea.width("100%");
+        parent.append(legendArea);
+    }
+    else {
+        canvas = parent.find(".chartcanvas");
+    }
 	var times = [];
 	if(!data.hasOwnProperty('counts')) {
 		chartContent.empty();
@@ -41,21 +56,21 @@ Histogram.prototype.render = function(data, animate) {
 		rows.push([data.counts[i].period, data.counts[i].count]);
 	};
 	var timestamp = new Date().getTime();
-	var d = { data: rows, color: "#249483" };
-    $.plot(chartAreaId, [ d ], {
+	var d = { data: rows, color: "#57889C", shadowSize: 0 };
+    $.plot(canvas, [ d ], {
         series: {
-            lines: {show: true, fill: true, fillColor: "#249483" }
+            lines: {show: true, lineWidth: 1.0, shadowSize: 0, fill: true, fillColor: { colors: [{ opacity: 0.7 }, { opacity: 0.1}] } }
         },
-        grid: {
-            hoverable: true,
-            color: "white",
-            show: true
-        },
+         grid: {
+             hoverable: true,
+             color: "#B2B2B2",
+             show: true,
+             borderWidth: 1,
+             borderColor: "#EEEEEE"
+         },
         xaxis: {
             mode: "time",
-            timezone: "browser",
-            min: timestamp - (this.period * 60000),
-            max: timestamp
+            timezone: "browser"
         },
         selection : {
             mode: "x",
@@ -78,13 +93,16 @@ Histogram.prototype.getQuery = function() {
 	if(this.period != 0) {
 		var timestamp = new Date().getTime();
 		// {"opcode":"histogram","table":"test-app","filters":[],"from":0,"to":1398837122311,"field":"_timestamp","period":"hours"}
+		var filters = [];
+		filters.push(timeValue(this.period, $("#" + this.id).find(".period-select").val()));
 		return JSON.stringify({
 			opcode : "histogram",
 			table : this.tables.selectedTable.name,
-			from: (timestamp - (this.period * 60000)),
+			filters: filters,
+			from: 1,
 			to: timestamp,
 			field: "_timestamp",
-			period: "minutes"
+			period: periodFromWindow($("#" + this.id).find(".period-select").val())
 		});
 	}
 };
@@ -107,3 +125,7 @@ Histogram.prototype.registerSpecificData = function(representation) {
 Histogram.prototype.loadSpecificData = function(representation) {
 	this.period = representation['period'];
 };
+
+Histogram.prototype.registerComplete = function() {
+    $("#" + this.id).find(".glyphicon-filter").hide();
+}

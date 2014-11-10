@@ -26,7 +26,7 @@
     <title>FQL Console</title>
 
     <!-- Bootstrap core CSS -->
-    <link href="../css/bootstrap.min.css" rel="stylesheet">
+    <link href="../css/bootstrap.css" rel="stylesheet">
     <link href="../css/bootstrap-select.min.css" rel="stylesheet">
     <link href="../css/bootstrap-datetimepicker.min.css">
     <link rel="stylesheet" href="//code.jquery.com/ui/1.10.4/themes/smoothness/jquery-ui.css">
@@ -51,7 +51,7 @@
     <div class="header-container">
         <div class="header pageheader">
             <h1>
-                <div class="col-sm-4"><img src="../images/logo-1.png"/> <span class="console-name">FoxTrot Query</span></div>
+                <div class="col-sm-4"><img src="../images/logo-1.png" style="height: 40px;"/> <span class="console-name">FoxTrot Query</span></div>
             </h1>
             <ul class="nav nav-pills pull-right">
                 <li><a href="/">Home</a></li>
@@ -63,10 +63,10 @@
             <div class="alert-message"></div>
         </div-->
     </div>
-    <div class="content" style="margin-left: 20px; margin-right: 20px">
+    <div class="content" style="margin-left: 20px; margin-right: 20px; margin-top: 60px;">
         <div class="row">
             <form class="form-horizontal fql-form" id="fql-form" role="form">
-                <div class="form-group form-group-lg">
+                <div class="form-group">
                     <!--label for="fql-query" class="control-label">Enter query</label-->
                     <input type="text" class="form-control .input-lg fql-query" id="fql-query" placeholder="Enter FQL query and press enter"></textarea>
                 </div>
@@ -104,8 +104,8 @@
 <!--Templates-->
 
 <script id="table-template" type="text/x-handlebars-template">
-    <table class="table table-bordered table-hover table-condensed">
-        <thead>
+    <table class="table table-bordered table-hover table-condensed dataview-table">
+        <thead class="dataview-tablehead">
         <tr>
             {{#each headers}}
             <th>{{this}}</th>

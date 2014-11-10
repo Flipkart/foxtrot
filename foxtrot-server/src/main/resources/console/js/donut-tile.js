@@ -15,48 +15,79 @@
  */
 
 function DonutTile () {
-	this.typeName = "donut";
-	this.refresh = true;
-	this.setupModalName = "#setupPieChartModal";
-	//Instance properties
-	this.eventTypeFieldName = null;
-	this.selectedValues = null;
-	this.period = 0;
+     this.typeName = "donut";
+     this.refresh = true;
+     this.setupModalName = "#setupPieChartModal";
+     //Instance properties
+     this.eventTypeFieldName = null;
+     this.selectedValues = null;
+     this.period = 0;
     this.selectedFilters = null;
+    this.uniqueValues = [];
+    this.uiFilteredValues;
+    this.showLegend = false;
 }
 
 DonutTile.prototype = new Tile();
 
 DonutTile.prototype.render = function(data, animate) {
-	var parent = $("#content-for-" + this.id);
+     var parent = $("#content-for-" + this.id);
 
-	var chartLabel = null;
-	if(0 == parent.find(".pielabel").length) {
-		chartLabel = $("<div>", {class: "pielabel"});
-		parent.append(chartLabel);
-	}
-	else {
-		chartLabel = parent.find(".pielabel");
-	}
-	chartLabel.text((this.period >= 60) ? ((this.period / 60) + "h"): (this.period + "m"));
+     var chartLabel = null;
+     if(0 == parent.find(".pielabel").length) {
+          chartLabel = $("<div>", {class: "pielabel"});
+          parent.append(chartLabel);
+     }
+     else {
+          chartLabel = parent.find(".pielabel");
+     }
+    chartLabel.text(getPeriodString(this.period, $("#" + this.id).find(".period-select").val()));
 
-	var canvas = null;
-	if(0 == parent.find(".chartcanvas").length) {
-		canvas = $("<div>", {class: "chartcanvas"});
-		parent.append(canvas);
-	}
-	else {
-		canvas = parent.find(".chartcanvas");
-	}
-	if(!data.hasOwnProperty("result")) {
-		canvas.empty();
-		return;
-	}
+     var canvas = null;
+     var legendArea = null;
+     if(this.showLegend) {
+         if(0 == parent.find(".chartcanvas").length) {
+              canvasParent = $("<div>", {class: "chartcanvas"});
+              canvas = $("<div>", {class: "group-chart-area"})
+              canvasParent.append(canvas)
+              legendArea = $("<div>", {class: "group-legend-area"})
+              canvasParent.append(legendArea)
+              parent.append(canvasParent);
+         }
+         else {
+              canvas = parent.find(".chartcanvas").find(".group-chart-area");
+              legendArea = parent.find(".chartcanvas").find(".group-legend-area");
+         }
+         var canvasHeight = canvas.height();
+        canvas.width(canvasHeight);
+        legendArea.width(canvas.parent().width() - canvas.width() - 50);
+        chartLabel.width(canvas.width());
+        chartLabel.height(canvas.height());
+        $("#" + this.id).find(".tile-header").text("hGroup by " + this.eventTypeFieldName);
+     }
+     else {
+       if(0 == parent.find(".chartcanvas").length) {
+     		canvas = $("<div>", {class: "chartcanvas"});
+     		parent.append(canvas);
+     	}
+     	else {
+     		canvas = parent.find(".chartcanvas");
+     	}
+     }
 
-	var colors = new Colors(Object.keys(data.result).length);
-	var columns =[];
-	for(property in data.result) {
-		columns.push({label: property, data: data.result[property], color: colors.nextColor()});
+    if(!data.hasOwnProperty("result")) {
+          canvas.empty();
+          return;
+     }
+
+     var colors = new Colors(Object.keys(data.result).length);
+     var columns =[];
+	this.uniqueValues = [];
+     for(property in data.result) {
+	    if(this.isValueVisible(property)) {
+    		columns.push({label: property, data: data.result[property], color: colors.nextColor(), lines: {show:true}, shadowSize: 0});
+	    }
+	    this.uniqueValues.push(property);
 	}
 	var chartOptions = {
         series: {
@@ -72,49 +103,43 @@ DonutTile.prototype.render = function(data, animate) {
             show: false
         },
         grid: {
-        	hoverable: true
+             hoverable: true
         },
         tooltip: true,
         tooltipOpts: {
-    		content: function(label, x, y) {
-    			return label + ": " + y;
-    		}
-    	}
+              content: function(label, x, y) {
+                   return label + ": " + y;
+              }
+         }
     };
     $.plot(canvas, columns, chartOptions);
-        
-	// var chart = c3.generate({
-	// 	bindto: chartAreaId,
-	// 	size: {
-	// 		height: parentHeight,
-	// 		width: parentWidth
-	// 	},
-	// 	data: {
-	// 		columns: columns,
-	// 		type : 'pie'
-	// 	},
-	// 	legend: {
-	// 		show: false
-	// 	},
-	// 	transition: {
-	// 		duration: transitionTime
-	// 	}
+    drawLegend(columns, legendArea);
+     // var chart = c3.generate({
+     //      bindto: chartAreaId,
+     //      size: {
+     //           height: parentHeight,
+     //           width: parentWidth
+     //      },
+     //      data: {
+     //           columns: columns,
+     //           type : 'pie'
+     //      },
+     //      legend: {
+     //           show: false
+     //      },
+     //      transition: {
+     //           duration: transitionTime
+     //      }
 
-	// });
+     // });
 
 };
-
+ 
 DonutTile.prototype.getQuery = function() {
-	if(this.eventTypeFieldName && this.period != 0) {
-		var timestamp = new Date().getTime();
-		var filters = [];
-		filters.push({
-                        field: "_timestamp",
-                        operator: "between",
-                        temporal: true,
-                        from: (timestamp - (this.period * 60000)),
-                        to: timestamp
-                    });
+     if(this.eventTypeFieldName && this.period != 0) {
+          var timestamp = new Date().getTime();
+          var filters = [];
+          filters.push(timeValue(this.period, $("#" + this.id).find(".period-select").val()));
         if(this.selectedValues) {
             filters.push({
                 field: this.eventTypeFieldName,
@@ -127,30 +152,30 @@ DonutTile.prototype.getQuery = function() {
                 filters.push(this.selectedFilters.filters[i]);
             }
         }
-		return JSON.stringify({
-			opcode : "group",
-			table : this.tables.selectedTable.name,
-			filters : filters,
-			nesting : [this.eventTypeFieldName]
-		});
-	}
+          return JSON.stringify({
+               opcode : "group",
+               table : this.tables.selectedTable.name,
+               filters : filters,
+               nesting : [this.eventTypeFieldName]
+          });
+     }
 };
 
 DonutTile.prototype.isSetupDone = function() {
-	return this.eventTypeFieldName && this.period != 0;	
+     return this.eventTypeFieldName && this.period != 0;     
 };
 
 DonutTile.prototype.configChanged = function() {
-	var modal = $(this.setupModalName);
-	this.period = parseInt(modal.find(".refresh-period").val());
-	this.eventTypeFieldName = modal.find(".pie-chart-field").val();
-	var values = modal.find(".selected-values").val();
-	if(values) {
-	    this.selectedValues = values.replace(/ /g, "").split(",");
-	}
-	else {
-	    this.selectedValues = null;
-	}
+     var modal = $(this.setupModalName);
+     this.period = parseInt(modal.find(".refresh-period").val());
+     this.eventTypeFieldName = modal.find(".pie-chart-field").val();
+     var values = modal.find(".selected-values").val();
+     if(values) {
+         this.selectedValues = values.replace(/ /g, "").split(",");
+     }
+     else {
+         this.selectedValues = null;
+     }
     var filters = modal.find(".selected-filters").val();
     if(filters != undefined && filters != ""){
         var selectedFilters = JSON.parse(filters);
@@ -160,32 +185,37 @@ DonutTile.prototype.configChanged = function() {
     }else{
         this.selectedFilters = null;
     }
+    this.showLegend = modal.find(".pie-show-legend").prop('checked');
+    $("#content-for-" + this.id).find(".chartcanvas").remove();
+    $("#content-for-" + this.id).find(".pielabel").remove();
 };
 
 DonutTile.prototype.populateSetupDialog = function() {
-	var modal = $(this.setupModalName);
-	var select = modal.find(".pie-chart-field");
-	select.find('option').remove();
-	for (var i = this.tables.currentTableFieldMappings.length - 1; i >= 0; i--) {
-		select.append('<option>' + this.tables.currentTableFieldMappings[i].field + '</option>');
-	};
-	if(this.eventTypeFieldName) {
-		select.val(this.eventTypeFieldName);
-	}
-	select.selectpicker('refresh');
-	modal.find(".refresh-period").val(( 0 != this.period)?this.period:"");
-	if(this.selectedValues) {
+     var modal = $(this.setupModalName);
+     var select = $("#pie_field");
+     select.find('option').remove();
+     for (var i = this.tables.currentTableFieldMappings.length - 1; i >= 0; i--) {
+          select.append('<option>' + this.tables.currentTableFieldMappings[i].field + '</option>');
+     };
+     if(this.eventTypeFieldName) {
+          select.val(this.eventTypeFieldName);
+     }
+     select.selectpicker('refresh');
+     modal.find(".refresh-period").val(( 0 != this.period)?this.period:"");
+     if(this.selectedValues) {
         modal.find(".selected-values").val(this.selectedValues.join(", "));
-	}
+     }
     if(this.selectedFilters){
        modal.find(".selected-filters").val(JSON.stringify(this.selectedFilters));
     }
+    modal.find(".pie-show-legend").prop('checked', this.showLegend);
 }
 
 DonutTile.prototype.registerSpecificData = function(representation) {
-	representation['period'] = this.period;
-	representation['eventTypeFieldName'] = this.eventTypeFieldName;
-	representation['selectedValues'] = this.selectedValues;
+     representation['period'] = this.period;
+     representation['eventTypeFieldName'] = this.eventTypeFieldName;
+     representation['selectedValues'] = this.selectedValues;
+     representation['showLegend'] = this.showLegend;
     if(this.selectedFilters) {
         representation['selectedFilters'] = btoa(JSON.stringify(this.selectedFilters));
     }
@@ -193,10 +223,43 @@ DonutTile.prototype.registerSpecificData = function(representation) {
 };
 
 DonutTile.prototype.loadSpecificData = function(representation) {
-	this.period = representation['period'];
-	this.eventTypeFieldName = representation['eventTypeFieldName'];
-	this.selectedValues = representation['selectedValues'];;
+     this.period = representation['period'];
+     this.eventTypeFieldName = representation['eventTypeFieldName'];
+     this.selectedValues = representation['selectedValues'];;
     if(representation.hasOwnProperty('selectedFilters')) {
         this.selectedFilters = JSON.parse(atob(representation['selectedFilters']));
     }
+     if(representation.hasOwnProperty('showLegend')) {
+        this.showLegend = representation['showLegend'];
+     }
 };
+
+DonutTile.prototype.isValueVisible = function(value) {
+   return !this.uiFilteredValues || this.uiFilteredValues.hasOwnProperty(value);
+}
+
+DonutTile.prototype.getUniqueValues = function() {
+    var options = [];
+    for(var i = 0; i < this.uniqueValues.length; i++) {
+        var value = this.uniqueValues[i];
+        options.push(
+            {
+                label: value,
+                title: value,
+                value: value,
+                selected: this.isValueVisible(value)
+            }
+        );
+    }
+    return options;
+}
+
+DonutTile.prototype.filterValues = function(values) {
+    if(!values || values.length == 0) {
+        values = this.uniqueValues;
+    }
+    this.uiFilteredValues = new Object();
+    for(var i = 0; i < values.length; i++) {
+        this.uiFilteredValues[values[i]] = 1;
+    }
+}

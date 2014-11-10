@@ -44,8 +44,23 @@ function deepFind(obj, path) {
 StatsTrend.prototype = new Tile();
 
 StatsTrend.prototype.render = function(data, animate) {
-    var chartAreaId = "#content-for-" + this.id;
-	var canvas = $("#" + this.id).find(chartAreaId);
+    $("#" + this.id).find(".tile-header").text("Stats for " + this.eventTypeFieldName);
+    var parent = $("#content-for-" + this.id);
+    var canvas = null;
+    if(!parent || 0 == parent.find(".chartcanvas").length) {
+        //$("#content-for-" + this.id).append("<div class='chart-content'/>");
+        parent = $("#content-for-" + this.id);//.find(".chart-content");
+        //parent.append("<div style='height: 15%'><input type='text' class='form-control col-lg-12 eventfilter' placeholder='Start typing here to filter event type...'/></div>");
+        canvas = $("<div>", {class: "chartcanvas"});
+        parent.append(canvas);
+        legendArea = $("<div>", {class: "legendArea"});
+        //legendArea.height("10%");
+        //legendArea.width("100%");
+        parent.append(legendArea)
+    }
+    else {
+        canvas = parent.find(".chartcanvas");
+    }
 	/*if(!parent || 0 == parent.find(".chartcanvas").length) {
         $("#content-for-" + this.id).append("<div class='chart-content'/>");
         parent = $("#content-for-" + this.id);//.find(".chart-content");
@@ -67,7 +82,7 @@ StatsTrend.prototype.render = function(data, animate) {
     var d = [];
     var colorIdx = 0;
     for(var j = 0; j < selectedStats.length; j++) {
-        d.push({ data: [], color: colors[colorIdx], label : selectedStats[j], lines: {show: true}, curvedLines: {apply: true}});
+        d.push({ data: [], color: colors[colorIdx], label : selectedStats[j], lines: {show: true}, shadowSize: 0/*, curvedLines: {apply: true}*/});
     }
     var colorIdx = 0;
     var timestamp = new Date().getTime();
@@ -140,19 +155,24 @@ StatsTrend.prototype.render = function(data, animate) {
     $.plot(canvas, d, {
             series: {
                 //stack: true,
-                lines: {show: true, fill: 0},
-                curvedLines: {  active: true }
+                lines: {
+                    show: true,
+                    fill: 0,
+                    lineWidth: 2.0,
+                    fillColor: { colors: [{ opacity: 0.7 }, { opacity: 0.1}]}
+                }/*,
+                curvedLines: {  active: true }*/
             },
             grid: {
                 hoverable: true,
-                color: "white",
-                show: true
+                color: "#B2B2B2",
+                show: true,
+                borderWidth: 1,
+                borderColor: "#EEEEEE"
             },
             xaxis: {
                 mode: "time",
-                timezone: "browser",
-                min: timestamp - (this.period * 60000),
-                max: timestamp
+                timezone: "browser"
             },
             selection : {
                 mode: "x",
@@ -162,13 +182,20 @@ StatsTrend.prototype.render = function(data, animate) {
             tooltipOpts: {
                 content: function(label, x, y) {
                            var date = new Date(x);
-                           return label + ": " + y + "ms at " + date.getHours() + ":" + date.getMinutes();
+                           return label + ": " + y.toFixed(2) + "ms at " + date.getHours() + ":" + date.getMinutes();
                          },
                 defaultFormat: true
             },
-            legend: { show:true, position: 'nw', noColumns: 0, noRows: 0, labelFormatter: function(label, series){
-                return '<font color="black"> &nbsp;' + label +' &nbsp;</font>';
-            }}
+            legend: {
+                show:true,
+                position: 'e',
+                noColumns: 8,
+                noRows: 0,
+                labelFormatter: function(label, series){
+                    return '<font color="black"> &nbsp;' + label +' &nbsp;</font>';
+                },
+                container: parent.find(".legendArea")
+            }
         });
 };
 
@@ -176,13 +203,7 @@ StatsTrend.prototype.getQuery = function() {
 	if(this.eventTypeFieldName && this.period != 0) {
 		var timestamp = new Date().getTime();
         var filters = [];
-        filters.push({
-            field: "_timestamp",
-            operator: "between",
-            temporal: true,
-            from: (timestamp - (this.period * 60000)),
-            to: timestamp
-        });
+        filters.push(timeValue(this.period, $("#" + this.id).find(".period-select").val()));
         if(this.selectedFilters && this.selectedFilters.filters){
             for(var i = 0; i<this.selectedFilters.filters.length; i++){
                 filters.push(this.selectedFilters.filters[i]);
@@ -193,7 +214,7 @@ StatsTrend.prototype.getQuery = function() {
 			table : this.tables.selectedTable.name,
 			filters : filters,
 			field : this.eventTypeFieldName,
-            period: "minutes"
+            period: periodFromWindow($("#" + this.id).find(".period-select").val())
 		});
 	}
 };
@@ -205,7 +226,7 @@ StatsTrend.prototype.isSetupDone = function() {
 StatsTrend.prototype.configChanged = function() {
 	var modal = $(this.setupModalName);
 	this.period = parseInt(modal.find(".refresh-period").val());
-	this.eventTypeFieldName = modal.find(".stacked-bar-chart-field").val();
+	this.eventTypeFieldName = modal.find(".statstrend-bar-chart-field").val();
     var filters = modal.find(".selected-filters").val();
     if(filters != undefined && filters != ""){
         var selectedFilters = JSON.parse(filters);
@@ -221,7 +242,7 @@ StatsTrend.prototype.configChanged = function() {
 
 StatsTrend.prototype.populateSetupDialog = function() {
 	var modal = $(this.setupModalName);
-	var select = modal.find(".stacked-bar-chart-field");
+	var select = $("#statstrend-bar-chart-field");
 	select.find('option').remove();
 	for (var i = this.tables.currentTableFieldMappings.length - 1; i >= 0; i--) {
 		select.append('<option>' + this.tables.currentTableFieldMappings[i].field + '</option>');
