@@ -4,6 +4,7 @@ import com.flipkart.foxtrot.core.querystore.QueryStoreException;
 import com.flipkart.foxtrot.server.providers.FoxtrotExtraMediaType;
 import com.flipkart.foxtrot.sql.FqlEngine;
 import com.flipkart.foxtrot.sql.responseprocessors.model.FlatRepresentation;
+import net.sf.jsqlparser.JSQLParserException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,7 +32,7 @@ public class FqlResource {
         } catch (QueryStoreException e) {
             logger.error(String.format("Error running sync request %s", query), e);
             throw new WebApplicationException(
-                    Response.serverError().entity(Collections.singletonMap("error", e.getMessage())).build());
+                    Response.serverError().entity(Collections.singletonMap("error", getMessage(e))).build());
         } catch (Exception e) {
             /*if(null == request) {
                 logger.error("Error running FQL query: " + e.getMessage(), e);
@@ -44,7 +45,15 @@ public class FqlResource {
                 }
             }*/
             throw new WebApplicationException(
-                    Response.serverError().entity(Collections.singletonMap("error", e.getMessage())).build());
+                    Response.serverError().entity(Collections.singletonMap("error", getMessage(e))).build());
         }
+    }
+
+    String getMessage(Throwable e) {
+        Throwable root = e;
+        while (null != root.getCause()) {
+            root = root.getCause();
+        }
+        return root.getMessage();
     }
 }

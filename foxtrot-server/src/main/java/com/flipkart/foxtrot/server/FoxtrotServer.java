@@ -33,6 +33,7 @@ import com.flipkart.foxtrot.core.querystore.impl.*;
 import com.flipkart.foxtrot.server.config.FoxtrotServerConfiguration;
 import com.flipkart.foxtrot.server.console.ElasticsearchConsolePersistence;
 import com.flipkart.foxtrot.server.providers.FlatResponseCsvProvider;
+import com.flipkart.foxtrot.server.providers.FlatResponseErrorTextProvider;
 import com.flipkart.foxtrot.server.providers.FlatResponseTextProvider;
 import com.flipkart.foxtrot.server.resources.*;
 import com.flipkart.foxtrot.server.util.ManagedActionScanner;
@@ -116,6 +117,7 @@ public class FoxtrotServer extends Service<FoxtrotServerConfiguration> {
 
         environment.addProvider(new FlatResponseTextProvider());
         environment.addProvider(new FlatResponseCsvProvider());
+        environment.addProvider(new FlatResponseErrorTextProvider());
 
         environment.addFilter(CrossOriginFilter.class, "/*");
     }

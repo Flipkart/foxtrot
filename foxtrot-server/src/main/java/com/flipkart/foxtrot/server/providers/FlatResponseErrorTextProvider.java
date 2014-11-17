@@ -19,11 +19,13 @@ import java.util.List;
 import java.util.Map;
 
 @Provider
-@Produces(MediaType.TEXT_PLAIN)
+@Produces({MediaType.TEXT_PLAIN, FoxtrotExtraMediaType.TEXT_CSV})
 public class FlatResponseErrorTextProvider implements MessageBodyWriter<Map> {
     @Override
     public boolean isWriteable(Class<?> type, Type genericType, Annotation[] annotations, MediaType mediaType) {
-        return type == Map.class && mediaType.toString().equals(MediaType.TEXT_PLAIN);
+        return Map.class.isAssignableFrom(type)
+                && (mediaType.toString().equals(MediaType.TEXT_PLAIN)
+                        || mediaType.toString().equals(FoxtrotExtraMediaType.TEXT_CSV));
     }
 
     @Override
@@ -37,7 +39,7 @@ public class FlatResponseErrorTextProvider implements MessageBodyWriter<Map> {
         for(Object key : map.keySet()) {
             data.append(key.toString());
             data.append(":");
-            data.append(map.get(key).toString());
+            data.append(map.get(key.toString()).toString());
             data.append("\n");
         }
         entityStream.write(data.toString().getBytes());
