@@ -1,8 +1,16 @@
+function fqlError(message) {
+    var area = $("<div>", {class: "fql-error-section"});
+    area.html(message);
+    $(".dataview").html(area);
+}
+
 function runFql() {
+    $(".dataview").html("");
     var fqlQueryInput = $(".fql-query");
     var fqlQuery = fqlQueryInput.val();
     if(!fqlQuery) {
-        alert("Please enter a valid query"); //TODO::ALERT PROPERLY
+        fqlError("Please enter a valid query"); //TODO::ALERT PROPERLY
+        return;
     }
     $("#wait-dialog").modal();
     var hostDetails = new HostDetails("foxtrot.nm.flipkart.com", 80);
@@ -13,6 +21,16 @@ function runFql() {
         dataType: 'text',
         accepts: {
             text: 'application/json'
+        },
+        statusCode: {
+            500: function(data) {
+                if(data.hasOwnProperty("responseText")) {
+                    var error = JSON.parse(data["responseText"]);
+                    if(error.hasOwnProperty('error')) {
+                        fqlError(error['error']);
+                    }
+                }
+            }
         },
         success: function(dataRaw) {
             var data = JSON.parse(dataRaw);

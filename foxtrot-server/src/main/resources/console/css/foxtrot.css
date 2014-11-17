@@ -347,6 +347,16 @@ path {
     font-style: italic;
 }
 
+.fql-error-section {
+  display: block;
+  border: 1px dashed red;
+  background: pink;
+  color: red;
+  font-weight: bold;
+  padding: 10px;
+  margin-bottom: 50px;
+}
+
 #ruler {
   visibility: hidden;
   white-space: nowrap;
