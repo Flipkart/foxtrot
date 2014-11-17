@@ -128,10 +128,6 @@ public class ElasticsearchQueryStore implements QueryStore {
             BulkRequestBuilder bulkRequestBuilder = connection.getClient().prepareBulk();
             for (Document document : documents) {
                 long timestamp = document.getTimestamp();
-                if (timestamp > System.currentTimeMillis()){
-                    logger.error("Skipping document. Invalid timestamp. document --> " + mapper.writeValueAsString(document));
-                    continue;
-                }
                 final String index = ElasticsearchUtils.getCurrentIndex(table, timestamp);
                 IndexRequest indexRequest = new IndexRequest()
                         .index(index)
