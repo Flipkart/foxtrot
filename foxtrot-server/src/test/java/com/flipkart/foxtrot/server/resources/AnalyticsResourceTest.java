@@ -19,9 +19,6 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.jsontype.SubtypeResolver;
 import com.fasterxml.jackson.databind.jsontype.impl.StdSubtypeResolver;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.flipkart.foxtrot.common.ActionResponse;
 import com.flipkart.foxtrot.common.Document;
 import com.flipkart.foxtrot.common.group.GroupRequest;
 import com.flipkart.foxtrot.common.group.GroupResponse;
@@ -48,9 +45,7 @@ import org.mockito.Mockito;
 
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.util.Arrays;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -63,9 +58,6 @@ import static org.mockito.Mockito.when;
  */
 public class AnalyticsResourceTest extends ResourceTest {
 
-    private ObjectMapper mapper;
-    private JsonNodeFactory factory = JsonNodeFactory.instance;
-
     private TableMetadataManager tableMetadataManager;
     private MockElasticsearchServer elasticsearchServer;
     private HazelcastInstance hazelcastInstance;
@@ -77,7 +69,7 @@ public class AnalyticsResourceTest extends ResourceTest {
         SubtypeResolver subtypeResolver = new StdSubtypeResolver();
         getObjectMapperFactory().setSubtypeResolver(subtypeResolver);
 
-        mapper = getObjectMapperFactory().build();
+        ObjectMapper mapper = getObjectMapperFactory().build();
         ElasticsearchUtils.setMapper(mapper);
         DataStore dataStore = TestUtils.getDataStore();
 
@@ -134,28 +126,27 @@ public class AnalyticsResourceTest extends ResourceTest {
         groupRequest.setTable(TestUtils.TEST_TABLE);
         groupRequest.setNesting(Arrays.asList("os", "device", "version"));
 
-        ObjectNode resultNode = factory.objectNode();
+        Map<String, Object> expectedResponse = new LinkedHashMap<String, Object>();
 
-        ObjectNode temp = factory.objectNode();
-        temp.put("nexus", factory.objectNode().put("1", 2).put("2", 2).put("3", 1));
-        temp.put("galaxy", factory.objectNode().put("2", 1).put("3", 1));
-        resultNode.put("android", temp);
+        final Map<String, Object> nexusResponse = new LinkedHashMap<String, Object>(){{ put("1", 2); put("2", 2); put("3", 1); }};
+        final Map<String, Object> galaxyResponse = new LinkedHashMap<String, Object>(){{ put("2", 1); put("3", 1); }};
+        expectedResponse.put("android", new LinkedHashMap<String, Object>() {{
+            put("nexus", nexusResponse);
+            put("galaxy", galaxyResponse);
+        }});
 
-        temp = factory.objectNode();
-        temp.put("nexus", factory.objectNode().put("2", 1));
-        temp.put("ipad", factory.objectNode().put("2", 2));
-        temp.put("iphone", factory.objectNode().put("1", 1));
-        resultNode.put("ios", temp);
-
-        ObjectNode finalNode = factory.objectNode();
-        finalNode.put("opcode", "group");
-        finalNode.put("result", resultNode);
+        final Map<String, Object> nexusResponse2 = new LinkedHashMap<String, Object>(){{ put("2", 1);}};
+        final Map<String, Object> iPadResponse = new LinkedHashMap<String, Object>(){{ put("2", 2); }};
+        final Map<String, Object> iPhoneResponse = new LinkedHashMap<String, Object>(){{ put("1", 1); }};
+        expectedResponse.put("ios", new LinkedHashMap<String, Object>() {{
+            put("nexus", nexusResponse2);
+            put("ipad", iPadResponse);
+            put("iphone", iPhoneResponse);
+        }});
 
         WebResource webResource = client().resource("/v1/analytics");
         GroupResponse response = webResource.type(MediaType.APPLICATION_JSON_TYPE).post(GroupResponse.class, groupRequest);
-        String expectedResult = mapper.writeValueAsString(finalNode);
-        String actualResult = mapper.writeValueAsString(response);
-        assertEquals(expectedResult, actualResult);
+        assertEquals(expectedResponse, response.getResult());
     }
 
     @Test
@@ -178,31 +169,30 @@ public class AnalyticsResourceTest extends ResourceTest {
         groupRequest.setTable(TestUtils.TEST_TABLE);
         groupRequest.setNesting(Arrays.asList("os", "device", "version"));
 
-        ObjectNode resultNode = factory.objectNode();
+        Map<String, Object> expectedResponse = new LinkedHashMap<String, Object>();
 
-        ObjectNode temp = factory.objectNode();
-        temp.put("nexus", factory.objectNode().put("1", 2).put("2", 2).put("3", 1));
-        temp.put("galaxy", factory.objectNode().put("2", 1).put("3", 1));
-        resultNode.put("android", temp);
+        final Map<String, Object> nexusResponse = new LinkedHashMap<String, Object>(){{ put("1", 2); put("2", 2); put("3", 1); }};
+        final Map<String, Object> galaxyResponse = new LinkedHashMap<String, Object>(){{ put("2", 1); put("3", 1); }};
+        expectedResponse.put("android", new LinkedHashMap<String, Object>() {{
+            put("nexus", nexusResponse);
+            put("galaxy", galaxyResponse);
+        }});
 
-        temp = factory.objectNode();
-        temp.put("nexus", factory.objectNode().put("2", 1));
-        temp.put("ipad", factory.objectNode().put("2", 2));
-        temp.put("iphone", factory.objectNode().put("1", 1));
-        resultNode.put("ios", temp);
-
-        ObjectNode finalNode = factory.objectNode();
-        finalNode.put("opcode", "group");
-        finalNode.put("result", resultNode);
+        final Map<String, Object> nexusResponse2 = new LinkedHashMap<String, Object>(){{ put("2", 1);}};
+        final Map<String, Object> iPadResponse = new LinkedHashMap<String, Object>(){{ put("2", 2); }};
+        final Map<String, Object> iPhoneResponse = new LinkedHashMap<String, Object>(){{ put("1", 1); }};
+        expectedResponse.put("ios", new LinkedHashMap<String, Object>() {{
+            put("nexus", nexusResponse2);
+            put("ipad", iPadResponse);
+            put("iphone", iPhoneResponse);
+        }});
 
         WebResource webResource = client().resource("/v1/analytics/async");
         AsyncDataToken response = webResource.type(MediaType.APPLICATION_JSON_TYPE).post(AsyncDataToken.class, groupRequest);
         Thread.sleep(2000);
-        ActionResponse completeResponse = CacheUtils.getCacheFor(response.getAction()).get(response.getKey());
+        GroupResponse actualResponse = GroupResponse.class.cast(CacheUtils.getCacheFor(response.getAction()).get(response.getKey()));
 
-        String expectedResult = mapper.writeValueAsString(finalNode);
-        String actualResult = mapper.writeValueAsString(completeResponse);
-        assertEquals(expectedResult, actualResult);
+        assertEquals(expectedResponse, actualResponse.getResult());
     }
 
     @Test
@@ -210,12 +200,13 @@ public class AnalyticsResourceTest extends ResourceTest {
         GroupRequest groupRequest = new GroupRequest();
         groupRequest.setTable(TestUtils.TEST_TABLE + "-dummy");
         groupRequest.setNesting(Arrays.asList("os", "device", "version"));
-        ObjectNode finalNode = factory.objectNode();
-        finalNode.put("opcode", "group");
+
+        GroupResponse expectedResponse = new GroupResponse();
         WebResource webResource = client().resource("/v1/analytics/async");
         AsyncDataToken asyncDataToken = webResource.type(MediaType.APPLICATION_JSON_TYPE).post(AsyncDataToken.class, groupRequest);
         Thread.sleep(2000);
-        ActionResponse response = CacheUtils.getCacheFor(asyncDataToken.getAction()).get(asyncDataToken.getKey());
-        assertEquals(finalNode.toString(), mapper.writeValueAsString(response));
+
+        GroupResponse actualResponse = GroupResponse.class.cast(CacheUtils.getCacheFor(asyncDataToken.getAction()).get(asyncDataToken.getKey()));
+        assertEquals(expectedResponse.getResult(), actualResponse.getResult());
     }
 }
