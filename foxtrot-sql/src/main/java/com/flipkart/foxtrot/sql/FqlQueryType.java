@@ -9,5 +9,6 @@ public enum FqlQueryType {
     histogram,
     desc,
     showtables,
-    count
+    count,
+    distinct
 }
