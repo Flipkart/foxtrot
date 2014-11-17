@@ -40,27 +40,8 @@ public class FlatResponseCsvProvider implements MessageBodyWriter<FlatRepresenta
             entityStream.write("No records found matching the specified criterion".getBytes());
             return;
         }
-        List<FieldHeader> headers = response.getHeaders();
         StringWriter dataBuffer = new StringWriter();
-        CSVWriter data = new CSVWriter(new BufferedWriter(dataBuffer));
-        String headerNames[] = new String[headers.size()];
-        int i = 0;
-        for(FieldHeader fieldHeader : headers) {
-            headerNames[i++] = fieldHeader.getName();
-        }
-        data.writeNext(headerNames);
-
-        List<Map<String, Object>> rows = response.getRows();
-        for(Map<String, Object> row : rows) {
-            String rowData[] = new String[row.size()];
-            i = 0;
-            for(FieldHeader fieldHeader : headers) {
-                rowData[i++] = row.get(fieldHeader.getName()).toString().replaceAll("\"", "").replaceAll("null", "");
-            }
-
-            data.writeNext(rowData);
-        }
-        data.close();
+        FlatToCsvConverter.convert(response, dataBuffer);
         entityStream.write(dataBuffer.toString().getBytes());
     }
 

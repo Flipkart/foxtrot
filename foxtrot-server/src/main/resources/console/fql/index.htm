@@ -65,11 +65,14 @@
     </div>
     <div class="content" style="margin-left: 20px; margin-right: 20px; margin-top: 60px;">
         <div class="row">
-            <form class="form-horizontal fql-form" id="fql-form" role="form">
-                <div class="form-group">
-                    <!--label for="fql-query" class="control-label">Enter query</label-->
-                    <input type="text" class="form-control .input-lg fql-query" id="fql-query" placeholder="Enter FQL query and press enter"></textarea>
-                </div>
+            <form class="form-inline fql-form" id="fql-form" role="form" autocomplete="on">
+                    <div class="form-group" style="width: 94%;">
+                        <label for="fql-query" class="sr-only">Enter query</label>
+                        <input type="text" class="form-control input-xlarge fql-query" id="fql-query" placeholder="Enter FQL query and press enter" style="width: 100%"/>
+                    </div>
+                <button class="btn btn-success" data-toggle="tooltip" data-placement="bottom" title="Run query"><span class="glyphicon glyphicon-play" aria-hidden="true"></span></button>
+                <button class="btn btn-warning csv-download" data-toggle="tooltip" data-placement="bottom" title="Download CSV"><span class="glyphicon glyphicon-cloud-download" aria-hidden="true"></span></button>
+
                 <!--button type="submit" class="btn btn-primary pull-right">Run</button-->
             </form>
         </div>

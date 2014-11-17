@@ -38,7 +38,7 @@ public class FqlEngine {
         QueryTranslator translator = new QueryTranslator();
         FqlQuery query = translator.translate(fql);
         FlatRepresentation response = new QueryProcessor(tableMetadataManager, queryStore, queryExecutor, mapper).process(query);
-        logger.info("Flat Response: " + mapper.writerWithDefaultPrettyPrinter().writeValueAsString(response));
+        logger.debug("Flat Response: " + mapper.writerWithDefaultPrettyPrinter().writeValueAsString(response));
         return response;
     }
 

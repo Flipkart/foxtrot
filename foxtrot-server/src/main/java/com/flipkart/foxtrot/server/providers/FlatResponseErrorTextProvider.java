@@ -39,7 +39,12 @@ public class FlatResponseErrorTextProvider implements MessageBodyWriter<Map> {
         for(Object key : map.keySet()) {
             data.append(key.toString());
             data.append(":");
-            data.append(map.get(key.toString()).toString());
+            if(null == map.get(key.toString())) {
+                data.append("Check logs for more details");
+            }
+            else {
+                data.append(map.get(key.toString()).toString());
+            }
             data.append("\n");
         }
         entityStream.write(data.toString().getBytes());
