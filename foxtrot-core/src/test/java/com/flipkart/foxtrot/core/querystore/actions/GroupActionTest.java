@@ -17,10 +17,9 @@ package com.flipkart.foxtrot.core.querystore.actions;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.flipkart.foxtrot.common.Document;
 import com.flipkart.foxtrot.common.group.GroupRequest;
+import com.flipkart.foxtrot.common.group.GroupResponse;
 import com.flipkart.foxtrot.common.query.Filter;
 import com.flipkart.foxtrot.common.query.general.EqualsFilter;
 import com.flipkart.foxtrot.common.query.numeric.GreaterThanFilter;
@@ -33,6 +32,7 @@ import com.flipkart.foxtrot.core.querystore.QueryStoreException;
 import com.flipkart.foxtrot.core.querystore.TableMetadataManager;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsLoader;
 import com.flipkart.foxtrot.core.querystore.impl.*;
+import com.google.common.collect.Maps;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.test.TestHazelcastInstanceFactory;
 import org.junit.After;
@@ -41,10 +41,7 @@ import org.junit.Test;
 import org.mockito.Mockito;
 
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -60,7 +57,6 @@ public class GroupActionTest {
     private final ObjectMapper mapper = new ObjectMapper();
     private MockElasticsearchServer elasticsearchServer;
     private HazelcastInstance hazelcastInstance;
-    private JsonNodeFactory factory = JsonNodeFactory.instance;
 
     @Before
     public void setUp() throws Exception {
@@ -122,17 +118,12 @@ public class GroupActionTest {
         groupRequest.setTable(TestUtils.TEST_TABLE);
         groupRequest.setNesting(Arrays.asList("os"));
 
-        ObjectNode resultNode = factory.objectNode();
-        resultNode.put("android", 7);
-        resultNode.put("ios", 4);
+        Map<String, Object> response = Maps.newHashMap();
+        response.put("android", 7L);
+        response.put("ios", 4L);
 
-        ObjectNode finalNode = factory.objectNode();
-        finalNode.put("opcode", "group");
-        finalNode.put("result", resultNode);
-        String expectedResult = mapper.writeValueAsString(finalNode);
-
-        String actualResult = mapper.writeValueAsString(queryExecutor.execute(groupRequest));
-        assertEquals(expectedResult, actualResult);
+        GroupResponse actualResult = GroupResponse.class.cast(queryExecutor.execute(groupRequest));
+        assertEquals(response, actualResult.getResult());
     }
 
     @Test
@@ -141,16 +132,11 @@ public class GroupActionTest {
         groupRequest.setTable(TestUtils.TEST_TABLE);
         groupRequest.setNesting(Arrays.asList("header.data"));
 
-        ObjectNode resultNode = factory.objectNode();
-        resultNode.put("ios", 1);
+        Map<String, Object> response = Maps.newHashMap();
+        response.put("ios", 1L);
 
-        ObjectNode finalNode = factory.objectNode();
-        finalNode.put("opcode", "group");
-        finalNode.put("result", resultNode);
-        String expectedResult = mapper.writeValueAsString(finalNode);
-
-        String actualResult = mapper.writeValueAsString(queryExecutor.execute(groupRequest));
-        assertEquals(expectedResult, actualResult);
+        GroupResponse actualResult = GroupResponse.class.cast(queryExecutor.execute(groupRequest));
+        assertEquals(response, actualResult.getResult());
     }
 
     @Test
@@ -192,12 +178,10 @@ public class GroupActionTest {
         groupRequest.setFilters(Collections.<Filter>singletonList(equalsFilter));
         groupRequest.setNesting(Arrays.asList("!@#$%^&*()"));
 
-        ObjectNode finalNode = factory.objectNode();
-        finalNode.put("opcode", "group");
-        finalNode.put("result", factory.objectNode());
-        String expectedResult = mapper.writeValueAsString(finalNode);
-        String actualResult = mapper.writeValueAsString(queryExecutor.execute(groupRequest));
-        assertEquals(expectedResult, actualResult);
+        Map<String, Object> response = Maps.newHashMap();
+
+        GroupResponse actualResult = GroupResponse.class.cast(queryExecutor.execute(groupRequest));
+        assertEquals(response, actualResult.getResult());
     }
 
     @Test
@@ -211,17 +195,12 @@ public class GroupActionTest {
         groupRequest.setFilters(Collections.<Filter>singletonList(equalsFilter));
         groupRequest.setNesting(Arrays.asList("os"));
 
-        ObjectNode resultNode = factory.objectNode();
-        resultNode.put("android", 5);
-        resultNode.put("ios", 1);
+        Map<String, Object> response = Maps.newHashMap();
+        response.put("android", 5L);
+        response.put("ios", 1L);
 
-        ObjectNode finalNode = factory.objectNode();
-        finalNode.put("opcode", "group");
-        finalNode.put("result", resultNode);
-        String expectedResult = mapper.writeValueAsString(finalNode);
-
-        String actualResult = mapper.writeValueAsString(queryExecutor.execute(groupRequest));
-        assertEquals(expectedResult, actualResult);
+        GroupResponse actualResult = GroupResponse.class.cast(queryExecutor.execute(groupRequest));
+        assertEquals(response, actualResult.getResult());
     }
 
     @Test
@@ -230,17 +209,12 @@ public class GroupActionTest {
         groupRequest.setTable(TestUtils.TEST_TABLE);
         groupRequest.setNesting(Arrays.asList("os", "device"));
 
-        ObjectNode resultNode = factory.objectNode();
-        resultNode.put("android", factory.objectNode().put("nexus", 5).put("galaxy", 2));
-        resultNode.put("ios", factory.objectNode().put("nexus", 1).put("ipad", 2).put("iphone", 1));
+        Map<String, Object> response = Maps.newHashMap();
+        response.put("android", new HashMap<String, Object>() {{put("nexus", 5L); put("galaxy", 2L); }});
+        response.put("ios", new HashMap<String, Object>() {{put("nexus", 1L); put("ipad", 2L); put("iphone", 1L); }});
 
-        ObjectNode finalNode = factory.objectNode();
-        finalNode.put("opcode", "group");
-        finalNode.put("result", resultNode);
-        String expectedResult = mapper.writeValueAsString(finalNode);
-
-        String actualResult = mapper.writeValueAsString(queryExecutor.execute(groupRequest));
-        assertEquals(expectedResult, actualResult);
+        GroupResponse actualResult = GroupResponse.class.cast(queryExecutor.execute(groupRequest));
+        assertEquals(response, actualResult.getResult());
     }
 
     @Test
@@ -254,17 +228,12 @@ public class GroupActionTest {
         greaterThanFilter.setValue(48);
         groupRequest.setFilters(Collections.<Filter>singletonList(greaterThanFilter));
 
-        ObjectNode resultNode = factory.objectNode();
-        resultNode.put("android", factory.objectNode().put("nexus", 3).put("galaxy", 2));
-        resultNode.put("ios", factory.objectNode().put("ipad", 1));
+        Map<String, Object> response = Maps.newHashMap();
+        response.put("android", new HashMap<String, Object>() {{put("nexus", 3L); put("galaxy", 2L); }});
+        response.put("ios", new HashMap<String, Object>() {{ put("ipad", 1L); }});
 
-        ObjectNode finalNode = factory.objectNode();
-        finalNode.put("opcode", "group");
-        finalNode.put("result", resultNode);
-        String expectedResult = mapper.writeValueAsString(finalNode);
-
-        String actualResult = mapper.writeValueAsString(queryExecutor.execute(groupRequest));
-        assertEquals(expectedResult, actualResult);
+        GroupResponse actualResult = GroupResponse.class.cast(queryExecutor.execute(groupRequest));
+        assertEquals(response, actualResult.getResult());
     }
 
     @Test
@@ -273,26 +242,19 @@ public class GroupActionTest {
         groupRequest.setTable(TestUtils.TEST_TABLE);
         groupRequest.setNesting(Arrays.asList("os", "device", "version"));
 
-        ObjectNode resultNode = factory.objectNode();
+        Map<String, Object> response = Maps.newHashMap();
 
-        ObjectNode temp = factory.objectNode();
-        temp.put("nexus", factory.objectNode().put("1", 2).put("2", 2).put("3", 1));
-        temp.put("galaxy", factory.objectNode().put("2", 1).put("3", 1));
-        resultNode.put("android", temp);
+        final Map<String, Object> nexusResponse = new HashMap<String, Object>(){{ put("1", 2L); put("2", 2L); put("3", 1L); }};
+        final Map<String, Object> galaxyResponse = new HashMap<String, Object>(){{ put("2", 1L); put("3", 1L); }};
+        response.put("android", new HashMap<String, Object>() {{put("nexus", nexusResponse); put("galaxy", galaxyResponse); }});
 
-        temp = factory.objectNode();
-        temp.put("nexus", factory.objectNode().put("2", 1));
-        temp.put("ipad", factory.objectNode().put("2", 2));
-        temp.put("iphone", factory.objectNode().put("1", 1));
-        resultNode.put("ios", temp);
+        final Map<String, Object> nexusResponse2 = new HashMap<String, Object>(){{ put("2", 1L);}};
+        final Map<String, Object> iPadResponse = new HashMap<String, Object>(){{ put("2", 2L); }};
+        final Map<String, Object> iPhoneResponse = new HashMap<String, Object>(){{ put("1", 1L); }};
+        response.put("ios", new HashMap<String, Object>() {{put("nexus", nexusResponse2); put("ipad", iPadResponse); put("iphone", iPhoneResponse); }});
 
-        ObjectNode finalNode = factory.objectNode();
-        finalNode.put("opcode", "group");
-        finalNode.put("result", resultNode);
-
-        String expectedResult = mapper.writeValueAsString(finalNode);
-        String actualResult = mapper.writeValueAsString(queryExecutor.execute(groupRequest));
-        assertEquals(expectedResult, actualResult);
+        GroupResponse actualResult = GroupResponse.class.cast(queryExecutor.execute(groupRequest));
+        assertEquals(response, actualResult.getResult());
     }
 
     @Test
@@ -306,23 +268,16 @@ public class GroupActionTest {
         greaterThanFilter.setValue(48);
         groupRequest.setFilters(Collections.<Filter>singletonList(greaterThanFilter));
 
-        ObjectNode resultNode = factory.objectNode();
+        Map<String, Object> response = Maps.newHashMap();
 
-        ObjectNode temp = factory.objectNode();
-        temp.put("nexus", factory.objectNode().put("2", 2).put("3", 1));
-        temp.put("galaxy", factory.objectNode().put("2", 1).put("3", 1));
-        resultNode.put("android", temp);
+        final Map<String, Object> nexusResponse = new HashMap<String, Object>(){{ put("2", 2L); put("3", 1L); }};
+        final Map<String, Object> galaxyResponse = new HashMap<String, Object>(){{ put("2", 1L); put("3", 1L); }};
+        response.put("android", new HashMap<String, Object>() {{put("nexus", nexusResponse); put("galaxy", galaxyResponse); }});
 
-        temp = factory.objectNode();
-        temp.put("ipad", factory.objectNode().put("2", 1));
-        resultNode.put("ios", temp);
+        final Map<String, Object> iPadResponse = new HashMap<String, Object>(){{ put("2", 1L); }};
+        response.put("ios", new HashMap<String, Object>() {{ put("ipad", iPadResponse); }});
 
-        ObjectNode finalNode = factory.objectNode();
-        finalNode.put("opcode", "group");
-        finalNode.put("result", resultNode);
-
-        String expectedResult = mapper.writeValueAsString(finalNode);
-        String actualResult = mapper.writeValueAsString(queryExecutor.execute(groupRequest));
-        assertEquals(expectedResult, actualResult);
+        GroupResponse actualResult = GroupResponse.class.cast(queryExecutor.execute(groupRequest));
+        assertEquals(response, actualResult.getResult());
     }
 }
