@@ -32,6 +32,7 @@ import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsLoader;
 import com.flipkart.foxtrot.core.querystore.impl.*;
 import com.flipkart.foxtrot.server.config.FoxtrotServerConfiguration;
 import com.flipkart.foxtrot.server.console.ElasticsearchConsolePersistence;
+import com.flipkart.foxtrot.server.providers.FlatResponseCsvProvider;
 import com.flipkart.foxtrot.server.providers.FlatResponseTextProvider;
 import com.flipkart.foxtrot.server.resources.*;
 import com.flipkart.foxtrot.server.util.ManagedActionScanner;
@@ -114,6 +115,7 @@ public class FoxtrotServer extends Service<FoxtrotServerConfiguration> {
         environment.addHealthCheck(new ElasticSearchHealthCheck("ES Health Check", elasticsearchConnection));
 
         environment.addProvider(new FlatResponseTextProvider());
+        environment.addProvider(new FlatResponseCsvProvider());
 
         environment.addFilter(CrossOriginFilter.class, "/*");
     }

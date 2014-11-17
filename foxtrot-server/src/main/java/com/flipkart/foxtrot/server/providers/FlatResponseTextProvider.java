@@ -34,6 +34,7 @@ public class FlatResponseTextProvider implements MessageBodyWriter<FlatRepresent
     public void writeTo(FlatRepresentation response, Class<?> type, Type genericType, Annotation[] annotations, MediaType mediaType, MultivaluedMap<String, Object> httpHeaders, OutputStream entityStream) throws IOException, WebApplicationException {
         if(null == response) {
             entityStream.write("No records found matching the specified criterion".getBytes());
+            return;
         }
         List<FieldHeader> headers = response.getHeaders();
         StringBuilder data = new StringBuilder();

@@ -1,6 +1,7 @@
 package com.flipkart.foxtrot.server.resources;
 
 import com.flipkart.foxtrot.core.querystore.QueryStoreException;
+import com.flipkart.foxtrot.server.providers.FoxtrotExtraMediaType;
 import com.flipkart.foxtrot.sql.FqlEngine;
 import com.flipkart.foxtrot.sql.responseprocessors.model.FlatRepresentation;
 import org.slf4j.Logger;
@@ -11,7 +12,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.Collections;
 
-@Produces({MediaType.TEXT_PLAIN, MediaType.APPLICATION_JSON })
+@Produces({MediaType.TEXT_PLAIN, MediaType.APPLICATION_JSON, FoxtrotExtraMediaType.TEXT_CSV})
 @Path("/v1/fql")
 public class FqlResource {
     private static final Logger logger = LoggerFactory.getLogger(AnalyticsResource.class);
