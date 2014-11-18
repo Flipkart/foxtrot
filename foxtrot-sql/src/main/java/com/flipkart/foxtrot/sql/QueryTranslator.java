@@ -3,6 +3,7 @@ package com.flipkart.foxtrot.sql;
 
 import com.flipkart.foxtrot.common.ActionRequest;
 import com.flipkart.foxtrot.common.count.CountRequest;
+import com.flipkart.foxtrot.common.distinct.DistinctRequest;
 import com.flipkart.foxtrot.common.group.GroupRequest;
 import com.flipkart.foxtrot.common.Period;
 import com.flipkart.foxtrot.common.histogram.HistogramRequest;
@@ -54,6 +55,7 @@ public class QueryTranslator extends SqlElementVisitor {
     private ActionRequest calledAction;
     private List<Filter> filters;
     private List<String> selectedColumns = Lists.newArrayList();
+    private List<ResultSort> columnsWithSort = Lists.newArrayList();
 
     @Override
     public void visit(PlainSelect plainSelect) {
@@ -72,6 +74,7 @@ public class QueryTranslator extends SqlElementVisitor {
             calledAction = functionReader.actionRequest;
             queryType = functionReader.queryType;
         }
+
         plainSelect.getFromItem().accept(this); //Populate table name
         List groupByItems = plainSelect.getGroupByColumnReferences();
         if(null != groupByItems) {
@@ -92,10 +95,33 @@ public class QueryTranslator extends SqlElementVisitor {
                 limitCount = plainSelect.getLimit().getRowCount();
             }
         }
+
         if(null != plainSelect.getWhere()) {
             FilterParser filterParser = new FilterParser();
             plainSelect.getWhere().accept(filterParser);
             filters = (filterParser.filters.isEmpty()) ? null : filterParser.filters;
+        }
+
+        // Handle distinct
+        List<ResultSort> tempColumnsWithSort = generateColumnSort(plainSelect.getOrderByElements());
+        if (null != plainSelect.getDistinct()){
+            for (String selectedColumn : selectedColumns){
+                boolean alreadyAdded = false;
+                for (ResultSort columnWithSort : tempColumnsWithSort){
+                    if (selectedColumn.equalsIgnoreCase(columnWithSort.getField())){
+                        columnsWithSort.add(columnWithSort);
+                        alreadyAdded = true;
+                        break;
+                    }
+                }
+                if (!alreadyAdded){
+                    ResultSort resultSort = new ResultSort();
+                    resultSort.setField(selectedColumn);
+                    resultSort.setOrder(ResultSort.Order.desc);
+                    columnsWithSort.add(resultSort);
+                }
+            }
+            this.queryType = FqlQueryType.distinct;
         }
     }
 
@@ -106,7 +132,7 @@ public class QueryTranslator extends SqlElementVisitor {
 
     @Override
     public void visit(Table tableName) {
-        this.tableName = tableName.getName().replaceAll("[^a-zA-Z0-9\\-_]", "");
+        this.tableName = tableName.getName().replaceAll(Constants.SQL_TABLE_REGEX, "");
     }
 
     @Override
@@ -199,6 +225,14 @@ public class QueryTranslator extends SqlElementVisitor {
                 break;
             }
 
+            case distinct: {
+                DistinctRequest distinctRequest = new DistinctRequest();
+                distinctRequest.setTable(tableName);
+                distinctRequest.setFilters(filters);
+                distinctRequest.setNesting(columnsWithSort);
+                request = distinctRequest;
+            }
+
         }
         if(null == request) {
             throw new Exception("Could not parse provided FQL.");
@@ -220,6 +254,21 @@ public class QueryTranslator extends SqlElementVisitor {
             return resultSort;
         }
         return null;
+    }
+
+    private List<ResultSort> generateColumnSort(List<OrderByElement> orderItems){
+        List<ResultSort> resultSortList = Lists.newArrayList();
+        if (orderItems == null || orderItems.isEmpty()){
+            return resultSortList;
+        }
+        for (OrderByElement orderByElement : orderItems){
+            Column sortColumn = (Column)orderByElement.getExpression();
+            ResultSort resultSort = new ResultSort();
+            resultSort.setField(sortColumn.getFullyQualifiedName());
+            resultSort.setOrder(orderByElement.isAsc()? ResultSort.Order.asc : ResultSort.Order.desc);
+            resultSortList.add(resultSort);
+        }
+        return resultSortList;
     }
 
     private static final class FunctionReader extends SqlElementVisitor {
@@ -249,6 +298,7 @@ public class QueryTranslator extends SqlElementVisitor {
                         break;
                     case count:
                         actionRequest = parseCountRequest(function.getParameters(), function.isAllColumns(), function.isDistinct());
+                        break;
                     case desc:
                     case select:
                     case group:
@@ -256,7 +306,10 @@ public class QueryTranslator extends SqlElementVisitor {
                 }
             }
             else {
-                if(expression instanceof Column) {
+
+                if (expression instanceof Parenthesis){
+                    columnName = ((Column)((Parenthesis)expression).getExpression()).getFullyQualifiedName();
+                } else if(expression instanceof Column) {
                     columnName = ((Column)expression).getFullyQualifiedName();
                 }
             }
@@ -381,7 +434,8 @@ public class QueryTranslator extends SqlElementVisitor {
         @Override
         public void visit(EqualsTo equalsTo) {
             EqualsFilter equalsFilter = new EqualsFilter();
-            equalsFilter.setField(((Column)equalsTo.getLeftExpression()).getFullyQualifiedName());
+            String field = ((Column)equalsTo.getLeftExpression()).getFullyQualifiedName();
+            equalsFilter.setField(field.replaceAll(Constants.SQL_FIELD_REGEX, ""));
             equalsFilter.setValue(getValueFromExpression(equalsTo.getRightExpression()));
             filters.add(equalsFilter);
         }
@@ -389,7 +443,8 @@ public class QueryTranslator extends SqlElementVisitor {
         @Override
         public void visit(NotEqualsTo notEqualsTo) {
             NotEqualsFilter notEqualsFilter = new NotEqualsFilter();
-            notEqualsFilter.setField(((Column)notEqualsTo.getLeftExpression()).getFullyQualifiedName());
+            String field = ((Column)notEqualsTo.getLeftExpression()).getFullyQualifiedName();
+            notEqualsFilter.setField(field.replaceAll(Constants.SQL_FIELD_REGEX, ""));
             notEqualsFilter.setValue(getValueFromExpression(notEqualsTo.getRightExpression()));
             filters.add(notEqualsFilter);
         }
@@ -404,7 +459,7 @@ public class QueryTranslator extends SqlElementVisitor {
         public void visit(Between between) {
             BetweenFilter betweenFilter = new BetweenFilter();
             ColumnData columnData = setupColumn(between.getLeftExpression());
-            betweenFilter.setField(columnData.getColumnName());
+            betweenFilter.setField(columnData.getColumnName().replaceAll(Constants.SQL_FIELD_REGEX, ""));
             betweenFilter.setTemporal(columnData.isTemporal());
             Number from = getNumbericValue(between.getBetweenExpressionStart());
             Number to = getNumbericValue(between.getBetweenExpressionEnd());
@@ -417,7 +472,7 @@ public class QueryTranslator extends SqlElementVisitor {
         public void visit(GreaterThan greaterThan) {
             GreaterThanFilter greaterThanFilter = new GreaterThanFilter();
             ColumnData columnData = setupColumn(greaterThan.getLeftExpression());
-            greaterThanFilter.setField(columnData.getColumnName());
+            greaterThanFilter.setField(columnData.getColumnName().replaceAll(Constants.SQL_FIELD_REGEX, ""));
             greaterThanFilter.setTemporal(columnData.isTemporal());
             greaterThanFilter.setValue(getNumbericValue(greaterThan.getRightExpression()));
             filters.add(greaterThanFilter);
@@ -427,7 +482,7 @@ public class QueryTranslator extends SqlElementVisitor {
         public void visit(GreaterThanEquals greaterThanEquals) {
             GreaterEqualFilter greaterEqualFilter = new GreaterEqualFilter();
             ColumnData columnData = setupColumn(greaterThanEquals.getLeftExpression());
-            greaterEqualFilter.setField(columnData.getColumnName());
+            greaterEqualFilter.setField(columnData.getColumnName().replaceAll(Constants.SQL_FIELD_REGEX, ""));
             greaterEqualFilter.setTemporal(columnData.isTemporal());
             greaterEqualFilter.setValue(getNumbericValue(greaterThanEquals.getRightExpression()));
             filters.add(greaterEqualFilter);
@@ -436,7 +491,7 @@ public class QueryTranslator extends SqlElementVisitor {
         @Override
         public void visit(InExpression inExpression) {
             InFilter inFilter = new InFilter();
-            inFilter.setField(((Column)inExpression.getLeftExpression()).getFullyQualifiedName());
+            inFilter.setField(((Column)inExpression.getLeftExpression()).getFullyQualifiedName().replaceAll(Constants.SQL_FIELD_REGEX, ""));
             ItemsList itemsList = inExpression.getRightItemsList();
             if(!(itemsList instanceof ExpressionList)) {
                 throw new RuntimeException("Sub selects not supported");
@@ -467,7 +522,7 @@ public class QueryTranslator extends SqlElementVisitor {
         public void visit(MinorThan minorThan) {
             LessThanFilter lessThanFilter = new LessThanFilter();
             ColumnData columnData = setupColumn(minorThan.getLeftExpression());
-            lessThanFilter.setField(columnData.getColumnName());
+            lessThanFilter.setField(columnData.getColumnName().replaceAll(Constants.SQL_FIELD_REGEX, ""));
             lessThanFilter.setTemporal(columnData.isTemporal());
             lessThanFilter.setValue(getNumbericValue(minorThan.getRightExpression()));
             filters.add(lessThanFilter);
@@ -478,7 +533,7 @@ public class QueryTranslator extends SqlElementVisitor {
         public void visit(MinorThanEquals minorThanEquals) {
             LessEqualFilter lessEqualFilter = new LessEqualFilter();
             ColumnData columnData = setupColumn(minorThanEquals.getLeftExpression());
-            lessEqualFilter.setField(columnData.getColumnName());
+            lessEqualFilter.setField(columnData.getColumnName().replaceAll(Constants.SQL_FIELD_REGEX, ""));
             lessEqualFilter.setTemporal(columnData.isTemporal());
             lessEqualFilter.setValue(getNumbericValue(minorThanEquals.getRightExpression()));
             filters.add(lessEqualFilter);
@@ -505,7 +560,7 @@ public class QueryTranslator extends SqlElementVisitor {
                 lastFilter.setCurrentTime(QueryUtils.expressionToNumber((Expression) expressions.get(1)).longValue());
             }
             if(expressions.size() > 2) {
-                lastFilter.setField(QueryUtils.expressionToString((Expression) expressions.get(2)));
+                lastFilter.setField(QueryUtils.expressionToString((Expression) expressions.get(2)).replaceAll(Constants.SQL_FIELD_REGEX, ""));
             }
             return lastFilter;
         }

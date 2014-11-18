@@ -6,6 +6,7 @@ import com.flipkart.foxtrot.common.ActionRequest;
 import com.flipkart.foxtrot.common.Document;
 import com.flipkart.foxtrot.common.ResponseVisitor;
 import com.flipkart.foxtrot.common.count.CountResponse;
+import com.flipkart.foxtrot.common.distinct.DistinctResponse;
 import com.flipkart.foxtrot.common.group.GroupRequest;
 import com.flipkart.foxtrot.common.group.GroupResponse;
 import com.flipkart.foxtrot.common.histogram.HistogramResponse;
@@ -200,6 +201,24 @@ public class Flattener implements ResponseVisitor {
         List<Map<String, Object>> rows = Lists.newArrayList();
         rows.add(Collections.<String, Object>singletonMap("count", countResponse.getCount()));
         flatRepresentation = new FlatRepresentation(Arrays.asList(fieldHeader), rows);
+    }
+
+    @Override
+    public void visit(DistinctResponse distinctResponse) {
+        List<FieldHeader> fieldHeaders = Lists.newArrayList();
+        for (String header : distinctResponse.getHeaders()){
+            fieldHeaders.add(new FieldHeader(header, 10));
+        }
+        List<List<String>> distinctResponseRows = distinctResponse.getResult();
+        List<Map<String,Object>> rows = Lists.newArrayList();
+        for (List<String> responseRow : distinctResponseRows){
+            Map<String, Object> row = new HashMap<String, Object>();
+            for (int i = 0 ; i < fieldHeaders.size(); i++){
+                row.put(fieldHeaders.get(i).getName(), responseRow.get(i));
+            }
+            rows.add(row);
+        }
+        flatRepresentation = new FlatRepresentation(fieldHeaders, rows);
     }
 
     public FlatRepresentation getFlatRepresentation() {

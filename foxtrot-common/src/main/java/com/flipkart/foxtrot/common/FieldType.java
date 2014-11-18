@@ -25,5 +25,6 @@ public enum FieldType {
     FLOAT,
     DOUBLE,
     BOOLEAN,
-    DATE
+    DATE,
+    OBJECT
 }
