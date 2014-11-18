@@ -16,16 +16,11 @@
 package com.flipkart.foxtrot.core.querystore.actions;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.flipkart.foxtrot.common.ActionResponse;
 import com.flipkart.foxtrot.common.Document;
-import com.flipkart.foxtrot.common.query.Filter;
-import com.flipkart.foxtrot.common.query.FilterCombinerType;
-import com.flipkart.foxtrot.common.query.Query;
-import com.flipkart.foxtrot.common.query.ResultSort;
+import com.flipkart.foxtrot.common.query.*;
 import com.flipkart.foxtrot.common.query.general.AnyFilter;
 import com.flipkart.foxtrot.common.query.general.EqualsFilter;
 import com.flipkart.foxtrot.common.query.general.NotEqualsFilter;
@@ -54,6 +49,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.mockito.Mockito.when;
 
 /**
@@ -65,7 +61,6 @@ public class FilterActionTest {
     private ObjectMapper mapper = new ObjectMapper();
     private MockElasticsearchServer elasticsearchServer;
     private HazelcastInstance hazelcastInstance;
-    private JsonNodeFactory factory = JsonNodeFactory.instance;
 
     @Before
     public void setUp() throws Exception {
@@ -128,23 +123,19 @@ public class FilterActionTest {
         resultSort.setField("_timestamp");
         query.setSort(resultSort);
 
-        ArrayNode arrayNode = factory.arrayNode();
-        arrayNode.addPOJO(TestUtils.getDocument("W", 1397658117001L, new Object[]{"os", "android", "device", "nexus", "battery", 99}, mapper));
-        arrayNode.addPOJO(TestUtils.getDocument("X", 1397658117002L, new Object[]{"os", "android", "device", "nexus", "battery", 74}, mapper));
-        arrayNode.addPOJO(TestUtils.getDocument("Y", 1397658117003L, new Object[]{"os", "android", "device", "nexus", "battery", 48}, mapper));
-        arrayNode.addPOJO(TestUtils.getDocument("Z", 1397658117004L, new Object[]{"os", "android", "device", "nexus", "battery", 24}, mapper));
-        arrayNode.addPOJO(TestUtils.getDocument("A", 1397658118000L, new Object[]{"os", "android", "version", 1, "device", "nexus"}, mapper));
-        arrayNode.addPOJO(TestUtils.getDocument("B", 1397658118001L, new Object[]{"os", "android", "version", 1, "device", "galaxy"}, mapper));
-        arrayNode.addPOJO(TestUtils.getDocument("C", 1397658118002L, new Object[]{"os", "android", "version", 2, "device", "nexus"}, mapper));
-        arrayNode.addPOJO(TestUtils.getDocument("D", 1397658118003L, new Object[]{"os", "ios", "version", 1, "device", "iphone"}, mapper));
-        arrayNode.addPOJO(TestUtils.getDocument("E", 1397658118004L, new Object[]{"os", "ios", "version", 2, "device", "ipad"}, mapper));
-        ObjectNode expectedResponseNode = factory.objectNode();
-        expectedResponseNode.put("opcode", "query");
-        expectedResponseNode.put("documents", arrayNode);
-        String expectedResponse = mapper.writeValueAsString(expectedResponseNode);
+        List<Document> documents = new ArrayList<Document>();
+        documents.add(TestUtils.getDocument("W", 1397658117001L, new Object[]{"os", "android", "device", "nexus", "battery", 99}, mapper));
+        documents.add(TestUtils.getDocument("X", 1397658117002L, new Object[]{"os", "android", "device", "nexus", "battery", 74}, mapper));
+        documents.add(TestUtils.getDocument("Y", 1397658117003L, new Object[]{"os", "android", "device", "nexus", "battery", 48}, mapper));
+        documents.add(TestUtils.getDocument("Z", 1397658117004L, new Object[]{"os", "android", "device", "nexus", "battery", 24}, mapper));
+        documents.add(TestUtils.getDocument("A", 1397658118000L, new Object[]{"os", "android", "version", 1, "device", "nexus"}, mapper));
+        documents.add(TestUtils.getDocument("B", 1397658118001L, new Object[]{"os", "android", "version", 1, "device", "galaxy"}, mapper));
+        documents.add(TestUtils.getDocument("C", 1397658118002L, new Object[]{"os", "android", "version", 2, "device", "nexus"}, mapper));
+        documents.add(TestUtils.getDocument("D", 1397658118003L, new Object[]{"os", "ios", "version", 1, "device", "iphone"}, mapper));
+        documents.add(TestUtils.getDocument("E", 1397658118004L, new Object[]{"os", "ios", "version", 2, "device", "ipad"}, mapper));
 
-        String actualResponse = mapper.writeValueAsString(queryExecutor.execute(query));
-        assertEquals(expectedResponse, actualResponse);
+        QueryResponse actualResponse = QueryResponse.class.cast(queryExecutor.execute(query));
+        compare(documents, actualResponse.getDocuments());
     }
 
     @Test
@@ -156,23 +147,19 @@ public class FilterActionTest {
         resultSort.setField("_timestamp");
         query.setSort(resultSort);
 
-        ArrayNode arrayNode = factory.arrayNode();
-        arrayNode.addPOJO(TestUtils.getDocument("E", 1397658118004L, new Object[]{"os", "ios", "version", 2, "device", "ipad"}, mapper));
-        arrayNode.addPOJO(TestUtils.getDocument("D", 1397658118003L, new Object[]{"os", "ios", "version", 1, "device", "iphone"}, mapper));
-        arrayNode.addPOJO(TestUtils.getDocument("C", 1397658118002L, new Object[]{"os", "android", "version", 2, "device", "nexus"}, mapper));
-        arrayNode.addPOJO(TestUtils.getDocument("B", 1397658118001L, new Object[]{"os", "android", "version", 1, "device", "galaxy"}, mapper));
-        arrayNode.addPOJO(TestUtils.getDocument("A", 1397658118000L, new Object[]{"os", "android", "version", 1, "device", "nexus"}, mapper));
-        arrayNode.addPOJO(TestUtils.getDocument("Z", 1397658117004L, new Object[]{"os", "android", "device", "nexus", "battery", 24}, mapper));
-        arrayNode.addPOJO(TestUtils.getDocument("Y", 1397658117003L, new Object[]{"os", "android", "device", "nexus", "battery", 48}, mapper));
-        arrayNode.addPOJO(TestUtils.getDocument("X", 1397658117002L, new Object[]{"os", "android", "device", "nexus", "battery", 74}, mapper));
-        arrayNode.addPOJO(TestUtils.getDocument("W", 1397658117001L, new Object[]{"os", "android", "device", "nexus", "battery", 99}, mapper));
-        ObjectNode expectedResponseNode = factory.objectNode();
-        expectedResponseNode.put("opcode", "query");
-        expectedResponseNode.put("documents", arrayNode);
-        String expectedResponse = mapper.writeValueAsString(expectedResponseNode);
+        List<Document> documents = new ArrayList<Document>();
+        documents.add(TestUtils.getDocument("E", 1397658118004L, new Object[]{"os", "ios", "version", 2, "device", "ipad"}, mapper));
+        documents.add(TestUtils.getDocument("D", 1397658118003L, new Object[]{"os", "ios", "version", 1, "device", "iphone"}, mapper));
+        documents.add(TestUtils.getDocument("C", 1397658118002L, new Object[]{"os", "android", "version", 2, "device", "nexus"}, mapper));
+        documents.add(TestUtils.getDocument("B", 1397658118001L, new Object[]{"os", "android", "version", 1, "device", "galaxy"}, mapper));
+        documents.add(TestUtils.getDocument("A", 1397658118000L, new Object[]{"os", "android", "version", 1, "device", "nexus"}, mapper));
+        documents.add(TestUtils.getDocument("Z", 1397658117004L, new Object[]{"os", "android", "device", "nexus", "battery", 24}, mapper));
+        documents.add(TestUtils.getDocument("Y", 1397658117003L, new Object[]{"os", "android", "device", "nexus", "battery", 48}, mapper));
+        documents.add(TestUtils.getDocument("X", 1397658117002L, new Object[]{"os", "android", "device", "nexus", "battery", 74}, mapper));
+        documents.add(TestUtils.getDocument("W", 1397658117001L, new Object[]{"os", "android", "device", "nexus", "battery", 99}, mapper));
 
-        String actualResponse = mapper.writeValueAsString(queryExecutor.execute(query));
-        assertEquals(expectedResponse, actualResponse);
+        QueryResponse actualResponse = QueryResponse.class.cast(queryExecutor.execute(query));
+        compare(documents, actualResponse.getDocuments());
     }
 
     @Test
@@ -185,16 +172,12 @@ public class FilterActionTest {
         resultSort.setField("_timestamp");
         query.setSort(resultSort);
 
-        ArrayNode arrayNode = factory.arrayNode();
-        arrayNode.addPOJO(TestUtils.getDocument("E", 1397658118004L, new Object[]{"os", "ios", "version", 2, "device", "ipad"}, mapper));
-        arrayNode.addPOJO(TestUtils.getDocument("D", 1397658118003L, new Object[]{"os", "ios", "version", 1, "device", "iphone"}, mapper));
-        ObjectNode expectedResponseNode = factory.objectNode();
-        expectedResponseNode.put("opcode", "query");
-        expectedResponseNode.put("documents", arrayNode);
-        String expectedResponse = mapper.writeValueAsString(expectedResponseNode);
+        List<Document> documents = new ArrayList<Document>();
+        documents.add(TestUtils.getDocument("E", 1397658118004L, new Object[]{"os", "ios", "version", 2, "device", "ipad"}, mapper));
+        documents.add(TestUtils.getDocument("D", 1397658118003L, new Object[]{"os", "ios", "version", 1, "device", "iphone"}, mapper));
 
-        String actualResponse = mapper.writeValueAsString(queryExecutor.execute(query));
-        assertEquals(expectedResponse, actualResponse);
+        QueryResponse actualResponse = QueryResponse.class.cast(queryExecutor.execute(query));
+        compare(documents, actualResponse.getDocuments());
     }
 
     @Test
@@ -210,23 +193,19 @@ public class FilterActionTest {
         AnyFilter filter = new AnyFilter();
         query.setFilters(Collections.<Filter>singletonList(filter));
 
-        ArrayNode arrayNode = factory.arrayNode();
-        arrayNode.addPOJO(TestUtils.getDocument("E", 1397658118004L, new Object[]{"os", "ios", "version", 2, "device", "ipad"}, mapper));
-        arrayNode.addPOJO(TestUtils.getDocument("D", 1397658118003L, new Object[]{"os", "ios", "version", 1, "device", "iphone"}, mapper));
-        arrayNode.addPOJO(TestUtils.getDocument("C", 1397658118002L, new Object[]{"os", "android", "version", 2, "device", "nexus"}, mapper));
-        arrayNode.addPOJO(TestUtils.getDocument("B", 1397658118001L, new Object[]{"os", "android", "version", 1, "device", "galaxy"}, mapper));
-        arrayNode.addPOJO(TestUtils.getDocument("A", 1397658118000L, new Object[]{"os", "android", "version", 1, "device", "nexus"}, mapper));
-        arrayNode.addPOJO(TestUtils.getDocument("Z", 1397658117004L, new Object[]{"os", "android", "device", "nexus", "battery", 24}, mapper));
-        arrayNode.addPOJO(TestUtils.getDocument("Y", 1397658117003L, new Object[]{"os", "android", "device", "nexus", "battery", 48}, mapper));
-        arrayNode.addPOJO(TestUtils.getDocument("X", 1397658117002L, new Object[]{"os", "android", "device", "nexus", "battery", 74}, mapper));
-        arrayNode.addPOJO(TestUtils.getDocument("W", 1397658117001L, new Object[]{"os", "android", "device", "nexus", "battery", 99}, mapper));
-        ObjectNode expectedResponseNode = factory.objectNode();
-        expectedResponseNode.put("opcode", "query");
-        expectedResponseNode.put("documents", arrayNode);
-        String expectedResponse = mapper.writeValueAsString(expectedResponseNode);
+        List<Document> documents = new ArrayList<Document>();
+        documents.add(TestUtils.getDocument("E", 1397658118004L, new Object[]{"os", "ios", "version", 2, "device", "ipad"}, mapper));
+        documents.add(TestUtils.getDocument("D", 1397658118003L, new Object[]{"os", "ios", "version", 1, "device", "iphone"}, mapper));
+        documents.add(TestUtils.getDocument("C", 1397658118002L, new Object[]{"os", "android", "version", 2, "device", "nexus"}, mapper));
+        documents.add(TestUtils.getDocument("B", 1397658118001L, new Object[]{"os", "android", "version", 1, "device", "galaxy"}, mapper));
+        documents.add(TestUtils.getDocument("A", 1397658118000L, new Object[]{"os", "android", "version", 1, "device", "nexus"}, mapper));
+        documents.add(TestUtils.getDocument("Z", 1397658117004L, new Object[]{"os", "android", "device", "nexus", "battery", 24}, mapper));
+        documents.add(TestUtils.getDocument("Y", 1397658117003L, new Object[]{"os", "android", "device", "nexus", "battery", 48}, mapper));
+        documents.add(TestUtils.getDocument("X", 1397658117002L, new Object[]{"os", "android", "device", "nexus", "battery", 74}, mapper));
+        documents.add(TestUtils.getDocument("W", 1397658117001L, new Object[]{"os", "android", "device", "nexus", "battery", 99}, mapper));
 
-        String actualResponse = mapper.writeValueAsString(queryExecutor.execute(query));
-        assertEquals(expectedResponse, actualResponse);
+        QueryResponse actualResponse = QueryResponse.class.cast(queryExecutor.execute(query));
+        compare(documents, actualResponse.getDocuments());
     }
 
     @Test
@@ -244,16 +223,12 @@ public class FilterActionTest {
         equalsFilter.setValue("ios");
         query.setFilters(Collections.<Filter>singletonList(equalsFilter));
 
-        ArrayNode arrayNode = factory.arrayNode();
-        arrayNode.addPOJO(TestUtils.getDocument("E", 1397658118004L, new Object[]{"os", "ios", "version", 2, "device", "ipad"}, mapper));
-        arrayNode.addPOJO(TestUtils.getDocument("D", 1397658118003L, new Object[]{"os", "ios", "version", 1, "device", "iphone"}, mapper));
-        ObjectNode expectedResponseNode = factory.objectNode();
-        expectedResponseNode.put("opcode", "query");
-        expectedResponseNode.put("documents", arrayNode);
-        String expectedResponse = mapper.writeValueAsString(expectedResponseNode);
+        List<Document> documents = new ArrayList<Document>();
+        documents.add(TestUtils.getDocument("E", 1397658118004L, new Object[]{"os", "ios", "version", 2, "device", "ipad"}, mapper));
+        documents.add(TestUtils.getDocument("D", 1397658118003L, new Object[]{"os", "ios", "version", 1, "device", "iphone"}, mapper));
 
-        String actualResponse = mapper.writeValueAsString(queryExecutor.execute(query));
-        assertEquals(expectedResponse, actualResponse);
+        QueryResponse actualResponse = QueryResponse.class.cast(queryExecutor.execute(query));
+        compare(documents, actualResponse.getDocuments());
     }
 
     @Test
@@ -272,17 +247,13 @@ public class FilterActionTest {
         notEqualsFilter.setValue("ios");
         query.setFilters(Collections.<Filter>singletonList(notEqualsFilter));
 
-        ArrayNode arrayNode = factory.arrayNode();
-        arrayNode.addPOJO(TestUtils.getDocument("C", 1397658118002L, new Object[]{"os", "android", "version", 2, "device", "nexus"}, mapper));
-        arrayNode.addPOJO(TestUtils.getDocument("B", 1397658118001L, new Object[]{"os", "android", "version", 1, "device", "galaxy"}, mapper));
-        arrayNode.addPOJO(TestUtils.getDocument("A", 1397658118000L, new Object[]{"os", "android", "version", 1, "device", "nexus"}, mapper));
-        ObjectNode expectedResponseNode = factory.objectNode();
-        expectedResponseNode.put("opcode", "query");
-        expectedResponseNode.put("documents", arrayNode);
-        String expectedResponse = mapper.writeValueAsString(expectedResponseNode);
+        List<Document> documents = new ArrayList<Document>();
+        documents.add(TestUtils.getDocument("C", 1397658118002L, new Object[]{"os", "android", "version", 2, "device", "nexus"}, mapper));
+        documents.add(TestUtils.getDocument("B", 1397658118001L, new Object[]{"os", "android", "version", 1, "device", "galaxy"}, mapper));
+        documents.add(TestUtils.getDocument("A", 1397658118000L, new Object[]{"os", "android", "version", 1, "device", "nexus"}, mapper));
 
-        String actualResponse = mapper.writeValueAsString(queryExecutor.execute(query));
-        assertEquals(expectedResponse, actualResponse);
+        QueryResponse actualResponse = QueryResponse.class.cast(queryExecutor.execute(query));
+        compare(documents, actualResponse.getDocuments());
     }
 
     @Test
@@ -301,16 +272,12 @@ public class FilterActionTest {
         greaterThanFilter.setValue(48);
         query.setFilters(Collections.<Filter>singletonList(greaterThanFilter));
 
-        ArrayNode arrayNode = factory.arrayNode();
-        arrayNode.addPOJO(TestUtils.getDocument("X", 1397658117002L, new Object[]{"os", "android", "device", "nexus", "battery", 74}, mapper));
-        arrayNode.addPOJO(TestUtils.getDocument("W", 1397658117001L, new Object[]{"os", "android", "device", "nexus", "battery", 99}, mapper));
-        ObjectNode expectedResponseNode = factory.objectNode();
-        expectedResponseNode.put("opcode", "query");
-        expectedResponseNode.put("documents", arrayNode);
-        String expectedResponse = mapper.writeValueAsString(expectedResponseNode);
+        List<Document> documents = new ArrayList<Document>();
+        documents.add(TestUtils.getDocument("X", 1397658117002L, new Object[]{"os", "android", "device", "nexus", "battery", 74}, mapper));
+        documents.add(TestUtils.getDocument("W", 1397658117001L, new Object[]{"os", "android", "device", "nexus", "battery", 99}, mapper));
 
-        String actualResponse = mapper.writeValueAsString(queryExecutor.execute(query));
-        assertEquals(expectedResponse, actualResponse);
+        QueryResponse actualResponse = QueryResponse.class.cast(queryExecutor.execute(query));
+        compare(documents, actualResponse.getDocuments());
     }
 
     @Test
@@ -329,17 +296,13 @@ public class FilterActionTest {
         greaterEqualFilter.setValue(48);
         query.setFilters(Collections.<Filter>singletonList(greaterEqualFilter));
 
-        ArrayNode arrayNode = factory.arrayNode();
-        arrayNode.addPOJO(TestUtils.getDocument("Y", 1397658117003L, new Object[]{"os", "android", "device", "nexus", "battery", 48}, mapper));
-        arrayNode.addPOJO(TestUtils.getDocument("X", 1397658117002L, new Object[]{"os", "android", "device", "nexus", "battery", 74}, mapper));
-        arrayNode.addPOJO(TestUtils.getDocument("W", 1397658117001L, new Object[]{"os", "android", "device", "nexus", "battery", 99}, mapper));
-        ObjectNode expectedResponseNode = factory.objectNode();
-        expectedResponseNode.put("opcode", "query");
-        expectedResponseNode.put("documents", arrayNode);
-        String expectedResponse = mapper.writeValueAsString(expectedResponseNode);
+        List<Document> documents = new ArrayList<Document>();
+        documents.add(TestUtils.getDocument("Y", 1397658117003L, new Object[]{"os", "android", "device", "nexus", "battery", 48}, mapper));
+        documents.add(TestUtils.getDocument("X", 1397658117002L, new Object[]{"os", "android", "device", "nexus", "battery", 74}, mapper));
+        documents.add(TestUtils.getDocument("W", 1397658117001L, new Object[]{"os", "android", "device", "nexus", "battery", 99}, mapper));
 
-        String actualResponse = mapper.writeValueAsString(queryExecutor.execute(query));
-        assertEquals(expectedResponse, actualResponse);
+        QueryResponse actualResponse = QueryResponse.class.cast(queryExecutor.execute(query));
+        compare(documents, actualResponse.getDocuments());
     }
 
     @Test
@@ -358,15 +321,10 @@ public class FilterActionTest {
         lessThanFilter.setValue(48);
         query.setFilters(Collections.<Filter>singletonList(lessThanFilter));
 
-        ArrayNode arrayNode = factory.arrayNode();
-        arrayNode.addPOJO(TestUtils.getDocument("Z", 1397658117004L, new Object[]{"os", "android", "device", "nexus", "battery", 24}, mapper));
-        ObjectNode expectedResponseNode = factory.objectNode();
-        expectedResponseNode.put("opcode", "query");
-        expectedResponseNode.put("documents", arrayNode);
-        String expectedResponse = mapper.writeValueAsString(expectedResponseNode);
-
-        String actualResponse = mapper.writeValueAsString(queryExecutor.execute(query));
-        assertEquals(expectedResponse, actualResponse);
+        List<Document> documents = new ArrayList<Document>();
+        documents.add(TestUtils.getDocument("Z", 1397658117004L, new Object[]{"os", "android", "device", "nexus", "battery", 24}, mapper));
+        QueryResponse actualResponse = QueryResponse.class.cast(queryExecutor.execute(query));
+        compare(documents, actualResponse.getDocuments());
     }
 
     @Test
@@ -385,16 +343,11 @@ public class FilterActionTest {
         lessEqualFilter.setValue(48);
         query.setFilters(Collections.<Filter>singletonList(lessEqualFilter));
 
-        ArrayNode arrayNode = factory.arrayNode();
-        arrayNode.addPOJO(TestUtils.getDocument("Z", 1397658117004L, new Object[]{"os", "android", "device", "nexus", "battery", 24}, mapper));
-        arrayNode.addPOJO(TestUtils.getDocument("Y", 1397658117003L, new Object[]{"os", "android", "device", "nexus", "battery", 48}, mapper));
-        ObjectNode expectedResponseNode = factory.objectNode();
-        expectedResponseNode.put("opcode", "query");
-        expectedResponseNode.put("documents", arrayNode);
-        String expectedResponse = mapper.writeValueAsString(expectedResponseNode);
-
-        String actualResponse = mapper.writeValueAsString(queryExecutor.execute(query));
-        assertEquals(expectedResponse, actualResponse);
+        List<Document> documents = new ArrayList<Document>();
+        documents.add(TestUtils.getDocument("Z", 1397658117004L, new Object[]{"os", "android", "device", "nexus", "battery", 24}, mapper));
+        documents.add(TestUtils.getDocument("Y", 1397658117003L, new Object[]{"os", "android", "device", "nexus", "battery", 48}, mapper));
+        QueryResponse actualResponse = QueryResponse.class.cast(queryExecutor.execute(query));
+        compare(documents, actualResponse.getDocuments());
     }
 
     @Test
@@ -414,16 +367,11 @@ public class FilterActionTest {
         betweenFilter.setTo(75);
         query.setFilters(Collections.<Filter>singletonList(betweenFilter));
 
-        ArrayNode arrayNode = factory.arrayNode();
-        arrayNode.addPOJO(TestUtils.getDocument("Y", 1397658117003L, new Object[]{"os", "android", "device", "nexus", "battery", 48}, mapper));
-        arrayNode.addPOJO(TestUtils.getDocument("X", 1397658117002L, new Object[]{"os", "android", "device", "nexus", "battery", 74}, mapper));
-        ObjectNode expectedResponseNode = factory.objectNode();
-        expectedResponseNode.put("opcode", "query");
-        expectedResponseNode.put("documents", arrayNode);
-        String expectedResponse = mapper.writeValueAsString(expectedResponseNode);
-
-        String actualResponse = mapper.writeValueAsString(queryExecutor.execute(query));
-        assertEquals(expectedResponse, actualResponse);
+        List<Document> documents = new ArrayList<Document>();
+        documents.add(TestUtils.getDocument("Y", 1397658117003L, new Object[]{"os", "android", "device", "nexus", "battery", 48}, mapper));
+        documents.add(TestUtils.getDocument("X", 1397658117002L, new Object[]{"os", "android", "device", "nexus", "battery", 74}, mapper));
+        QueryResponse actualResponse = QueryResponse.class.cast(queryExecutor.execute(query));
+        compare(documents, actualResponse.getDocuments());
     }
 
     @Test
@@ -441,21 +389,17 @@ public class FilterActionTest {
         containsFilter.setValue("*droid*");
         query.setFilters(Collections.<Filter>singletonList(containsFilter));
 
-        ArrayNode arrayNode = factory.arrayNode();
-        arrayNode.addPOJO(TestUtils.getDocument("C", 1397658118002L, new Object[]{"os", "android", "version", 2, "device", "nexus"}, mapper));
-        arrayNode.addPOJO(TestUtils.getDocument("B", 1397658118001L, new Object[]{"os", "android", "version", 1, "device", "galaxy"}, mapper));
-        arrayNode.addPOJO(TestUtils.getDocument("A", 1397658118000L, new Object[]{"os", "android", "version", 1, "device", "nexus"}, mapper));
-        arrayNode.addPOJO(TestUtils.getDocument("Z", 1397658117004L, new Object[]{"os", "android", "device", "nexus", "battery", 24}, mapper));
-        arrayNode.addPOJO(TestUtils.getDocument("Y", 1397658117003L, new Object[]{"os", "android", "device", "nexus", "battery", 48}, mapper));
-        arrayNode.addPOJO(TestUtils.getDocument("X", 1397658117002L, new Object[]{"os", "android", "device", "nexus", "battery", 74}, mapper));
-        arrayNode.addPOJO(TestUtils.getDocument("W", 1397658117001L, new Object[]{"os", "android", "device", "nexus", "battery", 99}, mapper));
-        ObjectNode expectedResponseNode = factory.objectNode();
-        expectedResponseNode.put("opcode", "query");
-        expectedResponseNode.put("documents", arrayNode);
-        String expectedResponse = mapper.writeValueAsString(expectedResponseNode);
+        List<Document> documents = new ArrayList<Document>();
+        documents.add(TestUtils.getDocument("C", 1397658118002L, new Object[]{"os", "android", "version", 2, "device", "nexus"}, mapper));
+        documents.add(TestUtils.getDocument("B", 1397658118001L, new Object[]{"os", "android", "version", 1, "device", "galaxy"}, mapper));
+        documents.add(TestUtils.getDocument("A", 1397658118000L, new Object[]{"os", "android", "version", 1, "device", "nexus"}, mapper));
+        documents.add(TestUtils.getDocument("Z", 1397658117004L, new Object[]{"os", "android", "device", "nexus", "battery", 24}, mapper));
+        documents.add(TestUtils.getDocument("Y", 1397658117003L, new Object[]{"os", "android", "device", "nexus", "battery", 48}, mapper));
+        documents.add(TestUtils.getDocument("X", 1397658117002L, new Object[]{"os", "android", "device", "nexus", "battery", 74}, mapper));
+        documents.add(TestUtils.getDocument("W", 1397658117001L, new Object[]{"os", "android", "device", "nexus", "battery", 99}, mapper));
 
-        String actualResponse = mapper.writeValueAsString(queryExecutor.execute(query));
-        assertEquals(expectedResponse, actualResponse);
+        QueryResponse actualResponse = QueryResponse.class.cast(queryExecutor.execute(query));
+        compare(documents, actualResponse.getDocuments());
     }
 
     @Test
@@ -468,14 +412,9 @@ public class FilterActionTest {
         equalsFilter.setValue("wp8");
         query.setFilters(Collections.<Filter>singletonList(equalsFilter));
 
-        ArrayNode arrayNode = factory.arrayNode();
-        ObjectNode expectedResponseNode = factory.objectNode();
-        expectedResponseNode.put("opcode", "query");
-        expectedResponseNode.put("documents", arrayNode);
-        String expectedResponse = mapper.writeValueAsString(expectedResponseNode);
-
-        String actualResponse = mapper.writeValueAsString(queryExecutor.execute(query));
-        assertEquals(expectedResponse, actualResponse);
+        List<Document> documents = new ArrayList<Document>();
+        QueryResponse actualResponse = QueryResponse.class.cast(queryExecutor.execute(query));
+        compare(documents, actualResponse.getDocuments());
     }
 
     @Test
@@ -496,14 +435,9 @@ public class FilterActionTest {
         filters.add(greaterEqualFilter);
         query.setFilters(filters);
 
-        ArrayNode arrayNode = factory.arrayNode();
-        ObjectNode expectedResponseNode = factory.objectNode();
-        expectedResponseNode.put("opcode", "query");
-        expectedResponseNode.put("documents", arrayNode);
-        String expectedResponse = mapper.writeValueAsString(expectedResponseNode);
-
-        String actualResponse = mapper.writeValueAsString(queryExecutor.execute(query));
-        assertEquals(expectedResponse, actualResponse);
+        List<Document> documents = new ArrayList<Document>();
+        QueryResponse actualResponse = QueryResponse.class.cast(queryExecutor.execute(query));
+        compare(documents, actualResponse.getDocuments());
     }
 
     @Test
@@ -524,15 +458,10 @@ public class FilterActionTest {
         filters.add(greaterEqualFilter);
         query.setFilters(filters);
 
-        ArrayNode arrayNode = factory.arrayNode();
-        arrayNode.addPOJO(TestUtils.getDocument("W", 1397658117001L, new Object[]{"os", "android", "device", "nexus", "battery", 99}, mapper));
-        ObjectNode expectedResponseNode = factory.objectNode();
-        expectedResponseNode.put("opcode", "query");
-        expectedResponseNode.put("documents", arrayNode);
-        String expectedResponse = mapper.writeValueAsString(expectedResponseNode);
-
-        String actualResponse = mapper.writeValueAsString(queryExecutor.execute(query));
-        assertEquals(expectedResponse, actualResponse);
+        List<Document> documents = new ArrayList<Document>();
+        documents.add(TestUtils.getDocument("W", 1397658117001L, new Object[]{"os", "android", "device", "nexus", "battery", 99}, mapper));
+        QueryResponse actualResponse = QueryResponse.class.cast(queryExecutor.execute(query));
+        compare(documents, actualResponse.getDocuments());
     }
 
     @Test
@@ -560,22 +489,18 @@ public class FilterActionTest {
 
         query.setCombiner(FilterCombinerType.or);
 
-        ArrayNode arrayNode = factory.arrayNode();
-        arrayNode.addPOJO(TestUtils.getDocument("E", 1397658118004L, new Object[]{"os", "ios", "version", 2, "device", "ipad"}, mapper));
-        arrayNode.addPOJO(TestUtils.getDocument("D", 1397658118003L, new Object[]{"os", "ios", "version", 1, "device", "iphone"}, mapper));
-        arrayNode.addPOJO(TestUtils.getDocument("C", 1397658118002L, new Object[]{"os", "android", "version", 2, "device", "nexus"}, mapper));
-        arrayNode.addPOJO(TestUtils.getDocument("A", 1397658118000L, new Object[]{"os", "android", "version", 1, "device", "nexus"}, mapper));
-        arrayNode.addPOJO(TestUtils.getDocument("Z", 1397658117004L, new Object[]{"os", "android", "device", "nexus", "battery", 24}, mapper));
-        arrayNode.addPOJO(TestUtils.getDocument("Y", 1397658117003L, new Object[]{"os", "android", "device", "nexus", "battery", 48}, mapper));
-        arrayNode.addPOJO(TestUtils.getDocument("X", 1397658117002L, new Object[]{"os", "android", "device", "nexus", "battery", 74}, mapper));
-        arrayNode.addPOJO(TestUtils.getDocument("W", 1397658117001L, new Object[]{"os", "android", "device", "nexus", "battery", 99}, mapper));
-        ObjectNode expectedResponseNode = factory.objectNode();
-        expectedResponseNode.put("opcode", "query");
-        expectedResponseNode.put("documents", arrayNode);
-        String expectedResponse = mapper.writeValueAsString(expectedResponseNode);
+        List<Document> documents = new ArrayList<Document>();
+        documents.add(TestUtils.getDocument("E", 1397658118004L, new Object[]{"os", "ios", "version", 2, "device", "ipad"}, mapper));
+        documents.add(TestUtils.getDocument("D", 1397658118003L, new Object[]{"os", "ios", "version", 1, "device", "iphone"}, mapper));
+        documents.add(TestUtils.getDocument("C", 1397658118002L, new Object[]{"os", "android", "version", 2, "device", "nexus"}, mapper));
+        documents.add(TestUtils.getDocument("A", 1397658118000L, new Object[]{"os", "android", "version", 1, "device", "nexus"}, mapper));
+        documents.add(TestUtils.getDocument("Z", 1397658117004L, new Object[]{"os", "android", "device", "nexus", "battery", 24}, mapper));
+        documents.add(TestUtils.getDocument("Y", 1397658117003L, new Object[]{"os", "android", "device", "nexus", "battery", 48}, mapper));
+        documents.add(TestUtils.getDocument("X", 1397658117002L, new Object[]{"os", "android", "device", "nexus", "battery", 74}, mapper));
+        documents.add(TestUtils.getDocument("W", 1397658117001L, new Object[]{"os", "android", "device", "nexus", "battery", 99}, mapper));
 
-        String actualResponse = mapper.writeValueAsString(queryExecutor.execute(query));
-        assertEquals(expectedResponse, actualResponse);
+        QueryResponse actualResponse = QueryResponse.class.cast(queryExecutor.execute(query));
+        compare(documents, actualResponse.getDocuments());
     }
 
     @Test
@@ -596,15 +521,10 @@ public class FilterActionTest {
         query.setFrom(1);
         query.setLimit(1);
 
-        ArrayNode arrayNode = factory.arrayNode();
-        arrayNode.addPOJO(TestUtils.getDocument("D", 1397658118003L, new Object[]{"os", "ios", "version", 1, "device", "iphone"}, mapper));
-        ObjectNode expectedResponseNode = factory.objectNode();
-        expectedResponseNode.put("opcode", "query");
-        expectedResponseNode.put("documents", arrayNode);
-        String expectedResponse = mapper.writeValueAsString(expectedResponseNode);
-
-        String actualResponse = mapper.writeValueAsString(queryExecutor.execute(query));
-        assertEquals(expectedResponse, actualResponse);
+        List<Document> documents = new ArrayList<Document>();
+        documents.add(TestUtils.getDocument("D", 1397658118003L, new Object[]{"os", "ios", "version", 1, "device", "iphone"}, mapper));
+        QueryResponse actualResponse = QueryResponse.class.cast(queryExecutor.execute(query));
+        compare(documents, actualResponse.getDocuments());
     }
 
     @Test
@@ -625,18 +545,15 @@ public class FilterActionTest {
         query.setFrom(1);
         query.setLimit(1);
 
-        ArrayNode arrayNode = factory.arrayNode();
-        arrayNode.addPOJO(TestUtils.getDocument("D", 1397658118003L, new Object[]{"os", "ios", "version", 1, "device", "iphone"}, mapper));
-        ObjectNode expectedResponseNode = factory.objectNode();
-        expectedResponseNode.put("opcode", "query");
-        expectedResponseNode.put("documents", arrayNode);
-        String expectedResponse = mapper.writeValueAsString(expectedResponseNode);
+        List<Document> documents = new ArrayList<Document>();
+        documents.add(TestUtils.getDocument("D", 1397658118003L, new Object[]{"os", "ios", "version", 1, "device", "iphone"}, mapper));
+        QueryResponse actualResponse = QueryResponse.class.cast(queryExecutor.execute(query));
+        compare(documents, actualResponse.getDocuments());
 
         AsyncDataToken response = queryExecutor.executeAsync(query);
         Thread.sleep(200);
         ActionResponse actionResponse = CacheUtils.getCacheFor(response.getAction()).get(response.getKey());
-        String actualResponse = mapper.writeValueAsString(actionResponse);
-        assertEquals(expectedResponse, actualResponse);
+        compare(documents, QueryResponse.class.cast(actionResponse).getDocuments());
     }
 
     @Test
@@ -650,23 +567,19 @@ public class FilterActionTest {
         resultSort.setField("_timestamp");
         query.setSort(resultSort);
 
-        ArrayNode arrayNode = factory.arrayNode();
-        arrayNode.addPOJO(TestUtils.getDocument("E", 1397658118004L, new Object[]{"os", "ios", "version", 2, "device", "ipad"}, mapper));
-        arrayNode.addPOJO(TestUtils.getDocument("D", 1397658118003L, new Object[]{"os", "ios", "version", 1, "device", "iphone"}, mapper));
-        arrayNode.addPOJO(TestUtils.getDocument("C", 1397658118002L, new Object[]{"os", "android", "version", 2, "device", "nexus"}, mapper));
-        arrayNode.addPOJO(TestUtils.getDocument("B", 1397658118001L, new Object[]{"os", "android", "version", 1, "device", "galaxy"}, mapper));
-        arrayNode.addPOJO(TestUtils.getDocument("A", 1397658118000L, new Object[]{"os", "android", "version", 1, "device", "nexus"}, mapper));
-        arrayNode.addPOJO(TestUtils.getDocument("Z", 1397658117004L, new Object[]{"os", "android", "device", "nexus", "battery", 24}, mapper));
-        arrayNode.addPOJO(TestUtils.getDocument("Y", 1397658117003L, new Object[]{"os", "android", "device", "nexus", "battery", 48}, mapper));
-        arrayNode.addPOJO(TestUtils.getDocument("X", 1397658117002L, new Object[]{"os", "android", "device", "nexus", "battery", 74}, mapper));
-        arrayNode.addPOJO(TestUtils.getDocument("W", 1397658117001L, new Object[]{"os", "android", "device", "nexus", "battery", 99}, mapper));
-        ObjectNode expectedResponseNode = factory.objectNode();
-        expectedResponseNode.put("opcode", "query");
-        expectedResponseNode.put("documents", arrayNode);
-        String expectedResponse = mapper.writeValueAsString(expectedResponseNode);
+        List<Document> documents = new ArrayList<Document>();
+        documents.add(TestUtils.getDocument("E", 1397658118004L, new Object[]{"os", "ios", "version", 2, "device", "ipad"}, mapper));
+        documents.add(TestUtils.getDocument("D", 1397658118003L, new Object[]{"os", "ios", "version", 1, "device", "iphone"}, mapper));
+        documents.add(TestUtils.getDocument("C", 1397658118002L, new Object[]{"os", "android", "version", 2, "device", "nexus"}, mapper));
+        documents.add(TestUtils.getDocument("B", 1397658118001L, new Object[]{"os", "android", "version", 1, "device", "galaxy"}, mapper));
+        documents.add(TestUtils.getDocument("A", 1397658118000L, new Object[]{"os", "android", "version", 1, "device", "nexus"}, mapper));
+        documents.add(TestUtils.getDocument("Z", 1397658117004L, new Object[]{"os", "android", "device", "nexus", "battery", 24}, mapper));
+        documents.add(TestUtils.getDocument("Y", 1397658117003L, new Object[]{"os", "android", "device", "nexus", "battery", 48}, mapper));
+        documents.add(TestUtils.getDocument("X", 1397658117002L, new Object[]{"os", "android", "device", "nexus", "battery", 74}, mapper));
+        documents.add(TestUtils.getDocument("W", 1397658117001L, new Object[]{"os", "android", "device", "nexus", "battery", 99}, mapper));
 
-        String actualResponse = mapper.writeValueAsString(queryExecutor.execute(query));
-        assertEquals(expectedResponse, actualResponse);
+        QueryResponse actualResponse = QueryResponse.class.cast(queryExecutor.execute(query));
+        compare(documents, actualResponse.getDocuments());
     }
 
     @Test
@@ -680,23 +593,19 @@ public class FilterActionTest {
         resultSort.setField("_timestamp");
         query.setSort(resultSort);
 
-        ArrayNode arrayNode = factory.arrayNode();
-        arrayNode.addPOJO(TestUtils.getDocument("E", 1397658118004L, new Object[]{"os", "ios", "version", 2, "device", "ipad"}, mapper));
-        arrayNode.addPOJO(TestUtils.getDocument("D", 1397658118003L, new Object[]{"os", "ios", "version", 1, "device", "iphone"}, mapper));
-        arrayNode.addPOJO(TestUtils.getDocument("C", 1397658118002L, new Object[]{"os", "android", "version", 2, "device", "nexus"}, mapper));
-        arrayNode.addPOJO(TestUtils.getDocument("B", 1397658118001L, new Object[]{"os", "android", "version", 1, "device", "galaxy"}, mapper));
-        arrayNode.addPOJO(TestUtils.getDocument("A", 1397658118000L, new Object[]{"os", "android", "version", 1, "device", "nexus"}, mapper));
-        arrayNode.addPOJO(TestUtils.getDocument("Z", 1397658117004L, new Object[]{"os", "android", "device", "nexus", "battery", 24}, mapper));
-        arrayNode.addPOJO(TestUtils.getDocument("Y", 1397658117003L, new Object[]{"os", "android", "device", "nexus", "battery", 48}, mapper));
-        arrayNode.addPOJO(TestUtils.getDocument("X", 1397658117002L, new Object[]{"os", "android", "device", "nexus", "battery", 74}, mapper));
-        arrayNode.addPOJO(TestUtils.getDocument("W", 1397658117001L, new Object[]{"os", "android", "device", "nexus", "battery", 99}, mapper));
-        ObjectNode expectedResponseNode = factory.objectNode();
-        expectedResponseNode.put("opcode", "query");
-        expectedResponseNode.put("documents", arrayNode);
-        String expectedResponse = mapper.writeValueAsString(expectedResponseNode);
+        List<Document> documents = new ArrayList<Document>();
+        documents.add(TestUtils.getDocument("E", 1397658118004L, new Object[]{"os", "ios", "version", 2, "device", "ipad"}, mapper));
+        documents.add(TestUtils.getDocument("D", 1397658118003L, new Object[]{"os", "ios", "version", 1, "device", "iphone"}, mapper));
+        documents.add(TestUtils.getDocument("C", 1397658118002L, new Object[]{"os", "android", "version", 2, "device", "nexus"}, mapper));
+        documents.add(TestUtils.getDocument("B", 1397658118001L, new Object[]{"os", "android", "version", 1, "device", "galaxy"}, mapper));
+        documents.add(TestUtils.getDocument("A", 1397658118000L, new Object[]{"os", "android", "version", 1, "device", "nexus"}, mapper));
+        documents.add(TestUtils.getDocument("Z", 1397658117004L, new Object[]{"os", "android", "device", "nexus", "battery", 24}, mapper));
+        documents.add(TestUtils.getDocument("Y", 1397658117003L, new Object[]{"os", "android", "device", "nexus", "battery", 48}, mapper));
+        documents.add(TestUtils.getDocument("X", 1397658117002L, new Object[]{"os", "android", "device", "nexus", "battery", 74}, mapper));
+        documents.add(TestUtils.getDocument("W", 1397658117001L, new Object[]{"os", "android", "device", "nexus", "battery", 99}, mapper));
 
-        String actualResponse = mapper.writeValueAsString(queryExecutor.execute(query));
-        assertEquals(expectedResponse, actualResponse);
+        QueryResponse actualResponse = QueryResponse.class.cast(queryExecutor.execute(query));
+        compare(documents, actualResponse.getDocuments());
     }
 
     @Test
@@ -707,23 +616,19 @@ public class FilterActionTest {
         query.setCombiner(FilterCombinerType.and);
         query.setSort(null);
 
-        ArrayNode arrayNode = factory.arrayNode();
-        arrayNode.addPOJO(TestUtils.getDocument("E", 1397658118004L, new Object[]{"os", "ios", "version", 2, "device", "ipad"}, mapper));
-        arrayNode.addPOJO(TestUtils.getDocument("D", 1397658118003L, new Object[]{"os", "ios", "version", 1, "device", "iphone"}, mapper));
-        arrayNode.addPOJO(TestUtils.getDocument("C", 1397658118002L, new Object[]{"os", "android", "version", 2, "device", "nexus"}, mapper));
-        arrayNode.addPOJO(TestUtils.getDocument("B", 1397658118001L, new Object[]{"os", "android", "version", 1, "device", "galaxy"}, mapper));
-        arrayNode.addPOJO(TestUtils.getDocument("A", 1397658118000L, new Object[]{"os", "android", "version", 1, "device", "nexus"}, mapper));
-        arrayNode.addPOJO(TestUtils.getDocument("Z", 1397658117004L, new Object[]{"os", "android", "device", "nexus", "battery", 24}, mapper));
-        arrayNode.addPOJO(TestUtils.getDocument("Y", 1397658117003L, new Object[]{"os", "android", "device", "nexus", "battery", 48}, mapper));
-        arrayNode.addPOJO(TestUtils.getDocument("X", 1397658117002L, new Object[]{"os", "android", "device", "nexus", "battery", 74}, mapper));
-        arrayNode.addPOJO(TestUtils.getDocument("W", 1397658117001L, new Object[]{"os", "android", "device", "nexus", "battery", 99}, mapper));
-        ObjectNode expectedResponseNode = factory.objectNode();
-        expectedResponseNode.put("opcode", "query");
-        expectedResponseNode.put("documents", arrayNode);
-        String expectedResponse = mapper.writeValueAsString(expectedResponseNode);
+        List<Document> documents = new ArrayList<Document>();
+        documents.add(TestUtils.getDocument("E", 1397658118004L, new Object[]{"os", "ios", "version", 2, "device", "ipad"}, mapper));
+        documents.add(TestUtils.getDocument("D", 1397658118003L, new Object[]{"os", "ios", "version", 1, "device", "iphone"}, mapper));
+        documents.add(TestUtils.getDocument("C", 1397658118002L, new Object[]{"os", "android", "version", 2, "device", "nexus"}, mapper));
+        documents.add(TestUtils.getDocument("B", 1397658118001L, new Object[]{"os", "android", "version", 1, "device", "galaxy"}, mapper));
+        documents.add(TestUtils.getDocument("A", 1397658118000L, new Object[]{"os", "android", "version", 1, "device", "nexus"}, mapper));
+        documents.add(TestUtils.getDocument("Z", 1397658117004L, new Object[]{"os", "android", "device", "nexus", "battery", 24}, mapper));
+        documents.add(TestUtils.getDocument("Y", 1397658117003L, new Object[]{"os", "android", "device", "nexus", "battery", 48}, mapper));
+        documents.add(TestUtils.getDocument("X", 1397658117002L, new Object[]{"os", "android", "device", "nexus", "battery", 74}, mapper));
+        documents.add(TestUtils.getDocument("W", 1397658117001L, new Object[]{"os", "android", "device", "nexus", "battery", 99}, mapper));
 
-        String actualResponse = mapper.writeValueAsString(queryExecutor.execute(query));
-        assertEquals(expectedResponse, actualResponse);
+        QueryResponse actualResponse = QueryResponse.class.cast(queryExecutor.execute(query));
+        compare(documents, actualResponse.getDocuments());
     }
 
     //TODO How to verify if cached data is returned.
@@ -745,14 +650,26 @@ public class FilterActionTest {
         query.setFrom(1);
         query.setLimit(1);
 
-        ArrayNode arrayNode = factory.arrayNode();
-        arrayNode.addPOJO(TestUtils.getDocument("D", 1397658118003L, new Object[]{"os", "ios", "version", 1, "device", "iphone"}, mapper));
-        ObjectNode expectedResponseNode = factory.objectNode();
-        expectedResponseNode.put("opcode", "query");
-        expectedResponseNode.put("documents", arrayNode);
-        String expectedResponse = mapper.writeValueAsString(expectedResponseNode);
+        List<Document> documents = new ArrayList<Document>();
+        documents.add(TestUtils.getDocument("D", 1397658118003L, new Object[]{"os", "ios", "version", 1, "device", "iphone"}, mapper));
+        QueryResponse actualResponse = QueryResponse.class.cast(queryExecutor.execute(query));
+        compare(documents, actualResponse.getDocuments());
+    }
 
-        assertEquals(expectedResponse, mapper.writeValueAsString(queryExecutor.execute(query)));
-        assertEquals(expectedResponse, mapper.writeValueAsString(queryExecutor.execute(query)));
+    public void compare(List<Document> expectedDocuments, List<Document> actualDocuments){
+        assertEquals(expectedDocuments.size(), actualDocuments.size());
+        for (int i = 0 ; i < expectedDocuments.size(); i++){
+            Document expected = expectedDocuments.get(i);
+            Document actual = actualDocuments.get(i);
+            assertNotNull(expected);
+            assertNotNull(actual);
+            assertNotNull("Actual document Id should not be null", actual.getId());
+            assertNotNull("Actual document data should not be null", actual.getData());
+            assertEquals("Actual Doc Id should match expected Doc Id", expected.getId(), actual.getId());
+            assertEquals("Actual Doc Timestamp should match expected Doc Timestamp", expected.getTimestamp(), actual.getTimestamp());
+            Map<String, Object> expectedMap = mapper.convertValue(expected.getData(), new TypeReference<HashMap<String, Object>>() {});
+            Map<String, Object> actualMap = mapper.convertValue(actual.getData(), new TypeReference<HashMap<String, Object>>() {});
+            assertEquals("Actual data should match expected data", expectedMap, actualMap);
+        }
     }
 }

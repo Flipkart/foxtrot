@@ -17,8 +17,6 @@ package com.flipkart.foxtrot.core.querystore.impl;
 
 import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.flipkart.foxtrot.common.ActionResponse;
 import com.flipkart.foxtrot.common.group.GroupResponse;
 import com.flipkart.foxtrot.core.TestUtils;
@@ -44,7 +42,6 @@ public class DistributedCacheTest {
     private DistributedCache distributedCache;
     private HazelcastInstance hazelcastInstance;
     private ObjectMapper mapper;
-    private JsonNodeFactory factory;
 
     @Before
     public void setUp() throws Exception {
@@ -57,7 +54,6 @@ public class DistributedCacheTest {
         CacheUtils.setCacheFactory(new DistributedCacheFactory(hazelcastConnection, mapper));
         AnalyticsLoader analyticsLoader = new AnalyticsLoader(null, null);
         TestUtils.registerActions(analyticsLoader, mapper);
-        factory = JsonNodeFactory.instance;
     }
 
     @After
@@ -67,25 +63,20 @@ public class DistributedCacheTest {
 
     @Test
     public void testPut() throws Exception {
-        ActionResponse actionResponse = new GroupResponse(Collections.<String, Object>singletonMap("Hello", "world"));
-        ActionResponse returnResponse = distributedCache.put("DUMMY_KEY_PUT", actionResponse);
-        assertEquals(actionResponse, returnResponse);
-        ObjectNode resultNode = factory.objectNode();
-        resultNode.put("opcode", "group");
-        resultNode.put("result", factory.objectNode().put("Hello", "world"));
-        String expectedResponse = mapper.writeValueAsString(resultNode);
-        String actualResponse = mapper.writeValueAsString(distributedCache.get("DUMMY_KEY_PUT"));
-        assertEquals(expectedResponse, actualResponse);
+        ActionResponse expectedResponse = new GroupResponse(Collections.<String, Object>singletonMap("Hello", "world"));
+        ActionResponse returnResponse = distributedCache.put("DUMMY_KEY_PUT", expectedResponse);
+        assertEquals(expectedResponse, returnResponse);
+
+        GroupResponse actualResponse = GroupResponse.class.cast(distributedCache.get("DUMMY_KEY_PUT"));
+        assertEquals(GroupResponse.class.cast(expectedResponse).getResult(), actualResponse.getResult());
     }
 
     @Test
     public void testPutCacheException() throws Exception {
         doThrow(new JsonGenerationException("TEST_EXCEPTION")).when(mapper).writeValueAsString(any());
-
         ActionResponse returnResponse = distributedCache.put("DUMMY_KEY_PUT", null);
         verify(mapper, times(1)).writeValueAsString(any());
         assertNull(returnResponse);
-
         assertNull(hazelcastInstance.getMap("TEST").get("DUMMY_KEY_PUT"));
     }
 
@@ -103,10 +94,6 @@ public class DistributedCacheTest {
     @Test
     public void testGetInvalidKeyValue() throws Exception {
         assertNull(distributedCache.get("DUMMY_KEY_GET"));
-    }
-
-    public void testGetMissing() throws Exception {
-        assertNull(distributedCache.get("DUMMY_KEY_MISSING"));
     }
 
     @Test

@@ -55,6 +55,26 @@ public class TrendResponse implements ActionResponse {
         public void setCount(long count) {
             this.count = count;
         }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (!(o instanceof Count)) return false;
+
+            Count count1 = (Count) o;
+
+            if (count != count1.count) return false;
+            if (!period.equals(count1.period)) return false;
+
+            return true;
+        }
+
+        @Override
+        public int hashCode() {
+            int result = period.hashCode();
+            result = 31 * result + (int) (count ^ (count >>> 32));
+            return result;
+        }
     }
 
     private Map<String, List<Count>> trends;
@@ -80,4 +100,20 @@ public class TrendResponse implements ActionResponse {
         visitor.visit(this);
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof TrendResponse)) return false;
+
+        TrendResponse that = (TrendResponse) o;
+
+        if (!trends.equals(that.trends)) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        return trends.hashCode();
+    }
 }

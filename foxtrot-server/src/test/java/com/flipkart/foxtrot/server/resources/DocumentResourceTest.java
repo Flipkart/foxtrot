@@ -15,6 +15,7 @@
  */
 package com.flipkart.foxtrot.server.resources;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.flipkart.foxtrot.common.Document;
@@ -44,10 +45,7 @@ import org.mockito.Mockito;
 
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
-import java.util.Vector;
+import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -365,8 +363,8 @@ public class DocumentResourceTest extends ResourceTest {
         assertNotNull("Actual document data should not be null", actual.getData());
         assertEquals("Actual Doc Id should match expected Doc Id", expected.getId(), actual.getId());
         assertEquals("Actual Doc Timestamp should match expected Doc Timestamp", expected.getTimestamp(), actual.getTimestamp());
-        String expectedData = mapper.writeValueAsString(expected.getData());
-        String actualData = mapper.writeValueAsString(actual.getData());
-        assertEquals("Actual data should match expected data", expectedData, actualData);
+        Map<String, Object> expectedMap = mapper.convertValue(expected.getData(), new TypeReference<HashMap<String, Object>>() {});
+        Map<String, Object> actualMap = mapper.convertValue(actual.getData(), new TypeReference<HashMap<String, Object>>() {});
+        assertEquals("Actual data should match expected data", expectedMap, actualMap);
     }
 }

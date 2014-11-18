@@ -17,13 +17,12 @@ package com.flipkart.foxtrot.core.querystore.actions;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.flipkart.foxtrot.common.Document;
 import com.flipkart.foxtrot.common.Period;
 import com.flipkart.foxtrot.common.query.Filter;
 import com.flipkart.foxtrot.common.query.general.EqualsFilter;
 import com.flipkart.foxtrot.common.trend.TrendRequest;
+import com.flipkart.foxtrot.common.trend.TrendResponse;
 import com.flipkart.foxtrot.core.MockElasticsearchServer;
 import com.flipkart.foxtrot.core.TestUtils;
 import com.flipkart.foxtrot.core.common.CacheUtils;
@@ -33,6 +32,7 @@ import com.flipkart.foxtrot.core.querystore.QueryStoreException;
 import com.flipkart.foxtrot.core.querystore.TableMetadataManager;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsLoader;
 import com.flipkart.foxtrot.core.querystore.impl.*;
+import com.google.common.collect.Lists;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.test.TestHazelcastInstanceFactory;
 import org.junit.After;
@@ -56,7 +56,6 @@ public class TrendActionTest {
     private ObjectMapper mapper = new ObjectMapper();
     private MockElasticsearchServer elasticsearchServer;
     private HazelcastInstance hazelcastInstance;
-    private JsonNodeFactory factory = JsonNodeFactory.instance;
     private ElasticsearchQueryStore queryStore;
 
     @Before
@@ -119,12 +118,6 @@ public class TrendActionTest {
         trendRequest.setTo(System.currentTimeMillis());
         trendRequest.setField(null);
 
-        ObjectNode result = factory.objectNode();
-        result.put("opcode", "trend");
-        ObjectNode trends = factory.objectNode();
-        result.put("trends", trends);
-
-        String expectedResponse = mapper.writeValueAsString(result);
         try {
             queryExecutor.execute(trendRequest);
         } catch (Exception e) {
@@ -144,13 +137,10 @@ public class TrendActionTest {
         trendRequest.setField("all");
         trendRequest.setValues(Collections.<String>emptyList());
 
-        ObjectNode result = factory.objectNode();
-        result.put("opcode", "trend");
-        ObjectNode trends = factory.objectNode();
-        result.put("trends", trends);
+        TrendResponse expectedResponse = new TrendResponse();
+        expectedResponse.setTrends(new HashMap<String, List<TrendResponse.Count>>());
 
-        String expectedResponse = mapper.writeValueAsString(result);
-        String actualResponse = mapper.writeValueAsString(queryExecutor.execute(trendRequest));
+        TrendResponse actualResponse = TrendResponse.class.cast(queryExecutor.execute(trendRequest));
         assertEquals(expectedResponse, actualResponse);
     }
 
@@ -170,14 +160,13 @@ public class TrendActionTest {
         trendRequest.setField("data.version");
         trendRequest.setValues(Collections.<String>emptyList());
 
-        ObjectNode result = factory.objectNode();
-        result.put("opcode", "trend");
-        ObjectNode trends = factory.objectNode();
-        trends.put("1", factory.arrayNode().add(factory.objectNode().put("period", 1398643200000L).put("count", 1)));
-        result.put("trends", trends);
+        TrendResponse expectedResponse = new TrendResponse();
+        TrendResponse.Count count = new TrendResponse.Count();
+        count.setPeriod(1398643200000L);
+        count.setCount(1);
+        expectedResponse.setTrends(Collections.<String, List<TrendResponse.Count>>singletonMap("1", Arrays.asList(count)));
 
-        String expectedResponse = mapper.writeValueAsString(result);
-        String actualResponse = mapper.writeValueAsString(queryExecutor.execute(trendRequest));
+        TrendResponse actualResponse = TrendResponse.class.cast(queryExecutor.execute(trendRequest));
         assertEquals(expectedResponse, actualResponse);
     }
 
@@ -206,13 +195,10 @@ public class TrendActionTest {
         trendRequest.setField("!@!41242$");
         trendRequest.setValues(Collections.<String>emptyList());
 
-        ObjectNode result = factory.objectNode();
-        result.put("opcode", "trend");
-        ObjectNode trends = factory.objectNode();
-        result.put("trends", trends);
+        TrendResponse expectedResponse = new TrendResponse();
+        expectedResponse.setTrends(new HashMap<String, List<TrendResponse.Count>>());
 
-        String expectedResponse = mapper.writeValueAsString(result);
-        String actualResponse = mapper.writeValueAsString(queryExecutor.execute(trendRequest));
+        TrendResponse actualResponse = TrendResponse.class.cast(queryExecutor.execute(trendRequest));
         assertEquals(expectedResponse, actualResponse);
     }
 
@@ -240,18 +226,23 @@ public class TrendActionTest {
         trendRequest.setField("os");
         trendRequest.setTo(System.currentTimeMillis());
 
-        ObjectNode result = factory.objectNode();
-        result.put("opcode", "trend");
-        ObjectNode trends = factory.objectNode();
-        trends.put("android", factory.arrayNode().add(factory.objectNode().put("period", 1397606400000L).put("count", 6))
-                .add(factory.objectNode().put("period", 1398643200000L).put("count", 1)));
-        trends.put("ios", factory.arrayNode().add(factory.objectNode().put("period", 1397692800000L).put("count", 1))
-                .add(factory.objectNode().put("period", 1397952000000L).put("count", 1))
-                .add(factory.objectNode().put("period", 1398643200000L).put("count", 2)));
-        result.put("trends", trends);
+        TrendResponse expectedResponse = new TrendResponse();
+        Map<String, List<TrendResponse.Count>> trends = new HashMap<String, List<TrendResponse.Count>>();
 
-        String expectedResponse = mapper.writeValueAsString(result);
-        String actualResponse = mapper.writeValueAsString(queryExecutor.execute(trendRequest));
+        List<TrendResponse.Count> counts = Lists.newArrayList();
+        counts.add(new TrendResponse.Count(1397606400000L, 6));
+        counts.add(new TrendResponse.Count(1398643200000L, 1));
+        trends.put("android", counts);
+
+        counts = Lists.newArrayList();
+        counts.add(new TrendResponse.Count(1397692800000L, 1));
+        counts.add(new TrendResponse.Count(1397952000000L, 1));
+        counts.add(new TrendResponse.Count(1398643200000L, 2));
+        trends.put("ios", counts);
+
+        expectedResponse.setTrends(trends);
+
+        TrendResponse actualResponse = TrendResponse.class.cast(queryExecutor.execute(trendRequest));
         assertEquals(expectedResponse, actualResponse);
     }
 
@@ -263,18 +254,23 @@ public class TrendActionTest {
         trendRequest.setField("os");
         trendRequest.setTo(System.currentTimeMillis());
 
-        ObjectNode result = factory.objectNode();
-        result.put("opcode", "trend");
-        ObjectNode trends = factory.objectNode();
-        trends.put("android", factory.arrayNode().add(factory.objectNode().put("period", 1397606400000L).put("count", 6))
-                .add(factory.objectNode().put("period", 1398643200000L).put("count", 1)));
-        trends.put("ios", factory.arrayNode().add(factory.objectNode().put("period", 1397692800000L).put("count", 1))
-                .add(factory.objectNode().put("period", 1397952000000L).put("count", 1))
-                .add(factory.objectNode().put("period", 1398643200000L).put("count", 2)));
-        result.put("trends", trends);
+        TrendResponse expectedResponse = new TrendResponse();
+        Map<String, List<TrendResponse.Count>> trends = new HashMap<String, List<TrendResponse.Count>>();
 
-        String expectedResponse = mapper.writeValueAsString(result);
-        String actualResponse = mapper.writeValueAsString(queryExecutor.execute(trendRequest));
+        List<TrendResponse.Count> counts = Lists.newArrayList();
+        counts.add(new TrendResponse.Count(1397606400000L, 6));
+        counts.add(new TrendResponse.Count(1398643200000L, 1));
+        trends.put("android", counts);
+
+        counts = Lists.newArrayList();
+        counts.add(new TrendResponse.Count(1397692800000L, 1));
+        counts.add(new TrendResponse.Count(1397952000000L, 1));
+        counts.add(new TrendResponse.Count(1398643200000L, 2));
+        trends.put("ios", counts);
+
+        expectedResponse.setTrends(trends);
+
+        TrendResponse actualResponse = TrendResponse.class.cast(queryExecutor.execute(trendRequest));
         assertEquals(expectedResponse, actualResponse);
     }
 
@@ -286,18 +282,23 @@ public class TrendActionTest {
         trendRequest.setTo(0L);
         trendRequest.setField("os");
 
-        ObjectNode result = factory.objectNode();
-        result.put("opcode", "trend");
-        ObjectNode trends = factory.objectNode();
-        trends.put("android", factory.arrayNode().add(factory.objectNode().put("period", 1397606400000L).put("count", 6))
-                .add(factory.objectNode().put("period", 1398643200000L).put("count", 1)));
-        trends.put("ios", factory.arrayNode().add(factory.objectNode().put("period", 1397692800000L).put("count", 1))
-                .add(factory.objectNode().put("period", 1397952000000L).put("count", 1))
-                .add(factory.objectNode().put("period", 1398643200000L).put("count", 2)));
-        result.put("trends", trends);
+        TrendResponse expectedResponse = new TrendResponse();
+        Map<String, List<TrendResponse.Count>> trends = new HashMap<String, List<TrendResponse.Count>>();
 
-        String expectedResponse = mapper.writeValueAsString(result);
-        String actualResponse = mapper.writeValueAsString(queryExecutor.execute(trendRequest));
+        List<TrendResponse.Count> counts = Lists.newArrayList();
+        counts.add(new TrendResponse.Count(1397606400000L, 6));
+        counts.add(new TrendResponse.Count(1398643200000L, 1));
+        trends.put("android", counts);
+
+        counts = Lists.newArrayList();
+        counts.add(new TrendResponse.Count(1397692800000L, 1));
+        counts.add(new TrendResponse.Count(1397952000000L, 1));
+        counts.add(new TrendResponse.Count(1398643200000L, 2));
+        trends.put("ios", counts);
+
+        expectedResponse.setTrends(trends);
+
+        TrendResponse actualResponse = TrendResponse.class.cast(queryExecutor.execute(trendRequest));
         assertEquals(expectedResponse, actualResponse);
     }
 
@@ -310,15 +311,17 @@ public class TrendActionTest {
         trendRequest.setTo(System.currentTimeMillis());
         trendRequest.setValues(Arrays.asList("android"));
 
-        ObjectNode result = factory.objectNode();
-        result.put("opcode", "trend");
-        ObjectNode trends = factory.objectNode();
-        trends.put("android", factory.arrayNode().add(factory.objectNode().put("period", 1397606400000L).put("count", 6))
-                .add(factory.objectNode().put("period", 1398643200000L).put("count", 1)));
-        result.put("trends", trends);
+        TrendResponse expectedResponse = new TrendResponse();
+        Map<String, List<TrendResponse.Count>> trends = new HashMap<String, List<TrendResponse.Count>>();
 
-        String expectedResponse = mapper.writeValueAsString(result);
-        String actualResponse = mapper.writeValueAsString(queryExecutor.execute(trendRequest));
+        List<TrendResponse.Count> counts = Lists.newArrayList();
+        counts.add(new TrendResponse.Count(1397606400000L, 6));
+        counts.add(new TrendResponse.Count(1398643200000L, 1));
+        trends.put("android", counts);
+
+        expectedResponse.setTrends(trends);
+
+        TrendResponse actualResponse = TrendResponse.class.cast(queryExecutor.execute(trendRequest));
         assertEquals(expectedResponse, actualResponse);
     }
 
@@ -338,14 +341,17 @@ public class TrendActionTest {
         filters.add(equalsFilter);
         trendRequest.setFilters(filters);
 
-        ObjectNode result = factory.objectNode();
-        result.put("opcode", "trend");
-        ObjectNode trends = factory.objectNode();
-        trends.put("android", factory.arrayNode().add(factory.objectNode().put("period", 1397606400000L).put("count", 2)));
-        result.put("trends", trends);
 
-        String expectedResponse = mapper.writeValueAsString(result);
-        String actualResponse = mapper.writeValueAsString(queryExecutor.execute(trendRequest));
+        TrendResponse expectedResponse = new TrendResponse();
+        Map<String, List<TrendResponse.Count>> trends = new HashMap<String, List<TrendResponse.Count>>();
+
+        List<TrendResponse.Count> counts = Lists.newArrayList();
+        counts.add(new TrendResponse.Count(1397606400000L, 2));
+        trends.put("android", counts);
+
+        expectedResponse.setTrends(trends);
+
+        TrendResponse actualResponse = TrendResponse.class.cast(queryExecutor.execute(trendRequest));
         assertEquals(expectedResponse, actualResponse);
     }
 
@@ -362,15 +368,20 @@ public class TrendActionTest {
         equalsFilter.setValue(1);
         trendRequest.setFilters(Collections.<Filter>singletonList(equalsFilter));
 
-        ObjectNode result = factory.objectNode();
-        result.put("opcode", "trend");
-        ObjectNode trends = factory.objectNode();
-        trends.put("android", factory.arrayNode().add(factory.objectNode().put("period", 1397606400000L).put("count", 2)));
-        trends.put("ios", factory.arrayNode().add(factory.objectNode().put("period", 1397692800000L).put("count", 1)));
-        result.put("trends", trends);
+        TrendResponse expectedResponse = new TrendResponse();
+        Map<String, List<TrendResponse.Count>> trends = new HashMap<String, List<TrendResponse.Count>>();
 
-        String expectedResponse = mapper.writeValueAsString(result);
-        String actualResponse = mapper.writeValueAsString(queryExecutor.execute(trendRequest));
+        List<TrendResponse.Count> counts = Lists.newArrayList();
+        counts.add(new TrendResponse.Count(1397606400000L, 2));
+        trends.put("android", counts);
+
+        counts = Lists.newArrayList();
+        counts.add(new TrendResponse.Count(1397692800000L, 1));
+        trends.put("ios", counts);
+
+        expectedResponse.setTrends(trends);
+
+        TrendResponse actualResponse = TrendResponse.class.cast(queryExecutor.execute(trendRequest));
         assertEquals(expectedResponse, actualResponse);
     }
 
@@ -388,15 +399,20 @@ public class TrendActionTest {
         equalsFilter.setValue(1);
         trendRequest.setFilters(Collections.<Filter>singletonList(equalsFilter));
 
-        ObjectNode result = factory.objectNode();
-        result.put("opcode", "trend");
-        ObjectNode trends = factory.objectNode();
-        trends.put("android", factory.arrayNode().add(factory.objectNode().put("period", 1397606400000L).put("count", 2)));
-        trends.put("ios", factory.arrayNode().add(factory.objectNode().put("period", 1397692800000L).put("count", 1)));
-        result.put("trends", trends);
+        TrendResponse expectedResponse = new TrendResponse();
+        Map<String, List<TrendResponse.Count>> trends = new HashMap<String, List<TrendResponse.Count>>();
 
-        String expectedResponse = mapper.writeValueAsString(result);
-        String actualResponse = mapper.writeValueAsString(queryExecutor.execute(trendRequest));
+        List<TrendResponse.Count> counts = Lists.newArrayList();
+        counts.add(new TrendResponse.Count(1397606400000L, 2));
+        trends.put("android", counts);
+
+        counts = Lists.newArrayList();
+        counts.add(new TrendResponse.Count(1397692800000L, 1));
+        trends.put("ios", counts);
+
+        expectedResponse.setTrends(trends);
+
+        TrendResponse actualResponse = TrendResponse.class.cast(queryExecutor.execute(trendRequest));
         assertEquals(expectedResponse, actualResponse);
     }
 }
