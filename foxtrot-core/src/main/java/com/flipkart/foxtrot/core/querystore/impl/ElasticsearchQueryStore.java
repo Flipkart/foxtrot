@@ -38,6 +38,7 @@ import org.elasticsearch.action.bulk.BulkResponse;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.cluster.metadata.MappingMetaData;
 import org.elasticsearch.common.hppc.cursors.ObjectCursor;
+import org.elasticsearch.common.joda.time.DateTime;
 import org.elasticsearch.common.unit.TimeValue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -75,6 +76,9 @@ public class ElasticsearchQueryStore implements QueryStore {
             if (!tableMetadataManager.exists(table)) {
                 throw new QueryStoreException(QueryStoreException.ErrorCode.NO_SUCH_TABLE,
                         "No table exists with the name: " + table);
+            }
+            if (new DateTime().plusDays(1).minus(document.getTimestamp()).getMillis() >  0) {
+                return;
             }
             dataStore.save(table, document);
             long timestamp = document.getTimestamp();
@@ -126,8 +130,14 @@ public class ElasticsearchQueryStore implements QueryStore {
             }
             dataStore.save(table, documents);
             BulkRequestBuilder bulkRequestBuilder = connection.getClient().prepareBulk();
+
+            DateTime dateTime = new DateTime().plusDays(1);
+
             for (Document document : documents) {
                 long timestamp = document.getTimestamp();
+                if (dateTime.minus(timestamp).getMillis() >  0) {
+                    continue;
+                }
                 final String index = ElasticsearchUtils.getCurrentIndex(table, timestamp);
                 IndexRequest indexRequest = new IndexRequest()
                         .index(index)
