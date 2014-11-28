@@ -77,7 +77,7 @@ public class ElasticsearchQueryStore implements QueryStore {
                 throw new QueryStoreException(QueryStoreException.ErrorCode.NO_SUCH_TABLE,
                         "No table exists with the name: " + table);
             }
-            if (new DateTime().plusDays(1).minus(document.getTimestamp()).getMillis() >  0) {
+            if (new DateTime().plusDays(1).minus(document.getTimestamp()).getMillis() <  0) {
                 return;
             }
             dataStore.save(table, document);
@@ -135,7 +135,7 @@ public class ElasticsearchQueryStore implements QueryStore {
 
             for (Document document : documents) {
                 long timestamp = document.getTimestamp();
-                if (dateTime.minus(timestamp).getMillis() >  0) {
+                if (dateTime.minus(timestamp).getMillis() <  0) {
                     continue;
                 }
                 final String index = ElasticsearchUtils.getCurrentIndex(table, timestamp);

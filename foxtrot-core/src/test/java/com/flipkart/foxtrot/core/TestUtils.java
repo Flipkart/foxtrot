@@ -158,13 +158,13 @@ public class TestUtils {
         document.put("word", "1234");
         document.put("data", Collections.singletonMap("data", "d"));
         document.put("header", Collections.singletonList(Collections.singletonMap("hello", "world")));
-        documents.add(new Document("Z", 1397658117004L, mapper.valueToTree(document)));
+        documents.add(new Document("Z", System.currentTimeMillis(), mapper.valueToTree(document)));
 
         document = new HashMap<String, Object>();
         document.put("word", "1234");
         document.put("data", Collections.singletonMap("data", "d"));
         document.put("head", Collections.singletonList(Collections.singletonMap("hello", 23)));
-        documents.add(new Document("Y", 1397758117004L, mapper.valueToTree(document)));
+        documents.add(new Document("Y", System.currentTimeMillis(), mapper.valueToTree(document)));
         return documents;
     }
 }
