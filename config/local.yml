@@ -1,20 +1,11 @@
 http:
-  port: 17000
-  adminPort: 17001
+  port: 18000
+  adminPort: 18001
   connectorType: nonblocking
 
 elasticsearch:
   hosts:
-  - w3-hyperion-db7.nm.flipkart.com
-  - w3-hyperion-db8.nm.flipkart.com
-  - w3-hyperion-db9.nm.flipkart.com
-  - w3-hyperion-db10.nm.flipkart.com
-  - w3-hyperion-db11.nm.flipkart.com
-  - w3-hyperion-db12.nm.flipkart.com
-  - w3-hyperion-db13.nm.flipkart.com
-  - w3-hyperion-db14.nm.flipkart.com
-  - w3-hyperion-db15.nm.flipkart.com
-  - w3-hyperion-db16.nm.flipkart.com
+  - localhost
   cluster: foxtrot
 
 hbase:

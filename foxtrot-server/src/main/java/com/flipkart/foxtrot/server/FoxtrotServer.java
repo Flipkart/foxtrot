@@ -30,6 +30,7 @@ import com.flipkart.foxtrot.core.querystore.QueryStore;
 import com.flipkart.foxtrot.core.querystore.TableMetadataManager;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsLoader;
 import com.flipkart.foxtrot.core.querystore.impl.*;
+import com.flipkart.foxtrot.server.cluster.ClusterManager;
 import com.flipkart.foxtrot.server.config.FoxtrotServerConfiguration;
 import com.flipkart.foxtrot.server.console.ElasticsearchConsolePersistence;
 import com.flipkart.foxtrot.server.providers.FlatResponseCsvProvider;
@@ -38,13 +39,16 @@ import com.flipkart.foxtrot.server.providers.FlatResponseTextProvider;
 import com.flipkart.foxtrot.server.resources.*;
 import com.flipkart.foxtrot.server.util.ManagedActionScanner;
 import com.flipkart.foxtrot.sql.FqlEngine;
+import com.google.common.collect.Lists;
 import com.yammer.dropwizard.Service;
 import com.yammer.dropwizard.assets.AssetsBundle;
 import com.yammer.dropwizard.config.Bootstrap;
 import com.yammer.dropwizard.config.Environment;
+import com.yammer.metrics.core.HealthCheck;
 import net.sourceforge.cobertura.CoverageIgnore;
 import org.eclipse.jetty.servlets.CrossOriginFilter;
 
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 
@@ -95,6 +99,11 @@ public class FoxtrotServer extends Service<FoxtrotServerConfiguration> {
         DataDeletionManagerConfig dataDeletionManagerConfig = configuration.getTableDataManagerConfig();
         DataDeletionManager dataDeletionManager = new DataDeletionManager(dataDeletionManagerConfig, queryStore);
 
+        List<HealthCheck> healthChecks = Lists.newArrayList();
+        healthChecks.add(new ElasticSearchHealthCheck("ES Health Check", elasticsearchConnection));
+
+        ClusterManager clusterManager = new ClusterManager(
+                                    hazelcastConnection, healthChecks, configuration.getHttpConfiguration().getPort());
 
         environment.manage(HBaseTableConnection);
         environment.manage(elasticsearchConnection);
@@ -102,6 +111,7 @@ public class FoxtrotServer extends Service<FoxtrotServerConfiguration> {
         environment.manage(tableMetadataManager);
         environment.manage(new ManagedActionScanner(analyticsLoader, environment));
         environment.manage(dataDeletionManager);
+        environment.manage(clusterManager);
 
         environment.addResource(new DocumentResource(queryStore));
         environment.addResource(new AsyncResource());
@@ -112,8 +122,11 @@ public class FoxtrotServer extends Service<FoxtrotServerConfiguration> {
                 new ElasticsearchConsolePersistence(elasticsearchConnection, objectMapper)));
         FqlEngine fqlEngine = new FqlEngine(tableMetadataManager, queryStore, executor, objectMapper);
         environment.addResource(new FqlResource(fqlEngine));
+        environment.addResource(new ClusterInfoResource(clusterManager));
 
-        environment.addHealthCheck(new ElasticSearchHealthCheck("ES Health Check", elasticsearchConnection));
+        for(HealthCheck healthCheck : healthChecks) {
+            environment.addHealthCheck(healthCheck);
+        }
 
         environment.addProvider(new FlatResponseTextProvider());
         environment.addProvider(new FlatResponseCsvProvider());
