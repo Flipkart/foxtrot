@@ -30,7 +30,7 @@ public class ClusterManager implements Managed {
         this.hazelcastConnection = connection;
         this.healthChecks = healthChecks;
         MapConfig mapConfig = new MapConfig(MAP_NAME);
-        mapConfig.setTimeToLiveSeconds(MAP_REFRESH_TIME);
+        mapConfig.setTimeToLiveSeconds(MAP_REFRESH_TIME+ 2); //Reduce jitter
         mapConfig.setBackupCount(1);
         mapConfig.setAsyncBackupCount(2);
         mapConfig.setEvictionPolicy(MapConfig.EvictionPolicy.NONE);
