@@ -18,7 +18,6 @@ package com.flipkart.foxtrot.core.querystore.actions;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.flipkart.foxtrot.common.ActionResponse;
 import com.flipkart.foxtrot.common.Document;
 import com.flipkart.foxtrot.common.query.*;
 import com.flipkart.foxtrot.common.query.general.AnyFilter;
@@ -28,7 +27,6 @@ import com.flipkart.foxtrot.common.query.numeric.*;
 import com.flipkart.foxtrot.common.query.string.ContainsFilter;
 import com.flipkart.foxtrot.core.MockElasticsearchServer;
 import com.flipkart.foxtrot.core.TestUtils;
-import com.flipkart.foxtrot.core.common.AsyncDataToken;
 import com.flipkart.foxtrot.core.common.CacheUtils;
 import com.flipkart.foxtrot.core.datastore.DataStore;
 import com.flipkart.foxtrot.core.querystore.QueryExecutor;
@@ -525,35 +523,6 @@ public class FilterActionTest {
         documents.add(TestUtils.getDocument("D", 1397658118003L, new Object[]{"os", "ios", "version", 1, "device", "iphone"}, mapper));
         QueryResponse actualResponse = QueryResponse.class.cast(queryExecutor.execute(query));
         compare(documents, actualResponse.getDocuments());
-    }
-
-    @Test
-    public void testQueryAsync() throws QueryStoreException, JsonProcessingException, InterruptedException {
-        Query query = new Query();
-        query.setTable(TestUtils.TEST_TABLE);
-
-        ResultSort resultSort = new ResultSort();
-        resultSort.setOrder(ResultSort.Order.desc);
-        resultSort.setField("_timestamp");
-        query.setSort(resultSort);
-
-        EqualsFilter equalsFilter = new EqualsFilter();
-        equalsFilter.setField("os");
-        equalsFilter.setValue("ios");
-        query.setFilters(Collections.<Filter>singletonList(equalsFilter));
-
-        query.setFrom(1);
-        query.setLimit(1);
-
-        List<Document> documents = new ArrayList<Document>();
-        documents.add(TestUtils.getDocument("D", 1397658118003L, new Object[]{"os", "ios", "version", 1, "device", "iphone"}, mapper));
-        QueryResponse actualResponse = QueryResponse.class.cast(queryExecutor.execute(query));
-        compare(documents, actualResponse.getDocuments());
-
-        AsyncDataToken response = queryExecutor.executeAsync(query);
-        Thread.sleep(200);
-        ActionResponse actionResponse = CacheUtils.getCacheFor(response.getAction()).get(response.getKey());
-        compare(documents, QueryResponse.class.cast(actionResponse).getDocuments());
     }
 
     @Test

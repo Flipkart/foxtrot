@@ -61,7 +61,17 @@ public class DistributedCache implements Cache {
     @Override
     public ActionResponse put(String key, ActionResponse data) {
         try {
-            distributedMap.put(key, mapper.writeValueAsString(data));
+            String serializedData = mapper.writeValueAsString(data);
+            if (serializedData != null) {
+                // Only cache if size is less that 4 KB
+                if (serializedData.length() <= 4 * 1024) {
+                    distributedMap.put(key, mapper.writeValueAsString(data));
+                } else {
+                    logger.error(
+                            String.format("Size of response is too big for cache. Skipping it. Response Part : %s",
+                                    serializedData.substring(0, 1024)));
+                }
+            }
         } catch (JsonProcessingException e) {
             logger.error("Error saving value to map: ", e);
         }
