@@ -34,6 +34,11 @@ public class ClusterConfig {
     @NotEmpty
     private String name = null;
 
+    @JsonProperty("server-url")
+    @NotNull
+    @NotEmpty
+    private String webServerUrl = null;
+
     @JsonProperty
     private boolean disableMulticast = false;
 
@@ -49,6 +54,14 @@ public class ClusterConfig {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public String getWebServerUrl() {
+        return webServerUrl;
+    }
+
+    public void setWebServerUrl(String webServerUrl) {
+        this.webServerUrl = webServerUrl;
     }
 
     public boolean isDisableMulticast() {
