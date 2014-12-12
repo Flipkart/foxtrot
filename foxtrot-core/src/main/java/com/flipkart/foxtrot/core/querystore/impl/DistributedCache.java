@@ -61,7 +61,7 @@ public class DistributedCache implements Cache {
     @Override
     public ActionResponse put(String key, ActionResponse data) {
         try {
-            String serializedData = mapper.writeValueAsString(data);
+            final String serializedData = mapper.writeValueAsString(data);
             if (serializedData != null) {
                 // Only cache if size is less that 4 KB
                 if (serializedData.length() <= 4 * 1024) {
