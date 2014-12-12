@@ -46,7 +46,7 @@ public class HazelcastConnection implements Managed {
         final String hostName = InetAddress.getLocalHost().getCanonicalHostName();
         Config hzConfig = new Config();
         hzConfig.getGroupConfig().setName(clusterConfig.getName());
-        hzConfig.setManagementCenterConfig(new ManagementCenterConfig());
+        hzConfig.setManagementCenterConfig(new ManagementCenterConfig().setEnabled(true));
         hzConfig.setInstanceName(String.format("foxtrot-%s-%d", hostName, System.currentTimeMillis()));
         if (clusterConfig.isDisableMulticast()) {
             hzConfig.getNetworkConfig().getJoin().getMulticastConfig().setEnabled(false);
