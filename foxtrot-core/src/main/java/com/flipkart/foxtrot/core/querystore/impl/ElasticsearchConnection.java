@@ -22,6 +22,8 @@ import org.elasticsearch.client.transport.TransportClient;
 import org.elasticsearch.common.settings.ImmutableSettings;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.transport.InetSocketTransportAddress;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * User: Santanu Sinha (santanu.sinha@flipkart.com)
@@ -31,6 +33,7 @@ import org.elasticsearch.common.transport.InetSocketTransportAddress;
 
 @CoverageIgnore
 public class ElasticsearchConnection implements Managed {
+    private static final Logger logger = LoggerFactory.getLogger(ElasticsearchConnection.class.getSimpleName());
     private final ElasticsearchConfig config;
     private Client client;
 
@@ -40,6 +43,7 @@ public class ElasticsearchConnection implements Managed {
 
     @Override
     public void start() throws Exception {
+        logger.info("Starting Elasticsearch Client");
         Settings settings = ImmutableSettings.settingsBuilder()
                 .put("cluster.name", config.getCluster()).build();
 
@@ -47,8 +51,10 @@ public class ElasticsearchConnection implements Managed {
         for (String host : config.getHosts()) {
             esClient.addTransportAddress(
                     new InetSocketTransportAddress(host, 9300));
+            logger.info(String.format("Added Elasticsearch Node : %s", host));
         }
         client = esClient;
+        logger.info("Started Elasticsearch Client");
     }
 
     @Override

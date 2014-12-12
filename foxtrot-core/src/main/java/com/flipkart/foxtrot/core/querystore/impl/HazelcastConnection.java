@@ -23,6 +23,8 @@ import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
 import com.yammer.dropwizard.lifecycle.Managed;
 import net.sourceforge.cobertura.CoverageIgnore;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.net.InetAddress;
 
@@ -34,6 +36,7 @@ import java.net.InetAddress;
 
 @CoverageIgnore
 public class HazelcastConnection implements Managed {
+    private static final Logger logger = LoggerFactory.getLogger(HazelcastConnection.class.getSimpleName());
 
     private final ClusterConfig clusterConfig;
     private HazelcastInstance hazelcast;
@@ -46,7 +49,12 @@ public class HazelcastConnection implements Managed {
         final String hostName = InetAddress.getLocalHost().getCanonicalHostName();
         Config hzConfig = new Config();
         hzConfig.getGroupConfig().setName(clusterConfig.getName());
-        hzConfig.setManagementCenterConfig(new ManagementCenterConfig().setEnabled(true).setUrl(clusterConfig.getWebServerUrl()));
+        ManagementCenterConfig managementCenterConfig = new ManagementCenterConfig();
+        managementCenterConfig.setEnabled(true);
+        logger.info("Enabling management center for Hazelcast");
+        managementCenterConfig.setUrl(clusterConfig.getWebServerUrl());
+        logger.info("Setting management center url for Hazelcast to : " + clusterConfig.getWebServerUrl());
+        hzConfig.setManagementCenterConfig(managementCenterConfig);
         hzConfig.setInstanceName(String.format("foxtrot-%s-%d", hostName, System.currentTimeMillis()));
         if (clusterConfig.isDisableMulticast()) {
             hzConfig.getNetworkConfig().getJoin().getMulticastConfig().setEnabled(false);
@@ -60,8 +68,10 @@ public class HazelcastConnection implements Managed {
 
     @Override
     public void start() throws Exception {
+        logger.info("Starting Hazelcast Instance");
         hazelcast = Hazelcast.newHazelcastInstance(hazelcastConfig);
         CacheUtils.setCacheFactory(new DistributedCacheFactory(this, mapper));
+        logger.info("Started Hazelcast Instance");
     }
 
     @Override

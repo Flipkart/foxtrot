@@ -60,6 +60,7 @@ public class HbaseTableConnection implements Managed {
 
     @Override
     public void start() throws Exception {
+        logger.info("Starting HBase Connection");
         Configuration configuration = HBaseConfiguration.create();
         if(null != hbaseConfig.getKeytabFileName() && !hbaseConfig.getKeytabFileName().isEmpty()) {
             File file = new File(hbaseConfig.getKeytabFileName());
@@ -80,6 +81,7 @@ public class HbaseTableConnection implements Managed {
             }
         }
         tablePool = new HTablePool(configuration, 10, PoolMap.PoolType.Reusable);
+        logger.info("Started HBase Connection");
     }
 
     @Override
