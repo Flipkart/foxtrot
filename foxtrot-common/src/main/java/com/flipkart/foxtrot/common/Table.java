@@ -34,7 +34,7 @@ public class Table implements Serializable {
     private String name;
 
     @Min(1)
-    @Max(60)
+    @Max(180)
     private int ttl;
 
     public Table() {

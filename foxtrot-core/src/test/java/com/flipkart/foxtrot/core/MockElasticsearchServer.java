@@ -30,8 +30,8 @@ import static org.elasticsearch.node.NodeBuilder.nodeBuilder;
  */
 
 public class MockElasticsearchServer {
-    private String DATA_DIRECTORY = "target/elasticsearch-data";
     private final Node node;
+    private String DATA_DIRECTORY = "target/elasticsearch-data";
 
     public MockElasticsearchServer(String directory) {
         this.DATA_DIRECTORY = "target/" + directory;
@@ -55,6 +55,7 @@ public class MockElasticsearchServer {
     }
 
     private void deleteDataDirectory() throws IOException {
+        System.out.println("Deleting DATA DIRECTORY");
         FileUtils.deleteDirectory(new File(DATA_DIRECTORY));
     }
 }
