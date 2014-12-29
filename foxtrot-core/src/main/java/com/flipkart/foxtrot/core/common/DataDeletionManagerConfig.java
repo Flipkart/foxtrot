@@ -10,7 +10,7 @@ import javax.validation.constraints.NotNull;
  */
 public class DataDeletionManagerConfig {
 
-    @Min(86400)
+    @Min(3600)
     private int interval;
 
     @Min(1)
