@@ -21,6 +21,7 @@ import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.Aggregations;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
+import org.elasticsearch.search.aggregations.metrics.cardinality.Cardinality;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -71,16 +72,16 @@ public class CountAction extends Action<CountRequest> {
                         .setQuery(new ElasticSearchQueryGenerator(FilterCombinerType.and)
                                 .genFilter(parameter.getFilters()))
                         .addAggregation(AggregationBuilders
-                                .terms(Utils.sanitizeFieldForAggregation(parameter.getField()))
+                                .cardinality(Utils.sanitizeFieldForAggregation(parameter.getField()))
                                 .field(parameter.getField())
-                                .size(0));
+                        );
                 SearchResponse response = query.execute().actionGet();
                 Aggregations aggregations = response.getAggregations();
-                Terms terms = aggregations.get(Utils.sanitizeFieldForAggregation(parameter.getField()));
-                if (terms == null){
+                Cardinality cardinality = aggregations.get(Utils.sanitizeFieldForAggregation(parameter.getField()));
+                if (cardinality == null){
                     return new CountResponse(0);
                 } else {
-                    return new CountResponse(terms.getBuckets().size());
+                    return new CountResponse(cardinality.getValue());
                 }
             } else {
                 CountRequestBuilder countRequestBuilder = getConnection().getClient()
