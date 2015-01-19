@@ -71,7 +71,18 @@ public class Flattener implements ResponseVisitor {
 
     @Override
     public void visit(HistogramResponse histogramResponse) {
-        //TODO
+        List<Map<String, Object>> rows = Lists.newArrayList();
+        for (final HistogramResponse.Count count : histogramResponse.getCounts()){
+            rows.add(new HashMap<String, Object>(){{
+                put("timestamp", count.getPeriod());
+                put("count", count.getCount());
+            }});
+        }
+
+        List<FieldHeader> headers = Lists.newArrayList();
+        headers.add(new FieldHeader("timestamp", 15));
+        headers.add(new FieldHeader("count", 15));
+        flatRepresentation = new FlatRepresentation(headers, rows);
     }
 
     @Override
