@@ -127,7 +127,8 @@ Tile.prototype.getRepresentation = function() {
 		id: this.id,
 		typeName: this.typeName,
 		width: this.width,
-		height: this.height
+		height: this.height,
+		title: this.title
 	};
 	this.registerSpecificData(representation);
 	return representation;
@@ -137,6 +138,7 @@ Tile.prototype.loadTileFromRepresentation = function(representation) {
 	this.id = representation.id;
 	this.width = representation.width;
 	this.height = representation.height;
+	this.title = representation.title;
 	this.loadSpecificData(representation);
 }
 
@@ -175,7 +177,7 @@ TileSet.prototype.closeHandler = function(eventData) {
 TileSet.prototype.register = function(tile) {
 	var tileContainer = $(this.id);
 	this.currentTiles[tile.id] = tile;
-	var newDiv = $(handlebars("#tile-template", {tileId: tile.id}));
+	var newDiv = $(handlebars("#tile-template", {tileId: tile.id, title: tile.title}));
 	tileContainer.find(".removable-text").css("display", "none");
 	newDiv.insertBefore('.float-clear');
 	if(tile.height != 0 && tile.width != 0) {

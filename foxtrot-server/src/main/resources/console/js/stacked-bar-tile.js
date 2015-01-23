@@ -29,7 +29,12 @@ function StackedBar () {
 StackedBar.prototype = new Tile();
 
 StackedBar.prototype.render = function(data, animate) {
-    $("#" + this.id).find(".tile-header").text("Trend for " + this.eventTypeFieldName);
+    if (this.title){
+        $("#" + this.id).find(".tile-header").text(this.title);
+    } else {
+        $("#" + this.id).find(".tile-header").text("Trend for " + this.eventTypeFieldName);
+    }
+
     var parent = $("#content-for-" + this.id);
 	var canvas = null;
 	if(!parent || 0 == parent.find(".chartcanvas").length) {
@@ -218,6 +223,7 @@ StackedBar.prototype.configChanged = function() {
 	var modal = $(this.setupModalName);
 	this.period = parseInt(modal.find(".refresh-period").val());
 	this.eventTypeFieldName = modal.find(".stacked-bar-chart-field").val();
+    this.title = modal.find(".tileTitle").val()
     var filters = modal.find(".selected-filters").val();
     if(filters != undefined && filters != ""){
         var selectedFilters = JSON.parse(filters);
@@ -227,11 +233,11 @@ StackedBar.prototype.configChanged = function() {
     }else{
         this.selectedFilters = null;
     }
-    $("#" + this.id).find(".tile-header").text("Trend for " + this.eventTypeFieldName);
 };
 
 StackedBar.prototype.populateSetupDialog = function() {
 	var modal = $(this.setupModalName);
+    modal.find(".tileTitle").val(this.title)
 	var select = $("#stacked-bar-chart-field");
 	select.find('option').remove();
 	for (var i = this.tables.currentTableFieldMappings.length - 1; i >= 0; i--) {
@@ -245,6 +251,7 @@ StackedBar.prototype.populateSetupDialog = function() {
     if(this.selectedFilters){
        modal.find(".selected-filters").val(JSON.stringify(this.selectedFilters));
     }
+
 }
 
 StackedBar.prototype.registerSpecificData = function(representation) {

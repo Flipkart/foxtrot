@@ -31,7 +31,12 @@ function BarTile () {
 BarTile.prototype = new Tile();
 
 BarTile.prototype.render = function(data, animate) {
-    $("#" + this.id).find(".tile-header").text("Group by " + this.eventTypeFieldName);
+    if (this.title){
+        $("#" + this.id).find(".tile-header").text(this.title);
+    } else {
+        $("#" + this.id).find(".tile-header").text("Group by " + this.eventTypeFieldName);
+    }
+
 	var parent = $("#content-for-" + this.id);
 	var parentWidth = parent.width();
 	var chartLabel = null;
@@ -196,6 +201,7 @@ BarTile.prototype.configChanged = function() {
 	var modal = $(this.setupModalName);
 	this.period = parseInt(modal.find(".refresh-period").val());
 	this.eventTypeFieldName = modal.find(".bar-chart-field").val();
+    this.title = modal.find(".tileTitle").val()
     var values = modal.find(".selected-values").val();
     if(values) {
         this.selectedValues = values.replace(/ /g, "").split(",");
@@ -219,6 +225,7 @@ BarTile.prototype.configChanged = function() {
 
 BarTile.prototype.populateSetupDialog = function() {
 	var modal = $(this.setupModalName);
+    modal.find(".tileTitle").val(this.title)
 	var select = modal.find("#bar-chart-field");
 	select.find('option').remove();
 	for (var i = this.tables.currentTableFieldMappings.length - 1; i >= 0; i--) {

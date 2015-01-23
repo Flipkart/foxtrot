@@ -31,6 +31,11 @@ function DonutTile () {
 DonutTile.prototype = new Tile();
 
 DonutTile.prototype.render = function(data, animate) {
+    if (this.title){
+        $("#" + this.id).find(".tile-header").text(this.title);
+    } else {
+        $("#" + this.id).find(".tile-header").text("Group by " + this.eventTypeFieldName);
+    }
      var parent = $("#content-for-" + this.id);
 
      var chartLabel = null;
@@ -63,7 +68,6 @@ DonutTile.prototype.render = function(data, animate) {
         legendArea.width(canvas.parent().width() - canvas.width() - 50);
         chartLabel.width(canvas.width());
         chartLabel.height(canvas.height());
-        $("#" + this.id).find(".tile-header").text("Group by " + this.eventTypeFieldName);
      }
      else {
        if(0 == parent.find(".chartcanvas").length) {
@@ -167,6 +171,7 @@ DonutTile.prototype.isSetupDone = function() {
 
 DonutTile.prototype.configChanged = function() {
      var modal = $(this.setupModalName);
+     this.title = modal.find(".tileTitle").val()
      this.period = parseInt(modal.find(".refresh-period").val());
      this.eventTypeFieldName = modal.find(".pie-chart-field").val();
      var values = modal.find(".selected-values").val();
@@ -192,6 +197,7 @@ DonutTile.prototype.configChanged = function() {
 
 DonutTile.prototype.populateSetupDialog = function() {
      var modal = $(this.setupModalName);
+     modal.find(".tileTitle").val(this.title)
      var select = $("#pie_field");
      select.find('option').remove();
      for (var i = this.tables.currentTableFieldMappings.length - 1; i >= 0; i--) {
