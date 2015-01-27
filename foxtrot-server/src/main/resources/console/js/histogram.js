@@ -28,7 +28,12 @@ Histogram.prototype.render = function(data, animate) {
 	if(this.period == 0) {
 		return;
 	}
-	$("#" + this.id).find(".tile-header").text("Event rate for " + this.tables.selectedTable.name + " table");
+	if (this.title){
+		$("#" + this.id).find(".tile-header").text(this.title);
+	} else {
+		$("#" + this.id).find(".tile-header").text("Event rate for " + this.tables.selectedTable.name + " table");
+	}
+
     var parent = $("#content-for-" + this.id);
     var canvas = null;
     if(!parent || 0 == parent.find(".chartcanvas").length) {
@@ -110,12 +115,14 @@ Histogram.prototype.getQuery = function() {
 Histogram.prototype.configChanged = function() {
 	var modal = $(this.setupModalName);
 	this.period = parseInt(modal.find(".refresh-period").val());
+	this.title = modal.find(".tile-title").val()
 	console.log("Config changed for: " + this.id);
 };
 
 Histogram.prototype.populateSetupDialog = function() {
 	var modal = $(this.setupModalName);	
-	modal.find(".refresh-period").val(( 0 != this.period)?this.period:"");			
+	modal.find(".refresh-period").val(( 0 != this.period)?this.period:"");
+	modal.find(".tile-title").val(this.title)
 }
 
 Histogram.prototype.registerSpecificData = function(representation) {

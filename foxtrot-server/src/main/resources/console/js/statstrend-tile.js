@@ -44,7 +44,12 @@ function deepFind(obj, path) {
 StatsTrend.prototype = new Tile();
 
 StatsTrend.prototype.render = function(data, animate) {
-    $("#" + this.id).find(".tile-header").text("Stats for " + this.eventTypeFieldName);
+    if (this.title){
+        $("#" + this.id).find(".tile-header").text(this.title);
+    } else {
+        $("#" + this.id).find(".tile-header").text("Stats for " + this.eventTypeFieldName);
+    }
+
     var parent = $("#content-for-" + this.id);
     var canvas = null;
     if(!parent || 0 == parent.find(".chartcanvas").length) {
@@ -225,6 +230,7 @@ StatsTrend.prototype.isSetupDone = function() {
 
 StatsTrend.prototype.configChanged = function() {
 	var modal = $(this.setupModalName);
+    this.title = modal.find(".tile-title").val()
 	this.period = parseInt(modal.find(".refresh-period").val());
 	this.eventTypeFieldName = modal.find(".statstrend-bar-chart-field").val();
     var filters = modal.find(".selected-filters").val();
@@ -243,6 +249,7 @@ StatsTrend.prototype.configChanged = function() {
 StatsTrend.prototype.populateSetupDialog = function() {
 	var modal = $(this.setupModalName);
 	var select = $("#statstrend-bar-chart-field");
+    this.title = modal.find(".tile-title").val()
 	select.find('option').remove();
 	for (var i = this.tables.currentTableFieldMappings.length - 1; i >= 0; i--) {
 		select.append('<option>' + this.tables.currentTableFieldMappings[i].field + '</option>');
