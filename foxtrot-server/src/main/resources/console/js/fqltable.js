@@ -60,11 +60,13 @@ FqlTable.prototype.isSetupDone = function () {
 
 FqlTable.prototype.configChanged = function () {
     var modal = $(this.setupModalName);
+    this.title = modal.find(".tile-title").val()
     this.query = modal.find("#fql_query").val();
 };
 
 FqlTable.prototype.populateSetupDialog = function () {
     var modal = $(this.setupModalName);
+    modal.find(".tile-title").val(this.title)
     if (this.query){
         modal.find("#fql_query").val(this.query)
     }
