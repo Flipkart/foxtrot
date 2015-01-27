@@ -55,6 +55,9 @@ function Tile() {
 	this.queue = null;
 	this.cachedData = null;
 	this.setupModalName = null;
+	this.url = hostDetails.url("/foxtrot/v1/analytics");
+	this.contentType = "application/json";
+	this.httpMethod = "POST";
 }
 
 Tile.prototype.isSetupDone = function() {
@@ -83,14 +86,18 @@ Tile.prototype.reloadData = function() {
 		return;
 	}
 	$.ajax({
-		method: 'POST',
-		url: hostDetails.url("/foxtrot/v1/analytics"),
-		contentType: "application/json",
+		method: this.httpMethod,
+		dataType: "text",
+		accepts: {
+			text: 'application/json'
+		},
+		url: this.url,
+		contentType: this.contentType,
 		timeout: this.queue.timeout,
 		data: this.query,
 		success: $.proxy(this.newDataReceived, this)
 	});
-}
+};
 
 Tile.prototype.newDataReceived = function(data) {
 	this.cachedData = data;
