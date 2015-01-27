@@ -171,7 +171,7 @@ DonutTile.prototype.isSetupDone = function() {
 
 DonutTile.prototype.configChanged = function() {
      var modal = $(this.setupModalName);
-     this.title = modal.find(".tileTitle").val()
+     this.title = modal.find(".tile-title").val()
      this.period = parseInt(modal.find(".refresh-period").val());
      this.eventTypeFieldName = modal.find(".pie-chart-field").val();
      var values = modal.find(".selected-values").val();
@@ -197,7 +197,7 @@ DonutTile.prototype.configChanged = function() {
 
 DonutTile.prototype.populateSetupDialog = function() {
      var modal = $(this.setupModalName);
-     modal.find(".tileTitle").val(this.title)
+     modal.find(".tile-title").val(this.title)
      var select = $("#pie_field");
      select.find('option').remove();
      for (var i = this.tables.currentTableFieldMappings.length - 1; i >= 0; i--) {

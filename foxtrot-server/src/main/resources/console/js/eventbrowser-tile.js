@@ -93,7 +93,7 @@ EventBrowser.prototype.isSetupDone = function() {
 EventBrowser.prototype.configChanged = function() {
 	var modal = $(this.setupModalName);
 	this.count = parseInt(modal.find(".event-count").val());
-	this.title = modal.find(".tileTitle").val()
+	this.title = modal.find(".tile-title").val()
 	// this.period = parseInt(modal.find(".refresh-period").val());
 	// this.eventTypeFieldName = modal.find(".bar-chart-field").val();
 };
@@ -101,7 +101,7 @@ EventBrowser.prototype.configChanged = function() {
 EventBrowser.prototype.populateSetupDialog = function() {
 	var modal = $(this.setupModalName);
 	modal.find(".event-count").val(( 0 != this.count)?this.count:"");
-	modal.find(".tileTitle").val(this.title)
+	modal.find(".tile-title").val(this.title)
 }
 
 EventBrowser.prototype.registerSpecificData = function(representation) {
