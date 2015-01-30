@@ -87,12 +87,12 @@ Tile.prototype.reloadData = function() {
 	}
 	$.ajax({
 		method: this.httpMethod,
-		dataType: "text",
-		accepts: {
-			text: 'application/json'
-		},
-		url: this.url,
-		contentType: this.contentType,
+        dataType: 'json',
+        accepts: {
+            json : 'application/json'
+        },
+        url: this.url,
+        contentType: this.contentType,
 		timeout: this.queue.timeout,
 		data: this.query,
 		success: $.proxy(this.newDataReceived, this)

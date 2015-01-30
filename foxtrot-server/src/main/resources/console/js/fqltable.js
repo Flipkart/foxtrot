@@ -26,18 +26,22 @@ function FqlTable () {
 FqlTable.prototype = new Tile();
 
 FqlTable.prototype.render = function (data, animate) {
+    if (this.title){
+        $("#" + this.id).find(".tile-header").text(this.title);
+    } else {
+        $("#" + this.id).find(".tile-header").text("Query : " + this.query);
+    }
     var parent = $("#content-for-" + this.id);
 
     if (0 != parent.find(".dataview-table").length){
         parent.find(".dataview-table").remove()
     }
-    var parsedData = JSON.parse(data);
-    var headerData = parsedData['headers'];
+    var headerData = data.headers;
     var headers = [];
     for(var i = 0; i < headerData.length; i++) {
         headers.push(headerData[i]['name']);
     }
-    var rowData = parsedData['rows'];
+    var rowData = data.rows;
     var rows = [];
     for(i = 0; i < rowData.length; i++) {
         var row = [];
