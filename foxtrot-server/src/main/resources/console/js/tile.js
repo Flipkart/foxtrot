@@ -55,6 +55,9 @@ function Tile() {
 	this.queue = null;
 	this.cachedData = null;
 	this.setupModalName = null;
+	this.url = hostDetails.url("/foxtrot/v1/analytics");
+	this.contentType = "application/json";
+	this.httpMethod = "POST";
 }
 
 Tile.prototype.isSetupDone = function() {
@@ -83,14 +86,18 @@ Tile.prototype.reloadData = function() {
 		return;
 	}
 	$.ajax({
-		method: 'POST',
-		url: hostDetails.url("/foxtrot/v1/analytics"),
-		contentType: "application/json",
+		method: this.httpMethod,
+        dataType: 'json',
+        accepts: {
+            json : 'application/json'
+        },
+        url: this.url,
+        contentType: this.contentType,
 		timeout: this.queue.timeout,
 		data: this.query,
 		success: $.proxy(this.newDataReceived, this)
 	});
-}
+};
 
 Tile.prototype.newDataReceived = function(data) {
 	this.cachedData = data;
@@ -127,7 +134,8 @@ Tile.prototype.getRepresentation = function() {
 		id: this.id,
 		typeName: this.typeName,
 		width: this.width,
-		height: this.height
+		height: this.height,
+		title: this.title
 	};
 	this.registerSpecificData(representation);
 	return representation;
@@ -137,6 +145,7 @@ Tile.prototype.loadTileFromRepresentation = function(representation) {
 	this.id = representation.id;
 	this.width = representation.width;
 	this.height = representation.height;
+	this.title = representation.title;
 	this.loadSpecificData(representation);
 }
 
@@ -175,7 +184,7 @@ TileSet.prototype.closeHandler = function(eventData) {
 TileSet.prototype.register = function(tile) {
 	var tileContainer = $(this.id);
 	this.currentTiles[tile.id] = tile;
-	var newDiv = $(handlebars("#tile-template", {tileId: tile.id}));
+	var newDiv = $(handlebars("#tile-template", {tileId: tile.id, title: tile.title}));
 	tileContainer.find(".removable-text").css("display", "none");
 	newDiv.insertBefore('.float-clear');
 	if(tile.height != 0 && tile.width != 0) {

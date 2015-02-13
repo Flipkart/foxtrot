@@ -240,6 +240,7 @@ $(document).ready(function(){
 	$("#setupHistogramForm").validator();
 	$("#setupEventBrowser").validator();
 	$("#setupStackedBarChartModal").validator();
+	$("#setupFqlTableModal").validator();
 	$("#setupStatsTrendChartModal").validator();
 	$("#saveConsoleModal").validator();
 	$("#loadConsoleModal").validator();
@@ -252,10 +253,10 @@ $(document).ready(function(){
 	configSaveform.on('submit', $.proxy(foxtrot.saveConsole, foxtrot));
 
 	var configLoadform = $("#loadConsoleModal").find("form");
-	configLoadform.off('submit');
-	configLoadform.on('submit', function(e){
-		var console = $("#select_console_name").val();
-		if(console) {
+			configLoadform.off('submit');
+			configLoadform.on('submit', function(e){
+				var console = $("#select_console_name").val();
+				if(console) {
 			// try {
 			// console.log("Going to: " + console);
 
