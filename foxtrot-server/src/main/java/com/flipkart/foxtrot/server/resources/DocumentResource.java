@@ -18,11 +18,11 @@ package com.flipkart.foxtrot.server.resources;
 import com.flipkart.foxtrot.common.Document;
 import com.flipkart.foxtrot.core.querystore.QueryStore;
 import com.flipkart.foxtrot.core.querystore.QueryStoreException;
-import com.sun.istack.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -96,6 +96,7 @@ public class DocumentResource {
 
     @GET
     @Path("/{id}")
+
     public Response getDocument(@PathParam("table") final String table, @PathParam("id") @NotNull final String id) {
         try {
             return Response.ok(queryStore.get(table, id)).build();
