@@ -55,22 +55,8 @@
 
     <repositories>
         <repository>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-            <id>fk-central</id>
-            <name>libs-release</name>
-            <url>http://artifactory.nm.flipkart.com:8081/artifactory/libs-release</url>
-        </repository>
-        <repository>
-            <snapshots/>
-            <id>snapshots</id>
-            <name>libs-snapshot</name>
-            <url>http://artifactory.nm.flipkart.com:8081/artifactory/libs-snapshot</url>
-        </repository>
-        <repository>
-            <id>cloudera</id>
-            <url>https://repository.cloudera.com/artifactory/cloudera-repos/</url>
+            <id>hortonworks</id>
+            <url>http://repo.hortonworks.com/content/repositories/releases/</url>
         </repository>
     </repositories>
     <pluginRepositories>
