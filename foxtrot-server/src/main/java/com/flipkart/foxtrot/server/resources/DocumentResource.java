@@ -18,11 +18,10 @@ package com.flipkart.foxtrot.server.resources;
 import com.flipkart.foxtrot.common.Document;
 import com.flipkart.foxtrot.core.querystore.QueryStore;
 import com.flipkart.foxtrot.core.querystore.QueryStoreException;
-import com.sun.istack.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
