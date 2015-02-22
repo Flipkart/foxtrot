@@ -30,6 +30,7 @@ import com.flipkart.foxtrot.core.TestUtils;
 import com.flipkart.foxtrot.core.common.CacheUtils;
 import com.flipkart.foxtrot.core.datastore.DataStore;
 import com.flipkart.foxtrot.core.querystore.QueryExecutor;
+import com.flipkart.foxtrot.core.querystore.QueryStore;
 import com.flipkart.foxtrot.core.querystore.QueryStoreException;
 import com.flipkart.foxtrot.core.querystore.TableMetadataManager;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsLoader;
@@ -39,6 +40,7 @@ import com.hazelcast.test.TestHazelcastInstanceFactory;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Matchers;
 import org.mockito.Mockito;
 
 import java.io.IOException;
@@ -48,6 +50,8 @@ import java.util.concurrent.Executors;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.mockito.Matchers.anyList;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.when;
 
 /**
@@ -78,18 +82,19 @@ public class FilterActionTest {
 
         // Ensure that table exists before saving/reading data from it
         TableMetadataManager tableMetadataManager = Mockito.mock(TableMetadataManager.class);
-        when(tableMetadataManager.exists(TestUtils.TEST_TABLE)).thenReturn(true);
-
-        AnalyticsLoader analyticsLoader = new AnalyticsLoader(dataStore, elasticsearchConnection);
+        when(tableMetadataManager.exists(TestUtils.TEST_TABLE_NAME)).thenReturn(true);
+        when(tableMetadataManager.get(anyString())).thenReturn(TestUtils.TEST_TABLE);
+        QueryStore queryStore = new ElasticsearchQueryStore(tableMetadataManager, elasticsearchConnection, dataStore);
+        List<Document> documents = TestUtils.getQueryDocuments(mapper);
+        //when(queryStore.get(anyString(), Matchers.anyListOf(String.class))).thenReturn(documents);
+        AnalyticsLoader analyticsLoader = new AnalyticsLoader(tableMetadataManager, dataStore, queryStore, elasticsearchConnection);
         TestUtils.registerActions(analyticsLoader, mapper);
         ExecutorService executorService = Executors.newFixedThreadPool(1);
         queryExecutor = new QueryExecutor(analyticsLoader, executorService);
-        List<Document> documents = TestUtils.getQueryDocuments(mapper);
-        new ElasticsearchQueryStore(tableMetadataManager, elasticsearchConnection, dataStore)
-                .save(TestUtils.TEST_TABLE, documents);
+        queryStore.save(TestUtils.TEST_TABLE_NAME, documents);
         for (Document document : documents) {
             elasticsearchServer.getClient().admin().indices()
-                    .prepareRefresh(ElasticsearchUtils.getCurrentIndex(TestUtils.TEST_TABLE, document.getTimestamp()))
+                    .prepareRefresh(ElasticsearchUtils.getCurrentIndex(TestUtils.TEST_TABLE_NAME, document.getTimestamp()))
                     .setForce(true).execute().actionGet();
         }
     }
@@ -103,7 +108,7 @@ public class FilterActionTest {
     @Test(expected = QueryStoreException.class)
     public void testQueryException() throws QueryStoreException, JsonProcessingException {
         Query query = new Query();
-        query.setTable(TestUtils.TEST_TABLE);
+        query.setTable(TestUtils.TEST_TABLE_NAME);
         ResultSort resultSort = new ResultSort();
         resultSort.setOrder(ResultSort.Order.asc);
         resultSort.setField("_timestamp");
@@ -115,7 +120,7 @@ public class FilterActionTest {
     @Test
     public void testQueryNoFilterAscending() throws QueryStoreException, JsonProcessingException {
         Query query = new Query();
-        query.setTable(TestUtils.TEST_TABLE);
+        query.setTable(TestUtils.TEST_TABLE_NAME);
         ResultSort resultSort = new ResultSort();
         resultSort.setOrder(ResultSort.Order.asc);
         resultSort.setField("_timestamp");
@@ -139,7 +144,7 @@ public class FilterActionTest {
     @Test
     public void testQueryNoFilterDescending() throws QueryStoreException, JsonProcessingException {
         Query query = new Query();
-        query.setTable(TestUtils.TEST_TABLE);
+        query.setTable(TestUtils.TEST_TABLE_NAME);
         ResultSort resultSort = new ResultSort();
         resultSort.setOrder(ResultSort.Order.desc);
         resultSort.setField("_timestamp");
@@ -163,7 +168,7 @@ public class FilterActionTest {
     @Test
     public void testQueryNoFilterWithLimit() throws QueryStoreException, JsonProcessingException {
         Query query = new Query();
-        query.setTable(TestUtils.TEST_TABLE);
+        query.setTable(TestUtils.TEST_TABLE_NAME);
         query.setLimit(2);
         ResultSort resultSort = new ResultSort();
         resultSort.setOrder(ResultSort.Order.desc);
@@ -181,7 +186,7 @@ public class FilterActionTest {
     @Test
     public void testQueryAnyFilter() throws QueryStoreException, JsonProcessingException {
         Query query = new Query();
-        query.setTable(TestUtils.TEST_TABLE);
+        query.setTable(TestUtils.TEST_TABLE_NAME);
 
         ResultSort resultSort = new ResultSort();
         resultSort.setOrder(ResultSort.Order.desc);
@@ -209,7 +214,7 @@ public class FilterActionTest {
     @Test
     public void testQueryEqualsFilter() throws QueryStoreException, JsonProcessingException {
         Query query = new Query();
-        query.setTable(TestUtils.TEST_TABLE);
+        query.setTable(TestUtils.TEST_TABLE_NAME);
 
         ResultSort resultSort = new ResultSort();
         resultSort.setOrder(ResultSort.Order.desc);
@@ -232,7 +237,7 @@ public class FilterActionTest {
     @Test
     public void testQueryNotEqualsFilter() throws QueryStoreException, JsonProcessingException {
         Query query = new Query();
-        query.setTable(TestUtils.TEST_TABLE);
+        query.setTable(TestUtils.TEST_TABLE_NAME);
         query.setLimit(3);
 
         ResultSort resultSort = new ResultSort();
@@ -257,7 +262,7 @@ public class FilterActionTest {
     @Test
     public void testQueryGreaterThanFilter() throws QueryStoreException, JsonProcessingException {
         Query query = new Query();
-        query.setTable(TestUtils.TEST_TABLE);
+        query.setTable(TestUtils.TEST_TABLE_NAME);
         query.setLimit(3);
 
         ResultSort resultSort = new ResultSort();
@@ -281,7 +286,7 @@ public class FilterActionTest {
     @Test
     public void testQueryGreaterEqualFilter() throws QueryStoreException, JsonProcessingException {
         Query query = new Query();
-        query.setTable(TestUtils.TEST_TABLE);
+        query.setTable(TestUtils.TEST_TABLE_NAME);
         query.setLimit(3);
 
         ResultSort resultSort = new ResultSort();
@@ -306,7 +311,7 @@ public class FilterActionTest {
     @Test
     public void testQueryLessThanFilter() throws QueryStoreException, JsonProcessingException {
         Query query = new Query();
-        query.setTable(TestUtils.TEST_TABLE);
+        query.setTable(TestUtils.TEST_TABLE_NAME);
         query.setLimit(3);
 
         ResultSort resultSort = new ResultSort();
@@ -328,7 +333,7 @@ public class FilterActionTest {
     @Test
     public void testQueryLessEqualFilter() throws QueryStoreException, JsonProcessingException {
         Query query = new Query();
-        query.setTable(TestUtils.TEST_TABLE);
+        query.setTable(TestUtils.TEST_TABLE_NAME);
         query.setLimit(3);
 
         ResultSort resultSort = new ResultSort();
@@ -351,7 +356,7 @@ public class FilterActionTest {
     @Test
     public void testQueryBetweenFilter() throws QueryStoreException, JsonProcessingException {
         Query query = new Query();
-        query.setTable(TestUtils.TEST_TABLE);
+        query.setTable(TestUtils.TEST_TABLE_NAME);
         query.setLimit(3);
 
         ResultSort resultSort = new ResultSort();
@@ -375,7 +380,7 @@ public class FilterActionTest {
     @Test
     public void testQueryContainsFilter() throws QueryStoreException, JsonProcessingException {
         Query query = new Query();
-        query.setTable(TestUtils.TEST_TABLE);
+        query.setTable(TestUtils.TEST_TABLE_NAME);
 
         ResultSort resultSort = new ResultSort();
         resultSort.setOrder(ResultSort.Order.desc);
@@ -403,7 +408,7 @@ public class FilterActionTest {
     @Test
     public void testQueryEmptyResult() throws QueryStoreException, JsonProcessingException {
         Query query = new Query();
-        query.setTable(TestUtils.TEST_TABLE);
+        query.setTable(TestUtils.TEST_TABLE_NAME);
 
         EqualsFilter equalsFilter = new EqualsFilter();
         equalsFilter.setField("os");
@@ -418,7 +423,7 @@ public class FilterActionTest {
     @Test
     public void testQueryMultipleFiltersEmptyResult() throws QueryStoreException, JsonProcessingException {
         Query query = new Query();
-        query.setTable(TestUtils.TEST_TABLE);
+        query.setTable(TestUtils.TEST_TABLE_NAME);
 
         EqualsFilter equalsFilter = new EqualsFilter();
         equalsFilter.setField("os");
@@ -441,7 +446,7 @@ public class FilterActionTest {
     @Test
     public void testQueryMultipleFiltersAndCombiner() throws QueryStoreException, JsonProcessingException {
         Query query = new Query();
-        query.setTable(TestUtils.TEST_TABLE);
+        query.setTable(TestUtils.TEST_TABLE_NAME);
 
         EqualsFilter equalsFilter = new EqualsFilter();
         equalsFilter.setField("os");
@@ -465,7 +470,7 @@ public class FilterActionTest {
     @Test
     public void testQueryMultipleFiltersOrCombiner() throws QueryStoreException, JsonProcessingException {
         Query query = new Query();
-        query.setTable(TestUtils.TEST_TABLE);
+        query.setTable(TestUtils.TEST_TABLE_NAME);
 
         ResultSort resultSort = new ResultSort();
         resultSort.setOrder(ResultSort.Order.desc);
@@ -504,7 +509,7 @@ public class FilterActionTest {
     @Test
     public void testQueryPagination() throws QueryStoreException, JsonProcessingException {
         Query query = new Query();
-        query.setTable(TestUtils.TEST_TABLE);
+        query.setTable(TestUtils.TEST_TABLE_NAME);
 
         ResultSort resultSort = new ResultSort();
         resultSort.setOrder(ResultSort.Order.desc);
@@ -528,7 +533,7 @@ public class FilterActionTest {
 //    @Test
 //    public void testQueryAsync() throws QueryStoreException, JsonProcessingException, InterruptedException {
 //        Query query = new Query();
-//        query.setTable(TestUtils.TEST_TABLE);
+//        query.setTable(TestUtils.TEST_TABLE_NAME);
 //
 //        ResultSort resultSort = new ResultSort();
 //        resultSort.setOrder(ResultSort.Order.desc);
@@ -557,7 +562,7 @@ public class FilterActionTest {
     @Test
     public void testQueryNullFilters() throws QueryStoreException, JsonProcessingException, InterruptedException {
         Query query = new Query();
-        query.setTable(TestUtils.TEST_TABLE);
+        query.setTable(TestUtils.TEST_TABLE_NAME);
         query.setFilters(null);
         query.setCombiner(FilterCombinerType.and);
         ResultSort resultSort = new ResultSort();
@@ -583,7 +588,7 @@ public class FilterActionTest {
     @Test
     public void testQueryNullCombiner() throws QueryStoreException, JsonProcessingException, InterruptedException {
         Query query = new Query();
-        query.setTable(TestUtils.TEST_TABLE);
+        query.setTable(TestUtils.TEST_TABLE_NAME);
         query.setFilters(new ArrayList<Filter>());
         query.setCombiner(null);
         ResultSort resultSort = new ResultSort();
@@ -609,7 +614,7 @@ public class FilterActionTest {
     @Test
     public void testQueryNullSort() throws QueryStoreException, JsonProcessingException, InterruptedException {
         Query query = new Query();
-        query.setTable(TestUtils.TEST_TABLE);
+        query.setTable(TestUtils.TEST_TABLE_NAME);
         query.setFilters(new ArrayList<Filter>());
         query.setCombiner(FilterCombinerType.and);
         query.setSort(null);
@@ -633,7 +638,7 @@ public class FilterActionTest {
     @Test
     public void testQueryCaching() throws QueryStoreException, JsonProcessingException {
         Query query = new Query();
-        query.setTable(TestUtils.TEST_TABLE);
+        query.setTable(TestUtils.TEST_TABLE_NAME);
 
         ResultSort resultSort = new ResultSort();
         resultSort.setOrder(ResultSort.Order.desc);

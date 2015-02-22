@@ -18,6 +18,7 @@ package com.flipkart.foxtrot.core.datastore.impl.hbase;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.flipkart.foxtrot.common.Document;
+import com.flipkart.foxtrot.common.Table;
 import com.flipkart.foxtrot.core.MockHTable;
 import com.flipkart.foxtrot.core.datastore.DataStoreException;
 import org.apache.hadoop.hbase.client.Get;
@@ -48,14 +49,15 @@ public class HBaseDataStoreTest {
 
     private static final byte[] COLUMN_FAMILY = Bytes.toBytes("d");
     private static final byte[] DATA_FIELD_NAME = Bytes.toBytes("data");
-    private static final String TEST_APP = "test-app";
+    private static final String TEST_APP_NAME = "test-app";
+    private static final Table TEST_APP = new Table(TEST_APP_NAME, 7);
 
     @Before
     public void setUp() throws Exception {
         tableInterface = MockHTable.create();
         tableInterface = spy(tableInterface);
         hBaseTableConnection = Mockito.mock(HbaseTableConnection.class);
-        when(hBaseTableConnection.getTable()).thenReturn(tableInterface);
+        when(hBaseTableConnection.getTable(Matchers.<Table>any())).thenReturn(tableInterface);
         HBaseDataStore = new HBaseDataStore(hBaseTableConnection, mapper);
     }
 
@@ -138,7 +140,7 @@ public class HBaseDataStoreTest {
         expectedDocument.setTimestamp(System.currentTimeMillis());
         JsonNode data = mapper.valueToTree(Collections.singletonMap("TEST_NAME", "SINGLE_SAVE_TEST"));
         expectedDocument.setData(data);
-        when(hBaseTableConnection.getTable()).thenReturn(null);
+        when(hBaseTableConnection.getTable(Matchers.<Table>any())).thenReturn(null);
         try {
             HBaseDataStore.save(TEST_APP, expectedDocument);
             fail();
@@ -252,7 +254,7 @@ public class HBaseDataStoreTest {
                     System.currentTimeMillis(),
                     mapper.valueToTree(Collections.singletonMap("TEST_NAME", "BULK_SAVE_TEST"))));
         }
-        when(hBaseTableConnection.getTable()).thenReturn(null);
+        when(hBaseTableConnection.getTable(Matchers.<Table>any())).thenReturn(null);
         try {
             HBaseDataStore.save(TEST_APP, documents);
             fail();
@@ -262,7 +264,7 @@ public class HBaseDataStoreTest {
     }
 
     public void validateSave(Document savedDocument) throws Exception {
-        String rowkey = String.format("%s:%s", savedDocument.getId(), TEST_APP);
+        String rowkey = String.format("%s:%s", savedDocument.getId(), TEST_APP_NAME);
         Get get = new Get(Bytes.toBytes(rowkey));
         Result result = tableInterface.get(get);
         assertNotNull("Get for Id should not be null", result);
@@ -330,7 +332,7 @@ public class HBaseDataStoreTest {
         JsonNode data = mapper.valueToTree(Collections.singletonMap("TEST_NAME", "SINGLE_SAVE_TEST"));
         Document expectedDocument = new Document(id, System.currentTimeMillis(), data);
         tableInterface.put(HBaseDataStore.getPutForDocument(TEST_APP, expectedDocument));
-        when(hBaseTableConnection.getTable()).thenReturn(null);
+        when(hBaseTableConnection.getTable(Matchers.<Table>any())).thenReturn(null);
         try {
             HBaseDataStore.get(TEST_APP, id);
             fail();
@@ -441,7 +443,7 @@ public class HBaseDataStoreTest {
             putList.add(HBaseDataStore.getPutForDocument(TEST_APP, idValues.get(id)));
         }
         tableInterface.put(putList);
-        when(hBaseTableConnection.getTable()).thenReturn(null);
+        when(hBaseTableConnection.getTable(Matchers.<Table>any())).thenReturn(null);
         try {
             HBaseDataStore.get(TEST_APP, ids);
             fail();

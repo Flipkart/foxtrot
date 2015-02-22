@@ -22,6 +22,7 @@ import com.flipkart.foxtrot.core.common.CacheUtils;
 import com.flipkart.foxtrot.core.common.NonCacheableActionRequest;
 import com.flipkart.foxtrot.core.datastore.DataStore;
 import com.flipkart.foxtrot.core.querystore.QueryExecutor;
+import com.flipkart.foxtrot.core.querystore.QueryStore;
 import com.flipkart.foxtrot.core.querystore.QueryStoreException;
 import com.flipkart.foxtrot.core.querystore.TableMetadataManager;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsLoader;
@@ -38,6 +39,8 @@ import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 /**
@@ -68,14 +71,14 @@ public class NonCacheableActionTest {
 
         // Ensure that table exists before saving/reading data from it
         TableMetadataManager tableMetadataManager = Mockito.mock(TableMetadataManager.class);
-        when(tableMetadataManager.exists(TestUtils.TEST_TABLE)).thenReturn(true);
-
-        AnalyticsLoader analyticsLoader = new AnalyticsLoader(dataStore, elasticsearchConnection);
+        when(tableMetadataManager.exists(TestUtils.TEST_TABLE_NAME)).thenReturn(true);
+        when(tableMetadataManager.get(anyString())).thenReturn(TestUtils.TEST_TABLE);
+        QueryStore queryStore = new ElasticsearchQueryStore(tableMetadataManager, elasticsearchConnection, dataStore);
+        AnalyticsLoader analyticsLoader = new AnalyticsLoader(tableMetadataManager, dataStore, queryStore, elasticsearchConnection);
         TestUtils.registerActions(analyticsLoader, mapper);
         ExecutorService executorService = Executors.newFixedThreadPool(1);
         queryExecutor = new QueryExecutor(analyticsLoader, executorService);
-        new ElasticsearchQueryStore(tableMetadataManager, elasticsearchConnection, dataStore)
-                .save(TestUtils.TEST_TABLE, TestUtils.getQueryDocuments(mapper));
+        queryStore.save(TestUtils.TEST_TABLE_NAME, TestUtils.getQueryDocuments(mapper));
     }
 
     @After

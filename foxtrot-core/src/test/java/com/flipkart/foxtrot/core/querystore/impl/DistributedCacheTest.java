@@ -21,6 +21,8 @@ import com.flipkart.foxtrot.common.ActionResponse;
 import com.flipkart.foxtrot.common.group.GroupResponse;
 import com.flipkart.foxtrot.core.TestUtils;
 import com.flipkart.foxtrot.core.common.CacheUtils;
+import com.flipkart.foxtrot.core.querystore.QueryStore;
+import com.flipkart.foxtrot.core.querystore.TableMetadataManager;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsLoader;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.test.TestHazelcastInstanceFactory;
@@ -52,7 +54,11 @@ public class DistributedCacheTest {
         when(hazelcastConnection.getHazelcast()).thenReturn(hazelcastInstance);
         distributedCache = new DistributedCache(hazelcastConnection, "TEST", mapper);
         CacheUtils.setCacheFactory(new DistributedCacheFactory(hazelcastConnection, mapper));
-        AnalyticsLoader analyticsLoader = new AnalyticsLoader(null, null);
+        TableMetadataManager tableMetadataManager = Mockito.mock(TableMetadataManager.class);
+        when(tableMetadataManager.exists(TestUtils.TEST_TABLE_NAME)).thenReturn(true);
+        QueryStore queryStore = Mockito.mock(QueryStore.class);
+
+        AnalyticsLoader analyticsLoader = new AnalyticsLoader(tableMetadataManager, null, queryStore, null);
         TestUtils.registerActions(analyticsLoader, mapper);
     }
 

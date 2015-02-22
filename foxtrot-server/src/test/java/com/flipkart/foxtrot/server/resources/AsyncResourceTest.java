@@ -28,6 +28,7 @@ import com.flipkart.foxtrot.core.common.AsyncDataToken;
 import com.flipkart.foxtrot.core.common.CacheUtils;
 import com.flipkart.foxtrot.core.datastore.DataStore;
 import com.flipkart.foxtrot.core.querystore.QueryExecutor;
+import com.flipkart.foxtrot.core.querystore.QueryStore;
 import com.flipkart.foxtrot.core.querystore.TableMetadataManager;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsLoader;
 import com.flipkart.foxtrot.core.querystore.impl.*;
@@ -93,18 +94,19 @@ public class AsyncResourceTest extends ResourceTest {
         tableMetadataManager = Mockito.mock(TableMetadataManager.class);
         tableMetadataManager.start();
         when(tableMetadataManager.exists(anyString())).thenReturn(true);
+        when(tableMetadataManager.get(anyString())).thenReturn(TestUtils.TEST_TABLE);
 
+        QueryStore queryStore = new ElasticsearchQueryStore(tableMetadataManager, elasticsearchConnection, dataStore);
 
-        AnalyticsLoader analyticsLoader = new AnalyticsLoader(dataStore, elasticsearchConnection);
+        AnalyticsLoader analyticsLoader = new AnalyticsLoader(tableMetadataManager, dataStore, queryStore, elasticsearchConnection);
         TestUtils.registerActions(analyticsLoader, mapper);
         ExecutorService executorService = Executors.newFixedThreadPool(1);
         queryExecutor = new QueryExecutor(analyticsLoader, executorService);
         List<Document> documents = TestUtils.getGroupDocuments(mapper);
-        new ElasticsearchQueryStore(tableMetadataManager, elasticsearchConnection, dataStore)
-                .save(TestUtils.TEST_TABLE, documents);
+        queryStore.save(TestUtils.TEST_TABLE_NAME, documents);
         for (Document document : documents) {
             elasticsearchServer.getClient().admin().indices()
-                    .prepareRefresh(ElasticsearchUtils.getCurrentIndex(TestUtils.TEST_TABLE, document.getTimestamp()))
+                    .prepareRefresh(ElasticsearchUtils.getCurrentIndex(TestUtils.TEST_TABLE_NAME, document.getTimestamp()))
                     .setForce(true).execute().actionGet();
         }
     }
@@ -125,7 +127,7 @@ public class AsyncResourceTest extends ResourceTest {
     @Test
     public void testGetResponse() throws Exception {
         GroupRequest groupRequest = new GroupRequest();
-        groupRequest.setTable(TestUtils.TEST_TABLE);
+        groupRequest.setTable(TestUtils.TEST_TABLE_NAME);
         groupRequest.setNesting(Arrays.asList("os", "device", "version"));
 
         Map<String, Object> expectedResponse = new LinkedHashMap<String, Object>();
@@ -158,7 +160,7 @@ public class AsyncResourceTest extends ResourceTest {
     @Test
     public void testGetResponseInvalidAction() throws Exception {
         GroupRequest groupRequest = new GroupRequest();
-        groupRequest.setTable(TestUtils.TEST_TABLE);
+        groupRequest.setTable(TestUtils.TEST_TABLE_NAME);
         groupRequest.setNesting(Arrays.asList("os", "device", "version"));
 
         AsyncDataToken dataToken = queryExecutor.executeAsync(groupRequest);
@@ -174,7 +176,7 @@ public class AsyncResourceTest extends ResourceTest {
     @Test
     public void testGetResponseInvalidKey() throws Exception {
         GroupRequest groupRequest = new GroupRequest();
-        groupRequest.setTable(TestUtils.TEST_TABLE);
+        groupRequest.setTable(TestUtils.TEST_TABLE_NAME);
         groupRequest.setNesting(Arrays.asList("os", "device", "version"));
 
         AsyncDataToken dataToken = queryExecutor.executeAsync(groupRequest);
@@ -190,7 +192,7 @@ public class AsyncResourceTest extends ResourceTest {
     @Test
     public void testGetResponsePost() throws Exception {
         GroupRequest groupRequest = new GroupRequest();
-        groupRequest.setTable(TestUtils.TEST_TABLE);
+        groupRequest.setTable(TestUtils.TEST_TABLE_NAME);
         groupRequest.setNesting(Arrays.asList("os", "device", "version"));
 
         Map<String, Object> expectedResponse = new LinkedHashMap<String, Object>();

@@ -46,6 +46,7 @@ import java.util.concurrent.Executors;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.when;
 
 /**
@@ -76,18 +77,19 @@ public class TrendActionTest {
 
         // Ensure that table exists before saving/reading data from it
         TableMetadataManager tableMetadataManager = Mockito.mock(TableMetadataManager.class);
-        when(tableMetadataManager.exists(TestUtils.TEST_TABLE)).thenReturn(true);
+        when(tableMetadataManager.exists(TestUtils.TEST_TABLE_NAME)).thenReturn(true);
+        when(tableMetadataManager.get(anyString())).thenReturn(TestUtils.TEST_TABLE);
 
-        AnalyticsLoader analyticsLoader = new AnalyticsLoader(dataStore, elasticsearchConnection);
+        AnalyticsLoader analyticsLoader = new AnalyticsLoader(tableMetadataManager, dataStore, queryStore, elasticsearchConnection);
         TestUtils.registerActions(analyticsLoader, mapper);
         ExecutorService executorService = Executors.newFixedThreadPool(1);
         queryExecutor = new QueryExecutor(analyticsLoader, executorService);
         queryStore = new ElasticsearchQueryStore(tableMetadataManager, elasticsearchConnection, dataStore);
         List<Document> documents = TestUtils.getTrendDocuments(mapper);
-        queryStore.save(TestUtils.TEST_TABLE, documents);
+        queryStore.save(TestUtils.TEST_TABLE_NAME, documents);
         for (Document document : documents) {
             elasticsearchServer.getClient().admin().indices()
-                    .prepareRefresh(ElasticsearchUtils.getCurrentIndex(TestUtils.TEST_TABLE, document.getTimestamp()))
+                    .prepareRefresh(ElasticsearchUtils.getCurrentIndex(TestUtils.TEST_TABLE_NAME, document.getTimestamp()))
                     .setForce(true).execute().actionGet();
         }
     }
@@ -113,7 +115,7 @@ public class TrendActionTest {
     @Test
     public void testTrendActionNullField() throws QueryStoreException, JsonProcessingException {
         TrendRequest trendRequest = new TrendRequest();
-        trendRequest.setTable(TestUtils.TEST_TABLE);
+        trendRequest.setTable(TestUtils.TEST_TABLE_NAME);
         trendRequest.setFrom(1L);
         trendRequest.setTo(System.currentTimeMillis());
         trendRequest.setField(null);
@@ -131,7 +133,7 @@ public class TrendActionTest {
     @Test
     public void testTrendActionFieldAll() throws QueryStoreException, JsonProcessingException {
         TrendRequest trendRequest = new TrendRequest();
-        trendRequest.setTable(TestUtils.TEST_TABLE);
+        trendRequest.setTable(TestUtils.TEST_TABLE_NAME);
         trendRequest.setFrom(1L);
         trendRequest.setTo(System.currentTimeMillis());
         trendRequest.setField("all");
@@ -147,14 +149,14 @@ public class TrendActionTest {
     @Test
     public void testTrendActionFieldWithDot() throws QueryStoreException, JsonProcessingException {
         Document document = TestUtils.getDocument("G", 1398653118006L, new Object[]{"data.version", 1}, mapper);
-        queryStore.save(TestUtils.TEST_TABLE, document);
+        queryStore.save(TestUtils.TEST_TABLE_NAME, document);
         elasticsearchServer.getClient().admin().indices()
-                .prepareRefresh(ElasticsearchUtils.getCurrentIndex(TestUtils.TEST_TABLE, document.getTimestamp()))
+                .prepareRefresh(ElasticsearchUtils.getCurrentIndex(TestUtils.TEST_TABLE_NAME, document.getTimestamp()))
                 .setForce(true)
                 .execute()
                 .actionGet();
         TrendRequest trendRequest = new TrendRequest();
-        trendRequest.setTable(TestUtils.TEST_TABLE);
+        trendRequest.setTable(TestUtils.TEST_TABLE_NAME);
         trendRequest.setFrom(1L);
         trendRequest.setTo(System.currentTimeMillis());
         trendRequest.setField("data.version");
@@ -173,7 +175,7 @@ public class TrendActionTest {
     @Test
     public void testTrendActionEmptyField() throws QueryStoreException, JsonProcessingException {
         TrendRequest trendRequest = new TrendRequest();
-        trendRequest.setTable(TestUtils.TEST_TABLE);
+        trendRequest.setTable(TestUtils.TEST_TABLE_NAME);
         trendRequest.setFrom(1L);
         trendRequest.setTo(System.currentTimeMillis());
         trendRequest.setField("");
@@ -189,7 +191,7 @@ public class TrendActionTest {
     @Test
     public void testTrendActionFieldWithSpecialCharacters() throws QueryStoreException, JsonProcessingException {
         TrendRequest trendRequest = new TrendRequest();
-        trendRequest.setTable(TestUtils.TEST_TABLE);
+        trendRequest.setTable(TestUtils.TEST_TABLE_NAME);
         trendRequest.setFrom(1L);
         trendRequest.setTo(System.currentTimeMillis());
         trendRequest.setField("!@!41242$");
@@ -221,7 +223,7 @@ public class TrendActionTest {
     @Test
     public void testTrendActionWithField() throws QueryStoreException, JsonProcessingException {
         TrendRequest trendRequest = new TrendRequest();
-        trendRequest.setTable(TestUtils.TEST_TABLE);
+        trendRequest.setTable(TestUtils.TEST_TABLE_NAME);
         trendRequest.setFrom(1L);
         trendRequest.setField("os");
         trendRequest.setTo(System.currentTimeMillis());
@@ -249,7 +251,7 @@ public class TrendActionTest {
     @Test
     public void testTrendActionWithFieldZeroTo() throws QueryStoreException, JsonProcessingException {
         TrendRequest trendRequest = new TrendRequest();
-        trendRequest.setTable(TestUtils.TEST_TABLE);
+        trendRequest.setTable(TestUtils.TEST_TABLE_NAME);
         trendRequest.setFrom(0L);
         trendRequest.setField("os");
         trendRequest.setTo(System.currentTimeMillis());
@@ -277,7 +279,7 @@ public class TrendActionTest {
     @Test
     public void testTrendActionWithFieldZeroFrom() throws QueryStoreException, JsonProcessingException {
         TrendRequest trendRequest = new TrendRequest();
-        trendRequest.setTable(TestUtils.TEST_TABLE);
+        trendRequest.setTable(TestUtils.TEST_TABLE_NAME);
         trendRequest.setFrom(1L);
         trendRequest.setTo(0L);
         trendRequest.setField("os");
@@ -305,7 +307,7 @@ public class TrendActionTest {
     @Test
     public void testTrendActionWithFieldWithValues() throws QueryStoreException, JsonProcessingException {
         TrendRequest trendRequest = new TrendRequest();
-        trendRequest.setTable(TestUtils.TEST_TABLE);
+        trendRequest.setTable(TestUtils.TEST_TABLE_NAME);
         trendRequest.setFrom(1L);
         trendRequest.setField("os");
         trendRequest.setTo(System.currentTimeMillis());
@@ -328,7 +330,7 @@ public class TrendActionTest {
     @Test
     public void testTrendActionWithFieldWithFilterWithValues() throws QueryStoreException, JsonProcessingException {
         TrendRequest trendRequest = new TrendRequest();
-        trendRequest.setTable(TestUtils.TEST_TABLE);
+        trendRequest.setTable(TestUtils.TEST_TABLE_NAME);
         trendRequest.setFrom(1L);
         trendRequest.setField("os");
         trendRequest.setTo(System.currentTimeMillis());
@@ -358,7 +360,7 @@ public class TrendActionTest {
     @Test
     public void testTrendActionWithFieldWithFilter() throws QueryStoreException, JsonProcessingException {
         TrendRequest trendRequest = new TrendRequest();
-        trendRequest.setTable(TestUtils.TEST_TABLE);
+        trendRequest.setTable(TestUtils.TEST_TABLE_NAME);
         trendRequest.setFrom(1L);
         trendRequest.setField("os");
         trendRequest.setTo(System.currentTimeMillis());
@@ -388,7 +390,7 @@ public class TrendActionTest {
     @Test
     public void testTrendActionWithFieldWithFilterWithInterval() throws QueryStoreException, JsonProcessingException {
         TrendRequest trendRequest = new TrendRequest();
-        trendRequest.setTable(TestUtils.TEST_TABLE);
+        trendRequest.setTable(TestUtils.TEST_TABLE_NAME);
         trendRequest.setFrom(1L);
         trendRequest.setField("os");
         trendRequest.setTo(System.currentTimeMillis());

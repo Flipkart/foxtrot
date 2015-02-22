@@ -18,6 +18,7 @@ package com.flipkart.foxtrot.core.datastore.impl.hbase;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.flipkart.foxtrot.common.Document;
+import com.flipkart.foxtrot.common.Table;
 import com.flipkart.foxtrot.core.datastore.DataStore;
 import com.flipkart.foxtrot.core.datastore.DataStoreException;
 import com.google.common.base.Stopwatch;
@@ -55,13 +56,13 @@ public class HBaseDataStore implements DataStore {
     }
 
     @Override
-    public void save(final String table, Document document) throws DataStoreException {
+    public void save(final Table table, Document document) throws DataStoreException {
         if (document == null || document.getData() == null || document.getId() == null) {
             throw new DataStoreException(DataStoreException.ErrorCode.STORE_INVALID_REQUEST, "Invalid Document");
         }
         HTableInterface hTable = null;
         try {
-            hTable = tableWrapper.getTable();
+            hTable = tableWrapper.getTable(table);
             Stopwatch stopwatch = new Stopwatch();
             stopwatch.start();
             hTable.put(getPutForDocument(table, document));
@@ -87,7 +88,7 @@ public class HBaseDataStore implements DataStore {
     }
 
     @Override
-    public void save(final String table, List<Document> documents) throws DataStoreException {
+    public void save(final Table table, List<Document> documents) throws DataStoreException {
         if (documents == null || documents.isEmpty()) {
             throw new DataStoreException(DataStoreException.ErrorCode.STORE_INVALID_REQUEST, "Invalid Documents List");
         }
@@ -107,7 +108,7 @@ public class HBaseDataStore implements DataStore {
 
         HTableInterface hTable = null;
         try {
-            hTable = tableWrapper.getTable();
+            hTable = tableWrapper.getTable(table);
             Stopwatch stopwatch = new Stopwatch();
             stopwatch.start();
             hTable.put(puts);
@@ -130,13 +131,13 @@ public class HBaseDataStore implements DataStore {
     }
 
     @Override
-    public Document get(final String table, String id) throws DataStoreException {
+    public Document get(final Table table, String id) throws DataStoreException {
         HTableInterface hTable = null;
         try {
-            Get get = new Get(Bytes.toBytes(id + ":" + table))
+            Get get = new Get(Bytes.toBytes(id + ":" + table.getName()))
                     .addColumn(COLUMN_FAMILY, DATA_FIELD_NAME)
                     .addColumn(COLUMN_FAMILY, TIMESTAMP_FIELD_NAME);
-            hTable = tableWrapper.getTable();
+            hTable = tableWrapper.getTable(table);
             Result getResult = hTable.get(get);
             if (!getResult.isEmpty()) {
                 byte[] data = getResult.getValue(COLUMN_FAMILY, DATA_FIELD_NAME);
@@ -167,7 +168,7 @@ public class HBaseDataStore implements DataStore {
     }
 
     @Override
-    public List<Document> get(final String table, List<String> ids) throws DataStoreException {
+    public List<Document> get(final Table table, List<String> ids) throws DataStoreException {
         if (ids == null) {
             throw new DataStoreException(DataStoreException.ErrorCode.STORE_INVALID_REQUEST, "Invalid Request IDs");
         }
@@ -176,12 +177,12 @@ public class HBaseDataStore implements DataStore {
         try {
             List<Get> gets = new ArrayList<Get>(ids.size());
             for (String id : ids) {
-                Get get = new Get(Bytes.toBytes(id + ":" + table))
+                Get get = new Get(Bytes.toBytes(id + ":" + table.getName()))
                         .addColumn(COLUMN_FAMILY, DATA_FIELD_NAME)
                         .addColumn(COLUMN_FAMILY, TIMESTAMP_FIELD_NAME);
                 gets.add(get);
             }
-            hTable = tableWrapper.getTable();
+            hTable = tableWrapper.getTable(table);
             Result[] getResults = hTable.get(gets);
             List<Document> results = new ArrayList<Document>(ids.size());
             for (int index = 0; index < getResults.length; index++) {
@@ -220,8 +221,8 @@ public class HBaseDataStore implements DataStore {
         }
     }
 
-    public Put getPutForDocument(final String table, Document document) throws JsonProcessingException {
-        return new Put(Bytes.toBytes(document.getId() + ":" + table))
+    public Put getPutForDocument(final Table table, Document document) throws JsonProcessingException {
+        return new Put(Bytes.toBytes(document.getId() + ":" + table.getName()))
                 .add(COLUMN_FAMILY, DATA_FIELD_NAME, mapper.writeValueAsBytes(document.getData()))
                 .add(COLUMN_FAMILY, TIMESTAMP_FIELD_NAME, Bytes.toBytes(document.getTimestamp()));
     }

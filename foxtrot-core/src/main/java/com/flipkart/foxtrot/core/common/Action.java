@@ -18,7 +18,9 @@ package com.flipkart.foxtrot.core.common;
 import com.flipkart.foxtrot.common.ActionRequest;
 import com.flipkart.foxtrot.common.ActionResponse;
 import com.flipkart.foxtrot.core.datastore.DataStore;
+import com.flipkart.foxtrot.core.querystore.QueryStore;
 import com.flipkart.foxtrot.core.querystore.QueryStoreException;
+import com.flipkart.foxtrot.core.querystore.TableMetadataManager;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConnection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,12 +39,21 @@ public abstract class Action<ParameterType extends ActionRequest> implements Cal
     private ParameterType parameter;
     private DataStore dataStore;
     private ElasticsearchConnection connection;
+    private final TableMetadataManager tableMetadataManager;
+    private final QueryStore queryStore;
     private final String cacheToken;
     private final Cache cache;
     private String cacheKey = null;
 
-    protected Action(ParameterType parameter, DataStore dataStore, ElasticsearchConnection connection, String cacheToken) {
+    protected Action(ParameterType parameter,
+                     TableMetadataManager tableMetadataManager,
+                     DataStore dataStore,
+                     QueryStore queryStore,
+                     ElasticsearchConnection connection,
+                     String cacheToken) {
         this.parameter = parameter;
+        this.tableMetadataManager = tableMetadataManager;
+        this.queryStore = queryStore;
         this.cacheToken = cacheToken;
         this.cache = CacheUtils.getCacheFor(this.cacheToken);
         this.connection = connection;
@@ -111,5 +122,13 @@ public abstract class Action<ParameterType extends ActionRequest> implements Cal
 
     public void setConnection(ElasticsearchConnection connection) {
         this.connection = connection;
+    }
+
+    public TableMetadataManager getTableMetadataManager() {
+        return tableMetadataManager;
+    }
+
+    public QueryStore getQueryStore() {
+        return queryStore;
     }
 }

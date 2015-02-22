@@ -29,6 +29,7 @@ import com.flipkart.foxtrot.core.TestUtils;
 import com.flipkart.foxtrot.core.common.CacheUtils;
 import com.flipkart.foxtrot.core.datastore.DataStore;
 import com.flipkart.foxtrot.core.querystore.QueryExecutor;
+import com.flipkart.foxtrot.core.querystore.QueryStore;
 import com.flipkart.foxtrot.core.querystore.QueryStoreException;
 import com.flipkart.foxtrot.core.querystore.TableMetadataManager;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsLoader;
@@ -49,6 +50,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 /**
@@ -79,19 +82,19 @@ public class HistogramActionTest {
 
         // Ensure that table exists before saving/reading data from it
         TableMetadataManager tableMetadataManager = Mockito.mock(TableMetadataManager.class);
-        when(tableMetadataManager.exists(TestUtils.TEST_TABLE)).thenReturn(true);
-
-        AnalyticsLoader analyticsLoader = new AnalyticsLoader(dataStore, elasticsearchConnection);
+        when(tableMetadataManager.exists(TestUtils.TEST_TABLE_NAME)).thenReturn(true);
+        when(tableMetadataManager.get(anyString())).thenReturn(TestUtils.TEST_TABLE);
+        QueryStore queryStore = new ElasticsearchQueryStore(tableMetadataManager, elasticsearchConnection, dataStore);
+        AnalyticsLoader analyticsLoader = new AnalyticsLoader(tableMetadataManager, dataStore, queryStore, elasticsearchConnection);
         TestUtils.registerActions(analyticsLoader, mapper);
         ExecutorService executorService = Executors.newFixedThreadPool(1);
         queryExecutor = new QueryExecutor(analyticsLoader, executorService);
         queryExecutor = new QueryExecutor(analyticsLoader, executorService);
         List<Document> documents = TestUtils.getHistogramDocuments(mapper);
-        new ElasticsearchQueryStore(tableMetadataManager, elasticsearchConnection, dataStore)
-                .save(TestUtils.TEST_TABLE, documents);
+        queryStore.save(TestUtils.TEST_TABLE_NAME, documents);
         for (Document document : documents) {
             elasticsearchServer.getClient().admin().indices()
-                    .prepareRefresh(ElasticsearchUtils.getCurrentIndex(TestUtils.TEST_TABLE, document.getTimestamp()))
+                    .prepareRefresh(ElasticsearchUtils.getCurrentIndex(TestUtils.TEST_TABLE_NAME, document.getTimestamp()))
                     .setForce(true).execute().actionGet();
         }
     }
@@ -105,7 +108,7 @@ public class HistogramActionTest {
     @Test(expected = QueryStoreException.class)
     public void testHistogramActionAnyException() throws QueryStoreException, JsonProcessingException {
         HistogramRequest histogramRequest = new HistogramRequest();
-        histogramRequest.setTable(TestUtils.TEST_TABLE);
+        histogramRequest.setTable(TestUtils.TEST_TABLE_NAME);
         histogramRequest.setPeriod(Period.minutes);
         histogramRequest.setFrom(0);
         histogramRequest.setTo(System.currentTimeMillis());
@@ -116,7 +119,7 @@ public class HistogramActionTest {
     @Test
     public void testHistogramActionIntervalMinuteNoFilter() throws QueryStoreException, JsonProcessingException {
         HistogramRequest histogramRequest = new HistogramRequest();
-        histogramRequest.setTable(TestUtils.TEST_TABLE);
+        histogramRequest.setTable(TestUtils.TEST_TABLE_NAME);
         histogramRequest.setPeriod(Period.minutes);
         histogramRequest.setFrom(1);
         histogramRequest.setTo(System.currentTimeMillis());
@@ -136,7 +139,7 @@ public class HistogramActionTest {
     @Test
     public void testHistogramActionIntervalMinuteWithFilter() throws QueryStoreException, JsonProcessingException {
         HistogramRequest histogramRequest = new HistogramRequest();
-        histogramRequest.setTable(TestUtils.TEST_TABLE);
+        histogramRequest.setTable(TestUtils.TEST_TABLE_NAME);
         histogramRequest.setPeriod(Period.minutes);
         histogramRequest.setFrom(1);
         GreaterThanFilter greaterThanFilter = new GreaterThanFilter();
@@ -157,7 +160,7 @@ public class HistogramActionTest {
     @Test
     public void testHistogramActionIntervalHourNoFilter() throws QueryStoreException, JsonProcessingException {
         HistogramRequest histogramRequest = new HistogramRequest();
-        histogramRequest.setTable(TestUtils.TEST_TABLE);
+        histogramRequest.setTable(TestUtils.TEST_TABLE_NAME);
         histogramRequest.setPeriod(Period.hours);
         histogramRequest.setFrom(1);
         histogramRequest.setTo(System.currentTimeMillis());
@@ -176,7 +179,7 @@ public class HistogramActionTest {
     @Test
     public void testHistogramActionIntervalHourWithFilter() throws QueryStoreException, JsonProcessingException {
         HistogramRequest histogramRequest = new HistogramRequest();
-        histogramRequest.setTable(TestUtils.TEST_TABLE);
+        histogramRequest.setTable(TestUtils.TEST_TABLE_NAME);
         histogramRequest.setPeriod(Period.hours);
         histogramRequest.setFrom(1);
         histogramRequest.setTo(System.currentTimeMillis());
@@ -198,7 +201,7 @@ public class HistogramActionTest {
     @Test
     public void testHistogramActionIntervalDayNoFilter() throws QueryStoreException, JsonProcessingException {
         HistogramRequest histogramRequest = new HistogramRequest();
-        histogramRequest.setTable(TestUtils.TEST_TABLE);
+        histogramRequest.setTable(TestUtils.TEST_TABLE_NAME);
         histogramRequest.setPeriod(Period.days);
         histogramRequest.setFrom(1);
         histogramRequest.setTo(System.currentTimeMillis());
@@ -215,7 +218,7 @@ public class HistogramActionTest {
     @Test
     public void testHistogramActionIntervalDayWithFilter() throws QueryStoreException, JsonProcessingException {
         HistogramRequest histogramRequest = new HistogramRequest();
-        histogramRequest.setTable(TestUtils.TEST_TABLE);
+        histogramRequest.setTable(TestUtils.TEST_TABLE_NAME);
         histogramRequest.setPeriod(Period.days);
         histogramRequest.setFrom(1);
         histogramRequest.setTo(System.currentTimeMillis());

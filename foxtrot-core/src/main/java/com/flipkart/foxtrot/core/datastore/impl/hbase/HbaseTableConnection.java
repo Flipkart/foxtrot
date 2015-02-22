@@ -15,7 +15,10 @@
  */
 package com.flipkart.foxtrot.core.datastore.impl.hbase;
 
+import com.flipkart.foxtrot.common.Table;
 import com.flipkart.foxtrot.core.datastore.DataStoreException;
+import com.flipkart.foxtrot.core.util.TableUtil;
+import com.google.common.base.Strings;
 import com.yammer.dropwizard.lifecycle.Managed;
 import net.sourceforge.cobertura.CoverageIgnore;
 import org.apache.hadoop.conf.Configuration;
@@ -46,12 +49,12 @@ public class HbaseTableConnection implements Managed {
     }
 
 
-    public synchronized HTableInterface getTable() throws DataStoreException {
+    public synchronized HTableInterface getTable(final Table table) throws DataStoreException {
         try {
             if (hbaseConfig.isSecure() && UserGroupInformation.isSecurityEnabled()) {
                 UserGroupInformation.getCurrentUser().reloginFromKeytab();
             }
-            return tablePool.getTable(hbaseConfig.getTableName());
+            return tablePool.getTable(TableUtil.getTableName(hbaseConfig, table));
         } catch (Throwable t) {
             throw new DataStoreException(DataStoreException.ErrorCode.STORE_CONNECTION,
                     t.getMessage(), t);

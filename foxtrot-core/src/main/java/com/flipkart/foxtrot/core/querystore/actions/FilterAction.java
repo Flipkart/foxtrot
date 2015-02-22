@@ -23,7 +23,9 @@ import com.flipkart.foxtrot.common.query.ResultSort;
 import com.flipkart.foxtrot.common.query.general.AnyFilter;
 import com.flipkart.foxtrot.core.common.Action;
 import com.flipkart.foxtrot.core.datastore.DataStore;
+import com.flipkart.foxtrot.core.querystore.QueryStore;
 import com.flipkart.foxtrot.core.querystore.QueryStoreException;
+import com.flipkart.foxtrot.core.querystore.TableMetadataManager;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsProvider;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConnection;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
@@ -50,10 +52,12 @@ public class FilterAction extends Action<Query> {
     private static final Logger logger = LoggerFactory.getLogger(FilterAction.class);
 
     public FilterAction(Query parameter,
+                        TableMetadataManager tableMetadataManager,
                         DataStore dataStore,
+                        QueryStore queryStore,
                         ElasticsearchConnection connection,
                         String cacheToken) {
-        super(parameter, dataStore, connection, cacheToken);
+        super(parameter, tableMetadataManager, dataStore, queryStore, connection, cacheToken);
     }
 
     @Override
@@ -107,7 +111,7 @@ public class FilterAction extends Action<Query> {
             if (ids.isEmpty()) {
                 return new QueryResponse(Collections.<Document>emptyList());
             }
-            return new QueryResponse(getDataStore().get(parameter.getTable(), ids));
+            return new QueryResponse(getQueryStore().get(parameter.getTable(), ids));
         } catch (Exception e) {
             if (null != search) {
                 logger.error("Error running generated query: " + search, e);

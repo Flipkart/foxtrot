@@ -48,6 +48,7 @@ import java.util.concurrent.Executors;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.when;
 
 /**
@@ -82,10 +83,10 @@ public class TableFieldMappingResourceTest extends ResourceTest {
 
         TableMetadataManager tableMetadataManager = Mockito.mock(TableMetadataManager.class);
         tableMetadataManager.start();
-        when(tableMetadataManager.exists(TestUtils.TEST_TABLE)).thenReturn(true);
+        when(tableMetadataManager.exists(TestUtils.TEST_TABLE_NAME)).thenReturn(true);
+        when(tableMetadataManager.get(anyString())).thenReturn(TestUtils.TEST_TABLE);
 
-
-        AnalyticsLoader analyticsLoader = new AnalyticsLoader(dataStore, elasticsearchConnection);
+        AnalyticsLoader analyticsLoader = new AnalyticsLoader(tableMetadataManager, dataStore, queryStore, elasticsearchConnection);
         TestUtils.registerActions(analyticsLoader, mapper);
         ExecutorService executorService = Executors.newFixedThreadPool(1);
         QueryExecutor queryExecutor = new QueryExecutor(analyticsLoader, executorService);
@@ -105,7 +106,7 @@ public class TableFieldMappingResourceTest extends ResourceTest {
 
     @Test
     public void testGet() throws Exception {
-        queryStore.save(TestUtils.TEST_TABLE, TestUtils.getMappingDocuments(mapper));
+        queryStore.save(TestUtils.TEST_TABLE_NAME, TestUtils.getMappingDocuments(mapper));
         Thread.sleep(500);
 
         Set<FieldTypeMapping> mappings = new HashSet<FieldTypeMapping>();
@@ -114,8 +115,8 @@ public class TableFieldMappingResourceTest extends ResourceTest {
         mappings.add(new FieldTypeMapping("header.hello", FieldType.STRING));
         mappings.add(new FieldTypeMapping("head.hello", FieldType.LONG));
 
-        TableFieldMapping tableFieldMapping = new TableFieldMapping(TestUtils.TEST_TABLE, mappings);
-        String response = client().resource(String.format("/v1/tables/%s/fields", TestUtils.TEST_TABLE))
+        TableFieldMapping tableFieldMapping = new TableFieldMapping(TestUtils.TEST_TABLE_NAME, mappings);
+        String response = client().resource(String.format("/v1/tables/%s/fields", TestUtils.TEST_TABLE_NAME))
                 .get(String.class);
 
         TableFieldMapping mapping = mapper.readValue(response, TableFieldMapping.class);
@@ -125,14 +126,14 @@ public class TableFieldMappingResourceTest extends ResourceTest {
 
     @Test(expected = UniformInterfaceException.class)
     public void testGetInvalidTable() throws Exception {
-        client().resource(String.format("/v1/tables/%s/fields", TestUtils.TEST_TABLE + "-missing"))
+        client().resource(String.format("/v1/tables/%s/fields", TestUtils.TEST_TABLE_NAME + "-missing"))
                 .get(String.class);
     }
 
     @Test
     public void testGetTableWithNoDocument() throws Exception {
-        TableFieldMapping request = new TableFieldMapping(TestUtils.TEST_TABLE, new HashSet<FieldTypeMapping>());
-        TableFieldMapping response = client().resource(String.format("/v1/tables/%s/fields", TestUtils.TEST_TABLE))
+        TableFieldMapping request = new TableFieldMapping(TestUtils.TEST_TABLE_NAME, new HashSet<FieldTypeMapping>());
+        TableFieldMapping response = client().resource(String.format("/v1/tables/%s/fields", TestUtils.TEST_TABLE_NAME))
                 .get(TableFieldMapping.class);
 
         assertEquals(request.getTable(), response.getTable());

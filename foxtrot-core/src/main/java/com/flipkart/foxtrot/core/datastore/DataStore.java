@@ -16,6 +16,7 @@
 package com.flipkart.foxtrot.core.datastore;
 
 import com.flipkart.foxtrot.common.Document;
+import com.flipkart.foxtrot.common.Table;
 
 import java.util.List;
 
@@ -25,8 +26,8 @@ import java.util.List;
  * Time: 9:17 PM
  */
 public interface DataStore {
-    public void save(final String table, final Document document) throws DataStoreException;
-    public void save(final String table, final List<Document> documents) throws DataStoreException;
-    public Document get(final String table, final String id) throws DataStoreException;
-    public List<Document> get(final String table, final List<String> ids) throws DataStoreException;
+    public void save(final Table table, final Document document) throws DataStoreException;
+    public void save(final Table table, final List<Document> documents) throws DataStoreException;
+    public Document get(final Table table, final String id) throws DataStoreException;
+    public List<Document> get(final Table table, final List<String> ids) throws DataStoreException;
 }

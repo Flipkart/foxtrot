@@ -95,7 +95,7 @@ public class TableMetadataResourceTest extends ResourceTest {
 
     @Test
     public void testSave() throws Exception {
-        Table table = new Table(TestUtils.TEST_TABLE, 30);
+        Table table = new Table(TestUtils.TEST_TABLE_NAME, 30);
         client().resource("/v1/tables").type(MediaType.APPLICATION_JSON_TYPE).post(table);
 
         Table response = tableMetadataManager.get(table.getName());
@@ -129,14 +129,14 @@ public class TableMetadataResourceTest extends ResourceTest {
 
     @Test(expected = InvalidEntityException.class)
     public void testSaveIllegalTtl() throws Exception {
-        Table table = new Table(TestUtils.TEST_TABLE, 0);
+        Table table = new Table(TestUtils.TEST_TABLE_NAME, 0);
         client().resource("/v1/tables").type(MediaType.APPLICATION_JSON_TYPE).post(table);
     }
 
 
     @Test
     public void testGet() throws Exception {
-        Table table = new Table(TestUtils.TEST_TABLE, 30);
+        Table table = new Table(TestUtils.TEST_TABLE_NAME, 30);
         tableMetadataManager.save(table);
 
         Table response = client().resource(String.format("/v1/tables/%s", table.getName())).get(Table.class);
@@ -148,7 +148,7 @@ public class TableMetadataResourceTest extends ResourceTest {
     @Test
     public void testGetMissingTable() throws Exception {
         try {
-            client().resource(String.format("/v1/tables/%s", TestUtils.TEST_TABLE)).get(Table.class);
+            client().resource(String.format("/v1/tables/%s", TestUtils.TEST_TABLE_NAME)).get(Table.class);
         } catch (UniformInterfaceException ex) {
             assertEquals(Response.Status.NOT_FOUND.getStatusCode(), ex.getResponse().getStatus());
         }
