@@ -1,4 +1,4 @@
-Foxtrot
+Foxtrot [![Build Status](https://travis-ci.org/flipkart-incubator/foxtrot.svg?branch=master)](https://travis-ci.org/flipkart-incubator/foxtrot.svg?branch=master)
 =========
 
 Foxtrot is a data store abstraction service for storing event data for real-time systems. It combines the power of fast row get/put by HBase and powerful indexing and aggregation features provided by Elasticsearch. Foxtrot provides:
