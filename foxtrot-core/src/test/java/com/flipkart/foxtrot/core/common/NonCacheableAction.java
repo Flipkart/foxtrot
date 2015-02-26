@@ -17,7 +17,9 @@ package com.flipkart.foxtrot.core.common;
 
 import com.flipkart.foxtrot.common.ActionResponse;
 import com.flipkart.foxtrot.core.datastore.DataStore;
+import com.flipkart.foxtrot.core.querystore.QueryStore;
 import com.flipkart.foxtrot.core.querystore.QueryStoreException;
+import com.flipkart.foxtrot.core.querystore.TableMetadataManager;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsProvider;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConnection;
 import com.google.common.annotations.VisibleForTesting;
@@ -30,10 +32,12 @@ import com.google.common.annotations.VisibleForTesting;
 public class NonCacheableAction extends Action<NonCacheableActionRequest> {
 
     public NonCacheableAction(NonCacheableActionRequest parameter,
+                              TableMetadataManager tableMetadataManager,
                               DataStore dataStore,
+                              QueryStore queryStore,
                               ElasticsearchConnection connection,
                               String cacheToken) {
-        super(parameter, dataStore, connection, cacheToken);
+        super(parameter, tableMetadataManager, dataStore, queryStore, connection, cacheToken);
     }
 
     @Override

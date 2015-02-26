@@ -92,9 +92,9 @@ public class DocumentResourceTest extends ResourceTest {
         tableMetadataManager = Mockito.mock(TableMetadataManager.class);
         tableMetadataManager.start();
         when(tableMetadataManager.exists(anyString())).thenReturn(true);
+        when(tableMetadataManager.get(anyString())).thenReturn(TestUtils.TEST_TABLE);
 
-
-        AnalyticsLoader analyticsLoader = new AnalyticsLoader(dataStore, elasticsearchConnection);
+        AnalyticsLoader analyticsLoader = new AnalyticsLoader(tableMetadataManager, dataStore, queryStore, elasticsearchConnection);
         TestUtils.registerActions(analyticsLoader, mapper);
         ExecutorService executorService = Executors.newFixedThreadPool(1);
         queryStore = new ElasticsearchQueryStore(tableMetadataManager, elasticsearchConnection, dataStore);
@@ -121,8 +121,8 @@ public class DocumentResourceTest extends ResourceTest {
                 id,
                 System.currentTimeMillis(),
                 factory.objectNode().put("hello", "world"));
-        client().resource("/v1/document/" + TestUtils.TEST_TABLE).type(MediaType.APPLICATION_JSON_TYPE).post(document);
-        Document response = queryStore.get(TestUtils.TEST_TABLE, id);
+        client().resource("/v1/document/" + TestUtils.TEST_TABLE_NAME).type(MediaType.APPLICATION_JSON_TYPE).post(document);
+        Document response = queryStore.get(TestUtils.TEST_TABLE_NAME, id);
         compare(document, response);
     }
 
@@ -136,7 +136,7 @@ public class DocumentResourceTest extends ResourceTest {
         doThrow(new QueryStoreException(QueryStoreException.ErrorCode.DOCUMENT_SAVE_ERROR, "Dummy Exception"))
                 .when(queryStore).save(anyString(), Matchers.<Document>any());
         try {
-            client().resource("/v1/document/" + TestUtils.TEST_TABLE).type(MediaType.APPLICATION_JSON_TYPE).post(document);
+            client().resource("/v1/document/" + TestUtils.TEST_TABLE_NAME).type(MediaType.APPLICATION_JSON_TYPE).post(document);
         } catch (UniformInterfaceException ex) {
             assertEquals(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode(), ex.getResponse().getStatus());
         }
@@ -148,7 +148,7 @@ public class DocumentResourceTest extends ResourceTest {
                 null,
                 System.currentTimeMillis(),
                 factory.objectNode().put("hello", "world"));
-        client().resource("/v1/document/" + TestUtils.TEST_TABLE).type(MediaType.APPLICATION_JSON_TYPE).post(document);
+        client().resource("/v1/document/" + TestUtils.TEST_TABLE_NAME).type(MediaType.APPLICATION_JSON_TYPE).post(document);
     }
 
     @Test(expected = InvalidEntityException.class)
@@ -157,17 +157,17 @@ public class DocumentResourceTest extends ResourceTest {
                 UUID.randomUUID().toString(),
                 System.currentTimeMillis(),
                 null);
-        client().resource("/v1/document/" + TestUtils.TEST_TABLE).type(MediaType.APPLICATION_JSON_TYPE).post(document);
+        client().resource("/v1/document/" + TestUtils.TEST_TABLE_NAME).type(MediaType.APPLICATION_JSON_TYPE).post(document);
     }
 
     @Test(expected = ContainerException.class)
     public void testSaveDocumentUnknownObject() throws Exception {
-        client().resource("/v1/document/" + TestUtils.TEST_TABLE).type(MediaType.APPLICATION_JSON_TYPE).post("hello");
+        client().resource("/v1/document/" + TestUtils.TEST_TABLE_NAME).type(MediaType.APPLICATION_JSON_TYPE).post("hello");
     }
 
     @Test(expected = InvalidEntityException.class)
     public void testSaveDocumentEmptyJson() throws Exception {
-        client().resource("/v1/document/" + TestUtils.TEST_TABLE).type(MediaType.APPLICATION_JSON_TYPE).post("{}");
+        client().resource("/v1/document/" + TestUtils.TEST_TABLE_NAME).type(MediaType.APPLICATION_JSON_TYPE).post("{}");
     }
 
 
@@ -180,10 +180,10 @@ public class DocumentResourceTest extends ResourceTest {
         Document document2 = new Document(id2, System.currentTimeMillis(), factory.objectNode().put("D", "data"));
         documents.add(document1);
         documents.add(document2);
-        client().resource(String.format("/v1/document/%s/bulk", TestUtils.TEST_TABLE)).type(MediaType.APPLICATION_JSON_TYPE).post(documents);
+        client().resource(String.format("/v1/document/%s/bulk", TestUtils.TEST_TABLE_NAME)).type(MediaType.APPLICATION_JSON_TYPE).post(documents);
 
-        compare(document1, queryStore.get(TestUtils.TEST_TABLE, id1));
-        compare(document2, queryStore.get(TestUtils.TEST_TABLE, id2));
+        compare(document1, queryStore.get(TestUtils.TEST_TABLE_NAME, id1));
+        compare(document2, queryStore.get(TestUtils.TEST_TABLE_NAME, id2));
     }
 
     @Test
@@ -198,7 +198,7 @@ public class DocumentResourceTest extends ResourceTest {
         doThrow(new QueryStoreException(QueryStoreException.ErrorCode.DOCUMENT_SAVE_ERROR, "Dummy Exception"))
                 .when(queryStore).save(anyString(), anyListOf(Document.class));
         try {
-            client().resource(String.format("/v1/document/%s/bulk", TestUtils.TEST_TABLE)).type(MediaType.APPLICATION_JSON_TYPE).post(documents);
+            client().resource(String.format("/v1/document/%s/bulk", TestUtils.TEST_TABLE_NAME)).type(MediaType.APPLICATION_JSON_TYPE).post(documents);
         } catch (UniformInterfaceException ex) {
             assertEquals(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode(), ex.getResponse().getStatus());
         }
@@ -207,7 +207,7 @@ public class DocumentResourceTest extends ResourceTest {
     @Test(expected = InvalidEntityException.class)
     public void testSaveDocumentsNullDocuments() throws Exception {
         List<Document> documents = null;
-        client().resource(String.format("/v1/document/%s/bulk", TestUtils.TEST_TABLE)).type(MediaType.APPLICATION_JSON_TYPE).post(documents);
+        client().resource(String.format("/v1/document/%s/bulk", TestUtils.TEST_TABLE_NAME)).type(MediaType.APPLICATION_JSON_TYPE).post(documents);
     }
 
     @Test
@@ -216,7 +216,7 @@ public class DocumentResourceTest extends ResourceTest {
         documents.add(null);
         documents.add(new Document(UUID.randomUUID().toString(), System.currentTimeMillis(), factory.objectNode().put("d", "d")));
         try {
-            client().resource(String.format("/v1/document/%s/bulk", TestUtils.TEST_TABLE))
+            client().resource(String.format("/v1/document/%s/bulk", TestUtils.TEST_TABLE_NAME))
                     .type(MediaType.APPLICATION_JSON_TYPE)
                     .post(documents);
         } catch (UniformInterfaceException ex) {
@@ -229,7 +229,7 @@ public class DocumentResourceTest extends ResourceTest {
         List<Document> documents = new Vector<Document>();
         documents.add(new Document(null, System.currentTimeMillis(), factory.objectNode().put("d", "d")));
         try {
-            client().resource(String.format("/v1/document/%s/bulk", TestUtils.TEST_TABLE))
+            client().resource(String.format("/v1/document/%s/bulk", TestUtils.TEST_TABLE_NAME))
                     .type(MediaType.APPLICATION_JSON_TYPE)
                     .post(documents);
         } catch (UniformInterfaceException ex) {
@@ -242,7 +242,7 @@ public class DocumentResourceTest extends ResourceTest {
         List<Document> documents = new Vector<Document>();
         documents.add(new Document(UUID.randomUUID().toString(), System.currentTimeMillis(), null));
         try {
-            client().resource(String.format("/v1/document/%s/bulk", TestUtils.TEST_TABLE))
+            client().resource(String.format("/v1/document/%s/bulk", TestUtils.TEST_TABLE_NAME))
                     .type(MediaType.APPLICATION_JSON_TYPE)
                     .post(documents);
         } catch (UniformInterfaceException ex) {
@@ -252,7 +252,7 @@ public class DocumentResourceTest extends ResourceTest {
 
     @Test(expected = MappableContainerException.class)
     public void testSaveDocumentsInvalidRequestObject() throws Exception {
-        client().resource(String.format("/v1/document/%s/bulk", TestUtils.TEST_TABLE))
+        client().resource(String.format("/v1/document/%s/bulk", TestUtils.TEST_TABLE_NAME))
                 .type(MediaType.APPLICATION_JSON_TYPE)
                 .post("Hello");
     }
@@ -260,7 +260,7 @@ public class DocumentResourceTest extends ResourceTest {
     @Test
     public void testSaveDocumentsEmptyList() throws Exception {
         try {
-            client().resource(String.format("/v1/document/%s/bulk", TestUtils.TEST_TABLE))
+            client().resource(String.format("/v1/document/%s/bulk", TestUtils.TEST_TABLE_NAME))
                     .type(MediaType.APPLICATION_JSON_TYPE)
                     .post("[]");
         } catch (UniformInterfaceException ex) {
@@ -272,9 +272,9 @@ public class DocumentResourceTest extends ResourceTest {
     public void testGetDocument() throws Exception {
         String id = UUID.randomUUID().toString();
         Document document = new Document(id, System.currentTimeMillis(), factory.objectNode().put("D", "data"));
-        queryStore.save(TestUtils.TEST_TABLE, document);
+        queryStore.save(TestUtils.TEST_TABLE_NAME, document);
 
-        Document response = client().resource(String.format("/v1/document/%s/%s", TestUtils.TEST_TABLE, id))
+        Document response = client().resource(String.format("/v1/document/%s/%s", TestUtils.TEST_TABLE_NAME, id))
                 .get(Document.class);
         compare(document, response);
     }
@@ -283,7 +283,7 @@ public class DocumentResourceTest extends ResourceTest {
     public void testGetDocumentMissingId() throws Exception {
         String id = UUID.randomUUID().toString();
         try {
-            client().resource(String.format("/v1/document/%s/%s", TestUtils.TEST_TABLE, id))
+            client().resource(String.format("/v1/document/%s/%s", TestUtils.TEST_TABLE_NAME, id))
                     .get(Document.class);
         } catch (UniformInterfaceException ex) {
             assertEquals(Response.Status.NOT_FOUND.getStatusCode(), ex.getResponse().getStatus());
@@ -296,7 +296,7 @@ public class DocumentResourceTest extends ResourceTest {
         try {
             doThrow(new QueryStoreException(QueryStoreException.ErrorCode.DOCUMENT_GET_ERROR, "Error"))
                     .when(queryStore).get(anyString(), anyString());
-            client().resource(String.format("/v1/document/%s/%s", TestUtils.TEST_TABLE, id))
+            client().resource(String.format("/v1/document/%s/%s", TestUtils.TEST_TABLE_NAME, id))
                     .get(Document.class);
         } catch (UniformInterfaceException ex) {
             assertEquals(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode(), ex.getResponse().getStatus());
@@ -313,8 +313,8 @@ public class DocumentResourceTest extends ResourceTest {
         Document document2 = new Document(id2, System.currentTimeMillis(), factory.objectNode().put("D", "data"));
         documents.add(document1);
         documents.add(document2);
-        queryStore.save(TestUtils.TEST_TABLE, documents);
-        String response = client().resource(String.format("/v1/document/%s", TestUtils.TEST_TABLE))
+        queryStore.save(TestUtils.TEST_TABLE_NAME, documents);
+        String response = client().resource(String.format("/v1/document/%s", TestUtils.TEST_TABLE_NAME))
                 .queryParam("id", id1)
                 .queryParam("id", id2)
                 .get(String.class);
@@ -325,7 +325,7 @@ public class DocumentResourceTest extends ResourceTest {
 
     @Test
     public void testGetDocumentsNoIds() throws Exception {
-        String response = client().resource(String.format("/v1/document/%s", TestUtils.TEST_TABLE))
+        String response = client().resource(String.format("/v1/document/%s", TestUtils.TEST_TABLE_NAME))
                 .get(String.class);
         String expectedResponse = mapper.writeValueAsString(new ArrayList<Document>());
         assertEquals(expectedResponse, response);
@@ -334,7 +334,7 @@ public class DocumentResourceTest extends ResourceTest {
     @Test
     public void testGetDocumentsMissingIds() throws Exception {
         try {
-            client().resource(String.format("/v1/document/%s", TestUtils.TEST_TABLE))
+            client().resource(String.format("/v1/document/%s", TestUtils.TEST_TABLE_NAME))
                     .queryParam("id", UUID.randomUUID().toString())
                     .get(String.class);
         } catch (UniformInterfaceException ex) {
@@ -347,7 +347,7 @@ public class DocumentResourceTest extends ResourceTest {
         try {
             doThrow(new QueryStoreException(QueryStoreException.ErrorCode.DOCUMENT_GET_ERROR, "Error"))
                     .when(queryStore).get(anyString(), anyListOf(String.class));
-            client().resource(String.format("/v1/document/%s", TestUtils.TEST_TABLE))
+            client().resource(String.format("/v1/document/%s", TestUtils.TEST_TABLE_NAME))
                     .queryParam("id", UUID.randomUUID().toString())
                     .get(String.class);
         } catch (UniformInterfaceException ex) {

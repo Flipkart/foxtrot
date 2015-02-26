@@ -37,12 +37,20 @@ public class Table implements Serializable {
     @Max(180)
     private int ttl;
 
+    private boolean seggregatedBackend = false;
+
     public Table() {
     }
 
     public Table(String name, int ttl) {
         this.name = name;
         this.ttl = ttl;
+    }
+
+    public Table(String name, int ttl, boolean seggregatedBackend) {
+        this.name = name;
+        this.ttl = ttl;
+        this.seggregatedBackend = seggregatedBackend;
     }
 
     public String getName() {
@@ -67,6 +75,16 @@ public class Table implements Serializable {
         return new ToStringBuilder(this)
                 .append("name", name)
                 .append("ttl", ttl)
+                .append("seggregatedBackend", seggregatedBackend)
                 .toString();
     }
+
+    public boolean isSeggregatedBackend() {
+        return seggregatedBackend;
+    }
+
+    public void setSeggregatedBackend(boolean seggregatedBackend) {
+        this.seggregatedBackend = seggregatedBackend;
+    }
+
 }

@@ -17,6 +17,7 @@ package com.flipkart.foxtrot.core.querystore;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.flipkart.foxtrot.common.ActionRequest;
+import com.flipkart.foxtrot.common.Table;
 import com.flipkart.foxtrot.core.MockElasticsearchServer;
 import com.flipkart.foxtrot.core.TestUtils;
 import com.flipkart.foxtrot.core.common.CacheUtils;
@@ -69,8 +70,11 @@ public class QueryExecutorTest {
         ElasticsearchConnection elasticsearchConnection = Mockito.mock(ElasticsearchConnection.class);
         when(elasticsearchConnection.getClient()).thenReturn(elasticsearchServer.getClient());
         ElasticsearchUtils.initializeMappings(elasticsearchServer.getClient());
-
-        analyticsLoader = spy(new AnalyticsLoader(dataStore, elasticsearchConnection));
+        TableMetadataManager tableMetadataManager = mock(TableMetadataManager.class);
+        when(tableMetadataManager.exists(anyString())).thenReturn(true);
+        when(tableMetadataManager.get(anyString())).thenReturn(TestUtils.TEST_TABLE);
+        QueryStore queryStore = mock(QueryStore.class);
+        analyticsLoader = spy(new AnalyticsLoader(tableMetadataManager, dataStore, queryStore, elasticsearchConnection));
         TestUtils.registerActions(analyticsLoader, mapper);
         ExecutorService executorService = Executors.newFixedThreadPool(1);
         queryExecutor = new QueryExecutor(analyticsLoader, executorService);

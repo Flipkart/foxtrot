@@ -23,7 +23,9 @@ import com.flipkart.foxtrot.common.query.FilterCombinerType;
 import com.flipkart.foxtrot.common.query.general.AnyFilter;
 import com.flipkart.foxtrot.core.common.Action;
 import com.flipkart.foxtrot.core.datastore.DataStore;
+import com.flipkart.foxtrot.core.querystore.QueryStore;
 import com.flipkart.foxtrot.core.querystore.QueryStoreException;
+import com.flipkart.foxtrot.core.querystore.TableMetadataManager;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsProvider;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConnection;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
@@ -54,10 +56,12 @@ public class HistogramAction extends Action<HistogramRequest> {
     private static final Logger logger = LoggerFactory.getLogger(HistogramAction.class.getSimpleName());
 
     public HistogramAction(HistogramRequest parameter,
+                           TableMetadataManager tableMetadataManager,
                            DataStore dataStore,
+                           QueryStore queryStore,
                            ElasticsearchConnection connection,
                            String cacheToken) {
-        super(parameter, dataStore, connection, cacheToken);
+        super(parameter, tableMetadataManager, dataStore, queryStore, connection, cacheToken);
     }
 
     @Override

@@ -35,6 +35,7 @@ public class HbaseConfig {
     private String kerberosConfigFile;
     private String kinitPath;
     private String authString;
+    private String seggregatedTablePrefix;
 
     @NotNull
     @NotEmpty
@@ -121,5 +122,13 @@ public class HbaseConfig {
 
     public void setTableName(String tableName) {
         this.tableName = tableName;
+    }
+
+    public String getSeggregatedTablePrefix() {
+        return seggregatedTablePrefix;
+    }
+
+    public void setSeggregatedTablePrefix(String seggregatedTablePrefix) {
+        this.seggregatedTablePrefix = seggregatedTablePrefix;
     }
 }

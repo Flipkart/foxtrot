@@ -9,7 +9,9 @@ import com.flipkart.foxtrot.common.query.ResultSort;
 import com.flipkart.foxtrot.common.query.general.AnyFilter;
 import com.flipkart.foxtrot.core.common.Action;
 import com.flipkart.foxtrot.core.datastore.DataStore;
+import com.flipkart.foxtrot.core.querystore.QueryStore;
 import com.flipkart.foxtrot.core.querystore.QueryStoreException;
+import com.flipkart.foxtrot.core.querystore.TableMetadataManager;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsProvider;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConnection;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
@@ -35,10 +37,12 @@ public class DistinctAction extends Action<DistinctRequest> {
     private static final Logger logger = LoggerFactory.getLogger(GroupAction.class.getSimpleName());
 
     public DistinctAction(DistinctRequest request,
-                       DataStore dataStore,
-                       ElasticsearchConnection connection,
-                       String cacheToken) {
-        super(request, dataStore, connection, cacheToken);
+                          TableMetadataManager tableMetadataManager,
+                          DataStore dataStore,
+                          QueryStore queryStore,
+                          ElasticsearchConnection connection,
+                          String cacheToken) {
+        super(request, tableMetadataManager, dataStore, queryStore, connection, cacheToken);
     }
 
     @Override

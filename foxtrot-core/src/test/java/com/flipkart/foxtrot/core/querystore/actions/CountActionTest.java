@@ -11,6 +11,7 @@ import com.flipkart.foxtrot.core.TestUtils;
 import com.flipkart.foxtrot.core.common.CacheUtils;
 import com.flipkart.foxtrot.core.datastore.DataStore;
 import com.flipkart.foxtrot.core.querystore.QueryExecutor;
+import com.flipkart.foxtrot.core.querystore.QueryStore;
 import com.flipkart.foxtrot.core.querystore.QueryStoreException;
 import com.flipkart.foxtrot.core.querystore.TableMetadataManager;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsLoader;
@@ -31,6 +32,7 @@ import java.util.concurrent.Executors;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.when;
 
 public class CountActionTest {
@@ -58,18 +60,18 @@ public class CountActionTest {
 
         // Ensure that table exists before saving/reading data from it
         TableMetadataManager tableMetadataManager = Mockito.mock(TableMetadataManager.class);
-        when(tableMetadataManager.exists(TestUtils.TEST_TABLE)).thenReturn(true);
-
-        AnalyticsLoader analyticsLoader = new AnalyticsLoader(dataStore, elasticsearchConnection);
+        when(tableMetadataManager.exists(TestUtils.TEST_TABLE_NAME)).thenReturn(true);
+        when(tableMetadataManager.get(anyString())).thenReturn(TestUtils.TEST_TABLE);
+        QueryStore queryStore = new ElasticsearchQueryStore(tableMetadataManager, elasticsearchConnection, dataStore);
+        AnalyticsLoader analyticsLoader = new AnalyticsLoader(tableMetadataManager, dataStore, queryStore, elasticsearchConnection);
         TestUtils.registerActions(analyticsLoader, mapper);
         ExecutorService executorService = Executors.newFixedThreadPool(1);
         queryExecutor = new QueryExecutor(analyticsLoader, executorService);
         List<Document> documents = TestUtils.getCountDocuments(mapper);
-        new ElasticsearchQueryStore(tableMetadataManager, elasticsearchConnection, dataStore)
-                .save(TestUtils.TEST_TABLE, documents);
+        queryStore.save(TestUtils.TEST_TABLE_NAME, documents);
         for (Document document : documents) {
             elasticsearchServer.getClient().admin().indices()
-                    .prepareRefresh(ElasticsearchUtils.getCurrentIndex(TestUtils.TEST_TABLE, document.getTimestamp()))
+                    .prepareRefresh(ElasticsearchUtils.getCurrentIndex(TestUtils.TEST_TABLE_NAME, document.getTimestamp()))
                     .setForce(true).execute().actionGet();
         }
     }
@@ -83,7 +85,7 @@ public class CountActionTest {
     @Test
     public void testCount() throws QueryStoreException {
         CountRequest countRequest = new CountRequest();
-        countRequest.setTable(TestUtils.TEST_TABLE);
+        countRequest.setTable(TestUtils.TEST_TABLE_NAME);
         countRequest.setField("os");
         countRequest.setDistinct(false);
         CountResponse countResponse = CountResponse.class.cast(queryExecutor.execute(countRequest));
@@ -95,7 +97,7 @@ public class CountActionTest {
     @Test
     public void testCountWithFilter() throws QueryStoreException {
         CountRequest countRequest = new CountRequest();
-        countRequest.setTable(TestUtils.TEST_TABLE);
+        countRequest.setTable(TestUtils.TEST_TABLE_NAME);
         countRequest.setField("os");
         ArrayList<Filter> filters = new ArrayList<Filter>();
         filters.add(new EqualsFilter("os", "android"));
@@ -110,7 +112,7 @@ public class CountActionTest {
     @Test
     public void testCountDistinct() throws QueryStoreException {
         CountRequest countRequest = new CountRequest();
-        countRequest.setTable(TestUtils.TEST_TABLE);
+        countRequest.setTable(TestUtils.TEST_TABLE_NAME);
         countRequest.setField("os");
         countRequest.setDistinct(true);
         CountResponse countResponse = CountResponse.class.cast(queryExecutor.execute(countRequest));
@@ -122,7 +124,7 @@ public class CountActionTest {
     @Test
     public void testCountDistinctWithFilter() throws QueryStoreException {
         CountRequest countRequest = new CountRequest();
-        countRequest.setTable(TestUtils.TEST_TABLE);
+        countRequest.setTable(TestUtils.TEST_TABLE_NAME);
         countRequest.setField("os");
         ArrayList<Filter> filters = new ArrayList<Filter>();
         filters.add(new EqualsFilter("device", "nexus"));
@@ -137,7 +139,7 @@ public class CountActionTest {
     @Test
     public void testCountDistinctWithFilterOnSameField() throws QueryStoreException {
         CountRequest countRequest = new CountRequest();
-        countRequest.setTable(TestUtils.TEST_TABLE);
+        countRequest.setTable(TestUtils.TEST_TABLE_NAME);
         countRequest.setField("os");
         ArrayList<Filter> filters = new ArrayList<Filter>();
         filters.add(new EqualsFilter("os", "android"));

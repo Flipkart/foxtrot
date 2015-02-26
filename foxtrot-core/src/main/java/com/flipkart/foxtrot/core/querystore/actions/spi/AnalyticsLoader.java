@@ -19,6 +19,8 @@ import com.flipkart.foxtrot.common.ActionRequest;
 import com.flipkart.foxtrot.core.common.Action;
 import com.flipkart.foxtrot.core.common.CacheUtils;
 import com.flipkart.foxtrot.core.datastore.DataStore;
+import com.flipkart.foxtrot.core.querystore.QueryStore;
+import com.flipkart.foxtrot.core.querystore.TableMetadataManager;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConnection;
 import com.google.common.collect.Maps;
 
@@ -33,12 +35,16 @@ import java.util.Map;
 public class AnalyticsLoader {
 
     private final Map<String, ActionMetadata> actions = Maps.newHashMap();
+    private final TableMetadataManager tableMetadataManager;
     private final DataStore dataStore;
+    private final QueryStore queryStore;
     private final ElasticsearchConnection elasticsearchConnection;
 
-    public AnalyticsLoader(DataStore dataStore,
-                           ElasticsearchConnection elasticsearchConnection) {
+    public AnalyticsLoader(TableMetadataManager tableMetadataManager, DataStore dataStore,
+                           QueryStore queryStore, ElasticsearchConnection elasticsearchConnection) {
+        this.tableMetadataManager = tableMetadataManager;
         this.dataStore = dataStore;
+        this.queryStore = queryStore;
         this.elasticsearchConnection = elasticsearchConnection;
     }
 
@@ -52,10 +58,17 @@ public class AnalyticsLoader {
                 R r = (R) metadata.getRequest().cast(request);
                 Constructor<? extends Action> constructor
                         = metadata.getAction().getConstructor(metadata.getRequest(),
+                        TableMetadataManager.class,
                         DataStore.class,
+                        QueryStore.class,
                         ElasticsearchConnection.class,
                         String.class);
-                return constructor.newInstance(r, dataStore, elasticsearchConnection, metadata.getCacheToken());
+                return constructor.newInstance(r,
+                                            tableMetadataManager,
+                                            dataStore,
+                                            queryStore,
+                                            elasticsearchConnection,
+                                            metadata.getCacheToken());
             }
         }
         return null;

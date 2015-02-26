@@ -8,7 +8,9 @@ import com.flipkart.foxtrot.common.stats.StatsResponse;
 import com.flipkart.foxtrot.common.stats.StatsValue;
 import com.flipkart.foxtrot.core.common.Action;
 import com.flipkart.foxtrot.core.datastore.DataStore;
+import com.flipkart.foxtrot.core.querystore.QueryStore;
 import com.flipkart.foxtrot.core.querystore.QueryStoreException;
+import com.flipkart.foxtrot.core.querystore.TableMetadataManager;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsProvider;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConnection;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
@@ -35,8 +37,13 @@ public class StatsAction extends Action<StatsRequest> {
 
     private static final Logger logger = LoggerFactory.getLogger(StatsAction.class.getSimpleName());
 
-    public StatsAction(StatsRequest parameter, DataStore dataStore, ElasticsearchConnection connection, String cacheToken) {
-        super(parameter, dataStore, connection, cacheToken);
+    public StatsAction(StatsRequest parameter,
+                       TableMetadataManager tableMetadataManager,
+                       DataStore dataStore,
+                       QueryStore queryStore,
+                       ElasticsearchConnection connection,
+                       String cacheToken) {
+        super(parameter, tableMetadataManager, dataStore, queryStore, connection, cacheToken);
     }
 
     @Override

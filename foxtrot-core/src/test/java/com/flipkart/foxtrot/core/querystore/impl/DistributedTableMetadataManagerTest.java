@@ -96,9 +96,9 @@ public class DistributedTableMetadataManagerTest {
     @Test
     public void testGet() throws Exception {
         Table table = new Table();
-        table.setName(TestUtils.TEST_TABLE);
+        table.setName(TestUtils.TEST_TABLE_NAME);
         table.setTtl(60);
-        tableDataStore.put(TestUtils.TEST_TABLE, table);
+        tableDataStore.put(TestUtils.TEST_TABLE_NAME, table);
         Table response = distributedTableMetadataManager.get(table.getName());
         assertEquals(table.getName(), response.getName());
         assertEquals(table.getTtl(), response.getTtl());
@@ -113,7 +113,7 @@ public class DistributedTableMetadataManagerTest {
     @Test
     public void testExists() throws Exception {
         Table table = new Table();
-        table.setName(TestUtils.TEST_TABLE);
+        table.setName(TestUtils.TEST_TABLE_NAME);
         table.setTtl(15);
         distributedTableMetadataManager.save(table);
         assertTrue(distributedTableMetadataManager.exists(table.getName()));

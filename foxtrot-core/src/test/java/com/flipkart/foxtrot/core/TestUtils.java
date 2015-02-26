@@ -18,6 +18,7 @@ package com.flipkart.foxtrot.core;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.jsontype.NamedType;
 import com.flipkart.foxtrot.common.Document;
+import com.flipkart.foxtrot.common.Table;
 import com.flipkart.foxtrot.core.common.Action;
 import com.flipkart.foxtrot.core.datastore.DataStore;
 import com.flipkart.foxtrot.core.datastore.DataStoreException;
@@ -27,6 +28,7 @@ import com.flipkart.foxtrot.core.querystore.actions.spi.ActionMetadata;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsLoader;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsProvider;
 import org.apache.hadoop.hbase.client.HTableInterface;
+import org.mockito.Matchers;
 import org.mockito.Mockito;
 import org.reflections.Reflections;
 import org.reflections.scanners.SubTypesScanner;
@@ -43,12 +45,13 @@ import static org.mockito.Mockito.when;
 public class TestUtils {
 
     private static final Logger logger = LoggerFactory.getLogger(TestUtils.class.getSimpleName());
-    public static String TEST_TABLE = "test-table";
+    public static String TEST_TABLE_NAME = "test-table";
+    public static Table TEST_TABLE = new Table(TEST_TABLE_NAME, 7);
 
     public static DataStore getDataStore() throws DataStoreException {
         HTableInterface tableInterface = MockHTable.create();
         HbaseTableConnection tableConnection = Mockito.mock(HbaseTableConnection.class);
-        when(tableConnection.getTable()).thenReturn(tableInterface);
+        when(tableConnection.getTable(Matchers.<Table>any())).thenReturn(tableInterface);
         return new HBaseDataStore(tableConnection, new ObjectMapper());
     }
 

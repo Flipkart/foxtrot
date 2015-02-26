@@ -24,7 +24,9 @@ import com.flipkart.foxtrot.common.trend.TrendRequest;
 import com.flipkart.foxtrot.common.trend.TrendResponse;
 import com.flipkart.foxtrot.core.common.Action;
 import com.flipkart.foxtrot.core.datastore.DataStore;
+import com.flipkart.foxtrot.core.querystore.QueryStore;
 import com.flipkart.foxtrot.core.querystore.QueryStoreException;
+import com.flipkart.foxtrot.core.querystore.TableMetadataManager;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsProvider;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConnection;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
@@ -52,10 +54,12 @@ public class TrendAction extends Action<TrendRequest> {
     private static final Logger logger = LoggerFactory.getLogger(TrendAction.class.getSimpleName());
 
     public TrendAction(TrendRequest parameter,
+                       TableMetadataManager tableMetadataManager,
                        DataStore dataStore,
+                       QueryStore queryStore,
                        ElasticsearchConnection connection,
                        String cacheToken) {
-        super(parameter, dataStore, connection, cacheToken);
+        super(parameter, tableMetadataManager, dataStore, queryStore, connection, cacheToken);
     }
 
     @Override

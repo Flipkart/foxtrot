@@ -28,6 +28,7 @@ import com.flipkart.foxtrot.core.TestUtils;
 import com.flipkart.foxtrot.core.common.CacheUtils;
 import com.flipkart.foxtrot.core.datastore.DataStore;
 import com.flipkart.foxtrot.core.querystore.QueryExecutor;
+import com.flipkart.foxtrot.core.querystore.QueryStore;
 import com.flipkart.foxtrot.core.querystore.QueryStoreException;
 import com.flipkart.foxtrot.core.querystore.TableMetadataManager;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsLoader;
@@ -47,6 +48,8 @@ import java.util.concurrent.Executors;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 /**
@@ -76,18 +79,18 @@ public class GroupActionTest {
 
         // Ensure that table exists before saving/reading data from it
         TableMetadataManager tableMetadataManager = Mockito.mock(TableMetadataManager.class);
-        when(tableMetadataManager.exists(TestUtils.TEST_TABLE)).thenReturn(true);
-
-        AnalyticsLoader analyticsLoader = new AnalyticsLoader(dataStore, elasticsearchConnection);
+        when(tableMetadataManager.exists(TestUtils.TEST_TABLE_NAME)).thenReturn(true);
+        when(tableMetadataManager.get(anyString())).thenReturn(TestUtils.TEST_TABLE);
+        QueryStore queryStore = new ElasticsearchQueryStore(tableMetadataManager, elasticsearchConnection, dataStore);
+        AnalyticsLoader analyticsLoader = new AnalyticsLoader(tableMetadataManager, dataStore, queryStore, elasticsearchConnection);
         TestUtils.registerActions(analyticsLoader, mapper);
         ExecutorService executorService = Executors.newFixedThreadPool(1);
         queryExecutor = new QueryExecutor(analyticsLoader, executorService);
         List<Document> documents = TestUtils.getGroupDocuments(mapper);
-        new ElasticsearchQueryStore(tableMetadataManager, elasticsearchConnection, dataStore)
-                .save(TestUtils.TEST_TABLE, documents);
+        queryStore.save(TestUtils.TEST_TABLE_NAME, documents);
         for (Document document : documents) {
             elasticsearchServer.getClient().admin().indices()
-                    .prepareRefresh(ElasticsearchUtils.getCurrentIndex(TestUtils.TEST_TABLE, document.getTimestamp()))
+                    .prepareRefresh(ElasticsearchUtils.getCurrentIndex(TestUtils.TEST_TABLE_NAME, document.getTimestamp()))
                     .setForce(true).execute().actionGet();
         }
     }
@@ -101,7 +104,7 @@ public class GroupActionTest {
     @Test
     public void testGroupActionSingleQueryException() throws QueryStoreException, JsonProcessingException {
         GroupRequest groupRequest = new GroupRequest();
-        groupRequest.setTable(TestUtils.TEST_TABLE);
+        groupRequest.setTable(TestUtils.TEST_TABLE_NAME);
         groupRequest.setNesting(Arrays.asList("os"));
         when(elasticsearchServer.getClient()).thenReturn(null);
         try {
@@ -115,7 +118,7 @@ public class GroupActionTest {
     @Test
     public void testGroupActionSingleFieldNoFilter() throws QueryStoreException, JsonProcessingException {
         GroupRequest groupRequest = new GroupRequest();
-        groupRequest.setTable(TestUtils.TEST_TABLE);
+        groupRequest.setTable(TestUtils.TEST_TABLE_NAME);
         groupRequest.setNesting(Arrays.asList("os"));
 
         Map<String, Object> response = Maps.newHashMap();
@@ -129,7 +132,7 @@ public class GroupActionTest {
     @Test
     public void testGroupActionSingleFieldSpecialCharacterNoFilter() throws QueryStoreException, JsonProcessingException {
         GroupRequest groupRequest = new GroupRequest();
-        groupRequest.setTable(TestUtils.TEST_TABLE);
+        groupRequest.setTable(TestUtils.TEST_TABLE_NAME);
         groupRequest.setNesting(Arrays.asList("header.data"));
 
         Map<String, Object> response = Maps.newHashMap();
@@ -142,7 +145,7 @@ public class GroupActionTest {
     @Test
     public void testGroupActionSingleFieldEmptyFieldNoFilter() throws QueryStoreException, JsonProcessingException {
         GroupRequest groupRequest = new GroupRequest();
-        groupRequest.setTable(TestUtils.TEST_TABLE);
+        groupRequest.setTable(TestUtils.TEST_TABLE_NAME);
         groupRequest.setNesting(Arrays.asList(""));
 
         try {
@@ -156,7 +159,7 @@ public class GroupActionTest {
     @Test
     public void testGroupActionSingleFieldSpecialCharactersNoFilter() throws QueryStoreException, JsonProcessingException {
         GroupRequest groupRequest = new GroupRequest();
-        groupRequest.setTable(TestUtils.TEST_TABLE);
+        groupRequest.setTable(TestUtils.TEST_TABLE_NAME);
         groupRequest.setNesting(Arrays.asList(""));
 
         try {
@@ -170,7 +173,7 @@ public class GroupActionTest {
     @Test
     public void testGroupActionSingleFieldHavingSpecialCharactersWithFilter() throws QueryStoreException, JsonProcessingException {
         GroupRequest groupRequest = new GroupRequest();
-        groupRequest.setTable(TestUtils.TEST_TABLE);
+        groupRequest.setTable(TestUtils.TEST_TABLE_NAME);
 
         EqualsFilter equalsFilter = new EqualsFilter();
         equalsFilter.setField("device");
@@ -187,7 +190,7 @@ public class GroupActionTest {
     @Test
     public void testGroupActionSingleFieldWithFilter() throws QueryStoreException, JsonProcessingException {
         GroupRequest groupRequest = new GroupRequest();
-        groupRequest.setTable(TestUtils.TEST_TABLE);
+        groupRequest.setTable(TestUtils.TEST_TABLE_NAME);
 
         EqualsFilter equalsFilter = new EqualsFilter();
         equalsFilter.setField("device");
@@ -206,7 +209,7 @@ public class GroupActionTest {
     @Test
     public void testGroupActionTwoFieldsNoFilter() throws QueryStoreException, JsonProcessingException {
         GroupRequest groupRequest = new GroupRequest();
-        groupRequest.setTable(TestUtils.TEST_TABLE);
+        groupRequest.setTable(TestUtils.TEST_TABLE_NAME);
         groupRequest.setNesting(Arrays.asList("os", "device"));
 
         Map<String, Object> response = Maps.newHashMap();
@@ -220,7 +223,7 @@ public class GroupActionTest {
     @Test
     public void testGroupActionTwoFieldsWithFilter() throws QueryStoreException, JsonProcessingException {
         GroupRequest groupRequest = new GroupRequest();
-        groupRequest.setTable(TestUtils.TEST_TABLE);
+        groupRequest.setTable(TestUtils.TEST_TABLE_NAME);
         groupRequest.setNesting(Arrays.asList("os", "device"));
 
         GreaterThanFilter greaterThanFilter = new GreaterThanFilter();
@@ -239,7 +242,7 @@ public class GroupActionTest {
     @Test
     public void testGroupActionMultipleFieldsNoFilter() throws QueryStoreException, JsonProcessingException {
         GroupRequest groupRequest = new GroupRequest();
-        groupRequest.setTable(TestUtils.TEST_TABLE);
+        groupRequest.setTable(TestUtils.TEST_TABLE_NAME);
         groupRequest.setNesting(Arrays.asList("os", "device", "version"));
 
         Map<String, Object> response = Maps.newHashMap();
@@ -260,7 +263,7 @@ public class GroupActionTest {
     @Test
     public void testGroupActionMultipleFieldsWithFilter() throws QueryStoreException, JsonProcessingException {
         GroupRequest groupRequest = new GroupRequest();
-        groupRequest.setTable(TestUtils.TEST_TABLE);
+        groupRequest.setTable(TestUtils.TEST_TABLE_NAME);
         groupRequest.setNesting(Arrays.asList("os", "device", "version"));
 
         GreaterThanFilter greaterThanFilter = new GreaterThanFilter();

@@ -16,12 +16,15 @@
 package com.flipkart.foxtrot.core;
 
 import org.apache.commons.io.FileUtils;
+import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;
+import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequestBuilder;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.common.settings.ImmutableSettings;
 import org.elasticsearch.node.Node;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.UUID;
 
 import static org.elasticsearch.node.NodeBuilder.nodeBuilder;
 
@@ -31,10 +34,10 @@ import static org.elasticsearch.node.NodeBuilder.nodeBuilder;
 
 public class MockElasticsearchServer {
     private final Node node;
-    private String DATA_DIRECTORY = "target/elasticsearch-data";
+    private String DATA_DIRECTORY = UUID.randomUUID().toString() + "/elasticsearch-data";
 
     public MockElasticsearchServer(String directory) {
-        this.DATA_DIRECTORY = "target/" + directory;
+        this.DATA_DIRECTORY = UUID.randomUUID().toString() + "/" + directory;
         ImmutableSettings.Builder elasticsearchSettings = ImmutableSettings.settingsBuilder()
                 .put("http.enabled", "false")
                 .put("path.data", "target/" + DATA_DIRECTORY);
@@ -50,6 +53,7 @@ public class MockElasticsearchServer {
     }
 
     public void shutdown() throws IOException {
+        node.client().admin().indices().delete(new DeleteIndexRequest("table-meta"));
         node.close();
         deleteDataDirectory();
     }

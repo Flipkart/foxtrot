@@ -80,7 +80,7 @@ public class ElasticsearchQueryStore implements QueryStore {
             if (new DateTime().plusDays(1).minus(document.getTimestamp()).getMillis() <  0) {
                 return;
             }
-            dataStore.save(table, document);
+            dataStore.save(tableMetadataManager.get(table), document);
             long timestamp = document.getTimestamp();
             Stopwatch stopwatch = new Stopwatch();
             stopwatch.start();
@@ -128,7 +128,7 @@ public class ElasticsearchQueryStore implements QueryStore {
                 throw new QueryStoreException(QueryStoreException.ErrorCode.INVALID_REQUEST,
                         "Invalid Document List");
             }
-            dataStore.save(table, documents);
+            dataStore.save(tableMetadataManager.get(table), documents);
             BulkRequestBuilder bulkRequestBuilder = connection.getClient().prepareBulk();
 
             DateTime dateTime = new DateTime().plusDays(1);
@@ -191,8 +191,19 @@ public class ElasticsearchQueryStore implements QueryStore {
     @Override
     public Document get(String table, String id) throws QueryStoreException {
         table = ElasticsearchUtils.getValidTableName(table);
+        Table fxTable = null;
         try {
-            return dataStore.get(table, id);
+            if (!tableMetadataManager.exists(table)) {
+                throw new QueryStoreException(QueryStoreException.ErrorCode.NO_SUCH_TABLE,
+                        "No table exists with the name: " + table);
+            }
+            fxTable = tableMetadataManager.get(table);
+        } catch (Exception ex) {
+            throw new QueryStoreException(QueryStoreException.ErrorCode.DOCUMENT_GET_ERROR,
+                    ex.getMessage(), ex);
+        }
+        try {
+            return dataStore.get(fxTable, id);
         } catch (DataStoreException ex) {
             if (ex.getErrorCode().equals(DataStoreException.ErrorCode.STORE_NO_DATA_FOUND_FOR_ID)) {
                 throw new QueryStoreException(QueryStoreException.ErrorCode.DOCUMENT_NOT_FOUND,
@@ -201,18 +212,26 @@ public class ElasticsearchQueryStore implements QueryStore {
             throw new QueryStoreException(QueryStoreException.ErrorCode.DOCUMENT_GET_ERROR,
                     ex.getMessage(), ex);
         }
+
     }
 
     @Override
     public List<Document> get(String table, List<String> ids) throws QueryStoreException {
         table = ElasticsearchUtils.getValidTableName(table);
         try {
-            return dataStore.get(table, ids);
+            if (!tableMetadataManager.exists(table)) {
+                throw new QueryStoreException(QueryStoreException.ErrorCode.NO_SUCH_TABLE,
+                        "No table exists with the name: " + table);
+            }
+            return dataStore.get(tableMetadataManager.get(table), ids);
         } catch (DataStoreException ex) {
             if (ex.getErrorCode().equals(DataStoreException.ErrorCode.STORE_NO_DATA_FOUND_FOR_IDS)) {
                 throw new QueryStoreException(QueryStoreException.ErrorCode.DOCUMENT_NOT_FOUND,
                         ex.getMessage(), ex);
             }
+            throw new QueryStoreException(QueryStoreException.ErrorCode.DOCUMENT_GET_ERROR,
+                    ex.getMessage(), ex);
+        } catch (Exception ex) {
             throw new QueryStoreException(QueryStoreException.ErrorCode.DOCUMENT_GET_ERROR,
                     ex.getMessage(), ex);
         }
