@@ -14,6 +14,7 @@ import com.flipkart.foxtrot.common.query.QueryResponse;
 import com.flipkart.foxtrot.common.stats.StatsResponse;
 import com.flipkart.foxtrot.common.stats.StatsTrendResponse;
 import com.flipkart.foxtrot.common.stats.StatsTrendValue;
+import com.flipkart.foxtrot.common.top.TopNResponse;
 import com.flipkart.foxtrot.common.trend.TrendResponse;
 import com.flipkart.foxtrot.sql.responseprocessors.model.FieldHeader;
 import com.flipkart.foxtrot.sql.responseprocessors.model.FlatRepresentation;
@@ -28,10 +29,10 @@ import static com.flipkart.foxtrot.sql.responseprocessors.FlatteningUtils.genera
 import static com.flipkart.foxtrot.sql.responseprocessors.FlatteningUtils.genericParse;
 
 public class Flattener implements ResponseVisitor {
+    private final List<String> fieldsToReturn;
     private FlatRepresentation flatRepresentation;
     private ObjectMapper objectMapper;
     private ActionRequest request;
-    private final List<String> fieldsToReturn;
 
 
     public Flattener(ObjectMapper objectMapper, ActionRequest request, List<String> fieldsToReturn) {
@@ -230,6 +231,11 @@ public class Flattener implements ResponseVisitor {
             rows.add(row);
         }
         flatRepresentation = new FlatRepresentation(fieldHeaders, rows);
+    }
+
+    @Override
+    public void visit(TopNResponse topNResponse) {
+        // TODO Needs implementation here
     }
 
     public FlatRepresentation getFlatRepresentation() {
