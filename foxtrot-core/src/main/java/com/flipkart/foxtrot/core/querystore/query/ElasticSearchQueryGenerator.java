@@ -50,20 +50,20 @@ public class ElasticSearchQueryGenerator extends FilterVisitor {
 
     @Override
     public void visit(BetweenFilter betweenFilter) throws Exception {
-        addFilter(QueryBuilders.rangeQuery(betweenFilter.getField())
-                .from(betweenFilter.getFrom())
-                .to(betweenFilter.getTo()));
+        addFilter(QueryBuilders.filteredQuery(QueryBuilders.matchAllQuery(),
+                FilterBuilders.rangeFilter(betweenFilter.getField()).from(betweenFilter.getFrom()).to(betweenFilter.getTo())));
     }
 
     @Override
     public void visit(EqualsFilter equalsFilter) throws Exception {
-        addFilter(QueryBuilders.termQuery(equalsFilter.getField(), equalsFilter.getValue()));
+        addFilter(QueryBuilders.filteredQuery(QueryBuilders.matchAllQuery(),
+                FilterBuilders.termFilter(equalsFilter.getField(), equalsFilter.getValue())));
     }
 
     @Override
     public void visit(NotEqualsFilter notEqualsFilter) throws Exception {
-        addFilter(QueryBuilders.boolQuery().mustNot(
-                QueryBuilders.termQuery(notEqualsFilter.getField(), notEqualsFilter.getValue())));
+        addFilter(QueryBuilders.filteredQuery(QueryBuilders.matchAllQuery(),
+                FilterBuilders.notFilter(FilterBuilders.termFilter(notEqualsFilter.getField(), notEqualsFilter.getValue()))));
     }
 
     @Override
@@ -111,7 +111,7 @@ public class ElasticSearchQueryGenerator extends FilterVisitor {
 
     @Override
     public void visit(InFilter inFilter) throws Exception {
-        addFilter(QueryBuilders.inQuery(inFilter.getField(), inFilter.getValues()));
+        addFilter(QueryBuilders.filteredQuery(QueryBuilders.matchAllQuery(), FilterBuilders.inFilter(inFilter.getField(), inFilter.getValues())));
     }
 
     @Override
