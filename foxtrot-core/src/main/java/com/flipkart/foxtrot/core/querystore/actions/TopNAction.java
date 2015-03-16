@@ -58,8 +58,10 @@ public class TopNAction extends Action<TopNRequest> {
                 filterHashKey += 31 * filter.hashCode();
             }
         }
-        for (int i = 0; i < query.getParams().size(); i++) {
-            filterHashKey += 31 * query.getParams().get(i).hashCode() * (i + 1);
+        if (query.getParams() != null) {
+            for (int i = 0; i < query.getParams().size(); i++) {
+                filterHashKey += 31 * query.getParams().get(i).hashCode() * (i + 1);
+            }
         }
         return String.format("%s-%d", query.getTable(), filterHashKey);
     }
@@ -67,43 +69,35 @@ public class TopNAction extends Action<TopNRequest> {
     @Override
     public ActionResponse execute(TopNRequest parameter) throws QueryStoreException {
         parameter.setTable(ElasticsearchUtils.getValidTableName(parameter.getTable()));
+        if (null == parameter.getTable()) {
+            throw new QueryStoreException(QueryStoreException.ErrorCode.INVALID_REQUEST, "Invalid Table");
+        }
         if (null == parameter.getFilters()) {
             parameter.setFilters(Lists.<Filter>newArrayList(new AnyFilter(parameter.getTable())));
         }
-        if (parameter.getTable() == null) {
-            throw new QueryStoreException(QueryStoreException.ErrorCode.INVALID_REQUEST, "Invalid Table");
+        if (null == parameter.getParams()){
+            throw new QueryStoreException(QueryStoreException.ErrorCode.INVALID_REQUEST, "Null Params. Need at least 1");
         }
         try {
             SearchRequestBuilder query = getConnection().getClient().prepareSearch(ElasticsearchUtils.getIndices(
                     parameter.getTable()));
 
-            List<TermsBuilder> termsBuilders = new ArrayList<TermsBuilder>();
             for (TopNParams param : parameter.getParams()) {
-                if (param.getField() == null || param.getField().trim().isEmpty() || param.getCount() < 0) {
+                if (param.getField() == null || param.getField().trim().isEmpty() || param.getCount() <= 0) {
                     throw new QueryStoreException(QueryStoreException.ErrorCode.INVALID_REQUEST, "Illegal field-value/count-value");
                 }
-                if (param.isApproxCount()) {
-                    termsBuilders.add(AggregationBuilders
-                            .terms(Utils.sanitizeFieldForAggregation(param.getField()))
-                            .field(param.getField())
-                            .size(param.getCount())
-                            .order(Terms.Order.count(false)));
-                } else {
-                    termsBuilders.add(AggregationBuilders
-                            .terms(Utils.sanitizeFieldForAggregation(param.getField()))
-                            .field(param.getField())
-                            .size(param.getCount())
-                                    // This ensures all values are passed between coordinating nodes, however only required number of values are passed to client
-                            .shardSize(Integer.MAX_VALUE)
-                            .order(Terms.Order.count(false)));
+                TermsBuilder builder = AggregationBuilders.terms(Utils.sanitizeFieldForAggregation(param.getField()))
+                        .field(param.getField())
+                        .size(param.getCount())
+                        .order(Terms.Order.count(false));
+                if (!param.isApproxCount()) {
+                    // This ensures all values are passed between coordinating nodes, however only required number of values are passed to client
+                    builder.shardSize(Integer.MAX_VALUE);
                 }
+                query.addAggregation(builder);
             }
             query.setQuery(new ElasticSearchQueryGenerator(FilterCombinerType.and)
                     .genFilter(parameter.getFilters()));
-
-            for (TermsBuilder termsBuilder : termsBuilders) {
-                query.addAggregation(termsBuilder);
-            }
             SearchResponse response = query.execute().actionGet();
 
             Aggregations aggregations = response.getAggregations();
