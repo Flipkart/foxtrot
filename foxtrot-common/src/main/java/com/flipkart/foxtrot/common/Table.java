@@ -29,6 +29,9 @@ import java.io.Serializable;
  * Time: 9:51 PM
  */
 public class Table implements Serializable {
+
+    private static final long serialVersionUID = -3086868483579299018L;
+    
     @NotNull
     @NotEmpty
     private String name;
