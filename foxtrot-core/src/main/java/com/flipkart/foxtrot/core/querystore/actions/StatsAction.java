@@ -75,7 +75,7 @@ public class StatsAction extends Action<StatsRequest> {
                     .setTypes(ElasticsearchUtils.TYPE_NAME)
                     .setQuery(new ElasticSearchQueryGenerator(request.getCombiner()).genFilter(request.getFilters()))
                     .setSize(0)
-                    .setSearchType(SearchType.DFS_QUERY_THEN_FETCH)
+                    .setSearchType(SearchType.COUNT)
                     .addAggregation(Utils.buildExtendedStatsAggregation(request.getField()))
                     .addAggregation(Utils.buildPercentileAggregation(request.getField()))
                     .execute()

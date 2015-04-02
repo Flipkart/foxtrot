@@ -33,6 +33,7 @@ import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
 import com.flipkart.foxtrot.core.querystore.query.ElasticSearchQueryGenerator;
 import com.google.common.collect.Lists;
 import org.elasticsearch.action.search.SearchResponse;
+import org.elasticsearch.action.search.SearchType;
 import org.elasticsearch.search.aggregations.AbstractAggregationBuilder;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.Aggregations;
@@ -116,6 +117,7 @@ public class TrendAction extends Action<TrendRequest> {
             SearchResponse searchResponse = getConnection().getClient()
                     .prepareSearch(ElasticsearchUtils.getIndices(parameter.getTable()))
                     .setQuery(new ElasticSearchQueryGenerator(FilterCombinerType.and).genFilter(parameter.getFilters()))
+                    .setSearchType(SearchType.COUNT)
                     .addAggregation(aggregationBuilder)
                     .execute()
                     .get();
