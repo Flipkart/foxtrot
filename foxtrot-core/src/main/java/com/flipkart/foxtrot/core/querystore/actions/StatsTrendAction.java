@@ -92,7 +92,7 @@ public class StatsTrendAction extends Action<StatsTrendRequest> {
                     .setTypes(ElasticsearchUtils.TYPE_NAME)
                     .setQuery(new ElasticSearchQueryGenerator(parameter.getCombiner()).genFilter(parameter.getFilters()))
                     .setSize(0)
-                    .setSearchType(SearchType.DFS_QUERY_THEN_FETCH)
+                    .setSearchType(SearchType.COUNT)
                     .addAggregation(aggregation)
                     .execute()
                     .actionGet();

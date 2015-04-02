@@ -33,6 +33,7 @@ import com.flipkart.foxtrot.core.querystore.query.ElasticSearchQueryGenerator;
 import com.google.common.collect.Lists;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
+import org.elasticsearch.action.search.SearchType;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.Aggregations;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
@@ -107,6 +108,7 @@ public class GroupAction extends Action<GroupRequest> {
             }
             query.setQuery(new ElasticSearchQueryGenerator(FilterCombinerType.and)
                     .genFilter(parameter.getFilters()))
+                    .setSearchType(SearchType.COUNT)
                     .addAggregation(rootBuilder);
             SearchResponse response = query.execute().actionGet();
             List<String> fields = parameter.getNesting();

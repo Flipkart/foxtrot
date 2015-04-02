@@ -122,7 +122,7 @@ public class HistogramAction extends Action<HistogramRequest> {
                                     .to(parameter.getTo()))
                     )
                     .setSize(0)
-                    .setSearchType(SearchType.DFS_QUERY_THEN_FETCH)
+                    .setSearchType(SearchType.COUNT)
                     .addAggregation(AggregationBuilders.dateHistogram(dateHistogramKey)
                             .field(parameter.getField())
                             .interval(interval))
