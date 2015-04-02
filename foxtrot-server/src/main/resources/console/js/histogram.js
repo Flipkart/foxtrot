@@ -104,8 +104,6 @@ Histogram.prototype.getQuery = function() {
 			opcode : "histogram",
 			table : this.tables.selectedTable.name,
 			filters: filters,
-			from: 1,
-			to: timestamp,
 			field: "_timestamp",
 			period: periodFromWindow($("#" + this.id).find(".period-select").val())
 		});
