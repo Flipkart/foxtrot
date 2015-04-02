@@ -37,11 +37,11 @@ import java.util.List;
  * Time: 2:31 PM
  */
 public class ElasticSearchQueryGenerator extends FilterVisitor {
-    private final BoolFilterBuilder queryBuilder;
+    private final BoolFilterBuilder boolFilterBuilder;
     private final FilterCombinerType combinerType;
 
     public ElasticSearchQueryGenerator(FilterCombinerType combinerType) {
-        this.queryBuilder = FilterBuilders.boolFilter();
+        this.boolFilterBuilder = FilterBuilders.boolFilter();
         this.combinerType = combinerType;
     }
 
@@ -127,18 +127,18 @@ public class ElasticSearchQueryGenerator extends FilterVisitor {
                         .to(timeWindow.getEndTime()));
     }
 
-    private void addFilter(FilterBuilder query) throws Exception {
+    private void addFilter(FilterBuilder elasticSearchFilter) throws Exception {
         if (combinerType == FilterCombinerType.and) {
-            queryBuilder.must(query);
+            boolFilterBuilder.must(elasticSearchFilter);
         }
-        queryBuilder.should(query);
+        boolFilterBuilder.should(elasticSearchFilter);
     }
 
     public BoolQueryBuilder genFilter(List<Filter> filters) throws Exception {
         for (Filter filter : filters) {
             filter.accept(this);
         }
-        return QueryBuilders.boolQuery().must(QueryBuilders.filteredQuery(QueryBuilders.matchAllQuery(), queryBuilder));
+        return QueryBuilders.boolQuery().must(QueryBuilders.filteredQuery(QueryBuilders.matchAllQuery(), boolFilterBuilder));
     }
 
 }
