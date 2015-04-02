@@ -24,6 +24,7 @@ import com.flipkart.foxtrot.common.Period;
 import com.flipkart.foxtrot.common.histogram.HistogramResponse;
 import com.flipkart.foxtrot.common.query.Filter;
 import com.flipkart.foxtrot.common.query.numeric.GreaterThanFilter;
+import com.flipkart.foxtrot.common.query.numeric.LessThanFilter;
 import com.flipkart.foxtrot.core.MockElasticsearchServer;
 import com.flipkart.foxtrot.core.TestUtils;
 import com.flipkart.foxtrot.core.common.CacheUtils;
@@ -34,6 +35,7 @@ import com.flipkart.foxtrot.core.querystore.QueryStoreException;
 import com.flipkart.foxtrot.core.querystore.TableMetadataManager;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsLoader;
 import com.flipkart.foxtrot.core.querystore.impl.*;
+import com.google.common.collect.Lists;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.test.TestHazelcastInstanceFactory;
 import org.junit.After;
@@ -110,8 +112,6 @@ public class HistogramActionTest {
         HistogramRequest histogramRequest = new HistogramRequest();
         histogramRequest.setTable(TestUtils.TEST_TABLE_NAME);
         histogramRequest.setPeriod(Period.minutes);
-        histogramRequest.setFrom(0);
-        histogramRequest.setTo(System.currentTimeMillis());
         when(elasticsearchServer.getClient()).thenReturn(null);
         queryExecutor.execute(histogramRequest);
     }
@@ -121,8 +121,12 @@ public class HistogramActionTest {
         HistogramRequest histogramRequest = new HistogramRequest();
         histogramRequest.setTable(TestUtils.TEST_TABLE_NAME);
         histogramRequest.setPeriod(Period.minutes);
-        histogramRequest.setFrom(1);
-        histogramRequest.setTo(System.currentTimeMillis());
+        LessThanFilter lessThanFilter = new LessThanFilter();
+        lessThanFilter.setTemporal(true);
+        lessThanFilter.setField("_timestamp");
+        lessThanFilter.setValue(System.currentTimeMillis());
+        histogramRequest.setFilters(Lists.<Filter>newArrayList(lessThanFilter));
+
         HistogramResponse response = HistogramResponse.class.cast(queryExecutor.execute(histogramRequest));
 
         List<HistogramResponse.Count> counts = new ArrayList<HistogramResponse.Count>();
@@ -141,11 +145,14 @@ public class HistogramActionTest {
         HistogramRequest histogramRequest = new HistogramRequest();
         histogramRequest.setTable(TestUtils.TEST_TABLE_NAME);
         histogramRequest.setPeriod(Period.minutes);
-        histogramRequest.setFrom(1);
         GreaterThanFilter greaterThanFilter = new GreaterThanFilter();
         greaterThanFilter.setField("battery");
         greaterThanFilter.setValue(48);
-        histogramRequest.setFilters(Collections.<Filter>singletonList(greaterThanFilter));
+        LessThanFilter lessThanFilter = new LessThanFilter();
+        lessThanFilter.setTemporal(true);
+        lessThanFilter.setField("_timestamp");
+        lessThanFilter.setValue(System.currentTimeMillis());
+        histogramRequest.setFilters(Lists.<Filter>newArrayList(greaterThanFilter, lessThanFilter));
         HistogramResponse response = HistogramResponse.class.cast(queryExecutor.execute(histogramRequest));
 
         List<HistogramResponse.Count> counts = new ArrayList<HistogramResponse.Count>();
@@ -162,8 +169,12 @@ public class HistogramActionTest {
         HistogramRequest histogramRequest = new HistogramRequest();
         histogramRequest.setTable(TestUtils.TEST_TABLE_NAME);
         histogramRequest.setPeriod(Period.hours);
-        histogramRequest.setFrom(1);
-        histogramRequest.setTo(System.currentTimeMillis());
+        LessThanFilter lessThanFilter = new LessThanFilter();
+        lessThanFilter.setTemporal(true);
+        lessThanFilter.setField("_timestamp");
+        lessThanFilter.setValue(System.currentTimeMillis());
+        histogramRequest.setFilters(Lists.<Filter>newArrayList(lessThanFilter));
+
         HistogramResponse response = HistogramResponse.class.cast(queryExecutor.execute(histogramRequest));
 
         List<HistogramResponse.Count> counts = new ArrayList<HistogramResponse.Count>();
@@ -181,13 +192,16 @@ public class HistogramActionTest {
         HistogramRequest histogramRequest = new HistogramRequest();
         histogramRequest.setTable(TestUtils.TEST_TABLE_NAME);
         histogramRequest.setPeriod(Period.hours);
-        histogramRequest.setFrom(1);
-        histogramRequest.setTo(System.currentTimeMillis());
 
         GreaterThanFilter greaterThanFilter = new GreaterThanFilter();
         greaterThanFilter.setField("battery");
         greaterThanFilter.setValue(48);
-        histogramRequest.setFilters(Collections.<Filter>singletonList(greaterThanFilter));
+        LessThanFilter lessThanFilter = new LessThanFilter();
+        lessThanFilter.setTemporal(true);
+        lessThanFilter.setField("_timestamp");
+        lessThanFilter.setValue(System.currentTimeMillis());
+        histogramRequest.setFilters(Lists.<Filter>newArrayList(greaterThanFilter, lessThanFilter));
+
 
         HistogramResponse response = HistogramResponse.class.cast(queryExecutor.execute(histogramRequest));
         List<HistogramResponse.Count> counts = new ArrayList<HistogramResponse.Count>();
@@ -203,8 +217,11 @@ public class HistogramActionTest {
         HistogramRequest histogramRequest = new HistogramRequest();
         histogramRequest.setTable(TestUtils.TEST_TABLE_NAME);
         histogramRequest.setPeriod(Period.days);
-        histogramRequest.setFrom(1);
-        histogramRequest.setTo(System.currentTimeMillis());
+        LessThanFilter lessThanFilter = new LessThanFilter();
+        lessThanFilter.setTemporal(true);
+        lessThanFilter.setField("_timestamp");
+        lessThanFilter.setValue(System.currentTimeMillis());
+        histogramRequest.setFilters(Lists.<Filter>newArrayList(lessThanFilter));
 
         HistogramResponse response = HistogramResponse.class.cast(queryExecutor.execute(histogramRequest));
         List<HistogramResponse.Count> counts = new ArrayList<HistogramResponse.Count>();
@@ -220,13 +237,15 @@ public class HistogramActionTest {
         HistogramRequest histogramRequest = new HistogramRequest();
         histogramRequest.setTable(TestUtils.TEST_TABLE_NAME);
         histogramRequest.setPeriod(Period.days);
-        histogramRequest.setFrom(1);
-        histogramRequest.setTo(System.currentTimeMillis());
 
         GreaterThanFilter greaterThanFilter = new GreaterThanFilter();
         greaterThanFilter.setField("battery");
         greaterThanFilter.setValue(48);
-        histogramRequest.setFilters(Collections.<Filter>singletonList(greaterThanFilter));
+        LessThanFilter lessThanFilter = new LessThanFilter();
+        lessThanFilter.setTemporal(true);
+        lessThanFilter.setField("_timestamp");
+        lessThanFilter.setValue(System.currentTimeMillis());
+        histogramRequest.setFilters(Lists.<Filter>newArrayList(greaterThanFilter, lessThanFilter));
 
         HistogramResponse response = HistogramResponse.class.cast(queryExecutor.execute(histogramRequest));
         List<HistogramResponse.Count> counts = new ArrayList<HistogramResponse.Count>();

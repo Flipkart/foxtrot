@@ -73,4 +73,9 @@ public class LastFilter extends Filter {
                 ", duration=" + duration +
                 '}';
     }
+
+    @Override
+    public boolean isTemporal() {
+        return true;
+    }
 }

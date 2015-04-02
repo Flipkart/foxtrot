@@ -23,5 +23,5 @@ import com.google.common.annotations.VisibleForTesting;
  */
 
 @VisibleForTesting
-public class NonCacheableActionRequest implements ActionRequest {
+public class NonCacheableActionRequest extends ActionRequest {
 }

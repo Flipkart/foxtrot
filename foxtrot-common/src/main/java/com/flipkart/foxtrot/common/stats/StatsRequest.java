@@ -12,7 +12,7 @@ import java.util.List;
 /**
  * Created by rishabh.goyal on 02/08/14.
  */
-public class StatsRequest implements ActionRequest {
+public class StatsRequest extends ActionRequest {
 
     @NotNull
     @NotEmpty
@@ -21,9 +21,6 @@ public class StatsRequest implements ActionRequest {
     @NotNull
     @NotEmpty
     private String field;
-
-    @NotNull
-    private List<Filter> filters;
 
     @NotNull
     private FilterCombinerType combiner = FilterCombinerType.and;
@@ -48,14 +45,6 @@ public class StatsRequest implements ActionRequest {
         this.field = field;
     }
 
-    public List<Filter> getFilters() {
-        return filters;
-    }
-
-    public void setFilters(List<Filter> filters) {
-        this.filters = filters;
-    }
-
     public FilterCombinerType getCombiner() {
         return combiner;
     }
@@ -69,7 +58,7 @@ public class StatsRequest implements ActionRequest {
         return new ToStringBuilder(this)
                 .append("table", table)
                 .append("field", field)
-                .append("filters", filters)
+                .append("filters", getFilters())
                 .append("combiner", combiner)
                 .toString();
     }

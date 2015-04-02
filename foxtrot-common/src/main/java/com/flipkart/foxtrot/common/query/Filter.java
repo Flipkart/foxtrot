@@ -116,4 +116,9 @@ public abstract class Filter {
                 .append("field", field)
                 .toString();
     }
+
+    public boolean isTemporal() {
+        return false;
+    }
+
 }

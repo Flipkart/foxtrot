@@ -28,12 +28,11 @@ import java.util.List;
  * Date: 21/03/14
  * Time: 4:52 PM
  */
-public class GroupRequest implements ActionRequest {
+public class GroupRequest extends ActionRequest {
     @NotNull
     @NotEmpty
     private String table;
 
-    private List<Filter> filters;
 
     @NotNull
     @NotEmpty
@@ -50,13 +49,6 @@ public class GroupRequest implements ActionRequest {
         this.table = table;
     }
 
-    public List<Filter> getFilters() {
-        return filters;
-    }
-
-    public void setFilters(List<Filter> filters) {
-        this.filters = filters;
-    }
 
     public List<String> getNesting() {
         return nesting;
@@ -70,7 +62,7 @@ public class GroupRequest implements ActionRequest {
     public String toString() {
         return new ToStringBuilder(this)
                 .append("table", table)
-                .append("filters", filters)
+                .append("filters", getFilters())
                 .append("nesting", nesting)
                 .toString();
     }

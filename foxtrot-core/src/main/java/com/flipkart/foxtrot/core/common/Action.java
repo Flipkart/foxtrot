@@ -17,14 +17,20 @@ package com.flipkart.foxtrot.core.common;
 
 import com.flipkart.foxtrot.common.ActionRequest;
 import com.flipkart.foxtrot.common.ActionResponse;
+import com.flipkart.foxtrot.common.query.Filter;
+import com.flipkart.foxtrot.common.query.datetime.LastFilter;
+import com.flipkart.foxtrot.common.query.numeric.LessThanFilter;
 import com.flipkart.foxtrot.core.datastore.DataStore;
 import com.flipkart.foxtrot.core.querystore.QueryStore;
 import com.flipkart.foxtrot.core.querystore.QueryStoreException;
 import com.flipkart.foxtrot.core.querystore.TableMetadataManager;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConnection;
+import com.google.common.collect.Lists;
+import com.yammer.dropwizard.util.Duration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 
@@ -88,6 +94,7 @@ public abstract class Action<ParameterType extends ActionRequest> implements Cal
             }
         }
         logger.info("Cache miss for key: " + cacheKeyValue);
+        parameter.setFilters(checkAndAddTemporalBoundary(parameter.getFilters()));
         ActionResponse result = execute(parameter);
         if (isCacheable()) {
             logger.info("Cache load for key: " + cacheKeyValue);
@@ -131,4 +138,32 @@ public abstract class Action<ParameterType extends ActionRequest> implements Cal
     public QueryStore getQueryStore() {
         return queryStore;
     }
+
+    protected Filter getDefaultTimeSpan() {
+        LessThanFilter lessThanFilter = new LessThanFilter();
+        lessThanFilter.setTemporal(true);
+        lessThanFilter.setField("_timestamp");
+        lessThanFilter.setValue(System.currentTimeMillis());
+        return lessThanFilter;
+    }
+
+    private List<Filter> checkAndAddTemporalBoundary(List<Filter> filters) {
+        if(null != filters) {
+            for (Filter filter : filters) {
+                if(filter.isTemporal()) {
+                    return filters;
+                }
+            }
+        }
+        if(null == filters) {
+            filters = Lists.newArrayList();
+        }
+        else {
+            filters = Lists.newArrayList(filters);
+        }
+        filters.add(getDefaultTimeSpan());
+        return filters;
+    }
+
+
 }

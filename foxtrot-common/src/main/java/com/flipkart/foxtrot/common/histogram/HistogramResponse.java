@@ -90,9 +90,7 @@ public class HistogramResponse implements ActionResponse {
     public HistogramResponse() {
     }
 
-    public HistogramResponse(long from, long to, List<Count> counts) {
-        this.from = from;
-        this.to = to;
+    public HistogramResponse(List<Count> counts) {
         this.counts = counts;
     }
 

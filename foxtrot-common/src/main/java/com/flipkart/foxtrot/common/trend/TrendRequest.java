@@ -31,7 +31,7 @@ import java.util.List;
  * Date: 30/03/14
  * Time: 2:30 PM
  */
-public class TrendRequest implements ActionRequest {
+public class TrendRequest extends ActionRequest {
     @NotNull
     @NotEmpty
     private String table;
@@ -40,21 +40,11 @@ public class TrendRequest implements ActionRequest {
     @NotEmpty
     private String field;
 
-    private List<Filter> filters;
-
     private String timestamp = "_timestamp";
 
     private Period period = Period.days;
 
     private List<String> values;
-
-    @Min(0)
-    @Max(Long.MAX_VALUE)
-    private long from = 0L;
-
-    @Min(0)
-    @Max(Long.MAX_VALUE)
-    private long to = 0L;
 
     public TrendRequest() {
     }
@@ -65,14 +55,6 @@ public class TrendRequest implements ActionRequest {
 
     public void setTable(String table) {
         this.table = table;
-    }
-
-    public List<Filter> getFilters() {
-        return filters;
-    }
-
-    public void setFilters(List<Filter> filters) {
-        this.filters = filters;
     }
 
     public String getField() {
@@ -99,31 +81,13 @@ public class TrendRequest implements ActionRequest {
         this.values = values;
     }
 
-    public long getFrom() {
-        return from;
-    }
-
-    public void setFrom(long from) {
-        this.from = from;
-    }
-
-    public long getTo() {
-        return to;
-    }
-
-    public void setTo(long to) {
-        this.to = to;
-    }
-
     @Override
     public String toString() {
         return new ToStringBuilder(this)
                 .append("table", table)
-                .append("filters", filters)
+                .append("filters", getFilters())
                 .append("field", field)
                 .append("values", values)
-                .append("from", from)
-                .append("to", to)
                 .toString();
     }
 

@@ -29,12 +29,10 @@ import java.util.List;
  * Date: 21/03/14
  * Time: 4:52 PM
  */
-public class DistinctRequest implements ActionRequest {
+public class DistinctRequest extends ActionRequest {
     @NotNull
     @NotEmpty
     private String table;
-
-    private List<Filter> filters;
 
     @NotNull
     @NotEmpty
@@ -51,13 +49,6 @@ public class DistinctRequest implements ActionRequest {
         this.table = table;
     }
 
-    public List<Filter> getFilters() {
-        return filters;
-    }
-
-    public void setFilters(List<Filter> filters) {
-        this.filters = filters;
-    }
 
     public List<ResultSort> getNesting() {
         return nesting;
@@ -71,7 +62,7 @@ public class DistinctRequest implements ActionRequest {
     public String toString() {
         return new ToStringBuilder(this)
                 .append("table", table)
-                .append("filters", filters)
+                .append("filters", getFilters())
                 .append("nesting", nesting)
                 .toString();
     }
