@@ -16,10 +16,9 @@ function timeValue(period, selectedPeriodString) {
     if(selectedPeriodString === "custom") {
         return {
             field: "_timestamp",
-            operator: "between",
-            temporal: true,
-            from: (timestamp - (period * 60000)),
-            to: timestamp
+            operator: "last",
+            duration: period + "m",
+            currentTime: timestamp
         };
     }
     return {

@@ -27,10 +27,7 @@ import com.flipkart.foxtrot.common.query.general.InFilter;
 import com.flipkart.foxtrot.common.query.general.NotEqualsFilter;
 import com.flipkart.foxtrot.common.query.numeric.*;
 import com.flipkart.foxtrot.common.query.string.ContainsFilter;
-import org.elasticsearch.index.query.BoolQueryBuilder;
-import org.elasticsearch.index.query.FilterBuilders;
-import org.elasticsearch.index.query.QueryBuilder;
-import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.index.query.*;
 
 import java.util.List;
 
@@ -40,58 +37,60 @@ import java.util.List;
  * Time: 2:31 PM
  */
 public class ElasticSearchQueryGenerator extends FilterVisitor {
-    private final BoolQueryBuilder queryBuilder;
+    private final BoolFilterBuilder boolFilterBuilder;
     private final FilterCombinerType combinerType;
 
     public ElasticSearchQueryGenerator(FilterCombinerType combinerType) {
-        this.queryBuilder = QueryBuilders.boolQuery();
+        this.boolFilterBuilder = FilterBuilders.boolFilter();
         this.combinerType = combinerType;
     }
 
     @Override
     public void visit(BetweenFilter betweenFilter) throws Exception {
-        addFilter(QueryBuilders.filteredQuery(QueryBuilders.matchAllQuery(),
-                FilterBuilders.rangeFilter(betweenFilter.getField()).from(betweenFilter.getFrom()).to(betweenFilter.getTo())));
+        addFilter(FilterBuilders.rangeFilter(betweenFilter.getField())
+                .from(betweenFilter.getFrom())
+                .to(betweenFilter.getTo()));
     }
 
     @Override
     public void visit(EqualsFilter equalsFilter) throws Exception {
-        addFilter(QueryBuilders.filteredQuery(QueryBuilders.matchAllQuery(),
-                FilterBuilders.termFilter(equalsFilter.getField(), equalsFilter.getValue())));
+        addFilter(FilterBuilders.termFilter(equalsFilter.getField(), equalsFilter.getValue()));
     }
 
     @Override
     public void visit(NotEqualsFilter notEqualsFilter) throws Exception {
-        addFilter(QueryBuilders.filteredQuery(QueryBuilders.matchAllQuery(),
-                FilterBuilders.notFilter(FilterBuilders.termFilter(notEqualsFilter.getField(), notEqualsFilter.getValue()))));
+        addFilter(FilterBuilders.boolFilter().mustNot(
+                FilterBuilders.termFilter(notEqualsFilter.getField(), notEqualsFilter.getValue())));
     }
 
     @Override
     public void visit(ContainsFilter stringContainsFilterElement) throws Exception {
         addFilter(
+                FilterBuilders.queryFilter(
                 QueryBuilders.queryString(
                         stringContainsFilterElement.getValue())
-                        .defaultField(stringContainsFilterElement.getField() + ".analyzed"));
+                        .defaultField(stringContainsFilterElement.getField() + ".analyzed"))
+                .cache(false));
     }
 
     @Override
     public void visit(GreaterThanFilter greaterThanFilter) throws Exception {
         addFilter(
-                QueryBuilders.rangeQuery(greaterThanFilter.getField())
+                FilterBuilders.rangeFilter(greaterThanFilter.getField())
                         .gt(greaterThanFilter.getValue()));
     }
 
     @Override
     public void visit(GreaterEqualFilter greaterEqualFilter) throws Exception {
         addFilter(
-                QueryBuilders.rangeQuery(greaterEqualFilter.getField())
+                FilterBuilders.rangeFilter(greaterEqualFilter.getField())
                         .gte(greaterEqualFilter.getValue()));
     }
 
     @Override
     public void visit(LessThanFilter lessThanFilter) throws Exception {
         addFilter(
-                QueryBuilders.rangeQuery(lessThanFilter.getField())
+                FilterBuilders.rangeFilter(lessThanFilter.getField())
                         .lt(lessThanFilter.getValue()));
 
     }
@@ -99,45 +98,47 @@ public class ElasticSearchQueryGenerator extends FilterVisitor {
     @Override
     public void visit(LessEqualFilter lessEqualFilter) throws Exception {
         addFilter(
-                QueryBuilders.rangeQuery(lessEqualFilter.getField())
+                FilterBuilders.rangeFilter(lessEqualFilter.getField())
                         .lte(lessEqualFilter.getValue()));
 
     }
 
     @Override
     public void visit(AnyFilter anyFilter) throws Exception {
-        addFilter(QueryBuilders.matchAllQuery());
+        addFilter(FilterBuilders.matchAllFilter());
     }
 
     @Override
     public void visit(InFilter inFilter) throws Exception {
-        addFilter(QueryBuilders.filteredQuery(QueryBuilders.matchAllQuery(), FilterBuilders.inFilter(inFilter.getField(), inFilter.getValues())));
+        addFilter(
+                FilterBuilders.inFilter(inFilter.getField(), inFilter.getValues()));
     }
 
     @Override
     public void visit(ExistsFilter existsFilter) throws Exception {
-        addFilter(QueryBuilders.filteredQuery(QueryBuilders.matchAllQuery(), FilterBuilders.existsFilter(existsFilter.getField())));
+        addFilter(FilterBuilders.existsFilter(existsFilter.getField()));
     }
 
     public void visit(LastFilter lastFilter) throws Exception {
         TimeWindow timeWindow = lastFilter.getWindow();
-        addFilter(QueryBuilders.rangeQuery(lastFilter.getField())
-                    .from(timeWindow.getStartTime())
-                    .to(timeWindow.getEndTime()));
+        addFilter(
+                FilterBuilders.rangeFilter(lastFilter.getField())
+                        .from(timeWindow.getStartTime())
+                        .to(timeWindow.getEndTime()));
     }
 
-    private void addFilter(QueryBuilder query) throws Exception {
+    private void addFilter(FilterBuilder elasticSearchFilter) throws Exception {
         if (combinerType == FilterCombinerType.and) {
-            queryBuilder.must(query);
+            boolFilterBuilder.must(elasticSearchFilter);
         }
-        queryBuilder.should(query);
+        boolFilterBuilder.should(elasticSearchFilter);
     }
 
     public BoolQueryBuilder genFilter(List<Filter> filters) throws Exception {
         for (Filter filter : filters) {
             filter.accept(this);
         }
-        return queryBuilder;
+        return QueryBuilders.boolQuery().must(QueryBuilders.filteredQuery(QueryBuilders.matchAllQuery(), boolFilterBuilder));
     }
 
 }
