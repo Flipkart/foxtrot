@@ -91,7 +91,7 @@ public class FilterAction extends Action<Query> {
                 throw new QueryStoreException(QueryStoreException.ErrorCode.NO_SUCH_TABLE,
                         "There is no table called: " + query.getTable());
             }*/
-            search = getConnection().getClient().prepareSearch(ElasticsearchUtils.getIndices(parameter.getTable()))
+            search = getConnection().getClient().prepareSearch(ElasticsearchUtils.getIndices(parameter.getTable(), parameter))
                     .setTypes(ElasticsearchUtils.TYPE_NAME)
                     .setQuery(new ElasticSearchQueryGenerator(FilterCombinerType.and).genFilter(parameter.getFilters()))
                     .setSearchType(SearchType.DFS_QUERY_THEN_FETCH)

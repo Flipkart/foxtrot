@@ -84,7 +84,7 @@ public class StatsTrendAction extends Action<StatsTrendRequest> {
         try {
             AbstractAggregationBuilder aggregation = buildAggregation(parameter);
             SearchResponse response = getConnection().getClient().prepareSearch(
-                    ElasticsearchUtils.getIndices(parameter.getTable()))
+                    ElasticsearchUtils.getIndices(parameter.getTable(), parameter))
                     .setTypes(ElasticsearchUtils.TYPE_NAME)
                     .setQuery(new ElasticSearchQueryGenerator(parameter.getCombiner()).genFilter(parameter.getFilters()))
                     .setSize(0)

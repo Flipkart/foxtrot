@@ -16,17 +16,25 @@
 package com.flipkart.foxtrot.core.querystore.impl;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.flipkart.foxtrot.common.ActionRequest;
 import com.flipkart.foxtrot.common.Table;
+import com.flipkart.foxtrot.core.common.PeriodSelector;
+import com.google.common.collect.Lists;
 import org.elasticsearch.action.admin.indices.template.put.PutIndexTemplateRequest;
 import org.elasticsearch.action.admin.indices.template.put.PutIndexTemplateRequestBuilder;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.client.IndicesAdminClient;
 import org.joda.time.DateTime;
+import org.joda.time.Duration;
+import org.joda.time.Interval;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 
 /**
  * User: Santanu Sinha (santanu.sinha@flipkart.com)
@@ -34,6 +42,8 @@ import java.util.Date;
  * Time: 3:46 PM
  */
 public class ElasticsearchUtils {
+    private static final Logger logger = LoggerFactory.getLogger(ElasticsearchUtils.class.getSimpleName());
+
     public static final String TYPE_NAME = "document";
     public static final String TABLENAME_PREFIX = "foxtrot";
     public static final String TABLENAME_POSTFIX = "table";
@@ -61,6 +71,35 @@ public class ElasticsearchUtils {
         }*/
         return new String[]{String.format("%s-%s-%s-*",
                 ElasticsearchUtils.TABLENAME_PREFIX, table, ElasticsearchUtils.TABLENAME_POSTFIX)};
+    }
+
+    public static String[] getIndices(final String table, final ActionRequest request) throws Exception {
+        final Interval interval = new PeriodSelector(request.getFilters()).analyze();
+        DateTime start = interval.getStart().toLocalDate().toDateTimeAtStartOfDay();
+        if(start.getYear() == 1970) {
+            logger.warn("Request of type {} running on all indices", request.getClass().getSimpleName());
+            return getIndices(table);
+        }
+        DateTime end = interval.getEnd().plusDays(1).toLocalDate().toDateTimeAtStartOfDay();
+        List<String> indices = Lists.newArrayList();
+        String lastIndex = "";
+        String index = "";
+        while (true) {
+            index = String.format("%s-%s-%s-%s",
+                    ElasticsearchUtils.TABLENAME_PREFIX, table, ElasticsearchUtils.TABLENAME_POSTFIX,
+                    String.format("%02d-%d-%4d", start.dayOfMonth().get(), start.monthOfYear().get(), start.year().get()));
+            if(index.equals(lastIndex)) {
+                break;
+            }
+            if(new Duration(start, end).getStandardSeconds() < 86400) {
+                break;
+            }
+            indices.add(index);
+            lastIndex = index;
+            start = start.plusDays(1);
+        }
+        logger.info("Request of type {} on indices: {}", request.getClass().getSimpleName(), indices);
+        return indices.toArray(new String[indices.size()]);
     }
 
     public static String getCurrentIndex(final String table, long timestamp) {

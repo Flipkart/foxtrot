@@ -1,5 +1,7 @@
 package com.flipkart.foxtrot.common.query.datetime;
 
+import java.util.Date;
+
 public class TimeWindow {
     private long startTime;
     private long endTime;
@@ -53,8 +55,8 @@ public class TimeWindow {
     @Override
     public String toString() {
         return "TimeWindow{" +
-                "startTime=" + startTime +
-                ", endTime=" + endTime +
+                "startTime=" + new Date(startTime).toString() +
+                ", endTime=" + new Date(endTime).toString() +
                 '}';
     }
 }

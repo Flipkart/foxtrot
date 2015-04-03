@@ -77,7 +77,7 @@ public class CountAction extends Action<CountRequest> {
         try {
             if (parameter.isDistinct()){
                 SearchRequestBuilder query = getConnection().getClient()
-                        .prepareSearch(ElasticsearchUtils.getIndices(parameter.getTable()))
+                        .prepareSearch(ElasticsearchUtils.getIndices(parameter.getTable(), parameter))
                         .setSearchType(SearchType.COUNT)
                         .setQuery(new ElasticSearchQueryGenerator(FilterCombinerType.and)
                                 .genFilter(parameter.getFilters()))
@@ -95,7 +95,7 @@ public class CountAction extends Action<CountRequest> {
                 }
             } else {
                 CountRequestBuilder countRequestBuilder = getConnection().getClient()
-                        .prepareCount(ElasticsearchUtils.getIndices(parameter.getTable()))
+                        .prepareCount(ElasticsearchUtils.getIndices(parameter.getTable(), parameter))
                         .setQuery(new ElasticSearchQueryGenerator(FilterCombinerType.and).genFilter(parameter.getFilters()));
                 org.elasticsearch.action.count.CountResponse countResponse = countRequestBuilder.execute().actionGet();
                 return new CountResponse(countResponse.getCount());

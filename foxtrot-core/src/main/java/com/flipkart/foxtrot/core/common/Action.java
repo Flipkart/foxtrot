@@ -18,18 +18,27 @@ package com.flipkart.foxtrot.core.common;
 import com.flipkart.foxtrot.common.ActionRequest;
 import com.flipkart.foxtrot.common.ActionResponse;
 import com.flipkart.foxtrot.common.query.Filter;
+import com.flipkart.foxtrot.common.query.FilterVisitor;
 import com.flipkart.foxtrot.common.query.datetime.LastFilter;
-import com.flipkart.foxtrot.common.query.numeric.LessThanFilter;
+import com.flipkart.foxtrot.common.query.datetime.TimeWindow;
+import com.flipkart.foxtrot.common.query.general.*;
+import com.flipkart.foxtrot.common.query.numeric.*;
+import com.flipkart.foxtrot.common.query.string.ContainsFilter;
 import com.flipkart.foxtrot.core.datastore.DataStore;
 import com.flipkart.foxtrot.core.querystore.QueryStore;
 import com.flipkart.foxtrot.core.querystore.QueryStoreException;
 import com.flipkart.foxtrot.core.querystore.TableMetadataManager;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConnection;
+import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
+import com.google.common.base.Predicate;
+import com.google.common.collect.Collections2;
 import com.google.common.collect.Lists;
-import com.yammer.dropwizard.util.Duration;
+import org.joda.time.Interval;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
@@ -164,6 +173,5 @@ public abstract class Action<ParameterType extends ActionRequest> implements Cal
         filters.add(getDefaultTimeSpan());
         return filters;
     }
-
 
 }

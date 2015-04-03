@@ -87,7 +87,7 @@ public class GroupAction extends Action<GroupRequest> {
         }
         try {
             SearchRequestBuilder query = getConnection().getClient().prepareSearch(ElasticsearchUtils.getIndices(
-                    parameter.getTable()));
+                    parameter.getTable(), parameter));
             TermsBuilder rootBuilder = null;
             TermsBuilder termsBuilder = null;
             for (String field : parameter.getNesting()) {
