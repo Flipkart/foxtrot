@@ -2,6 +2,7 @@ package com.flipkart.foxtrot.core.querystore.actions;
 
 import com.flipkart.foxtrot.common.ActionResponse;
 import com.flipkart.foxtrot.common.query.Filter;
+import com.flipkart.foxtrot.common.query.datetime.LastFilter;
 import com.flipkart.foxtrot.common.query.general.AnyFilter;
 import com.flipkart.foxtrot.common.stats.StatsTrendRequest;
 import com.flipkart.foxtrot.common.stats.StatsTrendResponse;
@@ -16,6 +17,7 @@ import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConnection;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
 import com.flipkart.foxtrot.core.querystore.query.ElasticSearchQueryGenerator;
 import com.google.common.collect.Lists;
+import com.yammer.dropwizard.util.Duration;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.search.SearchType;
 import org.elasticsearch.search.aggregations.AbstractAggregationBuilder;
@@ -60,8 +62,8 @@ public class StatsTrendAction extends Action<StatsTrendRequest> {
         hashKey += 31 * statsRequest.getPeriod().name().hashCode();
         hashKey += 31 * statsRequest.getTimestamp().hashCode();
         hashKey += 31 * (statsRequest.getField() != null ? statsRequest.getField().hashCode() : "FIELD".hashCode());
-        return String.format("stats-trend-%s-%s-%d-%d-%d", statsRequest.getTable(),
-                statsRequest.getField(), statsRequest.getFrom() / 30000, statsRequest.getTo() / 30000, hashKey);
+        return String.format("stats-trend-%s-%s-%s-%d", statsRequest.getTable(),
+                statsRequest.getField(), statsRequest.getPeriod(), hashKey);
     }
 
     @Override
@@ -74,12 +76,6 @@ public class StatsTrendAction extends Action<StatsTrendRequest> {
             throw new QueryStoreException(QueryStoreException.ErrorCode.INVALID_REQUEST, "Invalid Table");
         }
 
-        long currentTime = System.currentTimeMillis();
-        if (0L == parameter.getFrom() || 0L == parameter.getTo()) {
-            parameter.setFrom(currentTime - 86400000L);
-            parameter.setTo(currentTime);
-        }
-
         String field = parameter.getField();
         if (null == field || field.isEmpty()) {
             throw new QueryStoreException(QueryStoreException.ErrorCode.INVALID_REQUEST, "Invalid field name");
@@ -88,7 +84,7 @@ public class StatsTrendAction extends Action<StatsTrendRequest> {
         try {
             AbstractAggregationBuilder aggregation = buildAggregation(parameter);
             SearchResponse response = getConnection().getClient().prepareSearch(
-                    ElasticsearchUtils.getIndices(parameter.getTable()))
+                    ElasticsearchUtils.getIndices(parameter.getTable(), parameter))
                     .setTypes(ElasticsearchUtils.TYPE_NAME)
                     .setQuery(new ElasticSearchQueryGenerator(parameter.getCombiner()).genFilter(parameter.getFilters()))
                     .setSize(0)
@@ -174,5 +170,14 @@ public class StatsTrendAction extends Action<StatsTrendRequest> {
         }
         return new StatsTrendResponse(statsValueList);
     }
+
+    @Override
+    protected Filter getDefaultTimeSpan() {
+        LastFilter lastFilter = new LastFilter();
+        lastFilter.setField("_timestamp");
+        lastFilter.setDuration(Duration.days(1));
+        return lastFilter;
+    }
+
 }
 

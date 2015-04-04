@@ -27,15 +27,9 @@ import java.util.List;
  * Date: 13/03/14
  * Time: 6:38 PM
  */
-public class Query implements ActionRequest {
+public class Query extends ActionRequest {
     @NotNull
     private String table;
-
-    @NotNull
-    private List<Filter> filters;
-
-    @NotNull
-    private FilterCombinerType combiner = FilterCombinerType.and;
 
     private ResultSort sort;
 
@@ -57,14 +51,6 @@ public class Query implements ActionRequest {
 
     public void setTable(String table) {
         this.table = table;
-    }
-
-    public List<Filter> getFilters() {
-        return filters;
-    }
-
-    public void setFilters(List<Filter> filters) {
-        this.filters = filters;
     }
 
     public ResultSort getSort() {
@@ -91,20 +77,11 @@ public class Query implements ActionRequest {
         this.limit = limit;
     }
 
-    public FilterCombinerType getCombiner() {
-        return combiner;
-    }
-
-    public void setCombiner(FilterCombinerType combiner) {
-        this.combiner = combiner;
-    }
-
     @Override
     public String toString() {
         return new ToStringBuilder(this)
                 .append("table", table)
-                .append("filters", filters)
-                .append("combiner", combiner)
+                .append("filters", getFilters())
                 .append("sort", sort)
                 .append("from", from)
                 .append("limit", limit)

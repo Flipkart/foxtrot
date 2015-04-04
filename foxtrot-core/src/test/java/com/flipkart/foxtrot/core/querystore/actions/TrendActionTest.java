@@ -21,6 +21,8 @@ import com.flipkart.foxtrot.common.Document;
 import com.flipkart.foxtrot.common.Period;
 import com.flipkart.foxtrot.common.query.Filter;
 import com.flipkart.foxtrot.common.query.general.EqualsFilter;
+import com.flipkart.foxtrot.common.query.numeric.BetweenFilter;
+import com.flipkart.foxtrot.common.query.numeric.LessThanFilter;
 import com.flipkart.foxtrot.common.trend.TrendRequest;
 import com.flipkart.foxtrot.common.trend.TrendResponse;
 import com.flipkart.foxtrot.core.MockElasticsearchServer;
@@ -104,9 +106,13 @@ public class TrendActionTest {
     public void testTrendActionAnyException() throws QueryStoreException, JsonProcessingException {
         TrendRequest trendRequest = new TrendRequest();
         trendRequest.setTable(null);
-        trendRequest.setFrom(1L);
+        BetweenFilter betweenFilter = new BetweenFilter();
+        betweenFilter.setFrom(1L);
+        betweenFilter.setTo(System.currentTimeMillis());
+        betweenFilter.setTemporal(true);
+        betweenFilter.setField("_timestamp");
         trendRequest.setField("os");
-        trendRequest.setTo(System.currentTimeMillis());
+        trendRequest.setFilters(Collections.<Filter>singletonList(betweenFilter));
         when(elasticsearchServer.getClient()).thenReturn(null);
         queryExecutor.execute(trendRequest);
     }
@@ -116,8 +122,12 @@ public class TrendActionTest {
     public void testTrendActionNullField() throws QueryStoreException, JsonProcessingException {
         TrendRequest trendRequest = new TrendRequest();
         trendRequest.setTable(TestUtils.TEST_TABLE_NAME);
-        trendRequest.setFrom(1L);
-        trendRequest.setTo(System.currentTimeMillis());
+        BetweenFilter betweenFilter = new BetweenFilter();
+        betweenFilter.setFrom(1L);
+        betweenFilter.setTo(System.currentTimeMillis());
+        betweenFilter.setTemporal(true);
+        betweenFilter.setField("_timestamp");
+        trendRequest.setFilters(Collections.<Filter>singletonList(betweenFilter));
         trendRequest.setField(null);
 
         try {
@@ -134,8 +144,12 @@ public class TrendActionTest {
     public void testTrendActionFieldAll() throws QueryStoreException, JsonProcessingException {
         TrendRequest trendRequest = new TrendRequest();
         trendRequest.setTable(TestUtils.TEST_TABLE_NAME);
-        trendRequest.setFrom(1L);
-        trendRequest.setTo(System.currentTimeMillis());
+        BetweenFilter betweenFilter = new BetweenFilter();
+        betweenFilter.setFrom(1L);
+        betweenFilter.setTo(System.currentTimeMillis());
+        betweenFilter.setTemporal(true);
+        betweenFilter.setField("_timestamp");
+        trendRequest.setFilters(Collections.<Filter>singletonList(betweenFilter));
         trendRequest.setField("all");
         trendRequest.setValues(Collections.<String>emptyList());
 
@@ -157,8 +171,12 @@ public class TrendActionTest {
                 .actionGet();
         TrendRequest trendRequest = new TrendRequest();
         trendRequest.setTable(TestUtils.TEST_TABLE_NAME);
-        trendRequest.setFrom(1L);
-        trendRequest.setTo(System.currentTimeMillis());
+        BetweenFilter betweenFilter = new BetweenFilter();
+        betweenFilter.setFrom(1L);
+        betweenFilter.setTo(System.currentTimeMillis());
+        betweenFilter.setTemporal(true);
+        betweenFilter.setField("_timestamp");
+        trendRequest.setFilters(Collections.<Filter>singletonList(betweenFilter));
         trendRequest.setField("data.version");
         trendRequest.setValues(Collections.<String>emptyList());
 
@@ -176,8 +194,12 @@ public class TrendActionTest {
     public void testTrendActionEmptyField() throws QueryStoreException, JsonProcessingException {
         TrendRequest trendRequest = new TrendRequest();
         trendRequest.setTable(TestUtils.TEST_TABLE_NAME);
-        trendRequest.setFrom(1L);
-        trendRequest.setTo(System.currentTimeMillis());
+        BetweenFilter betweenFilter = new BetweenFilter();
+        betweenFilter.setFrom(1L);
+        betweenFilter.setTo(System.currentTimeMillis());
+        betweenFilter.setTemporal(true);
+        betweenFilter.setField("_timestamp");
+        trendRequest.setFilters(Collections.<Filter>singletonList(betweenFilter));
         trendRequest.setField("");
         trendRequest.setValues(Collections.<String>emptyList());
         try {
@@ -192,8 +214,12 @@ public class TrendActionTest {
     public void testTrendActionFieldWithSpecialCharacters() throws QueryStoreException, JsonProcessingException {
         TrendRequest trendRequest = new TrendRequest();
         trendRequest.setTable(TestUtils.TEST_TABLE_NAME);
-        trendRequest.setFrom(1L);
-        trendRequest.setTo(System.currentTimeMillis());
+        BetweenFilter betweenFilter = new BetweenFilter();
+        betweenFilter.setFrom(1L);
+        betweenFilter.setTo(System.currentTimeMillis());
+        betweenFilter.setTemporal(true);
+        betweenFilter.setField("_timestamp");
+        trendRequest.setFilters(Collections.<Filter>singletonList(betweenFilter));
         trendRequest.setField("!@!41242$");
         trendRequest.setValues(Collections.<String>emptyList());
 
@@ -209,9 +235,13 @@ public class TrendActionTest {
     public void testTrendActionNullTable() throws QueryStoreException, JsonProcessingException {
         TrendRequest trendRequest = new TrendRequest();
         trendRequest.setTable(null);
-        trendRequest.setFrom(1L);
+        BetweenFilter betweenFilter = new BetweenFilter();
+        betweenFilter.setFrom(1L);
+        betweenFilter.setTo(System.currentTimeMillis());
+        betweenFilter.setTemporal(true);
+        betweenFilter.setField("_timestamp");
         trendRequest.setField("os");
-        trendRequest.setTo(System.currentTimeMillis());
+        trendRequest.setFilters(Collections.<Filter>singletonList(betweenFilter));
         try {
             queryExecutor.execute(trendRequest);
             fail();
@@ -224,9 +254,13 @@ public class TrendActionTest {
     public void testTrendActionWithField() throws QueryStoreException, JsonProcessingException {
         TrendRequest trendRequest = new TrendRequest();
         trendRequest.setTable(TestUtils.TEST_TABLE_NAME);
-        trendRequest.setFrom(1L);
+        BetweenFilter betweenFilter = new BetweenFilter();
+        betweenFilter.setFrom(1L);
+        betweenFilter.setTo(System.currentTimeMillis());
+        betweenFilter.setTemporal(true);
+        betweenFilter.setField("_timestamp");
         trendRequest.setField("os");
-        trendRequest.setTo(System.currentTimeMillis());
+        trendRequest.setFilters(Collections.<Filter>singletonList(betweenFilter));
 
         TrendResponse expectedResponse = new TrendResponse();
         Map<String, List<TrendResponse.Count>> trends = new HashMap<String, List<TrendResponse.Count>>();
@@ -252,9 +286,13 @@ public class TrendActionTest {
     public void testTrendActionWithFieldZeroTo() throws QueryStoreException, JsonProcessingException {
         TrendRequest trendRequest = new TrendRequest();
         trendRequest.setTable(TestUtils.TEST_TABLE_NAME);
-        trendRequest.setFrom(0L);
+        BetweenFilter betweenFilter = new BetweenFilter();
+        betweenFilter.setFrom(1L);
+        betweenFilter.setTo(System.currentTimeMillis());
+        betweenFilter.setTemporal(true);
+        betweenFilter.setField("_timestamp");
         trendRequest.setField("os");
-        trendRequest.setTo(System.currentTimeMillis());
+        trendRequest.setFilters(Collections.<Filter>singletonList(betweenFilter));
 
         TrendResponse expectedResponse = new TrendResponse();
         Map<String, List<TrendResponse.Count>> trends = new HashMap<String, List<TrendResponse.Count>>();
@@ -280,9 +318,13 @@ public class TrendActionTest {
     public void testTrendActionWithFieldZeroFrom() throws QueryStoreException, JsonProcessingException {
         TrendRequest trendRequest = new TrendRequest();
         trendRequest.setTable(TestUtils.TEST_TABLE_NAME);
-        trendRequest.setFrom(1L);
-        trendRequest.setTo(0L);
+        BetweenFilter betweenFilter = new BetweenFilter();
+        betweenFilter.setFrom(1L);
+        betweenFilter.setTo(System.currentTimeMillis());
+        betweenFilter.setTemporal(true);
+        betweenFilter.setField("_timestamp");
         trendRequest.setField("os");
+        trendRequest.setFilters(Collections.<Filter>singletonList(betweenFilter));
 
         TrendResponse expectedResponse = new TrendResponse();
         Map<String, List<TrendResponse.Count>> trends = new HashMap<String, List<TrendResponse.Count>>();
@@ -308,9 +350,13 @@ public class TrendActionTest {
     public void testTrendActionWithFieldWithValues() throws QueryStoreException, JsonProcessingException {
         TrendRequest trendRequest = new TrendRequest();
         trendRequest.setTable(TestUtils.TEST_TABLE_NAME);
-        trendRequest.setFrom(1L);
+        BetweenFilter betweenFilter = new BetweenFilter();
+        betweenFilter.setFrom(1L);
+        betweenFilter.setTo(System.currentTimeMillis());
+        betweenFilter.setTemporal(true);
+        betweenFilter.setField("_timestamp");
         trendRequest.setField("os");
-        trendRequest.setTo(System.currentTimeMillis());
+        trendRequest.setFilters(Lists.<Filter>newArrayList(betweenFilter));
         trendRequest.setValues(Arrays.asList("android"));
 
         TrendResponse expectedResponse = new TrendResponse();
@@ -331,17 +377,17 @@ public class TrendActionTest {
     public void testTrendActionWithFieldWithFilterWithValues() throws QueryStoreException, JsonProcessingException {
         TrendRequest trendRequest = new TrendRequest();
         trendRequest.setTable(TestUtils.TEST_TABLE_NAME);
-        trendRequest.setFrom(1L);
         trendRequest.setField("os");
-        trendRequest.setTo(System.currentTimeMillis());
         trendRequest.setValues(Arrays.asList("android"));
 
         EqualsFilter equalsFilter = new EqualsFilter();
         equalsFilter.setField("version");
         equalsFilter.setValue(1);
-        List<Filter> filters = new ArrayList<Filter>();
-        filters.add(equalsFilter);
-        trendRequest.setFilters(filters);
+        LessThanFilter lessThanFilter = new LessThanFilter();
+        lessThanFilter.setTemporal(true);
+        lessThanFilter.setField("_timestamp");
+        lessThanFilter.setValue(System.currentTimeMillis());
+        trendRequest.setFilters(Lists.newArrayList(equalsFilter, lessThanFilter));
 
 
         TrendResponse expectedResponse = new TrendResponse();
@@ -361,14 +407,16 @@ public class TrendActionTest {
     public void testTrendActionWithFieldWithFilter() throws QueryStoreException, JsonProcessingException {
         TrendRequest trendRequest = new TrendRequest();
         trendRequest.setTable(TestUtils.TEST_TABLE_NAME);
-        trendRequest.setFrom(1L);
         trendRequest.setField("os");
-        trendRequest.setTo(System.currentTimeMillis());
 
         EqualsFilter equalsFilter = new EqualsFilter();
         equalsFilter.setField("version");
         equalsFilter.setValue(1);
-        trendRequest.setFilters(Collections.<Filter>singletonList(equalsFilter));
+        LessThanFilter lessThanFilter = new LessThanFilter();
+        lessThanFilter.setTemporal(true);
+        lessThanFilter.setField("_timestamp");
+        lessThanFilter.setValue(System.currentTimeMillis());
+        trendRequest.setFilters(Lists.newArrayList(equalsFilter, lessThanFilter));
 
         TrendResponse expectedResponse = new TrendResponse();
         Map<String, List<TrendResponse.Count>> trends = new HashMap<String, List<TrendResponse.Count>>();
@@ -391,15 +439,17 @@ public class TrendActionTest {
     public void testTrendActionWithFieldWithFilterWithInterval() throws QueryStoreException, JsonProcessingException {
         TrendRequest trendRequest = new TrendRequest();
         trendRequest.setTable(TestUtils.TEST_TABLE_NAME);
-        trendRequest.setFrom(1L);
         trendRequest.setField("os");
-        trendRequest.setTo(System.currentTimeMillis());
         trendRequest.setPeriod(Period.days);
 
         EqualsFilter equalsFilter = new EqualsFilter();
         equalsFilter.setField("version");
         equalsFilter.setValue(1);
-        trendRequest.setFilters(Collections.<Filter>singletonList(equalsFilter));
+        LessThanFilter lessThanFilter = new LessThanFilter();
+        lessThanFilter.setTemporal(true);
+        lessThanFilter.setField("_timestamp");
+        lessThanFilter.setValue(System.currentTimeMillis());
+        trendRequest.setFilters(Lists.newArrayList(equalsFilter, lessThanFilter));
 
         TrendResponse expectedResponse = new TrendResponse();
         Map<String, List<TrendResponse.Count>> trends = new HashMap<String, List<TrendResponse.Count>>();

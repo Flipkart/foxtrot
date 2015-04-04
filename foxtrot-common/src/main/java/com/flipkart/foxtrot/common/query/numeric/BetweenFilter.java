@@ -97,6 +97,7 @@ public class BetweenFilter extends Filter {
                 .toString();
     }
 
+    @Override
     public boolean isTemporal() {
         return temporal;
     }

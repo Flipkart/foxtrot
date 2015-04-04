@@ -16,10 +16,7 @@
 package com.flipkart.foxtrot.core.querystore.actions;
 
 import com.flipkart.foxtrot.common.Document;
-import com.flipkart.foxtrot.common.query.Filter;
-import com.flipkart.foxtrot.common.query.Query;
-import com.flipkart.foxtrot.common.query.QueryResponse;
-import com.flipkart.foxtrot.common.query.ResultSort;
+import com.flipkart.foxtrot.common.query.*;
 import com.flipkart.foxtrot.common.query.general.AnyFilter;
 import com.flipkart.foxtrot.core.common.Action;
 import com.flipkart.foxtrot.core.datastore.DataStore;
@@ -69,7 +66,6 @@ public class FilterAction extends Action<Query> {
                 filterHashKey += 31 * filter.hashCode();
             }
         }
-        filterHashKey += 31 * (query.getCombiner() != null ? query.getCombiner().name().hashCode() : "COMBINER".hashCode());
         filterHashKey += 31 * (query.getSort() != null ? query.getSort().hashCode() : "SORT".hashCode());
 
         return String.format("%s-%d-%d-%d", query.getTable(),
@@ -95,9 +91,9 @@ public class FilterAction extends Action<Query> {
                 throw new QueryStoreException(QueryStoreException.ErrorCode.NO_SUCH_TABLE,
                         "There is no table called: " + query.getTable());
             }*/
-            search = getConnection().getClient().prepareSearch(ElasticsearchUtils.getIndices(parameter.getTable()))
+            search = getConnection().getClient().prepareSearch(ElasticsearchUtils.getIndices(parameter.getTable(), parameter))
                     .setTypes(ElasticsearchUtils.TYPE_NAME)
-                    .setQuery(new ElasticSearchQueryGenerator(parameter.getCombiner()).genFilter(parameter.getFilters()))
+                    .setQuery(new ElasticSearchQueryGenerator(FilterCombinerType.and).genFilter(parameter.getFilters()))
                     .setSearchType(SearchType.DFS_QUERY_THEN_FETCH)
                     .setFrom(parameter.getFrom())
                     .setSize(parameter.getLimit());

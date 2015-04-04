@@ -20,6 +20,7 @@ import com.flipkart.foxtrot.common.histogram.HistogramRequest;
 import com.flipkart.foxtrot.common.histogram.HistogramResponse;
 import com.flipkart.foxtrot.common.query.Filter;
 import com.flipkart.foxtrot.common.query.FilterCombinerType;
+import com.flipkart.foxtrot.common.query.datetime.LastFilter;
 import com.flipkart.foxtrot.common.query.general.AnyFilter;
 import com.flipkart.foxtrot.core.common.Action;
 import com.flipkart.foxtrot.core.datastore.DataStore;
@@ -31,6 +32,7 @@ import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConnection;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
 import com.flipkart.foxtrot.core.querystore.query.ElasticSearchQueryGenerator;
 import com.google.common.collect.Lists;
+import com.yammer.dropwizard.util.Duration;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.search.SearchType;
 import org.elasticsearch.index.query.QueryBuilders;
@@ -74,9 +76,8 @@ public class HistogramAction extends Action<HistogramRequest> {
             }
         }
 
-        return String.format("%s-%d-%d-%d-%s-%s", query.getTable(),
-                query.getFrom() / 30000, query.getTo() / 30000,
-                filterHashKey, query.getPeriod().name(), query.getField());
+        return String.format("%s-%s-%s-%d", query.getTable(),
+                query.getPeriod().name(), query.getField(), filterHashKey);
     }
 
     @Override
@@ -113,14 +114,10 @@ public class HistogramAction extends Action<HistogramRequest> {
 
             String dateHistogramKey = Utils.sanitizeFieldForAggregation(parameter.getField());
             SearchResponse response = getConnection().getClient().prepareSearch(
-                    ElasticsearchUtils.getIndices(parameter.getTable()))
+                    ElasticsearchUtils.getIndices(parameter.getTable(), parameter))
                     .setTypes(ElasticsearchUtils.TYPE_NAME)
                     .setQuery(new ElasticSearchQueryGenerator(FilterCombinerType.and)
-                            .genFilter(parameter.getFilters())
-                            .must(QueryBuilders.rangeQuery(parameter.getField())
-                                    .from(parameter.getFrom())
-                                    .to(parameter.getTo()))
-                    )
+                            .genFilter(parameter.getFilters()))
                     .setSize(0)
                     .setSearchType(SearchType.COUNT)
                     .addAggregation(AggregationBuilders.dateHistogram(dateHistogramKey)
@@ -131,7 +128,7 @@ public class HistogramAction extends Action<HistogramRequest> {
             Aggregations aggregations = response.getAggregations();
             if (aggregations == null) {
                 logger.error("Null response for Histogram. Request : " + parameter.toString());
-                return new HistogramResponse(parameter.getFrom(), parameter.getTo(), Collections.<HistogramResponse.Count>emptyList());
+                return new HistogramResponse(Collections.<HistogramResponse.Count>emptyList());
             }
             DateHistogram dateHistogram = aggregations.get(dateHistogramKey);
             Collection<? extends DateHistogram.Bucket> buckets = dateHistogram.getBuckets();
@@ -141,7 +138,7 @@ public class HistogramAction extends Action<HistogramRequest> {
                         bucket.getKeyAsNumber(), bucket.getDocCount());
                 counts.add(count);
             }
-            return new HistogramResponse(parameter.getFrom(), parameter.getTo(), counts);
+            return new HistogramResponse(counts);
         } catch (QueryStoreException ex) {
             throw ex;
         } catch (Exception e) {
@@ -149,4 +146,13 @@ public class HistogramAction extends Action<HistogramRequest> {
                     "Malformed query", e);
         }
     }
+
+    @Override
+    protected Filter getDefaultTimeSpan() {
+        LastFilter lastFilter = new LastFilter();
+        lastFilter.setField("_timestamp");
+        lastFilter.setDuration(Duration.days(1));
+        return lastFilter;
+    }
+
 }

@@ -66,6 +66,7 @@ public abstract class NumericBinaryFilter extends Filter {
         return result;
     }
 
+    @Override
     public boolean isTemporal() {
         return temporal;
     }

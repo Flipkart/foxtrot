@@ -16,17 +16,25 @@
 package com.flipkart.foxtrot.core.querystore.impl;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.flipkart.foxtrot.common.ActionRequest;
 import com.flipkart.foxtrot.common.Table;
+import com.flipkart.foxtrot.core.common.PeriodSelector;
+import com.google.common.annotations.VisibleForTesting;
+import com.google.common.collect.Lists;
 import org.elasticsearch.action.admin.indices.template.put.PutIndexTemplateRequest;
 import org.elasticsearch.action.admin.indices.template.put.PutIndexTemplateRequestBuilder;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.client.IndicesAdminClient;
 import org.joda.time.DateTime;
+import org.joda.time.Interval;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 
 /**
  * User: Santanu Sinha (santanu.sinha@flipkart.com)
@@ -34,9 +42,12 @@ import java.util.Date;
  * Time: 3:46 PM
  */
 public class ElasticsearchUtils {
+    private static final Logger logger = LoggerFactory.getLogger(ElasticsearchUtils.class.getSimpleName());
+
     public static final String TYPE_NAME = "document";
     public static final String TABLENAME_PREFIX = "foxtrot";
     public static final String TABLENAME_POSTFIX = "table";
+    private static final DateTimeFormatter FORMATTER = DateTimeFormat.forPattern("dd-M-yyyy");
     public static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormat.forPattern("dd-M-yyyy");
     private static ObjectMapper mapper;
 
@@ -63,9 +74,31 @@ public class ElasticsearchUtils {
                 ElasticsearchUtils.TABLENAME_PREFIX, table, ElasticsearchUtils.TABLENAME_POSTFIX)};
     }
 
+    public static String[] getIndices(final String table, final ActionRequest request) throws Exception {
+        return getIndices(table, request, new PeriodSelector(request.getFilters()).analyze());
+    }
+
+    @VisibleForTesting
+    public static String[] getIndices(final String table, final ActionRequest request, final Interval interval) throws Exception {
+        DateTime start = interval.getStart().toLocalDate().toDateTimeAtStartOfDay();
+        if(start.getYear() <= 1970) {
+            logger.warn("Request of type {} running on all indices", request.getClass().getSimpleName());
+            return getIndices(table);
+        }
+        List<String> indices = Lists.newArrayList();
+        final DateTime end = interval.getEnd().plusDays(1).toLocalDate().toDateTimeAtStartOfDay();
+        while (start.getMillis() < end.getMillis()) {
+            final String index = getCurrentIndex(table, start.getMillis());
+            indices.add(index);
+            start = start.plusDays(1);
+        }
+        logger.info("Request of type {} on indices: {}", request.getClass().getSimpleName(), indices);
+        return indices.toArray(new String[indices.size()]);
+    }
+
     public static String getCurrentIndex(final String table, long timestamp) {
         //TODO::THROW IF TIMESTAMP IS BEYOND TABLE META.TTL
-        String datePostfix = new SimpleDateFormat("dd-M-yyyy").format(new Date(timestamp));
+        String datePostfix = FORMATTER.print(timestamp);
         return String.format("%s-%s-%s-%s", ElasticsearchUtils.TABLENAME_PREFIX, table,
                 ElasticsearchUtils.TABLENAME_POSTFIX, datePostfix);
     }

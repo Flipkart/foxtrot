@@ -72,7 +72,7 @@ public class DistinctAction extends Action<DistinctRequest> {
         }
         try {
             SearchRequestBuilder query = getConnection().getClient().prepareSearch(ElasticsearchUtils.getIndices(
-                    request.getTable()));
+                    request.getTable(), request));
             TermsBuilder rootBuilder = null;
             TermsBuilder termsBuilder = null;
 

@@ -30,16 +30,11 @@ import java.util.List;
  * Date: 21/03/14
  * Time: 12:06 AM
  */
-public class HistogramRequest implements ActionRequest {
+public class HistogramRequest extends ActionRequest {
     @NotNull
     @NotEmpty
     private String table;
 
-    private List<Filter> filters;
-    @Min(0)
-    private long from;
-    @Min(0)
-    private long to;
 
     @NotNull
     @NotEmpty
@@ -48,9 +43,6 @@ public class HistogramRequest implements ActionRequest {
     private Period period;
 
     public HistogramRequest() {
-        long timestamp = System.currentTimeMillis();
-        this.from = timestamp - 86400000;
-        this.to = timestamp;
         this.field = "_timestamp";
         this.period = Period.minutes;
     }
@@ -61,30 +53,6 @@ public class HistogramRequest implements ActionRequest {
 
     public void setTable(String table) {
         this.table = table;
-    }
-
-    public List<Filter> getFilters() {
-        return filters;
-    }
-
-    public void setFilters(List<Filter> filters) {
-        this.filters = filters;
-    }
-
-    public long getFrom() {
-        return from;
-    }
-
-    public void setFrom(long from) {
-        this.from = from;
-    }
-
-    public long getTo() {
-        return to;
-    }
-
-    public void setTo(long to) {
-        this.to = to;
     }
 
     public Period getPeriod() {
@@ -99,19 +67,18 @@ public class HistogramRequest implements ActionRequest {
         return field;
     }
 
+    public void setField(String field) {
+        this.field = field;
+    }
+
     @Override
     public String toString() {
         return new ToStringBuilder(this)
                 .append("table", table)
-                .append("filters", filters)
-                .append("from", from)
-                .append("to", to)
+                .append("filters", getFilters())
                 .append("field", field)
                 .append("period", period)
                 .toString();
     }
 
-    public void setField(String field) {
-        this.field = field;
-    }
 }

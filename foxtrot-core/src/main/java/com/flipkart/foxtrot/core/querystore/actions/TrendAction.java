@@ -18,6 +18,7 @@ package com.flipkart.foxtrot.core.querystore.actions;
 import com.flipkart.foxtrot.common.ActionResponse;
 import com.flipkart.foxtrot.common.query.Filter;
 import com.flipkart.foxtrot.common.query.FilterCombinerType;
+import com.flipkart.foxtrot.common.query.datetime.LastFilter;
 import com.flipkart.foxtrot.common.query.general.AnyFilter;
 import com.flipkart.foxtrot.common.query.general.EqualsFilter;
 import com.flipkart.foxtrot.common.trend.TrendRequest;
@@ -32,6 +33,7 @@ import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConnection;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
 import com.flipkart.foxtrot.core.querystore.query.ElasticSearchQueryGenerator;
 import com.google.common.collect.Lists;
+import com.yammer.dropwizard.util.Duration;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.search.SearchType;
 import org.elasticsearch.search.aggregations.AbstractAggregationBuilder;
@@ -82,8 +84,8 @@ public class TrendAction extends Action<TrendRequest> {
         filterHashKey += 31 * query.getTimestamp().hashCode();
         filterHashKey += 31 * (query.getField() != null ? query.getField().hashCode() : "FIELD".hashCode());
 
-        return String.format("%s-%s-%d-%d-%d", query.getTable(),
-                query.getField(), query.getFrom() / 30000, query.getTo() / 30000, filterHashKey);
+        return String.format("%s-%s-%s-%d", query.getTable(),
+                query.getField(), query.getPeriod(), filterHashKey);
     }
 
     @Override
@@ -91,11 +93,6 @@ public class TrendAction extends Action<TrendRequest> {
         parameter.setTable(ElasticsearchUtils.getValidTableName(parameter.getTable()));
         if (null == parameter.getFilters()) {
             parameter.setFilters(Lists.<Filter>newArrayList(new AnyFilter(parameter.getTable())));
-        }
-        long currentTime = System.currentTimeMillis();
-        if (0L == parameter.getFrom() || 0L == parameter.getTo()) {
-            parameter.setFrom(currentTime - 86400000L);
-            parameter.setTo(currentTime);
         }
         String field = parameter.getField();
         if (parameter.getTable() == null) {
@@ -115,7 +112,7 @@ public class TrendAction extends Action<TrendRequest> {
         try {
             AbstractAggregationBuilder aggregationBuilder = buildAggregation(parameter);
             SearchResponse searchResponse = getConnection().getClient()
-                    .prepareSearch(ElasticsearchUtils.getIndices(parameter.getTable()))
+                    .prepareSearch(ElasticsearchUtils.getIndices(parameter.getTable(), parameter))
                     .setQuery(new ElasticSearchQueryGenerator(FilterCombinerType.and).genFilter(parameter.getFilters()))
                     .setSearchType(SearchType.COUNT)
                     .addAggregation(aggregationBuilder)
@@ -134,6 +131,14 @@ public class TrendAction extends Action<TrendRequest> {
             throw new QueryStoreException(QueryStoreException.ErrorCode.QUERY_EXECUTION_ERROR,
                     "Error running trend action.", e);
         }
+    }
+
+    @Override
+    protected Filter getDefaultTimeSpan() {
+        LastFilter lastFilter = new LastFilter();
+        lastFilter.setField("_timestamp");
+        lastFilter.setDuration(Duration.days(1));
+        return lastFilter;
     }
 
     private AbstractAggregationBuilder buildAggregation(TrendRequest request) {

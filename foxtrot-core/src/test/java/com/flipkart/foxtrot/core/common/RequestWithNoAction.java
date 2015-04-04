@@ -23,5 +23,5 @@ import com.google.common.annotations.VisibleForTesting;
  */
 
 @VisibleForTesting
-public class RequestWithNoAction implements ActionRequest {
+public class RequestWithNoAction extends ActionRequest {
 }

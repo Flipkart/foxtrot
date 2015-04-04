@@ -16,6 +16,10 @@
 package com.flipkart.foxtrot.common;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.flipkart.foxtrot.common.query.Filter;
+import com.flipkart.foxtrot.common.query.numeric.LessThanFilter;
+
+import java.util.List;
 
 /**
  * User: Santanu Sinha (santanu.sinha@flipkart.com)
@@ -23,5 +27,14 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
  * Time: 7:49 PM
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "opcode")
-public interface ActionRequest {
+public abstract class ActionRequest {
+    private List<Filter> filters;
+
+    public List<Filter> getFilters() {
+        return filters;
+    }
+
+    public void setFilters(List<Filter> filters) {
+        this.filters = filters;
+    }
 }

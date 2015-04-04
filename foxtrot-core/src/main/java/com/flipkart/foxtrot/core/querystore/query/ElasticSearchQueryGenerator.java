@@ -130,15 +130,17 @@ public class ElasticSearchQueryGenerator extends FilterVisitor {
     private void addFilter(FilterBuilder elasticSearchFilter) throws Exception {
         if (combinerType == FilterCombinerType.and) {
             boolFilterBuilder.must(elasticSearchFilter);
+            return;
         }
-        boolFilterBuilder.should(elasticSearchFilter);
+        //boolFilterBuilder.should(elasticSearchFilter);
+        throw new UnsupportedOperationException(FilterCombinerType.or.name() + " is not supported");
     }
 
-    public BoolQueryBuilder genFilter(List<Filter> filters) throws Exception {
+    public QueryBuilder genFilter(List<Filter> filters) throws Exception {
         for (Filter filter : filters) {
             filter.accept(this);
         }
-        return QueryBuilders.boolQuery().must(QueryBuilders.filteredQuery(QueryBuilders.matchAllQuery(), boolFilterBuilder));
+        return QueryBuilders.filteredQuery(QueryBuilders.matchAllQuery(), boolFilterBuilder);
     }
 
 }
