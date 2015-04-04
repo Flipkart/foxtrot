@@ -9,14 +9,35 @@ import com.flipkart.foxtrot.common.query.numeric.GreaterThanFilter;
 import com.flipkart.foxtrot.common.query.numeric.LessThanFilter;
 import com.flipkart.foxtrot.core.common.PeriodSelector;
 import com.yammer.dropwizard.util.Duration;
+import org.joda.time.DateTimeZone;
 import org.junit.Assert;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TestWatcher;
+import org.junit.runner.Description;
 
 import java.util.Arrays;
 import java.util.Collections;
 
+
 public class ElasticsearchUtilsTest {
     private static final long TEST_CURRENT_TIME = 1428151913000L; //4/4/2015, 6:21:53 PM IST
+
+    @Rule
+    public TestWatcher tzRule = new TestWatcher() {
+
+        private DateTimeZone defaultTz = DateTimeZone.getDefault();
+
+        @Override
+        protected void starting(Description description) {
+            DateTimeZone.setDefault(DateTimeZone.forOffsetHoursMinutes(5,30));
+        }
+
+        @Override
+        protected void finished(Description description) {
+            DateTimeZone.setDefault(defaultTz);
+        }
+    };
 
     private final static class TestRequest extends ActionRequest {
 
