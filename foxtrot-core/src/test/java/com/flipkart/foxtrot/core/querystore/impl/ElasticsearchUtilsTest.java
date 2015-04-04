@@ -30,7 +30,7 @@ public class ElasticsearchUtilsTest {
 
         @Override
         protected void starting(Description description) {
-            DateTimeZone.setDefault(DateTimeZone.forOffsetHoursMinutes(5,30));
+            DateTimeZone.setDefault(DateTimeZone.forOffsetHoursMinutes(5, 30));
         }
 
         @Override
@@ -48,6 +48,7 @@ public class ElasticsearchUtilsTest {
         TestRequest request = new TestRequest();
         LastFilter filter = new LastFilter();
         filter.setDuration(Duration.minutes(10));
+        filter.setCurrentTime(TEST_CURRENT_TIME);
         request.setFilters(Collections.<Filter>singletonList(filter));
         String indexes[] = ElasticsearchUtils.getIndices("test", request,
                 new PeriodSelector(request.getFilters()).analyze(TEST_CURRENT_TIME));
@@ -60,6 +61,7 @@ public class ElasticsearchUtilsTest {
         TestRequest request = new TestRequest();
         LastFilter filter = new LastFilter();
         filter.setDuration(Duration.days(2));
+        filter.setCurrentTime(TEST_CURRENT_TIME);
         request.setFilters(Collections.<Filter>singletonList(filter));
         String indexes[] = ElasticsearchUtils.getIndices("test", request,
                 new PeriodSelector(request.getFilters()).analyze(TEST_CURRENT_TIME));

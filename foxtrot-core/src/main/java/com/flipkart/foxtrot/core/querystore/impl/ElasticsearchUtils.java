@@ -47,6 +47,7 @@ public class ElasticsearchUtils {
     public static final String TYPE_NAME = "document";
     public static final String TABLENAME_PREFIX = "foxtrot";
     public static final String TABLENAME_POSTFIX = "table";
+    private static final DateTimeFormatter FORMATTER = DateTimeFormat.forPattern("dd-M-yyyy");
     public static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormat.forPattern("dd-M-yyyy");
     private static ObjectMapper mapper;
 
@@ -80,7 +81,7 @@ public class ElasticsearchUtils {
     @VisibleForTesting
     public static String[] getIndices(final String table, final ActionRequest request, final Interval interval) throws Exception {
         DateTime start = interval.getStart().toLocalDate().toDateTimeAtStartOfDay();
-        if(start.getYear() == 1970) {
+        if(start.getYear() <= 1970) {
             logger.warn("Request of type {} running on all indices", request.getClass().getSimpleName());
             return getIndices(table);
         }
@@ -97,7 +98,7 @@ public class ElasticsearchUtils {
 
     public static String getCurrentIndex(final String table, long timestamp) {
         //TODO::THROW IF TIMESTAMP IS BEYOND TABLE META.TTL
-        String datePostfix = new SimpleDateFormat("dd-M-yyyy").format(new Date(timestamp));
+        String datePostfix = FORMATTER.print(timestamp);
         return String.format("%s-%s-%s-%s", ElasticsearchUtils.TABLENAME_PREFIX, table,
                 ElasticsearchUtils.TABLENAME_POSTFIX, datePostfix);
     }
