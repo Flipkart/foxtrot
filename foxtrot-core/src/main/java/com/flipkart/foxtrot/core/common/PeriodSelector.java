@@ -23,6 +23,7 @@ import com.flipkart.foxtrot.common.query.datetime.TimeWindow;
 import com.flipkart.foxtrot.common.query.general.*;
 import com.flipkart.foxtrot.common.query.numeric.*;
 import com.flipkart.foxtrot.common.query.string.ContainsFilter;
+import com.google.common.annotations.VisibleForTesting;
 import org.joda.time.Interval;
 
 import java.util.List;
@@ -39,13 +40,17 @@ public class PeriodSelector extends FilterVisitor {
     }
 
     public Interval analyze() throws Exception {
+        return analyze(System.currentTimeMillis());
+    }
+
+    public Interval analyze(long currentTime) throws Exception {
         for(Filter filter : filters) {
             if(filter.isTemporal()) {
                 filter.accept(this);
             }
         }
         timeWindow.setStartTime(timeWindow.getStartTime() == Long.MAX_VALUE ? 0 : timeWindow.getStartTime());
-        timeWindow.setEndTime(timeWindow.getEndTime() == Long.MIN_VALUE ? System.currentTimeMillis() : timeWindow.getEndTime());
+        timeWindow.setEndTime(timeWindow.getEndTime() == Long.MIN_VALUE ? currentTime : timeWindow.getEndTime());
         return new Interval(timeWindow.getStartTime(), timeWindow.getEndTime());
     }
 
@@ -57,8 +62,6 @@ public class PeriodSelector extends FilterVisitor {
 
     @Override
     public void visit(EqualsFilter equalsFilter) throws Exception {
-        timeWindow.setStartTime((Long) equalsFilter.getValue());
-        timeWindow.setEndTime((Long) equalsFilter.getValue());
     }
 
     @Override
