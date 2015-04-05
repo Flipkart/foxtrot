@@ -49,15 +49,14 @@ import java.util.concurrent.Executors;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 /**
  * Created by rishabh.goyal on 28/04/14.
  */
 public class GroupActionTest {
-    private QueryExecutor queryExecutor;
     private final ObjectMapper mapper = new ObjectMapper();
+    private QueryExecutor queryExecutor;
     private MockElasticsearchServer elasticsearchServer;
     private HazelcastInstance hazelcastInstance;
 
@@ -82,11 +81,10 @@ public class GroupActionTest {
         when(tableMetadataManager.exists(TestUtils.TEST_TABLE_NAME)).thenReturn(true);
         when(tableMetadataManager.get(anyString())).thenReturn(TestUtils.TEST_TABLE);
         QueryStore queryStore = new ElasticsearchQueryStore(tableMetadataManager, elasticsearchConnection, dataStore);
-        AnalyticsLoader analyticsLoader = new AnalyticsLoader(tableMetadataManager, dataStore, queryStore, elasticsearchConnection);
-        TestUtils.registerActions(analyticsLoader, mapper);
+        AnalyticsLoader analyticsLoader = new AnalyticsLoader(tableMetadataManager, dataStore, queryStore, elasticsearchConnection, mapper);
         ExecutorService executorService = Executors.newFixedThreadPool(1);
         queryExecutor = new QueryExecutor(analyticsLoader, executorService);
-        List<Document> documents = TestUtils.getGroupDocuments(mapper);
+        List<Document> documents = TestUtils.getGroupDocuments();
         queryStore.save(TestUtils.TEST_TABLE_NAME, documents);
         for (Document document : documents) {
             elasticsearchServer.getClient().admin().indices()
@@ -213,8 +211,15 @@ public class GroupActionTest {
         groupRequest.setNesting(Arrays.asList("os", "device"));
 
         Map<String, Object> response = Maps.newHashMap();
-        response.put("android", new HashMap<String, Object>() {{put("nexus", 5L); put("galaxy", 2L); }});
-        response.put("ios", new HashMap<String, Object>() {{put("nexus", 1L); put("ipad", 2L); put("iphone", 1L); }});
+        response.put("android", new HashMap<String, Object>() {{
+            put("nexus", 5L);
+            put("galaxy", 2L);
+        }});
+        response.put("ios", new HashMap<String, Object>() {{
+            put("nexus", 1L);
+            put("ipad", 2L);
+            put("iphone", 1L);
+        }});
 
         GroupResponse actualResult = GroupResponse.class.cast(queryExecutor.execute(groupRequest));
         assertEquals(response, actualResult.getResult());
@@ -232,8 +237,13 @@ public class GroupActionTest {
         groupRequest.setFilters(Collections.<Filter>singletonList(greaterThanFilter));
 
         Map<String, Object> response = Maps.newHashMap();
-        response.put("android", new HashMap<String, Object>() {{put("nexus", 3L); put("galaxy", 2L); }});
-        response.put("ios", new HashMap<String, Object>() {{ put("ipad", 1L); }});
+        response.put("android", new HashMap<String, Object>() {{
+            put("nexus", 3L);
+            put("galaxy", 2L);
+        }});
+        response.put("ios", new HashMap<String, Object>() {{
+            put("ipad", 1L);
+        }});
 
         GroupResponse actualResult = GroupResponse.class.cast(queryExecutor.execute(groupRequest));
         assertEquals(response, actualResult.getResult());
@@ -247,14 +257,34 @@ public class GroupActionTest {
 
         Map<String, Object> response = Maps.newHashMap();
 
-        final Map<String, Object> nexusResponse = new HashMap<String, Object>(){{ put("1", 2L); put("2", 2L); put("3", 1L); }};
-        final Map<String, Object> galaxyResponse = new HashMap<String, Object>(){{ put("2", 1L); put("3", 1L); }};
-        response.put("android", new HashMap<String, Object>() {{put("nexus", nexusResponse); put("galaxy", galaxyResponse); }});
+        final Map<String, Object> nexusResponse = new HashMap<String, Object>() {{
+            put("1", 2L);
+            put("2", 2L);
+            put("3", 1L);
+        }};
+        final Map<String, Object> galaxyResponse = new HashMap<String, Object>() {{
+            put("2", 1L);
+            put("3", 1L);
+        }};
+        response.put("android", new HashMap<String, Object>() {{
+            put("nexus", nexusResponse);
+            put("galaxy", galaxyResponse);
+        }});
 
-        final Map<String, Object> nexusResponse2 = new HashMap<String, Object>(){{ put("2", 1L);}};
-        final Map<String, Object> iPadResponse = new HashMap<String, Object>(){{ put("2", 2L); }};
-        final Map<String, Object> iPhoneResponse = new HashMap<String, Object>(){{ put("1", 1L); }};
-        response.put("ios", new HashMap<String, Object>() {{put("nexus", nexusResponse2); put("ipad", iPadResponse); put("iphone", iPhoneResponse); }});
+        final Map<String, Object> nexusResponse2 = new HashMap<String, Object>() {{
+            put("2", 1L);
+        }};
+        final Map<String, Object> iPadResponse = new HashMap<String, Object>() {{
+            put("2", 2L);
+        }};
+        final Map<String, Object> iPhoneResponse = new HashMap<String, Object>() {{
+            put("1", 1L);
+        }};
+        response.put("ios", new HashMap<String, Object>() {{
+            put("nexus", nexusResponse2);
+            put("ipad", iPadResponse);
+            put("iphone", iPhoneResponse);
+        }});
 
         GroupResponse actualResult = GroupResponse.class.cast(queryExecutor.execute(groupRequest));
         assertEquals(response, actualResult.getResult());
@@ -273,12 +303,25 @@ public class GroupActionTest {
 
         Map<String, Object> response = Maps.newHashMap();
 
-        final Map<String, Object> nexusResponse = new HashMap<String, Object>(){{ put("2", 2L); put("3", 1L); }};
-        final Map<String, Object> galaxyResponse = new HashMap<String, Object>(){{ put("2", 1L); put("3", 1L); }};
-        response.put("android", new HashMap<String, Object>() {{put("nexus", nexusResponse); put("galaxy", galaxyResponse); }});
+        final Map<String, Object> nexusResponse = new HashMap<String, Object>() {{
+            put("2", 2L);
+            put("3", 1L);
+        }};
+        final Map<String, Object> galaxyResponse = new HashMap<String, Object>() {{
+            put("2", 1L);
+            put("3", 1L);
+        }};
+        response.put("android", new HashMap<String, Object>() {{
+            put("nexus", nexusResponse);
+            put("galaxy", galaxyResponse);
+        }});
 
-        final Map<String, Object> iPadResponse = new HashMap<String, Object>(){{ put("2", 1L); }};
-        response.put("ios", new HashMap<String, Object>() {{ put("ipad", iPadResponse); }});
+        final Map<String, Object> iPadResponse = new HashMap<String, Object>() {{
+            put("2", 1L);
+        }};
+        response.put("ios", new HashMap<String, Object>() {{
+            put("ipad", iPadResponse);
+        }});
 
         GroupResponse actualResult = GroupResponse.class.cast(queryExecutor.execute(groupRequest));
         assertEquals(response, actualResult.getResult());

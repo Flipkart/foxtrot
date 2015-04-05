@@ -1,12 +1,12 @@
 /**
  * Copyright 2014 Flipkart Internet Pvt. Ltd.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -22,16 +22,16 @@ import java.util.Set;
 /**
  * Created by rishabh.goyal on 06/05/14.
  */
-public class TableFieldMapping {
+public class TableFieldMetadata {
     private String table;
-    private Set<FieldTypeMapping> mappings;
+    private Set<FieldData> fieldData;
 
-    public TableFieldMapping() {
+    public TableFieldMetadata() {
     }
 
-    public TableFieldMapping(String table, Set<FieldTypeMapping> mappings) {
+    public TableFieldMetadata(String table, Set<FieldData> fieldData) {
         this.table = table;
-        this.mappings = mappings;
+        this.fieldData = fieldData;
     }
 
     public String getTable() {
@@ -42,12 +42,12 @@ public class TableFieldMapping {
         this.table = table;
     }
 
-    public Set<FieldTypeMapping> getMappings() {
-        return mappings;
+    public Set<FieldData> getFieldData() {
+        return fieldData;
     }
 
-    public void setMappings(Set<FieldTypeMapping> mappings) {
-        this.mappings = mappings;
+    public void setFieldData(Set<FieldData> fieldData) {
+        this.fieldData = fieldData;
     }
 
 
@@ -55,7 +55,7 @@ public class TableFieldMapping {
     public String toString() {
         return new ToStringBuilder(this)
                 .append("table", table)
-                .append("mappings", mappings)
+                .append("fieldMetadata", fieldData)
                 .toString();
     }
 }

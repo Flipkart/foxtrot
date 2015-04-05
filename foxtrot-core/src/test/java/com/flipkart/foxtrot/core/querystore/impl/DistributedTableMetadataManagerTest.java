@@ -57,7 +57,7 @@ public class DistributedTableMetadataManagerTest {
         Config config = new Config();
         when(hazelcastConnection.getHazelcastConfig()).thenReturn(config);
 
-        //Create index for table meta. Not created automatically
+        // Create index for table meta. Not created automatically
         elasticsearchServer = new MockElasticsearchServer(UUID.randomUUID().toString());
         CreateIndexRequest createRequest = new CreateIndexRequest(TableMapStore.TABLE_META_INDEX);
         Settings indexSettings = ImmutableSettings.settingsBuilder().put("number_of_replicas", 0).build();
@@ -68,10 +68,10 @@ public class DistributedTableMetadataManagerTest {
         when(elasticsearchConnection.getClient()).thenReturn(elasticsearchServer.getClient());
         ElasticsearchUtils.initializeMappings(elasticsearchServer.getClient());
 
-        String DATA_MAP = "tablemetadatamap";
+        String DATA_MAP = DistributedTableMetadataManager.DATA_MAP;
         tableDataStore = hazelcastInstance.getMap(DATA_MAP);
         distributedTableMetadataManager = new DistributedTableMetadataManager(hazelcastConnection,
-                                                                                elasticsearchConnection);
+                elasticsearchConnection);
         distributedTableMetadataManager.start();
     }
 

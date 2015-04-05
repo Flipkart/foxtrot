@@ -35,8 +35,8 @@ import java.util.List;
  * Time: 10:11 PM
  */
 public class DistributedTableMetadataManager implements TableMetadataManager {
-    private static final Logger logger = LoggerFactory.getLogger(DistributedTableMetadataManager.class);
     public static final String DATA_MAP = "tablemetadatamap";
+    private static final Logger logger = LoggerFactory.getLogger(DistributedTableMetadataManager.class);
     private final HazelcastConnection hazelcastConnection;
     private IMap<String, Table> tableDataStore;
 

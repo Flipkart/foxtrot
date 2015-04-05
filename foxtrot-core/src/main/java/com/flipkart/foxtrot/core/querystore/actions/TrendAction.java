@@ -45,7 +45,10 @@ import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 
 /**
  * User: Santanu Sinha (santanu.sinha@flipkart.com)
@@ -168,7 +171,7 @@ public class TrendAction extends Action<TrendRequest> {
                 .subAggregation(Utils.buildDateHistogramAggregation(request.getTimestamp(), interval));
     }
 
-    private TrendResponse buildResponse(TrendRequest request, Aggregations aggregations){
+    private TrendResponse buildResponse(TrendRequest request, Aggregations aggregations) {
         String field = request.getField();
         Map<String, List<TrendResponse.Count>> trendCounts = new TreeMap<String, List<TrendResponse.Count>>();
         Terms terms = aggregations.get(Utils.sanitizeFieldForAggregation(field));
