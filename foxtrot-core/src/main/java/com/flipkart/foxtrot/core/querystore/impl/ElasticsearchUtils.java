@@ -15,8 +15,11 @@
  */
 package com.flipkart.foxtrot.core.querystore.impl;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.flipkart.foxtrot.common.ActionRequest;
+import com.flipkart.foxtrot.common.FieldData;
+import com.flipkart.foxtrot.common.FieldType;
 import com.flipkart.foxtrot.common.Table;
 import com.flipkart.foxtrot.core.common.PeriodSelector;
 import com.google.common.annotations.VisibleForTesting;
@@ -25,6 +28,7 @@ import org.elasticsearch.action.admin.indices.template.put.PutIndexTemplateReque
 import org.elasticsearch.action.admin.indices.template.put.PutIndexTemplateRequestBuilder;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.client.IndicesAdminClient;
+import org.elasticsearch.cluster.metadata.MappingMetaData;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
 import org.joda.time.format.DateTimeFormat;
@@ -32,9 +36,8 @@ import org.joda.time.format.DateTimeFormatter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.List;
+import java.io.IOException;
+import java.util.*;
 
 /**
  * User: Santanu Sinha (santanu.sinha@flipkart.com)
@@ -42,21 +45,20 @@ import java.util.List;
  * Time: 3:46 PM
  */
 public class ElasticsearchUtils {
-    private static final Logger logger = LoggerFactory.getLogger(ElasticsearchUtils.class.getSimpleName());
-
     public static final String TYPE_NAME = "document";
     public static final String TABLENAME_PREFIX = "foxtrot";
     public static final String TABLENAME_POSTFIX = "table";
-    private static final DateTimeFormatter FORMATTER = DateTimeFormat.forPattern("dd-M-yyyy");
     public static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormat.forPattern("dd-M-yyyy");
+    private static final Logger logger = LoggerFactory.getLogger(ElasticsearchUtils.class.getSimpleName());
+    private static final DateTimeFormatter FORMATTER = DateTimeFormat.forPattern("dd-M-yyyy");
     private static ObjectMapper mapper;
-
-    public static void setMapper(ObjectMapper mapper) {
-        ElasticsearchUtils.mapper = mapper;
-    }
 
     public static ObjectMapper getMapper() {
         return mapper;
+    }
+
+    public static void setMapper(ObjectMapper mapper) {
+        ElasticsearchUtils.mapper = mapper;
     }
 
     public static String getIndexPrefix(final String table) {
@@ -81,7 +83,7 @@ public class ElasticsearchUtils {
     @VisibleForTesting
     public static String[] getIndices(final String table, final ActionRequest request, final Interval interval) throws Exception {
         DateTime start = interval.getStart().toLocalDate().toDateTimeAtStartOfDay();
-        if(start.getYear() <= 1970) {
+        if (start.getYear() <= 1970) {
             logger.warn("Request of type {} running on all indices", request.getClass().getSimpleName());
             return getIndices(table);
         }
@@ -191,5 +193,31 @@ public class ElasticsearchUtils {
         } else {
             return null;
         }
+    }
+
+    public static Set<FieldData> generateFieldMappings(MappingMetaData metaData) throws IOException {
+        JsonNode jsonNode = mapper.valueToTree(metaData.getSourceAsMap());
+        return generateFieldMappings(null, jsonNode.get("properties"));
+    }
+
+    private static Set<FieldData> generateFieldMappings(String parentField, JsonNode jsonNode) {
+        Set<FieldData> fieldDatas = new HashSet<FieldData>();
+        Iterator<Map.Entry<String, JsonNode>> iterator = jsonNode.fields();
+        while (iterator.hasNext()) {
+            Map.Entry<String, JsonNode> entry = iterator.next();
+            String currentField = (parentField == null) ? entry.getKey() : (String.format("%s.%s", parentField, entry.getKey()));
+            if (entry.getValue().has("properties")) {
+                fieldDatas.addAll(generateFieldMappings(currentField, entry.getValue().get("properties")));
+            } else {
+                FieldType fieldType = getFieldType(entry.getValue().get("type"));
+                fieldDatas.add(new FieldData(currentField, fieldType));
+            }
+        }
+        return fieldDatas;
+    }
+
+    private static FieldType getFieldType(JsonNode jsonNode) {
+        String type = jsonNode.asText();
+        return FieldType.valueOf(type.toUpperCase());
     }
 }

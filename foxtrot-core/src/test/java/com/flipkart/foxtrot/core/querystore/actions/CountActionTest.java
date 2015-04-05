@@ -63,11 +63,10 @@ public class CountActionTest {
         when(tableMetadataManager.exists(TestUtils.TEST_TABLE_NAME)).thenReturn(true);
         when(tableMetadataManager.get(anyString())).thenReturn(TestUtils.TEST_TABLE);
         QueryStore queryStore = new ElasticsearchQueryStore(tableMetadataManager, elasticsearchConnection, dataStore);
-        AnalyticsLoader analyticsLoader = new AnalyticsLoader(tableMetadataManager, dataStore, queryStore, elasticsearchConnection);
-        TestUtils.registerActions(analyticsLoader, mapper);
+        AnalyticsLoader analyticsLoader = new AnalyticsLoader(tableMetadataManager, dataStore, queryStore, elasticsearchConnection, mapper);
         ExecutorService executorService = Executors.newFixedThreadPool(1);
         queryExecutor = new QueryExecutor(analyticsLoader, executorService);
-        List<Document> documents = TestUtils.getCountDocuments(mapper);
+        List<Document> documents = TestUtils.getCountDocuments();
         queryStore.save(TestUtils.TEST_TABLE_NAME, documents);
         for (Document document : documents) {
             elasticsearchServer.getClient().admin().indices()

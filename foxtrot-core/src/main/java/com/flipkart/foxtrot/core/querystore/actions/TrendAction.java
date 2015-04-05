@@ -28,6 +28,7 @@ import com.flipkart.foxtrot.core.datastore.DataStore;
 import com.flipkart.foxtrot.core.querystore.QueryStore;
 import com.flipkart.foxtrot.core.querystore.QueryStoreException;
 import com.flipkart.foxtrot.core.querystore.TableMetadataManager;
+import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsOperation;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsProvider;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConnection;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
@@ -45,14 +46,17 @@ import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 
 /**
  * User: Santanu Sinha (santanu.sinha@flipkart.com)
  * Date: 30/03/14
  * Time: 10:27 PM
  */
-@AnalyticsProvider(opcode = "trend", request = TrendRequest.class, response = TrendResponse.class, cacheable = true)
+@AnalyticsProvider(opcode = AnalyticsOperation.trend, request = TrendRequest.class, response = TrendResponse.class, cacheable = true)
 public class TrendAction extends Action<TrendRequest> {
     private static final Logger logger = LoggerFactory.getLogger(TrendAction.class.getSimpleName());
 
@@ -168,7 +172,7 @@ public class TrendAction extends Action<TrendRequest> {
                 .subAggregation(Utils.buildDateHistogramAggregation(request.getTimestamp(), interval));
     }
 
-    private TrendResponse buildResponse(TrendRequest request, Aggregations aggregations){
+    private TrendResponse buildResponse(TrendRequest request, Aggregations aggregations) {
         String field = request.getField();
         Map<String, List<TrendResponse.Count>> trendCounts = new TreeMap<String, List<TrendResponse.Count>>();
         Terms terms = aggregations.get(Utils.sanitizeFieldForAggregation(field));

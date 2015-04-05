@@ -1,12 +1,12 @@
 /**
  * Copyright 2014 Flipkart Internet Pvt. Ltd.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -44,28 +44,9 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 public class TableMapStore implements MapStore<String, Table> {
-    private static final Logger logger = LoggerFactory.getLogger(TableMapStore.class.getSimpleName());
-
     public static final String TABLE_META_INDEX = "table-meta";
     public static final String TABLE_META_TYPE = "table-meta";
-
-    public static class Factory implements MapStoreFactory<String, Table> {
-        private final ElasticsearchConnection elasticsearchConnection;
-
-        public Factory(ElasticsearchConnection elasticsearchConnection) {
-            this.elasticsearchConnection = elasticsearchConnection;
-        }
-
-        @Override
-        public TableMapStore newMapStore(String mapName, Properties properties) {
-            return new TableMapStore(elasticsearchConnection);
-        }
-    }
-
-    public static Factory factory(ElasticsearchConnection elasticsearchConnection) {
-        return new Factory(elasticsearchConnection);
-    }
-
+    private static final Logger logger = LoggerFactory.getLogger(TableMapStore.class.getSimpleName());
     private final ElasticsearchConnection elasticsearchConnection;
     private final ObjectMapper objectMapper;
 
@@ -74,6 +55,10 @@ public class TableMapStore implements MapStore<String, Table> {
         this.objectMapper = new ObjectMapper();
         objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
         objectMapper.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
+    }
+
+    public static Factory factory(ElasticsearchConnection elasticsearchConnection) {
+        return new Factory(elasticsearchConnection);
     }
 
     @Override
@@ -218,5 +203,18 @@ public class TableMapStore implements MapStore<String, Table> {
         }
         logger.info("Loaded value count: " + ids.size());
         return ids;
+    }
+
+    public static class Factory implements MapStoreFactory<String, Table> {
+        private final ElasticsearchConnection elasticsearchConnection;
+
+        public Factory(ElasticsearchConnection elasticsearchConnection) {
+            this.elasticsearchConnection = elasticsearchConnection;
+        }
+
+        @Override
+        public TableMapStore newMapStore(String mapName, Properties properties) {
+            return new TableMapStore(elasticsearchConnection);
+        }
     }
 }

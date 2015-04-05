@@ -1,12 +1,12 @@
 /**
  * Copyright 2014 Flipkart Internet Pvt. Ltd.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -20,6 +20,7 @@ import com.flipkart.foxtrot.core.datastore.DataStore;
 import com.flipkart.foxtrot.core.querystore.QueryStore;
 import com.flipkart.foxtrot.core.querystore.QueryStoreException;
 import com.flipkart.foxtrot.core.querystore.TableMetadataManager;
+import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsOperation;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsProvider;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConnection;
 import com.google.common.annotations.VisibleForTesting;
@@ -28,7 +29,7 @@ import com.google.common.annotations.VisibleForTesting;
  * Created by rishabh.goyal on 02/05/14.
  */
 @VisibleForTesting
-@AnalyticsProvider(opcode = "testCacheableFalse", request = NonCacheableActionRequest.class, response = NonCacheableActionResponse.class, cacheable = false)
+@AnalyticsProvider(opcode = AnalyticsOperation.testCacheableFalse, request = NonCacheableActionRequest.class, response = NonCacheableActionResponse.class, cacheable = false)
 public class NonCacheableAction extends Action<NonCacheableActionRequest> {
 
     public NonCacheableAction(NonCacheableActionRequest parameter,
@@ -47,6 +48,6 @@ public class NonCacheableAction extends Action<NonCacheableActionRequest> {
 
     @Override
     public ActionResponse execute(NonCacheableActionRequest parameter) throws QueryStoreException {
-        return null;//new NonCacheableActionResponse();
+        return null;
     }
 }

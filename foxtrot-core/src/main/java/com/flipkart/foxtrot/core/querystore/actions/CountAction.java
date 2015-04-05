@@ -12,6 +12,7 @@ import com.flipkart.foxtrot.core.datastore.DataStore;
 import com.flipkart.foxtrot.core.querystore.QueryStore;
 import com.flipkart.foxtrot.core.querystore.QueryStoreException;
 import com.flipkart.foxtrot.core.querystore.TableMetadataManager;
+import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsOperation;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsProvider;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConnection;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
@@ -23,7 +24,6 @@ import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.search.SearchType;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.Aggregations;
-import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.elasticsearch.search.aggregations.metrics.cardinality.Cardinality;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,7 +32,7 @@ import org.slf4j.LoggerFactory;
  * Created by rishabh.goyal on 02/11/14.
  */
 
-@AnalyticsProvider(opcode = "count", request = CountRequest.class, response = CountResponse.class, cacheable = false)
+@AnalyticsProvider(opcode = AnalyticsOperation.count, request = CountRequest.class, response = CountResponse.class, cacheable = false)
 public class CountAction extends Action<CountRequest> {
 
     private static final Logger logger = LoggerFactory.getLogger(CountAction.class);
@@ -57,7 +57,7 @@ public class CountAction extends Action<CountRequest> {
             }
         }
 
-        filterHashKey += 31 * (request.isDistinct() ? "TRUE".hashCode() : "FALSE".hashCode() );
+        filterHashKey += 31 * (request.isDistinct() ? "TRUE".hashCode() : "FALSE".hashCode());
         filterHashKey += 31 * (request.getField() != null ? request.getField().hashCode() : "COLUMN".hashCode());
         return String.format("count-%s-%d", request.getTable(), filterHashKey);
     }
@@ -75,20 +75,20 @@ public class CountAction extends Action<CountRequest> {
         }
 
         try {
-            if (parameter.isDistinct()){
+            if (parameter.isDistinct()) {
                 SearchRequestBuilder query = getConnection().getClient()
                         .prepareSearch(ElasticsearchUtils.getIndices(parameter.getTable(), parameter))
                         .setSearchType(SearchType.COUNT)
                         .setQuery(new ElasticSearchQueryGenerator(FilterCombinerType.and)
                                 .genFilter(parameter.getFilters()))
                         .addAggregation(AggregationBuilders
-                                .cardinality(Utils.sanitizeFieldForAggregation(parameter.getField()))
-                                .field(parameter.getField())
+                                        .cardinality(Utils.sanitizeFieldForAggregation(parameter.getField()))
+                                        .field(parameter.getField())
                         );
                 SearchResponse response = query.execute().actionGet();
                 Aggregations aggregations = response.getAggregations();
                 Cardinality cardinality = aggregations.get(Utils.sanitizeFieldForAggregation(parameter.getField()));
-                if (cardinality == null){
+                if (cardinality == null) {
                     return new CountResponse(0);
                 } else {
                     return new CountResponse(cardinality.getValue());

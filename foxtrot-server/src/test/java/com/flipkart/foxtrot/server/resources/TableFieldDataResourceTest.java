@@ -17,8 +17,8 @@ package com.flipkart.foxtrot.server.resources;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.flipkart.foxtrot.common.FieldType;
-import com.flipkart.foxtrot.common.FieldTypeMapping;
-import com.flipkart.foxtrot.common.TableFieldMapping;
+import com.flipkart.foxtrot.common.FieldData;
+import com.flipkart.foxtrot.common.TableFieldMetadata;
 import com.flipkart.foxtrot.core.MockElasticsearchServer;
 import com.flipkart.foxtrot.core.TestUtils;
 import com.flipkart.foxtrot.core.common.CacheUtils;
@@ -54,14 +54,14 @@ import static org.mockito.Mockito.when;
 /**
  * Created by rishabh.goyal on 06/05/14.
  */
-public class TableFieldMappingResourceTest extends ResourceTest {
+public class TableFieldDataResourceTest extends ResourceTest {
 
     private ObjectMapper mapper = new ObjectMapper();
     private HazelcastInstance hazelcastInstance;
     private MockElasticsearchServer elasticsearchServer;
     private QueryStore queryStore;
 
-    public TableFieldMappingResourceTest() throws Exception {
+    public TableFieldDataResourceTest() throws Exception {
         ElasticsearchUtils.setMapper(mapper);
         DataStore dataStore = TestUtils.getDataStore();
 
@@ -86,8 +86,7 @@ public class TableFieldMappingResourceTest extends ResourceTest {
         when(tableMetadataManager.exists(TestUtils.TEST_TABLE_NAME)).thenReturn(true);
         when(tableMetadataManager.get(anyString())).thenReturn(TestUtils.TEST_TABLE);
 
-        AnalyticsLoader analyticsLoader = new AnalyticsLoader(tableMetadataManager, dataStore, queryStore, elasticsearchConnection);
-        TestUtils.registerActions(analyticsLoader, mapper);
+        AnalyticsLoader analyticsLoader = new AnalyticsLoader(tableMetadataManager, dataStore, queryStore, elasticsearchConnection, mapper);
         ExecutorService executorService = Executors.newFixedThreadPool(1);
         QueryExecutor queryExecutor = new QueryExecutor(analyticsLoader, executorService);
         queryStore = new ElasticsearchQueryStore(tableMetadataManager, elasticsearchConnection, dataStore);
@@ -95,7 +94,7 @@ public class TableFieldMappingResourceTest extends ResourceTest {
 
     @Override
     protected void setUpResources() throws Exception {
-        addResource(new TableFieldMappingResource(queryStore));
+        addResource(new TableFieldMetadataResource(queryStore));
     }
 
     @After
@@ -106,22 +105,22 @@ public class TableFieldMappingResourceTest extends ResourceTest {
 
     @Test
     public void testGet() throws Exception {
-        queryStore.save(TestUtils.TEST_TABLE_NAME, TestUtils.getMappingDocuments(mapper));
+        queryStore.save(TestUtils.TEST_TABLE_NAME, TestUtils.getMappingDocuments());
         Thread.sleep(500);
 
-        Set<FieldTypeMapping> mappings = new HashSet<FieldTypeMapping>();
-        mappings.add(new FieldTypeMapping("word", FieldType.STRING));
-        mappings.add(new FieldTypeMapping("data.data", FieldType.STRING));
-        mappings.add(new FieldTypeMapping("header.hello", FieldType.STRING));
-        mappings.add(new FieldTypeMapping("head.hello", FieldType.LONG));
+        Set<FieldData> mappings = new HashSet<FieldData>();
+        mappings.add(new FieldData("word", FieldType.STRING));
+        mappings.add(new FieldData("data.data", FieldType.STRING));
+        mappings.add(new FieldData("header.hello", FieldType.STRING));
+        mappings.add(new FieldData("head.hello", FieldType.LONG));
 
-        TableFieldMapping tableFieldMapping = new TableFieldMapping(TestUtils.TEST_TABLE_NAME, mappings);
+        TableFieldMetadata tableFieldMetadata = new TableFieldMetadata(TestUtils.TEST_TABLE_NAME, mappings);
         String response = client().resource(String.format("/v1/tables/%s/fields", TestUtils.TEST_TABLE_NAME))
                 .get(String.class);
 
-        TableFieldMapping mapping = mapper.readValue(response, TableFieldMapping.class);
-        assertEquals(tableFieldMapping.getTable(), mapping.getTable());
-        assertTrue(tableFieldMapping.getMappings().equals(mapping.getMappings()));
+        TableFieldMetadata mapping = mapper.readValue(response, TableFieldMetadata.class);
+        assertEquals(tableFieldMetadata.getTable(), mapping.getTable());
+        assertTrue(tableFieldMetadata.getFieldData().equals(mapping.getFieldData()));
     }
 
     @Test(expected = UniformInterfaceException.class)
@@ -132,11 +131,11 @@ public class TableFieldMappingResourceTest extends ResourceTest {
 
     @Test
     public void testGetTableWithNoDocument() throws Exception {
-        TableFieldMapping request = new TableFieldMapping(TestUtils.TEST_TABLE_NAME, new HashSet<FieldTypeMapping>());
-        TableFieldMapping response = client().resource(String.format("/v1/tables/%s/fields", TestUtils.TEST_TABLE_NAME))
-                .get(TableFieldMapping.class);
+        TableFieldMetadata request = new TableFieldMetadata(TestUtils.TEST_TABLE_NAME, new HashSet<FieldData>());
+        TableFieldMetadata response = client().resource(String.format("/v1/tables/%s/fields", TestUtils.TEST_TABLE_NAME))
+                .get(TableFieldMetadata.class);
 
         assertEquals(request.getTable(), response.getTable());
-        assertTrue(request.getMappings().equals(response.getMappings()));
+        assertTrue(request.getFieldData().equals(response.getFieldData()));
     }
 }

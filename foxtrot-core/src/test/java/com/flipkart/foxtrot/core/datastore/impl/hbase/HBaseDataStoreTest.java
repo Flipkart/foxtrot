@@ -1,12 +1,12 @@
 /**
  * Copyright 2014 Flipkart Internet Pvt. Ltd.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -42,15 +42,14 @@ import static org.mockito.Mockito.*;
  */
 
 public class HBaseDataStoreTest {
-    private HBaseDataStore HBaseDataStore;
-    private HTableInterface tableInterface;
-    private HbaseTableConnection hBaseTableConnection;
-    private ObjectMapper mapper = new ObjectMapper();
-
     private static final byte[] COLUMN_FAMILY = Bytes.toBytes("d");
     private static final byte[] DATA_FIELD_NAME = Bytes.toBytes("data");
     private static final String TEST_APP_NAME = "test-app";
     private static final Table TEST_APP = new Table(TEST_APP_NAME, 7);
+    private HBaseDataStore HBaseDataStore;
+    private HTableInterface tableInterface;
+    private HbaseTableConnection hBaseTableConnection;
+    private ObjectMapper mapper = new ObjectMapper();
 
     @Before
     public void setUp() throws Exception {

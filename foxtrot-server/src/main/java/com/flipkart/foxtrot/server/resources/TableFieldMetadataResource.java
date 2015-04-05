@@ -30,18 +30,18 @@ import java.util.Collections;
  */
 @Path("/v1/tables/{name}/fields")
 @Produces(MediaType.APPLICATION_JSON)
-public class TableFieldMappingResource {
-    private static final Logger logger = LoggerFactory.getLogger(TableFieldMappingResource.class.getSimpleName());
+public class TableFieldMetadataResource {
+    private static final Logger logger = LoggerFactory.getLogger(TableFieldMetadataResource.class.getSimpleName());
     private QueryStore queryStore;
 
-    public TableFieldMappingResource(QueryStore queryStore) {
+    public TableFieldMetadataResource(QueryStore queryStore) {
         this.queryStore = queryStore;
     }
 
     @GET
     public Response get(@PathParam("name") final String table) {
         try {
-            return Response.ok(queryStore.getFieldMappings(table)).build();
+            return Response.ok(queryStore.fieldMetadata(table)).build();
         } catch (QueryStoreException ex) {
             logger.error("Unable to fetch Table Metadata " , ex);
             throw new WebApplicationException(Response.serverError()

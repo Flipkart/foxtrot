@@ -12,6 +12,7 @@ import com.flipkart.foxtrot.core.datastore.DataStore;
 import com.flipkart.foxtrot.core.querystore.QueryStore;
 import com.flipkart.foxtrot.core.querystore.QueryStoreException;
 import com.flipkart.foxtrot.core.querystore.TableMetadataManager;
+import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsOperation;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsProvider;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConnection;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
@@ -36,7 +37,7 @@ import java.util.*;
  * Created by rishabh.goyal on 02/08/14.
  */
 
-@AnalyticsProvider(opcode = "statstrend", request = StatsTrendRequest.class, response = StatsTrendResponse.class, cacheable = false)
+@AnalyticsProvider(opcode = AnalyticsOperation.statstrend, request = StatsTrendRequest.class, response = StatsTrendResponse.class, cacheable = false)
 public class StatsTrendAction extends Action<StatsTrendRequest> {
 
     private static final Logger logger = LoggerFactory.getLogger(StatsAction.class.getSimpleName());

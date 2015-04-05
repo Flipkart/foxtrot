@@ -23,7 +23,6 @@ import com.flipkart.foxtrot.core.common.DataDeletionManager;
 import com.flipkart.foxtrot.core.common.DataDeletionManagerConfig;
 import com.flipkart.foxtrot.core.datastore.DataStore;
 import com.flipkart.foxtrot.core.datastore.impl.hbase.HBaseDataStore;
-import com.flipkart.foxtrot.core.datastore.impl.hbase.HbaseConfig;
 import com.flipkart.foxtrot.core.datastore.impl.hbase.HbaseTableConnection;
 import com.flipkart.foxtrot.core.querystore.QueryExecutor;
 import com.flipkart.foxtrot.core.querystore.QueryStore;
@@ -37,7 +36,6 @@ import com.flipkart.foxtrot.server.providers.FlatResponseCsvProvider;
 import com.flipkart.foxtrot.server.providers.FlatResponseErrorTextProvider;
 import com.flipkart.foxtrot.server.providers.FlatResponseTextProvider;
 import com.flipkart.foxtrot.server.resources.*;
-import com.flipkart.foxtrot.server.util.ManagedActionScanner;
 import com.flipkart.foxtrot.sql.FqlEngine;
 import com.google.common.collect.Lists;
 import com.yammer.dropwizard.Service;
@@ -69,63 +67,56 @@ public class FoxtrotServer extends Service<FoxtrotServerConfiguration> {
     @Override
     public void run(FoxtrotServerConfiguration configuration, Environment environment) throws Exception {
         configuration.getHttpConfiguration().setRootPath("/foxtrot/*");
-        environment.getObjectMapperFactory().setSerializationInclusion(JsonInclude.Include.NON_NULL);
-        environment.getObjectMapperFactory().setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
-        SubtypeResolver subtypeResolver = new StdSubtypeResolver();
-        environment.getObjectMapperFactory().setSubtypeResolver(subtypeResolver);
 
+        setObjectMapperProperties(environment);
         ObjectMapper objectMapper = environment.getObjectMapperFactory().build();
         ExecutorService executorService = environment.managedExecutorService("query-executor-%s", 20, 40, 30, TimeUnit.SECONDS);
 
-        HbaseConfig hbaseConfig = configuration.getHbase();
-        HbaseTableConnection HBaseTableConnection = new HbaseTableConnection(hbaseConfig);
-
-        ElasticsearchConfig elasticsearchConfig = configuration.getElasticsearch();
-        ElasticsearchConnection elasticsearchConnection = new ElasticsearchConnection(elasticsearchConfig);
-
-        ClusterConfig clusterConfig = configuration.getCluster();
-        HazelcastConnection hazelcastConnection = new HazelcastConnection(clusterConfig, objectMapper);
+        // Initialize connections to data stores
+        HbaseTableConnection HBaseTableConnection = new HbaseTableConnection(configuration.getHbase());
+        ElasticsearchConnection elasticsearchConnection = new ElasticsearchConnection(configuration.getElasticsearch());
+        HazelcastConnection hazelcastConnection = new HazelcastConnection(configuration.getCluster(), objectMapper);
 
         ElasticsearchUtils.setMapper(objectMapper);
 
+        // Initialize data stores
         DataStore dataStore = new HBaseDataStore(HBaseTableConnection, objectMapper);
-
-
         TableMetadataManager tableMetadataManager = new DistributedTableMetadataManager(hazelcastConnection, elasticsearchConnection);
         QueryStore queryStore = new ElasticsearchQueryStore(tableMetadataManager, elasticsearchConnection, dataStore);
 
-        AnalyticsLoader analyticsLoader = new AnalyticsLoader(tableMetadataManager, dataStore, queryStore, elasticsearchConnection);
-
+        AnalyticsLoader analyticsLoader = new AnalyticsLoader(tableMetadataManager, dataStore, queryStore, elasticsearchConnection, objectMapper);
         QueryExecutor executor = new QueryExecutor(analyticsLoader, executorService);
 
         DataDeletionManagerConfig dataDeletionManagerConfig = configuration.getTableDataManagerConfig();
         DataDeletionManager dataDeletionManager = new DataDeletionManager(dataDeletionManagerConfig, queryStore);
 
+
         List<HealthCheck> healthChecks = Lists.newArrayList();
         healthChecks.add(new ElasticSearchHealthCheck("ES Health Check", elasticsearchConnection));
-
         ClusterManager clusterManager = new ClusterManager(
                                     hazelcastConnection, healthChecks, configuration.getHttpConfiguration().getPort());
 
+        // Initialize managed objects
         environment.manage(HBaseTableConnection);
         environment.manage(elasticsearchConnection);
         environment.manage(hazelcastConnection);
         environment.manage(tableMetadataManager);
-        environment.manage(new ManagedActionScanner(analyticsLoader, environment));
         environment.manage(dataDeletionManager);
         environment.manage(clusterManager);
 
+        // Initialize resources
         environment.addResource(new DocumentResource(queryStore));
         environment.addResource(new AsyncResource());
         environment.addResource(new AnalyticsResource(executor));
         environment.addResource(new TableMetadataResource(tableMetadataManager));
-        environment.addResource(new TableFieldMappingResource(queryStore));
+        environment.addResource(new TableFieldMetadataResource(queryStore));
         environment.addResource(new ConsoleResource(
                 new ElasticsearchConsolePersistence(elasticsearchConnection, objectMapper)));
         FqlEngine fqlEngine = new FqlEngine(tableMetadataManager, queryStore, executor, objectMapper);
         environment.addResource(new FqlResource(fqlEngine));
         environment.addResource(new ClusterInfoResource(clusterManager));
 
+        // Initialize health checks
         for(HealthCheck healthCheck : healthChecks) {
             environment.addHealthCheck(healthCheck);
         }
@@ -135,5 +126,13 @@ public class FoxtrotServer extends Service<FoxtrotServerConfiguration> {
         environment.addProvider(new FlatResponseErrorTextProvider());
 
         environment.addFilter(CrossOriginFilter.class, "/*");
+    }
+
+
+    private void setObjectMapperProperties(Environment environment){
+        environment.getObjectMapperFactory().setSerializationInclusion(JsonInclude.Include.NON_NULL);
+        environment.getObjectMapperFactory().setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
+        SubtypeResolver subtypeResolver = new StdSubtypeResolver();
+        environment.getObjectMapperFactory().setSubtypeResolver(subtypeResolver);
     }
 }

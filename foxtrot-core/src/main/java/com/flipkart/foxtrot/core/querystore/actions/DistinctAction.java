@@ -12,6 +12,7 @@ import com.flipkart.foxtrot.core.datastore.DataStore;
 import com.flipkart.foxtrot.core.querystore.QueryStore;
 import com.flipkart.foxtrot.core.querystore.QueryStoreException;
 import com.flipkart.foxtrot.core.querystore.TableMetadataManager;
+import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsOperation;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsProvider;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConnection;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
@@ -27,13 +28,15 @@ import org.elasticsearch.search.aggregations.bucket.terms.TermsBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * Created by rishabh.goyal on 17/11/14.
  */
 
-@AnalyticsProvider(opcode = "distinct", request = DistinctRequest.class, response = DistinctResponse.class, cacheable = true)
+@AnalyticsProvider(opcode = AnalyticsOperation.distinct, request = DistinctRequest.class, response = DistinctResponse.class, cacheable = true)
 public class DistinctAction extends Action<DistinctRequest> {
     private static final Logger logger = LoggerFactory.getLogger(GroupAction.class.getSimpleName());
 
@@ -55,8 +58,8 @@ public class DistinctAction extends Action<DistinctRequest> {
                 filterHashKey += 31 * filter.hashCode();
             }
         }
-        for (int i = 0; i < query.getNesting().size(); i++){
-            filterHashKey += 31 * query.getNesting().get(i).hashCode() * (i+1);
+        for (int i = 0; i < query.getNesting().size(); i++) {
+            filterHashKey += 31 * query.getNesting().get(i).hashCode() * (i + 1);
         }
         return String.format("%s-%d", query.getTable(), filterHashKey);
     }
@@ -120,7 +123,7 @@ public class DistinctAction extends Action<DistinctRequest> {
     private DistinctResponse getDistinctResponse(DistinctRequest request, Aggregations aggregations) {
         DistinctResponse response = new DistinctResponse();
         List<String> headerList = new ArrayList<String>();
-        for (ResultSort nestedField : request.getNesting()){
+        for (ResultSort nestedField : request.getNesting()) {
             headerList.add(nestedField.getField());
         }
         response.setHeaders(headerList);
@@ -149,7 +152,7 @@ public class DistinctAction extends Action<DistinctRequest> {
         return parentKey == null ? currentKey : parentKey + Constants.SEPARATOR + currentKey;
     }
 
-    private List<String> getValueList(String parentKey, String currentKey){
+    private List<String> getValueList(String parentKey, String currentKey) {
         String finalValue = getProperKey(parentKey, currentKey);
         String[] valuesList = finalValue.split(Constants.SEPARATOR);
         return Arrays.asList(valuesList);

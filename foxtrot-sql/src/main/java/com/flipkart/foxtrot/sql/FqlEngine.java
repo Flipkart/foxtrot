@@ -3,7 +3,7 @@ package com.flipkart.foxtrot.sql;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.flipkart.foxtrot.common.ActionResponse;
 import com.flipkart.foxtrot.common.Table;
-import com.flipkart.foxtrot.common.TableFieldMapping;
+import com.flipkart.foxtrot.common.TableFieldMetadata;
 import com.flipkart.foxtrot.core.querystore.QueryExecutor;
 import com.flipkart.foxtrot.core.querystore.QueryStore;
 import com.flipkart.foxtrot.core.querystore.TableMetadataManager;
@@ -64,9 +64,9 @@ public class FqlEngine {
 
         @Override
         public void visit(FqlDescribeTable fqlDescribeTable) throws Exception {
-            TableFieldMapping fieldMetaData = queryStore.getFieldMappings(fqlDescribeTable.getTableName());
+            TableFieldMetadata tableFieldMetadata = queryStore.fieldMetadata(fqlDescribeTable.getTableName());
             result = FlatteningUtils.genericMultiRowParse(
-                                                mapper.valueToTree(fieldMetaData.getMappings()),
+                                                mapper.valueToTree(tableFieldMetadata.getFieldData()),
                                                 Lists.newArrayList("field", "type"), "field");
         }
 

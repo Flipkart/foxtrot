@@ -26,19 +26,19 @@ public class Utils {
                 .interval(interval);
     }
 
-    public static String sanitizeFieldForAggregation(String field){
+    public static String sanitizeFieldForAggregation(String field) {
         return field.replaceAll(Constants.FIELD_REPLACEMENT_REGEX, Constants.FIELD_REPLACEMENT_VALUE);
     }
 
-    public static String getExtendedStatsAggregationKey(String field){
+    public static String getExtendedStatsAggregationKey(String field) {
         return sanitizeFieldForAggregation(field) + "_extended_stats";
     }
 
-    public static String getPercentileAggregationKey(String field){
+    public static String getPercentileAggregationKey(String field) {
         return sanitizeFieldForAggregation(field) + "_percentile";
     }
 
-    public static String getDateHistogramKey(String field){
+    public static String getDateHistogramKey(String field) {
         return sanitizeFieldForAggregation(field) + "_date_histogram";
     }
 }

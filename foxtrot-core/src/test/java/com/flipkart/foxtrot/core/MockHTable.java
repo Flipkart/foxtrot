@@ -1,12 +1,12 @@
 /**
  * Copyright 2014 Flipkart Internet Pvt. Ltd.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -119,6 +119,9 @@ public class MockHTable implements HTableInterface {
      */
     private NavigableMap<byte[], NavigableMap<byte[], NavigableMap<byte[], NavigableMap<Long, byte[]>>>> data = new TreeMap<byte[], NavigableMap<byte[], NavigableMap<byte[], NavigableMap<Long, byte[]>>>>(Bytes.BYTES_COMPARATOR);
 
+    private MockHTable() {
+    }
+
     /**
      * Helper method to convert some data into a list of KeyValue's
      *
@@ -160,6 +163,117 @@ public class MockHTable implements HTableInterface {
                 }
             }
         return ret;
+    }
+
+    /**
+     * Default way of constructing a MockHTable
+     *
+     * @return a new MockHTable
+     */
+    public static MockHTable create() {
+        return new MockHTable();
+    }
+
+    /**
+     * Create a MockHTable with some pre-loaded data. Parameter should be a map of
+     * column-to-data mappings of rows. It can be created with a YAML like
+     * <p/>
+     * <pre>
+     * rowid:
+     *   family1:qualifier1: value1
+     *   family2:qualifier2: value2
+     * </pre>
+     *
+     * @param dump pre-loaded data
+     * @return a new MockHTable loaded with given data
+     */
+    public static MockHTable with(Map<String, Map<String, String>> dump) {
+        MockHTable ret = new MockHTable();
+        for (String row : dump.keySet()) {
+            for (String column : dump.get(row).keySet()) {
+                String val = dump.get(row).get(column);
+                put(ret, row, column, val);
+            }
+        }
+        return ret;
+    }
+
+    /**
+     * Helper method of pre-loaders, adds parameters to data.
+     *
+     * @param ret    data to load into
+     * @param row    rowid
+     * @param column family:qualifier encoded value
+     * @param val    value
+     */
+    private static void put(MockHTable ret, String row, String column,
+                            String val) {
+        String[] fq = split(column);
+        byte[] family = Bytes.toBytesBinary(fq[0]);
+        byte[] qualifier = Bytes.toBytesBinary(fq[1]);
+        NavigableMap<byte[], NavigableMap<byte[], NavigableMap<Long, byte[]>>> families = ret.forceFind(ret.data, Bytes.toBytesBinary(row), new TreeMap<byte[], NavigableMap<byte[], NavigableMap<Long, byte[]>>>(Bytes.BYTES_COMPARATOR));
+        NavigableMap<byte[], NavigableMap<Long, byte[]>> qualifiers = ret.forceFind(families, family, new TreeMap<byte[], NavigableMap<Long, byte[]>>(Bytes.BYTES_COMPARATOR));
+        NavigableMap<Long, byte[]> values = ret.forceFind(qualifiers, qualifier, new TreeMap<Long, byte[]>());
+        values.put(System.currentTimeMillis(), Bytes.toBytesBinary(val));
+    }
+
+    /**
+     * Create a MockHTable with some pre-loaded data. Parameter should be an array
+     * of string arrays which define every column value individually.
+     * <p/>
+     * <pre>
+     * new String[][] {
+     *   { "&lt;rowid&gt;", "&lt;column&gt;", "&lt;value&gt;" },
+     *   { "id", "family:qualifier1", "data1" },
+     *   { "id", "family:qualifier2", "data2" }
+     * });
+     * </pre>
+     *
+     * @param dump
+     * @return
+     */
+    public static MockHTable with(String[][] dump) {
+        MockHTable ret = new MockHTable();
+        for (String[] row : dump) {
+            put(ret, row[0], row[1], row[2]);
+        }
+        return ret;
+    }
+
+    /**
+     * Column identification helper
+     *
+     * @param column column name in the format family:qualifier
+     * @return <code>{"family", "qualifier"}</code>
+     */
+    private static String[] split(String column) {
+        return new String[]{
+                column.substring(0, column.indexOf(':')),
+                column.substring(column.indexOf(':') + 1)};
+    }
+
+    public static String toEString(boolean val) {
+        return Bytes.toStringBinary(Bytes.toBytes(val));
+    }
+
+    public static String toEString(double val) {
+        return Bytes.toStringBinary(Bytes.toBytes(val));
+    }
+
+    public static String toEString(float val) {
+        return Bytes.toStringBinary(Bytes.toBytes(val));
+    }
+
+    public static String toEString(int val) {
+        return Bytes.toStringBinary(Bytes.toBytes(val));
+    }
+
+    public static String toEString(long val) {
+        return Bytes.toStringBinary(Bytes.toBytes(val));
+    }
+
+    public static String toEString(short val) {
+        return Bytes.toStringBinary(Bytes.toBytes(val));
     }
 
     /**
@@ -546,6 +660,12 @@ public class MockHTable implements HTableInterface {
     }
 
     @Override
+    public void setAutoFlush(boolean autoFlush) {
+        // TODO Auto-generated method stub
+
+    }
+
+    @Override
     public void flushCommits() throws IOException {
     }
 
@@ -614,96 +734,6 @@ public class MockHTable implements HTableInterface {
         return new Result(kvs);
     }
 
-    private MockHTable() {
-    }
-
-    /**
-     * Default way of constructing a MockHTable
-     *
-     * @return a new MockHTable
-     */
-    public static MockHTable create() {
-        return new MockHTable();
-    }
-
-    /**
-     * Create a MockHTable with some pre-loaded data. Parameter should be a map of
-     * column-to-data mappings of rows. It can be created with a YAML like
-     * <p/>
-     * <pre>
-     * rowid:
-     *   family1:qualifier1: value1
-     *   family2:qualifier2: value2
-     * </pre>
-     *
-     * @param dump pre-loaded data
-     * @return a new MockHTable loaded with given data
-     */
-    public static MockHTable with(Map<String, Map<String, String>> dump) {
-        MockHTable ret = new MockHTable();
-        for (String row : dump.keySet()) {
-            for (String column : dump.get(row).keySet()) {
-                String val = dump.get(row).get(column);
-                put(ret, row, column, val);
-            }
-        }
-        return ret;
-    }
-
-    /**
-     * Helper method of pre-loaders, adds parameters to data.
-     *
-     * @param ret    data to load into
-     * @param row    rowid
-     * @param column family:qualifier encoded value
-     * @param val    value
-     */
-    private static void put(MockHTable ret, String row, String column,
-                            String val) {
-        String[] fq = split(column);
-        byte[] family = Bytes.toBytesBinary(fq[0]);
-        byte[] qualifier = Bytes.toBytesBinary(fq[1]);
-        NavigableMap<byte[], NavigableMap<byte[], NavigableMap<Long, byte[]>>> families = ret.forceFind(ret.data, Bytes.toBytesBinary(row), new TreeMap<byte[], NavigableMap<byte[], NavigableMap<Long, byte[]>>>(Bytes.BYTES_COMPARATOR));
-        NavigableMap<byte[], NavigableMap<Long, byte[]>> qualifiers = ret.forceFind(families, family, new TreeMap<byte[], NavigableMap<Long, byte[]>>(Bytes.BYTES_COMPARATOR));
-        NavigableMap<Long, byte[]> values = ret.forceFind(qualifiers, qualifier, new TreeMap<Long, byte[]>());
-        values.put(System.currentTimeMillis(), Bytes.toBytesBinary(val));
-    }
-
-    /**
-     * Create a MockHTable with some pre-loaded data. Parameter should be an array
-     * of string arrays which define every column value individually.
-     * <p/>
-     * <pre>
-     * new String[][] {
-     *   { "&lt;rowid&gt;", "&lt;column&gt;", "&lt;value&gt;" },
-     *   { "id", "family:qualifier1", "data1" },
-     *   { "id", "family:qualifier2", "data2" }
-     * });
-     * </pre>
-     *
-     * @param dump
-     * @return
-     */
-    public static MockHTable with(String[][] dump) {
-        MockHTable ret = new MockHTable();
-        for (String[] row : dump) {
-            put(ret, row[0], row[1], row[2]);
-        }
-        return ret;
-    }
-
-    /**
-     * Column identification helper
-     *
-     * @param column column name in the format family:qualifier
-     * @return <code>{"family", "qualifier"}</code>
-     */
-    private static String[] split(String column) {
-        return new String[]{
-                column.substring(0, column.indexOf(':')),
-                column.substring(column.indexOf(':') + 1)};
-    }
-
     /**
      * Read a value saved in the object. Useful for making assertions in tests.
      *
@@ -723,30 +753,6 @@ public class MockHTable implements HTableInterface {
         if (!row.get(family).containsKey(qualifier))
             return null;
         return row.get(family).get(qualifier).lastEntry().getValue();
-    }
-
-    public static String toEString(boolean val) {
-        return Bytes.toStringBinary(Bytes.toBytes(val));
-    }
-
-    public static String toEString(double val) {
-        return Bytes.toStringBinary(Bytes.toBytes(val));
-    }
-
-    public static String toEString(float val) {
-        return Bytes.toStringBinary(Bytes.toBytes(val));
-    }
-
-    public static String toEString(int val) {
-        return Bytes.toStringBinary(Bytes.toBytes(val));
-    }
-
-    public static String toEString(long val) {
-        return Bytes.toStringBinary(Bytes.toBytes(val));
-    }
-
-    public static String toEString(short val) {
-        return Bytes.toStringBinary(Bytes.toBytes(val));
     }
 
     @Override
@@ -779,12 +785,6 @@ public class MockHTable implements HTableInterface {
     public <T extends CoprocessorProtocol, R> void coprocessorExec(
             Class<T> protocol, byte[] startKey, byte[] endKey, Call<T, R> callable, Callback<R> callback)
             throws IOException, Throwable {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public void setAutoFlush(boolean autoFlush) {
         // TODO Auto-generated method stub
 
     }

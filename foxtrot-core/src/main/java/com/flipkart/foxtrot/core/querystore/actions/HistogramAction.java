@@ -27,6 +27,7 @@ import com.flipkart.foxtrot.core.datastore.DataStore;
 import com.flipkart.foxtrot.core.querystore.QueryStore;
 import com.flipkart.foxtrot.core.querystore.QueryStoreException;
 import com.flipkart.foxtrot.core.querystore.TableMetadataManager;
+import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsOperation;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsProvider;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConnection;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
@@ -35,7 +36,6 @@ import com.google.common.collect.Lists;
 import com.yammer.dropwizard.util.Duration;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.search.SearchType;
-import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.Aggregations;
 import org.elasticsearch.search.aggregations.bucket.histogram.DateHistogram;
@@ -52,7 +52,7 @@ import java.util.List;
  * Date: 29/03/14
  * Time: 9:22 PM
  */
-@AnalyticsProvider(opcode = "histogram", request = HistogramRequest.class, response = HistogramResponse.class, cacheable = true)
+@AnalyticsProvider(opcode = AnalyticsOperation.histogram, request = HistogramRequest.class, response = HistogramResponse.class, cacheable = true)
 public class HistogramAction extends Action<HistogramRequest> {
 
     private static final Logger logger = LoggerFactory.getLogger(HistogramAction.class.getSimpleName());

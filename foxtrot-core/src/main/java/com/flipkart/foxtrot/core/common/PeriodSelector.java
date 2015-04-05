@@ -23,7 +23,6 @@ import com.flipkart.foxtrot.common.query.datetime.TimeWindow;
 import com.flipkart.foxtrot.common.query.general.*;
 import com.flipkart.foxtrot.common.query.numeric.*;
 import com.flipkart.foxtrot.common.query.string.ContainsFilter;
-import com.google.common.annotations.VisibleForTesting;
 import org.joda.time.Interval;
 
 import java.util.List;
@@ -44,8 +43,8 @@ public class PeriodSelector extends FilterVisitor {
     }
 
     public Interval analyze(long currentTime) throws Exception {
-        for(Filter filter : filters) {
-            if(filter.isTemporal()) {
+        for (Filter filter : filters) {
+            if (filter.isTemporal()) {
                 filter.accept(this);
             }
         }

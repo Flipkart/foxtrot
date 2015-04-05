@@ -16,7 +16,6 @@
 package com.flipkart.foxtrot.common.distinct;
 
 import com.flipkart.foxtrot.common.ActionRequest;
-import com.flipkart.foxtrot.common.query.Filter;
 import com.flipkart.foxtrot.common.query.ResultSort;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.hibernate.validator.constraints.NotEmpty;

@@ -39,10 +39,6 @@ public class ElasticsearchUtilsTest {
         }
     };
 
-    private final static class TestRequest extends ActionRequest {
-
-    }
-
     @Test
     public void testGetIndicesLastSameSDay() throws Exception {
         TestRequest request = new TestRequest();
@@ -67,9 +63,9 @@ public class ElasticsearchUtilsTest {
                 new PeriodSelector(request.getFilters()).analyze(TEST_CURRENT_TIME));
         System.out.println(Arrays.toString(indexes));
         Assert.assertArrayEquals(new String[]{
-                                            "foxtrot-test-table-02-4-2015",
-                                            "foxtrot-test-table-03-4-2015",
-                                            "foxtrot-test-table-04-4-2015"}, indexes);
+                "foxtrot-test-table-02-4-2015",
+                "foxtrot-test-table-03-4-2015",
+                "foxtrot-test-table-04-4-2015"}, indexes);
     }
 
     @Test
@@ -84,8 +80,8 @@ public class ElasticsearchUtilsTest {
                 new PeriodSelector(request.getFilters()).analyze(TEST_CURRENT_TIME));
         System.out.println(Arrays.toString(indexes));
         Assert.assertArrayEquals(new String[]{
-                                            "foxtrot-test-table-02-4-2015",
-                                            "foxtrot-test-table-03-4-2015"}, indexes);
+                "foxtrot-test-table-02-4-2015",
+                "foxtrot-test-table-03-4-2015"}, indexes);
     }
 
     @Test
@@ -99,9 +95,9 @@ public class ElasticsearchUtilsTest {
                 new PeriodSelector(request.getFilters()).analyze(TEST_CURRENT_TIME));
         System.out.println(Arrays.toString(indexes));
         Assert.assertArrayEquals(new String[]{
-                                            "foxtrot-test-table-02-4-2015",
-                                            "foxtrot-test-table-03-4-2015",
-                                            "foxtrot-test-table-04-4-2015"}, indexes);
+                "foxtrot-test-table-02-4-2015",
+                "foxtrot-test-table-03-4-2015",
+                "foxtrot-test-table-04-4-2015"}, indexes);
     }
 
     @Test
@@ -115,9 +111,9 @@ public class ElasticsearchUtilsTest {
                 new PeriodSelector(request.getFilters()).analyze(TEST_CURRENT_TIME));
         System.out.println(Arrays.toString(indexes));
         Assert.assertArrayEquals(new String[]{
-                                            "foxtrot-test-table-02-4-2015",
-                                            "foxtrot-test-table-03-4-2015",
-                                            "foxtrot-test-table-04-4-2015"}, indexes);
+                "foxtrot-test-table-02-4-2015",
+                "foxtrot-test-table-03-4-2015",
+                "foxtrot-test-table-04-4-2015"}, indexes);
     }
 
     @Test
@@ -144,6 +140,10 @@ public class ElasticsearchUtilsTest {
                 new PeriodSelector(request.getFilters()).analyze(TEST_CURRENT_TIME));
         System.out.println(Arrays.toString(indexes));
         Assert.assertArrayEquals(new String[]{"foxtrot-test-table-*"}, indexes);
+    }
+
+    private final static class TestRequest extends ActionRequest {
+
     }
 
 }

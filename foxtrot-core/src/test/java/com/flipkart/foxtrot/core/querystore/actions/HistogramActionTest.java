@@ -17,10 +17,9 @@ package com.flipkart.foxtrot.core.querystore.actions;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.flipkart.foxtrot.common.Document;
-import com.flipkart.foxtrot.common.histogram.HistogramRequest;
 import com.flipkart.foxtrot.common.Period;
+import com.flipkart.foxtrot.common.histogram.HistogramRequest;
 import com.flipkart.foxtrot.common.histogram.HistogramResponse;
 import com.flipkart.foxtrot.common.query.Filter;
 import com.flipkart.foxtrot.common.query.numeric.GreaterThanFilter;
@@ -45,7 +44,6 @@ import org.mockito.Mockito;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.ExecutorService;
@@ -53,18 +51,16 @@ import java.util.concurrent.Executors;
 
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 /**
  * Created by rishabh.goyal on 28/04/14.
  */
 public class HistogramActionTest {
-    private QueryExecutor queryExecutor;
     private final ObjectMapper mapper = new ObjectMapper();
+    private QueryExecutor queryExecutor;
     private MockElasticsearchServer elasticsearchServer;
     private HazelcastInstance hazelcastInstance;
-    private JsonNodeFactory factory = JsonNodeFactory.instance;
 
     @Before
     public void setUp() throws Exception {
@@ -87,12 +83,11 @@ public class HistogramActionTest {
         when(tableMetadataManager.exists(TestUtils.TEST_TABLE_NAME)).thenReturn(true);
         when(tableMetadataManager.get(anyString())).thenReturn(TestUtils.TEST_TABLE);
         QueryStore queryStore = new ElasticsearchQueryStore(tableMetadataManager, elasticsearchConnection, dataStore);
-        AnalyticsLoader analyticsLoader = new AnalyticsLoader(tableMetadataManager, dataStore, queryStore, elasticsearchConnection);
-        TestUtils.registerActions(analyticsLoader, mapper);
+        AnalyticsLoader analyticsLoader = new AnalyticsLoader(tableMetadataManager, dataStore, queryStore, elasticsearchConnection, mapper);
         ExecutorService executorService = Executors.newFixedThreadPool(1);
         queryExecutor = new QueryExecutor(analyticsLoader, executorService);
         queryExecutor = new QueryExecutor(analyticsLoader, executorService);
-        List<Document> documents = TestUtils.getHistogramDocuments(mapper);
+        List<Document> documents = TestUtils.getHistogramDocuments();
         queryStore.save(TestUtils.TEST_TABLE_NAME, documents);
         for (Document document : documents) {
             elasticsearchServer.getClient().admin().indices()
