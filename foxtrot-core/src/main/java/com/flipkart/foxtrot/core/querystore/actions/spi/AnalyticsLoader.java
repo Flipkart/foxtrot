@@ -74,18 +74,17 @@ public class AnalyticsLoader {
             AnalyticsProvider analyticsProvider = action.getAnnotation(AnalyticsProvider.class);
             if (null == analyticsProvider.request()
                     || null == analyticsProvider.opcode()
-                    || analyticsProvider.opcode().isEmpty()
                     || null == analyticsProvider.response()) {
                 throw new Exception("Invalid annotation on " + action.getCanonicalName());
             }
-            if (analyticsProvider.opcode().equalsIgnoreCase("default")) {
+            if ("default".equalsIgnoreCase(analyticsProvider.opcode().name())) {
                 logger.warn(String.format("Action %s does not specify cache token. Using default cache.", action.getCanonicalName()));
             }
             register(new ActionMetadata(
                     analyticsProvider.request(), action,
-                    analyticsProvider.cacheable(), analyticsProvider.opcode()));
-            types.add(new NamedType(analyticsProvider.request(), analyticsProvider.opcode()));
-            types.add(new NamedType(analyticsProvider.response(), analyticsProvider.opcode()));
+                    analyticsProvider.cacheable(), analyticsProvider.opcode().name()));
+            types.add(new NamedType(analyticsProvider.request(), analyticsProvider.opcode().name()));
+            types.add(new NamedType(analyticsProvider.response(), analyticsProvider.opcode().name()));
             logger.info("Registered action: " + action.getCanonicalName());
         }
         objectMapper.getSubtypeResolver().registerSubtypes(types.toArray(new NamedType[types.size()]));
