@@ -134,6 +134,7 @@ font-size: small;
 }
 
 .tile-container{
+  margin-top: 20px;
   min-height: 175px;
   height: 95%;
 }
@@ -360,4 +361,23 @@ path {
 #ruler {
   visibility: hidden;
   white-space: nowrap;
+}
+
+.percentage-value::after {
+	content: "%";
+}
+
+.dataview-table th {
+    color: white;
+    background: black;
+    cursor: pointer;
+    cursor: hand;
+}
+
+.cluster-data-area {
+    margin-bottom: -15px;
+}
+
+.data-tab {
+    margin-top: 5px;
 }

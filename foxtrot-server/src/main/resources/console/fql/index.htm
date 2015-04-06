@@ -51,11 +51,8 @@
     <div class="header-container">
         <div class="header pageheader">
             <h1>
-                <div class="col-sm-4"><img src="../images/logo-1.png" style="height: 40px;"/> <span class="console-name">FoxTrot Query</span></div>
+                <div class="col-sm-4"><a href="/"><img src="../images/logo-1.png" style="height: 40px;"/></a> <span class="console-name">Foxtrot Query</span></div>
             </h1>
-            <ul class="nav nav-pills pull-right">
-                <li><a href="/">Home</a></li>
-            </ul>
         </div>
         <hr class="hr-thin">
         <!--div class="alert alert-dismissable alert-customization">
@@ -107,7 +104,7 @@
 <!--Templates-->
 
 <script id="table-template" type="text/x-handlebars-template">
-    <table class="table table-bordered table-hover table-condensed dataview-table">
+    <table class="table table-bordered table-hover table-condensed dataview-table sortable">
         <thead class="dataview-tablehead">
         <tr>
             {{#each headers}}
@@ -136,8 +133,6 @@
 <script src="../js/jquery.js"></script>
 <script src="../js/bootstrap.min.js"></script>
 <script src="../js/bootstrap-select.min.js"></script>
-<script src="../js/d3.js"></script>
-<!--script src="../js/c3.js"></script-->
 <script src="../js/handlebars-v1.3.0.js"></script>
 <script src="../js/jquery-ui.js"></script>
 <script src="../js/validator.js"></script>
