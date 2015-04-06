@@ -49,7 +49,8 @@ public class ElasticSearchQueryGenerator extends FilterVisitor {
     public void visit(BetweenFilter betweenFilter) throws Exception {
         addFilter(FilterBuilders.rangeFilter(betweenFilter.getField())
                 .from(betweenFilter.getFrom())
-                .to(betweenFilter.getTo()));
+                .to(betweenFilter.getTo())
+                .cache(!betweenFilter.isTemporal()));
     }
 
     @Override
@@ -77,21 +78,24 @@ public class ElasticSearchQueryGenerator extends FilterVisitor {
     public void visit(GreaterThanFilter greaterThanFilter) throws Exception {
         addFilter(
                 FilterBuilders.rangeFilter(greaterThanFilter.getField())
-                        .gt(greaterThanFilter.getValue()));
+                        .gt(greaterThanFilter.getValue())
+                        .cache(!greaterThanFilter.isTemporal()));
     }
 
     @Override
     public void visit(GreaterEqualFilter greaterEqualFilter) throws Exception {
         addFilter(
                 FilterBuilders.rangeFilter(greaterEqualFilter.getField())
-                        .gte(greaterEqualFilter.getValue()));
+                        .gte(greaterEqualFilter.getValue())
+                        .cache(!greaterEqualFilter.isTemporal()));
     }
 
     @Override
     public void visit(LessThanFilter lessThanFilter) throws Exception {
         addFilter(
                 FilterBuilders.rangeFilter(lessThanFilter.getField())
-                        .lt(lessThanFilter.getValue()));
+                        .lt(lessThanFilter.getValue())
+                        .cache(!lessThanFilter.isTemporal()));
 
     }
 
@@ -99,7 +103,8 @@ public class ElasticSearchQueryGenerator extends FilterVisitor {
     public void visit(LessEqualFilter lessEqualFilter) throws Exception {
         addFilter(
                 FilterBuilders.rangeFilter(lessEqualFilter.getField())
-                        .lte(lessEqualFilter.getValue()));
+                        .lte(lessEqualFilter.getValue())
+                        .cache(!lessEqualFilter.isTemporal()));
 
     }
 
@@ -124,7 +129,8 @@ public class ElasticSearchQueryGenerator extends FilterVisitor {
         addFilter(
                 FilterBuilders.rangeFilter(lastFilter.getField())
                         .from(timeWindow.getStartTime())
-                        .to(timeWindow.getEndTime()));
+                        .to(timeWindow.getEndTime())
+                        .cache(false));
     }
 
     private void addFilter(FilterBuilder elasticSearchFilter) throws Exception {
