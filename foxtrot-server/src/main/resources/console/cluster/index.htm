@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<!--
+* Copyright 2014 Flipkart Internet Pvt. Ltd.
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+* http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+-->
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="shortcut icon" href="../../assets/ico/favicon.ico">
+
+    <title>Foxtrot Cluster</title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="../css/bootstrap.css" rel="stylesheet">
+    <link href="../css/bootstrap-select.min.css" rel="stylesheet">
+    <link href="../css/bootstrap-datetimepicker.min.css">
+    <link rel="stylesheet" href="//code.jquery.com/ui/1.10.4/themes/smoothness/jquery-ui.css">
+    <link rel="stylesheet" href="../css/bootstrapValidator.min.css">
+    <link href="../css/foxtrot.css" rel="stylesheet">
+    <!--link href="css/jumbotron-narrow.css" rel="stylesheet"-->
+
+    <!-- Custom styles for this template -->
+
+    <!-- Just for debugging purposes. Don't actually copy this line! -->
+    <!--[if lt IE 9]><script src="../../assets/../js/ie8-responsive-file-warning.js"></script><![endif]-->
+
+    <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+    <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+    <script src="https://oss.maxcdn.com/libs/respond.../js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+</head>
+
+<body>
+<div class="container container-full">
+    <div role="tabpanel">
+    <div class="header-container">
+        <div class="header pageheader">
+            <h1>
+                <div class="col-sm-4"><a href="/"><img src="../images/logo-1.png" style="height: 40px;"/></a> <span class="console-name">Foxtrot Cluster</span></div>
+            </h1>
+            <div class="pull-right" style="margin-left: 20px; margin-top: 3px">
+                <form class="form-inline">
+                    <div class="checkbox" style="padding-top: 10px;padding-right: 10px;">
+                        <label>
+                            <input type="checkbox" checked class="auto-refresh"> Refresh
+                        </label>
+                    </div>
+                    <!--select class="selectpicker pull-right refresh-interval" data-style="btn-primary">
+                        <option value="10000">Every 10 Seconds</option>
+                        <option value="30000">Every 30 Seconds</option>
+                        <option value="60000">Every 60 Seconds</option>
+                    </select-->
+                </form>
+            </div>
+            <ul class="nav nav-pills pull-right" role="tablist" id="clusterTab">
+                <li role="presentation"  class="active" id="elasticsearch-li"><a href="#elasticsearch" aria-controls="elasticsearch" role="tab" data-toggle="tab">Elasticsearch</a></li>
+                <li role="presentation" id="foxtrot-li"><a href="#foxtrot" aria-controls="foxtrot" role="tab" data-toggle="tab">Foxtrot</a></li>
+                <!--li><a href="/">Home</a></li-->
+            </ul>
+            <!--ul class="nav nav-pills pull-right">
+
+            </ul-->
+        </div>
+        <hr class="hr-thin">
+        <!--div class="alert alert-dismissable alert-customization">
+            <button type="button" class="close" data-hide="alert" aria-hidden="true">&times;</button>
+            <div class="alert-message"></div>
+        </div-->
+    </div>
+    <div class="content" style="margin-left: 20px; margin-right: 20px; margin-top: 60px;">
+            <!-- Nav tabs -->
+
+            <div class="tab-content">
+                <div role="tabpanel" class="tab-pane data-tab fade active" id="elasticsearch">
+                    <div class="cluster-data-area">Loading cluster data...</div>
+                    <div class="data-area">Loading node data...</div>
+                </div>
+                <div role="tabpanel" class="tab-pane data-tab fade active" id="foxtrot">
+                    <div class="table-data-area">Loading table data...</div>
+                </div>
+            </div>
+
+    </div>
+    <hr>
+    <div class="footer">
+        <p>&copy; flipkart.com 2014</p>
+    </div>
+    </div>
+
+</div> <!-- /container -->
+
+<!--Templates-->
+<script id="cluster-template" type="text/x-handlebars-template">
+    <table class="cluster-data-table table table-bordered table-hover table-condensed dataview-table pure-table-bordered">
+        <thead>
+        <tr>
+            <th class="section-end">Cluster</th>
+            <th class="section-end">Status</th>
+            <th># Nodes</th>
+            <th># Data Nodes</th>
+            <th>Active Shards</th>
+            <th>Relocating Shards</th>
+            <th>Initializing Shards</th>
+            <th>Unassigned Shards</th>
+            <th># Events</th>
+            <th>Data Size</th>
+            <th>Data Size (Replicated)</th>
+        </tr>
+        </thead>
+        <tbody>
+        {{#with cluster}}
+        <tr>
+            <td  class="section-end">{{name}}</td>
+            <td  class="section-end">{{status}}</td>
+            <td>{{numNodes}}</td>
+            <td>{{numDataNodes}}</td>
+            <td>{{activeShards}}</td>
+            <td>{{relocatingShards}}</td>
+            <td>{{initializingShards}}</td>
+            <td>{{unassignedShards}}</td>
+            <td>{{documentCount}}</td>
+            <td>{{dataSize}}</td>
+            <td>{{replicatedDataSize}}</td>
+        </tr>
+        {{/with}}
+        </tbody>
+    </table>
+</script>
+
+<script id="hosts-template" type="text/x-handlebars-template">
+    <table class="data-table table table-bordered table-hover table-condensed dataview-table tablesorter">
+        <thead>
+        <tr>
+            <th class="section-end {sorter: 'text'}">Host</th>
+            <th>Load</th>
+            <th>Memory</th>
+            <th class="section-end">Disk</th>
+            <th class="{sorter: 'sizesorter'}">JVM Size</th>
+            <th>JVM Used</th>
+            <th>JVM Oldgen</th>
+            <th class="section-end">JVM Eden</th>
+            <th class="{sorter: 'sizesorter'}">Field cache</th>
+            <th>Field cache (%)</th>
+            <th class="section-end">Evictions</th>
+            <th  class="{sorter: 'sizesorter'}">Filter cache</th>
+            <th  class="section-end">Evictions</th>
+        </tr>
+        </thead>
+        <tbody>
+        {{#each hosts}}
+        <tr>
+            <td  class="section-end {sorter: 'text'}">{{host}}</td>
+            <td>                         {{load}}</td>
+            <td class="percentage-value">{{memoryUsed}}</td>
+            <td class="percentage-value section-end">{{diskUsed}}</td>
+            <td >{{jvmSize}}</td>
+            <td class="percentage-value">{{jvmUsed}}</td>
+            <td class="percentage-value">{{jvmOldgen}}</td>
+            <td class="percentage-value section-end">{{jvmEden}}</td>
+            <td>{{fieldCacheAbs}}</td>
+            <td class="percentage-value">{{fieldCache}}</td>
+            <td class="section-end">{{fieldCacheEvictions}}</td>
+            <td>{{filterCache}}</td>
+            <td class="section-end">{{filterCacheEvictions}}</td>
+        </tr>
+        {{/each}}
+        </tbody>
+    </table>
+</script>
+
+<script id="tables-template" type="text/x-handlebars-template">
+    <table class="table-data-table table table-bordered table-hover table-condensed dataview-table tablesorter">
+        <thead>
+        <tr>
+            <th class="section-end {sorter: 'text'}">Table</th>
+            <th># Days</th>
+            <th>Events Indexed</th>
+            <th class="section-end">Size</th>
+        </tr>
+        </thead>
+        <tbody>
+        {{#each tables}}
+        <tr>
+            <td  class="section-end">{{name}}</td>
+            <td>{{days}}</td>
+            <td>{{events}}</td>
+            <td>{{size}}</td>
+        </tr>
+        {{/each}}
+        </tbody>
+    </table>
+</script>
+
+
+<!-- Bootstrap core JavaScript
+================================================== -->
+<!-- Placed at the end of the document so the pages load faster -->
+<script src="../js/jquery.js"></script>
+<script src="../js/bootstrap.min.js"></script>
+<script src="../js/bootstrap-select.min.js"></script>
+
+<script src="../js/jquery.tablesorter.min.js"></script>
+
+<script src="../js/handlebars-v1.3.0.js"></script>
+<script src="../js/handlebars-helper.js"></script>
+<script src="../js/eventbus.js"></script>
+<script src="../js/cluster-console.js"></script>
+
+</body>
+</html>
