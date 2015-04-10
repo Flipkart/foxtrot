@@ -95,7 +95,12 @@ EventBus.addEventListener('hosts_loaded', function(event, data){
 		host.jvmSize = bytesToSize(node.jvm.mem.heap_used_in_bytes)
 		host.jvmOldgen = toPercentage(node.jvm.mem.pools.old.used_in_bytes,node.jvm.mem.pools.old.max_in_bytes);
 		host.jvmEden = toPercentage(node.jvm.mem.pools.young.used_in_bytes,node.jvm.mem.pools.young.max_in_bytes);
-		host.fieldCache = toPercentage(node.fielddata_breaker.estimated_size_in_bytes,node.fielddata_breaker.maximum_size_in_bytes);
+		if(node.hasOwnProperty['fielddata_breaker']) {
+    		host.fieldCache = toPercentage(node.fielddata_breaker.estimated_size_in_bytes,node.fielddata_breaker.maximum_size_in_bytes);
+		}
+		else {
+    		host.fieldCache = "100";
+		}
 		host.fieldCacheAbs = bytesToSize(node.indices.fielddata.memory_size_in_bytes);
 		host.fieldCacheEvictions = node.indices.fielddata.evictions
 		host.filterCache = bytesToSize(node.indices.filter_cache.memory_size_in_bytes);
