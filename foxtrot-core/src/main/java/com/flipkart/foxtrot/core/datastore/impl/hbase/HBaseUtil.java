@@ -63,6 +63,8 @@ public abstract class HBaseUtil {
         hTableDescriptor.addFamily(columnDescriptor);
         try {
             hBaseAdmin.createTable(hTableDescriptor);
+        } catch (Exception e) {
+          logger.error("Could not create table: " + tableName, e);
         } finally {
             hBaseAdmin.close();
         }

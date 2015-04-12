@@ -31,24 +31,47 @@ curl -XPUT ${1}:9200/_template/template_foxtrot_mappings -d '
                         "mapping" : {
                             "store" : false,
                             "index" : "not_analyzed",
+                            "fielddata": {
+                                "format": "doc_values"
+                            },
                             "fields" : {
                                 "analyzed": {
                                     "store" : false,
                                     "type": "string",
-                                    "index": "analyzed"
+                                    "index": "analyzed",
+                                    "fielddata": {
+                                        "format": "disabled"
+                                    }
                                 }
                             }
                         }
                     }
                 },
                 {
-                    "template_no_store" : {
+                    "template_no_store_dv" : {
                         "match_mapping_type": "date|boolean|double|long|integer",
                         "match_pattern": "regex",
                         "path_match": ".*",
                         "mapping" : {
                             "store" : false,
-                            "index" : "not_analyzed"
+                            "index" : "not_analyzed",
+                            "fielddata": {
+                                "format": "doc_values"
+                            }
+                        }
+                    }
+                },
+                {
+                    "template_no_store" : {
+                        "match_mapping_type": "double",
+                        "match_pattern": "regex",
+                        "path_match": ".*",
+                        "mapping" : {
+                            "store" : false,
+                            "index" : "not_analyzed",
+                            "fielddata": {
+                                "format": "doc_values"
+                            }
                         }
                     }
                 }
@@ -57,20 +80,20 @@ curl -XPUT ${1}:9200/_template/template_foxtrot_mappings -d '
     }
 }'
 
-#curl -XPUT "http://${1}:9200/consoles/" -d '{
-#    "settings" : {
-#        "index" : {
-#            "number_of_shards" : 1,
-#            "number_of_replicas" : 2
-#        }
-#    }
-#}'
-#
-#curl -XPUT "http://${1}:9200/table-meta/" -d '{
-#    "settings" : {
-#        "index" : {
-#            "number_of_shards" : 1,
-#            "number_of_replicas" : 2
-#        }
-#    }
-#}'
+curl -XPUT "http://${1}:9200/consoles/" -d '{
+    "settings" : {
+        "index" : {
+            "number_of_shards" : 1,
+            "number_of_replicas" : 0
+        }
+    }
+}'
+
+curl -XPUT "http://${1}:9200/table-meta/" -d '{
+    "settings" : {
+        "index" : {
+            "number_of_shards" : 1,
+            "number_of_replicas" : 0
+        }
+    }
+}'
