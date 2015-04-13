@@ -10,6 +10,8 @@ import com.google.common.collect.Maps;
 import java.util.*;
 
 public class FlatteningUtils {
+    private static final String DEFAULT_SEPARATOR = ".";
+
     public static FlatRepresentation genericParse(JsonNode response) {
         List<FieldHeader> headers = Lists.newArrayList();
         Map<String, MetaData> docFields = generateFieldMappings(null, response);
@@ -67,6 +69,10 @@ public class FlatteningUtils {
     }
 
     public static Map<String, MetaData> generateFieldMappings(String parentField, JsonNode jsonNode) {
+        return generateFieldMappings(parentField, jsonNode, DEFAULT_SEPARATOR);
+    }
+
+    public static Map<String, MetaData> generateFieldMappings(String parentField, JsonNode jsonNode, final String separator) {
         Map<String, MetaData> fields = Maps.newTreeMap();
         if(null == jsonNode) {
             System.out.println("NULL for " + parentField);
@@ -74,16 +80,16 @@ public class FlatteningUtils {
         }
         if(jsonNode.isArray()) {
             for(JsonNode arrayElement : jsonNode) {
-                Map<String, MetaData> tmpFields = generateFieldMappings(parentField, arrayElement);
+                Map<String, MetaData> tmpFields = generateFieldMappings(parentField, arrayElement, separator);
                 fields.putAll(tmpFields);
             }
         }
         Iterator<Map.Entry<String, JsonNode>> iterator = jsonNode.fields();
         while (iterator.hasNext()) {
             Map.Entry<String, JsonNode> entry = iterator.next();
-            String currentField = (parentField == null) ? entry.getKey() : (String.format("%s.%s", parentField, entry.getKey()));
+            String currentField = (parentField == null) ? entry.getKey() : (String.format("%s%s%s", parentField, separator, entry.getKey()));
             if (entry.getValue().isObject() || entry.getValue().isArray()) {
-                fields.putAll(generateFieldMappings(currentField, entry.getValue()));
+                fields.putAll(generateFieldMappings(currentField, entry.getValue(), separator));
             } else {
                 fields.put(currentField, new MetaData(entry.getValue(), entry.getValue().toString().length()));
             }

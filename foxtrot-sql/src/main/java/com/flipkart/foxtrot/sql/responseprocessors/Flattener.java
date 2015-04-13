@@ -42,12 +42,13 @@ public class Flattener implements ResponseVisitor {
 
     @Override
     public void visit(GroupResponse groupResponse) {
+        final String separator = "__SEPARATOR__";
         Map<String, Integer> fieldNames = Maps.newTreeMap();
-        Map<String, MetaData> dataFields = generateFieldMappings(null, objectMapper.valueToTree(groupResponse.getResult()));
+        Map<String, MetaData> dataFields = generateFieldMappings(null, objectMapper.valueToTree(groupResponse.getResult()), separator);
         GroupRequest groupRequest = (GroupRequest) request;
         List<Map<String, Object>> rows = Lists.newArrayList();
         for(Map.Entry<String, MetaData> groupData : dataFields.entrySet()) {
-            String values[] = groupData.getKey().split("\\.");
+            String values[] = groupData.getKey().split(separator);
             Map<String, Object> row = Maps.newHashMap();
             for(int i = 0; i < groupRequest.getNesting().size(); i++ ) {
                 final String fieldName = groupRequest.getNesting().get(i);
@@ -109,7 +110,7 @@ public class Flattener implements ResponseVisitor {
             }
             rows.add(row);
         }
-        if(null != rows && !rows.isEmpty()) {
+        if(!rows.isEmpty()) {
             flatRepresentation = new FlatRepresentation(getFieldsFromList(fieldNames), rows);
         }
     }
