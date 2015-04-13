@@ -64,25 +64,7 @@ public class HbaseTableConnection implements Managed {
     @Override
     public void start() throws Exception {
         logger.info("Starting HBase Connection");
-        Configuration configuration = HBaseConfiguration.create();
-        if(null != hbaseConfig.getKeytabFileName() && !hbaseConfig.getKeytabFileName().isEmpty()) {
-            File file = new File(hbaseConfig.getKeytabFileName());
-            if (file.exists()) {
-                configuration.addResource(new File(hbaseConfig.getCoreSite()).toURI().toURL());
-                configuration.addResource(new File(hbaseConfig.getHdfsSite()).toURI().toURL());
-                configuration.addResource(new File(hbaseConfig.getHbasePolicy()).toURI().toURL());
-                configuration.addResource(new File(hbaseConfig.getHbaseSite()).toURI().toURL());
-                configuration.set("hbase.master.kerberos.principal", hbaseConfig.getAuthString());
-                configuration.set("hadoop.kerberos.kinit.command", hbaseConfig.getKinitPath());
-                UserGroupInformation.setConfiguration(configuration);
-                System.setProperty("java.security.krb5.conf", hbaseConfig.getKerberosConfigFile());
-                if (hbaseConfig.isSecure()) {
-                    UserGroupInformation.loginUserFromKeytab(
-                            hbaseConfig.getAuthString(), hbaseConfig.getKeytabFileName());
-                    logger.info("Logged into Hbase with User: " + UserGroupInformation.getLoginUser());
-                }
-            }
-        }
+        Configuration configuration = HBaseUtil.create(hbaseConfig);
         tablePool = new HTablePool(configuration, 10, PoolMap.PoolType.Reusable);
         logger.info("Started HBase Connection");
     }

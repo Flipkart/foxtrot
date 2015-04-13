@@ -64,6 +64,7 @@ public class FoxtrotServer extends Service<FoxtrotServerConfiguration> {
     public void initialize(Bootstrap<FoxtrotServerConfiguration> bootstrap) {
         bootstrap.setName("foxtrot");
         bootstrap.addBundle(new AssetsBundle("/console/", "/"));
+        bootstrap.addCommand(new InitializerCommand());
     }
 
     @Override
