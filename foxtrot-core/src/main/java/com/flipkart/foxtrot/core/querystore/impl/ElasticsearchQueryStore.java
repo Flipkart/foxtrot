@@ -308,11 +308,15 @@ public class ElasticsearchQueryStore implements QueryStore {
             }
             logger.warn(String.format("Deleting Indexes - Indexes - %s", indicesToDelete));
             if (indicesToDelete.size() > 0) {
-                List<List<String>> subLists = Lists.partition(indicesToDelete, 10);
+                List<List<String>> subLists = Lists.partition(indicesToDelete, 5);
                 for ( List<String> subList : subLists ){
-                    connection.getClient().admin().indices().prepareDelete(subList.toArray(new String[subList.size()]))
-                            .execute().actionGet(TimeValue.timeValueMinutes(10));
-                    logger.warn(String.format("Deleted Indexes - Indexes - %s", subList ));
+                    try {
+                        connection.getClient().admin().indices().prepareDelete(subList.toArray(new String[subList.size()]))
+                                .execute().actionGet(TimeValue.timeValueMinutes(5));
+                        logger.warn(String.format("Deleted Indexes - Indexes - %s", subList));
+                    } catch (Exception e){
+                        logger.error(String.format("Index deletion failed - Indexes - %s", subList), e);
+                    }
                 }
             }
         } catch (Exception ex) {
