@@ -34,7 +34,9 @@ public abstract class HBaseUtil {
 
     public static Configuration create(final HbaseConfig hbaseConfig) throws IOException {
         Configuration configuration = HBaseConfiguration.create();
-        if(null != hbaseConfig.getKeytabFileName() && !hbaseConfig.getKeytabFileName().isEmpty()) {
+        if(hbaseConfig.isSecure()
+                && null != hbaseConfig.getKeytabFileName()
+                && !hbaseConfig.getKeytabFileName().isEmpty()) {
             File file = new File(hbaseConfig.getKeytabFileName());
             if (file.exists()) {
                 configuration.addResource(new File(hbaseConfig.getCoreSite()).toURI().toURL());
