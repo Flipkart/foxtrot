@@ -8,7 +8,7 @@
 	<description>Foxtrot is a scalable data and query store service for for real-time event data.</description>
 	<url>https://git@github.com/flipkart-incubator/foxtrot</url>
 
-    <groupId>foxtrot</groupId>
+    <groupId>com.flipkart.foxtrot</groupId>
     <artifactId>foxtrot</artifactId>
     <packaging>pom</packaging>
     <version>0.1</version>
