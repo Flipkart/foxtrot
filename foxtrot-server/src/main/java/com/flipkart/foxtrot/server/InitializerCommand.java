@@ -17,18 +17,12 @@
 package com.flipkart.foxtrot.server;
 
 import com.flipkart.foxtrot.core.datastore.impl.hbase.HBaseUtil;
-import com.flipkart.foxtrot.core.datastore.impl.hbase.HbaseConfig;
-import com.flipkart.foxtrot.core.datastore.impl.hbase.HbaseTableConnection;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConfig;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConnection;
 import com.flipkart.foxtrot.server.config.FoxtrotServerConfiguration;
 import com.yammer.dropwizard.cli.ConfiguredCommand;
 import com.yammer.dropwizard.config.Bootstrap;
 import net.sourceforge.argparse4j.inf.Namespace;
-import org.apache.hadoop.hbase.HColumnDescriptor;
-import org.apache.hadoop.hbase.HTableDescriptor;
-import org.apache.hadoop.hbase.client.HBaseAdmin;
-import org.apache.hadoop.hbase.io.hfile.Compression;
 import org.elasticsearch.action.admin.cluster.health.ClusterHealthRequestBuilder;
 import org.elasticsearch.action.admin.cluster.health.ClusterHealthResponse;
 import org.elasticsearch.action.admin.indices.create.CreateIndexRequestBuilder;
@@ -36,8 +30,6 @@ import org.elasticsearch.action.admin.indices.create.CreateIndexResponse;
 import org.elasticsearch.action.admin.indices.template.put.PutIndexTemplateRequestBuilder;
 import org.elasticsearch.action.admin.indices.template.put.PutIndexTemplateResponse;
 import org.elasticsearch.common.settings.ImmutableSettings;
-import org.elasticsearch.indices.IndexAlreadyExistsException;
-import org.elasticsearch.transport.RemoteTransportException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

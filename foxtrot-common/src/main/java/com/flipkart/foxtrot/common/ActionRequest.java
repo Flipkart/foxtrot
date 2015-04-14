@@ -17,7 +17,6 @@ package com.flipkart.foxtrot.common;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.flipkart.foxtrot.common.query.Filter;
-import com.flipkart.foxtrot.common.query.numeric.LessThanFilter;
 
 import java.util.List;
 

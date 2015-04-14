@@ -4,8 +4,8 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
-import com.flipkart.foxtrot.sql.responseprocessors.model.FlatRepresentation;
 import com.flipkart.foxtrot.sql.responseprocessors.FlatteningUtils;
+import com.flipkart.foxtrot.sql.responseprocessors.model.FlatRepresentation;
 import org.junit.Assert;
 import org.junit.Test;
 

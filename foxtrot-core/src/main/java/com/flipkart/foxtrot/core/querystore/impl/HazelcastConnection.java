@@ -18,7 +18,6 @@ package com.flipkart.foxtrot.core.querystore.impl;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.flipkart.foxtrot.core.common.CacheUtils;
 import com.hazelcast.config.Config;
-import com.hazelcast.config.ManagementCenterConfig;
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
 import com.yammer.dropwizard.lifecycle.Managed;

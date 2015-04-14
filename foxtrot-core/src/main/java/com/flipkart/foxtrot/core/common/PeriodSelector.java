@@ -23,7 +23,6 @@ import com.flipkart.foxtrot.common.query.datetime.TimeWindow;
 import com.flipkart.foxtrot.common.query.general.*;
 import com.flipkart.foxtrot.common.query.numeric.*;
 import com.flipkart.foxtrot.common.query.string.ContainsFilter;
-import com.google.common.annotations.VisibleForTesting;
 import org.joda.time.Interval;
 
 import java.util.List;

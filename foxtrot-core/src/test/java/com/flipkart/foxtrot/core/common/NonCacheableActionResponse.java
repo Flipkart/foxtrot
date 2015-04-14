@@ -16,7 +16,6 @@
 package com.flipkart.foxtrot.core.common;
 
 import com.flipkart.foxtrot.common.ActionResponse;
-import com.flipkart.foxtrot.common.ResponseVisitor;
 import com.google.common.annotations.VisibleForTesting;
 
 /**

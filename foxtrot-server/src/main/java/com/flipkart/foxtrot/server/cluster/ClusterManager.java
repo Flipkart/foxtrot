@@ -12,7 +12,9 @@ import org.slf4j.LoggerFactory;
 import java.net.Inet4Address;
 import java.util.Collection;
 import java.util.List;
-import java.util.concurrent.*;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 public class ClusterManager implements Managed {
     private static final Logger logger = LoggerFactory.getLogger(ClusterManager.class.getSimpleName());

@@ -1,7 +1,5 @@
 package com.flipkart.foxtrot.server.providers;
 
-import au.com.bytecode.opencsv.CSVWriter;
-import com.flipkart.foxtrot.sql.responseprocessors.model.FieldHeader;
 import com.flipkart.foxtrot.sql.responseprocessors.model.FlatRepresentation;
 
 import javax.ws.rs.Produces;
@@ -10,15 +8,11 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.ext.MessageBodyWriter;
 import javax.ws.rs.ext.Provider;
-import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.StringWriter;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
 
 @Provider
 @Produces(FoxtrotExtraMediaType.TEXT_CSV)

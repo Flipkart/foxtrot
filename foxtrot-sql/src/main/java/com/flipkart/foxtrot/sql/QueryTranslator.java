@@ -2,10 +2,10 @@ package com.flipkart.foxtrot.sql;
 
 
 import com.flipkart.foxtrot.common.ActionRequest;
+import com.flipkart.foxtrot.common.Period;
 import com.flipkart.foxtrot.common.count.CountRequest;
 import com.flipkart.foxtrot.common.distinct.DistinctRequest;
 import com.flipkart.foxtrot.common.group.GroupRequest;
-import com.flipkart.foxtrot.common.Period;
 import com.flipkart.foxtrot.common.histogram.HistogramRequest;
 import com.flipkart.foxtrot.common.query.Filter;
 import com.flipkart.foxtrot.common.query.Query;
