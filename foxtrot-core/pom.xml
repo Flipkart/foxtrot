@@ -84,7 +84,7 @@
 
         <!--Internal-->
         <dependency>
-            <groupId>foxtrot</groupId>
+            <groupId>com.flipkart.foxtrot</groupId>
             <artifactId>foxtrot-common</artifactId>
             <version>0.3</version>
         </dependency>
