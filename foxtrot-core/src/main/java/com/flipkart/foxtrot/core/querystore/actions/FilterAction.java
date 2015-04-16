@@ -94,7 +94,7 @@ public class FilterAction extends Action<Query> {
             search = getConnection().getClient().prepareSearch(ElasticsearchUtils.getIndices(parameter.getTable(), parameter))
                     .setTypes(ElasticsearchUtils.TYPE_NAME)
                     .setQuery(new ElasticSearchQueryGenerator(FilterCombinerType.and).genFilter(parameter.getFilters()))
-                    .setSearchType(SearchType.DFS_QUERY_THEN_FETCH)
+                    .setSearchType(SearchType.QUERY_THEN_FETCH)
                     .setFrom(parameter.getFrom())
                     .setSize(parameter.getLimit());
             search.addSort(parameter.getSort().getField(),
