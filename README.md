@@ -1,4 +1,4 @@
-Foxtrot [![Build Status](https://travis-ci.org/flipkart-incubator/foxtrot.svg?branch=master)](https://travis-ci.org/flipkart-incubator/foxtrot.svg?branch=master)
+Foxtrot [![Build Status](https://travis-ci.org/Flipkart/foxtrot.svg?branch=master)](https://travis-ci.org/Flipkart/foxtrot.svg?branch=master)
 =========
 
 Foxtrot is a data store abstraction service for storing event data for real-time systems. It combines the power of fast row get/put by HBase and powerful indexing and aggregation features provided by Elasticsearch. Foxtrot provides:
@@ -14,18 +14,18 @@ Foxtrot has built in support for building, saving and managing your own custom c
 
 There are several customizable widgets including donuts, bars and trend views with support for filtering and visualizing the data that you need to see. 
 
-![Console build using out of the box console builder and served by foxtrot](https://github.com/flipkart-incubator/foxtrot/blob/master/support/images/FoxtrotScreen.png)
+![Console build using out of the box console builder and served by foxtrot](https://github.com/Flipkart/foxtrot/blob/master/support/images/FoxtrotScreen.png)
   
 ##Foxtrot query language
 Besides the console, foxtrot supports a SQL compatible query language for querying as well as running aggregations on the ingested events. FQL commands can be run on the foxtrot web console or (for the unix nerd in us) from the command line.
 
-![Command-line FQL output](https://github.com/flipkart-incubator/foxtrot/blob/master/support/images/FQL.png)
+![Command-line FQL output](https://github.com/Flipkart/foxtrot/blob/master/support/images/FQL.png)
 
-![Web console output](https://github.com/flipkart-incubator/foxtrot/blob/master/support/images/FQL-UI.png)
+![Web console output](https://github.com/Flipkart/foxtrot/blob/master/support/images/FQL-UI.png)
 
 Documentation
 -------------
-Check the [Wiki](https://github.com/flipkart-incubator/foxtrot/wiki/Introduction) for detailed documentation.
+Check the [Wiki](https://github.com/Flipkart/foxtrot/wiki/Introduction) for detailed documentation.
 
 Version
 ----
@@ -53,9 +53,9 @@ Foxtrot uses a number of open source projects to work properly:
 Contribution, Bugs and Feedback
 -------------------------------
 
-For bugs, questions and discussions please use the [Github Issues](https://github.com/flipkart-incubator/foxtrot/issues).
+For bugs, questions and discussions please use the [Github Issues](https://github.com/Flipkart/foxtrot/issues).
 
-Please follow the [contribution guidelines](https://github.com/flipkart-incubator/foxtrot/blob/master/CONTRIBUTING.md) when submitting pull requests.
+Please follow the [contribution guidelines](https://github.com/Flipkart/foxtrot/blob/master/CONTRIBUTING.md) when submitting pull requests.
 
 
 LICENSE
