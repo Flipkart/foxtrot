@@ -47,7 +47,7 @@ Foxtrot uses a number of open source projects to work properly:
 * [Flot](http://www.flotcharts.org/) - superfast javascript charting library
 * [D3](http://d3js.org/) - data visualization library
 * [Handlebars](http://handlebarsjs.com/) - templating library
-* [jQuery](http://jquery.com) - duh
+* [jQuery](http://jquery.com) - backend API calls and DOM access
 * [jQuery UI](http://jqueryui.com) - extensible ui framework
 
 Contribution, Bugs and Feedback
