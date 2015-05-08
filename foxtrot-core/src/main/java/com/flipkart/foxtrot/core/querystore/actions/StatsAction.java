@@ -20,7 +20,7 @@ import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.search.SearchType;
 import org.elasticsearch.search.aggregations.Aggregations;
 import org.elasticsearch.search.aggregations.metrics.percentiles.InternalPercentiles;
-import org.elasticsearch.search.aggregations.metrics.percentiles.Percentiles;
+import org.elasticsearch.search.aggregations.metrics.percentiles.Percentile;
 import org.elasticsearch.search.aggregations.metrics.stats.extended.InternalExtendedStats;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -113,7 +113,7 @@ public class StatsAction extends Action<StatsRequest> {
 
         InternalPercentiles internalPercentile = InternalPercentiles.class.cast(aggregations.getAsMap().get(percentileMetricKey));
         Map<Number, Number> percentiles = new HashMap<Number, Number>();
-        for (Percentiles.Percentile percentile : internalPercentile) {
+        for (Percentile percentile : internalPercentile) {
             percentiles.put(percentile.getPercent(), percentile.getValue());
         }
         statsValue.setPercentiles(percentiles);
