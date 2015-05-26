@@ -4,7 +4,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <artifactId>foxtrot</artifactId>
-        <groupId>foxtrot</groupId>
+        <groupId>com.flipkart.foxtrot</groupId>
         <version>0.1</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
@@ -28,22 +28,17 @@
 
         <!-- Internal -->
         <dependency>
-            <groupId>foxtrot</groupId>
-            <artifactId>foxtrot-common</artifactId>
-            <version>0.3</version>
-        </dependency>
-        <dependency>
-            <groupId>foxtrot</groupId>
+            <groupId>com.flipkart.foxtrot</groupId>
             <artifactId>foxtrot-core</artifactId>
             <version>0.2</version>
         </dependency>
         <dependency>
-            <groupId>foxtrot</groupId>
+            <groupId>com.flipkart.foxtrot</groupId>
             <artifactId>foxtrot-sql</artifactId>
             <version>0.1</version>
         </dependency>
         <dependency>
-            <groupId>foxtrot</groupId>
+            <groupId>com.flipkart.foxtrot</groupId>
             <artifactId>foxtrot-core</artifactId>
             <version>0.2</version>
             <type>test-jar</type>
