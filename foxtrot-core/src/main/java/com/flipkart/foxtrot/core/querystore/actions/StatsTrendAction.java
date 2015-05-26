@@ -25,7 +25,7 @@ import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.Aggregations;
 import org.elasticsearch.search.aggregations.bucket.histogram.DateHistogram;
 import org.elasticsearch.search.aggregations.metrics.percentiles.InternalPercentiles;
-import org.elasticsearch.search.aggregations.metrics.percentiles.Percentiles;
+import org.elasticsearch.search.aggregations.metrics.percentiles.Percentile;
 import org.elasticsearch.search.aggregations.metrics.stats.extended.InternalExtendedStats;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -161,7 +161,7 @@ public class StatsTrendAction extends Action<StatsTrendRequest> {
             InternalPercentiles internalPercentile = InternalPercentiles.class.cast(bucket.getAggregations().getAsMap().get(percentileMetricKey));
             Map<Number, Number> percentiles = new HashMap<Number, Number>();
 
-            for (Percentiles.Percentile percentile : internalPercentile) {
+            for (Percentile percentile : internalPercentile) {
                 percentiles.put(percentile.getPercent(), percentile.getValue());
             }
             statsTrendValue.setPercentiles(percentiles);

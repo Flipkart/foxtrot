@@ -25,6 +25,8 @@ import org.elasticsearch.action.admin.indices.template.put.PutIndexTemplateReque
 import org.elasticsearch.action.admin.indices.template.put.PutIndexTemplateRequestBuilder;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.client.IndicesAdminClient;
+import org.elasticsearch.common.xcontent.XContentBuilder;
+import org.elasticsearch.common.xcontent.XContentFactory;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
 import org.joda.time.format.DateTimeFormat;
@@ -32,6 +34,7 @@ import org.joda.time.format.DateTimeFormatter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.util.List;
 
 /**
@@ -102,55 +105,83 @@ public class ElasticsearchUtils {
     }
 
     public static PutIndexTemplateRequest getClusterTemplateMapping(IndicesAdminClient indicesAdminClient) {
-        PutIndexTemplateRequestBuilder builder = new PutIndexTemplateRequestBuilder(indicesAdminClient, "generic_template");
-        builder.setTemplate("foxtrot-*");
-        builder.addMapping(TYPE_NAME, "{\n" +
-                "            \"_source\" : { \"enabled\" : false },\n" +
-                "            \"_all\" : { \"enabled\" : false },\n" +
-                "            \"_timestamp\" : { \"enabled\" : true, \"store\" : true },\n" +
-                "\n" +
-                "            \"dynamic_templates\" : [\n" +
-                "                {\n" +
-                "                    \"template_timestamp\" : {\n" +
-                "                        \"match\" : \"timestamp\",\n" +
-                "                        \"mapping\" : {\n" +
-                "                            \"store\" : false,\n" +
-                "                            \"index\" : \"not_analyzed\",\n" +
-                "                            \"type\" : \"date\"\n" +
-                "                        }\n" +
-                "                    }\n" +
-                "                },\n" +
-                "                {\n" +
-                "                    \"template_no_store_analyzed\" : {\n" +
-                "                        \"match\" : \"*\",\n" +
-                "                        \"match_mapping_type\" : \"string\",\n" +
-                "                        \"mapping\" : {\n" +
-                "                            \"store\" : false,\n" +
-                "                            \"index\" : \"not_analyzed\",\n" +
-                "                            \"fields\" : {\n" +
-                "                                \"analyzed\": {\n" +
-                "                                    \"store\" : false,\n" +
-                "                                    \"type\": \"string\",\n" +
-                "                                    \"index\": \"analyzed\"\n" +
-                "                                }\n" +
-                "                            }\n" +
-                "                        }\n" +
-                "                    }\n" +
-                "                },\n" +
-                "                {\n" +
-                "                    \"template_no_store\" : {\n" +
-                "                        \"match_mapping_type\": \"date|boolean|double|long|integer\",\n" +
-                "                        \"match_pattern\": \"regex\",\n" +
-                "                        \"path_match\": \".*\",\n" +
-                "                        \"mapping\" : {\n" +
-                "                            \"store\" : false,\n" +
-                "                            \"index\" : \"not_analyzed\"\n" +
-                "                        }\n" +
-                "                    }\n" +
-                "                }\n" +
-                "            ]\n" +
-                "        }");
-        return builder.request();
+        try {
+            XContentBuilder contentBuilder = XContentFactory.jsonBuilder()
+                    .startObject()
+                        .field(TYPE_NAME)
+                            .startObject()
+                                .field("_source")
+                                    .startObject()
+                                        .field("enabled", false)
+                                    .endObject()
+                                .field("_all")
+                                    .startObject()
+                                        .field("enabled", false)
+                                    .endObject()
+                                .field("_timestamp")
+                                    .startObject()
+                                        .field("enabled", true)
+                                        .field("store", true)
+                                    .endObject()
+                                .field("dynamic_templates")
+                                    .startArray()
+                                        .startObject()
+                                            .field("template_timestamp")
+                                                .startObject()
+                                                    .field("match", "timestamp")
+                                                    .field("mapping")
+                                                        .startObject()
+                                                            .field("store", false)
+                                                            .field("index", "not_analyzed")
+                                                            .field("type", "date")
+                                                        .endObject()
+                                                .endObject()
+                                        .endObject()
+                                        .startObject()
+                                            .field("template_no_store_analyzed")
+                                                .startObject()
+                                                    .field("match", "*")
+                                                    .field("match_mapping_type", "string")
+                                                    .field("mapping")
+                                                        .startObject()
+                                                            .field("store", false)
+                                                            .field("index", "not_analyzed")
+                                                            .field("fields")
+                                                            .startObject()
+                                                                .field("analyzed")
+                                                                .startObject()
+                                                                    .field("store", false)
+                                                                    .field("type", "string")
+                                                                    .field("index", "analyzed")
+                                                                .endObject()
+                                                            .endObject()
+                                                        .endObject()
+                                                .endObject()
+                                        .endObject()
+                                        .startObject()
+                                            .field("template_no_store")
+                                                .startObject()
+                                                    .field("match_mapping_type", "date|boolean|double|long|integer")
+                                                    .field("match_pattern", "regex")
+                                                    .field("path_match", ".*")
+                                                    .field("mapping")
+                                                        .startObject()
+                                                        .field("store", false)
+                                                        .field("index", "not_analyzed")
+                                                    .endObject()
+                                                .endObject()
+                                        .endObject()
+                                    .endArray()
+                            .endObject()
+                    .endObject();
+            PutIndexTemplateRequestBuilder builder = new PutIndexTemplateRequestBuilder(indicesAdminClient, "generic_template");
+            builder.setTemplate("foxtrot-*");
+            builder.addMapping(TYPE_NAME, contentBuilder);
+            return builder.request();
+        } catch (IOException e) {
+            logger.error("TEMPLATE_CREATION_FAILED", e);
+        }
+        return null;
     }
 
     public static void initializeMappings(Client client) {
