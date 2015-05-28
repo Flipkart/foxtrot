@@ -36,7 +36,7 @@ import java.util.*;
  * Created by rishabh.goyal on 02/08/14.
  */
 
-@AnalyticsProvider(opcode = "statstrend", request = StatsTrendRequest.class, response = StatsTrendResponse.class, cacheable = false)
+@AnalyticsProvider(opcode = Operation.statstrend, request = StatsTrendRequest.class, response = StatsTrendResponse.class, cacheable = false)
 public class StatsTrendAction extends Action<StatsTrendRequest> {
 
     private static final Logger logger = LoggerFactory.getLogger(StatsAction.class.getSimpleName());

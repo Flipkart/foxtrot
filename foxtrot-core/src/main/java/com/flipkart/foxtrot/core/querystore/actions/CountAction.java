@@ -31,7 +31,7 @@ import org.slf4j.LoggerFactory;
  * Created by rishabh.goyal on 02/11/14.
  */
 
-@AnalyticsProvider(opcode = "count", request = CountRequest.class, response = CountResponse.class, cacheable = false)
+@AnalyticsProvider(opcode = Operation.count, request = CountRequest.class, response = CountResponse.class, cacheable = false)
 public class CountAction extends Action<CountRequest> {
 
     private static final Logger logger = LoggerFactory.getLogger(CountAction.class);

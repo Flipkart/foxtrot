@@ -1,12 +1,12 @@
 /**
  * Copyright 2014 Flipkart Internet Pvt. Ltd.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -74,19 +74,14 @@ public class TestUtils {
             AnalyticsProvider analyticsProvider = action.getAnnotation(AnalyticsProvider.class);
             if (null == analyticsProvider.request()
                     || null == analyticsProvider.opcode()
-                    || analyticsProvider.opcode().isEmpty()
                     || null == analyticsProvider.response()) {
                 throw new Exception("Invalid annotation on " + action.getCanonicalName());
             }
-            if (analyticsProvider.opcode().equalsIgnoreCase("default")) {
-                logger.warn("Action " + action.getCanonicalName() + " does not specify cache token. " +
-                        "Using default cache.");
-            }
             analyticsLoader.register(new ActionMetadata(
                     analyticsProvider.request(), action,
-                    analyticsProvider.cacheable(), analyticsProvider.opcode()));
-            types.add(new NamedType(analyticsProvider.request(), analyticsProvider.opcode()));
-            types.add(new NamedType(analyticsProvider.response(), analyticsProvider.opcode()));
+                    analyticsProvider.cacheable(), analyticsProvider.opcode().name()));
+            types.add(new NamedType(analyticsProvider.request(), analyticsProvider.opcode().name()));
+            types.add(new NamedType(analyticsProvider.response(), analyticsProvider.opcode().name()));
             logger.info("Registered action: " + action.getCanonicalName());
         }
         mapper.getSubtypeResolver().registerSubtypes(types.toArray(new NamedType[types.size()]));

@@ -51,7 +51,7 @@ import java.util.List;
  * Date: 29/03/14
  * Time: 9:22 PM
  */
-@AnalyticsProvider(opcode = "histogram", request = HistogramRequest.class, response = HistogramResponse.class, cacheable = true)
+@AnalyticsProvider(opcode = Operation.histogram, request = HistogramRequest.class, response = HistogramResponse.class, cacheable = true)
 public class HistogramAction extends Action<HistogramRequest> {
 
     private static final Logger logger = LoggerFactory.getLogger(HistogramAction.class.getSimpleName());

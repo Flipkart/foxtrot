@@ -35,7 +35,7 @@ import java.util.List;
  * Created by rishabh.goyal on 17/11/14.
  */
 
-@AnalyticsProvider(opcode = "distinct", request = DistinctRequest.class, response = DistinctResponse.class, cacheable = true)
+@AnalyticsProvider(opcode = Operation.distinct, request = DistinctRequest.class, response = DistinctResponse.class, cacheable = true)
 public class DistinctAction extends Action<DistinctRequest> {
     private static final Logger logger = LoggerFactory.getLogger(GroupAction.class.getSimpleName());
 
