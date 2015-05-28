@@ -32,7 +32,7 @@ import java.util.Map;
  * Created by rishabh.goyal on 02/08/14.
  */
 
-@AnalyticsProvider(opcode = "stats", request = StatsRequest.class, response = StatsResponse.class, cacheable = false)
+@AnalyticsProvider(opcode = Operation.stats, request = StatsRequest.class, response = StatsResponse.class, cacheable = false)
 public class StatsAction extends Action<StatsRequest> {
 
     private static final Logger logger = LoggerFactory.getLogger(StatsAction.class.getSimpleName());

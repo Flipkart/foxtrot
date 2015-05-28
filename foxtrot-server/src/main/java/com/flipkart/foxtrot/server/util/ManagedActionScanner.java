@@ -63,19 +63,13 @@ public class ManagedActionScanner implements Managed {
             AnalyticsProvider analyticsProvider = action.getAnnotation(AnalyticsProvider.class);
             if (null == analyticsProvider.request()
                     || null == analyticsProvider.opcode()
-                    || analyticsProvider.opcode().isEmpty()
                     || null == analyticsProvider.response()) {
                 throw new Exception("Invalid annotation on " + action.getCanonicalName());
             }
-            if (analyticsProvider.opcode().equalsIgnoreCase("default")) {
-                logger.warn("Action " + action.getCanonicalName() + " does not specify cache token. " +
-                        "Using default cache.");
-            }
-            analyticsLoader.register(new ActionMetadata(
-                    analyticsProvider.request(), action,
-                    analyticsProvider.cacheable(), analyticsProvider.opcode()));
-            types.add(new NamedType(analyticsProvider.request(), analyticsProvider.opcode()));
-            types.add(new NamedType(analyticsProvider.response(), analyticsProvider.opcode()));
+            analyticsLoader.register(new ActionMetadata(analyticsProvider.request(), action,
+                    analyticsProvider.cacheable(), analyticsProvider.opcode().name()));
+            types.add(new NamedType(analyticsProvider.request(), analyticsProvider.opcode().name()));
+            types.add(new NamedType(analyticsProvider.response(), analyticsProvider.opcode().name()));
             logger.info("Registered action: " + action.getCanonicalName());
         }
         SubtypeResolver subtypeResolver

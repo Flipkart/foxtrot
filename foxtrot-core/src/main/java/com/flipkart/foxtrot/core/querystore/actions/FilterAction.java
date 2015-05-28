@@ -44,7 +44,7 @@ import java.util.Vector;
  * Date: 24/03/14
  * Time: 1:00 PM
  */
-@AnalyticsProvider(opcode = "query", request = Query.class, response = QueryResponse.class, cacheable = false)
+@AnalyticsProvider(opcode = Operation.query, request = Query.class, response = QueryResponse.class, cacheable = false)
 public class FilterAction extends Action<Query> {
     private static final Logger logger = LoggerFactory.getLogger(FilterAction.class);
 

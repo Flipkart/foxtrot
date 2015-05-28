@@ -48,7 +48,7 @@ import java.util.*;
  * Date: 27/03/14
  * Time: 7:16 PM
  */
-@AnalyticsProvider(opcode = "group", request = GroupRequest.class, response = GroupResponse.class, cacheable = true)
+@AnalyticsProvider(opcode = Operation.group, request = GroupRequest.class, response = GroupResponse.class, cacheable = true)
 public class GroupAction extends Action<GroupRequest> {
     private static final Logger logger = LoggerFactory.getLogger(GroupAction.class.getSimpleName());
 
