@@ -1,6 +1,6 @@
 http:
-  port: 18000
-  adminPort: 18001
+  port: 17000
+  adminPort: 17001
   connectorType: nonblocking
 
 elasticsearch:
