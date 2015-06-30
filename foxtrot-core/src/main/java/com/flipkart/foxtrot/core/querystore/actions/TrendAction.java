@@ -21,6 +21,7 @@ import com.flipkart.foxtrot.common.query.FilterCombinerType;
 import com.flipkart.foxtrot.common.query.datetime.LastFilter;
 import com.flipkart.foxtrot.common.query.general.AnyFilter;
 import com.flipkart.foxtrot.common.query.general.EqualsFilter;
+import com.flipkart.foxtrot.common.query.general.InFilter;
 import com.flipkart.foxtrot.common.trend.TrendRequest;
 import com.flipkart.foxtrot.common.trend.TrendResponse;
 import com.flipkart.foxtrot.core.common.Action;
@@ -105,11 +106,9 @@ public class TrendAction extends Action<TrendRequest> {
             throw new QueryStoreException(QueryStoreException.ErrorCode.INVALID_REQUEST, "Invalid field name");
         }
         if (null != parameter.getValues()) {
-            List<Filter> filters = Lists.newArrayList();
-            for (String value : parameter.getValues()) {
-                filters.add(new EqualsFilter(field, value));
-            }
-            parameter.getFilters().addAll(filters);
+            List<Object> values = (List) parameter.getValues();
+            Filter filter = new InFilter(field, values);
+            parameter.getFilters().add(filter);
         }
 
         try {
