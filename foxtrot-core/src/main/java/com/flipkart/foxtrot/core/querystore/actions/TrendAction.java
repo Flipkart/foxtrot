@@ -20,7 +20,6 @@ import com.flipkart.foxtrot.common.query.Filter;
 import com.flipkart.foxtrot.common.query.FilterCombinerType;
 import com.flipkart.foxtrot.common.query.datetime.LastFilter;
 import com.flipkart.foxtrot.common.query.general.AnyFilter;
-import com.flipkart.foxtrot.common.query.general.EqualsFilter;
 import com.flipkart.foxtrot.common.query.general.InFilter;
 import com.flipkart.foxtrot.common.trend.TrendRequest;
 import com.flipkart.foxtrot.common.trend.TrendResponse;
