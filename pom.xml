@@ -40,6 +40,11 @@
 			<name>Rishabh Goyal</name>
 			<email>rgoyal2191@gmail.com</email>
 		</developer>
+        <developer>
+            <id>itachi3</id>
+            <name>Balaji S</name>
+            <email>balajispsg@gmail.com</email>
+        </developer>
 	</developers>
 
 	<properties>
