@@ -56,11 +56,9 @@ public abstract class HBaseUtil {
             configuration.set("hadoop.kerberos.kinit.command", hbaseConfig.getKinitPath());
             UserGroupInformation.setConfiguration(configuration);
             System.setProperty("java.security.krb5.conf", hbaseConfig.getKerberosConfigFile());
-            if (hbaseConfig.isSecure()) {
-                UserGroupInformation.loginUserFromKeytab(
-                        hbaseConfig.getAuthString(), hbaseConfig.getKeytabFileName());
-                logger.info("Logged into Hbase with User: " + UserGroupInformation.getLoginUser());
-            }
+            UserGroupInformation.loginUserFromKeytab(
+                    hbaseConfig.getAuthString(), hbaseConfig.getKeytabFileName());
+            logger.info("Logged into Hbase with User: " + UserGroupInformation.getLoginUser());
         }
         return configuration;
     }
