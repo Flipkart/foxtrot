@@ -75,20 +75,6 @@ public class InitializerCommand extends ConfiguredCommand<FoxtrotServerConfigura
             "                    }\n" +
             "                },\n" +
             "                {\n" +
-            "                    \"template_no_store_dv\" : {\n" +
-            "                        \"match_mapping_type\": \"date|boolean|double|long|integer\",\n" +
-            "                        \"match_pattern\": \"regex\",\n" +
-            "                        \"path_match\": \".*\",\n" +
-            "                        \"mapping\" : {\n" +
-            "                            \"store\" : false,\n" +
-            "                            \"index\" : \"not_analyzed\",\n" +
-            "                            \"fielddata\": {\n" +
-            "                                \"format\": \"doc_values\"\n" +
-            "                            }\n" +
-            "                        }\n" +
-            "                    }\n" +
-            "                },\n" +
-            "                {\n" +
             "                    \"template_no_store\" : {\n" +
             "                        \"match_mapping_type\": \"double\",\n" +
             "                        \"match_pattern\": \"regex\",\n" +
@@ -123,7 +109,7 @@ public class InitializerCommand extends ConfiguredCommand<FoxtrotServerConfigura
                 .get();
 
         int numDataNodes = clusterHealth.getNumberOfDataNodes();
-        int numReplicas = (numDataNodes < 2) ? 0: 1;
+        int numReplicas = (numDataNodes < 2) ? 0 : 1;
 
         logger.info("# data nodes: {}, Setting replica count to: {}", numDataNodes, numReplicas);
 
@@ -160,14 +146,13 @@ public class InitializerCommand extends ConfiguredCommand<FoxtrotServerConfigura
                     .execute()
                     .get();
             logger.info("'{}' creation acknowledged: {}", indexName, response.isAcknowledged());
-            if(!response.isAcknowledged()) {
+            if (!response.isAcknowledged()) {
                 logger.error("Index {} could not be created.", indexName);
             }
         } catch (Exception e) {
-            if(null != e.getCause()) {
+            if (null != e.getCause()) {
                 logger.error("Index {} could not be created: {}", indexName, e.getCause().getLocalizedMessage());
-            }
-            else {
+            } else {
                 logger.error("Index {} could not be created: {}", indexName, e.getLocalizedMessage());
             }
         }

@@ -48,20 +48,6 @@ curl -XPUT ${1}:9200/_template/template_foxtrot_mappings -d '
                     }
                 },
                 {
-                    "template_no_store_dv" : {
-                        "match_mapping_type": "date|boolean|double|long|integer",
-                        "match_pattern": "regex",
-                        "path_match": ".*",
-                        "mapping" : {
-                            "store" : false,
-                            "index" : "not_analyzed",
-                            "fielddata": {
-                                "format": "doc_values"
-                            }
-                        }
-                    }
-                },
-                {
                     "template_no_store" : {
                         "match_mapping_type": "double",
                         "match_pattern": "regex",
