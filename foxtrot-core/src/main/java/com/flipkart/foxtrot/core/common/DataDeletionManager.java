@@ -1,7 +1,7 @@
 package com.flipkart.foxtrot.core.common;
 
 import com.flipkart.foxtrot.core.querystore.QueryStore;
-import com.yammer.dropwizard.lifecycle.Managed;
+import io.dropwizard.lifecycle.Managed;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

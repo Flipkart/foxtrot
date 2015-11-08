@@ -20,7 +20,7 @@ import com.flipkart.foxtrot.core.common.CacheUtils;
 import com.hazelcast.config.Config;
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
-import com.yammer.dropwizard.lifecycle.Managed;
+import io.dropwizard.lifecycle.Managed;
 import net.sourceforge.cobertura.CoverageIgnore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

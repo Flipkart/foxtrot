@@ -34,6 +34,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Vector;
+import java.util.concurrent.TimeUnit;
 
 /**
  * User: Santanu Sinha (santanu.sinha@flipkart.com)
@@ -63,10 +64,10 @@ public class HBaseDataStore implements DataStore {
         HTableInterface hTable = null;
         try {
             hTable = tableWrapper.getTable(table);
-            Stopwatch stopwatch = new Stopwatch();
+            Stopwatch stopwatch = Stopwatch.createUnstarted();
             stopwatch.start();
             hTable.put(getPutForDocument(table, document));
-            logger.error(String.format("HBASE put took : %d table : %s", stopwatch.elapsedMillis(), table));
+            logger.error(String.format("HBASE put took : %d table : %s", stopwatch.elapsed(TimeUnit.MILLISECONDS), table));
         } catch (JsonProcessingException e) {
             throw new DataStoreException(DataStoreException.ErrorCode.STORE_INVALID_REQUEST,
                     e.getMessage(), e);
@@ -109,10 +110,10 @@ public class HBaseDataStore implements DataStore {
         HTableInterface hTable = null;
         try {
             hTable = tableWrapper.getTable(table);
-            Stopwatch stopwatch = new Stopwatch();
+            Stopwatch stopwatch = Stopwatch.createUnstarted();
             stopwatch.start();
             hTable.put(puts);
-            logger.error(String.format("HBASE put took : %d table : %s", stopwatch.elapsedMillis(), table));
+            logger.error(String.format("HBASE put took : %d table : %s", stopwatch.elapsed(TimeUnit.MILLISECONDS), table));
         } catch (IOException e) {
             throw new DataStoreException(DataStoreException.ErrorCode.STORE_MULTI_SAVE,
                     e.getMessage(), e);

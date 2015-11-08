@@ -21,8 +21,8 @@ import com.flipkart.foxtrot.core.common.Action;
 import com.flipkart.foxtrot.core.querystore.actions.spi.ActionMetadata;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsLoader;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsProvider;
-import com.yammer.dropwizard.config.Environment;
-import com.yammer.dropwizard.lifecycle.Managed;
+import io.dropwizard.lifecycle.Managed;
+import io.dropwizard.setup.Environment;
 import net.sourceforge.cobertura.CoverageIgnore;
 import org.reflections.Reflections;
 import org.reflections.scanners.SubTypesScanner;
@@ -79,7 +79,7 @@ public class ManagedActionScanner implements Managed {
             logger.info("Registered action: " + action.getCanonicalName());
         }
         SubtypeResolver subtypeResolver
-                = environment.getObjectMapperFactory().getSubtypeResolver();
+                = environment.getObjectMapper().getSubtypeResolver();
         subtypeResolver.registerSubtypes(types.toArray(new NamedType[types.size()]));
     }
 
