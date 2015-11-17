@@ -113,7 +113,7 @@ public class AnalyticsResourceTest {
         groupRequest.setTable(TestUtils.TEST_TABLE_NAME);
         groupRequest.setNesting(Arrays.asList("os", "device", "version"));
 
-        doThrow(new QueryStoreException(QueryStoreException.ErrorCode.NO_SUCH_TABLE, "Dummy Error")).when(queryExecutor).executeAsync(any(GroupRequest.class));
+        doThrow(new QueryStoreException(QueryStoreException.ErrorCode.DATA_CLEANUP_ERROR, "Dummy Error")).when(queryExecutor).executeAsync(any(GroupRequest.class));
 
         Response response = resource.client().target("/v1/analytics/async").request(MediaType.APPLICATION_JSON_TYPE).post(Entity.json(groupRequest));
         assertEquals(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode(), response.getStatus());

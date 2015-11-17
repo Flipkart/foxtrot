@@ -73,7 +73,7 @@ public class QueryExecutorTest {
         when(elasticsearchConnection.getClient()).thenReturn(elasticsearchServer.getClient());
         ElasticsearchUtils.initializeMappings(elasticsearchServer.getClient());
         TableMetadataManager tableMetadataManager = mock(TableMetadataManager.class);
-        when(tableMetadataManager.exists(anyString())).thenReturn(true);
+        when(tableMetadataManager.exists(eq(TestUtils.TEST_TABLE_NAME))).thenReturn(true);
         when(tableMetadataManager.get(anyString())).thenReturn(TestUtils.TEST_TABLE);
 
         Settings indexSettings = ImmutableSettings.settingsBuilder().put("number_of_replicas", 0).build();
@@ -81,13 +81,10 @@ public class QueryExecutorTest {
         elasticsearchServer.getClient().admin().indices().create(createRequest).actionGet();
         elasticsearchServer.getClient().admin().cluster().prepareHealth().setWaitForGreenStatus().execute().actionGet();
 
-        tableMetadataManager = Mockito.mock(TableMetadataManager.class);
         tableMetadataManager.start();
-        when(tableMetadataManager.exists(anyString())).thenReturn(true);
-        when(tableMetadataManager.get(anyString())).thenReturn(TestUtils.TEST_TABLE);
         QueryStore queryStore = new ElasticsearchQueryStore(tableMetadataManager, elasticsearchConnection, dataStore);
 
-        AnalyticsLoader analyticsLoader = new AnalyticsLoader(tableMetadataManager, dataStore, queryStore, elasticsearchConnection);
+        analyticsLoader = new AnalyticsLoader(tableMetadataManager, dataStore, queryStore, elasticsearchConnection);
         TestUtils.registerActions(analyticsLoader, mapper);
         ExecutorService executorService = Executors.newFixedThreadPool(1);
         queryExecutor = new QueryExecutor(analyticsLoader, executorService);
@@ -102,6 +99,7 @@ public class QueryExecutorTest {
         analyticsLoader = spy(new AnalyticsLoader(tableMetadataManager, dataStore, queryStore, elasticsearchConnection));
         TestUtils.registerActions(analyticsLoader, mapper);
         queryExecutor = new QueryExecutor(analyticsLoader, executorService);
+
     }
 
     @After

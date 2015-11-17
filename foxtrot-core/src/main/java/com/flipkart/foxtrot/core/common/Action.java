@@ -71,7 +71,10 @@ public abstract class Action<ParameterType extends ActionRequest> implements Cal
         return cacheKey;
     }
 
-    public AsyncDataToken execute(ExecutorService executor) {
+    public AsyncDataToken execute(ExecutorService executor) throws QueryStoreException {
+        if (!parameterTableExists(parameter)) {
+            throw new QueryStoreException(QueryStoreException.ErrorCode.NO_SUCH_TABLE, "Table/s not found");
+        }
         executor.submit(this);
         return new AsyncDataToken(cacheToken, cacheKey());
     }
@@ -93,6 +96,9 @@ public abstract class Action<ParameterType extends ActionRequest> implements Cal
         }
         logger.info("Cache miss for key: " + cacheKeyValue);
         parameter.setFilters(checkAndAddTemporalBoundary(parameter.getFilters()));
+        if (!parameterTableExists(parameter)) {
+            throw new QueryStoreException(QueryStoreException.ErrorCode.NO_SUCH_TABLE, "Table/s not found");
+        }
         ActionResponse result = execute(parameter);
         if (isCacheable()) {
             logger.info("Cache load for key: " + cacheKeyValue);
@@ -112,6 +118,8 @@ public abstract class Action<ParameterType extends ActionRequest> implements Cal
     abstract protected String getRequestCacheKey();
 
     abstract public ActionResponse execute(ParameterType parameter) throws QueryStoreException;
+
+    abstract protected boolean parameterTableExists(ParameterType parameter);
 
     public DataStore getDataStore() {
         return dataStore;

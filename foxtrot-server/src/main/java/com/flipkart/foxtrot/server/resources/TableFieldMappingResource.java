@@ -44,8 +44,14 @@ public class TableFieldMappingResource {
             return Response.ok(queryStore.getFieldMappings(table)).build();
         } catch (QueryStoreException ex) {
             logger.error("Unable to fetch Table Metadata " , ex);
-            throw new WebApplicationException(Response.serverError()
-                    .entity(Collections.singletonMap("error", "Metadata Fetch Failed")).build());
+            switch (ex.getErrorCode()) {
+                case NO_SUCH_TABLE:
+                    throw new WebApplicationException(
+                            Response.status(Response.Status.NOT_FOUND).entity(Collections.singletonMap("error", ex.getMessage())).build());
+                default:
+                    throw new WebApplicationException(
+                            Response.serverError().entity(Collections.singletonMap("error", "Metadata Fetch Failed")).build());
+            }
         }
     }
 
