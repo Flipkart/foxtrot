@@ -87,7 +87,6 @@ public class QueryExecutorTest {
         analyticsLoader = new AnalyticsLoader(tableMetadataManager, dataStore, queryStore, elasticsearchConnection);
         TestUtils.registerActions(analyticsLoader, mapper);
         ExecutorService executorService = Executors.newFixedThreadPool(1);
-        queryExecutor = new QueryExecutor(analyticsLoader, executorService);
         List<Document> documents = TestUtils.getGroupDocuments(mapper);
         queryStore.save(TestUtils.TEST_TABLE_NAME, documents);
         for (Document document : documents) {
@@ -133,7 +132,7 @@ public class QueryExecutorTest {
         Map<String, Object> expectedResponse = getExpectedResponse();
 
         GroupResponse response = (GroupResponse) queryExecutor.execute(groupRequest);
-        assertEquals(mapper.writeValueAsString(expectedResponse), mapper.writeValueAsString(response.getResult()));
+        assertEquals(mapper.readValue(mapper.writeValueAsBytes(expectedResponse), Map.class), mapper.readValue(mapper.writeValueAsBytes(response.getResult()), Map.class));
     }
 
     @Test(expected = QueryStoreException.class)
@@ -166,7 +165,7 @@ public class QueryExecutorTest {
         Thread.sleep(2000);
         GroupResponse actualResponse = GroupResponse.class.cast(CacheUtils.getCacheFor(response.getAction()).get(response.getKey()));
 
-        assertEquals(mapper.writeValueAsString(expectedResponse), mapper.writeValueAsString(actualResponse.getResult()));
+        assertEquals(mapper.readValue(mapper.writeValueAsBytes(expectedResponse), Map.class), mapper.readValue(mapper.writeValueAsBytes(actualResponse.getResult()), Map.class));
     }
 
 
