@@ -26,7 +26,6 @@ import net.sourceforge.cobertura.CoverageIgnore;
 @CoverageIgnore
 public class App {
     public static void main(String[] args) throws Exception {
-        FoxtrotServer foxtrotServer = new FoxtrotServer();
-        foxtrotServer.run(args);
+        new FoxtrotServer().run(args);
     }
 }

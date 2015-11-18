@@ -47,4 +47,23 @@ public class AsyncDataToken {
     public void setKey(String key) {
         this.key = key;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof AsyncDataToken)) return false;
+
+        AsyncDataToken that = (AsyncDataToken) o;
+
+        if (action != null ? !action.equals(that.action) : that.action != null) return false;
+        return !(key != null ? !key.equals(that.key) : that.key != null);
+
+    }
+
+    @Override
+    public int hashCode() {
+        int result = action != null ? action.hashCode() : 0;
+        result = 31 * result + (key != null ? key.hashCode() : 0);
+        return result;
+    }
 }

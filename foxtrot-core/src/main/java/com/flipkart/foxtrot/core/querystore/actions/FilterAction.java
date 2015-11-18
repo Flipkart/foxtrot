@@ -74,7 +74,6 @@ public class FilterAction extends Action<Query> {
 
     @Override
     public QueryResponse execute(Query parameter) throws QueryStoreException {
-        parameter.setTable(ElasticsearchUtils.getValidTableName(parameter.getTable()));
         if (null == parameter.getFilters() || parameter.getFilters().isEmpty()) {
             parameter.setFilters(Lists.<Filter>newArrayList(new AnyFilter(parameter.getTable())));
         }
@@ -116,6 +115,17 @@ public class FilterAction extends Action<Query> {
             }
             throw new QueryStoreException(QueryStoreException.ErrorCode.QUERY_EXECUTION_ERROR,
                     "Error running query: " + parameter.toString());
+        }
+    }
+
+    @Override
+    protected boolean parameterTableExists(Query parameter) {
+        parameter.setTable(ElasticsearchUtils.getValidTableName(parameter.getTable()));
+        try {
+            return !(parameter.getTable() == null || !getTableMetadataManager().exists(ElasticsearchUtils.getValidTableName(parameter.getTable())));
+        } catch (Exception e) {
+            logger.error("Error while checking table's existence.", e);
+            return false;
         }
     }
 }

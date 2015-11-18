@@ -1,6 +1,7 @@
 package com.flipkart.foxtrot.common.query.datetime;
 
-import com.yammer.dropwizard.util.Duration;
+
+import io.dropwizard.util.Duration;
 
 public class WindowUtil {
 
