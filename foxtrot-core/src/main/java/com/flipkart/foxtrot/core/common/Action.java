@@ -87,6 +87,9 @@ public abstract class Action<ParameterType extends ActionRequest> implements Cal
     }
 
     public ActionResponse execute() throws QueryStoreException {
+        if (!parameterTableExists(parameter)) {
+            throw new QueryStoreException(QueryStoreException.ErrorCode.NO_SUCH_TABLE, "Table/s not found");
+        }
         final String cacheKeyValue = cacheKey();
         if (isCacheable()) {
             if (cache.has(cacheKeyValue)) {
@@ -96,9 +99,6 @@ public abstract class Action<ParameterType extends ActionRequest> implements Cal
         }
         logger.info("Cache miss for key: " + cacheKeyValue);
         parameter.setFilters(checkAndAddTemporalBoundary(parameter.getFilters()));
-        if (!parameterTableExists(parameter)) {
-            throw new QueryStoreException(QueryStoreException.ErrorCode.NO_SUCH_TABLE, "Table/s not found");
-        }
         ActionResponse result = execute(parameter);
         if (isCacheable()) {
             logger.info("Cache load for key: " + cacheKeyValue);
