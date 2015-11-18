@@ -1,3 +1,5 @@
+server:
+  rootPath: /foxtrot/*
 http:
   port: 17000
   adminPort: 17001
@@ -16,6 +18,8 @@ cluster:
   name: foxtrot
   disableMulticast: true
   members: ["localhost:5701", "localhost:5702"]
+
+port: 17000
 
 logging:
   level: INFO

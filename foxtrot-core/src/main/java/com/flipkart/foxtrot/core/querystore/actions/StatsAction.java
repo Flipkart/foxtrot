@@ -61,12 +61,8 @@ public class StatsAction extends Action<StatsRequest> {
 
     @Override
     public ActionResponse execute(StatsRequest request) throws QueryStoreException {
-        request.setTable(ElasticsearchUtils.getValidTableName(request.getTable()));
         if (null == request.getFilters()) {
             request.setFilters(Lists.<Filter>newArrayList(new AnyFilter(request.getTable())));
-        }
-        if (null == request.getTable()) {
-            throw new QueryStoreException(QueryStoreException.ErrorCode.INVALID_REQUEST, "Invalid Table");
         }
 
         try {
@@ -90,6 +86,17 @@ public class StatsAction extends Action<StatsRequest> {
             logger.error("Error running stats query: ", e);
             throw new QueryStoreException(QueryStoreException.ErrorCode.QUERY_EXECUTION_ERROR,
                     "Error running stats query.", e);
+        }
+    }
+
+    @Override
+    protected boolean parameterTableExists(StatsRequest parameter) {
+        parameter.setTable(ElasticsearchUtils.getValidTableName(parameter.getTable()));
+        try {
+            return !(parameter.getTable() == null || !getTableMetadataManager().exists(ElasticsearchUtils.getValidTableName(parameter.getTable())));
+        } catch (Exception e) {
+            logger.error("Error while checking table's existence.", e);
+            return false;
         }
     }
 

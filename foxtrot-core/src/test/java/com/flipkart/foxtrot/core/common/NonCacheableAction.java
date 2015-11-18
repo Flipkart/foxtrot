@@ -49,4 +49,9 @@ public class NonCacheableAction extends Action<NonCacheableActionRequest> {
     public ActionResponse execute(NonCacheableActionRequest parameter) throws QueryStoreException {
         return null;//new NonCacheableActionResponse();
     }
+
+    @Override
+    protected boolean parameterTableExists(NonCacheableActionRequest parameter) {
+        return true;
+    }
 }

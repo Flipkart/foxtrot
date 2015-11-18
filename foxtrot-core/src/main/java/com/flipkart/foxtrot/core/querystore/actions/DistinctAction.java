@@ -65,12 +65,8 @@ public class DistinctAction extends Action<DistinctRequest> {
 
     @Override
     public ActionResponse execute(DistinctRequest request) throws QueryStoreException {
-        request.setTable(ElasticsearchUtils.getValidTableName(request.getTable()));
         if (null == request.getFilters()) {
             request.setFilters(Lists.<Filter>newArrayList(new AnyFilter(request.getTable())));
-        }
-        if (request.getTable() == null) {
-            throw new QueryStoreException(QueryStoreException.ErrorCode.INVALID_REQUEST, "Invalid Table");
         }
         try {
             SearchRequestBuilder query = getConnection().getClient().prepareSearch(ElasticsearchUtils.getIndices(
@@ -116,6 +112,17 @@ public class DistinctAction extends Action<DistinctRequest> {
             logger.error("Error running grouping: ", e);
             throw new QueryStoreException(QueryStoreException.ErrorCode.QUERY_EXECUTION_ERROR,
                     "Error running group query.", e);
+        }
+    }
+
+    @Override
+    protected boolean parameterTableExists(DistinctRequest parameter) {
+        parameter.setTable(ElasticsearchUtils.getValidTableName(parameter.getTable()));
+        try {
+            return !(parameter.getTable() == null || !getTableMetadataManager().exists(ElasticsearchUtils.getValidTableName(parameter.getTable())));
+        } catch (Exception e) {
+            logger.error("Error while checking table's existence.", e);
+            return false;
         }
     }
 
