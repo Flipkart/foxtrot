@@ -15,159 +15,92 @@
  */
 package com.flipkart.foxtrot.server.resources;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.flipkart.foxtrot.common.Document;
-import com.flipkart.foxtrot.core.MockElasticsearchServer;
 import com.flipkart.foxtrot.core.TestUtils;
-import com.flipkart.foxtrot.core.common.CacheUtils;
-import com.flipkart.foxtrot.core.datastore.DataStore;
 import com.flipkart.foxtrot.core.querystore.QueryStore;
 import com.flipkart.foxtrot.core.querystore.QueryStoreException;
-import com.flipkart.foxtrot.core.querystore.TableMetadataManager;
-import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsLoader;
-import com.flipkart.foxtrot.core.querystore.impl.*;
-import com.hazelcast.core.HazelcastInstance;
-import com.hazelcast.test.TestHazelcastInstanceFactory;
-import com.sun.jersey.api.client.UniformInterfaceException;
-import com.sun.jersey.api.container.ContainerException;
-import com.sun.jersey.api.container.MappableContainerException;
-import com.yammer.dropwizard.testing.ResourceTest;
-import com.yammer.dropwizard.validation.InvalidEntityException;
-import org.elasticsearch.action.admin.indices.create.CreateIndexRequest;
-import org.elasticsearch.common.settings.ImmutableSettings;
-import org.elasticsearch.common.settings.Settings;
-import org.junit.After;
+import io.dropwizard.testing.junit.ResourceTestRule;
+import org.junit.Before;
+import org.junit.ClassRule;
 import org.junit.Test;
-import org.mockito.Matchers;
-import org.mockito.Mockito;
 
+import javax.ws.rs.ProcessingException;
+import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.util.*;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.UUID;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.mockito.Matchers.anyListOf;
-import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.*;
 
 /**
  * Created by rishabh.goyal on 04/05/14.
  */
-public class DocumentResourceTest extends ResourceTest {
-    private ObjectMapper mapper = new ObjectMapper();
+public class DocumentResourceTest {
     private JsonNodeFactory factory = JsonNodeFactory.instance;
+    private static QueryStore queryStore = mock(QueryStore.class);
 
-    private TableMetadataManager tableMetadataManager;
-    private MockElasticsearchServer elasticsearchServer;
-    private HazelcastInstance hazelcastInstance;
+    @ClassRule
+    public static final ResourceTestRule resource = ResourceTestRule.builder().addResource(new DocumentResource(queryStore)).build();
 
-    private QueryStore queryStore;
-
-    public DocumentResourceTest() throws Exception {
-
-        ElasticsearchUtils.setMapper(mapper);
-        DataStore dataStore = TestUtils.getDataStore();
-
-        //Initializing Cache Factory
-        hazelcastInstance = new TestHazelcastInstanceFactory(1).newHazelcastInstance();
-        HazelcastConnection hazelcastConnection = Mockito.mock(HazelcastConnection.class);
-        when(hazelcastConnection.getHazelcast()).thenReturn(hazelcastInstance);
-        CacheUtils.setCacheFactory(new DistributedCacheFactory(hazelcastConnection, mapper));
-
-        elasticsearchServer = new MockElasticsearchServer(UUID.randomUUID().toString());
-        ElasticsearchConnection elasticsearchConnection = Mockito.mock(ElasticsearchConnection.class);
-        when(elasticsearchConnection.getClient()).thenReturn(elasticsearchServer.getClient());
-        ElasticsearchUtils.initializeMappings(elasticsearchServer.getClient());
-
-        Settings indexSettings = ImmutableSettings.settingsBuilder().put("number_of_replicas", 0).build();
-        CreateIndexRequest createRequest = new CreateIndexRequest(TableMapStore.TABLE_META_INDEX).settings(indexSettings);
-        elasticsearchServer.getClient().admin().indices().create(createRequest).actionGet();
-        elasticsearchServer.getClient().admin().cluster().prepareHealth().setWaitForGreenStatus().execute().actionGet();
-
-        tableMetadataManager = Mockito.mock(TableMetadataManager.class);
-        tableMetadataManager.start();
-        when(tableMetadataManager.exists(anyString())).thenReturn(true);
-        when(tableMetadataManager.get(anyString())).thenReturn(TestUtils.TEST_TABLE);
-
-        AnalyticsLoader analyticsLoader = new AnalyticsLoader(tableMetadataManager, dataStore, queryStore, elasticsearchConnection);
-        TestUtils.registerActions(analyticsLoader, mapper);
-        ExecutorService executorService = Executors.newFixedThreadPool(1);
-        queryStore = new ElasticsearchQueryStore(tableMetadataManager, elasticsearchConnection, dataStore);
-        queryStore = spy(queryStore);
+    @Before
+    public void setUp() throws Exception {
+        reset(queryStore);
     }
-
-    @Override
-    protected void setUpResources() throws Exception {
-        addResource(new DocumentResource(queryStore));
-    }
-
-    @After
-    public void tearDown() throws Exception {
-        elasticsearchServer.shutdown();
-        hazelcastInstance.shutdown();
-        tableMetadataManager.stop();
-    }
-
 
     @Test
     public void testSaveDocument() throws Exception {
-        String id = UUID.randomUUID().toString();
-        Document document = new Document(
-                id,
-                System.currentTimeMillis(),
-                factory.objectNode().put("hello", "world"));
-        client().resource("/v1/document/" + TestUtils.TEST_TABLE_NAME).type(MediaType.APPLICATION_JSON_TYPE).post(document);
-        Document response = queryStore.get(TestUtils.TEST_TABLE_NAME, id);
-        compare(document, response);
+        Document document = new Document("1", System.currentTimeMillis(), null);
+        doNothing().when(queryStore).save(eq(TestUtils.TEST_TABLE_NAME), eq(document));
+        Response response = resource.client().target("/v1/document/" + TestUtils.TEST_TABLE_NAME).request(MediaType.APPLICATION_JSON_TYPE).post(Entity.json(document));
+        assertEquals(Response.Status.CREATED.getStatusCode(), response.getStatus());
     }
 
     @Test
     public void testSaveDocumentInternalError() throws Exception {
         String id = UUID.randomUUID().toString();
-        Document document = new Document(
-                id,
-                System.currentTimeMillis(),
-                factory.objectNode().put("hello", "world"));
+        Document document = new Document(id, System.currentTimeMillis(), factory.objectNode().put("hello", "world"));
         doThrow(new QueryStoreException(QueryStoreException.ErrorCode.DOCUMENT_SAVE_ERROR, "Dummy Exception"))
-                .when(queryStore).save(anyString(), Matchers.<Document>any());
-        try {
-            client().resource("/v1/document/" + TestUtils.TEST_TABLE_NAME).type(MediaType.APPLICATION_JSON_TYPE).post(document);
-        } catch (UniformInterfaceException ex) {
-            assertEquals(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode(), ex.getResponse().getStatus());
-        }
+                .when(queryStore).save(anyString(), any(Document.class));
+
+        Response response = resource.client().target("/v1/document/" + TestUtils.TEST_TABLE_NAME).request(MediaType.APPLICATION_JSON_TYPE).post(Entity.json(document));
+        assertEquals(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode(), response.getStatus());
     }
 
-    @Test(expected = InvalidEntityException.class)
-    public void testSaveDocumentNullId() throws Exception {
-        Document document = new Document(
-                null,
-                System.currentTimeMillis(),
-                factory.objectNode().put("hello", "world"));
-        client().resource("/v1/document/" + TestUtils.TEST_TABLE_NAME).type(MediaType.APPLICATION_JSON_TYPE).post(document);
+    @Test
+    public void testSaveDocumentNoSuchTableError() throws Exception {
+        String id = UUID.randomUUID().toString();
+        Document document = new Document(id, System.currentTimeMillis(), factory.objectNode().put("hello", "world"));
+        doThrow(new QueryStoreException(QueryStoreException.ErrorCode.NO_SUCH_TABLE, "Dummy Exception"))
+                .when(queryStore).save(anyString(), any(Document.class));
+
+        Response response = resource.client().target("/v1/document/" + TestUtils.TEST_TABLE_NAME).request(MediaType.APPLICATION_JSON_TYPE).post(Entity.json(document));
+        assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), response.getStatus());
     }
 
-    @Test(expected = InvalidEntityException.class)
-    public void testSaveDocumentNullData() throws Exception {
-        Document document = new Document(
-                UUID.randomUUID().toString(),
-                System.currentTimeMillis(),
-                null);
-        client().resource("/v1/document/" + TestUtils.TEST_TABLE_NAME).type(MediaType.APPLICATION_JSON_TYPE).post(document);
+    @Test
+    public void testSaveDocumentInvalidRequestError() throws Exception {
+        String id = UUID.randomUUID().toString();
+        Document document = new Document(id, System.currentTimeMillis(), factory.objectNode().put("hello", "world"));
+        doThrow(new QueryStoreException(QueryStoreException.ErrorCode.INVALID_REQUEST, "Dummy Exception"))
+                .when(queryStore).save(anyString(), any(Document.class));
+
+        Response response = resource.client().target("/v1/document/" + TestUtils.TEST_TABLE_NAME).request(MediaType.APPLICATION_JSON_TYPE).post(Entity.json(document));
+        assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), response.getStatus());
     }
 
-    @Test(expected = ContainerException.class)
+    @Test(expected = ProcessingException.class)
     public void testSaveDocumentUnknownObject() throws Exception {
-        client().resource("/v1/document/" + TestUtils.TEST_TABLE_NAME).type(MediaType.APPLICATION_JSON_TYPE).post("hello");
+        resource.client().target("/v1/document/" + TestUtils.TEST_TABLE_NAME).request(MediaType.APPLICATION_JSON_TYPE).post(Entity.json("hello"));
     }
 
-    @Test(expected = InvalidEntityException.class)
+    @Test(expected = ProcessingException.class)
     public void testSaveDocumentEmptyJson() throws Exception {
-        client().resource("/v1/document/" + TestUtils.TEST_TABLE_NAME).type(MediaType.APPLICATION_JSON_TYPE).post("{}");
+        resource.client().target("/v1/document/" + TestUtils.TEST_TABLE_NAME).request(MediaType.APPLICATION_JSON_TYPE).post(Entity.json("{}"));
     }
 
 
@@ -180,10 +113,9 @@ public class DocumentResourceTest extends ResourceTest {
         Document document2 = new Document(id2, System.currentTimeMillis(), factory.objectNode().put("D", "data"));
         documents.add(document1);
         documents.add(document2);
-        client().resource(String.format("/v1/document/%s/bulk", TestUtils.TEST_TABLE_NAME)).type(MediaType.APPLICATION_JSON_TYPE).post(documents);
-
-        compare(document1, queryStore.get(TestUtils.TEST_TABLE_NAME, id1));
-        compare(document2, queryStore.get(TestUtils.TEST_TABLE_NAME, id2));
+        doNothing().when(queryStore).save(anyString(), anyListOf(Document.class));
+        Response response = resource.client().target(String.format("/v1/document/%s/bulk", TestUtils.TEST_TABLE_NAME)).request(MediaType.APPLICATION_JSON_TYPE).post(Entity.json(documents));
+        assertEquals(Response.Status.CREATED.getStatusCode(), response.getStatus());
     }
 
     @Test
@@ -197,112 +129,45 @@ public class DocumentResourceTest extends ResourceTest {
         documents.add(document2);
         doThrow(new QueryStoreException(QueryStoreException.ErrorCode.DOCUMENT_SAVE_ERROR, "Dummy Exception"))
                 .when(queryStore).save(anyString(), anyListOf(Document.class));
-        try {
-            client().resource(String.format("/v1/document/%s/bulk", TestUtils.TEST_TABLE_NAME)).type(MediaType.APPLICATION_JSON_TYPE).post(documents);
-        } catch (UniformInterfaceException ex) {
-            assertEquals(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode(), ex.getResponse().getStatus());
-        }
+
+        Response response = resource.client().target(String.format("/v1/document/%s/bulk", TestUtils.TEST_TABLE_NAME)).request(MediaType.APPLICATION_JSON_TYPE).post(Entity.json(documents));
+        assertEquals(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode(), response.getStatus());
     }
 
-    @Test(expected = InvalidEntityException.class)
-    public void testSaveDocumentsNullDocuments() throws Exception {
-        List<Document> documents = null;
-        client().resource(String.format("/v1/document/%s/bulk", TestUtils.TEST_TABLE_NAME)).type(MediaType.APPLICATION_JSON_TYPE).post(documents);
-    }
-
-    @Test
-    public void testSaveDocumentsNullDocument() throws Exception {
-        List<Document> documents = new Vector<Document>();
-        documents.add(null);
-        documents.add(new Document(UUID.randomUUID().toString(), System.currentTimeMillis(), factory.objectNode().put("d", "d")));
-        try {
-            client().resource(String.format("/v1/document/%s/bulk", TestUtils.TEST_TABLE_NAME))
-                    .type(MediaType.APPLICATION_JSON_TYPE)
-                    .post(documents);
-        } catch (UniformInterfaceException ex) {
-            assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), ex.getResponse().getStatus());
-        }
-    }
-
-    @Test
-    public void testSaveDocumentsNullId() throws Exception {
-        List<Document> documents = new Vector<Document>();
-        documents.add(new Document(null, System.currentTimeMillis(), factory.objectNode().put("d", "d")));
-        try {
-            client().resource(String.format("/v1/document/%s/bulk", TestUtils.TEST_TABLE_NAME))
-                    .type(MediaType.APPLICATION_JSON_TYPE)
-                    .post(documents);
-        } catch (UniformInterfaceException ex) {
-            assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), ex.getResponse().getStatus());
-        }
-    }
-
-    @Test
-    public void testSaveDocumentsNullData() throws Exception {
-        List<Document> documents = new Vector<Document>();
-        documents.add(new Document(UUID.randomUUID().toString(), System.currentTimeMillis(), null));
-        try {
-            client().resource(String.format("/v1/document/%s/bulk", TestUtils.TEST_TABLE_NAME))
-                    .type(MediaType.APPLICATION_JSON_TYPE)
-                    .post(documents);
-        } catch (UniformInterfaceException ex) {
-            assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), ex.getResponse().getStatus());
-        }
-    }
-
-    @Test(expected = MappableContainerException.class)
+    @Test(expected = ProcessingException.class)
     public void testSaveDocumentsInvalidRequestObject() throws Exception {
-        client().resource(String.format("/v1/document/%s/bulk", TestUtils.TEST_TABLE_NAME))
-                .type(MediaType.APPLICATION_JSON_TYPE)
-                .post("Hello");
-    }
-
-    @Test
-    public void testSaveDocumentsEmptyList() throws Exception {
-        try {
-            client().resource(String.format("/v1/document/%s/bulk", TestUtils.TEST_TABLE_NAME))
-                    .type(MediaType.APPLICATION_JSON_TYPE)
-                    .post("[]");
-        } catch (UniformInterfaceException ex) {
-            assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), ex.getResponse().getStatus());
-        }
+        resource.client().target(String.format("/v1/document/%s/bulk", TestUtils.TEST_TABLE_NAME)).request(MediaType.APPLICATION_JSON_TYPE).post(Entity.json("Hello"));
     }
 
     @Test
     public void testGetDocument() throws Exception {
         String id = UUID.randomUUID().toString();
         Document document = new Document(id, System.currentTimeMillis(), factory.objectNode().put("D", "data"));
-        queryStore.save(TestUtils.TEST_TABLE_NAME, document);
+        when(queryStore.get(anyString(), anyString())).thenReturn(document);
 
-        Document response = client().resource(String.format("/v1/document/%s/%s", TestUtils.TEST_TABLE_NAME, id))
-                .get(Document.class);
-        compare(document, response);
+        Response response = resource.client().target(String.format("/v1/document/%s/%s", TestUtils.TEST_TABLE_NAME, id)).request().get();
+        Document responseEntity = response.readEntity(Document.class);
+        assertEquals(document.getId(), responseEntity.getId());
+        assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
     }
 
     @Test
     public void testGetDocumentMissingId() throws Exception {
         String id = UUID.randomUUID().toString();
-        try {
-            client().resource(String.format("/v1/document/%s/%s", TestUtils.TEST_TABLE_NAME, id))
-                    .get(Document.class);
-        } catch (UniformInterfaceException ex) {
-            assertEquals(Response.Status.NOT_FOUND.getStatusCode(), ex.getResponse().getStatus());
-        }
+        when(queryStore.get(eq(TestUtils.TEST_TABLE_NAME), eq(id))).thenThrow(new QueryStoreException(QueryStoreException.ErrorCode.DOCUMENT_NOT_FOUND, "Dummy"));
+
+        Response response = resource.client().target(String.format("/v1/document/%s/%s", TestUtils.TEST_TABLE_NAME, id)).request().get();
+        assertEquals(Response.Status.NOT_FOUND.getStatusCode(), response.getStatus());
     }
 
     @Test
     public void testGetDocumentInternalError() throws Exception {
         String id = UUID.randomUUID().toString();
-        try {
-            doThrow(new QueryStoreException(QueryStoreException.ErrorCode.DOCUMENT_GET_ERROR, "Error"))
+        doThrow(new QueryStoreException(QueryStoreException.ErrorCode.DOCUMENT_GET_ERROR, "Error"))
                     .when(queryStore).get(anyString(), anyString());
-            client().resource(String.format("/v1/document/%s/%s", TestUtils.TEST_TABLE_NAME, id))
-                    .get(Document.class);
-        } catch (UniformInterfaceException ex) {
-            assertEquals(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode(), ex.getResponse().getStatus());
-        }
+        Response response = resource.client().target(String.format("/v1/document/%s/%s", TestUtils.TEST_TABLE_NAME, id)).request().get();
+        assertEquals(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode(), response.getStatus());
     }
-
 
     @Test
     public void testGetDocuments() throws Exception {
@@ -313,58 +178,38 @@ public class DocumentResourceTest extends ResourceTest {
         Document document2 = new Document(id2, System.currentTimeMillis(), factory.objectNode().put("D", "data"));
         documents.add(document1);
         documents.add(document2);
-        queryStore.save(TestUtils.TEST_TABLE_NAME, documents);
-        String response = client().resource(String.format("/v1/document/%s", TestUtils.TEST_TABLE_NAME))
+
+        when(queryStore.get(eq(TestUtils.TEST_TABLE_NAME), eq(Arrays.asList(id1, id2)))).thenReturn(documents);
+
+        Response response = resource.client().target(String.format("/v1/document/%s", TestUtils.TEST_TABLE_NAME))
                 .queryParam("id", id1)
                 .queryParam("id", id2)
-                .get(String.class);
+                .request().get();
 
-        String expectedResponse = mapper.writeValueAsString(documents);
-        assertEquals(expectedResponse, response);
-    }
-
-    @Test
-    public void testGetDocumentsNoIds() throws Exception {
-        String response = client().resource(String.format("/v1/document/%s", TestUtils.TEST_TABLE_NAME))
-                .get(String.class);
-        String expectedResponse = mapper.writeValueAsString(new ArrayList<Document>());
-        assertEquals(expectedResponse, response);
+        List<Document> responseEntity = response.readEntity(List.class);
+        assertEquals(documents.size(), responseEntity.size());
+        assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
     }
 
     @Test
     public void testGetDocumentsMissingIds() throws Exception {
-        try {
-            client().resource(String.format("/v1/document/%s", TestUtils.TEST_TABLE_NAME))
+        when(queryStore.get(eq(TestUtils.TEST_TABLE_NAME), anyList())).thenThrow(new QueryStoreException(QueryStoreException.ErrorCode.DOCUMENT_NOT_FOUND, "Dummy"));
+        Response response = resource.client().target(String.format("/v1/document/%s", TestUtils.TEST_TABLE_NAME))
                     .queryParam("id", UUID.randomUUID().toString())
-                    .get(String.class);
-        } catch (UniformInterfaceException ex) {
-            assertEquals(Response.Status.NOT_FOUND.getStatusCode(), ex.getResponse().getStatus());
-        }
+                    .request().get();
+
+        assertEquals(Response.Status.NOT_FOUND.getStatusCode(), response.getStatus());
     }
 
     @Test
     public void testGetDocumentsInternalError() throws Exception {
-        try {
-            doThrow(new QueryStoreException(QueryStoreException.ErrorCode.DOCUMENT_GET_ERROR, "Error"))
+        doThrow(new QueryStoreException(QueryStoreException.ErrorCode.DOCUMENT_GET_ERROR, "Error"))
                     .when(queryStore).get(anyString(), anyListOf(String.class));
-            client().resource(String.format("/v1/document/%s", TestUtils.TEST_TABLE_NAME))
+
+        Response response = resource.client().target(String.format("/v1/document/%s", TestUtils.TEST_TABLE_NAME))
                     .queryParam("id", UUID.randomUUID().toString())
-                    .get(String.class);
-        } catch (UniformInterfaceException ex) {
-            assertEquals(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode(), ex.getResponse().getStatus());
-        }
-    }
+                    .request().get();
 
-
-    public void compare(Document expected, Document actual) throws Exception {
-        assertNotNull(expected);
-        assertNotNull(actual);
-        assertNotNull("Actual document Id should not be null", actual.getId());
-        assertNotNull("Actual document data should not be null", actual.getData());
-        assertEquals("Actual Doc Id should match expected Doc Id", expected.getId(), actual.getId());
-        assertEquals("Actual Doc Timestamp should match expected Doc Timestamp", expected.getTimestamp(), actual.getTimestamp());
-        Map<String, Object> expectedMap = mapper.convertValue(expected.getData(), new TypeReference<HashMap<String, Object>>() {});
-        Map<String, Object> actualMap = mapper.convertValue(actual.getData(), new TypeReference<HashMap<String, Object>>() {});
-        assertEquals("Actual data should match expected data", expectedMap, actualMap);
+        assertEquals(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode(), response.getStatus());
     }
 }

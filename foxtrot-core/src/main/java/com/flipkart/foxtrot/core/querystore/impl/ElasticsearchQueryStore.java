@@ -77,12 +77,12 @@ public class ElasticsearchQueryStore implements QueryStore {
                 throw new QueryStoreException(QueryStoreException.ErrorCode.NO_SUCH_TABLE,
                         "No table exists with the name: " + table);
             }
-            if (new DateTime().plusDays(1).minus(document.getTimestamp()).getMillis() <  0) {
+            if (new DateTime().plusDays(1).minus(document.getTimestamp()).getMillis() < 0) {
                 return;
             }
             dataStore.save(tableMetadataManager.get(table), document);
             long timestamp = document.getTimestamp();
-            Stopwatch stopwatch = new Stopwatch();
+            Stopwatch stopwatch = Stopwatch.createUnstarted();
             stopwatch.start();
             connection.getClient()
                     .prepareIndex()
@@ -94,7 +94,7 @@ public class ElasticsearchQueryStore implements QueryStore {
                     .setConsistencyLevel(WriteConsistencyLevel.QUORUM)
                     .execute()
                     .get(2, TimeUnit.SECONDS);
-            logger.info(String.format("ES took : %d table : %s", stopwatch.elapsedMillis(), table));
+            logger.info(String.format("ES took : %d table : %s", stopwatch.elapsed(TimeUnit.MILLISECONDS), table));
         } catch (QueryStoreException ex) {
             throw ex;
         } catch (DataStoreException ex) {
@@ -135,7 +135,7 @@ public class ElasticsearchQueryStore implements QueryStore {
 
             for (Document document : documents) {
                 long timestamp = document.getTimestamp();
-                if (dateTime.minus(timestamp).getMillis() <  0) {
+                if (dateTime.minus(timestamp).getMillis() < 0) {
                     continue;
                 }
                 final String index = ElasticsearchUtils.getCurrentIndex(table, timestamp);
@@ -147,14 +147,14 @@ public class ElasticsearchQueryStore implements QueryStore {
                         .source(mapper.writeValueAsBytes(document.getData()));
                 bulkRequestBuilder.add(indexRequest);
             }
-            if (bulkRequestBuilder.numberOfActions() > 0){
-                Stopwatch stopwatch = new Stopwatch();
+            if (bulkRequestBuilder.numberOfActions() > 0) {
+                Stopwatch stopwatch = Stopwatch.createUnstarted();
                 stopwatch.start();
                 BulkResponse responses = bulkRequestBuilder
                         .setConsistencyLevel(WriteConsistencyLevel.QUORUM)
                         .execute()
                         .get(10, TimeUnit.SECONDS);
-                logger.info(String.format("ES took : %d table : %s", stopwatch.elapsedMillis(), table));
+                logger.info(String.format("ES took : %d table : %s", stopwatch.elapsed(TimeUnit.MILLISECONDS), table));
                 int failedCount = 0;
                 for (int i = 0; i < responses.getItems().length; i++) {
                     BulkItemResponse itemResponse = responses.getItems()[i];
@@ -309,12 +309,12 @@ public class ElasticsearchQueryStore implements QueryStore {
             logger.warn(String.format("Deleting Indexes - Indexes - %s", indicesToDelete));
             if (indicesToDelete.size() > 0) {
                 List<List<String>> subLists = Lists.partition(indicesToDelete, 5);
-                for ( List<String> subList : subLists ){
+                for (List<String> subList : subLists) {
                     try {
                         connection.getClient().admin().indices().prepareDelete(subList.toArray(new String[subList.size()]))
                                 .execute().actionGet(TimeValue.timeValueMinutes(5));
                         logger.warn(String.format("Deleted Indexes - Indexes - %s", subList));
-                    } catch (Exception e){
+                    } catch (Exception e) {
                         logger.error(String.format("Index deletion failed - Indexes - %s", subList), e);
                     }
                 }

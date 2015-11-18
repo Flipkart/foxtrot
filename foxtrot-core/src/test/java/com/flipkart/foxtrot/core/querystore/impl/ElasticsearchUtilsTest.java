@@ -8,7 +8,7 @@ import com.flipkart.foxtrot.common.query.numeric.GreaterEqualFilter;
 import com.flipkart.foxtrot.common.query.numeric.GreaterThanFilter;
 import com.flipkart.foxtrot.common.query.numeric.LessThanFilter;
 import com.flipkart.foxtrot.core.common.PeriodSelector;
-import com.yammer.dropwizard.util.Duration;
+import io.dropwizard.util.Duration;
 import org.joda.time.DateTimeZone;
 import org.junit.Assert;
 import org.junit.Rule;
