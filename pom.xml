@@ -78,11 +78,11 @@
             </exclusions>
         </dependency>
         <dependency>
-            <groupId>com.yammer.dropwizard</groupId>
+            <groupId>io.dropwizard</groupId>
             <artifactId>dropwizard-core</artifactId>
-            <version>0.6.2</version>
+            <version>0.8.2</version>
 			<exclusions>
-				<exclusion>
+                <exclusion>
 					<groupId>org.eclipse.jetty</groupId>
 					<artifactId>jetty-server</artifactId>
 				</exclusion>
@@ -109,10 +109,15 @@
 			<version>8.1.10.v20130312</version>
 		</dependency>
         <dependency>
-            <groupId>com.yammer.dropwizard</groupId>
+            <groupId>io.dropwizard</groupId>
             <artifactId>dropwizard-testing</artifactId>
-            <version>0.6.2</version>
+            <version>0.8.2</version>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.dropwizard</groupId>
+            <artifactId>dropwizard-assets</artifactId>
+            <version>0.8.2</version>
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>

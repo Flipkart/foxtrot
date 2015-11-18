@@ -246,7 +246,7 @@ public class TrendActionTest {
             queryExecutor.execute(trendRequest);
             fail();
         } catch (QueryStoreException ex) {
-            assertEquals(QueryStoreException.ErrorCode.INVALID_REQUEST, ex.getErrorCode());
+            assertEquals(QueryStoreException.ErrorCode.NO_SUCH_TABLE, ex.getErrorCode());
         }
     }
 

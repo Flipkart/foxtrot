@@ -15,8 +15,8 @@
  */
 package com.flipkart.foxtrot.server.resources;
 
+import com.codahale.metrics.health.HealthCheck;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConnection;
-import com.yammer.metrics.core.HealthCheck;
 import org.elasticsearch.action.admin.cluster.health.ClusterHealthResponse;
 
 /**
@@ -24,10 +24,11 @@ import org.elasticsearch.action.admin.cluster.health.ClusterHealthResponse;
  */
 
 public class ElasticSearchHealthCheck extends HealthCheck{
+    private final String name;
     private ElasticsearchConnection elasticsearchConnection;
 
     public ElasticSearchHealthCheck(String name, ElasticsearchConnection elasticsearchConnection) {
-        super(name);
+        this.name = name;
         this.elasticsearchConnection = elasticsearchConnection;
     }
 
@@ -43,5 +44,9 @@ public class ElasticSearchHealthCheck extends HealthCheck{
         return (response.getStatus().name().equalsIgnoreCase("GREEN")
                 || response.getStatus().name().equalsIgnoreCase("YELLOW"))
                 ? HealthCheck.Result.healthy(): HealthCheck.Result.unhealthy("Cluster unhealthy");
+    }
+
+    public String getName() {
+        return name;
     }
 }

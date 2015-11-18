@@ -50,8 +50,14 @@ public class AnalyticsResource {
             return queryExecutor.execute(request);
         } catch (QueryStoreException e) {
             logger.error(String.format("Error running sync request %s", request), e);
-            throw new WebApplicationException(
-                    Response.serverError().entity(Collections.singletonMap("error", e.getMessage())).build());
+            switch (e.getErrorCode()) {
+                case NO_SUCH_TABLE:
+                    throw new WebApplicationException(
+                            Response.status(Response.Status.BAD_REQUEST).entity(Collections.singletonMap("error", e.getMessage())).build());
+                default:
+                    throw new WebApplicationException(
+                            Response.serverError().entity(Collections.singletonMap("error", e.getMessage())).build());
+            }
         }
     }
 
@@ -62,8 +68,14 @@ public class AnalyticsResource {
             return queryExecutor.executeAsync(request);
         } catch (QueryStoreException e) {
             logger.error(String.format("Error running async request %s", request), e);
-            throw new WebApplicationException(
-                    Response.serverError().entity(Collections.singletonMap("error", e.getMessage())).build());
+            switch (e.getErrorCode()) {
+                case NO_SUCH_TABLE:
+                    throw new WebApplicationException(
+                            Response.status(Response.Status.BAD_REQUEST).entity(Collections.singletonMap("error", e.getMessage())).build());
+                default:
+                    throw new WebApplicationException(
+                            Response.serverError().entity(Collections.singletonMap("error", e.getMessage())).build());
+            }
         }
     }
 }

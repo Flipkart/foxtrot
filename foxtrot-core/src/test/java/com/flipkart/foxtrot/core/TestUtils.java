@@ -92,6 +92,12 @@ public class TestUtils {
         mapper.getSubtypeResolver().registerSubtypes(types.toArray(new NamedType[types.size()]));
     }
 
+    public static void registerSubTypes(ObjectMapper mapper, Class someClass) {
+        Reflections reflections = new Reflections("com.flipkart.foxtrot", new SubTypesScanner());
+        Set<Class> subTypes = reflections.getSubTypesOf(someClass);
+        mapper.getSubtypeResolver().registerSubtypes(subTypes.toArray(new Class[subTypes.size()]));
+    }
+
     public static List<Document> getQueryDocuments(ObjectMapper mapper) {
         List<Document> documents = new Vector<Document>();
         documents.add(TestUtils.getDocument("Z", 1397658117004L, new Object[]{"os", "android", "device", "nexus", "battery", 24}, mapper));
