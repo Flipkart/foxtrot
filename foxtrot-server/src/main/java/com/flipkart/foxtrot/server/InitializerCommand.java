@@ -19,6 +19,7 @@ package com.flipkart.foxtrot.server;
 import com.flipkart.foxtrot.core.datastore.impl.hbase.HBaseUtil;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConfig;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConnection;
+import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
 import com.flipkart.foxtrot.server.config.FoxtrotServerConfiguration;
 import com.yammer.dropwizard.cli.ConfiguredCommand;
 import com.yammer.dropwizard.config.Bootstrap;
@@ -34,81 +35,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class InitializerCommand extends ConfiguredCommand<FoxtrotServerConfiguration> {
-    private static final String MAPPING = "{\n" +
-            "        \"document\" : {\n" +
-            "            \"_source\" : { \"enabled\" : false },\n" +
-            "            \"_all\" : { \"enabled\" : false },\n" +
-            "            \"_timestamp\" : { \"enabled\" : true },\n" +
-            "\n" +
-            "            \"dynamic_templates\" : [\n" +
-            "                {\n" +
-            "                    \"template_timestamp\" : {\n" +
-            "                        \"match\" : \"timestamp\",\n" +
-            "                        \"mapping\" : {\n" +
-            "                            \"store\" : false,\n" +
-            "                            \"index\" : \"not_analyzed\",\n" +
-            "                            \"type\" : \"date\"\n" +
-            "                        }\n" +
-            "                    }\n" +
-            "                },\n" +
-            "                {\n" +
-            "                    \"template_no_store_analyzed\" : {\n" +
-            "                        \"match\" : \"*\",\n" +
-            "                        \"match_mapping_type\" : \"string\",\n" +
-            "                        \"mapping\" : {\n" +
-            "                            \"store\" : false,\n" +
-            "                            \"index\" : \"not_analyzed\",\n" +
-            "                            \"fielddata\": {\n" +
-            "                                \"format\": \"doc_values\"\n" +
-            "                            },\n" +
-            "                            \"fields\" : {\n" +
-            "                                \"analyzed\": {\n" +
-            "                                    \"store\" : false,\n" +
-            "                                    \"type\": \"string\",\n" +
-            "                                    \"index\": \"analyzed\",\n" +
-            "                                    \"fielddata\": {\n" +
-            "                                        \"format\": \"disabled\"\n" +
-            "                                    }\n" +
-            "                                }\n" +
-            "                            }\n" +
-            "                        }\n" +
-            "                    }\n" +
-            "                },\n" +
-            "                {\n" +
-            "                    \"template_no_store_dv\" : {\n" +
-            "                        \"match_mapping_type\": \"date|boolean|double|long|integer\",\n" +
-            "                        \"match_pattern\": \"regex\",\n" +
-            "                        \"path_match\": \".*\",\n" +
-            "                        \"mapping\" : {\n" +
-            "                            \"store\" : false,\n" +
-            "                            \"index\" : \"not_analyzed\",\n" +
-            "                            \"fielddata\": {\n" +
-            "                                \"format\": \"doc_values\"\n" +
-            "                            }\n" +
-            "                        }\n" +
-            "                    }\n" +
-            "                },\n" +
-            "                {\n" +
-            "                    \"template_no_store\" : {\n" +
-            "                        \"match_mapping_type\": \"double\",\n" +
-            "                        \"match_pattern\": \"regex\",\n" +
-            "                        \"path_match\": \".*\",\n" +
-            "                        \"mapping\" : {\n" +
-            "                            \"store\" : false,\n" +
-            "                            \"index\" : \"not_analyzed\",\n" +
-            "                            \"fielddata\": {\n" +
-            "                                \"format\": \"doc_values\"\n" +
-            "                            }\n" +
-            "                        }\n" +
-            "                    }\n" +
-            "                }\n" +
-            "            ]\n" +
-            "        }\n" +
-            "    }";
+
     private static final Logger logger = LoggerFactory.getLogger(InitializerCommand.class.getSimpleName());
 
     public InitializerCommand() {
-        super("initialize", "Initializez elasticsearch and hbase");
+        super("initialize", "Initialize elasticsearch and hbase");
     }
 
     @Override
@@ -123,7 +54,7 @@ public class InitializerCommand extends ConfiguredCommand<FoxtrotServerConfigura
                 .get();
 
         int numDataNodes = clusterHealth.getNumberOfDataNodes();
-        int numReplicas = (numDataNodes < 2) ? 0: 1;
+        int numReplicas = (numDataNodes < 2) ? 0 : 1;
 
         logger.info("# data nodes: {}, Setting replica count to: {}", numDataNodes, numReplicas);
 
@@ -137,7 +68,7 @@ public class InitializerCommand extends ConfiguredCommand<FoxtrotServerConfigura
                                 .put("number_of_shards", 10)
                                 .put("number_of_replicas", numReplicas)
                 )
-                .addMapping("document", MAPPING)
+                .addMapping("document", ElasticsearchUtils.getDocumentMapping())
                 .execute()
                 .get();
         logger.info("Create mapping: {}", response.isAcknowledged());
@@ -160,14 +91,13 @@ public class InitializerCommand extends ConfiguredCommand<FoxtrotServerConfigura
                     .execute()
                     .get();
             logger.info("'{}' creation acknowledged: {}", indexName, response.isAcknowledged());
-            if(!response.isAcknowledged()) {
+            if (!response.isAcknowledged()) {
                 logger.error("Index {} could not be created.", indexName);
             }
         } catch (Exception e) {
-            if(null != e.getCause()) {
+            if (null != e.getCause()) {
                 logger.error("Index {} could not be created: {}", indexName, e.getCause().getLocalizedMessage());
-            }
-            else {
+            } else {
                 logger.error("Index {} could not be created: {}", indexName, e.getLocalizedMessage());
             }
         }
