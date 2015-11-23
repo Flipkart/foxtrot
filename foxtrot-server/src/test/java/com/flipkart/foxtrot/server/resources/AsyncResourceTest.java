@@ -44,61 +44,6 @@ public class AsyncResourceTest {
     @ClassRule
     public static final ResourceTestRule resource = ResourceTestRule.builder().addResource(new AsyncResource()).build();
 
-//    private TableMetadataManager tableMetadataManager;
-//    private MockElasticsearchServer elasticsearchServer;
-//    private HazelcastInstance hazelcastInstance;
-//    private QueryExecutor queryExecutor;
-//
-//    public AsyncResourceTest() throws Exception {
-//        getObjectMapperFactory().setSerializationInclusion(JsonInclude.Include.NON_NULL);
-//        getObjectMapperFactory().setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
-//        SubtypeResolver subtypeResolver = new StdSubtypeResolver();
-//        getObjectMapperFactory().setSubtypeResolver(subtypeResolver);
-//
-//        ObjectMapper mapper = getObjectMapperFactory().build();
-//        ElasticsearchUtils.setMapper(mapper);
-//        DataStore dataStore = TestUtils.getDataStore();
-//
-//        //Initializing Cache Factory
-//        hazelcastInstance = new TestHazelcastInstanceFactory(1).newHazelcastInstance();
-//        HazelcastConnection hazelcastConnection = Mockito.mock(HazelcastConnection.class);
-//        when(hazelcastConnection.getHazelcast()).thenReturn(hazelcastInstance);
-//        CacheUtils.setCacheFactory(new DistributedCacheFactory(hazelcastConnection, mapper));
-//
-//        elasticsearchServer = new MockElasticsearchServer(UUID.randomUUID().toString());
-//        ElasticsearchConnection elasticsearchConnection = Mockito.mock(ElasticsearchConnection.class);
-//        when(elasticsearchConnection.getClient()).thenReturn(elasticsearchServer.getClient());
-//        ElasticsearchUtils.initializeMappings(elasticsearchServer.getClient());
-//
-//        Settings indexSettings = ImmutableSettings.settingsBuilder().put("number_of_replicas", 0).build();
-//        CreateIndexRequest createRequest = new CreateIndexRequest(TableMapStore.TABLE_META_INDEX).settings(indexSettings);
-//        elasticsearchServer.getClient().admin().indices().create(createRequest).actionGet();
-//        elasticsearchServer.getClient().admin().cluster().prepareHealth().setWaitForGreenStatus().execute().actionGet();
-//
-//        tableMetadataManager = Mockito.mock(TableMetadataManager.class);
-//        tableMetadataManager.start();
-//        when(tableMetadataManager.exists(anyString())).thenReturn(true);
-//        when(tableMetadataManager.get(anyString())).thenReturn(TestUtils.TEST_TABLE);
-//
-//        QueryStore queryStore = new ElasticsearchQueryStore(tableMetadataManager, elasticsearchConnection, dataStore);
-//
-//        AnalyticsLoader analyticsLoader = new AnalyticsLoader(tableMetadataManager, dataStore, queryStore, elasticsearchConnection);
-//        TestUtils.registerActions(analyticsLoader, mapper);
-//        ExecutorService executorService = Executors.newFixedThreadPool(1);
-//        queryExecutor = new QueryExecutor(analyticsLoader, executorService);
-//        List<Document> documents = TestUtils.getGroupDocuments(mapper);
-//        queryStore.save(TestUtils.TEST_TABLE_NAME, documents);
-//        for (Document document : documents) {
-//            elasticsearchServer.getClient().admin().indices()
-//                    .prepareRefresh(ElasticsearchUtils.getCurrentIndex(TestUtils.TEST_TABLE_NAME, document.getTimestamp()))
-//                    .setForce(true).execute().actionGet();
-//        }
-//    }
-
-    public void setUp() throws Exception {
-
-    }
-
     @PrepareForTest(CacheUtils.class)
     @Ignore
     @Test
@@ -130,7 +75,7 @@ public class AsyncResourceTest {
         Cache cache = mock(Cache.class);
         doReturn(groupResponse).when(cache).get(dataToken.getKey());
         when(CacheUtils.getCacheFor(dataToken.getAction())).thenReturn(cache);
-//
+
         Response response = resource.client().target("/v1/async/" + dataToken.getAction() + "/" + dataToken.getKey()).request().get();
 
         assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
