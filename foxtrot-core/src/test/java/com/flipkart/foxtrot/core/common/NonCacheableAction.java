@@ -51,7 +51,7 @@ public class NonCacheableAction extends Action<NonCacheableActionRequest> {
     }
 
     @Override
-    protected boolean parameterTableExists(NonCacheableActionRequest parameter) {
+    protected boolean validate() {
         return true;
     }
 }

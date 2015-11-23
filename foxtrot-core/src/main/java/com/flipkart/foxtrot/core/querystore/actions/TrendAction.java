@@ -131,10 +131,10 @@ public class TrendAction extends Action<TrendRequest> {
     }
 
     @Override
-    protected boolean parameterTableExists(TrendRequest parameter) {
-        parameter.setTable(ElasticsearchUtils.getValidTableName(parameter.getTable()));
+    protected boolean validate() {
+        getParameter().setTable(ElasticsearchUtils.getValidTableName(getParameter().getTable()));
         try {
-            return !(parameter.getTable() == null || !getTableMetadataManager().exists(ElasticsearchUtils.getValidTableName(parameter.getTable())));
+            return !(getParameter().getTable() == null || !getTableMetadataManager().exists(ElasticsearchUtils.getValidTableName(getParameter().getTable())));
         } catch (Exception e) {
             logger.error("Error while checking table's existence.", e);
             return false;

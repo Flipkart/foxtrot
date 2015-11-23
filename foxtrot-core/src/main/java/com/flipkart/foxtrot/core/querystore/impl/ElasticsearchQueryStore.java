@@ -82,8 +82,7 @@ public class ElasticsearchQueryStore implements QueryStore {
             }
             dataStore.save(tableMetadataManager.get(table), document);
             long timestamp = document.getTimestamp();
-            Stopwatch stopwatch = Stopwatch.createUnstarted();
-            stopwatch.start();
+            Stopwatch stopwatch = Stopwatch.createStarted();
             connection.getClient()
                     .prepareIndex()
                     .setIndex(ElasticsearchUtils.getCurrentIndex(table, timestamp))
@@ -148,8 +147,7 @@ public class ElasticsearchQueryStore implements QueryStore {
                 bulkRequestBuilder.add(indexRequest);
             }
             if (bulkRequestBuilder.numberOfActions() > 0) {
-                Stopwatch stopwatch = Stopwatch.createUnstarted();
-                stopwatch.start();
+                Stopwatch stopwatch = Stopwatch.createStarted();
                 BulkResponse responses = bulkRequestBuilder
                         .setConsistencyLevel(WriteConsistencyLevel.QUORUM)
                         .execute()

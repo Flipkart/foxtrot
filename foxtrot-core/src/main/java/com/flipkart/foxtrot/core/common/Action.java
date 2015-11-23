@@ -72,7 +72,7 @@ public abstract class Action<ParameterType extends ActionRequest> implements Cal
     }
 
     public AsyncDataToken execute(ExecutorService executor) throws QueryStoreException {
-        if (!parameterTableExists(parameter)) {
+        if (!validate()) {
             throw new QueryStoreException(QueryStoreException.ErrorCode.NO_SUCH_TABLE, "Table/s not found");
         }
         executor.submit(this);
@@ -87,8 +87,9 @@ public abstract class Action<ParameterType extends ActionRequest> implements Cal
     }
 
     public ActionResponse execute() throws QueryStoreException {
-        if (!parameterTableExists(parameter)) {
-            throw new QueryStoreException(QueryStoreException.ErrorCode.NO_SUCH_TABLE, "Table/s not found");
+        if (!validate()) {
+            throw new QueryStoreException(QueryStoreException.ErrorCode.INVALID_REQUEST, "Request validation failed" +
+                    "");
         }
         final String cacheKeyValue = cacheKey();
         if (isCacheable()) {
@@ -119,7 +120,7 @@ public abstract class Action<ParameterType extends ActionRequest> implements Cal
 
     abstract public ActionResponse execute(ParameterType parameter) throws QueryStoreException;
 
-    abstract protected boolean parameterTableExists(ParameterType parameter);
+    abstract protected boolean validate();
 
     public DataStore getDataStore() {
         return dataStore;

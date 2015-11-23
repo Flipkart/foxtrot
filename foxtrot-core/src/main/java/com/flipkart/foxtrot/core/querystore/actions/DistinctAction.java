@@ -116,10 +116,10 @@ public class DistinctAction extends Action<DistinctRequest> {
     }
 
     @Override
-    protected boolean parameterTableExists(DistinctRequest parameter) {
-        parameter.setTable(ElasticsearchUtils.getValidTableName(parameter.getTable()));
+    protected boolean validate() {
+        getParameter().setTable(ElasticsearchUtils.getValidTableName(getParameter().getTable()));
         try {
-            return !(parameter.getTable() == null || !getTableMetadataManager().exists(ElasticsearchUtils.getValidTableName(parameter.getTable())));
+            return !(getParameter().getTable() == null || !getTableMetadataManager().exists(ElasticsearchUtils.getValidTableName(getParameter().getTable())));
         } catch (Exception e) {
             logger.error("Error while checking table's existence.", e);
             return false;

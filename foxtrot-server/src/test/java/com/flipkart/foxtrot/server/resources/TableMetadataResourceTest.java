@@ -19,6 +19,7 @@ import com.flipkart.foxtrot.common.Table;
 import com.flipkart.foxtrot.core.TestUtils;
 import com.flipkart.foxtrot.core.querystore.TableMetadataManager;
 import io.dropwizard.testing.junit.ResourceTestRule;
+import org.apache.http.HttpStatus;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
@@ -64,16 +65,18 @@ public class TableMetadataResourceTest {
         assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
     }
 
-    @Test(expected = ProcessingException.class)
+    @Test
     public void testSaveNullTable() throws Exception {
         Table table = null;
-        resource.client().target("/v1/tables").request(MediaType.APPLICATION_JSON_TYPE).post(Entity.json(table));
+        Response response = resource.client().target("/v1/tables").request(MediaType.APPLICATION_JSON_TYPE).post(Entity.json(table));
+        assertEquals(HttpStatus.SC_UNPROCESSABLE_ENTITY, response.getStatus());
     }
 
-    @Test(expected = ProcessingException.class)
+    @Test
     public void testSaveNullTableName() throws Exception {
         Table table = new Table(null, 30);
-        resource.client().target("/v1/tables").request(MediaType.APPLICATION_JSON_TYPE).post(Entity.json(table));
+        Response response = resource.client().target("/v1/tables").request(MediaType.APPLICATION_JSON_TYPE).post(Entity.json(table));
+        assertEquals(HttpStatus.SC_UNPROCESSABLE_ENTITY, response.getStatus());
     }
 
     @Test
@@ -84,10 +87,11 @@ public class TableMetadataResourceTest {
         assertEquals(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode(), response.getStatus());
     }
 
-    @Test(expected = ProcessingException.class)
+    @Test
     public void testSaveIllegalTtl() throws Exception {
         Table table = new Table(TestUtils.TEST_TABLE_NAME, 0);
-        resource.client().target("/v1/tables").request(MediaType.APPLICATION_JSON_TYPE).post(Entity.json(table));
+        Response response = resource.client().target("/v1/tables").request(MediaType.APPLICATION_JSON_TYPE).post(Entity.json(table));
+        assertEquals(HttpStatus.SC_UNPROCESSABLE_ENTITY, response.getStatus());
     }
 
     @Test

@@ -21,6 +21,7 @@ import com.flipkart.foxtrot.core.TestUtils;
 import com.flipkart.foxtrot.core.querystore.QueryStore;
 import com.flipkart.foxtrot.core.querystore.QueryStoreException;
 import io.dropwizard.testing.junit.ResourceTestRule;
+import org.apache.http.HttpStatus;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
@@ -98,9 +99,10 @@ public class DocumentResourceTest {
         resource.client().target("/v1/document/" + TestUtils.TEST_TABLE_NAME).request(MediaType.APPLICATION_JSON_TYPE).post(Entity.json("hello"));
     }
 
-    @Test(expected = ProcessingException.class)
+    @Test
     public void testSaveDocumentEmptyJson() throws Exception {
-        resource.client().target("/v1/document/" + TestUtils.TEST_TABLE_NAME).request(MediaType.APPLICATION_JSON_TYPE).post(Entity.json("{}"));
+        Response response = resource.client().target("/v1/document/" + TestUtils.TEST_TABLE_NAME).request(MediaType.APPLICATION_JSON_TYPE).post(Entity.json("{}"));
+        assertEquals(HttpStatus.SC_UNPROCESSABLE_ENTITY, response.getStatus());
     }
 
 
