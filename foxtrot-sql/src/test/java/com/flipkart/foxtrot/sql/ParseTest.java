@@ -1,10 +1,13 @@
 package com.flipkart.foxtrot.sql;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectWriter;
 import org.junit.Test;
 
 public class ParseTest {
     @Test
-    public void test() {
+    public void test() throws Exception {
         //TODO
         /*ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
@@ -65,5 +68,17 @@ public class ParseTest {
             ActionRequest request = queryTranslator.translate(sql);
             System.out.println(writer.writeValueAsString(request));
         }*/
+
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
+        objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+        ObjectWriter writer = objectMapper.writerWithDefaultPrettyPrinter();
+        {
+            String sql = "select * from europa where a is null";
+            QueryTranslator queryTranslator = new QueryTranslator();
+            FqlQuery query = queryTranslator.translate(sql);
+            System.out.println(writer.writeValueAsString(query));
+        }
     }
 }
