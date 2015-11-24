@@ -41,6 +41,10 @@ import com.flipkart.foxtrot.core.querystore.impl.*;
 import com.google.common.collect.Lists;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.test.TestHazelcastInstanceFactory;
+
+import org.elasticsearch.action.admin.indices.get.GetIndexRequest;
+import org.elasticsearch.action.admin.indices.get.GetIndexResponse;
+import org.joda.time.LocalDateTime;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -66,6 +70,7 @@ public class FilterActionTest {
     private ObjectMapper mapper = new ObjectMapper();
     private MockElasticsearchServer elasticsearchServer;
     private HazelcastInstance hazelcastInstance;
+    private QueryStore queryStore;
 
     @Before
     public void setUp() throws Exception {
@@ -87,7 +92,7 @@ public class FilterActionTest {
         TableMetadataManager tableMetadataManager = Mockito.mock(TableMetadataManager.class);
         when(tableMetadataManager.exists(TestUtils.TEST_TABLE_NAME)).thenReturn(true);
         when(tableMetadataManager.get(anyString())).thenReturn(TestUtils.TEST_TABLE);
-        QueryStore queryStore = new ElasticsearchQueryStore(tableMetadataManager, elasticsearchConnection, dataStore);
+        queryStore = new ElasticsearchQueryStore(tableMetadataManager, elasticsearchConnection, dataStore);
         List<Document> documents = TestUtils.getQueryDocuments(mapper);
         //when(queryStore.get(anyString(), Matchers.anyListOf(String.class))).thenReturn(documents);
         AnalyticsLoader analyticsLoader = new AnalyticsLoader(tableMetadataManager, dataStore, queryStore, elasticsearchConnection);
@@ -659,6 +664,28 @@ public class FilterActionTest {
         compare(documents, actualResponse.getDocuments());
     }
 
+    @SuppressWarnings("deprecation")
+    @Test
+    public void testMissingIndicesQuery() throws QueryStoreException {
+        Query query = new Query();
+        query.setTable(TestUtils.TEST_TABLE_NAME);
+        
+        List<Document> documents = TestUtils.getQueryDocumentsDifferentDate(mapper, new Date(2014, 5, 1).getTime());
+        documents.addAll( TestUtils.getQueryDocumentsDifferentDate(mapper, new Date(2014, 5, 5).getTime()));
+        queryStore.save(TestUtils.TEST_TABLE_NAME, documents);
+        for (Document document : documents) {
+            elasticsearchServer.getClient().admin().indices()
+                    .prepareRefresh(ElasticsearchUtils.getCurrentIndex(TestUtils.TEST_TABLE_NAME, document.getTimestamp()))
+                    .setForce(true).execute().actionGet();
+        }
+        GetIndexResponse response = elasticsearchServer.getClient().admin().indices().getIndex(new GetIndexRequest()).actionGet();
+        assertEquals(3, response.getIndices());
+        
+        QueryResponse actualResponse = QueryResponse.class.cast(queryExecutor.execute(query));
+        assertEquals(30, actualResponse.getDocuments().size());
+    }
+
+    
     public void compare(List<Document> expectedDocuments, List<Document> actualDocuments){
         assertEquals(expectedDocuments.size(), actualDocuments.size());
         for (int i = 0 ; i < expectedDocuments.size(); i++){
