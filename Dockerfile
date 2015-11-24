@@ -21,5 +21,5 @@ ADD config/docker.yml docker.yml
 ADD foxtrot-server/target/foxtrot*.jar server.jar
 ADD scripts/local_es_setup.sh local_es_setup.sh
 
-CMD sh -c "sleep 20 ; ./local_es_setup.sh 192.168.99.100 || true ;      java -Dfile.encoding=utf-8 -jar server.jar server docker.yml"
+CMD sh -c "sleep 15 ; java -jar server.jar initialize docker.yml || true ;  java -Dfile.encoding=utf-8 -jar server.jar server docker.yml"
 
