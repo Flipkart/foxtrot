@@ -72,11 +72,6 @@
     <profiles>
         <profile>
             <id>docker</id>
-            <!--<activation>-->
-                <!--<file>-->
-                    <!--<exists>docker</exists>-->
-                <!--</file>-->
-            <!--</activation>-->
             <build>
                 <plugins>
                     <plugin>
@@ -85,7 +80,7 @@
                         <version>0.1.1</version>
                         <configuration>
                             <imageName>foxtrot-server:${project.version}</imageName>
-                            <dockerDirectory>${project.parent.basedir}</dockerDirectory>
+                            <dockerDirectory>${project.parent.basedir}/../foxtrot</dockerDirectory>
                             <resources>
                                 <resource>
                                     <targetPath>/</targetPath>
