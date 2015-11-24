@@ -8,7 +8,7 @@ elasticsearch:
 
 # hbase compose
 hbase:
-  image: nerdammer/hbase:1.0.0
+  image: banno/hbase-standalone
   hostname: hbase
   ports:
    - "2181:2181"
