@@ -1,5 +1,6 @@
 package com.flipkart.foxtrot.core.querystore.actions;
 
+import org.elasticsearch.action.support.IndicesOptions;
 import org.elasticsearch.search.aggregations.AbstractAggregationBuilder;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.bucket.histogram.DateHistogram;
@@ -40,5 +41,9 @@ public class Utils {
 
     public static String getDateHistogramKey(String field){
         return sanitizeFieldForAggregation(field) + "_date_histogram";
+    }
+    
+    public static IndicesOptions indicesOptions() {
+        return IndicesOptions.fromOptions(true, false, false, false);
     }
 }
