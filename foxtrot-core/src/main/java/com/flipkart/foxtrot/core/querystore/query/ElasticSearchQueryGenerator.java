@@ -129,6 +129,10 @@ public class ElasticSearchQueryGenerator extends FilterVisitor {
                         .cache(false));
     }
 
+    @Override public void visit(MissingFilter missingFilter) throws Exception {
+        addFilter(FilterBuilders.missingFilter(missingFilter.getField()));
+    }
+
     private void addFilter(FilterBuilder elasticSearchFilter) throws Exception {
         if (combinerType == FilterCombinerType.and) {
             boolFilterBuilder.must(elasticSearchFilter);

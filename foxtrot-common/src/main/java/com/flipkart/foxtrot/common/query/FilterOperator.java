@@ -27,6 +27,7 @@ public interface FilterOperator {
     public static final String any = "any";
     public static final String in = "in";
     public static final String exists = "exists";
+    public static final String missing = "missing";
 
     //Numeric
     public static final String less_than = "less_than";
