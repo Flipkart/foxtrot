@@ -703,7 +703,6 @@ public class FilterActionTest {
         
         QueryResponse actualResponse = QueryResponse.class.cast(queryExecutor.execute(query));
         assertEquals(documents.size(), actualResponse.getDocuments().size());
-        compare(documents, actualResponse.getDocuments());
     }
 
     
