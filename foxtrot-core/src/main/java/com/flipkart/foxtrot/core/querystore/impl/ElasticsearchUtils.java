@@ -45,7 +45,8 @@ import java.util.List;
 public class ElasticsearchUtils {
     private static final Logger logger = LoggerFactory.getLogger(ElasticsearchUtils.class.getSimpleName());
 
-    public static final String TYPE_NAME = "document";
+    public static final String DOCUMENT_TYPE_NAME = "document";
+    public static final String DOCUMENT_META_TYPE_NAME = "metadata";
     public static final String TABLENAME_PREFIX = "foxtrot";
     public static final String TABLENAME_POSTFIX = "table";
     private static final DateTimeFormatter FORMATTER = DateTimeFormat.forPattern("dd-M-yyyy");
@@ -64,15 +65,15 @@ public class ElasticsearchUtils {
         return String.format("%s-%s-%s-", ElasticsearchUtils.TABLENAME_PREFIX, table, ElasticsearchUtils.TABLENAME_POSTFIX);
     }
 
-    public static String[] getIndices(final String table) {
+    public static String getIndices(final String table) {
         /*long currentTime = new Date().getTime();
         String names[] = new String[30]; //TODO::USE TABLE METADATA
         for(int i = 0 ; i < 30; i++) {
             String postfix = new SimpleDateFormat("dd-M-yyyy").format(new Date(currentTime));
             names[i] = String.format("%s-%s-%s", TABLENAME_PREFIX, table, postfix);
         }*/
-        return new String[]{String.format("%s-%s-%s-*",
-                ElasticsearchUtils.TABLENAME_PREFIX, table, ElasticsearchUtils.TABLENAME_POSTFIX)};
+        return String.format("%s-%s-%s-*",
+                ElasticsearchUtils.TABLENAME_PREFIX, table, ElasticsearchUtils.TABLENAME_POSTFIX);
     }
 
     public static String[] getIndices(final String table, final ActionRequest request) throws Exception {
@@ -84,7 +85,7 @@ public class ElasticsearchUtils {
         DateTime start = interval.getStart().toLocalDate().toDateTimeAtStartOfDay();
         if(start.getYear() <= 1970) {
             logger.warn("Request of type {} running on all indices", request.getClass().getSimpleName());
-            return getIndices(table);
+            return new String[] {getIndices(table)};
         }
         List<String> indices = Lists.newArrayList();
         final DateTime end = interval.getEnd().plusDays(1).toLocalDate().toDateTimeAtStartOfDay();
@@ -106,10 +107,10 @@ public class ElasticsearchUtils {
 
     public static PutIndexTemplateRequest getClusterTemplateMapping(IndicesAdminClient indicesAdminClient){
         try {
-            XContentBuilder contentBuilder = getDocumentMapping();
             PutIndexTemplateRequestBuilder builder = new PutIndexTemplateRequestBuilder(indicesAdminClient, "generic_template");
             builder.setTemplate("foxtrot-*");
-            builder.addMapping(TYPE_NAME, contentBuilder);
+            builder.addMapping(DOCUMENT_TYPE_NAME, getDocumentMapping());
+            builder.addMapping(DOCUMENT_META_TYPE_NAME, getDocumentMetadataMapping());
             return builder.request();
         } catch (IOException ex){
             logger.error("TEMPLATE_CREATION_FAILED", ex);
@@ -117,10 +118,47 @@ public class ElasticsearchUtils {
         }
     }
 
+    public static XContentBuilder getDocumentMetadataMapping() throws IOException {
+        return XContentFactory.jsonBuilder()
+                .startObject()
+                    .field(DOCUMENT_META_TYPE_NAME)
+                    .startObject()
+                        .field("_source")
+                        .startObject()
+                            .field("enabled", false)
+                        .endObject()
+                        .field("_all")
+                        .startObject()
+                            .field("enabled", false)
+                        .endObject()
+                        .field("dynamic_templates")
+                        .startArray()
+                        .startObject()
+                            .field("template_no_store")
+                            .startObject()
+                                .field("match_mapping_type", "string|date|boolean|double|long|integer")
+                                .field("match_pattern", "regex")
+                                .field("path_match", ".*")
+                                .field("mapping")
+                                .startObject()
+                                    .field("store", true)
+                                    .field("doc_values", true)
+                                    .field("index", "not_analyzed")
+                                    .field("fielddata")
+                                    .startObject()
+                                        .field("format", "doc_values")
+                                    .endObject()
+                                .endObject()
+                            .endObject()
+                        .endObject()
+                    .endArray()
+                .endObject()
+            .endObject();
+    }
     public static XContentBuilder getDocumentMapping() throws IOException {
         return XContentFactory.jsonBuilder()
             .startObject()
-                .field(TYPE_NAME)
+                .field(DOCUMENT_TYPE_NAME)
                     .startObject()
                         .field("_source")
                             .startObject()

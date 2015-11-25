@@ -18,10 +18,13 @@ package com.flipkart.foxtrot.core.datastore.impl.hbase;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.flipkart.foxtrot.common.Document;
+import com.flipkart.foxtrot.common.DocumentMetadata;
 import com.flipkart.foxtrot.common.Table;
 import com.flipkart.foxtrot.core.datastore.DataStore;
 import com.flipkart.foxtrot.core.datastore.DataStoreException;
+import com.flipkart.foxtrot.core.querystore.DocumentTranslator;
 import com.google.common.base.Stopwatch;
+import com.google.common.collect.ImmutableList;
 import org.apache.hadoop.hbase.client.Get;
 import org.apache.hadoop.hbase.client.HTableInterface;
 import org.apache.hadoop.hbase.client.Put;
@@ -44,11 +47,13 @@ public class HBaseDataStore implements DataStore {
     private static final Logger logger = LoggerFactory.getLogger(HBaseDataStore.class.getSimpleName());
 
     private static final byte[] COLUMN_FAMILY = Bytes.toBytes("d");
-    private static final byte[] DATA_FIELD_NAME = Bytes.toBytes("data");
+    private static final byte[] DOCUMENT_FIELD_NAME = Bytes.toBytes("data");
+    private static final byte[] DOCUMENT_META_FIELD_NAME = Bytes.toBytes("metadata");
     private static final byte[] TIMESTAMP_FIELD_NAME = Bytes.toBytes("timestamp");
 
     private final HbaseTableConnection tableWrapper;
     private final ObjectMapper mapper;
+    private final DocumentTranslator translator = new DocumentTranslator();
 
     public HBaseDataStore(HbaseTableConnection tableWrapper, ObjectMapper mapper) {
         this.tableWrapper = tableWrapper;
@@ -56,16 +61,18 @@ public class HBaseDataStore implements DataStore {
     }
 
     @Override
-    public void save(final Table table, Document document) throws DataStoreException {
+    public Document save(final Table table, Document document) throws DataStoreException {
         if (document == null || document.getData() == null || document.getId() == null) {
             throw new DataStoreException(DataStoreException.ErrorCode.STORE_INVALID_REQUEST, "Invalid Document");
         }
         HTableInterface hTable = null;
+        Document translatedDocument = null;
         try {
+            translatedDocument = translator.translate(table, document);
             hTable = tableWrapper.getTable(table);
             Stopwatch stopwatch = new Stopwatch();
             stopwatch.start();
-            hTable.put(getPutForDocument(table, document));
+            hTable.put(getPutForDocument(table, translatedDocument));
             logger.error(String.format("HBASE put took : %d table : %s", stopwatch.elapsedMillis(), table));
         } catch (JsonProcessingException e) {
             throw new DataStoreException(DataStoreException.ErrorCode.STORE_INVALID_REQUEST,
@@ -85,21 +92,25 @@ public class HBaseDataStore implements DataStore {
                 }
             }
         }
+        return translatedDocument;
     }
 
     @Override
-    public void save(final Table table, List<Document> documents) throws DataStoreException {
+    public List<Document> save(final Table table, List<Document> documents) throws DataStoreException {
         if (documents == null || documents.isEmpty()) {
             throw new DataStoreException(DataStoreException.ErrorCode.STORE_INVALID_REQUEST, "Invalid Documents List");
         }
         List<Put> puts = new Vector<Put>();
+        ImmutableList.Builder<Document> translatedDocuments = ImmutableList.builder();
         try {
             for (Document document : documents) {
                 if (document == null || document.getData() == null || document.getId() == null) {
                     throw new DataStoreException(DataStoreException.ErrorCode.STORE_INVALID_REQUEST,
                             "Invalid Document");
                 }
-                puts.add(getPutForDocument(table, document));
+                Document translatedDocument = translator.translate(table, document);
+                puts.add(getPutForDocument(table, translatedDocument));
+                translatedDocuments.add(translatedDocument);
             }
         } catch (JsonProcessingException e) {
             throw new DataStoreException(DataStoreException.ErrorCode.STORE_INVALID_REQUEST,
@@ -128,22 +139,27 @@ public class HBaseDataStore implements DataStore {
                 }
             }
         }
+        return translatedDocuments.build();
     }
 
     @Override
     public Document get(final Table table, String id) throws DataStoreException {
         HTableInterface hTable = null;
         try {
-            Get get = new Get(Bytes.toBytes(id + ":" + table.getName()))
-                    .addColumn(COLUMN_FAMILY, DATA_FIELD_NAME)
-                    .addColumn(COLUMN_FAMILY, TIMESTAMP_FIELD_NAME);
+            Get get = new Get(Bytes.toBytes(id))
+                    .addColumn(COLUMN_FAMILY, DOCUMENT_FIELD_NAME)
+                    .addColumn(COLUMN_FAMILY, DOCUMENT_META_FIELD_NAME)
+                    .addColumn(COLUMN_FAMILY, TIMESTAMP_FIELD_NAME)
+                    .setMaxVersions(1);
             hTable = tableWrapper.getTable(table);
             Result getResult = hTable.get(get);
             if (!getResult.isEmpty()) {
-                byte[] data = getResult.getValue(COLUMN_FAMILY, DATA_FIELD_NAME);
+                byte[] data = getResult.getValue(COLUMN_FAMILY, DOCUMENT_FIELD_NAME);
+                byte[] metadata = getResult.getValue(COLUMN_FAMILY, DOCUMENT_META_FIELD_NAME);
                 byte[] timestamp = getResult.getValue(COLUMN_FAMILY, TIMESTAMP_FIELD_NAME);
                 long time = Bytes.toLong(timestamp);
-                return new Document(id, time, mapper.readTree(data));
+                DocumentMetadata documentMetadata = (null != metadata) ? mapper.readValue(metadata, DocumentMetadata.class) : null;
+                return translator.translateBack(new Document(id, time, documentMetadata, mapper.readTree(data)));
             } else {
                 throw new DataStoreException(DataStoreException.ErrorCode.STORE_NO_DATA_FOUND_FOR_ID,
                         String.format("No data found for ID: %s", id));
@@ -177,9 +193,11 @@ public class HBaseDataStore implements DataStore {
         try {
             List<Get> gets = new ArrayList<Get>(ids.size());
             for (String id : ids) {
-                Get get = new Get(Bytes.toBytes(id + ":" + table.getName()))
-                        .addColumn(COLUMN_FAMILY, DATA_FIELD_NAME)
-                        .addColumn(COLUMN_FAMILY, TIMESTAMP_FIELD_NAME);
+                Get get = new Get(Bytes.toBytes(id))
+                        .addColumn(COLUMN_FAMILY, DOCUMENT_FIELD_NAME)
+                        .addColumn(COLUMN_FAMILY, DOCUMENT_META_FIELD_NAME)
+                        .addColumn(COLUMN_FAMILY, TIMESTAMP_FIELD_NAME)
+                        .setMaxVersions(1);
                 gets.add(get);
             }
             hTable = tableWrapper.getTable(table);
@@ -188,11 +206,17 @@ public class HBaseDataStore implements DataStore {
             for (int index = 0; index < getResults.length; index++) {
                 Result getResult = getResults[index];
                 if (!getResult.isEmpty()) {
-                    byte[] data = getResult.getValue(COLUMN_FAMILY, DATA_FIELD_NAME);
+                    byte[] data = getResult.getValue(COLUMN_FAMILY, DOCUMENT_FIELD_NAME);
+                    byte[] metadata = getResult.getValue(COLUMN_FAMILY, DOCUMENT_META_FIELD_NAME);
                     byte[] timestamp = getResult.getValue(COLUMN_FAMILY, TIMESTAMP_FIELD_NAME);
                     long time = Bytes.toLong(timestamp);
-                    results.add(new Document(Bytes.toString(getResult.getRow()).split(":")[0],
-                            time, mapper.readTree(data)));
+                    DocumentMetadata documentMetadata = (null != metadata)
+                                        ? mapper.readValue(metadata, DocumentMetadata.class)
+                                        : null;
+                    final String docId = (null == metadata)
+                                            ? Bytes.toString(getResult.getRow()).split(":")[0]
+                                            : documentMetadata.getRowKey();
+                    results.add(translator.translateBack(new Document(docId, time, documentMetadata, mapper.readTree(data))));
                 } else {
                     throw new DataStoreException(DataStoreException.ErrorCode.STORE_NO_DATA_FOUND_FOR_IDS,
                             String.format("No data found for ID: %s", ids.get(index)));
@@ -222,8 +246,9 @@ public class HBaseDataStore implements DataStore {
     }
 
     public Put getPutForDocument(final Table table, Document document) throws JsonProcessingException {
-        return new Put(Bytes.toBytes(document.getId() + ":" + table.getName()))
-                .add(COLUMN_FAMILY, DATA_FIELD_NAME, mapper.writeValueAsBytes(document.getData()))
+        return new Put(Bytes.toBytes(document.getId()))
+                .add(COLUMN_FAMILY, DOCUMENT_META_FIELD_NAME, mapper.writeValueAsBytes(document.getMetadata()))
+                .add(COLUMN_FAMILY, DOCUMENT_FIELD_NAME, mapper.writeValueAsBytes(document.getData()))
                 .add(COLUMN_FAMILY, TIMESTAMP_FIELD_NAME, Bytes.toBytes(document.getTimestamp()));
     }
 }

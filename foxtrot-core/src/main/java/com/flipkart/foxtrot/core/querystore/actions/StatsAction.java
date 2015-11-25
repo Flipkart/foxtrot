@@ -72,7 +72,7 @@ public class StatsAction extends Action<StatsRequest> {
         try {
             SearchResponse response = getConnection().getClient().prepareSearch(
                     ElasticsearchUtils.getIndices(request.getTable(), request))
-                    .setTypes(ElasticsearchUtils.TYPE_NAME)
+                    .setTypes(ElasticsearchUtils.DOCUMENT_TYPE_NAME)
                     .setQuery(new ElasticSearchQueryGenerator(request.getCombiner()).genFilter(request.getFilters()))
                     .setSize(0)
                     .setSearchType(SearchType.COUNT)
