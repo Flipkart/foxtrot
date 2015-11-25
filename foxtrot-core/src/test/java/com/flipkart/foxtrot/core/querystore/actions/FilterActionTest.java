@@ -692,7 +692,7 @@ public class FilterActionTest {
         assertEquals(3, response.getIndices().length);
 
         Query query = new Query();
-        query.setLimit(20);
+        query.setLimit(documents.size());
         query.setTable(TestUtils.TEST_TABLE_NAME);
         BetweenFilter betweenFilter = new BetweenFilter();
         betweenFilter.setField("_timestamp");
@@ -702,7 +702,8 @@ public class FilterActionTest {
         query.setFilters(Lists.<Filter>newArrayList(betweenFilter));
         
         QueryResponse actualResponse = QueryResponse.class.cast(queryExecutor.execute(query));
-        assertEquals(18, actualResponse.getDocuments().size());
+        assertEquals(documents.size(), actualResponse.getDocuments().size());
+        compare(documents, actualResponse.getDocuments());
     }
 
     
