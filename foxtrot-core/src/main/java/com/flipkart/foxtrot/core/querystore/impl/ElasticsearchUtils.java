@@ -114,7 +114,6 @@ public class ElasticsearchUtils {
             builder.setTemplate("foxtrot-*");
             System.out.println(getDocumentMapping().string());
             builder.addMapping(DOCUMENT_TYPE_NAME, getDocumentMapping());
-            //builder.addMapping(DOCUMENT_META_TYPE_NAME, getDocumentMetadataMapping());
             return builder.request();
         } catch (IOException ex){
             logger.error("TEMPLATE_CREATION_FAILED", ex);
@@ -122,43 +121,6 @@ public class ElasticsearchUtils {
         }
     }
 
-    public static XContentBuilder getDocumentMetadataMapping() throws IOException {
-        return XContentFactory.jsonBuilder()
-                .startObject()
-                    .field(DOCUMENT_META_TYPE_NAME)
-                    .startObject()
-                        .field("_source")
-                        .startObject()
-                            .field("enabled", false)
-                        .endObject()
-                        .field("_all")
-                        .startObject()
-                            .field("enabled", false)
-                        .endObject()
-                        .field("dynamic_templates")
-                        .startArray()
-                        .startObject()
-                            .field("template_no_store")
-                            .startObject()
-                                .field("match_mapping_type", "string|date|boolean|double|long|integer")
-                                .field("match_pattern", "regex")
-                                .field("path_match", ".*")
-                                .field("mapping")
-                                .startObject()
-                                    .field("store", true)
-                                    .field("doc_values", true)
-                                    .field("index", "not_analyzed")
-                                    .field("fielddata")
-                                    .startObject()
-                                        .field("format", "doc_values")
-                                    .endObject()
-                                .endObject()
-                            .endObject()
-                        .endObject()
-                    .endArray()
-                .endObject()
-            .endObject();
-    }
     public static XContentBuilder getDocumentMapping() throws IOException {
         return XContentFactory.jsonBuilder()
             .startObject()
