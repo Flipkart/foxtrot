@@ -33,6 +33,7 @@ import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
 import com.flipkart.foxtrot.core.querystore.query.ElasticSearchQueryGenerator;
 import com.google.common.collect.Lists;
 import com.yammer.dropwizard.util.Duration;
+
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.search.SearchType;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
@@ -115,6 +116,7 @@ public class HistogramAction extends Action<HistogramRequest> {
             SearchResponse response = getConnection().getClient().prepareSearch(
                     ElasticsearchUtils.getIndices(parameter.getTable(), parameter))
                     .setTypes(ElasticsearchUtils.DOCUMENT_TYPE_NAME)
+                    .setIndicesOptions(Utils.indicesOptions())
                     .setQuery(new ElasticSearchQueryGenerator(FilterCombinerType.and)
                             .genFilter(parameter.getFilters()))
                     .setSize(0)
