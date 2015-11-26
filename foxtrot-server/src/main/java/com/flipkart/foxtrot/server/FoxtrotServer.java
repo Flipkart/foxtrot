@@ -43,6 +43,8 @@ import com.flipkart.foxtrot.sql.FqlEngine;
 import com.google.common.collect.Lists;
 import io.dropwizard.assets.AssetsBundle;
 import io.dropwizard.Application;
+import io.dropwizard.jetty.HttpConnectorFactory;
+import io.dropwizard.server.SimpleServerFactory;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
 import net.sourceforge.cobertura.CoverageIgnore;
@@ -110,8 +112,15 @@ public class FoxtrotServer extends Application<FoxtrotServerConfiguration> {
         List<HealthCheck> healthChecks = Lists.newArrayList();
         healthChecks.add(new ElasticSearchHealthCheck("ES Health Check", elasticsearchConnection));
 
+        int httpPort = 0;
+        SimpleServerFactory serverFactory = (SimpleServerFactory) configuration.getServerFactory();
+        HttpConnectorFactory connector = (HttpConnectorFactory) serverFactory.getConnector();
+        if (connector.getClass().isAssignableFrom(HttpConnectorFactory.class)) {
+            httpPort = connector.getPort();
+        }
+
         ClusterManager clusterManager = new ClusterManager(
-                                    hazelcastConnection, healthChecks, configuration.getPort());
+                                    hazelcastConnection, healthChecks, httpPort);
 
         environment.lifecycle().manage(HBaseTableConnection);
         environment.lifecycle().manage(elasticsearchConnection);

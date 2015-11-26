@@ -19,8 +19,6 @@ cluster:
   disableMulticast: true
   members: ["localhost:5701", "localhost:5702"]
 
-port: 17000
-
 logging:
   level: INFO
 

@@ -46,10 +46,6 @@ public class FoxtrotServerConfiguration extends Configuration {
     @JsonProperty("deletionconfig")
     private DataDeletionManagerConfig deletionManagerConfig;
 
-    @Valid
-    @NotNull
-    private int port;
-
     public HbaseConfig getHbase() {
         return hbase;
     }
@@ -80,13 +76,5 @@ public class FoxtrotServerConfiguration extends Configuration {
 
     public void setDeletionManagerConfig(DataDeletionManagerConfig deletionManagerConfig) {
         this.deletionManagerConfig = deletionManagerConfig;
-    }
-
-    public int getPort() {
-        return port;
-    }
-
-    public void setPort(int port) {
-        this.port = port;
     }
 }
