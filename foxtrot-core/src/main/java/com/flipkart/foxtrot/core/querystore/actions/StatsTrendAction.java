@@ -18,6 +18,7 @@ import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
 import com.flipkart.foxtrot.core.querystore.query.ElasticSearchQueryGenerator;
 import com.google.common.collect.Lists;
 import com.yammer.dropwizard.util.Duration;
+
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.search.SearchType;
 import org.elasticsearch.search.aggregations.AbstractAggregationBuilder;
@@ -85,6 +86,7 @@ public class StatsTrendAction extends Action<StatsTrendRequest> {
             AbstractAggregationBuilder aggregation = buildAggregation(parameter);
             SearchResponse response = getConnection().getClient().prepareSearch(
                     ElasticsearchUtils.getIndices(parameter.getTable(), parameter))
+                    .setIndicesOptions(Utils.indicesOptions())
                     .setTypes(ElasticsearchUtils.TYPE_NAME)
                     .setQuery(new ElasticSearchQueryGenerator(parameter.getCombiner()).genFilter(parameter.getFilters()))
                     .setSize(0)
