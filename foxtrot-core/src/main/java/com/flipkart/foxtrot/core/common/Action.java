@@ -72,9 +72,7 @@ public abstract class Action<ParameterType extends ActionRequest> implements Cal
     }
 
     public AsyncDataToken execute(ExecutorService executor) throws QueryStoreException {
-        if (!validate()) {
-            throw new QueryStoreException(QueryStoreException.ErrorCode.NO_SUCH_TABLE, "Table/s not found");
-        }
+        validate();
         executor.submit(this);
         return new AsyncDataToken(cacheToken, cacheKey());
     }
@@ -87,10 +85,7 @@ public abstract class Action<ParameterType extends ActionRequest> implements Cal
     }
 
     public ActionResponse execute() throws QueryStoreException {
-        if (!validate()) {
-            throw new QueryStoreException(QueryStoreException.ErrorCode.INVALID_REQUEST, "Request validation failed" +
-                    "");
-        }
+        validate();
         final String cacheKeyValue = cacheKey();
         if (isCacheable()) {
             if (cache.has(cacheKeyValue)) {
@@ -120,7 +115,7 @@ public abstract class Action<ParameterType extends ActionRequest> implements Cal
 
     abstract public ActionResponse execute(ParameterType parameter) throws QueryStoreException;
 
-    abstract protected boolean validate();
+    abstract protected void validate() throws QueryStoreException;
 
     public DataStore getDataStore() {
         return dataStore;

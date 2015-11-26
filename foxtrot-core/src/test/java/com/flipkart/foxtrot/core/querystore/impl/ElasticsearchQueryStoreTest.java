@@ -104,7 +104,12 @@ public class ElasticsearchQueryStoreTest {
         JsonNode data = mapper.valueToTree(Collections.singletonMap("TEST_NAME", "SINGLE_SAVE_TEST"));
         expectedDocument.setData(data);
 
-        queryStore.save(TestUtils.TEST_TABLE_NAME, expectedDocument);
+        try {
+            queryStore.save(TestUtils.TEST_TABLE_NAME, expectedDocument);
+        } catch (QueryStoreException e) {
+            assertEquals(QueryStoreException.ErrorCode.INVALID_REQUEST, e.getErrorCode());
+            throw e;
+        }
     }
 
     @Test(expected = QueryStoreException.class)
@@ -114,7 +119,12 @@ public class ElasticsearchQueryStoreTest {
         expectedDocument.setTimestamp(System.currentTimeMillis());
         expectedDocument.setData(null);
 
-        queryStore.save(TestUtils.TEST_TABLE_NAME, expectedDocument);
+        try {
+            queryStore.save(TestUtils.TEST_TABLE_NAME, expectedDocument);
+        } catch (QueryStoreException e) {
+            assertEquals(QueryStoreException.ErrorCode.INVALID_REQUEST, e.getErrorCode());
+            throw e;
+        }
     }
 
     @Test
@@ -171,7 +181,12 @@ public class ElasticsearchQueryStoreTest {
         List<Document> documents = new Vector<Document>();
         documents.add(null);
         documents.add(new Document(UUID.randomUUID().toString(), System.currentTimeMillis(), mapper.valueToTree(Collections.singletonMap("TEST_NAME", "SINGLE_SAVE_TEST"))));
-        queryStore.save(TestUtils.TEST_TABLE_NAME, documents);
+        try {
+            queryStore.save(TestUtils.TEST_TABLE_NAME, documents);
+        } catch (QueryStoreException e) {
+            assertEquals(QueryStoreException.ErrorCode.INVALID_REQUEST, e.getErrorCode());
+            throw e;
+        }
     }
 
     @Test(expected = QueryStoreException.class)
@@ -179,7 +194,12 @@ public class ElasticsearchQueryStoreTest {
         List<Document> documents = new Vector<Document>();
         documents.add(new Document(null, System.currentTimeMillis(), mapper.valueToTree(Collections.singletonMap("TEST_NAME", "SINGLE_SAVE_TEST"))));
         documents.add(new Document(UUID.randomUUID().toString(), System.currentTimeMillis(), mapper.valueToTree(Collections.singletonMap("TEST_NAME", "SINGLE_SAVE_TEST"))));
-        queryStore.save(TestUtils.TEST_TABLE_NAME, documents);
+        try {
+            queryStore.save(TestUtils.TEST_TABLE_NAME, documents);
+        } catch (QueryStoreException e) {
+            assertEquals(QueryStoreException.ErrorCode.INVALID_REQUEST, e.getErrorCode());
+            throw e;
+        }
     }
 
     @Test(expected = QueryStoreException.class)
@@ -187,7 +207,12 @@ public class ElasticsearchQueryStoreTest {
         List<Document> documents = new Vector<Document>();
         documents.add(new Document(UUID.randomUUID().toString(), System.currentTimeMillis(), mapper.valueToTree(Collections.singletonMap("TEST_NAME", "SINGLE_SAVE_TEST"))));
         documents.add(new Document(UUID.randomUUID().toString(), System.currentTimeMillis(), null));
-        queryStore.save(TestUtils.TEST_TABLE_NAME, documents);
+        try {
+            queryStore.save(TestUtils.TEST_TABLE_NAME, documents);
+        } catch (QueryStoreException e) {
+            assertEquals(QueryStoreException.ErrorCode.INVALID_REQUEST, e.getErrorCode());
+            throw e;
+        }
     }
 
     @Test
@@ -246,7 +271,12 @@ public class ElasticsearchQueryStoreTest {
 
     @Test(expected = QueryStoreException.class)
     public void testGetSingleInvalidTable() throws Exception {
-        queryStore.get(UUID.randomUUID().toString(), UUID.randomUUID().toString());
+        try {
+            queryStore.get(UUID.randomUUID().toString(), UUID.randomUUID().toString());
+        } catch (QueryStoreException e) {
+            assertEquals(QueryStoreException.ErrorCode.NO_SUCH_TABLE, e.getErrorCode());
+            throw e;
+        }
     }
 
     @Test
@@ -285,7 +315,6 @@ public class ElasticsearchQueryStoreTest {
         try {
             String id = UUID.randomUUID().toString();
             Document document = new Document(id, System.currentTimeMillis(), mapper.valueToTree(Collections.singletonMap("TEST_NAME", "SINGLE_SAVE_TEST")));
-            document.setTimestamp(System.currentTimeMillis());
             dataStore.save(TestUtils.TEST_TABLE, document);
             queryStore.get(TestUtils.TEST_TABLE_NAME, Arrays.asList(UUID.randomUUID().toString(), id));
             fail();
@@ -302,7 +331,12 @@ public class ElasticsearchQueryStoreTest {
 
     @Test(expected = QueryStoreException.class)
     public void testGetBulkInvalidTable() throws Exception {
-        queryStore.get(UUID.randomUUID().toString(), Arrays.asList("a", "b"));
+        try {
+            queryStore.get(UUID.randomUUID().toString(), Arrays.asList("a", "b"));
+        } catch (QueryStoreException e) {
+            assertEquals(QueryStoreException.ErrorCode.NO_SUCH_TABLE, e.getErrorCode());
+            throw e;
+        }
     }
 
     @Test

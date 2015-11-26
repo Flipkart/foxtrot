@@ -35,6 +35,7 @@ import org.elasticsearch.common.settings.Settings;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.AdditionalMatchers;
 import org.mockito.Mockito;
 
 import javax.ws.rs.client.Entity;
@@ -45,6 +46,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import static org.junit.Assert.assertEquals;
+import static org.mockito.AdditionalMatchers.*;
 import static org.mockito.Mockito.*;
 
 /**
@@ -141,7 +143,12 @@ public class QueryExecutorTest {
         groupRequest.setTable(TestUtils.TEST_TABLE_NAME + "-dummy-32");
         groupRequest.setNesting(Arrays.asList("os", "device", "version"));
 
-        queryExecutor.execute(groupRequest);
+        try {
+            queryExecutor.execute(groupRequest);
+        } catch (QueryStoreException e) {
+            assertEquals(QueryStoreException.ErrorCode.NO_SUCH_TABLE, e.getErrorCode());
+            throw e;
+        }
     }
 
     @Test(expected = QueryStoreException.class)
@@ -150,7 +157,12 @@ public class QueryExecutorTest {
         groupRequest.setTable(null);
         groupRequest.setNesting(Arrays.asList("os", "device", "version"));
 
-        queryExecutor.execute(groupRequest);
+        try {
+            queryExecutor.execute(groupRequest);
+        } catch (QueryStoreException e) {
+            assertEquals(QueryStoreException.ErrorCode.INVALID_REQUEST, e.getErrorCode());
+            throw e;
+        }
     }
 
     @Test
@@ -176,7 +188,12 @@ public class QueryExecutorTest {
         groupRequest.setTable(TestUtils.TEST_TABLE_NAME + "-dummy-32");
         groupRequest.setNesting(Arrays.asList("os", "device", "version"));
 
-        queryExecutor.executeAsync(groupRequest);
+        try {
+            queryExecutor.executeAsync(groupRequest);
+        } catch (QueryStoreException e) {
+            assertEquals(QueryStoreException.ErrorCode.NO_SUCH_TABLE, e.getErrorCode());
+            throw e;
+        }
     }
 
     @Test(expected = QueryStoreException.class)
@@ -185,7 +202,12 @@ public class QueryExecutorTest {
         groupRequest.setTable(null);
         groupRequest.setNesting(Arrays.asList("os", "device", "version"));
 
-        queryExecutor.executeAsync(groupRequest);
+        try {
+            queryExecutor.executeAsync(groupRequest);
+        } catch (QueryStoreException e) {
+            assertEquals(QueryStoreException.ErrorCode.INVALID_REQUEST, e.getErrorCode());
+            throw e;
+        }
     }
 
     private Map<String, Object> getExpectedResponse() {

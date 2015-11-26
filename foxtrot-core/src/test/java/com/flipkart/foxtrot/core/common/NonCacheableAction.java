@@ -51,7 +51,7 @@ public class NonCacheableAction extends Action<NonCacheableActionRequest> {
     }
 
     @Override
-    protected boolean validate() {
-        return true;
+    protected void validate() {
+
     }
 }

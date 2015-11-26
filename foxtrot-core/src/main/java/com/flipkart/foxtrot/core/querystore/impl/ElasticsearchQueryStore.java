@@ -196,6 +196,8 @@ public class ElasticsearchQueryStore implements QueryStore {
                         "No table exists with the name: " + table);
             }
             fxTable = tableMetadataManager.get(table);
+        } catch (QueryStoreException qe) {
+            throw qe;
         } catch (Exception ex) {
             throw new QueryStoreException(QueryStoreException.ErrorCode.DOCUMENT_GET_ERROR,
                     ex.getMessage(), ex);
@@ -229,6 +231,8 @@ public class ElasticsearchQueryStore implements QueryStore {
             }
             throw new QueryStoreException(QueryStoreException.ErrorCode.DOCUMENT_GET_ERROR,
                     ex.getMessage(), ex);
+        } catch (QueryStoreException qe) {
+            throw qe;
         } catch (Exception ex) {
             throw new QueryStoreException(QueryStoreException.ErrorCode.DOCUMENT_GET_ERROR,
                     ex.getMessage(), ex);

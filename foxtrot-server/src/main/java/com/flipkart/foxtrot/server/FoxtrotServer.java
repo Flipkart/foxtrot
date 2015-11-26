@@ -134,7 +134,7 @@ public class FoxtrotServer extends Application<FoxtrotServerConfiguration> {
         environment.jersey().register(new UtilResource(configuration));
 
         for(HealthCheck healthCheck : healthChecks) {
-            environment.healthChecks().register("plcHolderh", healthCheck);
+            environment.healthChecks().register(healthCheck.getClass().getName(), healthCheck);
         }
 
         environment.jersey().register(new FlatResponseTextProvider());

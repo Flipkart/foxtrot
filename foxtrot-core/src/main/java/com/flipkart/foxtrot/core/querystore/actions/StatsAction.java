@@ -61,6 +61,11 @@ public class StatsAction extends Action<StatsRequest> {
 
     @Override
     public ActionResponse execute(StatsRequest request) throws QueryStoreException {
+        request.setTable(ElasticsearchUtils.getValidTableName(getParameter().getTable()));
+        if (request.getTable() == null) {
+            throw new QueryStoreException(QueryStoreException.ErrorCode.INVALID_REQUEST, "Invalid table name");
+        }
+
         if (null == request.getFilters()) {
             request.setFilters(Lists.<Filter>newArrayList(new AnyFilter(request.getTable())));
         }
@@ -90,13 +95,20 @@ public class StatsAction extends Action<StatsRequest> {
     }
 
     @Override
-    protected boolean validate() {
-        getParameter().setTable(ElasticsearchUtils.getValidTableName(getParameter().getTable()));
+    protected void validate() throws QueryStoreException {
+        String tableName = ElasticsearchUtils.getValidTableName(getParameter().getTable());
         try {
-            return !(getParameter().getTable() == null || !getTableMetadataManager().exists(ElasticsearchUtils.getValidTableName(getParameter().getTable())));
+            if (tableName == null) {
+                throw new QueryStoreException(QueryStoreException.ErrorCode.INVALID_REQUEST, "Table cannot be null");
+            } else if (!getTableMetadataManager().exists(tableName)) {
+                throw new QueryStoreException(QueryStoreException.ErrorCode.NO_SUCH_TABLE, "Table not found");
+            }
+        } catch (QueryStoreException e) {
+            logger.error("Table is null or not found.", getParameter().getTable());
+            throw e;
         } catch (Exception e) {
             logger.error("Error while checking table's existence.", e);
-            return false;
+            throw new QueryStoreException(QueryStoreException.ErrorCode.QUERY_EXECUTION_ERROR, "Error while fetching metadata");
         }
     }
 
