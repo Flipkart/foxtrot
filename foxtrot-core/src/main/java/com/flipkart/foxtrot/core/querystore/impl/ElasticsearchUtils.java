@@ -47,6 +47,9 @@ public class ElasticsearchUtils {
 
     public static final String DOCUMENT_TYPE_NAME = "document";
     public static final String DOCUMENT_META_TYPE_NAME = "metadata";
+    public static final String DOCUMENT_META_FIELD_NAME = "__FOXTROT_METADATA__";
+    public static final String DOCUMENT_META_ID_FIELD_NAME = String.format("%s.id", DOCUMENT_META_FIELD_NAME);
+
     public static final String TABLENAME_PREFIX = "foxtrot";
     public static final String TABLENAME_POSTFIX = "table";
     private static final DateTimeFormatter FORMATTER = DateTimeFormat.forPattern("dd-M-yyyy");
@@ -109,8 +112,9 @@ public class ElasticsearchUtils {
         try {
             PutIndexTemplateRequestBuilder builder = new PutIndexTemplateRequestBuilder(indicesAdminClient, "generic_template");
             builder.setTemplate("foxtrot-*");
+            System.out.println(getDocumentMapping().string());
             builder.addMapping(DOCUMENT_TYPE_NAME, getDocumentMapping());
-            builder.addMapping(DOCUMENT_META_TYPE_NAME, getDocumentMetadataMapping());
+            //builder.addMapping(DOCUMENT_META_TYPE_NAME, getDocumentMetadataMapping());
             return builder.request();
         } catch (IOException ex){
             logger.error("TEMPLATE_CREATION_FAILED", ex);
@@ -175,6 +179,22 @@ public class ElasticsearchUtils {
                             .endObject()
                         .field("dynamic_templates")
                             .startArray()
+                                .startObject()
+                                    .field("template_metadata_fields")
+                                    .startObject()
+                                        .field("path_match", ElasticsearchUtils.DOCUMENT_META_FIELD_NAME + ".*")
+                                        .field("mapping")
+                                        .startObject()
+                                            .field("store", true)
+                                            .field("doc_values", true)
+                                            .field("index", "not_analyzed")
+                                            .field("fielddata")
+                                            .startObject()
+                                                .field("format", "doc_values")
+                                            .endObject()
+                                        .endObject()
+                                    .endObject()
+                                .endObject()
                                 .startObject()
                                     .field("template_timestamp")
                                         .startObject()

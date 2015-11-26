@@ -16,8 +16,11 @@
 package com.flipkart.foxtrot.core.querystore.impl;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.flipkart.foxtrot.common.*;
+import com.flipkart.foxtrot.common.Table;
 import com.flipkart.foxtrot.core.datastore.DataStore;
 import com.flipkart.foxtrot.core.datastore.DataStoreException;
 import com.flipkart.foxtrot.core.parsers.ElasticsearchMappingParser;
@@ -26,9 +29,7 @@ import com.flipkart.foxtrot.core.querystore.QueryStore;
 import com.flipkart.foxtrot.core.querystore.QueryStoreException;
 import com.flipkart.foxtrot.core.querystore.TableMetadataManager;
 import com.google.common.base.Stopwatch;
-import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
+import com.google.common.collect.*;
 import org.elasticsearch.action.WriteConsistencyLevel;
 import org.elasticsearch.action.admin.indices.mapping.get.GetMappingsRequest;
 import org.elasticsearch.action.admin.indices.mapping.get.GetMappingsResponse;
@@ -92,22 +93,17 @@ public class ElasticsearchQueryStore implements QueryStore {
             final Table tableMeta = tableMetadataManager.get(table);
             final Document translatedDocuement = dataStore.save(tableMeta, document);
             long timestamp = translatedDocuement.getTimestamp();
+
+            //translatedDocuement.getData().
             Stopwatch stopwatch = new Stopwatch();
             stopwatch.start();
             connection.getClient()
-                    .prepareBulk()
-                    .add(new IndexRequest()
-                            .index(ElasticsearchUtils.getCurrentIndex(table, timestamp))
-                            .type(ElasticsearchUtils.DOCUMENT_TYPE_NAME)
-                            .id(translatedDocuement.getId())
-                            .timestamp(Long.toString(timestamp))
-                            .source(mapper.writeValueAsBytes(translatedDocuement.getData())))
-                    .add(new IndexRequest()
-                            .index(ElasticsearchUtils.getCurrentIndex(table, timestamp))
-                            .type(ElasticsearchUtils.DOCUMENT_META_TYPE_NAME)
-                            .id(translatedDocuement.getId())
-                            .timestamp(Long.toString(timestamp))
-                            .source(mapper.writeValueAsBytes(translatedDocuement.getMetadata())))
+                    .prepareIndex()
+                    .setIndex(ElasticsearchUtils.getCurrentIndex(table, timestamp))
+                    .setType(ElasticsearchUtils.DOCUMENT_TYPE_NAME)
+                    .setId(translatedDocuement.getId())
+                    .setTimestamp(Long.toString(timestamp))
+                    .setSource(convert(translatedDocuement))
                     .setConsistencyLevel(WriteConsistencyLevel.QUORUM)
                     .execute()
                     .get(2, TimeUnit.SECONDS);
@@ -162,14 +158,8 @@ public class ElasticsearchQueryStore implements QueryStore {
                         .type(ElasticsearchUtils.DOCUMENT_TYPE_NAME)
                         .id(document.getId())
                         .timestamp(Long.toString(timestamp))
-                        .source(mapper.writeValueAsBytes(document.getData()));
+                        .source(convert(document));
                 bulkRequestBuilder.add(indexRequest);
-                IndexRequest metaIndexRequest = new IndexRequest()
-                        .index(index)
-                        .type(ElasticsearchUtils.DOCUMENT_META_TYPE_NAME)
-                        .id(document.getId())
-                        .source(mapper.writeValueAsBytes(document.getMetadata()));
-                bulkRequestBuilder.add(metaIndexRequest);
             }
             if (bulkRequestBuilder.numberOfActions() > 0){
                 Stopwatch stopwatch = new Stopwatch();
@@ -230,11 +220,11 @@ public class ElasticsearchQueryStore implements QueryStore {
         try {
             SearchResponse searchResponse = connection.getClient()
                     .prepareSearch(ElasticsearchUtils.getIndices(table))
-                    .setTypes(ElasticsearchUtils.DOCUMENT_META_TYPE_NAME)
+                    .setTypes(ElasticsearchUtils.DOCUMENT_TYPE_NAME)
                     .setQuery(
                             QueryBuilders.constantScoreQuery(
                                     FilterBuilders.boolFilter()
-                                            .must(FilterBuilders.termFilter("id", id))))
+                                            .must(FilterBuilders.termFilter(ElasticsearchUtils.DOCUMENT_META_ID_FIELD_NAME, id))))
                     .setNoFields()
                     .setSize(1)
                     .execute()
@@ -280,35 +270,31 @@ public class ElasticsearchQueryStore implements QueryStore {
                     .actionGet()
                     .mappings();
 
-            List<String> rowKeys;
+            Map<String, String> rowKeys = Maps.newLinkedHashMap();
+            for(String id: ids) {
+                rowKeys.put(id, id);
+            }
             if(!bypassMetalookup) {
-                rowKeys = Lists.newArrayList();
                 SearchResponse response = connection.getClient().prepareSearch(ElasticsearchUtils.getIndices(table))
+                        .setTypes(ElasticsearchUtils.DOCUMENT_TYPE_NAME)
                         .setQuery(
                                 QueryBuilders.constantScoreQuery(
-                                        FilterBuilders.inFilter("id", ids.toArray(new String[ids.size()]))))
+                                        FilterBuilders.inFilter(ElasticsearchUtils.DOCUMENT_META_ID_FIELD_NAME, ids.toArray(new String[ids.size()]))))
                         .setFetchSource(false)
-                        .addField("id")
+                        .addField(ElasticsearchUtils.DOCUMENT_META_ID_FIELD_NAME) //Used for compatibility
                         .setSize(ids.size())
                         .execute()
                         .actionGet();
                 Set<String> inputKeys = ImmutableSet.copyOf(ids);
                 Set<String> foundKeys = Sets.newHashSet();
                 for (SearchHit hit : response.getHits()) {
-                    rowKeys.add(hit.getId());
-                    foundKeys.add(hit.getFields().get("id").getValue().toString());
+                    final String id = hit.getFields().get(ElasticsearchUtils.DOCUMENT_META_ID_FIELD_NAME).getValue().toString();
+                    rowKeys.put(id,hit.getId());
+                    foundKeys.add(id);
                 }
-
-                //Now we've got new keys
-                //Add them all to fetchList
-                //Add old generation keys and invalid keys as is
-                rowKeys.addAll(Sets.difference(inputKeys, foundKeys));
-            }
-            else {
-                rowKeys = ids;
             }
             logger.info("Get row keys: {}", rowKeys.size());
-            return dataStore.get(tableMetadataManager.get(table), rowKeys);
+            return dataStore.get(tableMetadataManager.get(table), ImmutableList.copyOf(rowKeys.values()));
         } catch (DataStoreException ex) {
             if (ex.getErrorCode().equals(DataStoreException.ErrorCode.STORE_NO_DATA_FOUND_FOR_IDS)) {
                 throw new QueryStoreException(QueryStoreException.ErrorCode.DOCUMENT_NOT_FOUND,
@@ -411,6 +397,12 @@ public class ElasticsearchQueryStore implements QueryStore {
         }
     }
 
+    private String convert(Document translatedDocuement) {
+        JsonNode metaNode = mapper.valueToTree(translatedDocuement.getMetadata());
+        ObjectNode dataNode = translatedDocuement.getData().deepCopy();
+        dataNode.put(ElasticsearchUtils.DOCUMENT_META_FIELD_NAME, metaNode);
+        return dataNode.toString();
+    }
 
 
 }

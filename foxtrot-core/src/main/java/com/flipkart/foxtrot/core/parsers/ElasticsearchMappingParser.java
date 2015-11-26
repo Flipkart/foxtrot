@@ -19,6 +19,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.flipkart.foxtrot.common.FieldType;
 import com.flipkart.foxtrot.common.FieldTypeMapping;
+import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
 import org.elasticsearch.cluster.metadata.MappingMetaData;
 
 import java.io.IOException;
@@ -48,6 +49,9 @@ public class ElasticsearchMappingParser {
         Iterator<Map.Entry<String, JsonNode>> iterator = jsonNode.fields();
         while (iterator.hasNext()) {
             Map.Entry<String, JsonNode> entry = iterator.next();
+            if(entry.getKey().equals(ElasticsearchUtils.DOCUMENT_META_FIELD_NAME)) {
+                continue;
+            }
             String currentField = (parentField == null) ? entry.getKey() : (String.format("%s.%s", parentField, entry.getKey()));
             if (entry.getValue().has("properties")) {
                 fieldTypeMappings.addAll(generateFieldMappings(currentField, entry.getValue().get("properties")));
