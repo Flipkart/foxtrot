@@ -17,6 +17,7 @@ import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConnection;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
 import com.flipkart.foxtrot.core.querystore.query.ElasticSearchQueryGenerator;
 import com.google.common.collect.Lists;
+
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.search.SearchType;
@@ -73,8 +74,9 @@ public class DistinctAction extends Action<DistinctRequest> {
             throw new QueryStoreException(QueryStoreException.ErrorCode.INVALID_REQUEST, "Invalid Table");
         }
         try {
-            SearchRequestBuilder query = getConnection().getClient().prepareSearch(ElasticsearchUtils.getIndices(
-                    request.getTable(), request));
+            SearchRequestBuilder query = getConnection().getClient()
+                                               .prepareSearch(ElasticsearchUtils.getIndices(request.getTable(), request))
+                                               .setIndicesOptions(Utils.indicesOptions());
             TermsBuilder rootBuilder = null;
             TermsBuilder termsBuilder = null;
 
