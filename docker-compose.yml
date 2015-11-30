@@ -1,0 +1,34 @@
+elasticsearch:
+  image: library/elasticsearch:1.7.3
+  hostname: elasticsearch
+  command: elasticsearch -Des.http.cors.enabled=true
+  ports:
+   - "9200:9200"
+   - "9300:9300"
+
+# hbase compose
+hbase:
+  image: banno/hbase-standalone
+  hostname: hbase
+  ports:
+   - "2181:2181"
+   - "60000:60000"
+   - "60010:60010"
+   - "60020:60020"
+   - "60030:60030"
+
+#enitity store compose
+foxtrot-server:
+  links:
+   - elasticsearch
+   - hbase
+  container_name: foxtrot_server
+  build: .
+  ports:
+   - "17000:17000"
+   - "17001:17001"
+  volumes:
+   - /var/log/foxtrot-server
+   # enviroment valiables
+#  environment:
+#   - ZK_CONNECTION_STRING=hbase:2181
