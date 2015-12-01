@@ -60,6 +60,14 @@ public abstract class HBaseUtil {
                     hbaseConfig.getAuthString(), hbaseConfig.getKeytabFileName());
             logger.info("Logged into Hbase with User: " + UserGroupInformation.getLoginUser());
         }
+
+        if(null != hbaseConfig.getHbaseZookeeperQuorum()){
+            configuration.set("hbase.zookeeper.quorum", hbaseConfig.getHbaseZookeeperQuorum());
+        }
+
+        if(null != hbaseConfig.getHbaseZookeeperClientPort()){
+            configuration.setInt("hbase.zookeeper.property.clientPort", hbaseConfig.getHbaseZookeeperClientPort());
+        }
         return configuration;
     }
 
