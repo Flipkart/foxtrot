@@ -25,6 +25,7 @@ import com.flipkart.foxtrot.core.datastore.DataStoreException;
 import com.flipkart.foxtrot.core.querystore.DocumentTranslator;
 import com.google.common.base.Stopwatch;
 import com.google.common.collect.ImmutableList;
+import com.shash.hbase.ds.RowKeyDistributorByHashPrefix;
 import org.apache.hadoop.hbase.client.Get;
 import org.apache.hadoop.hbase.client.HTableInterface;
 import org.apache.hadoop.hbase.client.Put;
@@ -54,10 +55,13 @@ public class HBaseDataStore implements DataStore {
     private final HbaseTableConnection tableWrapper;
     private final ObjectMapper mapper;
     private final DocumentTranslator translator = new DocumentTranslator();
+    private final HbaseKeyTranslator keyTranslator;
 
     public HBaseDataStore(HbaseTableConnection tableWrapper, ObjectMapper mapper) {
         this.tableWrapper = tableWrapper;
         this.mapper = mapper;
+        keyTranslator = new HbaseKeyTranslator(new RowKeyDistributorByHashPrefix(
+                new RowKeyDistributorByHashPrefix.OneByteSimpleHash(tableWrapper.getHbaseConfig().getNumBuckets())));
     }
 
     @Override
@@ -146,7 +150,7 @@ public class HBaseDataStore implements DataStore {
     public Document get(final Table table, String id) throws DataStoreException {
         HTableInterface hTable = null;
         try {
-            Get get = new Get(Bytes.toBytes(id))
+            Get get = new Get(keyTranslator.idToRowKey(id))
                     .addColumn(COLUMN_FAMILY, DOCUMENT_FIELD_NAME)
                     .addColumn(COLUMN_FAMILY, DOCUMENT_META_FIELD_NAME)
                     .addColumn(COLUMN_FAMILY, TIMESTAMP_FIELD_NAME)
@@ -193,7 +197,7 @@ public class HBaseDataStore implements DataStore {
         try {
             List<Get> gets = new ArrayList<Get>(ids.size());
             for (String id : ids) {
-                Get get = new Get(Bytes.toBytes(id))
+                Get get = new Get(keyTranslator.idToRowKey(id))
                         .addColumn(COLUMN_FAMILY, DOCUMENT_FIELD_NAME)
                         .addColumn(COLUMN_FAMILY, DOCUMENT_META_FIELD_NAME)
                         .addColumn(COLUMN_FAMILY, TIMESTAMP_FIELD_NAME)
@@ -246,9 +250,10 @@ public class HBaseDataStore implements DataStore {
     }
 
     public Put getPutForDocument(final Table table, Document document) throws JsonProcessingException {
-        return new Put(Bytes.toBytes(document.getId()))
+        return new Put(keyTranslator.idToRowKey(document.getId()))
                 .add(COLUMN_FAMILY, DOCUMENT_META_FIELD_NAME, mapper.writeValueAsBytes(document.getMetadata()))
                 .add(COLUMN_FAMILY, DOCUMENT_FIELD_NAME, mapper.writeValueAsBytes(document.getData()))
                 .add(COLUMN_FAMILY, TIMESTAMP_FIELD_NAME, Bytes.toBytes(document.getTimestamp()));
     }
+
 }

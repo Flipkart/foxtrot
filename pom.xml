@@ -63,6 +63,11 @@
             <id>cloudera</id>
             <url>https://repository.cloudera.com/artifactory/cloudera-repos/</url>
         </repository>
+        <repository>
+            <id>clojars</id>
+            <name>Clojars repository</name>
+            <url>https://clojars.org/repo</url>
+        </repository>
     </repositories>
 
     <dependencies>
@@ -134,6 +139,11 @@
             <groupId>xalan</groupId>
             <artifactId>xalan</artifactId>
             <version>2.7.2</version>
+        </dependency>
+        <dependency>
+            <groupId>com.shash.hbase.ds</groupId>
+            <artifactId>hbase-ds</artifactId>
+            <version>0.0.1</version>
         </dependency>
     </dependencies>
 

@@ -17,6 +17,8 @@ package com.flipkart.foxtrot.core.datastore.impl.hbase;
 
 import org.hibernate.validator.constraints.NotEmpty;
 
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 
 /**
@@ -38,10 +40,13 @@ public class HbaseConfig {
     private String seggregatedTablePrefix;
     private String hbaseZookeeperQuorum;
     private Integer hbaseZookeeperClientPort;
+    private short numBuckets = 32;
 
 
     @NotNull
     @NotEmpty
+    @Min(1)
+    @Max(Byte.MAX_VALUE)
     private String tableName;
 
     public HbaseConfig() {
@@ -149,5 +154,13 @@ public class HbaseConfig {
 
     public void setHbaseZookeeperQuorum(String hbaseZookeeperQuorum) {
         this.hbaseZookeeperQuorum = hbaseZookeeperQuorum;
+    }
+
+    public int getNumBuckets() {
+        return numBuckets;
+    }
+
+    public void setNumBuckets(short numBuckets) {
+        this.numBuckets = numBuckets;
     }
 }

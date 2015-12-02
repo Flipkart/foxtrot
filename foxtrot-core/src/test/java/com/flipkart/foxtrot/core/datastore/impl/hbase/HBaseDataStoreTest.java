@@ -23,6 +23,7 @@ import com.flipkart.foxtrot.common.Table;
 import com.flipkart.foxtrot.core.MockHTable;
 import com.flipkart.foxtrot.core.datastore.DataStoreException;
 import com.flipkart.foxtrot.core.querystore.DocumentTranslator;
+import com.shash.hbase.ds.RowKeyDistributorByHashPrefix;
 import org.apache.hadoop.hbase.client.Get;
 import org.apache.hadoop.hbase.client.HTableInterface;
 import org.apache.hadoop.hbase.client.Put;
@@ -53,6 +54,9 @@ public class HBaseDataStoreTest {
     private static final byte[] DATA_FIELD_NAME = Bytes.toBytes("data");
     private static final String TEST_APP_NAME = "test-app";
     private static final Table TEST_APP = new Table(TEST_APP_NAME, 7);
+    private final HbaseKeyTranslator keyTranslator = new HbaseKeyTranslator(new RowKeyDistributorByHashPrefix(
+            new RowKeyDistributorByHashPrefix.OneByteSimpleHash(32)));
+
 
     @Before
     public void setUp() throws Exception {
@@ -60,6 +64,7 @@ public class HBaseDataStoreTest {
         tableInterface = spy(tableInterface);
         hBaseTableConnection = Mockito.mock(HbaseTableConnection.class);
         when(hBaseTableConnection.getTable(Matchers.<Table>any())).thenReturn(tableInterface);
+        when(hBaseTableConnection.getHbaseConfig()).thenReturn(new HbaseConfig());
         HBaseDataStore = new HBaseDataStore(hBaseTableConnection, mapper);
     }
 
@@ -270,7 +275,7 @@ public class HBaseDataStoreTest {
 
     public void validateSave(Document savedDocument) throws Exception {
         String rowkey = new DocumentTranslator().rowKey(TEST_APP, savedDocument);
-        Get get = new Get(Bytes.toBytes(rowkey));
+        Get get = new Get(keyTranslator.idToRowKey(rowkey));
         Result result = tableInterface.get(get);
         assertNotNull("Get for Id should not be null", result);
         Document actualDocument = new Document(savedDocument.getId(),
