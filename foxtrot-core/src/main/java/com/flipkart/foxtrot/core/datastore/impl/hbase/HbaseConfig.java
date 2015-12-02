@@ -40,13 +40,14 @@ public class HbaseConfig {
     private String seggregatedTablePrefix;
     private String hbaseZookeeperQuorum;
     private Integer hbaseZookeeperClientPort;
+
+    @Min(1)
+    @Max(Byte.MAX_VALUE)
     private short numBuckets = 32;
 
 
     @NotNull
     @NotEmpty
-    @Min(1)
-    @Max(Byte.MAX_VALUE)
     private String tableName;
 
     public HbaseConfig() {
