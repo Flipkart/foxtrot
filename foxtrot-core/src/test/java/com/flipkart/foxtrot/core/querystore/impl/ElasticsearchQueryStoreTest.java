@@ -213,7 +213,7 @@ public class ElasticsearchQueryStoreTest {
         }
         queryStore.save(TestUtils.TEST_TABLE_NAME, ImmutableList.copyOf(idValues.values()));
         elasticsearchServer.refresh(ElasticsearchUtils.getIndices(TestUtils.TEST_TABLE_NAME));
-        List<Document> responseDocuments = queryStore.get(TestUtils.TEST_TABLE_NAME, ids);
+        List<Document> responseDocuments = queryStore.getAll(TestUtils.TEST_TABLE_NAME, ids);
         HashMap<String, Document> responseIdValues = new HashMap<String, Document>();
         for (Document doc : responseDocuments) {
             responseIdValues.put(doc.getId(), doc);
@@ -231,7 +231,7 @@ public class ElasticsearchQueryStoreTest {
     @Test
     public void testGetBulkInvalidIds() throws Exception {
         try {
-            queryStore.get(TestUtils.TEST_TABLE_NAME, Arrays.asList(UUID.randomUUID().toString(), UUID.randomUUID().toString()));
+            queryStore.getAll(TestUtils.TEST_TABLE_NAME, Arrays.asList(UUID.randomUUID().toString(), UUID.randomUUID().toString()));
             fail();
         } catch (QueryStoreException qse) {
             assertEquals(QueryStoreException.ErrorCode.DOCUMENT_NOT_FOUND, qse.getErrorCode());

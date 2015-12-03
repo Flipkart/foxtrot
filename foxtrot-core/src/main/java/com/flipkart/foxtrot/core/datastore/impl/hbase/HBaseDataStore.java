@@ -26,6 +26,7 @@ import com.flipkart.foxtrot.core.querystore.DocumentTranslator;
 import com.google.common.base.Stopwatch;
 import com.google.common.collect.ImmutableList;
 import com.shash.hbase.ds.RowKeyDistributorByHashPrefix;
+import com.yammer.metrics.annotation.Timed;
 import org.apache.hadoop.hbase.client.Get;
 import org.apache.hadoop.hbase.client.HTableInterface;
 import org.apache.hadoop.hbase.client.Put;
@@ -65,6 +66,7 @@ public class HBaseDataStore implements DataStore {
     }
 
     @Override
+    @Timed
     public Document save(final Table table, Document document) throws DataStoreException {
         if (document == null || document.getData() == null || document.getId() == null) {
             throw new DataStoreException(DataStoreException.ErrorCode.STORE_INVALID_REQUEST, "Invalid Document");
@@ -74,10 +76,7 @@ public class HBaseDataStore implements DataStore {
         try {
             translatedDocument = translator.translate(table, document);
             hTable = tableWrapper.getTable(table);
-            Stopwatch stopwatch = new Stopwatch();
-            stopwatch.start();
             hTable.put(getPutForDocument(table, translatedDocument));
-            logger.error(String.format("HBASE put took : %d table : %s", stopwatch.elapsedMillis(), table));
         } catch (JsonProcessingException e) {
             throw new DataStoreException(DataStoreException.ErrorCode.STORE_INVALID_REQUEST,
                     e.getMessage(), e);
@@ -100,7 +99,8 @@ public class HBaseDataStore implements DataStore {
     }
 
     @Override
-    public List<Document> save(final Table table, List<Document> documents) throws DataStoreException {
+    @Timed
+    public List<Document> saveAll(final Table table, List<Document> documents) throws DataStoreException {
         if (documents == null || documents.isEmpty()) {
             throw new DataStoreException(DataStoreException.ErrorCode.STORE_INVALID_REQUEST, "Invalid Documents List");
         }
@@ -124,10 +124,7 @@ public class HBaseDataStore implements DataStore {
         HTableInterface hTable = null;
         try {
             hTable = tableWrapper.getTable(table);
-            Stopwatch stopwatch = new Stopwatch();
-            stopwatch.start();
             hTable.put(puts);
-            logger.error(String.format("HBASE put took : %d table : %s", stopwatch.elapsedMillis(), table));
         } catch (IOException e) {
             throw new DataStoreException(DataStoreException.ErrorCode.STORE_MULTI_SAVE,
                     e.getMessage(), e);
@@ -147,6 +144,7 @@ public class HBaseDataStore implements DataStore {
     }
 
     @Override
+    @Timed
     public Document get(final Table table, String id) throws DataStoreException {
         HTableInterface hTable = null;
         try {
@@ -188,7 +186,8 @@ public class HBaseDataStore implements DataStore {
     }
 
     @Override
-    public List<Document> get(final Table table, List<String> ids) throws DataStoreException {
+    @Timed
+    public List<Document> getAll(final Table table, List<String> ids) throws DataStoreException {
         if (ids == null) {
             throw new DataStoreException(DataStoreException.ErrorCode.STORE_INVALID_REQUEST, "Invalid Request IDs");
         }

@@ -167,7 +167,7 @@ public class HBaseDataStoreTest {
                     System.currentTimeMillis(),
                     mapper.valueToTree(Collections.singletonMap("TEST_NAME", "SINGLE_SAVE_TEST"))));
         }
-        HBaseDataStore.save(TEST_APP, documents);
+        HBaseDataStore.saveAll(TEST_APP, documents);
         for (Document document : documents) {
             validateSave(document);
         }
@@ -180,7 +180,7 @@ public class HBaseDataStoreTest {
             documents.add(null);
         }
         try {
-            HBaseDataStore.save(TEST_APP, documents);
+            HBaseDataStore.saveAll(TEST_APP, documents);
             fail();
         } catch (DataStoreException ex) {
             assertEquals(DataStoreException.ErrorCode.STORE_INVALID_REQUEST, ex.getErrorCode());
@@ -191,7 +191,7 @@ public class HBaseDataStoreTest {
     public void testSaveBulkNullIdList() throws Exception {
         List<Document> documents = null;
         try {
-            HBaseDataStore.save(TEST_APP, documents);
+            HBaseDataStore.saveAll(TEST_APP, documents);
             fail();
         } catch (DataStoreException ex) {
             assertEquals(DataStoreException.ErrorCode.STORE_INVALID_REQUEST, ex.getErrorCode());
@@ -205,7 +205,7 @@ public class HBaseDataStoreTest {
             documents.add(new Document(null, System.currentTimeMillis(), mapper.valueToTree(Collections.singletonMap("TEST_NAME", "SINGLE_SAVE_TEST"))));
         }
         try {
-            HBaseDataStore.save(TEST_APP, documents);
+            HBaseDataStore.saveAll(TEST_APP, documents);
             fail();
         } catch (DataStoreException ex) {
             assertEquals(DataStoreException.ErrorCode.STORE_INVALID_REQUEST, ex.getErrorCode());
@@ -219,7 +219,7 @@ public class HBaseDataStoreTest {
             documents.add(new Document(UUID.randomUUID().toString(), System.currentTimeMillis(), null));
         }
         try {
-            HBaseDataStore.save(TEST_APP, documents);
+            HBaseDataStore.saveAll(TEST_APP, documents);
             fail();
         } catch (DataStoreException ex) {
             assertEquals(DataStoreException.ErrorCode.STORE_INVALID_REQUEST, ex.getErrorCode());
@@ -236,7 +236,7 @@ public class HBaseDataStoreTest {
                 .when(tableInterface)
                 .put(Matchers.anyListOf(Put.class));
         try {
-            HBaseDataStore.save(TEST_APP, documents);
+            HBaseDataStore.saveAll(TEST_APP, documents);
             fail();
         } catch (DataStoreException ex) {
             assertEquals(DataStoreException.ErrorCode.STORE_MULTI_SAVE, ex.getErrorCode());
@@ -252,7 +252,7 @@ public class HBaseDataStoreTest {
         doThrow(new IOException())
                 .when(tableInterface)
                 .close();
-        HBaseDataStore.save(TEST_APP, documents);
+        HBaseDataStore.saveAll(TEST_APP, documents);
         verify(tableInterface, times(1)).close();
     }
 
@@ -266,7 +266,7 @@ public class HBaseDataStoreTest {
         }
         when(hBaseTableConnection.getTable(Matchers.<Table>any())).thenReturn(null);
         try {
-            HBaseDataStore.save(TEST_APP, documents);
+            HBaseDataStore.saveAll(TEST_APP, documents);
             fail();
         } catch (DataStoreException ex) {
             assertEquals(DataStoreException.ErrorCode.STORE_MULTI_SAVE, ex.getErrorCode());
@@ -366,7 +366,7 @@ public class HBaseDataStoreTest {
             putList.add(HBaseDataStore.getPutForDocument(TEST_APP, idValues.get(id)));
         }
         tableInterface.put(putList);
-        List<Document> actualDocuments = HBaseDataStore.get(TEST_APP, ids);
+        List<Document> actualDocuments = HBaseDataStore.getAll(TEST_APP, ids);
         HashMap<String, Document> actualIdValues = new HashMap<String, Document>();
         for (Document doc : actualDocuments) {
             actualIdValues.put(doc.getId(), doc);
@@ -382,7 +382,7 @@ public class HBaseDataStoreTest {
     public void testGetBulkNullIdList() throws Exception {
         List<String> ids = null;
         try {
-            HBaseDataStore.get(TEST_APP, ids);
+            HBaseDataStore.getAll(TEST_APP, ids);
             fail();
         } catch (DataStoreException ex) {
             assertEquals(DataStoreException.ErrorCode.STORE_INVALID_REQUEST, ex.getErrorCode());
@@ -396,7 +396,7 @@ public class HBaseDataStoreTest {
             ids.add(UUID.randomUUID().toString());
         }
         try {
-            HBaseDataStore.get(TEST_APP, ids);
+            HBaseDataStore.getAll(TEST_APP, ids);
             fail();
         } catch (DataStoreException ex) {
             assertEquals(DataStoreException.ErrorCode.STORE_NO_DATA_FOUND_FOR_IDS, ex.getErrorCode());
@@ -419,7 +419,7 @@ public class HBaseDataStoreTest {
                 .when(tableInterface)
                 .get(Matchers.anyListOf(Get.class));
         try {
-            HBaseDataStore.get(TEST_APP, ids);
+            HBaseDataStore.getAll(TEST_APP, ids);
             fail();
         } catch (DataStoreException ex) {
             assertEquals(DataStoreException.ErrorCode.STORE_MULTI_GET, ex.getErrorCode());
@@ -441,7 +441,7 @@ public class HBaseDataStoreTest {
         doThrow(new IOException())
                 .when(tableInterface)
                 .close();
-        HBaseDataStore.get(TEST_APP, ids);
+        HBaseDataStore.getAll(TEST_APP, ids);
         verify(tableInterface, times(1)).close();
     }
 
@@ -462,7 +462,7 @@ public class HBaseDataStoreTest {
         tableInterface.put(putList);
         when(hBaseTableConnection.getTable(Matchers.<Table>any())).thenReturn(null);
         try {
-            HBaseDataStore.get(TEST_APP, ids);
+            HBaseDataStore.getAll(TEST_APP, ids);
             fail();
         } catch (DataStoreException ex) {
             assertEquals(DataStoreException.ErrorCode.STORE_MULTI_GET, ex.getErrorCode());

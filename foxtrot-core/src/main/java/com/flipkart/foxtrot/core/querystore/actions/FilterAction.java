@@ -113,7 +113,7 @@ public class FilterAction extends Action<Query> {
             if (ids.isEmpty()) {
                 return new QueryResponse(Collections.<Document>emptyList());
             }
-            return new QueryResponse(getQueryStore().get(parameter.getTable(), ids, true));
+            return new QueryResponse(getQueryStore().getAll(parameter.getTable(), ids, true));
         } catch (Exception e) {
             if (null != search) {
                 logger.error("Error running generated query: " + search, e);

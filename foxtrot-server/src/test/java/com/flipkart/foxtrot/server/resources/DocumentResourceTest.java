@@ -348,7 +348,7 @@ public class DocumentResourceTest extends ResourceTest {
     public void testGetDocumentsInternalError() throws Exception {
         try {
             doThrow(new QueryStoreException(QueryStoreException.ErrorCode.DOCUMENT_GET_ERROR, "Error"))
-                    .when(queryStore).get(anyString(), anyListOf(String.class));
+                    .when(queryStore).getAll(anyString(), anyListOf(String.class));
             client().resource(String.format("/v1/document/%s", TestUtils.TEST_TABLE_NAME))
                     .queryParam("id", UUID.randomUUID().toString())
                     .get(String.class);

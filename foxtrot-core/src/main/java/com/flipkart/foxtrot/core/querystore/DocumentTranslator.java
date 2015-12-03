@@ -36,7 +36,7 @@ public class DocumentTranslator {
         document.setMetadata(metadata);
         document.setData(inDocument.getData());
 
-        logger.info("Translated doc row key: {}, {}", rowKey, document);
+        logger.debug("Translated doc row key: {}, {}", rowKey, document);
         return document;
     }
 

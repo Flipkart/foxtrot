@@ -24,23 +24,20 @@ import com.flipkart.foxtrot.common.Table;
 import com.flipkart.foxtrot.core.datastore.DataStore;
 import com.flipkart.foxtrot.core.datastore.DataStoreException;
 import com.flipkart.foxtrot.core.parsers.ElasticsearchMappingParser;
-import com.flipkart.foxtrot.core.querystore.DocumentTranslator;
 import com.flipkart.foxtrot.core.querystore.QueryStore;
 import com.flipkart.foxtrot.core.querystore.QueryStoreException;
 import com.flipkart.foxtrot.core.querystore.TableMetadataManager;
 import com.google.common.base.Stopwatch;
 import com.google.common.collect.*;
+import com.yammer.metrics.annotation.Timed;
 import org.elasticsearch.action.WriteConsistencyLevel;
 import org.elasticsearch.action.admin.indices.mapping.get.GetMappingsRequest;
 import org.elasticsearch.action.admin.indices.mapping.get.GetMappingsResponse;
 import org.elasticsearch.action.admin.indices.status.IndicesStatusResponse;
-import org.elasticsearch.action.admin.indices.template.get.GetIndexTemplatesRequest;
 import org.elasticsearch.action.bulk.BulkItemResponse;
 import org.elasticsearch.action.bulk.BulkRequestBuilder;
 import org.elasticsearch.action.bulk.BulkResponse;
-import org.elasticsearch.action.get.MultiGetRequest;
 import org.elasticsearch.action.index.IndexRequest;
-import org.elasticsearch.action.index.IndexRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.cluster.metadata.MappingMetaData;
 import org.elasticsearch.common.collect.ImmutableOpenMap;
@@ -80,6 +77,7 @@ public class ElasticsearchQueryStore implements QueryStore {
     }
 
     @Override
+    @Timed(name = "single-document-save")
     public void save(String table, Document document) throws QueryStoreException {
         table = ElasticsearchUtils.getValidTableName(table);
         try {
@@ -95,8 +93,6 @@ public class ElasticsearchQueryStore implements QueryStore {
             long timestamp = translatedDocuement.getTimestamp();
 
             //translatedDocuement.getData().
-            Stopwatch stopwatch = new Stopwatch();
-            stopwatch.start();
             connection.getClient()
                     .prepareIndex()
                     .setIndex(ElasticsearchUtils.getCurrentIndex(table, timestamp))
@@ -107,7 +103,6 @@ public class ElasticsearchQueryStore implements QueryStore {
                     .setConsistencyLevel(WriteConsistencyLevel.QUORUM)
                     .execute()
                     .get(2, TimeUnit.SECONDS);
-            logger.info(String.format("ES took : %d table : %s", stopwatch.elapsedMillis(), table));
         } catch (QueryStoreException ex) {
             throw ex;
         } catch (DataStoreException ex) {
@@ -130,6 +125,7 @@ public class ElasticsearchQueryStore implements QueryStore {
     }
 
     @Override
+    @Timed(name = "multiple-document-saveAll")
     public void save(String table, List<Document> documents) throws QueryStoreException {
         table = ElasticsearchUtils.getValidTableName(table);
         try {
@@ -142,7 +138,7 @@ public class ElasticsearchQueryStore implements QueryStore {
                         "Invalid Document List");
             }
             final Table tableMeta = tableMetadataManager.get(table);
-            final List<Document> translatedDocuments = dataStore.save(tableMeta, documents);
+            final List<Document> translatedDocuments = dataStore.saveAll(tableMeta, documents);
             BulkRequestBuilder bulkRequestBuilder = connection.getClient().prepareBulk();
 
             DateTime dateTime = new DateTime().plusDays(1);
@@ -162,13 +158,10 @@ public class ElasticsearchQueryStore implements QueryStore {
                 bulkRequestBuilder.add(indexRequest);
             }
             if (bulkRequestBuilder.numberOfActions() > 0){
-                Stopwatch stopwatch = new Stopwatch();
-                stopwatch.start();
                 BulkResponse responses = bulkRequestBuilder
                         .setConsistencyLevel(WriteConsistencyLevel.QUORUM)
                         .execute()
                         .get(10, TimeUnit.SECONDS);
-                logger.info(String.format("ES took : %d table : %s", stopwatch.elapsedMillis(), table));
                 int failedCount = 0;
                 for (int i = 0; i < responses.getItems().length; i++) {
                     BulkItemResponse itemResponse = responses.getItems()[i];
@@ -203,6 +196,7 @@ public class ElasticsearchQueryStore implements QueryStore {
     }
 
     @Override
+    @Timed(name = "single-document-getAll")
     public Document get(String table, String id) throws QueryStoreException {
         table = ElasticsearchUtils.getValidTableName(table);
         Table fxTable = null;
@@ -250,12 +244,13 @@ public class ElasticsearchQueryStore implements QueryStore {
     }
 
     @Override
-    public List<Document> get(String table, List<String> ids) throws QueryStoreException {
-        return get(table, ids, false);
+    public List<Document> getAll(String table, List<String> ids) throws QueryStoreException {
+        return getAll(table, ids, false);
     }
 
     @Override
-    public List<Document> get(String table, List<String> ids, boolean bypassMetalookup) throws QueryStoreException {
+    @Timed
+    public List<Document> getAll(String table, List<String> ids, boolean bypassMetalookup) throws QueryStoreException {
         table = ElasticsearchUtils.getValidTableName(table);
         try {
             if (!tableMetadataManager.exists(table)) {
@@ -294,7 +289,7 @@ public class ElasticsearchQueryStore implements QueryStore {
                 }
             }
             logger.info("Get row keys: {}", rowKeys.size());
-            return dataStore.get(tableMetadataManager.get(table), ImmutableList.copyOf(rowKeys.values()));
+            return dataStore.getAll(tableMetadataManager.get(table), ImmutableList.copyOf(rowKeys.values()));
         } catch (DataStoreException ex) {
             if (ex.getErrorCode().equals(DataStoreException.ErrorCode.STORE_NO_DATA_FOUND_FOR_IDS)) {
                 throw new QueryStoreException(QueryStoreException.ErrorCode.DOCUMENT_NOT_FOUND,
@@ -309,6 +304,7 @@ public class ElasticsearchQueryStore implements QueryStore {
     }
 
     @Override
+    @Timed
     public TableFieldMapping getFieldMappings(String table) throws QueryStoreException {
         table = ElasticsearchUtils.getValidTableName(table);
         try {
@@ -351,11 +347,13 @@ public class ElasticsearchQueryStore implements QueryStore {
     }
 
     @Override
+    @Timed
     public void cleanup(final String table) throws QueryStoreException {
-        cleanup(new HashSet<String>(Arrays.asList(table)));
+        cleanup(ImmutableSet.of(table));
     }
 
     @Override
+    @Timed
     public void cleanup(Set<String> tables) throws QueryStoreException {
         List<String> indicesToDelete = new ArrayList<String>();
         try {

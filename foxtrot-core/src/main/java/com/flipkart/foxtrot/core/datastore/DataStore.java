@@ -27,7 +27,7 @@ import java.util.List;
  */
 public interface DataStore {
     public Document save(final Table table, final Document document) throws DataStoreException;
-    public List<Document> save(final Table table, final List<Document> documents) throws DataStoreException;
+    public List<Document> saveAll(final Table table, final List<Document> documents) throws DataStoreException;
     public Document get(final Table table, final String id) throws DataStoreException;
-    public List<Document> get(final Table table, final List<String> ids) throws DataStoreException;
+    public List<Document> getAll(final Table table, final List<String> ids) throws DataStoreException;
 }
