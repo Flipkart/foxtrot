@@ -23,7 +23,6 @@ import com.flipkart.foxtrot.common.Table;
 import com.flipkart.foxtrot.core.datastore.DataStore;
 import com.flipkart.foxtrot.core.datastore.DataStoreException;
 import com.flipkart.foxtrot.core.querystore.DocumentTranslator;
-import com.google.common.base.Stopwatch;
 import com.google.common.collect.ImmutableList;
 import com.shash.hbase.ds.RowKeyDistributorByHashPrefix;
 import com.yammer.metrics.annotation.Timed;
@@ -61,7 +60,7 @@ public class HBaseDataStore implements DataStore {
     public HBaseDataStore(HbaseTableConnection tableWrapper, ObjectMapper mapper) {
         this.tableWrapper = tableWrapper;
         this.mapper = mapper;
-        keyTranslator = new HbaseKeyTranslator(new RowKeyDistributorByHashPrefix(
+        this.keyTranslator = new HbaseKeyTranslator(new RowKeyDistributorByHashPrefix(
                 new RowKeyDistributorByHashPrefix.OneByteSimpleHash(tableWrapper.getHbaseConfig().getNumBuckets())));
     }
 
@@ -218,7 +217,7 @@ public class HBaseDataStore implements DataStore {
                                         : null;
                     final String docId = (null == metadata)
                                             ? Bytes.toString(getResult.getRow()).split(":")[0]
-                                            : documentMetadata.getRowKey();
+                                            : documentMetadata.getRawStorageId();
                     results.add(translator.translateBack(new Document(docId, time, documentMetadata, mapper.readTree(data))));
                 } else {
                     throw new DataStoreException(DataStoreException.ErrorCode.STORE_NO_DATA_FOUND_FOR_IDS,

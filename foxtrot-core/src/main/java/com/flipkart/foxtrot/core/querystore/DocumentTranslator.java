@@ -28,7 +28,7 @@ public class DocumentTranslator {
         final String rowKey = rowKey(table, inDocument);
 
         DocumentMetadata metadata = new DocumentMetadata();
-        metadata.setRowKey(rowKey);
+        metadata.setRawStorageId(rowKey);
         metadata.setId(inDocument.getId());
 
         document.setId(rowKey);
@@ -62,7 +62,7 @@ public class DocumentTranslator {
         final String rowKey = rowKey(table, inDocument);
 
         DocumentMetadata metadata = new DocumentMetadata();
-        metadata.setRowKey(rowKey);
+        metadata.setRawStorageId(rowKey);
         metadata.setId(inDocument.getId());
 
         logger.info("Doc row key: {}, {}", rowKey, inDocument);

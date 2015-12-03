@@ -5,14 +5,14 @@ package com.flipkart.foxtrot.common;
  */
 public class DocumentMetadata {
     private String id;
-    private String rowKey;
+    private String rawStorageId;
 
     public DocumentMetadata() {
     }
 
-    public DocumentMetadata(String id, String rowKey) {
+    public DocumentMetadata(String id, String rawStorageId) {
         this.id = id;
-        this.rowKey = rowKey;
+        this.rawStorageId = rawStorageId;
     }
 
     public String getId() {
@@ -23,19 +23,19 @@ public class DocumentMetadata {
         this.id = id;
     }
 
-    public String getRowKey() {
-        return rowKey;
+    public String getRawStorageId() {
+        return rawStorageId;
     }
 
-    public void setRowKey(String rowKey) {
-        this.rowKey = rowKey;
+    public void setRawStorageId(String rawStorageId) {
+        this.rawStorageId = rawStorageId;
     }
 
     @Override
     public String toString() {
         return "DocumentMetadata{" +
                 "id='" + id + '\'' +
-                ", rowKey='" + rowKey + '\'' +
+                ", rawStorageId='" + rawStorageId + '\'' +
                 '}';
     }
 }
