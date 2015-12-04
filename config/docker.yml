@@ -1,5 +1,3 @@
-server:
-  rootPath: /foxtrot/*
 http:
   port: 17000
   adminPort: 17001
@@ -7,13 +5,13 @@ http:
 
 elasticsearch:
   hosts:
-  - localhost
-  cluster: foxtrot
+  - 192.168.99.100
+  cluster: elasticsearch
 
 hbase:
   secure : false
   tableName: foxtrot
-  hbaseZookeeperQuorum: localhost
+  hbaseZookeeperQuorum: 192.168.99.100
   hbaseZookeeperClientPort: 2181
 
 cluster:
