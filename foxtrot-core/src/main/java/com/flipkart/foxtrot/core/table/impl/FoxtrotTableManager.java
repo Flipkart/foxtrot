@@ -33,15 +33,13 @@ public class FoxtrotTableManager implements TableManager {
             if (metadataManager.exists(table.getName())) {
                 throw new TableManagerException(TableManagerException.ErrorCode.BAD_REQUEST, "table already exists");
             }
-            queryStore.init(table.getName());
-            dataStore.init(table);
+            queryStore.initializeTable(table.getName());
+            dataStore.initializeTable(table);
             metadataManager.save(table);
         } catch (DataStoreException e) {
             switch (e.getErrorCode()) {
                 case TABLE_NOT_FOUND:
                     throw new TableManagerException(TableManagerException.ErrorCode.BAD_REQUEST, e);
-                case STORE_CONNECTION:
-                    throw new TableManagerException(TableManagerException.ErrorCode.INTERNAL_ERROR, e);
                 default:
                     throw new TableManagerException(TableManagerException.ErrorCode.INTERNAL_ERROR, e);
             }
@@ -57,7 +55,8 @@ public class FoxtrotTableManager implements TableManager {
         try {
             Table table = metadataManager.get(name);
             if (table == null) {
-                throw new TableManagerException(TableManagerException.ErrorCode.TABLE_NOT_FOUND, "table_does_not_exists");
+                throw new TableManagerException(TableManagerException.ErrorCode.TABLE_NOT_FOUND,
+                        String.format("table does not exists table=%s", name));
             }
             return table;
         } catch (TableManagerException e) {

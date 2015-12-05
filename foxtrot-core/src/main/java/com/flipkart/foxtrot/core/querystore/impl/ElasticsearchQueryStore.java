@@ -70,7 +70,7 @@ public class ElasticsearchQueryStore implements QueryStore {
     }
 
     @Override
-    public void init(String table) throws QueryStoreException {
+    public void initializeTable(String table) throws QueryStoreException {
         // Nothing needs to be done here since indexes are created at runtime in elasticsearch
     }
 
@@ -329,10 +329,5 @@ public class ElasticsearchQueryStore implements QueryStore {
             throw new QueryStoreException(QueryStoreException.ErrorCode.DATA_CLEANUP_ERROR,
                     String.format("Unable to delete Indexes - %s", indicesToDelete), ex);
         }
-    }
-
-    @Override
-    public String getId() {
-        return "elasticsearch";
     }
 }
