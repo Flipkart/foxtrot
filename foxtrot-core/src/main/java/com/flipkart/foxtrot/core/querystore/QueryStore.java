@@ -1,12 +1,12 @@
 /**
  * Copyright 2014 Flipkart Internet Pvt. Ltd.
- *
+ * <p/>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
+ * <p/>
  * http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p/>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -17,6 +17,7 @@ package com.flipkart.foxtrot.core.querystore;
 
 import com.flipkart.foxtrot.common.Document;
 import com.flipkart.foxtrot.common.TableFieldMapping;
+import com.flipkart.foxtrot.core.common.Identifiable;
 
 import java.util.List;
 import java.util.Set;
@@ -26,21 +27,23 @@ import java.util.Set;
  * Date: 12/03/14
  * Time: 9:25 PM
  */
-public interface QueryStore {
+public interface QueryStore extends Identifiable {
 
-    public void save(final String table, final Document document) throws QueryStoreException;
+    void init(final String table) throws QueryStoreException;
 
-    public void save(final String table, final List<Document> documents) throws QueryStoreException;
+    void save(final String table, final Document document) throws QueryStoreException;
 
-    public Document get(final String table, final String id) throws QueryStoreException;
+    void save(final String table, final List<Document> documents) throws QueryStoreException;
 
-    public List<Document> get(final String table, final List<String> ids) throws QueryStoreException;
+    Document get(final String table, final String id) throws QueryStoreException;
 
-    public TableFieldMapping getFieldMappings(final String table) throws QueryStoreException;
+    List<Document> get(final String table, final List<String> ids) throws QueryStoreException;
 
-    public void cleanupAll() throws QueryStoreException;
+    TableFieldMapping getFieldMappings(final String table) throws QueryStoreException;
 
-    public void cleanup(final String table) throws QueryStoreException;
+    void cleanupAll() throws QueryStoreException;
 
-    public void cleanup(final Set<String> tables) throws QueryStoreException;
+    void cleanup(final String table) throws QueryStoreException;
+
+    void cleanup(final Set<String> tables) throws QueryStoreException;
 }

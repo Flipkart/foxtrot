@@ -1,12 +1,12 @@
 /**
  * Copyright 2014 Flipkart Internet Pvt. Ltd.
- * 
+ * <p/>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ * <p/>
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ * <p/>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -17,6 +17,7 @@ package com.flipkart.foxtrot.core.datastore;
 
 import com.flipkart.foxtrot.common.Document;
 import com.flipkart.foxtrot.common.Table;
+import com.flipkart.foxtrot.core.common.Identifiable;
 
 import java.util.List;
 
@@ -25,9 +26,15 @@ import java.util.List;
  * Date: 12/03/14
  * Time: 9:17 PM
  */
-public interface DataStore {
+public interface DataStore extends Identifiable {
+
+    public void init(final Table table) throws DataStoreException;
+
     public void save(final Table table, final Document document) throws DataStoreException;
+
     public void save(final Table table, final List<Document> documents) throws DataStoreException;
+
     public Document get(final Table table, final String id) throws DataStoreException;
+
     public List<Document> get(final Table table, final List<String> ids) throws DataStoreException;
 }

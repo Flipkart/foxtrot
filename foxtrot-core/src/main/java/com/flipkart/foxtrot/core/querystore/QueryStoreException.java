@@ -31,7 +31,7 @@ public class QueryStoreException extends Exception {
         this.errorCode = errorCode;
     }
 
-    public static enum ErrorCode {
+    public enum ErrorCode {
         NO_SUCH_TABLE,
         DOCUMENT_SAVE_ERROR,
         DOCUMENT_GET_ERROR,
@@ -45,7 +45,8 @@ public class QueryStoreException extends Exception {
         INVALID_REQUEST,
         NO_METADATA_FOUND,
         TABLE_LIST_FETCH_ERROR,
-        DATA_CLEANUP_ERROR
+        DATA_CLEANUP_ERROR,
+        EXECUTION_ERROR
 
     }
 
