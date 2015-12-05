@@ -60,7 +60,7 @@ public class HBaseDataStore implements DataStore {
     public HBaseDataStore(HbaseTableConnection tableWrapper, ObjectMapper mapper) {
         this.tableWrapper = tableWrapper;
         this.mapper = mapper;
-        translator = new DocumentTranslator(new RowKeyDistributorByHashPrefix(
+        this.translator = new DocumentTranslator(new RowKeyDistributorByHashPrefix(
                 new RowKeyDistributorByHashPrefix.OneByteSimpleHash(tableWrapper.getHbaseConfig().getNumBuckets())));
     }
 
