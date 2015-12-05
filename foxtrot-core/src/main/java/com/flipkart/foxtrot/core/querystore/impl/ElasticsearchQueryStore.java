@@ -77,7 +77,7 @@ public class ElasticsearchQueryStore implements QueryStore {
     }
 
     @Override
-    @Timed(name = "single-document-save")
+    @Timed
     public void save(String table, Document document) throws QueryStoreException {
         table = ElasticsearchUtils.getValidTableName(table);
         try {
@@ -125,7 +125,7 @@ public class ElasticsearchQueryStore implements QueryStore {
     }
 
     @Override
-    @Timed(name = "multiple-document-saveAll")
+    @Timed
     public void save(String table, List<Document> documents) throws QueryStoreException {
         table = ElasticsearchUtils.getValidTableName(table);
         try {
@@ -196,7 +196,7 @@ public class ElasticsearchQueryStore implements QueryStore {
     }
 
     @Override
-    @Timed(name = "single-document-getAll")
+    @Timed
     public Document get(String table, String id) throws QueryStoreException {
         table = ElasticsearchUtils.getValidTableName(table);
         Table fxTable = null;
@@ -280,12 +280,9 @@ public class ElasticsearchQueryStore implements QueryStore {
                         .setSize(ids.size())
                         .execute()
                         .actionGet();
-                Set<String> inputKeys = ImmutableSet.copyOf(ids);
-                Set<String> foundKeys = Sets.newHashSet();
                 for (SearchHit hit : response.getHits()) {
                     final String id = hit.getFields().get(ElasticsearchUtils.DOCUMENT_META_ID_FIELD_NAME).getValue().toString();
                     rowKeys.put(id,hit.getId());
-                    foundKeys.add(id);
                 }
             }
             logger.info("Get row keys: {}", rowKeys.size());

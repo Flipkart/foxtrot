@@ -30,6 +30,7 @@ import com.flipkart.foxtrot.core.querystore.QueryStoreException;
 import com.flipkart.foxtrot.core.querystore.TableMetadataManager;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsLoader;
 import com.google.common.collect.ImmutableList;
+import com.shash.hbase.ds.RowKeyDistributorByHashPrefix;
 import org.elasticsearch.action.get.GetResponse;
 import org.junit.After;
 import org.junit.Before;
@@ -53,6 +54,8 @@ public class ElasticsearchQueryStoreTest {
     private ElasticsearchQueryStore queryStore;
     private ObjectMapper mapper;
     private TableMetadataManager tableMetadataManager;
+    private final DocumentTranslator translator = new DocumentTranslator(new RowKeyDistributorByHashPrefix(
+            new RowKeyDistributorByHashPrefix.OneByteSimpleHash(32)));
 
     @Before
     public void setUp() throws Exception {
@@ -86,7 +89,7 @@ public class ElasticsearchQueryStoreTest {
         JsonNode data = mapper.valueToTree(Collections.singletonMap("TEST_NAME", "SINGLE_SAVE_TEST"));
         originalDocument.setData(data);
         queryStore.save(TestUtils.TEST_TABLE_NAME, originalDocument);
-        final Document translatedDocuemnt = new DocumentTranslator().translate(tableMetadataManager.get(TestUtils.TEST_TABLE_NAME), originalDocument);
+        final Document translatedDocuemnt = translator.translate(tableMetadataManager.get(TestUtils.TEST_TABLE_NAME), originalDocument);
         GetResponse getResponse = elasticsearchServer
                         .getClient()
                         .prepareGet(ElasticsearchUtils.getCurrentIndex(TestUtils.TEST_TABLE_NAME, originalDocument.getTimestamp()),
@@ -122,7 +125,7 @@ public class ElasticsearchQueryStoreTest {
                     mapper.valueToTree(Collections.singletonMap("TEST_NAME", "SINGLE_SAVE_TEST"))));
         }
         queryStore.save(TestUtils.TEST_TABLE_NAME, documents);
-        final List<Document> translatedDocuemtns = new DocumentTranslator().translate(tableMetadataManager.get(TestUtils.TEST_TABLE_NAME), documents);
+        final List<Document> translatedDocuemtns = translator.translate(tableMetadataManager.get(TestUtils.TEST_TABLE_NAME), documents);
         for (Document document : translatedDocuemtns) {
             GetResponse getResponse = elasticsearchServer
                     .getClient()
