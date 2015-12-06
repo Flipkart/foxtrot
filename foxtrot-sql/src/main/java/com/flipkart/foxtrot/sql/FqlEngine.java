@@ -6,7 +6,7 @@ import com.flipkart.foxtrot.common.Table;
 import com.flipkart.foxtrot.common.TableFieldMapping;
 import com.flipkart.foxtrot.core.querystore.QueryExecutor;
 import com.flipkart.foxtrot.core.querystore.QueryStore;
-import com.flipkart.foxtrot.core.querystore.TableMetadataManager;
+import com.flipkart.foxtrot.core.table.TableMetadataManager;
 import com.flipkart.foxtrot.sql.query.FqlActionQuery;
 import com.flipkart.foxtrot.sql.query.FqlDescribeTable;
 import com.flipkart.foxtrot.sql.query.FqlShowTablesQuery;

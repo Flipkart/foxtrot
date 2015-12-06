@@ -13,12 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.flipkart.foxtrot.core.querystore.impl;
+package com.flipkart.foxtrot.core.table.impl;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.flipkart.foxtrot.common.Table;
+import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConnection;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.hazelcast.core.MapStore;

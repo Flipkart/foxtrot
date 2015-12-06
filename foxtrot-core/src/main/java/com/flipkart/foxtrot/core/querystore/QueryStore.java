@@ -28,21 +28,23 @@ import java.util.Set;
  */
 public interface QueryStore {
 
-    public void save(final String table, final Document document) throws QueryStoreException;
+    void initializeTable(final String table) throws QueryStoreException;
 
-    public void save(final String table, final List<Document> documents) throws QueryStoreException;
+    void save(final String table, final Document document) throws QueryStoreException;
 
-    public Document get(final String table, final String id) throws QueryStoreException;
+    void save(final String table, final List<Document> documents) throws QueryStoreException;
 
-    public List<Document> getAll(final String table, final List<String> ids) throws QueryStoreException;
+    Document get(final String table, final String id) throws QueryStoreException;
 
-    public List<Document> getAll(final String table, final List<String> ids, boolean bypassMetaLookup) throws QueryStoreException;
+    List<Document> getAll(final String table, final List<String> ids) throws QueryStoreException;
 
-    public TableFieldMapping getFieldMappings(final String table) throws QueryStoreException;
+    List<Document> getAll(final String table, final List<String> ids, boolean bypassMetaLookup) throws QueryStoreException;
 
-    public void cleanupAll() throws QueryStoreException;
+    TableFieldMapping getFieldMappings(final String table) throws QueryStoreException;
 
-    public void cleanup(final String table) throws QueryStoreException;
+    void cleanupAll() throws QueryStoreException;
 
-    public void cleanup(final Set<String> tables) throws QueryStoreException;
+    void cleanup(final String table) throws QueryStoreException;
+
+    void cleanup(final Set<String> tables) throws QueryStoreException;
 }

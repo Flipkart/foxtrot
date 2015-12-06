@@ -1,12 +1,9 @@
 /**
  * Copyright 2014 Flipkart Internet Pvt. Ltd.
- *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
  * http://www.apache.org/licenses/LICENSE-2.0
- *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -26,8 +23,7 @@ import com.flipkart.foxtrot.core.datastore.DataStoreException;
 import com.flipkart.foxtrot.core.parsers.ElasticsearchMappingParser;
 import com.flipkart.foxtrot.core.querystore.QueryStore;
 import com.flipkart.foxtrot.core.querystore.QueryStoreException;
-import com.flipkart.foxtrot.core.querystore.TableMetadataManager;
-import com.google.common.base.Stopwatch;
+import com.flipkart.foxtrot.core.table.TableMetadataManager;
 import com.google.common.collect.*;
 import com.yammer.metrics.annotation.Timed;
 import org.elasticsearch.action.WriteConsistencyLevel;
@@ -61,19 +57,25 @@ import java.util.concurrent.TimeUnit;
 public class ElasticsearchQueryStore implements QueryStore {
     private static final Logger logger = LoggerFactory.getLogger(ElasticsearchQueryStore.class.getSimpleName());
 
-    private final TableMetadataManager tableMetadataManager;
     private final ElasticsearchConnection connection;
     private final DataStore dataStore;
+    private final TableMetadataManager tableMetadataManager;
     private final ObjectMapper mapper;
 
 
     public ElasticsearchQueryStore(TableMetadataManager tableMetadataManager,
                                    ElasticsearchConnection connection,
                                    DataStore dataStore) {
-        this.tableMetadataManager = tableMetadataManager;
         this.connection = connection;
         this.dataStore = dataStore;
+        this.tableMetadataManager = tableMetadataManager;
         this.mapper = ElasticsearchUtils.getMapper();
+    }
+
+    @Override
+    @Timed
+    public void initializeTable(String table) throws QueryStoreException {
+        // Nothing needs to be done here since indexes are created at runtime in elasticsearch
     }
 
     @Override
@@ -85,7 +87,7 @@ public class ElasticsearchQueryStore implements QueryStore {
                 throw new QueryStoreException(QueryStoreException.ErrorCode.NO_SUCH_TABLE,
                         "No table exists with the name: " + table);
             }
-            if (new DateTime().plusDays(1).minus(document.getTimestamp()).getMillis() <  0) {
+            if (new DateTime().plusDays(1).minus(document.getTimestamp()).getMillis() < 0) {
                 return;
             }
             final Table tableMeta = tableMetadataManager.get(table);
@@ -145,7 +147,7 @@ public class ElasticsearchQueryStore implements QueryStore {
 
             for (Document document : translatedDocuments) {
                 long timestamp = document.getTimestamp();
-                if (dateTime.minus(timestamp).getMillis() <  0) {
+                if (dateTime.minus(timestamp).getMillis() < 0) {
                     continue;
                 }
                 final String index = ElasticsearchUtils.getCurrentIndex(table, timestamp);
@@ -157,7 +159,7 @@ public class ElasticsearchQueryStore implements QueryStore {
                         .source(convert(document));
                 bulkRequestBuilder.add(indexRequest);
             }
-            if (bulkRequestBuilder.numberOfActions() > 0){
+            if (bulkRequestBuilder.numberOfActions() > 0) {
                 BulkResponse responses = bulkRequestBuilder
                         .setConsistencyLevel(WriteConsistencyLevel.QUORUM)
                         .execute()
@@ -375,12 +377,12 @@ public class ElasticsearchQueryStore implements QueryStore {
             logger.warn(String.format("Deleting Indexes - Indexes - %s", indicesToDelete));
             if (indicesToDelete.size() > 0) {
                 List<List<String>> subLists = Lists.partition(indicesToDelete, 5);
-                for ( List<String> subList : subLists ){
+                for (List<String> subList : subLists) {
                     try {
                         connection.getClient().admin().indices().prepareDelete(subList.toArray(new String[subList.size()]))
                                 .execute().actionGet(TimeValue.timeValueMinutes(5));
                         logger.warn(String.format("Deleted Indexes - Indexes - %s", subList));
-                    } catch (Exception e){
+                    } catch (Exception e) {
                         logger.error(String.format("Index deletion failed - Indexes - %s", subList), e);
                     }
                 }
