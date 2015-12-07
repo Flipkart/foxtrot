@@ -1,7 +1,11 @@
-http:
-  port: 17000
-  adminPort: 17001
-  connectorType: nonblocking
+server:
+  rootPath: /foxtrot/*
+  applicationConnectors:
+    - type: http
+      port: 17000
+  adminConnectors:
+    - type: http
+      port: 17001
 
 elasticsearch:
   hosts:
