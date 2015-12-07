@@ -3,6 +3,7 @@ package com.flipkart.foxtrot.core.querystore;
 import com.flipkart.foxtrot.common.Document;
 import com.flipkart.foxtrot.common.DocumentMetadata;
 import com.flipkart.foxtrot.common.Table;
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
 import com.shash.hbase.ds.AbstractRowKeyDistributor;
 import org.apache.hadoop.hbase.util.Bytes;
@@ -35,11 +36,9 @@ public class DocumentTranslator {
 
     public Document translate(final Table table, final Document inDocument) {
         Document document = new Document();
-        final String rowKey = rawStorageIdFromDocument(table, inDocument);
-
         DocumentMetadata metadata = metadata(table, inDocument);
 
-        document.setId(rowKey);
+        document.setId(metadata.getRawStorageId());
         document.setTimestamp(inDocument.getTimestamp());
         document.setMetadata(metadata);
         document.setData(inDocument.getData());
@@ -81,7 +80,8 @@ public class DocumentTranslator {
                 table.getName(), document.getTimestamp(), document.getId(), CURRENT_RAW_KEY_VERSION);
     }
 
-    private String generateScalableKey(String id) {
+    @VisibleForTesting
+    public String generateScalableKey(String id) {
         return new String(keyDistributor.getDistributedKey(Bytes.toBytes(id)));
     }
 

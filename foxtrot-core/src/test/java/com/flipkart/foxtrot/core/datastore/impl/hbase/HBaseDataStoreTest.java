@@ -276,7 +276,7 @@ public class HBaseDataStoreTest {
 
     public void validateSave(Document savedDocument) throws Exception {
         String rowkey = translator.rawStorageIdFromDocument(TEST_APP, savedDocument);
-        Get get = new Get(Bytes.toBytes(translator.rawStorageIdFromDocumentId(TEST_APP, rowkey)));
+        Get get = new Get(Bytes.toBytes(translator.generateScalableKey(translator.rawStorageIdFromDocumentId(TEST_APP, rowkey))));
         Result result = tableInterface.get(get);
         assertNotNull("Get for Id should not be null", result);
         Document actualDocument = new Document(savedDocument.getId(),
@@ -307,7 +307,7 @@ public class HBaseDataStoreTest {
         long timestamp = System.currentTimeMillis();
         JsonNode data = mapper.valueToTree(Collections.singletonMap("TEST_NAME", "SINGLE_SAVE_TEST"));
         Document originalDocument = new Document(id, timestamp, data);
-        final String newId = translator.rawStorageIdFromDocument(TEST_APP, originalDocument);
+        final String newId = translator.generateScalableKey(translator.rawStorageIdFromDocument(TEST_APP, originalDocument));
         tableInterface.put(HBaseDataStore.getPutForDocument(TEST_APP, translator.translate(TEST_APP, originalDocument)));
         Document actualDocument = HBaseDataStore.get(TEST_APP, newId);
         compare(originalDocument, actualDocument);
@@ -526,7 +526,7 @@ public class HBaseDataStoreTest {
         long timestamp = System.currentTimeMillis();
         JsonNode data = mapper.valueToTree(Collections.singletonMap("TEST_NAME", "SINGLE_SAVE_TEST"));
         Document originalDocument = new Document(id, timestamp, data);
-        final String newId = translator.rawStorageIdFromDocument(TEST_APP, originalDocument);
+        final String newId = translator.generateScalableKey(translator.rawStorageIdFromDocument(TEST_APP, originalDocument));
         HBaseDataStore.save(TEST_APP, originalDocument);
         Document actualDocument = HBaseDataStore.get(TEST_APP, newId);
         compare(originalDocument, actualDocument);
