@@ -76,7 +76,7 @@ public class DocumentTranslator {
     }
 
     public String rawStorageIdFromDocument(final Table table, final Document document) {
-        return String.format("%s:%d:%s:%s",
+        return String.format("%s:%020d:%s:%s",
                 table.getName(), document.getTimestamp(), document.getId(), CURRENT_RAW_KEY_VERSION);
     }
 
