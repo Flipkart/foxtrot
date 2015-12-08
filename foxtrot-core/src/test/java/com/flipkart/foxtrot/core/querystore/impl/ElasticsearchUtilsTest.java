@@ -146,4 +146,34 @@ public class ElasticsearchUtilsTest {
         Assert.assertArrayEquals(new String[]{"foxtrot-test-table-*"}, indexes);
     }
 
+    @Test
+    public void testWithDifferentTableprefixShouldCreateIndexWithTableName() throws Exception {
+        ElasticsearchUtils.setTableNamePrefix("azkaban");
+        TestRequest request = new TestRequest();
+        LastFilter filter = new LastFilter();
+        filter.setDuration(Duration.minutes(10));
+        filter.setCurrentTime(TEST_CURRENT_TIME);
+        request.setFilters(Collections.<Filter>singletonList(filter));
+        String indexes[] = ElasticsearchUtils.getIndices("test", request,
+                new PeriodSelector(request.getFilters()).analyze(TEST_CURRENT_TIME));
+        Assert.assertArrayEquals(new String[]{"azkaban-test-table-04-4-2015"}, indexes);
+    }
+
+    @Test
+    public void testGetIndicesGreaterEqualsWithDifferentTablePrefixName() throws Exception {
+        ElasticsearchUtils.setTableNamePrefix("azkaban");
+        TestRequest request = new TestRequest();
+        GreaterEqualFilter filter = new GreaterEqualFilter();
+        filter.setTemporal(true);
+        filter.setValue(1427997600000L); //4/2/2015, 11:30:00 PM IST
+        request.setFilters(Collections.<Filter>singletonList(filter));
+        String indexes[] = ElasticsearchUtils.getIndices("test", request,
+                new PeriodSelector(request.getFilters()).analyze(TEST_CURRENT_TIME));
+        System.out.println(Arrays.toString(indexes));
+        Assert.assertArrayEquals(new String[]{
+                "azkaban-test-table-02-4-2015",
+                "azkaban-test-table-03-4-2015",
+                "azkaban-test-table-04-4-2015"}, indexes);
+    }
+
 }

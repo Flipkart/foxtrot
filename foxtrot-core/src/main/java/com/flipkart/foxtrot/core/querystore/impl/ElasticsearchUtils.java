@@ -46,7 +46,7 @@ public class ElasticsearchUtils {
     private static final Logger logger = LoggerFactory.getLogger(ElasticsearchUtils.class.getSimpleName());
 
     public static final String TYPE_NAME = "document";
-    public static final String TABLENAME_PREFIX = "foxtrot";
+    public static  String TABLENAME_PREFIX = "foxtrot";
     public static final String TABLENAME_POSTFIX = "table";
     private static final DateTimeFormatter FORMATTER = DateTimeFormat.forPattern("dd-M-yyyy");
     public static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormat.forPattern("dd-M-yyyy");
@@ -58,6 +58,10 @@ public class ElasticsearchUtils {
 
     public static ObjectMapper getMapper() {
         return mapper;
+    }
+
+    public static void setTableNamePrefix(String tableNamePrefix){
+        ElasticsearchUtils.TABLENAME_PREFIX = tableNamePrefix;
     }
 
     public static String getIndexPrefix(final String table) {
@@ -108,7 +112,7 @@ public class ElasticsearchUtils {
         try {
             XContentBuilder contentBuilder = getDocumentMapping();
             PutIndexTemplateRequestBuilder builder = new PutIndexTemplateRequestBuilder(indicesAdminClient, "generic_template");
-            builder.setTemplate("foxtrot-*");
+            builder.setTemplate(String.format("%s-*",ElasticsearchUtils.TABLENAME_PREFIX));
             builder.addMapping(TYPE_NAME, contentBuilder);
             return builder.request();
         } catch (IOException ex){
