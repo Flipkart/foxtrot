@@ -44,7 +44,6 @@ public class HbaseTableConnection implements Managed {
         this.hbaseConfig = hbaseConfig;
     }
 
-
     public synchronized HTableInterface getTable(final Table table) throws DataStoreException {
         try {
             if (hbaseConfig.isSecure() && UserGroupInformation.isSecurityEnabled()) {

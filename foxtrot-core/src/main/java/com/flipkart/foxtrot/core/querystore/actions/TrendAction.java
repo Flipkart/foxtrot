@@ -27,13 +27,14 @@ import com.flipkart.foxtrot.core.common.Action;
 import com.flipkart.foxtrot.core.datastore.DataStore;
 import com.flipkart.foxtrot.core.querystore.QueryStore;
 import com.flipkart.foxtrot.core.querystore.QueryStoreException;
-import com.flipkart.foxtrot.core.querystore.TableMetadataManager;
+import com.flipkart.foxtrot.core.table.TableMetadataManager;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsProvider;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConnection;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
 import com.flipkart.foxtrot.core.querystore.query.ElasticSearchQueryGenerator;
 import com.google.common.collect.Lists;
 import com.yammer.dropwizard.util.Duration;
+
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.search.SearchType;
 import org.elasticsearch.search.aggregations.AbstractAggregationBuilder;
@@ -114,6 +115,7 @@ public class TrendAction extends Action<TrendRequest> {
             AbstractAggregationBuilder aggregationBuilder = buildAggregation(parameter);
             SearchResponse searchResponse = getConnection().getClient()
                     .prepareSearch(ElasticsearchUtils.getIndices(parameter.getTable(), parameter))
+                    .setIndicesOptions(Utils.indicesOptions())
                     .setQuery(new ElasticSearchQueryGenerator(FilterCombinerType.and).genFilter(parameter.getFilters()))
                     .setSearchType(SearchType.COUNT)
                     .addAggregation(aggregationBuilder)

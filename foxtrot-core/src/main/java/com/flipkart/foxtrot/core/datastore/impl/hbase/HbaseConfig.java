@@ -36,6 +36,9 @@ public class HbaseConfig {
     private String kinitPath;
     private String authString;
     private String seggregatedTablePrefix;
+    private String hbaseZookeeperQuorum;
+    private Integer hbaseZookeeperClientPort;
+
 
     @NotNull
     @NotEmpty
@@ -130,5 +133,21 @@ public class HbaseConfig {
 
     public void setSeggregatedTablePrefix(String seggregatedTablePrefix) {
         this.seggregatedTablePrefix = seggregatedTablePrefix;
+    }
+
+    public Integer getHbaseZookeeperClientPort() {
+        return hbaseZookeeperClientPort;
+    }
+
+    public void setHbaseZookeeperClientPort(Integer hbaseZookeeperClientPort) {
+        this.hbaseZookeeperClientPort = hbaseZookeeperClientPort;
+    }
+
+    public String getHbaseZookeeperQuorum() {
+        return hbaseZookeeperQuorum;
+    }
+
+    public void setHbaseZookeeperQuorum(String hbaseZookeeperQuorum) {
+        this.hbaseZookeeperQuorum = hbaseZookeeperQuorum;
     }
 }

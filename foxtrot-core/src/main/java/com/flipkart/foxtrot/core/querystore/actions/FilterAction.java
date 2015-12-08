@@ -15,19 +15,9 @@
  */
 package com.flipkart.foxtrot.core.querystore.actions;
 
-import com.flipkart.foxtrot.common.Document;
-import com.flipkart.foxtrot.common.query.*;
-import com.flipkart.foxtrot.common.query.general.AnyFilter;
-import com.flipkart.foxtrot.core.common.Action;
-import com.flipkart.foxtrot.core.datastore.DataStore;
-import com.flipkart.foxtrot.core.querystore.QueryStore;
-import com.flipkart.foxtrot.core.querystore.QueryStoreException;
-import com.flipkart.foxtrot.core.querystore.TableMetadataManager;
-import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsProvider;
-import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConnection;
-import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
-import com.flipkart.foxtrot.core.querystore.query.ElasticSearchQueryGenerator;
-import com.google.common.collect.Lists;
+import java.util.Collections;
+import java.util.Vector;
+
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.search.SearchType;
@@ -36,8 +26,23 @@ import org.elasticsearch.search.sort.SortOrder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Collections;
-import java.util.Vector;
+import com.flipkart.foxtrot.common.Document;
+import com.flipkart.foxtrot.common.query.Filter;
+import com.flipkart.foxtrot.common.query.FilterCombinerType;
+import com.flipkart.foxtrot.common.query.Query;
+import com.flipkart.foxtrot.common.query.QueryResponse;
+import com.flipkart.foxtrot.common.query.ResultSort;
+import com.flipkart.foxtrot.common.query.general.AnyFilter;
+import com.flipkart.foxtrot.core.common.Action;
+import com.flipkart.foxtrot.core.datastore.DataStore;
+import com.flipkart.foxtrot.core.querystore.QueryStore;
+import com.flipkart.foxtrot.core.querystore.QueryStoreException;
+import com.flipkart.foxtrot.core.table.TableMetadataManager;
+import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsProvider;
+import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConnection;
+import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
+import com.flipkart.foxtrot.core.querystore.query.ElasticSearchQueryGenerator;
+import com.google.common.collect.Lists;
 
 /**
  * User: Santanu Sinha (santanu.sinha@flipkart.com)
@@ -93,6 +98,7 @@ public class FilterAction extends Action<Query> {
             }*/
             search = getConnection().getClient().prepareSearch(ElasticsearchUtils.getIndices(parameter.getTable(), parameter))
                     .setTypes(ElasticsearchUtils.TYPE_NAME)
+                    .setIndicesOptions(Utils.indicesOptions())
                     .setQuery(new ElasticSearchQueryGenerator(FilterCombinerType.and).genFilter(parameter.getFilters()))
                     .setSearchType(SearchType.QUERY_THEN_FETCH)
                     .setFrom(parameter.getFrom())
