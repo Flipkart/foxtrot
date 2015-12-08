@@ -68,10 +68,15 @@ public class HBaseDataStore implements DataStore {
     @Timed
     public void initializeTable(Table table) throws DataStoreException {
         // Check for existence of HBase table during init to make sure HBase is ready for taking writes
-        HTableInterface tableInterface = tableWrapper.getTable(table);
-        if (tableInterface == null) {
-            throw new DataStoreException(DataStoreException.ErrorCode.TABLE_NOT_FOUND,
-                    "HBase Table Missing. Create HBase table");
+        try {
+            boolean isTableAvailable = tableWrapper.isTableAvailable(table);
+            if (!isTableAvailable) {
+                throw new DataStoreException(DataStoreException.ErrorCode.TABLE_NOT_FOUND,
+                        "HBase Table Missing. Create HBase table");
+            }
+        } catch (IOException e) {
+            throw new DataStoreException(DataStoreException.ErrorCode.STORE_CONNECTION,
+                    "HBase Connection Failed", e);
         }
     }
 
