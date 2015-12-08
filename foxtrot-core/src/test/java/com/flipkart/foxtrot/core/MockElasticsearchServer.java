@@ -17,6 +17,7 @@ package com.flipkart.foxtrot.core;
 
 import org.apache.commons.io.FileUtils;
 import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;
+import org.elasticsearch.action.admin.indices.refresh.RefreshRequest;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.common.settings.ImmutableSettings;
 import org.elasticsearch.node.Node;
@@ -45,6 +46,10 @@ public class MockElasticsearchServer {
                 .local(true)
                 .settings(elasticsearchSettings.build())
                 .node();
+    }
+
+    public void refresh(final String index) {
+        node.client().admin().indices().refresh(new RefreshRequest().indices(index)).actionGet();
     }
 
     public Client getClient() {

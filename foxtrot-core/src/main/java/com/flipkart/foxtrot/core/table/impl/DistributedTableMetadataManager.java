@@ -67,7 +67,7 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
 
     @Override
     public Table get(String tableName) throws Exception {
-        logger.info(String.format("Getting Table : %s", tableName));
+        logger.debug(String.format("Getting Table : %s", tableName));
         if (tableDataStore.containsKey(tableName)) {
             return tableDataStore.get(tableName);
         }

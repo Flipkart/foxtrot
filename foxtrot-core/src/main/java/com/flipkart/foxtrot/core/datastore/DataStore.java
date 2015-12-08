@@ -26,14 +26,13 @@ import java.util.List;
  * Time: 9:17 PM
  */
 public interface DataStore {
+    void initializeTable(final Table table) throws DataStoreException;
 
-    public void initializeTable(final Table table) throws DataStoreException;
+    Document save(final Table table, final Document document) throws DataStoreException;
 
-    public void save(final Table table, final Document document) throws DataStoreException;
+    List<Document> saveAll(final Table table, final List<Document> documents) throws DataStoreException;
 
-    public void save(final Table table, final List<Document> documents) throws DataStoreException;
+    Document get(final Table table, final String id) throws DataStoreException;
 
-    public Document get(final Table table, final String id) throws DataStoreException;
-
-    public List<Document> get(final Table table, final List<String> ids) throws DataStoreException;
+    List<Document> getAll(final Table table, final List<String> ids) throws DataStoreException;
 }
