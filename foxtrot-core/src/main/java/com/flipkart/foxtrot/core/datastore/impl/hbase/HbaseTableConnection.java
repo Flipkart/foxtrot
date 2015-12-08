@@ -56,11 +56,9 @@ public class HbaseTableConnection implements Managed {
             }
             return tablePool.getTable(TableUtil.getTableName(hbaseConfig, table));
         } catch (TableNotFoundException e) {
-            logger.error("TableNotFound" + table.getClass());
             throw new DataStoreException(DataStoreException.ErrorCode.TABLE_NOT_FOUND,
                     e.getMessage(), e);
         } catch (Throwable t) {
-            logger.error("SomeOtherException" + t.getClass());
             throw new DataStoreException(DataStoreException.ErrorCode.STORE_CONNECTION,
                     t.getMessage(), t);
         }
