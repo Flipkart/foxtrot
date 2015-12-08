@@ -84,4 +84,8 @@ public class HbaseTableConnection implements Managed {
     public void stop() throws Exception {
         tablePool.close();
     }
+
+    public HbaseConfig getHbaseConfig() {
+        return hbaseConfig;
+    }
 }

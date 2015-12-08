@@ -36,7 +36,9 @@ public interface QueryStore {
 
     Document get(final String table, final String id) throws QueryStoreException;
 
-    List<Document> get(final String table, final List<String> ids) throws QueryStoreException;
+    List<Document> getAll(final String table, final List<String> ids) throws QueryStoreException;
+
+    List<Document> getAll(final String table, final List<String> ids, boolean bypassMetaLookup) throws QueryStoreException;
 
     TableFieldMapping getFieldMappings(final String table) throws QueryStoreException;
 
