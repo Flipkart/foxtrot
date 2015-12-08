@@ -157,6 +157,7 @@ public class ElasticsearchUtilsTest {
         String indexes[] = ElasticsearchUtils.getIndices("test", request,
                 new PeriodSelector(request.getFilters()).analyze(TEST_CURRENT_TIME));
         Assert.assertArrayEquals(new String[]{"azkaban-test-table-04-4-2015"}, indexes);
+        ElasticsearchUtils.setTableNamePrefix("foxtrot");
     }
 
     @Test
@@ -174,6 +175,7 @@ public class ElasticsearchUtilsTest {
                 "azkaban-test-table-02-4-2015",
                 "azkaban-test-table-03-4-2015",
                 "azkaban-test-table-04-4-2015"}, indexes);
+        ElasticsearchUtils.setTableNamePrefix("foxtrot");
     }
 
 }

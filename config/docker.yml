@@ -7,7 +7,7 @@ elasticsearch:
   hosts:
   - 192.168.99.100
   cluster: elasticsearch
-  tableNamePrefix: foxtrot
+  tableNamePrefix: foxtrot 
 
 hbase:
   secure : false
