@@ -33,10 +33,6 @@ public class QueryResponse implements ActionResponse {
     public QueryResponse() {
     }
 
-    public QueryResponse(List<Document> documents) {
-        this(documents, 0);
-    }
-    
     public QueryResponse(List<Document> documents, long totalHits) {
         this.documents = documents;
         this.totalHits = totalHits;

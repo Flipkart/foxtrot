@@ -113,7 +113,7 @@ public class FilterAction extends Action<Query> {
                 ids.add(searchHit.getId());
             }
             if (ids.isEmpty()) {
-                return new QueryResponse(Collections.<Document>emptyList());
+                return new QueryResponse(Collections.<Document>emptyList(), 0);
             }
             return new QueryResponse(getQueryStore().getAll(parameter.getTable(), ids, true), searchHits.totalHits());
         } catch (Exception e) {
