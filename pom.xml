@@ -11,7 +11,7 @@
     <groupId>com.flipkart.foxtrot</groupId>
     <artifactId>foxtrot</artifactId>
     <packaging>pom</packaging>
-    <version>0.1</version>
+    <version>0.3-SNAPSHOT</version>
 
 	<scm>
 		<connection>scm:git:https://github.com/flipkart-incubator/foxtrot.git</connection>
@@ -62,6 +62,11 @@
         <repository>
             <id>cloudera</id>
             <url>https://repository.cloudera.com/artifactory/cloudera-repos/</url>
+        </repository>
+        <repository>
+            <id>clojars</id>
+            <name>Clojars repository</name>
+            <url>https://clojars.org/repo</url>
         </repository>
     </repositories>
 
@@ -135,6 +140,11 @@
             <artifactId>xalan</artifactId>
             <version>2.7.2</version>
         </dependency>
+        <dependency>
+            <groupId>com.shash.hbase.ds</groupId>
+            <artifactId>hbase-ds</artifactId>
+            <version>0.0.1</version>
+        </dependency>
     </dependencies>
 
     <build>
@@ -144,8 +154,8 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.1</version>
                 <configuration>
-                    <source>1.6</source>
-                    <target>1.6</target>
+                    <source>1.8</source>
+                    <target>1.8</target>
                 </configuration>
             </plugin>
             <plugin>

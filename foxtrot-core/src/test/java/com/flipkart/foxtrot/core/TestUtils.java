@@ -24,6 +24,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Vector;
 
+import com.flipkart.foxtrot.core.datastore.impl.hbase.HbaseConfig;
 import org.apache.hadoop.hbase.client.HTableInterface;
 import org.mockito.Matchers;
 import org.mockito.Mockito;
@@ -58,6 +59,7 @@ public class TestUtils {
         HTableInterface tableInterface = MockHTable.create();
         HbaseTableConnection tableConnection = Mockito.mock(HbaseTableConnection.class);
         when(tableConnection.getTable(Matchers.<Table>any())).thenReturn(tableInterface);
+        when(tableConnection.getHbaseConfig()).thenReturn(new HbaseConfig());
         return new HBaseDataStore(tableConnection, new ObjectMapper());
     }
 
