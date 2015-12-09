@@ -1,10 +1,10 @@
 /**
  * Copyright 2014 Flipkart Internet Pvt. Ltd.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
  * 
  * Unless required by applicable law or agreed to in writing, software
@@ -20,8 +20,18 @@ import com.flipkart.foxtrot.common.Table;
 import com.flipkart.foxtrot.core.MockElasticsearchServer;
 import com.flipkart.foxtrot.core.TestUtils;
 import com.flipkart.foxtrot.core.common.CacheUtils;
-import com.flipkart.foxtrot.core.querystore.TableMetadataManager;
-import com.flipkart.foxtrot.core.querystore.impl.*;
+import com.flipkart.foxtrot.core.datastore.DataStore;
+import com.flipkart.foxtrot.core.querystore.QueryStore;
+import com.flipkart.foxtrot.core.querystore.impl.DistributedCacheFactory;
+import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConnection;
+import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
+import com.flipkart.foxtrot.core.querystore.impl.HazelcastConnection;
+import com.flipkart.foxtrot.core.table.TableManager;
+import com.flipkart.foxtrot.core.table.TableManagerException;
+import com.flipkart.foxtrot.core.table.TableMetadataManager;
+import com.flipkart.foxtrot.core.table.impl.DistributedTableMetadataManager;
+import com.flipkart.foxtrot.core.table.impl.FoxtrotTableManager;
+import com.flipkart.foxtrot.core.table.impl.TableMapStore;
 import com.hazelcast.config.Config;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.test.TestHazelcastInstanceFactory;
@@ -47,13 +57,13 @@ import static org.mockito.Mockito.*;
 /**
  * Created by rishabh.goyal on 04/05/14.
  */
-public class TableMetadataResourceTest extends ResourceTest {
+public class TableManagerResourceTest extends ResourceTest {
 
-    private TableMetadataManager tableMetadataManager;
     private MockElasticsearchServer elasticsearchServer;
     private HazelcastInstance hazelcastInstance;
+    private TableManager tableManager;
 
-    public TableMetadataResourceTest() throws Exception {
+    public TableManagerResourceTest() throws Exception {
         ObjectMapper mapper = new ObjectMapper();
         ElasticsearchUtils.setMapper(mapper);
 
@@ -74,14 +84,19 @@ public class TableMetadataResourceTest extends ResourceTest {
         elasticsearchServer.getClient().admin().indices().create(createRequest).actionGet();
         elasticsearchServer.getClient().admin().cluster().prepareHealth().setWaitForGreenStatus().execute().actionGet();
 
-        tableMetadataManager = new DistributedTableMetadataManager(hazelcastConnection, elasticsearchConnection);
+        TableMetadataManager tableMetadataManager = new DistributedTableMetadataManager(hazelcastConnection, elasticsearchConnection);
         tableMetadataManager = spy(tableMetadataManager);
         tableMetadataManager.start();
+
+        QueryStore queryStore = Mockito.mock(QueryStore.class);
+        DataStore dataStore = Mockito.mock(DataStore.class);
+        this.tableManager = new FoxtrotTableManager(tableMetadataManager, queryStore, dataStore);
+        this.tableManager = spy(tableManager);
     }
 
     @Override
     protected void setUpResources() throws Exception {
-        addResource(new TableMetadataResource(tableMetadataManager));
+        addResource(new TableManagerResource(tableManager));
     }
 
 
@@ -89,7 +104,6 @@ public class TableMetadataResourceTest extends ResourceTest {
     public void tearDown() throws Exception {
         elasticsearchServer.shutdown();
         hazelcastInstance.shutdown();
-        tableMetadataManager.stop();
     }
 
 
@@ -98,7 +112,7 @@ public class TableMetadataResourceTest extends ResourceTest {
         Table table = new Table(TestUtils.TEST_TABLE_NAME, 30);
         client().resource("/v1/tables").type(MediaType.APPLICATION_JSON_TYPE).post(table);
 
-        Table response = tableMetadataManager.get(table.getName());
+        Table response = tableManager.get(table.getName());
         assertNotNull(response);
         assertEquals(table.getName(), response.getName());
         assertEquals(table.getTtl(), response.getTtl());
@@ -119,7 +133,7 @@ public class TableMetadataResourceTest extends ResourceTest {
     @Test
     public void testSaveBackendError() throws Exception {
         Table table = new Table(UUID.randomUUID().toString(), 30);
-        doThrow(new Exception()).when(tableMetadataManager).save(Matchers.<Table>any());
+        doThrow(new TableManagerException(TableManagerException.ErrorCode.INTERNAL_ERROR, "Dummy Message")).when(tableManager).save(Matchers.<Table>any());
         try {
             client().resource("/v1/tables").type(MediaType.APPLICATION_JSON_TYPE).post(table);
         } catch (UniformInterfaceException ex) {
@@ -137,7 +151,7 @@ public class TableMetadataResourceTest extends ResourceTest {
     @Test
     public void testGet() throws Exception {
         Table table = new Table(TestUtils.TEST_TABLE_NAME, 30);
-        tableMetadataManager.save(table);
+        tableManager.save(table);
 
         Table response = client().resource(String.format("/v1/tables/%s", table.getName())).get(Table.class);
         assertNotNull(response);

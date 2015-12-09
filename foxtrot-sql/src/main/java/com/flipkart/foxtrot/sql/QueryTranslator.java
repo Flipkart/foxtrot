@@ -1,6 +1,5 @@
 package com.flipkart.foxtrot.sql;
 
-
 import com.flipkart.foxtrot.common.ActionRequest;
 import com.flipkart.foxtrot.common.Period;
 import com.flipkart.foxtrot.common.count.CountRequest;
@@ -11,9 +10,7 @@ import com.flipkart.foxtrot.common.query.Filter;
 import com.flipkart.foxtrot.common.query.Query;
 import com.flipkart.foxtrot.common.query.ResultSort;
 import com.flipkart.foxtrot.common.query.datetime.LastFilter;
-import com.flipkart.foxtrot.common.query.general.EqualsFilter;
-import com.flipkart.foxtrot.common.query.general.InFilter;
-import com.flipkart.foxtrot.common.query.general.NotEqualsFilter;
+import com.flipkart.foxtrot.common.query.general.*;
 import com.flipkart.foxtrot.common.query.numeric.*;
 import com.flipkart.foxtrot.common.stats.StatsRequest;
 import com.flipkart.foxtrot.common.stats.StatsTrendRequest;
@@ -510,6 +507,17 @@ public class QueryTranslator extends SqlElementVisitor {
         @Override
         public void visit(IsNullExpression isNullExpression) {
             super.visit(isNullExpression);
+            ColumnData columnData = setupColumn(isNullExpression.getLeftExpression());
+            if (isNullExpression.isNot()) {
+                ExistsFilter existsFilter = new ExistsFilter();
+
+                existsFilter.setField(columnData.getColumnName().replaceAll(Constants.SQL_FIELD_REGEX, ""));
+                filters.add(existsFilter);
+            } else {
+                MissingFilter missingFilter = new MissingFilter();
+                missingFilter.setField(columnData.getColumnName().replaceAll(Constants.SQL_FIELD_REGEX, ""));
+                filters.add(missingFilter);
+            }
         }
 
         @Override

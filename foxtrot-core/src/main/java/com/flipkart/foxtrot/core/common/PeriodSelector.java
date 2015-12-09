@@ -112,4 +112,9 @@ public class PeriodSelector extends FilterVisitor {
         timeWindow.setStartTime(window.getStartTime());
         timeWindow.setEndTime(window.getEndTime());
     }
+
+    @Override
+    public void visit(MissingFilter missingFilter) throws Exception{
+        
+    }
 }

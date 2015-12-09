@@ -2,6 +2,7 @@ package com.flipkart.foxtrot.server.cluster;
 
 import com.flipkart.foxtrot.core.querystore.impl.HazelcastConnection;
 import com.google.common.collect.ImmutableList;
+import com.hazelcast.config.EvictionPolicy;
 import com.hazelcast.config.MapConfig;
 import com.hazelcast.core.IMap;
 import com.yammer.dropwizard.lifecycle.Managed;
@@ -35,7 +36,7 @@ public class ClusterManager implements Managed {
         mapConfig.setTimeToLiveSeconds(MAP_REFRESH_TIME+ 2); //Reduce jitter
         mapConfig.setBackupCount(1);
         mapConfig.setAsyncBackupCount(2);
-        mapConfig.setEvictionPolicy(MapConfig.EvictionPolicy.NONE);
+        mapConfig.setEvictionPolicy(EvictionPolicy.NONE);
         hazelcastConnection.getHazelcastConfig().getMapConfigs().put(MAP_NAME, mapConfig);
 
         String hostname = Inet4Address.getLocalHost().getCanonicalHostName();

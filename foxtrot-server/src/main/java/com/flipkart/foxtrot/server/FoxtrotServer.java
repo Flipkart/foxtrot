@@ -1,12 +1,12 @@
 /**
  * Copyright 2014 Flipkart Internet Pvt. Ltd.
- *
+ * <p/>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
+ * <p/>
  * http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p/>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -27,9 +27,11 @@ import com.flipkart.foxtrot.core.datastore.impl.hbase.HbaseConfig;
 import com.flipkart.foxtrot.core.datastore.impl.hbase.HbaseTableConnection;
 import com.flipkart.foxtrot.core.querystore.QueryExecutor;
 import com.flipkart.foxtrot.core.querystore.QueryStore;
-import com.flipkart.foxtrot.core.querystore.TableMetadataManager;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsLoader;
 import com.flipkart.foxtrot.core.querystore.impl.*;
+import com.flipkart.foxtrot.core.table.TableMetadataManager;
+import com.flipkart.foxtrot.core.table.impl.DistributedTableMetadataManager;
+import com.flipkart.foxtrot.core.table.impl.FoxtrotTableManager;
 import com.flipkart.foxtrot.server.cluster.ClusterManager;
 import com.flipkart.foxtrot.server.config.FoxtrotServerConfiguration;
 import com.flipkart.foxtrot.server.console.ElasticsearchConsolePersistence;
@@ -89,11 +91,11 @@ public class FoxtrotServer extends Service<FoxtrotServerConfiguration> {
 
         ElasticsearchUtils.setMapper(objectMapper);
 
+        TableMetadataManager tableMetadataManager = new DistributedTableMetadataManager(hazelcastConnection,
+                elasticsearchConnection);
         DataStore dataStore = new HBaseDataStore(HBaseTableConnection, objectMapper);
-
-
-        TableMetadataManager tableMetadataManager = new DistributedTableMetadataManager(hazelcastConnection, elasticsearchConnection);
         QueryStore queryStore = new ElasticsearchQueryStore(tableMetadataManager, elasticsearchConnection, dataStore);
+        FoxtrotTableManager tableManager = new FoxtrotTableManager(tableMetadataManager, queryStore, dataStore);
 
         AnalyticsLoader analyticsLoader = new AnalyticsLoader(tableMetadataManager, dataStore, queryStore, elasticsearchConnection);
 
@@ -106,7 +108,7 @@ public class FoxtrotServer extends Service<FoxtrotServerConfiguration> {
         healthChecks.add(new ElasticSearchHealthCheck("ES Health Check", elasticsearchConnection));
 
         ClusterManager clusterManager = new ClusterManager(
-                                    hazelcastConnection, healthChecks, configuration.getHttpConfiguration().getPort());
+                hazelcastConnection, healthChecks, configuration.getHttpConfiguration().getPort());
 
         environment.manage(HBaseTableConnection);
         environment.manage(elasticsearchConnection);
@@ -119,7 +121,7 @@ public class FoxtrotServer extends Service<FoxtrotServerConfiguration> {
         environment.addResource(new DocumentResource(queryStore));
         environment.addResource(new AsyncResource());
         environment.addResource(new AnalyticsResource(executor));
-        environment.addResource(new TableMetadataResource(tableMetadataManager));
+        environment.addResource(new TableManagerResource(tableManager));
         environment.addResource(new TableFieldMappingResource(queryStore));
         environment.addResource(new ConsoleResource(
                 new ElasticsearchConsolePersistence(elasticsearchConnection, objectMapper)));
@@ -128,7 +130,7 @@ public class FoxtrotServer extends Service<FoxtrotServerConfiguration> {
         environment.addResource(new ClusterInfoResource(clusterManager));
         environment.addResource(new UtilResource(configuration));
 
-        for(HealthCheck healthCheck : healthChecks) {
+        for (HealthCheck healthCheck : healthChecks) {
             environment.addHealthCheck(healthCheck);
         }
 

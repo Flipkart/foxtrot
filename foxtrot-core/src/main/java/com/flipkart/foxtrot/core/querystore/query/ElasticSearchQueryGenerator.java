@@ -129,6 +129,10 @@ public class ElasticSearchQueryGenerator extends FilterVisitor {
                         .cache(false));
     }
 
+    @Override public void visit(MissingFilter missingFilter) throws Exception {
+        addFilter(FilterBuilders.missingFilter(missingFilter.getField()));
+    }
+
     private void addFilter(FilterBuilder elasticSearchFilter) throws Exception {
         if (combinerType == FilterCombinerType.and) {
             boolFilterBuilder.must(elasticSearchFilter);
@@ -142,7 +146,7 @@ public class ElasticSearchQueryGenerator extends FilterVisitor {
         for (Filter filter : filters) {
             filter.accept(this);
         }
-        return QueryBuilders.filteredQuery(QueryBuilders.matchAllQuery(), boolFilterBuilder);
+        return QueryBuilders.constantScoreQuery(boolFilterBuilder);
     }
 
 }

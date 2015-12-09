@@ -25,9 +25,10 @@ import com.flipkart.foxtrot.core.common.CacheUtils;
 import com.flipkart.foxtrot.core.datastore.DataStore;
 import com.flipkart.foxtrot.core.querystore.QueryStore;
 import com.flipkart.foxtrot.core.querystore.QueryStoreException;
-import com.flipkart.foxtrot.core.querystore.TableMetadataManager;
+import com.flipkart.foxtrot.core.table.TableMetadataManager;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsLoader;
 import com.flipkart.foxtrot.core.querystore.impl.*;
+import com.flipkart.foxtrot.core.table.impl.TableMapStore;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.test.TestHazelcastInstanceFactory;
 import com.sun.jersey.api.client.UniformInterfaceException;
@@ -122,6 +123,7 @@ public class DocumentResourceTest extends ResourceTest {
                 System.currentTimeMillis(),
                 factory.objectNode().put("hello", "world"));
         client().resource("/v1/document/" + TestUtils.TEST_TABLE_NAME).type(MediaType.APPLICATION_JSON_TYPE).post(document);
+        elasticsearchServer.refresh(ElasticsearchUtils.getIndices(TestUtils.TEST_TABLE_NAME));
         Document response = queryStore.get(TestUtils.TEST_TABLE_NAME, id);
         compare(document, response);
     }
@@ -181,7 +183,7 @@ public class DocumentResourceTest extends ResourceTest {
         documents.add(document1);
         documents.add(document2);
         client().resource(String.format("/v1/document/%s/bulk", TestUtils.TEST_TABLE_NAME)).type(MediaType.APPLICATION_JSON_TYPE).post(documents);
-
+        elasticsearchServer.refresh(ElasticsearchUtils.getIndices(TestUtils.TEST_TABLE_NAME));
         compare(document1, queryStore.get(TestUtils.TEST_TABLE_NAME, id1));
         compare(document2, queryStore.get(TestUtils.TEST_TABLE_NAME, id2));
     }
@@ -273,7 +275,7 @@ public class DocumentResourceTest extends ResourceTest {
         String id = UUID.randomUUID().toString();
         Document document = new Document(id, System.currentTimeMillis(), factory.objectNode().put("D", "data"));
         queryStore.save(TestUtils.TEST_TABLE_NAME, document);
-
+        elasticsearchServer.refresh(ElasticsearchUtils.getIndices(TestUtils.TEST_TABLE_NAME));
         Document response = client().resource(String.format("/v1/document/%s/%s", TestUtils.TEST_TABLE_NAME, id))
                 .get(Document.class);
         compare(document, response);
@@ -314,6 +316,7 @@ public class DocumentResourceTest extends ResourceTest {
         documents.add(document1);
         documents.add(document2);
         queryStore.save(TestUtils.TEST_TABLE_NAME, documents);
+        elasticsearchServer.refresh(ElasticsearchUtils.getIndices(TestUtils.TEST_TABLE_NAME));
         String response = client().resource(String.format("/v1/document/%s", TestUtils.TEST_TABLE_NAME))
                 .queryParam("id", id1)
                 .queryParam("id", id2)
@@ -346,7 +349,7 @@ public class DocumentResourceTest extends ResourceTest {
     public void testGetDocumentsInternalError() throws Exception {
         try {
             doThrow(new QueryStoreException(QueryStoreException.ErrorCode.DOCUMENT_GET_ERROR, "Error"))
-                    .when(queryStore).get(anyString(), anyListOf(String.class));
+                    .when(queryStore).getAll(anyString(), anyListOf(String.class));
             client().resource(String.format("/v1/document/%s", TestUtils.TEST_TABLE_NAME))
                     .queryParam("id", UUID.randomUUID().toString())
                     .get(String.class);

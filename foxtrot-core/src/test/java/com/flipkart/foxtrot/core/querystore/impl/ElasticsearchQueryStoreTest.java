@@ -24,10 +24,13 @@ import com.flipkart.foxtrot.common.TableFieldMapping;
 import com.flipkart.foxtrot.core.MockElasticsearchServer;
 import com.flipkart.foxtrot.core.TestUtils;
 import com.flipkart.foxtrot.core.datastore.DataStore;
+import com.flipkart.foxtrot.core.querystore.DocumentTranslator;
 import com.flipkart.foxtrot.core.querystore.QueryExecutor;
 import com.flipkart.foxtrot.core.querystore.QueryStoreException;
-import com.flipkart.foxtrot.core.querystore.TableMetadataManager;
+import com.flipkart.foxtrot.core.table.TableMetadataManager;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsLoader;
+import com.google.common.collect.ImmutableList;
+import com.shash.hbase.ds.RowKeyDistributorByHashPrefix;
 import org.elasticsearch.action.get.GetResponse;
 import org.junit.After;
 import org.junit.Before;
@@ -50,6 +53,9 @@ public class ElasticsearchQueryStoreTest {
     private DataStore dataStore;
     private ElasticsearchQueryStore queryStore;
     private ObjectMapper mapper;
+    private TableMetadataManager tableMetadataManager;
+    private final DocumentTranslator translator = new DocumentTranslator(new RowKeyDistributorByHashPrefix(
+            new RowKeyDistributorByHashPrefix.OneByteSimpleHash(32)));
 
     @Before
     public void setUp() throws Exception {
@@ -61,7 +67,7 @@ public class ElasticsearchQueryStoreTest {
         ElasticsearchConnection elasticsearchConnection = Mockito.mock(ElasticsearchConnection.class);
         when(elasticsearchConnection.getClient()).thenReturn(elasticsearchServer.getClient());
         ElasticsearchUtils.initializeMappings(elasticsearchConnection.getClient());
-        TableMetadataManager tableMetadataManager = Mockito.mock(TableMetadataManager.class);
+        tableMetadataManager = Mockito.mock(TableMetadataManager.class);
         when(tableMetadataManager.exists(TestUtils.TEST_TABLE_NAME)).thenReturn(true);
         when(tableMetadataManager.get(anyString())).thenReturn(TestUtils.TEST_TABLE);
         AnalyticsLoader analyticsLoader = new AnalyticsLoader(tableMetadataManager, dataStore, queryStore, elasticsearchConnection);
@@ -77,22 +83,22 @@ public class ElasticsearchQueryStoreTest {
 
     @Test
     public void testSaveSingle() throws Exception {
-        Document expectedDocument = new Document();
-        expectedDocument.setId(UUID.randomUUID().toString());
-        expectedDocument.setTimestamp(System.currentTimeMillis());
+        Document originalDocument = new Document();
+        originalDocument.setId(UUID.randomUUID().toString());
+        originalDocument.setTimestamp(System.currentTimeMillis());
         JsonNode data = mapper.valueToTree(Collections.singletonMap("TEST_NAME", "SINGLE_SAVE_TEST"));
-        expectedDocument.setData(data);
-        queryStore.save(TestUtils.TEST_TABLE_NAME, expectedDocument);
-
+        originalDocument.setData(data);
+        queryStore.save(TestUtils.TEST_TABLE_NAME, originalDocument);
+        final Document translatedDocuemnt = translator.translate(tableMetadataManager.get(TestUtils.TEST_TABLE_NAME), originalDocument);
         GetResponse getResponse = elasticsearchServer
-                .getClient()
-                .prepareGet(ElasticsearchUtils.getCurrentIndex(TestUtils.TEST_TABLE_NAME, expectedDocument.getTimestamp()),
-                        ElasticsearchUtils.TYPE_NAME,
-                        expectedDocument.getId())
-                .setFields("_timestamp").execute().actionGet();
+                        .getClient()
+                        .prepareGet(ElasticsearchUtils.getCurrentIndex(TestUtils.TEST_TABLE_NAME, originalDocument.getTimestamp()),
+                                ElasticsearchUtils.DOCUMENT_TYPE_NAME,
+                                translatedDocuemnt.getId())
+                        .setFields("_timestamp").execute().actionGet();
         assertTrue("Id should exist in ES", getResponse.isExists());
-        assertEquals("Id should match requestId", expectedDocument.getId(), getResponse.getId());
-        assertEquals("Timestamp should match request timestamp", expectedDocument.getTimestamp(), getResponse.getField("_timestamp").getValue());
+        assertEquals("Id should match requestId", translatedDocuemnt.getId(), getResponse.getId());
+        assertEquals("Timestamp should match request timestamp", translatedDocuemnt.getTimestamp(), getResponse.getField("_timestamp").getValue());
     }
 
     @Test
@@ -119,12 +125,12 @@ public class ElasticsearchQueryStoreTest {
                     mapper.valueToTree(Collections.singletonMap("TEST_NAME", "SINGLE_SAVE_TEST"))));
         }
         queryStore.save(TestUtils.TEST_TABLE_NAME, documents);
-
-        for (Document document : documents) {
+        final List<Document> translatedDocuemtns = translator.translate(tableMetadataManager.get(TestUtils.TEST_TABLE_NAME), documents);
+        for (Document document : translatedDocuemtns) {
             GetResponse getResponse = elasticsearchServer
                     .getClient()
                     .prepareGet(ElasticsearchUtils.getCurrentIndex(TestUtils.TEST_TABLE_NAME, document.getTimestamp()),
-                            ElasticsearchUtils.TYPE_NAME,
+                            ElasticsearchUtils.DOCUMENT_TYPE_NAME,
                             document.getId())
                     .setFields("_timestamp").execute().actionGet();
             assertTrue("Id should exist in ES", getResponse.isExists());
@@ -178,8 +184,8 @@ public class ElasticsearchQueryStoreTest {
         JsonNode data = mapper.valueToTree(Collections.singletonMap("TEST_NAME", "SINGLE_SAVE_TEST"));
         Document document = new Document(id, System.currentTimeMillis(), data);
         document.setTimestamp(timestamp);
-        dataStore.save(TestUtils.TEST_TABLE, document);
-
+        queryStore.save(TestUtils.TEST_TABLE_NAME, document);
+        elasticsearchServer.refresh(ElasticsearchUtils.getIndices(TestUtils.TEST_TABLE_NAME));
         Document responseDocument = queryStore.get(TestUtils.TEST_TABLE_NAME, id);
         assertNotNull(responseDocument);
         assertEquals(id, responseDocument.getId());
@@ -208,11 +214,9 @@ public class ElasticsearchQueryStoreTest {
                             mapper.valueToTree(Collections.singletonMap("TEST_NAME", "SINGLE_SAVE_TEST"))));
             idValues.get(id).setTimestamp(System.currentTimeMillis());
         }
-        for (Document document : idValues.values()) {
-            dataStore.save(TestUtils.TEST_TABLE, document);
-        }
-
-        List<Document> responseDocuments = queryStore.get(TestUtils.TEST_TABLE_NAME, ids);
+        queryStore.save(TestUtils.TEST_TABLE_NAME, ImmutableList.copyOf(idValues.values()));
+        elasticsearchServer.refresh(ElasticsearchUtils.getIndices(TestUtils.TEST_TABLE_NAME));
+        List<Document> responseDocuments = queryStore.getAll(TestUtils.TEST_TABLE_NAME, ids);
         HashMap<String, Document> responseIdValues = new HashMap<String, Document>();
         for (Document doc : responseDocuments) {
             responseIdValues.put(doc.getId(), doc);
@@ -223,13 +227,14 @@ public class ElasticsearchQueryStoreTest {
             assertNotNull(responseIdValues.get(id));
             assertEquals(id, responseIdValues.get(id).getId());
             assertEquals("Timestamp should match request timestamp", idValues.get(id).getTimestamp(), responseIdValues.get(id).getTimestamp());
+            System.out.println("OK: " + id);
         }
     }
 
     @Test
     public void testGetBulkInvalidIds() throws Exception {
         try {
-            queryStore.get(TestUtils.TEST_TABLE_NAME, Arrays.asList(UUID.randomUUID().toString(), UUID.randomUUID().toString()));
+            queryStore.getAll(TestUtils.TEST_TABLE_NAME, Arrays.asList(UUID.randomUUID().toString(), UUID.randomUUID().toString()));
             fail();
         } catch (QueryStoreException qse) {
             assertEquals(QueryStoreException.ErrorCode.DOCUMENT_NOT_FOUND, qse.getErrorCode());

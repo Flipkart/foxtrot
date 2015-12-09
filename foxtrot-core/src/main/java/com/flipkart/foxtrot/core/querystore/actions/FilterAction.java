@@ -37,7 +37,7 @@ import com.flipkart.foxtrot.core.common.Action;
 import com.flipkart.foxtrot.core.datastore.DataStore;
 import com.flipkart.foxtrot.core.querystore.QueryStore;
 import com.flipkart.foxtrot.core.querystore.QueryStoreException;
-import com.flipkart.foxtrot.core.querystore.TableMetadataManager;
+import com.flipkart.foxtrot.core.table.TableMetadataManager;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsProvider;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConnection;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
@@ -97,7 +97,7 @@ public class FilterAction extends Action<Query> {
                         "There is no table called: " + query.getTable());
             }*/
             search = getConnection().getClient().prepareSearch(ElasticsearchUtils.getIndices(parameter.getTable(), parameter))
-                    .setTypes(ElasticsearchUtils.TYPE_NAME)
+                    .setTypes(ElasticsearchUtils.DOCUMENT_TYPE_NAME)
                     .setIndicesOptions(Utils.indicesOptions())
                     .setQuery(new ElasticSearchQueryGenerator(FilterCombinerType.and).genFilter(parameter.getFilters()))
                     .setSearchType(SearchType.QUERY_THEN_FETCH)
@@ -113,7 +113,7 @@ public class FilterAction extends Action<Query> {
             if (ids.isEmpty()) {
                 return new QueryResponse(Collections.<Document>emptyList());
             }
-            return new QueryResponse(getQueryStore().get(parameter.getTable(), ids));
+            return new QueryResponse(getQueryStore().getAll(parameter.getTable(), ids, true));
         } catch (Exception e) {
             if (null != search) {
                 logger.error("Error running generated query: " + search, e);
