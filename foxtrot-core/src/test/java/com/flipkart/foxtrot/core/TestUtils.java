@@ -15,6 +15,24 @@
  */
 package com.flipkart.foxtrot.core;
 
+import static org.mockito.Mockito.when;
+
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.Vector;
+
+import com.flipkart.foxtrot.core.datastore.impl.hbase.HbaseConfig;
+import org.apache.hadoop.hbase.client.HTableInterface;
+import org.mockito.Matchers;
+import org.mockito.Mockito;
+import org.reflections.Reflections;
+import org.reflections.scanners.SubTypesScanner;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.jsontype.NamedType;
 import com.flipkart.foxtrot.common.Document;
@@ -27,17 +45,6 @@ import com.flipkart.foxtrot.core.datastore.impl.hbase.HbaseTableConnection;
 import com.flipkart.foxtrot.core.querystore.actions.spi.ActionMetadata;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsLoader;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsProvider;
-import org.apache.hadoop.hbase.client.HTableInterface;
-import org.mockito.Matchers;
-import org.mockito.Mockito;
-import org.reflections.Reflections;
-import org.reflections.scanners.SubTypesScanner;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.util.*;
-
-import static org.mockito.Mockito.when;
 
 /**
  * Created by rishabh.goyal on 28/04/14.
@@ -52,6 +59,7 @@ public class TestUtils {
         HTableInterface tableInterface = MockHTable.create();
         HbaseTableConnection tableConnection = Mockito.mock(HbaseTableConnection.class);
         when(tableConnection.getTable(Matchers.<Table>any())).thenReturn(tableInterface);
+        when(tableConnection.getHbaseConfig()).thenReturn(new HbaseConfig());
         return new HBaseDataStore(tableConnection, new ObjectMapper());
     }
 
@@ -198,4 +206,19 @@ public class TestUtils {
         documents.add(new Document("Y", System.currentTimeMillis(), mapper.valueToTree(document)));
         return documents;
     }
+    
+    public static List<Document> getQueryDocumentsDifferentDate(ObjectMapper mapper, long startTimestamp) {
+        List<Document> documents = new Vector<Document>();
+        documents.add(TestUtils.getDocument("Z", startTimestamp, new Object[]{"os", "android", "device", "nexus", "battery", 24}, mapper));
+        documents.add(TestUtils.getDocument("Y", startTimestamp++, new Object[]{"os", "android", "device", "nexus", "battery", 48}, mapper));
+        documents.add(TestUtils.getDocument("X", startTimestamp++, new Object[]{"os", "android", "device", "nexus", "battery", 74}, mapper));
+        documents.add(TestUtils.getDocument("W", startTimestamp++, new Object[] { "os", "android", "device", "nexus", "battery", 99 }, mapper));
+        documents.add(TestUtils.getDocument("A", startTimestamp++, new Object[]{"os", "android", "version", 1, "device", "nexus"}, mapper));
+        documents.add(TestUtils.getDocument("B", startTimestamp++, new Object[]{"os", "android", "version", 1, "device", "galaxy"}, mapper));
+        documents.add(TestUtils.getDocument("C", startTimestamp++, new Object[]{"os", "android", "version", 2, "device", "nexus"}, mapper));
+        documents.add(TestUtils.getDocument("D", startTimestamp++, new Object[]{"os", "ios", "version", 1, "device", "iphone"}, mapper));
+        documents.add(TestUtils.getDocument("E", startTimestamp++, new Object[]{"os", "ios", "version", 2, "device", "ipad"}, mapper));
+        return documents;
+    }
+    
 }

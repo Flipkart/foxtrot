@@ -15,29 +15,35 @@
  */
 package com.flipkart.foxtrot.core.querystore.actions;
 
+import java.util.Collections;
+import java.util.Vector;
+
+import org.elasticsearch.action.search.SearchRequestBuilder;
+import org.elasticsearch.action.search.SearchResponse;
+import org.elasticsearch.action.search.SearchType;
+import org.elasticsearch.search.SearchHit;
+import org.elasticsearch.search.SearchHits;
+import org.elasticsearch.search.sort.SortOrder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.flipkart.foxtrot.common.Document;
-import com.flipkart.foxtrot.common.query.*;
+import com.flipkart.foxtrot.common.query.Filter;
+import com.flipkart.foxtrot.common.query.FilterCombinerType;
+import com.flipkart.foxtrot.common.query.Query;
+import com.flipkart.foxtrot.common.query.QueryResponse;
+import com.flipkart.foxtrot.common.query.ResultSort;
 import com.flipkart.foxtrot.common.query.general.AnyFilter;
 import com.flipkart.foxtrot.core.common.Action;
 import com.flipkart.foxtrot.core.datastore.DataStore;
 import com.flipkart.foxtrot.core.querystore.QueryStore;
 import com.flipkart.foxtrot.core.querystore.QueryStoreException;
-import com.flipkart.foxtrot.core.querystore.TableMetadataManager;
+import com.flipkart.foxtrot.core.table.TableMetadataManager;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsProvider;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConnection;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
 import com.flipkart.foxtrot.core.querystore.query.ElasticSearchQueryGenerator;
 import com.google.common.collect.Lists;
-import org.elasticsearch.action.search.SearchRequestBuilder;
-import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.action.search.SearchType;
-import org.elasticsearch.search.SearchHit;
-import org.elasticsearch.search.sort.SortOrder;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.util.Collections;
-import java.util.Vector;
 
 /**
  * User: Santanu Sinha (santanu.sinha@flipkart.com)
@@ -92,7 +98,8 @@ public class FilterAction extends Action<Query> {
                         "There is no table called: " + query.getTable());
             }*/
             search = getConnection().getClient().prepareSearch(ElasticsearchUtils.getIndices(parameter.getTable(), parameter))
-                    .setTypes(ElasticsearchUtils.TYPE_NAME)
+                    .setTypes(ElasticsearchUtils.DOCUMENT_TYPE_NAME)
+                    .setIndicesOptions(Utils.indicesOptions())
                     .setQuery(new ElasticSearchQueryGenerator(FilterCombinerType.and).genFilter(parameter.getFilters()))
                     .setSearchType(SearchType.QUERY_THEN_FETCH)
                     .setFrom(parameter.getFrom())
@@ -101,13 +108,14 @@ public class FilterAction extends Action<Query> {
                     ResultSort.Order.desc == parameter.getSort().getOrder() ? SortOrder.DESC : SortOrder.ASC);
             response = search.execute().actionGet();
             Vector<String> ids = new Vector<String>();
-            for (SearchHit searchHit : response.getHits()) {
+            SearchHits searchHits = response.getHits();
+            for (SearchHit searchHit : searchHits) {
                 ids.add(searchHit.getId());
             }
             if (ids.isEmpty()) {
                 return new QueryResponse(Collections.<Document>emptyList());
             }
-            return new QueryResponse(getQueryStore().get(parameter.getTable(), ids));
+            return new QueryResponse(getQueryStore().getAll(parameter.getTable(), ids, true), searchHits.totalHits());
         } catch (Exception e) {
             if (null != search) {
                 logger.error("Error running generated query: " + search, e);
