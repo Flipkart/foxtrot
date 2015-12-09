@@ -28,9 +28,11 @@ import com.flipkart.foxtrot.core.datastore.impl.hbase.HbaseConfig;
 import com.flipkart.foxtrot.core.datastore.impl.hbase.HbaseTableConnection;
 import com.flipkart.foxtrot.core.querystore.QueryExecutor;
 import com.flipkart.foxtrot.core.querystore.QueryStore;
-import com.flipkart.foxtrot.core.querystore.TableMetadataManager;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsLoader;
 import com.flipkart.foxtrot.core.querystore.impl.*;
+import com.flipkart.foxtrot.core.table.TableMetadataManager;
+import com.flipkart.foxtrot.core.table.impl.DistributedTableMetadataManager;
+import com.flipkart.foxtrot.core.table.impl.FoxtrotTableManager;
 import com.flipkart.foxtrot.server.cluster.ClusterManager;
 import com.flipkart.foxtrot.server.config.FoxtrotServerConfiguration;
 import com.flipkart.foxtrot.server.console.ElasticsearchConsolePersistence;
@@ -41,8 +43,8 @@ import com.flipkart.foxtrot.server.resources.*;
 import com.flipkart.foxtrot.server.util.ManagedActionScanner;
 import com.flipkart.foxtrot.sql.FqlEngine;
 import com.google.common.collect.Lists;
-import io.dropwizard.assets.AssetsBundle;
 import io.dropwizard.Application;
+import io.dropwizard.assets.AssetsBundle;
 import io.dropwizard.jetty.HttpConnectorFactory;
 import io.dropwizard.server.SimpleServerFactory;
 import io.dropwizard.setup.Bootstrap;
@@ -54,7 +56,6 @@ import javax.servlet.DispatcherType;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.TimeUnit;
 
 /**
  * User: Santanu Sinha (santanu.sinha@flipkart.com)
@@ -101,6 +102,7 @@ public class FoxtrotServer extends Application<FoxtrotServerConfiguration> {
 
         TableMetadataManager tableMetadataManager = new DistributedTableMetadataManager(hazelcastConnection, elasticsearchConnection);
         QueryStore queryStore = new ElasticsearchQueryStore(tableMetadataManager, elasticsearchConnection, dataStore);
+        FoxtrotTableManager tableManager = new FoxtrotTableManager(tableMetadataManager, queryStore, dataStore);
 
         AnalyticsLoader analyticsLoader = new AnalyticsLoader(tableMetadataManager, dataStore, queryStore, elasticsearchConnection);
 
@@ -133,7 +135,7 @@ public class FoxtrotServer extends Application<FoxtrotServerConfiguration> {
         environment.jersey().register(new DocumentResource(queryStore));
         environment.jersey().register(new AsyncResource());
         environment.jersey().register(new AnalyticsResource(executor));
-        environment.jersey().register(new TableMetadataResource(tableMetadataManager));
+        environment.jersey().register(new TableManagerResource(tableManager));
         environment.jersey().register(new TableFieldMappingResource(queryStore));
         environment.jersey().register(new ConsoleResource(
                 new ElasticsearchConsolePersistence(elasticsearchConnection, objectMapper)));

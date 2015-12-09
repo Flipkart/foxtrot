@@ -22,8 +22,8 @@ import com.flipkart.foxtrot.common.query.numeric.LessThanFilter;
 import com.flipkart.foxtrot.core.datastore.DataStore;
 import com.flipkart.foxtrot.core.querystore.QueryStore;
 import com.flipkart.foxtrot.core.querystore.QueryStoreException;
-import com.flipkart.foxtrot.core.querystore.TableMetadataManager;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConnection;
+import com.flipkart.foxtrot.core.table.TableMetadataManager;
 import com.google.common.collect.Lists;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -150,17 +150,16 @@ public abstract class Action<ParameterType extends ActionRequest> implements Cal
     }
 
     private List<Filter> checkAndAddTemporalBoundary(List<Filter> filters) {
-        if(null != filters) {
+        if (null != filters) {
             for (Filter filter : filters) {
-                if(filter.isTemporal()) {
+                if (filter.isTemporal()) {
                     return filters;
                 }
             }
         }
-        if(null == filters) {
+        if (null == filters) {
             filters = Lists.newArrayList();
-        }
-        else {
+        } else {
             filters = Lists.newArrayList(filters);
         }
         filters.add(getDefaultTimeSpan());

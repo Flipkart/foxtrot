@@ -17,7 +17,6 @@ package com.flipkart.foxtrot.core.querystore;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.flipkart.foxtrot.common.ActionRequest;
-import com.flipkart.foxtrot.common.ActionResponse;
 import com.flipkart.foxtrot.common.Document;
 import com.flipkart.foxtrot.common.group.GroupRequest;
 import com.flipkart.foxtrot.common.group.GroupResponse;
@@ -27,6 +26,8 @@ import com.flipkart.foxtrot.core.common.*;
 import com.flipkart.foxtrot.core.datastore.DataStore;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsLoader;
 import com.flipkart.foxtrot.core.querystore.impl.*;
+import com.flipkart.foxtrot.core.table.TableMetadataManager;
+import com.flipkart.foxtrot.core.table.impl.TableMapStore;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.test.TestHazelcastInstanceFactory;
 import org.elasticsearch.action.admin.indices.create.CreateIndexRequest;
@@ -35,18 +36,14 @@ import org.elasticsearch.common.settings.Settings;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.AdditionalMatchers;
 import org.mockito.Mockito;
 
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.core.MediaType;
 import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import static org.junit.Assert.assertEquals;
-import static org.mockito.AdditionalMatchers.*;
 import static org.mockito.Mockito.*;
 
 /**

@@ -24,7 +24,7 @@ import com.flipkart.foxtrot.core.datastore.DataStore;
 import com.flipkart.foxtrot.core.querystore.QueryExecutor;
 import com.flipkart.foxtrot.core.querystore.QueryStore;
 import com.flipkart.foxtrot.core.querystore.QueryStoreException;
-import com.flipkart.foxtrot.core.querystore.TableMetadataManager;
+import com.flipkart.foxtrot.core.table.TableMetadataManager;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsLoader;
 import com.flipkart.foxtrot.core.querystore.impl.*;
 import com.hazelcast.core.HazelcastInstance;

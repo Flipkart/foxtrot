@@ -17,18 +17,16 @@ package com.flipkart.foxtrot.server.resources;
 
 import com.flipkart.foxtrot.common.Table;
 import com.flipkart.foxtrot.core.TestUtils;
-import com.flipkart.foxtrot.core.querystore.TableMetadataManager;
+import com.flipkart.foxtrot.core.table.TableManager;
 import io.dropwizard.testing.junit.ResourceTestRule;
 import org.apache.http.HttpStatus;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
 
-import javax.ws.rs.ProcessingException;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
@@ -40,21 +38,21 @@ import static org.mockito.Mockito.*;
 /**
 * Created by rishabh.goyal on 04/05/14.
 */
-public class TableMetadataResourceTest {
-    private static TableMetadataManager tableMetadataManager = mock(TableMetadataManager.class);
+public class TableManagerResourceTest {
+    private static TableManager tableManager = mock(TableManager.class);
 
     @ClassRule
-    public static final ResourceTestRule resource = ResourceTestRule.builder().addResource(new TableMetadataResource(tableMetadataManager)).build();
+    public static final ResourceTestRule resource = ResourceTestRule.builder().addResource(new TableManagerResource(tableManager)).build();
 
     @Before
     public void setUp() throws Exception {
-        reset(tableMetadataManager);
+        reset(tableManager);
     }
 
     @Test
     public void testSave() throws Exception {
         Table table = new Table(TestUtils.TEST_TABLE_NAME, 30);
-        doNothing().when(tableMetadataManager).save(any(Table.class));
+        doNothing().when(tableManager).save(any(Table.class));
         Response response = resource.client().target("/v1/tables").request(MediaType.APPLICATION_JSON_TYPE).post(Entity.json(table));
 
         Table responseTable = response.readEntity(Table.class);
@@ -82,7 +80,7 @@ public class TableMetadataResourceTest {
     @Test
     public void testSaveBackendError() throws Exception {
         Table table = new Table(UUID.randomUUID().toString(), 30);
-        doThrow(new Exception()).when(tableMetadataManager).save(any(Table.class));
+        doThrow(new Exception()).when(tableManager).save(any(Table.class));
         Response response = resource.client().target("/v1/tables").request(MediaType.APPLICATION_JSON_TYPE).post(Entity.json(table));
         assertEquals(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode(), response.getStatus());
     }
@@ -97,7 +95,7 @@ public class TableMetadataResourceTest {
     @Test
     public void testGet() throws Exception {
         Table table = new Table(TestUtils.TEST_TABLE_NAME, 30);
-        doReturn(table).when(tableMetadataManager).get(anyString());
+        doReturn(table).when(tableManager).get(anyString());
 
         Response response = resource.client().target(String.format("/v1/tables/%s", table.getName())).request().get();
         Table responseTable = response.readEntity(Table.class);
@@ -114,7 +112,7 @@ public class TableMetadataResourceTest {
         Table tableTwo = new Table(TestUtils.TEST_TABLE_NAME, 30);
         List<Table> tables = Arrays.asList(tableOne, tableTwo);
 
-        doReturn(tables).when(tableMetadataManager).get();
+        doReturn(tables).when(tableManager).getAll();
 
         Response response = resource.client().target("/v1/tables").request().get();
         List<Table> responseTables = response.readEntity(List.class);
@@ -125,21 +123,21 @@ public class TableMetadataResourceTest {
 
     @Test
     public void testDelete() throws Exception {
-        doNothing().when(tableMetadataManager).delete(anyString());
+        doNothing().when(tableManager).delete(anyString());
         Response response = resource.client().target("/v1/tables/random/delete").request().delete();
         assertEquals(Response.Status.NO_CONTENT.getStatusCode(), response.getStatus());
     }
 
     @Test
     public void testDeleteError() throws Exception {
-        doThrow(new Exception()).when(tableMetadataManager).delete(anyString());
+        doThrow(new Exception()).when(tableManager).delete(anyString());
         Response response = resource.client().target("/v1/tables/random/delete").request().delete();
         assertEquals(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode(), response.getStatus());
     }
 
     @Test
     public void testGetMissingTable() throws Exception {
-        doReturn(null).when(tableMetadataManager).get(anyString());
+        doReturn(null).when(tableManager).get(anyString());
         Response response = resource.client().target(String.format("/v1/tables/%s", TestUtils.TEST_TABLE_NAME)).request().get();
         assertEquals(Response.Status.NOT_FOUND.getStatusCode(), response.getStatus());
     }

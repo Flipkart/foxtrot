@@ -146,7 +146,7 @@ public class ElasticSearchQueryGenerator extends FilterVisitor {
         for (Filter filter : filters) {
             filter.accept(this);
         }
-        return QueryBuilders.filteredQuery(QueryBuilders.matchAllQuery(), boolFilterBuilder);
+        return QueryBuilders.constantScoreQuery(boolFilterBuilder);
     }
 
 }

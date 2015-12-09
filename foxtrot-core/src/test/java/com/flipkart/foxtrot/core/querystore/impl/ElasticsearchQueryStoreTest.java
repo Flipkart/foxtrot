@@ -27,8 +27,8 @@ import com.flipkart.foxtrot.core.TestUtils;
 import com.flipkart.foxtrot.core.datastore.DataStore;
 import com.flipkart.foxtrot.core.querystore.QueryExecutor;
 import com.flipkart.foxtrot.core.querystore.QueryStoreException;
-import com.flipkart.foxtrot.core.querystore.TableMetadataManager;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsLoader;
+import com.flipkart.foxtrot.core.table.TableMetadataManager;
 import org.elasticsearch.action.get.GetResponse;
 import org.junit.After;
 import org.junit.Before;
@@ -88,7 +88,7 @@ public class ElasticsearchQueryStoreTest {
         GetResponse getResponse = elasticsearchServer
                 .getClient()
                 .prepareGet(ElasticsearchUtils.getCurrentIndex(TestUtils.TEST_TABLE_NAME, expectedDocument.getTimestamp()),
-                        ElasticsearchUtils.TYPE_NAME,
+                        ElasticsearchUtils.DOCUMENT_TYPE_NAME,
                         expectedDocument.getId())
                 .setFields("_timestamp").execute().actionGet();
         assertTrue("Id should exist in ES", getResponse.isExists());
@@ -156,7 +156,7 @@ public class ElasticsearchQueryStoreTest {
             GetResponse getResponse = elasticsearchServer
                     .getClient()
                     .prepareGet(ElasticsearchUtils.getCurrentIndex(TestUtils.TEST_TABLE_NAME, document.getTimestamp()),
-                            ElasticsearchUtils.TYPE_NAME,
+                            ElasticsearchUtils.DOCUMENT_TYPE_NAME,
                             document.getId())
                     .setFields("_timestamp").execute().actionGet();
             assertTrue("Id should exist in ES", getResponse.isExists());
@@ -296,7 +296,7 @@ public class ElasticsearchQueryStoreTest {
             dataStore.save(TestUtils.TEST_TABLE, document);
         }
 
-        List<Document> responseDocuments = queryStore.get(TestUtils.TEST_TABLE_NAME, ids);
+        List<Document> responseDocuments = queryStore.getAll(TestUtils.TEST_TABLE_NAME, ids);
         HashMap<String, Document> responseIdValues = new HashMap<String, Document>();
         for (Document doc : responseDocuments) {
             responseIdValues.put(doc.getId(), doc);
@@ -316,7 +316,7 @@ public class ElasticsearchQueryStoreTest {
             String id = UUID.randomUUID().toString();
             Document document = new Document(id, System.currentTimeMillis(), mapper.valueToTree(Collections.singletonMap("TEST_NAME", "SINGLE_SAVE_TEST")));
             dataStore.save(TestUtils.TEST_TABLE, document);
-            queryStore.get(TestUtils.TEST_TABLE_NAME, Arrays.asList(UUID.randomUUID().toString(), id));
+            queryStore.getAll(TestUtils.TEST_TABLE_NAME, Arrays.asList(UUID.randomUUID().toString(), id));
             fail();
         } catch (QueryStoreException qse) {
             assertEquals(QueryStoreException.ErrorCode.DOCUMENT_NOT_FOUND, qse.getErrorCode());
@@ -325,14 +325,14 @@ public class ElasticsearchQueryStoreTest {
 
     @Test
     public void testGetBulkNoIds() throws Exception {
-        List<Document> documents = queryStore.get(TestUtils.TEST_TABLE_NAME, new ArrayList<String>());
+        List<Document> documents = queryStore.getAll(TestUtils.TEST_TABLE_NAME, new ArrayList<String>());
         assertEquals(0, documents.size());
     }
 
     @Test(expected = QueryStoreException.class)
     public void testGetBulkInvalidTable() throws Exception {
         try {
-            queryStore.get(UUID.randomUUID().toString(), Arrays.asList("a", "b"));
+            queryStore.getAll(UUID.randomUUID().toString(), Arrays.asList("a", "b"));
         } catch (QueryStoreException e) {
             assertEquals(QueryStoreException.ErrorCode.NO_SUCH_TABLE, e.getErrorCode());
             throw e;

@@ -24,11 +24,9 @@ import org.junit.ClassRule;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
-import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.LinkedHashMap;
 import java.util.Map;

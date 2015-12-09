@@ -36,6 +36,8 @@ public class Document implements Serializable {
     @JsonProperty
     private long timestamp;
 
+    private DocumentMetadata metadata;
+
     @NotNull
     @JsonProperty
     private JsonNode data;
@@ -47,6 +49,13 @@ public class Document implements Serializable {
     public Document(String id, long timestamp, JsonNode data) {
         this.id = id;
         this.timestamp = timestamp;
+        this.data = data;
+    }
+
+    public Document(String id, long timestamp, DocumentMetadata metadata, JsonNode data) {
+        this.id = id;
+        this.timestamp = timestamp;
+        this.metadata = metadata;
         this.data = data;
     }
 
@@ -72,5 +81,23 @@ public class Document implements Serializable {
 
     public void setTimestamp(long timestamp) {
         this.timestamp = timestamp;
+    }
+
+    public DocumentMetadata getMetadata() {
+        return metadata;
+    }
+
+    public void setMetadata(DocumentMetadata metadata) {
+        this.metadata = metadata;
+    }
+
+    @Override
+    public String toString() {
+        return "Document{" +
+                "id='" + id + '\'' +
+                ", timestamp=" + timestamp +
+                ", metadata=" + metadata +
+                ", data=" + data +
+                '}';
     }
 }

@@ -181,7 +181,7 @@ public class DocumentResourceTest {
         documents.add(document1);
         documents.add(document2);
 
-        when(queryStore.get(eq(TestUtils.TEST_TABLE_NAME), eq(Arrays.asList(id1, id2)))).thenReturn(documents);
+        when(queryStore.getAll(eq(TestUtils.TEST_TABLE_NAME), eq(Arrays.asList(id1, id2)))).thenReturn(documents);
 
         Response response = resource.client().target(String.format("/v1/document/%s", TestUtils.TEST_TABLE_NAME))
                 .queryParam("id", id1)
@@ -195,7 +195,7 @@ public class DocumentResourceTest {
 
     @Test
     public void testGetDocumentsMissingIds() throws Exception {
-        when(queryStore.get(eq(TestUtils.TEST_TABLE_NAME), anyList())).thenThrow(new QueryStoreException(QueryStoreException.ErrorCode.DOCUMENT_NOT_FOUND, "Dummy"));
+        when(queryStore.getAll(eq(TestUtils.TEST_TABLE_NAME), anyList())).thenThrow(new QueryStoreException(QueryStoreException.ErrorCode.DOCUMENT_NOT_FOUND, "Dummy"));
         Response response = resource.client().target(String.format("/v1/document/%s", TestUtils.TEST_TABLE_NAME))
                     .queryParam("id", UUID.randomUUID().toString())
                     .request().get();
@@ -206,7 +206,7 @@ public class DocumentResourceTest {
     @Test
     public void testGetDocumentsInternalError() throws Exception {
         doThrow(new QueryStoreException(QueryStoreException.ErrorCode.DOCUMENT_GET_ERROR, "Error"))
-                    .when(queryStore).get(anyString(), anyListOf(String.class));
+                    .when(queryStore).getAll(anyString(), anyListOf(String.class));
 
         Response response = resource.client().target(String.format("/v1/document/%s", TestUtils.TEST_TABLE_NAME))
                     .queryParam("id", UUID.randomUUID().toString())
