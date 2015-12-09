@@ -28,12 +28,14 @@ import java.util.List;
  */
 public class QueryResponse implements ActionResponse {
     private List<Document> documents;
+    private long totalHits;
 
     public QueryResponse() {
     }
 
-    public QueryResponse(List<Document> documents) {
+    public QueryResponse(List<Document> documents, long totalHits) {
         this.documents = documents;
+        this.totalHits = totalHits;
     }
 
     public List<Document> getDocuments() {
@@ -42,6 +44,14 @@ public class QueryResponse implements ActionResponse {
 
     public void setDocuments(List<Document> documents) {
         this.documents = documents;
+    }
+    
+    public void setTotalHits(long totalHits) {
+        this.totalHits = totalHits;
+    }
+    
+    public long getTotalHits() {
+        return totalHits;
     }
 
     @Override

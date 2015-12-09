@@ -203,6 +203,25 @@ public class FilterActionTest {
         QueryResponse actualResponse = QueryResponse.class.cast(queryExecutor.execute(query));
         compare(documents, actualResponse.getDocuments());
     }
+    
+    @Test
+    public void testQueryTotalHitsWithLimit() throws QueryStoreException, JsonProcessingException {
+        Query query = new Query();
+        query.setTable(TestUtils.TEST_TABLE_NAME);
+        query.setLimit(2);
+        ResultSort resultSort = new ResultSort();
+        resultSort.setOrder(ResultSort.Order.desc);
+        resultSort.setField("_timestamp");
+        query.setSort(resultSort);
+
+        List<Document> documents = new ArrayList<Document>();
+        documents.add(TestUtils.getDocument("E", 1397658118004L, new Object[]{"os", "ios", "version", 2, "device", "ipad"}, mapper));
+        documents.add(TestUtils.getDocument("D", 1397658118003L, new Object[]{"os", "ios", "version", 1, "device", "iphone"}, mapper));
+
+        QueryResponse actualResponse = QueryResponse.class.cast(queryExecutor.execute(query));
+        compare(documents, actualResponse.getDocuments());
+        assertEquals(9, actualResponse.getTotalHits());
+    }
 
     @Test
     public void testQueryAnyFilter() throws QueryStoreException, JsonProcessingException {

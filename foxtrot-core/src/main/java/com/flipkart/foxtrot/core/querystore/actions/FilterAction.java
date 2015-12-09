@@ -22,6 +22,7 @@ import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.search.SearchType;
 import org.elasticsearch.search.SearchHit;
+import org.elasticsearch.search.SearchHits;
 import org.elasticsearch.search.sort.SortOrder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -107,13 +108,14 @@ public class FilterAction extends Action<Query> {
                     ResultSort.Order.desc == parameter.getSort().getOrder() ? SortOrder.DESC : SortOrder.ASC);
             response = search.execute().actionGet();
             Vector<String> ids = new Vector<String>();
-            for (SearchHit searchHit : response.getHits()) {
+            SearchHits searchHits = response.getHits();
+            for (SearchHit searchHit : searchHits) {
                 ids.add(searchHit.getId());
             }
             if (ids.isEmpty()) {
-                return new QueryResponse(Collections.<Document>emptyList());
+                return new QueryResponse(Collections.<Document>emptyList(), 0);
             }
-            return new QueryResponse(getQueryStore().getAll(parameter.getTable(), ids, true));
+            return new QueryResponse(getQueryStore().getAll(parameter.getTable(), ids, true), searchHits.totalHits());
         } catch (Exception e) {
             if (null != search) {
                 logger.error("Error running generated query: " + search, e);
