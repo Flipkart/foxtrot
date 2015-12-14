@@ -18,6 +18,7 @@ package com.flipkart.foxtrot.server.resources;
 import com.flipkart.foxtrot.common.Table;
 import com.flipkart.foxtrot.core.TestUtils;
 import com.flipkart.foxtrot.core.table.TableManager;
+import com.flipkart.foxtrot.core.table.TableManagerException;
 import io.dropwizard.testing.junit.ResourceTestRule;
 import org.apache.http.HttpStatus;
 import org.junit.Before;
@@ -80,7 +81,7 @@ public class TableManagerResourceTest {
     @Test
     public void testSaveBackendError() throws Exception {
         Table table = new Table(UUID.randomUUID().toString(), 30);
-        doThrow(new Exception()).when(tableManager).save(any(Table.class));
+        doThrow(new TableManagerException(TableManagerException.ErrorCode.INTERNAL_ERROR, "Dummy")).when(tableManager).save(any(Table.class));
         Response response = resource.client().target("/v1/tables").request(MediaType.APPLICATION_JSON_TYPE).post(Entity.json(table));
         assertEquals(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode(), response.getStatus());
     }
@@ -130,14 +131,14 @@ public class TableManagerResourceTest {
 
     @Test
     public void testDeleteError() throws Exception {
-        doThrow(new Exception()).when(tableManager).delete(anyString());
+        doThrow(new TableManagerException(TableManagerException.ErrorCode.INTERNAL_ERROR, "Dummy Error")).when(tableManager).delete(anyString());
         Response response = resource.client().target("/v1/tables/random/delete").request().delete();
         assertEquals(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode(), response.getStatus());
     }
 
     @Test
     public void testGetMissingTable() throws Exception {
-        doReturn(null).when(tableManager).get(anyString());
+        doThrow(new TableManagerException(TableManagerException.ErrorCode.TABLE_NOT_FOUND, "Dummy")).when(tableManager).get(anyString());
         Response response = resource.client().target(String.format("/v1/tables/%s", TestUtils.TEST_TABLE_NAME)).request().get();
         assertEquals(Response.Status.NOT_FOUND.getStatusCode(), response.getStatus());
     }
