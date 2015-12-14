@@ -213,6 +213,8 @@ public class ElasticsearchQueryStore implements QueryStore {
                         "No table exists with the name: " + table);
             }
             fxTable = tableMetadataManager.get(table);
+        } catch (QueryStoreException qe) {
+            throw qe;
         } catch (Exception ex) {
             throw new QueryStoreException(QueryStoreException.ErrorCode.DOCUMENT_GET_ERROR,
                     ex.getMessage(), ex);
@@ -294,6 +296,8 @@ public class ElasticsearchQueryStore implements QueryStore {
             }
             logger.info("Get row keys: {}", rowKeys.size());
             return dataStore.getAll(tableMetadataManager.get(table), ImmutableList.copyOf(rowKeys.values()));
+        } catch (QueryStoreException e) {
+            throw e;
         } catch (DataStoreException ex) {
             if (ex.getErrorCode().equals(DataStoreException.ErrorCode.STORE_NO_DATA_FOUND_FOR_IDS)) {
                 throw new QueryStoreException(QueryStoreException.ErrorCode.DOCUMENT_NOT_FOUND,
