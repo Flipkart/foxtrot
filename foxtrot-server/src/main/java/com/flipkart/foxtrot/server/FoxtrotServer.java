@@ -45,7 +45,9 @@ import com.flipkart.foxtrot.sql.FqlEngine;
 import com.google.common.collect.Lists;
 import io.dropwizard.Application;
 import io.dropwizard.assets.AssetsBundle;
+import io.dropwizard.jetty.ConnectorFactory;
 import io.dropwizard.jetty.HttpConnectorFactory;
+import io.dropwizard.server.DefaultServerFactory;
 import io.dropwizard.server.SimpleServerFactory;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
@@ -115,10 +117,10 @@ public class FoxtrotServer extends Application<FoxtrotServerConfiguration> {
         healthChecks.add(new ElasticSearchHealthCheck("ES Health Check", elasticsearchConnection));
 
         int httpPort = 0;
-        SimpleServerFactory serverFactory = (SimpleServerFactory) configuration.getServerFactory();
-        HttpConnectorFactory connector = (HttpConnectorFactory) serverFactory.getConnector();
-        if (connector.getClass().isAssignableFrom(HttpConnectorFactory.class)) {
-            httpPort = connector.getPort();
+        DefaultServerFactory serverFactory = (DefaultServerFactory) configuration.getServerFactory();
+        ConnectorFactory connectorFactory = serverFactory.getApplicationConnectors().get(0);
+        if (connectorFactory instanceof HttpConnectorFactory) {
+            httpPort = ((HttpConnectorFactory) connectorFactory).getPort();
         }
 
         ClusterManager clusterManager = new ClusterManager(
