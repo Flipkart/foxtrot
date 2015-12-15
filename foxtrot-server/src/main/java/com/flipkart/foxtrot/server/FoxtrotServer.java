@@ -57,6 +57,7 @@ import org.eclipse.jetty.servlets.CrossOriginFilter;
 import javax.servlet.DispatcherType;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 
 /**
@@ -101,7 +102,6 @@ public class FoxtrotServer extends Application<FoxtrotServerConfiguration> {
 
         DataStore dataStore = new HBaseDataStore(HBaseTableConnection, objectMapper);
 
-
         TableMetadataManager tableMetadataManager = new DistributedTableMetadataManager(hazelcastConnection, elasticsearchConnection);
         QueryStore queryStore = new ElasticsearchQueryStore(tableMetadataManager, elasticsearchConnection, dataStore);
         FoxtrotTableManager tableManager = new FoxtrotTableManager(tableMetadataManager, queryStore, dataStore);
@@ -116,12 +116,9 @@ public class FoxtrotServer extends Application<FoxtrotServerConfiguration> {
         List<HealthCheck> healthChecks = Lists.newArrayList();
         healthChecks.add(new ElasticSearchHealthCheck("ES Health Check", elasticsearchConnection));
 
-        int httpPort = 0;
         DefaultServerFactory serverFactory = (DefaultServerFactory) configuration.getServerFactory();
-        ConnectorFactory connectorFactory = serverFactory.getApplicationConnectors().get(0);
-        if (connectorFactory instanceof HttpConnectorFactory) {
-            httpPort = ((HttpConnectorFactory) connectorFactory).getPort();
-        }
+        Optional<ConnectorFactory> connectors = serverFactory.getApplicationConnectors().stream().filter(connectorFactory -> connectorFactory instanceof HttpConnectorFactory).findFirst();
+        int httpPort = connectors.isPresent() ? ((HttpConnectorFactory) connectors.get()).getPort() : 0;
 
         ClusterManager clusterManager = new ClusterManager(
                                     hazelcastConnection, healthChecks, httpPort);
