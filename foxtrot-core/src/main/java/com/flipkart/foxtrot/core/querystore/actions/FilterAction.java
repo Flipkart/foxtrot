@@ -28,6 +28,7 @@ import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
 import com.flipkart.foxtrot.core.querystore.query.ElasticSearchQueryGenerator;
 import com.flipkart.foxtrot.core.table.TableMetadataManager;
 import com.google.common.collect.Lists;
+import org.elasticsearch.ElasticsearchException;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.search.SearchType;
@@ -48,7 +49,6 @@ import java.util.List;
  */
 @AnalyticsProvider(opcode = "query", request = Query.class, response = QueryResponse.class, cacheable = false)
 public class FilterAction extends Action<Query> {
-    private static final Logger logger = LoggerFactory.getLogger(FilterAction.class);
 
     public FilterAction(Query parameter,
                         TableMetadataManager tableMetadataManager,
@@ -86,13 +86,8 @@ public class FilterAction extends Action<Query> {
             resultSort.setOrder(ResultSort.Order.desc);
             parameter.setSort(resultSort);
         }
-        SearchRequestBuilder search = null;
-        SearchResponse response;
+        SearchRequestBuilder search;
         try {
-            /*if(!tableManager.exists(query.getTable())) {
-                throw new QueryStoreException(QueryStoreException.ErrorCode.NO_SUCH_TABLE,
-                        "There is no table called: " + query.getTable());
-            }*/
             search = getConnection().getClient().prepareSearch(ElasticsearchUtils.getIndices(parameter.getTable(), parameter))
                     .setTypes(ElasticsearchUtils.DOCUMENT_TYPE_NAME)
                     .setIndicesOptions(Utils.indicesOptions())
@@ -102,7 +97,11 @@ public class FilterAction extends Action<Query> {
                     .addSort(parameter.getSort().getField(),
                             ResultSort.Order.desc == parameter.getSort().getOrder() ? SortOrder.DESC : SortOrder.ASC)
                     .setSize(parameter.getLimit());
-            response = search.execute().actionGet();
+        } catch (Exception e) {
+            throw FoxtrotException.queryCreationException(parameter, e);
+        }
+        try {
+            SearchResponse response = search.execute().actionGet();
             List<String> ids = new ArrayList<>();
             SearchHits searchHits = response.getHits();
             for (SearchHit searchHit : searchHits) {
@@ -112,12 +111,7 @@ public class FilterAction extends Action<Query> {
                 return new QueryResponse(Collections.<Document>emptyList(), 0);
             }
             return new QueryResponse(getQueryStore().getAll(parameter.getTable(), ids, true), searchHits.totalHits());
-        } catch (Exception e) {
-            if (null != search) {
-                logger.error("Error running generated query: " + search, e);
-            } else {
-                logger.error("Query generation error: ", e);
-            }
+        } catch (ElasticsearchException e) {
             throw FoxtrotException.createQueryExecutionException(parameter, e);
         }
     }

@@ -1,6 +1,8 @@
 package com.flipkart.foxtrot.core.exception;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by rishabh.goyal on 18/12/15.
@@ -12,12 +14,6 @@ public class DocumentMissingException extends FoxtrotException {
 
     public DocumentMissingException(String table, List<String> ids) {
         super(ErrorCode.DOCUMENT_NOT_FOUND);
-        this.table = table;
-        this.ids = ids;
-    }
-
-    public DocumentMissingException(String table, List<String> ids, Throwable cause) {
-        super(ErrorCode.DOCUMENT_NOT_FOUND, cause);
         this.table = table;
         this.ids = ids;
     }
@@ -39,10 +35,10 @@ public class DocumentMissingException extends FoxtrotException {
     }
 
     @Override
-    public String toString() {
-        return "DocumentMissingException{" +
-                "table='" + table + '\'' +
-                ", ids=" + ids +
-                '}';
+    public Map<String, Object> toMap() {
+        Map<String, Object> map = new HashMap<>();
+        map.put("table", this.table);
+        map.put("ids", ids);
+        return map;
     }
 }

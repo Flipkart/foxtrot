@@ -40,8 +40,6 @@ import org.elasticsearch.action.search.SearchType;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.Aggregations;
 import org.elasticsearch.search.aggregations.bucket.histogram.DateHistogram;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -55,8 +53,6 @@ import java.util.List;
  */
 @AnalyticsProvider(opcode = "histogram", request = HistogramRequest.class, response = HistogramResponse.class, cacheable = true)
 public class HistogramAction extends Action<HistogramRequest> {
-
-    private static final Logger logger = LoggerFactory.getLogger(HistogramAction.class.getSimpleName());
 
     public HistogramAction(HistogramRequest parameter,
                            TableMetadataManager tableMetadataManager,
@@ -129,7 +125,6 @@ public class HistogramAction extends Action<HistogramRequest> {
             SearchResponse response = searchRequestBuilder.execute().actionGet();
             Aggregations aggregations = response.getAggregations();
             if (aggregations == null) {
-                logger.error("Null response for Histogram. Request : " + parameter.toString());
                 return new HistogramResponse(Collections.<HistogramResponse.Count>emptyList());
             }
             DateHistogram dateHistogram = aggregations.get(dateHistogramKey);

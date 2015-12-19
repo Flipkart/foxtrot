@@ -1,7 +1,9 @@
 package com.flipkart.foxtrot.core.exception;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by rishabh.goyal on 19/12/15.
@@ -37,5 +39,13 @@ public class BadRequestException extends FoxtrotException {
 
     public void setMessages(List<String> messages) {
         this.messages = messages;
+    }
+
+    @Override
+    public Map<String, Object> toMap() {
+        Map<String, Object> map = new HashMap<>();
+        map.put("table", this.table);
+        map.put("messages", this.messages);
+        return map;
     }
 }

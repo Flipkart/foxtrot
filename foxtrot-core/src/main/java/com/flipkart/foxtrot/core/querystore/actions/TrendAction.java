@@ -56,7 +56,6 @@ import java.util.*;
  */
 @AnalyticsProvider(opcode = "trend", request = TrendRequest.class, response = TrendResponse.class, cacheable = true)
 public class TrendAction extends Action<TrendRequest> {
-    private static final Logger logger = LoggerFactory.getLogger(TrendAction.class.getSimpleName());
 
     public TrendAction(TrendRequest parameter,
                        TableMetadataManager tableMetadataManager,
@@ -133,7 +132,6 @@ public class TrendAction extends Action<TrendRequest> {
             if (aggregations != null) {
                 return buildResponse(parameter, aggregations);
             } else {
-                logger.error("Null response for Trend. Request : " + parameter.toString());
                 return new TrendResponse(Collections.<String, List<TrendResponse.Count>>emptyMap());
             }
         } catch (ElasticsearchException e) {

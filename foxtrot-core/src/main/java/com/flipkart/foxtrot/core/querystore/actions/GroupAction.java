@@ -51,7 +51,6 @@ import java.util.*;
  */
 @AnalyticsProvider(opcode = "group", request = GroupRequest.class, response = GroupResponse.class, cacheable = true)
 public class GroupAction extends Action<GroupRequest> {
-    private static final Logger logger = LoggerFactory.getLogger(GroupAction.class.getSimpleName());
 
     public GroupAction(GroupRequest parameter,
                        TableMetadataManager tableMetadataManager,
@@ -133,7 +132,6 @@ public class GroupAction extends Action<GroupRequest> {
             Aggregations aggregations = response.getAggregations();
             // Check if any aggregation is present or not
             if (aggregations == null) {
-                logger.error("Null response for Group. Request : " + parameter.toString());
                 return new GroupResponse(Collections.<String, Object>emptyMap());
             }
             return new GroupResponse(getMap(fields, aggregations));

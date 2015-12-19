@@ -5,6 +5,7 @@ import com.flipkart.foxtrot.common.Table;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by rishabh.goyal on 13/12/15.
@@ -31,6 +32,8 @@ public abstract class FoxtrotException extends Exception {
         super(message, cause);
         this.code = code;
     }
+
+    public abstract Map<String, Object> toMap();
 
     public ErrorCode getCode() {
         return code;
