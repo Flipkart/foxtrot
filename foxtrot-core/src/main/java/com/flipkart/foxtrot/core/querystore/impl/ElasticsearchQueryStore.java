@@ -109,7 +109,7 @@ public class ElasticsearchQueryStore implements QueryStore {
                     .execute()
                     .get(2, TimeUnit.SECONDS);
         } catch (InterruptedException | ExecutionException | TimeoutException e) {
-            throw FoxtrotException.createProcessingException(table, e);
+            throw FoxtrotException.createExecutionException(table, e);
         }
     }
 
@@ -161,7 +161,7 @@ public class ElasticsearchQueryStore implements QueryStore {
         } catch (JsonProcessingException e) {
             throw FoxtrotException.createBadRequestException(table, e);
         } catch (InterruptedException | ExecutionException | TimeoutException e) {
-            throw FoxtrotException.createProcessingException(table, e);
+            throw FoxtrotException.createExecutionException(table, e);
         }
     }
 
@@ -252,7 +252,7 @@ public class ElasticsearchQueryStore implements QueryStore {
             }
             return new TableFieldMapping(table, mappings);
         } catch (IOException e) {
-            throw FoxtrotException.createProcessingException(table, e);
+            throw FoxtrotException.createExecutionException(table, e);
         }
     }
 

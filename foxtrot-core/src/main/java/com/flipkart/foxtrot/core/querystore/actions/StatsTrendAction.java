@@ -82,7 +82,7 @@ public class StatsTrendAction extends Action<StatsTrendRequest> {
         }
 
         if (!errorMessages.isEmpty()) {
-            throw FoxtrotException.createBadRequestException(null, errorMessages);
+            throw FoxtrotException.createMalformedQueryException(parameter, errorMessages);
         }
 
         SearchRequestBuilder searchRequestBuilder;

@@ -5,12 +5,12 @@ import com.flipkart.foxtrot.common.ActionRequest;
 /**
  * Created by rishabh.goyal on 19/12/15.
  */
-public class QueryExecutionException extends FoxtrotException {
+public class ActionExecutionException extends FoxtrotException {
 
     private ActionRequest actionRequest;
 
-    public QueryExecutionException(ActionRequest actionRequest, Throwable cause) {
-        super(ErrorCode.QUERY_EXECUTION_ERROR, cause);
+    public ActionExecutionException(ActionRequest actionRequest, Throwable cause) {
+        super(ErrorCode.ACTION_EXECUTION_ERROR, cause);
         this.actionRequest = actionRequest;
     }
 

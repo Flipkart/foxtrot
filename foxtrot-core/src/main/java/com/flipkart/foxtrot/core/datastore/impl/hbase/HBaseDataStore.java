@@ -24,6 +24,7 @@ import com.flipkart.foxtrot.core.datastore.DataStore;
 import com.flipkart.foxtrot.core.exception.FoxtrotException;
 import com.flipkart.foxtrot.core.querystore.DocumentTranslator;
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
 import com.shash.hbase.ds.RowKeyDistributorByHashPrefix;
 import com.yammer.metrics.annotation.Timed;
@@ -111,14 +112,26 @@ public class HBaseDataStore implements DataStore {
     @Timed
     public List<Document> saveAll(final Table table, List<Document> documents) throws FoxtrotException {
         if (documents == null || documents.isEmpty()) {
-            throw FoxtrotException.createBadRequestException(table.getName(), "Empty Document List");
+            throw FoxtrotException.createBadRequestException(table.getName(), "null/empty document list not allowed");
         }
         List<Put> puts = new Vector<>();
         ImmutableList.Builder<Document> translatedDocuments = ImmutableList.builder();
+        List<String> errorMessages = new ArrayList<>();
         try {
-            for (Document document : documents) {
-                if (document == null || document.getData() == null || document.getId() == null) {
-                    throw FoxtrotException.createBadRequestException(table.getName(), "Invalid Document Structure");
+            for (int i = 0; i < documents.size(); i++) {
+                Document document = documents.get(i);
+                if (document == null) {
+                    errorMessages.add("null document at index - " + i);
+                    continue;
+                }
+                if (document.getId() == null || document.getId().trim().isEmpty()) {
+                    errorMessages.add("null/empty document id at index - " + i);
+                    continue;
+                }
+
+                if (document.getData() == null) {
+                    errorMessages.add("null document data at index - " + i);
+                    continue;
                 }
                 Document translatedDocument = translator.translate(table, document);
                 puts.add(getPutForDocument(translatedDocument));
@@ -126,6 +139,9 @@ public class HBaseDataStore implements DataStore {
             }
         } catch (JsonProcessingException e) {
             throw FoxtrotException.createBadRequestException(table, e);
+        }
+        if (!errorMessages.isEmpty()) {
+            throw FoxtrotException.createBadRequestException(table.getName(), errorMessages);
         }
 
         HTableInterface hTable = null;
@@ -166,7 +182,8 @@ public class HBaseDataStore implements DataStore {
                 DocumentMetadata documentMetadata = (null != metadata) ? mapper.readValue(metadata, DocumentMetadata.class) : null;
                 return translator.translateBack(new Document(id, time, documentMetadata, mapper.readTree(data)));
             } else {
-                throw FoxtrotException.createMissingDocumentException(table, String.format("ID missing in HBase - %s", id));
+                logger.error("ID missing in HBase - " + id);
+                throw FoxtrotException.createMissingDocumentException(table, id);
             }
         } catch (IOException e) {
             throw FoxtrotException.createConnectionException(table, e);
@@ -221,6 +238,7 @@ public class HBaseDataStore implements DataStore {
                     missingIds.add(ids.get(index));
                 }
                 if (!missingIds.isEmpty()) {
+                    logger.error("ID's missing in HBase - " + Joiner.on(",").join(ids));
                     throw FoxtrotException.createMissingDocumentsException(table, ids);
                 }
             }

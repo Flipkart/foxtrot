@@ -21,7 +21,6 @@ import com.flipkart.foxtrot.core.util.TableUtil;
 import com.yammer.dropwizard.lifecycle.Managed;
 import net.sourceforge.cobertura.CoverageIgnore;
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.hbase.TableNotFoundException;
 import org.apache.hadoop.hbase.client.HBaseAdmin;
 import org.apache.hadoop.hbase.client.HTableInterface;
 import org.apache.hadoop.hbase.client.HTablePool;
@@ -55,8 +54,6 @@ public class HbaseTableConnection implements Managed {
                 UserGroupInformation.getCurrentUser().reloginFromKeytab();
             }
             return tablePool.getTable(TableUtil.getTableName(hbaseConfig, table));
-        } catch (TableNotFoundException e) {
-            throw FoxtrotException.createTableMissingException(table, e);
         } catch (Exception e) {
             throw FoxtrotException.createConnectionException(table, e);
         }

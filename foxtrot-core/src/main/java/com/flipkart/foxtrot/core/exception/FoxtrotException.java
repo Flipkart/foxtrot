@@ -1,6 +1,5 @@
 package com.flipkart.foxtrot.core.exception;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.flipkart.foxtrot.common.ActionRequest;
 import com.flipkart.foxtrot.common.Table;
 
@@ -10,7 +9,7 @@ import java.util.List;
 /**
  * Created by rishabh.goyal on 13/12/15.
  */
-public class FoxtrotException extends Exception {
+public abstract class FoxtrotException extends Exception {
 
     private ErrorCode code;
 
@@ -49,30 +48,34 @@ public class FoxtrotException extends Exception {
         return new TableMissingException(table);
     }
 
-    public static TableMissingException createTableMissingException(Table table, Exception e) {
-        return new TableMissingException(table.getName(), e);
-    }
-
     public static StoreConnectionException createConnectionException(Table table, Exception e) {
         return new StoreConnectionException(table.getName(), e);
     }
 
-    public static BadRequestException createBadRequestException(String table, String message) {
-        return createBadRequestException(table, Collections.singletonList(message));
+
+    public static BadRequestException createBadRequestException(String table, String reason) {
+        return createBadRequestException(table, Collections.singletonList(reason));
     }
 
-    public static BadRequestException createBadRequestException(String table, List<String> messages) {
-        return new BadRequestException(table, messages);
+    public static BadRequestException createBadRequestException(String table, List<String> reasons) {
+        return new BadRequestException(table, reasons);
     }
 
     public static BadRequestException createBadRequestException(Table table, Exception e) {
-        return new BadRequestException(table.getName(),
-                Collections.singletonList(String.format("%s - %s", table, e.getMessage())), e);
+        return createBadRequestException(table.getName(), e);
     }
 
     public static BadRequestException createBadRequestException(String table, Exception e) {
-        return new BadRequestException(table,
-                Collections.singletonList(String.format("%s - %s", table, e.getMessage())), e);
+        return new BadRequestException(table, e);
+    }
+
+    public static MalformedQueryException createMalformedQueryException(ActionRequest actionRequest, String reason) {
+        return createMalformedQueryException(actionRequest, Collections.singletonList(reason));
+    }
+
+    public static MalformedQueryException createMalformedQueryException(ActionRequest actionRequest,
+                                                                        List<String> reasons) {
+        return new MalformedQueryException(actionRequest, reasons);
     }
 
     public static DocumentMissingException createMissingDocumentException(Table table, String id) {
@@ -83,12 +86,12 @@ public class FoxtrotException extends Exception {
         return new DocumentMissingException(table.getName(), ids);
     }
 
-    public static StoreExecutionException createProcessingException(String table, Exception e) {
+    public static StoreExecutionException createExecutionException(String table, Exception e) {
         return new StoreExecutionException(table, e);
     }
 
-    public static QueryExecutionException createQueryExecutionException(ActionRequest actionRequest, Exception e) {
-        return new QueryExecutionException(actionRequest, e);
+    public static ActionExecutionException createQueryExecutionException(ActionRequest actionRequest, Exception e) {
+        return new ActionExecutionException(actionRequest, e);
     }
 
     public static TableExistsException createTableExistsException(String table) {
@@ -109,17 +112,5 @@ public class FoxtrotException extends Exception {
 
     public static UnresolvableActionException createUnresolvableActionException(ActionRequest actionRequest) {
         return new UnresolvableActionException(actionRequest);
-    }
-
-    @JsonIgnore
-    @Override
-    public synchronized Throwable getCause() {
-        return super.getCause();
-    }
-
-    @JsonIgnore
-    @Override
-    public StackTraceElement[] getStackTrace() {
-        return super.getStackTrace();
     }
 }

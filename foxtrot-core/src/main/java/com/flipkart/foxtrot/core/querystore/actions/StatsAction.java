@@ -63,7 +63,7 @@ public class StatsAction extends Action<StatsRequest> {
             parameter.setFilters(Lists.<Filter>newArrayList(new AnyFilter(parameter.getTable())));
         }
         if (null == parameter.getTable()) {
-            throw FoxtrotException.createBadRequestException(null, "Invalid table name");
+            throw FoxtrotException.createMalformedQueryException(parameter, "table name cannot be null");
         }
 
         SearchRequestBuilder searchRequestBuilder;

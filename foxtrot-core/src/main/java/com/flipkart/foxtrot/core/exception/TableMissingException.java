@@ -12,11 +12,6 @@ public class TableMissingException extends FoxtrotException {
         this.table = table;
     }
 
-    public TableMissingException(String table, Throwable cause) {
-        super(ErrorCode.TABLE_NOT_FOUND, cause);
-        this.table = table;
-    }
-
     public String getTable() {
         return table;
     }

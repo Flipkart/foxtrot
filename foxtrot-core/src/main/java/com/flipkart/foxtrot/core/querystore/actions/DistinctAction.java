@@ -85,7 +85,7 @@ public class DistinctAction extends Action<DistinctRequest> {
         }
 
         if (!errorMessages.isEmpty()) {
-            throw FoxtrotException.createBadRequestException(null, errorMessages);
+            throw FoxtrotException.createMalformedQueryException(request, errorMessages);
         }
 
         SearchRequestBuilder query;

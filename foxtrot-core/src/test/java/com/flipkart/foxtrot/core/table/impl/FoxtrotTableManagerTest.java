@@ -12,6 +12,8 @@ import com.flipkart.foxtrot.core.table.TableMetadataManager;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.io.IOException;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
@@ -129,7 +131,7 @@ public class FoxtrotTableManagerTest {
     public void saveTableQueryStoreFailed() throws Exception {
         doNothing().when(metadataManager).save(any(Table.class));
         doNothing().when(dataStore).initializeTable(any(Table.class));
-        doThrow(new StoreExecutionException("Dummy")).when(queryStore).initializeTable(any(String.class));
+        doThrow(new StoreExecutionException("dummy", new IOException())).when(queryStore).initializeTable(any(String.class));
         try {
             Table table = new Table();
             table.setName("abcd");
@@ -144,7 +146,7 @@ public class FoxtrotTableManagerTest {
     @Test
     public void saveTableDataStoreFailed() throws Exception {
         doNothing().when(metadataManager).save(any(Table.class));
-        doThrow(new StoreExecutionException("Dummy")).when(dataStore).initializeTable(any(Table.class));
+        doThrow(new StoreExecutionException("dummy", new IOException())).when(dataStore).initializeTable(any(Table.class));
         doNothing().when(queryStore).initializeTable(any(String.class));
         try {
             Table table = new Table();

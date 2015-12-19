@@ -135,7 +135,7 @@ public class TrendActionTest {
             queryExecutor.execute(trendRequest);
             fail("Should have thrown exception");
         } catch (FoxtrotException e) {
-            assertEquals(ErrorCode.INVALID_REQUEST, e.getCode());
+            assertEquals(ErrorCode.MALFORMED_QUERY, e.getCode());
         }
     }
 
@@ -206,7 +206,7 @@ public class TrendActionTest {
             queryExecutor.execute(trendRequest);
             fail();
         } catch (FoxtrotException ex) {
-            assertEquals(ErrorCode.INVALID_REQUEST, ex.getCode());
+            assertEquals(ErrorCode.MALFORMED_QUERY, ex.getCode());
         }
     }
 
@@ -246,7 +246,7 @@ public class TrendActionTest {
             queryExecutor.execute(trendRequest);
             fail();
         } catch (FoxtrotException ex) {
-            assertEquals(ErrorCode.INVALID_REQUEST, ex.getCode());
+            assertEquals(ErrorCode.MALFORMED_QUERY, ex.getCode());
         }
     }
 

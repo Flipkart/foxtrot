@@ -9,11 +9,6 @@ public class ActionResolutionException extends FoxtrotException {
 
     private ActionRequest actionRequest;
 
-    public ActionResolutionException(ActionRequest actionRequest) {
-        super(ErrorCode.ACTION_RESOLUTION_FAILURE);
-        this.actionRequest = actionRequest;
-    }
-
     public ActionResolutionException(ActionRequest actionRequest, Throwable cause) {
         super(ErrorCode.ACTION_RESOLUTION_FAILURE, cause);
         this.actionRequest = actionRequest;

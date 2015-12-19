@@ -22,14 +22,12 @@ public class FoxtrotExceptionMapper implements ExceptionMapper<FoxtrotException>
             case DATA_CLEANUP_ERROR:
             case STORE_EXECUTION_ERROR:
             case EXECUTION_EXCEPTION:
-            case DATA_CLEANUP_FAILURE:
-            case QUERY_EXECUTION_ERROR:
+            case ACTION_EXECUTION_ERROR:
                 return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(e).build();
             case MALFORMED_QUERY:
             case ACTION_RESOLUTION_FAILURE:
             case UNRESOLVABLE_OPERATION:
             case INVALID_REQUEST:
-            case MALFORMED_QUERY_ERROR:
                 return Response.status(Response.Status.BAD_REQUEST).entity(e).build();
             case TABLE_ALREADY_EXISTS:
                 return Response.status(Response.Status.CONFLICT).entity(e).build();

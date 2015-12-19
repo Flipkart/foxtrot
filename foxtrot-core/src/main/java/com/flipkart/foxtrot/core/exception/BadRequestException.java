@@ -1,5 +1,6 @@
 package com.flipkart.foxtrot.core.exception;
 
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -16,10 +17,10 @@ public class BadRequestException extends FoxtrotException {
         this.messages = messages;
     }
 
-    public BadRequestException(String table, List<String> messages, Exception e) {
+    public BadRequestException(String table, Exception e) {
         super(ErrorCode.INVALID_REQUEST, e);
         this.table = table;
-        this.messages = messages;
+        this.messages = Collections.singletonList(e.getMessage());
     }
 
     public String getTable() {

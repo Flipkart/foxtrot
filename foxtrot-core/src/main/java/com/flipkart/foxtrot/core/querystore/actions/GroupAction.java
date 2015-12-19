@@ -97,7 +97,7 @@ public class GroupAction extends Action<GroupRequest> {
         }
 
         if (!errorMessages.isEmpty()) {
-            throw FoxtrotException.createBadRequestException(null, errorMessages);
+            throw FoxtrotException.createMalformedQueryException(parameter, errorMessages);
         }
 
         SearchRequestBuilder query;

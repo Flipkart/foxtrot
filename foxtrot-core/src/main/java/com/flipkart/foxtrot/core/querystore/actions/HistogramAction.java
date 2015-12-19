@@ -89,7 +89,7 @@ public class HistogramAction extends Action<HistogramRequest> {
         }
 
         if (parameter.getField() == null || parameter.getField().trim().isEmpty()) {
-            throw FoxtrotException.createBadRequestException(null, "field cannot be null");
+            throw FoxtrotException.createMalformedQueryException(parameter, "field cannot be null");
         }
 
         SearchRequestBuilder searchRequestBuilder;

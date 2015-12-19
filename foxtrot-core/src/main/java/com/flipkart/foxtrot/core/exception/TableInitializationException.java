@@ -6,17 +6,27 @@ package com.flipkart.foxtrot.core.exception;
 public class TableInitializationException extends FoxtrotException {
 
     private String table;
-    private String message;
+    private String reason;
 
-    public TableInitializationException(String table, String message) {
+    public TableInitializationException(String table, String reason) {
         super(ErrorCode.TABLE_INITIALIZATION_ERROR);
         this.table = table;
-        this.message = message;
+        this.reason = reason;
     }
 
-    public TableInitializationException(String table, String message, Throwable cause) {
-        super(ErrorCode.TABLE_INITIALIZATION_ERROR, cause);
+    public String getTable() {
+        return table;
+    }
+
+    public void setTable(String table) {
         this.table = table;
-        this.message = message;
+    }
+
+    public String getReason() {
+        return reason;
+    }
+
+    public void setReason(String reason) {
+        this.reason = reason;
     }
 }

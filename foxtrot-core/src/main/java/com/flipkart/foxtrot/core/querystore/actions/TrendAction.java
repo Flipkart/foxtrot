@@ -47,10 +47,7 @@ import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.*;
 
 /**
  * User: Santanu Sinha (santanu.sinha@flipkart.com)
@@ -99,16 +96,22 @@ public class TrendAction extends Action<TrendRequest> {
         if (null == parameter.getFilters()) {
             parameter.setFilters(Lists.<Filter>newArrayList(new AnyFilter(parameter.getTable())));
         }
-        String field = parameter.getField();
+
+        List<String> errorMessages = new ArrayList<>();
         if (parameter.getTable() == null) {
-            throw FoxtrotException.createBadRequestException(null, "Invalid table name");
+            errorMessages.add("table name cannot be null");
         }
-        if (null == field || field.isEmpty()) {
-            throw FoxtrotException.createBadRequestException(null, "Invalid field name");
+
+        if (null == parameter.getField() || parameter.getField().trim().isEmpty()) {
+            errorMessages.add("field name cannot be null/empty");
+
+        }
+        if (!errorMessages.isEmpty()) {
+            throw FoxtrotException.createMalformedQueryException(parameter, errorMessages);
         }
         if (null != parameter.getValues() && parameter.getValues().size() != 0) {
             List<Object> values = (List) parameter.getValues();
-            Filter filter = new InFilter(field, values);
+            Filter filter = new InFilter(parameter.getField(), values);
             parameter.getFilters().add(filter);
         }
 

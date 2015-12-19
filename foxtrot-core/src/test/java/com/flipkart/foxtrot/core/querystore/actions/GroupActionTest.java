@@ -113,7 +113,7 @@ public class GroupActionTest {
             queryExecutor.execute(groupRequest);
             fail();
         } catch (FoxtrotException ex) {
-            assertEquals(ErrorCode.QUERY_EXECUTION_ERROR, ex.getCode());
+            assertEquals(ErrorCode.ACTION_EXECUTION_ERROR, ex.getCode());
         }
     }
 
@@ -154,7 +154,7 @@ public class GroupActionTest {
             queryExecutor.execute(groupRequest);
             fail();
         } catch (FoxtrotException ex) {
-            assertEquals(ErrorCode.INVALID_REQUEST, ex.getCode());
+            assertEquals(ErrorCode.MALFORMED_QUERY, ex.getCode());
         }
     }
 
@@ -168,7 +168,7 @@ public class GroupActionTest {
             queryExecutor.execute(groupRequest);
             fail();
         } catch (FoxtrotException ex) {
-            assertEquals(ErrorCode.INVALID_REQUEST, ex.getCode());
+            assertEquals(ErrorCode.MALFORMED_QUERY, ex.getCode());
         }
     }
 
