@@ -18,6 +18,9 @@ package com.flipkart.foxtrot.server.console;
 import com.flipkart.foxtrot.core.exception.ErrorCode;
 import com.flipkart.foxtrot.core.exception.FoxtrotException;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class ConsolePersistenceException extends FoxtrotException {
 
     private String consoleId;
@@ -38,5 +41,13 @@ public class ConsolePersistenceException extends FoxtrotException {
 
     public void setConsoleId(String consoleId) {
         this.consoleId = consoleId;
+    }
+
+    @Override
+    public Map<String, Object> toMap() {
+        Map<String, Object> map = new HashMap<>();
+        map.put("consoleId", this.consoleId);
+        map.put("message", this.getCause().getMessage());
+        return map;
     }
 }

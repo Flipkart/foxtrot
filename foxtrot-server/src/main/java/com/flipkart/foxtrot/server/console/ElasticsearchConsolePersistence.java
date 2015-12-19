@@ -132,7 +132,7 @@ public class ElasticsearchConsolePersistence implements ConsolePersistence {
             }
             return results;
         } catch (Exception e) {
-            throw new ConsoleFetchException("Error getting consoles:", e);
+            throw new ConsoleFetchException(e);
         }
     }
 }
