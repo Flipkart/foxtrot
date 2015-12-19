@@ -1,6 +1,7 @@
 package com.flipkart.foxtrot.core.table;
 
 import com.flipkart.foxtrot.common.Table;
+import com.flipkart.foxtrot.core.exception.FoxtrotException;
 
 import java.util.List;
 
@@ -9,14 +10,14 @@ import java.util.List;
  */
 public interface TableManager {
 
-    void save(Table table) throws TableManagerException;
+    void save(Table table) throws FoxtrotException;
 
-    Table get(String name) throws TableManagerException;
+    Table get(String name) throws FoxtrotException;
 
-    List<Table> getAll() throws TableManagerException;
+    List<Table> getAll() throws FoxtrotException;
 
-    void update(Table table) throws TableManagerException;
+    void update(Table table) throws FoxtrotException;
 
-    void delete(String name) throws TableManagerException;
+    void delete(String name) throws FoxtrotException;
 
 }

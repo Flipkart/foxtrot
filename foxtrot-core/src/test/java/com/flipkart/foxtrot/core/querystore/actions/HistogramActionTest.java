@@ -29,12 +29,12 @@ import com.flipkart.foxtrot.core.MockElasticsearchServer;
 import com.flipkart.foxtrot.core.TestUtils;
 import com.flipkart.foxtrot.core.common.CacheUtils;
 import com.flipkart.foxtrot.core.datastore.DataStore;
+import com.flipkart.foxtrot.core.exception.FoxtrotException;
 import com.flipkart.foxtrot.core.querystore.QueryExecutor;
 import com.flipkart.foxtrot.core.querystore.QueryStore;
-import com.flipkart.foxtrot.core.querystore.QueryStoreException;
-import com.flipkart.foxtrot.core.table.TableMetadataManager;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsLoader;
 import com.flipkart.foxtrot.core.querystore.impl.*;
+import com.flipkart.foxtrot.core.table.TableMetadataManager;
 import com.google.common.collect.Lists;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.test.TestHazelcastInstanceFactory;
@@ -105,8 +105,8 @@ public class HistogramActionTest {
         hazelcastInstance.shutdown();
     }
 
-    @Test(expected = QueryStoreException.class)
-    public void testHistogramActionAnyException() throws QueryStoreException, JsonProcessingException {
+    @Test(expected = FoxtrotException.class)
+    public void testHistogramActionAnyException() throws FoxtrotException, JsonProcessingException {
         HistogramRequest histogramRequest = new HistogramRequest();
         histogramRequest.setTable(TestUtils.TEST_TABLE_NAME);
         histogramRequest.setPeriod(Period.minutes);
@@ -115,7 +115,7 @@ public class HistogramActionTest {
     }
 
     @Test
-    public void testHistogramActionIntervalMinuteNoFilter() throws QueryStoreException, JsonProcessingException {
+    public void testHistogramActionIntervalMinuteNoFilter() throws FoxtrotException, JsonProcessingException {
         HistogramRequest histogramRequest = new HistogramRequest();
         histogramRequest.setTable(TestUtils.TEST_TABLE_NAME);
         histogramRequest.setPeriod(Period.minutes);
@@ -139,7 +139,7 @@ public class HistogramActionTest {
     }
 
     @Test
-    public void testHistogramActionIntervalMinuteWithFilter() throws QueryStoreException, JsonProcessingException {
+    public void testHistogramActionIntervalMinuteWithFilter() throws FoxtrotException, JsonProcessingException {
         HistogramRequest histogramRequest = new HistogramRequest();
         histogramRequest.setTable(TestUtils.TEST_TABLE_NAME);
         histogramRequest.setPeriod(Period.minutes);
@@ -163,7 +163,7 @@ public class HistogramActionTest {
     }
 
     @Test
-    public void testHistogramActionIntervalHourNoFilter() throws QueryStoreException, JsonProcessingException {
+    public void testHistogramActionIntervalHourNoFilter() throws FoxtrotException, JsonProcessingException {
         HistogramRequest histogramRequest = new HistogramRequest();
         histogramRequest.setTable(TestUtils.TEST_TABLE_NAME);
         histogramRequest.setPeriod(Period.hours);
@@ -186,7 +186,7 @@ public class HistogramActionTest {
     }
 
     @Test
-    public void testHistogramActionIntervalHourWithFilter() throws QueryStoreException, JsonProcessingException {
+    public void testHistogramActionIntervalHourWithFilter() throws FoxtrotException, JsonProcessingException {
         HistogramRequest histogramRequest = new HistogramRequest();
         histogramRequest.setTable(TestUtils.TEST_TABLE_NAME);
         histogramRequest.setPeriod(Period.hours);
@@ -211,7 +211,7 @@ public class HistogramActionTest {
     }
 
     @Test
-    public void testHistogramActionIntervalDayNoFilter() throws QueryStoreException, JsonProcessingException {
+    public void testHistogramActionIntervalDayNoFilter() throws FoxtrotException, JsonProcessingException {
         HistogramRequest histogramRequest = new HistogramRequest();
         histogramRequest.setTable(TestUtils.TEST_TABLE_NAME);
         histogramRequest.setPeriod(Period.days);
@@ -231,7 +231,7 @@ public class HistogramActionTest {
     }
 
     @Test
-    public void testHistogramActionIntervalDayWithFilter() throws QueryStoreException, JsonProcessingException {
+    public void testHistogramActionIntervalDayWithFilter() throws FoxtrotException, JsonProcessingException {
         HistogramRequest histogramRequest = new HistogramRequest();
         histogramRequest.setTable(TestUtils.TEST_TABLE_NAME);
         histogramRequest.setPeriod(Period.days);

@@ -16,6 +16,7 @@
 package com.flipkart.foxtrot.core.table;
 
 import com.flipkart.foxtrot.common.Table;
+import com.flipkart.foxtrot.core.exception.FoxtrotException;
 import com.yammer.dropwizard.lifecycle.Managed;
 
 import java.util.List;
@@ -27,13 +28,13 @@ import java.util.List;
  */
 public interface TableMetadataManager extends Managed {
 
-    void save(Table table) throws Exception;
+    void save(Table table) throws FoxtrotException;
 
-    Table get(String tableName) throws Exception;
+    Table get(String tableName) throws FoxtrotException;
 
-    List<Table> get() throws Exception;
+    List<Table> get() throws FoxtrotException;
 
-    boolean exists(String tableName) throws Exception;
+    boolean exists(String tableName) throws FoxtrotException;
 
-    void delete(String tableName) throws Exception;
+    void delete(String tableName) throws FoxtrotException;
 }

@@ -2,11 +2,12 @@ package com.flipkart.foxtrot.core.table.impl;
 
 import com.flipkart.foxtrot.common.Table;
 import com.flipkart.foxtrot.core.datastore.DataStore;
-import com.flipkart.foxtrot.core.datastore.DataStoreException;
+import com.flipkart.foxtrot.core.exception.ErrorCode;
+import com.flipkart.foxtrot.core.exception.FoxtrotException;
+import com.flipkart.foxtrot.core.exception.StoreExecutionException;
+import com.flipkart.foxtrot.core.exception.TableMissingException;
 import com.flipkart.foxtrot.core.querystore.QueryStore;
-import com.flipkart.foxtrot.core.querystore.QueryStoreException;
 import com.flipkart.foxtrot.core.table.TableManager;
-import com.flipkart.foxtrot.core.table.TableManagerException;
 import com.flipkart.foxtrot.core.table.TableMetadataManager;
 import org.junit.Before;
 import org.junit.Test;
@@ -46,8 +47,8 @@ public class FoxtrotTableManagerTest {
             table.setTtl(60);
             tableManager.save(table);
             fail();
-        } catch (TableManagerException e) {
-            assertEquals(TableManagerException.ErrorCode.BAD_REQUEST, e.getErrorCode());
+        } catch (FoxtrotException e) {
+            assertEquals(ErrorCode.INVALID_REQUEST, e.getCode());
         }
     }
 
@@ -62,8 +63,8 @@ public class FoxtrotTableManagerTest {
             table.setTtl(60);
             tableManager.save(table);
             fail();
-        } catch (TableManagerException e) {
-            assertEquals(TableManagerException.ErrorCode.BAD_REQUEST, e.getErrorCode());
+        } catch (FoxtrotException e) {
+            assertEquals(ErrorCode.INVALID_REQUEST, e.getCode());
         }
     }
 
@@ -75,8 +76,8 @@ public class FoxtrotTableManagerTest {
         try {
             tableManager.save(null);
             fail();
-        } catch (TableManagerException e) {
-            assertEquals(TableManagerException.ErrorCode.BAD_REQUEST, e.getErrorCode());
+        } catch (FoxtrotException e) {
+            assertEquals(ErrorCode.INVALID_REQUEST, e.getCode());
         }
     }
 
@@ -91,8 +92,8 @@ public class FoxtrotTableManagerTest {
             table.setTtl(0);
             tableManager.save(table);
             fail();
-        } catch (TableManagerException e) {
-            assertEquals(TableManagerException.ErrorCode.BAD_REQUEST, e.getErrorCode());
+        } catch (FoxtrotException e) {
+            assertEquals(ErrorCode.INVALID_REQUEST, e.getCode());
         }
     }
 
@@ -119,8 +120,8 @@ public class FoxtrotTableManagerTest {
             table.setTtl(10);
             tableManager.save(table);
             fail();
-        } catch (TableManagerException e) {
-            assertEquals(TableManagerException.ErrorCode.BAD_REQUEST, e.getErrorCode());
+        } catch (FoxtrotException e) {
+            assertEquals(ErrorCode.TABLE_ALREADY_EXISTS, e.getCode());
         }
     }
 
@@ -128,22 +129,22 @@ public class FoxtrotTableManagerTest {
     public void saveTableQueryStoreFailed() throws Exception {
         doNothing().when(metadataManager).save(any(Table.class));
         doNothing().when(dataStore).initializeTable(any(Table.class));
-        doThrow(new QueryStoreException(QueryStoreException.ErrorCode.EXECUTION_ERROR, "Dummy")).when(queryStore).initializeTable(any(String.class));
+        doThrow(new StoreExecutionException("Dummy")).when(queryStore).initializeTable(any(String.class));
         try {
             Table table = new Table();
             table.setName("abcd");
             table.setTtl(10);
             tableManager.save(table);
             fail();
-        } catch (TableManagerException e) {
-            assertEquals(e.getErrorCode(), TableManagerException.ErrorCode.INTERNAL_ERROR);
+        } catch (FoxtrotException e) {
+            assertEquals(ErrorCode.STORE_EXECUTION_ERROR, e.getCode());
         }
     }
 
     @Test
     public void saveTableDataStoreFailed() throws Exception {
         doNothing().when(metadataManager).save(any(Table.class));
-        doThrow(new DataStoreException(DataStoreException.ErrorCode.STORE_CONNECTION, "Dummy")).when(dataStore).initializeTable(any(Table.class));
+        doThrow(new StoreExecutionException("Dummy")).when(dataStore).initializeTable(any(Table.class));
         doNothing().when(queryStore).initializeTable(any(String.class));
         try {
             Table table = new Table();
@@ -151,15 +152,15 @@ public class FoxtrotTableManagerTest {
             table.setTtl(10);
             tableManager.save(table);
             fail();
-        } catch (TableManagerException e) {
-            assertEquals(e.getErrorCode(), TableManagerException.ErrorCode.INTERNAL_ERROR);
+        } catch (FoxtrotException e) {
+            assertEquals(ErrorCode.STORE_EXECUTION_ERROR, e.getCode());
         }
     }
 
     @Test
     public void saveTableDataStoreNoTableFound() throws Exception {
         doNothing().when(metadataManager).save(any(Table.class));
-        doThrow(new DataStoreException(DataStoreException.ErrorCode.TABLE_NOT_FOUND, "Dummy")).when(dataStore).initializeTable(any(Table.class));
+        doThrow(new TableMissingException("Dummy")).when(dataStore).initializeTable(any(Table.class));
         doNothing().when(queryStore).initializeTable(any(String.class));
         try {
             Table table = new Table();
@@ -167,8 +168,8 @@ public class FoxtrotTableManagerTest {
             table.setTtl(10);
             tableManager.save(table);
             fail();
-        } catch (TableManagerException e) {
-            assertEquals(TableManagerException.ErrorCode.BAD_REQUEST, e.getErrorCode());
+        } catch (FoxtrotException e) {
+            assertEquals(ErrorCode.TABLE_NOT_FOUND, e.getCode());
         }
     }
 
@@ -196,8 +197,8 @@ public class FoxtrotTableManagerTest {
             table.setTtl(10);
             tableManager.update(table);
             fail();
-        } catch (TableManagerException e) {
-            assertEquals(TableManagerException.ErrorCode.TABLE_NOT_FOUND, e.getErrorCode());
+        } catch (FoxtrotException e) {
+            assertEquals(ErrorCode.TABLE_NOT_FOUND, e.getCode());
         }
     }
 
@@ -210,8 +211,8 @@ public class FoxtrotTableManagerTest {
         try {
             tableManager.update(null);
             fail();
-        } catch (TableManagerException e) {
-            assertEquals(TableManagerException.ErrorCode.BAD_REQUEST, e.getErrorCode());
+        } catch (FoxtrotException e) {
+            assertEquals(ErrorCode.INVALID_REQUEST, e.getCode());
         }
     }
 
@@ -227,8 +228,8 @@ public class FoxtrotTableManagerTest {
             table.setTtl(10);
             tableManager.update(table);
             fail();
-        } catch (TableManagerException e) {
-            assertEquals(TableManagerException.ErrorCode.BAD_REQUEST, e.getErrorCode());
+        } catch (FoxtrotException e) {
+            assertEquals(ErrorCode.INVALID_REQUEST, e.getCode());
         }
     }
 
@@ -244,8 +245,8 @@ public class FoxtrotTableManagerTest {
             table.setTtl(10);
             tableManager.update(table);
             fail();
-        } catch (TableManagerException e) {
-            assertEquals(TableManagerException.ErrorCode.BAD_REQUEST, e.getErrorCode());
+        } catch (FoxtrotException e) {
+            assertEquals(ErrorCode.INVALID_REQUEST, e.getCode());
         }
     }
 
@@ -261,8 +262,8 @@ public class FoxtrotTableManagerTest {
             table.setTtl(0);
             tableManager.update(table);
             fail();
-        } catch (TableManagerException e) {
-            assertEquals(TableManagerException.ErrorCode.BAD_REQUEST, e.getErrorCode());
+        } catch (FoxtrotException e) {
+            assertEquals(ErrorCode.INVALID_REQUEST, e.getCode());
         }
     }
 }

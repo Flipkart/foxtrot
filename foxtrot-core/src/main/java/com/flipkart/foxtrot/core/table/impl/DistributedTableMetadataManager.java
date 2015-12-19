@@ -16,6 +16,7 @@
 package com.flipkart.foxtrot.core.table.impl;
 
 import com.flipkart.foxtrot.common.Table;
+import com.flipkart.foxtrot.core.exception.FoxtrotException;
 import com.flipkart.foxtrot.core.querystore.impl.DistributedCache;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConnection;
 import com.flipkart.foxtrot.core.querystore.impl.HazelcastConnection;
@@ -59,14 +60,14 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
 
 
     @Override
-    public void save(Table table) throws Exception {
+    public void save(Table table) throws FoxtrotException {
         logger.info(String.format("Saving Table : %s", table));
         tableDataStore.put(table.getName(), table);
         tableDataStore.flush();
     }
 
     @Override
-    public Table get(String tableName) throws Exception {
+    public Table get(String tableName) throws FoxtrotException {
         logger.debug(String.format("Getting Table : %s", tableName));
         if (tableDataStore.containsKey(tableName)) {
             return tableDataStore.get(tableName);
@@ -75,7 +76,7 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
     }
 
     @Override
-    public List<Table> get() throws Exception {
+    public List<Table> get() throws FoxtrotException {
         if (0 == tableDataStore.size()) { //HACK::Check https://github.com/hazelcast/hazelcast/issues/1404
             return Collections.emptyList();
         }
@@ -90,12 +91,12 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
     }
 
     @Override
-    public boolean exists(String tableName) throws Exception {
+    public boolean exists(String tableName) throws FoxtrotException {
         return tableDataStore.containsKey(tableName);
     }
 
     @Override
-    public void delete(String tableName) throws Exception {
+    public void delete(String tableName) throws FoxtrotException {
         logger.info(String.format("Deleting Table : %s", tableName));
         if (tableDataStore.containsKey(tableName)) {
             tableDataStore.delete(tableName);

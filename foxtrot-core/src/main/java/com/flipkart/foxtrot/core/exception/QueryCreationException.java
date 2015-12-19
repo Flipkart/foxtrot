@@ -1,0 +1,29 @@
+package com.flipkart.foxtrot.core.exception;
+
+import com.flipkart.foxtrot.common.ActionRequest;
+
+/**
+ * Created by rishabh.goyal on 19/12/15.
+ */
+public class QueryCreationException extends FoxtrotException {
+
+    private ActionRequest actionRequest;
+
+    public QueryCreationException(ActionRequest actionRequest) {
+        super(ErrorCode.MALFORMED_QUERY);
+        this.actionRequest = actionRequest;
+    }
+
+    public QueryCreationException(ActionRequest actionRequest, Throwable cause) {
+        super(ErrorCode.MALFORMED_QUERY, cause);
+        this.actionRequest = actionRequest;
+    }
+
+    public ActionRequest getActionRequest() {
+        return actionRequest;
+    }
+
+    public void setActionRequest(ActionRequest actionRequest) {
+        this.actionRequest = actionRequest;
+    }
+}
