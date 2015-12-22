@@ -45,12 +45,12 @@ import java.util.List;
 public class ElasticsearchUtils {
     private static final Logger logger = LoggerFactory.getLogger(ElasticsearchUtils.class.getSimpleName());
 
+
     public static final String DOCUMENT_TYPE_NAME = "document";
     public static final String DOCUMENT_META_TYPE_NAME = "metadata";
     public static final String DOCUMENT_META_FIELD_NAME = "__FOXTROT_METADATA__";
     public static final String DOCUMENT_META_ID_FIELD_NAME = String.format("%s.id", DOCUMENT_META_FIELD_NAME);
-
-    public static final String TABLENAME_PREFIX = "foxtrot";
+    public static  String TABLENAME_PREFIX = "foxtrot";
     public static final String TABLENAME_POSTFIX = "table";
     private static final DateTimeFormatter FORMATTER = DateTimeFormat.forPattern("dd-M-yyyy");
     public static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormat.forPattern("dd-M-yyyy");
@@ -62,6 +62,10 @@ public class ElasticsearchUtils {
 
     public static ObjectMapper getMapper() {
         return mapper;
+    }
+
+    public static void setTableNamePrefix(String tableNamePrefix){
+        ElasticsearchUtils.TABLENAME_PREFIX = tableNamePrefix;
     }
 
     public static String getIndexPrefix(final String table) {
@@ -111,7 +115,7 @@ public class ElasticsearchUtils {
     public static PutIndexTemplateRequest getClusterTemplateMapping(IndicesAdminClient indicesAdminClient){
         try {
             PutIndexTemplateRequestBuilder builder = new PutIndexTemplateRequestBuilder(indicesAdminClient, "generic_template");
-            builder.setTemplate("foxtrot-*");
+            builder.setTemplate(String.format("%s-*",ElasticsearchUtils.TABLENAME_PREFIX));
             System.out.println(getDocumentMapping().string());
             builder.addMapping(DOCUMENT_TYPE_NAME, getDocumentMapping());
             return builder.request();

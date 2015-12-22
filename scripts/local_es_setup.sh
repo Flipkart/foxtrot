@@ -1,8 +1,13 @@
 #!/bin/bash
 
+if [ "$#" -ne 2 ]; then
+    echo "Illegal number of parameters, Usage :- ./local_es_setup.sh <es_host_ip> <es_table_name_prefix_for_index>"
+   exit 1
+fi
+
 curl -XPUT ${1}:9200/_template/template_foxtrot_mappings -d '
 {
-    "template" : "foxtrot-*",
+    "template" : "${2}-*",
     "settings" : {
         "number_of_shards" : 10,
         "number_of_replicas" : 0

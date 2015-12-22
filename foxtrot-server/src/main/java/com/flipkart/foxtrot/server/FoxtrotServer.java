@@ -90,6 +90,7 @@ public class FoxtrotServer extends Service<FoxtrotServerConfiguration> {
         HazelcastConnection hazelcastConnection = new HazelcastConnection(clusterConfig, objectMapper);
 
         ElasticsearchUtils.setMapper(objectMapper);
+        ElasticsearchUtils.setTableNamePrefix(elasticsearchConfig.getTableNamePrefix()); // Setting up tableName prefix.
 
         TableMetadataManager tableMetadataManager = new DistributedTableMetadataManager(hazelcastConnection,
                 elasticsearchConnection);
