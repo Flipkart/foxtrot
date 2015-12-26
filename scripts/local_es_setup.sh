@@ -7,7 +7,7 @@ fi
 
 curl -XPUT ${1}:9200/_template/template_foxtrot_mappings -d '
 {
-    "template" : "${2}-*",
+    "template" : "'${2}'-*",
     "settings" : {
         "number_of_shards" : 10,
         "number_of_replicas" : 0
