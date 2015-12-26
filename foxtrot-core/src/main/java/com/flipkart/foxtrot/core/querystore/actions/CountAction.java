@@ -7,17 +7,17 @@ import com.flipkart.foxtrot.common.query.Filter;
 import com.flipkart.foxtrot.common.query.FilterCombinerType;
 import com.flipkart.foxtrot.common.query.general.AnyFilter;
 import com.flipkart.foxtrot.common.query.general.ExistsFilter;
+import com.flipkart.foxtrot.core.cache.CacheManager;
 import com.flipkart.foxtrot.core.common.Action;
 import com.flipkart.foxtrot.core.datastore.DataStore;
 import com.flipkart.foxtrot.core.querystore.QueryStore;
 import com.flipkart.foxtrot.core.querystore.QueryStoreException;
-import com.flipkart.foxtrot.core.table.TableMetadataManager;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsProvider;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConnection;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
 import com.flipkart.foxtrot.core.querystore.query.ElasticSearchQueryGenerator;
+import com.flipkart.foxtrot.core.table.TableMetadataManager;
 import com.google.common.collect.Lists;
-
 import org.elasticsearch.action.count.CountRequestBuilder;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
@@ -42,8 +42,9 @@ public class CountAction extends Action<CountRequest> {
                        DataStore dataStore,
                        QueryStore queryStore,
                        ElasticsearchConnection connection,
-                       String cacheToken) {
-        super(parameter, tableMetadataManager, dataStore, queryStore, connection, cacheToken);
+                       String cacheToken,
+                       CacheManager cacheManager) {
+        super(parameter, tableMetadataManager, dataStore, queryStore, connection, cacheToken, cacheManager);
 
     }
 
@@ -57,7 +58,7 @@ public class CountAction extends Action<CountRequest> {
             }
         }
 
-        filterHashKey += 31 * (request.isDistinct() ? "TRUE".hashCode() : "FALSE".hashCode() );
+        filterHashKey += 31 * (request.isDistinct() ? "TRUE".hashCode() : "FALSE".hashCode());
         filterHashKey += 31 * (request.getField() != null ? request.getField().hashCode() : "COLUMN".hashCode());
         return String.format("count-%s-%d", request.getTable(), filterHashKey);
     }
@@ -75,7 +76,7 @@ public class CountAction extends Action<CountRequest> {
         }
 
         try {
-            if (parameter.isDistinct()){
+            if (parameter.isDistinct()) {
                 SearchRequestBuilder query = getConnection().getClient()
                         .prepareSearch(ElasticsearchUtils.getIndices(parameter.getTable(), parameter))
                         .setIndicesOptions(Utils.indicesOptions())
@@ -83,13 +84,13 @@ public class CountAction extends Action<CountRequest> {
                         .setQuery(new ElasticSearchQueryGenerator(FilterCombinerType.and)
                                 .genFilter(parameter.getFilters()))
                         .addAggregation(AggregationBuilders
-                                .cardinality(Utils.sanitizeFieldForAggregation(parameter.getField()))
-                                .field(parameter.getField())
+                                        .cardinality(Utils.sanitizeFieldForAggregation(parameter.getField()))
+                                        .field(parameter.getField())
                         );
                 SearchResponse response = query.execute().actionGet();
                 Aggregations aggregations = response.getAggregations();
                 Cardinality cardinality = aggregations.get(Utils.sanitizeFieldForAggregation(parameter.getField()));
-                if (cardinality == null){
+                if (cardinality == null) {
                     return new CountResponse(0);
                 } else {
                     return new CountResponse(cardinality.getValue());

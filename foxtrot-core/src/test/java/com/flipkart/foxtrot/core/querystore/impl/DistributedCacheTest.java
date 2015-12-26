@@ -20,7 +20,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.flipkart.foxtrot.common.ActionResponse;
 import com.flipkart.foxtrot.common.group.GroupResponse;
 import com.flipkart.foxtrot.core.TestUtils;
-import com.flipkart.foxtrot.core.common.CacheUtils;
+import com.flipkart.foxtrot.core.cache.CacheManager;
+import com.flipkart.foxtrot.core.cache.impl.DistributedCache;
+import com.flipkart.foxtrot.core.cache.impl.DistributedCacheFactory;
 import com.flipkart.foxtrot.core.querystore.QueryStore;
 import com.flipkart.foxtrot.core.table.TableMetadataManager;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsLoader;
@@ -53,12 +55,13 @@ public class DistributedCacheTest {
         HazelcastConnection hazelcastConnection = Mockito.mock(HazelcastConnection.class);
         when(hazelcastConnection.getHazelcast()).thenReturn(hazelcastInstance);
         distributedCache = new DistributedCache(hazelcastConnection, "TEST", mapper);
-        CacheUtils.setCacheFactory(new DistributedCacheFactory(hazelcastConnection, mapper));
+        CacheManager cacheManager = new CacheManager(new DistributedCacheFactory(hazelcastConnection, mapper));
+
         TableMetadataManager tableMetadataManager = Mockito.mock(TableMetadataManager.class);
         when(tableMetadataManager.exists(TestUtils.TEST_TABLE_NAME)).thenReturn(true);
         QueryStore queryStore = Mockito.mock(QueryStore.class);
 
-        AnalyticsLoader analyticsLoader = new AnalyticsLoader(tableMetadataManager, null, queryStore, null);
+        AnalyticsLoader analyticsLoader = new AnalyticsLoader(tableMetadataManager, null, queryStore, null, cacheManager);
         TestUtils.registerActions(analyticsLoader, mapper);
     }
 

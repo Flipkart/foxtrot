@@ -17,6 +17,8 @@ package com.flipkart.foxtrot.server.resources;
 
 import com.flipkart.foxtrot.core.querystore.QueryStore;
 import com.flipkart.foxtrot.core.querystore.QueryStoreException;
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,10 +32,12 @@ import java.util.Collections;
  */
 @Path("/v1/tables/{name}/fields")
 @Produces(MediaType.APPLICATION_JSON)
+@Singleton
 public class TableFieldMappingResource {
     private static final Logger logger = LoggerFactory.getLogger(TableFieldMappingResource.class.getSimpleName());
     private QueryStore queryStore;
 
+    @Inject
     public TableFieldMappingResource(QueryStore queryStore) {
         this.queryStore = queryStore;
     }

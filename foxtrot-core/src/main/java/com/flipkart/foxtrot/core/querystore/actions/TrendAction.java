@@ -23,18 +23,18 @@ import com.flipkart.foxtrot.common.query.general.AnyFilter;
 import com.flipkart.foxtrot.common.query.general.InFilter;
 import com.flipkart.foxtrot.common.trend.TrendRequest;
 import com.flipkart.foxtrot.common.trend.TrendResponse;
+import com.flipkart.foxtrot.core.cache.CacheManager;
 import com.flipkart.foxtrot.core.common.Action;
 import com.flipkart.foxtrot.core.datastore.DataStore;
 import com.flipkart.foxtrot.core.querystore.QueryStore;
 import com.flipkart.foxtrot.core.querystore.QueryStoreException;
-import com.flipkart.foxtrot.core.table.TableMetadataManager;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsProvider;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConnection;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
 import com.flipkart.foxtrot.core.querystore.query.ElasticSearchQueryGenerator;
+import com.flipkart.foxtrot.core.table.TableMetadataManager;
 import com.google.common.collect.Lists;
 import com.yammer.dropwizard.util.Duration;
-
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.search.SearchType;
 import org.elasticsearch.search.aggregations.AbstractAggregationBuilder;
@@ -65,8 +65,9 @@ public class TrendAction extends Action<TrendRequest> {
                        DataStore dataStore,
                        QueryStore queryStore,
                        ElasticsearchConnection connection,
-                       String cacheToken) {
-        super(parameter, tableMetadataManager, dataStore, queryStore, connection, cacheToken);
+                       String cacheToken,
+                       CacheManager cacheManager) {
+        super(parameter, tableMetadataManager, dataStore, queryStore, connection, cacheToken, cacheManager);
     }
 
     @Override
@@ -171,7 +172,7 @@ public class TrendAction extends Action<TrendRequest> {
                 .subAggregation(Utils.buildDateHistogramAggregation(request.getTimestamp(), interval));
     }
 
-    private TrendResponse buildResponse(TrendRequest request, Aggregations aggregations){
+    private TrendResponse buildResponse(TrendRequest request, Aggregations aggregations) {
         String field = request.getField();
         Map<String, List<TrendResponse.Count>> trendCounts = new TreeMap<String, List<TrendResponse.Count>>();
         Terms terms = aggregations.get(Utils.sanitizeFieldForAggregation(field));

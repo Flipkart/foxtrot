@@ -24,8 +24,9 @@ import com.flipkart.foxtrot.common.group.GroupRequest;
 import com.flipkart.foxtrot.common.group.GroupResponse;
 import com.flipkart.foxtrot.core.MockElasticsearchServer;
 import com.flipkart.foxtrot.core.TestUtils;
+import com.flipkart.foxtrot.core.cache.CacheManager;
+import com.flipkart.foxtrot.core.cache.impl.DistributedCacheFactory;
 import com.flipkart.foxtrot.core.common.AsyncDataToken;
-import com.flipkart.foxtrot.core.common.CacheUtils;
 import com.flipkart.foxtrot.core.datastore.DataStore;
 import com.flipkart.foxtrot.core.querystore.QueryExecutor;
 import com.flipkart.foxtrot.core.querystore.QueryStore;
@@ -64,6 +65,7 @@ public class AnalyticsResourceTest extends ResourceTest {
     private MockElasticsearchServer elasticsearchServer;
     private HazelcastInstance hazelcastInstance;
     private QueryExecutor queryExecutor;
+    private CacheManager cacheManager;
 
     public AnalyticsResourceTest() throws Exception {
         getObjectMapperFactory().setSerializationInclusion(JsonInclude.Include.NON_NULL);
@@ -79,7 +81,7 @@ public class AnalyticsResourceTest extends ResourceTest {
         hazelcastInstance = new TestHazelcastInstanceFactory(1).newHazelcastInstance();
         HazelcastConnection hazelcastConnection = Mockito.mock(HazelcastConnection.class);
         when(hazelcastConnection.getHazelcast()).thenReturn(hazelcastInstance);
-        CacheUtils.setCacheFactory(new DistributedCacheFactory(hazelcastConnection, mapper));
+        this.cacheManager = new CacheManager(new DistributedCacheFactory(hazelcastConnection, mapper));
 
         elasticsearchServer = new MockElasticsearchServer(UUID.randomUUID().toString());
         ElasticsearchConnection elasticsearchConnection = Mockito.mock(ElasticsearchConnection.class);
@@ -97,7 +99,7 @@ public class AnalyticsResourceTest extends ResourceTest {
         when(tableMetadataManager.get(anyString())).thenReturn(TestUtils.TEST_TABLE);
         QueryStore queryStore = new ElasticsearchQueryStore(tableMetadataManager, elasticsearchConnection, dataStore);
 
-        AnalyticsLoader analyticsLoader = new AnalyticsLoader(tableMetadataManager, dataStore, queryStore, elasticsearchConnection);
+        AnalyticsLoader analyticsLoader = new AnalyticsLoader(tableMetadataManager, dataStore, queryStore, elasticsearchConnection, cacheManager);
         TestUtils.registerActions(analyticsLoader, mapper);
         ExecutorService executorService = Executors.newFixedThreadPool(1);
         queryExecutor = new QueryExecutor(analyticsLoader, executorService);
@@ -192,7 +194,7 @@ public class AnalyticsResourceTest extends ResourceTest {
         WebResource webResource = client().resource("/v1/analytics/async");
         AsyncDataToken response = webResource.type(MediaType.APPLICATION_JSON_TYPE).post(AsyncDataToken.class, groupRequest);
         Thread.sleep(2000);
-        GroupResponse actualResponse = GroupResponse.class.cast(CacheUtils.getCacheFor(response.getAction()).get(response.getKey()));
+        GroupResponse actualResponse = GroupResponse.class.cast(cacheManager.getCacheFor(response.getAction()).get(response.getKey()));
 
         assertEquals(expectedResponse, actualResponse.getResult());
     }
@@ -208,7 +210,7 @@ public class AnalyticsResourceTest extends ResourceTest {
         AsyncDataToken asyncDataToken = webResource.type(MediaType.APPLICATION_JSON_TYPE).post(AsyncDataToken.class, groupRequest);
         Thread.sleep(2000);
 
-        GroupResponse actualResponse = GroupResponse.class.cast(CacheUtils.getCacheFor(asyncDataToken.getAction()).get(asyncDataToken.getKey()));
+        GroupResponse actualResponse = GroupResponse.class.cast(cacheManager.getCacheFor(asyncDataToken.getAction()).get(asyncDataToken.getKey()));
         assertEquals(expectedResponse.getResult(), actualResponse.getResult());
     }
 }

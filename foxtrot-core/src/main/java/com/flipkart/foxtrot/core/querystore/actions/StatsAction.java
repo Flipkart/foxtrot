@@ -6,6 +6,7 @@ import com.flipkart.foxtrot.common.query.general.AnyFilter;
 import com.flipkart.foxtrot.common.stats.StatsRequest;
 import com.flipkart.foxtrot.common.stats.StatsResponse;
 import com.flipkart.foxtrot.common.stats.StatsValue;
+import com.flipkart.foxtrot.core.cache.CacheManager;
 import com.flipkart.foxtrot.core.common.Action;
 import com.flipkart.foxtrot.core.datastore.DataStore;
 import com.flipkart.foxtrot.core.querystore.QueryStore;
@@ -43,8 +44,9 @@ public class StatsAction extends Action<StatsRequest> {
                        DataStore dataStore,
                        QueryStore queryStore,
                        ElasticsearchConnection connection,
-                       String cacheToken) {
-        super(parameter, tableMetadataManager, dataStore, queryStore, connection, cacheToken);
+                       String cacheToken,
+                       CacheManager cacheManager) {
+        super(parameter, tableMetadataManager, dataStore, queryStore, connection, cacheToken, cacheManager);
     }
 
     @Override

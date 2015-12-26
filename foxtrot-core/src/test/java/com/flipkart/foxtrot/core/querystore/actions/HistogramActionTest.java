@@ -27,14 +27,18 @@ import com.flipkart.foxtrot.common.query.numeric.GreaterThanFilter;
 import com.flipkart.foxtrot.common.query.numeric.LessThanFilter;
 import com.flipkart.foxtrot.core.MockElasticsearchServer;
 import com.flipkart.foxtrot.core.TestUtils;
-import com.flipkart.foxtrot.core.common.CacheUtils;
+import com.flipkart.foxtrot.core.cache.CacheManager;
+import com.flipkart.foxtrot.core.cache.impl.DistributedCacheFactory;
 import com.flipkart.foxtrot.core.datastore.DataStore;
 import com.flipkart.foxtrot.core.querystore.QueryExecutor;
 import com.flipkart.foxtrot.core.querystore.QueryStore;
 import com.flipkart.foxtrot.core.querystore.QueryStoreException;
-import com.flipkart.foxtrot.core.table.TableMetadataManager;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsLoader;
-import com.flipkart.foxtrot.core.querystore.impl.*;
+import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConnection;
+import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchQueryStore;
+import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
+import com.flipkart.foxtrot.core.querystore.impl.HazelcastConnection;
+import com.flipkart.foxtrot.core.table.TableMetadataManager;
 import com.google.common.collect.Lists;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.test.TestHazelcastInstanceFactory;
@@ -73,7 +77,8 @@ public class HistogramActionTest {
         hazelcastInstance = new TestHazelcastInstanceFactory(1).newHazelcastInstance();
         HazelcastConnection hazelcastConnection = Mockito.mock(HazelcastConnection.class);
         when(hazelcastConnection.getHazelcast()).thenReturn(hazelcastInstance);
-        CacheUtils.setCacheFactory(new DistributedCacheFactory(hazelcastConnection, mapper));
+        CacheManager cacheManager = new CacheManager(new DistributedCacheFactory(hazelcastConnection, mapper));
+
 
         elasticsearchServer = new MockElasticsearchServer(UUID.randomUUID().toString());
         ElasticsearchConnection elasticsearchConnection = Mockito.mock(ElasticsearchConnection.class);
@@ -85,7 +90,7 @@ public class HistogramActionTest {
         when(tableMetadataManager.exists(TestUtils.TEST_TABLE_NAME)).thenReturn(true);
         when(tableMetadataManager.get(anyString())).thenReturn(TestUtils.TEST_TABLE);
         QueryStore queryStore = new ElasticsearchQueryStore(tableMetadataManager, elasticsearchConnection, dataStore);
-        AnalyticsLoader analyticsLoader = new AnalyticsLoader(tableMetadataManager, dataStore, queryStore, elasticsearchConnection);
+        AnalyticsLoader analyticsLoader = new AnalyticsLoader(tableMetadataManager, dataStore, queryStore, elasticsearchConnection, cacheManager);
         TestUtils.registerActions(analyticsLoader, mapper);
         ExecutorService executorService = Executors.newFixedThreadPool(1);
         queryExecutor = new QueryExecutor(analyticsLoader, executorService);

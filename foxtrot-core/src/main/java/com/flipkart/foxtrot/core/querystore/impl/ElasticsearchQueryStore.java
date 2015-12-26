@@ -16,15 +16,22 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.flipkart.foxtrot.common.*;
+import com.flipkart.foxtrot.common.Document;
+import com.flipkart.foxtrot.common.FieldTypeMapping;
 import com.flipkart.foxtrot.common.Table;
+import com.flipkart.foxtrot.common.TableFieldMapping;
 import com.flipkart.foxtrot.core.datastore.DataStore;
 import com.flipkart.foxtrot.core.datastore.DataStoreException;
 import com.flipkart.foxtrot.core.parsers.ElasticsearchMappingParser;
 import com.flipkart.foxtrot.core.querystore.QueryStore;
 import com.flipkart.foxtrot.core.querystore.QueryStoreException;
 import com.flipkart.foxtrot.core.table.TableMetadataManager;
-import com.google.common.collect.*;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
 import com.yammer.metrics.annotation.Timed;
 import org.elasticsearch.action.WriteConsistencyLevel;
 import org.elasticsearch.action.admin.indices.mapping.get.GetMappingsRequest;
@@ -54,6 +61,8 @@ import java.util.concurrent.TimeUnit;
  * Date: 14/03/14
  * Time: 12:27 AM
  */
+
+@Singleton
 public class ElasticsearchQueryStore implements QueryStore {
     private static final Logger logger = LoggerFactory.getLogger(ElasticsearchQueryStore.class.getSimpleName());
 
@@ -62,7 +71,7 @@ public class ElasticsearchQueryStore implements QueryStore {
     private final TableMetadataManager tableMetadataManager;
     private final ObjectMapper mapper;
 
-
+    @Inject
     public ElasticsearchQueryStore(TableMetadataManager tableMetadataManager,
                                    ElasticsearchConnection connection,
                                    DataStore dataStore) {
@@ -225,11 +234,10 @@ public class ElasticsearchQueryStore implements QueryStore {
                     .setSize(1)
                     .execute()
                     .actionGet();
-            if(searchResponse.getHits().totalHits() == 0 ) {
+            if (searchResponse.getHits().totalHits() == 0) {
                 logger.warn("Going into compatibility mode, looks using passed in ID as the data store id: {}", id);
                 lookupKey = id;
-            }
-            else {
+            } else {
                 lookupKey = searchResponse.getHits().getHits()[0].getId();
                 logger.debug("Translated lookup key for {} is {}.", id, lookupKey);
             }
@@ -268,10 +276,10 @@ public class ElasticsearchQueryStore implements QueryStore {
                     .mappings();
 
             Map<String, String> rowKeys = Maps.newLinkedHashMap();
-            for(String id: ids) {
+            for (String id : ids) {
                 rowKeys.put(id, id);
             }
-            if(!bypassMetalookup) {
+            if (!bypassMetalookup) {
                 SearchResponse response = connection.getClient().prepareSearch(ElasticsearchUtils.getIndices(table))
                         .setTypes(ElasticsearchUtils.DOCUMENT_TYPE_NAME)
                         .setQuery(
@@ -284,7 +292,7 @@ public class ElasticsearchQueryStore implements QueryStore {
                         .actionGet();
                 for (SearchHit hit : response.getHits()) {
                     final String id = hit.getFields().get(ElasticsearchUtils.DOCUMENT_META_ID_FIELD_NAME).getValue().toString();
-                    rowKeys.put(id,hit.getId());
+                    rowKeys.put(id, hit.getId());
                 }
             }
             logger.info("Get row keys: {}", rowKeys.size());

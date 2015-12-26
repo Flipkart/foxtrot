@@ -25,6 +25,8 @@ import com.flipkart.foxtrot.core.datastore.DataStoreException;
 import com.flipkart.foxtrot.core.querystore.DocumentTranslator;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
 import com.shash.hbase.ds.RowKeyDistributorByHashPrefix;
 import com.yammer.metrics.annotation.Timed;
 import org.apache.hadoop.hbase.client.Get;
@@ -45,6 +47,8 @@ import java.util.Vector;
  * Date: 13/03/14
  * Time: 7:54 PM
  */
+
+@Singleton
 public class HBaseDataStore implements DataStore {
     private static final Logger logger = LoggerFactory.getLogger(HBaseDataStore.class.getSimpleName());
 
@@ -57,6 +61,7 @@ public class HBaseDataStore implements DataStore {
     private final ObjectMapper mapper;
     private final DocumentTranslator translator;
 
+    @Inject
     public HBaseDataStore(HbaseTableConnection tableWrapper, ObjectMapper mapper) {
         this.tableWrapper = tableWrapper;
         this.mapper = mapper;

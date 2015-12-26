@@ -19,10 +19,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.flipkart.foxtrot.common.Table;
 import com.flipkart.foxtrot.core.MockElasticsearchServer;
 import com.flipkart.foxtrot.core.TestUtils;
-import com.flipkart.foxtrot.core.common.CacheUtils;
+import com.flipkart.foxtrot.core.cache.CacheManager;
 import com.flipkart.foxtrot.core.datastore.DataStore;
 import com.flipkart.foxtrot.core.querystore.QueryStore;
-import com.flipkart.foxtrot.core.querystore.impl.DistributedCacheFactory;
+import com.flipkart.foxtrot.core.cache.impl.DistributedCacheFactory;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConnection;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
 import com.flipkart.foxtrot.core.querystore.impl.HazelcastConnection;
@@ -71,7 +71,7 @@ public class TableManagerResourceTest extends ResourceTest {
         hazelcastInstance = new TestHazelcastInstanceFactory(1).newHazelcastInstance();
         HazelcastConnection hazelcastConnection = Mockito.mock(HazelcastConnection.class);
         when(hazelcastConnection.getHazelcast()).thenReturn(hazelcastInstance);
-        CacheUtils.setCacheFactory(new DistributedCacheFactory(hazelcastConnection, mapper));
+
         Config config = new Config();
         when(hazelcastConnection.getHazelcastConfig()).thenReturn(config);
         elasticsearchServer = new MockElasticsearchServer(UUID.randomUUID().toString());

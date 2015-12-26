@@ -16,11 +16,13 @@
 package com.flipkart.foxtrot.core.table.impl;
 
 import com.flipkart.foxtrot.common.Table;
-import com.flipkart.foxtrot.core.querystore.impl.DistributedCache;
+import com.flipkart.foxtrot.core.cache.impl.DistributedCache;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConnection;
 import com.flipkart.foxtrot.core.querystore.impl.HazelcastConnection;
 import com.flipkart.foxtrot.core.table.TableMetadataManager;
 import com.google.common.collect.Lists;
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
 import com.hazelcast.config.MapConfig;
 import com.hazelcast.config.MapStoreConfig;
 import com.hazelcast.core.IMap;
@@ -37,12 +39,15 @@ import java.util.List;
  * Date: 15/03/14
  * Time: 10:11 PM
  */
+
+@Singleton
 public class DistributedTableMetadataManager implements TableMetadataManager {
     private static final Logger logger = LoggerFactory.getLogger(DistributedTableMetadataManager.class);
     public static final String DATA_MAP = "tablemetadatamap";
     private final HazelcastConnection hazelcastConnection;
     private IMap<String, Table> tableDataStore;
 
+    @Inject
     public DistributedTableMetadataManager(HazelcastConnection hazelcastConnection,
                                            ElasticsearchConnection elasticsearchConnection) {
         this.hazelcastConnection = hazelcastConnection;

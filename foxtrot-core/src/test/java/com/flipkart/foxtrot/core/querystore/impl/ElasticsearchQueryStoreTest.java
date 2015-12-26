@@ -23,13 +23,17 @@ import com.flipkart.foxtrot.common.FieldTypeMapping;
 import com.flipkart.foxtrot.common.TableFieldMapping;
 import com.flipkart.foxtrot.core.MockElasticsearchServer;
 import com.flipkart.foxtrot.core.TestUtils;
+import com.flipkart.foxtrot.core.cache.CacheManager;
+import com.flipkart.foxtrot.core.cache.impl.DistributedCacheFactory;
 import com.flipkart.foxtrot.core.datastore.DataStore;
 import com.flipkart.foxtrot.core.querystore.DocumentTranslator;
 import com.flipkart.foxtrot.core.querystore.QueryExecutor;
 import com.flipkart.foxtrot.core.querystore.QueryStoreException;
-import com.flipkart.foxtrot.core.table.TableMetadataManager;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsLoader;
+import com.flipkart.foxtrot.core.table.TableMetadataManager;
 import com.google.common.collect.ImmutableList;
+import com.hazelcast.core.HazelcastInstance;
+import com.hazelcast.test.TestHazelcastInstanceFactory;
 import com.shash.hbase.ds.RowKeyDistributorByHashPrefix;
 import org.elasticsearch.action.get.GetResponse;
 import org.junit.After;
@@ -63,6 +67,12 @@ public class ElasticsearchQueryStoreTest {
         ElasticsearchUtils.setMapper(mapper);
         dataStore = TestUtils.getDataStore();
 
+        //Initializing Cache Factory
+        HazelcastInstance hazelcastInstance = new TestHazelcastInstanceFactory(1).newHazelcastInstance();
+        HazelcastConnection hazelcastConnection = Mockito.mock(HazelcastConnection.class);
+        when(hazelcastConnection.getHazelcast()).thenReturn(hazelcastInstance);
+        CacheManager cacheManager = new CacheManager(new DistributedCacheFactory(hazelcastConnection, mapper));
+
         elasticsearchServer = new MockElasticsearchServer(UUID.randomUUID().toString());
         ElasticsearchConnection elasticsearchConnection = Mockito.mock(ElasticsearchConnection.class);
         when(elasticsearchConnection.getClient()).thenReturn(elasticsearchServer.getClient());
@@ -70,7 +80,7 @@ public class ElasticsearchQueryStoreTest {
         tableMetadataManager = Mockito.mock(TableMetadataManager.class);
         when(tableMetadataManager.exists(TestUtils.TEST_TABLE_NAME)).thenReturn(true);
         when(tableMetadataManager.get(anyString())).thenReturn(TestUtils.TEST_TABLE);
-        AnalyticsLoader analyticsLoader = new AnalyticsLoader(tableMetadataManager, dataStore, queryStore, elasticsearchConnection);
+        AnalyticsLoader analyticsLoader = new AnalyticsLoader(tableMetadataManager, dataStore, queryStore, elasticsearchConnection, cacheManager);
         ExecutorService executorService = Executors.newFixedThreadPool(1);
         QueryExecutor queryExecutor = new QueryExecutor(analyticsLoader, executorService);
         queryStore = new ElasticsearchQueryStore(tableMetadataManager, elasticsearchConnection, dataStore);
@@ -91,11 +101,11 @@ public class ElasticsearchQueryStoreTest {
         queryStore.save(TestUtils.TEST_TABLE_NAME, originalDocument);
         final Document translatedDocuemnt = translator.translate(tableMetadataManager.get(TestUtils.TEST_TABLE_NAME), originalDocument);
         GetResponse getResponse = elasticsearchServer
-                        .getClient()
-                        .prepareGet(ElasticsearchUtils.getCurrentIndex(TestUtils.TEST_TABLE_NAME, originalDocument.getTimestamp()),
-                                ElasticsearchUtils.DOCUMENT_TYPE_NAME,
-                                translatedDocuemnt.getId())
-                        .setFields("_timestamp").execute().actionGet();
+                .getClient()
+                .prepareGet(ElasticsearchUtils.getCurrentIndex(TestUtils.TEST_TABLE_NAME, originalDocument.getTimestamp()),
+                        ElasticsearchUtils.DOCUMENT_TYPE_NAME,
+                        translatedDocuemnt.getId())
+                .setFields("_timestamp").execute().actionGet();
         assertTrue("Id should exist in ES", getResponse.isExists());
         assertEquals("Id should match requestId", translatedDocuemnt.getId(), getResponse.getId());
         assertEquals("Timestamp should match request timestamp", translatedDocuemnt.getTimestamp(), getResponse.getField("_timestamp").getValue());

@@ -21,7 +21,8 @@ import com.flipkart.foxtrot.common.FieldTypeMapping;
 import com.flipkart.foxtrot.common.TableFieldMapping;
 import com.flipkart.foxtrot.core.MockElasticsearchServer;
 import com.flipkart.foxtrot.core.TestUtils;
-import com.flipkart.foxtrot.core.common.CacheUtils;
+import com.flipkart.foxtrot.core.cache.CacheManager;
+import com.flipkart.foxtrot.core.cache.impl.DistributedCacheFactory;
 import com.flipkart.foxtrot.core.datastore.DataStore;
 import com.flipkart.foxtrot.core.querystore.QueryExecutor;
 import com.flipkart.foxtrot.core.querystore.QueryStore;
@@ -70,7 +71,7 @@ public class TableFieldMappingResourceTest extends ResourceTest {
         hazelcastInstance = new TestHazelcastInstanceFactory(1).newHazelcastInstance();
         HazelcastConnection hazelcastConnection = Mockito.mock(HazelcastConnection.class);
         when(hazelcastConnection.getHazelcast()).thenReturn(hazelcastInstance);
-        CacheUtils.setCacheFactory(new DistributedCacheFactory(hazelcastConnection, mapper));
+        CacheManager cacheManager = new CacheManager(new DistributedCacheFactory(hazelcastConnection, mapper));
 
         elasticsearchServer = new MockElasticsearchServer(UUID.randomUUID().toString());
         ElasticsearchConnection elasticsearchConnection = Mockito.mock(ElasticsearchConnection.class);
@@ -87,7 +88,7 @@ public class TableFieldMappingResourceTest extends ResourceTest {
         when(tableMetadataManager.exists(TestUtils.TEST_TABLE_NAME)).thenReturn(true);
         when(tableMetadataManager.get(anyString())).thenReturn(TestUtils.TEST_TABLE);
 
-        AnalyticsLoader analyticsLoader = new AnalyticsLoader(tableMetadataManager, dataStore, queryStore, elasticsearchConnection);
+        AnalyticsLoader analyticsLoader = new AnalyticsLoader(tableMetadataManager, dataStore, queryStore, elasticsearchConnection, cacheManager);
         TestUtils.registerActions(analyticsLoader, mapper);
         ExecutorService executorService = Executors.newFixedThreadPool(1);
         QueryExecutor queryExecutor = new QueryExecutor(analyticsLoader, executorService);

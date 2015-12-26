@@ -24,8 +24,9 @@ import com.flipkart.foxtrot.common.group.GroupRequest;
 import com.flipkart.foxtrot.common.group.GroupResponse;
 import com.flipkart.foxtrot.core.MockElasticsearchServer;
 import com.flipkart.foxtrot.core.TestUtils;
+import com.flipkart.foxtrot.core.cache.CacheManager;
+import com.flipkart.foxtrot.core.cache.impl.DistributedCacheFactory;
 import com.flipkart.foxtrot.core.common.AsyncDataToken;
-import com.flipkart.foxtrot.core.common.CacheUtils;
 import com.flipkart.foxtrot.core.datastore.DataStore;
 import com.flipkart.foxtrot.core.querystore.QueryExecutor;
 import com.flipkart.foxtrot.core.querystore.QueryStore;
@@ -65,6 +66,7 @@ public class AsyncResourceTest extends ResourceTest {
     private MockElasticsearchServer elasticsearchServer;
     private HazelcastInstance hazelcastInstance;
     private QueryExecutor queryExecutor;
+    private CacheManager cacheManager;
 
     public AsyncResourceTest() throws Exception {
         getObjectMapperFactory().setSerializationInclusion(JsonInclude.Include.NON_NULL);
@@ -80,7 +82,7 @@ public class AsyncResourceTest extends ResourceTest {
         hazelcastInstance = new TestHazelcastInstanceFactory(1).newHazelcastInstance();
         HazelcastConnection hazelcastConnection = Mockito.mock(HazelcastConnection.class);
         when(hazelcastConnection.getHazelcast()).thenReturn(hazelcastInstance);
-        CacheUtils.setCacheFactory(new DistributedCacheFactory(hazelcastConnection, mapper));
+        this.cacheManager = new CacheManager(new DistributedCacheFactory(hazelcastConnection, mapper));
 
         elasticsearchServer = new MockElasticsearchServer(UUID.randomUUID().toString());
         ElasticsearchConnection elasticsearchConnection = Mockito.mock(ElasticsearchConnection.class);
@@ -99,7 +101,7 @@ public class AsyncResourceTest extends ResourceTest {
 
         QueryStore queryStore = new ElasticsearchQueryStore(tableMetadataManager, elasticsearchConnection, dataStore);
 
-        AnalyticsLoader analyticsLoader = new AnalyticsLoader(tableMetadataManager, dataStore, queryStore, elasticsearchConnection);
+        AnalyticsLoader analyticsLoader = new AnalyticsLoader(tableMetadataManager, dataStore, queryStore, elasticsearchConnection, cacheManager);
         TestUtils.registerActions(analyticsLoader, mapper);
         ExecutorService executorService = Executors.newFixedThreadPool(1);
         queryExecutor = new QueryExecutor(analyticsLoader, executorService);
@@ -115,7 +117,7 @@ public class AsyncResourceTest extends ResourceTest {
 
     @Override
     protected void setUpResources() throws Exception {
-        addResource(new AsyncResource());
+        addResource(new AsyncResource(cacheManager));
     }
 
     @After

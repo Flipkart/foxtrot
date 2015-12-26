@@ -1,12 +1,12 @@
 /**
  * Copyright 2014 Flipkart Internet Pvt. Ltd.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -16,13 +16,15 @@
 package com.flipkart.foxtrot.core.querystore.actions.spi;
 
 import com.flipkart.foxtrot.common.ActionRequest;
+import com.flipkart.foxtrot.core.cache.CacheManager;
 import com.flipkart.foxtrot.core.common.Action;
-import com.flipkart.foxtrot.core.common.CacheUtils;
 import com.flipkart.foxtrot.core.datastore.DataStore;
 import com.flipkart.foxtrot.core.querystore.QueryStore;
-import com.flipkart.foxtrot.core.table.TableMetadataManager;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConnection;
+import com.flipkart.foxtrot.core.table.TableMetadataManager;
 import com.google.common.collect.Maps;
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
 
 import java.lang.reflect.Constructor;
 import java.util.Map;
@@ -32,6 +34,8 @@ import java.util.Map;
  * Date: 27/03/14
  * Time: 12:20 AM
  */
+
+@Singleton
 public class AnalyticsLoader {
 
     private final Map<String, ActionMetadata> actions = Maps.newHashMap();
@@ -39,13 +43,19 @@ public class AnalyticsLoader {
     private final DataStore dataStore;
     private final QueryStore queryStore;
     private final ElasticsearchConnection elasticsearchConnection;
+    private final CacheManager cacheManager;
 
-    public AnalyticsLoader(TableMetadataManager tableMetadataManager, DataStore dataStore,
-                           QueryStore queryStore, ElasticsearchConnection elasticsearchConnection) {
+    @Inject
+    public AnalyticsLoader(TableMetadataManager tableMetadataManager,
+                           DataStore dataStore,
+                           QueryStore queryStore,
+                           ElasticsearchConnection elasticsearchConnection,
+                           CacheManager cacheManager) {
         this.tableMetadataManager = tableMetadataManager;
         this.dataStore = dataStore;
         this.queryStore = queryStore;
         this.elasticsearchConnection = elasticsearchConnection;
+        this.cacheManager = cacheManager;
     }
 
     @SuppressWarnings("unchecked")
@@ -62,13 +72,15 @@ public class AnalyticsLoader {
                         DataStore.class,
                         QueryStore.class,
                         ElasticsearchConnection.class,
-                        String.class);
+                        String.class,
+                        CacheManager.class);
                 return constructor.newInstance(r,
-                                            tableMetadataManager,
-                                            dataStore,
-                                            queryStore,
-                                            elasticsearchConnection,
-                                            metadata.getCacheToken());
+                        tableMetadataManager,
+                        dataStore,
+                        queryStore,
+                        elasticsearchConnection,
+                        metadata.getCacheToken(),
+                        cacheManager);
             }
         }
         return null;
@@ -77,7 +89,7 @@ public class AnalyticsLoader {
     public void register(ActionMetadata actionMetadata) {
         actions.put(actionMetadata.getRequest().getCanonicalName(), actionMetadata);
         if (actionMetadata.isCacheable()) {
-            CacheUtils.create(actionMetadata.getCacheToken());
+            cacheManager.create(actionMetadata.getCacheToken());
         }
     }
 

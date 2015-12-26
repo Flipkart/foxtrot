@@ -18,6 +18,7 @@ package com.flipkart.foxtrot.core.querystore.actions;
 import java.util.Collections;
 import java.util.Vector;
 
+import com.flipkart.foxtrot.core.cache.CacheManager;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.search.SearchType;
@@ -59,8 +60,9 @@ public class FilterAction extends Action<Query> {
                         DataStore dataStore,
                         QueryStore queryStore,
                         ElasticsearchConnection connection,
-                        String cacheToken) {
-        super(parameter, tableMetadataManager, dataStore, queryStore, connection, cacheToken);
+                        String cacheToken,
+                        CacheManager cacheManager) {
+        super(parameter, tableMetadataManager, dataStore, queryStore, connection, cacheToken, cacheManager);
     }
 
     @Override

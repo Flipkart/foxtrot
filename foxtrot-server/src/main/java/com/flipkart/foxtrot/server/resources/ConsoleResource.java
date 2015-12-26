@@ -18,6 +18,8 @@ package com.flipkart.foxtrot.server.resources;
 import com.flipkart.foxtrot.server.console.Console;
 import com.flipkart.foxtrot.server.console.ConsolePersistence;
 import com.flipkart.foxtrot.server.console.ConsolePersistenceException;
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,11 +32,13 @@ import java.util.List;
 @Path("/v1/consoles")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
+@Singleton
 public class ConsoleResource {
     private static final Logger logger = LoggerFactory.getLogger(ConsoleResource.class);
 
     private ConsolePersistence consolePersistence;
 
+    @Inject
     public ConsoleResource(ConsolePersistence consolePersistence) {
         this.consolePersistence = consolePersistence;
     }

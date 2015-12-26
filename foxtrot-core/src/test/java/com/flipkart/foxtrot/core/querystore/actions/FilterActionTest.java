@@ -15,30 +15,6 @@
  */
 package com.flipkart.foxtrot.core.querystore.actions;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.when;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-import java.util.Vector;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-
-import org.elasticsearch.action.admin.indices.get.GetIndexRequest;
-import org.elasticsearch.action.admin.indices.get.GetIndexResponse;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.mockito.Mockito;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -50,29 +26,42 @@ import com.flipkart.foxtrot.common.query.ResultSort;
 import com.flipkart.foxtrot.common.query.general.AnyFilter;
 import com.flipkart.foxtrot.common.query.general.EqualsFilter;
 import com.flipkart.foxtrot.common.query.general.NotEqualsFilter;
-import com.flipkart.foxtrot.common.query.numeric.BetweenFilter;
-import com.flipkart.foxtrot.common.query.numeric.GreaterEqualFilter;
-import com.flipkart.foxtrot.common.query.numeric.GreaterThanFilter;
-import com.flipkart.foxtrot.common.query.numeric.LessEqualFilter;
-import com.flipkart.foxtrot.common.query.numeric.LessThanFilter;
+import com.flipkart.foxtrot.common.query.numeric.*;
 import com.flipkart.foxtrot.common.query.string.ContainsFilter;
 import com.flipkart.foxtrot.core.MockElasticsearchServer;
 import com.flipkart.foxtrot.core.TestUtils;
-import com.flipkart.foxtrot.core.common.CacheUtils;
+import com.flipkart.foxtrot.core.cache.CacheManager;
+import com.flipkart.foxtrot.core.cache.impl.DistributedCacheFactory;
 import com.flipkart.foxtrot.core.datastore.DataStore;
 import com.flipkart.foxtrot.core.querystore.QueryExecutor;
 import com.flipkart.foxtrot.core.querystore.QueryStore;
 import com.flipkart.foxtrot.core.querystore.QueryStoreException;
-import com.flipkart.foxtrot.core.table.TableMetadataManager;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsLoader;
-import com.flipkart.foxtrot.core.querystore.impl.DistributedCacheFactory;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConnection;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchQueryStore;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
 import com.flipkart.foxtrot.core.querystore.impl.HazelcastConnection;
+import com.flipkart.foxtrot.core.table.TableMetadataManager;
 import com.google.common.collect.Lists;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.test.TestHazelcastInstanceFactory;
+import org.elasticsearch.action.admin.indices.get.GetIndexRequest;
+import org.elasticsearch.action.admin.indices.get.GetIndexResponse;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Ignore;
+import org.junit.Test;
+import org.mockito.Mockito;
+
+import java.io.IOException;
+import java.util.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.when;
 
 /**
  * Created by rishabh.goyal on 28/04/14.
@@ -94,7 +83,7 @@ public class FilterActionTest {
         hazelcastInstance = new TestHazelcastInstanceFactory(1).newHazelcastInstance();
         HazelcastConnection hazelcastConnection = Mockito.mock(HazelcastConnection.class);
         when(hazelcastConnection.getHazelcast()).thenReturn(hazelcastInstance);
-        CacheUtils.setCacheFactory(new DistributedCacheFactory(hazelcastConnection, mapper));
+        CacheManager cacheManager = new CacheManager(new DistributedCacheFactory(hazelcastConnection, mapper));
 
         elasticsearchServer = new MockElasticsearchServer(UUID.randomUUID().toString());
         ElasticsearchConnection elasticsearchConnection = Mockito.mock(ElasticsearchConnection.class);
@@ -108,7 +97,7 @@ public class FilterActionTest {
         queryStore = new ElasticsearchQueryStore(tableMetadataManager, elasticsearchConnection, dataStore);
         List<Document> documents = TestUtils.getQueryDocuments(mapper);
         //when(queryStore.get(anyString(), Matchers.anyListOf(String.class))).thenReturn(documents);
-        AnalyticsLoader analyticsLoader = new AnalyticsLoader(tableMetadataManager, dataStore, queryStore, elasticsearchConnection);
+        AnalyticsLoader analyticsLoader = new AnalyticsLoader(tableMetadataManager, dataStore, queryStore, elasticsearchConnection, cacheManager);
         TestUtils.registerActions(analyticsLoader, mapper);
         ExecutorService executorService = Executors.newFixedThreadPool(1);
         queryExecutor = new QueryExecutor(analyticsLoader, executorService);
@@ -203,7 +192,7 @@ public class FilterActionTest {
         QueryResponse actualResponse = QueryResponse.class.cast(queryExecutor.execute(query));
         compare(documents, actualResponse.getDocuments());
     }
-    
+
     @Test
     public void testQueryTotalHitsWithLimit() throws QueryStoreException, JsonProcessingException {
         Query query = new Query();
@@ -716,18 +705,18 @@ public class FilterActionTest {
         BetweenFilter betweenFilter = new BetweenFilter();
         betweenFilter.setField("_timestamp");
         betweenFilter.setFrom(documents.get(0).getTimestamp());
-        betweenFilter.setTo(documents.get(documents.size() -1).getTimestamp());
+        betweenFilter.setTo(documents.get(documents.size() - 1).getTimestamp());
         betweenFilter.setTemporal(true);
         query.setFilters(Lists.<Filter>newArrayList(betweenFilter));
-        
+
         QueryResponse actualResponse = QueryResponse.class.cast(queryExecutor.execute(query));
         assertEquals(documents.size(), actualResponse.getDocuments().size());
     }
 
-    
-    public void compare(List<Document> expectedDocuments, List<Document> actualDocuments){
+
+    public void compare(List<Document> expectedDocuments, List<Document> actualDocuments) {
         assertEquals(expectedDocuments.size(), actualDocuments.size());
-        for (int i = 0 ; i < expectedDocuments.size(); i++){
+        for (int i = 0; i < expectedDocuments.size(); i++) {
             Document expected = expectedDocuments.get(i);
             Document actual = actualDocuments.get(i);
             assertNotNull(expected);
@@ -736,8 +725,10 @@ public class FilterActionTest {
             assertNotNull("Actual document data should not be null", actual.getData());
             assertEquals("Actual Doc Id should match expected Doc Id", expected.getId(), actual.getId());
             assertEquals("Actual Doc Timestamp should match expected Doc Timestamp", expected.getTimestamp(), actual.getTimestamp());
-            Map<String, Object> expectedMap = mapper.convertValue(expected.getData(), new TypeReference<HashMap<String, Object>>() {});
-            Map<String, Object> actualMap = mapper.convertValue(actual.getData(), new TypeReference<HashMap<String, Object>>() {});
+            Map<String, Object> expectedMap = mapper.convertValue(expected.getData(), new TypeReference<HashMap<String, Object>>() {
+            });
+            Map<String, Object> actualMap = mapper.convertValue(actual.getData(), new TypeReference<HashMap<String, Object>>() {
+            });
             assertEquals("Actual data should match expected data", expectedMap, actualMap);
         }
     }
