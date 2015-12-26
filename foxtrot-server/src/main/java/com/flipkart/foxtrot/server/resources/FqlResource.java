@@ -6,8 +6,6 @@ import com.flipkart.foxtrot.server.providers.FoxtrotExtraMediaType;
 import com.flipkart.foxtrot.sql.FqlEngine;
 import com.flipkart.foxtrot.sql.responseprocessors.model.FlatRepresentation;
 import com.google.common.base.Preconditions;
-import com.google.inject.Inject;
-import com.google.inject.Singleton;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,14 +19,10 @@ import java.io.OutputStreamWriter;
 import java.util.Collections;
 
 @Path("/v1/fql")
-@Singleton
 public class FqlResource {
     private static final Logger logger = LoggerFactory.getLogger(AnalyticsResource.class);
-    //private final QueryExecutor queryExecutor;
-    //private ObjectMapper objectMapper;
     private FqlEngine fqlEngine;
 
-    @Inject
     public FqlResource(final FqlEngine fqlEngine) {
         this.fqlEngine = fqlEngine;
     }

@@ -15,13 +15,11 @@
  */
 package com.flipkart.foxtrot.core.querystore.impl;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.flipkart.foxtrot.common.ActionRequest;
 import com.flipkart.foxtrot.common.Table;
 import com.flipkart.foxtrot.core.common.PeriodSelector;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
-import com.google.inject.Inject;
 import org.elasticsearch.action.admin.indices.template.put.PutIndexTemplateRequest;
 import org.elasticsearch.action.admin.indices.template.put.PutIndexTemplateRequestBuilder;
 import org.elasticsearch.client.Client;
@@ -55,18 +53,7 @@ public class ElasticsearchUtils {
     public static final String TABLENAME_POSTFIX = "table";
     private static final DateTimeFormatter FORMATTER = DateTimeFormat.forPattern("dd-M-yyyy");
     public static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormat.forPattern("dd-M-yyyy");
-    private static ObjectMapper mapper;
 
-    @Inject
-    public static void setMapper(ObjectMapper mapper) {
-        ElasticsearchUtils.mapper = mapper;
-    }
-
-    public static ObjectMapper getMapper() {
-        return mapper;
-    }
-
-    @Inject
     public static void setTableNamePrefix(ElasticsearchConfig config) {
         ElasticsearchUtils.TABLENAME_PREFIX = config.getTableNamePrefix();
     }

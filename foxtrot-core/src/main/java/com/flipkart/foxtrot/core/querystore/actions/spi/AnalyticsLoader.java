@@ -15,6 +15,8 @@
  */
 package com.flipkart.foxtrot.core.querystore.actions.spi;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.jsontype.NamedType;
 import com.flipkart.foxtrot.common.ActionRequest;
 import com.flipkart.foxtrot.core.cache.CacheManager;
 import com.flipkart.foxtrot.core.common.Action;
@@ -23,11 +25,17 @@ import com.flipkart.foxtrot.core.querystore.QueryStore;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConnection;
 import com.flipkart.foxtrot.core.table.TableMetadataManager;
 import com.google.common.collect.Maps;
-import com.google.inject.Inject;
-import com.google.inject.Singleton;
+import com.yammer.dropwizard.lifecycle.Managed;
+import org.reflections.Reflections;
+import org.reflections.scanners.SubTypesScanner;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Constructor;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * User: Santanu Sinha (santanu.sinha@flipkart.com)
@@ -35,8 +43,9 @@ import java.util.Map;
  * Time: 12:20 AM
  */
 
-@Singleton
-public class AnalyticsLoader {
+public class AnalyticsLoader implements Managed {
+
+    private static final Logger logger = LoggerFactory.getLogger(AnalyticsLoader.class);
 
     private final Map<String, ActionMetadata> actions = Maps.newHashMap();
     private final TableMetadataManager tableMetadataManager;
@@ -44,18 +53,20 @@ public class AnalyticsLoader {
     private final QueryStore queryStore;
     private final ElasticsearchConnection elasticsearchConnection;
     private final CacheManager cacheManager;
+    private final ObjectMapper objectMapper;
 
-    @Inject
     public AnalyticsLoader(TableMetadataManager tableMetadataManager,
                            DataStore dataStore,
                            QueryStore queryStore,
                            ElasticsearchConnection elasticsearchConnection,
-                           CacheManager cacheManager) {
+                           CacheManager cacheManager,
+                           ObjectMapper objectMapper) {
         this.tableMetadataManager = tableMetadataManager;
         this.dataStore = dataStore;
         this.queryStore = queryStore;
         this.elasticsearchConnection = elasticsearchConnection;
         this.cacheManager = cacheManager;
+        this.objectMapper = objectMapper;
     }
 
     @SuppressWarnings("unchecked")
@@ -93,4 +104,38 @@ public class AnalyticsLoader {
         }
     }
 
+    @Override
+    public void start() throws Exception {
+        Reflections reflections = new Reflections("com.flipkart.foxtrot", new SubTypesScanner());
+        Set<Class<? extends Action>> actions = reflections.getSubTypesOf(Action.class);
+        if (actions.isEmpty()) {
+            throw new Exception("No analytics actions found!!");
+        }
+        List<NamedType> types = new ArrayList<>();
+        for (Class<? extends Action> action : actions) {
+            AnalyticsProvider analyticsProvider = action.getAnnotation(AnalyticsProvider.class);
+            if (null == analyticsProvider.request()
+                    || null == analyticsProvider.opcode()
+                    || analyticsProvider.opcode().isEmpty()
+                    || null == analyticsProvider.response()) {
+                throw new Exception("Invalid annotation on " + action.getCanonicalName());
+            }
+            if (analyticsProvider.opcode().equalsIgnoreCase("default")) {
+                logger.warn("Action " + action.getCanonicalName() + " does not specify cache token. " +
+                        "Using default cache.");
+            }
+            register(new ActionMetadata(
+                    analyticsProvider.request(), action,
+                    analyticsProvider.cacheable(), analyticsProvider.opcode()));
+            types.add(new NamedType(analyticsProvider.request(), analyticsProvider.opcode()));
+            types.add(new NamedType(analyticsProvider.response(), analyticsProvider.opcode()));
+            logger.info("Registered action: " + action.getCanonicalName());
+        }
+        objectMapper.getSubtypeResolver().registerSubtypes(types.toArray(new NamedType[types.size()]));
+    }
+
+    @Override
+    public void stop() throws Exception {
+
+    }
 }

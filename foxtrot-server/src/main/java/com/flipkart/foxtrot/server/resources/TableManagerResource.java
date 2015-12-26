@@ -18,8 +18,6 @@ package com.flipkart.foxtrot.server.resources;
 import com.flipkart.foxtrot.common.Table;
 import com.flipkart.foxtrot.core.table.TableManager;
 import com.flipkart.foxtrot.core.table.TableManagerException;
-import com.google.inject.Inject;
-import com.google.inject.Singleton;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,12 +30,10 @@ import java.util.Collections;
 @Path("/v1/tables")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
-@Singleton
 public class TableManagerResource {
     private static final Logger logger = LoggerFactory.getLogger(TableManagerResource.class);
     private final TableManager tableManager;
 
-    @Inject
     public TableManagerResource(TableManager tableManager) {
         this.tableManager = tableManager;
     }

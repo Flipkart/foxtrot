@@ -19,8 +19,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.flipkart.foxtrot.core.cache.Cache;
 import com.flipkart.foxtrot.core.cache.CacheFactory;
 import com.flipkart.foxtrot.core.querystore.impl.HazelcastConnection;
-import com.google.inject.Inject;
-import com.google.inject.Singleton;
 
 /**
  * User: Santanu Sinha (santanu.sinha@flipkart.com)
@@ -28,12 +26,10 @@ import com.google.inject.Singleton;
  * Time: 7:51 PM
  */
 
-@Singleton
 public class DistributedCacheFactory implements CacheFactory {
     private final HazelcastConnection connection;
     private final ObjectMapper mapper;
 
-    @Inject
     public DistributedCacheFactory(HazelcastConnection connection, ObjectMapper mapper) {
         this.connection = connection;
         this.mapper = mapper;

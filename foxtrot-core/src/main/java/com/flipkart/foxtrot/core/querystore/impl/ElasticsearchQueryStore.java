@@ -30,8 +30,6 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.google.inject.Inject;
-import com.google.inject.Singleton;
 import com.yammer.metrics.annotation.Timed;
 import org.elasticsearch.action.WriteConsistencyLevel;
 import org.elasticsearch.action.admin.indices.mapping.get.GetMappingsRequest;
@@ -62,7 +60,6 @@ import java.util.concurrent.TimeUnit;
  * Time: 12:27 AM
  */
 
-@Singleton
 public class ElasticsearchQueryStore implements QueryStore {
     private static final Logger logger = LoggerFactory.getLogger(ElasticsearchQueryStore.class.getSimpleName());
 
@@ -71,14 +68,14 @@ public class ElasticsearchQueryStore implements QueryStore {
     private final TableMetadataManager tableMetadataManager;
     private final ObjectMapper mapper;
 
-    @Inject
     public ElasticsearchQueryStore(TableMetadataManager tableMetadataManager,
                                    ElasticsearchConnection connection,
-                                   DataStore dataStore) {
+                                   DataStore dataStore,
+                                   ObjectMapper mapper) {
         this.connection = connection;
         this.dataStore = dataStore;
         this.tableMetadataManager = tableMetadataManager;
-        this.mapper = ElasticsearchUtils.getMapper();
+        this.mapper = mapper;
     }
 
     @Override
@@ -402,9 +399,9 @@ public class ElasticsearchQueryStore implements QueryStore {
         }
     }
 
-    private String convert(Document translatedDocuement) {
-        JsonNode metaNode = mapper.valueToTree(translatedDocuement.getMetadata());
-        ObjectNode dataNode = translatedDocuement.getData().deepCopy();
+    private String convert(Document translatedDocument) {
+        JsonNode metaNode = mapper.valueToTree(translatedDocument.getMetadata());
+        ObjectNode dataNode = translatedDocument.getData().deepCopy();
         dataNode.put(ElasticsearchUtils.DOCUMENT_META_FIELD_NAME, metaNode);
         return dataNode.toString();
     }

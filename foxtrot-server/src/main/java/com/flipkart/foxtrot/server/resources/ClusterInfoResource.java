@@ -2,8 +2,6 @@ package com.flipkart.foxtrot.server.resources;
 
 import com.flipkart.foxtrot.server.cluster.ClusterManager;
 import com.flipkart.foxtrot.server.cluster.ClusterMember;
-import com.google.inject.Inject;
-import com.google.inject.Singleton;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -17,11 +15,9 @@ import java.util.Map;
 @Path("/v1/cluster")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
-@Singleton
 public class ClusterInfoResource {
     private ClusterManager clusterManager;
 
-    @Inject
     public ClusterInfoResource(ClusterManager clusterManager) {
         this.clusterManager = clusterManager;
     }

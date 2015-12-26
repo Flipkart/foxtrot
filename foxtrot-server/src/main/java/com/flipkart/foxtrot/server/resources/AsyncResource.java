@@ -18,8 +18,6 @@ package com.flipkart.foxtrot.server.resources;
 import com.flipkart.foxtrot.common.ActionResponse;
 import com.flipkart.foxtrot.core.cache.CacheManager;
 import com.flipkart.foxtrot.core.common.AsyncDataToken;
-import com.google.inject.Inject;
-import com.google.inject.Singleton;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,13 +34,11 @@ import java.util.Collections;
  */
 @Path("/v1/async")
 @Produces(MediaType.APPLICATION_JSON)
-@Singleton
 public class AsyncResource {
     private static final Logger logger = LoggerFactory.getLogger(AsyncResource.class);
 
     private CacheManager cacheManager;
 
-    @Inject
     public AsyncResource(CacheManager cacheManager) {
         this.cacheManager = cacheManager;
     }

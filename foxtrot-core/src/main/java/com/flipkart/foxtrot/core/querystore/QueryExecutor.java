@@ -20,8 +20,6 @@ import com.flipkart.foxtrot.common.ActionResponse;
 import com.flipkart.foxtrot.core.common.Action;
 import com.flipkart.foxtrot.core.common.AsyncDataToken;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsLoader;
-import com.google.inject.Inject;
-import com.google.inject.Singleton;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,14 +31,12 @@ import java.util.concurrent.ExecutorService;
  * Time: 12:51 PM
  */
 
-@Singleton
 public class QueryExecutor {
     private static final Logger logger = LoggerFactory.getLogger(QueryExecutor.class.getSimpleName());
 
     private final AnalyticsLoader analyticsLoader;
     private final ExecutorService executorService;
 
-    @Inject
     public QueryExecutor(AnalyticsLoader analyticsLoader, ExecutorService executorService) {
         this.analyticsLoader = analyticsLoader;
         this.executorService = executorService;

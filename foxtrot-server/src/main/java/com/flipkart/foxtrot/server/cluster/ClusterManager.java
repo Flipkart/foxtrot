@@ -2,8 +2,6 @@ package com.flipkart.foxtrot.server.cluster;
 
 import com.flipkart.foxtrot.core.querystore.impl.HazelcastConnection;
 import com.google.common.collect.ImmutableList;
-import com.google.inject.Inject;
-import com.google.inject.Singleton;
 import com.hazelcast.config.EvictionPolicy;
 import com.hazelcast.config.MapConfig;
 import com.hazelcast.core.IMap;
@@ -20,7 +18,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-@Singleton
 public class ClusterManager implements Managed {
     private static final Logger logger = LoggerFactory.getLogger(ClusterManager.class.getSimpleName());
 
@@ -33,7 +30,6 @@ public class ClusterManager implements Managed {
     private final List<HealthCheck> healthChecks;
     private ScheduledExecutorService executor;
 
-    @Inject
     public ClusterManager(HazelcastConnection connection,
                           List<HealthCheck> healthChecks,
                           HttpConfiguration httpConfiguration) throws Exception {

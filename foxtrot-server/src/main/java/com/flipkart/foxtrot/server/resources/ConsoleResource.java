@@ -1,12 +1,12 @@
 /**
  * Copyright 2014 Flipkart Internet Pvt. Ltd.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -18,8 +18,6 @@ package com.flipkart.foxtrot.server.resources;
 import com.flipkart.foxtrot.server.console.Console;
 import com.flipkart.foxtrot.server.console.ConsolePersistence;
 import com.flipkart.foxtrot.server.console.ConsolePersistenceException;
-import com.google.inject.Inject;
-import com.google.inject.Singleton;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,13 +30,11 @@ import java.util.List;
 @Path("/v1/consoles")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
-@Singleton
 public class ConsoleResource {
     private static final Logger logger = LoggerFactory.getLogger(ConsoleResource.class);
 
     private ConsolePersistence consolePersistence;
 
-    @Inject
     public ConsoleResource(ConsolePersistence consolePersistence) {
         this.consolePersistence = consolePersistence;
     }
@@ -51,8 +47,8 @@ public class ConsoleResource {
         } catch (ConsolePersistenceException e) {
             logger.error("Error saving console: ", e);
             throw new WebApplicationException(Response.serverError()
-                                                .entity(Collections.singletonMap("error", e.getMessage()))
-                                                .build());
+                    .entity(Collections.singletonMap("error", e.getMessage()))
+                    .build());
         }
     }
 

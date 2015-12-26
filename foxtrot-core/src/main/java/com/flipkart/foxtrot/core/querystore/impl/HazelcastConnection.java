@@ -15,8 +15,6 @@
  */
 package com.flipkart.foxtrot.core.querystore.impl;
 
-import com.google.inject.Inject;
-import com.google.inject.Singleton;
 import com.hazelcast.config.Config;
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
@@ -34,7 +32,6 @@ import java.net.InetAddress;
  */
 
 @CoverageIgnore
-@Singleton
 public class HazelcastConnection implements Managed {
     private static final Logger logger = LoggerFactory.getLogger(HazelcastConnection.class.getSimpleName());
 
@@ -42,7 +39,6 @@ public class HazelcastConnection implements Managed {
     private HazelcastInstance hazelcast;
     private Config hazelcastConfig;
 
-    @Inject
     public HazelcastConnection(ClusterConfig clusterConfig) throws Exception {
         this.clusterConfig = clusterConfig;
         final String hostName = InetAddress.getLocalHost().getCanonicalHostName();

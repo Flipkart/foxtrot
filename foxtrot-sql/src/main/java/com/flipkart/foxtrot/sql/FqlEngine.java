@@ -14,14 +14,11 @@ import com.flipkart.foxtrot.sql.responseprocessors.Flattener;
 import com.flipkart.foxtrot.sql.responseprocessors.FlatteningUtils;
 import com.flipkart.foxtrot.sql.responseprocessors.model.FlatRepresentation;
 import com.google.common.collect.Lists;
-import com.google.inject.Inject;
-import com.google.inject.Singleton;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
-@Singleton
 public class FqlEngine {
     private static final Logger logger = LoggerFactory.getLogger(FqlEngine.class.getSimpleName());
 
@@ -30,7 +27,6 @@ public class FqlEngine {
     private QueryExecutor queryExecutor;
     private ObjectMapper mapper;
 
-    @Inject
     public FqlEngine(TableMetadataManager tableMetadataManager, QueryStore queryStore, QueryExecutor queryExecutor, ObjectMapper mapper) {
         this.tableMetadataManager = tableMetadataManager;
         this.queryStore = queryStore;
@@ -70,8 +66,8 @@ public class FqlEngine {
         public void visit(FqlDescribeTable fqlDescribeTable) throws Exception {
             TableFieldMapping fieldMetaData = queryStore.getFieldMappings(fqlDescribeTable.getTableName());
             result = FlatteningUtils.genericMultiRowParse(
-                                                mapper.valueToTree(fieldMetaData.getMappings()),
-                                                Lists.newArrayList("field", "type"), "field");
+                    mapper.valueToTree(fieldMetaData.getMappings()),
+                    Lists.newArrayList("field", "type"), "field");
         }
 
         @Override

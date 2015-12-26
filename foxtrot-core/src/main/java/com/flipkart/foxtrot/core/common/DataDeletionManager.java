@@ -1,8 +1,6 @@
 package com.flipkart.foxtrot.core.common;
 
 import com.flipkart.foxtrot.core.querystore.QueryStore;
-import com.google.inject.Inject;
-import com.google.inject.Singleton;
 import com.yammer.dropwizard.lifecycle.Managed;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,14 +11,12 @@ import java.util.Timer;
  * Created by rishabh.goyal on 07/07/14.
  */
 
-@Singleton
 public class DataDeletionManager implements Managed {
     private static final Logger logger = LoggerFactory.getLogger(DataDeletionManager.class.getSimpleName());
     final DataDeletionManagerConfig config;
     final Timer timer;
     final QueryStore queryStore;
 
-    @Inject
     public DataDeletionManager(DataDeletionManagerConfig deletionManagerConfig, QueryStore queryStore) {
         this.config = deletionManagerConfig;
         this.queryStore = queryStore;

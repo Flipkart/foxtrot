@@ -16,8 +16,6 @@
 package com.flipkart.foxtrot.server.resources;
 
 import com.flipkart.foxtrot.server.config.FoxtrotServerConfiguration;
-import com.google.inject.Inject;
-import com.google.inject.Singleton;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -26,11 +24,9 @@ import javax.ws.rs.core.MediaType;
 
 @Path("/v1/util")
 @Produces(MediaType.APPLICATION_JSON)
-@Singleton
 public class UtilResource {
     private final FoxtrotServerConfiguration configuration;
 
-    @Inject
     public UtilResource(FoxtrotServerConfiguration configuration) {
         this.configuration = configuration;
     }

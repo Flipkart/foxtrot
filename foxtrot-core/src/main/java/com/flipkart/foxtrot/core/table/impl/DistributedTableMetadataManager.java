@@ -21,8 +21,6 @@ import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConnection;
 import com.flipkart.foxtrot.core.querystore.impl.HazelcastConnection;
 import com.flipkart.foxtrot.core.table.TableMetadataManager;
 import com.google.common.collect.Lists;
-import com.google.inject.Inject;
-import com.google.inject.Singleton;
 import com.hazelcast.config.MapConfig;
 import com.hazelcast.config.MapStoreConfig;
 import com.hazelcast.core.IMap;
@@ -31,7 +29,6 @@ import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -40,14 +37,12 @@ import java.util.List;
  * Time: 10:11 PM
  */
 
-@Singleton
 public class DistributedTableMetadataManager implements TableMetadataManager {
     private static final Logger logger = LoggerFactory.getLogger(DistributedTableMetadataManager.class);
     public static final String DATA_MAP = "tablemetadatamap";
     private final HazelcastConnection hazelcastConnection;
     private IMap<String, Table> tableDataStore;
 
-    @Inject
     public DistributedTableMetadataManager(HazelcastConnection hazelcastConnection,
                                            ElasticsearchConnection elasticsearchConnection) {
         this.hazelcastConnection = hazelcastConnection;
@@ -85,12 +80,7 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
             return Collections.emptyList();
         }
         ArrayList<Table> tables = Lists.newArrayList(tableDataStore.values());
-        Collections.sort(tables, new Comparator<Table>() {
-            @Override
-            public int compare(Table lhs, Table rhs) {
-                return lhs.getName().toLowerCase().compareTo(rhs.getName().toLowerCase());
-            }
-        });
+        Collections.sort(tables, (lhs, rhs) -> lhs.getName().toLowerCase().compareTo(rhs.getName().toLowerCase()));
         return tables;
     }
 

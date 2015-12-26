@@ -17,8 +17,6 @@ package com.flipkart.foxtrot.server.console;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConnection;
-import com.google.inject.Inject;
-import com.google.inject.Singleton;
 import org.elasticsearch.action.WriteConsistencyLevel;
 import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.search.SearchResponse;
@@ -37,7 +35,6 @@ import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
 import static org.elasticsearch.index.query.QueryBuilders.matchAllQuery;
 import static org.elasticsearch.search.sort.SortBuilders.fieldSort;
 
-@Singleton
 public class ElasticsearchConsolePersistence implements ConsolePersistence {
     private static final Logger logger = LoggerFactory.getLogger(ElasticsearchConsolePersistence.class);
     private static final String INDEX = "consoles";
@@ -46,7 +43,6 @@ public class ElasticsearchConsolePersistence implements ConsolePersistence {
     private ElasticsearchConnection connection;
     private ObjectMapper mapper;
 
-    @Inject
     public ElasticsearchConsolePersistence(ElasticsearchConnection connection, ObjectMapper mapper) {
         this.connection = connection;
         this.mapper = mapper;

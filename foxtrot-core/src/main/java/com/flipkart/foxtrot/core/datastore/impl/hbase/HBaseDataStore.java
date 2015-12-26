@@ -25,8 +25,6 @@ import com.flipkart.foxtrot.core.datastore.DataStoreException;
 import com.flipkart.foxtrot.core.querystore.DocumentTranslator;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
-import com.google.inject.Inject;
-import com.google.inject.Singleton;
 import com.shash.hbase.ds.RowKeyDistributorByHashPrefix;
 import com.yammer.metrics.annotation.Timed;
 import org.apache.hadoop.hbase.client.Get;
@@ -48,7 +46,6 @@ import java.util.Vector;
  * Time: 7:54 PM
  */
 
-@Singleton
 public class HBaseDataStore implements DataStore {
     private static final Logger logger = LoggerFactory.getLogger(HBaseDataStore.class.getSimpleName());
 
@@ -61,7 +58,6 @@ public class HBaseDataStore implements DataStore {
     private final ObjectMapper mapper;
     private final DocumentTranslator translator;
 
-    @Inject
     public HBaseDataStore(HbaseTableConnection tableWrapper, ObjectMapper mapper) {
         this.tableWrapper = tableWrapper;
         this.mapper = mapper;
@@ -234,11 +230,11 @@ public class HBaseDataStore implements DataStore {
                     byte[] timestamp = getResult.getValue(COLUMN_FAMILY, TIMESTAMP_FIELD_NAME);
                     long time = Bytes.toLong(timestamp);
                     DocumentMetadata documentMetadata = (null != metadata)
-                                        ? mapper.readValue(metadata, DocumentMetadata.class)
-                                        : null;
+                            ? mapper.readValue(metadata, DocumentMetadata.class)
+                            : null;
                     final String docId = (null == metadata)
-                                            ? Bytes.toString(getResult.getRow()).split(":")[0]
-                                            : documentMetadata.getRawStorageId();
+                            ? Bytes.toString(getResult.getRow()).split(":")[0]
+                            : documentMetadata.getRawStorageId();
                     results.add(translator.translateBack(new Document(docId, time, documentMetadata, mapper.readTree(data))));
                 } else {
                     throw new DataStoreException(DataStoreException.ErrorCode.STORE_NO_DATA_FOUND_FOR_IDS,

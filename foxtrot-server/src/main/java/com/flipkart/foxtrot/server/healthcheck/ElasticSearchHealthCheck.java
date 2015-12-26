@@ -16,8 +16,6 @@
 package com.flipkart.foxtrot.server.healthcheck;
 
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConnection;
-import com.google.inject.Inject;
-import com.google.inject.Singleton;
 import com.yammer.metrics.core.HealthCheck;
 import org.elasticsearch.action.admin.cluster.health.ClusterHealthResponse;
 
@@ -25,11 +23,9 @@ import org.elasticsearch.action.admin.cluster.health.ClusterHealthResponse;
  * Created by rishabh.goyal on 15/05/14.
  */
 
-@Singleton
 public class ElasticSearchHealthCheck extends HealthCheck {
     private ElasticsearchConnection elasticsearchConnection;
 
-    @Inject
     public ElasticSearchHealthCheck(String name, ElasticsearchConnection elasticsearchConnection) {
         super(name);
         this.elasticsearchConnection = elasticsearchConnection;
