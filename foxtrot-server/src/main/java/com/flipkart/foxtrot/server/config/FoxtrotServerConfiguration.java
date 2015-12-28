@@ -20,10 +20,11 @@ import com.flipkart.foxtrot.core.common.DataDeletionManagerConfig;
 import com.flipkart.foxtrot.core.datastore.impl.hbase.HbaseConfig;
 import com.flipkart.foxtrot.core.querystore.impl.ClusterConfig;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConfig;
-import com.yammer.dropwizard.config.Configuration;
+import io.dropwizard.Configuration;
 import net.sourceforge.cobertura.CoverageIgnore;
 
 import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 
 /**
  * User: Santanu Sinha (santanu.sinha@flipkart.com)
@@ -33,38 +34,47 @@ import javax.validation.Valid;
 @CoverageIgnore
 public class FoxtrotServerConfiguration extends Configuration {
     @Valid
-    private final HbaseConfig hbase;
+    private HbaseConfig hbase;
 
     @Valid
-    private final ElasticsearchConfig elasticsearch;
+    private ElasticsearchConfig elasticsearch;
 
     @Valid
-    private final ClusterConfig cluster;
+    private ClusterConfig cluster;
 
     @Valid
     @JsonProperty("deletionconfig")
-    private final DataDeletionManagerConfig deletionManagerConfig;
-
-    public FoxtrotServerConfiguration() {
-        this.hbase = new HbaseConfig();
-        this.elasticsearch = new ElasticsearchConfig();
-        this.cluster = new ClusterConfig();
-        this.deletionManagerConfig = new DataDeletionManagerConfig();
-    }
+    private DataDeletionManagerConfig deletionManagerConfig;
 
     public HbaseConfig getHbase() {
         return hbase;
+    }
+
+    public void setHbase(HbaseConfig hbase) {
+        this.hbase = hbase;
     }
 
     public ElasticsearchConfig getElasticsearch() {
         return elasticsearch;
     }
 
+    public void setElasticsearch(ElasticsearchConfig elasticsearch) {
+        this.elasticsearch = elasticsearch;
+    }
+
     public ClusterConfig getCluster() {
         return cluster;
     }
 
-    public DataDeletionManagerConfig getTableDataManagerConfig() {
+    public void setCluster(ClusterConfig cluster) {
+        this.cluster = cluster;
+    }
+
+    public DataDeletionManagerConfig getDeletionManagerConfig() {
         return deletionManagerConfig;
+    }
+
+    public void setDeletionManagerConfig(DataDeletionManagerConfig deletionManagerConfig) {
+        this.deletionManagerConfig = deletionManagerConfig;
     }
 }

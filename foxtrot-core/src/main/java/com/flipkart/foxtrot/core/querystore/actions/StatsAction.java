@@ -62,12 +62,13 @@ public class StatsAction extends Action<StatsRequest> {
 
     @Override
     public ActionResponse execute(StatsRequest request) throws QueryStoreException {
-        request.setTable(ElasticsearchUtils.getValidTableName(request.getTable()));
+        request.setTable(ElasticsearchUtils.getValidTableName(getParameter().getTable()));
+        if (request.getTable() == null) {
+            throw new QueryStoreException(QueryStoreException.ErrorCode.INVALID_REQUEST, "Invalid table name");
+        }
+
         if (null == request.getFilters()) {
             request.setFilters(Lists.<Filter>newArrayList(new AnyFilter(request.getTable())));
-        }
-        if (null == request.getTable()) {
-            throw new QueryStoreException(QueryStoreException.ErrorCode.INVALID_REQUEST, "Invalid Table");
         }
 
         try {
@@ -92,6 +93,24 @@ public class StatsAction extends Action<StatsRequest> {
             logger.error("Error running stats query: ", e);
             throw new QueryStoreException(QueryStoreException.ErrorCode.QUERY_EXECUTION_ERROR,
                     "Error running stats query.", e);
+        }
+    }
+
+    @Override
+    protected void validate() throws QueryStoreException {
+        String tableName = ElasticsearchUtils.getValidTableName(getParameter().getTable());
+        try {
+            if (tableName == null) {
+                throw new QueryStoreException(QueryStoreException.ErrorCode.INVALID_REQUEST, "Table cannot be null");
+            } else if (!getTableMetadataManager().exists(tableName)) {
+                throw new QueryStoreException(QueryStoreException.ErrorCode.NO_SUCH_TABLE, "Table not found");
+            }
+        } catch (QueryStoreException e) {
+            logger.error("Table is null or not found.", getParameter().getTable());
+            throw e;
+        } catch (Exception e) {
+            logger.error("Error while checking table's existence.", e);
+            throw new QueryStoreException(QueryStoreException.ErrorCode.QUERY_EXECUTION_ERROR, "Error while fetching metadata");
         }
     }
 

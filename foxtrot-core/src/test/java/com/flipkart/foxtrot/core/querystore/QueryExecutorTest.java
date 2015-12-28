@@ -17,28 +17,29 @@ package com.flipkart.foxtrot.core.querystore;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.flipkart.foxtrot.common.ActionRequest;
+import com.flipkart.foxtrot.common.Document;
+import com.flipkart.foxtrot.common.group.GroupRequest;
+import com.flipkart.foxtrot.common.group.GroupResponse;
 import com.flipkart.foxtrot.core.MockElasticsearchServer;
 import com.flipkart.foxtrot.core.TestUtils;
-import com.flipkart.foxtrot.core.common.CacheUtils;
-import com.flipkart.foxtrot.core.common.NonCacheableAction;
-import com.flipkart.foxtrot.core.common.NonCacheableActionRequest;
-import com.flipkart.foxtrot.core.common.RequestWithNoAction;
+import com.flipkart.foxtrot.core.common.*;
 import com.flipkart.foxtrot.core.datastore.DataStore;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsLoader;
-import com.flipkart.foxtrot.core.querystore.impl.DistributedCacheFactory;
-import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConnection;
-import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
-import com.flipkart.foxtrot.core.querystore.impl.HazelcastConnection;
+import com.flipkart.foxtrot.core.querystore.impl.*;
 import com.flipkart.foxtrot.core.table.TableMetadataManager;
+import com.flipkart.foxtrot.core.table.impl.TableMapStore;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.test.TestHazelcastInstanceFactory;
+import org.elasticsearch.action.admin.indices.create.CreateIndexRequest;
+import org.elasticsearch.common.settings.ImmutableSettings;
+import org.elasticsearch.common.settings.Settings;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
 import java.io.IOException;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -71,13 +72,32 @@ public class QueryExecutorTest {
         when(elasticsearchConnection.getClient()).thenReturn(elasticsearchServer.getClient());
         ElasticsearchUtils.initializeMappings(elasticsearchServer.getClient());
         TableMetadataManager tableMetadataManager = mock(TableMetadataManager.class);
-        when(tableMetadataManager.exists(anyString())).thenReturn(true);
+        when(tableMetadataManager.exists(eq(TestUtils.TEST_TABLE_NAME))).thenReturn(true);
         when(tableMetadataManager.get(anyString())).thenReturn(TestUtils.TEST_TABLE);
-        QueryStore queryStore = mock(QueryStore.class);
-        analyticsLoader = spy(new AnalyticsLoader(tableMetadataManager, dataStore, queryStore, elasticsearchConnection));
+
+        Settings indexSettings = ImmutableSettings.settingsBuilder().put("number_of_replicas", 0).build();
+        CreateIndexRequest createRequest = new CreateIndexRequest(TableMapStore.TABLE_META_INDEX).settings(indexSettings);
+        elasticsearchServer.getClient().admin().indices().create(createRequest).actionGet();
+        elasticsearchServer.getClient().admin().cluster().prepareHealth().setWaitForGreenStatus().execute().actionGet();
+
+        tableMetadataManager.start();
+        QueryStore queryStore = new ElasticsearchQueryStore(tableMetadataManager, elasticsearchConnection, dataStore);
+
+        analyticsLoader = new AnalyticsLoader(tableMetadataManager, dataStore, queryStore, elasticsearchConnection);
         TestUtils.registerActions(analyticsLoader, mapper);
         ExecutorService executorService = Executors.newFixedThreadPool(1);
+        List<Document> documents = TestUtils.getGroupDocuments(mapper);
+        queryStore.save(TestUtils.TEST_TABLE_NAME, documents);
+        for (Document document : documents) {
+            elasticsearchServer.getClient().admin().indices()
+                    .prepareRefresh(ElasticsearchUtils.getCurrentIndex(TestUtils.TEST_TABLE_NAME, document.getTimestamp()))
+                    .setForce(true).execute().actionGet();
+        }
+
+        analyticsLoader = spy(new AnalyticsLoader(tableMetadataManager, dataStore, queryStore, elasticsearchConnection));
+        TestUtils.registerActions(analyticsLoader, mapper);
         queryExecutor = new QueryExecutor(analyticsLoader, executorService);
+
     }
 
     @After
@@ -100,5 +120,112 @@ public class QueryExecutorTest {
     public void testResolveLoaderException() throws Exception {
         doThrow(new IOException()).when(analyticsLoader).getAction(any(ActionRequest.class));
         queryExecutor.resolve(new NonCacheableActionRequest());
+    }
+
+    @Test
+    public void testExecute() throws Exception {
+        GroupRequest groupRequest = new GroupRequest();
+        groupRequest.setTable(TestUtils.TEST_TABLE_NAME);
+        groupRequest.setNesting(Arrays.asList("os", "device", "version"));
+
+        Map<String, Object> expectedResponse = getExpectedResponse();
+
+        GroupResponse response = (GroupResponse) queryExecutor.execute(groupRequest);
+        assertEquals(mapper.readValue(mapper.writeValueAsBytes(expectedResponse), Map.class), mapper.readValue(mapper.writeValueAsBytes(response.getResult()), Map.class));
+    }
+
+    @Test(expected = QueryStoreException.class)
+    public void testExecuteInvalidTable() throws Exception {
+        GroupRequest groupRequest = new GroupRequest();
+        groupRequest.setTable(TestUtils.TEST_TABLE_NAME + "-dummy-32");
+        groupRequest.setNesting(Arrays.asList("os", "device", "version"));
+
+        try {
+            queryExecutor.execute(groupRequest);
+        } catch (QueryStoreException e) {
+            assertEquals(QueryStoreException.ErrorCode.NO_SUCH_TABLE, e.getErrorCode());
+            throw e;
+        }
+    }
+
+    @Test(expected = QueryStoreException.class)
+    public void testExecuteNullTable() throws Exception {
+        GroupRequest groupRequest = new GroupRequest();
+        groupRequest.setTable(null);
+        groupRequest.setNesting(Arrays.asList("os", "device", "version"));
+
+        try {
+            queryExecutor.execute(groupRequest);
+        } catch (QueryStoreException e) {
+            assertEquals(QueryStoreException.ErrorCode.INVALID_REQUEST, e.getErrorCode());
+            throw e;
+        }
+    }
+
+    @Test
+    public void testExecuteAsync() throws Exception {
+        GroupRequest groupRequest = new GroupRequest();
+        groupRequest.setTable(TestUtils.TEST_TABLE_NAME);
+        groupRequest.setNesting(Arrays.asList("os", "device", "version"));
+
+        Map<String, Object> expectedResponse = getExpectedResponse();
+
+        AsyncDataToken response = queryExecutor.executeAsync(groupRequest);
+        Thread.sleep(2000);
+        GroupResponse actualResponse = GroupResponse.class.cast(CacheUtils.getCacheFor(response.getAction()).get(response.getKey()));
+
+        assertEquals(mapper.readValue(mapper.writeValueAsBytes(expectedResponse), Map.class), mapper.readValue(mapper.writeValueAsBytes(actualResponse.getResult()), Map.class));
+    }
+
+
+
+    @Test(expected = QueryStoreException.class)
+    public void testExecuteAsyncInvalidTable() throws Exception {
+        GroupRequest groupRequest = new GroupRequest();
+        groupRequest.setTable(TestUtils.TEST_TABLE_NAME + "-dummy-32");
+        groupRequest.setNesting(Arrays.asList("os", "device", "version"));
+
+        try {
+            queryExecutor.executeAsync(groupRequest);
+        } catch (QueryStoreException e) {
+            assertEquals(QueryStoreException.ErrorCode.NO_SUCH_TABLE, e.getErrorCode());
+            throw e;
+        }
+    }
+
+    @Test(expected = QueryStoreException.class)
+    public void testExecuteAsyncNullTable() throws Exception {
+        GroupRequest groupRequest = new GroupRequest();
+        groupRequest.setTable(null);
+        groupRequest.setNesting(Arrays.asList("os", "device", "version"));
+
+        try {
+            queryExecutor.executeAsync(groupRequest);
+        } catch (QueryStoreException e) {
+            assertEquals(QueryStoreException.ErrorCode.INVALID_REQUEST, e.getErrorCode());
+            throw e;
+        }
+    }
+
+    private Map<String, Object> getExpectedResponse() {
+        Map<String, Object> expectedResponse = new LinkedHashMap<String, Object>();
+
+        final Map<String, Object> nexusResponse = new LinkedHashMap<String, Object>(){{ put("1", 2); put("2", 2); put("3", 1); }};
+        final Map<String, Object> galaxyResponse = new LinkedHashMap<String, Object>(){{ put("2", 1); put("3", 1); }};
+        expectedResponse.put("android", new LinkedHashMap<String, Object>() {{
+            put("nexus", nexusResponse);
+            put("galaxy", galaxyResponse);
+        }});
+
+        final Map<String, Object> nexusResponse2 = new LinkedHashMap<String, Object>(){{ put("2", 1);}};
+        final Map<String, Object> iPadResponse = new LinkedHashMap<String, Object>(){{ put("2", 2); }};
+        final Map<String, Object> iPhoneResponse = new LinkedHashMap<String, Object>(){{ put("1", 1); }};
+        expectedResponse.put("ios", new LinkedHashMap<String, Object>() {{
+            put("nexus", nexusResponse2);
+            put("ipad", iPadResponse);
+            put("iphone", iPhoneResponse);
+        }});
+
+        return expectedResponse;
     }
 }

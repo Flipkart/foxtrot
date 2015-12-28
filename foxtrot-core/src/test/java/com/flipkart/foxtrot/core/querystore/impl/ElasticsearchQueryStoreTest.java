@@ -15,6 +15,7 @@
  */
 package com.flipkart.foxtrot.core.querystore.impl;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.flipkart.foxtrot.common.Document;
@@ -27,11 +28,11 @@ import com.flipkart.foxtrot.core.datastore.DataStore;
 import com.flipkart.foxtrot.core.querystore.DocumentTranslator;
 import com.flipkart.foxtrot.core.querystore.QueryExecutor;
 import com.flipkart.foxtrot.core.querystore.QueryStoreException;
-import com.flipkart.foxtrot.core.table.TableMetadataManager;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsLoader;
-import com.google.common.collect.ImmutableList;
+import com.flipkart.foxtrot.core.table.TableMetadataManager;
 import com.shash.hbase.ds.RowKeyDistributorByHashPrefix;
 import org.elasticsearch.action.get.GetResponse;
+import org.elasticsearch.common.collect.ImmutableList;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -91,14 +92,45 @@ public class ElasticsearchQueryStoreTest {
         queryStore.save(TestUtils.TEST_TABLE_NAME, originalDocument);
         final Document translatedDocuemnt = translator.translate(tableMetadataManager.get(TestUtils.TEST_TABLE_NAME), originalDocument);
         GetResponse getResponse = elasticsearchServer
-                        .getClient()
-                        .prepareGet(ElasticsearchUtils.getCurrentIndex(TestUtils.TEST_TABLE_NAME, originalDocument.getTimestamp()),
-                                ElasticsearchUtils.DOCUMENT_TYPE_NAME,
-                                translatedDocuemnt.getId())
-                        .setFields("_timestamp").execute().actionGet();
+                .getClient()
+                .prepareGet(ElasticsearchUtils.getCurrentIndex(TestUtils.TEST_TABLE_NAME, originalDocument.getTimestamp()),
+                        ElasticsearchUtils.DOCUMENT_TYPE_NAME,
+                        translatedDocuemnt.getId())
+                .setFields("_timestamp").execute().actionGet();
         assertTrue("Id should exist in ES", getResponse.isExists());
         assertEquals("Id should match requestId", translatedDocuemnt.getId(), getResponse.getId());
         assertEquals("Timestamp should match request timestamp", translatedDocuemnt.getTimestamp(), getResponse.getField("_timestamp").getValue());
+    }
+
+    @Test(expected = QueryStoreException.class)
+    public void testSaveNullId() throws Exception {
+        Document expectedDocument = new Document();
+        expectedDocument.setId(null);
+        expectedDocument.setTimestamp(System.currentTimeMillis());
+        JsonNode data = mapper.valueToTree(Collections.singletonMap("TEST_NAME", "SINGLE_SAVE_TEST"));
+        expectedDocument.setData(data);
+
+        try {
+            queryStore.save(TestUtils.TEST_TABLE_NAME, expectedDocument);
+        } catch (QueryStoreException e) {
+            assertEquals(QueryStoreException.ErrorCode.INVALID_REQUEST, e.getErrorCode());
+            throw e;
+        }
+    }
+
+    @Test(expected = QueryStoreException.class)
+    public void testSaveNullData() throws Exception {
+        Document expectedDocument = new Document();
+        expectedDocument.setId(UUID.randomUUID().toString());
+        expectedDocument.setTimestamp(System.currentTimeMillis());
+        expectedDocument.setData(null);
+
+        try {
+            queryStore.save(TestUtils.TEST_TABLE_NAME, expectedDocument);
+        } catch (QueryStoreException e) {
+            assertEquals(QueryStoreException.ErrorCode.INVALID_REQUEST, e.getErrorCode());
+            throw e;
+        }
     }
 
     @Test
@@ -150,6 +182,45 @@ public class ElasticsearchQueryStoreTest {
         }
     }
 
+    @Test(expected = QueryStoreException.class)
+    public void testSaveBulkNullListItem() throws Exception {
+        List<Document> documents = new Vector<Document>();
+        documents.add(null);
+        documents.add(new Document(UUID.randomUUID().toString(), System.currentTimeMillis(), mapper.valueToTree(Collections.singletonMap("TEST_NAME", "SINGLE_SAVE_TEST"))));
+        try {
+            queryStore.save(TestUtils.TEST_TABLE_NAME, documents);
+        } catch (QueryStoreException e) {
+            assertEquals(QueryStoreException.ErrorCode.INVALID_REQUEST, e.getErrorCode());
+            throw e;
+        }
+    }
+
+    @Test(expected = QueryStoreException.class)
+    public void testSaveBulkNullId() throws Exception {
+        List<Document> documents = new Vector<Document>();
+        documents.add(new Document(null, System.currentTimeMillis(), mapper.valueToTree(Collections.singletonMap("TEST_NAME", "SINGLE_SAVE_TEST"))));
+        documents.add(new Document(UUID.randomUUID().toString(), System.currentTimeMillis(), mapper.valueToTree(Collections.singletonMap("TEST_NAME", "SINGLE_SAVE_TEST"))));
+        try {
+            queryStore.save(TestUtils.TEST_TABLE_NAME, documents);
+        } catch (QueryStoreException e) {
+            assertEquals(QueryStoreException.ErrorCode.INVALID_REQUEST, e.getErrorCode());
+            throw e;
+        }
+    }
+
+    @Test(expected = QueryStoreException.class)
+    public void testSaveBulkNullData() throws Exception {
+        List<Document> documents = new Vector<Document>();
+        documents.add(new Document(UUID.randomUUID().toString(), System.currentTimeMillis(), mapper.valueToTree(Collections.singletonMap("TEST_NAME", "SINGLE_SAVE_TEST"))));
+        documents.add(new Document(UUID.randomUUID().toString(), System.currentTimeMillis(), null));
+        try {
+            queryStore.save(TestUtils.TEST_TABLE_NAME, documents);
+        } catch (QueryStoreException e) {
+            assertEquals(QueryStoreException.ErrorCode.INVALID_REQUEST, e.getErrorCode());
+            throw e;
+        }
+    }
+
     @Test
     public void testSaveBulkEmptyList() throws Exception {
         List<Document> list = new Vector<Document>();
@@ -190,6 +261,9 @@ public class ElasticsearchQueryStoreTest {
         assertNotNull(responseDocument);
         assertEquals(id, responseDocument.getId());
         assertEquals("Timestamp should match request timestamp", document.getTimestamp(), responseDocument.getTimestamp());
+        Map<String, Object> expectedMap = mapper.convertValue(document.getData(), new TypeReference<Object>() {});
+        Map<String, Object> actualMap = mapper.convertValue(responseDocument.getData(), new TypeReference<HashMap<String, Object>>() {});
+        assertEquals("Actual data should match expected data", expectedMap, actualMap);
     }
 
     @Test
@@ -198,6 +272,16 @@ public class ElasticsearchQueryStoreTest {
             queryStore.get(TestUtils.TEST_TABLE_NAME, UUID.randomUUID().toString());
         } catch (QueryStoreException qse) {
             assertEquals(QueryStoreException.ErrorCode.DOCUMENT_NOT_FOUND, qse.getErrorCode());
+        }
+    }
+
+    @Test(expected = QueryStoreException.class)
+    public void testGetSingleInvalidTable() throws Exception {
+        try {
+            queryStore.get(UUID.randomUUID().toString(), UUID.randomUUID().toString());
+        } catch (QueryStoreException e) {
+            assertEquals(QueryStoreException.ErrorCode.NO_SUCH_TABLE, e.getErrorCode());
+            throw e;
         }
     }
 
@@ -227,17 +311,35 @@ public class ElasticsearchQueryStoreTest {
             assertNotNull(responseIdValues.get(id));
             assertEquals(id, responseIdValues.get(id).getId());
             assertEquals("Timestamp should match request timestamp", idValues.get(id).getTimestamp(), responseIdValues.get(id).getTimestamp());
-            System.out.println("OK: " + id);
         }
     }
 
     @Test
     public void testGetBulkInvalidIds() throws Exception {
         try {
-            queryStore.getAll(TestUtils.TEST_TABLE_NAME, Arrays.asList(UUID.randomUUID().toString(), UUID.randomUUID().toString()));
+            String id = UUID.randomUUID().toString();
+            Document document = new Document(id, System.currentTimeMillis(), mapper.valueToTree(Collections.singletonMap("TEST_NAME", "SINGLE_SAVE_TEST")));
+            dataStore.save(TestUtils.TEST_TABLE, document);
+            queryStore.getAll(TestUtils.TEST_TABLE_NAME, Arrays.asList(UUID.randomUUID().toString(), id));
             fail();
         } catch (QueryStoreException qse) {
             assertEquals(QueryStoreException.ErrorCode.DOCUMENT_NOT_FOUND, qse.getErrorCode());
+        }
+    }
+
+    @Test
+    public void testGetBulkNoIds() throws Exception {
+        List<Document> documents = queryStore.getAll(TestUtils.TEST_TABLE_NAME, new ArrayList<String>());
+        assertEquals(0, documents.size());
+    }
+
+    @Test(expected = QueryStoreException.class)
+    public void testGetBulkInvalidTable() throws Exception {
+        try {
+            queryStore.getAll(UUID.randomUUID().toString(), Arrays.asList("a", "b"));
+        } catch (QueryStoreException e) {
+            assertEquals(QueryStoreException.ErrorCode.NO_SUCH_TABLE, e.getErrorCode());
+            throw e;
         }
     }
 
