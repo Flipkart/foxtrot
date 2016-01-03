@@ -114,6 +114,8 @@ function FilterSection(filterId, tables) {
 }
 
 FilterSection.prototype.runQuery = function(){
+    var parent = $(".filter-event-container");
+    parent.html("");
    var filters = [];
    for(var filterId in this.filterSet) {
        var filter = this.filterSet[filterId];
