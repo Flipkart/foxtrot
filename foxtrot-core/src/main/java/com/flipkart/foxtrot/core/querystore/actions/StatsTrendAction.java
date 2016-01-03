@@ -9,6 +9,7 @@ import com.flipkart.foxtrot.common.stats.StatsTrendResponse;
 import com.flipkart.foxtrot.common.stats.StatsTrendValue;
 import com.flipkart.foxtrot.core.common.Action;
 import com.flipkart.foxtrot.core.datastore.DataStore;
+import com.flipkart.foxtrot.core.exception.ExceptionUtils;
 import com.flipkart.foxtrot.core.exception.FoxtrotException;
 import com.flipkart.foxtrot.core.querystore.QueryStore;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsProvider;
@@ -17,6 +18,7 @@ import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
 import com.flipkart.foxtrot.core.querystore.query.ElasticSearchQueryGenerator;
 import com.flipkart.foxtrot.core.table.TableMetadataManager;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.yammer.dropwizard.util.Duration;
 import org.elasticsearch.ElasticsearchException;
 import org.elasticsearch.action.search.SearchRequestBuilder;
@@ -82,7 +84,7 @@ public class StatsTrendAction extends Action<StatsTrendRequest> {
         }
 
         if (!errorMessages.isEmpty()) {
-            throw FoxtrotException.createMalformedQueryException(parameter, errorMessages);
+            throw ExceptionUtils.createMalformedQueryException(parameter, errorMessages);
         }
 
         SearchRequestBuilder searchRequestBuilder;
@@ -97,7 +99,7 @@ public class StatsTrendAction extends Action<StatsTrendRequest> {
                     .setSearchType(SearchType.COUNT)
                     .addAggregation(aggregation);
         } catch (Exception e) {
-            throw FoxtrotException.queryCreationException(parameter, e);
+            throw ExceptionUtils.queryCreationException(parameter, e);
         }
 
         try {
@@ -107,7 +109,7 @@ public class StatsTrendAction extends Action<StatsTrendRequest> {
                 return buildResponse(parameter, aggregations);
             }
         } catch (ElasticsearchException e) {
-            throw FoxtrotException.createQueryExecutionException(parameter, e);
+            throw ExceptionUtils.createQueryExecutionException(parameter, e);
         }
         return null;
     }
@@ -154,7 +156,7 @@ public class StatsTrendAction extends Action<StatsTrendRequest> {
             statsTrendValue.setPeriod(bucket.getKeyAsNumber());
 
             InternalExtendedStats extendedStats = InternalExtendedStats.class.cast(bucket.getAggregations().getAsMap().get(metricKey));
-            Map<String, Number> stats = new HashMap<String, Number>();
+            Map<String, Number> stats = Maps.newHashMap();
             stats.put("avg", extendedStats.getAvg());
             stats.put("sum", extendedStats.getSum());
             stats.put("count", extendedStats.getCount());
@@ -166,7 +168,7 @@ public class StatsTrendAction extends Action<StatsTrendRequest> {
             statsTrendValue.setStats(stats);
 
             InternalPercentiles internalPercentile = InternalPercentiles.class.cast(bucket.getAggregations().getAsMap().get(percentileMetricKey));
-            Map<Number, Number> percentiles = new HashMap<Number, Number>();
+            Map<Number, Number> percentiles = Maps.newHashMap();
 
             for (Percentile percentile : internalPercentile) {
                 percentiles.put(percentile.getPercent(), percentile.getValue());

@@ -1,6 +1,7 @@
 package com.flipkart.foxtrot.core.exception;
 
 import com.flipkart.foxtrot.common.ActionRequest;
+import com.google.common.collect.Maps;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -12,7 +13,7 @@ public class ActionResolutionException extends FoxtrotException {
 
     private ActionRequest actionRequest;
 
-    public ActionResolutionException(ActionRequest actionRequest, Throwable cause) {
+    protected ActionResolutionException(ActionRequest actionRequest, Throwable cause) {
         super(ErrorCode.ACTION_RESOLUTION_FAILURE, cause);
         this.actionRequest = actionRequest;
     }
@@ -27,7 +28,7 @@ public class ActionResolutionException extends FoxtrotException {
 
     @Override
     public Map<String, Object> toMap() {
-        Map<String, Object> map = new HashMap<>();
+        Map<String, Object> map = Maps.newHashMap();
         map.put("request", this.actionRequest);
         map.put("message", this.getCause().getMessage());
         return map;

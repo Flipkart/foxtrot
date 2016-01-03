@@ -2,6 +2,7 @@ package com.flipkart.foxtrot.core.table.impl;
 
 import com.flipkart.foxtrot.common.Table;
 import com.flipkart.foxtrot.core.datastore.DataStore;
+import com.flipkart.foxtrot.core.exception.ExceptionUtils;
 import com.flipkart.foxtrot.core.exception.FoxtrotException;
 import com.flipkart.foxtrot.core.querystore.QueryStore;
 import com.flipkart.foxtrot.core.table.TableManager;
@@ -29,7 +30,7 @@ public class FoxtrotTableManager implements TableManager {
     public void save(Table table) throws FoxtrotException {
         validateTableParams(table);
         if (metadataManager.exists(table.getName())) {
-            throw FoxtrotException.createTableExistsException(table.getName());
+            throw ExceptionUtils.createTableExistsException(table.getName());
         }
         queryStore.initializeTable(table.getName());
         dataStore.initializeTable(table);
@@ -40,7 +41,7 @@ public class FoxtrotTableManager implements TableManager {
     public Table get(String name) throws FoxtrotException {
         Table table = metadataManager.get(name);
         if (table == null) {
-            throw FoxtrotException.createTableMissingException(name);
+            throw ExceptionUtils.createTableMissingException(name);
         }
         return table;
     }
@@ -54,7 +55,7 @@ public class FoxtrotTableManager implements TableManager {
     public void update(Table table) throws FoxtrotException {
         validateTableParams(table);
         if (!metadataManager.exists(table.getName())) {
-            throw FoxtrotException.createTableMissingException(table.getName());
+            throw ExceptionUtils.createTableMissingException(table.getName());
         }
         metadataManager.save(table);
     }
@@ -66,7 +67,7 @@ public class FoxtrotTableManager implements TableManager {
 
     private void validateTableParams(Table table) throws FoxtrotException {
         if (table == null || table.getName() == null || table.getName().trim().isEmpty() || table.getTtl() <= 0) {
-            throw FoxtrotException.createBadRequestException(table != null ? table.getName() : null, "Invalid Table Params");
+            throw ExceptionUtils.createBadRequestException(table != null ? table.getName() : null, "Invalid Table Params");
         }
     }
 }

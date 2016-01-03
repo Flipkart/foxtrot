@@ -23,6 +23,7 @@ import com.flipkart.foxtrot.common.query.FilterCombinerType;
 import com.flipkart.foxtrot.common.query.general.AnyFilter;
 import com.flipkart.foxtrot.core.common.Action;
 import com.flipkart.foxtrot.core.datastore.DataStore;
+import com.flipkart.foxtrot.core.exception.ExceptionUtils;
 import com.flipkart.foxtrot.core.exception.FoxtrotException;
 import com.flipkart.foxtrot.core.querystore.QueryStore;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsProvider;
@@ -31,6 +32,7 @@ import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
 import com.flipkart.foxtrot.core.querystore.query.ElasticSearchQueryGenerator;
 import com.flipkart.foxtrot.core.table.TableMetadataManager;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import org.elasticsearch.ElasticsearchException;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
@@ -96,7 +98,7 @@ public class GroupAction extends Action<GroupRequest> {
         }
 
         if (!errorMessages.isEmpty()) {
-            throw FoxtrotException.createMalformedQueryException(parameter, errorMessages);
+            throw ExceptionUtils.createMalformedQueryException(parameter, errorMessages);
         }
 
         SearchRequestBuilder query;
@@ -124,7 +126,7 @@ public class GroupAction extends Action<GroupRequest> {
                     .setSearchType(SearchType.COUNT)
                     .addAggregation(rootBuilder);
         } catch (Exception e) {
-            throw FoxtrotException.queryCreationException(parameter, e);
+            throw ExceptionUtils.queryCreationException(parameter, e);
         }
         try {
             SearchResponse response = query.execute().actionGet();
@@ -136,7 +138,7 @@ public class GroupAction extends Action<GroupRequest> {
             }
             return new GroupResponse(getMap(fields, aggregations));
         } catch (ElasticsearchException e) {
-            throw FoxtrotException.createQueryExecutionException(parameter, e);
+            throw ExceptionUtils.createQueryExecutionException(parameter, e);
         }
     }
 
@@ -145,7 +147,7 @@ public class GroupAction extends Action<GroupRequest> {
         final List<String> remainingFields = (fields.size() > 1) ? fields.subList(1, fields.size())
                 : new ArrayList<>();
         Terms terms = aggregations.get(Utils.sanitizeFieldForAggregation(field));
-        Map<String, Object> levelCount = new HashMap<>();
+        Map<String, Object> levelCount = Maps.newHashMap();
         for (Terms.Bucket bucket : terms.getBuckets()) {
             if (fields.size() == 1) {
                 levelCount.put(bucket.getKey(), bucket.getDocCount());

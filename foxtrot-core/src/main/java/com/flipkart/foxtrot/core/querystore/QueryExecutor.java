@@ -19,6 +19,7 @@ import com.flipkart.foxtrot.common.ActionRequest;
 import com.flipkart.foxtrot.common.ActionResponse;
 import com.flipkart.foxtrot.core.common.Action;
 import com.flipkart.foxtrot.core.common.AsyncDataToken;
+import com.flipkart.foxtrot.core.exception.ExceptionUtils;
 import com.flipkart.foxtrot.core.exception.FoxtrotException;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsLoader;
 import org.slf4j.Logger;
@@ -56,10 +57,10 @@ public class QueryExecutor {
         try {
             action = analyticsLoader.getAction(request);
         } catch (Exception e) {
-            throw FoxtrotException.createActionResolutionException(request, e);
+            throw ExceptionUtils.createActionResolutionException(request, e);
         }
         if (null == action) {
-            throw FoxtrotException.createUnresolvableActionException(request);
+            throw ExceptionUtils.createUnresolvableActionException(request);
         }
         return action;
     }

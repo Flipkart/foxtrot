@@ -20,6 +20,7 @@ import com.flipkart.foxtrot.common.query.*;
 import com.flipkart.foxtrot.common.query.general.AnyFilter;
 import com.flipkart.foxtrot.core.common.Action;
 import com.flipkart.foxtrot.core.datastore.DataStore;
+import com.flipkart.foxtrot.core.exception.ExceptionUtils;
 import com.flipkart.foxtrot.core.exception.FoxtrotException;
 import com.flipkart.foxtrot.core.querystore.QueryStore;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsProvider;
@@ -98,7 +99,7 @@ public class FilterAction extends Action<Query> {
                             ResultSort.Order.desc == parameter.getSort().getOrder() ? SortOrder.DESC : SortOrder.ASC)
                     .setSize(parameter.getLimit());
         } catch (Exception e) {
-            throw FoxtrotException.queryCreationException(parameter, e);
+            throw ExceptionUtils.queryCreationException(parameter, e);
         }
         try {
             SearchResponse response = search.execute().actionGet();
@@ -112,7 +113,7 @@ public class FilterAction extends Action<Query> {
             }
             return new QueryResponse(getQueryStore().getAll(parameter.getTable(), ids, true), searchHits.totalHits());
         } catch (ElasticsearchException e) {
-            throw FoxtrotException.createQueryExecutionException(parameter, e);
+            throw ExceptionUtils.createQueryExecutionException(parameter, e);
         }
     }
 }

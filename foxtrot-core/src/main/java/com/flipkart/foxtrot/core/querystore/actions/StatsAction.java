@@ -8,6 +8,7 @@ import com.flipkart.foxtrot.common.stats.StatsResponse;
 import com.flipkart.foxtrot.common.stats.StatsValue;
 import com.flipkart.foxtrot.core.common.Action;
 import com.flipkart.foxtrot.core.datastore.DataStore;
+import com.flipkart.foxtrot.core.exception.ExceptionUtils;
 import com.flipkart.foxtrot.core.exception.FoxtrotException;
 import com.flipkart.foxtrot.core.querystore.QueryStore;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsProvider;
@@ -16,6 +17,7 @@ import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
 import com.flipkart.foxtrot.core.querystore.query.ElasticSearchQueryGenerator;
 import com.flipkart.foxtrot.core.table.TableMetadataManager;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import org.elasticsearch.ElasticsearchException;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchType;
@@ -63,7 +65,7 @@ public class StatsAction extends Action<StatsRequest> {
             parameter.setFilters(Lists.<Filter>newArrayList(new AnyFilter(parameter.getTable())));
         }
         if (null == parameter.getTable()) {
-            throw FoxtrotException.createMalformedQueryException(parameter, "table name cannot be null");
+            throw ExceptionUtils.createMalformedQueryException(parameter, "table name cannot be null");
         }
 
         SearchRequestBuilder searchRequestBuilder;
@@ -78,7 +80,7 @@ public class StatsAction extends Action<StatsRequest> {
                     .addAggregation(Utils.buildExtendedStatsAggregation(parameter.getField()))
                     .addAggregation(Utils.buildPercentileAggregation(parameter.getField()));
         } catch (Exception e) {
-            throw FoxtrotException.queryCreationException(parameter, e);
+            throw ExceptionUtils.queryCreationException(parameter, e);
         }
         try {
             Aggregations aggregations = searchRequestBuilder.execute().actionGet().getAggregations();
@@ -87,7 +89,7 @@ public class StatsAction extends Action<StatsRequest> {
             }
             return null;
         } catch (ElasticsearchException e) {
-            throw FoxtrotException.createQueryExecutionException(parameter, e);
+            throw ExceptionUtils.createQueryExecutionException(parameter, e);
         }
     }
 
@@ -98,7 +100,7 @@ public class StatsAction extends Action<StatsRequest> {
         StatsValue statsValue = new StatsValue();
 
         InternalExtendedStats extendedStats = InternalExtendedStats.class.cast(aggregations.getAsMap().get(metricKey));
-        Map<String, Number> stats = new HashMap<>();
+        Map<String, Number> stats = Maps.newHashMap();
         stats.put("avg", extendedStats.getAvg());
         stats.put("sum", extendedStats.getSum());
         stats.put("count", extendedStats.getCount());
@@ -110,7 +112,7 @@ public class StatsAction extends Action<StatsRequest> {
         statsValue.setStats(stats);
 
         InternalPercentiles internalPercentile = InternalPercentiles.class.cast(aggregations.getAsMap().get(percentileMetricKey));
-        Map<Number, Number> percentiles = new HashMap<Number, Number>();
+        Map<Number, Number> percentiles = Maps.newHashMap();
         for (Percentile percentile : internalPercentile) {
             percentiles.put(percentile.getPercent(), percentile.getValue());
         }

@@ -25,6 +25,7 @@ import com.flipkart.foxtrot.common.trend.TrendRequest;
 import com.flipkart.foxtrot.common.trend.TrendResponse;
 import com.flipkart.foxtrot.core.common.Action;
 import com.flipkart.foxtrot.core.datastore.DataStore;
+import com.flipkart.foxtrot.core.exception.ExceptionUtils;
 import com.flipkart.foxtrot.core.exception.FoxtrotException;
 import com.flipkart.foxtrot.core.querystore.QueryStore;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsProvider;
@@ -106,7 +107,7 @@ public class TrendAction extends Action<TrendRequest> {
 
         }
         if (!errorMessages.isEmpty()) {
-            throw FoxtrotException.createMalformedQueryException(parameter, errorMessages);
+            throw ExceptionUtils.createMalformedQueryException(parameter, errorMessages);
         }
         if (null != parameter.getValues() && parameter.getValues().size() != 0) {
             List<Object> values = (List) parameter.getValues();
@@ -124,7 +125,7 @@ public class TrendAction extends Action<TrendRequest> {
                     .setSearchType(SearchType.COUNT)
                     .addAggregation(aggregationBuilder);
         } catch (Exception e) {
-            throw FoxtrotException.queryCreationException(parameter, e);
+            throw ExceptionUtils.queryCreationException(parameter, e);
         }
         try {
             SearchResponse searchResponse = searchRequestBuilder.execute().actionGet();
@@ -135,7 +136,7 @@ public class TrendAction extends Action<TrendRequest> {
                 return new TrendResponse(Collections.<String, List<TrendResponse.Count>>emptyMap());
             }
         } catch (ElasticsearchException e) {
-            throw FoxtrotException.createQueryExecutionException(parameter, e);
+            throw ExceptionUtils.createQueryExecutionException(parameter, e);
         }
     }
 

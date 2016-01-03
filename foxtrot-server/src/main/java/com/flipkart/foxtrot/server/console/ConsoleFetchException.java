@@ -2,6 +2,7 @@ package com.flipkart.foxtrot.server.console;
 
 import com.flipkart.foxtrot.core.exception.ErrorCode;
 import com.flipkart.foxtrot.core.exception.FoxtrotException;
+import com.google.common.collect.Maps;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -17,7 +18,7 @@ public class ConsoleFetchException extends FoxtrotException {
 
     @Override
     public Map<String, Object> toMap() {
-        Map<String, Object> map = new HashMap<>();
+        Map<String, Object> map = Maps.newHashMap();
         map.put("message", this.getCause().getMessage());
         return map;
     }

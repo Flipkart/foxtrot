@@ -23,7 +23,7 @@ import com.flipkart.foxtrot.core.MockElasticsearchServer;
 import com.flipkart.foxtrot.core.TestUtils;
 import com.flipkart.foxtrot.core.common.CacheUtils;
 import com.flipkart.foxtrot.core.datastore.DataStore;
-import com.flipkart.foxtrot.core.exception.StoreExecutionException;
+import com.flipkart.foxtrot.core.exception.ExceptionUtils;
 import com.flipkart.foxtrot.core.querystore.QueryStore;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsLoader;
 import com.flipkart.foxtrot.core.querystore.impl.*;
@@ -134,7 +134,7 @@ public class DocumentResourceTest extends ResourceTest {
                 id,
                 System.currentTimeMillis(),
                 factory.objectNode().put("hello", "world"));
-        doThrow(new StoreExecutionException("dummy", new IOException()))
+        doThrow(ExceptionUtils.createExecutionException("dummy", new IOException()))
                 .when(queryStore).save(anyString(), Matchers.<Document>any());
         try {
             client().resource("/v1/document/" + TestUtils.TEST_TABLE_NAME).type(MediaType.APPLICATION_JSON_TYPE).post(document);
@@ -197,7 +197,7 @@ public class DocumentResourceTest extends ResourceTest {
         Document document2 = new Document(id2, System.currentTimeMillis(), factory.objectNode().put("D", "data"));
         documents.add(document1);
         documents.add(document2);
-        doThrow(new StoreExecutionException("dummy", new IOException()))
+        doThrow(ExceptionUtils.createExecutionException("dummy", new IOException()))
                 .when(queryStore).save(anyString(), anyListOf(Document.class));
         try {
             client().resource(String.format("/v1/document/%s/bulk", TestUtils.TEST_TABLE_NAME)).type(MediaType.APPLICATION_JSON_TYPE).post(documents);
@@ -302,7 +302,7 @@ public class DocumentResourceTest extends ResourceTest {
     public void testGetDocumentInternalError() throws Exception {
         String id = UUID.randomUUID().toString();
         try {
-            doThrow(new StoreExecutionException("dummy", new IOException()))
+            doThrow(ExceptionUtils.createExecutionException("dummy", new IOException()))
                     .when(queryStore).get(anyString(), anyString());
             client().resource(String.format("/v1/document/%s/%s", TestUtils.TEST_TABLE_NAME, id))
                     .get(Document.class);
@@ -355,7 +355,7 @@ public class DocumentResourceTest extends ResourceTest {
     @Test
     public void testGetDocumentsInternalError() throws Exception {
         try {
-            doThrow(new StoreExecutionException("dummy", new IOException()))
+            doThrow(ExceptionUtils.createExecutionException("dummy", new IOException()))
                     .when(queryStore).getAll(anyString(), anyListOf(String.class));
             client().resource(String.format("/v1/document/%s", TestUtils.TEST_TABLE_NAME))
                     .queryParam("id", UUID.randomUUID().toString())

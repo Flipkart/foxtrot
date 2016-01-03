@@ -1,5 +1,7 @@
 package com.flipkart.foxtrot.core.exception;
 
+import com.google.common.collect.Maps;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -10,7 +12,7 @@ public class DataCleanupException extends FoxtrotException {
 
     private String message;
 
-    public DataCleanupException(String message, Throwable cause) {
+    protected DataCleanupException(String message, Throwable cause) {
         super(ErrorCode.DATA_CLEANUP_ERROR, cause);
         this.message = message;
     }
@@ -26,7 +28,7 @@ public class DataCleanupException extends FoxtrotException {
 
     @Override
     public Map<String, Object> toMap() {
-        Map<String, Object> map = new HashMap<>();
+        Map<String, Object> map = Maps.newHashMap();
         map.put("message", this.message);
         return map;
     }

@@ -1,5 +1,7 @@
 package com.flipkart.foxtrot.core.exception;
 
+import com.google.common.collect.Maps;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -10,7 +12,7 @@ public class TableExistsException extends FoxtrotException {
 
     private String table;
 
-    public TableExistsException(String table) {
+    protected TableExistsException(String table) {
         super(ErrorCode.TABLE_ALREADY_EXISTS);
         this.table = table;
     }
@@ -25,7 +27,7 @@ public class TableExistsException extends FoxtrotException {
 
     @Override
     public Map<String, Object> toMap() {
-        Map<String, Object> map = new HashMap<>();
+        Map<String, Object> map = Maps.newHashMap();
         map.put("table", this.table);
         return map;
     }

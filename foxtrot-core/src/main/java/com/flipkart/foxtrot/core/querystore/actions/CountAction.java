@@ -9,6 +9,7 @@ import com.flipkart.foxtrot.common.query.general.AnyFilter;
 import com.flipkart.foxtrot.common.query.general.ExistsFilter;
 import com.flipkart.foxtrot.core.common.Action;
 import com.flipkart.foxtrot.core.datastore.DataStore;
+import com.flipkart.foxtrot.core.exception.ExceptionUtils;
 import com.flipkart.foxtrot.core.exception.FoxtrotException;
 import com.flipkart.foxtrot.core.querystore.QueryStore;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsProvider;
@@ -84,7 +85,7 @@ public class CountAction extends Action<CountRequest> {
                                         .field(parameter.getField())
                         );
             } catch (Exception e) {
-                throw FoxtrotException.queryCreationException(parameter, e);
+                throw ExceptionUtils.queryCreationException(parameter, e);
             }
 
             try {
@@ -97,7 +98,7 @@ public class CountAction extends Action<CountRequest> {
                     return new CountResponse(cardinality.getValue());
                 }
             } catch (ElasticsearchException e) {
-                throw FoxtrotException.createQueryExecutionException(parameter, e);
+                throw ExceptionUtils.createQueryExecutionException(parameter, e);
             }
         } else {
             CountRequestBuilder countRequestBuilder;
@@ -106,13 +107,13 @@ public class CountAction extends Action<CountRequest> {
                         .prepareCount(ElasticsearchUtils.getIndices(parameter.getTable(), parameter))
                         .setQuery(new ElasticSearchQueryGenerator(FilterCombinerType.and).genFilter(parameter.getFilters()));
             } catch (Exception e) {
-                throw FoxtrotException.queryCreationException(parameter, e);
+                throw ExceptionUtils.queryCreationException(parameter, e);
             }
             try {
                 org.elasticsearch.action.count.CountResponse countResponse = countRequestBuilder.execute().actionGet();
                 return new CountResponse(countResponse.getCount());
             } catch (ElasticsearchException e) {
-                throw FoxtrotException.createQueryExecutionException(parameter, e);
+                throw ExceptionUtils.createQueryExecutionException(parameter, e);
             }
         }
     }

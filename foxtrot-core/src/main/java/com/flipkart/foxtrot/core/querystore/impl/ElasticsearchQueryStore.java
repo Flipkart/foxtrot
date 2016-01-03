@@ -21,6 +21,7 @@ import com.flipkart.foxtrot.common.FieldTypeMapping;
 import com.flipkart.foxtrot.common.Table;
 import com.flipkart.foxtrot.common.TableFieldMapping;
 import com.flipkart.foxtrot.core.datastore.DataStore;
+import com.flipkart.foxtrot.core.exception.ExceptionUtils;
 import com.flipkart.foxtrot.core.exception.FoxtrotException;
 import com.flipkart.foxtrot.core.parsers.ElasticsearchMappingParser;
 import com.flipkart.foxtrot.core.querystore.QueryStore;
@@ -90,7 +91,7 @@ public class ElasticsearchQueryStore implements QueryStore {
         table = ElasticsearchUtils.getValidTableName(table);
         try {
             if (!tableMetadataManager.exists(table)) {
-                throw FoxtrotException.createTableMissingException(table);
+                throw ExceptionUtils.createTableMissingException(table);
             }
             if (new DateTime().plusDays(1).minus(document.getTimestamp()).getMillis() < 0) {
                 return;
@@ -109,7 +110,7 @@ public class ElasticsearchQueryStore implements QueryStore {
                     .execute()
                     .get(2, TimeUnit.SECONDS);
         } catch (InterruptedException | ExecutionException | TimeoutException e) {
-            throw FoxtrotException.createExecutionException(table, e);
+            throw ExceptionUtils.createExecutionException(table, e);
         }
     }
 
@@ -119,10 +120,10 @@ public class ElasticsearchQueryStore implements QueryStore {
         table = ElasticsearchUtils.getValidTableName(table);
         try {
             if (!tableMetadataManager.exists(table)) {
-                throw FoxtrotException.createTableMissingException(table);
+                throw ExceptionUtils.createTableMissingException(table);
             }
             if (documents == null || documents.size() == 0) {
-                throw FoxtrotException.createBadRequestException(table, "Empty Document List Not Allowed");
+                throw ExceptionUtils.createBadRequestException(table, "Empty Document List Not Allowed");
             }
             final Table tableMeta = tableMetadataManager.get(table);
             final List<Document> translatedDocuments = dataStore.saveAll(tableMeta, documents);
@@ -159,9 +160,9 @@ public class ElasticsearchQueryStore implements QueryStore {
                 }
             }
         } catch (JsonProcessingException e) {
-            throw FoxtrotException.createBadRequestException(table, e);
+            throw ExceptionUtils.createBadRequestException(table, e);
         } catch (InterruptedException | ExecutionException | TimeoutException e) {
-            throw FoxtrotException.createExecutionException(table, e);
+            throw ExceptionUtils.createExecutionException(table, e);
         }
     }
 
@@ -171,7 +172,7 @@ public class ElasticsearchQueryStore implements QueryStore {
         table = ElasticsearchUtils.getValidTableName(table);
         Table fxTable;
         if (!tableMetadataManager.exists(table)) {
-            throw FoxtrotException.createTableMissingException(table);
+            throw ExceptionUtils.createTableMissingException(table);
         }
         fxTable = tableMetadataManager.get(table);
         String lookupKey;
@@ -206,7 +207,7 @@ public class ElasticsearchQueryStore implements QueryStore {
     public List<Document> getAll(String table, List<String> ids, boolean bypassMetalookup) throws FoxtrotException {
         table = ElasticsearchUtils.getValidTableName(table);
         if (!tableMetadataManager.exists(table)) {
-            throw FoxtrotException.createTableMissingException(table);
+            throw ExceptionUtils.createTableMissingException(table);
         }
         Map<String, String> rowKeys = Maps.newLinkedHashMap();
         for (String id : ids) {
@@ -238,7 +239,7 @@ public class ElasticsearchQueryStore implements QueryStore {
         table = ElasticsearchUtils.getValidTableName(table);
 
         if (!tableMetadataManager.exists(table)) {
-            throw FoxtrotException.createTableMissingException(table);
+            throw ExceptionUtils.createTableMissingException(table);
         }
         try {
             ElasticsearchMappingParser mappingParser = new ElasticsearchMappingParser(mapper);
@@ -252,7 +253,7 @@ public class ElasticsearchQueryStore implements QueryStore {
             }
             return new TableFieldMapping(table, mappings);
         } catch (IOException e) {
-            throw FoxtrotException.createExecutionException(table, e);
+            throw ExceptionUtils.createExecutionException(table, e);
         }
     }
 
@@ -305,7 +306,7 @@ public class ElasticsearchQueryStore implements QueryStore {
                 }
             }
         } catch (Exception e) {
-            throw FoxtrotException.createDataCleanupException(String.format("Index Deletion Failed indexes - %s", indicesToDelete), e);
+            throw ExceptionUtils.createDataCleanupException(String.format("Index Deletion Failed indexes - %s", indicesToDelete), e);
         }
     }
 

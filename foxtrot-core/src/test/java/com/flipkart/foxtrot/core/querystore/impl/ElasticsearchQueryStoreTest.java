@@ -31,6 +31,7 @@ import com.flipkart.foxtrot.core.querystore.QueryExecutor;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsLoader;
 import com.flipkart.foxtrot.core.table.TableMetadataManager;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Maps;
 import com.shash.hbase.ds.RowKeyDistributorByHashPrefix;
 import org.elasticsearch.action.get.GetResponse;
 import org.junit.After;
@@ -205,7 +206,7 @@ public class ElasticsearchQueryStoreTest {
 
     @Test
     public void testGetBulk() throws Exception {
-        Map<String, Document> idValues = new HashMap<String, Document>();
+        Map<String, Document> idValues = Maps.newHashMap();
         List<String> ids = new Vector<String>();
         for (int i = 0; i < 10; i++) {
             String id = UUID.randomUUID().toString();
@@ -219,7 +220,7 @@ public class ElasticsearchQueryStoreTest {
         queryStore.save(TestUtils.TEST_TABLE_NAME, ImmutableList.copyOf(idValues.values()));
         elasticsearchServer.refresh(ElasticsearchUtils.getIndices(TestUtils.TEST_TABLE_NAME));
         List<Document> responseDocuments = queryStore.getAll(TestUtils.TEST_TABLE_NAME, ids);
-        HashMap<String, Document> responseIdValues = new HashMap<String, Document>();
+        HashMap<String, Document> responseIdValues = Maps.newHashMap();
         for (Document doc : responseDocuments) {
             responseIdValues.put(doc.getId(), doc);
         }

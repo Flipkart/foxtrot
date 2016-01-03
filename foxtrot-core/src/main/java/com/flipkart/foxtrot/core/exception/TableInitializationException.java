@@ -1,5 +1,7 @@
 package com.flipkart.foxtrot.core.exception;
 
+import com.google.common.collect.Maps;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -11,7 +13,7 @@ public class TableInitializationException extends FoxtrotException {
     private String table;
     private String reason;
 
-    public TableInitializationException(String table, String reason) {
+    protected TableInitializationException(String table, String reason) {
         super(ErrorCode.TABLE_INITIALIZATION_ERROR);
         this.table = table;
         this.reason = reason;
@@ -35,7 +37,7 @@ public class TableInitializationException extends FoxtrotException {
 
     @Override
     public Map<String, Object> toMap() {
-        Map<String, Object> map = new HashMap<>();
+        Map<String, Object> map = Maps.newHashMap();
         map.put("table", this.table);
         map.put("message", reason);
         return map;

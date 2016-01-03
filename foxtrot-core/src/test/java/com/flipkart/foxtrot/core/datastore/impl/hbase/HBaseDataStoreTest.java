@@ -25,6 +25,7 @@ import com.flipkart.foxtrot.core.exception.ErrorCode;
 import com.flipkart.foxtrot.core.exception.FoxtrotException;
 import com.flipkart.foxtrot.core.querystore.DocumentTranslator;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.shash.hbase.ds.RowKeyDistributorByHashPrefix;
 import org.apache.hadoop.hbase.client.Get;
 import org.apache.hadoop.hbase.client.HTableInterface;
@@ -326,10 +327,10 @@ public class HBaseDataStoreTest {
 
     @Test
     public void testV1GetBulk() throws Exception {
-        Map<String, Document> idValues = new HashMap<String, Document>();
+        Map<String, Document> idValues = Maps.newHashMap();
         List<String> ids = new Vector<String>();
         List<Put> putList = new Vector<Put>();
-        HashMap<String, Document> actualIdValues = new HashMap<String, Document>();
+        HashMap<String, Document> actualIdValues = Maps.newHashMap();
         for (int i = 0; i < 10; i++) {
             String id = UUID.randomUUID().toString();
             long timestamp = System.currentTimeMillis();
@@ -355,11 +356,11 @@ public class HBaseDataStoreTest {
 
     @Test
     public void testV2GetBulk() throws Exception {
-        Map<String, Document> idValues = new HashMap<String, Document>();
+        Map<String, Document> idValues = Maps.newHashMap();
         List<String> ids = new Vector<String>();
         List<String> rawIds = new Vector<String>();
         List<Put> putList = new Vector<Put>();
-        HashMap<String, Document> actualIdValues = new HashMap<String, Document>();
+        HashMap<String, Document> actualIdValues = Maps.newHashMap();
         for (int i = 0; i < 10; i++) {
             String id = UUID.randomUUID().toString();
             long timestamp = System.currentTimeMillis();
@@ -463,9 +464,9 @@ public class HBaseDataStoreTest {
 
     @Test
     public void testBasicBulkGetSet() throws Exception {
-        Map<String, Document> idValues = new HashMap<String, Document>();
+        Map<String, Document> idValues = Maps.newHashMap();
         List<String> ids = new Vector<String>();
-        HashMap<String, Document> actualIdValues = new HashMap<String, Document>();
+        HashMap<String, Document> actualIdValues = Maps.newHashMap();
         List<Document> documents = Lists.newArrayList();
         for (int i = 0; i < 10; i++) {
             String id = UUID.randomUUID().toString();

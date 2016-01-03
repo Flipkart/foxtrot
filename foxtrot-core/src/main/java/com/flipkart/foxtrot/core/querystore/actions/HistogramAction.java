@@ -24,6 +24,7 @@ import com.flipkart.foxtrot.common.query.datetime.LastFilter;
 import com.flipkart.foxtrot.common.query.general.AnyFilter;
 import com.flipkart.foxtrot.core.common.Action;
 import com.flipkart.foxtrot.core.datastore.DataStore;
+import com.flipkart.foxtrot.core.exception.ExceptionUtils;
 import com.flipkart.foxtrot.core.exception.FoxtrotException;
 import com.flipkart.foxtrot.core.querystore.QueryStore;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsProvider;
@@ -85,7 +86,7 @@ public class HistogramAction extends Action<HistogramRequest> {
         }
 
         if (parameter.getField() == null || parameter.getField().trim().isEmpty()) {
-            throw FoxtrotException.createMalformedQueryException(parameter, "field cannot be null");
+            throw ExceptionUtils.createMalformedQueryException(parameter, "field cannot be null");
         }
 
         SearchRequestBuilder searchRequestBuilder;
@@ -118,7 +119,7 @@ public class HistogramAction extends Action<HistogramRequest> {
                             .field(parameter.getField())
                             .interval(interval));
         } catch (Exception e) {
-            throw FoxtrotException.queryCreationException(parameter, e);
+            throw ExceptionUtils.queryCreationException(parameter, e);
         }
 
         try {
@@ -137,7 +138,7 @@ public class HistogramAction extends Action<HistogramRequest> {
             }
             return new HistogramResponse(counts);
         } catch (ElasticsearchException e) {
-            throw FoxtrotException.createQueryExecutionException(parameter, e);
+            throw ExceptionUtils.createQueryExecutionException(parameter, e);
         }
     }
 

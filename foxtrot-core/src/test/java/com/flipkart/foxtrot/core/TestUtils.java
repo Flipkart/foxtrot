@@ -28,6 +28,7 @@ import com.flipkart.foxtrot.core.exception.FoxtrotException;
 import com.flipkart.foxtrot.core.querystore.actions.spi.ActionMetadata;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsLoader;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsProvider;
+import com.google.common.collect.Maps;
 import org.apache.hadoop.hbase.client.HTableInterface;
 import org.mockito.Matchers;
 import org.mockito.Mockito;
@@ -58,7 +59,7 @@ public class TestUtils {
     }
 
     public static Document getDocument(String id, long timestamp, Object[] args, ObjectMapper mapper) {
-        Map<String, Object> data = new HashMap<String, Object>();
+        Map<String, Object> data = Maps.newHashMap();
         for (int i = 0; i < args.length; i += 2) {
             data.put((String) args[i], args[i + 1]);
         }
@@ -187,13 +188,13 @@ public class TestUtils {
 
     public static List<Document> getMappingDocuments(ObjectMapper mapper) {
         List<Document> documents = new Vector<Document>();
-        Map<String, Object> document = new HashMap<String, Object>();
+        Map<String, Object> document = Maps.newHashMap();
         document.put("word", "1234");
         document.put("data", Collections.singletonMap("data", "d"));
         document.put("header", Collections.singletonList(Collections.singletonMap("hello", "world")));
         documents.add(new Document("Z", System.currentTimeMillis(), mapper.valueToTree(document)));
 
-        document = new HashMap<String, Object>();
+        document = Maps.newHashMap();
         document.put("word", "1234");
         document.put("data", Collections.singletonMap("data", "d"));
         document.put("head", Collections.singletonList(Collections.singletonMap("hello", 23)));

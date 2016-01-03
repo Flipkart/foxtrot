@@ -36,6 +36,7 @@ import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsLoader;
 import com.flipkart.foxtrot.core.querystore.impl.*;
 import com.flipkart.foxtrot.core.table.TableMetadataManager;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.test.TestHazelcastInstanceFactory;
 import org.junit.After;
@@ -224,7 +225,7 @@ public class TrendActionTest {
         trendRequest.setValues(Collections.<String>emptyList());
 
         TrendResponse expectedResponse = new TrendResponse();
-        expectedResponse.setTrends(new HashMap<String, List<TrendResponse.Count>>());
+        expectedResponse.setTrends(new HashMap<>());
 
         TrendResponse actualResponse = TrendResponse.class.cast(queryExecutor.execute(trendRequest));
         assertEquals(expectedResponse, actualResponse);
@@ -263,7 +264,7 @@ public class TrendActionTest {
         trendRequest.setFilters(Collections.<Filter>singletonList(betweenFilter));
 
         TrendResponse expectedResponse = new TrendResponse();
-        Map<String, List<TrendResponse.Count>> trends = new HashMap<String, List<TrendResponse.Count>>();
+        Map<String, List<TrendResponse.Count>> trends = Maps.newHashMap();
 
         List<TrendResponse.Count> counts = Lists.newArrayList();
         counts.add(new TrendResponse.Count(1397606400000L, 6));
@@ -295,7 +296,7 @@ public class TrendActionTest {
         trendRequest.setFilters(Collections.<Filter>singletonList(betweenFilter));
 
         TrendResponse expectedResponse = new TrendResponse();
-        Map<String, List<TrendResponse.Count>> trends = new HashMap<String, List<TrendResponse.Count>>();
+        Map<String, List<TrendResponse.Count>> trends = Maps.newHashMap();
 
         List<TrendResponse.Count> counts = Lists.newArrayList();
         counts.add(new TrendResponse.Count(1397606400000L, 6));
@@ -327,7 +328,7 @@ public class TrendActionTest {
         trendRequest.setFilters(Collections.<Filter>singletonList(betweenFilter));
 
         TrendResponse expectedResponse = new TrendResponse();
-        Map<String, List<TrendResponse.Count>> trends = new HashMap<String, List<TrendResponse.Count>>();
+        Map<String, List<TrendResponse.Count>> trends = Maps.newHashMap();
 
         List<TrendResponse.Count> counts = Lists.newArrayList();
         counts.add(new TrendResponse.Count(1397606400000L, 6));
@@ -360,7 +361,7 @@ public class TrendActionTest {
         trendRequest.setValues(Arrays.asList("android"));
 
         TrendResponse expectedResponse = new TrendResponse();
-        Map<String, List<TrendResponse.Count>> trends = new HashMap<String, List<TrendResponse.Count>>();
+        Map<String, List<TrendResponse.Count>> trends = Maps.newHashMap();
 
         List<TrendResponse.Count> counts = Lists.newArrayList();
         counts.add(new TrendResponse.Count(1397606400000L, 6));
@@ -391,7 +392,7 @@ public class TrendActionTest {
 
 
         TrendResponse expectedResponse = new TrendResponse();
-        Map<String, List<TrendResponse.Count>> trends = new HashMap<String, List<TrendResponse.Count>>();
+        Map<String, List<TrendResponse.Count>> trends = Maps.newHashMap();
 
         List<TrendResponse.Count> counts = Lists.newArrayList();
         counts.add(new TrendResponse.Count(1397606400000L, 2));
@@ -419,7 +420,7 @@ public class TrendActionTest {
         trendRequest.setFilters(Lists.newArrayList(equalsFilter, lessThanFilter));
 
         TrendResponse expectedResponse = new TrendResponse();
-        Map<String, List<TrendResponse.Count>> trends = new HashMap<String, List<TrendResponse.Count>>();
+        Map<String, List<TrendResponse.Count>> trends = Maps.newHashMap();
 
         List<TrendResponse.Count> counts = Lists.newArrayList();
         counts.add(new TrendResponse.Count(1397606400000L, 2));
@@ -452,7 +453,7 @@ public class TrendActionTest {
         trendRequest.setFilters(Lists.newArrayList(equalsFilter, lessThanFilter));
 
         TrendResponse expectedResponse = new TrendResponse();
-        Map<String, List<TrendResponse.Count>> trends = new HashMap<String, List<TrendResponse.Count>>();
+        Map<String, List<TrendResponse.Count>> trends = Maps.newHashMap();
 
         List<TrendResponse.Count> counts = Lists.newArrayList();
         counts.add(new TrendResponse.Count(1397606400000L, 2));

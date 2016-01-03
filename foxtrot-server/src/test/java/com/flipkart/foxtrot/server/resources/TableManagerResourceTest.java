@@ -21,7 +21,7 @@ import com.flipkart.foxtrot.core.MockElasticsearchServer;
 import com.flipkart.foxtrot.core.TestUtils;
 import com.flipkart.foxtrot.core.common.CacheUtils;
 import com.flipkart.foxtrot.core.datastore.DataStore;
-import com.flipkart.foxtrot.core.exception.StoreExecutionException;
+import com.flipkart.foxtrot.core.exception.ExceptionUtils;
 import com.flipkart.foxtrot.core.querystore.QueryStore;
 import com.flipkart.foxtrot.core.querystore.impl.DistributedCacheFactory;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConnection;
@@ -135,7 +135,7 @@ public class TableManagerResourceTest extends ResourceTest {
     @Test
     public void testSaveBackendError() throws Exception {
         Table table = new Table(UUID.randomUUID().toString(), 30);
-        doThrow(new StoreExecutionException("dummy", new IOException())).when(tableManager).save(Matchers.<Table>any());
+        doThrow(ExceptionUtils.createExecutionException("dummy", new IOException())).when(tableManager).save(Matchers.<Table>any());
         try {
             client().resource("/v1/tables").type(MediaType.APPLICATION_JSON_TYPE).post(table);
             fail();
