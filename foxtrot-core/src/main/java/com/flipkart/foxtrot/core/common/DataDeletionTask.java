@@ -1,7 +1,7 @@
 package com.flipkart.foxtrot.core.common;
 
+import com.flipkart.foxtrot.core.exception.FoxtrotException;
 import com.flipkart.foxtrot.core.querystore.QueryStore;
-import com.flipkart.foxtrot.core.querystore.QueryStoreException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,7 +23,7 @@ public class DataDeletionTask extends TimerTask {
         logger.info("Starting Deletion Job");
         try {
             queryStore.cleanupAll();
-        } catch (QueryStoreException ex) {
+        } catch (FoxtrotException ex) {
             logger.error("Deletion Job Failed ", ex);
         }
         logger.info("Finished Deletion Job");

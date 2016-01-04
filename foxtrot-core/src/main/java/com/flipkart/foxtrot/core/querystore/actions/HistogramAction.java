@@ -24,23 +24,23 @@ import com.flipkart.foxtrot.common.query.datetime.LastFilter;
 import com.flipkart.foxtrot.common.query.general.AnyFilter;
 import com.flipkart.foxtrot.core.common.Action;
 import com.flipkart.foxtrot.core.datastore.DataStore;
+import com.flipkart.foxtrot.core.exception.FoxtrotExceptions;
+import com.flipkart.foxtrot.core.exception.FoxtrotException;
 import com.flipkart.foxtrot.core.querystore.QueryStore;
-import com.flipkart.foxtrot.core.querystore.QueryStoreException;
-import com.flipkart.foxtrot.core.table.TableMetadataManager;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsProvider;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConnection;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
 import com.flipkart.foxtrot.core.querystore.query.ElasticSearchQueryGenerator;
+import com.flipkart.foxtrot.core.table.TableMetadataManager;
 import com.google.common.collect.Lists;
 import com.yammer.dropwizard.util.Duration;
-
+import org.elasticsearch.ElasticsearchException;
+import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.search.SearchType;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.Aggregations;
 import org.elasticsearch.search.aggregations.bucket.histogram.DateHistogram;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -54,8 +54,6 @@ import java.util.List;
  */
 @AnalyticsProvider(opcode = "histogram", request = HistogramRequest.class, response = HistogramResponse.class, cacheable = true)
 public class HistogramAction extends Action<HistogramRequest> {
-
-    private static final Logger logger = LoggerFactory.getLogger(HistogramAction.class.getSimpleName());
 
     public HistogramAction(HistogramRequest parameter,
                            TableMetadataManager tableMetadataManager,
@@ -81,39 +79,35 @@ public class HistogramAction extends Action<HistogramRequest> {
     }
 
     @Override
-    public ActionResponse execute(HistogramRequest parameter) throws QueryStoreException {
+    public ActionResponse execute(HistogramRequest parameter) throws FoxtrotException {
         parameter.setTable(ElasticsearchUtils.getValidTableName(parameter.getTable()));
         if (null == parameter.getFilters()) {
             parameter.setFilters(Lists.<Filter>newArrayList(new AnyFilter(parameter.getTable())));
         }
 
         if (parameter.getField() == null || parameter.getField().trim().isEmpty()) {
-            throw new QueryStoreException(QueryStoreException.ErrorCode.INVALID_REQUEST, "Illegal Nesting Parameters");
+            throw FoxtrotExceptions.createMalformedQueryException(parameter, "field cannot be null");
         }
 
+        SearchRequestBuilder searchRequestBuilder;
+        DateHistogram.Interval interval = null;
+        switch (parameter.getPeriod()) {
+            case seconds:
+                interval = DateHistogram.Interval.SECOND;
+                break;
+            case minutes:
+                interval = DateHistogram.Interval.MINUTE;
+                break;
+            case hours:
+                interval = DateHistogram.Interval.HOUR;
+                break;
+            case days:
+                interval = DateHistogram.Interval.DAY;
+                break;
+        }
+        String dateHistogramKey = Utils.sanitizeFieldForAggregation(parameter.getField());
         try {
-            /*if(!tableManager.exists(query.getTable())) {
-                throw new QueryStoreException(QueryStoreException.ErrorCode.NO_SUCH_TABLE,
-                        "There is no table called: " + query.getTable());
-            }*/
-            DateHistogram.Interval interval = null;
-            switch (parameter.getPeriod()) {
-                case seconds:
-                    interval = DateHistogram.Interval.SECOND;
-                    break;
-                case minutes:
-                    interval = DateHistogram.Interval.MINUTE;
-                    break;
-                case hours:
-                    interval = DateHistogram.Interval.HOUR;
-                    break;
-                case days:
-                    interval = DateHistogram.Interval.DAY;
-                    break;
-            }
-
-            String dateHistogramKey = Utils.sanitizeFieldForAggregation(parameter.getField());
-            SearchResponse response = getConnection().getClient().prepareSearch(
+            searchRequestBuilder = getConnection().getClient().prepareSearch(
                     ElasticsearchUtils.getIndices(parameter.getTable(), parameter))
                     .setTypes(ElasticsearchUtils.DOCUMENT_TYPE_NAME)
                     .setIndicesOptions(Utils.indicesOptions())
@@ -123,28 +117,28 @@ public class HistogramAction extends Action<HistogramRequest> {
                     .setSearchType(SearchType.COUNT)
                     .addAggregation(AggregationBuilders.dateHistogram(dateHistogramKey)
                             .field(parameter.getField())
-                            .interval(interval))
-                    .execute()
-                    .actionGet();
+                            .interval(interval));
+        } catch (Exception e) {
+            throw FoxtrotExceptions.queryCreationException(parameter, e);
+        }
+
+        try {
+            SearchResponse response = searchRequestBuilder.execute().actionGet();
             Aggregations aggregations = response.getAggregations();
             if (aggregations == null) {
-                logger.error("Null response for Histogram. Request : " + parameter.toString());
                 return new HistogramResponse(Collections.<HistogramResponse.Count>emptyList());
             }
             DateHistogram dateHistogram = aggregations.get(dateHistogramKey);
             Collection<? extends DateHistogram.Bucket> buckets = dateHistogram.getBuckets();
-            List<HistogramResponse.Count> counts = new ArrayList<HistogramResponse.Count>(buckets.size());
+            List<HistogramResponse.Count> counts = new ArrayList<>(buckets.size());
             for (DateHistogram.Bucket bucket : buckets) {
                 HistogramResponse.Count count = new HistogramResponse.Count(
                         bucket.getKeyAsNumber(), bucket.getDocCount());
                 counts.add(count);
             }
             return new HistogramResponse(counts);
-        } catch (QueryStoreException ex) {
-            throw ex;
-        } catch (Exception e) {
-            throw new QueryStoreException(QueryStoreException.ErrorCode.HISTOGRAM_GENERATION_ERROR,
-                    "Malformed query", e);
+        } catch (ElasticsearchException e) {
+            throw FoxtrotExceptions.createQueryExecutionException(parameter, e);
         }
     }
 

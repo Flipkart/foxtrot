@@ -21,12 +21,12 @@ import com.flipkart.foxtrot.core.TestUtils;
 import com.flipkart.foxtrot.core.common.CacheUtils;
 import com.flipkart.foxtrot.core.common.NonCacheableActionRequest;
 import com.flipkart.foxtrot.core.datastore.DataStore;
+import com.flipkart.foxtrot.core.exception.FoxtrotException;
 import com.flipkart.foxtrot.core.querystore.QueryExecutor;
 import com.flipkart.foxtrot.core.querystore.QueryStore;
-import com.flipkart.foxtrot.core.querystore.QueryStoreException;
-import com.flipkart.foxtrot.core.table.TableMetadataManager;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsLoader;
 import com.flipkart.foxtrot.core.querystore.impl.*;
+import com.flipkart.foxtrot.core.table.TableMetadataManager;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.test.TestHazelcastInstanceFactory;
 import org.junit.After;
@@ -88,7 +88,7 @@ public class NonCacheableActionTest {
 
     //TODO how to verify if cache is hit or not ?
     @Test
-    public void checkCacheability() throws QueryStoreException {
+    public void checkCacheability() throws FoxtrotException {
         queryExecutor.execute(new NonCacheableActionRequest());
     }
 }

@@ -64,10 +64,10 @@ public class ElasticSearchQueryGenerator extends FilterVisitor {
     public void visit(ContainsFilter stringContainsFilterElement) throws Exception {
         addFilter(
                 FilterBuilders.queryFilter(
-                QueryBuilders.queryString(
-                        stringContainsFilterElement.getValue())
-                        .defaultField(stringContainsFilterElement.getField() + ".analyzed"))
-                .cache(false));
+                        QueryBuilders.queryString(
+                                stringContainsFilterElement.getValue())
+                                .defaultField(stringContainsFilterElement.getField() + ".analyzed"))
+                        .cache(false));
     }
 
     @Override
@@ -120,6 +120,7 @@ public class ElasticSearchQueryGenerator extends FilterVisitor {
         addFilter(FilterBuilders.existsFilter(existsFilter.getField()));
     }
 
+    @Override
     public void visit(LastFilter lastFilter) throws Exception {
         TimeWindow timeWindow = lastFilter.getWindow();
         addFilter(
@@ -129,7 +130,8 @@ public class ElasticSearchQueryGenerator extends FilterVisitor {
                         .cache(false));
     }
 
-    @Override public void visit(MissingFilter missingFilter) throws Exception {
+    @Override
+    public void visit(MissingFilter missingFilter) throws Exception {
         addFilter(FilterBuilders.missingFilter(missingFilter.getField()));
     }
 
@@ -139,7 +141,7 @@ public class ElasticSearchQueryGenerator extends FilterVisitor {
             return;
         }
         //boolFilterBuilder.should(elasticSearchFilter);
-        throw new UnsupportedOperationException(FilterCombinerType.or.name() + " is not supported");
+        throw new UnsupportedOperationException(String.format("%s is not supported", FilterCombinerType.or.name()));
     }
 
     public QueryBuilder genFilter(List<Filter> filters) throws Exception {

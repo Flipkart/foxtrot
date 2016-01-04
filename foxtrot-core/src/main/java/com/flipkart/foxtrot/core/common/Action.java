@@ -20,8 +20,8 @@ import com.flipkart.foxtrot.common.ActionResponse;
 import com.flipkart.foxtrot.common.query.Filter;
 import com.flipkart.foxtrot.common.query.numeric.LessThanFilter;
 import com.flipkart.foxtrot.core.datastore.DataStore;
+import com.flipkart.foxtrot.core.exception.FoxtrotException;
 import com.flipkart.foxtrot.core.querystore.QueryStore;
-import com.flipkart.foxtrot.core.querystore.QueryStoreException;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConnection;
 import com.flipkart.foxtrot.core.table.TableMetadataManager;
 import com.google.common.collect.Lists;
@@ -83,7 +83,7 @@ public abstract class Action<ParameterType extends ActionRequest> implements Cal
         return cacheKey;
     }
 
-    public ActionResponse execute() throws QueryStoreException {
+    public ActionResponse execute() throws FoxtrotException {
         final String cacheKeyValue = cacheKey();
         if (isCacheable()) {
             if (cache.has(cacheKeyValue)) {
@@ -111,7 +111,7 @@ public abstract class Action<ParameterType extends ActionRequest> implements Cal
 
     abstract protected String getRequestCacheKey();
 
-    abstract public ActionResponse execute(ParameterType parameter) throws QueryStoreException;
+    abstract public ActionResponse execute(ParameterType parameter) throws FoxtrotException;
 
     public DataStore getDataStore() {
         return dataStore;

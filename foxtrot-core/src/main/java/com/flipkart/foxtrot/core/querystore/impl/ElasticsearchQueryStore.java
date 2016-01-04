@@ -16,18 +16,22 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.flipkart.foxtrot.common.*;
+import com.flipkart.foxtrot.common.Document;
+import com.flipkart.foxtrot.common.FieldTypeMapping;
 import com.flipkart.foxtrot.common.Table;
+import com.flipkart.foxtrot.common.TableFieldMapping;
 import com.flipkart.foxtrot.core.datastore.DataStore;
-import com.flipkart.foxtrot.core.datastore.DataStoreException;
+import com.flipkart.foxtrot.core.exception.FoxtrotExceptions;
+import com.flipkart.foxtrot.core.exception.FoxtrotException;
 import com.flipkart.foxtrot.core.parsers.ElasticsearchMappingParser;
 import com.flipkart.foxtrot.core.querystore.QueryStore;
-import com.flipkart.foxtrot.core.querystore.QueryStoreException;
 import com.flipkart.foxtrot.core.table.TableMetadataManager;
-import com.google.common.collect.*;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.yammer.metrics.annotation.Timed;
 import org.elasticsearch.action.WriteConsistencyLevel;
-import org.elasticsearch.action.admin.indices.mapping.get.GetMappingsRequest;
 import org.elasticsearch.action.admin.indices.mapping.get.GetMappingsResponse;
 import org.elasticsearch.action.admin.indices.status.IndicesStatusResponse;
 import org.elasticsearch.action.bulk.BulkItemResponse;
@@ -36,7 +40,6 @@ import org.elasticsearch.action.bulk.BulkResponse;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.cluster.metadata.MappingMetaData;
-import org.elasticsearch.common.collect.ImmutableOpenMap;
 import org.elasticsearch.common.hppc.cursors.ObjectCursor;
 import org.elasticsearch.common.joda.time.DateTime;
 import org.elasticsearch.common.unit.TimeValue;
@@ -46,8 +49,12 @@ import org.elasticsearch.search.SearchHit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.util.*;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
+import java.util.stream.Collectors;
 
 /**
  * User: Santanu Sinha (santanu.sinha@flipkart.com)
@@ -74,70 +81,49 @@ public class ElasticsearchQueryStore implements QueryStore {
 
     @Override
     @Timed
-    public void initializeTable(String table) throws QueryStoreException {
+    public void initializeTable(String table) throws FoxtrotException {
         // Nothing needs to be done here since indexes are created at runtime in elasticsearch
     }
 
     @Override
     @Timed
-    public void save(String table, Document document) throws QueryStoreException {
+    public void save(String table, Document document) throws FoxtrotException {
         table = ElasticsearchUtils.getValidTableName(table);
         try {
             if (!tableMetadataManager.exists(table)) {
-                throw new QueryStoreException(QueryStoreException.ErrorCode.NO_SUCH_TABLE,
-                        "No table exists with the name: " + table);
+                throw FoxtrotExceptions.createTableMissingException(table);
             }
             if (new DateTime().plusDays(1).minus(document.getTimestamp()).getMillis() < 0) {
                 return;
             }
             final Table tableMeta = tableMetadataManager.get(table);
-            final Document translatedDocuement = dataStore.save(tableMeta, document);
-            long timestamp = translatedDocuement.getTimestamp();
-
-            //translatedDocuement.getData().
+            final Document translatedDocument = dataStore.save(tableMeta, document);
+            long timestamp = translatedDocument.getTimestamp();
             connection.getClient()
                     .prepareIndex()
                     .setIndex(ElasticsearchUtils.getCurrentIndex(table, timestamp))
                     .setType(ElasticsearchUtils.DOCUMENT_TYPE_NAME)
-                    .setId(translatedDocuement.getId())
+                    .setId(translatedDocument.getId())
                     .setTimestamp(Long.toString(timestamp))
-                    .setSource(convert(translatedDocuement))
+                    .setSource(convert(translatedDocument))
                     .setConsistencyLevel(WriteConsistencyLevel.QUORUM)
                     .execute()
                     .get(2, TimeUnit.SECONDS);
-        } catch (QueryStoreException ex) {
-            throw ex;
-        } catch (DataStoreException ex) {
-            DataStoreException.ErrorCode code = ex.getErrorCode();
-            if (code.equals(DataStoreException.ErrorCode.STORE_INVALID_REQUEST)
-                    || code.equals(DataStoreException.ErrorCode.STORE_INVALID_DOCUMENT)) {
-                throw new QueryStoreException(QueryStoreException.ErrorCode.INVALID_REQUEST,
-                        ex.getMessage(), ex);
-            } else {
-                throw new QueryStoreException(QueryStoreException.ErrorCode.DOCUMENT_SAVE_ERROR,
-                        ex.getMessage(), ex);
-            }
-        } catch (JsonProcessingException ex) {
-            throw new QueryStoreException(QueryStoreException.ErrorCode.INVALID_REQUEST,
-                    ex.getMessage(), ex);
-        } catch (Exception ex) {
-            throw new QueryStoreException(QueryStoreException.ErrorCode.DOCUMENT_SAVE_ERROR,
-                    ex.getMessage(), ex);
+        } catch (InterruptedException | ExecutionException | TimeoutException e) {
+            throw FoxtrotExceptions.createExecutionException(table, e);
         }
     }
 
     @Override
     @Timed
-    public void save(String table, List<Document> documents) throws QueryStoreException {
+    public void save(String table, List<Document> documents) throws FoxtrotException {
         table = ElasticsearchUtils.getValidTableName(table);
         try {
             if (!tableMetadataManager.exists(table)) {
-                throw new QueryStoreException(QueryStoreException.ErrorCode.NO_SUCH_TABLE,
-                        "No table exists with the name: " + table);
+                throw FoxtrotExceptions.createTableMissingException(table);
             }
             if (documents == null || documents.size() == 0) {
-                throw new QueryStoreException(QueryStoreException.ErrorCode.INVALID_REQUEST,
-                        "Invalid Document List");
+                throw FoxtrotExceptions.createBadRequestException(table, "Empty Document List Not Allowed");
             }
             final Table tableMeta = tableMetadataManager.get(table);
             final List<Document> translatedDocuments = dataStore.saveAll(tableMeta, documents);
@@ -164,156 +150,100 @@ public class ElasticsearchQueryStore implements QueryStore {
                         .setConsistencyLevel(WriteConsistencyLevel.QUORUM)
                         .execute()
                         .get(10, TimeUnit.SECONDS);
-                int failedCount = 0;
                 for (int i = 0; i < responses.getItems().length; i++) {
                     BulkItemResponse itemResponse = responses.getItems()[i];
-                    failedCount += (itemResponse.isFailed() ? 1 : 0);
                     if (itemResponse.isFailed()) {
-                        logger.error(String.format("Table : %s Failure Message : %s Document : %s", table, itemResponse.getFailureMessage(), mapper.writeValueAsString(documents.get(i))));
+                        logger.error(String.format("Table : %s Failure Message : %s Document : %s", table,
+                                itemResponse.getFailureMessage(),
+                                mapper.writeValueAsString(documents.get(i))));
                     }
                 }
-                if (failedCount > 0) {
-                    logger.error(String.format("Table : %s Failed Documents : %d", table, failedCount));
-                }
             }
-        } catch (QueryStoreException ex) {
-            throw ex;
-        } catch (DataStoreException ex) {
-            DataStoreException.ErrorCode code = ex.getErrorCode();
-            if (code.equals(DataStoreException.ErrorCode.STORE_INVALID_REQUEST)
-                    || code.equals(DataStoreException.ErrorCode.STORE_INVALID_DOCUMENT)) {
-                throw new QueryStoreException(QueryStoreException.ErrorCode.INVALID_REQUEST,
-                        ex.getMessage(), ex);
-            } else {
-                throw new QueryStoreException(QueryStoreException.ErrorCode.DOCUMENT_SAVE_ERROR,
-                        ex.getMessage(), ex);
-            }
-        } catch (JsonProcessingException ex) {
-            throw new QueryStoreException(QueryStoreException.ErrorCode.INVALID_REQUEST,
-                    ex.getMessage(), ex);
-        } catch (Exception ex) {
-            throw new QueryStoreException(QueryStoreException.ErrorCode.DOCUMENT_SAVE_ERROR,
-                    ex.getMessage(), ex);
+        } catch (JsonProcessingException e) {
+            throw FoxtrotExceptions.createBadRequestException(table, e);
+        } catch (InterruptedException | ExecutionException | TimeoutException e) {
+            throw FoxtrotExceptions.createExecutionException(table, e);
         }
     }
 
     @Override
     @Timed
-    public Document get(String table, String id) throws QueryStoreException {
+    public Document get(String table, String id) throws FoxtrotException {
         table = ElasticsearchUtils.getValidTableName(table);
-        Table fxTable = null;
-        try {
-            if (!tableMetadataManager.exists(table)) {
-                throw new QueryStoreException(QueryStoreException.ErrorCode.NO_SUCH_TABLE,
-                        "No table exists with the name: " + table);
-            }
-            fxTable = tableMetadataManager.get(table);
-        } catch (Exception ex) {
-            throw new QueryStoreException(QueryStoreException.ErrorCode.DOCUMENT_GET_ERROR,
-                    ex.getMessage(), ex);
+        Table fxTable;
+        if (!tableMetadataManager.exists(table)) {
+            throw FoxtrotExceptions.createTableMissingException(table);
         }
-        String lookupKey = null;
-        try {
-            SearchResponse searchResponse = connection.getClient()
-                    .prepareSearch(ElasticsearchUtils.getIndices(table))
-                    .setTypes(ElasticsearchUtils.DOCUMENT_TYPE_NAME)
-                    .setQuery(
-                            QueryBuilders.constantScoreQuery(
-                                    FilterBuilders.boolFilter()
-                                            .must(FilterBuilders.termFilter(ElasticsearchUtils.DOCUMENT_META_ID_FIELD_NAME, id))))
-                    .setNoFields()
-                    .setSize(1)
-                    .execute()
-                    .actionGet();
-            if(searchResponse.getHits().totalHits() == 0 ) {
-                logger.warn("Going into compatibility mode, looks using passed in ID as the data store id: {}", id);
-                lookupKey = id;
-            }
-            else {
-                lookupKey = searchResponse.getHits().getHits()[0].getId();
-                logger.debug("Translated lookup key for {} is {}.", id, lookupKey);
-            }
-            return dataStore.get(fxTable, lookupKey);
-        } catch (DataStoreException ex) {
-            if (ex.getErrorCode().equals(DataStoreException.ErrorCode.STORE_NO_DATA_FOUND_FOR_ID)) {
-                throw new QueryStoreException(QueryStoreException.ErrorCode.DOCUMENT_NOT_FOUND,
-                        ex.getMessage(), ex);
-            }
-            throw new QueryStoreException(QueryStoreException.ErrorCode.DOCUMENT_GET_ERROR,
-                    ex.getMessage(), ex);
+        fxTable = tableMetadataManager.get(table);
+        String lookupKey;
+        SearchResponse searchResponse = connection.getClient()
+                .prepareSearch(ElasticsearchUtils.getIndices(table))
+                .setTypes(ElasticsearchUtils.DOCUMENT_TYPE_NAME)
+                .setQuery(
+                        QueryBuilders.constantScoreQuery(
+                                FilterBuilders.boolFilter()
+                                        .must(FilterBuilders.termFilter(ElasticsearchUtils.DOCUMENT_META_ID_FIELD_NAME, id))))
+                .setNoFields()
+                .setSize(1)
+                .execute()
+                .actionGet();
+        if (searchResponse.getHits().totalHits() == 0) {
+            logger.warn("Going into compatibility mode, looks using passed in ID as the data store id: {}", id);
+            lookupKey = id;
+        } else {
+            lookupKey = searchResponse.getHits().getHits()[0].getId();
+            logger.debug("Translated lookup key for {} is {}.", id, lookupKey);
         }
-
+        return dataStore.get(fxTable, lookupKey);
     }
 
     @Override
-    public List<Document> getAll(String table, List<String> ids) throws QueryStoreException {
+    public List<Document> getAll(String table, List<String> ids) throws FoxtrotException {
         return getAll(table, ids, false);
     }
 
     @Override
     @Timed
-    public List<Document> getAll(String table, List<String> ids, boolean bypassMetalookup) throws QueryStoreException {
+    public List<Document> getAll(String table, List<String> ids, boolean bypassMetalookup) throws FoxtrotException {
         table = ElasticsearchUtils.getValidTableName(table);
-        try {
-            if (!tableMetadataManager.exists(table)) {
-                throw new QueryStoreException(QueryStoreException.ErrorCode.NO_SUCH_TABLE,
-                        "No table exists with the name: " + table);
-            }
-            ImmutableOpenMap<String, ImmutableOpenMap<String, MappingMetaData>> mappings = connection.getClient()
-                    .admin().indices().getMappings(
-                            new GetMappingsRequest()
-                                    .indices(ElasticsearchUtils.getIndices(table))
-                                    .types("metadata"))
-                    .actionGet()
-                    .mappings();
-
-            Map<String, String> rowKeys = Maps.newLinkedHashMap();
-            for(String id: ids) {
-                rowKeys.put(id, id);
-            }
-            if(!bypassMetalookup) {
-                SearchResponse response = connection.getClient().prepareSearch(ElasticsearchUtils.getIndices(table))
-                        .setTypes(ElasticsearchUtils.DOCUMENT_TYPE_NAME)
-                        .setQuery(
-                                QueryBuilders.constantScoreQuery(
-                                        FilterBuilders.inFilter(ElasticsearchUtils.DOCUMENT_META_ID_FIELD_NAME, ids.toArray(new String[ids.size()]))))
-                        .setFetchSource(false)
-                        .addField(ElasticsearchUtils.DOCUMENT_META_ID_FIELD_NAME) //Used for compatibility
-                        .setSize(ids.size())
-                        .execute()
-                        .actionGet();
-                for (SearchHit hit : response.getHits()) {
-                    final String id = hit.getFields().get(ElasticsearchUtils.DOCUMENT_META_ID_FIELD_NAME).getValue().toString();
-                    rowKeys.put(id,hit.getId());
-                }
-            }
-            logger.info("Get row keys: {}", rowKeys.size());
-            return dataStore.getAll(tableMetadataManager.get(table), ImmutableList.copyOf(rowKeys.values()));
-        } catch (DataStoreException ex) {
-            if (ex.getErrorCode().equals(DataStoreException.ErrorCode.STORE_NO_DATA_FOUND_FOR_IDS)) {
-                throw new QueryStoreException(QueryStoreException.ErrorCode.DOCUMENT_NOT_FOUND,
-                        ex.getMessage(), ex);
-            }
-            throw new QueryStoreException(QueryStoreException.ErrorCode.DOCUMENT_GET_ERROR,
-                    ex.getMessage(), ex);
-        } catch (Exception ex) {
-            throw new QueryStoreException(QueryStoreException.ErrorCode.DOCUMENT_GET_ERROR,
-                    ex.getMessage(), ex);
+        if (!tableMetadataManager.exists(table)) {
+            throw FoxtrotExceptions.createTableMissingException(table);
         }
+        Map<String, String> rowKeys = Maps.newLinkedHashMap();
+        for (String id : ids) {
+            rowKeys.put(id, id);
+        }
+        if (!bypassMetalookup) {
+            SearchResponse response = connection.getClient().prepareSearch(ElasticsearchUtils.getIndices(table))
+                    .setTypes(ElasticsearchUtils.DOCUMENT_TYPE_NAME)
+                    .setQuery(
+                            QueryBuilders.constantScoreQuery(
+                                    FilterBuilders.inFilter(ElasticsearchUtils.DOCUMENT_META_ID_FIELD_NAME, ids.toArray(new String[ids.size()]))))
+                    .setFetchSource(false)
+                    .addField(ElasticsearchUtils.DOCUMENT_META_ID_FIELD_NAME) // Used for compatibility
+                    .setSize(ids.size())
+                    .execute()
+                    .actionGet();
+            for (SearchHit hit : response.getHits()) {
+                final String id = hit.getFields().get(ElasticsearchUtils.DOCUMENT_META_ID_FIELD_NAME).getValue().toString();
+                rowKeys.put(id, hit.getId());
+            }
+        }
+        logger.info("Get row keys: {}", rowKeys.size());
+        return dataStore.getAll(tableMetadataManager.get(table), ImmutableList.copyOf(rowKeys.values()));
     }
 
     @Override
     @Timed
-    public TableFieldMapping getFieldMappings(String table) throws QueryStoreException {
+    public TableFieldMapping getFieldMappings(String table) throws FoxtrotException {
         table = ElasticsearchUtils.getValidTableName(table);
-        try {
-            if (!tableMetadataManager.exists(table)) {
-                throw new QueryStoreException(QueryStoreException.ErrorCode.NO_SUCH_TABLE,
-                        "No table exists with the name: " + table);
-            }
 
+        if (!tableMetadataManager.exists(table)) {
+            throw FoxtrotExceptions.createTableMissingException(table);
+        }
+        try {
             ElasticsearchMappingParser mappingParser = new ElasticsearchMappingParser(mapper);
-            Set<FieldTypeMapping> mappings = new HashSet<FieldTypeMapping>();
+            Set<FieldTypeMapping> mappings = new HashSet<>();
             GetMappingsResponse mappingsResponse = connection.getClient().admin()
                     .indices().prepareGetMappings(ElasticsearchUtils.getIndices(table)).execute().actionGet();
 
@@ -322,38 +252,26 @@ public class ElasticsearchQueryStore implements QueryStore {
                 mappings.addAll(mappingParser.getFieldMappings(mappingData));
             }
             return new TableFieldMapping(table, mappings);
-        } catch (QueryStoreException ex) {
-            throw ex;
-        } catch (Exception ex) {
-            throw new QueryStoreException(QueryStoreException.ErrorCode.METADATA_FETCH_ERROR,
-                    ex.getMessage(), ex);
+        } catch (IOException e) {
+            throw FoxtrotExceptions.createExecutionException(table, e);
         }
     }
 
     @Override
-    public void cleanupAll() throws QueryStoreException {
-        Set<String> tables = new HashSet<String>();
-        try {
-            for (Table table : tableMetadataManager.get()) {
-                tables.add(table.getName());
-            }
-        } catch (Exception ex) {
-            logger.error("Unable to fetch table names for deletion.", ex);
-            throw new QueryStoreException(QueryStoreException.ErrorCode.TABLE_LIST_FETCH_ERROR,
-                    "Unable to fetch table names for deletion", ex);
-        }
+    public void cleanupAll() throws FoxtrotException {
+        Set<String> tables = tableMetadataManager.get().stream().map(Table::getName).collect(Collectors.toSet());
         cleanup(tables);
     }
 
     @Override
     @Timed
-    public void cleanup(final String table) throws QueryStoreException {
+    public void cleanup(final String table) throws FoxtrotException {
         cleanup(ImmutableSet.of(table));
     }
 
     @Override
     @Timed
-    public void cleanup(Set<String> tables) throws QueryStoreException {
+    public void cleanup(Set<String> tables) throws FoxtrotException {
         List<String> indicesToDelete = new ArrayList<String>();
         try {
             IndicesStatusResponse response = connection.getClient().admin().indices().prepareStatus().execute().actionGet();
@@ -387,19 +305,15 @@ public class ElasticsearchQueryStore implements QueryStore {
                     }
                 }
             }
-        } catch (Exception ex) {
-            logger.error(String.format("Unable to delete Indexes - %s", indicesToDelete), ex);
-            throw new QueryStoreException(QueryStoreException.ErrorCode.DATA_CLEANUP_ERROR,
-                    String.format("Unable to delete Indexes - %s", indicesToDelete), ex);
+        } catch (Exception e) {
+            throw FoxtrotExceptions.createDataCleanupException(String.format("Index Deletion Failed indexes - %s", indicesToDelete), e);
         }
     }
 
-    private String convert(Document translatedDocuement) {
-        JsonNode metaNode = mapper.valueToTree(translatedDocuement.getMetadata());
-        ObjectNode dataNode = translatedDocuement.getData().deepCopy();
+    private String convert(Document translatedDocument) {
+        JsonNode metaNode = mapper.valueToTree(translatedDocument.getMetadata());
+        ObjectNode dataNode = translatedDocument.getData().deepCopy();
         dataNode.put(ElasticsearchUtils.DOCUMENT_META_FIELD_NAME, metaNode);
         return dataNode.toString();
     }
-
-
 }

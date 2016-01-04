@@ -119,7 +119,7 @@ public class TableMapStoreTest {
 
     @Test
     public void testStoreAll() throws Exception {
-        Map<String, Table> tables = new HashMap<String, Table>();
+        Map<String, Table> tables = Maps.newHashMap();
         for (int i = 0; i < 10; i++) {
             Table table = new Table();
             table.setName(UUID.randomUUID().toString());
@@ -150,7 +150,7 @@ public class TableMapStoreTest {
 
     @Test(expected = RuntimeException.class)
     public void testStoreAllNullTableKey() throws Exception {
-        Map<String, Table> tables = new HashMap<String, Table>();
+        Map<String, Table> tables = Maps.newHashMap();
         for (int i = 0; i < 10; i++) {
             Table table = new Table();
             table.setName(UUID.randomUUID().toString());
@@ -162,7 +162,7 @@ public class TableMapStoreTest {
 
     @Test(expected = RuntimeException.class)
     public void testStoreAllNullTableValue() throws Exception {
-        Map<String, Table> tables = new HashMap<String, Table>();
+        Map<String, Table> tables = Maps.newHashMap();
         for (int i = 0; i < 10; i++) {
             tables.put(UUID.randomUUID().toString(), null);
         }
@@ -171,7 +171,7 @@ public class TableMapStoreTest {
 
     @Test(expected = RuntimeException.class)
     public void testStoreAllNullTableKeyValue() throws Exception {
-        Map<String, Table> tables = new HashMap<String, Table>();
+        Map<String, Table> tables = Maps.newHashMap();
         for (int i = 0; i < 10; i++) {
             tables.put(null, null);
         }
@@ -180,7 +180,7 @@ public class TableMapStoreTest {
 
     @Test(expected = RuntimeException.class)
     public void testStoreAllSomeNullKeys() throws Exception {
-        Map<String, Table> tables = new HashMap<String, Table>();
+        Map<String, Table> tables = Maps.newHashMap();
         for (int i = 0; i < 10; i++) {
             Table table = new Table();
             table.setName(UUID.randomUUID().toString());
@@ -197,7 +197,7 @@ public class TableMapStoreTest {
 
     @Test(expected = RuntimeException.class)
     public void testStoreAllSomeNullValues() throws Exception {
-        Map<String, Table> tables = new HashMap<String, Table>();
+        Map<String, Table> tables = Maps.newHashMap();
         for (int i = 0; i < 10; i++) {
             Table table = new Table();
             table.setName(UUID.randomUUID().toString());
@@ -214,7 +214,7 @@ public class TableMapStoreTest {
 
     @Test(expected = RuntimeException.class)
     public void testStoreAllSomeNullKeyValues() throws Exception {
-        Map<String, Table> tables = new HashMap<String, Table>();
+        Map<String, Table> tables = Maps.newHashMap();
         for (int i = 0; i < 10; i++) {
             Table table = new Table();
             table.setName(UUID.randomUUID().toString());
@@ -264,7 +264,7 @@ public class TableMapStoreTest {
 
     @Test
     public void testDeleteAll() throws Exception {
-        Map<String, Table> tables = new HashMap<String, Table>();
+        Map<String, Table> tables = Maps.newHashMap();
         for (int i = 0; i < 10; i++) {
             Table table = new Table();
             table.setName(UUID.randomUUID().toString());
@@ -358,7 +358,7 @@ public class TableMapStoreTest {
 
     @Test
     public void testLoadAll() throws Exception {
-        Map<String, Table> tables = new HashMap<String, Table>();
+        Map<String, Table> tables = Maps.newHashMap();
         for (int i = 0; i < 10; i++) {
             Table table = new Table();
             table.setName(UUID.randomUUID().toString());
@@ -405,7 +405,7 @@ public class TableMapStoreTest {
 
     @Test
     public void testLoadAllKeys() throws Exception {
-        Map<String, Table> tables = new HashMap<String, Table>();
+        Map<String, Table> tables = Maps.newHashMap();
         for (int i = 0; i < 10; i++) {
             Table table = new Table();
             table.setName(UUID.randomUUID().toString());

@@ -15,30 +15,6 @@
  */
 package com.flipkart.foxtrot.core.querystore.actions;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.when;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-import java.util.Vector;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-
-import org.elasticsearch.action.admin.indices.get.GetIndexRequest;
-import org.elasticsearch.action.admin.indices.get.GetIndexResponse;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.mockito.Mockito;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -50,29 +26,38 @@ import com.flipkart.foxtrot.common.query.ResultSort;
 import com.flipkart.foxtrot.common.query.general.AnyFilter;
 import com.flipkart.foxtrot.common.query.general.EqualsFilter;
 import com.flipkart.foxtrot.common.query.general.NotEqualsFilter;
-import com.flipkart.foxtrot.common.query.numeric.BetweenFilter;
-import com.flipkart.foxtrot.common.query.numeric.GreaterEqualFilter;
-import com.flipkart.foxtrot.common.query.numeric.GreaterThanFilter;
-import com.flipkart.foxtrot.common.query.numeric.LessEqualFilter;
-import com.flipkart.foxtrot.common.query.numeric.LessThanFilter;
+import com.flipkart.foxtrot.common.query.numeric.*;
 import com.flipkart.foxtrot.common.query.string.ContainsFilter;
 import com.flipkart.foxtrot.core.MockElasticsearchServer;
 import com.flipkart.foxtrot.core.TestUtils;
 import com.flipkart.foxtrot.core.common.CacheUtils;
 import com.flipkart.foxtrot.core.datastore.DataStore;
+import com.flipkart.foxtrot.core.exception.FoxtrotException;
 import com.flipkart.foxtrot.core.querystore.QueryExecutor;
 import com.flipkart.foxtrot.core.querystore.QueryStore;
-import com.flipkart.foxtrot.core.querystore.QueryStoreException;
-import com.flipkart.foxtrot.core.table.TableMetadataManager;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsLoader;
-import com.flipkart.foxtrot.core.querystore.impl.DistributedCacheFactory;
-import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConnection;
-import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchQueryStore;
-import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
-import com.flipkart.foxtrot.core.querystore.impl.HazelcastConnection;
+import com.flipkart.foxtrot.core.querystore.impl.*;
+import com.flipkart.foxtrot.core.table.TableMetadataManager;
 import com.google.common.collect.Lists;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.test.TestHazelcastInstanceFactory;
+import org.elasticsearch.action.admin.indices.get.GetIndexRequest;
+import org.elasticsearch.action.admin.indices.get.GetIndexResponse;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Ignore;
+import org.junit.Test;
+import org.mockito.Mockito;
+
+import java.io.IOException;
+import java.util.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.when;
 
 /**
  * Created by rishabh.goyal on 28/04/14.
@@ -126,8 +111,8 @@ public class FilterActionTest {
         hazelcastInstance.shutdown();
     }
 
-    @Test(expected = QueryStoreException.class)
-    public void testQueryException() throws QueryStoreException, JsonProcessingException {
+    @Test(expected = FoxtrotException.class)
+    public void testQueryException() throws FoxtrotException, JsonProcessingException {
         Query query = new Query();
         query.setTable(TestUtils.TEST_TABLE_NAME);
         ResultSort resultSort = new ResultSort();
@@ -139,7 +124,7 @@ public class FilterActionTest {
     }
 
     @Test
-    public void testQueryNoFilterAscending() throws QueryStoreException, JsonProcessingException {
+    public void testQueryNoFilterAscending() throws FoxtrotException, JsonProcessingException {
         Query query = new Query();
         query.setTable(TestUtils.TEST_TABLE_NAME);
         ResultSort resultSort = new ResultSort();
@@ -163,7 +148,7 @@ public class FilterActionTest {
     }
 
     @Test
-    public void testQueryNoFilterDescending() throws QueryStoreException, JsonProcessingException {
+    public void testQueryNoFilterDescending() throws FoxtrotException, JsonProcessingException {
         Query query = new Query();
         query.setTable(TestUtils.TEST_TABLE_NAME);
         ResultSort resultSort = new ResultSort();
@@ -187,7 +172,7 @@ public class FilterActionTest {
     }
 
     @Test
-    public void testQueryNoFilterWithLimit() throws QueryStoreException, JsonProcessingException {
+    public void testQueryNoFilterWithLimit() throws FoxtrotException, JsonProcessingException {
         Query query = new Query();
         query.setTable(TestUtils.TEST_TABLE_NAME);
         query.setLimit(2);
@@ -203,9 +188,9 @@ public class FilterActionTest {
         QueryResponse actualResponse = QueryResponse.class.cast(queryExecutor.execute(query));
         compare(documents, actualResponse.getDocuments());
     }
-    
+
     @Test
-    public void testQueryTotalHitsWithLimit() throws QueryStoreException, JsonProcessingException {
+    public void testQueryTotalHitsWithLimit() throws FoxtrotException, JsonProcessingException {
         Query query = new Query();
         query.setTable(TestUtils.TEST_TABLE_NAME);
         query.setLimit(2);
@@ -224,7 +209,7 @@ public class FilterActionTest {
     }
 
     @Test
-    public void testQueryAnyFilter() throws QueryStoreException, JsonProcessingException {
+    public void testQueryAnyFilter() throws FoxtrotException, JsonProcessingException {
         Query query = new Query();
         query.setTable(TestUtils.TEST_TABLE_NAME);
 
@@ -252,7 +237,7 @@ public class FilterActionTest {
     }
 
     @Test
-    public void testQueryEqualsFilter() throws QueryStoreException, JsonProcessingException {
+    public void testQueryEqualsFilter() throws FoxtrotException, JsonProcessingException {
         Query query = new Query();
         query.setTable(TestUtils.TEST_TABLE_NAME);
 
@@ -275,7 +260,7 @@ public class FilterActionTest {
     }
 
     @Test
-    public void testQueryNotEqualsFilter() throws QueryStoreException, JsonProcessingException {
+    public void testQueryNotEqualsFilter() throws FoxtrotException, JsonProcessingException {
         Query query = new Query();
         query.setTable(TestUtils.TEST_TABLE_NAME);
         query.setLimit(3);
@@ -300,7 +285,7 @@ public class FilterActionTest {
     }
 
     @Test
-    public void testQueryGreaterThanFilter() throws QueryStoreException, JsonProcessingException {
+    public void testQueryGreaterThanFilter() throws FoxtrotException, JsonProcessingException {
         Query query = new Query();
         query.setTable(TestUtils.TEST_TABLE_NAME);
         query.setLimit(3);
@@ -324,7 +309,7 @@ public class FilterActionTest {
     }
 
     @Test
-    public void testQueryGreaterEqualFilter() throws QueryStoreException, JsonProcessingException {
+    public void testQueryGreaterEqualFilter() throws FoxtrotException, JsonProcessingException {
         Query query = new Query();
         query.setTable(TestUtils.TEST_TABLE_NAME);
         query.setLimit(3);
@@ -349,7 +334,7 @@ public class FilterActionTest {
     }
 
     @Test
-    public void testQueryLessThanFilter() throws QueryStoreException, JsonProcessingException {
+    public void testQueryLessThanFilter() throws FoxtrotException, JsonProcessingException {
         Query query = new Query();
         query.setTable(TestUtils.TEST_TABLE_NAME);
         query.setLimit(3);
@@ -371,7 +356,7 @@ public class FilterActionTest {
     }
 
     @Test
-    public void testQueryLessEqualFilter() throws QueryStoreException, JsonProcessingException {
+    public void testQueryLessEqualFilter() throws FoxtrotException, JsonProcessingException {
         Query query = new Query();
         query.setTable(TestUtils.TEST_TABLE_NAME);
         query.setLimit(3);
@@ -394,7 +379,7 @@ public class FilterActionTest {
     }
 
     @Test
-    public void testQueryBetweenFilter() throws QueryStoreException, JsonProcessingException {
+    public void testQueryBetweenFilter() throws FoxtrotException, JsonProcessingException {
         Query query = new Query();
         query.setTable(TestUtils.TEST_TABLE_NAME);
         query.setLimit(3);
@@ -418,7 +403,7 @@ public class FilterActionTest {
     }
 
     @Test
-    public void testQueryContainsFilter() throws QueryStoreException, JsonProcessingException {
+    public void testQueryContainsFilter() throws FoxtrotException, JsonProcessingException {
         Query query = new Query();
         query.setTable(TestUtils.TEST_TABLE_NAME);
 
@@ -446,7 +431,7 @@ public class FilterActionTest {
     }
 
     @Test
-    public void testQueryEmptyResult() throws QueryStoreException, JsonProcessingException {
+    public void testQueryEmptyResult() throws FoxtrotException, JsonProcessingException {
         Query query = new Query();
         query.setTable(TestUtils.TEST_TABLE_NAME);
 
@@ -461,7 +446,7 @@ public class FilterActionTest {
     }
 
     @Test
-    public void testQueryMultipleFiltersEmptyResult() throws QueryStoreException, JsonProcessingException {
+    public void testQueryMultipleFiltersEmptyResult() throws FoxtrotException, JsonProcessingException {
         Query query = new Query();
         query.setTable(TestUtils.TEST_TABLE_NAME);
 
@@ -484,7 +469,7 @@ public class FilterActionTest {
     }
 
     @Test
-    public void testQueryMultipleFiltersAndCombiner() throws QueryStoreException, JsonProcessingException {
+    public void testQueryMultipleFiltersAndCombiner() throws FoxtrotException, JsonProcessingException {
         Query query = new Query();
         query.setTable(TestUtils.TEST_TABLE_NAME);
 
@@ -509,7 +494,7 @@ public class FilterActionTest {
 
     @Ignore
     @Test
-    public void testQueryMultipleFiltersOrCombiner() throws QueryStoreException, JsonProcessingException {
+    public void testQueryMultipleFiltersOrCombiner() throws FoxtrotException, JsonProcessingException {
         Query query = new Query();
         query.setTable(TestUtils.TEST_TABLE_NAME);
 
@@ -546,7 +531,7 @@ public class FilterActionTest {
     }
 
     @Test
-    public void testQueryPagination() throws QueryStoreException, JsonProcessingException {
+    public void testQueryPagination() throws FoxtrotException, JsonProcessingException {
         Query query = new Query();
         query.setTable(TestUtils.TEST_TABLE_NAME);
 
@@ -599,7 +584,7 @@ public class FilterActionTest {
 //    }
 
     @Test
-    public void testQueryNullFilters() throws QueryStoreException, JsonProcessingException, InterruptedException {
+    public void testQueryNullFilters() throws FoxtrotException, JsonProcessingException, InterruptedException {
         Query query = new Query();
         query.setTable(TestUtils.TEST_TABLE_NAME);
         query.setFilters(null);
@@ -625,7 +610,7 @@ public class FilterActionTest {
 
     @Ignore
     @Test
-    public void testQueryNullCombiner() throws QueryStoreException, JsonProcessingException, InterruptedException {
+    public void testQueryNullCombiner() throws FoxtrotException, JsonProcessingException, InterruptedException {
         Query query = new Query();
         query.setTable(TestUtils.TEST_TABLE_NAME);
         query.setFilters(new ArrayList<Filter>());
@@ -650,7 +635,7 @@ public class FilterActionTest {
     }
 
     @Test
-    public void testQueryNullSort() throws QueryStoreException, JsonProcessingException, InterruptedException {
+    public void testQueryNullSort() throws FoxtrotException, JsonProcessingException, InterruptedException {
         Query query = new Query();
         query.setTable(TestUtils.TEST_TABLE_NAME);
         query.setFilters(new ArrayList<Filter>());
@@ -673,7 +658,7 @@ public class FilterActionTest {
 
     //TODO How to verify if cached data is returned.
     @Test
-    public void testQueryCaching() throws QueryStoreException, JsonProcessingException {
+    public void testQueryCaching() throws FoxtrotException, JsonProcessingException {
         Query query = new Query();
         query.setTable(TestUtils.TEST_TABLE_NAME);
 
@@ -698,7 +683,7 @@ public class FilterActionTest {
 
     @SuppressWarnings("deprecation")
     @Test
-    public void testMissingIndicesQuery() throws QueryStoreException {
+    public void testMissingIndicesQuery() throws FoxtrotException {
         List<Document> documents = TestUtils.getQueryDocumentsDifferentDate(mapper, new Date(2014 - 1900, 4, 1).getTime());
         documents.addAll(TestUtils.getQueryDocumentsDifferentDate(mapper, new Date(2014 - 1900, 4, 5).getTime()));
         queryStore.save(TestUtils.TEST_TABLE_NAME, documents);
@@ -716,18 +701,18 @@ public class FilterActionTest {
         BetweenFilter betweenFilter = new BetweenFilter();
         betweenFilter.setField("_timestamp");
         betweenFilter.setFrom(documents.get(0).getTimestamp());
-        betweenFilter.setTo(documents.get(documents.size() -1).getTimestamp());
+        betweenFilter.setTo(documents.get(documents.size() - 1).getTimestamp());
         betweenFilter.setTemporal(true);
         query.setFilters(Lists.<Filter>newArrayList(betweenFilter));
-        
+
         QueryResponse actualResponse = QueryResponse.class.cast(queryExecutor.execute(query));
         assertEquals(documents.size(), actualResponse.getDocuments().size());
     }
 
-    
-    public void compare(List<Document> expectedDocuments, List<Document> actualDocuments){
+
+    public void compare(List<Document> expectedDocuments, List<Document> actualDocuments) {
         assertEquals(expectedDocuments.size(), actualDocuments.size());
-        for (int i = 0 ; i < expectedDocuments.size(); i++){
+        for (int i = 0; i < expectedDocuments.size(); i++) {
             Document expected = expectedDocuments.get(i);
             Document actual = actualDocuments.get(i);
             assertNotNull(expected);
@@ -736,8 +721,10 @@ public class FilterActionTest {
             assertNotNull("Actual document data should not be null", actual.getData());
             assertEquals("Actual Doc Id should match expected Doc Id", expected.getId(), actual.getId());
             assertEquals("Actual Doc Timestamp should match expected Doc Timestamp", expected.getTimestamp(), actual.getTimestamp());
-            Map<String, Object> expectedMap = mapper.convertValue(expected.getData(), new TypeReference<HashMap<String, Object>>() {});
-            Map<String, Object> actualMap = mapper.convertValue(actual.getData(), new TypeReference<HashMap<String, Object>>() {});
+            Map<String, Object> expectedMap = mapper.convertValue(expected.getData(), new TypeReference<HashMap<String, Object>>() {
+            });
+            Map<String, Object> actualMap = mapper.convertValue(actual.getData(), new TypeReference<HashMap<String, Object>>() {
+            });
             assertEquals("Actual data should match expected data", expectedMap, actualMap);
         }
     }

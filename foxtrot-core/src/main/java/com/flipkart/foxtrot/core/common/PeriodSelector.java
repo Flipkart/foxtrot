@@ -43,8 +43,8 @@ public class PeriodSelector extends FilterVisitor {
     }
 
     public Interval analyze(long currentTime) throws Exception {
-        for(Filter filter : filters) {
-            if(filter.isTemporal()) {
+        for (Filter filter : filters) {
+            if (filter.isTemporal()) {
                 filter.accept(this);
             }
         }
@@ -114,7 +114,7 @@ public class PeriodSelector extends FilterVisitor {
     }
 
     @Override
-    public void visit(MissingFilter missingFilter) throws Exception{
-        
+    public void visit(MissingFilter missingFilter) throws Exception {
+
     }
 }

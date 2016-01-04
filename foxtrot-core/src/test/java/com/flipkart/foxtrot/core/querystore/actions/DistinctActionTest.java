@@ -10,12 +10,12 @@ import com.flipkart.foxtrot.core.MockElasticsearchServer;
 import com.flipkart.foxtrot.core.TestUtils;
 import com.flipkart.foxtrot.core.common.CacheUtils;
 import com.flipkart.foxtrot.core.datastore.DataStore;
+import com.flipkart.foxtrot.core.exception.FoxtrotException;
 import com.flipkart.foxtrot.core.querystore.QueryExecutor;
 import com.flipkart.foxtrot.core.querystore.QueryStore;
-import com.flipkart.foxtrot.core.querystore.QueryStoreException;
-import com.flipkart.foxtrot.core.table.TableMetadataManager;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsLoader;
 import com.flipkart.foxtrot.core.querystore.impl.*;
+import com.flipkart.foxtrot.core.table.TableMetadataManager;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.test.TestHazelcastInstanceFactory;
 import org.junit.After;
@@ -86,7 +86,7 @@ public class DistinctActionTest {
 
 
     @Test
-    public void testDistinctAsc() throws QueryStoreException {
+    public void testDistinctAsc() throws FoxtrotException {
         DistinctRequest distinctRequest = new DistinctRequest();
         distinctRequest.setTable(TestUtils.TEST_TABLE_NAME);
         ResultSort resultSort = new ResultSort();
@@ -109,7 +109,7 @@ public class DistinctActionTest {
     }
 
     @Test
-    public void testDistinctDesc() throws QueryStoreException {
+    public void testDistinctDesc() throws FoxtrotException {
         DistinctRequest distinctRequest = new DistinctRequest();
         distinctRequest.setTable(TestUtils.TEST_TABLE_NAME);
         ResultSort resultSort = new ResultSort();
@@ -132,7 +132,7 @@ public class DistinctActionTest {
     }
 
     @Test
-    public void testDistinctMultipleNestingAscAsc() throws QueryStoreException, JsonProcessingException {
+    public void testDistinctMultipleNestingAscAsc() throws FoxtrotException, JsonProcessingException {
         DistinctRequest distinctRequest = new DistinctRequest();
         distinctRequest.setTable(TestUtils.TEST_TABLE_NAME);
 
@@ -165,7 +165,7 @@ public class DistinctActionTest {
     }
 
     @Test
-    public void testDistinctMultipleNestingAscDesc() throws QueryStoreException, JsonProcessingException {
+    public void testDistinctMultipleNestingAscDesc() throws FoxtrotException, JsonProcessingException {
         DistinctRequest distinctRequest = new DistinctRequest();
         distinctRequest.setTable(TestUtils.TEST_TABLE_NAME);
 

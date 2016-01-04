@@ -29,9 +29,9 @@ import com.flipkart.foxtrot.core.common.CacheUtils;
 import com.flipkart.foxtrot.core.datastore.DataStore;
 import com.flipkart.foxtrot.core.querystore.QueryExecutor;
 import com.flipkart.foxtrot.core.querystore.QueryStore;
-import com.flipkart.foxtrot.core.table.TableMetadataManager;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsLoader;
 import com.flipkart.foxtrot.core.querystore.impl.*;
+import com.flipkart.foxtrot.core.table.TableMetadataManager;
 import com.flipkart.foxtrot.core.table.impl.TableMapStore;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.test.TestHazelcastInstanceFactory;
@@ -51,8 +51,7 @@ import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.Assert.*;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.when;
 
@@ -133,16 +132,29 @@ public class AsyncResourceTest extends ResourceTest {
 
         Map<String, Object> expectedResponse = new LinkedHashMap<String, Object>();
 
-        final Map<String, Object> nexusResponse = new LinkedHashMap<String, Object>(){{ put("1", 2); put("2", 2); put("3", 1); }};
-        final Map<String, Object> galaxyResponse = new LinkedHashMap<String, Object>(){{ put("2", 1); put("3", 1); }};
+        final Map<String, Object> nexusResponse = new LinkedHashMap<String, Object>() {{
+            put("1", 2);
+            put("2", 2);
+            put("3", 1);
+        }};
+        final Map<String, Object> galaxyResponse = new LinkedHashMap<String, Object>() {{
+            put("2", 1);
+            put("3", 1);
+        }};
         expectedResponse.put("android", new LinkedHashMap<String, Object>() {{
             put("nexus", nexusResponse);
             put("galaxy", galaxyResponse);
         }});
 
-        final Map<String, Object> nexusResponse2 = new LinkedHashMap<String, Object>(){{ put("2", 1);}};
-        final Map<String, Object> iPadResponse = new LinkedHashMap<String, Object>(){{ put("2", 2); }};
-        final Map<String, Object> iPhoneResponse = new LinkedHashMap<String, Object>(){{ put("1", 1); }};
+        final Map<String, Object> nexusResponse2 = new LinkedHashMap<String, Object>() {{
+            put("2", 1);
+        }};
+        final Map<String, Object> iPadResponse = new LinkedHashMap<String, Object>() {{
+            put("2", 2);
+        }};
+        final Map<String, Object> iPhoneResponse = new LinkedHashMap<String, Object>() {{
+            put("1", 1);
+        }};
         expectedResponse.put("ios", new LinkedHashMap<String, Object>() {{
             put("nexus", nexusResponse2);
             put("ipad", iPadResponse);
@@ -198,16 +210,29 @@ public class AsyncResourceTest extends ResourceTest {
 
         Map<String, Object> expectedResponse = new LinkedHashMap<String, Object>();
 
-        final Map<String, Object> nexusResponse = new LinkedHashMap<String, Object>(){{ put("1", 2); put("2", 2); put("3", 1); }};
-        final Map<String, Object> galaxyResponse = new LinkedHashMap<String, Object>(){{ put("2", 1); put("3", 1); }};
+        final Map<String, Object> nexusResponse = new LinkedHashMap<String, Object>() {{
+            put("1", 2);
+            put("2", 2);
+            put("3", 1);
+        }};
+        final Map<String, Object> galaxyResponse = new LinkedHashMap<String, Object>() {{
+            put("2", 1);
+            put("3", 1);
+        }};
         expectedResponse.put("android", new LinkedHashMap<String, Object>() {{
             put("nexus", nexusResponse);
             put("galaxy", galaxyResponse);
         }});
 
-        final Map<String, Object> nexusResponse2 = new LinkedHashMap<String, Object>(){{ put("2", 1);}};
-        final Map<String, Object> iPadResponse = new LinkedHashMap<String, Object>(){{ put("2", 2); }};
-        final Map<String, Object> iPhoneResponse = new LinkedHashMap<String, Object>(){{ put("1", 1); }};
+        final Map<String, Object> nexusResponse2 = new LinkedHashMap<String, Object>() {{
+            put("2", 1);
+        }};
+        final Map<String, Object> iPadResponse = new LinkedHashMap<String, Object>() {{
+            put("2", 2);
+        }};
+        final Map<String, Object> iPhoneResponse = new LinkedHashMap<String, Object>() {{
+            put("1", 1);
+        }};
         expectedResponse.put("ios", new LinkedHashMap<String, Object>() {{
             put("nexus", nexusResponse2);
             put("ipad", iPadResponse);
@@ -235,13 +260,12 @@ public class AsyncResourceTest extends ResourceTest {
     @Test
     public void testGetResponsePostInvalidAction() throws Exception {
         AsyncDataToken dataToken = new AsyncDataToken(null, UUID.randomUUID().toString());
-
         try {
             client().resource("/v1/async")
                     .type(MediaType.APPLICATION_JSON_TYPE)
                     .post(GroupResponse.class, dataToken);
-        } catch (UniformInterfaceException ex) {
-            assertEquals(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode(), ex.getResponse().getStatus());
+            fail();
+        } catch (NullPointerException ex) {
         }
     }
 }

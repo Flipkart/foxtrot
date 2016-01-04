@@ -23,15 +23,16 @@ import com.flipkart.foxtrot.core.MockElasticsearchServer;
 import com.flipkart.foxtrot.core.TestUtils;
 import com.flipkart.foxtrot.core.common.CacheUtils;
 import com.flipkart.foxtrot.core.datastore.DataStore;
-import com.flipkart.foxtrot.core.querystore.QueryExecutor;
+import com.flipkart.foxtrot.core.exception.FoxtrotException;
 import com.flipkart.foxtrot.core.querystore.QueryStore;
-import com.flipkart.foxtrot.core.table.TableMetadataManager;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsLoader;
 import com.flipkart.foxtrot.core.querystore.impl.*;
+import com.flipkart.foxtrot.core.table.TableMetadataManager;
 import com.flipkart.foxtrot.core.table.impl.TableMapStore;
+import com.flipkart.foxtrot.server.providers.exception.FoxtrotExceptionMapper;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.test.TestHazelcastInstanceFactory;
-import com.sun.jersey.api.client.UniformInterfaceException;
+import com.sun.jersey.api.client.ClientResponse;
 import com.yammer.dropwizard.testing.ResourceTest;
 import org.elasticsearch.action.admin.indices.create.CreateIndexRequest;
 import org.elasticsearch.common.settings.ImmutableSettings;
@@ -89,14 +90,13 @@ public class TableFieldMappingResourceTest extends ResourceTest {
 
         AnalyticsLoader analyticsLoader = new AnalyticsLoader(tableMetadataManager, dataStore, queryStore, elasticsearchConnection);
         TestUtils.registerActions(analyticsLoader, mapper);
-        ExecutorService executorService = Executors.newFixedThreadPool(1);
-        QueryExecutor queryExecutor = new QueryExecutor(analyticsLoader, executorService);
         queryStore = new ElasticsearchQueryStore(tableMetadataManager, elasticsearchConnection, dataStore);
     }
 
     @Override
     protected void setUpResources() throws Exception {
         addResource(new TableFieldMappingResource(queryStore));
+        addProvider(FoxtrotExceptionMapper.class);
     }
 
     @After
@@ -125,15 +125,16 @@ public class TableFieldMappingResourceTest extends ResourceTest {
         assertTrue(tableFieldMapping.getMappings().equals(mapping.getMappings()));
     }
 
-    @Test(expected = UniformInterfaceException.class)
+    @Test
     public void testGetInvalidTable() throws Exception {
-        client().resource(String.format("/v1/tables/%s/fields", TestUtils.TEST_TABLE_NAME + "-missing"))
-                .get(String.class);
+        ClientResponse clientResponse = client().resource(
+                String.format("/v1/tables/%s/fields", TestUtils.TEST_TABLE_NAME + "-missing")).head();
+        assertEquals(ClientResponse.Status.NOT_FOUND, clientResponse.getClientResponseStatus());
     }
 
     @Test
     public void testGetTableWithNoDocument() throws Exception {
-        TableFieldMapping request = new TableFieldMapping(TestUtils.TEST_TABLE_NAME, new HashSet<FieldTypeMapping>());
+        TableFieldMapping request = new TableFieldMapping(TestUtils.TEST_TABLE_NAME, new HashSet<>());
         TableFieldMapping response = client().resource(String.format("/v1/tables/%s/fields", TestUtils.TEST_TABLE_NAME))
                 .get(TableFieldMapping.class);
 

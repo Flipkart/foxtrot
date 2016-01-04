@@ -1,12 +1,12 @@
 /**
  * Copyright 2014 Flipkart Internet Pvt. Ltd.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -16,6 +16,7 @@
 package com.flipkart.foxtrot.server.console;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.flipkart.foxtrot.core.exception.FoxtrotException;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConnection;
 import org.elasticsearch.action.WriteConsistencyLevel;
 import org.elasticsearch.action.get.GetResponse;
@@ -49,7 +50,7 @@ public class ElasticsearchConsolePersistence implements ConsolePersistence {
     }
 
     @Override
-    public void save(final Console console) throws ConsolePersistenceException {
+    public void save(final Console console) throws FoxtrotException {
         try {
             connection.getClient()
                     .prepareIndex()
@@ -63,12 +64,12 @@ public class ElasticsearchConsolePersistence implements ConsolePersistence {
                     .get();
             logger.info(String.format("Saved Console : %s", console));
         } catch (Exception e) {
-            throw new ConsolePersistenceException("Error saving console: " + console.getId(), e);
+            throw new ConsolePersistenceException(console.getId(), "console save failed", e);
         }
     }
 
     @Override
-    public Console get(final String id) throws ConsolePersistenceException {
+    public Console get(final String id) throws FoxtrotException {
         try {
             GetResponse result = connection.getClient()
                     .prepareGet()
@@ -77,17 +78,17 @@ public class ElasticsearchConsolePersistence implements ConsolePersistence {
                     .setId(id)
                     .execute()
                     .actionGet();
-            if(!result.isExists()) {
+            if (!result.isExists()) {
                 return null;
             }
             return mapper.readValue(result.getSourceAsBytes(), Console.class);
         } catch (Exception e) {
-            throw new ConsolePersistenceException("Error saving console: " + id, e);
+            throw new ConsolePersistenceException(id, "console save failed", e);
         }
     }
 
     @Override
-    public void delete(final String id) throws ConsolePersistenceException {
+    public void delete(final String id) throws FoxtrotException {
         try {
             connection.getClient()
                     .prepareDelete()
@@ -99,13 +100,13 @@ public class ElasticsearchConsolePersistence implements ConsolePersistence {
                     .execute()
                     .actionGet();
             logger.info(String.format("Deleted Console : %s", id));
-        } catch (Exception e){
-            throw new ConsolePersistenceException("Error Deleting Console : " + id, e);
+        } catch (Exception e) {
+            throw new ConsolePersistenceException(id, "console deletion_failed", e);
         }
     }
 
     @Override
-    public List<Console> get() throws ConsolePersistenceException {
+    public List<Console> get() throws FoxtrotException {
         SearchResponse response = connection.getClient().prepareSearch(INDEX)
                 .setTypes(TYPE)
                 .setQuery(boolQuery().must(matchAllQuery()))
@@ -122,16 +123,16 @@ public class ElasticsearchConsolePersistence implements ConsolePersistence {
                         .execute()
                         .actionGet();
                 SearchHits hits = response.getHits();
-                for(SearchHit hit:hits) {
+                for (SearchHit hit : hits) {
                     results.add(mapper.readValue(hit.sourceAsString(), Console.class));
                 }
-                if(0 == response.getHits().hits().length) {
+                if (0 == response.getHits().hits().length) {
                     break;
                 }
             }
             return results;
         } catch (Exception e) {
-            throw new ConsolePersistenceException("Error getting consoles: ", e);
+            throw new ConsoleFetchException(e);
         }
     }
 }

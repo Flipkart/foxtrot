@@ -66,8 +66,8 @@ public class FqlEngine {
         public void visit(FqlDescribeTable fqlDescribeTable) throws Exception {
             TableFieldMapping fieldMetaData = queryStore.getFieldMappings(fqlDescribeTable.getTableName());
             result = FlatteningUtils.genericMultiRowParse(
-                                                mapper.valueToTree(fieldMetaData.getMappings()),
-                                                Lists.newArrayList("field", "type"), "field");
+                    mapper.valueToTree(fieldMetaData.getMappings()),
+                    Lists.newArrayList("field", "type"), "field");
         }
 
         @Override
@@ -83,11 +83,7 @@ public class FqlEngine {
             logger.info("Generated query: " + mapper.writeValueAsString(fqlActionQuery.getActionRequest()));
             ActionResponse actionResponse = queryExecutor.execute(fqlActionQuery.getActionRequest());
             Flattener flattener = new Flattener(mapper, fqlActionQuery.getActionRequest(), fqlActionQuery.getSelectedFields());
-            try {
-                actionResponse.accept(flattener);
-            } catch (Throwable t) {
-                logger.error("Error running query: ", t);
-            }
+            actionResponse.accept(flattener);
             result = flattener.getFlatRepresentation();
         }
 
