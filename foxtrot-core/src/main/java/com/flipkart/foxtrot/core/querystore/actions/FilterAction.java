@@ -15,36 +15,32 @@
  */
 package com.flipkart.foxtrot.core.querystore.actions;
 
-import java.util.Collections;
-import java.util.Vector;
-
+import com.flipkart.foxtrot.common.Document;
+import com.flipkart.foxtrot.common.query.*;
+import com.flipkart.foxtrot.common.query.general.AnyFilter;
 import com.flipkart.foxtrot.core.cache.CacheManager;
+import com.flipkart.foxtrot.core.common.Action;
+import com.flipkart.foxtrot.core.datastore.DataStore;
+import com.flipkart.foxtrot.core.exception.FoxtrotException;
+import com.flipkart.foxtrot.core.exception.FoxtrotExceptions;
+import com.flipkart.foxtrot.core.querystore.QueryStore;
+import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsProvider;
+import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConnection;
+import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
+import com.flipkart.foxtrot.core.querystore.query.ElasticSearchQueryGenerator;
+import com.flipkart.foxtrot.core.table.TableMetadataManager;
+import com.google.common.collect.Lists;
+import org.elasticsearch.ElasticsearchException;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.search.SearchType;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
 import org.elasticsearch.search.sort.SortOrder;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import com.flipkart.foxtrot.common.Document;
-import com.flipkart.foxtrot.common.query.Filter;
-import com.flipkart.foxtrot.common.query.FilterCombinerType;
-import com.flipkart.foxtrot.common.query.Query;
-import com.flipkart.foxtrot.common.query.QueryResponse;
-import com.flipkart.foxtrot.common.query.ResultSort;
-import com.flipkart.foxtrot.common.query.general.AnyFilter;
-import com.flipkart.foxtrot.core.common.Action;
-import com.flipkart.foxtrot.core.datastore.DataStore;
-import com.flipkart.foxtrot.core.querystore.QueryStore;
-import com.flipkart.foxtrot.core.querystore.QueryStoreException;
-import com.flipkart.foxtrot.core.table.TableMetadataManager;
-import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsProvider;
-import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConnection;
-import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
-import com.flipkart.foxtrot.core.querystore.query.ElasticSearchQueryGenerator;
-import com.google.common.collect.Lists;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * User: Santanu Sinha (santanu.sinha@flipkart.com)
@@ -53,7 +49,6 @@ import com.google.common.collect.Lists;
  */
 @AnalyticsProvider(opcode = "query", request = Query.class, response = QueryResponse.class, cacheable = false)
 public class FilterAction extends Action<Query> {
-    private static final Logger logger = LoggerFactory.getLogger(FilterAction.class);
 
     public FilterAction(Query parameter,
                         TableMetadataManager tableMetadataManager,
@@ -81,7 +76,7 @@ public class FilterAction extends Action<Query> {
     }
 
     @Override
-    public QueryResponse execute(Query parameter) throws QueryStoreException {
+    public QueryResponse execute(Query parameter) throws FoxtrotException {
         parameter.setTable(ElasticsearchUtils.getValidTableName(parameter.getTable()));
         if (null == parameter.getFilters() || parameter.getFilters().isEmpty()) {
             parameter.setFilters(Lists.<Filter>newArrayList(new AnyFilter(parameter.getTable())));
@@ -92,24 +87,23 @@ public class FilterAction extends Action<Query> {
             resultSort.setOrder(ResultSort.Order.desc);
             parameter.setSort(resultSort);
         }
-        SearchRequestBuilder search = null;
-        SearchResponse response;
+        SearchRequestBuilder search;
         try {
-            /*if(!tableManager.exists(query.getTable())) {
-                throw new QueryStoreException(QueryStoreException.ErrorCode.NO_SUCH_TABLE,
-                        "There is no table called: " + query.getTable());
-            }*/
             search = getConnection().getClient().prepareSearch(ElasticsearchUtils.getIndices(parameter.getTable(), parameter))
                     .setTypes(ElasticsearchUtils.DOCUMENT_TYPE_NAME)
                     .setIndicesOptions(Utils.indicesOptions())
                     .setQuery(new ElasticSearchQueryGenerator(FilterCombinerType.and).genFilter(parameter.getFilters()))
                     .setSearchType(SearchType.QUERY_THEN_FETCH)
                     .setFrom(parameter.getFrom())
+                    .addSort(parameter.getSort().getField(),
+                            ResultSort.Order.desc == parameter.getSort().getOrder() ? SortOrder.DESC : SortOrder.ASC)
                     .setSize(parameter.getLimit());
-            search.addSort(parameter.getSort().getField(),
-                    ResultSort.Order.desc == parameter.getSort().getOrder() ? SortOrder.DESC : SortOrder.ASC);
-            response = search.execute().actionGet();
-            Vector<String> ids = new Vector<String>();
+        } catch (Exception e) {
+            throw FoxtrotExceptions.queryCreationException(parameter, e);
+        }
+        try {
+            SearchResponse response = search.execute().actionGet();
+            List<String> ids = new ArrayList<>();
             SearchHits searchHits = response.getHits();
             for (SearchHit searchHit : searchHits) {
                 ids.add(searchHit.getId());
@@ -118,14 +112,8 @@ public class FilterAction extends Action<Query> {
                 return new QueryResponse(Collections.<Document>emptyList(), 0);
             }
             return new QueryResponse(getQueryStore().getAll(parameter.getTable(), ids, true), searchHits.totalHits());
-        } catch (Exception e) {
-            if (null != search) {
-                logger.error("Error running generated query: " + search, e);
-            } else {
-                logger.error("Query generation error: ", e);
-            }
-            throw new QueryStoreException(QueryStoreException.ErrorCode.QUERY_EXECUTION_ERROR,
-                    "Error running query: " + parameter.toString());
+        } catch (ElasticsearchException e) {
+            throw FoxtrotExceptions.createQueryExecutionException(parameter, e);
         }
     }
 }

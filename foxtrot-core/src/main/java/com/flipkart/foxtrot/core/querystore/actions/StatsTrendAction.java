@@ -10,16 +10,19 @@ import com.flipkart.foxtrot.common.stats.StatsTrendValue;
 import com.flipkart.foxtrot.core.cache.CacheManager;
 import com.flipkart.foxtrot.core.common.Action;
 import com.flipkart.foxtrot.core.datastore.DataStore;
+import com.flipkart.foxtrot.core.exception.FoxtrotExceptions;
+import com.flipkart.foxtrot.core.exception.FoxtrotException;
 import com.flipkart.foxtrot.core.querystore.QueryStore;
-import com.flipkart.foxtrot.core.querystore.QueryStoreException;
-import com.flipkart.foxtrot.core.table.TableMetadataManager;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsProvider;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConnection;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
 import com.flipkart.foxtrot.core.querystore.query.ElasticSearchQueryGenerator;
+import com.flipkart.foxtrot.core.table.TableMetadataManager;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.yammer.dropwizard.util.Duration;
-
+import org.elasticsearch.ElasticsearchException;
+import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.search.SearchType;
 import org.elasticsearch.search.aggregations.AbstractAggregationBuilder;
@@ -29,8 +32,6 @@ import org.elasticsearch.search.aggregations.bucket.histogram.DateHistogram;
 import org.elasticsearch.search.aggregations.metrics.percentiles.InternalPercentiles;
 import org.elasticsearch.search.aggregations.metrics.percentiles.Percentile;
 import org.elasticsearch.search.aggregations.metrics.stats.extended.InternalExtendedStats;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
@@ -40,8 +41,6 @@ import java.util.*;
 
 @AnalyticsProvider(opcode = "statstrend", request = StatsTrendRequest.class, response = StatsTrendResponse.class, cacheable = false)
 public class StatsTrendAction extends Action<StatsTrendRequest> {
-
-    private static final Logger logger = LoggerFactory.getLogger(StatsAction.class.getSimpleName());
 
     public StatsTrendAction(StatsTrendRequest parameter,
                             TableMetadataManager tableMetadataManager,
@@ -70,43 +69,51 @@ public class StatsTrendAction extends Action<StatsTrendRequest> {
     }
 
     @Override
-    public ActionResponse execute(StatsTrendRequest parameter) throws QueryStoreException {
+    public ActionResponse execute(StatsTrendRequest parameter) throws FoxtrotException {
         parameter.setTable(ElasticsearchUtils.getValidTableName(parameter.getTable()));
         if (null == parameter.getFilters()) {
             parameter.setFilters(Lists.<Filter>newArrayList(new AnyFilter(parameter.getTable())));
         }
+
+        List<String> errorMessages = new ArrayList<>();
         if (null == parameter.getTable()) {
-            throw new QueryStoreException(QueryStoreException.ErrorCode.INVALID_REQUEST, "Invalid Table");
+            errorMessages.add("table name cannot be null");
         }
 
         String field = parameter.getField();
         if (null == field || field.isEmpty()) {
-            throw new QueryStoreException(QueryStoreException.ErrorCode.INVALID_REQUEST, "Invalid field name");
+            errorMessages.add("field name cannot be null/empty");
         }
 
+        if (!errorMessages.isEmpty()) {
+            throw FoxtrotExceptions.createMalformedQueryException(parameter, errorMessages);
+        }
+
+        SearchRequestBuilder searchRequestBuilder;
         try {
             AbstractAggregationBuilder aggregation = buildAggregation(parameter);
-            SearchResponse response = getConnection().getClient().prepareSearch(
+            searchRequestBuilder = getConnection().getClient().prepareSearch(
                     ElasticsearchUtils.getIndices(parameter.getTable(), parameter))
                     .setTypes(ElasticsearchUtils.DOCUMENT_TYPE_NAME)
                     .setIndicesOptions(Utils.indicesOptions())
                     .setQuery(new ElasticSearchQueryGenerator(parameter.getCombiner()).genFilter(parameter.getFilters()))
                     .setSize(0)
                     .setSearchType(SearchType.COUNT)
-                    .addAggregation(aggregation)
-                    .execute()
-                    .actionGet();
+                    .addAggregation(aggregation);
+        } catch (Exception e) {
+            throw FoxtrotExceptions.queryCreationException(parameter, e);
+        }
 
+        try {
+            SearchResponse response = searchRequestBuilder.execute().actionGet();
             Aggregations aggregations = response.getAggregations();
             if (aggregations != null) {
                 return buildResponse(parameter, aggregations);
             }
-            return null;
-        } catch (Exception e) {
-            logger.error("Error running stats query: ", e);
-            throw new QueryStoreException(QueryStoreException.ErrorCode.QUERY_EXECUTION_ERROR,
-                    "Error running stats query.", e);
+        } catch (ElasticsearchException e) {
+            throw FoxtrotExceptions.createQueryExecutionException(parameter, e);
         }
+        return null;
     }
 
     private AbstractAggregationBuilder buildAggregation(StatsTrendRequest request) {
@@ -151,7 +158,7 @@ public class StatsTrendAction extends Action<StatsTrendRequest> {
             statsTrendValue.setPeriod(bucket.getKeyAsNumber());
 
             InternalExtendedStats extendedStats = InternalExtendedStats.class.cast(bucket.getAggregations().getAsMap().get(metricKey));
-            Map<String, Number> stats = new HashMap<String, Number>();
+            Map<String, Number> stats = Maps.newHashMap();
             stats.put("avg", extendedStats.getAvg());
             stats.put("sum", extendedStats.getSum());
             stats.put("count", extendedStats.getCount());
@@ -163,7 +170,7 @@ public class StatsTrendAction extends Action<StatsTrendRequest> {
             statsTrendValue.setStats(stats);
 
             InternalPercentiles internalPercentile = InternalPercentiles.class.cast(bucket.getAggregations().getAsMap().get(percentileMetricKey));
-            Map<Number, Number> percentiles = new HashMap<Number, Number>();
+            Map<Number, Number> percentiles = Maps.newHashMap();
 
             for (Percentile percentile : internalPercentile) {
                 percentiles.put(percentile.getPercent(), percentile.getValue());

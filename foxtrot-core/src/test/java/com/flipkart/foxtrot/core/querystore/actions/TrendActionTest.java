@@ -25,9 +25,11 @@ import com.flipkart.foxtrot.common.query.numeric.LessThanFilter;
 import com.flipkart.foxtrot.common.trend.TrendRequest;
 import com.flipkart.foxtrot.common.trend.TrendResponse;
 import com.flipkart.foxtrot.core.TestUtils;
-import com.flipkart.foxtrot.core.querystore.QueryStoreException;
+import com.flipkart.foxtrot.core.exception.ErrorCode;
+import com.flipkart.foxtrot.core.exception.FoxtrotException;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -49,8 +51,8 @@ public class TrendActionTest extends ActionTest {
         getElasticsearchServer().getClient().admin().indices().prepareRefresh("*").setForce(true).execute().actionGet();
     }
 
-    @Test(expected = QueryStoreException.class)
-    public void testTrendActionAnyException() throws QueryStoreException, JsonProcessingException {
+    @Test(expected = FoxtrotException.class)
+    public void testTrendActionAnyException() throws FoxtrotException, JsonProcessingException {
         TrendRequest trendRequest = new TrendRequest();
         trendRequest.setTable(null);
         BetweenFilter betweenFilter = new BetweenFilter();
@@ -66,7 +68,7 @@ public class TrendActionTest extends ActionTest {
 
     //TODO trend action with null field is not working
     @Test
-    public void testTrendActionNullField() throws QueryStoreException, JsonProcessingException {
+    public void testTrendActionNullField() throws FoxtrotException, JsonProcessingException {
         TrendRequest trendRequest = new TrendRequest();
         trendRequest.setTable(TestUtils.TEST_TABLE_NAME);
         BetweenFilter betweenFilter = new BetweenFilter();
@@ -79,16 +81,15 @@ public class TrendActionTest extends ActionTest {
 
         try {
             getQueryExecutor().execute(trendRequest);
-        } catch (Exception e) {
-            assertEquals("Invalid field name", e.getMessage());
-            return;
+            fail("Should have thrown exception");
+        } catch (FoxtrotException e) {
+            assertEquals(ErrorCode.MALFORMED_QUERY, e.getCode());
         }
-        fail("Should have thrown exception");
     }
 
     //TODO trend action with all field is not working
     @Test
-    public void testTrendActionFieldAll() throws QueryStoreException, JsonProcessingException {
+    public void testTrendActionFieldAll() throws FoxtrotException, JsonProcessingException {
         TrendRequest trendRequest = new TrendRequest();
         trendRequest.setTable(TestUtils.TEST_TABLE_NAME);
         BetweenFilter betweenFilter = new BetweenFilter();
@@ -108,7 +109,8 @@ public class TrendActionTest extends ActionTest {
     }
 
     @Test
-    public void testTrendActionFieldWithDot() throws QueryStoreException, JsonProcessingException {
+
+    public void testTrendActionFieldWithDot() throws FoxtrotException {
         Document document = TestUtils.getDocument("G", 1398653118006L, new Object[]{"data.version", 1}, getMapper());
         getQueryStore().save(TestUtils.TEST_TABLE_NAME, document);
         getElasticsearchServer().getClient().admin().indices()
@@ -137,7 +139,7 @@ public class TrendActionTest extends ActionTest {
     }
 
     @Test
-    public void testTrendActionEmptyField() throws QueryStoreException, JsonProcessingException {
+    public void testTrendActionEmptyField() throws FoxtrotException, JsonProcessingException {
         TrendRequest trendRequest = new TrendRequest();
         trendRequest.setTable(TestUtils.TEST_TABLE_NAME);
         BetweenFilter betweenFilter = new BetweenFilter();
@@ -151,13 +153,13 @@ public class TrendActionTest extends ActionTest {
         try {
             getQueryExecutor().execute(trendRequest);
             fail();
-        } catch (QueryStoreException ex) {
-            assertEquals(QueryStoreException.ErrorCode.INVALID_REQUEST, ex.getErrorCode());
+        } catch (FoxtrotException ex) {
+            assertEquals(ErrorCode.MALFORMED_QUERY, ex.getCode());
         }
     }
 
     @Test
-    public void testTrendActionFieldWithSpecialCharacters() throws QueryStoreException, JsonProcessingException {
+    public void testTrendActionFieldWithSpecialCharacters() throws FoxtrotException, JsonProcessingException {
         TrendRequest trendRequest = new TrendRequest();
         trendRequest.setTable(TestUtils.TEST_TABLE_NAME);
         BetweenFilter betweenFilter = new BetweenFilter();
@@ -178,7 +180,7 @@ public class TrendActionTest extends ActionTest {
 
 
     @Test
-    public void testTrendActionNullTable() throws QueryStoreException, JsonProcessingException {
+    public void testTrendActionNullTable() throws FoxtrotException, JsonProcessingException {
         TrendRequest trendRequest = new TrendRequest();
         trendRequest.setTable(null);
         BetweenFilter betweenFilter = new BetweenFilter();
@@ -191,13 +193,13 @@ public class TrendActionTest extends ActionTest {
         try {
             getQueryExecutor().execute(trendRequest);
             fail();
-        } catch (QueryStoreException ex) {
-            assertEquals(QueryStoreException.ErrorCode.INVALID_REQUEST, ex.getErrorCode());
+        } catch (FoxtrotException ex) {
+            assertEquals(ErrorCode.MALFORMED_QUERY, ex.getCode());
         }
     }
 
     @Test
-    public void testTrendActionWithField() throws QueryStoreException, JsonProcessingException {
+    public void testTrendActionWithField() throws FoxtrotException, JsonProcessingException {
         TrendRequest trendRequest = new TrendRequest();
         trendRequest.setTable(TestUtils.TEST_TABLE_NAME);
         BetweenFilter betweenFilter = new BetweenFilter();
@@ -209,7 +211,7 @@ public class TrendActionTest extends ActionTest {
         trendRequest.setFilters(Collections.<Filter>singletonList(betweenFilter));
 
         TrendResponse expectedResponse = new TrendResponse();
-        Map<String, List<TrendResponse.Count>> trends = new HashMap<String, List<TrendResponse.Count>>();
+        Map<String, List<TrendResponse.Count>> trends = Maps.newHashMap();
 
         List<TrendResponse.Count> counts = Lists.newArrayList();
         counts.add(new TrendResponse.Count(1397606400000L, 6));
@@ -229,7 +231,7 @@ public class TrendActionTest extends ActionTest {
     }
 
     @Test
-    public void testTrendActionWithFieldZeroTo() throws QueryStoreException, JsonProcessingException {
+    public void testTrendActionWithFieldZeroTo() throws FoxtrotException, JsonProcessingException {
         TrendRequest trendRequest = new TrendRequest();
         trendRequest.setTable(TestUtils.TEST_TABLE_NAME);
         BetweenFilter betweenFilter = new BetweenFilter();
@@ -241,7 +243,7 @@ public class TrendActionTest extends ActionTest {
         trendRequest.setFilters(Collections.<Filter>singletonList(betweenFilter));
 
         TrendResponse expectedResponse = new TrendResponse();
-        Map<String, List<TrendResponse.Count>> trends = new HashMap<String, List<TrendResponse.Count>>();
+        Map<String, List<TrendResponse.Count>> trends = Maps.newHashMap();
 
         List<TrendResponse.Count> counts = Lists.newArrayList();
         counts.add(new TrendResponse.Count(1397606400000L, 6));
@@ -261,7 +263,7 @@ public class TrendActionTest extends ActionTest {
     }
 
     @Test
-    public void testTrendActionWithFieldZeroFrom() throws QueryStoreException, JsonProcessingException {
+    public void testTrendActionWithFieldZeroFrom() throws FoxtrotException, JsonProcessingException {
         TrendRequest trendRequest = new TrendRequest();
         trendRequest.setTable(TestUtils.TEST_TABLE_NAME);
         BetweenFilter betweenFilter = new BetweenFilter();
@@ -273,7 +275,7 @@ public class TrendActionTest extends ActionTest {
         trendRequest.setFilters(Collections.<Filter>singletonList(betweenFilter));
 
         TrendResponse expectedResponse = new TrendResponse();
-        Map<String, List<TrendResponse.Count>> trends = new HashMap<String, List<TrendResponse.Count>>();
+        Map<String, List<TrendResponse.Count>> trends = Maps.newHashMap();
 
         List<TrendResponse.Count> counts = Lists.newArrayList();
         counts.add(new TrendResponse.Count(1397606400000L, 6));
@@ -293,7 +295,7 @@ public class TrendActionTest extends ActionTest {
     }
 
     @Test
-    public void testTrendActionWithFieldWithValues() throws QueryStoreException, JsonProcessingException {
+    public void testTrendActionWithFieldWithValues() throws FoxtrotException, JsonProcessingException {
         TrendRequest trendRequest = new TrendRequest();
         trendRequest.setTable(TestUtils.TEST_TABLE_NAME);
         BetweenFilter betweenFilter = new BetweenFilter();
@@ -306,7 +308,7 @@ public class TrendActionTest extends ActionTest {
         trendRequest.setValues(Arrays.asList("android"));
 
         TrendResponse expectedResponse = new TrendResponse();
-        Map<String, List<TrendResponse.Count>> trends = new HashMap<String, List<TrendResponse.Count>>();
+        Map<String, List<TrendResponse.Count>> trends = Maps.newHashMap();
 
         List<TrendResponse.Count> counts = Lists.newArrayList();
         counts.add(new TrendResponse.Count(1397606400000L, 6));
@@ -320,7 +322,7 @@ public class TrendActionTest extends ActionTest {
     }
 
     @Test
-    public void testTrendActionWithFieldWithFilterWithValues() throws QueryStoreException, JsonProcessingException {
+    public void testTrendActionWithFieldWithFilterWithValues() throws FoxtrotException, JsonProcessingException {
         TrendRequest trendRequest = new TrendRequest();
         trendRequest.setTable(TestUtils.TEST_TABLE_NAME);
         trendRequest.setField("os");
@@ -337,7 +339,7 @@ public class TrendActionTest extends ActionTest {
 
 
         TrendResponse expectedResponse = new TrendResponse();
-        Map<String, List<TrendResponse.Count>> trends = new HashMap<String, List<TrendResponse.Count>>();
+        Map<String, List<TrendResponse.Count>> trends = Maps.newHashMap();
 
         List<TrendResponse.Count> counts = Lists.newArrayList();
         counts.add(new TrendResponse.Count(1397606400000L, 2));
@@ -350,7 +352,7 @@ public class TrendActionTest extends ActionTest {
     }
 
     @Test
-    public void testTrendActionWithFieldWithFilter() throws QueryStoreException, JsonProcessingException {
+    public void testTrendActionWithFieldWithFilter() throws FoxtrotException, JsonProcessingException {
         TrendRequest trendRequest = new TrendRequest();
         trendRequest.setTable(TestUtils.TEST_TABLE_NAME);
         trendRequest.setField("os");
@@ -365,7 +367,7 @@ public class TrendActionTest extends ActionTest {
         trendRequest.setFilters(Lists.newArrayList(equalsFilter, lessThanFilter));
 
         TrendResponse expectedResponse = new TrendResponse();
-        Map<String, List<TrendResponse.Count>> trends = new HashMap<String, List<TrendResponse.Count>>();
+        Map<String, List<TrendResponse.Count>> trends = Maps.newHashMap();
 
         List<TrendResponse.Count> counts = Lists.newArrayList();
         counts.add(new TrendResponse.Count(1397606400000L, 2));
@@ -382,7 +384,7 @@ public class TrendActionTest extends ActionTest {
     }
 
     @Test
-    public void testTrendActionWithFieldWithFilterWithInterval() throws QueryStoreException, JsonProcessingException {
+    public void testTrendActionWithFieldWithFilterWithInterval() throws FoxtrotException, JsonProcessingException {
         TrendRequest trendRequest = new TrendRequest();
         trendRequest.setTable(TestUtils.TEST_TABLE_NAME);
         trendRequest.setField("os");
@@ -398,7 +400,7 @@ public class TrendActionTest extends ActionTest {
         trendRequest.setFilters(Lists.newArrayList(equalsFilter, lessThanFilter));
 
         TrendResponse expectedResponse = new TrendResponse();
-        Map<String, List<TrendResponse.Count>> trends = new HashMap<String, List<TrendResponse.Count>>();
+        Map<String, List<TrendResponse.Count>> trends = Maps.newHashMap();
 
         List<TrendResponse.Count> counts = Lists.newArrayList();
         counts.add(new TrendResponse.Count(1397606400000L, 2));

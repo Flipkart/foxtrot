@@ -25,6 +25,8 @@ import com.flipkart.foxtrot.core.common.NonCacheableAction;
 import com.flipkart.foxtrot.core.common.NonCacheableActionRequest;
 import com.flipkart.foxtrot.core.common.RequestWithNoAction;
 import com.flipkart.foxtrot.core.datastore.DataStore;
+import com.flipkart.foxtrot.core.exception.ErrorCode;
+import com.flipkart.foxtrot.core.exception.FoxtrotException;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsLoader;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConnection;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
@@ -43,6 +45,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 import static org.mockito.Mockito.*;
 
 /**
@@ -89,14 +92,24 @@ public class QueryExecutorTest {
         assertEquals(NonCacheableAction.class, queryExecutor.resolve(new NonCacheableActionRequest()).getClass());
     }
 
-    @Test(expected = QueryStoreException.class)
+    @Test
     public void testResolveNonExistentAction() throws Exception {
-        queryExecutor.resolve(new RequestWithNoAction());
+        try {
+            queryExecutor.resolve(new RequestWithNoAction());
+            fail();
+        } catch (FoxtrotException e) {
+            assertEquals(ErrorCode.UNRESOLVABLE_OPERATION, e.getCode());
+        }
     }
 
-    @Test(expected = QueryStoreException.class)
+    @Test
     public void testResolveLoaderException() throws Exception {
-        doThrow(new IOException()).when(analyticsLoader).getAction(any(ActionRequest.class));
-        queryExecutor.resolve(new NonCacheableActionRequest());
+        try {
+            doThrow(new IOException()).when(analyticsLoader).getAction(any(ActionRequest.class));
+            queryExecutor.resolve(new NonCacheableActionRequest());
+            fail();
+        } catch (FoxtrotException e) {
+            assertEquals(ErrorCode.ACTION_RESOLUTION_FAILURE, e.getCode());
+        }
     }
 }

@@ -6,7 +6,7 @@ import com.flipkart.foxtrot.common.distinct.DistinctRequest;
 import com.flipkart.foxtrot.common.distinct.DistinctResponse;
 import com.flipkart.foxtrot.common.query.ResultSort;
 import com.flipkart.foxtrot.core.TestUtils;
-import com.flipkart.foxtrot.core.querystore.QueryStoreException;
+import com.flipkart.foxtrot.core.exception.FoxtrotException;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -29,7 +29,7 @@ public class DistinctActionTest extends ActionTest {
 
 
     @Test
-    public void testDistinctAsc() throws QueryStoreException {
+    public void testDistinctAsc() throws FoxtrotException {
         DistinctRequest distinctRequest = new DistinctRequest();
         distinctRequest.setTable(TestUtils.TEST_TABLE_NAME);
         ResultSort resultSort = new ResultSort();
@@ -52,7 +52,7 @@ public class DistinctActionTest extends ActionTest {
     }
 
     @Test
-    public void testDistinctDesc() throws QueryStoreException {
+    public void testDistinctDesc() throws FoxtrotException {
         DistinctRequest distinctRequest = new DistinctRequest();
         distinctRequest.setTable(TestUtils.TEST_TABLE_NAME);
         ResultSort resultSort = new ResultSort();
@@ -75,7 +75,7 @@ public class DistinctActionTest extends ActionTest {
     }
 
     @Test
-    public void testDistinctMultipleNestingAscAsc() throws QueryStoreException, JsonProcessingException {
+    public void testDistinctMultipleNestingAscAsc() throws FoxtrotException, JsonProcessingException {
         DistinctRequest distinctRequest = new DistinctRequest();
         distinctRequest.setTable(TestUtils.TEST_TABLE_NAME);
 
@@ -108,7 +108,7 @@ public class DistinctActionTest extends ActionTest {
     }
 
     @Test
-    public void testDistinctMultipleNestingAscDesc() throws QueryStoreException, JsonProcessingException {
+    public void testDistinctMultipleNestingAscDesc() throws FoxtrotException, JsonProcessingException {
         DistinctRequest distinctRequest = new DistinctRequest();
         distinctRequest.setTable(TestUtils.TEST_TABLE_NAME);
 

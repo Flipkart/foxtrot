@@ -17,6 +17,7 @@ package com.flipkart.foxtrot.core.querystore;
 
 import com.flipkart.foxtrot.common.Document;
 import com.flipkart.foxtrot.common.TableFieldMapping;
+import com.flipkart.foxtrot.core.exception.FoxtrotException;
 
 import java.util.List;
 import java.util.Set;
@@ -28,23 +29,23 @@ import java.util.Set;
  */
 public interface QueryStore {
 
-    void initializeTable(final String table) throws QueryStoreException;
+    void initializeTable(final String table) throws FoxtrotException;
 
-    void save(final String table, final Document document) throws QueryStoreException;
+    void save(final String table, final Document document) throws FoxtrotException;
 
-    void save(final String table, final List<Document> documents) throws QueryStoreException;
+    void save(final String table, final List<Document> documents) throws FoxtrotException;
 
-    Document get(final String table, final String id) throws QueryStoreException;
+    Document get(final String table, final String id) throws FoxtrotException;
 
-    List<Document> getAll(final String table, final List<String> ids) throws QueryStoreException;
+    List<Document> getAll(final String table, final List<String> ids) throws FoxtrotException;
 
-    List<Document> getAll(final String table, final List<String> ids, boolean bypassMetaLookup) throws QueryStoreException;
+    List<Document> getAll(final String table, final List<String> ids, boolean bypassMetaLookup) throws FoxtrotException;
 
-    TableFieldMapping getFieldMappings(final String table) throws QueryStoreException;
+    TableFieldMapping getFieldMappings(final String table) throws FoxtrotException;
 
-    void cleanupAll() throws QueryStoreException;
+    void cleanupAll() throws FoxtrotException;
 
-    void cleanup(final String table) throws QueryStoreException;
+    void cleanup(final String table) throws FoxtrotException;
 
-    void cleanup(final Set<String> tables) throws QueryStoreException;
+    void cleanup(final Set<String> tables) throws FoxtrotException;
 }

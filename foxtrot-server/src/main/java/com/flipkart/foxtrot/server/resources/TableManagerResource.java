@@ -16,22 +16,19 @@
 package com.flipkart.foxtrot.server.resources;
 
 import com.flipkart.foxtrot.common.Table;
+import com.flipkart.foxtrot.core.exception.FoxtrotException;
 import com.flipkart.foxtrot.core.table.TableManager;
-import com.flipkart.foxtrot.core.table.TableManagerException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.validation.Valid;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.util.Collections;
 
 @Path("/v1/tables")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
 public class TableManagerResource {
-    private static final Logger logger = LoggerFactory.getLogger(TableManagerResource.class);
+
     private final TableManager tableManager;
 
     public TableManagerResource(TableManager tableManager) {
@@ -39,68 +36,27 @@ public class TableManagerResource {
     }
 
     @POST
-    public Response save(@Valid final Table table) {
-        try {
-            tableManager.save(table);
-            return Response.ok(table).build();
-        } catch (TableManagerException e) {
-            logger.error(String.format("Unable to save table %s", table), e);
-            switch (e.getErrorCode()) {
-                case TABLE_ALREADY_EXISTS:
-                    return Response.status(422).entity(Collections.singletonMap("error", e.getMessage())).build();
-                case INTERNAL_ERROR:
-                    return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-                            .entity(Collections.singletonMap("error", e.getMessage())).build();
-                default:
-                    return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-                            .entity(Collections.singletonMap("error", e.getMessage())).build();
-            }
-        }
+    public Response save(@Valid final Table table) throws FoxtrotException {
+        tableManager.save(table);
+        return Response.ok(table).build();
     }
 
     @GET
     @Path("/{name}")
-    public Response get(@PathParam("name") final String name) {
-        try {
-            Table table = tableManager.get(name);
-            return Response.ok().entity(table).build();
-        } catch (TableManagerException e) {
-            logger.error(String.format("Unable to fetch table %s", name), e);
-            switch (e.getErrorCode()) {
-                case TABLE_NOT_FOUND:
-                    return Response.status(Response.Status.NOT_FOUND)
-                            .entity(Collections.singletonMap("error", e.getMessage())).build();
-                case INTERNAL_ERROR:
-                    return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-                            .entity(Collections.singletonMap("error", e.getMessage())).build();
-                default:
-                    return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-                            .entity(Collections.singletonMap("error", e.getMessage())).build();
-            }
-        }
+    public Response get(@PathParam("name") final String name) throws FoxtrotException {
+        Table table = tableManager.get(name);
+        return Response.ok().entity(table).build();
     }
 
     @DELETE
     @Path("/{name}/delete")
-    public Response delete(@PathParam("name") final String name) {
-        try {
-            tableManager.delete(name);
-            return Response.status(Response.Status.NO_CONTENT).build();
-        } catch (Exception e) {
-            logger.error(String.format("Unable to delete table %s", name), e);
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-                    .entity(Collections.singletonMap("error", e.getMessage())).build();
-        }
+    public Response delete(@PathParam("name") final String name) throws FoxtrotException {
+        tableManager.delete(name);
+        return Response.status(Response.Status.NO_CONTENT).build();
     }
 
     @GET
-    public Response getAll() {
-        try {
-            return Response.ok().entity(tableManager.getAll()).build();
-        } catch (TableManagerException e) {
-            logger.error("Unable to fetch table list", e);
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-                    .entity(Collections.singletonMap("error", e.getMessage())).build();
-        }
+    public Response getAll() throws FoxtrotException {
+        return Response.ok().entity(tableManager.getAll()).build();
     }
 }

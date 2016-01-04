@@ -6,7 +6,7 @@ import com.flipkart.foxtrot.common.count.CountResponse;
 import com.flipkart.foxtrot.common.query.Filter;
 import com.flipkart.foxtrot.common.query.general.EqualsFilter;
 import com.flipkart.foxtrot.core.TestUtils;
-import com.flipkart.foxtrot.core.querystore.QueryStoreException;
+import com.flipkart.foxtrot.core.exception.FoxtrotException;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -27,7 +27,7 @@ public class CountActionTest extends ActionTest {
     }
 
     @Test
-    public void testCount() throws QueryStoreException, InterruptedException {
+    public void testCount() throws FoxtrotException {
         CountRequest countRequest = new CountRequest();
         countRequest.setTable(TestUtils.TEST_TABLE_NAME);
         countRequest.setField("os");
@@ -39,7 +39,7 @@ public class CountActionTest extends ActionTest {
     }
 
     @Test
-    public void testCountWithFilter() throws QueryStoreException {
+    public void testCountWithFilter() throws FoxtrotException {
         CountRequest countRequest = new CountRequest();
         countRequest.setTable(TestUtils.TEST_TABLE_NAME);
         countRequest.setField("os");
@@ -54,7 +54,7 @@ public class CountActionTest extends ActionTest {
     }
 
     @Test
-    public void testCountDistinct() throws QueryStoreException {
+    public void testCountDistinct() throws FoxtrotException {
         CountRequest countRequest = new CountRequest();
         countRequest.setTable(TestUtils.TEST_TABLE_NAME);
         countRequest.setField("os");
@@ -66,7 +66,7 @@ public class CountActionTest extends ActionTest {
     }
 
     @Test
-    public void testCountDistinctWithFilter() throws QueryStoreException {
+    public void testCountDistinctWithFilter() throws FoxtrotException {
         CountRequest countRequest = new CountRequest();
         countRequest.setTable(TestUtils.TEST_TABLE_NAME);
         countRequest.setField("os");
@@ -81,7 +81,7 @@ public class CountActionTest extends ActionTest {
     }
 
     @Test
-    public void testCountDistinctWithFilterOnSameField() throws QueryStoreException {
+    public void testCountDistinctWithFilterOnSameField() throws FoxtrotException {
         CountRequest countRequest = new CountRequest();
         countRequest.setTable(TestUtils.TEST_TABLE_NAME);
         countRequest.setField("os");

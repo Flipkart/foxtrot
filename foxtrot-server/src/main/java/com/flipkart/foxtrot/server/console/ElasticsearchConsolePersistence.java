@@ -16,6 +16,7 @@
 package com.flipkart.foxtrot.server.console;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.flipkart.foxtrot.core.exception.FoxtrotException;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConnection;
 import org.elasticsearch.action.WriteConsistencyLevel;
 import org.elasticsearch.action.get.GetResponse;
@@ -49,7 +50,7 @@ public class ElasticsearchConsolePersistence implements ConsolePersistence {
     }
 
     @Override
-    public void save(final Console console) throws ConsolePersistenceException {
+    public void save(final Console console) throws FoxtrotException {
         try {
             connection.getClient()
                     .prepareIndex()
@@ -63,12 +64,12 @@ public class ElasticsearchConsolePersistence implements ConsolePersistence {
                     .get();
             logger.info(String.format("Saved Console : %s", console));
         } catch (Exception e) {
-            throw new ConsolePersistenceException("Error saving console: " + console.getId(), e);
+            throw new ConsolePersistenceException(console.getId(), "console save failed", e);
         }
     }
 
     @Override
-    public Console get(final String id) throws ConsolePersistenceException {
+    public Console get(final String id) throws FoxtrotException {
         try {
             GetResponse result = connection.getClient()
                     .prepareGet()
@@ -82,12 +83,12 @@ public class ElasticsearchConsolePersistence implements ConsolePersistence {
             }
             return mapper.readValue(result.getSourceAsBytes(), Console.class);
         } catch (Exception e) {
-            throw new ConsolePersistenceException("Error saving console: " + id, e);
+            throw new ConsolePersistenceException(id, "console save failed", e);
         }
     }
 
     @Override
-    public void delete(final String id) throws ConsolePersistenceException {
+    public void delete(final String id) throws FoxtrotException {
         try {
             connection.getClient()
                     .prepareDelete()
@@ -100,12 +101,12 @@ public class ElasticsearchConsolePersistence implements ConsolePersistence {
                     .actionGet();
             logger.info(String.format("Deleted Console : %s", id));
         } catch (Exception e) {
-            throw new ConsolePersistenceException("Error Deleting Console : " + id, e);
+            throw new ConsolePersistenceException(id, "console deletion_failed", e);
         }
     }
 
     @Override
-    public List<Console> get() throws ConsolePersistenceException {
+    public List<Console> get() throws FoxtrotException {
         SearchResponse response = connection.getClient().prepareSearch(INDEX)
                 .setTypes(TYPE)
                 .setQuery(boolQuery().must(matchAllQuery()))
@@ -131,7 +132,7 @@ public class ElasticsearchConsolePersistence implements ConsolePersistence {
             }
             return results;
         } catch (Exception e) {
-            throw new ConsolePersistenceException("Error getting consoles: ", e);
+            throw new ConsoleFetchException(e);
         }
     }
 }

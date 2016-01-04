@@ -22,24 +22,24 @@ package com.flipkart.foxtrot.common.query;
  */
 public interface FilterOperator {
     //All
-    public static final String equals = "equals";
-    public static final String not_equals = "not_equals";
-    public static final String any = "any";
-    public static final String in = "in";
-    public static final String exists = "exists";
-    public static final String missing = "missing";
+    String equals = "equals";
+    String not_equals = "not_equals";
+    String any = "any";
+    String in = "in";
+    String exists = "exists";
+    String missing = "missing";
 
     //Numeric
-    public static final String less_than = "less_than";
-    public static final String less_equal = "less_equal";
-    public static final String greater_than = "greater_than";
-    public static final String greater_equal = "greater_equal";
+    String less_than = "less_than";
+    String less_equal = "less_equal";
+    String greater_than = "greater_than";
+    String greater_equal = "greater_equal";
 
-    public static final String between = "between";
+    String between = "between";
 
     //String
-    public static final String contains = "contains";
+    String contains = "contains";
 
     //Date time
-    public static final String last = "last";
+    String last = "last";
 }

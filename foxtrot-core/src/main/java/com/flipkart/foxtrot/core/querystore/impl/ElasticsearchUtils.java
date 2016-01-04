@@ -78,7 +78,7 @@ public class ElasticsearchUtils {
     }
 
     @VisibleForTesting
-    public static String[] getIndices(final String table, final ActionRequest request, final Interval interval) throws Exception {
+    public static String[] getIndices(final String table, final ActionRequest request, final Interval interval) {
         DateTime start = interval.getStart().toLocalDate().toDateTimeAtStartOfDay();
         if (start.getYear() <= 1970) {
             logger.warn("Request of type {} running on all indices", request.getClass().getSimpleName());
@@ -221,7 +221,7 @@ public class ElasticsearchUtils {
 
     public static String getValidTableName(String table) {
         if (table == null) return null;
-        return table.toLowerCase();
+        return table.trim().toLowerCase();
     }
 
     public static boolean isIndexValidForTable(String index, String table) {

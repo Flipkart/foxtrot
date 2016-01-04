@@ -19,7 +19,8 @@ import com.flipkart.foxtrot.common.FieldType;
 import com.flipkart.foxtrot.common.FieldTypeMapping;
 import com.flipkart.foxtrot.common.TableFieldMapping;
 import com.flipkart.foxtrot.core.TestUtils;
-import com.sun.jersey.api.client.UniformInterfaceException;
+import com.flipkart.foxtrot.server.providers.exception.FoxtrotExceptionMapper;
+import com.sun.jersey.api.client.ClientResponse;
 import org.junit.Test;
 
 import java.util.HashSet;
@@ -43,6 +44,7 @@ public class TableFieldMappingResourceTest extends FoxtrotResourceTest {
     @Override
     protected void setUpResources() throws Exception {
         addResource(new TableFieldMappingResource(getQueryStore()));
+        addProvider(FoxtrotExceptionMapper.class);
     }
 
     @Test
@@ -65,15 +67,16 @@ public class TableFieldMappingResourceTest extends FoxtrotResourceTest {
         assertTrue(tableFieldMapping.getMappings().equals(mapping.getMappings()));
     }
 
-    @Test(expected = UniformInterfaceException.class)
+    @Test
     public void testGetInvalidTable() throws Exception {
-        client().resource(String.format("/v1/tables/%s/fields", TestUtils.TEST_TABLE_NAME + "-missing"))
-                .get(String.class);
+        ClientResponse clientResponse = client().resource(
+                String.format("/v1/tables/%s/fields", TestUtils.TEST_TABLE_NAME + "-missing")).head();
+        assertEquals(ClientResponse.Status.NOT_FOUND, clientResponse.getClientResponseStatus());
     }
 
     @Test
     public void testGetTableWithNoDocument() throws Exception {
-        TableFieldMapping request = new TableFieldMapping(TestUtils.TEST_TABLE_NAME, null);
+        TableFieldMapping request = new TableFieldMapping(TestUtils.TEST_TABLE_NAME, new HashSet<>());
         TableFieldMapping response = client().resource(String.format("/v1/tables/%s/fields", TestUtils.TEST_TABLE_NAME))
                 .get(TableFieldMapping.class);
 

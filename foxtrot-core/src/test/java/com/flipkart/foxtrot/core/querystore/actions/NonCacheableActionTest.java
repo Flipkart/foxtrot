@@ -18,7 +18,7 @@ package com.flipkart.foxtrot.core.querystore.actions;
 import com.flipkart.foxtrot.common.Document;
 import com.flipkart.foxtrot.core.TestUtils;
 import com.flipkart.foxtrot.core.common.NonCacheableActionRequest;
-import com.flipkart.foxtrot.core.querystore.QueryStoreException;
+import com.flipkart.foxtrot.core.exception.FoxtrotException;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -39,7 +39,7 @@ public class NonCacheableActionTest extends ActionTest {
 
     //TODO how to verify if cache is hit or not ?
     @Test
-    public void checkCacheability() throws QueryStoreException {
+    public void checkCacheability() throws FoxtrotException {
         getQueryExecutor().execute(new NonCacheableActionRequest());
     }
 }

@@ -21,7 +21,7 @@ package com.flipkart.foxtrot.common.query;
  * Time: 9:00 PM
  */
 public class ResultSort {
-    public static enum Order {
+    public enum Order {
         asc,
         desc
     }
@@ -67,4 +67,11 @@ public class ResultSort {
         return result;
     }
 
+    @Override
+    public String toString() {
+        return "ResultSort{" +
+                "field='" + field + '\'' +
+                ", order=" + order +
+                '}';
+    }
 }

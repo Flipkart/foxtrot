@@ -59,6 +59,9 @@ public class ElasticsearchConnection implements Managed {
 
     @Override
     public void stop() throws Exception {
+        if (client != null) {
+            client.close();
+        }
         client = null;
     }
 

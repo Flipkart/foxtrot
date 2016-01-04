@@ -17,9 +17,10 @@ package com.flipkart.foxtrot.server.resources;
 
 import com.flipkart.foxtrot.common.Table;
 import com.flipkart.foxtrot.core.TestUtils;
+import com.flipkart.foxtrot.core.exception.FoxtrotExceptions;
 import com.flipkart.foxtrot.core.table.TableManager;
-import com.flipkart.foxtrot.core.table.TableManagerException;
 import com.flipkart.foxtrot.core.table.impl.FoxtrotTableManager;
+import com.flipkart.foxtrot.server.providers.exception.FoxtrotExceptionMapper;
 import com.sun.jersey.api.client.UniformInterfaceException;
 import com.yammer.dropwizard.validation.InvalidEntityException;
 import org.junit.Test;
@@ -27,6 +28,7 @@ import org.mockito.Matchers;
 
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.io.IOException;
 import java.util.UUID;
 
 import static org.junit.Assert.*;
@@ -49,6 +51,7 @@ public class TableManagerResourceTest extends FoxtrotResourceTest {
     @Override
     protected void setUpResources() throws Exception {
         addResource(new TableManagerResource(tableManager));
+        addProvider(FoxtrotExceptionMapper.class);
     }
 
 
@@ -82,7 +85,7 @@ public class TableManagerResourceTest extends FoxtrotResourceTest {
     @Test
     public void testSaveBackendError() throws Exception {
         Table table = new Table(UUID.randomUUID().toString(), 30);
-        doThrow(new TableManagerException(TableManagerException.ErrorCode.INTERNAL_ERROR, "Dummy Message")).when(tableManager).save(Matchers.<Table>any());
+        doThrow(FoxtrotExceptions.createExecutionException("dummy", new IOException())).when(tableManager).save(Matchers.<Table>any());
         try {
             client().resource("/v1/tables").type(MediaType.APPLICATION_JSON_TYPE).post(table);
             fail();

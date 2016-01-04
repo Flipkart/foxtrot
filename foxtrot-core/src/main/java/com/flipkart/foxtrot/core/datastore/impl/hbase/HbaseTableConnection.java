@@ -16,12 +16,12 @@
 package com.flipkart.foxtrot.core.datastore.impl.hbase;
 
 import com.flipkart.foxtrot.common.Table;
-import com.flipkart.foxtrot.core.datastore.DataStoreException;
+import com.flipkart.foxtrot.core.exception.FoxtrotExceptions;
+import com.flipkart.foxtrot.core.exception.FoxtrotException;
 import com.flipkart.foxtrot.core.util.TableUtil;
 import com.yammer.dropwizard.lifecycle.Managed;
 import net.sourceforge.cobertura.CoverageIgnore;
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.hbase.TableNotFoundException;
 import org.apache.hadoop.hbase.client.HBaseAdmin;
 import org.apache.hadoop.hbase.client.HTableInterface;
 import org.apache.hadoop.hbase.client.HTablePool;
@@ -49,24 +49,24 @@ public class HbaseTableConnection implements Managed {
         this.hbaseConfig = hbaseConfig;
     }
 
-    public synchronized HTableInterface getTable(final Table table) throws DataStoreException {
+    public synchronized HTableInterface getTable(final Table table) throws FoxtrotException {
         try {
             if (hbaseConfig.isSecure() && UserGroupInformation.isSecurityEnabled()) {
                 UserGroupInformation.getCurrentUser().reloginFromKeytab();
             }
             return tablePool.getTable(TableUtil.getTableName(hbaseConfig, table));
-        } catch (TableNotFoundException e) {
-            throw new DataStoreException(DataStoreException.ErrorCode.TABLE_NOT_FOUND,
-                    e.getMessage(), e);
-        } catch (Throwable t) {
-            throw new DataStoreException(DataStoreException.ErrorCode.STORE_CONNECTION,
-                    t.getMessage(), t);
+        } catch (Exception e) {
+            throw FoxtrotExceptions.createConnectionException(table, e);
         }
     }
 
     public synchronized boolean isTableAvailable(final Table table) throws IOException {
         String tableName = TableUtil.getTableName(hbaseConfig, table);
         return hBaseAdmin.isTableAvailable(tableName);
+    }
+
+    public String getHBaseTableName(final Table table) throws IOException {
+        return TableUtil.getTableName(hbaseConfig, table);
     }
 
     @Override
