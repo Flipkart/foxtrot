@@ -9,7 +9,7 @@ import com.flipkart.foxtrot.common.stats.StatsTrendResponse;
 import com.flipkart.foxtrot.common.stats.StatsTrendValue;
 import com.flipkart.foxtrot.core.common.Action;
 import com.flipkart.foxtrot.core.datastore.DataStore;
-import com.flipkart.foxtrot.core.exception.ExceptionUtils;
+import com.flipkart.foxtrot.core.exception.FoxtrotExceptions;
 import com.flipkart.foxtrot.core.exception.FoxtrotException;
 import com.flipkart.foxtrot.core.querystore.QueryStore;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsProvider;
@@ -84,7 +84,7 @@ public class StatsTrendAction extends Action<StatsTrendRequest> {
         }
 
         if (!errorMessages.isEmpty()) {
-            throw ExceptionUtils.createMalformedQueryException(parameter, errorMessages);
+            throw FoxtrotExceptions.createMalformedQueryException(parameter, errorMessages);
         }
 
         SearchRequestBuilder searchRequestBuilder;
@@ -99,7 +99,7 @@ public class StatsTrendAction extends Action<StatsTrendRequest> {
                     .setSearchType(SearchType.COUNT)
                     .addAggregation(aggregation);
         } catch (Exception e) {
-            throw ExceptionUtils.queryCreationException(parameter, e);
+            throw FoxtrotExceptions.queryCreationException(parameter, e);
         }
 
         try {
@@ -109,7 +109,7 @@ public class StatsTrendAction extends Action<StatsTrendRequest> {
                 return buildResponse(parameter, aggregations);
             }
         } catch (ElasticsearchException e) {
-            throw ExceptionUtils.createQueryExecutionException(parameter, e);
+            throw FoxtrotExceptions.createQueryExecutionException(parameter, e);
         }
         return null;
     }

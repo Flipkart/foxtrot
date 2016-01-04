@@ -9,7 +9,7 @@ import java.util.List;
 /**
  * Created by rishabh.goyal on 03/01/16.
  */
-public class ExceptionUtils {
+public class FoxtrotExceptions {
 
     public static TableInitializationException createTableInitializationException(Table table, String message) {
         return new TableInitializationException(table.getName(), message);

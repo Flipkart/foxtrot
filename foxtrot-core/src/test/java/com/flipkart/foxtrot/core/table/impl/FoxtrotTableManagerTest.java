@@ -3,7 +3,7 @@ package com.flipkart.foxtrot.core.table.impl;
 import com.flipkart.foxtrot.common.Table;
 import com.flipkart.foxtrot.core.datastore.DataStore;
 import com.flipkart.foxtrot.core.exception.ErrorCode;
-import com.flipkart.foxtrot.core.exception.ExceptionUtils;
+import com.flipkart.foxtrot.core.exception.FoxtrotExceptions;
 import com.flipkart.foxtrot.core.exception.FoxtrotException;
 import com.flipkart.foxtrot.core.querystore.QueryStore;
 import com.flipkart.foxtrot.core.table.TableManager;
@@ -130,7 +130,7 @@ public class FoxtrotTableManagerTest {
     public void saveTableQueryStoreFailed() throws Exception {
         doNothing().when(metadataManager).save(any(Table.class));
         doNothing().when(dataStore).initializeTable(any(Table.class));
-        doThrow(ExceptionUtils.createExecutionException("dummy", new IOException())).when(queryStore).initializeTable(any(String.class));
+        doThrow(FoxtrotExceptions.createExecutionException("dummy", new IOException())).when(queryStore).initializeTable(any(String.class));
         try {
             Table table = new Table();
             table.setName("abcd");
@@ -145,7 +145,7 @@ public class FoxtrotTableManagerTest {
     @Test
     public void saveTableDataStoreFailed() throws Exception {
         doNothing().when(metadataManager).save(any(Table.class));
-        doThrow(ExceptionUtils.createExecutionException("dummy", new IOException())).when(dataStore).initializeTable(any(Table.class));
+        doThrow(FoxtrotExceptions.createExecutionException("dummy", new IOException())).when(dataStore).initializeTable(any(Table.class));
         doNothing().when(queryStore).initializeTable(any(String.class));
         try {
             Table table = new Table();
@@ -161,7 +161,7 @@ public class FoxtrotTableManagerTest {
     @Test
     public void saveTableDataStoreNoTableFound() throws Exception {
         doNothing().when(metadataManager).save(any(Table.class));
-        doThrow(ExceptionUtils.createTableMissingException("Dummy")).when(dataStore).initializeTable(any(Table.class));
+        doThrow(FoxtrotExceptions.createTableMissingException("Dummy")).when(dataStore).initializeTable(any(Table.class));
         doNothing().when(queryStore).initializeTable(any(String.class));
         try {
             Table table = new Table();

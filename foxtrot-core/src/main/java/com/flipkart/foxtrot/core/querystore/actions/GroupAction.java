@@ -23,7 +23,7 @@ import com.flipkart.foxtrot.common.query.FilterCombinerType;
 import com.flipkart.foxtrot.common.query.general.AnyFilter;
 import com.flipkart.foxtrot.core.common.Action;
 import com.flipkart.foxtrot.core.datastore.DataStore;
-import com.flipkart.foxtrot.core.exception.ExceptionUtils;
+import com.flipkart.foxtrot.core.exception.FoxtrotExceptions;
 import com.flipkart.foxtrot.core.exception.FoxtrotException;
 import com.flipkart.foxtrot.core.querystore.QueryStore;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsProvider;
@@ -41,8 +41,6 @@ import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.Aggregations;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.elasticsearch.search.aggregations.bucket.terms.TermsBuilder;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
@@ -98,7 +96,7 @@ public class GroupAction extends Action<GroupRequest> {
         }
 
         if (!errorMessages.isEmpty()) {
-            throw ExceptionUtils.createMalformedQueryException(parameter, errorMessages);
+            throw FoxtrotExceptions.createMalformedQueryException(parameter, errorMessages);
         }
 
         SearchRequestBuilder query;
@@ -126,7 +124,7 @@ public class GroupAction extends Action<GroupRequest> {
                     .setSearchType(SearchType.COUNT)
                     .addAggregation(rootBuilder);
         } catch (Exception e) {
-            throw ExceptionUtils.queryCreationException(parameter, e);
+            throw FoxtrotExceptions.queryCreationException(parameter, e);
         }
         try {
             SearchResponse response = query.execute().actionGet();
@@ -138,7 +136,7 @@ public class GroupAction extends Action<GroupRequest> {
             }
             return new GroupResponse(getMap(fields, aggregations));
         } catch (ElasticsearchException e) {
-            throw ExceptionUtils.createQueryExecutionException(parameter, e);
+            throw FoxtrotExceptions.createQueryExecutionException(parameter, e);
         }
     }
 

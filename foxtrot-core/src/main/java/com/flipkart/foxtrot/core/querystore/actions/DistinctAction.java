@@ -9,7 +9,7 @@ import com.flipkart.foxtrot.common.query.ResultSort;
 import com.flipkart.foxtrot.common.query.general.AnyFilter;
 import com.flipkart.foxtrot.core.common.Action;
 import com.flipkart.foxtrot.core.datastore.DataStore;
-import com.flipkart.foxtrot.core.exception.ExceptionUtils;
+import com.flipkart.foxtrot.core.exception.FoxtrotExceptions;
 import com.flipkart.foxtrot.core.exception.FoxtrotException;
 import com.flipkart.foxtrot.core.querystore.QueryStore;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsProvider;
@@ -86,7 +86,7 @@ public class DistinctAction extends Action<DistinctRequest> {
         }
 
         if (!errorMessages.isEmpty()) {
-            throw ExceptionUtils.createMalformedQueryException(request, errorMessages);
+            throw FoxtrotExceptions.createMalformedQueryException(request, errorMessages);
         }
 
         SearchRequestBuilder query;
@@ -118,7 +118,7 @@ public class DistinctAction extends Action<DistinctRequest> {
                     .setSearchType(SearchType.COUNT)
                     .addAggregation(rootBuilder);
         } catch (Exception e) {
-            throw ExceptionUtils.queryCreationException(request, e);
+            throw FoxtrotExceptions.queryCreationException(request, e);
         }
 
         try {
@@ -131,7 +131,7 @@ public class DistinctAction extends Action<DistinctRequest> {
             }
             return getDistinctResponse(request, aggregations);
         } catch (ElasticsearchException e) {
-            throw ExceptionUtils.createQueryExecutionException(request, e);
+            throw FoxtrotExceptions.createQueryExecutionException(request, e);
         }
     }
 

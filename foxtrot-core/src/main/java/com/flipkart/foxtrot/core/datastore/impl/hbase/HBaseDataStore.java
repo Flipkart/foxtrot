@@ -21,7 +21,7 @@ import com.flipkart.foxtrot.common.Document;
 import com.flipkart.foxtrot.common.DocumentMetadata;
 import com.flipkart.foxtrot.common.Table;
 import com.flipkart.foxtrot.core.datastore.DataStore;
-import com.flipkart.foxtrot.core.exception.ExceptionUtils;
+import com.flipkart.foxtrot.core.exception.FoxtrotExceptions;
 import com.flipkart.foxtrot.core.exception.FoxtrotException;
 import com.flipkart.foxtrot.core.querystore.DocumentTranslator;
 import com.google.common.annotations.VisibleForTesting;
@@ -73,11 +73,11 @@ public class HBaseDataStore implements DataStore {
         try {
             boolean isTableAvailable = tableWrapper.isTableAvailable(table);
             if (!isTableAvailable) {
-                throw ExceptionUtils.createTableInitializationException(table,
+                throw FoxtrotExceptions.createTableInitializationException(table,
                         String.format("Create HBase Table - %s", tableWrapper.getHBaseTableName(table)));
             }
         } catch (IOException e) {
-            throw ExceptionUtils.createConnectionException(table, e);
+            throw FoxtrotExceptions.createConnectionException(table, e);
         }
     }
 
@@ -85,7 +85,7 @@ public class HBaseDataStore implements DataStore {
     @Timed
     public Document save(final Table table, Document document) throws FoxtrotException {
         if (document == null || document.getData() == null || document.getId() == null) {
-            throw ExceptionUtils.createBadRequestException(table.getName(), "Invalid Input Document");
+            throw FoxtrotExceptions.createBadRequestException(table.getName(), "Invalid Input Document");
         }
         HTableInterface hTable = null;
         Document translatedDocument = null;
@@ -94,9 +94,9 @@ public class HBaseDataStore implements DataStore {
             hTable = tableWrapper.getTable(table);
             hTable.put(getPutForDocument(translatedDocument));
         } catch (JsonProcessingException e) {
-            throw ExceptionUtils.createBadRequestException(table, e);
+            throw FoxtrotExceptions.createBadRequestException(table, e);
         } catch (IOException e) {
-            throw ExceptionUtils.createConnectionException(table, e);
+            throw FoxtrotExceptions.createConnectionException(table, e);
         } finally {
             if (null != hTable) {
                 try {
@@ -113,7 +113,7 @@ public class HBaseDataStore implements DataStore {
     @Timed
     public List<Document> saveAll(final Table table, List<Document> documents) throws FoxtrotException {
         if (documents == null || documents.isEmpty()) {
-            throw ExceptionUtils.createBadRequestException(table.getName(), "null/empty document list not allowed");
+            throw FoxtrotExceptions.createBadRequestException(table.getName(), "null/empty document list not allowed");
         }
         List<Put> puts = new Vector<>();
         ImmutableList.Builder<Document> translatedDocuments = ImmutableList.builder();
@@ -139,10 +139,10 @@ public class HBaseDataStore implements DataStore {
                 translatedDocuments.add(translatedDocument);
             }
         } catch (JsonProcessingException e) {
-            throw ExceptionUtils.createBadRequestException(table, e);
+            throw FoxtrotExceptions.createBadRequestException(table, e);
         }
         if (!errorMessages.isEmpty()) {
-            throw ExceptionUtils.createBadRequestException(table.getName(), errorMessages);
+            throw FoxtrotExceptions.createBadRequestException(table.getName(), errorMessages);
         }
 
         HTableInterface hTable = null;
@@ -150,7 +150,7 @@ public class HBaseDataStore implements DataStore {
             hTable = tableWrapper.getTable(table);
             hTable.put(puts);
         } catch (IOException e) {
-            throw ExceptionUtils.createConnectionException(table, e);
+            throw FoxtrotExceptions.createConnectionException(table, e);
         } finally {
             if (null != hTable) {
                 try {
@@ -184,10 +184,10 @@ public class HBaseDataStore implements DataStore {
                 return translator.translateBack(new Document(id, time, documentMetadata, mapper.readTree(data)));
             } else {
                 logger.error("ID missing in HBase - " + id);
-                throw ExceptionUtils.createMissingDocumentException(table, id);
+                throw FoxtrotExceptions.createMissingDocumentException(table, id);
             }
         } catch (IOException e) {
-            throw ExceptionUtils.createConnectionException(table, e);
+            throw FoxtrotExceptions.createConnectionException(table, e);
         } finally {
             if (null != hTable) {
                 try {
@@ -203,7 +203,7 @@ public class HBaseDataStore implements DataStore {
     @Timed
     public List<Document> getAll(final Table table, List<String> ids) throws FoxtrotException {
         if (ids == null) {
-            throw ExceptionUtils.createBadRequestException(table.getName(), "Empty ID List");
+            throw FoxtrotExceptions.createBadRequestException(table.getName(), "Empty ID List");
         }
 
         HTableInterface hTable = null;
@@ -240,14 +240,14 @@ public class HBaseDataStore implements DataStore {
                 }
                 if (!missingIds.isEmpty()) {
                     logger.error("ID's missing in HBase - " + Joiner.on(",").join(ids));
-                    throw ExceptionUtils.createMissingDocumentsException(table, ids);
+                    throw FoxtrotExceptions.createMissingDocumentsException(table, ids);
                 }
             }
             return results;
         } catch (JsonProcessingException e) {
-            throw ExceptionUtils.createBadRequestException(table, e);
+            throw FoxtrotExceptions.createBadRequestException(table, e);
         } catch (IOException e) {
-            throw ExceptionUtils.createConnectionException(table, e);
+            throw FoxtrotExceptions.createConnectionException(table, e);
         } finally {
             if (null != hTable) {
                 try {

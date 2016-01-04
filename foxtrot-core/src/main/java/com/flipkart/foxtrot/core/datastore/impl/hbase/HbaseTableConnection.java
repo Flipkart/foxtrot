@@ -16,7 +16,7 @@
 package com.flipkart.foxtrot.core.datastore.impl.hbase;
 
 import com.flipkart.foxtrot.common.Table;
-import com.flipkart.foxtrot.core.exception.ExceptionUtils;
+import com.flipkart.foxtrot.core.exception.FoxtrotExceptions;
 import com.flipkart.foxtrot.core.exception.FoxtrotException;
 import com.flipkart.foxtrot.core.util.TableUtil;
 import com.yammer.dropwizard.lifecycle.Managed;
@@ -56,7 +56,7 @@ public class HbaseTableConnection implements Managed {
             }
             return tablePool.getTable(TableUtil.getTableName(hbaseConfig, table));
         } catch (Exception e) {
-            throw ExceptionUtils.createConnectionException(table, e);
+            throw FoxtrotExceptions.createConnectionException(table, e);
         }
     }
 

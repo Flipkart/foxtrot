@@ -8,7 +8,7 @@ import com.flipkart.foxtrot.common.stats.StatsResponse;
 import com.flipkart.foxtrot.common.stats.StatsValue;
 import com.flipkart.foxtrot.core.common.Action;
 import com.flipkart.foxtrot.core.datastore.DataStore;
-import com.flipkart.foxtrot.core.exception.ExceptionUtils;
+import com.flipkart.foxtrot.core.exception.FoxtrotExceptions;
 import com.flipkart.foxtrot.core.exception.FoxtrotException;
 import com.flipkart.foxtrot.core.querystore.QueryStore;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsProvider;
@@ -26,7 +26,6 @@ import org.elasticsearch.search.aggregations.metrics.percentiles.InternalPercent
 import org.elasticsearch.search.aggregations.metrics.percentiles.Percentile;
 import org.elasticsearch.search.aggregations.metrics.stats.extended.InternalExtendedStats;
 
-import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -65,7 +64,7 @@ public class StatsAction extends Action<StatsRequest> {
             parameter.setFilters(Lists.<Filter>newArrayList(new AnyFilter(parameter.getTable())));
         }
         if (null == parameter.getTable()) {
-            throw ExceptionUtils.createMalformedQueryException(parameter, "table name cannot be null");
+            throw FoxtrotExceptions.createMalformedQueryException(parameter, "table name cannot be null");
         }
 
         SearchRequestBuilder searchRequestBuilder;
@@ -80,7 +79,7 @@ public class StatsAction extends Action<StatsRequest> {
                     .addAggregation(Utils.buildExtendedStatsAggregation(parameter.getField()))
                     .addAggregation(Utils.buildPercentileAggregation(parameter.getField()));
         } catch (Exception e) {
-            throw ExceptionUtils.queryCreationException(parameter, e);
+            throw FoxtrotExceptions.queryCreationException(parameter, e);
         }
         try {
             Aggregations aggregations = searchRequestBuilder.execute().actionGet().getAggregations();
@@ -89,7 +88,7 @@ public class StatsAction extends Action<StatsRequest> {
             }
             return null;
         } catch (ElasticsearchException e) {
-            throw ExceptionUtils.createQueryExecutionException(parameter, e);
+            throw FoxtrotExceptions.createQueryExecutionException(parameter, e);
         }
     }
 
