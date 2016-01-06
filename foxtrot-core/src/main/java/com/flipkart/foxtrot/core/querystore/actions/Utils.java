@@ -44,6 +44,6 @@ public class Utils {
     }
     
     public static IndicesOptions indicesOptions() {
-        return IndicesOptions.fromOptions(true, true, true, false);
+        return IndicesOptions.lenientExpandOpen();
     }
 }
