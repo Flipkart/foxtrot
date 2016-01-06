@@ -13,7 +13,6 @@ import java.io.OutputStreamWriter;
 
 @Path("/v1/fql")
 public class FqlResource {
-
     private FqlEngine fqlEngine;
 
     public FqlResource(final FqlEngine fqlEngine) {

@@ -27,8 +27,6 @@ import com.flipkart.foxtrot.core.datastore.DataStore;
 import com.flipkart.foxtrot.core.exception.ErrorCode;
 import com.flipkart.foxtrot.core.exception.FoxtrotException;
 import com.flipkart.foxtrot.core.querystore.DocumentTranslator;
-import com.flipkart.foxtrot.core.querystore.QueryExecutor;
-import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsLoader;
 import com.flipkart.foxtrot.core.table.TableMetadataManager;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Maps;
@@ -40,8 +38,6 @@ import org.junit.Test;
 import org.mockito.Mockito;
 
 import java.util.*;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 import static org.junit.Assert.*;
 import static org.mockito.Matchers.anyString;
@@ -52,7 +48,6 @@ import static org.mockito.Mockito.when;
  */
 public class ElasticsearchQueryStoreTest {
     private MockElasticsearchServer elasticsearchServer;
-    private DataStore dataStore;
     private ElasticsearchQueryStore queryStore;
     private ObjectMapper mapper;
     private TableMetadataManager tableMetadataManager;
@@ -62,9 +57,7 @@ public class ElasticsearchQueryStoreTest {
     @Before
     public void setUp() throws Exception {
         mapper = new ObjectMapper();
-        ElasticsearchUtils.setMapper(mapper);
-        dataStore = TestUtils.getDataStore();
-
+        DataStore dataStore = TestUtils.getDataStore();
         elasticsearchServer = new MockElasticsearchServer(UUID.randomUUID().toString());
         ElasticsearchConnection elasticsearchConnection = Mockito.mock(ElasticsearchConnection.class);
         when(elasticsearchConnection.getClient()).thenReturn(elasticsearchServer.getClient());
@@ -72,10 +65,7 @@ public class ElasticsearchQueryStoreTest {
         tableMetadataManager = Mockito.mock(TableMetadataManager.class);
         when(tableMetadataManager.exists(TestUtils.TEST_TABLE_NAME)).thenReturn(true);
         when(tableMetadataManager.get(anyString())).thenReturn(TestUtils.TEST_TABLE);
-        AnalyticsLoader analyticsLoader = new AnalyticsLoader(tableMetadataManager, dataStore, queryStore, elasticsearchConnection);
-        ExecutorService executorService = Executors.newFixedThreadPool(1);
-        QueryExecutor queryExecutor = new QueryExecutor(analyticsLoader, executorService);
-        queryStore = new ElasticsearchQueryStore(tableMetadataManager, elasticsearchConnection, dataStore);
+        queryStore = new ElasticsearchQueryStore(tableMetadataManager, elasticsearchConnection, dataStore, mapper);
     }
 
     @After

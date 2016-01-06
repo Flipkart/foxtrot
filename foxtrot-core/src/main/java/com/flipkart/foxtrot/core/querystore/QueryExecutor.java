@@ -32,6 +32,7 @@ import java.util.concurrent.ExecutorService;
  * Date: 24/03/14
  * Time: 12:51 PM
  */
+
 public class QueryExecutor {
     private static final Logger logger = LoggerFactory.getLogger(QueryExecutor.class.getSimpleName());
 

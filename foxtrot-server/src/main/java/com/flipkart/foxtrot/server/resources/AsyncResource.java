@@ -16,10 +16,8 @@
 package com.flipkart.foxtrot.server.resources;
 
 import com.flipkart.foxtrot.common.ActionResponse;
+import com.flipkart.foxtrot.core.cache.CacheManager;
 import com.flipkart.foxtrot.core.common.AsyncDataToken;
-import com.flipkart.foxtrot.core.common.CacheUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.*;
@@ -35,6 +33,12 @@ import javax.ws.rs.core.Response;
 @Produces(MediaType.APPLICATION_JSON)
 public class AsyncResource {
 
+    private CacheManager cacheManager;
+
+    public AsyncResource(CacheManager cacheManager) {
+        this.cacheManager = cacheManager;
+    }
+
     @GET
     @Path("/{action}/{id}")
     public Response getResponse(@PathParam("action") final String action, @NotNull @PathParam("id") final String id) {
@@ -47,6 +51,6 @@ public class AsyncResource {
     }
 
     private ActionResponse getData(final AsyncDataToken dataToken) {
-        return CacheUtils.getCacheFor(dataToken.getAction()).get(dataToken.getKey());
+        return cacheManager.getCacheFor(dataToken.getAction()).get(dataToken.getKey());
     }
 }

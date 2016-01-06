@@ -39,7 +39,8 @@ import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.spy;
 
 /**
  * Created by rishabh.goyal on 28/04/14.
@@ -53,9 +54,11 @@ public class TestUtils {
     public static DataStore getDataStore() throws FoxtrotException {
         HTableInterface tableInterface = MockHTable.create();
         HbaseTableConnection tableConnection = Mockito.mock(HbaseTableConnection.class);
-        when(tableConnection.getTable(Matchers.<Table>any())).thenReturn(tableInterface);
-        when(tableConnection.getHbaseConfig()).thenReturn(new HbaseConfig());
-        return new HBaseDataStore(tableConnection, new ObjectMapper());
+        doReturn(tableInterface).when(tableConnection).getTable(Matchers.<Table>any());
+        doReturn(new HbaseConfig()).when(tableConnection).getHbaseConfig();
+        HBaseDataStore hBaseDataStore = new HBaseDataStore(tableConnection, new ObjectMapper());
+        hBaseDataStore = spy(hBaseDataStore);
+        return hBaseDataStore;
     }
 
     public static Document getDocument(String id, long timestamp, Object[] args, ObjectMapper mapper) {

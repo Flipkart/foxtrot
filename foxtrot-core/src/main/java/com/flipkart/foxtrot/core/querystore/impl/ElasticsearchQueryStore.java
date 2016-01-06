@@ -61,6 +61,7 @@ import java.util.stream.Collectors;
  * Date: 14/03/14
  * Time: 12:27 AM
  */
+
 public class ElasticsearchQueryStore implements QueryStore {
     private static final Logger logger = LoggerFactory.getLogger(ElasticsearchQueryStore.class.getSimpleName());
 
@@ -69,14 +70,14 @@ public class ElasticsearchQueryStore implements QueryStore {
     private final TableMetadataManager tableMetadataManager;
     private final ObjectMapper mapper;
 
-
     public ElasticsearchQueryStore(TableMetadataManager tableMetadataManager,
                                    ElasticsearchConnection connection,
-                                   DataStore dataStore) {
+                                   DataStore dataStore,
+                                   ObjectMapper mapper) {
         this.connection = connection;
         this.dataStore = dataStore;
         this.tableMetadataManager = tableMetadataManager;
-        this.mapper = ElasticsearchUtils.getMapper();
+        this.mapper = mapper;
     }
 
     @Override

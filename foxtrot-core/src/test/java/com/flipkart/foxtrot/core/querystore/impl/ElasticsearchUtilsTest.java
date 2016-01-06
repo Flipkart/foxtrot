@@ -67,9 +67,9 @@ public class ElasticsearchUtilsTest {
                 new PeriodSelector(request.getFilters()).analyze(TEST_CURRENT_TIME));
         System.out.println(Arrays.toString(indexes));
         Assert.assertArrayEquals(new String[]{
-                                            "foxtrot-test-table-02-4-2015",
-                                            "foxtrot-test-table-03-4-2015",
-                                            "foxtrot-test-table-04-4-2015"}, indexes);
+                "foxtrot-test-table-02-4-2015",
+                "foxtrot-test-table-03-4-2015",
+                "foxtrot-test-table-04-4-2015"}, indexes);
     }
 
     @Test
@@ -84,8 +84,8 @@ public class ElasticsearchUtilsTest {
                 new PeriodSelector(request.getFilters()).analyze(TEST_CURRENT_TIME));
         System.out.println(Arrays.toString(indexes));
         Assert.assertArrayEquals(new String[]{
-                                            "foxtrot-test-table-02-4-2015",
-                                            "foxtrot-test-table-03-4-2015"}, indexes);
+                "foxtrot-test-table-02-4-2015",
+                "foxtrot-test-table-03-4-2015"}, indexes);
     }
 
     @Test
@@ -99,9 +99,9 @@ public class ElasticsearchUtilsTest {
                 new PeriodSelector(request.getFilters()).analyze(TEST_CURRENT_TIME));
         System.out.println(Arrays.toString(indexes));
         Assert.assertArrayEquals(new String[]{
-                                            "foxtrot-test-table-02-4-2015",
-                                            "foxtrot-test-table-03-4-2015",
-                                            "foxtrot-test-table-04-4-2015"}, indexes);
+                "foxtrot-test-table-02-4-2015",
+                "foxtrot-test-table-03-4-2015",
+                "foxtrot-test-table-04-4-2015"}, indexes);
     }
 
     @Test
@@ -115,9 +115,9 @@ public class ElasticsearchUtilsTest {
                 new PeriodSelector(request.getFilters()).analyze(TEST_CURRENT_TIME));
         System.out.println(Arrays.toString(indexes));
         Assert.assertArrayEquals(new String[]{
-                                            "foxtrot-test-table-02-4-2015",
-                                            "foxtrot-test-table-03-4-2015",
-                                            "foxtrot-test-table-04-4-2015"}, indexes);
+                "foxtrot-test-table-02-4-2015",
+                "foxtrot-test-table-03-4-2015",
+                "foxtrot-test-table-04-4-2015"}, indexes);
     }
 
     @Test
@@ -148,7 +148,9 @@ public class ElasticsearchUtilsTest {
 
     @Test
     public void testWithDifferentTableprefixShouldCreateIndexWithTableName() throws Exception {
-        ElasticsearchUtils.setTableNamePrefix("azkaban");
+        ElasticsearchConfig config = new ElasticsearchConfig();
+        config.setTableNamePrefix("azkaban");
+        ElasticsearchUtils.setTableNamePrefix(config);
         TestRequest request = new TestRequest();
         LastFilter filter = new LastFilter();
         filter.setDuration(Duration.minutes(10));
@@ -157,12 +159,15 @@ public class ElasticsearchUtilsTest {
         String indexes[] = ElasticsearchUtils.getIndices("test", request,
                 new PeriodSelector(request.getFilters()).analyze(TEST_CURRENT_TIME));
         Assert.assertArrayEquals(new String[]{"azkaban-test-table-04-4-2015"}, indexes);
-        ElasticsearchUtils.setTableNamePrefix("foxtrot");
+        config.setTableNamePrefix("foxtrot");
+        ElasticsearchUtils.setTableNamePrefix(config);
     }
 
     @Test
     public void testGetIndicesGreaterEqualsWithDifferentTablePrefixName() throws Exception {
-        ElasticsearchUtils.setTableNamePrefix("azkaban");
+        ElasticsearchConfig config = new ElasticsearchConfig();
+        config.setTableNamePrefix("azkaban");
+        ElasticsearchUtils.setTableNamePrefix(config);
         TestRequest request = new TestRequest();
         GreaterEqualFilter filter = new GreaterEqualFilter();
         filter.setTemporal(true);
@@ -170,12 +175,12 @@ public class ElasticsearchUtilsTest {
         request.setFilters(Collections.<Filter>singletonList(filter));
         String indexes[] = ElasticsearchUtils.getIndices("test", request,
                 new PeriodSelector(request.getFilters()).analyze(TEST_CURRENT_TIME));
-        System.out.println(Arrays.toString(indexes));
         Assert.assertArrayEquals(new String[]{
                 "azkaban-test-table-02-4-2015",
                 "azkaban-test-table-03-4-2015",
                 "azkaban-test-table-04-4-2015"}, indexes);
-        ElasticsearchUtils.setTableNamePrefix("foxtrot");
+        config.setTableNamePrefix("foxtrot");
+        ElasticsearchUtils.setTableNamePrefix(config);
     }
 
 }

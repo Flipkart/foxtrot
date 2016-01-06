@@ -19,6 +19,8 @@ import com.flipkart.foxtrot.common.ActionRequest;
 import com.flipkart.foxtrot.common.ActionResponse;
 import com.flipkart.foxtrot.common.query.Filter;
 import com.flipkart.foxtrot.common.query.numeric.LessThanFilter;
+import com.flipkart.foxtrot.core.cache.Cache;
+import com.flipkart.foxtrot.core.cache.CacheManager;
 import com.flipkart.foxtrot.core.datastore.DataStore;
 import com.flipkart.foxtrot.core.exception.FoxtrotException;
 import com.flipkart.foxtrot.core.querystore.QueryStore;
@@ -46,7 +48,7 @@ public abstract class Action<ParameterType extends ActionRequest> implements Cal
     private final TableMetadataManager tableMetadataManager;
     private final QueryStore queryStore;
     private final String cacheToken;
-    private final Cache cache;
+    private final CacheManager cacheManager;
     private String cacheKey = null;
 
     protected Action(ParameterType parameter,
@@ -54,12 +56,13 @@ public abstract class Action<ParameterType extends ActionRequest> implements Cal
                      DataStore dataStore,
                      QueryStore queryStore,
                      ElasticsearchConnection connection,
-                     String cacheToken) {
+                     String cacheToken,
+                     CacheManager cacheManager) {
         this.parameter = parameter;
         this.tableMetadataManager = tableMetadataManager;
         this.queryStore = queryStore;
         this.cacheToken = cacheToken;
-        this.cache = CacheUtils.getCacheFor(this.cacheToken);
+        this.cacheManager = cacheManager;
         this.connection = connection;
         this.dataStore = dataStore;
     }
@@ -79,11 +82,12 @@ public abstract class Action<ParameterType extends ActionRequest> implements Cal
     @Override
     public String call() throws Exception {
         final String cacheKey = cacheKey();
-        cache.put(cacheKey, execute(parameter));
+        cacheManager.getCacheFor(this.cacheToken).put(cacheKey, execute(parameter));
         return cacheKey;
     }
 
     public ActionResponse execute() throws FoxtrotException {
+        Cache cache = cacheManager.getCacheFor(this.cacheToken);
         final String cacheKeyValue = cacheKey();
         if (isCacheable()) {
             if (cache.has(cacheKeyValue)) {
@@ -106,7 +110,7 @@ public abstract class Action<ParameterType extends ActionRequest> implements Cal
     }
 
     public final boolean isCacheable() {
-        return cache != null;
+        return cacheManager.getCacheFor(this.cacheToken) != null;
     }
 
     abstract protected String getRequestCacheKey();

@@ -15,7 +15,6 @@
  */
 package com.flipkart.foxtrot.core.querystore.impl;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.flipkart.foxtrot.common.ActionRequest;
 import com.flipkart.foxtrot.common.Table;
 import com.flipkart.foxtrot.core.common.PeriodSelector;
@@ -54,18 +53,9 @@ public class ElasticsearchUtils {
     public static final String TABLENAME_POSTFIX = "table";
     private static final DateTimeFormatter FORMATTER = DateTimeFormat.forPattern("dd-M-yyyy");
     public static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormat.forPattern("dd-M-yyyy");
-    private static ObjectMapper mapper;
 
-    public static void setMapper(ObjectMapper mapper) {
-        ElasticsearchUtils.mapper = mapper;
-    }
-
-    public static ObjectMapper getMapper() {
-        return mapper;
-    }
-
-    public static void setTableNamePrefix(String tableNamePrefix) {
-        ElasticsearchUtils.TABLENAME_PREFIX = tableNamePrefix;
+    public static void setTableNamePrefix(ElasticsearchConfig config) {
+        ElasticsearchUtils.TABLENAME_PREFIX = config.getTableNamePrefix();
     }
 
     public static String getIndexPrefix(final String table) {

@@ -13,6 +13,7 @@ import java.util.List;
 /**
  * Created by rishabh.goyal on 05/12/15.
  */
+
 public class FoxtrotTableManager implements TableManager {
 
     private final TableMetadataManager metadataManager;
