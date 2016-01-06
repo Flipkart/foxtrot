@@ -97,6 +97,7 @@ public class CountAction extends Action<CountRequest> {
             } else {
                 CountRequestBuilder countRequestBuilder = getConnection().getClient()
                         .prepareCount(ElasticsearchUtils.getIndices(parameter.getTable(), parameter))
+                        .setIndicesOptions(Utils.indicesOptions())
                         .setQuery(new ElasticSearchQueryGenerator(FilterCombinerType.and).genFilter(parameter.getFilters()));
                 org.elasticsearch.action.count.CountResponse countResponse = countRequestBuilder.execute().actionGet();
                 return new CountResponse(countResponse.getCount());
