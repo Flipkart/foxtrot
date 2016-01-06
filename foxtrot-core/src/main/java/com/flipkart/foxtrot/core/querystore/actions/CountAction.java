@@ -107,6 +107,7 @@ public class CountAction extends Action<CountRequest> {
             try {
                 countRequestBuilder = getConnection().getClient()
                         .prepareCount(ElasticsearchUtils.getIndices(parameter.getTable(), parameter))
+                        .setIndicesOptions(Utils.indicesOptions())
                         .setQuery(new ElasticSearchQueryGenerator(FilterCombinerType.and).genFilter(parameter.getFilters()));
             } catch (Exception e) {
                 throw FoxtrotExceptions.queryCreationException(parameter, e);
