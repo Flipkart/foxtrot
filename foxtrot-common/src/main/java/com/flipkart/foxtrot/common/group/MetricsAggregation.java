@@ -33,4 +33,24 @@ public class MetricsAggregation {
     public enum MetricsAggragationType {
         sum,max,min,avg,percentiles,stats
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof MetricsAggregation)) return false;
+
+        MetricsAggregation that = (MetricsAggregation) o;
+
+        if (field != null ? !field.equals(that.field) : that.field != null) return false;
+        if (type != that.type) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = type != null ? type.hashCode() : 0;
+        result = 31 * result + (field != null ? field.hashCode() : 0);
+        return result;
+    }
 }
