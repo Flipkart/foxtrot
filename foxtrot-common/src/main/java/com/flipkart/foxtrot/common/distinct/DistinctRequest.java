@@ -17,11 +17,12 @@ package com.flipkart.foxtrot.common.distinct;
 
 import com.flipkart.foxtrot.common.ActionRequest;
 import com.flipkart.foxtrot.common.query.ResultSort;
+import com.flipkart.foxtrot.common.util.CollectionUtils;
 import org.apache.commons.lang3.builder.ToStringBuilder;
-import org.hibernate.validator.constraints.NotEmpty;
 
-import javax.validation.constraints.NotNull;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * User: Santanu Sinha (santanu.sinha@flipkart.com)
@@ -29,12 +30,9 @@ import java.util.List;
  * Time: 4:52 PM
  */
 public class DistinctRequest extends ActionRequest {
-    @NotNull
-    @NotEmpty
+
     private String table;
 
-    @NotNull
-    @NotEmpty
     private List<ResultSort> nesting;
 
     public DistinctRequest() {
@@ -47,7 +45,6 @@ public class DistinctRequest extends ActionRequest {
     public void setTable(String table) {
         this.table = table;
     }
-
 
     public List<ResultSort> getNesting() {
         return nesting;
@@ -64,5 +61,31 @@ public class DistinctRequest extends ActionRequest {
                 .append("filters", getFilters())
                 .append("nesting", nesting)
                 .toString();
+    }
+
+    @Override
+    public Set<String> validate() {
+        Set<String> validationErrors = new HashSet<>();
+        if (CollectionUtils.isStringNullOrEmpty(table)) {
+            validationErrors.add("table name cannot be null or empty");
+        }
+
+        if (CollectionUtils.isListNullOrEmpty(nesting)) {
+            validationErrors.add("At least one nesting parameter is required");
+        } else {
+            for (ResultSort resultSort : nesting) {
+                if (resultSort == null) {
+                    validationErrors.add("nested parameter cannot be null");
+                } else {
+                    if (CollectionUtils.isStringNullOrEmpty(resultSort.getField())) {
+                        validationErrors.add("nested parameter cannot have null name");
+                    }
+                    if (resultSort.getOrder() == null) {
+                        validationErrors.add("nested parameter cannot have null sorting order");
+                    }
+                }
+            }
+        }
+        return validationErrors;
     }
 }

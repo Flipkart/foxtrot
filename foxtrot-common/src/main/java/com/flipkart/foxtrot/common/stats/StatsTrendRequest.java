@@ -3,26 +3,24 @@ package com.flipkart.foxtrot.common.stats;
 import com.flipkart.foxtrot.common.ActionRequest;
 import com.flipkart.foxtrot.common.Period;
 import com.flipkart.foxtrot.common.query.FilterCombinerType;
-import org.hibernate.validator.constraints.NotEmpty;
+import com.flipkart.foxtrot.common.util.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.builder.ToStringBuilder;
 
-import javax.validation.constraints.NotNull;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Created by rishabh.goyal on 02/08/14.
  */
 public class StatsTrendRequest extends ActionRequest {
-    @NotNull
-    @NotEmpty
+
     private String table;
 
-    @NotNull
-    @NotEmpty
     private String field;
 
-    @NotNull
     private FilterCombinerType combiner = FilterCombinerType.and;
 
-    @NotNull
     private Period period = Period.hours;
 
     private String timestamp = "_timestamp";
@@ -71,15 +69,37 @@ public class StatsTrendRequest extends ActionRequest {
         this.timestamp = timestamp;
     }
 
+
+    @Override
+    public Set<String> validate() {
+        Set<String> validationErrors = new HashSet<>();
+        if (CollectionUtils.isStringNullOrEmpty(table)) {
+            validationErrors.add("table name cannot be null or empty");
+        }
+        if (CollectionUtils.isStringNullOrEmpty(field)) {
+            validationErrors.add("field name cannot be null or empty");
+        }
+        if (CollectionUtils.isStringNullOrEmpty(timestamp)) {
+            validationErrors.add("timestamp field cannot be null or empty");
+        }
+        if (combiner == null) {
+            validationErrors.add(String.format("specify filter combiner (%s)", StringUtils.join(FilterCombinerType.values())));
+        }
+        if (period == null) {
+            validationErrors.add(String.format("specify time period (%s)", StringUtils.join(Period.values())));
+        }
+        return validationErrors;
+    }
+
     @Override
     public String toString() {
-        return "StatsTrendRequest{" +
-                "table='" + table + '\'' +
-                ", field='" + field + '\'' +
-                ", filters=" + getFilters() +
-                ", combiner=" + combiner +
-                ", period=" + period +
-                ", timestamp='" + timestamp + '\'' +
-                '}';
+        return new ToStringBuilder(this)
+                .appendSuper(super.toString())
+                .append("table", table)
+                .append("field", field)
+                .append("combiner", combiner)
+                .append("period", period)
+                .append("timestamp", timestamp)
+                .toString();
     }
 }

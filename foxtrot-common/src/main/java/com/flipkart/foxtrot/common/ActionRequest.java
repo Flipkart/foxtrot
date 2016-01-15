@@ -19,6 +19,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.flipkart.foxtrot.common.query.Filter;
 
 import java.util.List;
+import java.util.Set;
 
 /**
  * User: Santanu Sinha (santanu.sinha@flipkart.com)
@@ -36,4 +37,7 @@ public abstract class ActionRequest {
     public void setFilters(List<Filter> filters) {
         this.filters = filters;
     }
+
+    public abstract Set<String> validate();
+
 }

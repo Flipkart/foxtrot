@@ -16,10 +16,11 @@
 package com.flipkart.foxtrot.common.query;
 
 import com.flipkart.foxtrot.common.ActionRequest;
+import com.flipkart.foxtrot.common.util.CollectionUtils;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
-import javax.validation.constraints.Min;
-import javax.validation.constraints.NotNull;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * User: Santanu Sinha (santanu.sinha@flipkart.com)
@@ -27,15 +28,13 @@ import javax.validation.constraints.NotNull;
  * Time: 6:38 PM
  */
 public class Query extends ActionRequest {
-    @NotNull
+
     private String table;
 
     private ResultSort sort;
 
-    @Min(0)
     private int from = 0;
 
-    @Min(10)
     private int limit = 10;
 
     public Query() {
@@ -76,6 +75,7 @@ public class Query extends ActionRequest {
         this.limit = limit;
     }
 
+
     @Override
     public String toString() {
         return new ToStringBuilder(this)
@@ -85,5 +85,27 @@ public class Query extends ActionRequest {
                 .append("from", from)
                 .append("limit", limit)
                 .toString();
+    }
+
+    @Override
+    public Set<String> validate() {
+        Set<String> validationErrors = new HashSet<>();
+        if (CollectionUtils.isStringNullOrEmpty(table)) {
+            validationErrors.add("table name cannot be null or empty");
+        }
+        if (sort == null) {
+            validationErrors.add("sort order needs to be specified");
+        }
+
+        if (from < 0) {
+            validationErrors.add("from must be non-negative integer");
+        }
+
+        if (limit <= 0) {
+            validationErrors.add("limit must be positive integer");
+        }
+
+
+        return validationErrors;
     }
 }

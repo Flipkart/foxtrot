@@ -16,11 +16,13 @@
 package com.flipkart.foxtrot.common.group;
 
 import com.flipkart.foxtrot.common.ActionRequest;
+import com.flipkart.foxtrot.common.util.CollectionUtils;
 import org.apache.commons.lang3.builder.ToStringBuilder;
-import org.hibernate.validator.constraints.NotEmpty;
 
-import javax.validation.constraints.NotNull;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * User: Santanu Sinha (santanu.sinha@flipkart.com)
@@ -28,13 +30,9 @@ import java.util.List;
  * Time: 4:52 PM
  */
 public class GroupRequest extends ActionRequest {
-    @NotNull
-    @NotEmpty
+
     private String table;
 
-
-    @NotNull
-    @NotEmpty
     private List<String> nesting;
 
     public GroupRequest() {
@@ -64,5 +62,23 @@ public class GroupRequest extends ActionRequest {
                 .append("filters", getFilters())
                 .append("nesting", nesting)
                 .toString();
+    }
+
+    @Override
+    public Set<String> validate() {
+        Set<String> validationErrors = new HashSet<>();
+        if (CollectionUtils.isStringNullOrEmpty(table)) {
+            validationErrors.add("table name cannot be null or empty");
+        }
+
+        if (CollectionUtils.isListNullOrEmpty(nesting)) {
+            validationErrors.add("at least one grouping parameter is required");
+        } else {
+            validationErrors.addAll(nesting.stream()
+                    .filter(CollectionUtils::isStringNullOrEmpty)
+                    .map(field -> "grouping parameter cannot have null or empty name")
+                    .collect(Collectors.toList()));
+        }
+        return validationErrors;
     }
 }

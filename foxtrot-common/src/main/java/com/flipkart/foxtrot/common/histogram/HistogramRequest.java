@@ -17,10 +17,11 @@ package com.flipkart.foxtrot.common.histogram;
 
 import com.flipkart.foxtrot.common.ActionRequest;
 import com.flipkart.foxtrot.common.Period;
+import com.flipkart.foxtrot.common.util.CollectionUtils;
 import org.apache.commons.lang3.builder.ToStringBuilder;
-import org.hibernate.validator.constraints.NotEmpty;
 
-import javax.validation.constraints.NotNull;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * User: Santanu Sinha (santanu.sinha@flipkart.com)
@@ -28,13 +29,9 @@ import javax.validation.constraints.NotNull;
  * Time: 12:06 AM
  */
 public class HistogramRequest extends ActionRequest {
-    @NotNull
-    @NotEmpty
+
     private String table;
 
-
-    @NotNull
-    @NotEmpty
     private String field = "_timestamp";
 
     private Period period;
@@ -78,4 +75,18 @@ public class HistogramRequest extends ActionRequest {
                 .toString();
     }
 
+    @Override
+    public Set<String> validate() {
+        Set<String> validationErrors = new HashSet<>();
+        if (CollectionUtils.isStringNullOrEmpty(table)) {
+            validationErrors.add("table name cannot be null or empty");
+        }
+        if (CollectionUtils.isStringNullOrEmpty(field)) {
+            validationErrors.add("timestamp field cannot be null or empty");
+        }
+        if (period == null) {
+            validationErrors.add("time period cannot be null");
+        }
+        return validationErrors;
+    }
 }

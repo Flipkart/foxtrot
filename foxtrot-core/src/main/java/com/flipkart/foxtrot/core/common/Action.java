@@ -49,7 +49,6 @@ public abstract class Action<ParameterType extends ActionRequest> implements Cal
     private final QueryStore queryStore;
     private final String cacheToken;
     private final CacheManager cacheManager;
-    private String cacheKey = null;
 
     protected Action(ParameterType parameter,
                      TableMetadataManager tableMetadataManager,
@@ -68,10 +67,7 @@ public abstract class Action<ParameterType extends ActionRequest> implements Cal
     }
 
     public String cacheKey() {
-        if (null == cacheKey) {
-            cacheKey = String.format("%s-%d", getRequestCacheKey(), System.currentTimeMillis() / 30000);//UUID.nameUUIDFromBytes(childKey.getBytes()).toString();
-        }
-        return cacheKey;
+        return String.format("%s-%d", getRequestCacheKey(), System.currentTimeMillis() / 30000);
     }
 
     public AsyncDataToken execute(ExecutorService executor) {

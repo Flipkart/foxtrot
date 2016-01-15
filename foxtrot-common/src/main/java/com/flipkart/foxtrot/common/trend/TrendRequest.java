@@ -17,11 +17,13 @@ package com.flipkart.foxtrot.common.trend;
 
 import com.flipkart.foxtrot.common.ActionRequest;
 import com.flipkart.foxtrot.common.Period;
+import com.flipkart.foxtrot.common.util.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.ToStringBuilder;
-import org.hibernate.validator.constraints.NotEmpty;
 
-import javax.validation.constraints.NotNull;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * User: Santanu Sinha (santanu.sinha@flipkart.com)
@@ -29,12 +31,9 @@ import java.util.List;
  * Time: 2:30 PM
  */
 public class TrendRequest extends ActionRequest {
-    @NotNull
-    @NotEmpty
+
     private String table;
 
-    @NotNull
-    @NotEmpty
     private String field;
 
     private String timestamp = "_timestamp";
@@ -94,5 +93,24 @@ public class TrendRequest extends ActionRequest {
 
     public void setPeriod(Period period) {
         this.period = period;
+    }
+
+
+    @Override
+    public Set<String> validate() {
+        Set<String> validationErrors = new HashSet<>();
+        if (CollectionUtils.isStringNullOrEmpty(table)) {
+            validationErrors.add("table name cannot be null or empty");
+        }
+        if (CollectionUtils.isStringNullOrEmpty(field)) {
+            validationErrors.add("field name cannot be null or empty");
+        }
+        if (CollectionUtils.isStringNullOrEmpty(timestamp)) {
+            validationErrors.add("timestamp field cannot be null or empty");
+        }
+        if (period == null) {
+            validationErrors.add(String.format("specify time period (%s)", StringUtils.join(Period.values())));
+        }
+        return validationErrors;
     }
 }

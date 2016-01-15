@@ -70,8 +70,7 @@ public class AnalyticsLoader implements Managed {
     }
 
     @SuppressWarnings("unchecked")
-    public <R extends ActionRequest> Action<R>
-    getAction(R request) throws Exception {
+    public <R extends ActionRequest> Action<R> getAction(R request) throws Exception {
         final String className = request.getClass().getCanonicalName();
         if (actions.containsKey(className)) {
             ActionMetadata metadata = actions.get(className);
