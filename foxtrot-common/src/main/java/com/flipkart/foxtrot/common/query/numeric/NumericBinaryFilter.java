@@ -1,12 +1,12 @@
 /**
  * Copyright 2014 Flipkart Internet Pvt. Ltd.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -17,7 +17,7 @@ package com.flipkart.foxtrot.common.query.numeric;
 
 import com.flipkart.foxtrot.common.query.Filter;
 
-import javax.validation.constraints.NotNull;
+import java.util.Set;
 
 /**
  * User: Santanu Sinha (santanu.sinha@flipkart.com)
@@ -25,7 +25,7 @@ import javax.validation.constraints.NotNull;
  * Time: 2:25 PM
  */
 public abstract class NumericBinaryFilter extends Filter {
-    @NotNull
+
     private Number value;
 
     private boolean temporal = false;
@@ -57,11 +57,10 @@ public abstract class NumericBinaryFilter extends Filter {
     @Override
     public int hashCode() {
         int result = super.hashCode();
-        if(!temporal) {
+        if (!temporal) {
             result = 31 * result + value.hashCode();
-        }
-        else {
-            result = 31 * result + Long.valueOf(value.longValue()/30000).hashCode();
+        } else {
+            result = 31 * result + Long.valueOf(value.longValue() / 30000).hashCode();
         }
         return result;
     }
@@ -73,5 +72,14 @@ public abstract class NumericBinaryFilter extends Filter {
 
     public void setTemporal(boolean temporal) {
         this.temporal = temporal;
+    }
+
+    @Override
+    public Set<String> validate() {
+        Set<String> validationErrors = super.validate();
+        if (value == null) {
+            validationErrors.add("filter value cannot be null");
+        }
+        return validationErrors;
     }
 }

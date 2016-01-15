@@ -21,7 +21,6 @@ public class MissingFilter extends Filter{
 	@Override
 	public void accept(FilterVisitor visitor) throws Exception {
 		visitor.visit(this);
-
 	}
 
 

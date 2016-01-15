@@ -1,12 +1,12 @@
 /**
  * Copyright 2014 Flipkart Internet Pvt. Ltd.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -20,7 +20,7 @@ import com.flipkart.foxtrot.common.query.FilterOperator;
 import com.flipkart.foxtrot.common.query.FilterVisitor;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
-import javax.validation.constraints.NotNull;
+import java.util.Set;
 
 /**
  * User: Santanu Sinha (santanu.sinha@flipkart.com)
@@ -28,7 +28,7 @@ import javax.validation.constraints.NotNull;
  * Time: 3:46 PM
  */
 public class ContainsFilter extends Filter {
-    @NotNull
+
     private String value;
 
     public ContainsFilter() {
@@ -74,5 +74,14 @@ public class ContainsFilter extends Filter {
                 .appendSuper(super.toString())
                 .append("value", value)
                 .toString();
+    }
+
+    @Override
+    public Set<String> validate() {
+        Set<String> validationErrors = super.validate();
+        if (value == null) {
+            validationErrors.add("filter value cannot be null");
+        }
+        return validationErrors;
     }
 }

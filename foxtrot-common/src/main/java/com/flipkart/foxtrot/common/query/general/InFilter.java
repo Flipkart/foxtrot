@@ -3,10 +3,11 @@ package com.flipkart.foxtrot.common.query.general;
 import com.flipkart.foxtrot.common.query.Filter;
 import com.flipkart.foxtrot.common.query.FilterOperator;
 import com.flipkart.foxtrot.common.query.FilterVisitor;
+import com.flipkart.foxtrot.common.util.CollectionUtils;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
-import javax.validation.constraints.NotNull;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Created with IntelliJ IDEA.
@@ -17,7 +18,6 @@ import java.util.List;
  */
 public class InFilter extends Filter {
 
-    @NotNull
     private List<Object> values;
 
     public InFilter() {
@@ -68,5 +68,14 @@ public class InFilter extends Filter {
                 .appendSuper(super.toString())
                 .append("values", values)
                 .toString();
+    }
+
+    @Override
+    public Set<String> validate() {
+        Set<String> validationErrors = super.validate();
+        if (CollectionUtils.isListNullOrEmpty(values)) {
+            validationErrors.add("at least one value needs to be provided for field");
+        }
+        return validationErrors;
     }
 }
