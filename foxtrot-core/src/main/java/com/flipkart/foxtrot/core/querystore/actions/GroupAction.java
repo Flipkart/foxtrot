@@ -24,8 +24,8 @@ import com.flipkart.foxtrot.common.query.general.AnyFilter;
 import com.flipkart.foxtrot.core.cache.CacheManager;
 import com.flipkart.foxtrot.core.common.Action;
 import com.flipkart.foxtrot.core.datastore.DataStore;
-import com.flipkart.foxtrot.core.exception.FoxtrotExceptions;
 import com.flipkart.foxtrot.core.exception.FoxtrotException;
+import com.flipkart.foxtrot.core.exception.FoxtrotExceptions;
 import com.flipkart.foxtrot.core.querystore.QueryStore;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsProvider;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConnection;
@@ -43,7 +43,10 @@ import org.elasticsearch.search.aggregations.Aggregations;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.elasticsearch.search.aggregations.bucket.terms.TermsBuilder;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 
 /**
  * User: Santanu Sinha (santanu.sinha@flipkart.com)
@@ -83,22 +86,6 @@ public class GroupAction extends Action<GroupRequest> {
         parameter.setTable(ElasticsearchUtils.getValidTableName(parameter.getTable()));
         if (null == parameter.getFilters()) {
             parameter.setFilters(Lists.<Filter>newArrayList(new AnyFilter(parameter.getTable())));
-        }
-
-        List<String> errorMessages = new ArrayList<>();
-        if (parameter.getTable() == null || parameter.getTable().isEmpty()) {
-            errorMessages.add("table name cannot be null/empty");
-        }
-
-        for (String field : parameter.getNesting()) {
-            if (field == null || field.trim().isEmpty()) {
-                errorMessages.add("nesting parameter cannot be null/empty");
-                break;
-            }
-        }
-
-        if (!errorMessages.isEmpty()) {
-            throw FoxtrotExceptions.createMalformedQueryException(parameter, errorMessages);
         }
 
         SearchRequestBuilder query;

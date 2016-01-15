@@ -10,8 +10,8 @@ import com.flipkart.foxtrot.common.stats.StatsTrendValue;
 import com.flipkart.foxtrot.core.cache.CacheManager;
 import com.flipkart.foxtrot.core.common.Action;
 import com.flipkart.foxtrot.core.datastore.DataStore;
-import com.flipkart.foxtrot.core.exception.FoxtrotExceptions;
 import com.flipkart.foxtrot.core.exception.FoxtrotException;
+import com.flipkart.foxtrot.core.exception.FoxtrotExceptions;
 import com.flipkart.foxtrot.core.querystore.QueryStore;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsProvider;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConnection;
@@ -33,7 +33,10 @@ import org.elasticsearch.search.aggregations.metrics.percentiles.InternalPercent
 import org.elasticsearch.search.aggregations.metrics.percentiles.Percentile;
 import org.elasticsearch.search.aggregations.metrics.stats.extended.InternalExtendedStats;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Created by rishabh.goyal on 02/08/14.
@@ -73,20 +76,6 @@ public class StatsTrendAction extends Action<StatsTrendRequest> {
         parameter.setTable(ElasticsearchUtils.getValidTableName(parameter.getTable()));
         if (null == parameter.getFilters()) {
             parameter.setFilters(Lists.<Filter>newArrayList(new AnyFilter(parameter.getTable())));
-        }
-
-        List<String> errorMessages = new ArrayList<>();
-        if (null == parameter.getTable()) {
-            errorMessages.add("table name cannot be null");
-        }
-
-        String field = parameter.getField();
-        if (null == field || field.isEmpty()) {
-            errorMessages.add("field name cannot be null/empty");
-        }
-
-        if (!errorMessages.isEmpty()) {
-            throw FoxtrotExceptions.createMalformedQueryException(parameter, errorMessages);
         }
 
         SearchRequestBuilder searchRequestBuilder;

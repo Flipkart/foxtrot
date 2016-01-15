@@ -47,7 +47,10 @@ import org.elasticsearch.search.aggregations.bucket.histogram.DateHistogram;
 import org.elasticsearch.search.aggregations.bucket.histogram.Histogram;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 
 /**
  * User: Santanu Sinha (santanu.sinha@flipkart.com)
@@ -97,18 +100,6 @@ public class TrendAction extends Action<TrendRequest> {
             parameter.setFilters(Lists.<Filter>newArrayList(new AnyFilter(parameter.getTable())));
         }
 
-        List<String> errorMessages = new ArrayList<>();
-        if (parameter.getTable() == null) {
-            errorMessages.add("table name cannot be null");
-        }
-
-        if (null == parameter.getField() || parameter.getField().trim().isEmpty()) {
-            errorMessages.add("field name cannot be null/empty");
-
-        }
-        if (!errorMessages.isEmpty()) {
-            throw FoxtrotExceptions.createMalformedQueryException(parameter, errorMessages);
-        }
         if (null != parameter.getValues() && parameter.getValues().size() != 0) {
             List<Object> values = (List) parameter.getValues();
             Filter filter = new InFilter(parameter.getField(), values);

@@ -65,9 +65,6 @@ public class StatsAction extends Action<StatsRequest> {
         if (null == parameter.getFilters()) {
             parameter.setFilters(Lists.<Filter>newArrayList(new AnyFilter(parameter.getTable())));
         }
-        if (null == parameter.getTable()) {
-            throw FoxtrotExceptions.createMalformedQueryException(parameter, "table name cannot be null");
-        }
 
         SearchRequestBuilder searchRequestBuilder;
         try {
