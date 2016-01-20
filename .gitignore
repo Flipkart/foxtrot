@@ -37,3 +37,4 @@
 
 .DS_Store
 target/*
+config/test.yml

@@ -252,7 +252,7 @@ function loadClusterHealth() {
     clusterLoadComplete = false;
 	$.ajax({
 		type: 'GET',
-		url: 'http://' +  hostName + ':9200/_cluster/health',
+		url: '/foxtrot/v1/clusterhealth',
 		success : function(data) {
 			cluster.name = data.cluster_name;
 			cluster.status = data.status;

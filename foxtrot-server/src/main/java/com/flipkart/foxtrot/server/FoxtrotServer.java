@@ -119,6 +119,7 @@ public class FoxtrotServer extends Service<FoxtrotServerConfiguration> {
         environment.addResource(new FqlResource(fqlEngine));
         environment.addResource(new ClusterInfoResource(clusterManager));
         environment.addResource(new UtilResource(configuration));
+        environment.addResource(new ClusterHealthResource(queryStore));
 
         healthChecks.forEach(environment::addHealthCheck);
 
