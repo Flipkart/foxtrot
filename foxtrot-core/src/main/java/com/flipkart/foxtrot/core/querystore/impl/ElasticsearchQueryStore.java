@@ -33,7 +33,10 @@ import com.google.common.collect.Maps;
 import com.yammer.metrics.annotation.Timed;
 import org.elasticsearch.action.WriteConsistencyLevel;
 import org.elasticsearch.action.admin.cluster.health.ClusterHealthResponse;
+import org.elasticsearch.action.admin.cluster.node.stats.NodesStatsRequest;
+import org.elasticsearch.action.admin.cluster.node.stats.NodesStatsResponse;
 import org.elasticsearch.action.admin.indices.mapping.get.GetMappingsResponse;
+import org.elasticsearch.action.admin.indices.stats.IndicesStatsResponse;
 import org.elasticsearch.action.admin.indices.status.IndicesStatusResponse;
 import org.elasticsearch.action.bulk.BulkItemResponse;
 import org.elasticsearch.action.bulk.BulkRequestBuilder;
@@ -318,10 +321,22 @@ public class ElasticsearchQueryStore implements QueryStore {
         return connection.getClient().admin().cluster().prepareHealth().execute().get();
     }
 
+    @Override
+    public NodesStatsResponse getNodeStats() throws ExecutionException, InterruptedException {
+        NodesStatsRequest nodesStatsRequest = new NodesStatsRequest();
+        nodesStatsRequest.clear().jvm(true).os(true).fs(true).indices(true).process(true).breaker(true);
+        return connection.getClient().admin().cluster().nodesStats(nodesStatsRequest).actionGet();
+    }
+
+    @Override
+    public IndicesStatsResponse getIndicesStats() throws ExecutionException, InterruptedException {
+        return connection.getClient().admin().indices().prepareStats(ElasticsearchUtils.getAllIndicesPattern()).clear().setDocs(true).setStore(true).execute().get();
+    }
     private String convert(Document translatedDocument) {
         JsonNode metaNode = mapper.valueToTree(translatedDocument.getMetadata());
         ObjectNode dataNode = translatedDocument.getData().deepCopy();
         dataNode.put(ElasticsearchUtils.DOCUMENT_META_FIELD_NAME, metaNode);
         return dataNode.toString();
     }
+
 }

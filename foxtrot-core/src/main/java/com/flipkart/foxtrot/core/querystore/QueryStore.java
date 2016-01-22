@@ -19,6 +19,8 @@ import com.flipkart.foxtrot.common.Document;
 import com.flipkart.foxtrot.common.TableFieldMapping;
 import com.flipkart.foxtrot.core.exception.FoxtrotException;
 import org.elasticsearch.action.admin.cluster.health.ClusterHealthResponse;
+import org.elasticsearch.action.admin.cluster.node.stats.NodesStatsResponse;
+import org.elasticsearch.action.admin.indices.stats.IndicesStatsResponse;
 
 import java.util.List;
 import java.util.Set;
@@ -52,4 +54,8 @@ public interface QueryStore {
     void cleanup(final Set<String> tables) throws FoxtrotException;
 
     ClusterHealthResponse getClusterHealth() throws ExecutionException, InterruptedException;
+
+    NodesStatsResponse getNodeStats() throws ExecutionException, InterruptedException;
+
+    IndicesStatsResponse getIndicesStats() throws ExecutionException, InterruptedException;
 }
