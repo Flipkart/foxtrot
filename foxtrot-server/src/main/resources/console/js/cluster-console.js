@@ -102,8 +102,7 @@ EventBus.addEventListener('hosts_loaded', function(event, data){
 		            fieldBreaker = node.breaker.allStats[i];
 		        }
 		    }
-            if(fieldBreaker != null){
-    		    host.fieldCache = toPercentage(node.breaker.allStats[0].estimated,node.breaker.allStats[0].limit);
+    		host.fieldCache = toPercentage(fieldBreaker.estimated,fieldBreaker.limit);
     		}
 		}
 		else {
