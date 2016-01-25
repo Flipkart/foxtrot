@@ -31,6 +31,9 @@ import com.flipkart.foxtrot.core.table.TableMetadataManager;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Maps;
 import com.shash.hbase.ds.RowKeyDistributorByHashPrefix;
+import org.elasticsearch.action.admin.cluster.health.ClusterHealthResponse;
+import org.elasticsearch.action.admin.cluster.node.stats.NodesStatsResponse;
+import org.elasticsearch.action.admin.indices.stats.IndicesStatsResponse;
 import org.elasticsearch.action.get.GetResponse;
 import org.junit.After;
 import org.junit.Before;
@@ -38,6 +41,7 @@ import org.junit.Test;
 import org.mockito.Mockito;
 
 import java.util.*;
+import java.util.concurrent.ExecutionException;
 
 import static org.junit.Assert.*;
 import static org.mockito.Matchers.anyString;
@@ -269,5 +273,52 @@ public class ElasticsearchQueryStoreTest {
 
         assertEquals(request.getTable(), response.getTable());
         assertTrue(request.getMappings().equals(response.getMappings()));
+    }
+
+    @Test
+    public void testEsClusterHealth() throws ExecutionException, InterruptedException, FoxtrotException {
+        List<Document> documents = new Vector<Document>();
+        for (int i = 0; i < 10; i++) {
+            documents.add(new Document(UUID.randomUUID().toString(),
+                    System.currentTimeMillis(),
+                    mapper.valueToTree(Collections.singletonMap("TEST_NAME", "SINGLE_SAVE_TEST"))));
+        }
+        queryStore.save(TestUtils.TEST_TABLE_NAME, documents);
+        elasticsearchServer.refresh(ElasticsearchUtils.getIndices(TestUtils.TEST_TABLE_NAME));
+        ClusterHealthResponse clusterHealth = queryStore.getClusterHealth();
+        assertEquals("elasticsearch",clusterHealth.getClusterName());
+        assertEquals(1,clusterHealth.getIndices().size());
+    }
+
+    @Test
+    public void testEsNodesStats() throws FoxtrotException, ExecutionException, InterruptedException {
+        List<Document> documents = new Vector<Document>();
+        for (int i = 0; i < 10; i++) {
+            documents.add(new Document(UUID.randomUUID().toString(),
+                    System.currentTimeMillis(),
+                    mapper.valueToTree(Collections.singletonMap("TEST_NAME", "SINGLE_SAVE_TEST"))));
+        }
+        queryStore.save(TestUtils.TEST_TABLE_NAME, documents);
+        elasticsearchServer.refresh(ElasticsearchUtils.getIndices(TestUtils.TEST_TABLE_NAME));
+        NodesStatsResponse clusterHealth = queryStore.getNodeStats();
+        assertNotNull(clusterHealth);
+        assertEquals(1, clusterHealth.getNodesMap().size());
+    }
+
+    @Test
+    public void testIndicesStats() throws FoxtrotException, ExecutionException, InterruptedException {
+        List<Document> documents = new Vector<Document>();
+        for (int i = 0; i < 10; i++) {
+            documents.add(new Document(UUID.randomUUID().toString(),
+                    System.currentTimeMillis(),
+                    mapper.valueToTree(Collections.singletonMap("TEST_NAME", "SINGLE_SAVE_TEST"))));
+        }
+        queryStore.save(TestUtils.TEST_TABLE_NAME, documents);
+        elasticsearchServer.refresh(ElasticsearchUtils.getIndices(TestUtils.TEST_TABLE_NAME));
+        IndicesStatsResponse clusterHealth = queryStore.getIndicesStats();
+        assertEquals(10,clusterHealth.getPrimaries().getDocs().getCount());
+        assertNotEquals(0,clusterHealth.getTotal().getStore().getSizeInBytes());
+        assertNotEquals(0,clusterHealth.getPrimaries().getStore().getSizeInBytes());
+
     }
 }

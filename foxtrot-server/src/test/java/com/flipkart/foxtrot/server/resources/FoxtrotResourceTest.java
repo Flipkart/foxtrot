@@ -1,7 +1,9 @@
 package com.flipkart.foxtrot.server.resources;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.jsontype.SubtypeResolver;
 import com.fasterxml.jackson.databind.jsontype.impl.StdSubtypeResolver;
 import com.flipkart.foxtrot.core.MockElasticsearchServer;
@@ -54,6 +56,7 @@ public abstract class FoxtrotResourceTest extends ResourceTest {
         SubtypeResolver subtypeResolver = new StdSubtypeResolver();
         getObjectMapperFactory().setSubtypeResolver(subtypeResolver);
 
+        getObjectMapperFactory().disable(SerializationFeature.FAIL_ON_EMPTY_BEANS);
         this.mapper = getObjectMapperFactory().build();
         this.dataStore = TestUtils.getDataStore();
 
