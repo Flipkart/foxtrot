@@ -32,10 +32,11 @@ public class GroupRequest extends ActionRequest {
     @NotEmpty
     private String table;
 
-
     @NotNull
     @NotEmpty
     private List<String> nesting;
+
+    private MetricsAggregation metric;
 
     public GroupRequest() {
     }
@@ -53,8 +54,18 @@ public class GroupRequest extends ActionRequest {
         return nesting;
     }
 
+
     public void setNesting(List<String> nesting) {
         this.nesting = nesting;
+    }
+
+
+    public MetricsAggregation getMetric() {
+        return metric;
+    }
+
+    public void setMetric(MetricsAggregation metric) {
+        this.metric = metric;
     }
 
     @Override
@@ -62,7 +73,7 @@ public class GroupRequest extends ActionRequest {
         return new ToStringBuilder(this)
                 .append("table", table)
                 .append("filters", getFilters())
-                .append("nesting", nesting)
+                .append("nesting", nesting).append("metric", metric)
                 .toString();
     }
 }

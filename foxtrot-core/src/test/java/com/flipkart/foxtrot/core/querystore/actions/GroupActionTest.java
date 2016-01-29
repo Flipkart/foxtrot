@@ -19,6 +19,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.flipkart.foxtrot.common.Document;
 import com.flipkart.foxtrot.common.group.GroupRequest;
 import com.flipkart.foxtrot.common.group.GroupResponse;
+import com.flipkart.foxtrot.common.group.MetricsAggregation;
 import com.flipkart.foxtrot.common.query.Filter;
 import com.flipkart.foxtrot.common.query.general.EqualsFilter;
 import com.flipkart.foxtrot.common.query.numeric.GreaterThanFilter;
@@ -30,6 +31,7 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 
+import java.text.DecimalFormat;
 import java.util.*;
 
 import static org.junit.Assert.assertEquals;
@@ -276,5 +278,134 @@ public class GroupActionTest extends ActionTest {
 
         GroupResponse actualResult = GroupResponse.class.cast(getQueryExecutor().execute(groupRequest));
         assertEquals(response, actualResult.getResult());
+    }
+
+    @Test
+      public void testGroupActionWithMetricsSum() throws FoxtrotException {
+        GroupRequest groupRequest = new GroupRequest();
+        groupRequest.setTable(TestUtils.TEST_TABLE_NAME);
+        groupRequest.setNesting(Arrays.asList("os"));
+
+        MetricsAggregation metricsAggregation = new MetricsAggregation();
+        metricsAggregation.setField("battery");
+        metricsAggregation.setType(MetricsAggregation.MetricsAggragationType.sum);
+        groupRequest.setMetric(metricsAggregation);
+
+        GroupResponse actualResult = GroupResponse.class.cast(getQueryExecutor().execute(groupRequest));
+        assertEquals(7l, ((Map<String,Objects>)actualResult.getResult().get("android")).get("count"));
+        assertEquals(4l, ((Map<String,Objects>)actualResult.getResult().get("ios")).get("count"));
+        assertEquals(486.0, ((Map<String,Map<String,Object>>)actualResult.getResult().get("android")).get("sum").get("value"));
+        assertEquals(159.0, ((Map<String,Map<String,Object>>)actualResult.getResult().get("ios")).get("sum").get("value"));
+    }
+    @Test
+     public void testGroupActionWithMetricsMax() throws FoxtrotException {
+        GroupRequest groupRequest = new GroupRequest();
+        groupRequest.setTable(TestUtils.TEST_TABLE_NAME);
+        groupRequest.setNesting(Arrays.asList("os"));
+
+        MetricsAggregation metricsAggregation = new MetricsAggregation();
+        metricsAggregation.setField("battery");
+        metricsAggregation.setType(MetricsAggregation.MetricsAggragationType.max);
+        groupRequest.setMetric(metricsAggregation);
+
+        GroupResponse actualResult = GroupResponse.class.cast(getQueryExecutor().execute(groupRequest));
+        assertEquals(7l, ((Map<String,Objects>)actualResult.getResult().get("android")).get("count"));
+        assertEquals(4l, ((Map<String,Objects>)actualResult.getResult().get("ios")).get("count"));
+        assertEquals(99.0, ((Map<String,Map<String,Object>>)actualResult.getResult().get("android")).get("max").get("value"));
+        assertEquals(56.0, ((Map<String,Map<String,Object>>)actualResult.getResult().get("ios")).get("max").get("value"));
+    }
+
+    @Test
+    public void testGroupActionWithMetricsMin() throws FoxtrotException {
+        GroupRequest groupRequest = new GroupRequest();
+        groupRequest.setTable(TestUtils.TEST_TABLE_NAME);
+        groupRequest.setNesting(Arrays.asList("os"));
+
+        MetricsAggregation metricsAggregation = new MetricsAggregation();
+        metricsAggregation.setField("battery");
+        metricsAggregation.setType(MetricsAggregation.MetricsAggragationType.min);
+        groupRequest.setMetric(metricsAggregation);
+
+        GroupResponse actualResult = GroupResponse.class.cast(getQueryExecutor().execute(groupRequest));
+        assertEquals(7l, ((Map<String,Objects>)actualResult.getResult().get("android")).get("count"));
+        assertEquals(4l, ((Map<String,Objects>)actualResult.getResult().get("ios")).get("count"));
+        assertEquals(24.0, ((Map<String,Map<String,Object>>)actualResult.getResult().get("android")).get("min").get("value"));
+        assertEquals(24.0, ((Map<String,Map<String,Object>>)actualResult.getResult().get("ios")).get("min").get("value"));
+    }
+
+    @Test
+    public void testGroupActionWithMetricsAvg() throws FoxtrotException {
+        GroupRequest groupRequest = new GroupRequest();
+        groupRequest.setTable(TestUtils.TEST_TABLE_NAME);
+        groupRequest.setNesting(Arrays.asList("os"));
+
+        MetricsAggregation metricsAggregation = new MetricsAggregation();
+        metricsAggregation.setField("battery");
+        metricsAggregation.setType(MetricsAggregation.MetricsAggragationType.avg);
+        groupRequest.setMetric(metricsAggregation);
+
+        GroupResponse actualResult = GroupResponse.class.cast(getQueryExecutor().execute(groupRequest));
+        assertEquals(7l, ((Map<String,Objects>)actualResult.getResult().get("android")).get("count"));
+        assertEquals(4l, ((Map<String,Objects>)actualResult.getResult().get("ios")).get("count"));
+        Double actualAnd = (Double) ((Map<String, Map<String, Object>>) actualResult.getResult().get("android")).get("avg").get("value");
+        assertEquals("69.43", new DecimalFormat("#.00").format(actualAnd));
+        Double actualIos = (Double) ((Map<String, Map<String, Object>>) actualResult.getResult().get("ios")).get("avg").get("value");
+        assertEquals("39.75", new DecimalFormat("#.00").format(actualIos));
+    }
+
+    @Test
+    public void testGroupActionWithMetricsStats() throws FoxtrotException {
+        GroupRequest groupRequest = new GroupRequest();
+        groupRequest.setTable(TestUtils.TEST_TABLE_NAME);
+        groupRequest.setNesting(Arrays.asList("os"));
+
+        MetricsAggregation metricsAggregation = new MetricsAggregation();
+        metricsAggregation.setField("battery");
+        metricsAggregation.setType(MetricsAggregation.MetricsAggragationType.stats);
+        groupRequest.setMetric(metricsAggregation);
+
+        GroupResponse actualResult = GroupResponse.class.cast(getQueryExecutor().execute(groupRequest));
+        assertEquals(7l, ((Map<String,Objects>)actualResult.getResult().get("android")).get("count"));
+        assertEquals(4l, ((Map<String,Objects>)actualResult.getResult().get("ios")).get("count"));
+        Map<String,Double> actualAnd = (Map<String, Double>) ((Map<String, Map<String, Object>>) actualResult.getResult().get("android")).get("stats").get("value");
+        assertEquals("69.43", new DecimalFormat("#.00").format(actualAnd.get("avg")));
+        assertEquals("24.00", new DecimalFormat("#.00").format(actualAnd.get("min")));
+        assertEquals("486.00", new DecimalFormat("#.00").format(actualAnd.get("sum")));
+
+
+        Map<String,Double> actualIos = (Map<String, Double>) ((Map<String, Map<String, Object>>) actualResult.getResult().get("ios")).get("stats").get("value");
+        assertEquals("39.75", new DecimalFormat("#.00").format(actualIos.get("avg")));
+        assertEquals("24.00", new DecimalFormat("#.00").format(actualIos.get("min")));
+        assertEquals("159.00", new DecimalFormat("#.00").format(actualIos.get("sum")));
+    }
+
+    @Test
+    public void testGroupActionWithMetricsPercentiles() throws FoxtrotException {
+        GroupRequest groupRequest = new GroupRequest();
+        groupRequest.setTable(TestUtils.TEST_TABLE_NAME);
+        groupRequest.setNesting(Arrays.asList("os"));
+
+        MetricsAggregation metricsAggregation = new MetricsAggregation();
+        metricsAggregation.setField("battery");
+        metricsAggregation.setType(MetricsAggregation.MetricsAggragationType.percentiles);
+        groupRequest.setMetric(metricsAggregation);
+
+        GroupResponse actualResult = GroupResponse.class.cast(getQueryExecutor().execute(groupRequest));
+        assertEquals(7l, ((Map<String,Objects>)actualResult.getResult().get("android")).get("count"));
+        assertEquals(4l, ((Map<String,Objects>)actualResult.getResult().get("ios")).get("count"));
+        Map<Double,Double> actualAnd = (Map<Double, Double>) ((Map<String, Map<String, Object>>) actualResult.getResult().get("android")).get("percentiles").get("value");
+        Map<String,Double> actualIos = (Map<String, Double>) ((Map<String, Map<String, Object>>) actualResult.getResult().get("ios")).get("percentiles").get("value");
+
+        assertEquals("25.44", new DecimalFormat("#.00").format(actualAnd.get(1.0)));
+        assertEquals("31.20", new DecimalFormat("#.00").format(actualAnd.get(5.0)));
+        assertEquals("61.00", new DecimalFormat("#.00").format(actualAnd.get(25.0)));
+        assertEquals("76.00", new DecimalFormat("#.00").format(actualAnd.get(50.0)));
+        assertEquals("82.50", new DecimalFormat("#.00").format(actualAnd.get(75.0)));
+
+        assertEquals("24.33", new DecimalFormat("#.00").format(actualIos.get(1.0)));
+        assertEquals("25.65", new DecimalFormat("#.00").format(actualIos.get(5.0)));
+        assertEquals("32.25", new DecimalFormat("#.00").format(actualIos.get(25.0)));
+        assertEquals("39.50", new DecimalFormat("#.00").format(actualIos.get(50.0)));
+        assertEquals("47.00", new DecimalFormat("#.00").format(actualIos.get(75.0)));
     }
 }
