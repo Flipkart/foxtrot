@@ -77,38 +77,45 @@ $(".search-input").keyup(function() {
 })
 
 EventBus.addEventListener('hosts_loaded', function(event, data){
-	if(!data.hasOwnProperty('nodes')) {
+	if(!data.hasOwnProperty('nodesMap')) {
 		return;
-	}	
-	var nodes = data['nodes'];
+	}
+	var nodes = data['nodesMap'];
 	var hosts = [];
 	for(var nodeId in nodes) {
 		var node = nodes[nodeId];
 		var host = new HostData();
-		host.name = node.name;
-		host.ip = node.transport_address;
-		host.host = node.host;
-		host.load = node.os.load_average[0];
-		host.memoryUsed = node.os.mem.used_percent;
-		host.diskUsed = toPercentage(node.fs.total.total_in_bytes - node.fs.total.free_in_bytes, node.fs.total.total_in_bytes)
-		host.jvmUsed = node.jvm.mem.heap_used_percent
-		host.jvmSize = bytesToSize(node.jvm.mem.heap_used_in_bytes)
-		host.jvmOldgen = toPercentage(node.jvm.mem.pools.old.used_in_bytes,node.jvm.mem.pools.old.max_in_bytes);
-		host.jvmEden = toPercentage(node.jvm.mem.pools.young.used_in_bytes,node.jvm.mem.pools.young.max_in_bytes);
-		if(node.hasOwnProperty['fielddata_breaker']) {
-    		host.fieldCache = toPercentage(node.fielddata_breaker.estimated_size_in_bytes,node.fielddata_breaker.maximum_size_in_bytes);
+		host.name = node.node.name;
+		host.ip = node.node.hostAddress;
+		host.host = node.node.hostName;
+		host.load = node.os.loadAverage[0];
+		host.memoryUsed = node.os.mem.usedPercent;
+		host.diskUsed = toPercentage(node.fs.total.total.bytes - node.fs.total.free.bytes, node.fs.total.total.bytes);
+		host.jvmUsed = node.jvm.mem.heapUsedPrecent;
+		host.jvmSize = bytesToSize(node.jvm.mem.heapUsed.bytes);
+		host.jvmOldgen = 'N/A'; //toPercentage(node.jvm.mem.pools.old.used_in_bytes,node.jvm.mem.pools.old.max_in_bytes);
+		host.jvmEden = 'N/A'; //toPercentage(node.jvm.mem.pools.young.used_in_bytes,node.jvm.mem.pools.young.max_in_bytes);
+		if(node.hasOwnProperty('breaker')) {
+		    fieldBreaker = null;
+		    for(var i = 0; i<node.breaker.allStats.length; i++){
+		        if(node.breaker.allStats[i].name == 'FIELDDATA'){
+		            fieldBreaker = node.breaker.allStats[i];
+		        }
+		    }
+    		host.fieldCache = toPercentage(fieldBreaker.estimated,fieldBreaker.limit);
+    		}
 		}
 		else {
     		host.fieldCache = "100";
 		}
-		host.fieldCacheAbs = bytesToSize(node.indices.fielddata.memory_size_in_bytes);
-		host.fieldCacheEvictions = node.indices.fielddata.evictions
-		host.filterCache = bytesToSize(node.indices.filter_cache.memory_size_in_bytes);
-		host.filterCacheEvictions = node.indices.filter_cache.evictions;
+		host.fieldCacheAbs = bytesToSize(node.indices.fieldData.memorySizeInBytes);
+		host.fieldCacheEvictions = node.indices.fieldData.evictions
+		host.filterCache = bytesToSize(node.indices.filterCache.memorySizeInBytes);
+		host.filterCacheEvictions = node.indices.filterCache.evictions;
 		hosts.push(host);
-		
+
 	}
-	$('.header').find("p").text("Cluster: " + data['cluster_name']);
+	$('.header').find("p").text("Cluster: " + data['clusterName']);
 	$('.data-area').html(handlebars("#hosts-template", {hosts: hosts}));
 	$(".data-table").tablesorter(
 		{
@@ -123,7 +130,13 @@ EventBus.addEventListener('indices_loaded', function(event, data){
 	var indices = data['indices'];
 	var indexTable = {}
 	for(var indexName in indices) {
-		var normalizedName = indexName.replace(/^foxtrot-/,"").replace(/-table-[0-9\-]+$/,"");
+        var tableNamePrefix = null;
+		if(esConfig.hasOwnProperty("tableNamePrefix")){
+		    tableNamePrefix = esConfig.tableNamePrefix;
+		}else{
+            tableNamePrefix = "foxtrot";
+		}
+		var normalizedName = normalizedName = indexName.replace(new RegExp("^"+tableNamePrefix+"-"),"").replace(/-table-[0-9\-]+$/,"");
 		if(!indexTable.hasOwnProperty(normalizedName)) {
 			indexTable[normalizedName] = {
 				name: normalizedName,
@@ -135,7 +148,7 @@ EventBus.addEventListener('indices_loaded', function(event, data){
 		var indexData = indexTable[normalizedName];
 		indexData.days += 1;
 		indexData.events += indices[indexName].primaries.docs.count;
-		indexData.size += indices[indexName].primaries.store.size_in_bytes;
+		indexData.size += indices[indexName].primaries.store.sizeInBytes;
 	}
 	var tables = []
 	for(var i in indexTable) {
@@ -190,7 +203,7 @@ function loadData() {
     dataLoadComplete = false;
 	$.ajax({
 		type: 'GET',
-		url: 'http://' + hostName + ':9200/_nodes/stats',
+		url: '/foxtrot/v1/clusterhealth/nodestats',
 		success: function(data) {
 			EventBus.dispatch('hosts_loaded', this, data);
 		}
@@ -219,11 +232,24 @@ function loadIndexData() {
     indexLoadComplete = false;
 	$.ajax({
 		type: 'GET',
-		url: 'http://' + hostName + ':9200/foxtrot-*-table-*/_stats/docs,store',
+		url: '/foxtrot/v1/clusterhealth/indicesstats',
 		success : function(data) {
-			cluster.documentCount  = data._all.primaries.docs.count;
-			cluster.dataSize = bytesToSize(data._all.primaries.store.size_in_bytes);
-			cluster.replicatedDataSize = bytesToSize(data._all.total.store.size_in_bytes);
+			if(typeof data.primaries.docs != "undefined"){
+			    cluster.documentCount  = data.primaries.docs.count;
+			}else{
+			    cluster.documentCount = 0;
+			}
+
+			if(typeof data.primaries.store != "undefined"){
+			    cluster.dataSize = bytesToSize(data.primaries.store.sizeInBytes);
+			}else{
+			    cluster.dataSize = bytesToSize(0);
+			}
+			if(typeof data.total.store != "undefined"){
+			    cluster.replicatedDataSize = bytesToSize(data.total.store.sizeInBytes);
+			}else{
+			    cluster.replicatedDataSize = bytesToSize(0);
+			}
 			EventBus.dispatch('cluster_loaded', this, data);
 			EventBus.dispatch('indices_loaded', this, data);
 		}
@@ -252,17 +278,17 @@ function loadClusterHealth() {
     clusterLoadComplete = false;
 	$.ajax({
 		type: 'GET',
-		url: 'http://' +  hostName + ':9200/_cluster/health',
+		url: '/foxtrot/v1/clusterhealth',
 		success : function(data) {
-			cluster.name = data.cluster_name;
+			cluster.name = data.clusterName;
 			cluster.status = data.status;
-			cluster.numNodes = data.number_of_nodes;
-			cluster.numDataNodes = data.number_of_data_nodes;
-			cluster.activePrimaryShards = data.active_primary_shards;
-			cluster.activeShards = data.active_shards;
-			cluster.relocatingShards = data.relocating_shards;
-			cluster.initializingShards = data.initializing_shards;
-			cluster.unassignedShards = data.unassigned_shards;
+			cluster.numNodes = data.numberOfNodes;
+			cluster.numDataNodes = data.numberOfDataNodes;
+			cluster.activePrimaryShards = data.activePrimaryShards;
+			cluster.activeShards = data.activeShards;
+			cluster.relocatingShards = data.relocatingShards;
+			cluster.initializingShards = data.initializingShards;
+			cluster.unassignedShards = data.unassignedShards;
 			EventBus.dispatch('cluster_loaded', this, data);
 		}
 	})

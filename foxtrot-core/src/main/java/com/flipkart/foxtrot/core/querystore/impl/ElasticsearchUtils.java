@@ -251,4 +251,8 @@ public class ElasticsearchUtils {
             return null;
         }
     }
+
+    public static String getAllIndicesPattern(){
+        return String.format("%s-*-%s-*", ElasticsearchUtils.TABLENAME_PREFIX, ElasticsearchUtils.TABLENAME_POSTFIX);
+    }
 }

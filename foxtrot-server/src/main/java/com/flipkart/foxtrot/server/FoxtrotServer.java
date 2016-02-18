@@ -17,6 +17,7 @@ package com.flipkart.foxtrot.server;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.jsontype.SubtypeResolver;
 import com.fasterxml.jackson.databind.jsontype.impl.StdSubtypeResolver;
 import com.flipkart.foxtrot.core.cache.CacheManager;
@@ -119,6 +120,7 @@ public class FoxtrotServer extends Service<FoxtrotServerConfiguration> {
         environment.addResource(new FqlResource(fqlEngine));
         environment.addResource(new ClusterInfoResource(clusterManager));
         environment.addResource(new UtilResource(configuration));
+        environment.addResource(new ClusterHealthResource(queryStore));
 
         healthChecks.forEach(environment::addHealthCheck);
 
@@ -132,6 +134,7 @@ public class FoxtrotServer extends Service<FoxtrotServerConfiguration> {
     private void configureObjectMapper(Environment environment) {
         environment.getObjectMapperFactory().setSerializationInclusion(JsonInclude.Include.NON_NULL);
         environment.getObjectMapperFactory().setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
+        environment.getObjectMapperFactory().disable(SerializationFeature.FAIL_ON_EMPTY_BEANS);
         SubtypeResolver subtypeResolver = new StdSubtypeResolver();
         environment.getObjectMapperFactory().setSubtypeResolver(subtypeResolver);
     }
