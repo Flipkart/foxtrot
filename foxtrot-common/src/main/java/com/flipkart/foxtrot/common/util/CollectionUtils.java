@@ -8,15 +8,15 @@ import java.util.Set;
  */
 public class CollectionUtils {
 
-    public static boolean isStringNullOrEmpty(String s) {
+    public static boolean isNullOrEmpty(String s) {
         return s == null || s.trim().isEmpty();
     }
 
-    public static boolean isListNullOrEmpty(List list) {
+    public static boolean isNullOrEmpty(List list) {
         return list == null || list.isEmpty();
     }
 
-    public static boolean isSetNullOrEmpty(Set set) {
+    public static boolean isNullOrEmpty(Set set) {
         return set == null || set.isEmpty();
     }
 

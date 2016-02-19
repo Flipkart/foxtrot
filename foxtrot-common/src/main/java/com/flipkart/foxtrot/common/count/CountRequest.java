@@ -46,19 +46,6 @@ public class CountRequest extends ActionRequest {
         this.isDistinct = isDistinct;
     }
 
-
-    @Override
-    public Set<String> validate() {
-        Set<String> validationErrors = new HashSet<>();
-        if (CollectionUtils.isStringNullOrEmpty(table)) {
-            validationErrors.add("table name cannot be null or empty");
-        }
-        if (CollectionUtils.isStringNullOrEmpty(field)) {
-            validationErrors.add("field name cannot be null or empty");
-        }
-        return validationErrors;
-    }
-
     @Override
     public String toString() {
         return new ToStringBuilder(this)

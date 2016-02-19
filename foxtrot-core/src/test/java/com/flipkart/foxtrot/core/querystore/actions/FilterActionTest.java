@@ -588,7 +588,7 @@ public class FilterActionTest extends ActionTest {
         query.setFilters(new ArrayList<>());
         query.setSort(null);
 
-        List<Document> documents = new ArrayList<Document>();
+        List<Document> documents = Lists.newArrayList();
         documents.add(TestUtils.getDocument("E", 1397658118004L, new Object[]{"os", "ios", "version", 2, "device", "ipad"}, getMapper()));
         documents.add(TestUtils.getDocument("D", 1397658118003L, new Object[]{"os", "ios", "version", 1, "device", "iphone"}, getMapper()));
         documents.add(TestUtils.getDocument("C", 1397658118002L, new Object[]{"os", "android", "version", 2, "device", "nexus"}, getMapper()));

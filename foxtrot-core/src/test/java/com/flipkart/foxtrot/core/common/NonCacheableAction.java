@@ -19,6 +19,7 @@ import com.flipkart.foxtrot.common.ActionResponse;
 import com.flipkart.foxtrot.core.cache.CacheManager;
 import com.flipkart.foxtrot.core.datastore.DataStore;
 import com.flipkart.foxtrot.core.exception.FoxtrotException;
+import com.flipkart.foxtrot.core.exception.MalformedQueryException;
 import com.flipkart.foxtrot.core.querystore.QueryStore;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsProvider;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConnection;
@@ -45,6 +46,11 @@ public class NonCacheableAction extends Action<NonCacheableActionRequest> {
     @Override
     protected String getRequestCacheKey() {
         return "TEST_CACHE_KEY";
+    }
+
+    @Override
+    public void validateImpl(NonCacheableActionRequest parameter) throws MalformedQueryException {
+
     }
 
     @Override

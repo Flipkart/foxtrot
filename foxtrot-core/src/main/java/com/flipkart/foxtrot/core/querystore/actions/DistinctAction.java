@@ -7,11 +7,13 @@ import com.flipkart.foxtrot.common.query.Filter;
 import com.flipkart.foxtrot.common.query.FilterCombinerType;
 import com.flipkart.foxtrot.common.query.ResultSort;
 import com.flipkart.foxtrot.common.query.general.AnyFilter;
+import com.flipkart.foxtrot.common.util.CollectionUtils;
 import com.flipkart.foxtrot.core.cache.CacheManager;
 import com.flipkart.foxtrot.core.common.Action;
 import com.flipkart.foxtrot.core.datastore.DataStore;
 import com.flipkart.foxtrot.core.exception.FoxtrotException;
 import com.flipkart.foxtrot.core.exception.FoxtrotExceptions;
+import com.flipkart.foxtrot.core.exception.MalformedQueryException;
 import com.flipkart.foxtrot.core.querystore.QueryStore;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsProvider;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConnection;
@@ -66,6 +68,34 @@ public class DistinctAction extends Action<DistinctRequest> {
             filterHashKey += 31 * query.getNesting().get(i).hashCode() * (i + 1);
         }
         return String.format("%s-%d", query.getTable(), filterHashKey);
+    }
+
+    @Override
+    public void validateImpl(DistinctRequest parameter) throws MalformedQueryException {
+        List<String> validationErrors = new ArrayList<>();
+        if (CollectionUtils.isNullOrEmpty(parameter.getTable())) {
+            validationErrors.add("table name cannot be null or empty");
+        }
+
+        if (CollectionUtils.isNullOrEmpty(parameter.getNesting())) {
+            validationErrors.add("At least one nesting parameter is required");
+        } else {
+            for (ResultSort resultSort : parameter.getNesting()) {
+                if (resultSort == null) {
+                    validationErrors.add("nested parameter cannot be null");
+                } else {
+                    if (CollectionUtils.isNullOrEmpty(resultSort.getField())) {
+                        validationErrors.add("nested parameter cannot have null name");
+                    }
+                    if (resultSort.getOrder() == null) {
+                        validationErrors.add("nested parameter cannot have null sorting order");
+                    }
+                }
+            }
+        }
+        if (!CollectionUtils.isNullOrEmpty(validationErrors)) {
+            throw FoxtrotExceptions.createMalformedQueryException(parameter, validationErrors);
+        }
     }
 
     @Override

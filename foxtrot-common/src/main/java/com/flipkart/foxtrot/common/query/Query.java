@@ -16,11 +16,7 @@
 package com.flipkart.foxtrot.common.query;
 
 import com.flipkart.foxtrot.common.ActionRequest;
-import com.flipkart.foxtrot.common.util.CollectionUtils;
 import org.apache.commons.lang3.builder.ToStringBuilder;
-
-import java.util.HashSet;
-import java.util.Set;
 
 /**
  * User: Santanu Sinha (santanu.sinha@flipkart.com)
@@ -85,27 +81,5 @@ public class Query extends ActionRequest {
                 .append("from", from)
                 .append("limit", limit)
                 .toString();
-    }
-
-    @Override
-    public Set<String> validate() {
-        Set<String> validationErrors = new HashSet<>();
-        if (CollectionUtils.isStringNullOrEmpty(table)) {
-            validationErrors.add("table name cannot be null or empty");
-        }
-        if (sort == null) {
-            validationErrors.add("sort order needs to be specified");
-        }
-
-        if (from < 0) {
-            validationErrors.add("from must be non-negative integer");
-        }
-
-        if (limit <= 0) {
-            validationErrors.add("limit must be positive integer");
-        }
-
-
-        return validationErrors;
     }
 }

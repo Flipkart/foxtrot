@@ -17,15 +17,12 @@ package com.flipkart.foxtrot.core.querystore;
 
 import com.flipkart.foxtrot.common.ActionRequest;
 import com.flipkart.foxtrot.common.ActionResponse;
-import com.flipkart.foxtrot.common.util.CollectionUtils;
 import com.flipkart.foxtrot.core.common.Action;
 import com.flipkart.foxtrot.core.common.AsyncDataToken;
 import com.flipkart.foxtrot.core.exception.FoxtrotException;
 import com.flipkart.foxtrot.core.exception.FoxtrotExceptions;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsLoader;
 
-import java.util.ArrayList;
-import java.util.Set;
 import java.util.concurrent.ExecutorService;
 
 /**
@@ -45,21 +42,15 @@ public class QueryExecutor {
     }
 
     public <T extends ActionRequest> ActionResponse execute(T request) throws FoxtrotException {
-        validate(request);
-        Action action = resolve(request);
-        return action.execute();
+        return resolve(request).execute();
     }
 
     public <T extends ActionRequest> AsyncDataToken executeAsync(T request) throws FoxtrotException {
-        request.validate();
         return resolve(request).execute(executorService);
     }
 
     public <T extends ActionRequest> void validate(T request) throws FoxtrotException {
-        Set<String> validationErrors = request.validate();
-        if (!CollectionUtils.isSetNullOrEmpty(validationErrors)) {
-            throw FoxtrotExceptions.createMalformedQueryException(request, new ArrayList<>(validationErrors));
-        }
+        resolve(request).validateImpl();
     }
 
     public <T extends ActionRequest> Action resolve(T request) throws FoxtrotException {

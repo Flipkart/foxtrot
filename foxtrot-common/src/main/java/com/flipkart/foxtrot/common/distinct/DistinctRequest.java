@@ -17,12 +17,9 @@ package com.flipkart.foxtrot.common.distinct;
 
 import com.flipkart.foxtrot.common.ActionRequest;
 import com.flipkart.foxtrot.common.query.ResultSort;
-import com.flipkart.foxtrot.common.util.CollectionUtils;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 /**
  * User: Santanu Sinha (santanu.sinha@flipkart.com)
@@ -61,31 +58,5 @@ public class DistinctRequest extends ActionRequest {
                 .append("filters", getFilters())
                 .append("nesting", nesting)
                 .toString();
-    }
-
-    @Override
-    public Set<String> validate() {
-        Set<String> validationErrors = new HashSet<>();
-        if (CollectionUtils.isStringNullOrEmpty(table)) {
-            validationErrors.add("table name cannot be null or empty");
-        }
-
-        if (CollectionUtils.isListNullOrEmpty(nesting)) {
-            validationErrors.add("At least one nesting parameter is required");
-        } else {
-            for (ResultSort resultSort : nesting) {
-                if (resultSort == null) {
-                    validationErrors.add("nested parameter cannot be null");
-                } else {
-                    if (CollectionUtils.isStringNullOrEmpty(resultSort.getField())) {
-                        validationErrors.add("nested parameter cannot have null name");
-                    }
-                    if (resultSort.getOrder() == null) {
-                        validationErrors.add("nested parameter cannot have null sorting order");
-                    }
-                }
-            }
-        }
-        return validationErrors;
     }
 }

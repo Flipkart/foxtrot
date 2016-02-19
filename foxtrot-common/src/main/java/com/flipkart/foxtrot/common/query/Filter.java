@@ -121,7 +121,7 @@ public abstract class Filter {
 
     public Set<String> validate() {
         Set<String> validationErrors = new HashSet<>();
-        if (CollectionUtils.isStringNullOrEmpty(field)) {
+        if (CollectionUtils.isNullOrEmpty(field)) {
             validationErrors.add("filter field cannot be null or empty");
         }
         return validationErrors;

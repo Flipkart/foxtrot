@@ -73,7 +73,7 @@ public class InFilter extends Filter {
     @Override
     public Set<String> validate() {
         Set<String> validationErrors = super.validate();
-        if (CollectionUtils.isListNullOrEmpty(values)) {
+        if (CollectionUtils.isNullOrEmpty(values)) {
             validationErrors.add("at least one value needs to be provided for field");
         }
         return validationErrors;

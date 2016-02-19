@@ -18,7 +18,6 @@ import org.junit.runner.Description;
 
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Set;
 
 
 public class ElasticsearchUtilsTest {
@@ -42,10 +41,6 @@ public class ElasticsearchUtilsTest {
 
     private final static class TestRequest extends ActionRequest {
 
-        @Override
-        public Set<String> validate() {
-            return null;
-        }
     }
 
     @Test
