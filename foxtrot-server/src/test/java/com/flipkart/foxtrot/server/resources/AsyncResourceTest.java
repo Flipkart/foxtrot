@@ -169,7 +169,7 @@ public class AsyncResourceTest extends FoxtrotResourceTest {
         }});
 
         AsyncDataToken dataToken = getQueryExecutor().executeAsync(groupRequest);
-        Thread.sleep(1000);
+        Thread.sleep(5000);
 
         GroupResponse response = client().resource("/v1/async")
                 .type(MediaType.APPLICATION_JSON_TYPE)

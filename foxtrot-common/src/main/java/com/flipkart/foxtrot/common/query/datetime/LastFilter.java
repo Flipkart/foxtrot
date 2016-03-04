@@ -9,6 +9,7 @@ import com.yammer.dropwizard.util.Duration;
 import javax.validation.constraints.NotNull;
 
 public class LastFilter extends Filter {
+
     private long currentTime;
 
     @NotNull

@@ -7,11 +7,13 @@ import com.flipkart.foxtrot.common.query.Filter;
 import com.flipkart.foxtrot.common.query.FilterCombinerType;
 import com.flipkart.foxtrot.common.query.ResultSort;
 import com.flipkart.foxtrot.common.query.general.AnyFilter;
+import com.flipkart.foxtrot.common.util.CollectionUtils;
 import com.flipkart.foxtrot.core.cache.CacheManager;
 import com.flipkart.foxtrot.core.common.Action;
 import com.flipkart.foxtrot.core.datastore.DataStore;
-import com.flipkart.foxtrot.core.exception.FoxtrotExceptions;
 import com.flipkart.foxtrot.core.exception.FoxtrotException;
+import com.flipkart.foxtrot.core.exception.FoxtrotExceptions;
+import com.flipkart.foxtrot.core.exception.MalformedQueryException;
 import com.flipkart.foxtrot.core.querystore.QueryStore;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsProvider;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConnection;
@@ -69,26 +71,38 @@ public class DistinctAction extends Action<DistinctRequest> {
     }
 
     @Override
+    public void validateImpl(DistinctRequest parameter) throws MalformedQueryException {
+        List<String> validationErrors = new ArrayList<>();
+        if (CollectionUtils.isNullOrEmpty(parameter.getTable())) {
+            validationErrors.add("table name cannot be null or empty");
+        }
+
+        if (CollectionUtils.isNullOrEmpty(parameter.getNesting())) {
+            validationErrors.add("At least one nesting parameter is required");
+        } else {
+            for (ResultSort resultSort : parameter.getNesting()) {
+                if (resultSort == null) {
+                    validationErrors.add("nested parameter cannot be null");
+                } else {
+                    if (CollectionUtils.isNullOrEmpty(resultSort.getField())) {
+                        validationErrors.add("nested parameter cannot have null name");
+                    }
+                    if (resultSort.getOrder() == null) {
+                        validationErrors.add("nested parameter cannot have null sorting order");
+                    }
+                }
+            }
+        }
+        if (!CollectionUtils.isNullOrEmpty(validationErrors)) {
+            throw FoxtrotExceptions.createMalformedQueryException(parameter, validationErrors);
+        }
+    }
+
+    @Override
     public ActionResponse execute(DistinctRequest request) throws FoxtrotException {
         request.setTable(ElasticsearchUtils.getValidTableName(request.getTable()));
         if (null == request.getFilters()) {
             request.setFilters(Lists.<Filter>newArrayList(new AnyFilter(request.getTable())));
-        }
-
-        List<String> errorMessages = new ArrayList<>();
-        if (request.getTable() == null || request.getTable().isEmpty()) {
-            errorMessages.add("table name cannot be null/empty");
-        }
-
-        for (ResultSort nestedField : request.getNesting()) {
-            if (nestedField.getField() == null || nestedField.getField().trim().isEmpty()) {
-                errorMessages.add("nesting parameter cannot be null/empty");
-                break;
-            }
-        }
-
-        if (!errorMessages.isEmpty()) {
-            throw FoxtrotExceptions.createMalformedQueryException(request, errorMessages);
         }
 
         SearchRequestBuilder query;

@@ -3,26 +3,19 @@ package com.flipkart.foxtrot.common.stats;
 import com.flipkart.foxtrot.common.ActionRequest;
 import com.flipkart.foxtrot.common.Period;
 import com.flipkart.foxtrot.common.query.FilterCombinerType;
-import org.hibernate.validator.constraints.NotEmpty;
-
-import javax.validation.constraints.NotNull;
+import org.apache.commons.lang3.builder.ToStringBuilder;
 
 /**
  * Created by rishabh.goyal on 02/08/14.
  */
 public class StatsTrendRequest extends ActionRequest {
-    @NotNull
-    @NotEmpty
+
     private String table;
 
-    @NotNull
-    @NotEmpty
     private String field;
 
-    @NotNull
     private FilterCombinerType combiner = FilterCombinerType.and;
 
-    @NotNull
     private Period period = Period.hours;
 
     private String timestamp = "_timestamp";
@@ -73,13 +66,13 @@ public class StatsTrendRequest extends ActionRequest {
 
     @Override
     public String toString() {
-        return "StatsTrendRequest{" +
-                "table='" + table + '\'' +
-                ", field='" + field + '\'' +
-                ", filters=" + getFilters() +
-                ", combiner=" + combiner +
-                ", period=" + period +
-                ", timestamp='" + timestamp + '\'' +
-                '}';
+        return new ToStringBuilder(this)
+                .appendSuper(super.toString())
+                .append("table", table)
+                .append("field", field)
+                .append("combiner", combiner)
+                .append("period", period)
+                .append("timestamp", timestamp)
+                .toString();
     }
 }

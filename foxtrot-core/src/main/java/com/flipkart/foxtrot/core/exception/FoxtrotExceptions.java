@@ -40,10 +40,6 @@ public class FoxtrotExceptions {
         return new BadRequestException(table, e);
     }
 
-    public static MalformedQueryException createMalformedQueryException(ActionRequest actionRequest, String reason) {
-        return createMalformedQueryException(actionRequest, Collections.singletonList(reason));
-    }
-
     public static MalformedQueryException createMalformedQueryException(ActionRequest actionRequest,
                                                                         List<String> reasons) {
         return new MalformedQueryException(actionRequest, reasons);

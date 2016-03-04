@@ -23,6 +23,7 @@ import com.flipkart.foxtrot.core.cache.Cache;
 import com.flipkart.foxtrot.core.cache.CacheManager;
 import com.flipkart.foxtrot.core.datastore.DataStore;
 import com.flipkart.foxtrot.core.exception.FoxtrotException;
+import com.flipkart.foxtrot.core.exception.MalformedQueryException;
 import com.flipkart.foxtrot.core.querystore.QueryStore;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConnection;
 import com.flipkart.foxtrot.core.table.TableMetadataManager;
@@ -49,7 +50,6 @@ public abstract class Action<ParameterType extends ActionRequest> implements Cal
     private final QueryStore queryStore;
     private final String cacheToken;
     private final CacheManager cacheManager;
-    private String cacheKey = null;
 
     protected Action(ParameterType parameter,
                      TableMetadataManager tableMetadataManager,
@@ -68,13 +68,11 @@ public abstract class Action<ParameterType extends ActionRequest> implements Cal
     }
 
     public String cacheKey() {
-        if (null == cacheKey) {
-            cacheKey = String.format("%s-%d", getRequestCacheKey(), System.currentTimeMillis() / 30000);//UUID.nameUUIDFromBytes(childKey.getBytes()).toString();
-        }
-        return cacheKey;
+        return String.format("%s-%d", getRequestCacheKey(), System.currentTimeMillis() / 30000);
     }
 
-    public AsyncDataToken execute(ExecutorService executor) {
+    public AsyncDataToken execute(ExecutorService executor) throws FoxtrotException {
+        validateImpl(parameter);
         executor.submit(this);
         return new AsyncDataToken(cacheToken, cacheKey());
     }
@@ -87,6 +85,7 @@ public abstract class Action<ParameterType extends ActionRequest> implements Cal
     }
 
     public ActionResponse execute() throws FoxtrotException {
+        validateImpl(parameter);
         Cache cache = cacheManager.getCacheFor(this.cacheToken);
         final String cacheKeyValue = cacheKey();
         if (isCacheable()) {
@@ -105,6 +104,16 @@ public abstract class Action<ParameterType extends ActionRequest> implements Cal
         return result;
     }
 
+    public void validateImpl() throws MalformedQueryException {
+        validateImpl(parameter);
+    }
+
+    abstract protected String getRequestCacheKey();
+
+    abstract public void validateImpl(ParameterType parameter) throws MalformedQueryException;
+
+    abstract public ActionResponse execute(ParameterType parameter) throws FoxtrotException;
+
     protected ParameterType getParameter() {
         return parameter;
     }
@@ -113,24 +122,12 @@ public abstract class Action<ParameterType extends ActionRequest> implements Cal
         return cacheManager.getCacheFor(this.cacheToken) != null;
     }
 
-    abstract protected String getRequestCacheKey();
-
-    abstract public ActionResponse execute(ParameterType parameter) throws FoxtrotException;
-
     public DataStore getDataStore() {
         return dataStore;
     }
 
-    public void setDataStore(DataStore dataStore) {
-        this.dataStore = dataStore;
-    }
-
     public ElasticsearchConnection getConnection() {
         return connection;
-    }
-
-    public void setConnection(ElasticsearchConnection connection) {
-        this.connection = connection;
     }
 
     public TableMetadataManager getTableMetadataManager() {

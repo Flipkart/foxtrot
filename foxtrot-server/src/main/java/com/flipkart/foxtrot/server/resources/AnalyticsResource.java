@@ -53,4 +53,10 @@ public class AnalyticsResource {
     public AsyncDataToken runSyncAsync(final ActionRequest request) throws FoxtrotException {
         return queryExecutor.executeAsync(request);
     }
+
+    @POST
+    @Path("/validate")
+    public void validateQuery(final ActionRequest request) throws FoxtrotException {
+        queryExecutor.validate(request);
+    }
 }

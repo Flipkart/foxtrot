@@ -18,9 +18,6 @@ package com.flipkart.foxtrot.common.histogram;
 import com.flipkart.foxtrot.common.ActionRequest;
 import com.flipkart.foxtrot.common.Period;
 import org.apache.commons.lang3.builder.ToStringBuilder;
-import org.hibernate.validator.constraints.NotEmpty;
-
-import javax.validation.constraints.NotNull;
 
 /**
  * User: Santanu Sinha (santanu.sinha@flipkart.com)
@@ -28,13 +25,9 @@ import javax.validation.constraints.NotNull;
  * Time: 12:06 AM
  */
 public class HistogramRequest extends ActionRequest {
-    @NotNull
-    @NotEmpty
+
     private String table;
 
-
-    @NotNull
-    @NotEmpty
     private String field = "_timestamp";
 
     private Period period;
@@ -77,5 +70,4 @@ public class HistogramRequest extends ActionRequest {
                 .append("period", period)
                 .toString();
     }
-
 }

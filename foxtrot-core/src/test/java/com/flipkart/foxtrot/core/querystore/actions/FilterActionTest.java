@@ -29,6 +29,7 @@ import com.flipkart.foxtrot.common.query.numeric.*;
 import com.flipkart.foxtrot.common.query.string.ContainsFilter;
 import com.flipkart.foxtrot.core.TestUtils;
 import com.flipkart.foxtrot.core.exception.FoxtrotException;
+import com.flipkart.foxtrot.core.exception.MalformedQueryException;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
 import com.google.common.collect.Lists;
 import org.elasticsearch.action.admin.indices.get.GetIndexRequest;
@@ -559,7 +560,7 @@ public class FilterActionTest extends ActionTest {
     public void testQueryNullCombiner() throws FoxtrotException, JsonProcessingException, InterruptedException {
         Query query = new Query();
         query.setTable(TestUtils.TEST_TABLE_NAME);
-        query.setFilters(new ArrayList<Filter>());
+        query.setFilters(new ArrayList<>());
         ResultSort resultSort = new ResultSort();
         resultSort.setOrder(ResultSort.Order.desc);
         resultSort.setField("_timestamp");
@@ -580,14 +581,14 @@ public class FilterActionTest extends ActionTest {
         compare(documents, actualResponse.getDocuments());
     }
 
-    @Test
+    @Test(expected = MalformedQueryException.class)
     public void testQueryNullSort() throws FoxtrotException, JsonProcessingException, InterruptedException {
         Query query = new Query();
         query.setTable(TestUtils.TEST_TABLE_NAME);
-        query.setFilters(new ArrayList<Filter>());
+        query.setFilters(new ArrayList<>());
         query.setSort(null);
 
-        List<Document> documents = new ArrayList<Document>();
+        List<Document> documents = Lists.newArrayList();
         documents.add(TestUtils.getDocument("E", 1397658118004L, new Object[]{"os", "ios", "version", 2, "device", "ipad"}, getMapper()));
         documents.add(TestUtils.getDocument("D", 1397658118003L, new Object[]{"os", "ios", "version", 1, "device", "iphone"}, getMapper()));
         documents.add(TestUtils.getDocument("C", 1397658118002L, new Object[]{"os", "android", "version", 2, "device", "nexus"}, getMapper()));

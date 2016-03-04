@@ -18,11 +18,13 @@ package com.flipkart.foxtrot.core.querystore.actions;
 import com.flipkart.foxtrot.common.Document;
 import com.flipkart.foxtrot.common.query.*;
 import com.flipkart.foxtrot.common.query.general.AnyFilter;
+import com.flipkart.foxtrot.common.util.CollectionUtils;
 import com.flipkart.foxtrot.core.cache.CacheManager;
 import com.flipkart.foxtrot.core.common.Action;
 import com.flipkart.foxtrot.core.datastore.DataStore;
 import com.flipkart.foxtrot.core.exception.FoxtrotException;
 import com.flipkart.foxtrot.core.exception.FoxtrotExceptions;
+import com.flipkart.foxtrot.core.exception.MalformedQueryException;
 import com.flipkart.foxtrot.core.querystore.QueryStore;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsProvider;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConnection;
@@ -73,6 +75,29 @@ public class FilterAction extends Action<Query> {
 
         return String.format("%s-%d-%d-%d", query.getTable(),
                 query.getFrom(), query.getLimit(), filterHashKey);
+    }
+
+    @Override
+    public void validateImpl(Query parameter) throws MalformedQueryException {
+        List<String> validationErrors = new ArrayList<>();
+        if (CollectionUtils.isNullOrEmpty(parameter.getTable())) {
+            validationErrors.add("table name cannot be null or empty");
+        }
+        if (parameter.getSort() == null) {
+            validationErrors.add("sort order needs to be specified");
+        }
+
+        if (parameter.getFrom() < 0) {
+            validationErrors.add("from must be non-negative integer");
+        }
+
+        if (parameter.getLimit() <= 0) {
+            validationErrors.add("limit must be positive integer");
+        }
+
+        if (!CollectionUtils.isNullOrEmpty(validationErrors)) {
+            throw FoxtrotExceptions.createMalformedQueryException(parameter, validationErrors);
+        }
     }
 
     @Override

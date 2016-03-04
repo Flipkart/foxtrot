@@ -1,17 +1,21 @@
 package com.flipkart.foxtrot.core.querystore.actions;
 
 import com.flipkart.foxtrot.common.ActionResponse;
+import com.flipkart.foxtrot.common.Period;
 import com.flipkart.foxtrot.common.query.Filter;
+import com.flipkart.foxtrot.common.query.FilterCombinerType;
 import com.flipkart.foxtrot.common.query.datetime.LastFilter;
 import com.flipkart.foxtrot.common.query.general.AnyFilter;
 import com.flipkart.foxtrot.common.stats.StatsTrendRequest;
 import com.flipkart.foxtrot.common.stats.StatsTrendResponse;
 import com.flipkart.foxtrot.common.stats.StatsTrendValue;
+import com.flipkart.foxtrot.common.util.CollectionUtils;
 import com.flipkart.foxtrot.core.cache.CacheManager;
 import com.flipkart.foxtrot.core.common.Action;
 import com.flipkart.foxtrot.core.datastore.DataStore;
-import com.flipkart.foxtrot.core.exception.FoxtrotExceptions;
 import com.flipkart.foxtrot.core.exception.FoxtrotException;
+import com.flipkart.foxtrot.core.exception.FoxtrotExceptions;
+import com.flipkart.foxtrot.core.exception.MalformedQueryException;
 import com.flipkart.foxtrot.core.querystore.QueryStore;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsProvider;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConnection;
@@ -21,6 +25,7 @@ import com.flipkart.foxtrot.core.table.TableMetadataManager;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.yammer.dropwizard.util.Duration;
+import org.apache.commons.lang3.StringUtils;
 import org.elasticsearch.ElasticsearchException;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
@@ -33,7 +38,10 @@ import org.elasticsearch.search.aggregations.metrics.percentiles.InternalPercent
 import org.elasticsearch.search.aggregations.metrics.percentiles.Percentile;
 import org.elasticsearch.search.aggregations.metrics.stats.extended.InternalExtendedStats;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Created by rishabh.goyal on 02/08/14.
@@ -69,24 +77,34 @@ public class StatsTrendAction extends Action<StatsTrendRequest> {
     }
 
     @Override
+    public void validateImpl(StatsTrendRequest parameter) throws MalformedQueryException {
+        List<String> validationErrors = Lists.newArrayList();
+        if (CollectionUtils.isNullOrEmpty(parameter.getTable())) {
+            validationErrors.add("table name cannot be null or empty");
+        }
+        if (CollectionUtils.isNullOrEmpty(parameter.getField())) {
+            validationErrors.add("field name cannot be null or empty");
+        }
+        if (CollectionUtils.isNullOrEmpty(parameter.getTimestamp())) {
+            validationErrors.add("timestamp field cannot be null or empty");
+        }
+        if (parameter.getCombiner() == null) {
+            validationErrors.add(String.format("specify filter combiner (%s)", StringUtils.join(FilterCombinerType.values())));
+        }
+        if (parameter.getPeriod() == null) {
+            validationErrors.add(String.format("specify time period (%s)", StringUtils.join(Period.values())));
+        }
+
+        if (!CollectionUtils.isNullOrEmpty(validationErrors)) {
+            throw FoxtrotExceptions.createMalformedQueryException(parameter, validationErrors);
+        }
+    }
+
+    @Override
     public ActionResponse execute(StatsTrendRequest parameter) throws FoxtrotException {
         parameter.setTable(ElasticsearchUtils.getValidTableName(parameter.getTable()));
         if (null == parameter.getFilters()) {
             parameter.setFilters(Lists.<Filter>newArrayList(new AnyFilter(parameter.getTable())));
-        }
-
-        List<String> errorMessages = new ArrayList<>();
-        if (null == parameter.getTable()) {
-            errorMessages.add("table name cannot be null");
-        }
-
-        String field = parameter.getField();
-        if (null == field || field.isEmpty()) {
-            errorMessages.add("field name cannot be null/empty");
-        }
-
-        if (!errorMessages.isEmpty()) {
-            throw FoxtrotExceptions.createMalformedQueryException(parameter, errorMessages);
         }
 
         SearchRequestBuilder searchRequestBuilder;

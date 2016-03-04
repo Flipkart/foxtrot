@@ -18,9 +18,7 @@ package com.flipkart.foxtrot.common.distinct;
 import com.flipkart.foxtrot.common.ActionRequest;
 import com.flipkart.foxtrot.common.query.ResultSort;
 import org.apache.commons.lang3.builder.ToStringBuilder;
-import org.hibernate.validator.constraints.NotEmpty;
 
-import javax.validation.constraints.NotNull;
 import java.util.List;
 
 /**
@@ -29,12 +27,9 @@ import java.util.List;
  * Time: 4:52 PM
  */
 public class DistinctRequest extends ActionRequest {
-    @NotNull
-    @NotEmpty
+
     private String table;
 
-    @NotNull
-    @NotEmpty
     private List<ResultSort> nesting;
 
     public DistinctRequest() {
@@ -47,7 +42,6 @@ public class DistinctRequest extends ActionRequest {
     public void setTable(String table) {
         this.table = table;
     }
-
 
     public List<ResultSort> getNesting() {
         return nesting;
