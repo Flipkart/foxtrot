@@ -43,6 +43,7 @@ import java.util.Vector;
 public class HBaseDataStore implements DataStore {
     private static final Logger logger = LoggerFactory.getLogger(HBaseDataStore.class.getSimpleName());
 
+    private static final String ERROR_CLOSING_TABLE = "Error closing table: ";
     private static final byte[] COLUMN_FAMILY = Bytes.toBytes("d");
     private static final byte[] DATA_FIELD_NAME = Bytes.toBytes("data");
     private static final byte[] TIMESTAMP_FIELD_NAME = Bytes.toBytes("timestamp");
@@ -81,7 +82,7 @@ public class HBaseDataStore implements DataStore {
                 try {
                     hTable.close();
                 } catch (IOException e) {
-                    logger.error("Error closing table: ", e);
+                    logger.error(ERROR_CLOSING_TABLE, e);
                 }
             }
         }
@@ -124,7 +125,7 @@ public class HBaseDataStore implements DataStore {
                 try {
                     hTable.close();
                 } catch (IOException e) {
-                    logger.error("Error closing table: ", e);
+                    logger.error(ERROR_CLOSING_TABLE, e);
                 }
             }
         }
@@ -161,7 +162,7 @@ public class HBaseDataStore implements DataStore {
                 try {
                     hTable.close();
                 } catch (IOException e) {
-                    logger.error("Error closing table: ", e);
+                    logger.error(ERROR_CLOSING_TABLE, e);
                 }
             }
         }
@@ -215,7 +216,7 @@ public class HBaseDataStore implements DataStore {
                 try {
                     hTable.close();
                 } catch (IOException e) {
-                    logger.error("Error closing table: ", e);
+                    logger.error(ERROR_CLOSING_TABLE, e);
                 }
             }
         }

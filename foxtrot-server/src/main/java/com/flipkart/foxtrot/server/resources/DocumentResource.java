@@ -41,6 +41,7 @@ import java.util.List;
 public class DocumentResource {
     private static final Logger logger = LoggerFactory.getLogger(DocumentResource.class.getSimpleName());
 
+    private static final String ERROR = "error";
     private final QueryStore queryStore;
 
     public DocumentResource(QueryStore queryStore) {
@@ -57,12 +58,12 @@ public class DocumentResource {
                 case NO_SUCH_TABLE:
                 case INVALID_REQUEST:
                     return Response.status(Response.Status.BAD_REQUEST)
-                            .entity(Collections.singletonMap("error", ex.getErrorCode()))
+                            .entity(Collections.singletonMap(ERROR, ex.getErrorCode()))
                             .build();
                 case DOCUMENT_SAVE_ERROR:
                 default:
                     return Response.serverError()
-                            .entity(Collections.singletonMap("error", ex.getErrorCode()))
+                            .entity(Collections.singletonMap(ERROR, ex.getErrorCode()))
                             .build();
 
             }
@@ -81,12 +82,12 @@ public class DocumentResource {
                 case NO_SUCH_TABLE:
                 case INVALID_REQUEST:
                     return Response.status(Response.Status.BAD_REQUEST)
-                            .entity(Collections.singletonMap("error", ex.getErrorCode()))
+                            .entity(Collections.singletonMap(ERROR, ex.getErrorCode()))
                             .build();
                 case DOCUMENT_SAVE_ERROR:
                 default:
                     return Response.serverError()
-                            .entity(Collections.singletonMap("error", ex.getErrorCode()))
+                            .entity(Collections.singletonMap(ERROR, ex.getErrorCode()))
                             .build();
 
             }
@@ -104,12 +105,12 @@ public class DocumentResource {
             switch (ex.getErrorCode()) {
                 case DOCUMENT_NOT_FOUND:
                     return Response.status(Response.Status.NOT_FOUND)
-                            .entity(Collections.singletonMap("error", ex.getErrorCode()))
+                            .entity(Collections.singletonMap(ERROR, ex.getErrorCode()))
                             .build();
                 case DOCUMENT_GET_ERROR:
                 default:
                     return Response.serverError()
-                            .entity(Collections.singletonMap("error", ex.getErrorCode()))
+                            .entity(Collections.singletonMap(ERROR, ex.getErrorCode()))
                             .build();
 
             }
@@ -125,12 +126,12 @@ public class DocumentResource {
             switch (ex.getErrorCode()) {
                 case DOCUMENT_NOT_FOUND:
                     return Response.status(Response.Status.NOT_FOUND)
-                            .entity(Collections.singletonMap("error", ex.getErrorCode()))
+                            .entity(Collections.singletonMap(ERROR, ex.getErrorCode()))
                             .build();
                 case DOCUMENT_GET_ERROR:
                 default:
                     return Response.serverError()
-                            .entity(Collections.singletonMap("error", ex.getErrorCode()))
+                            .entity(Collections.singletonMap(ERROR, ex.getErrorCode()))
                             .build();
 
             }
