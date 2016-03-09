@@ -31,7 +31,7 @@ public class QueryStoreException extends Exception {
         this.errorCode = errorCode;
     }
 
-    public static enum ErrorCode {
+    public enum ErrorCode {
         NO_SUCH_TABLE,
         DOCUMENT_SAVE_ERROR,
         DOCUMENT_GET_ERROR,

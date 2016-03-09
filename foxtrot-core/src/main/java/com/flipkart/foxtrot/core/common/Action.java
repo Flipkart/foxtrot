@@ -78,9 +78,9 @@ public abstract class Action<ParameterType extends ActionRequest> implements Cal
 
     @Override
     public String call() throws Exception {
-        final String cacheKey = cacheKey();
-        cache.put(cacheKey, execute(parameter));
-        return cacheKey;
+        final String finalCacheKey = cacheKey();
+        cache.put(finalCacheKey, execute(parameter));
+        return finalCacheKey;
     }
 
     public ActionResponse execute() throws QueryStoreException {
