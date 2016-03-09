@@ -52,6 +52,10 @@ public class ElasticsearchUtils {
     public static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormat.forPattern("dd-M-yyyy");
     private static ObjectMapper mapper;
 
+    private ElasticsearchUtils() {
+        throw new InstantiationError("Must not instantiate this class");
+    }
+    
     public static void setMapper(ObjectMapper mapper) {
         ElasticsearchUtils.mapper = mapper;
     }

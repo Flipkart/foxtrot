@@ -12,6 +12,10 @@ import java.util.*;
 public class FlatteningUtils {
     private static final String DEFAULT_SEPARATOR = ".";
 
+    private FlatteningUtils() {
+        throw new InstantiationError("Must not instantiate this class");
+    }
+    
     public static FlatRepresentation genericParse(JsonNode response) {
         List<FieldHeader> headers = Lists.newArrayList();
         Map<String, MetaData> docFields = generateFieldMappings(null, response);

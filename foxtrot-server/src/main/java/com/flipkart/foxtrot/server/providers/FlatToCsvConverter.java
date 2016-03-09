@@ -10,6 +10,11 @@ import java.util.List;
 import java.util.Map;
 
 public class FlatToCsvConverter {
+    
+    private FlatToCsvConverter() {
+        throw new InstantiationError("Must not instantiate this class");
+    }
+    
     public static void convert(final FlatRepresentation representation, Writer writer) throws IOException {
         CSVWriter data = new CSVWriter(writer);
         List<FieldHeader> headers = representation.getHeaders();

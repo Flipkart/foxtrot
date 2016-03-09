@@ -6,4 +6,9 @@ package com.flipkart.foxtrot.sql;
 public class Constants {
     public static final String SQL_TABLE_REGEX = "[^a-zA-Z0-9\\-_]";
     public static final String SQL_FIELD_REGEX = "[^a-zA-Z0-9.\\-_]";
+    
+    private Constants() {
+        throw new InstantiationError("Must not instantiate this class");
+    }
+    
 }
