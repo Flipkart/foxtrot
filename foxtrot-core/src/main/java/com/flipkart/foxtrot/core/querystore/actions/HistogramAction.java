@@ -95,7 +95,7 @@ public class HistogramAction extends Action<HistogramRequest> {
                 throw new QueryStoreException(QueryStoreException.ErrorCode.NO_SUCH_TABLE,
                         "There is no table called: " + query.getTable());
             }*/
-            DateHistogram.Interval interval = null;
+            DateHistogram.Interval interval;
             switch (parameter.getPeriod()) {
                 case seconds:
                     interval = DateHistogram.Interval.SECOND;
