@@ -28,6 +28,8 @@ import static com.flipkart.foxtrot.sql.responseprocessors.FlatteningUtils.genera
 import static com.flipkart.foxtrot.sql.responseprocessors.FlatteningUtils.genericParse;
 
 public class Flattener implements ResponseVisitor {
+    
+    private static final String COUNT = "count";
     private FlatRepresentation flatRepresentation;
     private ObjectMapper objectMapper;
     private ActionRequest request;
@@ -58,15 +60,15 @@ public class Flattener implements ResponseVisitor {
                 }
                 fieldNames.put(fieldName, lengthMax(fieldNames.get(fieldName), values[i]));
             }
-            row.put("count", groupData.getValue().getData());
+            row.put(COUNT, groupData.getValue().getData());
             rows.add(row);
         }
-        fieldNames.put("count", 10);
+        fieldNames.put(COUNT, 10);
         List<FieldHeader> headers = Lists.newArrayList();
         for(String fieldName : groupRequest.getNesting()) {
             headers.add(new FieldHeader(fieldName, fieldNames.get(fieldName)));
         }
-        headers.add(new FieldHeader("count", 10));
+        headers.add(new FieldHeader(COUNT, 10));
         flatRepresentation = new FlatRepresentation(headers, rows);
     }
 
@@ -76,13 +78,13 @@ public class Flattener implements ResponseVisitor {
         for (final HistogramResponse.Count count : histogramResponse.getCounts()){
             rows.add(new HashMap<String, Object>(){{
                 put("timestamp", count.getPeriod());
-                put("count", count.getCount());
+                put(COUNT, count.getCount());
             }});
         }
 
         List<FieldHeader> headers = Lists.newArrayList();
         headers.add(new FieldHeader("timestamp", 15));
-        headers.add(new FieldHeader("count", 15));
+        headers.add(new FieldHeader(COUNT, 15));
         flatRepresentation = new FlatRepresentation(headers, rows);
     }
 
@@ -188,7 +190,7 @@ public class Flattener implements ResponseVisitor {
                 if (!representation.containsKey(time)) {
                     representation.put(time, Maps.<String, Object>newHashMap());
                 }
-                representation.get(time).put(typeName, dataNode.get("count").asLong());
+                representation.get(time).put(typeName, dataNode.get(COUNT).asLong());
             }
         }
 
@@ -209,9 +211,9 @@ public class Flattener implements ResponseVisitor {
 
     @Override
     public void visit(CountResponse countResponse) {
-        FieldHeader fieldHeader = new FieldHeader("count", 20);
+        FieldHeader fieldHeader = new FieldHeader(COUNT, 20);
         List<Map<String, Object>> rows = Lists.newArrayList();
-        rows.add(Collections.<String, Object>singletonMap("count", countResponse.getCount()));
+        rows.add(Collections.<String, Object>singletonMap(COUNT, countResponse.getCount()));
         flatRepresentation = new FlatRepresentation(Arrays.asList(fieldHeader), rows);
     }
 

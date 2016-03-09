@@ -33,6 +33,7 @@ import java.util.Set;
 public class ElasticsearchMappingParser {
 
     private ObjectMapper mapper;
+    private static final String FIELD_NAME = "properties";
 
     public ElasticsearchMappingParser(ObjectMapper mapper) {
         this.mapper = mapper;
@@ -40,7 +41,7 @@ public class ElasticsearchMappingParser {
 
     public Set<FieldTypeMapping> getFieldMappings(MappingMetaData metaData) throws IOException {
         JsonNode jsonNode = mapper.valueToTree(metaData.getSourceAsMap());
-        return generateFieldMappings(null, jsonNode.get("properties"));
+        return generateFieldMappings(null, jsonNode.get(FIELD_NAME));
     }
 
     private Set<FieldTypeMapping> generateFieldMappings(String parentField, JsonNode jsonNode) {
@@ -49,8 +50,8 @@ public class ElasticsearchMappingParser {
         while (iterator.hasNext()) {
             Map.Entry<String, JsonNode> entry = iterator.next();
             String currentField = (parentField == null) ? entry.getKey() : (String.format("%s.%s", parentField, entry.getKey()));
-            if (entry.getValue().has("properties")) {
-                fieldTypeMappings.addAll(generateFieldMappings(currentField, entry.getValue().get("properties")));
+            if (entry.getValue().has(FIELD_NAME)) {
+                fieldTypeMappings.addAll(generateFieldMappings(currentField, entry.getValue().get(FIELD_NAME)));
             } else {
                 FieldType fieldType = getFieldType(entry.getValue().get("type"));
                 fieldTypeMappings.add(new FieldTypeMapping(currentField, fieldType));

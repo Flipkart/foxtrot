@@ -54,6 +54,7 @@ import java.util.concurrent.TimeUnit;
 public class ElasticsearchQueryStore implements QueryStore {
     private static final Logger logger = LoggerFactory.getLogger(ElasticsearchQueryStore.class.getSimpleName());
 
+    private static final String NO_TABLE_EXISTS_WITH_THE_NAME = "No table exists with the name: ";
     private final TableMetadataManager tableMetadataManager;
     private final ElasticsearchConnection connection;
     private final DataStore dataStore;
@@ -75,7 +76,7 @@ public class ElasticsearchQueryStore implements QueryStore {
         try {
             if (!tableMetadataManager.exists(table)) {
                 throw new QueryStoreException(QueryStoreException.ErrorCode.NO_SUCH_TABLE,
-                        "No table exists with the name: " + table);
+                        NO_TABLE_EXISTS_WITH_THE_NAME + table);
             }
             if (new DateTime().plusDays(1).minus(document.getTimestamp()).getMillis() <  0) {
                 return;
@@ -122,7 +123,7 @@ public class ElasticsearchQueryStore implements QueryStore {
         try {
             if (!tableMetadataManager.exists(table)) {
                 throw new QueryStoreException(QueryStoreException.ErrorCode.NO_SUCH_TABLE,
-                        "No table exists with the name: " + table);
+                        NO_TABLE_EXISTS_WITH_THE_NAME + table);
             }
             if (documents == null || documents.size() == 0) {
                 throw new QueryStoreException(QueryStoreException.ErrorCode.INVALID_REQUEST,
@@ -195,7 +196,7 @@ public class ElasticsearchQueryStore implements QueryStore {
         try {
             if (!tableMetadataManager.exists(table)) {
                 throw new QueryStoreException(QueryStoreException.ErrorCode.NO_SUCH_TABLE,
-                        "No table exists with the name: " + table);
+                        NO_TABLE_EXISTS_WITH_THE_NAME + table);
             }
             fxTable = tableMetadataManager.get(table);
         } catch (Exception ex) {
@@ -221,7 +222,7 @@ public class ElasticsearchQueryStore implements QueryStore {
         try {
             if (!tableMetadataManager.exists(table)) {
                 throw new QueryStoreException(QueryStoreException.ErrorCode.NO_SUCH_TABLE,
-                        "No table exists with the name: " + table);
+                        NO_TABLE_EXISTS_WITH_THE_NAME + table);
             }
             return dataStore.get(tableMetadataManager.get(table), ids);
         } catch (DataStoreException ex) {
@@ -243,7 +244,7 @@ public class ElasticsearchQueryStore implements QueryStore {
         try {
             if (!tableMetadataManager.exists(table)) {
                 throw new QueryStoreException(QueryStoreException.ErrorCode.NO_SUCH_TABLE,
-                        "No table exists with the name: " + table);
+                        NO_TABLE_EXISTS_WITH_THE_NAME + table);
             }
 
             ElasticsearchMappingParser mappingParser = new ElasticsearchMappingParser(mapper);
