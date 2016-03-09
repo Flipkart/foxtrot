@@ -124,7 +124,7 @@ public class ElasticsearchQueryStore implements QueryStore {
                 throw new QueryStoreException(QueryStoreException.ErrorCode.NO_SUCH_TABLE,
                         "No table exists with the name: " + table);
             }
-            if (documents == null || documents.size() == 0) {
+            if (documents == null || documents.isEmpty()) {
                 throw new QueryStoreException(QueryStoreException.ErrorCode.INVALID_REQUEST,
                         "Invalid Document List");
             }
@@ -307,7 +307,7 @@ public class ElasticsearchQueryStore implements QueryStore {
                 }
             }
             logger.warn(String.format("Deleting Indexes - Indexes - %s", indicesToDelete));
-            if (indicesToDelete.size() > 0) {
+            if (!indicesToDelete.isEmpty()) {
                 List<List<String>> subLists = Lists.partition(indicesToDelete, 5);
                 for ( List<String> subList : subLists ){
                     try {
