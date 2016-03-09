@@ -115,10 +115,10 @@ public class QueryTranslator extends SqlElementVisitor {
                     }
                 }
                 if (!alreadyAdded){
-                    ResultSort resultSort = new ResultSort();
-                    resultSort.setField(selectedColumn);
-                    resultSort.setOrder(ResultSort.Order.desc);
-                    columnsWithSort.add(resultSort);
+                    ResultSort newResultSort = new ResultSort();
+                    newResultSort.setField(selectedColumn);
+                    newResultSort.setOrder(ResultSort.Order.desc);
+                    columnsWithSort.add(newResultSort);
                 }
             }
             this.queryType = FqlQueryType.distinct;
@@ -247,11 +247,11 @@ public class QueryTranslator extends SqlElementVisitor {
         for(Object orderByElementObject : orderByElements) {
             OrderByElement orderByElement = (OrderByElement)orderByElementObject;
             Column sortColumn = (Column)orderByElement.getExpression();
-            ResultSort resultSort = new ResultSort();
-            resultSort.setField(sortColumn.getFullyQualifiedName());
-            resultSort.setOrder(orderByElement.isAsc()? ResultSort.Order.asc : ResultSort.Order.desc);
-            logger.info("ResultSort: " + resultSort);
-            return resultSort;
+            ResultSort resultSortByElement = new ResultSort();
+            resultSortByElement.setField(sortColumn.getFullyQualifiedName());
+            resultSortByElement.setOrder(orderByElement.isAsc()? ResultSort.Order.asc : ResultSort.Order.desc);
+            logger.info("ResultSort: " + resultSortByElement);
+            return resultSortByElement;
         }
         return null;
     }
@@ -263,10 +263,10 @@ public class QueryTranslator extends SqlElementVisitor {
         }
         for (OrderByElement orderByElement : orderItems){
             Column sortColumn = (Column)orderByElement.getExpression();
-            ResultSort resultSort = new ResultSort();
-            resultSort.setField(sortColumn.getFullyQualifiedName());
-            resultSort.setOrder(orderByElement.isAsc()? ResultSort.Order.asc : ResultSort.Order.desc);
-            resultSortList.add(resultSort);
+            ResultSort columnResultSort = new ResultSort();
+            columnResultSort.setField(sortColumn.getFullyQualifiedName());
+            columnResultSort.setOrder(orderByElement.isAsc()? ResultSort.Order.asc : ResultSort.Order.desc);
+            resultSortList.add(columnResultSort);
         }
         return resultSortList;
     }

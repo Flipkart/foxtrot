@@ -23,7 +23,7 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
  * Time: 9:18 PM
  */
 public class DataStoreException extends Exception {
-    public static enum ErrorCode {
+    public enum ErrorCode {
         STORE_CONNECTION,
         STORE_SINGLE_SAVE,
         STORE_MULTI_SAVE,
