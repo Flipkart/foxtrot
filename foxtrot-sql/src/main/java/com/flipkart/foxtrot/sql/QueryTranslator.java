@@ -99,7 +99,7 @@ public class QueryTranslator extends SqlElementVisitor {
         if(null != plainSelect.getWhere()) {
             FilterParser filterParser = new FilterParser();
             plainSelect.getWhere().accept(filterParser);
-            filters = (filterParser.filters.isEmpty()) ? null : filterParser.filters;
+            filters = filterParser.filters.isEmpty() ? null : filterParser.filters;
         }
 
         // Handle distinct

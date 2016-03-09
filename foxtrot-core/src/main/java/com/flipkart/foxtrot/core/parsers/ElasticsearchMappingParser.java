@@ -48,7 +48,7 @@ public class ElasticsearchMappingParser {
         Iterator<Map.Entry<String, JsonNode>> iterator = jsonNode.fields();
         while (iterator.hasNext()) {
             Map.Entry<String, JsonNode> entry = iterator.next();
-            String currentField = (parentField == null) ? entry.getKey() : (String.format("%s.%s", parentField, entry.getKey()));
+            String currentField = parentField == null ? entry.getKey() : (String.format("%s.%s", parentField, entry.getKey()));
             if (entry.getValue().has("properties")) {
                 fieldTypeMappings.addAll(generateFieldMappings(currentField, entry.getValue().get("properties")));
             } else {
