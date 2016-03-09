@@ -21,6 +21,9 @@ package com.flipkart.foxtrot.core.querystore;
  * Time: 9:18 PM
  */
 public class QueryStoreException extends Exception {
+    
+    private final ErrorCode errorCode;
+    
     public QueryStoreException(ErrorCode errorCode, String message) {
         super(message);
         this.errorCode = errorCode;
@@ -48,8 +51,6 @@ public class QueryStoreException extends Exception {
         DATA_CLEANUP_ERROR
 
     }
-
-    private final ErrorCode errorCode;
 
     public ErrorCode getErrorCode() {
         return errorCode;

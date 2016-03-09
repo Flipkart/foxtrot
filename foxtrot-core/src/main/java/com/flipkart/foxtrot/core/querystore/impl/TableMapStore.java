@@ -48,7 +48,16 @@ public class TableMapStore implements MapStore<String, Table> {
 
     public static final String TABLE_META_INDEX = "table-meta";
     public static final String TABLE_META_TYPE = "table-meta";
+    private final ElasticsearchConnection elasticsearchConnection;
+    private final ObjectMapper objectMapper;
 
+    public TableMapStore(ElasticsearchConnection elasticsearchConnection) {
+        this.elasticsearchConnection = elasticsearchConnection;
+        this.objectMapper = new ObjectMapper();
+        objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+        objectMapper.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
+    }
+    
     public static class Factory implements MapStoreFactory<String, Table> {
         private final ElasticsearchConnection elasticsearchConnection;
 
@@ -64,16 +73,6 @@ public class TableMapStore implements MapStore<String, Table> {
 
     public static Factory factory(ElasticsearchConnection elasticsearchConnection) {
         return new Factory(elasticsearchConnection);
-    }
-
-    private final ElasticsearchConnection elasticsearchConnection;
-    private final ObjectMapper objectMapper;
-
-    public TableMapStore(ElasticsearchConnection elasticsearchConnection) {
-        this.elasticsearchConnection = elasticsearchConnection;
-        this.objectMapper = new ObjectMapper();
-        objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
-        objectMapper.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
     }
 
     @Override
