@@ -107,5 +107,6 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
 
     @Override
     public void stop() throws Exception {
+        throw new UnsupportedOperationException();
     }
 }

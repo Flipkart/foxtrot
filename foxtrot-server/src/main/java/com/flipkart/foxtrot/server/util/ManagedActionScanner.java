@@ -85,7 +85,7 @@ public class ManagedActionScanner implements Managed {
 
     @Override
     public void stop() throws Exception {
-
+        throw new UnsupportedOperationException();
     }
 
 }
