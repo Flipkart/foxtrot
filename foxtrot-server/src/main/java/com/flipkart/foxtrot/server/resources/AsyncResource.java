@@ -48,7 +48,7 @@ public class AsyncResource {
         return Response.ok(getData(dataToken)).build();
     }
 
-    private ActionResponse getData(final AsyncDataToken dataToken) {
+    private static ActionResponse getData(final AsyncDataToken dataToken) {
         try {
             return CacheUtils.getCacheFor(dataToken.getAction()).get(dataToken.getKey());
         } catch (Exception e) {

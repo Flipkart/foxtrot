@@ -237,7 +237,7 @@ public class Flattener implements ResponseVisitor {
         return flatRepresentation;
     }
 
-    private int lengthMax(int currMax, final String rhs) {
+    private static int lengthMax(int currMax, final String rhs) {
         return currMax > rhs.length() ? currMax : rhs.length();
     }
 

@@ -147,7 +147,7 @@ public class DistinctAction extends Action<DistinctRequest> {
         }
     }
 
-    private String getProperKey(String parentKey, String currentKey) {
+    private static String getProperKey(String parentKey, String currentKey) {
         return parentKey == null ? currentKey : parentKey + Constants.SEPARATOR + currentKey;
     }
 

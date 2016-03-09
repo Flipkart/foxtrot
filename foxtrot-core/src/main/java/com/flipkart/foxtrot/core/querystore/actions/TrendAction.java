@@ -169,7 +169,7 @@ public class TrendAction extends Action<TrendRequest> {
                 .subAggregation(Utils.buildDateHistogramAggregation(request.getTimestamp(), interval));
     }
 
-    private TrendResponse buildResponse(TrendRequest request, Aggregations aggregations){
+    private static TrendResponse buildResponse(TrendRequest request, Aggregations aggregations){
         String field = request.getField();
         Map<String, List<TrendResponse.Count>> trendCounts = new TreeMap<String, List<TrendResponse.Count>>();
         Terms terms = aggregations.get(Utils.sanitizeFieldForAggregation(field));
