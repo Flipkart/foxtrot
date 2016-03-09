@@ -93,17 +93,17 @@ public class PeriodSelector extends FilterVisitor {
 
     @Override
     public void visit(AnyFilter anyFilter) throws Exception {
-
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public void visit(InFilter inFilter) throws Exception {
-
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public void visit(ExistsFilter existsFilter) throws Exception {
-
+        throw new UnsupportedOperationException();
     }
 
     @Override
