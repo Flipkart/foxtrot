@@ -40,6 +40,11 @@ public class DistributedCache implements Cache {
     private final IMap<String, String> distributedMap;
     private final ObjectMapper mapper;
 
+    public DistributedCache(HazelcastConnection hazelcastConnection, String name, ObjectMapper mapper) {
+        this.distributedMap = hazelcastConnection.getHazelcast().getMap(NAME_PREFIX + name);
+        this.mapper = mapper;
+    }
+    
     public static void setupConfig(HazelcastConnection hazelcastConnection) {
         MapConfig mapConfig = hazelcastConnection.getHazelcastConfig().getMapConfig(NAME_PREFIX + "*");
         mapConfig.setInMemoryFormat(InMemoryFormat.BINARY);
@@ -51,11 +56,6 @@ public class DistributedCache implements Cache {
         nearCacheConfig.setInvalidateOnChange(true);
         nearCacheConfig.setMaxIdleSeconds(10);
         mapConfig.setNearCacheConfig(nearCacheConfig);
-    }
-
-    public DistributedCache(HazelcastConnection hazelcastConnection, String name, ObjectMapper mapper) {
-        this.distributedMap = hazelcastConnection.getHazelcast().getMap(NAME_PREFIX + name);
-        this.mapper = mapper;
     }
 
     @Override
