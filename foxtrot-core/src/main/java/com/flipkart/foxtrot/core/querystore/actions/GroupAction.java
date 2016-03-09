@@ -128,7 +128,7 @@ public class GroupAction extends Action<GroupRequest> {
         }
     }
 
-    private Map<String, Object> getMap(List<String> fields, Aggregations aggregations) {
+    private static Map<String, Object> getMap(List<String> fields, Aggregations aggregations) {
         final String field = fields.get(0);
         final List<String> remainingFields = (fields.size() > 1) ? fields.subList(1, fields.size())
                 : new ArrayList<String>();

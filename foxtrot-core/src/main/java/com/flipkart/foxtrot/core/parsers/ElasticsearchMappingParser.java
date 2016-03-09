@@ -59,7 +59,7 @@ public class ElasticsearchMappingParser {
         return fieldTypeMappings;
     }
 
-    private FieldType getFieldType(JsonNode jsonNode) {
+    private static FieldType getFieldType(JsonNode jsonNode) {
         String type = jsonNode.asText();
         return FieldType.valueOf(type.toUpperCase());
     }

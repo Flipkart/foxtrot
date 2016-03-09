@@ -78,7 +78,7 @@ public class InitializerCommand extends ConfiguredCommand<FoxtrotServerConfigura
 
     }
 
-    private void createMetaIndex(final ElasticsearchConnection connection,
+    private static void createMetaIndex(final ElasticsearchConnection connection,
                                  final String indexName,
                                  int replicaCount) throws Exception {
         try {

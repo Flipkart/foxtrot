@@ -315,7 +315,7 @@ public class QueryTranslator extends SqlElementVisitor {
             }
         }
 
-        private FqlQueryType getType(String function) {
+        private static FqlQueryType getType(String function) {
             if(function.equalsIgnoreCase("trend")) {
                 return FqlQueryType.trend;
             }
@@ -334,7 +334,7 @@ public class QueryTranslator extends SqlElementVisitor {
             return FqlQueryType.select;
         }
 
-        private TrendRequest parseTrendFunction(List expressions) {
+        private static TrendRequest parseTrendFunction(List expressions) {
             if(expressions == null || expressions.isEmpty() || expressions.size() > 3) {
                 throw new RuntimeException("trend function has following format: trend(fieldname, [period, [timestamp field]])");
             }
@@ -349,7 +349,7 @@ public class QueryTranslator extends SqlElementVisitor {
             return trendRequest;
         }
 
-        private StatsTrendRequest parseStatsTrendFunction(List expressions) {
+        private static StatsTrendRequest parseStatsTrendFunction(List expressions) {
             if(expressions == null || expressions.isEmpty() || expressions.size() > 2) {
                 throw new RuntimeException("statstrend function has following format: statstrend(fieldname, [period])");
             }
@@ -361,7 +361,7 @@ public class QueryTranslator extends SqlElementVisitor {
             return statsTrendRequest;
         }
 
-        private StatsRequest parseStatsFunction(List expressions) {
+        private static StatsRequest parseStatsFunction(List expressions) {
             if(expressions == null || expressions.isEmpty() || expressions.size() > 1) {
                 throw new RuntimeException("stats function has following format: stats(fieldname)");
             }
@@ -370,7 +370,7 @@ public class QueryTranslator extends SqlElementVisitor {
             return statsRequest;
         }
 
-        private HistogramRequest parseHistogramRequest(ExpressionList expressionList) {
+        private static HistogramRequest parseHistogramRequest(ExpressionList expressionList) {
             if(expressionList != null && (expressionList.getExpressions() != null && expressionList.getExpressions().size() > 2)) {
                 throw new RuntimeException("histogram function has the following format: histogram([period, [timestamp field]])");
             }
@@ -406,7 +406,7 @@ public class QueryTranslator extends SqlElementVisitor {
             throw new RuntimeException("count function has the following format: count([distinct] */column_name)");
         }
 
-        private String expressionToString(Expression expression) {
+        private static String expressionToString(Expression expression) {
             if(expression instanceof Column) {
                 return ((Column)expression).getFullyQualifiedName();
             }
@@ -550,7 +550,7 @@ public class QueryTranslator extends SqlElementVisitor {
         }
 
 
-        private LastFilter parseWindowFunction(List expressions) {
+        private static LastFilter parseWindowFunction(List expressions) {
             if(expressions == null || expressions.isEmpty() || expressions.size() > 3) {
                 throw new RuntimeException("last function has following format: last(duration, [start-time, [timestamp field]])");
             }
@@ -572,7 +572,7 @@ public class QueryTranslator extends SqlElementVisitor {
             return getNumbericValue(expression);
         }
 
-        private Number getNumbericValue(Expression expression) {
+        private static Number getNumbericValue(Expression expression) {
             if(expression instanceof DoubleValue) {
                 return ((DoubleValue)expression).getValue();
             }
