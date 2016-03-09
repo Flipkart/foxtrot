@@ -167,7 +167,7 @@ public class QueryTranslator extends SqlElementVisitor {
         Statement statement = ccjSqlParserManager.parse(new StringReader(sql));
         Select select = (Select) statement;
         select.accept(this);
-        ActionRequest request = null;
+        ActionRequest request;
         switch (queryType) {
             case select: {
                 Query query = new Query();

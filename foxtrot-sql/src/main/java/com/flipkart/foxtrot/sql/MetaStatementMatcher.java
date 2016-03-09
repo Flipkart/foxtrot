@@ -15,7 +15,7 @@ public class MetaStatementMatcher {
 
     public ExtendedSqlStatement parse(final String fql) {
         if(fql.matches(DESC_STATEMENT_MATCH)) {
-            final String parts[] = fql.split(DESC_STATEMENT_DELIMITER);
+            final String[] parts = fql.split(DESC_STATEMENT_DELIMITER);
             if(parts.length != 2) {
                 throw new RuntimeException("Could not decode table name from desc statement. Table name format is: [a-zA-Z-_]+");
             }

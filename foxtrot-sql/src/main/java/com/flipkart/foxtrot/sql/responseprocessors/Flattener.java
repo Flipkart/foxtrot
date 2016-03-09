@@ -48,7 +48,7 @@ public class Flattener implements ResponseVisitor {
         GroupRequest groupRequest = (GroupRequest) request;
         List<Map<String, Object>> rows = Lists.newArrayList();
         for(Map.Entry<String, MetaData> groupData : dataFields.entrySet()) {
-            String values[] = groupData.getKey().split(separator);
+            String[] values = groupData.getKey().split(separator);
             Map<String, Object> row = Maps.newHashMap();
             for(int i = 0; i < groupRequest.getNesting().size(); i++ ) {
                 final String fieldName = groupRequest.getNesting().get(i);
