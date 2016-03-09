@@ -22,4 +22,8 @@ public class Constants {
     public static final String FIELD_REPLACEMENT_REGEX = "[^a-zA-Z0-9\\-_]";
     public static final String FIELD_REPLACEMENT_VALUE = "_";
     public static final String SEPARATOR = "_--&--_";
+    
+    private Constants() {
+        throw new InstantiationError("Must not instantiate this class");
+    }
 }

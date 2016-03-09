@@ -32,6 +32,10 @@ import java.io.IOException;
 public abstract class HBaseUtil {
     private static final Logger logger = LoggerFactory.getLogger(HBaseUtil.class);
 
+    private HBaseUtil() {
+        throw new InstantiationError("Must not instantiate this class");
+    }
+    
     public static Configuration create(final HbaseConfig hbaseConfig) throws IOException {
         Configuration configuration = HBaseConfiguration.create();
 

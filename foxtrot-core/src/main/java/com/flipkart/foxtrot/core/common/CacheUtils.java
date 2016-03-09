@@ -24,7 +24,11 @@ import java.util.Map;
  * Time: 5:20 PM
  */
 public class CacheUtils {
-
+    
+    private CacheUtils() {
+        throw new InstantiationError("Must not instantiate this class");
+    }
+    
     private static final Map<String, Cache> cacheMap = new HashMap<String, Cache>();
 
     private static CacheFactory cacheFactory = null;

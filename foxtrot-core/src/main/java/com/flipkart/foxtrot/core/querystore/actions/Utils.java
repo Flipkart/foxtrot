@@ -9,6 +9,10 @@ import org.elasticsearch.search.aggregations.bucket.histogram.DateHistogram;
  */
 public class Utils {
 
+    private Utils() {
+        throw new InstantiationError("Must not instantiate this class");
+    }
+    
     public static AbstractAggregationBuilder buildExtendedStatsAggregation(String field) {
         String metricKey = getExtendedStatsAggregationKey(field);
         return AggregationBuilders.extendedStats(metricKey).field(field);
