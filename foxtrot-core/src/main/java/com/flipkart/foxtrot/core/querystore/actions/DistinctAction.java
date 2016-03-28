@@ -6,7 +6,6 @@ import com.flipkart.foxtrot.common.distinct.DistinctResponse;
 import com.flipkart.foxtrot.common.query.Filter;
 import com.flipkart.foxtrot.common.query.FilterCombinerType;
 import com.flipkart.foxtrot.common.query.ResultSort;
-import com.flipkart.foxtrot.common.query.general.AnyFilter;
 import com.flipkart.foxtrot.common.util.CollectionUtils;
 import com.flipkart.foxtrot.core.cache.CacheManager;
 import com.flipkart.foxtrot.core.common.Action;
@@ -20,7 +19,6 @@ import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConnection;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
 import com.flipkart.foxtrot.core.querystore.query.ElasticSearchQueryGenerator;
 import com.flipkart.foxtrot.core.table.TableMetadataManager;
-import com.google.common.collect.Lists;
 import org.elasticsearch.ElasticsearchException;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
@@ -101,10 +99,6 @@ public class DistinctAction extends Action<DistinctRequest> {
     @Override
     public ActionResponse execute(DistinctRequest request) throws FoxtrotException {
         request.setTable(ElasticsearchUtils.getValidTableName(request.getTable()));
-        if (null == request.getFilters()) {
-            request.setFilters(Lists.<Filter>newArrayList(new AnyFilter(request.getTable())));
-        }
-
         SearchRequestBuilder query;
         try {
             query = getConnection().getClient()

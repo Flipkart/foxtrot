@@ -3,7 +3,6 @@ package com.flipkart.foxtrot.core.querystore.actions;
 import com.flipkart.foxtrot.common.ActionResponse;
 import com.flipkart.foxtrot.common.query.Filter;
 import com.flipkart.foxtrot.common.query.FilterCombinerType;
-import com.flipkart.foxtrot.common.query.general.AnyFilter;
 import com.flipkart.foxtrot.common.stats.StatsRequest;
 import com.flipkart.foxtrot.common.stats.StatsResponse;
 import com.flipkart.foxtrot.common.stats.StatsValue;
@@ -81,10 +80,6 @@ public class StatsAction extends Action<StatsRequest> {
     @Override
     public ActionResponse execute(StatsRequest parameter) throws FoxtrotException {
         parameter.setTable(ElasticsearchUtils.getValidTableName(parameter.getTable()));
-        if (null == parameter.getFilters()) {
-            parameter.setFilters(Lists.<Filter>newArrayList(new AnyFilter(parameter.getTable())));
-        }
-
         SearchRequestBuilder searchRequestBuilder;
         try {
             searchRequestBuilder = getConnection().getClient().prepareSearch(

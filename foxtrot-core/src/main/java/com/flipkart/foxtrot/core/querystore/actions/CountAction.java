@@ -83,10 +83,6 @@ public class CountAction extends Action<CountRequest> {
     @Override
     public ActionResponse execute(CountRequest parameter) throws FoxtrotException {
         parameter.setTable(ElasticsearchUtils.getValidTableName(parameter.getTable()));
-        if (null == parameter.getFilters() || parameter.getFilters().isEmpty()) {
-            parameter.setFilters(Lists.<Filter>newArrayList(new AnyFilter(parameter.getTable())));
-        }
-
         // Null field implies complete doc count
         if (parameter.getField() != null) {
             parameter.getFilters().add(new ExistsFilter(parameter.getField()));

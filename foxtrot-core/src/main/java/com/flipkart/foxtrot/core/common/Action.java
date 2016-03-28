@@ -18,11 +18,14 @@ package com.flipkart.foxtrot.core.common;
 import com.flipkart.foxtrot.common.ActionRequest;
 import com.flipkart.foxtrot.common.ActionResponse;
 import com.flipkart.foxtrot.common.query.Filter;
+import com.flipkart.foxtrot.common.query.general.AnyFilter;
 import com.flipkart.foxtrot.common.query.numeric.LessThanFilter;
+import com.flipkart.foxtrot.common.util.CollectionUtils;
 import com.flipkart.foxtrot.core.cache.Cache;
 import com.flipkart.foxtrot.core.cache.CacheManager;
 import com.flipkart.foxtrot.core.datastore.DataStore;
 import com.flipkart.foxtrot.core.exception.FoxtrotException;
+import com.flipkart.foxtrot.core.exception.FoxtrotExceptions;
 import com.flipkart.foxtrot.core.exception.MalformedQueryException;
 import com.flipkart.foxtrot.core.querystore.QueryStore;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConnection;
@@ -31,7 +34,9 @@ import com.google.common.collect.Lists;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 
@@ -72,9 +77,18 @@ public abstract class Action<ParameterType extends ActionRequest> implements Cal
     }
 
     public AsyncDataToken execute(ExecutorService executor) throws FoxtrotException {
-        validateImpl(parameter);
+        preProcessRequest();
         executor.submit(this);
         return new AsyncDataToken(cacheToken, cacheKey());
+    }
+
+    private void preProcessRequest() throws MalformedQueryException {
+        if (parameter.getFilters() == null) {
+            parameter.setFilters(Lists.<Filter>newArrayList(new AnyFilter()));
+        }
+
+        validateBase(parameter);
+        validateImpl(parameter);
     }
 
     @Override
@@ -85,7 +99,7 @@ public abstract class Action<ParameterType extends ActionRequest> implements Cal
     }
 
     public ActionResponse execute() throws FoxtrotException {
-        validateImpl(parameter);
+        preProcessRequest();
         Cache cache = cacheManager.getCacheFor(this.cacheToken);
         final String cacheKeyValue = cacheKey();
         if (isCacheable()) {
@@ -102,6 +116,21 @@ public abstract class Action<ParameterType extends ActionRequest> implements Cal
             return cache.put(cacheKey(), result);
         }
         return result;
+    }
+
+    private void validateBase(ParameterType parameter) throws MalformedQueryException {
+        List<String> validationErrors = new ArrayList<>();
+        if (!CollectionUtils.isNullOrEmpty(parameter.getFilters())) {
+            for (Filter filter : parameter.getFilters()) {
+                Set<String> errors = filter.validate();
+                if (!CollectionUtils.isNullOrEmpty(errors)) {
+                    validationErrors.addAll(errors);
+                }
+            }
+        }
+        if (!CollectionUtils.isNullOrEmpty(validationErrors)) {
+            throw FoxtrotExceptions.createMalformedQueryException(parameter, validationErrors);
+        }
     }
 
     public void validateImpl() throws MalformedQueryException {

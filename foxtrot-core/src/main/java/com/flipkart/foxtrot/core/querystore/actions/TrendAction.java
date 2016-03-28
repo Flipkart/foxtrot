@@ -20,7 +20,6 @@ import com.flipkart.foxtrot.common.Period;
 import com.flipkart.foxtrot.common.query.Filter;
 import com.flipkart.foxtrot.common.query.FilterCombinerType;
 import com.flipkart.foxtrot.common.query.datetime.LastFilter;
-import com.flipkart.foxtrot.common.query.general.AnyFilter;
 import com.flipkart.foxtrot.common.query.general.InFilter;
 import com.flipkart.foxtrot.common.trend.TrendRequest;
 import com.flipkart.foxtrot.common.trend.TrendResponse;
@@ -120,10 +119,6 @@ public class TrendAction extends Action<TrendRequest> {
     @Override
     public ActionResponse execute(TrendRequest parameter) throws FoxtrotException {
         parameter.setTable(ElasticsearchUtils.getValidTableName(parameter.getTable()));
-        if (null == parameter.getFilters()) {
-            parameter.setFilters(Lists.<Filter>newArrayList(new AnyFilter(parameter.getTable())));
-        }
-
         if (null != parameter.getValues() && parameter.getValues().size() != 0) {
             List<Object> values = (List) parameter.getValues();
             Filter filter = new InFilter(parameter.getField(), values);

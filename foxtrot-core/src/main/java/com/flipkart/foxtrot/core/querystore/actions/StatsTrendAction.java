@@ -5,7 +5,6 @@ import com.flipkart.foxtrot.common.Period;
 import com.flipkart.foxtrot.common.query.Filter;
 import com.flipkart.foxtrot.common.query.FilterCombinerType;
 import com.flipkart.foxtrot.common.query.datetime.LastFilter;
-import com.flipkart.foxtrot.common.query.general.AnyFilter;
 import com.flipkart.foxtrot.common.stats.StatsTrendRequest;
 import com.flipkart.foxtrot.common.stats.StatsTrendResponse;
 import com.flipkart.foxtrot.common.stats.StatsTrendValue;
@@ -103,10 +102,6 @@ public class StatsTrendAction extends Action<StatsTrendRequest> {
     @Override
     public ActionResponse execute(StatsTrendRequest parameter) throws FoxtrotException {
         parameter.setTable(ElasticsearchUtils.getValidTableName(parameter.getTable()));
-        if (null == parameter.getFilters()) {
-            parameter.setFilters(Lists.<Filter>newArrayList(new AnyFilter(parameter.getTable())));
-        }
-
         SearchRequestBuilder searchRequestBuilder;
         try {
             AbstractAggregationBuilder aggregation = buildAggregation(parameter);
