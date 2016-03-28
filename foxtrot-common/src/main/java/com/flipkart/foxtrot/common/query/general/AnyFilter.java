@@ -24,11 +24,7 @@ import java.util.Set;
 public class AnyFilter extends Filter {
 
     public AnyFilter() {
-        super(FilterOperator.any);
-    }
-
-    public AnyFilter(String field) {
-        super(FilterOperator.any, field);
+        super(FilterOperator.any, "dummy");
     }
 
     @Override

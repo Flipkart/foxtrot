@@ -108,10 +108,6 @@ public class GroupAction extends Action<GroupRequest> {
     @Override
     public ActionResponse execute(GroupRequest parameter) throws FoxtrotException {
         parameter.setTable(ElasticsearchUtils.getValidTableName(parameter.getTable()));
-        if (null == parameter.getFilters()) {
-            parameter.setFilters(Lists.<Filter>newArrayList(new AnyFilter(parameter.getTable())));
-        }
-
         SearchRequestBuilder query;
         try {
             query = getConnection().getClient()
