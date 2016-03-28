@@ -31,14 +31,14 @@ BetweenOperation.prototype.init = function(filter) {
     this.operator = filter.operator;
     this.from = filter.operand1;
     this.to = filter.operand2;
-}
+};
 
 var operationFactory = {
     create: function(filter, operationMeta) {
         filter.operator = operationMeta.operator;
         var operation = null;
-        if(2 == operationMeta.cardinality) {
-            operation = new BinaryOperation();
+        if(3 == operationMeta.cardinality) {
+            operation = new BetweenOperation();
         }
         else {
             operation = new BinaryOperation();
@@ -55,7 +55,7 @@ function OperationMetadata(operator, cardinality, label) {
 }
 
 var opTable = new function() {
-    this.opTableMap = new Object();
+    this.opTableMap = {};
     this.opTableMap["equals"] = new OperationMetadata("equals", 2, "Equal to");
     this.opTableMap["not_equals"] = new OperationMetadata("not_equals", 2, "Not Equal to");
     this.opTableMap["less_than"] = new OperationMetadata("less_than", 2, "Less than");
@@ -65,7 +65,7 @@ var opTable = new function() {
     this.opTableMap["contains"] = new OperationMetadata("contains", 2, "Contains");
     this.opTableMap["between"] = new OperationMetadata("between", 3, "Between");
 
-    this.ops = new Object();
+    this.ops = {};
 
     this.ops["LONG"] =
     this.ops["INTEGER"] =
@@ -76,10 +76,10 @@ var opTable = new function() {
     this.ops["DOUBLE"] = ["equals", "not_equals", "less_than", "less_equal", "greater_than", "greater_equal", "between"];
     this.ops["BOOLEAN"] = ["equals", "not_equals"];
     this.ops["STRING"] = ["equals", "not_equals", "contains"];
-}
+};
 
 function FilterSection(filterId, tables) {
-    this.filterSet = new Object();
+    this.filterSet = {};
     this.filterId = filterId;
     this.tables = tables;
     this.currentOperator = null;
@@ -188,7 +188,6 @@ FilterSection.prototype.renderData = function(data) {
 				row.push(flatData[header]);
 			}
 			else {
-			    console.log("Here for " + header);
 				row.push("");
 			}
 		}
@@ -230,9 +229,10 @@ FilterSection.prototype.tableChanged = function(table) {
     $(".filter-event-next").attr('disabled','disabled');
     $(this.filterId).find(".filter-row-selector-class").remove();
 
-    if(mappings)
+    if(mappings) {
         fieldList.change();
-}
+    }
+};
 
 FilterSection.prototype.fieldSelectionChanged = function() {
     var fieldIndex = $(this.filterId).find(".event-fields").val();
@@ -253,8 +253,7 @@ FilterSection.prototype.fieldSelectionChanged = function() {
     else {
         console.error("No operator found for type: " + fieldMeta.type);
     }
-
-}
+};
 
 FilterSection.prototype.operatorSelectionChanged = function() {
     $(this.filterId).find(".filter-operator-1").closest(".form-group").removeClass("has-error");
@@ -392,11 +391,11 @@ FilterSection.prototype.addConditionClicked = function(){
                         });
   filter.opMeta = opMeta;
   this.filterSet[filter.id] = filter;
-}
+};
 
 FilterSection.prototype.removeFilter = function(id) {
     delete this.filterSet[id];
     console.log("Removed data on: " + filter.id);
-}
+};
 
 

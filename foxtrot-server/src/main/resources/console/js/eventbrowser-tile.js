@@ -56,7 +56,6 @@ EventBrowser.prototype.render = function(data, animate) {
 				row.push(flatData[header]);
 			}
 			else {
-			    console.log("Here for " + header);
 				row.push("");
 			}
 		}
@@ -87,7 +86,7 @@ EventBrowser.prototype.getQuery = function() {
 };
 
 EventBrowser.prototype.isSetupDone = function() {
-	return this.count != 0;	
+	return this.count != 0;
 };
 
 EventBrowser.prototype.configChanged = function() {
