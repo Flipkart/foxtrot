@@ -86,10 +86,12 @@ public abstract class Action<ParameterType extends ActionRequest> implements Cal
         if (parameter.getFilters() == null) {
             parameter.setFilters(Lists.<Filter>newArrayList(new AnyFilter()));
         }
-
+        preprocess();
         validateBase(parameter);
         validateImpl(parameter);
     }
+
+    protected abstract void preprocess();
 
     @Override
     public String call() throws Exception {

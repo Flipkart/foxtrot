@@ -51,6 +51,11 @@ public class StatsAction extends Action<StatsRequest> {
     }
 
     @Override
+    protected void preprocess() {
+        getParameter().setTable(ElasticsearchUtils.getValidTableName(getParameter().getTable()));
+    }
+
+    @Override
     protected String getRequestCacheKey() {
         long statsHashKey = 0L;
         StatsRequest statsRequest = getParameter();
@@ -79,7 +84,6 @@ public class StatsAction extends Action<StatsRequest> {
 
     @Override
     public ActionResponse execute(StatsRequest parameter) throws FoxtrotException {
-        parameter.setTable(ElasticsearchUtils.getValidTableName(parameter.getTable()));
         SearchRequestBuilder searchRequestBuilder;
         try {
             searchRequestBuilder = getConnection().getClient().prepareSearch(

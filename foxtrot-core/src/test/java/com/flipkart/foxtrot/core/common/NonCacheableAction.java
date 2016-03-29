@@ -44,6 +44,11 @@ public class NonCacheableAction extends Action<NonCacheableActionRequest> {
     }
 
     @Override
+    protected void preprocess() {
+
+    }
+
+    @Override
     protected String getRequestCacheKey() {
         return "TEST_CACHE_KEY";
     }

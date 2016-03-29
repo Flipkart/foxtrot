@@ -61,6 +61,17 @@ public class FilterAction extends Action<Query> {
     }
 
     @Override
+    protected void preprocess() {
+        getParameter().setTable(ElasticsearchUtils.getValidTableName(getParameter().getTable()));
+        if (null == getParameter().getSort()) {
+            ResultSort resultSort = new ResultSort();
+            resultSort.setField("_timestamp");
+            resultSort.setOrder(ResultSort.Order.desc);
+            getParameter().setSort(resultSort);
+        }
+    }
+
+    @Override
     protected String getRequestCacheKey() {
         long filterHashKey = 0L;
         Query query = getParameter();
@@ -100,13 +111,6 @@ public class FilterAction extends Action<Query> {
 
     @Override
     public QueryResponse execute(Query parameter) throws FoxtrotException {
-        parameter.setTable(ElasticsearchUtils.getValidTableName(parameter.getTable()));
-        if (null == parameter.getSort()) {
-            ResultSort resultSort = new ResultSort();
-            resultSort.setField("_timestamp");
-            resultSort.setOrder(ResultSort.Order.desc);
-            parameter.setSort(resultSort);
-        }
         SearchRequestBuilder search;
         try {
             search = getConnection().getClient().prepareSearch(ElasticsearchUtils.getIndices(parameter.getTable(), parameter))

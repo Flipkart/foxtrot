@@ -60,6 +60,11 @@ public class StatsTrendAction extends Action<StatsTrendRequest> {
     }
 
     @Override
+    protected void preprocess() {
+        getParameter().setTable(ElasticsearchUtils.getValidTableName(getParameter().getTable()));
+    }
+
+    @Override
     protected String getRequestCacheKey() {
         StatsTrendRequest statsRequest = getParameter();
         long hashKey = 0L;
@@ -101,7 +106,6 @@ public class StatsTrendAction extends Action<StatsTrendRequest> {
 
     @Override
     public ActionResponse execute(StatsTrendRequest parameter) throws FoxtrotException {
-        parameter.setTable(ElasticsearchUtils.getValidTableName(parameter.getTable()));
         SearchRequestBuilder searchRequestBuilder;
         try {
             AbstractAggregationBuilder aggregation = buildAggregation(parameter);

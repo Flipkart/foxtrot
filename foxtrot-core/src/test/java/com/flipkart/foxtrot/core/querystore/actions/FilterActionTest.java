@@ -581,28 +581,6 @@ public class FilterActionTest extends ActionTest {
         compare(documents, actualResponse.getDocuments());
     }
 
-    @Test(expected = MalformedQueryException.class)
-    public void testQueryNullSort() throws FoxtrotException, JsonProcessingException, InterruptedException {
-        Query query = new Query();
-        query.setTable(TestUtils.TEST_TABLE_NAME);
-        query.setFilters(new ArrayList<>());
-        query.setSort(null);
-
-        List<Document> documents = Lists.newArrayList();
-        documents.add(TestUtils.getDocument("E", 1397658118004L, new Object[]{"os", "ios", "version", 2, "device", "ipad"}, getMapper()));
-        documents.add(TestUtils.getDocument("D", 1397658118003L, new Object[]{"os", "ios", "version", 1, "device", "iphone"}, getMapper()));
-        documents.add(TestUtils.getDocument("C", 1397658118002L, new Object[]{"os", "android", "version", 2, "device", "nexus"}, getMapper()));
-        documents.add(TestUtils.getDocument("B", 1397658118001L, new Object[]{"os", "android", "version", 1, "device", "galaxy"}, getMapper()));
-        documents.add(TestUtils.getDocument("A", 1397658118000L, new Object[]{"os", "android", "version", 1, "device", "nexus"}, getMapper()));
-        documents.add(TestUtils.getDocument("Z", 1397658117004L, new Object[]{"os", "android", "device", "nexus", "battery", 24}, getMapper()));
-        documents.add(TestUtils.getDocument("Y", 1397658117003L, new Object[]{"os", "android", "device", "nexus", "battery", 48}, getMapper()));
-        documents.add(TestUtils.getDocument("X", 1397658117002L, new Object[]{"os", "android", "device", "nexus", "battery", 74}, getMapper()));
-        documents.add(TestUtils.getDocument("W", 1397658117001L, new Object[]{"os", "android", "device", "nexus", "battery", 99}, getMapper()));
-
-        QueryResponse actualResponse = QueryResponse.class.cast(getQueryExecutor().execute(query));
-        compare(documents, actualResponse.getDocuments());
-    }
-
     //TODO How to verify if cached data is returned.
     @Test
     public void testQueryCaching() throws FoxtrotException, JsonProcessingException {

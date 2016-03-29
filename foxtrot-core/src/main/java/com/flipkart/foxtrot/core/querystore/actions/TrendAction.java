@@ -74,6 +74,16 @@ public class TrendAction extends Action<TrendRequest> {
     }
 
     @Override
+    protected void preprocess() {
+        getParameter().setTable(ElasticsearchUtils.getValidTableName(getParameter().getTable()));
+        if (null != getParameter().getValues() && getParameter().getValues().size() != 0) {
+            List<Object> values = (List) getParameter().getValues();
+            Filter filter = new InFilter(getParameter().getField(), values);
+            getParameter().getFilters().add(filter);
+        }
+    }
+
+    @Override
     protected String getRequestCacheKey() {
         TrendRequest query = getParameter();
         long filterHashKey = 0L;
@@ -118,13 +128,6 @@ public class TrendAction extends Action<TrendRequest> {
 
     @Override
     public ActionResponse execute(TrendRequest parameter) throws FoxtrotException {
-        parameter.setTable(ElasticsearchUtils.getValidTableName(parameter.getTable()));
-        if (null != parameter.getValues() && parameter.getValues().size() != 0) {
-            List<Object> values = (List) parameter.getValues();
-            Filter filter = new InFilter(parameter.getField(), values);
-            parameter.getFilters().add(filter);
-        }
-
         SearchRequestBuilder searchRequestBuilder;
         try {
             AbstractAggregationBuilder aggregationBuilder = buildAggregation(parameter);
