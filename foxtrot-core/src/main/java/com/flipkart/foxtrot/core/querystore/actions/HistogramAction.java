@@ -67,6 +67,11 @@ public class HistogramAction extends Action<HistogramRequest> {
     }
 
     @Override
+    protected void preprocess() {
+        getParameter().setTable(ElasticsearchUtils.getValidTableName(getParameter().getTable()));
+    }
+
+    @Override
     protected String getRequestCacheKey() {
         long filterHashKey = 0L;
         HistogramRequest query = getParameter();
@@ -100,7 +105,6 @@ public class HistogramAction extends Action<HistogramRequest> {
 
     @Override
     public ActionResponse execute(HistogramRequest parameter) throws FoxtrotException {
-        parameter.setTable(ElasticsearchUtils.getValidTableName(parameter.getTable()));
         SearchRequestBuilder searchRequestBuilder;
         DateHistogram.Interval interval = null;
         switch (parameter.getPeriod()) {

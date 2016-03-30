@@ -54,6 +54,11 @@ public class DistinctAction extends Action<DistinctRequest> {
     }
 
     @Override
+    protected void preprocess() {
+        getParameter().setTable(ElasticsearchUtils.getValidTableName(getParameter().getTable()));
+    }
+
+    @Override
     protected String getRequestCacheKey() {
         long filterHashKey = 0L;
         DistinctRequest query = getParameter();
@@ -98,7 +103,6 @@ public class DistinctAction extends Action<DistinctRequest> {
 
     @Override
     public ActionResponse execute(DistinctRequest request) throws FoxtrotException {
-        request.setTable(ElasticsearchUtils.getValidTableName(request.getTable()));
         SearchRequestBuilder query;
         try {
             query = getConnection().getClient()

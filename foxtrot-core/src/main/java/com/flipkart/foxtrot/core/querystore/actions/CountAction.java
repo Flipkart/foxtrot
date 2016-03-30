@@ -5,7 +5,6 @@ import com.flipkart.foxtrot.common.count.CountRequest;
 import com.flipkart.foxtrot.common.count.CountResponse;
 import com.flipkart.foxtrot.common.query.Filter;
 import com.flipkart.foxtrot.common.query.FilterCombinerType;
-import com.flipkart.foxtrot.common.query.general.AnyFilter;
 import com.flipkart.foxtrot.common.query.general.ExistsFilter;
 import com.flipkart.foxtrot.common.util.CollectionUtils;
 import com.flipkart.foxtrot.core.cache.CacheManager;
@@ -20,7 +19,6 @@ import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConnection;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
 import com.flipkart.foxtrot.core.querystore.query.ElasticSearchQueryGenerator;
 import com.flipkart.foxtrot.core.table.TableMetadataManager;
-import com.google.common.collect.Lists;
 import org.elasticsearch.ElasticsearchException;
 import org.elasticsearch.action.count.CountRequestBuilder;
 import org.elasticsearch.action.search.SearchRequestBuilder;
@@ -49,6 +47,15 @@ public class CountAction extends Action<CountRequest> {
                        CacheManager cacheManager) {
         super(parameter, tableMetadataManager, dataStore, queryStore, connection, cacheToken, cacheManager);
 
+    }
+
+    @Override
+    protected void preprocess() {
+        getParameter().setTable(ElasticsearchUtils.getValidTableName(getParameter().getTable()));
+        // Null field implies complete doc count
+        if (getParameter().getField() != null) {
+            getParameter().getFilters().add(new ExistsFilter(getParameter().getField()));
+        }
     }
 
     @Override
@@ -82,12 +89,6 @@ public class CountAction extends Action<CountRequest> {
 
     @Override
     public ActionResponse execute(CountRequest parameter) throws FoxtrotException {
-        parameter.setTable(ElasticsearchUtils.getValidTableName(parameter.getTable()));
-        // Null field implies complete doc count
-        if (parameter.getField() != null) {
-            parameter.getFilters().add(new ExistsFilter(parameter.getField()));
-        }
-
         if (parameter.isDistinct()) {
             SearchRequestBuilder query;
             try {

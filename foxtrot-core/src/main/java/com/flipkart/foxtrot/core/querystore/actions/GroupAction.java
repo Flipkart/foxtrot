@@ -70,6 +70,11 @@ public class GroupAction extends Action<GroupRequest> {
     }
 
     @Override
+    protected void preprocess() {
+        getParameter().setTable(ElasticsearchUtils.getValidTableName(getParameter().getTable()));
+    }
+
+    @Override
     protected String getRequestCacheKey() {
         long filterHashKey = 0L;
         GroupRequest query = getParameter();
@@ -107,7 +112,6 @@ public class GroupAction extends Action<GroupRequest> {
 
     @Override
     public ActionResponse execute(GroupRequest parameter) throws FoxtrotException {
-        parameter.setTable(ElasticsearchUtils.getValidTableName(parameter.getTable()));
         SearchRequestBuilder query;
         try {
             query = getConnection().getClient()
