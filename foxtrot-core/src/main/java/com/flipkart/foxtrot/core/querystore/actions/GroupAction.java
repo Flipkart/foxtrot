@@ -75,6 +75,11 @@ public class GroupAction extends Action<GroupRequest> {
     }
 
     @Override
+    public String getMetricKey() {
+        return getParameter().getTable();
+    }
+
+    @Override
     protected String getRequestCacheKey() {
         long filterHashKey = 0L;
         GroupRequest query = getParameter();

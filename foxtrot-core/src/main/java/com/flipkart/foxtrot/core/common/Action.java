@@ -30,6 +30,8 @@ import com.flipkart.foxtrot.core.exception.MalformedQueryException;
 import com.flipkart.foxtrot.core.querystore.QueryStore;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConnection;
 import com.flipkart.foxtrot.core.table.TableMetadataManager;
+import com.flipkart.foxtrot.core.util.MetricUtil;
+import com.google.common.base.Stopwatch;
 import com.google.common.collect.Lists;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -87,6 +89,7 @@ public abstract class Action<ParameterType extends ActionRequest> implements Cal
             parameter.setFilters(Lists.<Filter>newArrayList(new AnyFilter()));
         }
         preprocess();
+        parameter.setFilters(checkAndAddTemporalBoundary(parameter.getFilters()));
         validateBase(parameter);
         validateImpl(parameter);
     }
@@ -102,22 +105,50 @@ public abstract class Action<ParameterType extends ActionRequest> implements Cal
 
     public ActionResponse execute() throws FoxtrotException {
         preProcessRequest();
+        ActionResponse cachedData = readCachedData();
+        if (cachedData != null) {
+            return cachedData;
+        }
+        Stopwatch stopwatch = new Stopwatch();
+        try {
+            stopwatch.start();
+            ActionResponse result = execute(parameter);
+
+            // Publish success metrics
+            MetricUtil.getInstance().registerActionSuccess(cacheToken, getMetricKey(), stopwatch.elapsedMillis());
+
+            // Now cache data
+            updateCachedData(result);
+
+            return result;
+        } catch (FoxtrotException e) {
+            // Publish failure metrics
+            MetricUtil.getInstance().registerActionFailure(cacheToken, getMetricKey(), stopwatch.elapsedMillis());
+            throw e;
+        }
+    }
+
+    private void updateCachedData(ActionResponse result) {
+        Cache cache = cacheManager.getCacheFor(this.cacheToken);
+        if (isCacheable()) {
+            cache.put(cacheKey(), result);
+        }
+    }
+
+    protected ActionResponse readCachedData() {
         Cache cache = cacheManager.getCacheFor(this.cacheToken);
         final String cacheKeyValue = cacheKey();
         if (isCacheable()) {
             if (cache.has(cacheKeyValue)) {
+                MetricUtil.getInstance().registerActionCacheHit(cacheToken, getMetricKey());
                 logger.info("Cache hit for key: " + cacheKeyValue);
                 return cache.get(cacheKey());
+            } else {
+                MetricUtil.getInstance().registerActionCacheMiss(cacheToken, getMetricKey());
+                logger.info("Cache miss for key: " + cacheKeyValue);
             }
         }
-        logger.info("Cache miss for key: " + cacheKeyValue);
-        parameter.setFilters(checkAndAddTemporalBoundary(parameter.getFilters()));
-        ActionResponse result = execute(parameter);
-        if (isCacheable()) {
-            logger.info("Cache load for key: " + cacheKeyValue);
-            return cache.put(cacheKey(), result);
-        }
-        return result;
+        return null;
     }
 
     private void validateBase(ParameterType parameter) throws MalformedQueryException {
@@ -138,6 +169,18 @@ public abstract class Action<ParameterType extends ActionRequest> implements Cal
     public void validateImpl() throws MalformedQueryException {
         validateImpl(parameter);
     }
+
+    /**
+     * Returns a metric key for current action. Ideally this key's cardinality should be less since each new value of
+     * this key will create new JMX metric
+     *
+     * Sample use cases - Used for reporting per action
+     * success/failure metrics
+     * cache hit/miss metrics
+     *
+     * @return metric key for current action
+     */
+    abstract public String getMetricKey();
 
     abstract protected String getRequestCacheKey();
 

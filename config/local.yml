@@ -5,14 +5,15 @@ http:
 
 elasticsearch:
   hosts:
-  - localhost
-  cluster: foxtrot
+  - 10.32.105.163
+  cluster: prod-foxtrot-elasticsearch
   tableNamePrefix: foxtrot
 
 hbase:
   secure : false
   tableName: foxtrot
-  hbaseZookeeperQuorum: localhost
+  seggregatedTablePrefix: foxtrot-
+  hbaseZookeeperQuorum: 10.33.37.208
   hbaseZookeeperClientPort: 2181
 
 cluster:
@@ -24,6 +25,6 @@ logging:
   level: INFO
 
 deletionconfig:
-  active: true
+  active: false
   interval: 86400
   initialdelay: 60

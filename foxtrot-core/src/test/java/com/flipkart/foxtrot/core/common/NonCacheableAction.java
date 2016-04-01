@@ -49,6 +49,11 @@ public class NonCacheableAction extends Action<NonCacheableActionRequest> {
     }
 
     @Override
+    public String getMetricKey() {
+        return "TEST";
+    }
+
+    @Override
     protected String getRequestCacheKey() {
         return "TEST_CACHE_KEY";
     }

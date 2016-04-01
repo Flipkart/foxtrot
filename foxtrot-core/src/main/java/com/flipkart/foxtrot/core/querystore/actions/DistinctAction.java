@@ -59,6 +59,11 @@ public class DistinctAction extends Action<DistinctRequest> {
     }
 
     @Override
+    public String getMetricKey() {
+        return getParameter().getTable();
+    }
+
+    @Override
     protected String getRequestCacheKey() {
         long filterHashKey = 0L;
         DistinctRequest query = getParameter();

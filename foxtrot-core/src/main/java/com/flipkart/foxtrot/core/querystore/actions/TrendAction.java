@@ -84,6 +84,11 @@ public class TrendAction extends Action<TrendRequest> {
     }
 
     @Override
+    public String getMetricKey() {
+        return getParameter().getTable();
+    }
+
+    @Override
     protected String getRequestCacheKey() {
         TrendRequest query = getParameter();
         long filterHashKey = 0L;

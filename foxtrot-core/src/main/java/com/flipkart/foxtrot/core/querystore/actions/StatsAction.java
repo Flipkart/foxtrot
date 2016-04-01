@@ -56,6 +56,11 @@ public class StatsAction extends Action<StatsRequest> {
     }
 
     @Override
+    public String getMetricKey() {
+        return getParameter().getTable();
+    }
+
+    @Override
     protected String getRequestCacheKey() {
         long statsHashKey = 0L;
         StatsRequest statsRequest = getParameter();
