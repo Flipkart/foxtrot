@@ -65,6 +65,11 @@ public class StatsTrendAction extends Action<StatsTrendRequest> {
     }
 
     @Override
+    public String getMetricKey() {
+        return getParameter().getTable();
+    }
+
+    @Override
     protected String getRequestCacheKey() {
         StatsTrendRequest statsRequest = getParameter();
         long hashKey = 0L;

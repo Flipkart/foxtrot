@@ -59,6 +59,11 @@ public class CountAction extends Action<CountRequest> {
     }
 
     @Override
+    public String getMetricKey() {
+        return getParameter().getTable();
+    }
+
+    @Override
     protected String getRequestCacheKey() {
         long filterHashKey = 0L;
         CountRequest request = getParameter();

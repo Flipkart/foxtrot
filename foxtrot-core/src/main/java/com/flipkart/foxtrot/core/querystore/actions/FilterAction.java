@@ -72,6 +72,11 @@ public class FilterAction extends Action<Query> {
     }
 
     @Override
+    public String getMetricKey() {
+        return getParameter().getTable();
+    }
+
+    @Override
     protected String getRequestCacheKey() {
         long filterHashKey = 0L;
         Query query = getParameter();

@@ -72,6 +72,11 @@ public class HistogramAction extends Action<HistogramRequest> {
     }
 
     @Override
+    public String getMetricKey() {
+        return getParameter().getTable();
+    }
+
+    @Override
     protected String getRequestCacheKey() {
         long filterHashKey = 0L;
         HistogramRequest query = getParameter();
