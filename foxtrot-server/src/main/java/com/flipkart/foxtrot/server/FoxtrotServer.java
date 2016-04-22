@@ -15,8 +15,8 @@
  */
 package com.flipkart.foxtrot.server;
 
+import com.codahale.metrics.health.HealthCheck;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.jsontype.SubtypeResolver;
 import com.fasterxml.jackson.databind.jsontype.impl.StdSubtypeResolver;
@@ -41,23 +41,28 @@ import com.flipkart.foxtrot.server.cluster.ClusterManager;
 import com.flipkart.foxtrot.server.config.FoxtrotServerConfiguration;
 import com.flipkart.foxtrot.server.console.ElasticsearchConsolePersistence;
 import com.flipkart.foxtrot.server.healthcheck.ElasticSearchHealthCheck;
+import com.flipkart.foxtrot.server.providers.CORSFilter;
 import com.flipkart.foxtrot.server.providers.FlatResponseCsvProvider;
 import com.flipkart.foxtrot.server.providers.FlatResponseErrorTextProvider;
 import com.flipkart.foxtrot.server.providers.FlatResponseTextProvider;
 import com.flipkart.foxtrot.server.resources.*;
 import com.flipkart.foxtrot.sql.FqlEngine;
-import com.yammer.dropwizard.Service;
-import com.yammer.dropwizard.assets.AssetsBundle;
-import com.yammer.dropwizard.config.Bootstrap;
-import com.yammer.dropwizard.config.Environment;
-import com.yammer.metrics.core.HealthCheck;
+import io.dropwizard.Application;
+import io.dropwizard.assets.AssetsBundle;
+import io.dropwizard.configuration.EnvironmentVariableSubstitutor;
+import io.dropwizard.configuration.SubstitutingSourceProvider;
+import io.dropwizard.server.SimpleServerFactory;
+import io.dropwizard.setup.Bootstrap;
+import io.dropwizard.setup.Environment;
+import io.dropwizard.util.Duration;
 import net.sourceforge.cobertura.CoverageIgnore;
-import org.eclipse.jetty.servlets.CrossOriginFilter;
-
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.TimeUnit;
+
+import static io.dropwizard.jersey.filter.AllowedMethodsFilter.ALLOWED_METHODS_PARAM;
+
 
 /**
  * User: Santanu Sinha (santanu.sinha@flipkart.com)
@@ -66,77 +71,84 @@ import java.util.concurrent.TimeUnit;
  */
 
 @CoverageIgnore
-public class FoxtrotServer extends Service<FoxtrotServerConfiguration> {
+public class FoxtrotServer extends Application<FoxtrotServerConfiguration> {
+
     @Override
     public void initialize(Bootstrap<FoxtrotServerConfiguration> bootstrap) {
-        bootstrap.setName("foxtrot");
+        bootstrap.setConfigurationSourceProvider(
+                new SubstitutingSourceProvider(bootstrap.getConfigurationSourceProvider(),
+                        new EnvironmentVariableSubstitutor(false)
+                )
+        );
         bootstrap.addBundle(new AssetsBundle("/console/", "/"));
         bootstrap.addCommand(new InitializerCommand());
     }
 
     @Override
+    public String getName() {
+        return "foxtrot";
+    }
+
+    @Override
     public void run(FoxtrotServerConfiguration configuration, Environment environment) throws Exception {
-        configuration.getHttpConfiguration().setRootPath("/foxtrot/*");
         configureObjectMapper(environment);
 
-        ObjectMapper objectMapper = environment.getObjectMapperFactory().build();
-        ExecutorService executorService = environment.managedExecutorService("query-executor-%s", 20, 40, 30, TimeUnit.SECONDS);
-
+        ExecutorService executorService = environment.lifecycle().executorService("query-executor-%s").minThreads(20).maxThreads(30).keepAliveTime(Duration.seconds(30)).build();
         HbaseTableConnection HBaseTableConnection = new HbaseTableConnection(configuration.getHbase());
         ElasticsearchConnection elasticsearchConnection = new ElasticsearchConnection(configuration.getElasticsearch());
         HazelcastConnection hazelcastConnection = new HazelcastConnection(configuration.getCluster());
         ElasticsearchUtils.setTableNamePrefix(configuration.getElasticsearch());
 
         TableMetadataManager tableMetadataManager = new DistributedTableMetadataManager(hazelcastConnection, elasticsearchConnection);
-        DataStore dataStore = new HBaseDataStore(HBaseTableConnection, objectMapper);
-        QueryStore queryStore = new ElasticsearchQueryStore(tableMetadataManager, elasticsearchConnection, dataStore, objectMapper);
+        DataStore dataStore = new HBaseDataStore(HBaseTableConnection, environment.getObjectMapper());
+        QueryStore queryStore = new ElasticsearchQueryStore(tableMetadataManager, elasticsearchConnection, dataStore, environment.getObjectMapper());
         FoxtrotTableManager tableManager = new FoxtrotTableManager(tableMetadataManager, queryStore, dataStore);
-        CacheManager cacheManager = new CacheManager(new DistributedCacheFactory(hazelcastConnection, objectMapper));
-        AnalyticsLoader analyticsLoader = new AnalyticsLoader(tableMetadataManager, dataStore, queryStore, elasticsearchConnection, cacheManager, objectMapper);
+        CacheManager cacheManager = new CacheManager(new DistributedCacheFactory(hazelcastConnection, environment.getObjectMapper()));
+        AnalyticsLoader analyticsLoader = new AnalyticsLoader(tableMetadataManager, dataStore, queryStore, elasticsearchConnection, cacheManager, environment.getObjectMapper());
         QueryExecutor executor = new QueryExecutor(analyticsLoader, executorService);
         DataDeletionManagerConfig dataDeletionManagerConfig = configuration.getTableDataManagerConfig();
         DataDeletionManager dataDeletionManager = new DataDeletionManager(dataDeletionManagerConfig, queryStore);
 
         List<HealthCheck> healthChecks = new ArrayList<>();
-        healthChecks.add(new ElasticSearchHealthCheck("ES Health Check", elasticsearchConnection));
-        ClusterManager clusterManager = new ClusterManager(hazelcastConnection, healthChecks, configuration.getHttpConfiguration());
+        ElasticSearchHealthCheck elasticSearchHealthCheck =  new ElasticSearchHealthCheck(elasticsearchConnection);
+        healthChecks.add(elasticSearchHealthCheck);
+        ClusterManager clusterManager = new ClusterManager(hazelcastConnection, healthChecks, (SimpleServerFactory)configuration.getServerFactory());
 
-        environment.manage(HBaseTableConnection);
-        environment.manage(elasticsearchConnection);
-        environment.manage(hazelcastConnection);
-        environment.manage(tableMetadataManager);
-        environment.manage(analyticsLoader);
-        environment.manage(dataDeletionManager);
-        environment.manage(clusterManager);
+        environment.lifecycle().manage(HBaseTableConnection);
+        environment.lifecycle().manage(elasticsearchConnection);
+        environment.lifecycle().manage(hazelcastConnection);
+        environment.lifecycle().manage(tableMetadataManager);
+        environment.lifecycle().manage(analyticsLoader);
+        environment.lifecycle().manage(dataDeletionManager);
+        environment.lifecycle().manage(clusterManager);
 
-        environment.addResource(new DocumentResource(queryStore));
-        environment.addResource(new AsyncResource(cacheManager));
-        environment.addResource(new AnalyticsResource(executor));
-        environment.addResource(new TableManagerResource(tableManager));
-        environment.addResource(new TableFieldMappingResource(queryStore));
-        environment.addResource(new ConsoleResource(
-                new ElasticsearchConsolePersistence(elasticsearchConnection, objectMapper)));
-        FqlEngine fqlEngine = new FqlEngine(tableMetadataManager, queryStore, executor, objectMapper);
-        environment.addResource(new FqlResource(fqlEngine));
-        environment.addResource(new ClusterInfoResource(clusterManager));
-        environment.addResource(new UtilResource(configuration));
-        environment.addResource(new ClusterHealthResource(queryStore));
+        environment.jersey().register(new DocumentResource(queryStore));
+        environment.jersey().register(new AsyncResource(cacheManager));
+        environment.jersey().register(new AnalyticsResource(executor));
+        environment.jersey().register(new TableManagerResource(tableManager));
+        environment.jersey().register(new TableFieldMappingResource(queryStore));
+        environment.jersey().register(new ConsoleResource(
+                new ElasticsearchConsolePersistence(elasticsearchConnection, environment.getObjectMapper())));
+        FqlEngine fqlEngine = new FqlEngine(tableMetadataManager, queryStore, executor, environment.getObjectMapper());
+        environment.jersey().register(new FqlResource(fqlEngine));
+        environment.jersey().register(new ClusterInfoResource(clusterManager));
+        environment.jersey().register(new UtilResource(configuration));
+        environment.jersey().register(new ClusterHealthResource(queryStore));
 
-        healthChecks.forEach(environment::addHealthCheck);
+        environment.healthChecks().register("ES Health Check", elasticSearchHealthCheck);
 
-        environment.addProvider(new FlatResponseTextProvider());
-        environment.addProvider(new FlatResponseCsvProvider());
-        environment.addProvider(new FlatResponseErrorTextProvider());
-
-        environment.addFilter(CrossOriginFilter.class, "/*");
+        environment.jersey().register(new FlatResponseTextProvider());
+        environment.jersey().register(new FlatResponseCsvProvider());
+        environment.jersey().register(new FlatResponseErrorTextProvider());
+        environment.jersey().register(new CORSFilter());
     }
 
     private void configureObjectMapper(Environment environment) {
-        environment.getObjectMapperFactory().setSerializationInclusion(JsonInclude.Include.NON_NULL);
-        environment.getObjectMapperFactory().setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
-        environment.getObjectMapperFactory().disable(SerializationFeature.FAIL_ON_EMPTY_BEANS);
+        environment.getObjectMapper().setSerializationInclusion(JsonInclude.Include.NON_NULL);
+        environment.getObjectMapper().setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
+        environment.getObjectMapper().disable(SerializationFeature.FAIL_ON_EMPTY_BEANS);
         SubtypeResolver subtypeResolver = new StdSubtypeResolver();
-        environment.getObjectMapperFactory().setSubtypeResolver(subtypeResolver);
+        environment.getObjectMapper().setSubtypeResolver(subtypeResolver);
     }
 
 }

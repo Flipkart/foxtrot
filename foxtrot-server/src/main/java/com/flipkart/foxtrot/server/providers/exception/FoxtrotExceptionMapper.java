@@ -6,18 +6,26 @@ import com.flipkart.foxtrot.core.exception.FoxtrotException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.inject.Singleton;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.ExceptionMapper;
+import javax.ws.rs.ext.Provider;
 import java.util.Map;
 
 /**
  * Created by rishabh.goyal on 19/12/15.
  */
+@Provider
+@Singleton
 public class FoxtrotExceptionMapper implements ExceptionMapper<FoxtrotException> {
 
     private static final Logger logger = LoggerFactory.getLogger(FoxtrotExceptionMapper.class);
 
-    private static final ObjectMapper mapper = new ObjectMapper();
+    private final ObjectMapper mapper;
+
+    public FoxtrotExceptionMapper(final ObjectMapper mapper) {
+        this.mapper = mapper;
+    }
 
     @Override
     public Response toResponse(FoxtrotException e) {

@@ -15,6 +15,7 @@
  */
 package com.flipkart.foxtrot.core.datastore.impl.hbase;
 
+import com.codahale.metrics.annotation.Timed;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.flipkart.foxtrot.common.Document;
@@ -28,7 +29,6 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
 import com.shash.hbase.ds.RowKeyDistributorByHashPrefix;
-import com.yammer.metrics.annotation.Timed;
 import org.apache.hadoop.hbase.client.Get;
 import org.apache.hadoop.hbase.client.HTableInterface;
 import org.apache.hadoop.hbase.client.Put;

@@ -20,7 +20,7 @@ import com.flipkart.foxtrot.core.common.DataDeletionManagerConfig;
 import com.flipkart.foxtrot.core.datastore.impl.hbase.HbaseConfig;
 import com.flipkart.foxtrot.core.querystore.impl.ClusterConfig;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConfig;
-import com.yammer.dropwizard.config.Configuration;
+import io.dropwizard.Configuration;
 import net.sourceforge.cobertura.CoverageIgnore;
 
 import javax.validation.Valid;
