@@ -66,7 +66,7 @@ public class TableManagerResourceTest extends FoxtrotResourceTest {
 
         Table table = new Table(TestUtils.TEST_TABLE_NAME, 30);
         Entity<Table> tableEntity = Entity.json(table);
-        resources.client().target("/v1/tables").request().post(tableEntity);
+        resources.client().target("/foxtrot/v1/tables").request().post(tableEntity);
 
         doReturn(table).when(getTableMetadataManager()).get(anyString());
         Table response = tableManager.get(table.getName());
@@ -80,14 +80,14 @@ public class TableManagerResourceTest extends FoxtrotResourceTest {
 
     @Test(expected = ProcessingException.class)
     public void testSaveNullTable() throws Exception {
-        resources.client().target("/v1/tables").request().post(null);
+        resources.client().target("/foxtrot/v1/tables").request().post(null);
     }
 
     @Test()
     public void testSaveNullTableName() throws Exception {
         Table table = new Table(null, 30);
         Entity<Table> tableEntity = Entity.json(table);
-        Response response = resources.client().target("/v1/tables").request().post(tableEntity);
+        Response response = resources.client().target("/foxtrot/v1/tables").request().post(tableEntity);
         assertEquals(response.getStatus(), 422);
     }
 
@@ -97,7 +97,7 @@ public class TableManagerResourceTest extends FoxtrotResourceTest {
         Entity<Table> tableEntity = Entity.json(table);
         doThrow(FoxtrotExceptions.createExecutionException("dummy", new IOException())).when(tableManager).save(Matchers.<Table>any());
         try {
-            resources.client().target("/v1/tables").request().post(tableEntity);
+            resources.client().target("/foxtrot/v1/tables").request().post(tableEntity);
             fail();
         } catch (Exception ex) {
             assertTrue(ex instanceof ProcessingException);
@@ -111,7 +111,7 @@ public class TableManagerResourceTest extends FoxtrotResourceTest {
         reset(tableManager);
         Table table = new Table(TestUtils.TEST_TABLE_NAME, 0);
         Entity<Table> tableEntity = Entity.json(table);
-        Response response = resources.client().target("/v1/tables").request().post(tableEntity);
+        Response response = resources.client().target("/foxtrot/v1/tables").request().post(tableEntity);
         assertEquals(422, response.getStatus());
     }
 
@@ -124,7 +124,7 @@ public class TableManagerResourceTest extends FoxtrotResourceTest {
         tableManager.save(table);
         doReturn(table).when(getTableMetadataManager()).get(anyString());
 
-        Table response = resources.client().target(String.format("/v1/tables/%s", table.getName())).request().get(Table.class);
+        Table response = resources.client().target(String.format("/foxtrot/v1/tables/%s", table.getName())).request().get(Table.class);
         assertNotNull(response);
         assertEquals(table.getName(), response.getName());
         assertEquals(table.getTtl(), response.getTtl());
@@ -132,7 +132,7 @@ public class TableManagerResourceTest extends FoxtrotResourceTest {
 
     @Test(expected = ProcessingException.class)
     public void testGetMissingTable() throws Exception {
-        resources.client().target(String.format("/v1/tables/%s", TestUtils.TEST_TABLE_NAME+"_missing")).request().get();
+        resources.client().target(String.format("/foxtrot/v1/tables/%s", TestUtils.TEST_TABLE_NAME+"_missing")).request().get();
         fail();
     }
 }

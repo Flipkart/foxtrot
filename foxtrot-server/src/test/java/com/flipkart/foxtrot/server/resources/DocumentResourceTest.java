@@ -69,7 +69,7 @@ public class DocumentResourceTest extends FoxtrotResourceTest {
                 System.currentTimeMillis(),
                 getMapper().getNodeFactory().objectNode().put("hello", "world"));
         Entity<Document> documentEntity = Entity.json(document);
-        resources.client().target("/v1/document/" + TestUtils.TEST_TABLE_NAME).request().post(documentEntity);
+        resources.client().target("/foxtrot/v1/document/" + TestUtils.TEST_TABLE_NAME).request().post(documentEntity);
         getElasticsearchServer().refresh(ElasticsearchUtils.getIndices(TestUtils.TEST_TABLE_NAME));
         Document response = getQueryStore().get(TestUtils.TEST_TABLE_NAME, id);
         compare(document, response);
@@ -85,7 +85,7 @@ public class DocumentResourceTest extends FoxtrotResourceTest {
         Entity<Document> documentEntity = Entity.json(document);
         doThrow(FoxtrotExceptions.createExecutionException("dummy", new IOException()))
                 .when(getQueryStore()).save(anyString(), Matchers.<Document>any());
-        Response response = resources.client().target("/v1/document/" + TestUtils.TEST_TABLE_NAME).request().post(documentEntity);
+        Response response = resources.client().target("/foxtrot/v1/document/" + TestUtils.TEST_TABLE_NAME).request().post(documentEntity);
         assertEquals(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode(), response.getStatus());
     }
 
@@ -96,7 +96,7 @@ public class DocumentResourceTest extends FoxtrotResourceTest {
                 System.currentTimeMillis(),
                 getMapper().getNodeFactory().objectNode().put("hello", "world"));
         Entity<Document> documentEntity = Entity.json(document);
-        Response response = resources.client().target("/v1/document/" + TestUtils.TEST_TABLE_NAME).request().post(documentEntity);
+        Response response = resources.client().target("/foxtrot/v1/document/" + TestUtils.TEST_TABLE_NAME).request().post(documentEntity);
         assertEquals(422, response.getStatus());
     }
 
@@ -107,19 +107,19 @@ public class DocumentResourceTest extends FoxtrotResourceTest {
                 System.currentTimeMillis(),
                 null);
         Entity<Document> documentEntity = Entity.json(document);
-        Response response = resources.client().target("/v1/document/" + TestUtils.TEST_TABLE_NAME).request().post(documentEntity);
+        Response response = resources.client().target("/foxtrot/v1/document/" + TestUtils.TEST_TABLE_NAME).request().post(documentEntity);
         assertEquals(422, response.getStatus());
     }
 
     @Test
     public void testSaveDocumentUnknownObject() throws Exception {
-        Response response = resources.client().target("/v1/document/" + TestUtils.TEST_TABLE_NAME).request().post(Entity.text("hello"));
+        Response response = resources.client().target("/foxtrot/v1/document/" + TestUtils.TEST_TABLE_NAME).request().post(Entity.text("hello"));
         assertEquals(Response.Status.UNSUPPORTED_MEDIA_TYPE.getStatusCode(), response.getStatus());
     }
 
     @Test
     public void testSaveDocumentEmptyJson() throws Exception {
-        Response response = resources.client().target("/v1/document/" + TestUtils.TEST_TABLE_NAME).request().post(Entity.json("{}"));
+        Response response = resources.client().target("/foxtrot/v1/document/" + TestUtils.TEST_TABLE_NAME).request().post(Entity.json("{}"));
         assertEquals(422, response.getStatus());
     }
 
@@ -134,7 +134,7 @@ public class DocumentResourceTest extends FoxtrotResourceTest {
         documents.add(document1);
         documents.add(document2);
         Entity<List<Document>> listEntity = Entity.json(documents);
-        resources.client().target(String.format("/v1/document/%s/bulk", TestUtils.TEST_TABLE_NAME)).request().post(listEntity);
+        resources.client().target(String.format("/foxtrot/v1/document/%s/bulk", TestUtils.TEST_TABLE_NAME)).request().post(listEntity);
         getElasticsearchServer().refresh(ElasticsearchUtils.getIndices(TestUtils.TEST_TABLE_NAME));
         compare(document1, getQueryStore().get(TestUtils.TEST_TABLE_NAME, id1));
         compare(document2, getQueryStore().get(TestUtils.TEST_TABLE_NAME, id2));
@@ -152,13 +152,13 @@ public class DocumentResourceTest extends FoxtrotResourceTest {
         doThrow(FoxtrotExceptions.createExecutionException("dummy", new IOException()))
                 .when(getQueryStore()).save(anyString(), anyListOf(Document.class));
         Entity<List<Document>> listEntity = Entity.json(documents);
-        Response response = resources.client().target(String.format("/v1/document/%s/bulk", TestUtils.TEST_TABLE_NAME)).request().post(listEntity);
+        Response response = resources.client().target(String.format("/foxtrot/v1/document/%s/bulk", TestUtils.TEST_TABLE_NAME)).request().post(listEntity);
         assertEquals(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode(), response.getStatus());
     }
 
     @Test
     public void testSaveDocumentsNullDocuments() throws Exception {
-        Response response = resources.client().target(String.format("/v1/document/%s/bulk", TestUtils.TEST_TABLE_NAME)).request().post(null);
+        Response response = resources.client().target(String.format("/foxtrot/v1/document/%s/bulk", TestUtils.TEST_TABLE_NAME)).request().post(null);
         assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), response.getStatus());
     }
 
@@ -168,7 +168,7 @@ public class DocumentResourceTest extends FoxtrotResourceTest {
         documents.add(null);
         documents.add(new Document(UUID.randomUUID().toString(), System.currentTimeMillis(), getMapper().getNodeFactory().objectNode().put("d", "d")));
         Entity<List<Document>> listEntity = Entity.json(documents);
-        resources.client().target(String.format("/v1/document/%s/bulk", TestUtils.TEST_TABLE_NAME))
+        resources.client().target(String.format("/foxtrot/v1/document/%s/bulk", TestUtils.TEST_TABLE_NAME))
                 .request()
                 .post(listEntity);
         fail();
@@ -179,7 +179,7 @@ public class DocumentResourceTest extends FoxtrotResourceTest {
         List<Document> documents = new Vector<Document>();
         documents.add(new Document(null, System.currentTimeMillis(), getMapper().getNodeFactory().objectNode().put("d", "d")));
         Entity<List<Document>> listEntity = Entity.json(documents);
-        Response response = resources.client().target(String.format("/v1/document/%s/bulk", TestUtils.TEST_TABLE_NAME))
+        Response response = resources.client().target(String.format("/foxtrot/v1/document/%s/bulk", TestUtils.TEST_TABLE_NAME))
                 .request()
                 .post(listEntity);
         assertEquals(422, response.getStatus());
@@ -190,7 +190,7 @@ public class DocumentResourceTest extends FoxtrotResourceTest {
         List<Document> documents = new Vector<Document>();
         documents.add(new Document(UUID.randomUUID().toString(), System.currentTimeMillis(), null));
         Entity<List<Document>> listEntity = Entity.json(documents);
-        Response response = resources.client().target(String.format("/v1/document/%s/bulk", TestUtils.TEST_TABLE_NAME))
+        Response response = resources.client().target(String.format("/foxtrot/v1/document/%s/bulk", TestUtils.TEST_TABLE_NAME))
                 .request()
                 .post(listEntity);
         assertEquals(422, response.getStatus());
@@ -198,7 +198,7 @@ public class DocumentResourceTest extends FoxtrotResourceTest {
 
     @Test
     public void testSaveDocumentsInvalidRequestObject() throws Exception {
-        Response response = resources.client().target(String.format("/v1/document/%s/bulk", TestUtils.TEST_TABLE_NAME))
+        Response response = resources.client().target(String.format("/foxtrot/v1/document/%s/bulk", TestUtils.TEST_TABLE_NAME))
                 .request()
                 .post(Entity.text("Hello"));
         assertEquals(Response.Status.UNSUPPORTED_MEDIA_TYPE.getStatusCode(), response.getStatus());
@@ -207,7 +207,7 @@ public class DocumentResourceTest extends FoxtrotResourceTest {
     @Test
     public void testSaveDocumentsEmptyList() throws Exception {
         Entity<List<Document>> list = Entity.json(Lists.emptyList());
-        Response response = resources.client().target(String.format("/v1/document/%s/bulk", TestUtils.TEST_TABLE_NAME))
+        Response response = resources.client().target(String.format("/foxtrot/v1/document/%s/bulk", TestUtils.TEST_TABLE_NAME))
                 .request()
                 .post(list);
         assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), response.getStatus());
@@ -219,7 +219,7 @@ public class DocumentResourceTest extends FoxtrotResourceTest {
         Document document = new Document(id, System.currentTimeMillis(), getMapper().getNodeFactory().objectNode().put("D", "data"));
         getQueryStore().save(TestUtils.TEST_TABLE_NAME, document);
         getElasticsearchServer().refresh(ElasticsearchUtils.getIndices(TestUtils.TEST_TABLE_NAME));
-        Document response = resources.client().target(String.format("/v1/document/%s/%s", TestUtils.TEST_TABLE_NAME, id))
+        Document response = resources.client().target(String.format("/foxtrot/v1/document/%s/%s", TestUtils.TEST_TABLE_NAME, id))
                 .request()
                 .get(Document.class);
         compare(document, response);
@@ -229,7 +229,7 @@ public class DocumentResourceTest extends FoxtrotResourceTest {
     public void testGetDocumentMissingId() throws Exception {
         String id = UUID.randomUUID().toString();
         try {
-            resources.client().target(String.format("/v1/document/%s/%s", TestUtils.TEST_TABLE_NAME, id))
+            resources.client().target(String.format("/foxtrot/v1/document/%s/%s", TestUtils.TEST_TABLE_NAME, id))
                     .request()
                     .get(Document.class);
             fail();
@@ -244,7 +244,7 @@ public class DocumentResourceTest extends FoxtrotResourceTest {
         try {
             doThrow(FoxtrotExceptions.createExecutionException("dummy", new IOException()))
                     .when(getQueryStore()).get(anyString(), anyString());
-            resources.client().target(String.format("/v1/document/%s/%s", TestUtils.TEST_TABLE_NAME, id))
+            resources.client().target(String.format("/foxtrot/v1/document/%s/%s", TestUtils.TEST_TABLE_NAME, id))
                     .request()
                     .get(Document.class);
             fail();
@@ -265,7 +265,7 @@ public class DocumentResourceTest extends FoxtrotResourceTest {
         documents.add(document2);
         getQueryStore().save(TestUtils.TEST_TABLE_NAME, documents);
         getElasticsearchServer().refresh(ElasticsearchUtils.getIndices(TestUtils.TEST_TABLE_NAME));
-        String response = resources.client().target(String.format("/v1/document/%s", TestUtils.TEST_TABLE_NAME))
+        String response = resources.client().target(String.format("/foxtrot/v1/document/%s", TestUtils.TEST_TABLE_NAME))
                 .queryParam("id", id1)
                 .queryParam("id", id2)
                 .request()
@@ -276,7 +276,7 @@ public class DocumentResourceTest extends FoxtrotResourceTest {
 
     @Test
     public void testGetDocumentsNoIds() throws Exception {
-        String response = resources.client().target(String.format("/v1/document/%s", TestUtils.TEST_TABLE_NAME))
+        String response = resources.client().target(String.format("/foxtrot/v1/document/%s", TestUtils.TEST_TABLE_NAME))
                 .request()
                 .get(String.class);
         String expectedResponse = getMapper().writeValueAsString(new ArrayList<Document>());
@@ -286,7 +286,7 @@ public class DocumentResourceTest extends FoxtrotResourceTest {
     @Test
     public void testGetDocumentsMissingIds() throws Exception {
         try {
-            resources.client().target(String.format("/v1/document/%s", TestUtils.TEST_TABLE_NAME))
+            resources.client().target(String.format("/foxtrot/v1/document/%s", TestUtils.TEST_TABLE_NAME))
                     .queryParam("id", UUID.randomUUID().toString())
                     .request()
                     .get(String.class);
@@ -301,7 +301,7 @@ public class DocumentResourceTest extends FoxtrotResourceTest {
         try {
             doThrow(FoxtrotExceptions.createExecutionException("dummy", new IOException()))
                     .when(getQueryStore()).getAll(anyString(), anyListOf(String.class));
-            resources.client().target(String.format("/v1/document/%s", TestUtils.TEST_TABLE_NAME))
+            resources.client().target(String.format("/foxtrot/v1/document/%s", TestUtils.TEST_TABLE_NAME))
                     .queryParam("id", UUID.randomUUID().toString())
                     .request()
                     .get(String.class);

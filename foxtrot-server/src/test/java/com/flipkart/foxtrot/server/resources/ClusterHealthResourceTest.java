@@ -60,7 +60,7 @@ public class ClusterHealthResourceTest extends FoxtrotResourceTest {
 
     @Test
     public void testClusterHealthApi(){
-        ClusterHealthResponse response = resources.client().target("/v1/clusterhealth").request().get(ClusterHealthResponse.class);
+        ClusterHealthResponse response = resources.client().target("/foxtrot/v1/clusterhealth").request().get(ClusterHealthResponse.class);
         Assert.assertEquals("elasticsearch", response.getClusterName());
         Assert.assertEquals(1,response.getNumberOfNodes());
         Assert.assertNotNull(response.getIndices().get("table-meta"));
@@ -68,7 +68,7 @@ public class ClusterHealthResourceTest extends FoxtrotResourceTest {
 
     @Test
     public void testNodeStats() throws FoxtrotException {
-        JsonNode response = resources.client().target("/v1/clusterhealth/nodestats").request().get(JsonNode.class);
+        JsonNode response = resources.client().target("/foxtrot/v1/clusterhealth/nodestats").request().get(JsonNode.class);
         Assert.assertEquals(1, response.path("nodesMap").size());
     }
 
@@ -83,7 +83,7 @@ public class ClusterHealthResourceTest extends FoxtrotResourceTest {
         documents.add(document2);
         getQueryStore().save(TestUtils.TEST_TABLE_NAME, documents);
         getElasticsearchServer().refresh(ElasticsearchUtils.getIndices(TestUtils.TEST_TABLE_NAME));
-        JsonNode response = resources.client().target("/v1/clusterhealth/indicesstats").request().get(JsonNode.class);
+        JsonNode response = resources.client().target("/foxtrot/v1/clusterhealth/indicesstats").request().get(JsonNode.class);
         Assert.assertEquals(2, response.path("primaries").path("docs").path("count").asInt());
         Assert.assertNotEquals(0, response.path("total").path("store").path("sizeInBytes").asInt());
         Assert.assertNotEquals(0, response.path("primaries").path("store").path("sizeInBytes").asInt());

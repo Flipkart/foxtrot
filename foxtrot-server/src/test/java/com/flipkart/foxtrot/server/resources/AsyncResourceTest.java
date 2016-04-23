@@ -97,7 +97,7 @@ public class AsyncResourceTest extends FoxtrotResourceTest {
         AsyncDataToken dataToken = getQueryExecutor().executeAsync(groupRequest);
         Thread.sleep(1000);
 
-        GroupResponse groupResponse = resources.client().target("/v1/async/" + dataToken.getAction() + "/" + dataToken.getKey()).request()
+        GroupResponse groupResponse = resources.client().target("/foxtrot/v1/async/" + dataToken.getAction() + "/" + dataToken.getKey()).request()
                 .get(GroupResponse.class);
         assertEquals(expectedResponse, groupResponse.getResult());
     }
@@ -112,7 +112,7 @@ public class AsyncResourceTest extends FoxtrotResourceTest {
         Thread.sleep(1000);
 
         try {
-            resources.client().target(String.format("/v1/async/distinct/%s", dataToken.getKey())).request().get(GroupResponse.class);
+            resources.client().target(String.format("/foxtrot/v1/async/distinct/%s", dataToken.getKey())).request().get(GroupResponse.class);
         } catch (WebApplicationException ex) {
             assertEquals(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode(), ex.getResponse().getStatus());
         }
@@ -128,7 +128,7 @@ public class AsyncResourceTest extends FoxtrotResourceTest {
         Thread.sleep(1000);
 
         try {
-            resources.client().target(String.format("/v1/async/%s/dummy", dataToken.getAction())).request().get(GroupResponse.class);
+            resources.client().target(String.format("/foxtrot/v1/async/%s/dummy", dataToken.getAction())).request().get(GroupResponse.class);
         } catch (WebApplicationException ex) {
             assertEquals(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode(), ex.getResponse().getStatus());
         }
@@ -176,7 +176,7 @@ public class AsyncResourceTest extends FoxtrotResourceTest {
 
         Entity<AsyncDataToken> asyncDataTokenEntity = Entity.json(dataToken);
 
-        GroupResponse response = resources.client().target("/v1/async")
+        GroupResponse response = resources.client().target("/foxtrot/v1/async")
                 .request()
                 .post(asyncDataTokenEntity, GroupResponse.class);
         assertEquals(expectedResponse, response.getResult());
@@ -187,7 +187,7 @@ public class AsyncResourceTest extends FoxtrotResourceTest {
     public void testGetResponsePostInvalidKey() throws Exception {
         AsyncDataToken dataToken = new AsyncDataToken("group", null);
         Entity<AsyncDataToken> asyncDataTokenEntity = Entity.json(dataToken);
-        GroupResponse response = resources.client().target("/v1/async").request().post(asyncDataTokenEntity, GroupResponse.class);
+        GroupResponse response = resources.client().target("/foxtrot/v1/async").request().post(asyncDataTokenEntity, GroupResponse.class);
         assertNull(response);
     }
 
@@ -195,7 +195,7 @@ public class AsyncResourceTest extends FoxtrotResourceTest {
     public void testGetResponsePostInvalidAction() throws Exception {
         AsyncDataToken dataToken = new AsyncDataToken(null, UUID.randomUUID().toString());
         Entity<AsyncDataToken> asyncDataTokenEntity = Entity.json(dataToken);
-        resources.client().target("/v1/async")
+        resources.client().target("/foxtrot/v1/async")
                 .request()
                 .post(asyncDataTokenEntity, GroupResponse.class);
         fail();
