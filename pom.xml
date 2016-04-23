@@ -61,28 +61,23 @@
 
     <repositories>
         <repository>
-            <id>cloudera</id>
-            <url>https://repository.cloudera.com/artifactory/cloudera-repos/</url>
-        </repository>
-        <repository>
             <id>clojars</id>
             <name>Clojars repository</name>
             <url>https://clojars.org/repo</url>
         </repository>
+        <repository>
+            <id>hdp-public</id>
+            <name>HDP Public</name>
+            <url>http://repo.hortonworks.com/content/groups/public</url>
+        </repository>
+        <repository>
+            <id>hdp-releases</id>
+            <name>HDP Releases</name>
+            <url>http://repo.hortonworks.com/content/repositories/releases/</url>
+        </repository>
     </repositories>
 
     <dependencies>
-        <dependency>
-            <groupId>net.sourceforge.cobertura</groupId>
-            <artifactId>cobertura</artifactId>
-            <version>2.0.3</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>log4j</groupId>
-                    <artifactId>log4j</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
         <dependency>
             <groupId>io.dropwizard</groupId>
             <artifactId>dropwizard-core</artifactId>
@@ -94,25 +89,30 @@
             <version>${dropwizard.version}</version>
         </dependency>
         <dependency>
+            <groupId>io.dropwizard</groupId>
+            <artifactId>dropwizard-metrics</artifactId>
+            <version>${dropwizard.version}</version>
+        </dependency>
+        <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
             <version>3.3.1</version>
         </dependency>
         <dependency>
-            <groupId>xerces</groupId>
-            <artifactId>xercesImpl</artifactId>
-            <version>2.11.0</version>
-        </dependency>
-        <dependency>
-            <groupId>xalan</groupId>
-            <artifactId>xalan</artifactId>
-            <version>2.7.2</version>
-        </dependency>
-        <dependency>
-            <groupId>com.shash.hbase.ds</groupId>
+            <groupId>com.sematext.hbase.ds</groupId>
             <artifactId>hbase-ds</artifactId>
-            <version>0.0.1</version>
+            <version>0.0.2-SNAPSHOT</version>
         </dependency>
+        <!--<dependency>-->
+            <!--<groupId>xerces</groupId>-->
+            <!--<artifactId>xercesImpl</artifactId>-->
+            <!--<version>2.11.0</version>-->
+        <!--</dependency>-->
+        <!--<dependency>-->
+            <!--<groupId>xalan</groupId>-->
+            <!--<artifactId>xalan</artifactId>-->
+            <!--<version>2.7.2</version>-->
+        <!--</dependency>-->
         <dependency>
             <groupId>io.dropwizard</groupId>
             <artifactId>dropwizard-testing</artifactId>
@@ -135,7 +135,7 @@
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>cobertura-maven-plugin</artifactId>
-                <version>2.6</version>
+                <version>2.7</version>
                 <executions>
                     <execution>
                         <goals>
@@ -146,12 +146,28 @@
                 <configuration>
                     <instrumentation>
                         <ignoreTrivial>true</ignoreTrivial>
+                        <excludes>
+                            <exclude>com/flipkart/foxtrot/core/querystore/impl/HazelcastConnection.java</exclude>
+                            <exclude>com/flipkart/foxtrot/core/querystore/impl/ElasticsearchConnection.java</exclude>
+                            <exclude>com/flipkart/foxtrot/core/datastore/impl/hbase/HbaseTableConnection.java</exclude>
+                            <exclude>com/flipkart/foxtrot/server/FoxtrotServer.java</exclude>
+                            <exclude>com/flipkart/foxtrot/server/config/FoxtrotServerConfiguration.java</exclude>
+                            <exclude>com/flipkart/foxtrot/server/App.java</exclude>
+                        </excludes>
                     </instrumentation>
                     <check>
-
+                        <branchRate>70</branchRate>
+                        <lineRate>70</lineRate>
+                        <haltOnFailure>false</haltOnFailure>
+                        <totalBranchRate>70</totalBranchRate>
+                        <totalLineRate>70</totalLineRate>
+                        <packageLineRate>70</packageLineRate>
+                        <packageBranchRate>70</packageBranchRate>
                     </check>
+                    <formats>
+                        <format>html</format>
+                    </formats>
                 </configuration>
-
             </plugin>
         </plugins>
     </build>

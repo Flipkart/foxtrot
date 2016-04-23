@@ -30,7 +30,7 @@ import com.flipkart.foxtrot.core.querystore.DocumentTranslator;
 import com.flipkart.foxtrot.core.table.TableMetadataManager;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Maps;
-import com.shash.hbase.ds.RowKeyDistributorByHashPrefix;
+import com.sematext.hbase.ds.RowKeyDistributorByHashPrefix;
 import org.elasticsearch.action.admin.cluster.health.ClusterHealthResponse;
 import org.elasticsearch.action.admin.cluster.node.stats.NodesStatsResponse;
 import org.elasticsearch.action.admin.indices.stats.IndicesStatsResponse;

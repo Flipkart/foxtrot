@@ -20,8 +20,12 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.HBaseConfiguration;
 import org.apache.hadoop.hbase.HColumnDescriptor;
 import org.apache.hadoop.hbase.HTableDescriptor;
+import org.apache.hadoop.hbase.TableName;
+import org.apache.hadoop.hbase.client.Admin;
+import org.apache.hadoop.hbase.client.Connection;
+import org.apache.hadoop.hbase.client.ConnectionFactory;
 import org.apache.hadoop.hbase.client.HBaseAdmin;
-import org.apache.hadoop.hbase.io.hfile.Compression;
+import org.apache.hadoop.hbase.io.compress.Compression;
 import org.apache.hadoop.security.UserGroupInformation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,6 +34,7 @@ import java.io.File;
 import java.io.IOException;
 
 public abstract class HBaseUtil {
+
     private static final Logger logger = LoggerFactory.getLogger(HBaseUtil.class);
 
     public static Configuration create(final HbaseConfig hbaseConfig) throws IOException {
@@ -77,14 +82,27 @@ public abstract class HBaseUtil {
     }
 
     public static void createTable(final HbaseConfig hbaseConfig, final String tableName) throws IOException {
-        HTableDescriptor hTableDescriptor = new HTableDescriptor(tableName);
+        HTableDescriptor hTableDescriptor = new HTableDescriptor(TableName.valueOf(tableName));
         HColumnDescriptor columnDescriptor = new HColumnDescriptor("d");
         columnDescriptor.setCompressionType(Compression.Algorithm.GZ);
         hTableDescriptor.addFamily(columnDescriptor);
-        try (HBaseAdmin hBaseAdmin = new HBaseAdmin(HBaseUtil.create(hbaseConfig))) {
+        Configuration configuration = HBaseUtil.create(hbaseConfig);
+        Connection connection = ConnectionFactory.createConnection(configuration);
+        Admin hBaseAdmin = null;
+        try {
+            hBaseAdmin = connection.getAdmin();
             hBaseAdmin.createTable(hTableDescriptor);
         } catch (Exception e) {
             logger.error("Could not create table: " + tableName, e);
+        } finally {
+            try {
+                if(hBaseAdmin != null) {
+                    hBaseAdmin.close();
+                }
+            } catch(Exception e) {}
+            try {
+                connection.close();
+            } catch(Exception e) {}
         }
     }
 }

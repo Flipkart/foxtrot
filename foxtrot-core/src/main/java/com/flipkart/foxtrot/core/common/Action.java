@@ -110,8 +110,9 @@ public abstract class Action<ParameterType extends ActionRequest> implements Cal
         if (cachedData != null) {
             return cachedData;
         }
-        Stopwatch stopwatch = Stopwatch.createStarted();
+        Stopwatch stopwatch = new Stopwatch();
         try {
+            stopwatch.start();
             ActionResponse result = execute(parameter);
             stopwatch.stop();
             // Publish success metrics

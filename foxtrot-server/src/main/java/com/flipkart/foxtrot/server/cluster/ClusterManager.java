@@ -8,6 +8,7 @@ import com.hazelcast.config.MapConfig;
 import com.hazelcast.core.IMap;
 import io.dropwizard.jetty.HttpConnectorFactory;
 import io.dropwizard.lifecycle.Managed;
+import io.dropwizard.server.DefaultServerFactory;
 import io.dropwizard.server.SimpleServerFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,7 +33,7 @@ public class ClusterManager implements Managed {
 
     public ClusterManager(HazelcastConnection connection,
                           List<HealthCheck> healthChecks,
-                          SimpleServerFactory httpConfiguration) throws Exception {
+                          DefaultServerFactory httpConfiguration) throws Exception {
         this.hazelcastConnection = connection;
         this.healthChecks = healthChecks;
         MapConfig mapConfig = new MapConfig(MAP_NAME);
@@ -44,7 +45,7 @@ public class ClusterManager implements Managed {
 
         String hostname = Inet4Address.getLocalHost().getCanonicalHostName();
         executor = Executors.newScheduledThreadPool(1);
-        clusterMember = new ClusterMember(hostname, ((HttpConnectorFactory)httpConfiguration.getConnector()).getPort());
+        clusterMember = new ClusterMember(hostname, ((HttpConnectorFactory)httpConfiguration.getApplicationConnectors().get(0)).getPort());
     }
 
     @Override

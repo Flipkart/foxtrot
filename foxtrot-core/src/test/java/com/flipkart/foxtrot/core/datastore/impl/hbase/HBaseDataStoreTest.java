@@ -26,9 +26,8 @@ import com.flipkart.foxtrot.core.exception.FoxtrotException;
 import com.flipkart.foxtrot.core.querystore.DocumentTranslator;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.shash.hbase.ds.RowKeyDistributorByHashPrefix;
+import com.sematext.hbase.ds.RowKeyDistributorByHashPrefix;
 import org.apache.hadoop.hbase.client.Get;
-import org.apache.hadoop.hbase.client.HTableInterface;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.util.Bytes;
@@ -50,7 +49,7 @@ import static org.mockito.Mockito.*;
 
 public class HBaseDataStoreTest {
     private HBaseDataStore HBaseDataStore;
-    private HTableInterface tableInterface;
+    private org.apache.hadoop.hbase.client.Table tableInterface;
     private HbaseTableConnection hBaseTableConnection;
     private ObjectMapper mapper = new ObjectMapper();
 

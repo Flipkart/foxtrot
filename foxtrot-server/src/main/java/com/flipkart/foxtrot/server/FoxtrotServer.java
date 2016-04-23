@@ -41,7 +41,6 @@ import com.flipkart.foxtrot.server.cluster.ClusterManager;
 import com.flipkart.foxtrot.server.config.FoxtrotServerConfiguration;
 import com.flipkart.foxtrot.server.console.ElasticsearchConsolePersistence;
 import com.flipkart.foxtrot.server.healthcheck.ElasticSearchHealthCheck;
-import com.flipkart.foxtrot.server.providers.CORSFilter;
 import com.flipkart.foxtrot.server.providers.FlatResponseCsvProvider;
 import com.flipkart.foxtrot.server.providers.FlatResponseErrorTextProvider;
 import com.flipkart.foxtrot.server.providers.FlatResponseTextProvider;
@@ -51,17 +50,18 @@ import io.dropwizard.Application;
 import io.dropwizard.assets.AssetsBundle;
 import io.dropwizard.configuration.EnvironmentVariableSubstitutor;
 import io.dropwizard.configuration.SubstitutingSourceProvider;
-import io.dropwizard.server.SimpleServerFactory;
+import io.dropwizard.server.DefaultServerFactory;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
 import io.dropwizard.util.Duration;
-import net.sourceforge.cobertura.CoverageIgnore;
+import org.eclipse.jetty.servlets.CrossOriginFilter;
+
+import javax.servlet.DispatcherType;
+import javax.servlet.FilterRegistration;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
-
-import static io.dropwizard.jersey.filter.AllowedMethodsFilter.ALLOWED_METHODS_PARAM;
 
 
 /**
@@ -69,8 +69,6 @@ import static io.dropwizard.jersey.filter.AllowedMethodsFilter.ALLOWED_METHODS_P
  * Date: 15/03/14
  * Time: 9:38 PM
  */
-
-@CoverageIgnore
 public class FoxtrotServer extends Application<FoxtrotServerConfiguration> {
 
     @Override
@@ -80,7 +78,7 @@ public class FoxtrotServer extends Application<FoxtrotServerConfiguration> {
                         new EnvironmentVariableSubstitutor(false)
                 )
         );
-        bootstrap.addBundle(new AssetsBundle("/console/", "/"));
+        bootstrap.addBundle(new AssetsBundle("/console/", "/console/", "index.html"));
         bootstrap.addCommand(new InitializerCommand());
     }
 
@@ -92,8 +90,9 @@ public class FoxtrotServer extends Application<FoxtrotServerConfiguration> {
     @Override
     public void run(FoxtrotServerConfiguration configuration, Environment environment) throws Exception {
         configureObjectMapper(environment);
-
-        ExecutorService executorService = environment.lifecycle().executorService("query-executor-%s").minThreads(20).maxThreads(30).keepAliveTime(Duration.seconds(30)).build();
+        ExecutorService executorService = environment.lifecycle().executorService("query-executor-%s")
+                .minThreads(20).maxThreads(30).keepAliveTime(Duration.seconds(30))
+                .build();
         HbaseTableConnection HBaseTableConnection = new HbaseTableConnection(configuration.getHbase());
         ElasticsearchConnection elasticsearchConnection = new ElasticsearchConnection(configuration.getElasticsearch());
         HazelcastConnection hazelcastConnection = new HazelcastConnection(configuration.getCluster());
@@ -112,7 +111,7 @@ public class FoxtrotServer extends Application<FoxtrotServerConfiguration> {
         List<HealthCheck> healthChecks = new ArrayList<>();
         ElasticSearchHealthCheck elasticSearchHealthCheck =  new ElasticSearchHealthCheck(elasticsearchConnection);
         healthChecks.add(elasticSearchHealthCheck);
-        ClusterManager clusterManager = new ClusterManager(hazelcastConnection, healthChecks, (SimpleServerFactory)configuration.getServerFactory());
+        ClusterManager clusterManager = new ClusterManager(hazelcastConnection, healthChecks, (DefaultServerFactory)configuration.getServerFactory());
 
         environment.lifecycle().manage(HBaseTableConnection);
         environment.lifecycle().manage(elasticsearchConnection);
@@ -140,7 +139,18 @@ public class FoxtrotServer extends Application<FoxtrotServerConfiguration> {
         environment.jersey().register(new FlatResponseTextProvider());
         environment.jersey().register(new FlatResponseCsvProvider());
         environment.jersey().register(new FlatResponseErrorTextProvider());
-        environment.jersey().register(new CORSFilter());
+
+        // Enable CORS headers
+        final FilterRegistration.Dynamic cors =
+                environment.servlets().addFilter("CORS", CrossOriginFilter.class);
+
+        // Configure CORS parameters
+        cors.setInitParameter("allowedOrigins", "*");
+        cors.setInitParameter("allowedHeaders", "X-Requested-With,Content-Type,Accept,Origin");
+        cors.setInitParameter("allowedMethods", "OPTIONS,GET,PUT,POST,DELETE,HEAD");
+
+        // Add URL mapping
+        cors.addMappingForUrlPatterns(EnumSet.allOf(DispatcherType.class), true, "/*");
     }
 
     private void configureObjectMapper(Environment environment) {

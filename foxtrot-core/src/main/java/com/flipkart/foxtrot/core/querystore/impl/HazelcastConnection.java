@@ -19,7 +19,6 @@ import com.hazelcast.config.Config;
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
 import io.dropwizard.lifecycle.Managed;
-import net.sourceforge.cobertura.CoverageIgnore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,8 +29,6 @@ import java.net.InetAddress;
  * Date: 15/03/14
  * Time: 10:01 PM
  */
-
-@CoverageIgnore
 public class HazelcastConnection implements Managed {
     private static final Logger logger = LoggerFactory.getLogger(HazelcastConnection.class.getSimpleName());
 
