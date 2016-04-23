@@ -78,7 +78,7 @@ public class FoxtrotServer extends Application<FoxtrotServerConfiguration> {
                         new EnvironmentVariableSubstitutor(false)
                 )
         );
-        bootstrap.addBundle(new AssetsBundle("/console/", "/console/", "index.html"));
+        bootstrap.addBundle(new AssetsBundle("/console/", "/foxtrot/console/", "index.html", "console"));
         bootstrap.addCommand(new InitializerCommand());
     }
 

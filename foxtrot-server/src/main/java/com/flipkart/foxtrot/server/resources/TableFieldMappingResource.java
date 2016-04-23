@@ -28,7 +28,7 @@ import javax.ws.rs.core.Response;
 /**
  * Created by rishabh.goyal on 06/05/14.
  */
-@Path("/v1/tables/{name}/fields")
+@Path("/foxtrot/v1/tables/{name}/fields")
 @Produces(MediaType.APPLICATION_JSON)
 public class TableFieldMappingResource {
 
