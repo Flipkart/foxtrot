@@ -13,6 +13,12 @@
 
     <dependencies>
 
+        <dependency>
+            <groupId>io.dropwizard</groupId>
+            <artifactId>dropwizard-assets</artifactId>
+            <version>${dropwizard.version}</version>
+        </dependency>
+
         <!-- Reflections for scanning classpath to get analytics providers-->
         <dependency>
             <groupId>org.reflections</groupId>

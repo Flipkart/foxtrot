@@ -21,7 +21,7 @@ hbase:
 cluster:
   name: foxtrot
   disableMulticast: true
-  members: ["localhost:5701", "localhost:5702"]
+  members: ["localhost:5701"]
 
 logging:
   level: INFO
