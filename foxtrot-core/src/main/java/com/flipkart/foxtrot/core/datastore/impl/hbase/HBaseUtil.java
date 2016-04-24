@@ -24,7 +24,6 @@ import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Admin;
 import org.apache.hadoop.hbase.client.Connection;
 import org.apache.hadoop.hbase.client.ConnectionFactory;
-import org.apache.hadoop.hbase.client.HBaseAdmin;
 import org.apache.hadoop.hbase.io.compress.Compression;
 import org.apache.hadoop.security.UserGroupInformation;
 import org.slf4j.Logger;
@@ -99,10 +98,14 @@ public abstract class HBaseUtil {
                 if(hBaseAdmin != null) {
                     hBaseAdmin.close();
                 }
-            } catch(Exception e) {}
+            } catch(Exception e) {
+                logger.error("Error closing hbase admin", e);
+            }
             try {
                 connection.close();
-            } catch(Exception e) {}
+            } catch(Exception e) {
+                logger.error("Error closing hbase connection", e);
+            }
         }
     }
 }
