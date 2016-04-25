@@ -34,6 +34,7 @@ import java.util.List;
 import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.doReturn;
 
@@ -112,6 +113,7 @@ public class AnalyticsResourceTest extends FoxtrotResourceTest {
             Entity<GroupRequest> serviceUserEntity = Entity.json(groupRequest);
             resources.client().target("/foxtrot/v1/generate/test").request()
                     .post(serviceUserEntity, GroupResponse.class);
+            fail();
         } catch (WebApplicationException ex) {
             assertEquals(Response.Status.NOT_FOUND.getStatusCode(), ex.getResponse().getStatus());
         }

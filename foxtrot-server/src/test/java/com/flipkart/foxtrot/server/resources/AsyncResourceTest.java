@@ -21,15 +21,11 @@ import com.flipkart.foxtrot.common.group.GroupResponse;
 import com.flipkart.foxtrot.core.TestUtils;
 import com.flipkart.foxtrot.core.common.AsyncDataToken;
 import io.dropwizard.testing.junit.ResourceTestRule;
-import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 
 import javax.ws.rs.ProcessingException;
-import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.client.Entity;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
 import java.util.*;
 
 import static org.junit.Assert.*;
@@ -110,12 +106,8 @@ public class AsyncResourceTest extends FoxtrotResourceTest {
 
         AsyncDataToken dataToken = getQueryExecutor().executeAsync(groupRequest);
         Thread.sleep(1000);
-
-        try {
-            resources.client().target(String.format("/foxtrot/v1/async/distinct/%s", dataToken.getKey())).request().get(GroupResponse.class);
-        } catch (WebApplicationException ex) {
-            assertEquals(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode(), ex.getResponse().getStatus());
-        }
+        GroupResponse response = resources.client().target(String.format("/foxtrot/v1/async/distinct/%s", dataToken.getKey())).request().get(GroupResponse.class);
+        assertNull(response);
     }
 
     @Test
@@ -127,11 +119,8 @@ public class AsyncResourceTest extends FoxtrotResourceTest {
         AsyncDataToken dataToken = getQueryExecutor().executeAsync(groupRequest);
         Thread.sleep(1000);
 
-        try {
-            resources.client().target(String.format("/foxtrot/v1/async/%s/dummy", dataToken.getAction())).request().get(GroupResponse.class);
-        } catch (WebApplicationException ex) {
-            assertEquals(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode(), ex.getResponse().getStatus());
-        }
+        GroupResponse response = resources.client().target(String.format("/foxtrot/v1/async/%s/dummy", dataToken.getAction())).request().get(GroupResponse.class);
+        assertNull(response);
     }
 
     @Test
