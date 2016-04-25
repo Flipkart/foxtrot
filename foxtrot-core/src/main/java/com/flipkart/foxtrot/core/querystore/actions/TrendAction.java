@@ -16,24 +16,31 @@
 package com.flipkart.foxtrot.core.querystore.actions;
 
 import com.flipkart.foxtrot.common.ActionResponse;
+import com.flipkart.foxtrot.common.Period;
 import com.flipkart.foxtrot.common.query.Filter;
 import com.flipkart.foxtrot.common.query.FilterCombinerType;
 import com.flipkart.foxtrot.common.query.datetime.LastFilter;
-import com.flipkart.foxtrot.common.query.general.AnyFilter;
 import com.flipkart.foxtrot.common.query.general.InFilter;
 import com.flipkart.foxtrot.common.trend.TrendRequest;
 import com.flipkart.foxtrot.common.trend.TrendResponse;
+import com.flipkart.foxtrot.common.util.CollectionUtils;
+import com.flipkart.foxtrot.core.cache.CacheManager;
 import com.flipkart.foxtrot.core.common.Action;
 import com.flipkart.foxtrot.core.datastore.DataStore;
+import com.flipkart.foxtrot.core.exception.FoxtrotException;
+import com.flipkart.foxtrot.core.exception.FoxtrotExceptions;
+import com.flipkart.foxtrot.core.exception.MalformedQueryException;
 import com.flipkart.foxtrot.core.querystore.QueryStore;
-import com.flipkart.foxtrot.core.querystore.QueryStoreException;
-import com.flipkart.foxtrot.core.querystore.TableMetadataManager;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsProvider;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConnection;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
 import com.flipkart.foxtrot.core.querystore.query.ElasticSearchQueryGenerator;
+import com.flipkart.foxtrot.core.table.TableMetadataManager;
 import com.google.common.collect.Lists;
 import com.yammer.dropwizard.util.Duration;
+import org.apache.commons.lang3.StringUtils;
+import org.elasticsearch.ElasticsearchException;
+import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.search.SearchType;
 import org.elasticsearch.search.aggregations.AbstractAggregationBuilder;
@@ -42,8 +49,6 @@ import org.elasticsearch.search.aggregations.Aggregations;
 import org.elasticsearch.search.aggregations.bucket.histogram.DateHistogram;
 import org.elasticsearch.search.aggregations.bucket.histogram.Histogram;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.Collections;
 import java.util.List;
@@ -57,15 +62,30 @@ import java.util.TreeMap;
  */
 @AnalyticsProvider(opcode = "trend", request = TrendRequest.class, response = TrendResponse.class, cacheable = true)
 public class TrendAction extends Action<TrendRequest> {
-    private static final Logger logger = LoggerFactory.getLogger(TrendAction.class.getSimpleName());
 
     public TrendAction(TrendRequest parameter,
                        TableMetadataManager tableMetadataManager,
                        DataStore dataStore,
                        QueryStore queryStore,
                        ElasticsearchConnection connection,
-                       String cacheToken) {
-        super(parameter, tableMetadataManager, dataStore, queryStore, connection, cacheToken);
+                       String cacheToken,
+                       CacheManager cacheManager) {
+        super(parameter, tableMetadataManager, dataStore, queryStore, connection, cacheToken, cacheManager);
+    }
+
+    @Override
+    protected void preprocess() {
+        getParameter().setTable(ElasticsearchUtils.getValidTableName(getParameter().getTable()));
+        if (null != getParameter().getValues() && getParameter().getValues().size() != 0) {
+            List<Object> values = (List) getParameter().getValues();
+            Filter filter = new InFilter(getParameter().getField(), values);
+            getParameter().getFilters().add(filter);
+        }
+    }
+
+    @Override
+    public String getMetricKey() {
+        return getParameter().getTable();
     }
 
     @Override
@@ -92,45 +112,49 @@ public class TrendAction extends Action<TrendRequest> {
     }
 
     @Override
-    public ActionResponse execute(TrendRequest parameter) throws QueryStoreException {
-        parameter.setTable(ElasticsearchUtils.getValidTableName(parameter.getTable()));
-        if (null == parameter.getFilters()) {
-            parameter.setFilters(Lists.<Filter>newArrayList(new AnyFilter(parameter.getTable())));
+    public void validateImpl(TrendRequest parameter) throws MalformedQueryException {
+        List<String> validationErrors = Lists.newArrayList();
+        if (CollectionUtils.isNullOrEmpty(parameter.getTable())) {
+            validationErrors.add("table name cannot be null or empty");
         }
-        String field = parameter.getField();
-        if (parameter.getTable() == null) {
-            throw new QueryStoreException(QueryStoreException.ErrorCode.INVALID_REQUEST, "Invalid table name");
+        if (CollectionUtils.isNullOrEmpty(parameter.getField())) {
+            validationErrors.add("field name cannot be null or empty");
         }
-        if (null == field || field.isEmpty()) {
-            throw new QueryStoreException(QueryStoreException.ErrorCode.INVALID_REQUEST, "Invalid field name");
+        if (CollectionUtils.isNullOrEmpty(parameter.getTimestamp())) {
+            validationErrors.add("timestamp field cannot be null or empty");
         }
-        if (null != parameter.getValues() && parameter.getValues().size() != 0) {
-            List<Object> values = (List) parameter.getValues();
-            Filter filter = new InFilter(field, values);
-            parameter.getFilters().add(filter);
+        if (parameter.getPeriod() == null) {
+            validationErrors.add(String.format("specify time period (%s)", StringUtils.join(Period.values())));
         }
+        if (!CollectionUtils.isNullOrEmpty(validationErrors)) {
+            throw FoxtrotExceptions.createMalformedQueryException(parameter, validationErrors);
+        }
+    }
 
+    @Override
+    public ActionResponse execute(TrendRequest parameter) throws FoxtrotException {
+        SearchRequestBuilder searchRequestBuilder;
         try {
             AbstractAggregationBuilder aggregationBuilder = buildAggregation(parameter);
-            SearchResponse searchResponse = getConnection().getClient()
+            searchRequestBuilder = getConnection().getClient()
                     .prepareSearch(ElasticsearchUtils.getIndices(parameter.getTable(), parameter))
+                    .setIndicesOptions(Utils.indicesOptions())
                     .setQuery(new ElasticSearchQueryGenerator(FilterCombinerType.and).genFilter(parameter.getFilters()))
                     .setSearchType(SearchType.COUNT)
-                    .addAggregation(aggregationBuilder)
-                    .execute()
-                    .get();
-
+                    .addAggregation(aggregationBuilder);
+        } catch (Exception e) {
+            throw FoxtrotExceptions.queryCreationException(parameter, e);
+        }
+        try {
+            SearchResponse searchResponse = searchRequestBuilder.execute().actionGet();
             Aggregations aggregations = searchResponse.getAggregations();
             if (aggregations != null) {
                 return buildResponse(parameter, aggregations);
             } else {
-                logger.error("Null response for Trend. Request : " + parameter.toString());
                 return new TrendResponse(Collections.<String, List<TrendResponse.Count>>emptyMap());
             }
-        } catch (Exception e) {
-            logger.error("Error running trend action: ", e);
-            throw new QueryStoreException(QueryStoreException.ErrorCode.QUERY_EXECUTION_ERROR,
-                    "Error running trend action.", e);
+        } catch (ElasticsearchException e) {
+            throw FoxtrotExceptions.createQueryExecutionException(parameter, e);
         }
     }
 
@@ -169,7 +193,7 @@ public class TrendAction extends Action<TrendRequest> {
                 .subAggregation(Utils.buildDateHistogramAggregation(request.getTimestamp(), interval));
     }
 
-    private TrendResponse buildResponse(TrendRequest request, Aggregations aggregations){
+    private TrendResponse buildResponse(TrendRequest request, Aggregations aggregations) {
         String field = request.getField();
         Map<String, List<TrendResponse.Count>> trendCounts = new TreeMap<String, List<TrendResponse.Count>>();
         Terms terms = aggregations.get(Utils.sanitizeFieldForAggregation(field));

@@ -50,4 +50,6 @@ public abstract class FilterVisitor {
     public abstract void visit(ExistsFilter existsFilter) throws Exception;
 
     public abstract void visit(LastFilter lastFilter) throws Exception;
+
+    public abstract void visit(MissingFilter missingFilter) throws Exception;
 }

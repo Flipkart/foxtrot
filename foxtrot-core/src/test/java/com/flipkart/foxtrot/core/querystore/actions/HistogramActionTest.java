@@ -16,8 +16,6 @@
 package com.flipkart.foxtrot.core.querystore.actions;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.flipkart.foxtrot.common.Document;
 import com.flipkart.foxtrot.common.Period;
 import com.flipkart.foxtrot.common.histogram.HistogramRequest;
@@ -25,97 +23,43 @@ import com.flipkart.foxtrot.common.histogram.HistogramResponse;
 import com.flipkart.foxtrot.common.query.Filter;
 import com.flipkart.foxtrot.common.query.numeric.GreaterThanFilter;
 import com.flipkart.foxtrot.common.query.numeric.LessThanFilter;
-import com.flipkart.foxtrot.core.MockElasticsearchServer;
 import com.flipkart.foxtrot.core.TestUtils;
-import com.flipkart.foxtrot.core.common.CacheUtils;
-import com.flipkart.foxtrot.core.datastore.DataStore;
-import com.flipkart.foxtrot.core.querystore.QueryExecutor;
-import com.flipkart.foxtrot.core.querystore.QueryStore;
-import com.flipkart.foxtrot.core.querystore.QueryStoreException;
-import com.flipkart.foxtrot.core.querystore.TableMetadataManager;
-import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsLoader;
-import com.flipkart.foxtrot.core.querystore.impl.*;
+import com.flipkart.foxtrot.core.exception.FoxtrotException;
 import com.google.common.collect.Lists;
-import com.hazelcast.core.HazelcastInstance;
-import com.hazelcast.test.TestHazelcastInstanceFactory;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mockito;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.doReturn;
 
 /**
  * Created by rishabh.goyal on 28/04/14.
  */
-public class HistogramActionTest {
-    private QueryExecutor queryExecutor;
-    private final ObjectMapper mapper = new ObjectMapper();
-    private MockElasticsearchServer elasticsearchServer;
-    private HazelcastInstance hazelcastInstance;
-    private JsonNodeFactory factory = JsonNodeFactory.instance;
+public class HistogramActionTest extends ActionTest {
 
     @Before
     public void setUp() throws Exception {
-        ElasticsearchUtils.setMapper(mapper);
-        DataStore dataStore = TestUtils.getDataStore();
-
-        //Initializing Cache Factory
-        hazelcastInstance = new TestHazelcastInstanceFactory(1).newHazelcastInstance();
-        HazelcastConnection hazelcastConnection = Mockito.mock(HazelcastConnection.class);
-        when(hazelcastConnection.getHazelcast()).thenReturn(hazelcastInstance);
-        CacheUtils.setCacheFactory(new DistributedCacheFactory(hazelcastConnection, mapper));
-
-        elasticsearchServer = new MockElasticsearchServer(UUID.randomUUID().toString());
-        ElasticsearchConnection elasticsearchConnection = Mockito.mock(ElasticsearchConnection.class);
-        when(elasticsearchConnection.getClient()).thenReturn(elasticsearchServer.getClient());
-        ElasticsearchUtils.initializeMappings(elasticsearchServer.getClient());
-
-        // Ensure that table exists before saving/reading data from it
-        TableMetadataManager tableMetadataManager = Mockito.mock(TableMetadataManager.class);
-        when(tableMetadataManager.exists(TestUtils.TEST_TABLE_NAME)).thenReturn(true);
-        when(tableMetadataManager.get(anyString())).thenReturn(TestUtils.TEST_TABLE);
-        QueryStore queryStore = new ElasticsearchQueryStore(tableMetadataManager, elasticsearchConnection, dataStore);
-        AnalyticsLoader analyticsLoader = new AnalyticsLoader(tableMetadataManager, dataStore, queryStore, elasticsearchConnection);
-        TestUtils.registerActions(analyticsLoader, mapper);
-        ExecutorService executorService = Executors.newFixedThreadPool(1);
-        queryExecutor = new QueryExecutor(analyticsLoader, executorService);
-        queryExecutor = new QueryExecutor(analyticsLoader, executorService);
-        List<Document> documents = TestUtils.getHistogramDocuments(mapper);
-        queryStore.save(TestUtils.TEST_TABLE_NAME, documents);
-        for (Document document : documents) {
-            elasticsearchServer.getClient().admin().indices()
-                    .prepareRefresh(ElasticsearchUtils.getCurrentIndex(TestUtils.TEST_TABLE_NAME, document.getTimestamp()))
-                    .setForce(true).execute().actionGet();
-        }
+        super.setUp();
+        List<Document> documents = TestUtils.getHistogramDocuments(getMapper());
+        getQueryStore().save(TestUtils.TEST_TABLE_NAME, documents);
+        getElasticsearchServer().getClient().admin().indices().prepareRefresh("*").setForce(true).execute().actionGet();
     }
 
-    @After
-    public void tearDown() throws IOException {
-        elasticsearchServer.shutdown();
-        hazelcastInstance.shutdown();
-    }
 
-    @Test(expected = QueryStoreException.class)
-    public void testHistogramActionAnyException() throws QueryStoreException, JsonProcessingException {
+    @Test(expected = FoxtrotException.class)
+    public void testHistogramActionAnyException() throws FoxtrotException, JsonProcessingException {
         HistogramRequest histogramRequest = new HistogramRequest();
         histogramRequest.setTable(TestUtils.TEST_TABLE_NAME);
         histogramRequest.setPeriod(Period.minutes);
-        when(elasticsearchServer.getClient()).thenReturn(null);
-        queryExecutor.execute(histogramRequest);
+        doReturn(null).when(getElasticsearchConnection()).getClient();
+        getQueryExecutor().execute(histogramRequest);
     }
 
     @Test
-    public void testHistogramActionIntervalMinuteNoFilter() throws QueryStoreException, JsonProcessingException {
+    public void testHistogramActionIntervalMinuteNoFilter() throws FoxtrotException, JsonProcessingException {
         HistogramRequest histogramRequest = new HistogramRequest();
         histogramRequest.setTable(TestUtils.TEST_TABLE_NAME);
         histogramRequest.setPeriod(Period.minutes);
@@ -125,7 +69,7 @@ public class HistogramActionTest {
         lessThanFilter.setValue(System.currentTimeMillis());
         histogramRequest.setFilters(Lists.<Filter>newArrayList(lessThanFilter));
 
-        HistogramResponse response = HistogramResponse.class.cast(queryExecutor.execute(histogramRequest));
+        HistogramResponse response = HistogramResponse.class.cast(getQueryExecutor().execute(histogramRequest));
 
         List<HistogramResponse.Count> counts = new ArrayList<HistogramResponse.Count>();
         counts.add(new HistogramResponse.Count(1397651100000L, 2));
@@ -139,7 +83,7 @@ public class HistogramActionTest {
     }
 
     @Test
-    public void testHistogramActionIntervalMinuteWithFilter() throws QueryStoreException, JsonProcessingException {
+    public void testHistogramActionIntervalMinuteWithFilter() throws FoxtrotException, JsonProcessingException {
         HistogramRequest histogramRequest = new HistogramRequest();
         histogramRequest.setTable(TestUtils.TEST_TABLE_NAME);
         histogramRequest.setPeriod(Period.minutes);
@@ -151,7 +95,7 @@ public class HistogramActionTest {
         lessThanFilter.setField("_timestamp");
         lessThanFilter.setValue(System.currentTimeMillis());
         histogramRequest.setFilters(Lists.<Filter>newArrayList(greaterThanFilter, lessThanFilter));
-        HistogramResponse response = HistogramResponse.class.cast(queryExecutor.execute(histogramRequest));
+        HistogramResponse response = HistogramResponse.class.cast(getQueryExecutor().execute(histogramRequest));
 
         List<HistogramResponse.Count> counts = new ArrayList<HistogramResponse.Count>();
         counts.add(new HistogramResponse.Count(1397651100000L, 1));
@@ -163,7 +107,7 @@ public class HistogramActionTest {
     }
 
     @Test
-    public void testHistogramActionIntervalHourNoFilter() throws QueryStoreException, JsonProcessingException {
+    public void testHistogramActionIntervalHourNoFilter() throws FoxtrotException, JsonProcessingException {
         HistogramRequest histogramRequest = new HistogramRequest();
         histogramRequest.setTable(TestUtils.TEST_TABLE_NAME);
         histogramRequest.setPeriod(Period.hours);
@@ -173,7 +117,7 @@ public class HistogramActionTest {
         lessThanFilter.setValue(System.currentTimeMillis());
         histogramRequest.setFilters(Lists.<Filter>newArrayList(lessThanFilter));
 
-        HistogramResponse response = HistogramResponse.class.cast(queryExecutor.execute(histogramRequest));
+        HistogramResponse response = HistogramResponse.class.cast(getQueryExecutor().execute(histogramRequest));
 
         List<HistogramResponse.Count> counts = new ArrayList<HistogramResponse.Count>();
         counts.add(new HistogramResponse.Count(1397649600000L, 2));
@@ -186,7 +130,7 @@ public class HistogramActionTest {
     }
 
     @Test
-    public void testHistogramActionIntervalHourWithFilter() throws QueryStoreException, JsonProcessingException {
+    public void testHistogramActionIntervalHourWithFilter() throws FoxtrotException, JsonProcessingException {
         HistogramRequest histogramRequest = new HistogramRequest();
         histogramRequest.setTable(TestUtils.TEST_TABLE_NAME);
         histogramRequest.setPeriod(Period.hours);
@@ -201,7 +145,7 @@ public class HistogramActionTest {
         histogramRequest.setFilters(Lists.<Filter>newArrayList(greaterThanFilter, lessThanFilter));
 
 
-        HistogramResponse response = HistogramResponse.class.cast(queryExecutor.execute(histogramRequest));
+        HistogramResponse response = HistogramResponse.class.cast(getQueryExecutor().execute(histogramRequest));
         List<HistogramResponse.Count> counts = new ArrayList<HistogramResponse.Count>();
         counts.add(new HistogramResponse.Count(1397649600000L, 1));
         counts.add(new HistogramResponse.Count(1397656800000L, 3));
@@ -211,7 +155,7 @@ public class HistogramActionTest {
     }
 
     @Test
-    public void testHistogramActionIntervalDayNoFilter() throws QueryStoreException, JsonProcessingException {
+    public void testHistogramActionIntervalDayNoFilter() throws FoxtrotException, JsonProcessingException {
         HistogramRequest histogramRequest = new HistogramRequest();
         histogramRequest.setTable(TestUtils.TEST_TABLE_NAME);
         histogramRequest.setPeriod(Period.days);
@@ -221,7 +165,7 @@ public class HistogramActionTest {
         lessThanFilter.setValue(System.currentTimeMillis());
         histogramRequest.setFilters(Lists.<Filter>newArrayList(lessThanFilter));
 
-        HistogramResponse response = HistogramResponse.class.cast(queryExecutor.execute(histogramRequest));
+        HistogramResponse response = HistogramResponse.class.cast(getQueryExecutor().execute(histogramRequest));
         List<HistogramResponse.Count> counts = new ArrayList<HistogramResponse.Count>();
         counts.add(new HistogramResponse.Count(1397606400000L, 6));
         counts.add(new HistogramResponse.Count(1397692800000L, 1));
@@ -231,7 +175,7 @@ public class HistogramActionTest {
     }
 
     @Test
-    public void testHistogramActionIntervalDayWithFilter() throws QueryStoreException, JsonProcessingException {
+    public void testHistogramActionIntervalDayWithFilter() throws FoxtrotException, JsonProcessingException {
         HistogramRequest histogramRequest = new HistogramRequest();
         histogramRequest.setTable(TestUtils.TEST_TABLE_NAME);
         histogramRequest.setPeriod(Period.days);
@@ -245,7 +189,7 @@ public class HistogramActionTest {
         lessThanFilter.setValue(System.currentTimeMillis());
         histogramRequest.setFilters(Lists.<Filter>newArrayList(greaterThanFilter, lessThanFilter));
 
-        HistogramResponse response = HistogramResponse.class.cast(queryExecutor.execute(histogramRequest));
+        HistogramResponse response = HistogramResponse.class.cast(getQueryExecutor().execute(histogramRequest));
         List<HistogramResponse.Count> counts = new ArrayList<HistogramResponse.Count>();
         counts.add(new HistogramResponse.Count(1397606400000L, 4));
         counts.add(new HistogramResponse.Count(1397952000000L, 1));

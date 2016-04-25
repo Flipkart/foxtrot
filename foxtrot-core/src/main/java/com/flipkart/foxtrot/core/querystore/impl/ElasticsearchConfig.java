@@ -35,6 +35,7 @@ public class ElasticsearchConfig {
     @NotNull
     @JsonProperty
     private String cluster;
+    private String tableNamePrefix = "foxtrot";
 
     public ElasticsearchConfig() {
     }
@@ -53,5 +54,13 @@ public class ElasticsearchConfig {
 
     public void setCluster(String cluster) {
         this.cluster = cluster;
+    }
+
+    public String getTableNamePrefix() {
+        return tableNamePrefix;
+    }
+
+    public void setTableNamePrefix(String tableNamePrefix) {
+        this.tableNamePrefix = tableNamePrefix;
     }
 }

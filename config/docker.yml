@@ -1,0 +1,29 @@
+http:
+  port: 17000
+  adminPort: 17001
+  connectorType: nonblocking
+
+elasticsearch:
+  hosts:
+  - elasticsearch
+  cluster: elasticsearch
+  tableNamePrefix: foxtrot 
+
+hbase:
+  secure : false
+  tableName: foxtrot
+  hbaseZookeeperQuorum: hbase
+  hbaseZookeeperClientPort: 2181
+
+cluster:
+  name: foxtrot
+  disableMulticast: true
+  members: ["localhost:5701", "localhost:5702"]
+
+logging:
+  level: INFO
+
+deletionconfig:
+  active: true
+  interval: 86400
+  initialdelay: 60

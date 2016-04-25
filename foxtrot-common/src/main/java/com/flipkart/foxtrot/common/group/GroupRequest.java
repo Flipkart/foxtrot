@@ -17,9 +17,7 @@ package com.flipkart.foxtrot.common.group;
 
 import com.flipkart.foxtrot.common.ActionRequest;
 import org.apache.commons.lang3.builder.ToStringBuilder;
-import org.hibernate.validator.constraints.NotEmpty;
 
-import javax.validation.constraints.NotNull;
 import java.util.List;
 
 /**
@@ -28,13 +26,9 @@ import java.util.List;
  * Time: 4:52 PM
  */
 public class GroupRequest extends ActionRequest {
-    @NotNull
-    @NotEmpty
+
     private String table;
 
-
-    @NotNull
-    @NotEmpty
     private List<String> nesting;
 
     public GroupRequest() {

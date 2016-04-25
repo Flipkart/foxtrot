@@ -21,16 +21,22 @@ import com.flipkart.foxtrot.common.group.GroupResponse;
 import com.flipkart.foxtrot.common.query.Filter;
 import com.flipkart.foxtrot.common.query.FilterCombinerType;
 import com.flipkart.foxtrot.common.query.general.AnyFilter;
+import com.flipkart.foxtrot.common.util.CollectionUtils;
+import com.flipkart.foxtrot.core.cache.CacheManager;
 import com.flipkart.foxtrot.core.common.Action;
 import com.flipkart.foxtrot.core.datastore.DataStore;
+import com.flipkart.foxtrot.core.exception.FoxtrotException;
+import com.flipkart.foxtrot.core.exception.FoxtrotExceptions;
+import com.flipkart.foxtrot.core.exception.MalformedQueryException;
 import com.flipkart.foxtrot.core.querystore.QueryStore;
-import com.flipkart.foxtrot.core.querystore.QueryStoreException;
-import com.flipkart.foxtrot.core.querystore.TableMetadataManager;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsProvider;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConnection;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
 import com.flipkart.foxtrot.core.querystore.query.ElasticSearchQueryGenerator;
+import com.flipkart.foxtrot.core.table.TableMetadataManager;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import org.elasticsearch.ElasticsearchException;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.search.SearchType;
@@ -38,10 +44,12 @@ import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.Aggregations;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.elasticsearch.search.aggregations.bucket.terms.TermsBuilder;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * User: Santanu Sinha (santanu.sinha@flipkart.com)
@@ -50,15 +58,25 @@ import java.util.*;
  */
 @AnalyticsProvider(opcode = "group", request = GroupRequest.class, response = GroupResponse.class, cacheable = true)
 public class GroupAction extends Action<GroupRequest> {
-    private static final Logger logger = LoggerFactory.getLogger(GroupAction.class.getSimpleName());
 
     public GroupAction(GroupRequest parameter,
                        TableMetadataManager tableMetadataManager,
                        DataStore dataStore,
                        QueryStore queryStore,
                        ElasticsearchConnection connection,
-                       String cacheToken) {
-        super(parameter, tableMetadataManager, dataStore, queryStore, connection, cacheToken);
+                       String cacheToken,
+                       CacheManager cacheManager) {
+        super(parameter, tableMetadataManager, dataStore, queryStore, connection, cacheToken, cacheManager);
+    }
+
+    @Override
+    protected void preprocess() {
+        getParameter().setTable(ElasticsearchUtils.getValidTableName(getParameter().getTable()));
+    }
+
+    @Override
+    public String getMetricKey() {
+        return getParameter().getTable();
     }
 
     @Override
@@ -70,30 +88,43 @@ public class GroupAction extends Action<GroupRequest> {
                 filterHashKey += 31 * filter.hashCode();
             }
         }
-        for (int i = 0; i < query.getNesting().size(); i++){
-            filterHashKey += 31 * query.getNesting().get(i).hashCode() * (i+1);
+        for (int i = 0; i < query.getNesting().size(); i++) {
+            filterHashKey += 31 * query.getNesting().get(i).hashCode() * (i + 1);
         }
         return String.format("%s-%d", query.getTable(), filterHashKey);
     }
 
     @Override
-    public ActionResponse execute(GroupRequest parameter) throws QueryStoreException {
-        parameter.setTable(ElasticsearchUtils.getValidTableName(parameter.getTable()));
-        if (null == parameter.getFilters()) {
-            parameter.setFilters(Lists.<Filter>newArrayList(new AnyFilter(parameter.getTable())));
+    public void validateImpl(GroupRequest parameter) throws MalformedQueryException {
+        List<String> validationErrors = new ArrayList<>();
+        if (CollectionUtils.isNullOrEmpty(parameter.getTable())) {
+            validationErrors.add("table name cannot be null or empty");
         }
-        if (parameter.getTable() == null) {
-            throw new QueryStoreException(QueryStoreException.ErrorCode.INVALID_REQUEST, "Invalid Table");
+
+        if (CollectionUtils.isNullOrEmpty(parameter.getNesting())) {
+            validationErrors.add("at least one grouping parameter is required");
+        } else {
+            validationErrors.addAll(parameter.getNesting().stream()
+                    .filter(CollectionUtils::isNullOrEmpty)
+                    .map(field -> "grouping parameter cannot have null or empty name")
+                    .collect(Collectors.toList()));
         }
+        if (!CollectionUtils.isNullOrEmpty(validationErrors)) {
+            throw FoxtrotExceptions.createMalformedQueryException(parameter, validationErrors);
+        }
+    }
+
+
+    @Override
+    public ActionResponse execute(GroupRequest parameter) throws FoxtrotException {
+        SearchRequestBuilder query;
         try {
-            SearchRequestBuilder query = getConnection().getClient().prepareSearch(ElasticsearchUtils.getIndices(
-                    parameter.getTable(), parameter));
+            query = getConnection().getClient()
+                    .prepareSearch(ElasticsearchUtils.getIndices(parameter.getTable(), parameter))
+                    .setIndicesOptions(Utils.indicesOptions());
             TermsBuilder rootBuilder = null;
             TermsBuilder termsBuilder = null;
             for (String field : parameter.getNesting()) {
-                if (field == null || field.trim().isEmpty()) {
-                    throw new QueryStoreException(QueryStoreException.ErrorCode.INVALID_REQUEST, "Illegal Nesting Parameters");
-                }
                 if (null == termsBuilder) {
                     termsBuilder = AggregationBuilders.terms(Utils.sanitizeFieldForAggregation(field)).field(field);
                 } else {
@@ -110,30 +141,29 @@ public class GroupAction extends Action<GroupRequest> {
                     .genFilter(parameter.getFilters()))
                     .setSearchType(SearchType.COUNT)
                     .addAggregation(rootBuilder);
+        } catch (Exception e) {
+            throw FoxtrotExceptions.queryCreationException(parameter, e);
+        }
+        try {
             SearchResponse response = query.execute().actionGet();
             List<String> fields = parameter.getNesting();
             Aggregations aggregations = response.getAggregations();
             // Check if any aggregation is present or not
             if (aggregations == null) {
-                logger.error("Null response for Group. Request : " + parameter.toString());
                 return new GroupResponse(Collections.<String, Object>emptyMap());
             }
             return new GroupResponse(getMap(fields, aggregations));
-        } catch (QueryStoreException ex) {
-            throw ex;
-        } catch (Exception e) {
-            logger.error("Error running grouping: ", e);
-            throw new QueryStoreException(QueryStoreException.ErrorCode.QUERY_EXECUTION_ERROR,
-                    "Error running group query.", e);
+        } catch (ElasticsearchException e) {
+            throw FoxtrotExceptions.createQueryExecutionException(parameter, e);
         }
     }
 
     private Map<String, Object> getMap(List<String> fields, Aggregations aggregations) {
         final String field = fields.get(0);
         final List<String> remainingFields = (fields.size() > 1) ? fields.subList(1, fields.size())
-                : new ArrayList<String>();
+                : new ArrayList<>();
         Terms terms = aggregations.get(Utils.sanitizeFieldForAggregation(field));
-        Map<String, Object> levelCount = new HashMap<String, Object>();
+        Map<String, Object> levelCount = Maps.newHashMap();
         for (Terms.Bucket bucket : terms.getBuckets()) {
             if (fields.size() == 1) {
                 levelCount.put(bucket.getKey(), bucket.getDocCount());

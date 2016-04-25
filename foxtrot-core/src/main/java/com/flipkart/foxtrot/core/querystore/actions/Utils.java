@@ -1,8 +1,14 @@
 package com.flipkart.foxtrot.core.querystore.actions;
 
+import com.flipkart.foxtrot.core.common.Action;
+import org.elasticsearch.action.support.IndicesOptions;
 import org.elasticsearch.search.aggregations.AbstractAggregationBuilder;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.bucket.histogram.DateHistogram;
+import org.reflections.Reflections;
+import org.reflections.scanners.SubTypesScanner;
+
+import java.util.Set;
 
 /**
  * Created by rishabh.goyal on 24/08/14.
@@ -40,5 +46,17 @@ public class Utils {
 
     public static String getDateHistogramKey(String field){
         return sanitizeFieldForAggregation(field) + "_date_histogram";
+    }
+    
+    public static IndicesOptions indicesOptions() {
+        return IndicesOptions.lenientExpandOpen();
+    }
+
+    public static void main(String[] args) throws Exception {
+        Reflections reflections = new Reflections("com.flipkart.foxtrot", new SubTypesScanner());
+        Set<Class<? extends Action>> actions = reflections.getSubTypesOf(Action.class);
+        if (actions.isEmpty()) {
+            throw new Exception("No analytics actions found!!");
+        }
     }
 }

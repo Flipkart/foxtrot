@@ -60,6 +60,14 @@ public abstract class HBaseUtil {
                     hbaseConfig.getAuthString(), hbaseConfig.getKeytabFileName());
             logger.info("Logged into Hbase with User: " + UserGroupInformation.getLoginUser());
         }
+
+        if(null != hbaseConfig.getHbaseZookeeperQuorum()){
+            configuration.set("hbase.zookeeper.quorum", hbaseConfig.getHbaseZookeeperQuorum());
+        }
+
+        if(null != hbaseConfig.getHbaseZookeeperClientPort()){
+            configuration.setInt("hbase.zookeeper.property.clientPort", hbaseConfig.getHbaseZookeeperClientPort());
+        }
         return configuration;
     }
 
@@ -69,17 +77,14 @@ public abstract class HBaseUtil {
     }
 
     public static void createTable(final HbaseConfig hbaseConfig, final String tableName) throws IOException {
-        HBaseAdmin hBaseAdmin = new HBaseAdmin(HBaseUtil.create(hbaseConfig));
         HTableDescriptor hTableDescriptor = new HTableDescriptor(tableName);
         HColumnDescriptor columnDescriptor = new HColumnDescriptor("d");
         columnDescriptor.setCompressionType(Compression.Algorithm.GZ);
         hTableDescriptor.addFamily(columnDescriptor);
-        try {
+        try (HBaseAdmin hBaseAdmin = new HBaseAdmin(HBaseUtil.create(hbaseConfig))) {
             hBaseAdmin.createTable(hTableDescriptor);
         } catch (Exception e) {
             logger.error("Could not create table: " + tableName, e);
-        } finally {
-            hBaseAdmin.close();
         }
     }
 }

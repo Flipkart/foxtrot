@@ -1,12 +1,12 @@
 /**
  * Copyright 2014 Flipkart Internet Pvt. Ltd.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -21,7 +21,7 @@ import com.flipkart.foxtrot.common.query.FilterVisitor;
 import com.flipkart.foxtrot.common.query.datetime.TimeWindow;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
-import javax.validation.constraints.NotNull;
+import java.util.Set;
 
 /**
  * User: Santanu Sinha (santanu.sinha@flipkart.com)
@@ -29,10 +29,11 @@ import javax.validation.constraints.NotNull;
  * Time: 2:10 AM
  */
 public class BetweenFilter extends Filter {
+
     private boolean temporal = false;
-    @NotNull
+
     private Number from;
-    @NotNull
+
     private Number to;
 
     public BetweenFilter() {
@@ -77,11 +78,10 @@ public class BetweenFilter extends Filter {
     @Override
     public int hashCode() {
         int result = super.hashCode();
-        if(!temporal) {
+        if (!temporal) {
             result = 31 * result + from.hashCode();
             result = 31 * result + to.hashCode();
-        }
-        else {
+        } else {
             result = new TimeWindow(from.longValue(), to.longValue()).hashCode();
         }
         return result;
@@ -104,5 +104,18 @@ public class BetweenFilter extends Filter {
 
     public void setTemporal(boolean temporal) {
         this.temporal = temporal;
+    }
+
+    @Override
+    public Set<String> validate() {
+        Set<String> validationErrors = super.validate();
+        if (from == null) {
+            validationErrors.add("from field cannot be null");
+        }
+
+        if (to == null) {
+            validationErrors.add("to field cannot be null");
+        }
+        return validationErrors;
     }
 }

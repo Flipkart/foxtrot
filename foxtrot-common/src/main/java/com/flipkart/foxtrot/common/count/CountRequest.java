@@ -1,17 +1,17 @@
 package com.flipkart.foxtrot.common.count;
 
 import com.flipkart.foxtrot.common.ActionRequest;
-import org.hibernate.validator.constraints.NotEmpty;
+import com.flipkart.foxtrot.common.util.CollectionUtils;
+import org.apache.commons.lang3.builder.ToStringBuilder;
 
-import javax.validation.constraints.NotNull;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Created by rishabh.goyal on 02/11/14.
  */
 public class CountRequest extends ActionRequest {
 
-    @NotNull
-    @NotEmpty
     private String table;
 
     private String field;
@@ -48,11 +48,11 @@ public class CountRequest extends ActionRequest {
 
     @Override
     public String toString() {
-        return "CountRequest{" +
-                "table='" + table + '\'' +
-                ", field='" + field + '\'' +
-                ", isDistinct=" + isDistinct +
-                ", filters=" + getFilters() +
-                '}';
+        return new ToStringBuilder(this)
+                .appendSuper(super.toString())
+                .append("table", table)
+                .append("field", field)
+                .append("isDistinct", isDistinct)
+                .toString();
     }
 }

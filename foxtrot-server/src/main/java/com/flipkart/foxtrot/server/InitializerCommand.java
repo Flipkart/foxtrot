@@ -62,7 +62,7 @@ public class InitializerCommand extends ConfiguredCommand<FoxtrotServerConfigura
         createMetaIndex(connection, "table-meta", numDataNodes - 1);
 
         PutIndexTemplateResponse response = new PutIndexTemplateRequestBuilder(connection.getClient().admin().indices(), "template_foxtrot_mappings")
-                .setTemplate("foxtrot-*")
+                .setTemplate(String.format("%s-*",configuration.getElasticsearch().getTableNamePrefix()))
                 .setSettings(
                         ImmutableSettings.builder()
                                 .put("number_of_shards", 10)

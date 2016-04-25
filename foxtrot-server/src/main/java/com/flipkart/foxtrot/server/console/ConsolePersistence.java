@@ -15,11 +15,13 @@
  */
 package com.flipkart.foxtrot.server.console;
 
+import com.flipkart.foxtrot.core.exception.FoxtrotException;
+
 import java.util.List;
 
 public interface ConsolePersistence {
-    public void save(Console console) throws ConsolePersistenceException;
-    public Console get(final String id) throws ConsolePersistenceException;
-    public List<Console> get() throws ConsolePersistenceException;
-    public void delete(final String id) throws ConsolePersistenceException;
+    public void save(Console console) throws FoxtrotException;
+    public Console get(final String id) throws FoxtrotException;
+    public List<Console> get() throws FoxtrotException;
+    public void delete(final String id) throws FoxtrotException;
 }

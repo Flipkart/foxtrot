@@ -18,9 +18,7 @@ package com.flipkart.foxtrot.common.trend;
 import com.flipkart.foxtrot.common.ActionRequest;
 import com.flipkart.foxtrot.common.Period;
 import org.apache.commons.lang3.builder.ToStringBuilder;
-import org.hibernate.validator.constraints.NotEmpty;
 
-import javax.validation.constraints.NotNull;
 import java.util.List;
 
 /**
@@ -29,12 +27,9 @@ import java.util.List;
  * Time: 2:30 PM
  */
 public class TrendRequest extends ActionRequest {
-    @NotNull
-    @NotEmpty
+
     private String table;
 
-    @NotNull
-    @NotEmpty
     private String field;
 
     private String timestamp = "_timestamp";

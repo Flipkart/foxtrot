@@ -22,9 +22,11 @@ import com.flipkart.foxtrot.common.query.datetime.LastFilter;
 import com.flipkart.foxtrot.common.query.general.*;
 import com.flipkart.foxtrot.common.query.numeric.*;
 import com.flipkart.foxtrot.common.query.string.ContainsFilter;
+import com.flipkart.foxtrot.common.util.CollectionUtils;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
-import javax.validation.constraints.NotNull;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * User: Santanu Sinha (santanu.sinha@flipkart.com)
@@ -46,6 +48,7 @@ import javax.validation.constraints.NotNull;
         @JsonSubTypes.Type(value = NotEqualsFilter.class, name = FilterOperator.not_equals),
         @JsonSubTypes.Type(value = AnyFilter.class, name = FilterOperator.any),
         @JsonSubTypes.Type(value = ExistsFilter.class, name = FilterOperator.exists),
+        @JsonSubTypes.Type(value = MissingFilter.class, name = FilterOperator.missing),
 
         //String
         @JsonSubTypes.Type(value = ContainsFilter.class, name = FilterOperator.contains),
@@ -58,7 +61,6 @@ public abstract class Filter {
     @JsonIgnore
     private final String operator;
 
-    @NotNull
     private String field;
 
     protected Filter(String operator) {
@@ -115,6 +117,14 @@ public abstract class Filter {
 
     public boolean isTemporal() {
         return false;
+    }
+
+    public Set<String> validate() {
+        Set<String> validationErrors = new HashSet<>();
+        if (CollectionUtils.isNullOrEmpty(field)) {
+            validationErrors.add("filter field cannot be null or empty");
+        }
+        return validationErrors;
     }
 
 }

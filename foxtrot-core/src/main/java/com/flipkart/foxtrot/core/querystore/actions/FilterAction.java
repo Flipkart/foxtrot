@@ -17,27 +17,30 @@ package com.flipkart.foxtrot.core.querystore.actions;
 
 import com.flipkart.foxtrot.common.Document;
 import com.flipkart.foxtrot.common.query.*;
-import com.flipkart.foxtrot.common.query.general.AnyFilter;
+import com.flipkart.foxtrot.common.util.CollectionUtils;
+import com.flipkart.foxtrot.core.cache.CacheManager;
 import com.flipkart.foxtrot.core.common.Action;
 import com.flipkart.foxtrot.core.datastore.DataStore;
+import com.flipkart.foxtrot.core.exception.FoxtrotException;
+import com.flipkart.foxtrot.core.exception.FoxtrotExceptions;
+import com.flipkart.foxtrot.core.exception.MalformedQueryException;
 import com.flipkart.foxtrot.core.querystore.QueryStore;
-import com.flipkart.foxtrot.core.querystore.QueryStoreException;
-import com.flipkart.foxtrot.core.querystore.TableMetadataManager;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsProvider;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConnection;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
 import com.flipkart.foxtrot.core.querystore.query.ElasticSearchQueryGenerator;
-import com.google.common.collect.Lists;
+import com.flipkart.foxtrot.core.table.TableMetadataManager;
+import org.elasticsearch.ElasticsearchException;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.search.SearchType;
 import org.elasticsearch.search.SearchHit;
+import org.elasticsearch.search.SearchHits;
 import org.elasticsearch.search.sort.SortOrder;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Vector;
+import java.util.List;
 
 /**
  * User: Santanu Sinha (santanu.sinha@flipkart.com)
@@ -46,15 +49,31 @@ import java.util.Vector;
  */
 @AnalyticsProvider(opcode = "query", request = Query.class, response = QueryResponse.class, cacheable = false)
 public class FilterAction extends Action<Query> {
-    private static final Logger logger = LoggerFactory.getLogger(FilterAction.class);
 
     public FilterAction(Query parameter,
                         TableMetadataManager tableMetadataManager,
                         DataStore dataStore,
                         QueryStore queryStore,
                         ElasticsearchConnection connection,
-                        String cacheToken) {
-        super(parameter, tableMetadataManager, dataStore, queryStore, connection, cacheToken);
+                        String cacheToken,
+                        CacheManager cacheManager) {
+        super(parameter, tableMetadataManager, dataStore, queryStore, connection, cacheToken, cacheManager);
+    }
+
+    @Override
+    protected void preprocess() {
+        getParameter().setTable(ElasticsearchUtils.getValidTableName(getParameter().getTable()));
+        if (null == getParameter().getSort()) {
+            ResultSort resultSort = new ResultSort();
+            resultSort.setField("_timestamp");
+            resultSort.setOrder(ResultSort.Order.desc);
+            getParameter().setSort(resultSort);
+        }
+    }
+
+    @Override
+    public String getMetricKey() {
+        return getParameter().getTable();
     }
 
     @Override
@@ -73,49 +92,57 @@ public class FilterAction extends Action<Query> {
     }
 
     @Override
-    public QueryResponse execute(Query parameter) throws QueryStoreException {
-        parameter.setTable(ElasticsearchUtils.getValidTableName(parameter.getTable()));
-        if (null == parameter.getFilters() || parameter.getFilters().isEmpty()) {
-            parameter.setFilters(Lists.<Filter>newArrayList(new AnyFilter(parameter.getTable())));
+    public void validateImpl(Query parameter) throws MalformedQueryException {
+        List<String> validationErrors = new ArrayList<>();
+        if (CollectionUtils.isNullOrEmpty(parameter.getTable())) {
+            validationErrors.add("table name cannot be null or empty");
         }
-        if (null == parameter.getSort()) {
-            ResultSort resultSort = new ResultSort();
-            resultSort.setField("_timestamp");
-            resultSort.setOrder(ResultSort.Order.desc);
-            parameter.setSort(resultSort);
+        if (parameter.getSort() == null) {
+            validationErrors.add("sort order needs to be specified");
         }
-        SearchRequestBuilder search = null;
-        SearchResponse response;
+
+        if (parameter.getFrom() < 0) {
+            validationErrors.add("from must be non-negative integer");
+        }
+
+        if (parameter.getLimit() <= 0) {
+            validationErrors.add("limit must be positive integer");
+        }
+
+        if (!CollectionUtils.isNullOrEmpty(validationErrors)) {
+            throw FoxtrotExceptions.createMalformedQueryException(parameter, validationErrors);
+        }
+    }
+
+    @Override
+    public QueryResponse execute(Query parameter) throws FoxtrotException {
+        SearchRequestBuilder search;
         try {
-            /*if(!tableManager.exists(query.getTable())) {
-                throw new QueryStoreException(QueryStoreException.ErrorCode.NO_SUCH_TABLE,
-                        "There is no table called: " + query.getTable());
-            }*/
             search = getConnection().getClient().prepareSearch(ElasticsearchUtils.getIndices(parameter.getTable(), parameter))
-                    .setTypes(ElasticsearchUtils.TYPE_NAME)
+                    .setTypes(ElasticsearchUtils.DOCUMENT_TYPE_NAME)
+                    .setIndicesOptions(Utils.indicesOptions())
                     .setQuery(new ElasticSearchQueryGenerator(FilterCombinerType.and).genFilter(parameter.getFilters()))
                     .setSearchType(SearchType.QUERY_THEN_FETCH)
                     .setFrom(parameter.getFrom())
+                    .addSort(parameter.getSort().getField(),
+                            ResultSort.Order.desc == parameter.getSort().getOrder() ? SortOrder.DESC : SortOrder.ASC)
                     .setSize(parameter.getLimit());
-            search.addSort(parameter.getSort().getField(),
-                    ResultSort.Order.desc == parameter.getSort().getOrder() ? SortOrder.DESC : SortOrder.ASC);
-            response = search.execute().actionGet();
-            Vector<String> ids = new Vector<String>();
-            for (SearchHit searchHit : response.getHits()) {
+        } catch (Exception e) {
+            throw FoxtrotExceptions.queryCreationException(parameter, e);
+        }
+        try {
+            SearchResponse response = search.execute().actionGet();
+            List<String> ids = new ArrayList<>();
+            SearchHits searchHits = response.getHits();
+            for (SearchHit searchHit : searchHits) {
                 ids.add(searchHit.getId());
             }
             if (ids.isEmpty()) {
-                return new QueryResponse(Collections.<Document>emptyList());
+                return new QueryResponse(Collections.<Document>emptyList(), 0);
             }
-            return new QueryResponse(getQueryStore().get(parameter.getTable(), ids));
-        } catch (Exception e) {
-            if (null != search) {
-                logger.error("Error running generated query: " + search, e);
-            } else {
-                logger.error("Query generation error: ", e);
-            }
-            throw new QueryStoreException(QueryStoreException.ErrorCode.QUERY_EXECUTION_ERROR,
-                    "Error running query: " + parameter.toString());
+            return new QueryResponse(getQueryStore().getAll(parameter.getTable(), ids, true), searchHits.totalHits());
+        } catch (ElasticsearchException e) {
+            throw FoxtrotExceptions.createQueryExecutionException(parameter, e);
         }
     }
 }

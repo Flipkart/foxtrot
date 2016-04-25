@@ -18,24 +18,19 @@ package com.flipkart.foxtrot.common.query;
 import com.flipkart.foxtrot.common.ActionRequest;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
-import javax.validation.constraints.Min;
-import javax.validation.constraints.NotNull;
-
 /**
  * User: Santanu Sinha (santanu.sinha@flipkart.com)
  * Date: 13/03/14
  * Time: 6:38 PM
  */
 public class Query extends ActionRequest {
-    @NotNull
+
     private String table;
 
     private ResultSort sort;
 
-    @Min(0)
     private int from = 0;
 
-    @Min(10)
     private int limit = 10;
 
     public Query() {
@@ -75,6 +70,7 @@ public class Query extends ActionRequest {
     public void setLimit(int limit) {
         this.limit = limit;
     }
+
 
     @Override
     public String toString() {

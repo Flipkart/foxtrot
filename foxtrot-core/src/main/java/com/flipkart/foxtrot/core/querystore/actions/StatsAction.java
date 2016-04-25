@@ -2,30 +2,35 @@ package com.flipkart.foxtrot.core.querystore.actions;
 
 import com.flipkart.foxtrot.common.ActionResponse;
 import com.flipkart.foxtrot.common.query.Filter;
-import com.flipkart.foxtrot.common.query.general.AnyFilter;
+import com.flipkart.foxtrot.common.query.FilterCombinerType;
 import com.flipkart.foxtrot.common.stats.StatsRequest;
 import com.flipkart.foxtrot.common.stats.StatsResponse;
 import com.flipkart.foxtrot.common.stats.StatsValue;
+import com.flipkart.foxtrot.common.util.CollectionUtils;
+import com.flipkart.foxtrot.core.cache.CacheManager;
 import com.flipkart.foxtrot.core.common.Action;
 import com.flipkart.foxtrot.core.datastore.DataStore;
+import com.flipkart.foxtrot.core.exception.FoxtrotException;
+import com.flipkart.foxtrot.core.exception.FoxtrotExceptions;
+import com.flipkart.foxtrot.core.exception.MalformedQueryException;
 import com.flipkart.foxtrot.core.querystore.QueryStore;
-import com.flipkart.foxtrot.core.querystore.QueryStoreException;
-import com.flipkart.foxtrot.core.querystore.TableMetadataManager;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsProvider;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConnection;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
 import com.flipkart.foxtrot.core.querystore.query.ElasticSearchQueryGenerator;
+import com.flipkart.foxtrot.core.table.TableMetadataManager;
 import com.google.common.collect.Lists;
-import org.elasticsearch.action.search.SearchResponse;
+import com.google.common.collect.Maps;
+import org.apache.commons.lang3.StringUtils;
+import org.elasticsearch.ElasticsearchException;
+import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchType;
 import org.elasticsearch.search.aggregations.Aggregations;
 import org.elasticsearch.search.aggregations.metrics.percentiles.InternalPercentiles;
 import org.elasticsearch.search.aggregations.metrics.percentiles.Percentile;
 import org.elasticsearch.search.aggregations.metrics.stats.extended.InternalExtendedStats;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -35,15 +40,24 @@ import java.util.Map;
 @AnalyticsProvider(opcode = "stats", request = StatsRequest.class, response = StatsResponse.class, cacheable = false)
 public class StatsAction extends Action<StatsRequest> {
 
-    private static final Logger logger = LoggerFactory.getLogger(StatsAction.class.getSimpleName());
-
     public StatsAction(StatsRequest parameter,
                        TableMetadataManager tableMetadataManager,
                        DataStore dataStore,
                        QueryStore queryStore,
                        ElasticsearchConnection connection,
-                       String cacheToken) {
-        super(parameter, tableMetadataManager, dataStore, queryStore, connection, cacheToken);
+                       String cacheToken,
+                       CacheManager cacheManager) {
+        super(parameter, tableMetadataManager, dataStore, queryStore, connection, cacheToken, cacheManager);
+    }
+
+    @Override
+    protected void preprocess() {
+        getParameter().setTable(ElasticsearchUtils.getValidTableName(getParameter().getTable()));
+    }
+
+    @Override
+    public String getMetricKey() {
+        return getParameter().getTable();
     }
 
     @Override
@@ -60,36 +74,43 @@ public class StatsAction extends Action<StatsRequest> {
     }
 
     @Override
-    public ActionResponse execute(StatsRequest request) throws QueryStoreException {
-        request.setTable(ElasticsearchUtils.getValidTableName(request.getTable()));
-        if (null == request.getFilters()) {
-            request.setFilters(Lists.<Filter>newArrayList(new AnyFilter(request.getTable())));
+    public void validateImpl(StatsRequest parameter) throws MalformedQueryException {
+        List<String> validationErrors = Lists.newArrayList();
+        if (CollectionUtils.isNullOrEmpty(parameter.getTable())) {
+            validationErrors.add("table name cannot be null or empty");
         }
-        if (null == request.getTable()) {
-            throw new QueryStoreException(QueryStoreException.ErrorCode.INVALID_REQUEST, "Invalid Table");
+        if (CollectionUtils.isNullOrEmpty(parameter.getField())) {
+            validationErrors.add("field name cannot be null or empty");
         }
+        if (parameter.getCombiner() == null) {
+            validationErrors.add(String.format("specify filter combiner (%s)", StringUtils.join(FilterCombinerType.values())));
+        }
+    }
 
+    @Override
+    public ActionResponse execute(StatsRequest parameter) throws FoxtrotException {
+        SearchRequestBuilder searchRequestBuilder;
         try {
-            SearchResponse response = getConnection().getClient().prepareSearch(
-                    ElasticsearchUtils.getIndices(request.getTable(), request))
-                    .setTypes(ElasticsearchUtils.TYPE_NAME)
-                    .setQuery(new ElasticSearchQueryGenerator(request.getCombiner()).genFilter(request.getFilters()))
+            searchRequestBuilder = getConnection().getClient().prepareSearch(
+                    ElasticsearchUtils.getIndices(parameter.getTable(), parameter))
+                    .setTypes(ElasticsearchUtils.DOCUMENT_TYPE_NAME)
+                    .setIndicesOptions(Utils.indicesOptions())
+                    .setQuery(new ElasticSearchQueryGenerator(parameter.getCombiner()).genFilter(parameter.getFilters()))
                     .setSize(0)
                     .setSearchType(SearchType.COUNT)
-                    .addAggregation(Utils.buildExtendedStatsAggregation(request.getField()))
-                    .addAggregation(Utils.buildPercentileAggregation(request.getField()))
-                    .execute()
-                    .actionGet();
-
-            Aggregations aggregations = response.getAggregations();
+                    .addAggregation(Utils.buildExtendedStatsAggregation(parameter.getField()))
+                    .addAggregation(Utils.buildPercentileAggregation(parameter.getField()));
+        } catch (Exception e) {
+            throw FoxtrotExceptions.queryCreationException(parameter, e);
+        }
+        try {
+            Aggregations aggregations = searchRequestBuilder.execute().actionGet().getAggregations();
             if (aggregations != null) {
-                return buildResponse(request, aggregations);
+                return buildResponse(parameter, aggregations);
             }
             return null;
-        } catch (Exception e) {
-            logger.error("Error running stats query: ", e);
-            throw new QueryStoreException(QueryStoreException.ErrorCode.QUERY_EXECUTION_ERROR,
-                    "Error running stats query.", e);
+        } catch (ElasticsearchException e) {
+            throw FoxtrotExceptions.createQueryExecutionException(parameter, e);
         }
     }
 
@@ -100,7 +121,7 @@ public class StatsAction extends Action<StatsRequest> {
         StatsValue statsValue = new StatsValue();
 
         InternalExtendedStats extendedStats = InternalExtendedStats.class.cast(aggregations.getAsMap().get(metricKey));
-        Map<String, Number> stats = new HashMap<String, Number>();
+        Map<String, Number> stats = Maps.newHashMap();
         stats.put("avg", extendedStats.getAvg());
         stats.put("sum", extendedStats.getSum());
         stats.put("count", extendedStats.getCount());
@@ -112,7 +133,7 @@ public class StatsAction extends Action<StatsRequest> {
         statsValue.setStats(stats);
 
         InternalPercentiles internalPercentile = InternalPercentiles.class.cast(aggregations.getAsMap().get(percentileMetricKey));
-        Map<Number, Number> percentiles = new HashMap<Number, Number>();
+        Map<Number, Number> percentiles = Maps.newHashMap();
         for (Percentile percentile : internalPercentile) {
             percentiles.put(percentile.getPercent(), percentile.getValue());
         }

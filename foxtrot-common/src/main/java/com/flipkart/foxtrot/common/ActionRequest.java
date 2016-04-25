@@ -36,4 +36,5 @@ public abstract class ActionRequest {
     public void setFilters(List<Filter> filters) {
         this.filters = filters;
     }
+
 }

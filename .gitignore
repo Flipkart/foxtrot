@@ -36,3 +36,5 @@
 */dependency-reduced-pom.xml
 
 .DS_Store
+target/*
+config/test.yml

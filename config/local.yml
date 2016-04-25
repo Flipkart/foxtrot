@@ -7,10 +7,13 @@ elasticsearch:
   hosts:
   - localhost
   cluster: foxtrot
+  tableNamePrefix: foxtrot
 
 hbase:
   secure : false
   tableName: foxtrot
+  hbaseZookeeperQuorum: localhost
+  hbaseZookeeperClientPort: 2181
 
 cluster:
   name: foxtrot

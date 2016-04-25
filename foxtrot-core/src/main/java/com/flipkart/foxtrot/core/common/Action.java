@@ -18,17 +18,27 @@ package com.flipkart.foxtrot.core.common;
 import com.flipkart.foxtrot.common.ActionRequest;
 import com.flipkart.foxtrot.common.ActionResponse;
 import com.flipkart.foxtrot.common.query.Filter;
+import com.flipkart.foxtrot.common.query.general.AnyFilter;
 import com.flipkart.foxtrot.common.query.numeric.LessThanFilter;
+import com.flipkart.foxtrot.common.util.CollectionUtils;
+import com.flipkart.foxtrot.core.cache.Cache;
+import com.flipkart.foxtrot.core.cache.CacheManager;
 import com.flipkart.foxtrot.core.datastore.DataStore;
+import com.flipkart.foxtrot.core.exception.FoxtrotException;
+import com.flipkart.foxtrot.core.exception.FoxtrotExceptions;
+import com.flipkart.foxtrot.core.exception.MalformedQueryException;
 import com.flipkart.foxtrot.core.querystore.QueryStore;
-import com.flipkart.foxtrot.core.querystore.QueryStoreException;
-import com.flipkart.foxtrot.core.querystore.TableMetadataManager;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConnection;
+import com.flipkart.foxtrot.core.table.TableMetadataManager;
+import com.flipkart.foxtrot.core.util.MetricUtil;
+import com.google.common.base.Stopwatch;
 import com.google.common.collect.Lists;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 
@@ -46,87 +56,152 @@ public abstract class Action<ParameterType extends ActionRequest> implements Cal
     private final TableMetadataManager tableMetadataManager;
     private final QueryStore queryStore;
     private final String cacheToken;
-    private final Cache cache;
-    private String cacheKey = null;
+    private final CacheManager cacheManager;
 
     protected Action(ParameterType parameter,
                      TableMetadataManager tableMetadataManager,
                      DataStore dataStore,
                      QueryStore queryStore,
                      ElasticsearchConnection connection,
-                     String cacheToken) {
+                     String cacheToken,
+                     CacheManager cacheManager) {
         this.parameter = parameter;
         this.tableMetadataManager = tableMetadataManager;
         this.queryStore = queryStore;
         this.cacheToken = cacheToken;
-        this.cache = CacheUtils.getCacheFor(this.cacheToken);
+        this.cacheManager = cacheManager;
         this.connection = connection;
         this.dataStore = dataStore;
     }
 
     public String cacheKey() {
-        if (null == cacheKey) {
-            cacheKey = String.format("%s-%d", getRequestCacheKey(), System.currentTimeMillis() / 30000);//UUID.nameUUIDFromBytes(childKey.getBytes()).toString();
-        }
-        return cacheKey;
+        return String.format("%s-%d", getRequestCacheKey(), System.currentTimeMillis() / 30000);
     }
 
-    public AsyncDataToken execute(ExecutorService executor) {
+    public AsyncDataToken execute(ExecutorService executor) throws FoxtrotException {
+        preProcessRequest();
         executor.submit(this);
         return new AsyncDataToken(cacheToken, cacheKey());
     }
 
+    private void preProcessRequest() throws MalformedQueryException {
+        if (parameter.getFilters() == null) {
+            parameter.setFilters(Lists.<Filter>newArrayList(new AnyFilter()));
+        }
+        preprocess();
+        parameter.setFilters(checkAndAddTemporalBoundary(parameter.getFilters()));
+        validateBase(parameter);
+        validateImpl(parameter);
+    }
+
+    protected abstract void preprocess();
+
     @Override
     public String call() throws Exception {
         final String cacheKey = cacheKey();
-        cache.put(cacheKey, execute(parameter));
+        cacheManager.getCacheFor(this.cacheToken).put(cacheKey, execute(parameter));
         return cacheKey;
     }
 
-    public ActionResponse execute() throws QueryStoreException {
+    public ActionResponse execute() throws FoxtrotException {
+        preProcessRequest();
+        ActionResponse cachedData = readCachedData();
+        if (cachedData != null) {
+            return cachedData;
+        }
+        Stopwatch stopwatch = new Stopwatch();
+        try {
+            stopwatch.start();
+            ActionResponse result = execute(parameter);
+
+            // Publish success metrics
+            MetricUtil.getInstance().registerActionSuccess(cacheToken, getMetricKey(), stopwatch.elapsedMillis());
+
+            // Now cache data
+            updateCachedData(result);
+
+            return result;
+        } catch (FoxtrotException e) {
+            // Publish failure metrics
+            MetricUtil.getInstance().registerActionFailure(cacheToken, getMetricKey(), stopwatch.elapsedMillis());
+            throw e;
+        }
+    }
+
+    private void updateCachedData(ActionResponse result) {
+        Cache cache = cacheManager.getCacheFor(this.cacheToken);
+        if (isCacheable()) {
+            cache.put(cacheKey(), result);
+        }
+    }
+
+    protected ActionResponse readCachedData() {
+        Cache cache = cacheManager.getCacheFor(this.cacheToken);
         final String cacheKeyValue = cacheKey();
         if (isCacheable()) {
             if (cache.has(cacheKeyValue)) {
+                MetricUtil.getInstance().registerActionCacheHit(cacheToken, getMetricKey());
                 logger.info("Cache hit for key: " + cacheKeyValue);
                 return cache.get(cacheKey());
+            } else {
+                MetricUtil.getInstance().registerActionCacheMiss(cacheToken, getMetricKey());
+                logger.info("Cache miss for key: " + cacheKeyValue);
             }
         }
-        logger.info("Cache miss for key: " + cacheKeyValue);
-        parameter.setFilters(checkAndAddTemporalBoundary(parameter.getFilters()));
-        ActionResponse result = execute(parameter);
-        if (isCacheable()) {
-            logger.info("Cache load for key: " + cacheKeyValue);
-            return cache.put(cacheKey(), result);
-        }
-        return result;
+        return null;
     }
+
+    private void validateBase(ParameterType parameter) throws MalformedQueryException {
+        List<String> validationErrors = new ArrayList<>();
+        if (!CollectionUtils.isNullOrEmpty(parameter.getFilters())) {
+            for (Filter filter : parameter.getFilters()) {
+                Set<String> errors = filter.validate();
+                if (!CollectionUtils.isNullOrEmpty(errors)) {
+                    validationErrors.addAll(errors);
+                }
+            }
+        }
+        if (!CollectionUtils.isNullOrEmpty(validationErrors)) {
+            throw FoxtrotExceptions.createMalformedQueryException(parameter, validationErrors);
+        }
+    }
+
+    public void validateImpl() throws MalformedQueryException {
+        validateImpl(parameter);
+    }
+
+    /**
+     * Returns a metric key for current action. Ideally this key's cardinality should be less since each new value of
+     * this key will create new JMX metric
+     *
+     * Sample use cases - Used for reporting per action
+     * success/failure metrics
+     * cache hit/miss metrics
+     *
+     * @return metric key for current action
+     */
+    abstract public String getMetricKey();
+
+    abstract protected String getRequestCacheKey();
+
+    abstract public void validateImpl(ParameterType parameter) throws MalformedQueryException;
+
+    abstract public ActionResponse execute(ParameterType parameter) throws FoxtrotException;
 
     protected ParameterType getParameter() {
         return parameter;
     }
 
     public final boolean isCacheable() {
-        return cache != null;
+        return cacheManager.getCacheFor(this.cacheToken) != null;
     }
-
-    abstract protected String getRequestCacheKey();
-
-    abstract public ActionResponse execute(ParameterType parameter) throws QueryStoreException;
 
     public DataStore getDataStore() {
         return dataStore;
     }
 
-    public void setDataStore(DataStore dataStore) {
-        this.dataStore = dataStore;
-    }
-
     public ElasticsearchConnection getConnection() {
         return connection;
-    }
-
-    public void setConnection(ElasticsearchConnection connection) {
-        this.connection = connection;
     }
 
     public TableMetadataManager getTableMetadataManager() {
@@ -146,17 +221,16 @@ public abstract class Action<ParameterType extends ActionRequest> implements Cal
     }
 
     private List<Filter> checkAndAddTemporalBoundary(List<Filter> filters) {
-        if(null != filters) {
+        if (null != filters) {
             for (Filter filter : filters) {
-                if(filter.isTemporal()) {
+                if (filter.isTemporal()) {
                     return filters;
                 }
             }
         }
-        if(null == filters) {
+        if (null == filters) {
             filters = Lists.newArrayList();
-        }
-        else {
+        } else {
             filters = Lists.newArrayList(filters);
         }
         filters.add(getDefaultTimeSpan());

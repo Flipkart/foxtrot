@@ -4,54 +4,54 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-	<name>Foxtrot</name>
-	<description>Foxtrot is a scalable data and query store service for for real-time event data.</description>
-	<url>https://git@github.com/flipkart-incubator/foxtrot</url>
+    <name>Foxtrot</name>
+    <description>Foxtrot is a scalable data and query store service for for real-time event data.</description>
+    <url>https://git@github.com/flipkart-incubator/foxtrot</url>
 
     <groupId>com.flipkart.foxtrot</groupId>
     <artifactId>foxtrot</artifactId>
     <packaging>pom</packaging>
-    <version>0.3</version>
+    <version>0.4.0</version>
 
-	<scm>
-		<connection>scm:git:https://github.com/flipkart-incubator/foxtrot.git</connection>
-		<developerConnection>scm:git:https://github.com/flipkart-incubator/foxtrot.git</developerConnection>
-		<tag>HEAD</tag>
-		<url>https://github.com/flipkart-incubator/foxtrot</url>
-	</scm>
+    <scm>
+        <connection>scm:git:https://github.com/flipkart-incubator/foxtrot.git</connection>
+        <developerConnection>scm:git:https://github.com/flipkart-incubator/foxtrot.git</developerConnection>
+        <tag>HEAD</tag>
+        <url>https://github.com/flipkart-incubator/foxtrot</url>
+    </scm>
 
-	<licenses>
-		<license>
-			<name>The Apache Software License, Version 2.0</name>
-			<url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
-			<distribution>repo</distribution>
-			<comments>A business-friendly OSS license</comments>
-		</license>
-	</licenses>
+    <licenses>
+        <license>
+            <name>The Apache Software License, Version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+            <distribution>repo</distribution>
+            <comments>A business-friendly OSS license</comments>
+        </license>
+    </licenses>
 
-	<developers>
-		<developer>
-			<id>santanusinha</id>
-			<name>Santanu Sinha</name>
-			<email>santanu.sinha@gmail.com</email>
-		</developer>
-		<developer>
-			<id>r0goyal</id>
-			<name>Rishabh Goyal</name>
-			<email>rgoyal2191@gmail.com</email>
-		</developer>
+    <developers>
+        <developer>
+            <id>santanusinha</id>
+            <name>Santanu Sinha</name>
+            <email>santanu.sinha@gmail.com</email>
+        </developer>
+        <developer>
+            <id>r0goyal</id>
+            <name>Rishabh Goyal</name>
+            <email>rgoyal2191@gmail.com</email>
+        </developer>
         <developer>
             <id>itachi3</id>
             <name>Balaji S</name>
             <email>balajispsg@gmail.com</email>
         </developer>
-	</developers>
+    </developers>
 
-	<properties>
-		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-	</properties>
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
 
-	<modules>
+    <modules>
         <module>foxtrot-core</module>
         <module>foxtrot-common</module>
         <module>foxtrot-server</module>
@@ -63,9 +63,19 @@
             <id>cloudera</id>
             <url>https://repository.cloudera.com/artifactory/cloudera-repos/</url>
         </repository>
+        <repository>
+            <id>clojars</id>
+            <name>Clojars repository</name>
+            <url>https://clojars.org/repo</url>
+        </repository>
     </repositories>
 
     <dependencies>
+        <dependency>
+            <groupId>io.dropwizard.metrics</groupId>
+            <artifactId>metrics-core</artifactId>
+            <version>3.1.2</version>
+        </dependency>
         <dependency>
             <groupId>net.sourceforge.cobertura</groupId>
             <artifactId>cobertura</artifactId>
@@ -81,33 +91,33 @@
             <groupId>com.yammer.dropwizard</groupId>
             <artifactId>dropwizard-core</artifactId>
             <version>0.6.2</version>
-			<exclusions>
-				<exclusion>
-					<groupId>org.eclipse.jetty</groupId>
-					<artifactId>jetty-server</artifactId>
-				</exclusion>
-				<exclusion>
-					<artifactId>jetty-servlet</artifactId>
-					<groupId>org.eclipse.jetty</groupId>
-				</exclusion>
-			</exclusions>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.eclipse.jetty</groupId>
+                    <artifactId>jetty-server</artifactId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>jetty-servlet</artifactId>
+                    <groupId>org.eclipse.jetty</groupId>
+                </exclusion>
+            </exclusions>
         </dependency>
-		<dependency>
-			<artifactId>jetty-server</artifactId>
-			<groupId>org.eclipse.jetty</groupId>
-			<version>8.1.10.v20130312</version>
-			<exclusions>
-				<exclusion>
-					<groupId>org.eclipse.jetty.orbit</groupId>
-					<artifactId>javax.servlet</artifactId>
-				</exclusion>
-			</exclusions>
-		</dependency>
-		<dependency>
-			<groupId>org.eclipse.jetty</groupId>
-			<artifactId>jetty-servlet</artifactId>
-			<version>8.1.10.v20130312</version>
-		</dependency>
+        <dependency>
+            <artifactId>jetty-server</artifactId>
+            <groupId>org.eclipse.jetty</groupId>
+            <version>8.1.10.v20130312</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.eclipse.jetty.orbit</groupId>
+                    <artifactId>javax.servlet</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.jetty</groupId>
+            <artifactId>jetty-servlet</artifactId>
+            <version>8.1.10.v20130312</version>
+        </dependency>
         <dependency>
             <groupId>com.yammer.dropwizard</groupId>
             <artifactId>dropwizard-testing</artifactId>
@@ -135,6 +145,11 @@
             <artifactId>xalan</artifactId>
             <version>2.7.2</version>
         </dependency>
+        <dependency>
+            <groupId>com.shash.hbase.ds</groupId>
+            <artifactId>hbase-ds</artifactId>
+            <version>0.0.1</version>
+        </dependency>
     </dependencies>
 
     <build>
@@ -144,8 +159,8 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.1</version>
                 <configuration>
-                    <source>1.6</source>
-                    <target>1.6</target>
+                    <source>1.8</source>
+                    <target>1.8</target>
                 </configuration>
             </plugin>
             <plugin>
@@ -177,7 +192,7 @@
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>cobertura-maven-plugin</artifactId>
-				<version>2.6</version>
+                <version>2.6</version>
             </plugin>
         </plugins>
     </reporting>

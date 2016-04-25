@@ -17,9 +17,14 @@ package com.flipkart.foxtrot.core.querystore;
 
 import com.flipkart.foxtrot.common.Document;
 import com.flipkart.foxtrot.common.TableFieldMapping;
+import com.flipkart.foxtrot.core.exception.FoxtrotException;
+import org.elasticsearch.action.admin.cluster.health.ClusterHealthResponse;
+import org.elasticsearch.action.admin.cluster.node.stats.NodesStatsResponse;
+import org.elasticsearch.action.admin.indices.stats.IndicesStatsResponse;
 
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.ExecutionException;
 
 /**
  * User: Santanu Sinha (santanu.sinha@flipkart.com)
@@ -28,19 +33,29 @@ import java.util.Set;
  */
 public interface QueryStore {
 
-    public void save(final String table, final Document document) throws QueryStoreException;
+    void initializeTable(final String table) throws FoxtrotException;
 
-    public void save(final String table, final List<Document> documents) throws QueryStoreException;
+    void save(final String table, final Document document) throws FoxtrotException;
 
-    public Document get(final String table, final String id) throws QueryStoreException;
+    void save(final String table, final List<Document> documents) throws FoxtrotException;
 
-    public List<Document> get(final String table, final List<String> ids) throws QueryStoreException;
+    Document get(final String table, final String id) throws FoxtrotException;
 
-    public TableFieldMapping getFieldMappings(final String table) throws QueryStoreException;
+    List<Document> getAll(final String table, final List<String> ids) throws FoxtrotException;
 
-    public void cleanupAll() throws QueryStoreException;
+    List<Document> getAll(final String table, final List<String> ids, boolean bypassMetaLookup) throws FoxtrotException;
 
-    public void cleanup(final String table) throws QueryStoreException;
+    TableFieldMapping getFieldMappings(final String table) throws FoxtrotException;
 
-    public void cleanup(final Set<String> tables) throws QueryStoreException;
+    void cleanupAll() throws FoxtrotException;
+
+    void cleanup(final String table) throws FoxtrotException;
+
+    void cleanup(final Set<String> tables) throws FoxtrotException;
+
+    ClusterHealthResponse getClusterHealth() throws ExecutionException, InterruptedException;
+
+    NodesStatsResponse getNodeStats() throws ExecutionException, InterruptedException;
+
+    IndicesStatsResponse getIndicesStats() throws ExecutionException, InterruptedException;
 }

@@ -16,103 +16,45 @@
 package com.flipkart.foxtrot.server.resources;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.flipkart.foxtrot.common.Document;
-import com.flipkart.foxtrot.core.MockElasticsearchServer;
 import com.flipkart.foxtrot.core.TestUtils;
-import com.flipkart.foxtrot.core.common.CacheUtils;
-import com.flipkart.foxtrot.core.datastore.DataStore;
-import com.flipkart.foxtrot.core.querystore.QueryStore;
-import com.flipkart.foxtrot.core.querystore.QueryStoreException;
-import com.flipkart.foxtrot.core.querystore.TableMetadataManager;
-import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsLoader;
-import com.flipkart.foxtrot.core.querystore.impl.*;
-import com.hazelcast.core.HazelcastInstance;
-import com.hazelcast.test.TestHazelcastInstanceFactory;
+import com.flipkart.foxtrot.core.exception.FoxtrotExceptions;
+import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
+import com.flipkart.foxtrot.server.providers.exception.FoxtrotExceptionMapper;
 import com.sun.jersey.api.client.UniformInterfaceException;
 import com.sun.jersey.api.container.ContainerException;
 import com.sun.jersey.api.container.MappableContainerException;
-import com.yammer.dropwizard.testing.ResourceTest;
 import com.yammer.dropwizard.validation.InvalidEntityException;
-import org.elasticsearch.action.admin.indices.create.CreateIndexRequest;
-import org.elasticsearch.common.settings.ImmutableSettings;
-import org.elasticsearch.common.settings.Settings;
-import org.junit.After;
 import org.junit.Test;
 import org.mockito.Matchers;
-import org.mockito.Mockito;
 
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.io.IOException;
 import java.util.*;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.*;
 import static org.mockito.Matchers.anyListOf;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.doThrow;
 
 /**
  * Created by rishabh.goyal on 04/05/14.
  */
-public class DocumentResourceTest extends ResourceTest {
-    private ObjectMapper mapper = new ObjectMapper();
-    private JsonNodeFactory factory = JsonNodeFactory.instance;
-
-    private TableMetadataManager tableMetadataManager;
-    private MockElasticsearchServer elasticsearchServer;
-    private HazelcastInstance hazelcastInstance;
-
-    private QueryStore queryStore;
+public class DocumentResourceTest extends FoxtrotResourceTest {
 
     public DocumentResourceTest() throws Exception {
-
-        ElasticsearchUtils.setMapper(mapper);
-        DataStore dataStore = TestUtils.getDataStore();
-
-        //Initializing Cache Factory
-        hazelcastInstance = new TestHazelcastInstanceFactory(1).newHazelcastInstance();
-        HazelcastConnection hazelcastConnection = Mockito.mock(HazelcastConnection.class);
-        when(hazelcastConnection.getHazelcast()).thenReturn(hazelcastInstance);
-        CacheUtils.setCacheFactory(new DistributedCacheFactory(hazelcastConnection, mapper));
-
-        elasticsearchServer = new MockElasticsearchServer(UUID.randomUUID().toString());
-        ElasticsearchConnection elasticsearchConnection = Mockito.mock(ElasticsearchConnection.class);
-        when(elasticsearchConnection.getClient()).thenReturn(elasticsearchServer.getClient());
-        ElasticsearchUtils.initializeMappings(elasticsearchServer.getClient());
-
-        Settings indexSettings = ImmutableSettings.settingsBuilder().put("number_of_replicas", 0).build();
-        CreateIndexRequest createRequest = new CreateIndexRequest(TableMapStore.TABLE_META_INDEX).settings(indexSettings);
-        elasticsearchServer.getClient().admin().indices().create(createRequest).actionGet();
-        elasticsearchServer.getClient().admin().cluster().prepareHealth().setWaitForGreenStatus().execute().actionGet();
-
-        tableMetadataManager = Mockito.mock(TableMetadataManager.class);
-        tableMetadataManager.start();
-        when(tableMetadataManager.exists(anyString())).thenReturn(true);
-        when(tableMetadataManager.get(anyString())).thenReturn(TestUtils.TEST_TABLE);
-
-        AnalyticsLoader analyticsLoader = new AnalyticsLoader(tableMetadataManager, dataStore, queryStore, elasticsearchConnection);
-        TestUtils.registerActions(analyticsLoader, mapper);
-        ExecutorService executorService = Executors.newFixedThreadPool(1);
-        queryStore = new ElasticsearchQueryStore(tableMetadataManager, elasticsearchConnection, dataStore);
-        queryStore = spy(queryStore);
+        super();
+        doReturn(true).when(getTableMetadataManager()).exists(anyString());
+        doReturn(TestUtils.TEST_TABLE).when(getTableMetadataManager()).get(anyString());
     }
 
     @Override
     protected void setUpResources() throws Exception {
-        addResource(new DocumentResource(queryStore));
+        addResource(new DocumentResource(getQueryStore()));
+        addProvider(FoxtrotExceptionMapper.class);
     }
-
-    @After
-    public void tearDown() throws Exception {
-        elasticsearchServer.shutdown();
-        hazelcastInstance.shutdown();
-        tableMetadataManager.stop();
-    }
-
 
     @Test
     public void testSaveDocument() throws Exception {
@@ -120,9 +62,10 @@ public class DocumentResourceTest extends ResourceTest {
         Document document = new Document(
                 id,
                 System.currentTimeMillis(),
-                factory.objectNode().put("hello", "world"));
+                getMapper().getNodeFactory().objectNode().put("hello", "world"));
         client().resource("/v1/document/" + TestUtils.TEST_TABLE_NAME).type(MediaType.APPLICATION_JSON_TYPE).post(document);
-        Document response = queryStore.get(TestUtils.TEST_TABLE_NAME, id);
+        getElasticsearchServer().refresh(ElasticsearchUtils.getIndices(TestUtils.TEST_TABLE_NAME));
+        Document response = getQueryStore().get(TestUtils.TEST_TABLE_NAME, id);
         compare(document, response);
     }
 
@@ -132,11 +75,12 @@ public class DocumentResourceTest extends ResourceTest {
         Document document = new Document(
                 id,
                 System.currentTimeMillis(),
-                factory.objectNode().put("hello", "world"));
-        doThrow(new QueryStoreException(QueryStoreException.ErrorCode.DOCUMENT_SAVE_ERROR, "Dummy Exception"))
-                .when(queryStore).save(anyString(), Matchers.<Document>any());
+                getMapper().getNodeFactory().objectNode().put("hello", "world"));
+        doThrow(FoxtrotExceptions.createExecutionException("dummy", new IOException()))
+                .when(getQueryStore()).save(anyString(), Matchers.<Document>any());
         try {
             client().resource("/v1/document/" + TestUtils.TEST_TABLE_NAME).type(MediaType.APPLICATION_JSON_TYPE).post(document);
+            fail();
         } catch (UniformInterfaceException ex) {
             assertEquals(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode(), ex.getResponse().getStatus());
         }
@@ -147,7 +91,7 @@ public class DocumentResourceTest extends ResourceTest {
         Document document = new Document(
                 null,
                 System.currentTimeMillis(),
-                factory.objectNode().put("hello", "world"));
+                getMapper().getNodeFactory().objectNode().put("hello", "world"));
         client().resource("/v1/document/" + TestUtils.TEST_TABLE_NAME).type(MediaType.APPLICATION_JSON_TYPE).post(document);
     }
 
@@ -175,30 +119,31 @@ public class DocumentResourceTest extends ResourceTest {
     public void testSaveDocuments() throws Exception {
         List<Document> documents = new ArrayList<Document>();
         String id1 = UUID.randomUUID().toString();
-        Document document1 = new Document(id1, System.currentTimeMillis(), factory.objectNode().put("D", "data"));
+        Document document1 = new Document(id1, System.currentTimeMillis(), getMapper().getNodeFactory().objectNode().put("D", "data"));
         String id2 = UUID.randomUUID().toString();
-        Document document2 = new Document(id2, System.currentTimeMillis(), factory.objectNode().put("D", "data"));
+        Document document2 = new Document(id2, System.currentTimeMillis(), getMapper().getNodeFactory().objectNode().put("D", "data"));
         documents.add(document1);
         documents.add(document2);
         client().resource(String.format("/v1/document/%s/bulk", TestUtils.TEST_TABLE_NAME)).type(MediaType.APPLICATION_JSON_TYPE).post(documents);
-
-        compare(document1, queryStore.get(TestUtils.TEST_TABLE_NAME, id1));
-        compare(document2, queryStore.get(TestUtils.TEST_TABLE_NAME, id2));
+        getElasticsearchServer().refresh(ElasticsearchUtils.getIndices(TestUtils.TEST_TABLE_NAME));
+        compare(document1, getQueryStore().get(TestUtils.TEST_TABLE_NAME, id1));
+        compare(document2, getQueryStore().get(TestUtils.TEST_TABLE_NAME, id2));
     }
 
     @Test
     public void testSaveDocumentsInternalError() throws Exception {
         List<Document> documents = new ArrayList<Document>();
         String id1 = UUID.randomUUID().toString();
-        Document document1 = new Document(id1, System.currentTimeMillis(), factory.objectNode().put("D", "data"));
+        Document document1 = new Document(id1, System.currentTimeMillis(), getMapper().getNodeFactory().objectNode().put("D", "data"));
         String id2 = UUID.randomUUID().toString();
-        Document document2 = new Document(id2, System.currentTimeMillis(), factory.objectNode().put("D", "data"));
+        Document document2 = new Document(id2, System.currentTimeMillis(), getMapper().getNodeFactory().objectNode().put("D", "data"));
         documents.add(document1);
         documents.add(document2);
-        doThrow(new QueryStoreException(QueryStoreException.ErrorCode.DOCUMENT_SAVE_ERROR, "Dummy Exception"))
-                .when(queryStore).save(anyString(), anyListOf(Document.class));
+        doThrow(FoxtrotExceptions.createExecutionException("dummy", new IOException()))
+                .when(getQueryStore()).save(anyString(), anyListOf(Document.class));
         try {
             client().resource(String.format("/v1/document/%s/bulk", TestUtils.TEST_TABLE_NAME)).type(MediaType.APPLICATION_JSON_TYPE).post(documents);
+            fail();
         } catch (UniformInterfaceException ex) {
             assertEquals(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode(), ex.getResponse().getStatus());
         }
@@ -214,11 +159,12 @@ public class DocumentResourceTest extends ResourceTest {
     public void testSaveDocumentsNullDocument() throws Exception {
         List<Document> documents = new Vector<Document>();
         documents.add(null);
-        documents.add(new Document(UUID.randomUUID().toString(), System.currentTimeMillis(), factory.objectNode().put("d", "d")));
+        documents.add(new Document(UUID.randomUUID().toString(), System.currentTimeMillis(), getMapper().getNodeFactory().objectNode().put("d", "d")));
         try {
             client().resource(String.format("/v1/document/%s/bulk", TestUtils.TEST_TABLE_NAME))
                     .type(MediaType.APPLICATION_JSON_TYPE)
                     .post(documents);
+            fail();
         } catch (UniformInterfaceException ex) {
             assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), ex.getResponse().getStatus());
         }
@@ -227,11 +173,12 @@ public class DocumentResourceTest extends ResourceTest {
     @Test
     public void testSaveDocumentsNullId() throws Exception {
         List<Document> documents = new Vector<Document>();
-        documents.add(new Document(null, System.currentTimeMillis(), factory.objectNode().put("d", "d")));
+        documents.add(new Document(null, System.currentTimeMillis(), getMapper().getNodeFactory().objectNode().put("d", "d")));
         try {
             client().resource(String.format("/v1/document/%s/bulk", TestUtils.TEST_TABLE_NAME))
                     .type(MediaType.APPLICATION_JSON_TYPE)
                     .post(documents);
+            fail();
         } catch (UniformInterfaceException ex) {
             assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), ex.getResponse().getStatus());
         }
@@ -245,6 +192,7 @@ public class DocumentResourceTest extends ResourceTest {
             client().resource(String.format("/v1/document/%s/bulk", TestUtils.TEST_TABLE_NAME))
                     .type(MediaType.APPLICATION_JSON_TYPE)
                     .post(documents);
+            fail();
         } catch (UniformInterfaceException ex) {
             assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), ex.getResponse().getStatus());
         }
@@ -263,6 +211,7 @@ public class DocumentResourceTest extends ResourceTest {
             client().resource(String.format("/v1/document/%s/bulk", TestUtils.TEST_TABLE_NAME))
                     .type(MediaType.APPLICATION_JSON_TYPE)
                     .post("[]");
+            fail();
         } catch (UniformInterfaceException ex) {
             assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), ex.getResponse().getStatus());
         }
@@ -271,9 +220,9 @@ public class DocumentResourceTest extends ResourceTest {
     @Test
     public void testGetDocument() throws Exception {
         String id = UUID.randomUUID().toString();
-        Document document = new Document(id, System.currentTimeMillis(), factory.objectNode().put("D", "data"));
-        queryStore.save(TestUtils.TEST_TABLE_NAME, document);
-
+        Document document = new Document(id, System.currentTimeMillis(), getMapper().getNodeFactory().objectNode().put("D", "data"));
+        getQueryStore().save(TestUtils.TEST_TABLE_NAME, document);
+        getElasticsearchServer().refresh(ElasticsearchUtils.getIndices(TestUtils.TEST_TABLE_NAME));
         Document response = client().resource(String.format("/v1/document/%s/%s", TestUtils.TEST_TABLE_NAME, id))
                 .get(Document.class);
         compare(document, response);
@@ -285,6 +234,7 @@ public class DocumentResourceTest extends ResourceTest {
         try {
             client().resource(String.format("/v1/document/%s/%s", TestUtils.TEST_TABLE_NAME, id))
                     .get(Document.class);
+            fail();
         } catch (UniformInterfaceException ex) {
             assertEquals(Response.Status.NOT_FOUND.getStatusCode(), ex.getResponse().getStatus());
         }
@@ -294,10 +244,11 @@ public class DocumentResourceTest extends ResourceTest {
     public void testGetDocumentInternalError() throws Exception {
         String id = UUID.randomUUID().toString();
         try {
-            doThrow(new QueryStoreException(QueryStoreException.ErrorCode.DOCUMENT_GET_ERROR, "Error"))
-                    .when(queryStore).get(anyString(), anyString());
+            doThrow(FoxtrotExceptions.createExecutionException("dummy", new IOException()))
+                    .when(getQueryStore()).get(anyString(), anyString());
             client().resource(String.format("/v1/document/%s/%s", TestUtils.TEST_TABLE_NAME, id))
                     .get(Document.class);
+            fail();
         } catch (UniformInterfaceException ex) {
             assertEquals(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode(), ex.getResponse().getStatus());
         }
@@ -308,18 +259,18 @@ public class DocumentResourceTest extends ResourceTest {
     public void testGetDocuments() throws Exception {
         List<Document> documents = new ArrayList<Document>();
         String id1 = UUID.randomUUID().toString();
-        Document document1 = new Document(id1, System.currentTimeMillis(), factory.objectNode().put("D", "data"));
+        Document document1 = new Document(id1, System.currentTimeMillis(), getMapper().getNodeFactory().objectNode().put("D", "data"));
         String id2 = UUID.randomUUID().toString();
-        Document document2 = new Document(id2, System.currentTimeMillis(), factory.objectNode().put("D", "data"));
+        Document document2 = new Document(id2, System.currentTimeMillis(), getMapper().getNodeFactory().objectNode().put("D", "data"));
         documents.add(document1);
         documents.add(document2);
-        queryStore.save(TestUtils.TEST_TABLE_NAME, documents);
+        getQueryStore().save(TestUtils.TEST_TABLE_NAME, documents);
+        getElasticsearchServer().refresh(ElasticsearchUtils.getIndices(TestUtils.TEST_TABLE_NAME));
         String response = client().resource(String.format("/v1/document/%s", TestUtils.TEST_TABLE_NAME))
                 .queryParam("id", id1)
                 .queryParam("id", id2)
                 .get(String.class);
-
-        String expectedResponse = mapper.writeValueAsString(documents);
+        String expectedResponse = getMapper().writeValueAsString(documents);
         assertEquals(expectedResponse, response);
     }
 
@@ -327,7 +278,7 @@ public class DocumentResourceTest extends ResourceTest {
     public void testGetDocumentsNoIds() throws Exception {
         String response = client().resource(String.format("/v1/document/%s", TestUtils.TEST_TABLE_NAME))
                 .get(String.class);
-        String expectedResponse = mapper.writeValueAsString(new ArrayList<Document>());
+        String expectedResponse = getMapper().writeValueAsString(new ArrayList<Document>());
         assertEquals(expectedResponse, response);
     }
 
@@ -337,6 +288,7 @@ public class DocumentResourceTest extends ResourceTest {
             client().resource(String.format("/v1/document/%s", TestUtils.TEST_TABLE_NAME))
                     .queryParam("id", UUID.randomUUID().toString())
                     .get(String.class);
+            fail();
         } catch (UniformInterfaceException ex) {
             assertEquals(Response.Status.NOT_FOUND.getStatusCode(), ex.getResponse().getStatus());
         }
@@ -345,11 +297,12 @@ public class DocumentResourceTest extends ResourceTest {
     @Test
     public void testGetDocumentsInternalError() throws Exception {
         try {
-            doThrow(new QueryStoreException(QueryStoreException.ErrorCode.DOCUMENT_GET_ERROR, "Error"))
-                    .when(queryStore).get(anyString(), anyListOf(String.class));
+            doThrow(FoxtrotExceptions.createExecutionException("dummy", new IOException()))
+                    .when(getQueryStore()).getAll(anyString(), anyListOf(String.class));
             client().resource(String.format("/v1/document/%s", TestUtils.TEST_TABLE_NAME))
                     .queryParam("id", UUID.randomUUID().toString())
                     .get(String.class);
+            fail();
         } catch (UniformInterfaceException ex) {
             assertEquals(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode(), ex.getResponse().getStatus());
         }
@@ -363,8 +316,10 @@ public class DocumentResourceTest extends ResourceTest {
         assertNotNull("Actual document data should not be null", actual.getData());
         assertEquals("Actual Doc Id should match expected Doc Id", expected.getId(), actual.getId());
         assertEquals("Actual Doc Timestamp should match expected Doc Timestamp", expected.getTimestamp(), actual.getTimestamp());
-        Map<String, Object> expectedMap = mapper.convertValue(expected.getData(), new TypeReference<HashMap<String, Object>>() {});
-        Map<String, Object> actualMap = mapper.convertValue(actual.getData(), new TypeReference<HashMap<String, Object>>() {});
+        Map<String, Object> expectedMap = getMapper().convertValue(expected.getData(), new TypeReference<HashMap<String, Object>>() {
+        });
+        Map<String, Object> actualMap = getMapper().convertValue(actual.getData(), new TypeReference<HashMap<String, Object>>() {
+        });
         assertEquals("Actual data should match expected data", expectedMap, actualMap);
     }
 }
