@@ -29,7 +29,6 @@ import com.flipkart.foxtrot.core.querystore.actions.spi.ActionMetadata;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsLoader;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsProvider;
 import com.google.common.collect.Maps;
-import org.apache.hadoop.hbase.client.HTableInterface;
 import org.mockito.Matchers;
 import org.mockito.Mockito;
 import org.reflections.Reflections;
@@ -52,7 +51,7 @@ public class TestUtils {
     public static Table TEST_TABLE = new Table(TEST_TABLE_NAME, 7);
 
     public static DataStore getDataStore() throws FoxtrotException {
-        HTableInterface tableInterface = MockHTable.create();
+        org.apache.hadoop.hbase.client.Table tableInterface = MockHTable.create();
         HbaseTableConnection tableConnection = Mockito.mock(HbaseTableConnection.class);
         doReturn(tableInterface).when(tableConnection).getTable(Matchers.<Table>any());
         doReturn(new HbaseConfig()).when(tableConnection).getHbaseConfig();

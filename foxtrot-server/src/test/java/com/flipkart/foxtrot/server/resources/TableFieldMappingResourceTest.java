@@ -20,9 +20,13 @@ import com.flipkart.foxtrot.common.FieldTypeMapping;
 import com.flipkart.foxtrot.common.TableFieldMapping;
 import com.flipkart.foxtrot.core.TestUtils;
 import com.flipkart.foxtrot.server.providers.exception.FoxtrotExceptionMapper;
-import com.sun.jersey.api.client.ClientResponse;
+import io.dropwizard.testing.junit.ResourceTestRule;
+import org.junit.ClassRule;
+import org.junit.Rule;
 import org.junit.Test;
 
+import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.Response;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -35,16 +39,18 @@ import static org.mockito.Mockito.doReturn;
  */
 public class TableFieldMappingResourceTest extends FoxtrotResourceTest {
 
+    @Rule
+    public ResourceTestRule resources;
+
     public TableFieldMappingResourceTest() throws Exception {
         super();
         doReturn(true).when(getTableMetadataManager()).exists(TestUtils.TEST_TABLE_NAME);
         doReturn(TestUtils.TEST_TABLE).when(getTableMetadataManager()).get(anyString());
-    }
-
-    @Override
-    protected void setUpResources() throws Exception {
-        addResource(new TableFieldMappingResource(getQueryStore()));
-        addProvider(FoxtrotExceptionMapper.class);
+        resources = ResourceTestRule.builder()
+                .addResource(new TableFieldMappingResource(getQueryStore()))
+                .setMapper(getMapper())
+                .addProvider(new FoxtrotExceptionMapper(getMapper()))
+                .build();
     }
 
     @Test
@@ -59,7 +65,8 @@ public class TableFieldMappingResourceTest extends FoxtrotResourceTest {
         mappings.add(new FieldTypeMapping("head.hello", FieldType.LONG));
 
         TableFieldMapping tableFieldMapping = new TableFieldMapping(TestUtils.TEST_TABLE_NAME, mappings);
-        String response = client().resource(String.format("/v1/tables/%s/fields", TestUtils.TEST_TABLE_NAME))
+        String response = resources.client().target(String.format("/foxtrot/v1/tables/%s/fields", TestUtils.TEST_TABLE_NAME))
+                .request()
                 .get(String.class);
 
         TableFieldMapping mapping = getMapper().readValue(response, TableFieldMapping.class);
@@ -69,17 +76,20 @@ public class TableFieldMappingResourceTest extends FoxtrotResourceTest {
 
     @Test
     public void testGetInvalidTable() throws Exception {
-        ClientResponse clientResponse = client().resource(
-                String.format("/v1/tables/%s/fields", TestUtils.TEST_TABLE_NAME + "-missing")).head();
-        assertEquals(ClientResponse.Status.NOT_FOUND, clientResponse.getClientResponseStatus());
+        try {
+            resources.client().target(
+                    String.format("/foxtrot/v1/tables/%s/fields", TestUtils.TEST_TABLE_NAME + "-missing")).request().head();
+        } catch(WebApplicationException ex) {
+            assertEquals(Response.Status.NOT_FOUND.getStatusCode(), ex.getResponse().getStatus());
+        }
     }
 
     @Test
     public void testGetTableWithNoDocument() throws Exception {
         TableFieldMapping request = new TableFieldMapping(TestUtils.TEST_TABLE_NAME, new HashSet<>());
-        TableFieldMapping response = client().resource(String.format("/v1/tables/%s/fields", TestUtils.TEST_TABLE_NAME))
+        TableFieldMapping response = resources.client().target(String.format("/foxtrot/v1/tables/%s/fields", TestUtils.TEST_TABLE_NAME))
+                .request()
                 .get(TableFieldMapping.class);
-
         assertEquals(request.getTable(), response.getTable());
         assertNull(response.getMappings());
     }

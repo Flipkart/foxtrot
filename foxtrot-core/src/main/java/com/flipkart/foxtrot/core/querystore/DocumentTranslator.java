@@ -5,7 +5,7 @@ import com.flipkart.foxtrot.common.DocumentMetadata;
 import com.flipkart.foxtrot.common.Table;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
-import com.shash.hbase.ds.AbstractRowKeyDistributor;
+import com.sematext.hbase.ds.AbstractRowKeyDistributor;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

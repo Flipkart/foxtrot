@@ -15,10 +15,10 @@
  */
 package com.flipkart.foxtrot.server.resources;
 
+import com.codahale.metrics.annotation.Timed;
 import com.flipkart.foxtrot.common.Document;
 import com.flipkart.foxtrot.core.exception.FoxtrotException;
 import com.flipkart.foxtrot.core.querystore.QueryStore;
-import com.yammer.metrics.annotation.Timed;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
@@ -33,7 +33,7 @@ import java.util.List;
  * Date: 15/03/14
  * Time: 10:55 PM
  */
-@Path("/v1/document/{table}")
+@Path("/foxtrot/v1/document/{table}")
 @Produces(MediaType.APPLICATION_JSON)
 public class DocumentResource {
 

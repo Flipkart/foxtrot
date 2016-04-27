@@ -15,8 +15,7 @@
  */
 package com.flipkart.foxtrot.core.querystore.impl;
 
-import com.yammer.dropwizard.lifecycle.Managed;
-import net.sourceforge.cobertura.CoverageIgnore;
+import io.dropwizard.lifecycle.Managed;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.client.transport.TransportClient;
 import org.elasticsearch.common.settings.ImmutableSettings;
@@ -30,8 +29,6 @@ import org.slf4j.LoggerFactory;
  * Date: 14/03/14
  * Time: 12:38 AM
  */
-
-@CoverageIgnore
 public class ElasticsearchConnection implements Managed {
     private static final Logger logger = LoggerFactory.getLogger(ElasticsearchConnection.class.getSimpleName());
     private final ElasticsearchConfig config;

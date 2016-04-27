@@ -17,7 +17,7 @@ package com.flipkart.foxtrot.core.table;
 
 import com.flipkart.foxtrot.common.Table;
 import com.flipkart.foxtrot.core.exception.FoxtrotException;
-import com.yammer.dropwizard.lifecycle.Managed;
+import io.dropwizard.lifecycle.Managed;
 
 import java.util.List;
 

@@ -23,7 +23,6 @@ import com.flipkart.foxtrot.core.querystore.query.ElasticSearchQueryGenerator;
 import com.flipkart.foxtrot.core.table.TableMetadataManager;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.yammer.dropwizard.util.Duration;
 import org.apache.commons.lang3.StringUtils;
 import org.elasticsearch.ElasticsearchException;
 import org.elasticsearch.action.search.SearchRequestBuilder;
@@ -36,7 +35,7 @@ import org.elasticsearch.search.aggregations.bucket.histogram.DateHistogram;
 import org.elasticsearch.search.aggregations.metrics.percentiles.InternalPercentiles;
 import org.elasticsearch.search.aggregations.metrics.percentiles.Percentile;
 import org.elasticsearch.search.aggregations.metrics.stats.extended.InternalExtendedStats;
-
+import io.dropwizard.util.Duration;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;

@@ -11,7 +11,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.StreamingOutput;
 import java.io.OutputStreamWriter;
 
-@Path("/v1/fql")
+@Path("/foxtrot/v1/fql")
 public class FqlResource {
     private FqlEngine fqlEngine;
 

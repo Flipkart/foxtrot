@@ -1,16 +1,17 @@
 package com.flipkart.foxtrot.server.cluster;
 
+import com.codahale.metrics.health.HealthCheck;
 import com.flipkart.foxtrot.core.querystore.impl.HazelcastConnection;
 import com.google.common.collect.ImmutableList;
 import com.hazelcast.config.EvictionPolicy;
 import com.hazelcast.config.MapConfig;
 import com.hazelcast.core.IMap;
-import com.yammer.dropwizard.config.HttpConfiguration;
-import com.yammer.dropwizard.lifecycle.Managed;
-import com.yammer.metrics.core.HealthCheck;
+import io.dropwizard.jetty.HttpConnectorFactory;
+import io.dropwizard.lifecycle.Managed;
+import io.dropwizard.server.DefaultServerFactory;
+import io.dropwizard.server.SimpleServerFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import java.net.Inet4Address;
 import java.util.Collection;
 import java.util.List;
@@ -32,7 +33,7 @@ public class ClusterManager implements Managed {
 
     public ClusterManager(HazelcastConnection connection,
                           List<HealthCheck> healthChecks,
-                          HttpConfiguration httpConfiguration) throws Exception {
+                          DefaultServerFactory httpConfiguration) throws Exception {
         this.hazelcastConnection = connection;
         this.healthChecks = healthChecks;
         MapConfig mapConfig = new MapConfig(MAP_NAME);
@@ -44,7 +45,7 @@ public class ClusterManager implements Managed {
 
         String hostname = Inet4Address.getLocalHost().getCanonicalHostName();
         executor = Executors.newScheduledThreadPool(1);
-        clusterMember = new ClusterMember(hostname, httpConfiguration.getPort());
+        clusterMember = new ClusterMember(hostname, ((HttpConnectorFactory)httpConfiguration.getApplicationConnectors().get(0)).getPort());
     }
 
     @Override
