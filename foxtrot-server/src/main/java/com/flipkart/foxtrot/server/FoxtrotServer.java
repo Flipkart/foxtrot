@@ -44,6 +44,7 @@ import com.flipkart.foxtrot.server.healthcheck.ElasticSearchHealthCheck;
 import com.flipkart.foxtrot.server.providers.FlatResponseCsvProvider;
 import com.flipkart.foxtrot.server.providers.FlatResponseErrorTextProvider;
 import com.flipkart.foxtrot.server.providers.FlatResponseTextProvider;
+import com.flipkart.foxtrot.server.providers.exception.FoxtrotExceptionMapper;
 import com.flipkart.foxtrot.server.resources.*;
 import com.flipkart.foxtrot.sql.FqlEngine;
 import com.yammer.dropwizard.Service;
@@ -121,9 +122,9 @@ public class FoxtrotServer extends Service<FoxtrotServerConfiguration> {
         environment.addResource(new ClusterInfoResource(clusterManager));
         environment.addResource(new UtilResource(configuration));
         environment.addResource(new ClusterHealthResource(queryStore));
-
         healthChecks.forEach(environment::addHealthCheck);
 
+        environment.addProvider(new FoxtrotExceptionMapper());
         environment.addProvider(new FlatResponseTextProvider());
         environment.addProvider(new FlatResponseCsvProvider());
         environment.addProvider(new FlatResponseErrorTextProvider());
