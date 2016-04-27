@@ -46,9 +46,19 @@ public class ElasticsearchConnection implements Managed {
 
         TransportClient esClient = new TransportClient(settings);
         for (String host : config.getHosts()) {
-            esClient.addTransportAddress(
-                    new InetSocketTransportAddress(host, 9300));
-            logger.info(String.format("Added Elasticsearch Node : %s", host));
+            //If the host string is a comma separated list; tokenize it and add individual hosts
+            if(host.contains(",")) {
+                String tokennizedHosts[] = host.split(",");
+                for (String tokenizedHost : tokennizedHosts) {
+                    esClient.addTransportAddress(
+                            new InetSocketTransportAddress(tokenizedHost, 9300));
+                    logger.info(String.format("Added Elasticsearch Node : %s", host));
+                }
+            } else {
+                esClient.addTransportAddress(
+                        new InetSocketTransportAddress(host, 9300));
+                logger.info(String.format("Added Elasticsearch Node : %s", host));
+            }
         }
         client = esClient;
         logger.info("Started Elasticsearch Client");
