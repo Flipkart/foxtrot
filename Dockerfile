@@ -3,7 +3,7 @@ MAINTAINER Swapnil Marghade <s.g.marghade [at] gmail.com>
 
 
 RUN \
-  apt-get install -y --no-install-recommends software-properties-common \
+  apt-get clean && apt-get update && apt-get install -y --no-install-recommends software-properties-common \
   && add-apt-repository ppa:webupd8team/java \
   && gpg --keyserver hkp://keys.gnupg.net --recv-keys 409B6B1796C275462A1703113804BB82D39DC0E3 \
   && apt-get update \

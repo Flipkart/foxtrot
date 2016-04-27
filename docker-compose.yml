@@ -31,8 +31,14 @@ foxtrot-server:
   ports:
    - "17000:17000"
    - "17001:17001"
+   - "5701:5701"
   volumes:
    - /var/log/foxtrot-server
    # enviroment valiables
-#  environment:
-#   - ZK_CONNECTION_STRING=hbase:2181
+  environment:
+   - ELASTICSEARCH_HOST=elasticsearch
+   - ELASTICSEARCH_CLUSTER_NAME=elasticsearch
+   - ELASTICSEARCH_TABLE_NAME_PREFIX=elasticsearch
+   - HBASE_TABLE_NAME=foxtrot
+   - HBASE_ZOOKEEPER_QUORUM=hbase
+   - HBASE_ZOOKEEPER_CLIENT_PORT=2181
