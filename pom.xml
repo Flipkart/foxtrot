@@ -75,6 +75,14 @@
             <name>HDP Releases</name>
             <url>http://repo.hortonworks.com/content/repositories/releases/</url>
         </repository>
+        <repository>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+            <id>bintray-phaneesh-maven</id>
+            <name>bintray</name>
+            <url>http://dl.bintray.com/phaneesh/maven</url>
+        </repository>
     </repositories>
 
     <dependencies>
