@@ -28,24 +28,18 @@ import java.util.List;
  * Time: 2:12 PM
  */
 public class ClusterConfig {
+
     @JsonProperty("name")
     @Valid
     @NotNull
     @NotEmpty
     private String name = null;
 
-//    @JsonProperty("server-url")
-//    @NotNull
-//    @NotEmpty
-//    private String webServerUrl = null;
-
-    @JsonProperty
-    private boolean disableMulticast = false;
-
-    @JsonProperty
-    private List<String> members = null;
+    @JsonProperty("discovery")
+    private ClusterDiscoveryConfig discovery;
 
     public ClusterConfig() {
+
     }
 
     public String getName() {
@@ -56,27 +50,11 @@ public class ClusterConfig {
         this.name = name;
     }
 
-//    public String getWebServerUrl() {
-//        return webServerUrl;
-//    }
-//
-//    public void setWebServerUrl(String webServerUrl) {
-//        this.webServerUrl = webServerUrl;
-//    }
-
-    public boolean isDisableMulticast() {
-        return disableMulticast;
+    public ClusterDiscoveryConfig getDiscovery() {
+        return discovery;
     }
 
-    public void setDisableMulticast(boolean disableMulticast) {
-        this.disableMulticast = disableMulticast;
-    }
-
-    public List<String> getMembers() {
-        return members;
-    }
-
-    public void setMembers(List<String> members) {
-        this.members = members;
+    public void setDiscovery(ClusterDiscoveryConfig discovery) {
+        this.discovery = discovery;
     }
 }
