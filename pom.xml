@@ -79,9 +79,9 @@
             <snapshots>
                 <enabled>false</enabled>
             </snapshots>
-            <id>bintray-phaneesh-maven</id>
+            <id>bintray</id>
             <name>bintray</name>
-            <url>http://dl.bintray.com/phaneesh/maven</url>
+            <url>http://jcenter.bintray.com</url>
         </repository>
     </repositories>
 
@@ -110,7 +110,7 @@
         <dependency>
             <groupId>com.marathon.hazelcast.servicediscovery</groupId>
             <artifactId>hazelcast-marathon-discovery</artifactId>
-            <version>0.0.2</version>
+            <version>0.0.3</version>
         </dependency>
         <dependency>
             <groupId>io.dropwizard</groupId>
