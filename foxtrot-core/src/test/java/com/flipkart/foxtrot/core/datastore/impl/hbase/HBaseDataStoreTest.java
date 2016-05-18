@@ -270,18 +270,33 @@ public class HBaseDataStoreTest {
 
     @Test
     public void testGetSingle() throws Exception {
-        // rawKeyVersion 1.0
+        // rawKeyVersion 1.0 with no metadata stored in the system (This will happen for documents which were indexed
+        // before rawKey versioning came into place)
         hbaseDataStore = new HBaseDataStore(hbaseTableConnection,
                 mapper,
                 new DocumentTranslator(TestUtils.createHBaseConfigWithRawKeyV1()));
 
         String id = UUID.randomUUID().toString();
+        long timestamp = System.currentTimeMillis();
         JsonNode data = mapper.valueToTree(Collections.singletonMap("TEST_NAME", "SINGLE_SAVE_TEST"));
-        String newId = v1FormatKey(id);
-        Document expectedDocument = new Document(id, System.currentTimeMillis(), new DocumentMetadata(id, newId), data);
-        tableInterface.put(hbaseDataStore.getPutForDocument(expectedDocument));
+        Document expectedDocument = new Document(id, timestamp, data);
+        tableInterface.put(new Put(Bytes.toBytes(v1FormatKey(id)))
+                .add(COLUMN_FAMILY, Bytes.toBytes("data"), mapper.writeValueAsBytes(data))
+                .add(COLUMN_FAMILY, Bytes.toBytes("timestamp"), Bytes.toBytes(timestamp)));
         Document actualDocument = hbaseDataStore.get(TEST_APP, id);
+        compare(expectedDocument, actualDocument);
 
+        // rawKeyVersion 1.0
+        hbaseDataStore = new HBaseDataStore(hbaseTableConnection,
+                mapper,
+                new DocumentTranslator(TestUtils.createHBaseConfigWithRawKeyV1()));
+
+        id = UUID.randomUUID().toString();
+        data = mapper.valueToTree(Collections.singletonMap("TEST_NAME", "SINGLE_SAVE_TEST"));
+        String newId = v1FormatKey(id);
+        expectedDocument = new Document(id, System.currentTimeMillis(), new DocumentMetadata(id, newId), data);
+        tableInterface.put(hbaseDataStore.getPutForDocument(expectedDocument));
+        actualDocument = hbaseDataStore.get(TEST_APP, id);
         compare(expectedDocument, actualDocument);
 
 
