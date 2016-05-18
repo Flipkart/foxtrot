@@ -15,10 +15,20 @@
  */
 package com.flipkart.foxtrot.core.querystore.actions;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * Created by rishabh.goyal on 14/05/14.
  */
 public class Constants {
+
+    public static Map<String, String> rawKeyVersionToSuffixMap = new HashMap<String, String>() {{
+        put("1.0", null);
+        put("2.0", "__RAW_KEY_VERSION_2__");
+    }};
+
+
     public static final String FIELD_REPLACEMENT_REGEX = "[^a-zA-Z0-9\\-_]";
     public static final String FIELD_REPLACEMENT_VALUE = "_";
     public static final String SEPARATOR = "_--&--_";
