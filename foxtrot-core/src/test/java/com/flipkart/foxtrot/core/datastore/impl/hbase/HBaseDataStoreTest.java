@@ -39,7 +39,6 @@ import org.mockito.Mockito;
 
 import java.io.IOException;
 import java.util.*;
-import java.util.stream.Collectors;
 
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
@@ -73,28 +72,26 @@ public class HBaseDataStoreTest {
     @Test
     public void testSaveSingle() throws Exception {
         // rawKeyVersion 1.0
-        hbaseDataStore = new HBaseDataStore(hbaseTableConnection,
-                mapper,
-                new DocumentTranslator(TestUtils.createHBaseConfigWithRawKeyV1()));
+        DocumentTranslator documentTranslator = new DocumentTranslator(TestUtils.createHBaseConfigWithRawKeyV1());
+        hbaseDataStore = new HBaseDataStore(hbaseTableConnection, mapper, documentTranslator);
         Document expectedDocument = new Document();
         expectedDocument.setId(UUID.randomUUID().toString());
         expectedDocument.setTimestamp(System.currentTimeMillis());
         JsonNode data = mapper.valueToTree(Collections.singletonMap("TEST_NAME", "SINGLE_SAVE_TEST"));
         expectedDocument.setData(data);
         hbaseDataStore.save(TEST_APP, expectedDocument);
-        validateSave(expectedDocument.getId(), expectedDocument);
+        validateSave(v1FormatKey(expectedDocument.getId()), expectedDocument);
 
         // rawKeyVersion 2.0
-        hbaseDataStore = new HBaseDataStore(hbaseTableConnection,
-                mapper,
-                new DocumentTranslator(TestUtils.createHBaseConfigWithRawKeyV2()));
+        documentTranslator = new DocumentTranslator(TestUtils.createHBaseConfigWithRawKeyV2());
+        hbaseDataStore = new HBaseDataStore(hbaseTableConnection, mapper, documentTranslator);
         expectedDocument = new Document();
         expectedDocument.setId(UUID.randomUUID().toString());
         expectedDocument.setTimestamp(System.currentTimeMillis());
         data = mapper.valueToTree(Collections.singletonMap("TEST_NAME", "SINGLE_SAVE_TEST"));
         expectedDocument.setData(data);
-        Document savedDocument = hbaseDataStore.save(TEST_APP, expectedDocument);
-        validateSave(savedDocument.getId(), expectedDocument);
+        hbaseDataStore.save(TEST_APP, expectedDocument);
+        validateSave(documentTranslator.translate(TEST_APP, expectedDocument).getMetadata().getRawStorageId(), expectedDocument);
     }
 
     @Test
@@ -161,17 +158,16 @@ public class HBaseDataStoreTest {
 
     @Test
     public void testSaveBulk() throws Exception {
-        List<Document> documents = new Vector<Document>();
+        DocumentTranslator documentTranslator = new DocumentTranslator(TestUtils.createHBaseConfigWithRawKeyV1());
+        hbaseDataStore = new HBaseDataStore(hbaseTableConnection, mapper, documentTranslator);
+
+        List<Document> documents = Lists.newArrayList();
         for (int i = 0; i < 10; i++) {
-            final String id = UUID.randomUUID().toString();
-            documents.add(new Document(
-                    id,
-                    System.currentTimeMillis(),
-                    mapper.valueToTree(Collections.singletonMap("TEST_NAME", "SINGLE_SAVE_TEST"))));
+            documents.add(createDummyDocument());
         }
         hbaseDataStore.saveAll(TEST_APP, documents);
         for (Document document : documents) {
-            validateSave(document.getId(), document);
+            validateSave(v1FormatKey(document.getId()), document);
         }
     }
 
@@ -282,7 +278,7 @@ public class HBaseDataStoreTest {
         String id = UUID.randomUUID().toString();
         JsonNode data = mapper.valueToTree(Collections.singletonMap("TEST_NAME", "SINGLE_SAVE_TEST"));
         String newId = v1FormatKey(id);
-        Document expectedDocument = new Document(newId, System.currentTimeMillis(), new DocumentMetadata(newId, "row.1"), data);
+        Document expectedDocument = new Document(id, System.currentTimeMillis(), new DocumentMetadata(id, newId), data);
         tableInterface.put(hbaseDataStore.getPutForDocument(expectedDocument));
         Document actualDocument = hbaseDataStore.get(TEST_APP, id);
 
@@ -297,10 +293,10 @@ public class HBaseDataStoreTest {
         data = mapper.valueToTree(Collections.singletonMap("TEST_NAME", "SINGLE_SAVE_TEST"));
         Document originalDocument = new Document(id, System.currentTimeMillis(), data);
         newId = documentTranslator.translate(TEST_APP, originalDocument).getId();
-        expectedDocument = new Document(newId, originalDocument.getTimestamp(), new DocumentMetadata(newId, "row.1"), data);
+        expectedDocument = new Document(newId, originalDocument.getTimestamp(), new DocumentMetadata(id, newId), data);
         tableInterface.put(hbaseDataStore.getPutForDocument(expectedDocument));
         actualDocument = hbaseDataStore.get(TEST_APP, newId);
-        compare(expectedDocument, actualDocument);
+        compare(originalDocument, actualDocument);
 
     }
 
@@ -319,7 +315,10 @@ public class HBaseDataStoreTest {
         String id = UUID.randomUUID().toString();
         JsonNode data = mapper.valueToTree(Collections.singletonMap("TEST_NAME", "SINGLE_SAVE_TEST"));
 
-        Document expectedDocument = new Document(id, System.currentTimeMillis(), data);
+        Document expectedDocument = new Document(id,
+                System.currentTimeMillis(),
+                new DocumentMetadata(id, v1FormatKey(id)),
+                data);
         tableInterface.put(hbaseDataStore.getPutForDocument(expectedDocument));
         doThrow(new IOException())
                 .when(tableInterface)
@@ -335,8 +334,10 @@ public class HBaseDataStoreTest {
     @Test
     public void testGetSingleHBaseCloseException() throws Exception {
         Document originalDocument = createDummyDocument();
+        originalDocument.setMetadata(new DocumentMetadata(originalDocument.getId(), v1FormatKey(originalDocument.getId())));
         Document expectedDocument = new Document(v1FormatKey(originalDocument.getId()),
                 originalDocument.getTimestamp(),
+                originalDocument.getMetadata(),
                 originalDocument.getData());
 
         tableInterface.put(hbaseDataStore.getPutForDocument(expectedDocument));
