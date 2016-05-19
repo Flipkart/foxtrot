@@ -103,13 +103,11 @@ EventBus.addEventListener('hosts_loaded', function(event, data){
 		        }
 		    }
     		host.fieldCache = toPercentage(fieldBreaker.estimated,fieldBreaker.limit);
-    		}
-		}
-		else {
+		} else {
     		host.fieldCache = "100";
 		}
 		host.fieldCacheAbs = bytesToSize(node.indices.fieldData.memorySizeInBytes);
-		host.fieldCacheEvictions = node.indices.fieldData.evictions
+		host.fieldCacheEvictions = node.indices.fieldData.evictions;
 		host.filterCache = bytesToSize(node.indices.filterCache.memorySizeInBytes);
 		host.filterCacheEvictions = node.indices.filterCache.evictions;
 		hosts.push(host);
