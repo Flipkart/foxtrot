@@ -15,7 +15,8 @@
  */
 package com.flipkart.foxtrot.core.querystore.actions;
 
-import java.util.HashMap;
+import com.google.common.collect.ImmutableMap;
+
 import java.util.Map;
 
 /**
@@ -23,11 +24,8 @@ import java.util.Map;
  */
 public class Constants {
 
-    public static Map<String, String> rawKeyVersionToSuffixMap = new HashMap<String, String>() {{
-        put("1.0", null);
-        put("2.0", "__RAW_KEY_VERSION_2__");
-    }};
-
+    public static final Map<String, String> rawKeyVersionToSuffixMap = ImmutableMap.<String, String>builder()
+            .put("2.0", "__RAW_KEY_VERSION_2__").build();
 
     public static final String FIELD_REPLACEMENT_REGEX = "[^a-zA-Z0-9\\-_]";
     public static final String FIELD_REPLACEMENT_VALUE = "_";

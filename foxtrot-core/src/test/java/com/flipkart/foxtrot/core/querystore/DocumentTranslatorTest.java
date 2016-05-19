@@ -10,6 +10,8 @@ import org.junit.Test;
 
 import java.util.UUID;
 
+import static org.junit.Assert.*;
+
 public class DocumentTranslatorTest {
 
     private static final ObjectMapper mapper = new ObjectMapper();
@@ -36,10 +38,10 @@ public class DocumentTranslatorTest {
 
         Document translatedDocument = translator.translate(table, document);
 
-        assert (translatedDocument.getId().equals(document.getId()));
-        assert (translatedDocument.getMetadata() != null);
-        assert (translatedDocument.getMetadata().getId().equals(document.getId()));
-        assert (translatedDocument.getMetadata().getRawStorageId().equals(document.getId() + ":" + table.getName()));
+        assertEquals(translatedDocument.getId(), document.getId());
+        assertNotNull(translatedDocument.getMetadata());
+        assertEquals(translatedDocument.getMetadata().getId(), document.getId());
+        assertEquals(translatedDocument.getMetadata().getRawStorageId(), document.getId() + ":" + table.getName());
     }
 
     @Test
@@ -55,10 +57,10 @@ public class DocumentTranslatorTest {
 
         Document translatedDocument = translator.translate(table, document);
 
-        assert (translatedDocument.getId().equals(document.getId()));
-        assert (translatedDocument.getMetadata() != null);
-        assert (translatedDocument.getMetadata().getId().equals(document.getId()));
-        assert (translatedDocument.getMetadata().getRawStorageId().equals(document.getId() + ":" + table.getName()));
+        assertEquals(translatedDocument.getId(), document.getId());
+        assertNotNull(translatedDocument.getMetadata());
+        assertEquals(translatedDocument.getMetadata().getId(), document.getId());
+        assertEquals(translatedDocument.getMetadata().getRawStorageId(), document.getId() + ":" + table.getName());
     }
 
     @Test
@@ -74,10 +76,10 @@ public class DocumentTranslatorTest {
 
         Document translatedDocument = translator.translate(table, document);
 
-        assert (translatedDocument.getMetadata() != null);
-        assert (translatedDocument.getId().equals(translatedDocument.getMetadata().getRawStorageId()));
-        assert (translatedDocument.getMetadata().getId().equals(document.getId()));
-        assert (translatedDocument.getMetadata().getRawStorageId().endsWith(Constants.rawKeyVersionToSuffixMap.get("2.0")));
+        assertNotNull(translatedDocument.getMetadata());
+        assertEquals(translatedDocument.getId(), translatedDocument.getMetadata().getRawStorageId());
+        assertEquals(translatedDocument.getMetadata().getId(), document.getId());
+        assertTrue(translatedDocument.getMetadata().getRawStorageId().endsWith(Constants.rawKeyVersionToSuffixMap.get("2.0")));
     }
 
     @Test
@@ -95,8 +97,8 @@ public class DocumentTranslatorTest {
 
         Document translatedBackDocument = translator.translateBack(translatedDocument);
 
-        assert (document.getId().equals(translatedBackDocument.getId()));
-        assert (document.getTimestamp() == translatedBackDocument.getTimestamp());
+        assertEquals(document.getId(), translatedBackDocument.getId());
+        assertEquals(document.getTimestamp(), translatedBackDocument.getTimestamp());
     }
 
     @Test
@@ -117,8 +119,8 @@ public class DocumentTranslatorTest {
 
         Document translatedBackDocument = translator.translateBack(translatedDocument);
 
-        assert (document.getId().equals(translatedBackDocument.getId()));
-        assert (document.getTimestamp() == translatedBackDocument.getTimestamp());
+        assertEquals(document.getId(), translatedBackDocument.getId());
+        assertEquals(document.getTimestamp(), translatedBackDocument.getTimestamp());
     }
 
 }
