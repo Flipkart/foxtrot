@@ -297,9 +297,7 @@
 
               <div class="modal-footer">
                   <div class="checkbox" style="float: left;">
-                      <label>
-                          <input type="checkbox" id="pinConsoleToApp">Pin console to current app
-                      </label>
+                      <label> <input type="checkbox" checked id="pinConsoleToApp">Pin console to current app</label>
                   </div>
                   <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
                   <button type="submit" class="btn btn-primary save-changes" disabled="disabled">Done</button>
@@ -754,7 +752,7 @@
 
       <!--Templates-->
       <script id="tile-template" type="text/x-handlebars-template">
-        <div class='tile tile-gradient size1' id='{{tileId}}' draggable='true'>
+        <div class='tile tile-gradient tile-default-size' id='{{tileId}}' draggable='true'>
           <div class="tile-header"></div>
           <div class='widget-toolbox'>
               <div class="title-header-toolbar-icon-container" style="right: 144px;">

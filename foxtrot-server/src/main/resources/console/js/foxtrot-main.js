@@ -26,7 +26,7 @@ TablesView.prototype.load = function(tables) {
     .remove();
 	for (var i = tables.length - 1; i >= 0; i--) {
 		select.append("<option value='" + i + "'>" + tables[i].name + '</option>');
-	};
+	}
 	select.val(this.tables.getSelectionIndex());
 	select.selectpicker('refresh');
 	select.change();
@@ -59,7 +59,7 @@ function FoxTrot() {
 	this.selectedTable = null;
 	this.tableSelectionChangeHandlers = [];
 	this.queue = new Queue();
-	this.tileSet = new TileSet("#tileContainer", tables);
+	this.tileSet = new TileSet("#tileContainer", this.tables);
 	this.consoleManager = new ConsoleManager(this.tileSet, this.queue, this.tables);
 	this.filterSection = new FilterSection(".filter-main", this.tables);
 	$("#tileContainer").sortable();
