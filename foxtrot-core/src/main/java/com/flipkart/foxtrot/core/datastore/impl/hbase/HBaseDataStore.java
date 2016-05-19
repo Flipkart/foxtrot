@@ -21,13 +21,12 @@ import com.flipkart.foxtrot.common.Document;
 import com.flipkart.foxtrot.common.DocumentMetadata;
 import com.flipkart.foxtrot.common.Table;
 import com.flipkart.foxtrot.core.datastore.DataStore;
-import com.flipkart.foxtrot.core.exception.FoxtrotExceptions;
 import com.flipkart.foxtrot.core.exception.FoxtrotException;
+import com.flipkart.foxtrot.core.exception.FoxtrotExceptions;
 import com.flipkart.foxtrot.core.querystore.DocumentTranslator;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
-import com.shash.hbase.ds.RowKeyDistributorByHashPrefix;
 import com.yammer.metrics.annotation.Timed;
 import org.apache.hadoop.hbase.client.Get;
 import org.apache.hadoop.hbase.client.HTableInterface;
@@ -60,11 +59,10 @@ public class HBaseDataStore implements DataStore {
     private final ObjectMapper mapper;
     private final DocumentTranslator translator;
 
-    public HBaseDataStore(HbaseTableConnection tableWrapper, ObjectMapper mapper) {
+    public HBaseDataStore(HbaseTableConnection tableWrapper, ObjectMapper mapper, DocumentTranslator translator) {
         this.tableWrapper = tableWrapper;
         this.mapper = mapper;
-        this.translator = new DocumentTranslator(new RowKeyDistributorByHashPrefix(
-                new RowKeyDistributorByHashPrefix.OneByteSimpleHash(tableWrapper.getHbaseConfig().getNumBuckets())));
+        this.translator = translator;
     }
 
     @Override
@@ -262,7 +260,7 @@ public class HBaseDataStore implements DataStore {
 
     @VisibleForTesting
     public Put getPutForDocument(Document document) throws JsonProcessingException {
-        return new Put(Bytes.toBytes(document.getId()))
+        return new Put(Bytes.toBytes(document.getMetadata().getRawStorageId()))
                 .add(COLUMN_FAMILY, DOCUMENT_META_FIELD_NAME, mapper.writeValueAsBytes(document.getMetadata()))
                 .add(COLUMN_FAMILY, DOCUMENT_FIELD_NAME, mapper.writeValueAsBytes(document.getData()))
                 .add(COLUMN_FAMILY, TIMESTAMP_FIELD_NAME, Bytes.toBytes(document.getTimestamp()));
