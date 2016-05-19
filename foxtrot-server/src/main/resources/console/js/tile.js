@@ -105,7 +105,7 @@ Tile.prototype.newDataReceived = function(data) {
 };
 
 Tile.prototype.render = function(data, animate) {
-	console.log(data);
+
 };
 
 Tile.prototype.handleResize = function(event, ui) {

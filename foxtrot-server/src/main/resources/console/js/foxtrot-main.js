@@ -257,12 +257,6 @@ $(document).ready(function(){
 			configLoadform.on('submit', function(e){
 				var console = $("#select_console_name").val();
 				if(console) {
-			// try {
-			// console.log("Going to: " + console);
-
-			// } catch(err) {
-			// 	console.error(err);
-			// }
 			window.location.assign("?console=" + console);
 		}
 		e.preventDefault();

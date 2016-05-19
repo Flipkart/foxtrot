@@ -108,55 +108,6 @@ StatsTrend.prototype.render = function(data, animate) {
         }
     }
 
-    /*for(var trend in data.trends) {
-        var trendData = data.trends[trend];
-        for (var i = 0; i < trendData.length; i++) {
-            var time = trendData[i].period;
-            var count = trendData[i].count;
-            if(!tmpData.hasOwnProperty(time)) {
-                tmpData[time] = new Object();
-            }
-            tmpData[time][trend] = count;
-        }
-    }
-    if(0 == Object.keys(tmpData).length) {
-        canvas.empty();
-        return;
-    }
-
-    var trendWiseData = new Object();
-    for(var time in tmpData) {
-        for(var trend in data.trends) {
-            if(regexp && !regexp.test(trend)) {
-                continue;
-            }
-            var count = 0;
-            var timeData = tmpData[time];
-            if(timeData.hasOwnProperty(trend)) {
-                count = timeData[trend];
-                console.log("time found ");
-            }
-            var rows = null;
-            if(!trendWiseData.hasOwnProperty(trend)) {
-                rows = [];
-                trendWiseData[trend] = rows;
-            }
-            rows = trendWiseData[trend];
-            var timeVal = parseInt(time);
-            rows.push([timeVal, count]);
-        }
-    }
-    console.log(trendWiseData);
-    for(var trend in trendWiseData) {
-        var rows = trendWiseData[trend];
-        if(regexp && !regexp.test(trend)) {
-            continue;
-        }
-        rows.sort(function(lhs, rhs) {
-            return (lhs[0] < rhs[0]) ? -1 : ((lhs[0] == rhs[0])? 0 : 1);
-        })
-        d.push({ data: rows, color: colors[colorIdx], label : trend, fill: true, fillColor: colors[colorIdx] });
-    }*/
     $.plot(canvas, d, {
             series: {
                 //stack: true,
