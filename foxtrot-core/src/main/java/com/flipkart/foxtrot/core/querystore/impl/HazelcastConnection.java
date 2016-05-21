@@ -15,9 +15,11 @@
  */
 package com.flipkart.foxtrot.core.querystore.impl;
 
-import com.hazelcast.config.Config;
+import com.hazelcast.config.*;
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
+import com.hazelcast.instance.GroupProperty;
+import com.marathon.hazelcast.servicediscovery.MarathonDiscoveryStrategyFactory;
 import io.dropwizard.lifecycle.Managed;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,22 +34,65 @@ import java.net.InetAddress;
 public class HazelcastConnection implements Managed {
     private static final Logger logger = LoggerFactory.getLogger(HazelcastConnection.class.getSimpleName());
 
-    private final ClusterConfig clusterConfig;
     private HazelcastInstance hazelcast;
     private Config hazelcastConfig;
 
     public HazelcastConnection(ClusterConfig clusterConfig) throws Exception {
-        this.clusterConfig = clusterConfig;
-        final String hostName = InetAddress.getLocalHost().getCanonicalHostName();
         Config hzConfig = new Config();
         hzConfig.getGroupConfig().setName(clusterConfig.getName());
-        hzConfig.setInstanceName(String.format("foxtrot-%s-%d", hostName, System.currentTimeMillis()));
-        if (clusterConfig.isDisableMulticast()) {
-            hzConfig.getNetworkConfig().getJoin().getMulticastConfig().setEnabled(false);
-            for (String member : clusterConfig.getMembers()) {
-                hzConfig.getNetworkConfig().getJoin().getTcpIpConfig().addMember(member);
-            }
-            hzConfig.getNetworkConfig().getJoin().getTcpIpConfig().setEnabled(true);
+        switch (clusterConfig.getDiscovery().getType()) {
+            case foxtrot_simple:
+                final String hostName = InetAddress.getLocalHost().getCanonicalHostName();
+                hzConfig.setInstanceName(String.format("foxtrot-%s-%d", hostName, System.currentTimeMillis()));
+                SimpleClusterDiscoveryConfig simpleClusterDiscoveryConfig = (SimpleClusterDiscoveryConfig)clusterConfig.getDiscovery();
+                if (simpleClusterDiscoveryConfig.isDisableMulticast()) {
+                    hzConfig.getNetworkConfig().getJoin().getMulticastConfig().setEnabled(false);
+                    for (String member : simpleClusterDiscoveryConfig.getMembers()) {
+                        hzConfig.getNetworkConfig().getJoin().getTcpIpConfig().addMember(member);
+                    }
+                    hzConfig.getNetworkConfig().getJoin().getTcpIpConfig().setEnabled(true);
+                }
+                break;
+            case foxtrot_marathon:
+                MarathonClusterDiscoveryConfig marathonClusterDiscoveryConfig = (MarathonClusterDiscoveryConfig)clusterConfig.getDiscovery();
+                hzConfig.setProperty(GroupProperty.DISCOVERY_SPI_ENABLED, "true");
+                hzConfig.setProperty(GroupProperty.DISCOVERY_SPI_PUBLIC_IP_ENABLED, "true");
+                hzConfig.setProperty(GroupProperty.SOCKET_CLIENT_BIND_ANY, "false");
+                hzConfig.setProperty(GroupProperty.SOCKET_BIND_ANY, "false");
+                NetworkConfig networkConfig = hazelcastConfig.getNetworkConfig();
+                networkConfig.getInterfaces().addInterface(System.getenv("HOST")).setEnabled(true);
+                networkConfig.setPublicAddress(System.getenv("HOST") +":" +System.getenv("PORT_5701"));
+                JoinConfig joinConfig = networkConfig.getJoin();
+                joinConfig.getTcpIpConfig().setEnabled(false);
+                joinConfig.getMulticastConfig().setEnabled(false);
+                joinConfig.getAwsConfig().setEnabled(false);
+                DiscoveryConfig discoveryConfig = joinConfig.getDiscoveryConfig();
+                DiscoveryStrategyConfig discoveryStrategyConfig = new DiscoveryStrategyConfig(new MarathonDiscoveryStrategyFactory());
+                discoveryStrategyConfig.addProperty("marathon-endpoint", marathonClusterDiscoveryConfig.getEndpoint());
+                discoveryStrategyConfig.addProperty("app-id", marathonClusterDiscoveryConfig.getApp());
+                discoveryStrategyConfig.addProperty("port-index", marathonClusterDiscoveryConfig.getPortIndex());
+                discoveryConfig.addDiscoveryStrategyConfig(discoveryStrategyConfig);
+                break;
+            case foxtrot_aws:
+                AwsClusterDiscoveryConfig awsClusterDiscoveryConfig = (AwsClusterDiscoveryConfig)clusterConfig.getDiscovery();
+                NetworkConfig hazelcastConfigNetworkConfig = hazelcastConfig.getNetworkConfig();
+                JoinConfig hazelcastConfigNetworkConfigJoin = hazelcastConfigNetworkConfig.getJoin();
+                hazelcastConfigNetworkConfigJoin.getTcpIpConfig().setEnabled(false);
+                hazelcastConfigNetworkConfigJoin.getMulticastConfig().setEnabled(false);
+                AwsConfig awsConfig = new AwsConfig();
+                awsConfig.setAccessKey(awsClusterDiscoveryConfig.getAccessKey());
+                awsConfig.setConnectionTimeoutSeconds(awsClusterDiscoveryConfig.getConnectionTimeoutSeconds());
+                awsConfig.setHostHeader(awsClusterDiscoveryConfig.getHostHeader());
+                awsConfig.setIamRole(awsClusterDiscoveryConfig.getIamRole());
+                awsConfig.setRegion(awsClusterDiscoveryConfig.getRegion());
+                awsConfig.setSecurityGroupName(awsClusterDiscoveryConfig.getSecurityGroupName());
+                awsConfig.setSecretKey(awsClusterDiscoveryConfig.getSecretKey());
+                awsConfig.setTagKey(awsClusterDiscoveryConfig.getTagKey());
+                awsConfig.setTagValue(awsClusterDiscoveryConfig.getTagValue());
+                hazelcastConfigNetworkConfigJoin.setAwsConfig(awsConfig);
+                hazelcastConfigNetworkConfigJoin.getAwsConfig().setEnabled(true);
+            default:
+                logger.warn("Invalid discovery config");
         }
         this.hazelcastConfig = hzConfig;
     }

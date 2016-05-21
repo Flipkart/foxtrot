@@ -17,7 +17,9 @@ package com.flipkart.foxtrot.server;
 
 import com.codahale.metrics.health.HealthCheck;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.databind.jsontype.NamedType;
 import com.fasterxml.jackson.databind.jsontype.SubtypeResolver;
 import com.fasterxml.jackson.databind.jsontype.impl.StdSubtypeResolver;
 import com.flipkart.foxtrot.core.cache.CacheManager;
@@ -30,10 +32,7 @@ import com.flipkart.foxtrot.core.datastore.impl.hbase.HbaseTableConnection;
 import com.flipkart.foxtrot.core.querystore.QueryExecutor;
 import com.flipkart.foxtrot.core.querystore.QueryStore;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsLoader;
-import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConnection;
-import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchQueryStore;
-import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
-import com.flipkart.foxtrot.core.querystore.impl.HazelcastConnection;
+import com.flipkart.foxtrot.core.querystore.impl.*;
 import com.flipkart.foxtrot.core.table.TableMetadataManager;
 import com.flipkart.foxtrot.core.table.impl.DistributedTableMetadataManager;
 import com.flipkart.foxtrot.core.table.impl.FoxtrotTableManager;
@@ -78,8 +77,9 @@ public class FoxtrotServer extends Application<FoxtrotServerConfiguration> {
                         new EnvironmentVariableSubstitutor(false)
                 )
         );
-        bootstrap.addBundle(new AssetsBundle("/console/", "/foxtrot/console", "index.html", "console"));
+        bootstrap.addBundle(new AssetsBundle("/console/", "/foxtrot/console/", "index.html", "console"));
         bootstrap.addCommand(new InitializerCommand());
+        configureObjectMapper(bootstrap.getObjectMapper());
     }
 
     @Override
@@ -89,7 +89,7 @@ public class FoxtrotServer extends Application<FoxtrotServerConfiguration> {
 
     @Override
     public void run(FoxtrotServerConfiguration configuration, Environment environment) throws Exception {
-        configureObjectMapper(environment);
+
         ExecutorService executorService = environment.lifecycle().executorService("query-executor-%s")
                 .minThreads(20).maxThreads(30).keepAliveTime(Duration.seconds(30))
                 .build();
@@ -153,12 +153,14 @@ public class FoxtrotServer extends Application<FoxtrotServerConfiguration> {
         cors.addMappingForUrlPatterns(EnumSet.allOf(DispatcherType.class), true, "/*");
     }
 
-    private void configureObjectMapper(Environment environment) {
-        environment.getObjectMapper().setSerializationInclusion(JsonInclude.Include.NON_NULL);
-        environment.getObjectMapper().setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
-        environment.getObjectMapper().disable(SerializationFeature.FAIL_ON_EMPTY_BEANS);
+    private void configureObjectMapper(ObjectMapper objectMapper) {
+        objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+        objectMapper.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
+        objectMapper.disable(SerializationFeature.FAIL_ON_EMPTY_BEANS);
         SubtypeResolver subtypeResolver = new StdSubtypeResolver();
-        environment.getObjectMapper().setSubtypeResolver(subtypeResolver);
+        objectMapper.setSubtypeResolver(subtypeResolver);
+        objectMapper.registerSubtypes(new NamedType(SimpleClusterDiscoveryConfig.class, "foxtrot_simple"));
+        objectMapper.registerSubtypes(new NamedType(MarathonClusterDiscoveryConfig.class, "foxtrot_marathon"));
     }
 
 }

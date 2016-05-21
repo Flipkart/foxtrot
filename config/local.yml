@@ -20,8 +20,10 @@ hbase:
 
 cluster:
   name: foxtrot
-  disableMulticast: true
-  members: ["localhost:5701"]
+  discovery:
+    type: foxtrot_simple
+    disableMulticast: true
+    members: ["localhost:5701"]
 
 logging:
   level: INFO

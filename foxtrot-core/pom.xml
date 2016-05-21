@@ -114,13 +114,13 @@
         <dependency>
             <groupId>com.hazelcast</groupId>
             <artifactId>hazelcast</artifactId>
-            <version>3.5.3</version>
+            <version>3.6.2</version>
         </dependency>
 
         <dependency>
             <groupId>com.hazelcast</groupId>
             <artifactId>hazelcast</artifactId>
-            <version>3.5.3</version>
+            <version>3.6.2</version>
             <type>test-jar</type>
             <scope>test</scope>
         </dependency>
@@ -151,6 +151,8 @@
             <artifactId>aspectjrt</artifactId>
             <version>1.8.7</version>
         </dependency>
+
+
     </dependencies>
     <build>
         <plugins>
