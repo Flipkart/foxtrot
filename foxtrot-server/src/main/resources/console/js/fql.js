@@ -42,10 +42,6 @@ function runFql(dataType, renderFunction) {
 $(function(){
         $('[data-toggle="tooltip"]').tooltip();
         $(".csv-download").click(function(event) {
-            /*runFql('csv', function(dataRaw){
-                //location.href='data:application/download,' + encodeURIComponent(dataRaw);
-                console.log(dataRaw);
-            });*/
             $(".dataview").html("");
             var fqlQueryInput = $(".fql-query");
             var fqlQuery = fqlQueryInput.val();

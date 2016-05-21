@@ -105,7 +105,7 @@ Tile.prototype.newDataReceived = function(data) {
 };
 
 Tile.prototype.render = function(data, animate) {
-	console.log(data);	
+
 };
 
 Tile.prototype.handleResize = function(event, ui) {
@@ -122,7 +122,7 @@ Tile.prototype.getQuery = function() {
 }
 
 Tile.prototype.populateSetupDialog = function() {
-	
+
 };
 
 Tile.prototype.getRepresentation = function() {
@@ -169,7 +169,7 @@ Tile.prototype.filterValues = function(values) {
 function TileSet(id, tables) {
 	this.id = id;
 	this.tables = tables;
-	this.currentTiles = new Object();
+	this.currentTiles = {};
 };
 
 TileSet.prototype.closeHandler = function(eventData) {
@@ -187,6 +187,7 @@ TileSet.prototype.register = function(tile) {
 	var newDiv = $(handlebars("#tile-template", {tileId: tile.id, title: tile.title}));
 	tileContainer.find(".removable-text").css("display", "none");
 	newDiv.insertBefore('.float-clear');
+	$(newDiv).resizable();
 	if(tile.height != 0 && tile.width != 0) {
 		newDiv.height(tile.height);
 		newDiv.width(tile.width);

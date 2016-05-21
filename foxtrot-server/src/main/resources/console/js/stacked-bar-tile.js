@@ -84,28 +84,7 @@ StackedBar.prototype.render = function(data, animate) {
         canvas.empty();
         return;
     }
-    //console.log(tmpData);
-/*    for(var trend in data.trends) {
-        var tmpData = new Object();
-        var rows = [];
-        rows.push(['date', 'count']);
-        var trendData = data.trends[trend];
-        for (var i = 0; i < trendData.length; i++) {
-            tmpData[trendData[i].period] = trendData[i].count;
-        };
-        console.log(tmpData);
-        for (var t = timestamp - (this.period * 60000); t <= timestamp; t += 60000) {
-            if(tmpData.hasOwnProperty(t)) {
-                rows.push([t, tmpData[t]]);
-                console.log("Found: " + t);
-            }
-            else {
-                rows.push([t, 0]);
-            }
-        }
-        d.push({ data: rows, color: colors[colorIdx], label : trend, fill: true, fillColor: colors[colorIdx] });
-        colorIdx++;
-    }*/
+
     var trendWiseData = new Object();
     for(var time in tmpData) {
         for(var trend in data.trends) {

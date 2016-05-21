@@ -50,7 +50,7 @@ function showAlert(message, className, autoDismiss) {
 	if(autoDismiss) {
 		setTimeout(function(){
 			$("[data-hide]").click();
-		}, 5000);
+		}, 2000);
 	}
 }
 

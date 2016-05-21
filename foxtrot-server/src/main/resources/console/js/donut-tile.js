@@ -138,7 +138,7 @@ DonutTile.prototype.render = function(data, animate) {
      // });
 
 };
- 
+
 DonutTile.prototype.getQuery = function() {
      if(this.eventTypeFieldName && this.period != 0) {
           var timestamp = new Date().getTime();
@@ -166,7 +166,7 @@ DonutTile.prototype.getQuery = function() {
 };
 
 DonutTile.prototype.isSetupDone = function() {
-     return this.eventTypeFieldName && this.period != 0;     
+     return this.eventTypeFieldName && this.period != 0;
 };
 
 DonutTile.prototype.configChanged = function() {

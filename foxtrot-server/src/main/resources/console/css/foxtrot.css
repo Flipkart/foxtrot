@@ -2,7 +2,10 @@ html, body {
   height: 100%;
   background: rgb(239, 239, 239)
 }
-
+.tile-default-size {
+    width: 500px;
+    height: 350px;
+}
 .pageheader {
   /*margin-left: -15px;
   margin-right: -15px;

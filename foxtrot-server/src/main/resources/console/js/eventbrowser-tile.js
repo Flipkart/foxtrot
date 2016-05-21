@@ -65,7 +65,6 @@ EventBrowser.prototype.render = function(data, animate) {
         headers[j] = headers[j].replace("data.","");
     }
 	var tableData = {headers : headers, data: rows};
-	console.log(tableData);
 	parent.html(handlebars("#eventbrowser-template", tableData));
 };
 
