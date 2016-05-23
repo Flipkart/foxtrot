@@ -18,6 +18,7 @@ function Histogram() {
     this.typeName = "histogram";
     this.setupModalName = "#setupHistogram";
     //Instance properties
+    this.selectedFilters = null;
     this.period = 0;
 }
 
@@ -36,14 +37,10 @@ Histogram.prototype.render = function (data, animate) {
     var parent = $("#content-for-" + this.id);
     var canvas = null;
     if (!parent || 0 == parent.find(".chartcanvas").length) {
-        //$("#content-for-" + this.id).append("<div class='chart-content'/>");
-        parent = $("#content-for-" + this.id);//.find(".chart-content");
-        //parent.append("<div style='height: 15%'><input type='text' class='form-control col-lg-12 eventfilter' placeholder='Start typing here to filter event type...'/></div>");
+        parent = $("#content-for-" + this.id);
         canvas = $("<div>", {class: "chartcanvas"});
         parent.append(canvas);
         legendArea = $("<div>", {class: "legendArea"});
-        //legendArea.height("10%");
-        //legendArea.width("100%");
         parent.append(legendArea);
     }
     else {
@@ -59,7 +56,7 @@ Histogram.prototype.render = function (data, animate) {
     for (var i = data.counts.length - 1; i >= 0; i--) {
         rows.push([data.counts[i].period, data.counts[i].count]);
     }
-    ;
+
     var timestamp = new Date().getTime();
     var d = {data: rows, color: "#57889C", shadowSize: 0};
     $.plot(canvas, [d], {
@@ -102,9 +99,13 @@ Histogram.prototype.isSetupDone = function () {
 Histogram.prototype.getQuery = function () {
     if (this.period != 0) {
         var timestamp = new Date().getTime();
-        // {"opcode":"histogram","table":"test-app","filters":[],"from":0,"to":1398837122311,"field":"_timestamp","period":"hours"}
         var filters = [];
         filters.push(timeValue(this.period, $("#" + this.id).find(".period-select").val()));
+        if (this.selectedFilters && this.selectedFilters.filters) {
+            for (var i = 0; i < this.selectedFilters.filters.length; i++) {
+                filters.push(this.selectedFilters.filters[i]);
+            }
+        }
         return JSON.stringify({
             opcode: "histogram",
             table: this.tables.selectedTable.name,
@@ -119,6 +120,16 @@ Histogram.prototype.configChanged = function () {
     var modal = $(this.setupModalName);
     this.period = parseInt(modal.find(".refresh-period").val());
     this.title = modal.find(".tile-title").val();
+    var filters = modal.find(".selected-filters").val();
+    if (filters != undefined && filters != "") {
+        var selectedFilters = JSON.parse(filters);
+        if (selectedFilters != undefined) {
+            this.selectedFilters = selectedFilters;
+        }
+    } else {
+        this.selectedFilters = null;
+    }
+
     console.log("Config changed for: " + this.id);
 };
 
@@ -126,16 +137,25 @@ Histogram.prototype.populateSetupDialog = function () {
     var modal = $(this.setupModalName);
     modal.find(".refresh-period").val(( 0 != this.period) ? this.period : "");
     modal.find(".tile-title").val(this.title)
+    if (this.selectedFilters) {
+        modal.find(".selected-filters").val(JSON.stringify(this.selectedFilters));
+    }
 }
 
 Histogram.prototype.registerSpecificData = function (representation) {
     representation['period'] = this.period;
+    if (this.selectedFilters) {
+        representation['selectedFilters'] = btoa(JSON.stringify(this.selectedFilters));
+    }
 };
 
 Histogram.prototype.loadSpecificData = function (representation) {
     this.period = representation['period'];
+    if (representation.hasOwnProperty('selectedFilters')) {
+        this.selectedFilters = JSON.parse(atob(representation['selectedFilters']));
+    }
 };
 
 Histogram.prototype.registerComplete = function () {
     $("#" + this.id).find(".glyphicon-filter").hide();
-}
+};

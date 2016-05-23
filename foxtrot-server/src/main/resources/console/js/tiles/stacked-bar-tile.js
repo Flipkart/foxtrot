@@ -179,13 +179,6 @@ StackedBar.prototype.render = function (data, animate) {
 StackedBar.prototype.getQuery = function () {
     if (this.eventTypeFieldName && this.period != 0) {
         var filters = [];
-        /*filters.push({
-         field: "_timestamp",
-         operator: "between",
-         temporal: true,
-         from: (timestamp - (this.period * 60000)),
-         to: timestamp
-         });*/
         filters.push(timeValue(this.period, $("#" + this.id).find(".period-select").val()));
         if (this.selectedFilters && this.selectedFilters.filters) {
             for (var i = 0; i < this.selectedFilters.filters.length; i++) {
