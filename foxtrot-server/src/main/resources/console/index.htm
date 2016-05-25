@@ -512,9 +512,12 @@
 </div>
 
 <!--Histogram-->
-<div class="modal fade" id="setupHistogram" tabindex="-1" role="dialog" aria-labelledby="setupHistogramModalLabel" aria-hidden="true">
+<div class="modal fade" id="setupHistogram" tabindex="-1" role="dialog"
+     aria-labelledby="setupHistogramModalLabel"
+     aria-hidden="true">
     <div class="modal-dialog">
-        <form class="form-horizontal settings-form" role="form" data-toggle="validate" data-delay="" id="setupHistogramForm">
+        <form class="form-horizontal settings-form" role="form" data-toggle="validate" data-delay=""
+              id="setupHistogramForm">
             <div class="modal-content">
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
@@ -528,22 +531,34 @@
                     </div>
                     <div class="form-group">
                         <label class="col-sm-4 control-label"><strong>Title</strong></label>
+
                         <div class="col-sm-8">
-                            <input type="text" class="form-control tile-title" placeholder="Give a title" required>
+                            <input type="text" class="form-control tile-title" placeholder="Give a title"
+                                   required>
                         </div>
                     </div>
                     <div class="form-group">
-                        <label class="col-sm-4 control-label" for="histogram_rt"><strong>Timeframe (minutes)</strong></label>
+                        <label class="col-sm-4 control-label" for="histogram_rt"><strong>Timeframe
+                            (minutes)</strong></label>
+
                         <div class="col-sm-8">
-                            <input type="number" min="5" max="10080" class="form-control refresh-period" placeholder="Between 5 mins and 10080 mins (7 days)" required id="histogram_rt">
+                            <input type="number" min="5" max="10080" class="form-control refresh-period"
+                                   placeholder="Between 5 mins and 10080 mins (7 days)" required
+                                   id="histogram_rt">
+
                             <div class="help-block with-errors">Between 5 mins and 10080 mins (7 days)</div>
                         </div>
                     </div>
                     <div class="form-group">
-                        <label class="col-sm-4 control-label" for="hist_selected_values"><strong>Only consider particular values</strong></label>
+                        <label class="col-sm-4 control-label"
+                               for="histogram_selected_filters"><strong>Filters</strong></label>
+
                         <div class="col-sm-8">
-                            <input type="text" class="form-control selected-values" placeholder="Comma separated list of values to select" id="hist_selected_values">
-                            <div class="help-block with-errors">Comma separated list of values to select</div>
+                   <textarea class="form-control selected-filters"
+                             placeholder="JSON string containing the filters"
+                             id="histogram_selected_filters"></textarea>
+
+                            <div class="help-block with-errors">Enter a JSON string</div>
                         </div>
                     </div>
                 </div>
@@ -555,6 +570,7 @@
         </form>
     </div>
 </div>
+
 
 <!--EventBrowser-->
 <div class="modal fade" id="setupEventBrowser" tabindex="-1" role="dialog" aria-labelledby="setupEventBrowserModalLabel" aria-hidden="true">
