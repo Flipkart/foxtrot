@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-function FqlTable () {
+function FqlTable() {
     this.typeName = "fql_table";
     this.refresh = true;
     this.setupModalName = "#setupFqlTableModal";
@@ -26,31 +26,31 @@ function FqlTable () {
 FqlTable.prototype = new Tile();
 
 FqlTable.prototype.render = function (data, animate) {
-    if (this.title){
+    if (this.title) {
         $("#" + this.id).find(".tile-header").text(this.title);
     } else {
         $("#" + this.id).find(".tile-header").text("Query : " + this.query);
     }
     var parent = $("#content-for-" + this.id);
 
-    if (0 != parent.find(".dataview-table").length){
+    if (0 != parent.find(".dataview-table").length) {
         parent.find(".dataview-table").remove()
     }
     var headerData = data.headers;
     var headers = [];
-    for(var i = 0; i < headerData.length; i++) {
+    for (var i = 0; i < headerData.length; i++) {
         headers.push(headerData[i]['name']);
     }
     var rowData = data.rows;
     var rows = [];
-    for(i = 0; i < rowData.length; i++) {
+    for (i = 0; i < rowData.length; i++) {
         var row = [];
-        for(var j = 0; j < headers.length; j++) {
+        for (var j = 0; j < headers.length; j++) {
             row.push(rowData[i][headers[j]]);
         }
         rows.push(row);
     }
-    var tableData = {headers : headers, data: rows};
+    var tableData = {headers: headers, data: rows};
     parent.append(handlebars('#table-template', tableData))
 };
 
@@ -71,7 +71,7 @@ FqlTable.prototype.configChanged = function () {
 FqlTable.prototype.populateSetupDialog = function () {
     var modal = $(this.setupModalName);
     modal.find(".tile-title").val(this.title)
-    if (this.query){
+    if (this.query) {
         modal.find("#fql_query").val(this.query)
     }
 };
