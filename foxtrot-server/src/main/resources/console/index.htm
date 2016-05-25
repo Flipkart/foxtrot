@@ -1,19 +1,19 @@
 <!DOCTYPE html>
 <!--
-   * Copyright 2014 Flipkart Internet Pvt. Ltd.
-   *
-   * Licensed under the Apache License, Version 2.0 (the "License");
-   * you may not use this file except in compliance with the License.
-   * You may obtain a copy of the License at
-   *
-   * http://www.apache.org/licenses/LICENSE-2.0
-   *
-   * Unless required by applicable law or agreed to in writing, software
-   * distributed under the License is distributed on an "AS IS" BASIS,
-   * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-   * See the License for the specific language governing permissions and
-   * limitations under the License.
-   -->
+* Copyright 2014 Flipkart Internet Pvt. Ltd.
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+* http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+-->
 <html lang="en">
     <head>
         <meta charset="utf-8">
@@ -22,7 +22,9 @@
         <meta name="description" content="">
         <meta name="author" content="">
         <link rel="shortcut icon" href="../../assets/ico/favicon.ico">
+
         <title>Foxtrot</title>
+
         <!-- Bootstrap core CSS -->
         <link href="css/bootstrap.min.css" rel="stylesheet">
         <link href="css/bootstrap-select.min.css" rel="stylesheet">
@@ -31,26 +33,26 @@
         <link rel="stylesheet" href="css/jquery-ui.css">
         <link rel="stylesheet" href="css/bootstrapValidator.min.css">
         <link href="css/foxtrot.css" rel="stylesheet">
+
         <!-- Custom styles for this template -->
+
         <!-- Just for debugging purposes. Don't actually copy this line! -->
-        <!--[if lt IE 9]>
-        <script src="../../assets/js/ie8-responsive-file-warning.js"></script><![endif]-->
+        <!--[if lt IE 9]><script src="../../assets/js/ie8-responsive-file-warning.js"></script><![endif]-->
+
         <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
         <!--[if lt IE 9]>
         <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
         <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
         <![endif]-->
     </head>
+
     <body>
         <span id="ruler"></span>
-
         <div class="container container-full">
             <div class="header-container">
                 <div class="header pageheader">
                     <h1>
-                        <div class="col-sm-4"><img src="images/fox_logo.png" style="height: 40px;"/> <span
-                                class="console-name">FoxTrot</span>
-                        </div>
+                        <div class="col-sm-4"><img src="images/fox_logo.png" style="height: 40px;"/> <span class="console-name">FoxTrot</span></div>
                     </h1>
                     <ul class="nav nav-pills pull-right">
                         <li><a href="/fql">FQL</a></li>
@@ -61,16 +63,13 @@
                         </li>
                         <li>
                             <div class="btn-group">
-                                <button type="button" class="btn btn-primary filter-nav-button" data-toggle="modal"
-                                        data-target="#addWidgetModal">
-                                    <span class='glyphicon glyphicon-plus' id="newTile"></span>
+                                <button type="button" class="btn btn-primary filter-nav-button" data-toggle="modal" data-target="#addWidgetModal">
+                                    <span class='glyphicon glyphicon-plus' id="newTile" ></span>
                                 </button>
-                                <button type="button" class="btn btn-primary filter-nav-button" data-toggle="modal"
-                                        data-target="#loadConsoleModal">
-                                    <span class='glyphicon glyphicon-eye-open' id="loadConsole"></span>
+                                <button type="button" class="btn btn-primary filter-nav-button" data-toggle="modal" data-target="#loadConsoleModal">
+                                    <span class='glyphicon glyphicon-eye-open' id="loadConsole" ></span>
                                 </button>
-                                <button type="button" class="btn btn-primary filter-nav-button" data-toggle="modal"
-                                        data-target="#saveConsoleModal">
+                                <button type="button" class="btn btn-primary filter-nav-button" data-toggle="modal" data-target="#saveConsoleModal">
                                     <span class='glyphicon glyphicon-floppy-disk' id="saveConsole"></span>
                                 </button>
                             </div>
@@ -100,12 +99,10 @@
                             <tbody>
                                 <tr class="filter-control">
                                     <td class="control-table-cell">
-                                        <select class="selectpicker event-fields" data-style="btn-success"
-                                                id="event-fields"></select>
+                                        <select class="selectpicker event-fields" data-style="btn-success" id="event-fields"></select>
                                     </td>
                                     <td class="control-table-cell">
-                                        <select class="selectpicker field-operator" data-style="btn-primary"
-                                                id="field-operator"></select>
+                                        <select class="selectpicker field-operator" data-style="btn-primary" id="field-operator"></select>
                                     </td>
                                     <td>
                                         <div class="form-group">
@@ -118,8 +115,7 @@
                                         </div>
                                     </td>
                                     <td style="width: 50px">
-                                        <button style="vertical-align: middle; padding: 9px"
-                                                class="filter-condition-add">
+                                        <button style="vertical-align: middle; padding: 9px" class="filter-condition-add">
                                             <span class='glyphicon glyphicon-plus'></span>
                                         </button>
                                     </td>
@@ -127,24 +123,23 @@
                                 <tr>
                                     <td class="control-table-cell">
                                         <div class='input-group date' id='datetimeFrom'>
-                                            <input type='text' class="form-control date-from"/>
-                                 <span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span>
-                                 </span>
+                                            <input type='text' class="form-control date-from" />
+                                  <span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span>
+                                  </span>
                                         </div>
                                     </td>
                                     <td class="control-table-cell">
                                         <div class='input-group date' id='datetimeTo'>
-                                            <input type='text' class="form-control date-to"/>
-                                 <span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span>
-                                 </span>
+                                            <input type='text' class="form-control date-to" />
+                                  <span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span>
+                                  </span>
                                         </div>
                                     </td>
                                     <td colspan="2" class="control-table-cell">
                                         <select class="selectpicker datasort" data-style="btn-warning">
                                             <option value="desc">Latest First</option>
                                             <option value="asc">Oldest First</option>
-                                        </select>
-                                    </td>
+                                        </select> </td>
                                     <td style="width: 50px">
                                         <button style="padding: 9px" class="run-query btn btn-primary">
                                             <span class='glyphicon glyphicon-search'></span>
@@ -169,17 +164,69 @@
                             </div>
                         </div>
                     </div>
-                    <div class="row filter-event-container" style="min-height: 200px"></div>
+
+                    <!--<script id="search-template" type="text/x-handlebars-template">-->
+                    <!--<table class="table table-bordered table-hover table-condensed">-->
+                    <!--<thead>-->
+                    <!--<tr>-->
+                    <!--{{#each headers}}-->
+                    <!--<th>{{this}}</th>-->
+                    <!--{{/each}}-->
+                    <!--</tr>-->
+                    <!--</thead>-->
+                    <!--<tbody>-->
+                    <!--{{#each data}}-->
+                    <!--<tr>-->
+                    <!--{{#each this}}-->
+                    <!--<td>{{this}}</th>-->
+                    <!--{{/each}}-->
+                    <!--</tr>-->
+                    <!--{{/each}}-->
+                    <!--</tbody>-->
+
+                    <!--</table>-->
+                    <!--</script>-->
+                    <div class="row filter-event-container" style="min-height: 200px">
+                        <!--<div class="table-responsive">
+                            <table class="table table-striped table-bordered table-hover table-condensed" id="filter_results">
+                                <thead>
+                                <tr>
+                                    <th nowrap="">Config Name</th>
+                                    <th nowrap="">Profile</th>
+                                    <th nowrap="">Instance ID</th>
+                                    <th nowrap="">Event ID</th>
+                                    <th nowrap="">Time</th>
+                                    <th>Data</th>
+                                </tr>
+                                </thead>
+                                <tbody id="search_result_rows">
+                                <script id="filter-results" type="text/x-handlebars-template">
+                                    {{#each events}}
+                                    <tr>
+                                        <td width="1%" nowrap>{{header.configName}}</td>
+                                        <td width="1%" nowrap>{{header.profile}}</td>
+                                        <td width="1%" nowrap>{{header.instanceId}}</td>
+                                        <td width="1%" nowrap>{{header.eventId}}</td>
+                                        <td width="1%" nowrap>{{header.time}}</td>
+                                        <td>{{{data}}}</td>
+                                    </tr>
+                                    {{/each}}
+                                </script>
+                                </tbody>
+                            </table>
+                        </div>-->
+                    </div>
                 </div>
             </div>
+
             <div class="footer">
                 <p>&copy; flipkart.com 2014</p>
             </div>
-        </div>
-        <!-- /container -->
+
+        </div> <!-- /container -->
+
         <!-- Modal -->
-        <div class="modal fade" id="addWidgetModal" tabindex="-1" role="dialog" aria-labelledby="addWidgetModalLabel"
-             aria-hidden="true">
+        <div class="modal fade" id="addWidgetModal" tabindex="-1" role="dialog" aria-labelledby="addWidgetModalLabel" aria-hidden="true">
             <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header">
@@ -187,24 +234,33 @@
                         <h4 class="modal-title" id="addWidgetModalLabel">Add widget</h4>
                     </div>
                     <div class="modal-body">
+                        <!-- <form class="form-inline" role="form"> -->
                         <form class="row">
+                            <!--<div class="col-xs-7">
+                              <input type="text" class="form-control black-input" id="widgetTitle" placeholder="Enter widget title" >
+                            </div>-->
                             <div class="form-group">
-                                <label class="col-sm-4 control-label" for="widgetType"><strong>Select
-                                    Tile</strong></label>
-
+                                <label class="col-sm-4 control-label" for="widgetType"><strong>Select Tile</strong></label>
                                 <div class="col-sm-8">
-                                    <select class="selectpicker" data-style="btn-warning" id="widgetType"
-                                            name="widgetType">
+                                    <select class="selectpicker"  data-style="btn-warning" id="widgetType" name="widgetType">
                                         <option value="donut">Event Type Split Donut</option>
                                         <option value="bar">Event Type Split Bars</option>
+                                        <!-- <option value="line">Lines</option> -->
+                                        <!-- <option value="search">Search</option> -->
+                                        <!-- <option value="trends">Trends</option> -->
+                                        <!-- <option value="tree">Event Tree</option> -->
                                         <option value="histogram">Event Ingestion Histogram</option>
                                         <option value="stacked_bar">Classified Event Ingestion Histogram</option>
                                         <option value="statstrend">Numerical statistics trend view</option>
                                         <option value="fql_table">Table View</option>
+                                        <!--<option value="eventbrowser">Event Browser</option>-->
                                     </select>
                                 </div>
                             </div>
                         </form>
+                        <!-- <div class="form-group">
+                          <textarea rows="10" id="flow-create-modal-text" class="form-control scrollable black" placeholder="Enter foxtrot query" style="resize: none"></textarea>
+                        </div> -->
                     </div>
                     <div class="modal-footer" style="margin-top: 0px;">
                         <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
@@ -213,13 +269,11 @@
                 </div>
             </div>
         </div>
+
         <!--Console-->
-        <div class="modal fade" id="saveConsoleModal" tabindex="-1" role="dialog"
-             aria-labelledby="saveConsoleModalLabel"
-             aria-hidden="true">
+        <div class="modal fade" id="saveConsoleModal" tabindex="-1" role="dialog" aria-labelledby="saveConsoleModalLabel" aria-hidden="true">
             <div class="modal-dialog">
-                <form class="form-horizontal settings-form" role="form" data-toggle="validate" data-delay=""
-                      id="consoleSaveForm">
+                <form class="form-horizontal settings-form" role="form" data-toggle="validate" data-delay="" id="consoleSaveForm">
                     <div class="modal-content">
                         <div class="modal-header">
                             <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
@@ -232,22 +286,18 @@
                                 </div>
                             </div>
                             <div class="form-group">
-                                <label class="col-sm-4 control-label" for="console_name"><strong>Console
-                                    Name</strong></label>
-
+                                <label class="col-sm-4 control-label" for="console_name"><strong>Console Name</strong></label>
                                 <div class="col-sm-8">
-                                    <input type="text" class="form-control console-name"
-                                           placeholder="Enter Console Name"
-                                           required id="console_name">
-
+                                    <input type="text" class="form-control console-name" placeholder="Enter Console Name" required id="console_name">
                                     <div class="help-block with-errors">Enter a name for the console.</div>
                                 </div>
                             </div>
+
                         </div>
+
                         <div class="modal-footer">
                             <div class="checkbox" style="float: left;">
-                                <label> <input type="checkbox" checked id="pinConsoleToApp">Pin console to current
-                                    app</label>
+                                <label> <input type="checkbox" checked id="pinConsoleToApp">Pin console to current app</label>
                             </div>
                             <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
                             <button type="submit" class="btn btn-primary save-changes" disabled="disabled">Done</button>
@@ -256,12 +306,10 @@
                 </form>
             </div>
         </div>
-        <div class="modal fade" id="loadConsoleModal" tabindex="-1" role="dialog"
-             aria-labelledby="loadConsoleModalLabel"
-             aria-hidden="true">
+
+        <div class="modal fade" id="loadConsoleModal" tabindex="-1" role="dialog" aria-labelledby="loadConsoleModalLabel" aria-hidden="true">
             <div class="modal-dialog">
-                <form class="form-horizontal settings-form" role="form" data-toggle="validate" data-delay=""
-                      id="consoleLoadForm">
+                <form class="form-horizontal settings-form" role="form" data-toggle="validate" data-delay="" id="consoleLoadForm">
                     <div class="modal-content">
                         <div class="modal-header">
                             <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
@@ -274,14 +322,10 @@
                                 </div>
                             </div>
                             <div class="form-group">
-                                <label class="col-sm-4 control-label" for="select_console_name"><strong>Console
-                                    Name</strong></label>
-
+                                <label class="col-sm-4 control-label" for="select_console_name"><strong>Console Name</strong></label>
                                 <div class="col-sm-8">
-                                    <select class="selectpicker pie-chart-field" data-style="btn-warning" required
-                                            id="select_console_name">
+                                    <select class="selectpicker pie-chart-field"  data-style="btn-warning" required id="select_console_name">
                                     </select>
-
                                     <div class="help-block with-errors">Select the console to load.</div>
                                 </div>
                             </div>
@@ -294,14 +338,13 @@
                 </form>
             </div>
         </div>
+
         <!-- Settings Modal Windows-->
+
         <!--Pie-->
-        <div class="modal fade" id="setupPieChartModal" tabindex="-1" role="dialog"
-             aria-labelledby="setupPieChartModalLabel"
-             aria-hidden="true">
+        <div class="modal fade" id="setupPieChartModal" tabindex="-1" role="dialog" aria-labelledby="setupPieChartModalLabel" aria-hidden="true">
             <div class="modal-dialog">
-                <form class="form-horizontal settings-form" role="form" data-toggle="validate" data-delay=""
-                      id="setupPieChartForm">
+                <form class="form-horizontal settings-form" role="form" data-toggle="validate" data-delay="" id="setupPieChartForm">
                     <div class="modal-content">
                         <div class="modal-header">
                             <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
@@ -315,62 +358,41 @@
                             </div>
                             <div class="form-group">
                                 <label class="col-sm-4 control-label"><strong>Title</strong></label>
-
                                 <div class="col-sm-8">
-                                    <input type="text" class="form-control tile-title" placeholder="Give a title"
-                                           required>
+                                    <input type="text" class="form-control tile-title" placeholder="Give a title" required>
                                 </div>
                             </div>
                             <div class="form-group">
                                 <label class="col-sm-4 control-label" for="pie_rt"><strong>Timeframe (minutes)</strong></label>
-
                                 <div class="col-sm-8">
-                                    <input type="number" min="5" max="10080" class="form-control refresh-period"
-                                           placeholder="Between 5 mins and 10080 mins (7 days)" required id="pie_rt">
-
+                                    <input type="number" min="5" max="10080" class="form-control refresh-period" placeholder="Between 5 mins and 10080 mins (7 days)" required id="pie_rt">
                                     <div class="help-block with-errors">Between 5 mins and 10080 mins (7 days)</div>
                                 </div>
                             </div>
                             <div class="form-group">
                                 <label class="col-sm-4 control-label" for="pie_field"><strong>Event Type Field</strong></label>
-
                                 <div class="col-sm-8">
-                                    <select class="selectpicker pie-chart-field" data-style="btn-warning"
-                                            id="pie_field">
+                                    <select class="selectpicker pie-chart-field"  data-style="btn-warning" id="pie_field">
                                     </select>
-
                                     <div class="help-block with-errors">Select the field from the above list.</div>
                                 </div>
                             </div>
                             <div class="form-group">
-                                <label class="col-sm-4 control-label" for="pie_selected_values"><strong>Only consider
-                                    particular
-                                    values</strong></label>
-
+                                <label class="col-sm-4 control-label" for="pie_selected_values"><strong>Only consider particular values</strong></label>
                                 <div class="col-sm-8">
-                                    <input type="text" class="form-control selected-values"
-                                           placeholder="Comma separated list of values to select"
-                                           id="pie_selected_values">
-
+                                    <input type="text" class="form-control selected-values" placeholder="Comma separated list of values to select" id="pie_selected_values">
                                     <div class="help-block with-errors">Between 5 mins and 10080 mins (7 days)</div>
                                 </div>
                             </div>
                             <div class="form-group">
-                                <label class="col-sm-4 control-label"
-                                       for="pie_selected_filters"><strong>Filters</strong></label>
-
+                                <label class="col-sm-4 control-label" for="pie_selected_filters"><strong>Filters</strong></label>
                                 <div class="col-sm-8">
-                           <textarea class="form-control selected-filters"
-                                     placeholder="JSON string containing the filters"
-                                     id="pie_selected_filters"></textarea>
-
+                                    <textarea class="form-control selected-filters" placeholder="JSON string containing the filters" id="pie_selected_filters"></textarea>
                                     <div class="help-block with-errors">Enter a JSON string</div>
                                 </div>
                             </div>
                             <div class="form-group">
-                                <label class="control-label col-sm-4" for="pie-show-legend"><strong>Show legend</strong>
-                                </label>
-
+                                <label class="control-label col-sm-4" for="pie-show-legend"><strong>Show legend</strong> </label>
                                 <div class="checkbox" style="padding-left: 230px;">
                                     <input type="checkbox" class="pie-show-legend" id="pie-show-legend"/>
                                 </div>
@@ -384,13 +406,11 @@
                 </form>
             </div>
         </div>
+
         <!--Fql Table-->
-        <div class="modal fade" id="setupFqlTableModal" tabindex="-1" role="dialog"
-             aria-labelledby="setupFqlTableModalLabel"
-             aria-hidden="true">
+        <div class="modal fade" id="setupFqlTableModal" tabindex="-1" role="dialog" aria-labelledby="setupFqlTableModalLabel" aria-hidden="true">
             <div class="modal-dialog">
-                <form class="form-horizontal settings-form" role="form" data-toggle="validate" data-delay=""
-                      id="setupFqlTableForm">
+                <form class="form-horizontal settings-form" role="form" data-toggle="validate" data-delay="" id="setupFqlTableForm">
                     <div class="modal-content">
                         <div class="modal-header">
                             <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
@@ -404,18 +424,14 @@
                             </div>
                             <div class="form-group">
                                 <label class="col-sm-4 control-label"><strong>Title</strong></label>
-
                                 <div class="col-sm-8">
-                                    <input type="text" class="form-control tile-title" placeholder="Give a title"
-                                           required>
+                                    <input type="text" class="form-control tile-title" placeholder="Give a title" required>
                                 </div>
                             </div>
                             <div class="form-group">
                                 <label class="col-sm-4 control-label" for="fql_query"><strong>FQL Query</strong></label>
-
                                 <div class="col-sm-8">
-                                    <input type="text" class="form-control" placeholder="Type your Query Here" required
-                                           id="fql_query">
+                                    <input type="text" class="form-control" placeholder="Type your Query Here" required id="fql_query">
                                 </div>
                             </div>
                         </div>
@@ -427,13 +443,11 @@
                 </form>
             </div>
         </div>
+
         <!--Bar-->
-        <div class="modal fade" id="setupBarChartModal" tabindex="-1" role="dialog"
-             aria-labelledby="setupBarChartModalLabel"
-             aria-hidden="true">
+        <div class="modal fade" id="setupBarChartModal" tabindex="-1" role="dialog" aria-labelledby="setupBarChartModalLabel" aria-hidden="true">
             <div class="modal-dialog">
-                <form class="form-horizontal settings-form" role="form" data-toggle="validate" data-delay=""
-                      id="setupBarChartForm">
+                <form class="form-horizontal settings-form" role="form" data-toggle="validate" data-delay="" id="setupBarChartForm">
                     <div class="modal-content">
                         <div class="modal-header">
                             <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
@@ -447,67 +461,46 @@
                             </div>
                             <div class="form-group">
                                 <label class="col-sm-4 control-label"><strong>Title</strong></label>
-
                                 <div class="col-sm-8">
-                                    <input type="text" class="form-control tile-title" placeholder="Give a title"
-                                           required>
+                                    <input type="text" class="form-control tile-title" placeholder="Give a title" required>
                                 </div>
                             </div>
                             <div class="form-group">
                                 <label class="col-sm-4 control-label" for="bar_rt"><strong>Timeframe (minutes)</strong></label>
-
                                 <div class="col-sm-8">
-                                    <input type="number" min="5" max="10080" class="form-control refresh-period"
-                                           placeholder="Between 5 mins and 10080 mins (7 days)" required id="bar_rt">
-
+                                    <input type="number" min="5" max="10080" class="form-control refresh-period" placeholder="Between 5 mins and 10080 mins (7 days)" required id="bar_rt">
                                     <div class="help-block with-errors">Between 5 mins and 10080 mins (7 days)</div>
                                 </div>
                             </div>
                             <div class="form-group">
-                                <label class="col-sm-4 control-label" for="bar-chart-field"><strong>Event Type
-                                    Field</strong></label>
-
+                                <label class="col-sm-4 control-label" for="bar-chart-field"><strong>Event Type Field</strong></label>
                                 <div class="col-sm-8">
-                                    <select class="selectpicker bar-chart-field" data-style="btn-warning"
-                                            id="bar-chart-field">
+                                    <select class="selectpicker bar-chart-field"  data-style="btn-warning" id="bar-chart-field">
                                     </select>
-
                                     <div class="help-block with-errors">Select the field from the above list.</div>
                                 </div>
                             </div>
                             <div class="form-group">
-                                <label class="col-sm-4 control-label" for="bar_selected_values"><strong>Only consider
-                                    particular
-                                    values</strong></label>
-
+                                <label class="col-sm-4 control-label" for="bar_selected_values"><strong>Only consider particular values</strong></label>
                                 <div class="col-sm-8">
-                                    <input type="text" class="form-control selected-values"
-                                           placeholder="Comma separated list of values to select"
-                                           id="bar_selected_values">
-
+                                    <input type="text" class="form-control selected-values" placeholder="Comma separated list of values to select" id="bar_selected_values">
                                     <div class="help-block with-errors">Comma separated list of values to select</div>
                                 </div>
                             </div>
                             <div class="form-group">
-                                <label class="col-sm-4 control-label"
-                                       for="bar_selected_filters"><strong>Filters</strong></label>
-
+                                <label class="col-sm-4 control-label" for="bar_selected_filters"><strong>Filters</strong></label>
                                 <div class="col-sm-8">
-                           <textarea class="form-control selected-filters"
-                                     placeholder="JSON string containing the filters"
-                                     id="bar_selected_filters"></textarea>
-
+                                    <textarea class="form-control selected-filters" placeholder="JSON string containing the filters" id="bar_selected_filters"></textarea>
                                     <div class="help-block with-errors">Enter a JSON string</div>
                                 </div>
                             </div>
                             <div class="form-group">
-                                <label class="control-label col-sm-4" for="bar-show-legend"><strong>Show legend</strong>
-                                </label>
-
+                                <label class="control-label col-sm-4" for="bar-show-legend"><strong>Show legend</strong> </label>
                                 <div class="checkbox" style="padding-left: 230px;">
                                     <input type="checkbox" class="bar-show-legend" id="bar-show-legend"/>
                                 </div>
                             </div>
+
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
@@ -517,6 +510,7 @@
                 </form>
             </div>
         </div>
+
         <!--Histogram-->
         <div class="modal fade" id="setupHistogram" tabindex="-1" role="dialog"
              aria-labelledby="setupHistogramModalLabel"
@@ -560,9 +554,9 @@
                                        for="histogram_selected_filters"><strong>Filters</strong></label>
 
                                 <div class="col-sm-8">
-                           <textarea class="form-control selected-filters"
-                                     placeholder="JSON string containing the filters"
-                                     id="histogram_selected_filters"></textarea>
+                   <textarea class="form-control selected-filters"
+                             placeholder="JSON string containing the filters"
+                             id="histogram_selected_filters"></textarea>
 
                                     <div class="help-block with-errors">Enter a JSON string</div>
                                 </div>
@@ -576,13 +570,11 @@
                 </form>
             </div>
         </div>
+
         <!--EventBrowser-->
-        <div class="modal fade" id="setupEventBrowser" tabindex="-1" role="dialog"
-             aria-labelledby="setupEventBrowserModalLabel"
-             aria-hidden="true">
+        <div class="modal fade" id="setupEventBrowser" tabindex="-1" role="dialog" aria-labelledby="setupEventBrowserModalLabel" aria-hidden="true">
             <div class="modal-dialog">
-                <form class="form-horizontal settings-form" role="form" data-toggle="validate" data-delay=""
-                      id="setupEventBrowserForm">
+                <form class="form-horizontal settings-form" role="form" data-toggle="validate" data-delay="" id="setupEventBrowserForm">
                     <div class="modal-content">
                         <div class="modal-header">
                             <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
@@ -595,13 +587,9 @@
                                 </div>
                             </div>
                             <div class="form-group">
-                                <label class="col-sm-4 control-label" for="eventbrowser_count"><strong>Record count per
-                                    page</strong></label>
-
+                                <label class="col-sm-4 control-label" for="eventbrowser_count"><strong>Record count per page</strong></label>
                                 <div class="col-sm-8">
-                                    <input type="number" min="10" max="100" class="form-control event-count"
-                                           placeholder="Between 10 and 100" required id="eventbrowser_count">
-
+                                    <input type="number" min="10" max="100" class="form-control event-count" placeholder="Between 10 and 100" required id="eventbrowser_count">
                                     <div class="help-block with-errors">Between 10 and 100 events per page</div>
                                 </div>
                             </div>
@@ -614,12 +602,11 @@
                 </form>
             </div>
         </div>
+
         <!--Stacked bar chart-->
-        <div class="modal fade" id="setupStackedBarChartModal" tabindex="-1" role="dialog"
-             aria-labelledby="setupStackedBarChartModalLabel" aria-hidden="true">
+        <div class="modal fade" id="setupStackedBarChartModal" tabindex="-1" role="dialog" aria-labelledby="setupStackedBarChartModalLabel" aria-hidden="true">
             <div class="modal-dialog">
-                <form class="form-horizontal settings-form" role="form" data-toggle="validate" data-delay=""
-                      id="setupStackedBarChartModalForm">
+                <form class="form-horizontal settings-form" role="form" data-toggle="validate" data-delay="" id="setupStackedBarChartModalForm">
                     <div class="modal-content">
                         <div class="modal-header">
                             <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
@@ -633,45 +620,29 @@
                             </div>
                             <div class="form-group">
                                 <label class="col-sm-4 control-label"><strong>Title</strong></label>
-
                                 <div class="col-sm-8">
-                                    <input type="text" class="form-control tile-title" placeholder="Give a title"
-                                           required>
+                                    <input type="text" class="form-control tile-title" placeholder="Give a title" required>
                                 </div>
                             </div>
                             <div class="form-group">
-                                <label class="col-sm-4 control-label" for="stacked_bar_rt"><strong>Timeframe
-                                    (minutes)</strong></label>
-
+                                <label class="col-sm-4 control-label" for="stacked_bar_rt"><strong>Timeframe (minutes)</strong></label>
                                 <div class="col-sm-8">
-                                    <input type="number" min="5" max="10080" class="form-control refresh-period"
-                                           placeholder="Between 5 mins and 10080 mins (7 days)" required
-                                           id="stacked_bar_rt">
-
+                                    <input type="number" min="5" max="10080" class="form-control refresh-period" placeholder="Between 5 mins and 10080 mins (7 days)" required id="stacked_bar_rt">
                                     <div class="help-block with-errors">Between 5 mins and 10080 mins (7 days)</div>
                                 </div>
                             </div>
                             <div class="form-group">
-                                <label class="col-sm-4 control-label" for="pie_rt"><strong>Field to
-                                    classify</strong></label>
-
+                                <label class="col-sm-4 control-label" for="pie_rt"><strong>Field to classify</strong></label>
                                 <div class="col-sm-8">
-                                    <select class="selectpicker stacked-bar-chart-field" data-style="btn-warning"
-                                            id="stacked-bar-chart-field">
+                                    <select class="selectpicker stacked-bar-chart-field"  data-style="btn-warning" id="stacked-bar-chart-field">
                                     </select>
-
                                     <div class="help-block with-errors">Select the field from the above list.</div>
                                 </div>
                             </div>
                             <div class="form-group">
-                                <label class="col-sm-4 control-label"
-                                       for="stacked_bar_selected_filters"><strong>Filters</strong></label>
-
+                                <label class="col-sm-4 control-label" for="stacked_bar_selected_filters"><strong>Filters</strong></label>
                                 <div class="col-sm-8">
-                           <textarea class="form-control selected-filters"
-                                     placeholder="JSON string containing the filters"
-                                     id="stacked_bar_selected_filters"></textarea>
-
+                                    <textarea class="form-control selected-filters" placeholder="JSON string containing the filters" id="stacked_bar_selected_filters"></textarea>
                                     <div class="help-block with-errors">Enter a JSON string</div>
                                 </div>
                             </div>
@@ -684,12 +655,11 @@
                 </form>
             </div>
         </div>
+
         <!--Stats trend chart-->
-        <div class="modal fade" id="setupStatsTrendChartModal" tabindex="-1" role="dialog"
-             aria-labelledby="setupStatsTrendChartModalLabel" aria-hidden="true">
+        <div class="modal fade" id="setupStatsTrendChartModal" tabindex="-1" role="dialog" aria-labelledby="setupStatsTrendChartModalLabel" aria-hidden="true">
             <div class="modal-dialog">
-                <form class="form-horizontal settings-form" role="form" data-toggle="validate" data-delay=""
-                      id="setupStatsTrendChartModalForm">
+                <form class="form-horizontal settings-form" role="form" data-toggle="validate" data-delay="" id="setupStatsTrendChartModalForm">
                     <div class="modal-content">
                         <div class="modal-header">
                             <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
@@ -703,39 +673,27 @@
                             </div>
                             <div class="form-group">
                                 <label class="col-sm-4 control-label"><strong>Title</strong></label>
-
                                 <div class="col-sm-8">
-                                    <input type="text" class="form-control tile-title" placeholder="Give a title"
-                                           required>
+                                    <input type="text" class="form-control tile-title" placeholder="Give a title" required>
                                 </div>
                             </div>
                             <div class="form-group">
-                                <label class="col-sm-4 control-label" for="statstrend_rt"><strong>Timeframe
-                                    (minutes)</strong></label>
-
+                                <label class="col-sm-4 control-label" for="statstrend_rt"><strong>Timeframe (minutes)</strong></label>
                                 <div class="col-sm-8">
-                                    <input type="number" min="5" max="10080" class="form-control refresh-period"
-                                           placeholder="Between 5 mins and 10080 mins (7 days)" required
-                                           id="statstrend_rt">
-
+                                    <input type="number" min="5" max="10080" class="form-control refresh-period" placeholder="Between 5 mins and 10080 mins (7 days)" required id="statstrend_rt">
                                     <div class="help-block with-errors">Between 5 mins and 10080 mins (7 days)</div>
                                 </div>
                             </div>
                             <div class="form-group">
-                                <label class="col-sm-4 control-label" for="pie_rt"><strong>Field to run stats
-                                    on</strong></label>
-
+                                <label class="col-sm-4 control-label" for="pie_rt"><strong>Field to run stats on</strong></label>
                                 <div class="col-sm-8">
-                                    <select class="selectpicker statstrend-bar-chart-field" data-style="btn-warning"
-                                            id="statstrend-bar-chart-field">
+                                    <select class="selectpicker statstrend-bar-chart-field"  data-style="btn-warning" id="statstrend-bar-chart-field">
                                     </select>
-
                                     <div class="help-block with-errors">Select the field from the above list.</div>
                                 </div>
                             </div>
                             <div class="form-group">
                                 <label class="col-sm-4 control-label" for="stats_to_plot"><strong>Stats to plot</strong></label>
-
                                 <div class="col-sm-8">
                                     <select id="stats_to_plot" class="stats_to_plot" multiple="multiple">
                                         <option value=percentiles.1.0>1 percentile</option>
@@ -754,19 +712,13 @@
                                         <option value=stats.sum_of_squares>Sum of squares</option>
                                         <option value=stats.variance>Variance</option>
                                     </select>
-
                                     <div class="help-block with-errors">Select the field from the above list.</div>
                                 </div>
                             </div>
                             <div class="form-group">
-                                <label class="col-sm-4 control-label"
-                                       for="statstrend_selected_filters"><strong>Filters</strong></label>
-
+                                <label class="col-sm-4 control-label" for="statstrend_selected_filters"><strong>Filters</strong></label>
                                 <div class="col-sm-8">
-                           <textarea class="form-control selected-filters"
-                                     placeholder="JSON string containing the filters"
-                                     id="statstrend_selected_filters"></textarea>
-
+                                    <textarea class="form-control selected-filters" placeholder="JSON string containing the filters" id="statstrend_selected_filters"></textarea>
                                     <div class="help-block with-errors">Enter a JSON string</div>
                                 </div>
                             </div>
@@ -779,13 +731,11 @@
                 </form>
             </div>
         </div>
+
         <!--Filter-->
-        <div class="modal fade" tabindex="-1" id="setupFiltersModal" role="dialog"
-             aria-labelledby="setupFilterModalLabel"
-             aria-hidden="true">
+        <div class="modal fade" tabindex="-1" id="setupFiltersModal" role="dialog" aria-labelledby="setupFilterModalLabel" aria-hidden="true">
             <div class="modal-dialog">
-                <form class="form-horizontal settings-form" role="form" data-toggle="validate" data-delay=""
-                      id="setupFilterModalForm">
+                <form class="form-horizontal settings-form" role="form" data-toggle="validate" data-delay="" id="setupFilterModalForm">
                     <div class="modal-content">
                         <div class="modal-header">
                             <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
@@ -799,11 +749,9 @@
                             </div>
                             <div class="form-group">
                                 <label class="col-sm-4 control-label" for="stats_to_plot"><strong>Stats to plot</strong></label>
-
                                 <div class="col-sm-8">
                                     <select id="filter_values" class="filter_values" multiple="multiple">
                                     </select>
-
                                     <div class="help-block with-errors">Select the field from the above list.</div>
                                 </div>
                             </div>
@@ -816,6 +764,7 @@
                 </form>
             </div>
         </div>
+
         <!--Templates-->
         <script id="tile-template" type="text/x-handlebars-template">
             <div class='tile tile-gradient tile-default-size' id='{{tileId}}' draggable='true'>
@@ -850,6 +799,7 @@
                 </div>
             </div>
         </script>
+
         <script id="eventbrowser-template" type="text/x-handlebars-template">
             <table class="table table-bordered table-hover table-condensed">
                 <thead>
@@ -871,6 +821,7 @@
 
             </table>
         </script>
+
         <script id="group-legend-template" type="text/x-handlebars-template">
             <table class="table table-bordered table-hover table-condensed">
                 <tbody>
@@ -884,6 +835,7 @@
                 </tbody>
             </table>
         </script>
+
         <script id="table-template" type="text/x-handlebars-template">
             <table class="table table-bordered table-hover table-condensed dataview-table">
                 <thead class="dataview-tablehead">
@@ -904,8 +856,11 @@
                 </tbody>
             </table>
         </script>
+
+
+
         <!-- Bootstrap core JavaScript
-           ================================================== -->
+        ================================================== -->
         <!-- Placed at the end of the document so the pages load faster -->
         <script src="js/jquery.js"></script>
         <script src="js/bootstrap/bootstrap.min.js"></script>
@@ -930,6 +885,7 @@
         <script src="js/flat.js"></script>
         <script src="js/moment.min.js"></script>
         <script src="js/bootstrap/bootstrap-datetimepicker.min.js"></script>
+
         <!--Application-->
         <script src="js/handlebars-helper.js"></script>
         <script src="js/common-utils.js"></script>
@@ -941,6 +897,7 @@
         <script src="js/tiles/donut-tile.js"></script>
         <script src="js/tiles/bar-tile.js"></script>
         <script src="js/tiles/fql-tile.js"></script>
+        <script src="js/tiles/line-tile.js"></script>
         <script src="js/tiles/histogram.js"></script>
         <script src="js/tiles/eventbrowser-tile.js"></script>
         <script src="js/tiles/stacked-bar-tile.js"></script>
@@ -948,5 +905,6 @@
         <script src="js/consolemanager.js"></script>
         <script src="js/eventsearch.js"></script>
         <script src="js/foxtrot-main.js"></script>
+
     </body>
 </html>
