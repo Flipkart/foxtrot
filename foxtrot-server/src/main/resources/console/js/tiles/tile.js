@@ -102,7 +102,6 @@ Tile.prototype.newDataReceived = function (data) {
 };
 
 Tile.prototype.handleResize = function (event, ui) {
-    //console.log(ui);
     this.render(this.cachedData, false);
 };
 
