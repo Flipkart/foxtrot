@@ -82,7 +82,6 @@ Tile.prototype.reloadData = function () {
         console.log("did not update since query setup is not complete " + this.id);
         return;
     }
-    console.log("query : " + this.query);
     $.ajax({
         method: this.httpMethod,
         dataType: 'json',
@@ -103,7 +102,6 @@ Tile.prototype.newDataReceived = function (data) {
 };
 
 Tile.prototype.handleResize = function (event, ui) {
-    //console.log(ui);
     this.render(this.cachedData, false);
 };
 
