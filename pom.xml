@@ -53,8 +53,8 @@
     </properties>
 
     <modules>
-        <module>foxtrot-core</module>
         <module>foxtrot-common</module>
+        <module>foxtrot-core</module>
         <module>foxtrot-server</module>
         <module>foxtrot-sql</module>
     </modules>
@@ -89,11 +89,6 @@
         <dependency>
             <groupId>io.dropwizard</groupId>
             <artifactId>dropwizard-core</artifactId>
-            <version>${dropwizard.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>io.dropwizard</groupId>
-            <artifactId>dropwizard-metrics</artifactId>
             <version>${dropwizard.version}</version>
         </dependency>
         <dependency>

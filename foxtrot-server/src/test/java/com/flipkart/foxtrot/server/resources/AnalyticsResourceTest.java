@@ -98,7 +98,7 @@ public class AnalyticsResourceTest extends FoxtrotResourceTest {
         }});
 
         Entity<GroupRequest> serviceUserEntity = Entity.json(groupRequest);
-        GroupResponse response = resources.client().target("/foxtrot/v1/analytics").request()
+        GroupResponse response = resources.client().target("/v1/analytics").request()
                 .post(serviceUserEntity, GroupResponse.class);
         assertEquals(expectedResponse, response.getResult());
     }
@@ -111,7 +111,7 @@ public class AnalyticsResourceTest extends FoxtrotResourceTest {
 
         try {
             Entity<GroupRequest> serviceUserEntity = Entity.json(groupRequest);
-            resources.client().target("/foxtrot/v1/generate/test").request()
+            resources.client().target("/v1/generate/test").request()
                     .post(serviceUserEntity, GroupResponse.class);
             fail();
         } catch (WebApplicationException ex) {
@@ -156,7 +156,7 @@ public class AnalyticsResourceTest extends FoxtrotResourceTest {
             put("iphone", iPhoneResponse);
         }});
         Entity<GroupRequest> serviceUserEntity = Entity.json(groupRequest);
-        AsyncDataToken response = resources.client().target("/foxtrot/v1/analytics/async").request()
+        AsyncDataToken response = resources.client().target("/v1/analytics/async").request()
                 .post(serviceUserEntity, AsyncDataToken.class);
         Thread.sleep(2000);
         GroupResponse actualResponse = GroupResponse.class.cast(getCacheManager().getCacheFor(response.getAction()).get(response.getKey()));
@@ -171,7 +171,7 @@ public class AnalyticsResourceTest extends FoxtrotResourceTest {
 
         GroupResponse expectedResponse = new GroupResponse();
         Entity<GroupRequest> serviceUserEntity = Entity.json(groupRequest);
-        AsyncDataToken asyncDataToken = resources.client().target("/foxtrot/v1/analytics/async").request()
+        AsyncDataToken asyncDataToken = resources.client().target("/v1/analytics/async").request()
                 .post(serviceUserEntity, AsyncDataToken.class);
         Thread.sleep(2000);
         GroupResponse actualResponse = GroupResponse.class.cast(getCacheManager().getCacheFor(asyncDataToken.getAction()).get(asyncDataToken.getKey()));

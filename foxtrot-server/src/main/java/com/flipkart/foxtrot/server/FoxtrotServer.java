@@ -20,8 +20,6 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.jsontype.NamedType;
-import com.fasterxml.jackson.databind.jsontype.SubtypeResolver;
-import com.fasterxml.jackson.databind.jsontype.impl.StdSubtypeResolver;
 import com.flipkart.foxtrot.core.cache.CacheManager;
 import com.flipkart.foxtrot.core.cache.impl.DistributedCacheFactory;
 import com.flipkart.foxtrot.core.common.DataDeletionManager;
@@ -29,6 +27,7 @@ import com.flipkart.foxtrot.core.common.DataDeletionManagerConfig;
 import com.flipkart.foxtrot.core.datastore.DataStore;
 import com.flipkart.foxtrot.core.datastore.impl.hbase.HBaseDataStore;
 import com.flipkart.foxtrot.core.datastore.impl.hbase.HbaseTableConnection;
+import com.flipkart.foxtrot.core.querystore.DocumentTranslator;
 import com.flipkart.foxtrot.core.querystore.QueryExecutor;
 import com.flipkart.foxtrot.core.querystore.QueryStore;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsLoader;
@@ -43,13 +42,14 @@ import com.flipkart.foxtrot.server.healthcheck.ElasticSearchHealthCheck;
 import com.flipkart.foxtrot.server.providers.FlatResponseCsvProvider;
 import com.flipkart.foxtrot.server.providers.FlatResponseErrorTextProvider;
 import com.flipkart.foxtrot.server.providers.FlatResponseTextProvider;
+import com.flipkart.foxtrot.server.providers.exception.FoxtrotExceptionMapper;
 import com.flipkart.foxtrot.server.resources.*;
 import com.flipkart.foxtrot.sql.FqlEngine;
 import io.dropwizard.Application;
 import io.dropwizard.assets.AssetsBundle;
 import io.dropwizard.configuration.EnvironmentVariableSubstitutor;
 import io.dropwizard.configuration.SubstitutingSourceProvider;
-import io.dropwizard.server.DefaultServerFactory;
+import io.dropwizard.server.AbstractServerFactory;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
 import io.dropwizard.util.Duration;
@@ -77,7 +77,7 @@ public class FoxtrotServer extends Application<FoxtrotServerConfiguration> {
                         new EnvironmentVariableSubstitutor(false)
                 )
         );
-        bootstrap.addBundle(new AssetsBundle("/console/", "/foxtrot/console/", "index.html", "console"));
+        bootstrap.addBundle(new AssetsBundle("/console/", "/", "index.html", "console"));
         bootstrap.addCommand(new InitializerCommand());
         configureObjectMapper(bootstrap.getObjectMapper());
     }
@@ -99,7 +99,8 @@ public class FoxtrotServer extends Application<FoxtrotServerConfiguration> {
         ElasticsearchUtils.setTableNamePrefix(configuration.getElasticsearch());
 
         TableMetadataManager tableMetadataManager = new DistributedTableMetadataManager(hazelcastConnection, elasticsearchConnection);
-        DataStore dataStore = new HBaseDataStore(HBaseTableConnection, environment.getObjectMapper());
+        DataStore dataStore = new HBaseDataStore(HBaseTableConnection,
+                environment.getObjectMapper(), new DocumentTranslator(configuration.getHbase()));
         QueryStore queryStore = new ElasticsearchQueryStore(tableMetadataManager, elasticsearchConnection, dataStore, environment.getObjectMapper());
         FoxtrotTableManager tableManager = new FoxtrotTableManager(tableMetadataManager, queryStore, dataStore);
         CacheManager cacheManager = new CacheManager(new DistributedCacheFactory(hazelcastConnection, environment.getObjectMapper()));
@@ -111,7 +112,7 @@ public class FoxtrotServer extends Application<FoxtrotServerConfiguration> {
         List<HealthCheck> healthChecks = new ArrayList<>();
         ElasticSearchHealthCheck elasticSearchHealthCheck =  new ElasticSearchHealthCheck(elasticsearchConnection);
         healthChecks.add(elasticSearchHealthCheck);
-        ClusterManager clusterManager = new ClusterManager(hazelcastConnection, healthChecks, (DefaultServerFactory)configuration.getServerFactory());
+        ClusterManager clusterManager = new ClusterManager(hazelcastConnection, healthChecks, configuration.getServerFactory());
 
         environment.lifecycle().manage(HBaseTableConnection);
         environment.lifecycle().manage(elasticsearchConnection);
@@ -139,6 +140,7 @@ public class FoxtrotServer extends Application<FoxtrotServerConfiguration> {
         environment.jersey().register(new FlatResponseTextProvider());
         environment.jersey().register(new FlatResponseCsvProvider());
         environment.jersey().register(new FlatResponseErrorTextProvider());
+        environment.jersey().register(new FoxtrotExceptionMapper(environment.getObjectMapper()));
 
         // Enable CORS headers
         final FilterRegistration.Dynamic cors =
@@ -151,14 +153,14 @@ public class FoxtrotServer extends Application<FoxtrotServerConfiguration> {
 
         // Add URL mapping
         cors.addMappingForUrlPatterns(EnumSet.allOf(DispatcherType.class), true, "/*");
+
+        ((AbstractServerFactory)configuration.getServerFactory()).setJerseyRootPath("/foxtrot");
     }
 
     private void configureObjectMapper(ObjectMapper objectMapper) {
         objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
         objectMapper.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
         objectMapper.disable(SerializationFeature.FAIL_ON_EMPTY_BEANS);
-        SubtypeResolver subtypeResolver = new StdSubtypeResolver();
-        objectMapper.setSubtypeResolver(subtypeResolver);
         objectMapper.registerSubtypes(new NamedType(SimpleClusterDiscoveryConfig.class, "foxtrot_simple"));
         objectMapper.registerSubtypes(new NamedType(MarathonClusterDiscoveryConfig.class, "foxtrot_marathon"));
     }

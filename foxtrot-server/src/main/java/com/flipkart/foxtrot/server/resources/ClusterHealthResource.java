@@ -32,7 +32,7 @@ import java.util.concurrent.ExecutionException;
  * Created by swapnil on 20/01/16.
  */
 
-@Path("/foxtrot/v1/clusterhealth")
+@Path("/v1/clusterhealth")
 @Produces(MediaType.APPLICATION_JSON)
 public class ClusterHealthResource {
     private final QueryStore queryStore;

@@ -84,7 +84,7 @@ public class CountAction extends Action<CountRequest> {
         if (CollectionUtils.isNullOrEmpty(parameter.getTable())) {
             validationErrors.add("table name cannot be null or empty");
         }
-        if (CollectionUtils.isNullOrEmpty(parameter.getField())) {
+        if (parameter.isDistinct() && CollectionUtils.isNullOrEmpty(parameter.getField())) {
             validationErrors.add("field name cannot be null or empty");
         }
         if (!CollectionUtils.isNullOrEmpty(validationErrors)) {

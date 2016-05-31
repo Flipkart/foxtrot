@@ -14,29 +14,6 @@
  * limitations under the License.
  */
 
-function TileFactory() {
-}
-
-TileFactory.create = function(type) {
-    if (type === "donut") {
-        return new DonutTile();
-    } else if (type === "bar") {
-        return new BarTile();
-    } else if (type === "line") {
-        return new LineTile();
-    } else if (type === "histogram") {
-        return new Histogram();
-    } else if (type === "eventbrowser") {
-        return new EventBrowser();
-    } else if (type === "stacked_bar") {
-        return new StackedBar();
-    } else if (type === "statstrend") {
-        return new StatsTrend();
-    } else if (type === 'fql_table') {
-        return new FqlTable()
-    }
-};
-
 function ConsoleManager(tileSet, queue, tables) {
     this.tileSet = tileSet;
     this.queue = queue;

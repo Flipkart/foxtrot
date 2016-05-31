@@ -32,7 +32,7 @@ import javax.ws.rs.core.MediaType;
  * Date: 27/03/14
  * Time: 2:05 AM
  */
-@Path("/foxtrot/v1/analytics")
+@Path("/v1/analytics")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
 public class AnalyticsResource {

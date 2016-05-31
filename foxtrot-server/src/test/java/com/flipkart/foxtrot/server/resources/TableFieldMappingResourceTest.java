@@ -65,7 +65,7 @@ public class TableFieldMappingResourceTest extends FoxtrotResourceTest {
         mappings.add(new FieldTypeMapping("head.hello", FieldType.LONG));
 
         TableFieldMapping tableFieldMapping = new TableFieldMapping(TestUtils.TEST_TABLE_NAME, mappings);
-        String response = resources.client().target(String.format("/foxtrot/v1/tables/%s/fields", TestUtils.TEST_TABLE_NAME))
+        String response = resources.client().target(String.format("/v1/tables/%s/fields", TestUtils.TEST_TABLE_NAME))
                 .request()
                 .get(String.class);
 
@@ -78,7 +78,7 @@ public class TableFieldMappingResourceTest extends FoxtrotResourceTest {
     public void testGetInvalidTable() throws Exception {
         try {
             resources.client().target(
-                    String.format("/foxtrot/v1/tables/%s/fields", TestUtils.TEST_TABLE_NAME + "-missing")).request().head();
+                    String.format("/v1/tables/%s/fields", TestUtils.TEST_TABLE_NAME + "-missing")).request().head();
         } catch(WebApplicationException ex) {
             assertEquals(Response.Status.NOT_FOUND.getStatusCode(), ex.getResponse().getStatus());
         }
@@ -87,7 +87,7 @@ public class TableFieldMappingResourceTest extends FoxtrotResourceTest {
     @Test
     public void testGetTableWithNoDocument() throws Exception {
         TableFieldMapping request = new TableFieldMapping(TestUtils.TEST_TABLE_NAME, new HashSet<>());
-        TableFieldMapping response = resources.client().target(String.format("/foxtrot/v1/tables/%s/fields", TestUtils.TEST_TABLE_NAME))
+        TableFieldMapping response = resources.client().target(String.format("/v1/tables/%s/fields", TestUtils.TEST_TABLE_NAME))
                 .request()
                 .get(TableFieldMapping.class);
         assertEquals(request.getTable(), response.getTable());

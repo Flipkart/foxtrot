@@ -12,7 +12,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
 
-@Path("/foxtrot/v1/cluster")
+@Path("/v1/cluster")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
 public class ClusterInfoResource {

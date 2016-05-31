@@ -2,14 +2,14 @@ package com.flipkart.foxtrot.server.cluster;
 
 import com.codahale.metrics.health.HealthCheck;
 import com.flipkart.foxtrot.core.querystore.impl.HazelcastConnection;
+import com.flipkart.foxtrot.server.utils.ServerUtils;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.hazelcast.config.EvictionPolicy;
 import com.hazelcast.config.MapConfig;
 import com.hazelcast.core.IMap;
-import io.dropwizard.jetty.HttpConnectorFactory;
 import io.dropwizard.lifecycle.Managed;
-import io.dropwizard.server.DefaultServerFactory;
+import io.dropwizard.server.ServerFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,7 +34,7 @@ public class ClusterManager implements Managed {
 
     public ClusterManager(HazelcastConnection connection,
                           List<HealthCheck> healthChecks,
-                          DefaultServerFactory httpConfiguration) throws Exception {
+                          ServerFactory serverFactory) throws Exception {
         this.hazelcastConnection = connection;
         this.healthChecks = healthChecks;
         MapConfig mapConfig = new MapConfig(MAP_NAME);
@@ -47,9 +47,9 @@ public class ClusterManager implements Managed {
         //Auto detect marathon environment and query for host environment variable
         if(Strings.isNullOrEmpty(System.getenv("HOST")))
             hostname = System.getenv("HOST");
-        int port = ((HttpConnectorFactory)httpConfiguration.getApplicationConnectors().get(0)).getPort();
+        int port = ServerUtils.port(serverFactory);
         //Auto detect marathon environment and query for host environment variable
-        if(Strings.isNullOrEmpty(System.getenv("PORT_" +port)))
+        if(!Strings.isNullOrEmpty(System.getenv("PORT_" +port)))
             port = Integer.parseInt(System.getenv("PORT_" +port));
         executor = Executors.newScheduledThreadPool(1);
         clusterMember = new ClusterMember(hostname, port);

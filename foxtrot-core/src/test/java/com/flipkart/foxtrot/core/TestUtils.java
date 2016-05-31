@@ -25,6 +25,7 @@ import com.flipkart.foxtrot.core.datastore.impl.hbase.HBaseDataStore;
 import com.flipkart.foxtrot.core.datastore.impl.hbase.HbaseConfig;
 import com.flipkart.foxtrot.core.datastore.impl.hbase.HbaseTableConnection;
 import com.flipkart.foxtrot.core.exception.FoxtrotException;
+import com.flipkart.foxtrot.core.querystore.DocumentTranslator;
 import com.flipkart.foxtrot.core.querystore.actions.spi.ActionMetadata;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsLoader;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsProvider;
@@ -55,7 +56,8 @@ public class TestUtils {
         HbaseTableConnection tableConnection = Mockito.mock(HbaseTableConnection.class);
         doReturn(tableInterface).when(tableConnection).getTable(Matchers.<Table>any());
         doReturn(new HbaseConfig()).when(tableConnection).getHbaseConfig();
-        HBaseDataStore hBaseDataStore = new HBaseDataStore(tableConnection, new ObjectMapper());
+        HBaseDataStore hBaseDataStore = new HBaseDataStore(tableConnection, new ObjectMapper(),
+                new DocumentTranslator(TestUtils.createHBaseConfigWithRawKeyV2()));
         hBaseDataStore = spy(hBaseDataStore);
         return hBaseDataStore;
     }
@@ -95,6 +97,27 @@ public class TestUtils {
             logger.info("Registered action: " + action.getCanonicalName());
         }
         mapper.getSubtypeResolver().registerSubtypes(types.toArray(new NamedType[types.size()]));
+    }
+
+
+    public static HbaseConfig createHBaseConfigWithRawKeyV1() {
+        HbaseConfig hbaseConfig = new HbaseConfig();
+        hbaseConfig.setRawKeyVersion("1.0");
+        return hbaseConfig;
+    }
+
+    public static HbaseConfig createHBaseConfigWithRawKeyV2() {
+        HbaseConfig hbaseConfig = new HbaseConfig();
+        hbaseConfig.setRawKeyVersion("2.0");
+        return hbaseConfig;
+    }
+
+    public static Document translatedDocumentWithRowKeyVersion1(Table table, Document document) {
+        return new DocumentTranslator(createHBaseConfigWithRawKeyV1()).translate(table, document);
+    }
+
+    public static Document translatedDocumentWithRowKeyVersion2(Table table, Document document) {
+        return new DocumentTranslator(createHBaseConfigWithRawKeyV2()).translate(table, document);
     }
 
     public static List<Document> getQueryDocuments(ObjectMapper mapper) {

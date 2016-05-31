@@ -1,5 +1,7 @@
 package com.flipkart.foxtrot.common;
 
+import org.apache.commons.lang3.builder.ToStringBuilder;
+
 /**
  * Metadata for a document
  */
@@ -33,9 +35,9 @@ public class DocumentMetadata {
 
     @Override
     public String toString() {
-        return "DocumentMetadata{" +
-                "id='" + id + '\'' +
-                ", rawStorageId='" + rawStorageId + '\'' +
-                '}';
+        return new ToStringBuilder(this)
+                .append("id", id)
+                .append("rawStorageId", rawStorageId)
+                .toString();
     }
 }

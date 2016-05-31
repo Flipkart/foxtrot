@@ -22,7 +22,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
-@Path("/foxtrot/v1/util")
+@Path("/v1/util")
 @Produces(MediaType.APPLICATION_JSON)
 public class UtilResource {
     private final FoxtrotServerConfiguration configuration;

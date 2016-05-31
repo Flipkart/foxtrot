@@ -28,7 +28,6 @@ import com.flipkart.foxtrot.core.querystore.DocumentTranslator;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
-import com.sematext.hbase.ds.RowKeyDistributorByHashPrefix;
 import org.apache.hadoop.hbase.client.Get;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.client.Result;
@@ -59,11 +58,10 @@ public class HBaseDataStore implements DataStore {
     private final ObjectMapper mapper;
     private final DocumentTranslator translator;
 
-    public HBaseDataStore(HbaseTableConnection tableWrapper, ObjectMapper mapper) {
+    public HBaseDataStore(HbaseTableConnection tableWrapper, ObjectMapper mapper, DocumentTranslator translator) {
         this.tableWrapper = tableWrapper;
         this.mapper = mapper;
-        this.translator = new DocumentTranslator(new RowKeyDistributorByHashPrefix(
-                new RowKeyDistributorByHashPrefix.OneByteSimpleHash(tableWrapper.getHbaseConfig().getNumBuckets())));
+        this.translator = translator;
     }
 
     @Override
@@ -260,10 +258,10 @@ public class HBaseDataStore implements DataStore {
 
     @VisibleForTesting
     public Put getPutForDocument(Document document) throws JsonProcessingException {
-        return new Put(Bytes.toBytes(document.getId()))
-                .addColumn(COLUMN_FAMILY, DOCUMENT_META_FIELD_NAME, mapper.writeValueAsBytes(document.getMetadata()))
-                .addColumn(COLUMN_FAMILY, DOCUMENT_FIELD_NAME, mapper.writeValueAsBytes(document.getData()))
-                .addColumn(COLUMN_FAMILY, TIMESTAMP_FIELD_NAME, Bytes.toBytes(document.getTimestamp()));
+        return new Put(Bytes.toBytes(document.getMetadata().getRawStorageId()))
+                .add(COLUMN_FAMILY, DOCUMENT_META_FIELD_NAME, mapper.writeValueAsBytes(document.getMetadata()))
+                .add(COLUMN_FAMILY, DOCUMENT_FIELD_NAME, mapper.writeValueAsBytes(document.getData()))
+                .add(COLUMN_FAMILY, TIMESTAMP_FIELD_NAME, Bytes.toBytes(document.getTimestamp()));
     }
 
 }

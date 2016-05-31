@@ -73,9 +73,9 @@
                     <plugin>
                         <groupId>com.spotify</groupId>
                         <artifactId>docker-maven-plugin</artifactId>
-                        <version>0.1.1</version>
+                        <version>0.4.0</version>
                         <configuration>
-                            <imageName>foxtrot-server:${project.version}</imageName>
+                            <imageName>foxtrot:${project.version}</imageName>
                             <dockerDirectory>${project.parent.basedir}/../foxtrot</dockerDirectory>
                             <resources>
                                 <resource>
@@ -109,9 +109,9 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
-                <version>2.3</version>
+                <version>2.4.3</version>
                 <configuration>
-                    <createDependencyReducedPom>true</createDependencyReducedPom>
+                    <createDependencyReducedPom>false</createDependencyReducedPom>
                     <filters>
                         <filter>
                             <artifact>*:*</artifact>
@@ -119,9 +119,7 @@
                                 <exclude>META-INF/*.SF</exclude>
                                 <exclude>META-INF/*.DSA</exclude>
                                 <exclude>META-INF/*.RSA</exclude>
-                                <exclude>org.apache.httpcomponents:httpcore:jar:4.1.1</exclude>
                             </excludes>
-
                         </filter>
                     </filters>
                 </configuration>
@@ -141,7 +139,6 @@
                                 </transformer>
                             </transformers>
                         </configuration>
-
                     </execution>
                 </executions>
             </plugin>
