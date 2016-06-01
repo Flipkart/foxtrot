@@ -3,6 +3,7 @@ package com.flipkart.foxtrot.server.cluster;
 import com.codahale.metrics.health.HealthCheck;
 import com.flipkart.foxtrot.core.querystore.impl.HazelcastConnection;
 import com.flipkart.foxtrot.server.utils.ServerUtils;
+import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.hazelcast.config.EvictionPolicy;
@@ -45,8 +46,9 @@ public class ClusterManager implements Managed {
         hazelcastConnection.getHazelcastConfig().getMapConfigs().put(MAP_NAME, mapConfig);
         String hostname = Inet4Address.getLocalHost().getCanonicalHostName();
         //Auto detect marathon environment and query for host environment variable
-        if(Strings.isNullOrEmpty(System.getenv("HOST")))
+        if(!Strings.isNullOrEmpty(System.getenv("HOST")))
             hostname = System.getenv("HOST");
+        Preconditions.checkNotNull(hostname, "Could not retrieve hostname, cannot proceed");
         int port = ServerUtils.port(serverFactory);
         //Auto detect marathon environment and query for host environment variable
         if(!Strings.isNullOrEmpty(System.getenv("PORT_" +port)))

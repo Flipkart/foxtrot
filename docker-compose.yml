@@ -36,6 +36,7 @@ foxtrot-server:
    - /var/log/foxtrot-server
    # enviroment valiables
   environment:
+   - HOST=localhost
    - ELASTICSEARCH_HOST=elasticsearch
    - ELASTICSEARCH_CLUSTER_NAME=elasticsearch
    - ELASTICSEARCH_TABLE_NAME_PREFIX=elasticsearch
