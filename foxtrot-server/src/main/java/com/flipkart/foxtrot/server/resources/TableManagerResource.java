@@ -17,6 +17,7 @@ package com.flipkart.foxtrot.server.resources;
 
 import com.flipkart.foxtrot.common.Table;
 import com.flipkart.foxtrot.core.exception.FoxtrotException;
+import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
 import com.flipkart.foxtrot.core.table.TableManager;
 
 import javax.validation.Valid;
@@ -37,20 +38,23 @@ public class TableManagerResource {
 
     @POST
     public Response save(@Valid final Table table) throws FoxtrotException {
+        table.setName(ElasticsearchUtils.getValidTableName(table.getName()));
         tableManager.save(table);
         return Response.ok(table).build();
     }
 
     @GET
     @Path("/{name}")
-    public Response get(@PathParam("name") final String name) throws FoxtrotException {
+    public Response get(@PathParam("name") String name) throws FoxtrotException {
+        name = ElasticsearchUtils.getValidTableName(name);
         Table table = tableManager.get(name);
         return Response.ok().entity(table).build();
     }
 
     @DELETE
     @Path("/{name}/delete")
-    public Response delete(@PathParam("name") final String name) throws FoxtrotException {
+    public Response delete(@PathParam("name") String name) throws FoxtrotException {
+        name = ElasticsearchUtils.getValidTableName(name);
         tableManager.delete(name);
         return Response.status(Response.Status.NO_CONTENT).build();
     }
