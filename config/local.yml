@@ -11,7 +11,7 @@ elasticsearch:
 
 hbase:
   secure : false
-  tableName: foxtrot
+  tableName: table_one
   hbaseZookeeperQuorum: localhost
   hbaseZookeeperClientPort: 2181
 

@@ -11,8 +11,12 @@ function periodFromWindow(periodString) {
     return "minutes";
 }
 
-function timeValue(period, selectedPeriodString) {
-    var timestamp = new Date().getTime();
+function timeValue(period, selectedPeriodString, noOfDaysOld) {
+    if (noOfDaysOld === undefined) noOfDaysOld = 0;
+
+    var timestamp = new Date(new Date() - noOfDaysOld * 24 * 3600 * 1000).getTime();
+    console.log("TimeStamp = " + timestamp);
+
     if(selectedPeriodString === "custom") {
         return {
             field: "_timestamp",
@@ -23,7 +27,8 @@ function timeValue(period, selectedPeriodString) {
     }
     return {
         operator: "last",
-        duration: selectedPeriodString
+        duration: selectedPeriodString,
+        currentTime: timestamp
     };
 }
 

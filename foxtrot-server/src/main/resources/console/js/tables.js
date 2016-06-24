@@ -44,7 +44,7 @@ Tables.prototype.init = function(callback) {
 				this.tableChangeHandlers[i](this.tables);
 			};
 		}
-	});	
+	});
 };
 
 Tables.prototype.forceSelectedTableAfterInit = function(tableName) {
@@ -86,5 +86,5 @@ Tables.prototype.loadTableMeta = function(table) {
                 this.metaLoadHandlers[i](this.tables);
             };
 		}, this)
-	});	
+	});
 };
