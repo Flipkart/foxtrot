@@ -6,7 +6,7 @@ http:
 elasticsearch:
   hosts:
   - localhost
-  cluster: foxtrot
+  cluster: elasticsearch
   tableNamePrefix: foxtrot
 
 hbase:
