@@ -65,6 +65,16 @@ function isNumber(n) {
   return !isNaN(parseFloat(n)) && isFinite(n);
 }
 
+function restrictOneDay() {
+    var x = $("#histogram_rt");
+    if (x.val() >= 5 && x.val() <= 1440) {
+        $('#hist-do-compare').prop('disabled', false);
+    } else {
+        $('#hist-do-compare').prop('checked', false);
+        $('#hist-do-compare').prop('disabled', true);
+    }
+}
+
 String.prototype.visualLength = function() {
     var ruler = $("#ruler");
     ruler.html(this);

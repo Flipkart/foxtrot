@@ -548,7 +548,7 @@
                         <div class="col-sm-8">
                             <input type="number" min="5" max="10080" class="form-control refresh-period"
                                    placeholder="Between 5 mins and 10080 mins (7 days)" required
-                                   id="histogram_rt" onkeyup="if($(this).val() >= 5 && $(this).val() <= 1440) {$('#hist-do-compare').prop('disabled', false);} else {$('#hist-do-compare').prop('checked', false); $('#hist-do-compare').prop('disabled', true);}">
+                                   id="histogram_rt" onkeyup="restrictOneDay()">
 
                             <div class="help-block with-errors">Between 5 mins and 10080 mins (7 days). Between 5 mins and 1440 mins for Comparison.</div>
                         </div>
