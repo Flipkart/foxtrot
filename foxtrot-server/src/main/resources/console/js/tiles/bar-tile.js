@@ -23,7 +23,7 @@ function BarTile() {
     this.period = 0;
     this.selectedFilters = null;
     this.uniqueValues = [];
-    this.uiFilteredValues = [];
+    this.uiFilteredValues;
 }
 
 BarTile.prototype = new Tile();

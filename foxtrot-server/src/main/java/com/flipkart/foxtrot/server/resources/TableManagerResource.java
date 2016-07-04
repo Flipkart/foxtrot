@@ -51,6 +51,15 @@ public class TableManagerResource {
         return Response.ok().entity(table).build();
     }
 
+    @PUT
+    @Path("/{name}")
+    public Response get(@PathParam("name") final String name,
+                        @Valid final Table table) throws FoxtrotException {
+        table.setName(name);
+        tableManager.update(table);
+        return Response.ok().build();
+    }
+
     @DELETE
     @Path("/{name}/delete")
     public Response delete(@PathParam("name") String name) throws FoxtrotException {

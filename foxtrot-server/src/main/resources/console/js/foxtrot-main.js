@@ -54,25 +54,30 @@ TablesView.prototype.init = function() {
 };
 
 function FoxTrot() {
-	this.tables = new Tables();
-	this.tablesView = new TablesView("#tables", this.tables);
-	this.selectedTable = null;
-	this.tableSelectionChangeHandlers = [];
-	this.queue = new Queue();
-	this.tileSet = new TileSet("#tileContainer", this.tables);
-	this.consoleManager = new ConsoleManager(this.tileSet, this.queue, this.tables);
-	this.filterSection = new FilterSection(".filter-main", this.tables);
-	$("#tileContainer").sortable();
-	$("#tileContainer").on("sortstart", function(){
-		$(".tile").addClass("tile-drag");
-	})
+    this.tables = new Tables();
+    this.tablesView = new TablesView("#tables", this.tables);
+    this.selectedTable = null;
+    this.tableSelectionChangeHandlers = [];
+    this.queue = new Queue();
+    this.tileSet = new TileSet("#tileContainer", this.tables);
+    this.consoleManager = new ConsoleManager(this.tileSet, this.queue, this.tables);
+    this.filterSection = new FilterSection(".filter-main", this.tables);
 
-	$("#tileContainer").on("sortstop", function(){
-		$(".tile").removeClass("tile-drag");
-	})
+    // This is being done so that text remains selectable within table elements
+    $("#tileContainer").sortable({
+        revert: true,
+        cancel: "#tileContainer td"
+    });
 
-	$("#tileContainer").disableSelection();
-	$("#saveConsole").click($.proxy(this.consoleManager.saveConsole, this.consoleManager));	
+    $("#tileContainer").on("sortstart", function () {
+        $(".tile").addClass("tile-drag");
+    });
+
+    $("#tileContainer").on("sortstop", function () {
+        $(".tile").removeClass("tile-drag");
+    });
+
+    $("#saveConsole").click($.proxy(this.consoleManager.saveConsole, this.consoleManager));
 }
 
 FoxTrot.prototype.init = function() {
@@ -137,7 +142,7 @@ FoxTrot.prototype.loadConsole = function(consoleId) {
 		error: function() {
 			error("Could not save console");
 		}
-	})	
+	})
 };
 
 FoxTrot.prototype.loadConsoleList = function() {
@@ -161,7 +166,7 @@ FoxTrot.prototype.loadConsoleList = function() {
 		error: function() {
 			error("Could not save console");
 		}
-	})	
+	})
 };
 
 $(document).ready(function(){
