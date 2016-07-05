@@ -59,7 +59,7 @@ public class HazelcastConnection implements Managed {
                 hzConfig.setProperty(GroupProperty.DISCOVERY_SPI_PUBLIC_IP_ENABLED, "true");
                 hzConfig.setProperty(GroupProperty.SOCKET_CLIENT_BIND_ANY, "false");
                 hzConfig.setProperty(GroupProperty.SOCKET_BIND_ANY, "false");
-                NetworkConfig networkConfig = hazelcastConfig.getNetworkConfig();
+                NetworkConfig networkConfig = hzConfig.getNetworkConfig();
                 networkConfig.getInterfaces().addInterface(System.getenv("HOST")).setEnabled(true);
                 networkConfig.setPublicAddress(System.getenv("HOST") +":" +System.getenv("PORT_5701"));
                 JoinConfig joinConfig = networkConfig.getJoin();
@@ -75,7 +75,7 @@ public class HazelcastConnection implements Managed {
                 break;
             case foxtrot_aws:
                 AwsClusterDiscoveryConfig awsClusterDiscoveryConfig = (AwsClusterDiscoveryConfig)clusterConfig.getDiscovery();
-                NetworkConfig hazelcastConfigNetworkConfig = hazelcastConfig.getNetworkConfig();
+                NetworkConfig hazelcastConfigNetworkConfig = hzConfig.getNetworkConfig();
                 JoinConfig hazelcastConfigNetworkConfigJoin = hazelcastConfigNetworkConfig.getJoin();
                 hazelcastConfigNetworkConfigJoin.getTcpIpConfig().setEnabled(false);
                 hazelcastConfigNetworkConfigJoin.getMulticastConfig().setEnabled(false);

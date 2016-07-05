@@ -58,14 +58,14 @@ public class InitializerCommand extends ConfiguredCommand<FoxtrotServerConfigura
 
         logger.info("# data nodes: {}, Setting replica count to: {}", numDataNodes, numReplicas);
 
-        createMetaIndex(connection, "consoles", numDataNodes - 1);
-        createMetaIndex(connection, "table-meta", numDataNodes - 1);
+        createMetaIndex(connection, "consoles", numReplicas);
+        createMetaIndex(connection, "table-meta", numReplicas);
 
         PutIndexTemplateResponse response = new PutIndexTemplateRequestBuilder(connection.getClient().admin().indices(), "template_foxtrot_mappings")
-                .setTemplate(String.format("%s-*",configuration.getElasticsearch().getTableNamePrefix()))
+                .setTemplate(String.format("%s-*", configuration.getElasticsearch().getTableNamePrefix()))
                 .setSettings(
                         ImmutableSettings.builder()
-                                .put("number_of_shards", 10)
+                                .put("number_of_shards", 5)
                                 .put("number_of_replicas", numReplicas)
                 )
                 .addMapping("document", ElasticsearchUtils.getDocumentMapping())

@@ -18,9 +18,13 @@ EXPOSE 5701
 
 VOLUME /var/log/foxtrot-server
 
-ADD config/docker.yml docker.yml
-ADD foxtrot-server/target/foxtrot*.jar server.jar
-ADD scripts/local_es_setup.sh local_es_setup.sh
+ENV CONFIG_PATH foxtrot-api.yml
+ENV JAR_FILE foxtrot-server.jar
 
-CMD sh -c "sleep 15 ; java -jar server.jar initialize docker.yml || true ;  java -Dfile.encoding=utf-8 -jar server.jar server docker.yml"
+ADD foxtrot-server/target/foxtrot*.jar ${JAR_FILE}
+
+CMD sh -exc "curl -X GET --header 'Accept: application/x-yaml' http://${CONFIG_SERVICE_HOST_PORT}/v1/phonepe/foxtrot-api/${CONFIG_ENV} > ${CONFIG_PATH} \
+    && cat ${CONFIG_PATH}
+    && java -jar ${JAR_FILE} initialize ${CONFIG_PATH} \
+    && java -jar -Xms${JAVA_PROCESS_MIN_HEAP-512m} -Xmx${JAVA_PROCESS_MAX_HEAP-512m} ${JAR_FILE} server ${CONFIG_PATH}"
 
