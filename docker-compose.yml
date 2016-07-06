@@ -33,7 +33,7 @@ foxtrot-server:
    - "17001:17001"
    - "5701:5701"
   volumes:
-   - /var/log/foxtrot-server
+   - /var/log/foxtrot
    # environment variables
   environment:
    - HOST=localhost

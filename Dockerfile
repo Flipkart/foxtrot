@@ -16,10 +16,10 @@ EXPOSE 17000
 EXPOSE 17001
 EXPOSE 5701
 
-VOLUME /var/log/foxtrot-server
+VOLUME /var/log/foxtrot
 
 ENV CONFIG_PATH foxtrot.yml
-ENV JAR_FILE foxtrot-server.jar
+ENV JAR_FILE foxtrot.jar
 
 ADD foxtrot-server/target/foxtrot*.jar ${JAR_FILE}
 
