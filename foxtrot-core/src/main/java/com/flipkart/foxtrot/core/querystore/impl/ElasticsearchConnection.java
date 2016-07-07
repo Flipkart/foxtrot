@@ -18,11 +18,12 @@ package com.flipkart.foxtrot.core.querystore.impl;
 import io.dropwizard.lifecycle.Managed;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.client.transport.TransportClient;
-import org.elasticsearch.common.settings.ImmutableSettings;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.transport.InetSocketTransportAddress;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.net.InetAddress;
 
 /**
  * User: Santanu Sinha (santanu.sinha@flipkart.com)
@@ -41,22 +42,15 @@ public class ElasticsearchConnection implements Managed {
     @Override
     public void start() throws Exception {
         logger.info("Starting Elasticsearch Client");
-        Settings settings = ImmutableSettings.settingsBuilder()
+        Settings settings = Settings.settingsBuilder()
                 .put("cluster.name", config.getCluster()).build();
 
-        TransportClient esClient = new TransportClient(settings);
+        TransportClient esClient = TransportClient.builder().settings(settings).build();
         for (String host : config.getHosts()) {
-            //If the host string is a comma separated list; tokenize it and add individual hosts
-            if(host.contains(",")) {
-                String tokennizedHosts[] = host.split(",");
-                for (String tokenizedHost : tokennizedHosts) {
-                    esClient.addTransportAddress(
-                            new InetSocketTransportAddress(tokenizedHost, 9300));
-                    logger.info(String.format("Added Elasticsearch Node : %s", host));
-                }
-            } else {
+            String tokenizedHosts[] = host.split(",");
+            for (String tokenizedHost : tokenizedHosts) {
                 esClient.addTransportAddress(
-                        new InetSocketTransportAddress(host, 9300));
+                        new InetSocketTransportAddress(InetAddress.getByName(tokenizedHost), 9300));
                 logger.info(String.format("Added Elasticsearch Node : %s", host));
             }
         }

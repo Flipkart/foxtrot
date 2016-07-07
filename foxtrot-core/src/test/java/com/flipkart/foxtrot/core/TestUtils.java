@@ -147,7 +147,6 @@ public class TestUtils {
         documents.add(TestUtils.getDocument("E", 1397658118004L, new Object[]{"os", "ios", "version", 2, "device", "ipad", "battery", 56}, mapper));
         documents.add(TestUtils.getDocument("F", 1397658118005L, new Object[]{"os", "ios", "version", 2, "device", "nexus", "battery", 35}, mapper));
         documents.add(TestUtils.getDocument("G", 1397658118006L, new Object[]{"os", "ios", "version", 2, "device", "ipad", "battery", 44}, mapper));
-        documents.add(TestUtils.getDocument("ABCD", 1397658118006L, new Object[]{"header.data", "ios"}, mapper));
         return documents;
     }
 

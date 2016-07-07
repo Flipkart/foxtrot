@@ -20,9 +20,7 @@ import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConnection;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchQueryStore;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
 import com.flipkart.foxtrot.core.querystore.impl.HazelcastConnection;
-import com.flipkart.foxtrot.core.table.TableManager;
 import com.flipkart.foxtrot.core.table.TableMetadataManager;
-import com.flipkart.foxtrot.core.table.impl.FoxtrotTableManager;
 import com.flipkart.foxtrot.core.table.impl.TableMapStore;
 import com.flipkart.foxtrot.server.config.FoxtrotServerConfiguration;
 import com.flipkart.foxtrot.server.providers.exception.FoxtrotExceptionMapper;
@@ -36,11 +34,8 @@ import io.dropwizard.lifecycle.setup.LifecycleEnvironment;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
 import org.elasticsearch.action.admin.indices.create.CreateIndexRequest;
-import org.elasticsearch.common.settings.ImmutableSettings;
 import org.elasticsearch.common.settings.Settings;
 import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
 import org.mockito.Mockito;
 
 import java.util.UUID;
@@ -91,7 +86,7 @@ public abstract class FoxtrotResourceTest {
         environment.getObjectMapper().disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
         SubtypeResolver subtypeResolver = new StdSubtypeResolver();
         environment.getObjectMapper().setSubtypeResolver(subtypeResolver);
-        environment.jersey().register( new FoxtrotExceptionMapper(mapper));
+        environment.jersey().register(new FoxtrotExceptionMapper(mapper));
         mapper = environment.getObjectMapper();
 
     }
@@ -114,7 +109,7 @@ public abstract class FoxtrotResourceTest {
         when(elasticsearchConnection.getClient()).thenReturn(elasticsearchServer.getClient());
         ElasticsearchUtils.initializeMappings(elasticsearchServer.getClient());
 
-        Settings indexSettings = ImmutableSettings.settingsBuilder().put("number_of_replicas", 0).build();
+        Settings indexSettings = Settings.builder().put("number_of_replicas", 0).build();
         CreateIndexRequest createRequest = new CreateIndexRequest(TableMapStore.TABLE_META_INDEX).settings(indexSettings);
         elasticsearchServer.getClient().admin().indices().create(createRequest).actionGet();
         elasticsearchServer.getClient().admin().cluster().prepareHealth().setWaitForGreenStatus().execute().actionGet();

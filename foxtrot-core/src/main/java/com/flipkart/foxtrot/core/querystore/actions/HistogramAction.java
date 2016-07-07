@@ -34,18 +34,22 @@ import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConnection;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
 import com.flipkart.foxtrot.core.querystore.query.ElasticSearchQueryGenerator;
 import com.flipkart.foxtrot.core.table.TableMetadataManager;
+import io.dropwizard.util.Duration;
 import org.elasticsearch.ElasticsearchException;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.search.SearchType;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.Aggregations;
-import org.elasticsearch.search.aggregations.bucket.histogram.DateHistogram;
+import org.elasticsearch.search.aggregations.bucket.histogram.DateHistogramInterval;
+import org.elasticsearch.search.aggregations.bucket.histogram.Histogram;
+import org.joda.time.DateTime;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import io.dropwizard.util.Duration;
+
 /**
  * User: Santanu Sinha (santanu.sinha@flipkart.com)
  * Date: 29/03/14
@@ -109,19 +113,19 @@ public class HistogramAction extends Action<HistogramRequest> {
     @Override
     public ActionResponse execute(HistogramRequest parameter) throws FoxtrotException {
         SearchRequestBuilder searchRequestBuilder;
-        DateHistogram.Interval interval = null;
+        DateHistogramInterval interval = null;
         switch (parameter.getPeriod()) {
             case seconds:
-                interval = DateHistogram.Interval.SECOND;
+                interval = DateHistogramInterval.SECOND;
                 break;
             case minutes:
-                interval = DateHistogram.Interval.MINUTE;
+                interval = DateHistogramInterval.MINUTE;
                 break;
             case hours:
-                interval = DateHistogram.Interval.HOUR;
+                interval = DateHistogramInterval.HOUR;
                 break;
             case days:
-                interval = DateHistogram.Interval.DAY;
+                interval = DateHistogramInterval.DAY;
                 break;
         }
         String dateHistogramKey = Utils.sanitizeFieldForAggregation(parameter.getField());
@@ -133,9 +137,9 @@ public class HistogramAction extends Action<HistogramRequest> {
                     .setQuery(new ElasticSearchQueryGenerator(FilterCombinerType.and)
                             .genFilter(parameter.getFilters()))
                     .setSize(0)
-                    .setSearchType(SearchType.COUNT)
                     .addAggregation(AggregationBuilders.dateHistogram(dateHistogramKey)
                             .field(parameter.getField())
+                            .minDocCount(1)
                             .interval(interval));
         } catch (Exception e) {
             throw FoxtrotExceptions.queryCreationException(parameter, e);
@@ -147,12 +151,13 @@ public class HistogramAction extends Action<HistogramRequest> {
             if (aggregations == null) {
                 return new HistogramResponse(Collections.<HistogramResponse.Count>emptyList());
             }
-            DateHistogram dateHistogram = aggregations.get(dateHistogramKey);
-            Collection<? extends DateHistogram.Bucket> buckets = dateHistogram.getBuckets();
+
+            Histogram dateHistogram = aggregations.get(dateHistogramKey);
+            Collection<? extends Histogram.Bucket> buckets = dateHistogram.getBuckets();
             List<HistogramResponse.Count> counts = new ArrayList<>(buckets.size());
-            for (DateHistogram.Bucket bucket : buckets) {
+            for (Histogram.Bucket bucket : buckets) {
                 HistogramResponse.Count count = new HistogramResponse.Count(
-                        bucket.getKeyAsNumber(), bucket.getDocCount());
+                        ((DateTime) bucket.getKey()).getMillis(), bucket.getDocCount());
                 counts.add(count);
             }
             return new HistogramResponse(counts);
