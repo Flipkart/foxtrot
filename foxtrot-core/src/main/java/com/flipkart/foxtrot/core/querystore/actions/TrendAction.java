@@ -141,7 +141,7 @@ public class TrendAction extends Action<TrendRequest> {
                     .prepareSearch(ElasticsearchUtils.getIndices(parameter.getTable(), parameter))
                     .setIndicesOptions(Utils.indicesOptions())
                     .setQuery(new ElasticSearchQueryGenerator(FilterCombinerType.and).genFilter(parameter.getFilters()))
-                    .setSearchType(SearchType.COUNT)
+                    .setSize(0)
                     .addAggregation(aggregationBuilder);
         } catch (Exception e) {
             throw FoxtrotExceptions.queryCreationException(parameter, e);

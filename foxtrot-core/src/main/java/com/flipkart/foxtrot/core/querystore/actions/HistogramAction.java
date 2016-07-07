@@ -137,7 +137,6 @@ public class HistogramAction extends Action<HistogramRequest> {
                     .setQuery(new ElasticSearchQueryGenerator(FilterCombinerType.and)
                             .genFilter(parameter.getFilters()))
                     .setSize(0)
-                    .setSearchType(SearchType.COUNT)
                     .addAggregation(AggregationBuilders.dateHistogram(dateHistogramKey)
                             .field(parameter.getField())
                             .minDocCount(1)

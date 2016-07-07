@@ -134,7 +134,7 @@ public class DistinctAction extends Action<DistinctRequest> {
             }
             query.setQuery(new ElasticSearchQueryGenerator(FilterCombinerType.and)
                     .genFilter(request.getFilters()))
-                    .setSearchType(SearchType.COUNT)
+                    .setSize(0)
                     .addAggregation(rootBuilder);
         } catch (Exception e) {
             throw FoxtrotExceptions.queryCreationException(request, e);

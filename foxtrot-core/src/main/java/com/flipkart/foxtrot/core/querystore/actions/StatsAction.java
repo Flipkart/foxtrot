@@ -97,7 +97,6 @@ public class StatsAction extends Action<StatsRequest> {
                     .setIndicesOptions(Utils.indicesOptions())
                     .setQuery(new ElasticSearchQueryGenerator(parameter.getCombiner()).genFilter(parameter.getFilters()))
                     .setSize(0)
-                    .setSearchType(SearchType.COUNT)
                     .addAggregation(Utils.buildExtendedStatsAggregation(parameter.getField()))
                     .addAggregation(Utils.buildPercentileAggregation(parameter.getField()));
         } catch (Exception e) {
