@@ -1,5 +1,5 @@
 elasticsearch:
-  image: library/elasticsearch:1.7.3
+  image: library/elasticsearch:2.3.3
   hostname: elasticsearch
   command: elasticsearch -Des.http.cors.enabled=true
   ports:
