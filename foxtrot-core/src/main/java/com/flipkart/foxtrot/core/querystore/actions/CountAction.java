@@ -23,7 +23,6 @@ import org.elasticsearch.ElasticsearchException;
 import org.elasticsearch.action.count.CountRequestBuilder;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.action.search.SearchType;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.Aggregations;
 import org.elasticsearch.search.aggregations.metrics.cardinality.Cardinality;
@@ -100,7 +99,7 @@ public class CountAction extends Action<CountRequest> {
                 query = getConnection().getClient()
                         .prepareSearch(ElasticsearchUtils.getIndices(parameter.getTable(), parameter))
                         .setIndicesOptions(Utils.indicesOptions())
-                        .setSearchType(SearchType.COUNT)
+                        .setSize(0)
                         .setQuery(new ElasticSearchQueryGenerator(FilterCombinerType.and)
                                 .genFilter(parameter.getFilters()))
                         .addAggregation(AggregationBuilders

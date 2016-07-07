@@ -20,7 +20,6 @@ import com.flipkart.foxtrot.common.group.GroupRequest;
 import com.flipkart.foxtrot.common.group.GroupResponse;
 import com.flipkart.foxtrot.common.query.Filter;
 import com.flipkart.foxtrot.common.query.FilterCombinerType;
-import com.flipkart.foxtrot.common.query.general.AnyFilter;
 import com.flipkart.foxtrot.common.util.CollectionUtils;
 import com.flipkart.foxtrot.core.cache.CacheManager;
 import com.flipkart.foxtrot.core.common.Action;
@@ -34,7 +33,6 @@ import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConnection;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
 import com.flipkart.foxtrot.core.querystore.query.ElasticSearchQueryGenerator;
 import com.flipkart.foxtrot.core.table.TableMetadataManager;
-import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.elasticsearch.ElasticsearchException;
 import org.elasticsearch.action.search.SearchRequestBuilder;
@@ -166,9 +164,9 @@ public class GroupAction extends Action<GroupRequest> {
         Map<String, Object> levelCount = Maps.newHashMap();
         for (Terms.Bucket bucket : terms.getBuckets()) {
             if (fields.size() == 1) {
-                levelCount.put(bucket.getKey(), bucket.getDocCount());
+                levelCount.put(String.valueOf(bucket.getKey()), bucket.getDocCount());
             } else {
-                levelCount.put(bucket.getKey(), getMap(remainingFields, bucket.getAggregations()));
+                levelCount.put(String.valueOf(bucket.getKey()), getMap(remainingFields, bucket.getAggregations()));
             }
         }
         return levelCount;

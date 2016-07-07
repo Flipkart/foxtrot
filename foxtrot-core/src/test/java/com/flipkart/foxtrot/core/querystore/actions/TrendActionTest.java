@@ -48,7 +48,7 @@ public class TrendActionTest extends ActionTest {
         super.setUp();
         List<Document> documents = TestUtils.getTrendDocuments(getMapper());
         getQueryStore().save(TestUtils.TEST_TABLE_NAME, documents);
-        getElasticsearchServer().getClient().admin().indices().prepareRefresh("*").setForce(true).execute().actionGet();
+        getElasticsearchServer().getClient().admin().indices().prepareRefresh("*").execute().actionGet();
     }
 
     @Test(expected = FoxtrotException.class)
@@ -104,36 +104,6 @@ public class TrendActionTest extends ActionTest {
         TrendResponse expectedResponse = new TrendResponse();
         expectedResponse.setTrends(new HashMap<>());
 
-        TrendResponse actualResponse = TrendResponse.class.cast(getQueryExecutor().execute(trendRequest));
-        assertEquals(expectedResponse, actualResponse);
-    }
-
-    @Test
-
-    public void testTrendActionFieldWithDot() throws FoxtrotException {
-        Document document = TestUtils.getDocument("G", 1398653118006L, new Object[]{"data.version", 1}, getMapper());
-        getQueryStore().save(TestUtils.TEST_TABLE_NAME, document);
-        getElasticsearchServer().getClient().admin().indices()
-                .prepareRefresh(ElasticsearchUtils.getCurrentIndex(TestUtils.TEST_TABLE_NAME, document.getTimestamp()))
-                .setForce(true)
-                .execute()
-                .actionGet();
-        TrendRequest trendRequest = new TrendRequest();
-        trendRequest.setTable(TestUtils.TEST_TABLE_NAME);
-        BetweenFilter betweenFilter = new BetweenFilter();
-        betweenFilter.setFrom(1L);
-        betweenFilter.setTo(System.currentTimeMillis());
-        betweenFilter.setTemporal(true);
-        betweenFilter.setField("_timestamp");
-        trendRequest.setFilters(Collections.<Filter>singletonList(betweenFilter));
-        trendRequest.setField("data.version");
-        trendRequest.setValues(Collections.<String>emptyList());
-
-        TrendResponse expectedResponse = new TrendResponse();
-        TrendResponse.Count count = new TrendResponse.Count();
-        count.setPeriod(1398643200000L);
-        count.setCount(1);
-        expectedResponse.setTrends(Collections.<String, List<TrendResponse.Count>>singletonMap("1", Arrays.asList(count)));
         TrendResponse actualResponse = TrendResponse.class.cast(getQueryExecutor().execute(trendRequest));
         assertEquals(expectedResponse, actualResponse);
     }

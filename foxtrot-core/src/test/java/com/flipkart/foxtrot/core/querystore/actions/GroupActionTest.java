@@ -46,7 +46,7 @@ public class GroupActionTest extends ActionTest {
         super.setUp();
         List<Document> documents = TestUtils.getGroupDocuments(getMapper());
         getQueryStore().save(TestUtils.TEST_TABLE_NAME, documents);
-        getElasticsearchServer().getClient().admin().indices().prepareRefresh("*").setForce(true).execute().actionGet();
+        getElasticsearchServer().getClient().admin().indices().prepareRefresh("*").execute().actionGet();
     }
 
     @Ignore
@@ -73,19 +73,6 @@ public class GroupActionTest extends ActionTest {
         Map<String, Object> response = Maps.newHashMap();
         response.put("android", 7L);
         response.put("ios", 4L);
-
-        GroupResponse actualResult = GroupResponse.class.cast(getQueryExecutor().execute(groupRequest));
-        assertEquals(response, actualResult.getResult());
-    }
-
-    @Test
-    public void testGroupActionSingleFieldSpecialCharacterNoFilter() throws FoxtrotException, JsonProcessingException {
-        GroupRequest groupRequest = new GroupRequest();
-        groupRequest.setTable(TestUtils.TEST_TABLE_NAME);
-        groupRequest.setNesting(Arrays.asList("header.data"));
-
-        Map<String, Object> response = Maps.newHashMap();
-        response.put("ios", 1L);
 
         GroupResponse actualResult = GroupResponse.class.cast(getQueryExecutor().execute(groupRequest));
         assertEquals(response, actualResult.getResult());

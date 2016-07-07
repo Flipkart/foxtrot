@@ -26,9 +26,9 @@ import org.elasticsearch.ElasticsearchException;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchType;
 import org.elasticsearch.search.aggregations.Aggregations;
-import org.elasticsearch.search.aggregations.metrics.percentiles.InternalPercentiles;
 import org.elasticsearch.search.aggregations.metrics.percentiles.Percentile;
-import org.elasticsearch.search.aggregations.metrics.stats.extended.InternalExtendedStats;
+import org.elasticsearch.search.aggregations.metrics.percentiles.Percentiles;
+import org.elasticsearch.search.aggregations.metrics.stats.extended.ExtendedStats;
 
 import java.util.List;
 import java.util.Map;
@@ -120,7 +120,7 @@ public class StatsAction extends Action<StatsRequest> {
 
         StatsValue statsValue = new StatsValue();
 
-        InternalExtendedStats extendedStats = InternalExtendedStats.class.cast(aggregations.getAsMap().get(metricKey));
+        ExtendedStats extendedStats = aggregations.get(metricKey);
         Map<String, Number> stats = Maps.newHashMap();
         stats.put("avg", extendedStats.getAvg());
         stats.put("sum", extendedStats.getSum());
@@ -132,7 +132,7 @@ public class StatsAction extends Action<StatsRequest> {
         stats.put("std_deviation", extendedStats.getStdDeviation());
         statsValue.setStats(stats);
 
-        InternalPercentiles internalPercentile = InternalPercentiles.class.cast(aggregations.getAsMap().get(percentileMetricKey));
+        Percentiles internalPercentile = aggregations.get(percentileMetricKey);
         Map<Number, Number> percentiles = Maps.newHashMap();
         for (Percentile percentile : internalPercentile) {
             percentiles.put(percentile.getPercent(), percentile.getValue());
