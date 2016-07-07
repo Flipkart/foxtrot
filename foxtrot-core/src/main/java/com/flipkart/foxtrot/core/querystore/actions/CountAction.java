@@ -20,10 +20,8 @@ import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
 import com.flipkart.foxtrot.core.querystore.query.ElasticSearchQueryGenerator;
 import com.flipkart.foxtrot.core.table.TableMetadataManager;
 import org.elasticsearch.ElasticsearchException;
-import org.elasticsearch.action.count.CountRequestBuilder;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.action.search.SearchType;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.Aggregations;
 import org.elasticsearch.search.aggregations.metrics.cardinality.Cardinality;
@@ -100,7 +98,7 @@ public class CountAction extends Action<CountRequest> {
                 query = getConnection().getClient()
                         .prepareSearch(ElasticsearchUtils.getIndices(parameter.getTable(), parameter))
                         .setIndicesOptions(Utils.indicesOptions())
-                        .setSearchType(SearchType.COUNT)
+                        .setSize(0)
                         .setQuery(new ElasticSearchQueryGenerator(FilterCombinerType.and)
                                 .genFilter(parameter.getFilters()))
                         .addAggregation(AggregationBuilders
@@ -124,18 +122,18 @@ public class CountAction extends Action<CountRequest> {
                 throw FoxtrotExceptions.createQueryExecutionException(parameter, e);
             }
         } else {
-            CountRequestBuilder countRequestBuilder;
+            SearchRequestBuilder requestBuilder;
             try {
-                countRequestBuilder = getConnection().getClient()
-                        .prepareCount(ElasticsearchUtils.getIndices(parameter.getTable(), parameter))
+                requestBuilder = getConnection().getClient()
+                        .prepareSearch(ElasticsearchUtils.getIndices(parameter.getTable(), parameter))
                         .setIndicesOptions(Utils.indicesOptions())
+                        .setSize(0)
                         .setQuery(new ElasticSearchQueryGenerator(FilterCombinerType.and).genFilter(parameter.getFilters()));
             } catch (Exception e) {
                 throw FoxtrotExceptions.queryCreationException(parameter, e);
             }
             try {
-                org.elasticsearch.action.count.CountResponse countResponse = countRequestBuilder.execute().actionGet();
-                return new CountResponse(countResponse.getCount());
+                return new CountResponse(requestBuilder.execute().actionGet().getHits().getTotalHits());
             } catch (ElasticsearchException e) {
                 throw FoxtrotExceptions.createQueryExecutionException(parameter, e);
             }

@@ -20,8 +20,7 @@ import com.flipkart.foxtrot.core.common.DataDeletionManagerConfig;
 import com.flipkart.foxtrot.core.datastore.impl.hbase.HbaseConfig;
 import com.flipkart.foxtrot.core.querystore.impl.ClusterConfig;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConfig;
-import com.yammer.dropwizard.config.Configuration;
-import net.sourceforge.cobertura.CoverageIgnore;
+import io.dropwizard.Configuration;
 
 import javax.validation.Valid;
 
@@ -30,7 +29,6 @@ import javax.validation.Valid;
  * Date: 15/03/14
  * Time: 9:26 PM
  */
-@CoverageIgnore
 public class FoxtrotServerConfiguration extends Configuration {
     @Valid
     private final HbaseConfig hbase;
