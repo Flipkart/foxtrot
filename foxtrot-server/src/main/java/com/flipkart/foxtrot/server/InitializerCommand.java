@@ -24,13 +24,13 @@ import com.flipkart.foxtrot.server.config.FoxtrotServerConfiguration;
 import io.dropwizard.cli.ConfiguredCommand;
 import io.dropwizard.setup.Bootstrap;
 import net.sourceforge.argparse4j.inf.Namespace;
-import org.elasticsearch.action.admin.cluster.health.ClusterHealthRequestBuilder;
+import org.elasticsearch.action.admin.cluster.health.ClusterHealthRequest;
 import org.elasticsearch.action.admin.cluster.health.ClusterHealthResponse;
-import org.elasticsearch.action.admin.indices.create.CreateIndexRequestBuilder;
+import org.elasticsearch.action.admin.indices.create.CreateIndexRequest;
 import org.elasticsearch.action.admin.indices.create.CreateIndexResponse;
-import org.elasticsearch.action.admin.indices.template.put.PutIndexTemplateRequestBuilder;
+import org.elasticsearch.action.admin.indices.template.put.PutIndexTemplateRequest;
 import org.elasticsearch.action.admin.indices.template.put.PutIndexTemplateResponse;
-import org.elasticsearch.common.settings.ImmutableSettings;
+import org.elasticsearch.common.settings.Settings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -49,10 +49,8 @@ public class InitializerCommand extends ConfiguredCommand<FoxtrotServerConfigura
         ElasticsearchConfig esConfig = configuration.getElasticsearch();
         ElasticsearchConnection connection = new ElasticsearchConnection(esConfig);
         connection.start();
-        ClusterHealthResponse clusterHealth = new ClusterHealthRequestBuilder(connection.getClient().admin().cluster())
-                .execute()
-                .get();
 
+        ClusterHealthResponse clusterHealth = connection.getClient().admin().cluster().health(new ClusterHealthRequest()).actionGet();
         int numDataNodes = clusterHealth.getNumberOfDataNodes();
         int numReplicas = (numDataNodes < 2) ? 0 : 1;
 
@@ -61,35 +59,28 @@ public class InitializerCommand extends ConfiguredCommand<FoxtrotServerConfigura
         createMetaIndex(connection, "consoles", numDataNodes - 1);
         createMetaIndex(connection, "table-meta", numDataNodes - 1);
 
-        PutIndexTemplateResponse response = new PutIndexTemplateRequestBuilder(connection.getClient().admin().indices(), "template_foxtrot_mappings")
-                .setTemplate(String.format("%s-*",configuration.getElasticsearch().getTableNamePrefix()))
-                .setSettings(
-                        ImmutableSettings.builder()
-                                .put("number_of_shards", 10)
-                                .put("number_of_replicas", numReplicas)
-                )
-                .addMapping("document", ElasticsearchUtils.getDocumentMapping())
-                .execute()
-                .get();
-        logger.info("Create mapping: {}", response.isAcknowledged());
+        logger.info("Creating mapping");
+        PutIndexTemplateRequest putIndexTemplateRequest = ElasticsearchUtils.getClusterTemplateMapping();
+        PutIndexTemplateResponse response = connection.getClient().admin().indices().putTemplate(putIndexTemplateRequest).actionGet();
+        logger.info("Created mapping: {}", response.isAcknowledged());
 
         logger.info("Creating hbase table");
         HBaseUtil.createTable(configuration.getHbase(), configuration.getHbase().getTableName());
-
     }
 
     private void createMetaIndex(final ElasticsearchConnection connection,
                                  final String indexName,
                                  int replicaCount) throws Exception {
         try {
-            CreateIndexResponse response = new CreateIndexRequestBuilder(connection.getClient().admin().indices(), indexName)
-                    .setSettings(
-                            ImmutableSettings.builder()
-                                    .put("number_of_shards", 1)
-                                    .put("number_of_replicas", replicaCount)
-                    )
-                    .execute()
-                    .get();
+            logger.info("'{}' creation started", indexName);
+            Settings settings = Settings.builder()
+                    .put("number_of_shards", 1)
+                    .put("number_of_replicas", replicaCount)
+                    .build();
+            CreateIndexRequest createIndexRequest = new CreateIndexRequest()
+                    .index(indexName)
+                    .settings(settings);
+            CreateIndexResponse response = connection.getClient().admin().indices().create(createIndexRequest).actionGet();
             logger.info("'{}' creation acknowledged: {}", indexName, response.isAcknowledged());
             if (!response.isAcknowledged()) {
                 logger.error("Index {} could not be created.", indexName);
