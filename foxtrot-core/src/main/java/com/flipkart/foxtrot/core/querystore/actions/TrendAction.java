@@ -167,25 +167,7 @@ public class TrendAction extends Action<TrendRequest> {
     }
 
     private AbstractAggregationBuilder buildAggregation(TrendRequest request) {
-        DateHistogram.Interval interval;
-        switch (request.getPeriod()) {
-            case seconds:
-                interval = DateHistogram.Interval.SECOND;
-                break;
-            case minutes:
-                interval = DateHistogram.Interval.MINUTE;
-                break;
-            case hours:
-                interval = DateHistogram.Interval.HOUR;
-                break;
-            case days:
-                interval = DateHistogram.Interval.DAY;
-                break;
-            default:
-                interval = DateHistogram.Interval.HOUR;
-                break;
-        }
-
+        DateHistogram.Interval interval = Utils.getHistogramInterval(request.getPeriod());
         String field = request.getField();
         return AggregationBuilders.terms(Utils.sanitizeFieldForAggregation(field))
                 .field(field)
@@ -195,7 +177,7 @@ public class TrendAction extends Action<TrendRequest> {
 
     private TrendResponse buildResponse(TrendRequest request, Aggregations aggregations) {
         String field = request.getField();
-        Map<String, List<TrendResponse.Count>> trendCounts = new TreeMap<String, List<TrendResponse.Count>>();
+        Map<String, List<TrendResponse.Count>> trendCounts = new TreeMap<>();
         Terms terms = aggregations.get(Utils.sanitizeFieldForAggregation(field));
         for (Terms.Bucket bucket : terms.getBuckets()) {
             final String key = bucket.getKeyAsText().string();

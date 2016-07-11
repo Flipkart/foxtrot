@@ -5,6 +5,7 @@ import com.flipkart.foxtrot.common.Period;
 import com.flipkart.foxtrot.common.query.Filter;
 import com.flipkart.foxtrot.common.query.FilterCombinerType;
 import com.flipkart.foxtrot.common.query.datetime.LastFilter;
+import com.flipkart.foxtrot.common.stats.BucketResponse;
 import com.flipkart.foxtrot.common.stats.StatsTrendRequest;
 import com.flipkart.foxtrot.common.stats.StatsTrendResponse;
 import com.flipkart.foxtrot.common.stats.StatsTrendValue;
@@ -22,7 +23,6 @@ import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
 import com.flipkart.foxtrot.core.querystore.query.ElasticSearchQueryGenerator;
 import com.flipkart.foxtrot.core.table.TableMetadataManager;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import com.yammer.dropwizard.util.Duration;
 import org.apache.commons.lang3.StringUtils;
 import org.elasticsearch.ElasticsearchException;
@@ -33,14 +33,14 @@ import org.elasticsearch.search.aggregations.AbstractAggregationBuilder;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.Aggregations;
 import org.elasticsearch.search.aggregations.bucket.histogram.DateHistogram;
+import org.elasticsearch.search.aggregations.bucket.terms.Terms;
+import org.elasticsearch.search.aggregations.bucket.terms.TermsBuilder;
 import org.elasticsearch.search.aggregations.metrics.percentiles.InternalPercentiles;
-import org.elasticsearch.search.aggregations.metrics.percentiles.Percentile;
 import org.elasticsearch.search.aggregations.metrics.stats.extended.InternalExtendedStats;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Created by rishabh.goyal on 02/08/14.
@@ -78,6 +78,13 @@ public class StatsTrendAction extends Action<StatsTrendRequest> {
                 hashKey += 31 * filter.hashCode();
             }
         }
+
+        if (!CollectionUtils.isNullOrEmpty(statsRequest.getNesting())) {
+            for (String field : statsRequest.getNesting()) {
+                hashKey += 31 * field.hashCode();
+            }
+        }
+
         hashKey += 31 * statsRequest.getPeriod().name().hashCode();
         hashKey += 31 * statsRequest.getTimestamp().hashCode();
         hashKey += 31 * (statsRequest.getField() != null ? statsRequest.getField().hashCode() : "FIELD".hashCode());
@@ -139,70 +146,90 @@ public class StatsTrendAction extends Action<StatsTrendRequest> {
     }
 
     private AbstractAggregationBuilder buildAggregation(StatsTrendRequest request) {
-        DateHistogram.Interval interval;
-        switch (request.getPeriod()) {
-            case seconds:
-                interval = DateHistogram.Interval.SECOND;
-                break;
-            case minutes:
-                interval = DateHistogram.Interval.MINUTE;
-                break;
-            case hours:
-                interval = DateHistogram.Interval.HOUR;
-                break;
-            case days:
-                interval = DateHistogram.Interval.DAY;
-                break;
-            default:
-                interval = DateHistogram.Interval.HOUR;
-                break;
-        }
-
-        String dateHistogramKey = Utils.getDateHistogramKey(request.getTimestamp());
-        return AggregationBuilders.dateHistogram(dateHistogramKey)
-                .field(request.getTimestamp())
-                .interval(interval)
+        DateHistogram.Interval interval = Utils.getHistogramInterval(request.getPeriod());
+        AbstractAggregationBuilder dateHistogramBuilder = Utils.buildDateHistogramAggregation(request.getTimestamp(), interval)
                 .subAggregation(Utils.buildExtendedStatsAggregation(request.getField()))
                 .subAggregation(Utils.buildPercentileAggregation(request.getField()));
+
+        if (CollectionUtils.isNullOrEmpty(getParameter().getNesting())) {
+            return dateHistogramBuilder;
+        }
+
+        TermsBuilder rootBuilder = null;
+        TermsBuilder termsBuilder = null;
+        for (String field : getParameter().getNesting()) {
+            if (null == termsBuilder) {
+                termsBuilder = AggregationBuilders.terms(Utils.sanitizeFieldForAggregation(field)).field(field);
+            } else {
+                TermsBuilder tempBuilder = AggregationBuilders.terms(Utils.sanitizeFieldForAggregation(field)).field(field);
+                termsBuilder.subAggregation(tempBuilder);
+                termsBuilder = tempBuilder;
+            }
+            termsBuilder.size(0);
+            if (null == rootBuilder) {
+                rootBuilder = termsBuilder;
+            }
+        }
+        termsBuilder.subAggregation(dateHistogramBuilder);
+        return rootBuilder;
     }
 
     private StatsTrendResponse buildResponse(StatsTrendRequest request, Aggregations aggregations) {
-        String dateHistogramKey = Utils.getDateHistogramKey(request.getTimestamp());
+        StatsTrendResponse response = new StatsTrendResponse();
+
+        if (CollectionUtils.isNullOrEmpty(request.getNesting())) {
+            List<StatsTrendValue> trends = buildStatsTrendValue(request.getField(), aggregations);
+            response.setResult(trends);
+        } else {
+            List<BucketResponse<List<StatsTrendValue>>> buckets = buildNestedTrendStats(request.getNesting(), aggregations);
+            response.setBuckets(buckets);
+        }
+        return response;
+    }
+
+    private List<BucketResponse<List<StatsTrendValue>>> buildNestedTrendStats(List<String> nesting,
+                                                                              Aggregations aggregations) {
+        final String field = nesting.get(0);
+        final List<String> remainingFields = (nesting.size() > 1) ? nesting.subList(1, nesting.size())
+                : new ArrayList<>();
+        Terms terms = aggregations.get(Utils.sanitizeFieldForAggregation(field));
+        List<BucketResponse<List<StatsTrendValue>>> bucketResponses = Lists.newArrayList();
+        for (Terms.Bucket bucket : terms.getBuckets()) {
+            BucketResponse<List<StatsTrendValue>> bucketResponse = new BucketResponse<>();
+            bucketResponse.setKey(bucket.getKey());
+            if (nesting.size() == 1) {
+                bucketResponse.setResult(buildStatsTrendValue(getParameter().getField(), bucket.getAggregations()));
+            } else {
+                bucketResponse.setBuckets(buildNestedTrendStats(remainingFields, bucket.getAggregations()));
+            }
+            bucketResponses.add(bucketResponse);
+        }
+        return bucketResponses;
+    }
+
+    private List<StatsTrendValue> buildStatsTrendValue(String field, Aggregations aggregations) {
+        String dateHistogramKey = Utils.getDateHistogramKey(getParameter().getTimestamp());
         DateHistogram dateHistogram = aggregations.get(dateHistogramKey);
         Collection<? extends DateHistogram.Bucket> buckets = dateHistogram.getBuckets();
 
-        String metricKey = Utils.getExtendedStatsAggregationKey(request.getField());
-        String percentileMetricKey = Utils.getPercentileAggregationKey(request.getField());
+        String metricKey = Utils.getExtendedStatsAggregationKey(field);
+        String percentileMetricKey = Utils.getPercentileAggregationKey(field);
 
-        List<StatsTrendValue> statsValueList = new ArrayList<StatsTrendValue>();
+        List<StatsTrendValue> statsValueList = Lists.newArrayList();
         for (DateHistogram.Bucket bucket : buckets) {
             StatsTrendValue statsTrendValue = new StatsTrendValue();
             statsTrendValue.setPeriod(bucket.getKeyAsNumber());
 
             InternalExtendedStats extendedStats = InternalExtendedStats.class.cast(bucket.getAggregations().getAsMap().get(metricKey));
-            Map<String, Number> stats = Maps.newHashMap();
-            stats.put("avg", extendedStats.getAvg());
-            stats.put("sum", extendedStats.getSum());
-            stats.put("count", extendedStats.getCount());
-            stats.put("min", extendedStats.getMin());
-            stats.put("max", extendedStats.getMax());
-            stats.put("sum_of_squares", extendedStats.getSumOfSquares());
-            stats.put("variance", extendedStats.getVariance());
-            stats.put("std_deviation", extendedStats.getStdDeviation());
-            statsTrendValue.setStats(stats);
-
+            statsTrendValue.setStats(Utils.createExtendedStatsResponse(extendedStats));
             InternalPercentiles internalPercentile = InternalPercentiles.class.cast(bucket.getAggregations().getAsMap().get(percentileMetricKey));
-            Map<Number, Number> percentiles = Maps.newHashMap();
-
-            for (Percentile percentile : internalPercentile) {
-                percentiles.put(percentile.getPercent(), percentile.getValue());
-            }
-            statsTrendValue.setPercentiles(percentiles);
+            statsTrendValue.setPercentiles(Utils.createPercentilesResponse(internalPercentile));
 
             statsValueList.add(statsTrendValue);
         }
-        return new StatsTrendResponse(statsValueList);
+        return statsValueList;
     }
+
 
     @Override
     protected Filter getDefaultTimeSpan() {

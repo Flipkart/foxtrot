@@ -5,6 +5,8 @@ import com.flipkart.foxtrot.common.Period;
 import com.flipkart.foxtrot.common.query.FilterCombinerType;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
+import java.util.List;
+
 /**
  * Created by rishabh.goyal on 02/08/14.
  */
@@ -15,6 +17,8 @@ public class StatsTrendRequest extends ActionRequest {
     private String field;
 
     private FilterCombinerType combiner = FilterCombinerType.and;
+
+    private List<String> nesting;
 
     private Period period = Period.hours;
 
@@ -38,6 +42,14 @@ public class StatsTrendRequest extends ActionRequest {
 
     public void setField(String field) {
         this.field = field;
+    }
+
+    public List<String> getNesting() {
+        return nesting;
+    }
+
+    public void setNesting(List<String> nesting) {
+        this.nesting = nesting;
     }
 
     public FilterCombinerType getCombiner() {
@@ -71,6 +83,7 @@ public class StatsTrendRequest extends ActionRequest {
                 .append("table", table)
                 .append("field", field)
                 .append("combiner", combiner)
+                .append("nesting", nesting)
                 .append("period", period)
                 .append("timestamp", timestamp)
                 .toString();

@@ -39,7 +39,6 @@ import org.elasticsearch.ElasticsearchException;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.search.SearchType;
-import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.Aggregations;
 import org.elasticsearch.search.aggregations.bucket.histogram.DateHistogram;
 
@@ -111,22 +110,8 @@ public class HistogramAction extends Action<HistogramRequest> {
     @Override
     public ActionResponse execute(HistogramRequest parameter) throws FoxtrotException {
         SearchRequestBuilder searchRequestBuilder;
-        DateHistogram.Interval interval = null;
-        switch (parameter.getPeriod()) {
-            case seconds:
-                interval = DateHistogram.Interval.SECOND;
-                break;
-            case minutes:
-                interval = DateHistogram.Interval.MINUTE;
-                break;
-            case hours:
-                interval = DateHistogram.Interval.HOUR;
-                break;
-            case days:
-                interval = DateHistogram.Interval.DAY;
-                break;
-        }
-        String dateHistogramKey = Utils.sanitizeFieldForAggregation(parameter.getField());
+        DateHistogram.Interval interval = Utils.getHistogramInterval(parameter.getPeriod());
+        String dateHistogramKey = Utils.getDateHistogramKey(parameter.getField());
         try {
             searchRequestBuilder = getConnection().getClient().prepareSearch(
                     ElasticsearchUtils.getIndices(parameter.getTable(), parameter))
@@ -136,9 +121,7 @@ public class HistogramAction extends Action<HistogramRequest> {
                             .genFilter(parameter.getFilters()))
                     .setSize(0)
                     .setSearchType(SearchType.COUNT)
-                    .addAggregation(AggregationBuilders.dateHistogram(dateHistogramKey)
-                            .field(parameter.getField())
-                            .interval(interval));
+                    .addAggregation(Utils.buildDateHistogramAggregation(parameter.getField(), interval));
         } catch (Exception e) {
             throw FoxtrotExceptions.queryCreationException(parameter, e);
         }
