@@ -175,8 +175,6 @@ public class StatsTrendAction extends Action<StatsTrendRequest> {
     }
 
     private StatsTrendResponse buildResponse(StatsTrendRequest request, Aggregations aggregations) {
-        // First build root level stats value
-
         StatsTrendResponse response = new StatsTrendResponse();
 
         if (CollectionUtils.isNullOrEmpty(request.getNesting())) {
@@ -186,7 +184,6 @@ public class StatsTrendAction extends Action<StatsTrendRequest> {
             List<BucketResponse<List<StatsTrendValue>>> buckets = buildNestedTrendStats(request.getNesting(), aggregations);
             response.setBuckets(buckets);
         }
-
         return response;
     }
 
