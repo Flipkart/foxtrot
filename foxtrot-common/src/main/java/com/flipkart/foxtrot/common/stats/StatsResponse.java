@@ -12,7 +12,7 @@ import java.util.List;
 public class StatsResponse implements ActionResponse {
 
     private StatsValue result;
-    private List<BucketResponse> buckets;
+    private List<BucketResponse<StatsValue>> buckets;
 
     public StatsResponse() {
 
@@ -26,11 +26,11 @@ public class StatsResponse implements ActionResponse {
         return result;
     }
 
-    public List<BucketResponse> getBuckets() {
+    public List<BucketResponse<StatsValue>> getBuckets() {
         return buckets;
     }
 
-    public void setBuckets(List<BucketResponse> buckets) {
+    public void setBuckets(List<BucketResponse<StatsValue>> buckets) {
         this.buckets = buckets;
     }
 

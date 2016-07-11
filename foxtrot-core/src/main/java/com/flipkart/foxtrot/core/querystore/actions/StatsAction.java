@@ -154,7 +154,7 @@ public class StatsAction extends Action<StatsRequest> {
         StatsValue statsValue = buildStatsValue(request.getField(), aggregations);
 
         // Now build nested stats if present
-        List<BucketResponse> buckets = null;
+        List<BucketResponse<StatsValue>> buckets = null;
         if (!CollectionUtils.isNullOrEmpty(request.getNesting())) {
             buckets = buildNestedStats(request.getNesting(), aggregations);
         }
@@ -166,14 +166,14 @@ public class StatsAction extends Action<StatsRequest> {
         return statsResponse;
     }
 
-    private List<BucketResponse> buildNestedStats(List<String> nesting, Aggregations aggregations) {
+    private List<BucketResponse<StatsValue>> buildNestedStats(List<String> nesting, Aggregations aggregations) {
         final String field = nesting.get(0);
         final List<String> remainingFields = (nesting.size() > 1) ? nesting.subList(1, nesting.size())
                 : new ArrayList<>();
         Terms terms = aggregations.get(Utils.sanitizeFieldForAggregation(field));
-        List<BucketResponse> bucketResponses = Lists.newArrayList();
+        List<BucketResponse<StatsValue>> bucketResponses = Lists.newArrayList();
         for (Terms.Bucket bucket : terms.getBuckets()) {
-            BucketResponse bucketResponse = new BucketResponse();
+            BucketResponse<StatsValue> bucketResponse = new BucketResponse<>();
             bucketResponse.setKey(bucket.getKey());
             if (nesting.size() == 1) {
                 bucketResponse.setResult(buildStatsValue(getParameter().getField(), bucket.getAggregations()));

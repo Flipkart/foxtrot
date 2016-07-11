@@ -5,11 +5,11 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 
 import java.util.List;
 
-public class BucketResponse {
+public class BucketResponse<T> {
 
     private String key;
-    private StatsValue result;
-    private List<BucketResponse> buckets = Lists.newArrayList();
+    private T result;
+    private List<BucketResponse<T>> buckets = Lists.newArrayList();
 
     public String getKey() {
         return key;
@@ -19,19 +19,19 @@ public class BucketResponse {
         this.key = key;
     }
 
-    public StatsValue getResult() {
+    public T getResult() {
         return result;
     }
 
-    public void setResult(StatsValue result) {
+    public void setResult(T result) {
         this.result = result;
     }
 
-    public List<BucketResponse> getBuckets() {
+    public List<BucketResponse<T>> getBuckets() {
         return buckets;
     }
 
-    public void setBuckets(List<BucketResponse> buckets) {
+    public void setBuckets(List<BucketResponse<T>> buckets) {
         this.buckets = buckets;
     }
 
