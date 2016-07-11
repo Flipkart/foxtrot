@@ -1,29 +1,30 @@
 package com.flipkart.foxtrot.common.stats;
 
-import com.flipkart.foxtrot.common.ActionResponse;
-import com.flipkart.foxtrot.common.ResponseVisitor;
+import com.google.common.collect.Lists;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
 import java.util.List;
 
-/**
- * Created by rishabh.goyal on 07/08/14.
- */
-public class StatsResponse implements ActionResponse {
+public class BucketResponse {
 
+    private String key;
     private StatsValue result;
-    private List<BucketResponse> buckets;
+    private List<BucketResponse> buckets = Lists.newArrayList();
 
-    public StatsResponse() {
-
+    public String getKey() {
+        return key;
     }
 
-    public StatsResponse(StatsValue statsValue) {
-        this.result = statsValue;
+    public void setKey(String key) {
+        this.key = key;
     }
 
     public StatsValue getResult() {
         return result;
+    }
+
+    public void setResult(StatsValue result) {
+        this.result = result;
     }
 
     public List<BucketResponse> getBuckets() {
@@ -34,18 +35,10 @@ public class StatsResponse implements ActionResponse {
         this.buckets = buckets;
     }
 
-    public void setResult(StatsValue result) {
-        this.result = result;
-    }
-
-    @Override
-    public void accept(ResponseVisitor visitor) {
-        visitor.visit(this);
-    }
-
     @Override
     public String toString() {
         return new ToStringBuilder(this)
+                .append("key", key)
                 .append("result", result)
                 .append("buckets", buckets)
                 .toString();
