@@ -95,6 +95,10 @@ public class StatsAction extends Action<StatsRequest> {
         if (parameter.getCombiner() == null) {
             validationErrors.add(String.format("specify filter combiner (%s)", StringUtils.join(FilterCombinerType.values())));
         }
+
+        if (!CollectionUtils.isNullOrEmpty(validationErrors)) {
+            throw FoxtrotExceptions.createMalformedQueryException(parameter, validationErrors);
+        }
     }
 
     @Override

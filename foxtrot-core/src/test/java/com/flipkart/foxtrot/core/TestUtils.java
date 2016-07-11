@@ -185,6 +185,16 @@ public class TestUtils {
         return documents;
     }
 
+    public static List<Document> getStatsDocuments(ObjectMapper mapper) {
+        List<Document> documents = Lists.newArrayList();
+        documents.add(TestUtils.getDocument("Z", 1467282856000L, new Object[]{"os", "android", "version", 1, "device", "nexus", "battery", 10}, mapper));
+        documents.add(TestUtils.getDocument("Y", 1467331200000L, new Object[]{"os", "android", "version", 1, "device", "nexus", "battery", 20}, mapper));
+        documents.add(TestUtils.getDocument("X", 1467417600000L, new Object[]{"os", "ios", "version", 3, "device", "galaxy", "battery", 30}, mapper));
+        documents.add(TestUtils.getDocument("W", 1467504000000L, new Object[]{"os", "ios", "version", 2, "device", "nexus", "battery", 40}, mapper));
+        documents.add(TestUtils.getDocument("A", 1467590400000L, new Object[]{"os", "wp", "version", 3, "device", "nexus", "battery", 50}, mapper));
+        return documents;
+    }
+
     public static List<Document> getStatsTrendDocuments(ObjectMapper mapper) {
         List<Document> documents = Lists.newArrayList();
         documents.add(TestUtils.getDocument("Z", 1467282856000L, new Object[]{"os", "android", "version", 1, "device", "nexus", "battery", 24}, mapper));
