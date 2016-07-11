@@ -39,7 +39,6 @@ import org.elasticsearch.ElasticsearchException;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.search.SearchType;
-import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.Aggregations;
 import org.elasticsearch.search.aggregations.bucket.histogram.DateHistogramInterval;
 import org.elasticsearch.search.aggregations.bucket.histogram.Histogram;
@@ -113,22 +112,8 @@ public class HistogramAction extends Action<HistogramRequest> {
     @Override
     public ActionResponse execute(HistogramRequest parameter) throws FoxtrotException {
         SearchRequestBuilder searchRequestBuilder;
-        DateHistogramInterval interval = null;
-        switch (parameter.getPeriod()) {
-            case seconds:
-                interval = DateHistogramInterval.SECOND;
-                break;
-            case minutes:
-                interval = DateHistogramInterval.MINUTE;
-                break;
-            case hours:
-                interval = DateHistogramInterval.HOUR;
-                break;
-            case days:
-                interval = DateHistogramInterval.DAY;
-                break;
-        }
-        String dateHistogramKey = Utils.sanitizeFieldForAggregation(parameter.getField());
+        DateHistogramInterval interval = Utils.getHistogramInterval(parameter.getPeriod());
+        String dateHistogramKey = Utils.getDateHistogramKey(parameter.getField());
         try {
             searchRequestBuilder = getConnection().getClient().prepareSearch(
                     ElasticsearchUtils.getIndices(parameter.getTable(), parameter))
@@ -137,10 +122,7 @@ public class HistogramAction extends Action<HistogramRequest> {
                     .setQuery(new ElasticSearchQueryGenerator(FilterCombinerType.and)
                             .genFilter(parameter.getFilters()))
                     .setSize(0)
-                    .addAggregation(AggregationBuilders.dateHistogram(dateHistogramKey)
-                            .field(parameter.getField())
-                            .minDocCount(1)
-                            .interval(interval));
+                    .addAggregation(Utils.buildDateHistogramAggregation(parameter.getField(), interval));
         } catch (Exception e) {
             throw FoxtrotExceptions.queryCreationException(parameter, e);
         }

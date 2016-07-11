@@ -11,13 +11,10 @@ import java.util.List;
 public class StatsTrendResponse implements ActionResponse {
 
     private List<StatsTrendValue> result;
+    private List<BucketResponse<List<StatsTrendValue>>> buckets;
 
     public StatsTrendResponse() {
 
-    }
-
-    public StatsTrendResponse(List<StatsTrendValue> statsList) {
-        this.result = statsList;
     }
 
     public List<StatsTrendValue> getResult() {
@@ -26,6 +23,14 @@ public class StatsTrendResponse implements ActionResponse {
 
     public void setResult(List<StatsTrendValue> result) {
         this.result = result;
+    }
+
+    public List<BucketResponse<List<StatsTrendValue>>> getBuckets() {
+        return buckets;
+    }
+
+    public void setBuckets(List<BucketResponse<List<StatsTrendValue>>> buckets) {
+        this.buckets = buckets;
     }
 
     @Override
