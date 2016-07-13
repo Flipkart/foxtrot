@@ -20,9 +20,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.flipkart.foxtrot.common.ActionResponse;
 import com.flipkart.foxtrot.core.cache.Cache;
 import com.flipkart.foxtrot.core.querystore.impl.HazelcastConnection;
-import com.hazelcast.config.InMemoryFormat;
-import com.hazelcast.config.MapConfig;
-import com.hazelcast.config.NearCacheConfig;
+import com.hazelcast.config.*;
 import com.hazelcast.core.IMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,13 +43,18 @@ public class DistributedCache implements Cache {
     public static void setupConfig(HazelcastConnection hazelcastConnection) {
         MapConfig mapConfig = hazelcastConnection.getHazelcastConfig().getMapConfig(NAME_PREFIX + "*");
         mapConfig.setInMemoryFormat(InMemoryFormat.BINARY);
-        mapConfig.setTimeToLiveSeconds(10);
-        mapConfig.setMaxIdleSeconds(10);
+        mapConfig.setTimeToLiveSeconds(30);
+        mapConfig.setMaxIdleSeconds(30);
         mapConfig.setBackupCount(0);
+        mapConfig.setEvictionPolicy(EvictionPolicy.LRU);
+        mapConfig.setMaxSizeConfig(new MaxSizeConfig()
+                .setMaxSizePolicy(MaxSizeConfig.MaxSizePolicy.PER_NODE)
+                .setSize(200));
         NearCacheConfig nearCacheConfig = new NearCacheConfig();
-        nearCacheConfig.setTimeToLiveSeconds(10);
+        nearCacheConfig.setTimeToLiveSeconds(30);
         nearCacheConfig.setInvalidateOnChange(true);
-        nearCacheConfig.setMaxIdleSeconds(10);
+        nearCacheConfig.setMaxSize(100);
+        nearCacheConfig.setMaxIdleSeconds(30);
         mapConfig.setNearCacheConfig(nearCacheConfig);
     }
 
@@ -66,7 +69,7 @@ public class DistributedCache implements Cache {
             final String serializedData = mapper.writeValueAsString(data);
             if (serializedData != null) {
                 // Only cache if size is less that 32 KB
-                if (serializedData.length() <= 32 * 1024) {
+                if (serializedData.length() <= 256 * 1024) {
                     distributedMap.put(key, mapper.writeValueAsString(data));
                 } else {
                     logger.error(
