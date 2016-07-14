@@ -4,6 +4,8 @@ import com.flipkart.foxtrot.common.ActionRequest;
 import com.flipkart.foxtrot.common.query.FilterCombinerType;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
+import java.util.List;
+
 /**
  * Created by rishabh.goyal on 02/08/14.
  */
@@ -13,11 +15,9 @@ public class StatsRequest extends ActionRequest {
 
     private String field;
 
+    private List<String> nesting;
+
     private FilterCombinerType combiner = FilterCombinerType.and;
-
-    public StatsRequest() {
-
-    }
 
     public String getTable() {
         return table;
@@ -35,6 +35,14 @@ public class StatsRequest extends ActionRequest {
         this.field = field;
     }
 
+    public List<String> getNesting() {
+        return nesting;
+    }
+
+    public void setNesting(List<String> nesting) {
+        this.nesting = nesting;
+    }
+
     public FilterCombinerType getCombiner() {
         return combiner;
     }
@@ -46,9 +54,10 @@ public class StatsRequest extends ActionRequest {
     @Override
     public String toString() {
         return new ToStringBuilder(this)
+                .appendSuper(super.toString())
                 .append("table", table)
                 .append("field", field)
-                .append("filters", getFilters())
+                .append("nesting", nesting)
                 .append("combiner", combiner)
                 .toString();
     }
