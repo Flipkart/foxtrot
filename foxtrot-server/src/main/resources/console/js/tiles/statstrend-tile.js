@@ -173,7 +173,7 @@ StatsTrend.prototype.getQuery = function () {
         }
         return JSON.stringify({
             opcode: "statstrend",
-            table: this.tables.selectedTable.name,
+            table: this.table,
             filters: filters,
             field: this.eventTypeFieldName,
             period: periodFromWindow($("#" + this.id).find(".period-select").val())
@@ -187,7 +187,11 @@ StatsTrend.prototype.isSetupDone = function () {
 
 StatsTrend.prototype.configChanged = function () {
     var modal = $(this.setupModalName);
-    this.title = modal.find(".tile-title").val()
+    this.table = modal.find(".tile-table").first().val();
+    if (!this.table) {
+        this.table = this.tables.selectedTable.name;
+    }
+    this.title = modal.find(".tile-title").val();
     this.period = parseInt(modal.find(".refresh-period").val());
     this.eventTypeFieldName = modal.find(".statstrend-bar-chart-field").val();
     var filters = modal.find(".selected-filters").val();
@@ -203,19 +207,47 @@ StatsTrend.prototype.configChanged = function () {
     this.selectedStats = modal.find(".stats_to_plot").val();
 };
 
+
+StatsTrend.prototype.loadFieldList = function () {
+    var modal = $(this.setupModalName);
+    var selected_table_name = modal.find(".tile-table").first().val();
+    console.log("Loading Field List for " + selected_table_name);
+    var selected_table = extractSelectedTable(selected_table_name, this.tables.tables);
+    var field_select = modal.find("#statstrend-bar-chart-field");
+    field_select.find('option').remove();
+
+    this.tables.loadTableMeta(selected_table, function () {
+        for (var i = selected_table.mappings.length - 1; i >= 0; i--) {
+            field_select.append('<option>' + selected_table.mappings[i].field + '</option>');
+        }
+
+        if (this.eventTypeFieldName) {
+            field_select.val(this.eventTypeFieldName);
+        }
+        field_select.selectpicker('refresh');
+    }.bind(this));
+};
+
+
 StatsTrend.prototype.populateSetupDialog = function () {
     var modal = $(this.setupModalName);
-    var select = $("#statstrend-bar-chart-field");
-    this.title = modal.find(".tile-title").val()
-    select.find('option').remove();
-    for (var i = this.tables.currentTableFieldMappings.length - 1; i >= 0; i--) {
-        select.append('<option>' + this.tables.currentTableFieldMappings[i].field + '</option>');
+    if (!this.table) {
+        this.table = this.tables.selectedTable.name;
     }
-    ;
-    if (this.eventTypeFieldName) {
-        select.val(this.eventTypeFieldName);
-    }
-    select.selectpicker('refresh');
+
+    modal.find(".tile-title").val(this.title);
+
+    // Create list of tables
+    this.loadTableList();
+
+    // Setup list of initial fields available
+    var selected_table = extractSelectedTable(this.table, this.tables.tables);
+    this.tables.loadTableMeta(selected_table, this.loadFieldList.bind(this));
+
+    // Now attach listener for change event so that changing table name changes field list as well
+    var selected_table_tag = modal.find(".tile-table").first();
+    selected_table_tag.on("change", this.loadFieldList.bind(this));
+
     modal.find(".refresh-period").val(( 0 != this.period) ? this.period : "");
     if (this.selectedFilters) {
         modal.find(".selected-filters").val(JSON.stringify(this.selectedFilters));
