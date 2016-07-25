@@ -119,7 +119,6 @@ Histogram.prototype.getQuery = function () {
 Histogram.prototype.configChanged = function () {
     var modal = $(this.setupModalName);
     this.period = parseInt(modal.find(".refresh-period").val());
-    this.title = modal.find(".tile-title").val();
     var filters = modal.find(".selected-filters").val();
     if (filters != undefined && filters != "") {
         var selectedFilters = JSON.parse(filters);
