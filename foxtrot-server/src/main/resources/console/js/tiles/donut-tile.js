@@ -177,6 +177,11 @@ DonutTile.prototype.isSetupDone = function () {
 
 DonutTile.prototype.configChanged = function () {
     var modal = $(this.setupModalName);
+    this.table = modal.find(".tile-table").first().val();
+    if (!this.table) {
+        this.table = this.tables.selectedTable.name;
+    }
+    this.title = modal.find(".tile-title").val();
     this.period = parseInt(modal.find(".refresh-period").val());
     this.eventTypeFieldName = modal.find(".pie-chart-field").val();
     var values = modal.find(".selected-values").val();
@@ -201,15 +206,6 @@ DonutTile.prototype.configChanged = function () {
 };
 
 
-function extractSelectedTable(tableName, tableList) {
-    for (var i = tableList.length - 1; i >= 0; i--) {
-        if (tableList[i].name === tableName) {
-            return tableList[i];
-        }
-    }
-}
-
-
 DonutTile.prototype.loadFieldList = function () {
     var modal = $(this.setupModalName);
     var selected_table_name = modal.find(".tile-table").first().val();
@@ -219,7 +215,6 @@ DonutTile.prototype.loadFieldList = function () {
     field_select.find('option').remove();
 
     this.tables.loadTableMeta(selected_table, function () {
-        console.log("callback function called");
         for (var i = selected_table.mappings.length - 1; i >= 0; i--) {
             field_select.append('<option>' + selected_table.mappings[i].field + '</option>');
         }
@@ -247,7 +242,7 @@ DonutTile.prototype.populateSetupDialog = function () {
     this.tables.loadTableMeta(selected_table, this.loadFieldList.bind(this));
 
     // Now attach listener for change event so that changing table name changes field list as well
-    var selected_table_tag = $(".tile-table").first();
+    var selected_table_tag = modal.find(".tile-table").first();
     selected_table_tag.on("change", this.loadFieldList.bind(this));
 
 

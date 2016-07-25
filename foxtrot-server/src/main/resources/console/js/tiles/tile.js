@@ -141,12 +141,6 @@ Tile.prototype.render = function (data, animate) {
 };
 
 Tile.prototype.configChanged = function () {
-    var modal = $(this.setupModalName);
-    this.table = modal.find(".tile-table").val();
-    if (!this.table) {
-        this.table = this.tables.selectedTable.name;
-    }
-    this.title = modal.find(".tile-title").val();
     console.log("Widget config changed");
 };
 
@@ -155,7 +149,7 @@ Tile.prototype.getQuery = function () {
 }
 
 Tile.prototype.loadTableList = function () {
-    var selected_table_tag = $(".tile-table").first();
+    var selected_table_tag = $(this.setupModalName).find(".tile-table").first();
     selected_table_tag.find('option').remove();
 
     for (var i = this.tables.tables.length - 1; i >= 0; i--) {
@@ -303,3 +297,12 @@ TileFactory.create = function (type) {
         return new FqlTable()
     }
 };
+
+
+function extractSelectedTable(tableName, tableList) {
+    for (var i = tableList.length - 1; i >= 0; i--) {
+        if (tableList[i].name === tableName) {
+            return tableList[i];
+        }
+    }
+}
