@@ -106,9 +106,13 @@ Histogram.prototype.getQuery = function () {
                 filters.push(this.selectedFilters.filters[i]);
             }
         }
+        var table = this.table;
+        if (!table) {
+            table = this.tables.selectedTable.name;
+        }
         return JSON.stringify({
             opcode: "histogram",
-            table: this.table,
+            table: table,
             filters: filters,
             field: "_timestamp",
             period: periodFromWindow($("#" + this.id).find(".period-select").val())

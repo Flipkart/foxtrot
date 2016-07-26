@@ -162,9 +162,13 @@ DonutTile.prototype.getQuery = function () {
                 filters.push(this.selectedFilters.filters[i]);
             }
         }
+        var table = this.table;
+        if (!table) {
+            table = this.tables.selectedTable.name;
+        }
         return JSON.stringify({
             opcode: "group",
-            table: this.table,
+            table: table,
             filters: filters,
             nesting: [this.eventTypeFieldName]
         });
