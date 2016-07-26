@@ -178,7 +178,7 @@ StackedBar.prototype.render = function (data, animate) {
 };
 
 StackedBar.prototype.getQuery = function () {
-    if (this.eventTypeFieldName && this.period != 0) {
+    if (this.isSetupDone()) {
         var filters = [];
         filters.push(timeValue(this.periodUnit, this.periodValue, this.customPeriod));
         if (this.selectedFilters && this.selectedFilters.filters) {
@@ -318,7 +318,7 @@ StackedBar.prototype.getUniqueValues = function () {
         );
     }
     return options;
-}
+};
 
 StackedBar.prototype.filterValues = function (values) {
     if (!values || values.length == 0) {
@@ -328,4 +328,4 @@ StackedBar.prototype.filterValues = function (values) {
     for (var i = 0; i < values.length; i++) {
         this.uiFilteredValues[values[i]] = 1;
     }
-}
+};

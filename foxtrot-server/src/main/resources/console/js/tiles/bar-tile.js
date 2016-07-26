@@ -48,7 +48,7 @@ BarTile.prototype.render = function (data, animate) {
     } else {
         chartLabel = parent.find(".pielabel");
     }
-    chartLabel.text(getPeriodString(this.period, tileElement.find(".period-select").val()));
+    chartLabel.text(getPeriodString(this.periodUnit, this.periodValue, this.customPeriod));
 
     var canvas = null;
     var legendArea = null;
