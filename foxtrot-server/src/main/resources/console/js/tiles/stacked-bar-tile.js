@@ -20,7 +20,9 @@ function StackedBar() {
     this.setupModalName = "#setupStackedBarChartModal";
     //Instance properties
     this.eventTypeFieldName = null;
-    this.period = 0;
+    this.periodUnit = "minutes";
+    this.periodValue = 0;
+    this.customPeriod = "custom";
     this.selectedFilters = null;
     this.uniqueValues = [];
     this.uiFilteredValues;
@@ -148,9 +150,8 @@ StackedBar.prototype.render = function (data, animate) {
         },
         xaxis: {
             mode: "time",
-            timezone: "browser"/*,
-             min: timestamp - (this.period * 60000),
-             max: timestamp*/
+            timezone: "browser",
+            timeformat: axisTimeFormat(this.periodUnit, this.customPeriod),
         },
         selection: {
             mode: "x",
@@ -179,7 +180,7 @@ StackedBar.prototype.render = function (data, animate) {
 StackedBar.prototype.getQuery = function () {
     if (this.eventTypeFieldName && this.period != 0) {
         var filters = [];
-        filters.push(timeValue(this.period, $("#" + this.id).find(".period-select").val()));
+        filters.push(timeValue(this.periodUnit, this.periodValue, this.customPeriod));
         if (this.selectedFilters && this.selectedFilters.filters) {
             for (var i = 0; i < this.selectedFilters.filters.length; i++) {
                 filters.push(this.selectedFilters.filters[i]);
@@ -194,13 +195,13 @@ StackedBar.prototype.getQuery = function () {
             table: table,
             filters: filters,
             field: this.eventTypeFieldName,
-            period: periodFromWindow($("#" + this.id).find(".period-select").val())
+            period: periodFromWindow(this.periodUnit, this.customPeriod)
         });
     }
 };
 
 StackedBar.prototype.isSetupDone = function () {
-    return this.eventTypeFieldName && this.period != 0;
+    return this.eventTypeFieldName && this.periodValue != 0 && this.periodUnit;
 };
 
 StackedBar.prototype.configChanged = function () {
@@ -210,7 +211,9 @@ StackedBar.prototype.configChanged = function () {
         this.table = this.tables.selectedTable.name;
     }
     this.title = modal.find(".tile-title").val();
-    this.period = parseInt(modal.find(".refresh-period").val());
+    this.periodUnit = modal.find(".tile-time-unit").first().val();
+    this.periodValue = parseInt(modal.find(".tile-time-value").first().val());
+    this.customPeriod = $("#" + this.id).find(".period-select").val();
     this.eventTypeFieldName = modal.find(".stacked-bar-chart-field").val();
     var filters = modal.find(".selected-filters").val();
     if (filters != undefined && filters != "") {
@@ -262,16 +265,18 @@ StackedBar.prototype.populateSetupDialog = function () {
     var selected_table_tag = modal.find(".tile-table").first();
     selected_table_tag.on("change", this.loadFieldList.bind(this));
 
+    modal.find(".tile-time-unit").first().val(this.periodUnit);
+    modal.find(".tile-time-unit").first().selectpicker("refresh");
+    modal.find(".tile-time-value").first().val(this.periodValue);
 
-    modal.find(".refresh-period").val(( 0 != this.period) ? this.period : "");
     if (this.selectedFilters) {
         modal.find(".selected-filters").val(JSON.stringify(this.selectedFilters));
     }
-
-}
+};
 
 StackedBar.prototype.registerSpecificData = function (representation) {
-    representation['period'] = this.period;
+    representation['periodUnit'] = this.periodUnit;
+    representation['periodValue'] = this.periodValue;
     representation['eventTypeFieldName'] = this.eventTypeFieldName;
     if (this.selectedFilters) {
         representation['selectedFilters'] = btoa(JSON.stringify(this.selectedFilters));
@@ -279,7 +284,16 @@ StackedBar.prototype.registerSpecificData = function (representation) {
 };
 
 StackedBar.prototype.loadSpecificData = function (representation) {
-    this.period = representation['period'];
+    this.periodUnit = representation['periodUnit'];
+    if (!this.periodUnit) {
+        this.periodUnit = "minutes";
+    }
+    if (representation['period']) {
+        this.periodValue = representation['period'];
+    } else {
+        this.periodValue = representation['periodValue'];
+    }
+
     this.eventTypeFieldName = representation['eventTypeFieldName'];
     if (representation.hasOwnProperty('selectedFilters')) {
         this.selectedFilters = JSON.parse(atob(representation['selectedFilters']));
@@ -288,7 +302,7 @@ StackedBar.prototype.loadSpecificData = function (representation) {
 
 StackedBar.prototype.isValueVisible = function (value) {
     return !this.uiFilteredValues || this.uiFilteredValues.hasOwnProperty(value);
-}
+};
 
 StackedBar.prototype.getUniqueValues = function () {
     var options = [];
