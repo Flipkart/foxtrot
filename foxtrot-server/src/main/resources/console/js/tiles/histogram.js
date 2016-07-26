@@ -19,7 +19,9 @@ function Histogram() {
     this.setupModalName = "#setupHistogram";
     //Instance properties
     this.selectedFilters = null;
-    this.period = 0;
+    this.periodUnit = "minutes";
+    this.periodValue = 0;
+    this.customPeriod = "custom";
 }
 
 Histogram.prototype = new Tile();
@@ -31,7 +33,7 @@ Histogram.prototype.render = function (data, animate) {
     if (this.title) {
         $("#" + this.id).find(".tile-header").text(this.title);
     } else {
-        $("#" + this.id).find(".tile-header").text("Event rate for " + this.tables.selectedTable.name + " table");
+        $("#" + this.id).find(".tile-header").text("Event rate for " + this.table + " table");
     }
 
     var parent = $("#content-for-" + this.id);
@@ -78,6 +80,7 @@ Histogram.prototype.render = function (data, animate) {
         },
         xaxis: {
             mode: "time",
+            timeformat: axisTimeFormat(this.periodUnit, this.customPeriod),
             timezone: "browser"
         },
         selection: {
@@ -93,14 +96,14 @@ Histogram.prototype.render = function (data, animate) {
 };
 
 Histogram.prototype.isSetupDone = function () {
-    return this.period != 0;
+    return this.periodValue != 0 && this.periodUnit;
 };
 
 Histogram.prototype.getQuery = function () {
     if (this.period != 0) {
         var timestamp = new Date().getTime();
         var filters = [];
-        filters.push(timeValue(this.period, $("#" + this.id).find(".period-select").val()));
+        filters.push(timeValue(this.periodUnit, this.periodValue, this.customPeriod));
         if (this.selectedFilters && this.selectedFilters.filters) {
             for (var i = 0; i < this.selectedFilters.filters.length; i++) {
                 filters.push(this.selectedFilters.filters[i]);
@@ -115,7 +118,7 @@ Histogram.prototype.getQuery = function () {
             table: table,
             filters: filters,
             field: "_timestamp",
-            period: periodFromWindow($("#" + this.id).find(".period-select").val())
+            period: periodFromWindow(this.periodUnit, this.customPeriod)
         });
     }
 };
@@ -127,7 +130,10 @@ Histogram.prototype.configChanged = function () {
         this.table = this.tables.selectedTable.name;
     }
     this.title = modal.find(".tile-title").val();
-    this.period = parseInt(modal.find(".refresh-period").val());
+    this.periodUnit = modal.find(".tile-time-unit").first().val();
+    this.periodValue = parseInt(modal.find(".tile-time-value").first().val());
+    this.customPeriod = $("#" + this.id).find(".period-select").val();
+
     var filters = modal.find(".selected-filters").val();
     if (filters != undefined && filters != "") {
         var selectedFilters = JSON.parse(filters);
@@ -152,21 +158,34 @@ Histogram.prototype.populateSetupDialog = function () {
     // Create list of tables
     this.loadTableList();
 
-    modal.find(".refresh-period").val(( 0 != this.period) ? this.period : "");
+    modal.find(".tile-time-unit").first().val(this.periodUnit);
+    modal.find(".tile-time-unit").first().selectpicker("refresh");
+    modal.find(".tile-time-value").first().val(this.periodValue);
+
     if (this.selectedFilters) {
         modal.find(".selected-filters").val(JSON.stringify(this.selectedFilters));
     }
 };
 
 Histogram.prototype.registerSpecificData = function (representation) {
-    representation['period'] = this.period;
+    representation['periodUnit'] = this.periodUnit;
+    representation['periodValue'] = this.periodValue;
     if (this.selectedFilters) {
         representation['selectedFilters'] = btoa(JSON.stringify(this.selectedFilters));
     }
 };
 
 Histogram.prototype.loadSpecificData = function (representation) {
-    this.period = representation['period'];
+    this.periodUnit = representation['periodUnit'];
+    if (!this.periodUnit) {
+        this.periodUnit = "minutes";
+    }
+    if (representation['period']) {
+        this.periodValue = representation['period'];
+    } else {
+        this.periodValue = representation['periodValue'];
+    }
+
     if (representation.hasOwnProperty('selectedFilters')) {
         this.selectedFilters = JSON.parse(atob(representation['selectedFilters']));
     }

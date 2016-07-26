@@ -1,23 +1,27 @@
-function periodFromWindow(periodString) {
-    if(periodString == "custom") {
-        return "minutes";
-    }
-    if(periodString === "1d") {
-        return "hours";
-    }
-    if(periodString.endsWith("d")) {
+function periodFromWindow(periodUnit, customPeriodString) {
+    if (!customPeriodString) {
         return "days";
     }
-    return "minutes";
+
+    if (customPeriodString == "custom") {
+        return periodUnit;
+    }
+    if (customPeriodString === "1d") {
+        return "hours";
+    }
+    if (customPeriodString.endsWith("d")) {
+        return "days";
+    }
+    return "days";
 }
 
-function timeValue(period, selectedPeriodString) {
+function timeValue(periodUnit, periodValue, selectedPeriodString) {
     var timestamp = new Date().getTime();
-    if(selectedPeriodString === "custom") {
+    if (selectedPeriodString === "custom") {
         return {
             field: "_timestamp",
             operator: "last",
-            duration: period + "m",
+            duration: periodValue + periodUnit,
             currentTime: timestamp
         };
     }
@@ -28,8 +32,22 @@ function timeValue(period, selectedPeriodString) {
 }
 
 function getPeriodString(period, selectedPeriodString) {
-    if(selectedPeriodString === "custom") {
-        return (period >= 60) ? ((period / 60) + "h"): (period + "m");
+    if (selectedPeriodString === "custom") {
+        return (period >= 60) ? ((period / 60) + "h") : (period + "m");
     }
     return selectedPeriodString;
+}
+
+function axisTimeFormat(periodUnit, customPeriod) {
+    var period = periodFromWindow(periodUnit, customPeriod);
+
+    if (period == "hours" || period == "minutes") {
+        return "%H:%M %e %b";
+    }
+
+    if (period == "days") {
+        return "%e %b";
+    }
+
+    return "%e %b";
 }
