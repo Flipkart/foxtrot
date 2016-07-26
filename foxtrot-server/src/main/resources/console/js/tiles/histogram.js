@@ -108,7 +108,7 @@ Histogram.prototype.getQuery = function () {
         }
         return JSON.stringify({
             opcode: "histogram",
-            table: this.tables.selectedTable.name,
+            table: this.table,
             filters: filters,
             field: "_timestamp",
             period: periodFromWindow($("#" + this.id).find(".period-select").val())
@@ -118,8 +118,12 @@ Histogram.prototype.getQuery = function () {
 
 Histogram.prototype.configChanged = function () {
     var modal = $(this.setupModalName);
-    this.period = parseInt(modal.find(".refresh-period").val());
+    this.table = modal.find(".tile-table").first().val();
+    if (!this.table) {
+        this.table = this.tables.selectedTable.name;
+    }
     this.title = modal.find(".tile-title").val();
+    this.period = parseInt(modal.find(".refresh-period").val());
     var filters = modal.find(".selected-filters").val();
     if (filters != undefined && filters != "") {
         var selectedFilters = JSON.parse(filters);
@@ -135,12 +139,20 @@ Histogram.prototype.configChanged = function () {
 
 Histogram.prototype.populateSetupDialog = function () {
     var modal = $(this.setupModalName);
+    if (!this.table) {
+        this.table = this.tables.selectedTable.name;
+    }
+
+    modal.find(".tile-title").val(this.title);
+
+    // Create list of tables
+    this.loadTableList();
+
     modal.find(".refresh-period").val(( 0 != this.period) ? this.period : "");
-    modal.find(".tile-title").val(this.title)
     if (this.selectedFilters) {
         modal.find(".selected-filters").val(JSON.stringify(this.selectedFilters));
     }
-}
+};
 
 Histogram.prototype.registerSpecificData = function (representation) {
     representation['period'] = this.period;
