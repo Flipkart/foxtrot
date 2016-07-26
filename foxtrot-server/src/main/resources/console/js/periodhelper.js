@@ -31,9 +31,9 @@ function timeValue(periodUnit, periodValue, selectedPeriodString) {
     };
 }
 
-function getPeriodString(period, selectedPeriodString) {
+function getPeriodString(periodUnit, periodValue, selectedPeriodString) {
     if (selectedPeriodString === "custom") {
-        return (period >= 60) ? ((period / 60) + "h") : (period + "m");
+        return periodValue + periodUnit;
     }
     return selectedPeriodString;
 }

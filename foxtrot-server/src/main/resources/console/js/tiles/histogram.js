@@ -27,9 +27,6 @@ function Histogram() {
 Histogram.prototype = new Tile();
 
 Histogram.prototype.render = function (data, animate) {
-    if (this.period == 0) {
-        return;
-    }
     if (this.title) {
         $("#" + this.id).find(".tile-header").text(this.title);
     } else {
@@ -100,7 +97,7 @@ Histogram.prototype.isSetupDone = function () {
 };
 
 Histogram.prototype.getQuery = function () {
-    if (this.period != 0) {
+    if (this.isSetupDone()) {
         var timestamp = new Date().getTime();
         var filters = [];
         filters.push(timeValue(this.periodUnit, this.periodValue, this.customPeriod));
