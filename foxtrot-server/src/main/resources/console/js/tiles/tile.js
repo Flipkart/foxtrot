@@ -48,6 +48,7 @@ function Tile() {
     this.id = null;
     this.type = null;
     this.tables = null;
+    this.table = null;
     this.title = "";
     this.width = 0;
     this.height = 0;
@@ -115,7 +116,8 @@ Tile.prototype.getRepresentation = function () {
         typeName: this.typeName,
         width: this.width,
         height: this.height,
-        title: this.title
+        title: this.title,
+        table: this.table
     };
     this.registerSpecificData(representation);
     return representation;
@@ -126,6 +128,7 @@ Tile.prototype.loadTileFromRepresentation = function (representation) {
     this.width = representation.width;
     this.height = representation.height;
     this.title = representation.title;
+    this.table = representation.table;
     this.loadSpecificData(representation);
 }
 
@@ -144,6 +147,18 @@ Tile.prototype.configChanged = function () {
 Tile.prototype.getQuery = function () {
     return this.query;
 }
+
+Tile.prototype.loadTableList = function () {
+    var selected_table_tag = $(this.setupModalName).find(".tile-table").first();
+    selected_table_tag.find('option').remove();
+
+    for (var i = this.tables.tables.length - 1; i >= 0; i--) {
+        selected_table_tag.append('<option>' + this.tables.tables[i].name + '</option>');
+    }
+
+    selected_table_tag.val(this.table);
+    selected_table_tag.selectpicker('refresh');
+};
 
 Tile.prototype.populateSetupDialog = function () {
 
@@ -282,3 +297,12 @@ TileFactory.create = function (type) {
         return new FqlTable()
     }
 };
+
+
+function extractSelectedTable(tableName, tableList) {
+    for (var i = tableList.length - 1; i >= 0; i--) {
+        if (tableList[i].name === tableName) {
+            return tableList[i];
+        }
+    }
+}

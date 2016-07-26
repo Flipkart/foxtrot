@@ -45,7 +45,7 @@ TablesView.prototype.init = function() {
 			if(this.tableSelectionChangeHandler) {
 				this.tableSelectionChangeHandler(table.name);
 			}
-			this.tables.loadTableMeta(table.name);
+			this.tables.loadTableMeta(table);
 			this.tables.selectedTable = table;
 			console.log("Table changed to: " + table.name);
 		}
