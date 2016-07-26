@@ -256,8 +256,8 @@ StatsTrend.prototype.populateSetupDialog = function () {
     if (this.selectedFilters) {
         modal.find(".selected-filters").val(JSON.stringify(this.selectedFilters));
     }
-    modal.find('stats_to_plot').multiselect('select', this.selectedStats);
-}
+    modal.find('.stats_to_plot').multiselect('select', this.selectedStats);
+};
 
 StatsTrend.prototype.registerSpecificData = function (representation) {
     representation['period'] = this.period;
