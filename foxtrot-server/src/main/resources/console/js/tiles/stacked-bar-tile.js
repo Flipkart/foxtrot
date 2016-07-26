@@ -265,7 +265,6 @@ StackedBar.prototype.populateSetupDialog = function () {
     var selected_table_tag = modal.find(".tile-table").first();
     selected_table_tag.on("change", this.loadFieldList.bind(this));
 
-
     modal.find(".tile-time-unit").first().val(this.periodUnit);
     modal.find(".tile-time-unit").first().selectpicker("refresh");
     modal.find(".tile-time-value").first().val(this.periodValue);
@@ -273,8 +272,7 @@ StackedBar.prototype.populateSetupDialog = function () {
     if (this.selectedFilters) {
         modal.find(".selected-filters").val(JSON.stringify(this.selectedFilters));
     }
-
-}
+};
 
 StackedBar.prototype.registerSpecificData = function (representation) {
     representation['periodUnit'] = this.periodUnit;
