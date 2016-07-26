@@ -240,6 +240,16 @@ StatsTrend.prototype.populateSetupDialog = function () {
 };
 
 StatsTrend.prototype.registerSpecificData = function (representation) {
+    representation['periodUnit'] = this.periodUnit;
+    representation['periodValue'] = this.periodValue;
+    representation['eventTypeFieldName'] = this.eventTypeFieldName;
+    if (this.selectedFilters) {
+        representation['selectedFilters'] = btoa(JSON.stringify(this.selectedFilters));
+    }
+    representation['selectedStats'] = this.selectedStats;
+};
+
+StatsTrend.prototype.loadSpecificData = function (representation) {
     this.periodUnit = representation['periodUnit'];
     if (!this.periodUnit) {
         this.periodUnit = "minutes";
@@ -249,15 +259,7 @@ StatsTrend.prototype.registerSpecificData = function (representation) {
     } else {
         this.periodValue = representation['periodValue'];
     }
-    representation['eventTypeFieldName'] = this.eventTypeFieldName;
-    if (this.selectedFilters) {
-        representation['selectedFilters'] = btoa(JSON.stringify(this.selectedFilters));
-    }
-    representation['selectedStats'] = this.selectedStats;
-};
 
-StatsTrend.prototype.loadSpecificData = function (representation) {
-    this.period = representation['period'];
     this.eventTypeFieldName = representation['eventTypeFieldName'];
     if (representation.hasOwnProperty('selectedFilters')) {
         this.selectedFilters = JSON.parse(atob(representation['selectedFilters']));
