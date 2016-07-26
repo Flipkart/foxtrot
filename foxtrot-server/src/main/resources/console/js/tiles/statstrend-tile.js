@@ -187,7 +187,7 @@ StatsTrend.prototype.isSetupDone = function () {
 
 StatsTrend.prototype.configChanged = function () {
     var modal = $(this.setupModalName);
-    this.title = modal.find(".tile-title").val()
+    this.title = modal.find(".tile-title").val();
     this.period = parseInt(modal.find(".refresh-period").val());
     this.eventTypeFieldName = modal.find(".statstrend-bar-chart-field").val();
     var filters = modal.find(".selected-filters").val();
@@ -205,13 +205,13 @@ StatsTrend.prototype.configChanged = function () {
 
 StatsTrend.prototype.populateSetupDialog = function () {
     var modal = $(this.setupModalName);
+    modal.find(".tile-title").val(this.title);
     var select = $("#statstrend-bar-chart-field");
-    this.title = modal.find(".tile-title").val()
     select.find('option').remove();
     for (var i = this.tables.currentTableFieldMappings.length - 1; i >= 0; i--) {
         select.append('<option>' + this.tables.currentTableFieldMappings[i].field + '</option>');
     }
-    ;
+
     if (this.eventTypeFieldName) {
         select.val(this.eventTypeFieldName);
     }
@@ -220,8 +220,8 @@ StatsTrend.prototype.populateSetupDialog = function () {
     if (this.selectedFilters) {
         modal.find(".selected-filters").val(JSON.stringify(this.selectedFilters));
     }
-    modal.find('stats_to_plot').multiselect('select', this.selectedStats);
-}
+    modal.find('.stats_to_plot').multiselect('select', this.selectedStats);
+};
 
 StatsTrend.prototype.registerSpecificData = function (representation) {
     representation['period'] = this.period;
