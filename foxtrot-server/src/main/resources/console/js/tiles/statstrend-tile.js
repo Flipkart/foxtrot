@@ -20,25 +20,12 @@ function StatsTrend() {
     this.setupModalName = "#setupStatsTrendChartModal";
     //Instance properties
     this.eventTypeFieldName = null;
-    this.period = 0;
+    this.periodUnit = "minutes";
+    this.periodValue = 0;
+    this.customPeriod = "custom";
     this.selectedFilters = null;
     this.selectedStats = [];
 
-}
-
-function deepFind(obj, path) {
-    var paths = path.split('.')
-        , current = obj
-        , i;
-
-    for (i = 0; i < paths.length; ++i) {
-        if (current[paths[i]] == undefined) {
-            return undefined;
-        } else {
-            current = current[paths[i]];
-        }
-    }
-    return current;
 }
 
 StatsTrend.prototype = new Tile();
@@ -53,29 +40,16 @@ StatsTrend.prototype.render = function (data, animate) {
     var parent = $("#content-for-" + this.id);
     var canvas = null;
     if (!parent || 0 == parent.find(".chartcanvas").length) {
-        //$("#content-for-" + this.id).append("<div class='chart-content'/>");
         parent = $("#content-for-" + this.id);//.find(".chart-content");
-        //parent.append("<div style='height: 15%'><input type='text' class='form-control col-lg-12 eventfilter' placeholder='Start typing here to filter event type...'/></div>");
         canvas = $("<div>", {class: "chartcanvas"});
         parent.append(canvas);
         legendArea = $("<div>", {class: "legendArea"});
-        //legendArea.height("10%");
-        //legendArea.width("100%");
         parent.append(legendArea)
     }
     else {
         canvas = parent.find(".chartcanvas");
     }
-    /*if(!parent || 0 == parent.find(".chartcanvas").length) {
-     $("#content-for-" + this.id).append("<div class='chart-content'/>");
-     parent = $("#content-for-" + this.id);//.find(".chart-content");
-     //parent.append("<div style='height: 15%'><input type='text' class='form-control col-lg-12 eventfilter' placeholder='Start typing here to filter event type...'/></div>");
-     canvas = $("<div>", {class: "chartcanvas"});
-     parent.append(canvas);
-     }
-     else {
-     canvas = parent.find(".chartcanvas");
-     }*/
+
     if (!data.hasOwnProperty("result")) {
         canvas.empty();
         return;
@@ -134,7 +108,8 @@ StatsTrend.prototype.render = function (data, animate) {
         },
         xaxis: {
             mode: "time",
-            timezone: "browser"
+            timezone: "browser",
+            timeformat: axisTimeFormat(this.periodUnit, this.customPeriod)
         },
         selection: {
             mode: "x",
@@ -162,33 +137,43 @@ StatsTrend.prototype.render = function (data, animate) {
 };
 
 StatsTrend.prototype.getQuery = function () {
-    if (this.eventTypeFieldName && this.period != 0) {
+    if (this.isSetupDone()) {
         var timestamp = new Date().getTime();
         var filters = [];
-        filters.push(timeValue(this.period, $("#" + this.id).find(".period-select").val()));
+        filters.push(timeValue(this.periodUnit, this.periodValue, this.customPeriod));
         if (this.selectedFilters && this.selectedFilters.filters) {
             for (var i = 0; i < this.selectedFilters.filters.length; i++) {
                 filters.push(this.selectedFilters.filters[i]);
             }
         }
+        var table = this.table;
+        if (!table) {
+            table = this.tables.selectedTable.name;
+        }
         return JSON.stringify({
             opcode: "statstrend",
-            table: this.tables.selectedTable.name,
+            table: table,
             filters: filters,
             field: this.eventTypeFieldName,
-            period: periodFromWindow($("#" + this.id).find(".period-select").val())
+            period: periodFromWindow(this.periodUnit, this.customPeriod)
         });
     }
 };
 
 StatsTrend.prototype.isSetupDone = function () {
-    return this.eventTypeFieldName && this.period != 0;
+    return this.eventTypeFieldName && this.periodValue != 0 && this.periodUnit;
 };
 
 StatsTrend.prototype.configChanged = function () {
     var modal = $(this.setupModalName);
-    this.title = modal.find(".tile-title").val()
-    this.period = parseInt(modal.find(".refresh-period").val());
+    this.table = modal.find(".tile-table").first().val();
+    if (!this.table) {
+        this.table = this.tables.selectedTable.name;
+    }
+    this.title = modal.find(".tile-title").val();
+    this.periodUnit = modal.find(".tile-time-unit").first().val();
+    this.periodValue = parseInt(modal.find(".tile-time-value").first().val());
+    this.customPeriod = $("#" + this.id).find(".period-select").val();
     this.eventTypeFieldName = modal.find(".statstrend-bar-chart-field").val();
     var filters = modal.find(".selected-filters").val();
     if (filters != undefined && filters != "") {
@@ -203,28 +188,60 @@ StatsTrend.prototype.configChanged = function () {
     this.selectedStats = modal.find(".stats_to_plot").val();
 };
 
+
+StatsTrend.prototype.loadFieldList = function () {
+    var modal = $(this.setupModalName);
+    var selected_table_name = modal.find(".tile-table").first().val();
+    console.log("Loading Field List for " + selected_table_name);
+    var selected_table = extractSelectedTable(selected_table_name, this.tables.tables);
+    var field_select = modal.find("#statstrend-bar-chart-field");
+    field_select.find('option').remove();
+
+    this.tables.loadTableMeta(selected_table, function () {
+        for (var i = selected_table.mappings.length - 1; i >= 0; i--) {
+            field_select.append('<option>' + selected_table.mappings[i].field + '</option>');
+        }
+
+        if (this.eventTypeFieldName) {
+            field_select.val(this.eventTypeFieldName);
+        }
+        field_select.selectpicker('refresh');
+    }.bind(this));
+};
+
+
 StatsTrend.prototype.populateSetupDialog = function () {
     var modal = $(this.setupModalName);
-    var select = $("#statstrend-bar-chart-field");
-    this.title = modal.find(".tile-title").val()
-    select.find('option').remove();
-    for (var i = this.tables.currentTableFieldMappings.length - 1; i >= 0; i--) {
-        select.append('<option>' + this.tables.currentTableFieldMappings[i].field + '</option>');
+    if (!this.table) {
+        this.table = this.tables.selectedTable.name;
     }
-    ;
-    if (this.eventTypeFieldName) {
-        select.val(this.eventTypeFieldName);
-    }
-    select.selectpicker('refresh');
-    modal.find(".refresh-period").val(( 0 != this.period) ? this.period : "");
+
+    modal.find(".tile-title").val(this.title);
+
+    // Create list of tables
+    this.loadTableList();
+
+    // Setup list of initial fields available
+    var selected_table = extractSelectedTable(this.table, this.tables.tables);
+    this.tables.loadTableMeta(selected_table, this.loadFieldList.bind(this));
+
+    // Now attach listener for change event so that changing table name changes field list as well
+    var selected_table_tag = modal.find(".tile-table").first();
+    selected_table_tag.on("change", this.loadFieldList.bind(this));
+
+    modal.find(".tile-time-unit").first().val(this.periodUnit);
+    modal.find(".tile-time-unit").first().selectpicker("refresh");
+    modal.find(".tile-time-value").first().val(this.periodValue);
+
     if (this.selectedFilters) {
         modal.find(".selected-filters").val(JSON.stringify(this.selectedFilters));
     }
-    modal.find('stats_to_plot').multiselect('select', this.selectedStats);
-}
+    modal.find('.stats_to_plot').multiselect('select', this.selectedStats);
+};
 
 StatsTrend.prototype.registerSpecificData = function (representation) {
-    representation['period'] = this.period;
+    representation['periodUnit'] = this.periodUnit;
+    representation['periodValue'] = this.periodValue;
     representation['eventTypeFieldName'] = this.eventTypeFieldName;
     if (this.selectedFilters) {
         representation['selectedFilters'] = btoa(JSON.stringify(this.selectedFilters));
@@ -233,7 +250,16 @@ StatsTrend.prototype.registerSpecificData = function (representation) {
 };
 
 StatsTrend.prototype.loadSpecificData = function (representation) {
-    this.period = representation['period'];
+    this.periodUnit = representation['periodUnit'];
+    if (!this.periodUnit) {
+        this.periodUnit = "minutes";
+    }
+    if (representation['period']) {
+        this.periodValue = representation['period'];
+    } else {
+        this.periodValue = representation['periodValue'];
+    }
+
     this.eventTypeFieldName = representation['eventTypeFieldName'];
     if (representation.hasOwnProperty('selectedFilters')) {
         this.selectedFilters = JSON.parse(atob(representation['selectedFilters']));

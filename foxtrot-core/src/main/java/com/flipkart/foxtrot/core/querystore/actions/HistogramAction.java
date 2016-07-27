@@ -39,10 +39,13 @@ import org.elasticsearch.ElasticsearchException;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.search.SearchType;
+import org.elasticsearch.search.aggregations.AbstractAggregationBuilder;
 import org.elasticsearch.search.aggregations.Aggregations;
+import org.elasticsearch.search.aggregations.bucket.histogram.DateHistogramBuilder;
 import org.elasticsearch.search.aggregations.bucket.histogram.DateHistogramInterval;
 import org.elasticsearch.search.aggregations.bucket.histogram.Histogram;
 import org.joda.time.DateTime;
+import org.elasticsearch.search.aggregations.metrics.cardinality.Cardinality;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -104,6 +107,10 @@ public class HistogramAction extends Action<HistogramRequest> {
             validationErrors.add("time period cannot be null");
         }
 
+        if (parameter.getUniqueCountOn() != null && parameter.getUniqueCountOn().isEmpty()) {
+            validationErrors.add("distinct field cannot be empty (can be null)");
+        }
+
         if (!CollectionUtils.isNullOrEmpty(validationErrors)) {
             throw FoxtrotExceptions.createMalformedQueryException(parameter, validationErrors);
         }
@@ -112,8 +119,7 @@ public class HistogramAction extends Action<HistogramRequest> {
     @Override
     public ActionResponse execute(HistogramRequest parameter) throws FoxtrotException {
         SearchRequestBuilder searchRequestBuilder;
-        DateHistogramInterval interval = Utils.getHistogramInterval(parameter.getPeriod());
-        String dateHistogramKey = Utils.getDateHistogramKey(parameter.getField());
+        AbstractAggregationBuilder aggregationBuilder = buildAggregation();
         try {
             searchRequestBuilder = getConnection().getClient().prepareSearch(
                     ElasticsearchUtils.getIndices(parameter.getTable(), parameter))
@@ -122,7 +128,7 @@ public class HistogramAction extends Action<HistogramRequest> {
                     .setQuery(new ElasticSearchQueryGenerator(FilterCombinerType.and)
                             .genFilter(parameter.getFilters()))
                     .setSize(0)
-                    .addAggregation(Utils.buildDateHistogramAggregation(parameter.getField(), interval));
+                    .addAggregation(aggregationBuilder);
         } catch (Exception e) {
             throw FoxtrotExceptions.queryCreationException(parameter, e);
         }
@@ -130,22 +136,41 @@ public class HistogramAction extends Action<HistogramRequest> {
         try {
             SearchResponse response = searchRequestBuilder.execute().actionGet();
             Aggregations aggregations = response.getAggregations();
-            if (aggregations == null) {
-                return new HistogramResponse(Collections.<HistogramResponse.Count>emptyList());
-            }
-
-            Histogram dateHistogram = aggregations.get(dateHistogramKey);
-            Collection<? extends Histogram.Bucket> buckets = dateHistogram.getBuckets();
-            List<HistogramResponse.Count> counts = new ArrayList<>(buckets.size());
-            for (Histogram.Bucket bucket : buckets) {
-                HistogramResponse.Count count = new HistogramResponse.Count(
-                        ((DateTime) bucket.getKey()).getMillis(), bucket.getDocCount());
-                counts.add(count);
-            }
-            return new HistogramResponse(counts);
+            return buildResponse(aggregations);
         } catch (ElasticsearchException e) {
             throw FoxtrotExceptions.createQueryExecutionException(parameter, e);
         }
+    }
+
+    private HistogramResponse buildResponse(Aggregations aggregations) {
+        if (aggregations == null) {
+            return new HistogramResponse(Collections.<HistogramResponse.Count>emptyList());
+        }
+
+
+        String dateHistogramKey = Utils.getDateHistogramKey(getParameter().getField());
+        Histogram dateHistogram = aggregations.get(dateHistogramKey);
+        Collection<? extends Histogram.Bucket> buckets = dateHistogram.getBuckets();
+        List<HistogramResponse.Count> counts = new ArrayList<>(buckets.size());
+        for (Histogram.Bucket bucket : buckets) {
+            if (!CollectionUtils.isNullOrEmpty(getParameter().getUniqueCountOn())) {
+                String key = Utils.sanitizeFieldForAggregation(getParameter().getUniqueCountOn());
+                Cardinality cardinality = bucket.getAggregations().get(key);
+                counts.add(new HistogramResponse.Count(((DateTime) bucket.getKey()).getMillis(), cardinality.getValue()));
+            } else {
+                counts.add(new HistogramResponse.Count(((DateTime) bucket.getKey()).getMillis(), bucket.getDocCount()));
+            }
+        }
+        return new HistogramResponse(counts);
+    }
+
+    private AbstractAggregationBuilder buildAggregation() {
+        DateHistogramInterval interval = Utils.getHistogramInterval(getParameter().getPeriod());
+        DateHistogramBuilder histogramBuilder = Utils.buildDateHistogramAggregation(getParameter().getField(), interval);
+        if (!CollectionUtils.isNullOrEmpty(getParameter().getUniqueCountOn())) {
+            histogramBuilder.subAggregation(Utils.buildCardinalityAggregation(getParameter().getUniqueCountOn()));
+        }
+        return histogramBuilder;
     }
 
     @Override

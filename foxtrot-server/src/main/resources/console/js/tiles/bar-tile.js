@@ -20,7 +20,9 @@ function BarTile() {
     //Instance properties
     this.eventTypeFieldName = null;
     this.selectedValues = null;
-    this.period = 0;
+    this.periodUnit = "minutes";
+    this.periodValue = 0;
+    this.customPeriod = "custom";
     this.selectedFilters = null;
     this.uniqueValues = [];
     this.uiFilteredValues;
@@ -46,7 +48,7 @@ BarTile.prototype.render = function (data, animate) {
     } else {
         chartLabel = parent.find(".pielabel");
     }
-    chartLabel.text(getPeriodString(this.period, tileElement.find(".period-select").val()));
+    chartLabel.text(getPeriodString(this.periodUnit, this.periodValue, this.customPeriod));
 
     var canvas = null;
     var legendArea = null;
@@ -168,7 +170,7 @@ BarTile.prototype.getQuery = function () {
     if (this.eventTypeFieldName && this.period != 0) {
         var timestamp = new Date().getTime();
         var filters = [];
-        filters.push(timeValue(this.period, $("#" + this.id).find(".period-select").val()));
+        filters.push(timeValue(this.periodUnit, this.periodValue, this.customPeriod));
         if (this.selectedValues) {
             filters.push({
                 field: this.eventTypeFieldName,
@@ -181,9 +183,13 @@ BarTile.prototype.getQuery = function () {
                 filters.push(this.selectedFilters.filters[i]);
             }
         }
+        var table = this.table;
+        if (!table) {
+            table = this.tables.selectedTable.name;
+        }
         return JSON.stringify({
             opcode: "group",
-            table: this.tables.selectedTable.name,
+            table: table,
             filters: filters,
             nesting: [this.eventTypeFieldName]
         });
@@ -191,12 +197,20 @@ BarTile.prototype.getQuery = function () {
 };
 
 BarTile.prototype.isSetupDone = function () {
-    return this.eventTypeFieldName && this.period != 0;
+    return this.eventTypeFieldName && this.periodValue != 0 && this.periodUnit;
 };
 
 BarTile.prototype.configChanged = function () {
     var modal = $(this.setupModalName);
-    this.period = parseInt(modal.find(".refresh-period").val());
+    this.table = modal.find(".tile-table").first().val();
+    if (!this.table) {
+        this.table = this.tables.selectedTable.name;
+    }
+    this.title = modal.find(".tile-title").val();
+
+    this.periodUnit = modal.find(".tile-time-unit").first().val();
+    this.periodValue = parseInt(modal.find(".tile-time-value").first().val());
+    this.customPeriod = $("#" + this.id).find(".period-select").val();
     this.eventTypeFieldName = modal.find(".bar-chart-field").val();
     this.title = modal.find(".tile-title").val();
     var values = modal.find(".selected-values").val();
@@ -220,20 +234,50 @@ BarTile.prototype.configChanged = function () {
     $("#content-for-" + this.id).find(".pielabel").remove();
 };
 
+BarTile.prototype.loadFieldList = function () {
+    var modal = $(this.setupModalName);
+    var selected_table_name = modal.find(".tile-table").first().val();
+    console.log("Loading Field List for " + selected_table_name);
+    var selected_table = extractSelectedTable(selected_table_name, this.tables.tables);
+    var field_select = modal.find("#bar-chart-field");
+    field_select.find('option').remove();
+
+    this.tables.loadTableMeta(selected_table, function () {
+        console.log("callback function called");
+        for (var i = selected_table.mappings.length - 1; i >= 0; i--) {
+            field_select.append('<option>' + selected_table.mappings[i].field + '</option>');
+        }
+
+        if (this.eventTypeFieldName) {
+            field_select.val(this.eventTypeFieldName);
+        }
+        field_select.selectpicker('refresh');
+    }.bind(this));
+};
+
 BarTile.prototype.populateSetupDialog = function () {
     var modal = $(this.setupModalName);
-    modal.find(".tile-title").val(this.title)
-    var select = modal.find("#bar-chart-field");
-    select.find('option').remove();
-    for (var i = this.tables.currentTableFieldMappings.length - 1; i >= 0; i--) {
-        select.append('<option>' + this.tables.currentTableFieldMappings[i].field + '</option>');
+    if (!this.table) {
+        this.table = this.tables.selectedTable.name;
     }
-    ;
-    if (this.eventTypeFieldName) {
-        select.val(this.eventTypeFieldName);
-    }
-    select.selectpicker('refresh');
-    modal.find(".refresh-period").val(( 0 != this.period) ? this.period : "");
+
+    modal.find(".tile-title").val(this.title);
+
+    // Create list of tables
+    this.loadTableList();
+
+    // Setup list of initial fields available
+    var selected_table = extractSelectedTable(this.table, this.tables.tables);
+    this.tables.loadTableMeta(selected_table, this.loadFieldList.bind(this));
+
+    // Now attach listener for change event so that changing table name changes field list as well
+    var selected_table_tag = modal.find(".tile-table").first();
+    selected_table_tag.on("change", this.loadFieldList.bind(this));
+
+    modal.find(".tile-time-unit").first().val(this.periodUnit);
+    modal.find(".tile-time-unit").first().selectpicker("refresh");
+    modal.find(".tile-time-value").first().val(this.periodValue);
+
     if (this.selectedValues) {
         modal.find(".selected-values").val(this.selectedValues.join(", "));
     }
@@ -241,10 +285,11 @@ BarTile.prototype.populateSetupDialog = function () {
         modal.find(".selected-filters").val(JSON.stringify(this.selectedFilters));
     }
     modal.find(".bar-show-legend").prop('checked', this.showLegend);
-}
+};
 
 BarTile.prototype.registerSpecificData = function (representation) {
-    representation['period'] = this.period;
+    representation['periodUnit'] = this.periodUnit;
+    representation['periodValue'] = this.periodValue;
     representation['eventTypeFieldName'] = this.eventTypeFieldName;
     representation['selectedValues'] = this.selectedValues;
     representation['showLegend'] = this.showLegend;
@@ -254,7 +299,15 @@ BarTile.prototype.registerSpecificData = function (representation) {
 };
 
 BarTile.prototype.loadSpecificData = function (representation) {
-    this.period = representation['period'];
+    this.periodUnit = representation['periodUnit'];
+    if (!this.periodUnit) {
+        this.periodUnit = "minutes";
+    }
+    if (representation['period']) {
+        this.periodValue = representation['period'];
+    } else {
+        this.periodValue = representation['periodValue'];
+    }
     this.eventTypeFieldName = representation['eventTypeFieldName'];
     this.selectedValues = representation['selectedValues'];
     if (representation.hasOwnProperty('selectedFilters')) {
@@ -267,7 +320,7 @@ BarTile.prototype.loadSpecificData = function (representation) {
 
 BarTile.prototype.isValueVisible = function (value) {
     return !this.uiFilteredValues || this.uiFilteredValues.hasOwnProperty(value);
-}
+};
 
 BarTile.prototype.getUniqueValues = function () {
     var options = [];
@@ -283,14 +336,14 @@ BarTile.prototype.getUniqueValues = function () {
         );
     }
     return options;
-}
+};
 
 BarTile.prototype.filterValues = function (values) {
     if (!values || values.length == 0) {
         values = this.uniqueValues;
     }
-    this.uiFilteredValues = new Object();
+    this.uiFilteredValues = {};
     for (var i = 0; i < values.length; i++) {
         this.uiFilteredValues[values[i]] = 1;
     }
-}
+};

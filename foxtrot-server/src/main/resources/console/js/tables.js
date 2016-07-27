@@ -44,7 +44,7 @@ Tables.prototype.init = function(callback) {
 				this.tableChangeHandlers[i](this.tables);
 			};
 		}
-	});	
+	});
 };
 
 Tables.prototype.forceSelectedTableAfterInit = function(tableName) {
@@ -70,21 +70,24 @@ Tables.prototype.registerMetaLoadHandler = function(metaLoadHandler) {
 	this.metaLoadHandlers.push(metaLoadHandler);
 };
 
-Tables.prototype.loadTableMeta = function(table) {
-	$.ajax({
-		url: hostDetails.url("/foxtrot/v1/tables/" + table + "/fields"),
-		contentType: "application/json",
-		context: this,
-		success: $.proxy(function(data){
-			this.currentTableFieldMappings = data.mappings;
-			if(this.currentTableFieldMappings) {
-                this.currentTableFieldMappings.sort(function(lhs, rhs){
+Tables.prototype.loadTableMeta = function (table, callback) {
+    callback = callback || $.noop;
+    $.ajax({
+        url: hostDetails.url("/foxtrot/v1/tables/" + table.name + "/fields"),
+        contentType: "application/json",
+        context: this,
+        success: $.proxy(function (data) {
+            table.mappings = data.mappings ? data.mappings : [];
+            this.currentTableFieldMappings = data.mappings;
+            if (this.currentTableFieldMappings) {
+                this.currentTableFieldMappings.sort(function (lhs, rhs) {
                     return ((lhs.field > rhs.field) ? 1 : ((lhs.field < rhs.field) ? -1 : 0));
                 });
-			}
+            }
             for (var i = this.metaLoadHandlers.length - 1; i >= 0; i--) {
                 this.metaLoadHandlers[i](this.tables);
-            };
-		}, this)
-	});	
+            }
+            callback();
+        }, this)
+    });
 };

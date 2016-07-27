@@ -7,6 +7,7 @@ import org.elasticsearch.search.aggregations.AbstractAggregationBuilder;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.bucket.histogram.DateHistogramBuilder;
 import org.elasticsearch.search.aggregations.bucket.histogram.DateHistogramInterval;
+import org.elasticsearch.search.aggregations.metrics.cardinality.CardinalityBuilder;
 import org.elasticsearch.search.aggregations.metrics.percentiles.Percentile;
 import org.elasticsearch.search.aggregations.metrics.percentiles.Percentiles;
 import org.elasticsearch.search.aggregations.metrics.stats.extended.InternalExtendedStats;
@@ -33,7 +34,6 @@ public class Utils {
         return AggregationBuilders.dateHistogram(metricKey)
                 .minDocCount(1)
                 .field(field)
-                .minDocCount(1)
                 .interval(interval);
     }
 
@@ -57,6 +57,12 @@ public class Utils {
                 break;
         }
         return interval;
+    }
+
+    public static CardinalityBuilder buildCardinalityAggregation(String field) {
+        return AggregationBuilders
+                .cardinality(Utils.sanitizeFieldForAggregation(field))
+                .field(field);
     }
 
     public static String sanitizeFieldForAggregation(String field) {
