@@ -88,6 +88,11 @@ public class HistogramAction extends Action<HistogramRequest> {
             }
         }
 
+        if (null != query.getUniqueCountOn()){
+            filterHashKey += 31 * query.getUniqueCountOn().hashCode();
+        }
+
+
         return String.format("%s-%s-%s-%d", query.getTable(),
                 query.getPeriod().name(), query.getField(), filterHashKey);
     }
