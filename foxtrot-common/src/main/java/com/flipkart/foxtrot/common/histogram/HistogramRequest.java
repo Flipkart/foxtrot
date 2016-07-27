@@ -30,6 +30,8 @@ public class HistogramRequest extends ActionRequest {
 
     private String field = "_timestamp";
 
+    private String uniqueCountOn;
+
     private Period period;
 
     public HistogramRequest() {
@@ -53,6 +55,14 @@ public class HistogramRequest extends ActionRequest {
         this.period = period;
     }
 
+    public String getUniqueCountOn() {
+        return uniqueCountOn;
+    }
+
+    public void setUniqueCountOn(String uniqueCountOn) {
+        this.uniqueCountOn = uniqueCountOn;
+    }
+
     public String getField() {
         return field;
     }
@@ -64,9 +74,10 @@ public class HistogramRequest extends ActionRequest {
     @Override
     public String toString() {
         return new ToStringBuilder(this)
+                .appendSuper(super.toString())
                 .append("table", table)
-                .append("filters", getFilters())
                 .append("field", field)
+                .append("uniqueCountOn", uniqueCountOn)
                 .append("period", period)
                 .toString();
     }
