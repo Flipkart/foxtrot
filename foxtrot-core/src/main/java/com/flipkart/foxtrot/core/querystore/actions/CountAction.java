@@ -24,7 +24,6 @@ import org.elasticsearch.action.count.CountRequestBuilder;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.search.SearchType;
-import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.Aggregations;
 import org.elasticsearch.search.aggregations.metrics.cardinality.Cardinality;
 
@@ -103,10 +102,7 @@ public class CountAction extends Action<CountRequest> {
                         .setSearchType(SearchType.COUNT)
                         .setQuery(new ElasticSearchQueryGenerator(FilterCombinerType.and)
                                 .genFilter(parameter.getFilters()))
-                        .addAggregation(AggregationBuilders
-                                        .cardinality(Utils.sanitizeFieldForAggregation(parameter.getField()))
-                                        .field(parameter.getField())
-                        );
+                        .addAggregation(Utils.buildCardinalityAggregation(parameter.getField()));
             } catch (Exception e) {
                 throw FoxtrotExceptions.queryCreationException(parameter, e);
             }

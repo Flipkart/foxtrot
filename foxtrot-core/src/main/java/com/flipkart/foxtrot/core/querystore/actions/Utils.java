@@ -7,6 +7,7 @@ import org.elasticsearch.search.aggregations.AbstractAggregationBuilder;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.bucket.histogram.DateHistogram;
 import org.elasticsearch.search.aggregations.bucket.histogram.DateHistogramBuilder;
+import org.elasticsearch.search.aggregations.metrics.cardinality.CardinalityBuilder;
 import org.elasticsearch.search.aggregations.metrics.percentiles.InternalPercentiles;
 import org.elasticsearch.search.aggregations.metrics.percentiles.Percentile;
 import org.elasticsearch.search.aggregations.metrics.stats.extended.InternalExtendedStats;
@@ -36,6 +37,16 @@ public class Utils {
                 .interval(interval);
     }
 
+    public static CardinalityBuilder buildCardinalityAggregation(String field) {
+        return AggregationBuilders
+                .cardinality(Utils.sanitizeFieldForAggregation(field))
+                .field(field);
+    }
+
+    public static String sanitizeFieldForAggregation(String field) {
+        return field.replaceAll(Constants.FIELD_REPLACEMENT_REGEX, Constants.FIELD_REPLACEMENT_VALUE);
+    }
+
     public static DateHistogram.Interval getHistogramInterval(Period period) {
         DateHistogram.Interval interval;
         switch (period) {
@@ -56,10 +67,6 @@ public class Utils {
                 break;
         }
         return interval;
-    }
-
-    public static String sanitizeFieldForAggregation(String field) {
-        return field.replaceAll(Constants.FIELD_REPLACEMENT_REGEX, Constants.FIELD_REPLACEMENT_VALUE);
     }
 
     public static String getExtendedStatsAggregationKey(String field) {
