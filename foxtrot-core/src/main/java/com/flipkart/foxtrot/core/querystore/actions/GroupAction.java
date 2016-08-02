@@ -20,7 +20,6 @@ import com.flipkart.foxtrot.common.group.GroupRequest;
 import com.flipkart.foxtrot.common.group.GroupResponse;
 import com.flipkart.foxtrot.common.query.Filter;
 import com.flipkart.foxtrot.common.query.FilterCombinerType;
-import com.flipkart.foxtrot.common.query.general.AnyFilter;
 import com.flipkart.foxtrot.common.util.CollectionUtils;
 import com.flipkart.foxtrot.core.cache.CacheManager;
 import com.flipkart.foxtrot.core.common.Action;
@@ -34,16 +33,17 @@ import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConnection;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
 import com.flipkart.foxtrot.core.querystore.query.ElasticSearchQueryGenerator;
 import com.flipkart.foxtrot.core.table.TableMetadataManager;
-import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.elasticsearch.ElasticsearchException;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.search.SearchType;
+import org.elasticsearch.search.aggregations.AbstractAggregationBuilder;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.Aggregations;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.elasticsearch.search.aggregations.bucket.terms.TermsBuilder;
+import org.elasticsearch.search.aggregations.metrics.cardinality.Cardinality;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -88,6 +88,11 @@ public class GroupAction extends Action<GroupRequest> {
                 filterHashKey += 31 * filter.hashCode();
             }
         }
+
+        if (null != query.getUniqueCountOn()){
+            filterHashKey += 31 * query.getUniqueCountOn().hashCode();
+        }
+
         for (int i = 0; i < query.getNesting().size(); i++) {
             filterHashKey += 31 * query.getNesting().get(i).hashCode() * (i + 1);
         }
@@ -109,6 +114,11 @@ public class GroupAction extends Action<GroupRequest> {
                     .map(field -> "grouping parameter cannot have null or empty name")
                     .collect(Collectors.toList()));
         }
+
+        if (parameter.getUniqueCountOn() != null && parameter.getUniqueCountOn().isEmpty()) {
+            validationErrors.add("unique field cannot be empty (can be null)");
+        }
+
         if (!CollectionUtils.isNullOrEmpty(validationErrors)) {
             throw FoxtrotExceptions.createMalformedQueryException(parameter, validationErrors);
         }
@@ -122,25 +132,11 @@ public class GroupAction extends Action<GroupRequest> {
             query = getConnection().getClient()
                     .prepareSearch(ElasticsearchUtils.getIndices(parameter.getTable(), parameter))
                     .setIndicesOptions(Utils.indicesOptions());
-            TermsBuilder rootBuilder = null;
-            TermsBuilder termsBuilder = null;
-            for (String field : parameter.getNesting()) {
-                if (null == termsBuilder) {
-                    termsBuilder = AggregationBuilders.terms(Utils.sanitizeFieldForAggregation(field)).field(field);
-                } else {
-                    TermsBuilder tempBuilder = AggregationBuilders.terms(Utils.sanitizeFieldForAggregation(field)).field(field);
-                    termsBuilder.subAggregation(tempBuilder);
-                    termsBuilder = tempBuilder;
-                }
-                termsBuilder.size(0);
-                if (null == rootBuilder) {
-                    rootBuilder = termsBuilder;
-                }
-            }
+            AbstractAggregationBuilder aggregation = buildAggregation();
             query.setQuery(new ElasticSearchQueryGenerator(FilterCombinerType.and)
                     .genFilter(parameter.getFilters()))
                     .setSearchType(SearchType.COUNT)
-                    .addAggregation(rootBuilder);
+                    .addAggregation(aggregation);
         } catch (Exception e) {
             throw FoxtrotExceptions.queryCreationException(parameter, e);
         }
@@ -158,6 +154,31 @@ public class GroupAction extends Action<GroupRequest> {
         }
     }
 
+    private AbstractAggregationBuilder buildAggregation() {
+        TermsBuilder rootBuilder = null;
+        TermsBuilder termsBuilder = null;
+        for (String field : getParameter().getNesting()) {
+            if (null == termsBuilder) {
+                termsBuilder = AggregationBuilders.terms(Utils.sanitizeFieldForAggregation(field)).field(field);
+            } else {
+                TermsBuilder tempBuilder = AggregationBuilders.terms(Utils.sanitizeFieldForAggregation(field)).field(field);
+                termsBuilder.subAggregation(tempBuilder);
+                termsBuilder = tempBuilder;
+            }
+            termsBuilder.size(0);
+            if (null == rootBuilder) {
+                rootBuilder = termsBuilder;
+            }
+        }
+
+        if (!CollectionUtils.isNullOrEmpty(getParameter().getUniqueCountOn())) {
+            assert termsBuilder != null;
+            termsBuilder.subAggregation(Utils.buildCardinalityAggregation(getParameter().getUniqueCountOn()));
+        }
+
+        return rootBuilder;
+    }
+
     private Map<String, Object> getMap(List<String> fields, Aggregations aggregations) {
         final String field = fields.get(0);
         final List<String> remainingFields = (fields.size() > 1) ? fields.subList(1, fields.size())
@@ -166,7 +187,13 @@ public class GroupAction extends Action<GroupRequest> {
         Map<String, Object> levelCount = Maps.newHashMap();
         for (Terms.Bucket bucket : terms.getBuckets()) {
             if (fields.size() == 1) {
-                levelCount.put(bucket.getKey(), bucket.getDocCount());
+                if (!CollectionUtils.isNullOrEmpty(getParameter().getUniqueCountOn())) {
+                    String key = Utils.sanitizeFieldForAggregation(getParameter().getUniqueCountOn());
+                    Cardinality cardinality = bucket.getAggregations().get(key);
+                    levelCount.put(bucket.getKey(), cardinality.getValue());
+                } else {
+                    levelCount.put(bucket.getKey(), bucket.getDocCount());
+                }
             } else {
                 levelCount.put(bucket.getKey(), getMap(remainingFields, bucket.getAggregations()));
             }

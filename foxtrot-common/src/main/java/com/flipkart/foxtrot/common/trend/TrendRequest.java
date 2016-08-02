@@ -38,6 +38,8 @@ public class TrendRequest extends ActionRequest {
 
     private List<String> values;
 
+    private String uniqueCountOn;
+
     public TrendRequest() {
     }
 
@@ -73,14 +75,12 @@ public class TrendRequest extends ActionRequest {
         this.values = values;
     }
 
-    @Override
-    public String toString() {
-        return new ToStringBuilder(this)
-                .append("table", table)
-                .append("filters", getFilters())
-                .append("field", field)
-                .append("values", values)
-                .toString();
+    public String getUniqueCountOn() {
+        return uniqueCountOn;
+    }
+
+    public void setUniqueCountOn(String uniqueCountOn) {
+        this.uniqueCountOn = uniqueCountOn;
     }
 
     public Period getPeriod() {
@@ -89,5 +89,18 @@ public class TrendRequest extends ActionRequest {
 
     public void setPeriod(Period period) {
         this.period = period;
+    }
+
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this)
+                .appendSuper(super.toString())
+                .append("table", table)
+                .append("field", field)
+                .append("timestamp", timestamp)
+                .append("period", period)
+                .append("values", values)
+                .append("uniqueCountOn", uniqueCountOn)
+                .toString();
     }
 }
