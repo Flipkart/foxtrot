@@ -31,6 +31,7 @@ import com.flipkart.foxtrot.core.querystore.QueryStore;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConnection;
 import com.flipkart.foxtrot.core.table.TableMetadataManager;
 import com.flipkart.foxtrot.core.util.MetricUtil;
+import com.google.common.base.Stopwatch;
 import com.google.common.collect.Lists;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -108,13 +109,13 @@ public abstract class Action<ParameterType extends ActionRequest> implements Cal
         if (cachedData != null) {
             return cachedData;
         }
-//        Stopwatch stopwatch = new Stopwatch();
+        Stopwatch stopwatch = new Stopwatch();
         try {
-//            stopwatch.start();
+            stopwatch.start();
             ActionResponse result = execute(parameter);
 
             // Publish success metrics
-//            MetricUtil.getInstance().registerActionSuccess(cacheToken, getMetricKey(), stopwatch.elapsed(TimeUnit.MILLISECONDS));
+            MetricUtil.getInstance().registerActionSuccess(cacheToken, getMetricKey(), stopwatch.elapsedMillis());
 
             // Now cache data
             updateCachedData(result);
@@ -122,7 +123,7 @@ public abstract class Action<ParameterType extends ActionRequest> implements Cal
             return result;
         } catch (FoxtrotException e) {
             // Publish failure metrics
-//            MetricUtil.getInstance().registerActionFailure(cacheToken, getMetricKey(), stopwatch.elapsed(TimeUnit.MILLISECONDS));
+            MetricUtil.getInstance().registerActionFailure(cacheToken, getMetricKey(), stopwatch.elapsedMillis());
             throw e;
         }
     }
