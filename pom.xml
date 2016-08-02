@@ -110,6 +110,12 @@
                 </plugins>
             </build>
         </profile>
+        <profile>
+            <id>local</id>
+            <properties>
+                <project.version>0.5.1.1</project.version>
+            </properties>
+        </profile>
     </profiles>
 
     <dependencies>
