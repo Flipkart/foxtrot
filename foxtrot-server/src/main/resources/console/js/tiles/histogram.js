@@ -22,6 +22,7 @@ function Histogram() {
     this.periodUnit = "minutes";
     this.periodValue = 0;
     this.customPeriod = "custom";
+    this.uniqueCountOn = null;
 }
 
 Histogram.prototype = new Tile();
@@ -115,6 +116,7 @@ Histogram.prototype.getQuery = function () {
             table: table,
             filters: filters,
             field: "_timestamp",
+            uniqueCountOn: this.uniqueCountOn && this.uniqueCountOn != "none" ? this.uniqueCountOn : null,
             period: periodFromWindow(this.periodUnit, this.customPeriod)
         });
     }
@@ -130,6 +132,7 @@ Histogram.prototype.configChanged = function () {
     this.periodUnit = modal.find(".tile-time-unit").first().val();
     this.periodValue = parseInt(modal.find(".tile-time-value").first().val());
     this.customPeriod = $("#" + this.id).find(".period-select").val();
+    this.uniqueCountOn = modal.find("#histogram-unique-field").val();
 
     var filters = modal.find(".selected-filters").val();
     if (filters != undefined && filters != "") {
@@ -144,6 +147,29 @@ Histogram.prototype.configChanged = function () {
     console.log("Config changed for: " + this.id);
 };
 
+Histogram.prototype.loadFieldList = function () {
+    var modal = $(this.setupModalName);
+    var selected_table_name = modal.find(".tile-table").first().val();
+    console.log("Loading Field List for " + selected_table_name);
+    var selected_table = extractSelectedTable(selected_table_name, this.tables.tables);
+    var field_select = modal.find("#histogram-unique-field");
+    field_select.find('option').remove();
+
+    this.tables.loadTableMeta(selected_table, function () {
+        field_select.append('<option value="none">None</option>');
+        for (var i = selected_table.mappings.length - 1; i >= 0; i--) {
+            field_select.append('<option>' + selected_table.mappings[i].field + '</option>');
+        }
+        if (this.uniqueCountOn) {
+            field_select.val(this.uniqueCountOn);
+        } else {
+            field_select.val("none");
+        }
+        field_select.selectpicker('refresh');
+    }.bind(this));
+};
+
+
 Histogram.prototype.populateSetupDialog = function () {
     var modal = $(this.setupModalName);
     if (!this.table) {
@@ -155,9 +181,19 @@ Histogram.prototype.populateSetupDialog = function () {
     // Create list of tables
     this.loadTableList();
 
+    // Setup list of initial fields available
+    var selected_table = extractSelectedTable(this.table, this.tables.tables);
+    this.tables.loadTableMeta(selected_table, this.loadFieldList.bind(this));
+
+    // Now attach listener for change event so that changing table name changes field list as well
+    var selected_table_tag = modal.find(".tile-table").first();
+    selected_table_tag.on("change", this.loadFieldList.bind(this));
+
+
     modal.find(".tile-time-unit").first().val(this.periodUnit);
     modal.find(".tile-time-unit").first().selectpicker("refresh");
     modal.find(".tile-time-value").first().val(this.periodValue);
+    modal.find("#histogram-unique-field").val(this.uniqueCountOn);
 
     if (this.selectedFilters) {
         modal.find(".selected-filters").val(JSON.stringify(this.selectedFilters));
@@ -167,12 +203,14 @@ Histogram.prototype.populateSetupDialog = function () {
 Histogram.prototype.registerSpecificData = function (representation) {
     representation['periodUnit'] = this.periodUnit;
     representation['periodValue'] = this.periodValue;
+    representation['uniqueCountOn'] = this.uniqueCountOn;
     if (this.selectedFilters) {
         representation['selectedFilters'] = btoa(JSON.stringify(this.selectedFilters));
     }
 };
 
 Histogram.prototype.loadSpecificData = function (representation) {
+    this.uniqueCountOn = representation['uniqueCountOn'];
     this.periodUnit = representation['periodUnit'];
     if (!this.periodUnit) {
         this.periodUnit = "minutes";

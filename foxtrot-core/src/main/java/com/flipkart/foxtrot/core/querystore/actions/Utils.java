@@ -37,6 +37,18 @@ public class Utils {
                 .interval(interval);
     }
 
+    public static CardinalityBuilder buildCardinalityAggregation(String field) {
+        return AggregationBuilders
+                .cardinality(Utils.sanitizeFieldForAggregation(field))
+                .precisionThreshold(40000)
+                .field(field);
+    }
+
+    public static String sanitizeFieldForAggregation(String field) {
+        return field.replaceAll(Constants.FIELD_REPLACEMENT_REGEX, Constants.FIELD_REPLACEMENT_VALUE);
+    }
+
+
     public static DateHistogramInterval getHistogramInterval(Period period) {
         DateHistogramInterval interval;
         switch (period) {
@@ -57,16 +69,6 @@ public class Utils {
                 break;
         }
         return interval;
-    }
-
-    public static CardinalityBuilder buildCardinalityAggregation(String field) {
-        return AggregationBuilders
-                .cardinality(Utils.sanitizeFieldForAggregation(field))
-                .field(field);
-    }
-
-    public static String sanitizeFieldForAggregation(String field) {
-        return field.replaceAll(Constants.FIELD_REPLACEMENT_REGEX, Constants.FIELD_REPLACEMENT_VALUE);
     }
 
     public static String getExtendedStatsAggregationKey(String field) {
