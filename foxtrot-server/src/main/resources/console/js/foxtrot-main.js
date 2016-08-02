@@ -246,6 +246,7 @@ $(document).ready(function(){
 	$("#setupEventBrowser").validator();
 	$("#setupStackedBarChartModal").validator();
 	$("#setupFqlTableModal").validator();
+	$("#setupStatsModal").validator();
 	$("#setupStatsTrendChartModal").validator();
 	$("#saveConsoleModal").validator();
 	$("#loadConsoleModal").validator();
