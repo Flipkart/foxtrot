@@ -291,6 +291,8 @@ TileFactory.create = function (type) {
         return new EventBrowser();
     } else if (type === "stacked_bar") {
         return new StackedBar();
+    } else if (type === "stats") {
+        return new Stats();
     } else if (type === "statstrend") {
         return new StatsTrend();
     } else if (type === 'fql_table') {
