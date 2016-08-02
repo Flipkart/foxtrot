@@ -252,6 +252,7 @@
                         <option value="histogram">Event Ingestion Histogram</option>
                         <option value="stacked_bar">Classified Event Ingestion Histogram</option>
                         <option value="statstrend">Numerical statistics trend view</option>
+                        <option value="stats">Numerical statistics</option>
                         <option value="fql_table">Table View</option>
                         <!--<option value="eventbrowser">Event Browser</option>-->
                       </select>
@@ -712,7 +713,7 @@
                           </div>
 
                           <div class="form-group">
-                              <label class="col-sm-4 control-label" for="pie_rt"><strong>Field to classify</strong></label>
+                              <label class="col-sm-4 control-label" for="stacked-bar-chart-field"><strong>Field to classify</strong></label>
                               <div class="col-sm-8">
                                   <select class="selectpicker stacked-bar-chart-field"  data-style="btn-warning" id="stacked-bar-chart-field">
                                   </select>
@@ -736,7 +737,100 @@
           </div>
       </div>
 
-      <!--Stats trend chart-->
+    <!--Stats-->
+    <div class="modal fade" id="setupStatsModal" tabindex="-1" role="dialog" aria-labelledby="setupStatsModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <form class="form-horizontal settings-form" role="form" data-toggle="validate" data-delay="" id="setupStatsModalForm">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                        <h4 class="modal-title" id="setupStatsModalLabel">Setup Statistics</h4>
+                    </div>
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <div class="col-sm-12">
+                                <input type="hidden" class="tileId">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label"><strong>Table</strong></label>
+                            <div class="col-sm-8">
+                                <select class="selectpicker tile-table"  data-style="btn-warning" required></select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label"><strong>Title</strong></label>
+                            <div class="col-sm-8">
+                                <input type="text" class="form-control tile-title" placeholder="Give a title" required>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label"><strong>Time Unit</strong></label>
+                            <div class="col-sm-8">
+                                <select class="selectpicker tile-time-unit">
+                                    <option value="minutes" selected="selected">Minute</option>
+                                    <option value="hours">Hour</option>
+                                    <option value="days">Day</option>
+                                </select>
+                                <div class="help-block with-errors">Select time unit resolution</div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label"><strong>Timeframe</strong></label>
+                            <div class="col-sm-8">
+                                <input type="number" min="5" max="10080" class="form-control tile-time-value" required>
+                                <div class="help-block with-errors">Enter a number</div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label" for="stats-field"><strong>Field to run statistics on</strong></label>
+                            <div class="col-sm-8">
+                                <select class="selectpicker stats-field"  data-style="btn-warning" id="stats-field">
+                                </select>
+                                <div class="help-block with-errors">Select the field from the above list.</div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label" for="statistic_to_plot"><strong>Statistic to plot</strong></label>
+                            <div class="col-sm-8">
+                                <select id="statistic_to_plot" class="statistic_to_plot">
+                                    <option value=percentiles.1.0>1 percentile</option>
+                                    <option value=percentiles.25.0>25 percentile</option>
+                                    <option value=percentiles.5.0>5 percentile</option>
+                                    <option value=percentiles.50.0>50 percentile</option>
+                                    <option value=percentiles.75.0>75 percentile</option>
+                                    <option value=percentiles.95.0>95 percentile</option>
+                                    <option value=percentiles.99.0>99 percentile</option>
+                                    <option value=stats.avg>Average</option>
+                                    <option value=stats.count>Count</option>
+                                    <option value=stats.max>Max</option>
+                                    <option value=stats.min>Min</option>
+                                    <option value=stats.std_deviation>Standard Deviation</option>
+                                    <option value=stats.sum>Sum</option>
+                                    <option value=stats.sum_of_squares>Sum of squares</option>
+                                    <option value=stats.variance>Variance</option>
+                                </select>
+                                <div class="help-block with-errors">Select the field from the above list.</div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label" for="stats_selected_filters"><strong>Filters</strong></label>
+                            <div class="col-sm-8">
+                                <textarea class="form-control selected-filters" placeholder="JSON string containing the filters" id="stats_selected_filters"></textarea>
+                                <div class="help-block with-errors">Enter a JSON string</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-primary save-changes" disabled="disabled">Done</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!--Stats trend chart-->
       <div class="modal fade" id="setupStatsTrendChartModal" tabindex="-1" role="dialog" aria-labelledby="setupStatsTrendChartModalLabel" aria-hidden="true">
           <div class="modal-dialog">
               <form class="form-horizontal settings-form" role="form" data-toggle="validate" data-delay="" id="setupStatsTrendChartModalForm">
@@ -784,7 +878,7 @@
                               </div>
                           </div>
                           <div class="form-group">
-                              <label class="col-sm-4 control-label" for="pie_rt"><strong>Field to run stats on</strong></label>
+                              <label class="col-sm-4 control-label" for="statstrend-bar-chart-field"><strong>Field to run stats on</strong></label>
                               <div class="col-sm-8">
                                   <select class="selectpicker statstrend-bar-chart-field"  data-style="btn-warning" id="statstrend-bar-chart-field">
                                   </select>
@@ -1000,6 +1094,7 @@
     <script src="js/tiles/histogram.js"></script>
     <script src="js/tiles/eventbrowser-tile.js"></script>
     <script src="js/tiles/stacked-bar-tile.js"></script>
+    <script src="js/tiles/stats-tile.js"></script>
     <script src="js/tiles/statstrend-tile.js"></script>
     <script src="js/consolemanager.js"></script>
     <script src="js/eventsearch.js"></script>
