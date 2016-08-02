@@ -29,6 +29,8 @@ public class GroupRequest extends ActionRequest {
 
     private String table;
 
+    private String uniqueCountOn;
+
     private List<String> nesting;
 
     public GroupRequest() {
@@ -36,6 +38,14 @@ public class GroupRequest extends ActionRequest {
 
     public String getTable() {
         return table;
+    }
+
+    public String getUniqueCountOn() {
+        return uniqueCountOn;
+    }
+
+    public void setUniqueCountOn(String uniqueCountOn) {
+        this.uniqueCountOn = uniqueCountOn;
     }
 
     public void setTable(String table) {
@@ -54,8 +64,9 @@ public class GroupRequest extends ActionRequest {
     @Override
     public String toString() {
         return new ToStringBuilder(this)
+                .appendSuper(super.toString())
                 .append("table", table)
-                .append("filters", getFilters())
+                .append("uniqueCountOn", uniqueCountOn)
                 .append("nesting", nesting)
                 .toString();
     }
