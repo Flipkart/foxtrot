@@ -42,13 +42,14 @@ import org.apache.commons.lang3.StringUtils;
 import org.elasticsearch.ElasticsearchException;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.action.search.SearchType;
 import org.elasticsearch.search.aggregations.AbstractAggregationBuilder;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.Aggregations;
+import org.elasticsearch.search.aggregations.bucket.histogram.DateHistogramBuilder;
 import org.elasticsearch.search.aggregations.bucket.histogram.DateHistogramInterval;
 import org.elasticsearch.search.aggregations.bucket.histogram.Histogram;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
+import org.elasticsearch.search.aggregations.metrics.cardinality.Cardinality;
 import org.joda.time.DateTime;
 
 import java.util.Collections;
@@ -104,6 +105,11 @@ public class TrendAction extends Action<TrendRequest> {
             }
         }
 
+        if (null != query.getUniqueCountOn()) {
+            filterHashKey += 31 * query.getUniqueCountOn().hashCode();
+        }
+
+
         filterHashKey += 31 * query.getPeriod().name().hashCode();
         filterHashKey += 31 * query.getTimestamp().hashCode();
         filterHashKey += 31 * (query.getField() != null ? query.getField().hashCode() : "FIELD".hashCode());
@@ -127,6 +133,11 @@ public class TrendAction extends Action<TrendRequest> {
         if (parameter.getPeriod() == null) {
             validationErrors.add(String.format("specify time period (%s)", StringUtils.join(Period.values())));
         }
+
+        if (parameter.getUniqueCountOn() != null && parameter.getUniqueCountOn().isEmpty()) {
+            validationErrors.add("unique field cannot be empty (can be null)");
+        }
+
         if (!CollectionUtils.isNullOrEmpty(validationErrors)) {
             throw FoxtrotExceptions.createMalformedQueryException(parameter, validationErrors);
         }
@@ -170,10 +181,16 @@ public class TrendAction extends Action<TrendRequest> {
     private AbstractAggregationBuilder buildAggregation(TrendRequest request) {
         DateHistogramInterval interval = Utils.getHistogramInterval(request.getPeriod());
         String field = request.getField();
+
+        DateHistogramBuilder histogramBuilder = Utils.buildDateHistogramAggregation(request.getTimestamp(), interval);
+        if (!CollectionUtils.isNullOrEmpty(getParameter().getUniqueCountOn())) {
+            histogramBuilder.subAggregation(Utils.buildCardinalityAggregation(getParameter().getUniqueCountOn()));
+        }
+
         return AggregationBuilders.terms(Utils.sanitizeFieldForAggregation(field))
                 .field(field)
                 .size(0)
-                .subAggregation(Utils.buildDateHistogramAggregation(request.getTimestamp(), interval));
+                .subAggregation(histogramBuilder);
     }
 
     private TrendResponse buildResponse(TrendRequest request, Aggregations aggregations) {
@@ -186,7 +203,15 @@ public class TrendAction extends Action<TrendRequest> {
             Aggregations subAggregations = bucket.getAggregations();
             Histogram histogram = subAggregations.get(Utils.getDateHistogramKey(request.getTimestamp()));
             for (Histogram.Bucket histogramBucket : histogram.getBuckets()) {
-                counts.add(new TrendResponse.Count(((DateTime) histogramBucket.getKey()).getMillis(), histogramBucket.getDocCount()));
+                if (!CollectionUtils.isNullOrEmpty(getParameter().getUniqueCountOn())) {
+                    String uniqueCountKey = Utils.sanitizeFieldForAggregation(getParameter().getUniqueCountOn());
+                    Cardinality cardinality = histogramBucket.getAggregations().get(uniqueCountKey);
+                    counts.add(new TrendResponse.Count(((DateTime) histogramBucket.getKey()).getMillis(),
+                            cardinality.getValue()));
+                } else {
+                    counts.add(new TrendResponse.Count(((DateTime) histogramBucket.getKey()).getMillis(),
+                            histogramBucket.getDocCount()));
+                }
             }
             trendCounts.put(key, counts);
         }

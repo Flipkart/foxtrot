@@ -25,6 +25,7 @@ function BarTile() {
     this.customPeriod = "custom";
     this.selectedFilters = null;
     this.uniqueValues = [];
+    this.uniqueCountOn = null;
     this.uiFilteredValues;
 }
 
@@ -191,6 +192,7 @@ BarTile.prototype.getQuery = function () {
             opcode: "group",
             table: table,
             filters: filters,
+            uniqueCountOn: this.uniqueCountOn && this.uniqueCountOn != "none" ? this.uniqueCountOn : null,
             nesting: [this.eventTypeFieldName]
         });
     }
@@ -212,6 +214,7 @@ BarTile.prototype.configChanged = function () {
     this.periodValue = parseInt(modal.find(".tile-time-value").first().val());
     this.customPeriod = $("#" + this.id).find(".period-select").val();
     this.eventTypeFieldName = modal.find(".bar-chart-field").val();
+    this.uniqueCountOn = modal.find("#bar-unique-field").val();
     this.title = modal.find(".tile-title").val();
     var values = modal.find(".selected-values").val();
     if (values) {
@@ -239,19 +242,32 @@ BarTile.prototype.loadFieldList = function () {
     var selected_table_name = modal.find(".tile-table").first().val();
     console.log("Loading Field List for " + selected_table_name);
     var selected_table = extractSelectedTable(selected_table_name, this.tables.tables);
+
     var field_select = modal.find("#bar-chart-field");
     field_select.find('option').remove();
+
+    var unique_field_select = modal.find("#bar-unique-field");
+    unique_field_select.find('option').remove();
+    unique_field_select.append('<option value="none">None</option>');
 
     this.tables.loadTableMeta(selected_table, function () {
         console.log("callback function called");
         for (var i = selected_table.mappings.length - 1; i >= 0; i--) {
             field_select.append('<option>' + selected_table.mappings[i].field + '</option>');
+            unique_field_select.append('<option>' + selected_table.mappings[i].field + '</option>');
         }
 
         if (this.eventTypeFieldName) {
             field_select.val(this.eventTypeFieldName);
         }
         field_select.selectpicker('refresh');
+
+        if (this.uniqueCountOn) {
+            unique_field_select.val(this.uniqueCountOn);
+        } else {
+            unique_field_select.val("none");
+        }
+        unique_field_select.selectpicker('refresh');
     }.bind(this));
 };
 
@@ -277,6 +293,7 @@ BarTile.prototype.populateSetupDialog = function () {
     modal.find(".tile-time-unit").first().val(this.periodUnit);
     modal.find(".tile-time-unit").first().selectpicker("refresh");
     modal.find(".tile-time-value").first().val(this.periodValue);
+    modal.find("#bar-unique-field").val(this.uniqueCountOn);
 
     if (this.selectedValues) {
         modal.find(".selected-values").val(this.selectedValues.join(", "));
@@ -290,6 +307,7 @@ BarTile.prototype.populateSetupDialog = function () {
 BarTile.prototype.registerSpecificData = function (representation) {
     representation['periodUnit'] = this.periodUnit;
     representation['periodValue'] = this.periodValue;
+    representation['uniqueCountOn'] = this.uniqueCountOn;
     representation['eventTypeFieldName'] = this.eventTypeFieldName;
     representation['selectedValues'] = this.selectedValues;
     representation['showLegend'] = this.showLegend;
@@ -299,6 +317,7 @@ BarTile.prototype.registerSpecificData = function (representation) {
 };
 
 BarTile.prototype.loadSpecificData = function (representation) {
+    this.uniqueCountOn = representation['uniqueCountOn'];
     this.periodUnit = representation['periodUnit'];
     if (!this.periodUnit) {
         this.periodUnit = "minutes";

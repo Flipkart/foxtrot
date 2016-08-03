@@ -25,6 +25,7 @@ function StackedBar() {
     this.customPeriod = "custom";
     this.selectedFilters = null;
     this.uniqueValues = [];
+    this.uniqueCountOn = null;
     this.uiFilteredValues;
 }
 
@@ -195,6 +196,7 @@ StackedBar.prototype.getQuery = function () {
             table: table,
             filters: filters,
             field: this.eventTypeFieldName,
+            uniqueCountOn: this.uniqueCountOn && this.uniqueCountOn != "none" ? this.uniqueCountOn : null,
             period: periodFromWindow(this.periodUnit, this.customPeriod)
         });
     }
@@ -215,6 +217,9 @@ StackedBar.prototype.configChanged = function () {
     this.periodValue = parseInt(modal.find(".tile-time-value").first().val());
     this.customPeriod = $("#" + this.id).find(".period-select").val();
     this.eventTypeFieldName = modal.find(".stacked-bar-chart-field").val();
+    this.uniqueCountOn = modal.find("#stacked-bar-unique-field").val();
+
+
     var filters = modal.find(".selected-filters").val();
     if (filters != undefined && filters != "") {
         var selectedFilters = JSON.parse(filters);
@@ -231,18 +236,32 @@ StackedBar.prototype.loadFieldList = function () {
     var selected_table_name = modal.find(".tile-table").first().val();
     console.log("Loading Field List for " + selected_table_name);
     var selected_table = extractSelectedTable(selected_table_name, this.tables.tables);
+
     var field_select = modal.find("#stacked-bar-chart-field");
     field_select.find('option').remove();
 
+    var unique_field_select = modal.find("#stacked-bar-unique-field");
+    unique_field_select.find('option').remove();
+    unique_field_select.append('<option value="none">None</option>');
+
     this.tables.loadTableMeta(selected_table, function () {
+
         for (var i = selected_table.mappings.length - 1; i >= 0; i--) {
             field_select.append('<option>' + selected_table.mappings[i].field + '</option>');
+            unique_field_select.append('<option>' + selected_table.mappings[i].field + '</option>');
         }
 
         if (this.eventTypeFieldName) {
             field_select.val(this.eventTypeFieldName);
         }
         field_select.selectpicker('refresh');
+
+        if (this.uniqueCountOn) {
+            unique_field_select.val(this.uniqueCountOn);
+        } else {
+            unique_field_select.val("none");
+        }
+        unique_field_select.selectpicker('refresh');
     }.bind(this));
 };
 
@@ -268,6 +287,7 @@ StackedBar.prototype.populateSetupDialog = function () {
     modal.find(".tile-time-unit").first().val(this.periodUnit);
     modal.find(".tile-time-unit").first().selectpicker("refresh");
     modal.find(".tile-time-value").first().val(this.periodValue);
+    modal.find("#stacked-bar-unique-field").val(this.uniqueCountOn);
 
     if (this.selectedFilters) {
         modal.find(".selected-filters").val(JSON.stringify(this.selectedFilters));
@@ -278,12 +298,14 @@ StackedBar.prototype.registerSpecificData = function (representation) {
     representation['periodUnit'] = this.periodUnit;
     representation['periodValue'] = this.periodValue;
     representation['eventTypeFieldName'] = this.eventTypeFieldName;
+    representation['uniqueCountOn'] = this.uniqueCountOn;
     if (this.selectedFilters) {
         representation['selectedFilters'] = btoa(JSON.stringify(this.selectedFilters));
     }
 };
 
 StackedBar.prototype.loadSpecificData = function (representation) {
+    this.uniqueCountOn = representation['uniqueCountOn'];
     this.periodUnit = representation['periodUnit'];
     if (!this.periodUnit) {
         this.periodUnit = "minutes";
