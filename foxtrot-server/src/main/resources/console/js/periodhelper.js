@@ -33,9 +33,23 @@ function timeValue(periodUnit, periodValue, selectedPeriodString) {
 
 function getPeriodString(periodUnit, periodValue, selectedPeriodString) {
     if (selectedPeriodString === "custom") {
-        return periodValue + periodUnit;
+        return periodValue + labelPeriodString(periodUnit);
     }
     return selectedPeriodString;
+}
+
+function labelPeriodString(periodString) {
+    if (!periodString) {
+        return null;
+    }
+
+    if (periodString == "days") {
+        return "d";
+    } else if (periodString == "hours") {
+        return "h";
+    } else {
+        return "m";
+    }
 }
 
 function axisTimeFormat(periodUnit, customPeriod) {
