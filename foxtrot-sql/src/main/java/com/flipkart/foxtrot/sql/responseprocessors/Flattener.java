@@ -68,7 +68,7 @@ public class Flattener implements ResponseVisitor {
             headers.add(new FieldHeader(fieldName, fieldNames.get(fieldName)));
         }
         headers.add(new FieldHeader("count", 10));
-        flatRepresentation = new FlatRepresentation(headers, rows);
+        flatRepresentation = new FlatRepresentation("group", headers, rows);
     }
 
     @Override
@@ -83,7 +83,7 @@ public class Flattener implements ResponseVisitor {
         List<FieldHeader> headers = Lists.newArrayList();
         headers.add(new FieldHeader("timestamp", 15));
         headers.add(new FieldHeader("count", 15));
-        flatRepresentation = new FlatRepresentation(headers, rows);
+        flatRepresentation = new FlatRepresentation("histogram", headers, rows);
     }
 
     @Override
@@ -111,7 +111,7 @@ public class Flattener implements ResponseVisitor {
             rows.add(row);
         }
         if (!rows.isEmpty()) {
-            flatRepresentation = new FlatRepresentation(getFieldsFromList(fieldNames), rows);
+            flatRepresentation = new FlatRepresentation("query", getFieldsFromList(fieldNames), rows);
         }
     }
 
@@ -135,6 +135,7 @@ public class Flattener implements ResponseVisitor {
         headers.add(new FieldHeader("stats.variance", 20));
         headers.add(new FieldHeader("stats.std_deviation", 20));
         flatRepresentation.setHeaders(headers);
+        flatRepresentation.setOpcode("stats");
     }
 
 
@@ -164,7 +165,7 @@ public class Flattener implements ResponseVisitor {
         fieldHeaders.add(new FieldHeader("stats.sum_of_squares", 20));
         fieldHeaders.add(new FieldHeader("stats.variance", 20));
         fieldHeaders.add(new FieldHeader("stats.std_deviation", 20));
-        flatRepresentation = new FlatRepresentation(fieldHeaders, rows);
+        flatRepresentation = new FlatRepresentation("statstrend", fieldHeaders, rows);
     }
 
     @Override
@@ -204,7 +205,7 @@ public class Flattener implements ResponseVisitor {
             }
             rows.add(row);
         }
-        flatRepresentation = new FlatRepresentation(new ArrayList<FieldHeader>(headers), rows);
+        flatRepresentation = new FlatRepresentation("trend", new ArrayList<>(headers), rows);
     }
 
     @Override
@@ -212,7 +213,7 @@ public class Flattener implements ResponseVisitor {
         FieldHeader fieldHeader = new FieldHeader("count", 20);
         List<Map<String, Object>> rows = Lists.newArrayList();
         rows.add(Collections.<String, Object>singletonMap("count", countResponse.getCount()));
-        flatRepresentation = new FlatRepresentation(Arrays.asList(fieldHeader), rows);
+        flatRepresentation = new FlatRepresentation("count", Arrays.asList(fieldHeader), rows);
     }
 
     @Override
@@ -230,7 +231,7 @@ public class Flattener implements ResponseVisitor {
             }
             rows.add(row);
         }
-        flatRepresentation = new FlatRepresentation(fieldHeaders, rows);
+        flatRepresentation = new FlatRepresentation("distinct", fieldHeaders, rows);
     }
 
     public FlatRepresentation getFlatRepresentation() {
