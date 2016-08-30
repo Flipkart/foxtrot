@@ -1,0 +1,34 @@
+server:
+  applicationConnectors:
+    - type: http
+      port: 17000
+  adminConnectors:
+    - type: http
+      port: 17001
+
+elasticsearch:
+  hosts: prd-es001.phonepe.nm1
+  cluster: prd-es0xx
+  tableNamePrefix: foxtrot
+
+hbase:
+  secure : false
+  tableName: foxtrot
+  hbaseZookeeperQuorum: prd-hdp102.phonepe.nm1:2181,prd-hdp104.phonepe.nm1:2181,prd-hdp105.phonepe.nm1:2181
+  hbaseZookeeperClientPort: 2181
+  seggregatedTablePrefix: foxtrot-
+
+cluster:
+  name: foxtrot
+  discovery:
+    type: foxtrot_simple
+    disableMulticast: true
+    members: ["localhost:5701"]
+
+logging:
+  level: INFO
+
+deletionconfig:
+  active: false
+  interval: 86400
+  initialdelay: 60
