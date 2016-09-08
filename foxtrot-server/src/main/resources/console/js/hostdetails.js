@@ -21,6 +21,5 @@
 
 HostDetails.prototype.url = function(path) {
 	//return "http://" + this.hostname + ":" + this.port + path;
-	//return "http://foxtrot.nm.flipkart.com" + path;
 	return path
 };
