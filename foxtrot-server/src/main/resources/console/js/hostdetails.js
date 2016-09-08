@@ -21,6 +21,5 @@
 
 HostDetails.prototype.url = function(path) {
 	//return "http://" + this.hostname + ":" + this.port + path;
-	return "http://foxtrot.traefik.prod.phonepe.com" + path;
-	//return path
+	return path
 };
