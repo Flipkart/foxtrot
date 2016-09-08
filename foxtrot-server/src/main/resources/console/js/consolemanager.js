@@ -48,13 +48,49 @@ ConsoleManager.prototype.getConsoleRepresentation = function () {
 ConsoleManager.prototype.buildConsoleFromRepresentation = function (representation) {
     var tiles = representation.tiles;
     var tileList = representation.tileList;
+    var tempTileList = {};
     for (var i = 0; i < tileList.length; i++) {
         var tileId = tileList[i];
         var tileRepresentation = tiles[tileId];
         var tile = TileFactory.create(tileRepresentation.typeName);
         tile.loadTileFromRepresentation(tileRepresentation);
         tile.init(tileRepresentation.id, this.queue, this.tables);
-        this.tileSet.register(tile);
+        tempTileList[tile.id] = tile;
+    }
+    var pageWidth = $(window).width() * 0.98;
+    var rows = [];
+    var currentRow = [];
+    var currentWidth = 0;
+    for(var tileName in tempTileList) {
+        var tile = tempTileList[tileName];
+        if(currentWidth + tile.width > pageWidth) {
+            rows.push(currentRow);
+            currentRow = [];
+            currentWidth = 0;
+        }
+        currentRow.push({
+            id: tileName,
+            tile: tile,
+            width: tile.width,
+            height: tile.height
+        });
+        currentWidth += tile.width;
+    }
+    for(var i = 0; i < rows.length; i++) {
+        var row = rows[i];
+        var totalWidth = 0;
+        var maxRowHeight = 0;
+        for(var j = 0; j < row.length; j++) {
+            totalWidth += row[j].width;
+            maxRowHeight = maxRowHeight < row[j].height ? row[j].height : maxRowHeight;
+        }
+        for(var j = 0; j < row.length; j++) {
+            //row[i].tile.width = (row[i].width / totalWidth) * 100 + "%";
+            row[j].tile.width = ((100 / row.length) - 15) + "%";
+            row[j].tile.height = maxRowHeight;
+            this.tileSet.register(row[j].tile);
+            console.log(row[j].id + " " + row[j].tile.width);
+        }
     }
     var modal = $("#saveConsoleModal");
     modal.find(".console-name").val(representation.name);
