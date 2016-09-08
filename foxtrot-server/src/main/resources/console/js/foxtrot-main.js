@@ -66,7 +66,7 @@ function FoxTrot() {
     // This is being done so that text remains selectable within table elements
     $("#tileContainer").sortable({
         revert: true,
-        cancel: "#tileContainer td"
+        cancel: "#tileContainer,td"
     });
 
     $("#tileContainer").on("sortstart", function () {
