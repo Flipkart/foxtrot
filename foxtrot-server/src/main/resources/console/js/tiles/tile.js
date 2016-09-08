@@ -50,6 +50,8 @@ function Tile() {
     this.tables = null;
     this.table = null;
     this.title = "";
+    this.displayWidth = null;
+    this.displayHeight = null;
     this.width = 0;
     this.height = 0;
     this.query = null;
@@ -203,9 +205,9 @@ TileSet.prototype.register = function (tile) {
     tileContainer.find(".removable-text").css("display", "none");
     newDiv.insertBefore('.float-clear');
     $(newDiv).resizable();
-    if (tile.height != 0 && tile.width != 0) {
-        newDiv.height(tile.height);
-        newDiv.width(tile.width);
+    if (tile.displayWidth && tile.displayHeight) {
+        newDiv.height(tile.displayHeight);
+        newDiv.width(tile.displayWidth);
     }
     newDiv.find(".widget-toolbox").find(".glyphicon-remove").click($.proxy(this.closeHandler, this));
     newDiv.find(".widget-toolbox").find(".glyphicon-cog").click(function () {
