@@ -86,8 +86,8 @@ ConsoleManager.prototype.buildConsoleFromRepresentation = function (representati
         }
         for(var j = 0; j < row.length; j++) {
             //row[i].tile.width = (row[i].width / totalWidth) * 100 + "%";
-            row[j].tile.width = ((100 / row.length) - 15) + "%";
-            row[j].tile.height = maxRowHeight;
+            row[j].tile.displayWidth = ((100 / row.length) - 15) + "%";
+            row[j].tile.displayHeight = maxRowHeight;
             this.tileSet.register(row[j].tile);
             console.log(row[j].id + " " + row[j].tile.width);
         }

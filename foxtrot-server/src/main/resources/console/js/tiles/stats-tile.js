@@ -58,13 +58,14 @@ Stats.prototype.render = function (data, animate) {
 
 
     var chartLabel = null;
-    if (0 == parent.find(".pielabel").length) {
-        chartLabel = $("<div>", {class: "pielabel"});
+    if (0 == parent.find(".statslabel").length) {
+        chartLabel = $("<div>", {class: "statslabel"});
         parent.append(chartLabel);
     }
     else {
-        chartLabel = parent.find(".pielabel");
+        chartLabel = parent.find(".statslabel");
     }
+    value = value.replace(/\.00/g, "");
     chartLabel.text(value);
 
     var headers = [selected];
