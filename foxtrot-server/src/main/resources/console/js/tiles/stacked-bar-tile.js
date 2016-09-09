@@ -22,7 +22,6 @@ function StackedBar() {
     this.eventTypeFieldName = null;
     this.periodUnit = "minutes";
     this.periodValue = 0;
-    this.customPeriod = "custom";
     this.selectedFilters = null;
     this.uniqueValues = [];
     this.uniqueCountOn = null;
@@ -152,7 +151,7 @@ StackedBar.prototype.render = function (data, animate) {
         xaxis: {
             mode: "time",
             timezone: "browser",
-            timeformat: axisTimeFormat(this.periodUnit, this.customPeriod),
+            timeformat: axisTimeFormat(this.periodUnit, this.customInterval()),
         },
         selection: {
             mode: "x",
@@ -181,7 +180,7 @@ StackedBar.prototype.render = function (data, animate) {
 StackedBar.prototype.getQuery = function () {
     if (this.isSetupDone()) {
         var filters = [];
-        filters.push(timeValue(this.periodUnit, this.periodValue, this.customPeriod));
+        filters.push(timeValue(this.periodUnit, this.periodValue, this.customInterval()));
         if (this.selectedFilters && this.selectedFilters.filters) {
             for (var i = 0; i < this.selectedFilters.filters.length; i++) {
                 filters.push(this.selectedFilters.filters[i]);
@@ -197,7 +196,7 @@ StackedBar.prototype.getQuery = function () {
             filters: filters,
             field: this.eventTypeFieldName,
             uniqueCountOn: this.uniqueCountOn && this.uniqueCountOn != "none" ? this.uniqueCountOn : null,
-            period: periodFromWindow(this.periodUnit, this.customPeriod)
+            period: periodFromWindow(this.periodUnit, this.customInterval())
         });
     }
 };
@@ -215,7 +214,6 @@ StackedBar.prototype.configChanged = function () {
     this.title = modal.find(".tile-title").val();
     this.periodUnit = modal.find(".tile-time-unit").first().val();
     this.periodValue = parseInt(modal.find(".tile-time-value").first().val());
-    this.customPeriod = $("#" + this.id).find(".period-select").val();
     this.eventTypeFieldName = modal.find(".stacked-bar-chart-field").val();
     this.uniqueCountOn = modal.find("#stacked-bar-unique-field").val();
 

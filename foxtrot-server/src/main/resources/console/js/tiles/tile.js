@@ -181,6 +181,10 @@ Tile.prototype.getUniqueValues = function () {
 Tile.prototype.filterValues = function (values) {
 }
 
+Tile.prototype.customInterval = function() {
+    return $("#" + this.id).find(".period-select").val();
+}
+
 function TileSet(id, tables) {
     this.id = id;
     this.tables = tables;
