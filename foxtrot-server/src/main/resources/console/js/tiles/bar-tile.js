@@ -22,7 +22,6 @@ function BarTile() {
     this.selectedValues = null;
     this.periodUnit = "minutes";
     this.periodValue = 0;
-    this.customPeriod = "custom";
     this.selectedFilters = null;
     this.uniqueValues = [];
     this.uniqueCountOn = null;
@@ -49,7 +48,7 @@ BarTile.prototype.render = function (data, animate) {
     } else {
         chartLabel = parent.find(".pielabel");
     }
-    chartLabel.text(getPeriodString(this.periodUnit, this.periodValue, this.customPeriod));
+    chartLabel.text(getPeriodString(this.periodUnit, this.periodValue, this.customInterval()));
 
     var canvas = null;
     var legendArea = null;
@@ -171,7 +170,7 @@ BarTile.prototype.getQuery = function () {
     if (this.eventTypeFieldName && this.period != 0) {
         var timestamp = new Date().getTime();
         var filters = [];
-        filters.push(timeValue(this.periodUnit, this.periodValue, this.customPeriod));
+        filters.push(timeValue(this.periodUnit, this.periodValue, this.customInterval()));
         if (this.selectedValues) {
             filters.push({
                 field: this.eventTypeFieldName,
@@ -212,7 +211,6 @@ BarTile.prototype.configChanged = function () {
 
     this.periodUnit = modal.find(".tile-time-unit").first().val();
     this.periodValue = parseInt(modal.find(".tile-time-value").first().val());
-    this.customPeriod = $("#" + this.id).find(".period-select").val();
     this.eventTypeFieldName = modal.find(".bar-chart-field").val();
     this.uniqueCountOn = modal.find("#bar-unique-field").val();
     this.title = modal.find(".tile-title").val();

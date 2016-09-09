@@ -22,7 +22,6 @@ function Stats() {
     this.statsFieldName = null;
     this.periodUnit = "minutes";
     this.periodValue = 0;
-    this.customPeriod = "custom";
     this.selectedFilters = null;
     this.selectedStat = null;
 }
@@ -78,7 +77,7 @@ Stats.prototype.getQuery = function () {
     if (this.isSetupDone()) {
         var timestamp = new Date().getTime();
         var filters = [];
-        filters.push(timeValue(this.periodUnit, this.periodValue, this.customPeriod));
+        filters.push(timeValue(this.periodUnit, this.periodValue, this.customInterval()));
         if (this.selectedFilters && this.selectedFilters.filters) {
             for (var i = 0; i < this.selectedFilters.filters.length; i++) {
                 filters.push(this.selectedFilters.filters[i]);
@@ -110,7 +109,6 @@ Stats.prototype.configChanged = function () {
     this.title = modal.find(".tile-title").val();
     this.periodUnit = modal.find(".tile-time-unit").first().val();
     this.periodValue = parseInt(modal.find(".tile-time-value").first().val());
-    this.customPeriod = $("#" + this.id).find(".period-select").val();
     this.statsFieldName = modal.find(".stats-field").val();
     var filters = modal.find(".selected-filters").val();
     if (filters != undefined && filters != "") {
