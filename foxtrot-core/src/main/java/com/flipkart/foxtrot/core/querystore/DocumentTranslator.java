@@ -9,8 +9,8 @@ import com.flipkart.foxtrot.core.datastore.impl.hbase.IdentityKeyDistributor;
 import com.flipkart.foxtrot.core.querystore.actions.Constants;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
-import com.shash.hbase.ds.AbstractRowKeyDistributor;
-import com.shash.hbase.ds.RowKeyDistributorByHashPrefix;
+import com.sematext.hbase.ds.AbstractRowKeyDistributor;
+import com.sematext.hbase.ds.RowKeyDistributorByHashPrefix;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -84,7 +84,7 @@ public class DocumentTranslator {
         metadata.setRawStorageId(rowKey);
         metadata.setId(inDocument.getId());
 
-        logger.debug("Doc row key: {}, {}, {}", rowKey, inDocument, metadata);
+        //logger.debug("Doc row key: {}, {}, {}", rowKey, inDocument, metadata);
         return metadata;
     }
 

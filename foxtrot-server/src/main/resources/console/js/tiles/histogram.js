@@ -53,7 +53,7 @@ Histogram.prototype.render = function (data, animate) {
     var rows = [];
     rows.push(['date', 'count']);
     for (var i = data.counts.length - 1; i >= 0; i--) {
-        rows.push([data.counts[i].period, data.counts[i].count]);
+        rows.push([data.counts[i].period, (data.counts[i].count / Math.pow(10, this.ignoreDigits))]);
     }
 
     var timestamp = new Date().getTime();
@@ -141,7 +141,7 @@ Histogram.prototype.configChanged = function () {
     } else {
         this.selectedFilters = null;
     }
-
+    this.ignoreDigits = parseInt(modal.find(".ignored-digits").val())
     console.log("Config changed for: " + this.id);
 };
 
@@ -196,6 +196,7 @@ Histogram.prototype.populateSetupDialog = function () {
     if (this.selectedFilters) {
         modal.find(".selected-filters").val(JSON.stringify(this.selectedFilters));
     }
+    modal.find(".ignored-digits").val(this.ignoreDigits);
 };
 
 Histogram.prototype.registerSpecificData = function (representation) {

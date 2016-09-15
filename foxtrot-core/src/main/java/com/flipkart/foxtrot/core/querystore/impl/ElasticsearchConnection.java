@@ -15,23 +15,21 @@
  */
 package com.flipkart.foxtrot.core.querystore.impl;
 
-import com.yammer.dropwizard.lifecycle.Managed;
-import net.sourceforge.cobertura.CoverageIgnore;
+import io.dropwizard.lifecycle.Managed;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.client.transport.TransportClient;
-import org.elasticsearch.common.settings.ImmutableSettings;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.transport.InetSocketTransportAddress;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.net.InetAddress;
 
 /**
  * User: Santanu Sinha (santanu.sinha@flipkart.com)
  * Date: 14/03/14
  * Time: 12:38 AM
  */
-
-@CoverageIgnore
 public class ElasticsearchConnection implements Managed {
     private static final Logger logger = LoggerFactory.getLogger(ElasticsearchConnection.class.getSimpleName());
     private final ElasticsearchConfig config;
@@ -44,14 +42,17 @@ public class ElasticsearchConnection implements Managed {
     @Override
     public void start() throws Exception {
         logger.info("Starting Elasticsearch Client");
-        Settings settings = ImmutableSettings.settingsBuilder()
+        Settings settings = Settings.settingsBuilder()
                 .put("cluster.name", config.getCluster()).build();
 
-        TransportClient esClient = new TransportClient(settings);
+        TransportClient esClient = TransportClient.builder().settings(settings).build();
         for (String host : config.getHosts()) {
-            esClient.addTransportAddress(
-                    new InetSocketTransportAddress(host, 9300));
-            logger.info(String.format("Added Elasticsearch Node : %s", host));
+            String tokenizedHosts[] = host.split(",");
+            for (String tokenizedHost : tokenizedHosts) {
+                esClient.addTransportAddress(
+                        new InetSocketTransportAddress(InetAddress.getByName(tokenizedHost), 9300));
+                logger.info(String.format("Added Elasticsearch Node : %s", host));
+            }
         }
         client = esClient;
         logger.info("Started Elasticsearch Client");
