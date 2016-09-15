@@ -419,6 +419,12 @@
                 </div>
               </div>
               <div class="form-group">
+                  <label class="control-label col-sm-4" for="pie-decimal-places"><strong>Shift Decimal Left By</strong> </label>
+                  <div class="col-sm-8">
+                      <input type="number" min="0" value="0" class="form-control ignored-digits" placeholder="" id="pie-decimal-places">
+                  </div>
+              </div>
+              <div class="form-group">
                   <label class="control-label col-sm-4" for="pie-show-legend"><strong>Show legend</strong> </label>
                   <div class="checkbox" style="padding-left: 230px;">
                       <input type="checkbox" class="pie-show-legend" id="pie-show-legend"/>
@@ -546,6 +552,14 @@
                       <div class="help-block with-errors">Enter a JSON string</div>
                   </div>
                 </div>
+
+                <div class="form-group">
+                  <label class="control-label col-sm-4" for="bar-decimal-places"><strong>Shift Decimal Left By</strong> </label>
+                  <div class="col-sm-8">
+                      <input type="number" min="0" value="0" class="form-control ignored-digits" placeholder="" id="bar-decimal-places">
+                  </div>
+                </div>
+
                 <div class="form-group">
                     <label class="control-label col-sm-4" for="bar-show-legend"><strong>Show legend</strong> </label>
                     <div class="checkbox" style="padding-left: 230px;">
@@ -622,6 +636,12 @@
                         </div>
                     </div>
 
+                    <div class="form-group">
+                        <label class="control-label col-sm-4" for="histogram-decimal-places"><strong>Shift Decimal Left By</strong> </label>
+                        <div class="col-sm-8">
+                            <input type="number" min="0" value="0" class="form-control ignored-digits" placeholder="" id="histogram-decimal-places">
+                        </div>
+                    </div>
                     <div class="form-group">
                         <label class="col-sm-4 control-label"
                                for="histogram_selected_filters"><strong>Filters</strong></label>
@@ -739,7 +759,12 @@
                                   <select class="selectpicker" id="stacked-bar-unique-field" data-style="btn-warning" required></select>
                               </div>
                           </div>
-
+                          <div class="form-group">
+                              <label class="control-label col-sm-4" for="stacked-bar-decimal-places"><strong>Shift Decimal Left By</strong> </label>
+                              <div class="col-sm-8">
+                                  <input type="number" min="0" value="0" class="form-control ignored-digits" placeholder="" id="stacked-bar-decimal-places">
+                              </div>
+                          </div>
                           <div class="form-group">
                             <label class="col-sm-4 control-label" for="stacked_bar_selected_filters"><strong>Filters</strong></label>
                             <div class="col-sm-8">
@@ -813,7 +838,7 @@
                         <div class="form-group">
                             <label class="col-sm-4 control-label" for="statistic_to_plot"><strong>Statistic to plot</strong></label>
                             <div class="col-sm-8">
-                                <select id="statistic_to_plot" class="statistic_to_plot">
+                                <select id="statistic_to_plot" class="selectpicker statistic_to_plot">
                                     <option value=percentiles.1.0>1 percentile</option>
                                     <option value=percentiles.25.0>25 percentile</option>
                                     <option value=percentiles.5.0>5 percentile</option>
@@ -831,6 +856,12 @@
                                     <option value=stats.variance>Variance</option>
                                 </select>
                                 <div class="help-block with-errors">Select the field from the above list.</div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-sm-4" for="stats-decimal-places"><strong>Shift Decimal Left By</strong> </label>
+                            <div class="col-sm-8">
+                                <input type="number" min="0" value="0" class="form-control ignored-digits" placeholder="" id="stats-decimal-places">
                             </div>
                         </div>
                         <div class="form-group">
@@ -926,6 +957,12 @@
                                       <option value=stats.variance>Variance</option>
                                   </select>
                                   <div class="help-block with-errors">Select the field from the above list.</div>
+                              </div>
+                          </div>
+                          <div class="form-group">
+                              <label class="control-label col-sm-4" for="statstrend-decimal-places"><strong>Shift Decimal Left By</strong> </label>
+                              <div class="col-sm-8">
+                                  <input type="number" min="0" value="0" class="form-control ignored-digits" placeholder="" id="statstrend-decimal-places">
                               </div>
                           </div>
                           <div class="form-group">
