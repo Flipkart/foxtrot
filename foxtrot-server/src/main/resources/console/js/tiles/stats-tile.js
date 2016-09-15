@@ -55,7 +55,8 @@ Stats.prototype.render = function (data, animate) {
         value = result.stats[selected.split("stats.")[1]].toFixed(2);
     }
 
-
+    value = value / Math.pow(10, this.ignoreDigits);
+    value = numberWithCommas(value);
     var chartLabel = null;
     if (0 == parent.find(".statslabel").length) {
         chartLabel = $("<div>", {class: "statslabel"});
@@ -64,7 +65,7 @@ Stats.prototype.render = function (data, animate) {
     else {
         chartLabel = parent.find(".statslabel");
     }
-    value = value.replace(/\.00/g, "");
+    //value = value.replace(/\.00/g, "");
     chartLabel.text(value);
 
     var headers = [selected];
@@ -110,6 +111,7 @@ Stats.prototype.configChanged = function () {
     this.periodUnit = modal.find(".tile-time-unit").first().val();
     this.periodValue = parseInt(modal.find(".tile-time-value").first().val());
     this.statsFieldName = modal.find(".stats-field").val();
+    this.ignoreDigits = parseInt(modal.find(".ignored-digits").val());
     var filters = modal.find(".selected-filters").val();
     if (filters != undefined && filters != "") {
         var selectedFilters = JSON.parse(filters);
@@ -171,6 +173,7 @@ Stats.prototype.populateSetupDialog = function () {
         modal.find(".selected-filters").val(JSON.stringify(this.selectedFilters));
     }
     modal.find('statistic_to_plot').val(this.selectedStat)
+    modal.find(".ignored-digits").val(this.ignoreDigits);
 };
 
 Stats.prototype.registerSpecificData = function (representation) {
