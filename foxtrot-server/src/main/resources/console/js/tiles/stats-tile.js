@@ -22,7 +22,6 @@ function Stats() {
     this.statsFieldName = null;
     this.periodUnit = "minutes";
     this.periodValue = 0;
-    this.customPeriod = "custom";
     this.selectedFilters = null;
     this.selectedStat = null;
 }
@@ -56,7 +55,8 @@ Stats.prototype.render = function (data, animate) {
         value = result.stats[selected.split("stats.")[1]].toFixed(2);
     }
 
-
+    value = value / Math.pow(10, this.ignoreDigits);
+    value = numberWithCommas(value);
     var chartLabel = null;
     if (0 == parent.find(".statslabel").length) {
         chartLabel = $("<div>", {class: "statslabel"});
@@ -65,7 +65,7 @@ Stats.prototype.render = function (data, animate) {
     else {
         chartLabel = parent.find(".statslabel");
     }
-    value = value.replace(/\.00/g, "");
+    //value = value.replace(/\.00/g, "");
     chartLabel.text(value);
 
     var headers = [selected];
@@ -78,7 +78,7 @@ Stats.prototype.getQuery = function () {
     if (this.isSetupDone()) {
         var timestamp = new Date().getTime();
         var filters = [];
-        filters.push(timeValue(this.periodUnit, this.periodValue, this.customPeriod));
+        filters.push(timeValue(this.periodUnit, this.periodValue, this.customInterval()));
         if (this.selectedFilters && this.selectedFilters.filters) {
             for (var i = 0; i < this.selectedFilters.filters.length; i++) {
                 filters.push(this.selectedFilters.filters[i]);
@@ -110,8 +110,8 @@ Stats.prototype.configChanged = function () {
     this.title = modal.find(".tile-title").val();
     this.periodUnit = modal.find(".tile-time-unit").first().val();
     this.periodValue = parseInt(modal.find(".tile-time-value").first().val());
-    this.customPeriod = $("#" + this.id).find(".period-select").val();
     this.statsFieldName = modal.find(".stats-field").val();
+    this.ignoreDigits = parseInt(modal.find(".ignored-digits").val());
     var filters = modal.find(".selected-filters").val();
     if (filters != undefined && filters != "") {
         var selectedFilters = JSON.parse(filters);
@@ -172,7 +172,9 @@ Stats.prototype.populateSetupDialog = function () {
     if (this.selectedFilters) {
         modal.find(".selected-filters").val(JSON.stringify(this.selectedFilters));
     }
-    modal.find('statistic_to_plot').val(this.selectedStat)
+    modal.find('.statistic_to_plot').first().val(this.selectedStat);
+    modal.find('.statistic_to_plot').first().selectpicker("refresh");
+    modal.find(".ignored-digits").val(this.ignoreDigits);
 };
 
 Stats.prototype.registerSpecificData = function (representation) {

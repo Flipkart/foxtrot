@@ -22,7 +22,6 @@ function StatsTrend() {
     this.eventTypeFieldName = null;
     this.periodUnit = "minutes";
     this.periodValue = 0;
-    this.customPeriod = "custom";
     this.selectedFilters = null;
     this.selectedStats = [];
 
@@ -84,7 +83,7 @@ StatsTrend.prototype.render = function (data, animate) {
             if (selected.startsWith('stats.')) {
                 value = stats[selected.split("stats.")[1]];
             }
-            d[j].data.push([results[i].period, value]);
+            d[j].data.push([results[i].period, value / Math.pow(10, this.ignoreDigits)]);
         }
     }
 
@@ -109,7 +108,12 @@ StatsTrend.prototype.render = function (data, animate) {
         xaxis: {
             mode: "time",
             timezone: "browser",
-            timeformat: axisTimeFormat(this.periodUnit, this.customPeriod)
+            timeformat: axisTimeFormat(this.periodUnit, this.customInterval())
+        },
+        yaxis: {
+            tickFormatter: function(val, axis) {
+                return numberWithCommas(val);
+            }
         },
         selection: {
             mode: "x",
@@ -119,7 +123,7 @@ StatsTrend.prototype.render = function (data, animate) {
         tooltipOpts: {
             content: function (label, x, y) {
                 var date = new Date(x);
-                return label + ": " + y.toFixed(2) + "ms at " + date.getHours() + ":" + date.getMinutes();
+                return label + ": " + numberWithCommas(y.toFixed(2)) + " at " + date.getHours() + ":" + date.getMinutes();
             },
             defaultFormat: true
         },
@@ -140,7 +144,7 @@ StatsTrend.prototype.getQuery = function () {
     if (this.isSetupDone()) {
         var timestamp = new Date().getTime();
         var filters = [];
-        filters.push(timeValue(this.periodUnit, this.periodValue, this.customPeriod));
+        filters.push(timeValue(this.periodUnit, this.periodValue, this.customInterval()));
         if (this.selectedFilters && this.selectedFilters.filters) {
             for (var i = 0; i < this.selectedFilters.filters.length; i++) {
                 filters.push(this.selectedFilters.filters[i]);
@@ -155,7 +159,7 @@ StatsTrend.prototype.getQuery = function () {
             table: table,
             filters: filters,
             field: this.eventTypeFieldName,
-            period: periodFromWindow(this.periodUnit, this.customPeriod)
+            period: periodFromWindow(this.periodUnit, this.customInterval())
         });
     }
 };
@@ -173,7 +177,6 @@ StatsTrend.prototype.configChanged = function () {
     this.title = modal.find(".tile-title").val();
     this.periodUnit = modal.find(".tile-time-unit").first().val();
     this.periodValue = parseInt(modal.find(".tile-time-value").first().val());
-    this.customPeriod = $("#" + this.id).find(".period-select").val();
     this.eventTypeFieldName = modal.find(".statstrend-bar-chart-field").val();
     var filters = modal.find(".selected-filters").val();
     if (filters != undefined && filters != "") {
@@ -186,6 +189,7 @@ StatsTrend.prototype.configChanged = function () {
         this.selectedFilters = null;
     }
     this.selectedStats = modal.find(".stats_to_plot").val();
+    this.ignoreDigits = parseInt(modal.find(".ignored-digits").val());
 };
 
 
@@ -237,6 +241,7 @@ StatsTrend.prototype.populateSetupDialog = function () {
         modal.find(".selected-filters").val(JSON.stringify(this.selectedFilters));
     }
     modal.find('.stats_to_plot').multiselect('select', this.selectedStats);
+    modal.find(".ignored-digits").val(this.ignoreDigits);
 };
 
 StatsTrend.prototype.registerSpecificData = function (representation) {

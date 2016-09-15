@@ -7,3 +7,8 @@ function drawLegend(columns, element) {
     });
     element.html(handlebars("#group-legend-template", {data: columns}));
 }
+
+function numberWithCommas(x) {
+    //return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    return x.toLocaleString('en-IN');
+}

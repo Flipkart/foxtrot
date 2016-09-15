@@ -62,6 +62,8 @@ function Tile() {
     this.url = hostDetails.url("/foxtrot/v1/analytics");
     this.contentType = "application/json";
     this.httpMethod = "POST";
+    this.ignoreDigits = 0;
+
 }
 
 Tile.prototype.init = function (id, queue, tables) {
@@ -119,7 +121,8 @@ Tile.prototype.getRepresentation = function () {
         width: this.width,
         height: this.height,
         title: this.title,
-        table: this.table
+        table: this.table,
+        ignoreDigits: this.ignoreDigits
     };
     this.registerSpecificData(representation);
     return representation;
@@ -131,6 +134,8 @@ Tile.prototype.loadTileFromRepresentation = function (representation) {
     this.height = representation.height;
     this.title = representation.title;
     this.table = representation.table;
+    this.ignoreDigits = representation.hasOwnProperty('ignoreDigits')
+                            ? representation.ignoreDigits : 0;
     this.loadSpecificData(representation);
 }
 
@@ -181,6 +186,10 @@ Tile.prototype.getUniqueValues = function () {
 }
 
 Tile.prototype.filterValues = function (values) {
+}
+
+Tile.prototype.customInterval = function() {
+    return $("#" + this.id).find(".period-select").val();
 }
 
 function TileSet(id, tables) {
