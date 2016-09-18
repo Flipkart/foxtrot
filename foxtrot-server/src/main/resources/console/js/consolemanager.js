@@ -76,6 +76,11 @@ ConsoleManager.prototype.buildConsoleFromRepresentation = function (representati
         });
         currentWidth += tile.width;
     }
+
+    if(currentRow.length > 0){
+        rows.push(currentRow)
+    }
+
     for(var i = 0; i < rows.length; i++) {
         var row = rows[i];
         var totalWidth = 0;

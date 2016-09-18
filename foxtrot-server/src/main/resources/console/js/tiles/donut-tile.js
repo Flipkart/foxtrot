@@ -93,7 +93,7 @@ DonutTile.prototype.render = function (data, animate) {
         if (this.isValueVisible(property)) {
             columns.push({
                 label: property,
-                data: data.result[property],
+                data: data.result[property] / Math.pow(10, this.ignoreDigits),
                 color: colors.nextColor(),
                 lines: {show: true},
                 shadowSize: 0
@@ -191,6 +191,8 @@ DonutTile.prototype.configChanged = function () {
         this.selectedFilters = null;
     }
     this.showLegend = modal.find(".pie-show-legend").prop('checked');
+    this.ignoreDigits = parseInt(modal.find(".ignored-digits").val())
+
     $("#content-for-" + this.id).find(".chartcanvas").remove();
     $("#content-for-" + this.id).find(".pielabel").remove();
 };
@@ -260,6 +262,8 @@ DonutTile.prototype.populateSetupDialog = function () {
         modal.find(".selected-filters").val(JSON.stringify(this.selectedFilters));
     }
     modal.find(".pie-show-legend").prop('checked', this.showLegend);
+    modal.find(".ignored-digits").val(this.ignoreDigits);
+
 }
 
 DonutTile.prototype.registerSpecificData = function (representation) {

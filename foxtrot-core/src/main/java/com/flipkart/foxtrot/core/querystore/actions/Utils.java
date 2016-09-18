@@ -5,11 +5,11 @@ import com.google.common.collect.Maps;
 import org.elasticsearch.action.support.IndicesOptions;
 import org.elasticsearch.search.aggregations.AbstractAggregationBuilder;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
-import org.elasticsearch.search.aggregations.bucket.histogram.DateHistogram;
 import org.elasticsearch.search.aggregations.bucket.histogram.DateHistogramBuilder;
+import org.elasticsearch.search.aggregations.bucket.histogram.DateHistogramInterval;
 import org.elasticsearch.search.aggregations.metrics.cardinality.CardinalityBuilder;
-import org.elasticsearch.search.aggregations.metrics.percentiles.InternalPercentiles;
 import org.elasticsearch.search.aggregations.metrics.percentiles.Percentile;
+import org.elasticsearch.search.aggregations.metrics.percentiles.Percentiles;
 import org.elasticsearch.search.aggregations.metrics.stats.extended.InternalExtendedStats;
 
 import java.util.Map;
@@ -29,7 +29,7 @@ public class Utils {
         return AggregationBuilders.percentiles(metricKey).field(field);
     }
 
-    public static DateHistogramBuilder buildDateHistogramAggregation(String field, DateHistogram.Interval interval) {
+    public static DateHistogramBuilder buildDateHistogramAggregation(String field, DateHistogramInterval interval) {
         String metricKey = getDateHistogramKey(field);
         return AggregationBuilders.dateHistogram(metricKey)
                 .minDocCount(1)
@@ -48,23 +48,24 @@ public class Utils {
         return field.replaceAll(Constants.FIELD_REPLACEMENT_REGEX, Constants.FIELD_REPLACEMENT_VALUE);
     }
 
-    public static DateHistogram.Interval getHistogramInterval(Period period) {
-        DateHistogram.Interval interval;
+
+    public static DateHistogramInterval getHistogramInterval(Period period) {
+        DateHistogramInterval interval;
         switch (period) {
             case seconds:
-                interval = DateHistogram.Interval.SECOND;
+                interval = DateHistogramInterval.SECOND;
                 break;
             case minutes:
-                interval = DateHistogram.Interval.MINUTE;
+                interval = DateHistogramInterval.MINUTE;
                 break;
             case hours:
-                interval = DateHistogram.Interval.HOUR;
+                interval = DateHistogramInterval.HOUR;
                 break;
             case days:
-                interval = DateHistogram.Interval.DAY;
+                interval = DateHistogramInterval.DAY;
                 break;
             default:
-                interval = DateHistogram.Interval.HOUR;
+                interval = DateHistogramInterval.HOUR;
                 break;
         }
         return interval;
@@ -99,7 +100,7 @@ public class Utils {
         return stats;
     }
 
-    public static Map<Number, Number> createPercentilesResponse(InternalPercentiles internalPercentiles) {
+    public static Map<Number, Number> createPercentilesResponse(Percentiles internalPercentiles) {
         Map<Number, Number> percentiles = Maps.newHashMap();
         for (Percentile percentile : internalPercentiles) {
             percentiles.put(percentile.getPercent(), percentile.getValue());

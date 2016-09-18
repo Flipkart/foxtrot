@@ -1,10 +1,10 @@
-$.tablesorter.addParser({ 
-        // set a unique id 
-        id: 'sizesorter', 
-        is: function(s, table, node) { 
-            // return false so this parser is not auto detected 
-            return node.cellIndex != 0; 
-        }, 
+$.tablesorter.addParser({
+        // set a unique id
+        id: 'sizesorter',
+        is: function(s, table, node) {
+            // return false so this parser is not auto detected
+            return node.cellIndex != 0;
+        },
         format: function(s) {
         	s = s.trim()
         	var sizeValue = s.substring(0, s.indexOf(" "))
@@ -12,10 +12,10 @@ $.tablesorter.addParser({
         	var multiplier = 1;
         	var sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
         	return parseInt(sizeValue) * (1 + Math.pow(1024, sizes.indexOf(sizeUnit)));
-        }, 
-        // set type, either numeric or text 
-        type: 'numeric' 
-    }); 
+        },
+        // set type, either numeric or text
+        type: 'numeric'
+    });
 
 function bytesToSize(bytes) {
    if(bytes == 0) return '0 Byte';
@@ -30,21 +30,26 @@ function toPercentage(num, den) {
 }
 
 function HostData() {
-	this.name = "";
-	this.ip = "";
-	this.host = "";
-	this.load = 0;
-	this.memoryUsed = 0;
-	this.diskUsed = 0;
-	this.jvmUsed = 0;
-	this.jvmSize = "";
-	this.jvmOldgen = 0;
-	this.jvmEden = 0;
-	this.fieldCache = 0;
-	this.fieldCacheAbs = 0;
-	this.fieldCacheEvictions = 0;
-	this.filterCache = "";
-	this.filterCacheEvictions = 0;
+    this.name = "";
+    this.ip = "";
+    this.host = "";
+    this.load = 0;
+
+    this.memoryTotal = 0;
+    this.memoryUsed = 0;
+    this.memoryUsedPercent = 0;
+
+    this.diskTotal = 0;
+    this.diskUsed = 0;
+    this.diskUsedPercent = 0;
+
+    this.jvmTotal = "";
+    this.jvmUsed = 0;
+    this.jvmUsedPercent = 0;
+
+    this.fieldCache = 0;
+    this.fieldCacheAbs = 0;
+    this.fieldCacheEvictions = 0;
 }
 
 function Table() {
@@ -70,47 +75,57 @@ var cluster = {
 };
 
 $(".search-input").keyup(function() {
-	var searchText = $(".search-input").val();	
+	var searchText = $(".search-input").val();
 	for(var i in hosts) {
-		
+
 	}
 })
 
-EventBus.addEventListener('hosts_loaded', function(event, data){
-	if(!data.hasOwnProperty('nodesMap')) {
-		return;
-	}
-	var nodes = data['nodesMap'];
-	var hosts = [];
-	for(var nodeId in nodes) {
-		var node = nodes[nodeId];
-		var host = new HostData();
-		host.name = node.node.name;
-		host.ip = node.node.hostAddress;
-		host.host = node.node.hostName;
-		host.load = node.os.loadAverage[0];
-		host.memoryUsed = node.os.mem.usedPercent;
-		host.diskUsed = toPercentage(node.fs.total.total.bytes - node.fs.total.free.bytes, node.fs.total.total.bytes);
-		host.jvmUsed = node.jvm.mem.heapUsedPrecent;
-		host.jvmSize = bytesToSize(node.jvm.mem.heapUsed.bytes);
-		host.jvmOldgen = 'N/A'; //toPercentage(node.jvm.mem.pools.old.used_in_bytes,node.jvm.mem.pools.old.max_in_bytes);
-		host.jvmEden = 'N/A'; //toPercentage(node.jvm.mem.pools.young.used_in_bytes,node.jvm.mem.pools.young.max_in_bytes);
-		if(node.hasOwnProperty('breaker')) {
-		    fieldBreaker = null;
-		    for(var i = 0; i<node.breaker.allStats.length; i++){
-		        if(node.breaker.allStats[i].name == 'FIELDDATA'){
-		            fieldBreaker = node.breaker.allStats[i];
-		        }
-		    }
-    		host.fieldCache = toPercentage(fieldBreaker.estimated,fieldBreaker.limit);
-		} else {
-    		host.fieldCache = "100";
-		}
-		host.fieldCacheAbs = bytesToSize(node.indices.fieldData.memorySizeInBytes);
-		host.fieldCacheEvictions = node.indices.fieldData.evictions;
-		host.filterCache = bytesToSize(node.indices.filterCache.memorySizeInBytes);
-		host.filterCacheEvictions = node.indices.filterCache.evictions;
-		hosts.push(host);
+EventBus.addEventListener('hosts_loaded', function (event, data) {
+    if (!data.hasOwnProperty('nodesMap')) {
+        return;
+    }
+    var nodes = data['nodesMap'];
+    var hosts = [];
+    for (var nodeId in nodes) {
+        var node = nodes[nodeId];
+        var host = new HostData();
+        host.name = node.node.name;
+        host.ip = node.node.hostAddress;
+        host.host = node.node.hostName;
+
+        host.memoryTotal = bytesToSize(node.os.mem.total.bytes);
+        host.memoryUsed = bytesToSize(node.os.mem.used.bytes);
+        host.memoryUsedPercent = toPercentage(node.os.mem.used.bytes, node.os.mem.total.bytes);
+
+        host.diskTotal = bytesToSize(node.fs.total.total.bytes);
+        host.diskUsed = bytesToSize(node.fs.total.total.bytes - node.fs.total.free.bytes);
+        host.diskUsedPercent = toPercentage(node.fs.total.total.bytes - node.fs.total.free.bytes, node.fs.total.total.bytes);
+
+        host.jvmTotal = bytesToSize(node.jvm.mem.heapCommitted.bytes);
+        host.jvmUsed = bytesToSize(node.jvm.mem.heapUsed.bytes);
+        host.jvmUsedPercent = toPercentage(node.jvm.mem.heapUsed.bytes, node.jvm.mem.heapCommitted.bytes);
+
+        if (node.hasOwnProperty('breaker')) {
+            fieldBreaker = null;
+            for (var i = 0; i < node.breaker.allStats.length; i++) {
+                if (node.breaker.allStats[i].name == 'fielddata') {
+                    fieldBreaker = node.breaker.allStats[i];
+                }
+            }
+            host.fieldCache = toPercentage(fieldBreaker.estimated, fieldBreaker.limit);
+        } else {
+            host.fieldCache = "100";
+        }
+
+        if (node.indices.fieldData.hasOwnProperty("memorySizeInBytes")) {
+            host.fieldCacheAbs = bytesToSize(node.indices.fieldData.memorySizeInBytes);
+        } else {
+            host.fieldCacheAbs = 'N/A'
+        }
+
+        host.fieldCacheEvictions = node.indices.fieldData.evictions;
+        hosts.push(host);
 
 	}
 	$('.header').find("p").text("Cluster: " + data['clusterName']);

@@ -75,7 +75,7 @@ StackedBar.prototype.render = function (data, animate) {
         var trendData = data.trends[trend];
         for (var i = 0; i < trendData.length; i++) {
             var time = trendData[i].period;
-            var count = trendData[i].count;
+            var count = trendData[i].count / Math.pow(10, this.ignoreDigits);
             if (!tmpData.hasOwnProperty(time)) {
                 tmpData[time] = new Object();
             }
@@ -227,6 +227,8 @@ StackedBar.prototype.configChanged = function () {
     } else {
         this.selectedFilters = null;
     }
+    this.ignoreDigits = parseInt(modal.find(".ignored-digits").val());
+
 };
 
 StackedBar.prototype.loadFieldList = function () {
@@ -290,6 +292,8 @@ StackedBar.prototype.populateSetupDialog = function () {
     if (this.selectedFilters) {
         modal.find(".selected-filters").val(JSON.stringify(this.selectedFilters));
     }
+    modal.find(".ignored-digits").val(this.ignoreDigits);
+
 };
 
 StackedBar.prototype.registerSpecificData = function (representation) {

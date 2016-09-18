@@ -83,7 +83,7 @@ StatsTrend.prototype.render = function (data, animate) {
             if (selected.startsWith('stats.')) {
                 value = stats[selected.split("stats.")[1]];
             }
-            d[j].data.push([results[i].period, value]);
+            d[j].data.push([results[i].period, value / Math.pow(10, this.ignoreDigits)]);
         }
     }
 
@@ -110,6 +110,11 @@ StatsTrend.prototype.render = function (data, animate) {
             timezone: "browser",
             timeformat: axisTimeFormat(this.periodUnit, this.customInterval())
         },
+        yaxis: {
+            tickFormatter: function(val, axis) {
+                return numberWithCommas(val);
+            }
+        },
         selection: {
             mode: "x",
             minSize: 1
@@ -118,7 +123,7 @@ StatsTrend.prototype.render = function (data, animate) {
         tooltipOpts: {
             content: function (label, x, y) {
                 var date = new Date(x);
-                return label + ": " + y.toFixed(2) + "ms at " + date.getHours() + ":" + date.getMinutes();
+                return label + ": " + numberWithCommas(y.toFixed(2)) + " at " + date.getHours() + ":" + date.getMinutes();
             },
             defaultFormat: true
         },
@@ -184,6 +189,7 @@ StatsTrend.prototype.configChanged = function () {
         this.selectedFilters = null;
     }
     this.selectedStats = modal.find(".stats_to_plot").val();
+    this.ignoreDigits = parseInt(modal.find(".ignored-digits").val());
 };
 
 
@@ -235,6 +241,7 @@ StatsTrend.prototype.populateSetupDialog = function () {
         modal.find(".selected-filters").val(JSON.stringify(this.selectedFilters));
     }
     modal.find('.stats_to_plot').multiselect('select', this.selectedStats);
+    modal.find(".ignored-digits").val(this.ignoreDigits);
 };
 
 StatsTrend.prototype.registerSpecificData = function (representation) {

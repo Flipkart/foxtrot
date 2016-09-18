@@ -15,8 +15,8 @@
  */
 package com.flipkart.foxtrot.server.healthcheck;
 
+import com.codahale.metrics.health.HealthCheck;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConnection;
-import com.yammer.metrics.core.HealthCheck;
 import org.elasticsearch.action.admin.cluster.health.ClusterHealthResponse;
 
 /**
@@ -26,8 +26,7 @@ import org.elasticsearch.action.admin.cluster.health.ClusterHealthResponse;
 public class ElasticSearchHealthCheck extends HealthCheck {
     private ElasticsearchConnection elasticsearchConnection;
 
-    public ElasticSearchHealthCheck(String name, ElasticsearchConnection elasticsearchConnection) {
-        super(name);
+    public ElasticSearchHealthCheck(ElasticsearchConnection elasticsearchConnection) {
         this.elasticsearchConnection = elasticsearchConnection;
     }
 

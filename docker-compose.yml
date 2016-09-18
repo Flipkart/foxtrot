@@ -1,5 +1,5 @@
 elasticsearch:
-  image: library/elasticsearch:1.7.3
+  image: library/elasticsearch:2.3.3
   hostname: elasticsearch
   command: elasticsearch -Des.http.cors.enabled=true
   ports:
@@ -8,14 +8,18 @@ elasticsearch:
 
 # hbase compose
 hbase:
-  image: banno/hbase-standalone
+  image: hyness/hbase-rest-standalone
   hostname: hbase
   ports:
    - "2181:2181"
-   - "60000:60000"
-   - "60010:60010"
-   - "60020:60020"
-   - "60030:60030"
+   - "8080:8080"
+   - "16000:16000"
+   - "16010:16010"
+   - "16020:16020"
+   - "16030:16030"
+  volumes:
+   - /data/hbase
+   - /data/zookeeper
 
 #enitity store compose
 foxtrot-server:
@@ -27,8 +31,15 @@ foxtrot-server:
   ports:
    - "17000:17000"
    - "17001:17001"
+   - "5701:5701"
   volumes:
    - /var/log/foxtrot-server
    # enviroment valiables
-#  environment:
-#   - ZK_CONNECTION_STRING=hbase:2181
+  environment:
+   - HOST=localhost
+   - ELASTICSEARCH_HOST=elasticsearch
+   - ELASTICSEARCH_CLUSTER_NAME=elasticsearch
+   - ELASTICSEARCH_TABLE_NAME_PREFIX=elasticsearch
+   - HBASE_TABLE_NAME=foxtrot
+   - HBASE_ZOOKEEPER_QUORUM=hbase
+   - HBASE_ZOOKEEPER_CLIENT_PORT=2181
