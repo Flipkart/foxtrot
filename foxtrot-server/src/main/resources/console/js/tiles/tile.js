@@ -308,6 +308,8 @@ TileFactory.create = function (type) {
         return new StatsTrend();
     } else if (type === 'fql_table') {
         return new FqlTable()
+    } else if (type == 'stacked') {
+        return new Stacked();
     }
 };
 
