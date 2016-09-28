@@ -246,10 +246,7 @@
                       <select class="selectpicker"  data-style="btn-warning" id="widgetType" name="widgetType">
                         <option value="donut">Event Type Split Donut</option>
                         <option value="bar">Event Type Split Bars</option>
-                        <!-- <option value="line">Lines</option> -->
-                        <!-- <option value="search">Search</option> -->
-                        <!-- <option value="trends">Trends</option> -->
-                        <!-- <option value="tree">Event Tree</option> -->
+                          <option value="stacked">Stacked Bar</option>
                         <option value="histogram">Event Ingestion Histogram</option>
                         <option value="stacked_bar">Classified Event Ingestion Histogram</option>
                         <option value="statstrend">Numerical statistics trend view</option>
@@ -560,18 +557,124 @@
                   </div>
                 </div>
 
-                <div class="form-group">
-                    <label class="control-label col-sm-4" for="bar-show-legend"><strong>Show legend</strong> </label>
-                    <div class="checkbox" style="padding-left: 230px;">
-                        <input type="checkbox" class="bar-show-legend" id="bar-show-legend"/>
+                    <div class="form-group">
+                        <label class="control-label col-sm-4" for="bar-show-legend"><strong>Show legend</strong>
+                        </label>
+
+                        <div class="checkbox" style="padding-left: 230px;">
+                            <input type="checkbox" class="bar-show-legend" id="bar-show-legend"/>
+                        </div>
+                    </div>
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary save-changes" disabled="disabled">Done</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!--Stacked bar chart-->
+<div class="modal fade" id="setupStackedChartModal" tabindex="-1" role="dialog"
+     aria-labelledby="setupStackedChartModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <form class="form-horizontal settings-form" role="form" data-toggle="validate" data-delay=""
+              id="setupStackedChartModalForm">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                    <h4 class="modal-title" id="setupStackedChartModalLabel">Setup Stacked Bar Chart</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <div class="col-sm-12">
+                            <input type="hidden" class="tileId">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label"><strong>Table</strong></label>
+
+                        <div class="col-sm-8">
+                            <select class="selectpicker tile-table" data-style="btn-warning" required></select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label"><strong>Title</strong></label>
+
+                        <div class="col-sm-8">
+                            <input type="text" class="form-control tile-title" placeholder="Give a title" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label"><strong>Time Unit</strong></label>
+
+                        <div class="col-sm-8">
+                            <select class="selectpicker tile-time-unit">
+                                <option value="minutes" selected="selected">Minute</option>
+                                <option value="hours">Hour</option>
+                                <option value="days">Day</option>
+                            </select>
+
+                            <div class="help-block with-errors">Select time unit resolution</div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label"><strong>Timeframe</strong></label>
+
+                        <div class="col-sm-8">
+                            <input type="number" min="5" max="10080" class="form-control tile-time-value" required>
+
+                            <div class="help-block with-errors">Enter a number</div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label" for="stacked-grouping-key"><strong>Grouping
+                            Key</strong></label>
+
+                        <div class="col-sm-8">
+                            <select class="selectpicker stacked-grouping-key" data-style="btn-warning"
+                                    id="stacked-grouping-key">
+                            </select>
+
+                            <div class="help-block with-errors">Select the field from the above list.</div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label" for="stacked-stacking-key"><strong>Stacking
+                            Key</strong></label>
+
+                        <div class="col-sm-8">
+                            <select class="selectpicker stacked-stacking-key" data-style="btn-warning"
+                                    id="stacked-stacking-key">
+                            </select>
+
+                            <div class="help-block with-errors">Select the field from the above list.</div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label"
+                               for="stacked_selected_filters"><strong>Filters</strong></label>
+
+                        <div class="col-sm-8">
+                            <textarea class="form-control selected-filters"
+                                      placeholder="JSON string containing the filters"
+                                      id="stacked_selected_filters"></textarea>
+
+                            <div class="help-block with-errors">Enter a JSON string</div>
+                        </div>
                     </div>
                 </div>
-
-              </div>
-              <div class="modal-footer">
-                  <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                  <button type="submit" class="btn btn-primary save-changes" disabled="disabled">Done</button>
-              </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary save-changes" disabled="disabled">Done</button>
+                </div>
             </div>
           </form>
         </div>
@@ -1145,6 +1248,7 @@
     <script src="js/colorgen.js"></script>
     <script src="js/tables.js"></script>
     <script src="js/tiles/tile.js"></script>
+    <script src="js/tiles/stacked-tile.js"></script>
     <script src="js/tiles/donut-tile.js"></script>
     <script src="js/tiles/bar-tile.js"></script>
     <script src="js/tiles/fql-tile.js"></script>
