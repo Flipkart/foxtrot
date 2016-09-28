@@ -244,6 +244,7 @@ $(document).ready(function(){
 	$("#setupBarChartModal").validator();
 	$("#setupHistogramForm").validator();
 	$("#setupEventBrowser").validator();
+	$("#setupStackedChartModal").validator();
 	$("#setupStackedBarChartModal").validator();
 	$("#setupFqlTableModal").validator();
 	$("#setupStatsModal").validator();
