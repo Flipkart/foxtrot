@@ -44,7 +44,7 @@ public class HazelcastConnection implements Managed {
             case foxtrot_simple:
                 final String hostName = InetAddress.getLocalHost().getCanonicalHostName();
                 hzConfig.setInstanceName(String.format("foxtrot-%s-%d", hostName, System.currentTimeMillis()));
-                SimpleClusterDiscoveryConfig simpleClusterDiscoveryConfig = (SimpleClusterDiscoveryConfig)clusterConfig.getDiscovery();
+                SimpleClusterDiscoveryConfig simpleClusterDiscoveryConfig = (SimpleClusterDiscoveryConfig) clusterConfig.getDiscovery();
                 if (simpleClusterDiscoveryConfig.isDisableMulticast()) {
                     hzConfig.getNetworkConfig().getJoin().getMulticastConfig().setEnabled(false);
                     for (String member : simpleClusterDiscoveryConfig.getMembers()) {
@@ -61,7 +61,7 @@ public class HazelcastConnection implements Managed {
                 hzConfig.setProperty(GroupProperty.SOCKET_BIND_ANY, "true");
 
                 NetworkConfig networkConfig = hzConfig.getNetworkConfig();
-                networkConfig.getInterfaces().addInterface("127.0.0.1").setEnabled(true);
+                networkConfig.setPublicAddress(System.getenv("HOST") + ":" + System.getenv("PORT_5701"));
                 JoinConfig joinConfig = networkConfig.getJoin();
                 joinConfig.getTcpIpConfig().setEnabled(false);
                 joinConfig.getMulticastConfig().setEnabled(false);
@@ -75,7 +75,7 @@ public class HazelcastConnection implements Managed {
                 discoveryConfig.addDiscoveryStrategyConfig(discoveryStrategyConfig);
                 break;
             case foxtrot_aws:
-                AwsClusterDiscoveryConfig awsClusterDiscoveryConfig = (AwsClusterDiscoveryConfig)clusterConfig.getDiscovery();
+                AwsClusterDiscoveryConfig awsClusterDiscoveryConfig = (AwsClusterDiscoveryConfig) clusterConfig.getDiscovery();
                 NetworkConfig hazelcastConfigNetworkConfig = hzConfig.getNetworkConfig();
                 JoinConfig hazelcastConfigNetworkConfigJoin = hazelcastConfigNetworkConfig.getJoin();
                 hazelcastConfigNetworkConfigJoin.getTcpIpConfig().setEnabled(false);
