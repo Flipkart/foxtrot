@@ -55,6 +55,9 @@ public class HazelcastConnection implements Managed {
                 break;
             case foxtrot_marathon:
                 MarathonClusterDiscoveryConfig marathonClusterDiscoveryConfig = (MarathonClusterDiscoveryConfig) clusterConfig.getDiscovery();
+                String appId = marathonClusterDiscoveryConfig.getApp().replace("/", "").trim();
+                hzConfig.getGroupConfig().setName("userservice");
+                hzConfig.getGroupConfig().setPassword("userservice");
                 hzConfig.setProperty(GroupProperty.DISCOVERY_SPI_ENABLED, "true");
                 hzConfig.setProperty(GroupProperty.DISCOVERY_SPI_PUBLIC_IP_ENABLED, "true");
                 hzConfig.setProperty(GroupProperty.SOCKET_CLIENT_BIND_ANY, "true");
@@ -70,7 +73,7 @@ public class HazelcastConnection implements Managed {
                 DiscoveryConfig discoveryConfig = joinConfig.getDiscoveryConfig();
                 DiscoveryStrategyConfig discoveryStrategyConfig = new DiscoveryStrategyConfig(new MarathonDiscoveryStrategyFactory());
                 discoveryStrategyConfig.addProperty("marathon-endpoint", marathonClusterDiscoveryConfig.getEndpoint());
-                discoveryStrategyConfig.addProperty("app-id", marathonClusterDiscoveryConfig.getApp());
+                discoveryStrategyConfig.addProperty("app-id", appId);
                 discoveryStrategyConfig.addProperty("port-index", marathonClusterDiscoveryConfig.getPortIndex());
                 discoveryConfig.addDiscoveryStrategyConfig(discoveryStrategyConfig);
                 break;
