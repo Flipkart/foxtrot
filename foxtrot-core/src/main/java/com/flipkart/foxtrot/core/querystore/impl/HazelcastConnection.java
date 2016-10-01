@@ -54,18 +54,19 @@ public class HazelcastConnection implements Managed {
                 }
                 break;
             case foxtrot_marathon:
-                MarathonClusterDiscoveryConfig marathonClusterDiscoveryConfig = (MarathonClusterDiscoveryConfig)clusterConfig.getDiscovery();
+                MarathonClusterDiscoveryConfig marathonClusterDiscoveryConfig = (MarathonClusterDiscoveryConfig) clusterConfig.getDiscovery();
                 hzConfig.setProperty(GroupProperty.DISCOVERY_SPI_ENABLED, "true");
                 hzConfig.setProperty(GroupProperty.DISCOVERY_SPI_PUBLIC_IP_ENABLED, "true");
-                hzConfig.setProperty(GroupProperty.SOCKET_CLIENT_BIND_ANY, "false");
-                hzConfig.setProperty(GroupProperty.SOCKET_BIND_ANY, "false");
+                hzConfig.setProperty(GroupProperty.SOCKET_CLIENT_BIND_ANY, "true");
+                hzConfig.setProperty(GroupProperty.SOCKET_BIND_ANY, "true");
+
                 NetworkConfig networkConfig = hzConfig.getNetworkConfig();
-                networkConfig.getInterfaces().addInterface(System.getenv("HOST")).setEnabled(true);
-                networkConfig.setPublicAddress(System.getenv("HOST") +":" +System.getenv("PORT_5701"));
+                networkConfig.getInterfaces().addInterface("127.0.0.1").setEnabled(true);
                 JoinConfig joinConfig = networkConfig.getJoin();
                 joinConfig.getTcpIpConfig().setEnabled(false);
                 joinConfig.getMulticastConfig().setEnabled(false);
                 joinConfig.getAwsConfig().setEnabled(false);
+
                 DiscoveryConfig discoveryConfig = joinConfig.getDiscoveryConfig();
                 DiscoveryStrategyConfig discoveryStrategyConfig = new DiscoveryStrategyConfig(new MarathonDiscoveryStrategyFactory());
                 discoveryStrategyConfig.addProperty("marathon-endpoint", marathonClusterDiscoveryConfig.getEndpoint());

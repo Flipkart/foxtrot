@@ -21,9 +21,10 @@ hbase:
 cluster:
   name: foxtrot
   discovery:
-    type: foxtrot_simple
-    disableMulticast: true
-    members: ["localhost:5701"]
+    type: foxtrot_marathon
+    endpoint: ${MARATHON_ENDPOINT}
+    appId:  ${MARATHON_APP_ID}
+    portIndex:  2
 
 logging:
   level: INFO
