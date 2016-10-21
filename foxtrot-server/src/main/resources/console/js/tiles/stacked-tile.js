@@ -57,31 +57,55 @@ Stacked.prototype.render = function (data, animate) {
     var xAxisTicks = [];
     var xAxisTicksMap = {};
     var index = 0;
-    for (var axisKey in queryResult) {
-        if (!queryResult.hasOwnProperty(axisKey)) {
-            continue;
-        }
-        xAxisTicks.push([index, axisKey]);
-        xAxisTicksMap[axisKey] = index;
-        index += 1;
-    }
-
-    // Now define y-axis series data
-    var yAxisSeriesMap = {};
     for (var xAxisKey in queryResult) {
         if (!queryResult.hasOwnProperty(xAxisKey)) {
             continue;
         }
-        var axisKeyData = queryResult[xAxisKey];
-        for (var yAxisKey in axisKeyData) {
-            if (!axisKeyData.hasOwnProperty(yAxisKey)) {
+        xAxisTicks.push([index, xAxisKey]);
+        xAxisTicksMap[xAxisKey] = index;
+        index += 1;
+    }
+
+    // Now calculate all possible y axis values
+    var yAxisTicks = {};
+    var yAxisSeriesMap = {};
+    index = 0;
+    for (xAxisKey in queryResult) {
+        if (!queryResult.hasOwnProperty(xAxisKey)) {
+            continue;
+        }
+
+        for (var yAxisKey in queryResult[xAxisKey]) {
+            if (!queryResult[xAxisKey].hasOwnProperty(yAxisKey)) {
+                continue;
+            }
+            if (!yAxisTicks.hasOwnProperty(yAxisKey)) {
+                yAxisTicks[yAxisKey] = index;
+                yAxisSeriesMap[yAxisKey] = [];
+                index += 1;
+            }
+        }
+    }
+
+
+    // Now define y-axis series data
+    for (xAxisKey in queryResult) {
+        if (!queryResult.hasOwnProperty(xAxisKey)) {
+            continue;
+        }
+        var xAxisKeyData = queryResult[xAxisKey];
+        for (yAxisKey in yAxisSeriesMap) {
+            if (!yAxisSeriesMap.hasOwnProperty(yAxisKey)) {
                 continue;
             }
 
-            if (!yAxisSeriesMap.hasOwnProperty(yAxisKey)) {
-                yAxisSeriesMap[yAxisKey] = []
+            if (xAxisKeyData.hasOwnProperty(yAxisKey)) {
+                yAxisSeriesMap[yAxisKey].push([xAxisTicksMap[xAxisKey], xAxisKeyData[yAxisKey]])
+            } else {
+                yAxisSeriesMap[yAxisKey].push([xAxisTicksMap[xAxisKey], 0])
             }
-            yAxisSeriesMap[yAxisKey].push([xAxisTicksMap[xAxisKey], axisKeyData[yAxisKey]])
+
+
         }
     }
     var yAxisSeries = [];
@@ -93,7 +117,6 @@ Stacked.prototype.render = function (data, animate) {
             yAxisSeries.push({label: yAxisSeriesElement, data: yAxisSeriesMap[yAxisSeriesElement]})
         }
     }
-    console.log(JSON.stringify(yAxisSeries));
     $.plot(canvas, yAxisSeries, {
         series: {
             bars: {
