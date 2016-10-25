@@ -39,7 +39,7 @@ foxtrot-server:
    - HOST=localhost
    - ELASTICSEARCH_HOST=elasticsearch
    - ELASTICSEARCH_CLUSTER_NAME=elasticsearch
-   - ELASTICSEARCH_TABLE_NAME_PREFIX=elasticsearch
+   - ELASTICSEARCH_TABLE_NAME_PREFIX=foxtrot
    - HBASE_TABLE_NAME=foxtrot
    - HBASE_ZOOKEEPER_QUORUM=hbase
    - HBASE_ZOOKEEPER_CLIENT_PORT=2181
