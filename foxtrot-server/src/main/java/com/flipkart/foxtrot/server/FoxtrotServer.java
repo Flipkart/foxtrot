@@ -126,7 +126,7 @@ public class FoxtrotServer extends Application<FoxtrotServerConfiguration> {
         environment.jersey().register(new AsyncResource(cacheManager));
         environment.jersey().register(new AnalyticsResource(executor));
         environment.jersey().register(new TableManagerResource(tableManager));
-        environment.jersey().register(new TableFieldMappingResource(queryStore));
+        environment.jersey().register(new TableFieldMappingResource(tableManager, queryStore));
         environment.jersey().register(new ConsoleResource(
                 new ElasticsearchConsolePersistence(elasticsearchConnection, environment.getObjectMapper())));
         FqlEngine fqlEngine = new FqlEngine(tableMetadataManager, queryStore, executor, environment.getObjectMapper());
