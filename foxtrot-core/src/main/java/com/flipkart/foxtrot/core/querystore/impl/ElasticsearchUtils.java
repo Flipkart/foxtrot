@@ -128,7 +128,6 @@ public class ElasticsearchUtils {
                 .field("_timestamp")
                 .startObject()
                 .field("enabled", true)
-                .field("stored", true)
                 .endObject()
                 .field("dynamic_templates")
                 .startArray()
