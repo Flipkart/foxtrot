@@ -25,6 +25,7 @@ function Stacked() {
 
     this.stackingKey = null;
     this.groupingKey = null;
+    this.uniqueCountOn = null;
 }
 
 Stacked.prototype = new Tile();
@@ -179,7 +180,8 @@ Stacked.prototype.getQuery = function () {
             opcode: "group",
             table: table,
             filters: filters,
-            nesting: [this.groupingKey, this.stackingKey]
+            nesting: [this.groupingKey, this.stackingKey],
+            uniqueCountOn: this.uniqueCountOn && this.uniqueCountOn != "none" ? this.uniqueCountOn : null,
         });
     }
 };
@@ -199,6 +201,7 @@ Stacked.prototype.configChanged = function () {
     this.periodValue = parseInt(modal.find(".tile-time-value").first().val());
     this.stackingKey = modal.find(".stacked-stacking-key").first().val();
     this.groupingKey = modal.find(".stacked-grouping-key").first().val();
+    this.uniqueCountOn = modal.find("#stacked-unique-field").val();
 
     var filters = modal.find(".selected-filters").val();
     if (filters != undefined && filters != "") {
@@ -243,6 +246,24 @@ Stacked.prototype.loadFieldList = function () {
         }
         grouping_select.selectpicker('refresh');
     }.bind(this));
+
+    var unique_field_select = modal.find("#stacked-unique-field");
+    unique_field_select.find('option').remove();
+    unique_field_select.append('<option value="none">None</option>');
+
+    this.tables.loadTableMeta(selected_table, function () {
+        console.log("callback function called");
+        for (var i = selected_table.mappings.length - 1; i >= 0; i--) {
+            unique_field_select.append('<option>' + selected_table.mappings[i].field + '</option>');
+        }
+
+        if (this.uniqueCountOn) {
+            unique_field_select.val(this.uniqueCountOn);
+        } else {
+            unique_field_select.val("none");
+        }
+        unique_field_select.selectpicker('refresh');
+    }.bind(this));
 };
 
 Stacked.prototype.populateSetupDialog = function () {
@@ -278,6 +299,7 @@ Stacked.prototype.registerSpecificData = function (representation) {
     representation['periodValue'] = this.periodValue;
     representation['stackingKey'] = this.stackingKey;
     representation['groupingKey'] = this.groupingKey;
+    representation['uniqueCountOn'] = this.uniqueCountOn;
     if (this.selectedFilters) {
         representation['selectedFilters'] = btoa(JSON.stringify(this.selectedFilters));
     }
