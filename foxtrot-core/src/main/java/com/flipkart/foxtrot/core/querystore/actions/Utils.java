@@ -32,7 +32,7 @@ public class Utils {
     public static DateHistogramBuilder buildDateHistogramAggregation(String field, DateHistogram.Interval interval) {
         String metricKey = getDateHistogramKey(field);
         return AggregationBuilders.dateHistogram(metricKey)
-                .minDocCount(1)
+                .minDocCount(0)
                 .field(field)
                 .interval(interval);
     }
