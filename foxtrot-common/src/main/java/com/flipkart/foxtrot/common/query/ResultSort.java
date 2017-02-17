@@ -31,6 +31,11 @@ public class ResultSort {
     public ResultSort() {
     }
 
+    public ResultSort(String field, Order order) {
+        this.field = field;
+        this.order = order;
+    }
+
     public String getField() {
         return field;
     }

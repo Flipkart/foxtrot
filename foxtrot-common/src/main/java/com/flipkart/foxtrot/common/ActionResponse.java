@@ -15,7 +15,16 @@
  */
 package com.flipkart.foxtrot.common;
 
+import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.flipkart.foxtrot.common.count.CountResponse;
+import com.flipkart.foxtrot.common.distinct.DistinctResponse;
+import com.flipkart.foxtrot.common.group.GroupResponse;
+import com.flipkart.foxtrot.common.histogram.HistogramResponse;
+import com.flipkart.foxtrot.common.query.QueryResponse;
+import com.flipkart.foxtrot.common.stats.StatsResponse;
+import com.flipkart.foxtrot.common.stats.StatsTrendResponse;
+import com.flipkart.foxtrot.common.trend.TrendResponse;
 
 /**
  * User: Santanu Sinha (santanu.sinha@flipkart.com)
@@ -23,8 +32,28 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
  * Time: 9:17 PM
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "opcode")
-public interface ActionResponse {
+@JsonSubTypes({
+        @JsonSubTypes.Type(value = CountResponse.class, name = Opcodes.COUNT),
+        @JsonSubTypes.Type(value = DistinctResponse.class, name = Opcodes.DISTINCT),
+        @JsonSubTypes.Type(value = GroupResponse.class, name = Opcodes.GROUP),
+        @JsonSubTypes.Type(value = HistogramResponse.class, name = Opcodes.HISTOGRAM),
+        @JsonSubTypes.Type(value = QueryResponse.class, name = Opcodes.QUERY),
+        @JsonSubTypes.Type(value = StatsResponse.class, name = Opcodes.STATS),
+        @JsonSubTypes.Type(value = TrendResponse.class, name = Opcodes.TREND),
+        @JsonSubTypes.Type(value = StatsTrendResponse.class, name = Opcodes.STATS_TREND)
+})
+public abstract class ActionResponse {
 
-    public void accept(ResponseVisitor visitor);
+    private final String opcode;
+
+    protected ActionResponse(String opcode) {
+        this.opcode = opcode;
+    }
+
+    public String getOpcode() {
+        return opcode;
+    }
+
+    public abstract void accept(ResponseVisitor visitor);
 
 }

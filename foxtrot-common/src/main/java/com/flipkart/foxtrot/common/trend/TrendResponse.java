@@ -16,6 +16,7 @@
 package com.flipkart.foxtrot.common.trend;
 
 import com.flipkart.foxtrot.common.ActionResponse;
+import com.flipkart.foxtrot.common.Opcodes;
 import com.flipkart.foxtrot.common.ResponseVisitor;
 
 import java.util.List;
@@ -26,7 +27,7 @@ import java.util.Map;
  * Date: 30/03/14
  * Time: 2:31 PM
  */
-public class TrendResponse implements ActionResponse {
+public class TrendResponse extends ActionResponse {
 
     public static class Count {
         private Number period;
@@ -80,10 +81,11 @@ public class TrendResponse implements ActionResponse {
     private Map<String, List<Count>> trends;
 
     public TrendResponse() {
+        super(Opcodes.TREND);
     }
 
     public TrendResponse(Map<String, List<Count>> trends) {
-
+        super(Opcodes.TREND);
         this.trends = trends;
     }
 

@@ -24,8 +24,13 @@ import com.flipkart.foxtrot.common.query.FilterVisitor;
  * Time: 8:17 PM
  */
 public class LessThanFilter extends NumericBinaryFilter {
+
     public LessThanFilter() {
         super(FilterOperator.less_than);
+    }
+
+    public LessThanFilter(String field, Number value, boolean temporal) {
+        super(FilterOperator.less_than, field, value, temporal);
     }
 
     @Override

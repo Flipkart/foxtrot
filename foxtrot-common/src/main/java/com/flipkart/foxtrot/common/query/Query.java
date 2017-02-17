@@ -16,7 +16,10 @@
 package com.flipkart.foxtrot.common.query;
 
 import com.flipkart.foxtrot.common.ActionRequest;
+import com.flipkart.foxtrot.common.Opcodes;
 import org.apache.commons.lang3.builder.ToStringBuilder;
+
+import java.util.List;
 
 /**
  * User: Santanu Sinha (santanu.sinha@flipkart.com)
@@ -34,9 +37,18 @@ public class Query extends ActionRequest {
     private int limit = 10;
 
     public Query() {
+        super(Opcodes.QUERY);
         this.sort = new ResultSort();
         this.sort.setField("_timestamp");
         this.sort.setOrder(ResultSort.Order.desc);
+    }
+
+    public Query(List<Filter> filters, String table, ResultSort sort, int from, int limit) {
+        super(Opcodes.QUERY, filters);
+        this.table = table;
+        this.sort = sort;
+        this.from = from;
+        this.limit = limit;
     }
 
     public String getTable() {
