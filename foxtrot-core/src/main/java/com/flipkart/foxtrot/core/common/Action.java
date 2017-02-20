@@ -223,7 +223,7 @@ public abstract class Action<ParameterType extends ActionRequest> implements Cal
     private List<Filter> checkAndAddTemporalBoundary(List<Filter> filters) {
         if (null != filters) {
             for (Filter filter : filters) {
-                if (filter.isTemporal()) {
+                if (filter.isFilterTemporal()) {
                     return filters;
                 }
             }

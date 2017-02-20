@@ -105,7 +105,7 @@ public class BetweenFilter extends Filter {
     }
 
     @Override
-    public boolean isTemporal() {
+    public boolean isFilterTemporal() {
         return temporal;
     }
 

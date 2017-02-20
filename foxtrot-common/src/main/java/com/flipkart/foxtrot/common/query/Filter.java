@@ -115,7 +115,7 @@ public abstract class Filter {
                 .toString();
     }
 
-    public boolean isTemporal() {
+    public boolean isFilterTemporal() {
         return false;
     }
 
