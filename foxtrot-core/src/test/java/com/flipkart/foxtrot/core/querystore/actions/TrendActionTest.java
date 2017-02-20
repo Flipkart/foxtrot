@@ -51,6 +51,10 @@ public class TrendActionTest extends ActionTest {
         getElasticsearchServer().getClient().admin().indices().prepareRefresh("*").setForce(true).execute().actionGet();
     }
 
+    private void filterNonZeroCounts(List<TrendResponse.Count> counts) {
+        counts.removeIf(count -> count.getCount() == 0);
+    }
+
     @Test(expected = FoxtrotException.class)
     public void testTrendActionAnyException() throws FoxtrotException, JsonProcessingException {
         TrendRequest trendRequest = new TrendRequest();
@@ -227,6 +231,8 @@ public class TrendActionTest extends ActionTest {
         expectedResponse.setTrends(trends);
 
         TrendResponse actualResponse = TrendResponse.class.cast(getQueryExecutor().execute(trendRequest));
+        filterNonZeroCounts(actualResponse.getTrends().get("android"));
+        filterNonZeroCounts(actualResponse.getTrends().get("ios"));
         assertEquals(expectedResponse, actualResponse);
     }
 
@@ -259,6 +265,8 @@ public class TrendActionTest extends ActionTest {
         expectedResponse.setTrends(trends);
 
         TrendResponse actualResponse = TrendResponse.class.cast(getQueryExecutor().execute(trendRequest));
+        filterNonZeroCounts(actualResponse.getTrends().get("android"));
+        filterNonZeroCounts(actualResponse.getTrends().get("ios"));
         assertEquals(expectedResponse, actualResponse);
     }
 
@@ -291,6 +299,8 @@ public class TrendActionTest extends ActionTest {
         expectedResponse.setTrends(trends);
 
         TrendResponse actualResponse = TrendResponse.class.cast(getQueryExecutor().execute(trendRequest));
+        filterNonZeroCounts(actualResponse.getTrends().get("android"));
+        filterNonZeroCounts(actualResponse.getTrends().get("ios"));
         assertEquals(expectedResponse, actualResponse);
     }
 
@@ -318,6 +328,7 @@ public class TrendActionTest extends ActionTest {
         expectedResponse.setTrends(trends);
 
         TrendResponse actualResponse = TrendResponse.class.cast(getQueryExecutor().execute(trendRequest));
+        filterNonZeroCounts(actualResponse.getTrends().get("android"));
         assertEquals(expectedResponse, actualResponse);
     }
 

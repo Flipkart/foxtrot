@@ -16,6 +16,7 @@
 package com.flipkart.foxtrot.core.common;
 
 import com.flipkart.foxtrot.common.ActionResponse;
+import com.flipkart.foxtrot.common.ResponseVisitor;
 import com.google.common.annotations.VisibleForTesting;
 
 /**
@@ -23,6 +24,14 @@ import com.google.common.annotations.VisibleForTesting;
  */
 
 @VisibleForTesting
-public abstract class NonCacheableActionResponse implements ActionResponse {
+public class NonCacheableActionResponse extends ActionResponse {
 
+    protected NonCacheableActionResponse(String opcode) {
+        super(opcode);
+    }
+
+    @Override
+    public void accept(ResponseVisitor visitor) {
+
+    }
 }
