@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<!--
+* Copyright 2014 Flipkart Internet Pvt. Ltd.
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+* http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+-->
+<html lang="en">
+
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta name="description" content="">
+	<meta name="author" content="">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<link rel="shortcut icon" href="../../assets/ico/favicon.ico">
+	<title>Foxtrot</title>
+	<!-- Bootstrap core CSS -->
+	<link href="../css/bootstrap.min.css" rel="stylesheet">
+	<link href="../css/bootstrap-select.min.css" rel="stylesheet">
+	<link href="../css/bootstrap-datetimepicker.min.css">
+	<link href="../css/bootstrap-multiselect.css">
+	<link rel="stylesheet" href="../css/jquery-ui.css">
+	<link rel="stylesheet" href="../css/bootstrapValidator.min.css">
+	<link href="../css/new-console/foxtrot.css" rel="stylesheet">
+	<!-- Custom styles for this template -->
+	<!-- Just for debugging purposes. Don't actually copy this line! -->
+	<!--[if lt IE 9]><script src="../../assets/js/ie8-responsive-file-warning.js"></script><![endif]-->
+	<!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+	<!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+      <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+      <![endif]-->
+</head>
+
+<body> <span id="ruler"></span>
+	<div class="container container-full">
+		<div class="header">
+			<div class="pull-left">
+				<h1>Echo</h1> </div>
+			<div class="text-center">
+				<h1>Metrics</h1> </div>
+			<!--
+					  <div class="row pull-right">
+							<div class="col-md-6">Dashboard</div>
+              <div class="col-md-6">Explore</div>
+            </div>
+-->
+			<div>
+				<ul id="menu-list">
+					<li><a href="">Payments</a></li>
+					<li><a href="">Merchants</a></li>
+					<li><a href="">Wallets</a></li>
+					<li><a href="">Banks</a></li>
+					<li><a href="">Campaigns</a></li>
+				</ul>
+			</div>
+		</div>
+		<div class="content">
+			<div class="row pull-right">
+				<div class="btn-group">
+					<button type="button" class="btn btn-primary filter-nav-button" data-target="#addWidgetModal" data-toggle="modal"> <span class='glyphicon glyphicon-plus' id=""></span> </button>
+				</div>
+			</div>
+		</div>
+		<!-- Modal -->
+		<div class="modal fade" id="addWidgetModal" tabindex="-1" role="dialog" aria-labelledby="addWidgetModalLabel" aria-hidden="true">
+			<div class="modal-dialog">
+				<div class="modal-content">
+					<div class="modal-header">
+						<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+						<h4 class="modal-title" id="addWidgetModalLabel">Add widget</h4> </div>
+					<div class="modal-body">
+						<!-- <form class="form-inline" role="form"> -->
+						<form class="row">
+							<div class="form-group">
+								<label class="col-sm-4 control-label" for="widgetType"><strong>Select template</strong></label>
+								<div class="col-sm-8">
+									<select class="selectpicker" data-style="btn-warning" id="widgetType" name="widgetType">
+										<option value="speed">Add default widget</option>
+										<option value="2">chart 2</option>
+										<option value="3">chart 3</option>
+										<option value="4">chart 4</option>
+									</select>
+								</div>
+							</div>
+							<div class="form-group">
+								<label class="col-sm-4 control-label" for="widgetType"><strong>Select size</strong></label>
+								<div class="col-sm-8">
+									<select class="selectpicker" data-style="btn-warning" id="widgetSize" name="widgetSize">
+										<option value="250X250">250X250</option>
+										<option value="500X500">500X500</option>
+										<option value="0">Full</option>
+									</select>
+								</div>
+							</div>
+						</form>
+						</div>
+					<div class="modal-footer" style="margin-top: 0px;">
+						<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+						<button type="button" class="btn btn-primary" id="addWidgetConfirm">Add</button>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="row" id="monitoring">
+			<div class="tile-container" id="tileContainer">
+				<div class="float-clear"></div>
+			</div>
+		</div>
+		<!--Templates-->
+      <script id="tile-template" type="text/x-handlebars-template">
+        <div class='tile tile-gradient tile-default-size' id='{{tileId}}'>
+					<div class="widget-header">
+						<span class="tile-title">Title bar</span>
+				</div>
+          <div class='widget-toolbox'>
+						<div class="widget-timeframe">
+							<span>24 hours</span>
+						</div>
+              <div class="title-header-toolbar-icon-container">
+                  <span class='glyphicon glyphicon-cog'></span>
+              </div>
+          </div>
+          <div class='chart-content' id='content-for-{{tileId}}'>
+						<div class="trend-chart">
+							<p>Trend chart</p>
+				    </div>
+						<div class="chart-item">
+							<p>Chart will be displayed here</p>
+				    </div>
+          </div>
+        </div>
+      </script>
+		<div class="footer">
+			<p>&copy; flipkart.com 2014</p>
+		</div>
+	</div>
+
+	<div class="modal fade" id="tile-configuration" tabindex="-1" role="dialog"
+     aria-labelledby="tileConfigurationLabel"
+     aria-hidden="true">
+    <div class="modal-dialog">
+        <form class="form-horizontal settings-form" role="form" data-toggle="validate" data-delay=""
+              id="setupHistogramForm" novalidate>
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                    <h4 class="modal-title" id="setupHistogramModalLabel">Setup tile</h4>
+                </div>
+							  <div class="form-group">
+                  <div class="col-sm-12">
+                    <input type="hidden" value="" class="tileId">
+                  </div>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <div class="col-sm-12">
+                            <input type="hidden" class="tileId">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label"><strong>Table</strong></label>
+                        <div class="col-sm-8">
+                            <select class="selectpicker tile-table" data-live-search="true" data-style="btn-warning" required></select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label"><strong>Title</strong></label>
+
+                        <div class="col-sm-8">
+                            <input type="text" class="form-control tile-title" placeholder="Give a title"
+                                   required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label"><strong>Time Unit</strong></label>
+                        <div class="col-sm-8">
+                            <select class="selectpicker tile-time-unit">
+                                <option value="minutes" selected="selected">Minute</option>
+                                <option value="hours">Hour</option>
+                                <option value="days">Day</option>
+                            </select>
+                            <div class="help-block with-errors">Select time unit resolution</div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label"><strong>Timeframe</strong></label>
+
+                        <div class="col-sm-8">
+                            <input type="number" min="5" max="10080" class="form-control tile-time-value" required>
+                            <div class="help-block with-errors">Enter a number</div>
+                        </div>
+                    </div>
+									<div class="form-group">
+                        <label class="col-sm-4 control-label"><strong>select chart type</strong></label>
+                        <div class="col-sm-8">
+                            <select class="selectpicker tile-chart-type">
+                                <option value="speed" selected="selected">Speedometer</option>
+                                <option value="bar">Bar chart</option>
+                                <option value="trend">Trending chart</option>
+                            </select>
+                            <div class="help-block with-errors">Select time unit resolution</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary save-changes">Done</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+	<!-- /container -->
+	<!-- Bootstrap core JavaScript
+    ================================================== -->
+	<!-- Placed at the end of the document so the pages load faster -->
+	<script src="../js/jquery.js"></script>
+	<script src="../js/common-utils.js"></script>
+	<script src="../js/handlebars-v1.3.0.js"></script>
+	<script src="../js/handlebars-helper.js"></script>
+	<script src="../js/tileutils.js"></script>
+	<script src="../js/bootstrap/bootstrap.min.js"></script>
+	<script src="../js/bootstrap/bootstrap-select.min.js"></script>
+	<script src="../js/bootstrap/bootstrap-multiselect.js"></script>
+	<script src="../js/jquery-ui.js"></script>
+	<script src="../js/new-console/main.js"></script>
+	<script src="../js/new-console/tiles/tile.js"></script>
+	<script src="../js/new-console/tiles/speedometer-tile.js"></script>
+	<!--Application-->
+</body>
+
+</html>
