@@ -3,8 +3,7 @@ html, body {
   background: rgb(239, 239, 239)
 }
 .tile-default-size {
-    width: 100%;
-    height: 350px;
+    height: 410px;
 }
 .pageheader {
   /*margin-left: -15px;
@@ -42,7 +41,6 @@ h1 {
   margin: 5px;
   border-radius: 2px;
   background-color: #ffffff;
-  resize: both;
   overflow: auto;
   padding: 5px;
   position: relative;
@@ -124,7 +122,7 @@ font-size: small;
 }
 
 .tile-container{
-  margin-top: 20px;
+  margin-top: 45px;
   min-height: 175px;
   height: 95%;
 }

@@ -52,7 +52,9 @@ function getTileFormValue(form, modal, object) {
 function setConfigValue(object, index) {
 	var form = $("#tile-configuration").find("form");
 	console.log('====>')
-	console.log(index);
+	console.log(tileData);
+	var index = tileData.indexOf(object.id);
+	console.log(tileData[index]);
 	form.find(".tile-title").val(tileData[index].title);
 	form.find(".tile-table").val(tileData[index].table);
 	form.find(".tile-time-unit").val(tileData[index].timeUnit);
@@ -75,10 +77,22 @@ TileFactory.create = function (object) {
 		tileId: object.id
 		, title: ''
 	}));
+	var width, height;
+	if(object.type == "full") {
+		newDiv.addClass('col-md-12');
+	} else if(object.type == "medium") {
+		newDiv.addClass('col-md-6');
+		newDiv.width(590);
+	} else if(object.type == "small") {
+		newDiv.addClass('col-md-2');
+		newDiv.height(200);
+		newDiv.width(280);
+	}
+
 	if(object.size != 0) {
-		var sizeArray =  object.size.split("X");
+		/*var sizeArray =  object.size.split("X");
 	  newDiv.width(sizeArray[0]);
-	  newDiv.height(sizeArray[1]);
+	  newDiv.height(sizeArray[1]);*/
 	}
 	newDiv.insertBefore('.float-clear');
 	newDiv.find(".widget-toolbox").find(".glyphicon-cog").click(function () {

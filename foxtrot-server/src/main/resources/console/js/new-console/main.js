@@ -13,7 +13,7 @@ FoxTrot.prototype.addTile = function() {
 	var size = $("#widgetSize").val();
 	$("#addWidgetModal").modal('hide');
 	var tileId = guid();
-	var tile = TileFactory.create({id: tileId, size: size});
+	var tile = TileFactory.create({id: tileId, size: size, type: type});
 	var foxtrot = new FoxTrot();
 	addTilesList(tileId);
 };
