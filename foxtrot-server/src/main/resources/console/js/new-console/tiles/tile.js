@@ -89,11 +89,6 @@ TileFactory.create = function (object) {
 		newDiv.width(280);
 	}
 
-	if(object.size != 0) {
-		/*var sizeArray =  object.size.split("X");
-	  newDiv.width(sizeArray[0]);
-	  newDiv.height(sizeArray[1]);*/
-	}
 	newDiv.insertBefore('.float-clear');
 	newDiv.find(".widget-toolbox").find(".glyphicon-cog").click(function () {
 		$("#tile-configuration").modal('show');

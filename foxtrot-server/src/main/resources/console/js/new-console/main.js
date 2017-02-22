@@ -10,10 +10,9 @@ function addTilesList(id) {
 
 FoxTrot.prototype.addTile = function() {
 	var type = $("#widgetType").val();
-	var size = $("#widgetSize").val();
 	$("#addWidgetModal").modal('hide');
 	var tileId = guid();
-	var tile = TileFactory.create({id: tileId, size: size, type: type});
+	var tile = TileFactory.create({id: tileId, type: type});
 	var foxtrot = new FoxTrot();
 	addTilesList(tileId);
 };
