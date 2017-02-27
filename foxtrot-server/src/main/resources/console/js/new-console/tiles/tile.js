@@ -101,12 +101,22 @@ TileFactory.create = function (object) {
 		newDiv = createNewRow(newDiv, object)
 	} else {// row button action
 		var splitValue = customBtn.id.split("-");
+		console.log(splitValue);
 		var rowObject = panelRow[splitValue[1] - 1];
 		clickedRow = rowObject.id
 		console.log();
 		if(object.type != rowObject.type) {// f choosen type and row type is not equal
 			newDiv = createNewRow(newDiv, object);
 			defaultPlusBtn = true;
+		}
+
+		if(object.type == 'small'&& rowObject.type == 'small') {
+			var findElement = $("."+customBtn.id);
+			console.log(findElement.find(".row-col-1").length);
+			if(findElement.find(".row-col-1").length == 0) {
+				newDiv.addClass('row-col-1');
+				newDiv.append("<button data-target='#addWidgetModal' class='tile-add-btn tile-add-btn btn btn-primary filter-nav-button glyphicon glyphicon-plus custom-add-btn row-col-1'onClick='setClicketData(this)'  data-toggle='modal' id='row-"+splitValue[1]+"'></button>");
+			}
 		}
 	}
 
@@ -125,6 +135,7 @@ TileFactory.create = function (object) {
 		newDiv.insertBefore('.float-clear');
 	} else {// remove row btn and add new div based on type
 		customBtn.remove();
+		console.log('removed');
 		newDiv.insertAfter('#'+clickedRow);
 	}
 
