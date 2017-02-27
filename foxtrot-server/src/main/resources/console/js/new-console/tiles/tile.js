@@ -78,29 +78,28 @@ TileFactory.create = function (object) {
 		, title: ''
 	}));
 
-	var row = 0;
-	var ele;
-	var clickedRow;
-	if(defaultPlusBtn) {
-		newDiv.addClass("col-md-12");
-		if(panelRow.length == 0) {
+	var row = 0;// row
+	var ele;// clicked element
+	var clickedRow;// clicked row
+	if(defaultPlusBtn) { // check its new row
+		newDiv.addClass("col-md-12"); // add class for div which is full width
+		if(panelRow.length == 0) { // initial page
 			row = 1;
 			panelRow.push({type : object.type, id : object.id});
 			newDiv.addClass("row-"+row);
-		} else {
+		} else { // incremetn row value by one
 			panelRow.push({type : object.type, id : object.id});
 			row = panelRow.length;
 			newDiv.addClass("row-"+row);
 		}
 
-		if(object.type != "full")
+		if(object.type != "full") // dont add row add button for full widget
 			newDiv.append("<button data-target='#addWidgetModal' class='tile-add-btn tile-add-btn btn btn-primary filter-nav-button glyphicon glyphicon-plus custom-add-btn'onClick='setClicketData(this)'  data-toggle='modal' id='row-"+row+"'></button>");
-	} else {
+	} else {// row button action
 		var splitValue = customBtn.id.split("-");
 		clickedRow = panelRow[splitValue[1] - 1].id
 	}
 
-	var width, height;
 	if(object.type == "full") {
 		newDiv.find(".tile").addClass('col-md-12');
 	} else if(object.type == "medium") {
@@ -112,13 +111,12 @@ TileFactory.create = function (object) {
 		newDiv.find(".tile").height(200);
 	}
 
-	if(defaultPlusBtn) {
+	if(defaultPlusBtn) {// new row
 		newDiv.insertBefore('.float-clear');
-	} else {
+	} else {// remove row btn and add new div based on type
 		customBtn.remove();
 		newDiv.insertAfter('#'+clickedRow);
 	}
-
 
 	newDiv.find(".widget-toolbox").find(".glyphicon-cog").click(function () {
 		$("#tile-configuration").modal('show');
@@ -130,8 +128,8 @@ TileFactory.create = function (object) {
 		} else {
 			clearForm();
 		}
-
 	});
+
 	$("#tile-configuration").find(".save-changes").click( function () {
     var form = $("#tile-configuration").find("form");
     form.off('submit');
