@@ -101,9 +101,10 @@ TileFactory.create = function (object) {
 		newDiv = createNewRow(newDiv, object)
 	} else {// row button action
 		var splitValue = customBtn.id.split("-");
-		clickedRow = panelRow[splitValue[1] - 1].id
-		console.log(panelRow[splitValue[1] - 1].type);
-		if(object.type != panelRow[splitValue[1] - 1].type) {// f choosen type and row type is not equal
+		var rowObject = panelRow[splitValue[1] - 1];
+		clickedRow = rowObject.id
+		console.log();
+		if(object.type != rowObject.type) {// f choosen type and row type is not equal
 			newDiv = createNewRow(newDiv, object);
 			defaultPlusBtn = true;
 		}
@@ -115,8 +116,8 @@ TileFactory.create = function (object) {
 		newDiv.find(".tile").addClass('col-md-6');
 		newDiv.find(".tile").width(590);
 	} else if(object.type == "small") {
-		newDiv.find(".tile").addClass('col-md-2');
-		newDiv.find(".tile").width(280);
+		newDiv.find(".tile").addClass('col-md-4');
+		newDiv.find(".tile").width(300);
 		newDiv.find(".tile").height(200);
 	}
 
