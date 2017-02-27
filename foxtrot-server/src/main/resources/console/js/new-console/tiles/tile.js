@@ -71,33 +71,42 @@ function clearForm() {
 	form.find(".tile-chart-type").val('');
 }
 
+// create new div
+function createNewRow(newDiv, object) {
+	newDiv.addClass("col-md-12"); // add class for div which is full width
+	if(panelRow.length == 0) { // initial page
+		row = 1;
+		panelRow.push({type : object.type, id : object.id});
+		newDiv.addClass("row-"+row);
+	} else { // incremetn row value by one
+		panelRow.push({type : object.type, id : object.id});
+		row = panelRow.length;
+		newDiv.addClass("row-"+row);
+	}
+	if(object.type != "full") // dont add row add button for full widget
+		newDiv.append("<button data-target='#addWidgetModal' class='tile-add-btn tile-add-btn btn btn-primary filter-nav-button glyphicon glyphicon-plus custom-add-btn'onClick='setClicketData(this)'  data-toggle='modal' id='row-"+row+"'></button>");
+	return newDiv;
+}
+
 function TileFactory() {}
 TileFactory.create = function (object) {
 	var newDiv = $(handlebars("#tile-template", {
 		tileId: object.id
 		, title: ''
 	}));
-
 	var row = 0;// row
 	var ele;// clicked element
 	var clickedRow;// clicked row
 	if(defaultPlusBtn) { // check its new row
-		newDiv.addClass("col-md-12"); // add class for div which is full width
-		if(panelRow.length == 0) { // initial page
-			row = 1;
-			panelRow.push({type : object.type, id : object.id});
-			newDiv.addClass("row-"+row);
-		} else { // incremetn row value by one
-			panelRow.push({type : object.type, id : object.id});
-			row = panelRow.length;
-			newDiv.addClass("row-"+row);
-		}
-
-		if(object.type != "full") // dont add row add button for full widget
-			newDiv.append("<button data-target='#addWidgetModal' class='tile-add-btn tile-add-btn btn btn-primary filter-nav-button glyphicon glyphicon-plus custom-add-btn'onClick='setClicketData(this)'  data-toggle='modal' id='row-"+row+"'></button>");
+		newDiv = createNewRow(newDiv, object)
 	} else {// row button action
 		var splitValue = customBtn.id.split("-");
 		clickedRow = panelRow[splitValue[1] - 1].id
+		console.log(panelRow[splitValue[1] - 1].type);
+		if(object.type != panelRow[splitValue[1] - 1].type) {// f choosen type and row type is not equal
+			newDiv = createNewRow(newDiv, object);
+			defaultPlusBtn = true;
+		}
 	}
 
 	if(object.type == "full") {
