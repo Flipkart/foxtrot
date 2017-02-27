@@ -7,7 +7,6 @@ var defaultPlusBtn = true;
 var customBtn;
 function addTilesList(id) {
 	tileList.push(id);
-	console.log(tileList);
 }
 
 function setClicketData(ele) {

@@ -452,3 +452,8 @@ path {
 .chart-item {
 	margin-top: 100px;
 }
+
+.custom-btn-div {
+	text-align: center;
+	top: 50px;
+}

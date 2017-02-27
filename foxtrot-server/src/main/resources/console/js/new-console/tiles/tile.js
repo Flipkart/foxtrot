@@ -25,8 +25,6 @@ function submitClicked(e) {
 
 function pushTilesObject(object) {
 	tileData.push(object);
-	console.log(tileData);
-	console.log(JSON.stringify(tileData));
 }
 
 function updateTile(object, modal) {
@@ -51,10 +49,7 @@ function getTileFormValue(form, modal, object) {
 
 function setConfigValue(object, index) {
 	var form = $("#tile-configuration").find("form");
-	console.log('====>')
-	console.log(tileData);
 	var index = tileData.indexOf(object.id);
-	console.log(tileData[index]);
 	form.find(".tile-title").val(tileData[index].title);
 	form.find(".tile-table").val(tileData[index].table);
 	form.find(".tile-time-unit").val(tileData[index].timeUnit);
@@ -84,7 +79,7 @@ function createNewRow(newDiv, object) {
 		newDiv.addClass("row-"+row);
 	}
 	if(object.type != "full") // dont add row add button for full widget
-		newDiv.append("<button data-target='#addWidgetModal' class='tile-add-btn tile-add-btn btn btn-primary filter-nav-button glyphicon glyphicon-plus custom-add-btn'onClick='setClicketData(this)'  data-toggle='modal' id='row-"+row+"'></button>");
+		newDiv.append("<div class='col-md-2 custom-btn-div'><button data-target='#addWidgetModal' class='tile-add-btn tile-add-btn btn btn-primary filter-nav-button glyphicon glyphicon-plus custom-add-btn'onClick='setClicketData(this)'  data-toggle='modal' id='row-"+row+"'></button><div>");
 	return newDiv;
 }
 
@@ -101,10 +96,8 @@ TileFactory.create = function (object) {
 		newDiv = createNewRow(newDiv, object)
 	} else {// row button action
 		var splitValue = customBtn.id.split("-");
-		console.log(splitValue);
 		var rowObject = panelRow[splitValue[1] - 1];
 		clickedRow = rowObject.id
-		console.log();
 		if(object.type != rowObject.type) {// f choosen type and row type is not equal
 			newDiv = createNewRow(newDiv, object);
 			defaultPlusBtn = true;
@@ -112,10 +105,9 @@ TileFactory.create = function (object) {
 
 		if(object.type == 'small'&& rowObject.type == 'small') {
 			var findElement = $("."+customBtn.id);
-			console.log(findElement.find(".row-col-1").length);
 			if(findElement.find(".row-col-1").length == 0) {
 				newDiv.addClass('row-col-1');
-				newDiv.append("<button data-target='#addWidgetModal' class='tile-add-btn tile-add-btn btn btn-primary filter-nav-button glyphicon glyphicon-plus custom-add-btn row-col-1'onClick='setClicketData(this)'  data-toggle='modal' id='row-"+splitValue[1]+"'></button>");
+				newDiv.append("<div><button data-target='#addWidgetModal' class='tile-add-btn tile-add-btn btn btn-primary filter-nav-button glyphicon glyphicon-plus custom-add-btn row-col-1'onClick='setClicketData(this)'  data-toggle='modal' id='row-"+splitValue[1]+"'></button><div>");
 			}
 		}
 	}
@@ -135,7 +127,6 @@ TileFactory.create = function (object) {
 		newDiv.insertBefore('.float-clear');
 	} else {// remove row btn and add new div based on type
 		customBtn.remove();
-		console.log('removed');
 		newDiv.insertAfter('#'+clickedRow);
 	}
 
