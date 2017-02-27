@@ -66,6 +66,10 @@ function clearForm() {
 	form.find(".tile-chart-type").val('');
 }
 
+function newBtnElement() {
+	return "<div class='col-md-2 custom-btn-div'><button data-target='#addWidgetModal' class='tile-add-btn tile-add-btn btn btn-primary filter-nav-button glyphicon glyphicon-plus custom-add-btn'onClick='setClicketData(this)'  data-toggle='modal' id='row-"+row+"'></button><div>"
+}
+
 // create new div
 function createNewRow(newDiv, object) {
 	newDiv.addClass("col-md-12"); // add class for div which is full width
@@ -79,8 +83,36 @@ function createNewRow(newDiv, object) {
 		newDiv.addClass("row-"+row);
 	}
 	if(object.type != "full") // dont add row add button for full widget
-		newDiv.append("<div class='col-md-2 custom-btn-div'><button data-target='#addWidgetModal' class='tile-add-btn tile-add-btn btn btn-primary filter-nav-button glyphicon glyphicon-plus custom-add-btn'onClick='setClicketData(this)'  data-toggle='modal' id='row-"+row+"'></button><div>");
+		newDiv.append(newBtnElement());
 	return newDiv;
+}
+
+// Add click event for tile config icon
+function triggerConfig(newDiv, object) {
+	newDiv.find(".widget-toolbox").find(".glyphicon-cog").click(function () {
+	$("#tile-configuration").modal('show');
+	$("#tile-configuration").find(".tileId").val(object.id);
+	var tileListIndex = tileList.indexOf(object.id);
+	var tileDataIndex = tileData[tileListIndex];
+	if(tileDataIndex != undefined) {
+		setConfigValue(object, tileDataIndex);
+	} else {
+		clearForm();
+	}
+	});
+}
+
+// Save action for tile config save button
+function saveTileConfig(object) {
+	$("#tile-configuration").find(".save-changes").click( function () {
+    var form = $("#tile-configuration").find("form");
+    form.off('submit');
+    form.on('submit', $.proxy(function (e) {
+			getTileFormValue(form, "tile-configuration", object)
+	    $("#tile-configuration").modal('hide');
+	    e.preventDefault();
+    }, object));
+	});
 }
 
 function TileFactory() {}
@@ -90,7 +122,6 @@ TileFactory.create = function (object) {
 		, title: ''
 	}));
 	var row = 0;// row
-	var ele;// clicked element
 	var clickedRow;// clicked row
 	if(defaultPlusBtn) { // check its new row
 		newDiv = createNewRow(newDiv, object)
@@ -129,26 +160,6 @@ TileFactory.create = function (object) {
 		customBtn.remove();
 		newDiv.insertAfter('#'+clickedRow);
 	}
-
-	newDiv.find(".widget-toolbox").find(".glyphicon-cog").click(function () {
-		$("#tile-configuration").modal('show');
-		$("#tile-configuration").find(".tileId").val(object.id);
-		var tileListIndex = tileList.indexOf(object.id);
-		var tileDataIndex = tileData[tileListIndex];
-		if(tileDataIndex != undefined) {
-			setConfigValue(object, tileDataIndex);
-		} else {
-			clearForm();
-		}
-	});
-
-	$("#tile-configuration").find(".save-changes").click( function () {
-    var form = $("#tile-configuration").find("form");
-    form.off('submit');
-    form.on('submit', $.proxy(function (e) {
-			getTileFormValue(form, "tile-configuration", object)
-	    $("#tile-configuration").modal('hide');
-	    e.preventDefault();
-    }, object));
-	});
+	triggerConfig(newDiv, object);// add event for tile config
+	saveTileConfig(object);// add event for tile save btn
 };
