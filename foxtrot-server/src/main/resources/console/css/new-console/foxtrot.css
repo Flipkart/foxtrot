@@ -102,7 +102,7 @@ font-size: small;
   margin-left:-550px;
 }
 .float-clear{
-  clear:both;
+/*  clear:both;*/
 }
 
 .tile-header {

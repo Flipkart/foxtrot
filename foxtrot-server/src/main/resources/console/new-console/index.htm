@@ -69,7 +69,7 @@
 		<div class="content">
 			<div class="row pull-right">
 				<div class="btn-group">
-					<button type="button" class="btn btn-primary filter-nav-button" data-target="#addWidgetModal" data-toggle="modal"> <span class='glyphicon glyphicon-plus' id=""></span> </button>
+					<button type="button" class="btn btn-primary filter-nav-button" data-target="#addWidgetModal" data-toggle="modal" id="default-btn"> <span class='glyphicon glyphicon-plus' id=""></span> </button>
 				</div>
 			</div>
 		</div>
@@ -109,7 +109,8 @@
 		</div>
 		<!--Templates-->
       <script id="tile-template" type="text/x-handlebars-template">
-        <div class='tile tile-gradient tile-default-size' id='{{tileId}}'>
+      <div>
+				<div class='tile tile-gradient tile-default-size' id='{{tileId}}'>
 					<div class="widget-header">
 						<span class="tile-title">Title bar</span>
 				</div>
@@ -130,6 +131,7 @@
 				    </div>
           </div>
         </div>
+				</div>
       </script>
 		<div class="footer">
 			<p>&copy; flipkart.com 2014</p>

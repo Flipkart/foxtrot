@@ -77,19 +77,49 @@ TileFactory.create = function (object) {
 		tileId: object.id
 		, title: ''
 	}));
-	var width, height;
-	if(object.type == "full") {
-		newDiv.addClass('col-md-12');
-	} else if(object.type == "medium") {
-		newDiv.addClass('col-md-6');
-		newDiv.width(590);
-	} else if(object.type == "small") {
-		newDiv.addClass('col-md-2');
-		newDiv.height(200);
-		newDiv.width(280);
+
+	var row = 0;
+	var ele;
+	var clickedRow;
+	if(defaultPlusBtn) {
+		newDiv.addClass("col-md-12");
+		if(panelRow.length == 0) {
+			row = 1;
+			panelRow.push({type : object.type, id : object.id});
+			newDiv.addClass("row-"+row);
+		} else {
+			panelRow.push({type : object.type, id : object.id});
+			row = panelRow.length;
+			newDiv.addClass("row-"+row);
+		}
+
+		if(object.type != "full")
+			newDiv.append("<button data-target='#addWidgetModal' class='tile-add-btn tile-add-btn btn btn-primary filter-nav-button glyphicon glyphicon-plus custom-add-btn'onClick='setClicketData(this)'  data-toggle='modal' id='row-"+row+"'></button>");
+	} else {
+		var splitValue = customBtn.id.split("-");
+		clickedRow = panelRow[splitValue[1] - 1].id
 	}
 
-	newDiv.insertBefore('.float-clear');
+	var width, height;
+	if(object.type == "full") {
+		newDiv.find(".tile").addClass('col-md-12');
+	} else if(object.type == "medium") {
+		newDiv.find(".tile").addClass('col-md-6');
+		newDiv.find(".tile").width(590);
+	} else if(object.type == "small") {
+		newDiv.find(".tile").addClass('col-md-2');
+		newDiv.find(".tile").width(280);
+		newDiv.find(".tile").height(200);
+	}
+
+	if(defaultPlusBtn) {
+		newDiv.insertBefore('.float-clear');
+	} else {
+		customBtn.remove();
+		newDiv.insertAfter('#'+clickedRow);
+	}
+
+
 	newDiv.find(".widget-toolbox").find(".glyphicon-cog").click(function () {
 		$("#tile-configuration").modal('show');
 		$("#tile-configuration").find(".tileId").val(object.id);
