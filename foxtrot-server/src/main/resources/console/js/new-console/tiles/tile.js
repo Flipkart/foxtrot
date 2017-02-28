@@ -9,7 +9,7 @@ function pushTilesObject(object) {
 	tileData.push(object);
 }
 
-function updateTile(object, modal) {
+function updateTile(object) {
 	var selectedTile = $("#"+object.id);
 	selectedTile.find(".tile-title").text(object.title);
 	var tileid= object.id;
@@ -26,7 +26,7 @@ function getTileFormValue(form, modal, object) {
 	tileFormValue.timeUnit = form.find(".tile-time-unit").val();
 	tileFormValue.timeValue = form.find(".tile-time-value").val();
 	tileFormValue.chartType = form.find(".tile-chart-type").val();
-	updateTile(tileFormValue, modal);
+	//updateTile(tileFormValue, modal);
 }
 
 function setConfigValue(object, index) {
@@ -57,14 +57,14 @@ function createNewRow(newDiv, object) {
 	newDiv.addClass("col-md-12"); // add class for div which is full width
 	if(panelRow.length == 0) { // initial page
 		row = 1;
-		panelRow.push({type : object.type, id : object.id});
+		panelRow.push({type : object.widgetType, id : object.id});
 		newDiv.addClass("row-"+row);
 	} else { // incremetn row value by one
-		panelRow.push({type : object.type, id : object.id});
+		panelRow.push({type : object.widgetType, id : object.id});
 		row = panelRow.length;
 		newDiv.addClass("row-"+row);
 	}
-	if(object.type != "full") // dont add row add button for full widget
+	if(object.widgetType != "full") // dont add row add button for full widget
 		newDiv.append(newBtnElement());
 	return newDiv;
 }
@@ -101,7 +101,7 @@ function TileFactory() {}
 TileFactory.create = function (object) {
 	var newDiv = $(handlebars("#tile-template", {
 		tileId: object.id
-		, title: ''
+		, title: object.title
 	}));
 	var row = 0;// row
 	var clickedRow;// clicked row
@@ -111,12 +111,12 @@ TileFactory.create = function (object) {
 		var splitValue = customBtn.id.split("-");
 		var rowObject = panelRow[splitValue[1] - 1];
 		clickedRow = rowObject.id
-		if(object.type != rowObject.type) {// f choosen type and row type is not equal
+		if(object.widgetType != rowObject.widgetType) {// f choosen type and row type is not equal
 			newDiv = createNewRow(newDiv, object);
 			defaultPlusBtn = true;
 		}
 
-		if(object.type == 'small'&& rowObject.type == 'small') {
+		if(object.widgetType == 'small'&& rowObject.widgetType == 'small') {
 			var findElement = $("."+customBtn.id);
 			if(findElement.find(".row-col-1").length == 0) {
 				newDiv.addClass('row-col-1');
@@ -125,12 +125,12 @@ TileFactory.create = function (object) {
 		}
 	}
 
-	if(object.type == "full") {
+	if(object.widgetType == "full") {
 		newDiv.find(".tile").addClass('col-md-12');
-	} else if(object.type == "medium") {
+	} else if(object.widgetType == "medium") {
 		newDiv.find(".tile").addClass('col-md-6');
 		newDiv.find(".tile").width(590);
-	} else if(object.type == "small") {
+	} else if(object.widgetType == "small") {
 		newDiv.find(".tile").addClass('col-md-4');
 		newDiv.find(".tile").width(300);
 		newDiv.find(".tile").height(200);
@@ -143,5 +143,6 @@ TileFactory.create = function (object) {
 		newDiv.insertAfter('#'+clickedRow);
 	}
 	triggerConfig(newDiv, object);// add event for tile config
+	updateTile(object);
 	saveTileConfig(object);// add event for tile save btn
 };
