@@ -16,6 +16,7 @@
 package com.flipkart.foxtrot.common.group;
 
 import com.flipkart.foxtrot.common.ActionResponse;
+import com.flipkart.foxtrot.common.Opcodes;
 import com.flipkart.foxtrot.common.ResponseVisitor;
 
 import java.util.Map;
@@ -25,13 +26,15 @@ import java.util.Map;
  * Date: 21/03/14
  * Time: 5:07 PM
  */
-public class GroupResponse implements ActionResponse {
+public class GroupResponse extends ActionResponse {
     private Map<String, Object> result;
 
     public GroupResponse() {
+        super(Opcodes.GROUP);
     }
 
     public GroupResponse(Map<String, Object> result) {
+        super(Opcodes.GROUP);
         this.result = result;
     }
 

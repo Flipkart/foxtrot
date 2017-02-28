@@ -24,8 +24,13 @@ import com.flipkart.foxtrot.common.query.FilterVisitor;
  * Time: 8:17 PM
  */
 public class GreaterEqualFilter extends NumericBinaryFilter {
+
     public GreaterEqualFilter() {
         super(FilterOperator.greater_equal);
+    }
+
+    public GreaterEqualFilter(String field, Number value, boolean temporal) {
+        super(FilterOperator.greater_equal, field, value, temporal);
     }
 
     @Override
