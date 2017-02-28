@@ -35,6 +35,11 @@ public class NotEqualsFilter extends Filter {
         super(FilterOperator.not_equals);
     }
 
+    public NotEqualsFilter(String field, String value) {
+        super(FilterOperator.not_equals, field);
+        this.value = value;
+    }
+
     @Override
     public void accept(FilterVisitor visitor) throws Exception {
         visitor.visit(this);

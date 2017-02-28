@@ -16,7 +16,9 @@
 package com.flipkart.foxtrot.common.trend;
 
 import com.flipkart.foxtrot.common.ActionRequest;
+import com.flipkart.foxtrot.common.Opcodes;
 import com.flipkart.foxtrot.common.Period;
+import com.flipkart.foxtrot.common.query.Filter;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
 import java.util.List;
@@ -41,6 +43,17 @@ public class TrendRequest extends ActionRequest {
     private String uniqueCountOn;
 
     public TrendRequest() {
+        super(Opcodes.TREND);
+    }
+
+    public TrendRequest(List<Filter> filters, String table, String field, String timestamp, Period period, List<String> values, String uniqueCountOn) {
+        super(Opcodes.TREND, filters);
+        this.table = table;
+        this.field = field;
+        this.timestamp = timestamp;
+        this.period = period;
+        this.values = values;
+        this.uniqueCountOn = uniqueCountOn;
     }
 
     public String getTable() {

@@ -40,6 +40,13 @@ public class BetweenFilter extends Filter {
         super(FilterOperator.between);
     }
 
+    public BetweenFilter(String field, Number from, Number to, boolean temporal) {
+        super(FilterOperator.between, field);
+        this.from = from;
+        this.to = to;
+        this.temporal = temporal;
+    }
+
     public Number getFrom() {
         return from;
     }
@@ -98,7 +105,7 @@ public class BetweenFilter extends Filter {
     }
 
     @Override
-    public boolean isTemporal() {
+    public boolean isFilterTemporal() {
         return temporal;
     }
 

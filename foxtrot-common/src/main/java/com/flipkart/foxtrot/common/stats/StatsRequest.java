@@ -1,6 +1,8 @@
 package com.flipkart.foxtrot.common.stats;
 
 import com.flipkart.foxtrot.common.ActionRequest;
+import com.flipkart.foxtrot.common.Opcodes;
+import com.flipkart.foxtrot.common.query.Filter;
 import com.flipkart.foxtrot.common.query.FilterCombinerType;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
@@ -18,6 +20,17 @@ public class StatsRequest extends ActionRequest {
     private List<String> nesting;
 
     private FilterCombinerType combiner = FilterCombinerType.and;
+
+    public StatsRequest() {
+        super(Opcodes.STATS);
+    }
+
+    public StatsRequest(List<Filter> filters, String table, String field, List<String> nesting) {
+        super(Opcodes.STATS, filters);
+        this.table = table;
+        this.field = field;
+        this.nesting = nesting;
+    }
 
     public String getTable() {
         return table;

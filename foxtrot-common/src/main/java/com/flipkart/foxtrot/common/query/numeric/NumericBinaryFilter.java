@@ -34,6 +34,12 @@ public abstract class NumericBinaryFilter extends Filter {
         super(operator);
     }
 
+    protected NumericBinaryFilter(final String operator, String field, Number value, boolean temporal) {
+        super(operator, field);
+        this.value = value;
+        this.temporal = temporal;
+    }
+
     public Number getValue() {
         return value;
     }
@@ -66,7 +72,7 @@ public abstract class NumericBinaryFilter extends Filter {
     }
 
     @Override
-    public boolean isTemporal() {
+    public boolean isFilterTemporal() {
         return temporal;
     }
 

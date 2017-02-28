@@ -27,7 +27,23 @@ import java.util.List;
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "opcode")
 public abstract class ActionRequest {
+
+    private final String opcode;
+
     private List<Filter> filters;
+
+    protected ActionRequest(String opcode) {
+        this.opcode = opcode;
+    }
+
+    protected ActionRequest(String opcode, List<Filter> filters) {
+        this.opcode = opcode;
+        this.filters = filters;
+    }
+
+    public String getOpcode() {
+        return opcode;
+    }
 
     public List<Filter> getFilters() {
         return filters;

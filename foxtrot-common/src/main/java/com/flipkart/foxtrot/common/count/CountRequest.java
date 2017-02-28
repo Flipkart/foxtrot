@@ -1,10 +1,13 @@
 package com.flipkart.foxtrot.common.count;
 
 import com.flipkart.foxtrot.common.ActionRequest;
+import com.flipkart.foxtrot.common.Opcodes;
+import com.flipkart.foxtrot.common.query.Filter;
 import com.flipkart.foxtrot.common.util.CollectionUtils;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -20,6 +23,14 @@ public class CountRequest extends ActionRequest {
 
 
     public CountRequest() {
+        super(Opcodes.COUNT);
+    }
+
+    public CountRequest(List<Filter> filters, String table, String field, boolean isDistinct) {
+        super(Opcodes.COUNT, filters);
+        this.table = table;
+        this.field = field;
+        this.isDistinct = isDistinct;
     }
 
     public String getTable() {
