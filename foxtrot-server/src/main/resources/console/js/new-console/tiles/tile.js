@@ -1,22 +1,4 @@
 function Tile() {
-	this.id = null;
-	this.type = null;
-	this.tables = null;
-	this.table = null;
-	this.title = "";
-	this.displayWidth = null;
-	this.displayHeight = null;
-	this.width = 0;
-	this.height = 0;
-	this.query = null;
-	this.refresh = true;
-	this.queue = null;
-	this.cachedData = null;
-	this.setupModalName = null;
-	//this.url = hostDetails.url("/foxtrot/v1/analytics");
-	this.contentType = "application/json";
-	this.httpMethod = "POST";
-	this.ignoreDigits = 0;
 }
 
 function submitClicked(e) {
