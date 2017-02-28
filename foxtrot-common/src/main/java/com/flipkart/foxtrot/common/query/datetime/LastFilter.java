@@ -76,7 +76,7 @@ public class LastFilter extends Filter {
     }
 
     @Override
-    public boolean isTemporal() {
+    public boolean isFilterTemporal() {
         return true;
     }
 }

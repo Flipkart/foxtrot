@@ -40,7 +40,9 @@ public class ElasticsearchUtilsTest {
     };
 
     private final static class TestRequest extends ActionRequest {
-
+        private TestRequest() {
+            super("test");
+        }
     }
 
     @Test

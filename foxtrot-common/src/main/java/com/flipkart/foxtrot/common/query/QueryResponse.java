@@ -17,6 +17,7 @@ package com.flipkart.foxtrot.common.query;
 
 import com.flipkart.foxtrot.common.ActionResponse;
 import com.flipkart.foxtrot.common.Document;
+import com.flipkart.foxtrot.common.Opcodes;
 import com.flipkart.foxtrot.common.ResponseVisitor;
 
 import java.util.List;
@@ -26,14 +27,16 @@ import java.util.List;
  * Date: 24/03/14
  * Time: 1:00 PM
  */
-public class QueryResponse implements ActionResponse {
+public class QueryResponse extends ActionResponse {
     private List<Document> documents;
     private long totalHits;
 
     public QueryResponse() {
+        super(Opcodes.QUERY);
     }
 
     public QueryResponse(List<Document> documents, long totalHits) {
+        super(Opcodes.QUERY);
         this.documents = documents;
         this.totalHits = totalHits;
     }
