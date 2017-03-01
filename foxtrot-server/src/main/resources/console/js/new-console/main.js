@@ -31,7 +31,6 @@ FoxTrot.prototype.addTile = function() {
 		"chartType": chartType
 	}
 	$("#addWidgetModal").modal('hide');
-
 	var tile = TileFactory.create(object);
 	var foxtrot = new FoxTrot();
 	addTilesList(object);

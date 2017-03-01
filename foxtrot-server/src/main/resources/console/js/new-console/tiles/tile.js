@@ -136,12 +136,70 @@ TileFactory.create = function (object) {
 		newDiv.find(".tile").height(200);
 	}
 
+	if(object.widgetType == "full") {
+		newDiv.find(".chart-item").append('<div id="'+object.id+'" class="height:500px;"></div>');
+	}
+
 	if(defaultPlusBtn) {// new row
 		newDiv.insertBefore('.float-clear');
 	} else {// remove row btn and add new div based on type
 		customBtn.remove();
 		newDiv.insertAfter('#'+clickedRow);
 	}
+
+	if(object.widgetType == "full") {
+		var chartObject = {
+        "8": 77,
+        "9": 187,
+        "lollypop": 123,
+        "ics": 58,
+        "marshmallow": 176,
+        "kitkat": 315,
+        "jellybean": 64
+    };
+
+		var yValue = [];
+		var xValue = [];
+		var index = 0;
+		for (var key in chartObject) {
+			if (chartObject.hasOwnProperty(key)) {
+				yValue.push([index, chartObject[key]]);
+				xValue.push([index, key])
+			}
+			index++;
+		}
+
+		var chartDiv = newDiv.find(".chart-item");
+		var ctx = chartDiv.find("#"+object.id);
+		console.log(ctx);
+		ctx.width(ctx.width);
+		ctx.height(200);
+		$.plot(ctx, [
+			{ data: yValue },
+		], {
+			series: {
+				lines: { show: true },
+				points: { show: false }
+			},
+			xaxis: {
+				ticks: xValue,
+				tickLength:0
+			},
+			grid: {
+				hoverable: true,
+        color: "#B2B2B2",
+        show: true,
+        borderWidth: {top: 0, right: 0, bottom: 1, left: 1},
+        borderColor: "#EEEEEE",
+			},
+			tooltip: true,
+        tooltipOpts: {
+            content: "%y events at %x",
+            defaultFormat: true
+        }
+		});
+	}
+
 	triggerConfig(newDiv, object);// add event for tile config
 	updateTile(object);
 	saveTileConfig(object);// add event for tile save btn
