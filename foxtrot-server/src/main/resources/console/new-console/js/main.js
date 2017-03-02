@@ -15,6 +15,9 @@
  */
 
 function FoxTrot() {
+  this.tables = new Tables();
+  this.tables.init();
+  this.loadTableList(this.tables.tables)
 }
 var tiles = {};
 var tileList = [];
@@ -51,6 +54,14 @@ FoxTrot.prototype.addTile = function() {
 	var foxtrot = new FoxTrot();
 	addTilesList(object);
 };
+
+FoxTrot.prototype.loadTableList = function(tables) {
+  var select = $("#tileTable");
+	select.find('option').remove();
+	for (var i = tables.length - 1; i >= 0; i--) {
+		select.append("<option value='" + i + "'>" + tables[i].name + '</option>');
+	}
+}
 
 $(document).ready(function(){
 	var type = $("#widgetType").val();
