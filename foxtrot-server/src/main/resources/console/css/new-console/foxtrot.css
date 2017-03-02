@@ -457,3 +457,9 @@ path {
 	text-align: center;
 	top: 50px;
 }
+
+.lineGraph-health-text {
+	margin-top: -90px;
+  font-weight: bold;
+  font-size: 35px;
+}

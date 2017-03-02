@@ -1,3 +1,19 @@
+/**
+ * Copyright 2014 Flipkart Internet Pvt. Ltd.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 function Tile() {
 }
 
@@ -57,10 +73,10 @@ function createNewRow(newDiv, object) {
 	newDiv.addClass("col-md-12"); // add class for div which is full width
 	if(panelRow.length == 0) { // initial page
 		row = 1;
-		panelRow.push({type : object.widgetType, id : object.id});
+		panelRow.push({widgetType : object.widgetType, id : object.id});
 		newDiv.addClass("row-"+row);
 	} else { // incremetn row value by one
-		panelRow.push({type : object.widgetType, id : object.id});
+		panelRow.push({widgetType : object.widgetType, id : object.id});
 		row = panelRow.length;
 		newDiv.addClass("row-"+row);
 	}
@@ -82,6 +98,10 @@ function triggerConfig(newDiv, object) {
 		clearForm();
 	}
 	});
+}
+
+function lineGraph(newDiv, object) {
+
 }
 
 // Save action for tile config save button
@@ -136,9 +156,9 @@ TileFactory.create = function (object) {
 		newDiv.find(".tile").height(200);
 	}
 
-	if(object.widgetType == "full") {
-		newDiv.find(".chart-item").append('<div id="'+object.id+'" class="height:500px;"></div>');
-	}
+	newDiv.find(".chart-item").append('<div id="'+object.id+'-health-text" class="lineGraph-health-text">10,000</div>');
+	newDiv.find(".chart-item").append('<div id="'+object.id+'-health" style=""></div>');
+	newDiv.find(".chart-item").append('<div id="'+object.id+'"></div>');
 
 	if(defaultPlusBtn) {// new row
 		newDiv.insertBefore('.float-clear');
@@ -147,57 +167,12 @@ TileFactory.create = function (object) {
 		newDiv.insertAfter('#'+clickedRow);
 	}
 
-	if(object.widgetType == "full") {
-		var chartObject = {
-        "8": 77,
-        "9": 187,
-        "lollypop": 123,
-        "ics": 58,
-        "marshmallow": 176,
-        "kitkat": 315,
-        "jellybean": 64
-    };
-
-		var yValue = [];
-		var xValue = [];
-		var index = 0;
-		for (var key in chartObject) {
-			if (chartObject.hasOwnProperty(key)) {
-				yValue.push([index, chartObject[key]]);
-				xValue.push([index, key])
-			}
-			index++;
-		}
-
-		var chartDiv = newDiv.find(".chart-item");
-		var ctx = chartDiv.find("#"+object.id);
-		console.log(ctx);
-		ctx.width(ctx.width);
-		ctx.height(200);
-		$.plot(ctx, [
-			{ data: yValue },
-		], {
-			series: {
-				lines: { show: true },
-				points: { show: false }
-			},
-			xaxis: {
-				ticks: xValue,
-				tickLength:0
-			},
-			grid: {
-				hoverable: true,
-        color: "#B2B2B2",
-        show: true,
-        borderWidth: {top: 0, right: 0, bottom: 1, left: 1},
-        borderColor: "#EEEEEE",
-			},
-			tooltip: true,
-        tooltipOpts: {
-            content: "%y events at %x",
-            defaultFormat: true
-        }
-		});
+	if(object.chartType == "line") {
+		setInterval(function(){
+    //code goes here that will be run every 5 seconds.
+			var lineGraph = new LineTile();
+			lineGraph.render(newDiv, object);
+			}, 5000);
 	}
 
 	triggerConfig(newDiv, object);// add event for tile config
