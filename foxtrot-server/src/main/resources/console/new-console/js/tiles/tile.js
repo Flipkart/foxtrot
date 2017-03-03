@@ -45,14 +45,13 @@ function getTileFormValue(form, modal, object) {
 	//updateTile(tileFormValue, modal);
 }
 
-function setConfigValue(object, index) {
-	var form = $("#tile-configuration").find("form");
-	var index = tileData.indexOf(object.id);
-	form.find(".tile-title").val(tileData[index].title);
-	form.find(".tile-table").val(tileData[index].table);
-	form.find(".tile-time-unit").val(tileData[index].timeUnit);
-	form.find(".tile-time-value").val(tileData[index].timeValue);
-	form.find(".tile-chart-type").val(tileData[index].chartType);
+function setConfigValue(object) {
+	var form = $("#addWidgetModal").find("form");
+	form.find(".tile-title").val(object.title);
+	form.find(".tile-table").val(object.table);
+	form.find(".tile-time-unit").val(object.timeUnit);
+	form.find(".tile-time-value").val(object.timeValue);
+	form.find(".tile-chart-type").val(object.chartType);
 }
 
 function clearForm() {
@@ -88,15 +87,15 @@ function createNewRow(newDiv, object) {
 // Add click event for tile config icon
 function triggerConfig(newDiv, object) {
 	newDiv.find(".widget-toolbox").find(".glyphicon-cog").click(function () {
-	$("#tile-configuration").modal('show');
-	$("#tile-configuration").find(".tileId").val(object.id);
+	$("#addWidgetModal").modal('show');
+	$("#addWidgetModal").find(".tileId").val(object.id);
 	var tileListIndex = tileList.indexOf(object.id);
 	var tileDataIndex = tileData[tileListIndex];
-	if(tileDataIndex != undefined) {
-		setConfigValue(object, tileDataIndex);
-	} else {
-		clearForm();
-	}
+  var tileId = tileList[tileListIndex];
+  var selectedTileObject = tileDataIndex[tileId];
+    if(selectedTileObject) {
+      setConfigValue(selectedTileObject);
+    }
 	});
 }
 

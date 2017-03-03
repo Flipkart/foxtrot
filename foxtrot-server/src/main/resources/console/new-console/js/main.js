@@ -70,7 +70,6 @@ $(document).ready(function(){
 	var foxtrot = new FoxTrot();
 	$("#addWidgetConfirm").click($.proxy(foxtrot.addTile, foxtrot));
 	$("#default-btn").click(function () {
-		console.log("clicked");
 		defaultPlusBtn = true;
 	});
 });

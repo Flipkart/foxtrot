@@ -45,7 +45,6 @@ LineTile.prototype.render = function (newDiv, object) {
 
 		var chartDiv = newDiv.find(".chart-item");
 		var ctx = chartDiv.find("#"+object.id);
-		console.log(ctx);
 		ctx.width(ctx.width);
 		ctx.height(230);
 		$.plot(ctx, [
