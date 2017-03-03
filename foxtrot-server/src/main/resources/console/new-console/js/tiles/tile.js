@@ -168,11 +168,8 @@ TileFactory.create = function (object) {
 	}
 
 	if(object.chartType == "line") {
-		setInterval(function(){
-    //code goes here that will be run every 5 seconds.
-			var lineGraph = new LineTile();
-			lineGraph.render(newDiv, object);
-			}, 5000);
+    var lineGraph = new LineTile();
+		lineGraph.render(newDiv, object);
 	}
 
 	triggerConfig(newDiv, object);// add event for tile config

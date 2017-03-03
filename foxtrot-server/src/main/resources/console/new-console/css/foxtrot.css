@@ -134,7 +134,7 @@ font-size: small;
 }
 
 .content {
-    margin-top: 35px;
+    margin-top: 70px;
 }
 
 .legendArea {
@@ -384,11 +384,11 @@ path {
     margin-top: 5px;
 }
 
-#menu-list {
+#menu-list ul {
 	margin-left: 300px;
 }
 
-#menu-list li {
+#menu-list ul li {
 	list-style-type: none;
 	border-right: 1px solid #A2A3A3;
   float: left;
@@ -396,11 +396,11 @@ path {
 	line-height: 4px;
 }
 
-#menu-list li:last-child {
+#menu-list ul li:last-child {
 	border: none;
 }
 
-#menu-list li a {
+#menu-list ul li a {
 	text-decoration: none;
 	color: #000;
 }
@@ -462,4 +462,35 @@ path {
 	margin-top: -90px;
   font-weight: bold;
   font-size: 35px;
+}
+
+#top-right-btn a {
+  text-decoration: none;
+  cursor: pointer;
+}
+
+#dashboard-link {
+  border-top-left-radius: 2em;
+  border-bottom-left-radius: 2em;
+  background: black;
+  padding: 7px;
+  color: white;
+}
+
+#explore-link {
+  border-top-right-radius: 2em;
+  border-bottom-right-radius: 2em;
+  background: darkgrey;
+  padding: 7px;
+  color: #000;
+  position: relative;
+  right: 5px;
+}
+
+#menu-list {
+  margin: 28px 56px;
+}
+
+#top-left-header {
+  margin: 20px;
 }
