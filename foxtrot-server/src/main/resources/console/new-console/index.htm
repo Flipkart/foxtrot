@@ -33,6 +33,7 @@
 	<link rel="stylesheet" href="../css/jquery-ui.css">
 	<link rel="stylesheet" href="../css/bootstrapValidator.min.css">
 	<link href="css/foxtrot.css" rel="stylesheet">
+  <link href="css/radar-chart.min.css" rel="stylesheet">
 	<!-- Custom styles for this template -->
 	<!-- Just for debugging purposes. Don't actually copy this line! -->
 	<!--[if lt IE 9]><script src="../../assets/js/ie8-responsive-file-warning.js"></script><![endif]-->
@@ -117,7 +118,7 @@
                     <option value="">Select chart type</option>
 										<option value="line">Line chart</option>
                     <option value="bar">Speedometer</option>
-                    <option value="trend">Radar chart</option>
+                    <option value="radar">Radar chart</option>
                   </select>
 								</div>
 							</div>
@@ -245,6 +246,10 @@
         </form>
     </div>
 </div>
+
+  <div id="chart3"></div>
+
+
 	<!-- /container -->
 	<!-- Bootstrap core JavaScript
     ================================================== -->
@@ -264,6 +269,9 @@
 	<script src="../js/flot/jquery.flot.resize.min.js"></script>
 	<script src="js/tiles/line-tile.js"></script>
 	<script src="js/tiles/tile.js"></script>
+  <script src="../js/d3.js"></script>
+  <script src="js/radar-chart.min.js"></script>
+  <script src="js/tiles/radar-tile.js"></script>
 	<!--Application-->
 </body>
 

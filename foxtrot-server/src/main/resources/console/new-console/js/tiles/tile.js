@@ -170,7 +170,11 @@ TileFactory.create = function (object) {
 	if(object.chartType == "line") {
     var lineGraph = new LineTile();
 		lineGraph.render(newDiv, object);
-	}
+	} else if(object.chartType == "radar") {
+    newDiv.find(".chart-item").append('<div id="radar-'+object.id+'" style="width:200;height:200"></div>');
+    var radarGraph = new RadarTile();
+		radarGraph.render(newDiv, object);
+  }
 
 	triggerConfig(newDiv, object);// add event for tile config
 	updateTile(object);
