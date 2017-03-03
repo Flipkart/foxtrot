@@ -41,13 +41,15 @@ FoxTrot.prototype.addTile = function() {
 	var title = $("#tileTitle").val();
 	var table = $("#tileTable").val();
 	var chartType = $("#tileChartType").val();
+  var tileTimeFrame = $("#tileTimeFrame").val();
 	var tileId = guid();
 	var object = {
 		"id" : tileId,
 		"title": title,
 		"widgetType": widgetType,
 		"table": table,
-		"chartType": chartType
+		"chartType": chartType,
+    "tileTimeFrame": tileTimeFrame
 	}
 	$("#addWidgetModal").modal('hide');
 	var tile = TileFactory.create(object);
