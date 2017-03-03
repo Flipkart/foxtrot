@@ -93,6 +93,7 @@ function triggerConfig(newDiv, object) {
 	var tileDataIndex = tileData[tileListIndex];
   var tileId = tileList[tileListIndex];
   var selectedTileObject = tileDataIndex[tileId];
+    console.log(selectedTileObject);
     if(selectedTileObject) {
       setConfigValue(selectedTileObject);
     }

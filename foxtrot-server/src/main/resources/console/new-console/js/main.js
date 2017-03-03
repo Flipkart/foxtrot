@@ -42,6 +42,7 @@ FoxTrot.prototype.addTile = function() {
 	var table = $("#tileTable").val();
 	var chartType = $("#tileChartType").val();
   var tileTimeFrame = $("#tileTimeFrame").val();
+  var editTileId = $("#tileId").val();
 	var tileId = guid();
 	var object = {
 		"id" : tileId,
@@ -49,17 +50,24 @@ FoxTrot.prototype.addTile = function() {
 		"widgetType": widgetType,
 		"table": table,
 		"chartType": chartType,
-    "tileTimeFrame": tileTimeFrame
+    "tileTimeFrame": tileTimeFrame,
+    "editTileId": editTileId
 	}
-	$("#addWidgetModal").modal('hide');
-	var tile = TileFactory.create(object);
-	var foxtrot = new FoxTrot();
-	addTilesList(object);
+
+  if(!editTileId) {// for new tile
+    $("#addWidgetModal").modal('hide');
+    var tile = TileFactory.create(object);
+    var foxtrot = new FoxTrot();
+    addTilesList(object);
+  } else {// edit tile
+
+  }
 };
 
 FoxTrot.prototype.loadTableList = function(tables) {
   var select = $("#tileTable");
 	select.find('option').remove();
+  select.append("<option value=''>Select table</option>");
 	for (var i = tables.length - 1; i >= 0; i--) {
 		select.append("<option value='" + i + "'>" + tables[i].name + '</option>');
 	}
@@ -71,5 +79,6 @@ $(document).ready(function(){
 	$("#addWidgetConfirm").click($.proxy(foxtrot.addTile, foxtrot));
 	$("#default-btn").click(function () {
 		defaultPlusBtn = true;
+    $(".settings-form").find("input[type=text], textarea").val("");
 	});
 });
