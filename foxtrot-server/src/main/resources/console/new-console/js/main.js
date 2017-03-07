@@ -76,6 +76,7 @@ FoxTrot.prototype.loadTableList = function(tables) {
 $(document).ready(function(){
 	var type = $("#widgetType").val();
 	var foxtrot = new FoxTrot();
+  $("#addWidgetModal").validator();
 	$("#addWidgetConfirm").click($.proxy(foxtrot.addTile, foxtrot));
 	$("#default-btn").click(function () {
 		defaultPlusBtn = true;

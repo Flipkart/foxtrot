@@ -100,10 +100,6 @@ function triggerConfig(newDiv, object) {
 	});
 }
 
-function lineGraph(newDiv, object) {
-
-}
-
 // Save action for tile config save button
 function saveTileConfig(object) {
 	$("#tile-configuration").find(".save-changes").click( function () {

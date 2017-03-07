@@ -103,7 +103,7 @@
 							<div class="form-group">
 								<label class="col-sm-4 control-label" for="widgetType"><strong>Select template</strong></label>
 								<div class="col-sm-8">
-									<select class="selectpicker" data-style="btn-warning" id="widgetType" name="widgetType">
+									<select class="selectpicker" data-style="btn-warning" id="widgetType" name="widgetType" required>
                     <option value="">Select widget</option>
 										<option value="full">Full widget</option>
 										<option value="medium">Medium widget</option>
@@ -114,7 +114,7 @@
 							<div class="form-group">
 								<label class="col-sm-4 control-label"><strong>select chart type</strong></label>
 								<div class="col-sm-8">
-									<select class="selectpicker tile-chart-type" id="tileChartType">
+									<select class="selectpicker tile-chart-type" id="tileChartType" required>
                     <option value="">Select chart type</option>
 										<option value="line">Line chart</option>
                     <option value="bar">Speedometer</option>
@@ -128,12 +128,12 @@
 									<input type="text" class="form-control tile-time-frame" id="tileTimeFrame" placeholder="Give a time frame" required value="24">
 								</div>
 							</div>
+              <div class="modal-footer" style="margin-top: 0px;">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+						    <button type="submit" class="btn btn-primary" id="addWidgetConfirm">Add</button>
+              </div>
 						</form>
 						</div>
-					<div class="modal-footer" style="margin-top: 0px;">
-						<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-						<button type="button" class="btn btn-primary" id="addWidgetConfirm">Add</button>
-					</div>
 				</div>
 			</div>
 		</div>
@@ -263,6 +263,7 @@
 	<script src="../js/bootstrap/bootstrap-select.min.js"></script>
 	<script src="../js/bootstrap/bootstrap-multiselect.js"></script>
 	<script src="../js/jquery-ui.js"></script>
+  <script src="../js/validator.js"></script>
   <script src="js/tables.js"></script>
 	<script src="js/main.js"></script>
 	<script src="../js/flot/jquery.flot.min.js"></script>
