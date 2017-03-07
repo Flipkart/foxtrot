@@ -494,3 +494,63 @@ path {
 #top-left-header {
   margin: 20px;
 }
+
+#modal-title-name {
+  width: 100px;
+}
+
+.btn-warning {
+  background-color: #FBFBFB !important;
+  border: 1px solid gray;
+  color: #000;
+}
+
+#vizualization {
+  background: #FBFBFB;
+  border: 1px solid #EFEFEF;
+}
+.vizualization-type {
+  border: 2px solid #EFEFEF;
+  margin: 9px;
+  padding: 10px;
+  width: 120px;
+  height: 50px;
+  font-size: 13px;
+}
+
+#table-units {
+  background: darkgray;
+  padding: 10px;
+}
+
+#modal-filters {
+  padding: 10px;
+  background: #FBFBFB;
+  border: 1px solid #EFEFEF;
+}
+
+#modal-action-btns {
+  padding: 10px;
+}
+
+#modal-cacel-btn {
+  background: none;
+  border: none;
+}
+
+#modal-done-btn {
+  background: #7A98A2;
+  border: none;
+  border-radius: 13px;
+  width: 150px;
+  height: 40px;
+  color: #fff;
+}
+
+.filter-row .bootstrap-select {
+  width: 120px !important;
+}
+
+#filter-add {
+  padding: 10px;
+}
