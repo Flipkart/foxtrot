@@ -17,7 +17,9 @@
 function FoxTrot() {
   this.tables = new Tables();
   this.tables.init();
+  this.tableSelectionChangeHandler = null;
   this.loadTableList(this.tables.tables)
+  console.log('3');
   console.log(this.tables);
 }
 var tiles = {};
@@ -28,6 +30,7 @@ var defaultPlusBtn = true;
 var customBtn;
 var filterRowArray = [];
 var currentChartType;
+var currentTableFields;
 
 function addTilesList(object) {
 	tiles[object.id] = object;
@@ -84,6 +87,25 @@ FoxTrot.prototype.addTile = function() {
   }
 };
 
+FoxTrot.prototype.setSelectedTable = function() {
+  var tableValue = $("#tileTable").val();
+  //this.loadTableMeta(this.tables.tables[tableValue]);
+  var table = this.tables.tables[tableValue];
+  $.ajax({
+        url: "http://foxtrot.traefik.prod.phonepe.com/foxtrot/v1/tables/" + table.name + "/fields",
+        contentType: "application/json",
+        context: this,
+        success: $.proxy(function (data) {
+            currentTableFields = data.mappings;
+        })
+    });
+}
+
+FoxTrot.prototype.loadTableMeta = function(table) {
+  this.tables.loadTableMeta(table);
+  console.log(table);
+}
+
 FoxTrot.prototype.loadTableList = function(tables) {
   var select = $("#tileTable");
 	select.find('option').remove();
@@ -104,14 +126,34 @@ function deleteFilterRow(el) {
   $(parentRow).remove();
 }
 
+function prepareFieldOption (el) {
+//  console.log(el)
+//	el.find('option').remove();
+//  el.append("<option value=''>Select column</option>");
+//	for (var i = currentTableFields.length - 1; i >= 0; i--) {
+//		el.append("<option value='" + i + "'>" + currentTableFields[i].field + '</option>');
+//	}
+//  $('.selectpicker').selectpicker('refresh');
+
+  $.each(currentTableFields, function (i, item) {
+    $(el).append($('<option>', {
+        value: item.field,
+        text : item.field
+    }));
+});
+  $(el).selectpicker('refresh');
+}
+
 FoxTrot.prototype.addFilters = function() {
-  console.log('filter clicked');
   var filterCount = filterRowArray.length;
   filterRowArray.push(filterCount);
-  var filterRow = '<div class="row filters clearfix" id="filter-row-'+filterCount+'"><div class="col-md-3"><select class="selectpicker filter-column"><option>select</option></select></div><div class="col-md-3"><select class="selectpicker filter-type"><option>select</option><option value="between">Between</option><option value="greater_equal">Greater than equals</option><option value="greater_than">Greatert than</option><option value="less_equal">Between</option><option value="less_than">Less than equals</option><option value="less_than">Less than</option><option value="equals">Equals</option><option value="not_equals">Not equals</option><option value="contains">Contains</option><option value="last">Last</option></select></div><div class="col-md-4"><input type="text" class="form-control filter-value"></div><div class="col-md-2 filter-delete"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span></div></div>';
+  var filterRow = '<div class="row filters clearfix" id="filter-row-'+filterCount+'"><div class="col-md-3"><select class="filter-column"><option>select</option></select></div><div class="col-md-3"><select class="selectpicker filter-type"><option>select</option><option value="between">Between</option><option value="greater_equal">Greater than equals</option><option value="greater_than">Greatert than</option><option value="less_equal">Between</option><option value="less_than">Less than equals</option><option value="less_than">Less than</option><option value="equals">Equals</option><option value="not_equals">Not equals</option><option value="contains">Contains</option><option value="last">Last</option></select></div><div class="col-md-4"><input type="text" class="form-control filter-value"></div><div class="col-md-2 filter-delete"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span></div></div>';
   $( ".add-filter-row" ).prepend(filterRow);
   $('.selectpicker').selectpicker('refresh');
+
   var filterValueEl = $("#filter-row-"+filterCount).find('.filter-delete');
+  var filterColumn = $("#filter-row-"+filterCount).find('.filter-column')
+  prepareFieldOption(filterColumn);
   $(filterValueEl).click( function() {
     deleteFilterRow(this);
   });
@@ -137,4 +179,5 @@ $(document).ready(function(){
 		defaultPlusBtn = true;
     $(".settings-form").find("input[type=text], textarea").val("");
 	});
+  $("#tileTable").change($.proxy(foxtrot.setSelectedTable, foxtrot))
 });
