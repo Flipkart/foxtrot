@@ -518,6 +518,14 @@ path {
   font-size: 13px;
 }
 
+.vizualization-type:hover {
+  border: 2px solid darkgray;
+}
+
+.vizualization-type-active {
+  border: 2px solid darkgray;
+}
+
 #table-units {
   background: darkgray;
   padding: 10px;

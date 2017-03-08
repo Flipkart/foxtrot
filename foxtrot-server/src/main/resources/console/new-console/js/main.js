@@ -18,6 +18,7 @@ function FoxTrot() {
   this.tables = new Tables();
   this.tables.init();
   this.loadTableList(this.tables.tables)
+  console.log(this.tables);
 }
 var tiles = {};
 var tileList = [];
@@ -119,6 +120,8 @@ FoxTrot.prototype.addFilters = function() {
 function clickedChartType(el) {
   currentChartType = $(el).data('chartType');
   $("#table-units").show();
+  $(".vizualization-type").removeClass("vizualization-type-active");
+  $(el).addClass("vizualization-type-active");
 }
 
 $(document).ready(function(){
