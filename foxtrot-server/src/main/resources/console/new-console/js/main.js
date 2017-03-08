@@ -74,15 +74,28 @@ FoxTrot.prototype.loadTableList = function(tables) {
 	}
 }
 
+function deleteFilterRow(el) {
+  var parentRow = $(el).parent();
+  var parentRowId = parentRow.attr('id');
+  var getRowId = parentRowId.split('-');
+  var rowId = getRowId[2];
+  filterRowArray = jQuery.grep(filterRowArray, function(value) {
+    return value != rowId;
+  });
+  $(parentRow).remove();
+}
+
 FoxTrot.prototype.addFilters = function() {
   console.log('filter clicked');
-
   var filterCount = filterRowArray.length;
   filterRowArray.push(filterCount);
-  var filterRow = '<div class="row filters clearfix" id="row-'+filterCount+'"><div class="col-md-3"><select class="selectpicker row-table-column"><option>select</option></select></div><div class="col-md-3"><select class="selectpicker column-filter-type"><option>select</option><option value="between">Between</option><option value="greater_equal">Greater than equals</option><option value="greater_than">Greatert than</option><option value="less_equal">Between</option><option value="less_than">Less than equals</option><option value="less_than">Less than</option><option value="equals">Equals</option><option value="not_equals">Not equals</option><option value="contains">Contains</option><option value="last">Last</option></select></div><div class="col-md-4"><input type="text" class="form-control row-filter-value"></div><div class="col-md-2"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span></div></div>';
+  var filterRow = '<div class="row filters clearfix" id="filter-row-'+filterCount+'"><div class="col-md-3"><select class="selectpicker filter-column"><option>select</option></select></div><div class="col-md-3"><select class="selectpicker filter-type"><option>select</option><option value="between">Between</option><option value="greater_equal">Greater than equals</option><option value="greater_than">Greatert than</option><option value="less_equal">Between</option><option value="less_than">Less than equals</option><option value="less_than">Less than</option><option value="equals">Equals</option><option value="not_equals">Not equals</option><option value="contains">Contains</option><option value="last">Last</option></select></div><div class="col-md-4"><input type="text" class="form-control filter-value"></div><div class="col-md-2 filter-delete"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span></div></div>';
   $( ".add-filter-row" ).prepend(filterRow);
   $('.selectpicker').selectpicker('refresh');
-
+  var filterValueEl = $("#filter-row-"+filterCount).find('.filter-delete');
+  $(filterValueEl).click( function() {
+    deleteFilterRow(this);
+  });
 }
 
 function clickedChartType(el) {
