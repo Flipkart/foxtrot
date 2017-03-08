@@ -26,6 +26,7 @@ var panelRow = [];
 var defaultPlusBtn = true;
 var customBtn;
 var filterRowArray = [];
+var currentChartType;
 
 function addTilesList(object) {
 	tiles[object.id] = object;
@@ -37,6 +38,20 @@ function setClicketData(ele) {
 	defaultPlusBtn = false;
 }
 
+function getFilters() {
+  var filterDetails = [];
+  for(var filter = 0; filter < filterRowArray.length; filter++) {
+    var filterId = filterRowArray[filter];
+    var el = $("#filter-row-"+filterId);
+    var filterColumn = $(el).find(".filter-column").val();
+    var filterType = $(el).find(".filter-type").val();
+    var filterValue = $(el).find(".filter-value").val();
+    var filterObject = {"operator" : filterType, "value": filterValue};
+    filterDetails.push(filterObject);
+  }
+  return filterDetails;
+}
+
 FoxTrot.prototype.addTile = function() {
 	var widgetType = $("#widgetType").val();
 	var title = $("#tileTitle").val();
@@ -45,16 +60,19 @@ FoxTrot.prototype.addTile = function() {
   var tileTimeFrame = $("#tileTimeFrame").val();
   var editTileId = $("#tileId").val();
 	var tileId = guid();
+  getFilters();
 	var object = {
 		"id" : tileId,
 		"title": title,
-		"widgetType": widgetType,
+		"widgetType": "full",
 		"table": table,
-		"chartType": chartType,
+		"chartType": currentChartType,
     "tileTimeFrame": tileTimeFrame,
-    "editTileId": editTileId
+    "editTileId": editTileId,
+    "filters": getFilters()
 	}
-
+  console.log(object);
+  currentChartType = "";
   if(!editTileId) {// for new tile
     $("#addWidgetModal").modal('hide');
     var tile = TileFactory.create(object);
@@ -99,7 +117,7 @@ FoxTrot.prototype.addFilters = function() {
 }
 
 function clickedChartType(el) {
-  console.log($(el).data('chartType'));
+  currentChartType = $(el).data('chartType');
   $("#table-units").show();
 }
 
