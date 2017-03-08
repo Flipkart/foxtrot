@@ -521,6 +521,7 @@ path {
 #table-units {
   background: darkgray;
   padding: 10px;
+  display: none;
 }
 
 #modal-filters {
@@ -538,7 +539,7 @@ path {
   border: none;
 }
 
-#modal-done-btn {
+.modal-done-btn {
   background: #7A98A2;
   border: none;
   border-radius: 13px;
@@ -553,4 +554,12 @@ path {
 
 #filter-add {
   padding: 10px;
+}
+
+.filters {
+  line-height: 4;
+}
+
+.row-filter-value {
+  margin-top: 14px;
 }

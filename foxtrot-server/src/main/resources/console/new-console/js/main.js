@@ -25,6 +25,7 @@ var tileData = [];
 var panelRow = [];
 var defaultPlusBtn = true;
 var customBtn;
+var filterRowArray = [];
 
 function addTilesList(object) {
 	tiles[object.id] = object;
@@ -73,11 +74,31 @@ FoxTrot.prototype.loadTableList = function(tables) {
 	}
 }
 
+FoxTrot.prototype.addFilters = function() {
+  console.log('filter clicked');
+
+  var filterCount = filterRowArray.length;
+  filterRowArray.push(filterCount);
+  var filterRow = '<div class="row filters clearfix" id="row-'+filterCount+'"><div class="col-md-3"><select class="selectpicker row-table-column"><option>select</option></select></div><div class="col-md-3"><select class="selectpicker column-filter-type"><option>select</option><option value="between">Between</option><option value="greater_equal">Greater than equals</option><option value="greater_than">Greatert than</option><option value="less_equal">Between</option><option value="less_than">Less than equals</option><option value="less_than">Less than</option><option value="equals">Equals</option><option value="not_equals">Not equals</option><option value="contains">Contains</option><option value="last">Last</option></select></div><div class="col-md-4"><input type="text" class="form-control row-filter-value"></div><div class="col-md-2"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span></div></div>';
+  $( ".add-filter-row" ).prepend(filterRow);
+  $('.selectpicker').selectpicker('refresh');
+
+}
+
+function clickedChartType(el) {
+  console.log($(el).data('chartType'));
+  $("#table-units").show();
+}
+
 $(document).ready(function(){
 	var type = $("#widgetType").val();
 	var foxtrot = new FoxTrot();
   $("#addWidgetModal").validator();
 	$("#addWidgetConfirm").click($.proxy(foxtrot.addTile, foxtrot));
+  $("#filter-add-btn").click($.proxy(foxtrot.addFilters, foxtrot));
+  $(".vizualization-type").click(function(){
+    clickedChartType(this);
+  });
 	$("#default-btn").click(function () {
 		defaultPlusBtn = true;
     $(".settings-form").find("input[type=text], textarea").val("");
