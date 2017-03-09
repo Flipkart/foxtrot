@@ -571,3 +571,16 @@ path {
 .filter-value {
   margin-top: 14px;
 }
+
+.btn-warning:hover {
+  color: #000 !important;
+}
+
+.btn-group .dropdown-toggle.btn-warning~.dropdown-menu {
+  background-color: #EFEFEF !important;
+  border-color: #EFEFEF !important;
+}
+
+.btn-warning:hover, .btn-warning:focus, .btn-warning:active, .btn-warning.active, .open .dropdown-toggle.btn-warning {
+  color: #000 !important;
+}
