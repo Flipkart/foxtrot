@@ -87,7 +87,6 @@ var defaultPlusBtn = true;
 var customBtn;
 var filterRowArray = [];
 var currentChartType;
-var currentTableFields;
 
 function addTilesList(object) {
 	tiles[object.id] = object;
@@ -155,6 +154,17 @@ function deleteFilterRow(el) {
   $(parentRow).remove();
 }
 
+FoxTrot.prototype.prepareFieldOption = function(el) {
+  console.log(this.tables.currentTableFieldMappings);
+  $.each(this.tables.currentTableFieldMappings, function (i, item) {
+    $(el).append($('<option>', {
+        value: item.field,
+        text : item.field
+    }));
+});
+  $(el).selectpicker('refresh');
+}
+
 function prepareFieldOption (el) {
   $.each(currentTableFields, function (i, item) {
     $(el).append($('<option>', {
@@ -174,7 +184,8 @@ FoxTrot.prototype.addFilters = function() {
 
   var filterValueEl = $("#filter-row-"+filterCount).find('.filter-delete');
   var filterColumn = $("#filter-row-"+filterCount).find('.filter-column')
-  prepareFieldOption(filterColumn);
+  //prepareFieldOption(filterColumn);
+  this.prepareFieldOption(filterColumn);
   $(filterValueEl).click( function() {
     deleteFilterRow(this);
   });
