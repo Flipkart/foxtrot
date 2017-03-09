@@ -155,23 +155,12 @@ function deleteFilterRow(el) {
 }
 
 FoxTrot.prototype.prepareFieldOption = function(el) {
-  console.log(this.tables.currentTableFieldMappings);
   $.each(this.tables.currentTableFieldMappings, function (i, item) {
     $(el).append($('<option>', {
         value: item.field,
         text : item.field
     }));
-});
-  $(el).selectpicker('refresh');
-}
-
-function prepareFieldOption (el) {
-  $.each(currentTableFields, function (i, item) {
-    $(el).append($('<option>', {
-        value: item.field,
-        text : item.field
-    }));
-});
+  });
   $(el).selectpicker('refresh');
 }
 
@@ -184,7 +173,6 @@ FoxTrot.prototype.addFilters = function() {
 
   var filterValueEl = $("#filter-row-"+filterCount).find('.filter-delete');
   var filterColumn = $("#filter-row-"+filterCount).find('.filter-column')
-  //prepareFieldOption(filterColumn);
   this.prepareFieldOption(filterColumn);
   $(filterValueEl).click( function() {
     deleteFilterRow(this);
