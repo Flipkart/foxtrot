@@ -106,7 +106,7 @@ function getFilters() {
     var filterColumn = $(el).find(".filter-column").val();
     var filterType = $(el).find(".filter-type").val();
     var filterValue = $(el).find(".filter-value").val();
-    var filterObject = {"operator" : filterType, "value": filterValue};
+    var filterObject = {"operator" : filterType, "value": filterValue, "field": filterColumn};
     filterDetails.push(filterObject);
   }
   return filterDetails;

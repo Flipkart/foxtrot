@@ -25,12 +25,10 @@ LineTile.prototype.getQuery = function(newDiv, object) {
   var data = {
     "opcode": "histogram",
     "table": object.table,
-    "filters": [
-    ],
+    "filters": object.filters,
     "field": "_timestamp",
     "period": object.period
   }
-  console.log(JSON.stringify(data));
   $.ajax({
     method: "post",
     dataType: 'json',
@@ -44,11 +42,24 @@ LineTile.prototype.getQuery = function(newDiv, object) {
   });
 }
 
+function formatDate(date) {
+    var d = new Date(date),
+        month = '' + (d.getMonth() + 1),
+        day = '' + d.getDate(),
+        year = d.getFullYear();
+
+    if (month.length < 2) month = '0' + month;
+    if (day.length < 2) day = '0' + day;
+
+    return [year, month, day].join('-');
+}
+
 LineTile.prototype.getData = function(data) {
   var xAxis = [];
   var yAxis = [];
   for(var i = 0; i< data.counts.length; i++) {
-    xAxis.push([i, data.counts[i].period]);
+    var date = new Date(data.counts[i].period);
+    xAxis.push([i, formatDate(date)]);
     yAxis.push([i, data.counts[i].count ]);
   }
   this.render(xAxis, yAxis);
@@ -91,14 +102,14 @@ LineTile.prototype.render = function (xAxis, yAxis) {
 		healthDiv.width(100);
 		healthDiv.height(50);
 		$.plot(healthDiv, [
-			{ data: yValue },
+			{ data: yAxis },
 		], {
 			series: {
 				lines: { show: true },
 				points: { show: false }
 			},
 			xaxis: {
-				ticks: xValue,
+				ticks: xAxis,
 				tickLength:0
 			},
 			grid: {
