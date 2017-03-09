@@ -83,6 +83,9 @@ LineTile.prototype.render = function (xAxis, yAxis) {
 		ticks: xAxis,
 		tickLength:0
     },
+    yaxis: {
+    tickLength:0
+    },
     grid: {
       hoverable: true,
       color: "#B2B2B2",

@@ -136,6 +136,8 @@ FoxTrot.prototype.addTile = function() {
 	}
   console.log(object);
   currentChartType = "";
+  console.log('---')
+  console.log(editTileId);
   if(!editTileId) {// for new tile
     $("#addWidgetModal").modal('hide');
     var tile = TileFactory.create(object);
