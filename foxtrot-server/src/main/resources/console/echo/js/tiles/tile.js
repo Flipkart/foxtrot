@@ -14,6 +14,35 @@
  * limitations under the License.
  */
 
+function Queue() {
+    this.requests = {};
+    this.refreshTime = 5;
+    this.timeout = 4000;
+}
+
+Queue.prototype.enqueue = function (key, ajaxRequest) {
+    console.log("Adding: " + key);
+    this.requests[key] = ajaxRequest;
+};
+
+Queue.prototype.remove = function (key) {
+    console.log("Removing: " + key);
+    delete this.requests[key];
+};
+
+Queue.prototype.start = function () {
+    setInterval($.proxy(this.executeCalls, this),
+        this.refreshTime * 1000);
+};
+
+Queue.prototype.executeCalls = function () {
+    for (var property in this.requests) {
+        if (this.requests.hasOwnProperty(property)) {
+            this.requests[property]();
+        }
+    }
+};
+
 function Tile() {
 }
 

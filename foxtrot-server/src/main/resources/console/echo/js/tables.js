@@ -29,101 +29,8 @@ function Tables() {
 }
 
 Tables.prototype.init = function(callback) {
-  var tableJson = [
-  {
-    "name": "csp",
-    "ttl": 180,
-    "seggregatedBackend": true
-  },
-  {
-    "name": "egv",
-    "ttl": 180,
-    "seggregatedBackend": true
-  },
-  {
-    "name": "flipcast",
-    "ttl": 180,
-    "seggregatedBackend": true
-  },
-  {
-    "name": "foobar",
-    "ttl": 30,
-    "seggregatedBackend": true
-  },
-  {
-    "name": "fpapp",
-    "ttl": 180,
-    "seggregatedBackend": true
-  },
-  {
-    "name": "kratos",
-    "ttl": 180,
-    "seggregatedBackend": true
-  },
-  {
-    "name": "mercury",
-    "ttl": 180,
-    "seggregatedBackend": true
-  },
-  {
-    "name": "nexus",
-    "ttl": 180,
-    "seggregatedBackend": true
-  },
-  {
-    "name": "payment",
-    "ttl": 180,
-    "seggregatedBackend": true
-  },
-  {
-    "name": "phonepe",
-    "ttl": 30,
-    "seggregatedBackend": true
-  },
-  {
-    "name": "phonepe_consumer_app_android",
-    "ttl": 180,
-    "seggregatedBackend": true
-  },
-  {
-    "name": "phonepe_consumer_app_android_extras",
-    "ttl": 180,
-    "seggregatedBackend": true
-  },
-  {
-    "name": "plutus",
-    "ttl": 180,
-    "seggregatedBackend": true
-  },
-  {
-    "name": "promotions",
-    "ttl": 180,
-    "seggregatedBackend": true
-  },
-  {
-    "name": "userservice",
-    "ttl": 180,
-    "seggregatedBackend": true
-  },
-  {
-    "name": "wallet",
-    "ttl": 180,
-    "seggregatedBackend": true
-  },
-  {
-    "name": "yblfundtransfer",
-    "ttl": 180,
-    "seggregatedBackend": true
-  }
-];
-
-  this.tables = [];
-  for (var i = tableJson.length - 1; i >= 0; i--) {
-		var table = tableJson[i];
-		this.tables.push(new Table(table.name, table.ttl));
-	};
-	/*$.ajax({
-		url: hostDetails.url("/foxtrot/v1/tables"),
+	$.ajax({
+		url: "http://foxtrot.traefik.prod.phonepe.com/foxtrot/v1/tables/",
 		contentType: "application/json",
 		context: this,
 		success: function(tables) {
@@ -137,8 +44,32 @@ Tables.prototype.init = function(callback) {
 				this.tableChangeHandlers[i](this.tables);
 			};
 		}
-	});*/
+	});
 };
+
+Tables.prototype.forceSelectedTableAfterInit = function(tableName) {
+    this.initialSelectedTable = tableName;
+}
+
+Tables.prototype.getSelectionIndex = function() {
+    if(!this.initialSelectedTable) {
+        return 0;
+    }
+    for (var i = 0; i < this.tables.length; i++) {
+            if(this.tables[i].name === this.initialSelectedTable) {
+            return i;
+        }
+    }
+}
+
+Tables.prototype.registerTableChangeHandler = function(tableChangeHandler) {
+	this.tableChangeHandlers.push(tableChangeHandler);
+};
+
+Tables.prototype.registerMetaLoadHandler = function(metaLoadHandler) {
+	this.metaLoadHandlers.push(metaLoadHandler);
+};
+
 
 Tables.prototype.loadTableMeta = function (table, callback) {
     callback = callback || $.noop;
@@ -154,9 +85,9 @@ Tables.prototype.loadTableMeta = function (table, callback) {
                     return ((lhs.field > rhs.field) ? 1 : ((lhs.field < rhs.field) ? -1 : 0));
                 });
             }
+            currentTableFields = this.currentTableFieldMappings;
             for (var i = this.metaLoadHandlers.length - 1; i >= 0; i--) {
                 this.metaLoadHandlers[i](this.tables);
-              console.log(this.metaLoadHandlers)
             }
             callback();
         }, this)

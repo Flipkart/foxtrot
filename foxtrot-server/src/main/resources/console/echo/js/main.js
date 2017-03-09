@@ -14,14 +14,71 @@
  * limitations under the License.
  */
 
+function TablesView(id, tables) {
+	this.id = id;
+	this.tables = tables;
+	this.tableSelectionChangeHandler = null;
+}
+
+TablesView.prototype.load = function(tables) {
+  console.log('tables')
+  console.log(tables)
+	var select = $(this.id);
+	select.find('option')
+    .remove();
+	for (var i = tables.length - 1; i >= 0; i--) {
+		select.append("<option value='" + i + "'>" + tables[i].name + '</option>');
+	}
+	select.val(this.tables.getSelectionIndex());
+	select.selectpicker('refresh');
+	select.change();
+};
+
+TablesView.prototype.registerTableSelectionChangeHandler = function(handler) {
+	this.tableSelectionChangeHandler = handler;
+};
+
+TablesView.prototype.init = function() {
+	this.tables.registerTableChangeHandler($.proxy(this.load, this));
+	$(this.id).change($.proxy(function(){
+		var value = parseInt($(this.id).val());
+		var table = this.tables.tables[value];
+		if(table) {
+			if(this.tableSelectionChangeHandler) {
+				this.tableSelectionChangeHandler(table.name);
+			}
+			this.tables.loadTableMeta(table);
+			this.tables.selectedTable = table;
+			console.log("Table changed to: " + table.name);
+      //console.log(this);
+		}
+	}, this));
+  console.log('initiated')
+	this.tables.init();
+};
+
 function FoxTrot() {
   this.tables = new Tables();
-  this.tables.init();
+  this.tablesView = new TablesView("#tileTable", this.tables);
+  this.queue = new Queue();
   this.tableSelectionChangeHandler = null;
-  this.loadTableList(this.tables.tables)
-  console.log('3');
-  console.log(this.tables);
+  //this.loadTableList()
 }
+
+FoxTrot.prototype.init = function() {
+	this.tablesView.registerTableSelectionChangeHandler($.proxy(function(value){
+		this.selectedTable = value;
+		if(this.tableSelectionChangeHandler && value) {
+			for (var i = this.tableSelectionChangeHandlers.length - 1; i >= 0; i--) {
+				this.tableSelectionChangeHandlers[i](value);
+			};
+		}
+	}, this));
+	this.tablesView.init();
+	this.queue.start();
+	//this.tablesView.registerTableSelectionChangeHandler($.proxy(this.queue.executeCalls, this.queue));
+};
+
 var tiles = {};
 var tileList = [];
 var tileData = [];
@@ -87,34 +144,6 @@ FoxTrot.prototype.addTile = function() {
   }
 };
 
-FoxTrot.prototype.setSelectedTable = function() {
-  var tableValue = $("#tileTable").val();
-  //this.loadTableMeta(this.tables.tables[tableValue]);
-  var table = this.tables.tables[tableValue];
-  $.ajax({
-        url: "http://foxtrot.traefik.prod.phonepe.com/foxtrot/v1/tables/" + table.name + "/fields",
-        contentType: "application/json",
-        context: this,
-        success: $.proxy(function (data) {
-            currentTableFields = data.mappings;
-        })
-    });
-}
-
-FoxTrot.prototype.loadTableMeta = function(table) {
-  this.tables.loadTableMeta(table);
-  console.log(table);
-}
-
-FoxTrot.prototype.loadTableList = function(tables) {
-  var select = $("#tileTable");
-	select.find('option').remove();
-  select.append("<option value=''>Select table</option>");
-	for (var i = tables.length - 1; i >= 0; i--) {
-		select.append("<option value='" + i + "'>" + tables[i].name + '</option>');
-	}
-}
-
 function deleteFilterRow(el) {
   var parentRow = $(el).parent();
   var parentRowId = parentRow.attr('id');
@@ -127,14 +156,6 @@ function deleteFilterRow(el) {
 }
 
 function prepareFieldOption (el) {
-//  console.log(el)
-//	el.find('option').remove();
-//  el.append("<option value=''>Select column</option>");
-//	for (var i = currentTableFields.length - 1; i >= 0; i--) {
-//		el.append("<option value='" + i + "'>" + currentTableFields[i].field + '</option>');
-//	}
-//  $('.selectpicker').selectpicker('refresh');
-
   $.each(currentTableFields, function (i, item) {
     $(el).append($('<option>', {
         value: item.field,
@@ -179,5 +200,5 @@ $(document).ready(function(){
 		defaultPlusBtn = true;
     $(".settings-form").find("input[type=text], textarea").val("");
 	});
-  $("#tileTable").change($.proxy(foxtrot.setSelectedTable, foxtrot))
+  foxtrot.init();
 });
