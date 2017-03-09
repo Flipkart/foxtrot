@@ -134,10 +134,7 @@ FoxTrot.prototype.addTile = function() {
     "filters": getFilters(),
     "period": period
 	}
-  console.log(object);
   currentChartType = "";
-  console.log('---')
-  console.log(editTileId);
   if(!editTileId) {// for new tile
     $("#addWidgetModal").modal('hide');
     var tile = TileFactory.create(object);
@@ -172,7 +169,7 @@ FoxTrot.prototype.prepareFieldOption = function(el) {
 FoxTrot.prototype.addFilters = function() {
   var filterCount = filterRowArray.length;
   filterRowArray.push(filterCount);
-  var filterRow = '<div class="row filters clearfix" id="filter-row-'+filterCount+'"><div class="col-md-3"><select class="filter-column"><option>select</option></select></div><div class="col-md-3"><select class="selectpicker filter-type"><option>select</option><option value="between">Between</option><option value="greater_equal">Greater than equals</option><option value="greater_than">Greatert than</option><option value="less_equal">Between</option><option value="less_than">Less than equals</option><option value="less_than">Less than</option><option value="equals">Equals</option><option value="not_equals">Not equals</option><option value="contains">Contains</option><option value="last">Last</option></select></div><div class="col-md-4"><input type="text" class="form-control filter-value"></div><div class="col-md-2 filter-delete"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span></div></div>';
+  var filterRow = '<div class="row filters clearfix" id="filter-row-'+filterCount+'"><div class="col-md-3"><select class="filter-column" data-live-search="true"><option>select</option></select></div><div class="col-md-3"><select class="selectpicker filter-type" data-live-search="true"><option>select</option><option value="between">Between</option><option value="greater_equal">Greater than equals</option><option value="greater_than">Greatert than</option><option value="less_equal">Between</option><option value="less_than">Less than equals</option><option value="less_than">Less than</option><option value="equals">Equals</option><option value="not_equals">Not equals</option><option value="contains">Contains</option><option value="last">Last</option></select></div><div class="col-md-4"><input type="text" class="form-control filter-value"></div><div class="col-md-2 filter-delete"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span></div></div>';
   $( ".add-filter-row" ).prepend(filterRow);
   $('.selectpicker').selectpicker('refresh');
 
