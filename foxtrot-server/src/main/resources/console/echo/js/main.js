@@ -181,6 +181,17 @@ FoxTrot.prototype.addFilters = function() {
   });
 }
 
+FoxTrot.prototype.resetModal = function() {
+  $("#widgetType").val('');
+	$("#tileTitle").val('');
+	$("#tileTable").val('');
+  $("#tileTimeFrame").val('');
+  $(".tile-time-unit").val('minutes');
+  filterRowArray = [];
+  $(".vizualization-type").removeClass("vizualization-type-active");
+  $(".filters").remove();
+}
+
 function clickedChartType(el) {
   currentChartType = $(el).data('chartType');
   $("#table-units").show();
@@ -199,6 +210,7 @@ $(document).ready(function(){
   });
 	$("#default-btn").click(function () {
 		defaultPlusBtn = true;
+    foxtrot.resetModal();
     $(".settings-form").find("input[type=text], textarea").val("");
 	});
   foxtrot.init();
