@@ -116,9 +116,14 @@
               <div class="row" id="table-units">
                 <div class="row">
                   <div class="col-sm-5 col-md-6">
-                    <label class="control-label">Field 1 : </label>
-                    <input type="text" class="key" id="tileKey" placeholder="Give a key" required>
+                    <label class="control-label">Period:</label>
+                    <select class="selectpicker tile-time-unit">
+                      <option value="minutes" selected="selected">Minute</option>
+                      <option value="hours">Hour</option>
+                      <option value="days">Day</option>
+                    </select>
                   </div>
+<!--
                   <div class="col-sm-5 col-sm-offset-2 col-md-6 col-md-offset-0">
                     <label class="control-label">Field 2 : </label>
                     <select class="selectpicker stacking-key" id="stackingKey" data-live-search="true" data-style="btn-warning" required>
@@ -135,6 +140,7 @@
                     <select class="selectpicker stacking-key" id="stackingKey" data-live-search="true" data-style="btn-warning" required>
                     </select>
                   </div>
+-->
                 </div>
               </div>
             </div>

@@ -194,7 +194,8 @@ TileFactory.create = function (object) {
 
 	if(object.chartType == "line") {
     var lineGraph = new LineTile();
-		lineGraph.render(newDiv, object);
+		//lineGraph.render(newDiv, object);
+    lineGraph.getQuery(newDiv, object);
 	} else if(object.chartType == "radar") {
     newDiv.find(".chart-item").append('<div id="radar-'+object.id+'" style="width:200;height:200"></div>');
     var radarGraph = new RadarTile();

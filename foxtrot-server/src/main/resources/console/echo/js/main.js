@@ -115,21 +115,24 @@ function getFilters() {
 FoxTrot.prototype.addTile = function() {
 	var widgetType = $("#widgetType").val();
 	var title = $("#tileTitle").val();
-	var table = $("#tileTable").val();
+	var tableId = parseInt($("#tileTable").val());
+  var table = this.tables.tables[tableId];
 	var chartType = currentChartType;
   var tileTimeFrame = $("#tileTimeFrame").val();
   var editTileId = $("#tileId").val();
+  var period = $(".tile-time-unit").val();
 	var tileId = guid();
   getFilters();
 	var object = {
 		"id" : tileId,
 		"title": title,
 		"widgetType": "full",
-		"table": table,
+		"table": table.name,
 		"chartType": currentChartType,
     "tileTimeFrame": tileTimeFrame,
     "editTileId": editTileId,
-    "filters": getFilters()
+    "filters": getFilters(),
+    "period": period
 	}
   console.log(object);
   currentChartType = "";

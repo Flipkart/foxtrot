@@ -15,63 +15,77 @@
  */
 
 function LineTile() {
-
+  this.newDiv = "";
+  this.object = "";
 }
 
-LineTile.prototype.render = function (newDiv, object) {
-	var min = 100;
-	var max = 10000;
-// and the formula is:
-	var chartObject = {
-        "8": Math.floor(Math.random() * (max - min + 1)) + min,
-        "9": Math.floor(Math.random() * (max - min + 1)) + min,
-        "lollypop": Math.floor(Math.random() * (max - min + 1)) + min,
-        "ics": Math.floor(Math.random() * (max - min + 1)) + min,
-        "marshmallow": Math.floor(Math.random() * (max - min + 1)) + min,
-        "kitkat": Math.floor(Math.random() * (max - min + 1)) + min,
-        "jellybean": Math.floor(Math.random() * (max - min + 1)) + min
-    };
+LineTile.prototype.getQuery = function(newDiv, object) {
+  this.newDiv = newDiv;
+  this.object = object;
+  var data = {
+    "opcode": "histogram",
+    "table": object.table,
+    "filters": [
+    ],
+    "field": "_timestamp",
+    "period": object.period
+  }
+  console.log(JSON.stringify(data));
+  $.ajax({
+    method: "post",
+    dataType: 'json',
+    accepts: {
+        json: 'application/json'
+    },
+    url: "http://foxtrot.traefik.prod.phonepe.com/foxtrot/v1/analytics",
+    contentType: "application/json",
+    data: JSON.stringify(data),
+    success: $.proxy(this.getData, this)
+  });
+}
 
-		var yValue = [];
-		var xValue = [];
-		var index = 0;
-		for (var key in chartObject) {
-			if (chartObject.hasOwnProperty(key)) {
-				yValue.push([index, chartObject[key]]);
-				xValue.push([index, key])
-			}
-			index++;
-		}
+LineTile.prototype.getData = function(data) {
+  var xAxis = [];
+  var yAxis = [];
+  for(var i = 0; i< data.counts.length; i++) {
+    xAxis.push([i, data.counts[i].period]);
+    yAxis.push([i, data.counts[i].count ]);
+  }
+  this.render(xAxis, yAxis);
+}
 
-		var chartDiv = newDiv.find(".chart-item");
-		var ctx = chartDiv.find("#"+object.id);
-		ctx.width(ctx.width);
-		ctx.height(230);
-		$.plot(ctx, [
-			{ data: yValue },
-		], {
-			series: {
-				lines: { show: true, lineWidth: 3.0, color: "#000"},
-				points: { show: false }
-			},
-			xaxis: {
-				ticks: xValue,
-				tickLength:0
-			},
-			grid: {
-				hoverable: true,
-        color: "#B2B2B2",
-        show: true,
-        borderWidth: {top: 0, right: 0, bottom: 1, left: 1},
-        borderColor: "#EEEEEE",
-			},
-			tooltip: true,
-        tooltipOpts: {
-            content: "%y events at %x",
-            defaultFormat: true
-        },
-			colors: ['#000'],
-		});
+LineTile.prototype.render = function (xAxis, yAxis) {
+  var newDiv = this.newDiv;
+  var object = this.object;
+	var chartDiv = newDiv.find(".chart-item");
+  var ctx = chartDiv.find("#"+object.id);
+	ctx.width(ctx.width);
+	ctx.height(230);
+	$.plot(ctx, [
+		{ data: yAxis },
+  ], {
+    series: {
+		lines: { show: true, lineWidth: 3.0, color: "#000"},
+		points: { show: false }
+		},
+		xaxis: {
+		ticks: xAxis,
+		tickLength:0
+    },
+    grid: {
+      hoverable: true,
+      color: "#B2B2B2",
+      show: true,
+      borderWidth: {top: 0, right: 0, bottom: 1, left: 1},
+      borderColor: "#EEEEEE",
+    },
+    tooltip: true,
+    tooltipOpts: {
+      content: "%y events at %x",
+      defaultFormat: true
+    },
+    colors: ['#000'],
+  });
 
 		var healthDiv = chartDiv.find("#"+object.id+"-health");
 		healthDiv.width(100);
