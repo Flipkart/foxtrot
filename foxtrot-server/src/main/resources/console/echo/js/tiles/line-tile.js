@@ -101,12 +101,12 @@ LineTile.prototype.render = function (xAxis, yAxis) {
     colors: ['#000'],
   });
 
-		var healthDiv = chartDiv.find("#"+object.id+"-health");
-		healthDiv.width(100);
-		healthDiv.height(50);
-		$.plot(healthDiv, [
-			{ data: yAxis },
-		], {
+  var healthDiv = chartDiv.find("#"+object.id+"-health");
+	healthDiv.width(100);
+	healthDiv.height(50);
+	$.plot(healthDiv, [
+		{ data: yAxis },
+  ],{
 			series: {
 				lines: { show: true },
 				points: { show: false }

@@ -21,8 +21,6 @@ function TablesView(id, tables) {
 }
 
 TablesView.prototype.load = function(tables) {
-  console.log('tables')
-  console.log(tables)
 	var select = $(this.id);
 	select.find('option')
     .remove();
@@ -53,7 +51,6 @@ TablesView.prototype.init = function() {
       //console.log(this);
 		}
 	}, this));
-  console.log('initiated')
 	this.tables.init();
 };
 
@@ -62,7 +59,6 @@ function FoxTrot() {
   this.tablesView = new TablesView("#tileTable", this.tables);
   this.queue = new Queue();
   this.tableSelectionChangeHandler = null;
-  //this.loadTableList()
 }
 
 FoxTrot.prototype.init = function() {
@@ -76,7 +72,6 @@ FoxTrot.prototype.init = function() {
 	}, this));
 	this.tablesView.init();
 	this.queue.start();
-	//this.tablesView.registerTableSelectionChangeHandler($.proxy(this.queue.executeCalls, this.queue));
 };
 
 var tiles = {};
