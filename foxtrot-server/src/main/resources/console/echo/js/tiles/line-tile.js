@@ -44,6 +44,8 @@ LineTile.prototype.getQuery = function(newDiv, object) {
 }
 
 LineTile.prototype.getData = function(data) {
+  if(data.counts == undefined || data.counts.length == 0)
+    return;
   var xAxis = [];
   var yAxis = [];
   for(var i = 0; i< data.counts.length; i++) {
