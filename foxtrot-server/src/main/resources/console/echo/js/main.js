@@ -35,6 +35,10 @@ TablesView.prototype.load = function(tables) {
 function uniqueKey(fields) {
   var el = $("#uniqueKey");
   el.find('option').remove();
+  $(el).append($('<option>', {
+        value: "none",
+        text : "none"
+    }));
 	$.each(fields, function (i, item) {
     $(el).append($('<option>', {
         value: item.field,
@@ -128,6 +132,7 @@ FoxTrot.prototype.addTile = function() {
   var tileTimeFrame = $("#tileTimeFrame").val();
   var editTileId = $("#tileId").val();
   var period = $(".tile-time-unit").val();
+  var uniqueCount = $("#uniqueKey").val();
 	var tileId = guid();
   getFilters();
 	var object = {
@@ -139,7 +144,8 @@ FoxTrot.prototype.addTile = function() {
     "tileTimeFrame": tileTimeFrame,
     "editTileId": editTileId,
     "filters": getFilters(),
-    "period": period
+    "period": period,
+    "uniqueCountOn": uniqueCount
 	}
   currentChartType = "";
   if(!editTileId) {// for new tile

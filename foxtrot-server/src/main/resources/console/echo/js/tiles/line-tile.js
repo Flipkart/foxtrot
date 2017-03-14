@@ -27,7 +27,8 @@ LineTile.prototype.getQuery = function(newDiv, object) {
     "table": object.table,
     "filters": object.filters,
     "field": "_timestamp",
-    "period": object.period
+    "period": object.period,
+    "uniqueCountOn": object.uniqueCountOn && object.uniqueCountOn != "none" ? object.uniqueCountOn : null
   }
   $.ajax({
     method: "post",
