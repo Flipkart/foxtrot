@@ -131,6 +131,8 @@ TileFactory.prototype.triggerConfig = function(tileElement, object) {
 	tileElement.find(".widget-toolbox").find(".glyphicon-cog").click(function () {
 	$("#addWidgetModal").modal('show');
 	$("#addWidgetModal").find(".tileId").val(object.id);
+  $(".vizualization-type").hide();
+  currentChartType = object.chartType;
 	var tileListIndex = tileList.indexOf(object.id);
 	var tileDataIndex = tileData[tileListIndex];
   var tileId = tileList[tileListIndex];
