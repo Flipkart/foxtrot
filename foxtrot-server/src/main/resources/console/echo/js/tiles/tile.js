@@ -57,7 +57,17 @@ function pushTilesObject(object) {
 	tileData.push(object);
 }
 
-TileFactory.prototype.updateTile = function(object) {
+TileFactory.prototype.updateTileData = function() {
+  var selectedTile = $("#"+this.tileObject.id);
+	selectedTile.find(".tile-title").text(this.tileObject.title);
+	var tileid= this.tileObject.id;
+	var prepareTileData = { };
+	prepareTileData[this.tileObject.id] = this.tileObject;
+	pushTilesObject(prepareTileData);
+  this.createGraph(this.tileObject, selectedTile);
+}
+
+TileFactory.prototype.createTileData = function(object) {
 	var selectedTile = $("#"+object.id);
 	selectedTile.find(".tile-title").text(object.title);
 	var tileid= object.id;
@@ -145,6 +155,18 @@ TileFactory.prototype.saveTileConfig = function(object) {
 	});
 }
 
+TileFactory.prototype.createGraph = function(object, tileElement) {
+  if(object.chartType == "line") {
+    var lineGraph = new LineTile();
+		//lineGraph.render(tileElement, object);
+    lineGraph.getQuery(tileElement, this.tileObject);
+	} else if(object.chartType == "radar") {
+    tileElement.find(".chart-item").append('<div id="radar-'+object.id+'" style="width:200;height:200"></div>');
+    var radarGraph = new RadarTile();
+		radarGraph.render(tileElement, object);
+  }
+}
+
 TileFactory.prototype.create = function () {
 	var tileElement = $(handlebars("#tile-template", {
 		tileId: this.tileObject.id
@@ -194,17 +216,8 @@ TileFactory.prototype.create = function () {
 		tileElement.insertAfter('#'+clickedRow);
 	}
 
-	if(this.tileObject.chartType == "line") {
-    var lineGraph = new LineTile();
-		//lineGraph.render(tileElement, object);
-    lineGraph.getQuery(tileElement, this.tileObject);
-	} else if(object.chartType == "radar") {
-    tileElement.find(".chart-item").append('<div id="radar-'+this.tileObject.id+'" style="width:200;height:200"></div>');
-    var radarGraph = new RadarTile();
-		radarGraph.render(tileElement, this.tileObject);
-  }
-
+  this.createGraph(this.tileObject, tileElement);
 	this.triggerConfig(tileElement, this.tileObject);// add event for tile config
-	this.updateTile(this.tileObject);
+	this.createTileData(this.tileObject);
 	this.saveTileConfig(this.tileObject);// add event for tile save btn
 };

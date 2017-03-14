@@ -130,12 +130,17 @@ FoxTrot.prototype.addTile = function() {
   var table = this.tables.tables[tableId];
 	var chartType = currentChartType;
   var tileTimeFrame = $("#tileTimeFrame").val();
-  var editTileId = $("#tileId").val();
+  var editTileId = $(".tileId").val();
+  console.log('===>' +editTileId)
   var period = $(".tile-time-unit").val();
   var uniqueCount = $("#uniqueKey").val();
   var periodValue = $("#periodValue").val();
 	var tileId = guid();
   getFilters();
+
+  if(editTileId)
+    tileId = editTileId;
+
 	var object = {
 		"id" : tileId,
 		"title": title,
@@ -149,17 +154,18 @@ FoxTrot.prototype.addTile = function() {
     "uniqueCountOn": uniqueCount,
     "periodValue": periodValue
 	}
+  var tileFactory = new TileFactory();
   currentChartType = "";
   if(!editTileId) {// for new tile
-    $("#addWidgetModal").modal('hide');
-    var tileFactory = new TileFactory();
     tileFactory.tileObject = object;
     tileFactory.create();
     var foxtrot = new FoxTrot();
     addTilesList(object);
   } else {// edit tile
-
+    tileFactory.tileObject = object;
+    tileFactory.updateTileData();
   }
+  $("#addWidgetModal").modal('hide');
 };
 
 function deleteFilterRow(el) {
@@ -204,6 +210,7 @@ FoxTrot.prototype.resetModal = function() {
 	$("#tileTable").val('');
   $("#tileTimeFrame").val('');
   $(".tile-time-unit").val('minutes');
+  $(".tileId").val('');
   filterRowArray = [];
   $(".vizualization-type").removeClass("vizualization-type-active");
   $(".filters").remove();
