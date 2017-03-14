@@ -211,6 +211,7 @@ FoxTrot.prototype.resetModal = function() {
   $(".tile-time-unit").val('minutes');
   $(".tileId").val('');
   filterRowArray = [];
+  $(".vizualization-type").show();
   $(".vizualization-type").removeClass("vizualization-type-active");
   $(".filters").remove();
 }
