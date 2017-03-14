@@ -153,7 +153,8 @@ FoxTrot.prototype.addTile = function() {
   if(!editTileId) {// for new tile
     $("#addWidgetModal").modal('hide');
     var tileFactory = new TileFactory();
-    tileFactory.create(object);
+    tileFactory.tileObject = object;
+    tileFactory.create();
     var foxtrot = new FoxTrot();
     addTilesList(object);
   } else {// edit tile
