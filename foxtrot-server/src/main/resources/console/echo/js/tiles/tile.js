@@ -45,6 +45,10 @@ Queue.prototype.executeCalls = function () {
 function Tile() {
 }
 
+function TileFactory() {
+  this.tileObject = "";
+}
+
 function submitClicked(e) {
 	console.log('submit clicked');
 }
@@ -53,7 +57,7 @@ function pushTilesObject(object) {
 	tileData.push(object);
 }
 
-function updateTile(object) {
+TileFactory.prototype.updateTile = function(object) {
 	var selectedTile = $("#"+object.id);
 	selectedTile.find(".tile-title").text(object.title);
 	var tileid= object.id;
@@ -62,7 +66,7 @@ function updateTile(object) {
 	pushTilesObject(prepareTileData);
 }
 
-function getTileFormValue(form, modal, object) {
+TileFactory.prototype.getTileFormValue = function(form, modal, object) {
 	var tileFormValue = {};
 	tileFormValue.title = form.find(".tile-title").val();
 	tileFormValue.table = form.find(".tile-table").val();
@@ -73,7 +77,7 @@ function getTileFormValue(form, modal, object) {
 	//updateTile(tileFormValue, modal);
 }
 
-function setConfigValue(object) {
+TileFactory.prototype.setConfigValue = function(object) {
 	var form = $("#addWidgetModal").find("form");
 	form.find(".tile-title").val(object.title);
 	form.find(".tile-table").val(object.table);
@@ -96,7 +100,7 @@ function newBtnElement() {
 }
 
 // create new div
-function createNewRow(newDiv, object) {
+TileFactory.prototype.createNewRow = function(newDiv, object) {
 	newDiv.addClass("col-md-12"); // add class for div which is full width
 	if(panelRow.length == 0) { // initial page
 		row = 1;
@@ -113,7 +117,7 @@ function createNewRow(newDiv, object) {
 }
 
 // Add click event for tile config icon
-function triggerConfig(newDiv, object) {
+TileFactory.prototype.triggerConfig = function(newDiv, object) {
 	newDiv.find(".widget-toolbox").find(".glyphicon-cog").click(function () {
 	$("#addWidgetModal").modal('show');
 	$("#addWidgetModal").find(".tileId").val(object.id);
@@ -123,26 +127,26 @@ function triggerConfig(newDiv, object) {
   var selectedTileObject = tileDataIndex[tileId];
     console.log(selectedTileObject);
     if(selectedTileObject) {
-      setConfigValue(selectedTileObject);
+      this.setConfigValue(selectedTileObject);
     }
 	});
 }
 
 // Save action for tile config save button
-function saveTileConfig(object) {
+TileFactory.prototype.saveTileConfig = function(object) {
 	$("#tile-configuration").find(".save-changes").click( function () {
     var form = $("#tile-configuration").find("form");
     form.off('submit');
     form.on('submit', $.proxy(function (e) {
-			getTileFormValue(form, "tile-configuration", object)
+			this.getTileFormValue(form, "tile-configuration", object)
 	    $("#tile-configuration").modal('hide');
 	    e.preventDefault();
     }, object));
 	});
 }
 
-function TileFactory() {}
-TileFactory.create = function (object) {
+TileFactory.prototype.create = function (object) {
+  this.tileObject = object;
 	var newDiv = $(handlebars("#tile-template", {
 		tileId: object.id
 		, title: object.title
@@ -150,13 +154,13 @@ TileFactory.create = function (object) {
 	var row = 0;// row
 	var clickedRow;// clicked row
 	if(defaultPlusBtn) { // check its new row
-		newDiv = createNewRow(newDiv, object)
+		newDiv = this.createNewRow(newDiv, object)
 	} else {// row button action
 		var splitValue = customBtn.id.split("-");
 		var rowObject = panelRow[splitValue[1] - 1];
 		clickedRow = rowObject.id
 		if(object.widgetType != rowObject.widgetType) {// f choosen type and row type is not equal
-			newDiv = createNewRow(newDiv, object);
+			newDiv = this.createNewRow(newDiv, object);
 			defaultPlusBtn = true;
 		}
 
@@ -201,7 +205,7 @@ TileFactory.create = function (object) {
 		radarGraph.render(newDiv, object);
   }
 
-	triggerConfig(newDiv, object);// add event for tile config
-	updateTile(object);
-	saveTileConfig(object);// add event for tile save btn
+	this.triggerConfig(newDiv, object);// add event for tile config
+	this.updateTile(object);
+	this.saveTileConfig(object);// add event for tile save btn
 };
