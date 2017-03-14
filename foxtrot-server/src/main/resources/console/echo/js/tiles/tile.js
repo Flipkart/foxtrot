@@ -100,25 +100,25 @@ function newBtnElement() {
 }
 
 // create new div
-TileFactory.prototype.createNewRow = function(newDiv) {
-	newDiv.addClass("col-md-12"); // add class for div which is full width
+TileFactory.prototype.createNewRow = function(tileElement) {
+	tileElement.addClass("col-md-12"); // add class for div which is full width
 	if(panelRow.length == 0) { // initial page
 		row = 1;
 		panelRow.push({widgetType : this.tileObject.widgetType, id : this.tileObject.id});
-		newDiv.addClass("row-"+row);
+		tileElement.addClass("row-"+row);
 	} else { // incremetn row value by one
 		panelRow.push({widgetType : this.tileObject.widgetType, id : this.tileObject.id});
 		row = panelRow.length;
-		newDiv.addClass("row-"+row);
+		tileElement.addClass("row-"+row);
 	}
 	if(this.tileObject.widgetType != "full") // dont add row add button for full widget
-		newDiv.append(newBtnElement());
-	return newDiv;
+		tileElement.append(newBtnElement());
+	return tileElement;
 }
 
 // Add click event for tile config icon
-TileFactory.prototype.triggerConfig = function(newDiv, object) {
-	newDiv.find(".widget-toolbox").find(".glyphicon-cog").click(function () {
+TileFactory.prototype.triggerConfig = function(tileElement, object) {
+	tileElement.find(".widget-toolbox").find(".glyphicon-cog").click(function () {
 	$("#addWidgetModal").modal('show');
 	$("#addWidgetModal").find(".tileId").val(object.id);
 	var tileListIndex = tileList.indexOf(object.id);
@@ -146,65 +146,65 @@ TileFactory.prototype.saveTileConfig = function(object) {
 }
 
 TileFactory.prototype.create = function () {
-	var newDiv = $(handlebars("#tile-template", {
+	var tileElement = $(handlebars("#tile-template", {
 		tileId: this.tileObject.id
 		, title: this.tileObject.title
 	}));
 	var row = 0;// row
 	var clickedRow;// clicked row
 	if(defaultPlusBtn) { // check its new row
-		newDiv = this.createNewRow(newDiv)
+		tileElement = this.createNewRow(tileElement)
 	} else {// row button action
 		var splitValue = customBtn.id.split("-");
 		var rowObject = panelRow[splitValue[1] - 1];
 		clickedRow = rowObject.id
 		if(this.tileObject.widgetType != rowObject.widgetType) {// f choosen type and row type is not equal
-			newDiv = this.createNewRow(newDiv);
+			tileElement = this.createNewRow(tileElement);
 			defaultPlusBtn = true;
 		}
 
 		if(this.tileObject.widgetType == 'small'&& rowObject.widgetType == 'small') {
 			var findElement = $("."+customBtn.id);
 			if(findElement.find(".row-col-1").length == 0) {
-				newDiv.addClass('row-col-1');
-				newDiv.append("<div><button data-target='#addWidgetModal' class='tile-add-btn tile-add-btn btn btn-primary filter-nav-button glyphicon glyphicon-plus custom-add-btn row-col-1'onClick='setClicketData(this)'  data-toggle='modal' id='row-"+splitValue[1]+"'></button><div>");
+				tileElement.addClass('row-col-1');
+				tileElement.append("<div><button data-target='#addWidgetModal' class='tile-add-btn tile-add-btn btn btn-primary filter-nav-button glyphicon glyphicon-plus custom-add-btn row-col-1'onClick='setClicketData(this)'  data-toggle='modal' id='row-"+splitValue[1]+"'></button><div>");
 			}
 		}
 	}
 
 	if(this.tileObject.widgetType == "full") {
-		newDiv.find(".tile").addClass('col-md-12');
+		tileElement.find(".tile").addClass('col-md-12');
 	} else if(this.tileObject.widgetType == "medium") {
-		newDiv.find(".tile").addClass('col-md-6');
-		newDiv.find(".tile").width(590);
+		tileElement.find(".tile").addClass('col-md-6');
+		tileElement.find(".tile").width(590);
 	} else if(this.tileObject.widgetType == "small") {
-		newDiv.find(".tile").addClass('col-md-4');
-		newDiv.find(".tile").width(300);
-		newDiv.find(".tile").height(200);
+		tileElement.find(".tile").addClass('col-md-4');
+		tileElement.find(".tile").width(300);
+		tileElement.find(".tile").height(200);
 	}
 
-	newDiv.find(".chart-item").append('<div id="'+this.tileObject.id+'-health-text" class="lineGraph-health-text">10,000</div>');
-	newDiv.find(".chart-item").append('<div id="'+this.tileObject.id+'-health" style=""></div>');
-	newDiv.find(".chart-item").append('<div id="'+this.tileObject.id+'"></div>');
+	tileElement.find(".chart-item").append('<div id="'+this.tileObject.id+'-health-text" class="lineGraph-health-text">10,000</div>');
+	tileElement.find(".chart-item").append('<div id="'+this.tileObject.id+'-health" style=""></div>');
+	tileElement.find(".chart-item").append('<div id="'+this.tileObject.id+'"></div>');
 
 	if(defaultPlusBtn) {// new row
-		newDiv.insertBefore('.float-clear');
+		tileElement.insertBefore('.float-clear');
 	} else {// remove row btn and add new div based on type
 		customBtn.remove();
-		newDiv.insertAfter('#'+clickedRow);
+		tileElement.insertAfter('#'+clickedRow);
 	}
 
 	if(this.tileObject.chartType == "line") {
     var lineGraph = new LineTile();
-		//lineGraph.render(newDiv, object);
-    lineGraph.getQuery(newDiv, this.tileObject);
+		//lineGraph.render(tileElement, object);
+    lineGraph.getQuery(tileElement, this.tileObject);
 	} else if(object.chartType == "radar") {
-    newDiv.find(".chart-item").append('<div id="radar-'+this.tileObject.id+'" style="width:200;height:200"></div>');
+    tileElement.find(".chart-item").append('<div id="radar-'+this.tileObject.id+'" style="width:200;height:200"></div>');
     var radarGraph = new RadarTile();
-		radarGraph.render(newDiv, this.tileObject);
+		radarGraph.render(tileElement, this.tileObject);
   }
 
-	this.triggerConfig(newDiv, this.tileObject);// add event for tile config
+	this.triggerConfig(tileElement, this.tileObject);// add event for tile config
 	this.updateTile(this.tileObject);
 	this.saveTileConfig(this.tileObject);// add event for tile save btn
 };
