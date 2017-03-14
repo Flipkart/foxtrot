@@ -208,6 +208,12 @@ FoxTrot.prototype.resetModal = function() {
 function clickedChartType(el) {
   currentChartType = $(el).data('chartType');
   $("#table-units").show();
+  var chartDataEle = $("#table-units").find("#"+currentChartType+"-chart-data");
+  if(chartDataEle.length > 0) {
+    $(chartDataEle).show();
+  } else {
+    $("#table-units").hide();
+  }
   $(".vizualization-type").removeClass("vizualization-type-active");
   $(el).addClass("vizualization-type-active");
 }

@@ -589,3 +589,7 @@ path {
   background: #fff;
   border: none;
 }
+
+#line-chart-data {
+  display: none;
+}
