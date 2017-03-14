@@ -65,6 +65,10 @@ TileFactory.prototype.updateTileData = function() {
 	prepareTileData[this.tileObject.id] = this.tileObject;
 	pushTilesObject(prepareTileData);
   this.createGraph(this.tileObject, selectedTile);
+  var tileListIndex = tileList.indexOf(this.tileObject.id);
+	var tileDataIndex = tileData[tileListIndex];
+  tileData.splice(tileDataIndex, 1);
+  tileData.splice(tileDataIndex, 0, this.tileObject);
 }
 
 TileFactory.prototype.createTileData = function(object) {
@@ -137,7 +141,6 @@ TileFactory.prototype.triggerConfig = function(tileElement, object) {
 	var tileDataIndex = tileData[tileListIndex];
   var tileId = tileList[tileListIndex];
   var selectedTileObject = tileDataIndex[tileId];
-    console.log(selectedTileObject);
     if(selectedTileObject) {
       setConfigValue(selectedTileObject);
     }

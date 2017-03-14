@@ -131,7 +131,6 @@ FoxTrot.prototype.addTile = function() {
 	var chartType = currentChartType;
   var tileTimeFrame = $("#tileTimeFrame").val();
   var editTileId = $(".tileId").val();
-  console.log('===>' +editTileId)
   var period = $(".tile-time-unit").val();
   var uniqueCount = $("#uniqueKey").val();
   var periodValue = $("#periodValue").val();
