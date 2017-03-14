@@ -123,13 +123,13 @@
                       <option value="days">Day</option>
                     </select>
                   </div>
-<!--
                   <div class="col-sm-5 col-sm-offset-2 col-md-6 col-md-offset-0">
-                    <label class="control-label">Field 2 : </label>
-                    <select class="selectpicker stacking-key" id="stackingKey" data-live-search="true" data-style="btn-warning" required>
+                    <label class="control-label">Generate Unique of : </label>
+                    <select class="selectpicker unique-key" id="uniqueKey" data-live-search="true" data-style="btn-warning" required>
                     </select>
                   </div>
                 </div>
+<!--
                 <div class="row">
                   <div class="col-sm-5 col-md-6">
                     <label class="control-label">Field 3 : </label>
@@ -140,8 +140,8 @@
                     <select class="selectpicker stacking-key" id="stackingKey" data-live-search="true" data-style="btn-warning" required>
                     </select>
                   </div>
--->
                 </div>
+-->
               </div>
             </div>
             <h4>Filters</h4>
@@ -231,7 +231,21 @@
 				</div>
           <div class='widget-toolbox'>
 						<div class="widget-timeframe">
-							<span>24 hours</span>
+              <select class="period-select">
+                <option value="custom" selected>Custom</option>
+                <option value="5m">5 Minutes</option>
+                <option value="15m">15 Minutes</option>
+                <option value="30m">30 Minutes</option>
+                <option value="1h"> 1 Hour</option>
+                <option value="6h"> 6 Hours</option>
+                <option value="12h"> 12 Hours</option>
+                <option value="1d"> 1 Day</option>
+                <option value="2d"> 2 Days</option>
+                <option value="5d"> 5 Days</option>
+                <option value="7d"> 7 Days</option>
+                <option value="15d"> 15 Days</option>
+                <option value="30d"> 30 Days</option>
+              </select>
 						</div>
               <div class="title-header-toolbar-icon-container">
                   <span class='glyphicon glyphicon-cog'></span>

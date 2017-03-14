@@ -584,3 +584,8 @@ path {
 .btn-warning:hover, .btn-warning:focus, .btn-warning:active, .btn-warning.active, .open .dropdown-toggle.btn-warning {
   color: #000 !important;
 }
+
+.period-select {
+  background: #fff;
+  border: none;
+}

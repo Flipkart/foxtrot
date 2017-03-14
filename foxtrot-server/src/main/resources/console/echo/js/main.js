@@ -32,6 +32,18 @@ TablesView.prototype.load = function(tables) {
 	select.change();
 };
 
+function uniqueKey(fields) {
+  var el = $("#uniqueKey");
+  el.find('option').remove();
+	$.each(fields, function (i, item) {
+    $(el).append($('<option>', {
+        value: item.field,
+        text : item.field
+    }));
+  });
+  $(el).selectpicker('refresh');
+}
+
 TablesView.prototype.registerTableSelectionChangeHandler = function(handler) {
 	this.tableSelectionChangeHandler = handler;
 };

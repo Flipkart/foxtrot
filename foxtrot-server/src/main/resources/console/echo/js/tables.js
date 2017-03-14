@@ -88,6 +88,8 @@ Tables.prototype.loadTableMeta = function (table, callback) {
       for (var i = this.metaLoadHandlers.length - 1; i >= 0; i--) {
           this.metaLoadHandlers[i](this.tables);
       }
+      console.log(this.currentTableFieldMappings);
+      uniqueKey(this.currentTableFieldMappings);
       callback();
       }, this)
     });
