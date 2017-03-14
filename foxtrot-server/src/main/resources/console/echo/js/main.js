@@ -133,6 +133,7 @@ FoxTrot.prototype.addTile = function() {
   var editTileId = $("#tileId").val();
   var period = $(".tile-time-unit").val();
   var uniqueCount = $("#uniqueKey").val();
+  var periodValue = $("#periodValue").val();
 	var tileId = guid();
   getFilters();
 	var object = {
@@ -145,7 +146,8 @@ FoxTrot.prototype.addTile = function() {
     "editTileId": editTileId,
     "filters": getFilters(),
     "period": period,
-    "uniqueCountOn": uniqueCount
+    "uniqueCountOn": uniqueCount,
+    "periodValue": periodValue
 	}
   currentChartType = "";
   if(!editTileId) {// for new tile
