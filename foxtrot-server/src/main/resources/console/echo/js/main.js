@@ -98,6 +98,8 @@ var defaultPlusBtn = true;
 var customBtn;
 var filterRowArray = [];
 var currentChartType;
+var tableList = [];
+var currentFieldList = [];
 
 function addTilesList(object) {
 	tiles[object.id] = object;
@@ -178,8 +180,37 @@ function deleteFilterRow(el) {
   $(parentRow).remove();
 }
 
-FoxTrot.prototype.prepareFieldOption = function(el) {
-  $.each(this.tables.currentTableFieldMappings, function (i, item) {
+
+function setFilters(object) {
+  for(var filter = 0; filter < filterRowArray.length; filter++) {
+    var filterId = filterRowArray[filter];
+    var el = $("#filter-row-"+filterId);
+    console.log(object[filter].field)
+    console.log(object[filter].operator);
+    console.log(object[filter].value);
+    $(el).find(".filter-column").val(object[filter].field);
+    $(el).find(".filter-type").val(object[filter].operator);
+    $(el).find(".filter-value").val(object[filter].value);
+  }
+}
+
+function addFitlers() {
+  var filterCount = filterRowArray.length;
+  filterRowArray.push(filterCount);
+  var filterRow = '<div class="row filters clearfix" id="filter-row-'+filterCount+'"><div class="col-md-3"><select class="filter-column" data-live-search="true"><option>select</option></select></div><div class="col-md-3"><select class="selectpicker filter-type" data-live-search="true"><option>select</option><option value="between">Between</option><option value="greater_equal">Greater than equals</option><option value="greater_than">Greatert than</option><option value="less_equal">Between</option><option value="less_than">Less than equals</option><option value="less_than">Less than</option><option value="equals">Equals</option><option value="not_equals">Not equals</option><option value="contains">Contains</option><option value="last">Last</option></select></div><div class="col-md-4"><input type="text" class="form-control filter-value"></div><div class="col-md-2 filter-delete"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span></div></div>';
+  $( ".add-filter-row" ).prepend(filterRow);
+  $('.selectpicker').selectpicker('refresh');
+
+  var filterValueEl = $("#filter-row-"+filterCount).find('.filter-delete');
+  var filterColumn = $("#filter-row-"+filterCount).find('.filter-column')
+  prepareFieldOption(filterColumn, currentFieldList);
+  $(filterValueEl).click( function() {
+    deleteFilterRow(this);
+  });
+}
+
+function prepareFieldOption(el, currentFieldList) {
+  $.each(currentFieldList, function (i, item) {
     $(el).append($('<option>', {
         value: item.field,
         text : item.field
@@ -189,18 +220,7 @@ FoxTrot.prototype.prepareFieldOption = function(el) {
 }
 
 FoxTrot.prototype.addFilters = function() {
-  var filterCount = filterRowArray.length;
-  filterRowArray.push(filterCount);
-  var filterRow = '<div class="row filters clearfix" id="filter-row-'+filterCount+'"><div class="col-md-3"><select class="filter-column" data-live-search="true"><option>select</option></select></div><div class="col-md-3"><select class="selectpicker filter-type" data-live-search="true"><option>select</option><option value="between">Between</option><option value="greater_equal">Greater than equals</option><option value="greater_than">Greatert than</option><option value="less_equal">Between</option><option value="less_than">Less than equals</option><option value="less_than">Less than</option><option value="equals">Equals</option><option value="not_equals">Not equals</option><option value="contains">Contains</option><option value="last">Last</option></select></div><div class="col-md-4"><input type="text" class="form-control filter-value"></div><div class="col-md-2 filter-delete"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span></div></div>';
-  $( ".add-filter-row" ).prepend(filterRow);
-  $('.selectpicker').selectpicker('refresh');
-
-  var filterValueEl = $("#filter-row-"+filterCount).find('.filter-delete');
-  var filterColumn = $("#filter-row-"+filterCount).find('.filter-column')
-  this.prepareFieldOption(filterColumn);
-  $(filterValueEl).click( function() {
-    deleteFilterRow(this);
-  });
+  addFitlers();
 }
 
 FoxTrot.prototype.resetModal = function() {

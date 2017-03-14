@@ -40,6 +40,7 @@ Tables.prototype.init = function(callback) {
 				this.tables.push(new Table(table.name, table.ttl));
 			};
 			this.selectedTable = this.tables[this.getSelectionIndex()];
+      tableList = this.tables.tables;
 			for (var i = this.tableChangeHandlers.length - 1; i >= 0; i--) {
 				this.tableChangeHandlers[i](this.tables);
 			};
@@ -85,6 +86,7 @@ Tables.prototype.loadTableMeta = function (table, callback) {
         return ((lhs.field > rhs.field) ? 1 : ((lhs.field < rhs.field) ? -1 : 0));
         });
       }
+      currentFieldList = this.currentTableFieldMappings;
       for (var i = this.metaLoadHandlers.length - 1; i >= 0; i--) {
           this.metaLoadHandlers[i](this.tables);
       }

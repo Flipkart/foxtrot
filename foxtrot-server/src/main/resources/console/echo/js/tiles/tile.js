@@ -141,6 +141,19 @@ TileFactory.prototype.triggerConfig = function(tileElement, object) {
 	var tileDataIndex = tileData[tileListIndex];
   var tileId = tileList[tileListIndex];
   var selectedTileObject = tileDataIndex[tileId];
+    console.log(object);
+  if(object.filters.length > 0) {
+    filterRowArray = [];
+    for(var invokeFilter = 0; invokeFilter< object.filters.length; invokeFilter++ ) {
+      console.log('**')
+      console.log(invokeFilter);
+      addFitlers();
+    }
+   //setFilters(object);
+    setTimeout(function() {   //calls click event after a certain time
+    setFilters(object.filters);
+}, 1000);
+  }
     if(selectedTileObject) {
       setConfigValue(selectedTileObject);
     }
