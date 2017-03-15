@@ -92,12 +92,15 @@ TileFactory.prototype.getTileFormValue = function(form, modal, object) {
 }
 
 function setConfigValue(object) {
+  console.log('setting');
+  console.log(object.tableDropdownIndex);
 	var form = $("#addWidgetModal").find("form");
 	form.find(".tile-title").val(object.title);
-	form.find(".tile-table").val(object.table);
+	form.find(".tile-table").val(parseInt(object.tableDropdownIndex));
 	form.find(".tile-time-unit").val(object.timeUnit);
 	form.find(".tile-time-value").val(object.timeValue);
 	form.find(".tile-chart-type").val(object.chartType);
+  $('.tile-table').selectpicker('refresh');
 }
 
 function clearForm() {
@@ -142,7 +145,7 @@ TileFactory.prototype.triggerConfig = function(tileElement, object) {
 	var tileDataIndex = tileData[tileListIndex];
   var tileId = tileList[tileListIndex];
   var selectedTileObject = tileDataIndex[tileId];
-    console.log(object);
+  console.log(object);
   if(object.filters.length > 0) {
     filterRowArray = [];
     for(var invokeFilter = 0; invokeFilter< object.filters.length; invokeFilter++ ) {

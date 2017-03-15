@@ -157,7 +157,8 @@ FoxTrot.prototype.addTile = function() {
     "filters": getFilters(),
     "period": period,
     "uniqueCountOn": uniqueCount,
-    "periodValue": periodValue
+    "periodValue": periodValue,
+    "tableDropdownIndex": tableId
 	}
   var tileFactory = new TileFactory();
   currentChartType = "";
@@ -191,19 +192,18 @@ function setFilters(object) {
   for(var filter = 0; filter < filterRowArray.length; filter++) {
     var filterId = filterRowArray[filter];
     var el = $("#filter-row-"+filterId);
-    console.log(object[filter].field)
-    console.log(object[filter].operator);
-    console.log(object[filter].value);
-    $(el).find(".filter-column").val(object[filter].field);
-    $(el).find(".filter-type").val(object[filter].operator);
+    var fieldDropdown = $(el).find(".filter-column").val(object[filter].field);
+    var operatorDropdown = $(el).find(".filter-type").val(object[filter].operator);
     $(el).find(".filter-value").val(object[filter].value);
+    $(fieldDropdown).selectpicker('refresh');
+    $(operatorDropdown).selectpicker('refresh');
   }
 }
 
 function addFitlers() {
   var filterCount = filterRowArray.length;
   filterRowArray.push(filterCount);
-  var filterRow = '<div class="row filters clearfix" id="filter-row-'+filterCount+'"><div class="col-md-3"><select class="filter-column" data-live-search="true"><option>select</option></select></div><div class="col-md-3"><select class="selectpicker filter-type" data-live-search="true"><option>select</option><option value="between">Between</option><option value="greater_equal">Greater than equals</option><option value="greater_than">Greatert than</option><option value="less_equal">Between</option><option value="less_than">Less than equals</option><option value="less_than">Less than</option><option value="equals">Equals</option><option value="not_equals">Not equals</option><option value="contains">Contains</option><option value="last">Last</option></select></div><div class="col-md-4"><input type="text" class="form-control filter-value"></div><div class="col-md-2 filter-delete"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span></div></div>';
+  var filterRow = '<div class="row filters clearfix" id="filter-row-'+filterCount+'"><div class="col-md-3"><select class="selectpicker filter-column" data-live-search="true"><option>select</option></select></div><div class="col-md-3"><select class="selectpicker filter-type" data-live-search="true"><option>select</option><option value="between">Between</option><option value="greater_equal">Greater than equals</option><option value="greater_than">Greatert than</option><option value="less_equal">Between</option><option value="less_than">Less than equals</option><option value="less_than">Less than</option><option value="equals">Equals</option><option value="not_equals">Not equals</option><option value="contains">Contains</option><option value="last">Last</option></select></div><div class="col-md-4"><input type="text" class="form-control filter-value"></div><div class="col-md-2 filter-delete"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span></div></div>';
   $( ".add-filter-row" ).prepend(filterRow);
   $('.selectpicker').selectpicker('refresh');
 
@@ -229,10 +229,17 @@ FoxTrot.prototype.addFilters = function() {
   addFitlers();
 }
 
+function filterUnits () {
+  $("#table-units").hide();
+}
+
 FoxTrot.prototype.resetModal = function() {
   $("#widgetType").val('');
 	$("#tileTitle").val('');
-	$("#tileTable").val('');
+	$(".tile-table").val('');
+  $('.tile-table option').last().prop('selected',true);
+  $(".tile-table").selectpicker('refresh');
+  $(".tile-table").change();
   $("#tileTimeFrame").val('');
   $(".tile-time-unit").val('minutes');
   $(".tileId").val('');
@@ -240,7 +247,7 @@ FoxTrot.prototype.resetModal = function() {
   $(".vizualization-type").show();
   $(".vizualization-type").removeClass("vizualization-type-active");
   $(".filters").remove();
-  $("#table-units").hide();
+
 }
 
 function clickedChartType(el) {
@@ -250,7 +257,7 @@ function clickedChartType(el) {
   if(chartDataEle.length > 0) {
     $(chartDataEle).show();
   } else {
-    $("#table-units").hide();
+    filterUnits();
   }
   $(".vizualization-type").removeClass("vizualization-type-active");
   $(el).addClass("vizualization-type-active");
