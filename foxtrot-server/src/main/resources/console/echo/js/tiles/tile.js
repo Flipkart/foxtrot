@@ -137,6 +137,7 @@ TileFactory.prototype.triggerConfig = function(tileElement, object) {
 	$("#addWidgetModal").find(".tileId").val(object.id);
   $(".vizualization-type").hide();
   currentChartType = object.chartType;
+  removeFilters();
 	var tileListIndex = tileList.indexOf(object.id);
 	var tileDataIndex = tileData[tileListIndex];
   var tileId = tileList[tileListIndex];

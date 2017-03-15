@@ -125,6 +125,10 @@ function getFilters() {
   return filterDetails;
 }
 
+function removeFilters () {
+  $(".filters").remove();
+}
+
 FoxTrot.prototype.addTile = function() {
 	var widgetType = $("#widgetType").val();
 	var title = $("#tileTitle").val();
@@ -167,6 +171,8 @@ FoxTrot.prototype.addTile = function() {
     tileFactory.updateTileData();
   }
   $("#addWidgetModal").modal('hide');
+  filterRowArray = [];
+  removeFilters();
 };
 
 function deleteFilterRow(el) {
