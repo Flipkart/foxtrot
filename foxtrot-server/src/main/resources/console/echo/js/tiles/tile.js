@@ -63,12 +63,11 @@ TileFactory.prototype.updateTileData = function() {
 	var tileid= this.tileObject.id;
 	var prepareTileData = { };
 	prepareTileData[this.tileObject.id] = this.tileObject;
-	pushTilesObject(prepareTileData);
   this.createGraph(this.tileObject, selectedTile);
   var tileListIndex = tileList.indexOf(this.tileObject.id);
 	var tileDataIndex = tileData[tileListIndex];
   tileData.splice(tileDataIndex, 1);
-  tileData.splice(tileDataIndex, 0, this.tileObject);
+  tileData.splice(tileDataIndex, 0, prepareTileData);
 }
 
 TileFactory.prototype.createTileData = function(object) {
@@ -92,8 +91,6 @@ TileFactory.prototype.getTileFormValue = function(form, modal, object) {
 }
 
 function setConfigValue(object) {
-  console.log('setting');
-  console.log(object.tableDropdownIndex);
 	var form = $("#addWidgetModal").find("form");
 	form.find(".tile-title").val(object.title);
 	form.find(".tile-table").val(parseInt(object.tableDropdownIndex));
@@ -145,18 +142,15 @@ TileFactory.prototype.triggerConfig = function(tileElement, object) {
 	var tileDataIndex = tileData[tileListIndex];
   var tileId = tileList[tileListIndex];
   var selectedTileObject = tileDataIndex[tileId];
-  console.log(object);
   if(object.filters.length > 0) {
     filterRowArray = [];
-    for(var invokeFilter = 0; invokeFilter< object.filters.length; invokeFilter++ ) {
-      console.log('**')
-      console.log(invokeFilter);
+    for(var invokeFilter = 0; invokeFilter< selectedTileObject.filters.length; invokeFilter++ ) {
       addFitlers();
     }
    //setFilters(object);
     setTimeout(function() {   //calls click event after a certain time
-    setFilters(object.filters);
-}, 1000);
+    setFilters(selectedTileObject.filters);
+    }, 1000);
   }
     if(selectedTileObject) {
       setConfigValue(selectedTileObject);
