@@ -205,9 +205,10 @@ function addFitlers() {
   filterRowArray.push(filterCount);
   var filterRow = '<div class="row filters clearfix" id="filter-row-'+filterCount+'"><div class="col-md-3"><select class="selectpicker filter-column" data-live-search="true"><option>select</option></select></div><div class="col-md-3"><select class="selectpicker filter-type" data-live-search="true"><option>select</option><option value="between">Between</option><option value="greater_equal">Greater than equals</option><option value="greater_than">Greatert than</option><option value="less_equal">Between</option><option value="less_than">Less than equals</option><option value="less_than">Less than</option><option value="equals">Equals</option><option value="not_equals">Not equals</option><option value="contains">Contains</option><option value="last">Last</option></select></div><div class="col-md-4"><input type="text" class="form-control filter-value"></div><div class="col-md-2 filter-delete"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span></div></div>';
   $( ".add-filter-row" ).prepend(filterRow);
-  $('.selectpicker').selectpicker('refresh');
 
   var filterValueEl = $("#filter-row-"+filterCount).find('.filter-delete');
+  var filterType = $("#filter-row-"+filterCount).find('.filter-type');
+  $(filterType).selectpicker('refresh');
   var filterColumn = $("#filter-row-"+filterCount).find('.filter-column')
   prepareFieldOption(filterColumn, currentFieldList);
   $(filterValueEl).click( function() {
