@@ -240,6 +240,7 @@ FoxTrot.prototype.resetModal = function() {
   $(".vizualization-type").show();
   $(".vizualization-type").removeClass("vizualization-type-active");
   $(".filters").remove();
+  $("#table-units").hide();
 }
 
 function clickedChartType(el) {
