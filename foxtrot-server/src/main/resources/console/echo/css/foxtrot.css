@@ -3,7 +3,7 @@ html, body {
   background: rgb(239, 239, 239)
 }
 .tile-default-size {
-    height: 410px;
+    height: 430px;
 }
 .pageheader {
   /*margin-left: -15px;
@@ -593,3 +593,12 @@ path {
 #line-chart-data {
   display: none;
 }
+
+.add-child-btn {
+  text-align: center;
+  display: block;
+  position: relative;
+  top: -22px;
+  z-index: 999;
+}
+

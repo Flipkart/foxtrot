@@ -141,9 +141,11 @@ FoxTrot.prototype.addTile = function() {
   var uniqueCount = $("#uniqueKey").val();
   var periodValue = $("#periodValue").val();
 	var tileId = guid();
+  var isChild = $(".child-tile").val();
+  isChild = (isChild == 'true');
   getFilters();
 
-  if(editTileId)
+  if(!isChild && editTileId)
     tileId = editTileId;
 
 	var object = {
@@ -162,7 +164,7 @@ FoxTrot.prototype.addTile = function() {
 	}
   var tileFactory = new TileFactory();
   currentChartType = "";
-  if(!editTileId) {// for new tile
+  if(!editTileId && !isChild) {// for new tile
     tileFactory.tileObject = object;
     tileFactory.create();
     var foxtrot = new FoxTrot();

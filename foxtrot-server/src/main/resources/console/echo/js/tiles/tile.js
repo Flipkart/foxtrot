@@ -130,12 +130,7 @@ TileFactory.prototype.createNewRow = function(tileElement) {
 	return tileElement;
 }
 
-// Add click event for tile config icon
-TileFactory.prototype.triggerConfig = function(tileElement, object) {
-	tileElement.find(".widget-toolbox").find(".glyphicon-cog").click(function () {
-	$("#addWidgetModal").modal('show');
-	$("#addWidgetModal").find(".tileId").val(object.id);
-  $(".vizualization-type").hide();
+TileFactory.prototype.updateFilterCreation = function(object) {
   currentChartType = object.chartType;
   removeFilters();
 	var tileListIndex = tileList.indexOf(object.id);
@@ -155,6 +150,26 @@ TileFactory.prototype.triggerConfig = function(tileElement, object) {
     if(selectedTileObject) {
       setConfigValue(selectedTileObject);
     }
+}
+
+// Add click event for tile config icon
+TileFactory.prototype.triggerConfig = function(tileElement, object) {
+  var instanceVar = this;
+	tileElement.find(".widget-toolbox").find(".glyphicon-cog").click(function () {
+    $("#addWidgetModal").modal('show');
+	  $("#addWidgetModal").find(".tileId").val(object.id);
+    $(".vizualization-type").hide();
+    instanceVar.updateFilterCreation(object);
+  });
+}
+
+TileFactory.prototype.triggerChildBtn = function(tileElement, object) {
+  var instanceVar = this;
+  tileElement.find(".add-child-btn").find(".child-btn").click(function () {
+    $("#addWidgetModal").modal('show');
+	  $("#addWidgetModal").find(".child-tile").val('true');
+    $(".vizualization-type").hide();
+    instanceVar.updateFilterCreation(object);
 	});
 }
 
@@ -234,6 +249,7 @@ TileFactory.prototype.create = function () {
 
   this.createGraph(this.tileObject, tileElement);
 	this.triggerConfig(tileElement, this.tileObject);// add event for tile config
+  this.triggerChildBtn(tileElement,this.tileObject);
 	this.createTileData(this.tileObject);
 	this.saveTileConfig(this.tileObject);// add event for tile save btn
 };
