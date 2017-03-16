@@ -250,11 +250,29 @@ FoxTrot.prototype.resetModal = function() {
   $(".vizualization-type").show();
   $(".vizualization-type").removeClass("vizualization-type-active");
   $(".filters").remove();
+  $("#table-units").hide();
+}
 
+function clearLineChartForm () {
+  var parentElement = $("#"+currentChartType+"-chart-data");
+  var timeUnitEl = parentElement.find(".tile-time-unit");
+  timeUnitEl.find('option:eq(0)').prop('selected', true);
+  $(timeUnitEl).selectpicker('refresh');
+  var uniqeKey = parentElement.find("#uniqueKey");
+  uniqeKey.find('option:eq(0)').prop('selected', true);
+  $(uniqeKey).selectpicker('refresh');
+  parentElement.find("#periodValue").val('');
+}
+
+function invokeClearChartForm() {
+  if(currentChartType == "line") {
+    clearLineChartForm();
+  }
 }
 
 function clickedChartType(el) {
   currentChartType = $(el).data('chartType');
+  invokeClearChartForm();
   $("#table-units").show();
   var chartDataEle = $("#table-units").find("#"+currentChartType+"-chart-data");
   if(chartDataEle.length > 0) {
