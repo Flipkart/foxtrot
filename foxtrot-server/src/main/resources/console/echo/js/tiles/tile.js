@@ -195,6 +195,9 @@ TileFactory.prototype.createGraph = function(object, tileElement) {
     tileElement.find(".chart-item").append('<div id="radar-'+object.id+'" style="width:200;height:200"></div>');
     var radarGraph = new RadarTile();
 		radarGraph.getQuery(tileElement, object);
+  } else if(object.chartType == "trend") {
+    var trendGraph = new TrendTile();
+    trendGraph.getQuery(tileElement, object);
   }
 }
 
@@ -233,12 +236,17 @@ TileFactory.prototype.create = function () {
 	} else if(this.tileObject.widgetType == "small") {
 		tileElement.find(".tile").addClass('col-md-4');
 		tileElement.find(".tile").width(300);
-		tileElement.find(".tile").height(200);
+		tileElement.find(".tile").height(250);
 	}
 
-	tileElement.find(".chart-item").append('<div id="'+this.tileObject.id+'-health-text" class="lineGraph-health-text">10,000</div>');
-	tileElement.find(".chart-item").append('<div id="'+this.tileObject.id+'-health" style=""></div>');
-	tileElement.find(".chart-item").append('<div id="'+this.tileObject.id+'"></div>');
+  if(this.tileObject.chartType == "radar") {
+    tileElement.find(".trend-chart").remove();
+    tileElement.find(".chart-item").addClass("radar-chart");
+  } else if(this.tileObject.chartType == "line") {
+    tileElement.find(".chart-item").append('<div id="'+this.tileObject.id+'-health-text" class="lineGraph-health-text">10,000</div>');
+	 tileElement.find(".chart-item").append('<div id="'+this.tileObject.id+'-health" style=""></div>');
+	 tileElement.find(".chart-item").append('<div id="'+this.tileObject.id+'"></div>');
+  }
 
 	if(defaultPlusBtn) {// new row
 		tileElement.insertBefore('.float-clear');

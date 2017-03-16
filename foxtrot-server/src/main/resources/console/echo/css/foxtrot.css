@@ -602,3 +602,42 @@ path {
   z-index: 999;
 }
 
+.radar-chart {
+  margin-top: 25px;
+  margin-left: 56px;
+}
+
+.trend-chart {
+  margin-top: 10px;
+}
+
+.trend-chart hr {
+  color: #979797;
+  width: 127px;
+  margin: 0px;
+}
+
+.trend-value-big {
+  font-size: 40px;
+  font-weight: bold;
+  color: #9BA3AB;
+  margin: 0px;
+}
+
+.trend-value-small {
+  font-size: 20px;
+  color: #ACB3B9;
+}
+
+.trend-chart-health {
+  margin-top: 33px;
+}
+
+.trend-chart-health-percentage {
+  float: right;
+  position: relative;
+  bottom: 39px;
+  right: 20px;
+  font-size: 33px;
+}
+

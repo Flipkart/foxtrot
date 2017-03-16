@@ -134,8 +134,8 @@ function getWidgetType() {
     return "full";
   } else if(currentChartType == "radar") {
     return "medium";
-  } else if(currentChartType == "gauge") {
-    return "medium";
+  } else if(currentChartType == "gauge" || currentChartType == "trend") {
+    return "small";
   }
 }
 
