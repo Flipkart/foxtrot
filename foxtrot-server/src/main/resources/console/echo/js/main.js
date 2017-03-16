@@ -139,39 +139,46 @@ function getWidgetType() {
   }
 }
 
-FoxTrot.prototype.addTile = function() {
-	var title = $("#tileTitle").val();
-	var tableId = parseInt($("#tileTable").val());
-  var table = this.tables.tables[tableId];
-	var chartType = currentChartType;
-  var tileTimeFrame = $("#tileTimeFrame").val();
-  var editTileId = $(".tileId").val();
+function getLineChartFormValues() {
   var period = $(".tile-time-unit").val();
   var uniqueCount = $("#uniqueKey").val();
   var periodValue = $("#periodValue").val();
+  return {
+    "period": period,
+    "uniqueCountOn": uniqueCount,
+    "periodValue": periodValue,
+  }
+}
+
+function getChartFormValues() {
+  if(currentChartType == "line") {
+    return getLineChartFormValues();
+  }
+}
+
+FoxTrot.prototype.addTile = function() {
+	var title = $("#tileTitle").val();
+  var filterDetails = getFilters();
+	var tableId = parseInt($("#tileTable").val());
+  var table = this.tables.tables[tableId];
+  var editTileId = $(".tileId").val();
 	var tileId = guid();
   var isChild = $(".child-tile").val();
   isChild = (isChild == 'true');
   var widgetType = getWidgetType();
-  getFilters();
-
   if(!isChild && editTileId)
     tileId = editTileId;
-
-	var object = {
+	var queryValues = {
 		"id" : tileId,
-		"title": title,
 		"widgetType": widgetType,
 		"table": table.name,
-		"chartType": currentChartType,
-    "tileTimeFrame": tileTimeFrame,
     "editTileId": editTileId,
-    "filters": getFilters(),
-    "period": period,
-    "uniqueCountOn": uniqueCount,
-    "periodValue": periodValue,
-    "tableDropdownIndex": tableId
-	}
+    "tableDropdownIndex": tableId,
+    "title" : title,
+    "chartType": currentChartType,
+    "filters": filterDetails.length == 0 ? [] : filterDetails,
+  };
+  var object = $.extend( {}, getChartFormValues(), queryValues );
   var tileFactory = new TileFactory();
   currentChartType = "";
   if(!editTileId && !isChild) {// for new tile
