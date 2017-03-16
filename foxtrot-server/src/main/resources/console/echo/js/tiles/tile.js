@@ -194,7 +194,7 @@ TileFactory.prototype.createGraph = function(object, tileElement) {
 	} else if(object.chartType == "radar") {
     tileElement.find(".chart-item").append('<div id="radar-'+object.id+'" style="width:200;height:200"></div>');
     var radarGraph = new RadarTile();
-		radarGraph.render(tileElement, object);
+		radarGraph.getQuery(tileElement, object);
   }
 }
 

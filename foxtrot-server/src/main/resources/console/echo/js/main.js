@@ -129,8 +129,17 @@ function removeFilters () {
   $(".filters").remove();
 }
 
+function getWidgetType() {
+  if(currentChartType == "line") {
+    return "full";
+  } else if(currentChartType == "radar") {
+    return "medium";
+  } else if(currentChartType == "gauge") {
+    return "medium";
+  }
+}
+
 FoxTrot.prototype.addTile = function() {
-	var widgetType = $("#widgetType").val();
 	var title = $("#tileTitle").val();
 	var tableId = parseInt($("#tileTable").val());
   var table = this.tables.tables[tableId];
@@ -143,6 +152,7 @@ FoxTrot.prototype.addTile = function() {
 	var tileId = guid();
   var isChild = $(".child-tile").val();
   isChild = (isChild == 'true');
+  var widgetType = getWidgetType();
   getFilters();
 
   if(!isChild && editTileId)
@@ -151,7 +161,7 @@ FoxTrot.prototype.addTile = function() {
 	var object = {
 		"id" : tileId,
 		"title": title,
-		"widgetType": "full",
+		"widgetType": widgetType,
 		"table": table.name,
 		"chartType": currentChartType,
     "tileTimeFrame": tileTimeFrame,

@@ -15,27 +15,49 @@
  */
 
 function RadarTile() {
-
+  this.newDiv = "";
+  this.object = "";
 }
 
-RadarTile.prototype.render = function (newDiv, object) {
-  var min = 100;
-	var max = 10000;
-  var chartObject = {
-    "8": Math.floor(Math.random() * (max - min + 1)) + min,
-    "9": Math.floor(Math.random() * (max - min + 1)) + min,
-    "lollypop": Math.floor(Math.random() * (max - min + 1)) + min,
-    "ics": Math.floor(Math.random() * (max - min + 1)) + min,
-    "marshmallow": Math.floor(Math.random() * (max - min + 1)) + min,
-    "kitkat": Math.floor(Math.random() * (max - min + 1)) + min,
-    "jellybean": Math.floor(Math.random() * (max - min + 1)) + min
-  };
-  var data = [];
-	for (var key in chartObject) {
-		if (chartObject.hasOwnProperty(key)) {
-      data.push({axis:key, value: chartObject[key]})
-		}
+RadarTile.prototype.getQuery = function(newDiv, object) {
+  this.newDiv = newDiv;
+  this.object = object;
+  var data = {
+    "opcode": "histogram",
+    "table": object.table,
+    "filters": object.filters,
+    "field": "_timestamp",
+    "period": "hours",
+    "uniqueCountOn": object.uniqueCountOn && object.uniqueCountOn != "none" ? object.uniqueCountOn : null
   }
+  $.ajax({
+    method: "post",
+    dataType: 'json',
+    accepts: {
+        json: 'application/json'
+    },
+    url: "http://foxtrot.traefik.prod.phonepe.com/foxtrot/v1/analytics",
+    contentType: "application/json",
+    data: JSON.stringify(data),
+    success: $.proxy(this.getData, this)
+  });
+}
+
+RadarTile.prototype.getData = function(data) {
+  if(data.counts == undefined || data.counts.length == 0)
+    return;
+  var chartData = [];
+  for(var i = 0; i< data.counts.length; i++) {
+    var date = new Date(data.counts[i].period);
+    chartData.push({axis:formatDate(date), value: data.counts[i].count});
+  }
+  this.render(chartData);
+}
+
+RadarTile.prototype.render = function (data) {
+  console.log('&&');
+  var newDiv = this.newDiv;
+  var object = this.object;
   var d = [data];
   var chartDiv = newDiv.find(".chart-item");
 	var ctx = chartDiv.find("#radar-"+object.id);
