@@ -43,47 +43,37 @@ TrendTile.prototype.getQuery = function(newDiv, object) {
 }
 
 TrendTile.prototype.getData = function(data) {
-  console.log(data);
-  if(data.counts == undefined || data.counts.length == 0)
+  if(!data.result)
     return;
-  var xAxis = [];
-  var yAxis = [];
-  for(var i = 0; i< data.counts.length; i++) {
-    var date = new Date(data.counts[i].period);
-    xAxis.push([i, formatDate(date)]);
-    yAxis.push([i, data.counts[i].count ]);
+  var statsObject = data.result.stats;
+  var percentile = data.result.percentiles;
+  var displayValue = "";
+  var objectToshow = this.object.statsToPlot.split('.');
+  if(this.object.statsToPlot.match('stats')) {
+    objectToshow = objectToshow[1].toString();
+    console.log(objectToshow);
+    displayValue = statsObject[objectToshow];
+  } else {
+    var displayObject = objectToshow[1]+'.'+objectToshow[2].toString();
+    displayValue = percentile[displayObject];
   }
-  this.render(xAxis, yAxis);
+  this.render(displayValue);
 }
 
-TrendTile.prototype.render = function (xAxis, yAxis) {
+TrendTile.prototype.render = function (displayValue) {
   var newDiv = this.newDiv;
   var object = this.object;
   //var d = [data];
   var chartDiv = newDiv.find(".chart-item");
   chartDiv.addClass("trend-chart");
-  chartDiv.append("<div><p class='trend-value-big'>12.5 Million</p><hr/><p class='trend-value-small'>15 Million</div>");
+  chartDiv.append("<div><p class='trend-value-big'>"+displayValue+"</p><hr/><p class='trend-value-small'>15 Million</div>");
   chartDiv.append('<div id="trend-'+object.id+'" class="trend-chart-health"></div>')
   chartDiv.append('<div class="trend-chart-health-percentage">6%</div>')
-	/*var ctx = chartDiv.find("#radar-"+object.id);
-	ctx.width(ctx.width);
-	ctx.height(230);
-  var mycfg = {
-    color: function(){
-      c = ['red', 'yellow', 'pink', 'green', 'blue', 'olive', 'aqua', 'cadetblue', 'crimson'];
-      m = c.length - 1;
-      x = parseInt(Math.random()*100);
-      return c[x%m]; //Get a random color
-    },
-    w: 300,
-    h: 300,
-  }
-  RadarChart.draw("#radar-"+object.id, d, mycfg);*/
 
   var healthDiv = chartDiv.find("#trend-"+object.id);
 	healthDiv.width(100);
 	healthDiv.height(50);
-	$.plot(healthDiv, [
+	/*$.plot(healthDiv, [
 		{ data: yAxis },
   ],{
 			series: {
@@ -107,7 +97,7 @@ TrendTile.prototype.render = function (xAxis, yAxis) {
             defaultFormat: true
         },
 			colors: ['#000'],
-		});
+		});*/
 
 
 }

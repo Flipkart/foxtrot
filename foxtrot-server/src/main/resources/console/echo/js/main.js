@@ -158,8 +158,8 @@ function getTrendChartFormValues() {
   var statsPeroidValue = $("#stats-period-value").val();
   return {
     "period": period,
-    "statsFieldName": statsField,
-    "periodValue": statsToPlot,
+    "statsFieldName": "eventData.amount",
+    "statsToPlot": statsToPlot,
   }
 }
 
@@ -333,7 +333,7 @@ function clickedChartType(el) {
   if(currentChartType == "line") {
     uniqueKey(currentFieldList, "#uniqueKey");
   } else if(currentChartType == "trend") {
-    uniqueKey(currentFieldList, ".stats-field");
+    //uniqueKey(currentFieldList, ".stats-field");
   }
 
   invokeClearChartForm();
