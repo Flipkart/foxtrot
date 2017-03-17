@@ -151,22 +151,19 @@
                     <div class="col-sm-5 col-sm-offset-2 col-md-6 col-md-offset-0">
                       <div class="col-sm-5 col-md-6">
                         <label class="control-label">Time Frame : </label>
-                        <input type="number" class="periodValue" id="periodValue" placeholder="Enter time frame" required>
+                        <input type="number" class="stats-periodValue" id="stats-periodValue" placeholder="Enter time frame" required>
                       </div>
                     </div>
                   </div>
                   <div class="row">
                     <div class="col-sm-5 col-md-6">
                       <label class="control-label">Field to run statistics on: </label>
-                      <select class="selectpicker stats-field">
-                        <option value="minutes" selected="selected">Minute</option>
-                        <option value="hours">Hour</option>
-                        <option value="days">Day</option>
+                      <select class="selectpicker stats-field" data-live-search="true">
                       </select>
                     </div>
                     <div class="col-sm-5 col-sm-offset-2 col-md-6 col-md-offset-0">
                       <label class="control-label">Statistic to plot: </label>
-                      <select id="statistic_to_plot" class="selectpicker statistic_to_plot">
+                      <select id="statistic_to_plot" class="selectpicker statistic_to_plot" data-live-search="true">
                         <option value=percentiles.1.0>1 percentile</option>
                         <option value=percentiles.25.0>25 percentile</option>
                         <option value=percentiles.5.0>5 percentile</option>

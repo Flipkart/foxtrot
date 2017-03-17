@@ -32,8 +32,9 @@ TablesView.prototype.load = function(tables) {
 	select.change();
 };
 
-function uniqueKey(fields) {
-  var el = $("#uniqueKey");
+function uniqueKey(fields, element) {
+  console.log('triggered')
+  var el = $(element);
   el.find('option').remove();
   $(el).append($('<option>', {
         value: "none",
@@ -150,9 +151,23 @@ function getLineChartFormValues() {
   }
 }
 
+function getTrendChartFormValues() {
+  var period = $(".trend-time-unit").val();
+  var statsField = $(".stats-field").val();
+  var statsToPlot = $(".statistic_to_plot").val();
+  var statsPeroidValue = $("#stats-period-value").val();
+  return {
+    "period": period,
+    "statsFieldName": statsField,
+    "periodValue": statsToPlot,
+  }
+}
+
 function getChartFormValues() {
   if(currentChartType == "line") {
     return getLineChartFormValues();
+  } else if(currentChartType == "trend") {
+    return getTrendChartFormValues();
   }
 }
 
@@ -278,7 +293,7 @@ function clearLineChartForm () {
   var uniqeKey = parentElement.find("#uniqueKey");
   uniqeKey.find('option:eq(0)').prop('selected', true);
   $(uniqeKey).selectpicker('refresh');
-  parentElement.find("#periodValue").val('');
+  parentElement.find("#stats-periodValue").val('');
 }
 
 function clearTrendChartForm() {
@@ -315,6 +330,12 @@ function clickedChartType(el) {
 
   // show
   currentChartType = $(el).data('chartType');
+  if(currentChartType == "line") {
+    uniqueKey(currentFieldList, "#uniqueKey");
+  } else if(currentChartType == "trend") {
+    uniqueKey(currentFieldList, ".stats-field");
+  }
+
   invokeClearChartForm();
   $("#table-units").show();
   var chartDataEle = $("#table-units").find("#"+currentChartType+"-chart-data");

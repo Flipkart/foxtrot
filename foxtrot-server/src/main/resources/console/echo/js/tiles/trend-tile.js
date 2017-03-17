@@ -23,13 +23,12 @@ TrendTile.prototype.getQuery = function(newDiv, object) {
   this.newDiv = newDiv;
   this.object = object;
   var data = {
-    "opcode": "histogram",
+    "opcode": "stats",
     "table": object.table,
     "filters": object.filters,
-    "field": "_timestamp",
-    "period": "hours",
-    "uniqueCountOn": object.uniqueCountOn && object.uniqueCountOn != "none" ? object.uniqueCountOn : null
+    "field": object.statsFieldName
   }
+  console.log(data);
   $.ajax({
     method: "post",
     dataType: 'json',
@@ -44,6 +43,7 @@ TrendTile.prototype.getQuery = function(newDiv, object) {
 }
 
 TrendTile.prototype.getData = function(data) {
+  console.log(data);
   if(data.counts == undefined || data.counts.length == 0)
     return;
   var xAxis = [];
