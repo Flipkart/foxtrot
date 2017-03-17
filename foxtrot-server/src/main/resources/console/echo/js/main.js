@@ -281,13 +281,39 @@ function clearLineChartForm () {
   parentElement.find("#periodValue").val('');
 }
 
+function clearTrendChartForm() {
+  var parentElement = $("#"+currentChartType+"-chart-data");
+
+  var timeUnitEl = parentElement.find(".trend-time-unit");
+  timeUnitEl.find('option:eq(0)').prop('selected', true);
+  $(timeUnitEl).selectpicker('refresh');
+
+  var statsFieldEl = parentElement.find(".stats-field");
+  statsFieldEl.find('option:eq(0)').prop('selected', true);
+  $(statsFieldEl).selectpicker('refresh');
+
+  var statsToPlot = parentElement.find(".statistic_to_plot");
+  statsToPlot.find('option:eq(0)').prop('selected', true);
+  $(statsToPlot).selectpicker('refresh');
+
+  parentElement.find("#periodValue").val('');
+  parentElement.find(".ignored-digits").val('');
+}
+
 function invokeClearChartForm() {
   if(currentChartType == "line") {
     clearLineChartForm();
+  } else if(currentChartType == "trend") {
+    clearTrendChartForm();
   }
 }
 
 function clickedChartType(el) {
+  // hide
+  var previousChartType = currentChartType;
+  $("#table-units").find("#"+previousChartType+"-chart-data").hide();
+
+  // show
   currentChartType = $(el).data('chartType');
   invokeClearChartForm();
   $("#table-units").show();
