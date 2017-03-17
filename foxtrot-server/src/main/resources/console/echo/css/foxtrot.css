@@ -666,3 +666,7 @@ path {
   margin-top: 40px;
   margin-left: 12px;
 }
+
+#trend-chart-data {
+  display: none;
+}
