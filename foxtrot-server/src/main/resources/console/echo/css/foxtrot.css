@@ -641,3 +641,28 @@ path {
   font-size: 33px;
 }
 
+/* chart styles */
+
+.halfDonut, .halfDonutChart {
+    display: inline-block;
+}
+.halfDonut {
+    height: 100px;
+    position: relative;
+    overflow: hidden;
+}
+.halfDonutChart {
+    width: 200px;
+    height: 200px;
+}
+.halfDonutTotal {
+    text-align: center;
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+}
+
+.gauge-chart {
+  margin-top: 40px;
+  margin-left: 37px;
+}

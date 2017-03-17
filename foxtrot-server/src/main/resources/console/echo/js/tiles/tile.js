@@ -198,6 +198,9 @@ TileFactory.prototype.createGraph = function(object, tileElement) {
   } else if(object.chartType == "trend") {
     var trendGraph = new TrendTile();
     trendGraph.getQuery(tileElement, object);
+  } else if(object.chartType == "gauge") {
+    var gaugeGraph = new GaugeTile();
+    gaugeGraph.getQuery(tileElement, object);
   }
 }
 
