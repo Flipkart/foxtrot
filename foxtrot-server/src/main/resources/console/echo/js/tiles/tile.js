@@ -224,10 +224,17 @@ TileFactory.prototype.create = function () {
 
 		if(this.tileObject.widgetType == 'small'&& rowObject.widgetType == 'small') {
 			var findElement = $("."+customBtn.id);
+      var column1Length  = findElement.find(".row-col-1").length;
       console.log(findElement.find(".row-col-1").length);
-			if(findElement.find(".row-col-1").length == 0 || findElement.find(".row-col-1").length == 2) {
-        console.log('dfsafsadfasdfasfasf')
-				tileElement.addClass('row-col-1');
+			if(column1Length == 0 || column1Length == 2) {
+
+
+        if(column1Length == 0) {
+          tileElement.addClass('row-col-1');
+        } else if(column1Length == 2) {
+          tileElement.addClass('row-col-2');
+        }
+
 				tileElement.append("<div><button data-target='#addWidgetModal' class='tile-add-btn tile-add-btn btn btn-primary filter-nav-button glyphicon glyphicon-plus custom-add-btn row-col-1'onClick='setClicketData(this)'  data-toggle='modal' id='row-"+splitValue[1]+"'></button><div>");
 			}
 		}
