@@ -33,9 +33,7 @@ TablesView.prototype.load = function(tables) {
 };
 
 function uniqueKey(fields, element) {
-  console.log('triggered')
   var el = $(element);
-  console.log(el);
   el.find('option').remove();
   $(el).append($('<option>', {
         value: "none",
@@ -165,11 +163,28 @@ function getTrendChartFormValues() {
   }
 }
 
+function getStackedBarChartFormValues() {
+  var period = $(".stacked-bar-time-unitt").val();
+  var periodValue = $(".statcked-bar-periodValue").val();
+  var groupingKey = $(".stacked-bar-grouping-key").val();
+  var stackingKey = $(".stacking-key").val();
+  var uniqueKey = $(".stacked-bar-uniquekey").val();
+  return {
+    "period": period,
+    "periodValue": periodValue,
+    "groupingKey": groupingKey,
+    "stackingKey": stackingKey,
+    "uniqueKey": uniqueKey,
+  }
+}
+
 function getChartFormValues() {
   if(currentChartType == "line") {
     return getLineChartFormValues();
   } else if(currentChartType == "trend") {
     return getTrendChartFormValues();
+  } else if(currentChartType == "stackedBar") {
+    return getStackedBarChartFormValues();
   }
 }
 
@@ -321,11 +336,39 @@ function clearTrendChartForm() {
   parentElement.find(".ignored-digits").val('');
 }
 
+
+function clearStackedBarChartForm() {
+  var parentElement = $("#"+currentChartType+"-chart-data");
+
+  var timeUnitEl = parentElement.find(".stacked-bar-time-unit");
+  timeUnitEl.find('option:eq(0)').prop('selected', true);
+  $(timeUnitEl).selectpicker('refresh');
+
+  var periodUnit = parentElement.find(".statcked-bar-periodValue");
+  periodUnit.find('option:eq(0)').prop('selected', true);
+  $(periodUnit).selectpicker('refresh');
+
+  var groupingKey = parentElement.find(".stacked-bar-grouping-key");
+  groupingKey.find('option:eq(0)').prop('selected', true);
+  $(groupingKey).selectpicker('refresh');
+
+  var stackingKey = parentElement.find(".stacking-key");
+  stackingKey.find('option:eq(0)').prop('selected', true);
+  $(stackingKey).selectpicker('refresh');
+
+
+  var stackingBarUniqueKey = parentElement.find(".stacked-bar-uniquekey");
+  stackingBarUniqueKey.find('option:eq(0)').prop('selected', true);
+  $(stackingBarUniqueKey).selectpicker('refresh');
+}
+
 function invokeClearChartForm() {
   if(currentChartType == "line") {
     clearLineChartForm();
   } else if(currentChartType == "trend") {
     clearTrendChartForm();
+  } else if(currentChartType == "stackedBar") {
+    clearStackedBarChartForm();
   }
 }
 
@@ -340,6 +383,10 @@ function clickedChartType(el) {
     uniqueKey(currentFieldList, "#uniqueKey");
   } else if(currentChartType == "trend") {
     uniqueKey(currentFieldList, ".stats-field");
+  } else if(currentChartType == "stackedBar") {
+    uniqueKey(currentFieldList, ".stacking-key");
+    uniqueKey(currentFieldList, ".stacked-bar-uniquekey");
+    uniqueKey(currentFieldList, ".stacked-bar-grouping-key");
   }
 
   invokeClearChartForm();

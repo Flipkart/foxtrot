@@ -670,3 +670,7 @@ path {
 #trend-chart-data {
   display: none;
 }
+
+#stackedBar-chart-data {
+  display: none;
+}
