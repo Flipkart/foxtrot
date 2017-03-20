@@ -636,7 +636,7 @@ path {
 .trend-chart-health-percentage {
   float: right;
   position: relative;
-  bottom: 39px;
+  top: 39px;
   right: 20px;
   font-size: 33px;
 }

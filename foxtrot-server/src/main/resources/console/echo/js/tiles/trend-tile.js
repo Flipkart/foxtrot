@@ -66,10 +66,13 @@ TrendTile.prototype.render = function (displayValue) {
   //var d = [data];
   var chartDiv = newDiv.find(".chart-item");
   chartDiv.addClass("trend-chart");
-  chartDiv.append("<div><p class='trend-value-big'>"+displayValue+"</p><hr/><p class='trend-value-small'>15 Million</div>");
-  chartDiv.append('<div id="trend-'+object.id+'" class="trend-chart-health"></div>')
-  chartDiv.append('<div class="trend-chart-health-percentage">6%</div>')
 
+  var a = chartDiv.find("#"+object.id);
+  if(a.length != 0) {
+    a.remove();
+  }
+
+  chartDiv.append("<div id="+object.id+"><p class='trend-value-big'>"+displayValue+"</p><hr/><p class='trend-value-small'>15 Million</p><div id='trend-'"+object.id+" class='trend-chart-health'></div><div class='trend-chart-health-percentage'>6%</div></div>");
   var healthDiv = chartDiv.find("#trend-"+object.id);
 	healthDiv.width(100);
 	healthDiv.height(50);

@@ -55,6 +55,11 @@ function submitClicked(e) {
 
 function pushTilesObject(object) {
 	tileData.push(object);
+  setInterval(function(){
+    var a = new TileFactory();
+    a.createGraph(object[Object.keys(object)], $("#"+Object.keys(object)));
+  }, 6000);
+
 }
 
 TileFactory.prototype.updateTileData = function() {
@@ -187,10 +192,10 @@ TileFactory.prototype.saveTileConfig = function(object) {
 }
 
 TileFactory.prototype.createGraph = function(object, tileElement) {
-  if(object.chartType == "line") {
+   if(object.chartType == "line") {
     var lineGraph = new LineTile();
 		//lineGraph.render(tileElement, object);
-    lineGraph.getQuery(tileElement, this.tileObject);
+    lineGraph.getQuery(tileElement, object);
 	} else if(object.chartType == "radar") {
     tileElement.find(".chart-item").append('<div id="radar-'+object.id+'" style="width:200;height:200"></div>');
     var radarGraph = new RadarTile();
