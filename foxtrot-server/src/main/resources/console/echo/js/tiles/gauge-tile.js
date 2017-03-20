@@ -65,6 +65,12 @@ GaugeTile.prototype.render = function (data) {
   var maxNumber = 100
 
   var randomNumber = Math.floor(Math.random()*(maxNumber-minNumber+1)+minNumber);
+
+  var findExistingChart = chartDiv.find("#gauge-"+object.id);
+  if(findExistingChart.length != 0) {
+    findExistingChart.remove();
+  }
+
   chartDiv.append('<div id="gauge-'+object.id+'"><div class="halfDonut"><div class="halfDonutChart"></div><div class="halfDonutTotal" data-percent="'+randomNumber+'" data-color="#f06961">'+randomNumber+'</div></div></div>')
   var ctx = chartDiv.find("#gauge-"+object.id);
   var donutDiv = ctx.find(".halfDonutChart");
