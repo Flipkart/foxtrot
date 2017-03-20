@@ -56,8 +56,8 @@ function submitClicked(e) {
 function pushTilesObject(object) {
 	tileData.push(object);
   setInterval(function(){
-    var a = new TileFactory();
-    a.createGraph(object[Object.keys(object)], $("#"+Object.keys(object)));
+    /*var a = new TileFactory();
+    a.createGraph(object[Object.keys(object)], $("#"+Object.keys(object)));*/
   }, 6000);
 
 }
@@ -206,6 +206,9 @@ TileFactory.prototype.createGraph = function(object, tileElement) {
   } else if(object.chartType == "gauge") {
     var gaugeGraph = new GaugeTile();
     gaugeGraph.getQuery(tileElement, object);
+  } else if(object.chartType == "stackedBar") {
+    var stackedGraph = new StackedBarTile();
+    stackedGraph.getQuery(tileElement, object);
   }
 }
 
@@ -259,7 +262,7 @@ TileFactory.prototype.create = function () {
   if(this.tileObject.chartType == "radar") {
     tileElement.find(".trend-chart").remove();
     tileElement.find(".chart-item").addClass("radar-chart");
-  } else if(this.tileObject.chartType == "line") {
+  } else if(this.tileObject.chartType == "line" || this.tileObject.chartType == "stackedBar") {
     tileElement.find(".chart-item").append('<div id="'+this.tileObject.id+'-health-text" class="lineGraph-health-text">10,000</div>');
 	 tileElement.find(".chart-item").append('<div id="'+this.tileObject.id+'-health" style=""></div>');
 	 tileElement.find(".chart-item").append('<div id="'+this.tileObject.id+'"></div>');

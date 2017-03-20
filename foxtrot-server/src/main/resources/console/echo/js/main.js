@@ -131,7 +131,7 @@ function removeFilters () {
 }
 
 function getWidgetType() {
-  if(currentChartType == "line") {
+  if(currentChartType == "line" || currentChartType == "stackedBar") {
     return "full";
   } else if(currentChartType == "radar") {
     return "medium";
@@ -164,7 +164,7 @@ function getTrendChartFormValues() {
 }
 
 function getStackedBarChartFormValues() {
-  var period = $(".stacked-bar-time-unitt").val();
+  var period = $(".stacked-bar-time-unit").val();
   var periodValue = $(".statcked-bar-periodValue").val();
   var groupingKey = $(".stacked-bar-grouping-key").val();
   var stackingKey = $(".stacking-key").val();
