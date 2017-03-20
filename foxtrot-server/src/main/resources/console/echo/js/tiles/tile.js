@@ -269,7 +269,7 @@ TileFactory.prototype.create = function () {
 
   this.createGraph(this.tileObject, tileElement);
 	this.triggerConfig(tileElement, this.tileObject);// add event for tile config
-  this.triggerChildBtn(tileElement,this.tileObject);
+  //this.triggerChildBtn(tileElement,this.tileObject);
 	this.createTileData(this.tileObject);
 	this.saveTileConfig(this.tileObject);// add event for tile save btn
 };

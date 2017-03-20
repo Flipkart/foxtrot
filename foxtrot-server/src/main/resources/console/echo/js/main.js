@@ -35,6 +35,7 @@ TablesView.prototype.load = function(tables) {
 function uniqueKey(fields, element) {
   console.log('triggered')
   var el = $(element);
+  console.log(el);
   el.find('option').remove();
   $(el).append($('<option>', {
         value: "none",
@@ -110,6 +111,7 @@ function addTilesList(object) {
 function setClicketData(ele) {
 	customBtn = ele;
 	defaultPlusBtn = false;
+  clearModal();
 }
 
 function getFilters() {
@@ -268,7 +270,7 @@ function filterUnits () {
   $("#table-units").hide();
 }
 
-FoxTrot.prototype.resetModal = function() {
+function clearModal() {
   $("#widgetType").val('');
 	$("#tileTitle").val('');
 	$(".tile-table").val('');
@@ -283,6 +285,10 @@ FoxTrot.prototype.resetModal = function() {
   $(".vizualization-type").removeClass("vizualization-type-active");
   $(".filters").remove();
   $("#table-units").hide();
+}
+
+FoxTrot.prototype.resetModal = function() {
+  clearModal();
 }
 
 function clearLineChartForm () {
@@ -333,7 +339,7 @@ function clickedChartType(el) {
   if(currentChartType == "line") {
     uniqueKey(currentFieldList, "#uniqueKey");
   } else if(currentChartType == "trend") {
-    //uniqueKey(currentFieldList, ".stats-field");
+    uniqueKey(currentFieldList, ".stats-field");
   }
 
   invokeClearChartForm();
