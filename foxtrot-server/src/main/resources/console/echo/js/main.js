@@ -33,7 +33,16 @@ TablesView.prototype.load = function(tables) {
 };
 
 function uniqueKey(fields, element) {
-  var el = $(element);
+
+  var select = $(element);
+	select.find('option')
+    .remove();
+	for (var i = fields.length - 1; i >= 0; i--) {
+		select.append("<option value='" + i + "'>" + fields[i].field + '</option>');
+	}
+	select.selectpicker('refresh');
+
+  /*var el = $(element);
   el.find('option').remove();
   $(el).append($('<option>', {
         value: "none",
@@ -45,7 +54,7 @@ function uniqueKey(fields, element) {
         text : item.field
     }));
   });
-  $(el).selectpicker('refresh');
+  $(el).selectpicker('refresh');*/
 }
 
 TablesView.prototype.registerTableSelectionChangeHandler = function(handler) {
@@ -384,9 +393,9 @@ function clickedChartType(el) {
   } else if(currentChartType == "trend") {
     uniqueKey(currentFieldList, ".stats-field");
   } else if(currentChartType == "stackedBar") {
-    uniqueKey(currentFieldList, ".stacking-key");
-    uniqueKey(currentFieldList, ".stacked-bar-uniquekey");
-    uniqueKey(currentFieldList, ".stacked-bar-grouping-key");
+    uniqueKey(currentFieldList, "#stacking-key");
+    uniqueKey(currentFieldList, "#stacked-bar-uniquekey");
+    uniqueKey(currentFieldList, "#stacked-bar-grouping-key");
   }
 
   invokeClearChartForm();
