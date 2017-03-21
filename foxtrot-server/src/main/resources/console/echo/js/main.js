@@ -172,6 +172,15 @@ function getTrendChartFormValues() {
   }
 }
 
+function getRadarChartFormValues() {
+  var nesting = $(".radar-nesting").val();
+  var nestingArray = [];
+  nestingArray.push(currentFieldList[parseInt(nesting)].field);
+  return {
+    "nesting": nestingArray,
+  }
+}
+
 function getStackedBarChartFormValues() {
   var period = $(".stacked-bar-time-unit").val();
   var periodValue = $(".statcked-bar-periodValue").val();
@@ -194,6 +203,8 @@ function getChartFormValues() {
     return getTrendChartFormValues();
   } else if(currentChartType == "stackedBar") {
     return getStackedBarChartFormValues();
+  } else if(currentChartType == "radar") {
+    return getRadarChartFormValues();
   }
 }
 
@@ -345,6 +356,9 @@ function clearTrendChartForm() {
   parentElement.find(".ignored-digits").val('');
 }
 
+function clearRadarChartForm() {
+  var parentElement = $("#"+currentChartType+"-chart-data");
+}
 
 function clearStackedBarChartForm() {
   var parentElement = $("#"+currentChartType+"-chart-data");
@@ -378,6 +392,8 @@ function invokeClearChartForm() {
     clearTrendChartForm();
   } else if(currentChartType == "stackedBar") {
     clearStackedBarChartForm();
+  } else if(currentChartType == "radar") {
+    clearRadarChartForm();
   }
 }
 
@@ -396,6 +412,8 @@ function clickedChartType(el) {
     uniqueKey(currentFieldList, "#stacking-key");
     uniqueKey(currentFieldList, "#stacked-bar-uniquekey");
     uniqueKey(currentFieldList, "#stacked-bar-grouping-key");
+  } else if(currentChartType == "radar") {
+    uniqueKey(currentFieldList, "#radar-nesting");
   }
 
   invokeClearChartForm();

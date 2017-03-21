@@ -206,6 +206,7 @@ TileFactory.prototype.createGraph = function(object, tileElement) {
   } else if(object.chartType == "gauge") {
     var gaugeGraph = new GaugeTile();
     gaugeGraph.getQuery(tileElement, object);
+    console.log('gauge called')
   } else if(object.chartType == "stackedBar") {
     var stackedGraph = new StackedBarTile();
     stackedGraph.getQuery(tileElement, object);

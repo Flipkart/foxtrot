@@ -23,12 +23,10 @@ RadarTile.prototype.getQuery = function(newDiv, object) {
   this.newDiv = newDiv;
   this.object = object;
   var data = {
-    "opcode": "histogram",
-    "table": object.table,
+    "opcode": "group",
+    "table": "flipcast",
     "filters": object.filters,
-    "field": "_timestamp",
-    "period": "hours",
-    "uniqueCountOn": object.uniqueCountOn && object.uniqueCountOn != "none" ? object.uniqueCountOn : null
+    "nesting": object.nesting
   }
   $.ajax({
     method: "post",
@@ -44,21 +42,24 @@ RadarTile.prototype.getQuery = function(newDiv, object) {
 }
 
 RadarTile.prototype.getData = function(data) {
-  if(data.counts == undefined || data.counts.length == 0)
+  if(data.result == undefined || data.result.length == 0)
     return;
   var chartData = [];
-  for(var i = 0; i< data.counts.length; i++) {
-    var date = new Date(data.counts[i].period);
-    chartData.push({axis:formatDate(date), value: data.counts[i].count});
+  var object = {}
+  for (var key in data.result){
+    object.axis = key;
+    object.value = data.result[key]
+    chartData.push({axis: key, value: data.result[key]});
   }
   this.render(chartData);
 }
 
 RadarTile.prototype.render = function (data) {
-  console.log('&&');
+  var a = [];
+  a.push(data);
   var newDiv = this.newDiv;
   var object = this.object;
-  var d = [data];
+  var d  = a;
   var chartDiv = newDiv.find(".chart-item");
 	var ctx = chartDiv.find("#radar-"+object.id);
 	ctx.width(ctx.width);
