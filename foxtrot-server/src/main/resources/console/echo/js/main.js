@@ -149,53 +149,6 @@ function getWidgetType() {
   }
 }
 
-function getLineChartFormValues() {
-  var period = $(".tile-time-unit").val();
-  var uniqueCount = $("#uniqueKey").val();
-  var periodValue = $("#periodValue").val();
-  return {
-    "period": period,
-    "uniqueCountOn": uniqueCount,
-    "periodValue": periodValue,
-  }
-}
-
-function getTrendChartFormValues() {
-  var period = $(".trend-time-unit").val();
-  var statsField = $(".stats-field").val();
-  var statsToPlot = $(".statistic_to_plot").val();
-  var statsPeroidValue = $("#stats-period-value").val();
-  return {
-    "period": period,
-    "statsFieldName": "eventData.amount",
-    "statsToPlot": statsToPlot,
-  }
-}
-
-function getRadarChartFormValues() {
-  var nesting = $(".radar-nesting").val();
-  var nestingArray = [];
-  nestingArray.push(currentFieldList[parseInt(nesting)].field);
-  return {
-    "nesting": nestingArray,
-  }
-}
-
-function getStackedBarChartFormValues() {
-  var period = $(".stacked-bar-time-unit").val();
-  var periodValue = $(".statcked-bar-periodValue").val();
-  var groupingKey = $(".stacked-bar-grouping-key").val();
-  var stackingKey = $(".stacking-key").val();
-  var uniqueKey = $(".stacked-bar-uniquekey").val();
-  return {
-    "period": period,
-    "periodValue": periodValue,
-    "groupingKey": groupingKey,
-    "stackingKey": stackingKey,
-    "uniqueKey": uniqueKey,
-  }
-}
-
 function getChartFormValues() {
   if(currentChartType == "line") {
     return getLineChartFormValues();

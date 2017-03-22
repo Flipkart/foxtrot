@@ -19,6 +19,18 @@ function TrendTile() {
   this.object = "";
 }
 
+function getTrendChartFormValues() {
+  var period = $(".trend-time-unit").val();
+  var statsField = $(".stats-field").val();
+  var statsToPlot = $(".statistic_to_plot").val();
+  var statsPeroidValue = $("#stats-period-value").val();
+  return {
+    "period": period,
+    "statsFieldName": "eventData.amount",
+    "statsToPlot": statsToPlot,
+  }
+}
+
 TrendTile.prototype.getQuery = function(newDiv, object) {
   this.newDiv = newDiv;
   this.object = object;
@@ -101,6 +113,4 @@ TrendTile.prototype.render = function (displayValue) {
         },
 			colors: ['#000'],
 		});*/
-
-
 }

@@ -19,6 +19,21 @@ function StackedBarTile() {
   this.object = "";
 }
 
+function getStackedBarChartFormValues() {
+  var period = $(".stacked-bar-time-unit").val();
+  var periodValue = $(".statcked-bar-periodValue").val();
+  var groupingKey = $(".stacked-bar-grouping-key").val();
+  var stackingKey = $(".stacking-key").val();
+  var uniqueKey = $(".stacked-bar-uniquekey").val();
+  return {
+    "period": period,
+    "periodValue": periodValue,
+    "groupingKey": groupingKey,
+    "stackingKey": stackingKey,
+    "uniqueKey": uniqueKey,
+  }
+}
+
 StackedBarTile.prototype.getQuery = function(newDiv, object) {
   this.newDiv = newDiv;
   this.object = object;

@@ -19,6 +19,16 @@ function RadarTile() {
   this.object = "";
 }
 
+function getRadarChartFormValues() {
+  var nesting = $(".radar-nesting").val();
+  var nestingArray = [];
+  nestingArray.push(currentFieldList[parseInt(nesting)].field);
+  return {
+    "nesting": nestingArray,
+  }
+}
+
+
 RadarTile.prototype.getQuery = function(newDiv, object) {
   this.newDiv = newDiv;
   this.object = object;

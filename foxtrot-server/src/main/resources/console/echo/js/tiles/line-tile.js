@@ -19,6 +19,17 @@ function LineTile() {
   this.object = "";
 }
 
+function getLineChartFormValues() {
+  var period = $(".tile-time-unit").val();
+  var uniqueCount = $("#uniqueKey").val();
+  var periodValue = $("#periodValue").val();
+  return {
+    "period": period,
+    "uniqueCountOn": uniqueCount,
+    "periodValue": periodValue,
+  }
+}
+
 LineTile.prototype.getQuery = function(newDiv, object) {
   this.newDiv = newDiv;
   this.object = object;
