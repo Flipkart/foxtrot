@@ -19,6 +19,15 @@ function GaugeTile() {
   this.object = "";
 }
 
+function getGaugeChartFormValues() {
+  var nesting = $(".gauge-nesting").val();
+  var nestingArray = [];
+  nestingArray.push(currentFieldList[parseInt(nesting)].field);
+  return {
+    "nesting": nestingArray,
+  }
+}
+
 GaugeTile.prototype.getQuery = function(newDiv, object) {
   this.newDiv = newDiv;
   this.object = object;

@@ -678,3 +678,7 @@ path {
 #radar-chart-data {
   display: none;
 }
+
+#gauge-chart-data {
+  display: none;
+}

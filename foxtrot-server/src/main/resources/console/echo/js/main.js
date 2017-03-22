@@ -158,6 +158,8 @@ function getChartFormValues() {
     return getStackedBarChartFormValues();
   } else if(currentChartType == "radar") {
     return getRadarChartFormValues();
+  } else if(currentChartType == "gauge") {
+    return getGaugeChartFormValues();
   }
 }
 
@@ -313,6 +315,18 @@ function clearRadarChartForm() {
   var parentElement = $("#"+currentChartType+"-chart-data");
 }
 
+function clearGaugeChartForm() {
+  var parentElement = $("#"+currentChartType+"-chart-data");
+
+  var nestingEl = parentElement.find(".gauge-nesting");
+  nestingEl.find('option:eq(0)').prop('selected', true);
+  $(nestingEl).selectpicker('refresh');
+
+  var timeUnitEl = parentElement.find(".gauge-time-unit");
+  timeUnitEl.find('option:eq(0)').prop('selected', true);
+  $(timeUnitEl).selectpicker('refresh');
+}
+
 function clearStackedBarChartForm() {
   var parentElement = $("#"+currentChartType+"-chart-data");
 
@@ -347,6 +361,8 @@ function invokeClearChartForm() {
     clearStackedBarChartForm();
   } else if(currentChartType == "radar") {
     clearRadarChartForm();
+  } else if(currentChartType == "gauge") {
+    clearGaugeChartForm();
   }
 }
 
@@ -367,6 +383,8 @@ function clickedChartType(el) {
     uniqueKey(currentFieldList, "#stacked-bar-grouping-key");
   } else if(currentChartType == "radar") {
     uniqueKey(currentFieldList, "#radar-nesting");
+  } else if(currentChartType == "gauge") {
+    uniqueKey(currentFieldList, "#gauge-nesting");
   }
 
   invokeClearChartForm();

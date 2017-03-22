@@ -28,7 +28,6 @@ function getRadarChartFormValues() {
   }
 }
 
-
 RadarTile.prototype.getQuery = function(newDiv, object) {
   this.newDiv = newDiv;
   this.object = object;
