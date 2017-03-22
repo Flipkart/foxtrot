@@ -674,3 +674,7 @@ path {
 #stackedBar-chart-data {
   display: none;
 }
+
+#radar-chart-data {
+  display: none;
+}
