@@ -407,7 +407,7 @@ function clickedChartType(el) {
   if(currentChartType == "line") {
     uniqueKey(currentFieldList, "#uniqueKey");
   } else if(currentChartType == "trend") {
-    uniqueKey(currentFieldList, ".stats-field");
+    uniqueKey(currentFieldList, "#stats-field");
   } else if(currentChartType == "stackedBar") {
     uniqueKey(currentFieldList, "#stacking-key");
     uniqueKey(currentFieldList, "#stacked-bar-uniquekey");
