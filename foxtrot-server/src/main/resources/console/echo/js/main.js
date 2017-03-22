@@ -41,7 +41,7 @@ function uniqueKey(fields, element) {
     }));
 	$.each(fields, function (i, item) {
     $(el).append($('<option>', {
-        value: item.field,
+        value: i,
         text : item.field
     }));
   });

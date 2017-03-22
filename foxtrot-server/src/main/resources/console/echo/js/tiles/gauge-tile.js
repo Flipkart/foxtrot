@@ -22,6 +22,7 @@ function GaugeTile() {
 function getGaugeChartFormValues() {
   var nesting = $(".gauge-nesting").val();
   var nestingArray = [];
+  console.log(nesting);
   nestingArray.push(currentFieldList[parseInt(nesting)].field);
   return {
     "nesting": nestingArray,
@@ -32,12 +33,10 @@ GaugeTile.prototype.getQuery = function(newDiv, object) {
   this.newDiv = newDiv;
   this.object = object;
   var data = {
-    "opcode": "histogram",
+    "opcode": "group",
     "table": object.table,
     "filters": object.filters,
-    "field": "_timestamp",
-    "period": "hours",
-    "uniqueCountOn": object.uniqueCountOn && object.uniqueCountOn != "none" ? object.uniqueCountOn : null
+    "nesting": object.nesting
   }
   $.ajax({
     method: "post",
@@ -53,14 +52,14 @@ GaugeTile.prototype.getQuery = function(newDiv, object) {
 }
 
 GaugeTile.prototype.getData = function(data) {
-  if(data.counts == undefined || data.counts.length == 0)
+  if(data.result == undefined || data.result.length == 0)
     return;
-  var chartData = [];
-  for(var i = 0; i< data.counts.length; i++) {
-    var date = new Date(data.counts[i].period);
-    chartData.push({axis:formatDate(date), value: data.counts[i].count});
+  var percentage = "";
+  for (var key in data.result){
+    var value = data.result[key];
+    percentage = value%100;
   }
-  this.render(chartData);
+  this.render(percentage);
 }
 
 GaugeTile.prototype.render = function (data) {
@@ -73,7 +72,7 @@ GaugeTile.prototype.render = function (data) {
   var minNumber = 1;
   var maxNumber = 100
 
-  var randomNumber = Math.floor(Math.random()*(maxNumber-minNumber+1)+minNumber);
+  var randomNumber = data;
 
   var findExistingChart = chartDiv.find("#gauge-"+object.id);
   if(findExistingChart.length != 0) {
