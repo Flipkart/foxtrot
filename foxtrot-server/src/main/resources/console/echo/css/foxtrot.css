@@ -665,7 +665,7 @@ path {
 
 .gauge-chart {
   margin-top: 40px;
-  margin-left: 12px;
+  margin-left: 15px;
 }
 
 #trend-chart-data {
@@ -691,4 +691,11 @@ path {
 @font-face {
     font-family: oswald-bold;
     src: url(../fonts/oswald/Oswald-Bold.ttf);
+}
+
+.widget-add-btn {
+  float: right;
+  position: relative;
+  left: 100px;
+  bottom: 150px;
 }

@@ -246,7 +246,7 @@ TileFactory.prototype.create = function () {
 
         var rowCol2Length = findElement.find(".row-col-2").length;
         if(rowCol2Length == 0)
-          tileElement.append("<div><button data-target='#addWidgetModal' class='tile-add-btn tile-add-btn btn btn-primary filter-nav-button glyphicon glyphicon-plus custom-add-btn row-col-1'onClick='setClicketData(this)'  data-toggle='modal' id='row-"+splitValue[1]+"'></button><div>");
+          tileElement.append("<div class='widget-add-btn'><button data-target='#addWidgetModal' class='tile-add-btn tile-add-btn btn btn-primary filter-nav-button glyphicon glyphicon-plus custom-add-btn row-col-1'onClick='setClicketData(this)'  data-toggle='modal' id='row-"+splitValue[1]+"'></button><div>");
 			}
 		}
 	}
@@ -257,7 +257,7 @@ TileFactory.prototype.create = function () {
 		tileElement.find(".tile").addClass('col-md-6');
 		tileElement.find(".tile").width(590);
 	} else if(this.tileObject.widgetType == "small") {
-		tileElement.find(".tile").addClass('col-md-4');
+		tileElement.find(".tile").addClass('col-md-3');
 		tileElement.find(".tile").width(280);
 		tileElement.find(".tile").height(250);
 	}
