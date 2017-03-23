@@ -100,6 +100,7 @@ var filterRowArray = [];
 var currentChartType;
 var tableList = [];
 var currentFieldList = [];
+var apiUrl = "http://foxtrot.traefik.prod.phonepe.com/foxtrot"
 
 function addTilesList(object) {
 	tiles[object.id] = object;

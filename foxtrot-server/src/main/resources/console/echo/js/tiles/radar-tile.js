@@ -43,7 +43,7 @@ RadarTile.prototype.getQuery = function(newDiv, object) {
     accepts: {
         json: 'application/json'
     },
-    url: "http://foxtrot.traefik.prod.phonepe.com/foxtrot/v1/analytics",
+    url: apiUrl+"/v1/analytics",
     contentType: "application/json",
     data: JSON.stringify(data),
     success: $.proxy(this.getData, this)
