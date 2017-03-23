@@ -25,12 +25,18 @@ function getStackedBarChartFormValues() {
   var groupingKey = $(".stacked-bar-grouping-key").val();
   var stackingKey = $(".stacking-key").val();
   var uniqueKey = $(".stacked-bar-uniquekey").val();
+
+  var nestingArray = [];
+  nestingArray.push(currentFieldList[parseInt(groupingKey)].field);
+  nestingArray.push(currentFieldList[parseInt(stackingKey)].field);
+
   return {
     "period": period,
     "periodValue": periodValue,
     "groupingKey": groupingKey,
     "stackingKey": stackingKey,
     "uniqueKey": uniqueKey,
+    "nesting": nestingArray
   }
 }
 
@@ -63,12 +69,11 @@ StackedBarTile.prototype.getQuery = function(newDiv, object) {
   this.newDiv = newDiv;
   this.object = object;
   var data = {
-    "opcode": "trend",
+    "opcode": "group",
     "table": object.table,
     "filters": object.filters,
-    "field": "eventType",
-    "period": object.period,
-    "uniqueCountOn": object.uniqueCountOn && object.uniqueCountOn != "none" ? object.uniqueCountOn : null
+    "uniqueCountOn": object.uniqueCountOn && object.uniqueCountOn != "none" ? object.uniqueCountOn : null,
+    "nesting" : object.nesting
   }
   console.log(data);
   $.ajax({
@@ -84,27 +89,43 @@ StackedBarTile.prototype.getQuery = function(newDiv, object) {
   });
 }
 
+function unique(list) {
+    var result = [];
+    $.each(list, function(i, e) {
+        if ($.inArray(e, result) == -1) result.push(e);
+    });
+    return result;
+}
+
 StackedBarTile.prototype.getData = function(data) {
-  if(data.counts == undefined || data.counts.length == 0)
+  if(data.result == undefined || data.result.length == 0)
     return;
   var xAxis = [];
   var yAxis = [];
-  for(var i = 0; i< data.counts.length; i++) {
-    var date = new Date(data.counts[i].period);
-    xAxis.push([i, formatDate(date)]);
-    yAxis.push([i, data.counts[i].count ]);
+  var label = [];
+  var i = 0;
+  for (var key in data.result){
+    xAxis.push([i, key]);
+    var key1 = data.result[key];
+    for(var innerKey in key1) {
+      label.push(innerKey)
+      yAxis.push([i,key1[innerKey]])
+    }
+    i++;
   }
-  this.render(xAxis, yAxis);
+  console.log(xAxis);
+  console.log(yAxis);
+  this.render(xAxis, yAxis,unique(label));
 }
 
-StackedBarTile.prototype.render = function (xAxis, yAxis) {
+StackedBarTile.prototype.render = function (xAxis, yAxis, label) {
   var newDiv = this.newDiv;
   var object = this.object;
 	var chartDiv = newDiv.find(".chart-item");
   var ctx = chartDiv.find("#"+object.id);
 	ctx.width(ctx.width);
 	ctx.height(230);
-	$.plot(ctx, [xAxis], {
+	$.plot(ctx, [yAxis], {
         series: {
             stack: true,
           bars: {
@@ -125,8 +146,7 @@ StackedBarTile.prototype.render = function (xAxis, yAxis) {
             lineWidth: 0
         },
         xaxis: {
-            mode: "time",
-            timezone: "browser",
+          ticks: label
         },
         selection: {
             mode: "x",
