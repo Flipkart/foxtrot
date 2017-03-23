@@ -707,3 +707,11 @@ path {
   left: 100px;
   bottom: 150px;
 }
+
+.table-units-active {
+  display: block !important;
+}
+
+.table-units-inactive {
+  display: none;
+}

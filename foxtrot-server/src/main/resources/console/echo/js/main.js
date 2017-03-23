@@ -249,6 +249,7 @@ FoxTrot.prototype.addFilters = function() {
 
 function filterUnits () {
   $("#table-units").hide();
+  $("#table-units").find(".table-units-active").removeClass(".table-units-active");
 }
 
 function clearModal() {
@@ -359,8 +360,8 @@ function invokeClearChartForm() {
 
 function clickedChartType(el) {
   // hide
-  var previousChartType = currentChartType;
-  $("#table-units").find("#"+previousChartType+"-chart-data").hide();
+  $("#table-units>div.table-units-active").removeClass("table-units-active");
+
 
   // show
   currentChartType = $(el).data('chartType');
@@ -382,7 +383,8 @@ function clickedChartType(el) {
   $("#table-units").show();
   var chartDataEle = $("#table-units").find("#"+currentChartType+"-chart-data");
   if(chartDataEle.length > 0) {
-    $(chartDataEle).show();
+    //$(chartDataEle).show();
+    $(chartDataEle).addClass("table-units-active");
   } else {
     filterUnits();
   }
