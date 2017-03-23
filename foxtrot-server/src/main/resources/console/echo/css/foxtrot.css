@@ -693,6 +693,14 @@ path {
     src: url(../fonts/oswald/Oswald-Bold.ttf);
 }
 
+@font-face {
+    font-family: sans-semi-bold;
+    src: url(../fonts/sans/OpenSans-Semibold.ttf);
+}
+
+.widget-header {
+  font-family: "sans-semi-bold"
+}
 .widget-add-btn {
   float: right;
   position: relative;
