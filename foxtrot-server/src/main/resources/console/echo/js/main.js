@@ -64,6 +64,7 @@ TablesView.prototype.init = function() {
 			this.tables.loadTableMeta(table);
 			this.tables.selectedTable = table;
 			console.log("Table changed to: " + table.name);
+      reloadDropdowns();
       //console.log(this);
 		}
 	}, this));
@@ -359,13 +360,8 @@ function invokeClearChartForm() {
   }
 }
 
-function clickedChartType(el) {
-  // hide
-  $("#table-units>div.table-units-active").removeClass("table-units-active");
+function reloadDropdowns() {
 
-
-  // show
-  currentChartType = $(el).data('chartType');
   if(currentChartType == "line") {
     uniqueKey(currentFieldList, "#uniqueKey");
   } else if(currentChartType == "trend") {
@@ -379,6 +375,16 @@ function clickedChartType(el) {
   } else if(currentChartType == "gauge") {
     uniqueKey(currentFieldList, "#gauge-nesting");
   }
+
+}
+function clickedChartType(el) {
+  // hide
+  $("#table-units>div.table-units-active").removeClass("table-units-active");
+
+
+  // show
+  currentChartType = $(el).data('chartType');
+  reloadDropdowns();
 
   invokeClearChartForm();
   $("#table-units").show();
