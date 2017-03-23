@@ -30,6 +30,17 @@ function getLineChartFormValues() {
   }
 }
 
+function clearLineChartForm () {
+  var parentElement = $("#"+currentChartType+"-chart-data");
+  var timeUnitEl = parentElement.find(".tile-time-unit");
+  timeUnitEl.find('option:eq(0)').prop('selected', true);
+  $(timeUnitEl).selectpicker('refresh');
+  var uniqeKey = parentElement.find("#uniqueKey");
+  uniqeKey.find('option:eq(0)').prop('selected', true);
+  $(uniqeKey).selectpicker('refresh');
+  parentElement.find("#stats-periodValue").val('');
+}
+
 LineTile.prototype.getQuery = function(newDiv, object) {
   this.newDiv = newDiv;
   this.object = object;

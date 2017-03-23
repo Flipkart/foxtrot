@@ -28,6 +28,10 @@ function getRadarChartFormValues() {
   }
 }
 
+function clearRadarChartForm() {
+  var parentElement = $("#"+currentChartType+"-chart-data");
+}
+
 RadarTile.prototype.getQuery = function(newDiv, object) {
   this.newDiv = newDiv;
   this.object = object;

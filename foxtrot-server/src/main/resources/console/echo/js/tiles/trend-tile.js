@@ -31,6 +31,25 @@ function getTrendChartFormValues() {
   }
 }
 
+function clearTrendChartForm() {
+  var parentElement = $("#"+currentChartType+"-chart-data");
+
+  var timeUnitEl = parentElement.find(".trend-time-unit");
+  timeUnitEl.find('option:eq(0)').prop('selected', true);
+  $(timeUnitEl).selectpicker('refresh');
+
+  var statsFieldEl = parentElement.find(".stats-field");
+  statsFieldEl.find('option:eq(0)').prop('selected', true);
+  $(statsFieldEl).selectpicker('refresh');
+
+  var statsToPlot = parentElement.find(".statistic_to_plot");
+  statsToPlot.find('option:eq(0)').prop('selected', true);
+  $(statsToPlot).selectpicker('refresh');
+
+  parentElement.find("#periodValue").val('');
+  parentElement.find(".ignored-digits").val('');
+}
+
 TrendTile.prototype.getQuery = function(newDiv, object) {
   this.newDiv = newDiv;
   this.object = object;

@@ -34,6 +34,31 @@ function getStackedBarChartFormValues() {
   }
 }
 
+function clearStackedBarChartForm() {
+  var parentElement = $("#"+currentChartType+"-chart-data");
+
+  var timeUnitEl = parentElement.find(".stacked-bar-time-unit");
+  timeUnitEl.find('option:eq(0)').prop('selected', true);
+  $(timeUnitEl).selectpicker('refresh');
+
+  var periodUnit = parentElement.find(".statcked-bar-periodValue");
+  periodUnit.find('option:eq(0)').prop('selected', true);
+  $(periodUnit).selectpicker('refresh');
+
+  var groupingKey = parentElement.find(".stacked-bar-grouping-key");
+  groupingKey.find('option:eq(0)').prop('selected', true);
+  $(groupingKey).selectpicker('refresh');
+
+  var stackingKey = parentElement.find(".stacking-key");
+  stackingKey.find('option:eq(0)').prop('selected', true);
+  $(stackingKey).selectpicker('refresh');
+
+
+  var stackingBarUniqueKey = parentElement.find(".stacked-bar-uniquekey");
+  stackingBarUniqueKey.find('option:eq(0)').prop('selected', true);
+  $(stackingBarUniqueKey).selectpicker('refresh');
+}
+
 StackedBarTile.prototype.getQuery = function(newDiv, object) {
   this.newDiv = newDiv;
   this.object = object;

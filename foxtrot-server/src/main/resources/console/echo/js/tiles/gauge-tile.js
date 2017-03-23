@@ -29,6 +29,18 @@ function getGaugeChartFormValues() {
   }
 }
 
+function clearGaugeChartForm() {
+  var parentElement = $("#"+currentChartType+"-chart-data");
+
+  var nestingEl = parentElement.find(".gauge-nesting");
+  nestingEl.find('option:eq(0)').prop('selected', true);
+  $(nestingEl).selectpicker('refresh');
+
+  var timeUnitEl = parentElement.find(".gauge-time-unit");
+  timeUnitEl.find('option:eq(0)').prop('selected', true);
+  $(timeUnitEl).selectpicker('refresh');
+}
+
 GaugeTile.prototype.getQuery = function(newDiv, object) {
   this.newDiv = newDiv;
   this.object = object;

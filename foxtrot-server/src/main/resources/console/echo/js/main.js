@@ -133,10 +133,6 @@ function getFilters() {
   return filterDetails;
 }
 
-function removeFilters () {
-  $(".filters").remove();
-}
-
 function getWidgetType() {
   if(currentChartType == "line" || currentChartType == "stackedBar") {
     return "full";
@@ -273,7 +269,6 @@ function clearModal() {
   $("#tileTimeFrame").val('');
   $(".tile-time-unit").val('minutes');
   $(".tileId").val('');
-  filterRowArray = [];
   $(".vizualization-type").show();
   $(".vizualization-type").removeClass("vizualization-type-active");
   removeFilters();
@@ -282,77 +277,6 @@ function clearModal() {
 
 FoxTrot.prototype.resetModal = function() {
   clearModal();
-}
-
-function clearLineChartForm () {
-  var parentElement = $("#"+currentChartType+"-chart-data");
-  var timeUnitEl = parentElement.find(".tile-time-unit");
-  timeUnitEl.find('option:eq(0)').prop('selected', true);
-  $(timeUnitEl).selectpicker('refresh');
-  var uniqeKey = parentElement.find("#uniqueKey");
-  uniqeKey.find('option:eq(0)').prop('selected', true);
-  $(uniqeKey).selectpicker('refresh');
-  parentElement.find("#stats-periodValue").val('');
-}
-
-function clearTrendChartForm() {
-  var parentElement = $("#"+currentChartType+"-chart-data");
-
-  var timeUnitEl = parentElement.find(".trend-time-unit");
-  timeUnitEl.find('option:eq(0)').prop('selected', true);
-  $(timeUnitEl).selectpicker('refresh');
-
-  var statsFieldEl = parentElement.find(".stats-field");
-  statsFieldEl.find('option:eq(0)').prop('selected', true);
-  $(statsFieldEl).selectpicker('refresh');
-
-  var statsToPlot = parentElement.find(".statistic_to_plot");
-  statsToPlot.find('option:eq(0)').prop('selected', true);
-  $(statsToPlot).selectpicker('refresh');
-
-  parentElement.find("#periodValue").val('');
-  parentElement.find(".ignored-digits").val('');
-}
-
-function clearRadarChartForm() {
-  var parentElement = $("#"+currentChartType+"-chart-data");
-}
-
-function clearGaugeChartForm() {
-  var parentElement = $("#"+currentChartType+"-chart-data");
-
-  var nestingEl = parentElement.find(".gauge-nesting");
-  nestingEl.find('option:eq(0)').prop('selected', true);
-  $(nestingEl).selectpicker('refresh');
-
-  var timeUnitEl = parentElement.find(".gauge-time-unit");
-  timeUnitEl.find('option:eq(0)').prop('selected', true);
-  $(timeUnitEl).selectpicker('refresh');
-}
-
-function clearStackedBarChartForm() {
-  var parentElement = $("#"+currentChartType+"-chart-data");
-
-  var timeUnitEl = parentElement.find(".stacked-bar-time-unit");
-  timeUnitEl.find('option:eq(0)').prop('selected', true);
-  $(timeUnitEl).selectpicker('refresh');
-
-  var periodUnit = parentElement.find(".statcked-bar-periodValue");
-  periodUnit.find('option:eq(0)').prop('selected', true);
-  $(periodUnit).selectpicker('refresh');
-
-  var groupingKey = parentElement.find(".stacked-bar-grouping-key");
-  groupingKey.find('option:eq(0)').prop('selected', true);
-  $(groupingKey).selectpicker('refresh');
-
-  var stackingKey = parentElement.find(".stacking-key");
-  stackingKey.find('option:eq(0)').prop('selected', true);
-  $(stackingKey).selectpicker('refresh');
-
-
-  var stackingBarUniqueKey = parentElement.find(".stacked-bar-uniquekey");
-  stackingBarUniqueKey.find('option:eq(0)').prop('selected', true);
-  $(stackingBarUniqueKey).selectpicker('refresh');
 }
 
 function invokeClearChartForm() {
@@ -389,14 +313,13 @@ function reloadDropdowns() {
 function clickedChartType(el) {
   // hide
   $("#table-units>div.table-units-active").removeClass("table-units-active");
-
-
   // show
   currentChartType = $(el).data('chartType');
-  reloadDropdowns();
 
+  reloadDropdowns();
   invokeClearChartForm();
   $("#table-units").show();
+
   var chartDataEle = $("#table-units").find("#"+currentChartType+"-chart-data");
   if(chartDataEle.length > 0) {
     //$(chartDataEle).show();
