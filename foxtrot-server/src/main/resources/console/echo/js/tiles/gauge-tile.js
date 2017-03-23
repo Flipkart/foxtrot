@@ -79,7 +79,7 @@ GaugeTile.prototype.render = function (data) {
     findExistingChart.remove();
   }
 
-  chartDiv.append('<div id="gauge-'+object.id+'"><div class="halfDonut"><div class="halfDonutChart"></div><div class="halfDonutTotal" data-percent="'+randomNumber+'" data-color="#f06961">'+randomNumber+'</div></div></div>')
+  chartDiv.append('<div id="gauge-'+object.id+'"><div class="halfDonut"><div class="halfDonutChart"></div><div class="halfDonutTotal bold" data-percent="'+randomNumber+'" data-color="#f06961">'+randomNumber+'</div></div></div>')
   var ctx = chartDiv.find("#gauge-"+object.id);
   var donutDiv = ctx.find(".halfDonutChart");
   $(donutDiv).each(function (index, chart) {

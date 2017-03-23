@@ -38,10 +38,10 @@ StackedBarTile.prototype.getQuery = function(newDiv, object) {
   this.newDiv = newDiv;
   this.object = object;
   var data = {
-    "opcode": "histogram",
+    "opcode": "trend",
     "table": object.table,
     "filters": object.filters,
-    "field": "_timestamp",
+    "field": "eventType",
     "period": object.period,
     "uniqueCountOn": object.uniqueCountOn && object.uniqueCountOn != "none" ? object.uniqueCountOn : null
   }

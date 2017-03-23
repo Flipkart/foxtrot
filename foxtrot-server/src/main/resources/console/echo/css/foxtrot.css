@@ -622,6 +622,7 @@ path {
   font-weight: bold;
   color: #9BA3AB;
   margin: 0px;
+  font-family: "oswald-bold";
 }
 
 .trend-value-small {
@@ -681,4 +682,13 @@ path {
 
 #gauge-chart-data {
   display: none;
+}
+
+.bold {
+  font-family: "oswald-bold"
+}
+
+@font-face {
+    font-family: oswald-bold;
+    src: url(../fonts/oswald/Oswald-Bold.ttf);
 }
