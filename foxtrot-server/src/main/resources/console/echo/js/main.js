@@ -48,6 +48,11 @@ function uniqueKey(fields, element) {
   $(el).selectpicker('refresh');
 }
 
+function clearModalfields() {// used when modal table changed
+  reloadDropdowns();
+  removeFilters();
+}
+
 TablesView.prototype.registerTableSelectionChangeHandler = function(handler) {
 	this.tableSelectionChangeHandler = handler;
 };
@@ -64,7 +69,7 @@ TablesView.prototype.init = function() {
 			this.tables.loadTableMeta(table);
 			this.tables.selectedTable = table;
 			console.log("Table changed to: " + table.name);
-      reloadDropdowns();
+      clearModalfields();
       //console.log(this);
 		}
 	}, this));
@@ -191,7 +196,6 @@ FoxTrot.prototype.addTile = function() {
     tileFactory.updateTileData();
   }
   $("#addWidgetModal").modal('hide');
-  filterRowArray = [];
   removeFilters();
 };
 
@@ -254,6 +258,11 @@ function filterUnits () {
   $("#table-units").find(".table-units-active").removeClass(".table-units-active");
 }
 
+function removeFilters() {
+  $(".filters").remove();
+  filterRowArray = [];
+}
+
 function clearModal() {
   $("#widgetType").val('');
 	$("#tileTitle").val('');
@@ -267,7 +276,7 @@ function clearModal() {
   filterRowArray = [];
   $(".vizualization-type").show();
   $(".vizualization-type").removeClass("vizualization-type-active");
-  $(".filters").remove();
+  removeFilters();
   $("#table-units").hide();
 }
 
