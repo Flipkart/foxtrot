@@ -239,12 +239,14 @@ TileFactory.prototype.create = function () {
 
 
         if(column1Length == 0) {
-          tileElement.addClass('row-col-1');
+          tileElement.addClass('row-col-1 col-md-3');
         } else if(column1Length == 2) {
-          tileElement.addClass('row-col-2');
+          tileElement.addClass('row-col-2 col-md-3');
         }
 
-				tileElement.append("<div><button data-target='#addWidgetModal' class='tile-add-btn tile-add-btn btn btn-primary filter-nav-button glyphicon glyphicon-plus custom-add-btn row-col-1'onClick='setClicketData(this)'  data-toggle='modal' id='row-"+splitValue[1]+"'></button><div>");
+        var rowCol2Length = findElement.find(".row-col-2").length;
+        if(rowCol2Length == 0)
+          tileElement.append("<div><button data-target='#addWidgetModal' class='tile-add-btn tile-add-btn btn btn-primary filter-nav-button glyphicon glyphicon-plus custom-add-btn row-col-1'onClick='setClicketData(this)'  data-toggle='modal' id='row-"+splitValue[1]+"'></button><div>");
 			}
 		}
 	}
@@ -273,7 +275,9 @@ TileFactory.prototype.create = function () {
 		tileElement.insertBefore('.float-clear');
 	} else {// remove row btn and add new div based on type
 		customBtn.remove();
-		tileElement.insertAfter('#'+clickedRow);
+    $(".custom-btn-div").remove();
+    console.log($('.row-'+splitValue[1]));
+    $('.row-'+splitValue[1]).append(tileElement);
 	}
 
   this.createGraph(this.tileObject, tileElement);
