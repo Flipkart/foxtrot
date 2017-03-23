@@ -54,12 +54,12 @@ GaugeTile.prototype.getQuery = function(newDiv, object) {
 GaugeTile.prototype.getData = function(data) {
   if(data.result == undefined || data.result.length == 0)
     return;
-  var percentage = "";
+  var percentage = 0;
   for (var key in data.result){
     var value = data.result[key];
-    percentage = value%100;
+    percentage = percentage+value;
   }
-  this.render(percentage);
+  this.render(percentage%100);
 }
 
 GaugeTile.prototype.render = function (data) {
