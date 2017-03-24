@@ -103,6 +103,15 @@ function setConfigValue(object) {
 	form.find(".tile-time-value").val(object.timeValue);
 	form.find(".tile-chart-type").val(object.chartType);
   $('.tile-table').selectpicker('refresh');
+  var chartElement = $("#vizualization").find("[data-chart-type='" + object.chartType + "']");
+  clickedChartType(chartElement);
+
+  if(currentChartType == "gauge") {
+    setGaugeChartFormValues(object);
+  } else if(currentChartType == "line") {
+    //setLineChartFormValues(object);
+  }
+
 }
 
 function clearForm() {

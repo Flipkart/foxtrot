@@ -385,14 +385,14 @@ path {
 }
 
 #menu-list ul {
-	margin-left: 300px;
+	margin-left: 382px;
 }
 
 #menu-list ul li {
 	list-style-type: none;
 	border-right: 1px solid #A2A3A3;
   float: left;
-  padding: 10px;
+  padding: 15px;
 	line-height: 4px;
 }
 
@@ -402,7 +402,13 @@ path {
 
 #menu-list ul li a {
 	text-decoration: none;
-	color: #000;
+	color: #98AAB2;
+  font-size: 16px;
+}
+
+.menu-active {
+  color: #37a0f5 !important;
+  font-weight: 600;
 }
 
 .widget-header {
@@ -488,7 +494,7 @@ path {
 }
 
 #menu-list {
-  margin: 28px 56px;
+  margin: -37px -257px;
 }
 
 #top-left-header {
@@ -699,7 +705,9 @@ path {
 }
 
 .widget-header {
-  font-family: "sans-semi-bold"
+  font-family: "sans-semi-bold";
+  color: #7d909a;
+  font-size: 12px;
 }
 .widget-add-btn {
   float: right;
@@ -730,4 +738,31 @@ path {
   color: #82c91e;
   margin-left: 69px;
   margin-bottom: -13px;
+}
+
+.new-header {
+  height: 67px;
+  background: #fff;
+}
+
+.inner-header {
+  margin-left: 120px;
+  padding: 15px;
+}
+
+#header-text {
+  border: solid 1px #b0c4cd;
+  color: #b0c4cd;
+}
+
+#right-menu {
+  margin-right: 148px;
+  margin-top: 6px;
+}
+
+#switch {
+  width: 35px;
+  height: 18px;
+  border-radius: 100px;
+  background-color: #dde4e7;
 }
