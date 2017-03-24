@@ -30,6 +30,17 @@ function getLineChartFormValues() {
   }
 }
 
+function setLineChartFormValues(object) {
+  var parentElement = $("#"+object.chartType+"-chart-data");
+  var timeUnitEl = parentElement.find(".tile-time-unit");
+  timeUnitEl.val(object.period);
+  $(timeUnitEl).selectpicker('refresh');
+  var uniqeKey = parentElement.find("#uniqueKey");
+  uniqeKey.val(object.uniqueCountOn);
+  $(uniqeKey).selectpicker('refresh');
+  parentElement.find("#stats-periodValue").val(object.period);
+}
+
 function clearLineChartForm () {
   var parentElement = $("#"+currentChartType+"-chart-data");
   var timeUnitEl = parentElement.find(".tile-time-unit");

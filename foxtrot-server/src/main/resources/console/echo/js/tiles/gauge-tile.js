@@ -29,6 +29,16 @@ function getGaugeChartFormValues() {
   }
 }
 
+function setGaugeChartFormValues(object) {
+  var nesting = $(".gauge-nesting").val(object.nesting);
+  var nestingArray = [];
+  console.log(nesting);
+  nestingArray.push(currentFieldList[parseInt(nesting)].field);
+  return {
+    "nesting": nestingArray,
+  }
+}
+
 function clearGaugeChartForm() {
   var parentElement = $("#"+currentChartType+"-chart-data");
 

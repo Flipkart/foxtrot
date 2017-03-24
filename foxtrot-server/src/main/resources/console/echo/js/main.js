@@ -315,7 +315,6 @@ function clickedChartType(el) {
   $("#table-units>div.table-units-active").removeClass("table-units-active");
   // show
   currentChartType = $(el).data('chartType');
-
   reloadDropdowns();
   invokeClearChartForm();
   $("#table-units").show();
