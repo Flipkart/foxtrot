@@ -153,6 +153,7 @@ TileFactory.prototype.updateFilterCreation = function(object) {
     }, 1000);
   }
     if(selectedTileObject) {
+      console.log(selectedTileObject);
       setConfigValue(selectedTileObject);
     }
 }

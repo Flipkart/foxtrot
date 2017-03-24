@@ -146,7 +146,7 @@ StackedBarTile.prototype.render = function (xAxis, yAxis, label) {
             lineWidth: 0
         },
         xaxis: {
-          ticks: label
+          ticks: xAxis
         },
         selection: {
             mode: "x",
