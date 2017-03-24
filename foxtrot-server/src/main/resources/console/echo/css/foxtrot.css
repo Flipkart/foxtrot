@@ -715,3 +715,19 @@ path {
 .table-units-inactive {
   display: none;
 }
+
+.gauge-percentage {
+  width: 73px;
+  height: 53px;
+  font-family: "oswald-bold";
+  font-size: 36px;
+  font-weight: 600;
+  font-style: normal;
+  font-stretch: normal;
+  line-height: normal;
+  letter-spacing: normal;
+  text-align: center;
+  color: #82c91e;
+  margin-left: 69px;
+  margin-bottom: -13px;
+}

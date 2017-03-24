@@ -91,7 +91,7 @@ GaugeTile.prototype.render = function (data) {
     findExistingChart.remove();
   }
 
-  chartDiv.append('<div id="gauge-'+object.id+'"><div class="halfDonut"><div class="halfDonutChart"></div><div class="halfDonutTotal bold" data-percent="'+randomNumber+'" data-color="#f06961">'+randomNumber+'</div></div></div>')
+  chartDiv.append('<div id="gauge-'+object.id+'"><div class="halfDonut"><div class="halfDonutChart"></div><div class="halfDonutTotal bold gauge-percentage" data-percent="'+randomNumber+'" data-color="#82c91e">'+randomNumber+'%</div></div></div>')
   var ctx = chartDiv.find("#gauge-"+object.id);
   var donutDiv = ctx.find(".halfDonutChart");
   $(donutDiv).each(function (index, chart) {
@@ -100,13 +100,13 @@ GaugeTile.prototype.render = function (data) {
         color = value.attr('data-color');
     $.plot(chart, [{
         data: percent,
-        color: "#9BA3AB"
+        color: "#82c91e"
     },{
         data: 100 - percent,
-        color: "#E9E9E9"
+        color: "#eaeaea"
     },{
         data: 100,
-        color: '#ffffff'
+        color: '#eaeaea'
     }], {
         series: {
             pie: {
