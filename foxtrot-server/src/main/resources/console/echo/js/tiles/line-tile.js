@@ -100,7 +100,7 @@ LineTile.prototype.render = function (xAxis, yAxis) {
 		{ data: yAxis },
   ], {
     series: {
-		lines: { show: true, lineWidth: 3.0, color: "#000"},
+		lines: { show: true, lineWidth: 4.0, color: "#9bc95b"},
 		points: { show: false }
 		},
 		xaxis: {
@@ -122,7 +122,7 @@ LineTile.prototype.render = function (xAxis, yAxis) {
       content: "%y events at %x",
       defaultFormat: true
     },
-    colors: ['#000'],
+    colors: ['#50e3c2'],
   });
 
   var healthDiv = chartDiv.find("#"+object.id+"-health");
