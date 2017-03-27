@@ -20,6 +20,7 @@
 }
 
 HostDetails.prototype.url = function(path) {
-	//return "http://" + this.hostname + ":" + this.port + path;
+	console.log(this.hostname);
+	return "http://localhost:8080" + path;
 	return path;
 };
