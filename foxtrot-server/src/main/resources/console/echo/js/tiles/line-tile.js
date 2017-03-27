@@ -125,7 +125,8 @@ LineTile.prototype.render = function (xAxis, yAxis) {
     colors: ['#50e3c2'],
   });
 
-  var healthDiv = chartDiv.find("#"+object.id+"-health");
+  var healthParentDiv = newDiv.find(".widget-header")
+  var healthDiv = healthParentDiv.find("#"+object.id+"-health");
 	healthDiv.width(100);
 	healthDiv.height(50);
 	$.plot(healthDiv, [
