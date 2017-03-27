@@ -294,10 +294,11 @@ path {
 }
 
 .period-select {
-  color: black;
+  color: #7d909a;
   margin-top: -1px;
   font-size: smaller;
   background: rgb(245, 245, 245);
+  font-weight: 600;
 }
 
 .title-header-toolbar-icon-container {
@@ -441,10 +442,11 @@ path {
 }
 
 .widget-timeframe {
-	float: right;
-  right: 31px;
-  position: relative;
-  border: 1px solid #000;
+  border-right: 1px solid #bababa;
+  height: 32px;
+  padding-top: 6px;
+  width: 90px;
+  padding-left: 4px;
 }
 
 .widget-timeframe span {
@@ -592,7 +594,7 @@ path {
 }
 
 .period-select {
-  background: #fff;
+  background: #f7f9fa;
   border: none;
 }
 
@@ -766,4 +768,44 @@ path {
   height: 18px;
   border-radius: 100px;
   background-color: #dde4e7;
+}
+
+.tile-header {
+  height: 128px;
+  background: lightgray;
+  padding: 0;
+  margin: -5px;
+}
+
+.settings {
+  float: right;
+  border: 1px solid #aeb8bd;
+  width: 170px;
+  height: 34px;
+  position: relative;
+  top: 16px;
+  right: 17px;
+  background: #f7f9fa;;
+}
+
+.filter {
+  float: left;
+  right: 11px;
+  position: relative;
+  border-right: 1px solid #aeb8bd;
+  height: 32px;
+  top: -2px;
+  width: 33px;
+}
+
+.filter img {
+  float: left;
+  margin-right: 7px;
+  margin-top: 4px;
+}
+
+.settings-icon {
+  position: relative;
+  right: 5px;
+  top: 2px;
 }

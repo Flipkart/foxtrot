@@ -361,7 +361,8 @@
 						<span class="tile-title">Title bar</span>
 				</div>
           <div class='widget-toolbox'>
-						<div class="widget-timeframe">
+            <div class="settings">
+              <div class="widget-timeframe">
               <select class="period-select">
                 <option value="custom" selected>Custom</option>
                 <option value="5m">5 Minutes</option>
@@ -379,8 +380,11 @@
               </select>
 						</div>
               <div class="title-header-toolbar-icon-container">
-                  <span class='glyphicon glyphicon-cog'></span>
+                <div class="filter"><img src="img/filter.png" title="settings"></div>
+                <img class="glyphicon-cog settings-icon" src="img/settings.png" title="settings">
               </div>
+            </div>
+
           </div>
           <div class='chart-content' id='content-for-{{tileId}}'>
 						<div class="trend-chart">
