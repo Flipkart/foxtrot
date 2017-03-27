@@ -37,7 +37,7 @@ RadarTile.prototype.getQuery = function(newDiv, object) {
   this.object = object;
   var data = {
     "opcode": "group",
-    "table": "flipcast",
+    "table": object.table,
     "filters": object.filters,
     "nesting": object.nesting
   }
