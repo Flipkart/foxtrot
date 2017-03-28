@@ -26,7 +26,7 @@ function getTrendChartFormValues() {
   var statsPeroidValue = $("#stats-period-value").val();
   return {
     "period": period,
-    "statsFieldName": "eventData.amount",
+    "statsFieldName": currentFieldList[parseInt(statsField)].field,
     "statsToPlot": statsToPlot,
   }
 }
@@ -47,6 +47,30 @@ function clearTrendChartForm() {
   $(statsToPlot).selectpicker('refresh');
 
   parentElement.find("#periodValue").val('');
+  parentElement.find(".ignored-digits").val('');
+}
+
+function setTrendChartFormValues(object) {
+  console.log(object);
+  var parentElement = $("#"+currentChartType+"-chart-data");
+
+  var timeUnitEl = parentElement.find(".trend-time-unit");
+  timeUnitEl.val(object.period);
+  $(timeUnitEl).selectpicker('refresh');
+
+  var statsFieldEl = parentElement.find(".stats-field");
+  var statsFieldIndex = currentFieldList.findIndex(x => x.field== object.statsFieldName);
+  console.log(currentFieldList.findIndex(x => x.field== object.statsFieldName));
+  console.log(object.statsFieldName)
+  console.log(currentFieldList);
+  statsFieldEl.val(statsFieldIndex);
+  $(statsFieldEl).selectpicker('refresh');
+
+  var statsToPlot = parentElement.find(".statistic_to_plot");
+  statsToPlot.val(object.statsToPlot);
+  $(statsToPlot).selectpicker('refresh');
+
+  parentElement.find("#periodValue").val();
   parentElement.find(".ignored-digits").val('');
 }
 

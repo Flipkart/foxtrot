@@ -110,6 +110,8 @@ function setConfigValue(object) {
     setGaugeChartFormValues(object);
   } else if(currentChartType == "line") {
     //setLineChartFormValues(object);
+  } else if(currentChartType == "trend") {
+    setTrendChartFormValues(object);
   }
 
 }
