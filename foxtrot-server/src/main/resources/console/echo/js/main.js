@@ -242,7 +242,7 @@ FoxTrot.prototype.addFilters = function() {
   addFitlers();
 }
 
-function filterUnits () {
+function showHideForms () {
   $("#table-units").hide();
   $("#table-units").find(".table-units-active").removeClass(".table-units-active");
 }
@@ -317,7 +317,7 @@ function clickedChartType(el) {
     //$(chartDataEle).show();
     $(chartDataEle).addClass("table-units-active");
   } else {
-    filterUnits();
+    showHideForms();
   }
   $(".vizualization-type").removeClass("vizualization-type-active");
   $(el).addClass("vizualization-type-active");
