@@ -40,6 +40,26 @@ function getStackedBarChartFormValues() {
   }
 }
 
+function setStackedBarChartFormValues(object) {
+  $(".stacked-bar-time-unit").val(object.period);
+  $("stacked-bar-time-unit").selectpicker('refresh');
+
+  $(".statcked-bar-periodValue").val(object.periodValue);
+  $(".statcked-bar-periodValue").selectpicker('refresh');
+
+  var groupingKeyField = currentFieldList[parseInt(object.groupingKey)].field;
+  $(".stacked-bar-grouping-key").val(currentFieldList.findIndex(x => x.field == groupingKeyField));
+  $(".stacked-bar-grouping-key").selectpicker('refresh');
+
+  var stackingKeyField = currentFieldList[parseInt(object.stackingKey)].field;
+  $(".stacking-key").val(currentFieldList.findIndex(x => x.field == stackingKeyField));
+  $(".stacking-key").selectpicker('refresh');
+
+  var stackingUniqueField = currentFieldList[parseInt(object.uniqueKey)].field;
+  $(".stacked-bar-uniquekey").val(currentFieldList.findIndex(x => x.field == stackingUniqueField));
+  $(".stacked-bar-uniquekey").selectpicker('refresh');
+}
+
 function clearStackedBarChartForm() {
   var parentElement = $("#"+currentChartType+"-chart-data");
 

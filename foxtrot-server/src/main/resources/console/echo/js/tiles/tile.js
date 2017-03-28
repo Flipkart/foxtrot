@@ -112,6 +112,8 @@ function setConfigValue(object) {
     setLineChartFormValues(object);
   } else if(currentChartType == "trend") {
     setTrendChartFormValues(object);
+  } else if(currentChartType == "stackedBar") {
+    setStackedBarChartFormValues(object);
   }
 
 }
