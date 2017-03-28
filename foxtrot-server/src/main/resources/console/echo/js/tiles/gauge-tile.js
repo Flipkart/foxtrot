@@ -30,13 +30,10 @@ function getGaugeChartFormValues() {
 }
 
 function setGaugeChartFormValues(object) {
-  var nesting = $(".gauge-nesting").val(object.nesting);
-  var nestingArray = [];
-  console.log(nesting);
-  nestingArray.push(currentFieldList[parseInt(nesting)].field);
-  return {
-    "nesting": nestingArray,
-  }
+  var selectedNesting = object.nesting.toString();
+  var selectedNestingArrayIndex = currentFieldList.findIndex(x => x.field== selectedNesting);
+  var nesting = $(".gauge-nesting").val(selectedNestingArrayIndex);
+  $(".gauge-nesting").selectpicker('refresh');
 }
 
 function clearGaugeChartForm() {
