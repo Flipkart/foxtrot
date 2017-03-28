@@ -32,19 +32,22 @@ TablesView.prototype.load = function(tables) {
 	select.change();
 };
 
-function uniqueKey(fields, element) {
+function generateDropDown(fields, element) {
   var el = $(element);
-  el.find('option').remove();
+  var arr = fields;
+  var textToInsert = [];
+  var i = 0;
+  var length = arr.length;
+  for (var a = 0; a <length; a += 1) {
+    textToInsert[i++]  = '<option value='+a+'>';
+    textToInsert[i++] = arr[a].field;
+    textToInsert[i++] = '</option>' ;
+  }
   $(el).append($('<option>', {
         value: "none",
         text : "none"
     }));
-	$.each(fields, function (i, item) {
-    $(el).append($('<option>', {
-        value: i,
-        text : item.field
-    }));
-  });
+  $(el).append(textToInsert.join(''));
   $(el).selectpicker('refresh');
 }
 
@@ -229,20 +232,10 @@ function addFitlers() {
   var filterType = $("#filter-row-"+filterCount).find('.filter-type');
   $(filterType).selectpicker('refresh');
   var filterColumn = $("#filter-row-"+filterCount).find('.filter-column')
-  prepareFieldOption(filterColumn, currentFieldList);
+  generateDropDown(currentFieldList, filterColumn);
   $(filterValueEl).click( function() {
     deleteFilterRow(this);
   });
-}
-
-function prepareFieldOption(el, currentFieldList) {
-  $.each(currentFieldList, function (i, item) {
-    $(el).append($('<option>', {
-        value: item.field,
-        text : item.field
-    }));
-  });
-  $(el).selectpicker('refresh');
 }
 
 FoxTrot.prototype.addFilters = function() {
@@ -296,17 +289,17 @@ function invokeClearChartForm() {
 function reloadDropdowns() {
 
   if(currentChartType == "line") {
-    uniqueKey(currentFieldList, "#uniqueKey");
+    generateDropDown(currentFieldList, "#uniqueKey");
   } else if(currentChartType == "trend") {
-    uniqueKey(currentFieldList, "#stats-field");
+    generateDropDown(currentFieldList, "#stats-field");
   } else if(currentChartType == "stackedBar") {
-    uniqueKey(currentFieldList, "#stacking-key");
-    uniqueKey(currentFieldList, "#stacked-bar-uniquekey");
-    uniqueKey(currentFieldList, "#stacked-bar-grouping-key");
+    generateDropDown(currentFieldList, "#stacking-key");
+    generateDropDown(currentFieldList, "#stacked-bar-uniquekey");
+    generateDropDown(currentFieldList, "#stacked-bar-grouping-key");
   } else if(currentChartType == "radar") {
-    uniqueKey(currentFieldList, "#radar-nesting");
+    generateDropDown(currentFieldList, "#radar-nesting");
   } else if(currentChartType == "gauge") {
-    uniqueKey(currentFieldList, "#gauge-nesting");
+    generateDropDown(currentFieldList, "#gauge-nesting");
   }
 
 }
