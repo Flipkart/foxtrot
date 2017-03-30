@@ -143,6 +143,8 @@ function getWidgetType() {
     return "medium";
   } else if(currentChartType == "gauge" || currentChartType == "trend") {
     return "small";
+  } else {
+    return false;
   }
 }
 
@@ -169,6 +171,18 @@ FoxTrot.prototype.addTile = function() {
 	var tileId = guid();
   var isChild = $(".child-tile").val();
   isChild = (isChild == 'true');
+
+  if(!$("#tileTitle").valid() || !$("#tileTable").valid() || getWidgetType() == false)
+  {
+    $(".top-error").show();
+    return;
+  }
+
+  if(getChartFormValues()[1] == false) {
+    $(".top-error").show();
+    return;
+  }
+
   var widgetType = getWidgetType();
   if(!isChild && editTileId)
     tileId = editTileId;
@@ -182,7 +196,7 @@ FoxTrot.prototype.addTile = function() {
     "chartType": currentChartType,
     "filters": filterDetails.length == 0 ? [] : filterDetails,
   };
-  var object = $.extend( {}, getChartFormValues(), queryValues );
+  var object = $.extend( {}, getChartFormValues()[0], queryValues );
   var tileFactory = new TileFactory();
   currentChartType = "";
   if(!editTileId && !isChild) {// for new tile

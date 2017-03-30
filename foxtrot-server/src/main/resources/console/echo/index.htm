@@ -99,17 +99,18 @@
 			<div class="modal-dialog">
 				<div class="modal-content">
 					<div class="modal-header">
+            <span class="top-error">Please enter valid fields</span>
 <!--						<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>-->
 <!--						<h4 class="modal-title" id="addWidgetModalLabel">Add widget</h4> -->
             <div class="row">
               <div class="col-sm-5 col-md-6">
                 <label class="control-label">Name : </label>
                 <input type="hidden" value="" class="tileId">
-                <input type="text" class="tile-title" id="tileTitle" placeholder="Give a title" required>
+                <input type="text" class="tile-title" id="tileTitle" placeholder="Give a title">
               </div>
               <div class="col-sm-5 col-sm-offset-2 col-md-6 col-md-offset-0">
                 <label class="control-label">Table : </label>
-                <select class="selectpicker tile-table" id="tileTable" data-live-search="true" data-style="btn-warning" required>
+                <select class="selectpicker tile-table" id="tileTable" data-live-search="true" data-style="btn-warning">
                   </select>
               </div>
             </div>
@@ -374,6 +375,7 @@
   <script src="js/tiles/gauge-tile.js"></script>
   <script src="js/tiles/stacked-bar-tile.js"></script>
   <script src="../js/flot/jquery.flot.time.min.js"></script>
+  <script src="js/jquery.validate.min.js"></script>
 	<!--Application-->
 </body>
 

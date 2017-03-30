@@ -23,11 +23,17 @@ function getLineChartFormValues() {
   var period = $(".tile-time-unit").val();
   var uniqueCount = $("#uniqueKey").val();
   var periodValue = $("#periodValue").val();
-  return {
+
+  var status = false;
+  if($("#uniqueKey").valid()) {
+    status = true;
+  }
+
+  return [{
     "period": period,
     "uniqueCountOn": uniqueCount,
     "periodValue": periodValue,
-  }
+  }, status]
 }
 
 function setLineChartFormValues(object) {
