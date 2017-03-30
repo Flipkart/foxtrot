@@ -179,7 +179,7 @@
                   <div class="row">
                     <div class="col-sm-5 col-md-6">
                     <label class="control-label">Period:</label>
-                      <select class="selectpicker trend-time-unit">
+                      <select class="selectpicker trend-time-unit" id="trend-time-unit">
                         <option value="minutes" selected="selected">Minute</option>
                         <option value="hours">Hour</option>
                         <option value="days">Day</option>
@@ -201,6 +201,7 @@
                     <div class="col-sm-5 col-sm-offset-2 col-md-6 col-md-offset-0">
                       <label class="control-label">Statistic to plot: </label>
                       <select id="statistic_to_plot" class="selectpicker statistic_to_plot" data-live-search="true">
+                        <option value=none>none</option>
                         <option value=percentiles.1.0>1 percentile</option>
                         <option value=percentiles.25.0>25 percentile</option>
                         <option value=percentiles.5.0>5 percentile</option>

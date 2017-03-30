@@ -24,11 +24,23 @@ function getTrendChartFormValues() {
   var statsField = $(".stats-field").val();
   var statsToPlot = $(".statistic_to_plot").val();
   var statsPeroidValue = $("#stats-period-value").val();
-  return {
+
+  var status = true;
+
+  if(period == "none" || statsField == "none" || statsToPlot == "none" || statsPeroidValue == "none") {
+    return[[], false];
+  }
+
+  if(!$("#trend-time-unit").valid() || !$("#stats-field").valid() || !$("#statistic_to_plot").valid || !$("#stats-period-value").valid) {
+    status = false;
+  }
+
+
+  return [{
     "period": period,
     "statsFieldName": currentFieldList[parseInt(statsField)].field,
     "statsToPlot": statsToPlot,
-  }
+  }, status];
 }
 
 function clearTrendChartForm() {
