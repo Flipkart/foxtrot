@@ -21,12 +21,19 @@ function GaugeTile() {
 
 function getGaugeChartFormValues() {
   var nesting = $(".gauge-nesting").val();
-  var nestingArray = [];
-  console.log(nesting);
-  nestingArray.push(currentFieldList[parseInt(nesting)].field);
-  return {
-    "nesting": nestingArray,
+
+  var status = false;
+  if($("#gauge-nesting").valid()) {
+    status = true;
   }
+  if(nesting == "none") {
+    return[[], false];
+  }
+  var nestingArray = [];
+  nestingArray.push(currentFieldList[parseInt(nesting)].field);
+  return [{
+    "nesting": nestingArray,
+  }, status]
 }
 
 function setGaugeChartFormValues(object) {

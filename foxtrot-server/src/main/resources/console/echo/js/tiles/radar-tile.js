@@ -21,11 +21,22 @@ function RadarTile() {
 
 function getRadarChartFormValues() {
   var nesting = $(".radar-nesting").val();
+
+  if(nesting == "none") {
+    return [[], false];
+  }
+
+  var status = true;
+
+  if(!$("#radar-nesting").valid()) {
+    status = false;
+  }
+
   var nestingArray = [];
   nestingArray.push(currentFieldList[parseInt(nesting)].field);
-  return {
+  return [{
     "nesting": nestingArray,
-  }
+  }, status];
 }
 
 function clearRadarChartForm() {
