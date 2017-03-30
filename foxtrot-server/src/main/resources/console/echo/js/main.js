@@ -182,7 +182,7 @@ FoxTrot.prototype.addTile = function() {
     $(".top-error").show();
     return;
   }
-
+  $(".top-error").hide();
   var widgetType = getWidgetType();
   if(!isChild && editTileId)
     tileId = editTileId;
