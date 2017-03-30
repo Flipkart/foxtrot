@@ -95,7 +95,6 @@ StackedBarTile.prototype.getQuery = function(newDiv, object) {
     "uniqueCountOn": object.uniqueCountOn && object.uniqueCountOn != "none" ? object.uniqueCountOn : null,
     "nesting" : object.nesting
   }
-  console.log(data);
   $.ajax({
     method: "post",
     dataType: 'json',
@@ -133,8 +132,6 @@ StackedBarTile.prototype.getData = function(data) {
     }
     i++;
   }
-  console.log(xAxis);
-  console.log(yAxis);
   this.render(xAxis, yAxis,unique(label));
 }
 

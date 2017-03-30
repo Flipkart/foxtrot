@@ -63,7 +63,6 @@ function clearTrendChartForm() {
 }
 
 function setTrendChartFormValues(object) {
-  console.log(object);
   var parentElement = $("#"+currentChartType+"-chart-data");
 
   var timeUnitEl = parentElement.find(".trend-time-unit");
@@ -72,9 +71,6 @@ function setTrendChartFormValues(object) {
 
   var statsFieldEl = parentElement.find(".stats-field");
   var statsFieldIndex = currentFieldList.findIndex(x => x.field== object.statsFieldName);
-  console.log(currentFieldList.findIndex(x => x.field== object.statsFieldName));
-  console.log(object.statsFieldName)
-  console.log(currentFieldList);
   statsFieldEl.val(statsFieldIndex);
   $(statsFieldEl).selectpicker('refresh');
 
@@ -95,7 +91,6 @@ TrendTile.prototype.getQuery = function(newDiv, object) {
     "filters": object.filters,
     "field": object.statsFieldName
   }
-  console.log(data);
   $.ajax({
     method: "post",
     dataType: 'json',
@@ -118,7 +113,6 @@ TrendTile.prototype.getData = function(data) {
   var objectToshow = this.object.statsToPlot.split('.');
   if(this.object.statsToPlot.match('stats')) {
     objectToshow = objectToshow[1].toString();
-    console.log(objectToshow);
     displayValue = statsObject[objectToshow];
   } else {
     var displayObject = objectToshow[1]+'.'+objectToshow[2].toString();
@@ -130,7 +124,6 @@ TrendTile.prototype.getData = function(data) {
 TrendTile.prototype.render = function (displayValue) {
   var newDiv = this.newDiv;
   var object = this.object;
-  //var d = [data];
   var chartDiv = newDiv.find(".chart-item");
   chartDiv.addClass("trend-chart");
 

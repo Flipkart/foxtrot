@@ -49,10 +49,6 @@ function TileFactory() {
   this.tileObject = "";
 }
 
-function submitClicked(e) {
-	console.log('submit clicked');
-}
-
 function pushTilesObject(object) {
 	tileData.push(object);
   setInterval(function(){
@@ -166,7 +162,6 @@ TileFactory.prototype.updateFilterCreation = function(object) {
     }, 1000);
   }
     if(selectedTileObject) {
-      console.log(selectedTileObject);
       setConfigValue(selectedTileObject);
     }
 }
@@ -220,7 +215,6 @@ TileFactory.prototype.createGraph = function(object, tileElement) {
   } else if(object.chartType == "gauge") {
     var gaugeGraph = new GaugeTile();
     gaugeGraph.getQuery(tileElement, object);
-    console.log('gauge called')
   } else if(object.chartType == "stackedBar") {
     var stackedGraph = new StackedBarTile();
     stackedGraph.getQuery(tileElement, object);
@@ -248,7 +242,6 @@ TileFactory.prototype.create = function () {
 		if(this.tileObject.widgetType == 'small'&& rowObject.widgetType == 'small') {
 			var findElement = $("."+customBtn.id);
       var column1Length  = findElement.find(".row-col-1").length;
-      console.log(findElement.find(".row-col-1").length);
 			if(column1Length == 0 || column1Length == 2) {
 
 
@@ -294,7 +287,6 @@ TileFactory.prototype.create = function () {
 	} else {// remove row btn and add new div based on type
 		customBtn.remove();
     $(".custom-btn-div").remove();
-    console.log($('.row-'+splitValue[1]));
     $('.row-'+splitValue[1]).append(tileElement);
 	}
 
