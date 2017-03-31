@@ -21,7 +21,8 @@ function RadarTile() {
 
 function getRadarChartFormValues() {
   var nesting = $(".radar-nesting").val();
-  var periodValue = $("#radar-periodValue").val();
+  var timeframe = $("#radar-timeframe").val();
+  var period = $(".radar-time-unit").val();
 
   if(nesting == "none") {
     return [[], false];
@@ -37,26 +38,37 @@ function getRadarChartFormValues() {
   nestingArray.push(currentFieldList[parseInt(nesting)].field);
   return [{
     "nesting": nestingArray,
-    "period": periodValue
+    "timeframe": timeframe,
+    "period": period
   }, status];
 }
 
 function setRadarChartFormValues(object) {
   $(".radar-nesting").val(currentFieldList.findIndex(x => x.field == object.nesting[0]));
   $(".radar-nesting").selectpicker('refresh');
-  $("#radar-periodValue").val(object.period);
+  $("#radar-timeframe").val(object.timeframe);
+
+  $("#radar-time-unit").val(object.period);
+  $("#radar-time-unit").selectpicker('refresh');
 }
 
 function clearRadarChartForm() {
   var parentElement = $("#"+currentChartType+"-chart-data");
   $("#radar-periodValue").val('');
+
+  var timeUnitEl = parentElement.find("#radar-time-unit");
+  timeUnitEl.find('option:eq(0)').prop('selected', true);
+  $(timeUnitEl).selectpicker('refresh');
+
+  $("#radar-timeframe").val('');
 }
 
 RadarTile.prototype.getQuery = function(newDiv, object) {
   this.newDiv = newDiv;
   this.object = object;
   var ts = new Date().getTime();
-  object.filters.push( {field: "_timestamp", operator: "last", duration: "24hours", currentTime: ts})
+  var duration = object.timeframe+object.period;
+  object.filters.push( {field: "_timestamp", operator: "last", duration: duration, currentTime: ts})
   var data = {
     "opcode": "group",
     "table": object.table,
