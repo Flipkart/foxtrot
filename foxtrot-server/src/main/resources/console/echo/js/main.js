@@ -35,6 +35,7 @@ TablesView.prototype.load = function(tables) {
 function generateDropDown(fields, element) {
   var el = $(element);
   var arr = fields;
+  el.find('option').remove();
   var textToInsert = [];
   var i = 0;
   var length = arr.length;
@@ -72,7 +73,6 @@ TablesView.prototype.init = function() {
 			this.tables.loadTableMeta(table);
 			this.tables.selectedTable = table;
 			console.log("Table changed to: " + table.name);
-      clearModalfields();
       //console.log(this);
 		}
 	}, this));
@@ -97,6 +97,7 @@ FoxTrot.prototype.init = function() {
 	}, this));
 	this.tablesView.init();
 	this.queue.start();
+  console.log('6666')
 };
 
 var tiles = {};

@@ -86,7 +86,8 @@ Tables.prototype.loadTableMeta = function (table, callback) {
         return ((lhs.field > rhs.field) ? 1 : ((lhs.field < rhs.field) ? -1 : 0));
         });
       }
-      currentFieldList = this.currentTableFieldMappings;
+      currentFieldList = data.mappings;
+      clearModalfields();
       for (var i = this.metaLoadHandlers.length - 1; i >= 0; i--) {
           this.metaLoadHandlers[i](this.tables);
       }
