@@ -51,6 +51,8 @@ function clearRadarChartForm() {
 RadarTile.prototype.getQuery = function(newDiv, object) {
   this.newDiv = newDiv;
   this.object = object;
+  var ts = new Date().getTime();
+  object.filters.push( {field: "_timestamp", operator: "last", duration: "24hours", currentTime: ts})
   var data = {
     "opcode": "group",
     "table": object.table,
