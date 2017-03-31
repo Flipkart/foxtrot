@@ -107,6 +107,7 @@ TrendTile.prototype.getQuery = function(newDiv, object) {
 }
 
 TrendTile.prototype.getData = function(data) {
+  this.object.filters.pop();
   if(!data.result)
     return;
   var statsObject = data.result.stats;

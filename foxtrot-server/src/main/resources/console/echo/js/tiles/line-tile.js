@@ -91,6 +91,7 @@ LineTile.prototype.getQuery = function(newDiv, object) {
 }
 
 LineTile.prototype.getData = function(data) {
+  this.object.filters.pop();
   if(data.counts == undefined || data.counts.length == 0)
     return;
   var xAxis = [];

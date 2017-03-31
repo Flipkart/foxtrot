@@ -73,6 +73,7 @@ RadarTile.prototype.getQuery = function(newDiv, object) {
 }
 
 RadarTile.prototype.getData = function(data) {
+  this.object.filters.pop();
   if(data.result == undefined || data.result.length == 0)
     return;
   var chartData = [];

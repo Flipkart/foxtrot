@@ -86,6 +86,7 @@ function clearStackedBarChartForm() {
 }
 
 StackedBarTile.prototype.getQuery = function(newDiv, object) {
+  this.object.filters.pop();
   this.newDiv = newDiv;
   this.object = object;
   var ts = new Date().getTime();
