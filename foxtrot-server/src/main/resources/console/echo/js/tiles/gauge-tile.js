@@ -21,7 +21,8 @@ function GaugeTile() {
 
 function getGaugeChartFormValues() {
   var nesting = $(".gauge-nesting").val();
-  var periodValue = $("#gauge-periodValue").val();
+  var timeframe = $("#gauge-timeframe").val();
+  var period = $("#gauge-time-unit").val();
 
   var status = false;
   if($("#gauge-nesting").valid()) {
@@ -34,17 +35,22 @@ function getGaugeChartFormValues() {
   nestingArray.push(currentFieldList[parseInt(nesting)].field);
   return [{
     "nesting": nestingArray,
-    "period": periodValue
+    "period": period,
+    "timeframe": timeframe
   }, status]
 }
 
 function setGaugeChartFormValues(object) {
   var selectedNesting = object.nesting.toString();
   var selectedNestingArrayIndex = currentFieldList.findIndex(x => x.field== selectedNesting);
+
   var nesting = $(".gauge-nesting").val(selectedNestingArrayIndex);
   $(".gauge-nesting").selectpicker('refresh');
 
-  $("#gauge-periodValue").val(object.period)
+   var timeUnit = $("#gauge-time-unit").val(object.period);
+  timeUnit.selectpicker('refresh');
+
+  $("#gauge-timeframe").val(object.timeframe)
 }
 
 function clearGaugeChartForm() {
@@ -58,14 +64,15 @@ function clearGaugeChartForm() {
   timeUnitEl.find('option:eq(0)').prop('selected', true);
   $(timeUnitEl).selectpicker('refresh');
 
-  parentElement.find("#gauge-periodValue").val();
+  parentElement.find("#gauge-timeframe").val();
 }
 
 GaugeTile.prototype.getQuery = function(newDiv, object) {
   this.newDiv = newDiv;
   this.object = object;
   var ts = new Date().getTime();
-  object.filters.push( {field: "_timestamp", operator: "last", duration: "24hours", currentTime: ts})
+  var duration = object.timeframe+object.period;
+  object.filters.push( {field: "_timestamp", operator: "last", duration: duration, currentTime: ts})
   var data = {
     "opcode": "group",
     "table": object.table,
