@@ -21,6 +21,7 @@ function GaugeTile() {
 
 function getGaugeChartFormValues() {
   var nesting = $(".gauge-nesting").val();
+  var periodValue = $("#gauge-periodValue").val();
 
   var status = false;
   if($("#gauge-nesting").valid()) {
@@ -33,6 +34,7 @@ function getGaugeChartFormValues() {
   nestingArray.push(currentFieldList[parseInt(nesting)].field);
   return [{
     "nesting": nestingArray,
+    "period": periodValue
   }, status]
 }
 
@@ -41,6 +43,8 @@ function setGaugeChartFormValues(object) {
   var selectedNestingArrayIndex = currentFieldList.findIndex(x => x.field== selectedNesting);
   var nesting = $(".gauge-nesting").val(selectedNestingArrayIndex);
   $(".gauge-nesting").selectpicker('refresh');
+
+  $("#gauge-periodValue").val(object.period)
 }
 
 function clearGaugeChartForm() {
@@ -53,6 +57,8 @@ function clearGaugeChartForm() {
   var timeUnitEl = parentElement.find(".gauge-time-unit");
   timeUnitEl.find('option:eq(0)').prop('selected', true);
   $(timeUnitEl).selectpicker('refresh');
+
+  parentElement.find("#gauge-periodValue").val();
 }
 
 GaugeTile.prototype.getQuery = function(newDiv, object) {

@@ -21,6 +21,7 @@ function RadarTile() {
 
 function getRadarChartFormValues() {
   var nesting = $(".radar-nesting").val();
+  var periodValue = $("#radar-periodValue").val();
 
   if(nesting == "none") {
     return [[], false];
@@ -36,16 +37,19 @@ function getRadarChartFormValues() {
   nestingArray.push(currentFieldList[parseInt(nesting)].field);
   return [{
     "nesting": nestingArray,
+    "period": periodValue
   }, status];
 }
 
 function setRadarChartFormValues(object) {
   $(".radar-nesting").val(currentFieldList.findIndex(x => x.field == object.nesting[0]));
   $(".radar-nesting").selectpicker('refresh');
+  $("#radar-periodValue").val(object.period);
 }
 
 function clearRadarChartForm() {
   var parentElement = $("#"+currentChartType+"-chart-data");
+  $("#radar-periodValue").val('');
 }
 
 RadarTile.prototype.getQuery = function(newDiv, object) {
