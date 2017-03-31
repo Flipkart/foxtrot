@@ -38,23 +38,29 @@ function getLineChartFormValues() {
 
 function setLineChartFormValues(object) {
   var parentElement = $("#"+object.chartType+"-chart-data");
+
   var timeUnitEl = parentElement.find(".tile-time-unit");
   timeUnitEl.val(object.period);
   $(timeUnitEl).selectpicker('refresh');
+
   var uniqeKey = parentElement.find("#uniqueKey");
   uniqeKey.val(object.uniqueCountOn);
   $(uniqeKey).selectpicker('refresh');
+
   parentElement.find("#stats-periodValue").val(object.period);
 }
 
 function clearLineChartForm () {
   var parentElement = $("#"+currentChartType+"-chart-data");
+
   var timeUnitEl = parentElement.find(".tile-time-unit");
   timeUnitEl.find('option:eq(0)').prop('selected', true);
   $(timeUnitEl).selectpicker('refresh');
+
   var uniqeKey = parentElement.find("#uniqueKey");
   uniqeKey.find('option:eq(0)').prop('selected', true);
   $(uniqeKey).selectpicker('refresh');
+
   parentElement.find("#stats-periodValue").val('');
 }
 
