@@ -21,7 +21,7 @@ function StackedBarTile() {
 
 function getStackedBarChartFormValues() {
   var period = $(".stacked-bar-time-unit").val();
-  var periodValue = $(".statcked-bar-periodValue").val();
+  var timeframe = $(".statcked-bar-timeframe").val();
   var groupingKey = $(".stacked-bar-grouping-key").val();
   var stackingKey = $(".stacking-key").val();
   var uniqueKey = $(".stacked-bar-uniquekey").val();
@@ -32,7 +32,7 @@ function getStackedBarChartFormValues() {
 
   return {
     "period": period,
-    "periodValue": periodValue,
+    "timeframe": timeframe,
     "groupingKey": groupingKey,
     "stackingKey": stackingKey,
     "uniqueKey": uniqueKey,
@@ -44,8 +44,7 @@ function setStackedBarChartFormValues(object) {
   $(".stacked-bar-time-unit").val(object.period);
   $("stacked-bar-time-unit").selectpicker('refresh');
 
-  $(".statcked-bar-periodValue").val(object.periodValue);
-  $(".statcked-bar-periodValue").selectpicker('refresh');
+  $(".statcked-bar-timeframe").val(object.periodValue);
 
   var groupingKeyField = currentFieldList[parseInt(object.groupingKey)].field;
   $(".stacked-bar-grouping-key").val(currentFieldList.findIndex(x => x.field == groupingKeyField));
@@ -67,9 +66,9 @@ function clearStackedBarChartForm() {
   timeUnitEl.find('option:eq(0)').prop('selected', true);
   $(timeUnitEl).selectpicker('refresh');
 
-  var periodUnit = parentElement.find(".statcked-bar-periodValue");
-  periodUnit.find('option:eq(0)').prop('selected', true);
-  $(periodUnit).selectpicker('refresh');
+  var timeframe = parentElement.find(".statcked-bar-timeframe");
+  timeframe.val('');
+
 
   var groupingKey = parentElement.find(".stacked-bar-grouping-key");
   groupingKey.find('option:eq(0)').prop('selected', true);
@@ -86,11 +85,12 @@ function clearStackedBarChartForm() {
 }
 
 StackedBarTile.prototype.getQuery = function(newDiv, object) {
-  this.object.filters.pop();
   this.newDiv = newDiv;
   this.object = object;
+  this.object.filters.pop();
   var ts = new Date().getTime();
-  object.filters.push( {field: "_timestamp", operator: "last", duration: "24hours", currentTime: ts})
+  var duration = object.timeframe+object.period;
+  object.filters.push( {field: "_timestamp", operator: "last", duration: duration, currentTime: ts})
   var data = {
     "opcode": "group",
     "table": object.table,
