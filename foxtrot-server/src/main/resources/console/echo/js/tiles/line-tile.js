@@ -22,7 +22,7 @@ function LineTile() {
 function getLineChartFormValues() {
   var period = $(".tile-time-unit").val();
   var uniqueCount = $("#uniqueKey").val();
-  var periodValue = $("#periodValue").val();
+  var timeframe = $("#line-timeframe").val();
 
   var status = false;
   if($("#uniqueKey").valid()) {
@@ -32,7 +32,7 @@ function getLineChartFormValues() {
   return [{
     "period": period,
     "uniqueCountOn": uniqueCount,
-    "periodValue": periodValue,
+    "timeframe": timeframe,
   }, status]
 }
 
@@ -47,7 +47,7 @@ function setLineChartFormValues(object) {
   uniqeKey.val(object.uniqueCountOn);
   $(uniqeKey).selectpicker('refresh');
 
-  parentElement.find("#stats-periodValue").val(object.period);
+  parentElement.find("#line-timeframe").val(object.timeframe);
 }
 
 function clearLineChartForm () {
@@ -61,14 +61,15 @@ function clearLineChartForm () {
   uniqeKey.find('option:eq(0)').prop('selected', true);
   $(uniqeKey).selectpicker('refresh');
 
-  parentElement.find("#stats-periodValue").val('');
+  parentElement.find("#line-timeframe").val('');
 }
 
 LineTile.prototype.getQuery = function(newDiv, object) {
   this.newDiv = newDiv;
   this.object = object;
   var ts = new Date().getTime();
-  object.filters.push( {field: "_timestamp", operator: "last", duration: "24hours", currentTime: ts})
+  var duration = object.timeframe+object.period;
+  object.filters.push( {field: "_timestamp", operator: "last", duration: duration, currentTime: ts})
   var data = {
     "opcode": "histogram",
     "table": object.table,
