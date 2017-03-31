@@ -23,15 +23,15 @@ function getTrendChartFormValues() {
   var period = $(".trend-time-unit").val();
   var statsField = $(".stats-field").val();
   var statsToPlot = $(".statistic_to_plot").val();
-  var statsPeroidValue = $("#stats-period-value").val();
+  var timeframe = $("#trend-timeframe").val();
 
   var status = true;
 
-  if(period == "none" || statsField == "none" || statsToPlot == "none" || statsPeroidValue == "none") {
+  if(period == "none" || statsField == "none" || statsToPlot == "none" || timeframe == "") {
     return[[], false];
   }
 
-  if(!$("#trend-time-unit").valid() || !$("#stats-field").valid() || !$("#statistic_to_plot").valid || !$("#stats-period-value").valid) {
+  if(!$("#trend-time-unit").valid() || !$("#stats-field").valid() || !$("#statistic_to_plot").valid || !$("#trend-timeframe").valid) {
     status = false;
   }
 
@@ -40,6 +40,7 @@ function getTrendChartFormValues() {
     "period": period,
     "statsFieldName": currentFieldList[parseInt(statsField)].field,
     "statsToPlot": statsToPlot,
+    "timeframe": timeframe
   }, status];
 }
 
@@ -58,7 +59,7 @@ function clearTrendChartForm() {
   statsToPlot.find('option:eq(0)').prop('selected', true);
   $(statsToPlot).selectpicker('refresh');
 
-  parentElement.find("#periodValue").val('');
+  parentElement.find("#trend-timeframe").val('');
   parentElement.find(".ignored-digits").val('');
 }
 
@@ -78,7 +79,7 @@ function setTrendChartFormValues(object) {
   statsToPlot.val(object.statsToPlot);
   $(statsToPlot).selectpicker('refresh');
 
-  parentElement.find("#periodValue").val();
+  parentElement.find("#trend-timeframe").val(object.timeframe);
   parentElement.find(".ignored-digits").val('');
 }
 
@@ -86,7 +87,8 @@ TrendTile.prototype.getQuery = function(newDiv, object) {
   this.newDiv = newDiv;
   this.object = object;
   var ts = new Date().getTime();
-  object.filters.push( {field: "_timestamp", operator: "last", duration: "24hours", currentTime: ts})
+  var duration = object.timeframe+object.period;
+  object.filters.push( {field: "_timestamp", operator: "last", duration: duration, currentTime: ts})
   var data = {
     "opcode": "stats",
     "table": object.table,
