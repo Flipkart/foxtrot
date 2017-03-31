@@ -172,7 +172,7 @@ FoxTrot.prototype.addTile = function() {
   var isChild = $(".child-tile").val();
   isChild = (isChild == 'true');
 
-  if(!$("#tileTitle").valid() || !$("#tileTable").valid() || getWidgetType() == false)
+  if($("#tileTitle").val().length == 0 || !$("#tileTable").valid() || getWidgetType() == false)
   {
     $(".top-error").show();
     return;
