@@ -39,6 +39,11 @@ function getRadarChartFormValues() {
   }, status];
 }
 
+function setRadarChartFormValues(object) {
+  $(".radar-nesting").val(currentFieldList.findIndex(x => x.field == object.nesting[0]));
+  $(".radar-nesting").selectpicker('refresh');
+}
+
 function clearRadarChartForm() {
   var parentElement = $("#"+currentChartType+"-chart-data");
 }

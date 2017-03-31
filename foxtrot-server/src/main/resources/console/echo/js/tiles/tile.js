@@ -110,6 +110,8 @@ function setConfigValue(object) {
     setTrendChartFormValues(object);
   } else if(currentChartType == "stackedBar") {
     setStackedBarChartFormValues(object);
+  } else if(currentChartType == "radar") {
+    setRadarChartFormValues(object);
   }
 
 }

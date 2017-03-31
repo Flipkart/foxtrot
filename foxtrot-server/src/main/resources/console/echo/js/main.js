@@ -228,7 +228,7 @@ function setFilters(object) {
   for(var filter = 0; filter < filterRowArray.length; filter++) {
     var filterId = filterRowArray[filter];
     var el = $("#filter-row-"+filterId);
-    var fieldDropdown = $(el).find(".filter-column").val(object[filter].field);
+    var fieldDropdown = $(el).find(".filter-column").val(currentFieldList.findIndex(x => x.field== object[filter].field));
     var operatorDropdown = $(el).find(".filter-type").val(object[filter].operator);
     $(el).find(".filter-value").val(object[filter].value);
     $(fieldDropdown).selectpicker('refresh');
