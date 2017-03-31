@@ -195,6 +195,7 @@ FoxTrot.prototype.addTile = function() {
     "title" : title,
     "chartType": currentChartType,
     "filters": filterDetails.length == 0 ? [] : filterDetails,
+    "tableFields": currentFieldList
   };
   var object = $.extend( {}, getChartFormValues()[0], queryValues );
   var tileFactory = new TileFactory();

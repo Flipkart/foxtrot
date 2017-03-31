@@ -153,6 +153,7 @@ TileFactory.prototype.updateFilterCreation = function(object) {
 	var tileDataIndex = tileData[tileListIndex];
   var tileId = tileList[tileListIndex];
   var selectedTileObject = tileDataIndex[tileId];
+  currentFieldList = object.tableFields;
   if(object.filters.length > 0) {
     filterRowArray = [];
     for(var invokeFilter = 0; invokeFilter< selectedTileObject.filters.length; invokeFilter++ ) {
