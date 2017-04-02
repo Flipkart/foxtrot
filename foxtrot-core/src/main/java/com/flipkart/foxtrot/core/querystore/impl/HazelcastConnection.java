@@ -56,8 +56,8 @@ public class HazelcastConnection implements Managed {
             case foxtrot_marathon:
                 MarathonClusterDiscoveryConfig marathonClusterDiscoveryConfig = (MarathonClusterDiscoveryConfig) clusterConfig.getDiscovery();
                 String appId = marathonClusterDiscoveryConfig.getApp().replace("/", "").trim();
-                hzConfig.getGroupConfig().setName("userservice");
-                hzConfig.getGroupConfig().setPassword("userservice");
+                hzConfig.getGroupConfig().setName("foxtrot");
+                hzConfig.getGroupConfig().setPassword("foxtrot");
                 hzConfig.setProperty(GroupProperty.DISCOVERY_SPI_ENABLED, "true");
                 hzConfig.setProperty(GroupProperty.DISCOVERY_SPI_PUBLIC_IP_ENABLED, "true");
                 hzConfig.setProperty(GroupProperty.SOCKET_CLIENT_BIND_ANY, "true");
