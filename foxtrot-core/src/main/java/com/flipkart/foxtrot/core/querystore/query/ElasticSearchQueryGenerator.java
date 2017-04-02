@@ -116,6 +116,12 @@ public class ElasticSearchQueryGenerator extends FilterVisitor {
     }
 
     @Override
+    public void visit(NotInFilter notInFilter) throws Exception {
+        addFilter(
+                FilterBuilders.notFilter(FilterBuilders.inFilter(notInFilter.getField(), notInFilter.getValues())));
+    }
+
+    @Override
     public void visit(ExistsFilter existsFilter) throws Exception {
         addFilter(FilterBuilders.existsFilter(existsFilter.getField()));
     }

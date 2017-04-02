@@ -25,11 +25,11 @@ import com.flipkart.foxtrot.common.query.ResultSort;
 import com.flipkart.foxtrot.common.query.general.AnyFilter;
 import com.flipkart.foxtrot.common.query.general.EqualsFilter;
 import com.flipkart.foxtrot.common.query.general.NotEqualsFilter;
+import com.flipkart.foxtrot.common.query.general.NotInFilter;
 import com.flipkart.foxtrot.common.query.numeric.*;
 import com.flipkart.foxtrot.common.query.string.ContainsFilter;
 import com.flipkart.foxtrot.core.TestUtils;
 import com.flipkart.foxtrot.core.exception.FoxtrotException;
-import com.flipkart.foxtrot.core.exception.MalformedQueryException;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
 import com.google.common.collect.Lists;
 import org.elasticsearch.action.admin.indices.get.GetIndexRequest;
@@ -229,6 +229,51 @@ public class FilterActionTest extends ActionTest {
 
         QueryResponse actualResponse = QueryResponse.class.cast(getQueryExecutor().execute(query));
         compare(documents, actualResponse.getDocuments());
+    }
+
+    @Test
+    public void testQueryNotInFilter() throws FoxtrotException, JsonProcessingException {
+        Query query = new Query();
+        query.setTable(TestUtils.TEST_TABLE_NAME);
+        query.setLimit(100);
+
+        ResultSort resultSort = new ResultSort();
+        resultSort.setOrder(ResultSort.Order.desc);
+        resultSort.setField("_timestamp");
+        query.setSort(resultSort);
+
+        NotInFilter notInFilter = new NotInFilter();
+        notInFilter.setValues(Lists.newArrayList("nexus", "galaxy"));
+        notInFilter.setField("device");
+
+        query.setFilters(Lists.<Filter>newArrayList(notInFilter));
+
+        List<Document> documents = new ArrayList<Document>();
+        documents.add(TestUtils.getDocument("E", 1397658118004L, new Object[]{"os", "ios", "version", 2, "device", "ipad"}, getMapper()));
+        documents.add(TestUtils.getDocument("D", 1397658118003L, new Object[]{"os", "ios", "version", 1, "device", "iphone"}, getMapper()));
+
+        QueryResponse actualResponse = QueryResponse.class.cast(getQueryExecutor().execute(query));
+        compare(documents, actualResponse.getDocuments());
+    }
+
+    @Test
+    public void testQueryNotInFilterMissingField() throws FoxtrotException, JsonProcessingException {
+        Query query = new Query();
+        query.setTable(TestUtils.TEST_TABLE_NAME);
+        query.setLimit(100);
+
+        ResultSort resultSort = new ResultSort();
+        resultSort.setOrder(ResultSort.Order.desc);
+        resultSort.setField("_timestamp");
+        query.setSort(resultSort);
+
+        NotInFilter notInFilter = new NotInFilter();
+        notInFilter.setValues(Lists.newArrayList("nexus", "galaxy", "ipad", "iphone"));
+        notInFilter.setField("dummy");
+
+        query.setFilters(Lists.<Filter>newArrayList(notInFilter));
+        QueryResponse actualResponse = QueryResponse.class.cast(getQueryExecutor().execute(query));
+        assertEquals(9, actualResponse.getDocuments().size());
     }
 
     @Test
