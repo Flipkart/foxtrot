@@ -20,18 +20,20 @@ import com.flipkart.foxtrot.core.TestUtils;
 import com.flipkart.foxtrot.core.exception.FoxtrotExceptions;
 import com.flipkart.foxtrot.core.table.TableManager;
 import com.flipkart.foxtrot.core.table.impl.FoxtrotTableManager;
+import com.flipkart.foxtrot.server.providers.exception.FoxtrotExceptionMapper;
 import io.dropwizard.testing.junit.ResourceTestRule;
+import org.apache.commons.httpclient.HttpStatus;
 import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.Matchers;
 
-import javax.ws.rs.ProcessingException;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.util.UUID;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
 
@@ -51,6 +53,7 @@ public class TableManagerResourceTest extends FoxtrotResourceTest {
         this.tableManager = spy(tableManager);
         resources = ResourceTestRule.builder()
                 .addResource(new TableManagerResource(tableManager))
+                .addProvider(new FoxtrotExceptionMapper(getMapper()))
                 .setMapper(getMapper())
                 .build();
     }
@@ -75,17 +78,18 @@ public class TableManagerResourceTest extends FoxtrotResourceTest {
         reset(getDataStore());
     }
 
-    @Test(expected = ProcessingException.class)
+    @Test
     public void testSaveNullTable() throws Exception {
-        resources.client().target("/v1/tables").request().post(null);
+        Response response = resources.client().target("/v1/tables").request().post(null);
+        assertEquals(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode(), response.getStatus());
     }
 
-    @Test()
+    @Test
     public void testSaveNullTableName() throws Exception {
         Table table = new Table(null, 30);
         Entity<Table> tableEntity = Entity.json(table);
         Response response = resources.client().target("/v1/tables").request().post(tableEntity);
-        assertEquals(response.getStatus(), 422);
+        assertEquals(HttpStatus.SC_UNPROCESSABLE_ENTITY, response.getStatus());
     }
 
     @Test
@@ -93,23 +97,19 @@ public class TableManagerResourceTest extends FoxtrotResourceTest {
         Table table = new Table(UUID.randomUUID().toString(), 30);
         Entity<Table> tableEntity = Entity.json(table);
         doThrow(FoxtrotExceptions.createExecutionException("dummy", new IOException())).when(tableManager).save(Matchers.<Table>any());
-        try {
-            resources.client().target("/v1/tables").request().post(tableEntity);
-            fail();
-        } catch (Exception ex) {
-            assertTrue(ex instanceof ProcessingException);
-        }
+        Response response = resources.client().target("/v1/tables").request().post(tableEntity);
+        assertEquals(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode(), response.getStatus());
         reset(tableManager);
     }
 
-    @Test()
+    @Test
     public void testSaveIllegalTtl() throws Exception {
         reset(getTableMetadataManager());
         reset(tableManager);
         Table table = new Table(TestUtils.TEST_TABLE_NAME, 0);
         Entity<Table> tableEntity = Entity.json(table);
         Response response = resources.client().target("/v1/tables").request().post(tableEntity);
-        assertEquals(422, response.getStatus());
+        assertEquals(HttpStatus.SC_UNPROCESSABLE_ENTITY, response.getStatus());
     }
 
     @Test
@@ -127,9 +127,9 @@ public class TableManagerResourceTest extends FoxtrotResourceTest {
         assertEquals(table.getTtl(), response.getTtl());
     }
 
-    @Test(expected = ProcessingException.class)
+    @Test
     public void testGetMissingTable() throws Exception {
-        resources.client().target(String.format("/v1/tables/%s", TestUtils.TEST_TABLE_NAME+"_missing")).request().get();
-        fail();
+        Response response = resources.client().target(String.format("/v1/tables/%s", TestUtils.TEST_TABLE_NAME + "_missing")).request().get();
+        assertEquals(Response.Status.NOT_FOUND.getStatusCode(), response.getStatus());
     }
 }

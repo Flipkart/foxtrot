@@ -20,8 +20,8 @@ import com.flipkart.foxtrot.common.group.GroupRequest;
 import com.flipkart.foxtrot.common.group.GroupResponse;
 import com.flipkart.foxtrot.core.TestUtils;
 import com.flipkart.foxtrot.core.common.AsyncDataToken;
+import com.flipkart.foxtrot.server.providers.exception.FoxtrotExceptionMapper;
 import io.dropwizard.testing.junit.ResourceTestRule;
-import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -56,6 +56,7 @@ public class AnalyticsResourceTest extends FoxtrotResourceTest {
         resources = ResourceTestRule.builder()
                 .setMapper(getMapper())
                 .addResource(new AnalyticsResource(getQueryExecutor()))
+                .addProvider(new FoxtrotExceptionMapper(getMapper()))
                 .build();
     }
 
