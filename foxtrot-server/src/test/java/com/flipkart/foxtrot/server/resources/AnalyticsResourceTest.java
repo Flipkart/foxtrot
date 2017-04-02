@@ -51,7 +51,7 @@ public class AnalyticsResourceTest extends FoxtrotResourceTest {
 
     @Override
     protected void setUpResources() throws Exception {
-        addResource(new AnalyticsResource(getQueryExecutor()));
+        addResource(new AnalyticsResource(getQueryExecutor(), getMapper()));
     }
 
 

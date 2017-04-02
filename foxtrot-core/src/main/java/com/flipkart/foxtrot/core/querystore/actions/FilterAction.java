@@ -30,13 +30,17 @@ import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConnection;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
 import com.flipkart.foxtrot.core.querystore.query.ElasticSearchQueryGenerator;
 import com.flipkart.foxtrot.core.table.TableMetadataManager;
+import com.google.common.base.Strings;
+import com.google.common.collect.Lists;
 import org.elasticsearch.ElasticsearchException;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.search.SearchType;
+import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
 import org.elasticsearch.search.sort.SortOrder;
+import org.elasticsearch.search.sort.SortParseElement;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -116,6 +120,40 @@ public class FilterAction extends Action<Query> {
 
     @Override
     public QueryResponse execute(Query parameter) throws FoxtrotException {
+        if (!parameter.isStreamEnabled()) {
+            return handleNonStreamedData(parameter);
+        } else {
+            return handleStreamedData(parameter);
+        }
+    }
+
+    private QueryResponse handleStreamedData(Query parameter) throws FoxtrotException {
+        try {
+            SearchResponse scrollResp;
+            if (Strings.isNullOrEmpty(parameter.getStreamId())) {
+                scrollResp = getConnection().getClient().prepareSearch(ElasticsearchUtils.getIndices(parameter.getTable(), parameter))
+                        .addSort(SortParseElement.DOC_FIELD_NAME, SortOrder.ASC)
+                        .setScroll(new TimeValue(60000))
+                        .setQuery(new ElasticSearchQueryGenerator(FilterCombinerType.and).genFilter(parameter.getFilters()))
+                        .setSize(100).execute().actionGet();
+            } else {
+                scrollResp = getConnection().getClient().prepareSearchScroll(parameter.getStreamId())
+                        .setScroll(new TimeValue(60000)).execute().actionGet();
+            }
+
+            List<String> docIds = extractDocIds(scrollResp.getHits());
+            if (docIds.isEmpty()) {
+                return new QueryResponse(Collections.<Document>emptyList(), null, 0);
+            }
+            return new QueryResponse(getQueryStore().getAll(parameter.getTable(), docIds, true),
+                    scrollResp.getScrollId(),
+                    scrollResp.getHits().totalHits());
+        } catch (Exception e) {
+            throw FoxtrotExceptions.queryCreationException(parameter, e);
+        }
+    }
+
+    private QueryResponse handleNonStreamedData(Query parameter) throws FoxtrotException {
         SearchRequestBuilder search;
         try {
             search = getConnection().getClient().prepareSearch(ElasticsearchUtils.getIndices(parameter.getTable(), parameter))
@@ -132,17 +170,22 @@ public class FilterAction extends Action<Query> {
         }
         try {
             SearchResponse response = search.execute().actionGet();
-            List<String> ids = new ArrayList<>();
-            SearchHits searchHits = response.getHits();
-            for (SearchHit searchHit : searchHits) {
-                ids.add(searchHit.getId());
-            }
+            List<String> ids = extractDocIds(response.getHits());
             if (ids.isEmpty()) {
                 return new QueryResponse(Collections.<Document>emptyList(), 0);
             }
-            return new QueryResponse(getQueryStore().getAll(parameter.getTable(), ids, true), searchHits.totalHits());
+            return new QueryResponse(getQueryStore().getAll(parameter.getTable(), ids, true),
+                    response.getHits().totalHits());
         } catch (ElasticsearchException e) {
             throw FoxtrotExceptions.createQueryExecutionException(parameter, e);
         }
+    }
+
+    private static List<String> extractDocIds(SearchHits searchHits) {
+        List<String> docIds = Lists.newArrayList();
+        for (SearchHit searchHit : searchHits) {
+            docIds.add(searchHit.getId());
+        }
+        return docIds;
     }
 }

@@ -36,6 +36,10 @@ public class Query extends ActionRequest {
 
     private int limit = 10;
 
+    private boolean streamEnabled;
+
+    private String streamId;
+
     public Query() {
         super(Opcodes.QUERY);
         this.sort = new ResultSort();
@@ -83,15 +87,32 @@ public class Query extends ActionRequest {
         this.limit = limit;
     }
 
+    public boolean isStreamEnabled() {
+        return streamEnabled;
+    }
+
+    public void setStreamEnabled(boolean streamEnabled) {
+        this.streamEnabled = streamEnabled;
+    }
+
+    public String getStreamId() {
+        return streamId;
+    }
+
+    public void setStreamId(String streamId) {
+        this.streamId = streamId;
+    }
 
     @Override
     public String toString() {
         return new ToStringBuilder(this)
+                .appendSuper(super.toString())
                 .append("table", table)
-                .append("filters", getFilters())
                 .append("sort", sort)
                 .append("from", from)
                 .append("limit", limit)
+                .append("streamEnabled", streamEnabled)
+                .append("streamId", streamId)
                 .toString();
     }
 }

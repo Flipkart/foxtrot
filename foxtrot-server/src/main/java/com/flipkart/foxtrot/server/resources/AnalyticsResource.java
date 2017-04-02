@@ -15,17 +15,28 @@
  */
 package com.flipkart.foxtrot.server.resources;
 
+import com.fasterxml.jackson.core.JsonEncoding;
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.flipkart.foxtrot.common.ActionRequest;
 import com.flipkart.foxtrot.common.ActionResponse;
+import com.flipkart.foxtrot.common.Document;
+import com.flipkart.foxtrot.common.query.Query;
+import com.flipkart.foxtrot.common.query.QueryResponse;
 import com.flipkart.foxtrot.core.common.AsyncDataToken;
 import com.flipkart.foxtrot.core.exception.FoxtrotException;
 import com.flipkart.foxtrot.core.querystore.QueryExecutor;
+import com.google.common.base.Strings;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.StreamingOutput;
+import java.io.IOException;
+import java.util.List;
 
 /**
  * User: Santanu Sinha (santanu.sinha@flipkart.com)
@@ -38,14 +49,46 @@ import javax.ws.rs.core.MediaType;
 public class AnalyticsResource {
 
     private final QueryExecutor queryExecutor;
+    private final ObjectMapper objectMapper;
 
-    public AnalyticsResource(QueryExecutor queryExecutor) {
+    public AnalyticsResource(QueryExecutor queryExecutor,
+                             ObjectMapper objectMapper) {
         this.queryExecutor = queryExecutor;
+        this.objectMapper = objectMapper;
     }
 
     @POST
     public ActionResponse runSync(final ActionRequest request) throws FoxtrotException {
         return queryExecutor.execute(request);
+    }
+
+    @POST
+    @Path("/stream")
+    public Response runStream(final Query query) throws FoxtrotException {
+        StreamingOutput stream = os -> {
+            try {
+                JsonGenerator jsonGenerator = objectMapper.getFactory().createJsonGenerator(os, JsonEncoding.UTF8);
+                jsonGenerator.writeStartArray();
+
+                query.setStreamEnabled(true);
+                QueryResponse queryResponse = (QueryResponse) queryExecutor.execute(query);
+
+                while (true) {
+                    writeDocumentsToStream(jsonGenerator, queryResponse.getDocuments());
+                    if (Strings.isNullOrEmpty(queryResponse.getStreamId())) {
+                        break;
+                    }
+                    query.setStreamId(queryResponse.getStreamId());
+                }
+
+                jsonGenerator.writeEndArray();
+                jsonGenerator.flush();
+                jsonGenerator.close();
+            } catch (FoxtrotException e) {
+                throw new IOException(e);
+            }
+        };
+        return Response.ok(stream).build();
     }
 
     @POST
@@ -58,5 +101,15 @@ public class AnalyticsResource {
     @Path("/validate")
     public void validateQuery(final ActionRequest request) throws FoxtrotException {
         queryExecutor.validate(request);
+    }
+
+    private void writeDocumentsToStream(JsonGenerator jsonGenerator, List<Document> documents) throws IOException {
+        if (documents == null || documents.isEmpty()) {
+            return;
+        }
+
+        for (Document document : documents) {
+            jsonGenerator.writeObject(document);
+        }
     }
 }

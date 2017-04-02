@@ -1,12 +1,12 @@
 /**
  * Copyright 2014 Flipkart Internet Pvt. Ltd.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -29,6 +29,7 @@ import java.util.List;
  */
 public class QueryResponse extends ActionResponse {
     private List<Document> documents;
+    private String streamId;
     private long totalHits;
 
     public QueryResponse() {
@@ -36,8 +37,16 @@ public class QueryResponse extends ActionResponse {
     }
 
     public QueryResponse(List<Document> documents, long totalHits) {
-        super(Opcodes.QUERY);
+        this();
         this.documents = documents;
+        this.totalHits = totalHits;
+    }
+
+    public QueryResponse(List<Document> documents, String streamId,
+                         long totalHits) {
+        this();
+        this.documents = documents;
+        this.streamId = streamId;
         this.totalHits = totalHits;
     }
 
@@ -48,13 +57,21 @@ public class QueryResponse extends ActionResponse {
     public void setDocuments(List<Document> documents) {
         this.documents = documents;
     }
-    
+
     public void setTotalHits(long totalHits) {
         this.totalHits = totalHits;
     }
-    
+
     public long getTotalHits() {
         return totalHits;
+    }
+
+    public String getStreamId() {
+        return streamId;
+    }
+
+    public void setStreamId(String streamId) {
+        this.streamId = streamId;
     }
 
     @Override
