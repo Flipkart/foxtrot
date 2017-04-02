@@ -21,6 +21,7 @@ import com.flipkart.foxtrot.common.Document;
 import com.flipkart.foxtrot.core.TestUtils;
 import com.flipkart.foxtrot.core.exception.FoxtrotException;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
+import com.flipkart.foxtrot.server.providers.exception.FoxtrotExceptionMapper;
 import io.dropwizard.testing.junit.ResourceTestRule;
 import org.junit.Assert;
 import org.junit.Rule;
@@ -47,6 +48,7 @@ public class ClusterHealthResourceTest extends FoxtrotResourceTest {
         doReturn(TestUtils.TEST_TABLE).when(getTableMetadataManager()).get(anyString());
         resources = ResourceTestRule.builder()
                 .addResource(new ClusterHealthResource(getQueryStore()))
+                .addProvider(new FoxtrotExceptionMapper(getMapper()))
                 .setMapper(getMapper())
                 .build();
     }
