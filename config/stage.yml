@@ -11,6 +11,22 @@ elasticsearch:
   cluster: prd-es0xx
   tableNamePrefix: foxtrot
 
+serviceDiscovery:
+  namespace: phonepe
+  environment: stage
+  zookeeper: ${ZK_CONNECTION_STRING}
+  publishedHost: ${HOST}
+  publishedPort: ${PORT_8080}
+  connectionRetryIntervalMillis: 5000
+
+riemann:
+  host: ${RIEMANN_HOST}
+  port: ${RIEMANN_PORT}
+  prefix: phonepe.${CONFIG_ENV}.foxtrot
+  pollingInterval: 30
+  tags:
+    - foxtrot
+
 hbase:
   secure : false
   tableName: foxtrot

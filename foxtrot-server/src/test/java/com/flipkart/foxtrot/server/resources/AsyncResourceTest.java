@@ -20,12 +20,15 @@ import com.flipkart.foxtrot.common.group.GroupRequest;
 import com.flipkart.foxtrot.common.group.GroupResponse;
 import com.flipkart.foxtrot.core.TestUtils;
 import com.flipkart.foxtrot.core.common.AsyncDataToken;
+import com.flipkart.foxtrot.server.providers.exception.FoxtrotExceptionMapper;
 import io.dropwizard.testing.junit.ResourceTestRule;
+import org.apache.commons.httpclient.HttpStatus;
 import org.junit.Rule;
 import org.junit.Test;
 
 import javax.ws.rs.ProcessingException;
 import javax.ws.rs.client.Entity;
+import javax.ws.rs.core.Response;
 import java.util.*;
 
 import static org.junit.Assert.*;
@@ -50,6 +53,7 @@ public class AsyncResourceTest extends FoxtrotResourceTest {
         resources = ResourceTestRule.builder()
                 .setMapper(getMapper())
                 .addResource(new AsyncResource(getCacheManager()))
+                .addProvider(new FoxtrotExceptionMapper(getMapper()))
                 .build();
     }
 
@@ -180,13 +184,11 @@ public class AsyncResourceTest extends FoxtrotResourceTest {
         assertNull(response);
     }
 
-    @Test(expected = ProcessingException.class)
+    @Test
     public void testGetResponsePostInvalidAction() throws Exception {
         AsyncDataToken dataToken = new AsyncDataToken(null, UUID.randomUUID().toString());
         Entity<AsyncDataToken> asyncDataTokenEntity = Entity.json(dataToken);
-        resources.client().target("/v1/async")
-                .request()
-                .post(asyncDataTokenEntity, GroupResponse.class);
-        fail();
+        Response response = resources.client().target("/v1/async").request().post(asyncDataTokenEntity);
+        assertEquals(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode(), response.getStatus());
     }
 }

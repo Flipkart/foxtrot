@@ -18,13 +18,11 @@ package com.flipkart.foxtrot.server.resources;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.flipkart.foxtrot.common.Document;
 import com.flipkart.foxtrot.core.TestUtils;
-import com.flipkart.foxtrot.core.exception.BadRequestException;
 import com.flipkart.foxtrot.core.exception.FoxtrotExceptions;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
 import com.flipkart.foxtrot.server.providers.exception.FoxtrotExceptionMapper;
 import io.dropwizard.testing.junit.ResourceTestRule;
 import org.assertj.core.util.Lists;
-import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.Matchers;
@@ -162,16 +160,16 @@ public class DocumentResourceTest extends FoxtrotResourceTest {
         assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), response.getStatus());
     }
 
-    @Test(expected = ProcessingException.class)
+    @Test
     public void testSaveDocumentsNullDocument() throws Exception {
         List<Document> documents = new Vector<Document>();
         documents.add(null);
         documents.add(new Document(UUID.randomUUID().toString(), System.currentTimeMillis(), getMapper().getNodeFactory().objectNode().put("d", "d")));
         Entity<List<Document>> listEntity = Entity.json(documents);
-        resources.client().target(String.format("/v1/document/%s/bulk", TestUtils.TEST_TABLE_NAME))
+        Response response = resources.client().target(String.format("/v1/document/%s/bulk", TestUtils.TEST_TABLE_NAME))
                 .request()
                 .post(listEntity);
-        fail();
+        assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), response.getStatus());
     }
 
     @Test

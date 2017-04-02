@@ -49,6 +49,11 @@ import io.dropwizard.Application;
 import io.dropwizard.assets.AssetsBundle;
 import io.dropwizard.configuration.EnvironmentVariableSubstitutor;
 import io.dropwizard.configuration.SubstitutingSourceProvider;
+import io.dropwizard.discovery.bundle.ServiceDiscoveryBundle;
+import io.dropwizard.discovery.bundle.ServiceDiscoveryConfiguration;
+import io.dropwizard.oor.OorBundle;
+import io.dropwizard.riemann.RiemannBundle;
+import io.dropwizard.riemann.RiemannConfig;
 import io.dropwizard.server.AbstractServerFactory;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
@@ -78,6 +83,36 @@ public class FoxtrotServer extends Application<FoxtrotServerConfiguration> {
                 )
         );
         bootstrap.addBundle(new AssetsBundle("/console/", "/", "index.html", "console"));
+        bootstrap.addBundle(new OorBundle<FoxtrotServerConfiguration>() {
+            public boolean withOor() {
+                return false;
+            }
+        });
+
+        bootstrap.addBundle(new ServiceDiscoveryBundle<FoxtrotServerConfiguration>() {
+            @Override
+            protected ServiceDiscoveryConfiguration getRangerConfiguration(FoxtrotServerConfiguration configuration) {
+                return configuration.getServiceDiscovery();
+            }
+
+            @Override
+            protected String getServiceName(FoxtrotServerConfiguration configuration) {
+                return "foxtrot";
+            }
+
+            @Override
+            protected int getPort(FoxtrotServerConfiguration configuration) {
+                return configuration.getServiceDiscovery().getPublishedPort();
+            }
+        });
+
+        bootstrap.addBundle(new RiemannBundle<FoxtrotServerConfiguration>() {
+            @Override
+            public RiemannConfig getRiemannConfiguration(FoxtrotServerConfiguration configuration) {
+                return configuration.getRiemann();
+            }
+        });
+
         bootstrap.addCommand(new InitializerCommand());
         configureObjectMapper(bootstrap.getObjectMapper());
     }
@@ -110,7 +145,7 @@ public class FoxtrotServer extends Application<FoxtrotServerConfiguration> {
         DataDeletionManager dataDeletionManager = new DataDeletionManager(dataDeletionManagerConfig, queryStore);
 
         List<HealthCheck> healthChecks = new ArrayList<>();
-        ElasticSearchHealthCheck elasticSearchHealthCheck =  new ElasticSearchHealthCheck(elasticsearchConnection);
+        ElasticSearchHealthCheck elasticSearchHealthCheck = new ElasticSearchHealthCheck(elasticsearchConnection);
         healthChecks.add(elasticSearchHealthCheck);
         ClusterManager clusterManager = new ClusterManager(hazelcastConnection, healthChecks, configuration.getServerFactory());
 
@@ -154,7 +189,7 @@ public class FoxtrotServer extends Application<FoxtrotServerConfiguration> {
         // Add URL mapping
         cors.addMappingForUrlPatterns(EnumSet.allOf(DispatcherType.class), true, "/*");
 
-        ((AbstractServerFactory)configuration.getServerFactory()).setJerseyRootPath("/foxtrot");
+        ((AbstractServerFactory) configuration.getServerFactory()).setJerseyRootPath("/foxtrot");
     }
 
     private void configureObjectMapper(ObjectMapper objectMapper) {
