@@ -125,7 +125,6 @@ font-size: small;
 
 .tile-container{
   margin-top: 45px;
-  min-height: 175px;
   height: 95%;
 }
 .chartcanvas {
@@ -823,4 +822,8 @@ path {
   color: red;
   margin-left: 12px;
   display: none;
+}
+
+.widget-new-btn {
+  text-align: center;
 }
