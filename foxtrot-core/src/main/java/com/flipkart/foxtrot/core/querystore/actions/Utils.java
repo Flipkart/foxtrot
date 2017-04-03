@@ -29,11 +29,14 @@ public class Utils {
         return AggregationBuilders.percentiles(metricKey).field(field);
     }
 
-    public static DateHistogramBuilder buildDateHistogramAggregation(String field, DateHistogramInterval interval) {
+    public static DateHistogramBuilder buildDateHistogramAggregation(String field,
+                                                                     DateHistogramInterval interval,
+                                                                     String timeZone) {
         String metricKey = getDateHistogramKey(field);
         return AggregationBuilders.dateHistogram(metricKey)
                 .minDocCount(0)
                 .field(field)
+                .timeZone(timeZone)
                 .interval(interval);
     }
 
