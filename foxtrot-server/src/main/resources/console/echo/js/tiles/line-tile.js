@@ -110,7 +110,7 @@ LineTile.prototype.render = function (xAxis, yAxis) {
   var object = this.object;
 	var chartDiv = newDiv.find(".chart-item");
   var ctx = chartDiv.find("#"+object.id);
-	ctx.width(ctx.width);
+	ctx.width(ctx.width - 100);
 	ctx.height(230);
 	$.plot(ctx, [
 		{ data: yAxis },
@@ -123,7 +123,7 @@ LineTile.prototype.render = function (xAxis, yAxis) {
 		ticks: xAxis,
 		tickLength:0,
     mode: "time",
-    timeformat: axisTimeFormat(object.period, "custom"),
+    timeformat: axisTimeFormat(object.period, object.periodInterval),
     timezone: "browser"
     },
     yaxis: {

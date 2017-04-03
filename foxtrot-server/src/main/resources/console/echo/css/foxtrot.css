@@ -181,7 +181,7 @@ background-image: -ms-linear-gradient(right bottom, #828D94 36%, #475361 100%);
 background-image: linear-gradient(to right bottom, #828D94 36%, #475361 100%);
 }*/
 .chart-content {
-  width: 100%;
+  width: 98%;
   height: 100%;
   box-sizing: border-box;
   padding-top: 28px;

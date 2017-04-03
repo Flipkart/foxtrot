@@ -170,7 +170,7 @@ FoxTrot.prototype.addTile = function() {
   var editTileId = $(".tileId").val();
 	var tileId = guid();
   var isChild = $(".child-tile").val();
-  var periodTime = $("#period-select").val();
+  var periodInterval = $("#period-select").val();
   isChild = (isChild == 'true');
 
   if($("#tileTitle").val().length == 0 || !$("#tileTable").valid() || getWidgetType() == false)
@@ -197,7 +197,7 @@ FoxTrot.prototype.addTile = function() {
     "chartType": currentChartType,
     "filters": filterDetails.length == 0 ? [] : filterDetails,
     "tableFields": currentFieldList,
-    "periodTime": periodTime
+    "periodInterval": periodInterval
   };
   var object = $.extend( {}, getChartFormValues()[0], queryValues );
   var tileFactory = new TileFactory();
