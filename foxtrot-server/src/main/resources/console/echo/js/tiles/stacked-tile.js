@@ -14,63 +14,66 @@
  * limitations under the License.
  */
 
-function StackedBarTile() {
+function StackedTile() {
   this.newDiv = "";
   this.object = "";
 }
 
-function getStackedBarChartFormValues() {
-  var period = $(".stacked-bar-time-unit").val();
-  var timeframe = $(".statcked-bar-timeframe").val();
-  var groupingKey = $(".stacked-bar-grouping-key").val();
+function getstackedChartFormValues() {
+  var period = $(".stacked-time-unit").val();
+  var timeframe = $(".stacked-timeframe").val();
+  var groupingKey = $(".stacked-grouping-key").val();
   var stackingKey = $(".stacking-key").val();
-  var uniqueKey = $(".stacked-bar-uniquekey").val();
+  var uniqueKey = $(".stacked-uniquekey").val();
 
+  var groupingString = currentFieldList[parseInt(groupingKey)].field;
+  var stackingString = currentFieldList[parseInt(stackingKey)].field;
   var nestingArray = [];
-  nestingArray.push(currentFieldList[parseInt(groupingKey)].field);
-  nestingArray.push(currentFieldList[parseInt(stackingKey)].field);
 
-  return {
+  nestingArray.push(groupingString);
+  nestingArray.push(stackingString);
+
+  return [{
     "period": period,
     "timeframe": timeframe,
-    "groupingKey": groupingKey,
-    "stackingKey": stackingKey,
+    "groupingKey": groupingString,
+    "stackingKey": stackingString,
     "uniqueKey": uniqueKey,
     "nesting": nestingArray
-  }
+  }, true]
 }
 
-function setStackedBarChartFormValues(object) {
-  $(".stacked-bar-time-unit").val(object.period);
-  $("stacked-bar-time-unit").selectpicker('refresh');
+function setStackedChartFormValues(object) {
+  $(".stacked-time-unit").val(object.period);
+  $("stacked-time-unit").selectpicker('refresh');
 
-  $(".statcked-bar-timeframe").val(object.periodValue);
+  $(".stacked-timeframe").val(object.periodValue);
 
   var groupingKeyField = currentFieldList[parseInt(object.groupingKey)].field;
-  $(".stacked-bar-grouping-key").val(currentFieldList.findIndex(x => x.field == groupingKeyField));
-  $(".stacked-bar-grouping-key").selectpicker('refresh');
+  $(".stacked-grouping-key").val(currentFieldList.findIndex(x => x.field == groupingKeyField));
+  $(".stacked-grouping-key").selectpicker('refresh');
 
   var stackingKeyField = currentFieldList[parseInt(object.stackingKey)].field;
   $(".stacking-key").val(currentFieldList.findIndex(x => x.field == stackingKeyField));
   $(".stacking-key").selectpicker('refresh');
 
   var stackingUniqueField = currentFieldList[parseInt(object.uniqueKey)].field;
-  $(".stacked-bar-uniquekey").val(currentFieldList.findIndex(x => x.field == stackingUniqueField));
-  $(".stacked-bar-uniquekey").selectpicker('refresh');
+  $(".stacked-uniquekey").val(currentFieldList.findIndex(x => x.field == stackingUniqueField));
+  $(".stacked-uniquekey").selectpicker('refresh');
 }
 
-function clearStackedBarChartForm() {
+function clearstackedChartForm() {
   var parentElement = $("#"+currentChartType+"-chart-data");
 
-  var timeUnitEl = parentElement.find(".stacked-bar-time-unit");
+  var timeUnitEl = parentElement.find(".stacked-time-unit");
   timeUnitEl.find('option:eq(0)').prop('selected', true);
   $(timeUnitEl).selectpicker('refresh');
 
-  var timeframe = parentElement.find(".statcked-bar-timeframe");
+  var timeframe = parentElement.find(".stacked-timeframe");
   timeframe.val('');
 
 
-  var groupingKey = parentElement.find(".stacked-bar-grouping-key");
+  var groupingKey = parentElement.find(".stacked-grouping-key");
   groupingKey.find('option:eq(0)').prop('selected', true);
   $(groupingKey).selectpicker('refresh');
 
@@ -79,12 +82,12 @@ function clearStackedBarChartForm() {
   $(stackingKey).selectpicker('refresh');
 
 
-  var stackingBarUniqueKey = parentElement.find(".stacked-bar-uniquekey");
+  var stackingBarUniqueKey = parentElement.find(".stacked-uniquekey");
   stackingBarUniqueKey.find('option:eq(0)').prop('selected', true);
   $(stackingBarUniqueKey).selectpicker('refresh');
 }
 
-StackedBarTile.prototype.getQuery = function(newDiv, object) {
+StackedTile.prototype.getQuery = function(newDiv, object) {
   this.newDiv = newDiv;
   this.object = object;
   this.object.filters.pop();
@@ -119,7 +122,7 @@ function unique(list) {
     return result;
 }
 
-StackedBarTile.prototype.getData = function(data) {
+StackedTile.prototype.getData = function(data) {
   if(data.result == undefined || data.result.length == 0)
     return;
   var xAxis = [];
@@ -138,7 +141,7 @@ StackedBarTile.prototype.getData = function(data) {
   this.render(xAxis, yAxis,unique(label));
 }
 
-StackedBarTile.prototype.render = function (xAxis, yAxis, label) {
+StackedTile.prototype.render = function (xAxis, yAxis, label) {
   var newDiv = this.newDiv;
   var object = this.object;
 	var chartDiv = newDiv.find(".chart-item");

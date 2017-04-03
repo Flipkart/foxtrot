@@ -137,7 +137,7 @@ function getFilters() {
 }
 
 function getWidgetType() {
-  if(currentChartType == "line" || currentChartType == "stackedBar") {
+  if(currentChartType == "line" || currentChartType == "stacked") {
     return "full";
   } else if(currentChartType == "radar") {
     return "medium";
@@ -153,8 +153,8 @@ function getChartFormValues() {
     return getLineChartFormValues();
   } else if(currentChartType == "trend") {
     return getTrendChartFormValues();
-  } else if(currentChartType == "stackedBar") {
-    return getStackedBarChartFormValues();
+  } else if(currentChartType == "stacked") {
+    return getstackedChartFormValues();
   } else if(currentChartType == "radar") {
     return getRadarChartFormValues();
   } else if(currentChartType == "gauge") {
@@ -199,6 +199,7 @@ FoxTrot.prototype.addTile = function() {
     "tableFields": currentFieldList,
     "periodInterval": periodInterval
   };
+  console.log(getChartFormValues()[0]);
   var object = $.extend( {}, getChartFormValues()[0], queryValues );
   var tileFactory = new TileFactory();
   currentChartType = "";
@@ -294,8 +295,8 @@ function invokeClearChartForm() {
     clearLineChartForm();
   } else if(currentChartType == "trend") {
     clearTrendChartForm();
-  } else if(currentChartType == "stackedBar") {
-    clearStackedBarChartForm();
+  } else if(currentChartType == "stacked") {
+    clearstackedChartForm();
   } else if(currentChartType == "radar") {
     clearRadarChartForm();
   } else if(currentChartType == "gauge") {
@@ -309,10 +310,10 @@ function reloadDropdowns() {
     generateDropDown(currentFieldList, "#uniqueKey");
   } else if(currentChartType == "trend") {
     generateDropDown(currentFieldList, "#stats-field");
-  } else if(currentChartType == "stackedBar") {
+  } else if(currentChartType == "stacked") {
     generateDropDown(currentFieldList, "#stacking-key");
-    generateDropDown(currentFieldList, "#stacked-bar-uniquekey");
-    generateDropDown(currentFieldList, "#stacked-bar-grouping-key");
+    generateDropDown(currentFieldList, "#stacked-uniquekey");
+    generateDropDown(currentFieldList, "#stacked-grouping-key");
   } else if(currentChartType == "radar") {
     generateDropDown(currentFieldList, "#radar-nesting");
   } else if(currentChartType == "gauge") {

@@ -120,7 +120,7 @@
               <div class="col-xs-6 col-sm-2 vizualization-type" data-chart-type="gauge"><p>Gauge chart</p></div>
               <div class="col-xs-6 col-sm-2 vizualization-type" data-chart-type="trend"><p>Trend chart</p></div>
               </div>
-              <div class="row"><div class="col-xs-6 col-sm-2 vizualization-type" data-chart-type="stackedBar"><p>Stacked bar chart</p></div>
+              <div class="row"><div class="col-xs-6 col-sm-2 vizualization-type" data-chart-type="stacked"><p>Stacked chart</p></div>
               <div class="col-xs-6 col-sm-2 vizualization-type"><p>Chart 1</p></div>
               <div class="clearfix visible-xs vizualization-type"></div>
               <div class="col-xs-6 col-sm-2 vizualization-type"><p>Chart 2</p></div>
@@ -244,11 +244,11 @@
                     </div>
                   </div>
                 </div>
-                <div id="stackedBar-chart-data">
+                <div id="stacked-chart-data">
                   <div class="row">
                     <div class="col-sm-5 col-md-6">
                     <label class="control-label">Time Unit:</label>
-                      <select class="selectpicker stacked-bar-time-unit">
+                      <select class="selectpicker stacked-time-unit">
                         <option value="minutes" selected="selected">Minute</option>
                         <option value="hours">Hour</option>
                         <option value="days">Day</option>
@@ -257,14 +257,14 @@
                     <div class="col-sm-5 col-sm-offset-2 col-md-6 col-md-offset-0">
                       <div>
                         <label class="control-label">Time Frame : </label>
-                        <input type="number" class="statcked-bar-timeframe" id="statcked-bar-timeframe" placeholder="Enter time frame" required>
+                        <input type="number" class="stacked-timeframe" id="stacked-timeframe" placeholder="Enter time frame" required>
                       </div>
                     </div>
                   </div>
                   <div class="row">
                     <div class="col-sm-5 col-md-6">
                       <label class="control-label">Grouping Key: </label>
-                      <select class="selectpicker stacked-bar-grouping-key"id="stacked-bar-grouping-key" data-live-search="true">
+                      <select class="selectpicker stacked-grouping-key"id="stacked-grouping-key" data-live-search="true">
                         <option value="minutes" selected="selected">Minute</option>
                       </select>
                     </div>
@@ -278,7 +278,7 @@
                   <div class="row">
                     <div class="col-sm-5 col-md-6">
                       <label class="control-label">Generate unique of: </label>
-                      <select id="stacked-bar-uniquekey" class="selectpicker stacked-bar-uniquekey" data-live-search="true">
+                      <select id="stacked-uniquekey" class="selectpicker stacked-uniquekey" data-live-search="true">
                         <option value="minutes" selected="selected">Minute</option>
                       </select>
                     </div>
@@ -396,7 +396,7 @@
   <script src="js/tiles/radar-tile.js"></script>
   <script src="js/tiles/trend-tile.js"></script>
   <script src="js/tiles/gauge-tile.js"></script>
-  <script src="js/tiles/stacked-bar-tile.js"></script>
+  <script src="js/tiles/stacked-tile.js"></script>
   <script src="../js/flot/jquery.flot.time.min.js"></script>
   <script src="js/jquery.validate.min.js"></script>
 	<!--Application-->
