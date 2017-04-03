@@ -26,6 +26,7 @@ public interface FilterOperator {
     String not_equals = "not_equals";
     String any = "any";
     String in = "in";
+    String not_in = "not_in";
     String exists = "exists";
     String missing = "missing";
 
