@@ -45,6 +45,7 @@ import java.util.Set;
         //General
         @JsonSubTypes.Type(value = EqualsFilter.class, name = FilterOperator.equals),
         @JsonSubTypes.Type(value = InFilter.class, name = FilterOperator.in),
+        @JsonSubTypes.Type(value = NotInFilter.class, name = FilterOperator.not_in),
         @JsonSubTypes.Type(value = NotEqualsFilter.class, name = FilterOperator.not_equals),
         @JsonSubTypes.Type(value = AnyFilter.class, name = FilterOperator.any),
         @JsonSubTypes.Type(value = ExistsFilter.class, name = FilterOperator.exists),

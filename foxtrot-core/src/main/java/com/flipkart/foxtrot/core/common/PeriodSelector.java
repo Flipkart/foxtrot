@@ -102,6 +102,11 @@ public class PeriodSelector extends FilterVisitor {
     }
 
     @Override
+    public void visit(NotInFilter inFilter) throws Exception {
+
+    }
+
+    @Override
     public void visit(ExistsFilter existsFilter) throws Exception {
 
     }
