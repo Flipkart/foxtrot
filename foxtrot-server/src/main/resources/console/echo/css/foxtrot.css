@@ -471,6 +471,7 @@ path {
 .lineGraph-health-text {
   font-weight: bold;
   font-size: 35px;
+  font-family: "oswald-semi-bold";
 }
 
 #top-right-btn a {
@@ -701,6 +702,11 @@ path {
 @font-face {
     font-family: oswald-bold;
     src: url(../fonts/oswald/Oswald-Bold.ttf);
+}
+
+@font-face {
+    font-family: oswald-semi-bold;
+    src: url(../fonts/oswald/Oswald-DemiBold.ttf);
 }
 
 @font-face {
