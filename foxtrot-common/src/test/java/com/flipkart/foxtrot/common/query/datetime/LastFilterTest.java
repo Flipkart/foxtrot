@@ -28,11 +28,14 @@ public class LastFilterTest {
 
     @Test
     public void testGetWindowStart() throws Exception {
-        final String json = "{ \"operator\" : \"last\", \"currentTime\" : 1485842573572, \"duration\" : \"1h\" }";
+        DateTime currentTime = new DateTime();
+        final String json = String.format("{ \"operator\" : \"last\", \"currentTime\" : %d, \"duration\" : \"1h\" }",
+                currentTime.getMillis());
         LastFilter lastFilter = objectMapper.readValue(json, LastFilter.class);
         TimeWindow timeWindow = lastFilter.getWindow();
         Assert.assertEquals("_timestamp", lastFilter.getField());
-        Assert.assertEquals(1485842573572L, lastFilter.getCurrentTime());
-        Assert.assertTrue(timeWindow.getStartTime() == 1485837000000L);
+        Assert.assertEquals(currentTime.getMillis(), lastFilter.getCurrentTime());
+        Assert.assertEquals(currentTime.withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0).minusHours(1).getMillis(),
+                timeWindow.getStartTime());
     }
 }
