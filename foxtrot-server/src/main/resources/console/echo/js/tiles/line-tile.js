@@ -121,7 +121,10 @@ LineTile.prototype.render = function (xAxis, yAxis) {
 		},
 		xaxis: {
 		ticks: xAxis,
-		tickLength:0
+		tickLength:0,
+    mode: "time",
+    timeformat: axisTimeFormat(object.period, "custom"),
+    timezone: "browser"
     },
     yaxis: {
     tickLength:0
