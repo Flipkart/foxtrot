@@ -47,6 +47,8 @@ public abstract class FilterVisitor {
 
     public abstract void visit(InFilter inFilter) throws Exception;
 
+    public abstract void visit(NotInFilter inFilter) throws Exception;
+
     public abstract void visit(ExistsFilter existsFilter) throws Exception;
 
     public abstract void visit(LastFilter lastFilter) throws Exception;
