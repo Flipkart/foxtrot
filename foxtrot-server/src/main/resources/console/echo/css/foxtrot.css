@@ -836,6 +836,6 @@ path {
   margin-left: 10px;
 }
 
-.pie-chart-data {
+#pie-chart-data {
   display: none;
 }
