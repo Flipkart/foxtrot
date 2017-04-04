@@ -30,7 +30,7 @@ function getRadarChartFormValues() {
 
   var status = true;
 
-  if(!$("#radar-nesting").valid()) {
+  if(!$("#radar-nesting").valid()|| !$("#radar-timeframe").valid() || !$("#radar-time-unit").valid()) {
     status = false;
   }
 
