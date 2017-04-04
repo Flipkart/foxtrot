@@ -137,7 +137,7 @@ function getFilters() {
 }
 
 function getWidgetType() {
-  if(currentChartType == "line" || currentChartType == "stacked" || currentChartType == "stackedBar") {
+  if(currentChartType == "line" || currentChartType == "stacked" || currentChartType == "stackedBar" || currentChartType == "pie") {
     return "full";
   } else if(currentChartType == "radar") {
     return "medium";
@@ -161,6 +161,8 @@ function getChartFormValues() {
     return getGaugeChartFormValues();
   } else if(currentChartType == "stackedBar") {
     return getstackedBarChartFormValues();
+  } else if(currentChartType == "pie") {
+    return getPieChartFormValues();
   }
 }
 
@@ -304,6 +306,8 @@ function invokeClearChartForm() {
     clearGaugeChartForm();
   } else if(currentChartType == "stackedBar") {
     clearStackedBarChartForm();
+  } else if(currentChartType == "pie") {
+    clearPieChartForm();
   }
 }
 
@@ -324,6 +328,9 @@ function reloadDropdowns() {
   } else if(currentChartType == "stackedBar") {
     generateDropDown(currentFieldList, "#stacked-bar-field");
     generateDropDown(currentFieldList, "#stacked-bar-uniquekey");
+  } else if(currentChartType == "pie") {
+    generateDropDown(currentFieldList, "#eventtype-field");
+    generateDropDown(currentFieldList, "#pie-uniquekey");
   }
 
 }

@@ -835,3 +835,7 @@ path {
 .tile-title {
   margin-left: 10px;
 }
+
+.pie-chart-data {
+  display: none;
+}

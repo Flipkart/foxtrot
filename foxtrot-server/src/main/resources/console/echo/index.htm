@@ -123,7 +123,7 @@
               <div class="row"><div class="col-xs-6 col-sm-2 vizualization-type" data-chart-type="stacked"><p>Stacked chart</p></div>
               <div class="col-xs-6 col-sm-2 vizualization-type" data-chart-type="stackedBar"><p>Stacked bar</p></div>
               <div class="clearfix visible-xs vizualization-type"></div>
-              <div class="col-xs-6 col-sm-2 vizualization-type"><p>Chart 2</p></div>
+              <div class="col-xs-6 col-sm-2 vizualization-type" data-chart-type="pie"><p>Pie chart</p></div>
               <div class="col-xs-6 col-sm-2 vizualization-type"><p>Chart 3</p></div>
               </div>
               <div class="row" id="table-units">
@@ -315,6 +315,36 @@
                     </div>
                   </div>
                 </div>
+                <div id="pie-chart-data">
+                  <div class="row">
+                    <div class="col-sm-5 col-md-6">
+                    <label class="control-label">Time Unit:</label>
+                      <select class="selectpicker pie-time-unit" id="pie-time-unit">
+                        <option value="minutes" selected="selected">Minute</option>
+                        <option value="hours">Hour</option>
+                        <option value="days">Day</option>
+                      </select>
+                    </div>
+                    <div class="col-sm-5 col-sm-offset-2 col-md-6 col-md-offset-0">
+                      <div>
+                        <label class="control-label">Time Frame : </label>
+                        <input type="number" class="pie-timeframe" id="pie-timeframe" placeholder="Enter time frame" required>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="row">
+                    <div class="col-sm-5 col-md-6">
+                      <label class="control-label">Eventtype field: </label>
+                      <select class="selectpicker eventtype-field"id="eventtype-field" data-live-search="true">
+                      </select>
+                    </div>
+                    <div class="col-sm-5 col-md-6">
+                      <label class="control-label">Generate unique of: </label>
+                      <select id="pie-uniquekey" class="selectpicker pie-uniquekey" data-live-search="true">
+                      </select>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
             <h4>Filters</h4>
@@ -432,6 +462,7 @@
   <script src="js/jquery.validate.min.js"></script>
   <script src="js/tiles/stacked-bar-tile.js"></script>
   <script src="../js/colorgen.js"></script>
+  <script src="js/tiles/pie-tile.js"></script>
 	<!--Application-->
 </body>
 
