@@ -30,23 +30,11 @@ function getstackedBarChartFormValues() {
   if(chartField == "none") {
     return[[], false];
   }
-
   chartField = currentFieldList[parseInt(chartField)].field;
-/*
-  var stackingString = currentFieldList[parseInt(stackingKey)].field;
-  var nestingArray = [];
-
-  nestingArray.push(groupingString);
-  nestingArray.push(stackingString);
-*/
-
-  console.log('==')
   var status = true;
-
   if(!$("#stacked-bar-time-unit").valid() || !$("#stacked-bar-timeframe").valid()) {
     status = false;
   }
-  console.log('--')
   return [{
     "period": period,
     "timeframe": timeframe,
@@ -127,53 +115,106 @@ function unique(list) {
 }
 
 StackedBarTile.prototype.getData = function(data) {
-  if(data.result == undefined || data.result.length == 0)
-    return;
-  var xAxis = [];
-  var yAxis = [];
-  var label = [];
-  var i = 0;
-  for (var key in data.result){
-    xAxis.push([i, key]);
-    var key1 = data.result[key];
-    for(var innerKey in key1) {
-      label.push(innerKey)
-      yAxis.push([i,key1[innerKey]])
+  var colors = new Colors(Object.keys(data.trends).length);
+  var d = [];
+  var colorIdx = 0;
+  var timestamp = new Date().getTime();
+  var tmpData = new Object();
+  var regexp = null;
+  for (var trend in data.trends) {
+    if (regexp && !regexp.test(trend)) {
+      continue;
     }
-    i++;
+    var trendData = data.trends[trend];
+    for (var i = 0; i < trendData.length; i++) {
+      var time = trendData[i].period;
+      var count = trendData[i].count;
+      if (!tmpData.hasOwnProperty(time)) {
+        tmpData[time] = new Object();
+      }
+      tmpData[time][trend] = count;
+    }
   }
-  this.render(xAxis, yAxis,unique(label));
+  if (0 == Object.keys(tmpData).length) {
+    canvas.empty();
+    return;
+  }
+  var trendWiseData = new Object();
+  for (var time in tmpData) {
+    for (var trend in data.trends) {
+      if (regexp && !regexp.test(trend)) {
+        continue;
+      }
+      var count = 0;
+      var timeData = tmpData[time];
+      if (timeData.hasOwnProperty(trend)) {
+        count = timeData[trend];
+      }
+      var rows = null;
+      if (!trendWiseData.hasOwnProperty(trend)) {
+        rows = [];
+        trendWiseData[trend] = rows;
+      }
+      rows = trendWiseData[trend];
+      var timeVal = parseInt(time);
+      rows.push([timeVal, count]);
+    }
+  }
+  for (var trend in trendWiseData) {
+    var rows = trendWiseData[trend];
+    if (regexp && !regexp.test(trend)) {
+      continue;
+    }
+    rows.sort(function (lhs, rhs) {
+    return (lhs[0] < rhs[0]) ? -1 : ((lhs[0] == rhs[0]) ? 0 : 1);
+    })
+    d.push({
+      data: rows,
+      color: colors[colorIdx],
+      label: trend,
+      fill: 0.3,
+      fillColor: "#A3A3A3",
+      lines: {show: true},
+      shadowSize: 0/*, curvedLines: {apply: true}*/
+    });
+  }
+  this.render(d);
 }
 
-StackedBarTile.prototype.render = function (xAxis, yAxis, label) {
+StackedBarTile.prototype.render = function (d) {
   var newDiv = this.newDiv;
   var object = this.object;
 	var chartDiv = newDiv.find(".chart-item");
   var ctx = chartDiv.find("#"+object.id);
 	ctx.width(ctx.width);
 	ctx.height(230);
-	$.plot(ctx, [yAxis], {
+
+  $.plot(ctx, d, {
         series: {
             stack: true,
-          bars: {
-                show: true
-            }
+            lines: {
+                show: true,
+                fill: true,
+                lineWidth: 1.0,
+                fillColor: {colors: [{opacity: 0.7}, {opacity: 0.1}]}
+            }/*,
+             curvedLines: { active: true }*/
         },
         grid: {
             hoverable: true,
             color: "#B2B2B2",
             show: true,
-            borderWidth: 1,
+            borderWidth: {top: 0, right: 0, bottom: 1, left: 1},
             borderColor: "#EEEEEE"
         },
-    bars: {
-            align: "center",
-            horizontal: false,
-            barWidth: .8,
-            lineWidth: 0
+        yaxis: {
+        tickLength:0
         },
         xaxis: {
-          ticks: xAxis
+            mode: "time",
+            timezone: "browser",
+            timeformat: axisTimeFormat(object.period, "custom"),
+		        tickLength:0,
         },
         selection: {
             mode: "x",
@@ -186,6 +227,14 @@ StackedBarTile.prototype.render = function (xAxis, yAxis, label) {
              return label + ": " + y + " at " + date;
              }*/"%s: %y events at %x",
             defaultFormat: true
+        },
+        legend: {
+            show: false,
+            noColumns: d.length,
+            labelFormatter: function (label, series) {
+                return '<font color="black"> &nbsp;' + label + ' &nbsp;</font>';
+            },
+            container: parent.find(".legendArea")
         }
     });
 }

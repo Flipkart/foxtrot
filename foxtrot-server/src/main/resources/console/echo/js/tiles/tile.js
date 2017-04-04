@@ -114,7 +114,7 @@ function setConfigValue(object) {
   } else if(currentChartType == "radar") {
     setRadarChartFormValues(object);
   } else if(currentChartType == "stackedBar") {
-    setStackedBarChartFormValues();
+    setStackedBarChartFormValues(object);
   }
 
 }
@@ -207,6 +207,8 @@ TileFactory.prototype.saveTileConfig = function(object) {
 }
 
 TileFactory.prototype.createGraph = function(object, tileElement) {
+  console.log('================================>')
+  console.log(object)
    if(object.chartType == "line") {
     var lineGraph = new LineTile();
 		//lineGraph.render(tileElement, object);
@@ -224,7 +226,7 @@ TileFactory.prototype.createGraph = function(object, tileElement) {
   } else if(object.chartType == "stacked") {
     var stackedGraph = new StackedTile();
     stackedGraph.getQuery(tileElement, object);
-  } else if(object.charType == "stackedBar") {
+  } else if(object.chartType == "stackedBar") {
     var stackedBarGraph = new StackedBarTile();
     stackedBarGraph.getQuery(tileElement, object);
   }
@@ -285,7 +287,7 @@ TileFactory.prototype.create = function () {
   if(this.tileObject.chartType == "radar") {
     tileElement.find(".trend-chart").remove();
     tileElement.find(".chart-item").addClass("radar-chart");
-  } else if(this.tileObject.chartType == "line" || this.tileObject.chartType == "stacked" || this.tileObject.chatType == "stackedBarGraph") {
+  } else if(this.tileObject.chartType == "line" || this.tileObject.chartType == "stacked" || this.tileObject.chartType == "stackedBar") {
     tileElement.find(".widget-header").append('<div id="'+this.tileObject.id+'-health-text" class="lineGraph-health-text">10,000</div>');
 	 tileElement.find(".widget-header").append('<div id="'+this.tileObject.id+'-health" style=""></div>');
 	 tileElement.find(".chart-item").append('<div id="'+this.tileObject.id+'"></div>');

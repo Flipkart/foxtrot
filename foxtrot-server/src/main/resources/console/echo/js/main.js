@@ -201,7 +201,6 @@ FoxTrot.prototype.addTile = function() {
     "tableFields": currentFieldList,
     "periodInterval": periodInterval
   };
-  console.log(getChartFormValues()[0]);
   var object = $.extend( {}, getChartFormValues()[0], queryValues );
   var tileFactory = new TileFactory();
   currentChartType = "";
@@ -323,7 +322,8 @@ function reloadDropdowns() {
   } else if(currentChartType == "gauge") {
     generateDropDown(currentFieldList, "#gauge-nesting");
   } else if(currentChartType == "stackedBar") {
-    generateDropDown(currentFieldList, "#stacked-bar-field")
+    generateDropDown(currentFieldList, "#stacked-bar-field");
+    generateDropDown(currentFieldList, "#stacked-bar-uniquekey");
   }
 
 }
