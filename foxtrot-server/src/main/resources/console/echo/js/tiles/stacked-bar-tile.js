@@ -25,8 +25,6 @@ function getstackedBarChartFormValues() {
   var chartField = $(".stacked-bar-field").val();
   var uniqueKey = $(".stacked-uniquekey").val();
 
-  console.log('**')
-  console.log(chartField)
   if(chartField == "none") {
     return[[], false];
   }

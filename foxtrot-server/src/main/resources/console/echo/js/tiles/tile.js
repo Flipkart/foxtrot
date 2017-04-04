@@ -51,7 +51,6 @@ function TileFactory() {
 
 function pushTilesObject(object) {
 	tileData.push(object);
-  console.log(tileData);
   setInterval(function(){
     /*var a = new TileFactory();
     a.createGraph(object[Object.keys(object)], $("#"+Object.keys(object)));*/

@@ -48,9 +48,6 @@ function setPieChartFormValues(object) {
   $(".pie-timeframe").val(object.timeframe);
   $("pie-timeframe").selectpicker('refresh');
 
-  console.log(object.eventFiled)
-  console.log(currentFieldList);
-
   var stackingField = currentFieldList.findIndex(x => x.field == object.eventFiled);
   $(".eventtype-field").val(stackingField);
   $(".eventtype-field").selectpicker('refresh');
