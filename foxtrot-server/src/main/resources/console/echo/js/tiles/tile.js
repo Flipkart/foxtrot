@@ -288,7 +288,7 @@ TileFactory.prototype.create = function () {
     tileElement.find(".trend-chart").remove();
     tileElement.find(".chart-item").addClass("radar-chart");
   } else if(this.tileObject.chartType == "line" || this.tileObject.chartType == "stacked" || this.tileObject.chartType == "stackedBar") {
-    tileElement.find(".widget-header").append('<div id="'+this.tileObject.id+'-health-text" class="lineGraph-health-text">10,000</div>');
+    /*tileElement.find(".widget-header").append('<div id="'+this.tileObject.id+'-health-text" class="lineGraph-health-text">10,000</div>');*/
 	 tileElement.find(".widget-header").append('<div id="'+this.tileObject.id+'-health" style=""></div>');
 	 tileElement.find(".chart-item").append('<div id="'+this.tileObject.id+'"></div>');
   }

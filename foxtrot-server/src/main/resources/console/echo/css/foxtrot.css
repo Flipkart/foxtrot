@@ -831,3 +831,7 @@ path {
 .widget-new-btn {
   text-align: center;
 }
+
+.tile-title {
+  margin-left: 10px;
+}
