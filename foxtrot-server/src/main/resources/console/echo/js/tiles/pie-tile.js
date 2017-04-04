@@ -43,16 +43,20 @@ function getPieChartFormValues() {
 
 function setPieChartFormValues(object) {
   $(".pie-time-unit").val(object.period);
-  $("pie-time-unit").selectpicker('refresh');
+  $(".pie-time-unit").selectpicker('refresh');
 
-  $(".pie-timeframe").val(object.periodValue);
+  $(".pie-timeframe").val(object.timeframe);
+  $("pie-timeframe").selectpicker('refresh');
 
-  var stackingField = currentFieldList[parseInt(object.stackedBarField)].field;
-  $(".pie-field").val(currentFieldList.findIndex(x => x.field == groupingKeyField));
+  console.log(object.eventFiled)
+  console.log(currentFieldList);
+
+  var stackingField = currentFieldList.findIndex(x => x.field == object.eventFiled);
+  $(".eventtype-field").val(stackingField);
   $(".eventtype-field").selectpicker('refresh');
 
-  var stackingUniqueField = currentFieldList[parseInt(object.uniqueKey)].field;
-  $(".pie-bar-uniquekey").val(currentFieldList.findIndex(x => x.field == stackingUniqueField));
+  var stackingUniqueField = currentFieldList.findIndex(x => x.field == object.uniqueKey);
+  $(".pie-bar-uniquekey").val(stackingUniqueField);
   $(".pie-bar-uniquekey").selectpicker('refresh');
 }
 
