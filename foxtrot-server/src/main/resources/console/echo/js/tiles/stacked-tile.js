@@ -26,12 +26,22 @@ function getstackedChartFormValues() {
   var stackingKey = $(".stacking-key").val();
   var uniqueKey = $(".stacked-uniquekey").val();
 
+  if(groupingKey == "none" || stackingKey == "none") {
+    return[[], false];
+  }
+
   var groupingString = currentFieldList[parseInt(groupingKey)].field;
   var stackingString = currentFieldList[parseInt(stackingKey)].field;
   var nestingArray = [];
 
   nestingArray.push(groupingString);
   nestingArray.push(stackingString);
+
+  var status = true;
+
+  if(!$("#stacked-time-unit").valid() || !$("#stacked-timeframe").valid()) {
+    status = false;
+  }
 
   return [{
     "period": period,
@@ -40,7 +50,7 @@ function getstackedChartFormValues() {
     "stackingKey": stackingString,
     "uniqueKey": uniqueKey,
     "nesting": nestingArray
-  }, true]
+  }, status]
 }
 
 function setStackedChartFormValues(object) {
