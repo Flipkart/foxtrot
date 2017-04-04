@@ -137,7 +137,7 @@ function getFilters() {
 }
 
 function getWidgetType() {
-  if(currentChartType == "line" || currentChartType == "stacked") {
+  if(currentChartType == "line" || currentChartType == "stacked" || currentChartType == "stackedBar") {
     return "full";
   } else if(currentChartType == "radar") {
     return "medium";
@@ -159,6 +159,8 @@ function getChartFormValues() {
     return getRadarChartFormValues();
   } else if(currentChartType == "gauge") {
     return getGaugeChartFormValues();
+  } else if(currentChartType == "stackedBar") {
+    return getstackedBarChartFormValues();
   }
 }
 
@@ -301,6 +303,8 @@ function invokeClearChartForm() {
     clearRadarChartForm();
   } else if(currentChartType == "gauge") {
     clearGaugeChartForm();
+  } else if(currentChartType == "stackedBar") {
+    clearStackedBarChartForm();
   }
 }
 
@@ -318,6 +322,8 @@ function reloadDropdowns() {
     generateDropDown(currentFieldList, "#radar-nesting");
   } else if(currentChartType == "gauge") {
     generateDropDown(currentFieldList, "#gauge-nesting");
+  } else if(currentChartType == "stackedBar") {
+    generateDropDown(currentFieldList, "#stacked-bar-field")
   }
 
 }

@@ -121,7 +121,7 @@
               <div class="col-xs-6 col-sm-2 vizualization-type" data-chart-type="trend"><p>Trend chart</p></div>
               </div>
               <div class="row"><div class="col-xs-6 col-sm-2 vizualization-type" data-chart-type="stacked"><p>Stacked chart</p></div>
-              <div class="col-xs-6 col-sm-2 vizualization-type"><p>Chart 1</p></div>
+              <div class="col-xs-6 col-sm-2 vizualization-type" data-chart-type="stackedBar"><p>Stacked bar</p></div>
               <div class="clearfix visible-xs vizualization-type"></div>
               <div class="col-xs-6 col-sm-2 vizualization-type"><p>Chart 2</p></div>
               <div class="col-xs-6 col-sm-2 vizualization-type"><p>Chart 3</p></div>
@@ -284,6 +284,37 @@
                     </div>
                   </div>
                 </div>
+                <div id="stackedBar-chart-data">
+                  <div class="row">
+                    <div class="col-sm-5 col-md-6">
+                    <label class="control-label">Time Unit:</label>
+                      <select class="selectpicker stacked-bar-time-unit" id="stacked-bar-time-unit">
+                        <option value="minutes" selected="selected">Minute</option>
+                        <option value="hours">Hour</option>
+                        <option value="days">Day</option>
+                      </select>
+                    </div>
+                    <div class="col-sm-5 col-sm-offset-2 col-md-6 col-md-offset-0">
+                      <div>
+                        <label class="control-label">Time Frame : </label>
+                        <input type="number" class="stacked-bar-timeframe" id="stacked-bar-timeframe" placeholder="Enter time frame" required>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="row">
+                    <div class="col-sm-5 col-md-6">
+                      <label class="control-label">Field to classify: </label>
+                      <select class="selectpicker stacked-bar-field"id="stacked-bar-field" data-live-search="true">
+                      </select>
+                    </div>
+                    <div class="col-sm-5 col-md-6">
+                      <label class="control-label">Generate unique of: </label>
+                      <select id="stacked-uniquekey" class="selectpicker stacked-uniquekey" data-live-search="true">
+                        <option value="minutes" selected="selected">Minute</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
             <h4>Filters</h4>
@@ -399,6 +430,7 @@
   <script src="js/tiles/stacked-tile.js"></script>
   <script src="../js/flot/jquery.flot.time.min.js"></script>
   <script src="js/jquery.validate.min.js"></script>
+  <script src="js/tiles/stacked-bar-tile.js"></script>
 	<!--Application-->
 </body>
 
