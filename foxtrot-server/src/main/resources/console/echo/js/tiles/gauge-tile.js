@@ -25,7 +25,7 @@ function getGaugeChartFormValues() {
   var period = $("#gauge-time-unit").val();
 
   var status = false;
-  if($("#gauge-nesting").valid()) {
+  if($("#gauge-nesting").valid() && $("#gauge-timeframe").valid() && $("#gauge-time-unit").valid()) {
     status = true;
   }
   if(nesting == "none") {
