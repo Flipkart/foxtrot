@@ -45,16 +45,14 @@ function getstackedBarChartFormValues() {
 
 function setStackedBarChartFormValues(object) {
   $(".stacked-bar-time-unit").val(object.period);
-  $("stacked-bar-time-unit").selectpicker('refresh');
+  $(".stacked-bar-time-unit").selectpicker('refresh');
 
-  $(".stacked-bar-timeframe").val(object.periodValue);
+  $(".stacked-bar-timeframe").val(object.timeframe);
 
-  var stackingField = currentFieldList[parseInt(object.stackedBarField)].field;
-  $(".stacked-bar-field").val(currentFieldList.findIndex(x => x.field == groupingKeyField));
+  $(".stacked-bar-field").val(currentFieldList.findIndex(x => x.field == object.stackedBarField));
   $(".stacked-bar-field").selectpicker('refresh');
 
-  var stackingUniqueField = currentFieldList[parseInt(object.uniqueKey)].field;
-  $(".stacked-bar-uniquekey").val(currentFieldList.findIndex(x => x.field == stackingUniqueField));
+  $(".stacked-bar-uniquekey").val(currentFieldList.findIndex(x => x.field == object.uniqueKey));
   $(".stacked-bar-uniquekey").selectpicker('refresh');
 }
 
