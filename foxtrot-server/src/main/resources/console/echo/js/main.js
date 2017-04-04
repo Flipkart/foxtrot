@@ -355,7 +355,7 @@ function clickedChartType(el) {
 }
 
 function saveConsole() {
-  var name = "payments"
+  var name = "payments";
   var representation = {
     tiles:tileList,
     tileData: tileData,
@@ -374,6 +374,18 @@ function saveConsole() {
 		success: function() {
 			success("Saved console. The new console can be accessed <a href='?console=" + representation.id + "' class='alert-link'>here</a>");
 		},
+		error: function() {
+			error("Could not save console");
+		}
+	})*/
+}
+
+function loadConsole() {
+  /*$.ajax({
+		url: hostDetails.url("/foxtrot/v1/consoles/" + consoleId),
+		type: 'GET',
+		contentType: 'application/json',
+		success: $.proxy(this.consoleManager.buildConsoleFromRepresentation, this.consoleManager),
 		error: function() {
 			error("Could not save console");
 		}
