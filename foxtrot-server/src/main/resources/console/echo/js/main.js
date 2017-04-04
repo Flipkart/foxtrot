@@ -354,6 +354,32 @@ function clickedChartType(el) {
   $(el).addClass("vizualization-type-active");
 }
 
+function saveConsole() {
+  var name = "payments"
+  var representation = {
+    tiles:tileList,
+    tileData: tileData,
+    id: name.trim().toLowerCase().split(' ').join("_"),
+    updated: new Date().getTime(),
+    name: name
+  };
+
+  console.log(JSON.stringify(representation));
+
+  /*$.ajax({
+		url: apiUrl+("/foxtrot/v1/consoles"),
+		type: 'POST',
+		contentType: 'application/json',
+		data: JSON.stringify(representation),
+		success: function() {
+			success("Saved console. The new console can be accessed <a href='?console=" + representation.id + "' class='alert-link'>here</a>");
+		},
+		error: function() {
+			error("Could not save console");
+		}
+	})*/
+}
+
 $(document).ready(function(){
 	var type = $("#widgetType").val();
 	var foxtrot = new FoxTrot();
@@ -369,4 +395,8 @@ $(document).ready(function(){
     $(".settings-form").find("input[type=text], textarea").val("");
 	});
   foxtrot.init();
+
+  $("#saveConsole").click(function() {
+    saveConsole();
+  });
 });
