@@ -20,12 +20,12 @@ function LineTile() {
 }
 
 function getLineChartFormValues() {
-  var period = $(".tile-time-unit").val();
+  var period = $("#tile-time-unit").val();
   var uniqueCount = $("#uniqueKey").val();
   var timeframe = $("#line-timeframe").val();
 
   var status = false;
-  if($("#uniqueKey").valid()) {
+  if($("#uniqueKey").valid() && $("#tile-time-unit").valid() && $("#line-timeframe").valid()) {
     status = true;
   }
 
