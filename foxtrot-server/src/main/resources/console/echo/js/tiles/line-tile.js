@@ -95,17 +95,15 @@ LineTile.prototype.getData = function(data) {
   this.object.filters.pop();
   if(data.counts == undefined || data.counts.length == 0)
     return;
-  var xAxis = [];
-  var yAxis = [];
-  for(var i = 0; i< data.counts.length; i++) {
-    var date = new Date(data.counts[i].period);
-    xAxis.push([i, formatDate(date)]);
-    yAxis.push([i, data.counts[i].count ]);
+  var rows = [];
+  rows.push(['date', 'count']);
+  for (var i = data.counts.length - 1; i >= 0; i--) {
+    rows.push([data.counts[i].period, data.counts[i].count]);
   }
-  this.render(xAxis, yAxis);
+  this.render(rows);
 }
 
-LineTile.prototype.render = function (xAxis, yAxis) {
+LineTile.prototype.render = function (rows) {
   var newDiv = this.newDiv;
   var object = this.object;
 	var chartDiv = newDiv.find(".chart-item");
@@ -113,18 +111,17 @@ LineTile.prototype.render = function (xAxis, yAxis) {
 	ctx.width(ctx.width - 100);
 	ctx.height(230);
 	$.plot(ctx, [
-		{ data: yAxis },
+		{ data: rows },
   ], {
     series: {
 		lines: { show: true, lineWidth: 4.0, color: "#9bc95b"},
 		points: { show: false }
 		},
 		xaxis: {
-		ticks: xAxis,
 		tickLength:0,
     mode: "time",
-    timeformat: axisTimeFormat(object.period, object.periodInterval),
-    timezone: "browser"
+    timezone: "browser",
+    timeformat: axisTimeFormat(object.period, "custom"),
     },
     yaxis: {
     tickLength:0
@@ -149,15 +146,17 @@ LineTile.prototype.render = function (xAxis, yAxis) {
 	healthDiv.width(100);
 	healthDiv.height(50);
 	$.plot(healthDiv, [
-		{ data: yAxis },
+		{ data: rows },
   ],{
 			series: {
 				lines: { show: true },
 				points: { show: false }
 			},
 			xaxis: {
-				ticks: xAxis,
-				tickLength:0
+				tickLength:0,
+        mode: "time",
+        timezone: "browser",
+        timeformat: axisTimeFormat(object.period, "custom"),
 			},
 			grid: {
         color: "#B2B2B2",
