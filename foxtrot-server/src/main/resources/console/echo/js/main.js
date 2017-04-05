@@ -103,6 +103,7 @@ var tiles = {};
 var tileList = [];
 var tileData = [];
 var panelRow = [];
+var globalData = {};
 var defaultPlusBtn = true;
 var customBtn;
 var filterRowArray = [];
@@ -392,7 +393,7 @@ function loadConsole() {
 	})*/
 }
 
-function openCity(evt, cityName) {
+function consoleTabs(evt, cityName) {
   var i, tabcontent, tablinks;
   tabcontent = document.getElementsByClassName("tabcontent");
   for (i = 0; i < tabcontent.length; i++) {
@@ -400,7 +401,18 @@ function openCity(evt, cityName) {
   }
   tablinks = document.getElementsByClassName("tablinks");
   for (i = 0; i < tablinks.length; i++) {
-      tablinks[i].className = tablinks[i].className.replace(" active", "");
+    if(tablinks[i].className.endsWith("active")) {
+      var tabName = tablinks[i].id;
+      var tempObject = {
+        "tiles": tileList,
+        "tileData": tileData
+      }
+      globalData[tabName] = tempObject;
+      clearModal();
+      tileData = [];
+      tileList = [];
+    }
+    tablinks[i].className = tablinks[i].className.replace(" active", "");
   }
   //document.getElementById(cityName).style.display = "block";
   evt.currentTarget.className += " active";

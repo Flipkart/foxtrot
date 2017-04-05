@@ -724,7 +724,7 @@ path {
 
 @font-face {
     font-family: oswald;
-    src: url(../fonts/sans/Oswald-Regular.ttf);
+    src: url(../fonts/oswald/Oswald-Regular.ttf);
 }
 
 .widget-header {

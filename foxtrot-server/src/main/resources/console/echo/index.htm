@@ -49,11 +49,12 @@
     <div class="new-header">
       <div class="inner-header">
         <div class="tab">
-          <button class="tablinks active" onclick="openCity(event, 'Payments')">Payments</button>
-          <button class="tablinks" onclick="openCity(event, 'Merchants')">Merchants</button>
-          <button class="tablinks" onclick="openCity(event, 'Wallets')">Wallets</button>
-          <button class="tablinks" onclick="openCity(event, 'Wallets')">Banks</button>
-          <button class="tablinks" onclick="openCity(event, 'Wallets')">Campaigns</button>
+          <button class="tablinks active" id="payments" onclick="consoleTabs(event, 'Payments')">Payments</button>
+          <button class="tablinks" onclick="consoleTabs(event, 'Merchants')" id="merchants">Merchants</button>
+          <button class="tablinks" id="wallets" onclick="consoleTabs(event, 'Wallets')" i
+                  wallets>Wallets</button>
+          <button class="tablinks" onclick="consoleTabs(event, 'Wallets')" id="banks">Banks</button>
+          <button class="tablinks" onclick="consoleTabs(event, 'Wallets')" id="campaigns">Campaigns</button>
       </div>
         <!--<div id="menu-list">
 				<ul>
