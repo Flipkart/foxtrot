@@ -64,7 +64,7 @@ function clearGaugeChartForm() {
   timeUnitEl.find('option:eq(0)').prop('selected', true);
   $(timeUnitEl).selectpicker('refresh');
 
-  parentElement.find("#gauge-timeframe").val();
+  parentElement.find("#gauge-timeframe").val('');
 }
 
 GaugeTile.prototype.getQuery = function(newDiv, object) {
