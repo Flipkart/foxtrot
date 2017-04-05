@@ -469,8 +469,8 @@ path {
 
 .lineGraph-health-text {
   font-weight: bold;
-  font-size: 35px;
-  font-family: "oswald-semi-bold";
+  font-size: 36px;
+  font-family: "oswald";
 }
 
 #top-right-btn a {
@@ -497,7 +497,7 @@ path {
 }
 
 #menu-list {
-  margin: -37px -257px;
+  margin: -8px -257px;
 }
 
 #top-left-header {
@@ -717,6 +717,16 @@ path {
     src: url(../fonts/sans/OpenSans-Semibold.ttf);
 }
 
+@font-face {
+    font-family: openSans;
+    src: url(../fonts/sans/OpenSans-Regular.ttf);
+}
+
+@font-face {
+    font-family: oswald;
+    src: url(../fonts/sans/Oswald-Regular.ttf);
+}
+
 .widget-header {
   font-family: "sans-semi-bold";
   color: #7d909a;
@@ -834,6 +844,7 @@ path {
 
 .tile-title {
   margin-left: 10px;
+  font-family: "openSans";
 }
 
 #pie-chart-data {
