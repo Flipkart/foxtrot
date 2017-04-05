@@ -239,6 +239,7 @@ TileFactory.prototype.create = function () {
 		tileId: this.tileObject.id
 		, title: this.tileObject.title
 	}));
+  tileElement.addClass('payments')
 	var row = 0;// row
 	var clickedRow;// clicked row
 	if(defaultPlusBtn) { // check its new row

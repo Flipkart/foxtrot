@@ -404,6 +404,8 @@ function openCity(evt, cityName) {
   }
   //document.getElementById(cityName).style.display = "block";
   evt.currentTarget.className += " active";
+  $(".tile-container").empty();
+  $(".tile-container").append('<div class="float-clear"></div>');
 }
 
 $(document).ready(function(){
