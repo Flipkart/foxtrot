@@ -438,10 +438,8 @@ function consoleTabs(evt, currentTab) {
     var currentTabArray = globalData[tabIndex][currentTabName];
     tileList = currentTabArray.tiles;
     tileData = currentTabArray.tileData;
-    for(var createTile in tileData) {
-      if(tileData.hasOwnProperty(createTile)) {
-        renderTiles(tileData[createTile]);
-      }
+    for(var i = 0; i< tileList.length; i++) {
+      renderTiles(tileData[tileList[i]]);
     }
   }
 }
