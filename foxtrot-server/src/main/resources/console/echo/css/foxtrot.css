@@ -771,7 +771,7 @@ path {
 }
 
 .inner-header {
-  margin-left: 120px;
+  margin-left: 31%;
   padding: 15px;
 }
 
@@ -849,4 +849,35 @@ path {
 
 #pie-chart-data {
   display: none;
+}
+
+/* Style the tab */
+div.tab {
+    overflow: hidden;
+}
+
+/* Style the buttons inside the tab */
+div.tab button {
+  background-color: inherit;
+  float: left;
+  border: none;
+  outline: none;
+  cursor: pointer;
+  padding: 1px 16px;
+  transition: 0.3s;
+  font-size: 16px;
+  border-right: 1px solid gray;
+  font-family: "openSans";
+  font-weight: normal;
+  color: #707070;
+}
+
+/* Create an active/current tablink class */
+div.tab button.active {
+  color: #37a0f5;
+  font-weight:600;
+}
+
+div.tab button:last-child {
+	border: none;
 }
