@@ -50,7 +50,7 @@ function TileFactory() {
 }
 
 function pushTilesObject(object) {
-	tileData.push(object);
+	tileData[object.id] = object;
   setInterval(function(){
     /*var a = new TileFactory();
     a.createGraph(object[Object.keys(object)], $("#"+Object.keys(object)));*/
@@ -62,13 +62,11 @@ TileFactory.prototype.updateTileData = function() {
   var selectedTile = $("#"+this.tileObject.id);
 	selectedTile.find(".tile-title").text(this.tileObject.title);
 	var tileid= this.tileObject.id;
-	var prepareTileData = { };
-	prepareTileData[this.tileObject.id] = this.tileObject;
   this.createGraph(this.tileObject, selectedTile);
   var tileListIndex = tileList.indexOf(this.tileObject.id);
-	var tileDataIndex = tileData[tileListIndex];
-  tileData.splice(tileDataIndex, 1);
-  tileData.splice(tileDataIndex, 0, prepareTileData);
+	var tileDataIndex = tileData[this.tileObject.id];
+  delete tileData[tileDataIndex];
+  tileData[this.tileObject.id] = this.tileObject;
 }
 
 TileFactory.prototype.createTileData = function(object) {
@@ -77,7 +75,7 @@ TileFactory.prototype.createTileData = function(object) {
 	var tileid= object.id;
 	var prepareTileData = { };
 	prepareTileData[object.id] = object;
-	pushTilesObject(prepareTileData);
+	pushTilesObject(object);
 }
 
 TileFactory.prototype.getTileFormValue = function(form, modal, object) {
@@ -155,8 +153,10 @@ TileFactory.prototype.updateFilterCreation = function(object) {
   removeFilters();
 	var tileListIndex = tileList.indexOf(object.id);
 	var tileDataIndex = tileData[tileListIndex];
-  var tileId = tileList[tileListIndex];
-  var selectedTileObject = tileDataIndex[tileId];
+  var selectedTileObject = tileData[object.id];
+  console.log(tileData)
+  console.log(tileListIndex);
+  console.log(selectedTileObject);
   currentFieldList = object.tableFields;
   if(object.filters.length > 0) {
     filterRowArray = [];

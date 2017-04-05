@@ -101,7 +101,7 @@ FoxTrot.prototype.init = function() {
 
 var tiles = {};
 var tileList = [];
-var tileData = [];
+var tileData = {};
 var panelRow = [];
 var globalData = {};
 var defaultPlusBtn = true;
@@ -408,6 +408,7 @@ function consoleTabs(evt, cityName) {
         "tileData": tileData
       }
       globalData[tabName] = tempObject;
+      console.log(globalData);
       clearModal();
       tileData = [];
       tileList = [];
