@@ -178,7 +178,12 @@ LineTile.prototype.render = function (rows) {
         , left: 1
       }
       , borderColor: "#EEEEEE"
+      , hoverable:true
     , }
+    ,selection: {
+      mode: "x",
+      minSize: 1
+    }
     , tooltip: true
     , tooltipOpts: {
       content: "%y events at %x"

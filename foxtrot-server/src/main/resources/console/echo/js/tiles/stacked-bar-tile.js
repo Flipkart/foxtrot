@@ -223,12 +223,7 @@ StackedBarTile.prototype.render = function (d) {
     }
     , tooltip: true
     , tooltipOpts: {
-      content:
-      /*function(label, x, y) {
-                  var date = new Date(x);
-                  return label + ": " + y + " at " + date;
-                  }*/
-        "%s: %y events at %x"
+      content: "%y events at %x"
       , defaultFormat: true
     }
     , legend: {
