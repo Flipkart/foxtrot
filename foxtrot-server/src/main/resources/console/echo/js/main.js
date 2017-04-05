@@ -103,7 +103,7 @@ var tiles = {};
 var tileList = [];
 var tileData = {};
 var panelRow = [];
-var globalData = {};
+var globalData = [];
 var defaultPlusBtn = true;
 var customBtn;
 var filterRowArray = [];
@@ -362,13 +362,12 @@ function clickedChartType(el) {
 }
 
 function saveConsole() {
-  var name = "payments";
+  var name = "testing console"
   var representation = {
-    tiles:tileList,
-    tileData: tileData,
     id: name.trim().toLowerCase().split(' ').join("_"),
     updated: new Date().getTime(),
-    name: name
+    name: name,
+    tabs: globalData
   };
 
   console.log(JSON.stringify(representation));
@@ -413,9 +412,10 @@ function consoleTabs(evt, currentTab) {
         "tiles": tileList,
         "tileData": tileData
       }
-      globalData[tabName] = tempObject;
-      console.log(globalData);
-      console.log(tileList)
+      
+      if(tileList.length > 0) {
+        globalData.push({[tabName]: tempObject});
+      }
       clearModal();
       tileData = {};
       tileList = [];
@@ -426,13 +426,20 @@ function consoleTabs(evt, currentTab) {
   $(".tile-container").empty();
   $(".tile-container").append('<div class="float-clear"></div>');
   evt.currentTarget.className += " active";
-  var currentTabArray = globalData[currentTab.toLowerCase()];
-  if(currentTabArray != undefined ) {
+  var currentTabName = currentTab.toLowerCase();
+  var index = -1;
+  for(var i = 0; i< globalData.length; i++) {
+    for(var indexData in globalData[i]){
+      if(indexData == currentTabName)
+        index = i;break;
+    }
+  }
+  if(index >= 0) {
+    var currentTabArray = globalData[index][currentTabName];
     tileList = currentTabArray.tiles;
     tileData = currentTabArray.tileData;
     for(var createTile in tileData) {
       if(tileData.hasOwnProperty(createTile)) {
-        console.log(tileData[createTile]);
         renderTiles(tileData[createTile]);
       }
     }

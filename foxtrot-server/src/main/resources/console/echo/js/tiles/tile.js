@@ -65,6 +65,7 @@ TileFactory.prototype.updateTileData = function() {
   this.createGraph(this.tileObject, selectedTile);
   var tileListIndex = tileList.indexOf(this.tileObject.id);
 	var tileDataIndex = tileData[this.tileObject.id];
+  console.log(tileData)
   delete tileData[tileDataIndex];
   tileData[this.tileObject.id] = this.tileObject;
 }
