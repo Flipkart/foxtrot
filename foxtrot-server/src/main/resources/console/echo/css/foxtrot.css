@@ -1,10 +1,13 @@
-html, body {
+html,
+body {
   height: 100%;
   background: #f7f9fa;
 }
+
 .tile-default-size {
-    height: 430px;
+  height: 430px;
 }
+
 .pageheader {
   /*margin-left: -15px;
   margin-right: -15px;
@@ -33,9 +36,10 @@ h1 {
 
 .container-full {
   width: 100%;
-  overflow-y:auto;
-  height:100%;
+  overflow-y: auto;
+  height: 100%;
 }
+
 .tile {
   float: left;
   margin: 5px;
@@ -48,6 +52,7 @@ h1 {
   box-shadow: 1px 1px 4px 0 rgba(194, 209, 217, 0.4);
   border: solid 1px rgba(180, 191, 195, 0.24);
 }
+
 
 /*.tile:hover {
   box-shadow: 4px 4px 6px #141E27;
@@ -63,70 +68,73 @@ h1 {
   margin: 8px;
   box-shadow: 4px 4px 6px #141E27;
   border-radius: 4px;
-  background-color: rgb(72,85,99);
+  background-color: rgb(72, 85, 99);
   //background-color: #F8F2DA;
   color: #ffffff;
   font-size: 18px;
   font-weight: 400;
   padding: 20px;
   position: relative;
-
 }
 
 .static-tile-icon {
   font-size: 26px;
-color: black;
-top: 50%;
-margin-top: -13px;
-margin-left: -13px;
-left: 50%;
+  color: black;
+  top: 50%;
+  margin-top: -13px;
+  margin-left: -13px;
+  left: 50%;
 }
 
 .tile .widget-toolbox {
-width: 100%;
-height: 25px;
-box-sizing: content-box;
-float: right;
-position: absolute;
-right: 3px;
-top: 2px;
-z-index: 100;
-font-size: small;
+  width: 100%;
+  height: 25px;
+  box-sizing: content-box;
+  float: right;
+  position: absolute;
+  right: 3px;
+  top: 2px;
+  z-index: 100;
+  font-size: small;
 }
-.tile:hover  .widget-toolbox{
+
+.tile:hover .widget-toolbox {
   display: inline-block;
   cursor: pointer;
   cursor: hand;
-  }
-.fix-center{
-  width:1100px;
-  left:50%;
-  margin-left:-550px;
 }
-.float-clear{
-/*  clear:both;*/
+
+.fix-center {
+  width: 1100px;
+  left: 50%;
+  margin-left: -550px;
+}
+
+.float-clear {
+  /*  clear:both;*/
 }
 
 .tile-header {
-    width: 100%;
-    height: 25px;
-    background: rgb(76, 79, 83);
-    margin: 0px;
-    position: absolute;
-    top: 0px;
-    left: 0px;
-    font-weight: bold;
-    color: white;
-    font-style: normal;
-    padding-left: 10px;
-    padding-top: 3px;
-    font-size: small;
+  width: 100%;
+  height: 25px;
+  background: rgb(76, 79, 83);
+  margin: 0px;
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  font-weight: bold;
+  color: white;
+  font-style: normal;
+  padding-left: 10px;
+  padding-top: 3px;
+  font-size: small;
 }
 
-.tile-container{
+.tile-container {
   margin-top: 45px;
   height: 95%;
 }
+
 .chartcanvas {
   width: 100%;
   height: 90%;
@@ -135,37 +143,47 @@ font-size: small;
 }
 
 .content {
-    margin-top: 70px;
+  margin-top: 70px;
 }
 
 .legendArea {
-    height: 10%;
-    width: 90%;
-    /* align-content: stretch; */
-    /* position: absolute; */
-    /* position: relative; */
-    right: 0px;
-    margin-left: 20px;
-    margin-top: 5px;
+  height: 10%;
+  width: 90%;
+  /* align-content: stretch; */
+  /* position: absolute; */
+  /* position: relative; */
+  right: 0px;
+  margin-left: 20px;
+  margin-top: 5px;
 }
-.size1{
-  width: 175px;height:175px;
+
+.size1 {
+  width: 175px;
+  height: 175px;
 }
-.size2{
-  width: 350px;height:175px;
+
+.size2 {
+  width: 350px;
+  height: 175px;
 }
-.yellow{
+
+.yellow {
   background-color: khaki;
 }
-.blue{
+
+.blue {
   background-color: blue;
 }
-.green{
+
+.green {
   background-color: green;
 }
-.orange{
+
+.orange {
   background-color: #df691a;
 }
+
+
 /*.tile-gradient{
   background-image: -webkit-gradient(
   linear,
@@ -180,21 +198,24 @@ background-image: -webkit-linear-gradient(right bottom, #828D94 36%, #475361 100
 background-image: -ms-linear-gradient(right bottom, #828D94 36%, #475361 100%);
 background-image: linear-gradient(to right bottom, #828D94 36%, #475361 100%);
 }*/
+
 .chart-content {
   width: 98%;
   height: 100%;
   box-sizing: border-box;
   padding-top: 28px;
-	margin-left: 6px;
+  margin-left: 6px;
 }
 
 .c3-chart-line {
   stroke-width: 2px;
-  fill: rgba(255,255,255,0);
+  fill: rgba(255, 255, 255, 0);
 }
+
 path {
   stroke-width: 2px;
 }
+
 .c3-axis-x: {
   stroke-width: 2px;
 }
@@ -202,28 +223,29 @@ path {
 .bootstrap-select> .btn {
   padding: 7px;
 }
+
 .pielabel {
-    width: 100%;
-    height: 50%;
-    position: absolute;
-    top: 40%;
-    left: 0;
-    text-align: center;
-    color: #CCCCCC;
-    font-size: 48px;
-    font-style: normal;
+  width: 100%;
+  height: 50%;
+  position: absolute;
+  top: 40%;
+  left: 0;
+  text-align: center;
+  color: #CCCCCC;
+  font-size: 48px;
+  font-style: normal;
 }
 
 .statslabel {
-    width: 100%;
-    height: 50%;
-    position: absolute;
-    top: 40%;
-    left: 0;
-    text-align: center;
-    color: #000000;
-    font-size: xx-large;
-    font-style: normal;
+  width: 100%;
+  height: 50%;
+  position: absolute;
+  top: 40%;
+  left: 0;
+  text-align: center;
+  color: #000000;
+  font-size: xx-large;
+  font-style: normal;
 }
 
 .header-button {
@@ -236,6 +258,7 @@ path {
   color: white;
   height: 39px;
 }
+
 .header-button-icon {
   font-size: 26px;
   top: -13px;
@@ -246,7 +269,6 @@ path {
   box-shadow: 1px 1px 4px #141E27;
   cursor: pointer;
   cursor: hand;
-
 }
 
 .control-table-cell {
@@ -259,10 +281,10 @@ path {
 }
 
 .filter-nav-button {
-    padding-top: 6px;
-    padding-bottom: 6px;
-    padding-left: 12px;
-    padding-right: 12px;
+  padding-top: 6px;
+  padding-bottom: 6px;
+  padding-left: 12px;
+  padding-right: 12px;
 }
 
 .removable-text {
@@ -281,17 +303,17 @@ path {
 }
 
 .header-container {
-    position: fixed;
-    width: 100%;
-    top: 0px;
-    left: 0px;
-    background: white;
-    z-index: 1000;
+  position: fixed;
+  width: 100%;
+  top: 0px;
+  left: 0px;
+  background: white;
+  z-index: 1000;
 }
 
 .hr-thin {
- margin-top: 0px;
- margin-bottom: 0px;
+  margin-top: 0px;
+  margin-bottom: 0px;
 }
 
 .period-select {
@@ -303,15 +325,15 @@ path {
 }
 
 .title-header-toolbar-icon-container {
-    position: absolute;
-    right: 3px;
-    top: 3px;
+  position: absolute;
+  right: 3px;
+  top: 3px;
 }
 
 .title-header-toolbar-period-select-container {
-    position: absolute;
-    right: 52px;
-    top: 0px;
+  position: absolute;
+  right: 52px;
+  top: 0px;
 }
 
 .group-chart-area {
@@ -334,22 +356,22 @@ path {
 }
 
 .legend-color-box {
-    height: 15px;
-    width: 15px;
-    border-color: black;
-    border-style: solid;
-    border-width: 1px;
+  height: 15px;
+  width: 15px;
+  border-color: black;
+  border-style: solid;
+  border-width: 1px;
 }
 
 .dataview-table {
-    background: white;
-    border: 1px solid black !important;
+  background: white;
+  border: 1px solid black !important;
 }
 
 .dataview-tablehead {
-    background-color: black;
-    color: white;
-    font-style: italic;
+  background-color: black;
+  color: white;
+  font-style: italic;
 }
 
 .fql-error-section {
@@ -368,43 +390,43 @@ path {
 }
 
 .percentage-value::after {
-	content: "%";
+  content: "%";
 }
 
 .dataview-table th {
-    color: white;
-    background: black;
-    cursor: pointer;
-    cursor: hand;
+  color: white;
+  background: black;
+  cursor: pointer;
+  cursor: hand;
 }
 
 .cluster-data-area {
-    margin-bottom: -15px;
+  margin-bottom: -15px;
 }
 
 .data-tab {
-    margin-top: 5px;
+  margin-top: 5px;
 }
 
 #menu-list ul {
-	margin-left: 382px;
+  margin-left: 382px;
 }
 
 #menu-list ul li {
-	list-style-type: none;
-	border-right: 1px solid #A2A3A3;
+  list-style-type: none;
+  border-right: 1px solid #A2A3A3;
   float: left;
   padding: 15px;
-	line-height: 4px;
+  line-height: 4px;
 }
 
 #menu-list ul li:last-child {
-	border: none;
+  border: none;
 }
 
 #menu-list ul li a {
-	text-decoration: none;
-	color: #98AAB2;
+  text-decoration: none;
+  color: #98AAB2;
   font-size: 16px;
 }
 
@@ -414,7 +436,7 @@ path {
 }
 
 .widget-header {
-	width: 100%;
+  width: 100%;
   height: 25px;
   margin: 0px;
   position: absolute;
@@ -429,17 +451,17 @@ path {
 }
 
 .tile .widget-toolbox {
-    width: 100%;
-    height: 25px;
-    box-sizing: content-box;
-    /* width: 20px; */
-    float: right;
-    position: absolute;
-    right: 3px;
-    top: 5px;
-    z-index: 100;
-    /* color: white; */
-    font-size: small;
+  width: 100%;
+  height: 25px;
+  box-sizing: content-box;
+  /* width: 20px; */
+  float: right;
+  position: absolute;
+  right: 3px;
+  top: 5px;
+  z-index: 100;
+  /* color: white; */
+  font-size: small;
 }
 
 .widget-timeframe {
@@ -451,20 +473,18 @@ path {
 }
 
 .widget-timeframe span {
-	padding: 10px;
+  padding: 10px;
 }
 
-.trend-chart {
-
-}
+.trend-chart {}
 
 .chart-item {
-	margin-top: 100px;
+  margin-top: 100px;
 }
 
 .custom-btn-div {
-	text-align: center;
-	top: 50px;
+  text-align: center;
+  top: 50px;
 }
 
 .lineGraph-health-text {
@@ -519,6 +539,7 @@ path {
   background: #FBFBFB;
   border: 1px solid #EFEFEF;
 }
+
 .vizualization-type {
   border: 2px solid #EFEFEF;
   margin: 9px;
@@ -591,7 +612,11 @@ path {
   border-color: #EFEFEF !important;
 }
 
-.btn-warning:hover, .btn-warning:focus, .btn-warning:active, .btn-warning.active, .open .dropdown-toggle.btn-warning {
+.btn-warning:hover,
+.btn-warning:focus,
+.btn-warning:active,
+.btn-warning.active,
+.open .dropdown-toggle.btn-warning {
   color: #000 !important;
 }
 
@@ -653,25 +678,30 @@ path {
   font-size: 33px;
 }
 
+
 /* chart styles */
 
-.halfDonut, .halfDonutChart {
-    display: inline-block;
-}
-.halfDonut {
-    height: 100px;
-    position: relative;
-    overflow: hidden;
-}
+.halfDonut,
 .halfDonutChart {
-    width: 200px;
-    height: 200px;
+  display: inline-block;
 }
+
+.halfDonut {
+  height: 100px;
+  position: relative;
+  overflow: hidden;
+}
+
+.halfDonutChart {
+  width: 200px;
+  height: 200px;
+}
+
 .halfDonutTotal {
-    text-align: center;
-    position: absolute;
-    bottom: 0;
-    width: 100%;
+  text-align: center;
+  position: absolute;
+  bottom: 0;
+  width: 100%;
 }
 
 .gauge-chart {
@@ -704,28 +734,28 @@ path {
 }
 
 @font-face {
-    font-family: oswald-bold;
-    src: url(../fonts/oswald/Oswald-Bold.ttf);
+  font-family: oswald-bold;
+  src: url(../fonts/oswald/Oswald-Bold.ttf);
 }
 
 @font-face {
-    font-family: oswald-semi-bold;
-    src: url(../fonts/oswald/Oswald-DemiBold.ttf);
+  font-family: oswald-semi-bold;
+  src: url(../fonts/oswald/Oswald-DemiBold.ttf);
 }
 
 @font-face {
-    font-family: sans-semi-bold;
-    src: url(../fonts/sans/OpenSans-Semibold.ttf);
+  font-family: sans-semi-bold;
+  src: url(../fonts/sans/OpenSans-Semibold.ttf);
 }
 
 @font-face {
-    font-family: openSans;
-    src: url(../fonts/sans/OpenSans-Regular.ttf);
+  font-family: openSans;
+  src: url(../fonts/sans/OpenSans-Regular.ttf);
 }
 
 @font-face {
-    font-family: oswald;
-    src: url(../fonts/oswald/Oswald-Regular.ttf);
+  font-family: oswald;
+  src: url(../fonts/oswald/Oswald-Regular.ttf);
 }
 
 .widget-header {
@@ -735,6 +765,7 @@ path {
   background: #f7f9fa;
   height: 128px;
 }
+
 .widget-add-btn {
   float: right;
   position: relative;
@@ -808,7 +839,8 @@ path {
   position: relative;
   top: 16px;
   right: 17px;
-  background: #f7f9fa;;
+  background: #f7f9fa;
+  ;
 }
 
 .filter {
@@ -852,12 +884,16 @@ path {
   display: none;
 }
 
+
 /* Style the tab */
+
 div.tab {
-    overflow: hidden;
+  overflow: hidden;
 }
 
+
 /* Style the buttons inside the tab */
+
 div.tab button {
   background-color: inherit;
   float: left;
@@ -873,12 +909,14 @@ div.tab button {
   color: #707070;
 }
 
+
 /* Create an active/current tablink class */
+
 div.tab button.active {
   color: #37a0f5;
-  font-weight:600;
+  font-weight: 600;
 }
 
 div.tab button:last-child {
-	border: none;
+  border: none;
 }
