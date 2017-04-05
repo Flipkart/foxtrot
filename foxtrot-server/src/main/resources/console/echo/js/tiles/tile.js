@@ -65,8 +65,7 @@ TileFactory.prototype.updateTileData = function() {
   this.createGraph(this.tileObject, selectedTile);
   var tileListIndex = tileList.indexOf(this.tileObject.id);
 	var tileDataIndex = tileData[this.tileObject.id];
-  console.log(tileData)
-  delete tileData[tileDataIndex];
+  delete tileData[tileDataIndex.id];
   tileData[this.tileObject.id] = this.tileObject;
 }
 
@@ -155,9 +154,6 @@ TileFactory.prototype.updateFilterCreation = function(object) {
 	var tileListIndex = tileList.indexOf(object.id);
 	var tileDataIndex = tileData[tileListIndex];
   var selectedTileObject = tileData[object.id];
-  console.log(tileData)
-  console.log(tileListIndex);
-  console.log(selectedTileObject);
   currentFieldList = object.tableFields;
   if(object.filters.length > 0) {
     filterRowArray = [];
@@ -240,7 +236,6 @@ TileFactory.prototype.create = function () {
 		tileId: this.tileObject.id
 		, title: this.tileObject.title
 	}));
-  console.log(this.tileObject);
 	var row = 0;// row
 	var clickedRow;// clicked row
 	if(defaultPlusBtn) { // check its new row

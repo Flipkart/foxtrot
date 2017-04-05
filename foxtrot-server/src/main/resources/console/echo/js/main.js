@@ -398,6 +398,17 @@ function loadConsole() {
 	})*/
 }
 
+function findIndex(currentTabName) {
+  var index = -1;
+  for(var i = 0; i< globalData.length; i++) {
+    for(var indexData in globalData[i]){
+      if(indexData == currentTabName)
+        index = i;break;
+    }
+  }
+  return index;
+}
+
 function consoleTabs(evt, currentTab) {
   var i, tabcontent, tablinks;
   tabcontent = document.getElementsByClassName("tabcontent");
@@ -412,9 +423,15 @@ function consoleTabs(evt, currentTab) {
         "tiles": tileList,
         "tileData": tileData
       }
-      
       if(tileList.length > 0) {
-        globalData.push({[tabName]: tempObject});
+        var deleteIndex = findIndex(tabName);
+        if(deleteIndex >= 0) {
+          globalData.splice(deleteIndex, 1);
+          globalData.splice(deleteIndex,0,{[tabName]: tempObject});
+        } else {
+          globalData.push({[tabName]: tempObject});
+        }
+
       }
       clearModal();
       tileData = {};
@@ -427,15 +444,9 @@ function consoleTabs(evt, currentTab) {
   $(".tile-container").append('<div class="float-clear"></div>');
   evt.currentTarget.className += " active";
   var currentTabName = currentTab.toLowerCase();
-  var index = -1;
-  for(var i = 0; i< globalData.length; i++) {
-    for(var indexData in globalData[i]){
-      if(indexData == currentTabName)
-        index = i;break;
-    }
-  }
-  if(index >= 0) {
-    var currentTabArray = globalData[index][currentTabName];
+  var tabIndex = findIndex(currentTabName);
+  if( tabIndex >= 0) {
+    var currentTabArray = globalData[tabIndex][currentTabName];
     tileList = currentTabArray.tiles;
     tileData = currentTabArray.tileData;
     for(var createTile in tileData) {
@@ -444,7 +455,6 @@ function consoleTabs(evt, currentTab) {
       }
     }
   }
-
 }
 
 $(document).ready(function(){
