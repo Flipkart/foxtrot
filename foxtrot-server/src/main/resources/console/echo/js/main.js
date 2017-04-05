@@ -167,6 +167,12 @@ function getChartFormValues() {
   }
 }
 
+function renderTiles(object) {
+  var tileFactory = new TileFactory();
+  tileFactory.tileObject = object;
+  tileFactory.create();
+}
+
 FoxTrot.prototype.addTile = function() {
 	var title = $("#tileTitle").val();
   var filterDetails = getFilters();
@@ -393,7 +399,7 @@ function loadConsole() {
 	})*/
 }
 
-function consoleTabs(evt, cityName) {
+function consoleTabs(evt, currentTab) {
   var i, tabcontent, tablinks;
   tabcontent = document.getElementsByClassName("tabcontent");
   for (i = 0; i < tabcontent.length; i++) {
@@ -409,16 +415,29 @@ function consoleTabs(evt, cityName) {
       }
       globalData[tabName] = tempObject;
       console.log(globalData);
+      console.log(tileList)
       clearModal();
-      tileData = [];
+      tileData = {};
       tileList = [];
     }
     tablinks[i].className = tablinks[i].className.replace(" active", "");
   }
   //document.getElementById(cityName).style.display = "block";
-  evt.currentTarget.className += " active";
   $(".tile-container").empty();
   $(".tile-container").append('<div class="float-clear"></div>');
+  evt.currentTarget.className += " active";
+  var currentTabArray = globalData[currentTab.toLowerCase()];
+  if(currentTabArray != undefined ) {
+    tileList = currentTabArray.tiles;
+    tileData = currentTabArray.tileData;
+    for(var createTile in tileData) {
+      if(tileData.hasOwnProperty(createTile)) {
+        console.log(tileData[createTile]);
+        renderTiles(tileData[createTile]);
+      }
+    }
+  }
+
 }
 
 $(document).ready(function(){
