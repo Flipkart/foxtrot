@@ -398,17 +398,6 @@ function loadConsole() {
 	})*/
 }
 
-function findIndex(currentTabName) {
-  var index = -1;
-  for(var i = 0; i< globalData.length; i++) {
-    for(var indexData in globalData[i]){
-      if(indexData == currentTabName)
-        index = i;break;
-    }
-  }
-  return index;
-}
-
 function consoleTabs(evt, currentTab) {
   var i, tabcontent, tablinks;
   tabcontent = document.getElementsByClassName("tabcontent");
