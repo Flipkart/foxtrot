@@ -66,7 +66,6 @@ function clearStackedBarChartForm() {
 StackedBarTile.prototype.getQuery = function (newDiv, object) {
   this.newDiv = newDiv;
   this.object = object;
-  this.object.filters.pop();
   object.filters.push(timeValue(object.period, object.timeframe, getPeriodSelect(object.id)))
   var data = {
     "opcode": "trend"
@@ -97,6 +96,7 @@ function unique(list) {
   return result;
 }
 StackedBarTile.prototype.getData = function (data) {
+  this.object.filters.pop();
   var colors = new Colors(Object.keys(data.trends).length);
   var d = [];
   var colorIdx = 0;

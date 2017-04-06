@@ -108,6 +108,7 @@ function unique(list) {
   return result;
 }
 StackedTile.prototype.getData = function (data) {
+  this.object.filters.pop();
   if (data.result == undefined || data.result.length == 0) return;
   var xAxis = [];
   var yAxis = [];
