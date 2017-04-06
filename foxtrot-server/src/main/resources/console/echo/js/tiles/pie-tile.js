@@ -126,6 +126,7 @@ PieTile.prototype.render = function (columns) {
   var ctx = chartDiv.find("#" + object.id);
   ctx.width(ctx.width);
   ctx.height(230);
+  console.log($(chartDiv.find(".legend")));
   var chartOptions = {
     series: {
       pie: {
@@ -137,7 +138,9 @@ PieTile.prototype.render = function (columns) {
       }
     }
     , legend: {
-      show: false
+      show: true,
+      noColumns:getLegendColumn(object.widgetType),
+      container: $(chartDiv.find(".legend"))
     }
     , grid: {
       hoverable: true
@@ -150,5 +153,5 @@ PieTile.prototype.render = function (columns) {
     }
   };
   $.plot(ctx, columns, chartOptions);
-  //drawLegend(columns, ctx.find(".legend"));
+  //drawLegend(columns, chartDiv.find(".legend").html());
 }

@@ -288,6 +288,7 @@ TileFactory.prototype.create = function () {
     tileElement.find(".widget-header").append('<div id="' + this.tileObject.id + '-health-text" class="lineGraph-health-text">No Data available</div>');
     tileElement.find(".widget-header").append('<div id="' + this.tileObject.id + '-health" style=""></div>');
     tileElement.find(".chart-item").append('<div id="' + this.tileObject.id + '"></div>');
+    tileElement.find(".chart-item").append("<div style='height:100px;' class='legend col-md-12'></div>")
   }
   if (this.tileObject.chartType == "pie") {
     tileElement.append("<div class='legend' style='width:100%;height:auto;'></div>")

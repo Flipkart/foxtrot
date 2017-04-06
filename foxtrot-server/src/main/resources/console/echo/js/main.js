@@ -135,11 +135,19 @@ function getFilters() {
   return filterDetails;
 }
 
+function getLegendColumn(widgetType) {
+  if(widgetType == "full") {
+    return 7;
+  } else if(widgetType == "medium") {
+    return 4;
+  }
+}
+
 function getWidgetType() {
-  if (currentChartType == "line" || currentChartType == "stacked" || currentChartType == "stackedBar" || currentChartType == "pie") {
+  if (currentChartType == "line" || currentChartType == "stacked" || currentChartType == "stackedBar") {
     return "full";
   }
-  else if (currentChartType == "radar") {
+  else if (currentChartType == "radar" || currentChartType == "pie") {
     return "medium";
   }
   else if (currentChartType == "gauge" || currentChartType == "trend") {

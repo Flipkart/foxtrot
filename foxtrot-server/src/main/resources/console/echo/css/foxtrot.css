@@ -920,3 +920,13 @@ div.tab button.active {
 div.tab button:last-child {
   border: none;
 }
+
+.legend .legendLabel {
+  padding-right:10px;
+  padding-bottom: 7px;
+}
+
+.legend .legendColorBox {
+  position: relative;
+  bottom: 3px;
+}
