@@ -930,3 +930,7 @@ div.tab button:last-child {
   position: relative;
   bottom: 3px;
 }*/
+
+.reduce-filter-size {
+  width: 132px;
+}

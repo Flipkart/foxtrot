@@ -301,6 +301,12 @@ TileFactory.prototype.create = function () {
     $(".custom-btn-div").remove();
     $('.row-' + splitValue[1]).append(tileElement);
   }
+
+  if(this.tileObject.widgetType == "small") {
+    tileElement.find(".settings").addClass('reduce-filter-size');
+    tileElement.find(".filter").hide();
+  }
+
   this.createGraph(this.tileObject, tileElement);
   this.triggerConfig(tileElement, this.tileObject); // add event for tile config
   //this.triggerChildBtn(tileElement,this.tileObject);
