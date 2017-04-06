@@ -70,3 +70,19 @@ String.prototype.visualLength = function() {
     ruler.html(this);
     return ruler.width();
 }
+
+function timeValue(periodUnit, periodValue, selectedPeriodString) {
+    var timestamp = new Date().getTime();
+    if (selectedPeriodString === "custom" || !selectedPeriodString) {
+        return {
+            field: "_timestamp",
+            operator: "last",
+            duration: periodValue + periodUnit,
+            currentTime: timestamp
+        };
+    }
+    return {
+        operator: "last",
+        duration: selectedPeriodString
+    };
+}

@@ -61,14 +61,7 @@ function clearGaugeChartForm() {
 GaugeTile.prototype.getQuery = function (newDiv, object) {
   this.newDiv = newDiv;
   this.object = object;
-  var ts = new Date().getTime();
-  var duration = object.timeframe + object.period;
-  object.filters.push({
-    field: "_timestamp"
-    , operator: "last"
-    , duration: duration
-    , currentTime: ts
-  })
+  object.filters.push(timeValue(object.period, object.timeframe, object.periodInterval))
   var data = {
     "opcode": "group"
     , "table": object.table
