@@ -87,8 +87,140 @@ function findIndex(currentTabName) {
 }
 
 function numDifferentiation(val) {
-    if(val >= 10000000) val = (val/10000000).toFixed(0) + 'Cr';
-    else if(val >= 100000) val = (val/100000).toFixed(0) + 'L';
-    else if(val >= 1000) val = (val/1000).toFixed(0) + 'K';
-    return val;
+  if(val >= 10000000) val = (val/10000000).toFixed(0) + 'Cr';
+  else if(val >= 100000) val = (val/100000).toFixed(0) + 'L';
+  else if(val >= 1000) val = (val/1000).toFixed(0) + 'K';
+  return val;
+}
+
+function generateDropDown(fields, element) {
+  var el = $(element);
+  var arr = fields;
+  el.find('option').remove();
+  var textToInsert = [];
+  var i = 0;
+  var length = arr.length;
+  for (var a = 0; a < length; a += 1) {
+    textToInsert[i++] = '<option value=' + a + '>';
+    textToInsert[i++] = arr[a].field;
+    textToInsert[i++] = '</option>';
+  }
+  $(el).append($('<option>', {
+    value: "none"
+    , text: "none"
+  }));
+  $(el).append(textToInsert.join(''));
+  $(el).selectpicker('refresh');
+}
+
+function getLegendColumn(widgetType) {
+  if(widgetType == "full") {
+    return 7;
+  } else if(widgetType == "medium") {
+    return 4;
+  }
+}
+
+function getWidgetType() {
+  if (currentChartType == "line" || currentChartType == "stacked" || currentChartType == "stackedBar") {
+    return "full";
+  }
+  else if (currentChartType == "radar" || currentChartType == "pie") {
+    return "medium";
+  }
+  else if (currentChartType == "gauge" || currentChartType == "trend") {
+    return "small";
+  }
+  else {
+    return false;
+  }
+}
+
+function getFilters() {
+  var filterDetails = [];
+  for (var filter = 0; filter < filterRowArray.length; filter++) {
+    var filterId = filterRowArray[filter];
+    var el = $("#filter-row-" + filterId);
+    var filterColumn = $(el).find(".filter-column").val();
+    var filterType = $(el).find(".filter-type").val();
+    var filterValue = $(el).find(".filter-value").val();
+    var filterObject = {
+      "operator": filterType
+      , "value": filterValue
+      , "field": currentFieldList[parseInt(filterColumn)].field
+    };
+    filterDetails.push(filterObject);
+  }
+  return filterDetails;
+}
+function getChartFormValues() {
+  if (currentChartType == "line") {
+    return getLineChartFormValues();
+  }
+  else if (currentChartType == "trend") {
+    return getTrendChartFormValues();
+  }
+  else if (currentChartType == "stacked") {
+    return getstackedChartFormValues();
+  }
+  else if (currentChartType == "radar") {
+    return getRadarChartFormValues();
+  }
+  else if (currentChartType == "gauge") {
+    return getGaugeChartFormValues();
+  }
+  else if (currentChartType == "stackedBar") {
+    return getstackedBarChartFormValues();
+  }
+  else if (currentChartType == "pie") {
+    return getPieChartFormValues();
+  }
+}
+function deleteFilterRow(el) {
+  var parentRow = $(el).parent();
+  var parentRowId = parentRow.attr('id');
+  var getRowId = parentRowId.split('-');
+  var rowId = getRowId[2];
+  filterRowArray = jQuery.grep(filterRowArray, function (value) {
+    return value != rowId;
+  });
+  $(parentRow).remove();
+}
+function setFilters(object) {
+  for (var filter = 0; filter < filterRowArray.length; filter++) {
+    var filterId = filterRowArray[filter];
+    var el = $("#filter-row-" + filterId);
+    var fieldDropdown = $(el).find(".filter-column").val(currentFieldList.findIndex(x => x.field == object[filter].field));
+    var operatorDropdown = $(el).find(".filter-type").val(object[filter].operator);
+    $(el).find(".filter-value").val(object[filter].value);
+    $(fieldDropdown).selectpicker('refresh');
+    $(operatorDropdown).selectpicker('refresh');
+  }
+}
+function reloadDropdowns() {
+  if (currentChartType == "line") {
+    generateDropDown(currentFieldList, "#uniqueKey");
+  }
+  else if (currentChartType == "trend") {
+    generateDropDown(currentFieldList, "#stats-field");
+  }
+  else if (currentChartType == "stacked") {
+    generateDropDown(currentFieldList, "#stacking-key");
+    generateDropDown(currentFieldList, "#stacked-uniquekey");
+    generateDropDown(currentFieldList, "#stacked-grouping-key");
+  }
+  else if (currentChartType == "radar") {
+    generateDropDown(currentFieldList, "#radar-nesting");
+  }
+  else if (currentChartType == "gauge") {
+    generateDropDown(currentFieldList, "#gauge-nesting");
+  }
+  else if (currentChartType == "stackedBar") {
+    generateDropDown(currentFieldList, "#stacked-bar-field");
+    generateDropDown(currentFieldList, "#stacked-bar-uniquekey");
+  }
+  else if (currentChartType == "pie") {
+    generateDropDown(currentFieldList, "#eventtype-field");
+    generateDropDown(currentFieldList, "#pie-uniquekey");
+  }
 }
