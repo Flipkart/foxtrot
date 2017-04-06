@@ -103,7 +103,8 @@ var filterRowArray = [];
 var currentChartType;
 var tableList = [];
 var currentFieldList = [];
-var apiUrl = "http://foxtrot.traefik.prod.phonepe.com/foxtrot"
+var apiUrl = "http://foxtrot.traefik.prod.phonepe.com/foxtrot";
+var interval = null;
 
 function addTilesList(object) {
   tiles[object.id] = object;
@@ -458,6 +459,7 @@ function consoleTabs(evt, currentTab) {
       renderTiles(tileData[tileList[i]]);
     }
   }
+  clearInterval(interval);
 }
 $(document).ready(function () {
   var type = $("#widgetType").val();
