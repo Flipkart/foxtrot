@@ -57,8 +57,7 @@ function clearLineChartForm() {
 LineTile.prototype.getQuery = function (newDiv, object) {
   this.newDiv = newDiv;
   this.object = object;
-  var ts = new Date().getTime();
-  object.filters.push(timeValue(object.period, object.timeframe, object.periodInterval));
+  object.filters.push(timeValue(object.period, object.timeframe, getPeriodSelect(object.id)));
   var data = {
     "opcode": "histogram"
     , "table": object.table

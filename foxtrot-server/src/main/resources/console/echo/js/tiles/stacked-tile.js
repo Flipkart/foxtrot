@@ -82,7 +82,7 @@ StackedTile.prototype.getQuery = function (newDiv, object) {
   this.newDiv = newDiv;
   this.object = object;
   this.object.filters.pop();
-  object.filters.push(timeValue(object.period, object.timeframe, object.periodInterval))
+  object.filters.push(timeValue(object.period, object.timeframe, getPeriodSelect(object.id)))
   var data = {
     "opcode": "group"
     , "table": object.table

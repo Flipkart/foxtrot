@@ -178,6 +178,11 @@ function renderTiles(object) {
   tileFactory.tileObject = object;
   tileFactory.create();
 }
+
+function getPeriodSelect(tileId) {
+  return $("#" + tileId).find(".period-select").val();
+}
+
 FoxTrot.prototype.addTile = function () {
   var title = $("#tileTitle").val();
   var filterDetails = getFilters();

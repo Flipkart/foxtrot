@@ -86,7 +86,7 @@ function setTrendChartFormValues(object) {
 TrendTile.prototype.getQuery = function(newDiv, object) {
   this.newDiv = newDiv;
   this.object = object;
-  object.filters.push(timeValue(object.period, object.timeframe, object.periodInterval));
+  object.filters.push(timeValue(object.period, object.timeframe, getPeriodSelect(object.id)));
   var data = {
     "opcode": "stats",
     "table": object.table,
