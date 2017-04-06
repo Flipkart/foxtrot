@@ -145,7 +145,12 @@ StackedTile.prototype.render = function (xAxis, yAxis, label) {
       hoverable: true
       , color: "#B2B2B2"
       , show: true
-      , borderWidth: 1
+      , borderWidth: {
+        top: 0
+        , right: 0
+        , bottom: 1
+        , left: 1
+      }
       , borderColor: "#EEEEEE"
     }
     , bars: {
@@ -155,8 +160,15 @@ StackedTile.prototype.render = function (xAxis, yAxis, label) {
       , lineWidth: 0
     }
     , xaxis: {
-      ticks: xAxis
+      ticks: xAxis,
+      tickLength: 0
     }
+    , yaxis:{
+      tickLength: 0,
+      tickFormatter: function(val, axis) {
+        return numDifferentiation(val);
+      },
+     }
     , selection: {
       mode: "x"
       , minSize: 1
