@@ -144,7 +144,7 @@ LineTile.prototype.render = function (rows) {
   var healthParentDiv = newDiv.find(".widget-header")
   var healthDiv = healthParentDiv.find("#" + object.id + "-health");
   healthDiv.width(100);
-  healthDiv.height(50);
+  healthDiv.addClass('health-div');
   $.plot(healthDiv, [
     {
       data: rows

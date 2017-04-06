@@ -92,8 +92,8 @@ h1 {
   box-sizing: content-box;
   float: right;
   position: absolute;
-  right: 3px;
-  top: 2px;
+  right: 40px;
+  top: 10px;
   z-index: 100;
   font-size: small;
 }
@@ -493,6 +493,7 @@ path {
   font-family: "oswald";
   font-style: normal;
   margin-left: 8px;
+  margin-top: 18px;
 }
 
 #top-right-btn a {
@@ -838,10 +839,9 @@ path {
   width: 170px;
   height: 34px;
   position: relative;
-  top: 16px;
-  right: 17px;
+  top: 22px;
+  right: 43px;
   background: #f7f9fa;
-  ;
 }
 
 .filter {
@@ -933,4 +933,14 @@ div.tab button:last-child {
 
 .reduce-filter-size {
   width: 132px;
+}
+
+.health-div {
+  margin-left: 10px;
+  height: 10px;
+}
+
+.widget-header>.tile-title {
+  position: relative;
+  top:18px;
 }
