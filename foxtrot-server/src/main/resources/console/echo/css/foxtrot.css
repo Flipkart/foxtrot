@@ -923,10 +923,9 @@ div.tab button:last-child {
 
 .legend .legendLabel {
   padding-right:10px;
-  padding-bottom: 7px;
 }
 
-.legend .legendColorBox {
+/*.legend .legendColorBox {
   position: relative;
   bottom: 3px;
-}
+}*/

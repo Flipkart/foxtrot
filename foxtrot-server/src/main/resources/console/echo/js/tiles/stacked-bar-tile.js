@@ -223,12 +223,12 @@ StackedBarTile.prototype.render = function (d) {
       , defaultFormat: true
     }
     , legend: {
-      show: false
-      , noColumns: d.length
+      show: true
+      , noColumns: getLegendColumn(object.widgetType)
       , labelFormatter: function (label, series) {
         return '<font color="black"> &nbsp;' + label + ' &nbsp;</font>';
       }
-      , container: parent.find(".legendArea")
+      , container: $(chartDiv.find(".legend"))
     }
   });
 }
