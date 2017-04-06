@@ -203,6 +203,9 @@ StackedBarTile.prototype.render = function (d) {
     }
     , yaxis: {
       tickLength: 0
+      , tickFormatter: function(val, axis) {
+        return numDifferentiation(val);
+      },
     }
     , xaxis: {
       mode: "time"

@@ -118,6 +118,9 @@ LineTile.prototype.render = function (rows) {
     , }
     , yaxis: {
       tickLength: 0
+      , tickFormatter: function(val, axis) {
+        return numDifferentiation(val);
+      },
     }
     , grid: {
       hoverable: true
