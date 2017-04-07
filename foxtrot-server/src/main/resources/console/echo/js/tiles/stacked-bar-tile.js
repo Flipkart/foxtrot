@@ -226,7 +226,7 @@ StackedBarTile.prototype.render = function (d) {
       show: true
       , noColumns: getLegendColumn(object.widgetType)
       , labelFormatter: function (label, series) {
-        return '<font color="black"> &nbsp;' + label + ' &nbsp;</font>';
+        return '<span class="legend-custom"> &nbsp;' + label + ' &nbsp;</span>';
       }
       , container: $(chartDiv.find(".legend"))
     }

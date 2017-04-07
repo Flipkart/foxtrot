@@ -948,3 +948,25 @@ div.tab button:last-child {
 .reduce-widget-header-size {
   height: 100px;
 }
+
+.tickLabel {
+  font-family: openSans;
+  font-size: 14px;
+  font-weight: 600;
+  color: #aeb8bd;
+}
+
+.legendLabel {
+  font-family: openSans;
+  font-size: 12px;
+  line-height: 2.5;
+  color: #7d909a;
+}
+
+.legend-custom {
+  font-family: openSans;
+  font-size: 12px;
+  line-height: 2.5;
+  color: #7d909a !important;
+}
+
