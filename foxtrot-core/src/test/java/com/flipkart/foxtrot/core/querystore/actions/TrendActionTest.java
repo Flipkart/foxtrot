@@ -188,14 +188,14 @@ public class TrendActionTest extends ActionTest {
         Map<String, List<TrendResponse.Count>> trends = Maps.newHashMap();
 
         List<TrendResponse.Count> counts = Lists.newArrayList();
-        counts.add(new TrendResponse.Count(1397606400000L, 6));
-        counts.add(new TrendResponse.Count(1398643200000L, 1));
+        counts.add(new TrendResponse.Count(1397586600000L, 6));
+        counts.add(new TrendResponse.Count(1398623400000L, 1));
         trends.put("android", counts);
 
         counts = Lists.newArrayList();
-        counts.add(new TrendResponse.Count(1397692800000L, 1));
-        counts.add(new TrendResponse.Count(1397952000000L, 1));
-        counts.add(new TrendResponse.Count(1398643200000L, 2));
+        counts.add(new TrendResponse.Count(1397673000000L, 1));
+        counts.add(new TrendResponse.Count(1397932200000L, 1));
+        counts.add(new TrendResponse.Count(1398623400000L, 2));
         trends.put("ios", counts);
 
         expectedResponse.setTrends(trends);
@@ -222,14 +222,14 @@ public class TrendActionTest extends ActionTest {
         Map<String, List<TrendResponse.Count>> trends = Maps.newHashMap();
 
         List<TrendResponse.Count> counts = Lists.newArrayList();
-        counts.add(new TrendResponse.Count(1397606400000L, 6));
-        counts.add(new TrendResponse.Count(1398643200000L, 1));
+        counts.add(new TrendResponse.Count(1397586600000L, 6));
+        counts.add(new TrendResponse.Count(1398623400000L, 1));
         trends.put("android", counts);
 
         counts = Lists.newArrayList();
-        counts.add(new TrendResponse.Count(1397692800000L, 1));
-        counts.add(new TrendResponse.Count(1397952000000L, 1));
-        counts.add(new TrendResponse.Count(1398643200000L, 2));
+        counts.add(new TrendResponse.Count(1397673000000L, 1));
+        counts.add(new TrendResponse.Count(1397932200000L, 1));
+        counts.add(new TrendResponse.Count(1398623400000L, 2));
         trends.put("ios", counts);
 
         expectedResponse.setTrends(trends);
@@ -256,14 +256,14 @@ public class TrendActionTest extends ActionTest {
         Map<String, List<TrendResponse.Count>> trends = Maps.newHashMap();
 
         List<TrendResponse.Count> counts = Lists.newArrayList();
-        counts.add(new TrendResponse.Count(1397606400000L, 6));
-        counts.add(new TrendResponse.Count(1398643200000L, 1));
+        counts.add(new TrendResponse.Count(1397586600000L, 6));
+        counts.add(new TrendResponse.Count(1398623400000L, 1));
         trends.put("android", counts);
 
         counts = Lists.newArrayList();
-        counts.add(new TrendResponse.Count(1397692800000L, 1));
-        counts.add(new TrendResponse.Count(1397952000000L, 1));
-        counts.add(new TrendResponse.Count(1398643200000L, 2));
+        counts.add(new TrendResponse.Count(1397673000000L, 1));
+        counts.add(new TrendResponse.Count(1397932200000L, 1));
+        counts.add(new TrendResponse.Count(1398623400000L, 2));
         trends.put("ios", counts);
 
         expectedResponse.setTrends(trends);
@@ -291,8 +291,8 @@ public class TrendActionTest extends ActionTest {
         Map<String, List<TrendResponse.Count>> trends = Maps.newHashMap();
 
         List<TrendResponse.Count> counts = Lists.newArrayList();
-        counts.add(new TrendResponse.Count(1397606400000L, 6));
-        counts.add(new TrendResponse.Count(1398643200000L, 1));
+        counts.add(new TrendResponse.Count(1397586600000L, 6));
+        counts.add(new TrendResponse.Count(1398623400000L, 1));
         trends.put("android", counts);
 
         expectedResponse.setTrends(trends);
@@ -323,7 +323,7 @@ public class TrendActionTest extends ActionTest {
         Map<String, List<TrendResponse.Count>> trends = Maps.newHashMap();
 
         List<TrendResponse.Count> counts = Lists.newArrayList();
-        counts.add(new TrendResponse.Count(1397606400000L, 2));
+        counts.add(new TrendResponse.Count(1397586600000L, 2));
         trends.put("android", counts);
 
         expectedResponse.setTrends(trends);
@@ -351,11 +351,11 @@ public class TrendActionTest extends ActionTest {
         Map<String, List<TrendResponse.Count>> trends = Maps.newHashMap();
 
         List<TrendResponse.Count> counts = Lists.newArrayList();
-        counts.add(new TrendResponse.Count(1397606400000L, 2));
+        counts.add(new TrendResponse.Count(1397586600000L, 2));
         trends.put("android", counts);
 
         counts = Lists.newArrayList();
-        counts.add(new TrendResponse.Count(1397692800000L, 1));
+        counts.add(new TrendResponse.Count(1397673000000L, 1));
         trends.put("ios", counts);
 
         expectedResponse.setTrends(trends);
@@ -384,11 +384,11 @@ public class TrendActionTest extends ActionTest {
         Map<String, List<TrendResponse.Count>> trends = Maps.newHashMap();
 
         List<TrendResponse.Count> counts = Lists.newArrayList();
-        counts.add(new TrendResponse.Count(1397606400000L, 2));
+        counts.add(new TrendResponse.Count(1397586600000L, 2));
         trends.put("android", counts);
 
         counts = Lists.newArrayList();
-        counts.add(new TrendResponse.Count(1397692800000L, 1));
+        counts.add(new TrendResponse.Count(1397673000000L, 1));
         trends.put("ios", counts);
 
         expectedResponse.setTrends(trends);
