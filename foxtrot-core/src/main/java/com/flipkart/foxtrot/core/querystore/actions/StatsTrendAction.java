@@ -148,7 +148,7 @@ public class StatsTrendAction extends Action<StatsTrendRequest> {
     private AbstractAggregationBuilder buildAggregation(StatsTrendRequest request) {
         DateHistogramInterval interval = Utils.getHistogramInterval(request.getPeriod());
         AbstractAggregationBuilder dateHistogramBuilder = Utils.buildDateHistogramAggregation(request.getTimestamp(),
-                interval, getParameter().getTimeZone())
+                interval)
                 .subAggregation(Utils.buildExtendedStatsAggregation(request.getField()))
                 .subAggregation(Utils.buildPercentileAggregation(request.getField()));
 

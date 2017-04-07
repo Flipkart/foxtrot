@@ -11,6 +11,7 @@ import org.elasticsearch.search.aggregations.metrics.cardinality.CardinalityBuil
 import org.elasticsearch.search.aggregations.metrics.percentiles.Percentile;
 import org.elasticsearch.search.aggregations.metrics.percentiles.Percentiles;
 import org.elasticsearch.search.aggregations.metrics.stats.extended.InternalExtendedStats;
+import org.joda.time.DateTimeZone;
 
 import java.util.Map;
 
@@ -30,13 +31,12 @@ public class Utils {
     }
 
     public static DateHistogramBuilder buildDateHistogramAggregation(String field,
-                                                                     DateHistogramInterval interval,
-                                                                     String timeZone) {
+                                                                     DateHistogramInterval interval) {
         String metricKey = getDateHistogramKey(field);
         return AggregationBuilders.dateHistogram(metricKey)
                 .minDocCount(0)
                 .field(field)
-                .timeZone(timeZone)
+                .timeZone(DateTimeZone.getDefault().getID())
                 .interval(interval);
     }
 

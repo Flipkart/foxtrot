@@ -30,13 +30,11 @@ public abstract class ActionRequest {
 
     private final String opcode;
 
-    private String timeZone;
 
     private List<Filter> filters;
 
     protected ActionRequest(String opcode) {
         this.opcode = opcode;
-        this.timeZone = "Asia/Kolkata";
     }
 
     protected ActionRequest(String opcode, List<Filter> filters) {
@@ -56,11 +54,4 @@ public abstract class ActionRequest {
         this.filters = filters;
     }
 
-    public String getTimeZone() {
-        return timeZone;
-    }
-
-    public void setTimeZone(String timeZone) {
-        this.timeZone = timeZone;
-    }
 }
