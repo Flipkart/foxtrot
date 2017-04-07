@@ -117,10 +117,10 @@ LineTile.prototype.render = function (rows) {
       , timeformat: axisTimeFormat(object.period, "custom")
     , }
     , yaxis: {
-      tickLength: 0
-      , tickFormatter: function(val, axis) {
+        tickFormatter: function(val, axis) {
         return numDifferentiation(val);
       },
+      tickLength: 0
     }
     , grid: {
       hoverable: true
@@ -174,13 +174,13 @@ LineTile.prototype.render = function (rows) {
         , left: 1
       }
       , borderColor: "#EEEEEE"
-      , hoverable:true
+      , hoverable:false
     , }
     ,selection: {
       mode: "x",
       minSize: 1
     }
-    , tooltip: true
+    , tooltip: false
     , tooltipOpts: {
       content: "%y events at %x"
       , defaultFormat: true

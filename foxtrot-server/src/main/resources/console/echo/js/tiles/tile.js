@@ -305,6 +305,8 @@ TileFactory.prototype.create = function () {
   if(this.tileObject.widgetType == "small") {
     tileElement.find(".settings").addClass('reduce-filter-size');
     tileElement.find(".filter").hide();
+  }else if(this.tileObject.widgetType == "medium") {
+    tileElement.find(".widget-header").addClass('reduce-widget-header-size');
   }
 
   this.createGraph(this.tileObject, tileElement);
