@@ -182,7 +182,7 @@ public class TrendAction extends Action<TrendRequest> {
         DateHistogramInterval interval = Utils.getHistogramInterval(request.getPeriod());
         String field = request.getField();
 
-        DateHistogramBuilder histogramBuilder = Utils.buildDateHistogramAggregation(request.getTimestamp(), interval );
+        DateHistogramBuilder histogramBuilder = Utils.buildDateHistogramAggregation(request.getTimestamp(), interval);
         if (!CollectionUtils.isNullOrEmpty(getParameter().getUniqueCountOn())) {
             histogramBuilder.subAggregation(Utils.buildCardinalityAggregation(getParameter().getUniqueCountOn()));
         }

@@ -30,7 +30,6 @@ public abstract class ActionRequest {
 
     private final String opcode;
 
-
     private List<Filter> filters;
 
     protected ActionRequest(String opcode) {

@@ -170,8 +170,7 @@ public class HistogramAction extends Action<HistogramRequest> {
 
     private AbstractAggregationBuilder buildAggregation() {
         DateHistogramInterval interval = Utils.getHistogramInterval(getParameter().getPeriod());
-        DateHistogramBuilder histogramBuilder = Utils.buildDateHistogramAggregation(getParameter().getField(),
-                interval);
+        DateHistogramBuilder histogramBuilder = Utils.buildDateHistogramAggregation(getParameter().getField(), interval);
         if (!CollectionUtils.isNullOrEmpty(getParameter().getUniqueCountOn())) {
             histogramBuilder.subAggregation(Utils.buildCardinalityAggregation(getParameter().getUniqueCountOn()));
         }

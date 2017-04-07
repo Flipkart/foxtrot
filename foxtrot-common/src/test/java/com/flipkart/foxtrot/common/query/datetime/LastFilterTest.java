@@ -23,7 +23,7 @@ public class LastFilterTest {
                 "}";
         LastFilter lastFilter = objectMapper.readValue(json, LastFilter.class);
         TimeWindow timeWindow = lastFilter.getWindow();
-        Assert.assertTrue((timeWindow.getStartTime() == new DateTime().minusHours(1).hourOfDay().roundFloorCopy().getMillis()));
+        Assert.assertTrue((timeWindow.getEndTime() - timeWindow.getStartTime()) == 3600000);
     }
 
     @Test
