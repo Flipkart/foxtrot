@@ -57,6 +57,7 @@ public class InitializerCommand extends ConfiguredCommand<FoxtrotServerConfigura
         logger.info("# data nodes: {}, Setting replica count to: {}", numDataNodes, numReplicas);
 
         createMetaIndex(connection, "consoles", numReplicas);
+        createMetaIndex(connection, "consoles_v2", numReplicas);
         createMetaIndex(connection, "table-meta", numReplicas);
 
         logger.info("Creating mapping");
