@@ -39,13 +39,13 @@ function getGaugeChartFormValues() {
 }
 
 function setGaugeChartFormValues(object) {
-  var selectedNesting = object.nesting.toString();
+  var selectedNesting = object.context.nesting.toString();
   var selectedNestingArrayIndex = currentFieldList.findIndex(x => x.field == selectedNesting);
   var nesting = $(".gauge-nesting").val(selectedNestingArrayIndex);
   $(".gauge-nesting").selectpicker('refresh');
-  var timeUnit = $("#gauge-time-unit").val(object.period);
+  var timeUnit = $("#gauge-time-unit").val(object.context.period);
   timeUnit.selectpicker('refresh');
-  $("#gauge-timeframe").val(object.timeframe)
+  $("#gauge-timeframe").val(object.context.timeframe)
 }
 
 function clearGaugeChartForm() {
@@ -61,12 +61,12 @@ function clearGaugeChartForm() {
 GaugeTile.prototype.getQuery = function (newDiv, object) {
   this.newDiv = newDiv;
   this.object = object;
-  object.filters.push(timeValue(object.period, object.timeframe, getPeriodSelect(object.id)))
+  object.context.filters.push(timeValue(object.context.period, object.context.timeframe, getPeriodSelect(object.id)))
   var data = {
     "opcode": "group"
-    , "table": object.table
-    , "filters": object.filters
-    , "nesting": object.nesting
+    , "table": object.context.table
+    , "filters": object.context.filters
+    , "nesting": object.context.nesting
   }
   $.ajax({
     method: "post"
@@ -81,7 +81,7 @@ GaugeTile.prototype.getQuery = function (newDiv, object) {
   });
 }
 GaugeTile.prototype.getData = function (data) {
-  this.object.filters.pop();
+  this.object.context.filters.pop();
   if (data.result == undefined || data.result.length == 0) return;
   var percentage = 0;
   for (var key in data.result) {
