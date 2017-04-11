@@ -47,14 +47,14 @@ function getstackedChartFormValues() {
 }
 
 function setStackedChartFormValues(object) {
-  $(".stacked-time-unit").val(object.period);
+  $(".stacked-time-unit").val(object.context.period);
   $("stacked-time-unit").selectpicker('refresh');
-  $(".stacked-timeframe").val(object.timeframe);
-  $(".stacked-grouping-key").val(currentFieldList.findIndex(x => x.field == object.groupingKey));
+  $(".stacked-timeframe").val(object.context.timeframe);
+  $(".stacked-grouping-key").val(currentFieldList.findIndex(x => x.field == object.context.groupingKey));
   $(".stacked-grouping-key").selectpicker('refresh');
-  $(".stacking-key").val(currentFieldList.findIndex(x => x.field == object.stackingKey));
+  $(".stacking-key").val(currentFieldList.findIndex(x => x.field == object.context.stackingKey));
   $(".stacking-key").selectpicker('refresh');
-  $(".stacked-uniquekey").val(currentFieldList.findIndex(x => x.field == object.uniqueKey));
+  $(".stacked-uniquekey").val(currentFieldList.findIndex(x => x.field == object.context.uniqueKey));
   $(".stacked-uniquekey").selectpicker('refresh');
 }
 
@@ -78,14 +78,14 @@ function clearstackedChartForm() {
 StackedTile.prototype.getQuery = function (newDiv, object) {
   this.newDiv = newDiv;
   this.object = object;
-  this.object.filters.pop();
-  object.filters.push(timeValue(object.period, object.timeframe, getPeriodSelect(object.id)))
+  this.object.context.filters.pop();
+  object.context.filters.push(timeValue(object.context.period, object.context.timeframe, getPeriodSelect(object.id)))
   var data = {
     "opcode": "group"
-    , "table": object.table
-    , "filters": object.filters
-    , "uniqueCountOn": object.uniqueCountOn && object.uniqueCountOn != "none" ? object.uniqueCountOn : null
-    , "nesting": object.nesting
+    , "table": object.context.table
+    , "filters": object.context.filters
+    , "uniqueCountOn": object.context.uniqueCountOn && object.context.uniqueCountOn != "none" ? object.context.uniqueCountOn : null
+    , "nesting": object.context.nesting
   }
   $.ajax({
     method: "post"
@@ -108,7 +108,7 @@ function unique(list) {
   return result;
 }
 StackedTile.prototype.getData = function (data) {
-  this.object.filters.pop();
+  this.object.context.filters.pop();
   if (data.result == undefined || data.result.length == 0) return;
   var xAxis = [];
   var yAxis = [];
