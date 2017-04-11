@@ -87,9 +87,9 @@ function findIndex(currentTabName) {
 }
 
 function numDifferentiation(val) {
-  if(val >= 10000000) val = (val/10000000).toFixed(0) + 'Cr';
-  else if(val >= 100000) val = (val/100000).toFixed(0) + 'L';
-  else if(val >= 1000) val = (val/1000).toFixed(0) + 'K';
+  if(val >= 10000000) val = parseFloat((val/10000000).toFixed(1)) + 'Cr';
+  else if(val >= 100000) val = parseFloat((val/100000).toFixed(1)) + 'L';
+  else if(val >= 1000) val = parseFloat((val/1000).toFixed(1)) + 'K';
   return val;
 }
 
