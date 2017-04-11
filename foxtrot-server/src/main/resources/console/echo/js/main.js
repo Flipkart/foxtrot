@@ -125,19 +125,23 @@ FoxTrot.prototype.addTile = function () {
   $(".top-error").hide();
   var widgetType = getWidgetType();
   if (!isChild && editTileId) tileId = editTileId;
-  var queryValues = {
-    "id": tileId
-    , "widgetType": widgetType
+  var context = {
+    "widgetType": widgetType
     , "table": table.name
     , "editTileId": editTileId
     , "tableDropdownIndex": tableId
-    , "title": title
     , "chartType": currentChartType
     , "filters": filterDetails.length == 0 ? [] : filterDetails
     , "tableFields": currentFieldList
     , "periodInterval": periodInterval
-  };
-  var object = $.extend({}, getChartFormValues()[0], queryValues);
+  }
+  context = $.extend({}, getChartFormValues()[0], context);
+  var object = {
+    "id": tileId
+    , "title": title
+    , "context":context
+  }
+  console.log(object);
   var tileFactory = new TileFactory();
   currentChartType = "";
   if (!editTileId && !isChild) { // for new tile

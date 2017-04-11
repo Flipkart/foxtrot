@@ -34,14 +34,14 @@ function getLineChartFormValues() {
 }
 
 function setLineChartFormValues(object) {
-  var parentElement = $("#" + object.chartType + "-chart-data");
+  var parentElement = $("#" + object.context.chartType + "-chart-data");
   var timeUnitEl = parentElement.find(".tile-time-unit");
-  timeUnitEl.val(object.period);
+  timeUnitEl.val(object.context.period);
   $(timeUnitEl).selectpicker('refresh');
   var uniqeKey = parentElement.find("#uniqueKey");
-  uniqeKey.val(object.uniqueCountOn);
+  uniqeKey.val(object.context.uniqueCountOn);
   $(uniqeKey).selectpicker('refresh');
-  parentElement.find("#line-timeframe").val(object.timeframe);
+  parentElement.find("#line-timeframe").val(object.context.timeframe);
 }
 
 function clearLineChartForm() {
@@ -57,13 +57,13 @@ function clearLineChartForm() {
 LineTile.prototype.getQuery = function (newDiv, object) {
   this.newDiv = newDiv;
   this.object = object;
-  object.filters.push(timeValue(object.period, object.timeframe, getPeriodSelect(object.id)));
+  object.context.filters.push(timeValue(object.context.period, object.context.timeframe, getPeriodSelect(object.id)));
   var data = {
     "opcode": "histogram"
-    , "table": object.table
-    , "filters": object.filters
+    , "table": object.context.table
+    , "filters": object.context.filters
     , "field": "_timestamp"
-    , "period": object.period
+    , "period": object.context.period
     , "uniqueCountOn": object.uniqueCountOn && object.uniqueCountOn != "none" ? object.uniqueCountOn : null
   }
   $.ajax({
@@ -79,7 +79,7 @@ LineTile.prototype.getQuery = function (newDiv, object) {
   });
 }
 LineTile.prototype.getData = function (data) {
-  this.object.filters.pop();
+  this.object.context.filters.pop();
   if (data.counts == undefined || data.counts.length == 0) return;
   var rows = [];
   rows.push(['date', 'count']);
@@ -114,7 +114,7 @@ LineTile.prototype.render = function (rows) {
       tickLength: 0
       , mode: "time"
       , timezone: "browser"
-      , timeformat: axisTimeFormat(object.period, getPeriodSelect(object.id))
+      , timeformat: axisTimeFormat(object.context.period, getPeriodSelect(object.id))
     , }
     , yaxis: {
         tickFormatter: function(val, axis) {
@@ -161,7 +161,7 @@ LineTile.prototype.render = function (rows) {
     , xaxis: {
       mode: "time"
       , timezone: "browser"
-      , timeformat: axisTimeFormat(object.period, "custom")
+      , timeformat: axisTimeFormat(object.context.period, "custom")
     , }
     , grid: {
       color: "#B2B2B2"
