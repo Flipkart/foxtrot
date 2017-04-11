@@ -40,12 +40,12 @@ function getstackedBarChartFormValues() {
 }
 
 function setStackedBarChartFormValues(object) {
-  $(".stacked-bar-time-unit").val(object.period);
+  $(".stacked-bar-time-unit").val(object.context.period);
   $(".stacked-bar-time-unit").selectpicker('refresh');
-  $(".stacked-bar-timeframe").val(object.timeframe);
-  $(".stacked-bar-field").val(currentFieldList.findIndex(x => x.field == object.stackedBarField));
+  $(".stacked-bar-timeframe").val(object.context.timeframe);
+  $(".stacked-bar-field").val(currentFieldList.findIndex(x => x.field == object.context.stackedBarField));
   $(".stacked-bar-field").selectpicker('refresh');
-  $(".stacked-bar-uniquekey").val(currentFieldList.findIndex(x => x.field == object.uniqueKey));
+  $(".stacked-bar-uniquekey").val(currentFieldList.findIndex(x => x.field == object.context.uniqueKey));
   $(".stacked-bar-uniquekey").selectpicker('refresh');
 }
 
@@ -66,14 +66,14 @@ function clearStackedBarChartForm() {
 StackedBarTile.prototype.getQuery = function (newDiv, object) {
   this.newDiv = newDiv;
   this.object = object;
-  object.filters.push(timeValue(object.period, object.timeframe, getPeriodSelect(object.id)))
+  object.context.filters.push(timeValue(object.context.period, object.context.timeframe, getPeriodSelect(object.id)))
   var data = {
     "opcode": "trend"
-    , "table": object.table
-    , "filters": object.filters
-    , "uniqueCountOn": object.uniqueCountOn && object.uniqueCountOn != "none" ? object.uniqueCountOn : null
-    , "field": object.stackedBarField
-    , period: periodFromWindow(object.period, "custom")
+    , "table": object.context.table
+    , "filters": object.context.filters
+    , "uniqueCountOn": object.context.uniqueCountOn && object.context.uniqueCountOn != "none" ? object.context.uniqueCountOn : null
+    , "field": object.context.stackedBarField
+    , period: periodFromWindow(object.context.period, "custom")
   }
   $.ajax({
     method: "post"
@@ -96,7 +96,7 @@ function unique(list) {
   return result;
 }
 StackedBarTile.prototype.getData = function (data) {
-  this.object.filters.pop();
+  this.object.context.filters.pop();
   var colors = new Colors(Object.keys(data.trends).length);
   var d = [];
   var colorIdx = 0;
