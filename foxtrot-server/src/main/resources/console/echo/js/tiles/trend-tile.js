@@ -67,31 +67,31 @@ function setTrendChartFormValues(object) {
   var parentElement = $("#"+currentChartType+"-chart-data");
 
   var timeUnitEl = parentElement.find(".trend-time-unit");
-  timeUnitEl.val(object.period);
+  timeUnitEl.val(object.context.period);
   $(timeUnitEl).selectpicker('refresh');
 
   var statsFieldEl = parentElement.find(".stats-field");
-  var statsFieldIndex = currentFieldList.findIndex(x => x.field== object.statsFieldName);
+  var statsFieldIndex = currentFieldList.findIndex(x => x.field== object.context.statsFieldName);
   statsFieldEl.val(statsFieldIndex);
   $(statsFieldEl).selectpicker('refresh');
 
   var statsToPlot = parentElement.find(".statistic_to_plot");
-  statsToPlot.val(object.statsToPlot);
+  statsToPlot.val(object.context.statsToPlot);
   $(statsToPlot).selectpicker('refresh');
 
-  parentElement.find("#trend-timeframe").val(object.timeframe);
+  parentElement.find("#trend-timeframe").val(object.context.timeframe);
   parentElement.find(".ignored-digits").val('');
 }
 
 TrendTile.prototype.getQuery = function(newDiv, object) {
   this.newDiv = newDiv;
   this.object = object;
-  object.filters.push(timeValue(object.period, object.timeframe, getPeriodSelect(object.id)));
+  object.context.filters.push(timeValue(object.context.period, object.context.timeframe, getPeriodSelect(object.id)));
   var data = {
     "opcode": "stats",
-    "table": object.table,
-    "filters": object.filters,
-    "field": object.statsFieldName
+    "table": object.context.table,
+    "filters": object.context.filters,
+    "field": object.context.statsFieldName
   }
   $.ajax({
     method: "post",
@@ -107,14 +107,14 @@ TrendTile.prototype.getQuery = function(newDiv, object) {
 }
 
 TrendTile.prototype.getData = function(data) {
-  this.object.filters.pop();
+  this.object.context.filters.pop();
   if(!data.result)
     return;
   var statsObject = data.result.stats;
   var percentile = data.result.percentiles;
   var displayValue = "";
-  var objectToshow = this.object.statsToPlot.split('.');
-  if(this.object.statsToPlot.match('stats')) {
+  var objectToshow = this.object.context.statsToPlot.split('.');
+  if(this.object.context.statsToPlot.match('stats')) {
     objectToshow = objectToshow[1].toString();
     displayValue = statsObject[objectToshow];
   } else {
@@ -137,31 +137,31 @@ TrendTile.prototype.render = function (displayValue) {
 
   chartDiv.append("<div id="+object.id+"><p class='trend-value-big bold'>"+displayValue+"</p><dhr/><p class='trend-value-small'></p><div id='trend-'"+object.id+" class='trend-chart-health'></div><div class='trend-chart-health-percentage bold'></div></div>");
   var healthDiv = chartDiv.find("#trend-"+object.id);
-	healthDiv.width(100);
-	healthDiv.height(50);
-	/*$.plot(healthDiv, [
-		{ data: yAxis },
+  healthDiv.width(100);
+  healthDiv.height(50);
+  /*$.plot(healthDiv, [
+    { data: yAxis },
   ],{
-			series: {
-				lines: { show: true },
-				points: { show: false }
-			},
-			xaxis: {
-				ticks: xAxis,
-				tickLength:0
-			},
-			grid: {
-				hoverable: true,
+      series: {
+        lines: { show: true },
+        points: { show: false }
+      },
+      xaxis: {
+        ticks: xAxis,
+        tickLength:0
+      },
+      grid: {
+        hoverable: true,
         color: "#B2B2B2",
         show: false,
         borderWidth: {top: 0, right: 0, bottom: 1, left: 1},
         borderColor: "#EEEEEE",
-			},
-			tooltip: true,
+      },
+      tooltip: true,
         tooltipOpts: {
             content: "%y events at %x",
             defaultFormat: true
         },
-			colors: ['#000'],
-		});*/
+      colors: ['#000'],
+    });*/
 }
