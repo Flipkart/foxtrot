@@ -114,7 +114,7 @@ LineTile.prototype.render = function (rows) {
       tickLength: 0
       , mode: "time"
       , timezone: "browser"
-      , timeformat: axisTimeFormat(object.period, "custom")
+      , timeformat: axisTimeFormat(object.period, getPeriodSelect(object.id))
     , }
     , yaxis: {
         tickFormatter: function(val, axis) {
@@ -159,8 +159,7 @@ LineTile.prototype.render = function (rows) {
       }
     }
     , xaxis: {
-      tickLength: 0
-      , mode: "time"
+      mode: "time"
       , timezone: "browser"
       , timeformat: axisTimeFormat(object.period, "custom")
     , }
