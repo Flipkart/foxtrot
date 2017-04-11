@@ -249,33 +249,33 @@ function saveConsole() {
     id: name.trim().toLowerCase().split(' ').join("_")
     , updated: new Date().getTime()
     , name: name
-    , tabs: globalData
+    , sections: globalData
   };
   console.log(JSON.stringify(representation));
   /*$.ajax({
-		url: apiUrl+("/foxtrot/v1/consoles"),
-		type: 'POST',
-		contentType: 'application/json',
-		data: JSON.stringify(representation),
-		success: function() {
-			success("Saved console. The new console can be accessed <a href='?console=" + representation.id + "' class='alert-link'>here</a>");
-		},
-		error: function() {
-			error("Could not save console");
-		}
-	})*/
+    url: apiUrl+("/foxtrot/v1/consoles"),
+    type: 'POST',
+    contentType: 'application/json',
+    data: JSON.stringify(representation),
+    success: function() {
+      success("Saved console. The new console can be accessed <a href='?console=" + representation.id + "' class='alert-link'>here</a>");
+    },
+    error: function() {
+      error("Could not save console");
+    }
+  })*/
 }
 
 function loadConsole() {
   /*$.ajax({
-		url: hostDetails.url("/foxtrot/v1/consoles/" + consoleId),
-		type: 'GET',
-		contentType: 'application/json',
-		success: $.proxy(this.consoleManager.buildConsoleFromRepresentation, this.consoleManager),
-		error: function() {
-			error("Could not save console");
-		}
-	})*/
+    url: hostDetails.url("/foxtrot/v1/consoles/" + consoleId),
+    type: 'GET',
+    contentType: 'application/json',
+    success: $.proxy(this.consoleManager.buildConsoleFromRepresentation, this.consoleManager),
+    error: function() {
+      error("Could not save console");
+    }
+  })*/
 }
 
 function consoleTabs(evt, currentTab) {
