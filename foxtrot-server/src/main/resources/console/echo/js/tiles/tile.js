@@ -161,7 +161,7 @@ TileFactory.prototype.updateFilterCreation = function (object) {
       }
       //setFilters(object);
       setTimeout(function () { //calls click event after a certain time
-        setFilters(selectedTileObject.filters);
+        setFilters(selectedTileObject.context.filters);
       }, 1000);
     }
     if (selectedTileObject) {
@@ -284,7 +284,7 @@ TileFactory.prototype.create = function () {
     tileElement.find(".trend-chart").remove();
     tileElement.find(".chart-item").addClass("radar-chart");
   }
-  else if (this.tileObject.context.chartType == "line" || this.tileObject.context == "stacked" || this.tileObject.context == "stackedBar" || this.tileObject.context == "pie") {
+  else if (this.tileObject.context.chartType == "line" || this.tileObject.context.chartType == "stacked" || this.tileObject.context.chartType == "stackedBar" || this.tileObject.context.chartType == "pie") {
     tileElement.find(".widget-header").append('<div id="' + this.tileObject.id + '-health-text" class="lineGraph-health-text">No Data available</div>');
     tileElement.find(".widget-header").append('<div id="' + this.tileObject.id + '-health" style=""></div>');
     tileElement.find(".chart-item").append('<div id="' + this.tileObject.id + '"></div>');

@@ -40,14 +40,14 @@ function getPieChartFormValues() {
 }
 
 function setPieChartFormValues(object) {
-  $(".pie-time-unit").val(object.period);
+  $(".pie-time-unit").val(object.context.period);
   $(".pie-time-unit").selectpicker('refresh');
-  $(".pie-timeframe").val(object.timeframe);
+  $(".pie-timeframe").val(object.context.timeframe);
   $("pie-timeframe").selectpicker('refresh');
-  var stackingField = currentFieldList.findIndex(x => x.field == object.eventFiled);
+  var stackingField = currentFieldList.findIndex(x => x.field == object.context.eventFiled);
   $(".eventtype-field").val(stackingField);
   $(".eventtype-field").selectpicker('refresh');
-  var stackingUniqueField = currentFieldList.findIndex(x => x.field == object.uniqueKey);
+  var stackingUniqueField = currentFieldList.findIndex(x => x.field == object.context.uniqueKey);
   $(".pie-bar-uniquekey").val(stackingUniqueField);
   $(".pie-bar-uniquekey").selectpicker('refresh');
 }
@@ -69,14 +69,14 @@ function clearPieChartForm() {
 PieTile.prototype.getQuery = function (newDiv, object) {
   this.newDiv = newDiv;
   this.object = object;
-  this.object.filters.pop();
-  object.filters.push(timeValue(object.period, object.timeframe, getPeriodSelect(object.id)))
+  this.object.context.filters.pop();
+  this.object.context.filters.push(timeValue(object.context.period, object.context.timeframe, getPeriodSelect(object.id)))
   var data = {
     "opcode": "group"
-    , "table": object.table
-    , "filters": object.filters
-    , "uniqueCountOn": object.uniqueCountOn && object.uniqueCountOn != "none" ? object.uniqueCountOn : null
-    , nesting: [object.eventFiled]
+    , "table": object.context.table
+    , "filters": object.context.filters
+    , "uniqueCountOn": object.context.uniqueCountOn && object.context.uniqueCountOn != "none" ? object.context.uniqueCountOn : null
+    , nesting: [object.context.eventFiled]
   }
   $.ajax({
     method: "post"
@@ -122,11 +122,11 @@ PieTile.prototype.getData = function (data) {
 PieTile.prototype.render = function (columns) {
   var newDiv = this.newDiv;
   var object = this.object;
+  console.log(object)
   var chartDiv = newDiv.find(".chart-item");
   var ctx = chartDiv.find("#" + object.id);
   ctx.width(ctx.width);
   ctx.height(230);
-  console.log($(chartDiv.find(".legend")));
   var chartOptions = {
     series: {
       pie: {
@@ -139,7 +139,7 @@ PieTile.prototype.render = function (columns) {
     }
     , legend: {
       show: true,
-      noColumns:getLegendColumn(object.widgetType),
+      noColumns:getLegendColumn(object.context.widgetType),
       container: $(chartDiv.find(".legend"))
     }
     , grid: {
