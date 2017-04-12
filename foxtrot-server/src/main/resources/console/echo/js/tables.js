@@ -15,37 +15,37 @@
  */
 
  function Table(name, ttl) {
-	this.name = name;
-	this.ttl = ttl;
+  this.name = name;
+  this.ttl = ttl;
 }
 
 function Tables() {
-	this.tables = [];
-	this.tableChangeHandlers = []
-	this.selectedTable = null;
-	this.currentTableFieldMappings = null;
-	this.metaLoadHandlers = [];
-	this.initialSelectedTable = null;
+  this.tables = [];
+  this.tableChangeHandlers = []
+  this.selectedTable = null;
+  this.currentTableFieldMappings = null;
+  this.metaLoadHandlers = [];
+  this.initialSelectedTable = null;
 }
 
 Tables.prototype.init = function(callback) {
-	$.ajax({
-		url: "http://foxtrot.traefik.prod.phonepe.com/foxtrot/v1/tables/",
-		contentType: "application/json",
-		context: this,
-		success: function(tables) {
-			this.tables = [];
-			for (var i = tables.length - 1; i >= 0; i--) {
-				var table = tables[i];
-				this.tables.push(new Table(table.name, table.ttl));
-			};
-			this.selectedTable = this.tables[this.getSelectionIndex()];
+  $.ajax({
+    url: "http://foxtrot.traefik.prod.phonepe.com/foxtrot/v1/tables/",
+    contentType: "application/json",
+    context: this,
+    success: function(tables) {
+      this.tables = [];
+      for (var i = tables.length - 1; i >= 0; i--) {
+        var table = tables[i];
+        this.tables.push(new Table(table.name, table.ttl));
+      };
+      this.selectedTable = this.tables[this.getSelectionIndex()];
       tableList = this.tables.tables;
-			for (var i = this.tableChangeHandlers.length - 1; i >= 0; i--) {
-				this.tableChangeHandlers[i](this.tables);
-			};
-		}
-	});
+      for (var i = this.tableChangeHandlers.length - 1; i >= 0; i--) {
+        this.tableChangeHandlers[i](this.tables);
+      };
+    }
+  });
 };
 
 Tables.prototype.forceSelectedTableAfterInit = function(tableName) {
@@ -64,18 +64,18 @@ Tables.prototype.getSelectionIndex = function() {
 }
 
 Tables.prototype.registerTableChangeHandler = function(tableChangeHandler) {
-	this.tableChangeHandlers.push(tableChangeHandler);
+  this.tableChangeHandlers.push(tableChangeHandler);
 };
 
 Tables.prototype.registerMetaLoadHandler = function(metaLoadHandler) {
-	this.metaLoadHandlers.push(metaLoadHandler);
+  this.metaLoadHandlers.push(metaLoadHandler);
 };
 
 
 Tables.prototype.loadTableMeta = function (table, callback) {
   callback = callback || $.noop;
   $.ajax({
-    url: "http://foxtrot.traefik.prod.phonepe.com/foxtrot/v1/tables/" + table.name + "/fields",
+    url: apiUrl+"/v1/tables/" + table.name + "/fields",
     contentType: "application/json",
     context: this,
     success: $.proxy(function (data) {
