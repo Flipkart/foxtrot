@@ -140,6 +140,7 @@ FoxTrot.prototype.addTile = function () {
     "id": tileId
     , "title": title
     , "tileContext":context
+    , "children": []
   }
   console.log(object);
   var tileFactory = new TileFactory();
@@ -248,38 +249,63 @@ function clickedChartType(el) {
 }
 
 function saveConsole() {
-  var name = "testing console"
+  var name = "Console 1";
+  for(var i = 0; i < globalData.length; i++) {
+    var secArray = globalData[i].tileData;
+    for(var key in  secArray) {
+      var deleteObject = secArray[key];
+      delete deleteObject.tileContext.tableFields;
+      delete deleteObject.tileContext.editTileId;
+      delete deleteObject.tileContext.tableDropdownIndex;
+    }
+  }
   var representation = {
-    id: name.trim().toLowerCase().split(' ').join("_")
-    , updated: new Date().getTime()
+    id: name.trim().toLowerCase().split(' ').join("")
     , name: name
     , sections: globalData
   };
   console.log(JSON.stringify(representation));
-  /*$.ajax({
-    url: apiUrl+("/foxtrot/v1/consoles"),
+  $.ajax({
+    url: apiUrl+("/v2/consoles"),
     type: 'POST',
     contentType: 'application/json',
     data: JSON.stringify(representation),
-    success: function() {
-      success("Saved console. The new console can be accessed <a href='?console=" + representation.id + "' class='alert-link'>here</a>");
+    success: function(resp) {
+      console.log(resp);
+      alert('console saved sucessfully');
     },
     error: function() {
       error("Could not save console");
     }
-  })*/
+  })
 }
 
 function loadConsole() {
-  /*$.ajax({
-    url: hostDetails.url("/foxtrot/v1/consoles/" + consoleId),
+  $.ajax({
+    url: apiUrl+("/v2/consoles/"),
     type: 'GET',
     contentType: 'application/json',
-    success: $.proxy(this.consoleManager.buildConsoleFromRepresentation, this.consoleManager),
+    success: function(res) {
+      console.log(res);
+    },
     error: function() {
       error("Could not save console");
     }
-  })*/
+  })
+}
+
+function loadParticularConsole(id) {
+  $.ajax({
+    url: apiUrl+("/v2/consoles/" +id),
+    type: 'GET',
+    contentType: 'application/json',
+    success: function(res) {
+      console.log(res);
+    },
+    error: function() {
+      error("Could not save console");
+    }
+  })
 }
 
 function consoleTabs(evt, currentTab) {
@@ -295,7 +321,7 @@ function consoleTabs(evt, currentTab) {
       var tempObject = {
         "id":tabName.trim().toLowerCase().split(' ').join("_"),
         "name": tabName,
-        "tiles": tileList
+        "tileList": tileList
         , "tileData": tileData
       }
       if (tileList.length > 0) {
@@ -321,7 +347,7 @@ function consoleTabs(evt, currentTab) {
   var currentTabName = currentTab.toLowerCase();
   var tabIndex = globalData.findIndex(x => x.id == currentTabName.trim().toLowerCase().split(' ').join("_"));
   if (tabIndex >= 0) {
-    tileList = globalData[tabIndex].tiles;
+    tileList = globalData[tabIndex].tileList;
     tileData = globalData[tabIndex].tileData;
     for (var i = 0; i < tileList.length; i++) {
       renderTiles(tileData[tileList[i]]);
@@ -347,4 +373,5 @@ $(document).ready(function () {
   $("#saveConsole").click(function () {
     saveConsole();
   });
+  loadConsole();
 });
