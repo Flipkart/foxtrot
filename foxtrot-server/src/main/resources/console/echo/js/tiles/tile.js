@@ -82,12 +82,12 @@ TileFactory.prototype.getTileFormValue = function (form, modal, object) {
 function setConfigValue(object) {
   var form = $("#addWidgetModal").find("form");
   form.find(".tile-title").val(object.title);
-  form.find(".tile-table").val(parseInt(object.context.tableDropdownIndex));
-  form.find(".tile-time-unit").val(object.context.timeUnit);
-  form.find(".tile-time-value").val(object.context.timeValue);
-  form.find(".tile-chart-type").val(object.context.chartType);
+  form.find(".tile-table").val(parseInt(object.tileContext.tableDropdownIndex));
+  form.find(".tile-time-unit").val(object.tileContext.timeUnit);
+  form.find(".tile-time-value").val(object.tileContext.timeValue);
+  form.find(".tile-chart-type").val(object.tileContext.chartType);
   $('.tile-table').selectpicker('refresh');
-  var chartElement = $("#vizualization").find("[data-chart-type='" + object.context.chartType + "']");
+  var chartElement = $("#vizualization").find("[data-chart-type='" + object.tileContext.chartType + "']");
   clickedChartType(chartElement);
   if (currentChartType == "gauge") {
     setGaugeChartFormValues(object);
@@ -137,7 +137,7 @@ TileFactory.prototype.createNewRow = function (tileElement) {
   }
   else { // incremetn row value by one
     panelRow.push({
-      widgetType: this.tileObject.context.widgetType
+      widgetType: this.tileObject.tileContext.widgetType
       , id: this.tileObject.id
     });
     row = panelRow.length;
@@ -148,20 +148,20 @@ TileFactory.prototype.createNewRow = function (tileElement) {
   return tileElement;
 }
 TileFactory.prototype.updateFilterCreation = function (object) {
-  currentChartType = object.context.chartType;
+  currentChartType = object.tileContext.chartType;
     removeFilters();
     var tileListIndex = tileList.indexOf(object.id);
     var tileDataIndex = tileData[tileListIndex];
     var selectedTileObject = tileData[object.id];
-  currentFieldList = object.context.tableFields;
-    if (object.context.filters.length > 0) {
+  currentFieldList = object.tileContext.tableFields;
+    if (object.tileContext.filters.length > 0) {
       filterRowArray = [];
-      for (var invokeFilter = 0; invokeFilter < selectedTileObject.context.filters.length; invokeFilter++) {
+      for (var invokeFilter = 0; invokeFilter < selectedTileObject.tileContext.filters.length; invokeFilter++) {
         addFitlers();
       }
       //setFilters(object);
       setTimeout(function () { //calls click event after a certain time
-        setFilters(selectedTileObject.context.filters);
+        setFilters(selectedTileObject.tileContext.filters);
       }, 1000);
     }
     if (selectedTileObject) {
@@ -200,33 +200,33 @@ TileFactory.prototype.saveTileConfig = function (object) {
   });
 }
 TileFactory.prototype.createGraph = function (object, tileElement) {
-  if (object.context.chartType == "line") {
+  if (object.tileContext.chartType == "line") {
     var lineGraph = new LineTile();
     //lineGraph.render(tileElement, object);
     lineGraph.getQuery(tileElement, object);
   }
-  else if (object.context.chartType == "radar") {
+  else if (object.tileContext.chartType == "radar") {
     tileElement.find(".chart-item").append('<div id="radar-' + object.id + '" style="width:200;height:200"></div>');
     var radarGraph = new RadarTile();
     radarGraph.getQuery(tileElement, object);
   }
-  else if (object.context.chartType == "trend") {
+  else if (object.tileContext.chartType == "trend") {
     var trendGraph = new TrendTile();
     trendGraph.getQuery(tileElement, object);
   }
-  else if (object.context.chartType == "gauge") {
+  else if (object.tileContext.chartType == "gauge") {
     var gaugeGraph = new GaugeTile();
     gaugeGraph.getQuery(tileElement, object);
   }
-  else if (object.context.chartType == "stacked") {
+  else if (object.tileContext.chartType == "stacked") {
     var stackedGraph = new StackedTile();
     stackedGraph.getQuery(tileElement, object);
   }
-  else if (object.context.chartType == "stackedBar") {
+  else if (object.tileContext.chartType == "stackedBar") {
     var stackedBarGraph = new StackedBarTile();
     stackedBarGraph.getQuery(tileElement, object);
   }
-  else if (object.context.chartType == "pie") {
+  else if (object.tileContext.chartType == "pie") {
     var pieGraph = new PieTile();
     pieGraph.getQuery(tileElement, object);
   }
@@ -249,7 +249,7 @@ TileFactory.prototype.create = function () {
       tileElement = this.createNewRow(tileElement);
       defaultPlusBtn = true;
     }
-    if (this.tileObject.context.widgetType == 'small' && rowObject.widgetType == 'small') {
+    if (this.tileObject.tileContext.widgetType == 'small' && rowObject.widgetType == 'small') {
       var findElement = $("." + customBtn.id);
       var column1Length = findElement.find(".row-col-1").length;
       if (column1Length == 0 || column1Length == 2) {
@@ -264,33 +264,33 @@ TileFactory.prototype.create = function () {
       }
     }
   }
-  if (this.tileObject.context.widgetType == "full") {
+  if (this.tileObject.tileContext.widgetType == "full") {
     tileElement.find(".tile").addClass('col-md-12');
   }
-  else if (this.tileObject.context.widgetType == "medium") {
+  else if (this.tileObject.tileContext.widgetType == "medium") {
     tileElement.find(".tile").addClass('col-md-6');
     tileElement.find(".tile").width(590);
     tileElement.find(".tile").height(460);
     tileElement.find(".widget-header").css("background-color", "#fff");
   }
-  else if (this.tileObject.context.widgetType == "small") {
+  else if (this.tileObject.tileContext.widgetType == "small") {
     tileElement.find(".tile").addClass('col-md-3');
     tileElement.find(".tile").width(280);
     tileElement.find(".tile").height(250);
     tileElement.find(".widget-header").css("background-color", "#fff");
     tileElement.find(".widget-header").height(68);
   }
-  if (this.tileObject.context.chartType == "radar") {
+  if (this.tileObject.tileContext.chartType == "radar") {
     tileElement.find(".trend-chart").remove();
     tileElement.find(".chart-item").addClass("radar-chart");
   }
-  else if (this.tileObject.context.chartType == "line" || this.tileObject.context.chartType == "stacked" || this.tileObject.context.chartType == "stackedBar" || this.tileObject.context.chartType == "pie") {
+  else if (this.tileObject.tileContext.chartType == "line" || this.tileObject.tileContext.chartType == "stacked" || this.tileObject.tileContext.chartType == "stackedBar" || this.tileObject.tileContext.chartType == "pie") {
     tileElement.find(".widget-header").append('<div id="' + this.tileObject.id + '-health-text" class="lineGraph-health-text">No Data available</div>');
     tileElement.find(".widget-header").append('<div id="' + this.tileObject.id + '-health" style=""></div>');
     tileElement.find(".chart-item").append('<div id="' + this.tileObject.id + '"></div>');
     tileElement.find(".chart-item").append("<div style='height:100px;' class='legend col-md-12'></div>")
   }
-  if (this.tileObject.context.chartType == "pie") {
+  if (this.tileObject.tileContext.chartType == "pie") {
     tileElement.append("<div class='legend' style='width:100%;height:auto;'></div>")
   }
   if (defaultPlusBtn) { // new row
@@ -302,10 +302,10 @@ TileFactory.prototype.create = function () {
     $('.row-' + splitValue[1]).append(tileElement);
   }
 
-  if(this.tileObject.context.widgetType == "small") {
+  if(this.tileObject.tileContext.widgetType == "small") {
     tileElement.find(".settings").addClass('reduce-filter-size');
     tileElement.find(".filter").hide();
-  }else if(this.tileObject.context.widgetType == "medium") {
+  }else if(this.tileObject.tileContext.widgetType == "medium") {
     tileElement.find(".widget-header").addClass('reduce-widget-header-size');
   }
 

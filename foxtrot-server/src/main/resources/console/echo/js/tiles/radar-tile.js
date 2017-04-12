@@ -39,10 +39,10 @@ function getRadarChartFormValues() {
 }
 
 function setRadarChartFormValues(object) {
-  $(".radar-nesting").val(currentFieldList.findIndex(x => x.field == object.context.nesting[0]));
+  $(".radar-nesting").val(currentFieldList.findIndex(x => x.field == object.tileContext.nesting[0]));
   $(".radar-nesting").selectpicker('refresh');
-  $("#radar-timeframe").val(object.context.timeframe);
-  $("#radar-time-unit").val(object.context.period);
+  $("#radar-timeframe").val(object.tileContext.timeframe);
+  $("#radar-time-unit").val(object.tileContext.period);
   $("#radar-time-unit").selectpicker('refresh');
 }
 
@@ -57,12 +57,12 @@ function clearRadarChartForm() {
 RadarTile.prototype.getQuery = function (newDiv, object) {
   this.newDiv = newDiv;
   this.object = object;
-  object.context.filters.push(timeValue(object.context.period, object.context.timeframe, getPeriodSelect(object.id)))
+  object.tileContext.filters.push(timeValue(object.tileContext.period, object.tileContext.timeframe, getPeriodSelect(object.id)))
   var data = {
     "opcode": "group"
-    , "table": object.context.table
-    , "filters": object.context.filters
-    , "nesting": object.context.nesting
+    , "table": object.tileContext.table
+    , "filters": object.tileContext.filters
+    , "nesting": object.tileContext.nesting
   }
   $.ajax({
     method: "post"
@@ -77,7 +77,7 @@ RadarTile.prototype.getQuery = function (newDiv, object) {
   });
 }
 RadarTile.prototype.getData = function (data) {
-  this.object.context.filters.pop();
+  this.object.tileContext.filters.pop();
   if (data.result == undefined || data.result.length == 0) return;
   var chartData = [];
   var object = {}

@@ -47,14 +47,14 @@ function getstackedChartFormValues() {
 }
 
 function setStackedChartFormValues(object) {
-  $(".stacked-time-unit").val(object.context.period);
+  $(".stacked-time-unit").val(object.tileContext.period);
   $("stacked-time-unit").selectpicker('refresh');
-  $(".stacked-timeframe").val(object.context.timeframe);
-  $(".stacked-grouping-key").val(currentFieldList.findIndex(x => x.field == object.context.groupingKey));
+  $(".stacked-timeframe").val(object.tileContext.timeframe);
+  $(".stacked-grouping-key").val(currentFieldList.findIndex(x => x.field == object.tileContext.groupingKey));
   $(".stacked-grouping-key").selectpicker('refresh');
-  $(".stacking-key").val(currentFieldList.findIndex(x => x.field == object.context.stackingKey));
+  $(".stacking-key").val(currentFieldList.findIndex(x => x.field == object.tileContext.stackingKey));
   $(".stacking-key").selectpicker('refresh');
-  $(".stacked-uniquekey").val(currentFieldList.findIndex(x => x.field == object.context.uniqueKey));
+  $(".stacked-uniquekey").val(currentFieldList.findIndex(x => x.field == object.tileContext.uniqueKey));
   $(".stacked-uniquekey").selectpicker('refresh');
 }
 
@@ -78,14 +78,14 @@ function clearstackedChartForm() {
 StackedTile.prototype.getQuery = function (newDiv, object) {
   this.newDiv = newDiv;
   this.object = object;
-  this.object.context.filters.pop();
-  object.context.filters.push(timeValue(object.context.period, object.context.timeframe, getPeriodSelect(object.id)))
+  this.object.tileContext.filters.pop();
+  object.tileContext.filters.push(timeValue(object.tileContext.period, object.tileContext.timeframe, getPeriodSelect(object.id)))
   var data = {
     "opcode": "group"
-    , "table": object.context.table
-    , "filters": object.context.filters
-    , "uniqueCountOn": object.context.uniqueCountOn && object.context.uniqueCountOn != "none" ? object.context.uniqueCountOn : null
-    , "nesting": object.context.nesting
+    , "table": object.tileContext.table
+    , "filters": object.tileContext.filters
+    , "uniqueCountOn": object.tileContext.uniqueCountOn && object.tileContext.uniqueCountOn != "none" ? object.tileContext.uniqueCountOn : null
+    , "nesting": object.tileContext.nesting
   }
   $.ajax({
     method: "post"
@@ -108,7 +108,7 @@ function unique(list) {
   return result;
 }
 StackedTile.prototype.getData = function (data) {
-  this.object.context.filters.pop();
+  this.object.tileContext.filters.pop();
   if (data.result == undefined || data.result.length == 0) return;
   var xAxis = [];
   var yAxis = [];

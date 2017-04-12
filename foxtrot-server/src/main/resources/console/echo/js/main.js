@@ -139,7 +139,7 @@ FoxTrot.prototype.addTile = function () {
   var object = {
     "id": tileId
     , "title": title
-    , "context":context
+    , "tileContext":context
   }
   console.log(object);
   var tileFactory = new TileFactory();

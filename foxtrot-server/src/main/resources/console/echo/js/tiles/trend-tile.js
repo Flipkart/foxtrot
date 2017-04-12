@@ -67,31 +67,31 @@ function setTrendChartFormValues(object) {
   var parentElement = $("#"+currentChartType+"-chart-data");
 
   var timeUnitEl = parentElement.find(".trend-time-unit");
-  timeUnitEl.val(object.context.period);
+  timeUnitEl.val(object.tileContext.period);
   $(timeUnitEl).selectpicker('refresh');
 
   var statsFieldEl = parentElement.find(".stats-field");
-  var statsFieldIndex = currentFieldList.findIndex(x => x.field== object.context.statsFieldName);
+  var statsFieldIndex = currentFieldList.findIndex(x => x.field== object.tileContext.statsFieldName);
   statsFieldEl.val(statsFieldIndex);
   $(statsFieldEl).selectpicker('refresh');
 
   var statsToPlot = parentElement.find(".statistic_to_plot");
-  statsToPlot.val(object.context.statsToPlot);
+  statsToPlot.val(object.tileContext.statsToPlot);
   $(statsToPlot).selectpicker('refresh');
 
-  parentElement.find("#trend-timeframe").val(object.context.timeframe);
+  parentElement.find("#trend-timeframe").val(object.tileContext.timeframe);
   parentElement.find(".ignored-digits").val('');
 }
 
 TrendTile.prototype.getQuery = function(newDiv, object) {
   this.newDiv = newDiv;
   this.object = object;
-  object.context.filters.push(timeValue(object.context.period, object.context.timeframe, getPeriodSelect(object.id)));
+  object.tileContext.filters.push(timeValue(object.tileContext.period, object.tileContext.timeframe, getPeriodSelect(object.id)));
   var data = {
     "opcode": "stats",
-    "table": object.context.table,
-    "filters": object.context.filters,
-    "field": object.context.statsFieldName
+    "table": object.tileContext.table,
+    "filters": object.tileContext.filters,
+    "field": object.tileContext.statsFieldName
   }
   $.ajax({
     method: "post",
@@ -107,14 +107,14 @@ TrendTile.prototype.getQuery = function(newDiv, object) {
 }
 
 TrendTile.prototype.getData = function(data) {
-  this.object.context.filters.pop();
+  this.object.tileContext.filters.pop();
   if(!data.result)
     return;
   var statsObject = data.result.stats;
   var percentile = data.result.percentiles;
   var displayValue = "";
-  var objectToshow = this.object.context.statsToPlot.split('.');
-  if(this.object.context.statsToPlot.match('stats')) {
+  var objectToshow = this.object.tileContext.statsToPlot.split('.');
+  if(this.object.tileContext.statsToPlot.match('stats')) {
     objectToshow = objectToshow[1].toString();
     displayValue = statsObject[objectToshow];
   } else {
