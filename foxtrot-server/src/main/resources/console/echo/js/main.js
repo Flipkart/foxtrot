@@ -337,6 +337,7 @@ function loadParticularConsole() {
       globalData = [];
       globalData = res.sections;
       renderTilesObject(res.sections[0].id);
+      getTables();
     },
     error: function() {
       error("Could not save console");
@@ -400,6 +401,21 @@ function consoleTabs(evt, currentTab) {
   renderTilesObject(currentTabName);
   clearInterval(interval);
 }
+var tableNameList = [];
+function getTables() {
+  $.ajax({
+    url: "http://foxtrot.traefik.prod.phonepe.com/foxtrot/v1/tables/",
+    contentType: "application/json",
+    context: this,
+    success: function(tables) {
+      for (var i = tables.length - 1; i >= 0; i--) {
+        tableNameList.push(tables[i].name)
+      }
+      console.log(tableNameList);
+    }});
+
+}
+
 $(document).ready(function () {
   var type = $("#widgetType").val();
   var foxtrot = new FoxTrot();
