@@ -149,25 +149,30 @@ TileFactory.prototype.createNewRow = function (tileElement) {
 }
 TileFactory.prototype.updateFilterCreation = function (object) {
   currentChartType = object.tileContext.chartType;
-    removeFilters();
-    var tileListIndex = tileList.indexOf(object.id);
-    var tileDataIndex = tileData[tileListIndex];
-    var selectedTileObject = tileData[object.id];
-  currentFieldList = object.tileContext.tableFields;
-    if (object.tileContext.filters.length > 0) {
-      filterRowArray = [];
-      for (var invokeFilter = 0; invokeFilter < selectedTileObject.tileContext.filters.length; invokeFilter++) {
-        addFitlers();
-      }
-      //setFilters(object);
-      setTimeout(function () { //calls click event after a certain time
-        setFilters(selectedTileObject.tileContext.filters);
-      }, 1000);
-    }
-    if (selectedTileObject) {
-      setConfigValue(selectedTileObject);
-    }
+  removeFilters();
+  var tileListIndex = tileList.indexOf(object.id);
+  var tileDataIndex = tileData[tileListIndex];
+  var selectedTileObject = tileData[object.id];
+  if($("#listConsole").val() == "none") {// this is for without console
+    currentFieldList = object.tileContext.tableFields;
+  } else {// with console
+    currentFieldList = tableFiledsArray[object.tileContext.table].mappings;
   }
+
+  if (object.tileContext.filters.length > 0) {
+    filterRowArray = [];
+    for (var invokeFilter = 0; invokeFilter < selectedTileObject.tileContext.filters.length; invokeFilter++) {
+      addFitlers();
+    }
+    //setFilters(object);
+    setTimeout(function () { //calls click event after a certain time
+      setFilters(selectedTileObject.tileContext.filters);
+    }, 1000);
+  }
+  if (selectedTileObject) {
+    setConfigValue(selectedTileObject);
+  }
+}
   // Add click event for tile config icon
 TileFactory.prototype.triggerConfig = function (tileElement, object) {
   var instanceVar = this;

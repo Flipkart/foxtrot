@@ -43,7 +43,7 @@ TablesView.prototype.load = function (tables) {
   select.change();
 };
 function clearModalfields() { // used when modal table changed
-  reloadDropdowns();
+  reloadDropdowns(currentChartType);
   removeFilters();
 }
 TablesView.prototype.registerTableSelectionChangeHandler = function (handler) {
@@ -95,9 +95,25 @@ function setClicketData(ele) {
   defaultPlusBtn = false;
   clearModal();
 }
+var tableFiledsArray = {};
+function fetchTableFields(tableName) {
+  if(tableFiledsArray[tableName] == undefined) {
+    $.ajax({
+      url: apiUrl+"/v1/tables/" + tableName + "/fields",
+      contentType: "application/json",
+      context: this,
+      success: function(resp){
+        tableFiledsArray[tableName] = resp;
+        console.log(tableFiledsArray)
+      }
+    });
+  }
+}
+
 function renderTiles(object) {
   var tileFactory = new TileFactory();
   tileFactory.tileObject = object;
+  fetchTableFields(object.tileContext.table);
   tileFactory.create();
 }
 
