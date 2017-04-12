@@ -970,3 +970,7 @@ div.tab button:last-child {
   color: #7d909a !important;
 }
 
+#console-list {
+  float:right;
+  margin-top: -28px;
+}
