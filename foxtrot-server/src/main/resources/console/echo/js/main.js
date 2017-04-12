@@ -250,35 +250,37 @@ function clickedChartType(el) {
 }
 
 function saveConsole() {
-  var name = "Console 2";
-  for(var i = 0; i < globalData.length; i++) {
-    var secArray = globalData[i].tileData;
-    for(var key in  secArray) {
-      var deleteObject = secArray[key];
-      delete deleteObject.tileContext.tableFields;
-      delete deleteObject.tileContext.editTileId;
-      delete deleteObject.tileContext.tableDropdownIndex;
+  if(tileList.length > 0) {
+    var name = "Console 3";
+    for(var i = 0; i < globalData.length; i++) {
+      var secArray = globalData[i].tileData;
+      for(var key in  secArray) {
+        var deleteObject = secArray[key];
+        delete deleteObject.tileContext.tableFields;
+        delete deleteObject.tileContext.editTileId;
+        delete deleteObject.tileContext.tableDropdownIndex;
+      }
     }
+    var representation = {
+      id: name.trim().toLowerCase().split(' ').join("")
+      , name: name
+      , sections: globalData
+    };
+    console.log(JSON.stringify(representation));
+    $.ajax({
+      url: apiUrl+("/v2/consoles"),
+      type: 'POST',
+      contentType: 'application/json',
+      data: JSON.stringify(representation),
+      success: function(resp) {
+        console.log(resp);
+        alert('console saved sucessfully');
+      },
+      error: function() {
+        error("Could not save console");
+      }
+    })
   }
-  var representation = {
-    id: name.trim().toLowerCase().split(' ').join("")
-    , name: name
-    , sections: globalData
-  };
-  console.log(JSON.stringify(representation));
-  $.ajax({
-    url: apiUrl+("/v2/consoles"),
-    type: 'POST',
-    contentType: 'application/json',
-    data: JSON.stringify(representation),
-    success: function(resp) {
-      console.log(resp);
-      alert('console saved sucessfully');
-    },
-    error: function() {
-      error("Could not save console");
-    }
-  })
 }
 
 function appendConsoleList() {
