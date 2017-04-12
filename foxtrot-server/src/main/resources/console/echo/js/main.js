@@ -315,9 +315,10 @@ function loadParticularConsole() {
     type: 'GET',
     contentType: 'application/json',
     success: function(res) {
+      clearContainer();
       globalData = [];
       globalData = res.sections;
-      renderTilesObject("payments");
+      renderTilesObject(res.sections[0].id);
     },
     error: function() {
       error("Could not save console");
@@ -336,6 +337,12 @@ function renderTilesObject(currentTabName) {
     }
   }
 }
+
+function clearContainer() {
+  $(".tile-container").empty();
+  $(".tile-container").append('<div class="float-clear"></div>');
+}
+
 function consoleTabs(evt, currentTab) {
   var i, tabcontent, tablinks;
   tabcontent = document.getElementsByClassName("tabcontent");
@@ -369,8 +376,7 @@ function consoleTabs(evt, currentTab) {
     tablinks[i].className = tablinks[i].className.replace(" active", "");
   }
   //document.getElementById(cityName).style.display = "block";
-  $(".tile-container").empty();
-  $(".tile-container").append('<div class="float-clear"></div>');
+  clearContainer();
   evt.currentTarget.className += " active";
   var currentTabName = currentTab.toLowerCase();
   renderTilesObject(currentTabName);
