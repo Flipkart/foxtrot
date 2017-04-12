@@ -143,7 +143,7 @@ TileFactory.prototype.createNewRow = function (tileElement) {
     row = panelRow.length;
     tileElement.addClass("row-" + row);
   }
-  if (this.tileObject.widgetType != "full") // dont add row add button for full widget
+  if (this.tileObject.tileContext.widgetType != "full") // dont add row add button for full widget
     tileElement.append(newBtnElement());
   return tileElement;
 }
@@ -245,7 +245,7 @@ TileFactory.prototype.create = function () {
     var splitValue = customBtn.id.split("-");
     var rowObject = panelRow[splitValue[1] - 1];
     clickedRow = rowObject.id
-    if (this.tileObject.widgetType != rowObject.widgetType) { // f choosen type and row type is not equal
+    if (this.tileObject.tileContext.widgetType != rowObject.widgetType) { // f choosen type and row type is not equal
       tileElement = this.createNewRow(tileElement);
       defaultPlusBtn = true;
     }
