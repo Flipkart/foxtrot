@@ -293,21 +293,19 @@ function consoleTabs(evt, currentTab) {
     if (tablinks[i].className.endsWith("active")) {
       var tabName = tablinks[i].id;
       var tempObject = {
+        "id":tabName.trim().toLowerCase().split(' ').join("_"),
+        "name": tabName,
         "tiles": tileList
         , "tileData": tileData
       }
       if (tileList.length > 0) {
-        var deleteIndex = findIndex(tabName);
+        var deleteIndex = globalData.findIndex(x => x.id == tabName.trim().toLowerCase().split(' ').join("_"));
         if (deleteIndex >= 0) {
           globalData.splice(deleteIndex, 1);
-          globalData.splice(deleteIndex, 0, {
-            [tabName]: tempObject
-          });
+          globalData.splice(deleteIndex, 0, tempObject);
         }
         else {
-          globalData.push({
-            [tabName]: tempObject
-          });
+          globalData.push(tempObject);
         }
       }
       clearModal();
@@ -321,11 +319,10 @@ function consoleTabs(evt, currentTab) {
   $(".tile-container").append('<div class="float-clear"></div>');
   evt.currentTarget.className += " active";
   var currentTabName = currentTab.toLowerCase();
-  var tabIndex = findIndex(currentTabName);
+  var tabIndex = globalData.findIndex(x => x.id == currentTabName.trim().toLowerCase().split(' ').join("_"));
   if (tabIndex >= 0) {
-    var currentTabArray = globalData[tabIndex][currentTabName];
-    tileList = currentTabArray.tiles;
-    tileData = currentTabArray.tileData;
+    tileList = globalData[tabIndex].tiles;
+    tileData = globalData[tabIndex].tileData;
     for (var i = 0; i < tileList.length; i++) {
       renderTiles(tileData[tileList[i]]);
     }
