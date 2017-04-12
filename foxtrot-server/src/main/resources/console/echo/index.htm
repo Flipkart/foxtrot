@@ -55,40 +55,13 @@
           <button class="tablinks" onclick="consoleTabs(event, 'banks')" id="banks">Banks</button>
           <button class="tablinks" onclick="consoleTabs(event, 'campaigns')" id="campaigns">Campaigns</button>
         </div>
-        <!--<div id="menu-list">
-        <ul>
-          <li><a href="" class="menu-active">Payments</a></li>
-          <li><a href="">Merchants</a></li>
-          <li><a href="">Wallets</a></li>
-          <li><a href="">Banks</a></li>
-          <li><a href="">Campaigns</a></li>
-        </ul>
-      </div>-->
-        <!--<div class="pull-right" id="right-menu">
-          <span class="menu-active">Dashboard</span>
-          <div id="switch"><div></div></div>
-          <span>Explore</span>
-        </div--></div>
+        <div style="float:right">
+          <select id="listConsole" class="listConsole selectpicker">
+            <option value="none">Select console</option>
+          </select>
+        </div>
+      </div>
     </div>
-    <!--<div class="header">
-      <div class="pull-left" id="top-left-header">
-        <h1>Echo</h1> </div>
-      <div class="text-center">
-        <h1>Metrics</h1> </div>
-      <div class="row pull-right" id="top-right-btn">
-        <a id="dashboard-link">Dashboard</a>
-        <a id="explore-link">Explore</a>
-      </div>
-      <div id="menu-list">
-        <ul>
-          <li><a href="">Payments</a></li>
-          <li><a href="">Merchants</a></li>
-          <li><a href="">Wallets</a></li>
-          <li><a href="">Banks</a></li>
-          <li><a href="">Campaigns</a></li>
-        </ul>
-      </div>
-    </div>-->
     <!-- Modal -->
     <div class="modal fade" id="addWidgetModal" tabindex="-1" role="dialog" aria-labelledby="addWidgetModalLabel" aria-hidden="true">
       <form class="row">

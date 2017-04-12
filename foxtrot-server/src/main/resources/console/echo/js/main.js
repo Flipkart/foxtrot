@@ -26,6 +26,7 @@ var tableList = [];
 var currentFieldList = [];
 var apiUrl = "http://foxtrot.traefik.prod.phonepe.com/foxtrot";
 var interval = null;
+var consoleList = [];
 function TablesView(id, tables) {
   this.id = id;
   this.tables = tables;
@@ -249,7 +250,7 @@ function clickedChartType(el) {
 }
 
 function saveConsole() {
-  var name = "Console 1";
+  var name = "Console 2";
   for(var i = 0; i < globalData.length; i++) {
     var secArray = globalData[i].tileData;
     for(var key in  secArray) {
@@ -280,13 +281,26 @@ function saveConsole() {
   })
 }
 
+function appendConsoleList() {
+  var textToInsert = [];
+  var i = 0;
+  for (var a = 0; a < consoleList.length; a += 1) {
+    textToInsert[i++] = '<option value=' + consoleList[a].id + '>';
+    textToInsert[i++] = consoleList[a].name;
+    textToInsert[i++] = '</option>';
+  }
+  $("#listConsole").append(textToInsert.join(''));
+  $("#listConsole").selectpicker('refresh');
+}
+
 function loadConsole() {
   $.ajax({
     url: apiUrl+("/v2/consoles/"),
     type: 'GET',
     contentType: 'application/json',
     success: function(res) {
-      console.log(res);
+      consoleList = res;
+      appendConsoleList();
     },
     error: function() {
       error("Could not save console");
@@ -294,13 +308,16 @@ function loadConsole() {
   })
 }
 
-function loadParticularConsole(id) {
+function loadParticularConsole() {
+  var selectedConsole = $("#listConsole").val();
   $.ajax({
-    url: apiUrl+("/v2/consoles/" +id),
+    url: apiUrl+("/v2/consoles/" +selectedConsole),
     type: 'GET',
     contentType: 'application/json',
     success: function(res) {
-      console.log(res);
+      globalData = [];
+      globalData = res.sections;
+      renderTilesObject("payments");
     },
     error: function() {
       error("Could not save console");
@@ -308,6 +325,17 @@ function loadParticularConsole(id) {
   })
 }
 
+function renderTilesObject(currentTabName) {
+  console.log(globalData)
+  var tabIndex = globalData.findIndex(x => x.id == currentTabName.trim().toLowerCase().split(' ').join("_"));
+  if (tabIndex >= 0) {
+    tileList = globalData[tabIndex].tileList;
+    tileData = globalData[tabIndex].tileData;
+    for (var i = 0; i < tileList.length; i++) {
+      renderTiles(tileData[tileList[i]]);
+    }
+  }
+}
 function consoleTabs(evt, currentTab) {
   var i, tabcontent, tablinks;
   tabcontent = document.getElementsByClassName("tabcontent");
@@ -345,14 +373,7 @@ function consoleTabs(evt, currentTab) {
   $(".tile-container").append('<div class="float-clear"></div>');
   evt.currentTarget.className += " active";
   var currentTabName = currentTab.toLowerCase();
-  var tabIndex = globalData.findIndex(x => x.id == currentTabName.trim().toLowerCase().split(' ').join("_"));
-  if (tabIndex >= 0) {
-    tileList = globalData[tabIndex].tileList;
-    tileData = globalData[tabIndex].tileData;
-    for (var i = 0; i < tileList.length; i++) {
-      renderTiles(tileData[tileList[i]]);
-    }
-  }
+  renderTilesObject(currentTabName);
   clearInterval(interval);
 }
 $(document).ready(function () {
@@ -372,6 +393,9 @@ $(document).ready(function () {
   foxtrot.init();
   $("#saveConsole").click(function () {
     saveConsole();
+  });
+  $("#listConsole").change(function () {
+    loadParticularConsole();
   });
   loadConsole();
 });
