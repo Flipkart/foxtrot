@@ -69,7 +69,6 @@ function clearPieChartForm() {
 PieTile.prototype.getQuery = function (newDiv, object) {
   this.newDiv = newDiv;
   this.object = object;
-  this.object.tileContext.filters.pop();
   this.object.tileContext.filters.push(timeValue(object.tileContext.period, object.tileContext.timeframe, getPeriodSelect(object.id)))
   var data = {
     "opcode": "group"
@@ -99,6 +98,7 @@ function unique(list) {
   return result;
 }
 PieTile.prototype.getData = function (data) {
+  this.object.tileContext.filters.pop();
   var colors = new Colors(Object.keys(data.result).length);
   var columns = [];
   this.uniqueValues = [];
