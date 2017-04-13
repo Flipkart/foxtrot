@@ -326,6 +326,13 @@ function loadConsole() {
   })
 }
 
+function generateTabBtnForConsole(array) {
+  $(".tab").empty();
+  for(var i = 0; i < array.sections.length; i++) {
+    generateSectionbtn(array.sections[i].name);
+  }
+}
+
 function loadParticularConsole() {
   var selectedConsole = $("#listConsole").val();
   $.ajax({
@@ -338,6 +345,7 @@ function loadParticularConsole() {
       globalData = res.sections;
       renderTilesObject(res.sections[0].id);
       getTables();
+      generateTabBtnForConsole(res);
     },
     error: function() {
       error("Could not save console");
