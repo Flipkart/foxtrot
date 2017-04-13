@@ -91,6 +91,7 @@ LineTile.prototype.getData = function (data) {
 LineTile.prototype.render = function (rows) {
   var newDiv = this.newDiv;
   var object = this.object;
+  var borderColorArray = ["#9e8cd9", "#f3a534", "#9bc95b", "#50e3c2"]
   var chartDiv = newDiv.find(".chart-item");
   var ctx = chartDiv.find("#" + object.id);
   ctx.width(ctx.width - 100);
@@ -117,10 +118,10 @@ LineTile.prototype.render = function (rows) {
       , timeformat: axisTimeFormat(object.tileContext.period, getPeriodSelect(object.id))
     , }
     , yaxis: {
+      markingsStyle: 'dashed',
         tickFormatter: function(val, axis) {
         return numDifferentiation(val);
       },
-      tickLength: 0
     }
     , grid: {
       hoverable: true
@@ -139,7 +140,7 @@ LineTile.prototype.render = function (rows) {
       content: "%y events at %x"
       , defaultFormat: true
     }
-    , colors: ['#50e3c2']
+    , colors: [borderColorArray[Math.floor(Math.random()*borderColorArray.length)]]
   , });
   var healthParentDiv = newDiv.find(".widget-header")
   var healthDiv = healthParentDiv.find("#" + object.id + "-health");
