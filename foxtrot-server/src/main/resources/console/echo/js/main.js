@@ -362,8 +362,8 @@ function clearContainer() {
   $(".tile-container").append('<div class="float-clear"></div>');
 }
 
-function consoleTabs(evt, currentTab) {
-  console.log(currentTab)
+function consoleTabs(evt, el) {
+  var currentTab = el.id;
   var i, tabcontent, tablinks;
   tabcontent = document.getElementsByClassName("tabcontent");
   for (i = 0; i < tabcontent.length; i++) {
@@ -416,12 +416,15 @@ function getTables() {
     }});
 }
 
-function addSections() {
-  var tabName = $("#tab-name").val();
-  //$(".tab").append('<button class="tablinks" id="'+tabName+'" onclick="consoleTabs(event, '+tabName+')">'+tabName+'</button>');
-  $(".tab").append("<button class='tablinks' id="+tabName+" onClick='consoleTabs(event, "+tabName+")'>"+tabName+"</button>")
+function generateSectionbtn(tabName) {
+  $(".tab").append('<button class="tablinks" id="'+tabName+'" onclick="consoleTabs(event, this)">'+tabName+'</button>');
   $("#addTab").modal('hide');
   $("#tab-name").val('');
+}
+
+function addSections() {
+  var tabName = $("#tab-name").val();
+  generateSectionbtn(tabName);
 }
 $(document).ready(function () {
   var type = $("#widgetType").val();
