@@ -363,6 +363,7 @@ function clearContainer() {
 }
 
 function consoleTabs(evt, currentTab) {
+  console.log(currentTab)
   var i, tabcontent, tablinks;
   tabcontent = document.getElementsByClassName("tabcontent");
   for (i = 0; i < tabcontent.length; i++) {
@@ -413,9 +414,15 @@ function getTables() {
       }
       console.log(tableNameList);
     }});
-
 }
 
+function addSections() {
+  var tabName = $("#tab-name").val();
+  //$(".tab").append('<button class="tablinks" id="'+tabName+'" onclick="consoleTabs(event, '+tabName+')">'+tabName+'</button>');
+  $(".tab").append("<button class='tablinks' id="+tabName+" onClick='consoleTabs(event, "+tabName+")'>"+tabName+"</button>")
+  $("#addTab").modal('hide');
+  $("#tab-name").val('');
+}
 $(document).ready(function () {
   var type = $("#widgetType").val();
   var foxtrot = new FoxTrot();
@@ -437,5 +444,8 @@ $(document).ready(function () {
   $("#listConsole").change(function () {
     loadParticularConsole();
   });
+  $("#addTabConfirm").click(function() {
+    addSections();
+  })
   loadConsole();
 });

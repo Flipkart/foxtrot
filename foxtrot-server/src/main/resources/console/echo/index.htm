@@ -48,7 +48,8 @@
   <div class="container-full">
     <div class="new-header">
       <div class="inner-header">
-        <div class="tab">
+        <div class="tab col-md-8">
+
           <button class="tablinks active" id="payments" onclick="consoleTabs(event, 'payments')">Payments</button>
           <button class="tablinks" onclick="consoleTabs(event, 'merchants')" id="merchants">Merchants</button>
           <button class="tablinks" id="wallets" onclick="consoleTabs(event, 'wallets')" id="wallets">Wallets</button>
@@ -56,6 +57,7 @@
           <button class="tablinks" onclick="consoleTabs(event, 'campaigns')" id="campaigns">Campaigns</button>
         </div>
         <div id="console-list">
+          <!--<button id="add-sections" data-target="#addTab" data-toggle="modal">Add sections</button>-->
           <select id="listConsole" class="listConsole selectpicker">
             <option value="none">Select console</option>
           </select>
@@ -339,6 +341,30 @@
           </div>
         </div>
       </form>
+    </div>
+    <div class="modal fade" id="addTab" tabindex="-2" role="dialog" aria-labelledby="addTab" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+            <h4 class="modal-title" id="addWidgetModalLabel">Add Tab</h4>
+          </div>
+          <div class="modal-body">
+            <form class="row">
+              <div class="form-group">
+                <label class="col-sm-4 control-label" for="widgetType"><strong>Enter tab name</strong></label>
+                <div class="col-sm-8">
+                  <input type="text" class="form-control tab-name" id="tab-name">
+                </div>
+              </div>
+            </form>
+          </div>
+          <div class="modal-footer" style="margin-top: 0px;">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            <button type="button" class="btn btn-primary" id="addTabConfirm">Add</button>
+          </div>
+        </div>
+      </div>
     </div>
     <div class="container-fluid" id="monitoring">
       <div class="tile-container" id="tileContainer">

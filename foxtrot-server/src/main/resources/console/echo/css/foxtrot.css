@@ -805,7 +805,6 @@ path {
 }
 
 .inner-header {
-  margin-left: 31%;
   padding: 15px;
 }
 
@@ -972,5 +971,4 @@ div.tab button:last-child {
 
 #console-list {
   float:right;
-  margin-top: -28px;
 }
