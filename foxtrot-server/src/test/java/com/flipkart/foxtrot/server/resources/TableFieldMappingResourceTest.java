@@ -75,6 +75,7 @@ public class TableFieldMappingResourceTest extends FoxtrotResourceTest {
         mappings.add(new FieldTypeMapping("data.data", FieldType.STRING));
         mappings.add(new FieldTypeMapping("header.hello", FieldType.STRING));
         mappings.add(new FieldTypeMapping("head.hello", FieldType.LONG));
+        mappings.add(new FieldTypeMapping("time", FieldType.LONG));
 
         TableFieldMapping tableFieldMapping = new TableFieldMapping(TestUtils.TEST_TABLE_NAME, mappings);
         String response = resources.client().target(String.format("/v1/tables/%s/fields", TestUtils.TEST_TABLE_NAME))
