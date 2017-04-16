@@ -233,6 +233,28 @@ public class TestUtils {
         return documents;
     }
 
+    public static List<Document> getTopNDocuments(ObjectMapper mapper) {
+        List<Document> documents = new Vector<Document>();
+        documents.add(TestUtils.getDocument("Z", 1397658117000L, new Object[]{"os", "android", "version", 1, "device", "nexus", "battery", 24}, mapper));
+        documents.add(TestUtils.getDocument("Y", 1397658117000L, new Object[]{"os", "android", "version", 1, "device", "nexus", "battery", 48}, mapper));
+        documents.add(TestUtils.getDocument("X", 1397658117000L, new Object[]{"os", "android", "version", 3, "device", "galaxy", "battery", 74}, mapper));
+        documents.add(TestUtils.getDocument("W", 1397658117000L, new Object[]{"os", "android", "version", 2, "device", "nexus", "battery", 99}, mapper));
+        documents.add(TestUtils.getDocument("A", 1397658118000L, new Object[]{"os", "android", "version", 3, "device", "nexus", "battery", 87}, mapper));
+        documents.add(TestUtils.getDocument("B", 1397658118001L, new Object[]{"os", "android", "version", 2, "device", "galaxy", "battery", 76}, mapper));
+        documents.add(TestUtils.getDocument("C", 1397658118002L, new Object[]{"os", "android", "version", 2, "device", "nexus", "battery", 78}, mapper));
+        documents.add(TestUtils.getDocument("D", 1397658118003L, new Object[]{"os", "ios", "version", 1, "device", "iphone", "battery", 24}, mapper));
+        documents.add(TestUtils.getDocument("E", 1397658118004L, new Object[]{"os", "ios", "version", 2, "device", "ipad", "battery", 56}, mapper));
+        documents.add(TestUtils.getDocument("F", 1397658118005L, new Object[]{"os", "ios", "version", 2, "device", "nexus", "battery", 35}, mapper));
+        documents.add(TestUtils.getDocument("G", 1397658118006L, new Object[]{"os", "ios", "version", 2, "device", "ipad", "battery", 44}, mapper));
+        documents.add(TestUtils.getDocument("H", 1397658118003L, new Object[]{"os", "wind", "version", 1, "device", "iphone", "battery", 24}, mapper));
+        documents.add(TestUtils.getDocument("I", 1397658118004L, new Object[]{"os", "win", "version", 2, "device", "ipad", "battery", 56}, mapper));
+        documents.add(TestUtils.getDocument("J", 1397658118005L, new Object[]{"os", "win", "version", 2, "device", "nexus", "battery", 35}, mapper));
+        documents.add(TestUtils.getDocument("K", 1397658118006L, new Object[]{"os", "win", "version", 2, "device", "ipad", "battery", 44}, mapper));
+        documents.add(TestUtils.getDocument("L", 1397658118006L, new Object[]{"os", "ABCD", "version", 2, "device", "ipad", "battery", 44}, mapper));
+        documents.add(TestUtils.getDocument("L", 1397658118006L, new Object[]{"test", "ABCD", "version", 2, "device", "ipad", "battery", 44}, mapper));
+        return documents;
+    }
+
     public static List<Document> getMappingDocuments(ObjectMapper mapper) {
         List<Document> documents = new Vector<Document>();
         Map<String, Object> document = Maps.newHashMap();

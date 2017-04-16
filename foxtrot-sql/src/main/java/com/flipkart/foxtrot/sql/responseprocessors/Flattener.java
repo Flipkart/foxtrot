@@ -14,6 +14,8 @@ import com.flipkart.foxtrot.common.query.QueryResponse;
 import com.flipkart.foxtrot.common.stats.StatsResponse;
 import com.flipkart.foxtrot.common.stats.StatsTrendResponse;
 import com.flipkart.foxtrot.common.stats.StatsTrendValue;
+import com.flipkart.foxtrot.common.top.TopNResponse;
+import com.flipkart.foxtrot.common.top.ValueCount;
 import com.flipkart.foxtrot.common.trend.TrendResponse;
 import com.flipkart.foxtrot.sql.responseprocessors.model.FieldHeader;
 import com.flipkart.foxtrot.sql.responseprocessors.model.FlatRepresentation;
@@ -29,10 +31,10 @@ import static com.flipkart.foxtrot.sql.responseprocessors.FlatteningUtils.genera
 import static com.flipkart.foxtrot.sql.responseprocessors.FlatteningUtils.genericParse;
 
 public class Flattener implements ResponseVisitor {
+    private final List<String> fieldsToReturn;
     private FlatRepresentation flatRepresentation;
     private ObjectMapper objectMapper;
     private ActionRequest request;
-    private final List<String> fieldsToReturn;
 
 
     public Flattener(ObjectMapper objectMapper, ActionRequest request, List<String> fieldsToReturn) {
@@ -232,6 +234,28 @@ public class Flattener implements ResponseVisitor {
             rows.add(row);
         }
         flatRepresentation = new FlatRepresentation("distinct", fieldHeaders, rows);
+    }
+
+    @Override
+    public void visit(TopNResponse topNResponse) {
+        List<FieldHeader> headers = Lists.newArrayList();
+        headers.add(new FieldHeader("field", 10));
+        headers.add(new FieldHeader("value", 10));
+        headers.add(new FieldHeader("count", 10));
+
+        List<Map<String, Object>> rows = new ArrayList<Map<String, Object>>();
+
+        Map<String, List<ValueCount>> data = topNResponse.getData();
+        for (Map.Entry<String, List<ValueCount>> entry : data.entrySet()){
+            for (ValueCount valueCount : entry.getValue()){
+                Map<String, Object> row = new HashMap<String, Object>();
+                row.put(headers.get(0).getName(), entry.getKey());
+                row.put(headers.get(1).getName(), valueCount.getValue());
+                row.put(headers.get(2).getName(), valueCount.getCount());
+                rows.add(row);
+            }
+        }
+        flatRepresentation = new FlatRepresentation(headers, rows);
     }
 
     public FlatRepresentation getFlatRepresentation() {
