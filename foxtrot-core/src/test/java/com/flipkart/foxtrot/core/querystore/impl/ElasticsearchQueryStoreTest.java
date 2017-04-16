@@ -397,6 +397,7 @@ public class ElasticsearchQueryStoreTest {
         mappings.add(new FieldTypeMapping("data.data", FieldType.STRING));
         mappings.add(new FieldTypeMapping("header.hello", FieldType.STRING));
         mappings.add(new FieldTypeMapping("head.hello", FieldType.LONG));
+        mappings.add(new FieldTypeMapping("time",FieldType.LONG));
 
         TableFieldMapping tableFieldMapping = new TableFieldMapping(TestUtils.TEST_TABLE_NAME, mappings);
         TableFieldMapping responseMapping = queryStore.getFieldMappings(TestUtils.TEST_TABLE_NAME);
