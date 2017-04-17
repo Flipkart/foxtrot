@@ -230,6 +230,5 @@ StackedBarTile.prototype.render = function (d) {
       }
       , container: $(chartDiv.find(".legend"))
     }
-    , colors: [borderColorArray[Math.floor(Math.random()*borderColorArray.length)]]
   });
 }
