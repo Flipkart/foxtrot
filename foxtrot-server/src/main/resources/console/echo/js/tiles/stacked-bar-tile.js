@@ -176,8 +176,8 @@ StackedBarTile.prototype.render = function (d) {
       stack: true
       , lines: {
         show: true
-        , fill: true
-        , lineWidth: 1.0
+        , fill: false
+        , lineWidth: 3.0
         , fillColor: {
           colors: [{
             opacity: 0.7
@@ -202,8 +202,7 @@ StackedBarTile.prototype.render = function (d) {
       , borderColor: "#EEEEEE"
     }
     , yaxis: {
-      tickLength: 0
-      , tickFormatter: function(val, axis) {
+      tickFormatter: function(val, axis) {
         return numDifferentiation(val);
       },
     }
