@@ -106,6 +106,14 @@ LineTile.prototype.render = function (rows) {
         show: true
         , lineWidth: 4.0
         , color: "#9bc95b"
+        , fill: true
+        , fillColor: {
+          colors: [{
+            opacity: 0.7
+          }, {
+            opacity: 0.1
+          }]
+        }
       }
       , points: {
         show: false
