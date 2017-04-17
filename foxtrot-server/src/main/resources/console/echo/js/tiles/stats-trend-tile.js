@@ -165,9 +165,9 @@ StatsTrendTile.prototype.render = function (rows) {
         , color: "#9bc95b"
         , fillColor: {
           colors: [{
-            opacity: 0.7
+            opacity: 1
           }, {
-            opacity: 0.1
+            opacity: 0.25
           }]
         }
         , fill: true

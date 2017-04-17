@@ -181,9 +181,9 @@ StackedBarTile.prototype.render = function (d) {
         , lineWidth: 3.0
         , fillColor: {
           colors: [{
-            opacity: 0.7
+            opacity: 1
                     }, {
-            opacity: 0.1
+            opacity: 0.5
                     }]
         }
       }
