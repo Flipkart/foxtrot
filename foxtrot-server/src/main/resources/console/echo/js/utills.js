@@ -199,12 +199,25 @@ function deleteFilterRow(el) {
   $(parentRow).remove();
 }
 function setFilters(object) {
-  for (var filter = 0; filter < filterRowArray.length; filter++) {
-    var filterId = filterRowArray[filter];
+  for (var filter = 0; filter <object.length; filter++) {
+    var filterId = filter;
     var el = $("#filter-row-" + filterId);
     var fieldDropdown = $(el).find(".filter-column").val(currentFieldList.findIndex(x => x.field == object[filter].field));
     var operatorDropdown = $(el).find(".filter-type").val(object[filter].operator);
-    $(el).find(".filter-value").val(object[filter].value);
+    var filterValue;
+
+    if(object[filter].value == undefined) {
+      filterValue = object[filter].values;
+    } else {
+      filterValue = object[filter].value;
+    }
+
+    if(filterValue.isArray ) {
+      $(el).find(".filter-value").val(filterValue.toString());
+    } else {
+      $(el).find(".filter-value").val(filterValue);
+    }
+
     $(fieldDropdown).selectpicker('refresh');
     $(operatorDropdown).selectpicker('refresh');
   }
