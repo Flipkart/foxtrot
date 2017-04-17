@@ -111,7 +111,7 @@ StatsTrendTile.prototype.getData = function(data) {
   this.object.tileContext.filters.pop();
   if(!data.result)
     return;
-  var statsObject = data.result.stats;
+  /*var statsObject = data.result.stats;
   var percentile = data.result.percentiles;
   var displayValue = "";
   var objectToshow = this.object.tileContext.statsToPlot.split('.');
@@ -122,47 +122,81 @@ StatsTrendTile.prototype.getData = function(data) {
     var displayObject = objectToshow[1]+'.'+objectToshow[2].toString();
     displayValue = percentile[displayObject];
   }
-  this.render(displayValue);
+  this.render(displayValue);*/
+
+  var rows = [];
+  rows.push(['date', 'count']);
+  for (var i = data.result.length - 1; i >= 0; i--) {
+    var statsObject = data.result[i].stats
+    var percentile = data.result[i].percentiles;
+    var displayValue = "";
+    var objectToshow = this.object.tileContext.statsToPlot.split('.');
+    if(this.object.tileContext.statsToPlot.match('stats')) {
+      objectToshow = objectToshow[1].toString();
+      displayValue = statsObject[objectToshow];
+    } else {
+      var displayObject = objectToshow[1]+'.'+objectToshow[2].toString();
+      displayValue = percentile[displayObject];
+    }
+    rows.push([data.result[i].period, displayValue]);
+  }
+  this.render(rows);
+
 }
 
-StatsTrendTile.prototype.render = function (displayValue) {
+StatsTrendTile.prototype.render = function (rows) {
+  console.log(rows);
   var newDiv = this.newDiv;
   var object = this.object;
+  var borderColorArray = ["#9e8cd9", "#f3a534", "#9bc95b", "#50e3c2"]
   var chartDiv = newDiv.find(".chart-item");
-  chartDiv.addClass("trend-chart");
-
-  var a = chartDiv.find("#"+object.id);
-  if(a.length != 0) {
-    a.remove();
-  }
-
-  chartDiv.append("<div id="+object.id+"><p class='trend-value-big bold'>"+displayValue+"</p><dhr/><p class='trend-value-small'></p><div id='trend-'"+object.id+" class='trend-chart-health'></div><div class='trend-chart-health-percentage bold'></div></div>");
-  var healthDiv = chartDiv.find("#trend-"+object.id);
-  healthDiv.width(100);
-  healthDiv.height(50);
-  /*$.plot(healthDiv, [
-    { data: yAxis },
-  ],{
-      series: {
-        lines: { show: true },
-        points: { show: false }
+  var ctx = chartDiv.find("#" + object.id);
+  ctx.width(ctx.width - 100);
+  ctx.height(230);
+  $.plot(ctx, [
+    {
+      data: rows
+    }
+    , ], {
+    series: {
+      lines: {
+        show: true
+        , lineWidth: 4.0
+        , color: "#9bc95b"
+      }
+      , points: {
+        show: false
+      }
+    }
+    , xaxis: {
+      tickLength: 0
+      , mode: "time"
+      , timezone: "browser"
+      , timeformat: axisTimeFormat(object.tileContext.period, getPeriodSelect(object.id))
+      , }
+    , yaxis: {
+      markingsStyle: 'dashed',
+      tickFormatter: function(val, axis) {
+        return numDifferentiation(val);
       },
-      xaxis: {
-        ticks: xAxis,
-        tickLength:0
-      },
-      grid: {
-        hoverable: true,
-        color: "#B2B2B2",
-        show: false,
-        borderWidth: {top: 0, right: 0, bottom: 1, left: 1},
-        borderColor: "#EEEEEE",
-      },
-      tooltip: true,
-        tooltipOpts: {
-            content: "%y events at %x",
-            defaultFormat: true
-        },
-      colors: ['#000'],
-    });*/
+    }
+    , grid: {
+      hoverable: true
+      , color: "#B2B2B2"
+      , show: true
+      , borderWidth: {
+        top: 0
+        , right: 0
+        , bottom: 1
+        , left: 1
+      }
+      , borderColor: "#EEEEEE"
+      , }
+    , tooltip: true
+    , tooltipOpts: {
+      content: "%y events at %x"
+      , defaultFormat: true
+    }
+    , colors: [borderColorArray[Math.floor(Math.random()*borderColorArray.length)]]
+    , });
 }
