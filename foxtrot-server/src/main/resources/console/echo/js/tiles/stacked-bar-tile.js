@@ -224,7 +224,7 @@ StackedBarTile.prototype.render = function (d) {
     }
     , legend: {
       show: true
-      , noColumns: getLegendColumn(object.widgetType)
+      , noColumns: getLegendColumn(object.tileContext.widgetType)
       , labelFormatter: function (label, series) {
         return '<span class="legend-custom"> &nbsp;' + label + ' &nbsp;</span>';
       }

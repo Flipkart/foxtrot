@@ -115,7 +115,7 @@ function generateDropDown(fields, element) {
 
 function getLegendColumn(widgetType) {
   if(widgetType == "full") {
-    return 7;
+    return 6;
   } else if(widgetType == "medium") {
     return 4;
   }
