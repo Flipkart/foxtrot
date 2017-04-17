@@ -27,6 +27,7 @@ var currentFieldList = [];
 var apiUrl = "http://foxtrot.traefik.prod.phonepe.com/foxtrot";
 var interval = null;
 var consoleList = [];
+var currentConsoleName;
 function TablesView(id, tables) {
   this.id = id;
   this.tables = tables;
@@ -270,7 +271,7 @@ function clickedChartType(el) {
 
 function saveConsole() {
   if(tileList.length > 0) {
-    var name = "Line charts";
+    var name = currentConsoleName ==  undefined ? "Test console" : currentConsoleName;
     for(var i = 0; i < globalData.length; i++) {
       var secArray = globalData[i].tileData;
       for(var key in  secArray) {
@@ -343,12 +344,14 @@ function loadParticularConsole() {
     type: 'GET',
     contentType: 'application/json',
     success: function(res) {
+      console.log(res);
       clearContainer();
       globalData = [];
       globalData = res.sections;
       renderTilesObject(res.sections[0].id);
       getTables();
       generateTabBtnForConsole(res);
+      currentConsoleName = res.name
     },
     error: function() {
       error("Could not save console");
