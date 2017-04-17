@@ -122,7 +122,7 @@ function getLegendColumn(widgetType) {
 }
 
 function getWidgetType() {
-  if (currentChartType == "line" || currentChartType == "stacked" || currentChartType == "stackedBar") {
+  if (currentChartType == "line" || currentChartType == "stacked" || currentChartType == "stackedBar" || currentChartType == "statsTrend") {
     return "full";
   }
   else if (currentChartType == "radar" || currentChartType == "pie") {
@@ -184,6 +184,8 @@ function getChartFormValues() {
   }
   else if (currentChartType == "pie") {
     return getPieChartFormValues();
+  } else if(currentChartType == "statsTrend") {
+    return getStatsTrendTileChartFormValues();
   }
 }
 function deleteFilterRow(el) {
@@ -232,5 +234,8 @@ function reloadDropdowns() {
   else if (currentChartType == "pie") {
     generateDropDown(currentFieldList, "#eventtype-field");
     generateDropDown(currentFieldList, "#pie-uniquekey");
+  }
+  else if(currentChartType == "statsTrend") {
+    generateDropDown(currentFieldList, "#stats-trend-field");
   }
 }

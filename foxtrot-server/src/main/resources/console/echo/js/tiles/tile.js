@@ -117,6 +117,9 @@ function setConfigValue(object) {
   else if (currentChartType == "pie") {
     setPieChartFormValues(object);
   }
+  else if(currentChartType == "statsTrend") {
+    setStatsTrendTileChartFormValues(object);
+  }
 }
 
 function clearForm() {
@@ -241,6 +244,10 @@ TileFactory.prototype.createGraph = function (object, tileElement) {
   else if (object.tileContext.chartType == "pie") {
     var pieGraph = new PieTile();
     pieGraph.getQuery(tileElement, object);
+  }
+  else if (object.tileContext.chartType == "statsTrend") {
+    var statsTrendGraph = new StatsTrendTile();
+    statsTrendGraph.getQuery(tileElement, object);
   }
 }
 TileFactory.prototype.create = function () {

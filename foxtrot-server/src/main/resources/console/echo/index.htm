@@ -98,7 +98,7 @@
                     <p>Gauge chart</p>
                   </div>
                   <div class="col-xs-6 col-sm-2 vizualization-type" data-chart-type="trend">
-                    <p>Trend chart</p>
+                    <p>Number chart</p>
                   </div>
                 </div>
                 <div class="row">
@@ -111,6 +111,9 @@
                   <div class="clearfix visible-xs vizualization-type"></div>
                   <div class="col-xs-6 col-sm-2 vizualization-type" data-chart-type="pie">
                     <p>Pie chart</p>
+                  </div>
+                  <div class="col-xs-6 col-sm-2 vizualization-type" data-chart-type="statsTrend">
+                    <p>Stats trend</p>
                   </div>
                 </div>
                 <div class="row" id="table-units">
@@ -199,6 +202,55 @@
                       <div class="col-sm-5 col-sm-offset-2 col-md-6 col-md-offset-0">
                         <label class="control-label">Statistic to plot: </label>
                         <select id="statistic_to_plot" class="selectpicker statistic_to_plot" data-live-search="true">
+                          <option value=none>none</option>
+                          <option value=percentiles.1.0>1 percentile</option>
+                          <option value=percentiles.25.0>25 percentile</option>
+                          <option value=percentiles.5.0>5 percentile</option>
+                          <option value=percentiles.50.0>50 percentile</option>
+                          <option value=percentiles.75.0>75 percentile</option>
+                          <option value=percentiles.95.0>95 percentile</option>
+                          <option value=percentiles.99.0>99 percentile</option>
+                          <option value=stats.avg>Average</option>
+                          <option value=stats.count>Count</option>
+                          <option value=stats.max>Max</option>
+                          <option value=stats.min>Min</option>
+                          <option value=stats.std_deviation>Standard Deviation</option>
+                          <option value=stats.sum>Sum</option>
+                          <option value=stats.sum_of_squares>Sum of squares</option>
+                          <option value=stats.variance>Variance</option>
+                        </select>
+                      </div>
+                    </div>
+                    <div class="row">
+                      <div class="col-sm-5 col-md-6">
+                        <label class="control-label">Shift Decimal Left By: </label>
+                        <input type="number" min="0" value="0" class="form-control ignored-digits" placeholder="" id="stats-decimal-places"> </div>
+                    </div>
+                  </div>
+                  <div id="statsTrend-chart-data">
+                    <div class="row">
+                      <div class="col-sm-5 col-md-6">
+                        <label class="control-label">Period:</label>
+                        <select class="selectpicker stats-trend-time-unit" id="stats-trend-time-unit">
+                          <option value="minutes" selected="selected">Minute</option>
+                          <option value="hours">Hour</option>
+                          <option value="days">Day</option>
+                        </select>
+                      </div>
+                      <div class="col-sm-5 col-sm-offset-2 col-md-6 col-md-offset-0">
+                        <div>
+                          <label class="control-label">Time Frame : </label>
+                          <input type="number" class="stats-trend-timeframe" id="stats-trend-timeframe" placeholder="Enter time frame" required> </div>
+                      </div>
+                    </div>
+                    <div class="row">
+                      <div class="col-sm-5 col-md-6">
+                        <label class="control-label">Field to run statistics on: </label>
+                        <select class="stats-trend-field" id="stats-trend-field" data-live-search="true"> </select>
+                      </div>
+                      <div class="col-sm-5 col-sm-offset-2 col-md-6 col-md-offset-0">
+                        <label class="control-label">Statistic to plot: </label>
+                        <select id="stats-trend-statics-to-plot" class="selectpicker stats-trend-statics-to-plot" data-live-search="true">
                           <option value=none>none</option>
                           <option value=percentiles.1.0>1 percentile</option>
                           <option value=percentiles.25.0>25 percentile</option>
@@ -454,6 +506,7 @@
   <script src="js/colorgen.js"></script>
   <script src="js/tiles/pie-tile.js"></script>
   <script src="js/flot/jquery.flot.tooltip.js"></script>
+  <script src="js/tiles/stats-trend-tile.js"></script>
   <!--Application-->
 </body>
 

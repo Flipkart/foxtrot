@@ -244,6 +244,9 @@ function invokeClearChartForm() {
   else if (currentChartType == "pie") {
     clearPieChartForm();
   }
+  else if(currentChartType == "statsTrend") {
+    clearStatsTrendTileChartForm();
+  }
 }
 function clickedChartType(el) {
   // hide
