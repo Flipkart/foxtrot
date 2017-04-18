@@ -104,7 +104,7 @@ LineTile.prototype.render = function (rows) {
     series: {
       lines: {
         show: true
-        , lineWidth: 4.0
+        , lineWidth: 1.0
         , color: "#9bc95b"
         , fill: true
         , fillColor: {
@@ -118,6 +118,8 @@ LineTile.prototype.render = function (rows) {
       , points: {
         show: false
       }
+      , shadowSize: 0
+      , curvedLines: { active: true }
     }
     , xaxis: {
       tickLength: 0
@@ -166,6 +168,8 @@ LineTile.prototype.render = function (rows) {
       , points: {
         show: false
       }
+      , shadowSize: 0
+      , curvedLines: { active: true }
     }
     , xaxis: {
       mode: "time"

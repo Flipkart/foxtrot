@@ -178,7 +178,7 @@ StackedBarTile.prototype.render = function (d) {
       , lines: {
         show: true
         , fill: false
-        , lineWidth: 3.0
+        , lineWidth: 1.0
         , fillColor: {
           colors: [{
             opacity: 1
@@ -187,8 +187,8 @@ StackedBarTile.prototype.render = function (d) {
                     }]
         }
       }
-      /*,
-                   curvedLines: { active: true }*/
+      , shadowSize: 0
+      , curvedLines: { active: true }
     }
     , grid: {
       hoverable: true
