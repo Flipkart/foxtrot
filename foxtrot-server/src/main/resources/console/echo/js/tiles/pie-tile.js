@@ -99,6 +99,10 @@ function unique(list) {
 }
 PieTile.prototype.getData = function (data) {
   this.object.tileContext.filters.pop();
+  if(this.object.tileContext.uiFiltersList == undefined) {
+    this.object.tileContext.uiFiltersList = [];
+    this.object.tileContext.uiFiltersSelectedList = [];
+  }
   var colors = new Colors(Object.keys(data.result).length);
   var columns = [];
   this.uniqueValues = [];
@@ -116,6 +120,7 @@ PieTile.prototype.getData = function (data) {
       , shadowSize: 0
     });
     this.uniqueValues.push(property);
+    this.object.tileContext.uiFiltersList.push(property);
   }
   this.render(columns)
 }
