@@ -31,21 +31,20 @@ function getBarChartFormValues() {
   if (!$("#bar-time-unit").valid() || !$("#bar-timeframe").valid()) {
     status = false;
   }
-  var nestingArray = [];
-  nestingArray.push(groupingString);
   return [{
     "period": period
     , "timeframe": timeframe
-    , "nesting": nestingArray
+    , "nesting": [groupingString]
     , "uniqueKey": uniqueKey
   }, status]
 }
 
 function setBarChartFormValues(object) {
+  console.log(object)
   $(".bar-time-unit").val(object.tileContext.period);
-  $("bar-time-unit").selectpicker('refresh');
+  $(".bar-time-unit").selectpicker('refresh');
   $(".bar-timeframe").val(object.tileContext.timeframe);
-  $(".bar-event-field").val(currentFieldList.findIndex(x => x.field == object.tileContext.eventField));
+  $(".bar-event-field").val(currentFieldList.findIndex(x => x.field == object.tileContext.nesting[0]));
   $(".bar-event-field").selectpicker('refresh');
   $(".bar-uniquekey").val(currentFieldList.findIndex(x => x.field == object.tileContext.uniqueKey));
   $(".bar-uniquekey").selectpicker('refresh');
@@ -92,20 +91,6 @@ BarTile.prototype.getQuery = function (newDiv, object) {
 BarTile.prototype.getData = function (data) {
   this.object.tileContext.filters.pop();
   if (data.result == undefined || data.result.length == 0) return;
-  /*var xAxis = [];
-  var yAxis = [];
-  var label = [];
-  var i = 0;
-  for (var key in data.result) {
-    xAxis.push([i, key]);
-    var key1 = data.result[key];
-    for (var innerKey in key1) {
-      label.push(innerKey)
-      yAxis.push([i, key1[innerKey]])
-    }
-    i++;
-  }
-  this.render(xAxis, yAxis, unique(label));*/
   var colors = new Colors(Object.keys(data.result).length);
   var columns = [];
   var ticks = [];

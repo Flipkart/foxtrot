@@ -49,7 +49,6 @@
     <div class="new-header">
       <div class="inner-header">
         <div class="tab col-md-8">
-
           <!--<button class="tablinks active" id="payments" onclick="consoleTabs(event, 'payments')">Payments</button>
           <button class="tablinks" onclick="consoleTabs(event, 'merchants')" id="merchants">Merchants</button>
           <button class="tablinks" id="wallets" onclick="consoleTabs(event, 'wallets')" id="wallets">Wallets</button>
@@ -153,12 +152,11 @@
                       </div>
                       <div class="col-sm-5 col-md-6">
                         <label class="control-label">Time Frame : </label>
-                        <input type="number" class="radar-timeframe" id="radar-timeframe" placeholder="Enter time frame" required>
-                      </div>
+                        <input type="number" class="radar-timeframe" id="radar-timeframe" placeholder="Enter time frame" required> </div>
                       <div class="col-sm-5 col-md-6">
                         <label class="control-label">Nesting of: </label>
                         <select class="selectpicker radar-nesting" id="radar-nesting" data-live-search="true" data-style="btn-warning"> </select>
-                        </div>
+                      </div>
                     </div>
                   </div>
                   <div id="gauge-chart-data">
@@ -173,8 +171,7 @@
                       </div>
                       <div class="col-sm-5 col-md-6">
                         <label class="control-label">Time Frame : </label>
-                        <input type="number" class="gauge-timeframe" id="gauge-timeframe" placeholder="Enter time frame" required>
-                      </div>
+                        <input type="number" class="gauge-timeframe" id="gauge-timeframe" placeholder="Enter time frame" required> </div>
                       <div class="col-sm-5 col-md-6">
                         <label class="control-label">Nesting of: </label>
                         <select class="selectpicker gauge-nesting" id="gauge-nesting" data-live-search="true" data-style="btn-warning"> </select>
@@ -298,22 +295,17 @@
                     <div class="row">
                       <div class="col-sm-5 col-md-6">
                         <label class="control-label">Event Field: </label>
-                        <select class="selectpicker bar-event-field" id="bar-event-field" data-live-search="true">
-                        </select>
+                        <select class="selectpicker bar-event-field" id="bar-event-field" data-live-search="true"> </select>
                       </div>
                       <div class="col-sm-5 col-sm-offset-2 col-md-6 col-md-offset-0">
-                        <div class="col-sm-5 col-md-6">
-                          <label class="control-label">Shift Decimal Left By: </label>
-                          <input type="number" min="0" value="0" class="form-control bar-ignored-digits" placeholder="" id="bar-ignored-digits"> </div>
+                        <label class="control-label">Generate unique of: </label>
+                        <select id="bar-uniquekey" class="selectpicker bar-uniquekey" data-live-search="true"> </select>
                       </div>
                     </div>
                     <div class="row">
                       <div class="col-sm-5 col-md-6">
-                        <label class="control-label">Generate unique of: </label>
-                        <select id="stacked-uniquekey" class="selectpicker stacked-uniquekey" data-live-search="true">
-                          <option value="minutes" selected="selected">Minute</option>
-                        </select>
-                      </div>
+                        <label class="control-label">Shift Decimal Left By: </label>
+                        <input type="number" min="0" value="0" class="form-control bar-ignored-digits" placeholder="" id="bar-ignored-digits"> </div>
                     </div>
                   </div>
                   <div id="stacked-chart-data">
@@ -439,15 +431,13 @@
         <div class="modal-content">
           <div class="modal-header">
             <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-            <h4 class="modal-title" id="addWidgetModalLabel">Add Tab</h4>
-          </div>
+            <h4 class="modal-title" id="addWidgetModalLabel">Add Tab</h4> </div>
           <div class="modal-body">
             <form class="row">
               <div class="form-group">
                 <label class="col-sm-4 control-label" for="widgetType"><strong>Enter tab name</strong></label>
                 <div class="col-sm-8">
-                  <input type="text" class="form-control tab-name" id="tab-name">
-                </div>
+                  <input type="text" class="form-control tab-name" id="tab-name"> </div>
               </div>
             </form>
           </div>

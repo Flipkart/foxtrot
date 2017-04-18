@@ -257,5 +257,6 @@ function reloadDropdowns() {
   }
   else if(currentChartType == "bar") {
     generateDropDown(currentFieldList, "#bar-event-field");
+    generateDropDown(currentFieldList, "#bar-uniquekey");
   }
 }
