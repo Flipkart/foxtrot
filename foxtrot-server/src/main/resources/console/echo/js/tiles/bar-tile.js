@@ -189,22 +189,22 @@ BarTile.prototype.render = function (xAxisOptions, columns) {
     , legend: {
       show: false
     }
-    , xaxis: xAxisOptions
-      /*,
-               yaxis: {
-               tickLength: 1,
-
-               }*/
-
-    , /*grid: {
-         hoverable: true,
-         borderWidth: {top: 0, right: 0, bottom: 1, left: 1},
-         },*/
+    , yaxis: {
+      tickFormatter: function(val, axis) {
+        return numDifferentiation(val);
+      },
+    }
+    , xaxis: xAxisOptions,
     grid: {
       hoverable: true
       , color: "#B2B2B2"
       , show: true
-      , borderWidth: 1
+      , borderWidth: {
+        top: 0
+        , right: 0
+        , bottom: 1
+        , left: 1
+      }
       , borderColor: "#EEEEEE"
     }
     , tooltip: true
@@ -212,6 +212,14 @@ BarTile.prototype.render = function (xAxisOptions, columns) {
       content: function (label, x, y) {
         return label + ": " + y;
       }
+    }
+    ,legend: {
+      show: true
+      , noColumns: getLegendColumn(object.tileContext.widgetType)
+      , labelFormatter: function (label, series) {
+        return '<span class="legend-custom"> &nbsp;' + label + ' &nbsp;</span>';
+      }
+      , container: $(chartDiv.find(".legend"))
     }
   };
   $.plot(ctx, columns, chartOptions);
