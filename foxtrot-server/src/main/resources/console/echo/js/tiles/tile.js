@@ -186,6 +186,32 @@ TileFactory.prototype.updateFilterCreation = function (object) {
     setConfigValue(selectedTileObject);
   }
 }
+
+// Filter configuration
+TileFactory.prototype.triggerFilter = function (tileElement, object) {
+  var instanceVar = this;
+  tileElement.find(".widget-toolbox").find(".filter").click(function () {
+    $("#setupFiltersModal").modal('show');
+    var fv = $("#setupFiltersModal").find(".filter_values");
+    fv.multiselect('refresh');
+    var options = [];
+    if(object.tileContext.uiFiltersList == undefined) return;
+    for (var i = 0; i < object.tileContext.uiFiltersList.length; i++) {
+      var value = object.tileContext.uiFiltersList[i];
+      options.push(
+        {
+          label: value,
+          title: value,
+          value: value,
+          selected: true
+        }
+      );
+    }
+    fv.multiselect('dataprovider', options);
+    fv.multiselect('refresh');
+    console.log(object.tileContext.uiFiltersList);
+  });
+}
   // Add click event for tile config icon
 TileFactory.prototype.triggerConfig = function (tileElement, object) {
   var instanceVar = this;
@@ -337,6 +363,7 @@ TileFactory.prototype.create = function () {
 
   this.createGraph(this.tileObject, tileElement);
   this.triggerConfig(tileElement, this.tileObject); // add event for tile config
+  this.triggerFilter(tileElement, this.tileObject);
   //this.triggerChildBtn(tileElement,this.tileObject);
   this.createTileData(this.tileObject);
   this.saveTileConfig(this.tileObject); // add event for tile save btn

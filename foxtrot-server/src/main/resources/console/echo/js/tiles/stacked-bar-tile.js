@@ -97,6 +97,7 @@ function unique(list) {
 }
 StackedBarTile.prototype.getData = function (data) {
   this.object.tileContext.filters.pop();
+  this.object.tileContext.uiFiltersList = [];
   var colors = new Colors(Object.keys(data.trends).length);
   var d = [];
   var colorIdx = 0;
@@ -161,6 +162,8 @@ StackedBarTile.prototype.getData = function (data) {
       }
       , shadowSize: 0 /*, curvedLines: {apply: true}*/
     });
+
+    this.object.tileContext.uiFiltersList.push(trend);
   }
   this.render(d);
 }

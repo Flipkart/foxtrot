@@ -111,7 +111,8 @@ BarTile.prototype.getData = function (data) {
       , data: value
       , color: dataElement.color
     });
-    this.uniqueValues.push(property);
+    this.object.tileContext.uiFiltersList = [];
+    this.object.tileContext.uiFiltersList.push(property);
     i++;
   }
   var xAxisOptions = {
@@ -175,6 +176,7 @@ BarTile.prototype.render = function (xAxisOptions, columns) {
       show: false
     }
     , yaxis: {
+      tickLength: 0,
       tickFormatter: function(val, axis) {
         return numDifferentiation(val);
       },
@@ -208,5 +210,4 @@ BarTile.prototype.render = function (xAxisOptions, columns) {
     }
   };
   $.plot(ctx, columns, chartOptions);
-  //drawLegend(flatData, legendArea);
 }

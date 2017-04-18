@@ -152,6 +152,7 @@ FoxTrot.prototype.addTile = function () {
     , "filters": filterDetails.length == 0 ? [] : filterDetails
     , "tableFields": currentFieldList
     , "periodInterval": periodInterval
+    , "uiFiltersList": []
   }
   context = $.extend({}, getChartFormValues()[0], context);
   var object = {
@@ -468,4 +469,7 @@ $(document).ready(function () {
     addSections();
   })
   loadConsole();
+  $(".filter_values").multiselect({
+    numberDisplayed: 0
+  });
 });
