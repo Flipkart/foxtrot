@@ -82,17 +82,17 @@ TileFactory.prototype.getTileFormValue = function (form, modal, object) {
 function setConfigValue(object) {
   var form = $("#addWidgetModal").find("form");
   form.find(".tile-title").val(object.title);
-  if(object.tileContext.tableDropdownIndex == undefined) {
+  if (object.tileContext.tableDropdownIndex == undefined) {
     form.find(".tile-table").val(parseInt(tableNameList.indexOf(object.tileContext.table)));
-  } else {
+  }
+  else {
     form.find(".tile-table").val(parseInt(object.tileContext.tableDropdownIndex));
   }
-
-/*
-  form.find(".tile-time-unit").val(object.tileContext.timeUnit);
-  form.find(".tile-time-value").val(object.tileContext.timeValue);
-  form.find(".tile-chart-type").val(object.tileContext.chartType);
-*/
+  /*
+    form.find(".tile-time-unit").val(object.tileContext.timeUnit);
+    form.find(".tile-time-value").val(object.tileContext.timeValue);
+    form.find(".tile-chart-type").val(object.tileContext.chartType);
+  */
   $('.tile-table').selectpicker('refresh');
   var chartElement = $("#vizualization").find("[data-chart-type='" + object.tileContext.chartType + "']");
   clickedChartType(chartElement);
@@ -117,10 +117,10 @@ function setConfigValue(object) {
   else if (currentChartType == "pie") {
     setPieChartFormValues(object);
   }
-  else if(currentChartType == "statsTrend") {
+  else if (currentChartType == "statsTrend") {
     setStatsTrendTileChartFormValues(object);
   }
-  else if(currentChartType == "bar") {
+  else if (currentChartType == "bar") {
     setBarChartFormValues(object);
   }
 }
@@ -166,12 +166,12 @@ TileFactory.prototype.updateFilterCreation = function (object) {
   var tileListIndex = tileList.indexOf(object.id);
   var tileDataIndex = tileData[tileListIndex];
   var selectedTileObject = tileData[object.id];
-  if($("#listConsole").val() == "none") {// this is for without console
+  if ($("#listConsole").val() == "none") { // this is for without console
     currentFieldList = object.tileContext.tableFields;
-  } else {// with console
+  }
+  else { // with console
     currentFieldList = tableFiledsArray[object.tileContext.table].mappings;
   }
-
   if (object.tileContext.filters.length > 0) {
     filterRowArray = [];
     for (var invokeFilter = 0; invokeFilter < selectedTileObject.tileContext.filters.length; invokeFilter++) {
@@ -186,32 +186,42 @@ TileFactory.prototype.updateFilterCreation = function (object) {
     setConfigValue(selectedTileObject);
   }
 }
-
-// Filter configuration
+TileFactory.prototype.updateFilters = function (filters) {
+    var instanceVar = this;
+    instanceVar.tileObject.tileContext.uiFiltersSelectedList = filters;
+    console.log('===>');
+    console.log(instanceVar.tileObject);
+  }
+  // Filter configuration
 TileFactory.prototype.triggerFilter = function (tileElement, object) {
-  var instanceVar = this;
-  tileElement.find(".widget-toolbox").find(".filter").click(function () {
-    $("#setupFiltersModal").modal('show');
-    var fv = $("#setupFiltersModal").find(".filter_values");
-    fv.multiselect('refresh');
-    var options = [];
-    if(object.tileContext.uiFiltersList == undefined) return;
-    for (var i = 0; i < object.tileContext.uiFiltersList.length; i++) {
-      var value = object.tileContext.uiFiltersList[i];
-      options.push(
-        {
-          label: value,
-          title: value,
-          value: value,
-          selected: true
-        }
-      );
-    }
-    fv.multiselect('dataprovider', options);
-    fv.multiselect('refresh');
-    console.log(object.tileContext.uiFiltersList);
-  });
-}
+    var instanceVar = this;
+    tileElement.find(".widget-toolbox").find(".filter").click(function () {
+      var modal = $("#setupFiltersModal").modal('show');
+      var fv = $("#setupFiltersModal").find(".filter_values");
+      fv.multiselect('refresh');
+      var form = modal.find("form");
+      form.off('submit');
+      form.on('submit', $.proxy(function (e) {
+        instanceVar.updateFilters($("#filter_values").val());
+        $("#setupFiltersModal").modal('hide');
+        e.preventDefault();
+      }));
+      var options = [];
+      if (object.tileContext.uiFiltersList == undefined) return;
+      for (var i = 0; i < object.tileContext.uiFiltersList.length; i++) {
+        var value = object.tileContext.uiFiltersList[i];
+        var index = object.tileContext.uiFiltersSelectedList.indexOf(value);
+        options.push({
+          label: value
+          , title: value
+          , value: value
+          , selected: true
+        });
+      }
+      fv.multiselect('dataprovider', options);
+      fv.multiselect('refresh');
+    });
+  }
   // Add click event for tile config icon
 TileFactory.prototype.triggerConfig = function (tileElement, object) {
   var instanceVar = this;
@@ -336,7 +346,7 @@ TileFactory.prototype.create = function () {
     tileElement.find(".trend-chart").remove();
     tileElement.find(".chart-item").addClass("radar-chart");
   }
-  else if (this.tileObject.tileContext.chartType == "line" || this.tileObject.tileContext.chartType == "stacked" || this.tileObject.tileContext.chartType == "stackedBar" || this.tileObject.tileContext.chartType == "pie" || this.tileObject.tileContext.chartType == "statsTrend" || this.tileObject.tileContext.chartType == "bar" ) {
+  else if (this.tileObject.tileContext.chartType == "line" || this.tileObject.tileContext.chartType == "stacked" || this.tileObject.tileContext.chartType == "stackedBar" || this.tileObject.tileContext.chartType == "pie" || this.tileObject.tileContext.chartType == "statsTrend" || this.tileObject.tileContext.chartType == "bar") {
     tileElement.find(".widget-header").append('<div id="' + this.tileObject.id + '-health-text" class="lineGraph-health-text">No Data available</div>');
     tileElement.find(".widget-header").append('<div id="' + this.tileObject.id + '-health" style=""></div>');
     tileElement.find(".chart-item").append('<div id="' + this.tileObject.id + '"></div>');
@@ -353,14 +363,13 @@ TileFactory.prototype.create = function () {
     $(".custom-btn-div").remove();
     $('.row-' + splitValue[1]).append(tileElement);
   }
-
-  if(this.tileObject.tileContext.widgetType == "small") {
+  if (this.tileObject.tileContext.widgetType == "small") {
     tileElement.find(".settings").addClass('reduce-filter-size');
     tileElement.find(".filter").hide();
-  }else if(this.tileObject.tileContext.widgetType == "medium") {
+  }
+  else if (this.tileObject.tileContext.widgetType == "medium") {
     tileElement.find(".widget-header").addClass('reduce-widget-header-size');
   }
-
   this.createGraph(this.tileObject, tileElement);
   this.triggerConfig(tileElement, this.tileObject); // add event for tile config
   this.triggerFilter(tileElement, this.tileObject);

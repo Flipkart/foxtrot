@@ -97,7 +97,10 @@ function unique(list) {
 }
 StackedBarTile.prototype.getData = function (data) {
   this.object.tileContext.filters.pop();
-  this.object.tileContext.uiFiltersList = [];
+  if(this.object.tileContext.uiFiltersList == undefined) {
+    this.object.tileContext.uiFiltersList = [];
+    this.object.tileContext.uiFiltersSelectedList = [];
+  }
   var colors = new Colors(Object.keys(data.trends).length);
   var d = [];
   var colorIdx = 0;
