@@ -102,6 +102,9 @@
                   </div>
                 </div>
                 <div class="row">
+                  <div class="col-xs-6 col-sm-2 vizualization-type" data-chart-type="bar">
+                    <p>Bar chart</p>
+                  </div>
                   <div class="col-xs-6 col-sm-2 vizualization-type" data-chart-type="stacked">
                     <p>Stacked chart</p>
                   </div>
@@ -274,6 +277,43 @@
                       <div class="col-sm-5 col-md-6">
                         <label class="control-label">Shift Decimal Left By: </label>
                         <input type="number" min="0" value="0" class="form-control ignored-digits" placeholder="" id="stats-decimal-places"> </div>
+                    </div>
+                  </div>
+                  <div id="bar-chart-data">
+                    <div class="row">
+                      <div class="col-sm-5 col-md-6">
+                        <label class="control-label">Time Unit:</label>
+                        <select class="selectpicker bar-time-unit" id="bar-time-unit">
+                          <option value="minutes" selected="selected">Minute</option>
+                          <option value="hours">Hour</option>
+                          <option value="days">Day</option>
+                        </select>
+                      </div>
+                      <div class="col-sm-5 col-sm-offset-2 col-md-6 col-md-offset-0">
+                        <div>
+                          <label class="control-label">Time Frame : </label>
+                          <input type="number" class="bar-timeframe" id="bar-timeframe" placeholder="Enter time frame" required> </div>
+                      </div>
+                    </div>
+                    <div class="row">
+                      <div class="col-sm-5 col-md-6">
+                        <label class="control-label">Event Field: </label>
+                        <select class="selectpicker bar-event-field" id="bar-event-field" data-live-search="true">
+                        </select>
+                      </div>
+                      <div class="col-sm-5 col-sm-offset-2 col-md-6 col-md-offset-0">
+                        <div class="col-sm-5 col-md-6">
+                          <label class="control-label">Shift Decimal Left By: </label>
+                          <input type="number" min="0" value="0" class="form-control bar-ignored-digits" placeholder="" id="bar-ignored-digits"> </div>
+                      </div>
+                    </div>
+                    <div class="row">
+                      <div class="col-sm-5 col-md-6">
+                        <label class="control-label">Generate unique of: </label>
+                        <select id="stacked-uniquekey" class="selectpicker stacked-uniquekey" data-live-search="true">
+                          <option value="minutes" selected="selected">Minute</option>
+                        </select>
+                      </div>
                     </div>
                   </div>
                   <div id="stacked-chart-data">
@@ -507,6 +547,7 @@
   <script src="js/tiles/pie-tile.js"></script>
   <script src="js/flot/jquery.flot.tooltip.js"></script>
   <script src="js/tiles/stats-trend-tile.js"></script>
+  <script src="js/tiles/bar-tile.js"></script>
   <!--Application-->
 </body>
 

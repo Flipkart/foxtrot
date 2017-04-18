@@ -975,3 +975,7 @@ div.tab button:last-child {
 #statsTrend-chart-data {
   display: none;
 }
+
+#bar-chart-data {
+  display: none;
+}

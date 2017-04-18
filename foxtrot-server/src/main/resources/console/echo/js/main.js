@@ -248,6 +248,9 @@ function invokeClearChartForm() {
   else if(currentChartType == "statsTrend") {
     clearStatsTrendTileChartForm();
   }
+  else if(currentChartType == "bar") {
+    clearBarChartForm();
+  }
 }
 function clickedChartType(el) {
   // hide
