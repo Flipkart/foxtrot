@@ -174,7 +174,7 @@ LineTile.prototype.render = function (rows) {
     , xaxis: {
       mode: "time"
       , timezone: "browser"
-      , timeformat: axisTimeFormat(object.tileContext.period, "custom")
+      , timeformat: axisTimeFormat(object.tileContext.period, getPeriodSelect(object.id))
     , }
     , grid: {
       color: "#B2B2B2"

@@ -210,7 +210,7 @@ StackedBarTile.prototype.render = function (d) {
     , xaxis: {
       mode: "time"
       , timezone: "browser"
-      , timeformat: axisTimeFormat(object.period, "custom")
+      , timeformat: axisTimeFormat(object.tileContext.period, getPeriodSelect(object.id))
       , tickLength: 0
     , }
     , selection: {
