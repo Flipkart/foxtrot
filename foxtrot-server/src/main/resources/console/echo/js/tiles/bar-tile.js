@@ -90,6 +90,11 @@ BarTile.prototype.getQuery = function (newDiv, object) {
 }
 BarTile.prototype.getData = function (data) {
   this.object.tileContext.filters.pop();
+  if(this.object.tileContext.uiFiltersList == undefined) {
+    this.object.tileContext.uiFiltersList = [];
+    this.object.tileContext.uiFiltersSelectedList = [];
+  }
+
   if (data.result == undefined || data.result.length == 0) return;
   var colors = new Colors(Object.keys(data.result).length);
   var columns = [];
@@ -97,21 +102,24 @@ BarTile.prototype.getData = function (data) {
   var i = 0;
   this.uniqueValues = [];
   var flatData = [];
+  this.object.tileContext.uiFiltersList = [];
   for (property in data.result) {
     var value = data.result[property] / Math.pow(10, 2);
-    var dataElement = {
-      label: property
-      , data: [[i, value]]
-      , color: colors.nextColor()
-    };
-    columns.push(dataElement);
-    ticks.push([i, property]);
-    flatData.push({
-      label: property
-      , data: value
-      , color: dataElement.color
-    });
-    this.object.tileContext.uiFiltersList = [];
+    var visible = $.inArray( property, this.object.tileContext.uiFiltersSelectedList);
+    if((visible == -1 ? true : false)) {
+      var dataElement = {
+        label: property
+        , data: [[i, value]]
+        , color: colors.nextColor()
+      };
+      columns.push(dataElement);
+      ticks.push([i, property]);
+      flatData.push({
+        label: property
+        , data: value
+        , color: dataElement.color
+      });
+    }
     this.object.tileContext.uiFiltersList.push(property);
     i++;
   }
