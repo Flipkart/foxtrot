@@ -227,6 +227,7 @@ TileFactory.prototype.triggerConfig = function (tileElement, object) {
   tileElement.find(".widget-toolbox").find(".glyphicon-cog").click(function () {
     $("#addWidgetModal").modal('show');
     $("#addWidgetModal").find(".tileId").val(object.id);
+    $("#addWidgetModal").find("#modal-heading").hide();
     $(".vizualization-type").hide();
     setTimeout(function() { instanceVar.updateFilterCreation(object); }, 2000);
 
