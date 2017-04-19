@@ -146,6 +146,7 @@ StackedBarTile.prototype.getData = function (data) {
       rows.push([timeVal, count]);
     }
   }
+  this.object.tileContext.uiFiltersList = [];
   for (var trend in trendWiseData) {
     var rows = trendWiseData[trend];
     if (regexp && !regexp.test(trend)) {
@@ -154,20 +155,23 @@ StackedBarTile.prototype.getData = function (data) {
     rows.sort(function (lhs, rhs) {
       return (lhs[0] < rhs[0]) ? -1 : ((lhs[0] == rhs[0]) ? 0 : 1);
     })
-    d.push({
-      data: rows
-      , color: colors[colorIdx]
-      , label: trend
-      , fill: 0.3
-      , fillColor: "#A3A3A3"
-      , lines: {
-        show: true
-      }
-      , shadowSize: 0 /*, curvedLines: {apply: true}*/
-    });
-
+    var visible = $.inArray( trend, this.object.tileContext.uiFiltersSelectedList);
+    if((visible == -1 ? true : false)) {
+      d.push({
+        data: rows
+        , color: colors[colorIdx]
+        , label: trend
+        , fill: 0.3
+        , fillColor: "#A3A3A3"
+        , lines: {
+          show: true
+        }
+        , shadowSize: 0 /*, curvedLines: {apply: true}*/
+      });
+    }
     this.object.tileContext.uiFiltersList.push(trend);
   }
+  //console.log(this.object.tileContext.uiFiltersList)
   this.render(d);
 }
 StackedBarTile.prototype.render = function (d) {

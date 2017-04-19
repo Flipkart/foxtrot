@@ -97,21 +97,20 @@ PieTile.prototype.getData = function (data) {
   }
   var colors = new Colors(Object.keys(data.result).length);
   var columns = [];
-  this.uniqueValues = [];
+  this.object.tileContext.uiFiltersList = [];
   for (property in data.result) {
-    /*if (this.isValueVisible(property)) {
-
-    }*/
-    columns.push({
-      label: property
-      , data: data.result[property]
-      , color: colors.nextColor()
-      , lines: {
-        show: true
-      }
-      , shadowSize: 0
-    });
-    this.uniqueValues.push(property);
+    var visible = $.inArray( property, this.object.tileContext.uiFiltersSelectedList);
+    if ((visible == -1 ? true : false)) {
+      columns.push({
+        label: property
+        , data: data.result[property]
+        , color: colors.nextColor()
+        , lines: {
+          show: true
+        }
+        , shadowSize: 0
+      });
+    }
     this.object.tileContext.uiFiltersList.push(property);
   }
   this.render(columns)
