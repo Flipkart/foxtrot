@@ -187,11 +187,10 @@ TileFactory.prototype.updateFilterCreation = function (object) {
   }
 }
 TileFactory.prototype.updateFilters = function (filters) {
-    var instanceVar = this;
-    instanceVar.tileObject.tileContext.uiFiltersSelectedList = filters;
-    console.log('===>');
-    console.log(instanceVar.tileObject);
-  }
+  var instanceVar = this;
+  var temp = [];
+  instanceVar.tileObject.tileContext.uiFiltersSelectedList = arr_diff(instanceVar.tileObject.tileContext.uiFiltersList, filters)
+}
   // Filter configuration
 TileFactory.prototype.triggerFilter = function (tileElement, object) {
     var instanceVar = this;
@@ -210,12 +209,12 @@ TileFactory.prototype.triggerFilter = function (tileElement, object) {
       if (object.tileContext.uiFiltersList == undefined) return;
       for (var i = 0; i < object.tileContext.uiFiltersList.length; i++) {
         var value = object.tileContext.uiFiltersList[i];
-        var index = object.tileContext.uiFiltersSelectedList.indexOf(value);
+        var index = $.inArray( value, object.tileContext.uiFiltersSelectedList)
         options.push({
           label: value
           , title: value
           , value: value
-          , selected: true
+          , selected: (index == -1 ? true : false)
         });
       }
       fv.multiselect('dataprovider', options);
