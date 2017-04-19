@@ -46,8 +46,8 @@ function TileFactory() {
 function pushTilesObject(object) {
   tileData[object.id] = object;
   interval = setInterval(function () {
-    var a = new TileFactory();
-    a.createGraph(object, $("#"+ object.id));
+    /*var a = new TileFactory();
+    a.createGraph(object, $("#"+ object.id));*/
   }, 6000);
 }
 TileFactory.prototype.updateTileData = function () {
@@ -88,11 +88,6 @@ function setConfigValue(object) {
   else {
     form.find(".tile-table").val(parseInt(object.tileContext.tableDropdownIndex));
   }
-  /*
-    form.find(".tile-time-unit").val(object.tileContext.timeUnit);
-    form.find(".tile-time-value").val(object.tileContext.timeValue);
-    form.find(".tile-chart-type").val(object.tileContext.chartType);
-  */
   $('.tile-table').selectpicker('refresh');
   var chartElement = $("#vizualization").find("[data-chart-type='" + object.tileContext.chartType + "']");
   clickedChartType(chartElement);
@@ -172,6 +167,11 @@ TileFactory.prototype.updateFilterCreation = function (object) {
   else { // with console
     currentFieldList = tableFiledsArray[object.tileContext.table].mappings;
   }
+
+  if (selectedTileObject) {
+    setConfigValue(selectedTileObject);
+  }
+
   if (object.tileContext.filters.length > 0) {
     filterRowArray = [];
     for (var invokeFilter = 0; invokeFilter < selectedTileObject.tileContext.filters.length; invokeFilter++) {
@@ -182,9 +182,7 @@ TileFactory.prototype.updateFilterCreation = function (object) {
       setFilters(selectedTileObject.tileContext.filters);
     }, 1000);
   }
-  if (selectedTileObject) {
-    setConfigValue(selectedTileObject);
-  }
+
 }
 TileFactory.prototype.updateFilters = function (filters) {
   var instanceVar = this;
@@ -229,7 +227,8 @@ TileFactory.prototype.triggerConfig = function (tileElement, object) {
     $("#addWidgetModal").modal('show');
     $("#addWidgetModal").find(".tileId").val(object.id);
     $(".vizualization-type").hide();
-    instanceVar.updateFilterCreation(object);
+    setTimeout(function() { instanceVar.updateFilterCreation(object); }, 2000);
+
   });
 }
 TileFactory.prototype.triggerChildBtn = function (tileElement, object) {
