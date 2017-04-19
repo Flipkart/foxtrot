@@ -46,8 +46,8 @@ function TileFactory() {
 function pushTilesObject(object) {
   tileData[object.id] = object;
   interval = setInterval(function () {
-    /*var a = new TileFactory();
-    a.createGraph(object, $("#"+ object.id));*/
+    var a = new TileFactory();
+    a.createGraph(object, $("#"+ object.id));
   }, 6000);
 }
 TileFactory.prototype.updateTileData = function () {
@@ -195,6 +195,7 @@ TileFactory.prototype.updateFilters = function (filters) {
 TileFactory.prototype.triggerFilter = function (tileElement, object) {
     var instanceVar = this;
     tileElement.find(".widget-toolbox").find(".filter").click(function () {
+      clearFilterValues();
       var modal = $("#setupFiltersModal").modal('show');
       var fv = $("#setupFiltersModal").find(".filter_values");
       fv.multiselect('refresh');

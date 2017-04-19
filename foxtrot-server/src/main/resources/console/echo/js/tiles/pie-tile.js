@@ -89,14 +89,6 @@ PieTile.prototype.getQuery = function (newDiv, object) {
     , success: $.proxy(this.getData, this)
   });
 }
-
-function unique(list) {
-  var result = [];
-  $.each(list, function (i, e) {
-    if ($.inArray(e, result) == -1) result.push(e);
-  });
-  return result;
-}
 PieTile.prototype.getData = function (data) {
   this.object.tileContext.filters.pop();
   if(this.object.tileContext.uiFiltersList == undefined) {

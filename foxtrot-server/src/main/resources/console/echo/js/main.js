@@ -437,6 +437,9 @@ function addSections() {
   var tabName = $("#tab-name").val();
   generateSectionbtn(tabName);
 }
+function clearFilterValues() {
+  $(".filter_values").empty();
+}
 $(document).ready(function () {
   var type = $("#widgetType").val();
   var foxtrot = new FoxTrot();

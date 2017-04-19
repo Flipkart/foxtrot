@@ -279,3 +279,11 @@ function arr_diff (a1, a2) {
   }
   return diff;
 };
+
+function unique(list) {
+  var result = [];
+  $.each(list, function (i, e) {
+    if ($.inArray(e, result) == -1) result.push(e);
+  });
+  return result;
+}
