@@ -80,17 +80,6 @@ TileFactory.prototype.getTileFormValue = function (form, modal, object) {
 }
 
 function setConfigValue(object) {
-  var form = $("#addWidgetModal").find("form");
-  form.find(".tile-title").val(object.title);
-  if (object.tileContext.tableDropdownIndex == undefined) {
-    form.find(".tile-table").val(parseInt(tableNameList.indexOf(object.tileContext.table)));
-  }
-  else {
-    form.find(".tile-table").val(parseInt(object.tileContext.tableDropdownIndex));
-  }
-  $('.tile-table').selectpicker('refresh');
-  var chartElement = $("#vizualization").find("[data-chart-type='" + object.tileContext.chartType + "']");
-  clickedChartType(chartElement);
   if (currentChartType == "gauge") {
     setGaugeChartFormValues(object);
   }
@@ -167,6 +156,18 @@ TileFactory.prototype.updateFilterCreation = function (object) {
   else { // with console
     currentFieldList = tableFiledsArray[object.tileContext.table].mappings;
   }
+
+  var form = $("#addWidgetModal").find("form");
+  form.find(".tile-title").val(object.title);
+  if (object.tileContext.tableDropdownIndex == undefined) {
+    form.find(".tile-table").val(parseInt(tableNameList.indexOf(object.tileContext.table)));
+  }
+  else {
+    form.find(".tile-table").val(parseInt(object.tileContext.tableDropdownIndex));
+  }
+  $('.tile-table').selectpicker('refresh');
+  var chartElement = $("#vizualization").find("[data-chart-type='" + object.tileContext.chartType + "']");
+  clickedChartType(chartElement);
 
   if (selectedTileObject) {
     setConfigValue(selectedTileObject);
