@@ -335,6 +335,7 @@ function generateTabBtnForConsole(array) {
   for(var i = 0; i < array.sections.length; i++) {
     generateSectionbtn(array.sections[i].name);
   }
+  $('.tab button:first').addClass('active');
 }
 
 function loadParticularConsole() {
@@ -348,8 +349,8 @@ function loadParticularConsole() {
       globalData = [];
       globalData = res.sections;
       renderTilesObject(res.sections[0].id);
-      getTables();
       generateTabBtnForConsole(res);
+      getTables();
       currentConsoleName = res.name
     },
     error: function() {
