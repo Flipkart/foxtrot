@@ -105,7 +105,6 @@ function fetchTableFields(tableName) {
       context: this,
       success: function(resp){
         tableFiledsArray[tableName] = resp;
-        console.log(tableFiledsArray)
       }
     });
   }
@@ -161,7 +160,6 @@ FoxTrot.prototype.addTile = function () {
     , "tileContext":context
     , "children": []
   }
-  console.log(object);
   var tileFactory = new TileFactory();
   currentChartType = "";
   if (!editTileId && !isChild) { // for new tile
@@ -290,14 +288,12 @@ function saveConsole() {
       , name: name
       , sections: globalData
     };
-    console.log(JSON.stringify(representation));
     $.ajax({
       url: apiUrl+("/v2/consoles"),
       type: 'POST',
       contentType: 'application/json',
       data: JSON.stringify(representation),
       success: function(resp) {
-        console.log(resp);
         alert('console saved sucessfully');
       },
       error: function() {
@@ -348,7 +344,6 @@ function loadParticularConsole() {
     type: 'GET',
     contentType: 'application/json',
     success: function(res) {
-      console.log(res);
       clearContainer();
       globalData = [];
       globalData = res.sections;
@@ -364,7 +359,6 @@ function loadParticularConsole() {
 }
 
 function renderTilesObject(currentTabName) {
-  console.log(globalData)
   var tabIndex = globalData.findIndex(x => x.id == currentTabName.trim().toLowerCase().split(' ').join("_"));
   if (tabIndex >= 0) {
     tileList = globalData[tabIndex].tileList;
@@ -430,7 +424,6 @@ function getTables() {
       for (var i = tables.length - 1; i >= 0; i--) {
         tableNameList.push(tables[i].name)
       }
-      console.log(tableNameList);
     }});
 }
 
