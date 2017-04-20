@@ -42,7 +42,7 @@ h1 {
 
 .tile {
   float: left;
-  margin: 5px;
+  margin: 25px 0px 0px 0px;
   border-radius: 2px;
   overflow: auto;
   padding: 5px;
@@ -956,14 +956,18 @@ div.tab button:last-child {
 
 .legendLabel {
   font-family: openSans;
-  font-size: 12px;
+  font-size: 10px;
   line-height: 2.5;
   color: #7d909a;
 }
-
+.legend {
+  width:100%;
+  height:auto;
+  margin-top: 12px;
+}
 .legend-custom {
   font-family: openSans;
-  font-size: 12px;
+  font-size: 10.tilepx;.tile
   line-height: 2.5;
   color: #7d909a !important;
 }
@@ -978,4 +982,8 @@ div.tab button:last-child {
 
 #bar-chart-data {
   display: none;
+}
+
+.legendColorBox>div {
+  border: none !important;
 }
