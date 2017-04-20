@@ -988,3 +988,7 @@ div.tab button:last-child {
 .legendColorBox>div {
   border: none !important;
 }
+
+#floTip {
+  background: #7d909a !important;
+}

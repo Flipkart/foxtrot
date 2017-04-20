@@ -230,7 +230,7 @@ StackedBarTile.prototype.render = function (d) {
       mode: "x"
       , minSize: 1
     }
-    , tooltip: true
+    , tooltip: false
     , tooltipOpts: {
       content: "%y events at %x"
       , defaultFormat: true
@@ -242,6 +242,46 @@ StackedBarTile.prototype.render = function (d) {
         return '<span class="legend-custom"> &nbsp;' + label + ' &nbsp;</span>';
       }
       , container: $(chartDiv.find(".legend"))
+    }
+  });
+
+  function showTooltip(x, y, contents, color) {
+    $('<div id="tooltip">' + contents + '</div>').css({
+      position: 'absolute',
+      display: 'none',
+      top: y + 5,
+      left: x + 5,
+      border: '1px solid #3a4246',
+      padding: '2px',
+      'background-color': '#425057',
+      opacity: 0.80,
+      color: color
+    }).appendTo("body").fadeIn(200).fadeOut(50000);
+  }
+
+  $(ctx).bind("plothover", function (event, pos, item) {
+    if (item) {
+      $("#tooltip").remove();
+      var hoverSeries = item.series; // what series am I hovering?
+      var x = item.datapoint[0],
+          y = item.datapoint[1];
+      var color = hoverSeries.color;
+      var strTip = y + " for " + item.series.label; // start string with current hover
+      var allSeries = plot.getData();
+      $.each(allSeries, function(i,s){ // loop all series
+        if (s == hoverSeries) return; // if the loop series is my hover, just keep going
+        $.each(s.data, function(j,p){
+          if (p[0] == x){  // if my hover x == point x add to string
+            strTip += "</br>"+ p[1] + " for " + ""+s.label;
+            color +=s.color;
+          }
+          else {
+            $("#tooltip").remove();
+            //previousPoint = null;
+          }
+        });
+      });
+      showTooltip(item.pageX, item.pageY, strTip, color);
     }
   });
 }
