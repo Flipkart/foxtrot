@@ -127,7 +127,7 @@ TileFactory.prototype.createNewRow = function (tileElement) {
   if (panelRow.length == 0) { // initial page
     row = 1;
     panelRow.push({
-      widgetType: this.tileObject.widgetType
+      widgetType: this.tileObject.tileContext.widgetType
       , id: this.tileObject.id
     });
     tileElement.addClass("row-" + row);
