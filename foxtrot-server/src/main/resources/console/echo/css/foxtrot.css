@@ -42,7 +42,6 @@ h1 {
 
 .tile {
   float: left;
-  margin: 25px 0px 0px 0px;
   border-radius: 2px;
   overflow: auto;
   padding: 5px;
@@ -51,6 +50,8 @@ h1 {
   background-color: #ffffff;
   box-shadow: 1px 1px 4px 0 rgba(194, 209, 217, 0.4);
   border: solid 1px rgba(180, 191, 195, 0.24);
+  margin-bottom: 25px;
+  margin-right: 10px;
 }
 
 
@@ -641,7 +642,7 @@ path {
 
 .radar-chart {
   margin-top: 35px;
-  margin-left: 68px;
+  margin-left: 45px;
 }
 
 .trend-chart {

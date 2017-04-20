@@ -332,14 +332,14 @@ TileFactory.prototype.create = function () {
   }
   else if (this.tileObject.tileContext.widgetType == "medium") {
     tileElement.find(".tile").addClass('col-md-6');
-    tileElement.find(".tile").width(590);
-    tileElement.find(".tile").height(460);
+    tileElement.find(".tile").width(540);
+    tileElement.find(".tile").height(500);
     tileElement.find(".widget-header").css("background-color", "#fff");
   }
   else if (this.tileObject.tileContext.widgetType == "small") {
     tileElement.find(".tile").addClass('col-md-3');
-    tileElement.find(".tile").width(280);
-    tileElement.find(".tile").height(250);
+    tileElement.find(".tile").width(245);
+    tileElement.find(".tile").height(220);
     tileElement.find(".widget-header").css("background-color", "#fff");
     tileElement.find(".widget-header").height(68);
   }
