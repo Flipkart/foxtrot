@@ -182,7 +182,7 @@ StackedBarTile.prototype.render = function (d) {
   var ctx = chartDiv.find("#" + object.id);
   ctx.width(ctx.width);
   ctx.height(230);
-  $.plot(ctx, d, {
+  var plot = $.plot(ctx, d, {
     series: {
       stack: true
       , lines: {
@@ -200,6 +200,9 @@ StackedBarTile.prototype.render = function (d) {
       , shadowSize: 0
       , curvedLines: { active: true }
     }
+    ,crosshair: {
+    mode: "x"
+   }
     , grid: {
       hoverable: true
       , color: "#B2B2B2"
@@ -234,7 +237,7 @@ StackedBarTile.prototype.render = function (d) {
     }
     , legend: {
       show: true
-      , noColumns: getLegendColumn(object.tileContext.widgetType)
+      , noColumns: d.length
       , labelFormatter: function (label, series) {
         return '<span class="legend-custom"> &nbsp;' + label + ' &nbsp;</span>';
       }
