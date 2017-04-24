@@ -221,36 +221,6 @@ function clearModal() {
 FoxTrot.prototype.resetModal = function () {
   clearModal();
 }
-
-function invokeClearChartForm() {
-  if (currentChartType == "line") {
-    clearLineChartForm();
-  }
-  else if (currentChartType == "trend") {
-    clearTrendChartForm();
-  }
-  else if (currentChartType == "stacked") {
-    clearstackedChartForm();
-  }
-  else if (currentChartType == "radar") {
-    clearRadarChartForm();
-  }
-  else if (currentChartType == "gauge") {
-    clearGaugeChartForm();
-  }
-  else if (currentChartType == "stackedBar") {
-    clearStackedBarChartForm();
-  }
-  else if (currentChartType == "pie") {
-    clearPieChartForm();
-  }
-  else if(currentChartType == "statsTrend") {
-    clearStatsTrendTileChartForm();
-  }
-  else if(currentChartType == "bar") {
-    clearBarChartForm();
-  }
-}
 function clickedChartType(el) {
   // hide
   $("#table-units>div.table-units-active").removeClass("table-units-active");
