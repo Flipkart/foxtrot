@@ -1042,6 +1042,7 @@ th, td {
 
 #left-menu {
   cursor: pointer;
+  padding-left: 7px;
 }
 
 .global-filters{
@@ -1083,4 +1084,12 @@ th, td {
 
 .listConsole:focus{
   outline: none;
+}
+
+#console-list-dropdown>span {
+  color: #42b1f7;
+  font-family: openSans;
+  font-size: 14px;
+  font-weight: 600;
+  text-align: center;
 }
