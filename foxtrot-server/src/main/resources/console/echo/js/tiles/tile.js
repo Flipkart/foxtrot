@@ -299,7 +299,6 @@ TileFactory.prototype.create = function () {
     tileId: this.tileObject.id
     , title: this.tileObject.title
   }));
-  var row = 0; // row
   var clickedRow; // clicked row
   if (defaultPlusBtn) { // check its new row
     tileElement = this.createNewRow(tileElement)
@@ -308,6 +307,7 @@ TileFactory.prototype.create = function () {
     var splitValue = customBtn.id.split("-");
     var rowObject = panelRow[splitValue[1] - 1];
     clickedRow = rowObject.id
+    row = splitValue[1];
     if (this.tileObject.tileContext.widgetType != rowObject.widgetType) { // f choosen type and row type is not equal
       tileElement = this.createNewRow(tileElement);
       defaultPlusBtn = true;
