@@ -132,7 +132,7 @@ h1 {
 }
 
 .tile-container {
-  margin-top: 45px;
+  margin-top: 85px;
   height: 95%;
 }
 
@@ -891,6 +891,7 @@ path {
 
 div.tab {
   overflow: hidden;
+  margin-top: 32px;
 }
 
 
@@ -904,10 +905,13 @@ div.tab button {
   cursor: pointer;
   padding: 1px 16px;
   transition: 0.3s;
-  font-size: 16px;
+  font-size: 14px;
   border-right: 1px solid gray;
   font-weight: 300;
   color: #838383;
+  font-family: openSans;
+  font-weight: 300;
+  color: #6a7d88;
 }
 
 
@@ -991,4 +995,28 @@ div.tab button:last-child {
 
 #floTip {
   background: #7d909a !important;
+}
+
+/*
+table {
+  border-collapse: collapse;
+  border-spacing: 0;
+  width: 100%;
+  border: 1px solid #ddd;
+}
+
+th, td {
+  border: none;
+  text-align: left;
+  padding: 8px;
+}
+*/
+
+.legend>table {
+  width: auto;
+}
+
+.heading {
+  margin-left: 38px;
+  color: #b0c4cd;
 }
