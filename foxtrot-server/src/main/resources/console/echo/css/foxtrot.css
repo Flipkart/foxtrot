@@ -1043,3 +1043,29 @@ th, td {
 #left-menu {
   cursor: pointer;
 }
+
+.global-filters{
+  float: right;
+  border: 1px solid #aeb8bd;
+  top: 27px;
+  right: 21px;
+  padding: 7px;
+  font-family: openSans;
+  height: 36px;
+}
+
+.global-filters div {
+  border-right: 1px solid #aeb8bd;
+}
+
+.global-filter-switch-div{
+  font-size: 14px;
+  font-weight: 600;
+  color: #7d909a;
+}
+
+.global-filter-period-select {
+  background: #f7f9fa;
+  border: none;
+  font-family: openSans;
+}
