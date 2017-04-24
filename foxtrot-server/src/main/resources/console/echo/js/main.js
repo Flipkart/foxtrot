@@ -282,7 +282,6 @@ function appendConsoleList() {
     textToInsert[i++] = '</option>';
   }
   $("#listConsole").append(textToInsert.join(''));
-  $("#listConsole").selectpicker('refresh');
 }
 
 function loadConsole() {
