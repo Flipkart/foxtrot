@@ -977,10 +977,6 @@ div.tab button:last-child {
   color: #7d909a !important;
 }
 
-#console-list {
-  float:right;
-}
-
 #statsTrend-chart-data {
   display: none;
 }
@@ -1017,6 +1013,33 @@ th, td {
 }
 
 .heading {
-  margin-left: 38px;
   color: #b0c4cd;
+}
+
+#left-menu {
+  list-style-type: none;
+  float: right;
+  font-family: openSans;
+  font-size: 14px;
+  text-align: center;
+  color: #9aa4ab;
+  font-weight: 300;
+}
+
+#left-menu li a{
+  color: #9aa4ab;
+  text-decoration: none;
+}
+
+#left-menu li{
+  float: left;
+  padding: 10px;
+}
+
+#console-list-dropdown {
+  float: right;
+}
+
+#left-menu {
+  cursor: pointer;
 }

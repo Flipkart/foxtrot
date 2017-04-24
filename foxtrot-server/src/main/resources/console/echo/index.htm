@@ -47,13 +47,17 @@
 <body> <span id="ruler"></span>
   <div class="container-full">
     <div class="new-header">
-      <div class="inner-header">
+      <div class="inner-header container">
         <h1 class="col-md-4 heading">Echo</h1>
-        <div id="console-list">
-          <button id="add-sections" data-target="#addTab" data-toggle="modal" class="btn btn-primary filter-nav-button">Add sections</button>
-          <select id="listConsole" class="listConsole selectpicker">
+        <div id="console-list-dropdown">
+          <select id="listConsole" class="listConsole">
             <option value="none">Select console</option>
           </select>
+            <ul id="left-menu">
+              <li><a>Browse Events</a></li>
+              <li><a>Explore</a></li>
+              <li id="add-sections" data-target="#addTab" data-toggle="modal">Builder</li>
+            </ul>
         </div>
       </div>
     </div>
