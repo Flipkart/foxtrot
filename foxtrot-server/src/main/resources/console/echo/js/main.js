@@ -28,7 +28,7 @@ var apiUrl = "http://foxtrot.traefik.prod.phonepe.com/foxtrot";
 var interval = null;
 var consoleList = [];
 var currentConsoleName;
-var globalFilters = true;
+var globalFilters = false;
 function TablesView(id, tables) {
   this.id = id;
   this.tables = tables;
