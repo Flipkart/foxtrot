@@ -57,7 +57,11 @@ function clearRadarChartForm() {
 RadarTile.prototype.getQuery = function (newDiv, object) {
   this.newDiv = newDiv;
   this.object = object;
-  object.tileContext.filters.push(timeValue(object.tileContext.period, object.tileContext.timeframe, getPeriodSelect(object.id)))
+  if(globalFilters) {
+    object.tileContext.filters.push(timeValue(object.tileContext.period, object.tileContext.timeframe, getGlobalFilters()))
+  } else {
+    object.tileContext.filters.push(timeValue(object.tileContext.period, object.tileContext.timeframe, getPeriodSelect(object.id)))
+  }
   var data = {
     "opcode": "group"
     , "table": object.tileContext.table

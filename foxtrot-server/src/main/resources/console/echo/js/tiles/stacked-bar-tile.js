@@ -66,14 +66,19 @@ function clearStackedBarChartForm() {
 StackedBarTile.prototype.getQuery = function (newDiv, object) {
   this.newDiv = newDiv;
   this.object = object;
-  object.tileContext.filters.push(timeValue(object.tileContext.period, object.tileContext.timeframe, getPeriodSelect(object.id)))
+  if(globalFilters) {
+    object.tileContext.filters.push(timeValue(object.tileContext.period, object.tileContext.timeframe, getGlobalFilters()))
+  } else {
+    object.tileContext.filters.push(timeValue(object.tileContext.period, object.tileContext.timeframe, getPeriodSelect(object.id)))
+  }
+
   var data = {
     "opcode": "trend"
     , "table": object.tileContext.table
     , "filters": object.tileContext.filters
     , "uniqueCountOn": object.tileContext.uniqueCountOn && object.tileContext.uniqueCountOn != "none" ? object.tileContext.uniqueCountOn : null
     , "field": object.tileContext.stackedBarField
-    , period: periodFromWindow(object.tileContext.period, "custom")
+    , period: periodFromWindow(object.tileContext.period, (globalFilters ? getGlobalFilters() : getPeriodSelect(object.id)))
   }
   $.ajax({
     method: "post"
@@ -223,7 +228,7 @@ StackedBarTile.prototype.render = function (d) {
     , xaxis: {
       mode: "time"
       , timezone: "browser"
-      , timeformat: axisTimeFormat(object.tileContext.period, getPeriodSelect(object.id))
+      , timeformat: axisTimeFormat(object.tileContext.period, (globalFilters ? getGlobalFilters() : getPeriodSelect(object.id)))
       , tickLength: 0
     , }
     , selection: {
@@ -259,44 +264,44 @@ StackedBarTile.prototype.render = function (d) {
     }).appendTo("body").fadeIn(200).fadeOut(50000);
   }
 
-  var updateLegendTimeout = null;
-  var latestPosition = null;
-
-  function updateLegend() {
-    updateLegendTimeout = null;
-
-    var pos = latestPosition;
-
-    var axes = plot.getAxes();
-    if (pos.x < axes.xaxis.min || pos.x > axes.xaxis.max || pos.y < axes.yaxis.min || pos.y > axes.yaxis.max) return;
-
-    var i, j, dataset = plot.getData();
-    for (i = 0; i < dataset.length; ++i) {
-      var series = dataset[i];
-
-      // find the nearest points, x-wise
-      for (j = 0; j < series.data.length; ++j)
-        if (series.data[j][0] > pos.x) break;
-
-      // now interpolate
-      var y, p1 = series.data[j - 1],
-          p2 = series.data[j];
-      if (p1 == null) y = p2[1];
-      else if (p2 == null) y = p1[1];
-      else y = p1[1] + (p2[1] - p1[1]) * (pos.x - p1[0]) / (p2[0] - p1[0]);
-      console.log(y)
-      console.log(series.label)
-      showTooltip(pos.x, pos.y, y, "");
-      chartDiv.find(".legend").eq(i).text(series.label.replace(/=.*/, "= " + y.toFixed(2) + " °C"));
-    }
-  }
+//  var updateLegendTimeout = null;
+//  var latestPosition = null;
+//
+//  function updateLegend() {
+//    updateLegendTimeout = null;
+//
+//    var pos = latestPosition;
+//
+//    var axes = plot.getAxes();
+//    if (pos.x < axes.xaxis.min || pos.x > axes.xaxis.max || pos.y < axes.yaxis.min || pos.y > axes.yaxis.max) return;
+//
+//    var i, j, dataset = plot.getData();
+//    for (i = 0; i < dataset.length; ++i) {
+//      var series = dataset[i];
+//
+//      // find the nearest points, x-wise
+//      for (j = 0; j < series.data.length; ++j)
+//        if (series.data[j][0] > pos.x) break;
+//
+//      // now interpolate
+//      var y, p1 = series.data[j - 1],
+//          p2 = series.data[j];
+//      if (p1 == null) y = p2[1];
+//      else if (p2 == null) y = p1[1];
+//      else y = p1[1] + (p2[1] - p1[1]) * (pos.x - p1[0]) / (p2[0] - p1[0]);
+//      console.log(y)
+//      console.log(series.label)
+//      showTooltip(pos.x, pos.y, y, "");
+//      chartDiv.find(".legend").eq(i).text(series.label.replace(/=.*/, "= " + y.toFixed(2) + " °C"));
+//    }
+//  }
+//
+//  $(ctx).bind("plothover", function (event, pos, item) {
+//    latestPosition = pos;
+//    if (!updateLegendTimeout) updateLegendTimeout = setTimeout(updateLegend, 50);
+//  });
 
   $(ctx).bind("plothover", function (event, pos, item) {
-    latestPosition = pos;
-    if (!updateLegendTimeout) updateLegendTimeout = setTimeout(updateLegend, 50);
-  });
-
-  /*$(ctx).bind("plothover", function (event, pos, item) {
     if (item) {
       $("#tooltip").remove();
       console.log(item)
@@ -320,5 +325,5 @@ StackedBarTile.prototype.render = function (d) {
       });
       showTooltip(item.pageX, item.pageY, strTip, color);
     }
-  });*/
+  });
 }

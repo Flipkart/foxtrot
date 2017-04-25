@@ -28,6 +28,7 @@ var apiUrl = "http://foxtrot.traefik.prod.phonepe.com/foxtrot";
 var interval = null;
 var consoleList = [];
 var currentConsoleName;
+var globalFilters = true;
 function TablesView(id, tables) {
   this.id = id;
   this.tables = tables;
@@ -119,6 +120,10 @@ function renderTiles(object) {
 
 function getPeriodSelect(tileId) {
   return $("#" + tileId).find(".period-select").val();
+}
+
+function getGlobalFilters() {
+  return $(".global-filter-period-select").val();
 }
 
 FoxTrot.prototype.addTile = function () {

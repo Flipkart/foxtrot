@@ -86,7 +86,11 @@ function setStatsTrendTileChartFormValues(object) {
 StatsTrendTile.prototype.getQuery = function(newDiv, object) {
   this.newDiv = newDiv;
   this.object = object;
-  object.tileContext.filters.push(timeValue(object.tileContext.period, object.tileContext.timeframe, getPeriodSelect(object.id)));
+  if(globalFilters) {
+    object.tileContext.filters.push(timeValue(object.tileContext.period, object.tileContext.timeframe, getGlobalFilters()))
+  } else {
+    object.tileContext.filters.push(timeValue(object.tileContext.period, object.tileContext.timeframe, getPeriodSelect(object.id)))
+  }
   var data = {
     "opcode": "statstrend",
     "table": object.tileContext.table,
@@ -182,7 +186,7 @@ StatsTrendTile.prototype.render = function (rows) {
       tickLength: 0
       , mode: "time"
       , timezone: "browser"
-      , timeformat: axisTimeFormat(object.tileContext.period, getPeriodSelect(object.id))
+      , timeformat: axisTimeFormat(object.tileContext.period, (globalFilters ? getGlobalFilters() : getPeriodSelect(object.id)))
       , }
     , yaxis: {
       markingsStyle: 'dashed',
