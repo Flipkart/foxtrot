@@ -140,7 +140,7 @@ TileFactory.prototype.createNewRow = function (tileElement) {
     row = panelRow.length;
     tileElement.addClass("row-" + row);
   }
-  if (this.tileObject.tileContext.widgetType != "full") // dont add row add button for full widget
+  if (this.tileObject.tileContext.widgetType != "full" && currentConsoleName == undefined) // dont add row add button for full widget
     tileElement.append(newBtnElement());
   return tileElement;
 }
@@ -300,7 +300,30 @@ TileFactory.prototype.create = function () {
     , title: this.tileObject.title
   }));
   var clickedRow; // clicked row
-  if (defaultPlusBtn) { // check its new row
+  if(this.tileObject.tileContext.isnewRow) {
+    tileElement = this.createNewRow(tileElement);
+    row = this.tileObject.tileContext.row;
+  } else {
+    row = this.tileObject.tileContext.row;
+    if (this.tileObject.tileContext.widgetType == 'small') {
+      if(customBtn != undefined) {
+        var findElement = $("." + customBtn.id);
+        var column1Length = findElement.find(".row-col-1").length;
+        if (column1Length == 0 || column1Length == 2) {
+          if (column1Length == 0) {
+            tileElement.addClass('row-col-1 col-sm-3');
+          }
+          else if (column1Length == 2) {
+            tileElement.addClass('row-col-2 col-sm-3');
+          }
+          var rowCol2Length = findElement.find(".row-col-2").length;
+          if (rowCol2Length == 0) tileElement.append("<div class='widget-add-btn'><button data-target='#addWidgetModal' class='tile-add-btn tile-add-btn btn btn-primary filter-nav-button glyphicon glyphicon-plus custom-add-btn row-col-1'onClick='setClicketData(this)'  data-toggle='modal' id='row-" + row + "'></button><div>");
+        }
+      }
+    }
+  }
+
+  /*if (defaultPlusBtn) { // check its new row
     tileElement = this.createNewRow(tileElement)
   }
   else { // row button action
@@ -326,7 +349,8 @@ TileFactory.prototype.create = function () {
         if (rowCol2Length == 0) tileElement.append("<div class='widget-add-btn'><button data-target='#addWidgetModal' class='tile-add-btn tile-add-btn btn btn-primary filter-nav-button glyphicon glyphicon-plus custom-add-btn row-col-1'onClick='setClicketData(this)'  data-toggle='modal' id='row-" + splitValue[1] + "'></button><div>");
       }
     }
-  }
+  }*/
+
   if (this.tileObject.tileContext.widgetType == "full") {
     tileElement.find(".tile").addClass('col-sm-12');
   }
@@ -356,13 +380,15 @@ TileFactory.prototype.create = function () {
   if (this.tileObject.tileContext.chartType == "pie") {
     tileElement.append("<div class='legend'></div>")
   }
-  if (defaultPlusBtn) { // new row
+  if (this.tileObject.tileContext.isnewRow) { // new row
     tileElement.insertBefore('.float-clear');
   }
   else { // remove row btn and add new div based on type
-    customBtn.remove();
-    $(".custom-btn-div").remove();
-    $('.row-' + splitValue[1]).append(tileElement);
+    if(customBtn) {
+      customBtn.remove();
+      $(".custom-btn-div").remove();
+    }
+    $('.row-' + row).append(tileElement);
   }
   if (this.tileObject.tileContext.widgetType == "small") {
     tileElement.find(".settings").addClass('reduce-filter-size');

@@ -147,6 +147,24 @@ FoxTrot.prototype.addTile = function () {
   $(".top-error").hide();
   var widgetType = getWidgetType();
   if (!isChild && editTileId) tileId = editTileId;
+
+  var objectRow = 0; var objectColumn = 0; var isnewRow = false;
+  if(defaultPlusBtn) { // find new row
+    if(panelRow.length == 0){
+      objectRow = 1;
+    } else {
+      objectRow = panelRow.length + 1;
+    }
+    isnewRow = true;
+  } else { // get existing row column
+    var splitValue = customBtn.id.split("-");
+    var rowObject = panelRow[splitValue[1] - 1];
+    clickedRow = rowObject.id
+    objectRow = parseInt(splitValue[1]);
+    console.log(panelRow.length);
+    isnewRow = false;
+  }
+
   var context = {
     "widgetType": widgetType
     , "table": table.name
@@ -157,6 +175,8 @@ FoxTrot.prototype.addTile = function () {
     , "tableFields": currentFieldList
     , "periodInterval": periodInterval
     , "uiFiltersList": []
+    , "row": objectRow
+    , "isnewRow": isnewRow
   }
   context = $.extend({}, getChartFormValues()[0], context);
   var object = {
@@ -248,7 +268,7 @@ function clickedChartType(el) {
 
 function saveConsole() {
   if(tileList.length > 0) {
-    var name = currentConsoleName ==  undefined ? "Test console" : currentConsoleName;
+    var name = currentConsoleName ==  undefined ? $(".dashboard-name").val() : currentConsoleName;
     for(var i = 0; i < globalData.length; i++) {
       var secArray = globalData[i].tileData;
       for(var key in  secArray) {
@@ -263,6 +283,7 @@ function saveConsole() {
       , name: name
       , sections: globalData
     };
+    console.log(representation);
     $.ajax({
       url: apiUrl+("/v2/consoles"),
       type: 'POST',
@@ -319,13 +340,13 @@ function loadParticularConsole() {
     type: 'GET',
     contentType: 'application/json',
     success: function(res) {
+      currentConsoleName = res.name;
       clearContainer();
       globalData = [];
       globalData = res.sections;
       renderTilesObject(res.sections[0].id);
       generateTabBtnForConsole(res);
       getTables();
-      currentConsoleName = res.name
     },
     error: function() {
       error("Could not save console");
@@ -379,6 +400,7 @@ function consoleTabs(evt, el) {
       clearModal();
       tileData = {};
       tileList = [];
+      panelRow = [];
     }
     tablinks[i].className = tablinks[i].className.replace(" active", "");
   }
