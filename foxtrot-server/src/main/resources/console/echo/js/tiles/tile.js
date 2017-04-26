@@ -46,8 +46,8 @@ function TileFactory() {
 function pushTilesObject(object) {
   tileData[object.id] = object;
   interval = setInterval(function () {
-    var a = new TileFactory();
-    a.createGraph(object, $("#"+ object.id));
+    /*var a = new TileFactory();
+    a.createGraph(object, $("#"+ object.id));*/
   }, 6000);
 }
 TileFactory.prototype.updateTileData = function () {

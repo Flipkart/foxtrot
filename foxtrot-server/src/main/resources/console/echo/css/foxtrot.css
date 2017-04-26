@@ -1093,3 +1093,13 @@ th, td {
   font-weight: 600;
   text-align: center;
 }
+
+#listConsole {
+  width: 120px;
+}
+#listConsole option {
+  width: 250px;
+}
+.global-filters div:last-child {
+  border-right: none;
+}
