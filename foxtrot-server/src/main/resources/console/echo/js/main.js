@@ -341,6 +341,7 @@ function loadParticularConsole() {
     contentType: 'application/json',
     success: function(res) {
       currentConsoleName = res.name;
+      $(".dashboard-name").val(res.name);
       clearContainer();
       globalData = [];
       globalData = res.sections;

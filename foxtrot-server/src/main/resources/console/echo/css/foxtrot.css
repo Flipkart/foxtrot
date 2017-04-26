@@ -937,6 +937,9 @@ div.tab button:last-child {
 
 .reduce-filter-size {
   width: 132px;
+  position: relative;
+  left: -16px;
+  top: 37px;
 }
 
 .health-div {
