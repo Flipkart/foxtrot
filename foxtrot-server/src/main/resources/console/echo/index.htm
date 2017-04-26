@@ -56,7 +56,7 @@
             <ul id="left-menu">
               <li><a>Browse Events</a></li>
               <li><a>Explore</a></li>
-              <li id="add-sections" data-target="#addTab" data-toggle="modal">+Add New Dashboard</li>
+              <li id="add-sections" data-target="#addTab" data-toggle="modal" data-backdrop="false">+Add New Dashboard</li>
             </ul>
         </div>
       </div>
@@ -426,7 +426,28 @@
     </div>
     <div class="modal fade" id="addTab" tabindex="-2" role="dialog" aria-labelledby="addTab" aria-hidden="true">
       <div class="modal-dialog">
-        <div class="modal-content">
+        <div id="console-modal">
+          <div id="add-tab-heading">
+            <h1>NEW DASHBOARD</h1>
+            <hr id="add-tab-heading-underline"/>
+          </div>
+          <div class="add-tab-form">
+            <form class="col-md-10">
+              <div class="form-group">
+                <label class="control-label" for="widgetType"><strong>Dashboard Name</strong></label>
+                <input type="text" class="form-control tab-name" id="tab-name">
+              </div>
+              <div class="form-group">
+                <label class="control-label" for="widgetType"><strong>Enter tab name</strong></label>
+                  <input type="text" class="form-control tab-name" id="tab-name">
+              </div>
+              <div class="form-group">
+                <button type="button" class="btn btn-primary add-tab-btn" id="addTabConfirm">Add</button>
+              </div>
+            </form>
+          </div>
+        </div>
+        <!--<div class="modal-content">
           <div class="modal-header">
             <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
             <h4 class="modal-title" id="addWidgetModalLabel">Add Tab</h4> </div>
@@ -443,7 +464,7 @@
             <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
             <button type="button" class="btn btn-primary" id="addTabConfirm">Add</button>
           </div>
-        </div>
+        </div>-->
       </div>
     </div>
     <div class="container" id="monitoring">

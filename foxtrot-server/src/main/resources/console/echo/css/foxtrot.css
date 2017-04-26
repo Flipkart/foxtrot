@@ -1103,3 +1103,57 @@ th, td {
 .global-filters div:last-child {
   border-right: none;
 }
+#console-modal {
+  width: 460px;
+  height: 483.4px;
+  background-color: #485962;
+}
+
+#add-tab-heading h1 {
+  height: 43px;
+  font-family: openSans;
+  font-size: 32px;
+  font-weight: 300;
+  text-align: center;
+  color: #c4d4dc;
+  padding-top: 91px;
+}
+
+#add-tab-heading-underline {
+  width: 60px;
+  border: solid 1px #c4d4dc;
+  margin-top: 36px;
+}
+
+.add-tab-form {
+  margin-left: 63px;
+  margin-top: 57px;
+}
+
+.add-tab-form label {
+  color: #c4d4dc;
+}
+
+.add-tab-form input {
+  background: none;
+  border: none;
+  border-bottom: 2px solid #c4d4dc;
+  color: #fff;
+  outline: none;
+  box-shadow: none;
+}
+
+.add-tab-form input:focus {
+  outline: none;
+  box-shadow: none;
+}
+
+.add-tab-btn {
+  width: 301px;
+  background-color: #32a6f9;
+  margin-top: 26px;
+}
+
+#addTab > .modal-dialog {
+  margin: 85px auto;
+}
