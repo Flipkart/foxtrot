@@ -448,8 +448,8 @@ function showHideSideBar() {
   }
   else {
     $('#sidebar').show();
-    $('#sidebar').animate({ 'width': '500px' }, 'slow');
-    $('#main-content').animate({ 'margin-left': '500px' }, 'slow');
+    $('#sidebar').animate({ 'width': '582px' }, 'slow');
+    $('#main-content').animate({ 'margin-left': '582px' }, 'slow');
   }
 }
 $(document).ready(function () {
@@ -480,4 +480,7 @@ $(document).ready(function () {
   $(".filter_values").multiselect({
     numberDisplayed: 0
   });
+  $("#default-btn").click(function() {
+    showHideSideBar();
+  })
 });

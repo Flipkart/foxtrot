@@ -538,11 +538,6 @@ path {
   color: #000;
 }
 
-#vizualization {
-  background: #FBFBFB;
-  border: 1px solid #EFEFEF;
-}
-
 .vizualization-type {
   border: 2px solid #EFEFEF;
   margin: 9px;
@@ -561,15 +556,12 @@ path {
 }
 
 #table-units {
-  background: darkgray;
+  background: #3d4d55;
   padding: 10px;
   display: none;
 }
 
 #modal-filters {
-  padding: 10px;
-  background: #FBFBFB;
-  border: 1px solid #EFEFEF;
 }
 
 #modal-action-btns {
@@ -582,12 +574,10 @@ path {
 }
 
 .modal-done-btn {
-  background: #7A98A2;
-  border: none;
-  border-radius: 13px;
-  width: 150px;
+  width: 140px;
   height: 40px;
-  color: #fff;
+  background-color: #32a6f9 !important;
+  color: #fff !important;
 }
 
 .filter-row .bootstrap-select {
@@ -1182,10 +1172,111 @@ th, td {
 }
 
 #main-content {
-  margin-left: 500px;
+  margin-left: 582px;
   position :relative;
 }
 .navbar{
   cursor:pointer;
   color:red;
+}
+
+#sidebar-heading h1 {
+  height: 22px;
+  font-family: openSans;
+  font-size: 16px;
+  font-weight: bold;
+  color: #ffffff;
+  text-align: center;
+  padding-top: 8px;
+}
+
+#sidebar-heading hr {
+  width: 51px;
+  border: solid 1px #c4d4dc;
+  position: relative;
+  bottom: 15px;
+}
+
+#sidebar label {
+  font-family: openSans;
+  font-size: 14px;
+  font-weight: 600;
+  color: #c4d4dc;
+}
+
+.sidebar-form-heading {
+  padding-bottom: 12px;
+}
+
+#modal-heading {
+  font-size: 14px;
+  font-weight: bold;
+  color: #50e3c2;
+}
+
+#sidebar input {
+  background: none;
+  border: none;
+  border-bottom: 1px solid #7d909a;
+  color: #fff;
+}
+
+#sidebar input:focus {
+  outline: none;
+  box-shadow: none;
+}
+
+#sidebar-filter-heading {
+  font-size: 14px;
+  font-weight: bold;
+  color: #50e3c2;
+}
+
+#chart-type {
+  width: 516px;
+  height: 70px;
+  border: solid 2px #7d909a;
+  background: none;
+  color: #bfcbd1;
+  font-family: openSans;
+}
+
+#sidebar-filter-btn {
+  width: 516px;
+  height: 56px;
+  border: dashed 1px #90a2ac;
+  background: none;
+}
+
+.filter-value {
+  background-color: #6a828f !important;
+  border: solid 1px #9dadb7 !important;
+}
+
+#filter-add-btn {
+  color: #fff;
+}
+
+.filter-type >.btn-default {
+  color: #fff;
+  background-color: #718590;
+  border-color: #dadada;
+}
+
+.filter-column >.btn-default {
+  color: #fff;
+  background-color: #718590;
+  border-color: #dadada;
+}
+
+.tile-table >.btn {
+  background: none !important;
+  border-color: #dadada;
+  border: none;
+  border-bottom: 1px solid #7d909a;
+  color: #fff;
+}
+
+#sidebar-content {
+  margin-left: 15px;
 }
