@@ -1119,7 +1119,7 @@ th, td {
   font-weight: 300;
   text-align: center;
   color: #c4d4dc;
-  padding-top: 91px;
+  padding-top: 58px;
 }
 
 #add-tab-heading-underline {
@@ -1154,9 +1154,22 @@ th, td {
 .add-tab-btn {
   width: 301px;
   background-color: #32a6f9;
-  margin-top: 26px;
+  margin-top: 40px;
 }
 
 #addTab > .modal-dialog {
   margin: 85px auto;
+}
+
+#add-tab-img {
+  margin-left: 189px;
+  position: relative;
+  top: 32px;
+}
+
+#add-tab-close {
+  float: right;
+  margin-right: 9px;
+  margin-top: 10px;
+  cursor: pointer;
 }
