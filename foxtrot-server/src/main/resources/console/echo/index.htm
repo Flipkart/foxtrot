@@ -469,41 +469,45 @@
         </div>-->
       </div>
     </div>
-    <div class="container" id="monitoring">
-      <div>
-        <div class="tab col-md-6"></div>
-        <div class="col-sm-4 global-filters">
-          <div class="col-sm-4 global-filter-switch-div">Global filters</div>
-          <div class="col-sm-4">
-            <select class="global-filter-period-select" id="global-filter-period-select">
-              <option value="custom" selected>Custom</option>
-              <option value="5m">5 Minutes</option>
-              <option value="15m">15 Minutes</option>
-              <option value="30m">30 Minutes</option>
-              <option value="1h"> 1 Hour</option>
-              <option value="6h"> 6 Hours</option>
-              <option value="12h"> 12 Hours</option>
-              <option value="1d"> 1 Day</option>
-              <option value="2d"> 2 Days</option>
-              <option value="5d"> 5 Days</option>
-              <option value="7d"> 7 Days</option>
-              <option value="15d"> 15 Days</option>
-              <option value="30d"> 30 Days</option>
-            </select>
+    <div id="sidebar">sidebar content here</div>
+    <section id="main-content">
+      <div class="container" id="monitoring main-content">
+        <div>
+          <div class="tab col-md-6"></div>
+          <div class="col-sm-4 global-filters">
+            <div class="col-sm-4 global-filter-switch-div">Global filters</div>
+            <div class="col-sm-4">
+              <select class="global-filter-period-select" id="global-filter-period-select">
+                <option value="custom" selected>Custom</option>
+                <option value="5m">5 Minutes</option>
+                <option value="15m">15 Minutes</option>
+                <option value="30m">30 Minutes</option>
+                <option value="1h"> 1 Hour</option>
+                <option value="6h"> 6 Hours</option>
+                <option value="12h"> 12 Hours</option>
+                <option value="1d"> 1 Day</option>
+                <option value="2d"> 2 Days</option>
+                <option value="5d"> 5 Days</option>
+                <option value="7d"> 7 Days</option>
+                <option value="15d"> 15 Days</option>
+                <option value="30d"> 30 Days</option>
+              </select>
+            </div>
+            <div class="col-sm-4"><img src="img/settings.png">Version</div>
           </div>
-          <div class="col-sm-4"><img src="img/settings.png">Version</div>
         </div>
-      </div>
-      <div class="tile-container" id="tileContainer">
-        <div class="float-clear"></div>
-      </div>
-      <div class="widget-new-btn">
-        <div class="btn-group">
-          <button type="button" style="margin-top:10px;" class="btn btn-primary filter-nav-button" data-target="#addWidgetModal" data-toggle="modal" id="default-btn"> <span class='glyphicon glyphicon-plus' id=""></span> </button>
+        <div class="tile-container" id="tileContainer">
+          <div class="float-clear"></div>
         </div>
+        <div class="widget-new-btn">
+          <div class="btn-group">
+            <button type="button" style="margin-top:10px;" class="btn btn-primary filter-nav-button" data-target="#addWidgetModal" data-toggle="modal" id="default-btn"> <span class='glyphicon glyphicon-plus' id=""></span> </button>
+          </div>
+        </div>
+        <button type="button" style="margin-top:10px;" class="btn btn-primary filter-nav-button" id="saveConsole">Save console</button>
       </div>
-      <button type="button" style="margin-top:10px;" class="btn btn-primary filter-nav-button" id="saveConsole">Save console</button>
-    </div>
+    </section>
+
 
     <!--Filter-->
     <div class="modal fade" tabindex="-1" id="setupFiltersModal" role="dialog" aria-labelledby="setupFilterModalLabel" aria-hidden="true">
@@ -618,6 +622,16 @@
   <script src="js/tiles/stats-trend-tile.js"></script>
   <script src="js/tiles/bar-tile.js"></script>
   <script src="js/jquery.flot.crosshair.js"></script>
+  <script type="text/javascript">
+    $('.navbar').on('click', function(){
+      showHideSideBar();
+    });
+    $('#sidebar').hide();
+    $('#sidebar').animate({ 'width': '0px' }, 'slow', function(){
+      $('#sidebar').hide();
+    });
+    $('#main-content').css({ 'margin-left': '0px' });
+  </script>
   <!--Application-->
 </body>
 

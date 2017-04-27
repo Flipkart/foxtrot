@@ -1173,3 +1173,19 @@ th, td {
   margin-top: 10px;
   cursor: pointer;
 }
+
+#sidebar {
+  width: 500px;
+  height: 100%;
+  position: fixed;
+  background: #2a3542;
+}
+
+#main-content {
+  margin-left: 500px;
+  position :relative;
+}
+.navbar{
+  cursor:pointer;
+  color:red;
+}

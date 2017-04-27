@@ -438,6 +438,20 @@ function addSections() {
 function clearFilterValues() {
   $(".filter_values").empty();
 }
+
+function showHideSideBar() {
+  if( $('#sidebar').is(':visible') ) {
+    $('#sidebar').animate({ 'width': '0px' }, 'slow', function(){
+      $('#sidebar').hide();
+    });
+    $('#main-content').animate({ 'margin-left': '0px' }, 'slow');
+  }
+  else {
+    $('#sidebar').show();
+    $('#sidebar').animate({ 'width': '500px' }, 'slow');
+    $('#main-content').animate({ 'margin-left': '500px' }, 'slow');
+  }
+}
 $(document).ready(function () {
   var type = $("#widgetType").val();
   var foxtrot = new FoxTrot();

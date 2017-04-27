@@ -225,11 +225,12 @@ TileFactory.prototype.triggerFilter = function (tileElement, object) {
 TileFactory.prototype.triggerConfig = function (tileElement, object) {
   var instanceVar = this;
   tileElement.find(".widget-toolbox").find(".glyphicon-cog").click(function () {
-    $("#addWidgetModal").modal('show');
+    showHideSideBar();
+    /*$("#addWidgetModal").modal('show');
     $("#addWidgetModal").find(".tileId").val(object.id);
     $("#addWidgetModal").find("#modal-heading").hide();
-    $(".vizualization-type").hide();
-    setTimeout(function() { instanceVar.updateFilterCreation(object); }, 2000);
+    $(".vizualization-type").hide();*/
+    //setTimeout(function() { instanceVar.updateFilterCreation(object); }, 2000);
 
   });
 }
