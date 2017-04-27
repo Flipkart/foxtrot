@@ -157,7 +157,7 @@ TileFactory.prototype.updateFilterCreation = function (object) {
     currentFieldList = tableFiledsArray[object.tileContext.table].mappings;
   }
 
-  var form = $("#addWidgetModal").find("form");
+  var form = $("#sidebar").find("form");
   form.find(".tile-title").val(object.title);
   if (object.tileContext.tableDropdownIndex == undefined) {
     form.find(".tile-table").val(parseInt(tableNameList.indexOf(object.tileContext.table)));
@@ -166,8 +166,8 @@ TileFactory.prototype.updateFilterCreation = function (object) {
     form.find(".tile-table").val(parseInt(object.tileContext.tableDropdownIndex));
   }
   $('.tile-table').selectpicker('refresh');
-  var chartElement = $("#vizualization").find("[data-chart-type='" + object.tileContext.chartType + "']");
-  clickedChartType(chartElement);
+  $(".chart-type").val(object.tileContext.chartType)
+  clickedChartType($(".chart-type"));
 
   if (selectedTileObject) {
     setConfigValue(selectedTileObject);

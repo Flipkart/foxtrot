@@ -250,7 +250,7 @@ function clickedChartType(el) {
   // hide
   $("#table-units>div.table-units-active").removeClass("table-units-active");
   // show
-  currentChartType = $(el).data('chartType');
+  currentChartType = $(".chart-type").val();
   reloadDropdowns();
   invokeClearChartForm();
   $("#table-units").show();
@@ -458,9 +458,6 @@ $(document).ready(function () {
   $("#addWidgetModal").validator();
   $("#addWidgetConfirm").click($.proxy(foxtrot.addTile, foxtrot));
   $("#filter-add-btn").click($.proxy(foxtrot.addFilters, foxtrot));
-  $(".vizualization-type").click(function () {
-    clickedChartType(this);
-  });
   $("#default-btn").click(function () {
     defaultPlusBtn = true;
     foxtrot.resetModal();
@@ -482,5 +479,8 @@ $(document).ready(function () {
   });
   $("#default-btn").click(function() {
     showHideSideBar();
+    $(".chart-type").change(function() {
+      clickedChartType(this);
+    })
   })
 });

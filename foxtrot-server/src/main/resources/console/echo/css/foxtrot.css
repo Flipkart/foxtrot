@@ -559,6 +559,8 @@ path {
   background: #3d4d55;
   padding: 10px;
   display: none;
+  margin-top: 11px;
+  width: 512px;
 }
 
 #modal-filters {
@@ -1168,7 +1170,7 @@ th, td {
   width: 500px;
   height: 100%;
   position: fixed;
-  background: #2a3542;
+  background: #51646d;
 }
 
 #main-content {
