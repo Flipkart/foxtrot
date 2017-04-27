@@ -1282,3 +1282,9 @@ th, td {
 #sidebar-content {
   margin-left: 15px;
 }
+
+.chart-forms {
+  padding-left: 20px;
+  padding-right: 20px;
+  padding-top: 14px;
+}
