@@ -445,11 +445,12 @@ function showHideSideBar() {
       $('#sidebar').hide();
     });
     $('#main-content').animate({ 'margin-left': '0px' }, 'slow');
+    $(".global-filters").css({'flot' :'right'});
   }
   else {
     $('#sidebar').show();
     $('#sidebar').animate({ 'width': '582px' }, 'slow');
-    $('#main-content').animate({ 'margin-left': '582px' }, 'slow');
+    $('#main-content').animate({ 'margin-left': '-1000px' }, 'slow');
   }
 }
 $(document).ready(function () {

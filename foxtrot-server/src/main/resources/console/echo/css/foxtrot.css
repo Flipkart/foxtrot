@@ -1167,6 +1167,8 @@ th, td {
   height: 100%;
   position: fixed;
   background: #51646d;
+  right: 0;
+  z-index: 1;
 }
 
 #main-content {
