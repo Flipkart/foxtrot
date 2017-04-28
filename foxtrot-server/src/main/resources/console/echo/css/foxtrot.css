@@ -603,8 +603,8 @@ path {
 }
 
 .btn-group .dropdown-toggle.btn-warning~.dropdown-menu {
-  background-color: #EFEFEF !important;
-  border-color: #EFEFEF !important;
+  background-color: #718590 !important;
+  border-color: #718590 !important;
 }
 
 .btn-warning:hover,
@@ -1287,4 +1287,37 @@ th, td {
   padding-left: 20px;
   padding-right: 20px;
   padding-top: 14px;
+}
+
+.bootstrap-select .btn {
+  background: none !important;
+  border-color: #dadada;
+  border: none;
+  border-bottom: 1px solid #7d909a;
+  color: #fff !important;
+}
+.form-control {
+  background: none;
+  outline: none;
+  box-shadow: none;
+}
+
+.btn-warning:hover, .btn-warning:focus, .btn-warning:active, .btn-warning.active, .open .dropdown-toggle.btn-warning {
+  color: #fff !important;
+  outline: none;
+  box-shadow: none;
+}
+
+.btn-group.open .dropdown-toggle {
+  outline: none;
+  box-shadow: none;
+}
+
+.dropdown-menu>.active>a, .dropdown-menu>.active>a:hover, .dropdown-menu>.active>a:focus {
+  background: #718590 !important;
+}
+
+.dropdown-menu>li>a:hover, .dropdown-menu>li>a:focus {
+  background: #718590 !important;
+  color: #fff;
 }
