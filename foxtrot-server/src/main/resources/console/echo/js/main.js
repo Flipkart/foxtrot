@@ -96,6 +96,7 @@ function setClicketData(ele) {
   customBtn = ele;
   defaultPlusBtn = false;
   clearModal();
+  showHideSideBar();
 }
 var tableFiledsArray = {};
 function fetchTableFields(tableName) {
@@ -197,7 +198,8 @@ FoxTrot.prototype.addTile = function () {
     tileFactory.tileObject = object;
     tileFactory.updateTileData();
   }
-  $("#addWidgetModal").modal('hide');
+  //$("#addWidgetModal").modal('hide');
+  showHideSideBar();
   removeFilters();
 };
 function addFitlers() {
@@ -242,6 +244,8 @@ function clearModal() {
   $(".vizualization-type").removeClass("vizualization-type-active");
   removeFilters();
   $("#table-units").hide();
+  $(".chart-type").show();
+  $('.chart-type option').first().prop('selected', true);
 }
 FoxTrot.prototype.resetModal = function () {
   clearModal();
@@ -480,12 +484,14 @@ $(document).ready(function () {
   });
   $("#default-btn").click(function() {
     showHideSideBar();
-    $(".chart-type").change(function() {
-      clickedChartType(this);
-    })
+    foxtrot.resetModal();
   });
+  $(".chart-type").change(function() {
+    clickedChartType(this);
+  })
 
   $("#modal-cancel-btn").click(function() {
     showHideSideBar();
+    foxtrot.resetModal();
   })
 });

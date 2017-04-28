@@ -568,6 +568,7 @@ path {
 
 #modal-action-btns {
   padding: 10px;
+  margin-right: 25px;
 }
 
 #modal-cacel-btn {
@@ -1208,6 +1209,7 @@ th, td {
 
 .sidebar-form-heading {
   padding-bottom: 12px;
+  margin-left: -16px;
 }
 
 #modal-heading {
