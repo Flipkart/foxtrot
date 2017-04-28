@@ -1164,11 +1164,12 @@ th, td {
 
 #sidebar {
   width: 500px;
-  height: 100%;
-  position: fixed;
+  position: absolute;
   background: #51646d;
   right: 0;
   z-index: 1;
+  overflow: hidden;
+  min-height: 500px;
 }
 
 #main-content {

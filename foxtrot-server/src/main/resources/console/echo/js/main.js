@@ -483,5 +483,9 @@ $(document).ready(function () {
     $(".chart-type").change(function() {
       clickedChartType(this);
     })
+  });
+
+  $("#modal-cancel-btn").click(function() {
+    showHideSideBar();
   })
 });
