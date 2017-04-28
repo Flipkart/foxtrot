@@ -560,7 +560,6 @@ path {
   padding: 10px;
   display: none;
   margin-top: 11px;
-  width: 512px;
 }
 
 #modal-filters {
@@ -568,7 +567,7 @@ path {
 
 #modal-action-btns {
   padding: 10px;
-  margin-right: 25px;
+  margin-right: -10px;
 }
 
 #modal-cacel-btn {
@@ -1238,8 +1237,7 @@ th, td {
 }
 
 #chart-type {
-  width: 516px;
-  height: 70px;
+  height: 50px;
   border: solid 2px #7d909a;
   background: none;
   color: #bfcbd1;
@@ -1247,8 +1245,7 @@ th, td {
 }
 
 #sidebar-filter-btn {
-  width: 516px;
-  height: 56px;
+  height: 45px;
   border: dashed 1px #90a2ac;
   background: none;
 }
@@ -1283,7 +1280,7 @@ th, td {
 }
 
 #sidebar-content {
-  margin-left: 15px;
+  margin-left: 4px;
 }
 
 .chart-forms {

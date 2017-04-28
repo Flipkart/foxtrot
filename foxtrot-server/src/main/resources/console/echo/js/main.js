@@ -453,7 +453,7 @@ function showHideSideBar() {
   }
   else {
     $('#sidebar').show();
-    $('#sidebar').animate({ 'width': '582px' }, 'slow');
+    $('#sidebar').animate({ 'width': '500px' }, 'slow');
     $('#main-content').animate({ 'margin-left': '-1000px' }, 'slow');
   }
 }
