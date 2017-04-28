@@ -586,10 +586,6 @@ path {
   width: 120px !important;
 }
 
-#filter-add {
-  padding: 10px;
-}
-
 .filters {
   line-height: 4;
 }
@@ -1176,6 +1172,7 @@ th, td {
 #main-content {
   margin-left: 582px;
   position :relative;
+  overflow: hidden;
 }
 .navbar{
   cursor:pointer;
@@ -1201,7 +1198,7 @@ th, td {
 
 #sidebar label {
   font-family: openSans;
-  font-size: 14px;
+  font-size: 12px;
   font-weight: 600;
   color: #c4d4dc;
 }
@@ -1232,6 +1229,7 @@ th, td {
   font-size: 14px;
   font-weight: bold;
   color: #50e3c2;
+  margin-top: 25px;
 }
 
 #chart-type {

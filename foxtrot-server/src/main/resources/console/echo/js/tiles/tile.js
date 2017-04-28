@@ -230,6 +230,7 @@ TileFactory.prototype.triggerConfig = function (tileElement, object) {
     $("#sidebar").find(".tileId").val(object.id);
     $("#sidebar").find("#modal-heading").hide();
     $(".vizualization-type").hide();
+    $(".chart-type").hide();
     setTimeout(function() { instanceVar.updateFilterCreation(object); }, 2000);
 
   });
