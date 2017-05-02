@@ -568,6 +568,7 @@ path {
 #modal-action-btns {
   padding: 10px;
   margin-right: -10px;
+  margin-top: 16px;
 }
 
 #modal-cacel-btn {
@@ -865,7 +866,6 @@ path {
 }
 
 .tile-title {
-  margin-left: 10px;
   font-family: "openSans";
   font-weight: normal;
 }
@@ -1207,8 +1207,9 @@ th, td {
 }
 
 .sidebar-form-heading {
-  padding-bottom: 12px;
+  padding-bottom: 10px;
   margin-left: -16px;
+  overflow: hidden;
 }
 
 #modal-heading {
@@ -1260,15 +1261,15 @@ th, td {
 }
 
 .filter-type >.btn-default {
-  color: #fff;
-  background-color: #718590;
-  border-color: #dadada;
+  color: #fff !important;
+  background-color: #718590 !important;
+  border-color: #dadada !important;
 }
 
 .filter-column >.btn-default {
-  color: #fff;
-  background-color: #718590;
-  border-color: #dadada;
+  color: #fff !important;
+  background-color: #718590 !important;
+  border-color: #dadada !important;
 }
 
 .tile-table >.btn {
