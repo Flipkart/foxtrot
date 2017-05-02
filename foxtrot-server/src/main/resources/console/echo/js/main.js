@@ -494,4 +494,13 @@ $(document).ready(function () {
     showHideSideBar();
     foxtrot.resetModal();
   })
+
+  $(".filter-switch").change(function () {
+    if(this.checked) {
+      globalFilters = true;
+    } else {
+      globalFilters = false;
+    }
+    console.log(globalFilters);
+  });
 });
