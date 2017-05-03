@@ -503,5 +503,4 @@ $(document).ready(function () {
       globalFilters = false;
     }
   });
-  $('.filter-switch input[type=checkbox]').attr('checked',false);
 });
