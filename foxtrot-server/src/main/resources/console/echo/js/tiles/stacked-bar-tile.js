@@ -23,6 +23,7 @@ function getstackedBarChartFormValues() {
   var timeframe = $(".stacked-bar-timeframe").val();
   var chartField = $(".stacked-bar-field").val();
   var uniqueKey = $(".stacked-uniquekey").val();
+  var ignoreDigits = $(".stackedBar-ignored-digits").val();
   if (chartField == "none") {
     return [[], false];
   }
@@ -36,10 +37,12 @@ function getstackedBarChartFormValues() {
     , "timeframe": timeframe
     , "uniqueKey": uniqueKey
     , "stackedBarField": chartField
+    , "ignoreDigits" : ignoreDigits
   , }, status]
 }
 
 function setStackedBarChartFormValues(object) {
+  console.log(object.tileContext);
   $(".stacked-bar-time-unit").val(object.tileContext.period);
   $(".stacked-bar-time-unit").selectpicker('refresh');
   $(".stacked-bar-timeframe").val(object.tileContext.timeframe);
@@ -47,6 +50,7 @@ function setStackedBarChartFormValues(object) {
   $(".stacked-bar-field").selectpicker('refresh');
   $(".stacked-bar-uniquekey").val(currentFieldList.findIndex(x => x.field == object.tileContext.uniqueKey));
   $(".stacked-bar-uniquekey").selectpicker('refresh');
+  $(".stackedBar-ignored-digits").val(this.object.tileContext.ignoreDigits == undefined ? 0 : object.tileContext.ignoreDigits);
 }
 
 function clearStackedBarChartForm() {
@@ -62,6 +66,7 @@ function clearStackedBarChartForm() {
   var stackingBarUniqueKey = parentElement.find(".stacked-bar-uniquekey");
   stackingBarUniqueKey.find('option:eq(0)').prop('selected', true);
   $(stackingBarUniqueKey).selectpicker('refresh');
+  $(".stackedBar-ignored-digits").val(0);
 }
 StackedBarTile.prototype.getQuery = function (newDiv, object) {
   this.newDiv = newDiv;
@@ -119,7 +124,7 @@ StackedBarTile.prototype.getData = function (data) {
     var trendData = data.trends[trend];
     for (var i = 0; i < trendData.length; i++) {
       var time = trendData[i].period;
-      var count = trendData[i].count;
+      var count = trendData[i].count / Math.pow(10, (this.object.tileContext.ignoreDigits == undefined ? 0 : this.object.tileContext.ignoreDigits));
       if (!tmpData.hasOwnProperty(time)) {
         tmpData[time] = new Object();
       }
