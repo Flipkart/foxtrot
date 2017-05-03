@@ -2,6 +2,7 @@ html,
 body {
   height: 100%;
   background: #f7f9fa;
+  font-family: Open Sans;
 }
 
 .tile-default-size {
@@ -866,7 +867,7 @@ path {
 }
 
 .tile-title {
-  font-family: "openSans";
+  font-family: Open Sans;
   font-weight: normal;
 }
 
@@ -897,7 +898,7 @@ div.tab button {
   border-right: 1px solid gray;
   font-weight: 300;
   color: #838383;
-  font-family: openSans;
+  font-family: Open Sans;
   font-weight: 300;
   color: #6a7d88;
 }
@@ -945,13 +946,13 @@ div.tab button:last-child {
 }
 
 .tickLabel {
-  font-family: openSans;
+  font-family: Open Sans;
   font-size: 12px;
   color: #aeb8bd;
 }
 
 .legendLabel {
-  font-family: openSans;
+  font-family: Open Sans;
   font-size: 10px;
   line-height: 2.5;
   color: #7d909a;
@@ -962,7 +963,7 @@ div.tab button:last-child {
   margin-top: 12px;
 }
 .legend-custom {
-  font-family: openSans;
+  font-family: Open Sans;
   font-size: 10.tilepx;.tile
   line-height: 2.5;
   color: #7d909a !important;
@@ -1010,7 +1011,7 @@ th, td {
 #left-menu {
   list-style-type: none;
   float: right;
-  font-family: openSans;
+  font-family: Open Sans;
   font-size: 14px;
   text-align: center;
   color: #9aa4ab;
@@ -1042,7 +1043,7 @@ th, td {
   top: 27px;
   right: 21px;
   padding: 7px;
-  font-family: openSans;
+  font-family: Open Sans;
   height: 36px;
 }
 
@@ -1060,14 +1061,14 @@ th, td {
 .global-filter-period-select {
   background: #f7f9fa;
   border: none;
-  font-family: openSans;
+  font-family: Open Sans;
 }
 
 .listConsole {
   background: none;
   border: none;
   margin-top: 9px;
-  font-family: openSans;
+  font-family: Open Sans;
   font-size: 14px;
   font-weight: 600;
   text-align: center;
@@ -1080,7 +1081,7 @@ th, td {
 
 #console-list-dropdown>span {
   color: #42b1f7;
-  font-family: openSans;
+  font-family: Open Sans;
   font-size: 14px;
   font-weight: 600;
   text-align: center;
@@ -1103,7 +1104,7 @@ th, td {
 
 #add-tab-heading h1 {
   height: 43px;
-  font-family: openSans;
+  font-family: Open Sans;
   font-size: 32px;
   font-weight: 300;
   text-align: center;
@@ -1171,6 +1172,7 @@ th, td {
   z-index: 1000;
   overflow: hidden;
   min-height: 500px;
+  top: 66px;
 }
 
 #main-content {
@@ -1185,7 +1187,7 @@ th, td {
 
 #sidebar-heading h1 {
   height: 22px;
-  font-family: openSans;
+  font-family: Open Sans;
   font-size: 16px;
   font-weight: bold;
   color: #ffffff;
@@ -1201,7 +1203,7 @@ th, td {
 }
 
 #sidebar label {
-  font-family: openSans;
+  font-family: Open Sans;
   font-size: 12px;
   font-weight: 600;
   color: #c4d4dc;
@@ -1243,7 +1245,7 @@ th, td {
   border: solid 2px #7d909a;
   background: none;
   color: #bfcbd1;
-  font-family: openSans;
+  font-family: Open Sans;
 }
 
 #sidebar-filter-btn {
@@ -1402,6 +1404,6 @@ input[type="checkbox"].tinyswitch.ios-switch:checked + div > div {
 }
 
 .global-filter-switch-div > label {
-  font-family: openSans;
+  font-family: Open Sans;
   font-weight: 600;
 }

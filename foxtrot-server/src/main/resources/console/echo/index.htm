@@ -26,6 +26,7 @@
   <link rel="shortcut icon" href="../../assets/ico/favicon.ico">
   <title>Foxtrot</title>
   <!-- Bootstrap core CSS -->
+  <link href="css/open-sans.css" rel="stylesheet">
   <link href="../css/bootstrap.min.css" rel="stylesheet">
   <link href="../css/bootstrap-select.min.css" rel="stylesheet">
   <link href="../css/bootstrap-datetimepicker.min.css">
@@ -107,6 +108,43 @@
         </div>-->
       </div>
     </div>
+    <section id="main-content">
+      <div class="container" id="monitoring">
+        <div>
+          <div class="tab col-md-6"></div>
+          <div class="col-sm-4 global-filters">
+            <div class="col-sm-4 global-filter-switch-div"><label>Globall filters<input type="checkbox" class="ios-switch blue filter-switch tinyswitch"/><div id="switch"><div></div></div></label></div>
+            <div class="col-sm-4">
+              <select class="global-filter-period-select" id="global-filter-period-select">
+                <option value="custom" selected>Custom</option>
+                <option value="5m">5 Minutes</option>
+                <option value="15m">15 Minutes</option>
+                <option value="30m">30 Minutes</option>
+                <option value="1h"> 1 Hour</option>
+                <option value="6h"> 6 Hours</option>
+                <option value="12h"> 12 Hours</option>
+                <option value="1d"> 1 Day</option>
+                <option value="2d"> 2 Days</option>
+                <option value="5d"> 5 Days</option>
+                <option value="7d"> 7 Days</option>
+                <option value="15d"> 15 Days</option>
+                <option value="30d"> 30 Days</option>
+              </select>
+            </div>
+            <div class="col-sm-4"><img src="img/settings.png">Version</div>
+          </div>
+        </div>
+        <div class="tile-container" id="tileContainer">
+          <div class="float-clear"></div>
+        </div>
+        <div class="widget-new-btn">
+          <div class="btn-group">
+            <button type="button" style="margin-top:10px;" class="btn btn-primary filter-nav-button"  data-toggle="modal" id="default-btn"> <span class='glyphicon glyphicon-plus' id=""></span> </button>
+          </div>
+        </div>
+        <button type="button" style="margin-top:10px;" class="btn btn-primary filter-nav-button" id="saveConsole">Save console</button>
+      </div>
+    </section>
     <div id="sidebar">
       <div id="sidebar-heading">
         <h1>Widget Settings</h1>
@@ -124,7 +162,7 @@
               <select class="selectpicker tile-table" id="tileTable" data-live-search="true" data-style="btn-warning"> </select>
             </div>
           </div>
-          <h4 id="modal-heading">Visualization type</h4>
+          <h4 id="modal-heading">VISUALIZATION TYPE</h4>
           <div class="row" id="vizualization">
             <select id="chart-type" class="chart-type form-control">
               <option value="none">Select</option>
@@ -409,44 +447,6 @@
 
       </div>
     </div>
-    <section id="main-content">
-      <div class="container" id="monitoring">
-        <div>
-          <div class="tab col-md-6"></div>
-          <div class="col-sm-4 global-filters">
-            <div class="col-sm-4 global-filter-switch-div"><label>Globall filters<input type="checkbox" class="ios-switch blue filter-switch tinyswitch"/><div id="switch"><div></div></div></label></div>
-            <div class="col-sm-4">
-              <select class="global-filter-period-select" id="global-filter-period-select">
-                <option value="custom" selected>Custom</option>
-                <option value="5m">5 Minutes</option>
-                <option value="15m">15 Minutes</option>
-                <option value="30m">30 Minutes</option>
-                <option value="1h"> 1 Hour</option>
-                <option value="6h"> 6 Hours</option>
-                <option value="12h"> 12 Hours</option>
-                <option value="1d"> 1 Day</option>
-                <option value="2d"> 2 Days</option>
-                <option value="5d"> 5 Days</option>
-                <option value="7d"> 7 Days</option>
-                <option value="15d"> 15 Days</option>
-                <option value="30d"> 30 Days</option>
-              </select>
-            </div>
-            <div class="col-sm-4"><img src="img/settings.png">Version</div>
-          </div>
-        </div>
-        <div class="tile-container" id="tileContainer">
-          <div class="float-clear"></div>
-        </div>
-        <div class="widget-new-btn">
-          <div class="btn-group">
-            <button type="button" style="margin-top:10px;" class="btn btn-primary filter-nav-button"  data-toggle="modal" id="default-btn"> <span class='glyphicon glyphicon-plus' id=""></span> </button>
-          </div>
-        </div>
-        <button type="button" style="margin-top:10px;" class="btn btn-primary filter-nav-button" id="saveConsole">Save console</button>
-      </div>
-    </section>
-
 
     <!--Filter-->
     <div class="modal fade" tabindex="-1" id="setupFiltersModal" role="dialog" aria-labelledby="setupFilterModalLabel" aria-hidden="true">
