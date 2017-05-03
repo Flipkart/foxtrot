@@ -23,6 +23,7 @@ function getPieChartFormValues() {
   var timeframe = $(".pie-timeframe").val();
   var chartField = $(".eventtype-field").val();
   var uniqueKey = $(".pie-uniquekey").val();
+  var ignoreDigits = $(".pie-ignored-digits").val();
   if (chartField == "none") {
     return [[], false];
   }
@@ -36,6 +37,7 @@ function getPieChartFormValues() {
     , "timeframe": timeframe
     , "uniqueKey": uniqueKey
     , "eventFiled": chartField
+    , "ignoreDigits" : ignoreDigits
   , }, status]
 }
 
@@ -50,6 +52,7 @@ function setPieChartFormValues(object) {
   var stackingUniqueField = currentFieldList.findIndex(x => x.field == object.tileContext.uniqueKey);
   $(".pie-bar-uniquekey").val(stackingUniqueField);
   $(".pie-bar-uniquekey").selectpicker('refresh');
+  $(".pie-ignored-digits").val(parseInt(object.tileContext.ignoreDigits == undefined ? 0 : object.tileContext.ignoreDigits));
 }
 
 function clearPieChartForm() {
@@ -65,6 +68,7 @@ function clearPieChartForm() {
   var stackingBarUniqueKey = parentElement.find(".pie-uniquekey");
   stackingBarUniqueKey.find('option:eq(0)').prop('selected', true);
   $(stackingBarUniqueKey).selectpicker('refresh');
+  $(".pie-ignored-digits").val(0);
 }
 PieTile.prototype.getQuery = function (newDiv, object) {
   this.newDiv = newDiv;
@@ -107,7 +111,7 @@ PieTile.prototype.getData = function (data) {
     if ((visible == -1 ? true : false)) {
       columns.push({
         label: property
-        , data: data.result[property]
+        , data: data.result[property] / Math.pow(10, (this.object.tileContext.ignoreDigits == undefined ? 0 : this.object.tileContext.ignoreDigits))
         , color: colors.nextColor()
         , lines: {
           show: true
