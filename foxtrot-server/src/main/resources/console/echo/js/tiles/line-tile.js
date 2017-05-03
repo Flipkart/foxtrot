@@ -44,7 +44,7 @@ function setLineChartFormValues(object) {
   uniqeKey.val(object.tileContext.uniqueCountOn);
   $(uniqeKey).selectpicker('refresh');
   parentElement.find("#line-timeframe").val(object.tileContext.timeframe);
-  $(".line-ignored-digits").val(object.tileContext.ignoreDigits)
+  $(".line-ignored-digits").val(parseInt(object.tileContext.ignoreDigits == undefined ? 0 : object.tileContext.ignoreDigits));
 }
 
 function clearLineChartForm() {

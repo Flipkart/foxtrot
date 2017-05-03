@@ -50,7 +50,7 @@ function setStackedBarChartFormValues(object) {
   $(".stacked-bar-field").selectpicker('refresh');
   $(".stacked-bar-uniquekey").val(currentFieldList.findIndex(x => x.field == object.tileContext.uniqueKey));
   $(".stacked-bar-uniquekey").selectpicker('refresh');
-  $(".stackedBar-ignored-digits").val(this.object.tileContext.ignoreDigits == undefined ? 0 : object.tileContext.ignoreDigits);
+  $(".stackedBar-ignored-digits").val(parseInt(object.tileContext.ignoreDigits == undefined ? 0 : object.tileContext.ignoreDigits));
 }
 
 function clearStackedBarChartForm() {

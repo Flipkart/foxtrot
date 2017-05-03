@@ -50,6 +50,7 @@ function setBarChartFormValues(object) {
   $(".bar-event-field").selectpicker('refresh');
   $(".bar-uniquekey").val(currentFieldList.findIndex(x => x.field == object.tileContext.uniqueKey));
   $(".bar-uniquekey").selectpicker('refresh');
+  $(".bar-ignored-digits").val(parseInt(object.tileContext.ignoreDigits == undefined ? 0 : object.tileContext.ignoreDigits));
 }
 
 function clearBarChartForm() {
