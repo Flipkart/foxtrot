@@ -501,6 +501,6 @@ $(document).ready(function () {
     } else {
       globalFilters = false;
     }
-    console.log(globalFilters);
   });
+  $('.filter-switch input[type=checkbox]').attr('checked',false);
 });

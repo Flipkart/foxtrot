@@ -23,6 +23,7 @@ function getBarChartFormValues() {
   var timeframe = $(".bar-timeframe").val();
   var eventField = $(".bar-event-field").val();
   var uniqueKey = $(".bar-uniquekey").val();
+  var ignoreDigits = $(".bar-ignored-digits").val();
   if (eventField == "none") {
     return [[], false];
   }
@@ -36,6 +37,7 @@ function getBarChartFormValues() {
     , "timeframe": timeframe
     , "nesting": [groupingString]
     , "uniqueKey": uniqueKey
+    , "ignoreDigits" : ignoreDigits
   }, status]
 }
 
@@ -108,7 +110,7 @@ BarTile.prototype.getData = function (data) {
   var flatData = [];
   this.object.tileContext.uiFiltersList = [];
   for (property in data.result) {
-    var value = data.result[property] / Math.pow(10, 2);
+    var value = data.result[property] / Math.pow(10, this.object.tileContext.ignoreDigits);
     var visible = $.inArray( property, this.object.tileContext.uiFiltersSelectedList);
     if((visible == -1 ? true : false)) {
       var dataElement = {
