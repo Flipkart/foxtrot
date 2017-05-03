@@ -449,13 +449,11 @@ function showHideSideBar() {
     $('#sidebar').animate({ 'width': '0px' }, 'slow', function(){
       $('#sidebar').hide();
     });
-    $('#main-content').animate({ 'margin-left': '0px' }, 'slow');
     $(".global-filters").css({'flot' :'right'});
   }
   else {
     $('#sidebar').show();
     $('#sidebar').animate({ 'width': '500px' }, 'slow');
-    $('#main-content').animate({ 'margin-left': '-1000px' }, 'slow');
   }
 }
 $(document).ready(function () {
