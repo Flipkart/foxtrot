@@ -614,7 +614,7 @@ path {
 }
 
 .period-select {
-  background: #f7f9fa;
+  background: #fff;
   border: none;
 }
 
@@ -646,8 +646,8 @@ path {
 }
 
 .trend-value-big {
-  font-size: 25px;
-  font-weight: bold;
+  font-size: 36px;
+  font-weight: 600;
   color: #9BA3AB;
   margin: 0px;
   font-family: "oswald-bold";
@@ -831,7 +831,7 @@ path {
   position: relative;
   top: 22px;
   right: 43px;
-  background: #f7f9fa;
+  background: #fff;
 }
 
 .filter {
@@ -868,7 +868,11 @@ path {
 
 .tile-title {
   font-family: Open Sans;
-  font-weight: normal;
+  font-weight: 600;
+  font-size: 14px;
+  margin-left: 10px;
+  color: #7d909a;
+  height: 19px;
 }
 
 #pie-chart-data {
@@ -925,10 +929,10 @@ div.tab button:last-child {
 }*/
 
 .reduce-filter-size {
-  width: 132px;
+  width: 89px;
   position: relative;
   left: -16px;
-  top: 37px;
+  top: 24px;
 }
 
 .health-div {
@@ -1406,4 +1410,22 @@ input[type="checkbox"].tinyswitch.ios-switch:checked + div > div {
 .global-filter-switch-div > label {
   font-family: Open Sans;
   font-weight: 600;
+}
+
+.bootstrap-select.btn-group .btn .filter-option {
+  font-size: 18px;
+}
+
+.reduce-filter-option {
+  width: 62px;
+}
+
+.reduce-period-select {
+  width: 57px;
+  font-size: 10px;
+}
+
+.reduce-settings-icon {
+  right: -1px;
+  width: 20px;
 }

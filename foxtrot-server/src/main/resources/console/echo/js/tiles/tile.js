@@ -404,6 +404,9 @@ TileFactory.prototype.create = function () {
   }
   if (this.tileObject.tileContext.widgetType == "small") {
     tileElement.find(".settings").addClass('reduce-filter-size');
+    tileElement.find(".widget-timeframe").addClass('reduce-filter-option');
+    tileElement.find(".period-select").addClass('reduce-period-select');
+    tileElement.find(".settings-icon").addClass('reduce-settings-icon');
     tileElement.find(".filter").hide();
   }
   else if (this.tileObject.tileContext.widgetType == "medium") {
