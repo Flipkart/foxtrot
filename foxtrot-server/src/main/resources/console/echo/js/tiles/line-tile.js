@@ -22,6 +22,7 @@ function getLineChartFormValues() {
   var period = $("#tile-time-unit").val();
   var uniqueCount = $("#uniqueKey").val();
   var timeframe = $("#line-timeframe").val();
+  var ignoreDigits = $(".line-ignored-digits").val();
   var status = false;
   if ($("#uniqueKey").valid() && $("#tile-time-unit").valid() && $("#line-timeframe").valid()) {
     status = true;
@@ -30,6 +31,7 @@ function getLineChartFormValues() {
     "period": period
     , "uniqueCountOn": uniqueCount
     , "timeframe": timeframe
+    , "ignoreDigits" : ignoreDigits
   , }, status]
 }
 
@@ -42,6 +44,7 @@ function setLineChartFormValues(object) {
   uniqeKey.val(object.tileContext.uniqueCountOn);
   $(uniqeKey).selectpicker('refresh');
   parentElement.find("#line-timeframe").val(object.tileContext.timeframe);
+  $(".line-ignored-digits").val(object.tileContext.ignoreDigits)
 }
 
 function clearLineChartForm() {
@@ -88,7 +91,8 @@ LineTile.prototype.getData = function (data) {
   var rows = [];
   rows.push(['date', 'count']);
   for (var i = data.counts.length - 1; i >= 0; i--) {
-    rows.push([data.counts[i].period, data.counts[i].count]);
+    console.log(this.object.tileContext.ignoreDigits);
+    rows.push([data.counts[i].period, (data.counts[i].count / Math.pow(10, this.object.tileContext.ignoreDigits == undefined ? 0 : this.object.tileContext.ignoreDigits))]);
   }
   this.render(rows);
 }
