@@ -43,13 +43,23 @@ function TileFactory() {
   this.tileObject = "";
 }
 
+function refereshTiles() {
+  for (var key in tileData) {
+    if (tileData.hasOwnProperty(key)) {
+      var a = new TileFactory();
+      a.createGraph(tileData[key], $("#"+ key));
+    }
+  }
+}
+
+setInterval(function () {
+  refereshTiles();
+}, 6000);
+
 function pushTilesObject(object) {
   tileData[object.id] = object;
-  interval = setInterval(function () {
-    /*var a = new TileFactory();
-    a.createGraph(object, $("#"+ object.id));*/
-  }, 6000);
 }
+
 TileFactory.prototype.updateTileData = function () {
   var selectedTile = $("#" + this.tileObject.id);
   selectedTile.find(".tile-title").text(this.tileObject.title);

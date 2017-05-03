@@ -402,6 +402,8 @@ function consoleTabs(evt, el) {
           globalData.push(tempObject);
         }
       }
+      clearInterval(interval);
+      interval = 0;
       clearModal();
       tileData = {};
       tileList = [];
@@ -414,7 +416,6 @@ function consoleTabs(evt, el) {
   evt.currentTarget.className += " active";
   var currentTabName = currentTab.toLowerCase();
   renderTilesObject(currentTabName);
-  clearInterval(interval);
 }
 var tableNameList = [];
 function getTables() {
