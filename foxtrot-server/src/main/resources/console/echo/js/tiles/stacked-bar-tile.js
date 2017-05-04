@@ -305,7 +305,7 @@ StackedBarTile.prototype.render = function (d) {
 //    latestPosition = pos;
 //    if (!updateLegendTimeout) updateLegendTimeout = setTimeout(updateLegend, 50);
 //  });
-
+  var previousPoint = null;
   $(ctx).bind("plothover", function (event, pos, item) {
     if (item) {
       $("#tooltip").remove();
@@ -323,12 +323,15 @@ StackedBarTile.prototype.render = function (d) {
             strTip += "</br>"+ p[1] + " for " + "<span style="+s.color+">"+s.label+"<span>";
           }
           else {
+            console.log('===>')
             $("#tooltip").remove();
-            //previousPoint = null;
+            previousPoint = null;
           }
         });
       });
       showTooltip(item.pageX, item.pageY, strTip, color);
+    } else {
+      $("#tooltip").remove();
     }
   });
 }
