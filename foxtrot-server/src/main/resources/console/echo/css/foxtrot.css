@@ -1177,7 +1177,8 @@ th, td {
   right: 0;
   z-index: 1000;
   overflow: hidden;
-  min-height: 500px;
+  min-height: 560px;
+  max-height: 560px;
   top: 66px;
 }
 
@@ -1198,14 +1199,14 @@ th, td {
   font-weight: bold;
   color: #ffffff;
   text-align: center;
-  padding-top: 8px;
+  padding-top: 15px;
 }
 
 #sidebar-heading hr {
   width: 51px;
   border: solid 1px #c4d4dc;
   position: relative;
-  bottom: 15px;
+  bottom: 8px;
 }
 
 #sidebar label {
@@ -1289,6 +1290,8 @@ th, td {
 
 #sidebar-content {
   margin-left: 4px;
+  overflow-y: scroll;
+  height: 499px;
 }
 
 .chart-forms {
@@ -1456,4 +1459,8 @@ input[type="checkbox"].tinyswitch.ios-switch:checked + div > div {
 
 .filter-background {
   background: #718590;
+}
+
+.tile-name-parent {
+  padding-left: 0px;
 }
