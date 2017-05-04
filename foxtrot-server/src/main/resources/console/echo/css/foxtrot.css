@@ -585,7 +585,7 @@ path {
 }
 
 .filter-row .bootstrap-select {
-  width: 120px !important;
+  width: 100px !important;
 }
 
 .filters {
@@ -593,7 +593,9 @@ path {
 }
 
 .filter-value {
-  margin-top: 14px;
+  margin-top: 12px;
+  padding: 0 0 0 2%;
+  height: 40px;
 }
 
 .btn-warning:hover {
@@ -1270,13 +1272,11 @@ th, td {
 .filter-type >.btn-default {
   color: #fff !important;
   background-color: #718590 !important;
-  border-color: #dadada !important;
 }
 
 .filter-column >.btn-default {
   color: #fff !important;
   background-color: #718590 !important;
-  border-color: #dadada !important;
 }
 
 .tile-table >.btn {
@@ -1434,4 +1434,26 @@ input[type="checkbox"].tinyswitch.ios-switch:checked + div > div {
   height: auto;
   margin-left: 0px;
   margin-top: 5px;
+}
+
+.no-padding {
+  padding: 0 !important;
+}
+
+.add-filter-row {
+  margin-top: -20px;
+  margin-bottom: 15px;
+}
+
+.filter-delete {
+  left: 12px;
+  top: 5px;
+}
+
+.glyphicon-trash{
+  color: #fff;
+}
+
+.filter-background {
+  background: #718590;
 }
