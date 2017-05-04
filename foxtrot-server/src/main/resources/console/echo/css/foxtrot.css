@@ -1429,3 +1429,9 @@ input[type="checkbox"].tinyswitch.ios-switch:checked + div > div {
   right: -1px;
   width: 20px;
 }
+
+.sidebar-tile {
+  height: auto;
+  margin-left: 0px;
+  margin-top: 5px;
+}
