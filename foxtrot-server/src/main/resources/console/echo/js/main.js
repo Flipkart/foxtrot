@@ -287,7 +287,7 @@ function saveConsole() {
       , name: name
       , sections: globalData
     };
-    console.log(representation);
+    console.log(representation);return;
     $.ajax({
       url: apiUrl+("/v2/consoles"),
       type: 'POST',

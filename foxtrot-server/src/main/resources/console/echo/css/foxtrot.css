@@ -1407,12 +1407,14 @@ input[type="checkbox"].tinyswitch.ios-switch:checked + div > div {
 #switch {
   position: relative;
   bottom: 30px;
-  left: 46px;
+  left: 50px;
 }
 
 .global-filter-switch-div > label {
   font-family: Open Sans;
   font-weight: 600;
+  position: relative;
+  right: 8px;
 }
 
 .bootstrap-select.btn-group .btn .filter-option {
