@@ -450,6 +450,7 @@ function showHideSideBar() {
       $('#sidebar').hide();
     });
     $(".global-filters").css({'flot' :'right'});
+    $(".top-error").hide();
   }
   else {
     $('#sidebar').show();
