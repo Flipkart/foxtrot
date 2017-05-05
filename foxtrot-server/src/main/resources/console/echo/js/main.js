@@ -434,6 +434,16 @@ function generateSectionbtn(tabName) {
   $(".tab").append('<button class="tablinks" id="'+tabName+'" onclick="consoleTabs(event, this)">'+tabName+'</button>');
   $("#addTab").modal('hide');
   $("#tab-name").val('');
+  var tablinks = document.getElementsByClassName("tablinks");
+  for (i = 0; i < tablinks.length; i++) {
+    var element = $(tablinks[i]);
+    if(tablinks[i].id == tabName) {
+      element.addClass('active');
+      clearContainer();
+    } else {
+      element.removeClass('active');
+    }
+  }
 }
 
 function addSections() {
