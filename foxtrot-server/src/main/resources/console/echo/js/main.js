@@ -426,6 +426,7 @@ function generateSectionbtn(tabName, isNew) {
         element.addClass('active');
         clearContainer();
         tileList =  [];
+        tileData = {};
       } else {
         element.removeClass('active');
       }
