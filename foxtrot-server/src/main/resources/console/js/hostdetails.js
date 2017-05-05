@@ -15,12 +15,10 @@
  */
 
  function HostDetails(hostname, port) {
-	this.hostname = hostname;
-	this.port = port;
+  this.hostname = hostname;
+  this.port = port;
 }
 
 HostDetails.prototype.url = function(path) {
-	console.log(this.hostname);
-	return "http://localhost:8080" + path;
-	return path;
+  return path;
 };
