@@ -398,6 +398,7 @@ TileFactory.prototype.create = function () {
     tileElement.find(".widget-header").css("background-color", "#fff");
     tileElement.find(".widget-header").height(68);
     tileElement.find(".widget-header > .tile-title").css("font-size", "12px");
+    tileElement.find(".widget-header > .tile-title").css("width", "112px");
   }
   if (this.tileObject.tileContext.chartType == "radar") {
     tileElement.find(".trend-chart").remove();

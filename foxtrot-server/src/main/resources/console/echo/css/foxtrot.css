@@ -940,6 +940,7 @@ div.tab button.active {
 .widget-header>.tile-title {
   position: relative;
   top:18px;
+  word-wrap: break-word;
 }
 
 .reduce-widget-header-size {
