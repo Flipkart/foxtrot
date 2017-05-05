@@ -317,3 +317,7 @@ function unique(list) {
   });
   return result;
 }
+
+function numberWithCommas(x) {
+  return x.toLocaleString();
+}

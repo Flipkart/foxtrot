@@ -139,7 +139,7 @@ TrendTile.prototype.render = function (displayValue) {
     a.remove();
   }
 
-  chartDiv.append("<div id="+object.id+"><p class='trend-value-big bold'>"+displayValue+"</p><dhr/><p class='trend-value-small'></p><div id='trend-'"+object.id+" class='trend-chart-health'></div><div class='trend-chart-health-percentage bold'></div></div>");
+  chartDiv.append("<div id="+object.id+"><p class='trend-value-big bold'>"+numberWithCommas(displayValue)+"</p><dhr/><p class='trend-value-small'></p><div id='trend-'"+object.id+" class='trend-chart-health'></div><div class='trend-chart-health-percentage bold'></div></div>");
   var healthDiv = chartDiv.find("#trend-"+object.id);
   healthDiv.width(100);
   healthDiv.height(50);

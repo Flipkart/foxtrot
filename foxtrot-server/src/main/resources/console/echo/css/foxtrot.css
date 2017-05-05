@@ -725,7 +725,7 @@ path {
 }
 
 .bold {
-  font-family: "oswald-bold"
+  font-family: oswald;
 }
 
 @font-face {
