@@ -118,29 +118,94 @@ StackedTile.prototype.getData = function (data) {
   var yAxis = [];
   var label = [];
   var i = 0;
-  for (var key in data.result) {
-    xAxis.push([i, key]);
-    var key1 = data.result[key];
-    for (var innerKey in key1) {
-      label.push(innerKey)
-      yAxis.push([i, key1[innerKey]])
+  var queryResult = data.result;
+
+  // First Get unique x-axis values and define x-axis index for them
+  var xAxisTicks = [];
+  var xAxisTicksMap = {};
+  var index = 0;
+  for (var xAxisKey in queryResult) {
+    if (!queryResult.hasOwnProperty(xAxisKey)) {
+      continue;
     }
-    i++;
+    xAxisTicks.push([index, xAxisKey]);
+    xAxisTicksMap[xAxisKey] = index;
+    index += 1;
   }
-  this.render(xAxis, yAxis, unique(label));
+
+  // Now calculate all possible y axis values
+  var yAxisTicks = {};
+  var yAxisSeriesMap = {};
+  index = 0;
+  for (xAxisKey in queryResult) {
+    if (!queryResult.hasOwnProperty(xAxisKey)) {
+      continue;
+    }
+
+    for (var yAxisKey in queryResult[xAxisKey]) {
+      if (!queryResult[xAxisKey].hasOwnProperty(yAxisKey)) {
+        continue;
+      }
+      if (!yAxisTicks.hasOwnProperty(yAxisKey)) {
+        yAxisTicks[yAxisKey] = index;
+        yAxisSeriesMap[yAxisKey] = [];
+        index += 1;
+      }
+    }
+  }
+
+
+  // Now define y-axis series data
+  for (xAxisKey in queryResult) {
+    if (!queryResult.hasOwnProperty(xAxisKey)) {
+      continue;
+    }
+    var xAxisKeyData = queryResult[xAxisKey];
+    for (yAxisKey in yAxisSeriesMap) {
+      if (!yAxisSeriesMap.hasOwnProperty(yAxisKey)) {
+        continue;
+      }
+
+      if (xAxisKeyData.hasOwnProperty(yAxisKey)) {
+        yAxisSeriesMap[yAxisKey].push([xAxisTicksMap[xAxisKey], xAxisKeyData[yAxisKey]])
+      } else {
+        yAxisSeriesMap[yAxisKey].push([xAxisTicksMap[xAxisKey], 0])
+      }
+
+
+    }
+  }
+  var yAxisSeries = [];
+  for (var yAxisSeriesElement in yAxisSeriesMap) {
+    if (!yAxisSeriesMap.hasOwnProperty(yAxisSeriesElement)) {
+      continue;
+    }
+    if (yAxisSeriesMap[yAxisSeriesElement].length > 0) {
+      yAxisSeries.push({label: yAxisSeriesElement, data: yAxisSeriesMap[yAxisSeriesElement]})
+    }
+  }
+  this.render(yAxisSeries, xAxisTicks)
 }
-StackedTile.prototype.render = function (xAxis, yAxis, label) {
+StackedTile.prototype.render = function (yAxisSeries, xAxisTicks) {
   var newDiv = this.newDiv;
   var object = this.object;
   var chartDiv = newDiv.find(".chart-item");
   var ctx = chartDiv.find("#" + object.id);
   ctx.width(ctx.width);
   ctx.height(230);
-  $.plot(ctx, [yAxis], {
+  $.plot(ctx, yAxisSeries, {
     series: {
       stack: true
       , bars: {
-        show: true
+        show: true,
+        label: {
+          show: true
+        },
+        barWidth: 0.5,
+        align: "center",
+        lineWidth: 1.0,
+        fill: true,
+        fillColor: {colors: [{opacity: 0.3}, {opacity: 0.7}]}
       }
     }
     , grid: {
@@ -162,7 +227,7 @@ StackedTile.prototype.render = function (xAxis, yAxis, label) {
       , lineWidth: 0
     }
     , xaxis: {
-      ticks: xAxis,
+      ticks: xAxisTicks,
       tickLength: 0
     }
     , yaxis:{
