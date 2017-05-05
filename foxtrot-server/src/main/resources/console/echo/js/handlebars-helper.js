@@ -14,13 +14,11 @@
  * limitations under the License.
  */
 
- function HostDetails(hostname, port) {
-	this.hostname = hostname;
-	this.port = port;
+ function handlebars(template, data) {
+  if(!handlebars.compiled.hasOwnProperty(template)) {
+      handlebars.compiled[template] = Handlebars.compile($(template).html());
+    }
+    return $.trim(handlebars.compiled[template](data));
 }
 
-HostDetails.prototype.url = function(path) {
-	console.log(this.hostname);
-	return "http://localhost:8080" + path;
-	return path;
-};
+handlebars.compiled = {};
