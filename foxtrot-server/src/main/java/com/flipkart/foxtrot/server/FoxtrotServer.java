@@ -110,7 +110,7 @@ public class FoxtrotServer extends Application<FoxtrotServerConfiguration> {
         DataDeletionManager dataDeletionManager = new DataDeletionManager(dataDeletionManagerConfig, queryStore);
 
         List<HealthCheck> healthChecks = new ArrayList<>();
-        ElasticSearchHealthCheck elasticSearchHealthCheck =  new ElasticSearchHealthCheck(elasticsearchConnection);
+        ElasticSearchHealthCheck elasticSearchHealthCheck = new ElasticSearchHealthCheck(elasticsearchConnection);
         healthChecks.add(elasticSearchHealthCheck);
         ClusterManager clusterManager = new ClusterManager(hazelcastConnection, healthChecks, configuration.getServerFactory());
 
@@ -128,6 +128,8 @@ public class FoxtrotServer extends Application<FoxtrotServerConfiguration> {
         environment.jersey().register(new TableManagerResource(tableManager));
         environment.jersey().register(new TableFieldMappingResource(tableManager, queryStore));
         environment.jersey().register(new ConsoleResource(
+                new ElasticsearchConsolePersistence(elasticsearchConnection, environment.getObjectMapper())));
+        environment.jersey().register(new ConsoleV2Resource(
                 new ElasticsearchConsolePersistence(elasticsearchConnection, environment.getObjectMapper())));
         FqlEngine fqlEngine = new FqlEngine(tableMetadataManager, queryStore, executor, environment.getObjectMapper());
         environment.jersey().register(new FqlResource(fqlEngine));
