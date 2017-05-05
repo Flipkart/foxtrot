@@ -916,10 +916,6 @@ div.tab button.active {
   font-weight: 600;
 }
 
-div.tab button:last-child {
-  border: none;
-}
-
 .legend .legendLabel {
   padding-right:10px;
 }
@@ -1464,4 +1460,12 @@ input[type="checkbox"].tinyswitch.ios-switch:checked + div > div {
 
 .tile-name-parent {
   padding-left: 0px;
+}
+
+#add-page {
+  font-family: Open Sans;
+  font-weight: 300;
+  color: #6a7d88;
+  cursor: pointer;
+  margin-left: 20px;
 }
