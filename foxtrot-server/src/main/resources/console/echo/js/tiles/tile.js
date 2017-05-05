@@ -386,12 +386,12 @@ TileFactory.prototype.create = function () {
     tileElement.find(".tile").addClass('col-sm-12');
   }
   else if (this.tileObject.tileContext.widgetType == "medium") {
-    tileElement.find(".tile").addClass('col-sm-6');
+    tileElement.find(".tile").addClass('col-sm-6 medium-widget');
     tileElement.find(".tile").height(500);
     tileElement.find(".widget-header").css("background-color", "#fff");
   }
   else if (this.tileObject.tileContext.widgetType == "small") {
-    tileElement.find(".tile").addClass('col-sm-3');
+    tileElement.find(".tile").addClass('col-sm-3 small-widget');
     tileElement.find(".tile").height(220);
     tileElement.find(".widget-header").css("background-color", "#fff");
     tileElement.find(".widget-header").height(68);

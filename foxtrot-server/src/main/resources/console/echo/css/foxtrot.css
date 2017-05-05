@@ -1477,10 +1477,10 @@ input[type="checkbox"].tinyswitch.ios-switch:checked + div > div {
   width:1024px;
 }
 
-  .col-sm-3 {
+.small-widget {
     width: 24% !important;
 }
 
-.col-sm-6 {
+.medium-widget {
   width: 49% !important;
 }
