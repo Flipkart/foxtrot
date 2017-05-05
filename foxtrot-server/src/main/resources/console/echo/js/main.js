@@ -425,6 +425,7 @@ function generateSectionbtn(tabName, isNew) {
       if(tablinks[i].id == tabName) {
         element.addClass('active');
         clearContainer();
+        tileList =  [];
       } else {
         element.removeClass('active');
       }

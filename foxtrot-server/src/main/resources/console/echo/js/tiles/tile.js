@@ -70,12 +70,12 @@ function pushTilesObject(object) {
     if (deleteIndex >= 0) {
       globalData.splice(deleteIndex, 1);
       globalData.splice(deleteIndex, 0, tempObject);
+      //tileList = [];
     }
     else {
       globalData.push(tempObject);
     }
   }
-  tileList = [];
   console.log(tempObject);
 }
 
