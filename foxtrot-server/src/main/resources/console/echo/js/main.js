@@ -178,6 +178,7 @@ FoxTrot.prototype.addTile = function () {
     , "uiFiltersList": []
     , "row": objectRow
     , "isnewRow": isnewRow
+    , "tabName": $(".tab .active").attr('id')
   }
   context = $.extend({}, getChartFormValues()[0], context);
   var object = {
@@ -190,9 +191,9 @@ FoxTrot.prototype.addTile = function () {
   currentChartType = "";
   if (!editTileId && !isChild) { // for new tile
     tileFactory.tileObject = object;
-    tileFactory.create();
     var foxtrot = new FoxTrot();
     addTilesList(object);
+    tileFactory.create();
   }
   else { // edit tile
     tileFactory.tileObject = object;
@@ -271,7 +272,7 @@ function clickedChartType(el) {
 }
 
 function saveConsole() {
-  if(tileList.length > 0) {
+  if(globalData.length > 0) {
     var name = currentConsoleName ==  undefined ? $(".dashboard-name").val() : currentConsoleName;
     for(var i = 0; i < globalData.length; i++) {
       var secArray = globalData[i].tileData;
@@ -287,7 +288,7 @@ function saveConsole() {
       , name: name
       , sections: globalData
     };
-    console.log(representation);return;
+    console.log(representation);
     $.ajax({
       url: apiUrl+("/v2/consoles"),
       type: 'POST',
@@ -349,8 +350,8 @@ function loadParticularConsole() {
       clearContainer();
       globalData = [];
       globalData = res.sections;
-      renderTilesObject(res.sections[0].id);
       generateTabBtnForConsole(res);
+      renderTilesObject(res.sections[0].id);
       getTables();
     },
     error: function() {
@@ -385,23 +386,6 @@ function consoleTabs(evt, el) {
   tablinks = document.getElementsByClassName("tablinks");
   for (i = 0; i < tablinks.length; i++) {
     if (tablinks[i].className.endsWith("active")) {
-      var tabName = tablinks[i].id;
-      var tempObject = {
-        "id":tabName.trim().toLowerCase().split(' ').join("_"),
-        "name": tabName,
-        "tileList": tileList
-        , "tileData": tileData
-      }
-      if (tileList.length > 0) {
-        var deleteIndex = globalData.findIndex(x => x.id == tabName.trim().toLowerCase().split(' ').join("_"));
-        if (deleteIndex >= 0) {
-          globalData.splice(deleteIndex, 1);
-          globalData.splice(deleteIndex, 0, tempObject);
-        }
-        else {
-          globalData.push(tempObject);
-        }
-      }
       clearInterval(interval);
       interval = 0;
       clearModal();

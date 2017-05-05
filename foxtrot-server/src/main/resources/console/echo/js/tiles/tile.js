@@ -58,6 +58,25 @@ function refereshTiles() {
 
 function pushTilesObject(object) {
   tileData[object.id] = object;
+  var tabName = (object.tileContext.tabName == undefined ? $(".tab .active").attr('id') : object.tileContext.tabName) ;
+  var tempObject = {
+    "id":tabName.trim().toLowerCase().split(' ').join("_"),
+    "name": tabName,
+    "tileList": tileList
+    , "tileData": tileData
+  }
+  if (tileList.length > 0) {
+    var deleteIndex = globalData.findIndex(x => x.id == tabName.trim().toLowerCase().split(' ').join("_"));
+    if (deleteIndex >= 0) {
+      globalData.splice(deleteIndex, 1);
+      globalData.splice(deleteIndex, 0, tempObject);
+    }
+    else {
+      globalData.push(tempObject);
+    }
+  }
+  tileList = [];
+  console.log(tempObject);
 }
 
 TileFactory.prototype.updateTileData = function () {
