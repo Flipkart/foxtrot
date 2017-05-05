@@ -206,7 +206,8 @@ StackedBarTile.prototype.render = function (d) {
             opacity: 0.5
                     }]
         }
-      }
+      },
+      points:{show:true}
       , shadowSize: 0
       , curvedLines: { active: true }
     }
