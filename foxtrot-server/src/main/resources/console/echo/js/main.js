@@ -332,7 +332,7 @@ function loadConsole() {
 function generateTabBtnForConsole(array) {
   $(".tab").empty();
   for(var i = 0; i < array.sections.length; i++) {
-    generateSectionbtn(array.sections[i].name);
+    generateSectionbtn(array.sections[i].name, false);
   }
   $('.tab button:first').addClass('active');
 }
@@ -430,25 +430,27 @@ function getTables() {
     }});
 }
 
-function generateSectionbtn(tabName) {
+function generateSectionbtn(tabName, isNew) {
   $(".tab").append('<button class="tablinks" id="'+tabName+'" onclick="consoleTabs(event, this)">'+tabName+'</button>');
   $("#addTab").modal('hide');
   $("#tab-name").val('');
   var tablinks = document.getElementsByClassName("tablinks");
-  for (i = 0; i < tablinks.length; i++) {
-    var element = $(tablinks[i]);
-    if(tablinks[i].id == tabName) {
-      element.addClass('active');
-      clearContainer();
-    } else {
-      element.removeClass('active');
+  if(isNew) {
+    for (i = 0; i < tablinks.length; i++) {
+      var element = $(tablinks[i]);
+      if(tablinks[i].id == tabName) {
+        element.addClass('active');
+        clearContainer();
+      } else {
+        element.removeClass('active');
+      }
     }
   }
 }
 
 function addSections() {
   var tabName = $("#tab-name").val();
-  generateSectionbtn(tabName);
+  generateSectionbtn(tabName, true);
 }
 function clearFilterValues() {
   $(".filter_values").empty();
