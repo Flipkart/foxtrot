@@ -91,7 +91,6 @@ LineTile.prototype.getData = function (data) {
   var rows = [];
   rows.push(['date', 'count']);
   for (var i = data.counts.length - 1; i >= 0; i--) {
-    console.log(this.object.tileContext.ignoreDigits);
     rows.push([data.counts[i].period, (data.counts[i].count / Math.pow(10, this.object.tileContext.ignoreDigits == undefined ? 0 : this.object.tileContext.ignoreDigits))]);
   }
   this.render(rows);
