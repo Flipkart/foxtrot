@@ -648,11 +648,11 @@ path {
 }
 
 .trend-value-big {
-  font-size: 36px;
+  font-size: 32px;
   font-weight: 600;
   color: #9BA3AB;
   margin: 0px;
-  font-family: "oswald-bold";
+  font-family: oswald;
   margin-top: 74px;
 }
 
@@ -1413,7 +1413,7 @@ input[type="checkbox"].tinyswitch.ios-switch:checked + div > div {
 }
 
 .bootstrap-select.btn-group .btn .filter-option {
-  font-size: 18px;
+  font-size: 14px;
 }
 
 .reduce-filter-option {
