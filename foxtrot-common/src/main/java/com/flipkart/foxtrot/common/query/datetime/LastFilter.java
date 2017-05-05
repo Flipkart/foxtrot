@@ -5,13 +5,16 @@ import com.flipkart.foxtrot.common.query.Filter;
 import com.flipkart.foxtrot.common.query.FilterOperator;
 import com.flipkart.foxtrot.common.query.FilterVisitor;
 import io.dropwizard.util.Duration;
-
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 import javax.validation.constraints.NotNull;
 
 public class LastFilter extends Filter {
 
     private long currentTime;
+
+    private RoundingMode roundingMode;
 
     @NotNull
     private Duration duration;
@@ -43,28 +46,17 @@ public class LastFilter extends Filter {
         this.duration = duration;
     }
 
-    @Override
-    public boolean equals(Object rhs) {
-        if (this == rhs) return true;
-        if (rhs == null || getClass() != rhs.getClass()) return false;
-        if (!super.equals(rhs)) return false;
-
-        LastFilter that = (LastFilter) rhs;
-        return getWindow().equals(that.getWindow());
+    public RoundingMode getRoundingMode() {
+        return roundingMode;
     }
 
-    @Override
-    public int hashCode() {
-        TimeWindow timeWindow = getWindow();
-        int result = 0;
-        result = 31 * result + Long.valueOf(timeWindow.getStartTime() / 30000).hashCode();
-        result = 31 * result + Long.valueOf(timeWindow.getEndTime() / 30000).hashCode();
-        return result;
+    public void setRoundingMode(RoundingMode roundingMode) {
+        this.roundingMode = roundingMode;
     }
 
     @JsonIgnore
     public TimeWindow getWindow() {
-        return WindowUtil.calculate(currentTime, duration);
+        return WindowUtil.calculate(currentTime, duration, roundingMode);
     }
 
     @Override
@@ -79,5 +71,35 @@ public class LastFilter extends Filter {
     @Override
     public boolean isFilterTemporal() {
         return true;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null) {
+            return false;
+        }
+        if (obj == this) {
+            return true;
+        }
+        if (obj.getClass() != getClass()) {
+            return false;
+        }
+        LastFilter rhs = (LastFilter) obj;
+        return new EqualsBuilder()
+                .appendSuper(super.equals(obj))
+                .append(this.currentTime, rhs.currentTime)
+                .append(this.roundingMode, rhs.roundingMode)
+                .append(this.duration, rhs.duration)
+                .isEquals();
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder()
+                .appendSuper(super.hashCode())
+                .append(currentTime)
+                .append(roundingMode)
+                .append(duration)
+                .toHashCode();
     }
 }
