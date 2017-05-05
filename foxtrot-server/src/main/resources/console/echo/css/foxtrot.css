@@ -1473,10 +1473,6 @@ input[type="checkbox"].tinyswitch.ios-switch:checked + div > div {
   margin-left: 20px;
 }
 
-.container{
-  width:1024px;
-}
-
 .small-widget {
     width: 24% !important;
 }
