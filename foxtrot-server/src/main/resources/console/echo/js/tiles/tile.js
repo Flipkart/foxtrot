@@ -342,10 +342,10 @@ TileFactory.prototype.create = function () {
         var column1Length = findElement.find(".row-col-1").length;
         if (column1Length == 0 || column1Length == 2) {
           if (column1Length == 0) {
-            tileElement.addClass('row-col-1 col-sm-3');
+            tileElement.addClass('row-col-1');
           }
           else if (column1Length == 2) {
-            tileElement.addClass('row-col-2 col-sm-3');
+            tileElement.addClass('row-col-2');
           }
           var rowCol2Length = findElement.find(".row-col-2").length;
           if (rowCol2Length == 0) tileElement.append("<div class='widget-add-btn'><button data-target='#addWidgetModal' class='tile-add-btn tile-add-btn btn btn-primary filter-nav-button glyphicon glyphicon-plus custom-add-btn row-col-1'onClick='setClicketData(this)'  data-toggle='modal' id='row-" + row + "'></button><div>");
@@ -387,13 +387,11 @@ TileFactory.prototype.create = function () {
   }
   else if (this.tileObject.tileContext.widgetType == "medium") {
     tileElement.find(".tile").addClass('col-sm-6');
-    tileElement.find(".tile").width(540);
     tileElement.find(".tile").height(500);
     tileElement.find(".widget-header").css("background-color", "#fff");
   }
   else if (this.tileObject.tileContext.widgetType == "small") {
     tileElement.find(".tile").addClass('col-sm-3');
-    tileElement.find(".tile").width(245);
     tileElement.find(".tile").height(220);
     tileElement.find(".widget-header").css("background-color", "#fff");
     tileElement.find(".widget-header").height(68);
