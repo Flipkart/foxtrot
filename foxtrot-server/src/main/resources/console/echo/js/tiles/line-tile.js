@@ -163,7 +163,7 @@ LineTile.prototype.render = function (rows) {
   var healthDiv = healthParentDiv.find("#" + object.id + "-health");
   healthDiv.width(100);
   healthDiv.addClass('health-div');
-  $.plot(healthDiv, [
+  /*$.plot(healthDiv, [
     {
       data: rows
         }
@@ -205,5 +205,5 @@ LineTile.prototype.render = function (rows) {
       , defaultFormat: true
     }
     , colors: ['#000']
-  , });
+  , });*/
 }

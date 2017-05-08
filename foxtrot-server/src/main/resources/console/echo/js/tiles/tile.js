@@ -405,7 +405,7 @@ TileFactory.prototype.create = function () {
     tileElement.find(".chart-item").addClass("radar-chart");
   }
   else if (this.tileObject.tileContext.chartType == "line" || this.tileObject.tileContext.chartType == "stacked" || this.tileObject.tileContext.chartType == "stackedBar" || this.tileObject.tileContext.chartType == "pie" || this.tileObject.tileContext.chartType == "statsTrend" || this.tileObject.tileContext.chartType == "bar") {
-    tileElement.find(".widget-header").append('<div id="' + this.tileObject.id + '-health-text" class="lineGraph-health-text">No Data available</div>');
+    /*tileElement.find(".widget-header").append('<div id="' + this.tileObject.id + '-health-text" class="lineGraph-health-text">No Data available</div>');*/
     tileElement.find(".widget-header").append('<div id="' + this.tileObject.id + '-health" style=""></div>');
     tileElement.find(".chart-item").append('<div id="' + this.tileObject.id + '"></div>');
     tileElement.find(".chart-item").append("<div class='legend col-sm-12'></div>")
