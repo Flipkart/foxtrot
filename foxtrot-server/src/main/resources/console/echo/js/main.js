@@ -272,8 +272,8 @@ function clickedChartType(el) {
 }
 
 function saveConsole() {
-  if(globalData.length > 0) {
-    var name = currentConsoleName ==  undefined ? $(".dashboard-name").val() : currentConsoleName;
+  if(globalData.length > 0 && currentConsoleName !=  undefined) {
+    var name =  currentConsoleName;
     for(var i = 0; i < globalData.length; i++) {
       var secArray = globalData[i].tileData;
       for(var key in  secArray) {
@@ -288,7 +288,7 @@ function saveConsole() {
       , name: name
       , sections: globalData
     };
-    console.log(representation);
+    console.log(representation);return;
     $.ajax({
       url: apiUrl+("/v2/consoles"),
       type: 'POST',
@@ -345,7 +345,6 @@ function getConsoleById(selectedConsole) {
     contentType: 'application/json',
     success: function(res) {
       currentConsoleName = res.name;
-      $(".dashboard-name").val(res.name);
       clearContainer();
       globalData = [];
       globalData = res.sections;
@@ -362,7 +361,6 @@ function getConsoleById(selectedConsole) {
 function loadParticularConsole() {
   var selectedConsole = $("#listConsole").val();
   window.location.assign("?console=" + selectedConsole);
-  //getConsoleById(selectedConsole);
 }
 
 function renderTilesObject(currentTabName) {
@@ -443,9 +441,31 @@ function generateSectionbtn(tabName, isNew) {
   }
 }
 
-function addSections() {
+function clearForms() {
+  clearModal();
+  clearContainer();
+  globalData = [];
+  tileData = {};
+  tileList = [];
+  panelRow = [];
+}
+
+function createDashboard() {
   var tabName = $("#tab-name").val();
+  var dashboardName = $(".dashboard-name").val();
+  currentConsoleName = dashboardName;
+  $(".tab").empty();
   generateSectionbtn(tabName, true);
+  $("#addDashboard").modal('hide');
+  $(".dashboard-name").val('');
+  $("#tab-name").val('');
+  clearForms();
+}
+
+function addSections() {
+  var tabName = $("#section-name").val();
+  generateSectionbtn(tabName, true);
+  $("#section-name").val('');
 }
 function clearFilterValues() {
   $(".filter_values").empty();
@@ -481,6 +501,9 @@ $(document).ready(function () {
   });
   $("#listConsole").change(function () {
     loadParticularConsole();
+  });
+  $("#addDashboardConfirm").click(function() {
+    createDashboard();
   });
   $("#addTabConfirm").click(function() {
     addSections();
