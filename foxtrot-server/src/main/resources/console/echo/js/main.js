@@ -284,7 +284,7 @@ function saveConsole() {
       }
     }
     var representation = {
-      id: name.trim().toLowerCase().split(' ').join("")
+      id: name.trim().toLowerCase().split(' ').join("_")
       , name: name
       , sections: globalData
     };
@@ -338,8 +338,7 @@ function generateTabBtnForConsole(array) {
   $('.tab button:first').addClass('active');
 }
 
-function loadParticularConsole() {
-  var selectedConsole = $("#listConsole").val();
+function getConsoleById(selectedConsole) {
   $.ajax({
     url: apiUrl+("/v2/consoles/" +selectedConsole),
     type: 'GET',
@@ -358,6 +357,12 @@ function loadParticularConsole() {
       error("Could not save console");
     }
   })
+}
+
+function loadParticularConsole() {
+  var selectedConsole = $("#listConsole").val();
+  window.location.assign("?console=" + selectedConsole);
+  //getConsoleById(selectedConsole);
 }
 
 function renderTilesObject(currentTabName) {
@@ -504,4 +509,9 @@ $(document).ready(function () {
       globalFilters = false;
     }
   });
+
+  var consoleId = getParameterByName("console").replace('/','');
+  if(consoleId) {
+    getConsoleById(consoleId);
+  }
 });
