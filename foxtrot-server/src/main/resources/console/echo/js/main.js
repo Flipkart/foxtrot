@@ -473,7 +473,7 @@ function clearFilterValues() {
 
 function showHideSideBar() {
   if( $('#sidebar').is(':visible') ) {
-    $('#sidebar').animate({ 'width': '0px' }, 'slow', function(){
+    $('#sidebar').animate({ 'width': '0px' }, 'fast', function(){
       $('#sidebar').hide();
     });
     $(".global-filters").css({'flot' :'right'});
@@ -481,7 +481,7 @@ function showHideSideBar() {
   }
   else {
     $('#sidebar').show();
-    $('#sidebar').animate({ 'width': '500px' }, 'slow');
+    $('#sidebar').animate({ 'width': '500px' }, 'fast');
   }
 }
 $(document).ready(function () {
