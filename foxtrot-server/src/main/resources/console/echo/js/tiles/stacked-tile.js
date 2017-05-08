@@ -205,7 +205,7 @@ StackedTile.prototype.render = function (yAxisSeries, xAxisTicks) {
         align: "center",
         lineWidth: 1.0,
         fill: true,
-        fillColor: {colors: [{opacity: 0.3}, {opacity: 0.7}]}
+        fillColor: {colors: [{opacity: 1}, {opacity: 1}]}
       }
     }
     , grid: {
@@ -218,13 +218,6 @@ StackedTile.prototype.render = function (yAxisSeries, xAxisTicks) {
         , bottom: 1
         , left: 1
       }
-      , borderColor: "#EEEEEE"
-    }
-    , bars: {
-      align: "center"
-      , horizontal: false
-      , barWidth: .8
-      , lineWidth: 0
     }
     , xaxis: {
       ticks: xAxisTicks,
@@ -243,12 +236,16 @@ StackedTile.prototype.render = function (yAxisSeries, xAxisTicks) {
     , tooltip: true
     , tooltipOpts: {
       content:
-      /*function(label, x, y) {
-                  var date = new Date(x);
-                  return label + ": " + y + " at " + date;
-                  }*/
         "%s: %y events at %x"
       , defaultFormat: true
+    }
+    ,legend: {
+      show: true
+      , noColumns: getLegendColumn(object.tileContext.widgetType)
+      , labelFormatter: function (label, series) {
+        return '<span class="legend-custom"> &nbsp;' + label + ' &nbsp;</span>';
+      }
+      , container: $(chartDiv.find(".legend"))
     }
   });
 }
