@@ -254,6 +254,9 @@ StackedBarTile.prototype.render = function (d) {
       }
       , container: $(chartDiv.find(".legend"))
     }
+    ,highlightSeries: {
+      color: "#FF00FF"
+    }
   });
 
   function showTooltip(x, y, contents, color) {
@@ -274,7 +277,6 @@ StackedBarTile.prototype.render = function (d) {
   $(ctx).bind("plothover", function (event, pos, item) {
     if (item) {
       $("#tooltip").remove();
-      console.log(item)
       var hoverSeries = item.series; // what series am I hovering?
       var x = item.datapoint[0],
           y = item.datapoint[1];
@@ -297,5 +299,30 @@ StackedBarTile.prototype.render = function (d) {
     } else {
       $("#tooltip").remove();
     }
+  });
+
+  $('.legend .legendLabel, .legend .legendColorBox').on('mouseenter', function() {
+    var label = $(this).text();
+    var allSeries = plot.getData();
+    for (var i = 0; i < allSeries.length; i++){
+      if (allSeries[i].label == $.trim(label)){
+        allSeries[i].oldColor = allSeries[i].color;
+        allSeries[i].color = 'black';
+        break;
+      }
+    }
+    plot  .draw();
+  });
+
+  $('.legend .legendLabel, .legend .legendColorBox').on('mouseleave', function() {
+    var label = $(this).text();
+    var allSeries = plot.getData();
+    for (var i = 0; i < allSeries.length; i++){
+      if (allSeries[i].label == $.trim(label)){
+        allSeries[i].color = allSeries[i].oldColor;
+        break;
+      }
+    }
+    plot.draw();
   });
 }
