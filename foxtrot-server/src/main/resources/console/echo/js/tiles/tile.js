@@ -137,15 +137,6 @@ function setConfigValue(object) {
   }
 }
 
-function clearForm() {
-  var form = $("#tile-configuration").find("form");
-  form.find(".tile-title").val('');
-  form.find(".tile-table").val('');
-  form.find(".tile-time-unit").val('');
-  form.find(".tile-time-value").val('');
-  form.find(".tile-chart-type").val('');
-}
-
 function newBtnElement() {
   return "<div class='col-md-2 custom-btn-div'><button data-target='#addWidgetModal' class='tile-add-btn tile-add-btn btn btn-primary filter-nav-button glyphicon glyphicon-plus custom-add-btn'onClick='setClicketData(this)'  data-toggle='modal' id='row-" + row + "'></button><div>"
 }
@@ -354,34 +345,6 @@ TileFactory.prototype.create = function () {
       }
     }
   }
-
-  /*if (defaultPlusBtn) { // check its new row
-    tileElement = this.createNewRow(tileElement)
-  }
-  else { // row button action
-    var splitValue = customBtn.id.split("-");
-    var rowObject = panelRow[splitValue[1] - 1];
-    clickedRow = rowObject.id
-    row = splitValue[1];
-    if (this.tileObject.tileContext.widgetType != rowObject.widgetType) { // f choosen type and row type is not equal
-      tileElement = this.createNewRow(tileElement);
-      defaultPlusBtn = true;
-    }
-    if (this.tileObject.tileContext.widgetType == 'small' && rowObject.widgetType == 'small') {
-      var findElement = $("." + customBtn.id);
-      var column1Length = findElement.find(".row-col-1").length;
-      if (column1Length == 0 || column1Length == 2) {
-        if (column1Length == 0) {
-          tileElement.addClass('row-col-1 col-sm-3');
-        }
-        else if (column1Length == 2) {
-          tileElement.addClass('row-col-2 col-sm-3');
-        }
-        var rowCol2Length = findElement.find(".row-col-2").length;
-        if (rowCol2Length == 0) tileElement.append("<div class='widget-add-btn'><button data-target='#addWidgetModal' class='tile-add-btn tile-add-btn btn btn-primary filter-nav-button glyphicon glyphicon-plus custom-add-btn row-col-1'onClick='setClicketData(this)'  data-toggle='modal' id='row-" + splitValue[1] + "'></button><div>");
-      }
-    }
-  }*/
 
   if (this.tileObject.tileContext.widgetType == "full") {
     tileElement.find(".tile").addClass('col-sm-12');
