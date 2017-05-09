@@ -287,7 +287,7 @@ function saveConsole() {
       , name: name
       , sections: globalData
     };
-    console.log(representation);return;
+    console.log(representation);
     $.ajax({
       url: apiUrl+("/v2/consoles"),
       type: 'POST',
@@ -337,6 +337,10 @@ function generateTabBtnForConsole(array) {
   $('.tab button:first').addClass('active');
 }
 
+function setListConsole(value) {
+  $("#listConsole").val(value);
+}
+
 function getConsoleById(selectedConsole) {
   $.ajax({
     url: apiUrl+("/v2/consoles/" +selectedConsole),
@@ -350,9 +354,11 @@ function getConsoleById(selectedConsole) {
       generateTabBtnForConsole(res);
       renderTilesObject(res.sections[0].id);
       getTables();
+      setListConsole(selectedConsole);
     },
     error: function() {
       error("Could not save console");
+      setListConsole(selectedConsole);
     }
   })
 }
