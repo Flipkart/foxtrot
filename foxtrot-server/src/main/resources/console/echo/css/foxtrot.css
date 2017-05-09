@@ -633,7 +633,7 @@ path {
 
 .radar-chart {
   margin-top: 35px;
-  margin-left: 45px;
+  margin-left: 5px;
 }
 
 .trend-chart {
@@ -1498,4 +1498,9 @@ input[type="checkbox"].tinyswitch.ios-switch:checked + div > div {
   width: 460px;
   height: 326px;
   background-color: #485962;
+}
+.radar-chart .axis .legend {
+  font-family: Open Sans !important;
+  font-size: 12px !important;
+  color: #aeb8bd !important;
 }

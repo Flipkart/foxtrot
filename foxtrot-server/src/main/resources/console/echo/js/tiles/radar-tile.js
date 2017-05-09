@@ -104,7 +104,6 @@ RadarTile.prototype.render = function (data) {
   var chartDiv = newDiv.find(".chart-item");
   var ctx = chartDiv.find("#radar-" + object.id);
   ctx.width(ctx.width);
-  ctx.height(230);
   var mycfg = {
     color: function () {
       c = ['red', 'yellow', 'pink', 'green', 'blue', 'olive', 'aqua', 'cadetblue', 'crimson'];
@@ -112,7 +111,7 @@ RadarTile.prototype.render = function (data) {
       x = parseInt(Math.random() * 100);
       return c[x % m]; //Get a random color
     }
-    , w: 300
+    , w: 550
     , h: 300
   , }
   RadarChart.draw("#radar-" + object.id, d, mycfg);
