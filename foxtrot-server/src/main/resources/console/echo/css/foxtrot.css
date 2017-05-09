@@ -467,7 +467,6 @@ path {
 }
 
 .widget-timeframe {
-  border-right: 1px solid #bababa;
   height: 32px;
   padding-top: 6px;
   width: 90px;
@@ -829,7 +828,6 @@ path {
 
 .settings {
   float: right;
-  border: 1px solid #aeb8bd;
   width: 170px;
   height: 34px;
   position: relative;
@@ -842,7 +840,6 @@ path {
   float: left;
   right: 11px;
   position: relative;
-  border-right: 1px solid #aeb8bd;
   height: 32px;
   top: -2px;
   width: 33px;
