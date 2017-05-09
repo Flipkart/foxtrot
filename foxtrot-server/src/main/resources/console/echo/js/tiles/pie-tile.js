@@ -165,7 +165,6 @@ PieTile.prototype.render = function (columns) {
     var allSeries = plot.getData();
     for (var i = 0; i < allSeries.length; i++){
       if (allSeries[i].label == $.trim(label)){
-        console.log('***')
         allSeries[i].oldColor = allSeries[i].color;
         allSeries[i].color = 'black';
         break;

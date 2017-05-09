@@ -209,6 +209,9 @@ BarTile.prototype.render = function (xAxisOptions, columns) {
       }
       , borderColor: "#EEEEEE"
     }
+    ,highlightSeries: {
+      color: "#FF00FF"
+    }
     , tooltip: true
     , tooltipOpts: {
       content: function (label, x, y) {
@@ -224,5 +227,30 @@ BarTile.prototype.render = function (xAxisOptions, columns) {
       , container: $(chartDiv.find(".legend"))
     }
   };
-  $.plot(ctx, columns, chartOptions);
+  var plot = $.plot(ctx, columns, chartOptions);
+
+  $('.legend .legendLabel, .legend .legendColorBox').on('mouseenter', function() {
+    var label = $(this).text();
+    var allSeries = plot.getData();
+    for (var i = 0; i < allSeries.length; i++){
+      if (allSeries[i].label == $.trim(label)){
+        allSeries[i].oldColor = allSeries[i].color;
+        allSeries[i].color = 'black';
+        break;
+      }
+    }
+    plot.draw();
+  });
+
+  $('.legend .legendLabel, .legend .legendColorBox').on('mouseleave', function() {
+    var label = $(this).text();
+    var allSeries = plot.getData();
+    for (var i = 0; i < allSeries.length; i++){
+      if (allSeries[i].label == $.trim(label)){
+        allSeries[i].color = allSeries[i].oldColor;
+        break;
+      }
+    }
+    plot.draw();
+  });
 }
