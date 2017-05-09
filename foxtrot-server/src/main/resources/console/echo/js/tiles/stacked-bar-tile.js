@@ -270,7 +270,7 @@ StackedBarTile.prototype.render = function (d) {
       'background-color': '#425057',
       opacity: 0.80,
       color: "#fff"
-    }).appendTo("body").fadeIn(200).fadeOut(50000);
+    }).appendTo("body").fadeIn(200).fadeOut(60000);
   }
 
   var previousPoint = null;
