@@ -76,7 +76,6 @@ function pushTilesObject(object) {
       globalData.push(tempObject);
     }
   }
-  console.log(tempObject);
 }
 
 TileFactory.prototype.updateTileData = function () {

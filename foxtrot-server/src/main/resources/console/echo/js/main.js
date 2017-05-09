@@ -162,7 +162,6 @@ FoxTrot.prototype.addTile = function () {
     var rowObject = panelRow[splitValue[1] - 1];
     clickedRow = rowObject.id
     objectRow = parseInt(splitValue[1]);
-    console.log(panelRow.length);
     isnewRow = false;
   }
 
@@ -435,7 +434,6 @@ function generateSectionbtn(tabName, isNew) {
       }
     }
   }
-  console.log($(".tab").find("#add-page").length);
   if($(".tab").find("#add-page").length == 0) {
     $(".tab").append('<span id="add-page" data-target="#addTab" data-toggle="modal" data-backdrop="false">+Add page</span>');
   }
