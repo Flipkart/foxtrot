@@ -115,19 +115,6 @@ StatsTrendTile.prototype.getData = function(data) {
   this.object.tileContext.filters.pop();
   if(!data.result)
     return;
-  /*var statsObject = data.result.stats;
-  var percentile = data.result.percentiles;
-  var displayValue = "";
-  var objectToshow = this.object.tileContext.statsToPlot.split('.');
-  if(this.object.tileContext.statsToPlot.match('stats')) {
-    objectToshow = objectToshow[1].toString();
-    displayValue = statsObject[objectToshow];
-  } else {
-    var displayObject = objectToshow[1]+'.'+objectToshow[2].toString();
-    displayValue = percentile[displayObject];
-  }
-  this.render(displayValue);*/
-
   var rows = [];
   rows.push(['date', 'count']);
   for (var i = data.result.length - 1; i >= 0; i--) {

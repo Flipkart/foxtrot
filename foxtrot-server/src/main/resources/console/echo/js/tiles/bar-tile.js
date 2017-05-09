@@ -138,22 +138,12 @@ BarTile.prototype.getData = function (data) {
   for (var i = 0; i < ticks.length; i++) {
     tmpLabel += (ticks[i][1] + " ");
   }
-  /*if (tmpLabel.visualLength() <= parentWidth) {
-    xAxisOptions['ticks'] = ticks;
-    xAxisOptions['tickFormatter'] = null;
-  }
-  else {
-    xAxisOptions['ticks'] = null;
-    xAxisOptions['tickFormatter'] = function () {
-      return "";
-    }
-  }*/
+
   xAxisOptions['ticks'] = null;
   xAxisOptions['tickFormatter'] = function () {
     return "";
   }
   this.render(xAxisOptions, columns);
-  console.log(xAxisOptions);
 }
 BarTile.prototype.render = function (xAxisOptions, columns) {
   console.log(columns);

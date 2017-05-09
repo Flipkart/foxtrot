@@ -184,5 +184,4 @@ PieTile.prototype.render = function (columns) {
     }
     plot.draw();
   });
-  //drawLegend(columns, chartDiv.find(".legend").html());
 }
