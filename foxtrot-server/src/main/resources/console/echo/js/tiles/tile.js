@@ -169,7 +169,7 @@ TileFactory.prototype.updateFilterCreation = function (object) {
   var tileListIndex = tileList.indexOf(object.id);
   var tileDataIndex = tileData[tileListIndex];
   var selectedTileObject = tileData[object.id];
-  if ($("#listConsole").val() == "none") { // this is for without console
+  if (object.tileContext.tableFields != undefined) { // this is for without console
     currentFieldList = object.tileContext.tableFields;
   }
   else { // with console
