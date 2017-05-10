@@ -303,7 +303,7 @@ StackedBarTile.prototype.render = function (d) {
 
   var re = re = /\(([0-9]+,[0-9]+,[0-9]+)/;
   console.log(this.object.id)
-  $('.legend .legendLabel, .legend .legendColorBox').on('mouseenter', function() {
+  $(chartDiv.find('.legend .legendLabel, .legend .legendColorBox')).on('mouseenter', function() {
     var label = $(this).text();
     var allSeries = plot.getData();
     for (var i = 0; i < allSeries.length; i++){
