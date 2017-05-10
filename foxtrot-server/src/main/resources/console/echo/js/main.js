@@ -202,10 +202,23 @@ FoxTrot.prototype.addTile = function () {
   showHideSideBar();
   removeFilters();
 };
+function filterTypeTriggered(el) {
+  var selectedColumn = $(el).val();
+  var columnType = currentFieldList[selectedColumn].type;
+  var rowString = $(el).attr('id');
+  var rowIdArray = rowString.split('-');
+  var rowId = rowIdArray[2];
+  $('#filter-column-row-'+rowId).val('');
+  if(columnType == "STRING") {
+    $('#filter-column-row-'+rowId).prop("type", "text");
+  } else if(columnType == "LONG") {
+    $('#filter-column-row-'+rowId).prop("type", "number");
+  }
+}
 function addFitlers() {
   var filterCount = filterRowArray.length;
   filterRowArray.push(filterCount);
-  var filterRow = '<div class="row filters clearfix" id="filter-row-' + filterCount + '"><div class="col-md-3 no-padding"><select class="selectpicker filter-column filter-background" data-live-search="true"><option>select</option></select></div><div class="col-md-3 no-padding"><select class="selectpicker filter-type filter-background" data-live-search="true"><option>select</option><option value="between">Between</option><option value="greater_equal">Greater than equals</option><option value="greater_than">Greatert than</option><option value="less_equal">Between</option><option value="less_than">Less than equals</option><option value="less_than">Less than</option><option value="equals">Equals</option><option value="not_equals">Not equals</option><option value="contains">Contains</option><option value="last">Last</option><option value="in">In</option></select></div><div class="col-md-5 no-padding"><input type="text" class="form-control filter-value"></div><div class="col-md-1 no-padding filter-delete"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span></div></div>';
+  var filterRow = '<div class="row filters clearfix" id="filter-row-' + filterCount + '"><div class="col-md-3 no-padding"><select class="selectpicker filter-column filter-background" id="filter-row-' + filterCount + '" data-live-search="true"><option>select</option></select></div><div class="col-md-3 no-padding"><select class="selectpicker filter-type filter-background" data-live-search="true"><option>select</option><option value="between">Between</option><option value="greater_equal">Greater than equals</option><option value="greater_than">Greatert than</option><option value="less_equal">Between</option><option value="less_than">Less than equals</option><option value="less_than">Less than</option><option value="equals">Equals</option><option value="not_equals">Not equals</option><option value="contains">Contains</option><option value="last">Last</option><option value="in">In</option></select></div><div class="col-md-5 no-padding"><input id="filter-column-row-' + filterCount + '" type="text" class="form-control filter-value"></div><div class="col-md-1 no-padding filter-delete"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span></div></div>';
   $(".add-filter-row").append(filterRow);
   var filterValueEl = $("#filter-row-" + filterCount).find('.filter-delete');
   var filterType = $("#filter-row-" + filterCount).find('.filter-type');
@@ -214,6 +227,9 @@ function addFitlers() {
   generateDropDown(currentFieldList, filterColumn);
   $(filterValueEl).click(function () {
     deleteFilterRow(this);
+  });
+  $(filterColumn).change(function () {
+    filterTypeTriggered(this);
   });
 }
 FoxTrot.prototype.addFilters = function () {
