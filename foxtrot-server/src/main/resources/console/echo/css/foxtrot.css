@@ -3,6 +3,7 @@ body {
   height: 100%;
   background: #f7f9fa;
   font-family: Open Sans;
+  overflow: hidden;
 }
 
 .tile-default-size {
@@ -1172,9 +1173,8 @@ th, td {
   right: 0;
   z-index: 1000;
   overflow: hidden;
-  min-height: 560px;
-  max-height: 560px;
   top: 66px;
+  height: 100%;
 }
 
 #main-content {
@@ -1286,7 +1286,8 @@ th, td {
 #sidebar-content {
   margin-left: 4px;
   overflow-y: scroll;
-  height: 499px;
+  height: 100%;
+  padding-bottom: 150px;
 }
 
 .chart-forms {
