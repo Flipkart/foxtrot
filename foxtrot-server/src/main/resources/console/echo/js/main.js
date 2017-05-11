@@ -386,6 +386,7 @@ function loadParticularConsole() {
 }
 
 function renderTilesObject(currentTabName) {
+  showDashboardBtn();
   var tabIndex = globalData.findIndex(x => x.id == currentTabName.trim().toLowerCase().split(' ').join("_"));
   if (tabIndex >= 0) {
     tileList = globalData[tabIndex].tileList;
@@ -471,6 +472,11 @@ function clearForms() {
   panelRow = [];
 }
 
+function showDashboardBtn() {
+  $("#saveConsole").show();
+  $("#default-btn").show();
+}
+
 function createDashboard() {
   var tabName = $("#tab-name").val();
   var dashboardName = $(".dashboard-name").val();
@@ -481,8 +487,7 @@ function createDashboard() {
   $(".dashboard-name").val('');
   $("#tab-name").val('');
   clearForms();
-  $("#saveConsole").show();
-  $("#default-btn").show();
+  showDashboardBtn();
 }
 
 function addSections() {
