@@ -320,11 +320,11 @@ path {
 }
 
 .period-select {
-  color: #7d909a;
+  color: #859FC0;
   margin-top: -1px;
   font-size: smaller;
   background: rgb(245, 245, 245);
-  font-weight: 600;
+  font-family: Open Sans Regular;
 }
 
 .title-header-toolbar-icon-container {
@@ -650,10 +650,9 @@ path {
 
 .trend-value-big {
   font-size: 32px;
-  font-weight: 600;
-  color: #9BA3AB;
+  color: #1E3F67;
   margin: 0px;
-  font-family: oswald;
+  font-family: Oswald Light !important;
   margin-top: 74px;
 }
 
@@ -745,6 +744,11 @@ path {
 }
 
 @font-face {
+  font-family: Open Sans Regular;
+  src: url(../fonts/sans/OpenSans-Regular.ttf);
+}
+
+@font-face {
   font-family: openSans;
   src: url(../fonts/sans/OpenSans-Regular.ttf);
 }
@@ -752,6 +756,11 @@ path {
 @font-face {
   font-family: oswald;
   src: url(../fonts/oswald/Oswald-Regular.ttf);
+}
+
+@font-face {
+  font-family: Oswald Light;
+  src: url(../fonts/oswald/Oswald-Light.ttf);
 }
 
 .widget-header {
@@ -865,11 +874,10 @@ path {
 }
 
 .tile-title {
-  font-family: Open Sans;
-  font-weight: 600;
+  font-family: Open Sans Regular;
   font-size: 14px;
   margin-left: 10px;
-  color: #7d909a;
+  color: #1E3F67;
   height: 19px;
 }
 
@@ -1044,6 +1052,7 @@ th, td {
   padding: 7px;
   font-family: Open Sans;
   height: 36px;
+  background: #fff;
 }
 
 .global-filters div {
@@ -1058,7 +1067,7 @@ th, td {
 }
 
 .global-filter-period-select {
-  background: #f7f9fa;
+  background: #fff;
   border: none;
   font-family: Open Sans;
 }
@@ -1405,9 +1414,9 @@ input[type="checkbox"].tinyswitch.ios-switch:checked + div > div {
 
 .global-filter-switch-div > label {
   font-family: Open Sans;
-  font-weight: 600;
   position: relative;
   right: 8px;
+  font-size: 12px;
 }
 
 .bootstrap-select.btn-group .btn .filter-option {
@@ -1572,4 +1581,36 @@ input[type="checkbox"].tinyswitch.ios-switch:checked + div > div {
 #create-new-dashboard:hover {
   background: #42b1f7;
   color: #fff;
+}
+
+.widget-btns {
+  margin-top: 17px;
+  float: left;
+  position: relative;
+  left: 24px;
+}
+
+#saveConsole {
+  width: 145px;
+  height: 36px;
+  background-color: #ffffff;
+  border: solid 1px #d0d7e7;
+  font-size: 12px;
+  font-family: Open Sans;
+  color: #859fc0;
+}
+
+#add-page-btn {
+  width: 96px;
+  height: 36px;
+  background-color: #ffffff;
+  border: solid 1px #d0d7e7;
+  font-size: 12px;
+  color: #859fc0;
+  font-family: Open Sans;
+}
+
+#saveConsole:hover, #add-page-btn:hover {
+  color: #1E3F67;
+  border: 1px solid #1E3F67;
 }
