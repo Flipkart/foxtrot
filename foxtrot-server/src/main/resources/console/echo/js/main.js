@@ -481,6 +481,8 @@ function createDashboard() {
   $(".dashboard-name").val('');
   $("#tab-name").val('');
   clearForms();
+  $("#saveConsole").show();
+  $("#default-btn").show();
 }
 
 function addSections() {

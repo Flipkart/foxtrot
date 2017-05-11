@@ -864,10 +864,6 @@ path {
   display: none;
 }
 
-.widget-new-btn {
-  text-align: center;
-}
-
 .tile-title {
   font-family: Open Sans;
   font-weight: 600;
@@ -1525,4 +1521,39 @@ input[type="checkbox"].tinyswitch.ios-switch:checked + div > div {
   color: #000;
   border: none;
   margin-top: 100px;
+}
+
+#saveConsole, #default-btn, #sidebar {
+  display: none;
+}
+
+#saveConsole {
+  margin-top:10px;
+}
+
+.default-add-widget-btn {
+  margin-top: 10px;
+  border: 1px solid gray;
+  color: #000;
+  height: 240px;
+  width: 240px;
+  background-color: #ffffff;
+  border: solid 1px #90a2ac;
+  font-family: Open sans;
+  font-size: 14px;
+  font-weight: bold;
+  color: #8498a3;
+  margin-left: 15px !important;
+}
+
+.default-add-widget-btn:hover, #tile-add-btn:hover {
+  background: #fff !important;
+  font-family: Open sans;
+  font-size: 14px;
+  font-weight: bold;
+  color: #8498a3;
+}
+
+#save-console-div {
+  text-align: center;
 }
