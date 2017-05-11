@@ -11,16 +11,6 @@ body {
 }
 
 .pageheader {
-  /*margin-left: -15px;
-  margin-right: -15px;
-  padding-left: 14px;
-  padding-right: 14px;
-  background-color: black;
-  color: #F2F2D5;*/
-  /*height: 56px;
-  margin-top: 12px;
-  margin-bottom: 12px;
-  padding-right: 20px;*/
   height: 44px;
   margin-top: 4px;
   margin-bottom: 4px;
@@ -61,34 +51,6 @@ h1 {
   box-shadow: 4px 4px 6px #141E27;
 }*/
 
-.tile-drag {
-  border-style: dashed;
-  border-width: 1px;
-}
-
-.static-tile {
-  float: left;
-  margin: 8px;
-  box-shadow: 4px 4px 6px #141E27;
-  border-radius: 4px;
-  background-color: rgb(72, 85, 99);
-  //background-color: #F8F2DA;
-  color: #ffffff;
-  font-size: 18px;
-  font-weight: 400;
-  padding: 20px;
-  position: relative;
-}
-
-.static-tile-icon {
-  font-size: 26px;
-  color: black;
-  top: 50%;
-  margin-top: -13px;
-  margin-left: -13px;
-  left: 50%;
-}
-
 .tile .widget-toolbox {
   width: 100%;
   height: 25px;
@@ -99,18 +61,6 @@ h1 {
   top: 10px;
   z-index: 100;
   font-size: small;
-}
-
-.tile:hover .widget-toolbox {
-  display: inline-block;
-  cursor: pointer;
-  cursor: hand;
-}
-
-.fix-center {
-  width: 1100px;
-  left: 50%;
-  margin-left: -550px;
 }
 
 .float-clear {
@@ -138,69 +88,9 @@ h1 {
   height: 95%;
 }
 
-.chartcanvas {
-  width: 100%;
-  height: 90%;
-  /*position: absolute;
-  top: 28px;*/
-}
-
 .content {
   margin-top: 70px;
 }
-
-.legendArea {
-  height: 10%;
-  width: 90%;
-  /* align-content: stretch; */
-  /* position: absolute; */
-  /* position: relative; */
-  right: 0px;
-  margin-left: 20px;
-  margin-top: 5px;
-}
-
-.size1 {
-  width: 175px;
-  height: 175px;
-}
-
-.size2 {
-  width: 350px;
-  height: 175px;
-}
-
-.yellow {
-  background-color: khaki;
-}
-
-.blue {
-  background-color: blue;
-}
-
-.green {
-  background-color: green;
-}
-
-.orange {
-  background-color: #df691a;
-}
-
-
-/*.tile-gradient{
-  background-image: -webkit-gradient(
-  linear,
-  left top,
-  right bottom,
-  color-stop(0.36, #828D94),
-  color-stop(1, #475361)
-);
-background-image: -o-linear-gradient(right bottom, #828D94 36%, #475361 100%);
-background-image: -moz-linear-gradient(right bottom, #828D94 36%, #475361 100%);
-background-image: -webkit-linear-gradient(right bottom, #828D94 36%, #475361 100%);
-background-image: -ms-linear-gradient(right bottom, #828D94 36%, #475361 100%);
-background-image: linear-gradient(to right bottom, #828D94 36%, #475361 100%);
-}*/
 
 .chart-content {
   width: 98%;
@@ -210,72 +100,8 @@ background-image: linear-gradient(to right bottom, #828D94 36%, #475361 100%);
   margin-left: 6px;
 }
 
-.c3-chart-line {
-  stroke-width: 2px;
-  fill: rgba(255, 255, 255, 0);
-}
-
-path {
-  stroke-width: 2px;
-}
-
-.c3-axis-x: {
-  stroke-width: 2px;
-}
-
 .bootstrap-select> .btn {
   padding: 7px;
-}
-
-.pielabel {
-  width: 100%;
-  height: 50%;
-  position: absolute;
-  top: 40%;
-  left: 0;
-  text-align: center;
-  color: #CCCCCC;
-  font-size: 48px;
-  font-style: normal;
-}
-
-.statslabel {
-  width: 100%;
-  height: 50%;
-  position: absolute;
-  top: 40%;
-  left: 0;
-  text-align: center;
-  color: #000000;
-  font-size: xx-large;
-  font-style: normal;
-}
-
-.header-button {
-  top: 0px;
-  left: 0px;
-  position: absolute;
-  background-color: #E3602D;
-  padding: 10px;
-  border-radius: 2px;
-  color: white;
-  height: 39px;
-}
-
-.header-button-icon {
-  font-size: 26px;
-  top: -13px;
-  left: 2px;
-}
-
-.header-button:hover {
-  box-shadow: 1px 1px 4px #141E27;
-  cursor: pointer;
-  cursor: hand;
-}
-
-.control-table-cell {
-  width: 240px;
 }
 
 .row {
@@ -337,78 +163,6 @@ path {
   position: absolute;
   right: 52px;
   top: 0px;
-}
-
-.group-chart-area {
-  padding: 0px;
-  width: 60%;
-  height: 100%;
-  float: left;
-}
-
-.group-legend-area {
-  padding: 0px;
-  width: 40%;
-  height: 100%;
-  float: left;
-  margin-left: 20px;
-  border-color: #B2B2B2;
-  /*border-left: 1px solid;*/
-  padding-left: 10px;
-  overflow: auto;
-}
-
-.legend-color-box {
-  height: 15px;
-  width: 15px;
-  border-color: black;
-  border-style: solid;
-  border-width: 1px;
-}
-
-.dataview-table {
-  background: white;
-  border: 1px solid black !important;
-}
-
-.dataview-tablehead {
-  background-color: black;
-  color: white;
-  font-style: italic;
-}
-
-.fql-error-section {
-  display: block;
-  border: 1px dashed red;
-  background: pink;
-  color: red;
-  font-weight: bold;
-  padding: 10px;
-  margin-bottom: 50px;
-}
-
-#ruler {
-  visibility: hidden;
-  white-space: nowrap;
-}
-
-.percentage-value::after {
-  content: "%";
-}
-
-.dataview-table th {
-  color: white;
-  background: black;
-  cursor: pointer;
-  cursor: hand;
-}
-
-.cluster-data-area {
-  margin-bottom: -15px;
-}
-
-.data-tab {
-  margin-top: 5px;
 }
 
 #menu-list ul {
