@@ -458,9 +458,6 @@ function generateSectionbtn(tabName, isNew) {
       }
     }
   }
-  if($(".tab").find("#add-page").length == 0) {
-    $(".tab").append('<span id="add-page" data-target="#addTab" data-toggle="modal" data-backdrop="false">+Add page</span>');
-  }
 }
 
 function clearForms() {
