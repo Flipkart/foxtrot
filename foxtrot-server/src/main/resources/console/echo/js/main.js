@@ -500,15 +500,13 @@ function clearFilterValues() {
 
 function showHideSideBar() {
   if( $('#sidebar').is(':visible') ) {
-    $('#sidebar').animate({ 'width': '0px' }, 'fast', function(){
-      $('#sidebar').hide();
-    });
+    $('#sidebar').hide();
     $(".global-filters").css({'flot' :'right'});
     $(".top-error").hide();
   }
   else {
     $('#sidebar').show();
-    $('#sidebar').animate({ 'width': '500px' }, 'fast');
+    $('#sidebar').css({ 'width': '500px' });
   }
 }
 $(document).ready(function () {
