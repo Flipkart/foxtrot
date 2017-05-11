@@ -87,6 +87,7 @@ Tables.prototype.loadTableMeta = function (table, callback) {
         });
       }
       currentFieldList = data.mappings;
+      tableFiledsArray = data;
       clearModalfields();
       for (var i = this.metaLoadHandlers.length - 1; i >= 0; i--) {
           this.metaLoadHandlers[i](this.tables);

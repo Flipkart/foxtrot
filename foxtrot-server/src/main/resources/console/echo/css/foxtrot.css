@@ -1013,12 +1013,12 @@ th, td {
   font-family: Open Sans;
   font-size: 14px;
   text-align: center;
-  color: #9aa4ab;
+  color: #859FC0;
   font-weight: 300;
 }
 
 #left-menu li a{
-  color: #9aa4ab;
+  color: #859FC0;
   text-decoration: none;
 }
 
@@ -1556,4 +1556,20 @@ input[type="checkbox"].tinyswitch.ios-switch:checked + div > div {
 
 #save-console-div {
   text-align: center;
+}
+
+#create-new-dashboard {
+  width: 180px;
+  height: 36px;
+  background-color: #ffffff;
+  box-shadow: 0 4px 4px 0 rgba(0, 0, 0, 0.1);
+  border: solid 1px #d0d7e7;
+  font-size: 14px;
+  color: #859FC0;
+  padding: 12px;
+}
+
+#create-new-dashboard:hover {
+  background: #42b1f7;
+  color: #fff;
 }
