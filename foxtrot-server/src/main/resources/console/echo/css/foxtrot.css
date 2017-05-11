@@ -834,7 +834,7 @@ path {
   height: 34px;
   position: relative;
   top: 12px;
-  right: 43px;
+  right: 16px;
   background: #fff;
 }
 
@@ -1523,7 +1523,7 @@ input[type="checkbox"].tinyswitch.ios-switch:checked + div > div {
   margin-top: 100px;
 }
 
-#saveConsole, #default-btn, #sidebar {
+#saveConsole, #default-btn, #sidebar, .global-filters {
   display: none;
 }
 

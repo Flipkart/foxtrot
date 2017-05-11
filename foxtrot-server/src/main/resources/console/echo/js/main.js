@@ -475,6 +475,7 @@ function clearForms() {
 function showDashboardBtn() {
   $("#saveConsole").show();
   $("#default-btn").show();
+  $(".global-filters").show();
 }
 
 function createDashboard() {
