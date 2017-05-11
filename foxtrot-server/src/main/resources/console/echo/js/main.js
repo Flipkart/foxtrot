@@ -29,6 +29,7 @@ var interval = null;
 var consoleList = [];
 var currentConsoleName;
 var globalFilters = false;
+var isNewConsole = false;
 function TablesView(id, tables) {
   this.id = id;
   this.tables = tables;
@@ -556,5 +557,8 @@ $(document).ready(function () {
   var consoleId = getParameterByName("console").replace('/','');
   if(consoleId) {
     getConsoleById(consoleId);
+    isNewConsole = false;
+  } else {
+    isNewConsole = true;
   }
 });

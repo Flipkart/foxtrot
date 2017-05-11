@@ -486,7 +486,8 @@ path {
 
 .custom-btn-div {
   text-align: center;
-  top: 50px;
+  border: 1px solid #90a2ac;
+  background: #fff;
 }
 
 .lineGraph-health-text {
@@ -1512,3 +1513,16 @@ input[type="checkbox"].tinyswitch.ios-switch:checked + div > div {
   height: 36px;
 }
 
+.medium-btn-color {
+  background: none;
+  color: #000;
+  border: none;
+  margin-top: 250px;
+}
+
+.small-btn-color {
+  background: none;
+  color: #000;
+  border: none;
+  margin-top: 100px;
+}

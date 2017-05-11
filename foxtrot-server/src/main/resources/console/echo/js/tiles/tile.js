@@ -137,8 +137,20 @@ function setConfigValue(object) {
   }
 }
 
-function newBtnElement() {
-  return "<div class='col-md-2 custom-btn-div'><button data-target='#addWidgetModal' class='tile-add-btn tile-add-btn btn btn-primary filter-nav-button glyphicon glyphicon-plus custom-add-btn'onClick='setClicketData(this)'  data-toggle='modal' id='row-" + row + "'></button><div>"
+function newBtnElement(widget) {
+  var columnSize = "";
+  var height = "";
+  var customClass = "";
+  if(widget == "medium") {
+    columnSize = "col-md-6";
+    height = 500;
+    customClass = "medium-btn-color";
+  } else {
+    columnSize = "col-md-3";
+    height= 220;
+    customClass = "small-btn-color";
+  }
+  return "<div class='"+columnSize+" custom-btn-div' style='height:"+height+"px;'><button data-target='#addWidgetModal' class='tile-add-btn tile-add-btn btn btn-primary filter-nav-button  custom-add-btn "+customClass+"'onClick='setClicketData(this)'  data-toggle='modal' id='row-" + row + "'>+Add widget</button><div>"
 }
 // create new div
 TileFactory.prototype.createNewRow = function (tileElement) {
@@ -159,8 +171,8 @@ TileFactory.prototype.createNewRow = function (tileElement) {
     row = panelRow.length;
     tileElement.addClass("row-" + row);
   }
-  if (this.tileObject.tileContext.widgetType != "full" && currentConsoleName == undefined) // dont add row add button for full widget
-    tileElement.append(newBtnElement());
+  if (this.tileObject.tileContext.widgetType != "full" && isNewConsole) // dont add row add button for full widget
+    tileElement.append(newBtnElement(this.tileObject.tileContext.widgetType));
   return tileElement;
 }
 TileFactory.prototype.updateFilterCreation = function (object) {
