@@ -371,7 +371,7 @@ function getConsoleById(selectedConsole) {
       generateTabBtnForConsole(res);
       renderTilesObject(res.sections[0].id);
       getTables();
-      setListConsole(selectedConsole);
+      setTimeout(function() { setListConsole(selectedConsole); }, 2000);
     },
     error: function() {
       error("Could not save console");
@@ -484,6 +484,7 @@ function createDashboard() {
   $("#addDashboard").modal('hide');
   $(".dashboard-name").val('');
   $("#tab-name").val('');
+  $("#listConsole").val('none');
   clearForms();
   showDashboardBtn();
 }
