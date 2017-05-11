@@ -929,7 +929,7 @@ div.tab button.active {
   width: 89px;
   position: relative;
   left: -16px;
-  top: 24px;
+  top: 11px;
 }
 
 .health-div {
@@ -1505,3 +1505,10 @@ input[type="checkbox"].tinyswitch.ios-switch:checked + div > div {
   font-size: 12px !important;
   color: #aeb8bd !important;
 }
+
+.small-widget-title {
+  width: 150px !important;
+  overflow: hidden;
+  height: 36px;
+}
+
