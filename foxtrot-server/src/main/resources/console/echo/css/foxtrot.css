@@ -852,7 +852,7 @@ th, td {
 }
 
 #listConsole {
-  width: 120px;
+  width: auto;
 }
 #listConsole option {
   width: 250px;
@@ -1343,7 +1343,6 @@ input[type="checkbox"].tinyswitch.ios-switch:checked + div > div {
   margin-top: 17px;
   float: left;
   position: relative;
-  left: 24px;
 }
 
 #saveConsole {
@@ -1364,9 +1363,19 @@ input[type="checkbox"].tinyswitch.ios-switch:checked + div > div {
   font-size: 12px;
   color: #859fc0;
   font-family: Open Sans;
+  margin-right: 11px;
 }
 
 #saveConsole:hover, #add-page-btn:hover {
   color: #1E3F67;
   border: 1px solid #1E3F67;
+}
+
+div.tab button:last-child {
+  border: none;
+}
+
+.widget-btns > div {
+  float: right;
+  margin-right: 16px;
 }
