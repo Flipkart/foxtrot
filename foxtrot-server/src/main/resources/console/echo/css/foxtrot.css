@@ -1289,7 +1289,7 @@ input[type="checkbox"].tinyswitch.ios-switch:checked + div > div {
   margin-top: 100px;
 }
 
-#saveConsole, #default-btn, #sidebar, .global-filters {
+#saveConsole, #default-btn, #sidebar, .global-filters, #add-page-btn {
   display: none;
 }
 

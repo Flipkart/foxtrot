@@ -473,6 +473,7 @@ function showDashboardBtn() {
   $("#saveConsole").show();
   $("#default-btn").show();
   $(".global-filters").show();
+  $("#add-page-btn").show();
 }
 
 function createDashboard() {
