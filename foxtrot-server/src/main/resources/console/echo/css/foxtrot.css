@@ -972,8 +972,7 @@ th, td {
 #sidebar label {
   font-family: Open Sans;
   font-size: 12px;
-  font-weight: 600;
-  color: #c4d4dc;
+  color: #a6a8b5;
 }
 
 .sidebar-form-heading {
@@ -984,8 +983,7 @@ th, td {
 
 #modal-heading {
   font-size: 14px;
-  font-weight: bold;
-  color: #50e3c2;
+  color: #a6a8b5;
 }
 
 #sidebar input {
@@ -1016,9 +1014,10 @@ th, td {
 }
 
 #sidebar-filter-btn {
-  height: 45px;
-  border: dashed 1px #90a2ac;
-  background: none;
+  height: 191px;
+  border: 1px dashed #90a2ac;
+  font-size: 14px;
+  color: #bfcbd1;
 }
 
 .filter-value {
@@ -1027,7 +1026,8 @@ th, td {
 }
 
 #filter-add-btn {
-  color: #fff;
+  font-size: 14px;
+  color: #bfcbd1;
 }
 
 .filter-type >.btn-default {
@@ -1428,5 +1428,5 @@ div.tab button:last-child {
 }
 
 select {
-  outline: 1px solid #CCC;
+  -webkit-border-radius: 0px;
 }
