@@ -131,7 +131,7 @@ TrendTile.prototype.getData = function(data) {
 TrendTile.prototype.render = function (displayValue) {
   var newDiv = this.newDiv;
   var object = this.object;
-  var chartDiv = newDiv.find(".chart-item");
+  var chartDiv = $("#"+object.id).find(".chart-item");
   chartDiv.addClass("trend-chart");
 
   var a = chartDiv.find("#"+object.id);

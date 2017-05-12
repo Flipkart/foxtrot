@@ -98,7 +98,7 @@ GaugeTile.prototype.render = function (data) {
   var newDiv = this.newDiv;
   var object = this.object;
   var d = [data];
-  var chartDiv = newDiv.find(".chart-item");
+  var chartDiv = $("#"+object.id).find(".chart-item");
   chartDiv.addClass("gauge-chart");
   var minNumber = 1;
   var maxNumber = 100
