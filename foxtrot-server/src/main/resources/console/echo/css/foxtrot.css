@@ -335,19 +335,11 @@ h1 {
   border: none;
 }
 
-.modal-done-btn {
-  width: 140px;
-  height: 40px;
-  background-color: #32a6f9 !important;
-  color: #fff !important;
-}
-
-.filter-row .bootstrap-select {
-  width: 100px !important;
-}
-
 .filters {
   line-height: 4;
+  margin-top: 23px;
+  background: #000;
+  padding: 0px 29px 9px 25px;
 }
 
 .filter-value {
@@ -1001,7 +993,7 @@ th, td {
 #sidebar-filter-heading {
   font-size: 14px;
   font-weight: bold;
-  color: #50e3c2;
+  color: #FFF;
   margin-top: 25px;
 }
 
@@ -1021,8 +1013,7 @@ th, td {
 }
 
 .filter-value {
-  background-color: #6a828f !important;
-  border: solid 1px #9dadb7 !important;
+  border: solid 1px #777a89 !important;
 }
 
 #filter-add-btn {
@@ -1040,11 +1031,13 @@ th, td {
   background-color: #718590 !important;
 }
 
+.filter-column {
+  width: 100%;
+}
+
 .tile-table >.btn {
   background: none !important;
-  border-color: #dadada;
-  border: none;
-  border-bottom: 1px solid #7d909a;
+  border-color: #777a89;
   color: #fff;
 }
 
@@ -1218,10 +1211,6 @@ input[type="checkbox"].tinyswitch.ios-switch:checked + div > div {
 
 .glyphicon-trash{
   color: #fff;
-}
-
-.filter-background {
-  background: #718590;
 }
 
 .tile-name-parent {
@@ -1429,4 +1418,18 @@ div.tab button:last-child {
 
 select {
   -webkit-border-radius: 0px;
+}
+
+.filter-headings {
+  height: 19px;
+  font-family: Open Sans Regular;
+  font-size: 14px;
+  font-weight: bold;
+  color: #ffffff;
+}
+
+.filter-remove-img {
+  float: right;
+  top: 25px;
+  position: relative;
 }
