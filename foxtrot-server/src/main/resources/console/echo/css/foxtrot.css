@@ -929,7 +929,6 @@ th, td {
   background: #282b38;
   right: 0;
   z-index: 1000;
-  overflow: hidden;
   top: 66px;
   height: 100%;
 }
@@ -1432,4 +1431,13 @@ select {
   float: right;
   top: 25px;
   position: relative;
+}
+
+#filter-close-btn {
+  width: 40px;
+  height: 37px;
+  background-color: #33434b;
+  position: absolute;
+  left: -40px;
+  padding: 6px 6px 9px 10px;
 }

@@ -546,7 +546,7 @@ $(document).ready(function () {
     clickedChartType(this);
   })
 
-  $("#modal-cancel-btn").click(function() {
+  $("#filter-close-btn").click(function() {
     showHideSideBar();
     foxtrot.resetModal();
   })
