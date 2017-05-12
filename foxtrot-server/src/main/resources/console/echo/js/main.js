@@ -507,7 +507,7 @@ function showHideSideBar() {
   }
   else {
     $('#sidebar').show();
-    $('#sidebar').css({ 'width': '500px' });
+    $('#sidebar').css({ 'width': '356px' });
   }
 }
 $(document).ready(function () {

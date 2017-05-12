@@ -313,10 +313,12 @@ h1 {
 }
 
 #table-units {
-  background: #3d4d55;
   padding: 10px;
   display: none;
   margin-top: 11px;
+  background-color: #000000;
+  border: solid 1px #6c6e7e;
+  margin-top: -3px;
 }
 
 #modal-filters {
@@ -930,9 +932,9 @@ th, td {
 }
 
 #sidebar {
-  width: 500px;
+  width: 356px;
   position: absolute;
-  background: #51646d;
+  background: #282b38;
   right: 0;
   z-index: 1000;
   overflow: hidden;
@@ -989,7 +991,7 @@ th, td {
 #sidebar input {
   background: none;
   border: none;
-  border-bottom: 1px solid #7d909a;
+  border: solid 1px #777a89;
   color: #fff;
 }
 
@@ -1007,7 +1009,7 @@ th, td {
 
 #chart-type {
   height: 50px;
-  border: solid 2px #7d909a;
+  border: solid 1px #777a89;
   background: none;
   color: #bfcbd1;
   font-family: Open Sans;
@@ -1063,7 +1065,7 @@ th, td {
   background: none !important;
   border-color: #dadada;
   border: none;
-  border-bottom: 1px solid #7d909a;
+  border: solid 1px #777a89;
   color: #fff !important;
 }
 .form-control {
@@ -1398,4 +1400,33 @@ div.tab button:last-child {
 .new-tab-form {
   margin-left: 63px;
   margin-top: 60px;
+}
+
+.sidebar-widget-btns {
+  margin-top: 23px;
+}
+
+.filters-save-changes {
+  width: 63px;
+  height: 30px;
+  background-color: #50e3c2;
+  border: solid 1px #50e3c2;
+  font-family: Open Sans Regular;
+  float: right;
+}
+
+.sidebar-settings-btn {
+  width: 66px;
+  height: 19px;
+  font-family: Open Sans Regular;
+  font-size: 14px;
+  font-weight: bold;
+  color: #35dbb1;
+  border: none;
+  background: none;
+  margin-left: 10px;
+}
+
+select {
+  outline: 1px solid #CCC;
 }
