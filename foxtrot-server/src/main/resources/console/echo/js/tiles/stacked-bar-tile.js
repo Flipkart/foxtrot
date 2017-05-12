@@ -175,7 +175,8 @@ StackedBarTile.prototype.getData = function (data) {
         , fillColor: "#A3A3A3"
         , lines: {
           show: true
-        }
+        },
+        points:{show: (rows.length <= 50 ? true :false)}
         , shadowSize: 0 /*, curvedLines: {apply: true}*/
       });
     }
@@ -206,8 +207,7 @@ StackedBarTile.prototype.render = function (d) {
             opacity: 0.5
                     }]
         }
-      },
-      points:{show:true}
+      }
       , shadowSize: 0
       , curvedLines: { active: true }
     }
