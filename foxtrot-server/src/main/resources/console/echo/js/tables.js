@@ -83,16 +83,17 @@ Tables.prototype.loadTableMeta = function (table, callback) {
       this.currentTableFieldMappings = data.mappings;
       if (this.currentTableFieldMappings) {
         this.currentTableFieldMappings.sort(function (lhs, rhs) {
-        return ((lhs.field > rhs.field) ? 1 : ((lhs.field < rhs.field) ? -1 : 0));
+          return ((lhs.field > rhs.field) ? 1 : ((lhs.field < rhs.field) ? -1 : 0));
         });
       }
       currentFieldList = data.mappings;
-      tableFiledsArray = data;
+      tableFiledsArray[table.name] = data;
       clearModalfields();
       for (var i = this.metaLoadHandlers.length - 1; i >= 0; i--) {
-          this.metaLoadHandlers[i](this.tables);
+        this.metaLoadHandlers[i](this.tables);
       }
       callback();
-      }, this)
-    });
+    }, this)
+  });
 };
+

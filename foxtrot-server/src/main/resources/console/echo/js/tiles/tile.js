@@ -221,7 +221,7 @@ TileFactory.prototype.updateFilters = function (filters) {
   var temp = [];
   instanceVar.tileObject.tileContext.uiFiltersSelectedList = arr_diff(instanceVar.tileObject.tileContext.uiFiltersList, filters)
 }
-  // Filter configuration
+// Filter configuration
 TileFactory.prototype.triggerFilter = function (tileElement, object) {
   if(object.tileContext.chartType != "radar" && object.tileContext.chartType != "line" && object.tileContext.chartType != "stacked") {
     var instanceVar = this;
@@ -254,7 +254,7 @@ TileFactory.prototype.triggerFilter = function (tileElement, object) {
     });
   }
 }
-  // Add click event for tile config icon
+// Add click event for tile config icon
 TileFactory.prototype.triggerConfig = function (tileElement, object) {
   var instanceVar = this;
   tileElement.find(".widget-toolbox").find(".glyphicon-cog").click(function () {
@@ -269,15 +269,15 @@ TileFactory.prototype.triggerConfig = function (tileElement, object) {
   });
 }
 TileFactory.prototype.triggerChildBtn = function (tileElement, object) {
-    var instanceVar = this;
-    tileElement.find(".add-child-btn").find(".child-btn").click(function () {
-      $("#addWidgetModal").modal('show');
-      $("#addWidgetModal").find(".child-tile").val('true');
-      $(".vizualization-type").hide();
-      instanceVar.updateFilterCreation(object);
-    });
-  }
-  // Save action for tile config save button
+  var instanceVar = this;
+  tileElement.find(".add-child-btn").find(".child-btn").click(function () {
+    $("#addWidgetModal").modal('show');
+    $("#addWidgetModal").find(".child-tile").val('true');
+    $(".vizualization-type").hide();
+    instanceVar.updateFilterCreation(object);
+  });
+}
+// Save action for tile config save button
 TileFactory.prototype.saveTileConfig = function (object) {
   $("#tile-configuration").find(".save-changes").click(function () {
     var form = $("#tile-configuration").find("form");

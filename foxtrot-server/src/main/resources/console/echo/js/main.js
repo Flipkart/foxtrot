@@ -30,6 +30,9 @@ var consoleList = [];
 var currentConsoleName;
 var globalFilters = false;
 var isNewConsole = false;
+var tablesToRender = [];
+var tableFiledsArray = {};
+
 function TablesView(id, tables) {
   this.id = id;
   this.tables = tables;
@@ -57,14 +60,20 @@ TablesView.prototype.init = function () {
   $(this.id).change($.proxy(function () {
     var value = parseInt($(this.id).val());
     var table = this.tables.tables[value];
-    if (table) {
-      if (this.tableSelectionChangeHandler) {
-        this.tableSelectionChangeHandler(table.name);
+    clearModalfields();
+    if(!tableFiledsArray.hasOwnProperty(table.name)) {
+      if (table) {
+        if (this.tableSelectionChangeHandler) {
+          this.tableSelectionChangeHandler(table.name);
+        }
+        this.tables.loadTableMeta(table);
+        this.tables.selectedTable = table;
+        console.log("Table changed to: " + table.name);
+        //console.log(this);
       }
-      this.tables.loadTableMeta(table);
-      this.tables.selectedTable = table;
-      console.log("Table changed to: " + table.name);
-      //console.log(this);
+    } else {
+      currentFieldList = tableFiledsArray[table.name].mappings;
+      reloadDropdowns();
     }
   }, this));
   this.tables.init();
@@ -99,24 +108,32 @@ function setClicketData(ele) {
   clearModal();
   showHideSideBar();
 }
-var tableFiledsArray = {};
-function fetchTableFields(tableName) {
-  if(tableFiledsArray[tableName] == undefined) {
-    $.ajax({
-      url: apiUrl+"/v1/tables/" + tableName + "/fields",
-      contentType: "application/json",
-      context: this,
-      success: function(resp){
-        tableFiledsArray[tableName] = resp;
-      }
-    });
+
+function fetchFields(tableName) {
+  $.ajax({
+    url: apiUrl+"/v1/tables/" + tableName + "/fields",
+    contentType: "application/json",
+    context: this,
+    success: function(resp){
+      tableFiledsArray[tableName] = resp;
+    }
+  });
+}
+
+function fetchTableFields() {
+  var uniqueArray = tablesToRender.filter(function(item, pos) {
+    return tablesToRender.indexOf(item) == pos;
+  });
+  for(var i = 0; i < uniqueArray.length; i++) {
+    console.log(uniqueArray[i])
+    fetchFields(uniqueArray[i]);
   }
 }
 
 function renderTiles(object) {
   var tileFactory = new TileFactory();
   tileFactory.tileObject = object;
-  fetchTableFields(object.tileContext.table);
+  tablesToRender.push(object.tileContext.table);
   tileFactory.create();
 }
 
@@ -394,6 +411,7 @@ function renderTilesObject(currentTabName) {
     for (var i = 0; i < tileList.length; i++) {
       renderTiles(tileData[tileList[i]]);
     }
+    fetchTableFields();
   }
 }
 
