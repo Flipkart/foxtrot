@@ -1445,3 +1445,11 @@ select {
 .hide-filters {
   display: none;
 }
+
+#period-select:focus {
+  outline: 0;
+}
+
+div.tab button:first-child {
+  padding-left: 0px;
+}
