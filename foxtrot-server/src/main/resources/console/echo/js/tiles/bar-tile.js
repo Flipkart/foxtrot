@@ -163,13 +163,12 @@ BarTile.prototype.render = function (xAxisOptions, columns) {
         }
         , barWidth: 0.5
         , align: "center"
-        , lineWidth: 1.0
         , fill: true
         , fillColor: {
           colors: [{
-            opacity: 0.3
+            opacity: 1
           }, {
-            opacity: 0.7
+            opacity: 1
           }]
         }
       }

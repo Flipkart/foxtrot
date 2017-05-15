@@ -722,7 +722,12 @@ div.tab button.active {
   font-family: Open Sans;
   font-size: 10.tilepx;.tile
   line-height: 2.5;
-  color: #7d909a !important;
+  color: #859FC0 !important;
+}
+
+.legend-custom:hover {
+  color:#193F67 !important;
+  cursor: pointer;
 }
 
 #statsTrend-chart-data {
