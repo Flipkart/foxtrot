@@ -24,6 +24,7 @@ function getTrendChartFormValues() {
   var statsField = $(".stats-field").val();
   var statsToPlot = $(".statistic_to_plot").val();
   var timeframe = $("#trend-timeframe").val();
+  var ignoreDigits = $(".trend-ignored-digits").val();
 
   var status = true;
 
@@ -41,6 +42,7 @@ function getTrendChartFormValues() {
     "statsFieldName": currentFieldList[parseInt(statsField)].field,
     "statsToPlot": statsToPlot,
     "timeframe": timeframe
+    , "ignoreDigits" : ignoreDigits
   }, status];
 }
 
@@ -60,7 +62,7 @@ function clearTrendChartForm() {
   $(statsToPlot).selectpicker('refresh');
 
   parentElement.find("#trend-timeframe").val('');
-  parentElement.find(".ignored-digits").val('');
+  parentElement.find(".trend-ignored-digits").val('');
 }
 
 function setTrendChartFormValues(object) {
@@ -80,7 +82,7 @@ function setTrendChartFormValues(object) {
   $(statsToPlot).selectpicker('refresh');
 
   parentElement.find("#trend-timeframe").val(object.tileContext.timeframe);
-  parentElement.find(".ignored-digits").val('');
+  parentElement.find(".trend-ignored-digits").val(parseInt(object.tileContext.ignoreDigits == undefined ? 0 : object.tileContext.ignoreDigits));
 }
 
 TrendTile.prototype.getQuery = function(newDiv, object) {
@@ -139,6 +141,7 @@ TrendTile.prototype.render = function (displayValue) {
     a.remove();
   }
 
+  displayValue = displayValue / Math.pow(10, (this.object.tileContext.ignoreDigits == undefined ? 0 : this.object.tileContext.ignoreDigits));
   chartDiv.append("<div id="+object.id+"><p class='trend-value-big bold'>"+numberWithCommas(displayValue)+"</p><dhr/><p class='trend-value-small'></p><div id='trend-'"+object.id+" class='trend-chart-health'></div><div class='trend-chart-health-percentage bold'></div></div>");
   var healthDiv = chartDiv.find("#trend-"+object.id);
   healthDiv.width(100);
