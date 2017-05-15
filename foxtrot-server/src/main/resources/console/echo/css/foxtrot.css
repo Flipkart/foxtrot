@@ -1516,3 +1516,7 @@ div.tab button:first-child {
   background: none;
   color: #8498a3 !important;
 }
+
+.filter-remove-img:hover {
+  background-image: url('../img/Remove_hover.png');
+}
