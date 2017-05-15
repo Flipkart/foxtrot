@@ -984,7 +984,7 @@ th, td {
   background: none;
   border: none;
   border: solid 1px #777a89;
-  color: #fff;
+  color: #dbdbdb;
 }
 
 #sidebar input:focus {
@@ -994,6 +994,7 @@ th, td {
 
 #sidebar input:hover {
   border: 1px solid #fff;
+  color: #fff;
 }
 
 #sidebar-filter-heading {
@@ -1065,7 +1066,7 @@ th, td {
   border-color: #dadada;
   border: none;
   border: solid 1px #777a89;
-  color: #fff !important;
+  color: #dbdbdb !important;
 }
 .form-control {
   background: none;
@@ -1490,12 +1491,19 @@ div.tab button:first-child {
 
 #sidebar > .btn-group>.btn:hover, .btn-group-vertical>.btn:hover, .btn-group>.btn:focus, .btn-group-vertical>.btn:focus, .btn-group>.btn:active, .btn-group-vertical>.btn:active, .btn-group>.btn.active, .btn-group-vertical>.btn.active {
   border: 1px solid #fff !important;
+  color:#fff !important;
 }
 
 .filter-value:hover {
   border: 1px solid #fff !important;
+  color:#fff !important;
 }
 
 .bootstrap-select .btn:focus {
   outline: 0px solid #fff !important;
+  color:#fff !important;
+}
+
+.bootstrap-select .btn:hover {
+  color: #fff !important;
 }
