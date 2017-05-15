@@ -532,8 +532,9 @@ function showHideSideBar() {
 function hideFilters() {
   $(".global-filters").removeClass('col-sm-3');
   $(".global-filters").addClass('col-sm-2');
+  $(".global-filters").css({'width': "138px"});
   $(".global-filter-switch-div").css({'border': "none"})
-  $(".widget-btns").css({'left': "103px"});
+  $(".widget-btns").css({'left': "172px"});
   $(".hide-filters").css({"display": "none"});
 }
 
@@ -543,7 +544,9 @@ function showFilters() {
   $(".global-filter-switch-div").css({'border': "none"})
   $(".widget-btns").css({'left': "0px"});
   $(".hide-filters").css({"display": "block"});
-  $(".global-filter-switch-div").css({'border-right': "1px solid #aeb8bd"})
+  $(".global-filter-switch-div").css({'border-right': "1px solid #aeb8bd"});
+  $(".global-filters").css({'width': "auto"});
+
 }
 
 $(document).ready(function () {
