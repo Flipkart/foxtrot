@@ -522,6 +522,7 @@ function showHideSideBar() {
     $('#sidebar').hide();
     $(".global-filters").css({'flot' :'right'});
     $(".top-error").hide();
+    $('.tile-container').find(".highlight-tile").removeClass('highlight-tile');
   }
   else {
     $('#sidebar').show();

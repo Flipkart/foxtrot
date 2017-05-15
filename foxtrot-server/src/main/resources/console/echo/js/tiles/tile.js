@@ -259,6 +259,7 @@ TileFactory.prototype.triggerConfig = function (tileElement, object) {
   var instanceVar = this;
   tileElement.find(".widget-toolbox").find(".glyphicon-cog").click(function () {
     showHideSideBar();
+    $('.tile-container').find("#"+object.id).addClass('highlight-tile');
     //$("#addWidgetModal").modal('show');
     $("#sidebar").find(".tileId").val(object.id);
     $("#sidebar").find("#modal-heading").hide();
