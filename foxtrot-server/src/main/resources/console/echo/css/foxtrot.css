@@ -1524,3 +1524,8 @@ div.tab button:first-child {
 .filter-remove-img:hover {
   background-image: url('../img/Remove_hover.png');
 }
+
+.global-filters:hover {
+  color: #1E3F67;
+  border: 1px solid #1E3F67;
+}
