@@ -528,6 +528,24 @@ function showHideSideBar() {
     $('#sidebar').css({ 'width': '356px' });
   }
 }
+
+function hideFilters() {
+  $(".global-filters").removeClass('col-sm-3');
+  $(".global-filters").addClass('col-sm-2');
+  $(".global-filter-switch-div").css({'border': "none"})
+  $(".widget-btns").css({'left': "103px"});
+  $(".hide-filters").css({"display": "none"});
+}
+
+function showFilters() {
+  $(".global-filters").removeClass('col-sm-2');
+  $(".global-filters").addClass('col-sm-3');
+  $(".global-filter-switch-div").css({'border': "none"})
+  $(".widget-btns").css({'left': "0px"});
+  $(".hide-filters").css({"display": "block"});
+  $(".global-filter-switch-div").css({'border-right': "1px solid #aeb8bd"})
+}
+
 $(document).ready(function () {
   var type = $("#widgetType").val();
   var foxtrot = new FoxTrot();
@@ -572,8 +590,10 @@ $(document).ready(function () {
   $(".filter-switch").change(function () {
     if(this.checked) {
       globalFilters = true;
+      showFilters();
     } else {
       globalFilters = false;
+      hideFilters();
     }
   });
 

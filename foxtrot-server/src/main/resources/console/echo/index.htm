@@ -125,7 +125,7 @@
           </div>
           <div class="col-sm-3 global-filters">
             <div class="col-sm-5 global-filter-switch-div"><label>Global filters<input type="checkbox" class="ios-switch blue filter-switch tinyswitch"/><div id="switch"><div></div></div></label></div>
-            <div class="col-sm-5">
+            <div class="col-sm-5 hide-filters">
               <select class="global-filter-period-select" id="global-filter-period-select">
                 <option value="custom" selected>Custom</option>
                 <option value="5m">5 Minutes</option>
@@ -142,7 +142,7 @@
                 <option value="30d"> 30 Days</option>
               </select>
             </div>
-            <div class="col-sm-2"><img src="img/settings.png"></div>
+            <div class="col-sm-2 filter-settings hide-filters"><img src="img/settings.png"></div>
           </div>
         </div>
         <div class="tile-container" id="tileContainer">
@@ -607,6 +607,7 @@
       $('#sidebar').hide();
     });
     $('#main-content').css({ 'margin-left': '0px' });
+    hideFilters();
   </script>
   <!--Application-->
 </body>
