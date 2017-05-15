@@ -1491,8 +1491,8 @@ div.tab button:first-child {
 }
 
 #sidebar > .btn-group>.btn:hover, .btn-group-vertical>.btn:hover, .btn-group>.btn:focus, .btn-group-vertical>.btn:focus, .btn-group>.btn:active, .btn-group-vertical>.btn:active, .btn-group>.btn.active, .btn-group-vertical>.btn.active {
-  border: 1px solid #fff !important;
-  color:#fff !important;
+  border: 1px solid #fff;
+  color:#fff;
 }
 
 .filter-value:hover {
@@ -1511,4 +1511,9 @@ div.tab button:first-child {
 
 .highlight-tile {
   border: 1px solid #42b1f7;
+}
+
+.default-add-widget-btn:focus, #tile-add-btn:focus{
+  background: none;
+  color: #8498a3 !important;
 }
