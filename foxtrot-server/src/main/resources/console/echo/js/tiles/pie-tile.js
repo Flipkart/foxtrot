@@ -160,7 +160,7 @@ PieTile.prototype.render = function (columns) {
     }
   };
   var plot = $.plot(ctx, columns, chartOptions);
-  $('.legend .legendLabel, .legend .legendColorBox').on('mouseenter', function() {
+  $(chartDiv.find('.legend .legendLabel, .legend .legendColorBox')).on('mouseenter', function() {
     var label = $(this).text();
     var allSeries = plot.getData();
     for (var i = 0; i < allSeries.length; i++){
@@ -173,7 +173,7 @@ PieTile.prototype.render = function (columns) {
     plot  .draw();
   });
 
-  $('.legend .legendLabel, .legend .legendColorBox').on('mouseleave', function() {
+  $(chartDiv.find('.legend .legendLabel, .legend .legendColorBox')).on('mouseleave', function() {
     var label = $(this).text();
     var allSeries = plot.getData();
     for (var i = 0; i < allSeries.length; i++){

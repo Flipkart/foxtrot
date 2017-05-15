@@ -725,7 +725,7 @@ div.tab button.active {
   color: #859FC0 !important;
 }
 
-.legend-custom:hover {
+.legend-custom:hover, .legendLabel:hover {
   color:#193F67 !important;
   cursor: pointer;
 }
@@ -1494,4 +1494,8 @@ div.tab button:first-child {
 
 .filter-value:hover {
   border: 1px solid #fff !important;
+}
+
+.bootstrap-select .btn:focus {
+  outline: 0px solid #fff !important;
 }
