@@ -48,26 +48,27 @@
 <body> <span id="ruler"></span>
   <div class="container-full">
     <div class="new-header">
-      <div class="inner-header container">
-        <h1 class="col-md-4 heading">Echo</h1>
+      <div class="inner-header container-fluid">
+        <h1 class="col-md-4 heading"><img src="img/echo_1.png" /></h1>
         <div id="console-list-dropdown">
-          <span>Dashboard:</span><select id="listConsole" class="listConsole">
+          <select id="listConsole" class="listConsole">
             <option value="none">Select console</option>
           </select>
             <ul id="left-menu">
               <li><a>Browse Events</a></li>
               <li><a>Explore</a></li>
-              <li id="add-sections" data-target="#addTab" data-toggle="modal" data-backdrop="false">+Add New Dashboard</li>
+              <li id="add-sections" data-target="#addDashboard" data-toggle="modal">
+                <span id="create-new-dashboard">Create New Dashboard</span>
+              </li>
             </ul>
         </div>
       </div>
     </div>
     <!-- Modal -->
-    <div class="modal fade" id="addTab" tabindex="-2" role="dialog" aria-labelledby="addTab" aria-hidden="true">
+    <div class="modal fade" id="addDashboard" tabindex="-2" role="dialog" aria-labelledby="addTab" aria-hidden="true">
       <div class="modal-dialog">
         <div id="console-modal">
           <img src="img/close.png"/ id="add-tab-close" data-dismiss="modal" />
-          <img id="add-tab-img" src="img/shape.png"/>
           <div id="add-tab-heading">
             <h1>NEW DASHBOARD</h1>
             <hr id="add-tab-heading-underline"/>
@@ -79,8 +80,30 @@
                 <input type="text" class="form-control dashboard-name" id="dashboard-name">
               </div>
               <div class="form-group">
-                <label class="control-label" for="widgetType"><strong>Enter tab name</strong></label>
+                <label class="control-label" for="widgetType"><strong>Enter page name</strong></label>
                   <input type="text" class="form-control tab-name" id="tab-name">
+              </div>
+              <div class="form-group">
+                <button type="button" class="btn btn-primary add-tab-btn" id="addDashboardConfirm">Add</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal fade" id="addTab" tabindex="-2" role="dialog" aria-labelledby="addSections" aria-hidden="true">
+      <div class="modal-dialog">
+        <div id="add-tab-modal">
+          <img src="img/close.png"/ id="add-tab-close" data-dismiss="modal" />
+          <div id="add-tab-model-heading">
+            <h1>Add Page</h1>
+            <hr id="add-tab-model-heading-underline"/>
+          </div>
+          <div class="add-tab-form new-tab-form">
+            <form class="col-md-10">
+              <div class="form-group">
+                <label class="control-label" for="widgetType"><strong>Enter page name</strong></label>
+                <input type="text" class="form-control section-name" id="section-name">
               </div>
               <div class="form-group">
                 <button type="button" class="btn btn-primary add-tab-btn" id="addTabConfirm">Add</button>
@@ -88,33 +111,21 @@
             </form>
           </div>
         </div>
-        <!--<div class="modal-content">
-          <div class="modal-header">
-            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-            <h4 class="modal-title" id="addWidgetModalLabel">Add Tab</h4> </div>
-          <div class="modal-body">
-            <form class="row">
-              <div class="form-group">
-                <label class="col-sm-4 control-label" for="widgetType"><strong>Enter tab name</strong></label>
-                <div class="col-sm-8">
-                  <input type="text" class="form-control tab-name" id="tab-name"> </div>
-              </div>
-            </form>
-          </div>
-          <div class="modal-footer" style="margin-top: 0px;">
-            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-            <button type="button" class="btn btn-primary" id="addTabConfirm">Add</button>
-          </div>
-        </div>-->
       </div>
     </div>
     <section id="main-content">
-      <div class="container" id="monitoring">
+      <div class="container-fluid" id="monitoring">
         <div>
-          <div class="tab col-md-6"></div>
-          <div class="col-sm-4 global-filters">
-            <div class="col-sm-5 global-filter-switch-div"><label>Globall filters<input type="checkbox" class="ios-switch blue filter-switch tinyswitch"/><div id="switch"><div></div></div></label></div>
-            <div class="col-sm-5">
+          <div class="tab col-md-5"></div>
+          <div class="col-md-4 widget-btns">
+            <div>
+              <button type="button" id="add-page-btn" data-target="#addTab" data-toggle="modal">Add page</button>
+              <button type="button" class="" id="saveConsole">Save Dashboard</button>
+            </div>
+          </div>
+          <div class="col-sm-3 global-filters">
+            <div class="col-sm-5 global-filter-switch-div"><label>Global filters<input type="checkbox" class="ios-switch blue filter-switch tinyswitch"/><div id="switch"><div></div></div></label></div>
+            <div class="col-sm-5 hide-filters">
               <select class="global-filter-period-select" id="global-filter-period-select">
                 <option value="custom" selected>Custom</option>
                 <option value="5m">5 Minutes</option>
@@ -131,7 +142,7 @@
                 <option value="30d"> 30 Days</option>
               </select>
             </div>
-            <div class="col-sm-2"><img src="img/settings.png"></div>
+            <div class="col-sm-2 filter-settings hide-filters"><img src="img/settings.png"></div>
           </div>
         </div>
         <div class="tile-container" id="tileContainer">
@@ -139,20 +150,39 @@
         </div>
         <div class="widget-new-btn">
           <div class="btn-group">
-            <button type="button" style="margin-top:10px;" class="btn btn-primary filter-nav-button"  data-toggle="modal" id="default-btn"> <span class='glyphicon glyphicon-plus' id=""></span> </button>
+            <button type="button" class="btn btn-primary filter-nav-button default-add-widget-btn col-md-3"  data-toggle="modal" id="default-btn">+Add Widget</button>
           </div>
         </div>
-        <button type="button" style="margin-top:10px;" class="btn btn-primary filter-nav-button" id="saveConsole">Save console</button>
+        <div id="save-console-div">
+          <button type="button" class="btn btn-primary filter-nav-button" id="saveConsole">Save console</button>
+        </div>
       </div>
     </section>
     <div id="sidebar">
-      <div id="sidebar-heading">
-        <h1>Widget Settings</h1>
-        <hr/>
+      <div id="filter-close-btn" data-dismiss="modal" aria-hidden="true"><img src="img/combined-shape.png" /></div>
+      <div class="col-md-12 sidebar-widget-btns">
+        <div class="row">
+          <div class="col-xs-6 form-group tile-name-parent">
+            <button type="submit" class="sidebar-settings-btn">Settings</button>
+          </div>
+          <div class="col-xs-6 form-group">
+            <button type="submit" class="filters-save-changes modal-done-btn save-changes" id="addWidgetConfirm">Save</button>
+          </div>
+        </div>
       </div>
       <div class="col-md-12" id="sidebar-content">
         <form class="col-md-12">
           <div class="row"><span class="top-error">*Please enter all the information</span></div>
+          <div class="form-group">
+            <label class="control-label">Name : </label>
+            <input type="hidden" value="" class="tileId">
+            <input type="text" class="tile-title sidebar-tile form-control" id="tileTitle" placeholder="Give a title" />
+          </div>
+          <div class="form-group">
+            <label class="control-label">Table</label>
+            <select class="selectpicker tile-table form-control" id="tileTable" data-live-search="true" data-style="btn-warning"> </select>
+          </div>
+<!--
           <div class="row">
             <div class="col-xs-6 form-group tile-name-parent">
               <label>Name</label>
@@ -164,14 +194,15 @@
               <select class="selectpicker tile-table form-control" id="tileTable" data-live-search="true" data-style="btn-warning"> </select>
             </div>
           </div>
+-->
           <h4 id="modal-heading">VISUALIZATION TYPE</h4>
           <div class="row" id="vizualization">
             <select id="chart-type" class="chart-type form-control">
               <option value="none">Select</option>
-              <option value="line">Line Chart</option>
+              <option value="line">Line / Histogram chart</option>
               <option value="radar">Radar Chart</option>
               <option value="gauge">Gauge Chart</option>
-              <option value="trend">Trend Chart</option>
+              <option value="trend">Trend / Number Chart</option>
               <option value="bar">Bar Chart</option>
               <option value="stacked">Stacked chart</option>
               <option value="stackedBar">Stacked Bar chart</option>
@@ -284,7 +315,7 @@
                   </div>
                   <div class="form-group">
                     <label class="control-label">Shift Decimal Left By: </label>
-                    <input type="number" min="0" value="0" class="form-control ignored-digits" placeholder="" id="stats-decimal-places">
+                    <input type="number" min="0" value="0" class="form-control trend-ignored-digits" placeholder="" id="stats-decimal-places trend-ignored-digits">
                   </div>
                 </div>
               </div>
@@ -326,7 +357,7 @@
                   </div>
                   <div class="form-group">
                     <label class="control-label">Shift Decimal Left By: </label>
-                    <input type="number" min="0" value="0" class="form-control ignored-digits" placeholder="" id="stats-decimal-places"></div>
+                    <input type="number" min="0" value="0" class="form-control stats-trend-ignored-digits" placeholder="" id="stats-decimal-places stats-trend-ignored-digits"></div>
                 </div>
               </div>
               <div id="bar-chart-data">
@@ -438,6 +469,7 @@
               </div>
             </div>
           </div>
+<!--
           <div class="row" id="modal-action-btns">
             <div class="pull-right">
               <div class="row">
@@ -445,6 +477,7 @@
                 <input type="button" value="Done" class="modal-done-btn save-changes" id="addWidgetConfirm"> </div>
             </div>
           </div>
+-->
         </form>
 
       </div>
@@ -476,7 +509,6 @@
             </div>
             <div class="modal-footer">
               <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-              <button type="submit" class="btn btn-primary filters-save-changes">Done</button>
             </div>
           </div>
         </form>
@@ -523,7 +555,6 @@
       </div>
     </script>
     <div class="footer">
-      <p>&copy; flipkart.com 2014</p>
     </div>
   </div>
   <!-- /container -->
@@ -543,6 +574,7 @@
   <script src="js/utills.js"></script>
   <script src="js/tables.js"></script>
   <script src="js/main.js"></script>
+  <script src="js/functions.js"></script>
   <script src="js/flot/jquery.flot.min.js"></script>
   <script src="js/flot/jquery.flot.resize.min.js"></script>
   <script src="js/flot/jquery.flot.pie.min.js"></script>
@@ -563,6 +595,10 @@
   <script src="js/tiles/stats-trend-tile.js"></script>
   <script src="js/tiles/bar-tile.js"></script>
   <script src="js/jquery.flot.crosshair.js"></script>
+  <script src="js/flot/jquery.flot.stack.min.js"></script>
+  <script src="js/flot/jquery.flot.valuelabels.js"></script>
+  <script src="js/flot/curvedLines.js"></script>
+  <script src="js/flat.js"></script>
   <script type="text/javascript">
     $('.navbar').on('click', function(){
       showHideSideBar();
@@ -572,6 +608,7 @@
       $('#sidebar').hide();
     });
     $('#main-content').css({ 'margin-left': '0px' });
+    hideFilters();
   </script>
   <!--Application-->
 </body>

@@ -29,6 +29,10 @@ var interval = null;
 var consoleList = [];
 var currentConsoleName;
 var globalFilters = false;
+var isNewConsole = false;
+var tablesToRender = [];
+var tableFiledsArray = {};
+
 function TablesView(id, tables) {
   this.id = id;
   this.tables = tables;
@@ -56,14 +60,20 @@ TablesView.prototype.init = function () {
   $(this.id).change($.proxy(function () {
     var value = parseInt($(this.id).val());
     var table = this.tables.tables[value];
-    if (table) {
-      if (this.tableSelectionChangeHandler) {
-        this.tableSelectionChangeHandler(table.name);
+    clearModalfields();
+    if(!tableFiledsArray.hasOwnProperty(table.name)) {
+      if (table) {
+        if (this.tableSelectionChangeHandler) {
+          this.tableSelectionChangeHandler(table.name);
+        }
+        this.tables.loadTableMeta(table);
+        this.tables.selectedTable = table;
+        console.log("Table changed to: " + table.name);
+        //console.log(this);
       }
-      this.tables.loadTableMeta(table);
-      this.tables.selectedTable = table;
-      console.log("Table changed to: " + table.name);
-      //console.log(this);
+    } else {
+      currentFieldList = tableFiledsArray[table.name].mappings;
+      reloadDropdowns();
     }
   }, this));
   this.tables.init();
@@ -87,45 +97,6 @@ FoxTrot.prototype.init = function () {
   this.tablesView.init();
   this.queue.start();
 };
-function addTilesList(object) {
-  tiles[object.id] = object;
-  tileList.push(object.id);
-}
-
-function setClicketData(ele) {
-  customBtn = ele;
-  defaultPlusBtn = false;
-  clearModal();
-  showHideSideBar();
-}
-var tableFiledsArray = {};
-function fetchTableFields(tableName) {
-  if(tableFiledsArray[tableName] == undefined) {
-    $.ajax({
-      url: apiUrl+"/v1/tables/" + tableName + "/fields",
-      contentType: "application/json",
-      context: this,
-      success: function(resp){
-        tableFiledsArray[tableName] = resp;
-      }
-    });
-  }
-}
-
-function renderTiles(object) {
-  var tileFactory = new TileFactory();
-  tileFactory.tileObject = object;
-  fetchTableFields(object.tileContext.table);
-  tileFactory.create();
-}
-
-function getPeriodSelect(tileId) {
-  return $("#" + tileId).find(".period-select").val();
-}
-
-function getGlobalFilters() {
-  return $(".global-filter-period-select").val();
-}
 
 FoxTrot.prototype.addTile = function () {
   var title = $("#tileTitle").val();
@@ -162,7 +133,6 @@ FoxTrot.prototype.addTile = function () {
     var rowObject = panelRow[splitValue[1] - 1];
     clickedRow = rowObject.id
     objectRow = parseInt(splitValue[1]);
-    console.log(panelRow.length);
     isnewRow = false;
   }
 
@@ -203,51 +173,12 @@ FoxTrot.prototype.addTile = function () {
   showHideSideBar();
   removeFilters();
 };
-function addFitlers() {
-  var filterCount = filterRowArray.length;
-  filterRowArray.push(filterCount);
-  var filterRow = '<div class="row filters clearfix" id="filter-row-' + filterCount + '"><div class="col-md-3 no-padding"><select class="selectpicker filter-column filter-background" data-live-search="true"><option>select</option></select></div><div class="col-md-3 no-padding"><select class="selectpicker filter-type filter-background" data-live-search="true"><option>select</option><option value="between">Between</option><option value="greater_equal">Greater than equals</option><option value="greater_than">Greatert than</option><option value="less_equal">Between</option><option value="less_than">Less than equals</option><option value="less_than">Less than</option><option value="equals">Equals</option><option value="not_equals">Not equals</option><option value="contains">Contains</option><option value="last">Last</option><option value="in">In</option></select></div><div class="col-md-5 no-padding"><input type="text" class="form-control filter-value"></div><div class="col-md-1 no-padding filter-delete"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span></div></div>';
-  $(".add-filter-row").append(filterRow);
-  var filterValueEl = $("#filter-row-" + filterCount).find('.filter-delete');
-  var filterType = $("#filter-row-" + filterCount).find('.filter-type');
-  $(filterType).selectpicker('refresh');
-  var filterColumn = $("#filter-row-" + filterCount).find('.filter-column')
-  generateDropDown(currentFieldList, filterColumn);
-  $(filterValueEl).click(function () {
-    deleteFilterRow(this);
-  });
-}
+
 FoxTrot.prototype.addFilters = function () {
   addFitlers();
 }
 
-function showHideForms() {
-  $("#table-units").hide();
-  $("#table-units").find(".table-units-active").removeClass(".table-units-active");
-}
 
-function removeFilters() {
-  $(".filters").remove();
-  filterRowArray = [];
-}
-
-function clearModal() {
-  $("#widgetType").val('');
-  $("#tileTitle").val('');
-  $(".tile-table").val('');
-  $('.tile-table option').last().prop('selected', true);
-  $(".tile-table").selectpicker('refresh');
-  $(".tile-table").change();
-  $("#tileTimeFrame").val('');
-  $(".tile-time-unit").val('minutes');
-  $(".tileId").val('');
-  $(".vizualization-type").show();
-  $(".vizualization-type").removeClass("vizualization-type-active");
-  removeFilters();
-  $("#table-units").hide();
-  $(".chart-type").show();
-  $('.chart-type option').first().prop('selected', true);
-}
 FoxTrot.prototype.resetModal = function () {
   clearModal();
 }
@@ -272,8 +203,8 @@ function clickedChartType(el) {
 }
 
 function saveConsole() {
-  if(globalData.length > 0) {
-    var name = currentConsoleName ==  undefined ? $(".dashboard-name").val() : currentConsoleName;
+  if(globalData.length > 0 && currentConsoleName !=  undefined) {
+    var name =  currentConsoleName;
     for(var i = 0; i < globalData.length; i++) {
       var secArray = globalData[i].tileData;
       for(var key in  secArray) {
@@ -284,7 +215,7 @@ function saveConsole() {
       }
     }
     var representation = {
-      id: name.trim().toLowerCase().split(' ').join("")
+      id: name.trim().toLowerCase().split(' ').join("_")
       , name: name
       , sections: globalData
     };
@@ -338,29 +269,39 @@ function generateTabBtnForConsole(array) {
   $('.tab button:first').addClass('active');
 }
 
-function loadParticularConsole() {
-  var selectedConsole = $("#listConsole").val();
+function setListConsole(value) {
+  $("#listConsole").val(value);
+}
+
+function getConsoleById(selectedConsole) {
   $.ajax({
     url: apiUrl+("/v2/consoles/" +selectedConsole),
     type: 'GET',
     contentType: 'application/json',
     success: function(res) {
       currentConsoleName = res.name;
-      $(".dashboard-name").val(res.name);
       clearContainer();
       globalData = [];
       globalData = res.sections;
       generateTabBtnForConsole(res);
       renderTilesObject(res.sections[0].id);
       getTables();
+      setTimeout(function() { setListConsole(selectedConsole); }, 2000);
     },
     error: function() {
       error("Could not save console");
+      setListConsole(selectedConsole);
     }
   })
 }
 
+function loadParticularConsole() {
+  var selectedConsole = $("#listConsole").val();
+  window.location.assign("?console=" + selectedConsole);
+}
+
 function renderTilesObject(currentTabName) {
+  showDashboardBtn();
   var tabIndex = globalData.findIndex(x => x.id == currentTabName.trim().toLowerCase().split(' ').join("_"));
   if (tabIndex >= 0) {
     tileList = globalData[tabIndex].tileList;
@@ -368,6 +309,7 @@ function renderTilesObject(currentTabName) {
     for (var i = 0; i < tileList.length; i++) {
       renderTiles(tileData[tileList[i]]);
     }
+    fetchTableFields();
   }
 }
 
@@ -432,15 +374,42 @@ function generateSectionbtn(tabName, isNew) {
       }
     }
   }
-  console.log($(".tab").find("#add-page").length);
-  if($(".tab").find("#add-page").length == 0) {
-    $(".tab").append('<span id="add-page" data-target="#addTab" data-toggle="modal" data-backdrop="false">+Add page</span>');
-  }
+}
+
+function clearForms() {
+  clearModal();
+  clearContainer();
+  globalData = [];
+  tileData = {};
+  tileList = [];
+  panelRow = [];
+}
+
+function showDashboardBtn() {
+  $("#saveConsole").show();
+  $("#default-btn").show();
+  $(".global-filters").show();
+  $("#add-page-btn").show();
+}
+
+function createDashboard() {
+  var tabName = $("#tab-name").val();
+  var dashboardName = $(".dashboard-name").val();
+  currentConsoleName = dashboardName;
+  $(".tab").empty();
+  generateSectionbtn(tabName, true);
+  $("#addDashboard").modal('hide');
+  $(".dashboard-name").val('');
+  $("#tab-name").val('');
+  $("#listConsole").val('none');
+  clearForms();
+  showDashboardBtn();
 }
 
 function addSections() {
-  var tabName = $("#tab-name").val();
+  var tabName = $("#section-name").val();
   generateSectionbtn(tabName, true);
+  $("#section-name").val('');
 }
 function clearFilterValues() {
   $(".filter_values").empty();
@@ -448,17 +417,17 @@ function clearFilterValues() {
 
 function showHideSideBar() {
   if( $('#sidebar').is(':visible') ) {
-    $('#sidebar').animate({ 'width': '0px' }, 'slow', function(){
-      $('#sidebar').hide();
-    });
+    $('#sidebar').hide();
     $(".global-filters").css({'flot' :'right'});
     $(".top-error").hide();
+    $('.tile-container').find(".highlight-tile").removeClass('highlight-tile');
   }
   else {
     $('#sidebar').show();
-    $('#sidebar').animate({ 'width': '500px' }, 'slow');
+    $('#sidebar').css({ 'width': '356px' });
   }
 }
+
 $(document).ready(function () {
   var type = $("#widgetType").val();
   var foxtrot = new FoxTrot();
@@ -477,6 +446,9 @@ $(document).ready(function () {
   $("#listConsole").change(function () {
     loadParticularConsole();
   });
+  $("#addDashboardConfirm").click(function() {
+    createDashboard();
+  });
   $("#addTabConfirm").click(function() {
     addSections();
   })
@@ -492,7 +464,7 @@ $(document).ready(function () {
     clickedChartType(this);
   })
 
-  $("#modal-cancel-btn").click(function() {
+  $("#filter-close-btn").click(function() {
     showHideSideBar();
     foxtrot.resetModal();
   })
@@ -500,8 +472,18 @@ $(document).ready(function () {
   $(".filter-switch").change(function () {
     if(this.checked) {
       globalFilters = true;
+      showFilters();
     } else {
       globalFilters = false;
+      hideFilters();
     }
   });
+
+  var consoleId = getParameterByName("console").replace('/','');
+  if(consoleId) {
+    getConsoleById(consoleId);
+    isNewConsole = false;
+  } else {
+    isNewConsole = true;
+  }
 });

@@ -175,7 +175,8 @@ StackedBarTile.prototype.getData = function (data) {
         , fillColor: "#A3A3A3"
         , lines: {
           show: true
-        }
+        },
+        points:{show: (rows.length <= 50 ? true :false)}
         , shadowSize: 0 /*, curvedLines: {apply: true}*/
       });
     }
@@ -206,8 +207,7 @@ StackedBarTile.prototype.render = function (d) {
             opacity: 0.5
                     }]
         }
-      },
-      points:{show:true}
+      }
       , shadowSize: 0
       , curvedLines: { active: true }
     }
@@ -254,6 +254,9 @@ StackedBarTile.prototype.render = function (d) {
       }
       , container: $(chartDiv.find(".legend"))
     }
+    ,highlightSeries: {
+      color: "#FF00FF"
+    }
   });
 
   function showTooltip(x, y, contents, color) {
@@ -267,50 +270,13 @@ StackedBarTile.prototype.render = function (d) {
       'background-color': '#425057',
       opacity: 0.80,
       color: "#fff"
-    }).appendTo("body").fadeIn(200).fadeOut(50000);
+    }).appendTo("body").fadeIn(200).fadeOut(60000);
   }
 
-//  var updateLegendTimeout = null;
-//  var latestPosition = null;
-//
-//  function updateLegend() {
-//    updateLegendTimeout = null;
-//
-//    var pos = latestPosition;
-//
-//    var axes = plot.getAxes();
-//    if (pos.x < axes.xaxis.min || pos.x > axes.xaxis.max || pos.y < axes.yaxis.min || pos.y > axes.yaxis.max) return;
-//
-//    var i, j, dataset = plot.getData();
-//    for (i = 0; i < dataset.length; ++i) {
-//      var series = dataset[i];
-//
-//      // find the nearest points, x-wise
-//      for (j = 0; j < series.data.length; ++j)
-//        if (series.data[j][0] > pos.x) break;
-//
-//      // now interpolate
-//      var y, p1 = series.data[j - 1],
-//          p2 = series.data[j];
-//      if (p1 == null) y = p2[1];
-//      else if (p2 == null) y = p1[1];
-//      else y = p1[1] + (p2[1] - p1[1]) * (pos.x - p1[0]) / (p2[0] - p1[0]);
-//      console.log(y)
-//      console.log(series.label)
-//      showTooltip(pos.x, pos.y, y, "");
-//      chartDiv.find(".legend").eq(i).text(series.label.replace(/=.*/, "= " + y.toFixed(2) + " °C"));
-//    }
-//  }
-//
-//  $(ctx).bind("plothover", function (event, pos, item) {
-//    latestPosition = pos;
-//    if (!updateLegendTimeout) updateLegendTimeout = setTimeout(updateLegend, 50);
-//  });
   var previousPoint = null;
   $(ctx).bind("plothover", function (event, pos, item) {
     if (item) {
       $("#tooltip").remove();
-      console.log(item)
       var hoverSeries = item.series; // what series am I hovering?
       var x = item.datapoint[0],
           y = item.datapoint[1];
@@ -324,7 +290,6 @@ StackedBarTile.prototype.render = function (d) {
             strTip += "</br>"+ p[1] + " for " + "<span style="+s.color+">"+s.label+"<span>";
           }
           else {
-            console.log('===>')
             $("#tooltip").remove();
             previousPoint = null;
           }
@@ -334,5 +299,30 @@ StackedBarTile.prototype.render = function (d) {
     } else {
       $("#tooltip").remove();
     }
+  });
+
+  var re = re = /\(([0-9]+,[0-9]+,[0-9]+)/;
+  console.log(this.object.id)
+  $(chartDiv.find('.legend .legendLabel, .legend .legendColorBox')).on('mouseenter', function() {
+    var label = $(this).text();
+    var allSeries = plot.getData();
+    for (var i = 0; i < allSeries.length; i++){
+      if (allSeries[i].label == $.trim(label)){
+        allSeries[i].oldColor = allSeries[i].color;
+        allSeries[i].color = 'rgba(' + re.exec(allSeries[i].color)[1] + ',' + 1 + ')';
+      } else {
+        allSeries[i].color = 'rgba(' + re.exec(allSeries[i].color)[1] + ',' + 0.1 + ')';
+      }
+    }
+    plot  .draw();
+  });
+
+  $('.legend .legendLabel, .legend .legendColorBox').on('mouseleave', function() {
+    var label = $(this).text();
+    var allSeries = plot.getData();
+    for (var i = 0; i < allSeries.length; i++){
+      allSeries[i].color = 'rgba(' + re.exec(allSeries[i].color)[1] + ',' + 1 + ')';
+    }
+    plot.draw();
   });
 }

@@ -138,22 +138,12 @@ BarTile.prototype.getData = function (data) {
   for (var i = 0; i < ticks.length; i++) {
     tmpLabel += (ticks[i][1] + " ");
   }
-  /*if (tmpLabel.visualLength() <= parentWidth) {
-    xAxisOptions['ticks'] = ticks;
-    xAxisOptions['tickFormatter'] = null;
-  }
-  else {
-    xAxisOptions['ticks'] = null;
-    xAxisOptions['tickFormatter'] = function () {
-      return "";
-    }
-  }*/
+
   xAxisOptions['ticks'] = null;
   xAxisOptions['tickFormatter'] = function () {
     return "";
   }
   this.render(xAxisOptions, columns);
-  console.log(xAxisOptions);
 }
 BarTile.prototype.render = function (xAxisOptions, columns) {
   console.log(columns);
@@ -173,13 +163,12 @@ BarTile.prototype.render = function (xAxisOptions, columns) {
         }
         , barWidth: 0.5
         , align: "center"
-        , lineWidth: 1.0
         , fill: true
         , fillColor: {
           colors: [{
-            opacity: 0.3
+            opacity: 1
           }, {
-            opacity: 0.7
+            opacity: 1
           }]
         }
       }
@@ -209,6 +198,9 @@ BarTile.prototype.render = function (xAxisOptions, columns) {
       }
       , borderColor: "#EEEEEE"
     }
+    ,highlightSeries: {
+      color: "#FF00FF"
+    }
     , tooltip: true
     , tooltipOpts: {
       content: function (label, x, y) {
@@ -224,5 +216,30 @@ BarTile.prototype.render = function (xAxisOptions, columns) {
       , container: $(chartDiv.find(".legend"))
     }
   };
-  $.plot(ctx, columns, chartOptions);
+  var plot = $.plot(ctx, columns, chartOptions);
+
+  $('.legend .legendLabel, .legend .legendColorBox').on('mouseenter', function() {
+    var label = $(this).text();
+    var allSeries = plot.getData();
+    for (var i = 0; i < allSeries.length; i++){
+      if (allSeries[i].label == $.trim(label)){
+        allSeries[i].oldColor = allSeries[i].color;
+        allSeries[i].color = 'black';
+        break;
+      }
+    }
+    plot.draw();
+  });
+
+  $('.legend .legendLabel, .legend .legendColorBox').on('mouseleave', function() {
+    var label = $(this).text();
+    var allSeries = plot.getData();
+    for (var i = 0; i < allSeries.length; i++){
+      if (allSeries[i].label == $.trim(label)){
+        allSeries[i].color = allSeries[i].oldColor;
+        break;
+      }
+    }
+    plot.draw();
+  });
 }

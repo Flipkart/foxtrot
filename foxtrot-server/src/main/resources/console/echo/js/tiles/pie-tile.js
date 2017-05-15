@@ -141,6 +141,9 @@ PieTile.prototype.render = function (columns) {
         }
       }
     }
+    ,highlightSeries: {
+      color: "#FF00FF"
+    }
     , legend: {
       show: true,
       noColumns:getLegendColumn(object.tileContext.widgetType),
@@ -156,6 +159,29 @@ PieTile.prototype.render = function (columns) {
       }
     }
   };
-  $.plot(ctx, columns, chartOptions);
-  //drawLegend(columns, chartDiv.find(".legend").html());
+  var plot = $.plot(ctx, columns, chartOptions);
+  $(chartDiv.find('.legend .legendLabel, .legend .legendColorBox')).on('mouseenter', function() {
+    var label = $(this).text();
+    var allSeries = plot.getData();
+    for (var i = 0; i < allSeries.length; i++){
+      if (allSeries[i].label == $.trim(label)){
+        allSeries[i].oldColor = allSeries[i].color;
+        allSeries[i].color = 'black';
+        break;
+      }
+    }
+    plot  .draw();
+  });
+
+  $(chartDiv.find('.legend .legendLabel, .legend .legendColorBox')).on('mouseleave', function() {
+    var label = $(this).text();
+    var allSeries = plot.getData();
+    for (var i = 0; i < allSeries.length; i++){
+      if (allSeries[i].label == $.trim(label)){
+        allSeries[i].color = allSeries[i].oldColor;
+        break;
+      }
+    }
+    plot.draw();
+  });
 }

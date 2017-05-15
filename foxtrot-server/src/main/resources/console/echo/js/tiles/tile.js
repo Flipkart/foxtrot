@@ -52,9 +52,9 @@ function refereshTiles() {
   }
 }
 
-/*setInterval(function () {
+setInterval(function () {
   refereshTiles();
-}, 6000);*/
+}, 6000);
 
 function pushTilesObject(object) {
   tileData[object.id] = object;
@@ -76,7 +76,6 @@ function pushTilesObject(object) {
       globalData.push(tempObject);
     }
   }
-  console.log(tempObject);
 }
 
 TileFactory.prototype.updateTileData = function () {
@@ -138,17 +137,20 @@ function setConfigValue(object) {
   }
 }
 
-function clearForm() {
-  var form = $("#tile-configuration").find("form");
-  form.find(".tile-title").val('');
-  form.find(".tile-table").val('');
-  form.find(".tile-time-unit").val('');
-  form.find(".tile-time-value").val('');
-  form.find(".tile-chart-type").val('');
-}
-
-function newBtnElement() {
-  return "<div class='col-md-2 custom-btn-div'><button data-target='#addWidgetModal' class='tile-add-btn tile-add-btn btn btn-primary filter-nav-button glyphicon glyphicon-plus custom-add-btn'onClick='setClicketData(this)'  data-toggle='modal' id='row-" + row + "'></button><div>"
+function newBtnElement(widget) {
+  var columnSize = "";
+  var height = "";
+  var customClass = "";
+  if(widget == "medium") {
+    columnSize = "col-md-6";
+    height = 500;
+    customClass = "medium-btn-color";
+  } else {
+    columnSize = "col-md-3";
+    height= 220;
+    customClass = "small-btn-color";
+  }
+  return "<div class='"+columnSize+" custom-btn-div' style='height:"+height+"px;'><button data-target='#addWidgetModal' class='tile-add-btn tile-add-btn btn btn-primary filter-nav-button  custom-add-btn "+customClass+"'onClick='setClicketData(this)'  data-toggle='modal' id='row-" + row + "'>+Add widget</button><div>"
 }
 // create new div
 TileFactory.prototype.createNewRow = function (tileElement) {
@@ -169,8 +171,8 @@ TileFactory.prototype.createNewRow = function (tileElement) {
     row = panelRow.length;
     tileElement.addClass("row-" + row);
   }
-  if (this.tileObject.tileContext.widgetType != "full" && currentConsoleName == undefined) // dont add row add button for full widget
-    tileElement.append(newBtnElement());
+  if (this.tileObject.tileContext.widgetType != "full" && isNewConsole) // dont add row add button for full widget
+    tileElement.append(newBtnElement(this.tileObject.tileContext.widgetType));
   return tileElement;
 }
 TileFactory.prototype.updateFilterCreation = function (object) {
@@ -179,7 +181,7 @@ TileFactory.prototype.updateFilterCreation = function (object) {
   var tileListIndex = tileList.indexOf(object.id);
   var tileDataIndex = tileData[tileListIndex];
   var selectedTileObject = tileData[object.id];
-  if ($("#listConsole").val() == "none") { // this is for without console
+  if (object.tileContext.tableFields != undefined) { // this is for without console
     currentFieldList = object.tileContext.tableFields;
   }
   else { // with console
@@ -219,8 +221,9 @@ TileFactory.prototype.updateFilters = function (filters) {
   var temp = [];
   instanceVar.tileObject.tileContext.uiFiltersSelectedList = arr_diff(instanceVar.tileObject.tileContext.uiFiltersList, filters)
 }
-  // Filter configuration
+// Filter configuration
 TileFactory.prototype.triggerFilter = function (tileElement, object) {
+  if(object.tileContext.chartType != "radar" && object.tileContext.chartType != "line" && object.tileContext.chartType != "stacked") {
     var instanceVar = this;
     tileElement.find(".widget-toolbox").find(".filter").click(function () {
       clearFilterValues();
@@ -250,11 +253,13 @@ TileFactory.prototype.triggerFilter = function (tileElement, object) {
       fv.multiselect('refresh');
     });
   }
-  // Add click event for tile config icon
+}
+// Add click event for tile config icon
 TileFactory.prototype.triggerConfig = function (tileElement, object) {
   var instanceVar = this;
   tileElement.find(".widget-toolbox").find(".glyphicon-cog").click(function () {
     showHideSideBar();
+    $('.tile-container').find("#"+object.id).addClass('highlight-tile');
     //$("#addWidgetModal").modal('show');
     $("#sidebar").find(".tileId").val(object.id);
     $("#sidebar").find("#modal-heading").hide();
@@ -265,15 +270,15 @@ TileFactory.prototype.triggerConfig = function (tileElement, object) {
   });
 }
 TileFactory.prototype.triggerChildBtn = function (tileElement, object) {
-    var instanceVar = this;
-    tileElement.find(".add-child-btn").find(".child-btn").click(function () {
-      $("#addWidgetModal").modal('show');
-      $("#addWidgetModal").find(".child-tile").val('true');
-      $(".vizualization-type").hide();
-      instanceVar.updateFilterCreation(object);
-    });
-  }
-  // Save action for tile config save button
+  var instanceVar = this;
+  tileElement.find(".add-child-btn").find(".child-btn").click(function () {
+    $("#addWidgetModal").modal('show');
+    $("#addWidgetModal").find(".child-tile").val('true');
+    $(".vizualization-type").hide();
+    instanceVar.updateFilterCreation(object);
+  });
+}
+// Save action for tile config save button
 TileFactory.prototype.saveTileConfig = function (object) {
   $("#tile-configuration").find(".save-changes").click(function () {
     var form = $("#tile-configuration").find("form");
@@ -354,34 +359,6 @@ TileFactory.prototype.create = function () {
     }
   }
 
-  /*if (defaultPlusBtn) { // check its new row
-    tileElement = this.createNewRow(tileElement)
-  }
-  else { // row button action
-    var splitValue = customBtn.id.split("-");
-    var rowObject = panelRow[splitValue[1] - 1];
-    clickedRow = rowObject.id
-    row = splitValue[1];
-    if (this.tileObject.tileContext.widgetType != rowObject.widgetType) { // f choosen type and row type is not equal
-      tileElement = this.createNewRow(tileElement);
-      defaultPlusBtn = true;
-    }
-    if (this.tileObject.tileContext.widgetType == 'small' && rowObject.widgetType == 'small') {
-      var findElement = $("." + customBtn.id);
-      var column1Length = findElement.find(".row-col-1").length;
-      if (column1Length == 0 || column1Length == 2) {
-        if (column1Length == 0) {
-          tileElement.addClass('row-col-1 col-sm-3');
-        }
-        else if (column1Length == 2) {
-          tileElement.addClass('row-col-2 col-sm-3');
-        }
-        var rowCol2Length = findElement.find(".row-col-2").length;
-        if (rowCol2Length == 0) tileElement.append("<div class='widget-add-btn'><button data-target='#addWidgetModal' class='tile-add-btn tile-add-btn btn btn-primary filter-nav-button glyphicon glyphicon-plus custom-add-btn row-col-1'onClick='setClicketData(this)'  data-toggle='modal' id='row-" + splitValue[1] + "'></button><div>");
-      }
-    }
-  }*/
-
   if (this.tileObject.tileContext.widgetType == "full") {
     tileElement.find(".tile").addClass('col-sm-12');
   }
@@ -397,13 +374,14 @@ TileFactory.prototype.create = function () {
     tileElement.find(".widget-header").height(68);
     tileElement.find(".widget-header > .tile-title").css("font-size", "12px");
     tileElement.find(".widget-header > .tile-title").css("width", "112px");
+    tileElement.find(".widget-header > .tile-title").addClass("small-widget-title");
   }
   if (this.tileObject.tileContext.chartType == "radar") {
     tileElement.find(".trend-chart").remove();
     tileElement.find(".chart-item").addClass("radar-chart");
   }
   else if (this.tileObject.tileContext.chartType == "line" || this.tileObject.tileContext.chartType == "stacked" || this.tileObject.tileContext.chartType == "stackedBar" || this.tileObject.tileContext.chartType == "pie" || this.tileObject.tileContext.chartType == "statsTrend" || this.tileObject.tileContext.chartType == "bar") {
-    tileElement.find(".widget-header").append('<div id="' + this.tileObject.id + '-health-text" class="lineGraph-health-text">No Data available</div>');
+    /*tileElement.find(".widget-header").append('<div id="' + this.tileObject.id + '-health-text" class="lineGraph-health-text">No Data available</div>');*/
     tileElement.find(".widget-header").append('<div id="' + this.tileObject.id + '-health" style=""></div>');
     tileElement.find(".chart-item").append('<div id="' + this.tileObject.id + '"></div>');
     tileElement.find(".chart-item").append("<div class='legend col-sm-12'></div>")
