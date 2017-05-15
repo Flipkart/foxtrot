@@ -97,7 +97,8 @@ h1 {
   height: 100%;
   box-sizing: border-box;
   padding-top: 28px;
-  margin-left: 6px;
+  margin-left: 15px;
+  overflow: hidden;
 }
 
 .bootstrap-select> .btn {
