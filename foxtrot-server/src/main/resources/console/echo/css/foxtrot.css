@@ -601,7 +601,6 @@ h1 {
   float: left;
   right: 11px;
   position: relative;
-  height: 32px;
   top: -2px;
   width: 33px;
 }
@@ -614,7 +613,6 @@ h1 {
 
 .settings-icon {
   position: relative;
-  right: 5px;
   top: 2px;
 }
 
@@ -797,7 +795,7 @@ th, td {
 
 .global-filters{
   float: right;
-  border: 1px solid #aeb8bd;
+  border: 1px solid #d0d7e7;
   top: 27px;
   right: 21px;
   padding: 7px;
@@ -1185,7 +1183,6 @@ input[type="checkbox"].tinyswitch.ios-switch:checked + div > div {
 
 .reduce-settings-icon {
   right: -1px;
-  width: 20px;
 }
 
 .sidebar-tile {
@@ -1452,4 +1449,12 @@ select {
 
 div.tab button:first-child {
   padding-left: 0px;
+}
+
+.filter>img:hover {
+  background-image: url('../img/Filter_hover.png');
+}
+
+.settings-icon:hover {
+  background-image: url('../img/Setings_hover.png');
 }
