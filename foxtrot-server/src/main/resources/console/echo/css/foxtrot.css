@@ -992,6 +992,10 @@ th, td {
   box-shadow: none;
 }
 
+#sidebar input:hover {
+  border: 1px solid #fff;
+}
+
 #sidebar-filter-heading {
   font-size: 14px;
   font-weight: bold;
@@ -1073,6 +1077,7 @@ th, td {
   color: #fff !important;
   outline: none;
   box-shadow: none;
+  border: 1px solid #fff !important;
 }
 
 .btn-group.open .dropdown-toggle {
@@ -1081,11 +1086,20 @@ th, td {
 }
 
 .dropdown-menu>.active>a, .dropdown-menu>.active>a:hover, .dropdown-menu>.active>a:focus {
-  background: #718590 !important;
+  background: #0E6650 !important;
+}
+
+.bootstrap-select:hover .btn:hover {
+  border: 1px solid #fff;
 }
 
 .dropdown-menu>li>a:hover, .dropdown-menu>li>a:focus {
-  background: #718590 !important;
+  background: #50e3c2 !important;
+  color: #0E6650;
+}
+
+.dropdown-menu>.active>a, .dropdown-menu>.active>a:hover, .dropdown-menu>.active>a:focus {
+  background: #50e3c2 !important;
   color: #fff;
 }
 
@@ -1462,4 +1476,22 @@ div.tab button:first-child {
 
 .settings-icon:hover {
   background-image: url('../img/Setings_hover.png');
+}
+
+.bs-searchbox, .bs-actionsbox {
+  background: #fff;
+}
+
+.bs-searchbox>input {
+  border: none !important;
+  border-bottom: 1px solid #8595C0 !important;
+  color: #000 !important;
+}
+
+#sidebar > .btn-group>.btn:hover, .btn-group-vertical>.btn:hover, .btn-group>.btn:focus, .btn-group-vertical>.btn:focus, .btn-group>.btn:active, .btn-group-vertical>.btn:active, .btn-group>.btn.active, .btn-group-vertical>.btn.active {
+  border: 1px solid #fff !important;
+}
+
+.filter-value:hover {
+  border: 1px solid #fff !important;
 }
