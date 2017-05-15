@@ -400,7 +400,7 @@ h1 {
 
 .trend-value-big {
   font-size: 32px;
-  color: #859FC0;
+  color: #1E3F67;
   margin: 0px;
   font-family: Oswald Light !important;
   margin-top: 74px;
@@ -541,15 +541,14 @@ h1 {
 .gauge-percentage {
   width: 73px;
   height: 53px;
-  font-family: "oswald-bold";
+  font-family: Oswald Light !important;
   font-size: 36px;
-  font-weight: 600;
   font-style: normal;
   font-stretch: normal;
   line-height: normal;
   letter-spacing: normal;
   text-align: center;
-  color: #859FC0 !important;
+  color: #1E3F67 !important;
   margin-left: 69px;
   margin-bottom: -13px;
 }
