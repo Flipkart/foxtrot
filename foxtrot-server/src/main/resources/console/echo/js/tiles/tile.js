@@ -52,9 +52,9 @@ function refereshTiles() {
   }
 }
 
-setInterval(function () {
-  refereshTiles();
-}, 6000);
+//setInterval(function () {
+//  refereshTiles();
+//}, 6000);
 
 function pushTilesObject(object) {
   tileData[object.id] = object;
@@ -411,6 +411,16 @@ TileFactory.prototype.create = function () {
   else if (this.tileObject.tileContext.widgetType == "medium") {
     tileElement.find(".widget-header").addClass('reduce-widget-header-size');
   }
+
+  var periodSelectElement = tileElement.find(".period-select");
+
+  var timeFrame = this.tileObject.tileContext.timeframe;
+  var optionValue = timeFrame+getPeroidSelectString(this.tileObject.tileContext.period);
+  var labelString = this.tileObject.tileContext.period;
+  var optionLabel = (parseInt(this.tileObject.tileContext.timeframe) <= 1 ? labelString.substring(0, labelString.length - 1)  : labelString);
+  console.log(labelString.substring(0, labelString.length - 1));
+  $(periodSelectElement).prepend('<option selected value='+optionValue+'>'+timeFrame+'  '+optionLabel+'</option>');
+
   this.createGraph(this.tileObject, tileElement);
   this.triggerConfig(tileElement, this.tileObject); // add event for tile config
   this.triggerFilter(tileElement, this.tileObject);

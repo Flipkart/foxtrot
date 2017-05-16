@@ -328,3 +328,13 @@ function deleteWidget(id) {
   var idx = tileList.indexOf(id);
   if (idx != -1) tileList.splice(idx, 1);
 }
+
+function getPeroidSelectString(string) {
+  if(string == "minutes") {
+    return 'm';
+  } else if(string == "hours") {
+    return 'h';
+  } else if(string == "days") {
+    return 'd';
+  }
+}
