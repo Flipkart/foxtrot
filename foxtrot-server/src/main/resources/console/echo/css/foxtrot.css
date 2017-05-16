@@ -1547,3 +1547,10 @@ div.tab button:first-child {
 .delete-widget-btn:hover {
   color: #fff;
 }
+
+#delete-widget-divider {
+  position: relative;
+  bottom: -20px;
+  border: 1px solid #797A7D;
+  display: none;
+}

@@ -425,6 +425,8 @@ function showHideSideBar() {
   else {
     $('#sidebar').show();
     $('#sidebar').css({ 'width': '356px' });
+    $(".delete-widget").hide();
+    $("#delete-widget-divider").hide();
   }
 }
 
