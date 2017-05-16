@@ -281,13 +281,15 @@ StackedBarTile.prototype.render = function (d) {
       var x = item.datapoint[0],
           y = item.datapoint[1];
       var color = item.series.color;
-      var strTip = y + " for " + item.series.label; // start string with current hover
+
+      var a = axisTimeFormatNew(object.tileContext.period, (globalFilters ? getGlobalFilters() : getPeriodSelect(object.id)));
+      var strTip = y + " for " + item.series.label + " at "+moment(x).format(a); // start string with current hover
       var allSeries = plot.getData();
       $.each(allSeries, function(i,s){ // loop all series
         if (s == hoverSeries) return; // if the loop series is my hover, just keep going
         $.each(s.data, function(j,p){
           if (p[0] == x){  // if my hover x == point x add to string
-            strTip += "</br>"+ p[1] + " for " + "<span style="+s.color+">"+s.label+"<span>";
+            strTip += "</br>"+ p[1] + " for " + "<span style="+s.color+">"+s.label+"<span>"+ " at "+moment(x).format(a);
           }
           else {
             $("#tooltip").remove();

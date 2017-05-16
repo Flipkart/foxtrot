@@ -75,6 +75,17 @@ function axisTimeFormat(periodUnit, customPeriod) {
   return "%e %b";
 }
 
+function axisTimeFormatNew(periodUnit, customPeriod) {
+  var period = periodFromWindow(periodUnit, customPeriod);
+  if (period == "hours" || period == "minutes") {
+    return "HH:MM ss";
+  }
+  if (period == "days") {
+    return "DD MMM";
+  }
+  return "HH:MM ss";
+}
+
 function findIndex(currentTabName) {
   var index = -1;
   for (var i = 0; i < globalData.length; i++) {
