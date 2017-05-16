@@ -266,7 +266,8 @@ TileFactory.prototype.triggerConfig = function (tileElement, object) {
     $(".vizualization-type").hide();
     $(".chart-type").hide();
     setTimeout(function() { instanceVar.updateFilterCreation(object); }, 2000);
-
+    $(".delete-widget").show();
+    $("#delete-widget-value").val(object.id);
   });
 }
 TileFactory.prototype.triggerChildBtn = function (tileElement, object) {

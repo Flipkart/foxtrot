@@ -321,3 +321,10 @@ function unique(list) {
 function numberWithCommas(x) {
   return x.toLocaleString();
 }
+
+function deleteWidget(id) {
+  showHideSideBar();
+  delete tileData[id];
+  var idx = tileList.indexOf(id);
+  if (idx != -1) tileList.splice(idx, 1);
+}

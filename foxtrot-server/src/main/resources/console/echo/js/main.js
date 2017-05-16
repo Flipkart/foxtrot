@@ -486,4 +486,10 @@ $(document).ready(function () {
   } else {
     isNewConsole = true;
   }
+
+  $(".delete-widget-btn").click( function() {
+    var id = $("#delete-widget-value").val();
+    $(".tile-container").find('#'+id).remove();
+    deleteWidget(id);
+  })
 });
