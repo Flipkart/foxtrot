@@ -402,6 +402,7 @@ function createDashboard() {
   generateSectionbtn(tabName, true);
   $("#addDashboard").modal('hide');
   $(".dashboard-name").val('');
+  $(".save-dashboard-name").val(currentConsoleName);
   $("#tab-name").val('');
   $("#listConsole").val('none');
   clearForms();
