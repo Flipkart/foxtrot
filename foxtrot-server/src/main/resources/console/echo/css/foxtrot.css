@@ -869,6 +869,7 @@ th, td {
   background-color: #485962;
   margin-top: 100px;
   margin-left: 95px;
+  height: 380px;
 }
 
 #add-tab-heading h1 {
@@ -877,7 +878,7 @@ th, td {
   font-size: 32px;
   font-weight: 300;
   text-align: center;
-  color: #c4d4dc;
+  color: #50e3c2;
   padding-top: 38px;
 }
 
@@ -1295,6 +1296,7 @@ input[type="checkbox"].tinyswitch.ios-switch:checked + div > div {
   width: 372px;
   background-color: #485962;
   margin-left: 95px;
+  height: 270px;
 }
 .radar-chart .axis .legend {
   font-family: Open Sans !important;
@@ -1617,7 +1619,7 @@ div.tab button:first-child {
   background: none;
   color: #d3d2d3;
   font-weight: normal;
-  margin-top: 12px;
+  margin-top: 3px;
   font-family: Open Sans Regular;
 }
 
@@ -1629,7 +1631,7 @@ div.tab button:first-child {
   overflow: hidden;
   text-align: center;
   position: relative;
-  top: -12px;
+  top: -26px;
 }
 
 
@@ -1637,7 +1639,7 @@ div.tab button:first-child {
   position: relative;
   float: right;
   right: 93px;
-  bottom: 312px;
+  bottom: 270px;
   width: 40px;
   height: 37px;
   background-color: #33434b;
@@ -1651,7 +1653,7 @@ div.tab button:first-child {
   position: relative;
   float: right;
   right: 95px;
-  bottom: 437px;
+  bottom: 380px;
   width: 40px;
   height: 37px;
   background-color: #33434b;
@@ -1669,6 +1671,8 @@ div.tab button:first-child {
 
 .add-dashboard-btn-div {
   text-align:center;
+  position: relative;
+  bottom: 28px;
 }
 
 .add-dashboard-close {
@@ -1676,7 +1680,7 @@ div.tab button:first-child {
   background: none;
   color: #d3d2d3;
   font-weight: normal;
-  margin-top: 12px;
+  margin-top: 0px;
   font-family: Open Sans Regular;
 }
 
