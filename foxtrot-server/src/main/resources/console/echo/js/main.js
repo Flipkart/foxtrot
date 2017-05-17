@@ -214,8 +214,9 @@ function saveConsole() {
         delete deleteObject.tileContext.tableDropdownIndex;
       }
     }
+    var convertedName = name.trim().toLowerCase().split(' ').join("_");
     var representation = {
-      id: name.trim().toLowerCase().split(' ').join("_")
+      id: convertedName
       , name: name
       , sections: globalData
     };
@@ -227,6 +228,8 @@ function saveConsole() {
       data: JSON.stringify(representation),
       success: function(resp) {
         alert('console saved sucessfully');
+        window.location.assign("?console=" + convertedName);
+
       },
       error: function() {
         error("Could not save console");
