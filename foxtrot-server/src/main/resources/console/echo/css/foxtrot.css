@@ -1543,7 +1543,8 @@ div.tab button:first-child {
   background: #F96073;
   color: #fff;
   width: 200px;
-  height: 50px;
+  border: none;
+  height: 30px;
 }
 
 .delete-widget-btn:hover {
