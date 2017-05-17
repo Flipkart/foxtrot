@@ -934,6 +934,22 @@ th, td {
   color: #42b1f7;
 }
 
+.save-dashboard-tab-btn {
+  width: 292px;
+  background-color: #32a6f9;
+  margin-top: 40px;
+  color: #fff;
+  text-align: center;
+  height: 40px;
+  padding: 0px 0px;
+  font-family: Open Sans Regular;
+}
+
+.save-dashboard-tab-btn:hover {
+  background: #fff;
+  color: #42b1f7;
+}
+
 #addTab > .modal-dialog {
   margin: 85px auto;
 }
@@ -1627,6 +1643,19 @@ div.tab button:first-child {
   color: #fff;
 }
 
+.save-dashboard-close {
+  border: none;
+  background: none;
+  color: #d3d2d3;
+  font-weight: normal;
+  margin-top: 3px;
+  font-family: Open Sans Regular;
+}
+
+.save-dashboard-close:hover {
+  color: #fff;
+}
+
 .add-page-btn-div {
   overflow: hidden;
   text-align: center;
@@ -1686,4 +1715,68 @@ div.tab button:first-child {
 
 .add-dashboard-close:hover {
   color: #fff;
+}
+
+#save-dashboard-modal {
+  width: 372px;
+  background-color: #485962;
+  margin-left: 95px;
+  height: 270px;
+}
+
+#save-dashboard-model-heading {
+  height: 43px;
+  font-family: Open Sans;
+  font-size: 32px;
+  font-weight: 300;
+  text-align: center;
+  color: #50e3c2;
+  padding-top: 23px;
+}
+
+#save-dashboard-model-heading-underline {
+  width: 60px;
+  border: solid 1px #c4d4dc;
+  margin-top: 14px;
+}
+
+.save-dashboard-form {
+  margin-top: 60px;
+  position: relative;
+  right: 29px;
+}
+
+.save-dashboard-form {
+  margin-left: 63px;
+  margin-top: 33px;
+}
+
+.save-dashboard-form label {
+  color: #c4d4dc;
+  font-family: Open Sans Regular;
+}
+
+.save-dashboard-form input {
+  background: none;
+  border: none;
+  border: 1px solid #c4d4dc;
+  color: #fff;
+  outline: none;
+  box-shadow: none;
+  height: 40px;
+}
+
+.save-dashboard-form input:hover {
+  border: 1px solid #35dbb1;
+}
+
+.save-dashboard-form input:focus {
+  outline: none;
+  box-shadow: none;
+}
+
+.add-page-form {
+  width: 292px;
+  margin-left: 20px;
+  padding-right: 20px;
 }

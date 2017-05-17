@@ -271,6 +271,7 @@ function generateTabBtnForConsole(array) {
 
 function setListConsole(value) {
   $("#listConsole").val(value);
+  $("#save-dashboard-name").val(currentConsoleName);
 }
 
 function getConsoleById(selectedConsole) {
@@ -298,6 +299,7 @@ function getConsoleById(selectedConsole) {
 function loadParticularConsole() {
   var selectedConsole = $("#listConsole").val();
   window.location.assign("?console=" + selectedConsole);
+  $("#save-dashboard-name").val(currentConsoleName);
 }
 
 function renderTilesObject(currentTabName) {
@@ -442,7 +444,8 @@ $(document).ready(function () {
     $(".settings-form").find("input[type=text], textarea").val("");
   });
   foxtrot.init();
-  $("#saveConsole").click(function () {
+  $("#save-dashboard-tab-btn").click(function () {
+    currentConsoleName = $("#save-dashboard-name").val();
     saveConsole();
   });
   $("#listConsole").change(function () {

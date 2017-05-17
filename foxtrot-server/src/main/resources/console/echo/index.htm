@@ -115,6 +115,29 @@
         <div id="add-page-side-close" data-dismiss="modal" ><img src="img/combined-shape.png"></div>
       </div>
     </div>
+    <div class="modal fade" id="save-dashboard" tabindex="-2" role="dialog" aria-labelledby="addSections" aria-hidden="true">
+      <div class="modal-dialog">
+        <div id="save-dashboard-modal">
+          <div id="save-dashboard-model-heading">
+            <h1>Save Dashboard</h1>
+            <hr id="save-dashboard-model-heading-underline"/>
+          </div>
+          <div class="save-dashboard-form">
+            <form class="add-page-form">
+              <div class="form-group">
+                <label class="control-label" for="widgetType"><strong>Dashboard Name</strong></label>
+                <input type="text" class="form-control save-dashboard-name" id="save-dashboard-name">
+              </div>
+              <div class="form-group add-page-btn-div">
+                <button type="button" class="btn save-dashboard-tab-btn" id="save-dashboard-tab-btn">Save</button>
+                <button type="button" class="btn save-dashboard-close" data-dismiss="modal">Cancel</button>
+              </div>
+            </form>
+          </div>
+        </div>
+        <div id="add-page-side-close" data-dismiss="modal" ><img src="img/combined-shape.png"></div>
+      </div>
+    </div>
     <section id="main-content">
       <div class="container-fluid" id="monitoring">
         <div>
@@ -122,7 +145,7 @@
           <div class="col-md-4 widget-btns">
             <div>
               <button type="button" id="add-page-btn" data-target="#addTab" data-toggle="modal">Add page</button>
-              <button type="button" class="" id="saveConsole">Save Dashboard</button>
+              <button type="button" data-target="#save-dashboard" data-toggle="modal" id="saveConsole">Save Dashboard</button>
             </div>
           </div>
           <div class="col-sm-3 global-filters">
