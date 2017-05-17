@@ -893,15 +893,21 @@ th, td {
 
 .add-tab-form label {
   color: #c4d4dc;
+  font-family: Open Sans Regular;
 }
 
 .add-tab-form input {
   background: none;
   border: none;
-  border-bottom: 2px solid #c4d4dc;
+  border: 1px solid #c4d4dc;
   color: #fff;
   outline: none;
   box-shadow: none;
+  height: 40px;
+}
+
+.add-tab-form input:hover {
+  border: 1px solid #35dbb1;
 }
 
 .add-tab-form input:focus {
@@ -910,9 +916,19 @@ th, td {
 }
 
 .add-tab-btn {
-  width: 301px;
+  width: 292px;
   background-color: #32a6f9;
   margin-top: 40px;
+  color: #fff;
+  text-align: center;
+  height: 40px;
+  padding: 0px 0px;
+  font-family: Open Sans Regular;
+}
+
+.add-tab-btn:hover {
+  background: #fff;
+  color: #42b1f7;
 }
 
 #addTab > .modal-dialog {
@@ -1263,20 +1279,20 @@ input[type="checkbox"].tinyswitch.ios-switch:checked + div > div {
   font-size: 32px;
   font-weight: 300;
   text-align: center;
-  color: #c4d4dc;
+  color: #50e3c2;
   padding-top: 23px;
 }
 
 #add-tab-model-heading-underline {
   width: 60px;
   border: solid 1px #c4d4dc;
-  margin-top: 11px;
+  margin-top: 14px;
 }
 
 #add-tab-modal {
-  width: 460px;
-  height: 326px;
+  width: 372px;
   background-color: #485962;
+  margin-left: 95px;
 }
 .radar-chart .axis .legend {
   font-family: Open Sans !important;
@@ -1411,8 +1427,9 @@ div.tab button:last-child {
 }
 
 .new-tab-form {
-  margin-left: 63px;
   margin-top: 60px;
+  position: relative;
+  right: 29px;
 }
 
 .sidebar-widget-btns {
@@ -1562,4 +1579,45 @@ div.tab button:first-child {
   bottom: -20px;
   border: 1px solid #797A7D;
   display: none;
+}
+
+.add-page-close {
+  border: none;
+  background: none;
+  color: #d3d2d3;
+  font-weight: normal;
+  margin-top: 12px;
+  font-family: Open Sans Regular;
+}
+
+.add-page-close:hover {
+  color: #fff;
+}
+
+.add-page-btn-div {
+  overflow: hidden;
+  text-align: center;
+  position: relative;
+  top: -12px;
+}
+
+
+#add-page-side-close {
+  position: relative;
+  float: right;
+  right: 93px;
+  bottom: 339px;
+  width: 40px;
+  height: 37px;
+  background-color: #33434b;
+}
+
+#add-page-side-close img {
+  padding: 12px;
+}
+
+.add-page-form {
+  width: 292px;
+  margin-left: 20px;
+  padding-right: 20px;
 }
