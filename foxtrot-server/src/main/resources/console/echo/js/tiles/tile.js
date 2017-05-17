@@ -150,7 +150,7 @@ function newBtnElement(widget) {
     height= 220;
     customClass = "small-btn-color";
   }
-  return "<div class='"+columnSize+" custom-btn-div' style='height:"+height+"px;'><button data-target='#addWidgetModal' class='tile-add-btn tile-add-btn btn btn-primary filter-nav-button  custom-add-btn "+customClass+"'onClick='setClicketData(this)'  data-toggle='modal' id='row-" + row + "'>+Add widget</button><div>"
+  return "<div class='"+columnSize+" custom-btn-div' style='height:"+height+"px;'><button data-target='#addWidgetModal' class='tile-add-btn tile-add-btn filter-nav-button  custom-add-btn "+customClass+"'onClick='setClicketData(this)'  data-toggle='modal' id='row-" + row + "'>+Add widget</button><div>"
 }
 // create new div
 TileFactory.prototype.createNewRow = function (tileElement) {
@@ -266,7 +266,9 @@ TileFactory.prototype.triggerConfig = function (tileElement, object) {
     $(".vizualization-type").hide();
     $(".chart-type").hide();
     setTimeout(function() { instanceVar.updateFilterCreation(object); }, 2000);
-
+    $(".delete-widget").show();
+    $("#delete-widget-divider").show();
+    $("#delete-widget-value").val(object.id);
   });
 }
 TileFactory.prototype.triggerChildBtn = function (tileElement, object) {
@@ -409,6 +411,16 @@ TileFactory.prototype.create = function () {
   else if (this.tileObject.tileContext.widgetType == "medium") {
     tileElement.find(".widget-header").addClass('reduce-widget-header-size');
   }
+
+  var periodSelectElement = tileElement.find(".period-select");
+
+  var timeFrame = this.tileObject.tileContext.timeframe;
+  var optionValue = timeFrame+getPeroidSelectString(this.tileObject.tileContext.period);
+  var labelString = this.tileObject.tileContext.period;
+  var optionLabel = (parseInt(this.tileObject.tileContext.timeframe) <= 1 ? labelString.substring(0, labelString.length - 1)  : labelString);
+  console.log(labelString.substring(0, labelString.length - 1));
+  $(periodSelectElement).prepend('<option selected value='+optionValue+'>'+timeFrame+'  '+optionLabel+'</option>');
+
   this.createGraph(this.tileObject, tileElement);
   this.triggerConfig(tileElement, this.tileObject); // add event for tile config
   this.triggerFilter(tileElement, this.tileObject);

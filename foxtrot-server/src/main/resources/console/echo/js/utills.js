@@ -75,6 +75,17 @@ function axisTimeFormat(periodUnit, customPeriod) {
   return "%e %b";
 }
 
+function axisTimeFormatNew(periodUnit, customPeriod) {
+  var period = periodFromWindow(periodUnit, customPeriod);
+  if (period == "hours" || period == "minutes") {
+    return "HH:MM ss";
+  }
+  if (period == "days") {
+    return "DD MMM";
+  }
+  return "HH:MM ss";
+}
+
 function findIndex(currentTabName) {
   var index = -1;
   for (var i = 0; i < globalData.length; i++) {
@@ -320,4 +331,21 @@ function unique(list) {
 
 function numberWithCommas(x) {
   return x.toLocaleString();
+}
+
+function deleteWidget(id) {
+  showHideSideBar();
+  delete tileData[id];
+  var idx = tileList.indexOf(id);
+  if (idx != -1) tileList.splice(idx, 1);
+}
+
+function getPeroidSelectString(string) {
+  if(string == "minutes") {
+    return 'm';
+  } else if(string == "hours") {
+    return 'h';
+  } else if(string == "days") {
+    return 'd';
+  }
 }

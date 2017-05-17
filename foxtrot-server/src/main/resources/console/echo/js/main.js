@@ -214,8 +214,9 @@ function saveConsole() {
         delete deleteObject.tileContext.tableDropdownIndex;
       }
     }
+    var convertedName = name.trim().toLowerCase().split(' ').join("_");
     var representation = {
-      id: name.trim().toLowerCase().split(' ').join("_")
+      id: convertedName
       , name: name
       , sections: globalData
     };
@@ -227,6 +228,8 @@ function saveConsole() {
       data: JSON.stringify(representation),
       success: function(resp) {
         alert('console saved sucessfully');
+        window.location.assign("?console=" + convertedName);
+
       },
       error: function() {
         error("Could not save console");
@@ -271,6 +274,7 @@ function generateTabBtnForConsole(array) {
 
 function setListConsole(value) {
   $("#listConsole").val(value);
+  $("#save-dashboard-name").val(currentConsoleName);
 }
 
 function getConsoleById(selectedConsole) {
@@ -298,6 +302,7 @@ function getConsoleById(selectedConsole) {
 function loadParticularConsole() {
   var selectedConsole = $("#listConsole").val();
   window.location.assign("?console=" + selectedConsole);
+  $("#save-dashboard-name").val(currentConsoleName);
 }
 
 function renderTilesObject(currentTabName) {
@@ -400,6 +405,7 @@ function createDashboard() {
   generateSectionbtn(tabName, true);
   $("#addDashboard").modal('hide');
   $(".dashboard-name").val('');
+  $(".save-dashboard-name").val(currentConsoleName);
   $("#tab-name").val('');
   $("#listConsole").val('none');
   clearForms();
@@ -425,6 +431,8 @@ function showHideSideBar() {
   else {
     $('#sidebar').show();
     $('#sidebar').css({ 'width': '356px' });
+    $(".delete-widget").hide();
+    $("#delete-widget-divider").hide();
   }
 }
 
@@ -440,7 +448,8 @@ $(document).ready(function () {
     $(".settings-form").find("input[type=text], textarea").val("");
   });
   foxtrot.init();
-  $("#saveConsole").click(function () {
+  $("#save-dashboard-tab-btn").click(function () {
+    currentConsoleName = $("#save-dashboard-name").val();
     saveConsole();
   });
   $("#listConsole").change(function () {
@@ -486,4 +495,10 @@ $(document).ready(function () {
   } else {
     isNewConsole = true;
   }
+
+  $(".delete-widget-btn").click( function() {
+    var id = $("#delete-widget-value").val();
+    $(".tile-container").find('#'+id).remove();
+    deleteWidget(id);
+  })
 });

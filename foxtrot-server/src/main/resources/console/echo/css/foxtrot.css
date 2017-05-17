@@ -242,8 +242,14 @@ h1 {
 
 .custom-btn-div {
   text-align: center;
+  border: 1px dashed #90a2ac;
+  font-family: Open sans;
+}
+
+.custom-btn-div:hover {
+  text-align: center;
   border: 1px solid #90a2ac;
-  background: #fff;
+  background: #ffffff;
 }
 
 .lineGraph-health-text {
@@ -859,9 +865,11 @@ th, td {
   border-right: none;
 }
 #console-modal {
-  width: 460px;
-  height: 414px;
+  width: 370px;
   background-color: #485962;
+  margin-top: 100px;
+  margin-left: 95px;
+  height: 380px;
 }
 
 #add-tab-heading h1 {
@@ -870,7 +878,7 @@ th, td {
   font-size: 32px;
   font-weight: 300;
   text-align: center;
-  color: #c4d4dc;
+  color: #50e3c2;
   padding-top: 38px;
 }
 
@@ -881,21 +889,28 @@ th, td {
 }
 
 .add-tab-form {
-  margin-left: 63px;
+  margin-left: 40px;
   margin-top: 33px;
+  width: 292px;
 }
 
 .add-tab-form label {
   color: #c4d4dc;
+  font-family: Open Sans Regular;
 }
 
 .add-tab-form input {
   background: none;
   border: none;
-  border-bottom: 2px solid #c4d4dc;
+  border: 1px solid #c4d4dc;
   color: #fff;
   outline: none;
   box-shadow: none;
+  height: 40px;
+}
+
+.add-tab-form input:hover {
+  border: 1px solid #35dbb1;
 }
 
 .add-tab-form input:focus {
@@ -904,9 +919,35 @@ th, td {
 }
 
 .add-tab-btn {
-  width: 301px;
+  width: 292px;
   background-color: #32a6f9;
   margin-top: 40px;
+  color: #fff;
+  text-align: center;
+  height: 40px;
+  padding: 0px 0px;
+  font-family: Open Sans Regular;
+}
+
+.add-tab-btn:hover {
+  background: #fff;
+  color: #42b1f7;
+}
+
+.save-dashboard-tab-btn {
+  width: 292px;
+  background-color: #32a6f9;
+  margin-top: 40px;
+  color: #fff;
+  text-align: center;
+  height: 40px;
+  padding: 0px 0px;
+  font-family: Open Sans Regular;
+}
+
+.save-dashboard-tab-btn:hover {
+  background: #fff;
+  color: #42b1f7;
 }
 
 #addTab > .modal-dialog {
@@ -1197,8 +1238,10 @@ input[type="checkbox"].tinyswitch.ios-switch:checked + div > div {
 }
 
 .reduce-period-select {
-  width: 57px;
+  width: 64px;
   font-size: 10px;
+  right: 11px;
+  position: relative;
 }
 
 .reduce-settings-icon {
@@ -1255,20 +1298,21 @@ input[type="checkbox"].tinyswitch.ios-switch:checked + div > div {
   font-size: 32px;
   font-weight: 300;
   text-align: center;
-  color: #c4d4dc;
+  color: #50e3c2;
   padding-top: 23px;
 }
 
 #add-tab-model-heading-underline {
   width: 60px;
   border: solid 1px #c4d4dc;
-  margin-top: 11px;
+  margin-top: 14px;
 }
 
 #add-tab-modal {
-  width: 460px;
-  height: 326px;
+  width: 372px;
   background-color: #485962;
+  margin-left: 95px;
+  height: 270px;
 }
 .radar-chart .axis .legend {
   font-family: Open Sans !important;
@@ -1403,8 +1447,38 @@ div.tab button:last-child {
 }
 
 .new-tab-form {
-  margin-left: 63px;
   margin-top: 60px;
+  position: relative;
+  right: 29px;
+}
+
+.new-tab-form {
+  margin-left: 63px;
+  margin-top: 33px;
+}
+
+.new-tab-form label {
+  color: #c4d4dc;
+  font-family: Open Sans Regular;
+}
+
+.new-tab-form input {
+  background: none;
+  border: none;
+  border: 1px solid #c4d4dc;
+  color: #fff;
+  outline: none;
+  box-shadow: none;
+  height: 40px;
+}
+
+.new-tab-form input:hover {
+  border: 1px solid #35dbb1;
+}
+
+.new-tab-form input:focus {
+  outline: none;
+  box-shadow: none;
 }
 
 .sidebar-widget-btns {
@@ -1528,4 +1602,181 @@ div.tab button:first-child {
 .global-filters:hover {
   color: #1E3F67;
   border: 1px solid #1E3F67;
+}
+
+.delete-widget {
+  text-align: center;
+  margin-top: 42px;
+  display: none;
+}
+
+.delete-widget-btn {
+  font-family: Open Sans Regular;
+  background: #F96073;
+  color: #fff;
+  width: 200px;
+  border: none;
+  height: 30px;
+}
+
+.delete-widget-btn:hover {
+  color: #fff;
+}
+
+#delete-widget-divider {
+  position: relative;
+  bottom: -20px;
+  border: 1px solid #797A7D;
+  display: none;
+}
+
+.add-page-close {
+  border: none;
+  background: none;
+  color: #d3d2d3;
+  font-weight: normal;
+  margin-top: 3px;
+  font-family: Open Sans Regular;
+}
+
+.add-page-close:hover {
+  color: #fff;
+}
+
+.save-dashboard-close {
+  border: none;
+  background: none;
+  color: #d3d2d3;
+  font-weight: normal;
+  margin-top: 3px;
+  font-family: Open Sans Regular;
+}
+
+.save-dashboard-close:hover {
+  color: #fff;
+}
+
+.add-page-btn-div {
+  overflow: hidden;
+  text-align: center;
+  position: relative;
+  top: -26px;
+}
+
+
+#add-page-side-close {
+  position: relative;
+  float: right;
+  right: 93px;
+  bottom: 270px;
+  width: 40px;
+  height: 37px;
+  background-color: #33434b;
+}
+
+#add-page-side-close img {
+  padding: 12px;
+}
+
+#add-dashboard-side-close {
+  position: relative;
+  float: right;
+  right: 95px;
+  bottom: 380px;
+  width: 40px;
+  height: 37px;
+  background-color: #33434b;
+}
+
+#add-dashboard-side-close img {
+  padding: 12px;
+}
+
+.add-page-form {
+  width: 292px;
+  margin-left: 20px;
+  padding-right: 20px;
+}
+
+.add-dashboard-btn-div {
+  text-align:center;
+  position: relative;
+  bottom: 28px;
+}
+
+.add-dashboard-close {
+  border: none;
+  background: none;
+  color: #d3d2d3;
+  font-weight: normal;
+  margin-top: 0px;
+  font-family: Open Sans Regular;
+}
+
+.add-dashboard-close:hover {
+  color: #fff;
+}
+
+#save-dashboard-modal {
+  width: 372px;
+  background-color: #485962;
+  margin-left: 95px;
+  height: 270px;
+}
+
+#save-dashboard-model-heading {
+  height: 43px;
+  font-family: Open Sans;
+  font-size: 32px;
+  font-weight: 300;
+  text-align: center;
+  color: #50e3c2;
+  padding-top: 23px;
+}
+
+#save-dashboard-model-heading-underline {
+  width: 60px;
+  border: solid 1px #c4d4dc;
+  margin-top: 14px;
+}
+
+.save-dashboard-form {
+  margin-top: 60px;
+  position: relative;
+  right: 29px;
+}
+
+.save-dashboard-form {
+  margin-left: 63px;
+  margin-top: 33px;
+}
+
+.save-dashboard-form label {
+  color: #c4d4dc;
+  font-family: Open Sans Regular;
+}
+
+.save-dashboard-form input {
+  background: none;
+  border: none;
+  border: 1px solid #c4d4dc;
+  color: #fff;
+  outline: none;
+  box-shadow: none;
+  height: 40px;
+}
+
+.save-dashboard-form input:hover {
+  border: 1px solid #35dbb1;
+}
+
+.save-dashboard-form input:focus {
+  outline: none;
+  box-shadow: none;
+}
+
+.add-page-form {
+  width: 292px;
+  margin-left: 20px;
+  padding-right: 20px;
 }
