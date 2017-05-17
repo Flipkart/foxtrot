@@ -150,7 +150,7 @@ function newBtnElement(widget) {
     height= 220;
     customClass = "small-btn-color";
   }
-  return "<div class='"+columnSize+" custom-btn-div' style='height:"+height+"px;'><button data-target='#addWidgetModal' class='tile-add-btn tile-add-btn btn btn-primary filter-nav-button  custom-add-btn "+customClass+"'onClick='setClicketData(this)'  data-toggle='modal' id='row-" + row + "'>+Add widget</button><div>"
+  return "<div class='"+columnSize+" custom-btn-div' style='height:"+height+"px;'><button data-target='#addWidgetModal' class='tile-add-btn tile-add-btn filter-nav-button  custom-add-btn "+customClass+"'onClick='setClicketData(this)'  data-toggle='modal' id='row-" + row + "'>+Add widget</button><div>"
 }
 // create new div
 TileFactory.prototype.createNewRow = function (tileElement) {

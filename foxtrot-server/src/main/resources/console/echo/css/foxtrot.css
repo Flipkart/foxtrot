@@ -242,8 +242,14 @@ h1 {
 
 .custom-btn-div {
   text-align: center;
+  border: 1px dashed #90a2ac;
+  font-family: Open sans;
+}
+
+.custom-btn-div:hover {
+  text-align: center;
   border: 1px solid #90a2ac;
-  background: #fff;
+  background: #ffffff;
 }
 
 .lineGraph-health-text {
