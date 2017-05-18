@@ -193,6 +193,8 @@ StackedTile.prototype.render = function (yAxisSeries, xAxisTicks) {
   var ctx = chartDiv.find("#" + object.id);
   ctx.width(ctx.width);
   ctx.height(230);
+  ctx.addClass('col-sm-10');
+  ctx.find(".legend").addClass('col-sm-2');
   $.plot(ctx, yAxisSeries, {
     series: {
       stack: true
@@ -240,7 +242,7 @@ StackedTile.prototype.render = function (yAxisSeries, xAxisTicks) {
       , defaultFormat: true
     }
     ,legend: {
-      show: true
+      show: false
       , noColumns: getLegendColumn(object.tileContext.widgetType)
       , labelFormatter: function (label, series) {
         return '<span class="legend-custom"> &nbsp;' + label + ' &nbsp;</span>';
@@ -248,4 +250,5 @@ StackedTile.prototype.render = function (yAxisSeries, xAxisTicks) {
       , container: $(chartDiv.find(".legend"))
     }
   });
+  drawLegend(yAxisSeries, $(chartDiv.find(".legend")));
 }
