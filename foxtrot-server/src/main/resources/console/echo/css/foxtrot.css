@@ -43,7 +43,10 @@ h1 {
   box-shadow: 1px 1px 4px 0 rgba(194, 209, 217, 0.4);
   border: solid 1px rgba(180, 191, 195, 0.24);
   margin-bottom: 25px;
-  margin-right: 9px;
+  border: 10px solid transparent;
+  background-clip: padding-box;
+  box-shadow: none;
+  margin-bottom: 10px;
 }
 
 
@@ -1285,11 +1288,11 @@ input[type="checkbox"].tinyswitch.ios-switch:checked + div > div {
 }
 
 .small-widget {
-    width: 24% !important;
+    width: 25% !important;
 }
 
 .medium-widget {
-  width: 49% !important;
+  width: 50% !important;
 }
 
 #add-tab-model-heading {
@@ -1587,7 +1590,7 @@ div.tab button:first-child {
 }
 
 .highlight-tile {
-  border: 1px solid #42b1f7;
+  border: 10px solid #42b1f7;
 }
 
 .default-add-widget-btn:focus, #tile-add-btn:focus{
