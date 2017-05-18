@@ -99,7 +99,7 @@ LineTile.prototype.render = function (rows) {
   var newDiv = this.newDiv;
   var object = this.object;
   var borderColorArray = ["#9e8cd9", "#f3a534", "#9bc95b", "#50e3c2"]
-  var chartDiv = newDiv.find(".chart-item");
+  var chartDiv = $("#"+object.id).find(".chart-item");
   var ctx = chartDiv.find("#" + object.id);
   ctx.width(ctx.width - 100);
   ctx.height(230);

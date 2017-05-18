@@ -126,9 +126,11 @@ PieTile.prototype.getData = function (data) {
 PieTile.prototype.render = function (columns) {
   var newDiv = this.newDiv;
   var object = this.object;
-  console.log(object)
-  var chartDiv = newDiv.find(".chart-item");
+  var chartDiv = $("#"+object.id).find(".chart-item");
   var ctx = chartDiv.find("#" + object.id);
+  ctx.addClass('col-sm-7');
+  ctx.find(".legend").addClass('col-sm-4');
+  $("#"+object.id).find(".chart-item").css('margin-top', "53px");
   ctx.width(ctx.width);
   ctx.height(230);
   var chartOptions = {
@@ -145,7 +147,7 @@ PieTile.prototype.render = function (columns) {
       color: "#FF00FF"
     }
     , legend: {
-      show: true,
+      show: false,
       noColumns:getLegendColumn(object.tileContext.widgetType),
       container: $(chartDiv.find(".legend"))
     }
@@ -159,8 +161,11 @@ PieTile.prototype.render = function (columns) {
       }
     }
   };
+
+
   var plot = $.plot(ctx, columns, chartOptions);
-  $(chartDiv.find('.legend .legendLabel, .legend .legendColorBox')).on('mouseenter', function() {
+  drawLegend(columns, $(chartDiv.find(".legend")));
+  $(chartDiv.find('.legend ul li')).on('mouseenter', function() {
     var label = $(this).text();
     var allSeries = plot.getData();
     for (var i = 0; i < allSeries.length; i++){
@@ -173,7 +178,7 @@ PieTile.prototype.render = function (columns) {
     plot  .draw();
   });
 
-  $(chartDiv.find('.legend .legendLabel, .legend .legendColorBox')).on('mouseleave', function() {
+  $(chartDiv.find('.legend ul li')).on('mouseleave', function() {
     var label = $(this).text();
     var allSeries = plot.getData();
     for (var i = 0; i < allSeries.length; i++){

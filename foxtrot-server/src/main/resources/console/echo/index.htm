@@ -49,7 +49,9 @@
   <div class="container-full">
     <div class="new-header">
       <div class="inner-header container-fluid">
-        <h1 class="col-md-4 heading"><img src="img/echo_1.png" /></h1>
+        <h1 class="col-md-4 heading">
+          <a href="index.htm"><img src="img/echo_1.png" /></a>
+        </h1>
         <div id="console-list-dropdown">
           <select id="listConsole" class="listConsole">
             <option value="none">Select console</option>
@@ -578,6 +580,35 @@
     <div class="footer">
     </div>
   </div>
+
+  <script id="group-legend-template" type="text/x-handlebars-template">
+  <ul>
+    {{#each data}}
+    <li style="list-style-type: disc;color:{{color}}">{{label}}</li>
+    {{/each}}
+    </ul>
+  </script>
+
+  <script id="table-template" type="text/x-handlebars-template">
+<table class="table table-bordered table-hover table-condensed dataview-table">
+  <thead class="dataview-tablehead">
+    <tr>
+      {{#each headers}}
+      <th>{{this}}</th>
+      {{/each}}
+    </tr>
+    </thead>
+  <tbody>
+    {{#each data}}
+    <tr>
+      {{#each this}}
+      <td>{{this}}</td>
+      {{/each}}
+    </tr>
+    {{/each}}
+    </tbody>
+    </table>
+  </script>
   <!-- /container -->
   <!-- Bootstrap core JavaScript
     ================================================== -->
