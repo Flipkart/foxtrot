@@ -378,6 +378,7 @@ TileFactory.prototype.create = function () {
     tileElement.find(".widget-header > .tile-title").css("width", "112px");
     tileElement.find(".widget-header > .tile-title").addClass("small-widget-title");
   }
+
   if (this.tileObject.tileContext.chartType == "radar") {
     tileElement.find(".trend-chart").remove();
     tileElement.find(".chart-item").addClass("radar-chart");
@@ -385,11 +386,8 @@ TileFactory.prototype.create = function () {
   else if (this.tileObject.tileContext.chartType == "line" || this.tileObject.tileContext.chartType == "stacked" || this.tileObject.tileContext.chartType == "stackedBar" || this.tileObject.tileContext.chartType == "pie" || this.tileObject.tileContext.chartType == "statsTrend" || this.tileObject.tileContext.chartType == "bar") {
     /*tileElement.find(".widget-header").append('<div id="' + this.tileObject.id + '-health-text" class="lineGraph-health-text">No Data available</div>');*/
     tileElement.find(".widget-header").append('<div id="' + this.tileObject.id + '-health" style=""></div>');
-    tileElement.find(".chart-item").append('<div id="' + this.tileObject.id + '"></div>');
-    tileElement.find(".chart-item").append("<div class='legend col-sm-12'></div>")
-  }
-  if (this.tileObject.tileContext.chartType == "pie") {
-    tileElement.append("<div class='legend'></div>")
+    tileElement.find(".chart-item").append('<div class="row"><div id="' + this.tileObject.id + '"></div><div class="legend"></div></div>');
+    //tileElement.find(".chart-item").append("")
   }
   if (this.tileObject.tileContext.isnewRow) { // new row
     tileElement.insertBefore('.float-clear');

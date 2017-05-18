@@ -723,9 +723,15 @@ div.tab button.active {
   color: #7d909a;
 }
 .legend {
-  width:100%;
-  height:auto;
+  width: auto;
+  height:300px;
+  overflow: scroll;
   margin-top: 12px;
+  font-family: Open Sans Regular;
+  font-size: 10px;
+  line-height: 2;
+  color: #9cb2cd;
+  cursor: pointer;
 }
 .legend-custom {
   font-family: Open Sans;
