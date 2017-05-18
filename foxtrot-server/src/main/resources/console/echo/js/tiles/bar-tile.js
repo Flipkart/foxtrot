@@ -152,6 +152,8 @@ BarTile.prototype.render = function (xAxisOptions, columns) {
   var chartDiv = $("#"+object.id).find(".chart-item");
   var ctx = chartDiv.find("#" + object.id);
   ctx.width(ctx.width);
+  ctx.addClass('col-sm-10');
+  ctx.find(".legend").addClass('col-sm-2');
   ctx.height(230);
   var chartOptions = {
     series: {
@@ -207,7 +209,7 @@ BarTile.prototype.render = function (xAxisOptions, columns) {
       }
     }
     ,legend: {
-      show: true
+      show: false
       , noColumns: getLegendColumn(object.tileContext.widgetType)
       , labelFormatter: function (label, series) {
         return '<span class="legend-custom"> &nbsp;' + label + ' &nbsp;</span>';
@@ -217,7 +219,9 @@ BarTile.prototype.render = function (xAxisOptions, columns) {
   };
   var plot = $.plot(ctx, columns, chartOptions);
 
-  $('.legend .legendLabel, .legend .legendColorBox').on('mouseenter', function() {
+  drawLegend(columns, $(chartDiv.find(".legend")));
+
+  $('.legend ul li').on('mouseenter', function() {
     var label = $(this).text();
     var allSeries = plot.getData();
     for (var i = 0; i < allSeries.length; i++){
@@ -230,7 +234,7 @@ BarTile.prototype.render = function (xAxisOptions, columns) {
     plot.draw();
   });
 
-  $('.legend .legendLabel, .legend .legendColorBox').on('mouseleave', function() {
+  $('.legend ul li').on('mouseleave', function() {
     var label = $(this).text();
     var allSeries = plot.getData();
     for (var i = 0; i < allSeries.length; i++){

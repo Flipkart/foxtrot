@@ -191,6 +191,9 @@ StackedBarTile.prototype.render = function (d) {
   var chartDiv = $("#"+object.id).find(".chart-item");
   var borderColorArray = ["#9e8cd9", "#f3a534", "#9bc95b", "#50e3c2"]
   var ctx = chartDiv.find("#" + object.id);
+  ctx.addClass('col-sm-10');
+  ctx.find(".legend").addClass('col-sm-4');
+  //$("#"+object.id).find(".chart-item").css('margin-top', "53px");
   ctx.width(ctx.width);
   ctx.height(230);
   var plot = $.plot(ctx, d, {
@@ -247,7 +250,7 @@ StackedBarTile.prototype.render = function (d) {
       , defaultFormat: true
     }
     , legend: {
-      show: true
+      show: false
       , noColumns: d.length
       , labelFormatter: function (label, series) {
         return '<span class="legend-custom"> &nbsp;' + label + ' &nbsp;</span>';
@@ -258,6 +261,8 @@ StackedBarTile.prototype.render = function (d) {
       color: "#FF00FF"
     }
   });
+
+  drawLegend(d, $(chartDiv.find(".legend")));
 
   function showTooltip(x, y, contents, color) {
     $('<div id="tooltip">' + contents + '</div>').css({
@@ -304,8 +309,7 @@ StackedBarTile.prototype.render = function (d) {
   });
 
   var re = re = /\(([0-9]+,[0-9]+,[0-9]+)/;
-  console.log(this.object.id)
-  $(chartDiv.find('.legend .legendLabel, .legend .legendColorBox')).on('mouseenter', function() {
+  $(chartDiv.find('.legend ul li')).on('mouseenter', function() {
     var label = $(this).text();
     var allSeries = plot.getData();
     for (var i = 0; i < allSeries.length; i++){
@@ -319,7 +323,7 @@ StackedBarTile.prototype.render = function (d) {
     plot  .draw();
   });
 
-  $('.legend .legendLabel, .legend .legendColorBox').on('mouseleave', function() {
+  $('.legend ul li').on('mouseleave', function() {
     var label = $(this).text();
     var allSeries = plot.getData();
     for (var i = 0; i < allSeries.length; i++){
