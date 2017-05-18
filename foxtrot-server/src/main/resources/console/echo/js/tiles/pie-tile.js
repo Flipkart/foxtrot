@@ -128,7 +128,7 @@ PieTile.prototype.render = function (columns) {
   var object = this.object;
   var chartDiv = $("#"+object.id).find(".chart-item");
   var ctx = chartDiv.find("#" + object.id);
-  ctx.addClass('col-sm-6');
+  ctx.addClass('col-sm-7');
   ctx.find(".legend").addClass('col-sm-4');
   $("#"+object.id).find(".chart-item").css('margin-top', "53px");
   ctx.width(ctx.width);
