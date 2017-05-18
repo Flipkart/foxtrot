@@ -189,7 +189,7 @@ StackedTile.prototype.getData = function (data) {
 StackedTile.prototype.render = function (yAxisSeries, xAxisTicks) {
   var newDiv = this.newDiv;
   var object = this.object;
-  var chartDiv = newDiv.find(".chart-item");
+  var chartDiv = $("#"+object.id).find(".chart-item");
   var ctx = chartDiv.find("#" + object.id);
   ctx.width(ctx.width);
   ctx.height(230);

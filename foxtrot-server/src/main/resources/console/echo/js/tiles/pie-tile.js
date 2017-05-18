@@ -126,8 +126,7 @@ PieTile.prototype.getData = function (data) {
 PieTile.prototype.render = function (columns) {
   var newDiv = this.newDiv;
   var object = this.object;
-  console.log(object)
-  var chartDiv = newDiv.find(".chart-item");
+  var chartDiv = $("#"+object.id).find(".chart-item");
   var ctx = chartDiv.find("#" + object.id);
   ctx.width(ctx.width);
   ctx.height(230);

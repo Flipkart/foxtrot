@@ -149,8 +149,7 @@ BarTile.prototype.render = function (xAxisOptions, columns) {
   console.log(columns);
   var newDiv = this.newDiv;
   var object = this.object;
-  var chartDiv = newDiv.find(".chart-item");
-  console.log(object.id);
+  var chartDiv = $("#"+object.id).find(".chart-item");
   var ctx = chartDiv.find("#" + object.id);
   ctx.width(ctx.width);
   ctx.height(230);
