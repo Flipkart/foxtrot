@@ -1590,7 +1590,7 @@ div.tab button:first-child {
 }
 
 .highlight-tile {
-  border: 10px solid #42b1f7;
+  border: 1px solid #42b1f7;
 }
 
 .default-add-widget-btn:focus, #tile-add-btn:focus{
