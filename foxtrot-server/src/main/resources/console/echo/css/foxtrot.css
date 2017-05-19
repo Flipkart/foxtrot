@@ -1789,3 +1789,16 @@ div.tab button:first-child {
   margin-left: 20px;
   padding-right: 20px;
 }
+
+.legend-label {
+  position: relative;
+  bottom: 2px;
+  right: 5px;
+  font-size: 10px;
+}
+
+.legend ul li {
+  list-style-type: disc;
+  font-size: 21px;
+  line-height: 1;
+}
