@@ -223,7 +223,7 @@ TileFactory.prototype.updateFilters = function (filters) {
 }
 // Filter configuration
 TileFactory.prototype.triggerFilter = function (tileElement, object) {
-  if(object.tileContext.chartType != "radar" && object.tileContext.chartType != "line" && object.tileContext.chartType != "stacked") {
+  if(object.tileContext.chartType != "radar" && object.tileContext.chartType != "line") {
     var instanceVar = this;
     tileElement.find(".widget-toolbox").find(".filter").click(function () {
       clearFilterValues();

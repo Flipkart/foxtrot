@@ -177,12 +177,17 @@ StackedTile.prototype.getData = function (data) {
   }
   var yAxisSeries = [];
   var colors = new Colors(Object.keys(yAxisSeriesMap).length);
+  this.object.tileContext.uiFiltersList = [];
   for (var yAxisSeriesElement in yAxisSeriesMap) {
     if (!yAxisSeriesMap.hasOwnProperty(yAxisSeriesElement)) {
       continue;
     }
     if (yAxisSeriesMap[yAxisSeriesElement].length > 0) {
-      yAxisSeries.push({label: yAxisSeriesElement, data: yAxisSeriesMap[yAxisSeriesElement], color:colors.nextColor()})
+      var visible = $.inArray( yAxisSeriesElement, this.object.tileContext.uiFiltersSelectedList);
+      if((visible == -1 ? true : false)) {
+        yAxisSeries.push({label: yAxisSeriesElement, data: yAxisSeriesMap[yAxisSeriesElement], color:colors.nextColor()})
+      }
+      this.object.tileContext.uiFiltersList.push(yAxisSeriesElement);
     }
   }
   this.render(yAxisSeries, xAxisTicks)
