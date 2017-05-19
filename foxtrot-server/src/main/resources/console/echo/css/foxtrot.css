@@ -1818,3 +1818,8 @@ div.tab button:first-child {
   left: 12px;
   height: 320px;
 }
+
+.legend-label:hover {
+  color:#193F67 !important;
+  cursor: pointer;
+}
