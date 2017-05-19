@@ -52,9 +52,9 @@ function refereshTiles() {
   }
 }
 
-//setInterval(function () {
-//  refereshTiles();
-//}, 6000);
+setInterval(function () {
+  refereshTiles();
+}, 6000);
 
 function pushTilesObject(object) {
   tileData[object.id] = object;
