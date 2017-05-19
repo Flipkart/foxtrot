@@ -176,12 +176,13 @@ StackedTile.prototype.getData = function (data) {
     }
   }
   var yAxisSeries = [];
+  var colors = new Colors(Object.keys(yAxisSeriesMap).length);
   for (var yAxisSeriesElement in yAxisSeriesMap) {
     if (!yAxisSeriesMap.hasOwnProperty(yAxisSeriesElement)) {
       continue;
     }
     if (yAxisSeriesMap[yAxisSeriesElement].length > 0) {
-      yAxisSeries.push({label: yAxisSeriesElement, data: yAxisSeriesMap[yAxisSeriesElement]})
+      yAxisSeries.push({label: yAxisSeriesElement, data: yAxisSeriesMap[yAxisSeriesElement], color:colors.nextColor()})
     }
   }
   this.render(yAxisSeries, xAxisTicks)
