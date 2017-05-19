@@ -194,7 +194,7 @@ StackedTile.prototype.render = function (yAxisSeries, xAxisTicks) {
   ctx.width(ctx.width);
   ctx.height(230);
   ctx.addClass('col-sm-10');
-  ctx.find(".legend").addClass('col-sm-2');
+  $("#"+object.id).find(".chart-item").find(".legend").addClass('full-widget-legend');
   $.plot(ctx, yAxisSeries, {
     series: {
       stack: true

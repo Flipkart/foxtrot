@@ -732,6 +732,7 @@ div.tab button.active {
   line-height: 2;
   color: #9cb2cd;
   cursor: pointer;
+  position: relative;
 }
 .legend-custom {
   font-family: Open Sans;
@@ -1795,10 +1796,22 @@ div.tab button:first-child {
   bottom: 2px;
   right: 5px;
   font-size: 10px;
+  color: #9cb2cd;
+  word-wrap: break-word;
 }
 
 .legend ul li {
   list-style-type: disc;
   font-size: 21px;
   line-height: 1;
+}
+
+.pie-legend {
+  bottom: 30px;
+  width: 35%;
+  left: 40px;
+}
+
+.full-widget-legend {
+  bottom: 75px;
 }

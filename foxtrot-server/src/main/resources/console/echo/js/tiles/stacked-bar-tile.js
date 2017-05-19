@@ -192,7 +192,7 @@ StackedBarTile.prototype.render = function (d) {
   var borderColorArray = ["#9e8cd9", "#f3a534", "#9bc95b", "#50e3c2"]
   var ctx = chartDiv.find("#" + object.id);
   ctx.addClass('col-sm-10');
-  ctx.find(".legend").addClass('col-sm-4');
+  $("#"+object.id).find(".chart-item").find(".legend").addClass('full-widget-legend');
   //$("#"+object.id).find(".chart-item").css('margin-top', "53px");
   ctx.width(ctx.width);
   ctx.height(230);
