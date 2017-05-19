@@ -1810,9 +1810,11 @@ div.tab button:first-child {
   bottom: 30px;
   width: 35%;
   left: 40px;
+  height: 367px;
 }
 
 .full-widget-legend {
   bottom: 75px;
   left: 12px;
+  height: 320px;
 }

@@ -366,7 +366,7 @@ TileFactory.prototype.create = function () {
   }
   else if (this.tileObject.tileContext.widgetType == "medium") {
     tileElement.find(".tile").addClass('col-sm-6 medium-widget');
-    tileElement.find(".tile").height(500);
+    tileElement.find(".tile").height(460);
     tileElement.find(".widget-header").css("background-color", "#fff");
   }
   else if (this.tileObject.tileContext.widgetType == "small") {
