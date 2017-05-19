@@ -106,6 +106,7 @@ LineTile.prototype.render = function (rows) {
   $.plot(ctx, [
     {
       data: rows
+      , color: "#75c400",
         }
   , ], {
     series: {
