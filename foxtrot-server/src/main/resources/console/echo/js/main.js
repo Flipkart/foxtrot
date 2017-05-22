@@ -214,7 +214,7 @@ function saveConsole() {
         delete deleteObject.tileContext.tableDropdownIndex;
       }
     }
-    var convertedName = name.trim().toLowerCase().split(' ').join("_");
+    var convertedName = convertName(name);
     var representation = {
       id: convertedName
       , name: name
@@ -491,7 +491,7 @@ function savePageSettings() {
     var newName = $("#page-lists-content").find("#page-name-"+sections[index]).val();
     $( this ).text(newName);
     $(this).attr('id', newName);
-    var id = newName.trim().toLowerCase().split(' ').join("_")
+    var id = convertName(newName);
     globalData[index].name = newName;
     globalData[index].id = id;
   });

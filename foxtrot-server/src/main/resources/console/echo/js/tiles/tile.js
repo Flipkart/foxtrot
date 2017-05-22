@@ -60,7 +60,7 @@ function pushTilesObject(object) {
   tileData[object.id] = object;
   var tabName = (object.tileContext.tabName == undefined ? $(".tab .active").attr('id') : object.tileContext.tabName) ;
   var tempObject = {
-    "id":tabName.trim().toLowerCase().split(' ').join("_"),
+    "id":convertName(tabName),
     "name": tabName,
     "tileList": tileList
     , "tileData": tileData
