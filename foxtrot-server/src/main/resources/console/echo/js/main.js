@@ -441,7 +441,7 @@ $(document).ready(function () {
   var foxtrot = new FoxTrot();
   $("#addWidgetModal").validator();
   $("#addWidgetConfirm").click($.proxy(foxtrot.addTile, foxtrot));
-  $("#filter-add-btn").click($.proxy(foxtrot.addFilters, foxtrot));
+  $("#sidebar-filter-btn").click($.proxy(foxtrot.addFilters, foxtrot));
   $("#default-btn").click(function () {
     defaultPlusBtn = true;
     foxtrot.resetModal();
