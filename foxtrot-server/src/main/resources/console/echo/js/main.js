@@ -285,8 +285,7 @@ function removeTab(btnName) {
   var removeElement = $(".tab").find("."+btnName);
   var clasName = $(removeElement).attr('class');
   if($(removeElement).hasClass('active')) {
-  } else {
-    console.log('inactive');
+    clearContainer();
   }
   $(".tab").find("."+btnName).remove();
 }
