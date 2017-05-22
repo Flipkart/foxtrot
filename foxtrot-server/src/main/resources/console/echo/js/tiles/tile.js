@@ -52,15 +52,15 @@ function refereshTiles() {
   }
 }
 
-//setInterval(function () {
-//  refereshTiles();
-//}, 6000);
+setInterval(function () {
+  refereshTiles();
+}, 6000);
 
 function pushTilesObject(object) {
   tileData[object.id] = object;
   var tabName = (object.tileContext.tabName == undefined ? $(".tab .active").attr('id') : object.tileContext.tabName) ;
   var tempObject = {
-    "id":tabName.trim().toLowerCase().split(' ').join("_"),
+    "id":convertName(tabName),
     "name": tabName,
     "tileList": tileList
     , "tileData": tileData
@@ -223,7 +223,7 @@ TileFactory.prototype.updateFilters = function (filters) {
 }
 // Filter configuration
 TileFactory.prototype.triggerFilter = function (tileElement, object) {
-  if(object.tileContext.chartType != "radar" && object.tileContext.chartType != "line" && object.tileContext.chartType != "stacked") {
+  if(object.tileContext.chartType != "radar" && object.tileContext.chartType != "line") {
     var instanceVar = this;
     tileElement.find(".widget-toolbox").find(".filter").click(function () {
       clearFilterValues();
@@ -366,7 +366,7 @@ TileFactory.prototype.create = function () {
   }
   else if (this.tileObject.tileContext.widgetType == "medium") {
     tileElement.find(".tile").addClass('col-sm-6 medium-widget');
-    tileElement.find(".tile").height(500);
+    tileElement.find(".tile").height(460);
     tileElement.find(".widget-header").css("background-color", "#fff");
   }
   else if (this.tileObject.tileContext.widgetType == "small") {

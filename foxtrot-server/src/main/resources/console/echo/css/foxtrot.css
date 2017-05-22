@@ -732,6 +732,7 @@ div.tab button.active {
   line-height: 2;
   color: #9cb2cd;
   cursor: pointer;
+  position: relative;
 }
 .legend-custom {
   font-family: Open Sans;
@@ -1788,4 +1789,190 @@ div.tab button:first-child {
   width: 292px;
   margin-left: 20px;
   padding-right: 20px;
+}
+
+.legend-label {
+  position: relative;
+  bottom: 2px;
+  right: 5px;
+  font-size: 10px;
+  color: #9cb2cd;
+  word-wrap: break-word;
+}
+
+.legend ul li {
+  list-style-type: disc;
+  font-size: 21px;
+  line-height: 1;
+}
+
+.pie-legend {
+  bottom: 30px;
+  width: 35%;
+  left: 40px;
+  height: 367px;
+}
+
+.full-widget-legend {
+  bottom: 75px;
+  left: 12px;
+  height: 320px;
+}
+
+.legend-label:hover {
+  color:#193F67 !important;
+  cursor: pointer;
+}
+
+.save-dashboard-tab-btn span{
+  margin-right: 30px;
+}
+
+#addTabConfirm span {
+  margin-right: 37px;
+}
+
+#page-settings {
+  width: 356px;
+  position: absolute;
+  background: #282b38;
+  right: 0;
+  z-index: 1000;
+  top: 0;
+  height: 100%;
+}
+
+#page-settings-content {
+  margin-left: 4px;
+  overflow-y: scroll;
+  height: 100%;
+  padding-bottom: 150px;
+}
+
+#page-settings label {
+  font-family: Open Sans;
+  font-size: 12px;
+  color: #a6a8b5;
+}
+
+.page-settings-form-heading {
+  padding-bottom: 10px;
+  margin-left: -16px;
+  overflow: hidden;
+}
+
+#page-settings input {
+  background: none;
+  border: none;
+  border: solid 1px #777a89;
+  color: #dbdbdb;
+}
+
+#page-settings input:focus {
+  outline: none;
+  box-shadow: none;
+}
+
+#page-settings input:hover {
+  border: 1px solid #fff;
+  color: #fff;
+}
+
+.page-settings-top-btns {
+  margin-top: 23px;
+}
+
+.page-setting-save-btn {
+  width: 63px;
+  height: 30px;
+  background-color: #50e3c2;
+  border: solid 1px #50e3c2;
+  font-family: Open Sans Regular;
+  float: right;
+}
+
+.page-settings-left-btn {
+  height: 19px;
+  font-family: Open Sans Regular;
+  font-size: 14px;
+  font-weight: bold;
+  color: #35dbb1;
+  border: none;
+  background: none;
+  margin-left: 10px;
+}
+
+#page-settings-close-btn {
+  width: 40px;
+  height: 37px;
+  background-color: #33434b;
+  position: absolute;
+  left: -40px;
+  padding: 6px 6px 9px 10px;
+}
+
+#page-settings-heading  h1{
+  height: 19px;
+  font-family: Open Sans;
+  font-size: 14px;
+  font-weight: 600;
+  text-align: center;
+  color: #ffffff;
+  margin-top: 20px;
+  margin-bottom: 20px;
+}
+
+#page-lists {
+  width: 292px;
+  background-color: #000000;
+  border: solid 1px #6c6e7e;
+}
+
+#page-lists-content {
+  padding: 16px;
+}
+
+#page-lists-content input{
+  width: 224px;
+  height: 30px;
+}
+
+.page-remove-img {
+  float: right;
+  position: relative;
+  top: -26px;
+}
+
+.page-remove-img:hover {
+  background-image: url('../img/Remove_hover.png');
+}
+
+#add-new-page-list {
+  width: 250px;
+  height: 36px;
+  border: dashed 1px #90a2ac;
+  background: none;
+  font-family: Open Sans;
+  font-size: 14px;
+  color: #c0cbd1;
+  margin-left: 16px;
+  margin-bottom: 20px;
+}
+
+#add-page-list:hover {
+  color: #fff;
+}
+
+#page-settings-divider {
+  border: solid 1px #979797;
+  margin-top: 30px;
+}
+
+.delete-dashboard {
+  width: 300px;
+  height: 36px;
+  background-color: #fa6073;
+  border: none;
+  color: #fff;
+  margin-top: 15px;
 }

@@ -359,3 +359,7 @@ function drawLegend(columns, element) {
   });
   element.html(handlebars("#group-legend-template", {data: columns}));
 }
+
+function convertName(name) {
+  return name.trim().toLowerCase().split(' ').join("_");
+}

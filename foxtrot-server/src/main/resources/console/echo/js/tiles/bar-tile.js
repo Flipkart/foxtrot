@@ -153,7 +153,7 @@ BarTile.prototype.render = function (xAxisOptions, columns) {
   var ctx = chartDiv.find("#" + object.id);
   ctx.width(ctx.width);
   ctx.addClass('col-sm-10');
-  ctx.find(".legend").addClass('col-sm-2');
+  $("#"+object.id).find(".chart-item").find(".legend").addClass('full-widget-legend');
   ctx.height(230);
   var chartOptions = {
     series: {

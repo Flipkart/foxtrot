@@ -176,12 +176,18 @@ StackedTile.prototype.getData = function (data) {
     }
   }
   var yAxisSeries = [];
+  var colors = new Colors(Object.keys(yAxisSeriesMap).length);
+  this.object.tileContext.uiFiltersList = [];
   for (var yAxisSeriesElement in yAxisSeriesMap) {
     if (!yAxisSeriesMap.hasOwnProperty(yAxisSeriesElement)) {
       continue;
     }
     if (yAxisSeriesMap[yAxisSeriesElement].length > 0) {
-      yAxisSeries.push({label: yAxisSeriesElement, data: yAxisSeriesMap[yAxisSeriesElement]})
+      var visible = $.inArray( yAxisSeriesElement, this.object.tileContext.uiFiltersSelectedList);
+      if((visible == -1 ? true : false)) {
+        yAxisSeries.push({label: yAxisSeriesElement, data: yAxisSeriesMap[yAxisSeriesElement], color:colors.nextColor()})
+      }
+      this.object.tileContext.uiFiltersList.push(yAxisSeriesElement);
     }
   }
   this.render(yAxisSeries, xAxisTicks)
@@ -194,7 +200,7 @@ StackedTile.prototype.render = function (yAxisSeries, xAxisTicks) {
   ctx.width(ctx.width);
   ctx.height(230);
   ctx.addClass('col-sm-10');
-  ctx.find(".legend").addClass('col-sm-2');
+  $("#"+object.id).find(".chart-item").find(".legend").addClass('full-widget-legend');
   $.plot(ctx, yAxisSeries, {
     series: {
       stack: true
