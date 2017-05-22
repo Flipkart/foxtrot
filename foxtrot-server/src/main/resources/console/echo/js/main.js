@@ -277,6 +277,53 @@ function setListConsole(value) {
   $("#save-dashboard-name").val(currentConsoleName);
 }
 
+var sectionNumber = 0;
+var sections = [];
+
+function removeTab(btnName) {
+  btnName = btnName.split(" ").join('_');
+  var removeElement = $(".tab").find("."+btnName);
+  var clasName = $(removeElement).attr('class');
+  if($(removeElement).hasClass('active')) {
+  } else {
+    console.log('inactive');
+  }
+  $(".tab").find("."+btnName).remove();
+}
+
+function deletePageList(id) {
+  var deleteIndex = sections.indexOf(id);
+  sections.splice(deleteIndex, 1);
+  var removeTabName = $("#page-lists-content").find("#page-name-"+id).val();
+  var deleteIndex = -1;
+  for(var i = 0; i < globalData.length; i++) {
+    if(globalData[i].name == removeTabName) {
+      deleteIndex = i;
+      break;
+    }
+  }
+  $("#page-lists-content").find(".page-row-"+id).remove();
+  if(deleteIndex >= 0) {
+    globalData.splice(deleteIndex, 1);
+  }
+  removeTab(removeTabName);
+}
+
+function generateNewPageList(i, name) {
+  var pageNumber = i + 1;
+  console.log(name);
+  $("#page-lists-content").append('<div class="form-group page-row-'+i+'"><label class="control-label">Page: '+ pageNumber +'</label><input type="text" id="page-name-'+i+'" value="'+ (name.length > 0 ? name : '""') +'" class="form-control"><img src="img/remove.png" id="page-row-'+i+'" class="page-remove-img" onClick="deletePageList('+i+')" /></div>');
+  sectionNumber = i;
+  sections.push(i);
+  console.log(sections);
+}
+
+function generatePageList(resp) {
+  for(var i = 0; i < resp.sections.length; i++) {
+    generateNewPageList(i,resp.sections[i].name);
+  }
+}
+
 function getConsoleById(selectedConsole) {
   $.ajax({
     url: apiUrl+("/v2/consoles/" +selectedConsole),
@@ -290,6 +337,7 @@ function getConsoleById(selectedConsole) {
       generateTabBtnForConsole(res);
       renderTilesObject(res.sections[0].id);
       getTables();
+      generatePageList(res);
       setTimeout(function() { setListConsole(selectedConsole); }, 2000);
     },
     error: function() {
@@ -362,7 +410,8 @@ function getTables() {
 }
 
 function generateSectionbtn(tabName, isNew) {
-  $(".tab").append('<button class="tablinks" id="'+tabName+'" onclick="consoleTabs(event, this)">'+tabName+'</button>');
+  var className = tabName.split(" ").join('_');
+  $(".tab").append('<button class="tablinks '+className+'" id="'+tabName+'" onclick="consoleTabs(event, this)">'+tabName+'</button>');
   $("#addTab").modal('hide');
   $("#tab-name").val('');
   var tablinks = document.getElementsByClassName("tablinks");
@@ -436,6 +485,31 @@ function showHideSideBar() {
   }
 }
 
+function savePageSettings() {
+  console.log(globalData)
+  $( ".tab > button" ).each(function( index ) {
+    var newName = $("#page-lists-content").find("#page-name-"+sections[index]).val();
+    $( this ).text(newName);
+    $(this).attr('id', newName);
+    var id = newName.trim().toLowerCase().split(' ').join("_")
+    globalData[index].name = newName;
+    globalData[index].id = id;
+  });
+  console.log(globalData);
+}
+
+
+function showHidePageSettings() {
+  $(".dashboard-name").val(currentConsoleName);
+  if( $('#page-settings').is(':visible') ) {
+    $('#page-settings').hide();
+  }
+  else {
+    $('#page-settings').show();
+    $('#page-settings').css({ 'width': '356px' });
+  }
+}
+
 $(document).ready(function () {
   var type = $("#widgetType").val();
   var foxtrot = new FoxTrot();
@@ -501,4 +575,13 @@ $(document).ready(function () {
     $(".tile-container").find('#'+id).remove();
     deleteWidget(id);
   })
+
+  $("#add-new-page-list").click(function() {
+    generateNewPageList(sectionNumber+1 , "");
+  });
+
+  $(".page-setting-save-btn").click(function() {
+    savePageSettings();
+  });
+
 });

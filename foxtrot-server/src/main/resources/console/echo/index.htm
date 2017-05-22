@@ -146,7 +146,8 @@
           <div class="tab col-md-5"></div>
           <div class="col-md-4 widget-btns">
             <div>
-              <button type="button" id="add-page-btn" data-target="#addTab" data-toggle="modal">Add page</button>
+<!--              <button type="button" id="add-page-btn" data-target="#addTab" data-toggle="modal">Add page</button>-->
+              <button type="button" id="add-page-btn">Page settings</button>
               <button type="button" data-target="#save-dashboard" data-toggle="modal" id="saveConsole">Save Dashboard</button>
             </div>
           </div>
@@ -186,6 +187,39 @@
         </div>
       </div>
     </section>
+
+    <div id="page-settings">
+      <div id="page-settings-close-btn"><img src="img/combined-shape.png" /></div>
+      <div class="col-md-12 page-settings-top-btns">
+        <div class="row">
+          <div class="col-xs-8 form-group tile-name-parent">
+            <button type="submit" class="page-settings-left-btn">DASHBOARD SETTINGS</button>
+          </div>
+          <div class="col-xs-4 form-group">
+            <button type="submit" class="page-setting-save-btn" id="page-setting-save-btn">Save</button>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-12" id="page-settings-content">
+        <form class="col-md-12">
+          <div class="form-group">
+            <label class="control-label">Name : </label>
+            <input type="hidden" value="" class="tileId">
+            <input type="text" class="form-control dashboard-name" id="dashboard-name" />
+          </div>
+          <div id="page-settings-heading"><h1>PAGES</h1></div>
+          <div id="page-lists">
+            <div class="page-list-content-div">
+              <div id="page-lists-content"></div>
+              <button type="button" id="add-new-page-list"> Add Page</button>
+            </div>
+          </div>
+          <hr id='page-settings-divider'/>
+          <button class="delete-dashboard"> Delete Dashboard</button>
+        </form>
+      </div>
+    </div>
+
     <div id="sidebar">
       <div id="filter-close-btn" data-dismiss="modal" aria-hidden="true"><img src="img/combined-shape.png" /></div>
       <div class="col-md-12 sidebar-widget-btns">
@@ -657,11 +691,26 @@
     $('.navbar').on('click', function(){
       showHideSideBar();
     });
+
+    $('#add-page-btn').on('click', function(){
+      showHidePageSettings();
+    });
+
     $('#sidebar').hide();
     $('#sidebar').animate({ 'width': '0px' }, 'slow', function(){
       $('#sidebar').hide();
     });
+
+    $('#page-settings').hide();
+    $('#page-settings').animate({ 'width': '0px' }, 'slow', function(){
+      $('#page-settings').hide();
+    });
+
     $('#main-content').css({ 'margin-left': '0px' });
+
+    $("#page-settings-close-btn").click(function() {
+      showHidePageSettings();
+    });
     hideFilters();
   </script>
   <!--Application-->
