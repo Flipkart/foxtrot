@@ -1823,3 +1823,11 @@ div.tab button:first-child {
   color:#193F67 !important;
   cursor: pointer;
 }
+
+.save-dashboard-tab-btn span{
+  margin-right: 30px;
+}
+
+#addTabConfirm span {
+  margin-right: 37px;
+}
