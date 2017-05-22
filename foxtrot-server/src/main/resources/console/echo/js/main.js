@@ -486,21 +486,28 @@ function showHideSideBar() {
 }
 
 function savePageSettings() {
-  console.log(globalData)
-  $( ".tab > button" ).each(function( index ) {
-    var newName = $("#page-lists-content").find("#page-name-"+sections[index]).val();
-    $( this ).text(newName);
-    $(this).attr('id', newName);
+  for(var i = 0; i<sections.length; i++) {
+    var nthNumber = i + 1;
+    var ele = $( ".tab button:nth-child("+nthNumber+")" );
+    var newName = $("#page-lists-content").find("#page-name-"+sections[i]).val();
+    $( ele ).text(newName);
+    $(ele).attr('id', newName);
     var id = convertName(newName);
-    globalData[index].name = newName;
-    globalData[index].id = id;
-  });
-  console.log(globalData);
+    if(i >= globalData.length) {
+      generateSectionbtn(newName, true);
+    } else {
+      globalData[i].name = newName;
+      globalData[i].id = id;
+    }
+  }
+  currentConsoleName = $("#page-dashboard-name").val();
+  $(".save-dashboard-name").val(currentConsoleName);
+  showHidePageSettings();
 }
 
 
 function showHidePageSettings() {
-  $(".dashboard-name").val(currentConsoleName);
+  $(".page-dashboard-name").val(currentConsoleName);
   if( $('#page-settings').is(':visible') ) {
     $('#page-settings').hide();
   }
