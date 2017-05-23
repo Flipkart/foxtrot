@@ -128,6 +128,7 @@ FoxTrot.prototype.addTile = function () {
       objectRow = panelRow.length + 1;
     }
     isnewRow = true;
+    isNewConsole = true;
   } else { // get existing row column
     var splitValue = customBtn.id.split("-");
     var rowObject = panelRow[splitValue[1] - 1];
