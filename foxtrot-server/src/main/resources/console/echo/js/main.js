@@ -32,6 +32,9 @@ var globalFilters = false;
 var isNewConsole = false;
 var tablesToRender = [];
 var tableFiledsArray = {};
+var previousWidget = "";
+var isNewRowCount = 0;
+var firstWidgetType = "";
 
 function TablesView(id, tables) {
   this.id = id;

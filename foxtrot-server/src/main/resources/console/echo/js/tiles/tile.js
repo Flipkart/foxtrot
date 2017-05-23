@@ -155,6 +155,7 @@ function newBtnElement(widget) {
 // create new div
 TileFactory.prototype.createNewRow = function (tileElement) {
   tileElement.addClass("col-md-12"); // add class for div which is full width
+  tileElement.addClass("max-height");
   if (panelRow.length == 0) { // initial page
     row = 1;
     panelRow.push({
@@ -338,34 +339,53 @@ TileFactory.prototype.create = function () {
     tileId: this.tileObject.id
     , title: this.tileObject.title
   }));
+
+  if(this.tileObject.tileContext.isnewRow) {
+    isNewRowCount = 0;
+    firstWidgetType = this.tileObject.tileContext.widgetType;
+  } else {
+    isNewRowCount++;
+  }
+
+  if (this.tileObject.tileContext.widgetType == "full") {
+    if(isNewRowCount == 1 && previousWidget == 'small') {
+      tileElement.find(".tile").addClass('full-widget-medium-width');
+    } else if(isNewRowCount <= 2 && firstWidgetType != 'pie' && firstWidgetType != "radar") {
+      tileElement.find(".tile").addClass((this.tileObject.tileContext.isnewRow ? 'full-widget-max-width' : 'full-widget-min-width'));
+    } else {
+      this.tileObject.tileContext.isnewRow = true;
+    }
+  }
+
   var clickedRow; // clicked row
   if(this.tileObject.tileContext.isnewRow) {
     tileElement = this.createNewRow(tileElement);
     row = this.tileObject.tileContext.row;
   } else {
     row = this.tileObject.tileContext.row;
+    if(isNewConsole) {
+      tileElement.append(newBtnElement(this.tileObject.tileContext.widgetType));
+    }
     if (this.tileObject.tileContext.widgetType == 'small') {
-      if(customBtn != undefined) {
-        var findElement = $("." + customBtn.id);
-        var column1Length = findElement.find(".row-col-1").length;
-        if (column1Length == 0 || column1Length == 2) {
-          if (column1Length == 0) {
-            tileElement.addClass('row-col-1');
-          }
-          else if (column1Length == 2) {
-            tileElement.addClass('row-col-2');
-          }
-          var rowCol2Length = findElement.find(".row-col-2").length;
-          if (rowCol2Length == 0) tileElement.append("<div class='widget-add-btn'><button data-target='#addWidgetModal' class='tile-add-btn tile-add-btn btn btn-primary filter-nav-button glyphicon glyphicon-plus custom-add-btn row-col-1'onClick='setClicketData(this)'  data-toggle='modal' id='row-" + row + "'></button><div>");
-        }
-      }
+
+//      if(customBtn != undefined) {
+//        var findElement = $("." + customBtn.id);
+//        var column1Length = findElement.find(".row-col-1").length;
+//        if (column1Length == 0 || column1Length == 2) {
+//          if (column1Length == 0) {
+//            tileElement.addClass('row-col-1');
+//          }
+//          else if (column1Length == 2) {
+//            tileElement.addClass('row-col-2');
+//          }
+//          var rowCol2Length = findElement.find(".row-col-2").length;
+//          if (rowCol2Length == 0) tileElement.append("<div class='widget-add-btn'><button data-target='#addWidgetModal' class='tile-add-btn tile-add-btn btn btn-primary filter-nav-button glyphicon glyphicon-plus custom-add-btn row-col-1'onClick='setClicketData(this)'  data-toggle='modal' id='row-" + row + "'></button><div>");
+//        }
+//      }
     }
   }
 
-  if (this.tileObject.tileContext.widgetType == "full") {
-    tileElement.find(".tile").addClass('col-sm-12');
-  }
-  else if (this.tileObject.tileContext.widgetType == "medium") {
+  if (this.tileObject.tileContext.widgetType == "medium") {
     tileElement.find(".tile").addClass('col-sm-6 medium-widget');
     tileElement.find(".tile").height(460);
     tileElement.find(".widget-header").css("background-color", "#fff");
@@ -426,4 +446,6 @@ TileFactory.prototype.create = function () {
   //this.triggerChildBtn(tileElement,this.tileObject);
   this.createTileData(this.tileObject);
   this.saveTileConfig(this.tileObject); // add event for tile save btn
+
+  previousWidget = this.tileObject.tileContext.widgetType;
 };

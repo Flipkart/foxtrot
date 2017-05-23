@@ -7,7 +7,7 @@ body {
 }
 
 .tile-default-size {
-  height: 430px;
+  height: 460px;
 }
 
 .pageheader {
@@ -1992,4 +1992,20 @@ div.tab button:first-child {
 .delete-dashboard:hover {
   background: #fa6073;
   color: #fff;
+}
+
+.max-height {
+  max-height:460px;overflow:hidden;
+}
+
+.full-widget-min-width {
+  width: 50%;
+}
+
+.full-widget-max-width {
+  width: 100%;
+}
+
+.full-widget-medium-width {
+  width: 75%;
 }
