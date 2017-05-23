@@ -394,6 +394,7 @@ function consoleTabs(evt, el) {
   clearContainer();
   evt.currentTarget.className += " active";
   var currentTabName = currentTab.toLowerCase();
+  isNewConsole = false;
   renderTilesObject(currentTabName);
 }
 var tableNameList = [];
