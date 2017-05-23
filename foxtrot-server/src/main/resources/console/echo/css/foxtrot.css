@@ -155,6 +155,7 @@ h1 {
   font-size: smaller;
   background: rgb(245, 245, 245);
   font-family: Open Sans Regular;
+  cursor: pointer;
 }
 
 .title-header-toolbar-icon-container {
@@ -587,6 +588,7 @@ h1 {
   height: 14px;
   border-radius: 100px;
   background-color: #dde4e7;
+  cursor: pointer;
 }
 
 .tile-header {
@@ -604,6 +606,7 @@ h1 {
   top: 12px;
   right: 16px;
   background: #fff;
+  cursor: pointer;
 }
 
 .filter {
@@ -840,6 +843,7 @@ th, td {
   background: #fff;
   border: none;
   font-family: Open Sans;
+  cursor: pointer;
 }
 
 .listConsole {
@@ -867,6 +871,7 @@ th, td {
 
 #listConsole {
   width: auto;
+  cursor: pointer;
 }
 #listConsole option {
   width: 250px;
@@ -1276,6 +1281,7 @@ input[type="checkbox"].tinyswitch.ios-switch:checked + div > div {
 .filter-delete {
   left: 12px;
   top: 5px;
+  cursor: pointer;
 }
 
 .glyphicon-trash{
@@ -1541,6 +1547,7 @@ select {
   position: absolute;
   left: -40px;
   padding: 6px 6px 9px 10px;
+  cursor: pointer;
 }
 
 .hide-filters {
@@ -1910,6 +1917,7 @@ div.tab button:first-child {
   position: absolute;
   left: -40px;
   padding: 6px 6px 9px 10px;
+  cursor: pointer;
 }
 
 #page-settings-heading  h1{
@@ -1942,6 +1950,7 @@ div.tab button:first-child {
   float: right;
   position: relative;
   top: -26px;
+  cursor: pointer;
 }
 
 .page-remove-img:hover {
@@ -1972,8 +1981,15 @@ div.tab button:first-child {
 .delete-dashboard {
   width: 300px;
   height: 36px;
-  background-color: #fa6073;
   border: none;
-  color: #fff;
+  color: #a6a8b5;
   margin-top: 15px;
+  background: none;
+  border: 1px solid #fa6073;
+  font-size: 12px;
+}
+
+.delete-dashboard:hover {
+  background: #fa6073;
+  color: #fff;
 }
