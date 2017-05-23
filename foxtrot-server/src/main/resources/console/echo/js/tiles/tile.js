@@ -190,6 +190,7 @@ TileFactory.prototype.updateFilterCreation = function (object) {
 
   var form = $("#sidebar").find("form");
   form.find(".tile-title").val(object.title);
+  form.find("#sidebar-tileId").val(object.id);
   if (object.tileContext.tableDropdownIndex == undefined) {
     form.find(".tile-table").val(parseInt(tableNameList.indexOf(object.tileContext.table)));
   }
