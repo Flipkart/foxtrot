@@ -1839,6 +1839,7 @@ div.tab button:first-child {
   right: 0;
   z-index: 1000;
   top: 0;
+  display: none;
   height: 100%;
 }
 
