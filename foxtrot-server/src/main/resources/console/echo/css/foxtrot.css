@@ -984,7 +984,7 @@ th, td {
 
 #sidebar {
   width: 356px;
-  position: absolute;
+  position: fixed;
   background: #282b38;
   right: 0;
   z-index: 1000;
@@ -1109,12 +1109,14 @@ th, td {
   overflow-y: scroll;
   height: 100%;
   padding-bottom: 150px;
+/*
   position: fixed;
   top:80px;
+*/
 }
 
 #sidebar-content form {
-  padding-right: 0px;
+/*  padding-right: 0px;*/
 }
 
 .chart-forms {
@@ -1847,7 +1849,7 @@ div.tab button:first-child {
 
 #page-settings {
   width: 356px;
-  position: absolute;
+  position: fixed;
   background: #282b38;
   right: 0;
   z-index: 1000;
@@ -1861,12 +1863,6 @@ div.tab button:first-child {
   overflow-y: scroll;
   height: 100%;
   padding-bottom: 150px;
-  position: fixed;
-  top: 80px;
-}
-
-#page-settings form{
-  padding-right: 0px;
 }
 
 #page-settings label {
