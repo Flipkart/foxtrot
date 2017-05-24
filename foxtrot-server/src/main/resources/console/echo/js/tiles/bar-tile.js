@@ -67,16 +67,22 @@ function clearBarChartForm() {
 }
 BarTile.prototype.getQuery = function (object) {
   this.object = object;
-  this.object.tileContext.filters.pop();
+  var filters = [];
   if(globalFilters) {
-    object.tileContext.filters.push(timeValue(object.tileContext.period, object.tileContext.timeframe, getGlobalFilters()))
+    filters.push(timeValue(object.tileContext.period, object.tileContext.timeframe, getGlobalFilters()))
   } else {
-    object.tileContext.filters.push(timeValue(object.tileContext.period, object.tileContext.timeframe, getPeriodSelect(object.id)))
+    filters.push(timeValue(object.tileContext.period, object.tileContext.timeframe, getPeriodSelect(object.id)))
+  }
+
+  if(object.tileContext.filters) {
+    for (var i = 0; i < object.tileContext.filters.length; i++) {
+      filters.push(object.tileContext.filters[i]);
+    }
   }
   var data = {
     "opcode": "group"
     , "table": object.tileContext.table
-    , "filters": object.tileContext.filters
+    , "filters": filters
     , "uniqueCountOn": object.tileContext.uniqueCountOn && object.tileContext.uniqueCountOn != "none" ? object.tileContext.uniqueCountOn : null
     , "nesting": object.tileContext.nesting
   }
@@ -93,7 +99,6 @@ BarTile.prototype.getQuery = function (object) {
   });
 }
 BarTile.prototype.getData = function (data) {
-  this.object.tileContext.filters.pop();
   if(this.object.tileContext.uiFiltersList == undefined) {
     this.object.tileContext.uiFiltersList = [];
     this.object.tileContext.uiFiltersSelectedList = [];

@@ -86,15 +86,22 @@ function setStatsTrendTileChartFormValues(object) {
 
 StatsTrendTile.prototype.getQuery = function(object) {
   this.object = object;
+  var filters = [];
   if(globalFilters) {
-    object.tileContext.filters.push(timeValue(object.tileContext.period, object.tileContext.timeframe, getGlobalFilters()))
+    filters.push(timeValue(object.tileContext.period, object.tileContext.timeframe, getGlobalFilters()))
   } else {
-    object.tileContext.filters.push(timeValue(object.tileContext.period, object.tileContext.timeframe, getPeriodSelect(object.id)))
+    filters.push(timeValue(object.tileContext.period, object.tileContext.timeframe, getPeriodSelect(object.id)))
+  }
+
+  if(object.tileContext.filters) {
+    for (var i = 0; i < object.tileContext.filters.length; i++) {
+      filters.push(object.tileContext.filters[i]);
+    }
   }
   var data = {
     "opcode": "statstrend",
     "table": object.tileContext.table,
-    "filters": object.tileContext.filters,
+    "filters": filters,
     "field": object.tileContext.statsFieldName,
     "period": periodFromWindow(object.tileContext.period, "custom")
   }
@@ -112,7 +119,6 @@ StatsTrendTile.prototype.getQuery = function(object) {
 }
 
 StatsTrendTile.prototype.getData = function(data) {
-  this.object.tileContext.filters.pop();
   if(!data.result)
     return;
   var rows = [];

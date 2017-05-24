@@ -68,16 +68,23 @@ function clearStackedBarChartForm() {
 }
 StackedBarTile.prototype.getQuery = function (object) {
   this.object = object;
+  var filters = [];
   if(globalFilters) {
-    object.tileContext.filters.push(timeValue(object.tileContext.period, object.tileContext.timeframe, getGlobalFilters()))
+    filters.push(timeValue(object.tileContext.period, object.tileContext.timeframe, getGlobalFilters()))
   } else {
-    object.tileContext.filters.push(timeValue(object.tileContext.period, object.tileContext.timeframe, getPeriodSelect(object.id)))
+    filters.push(timeValue(object.tileContext.period, object.tileContext.timeframe, getPeriodSelect(object.id)))
+  }
+
+  if(object.tileContext.filters) {
+    for (var i = 0; i < object.tileContext.filters.length; i++) {
+      filters.push(object.tileContext.filters[i]);
+    }
   }
 
   var data = {
     "opcode": "trend"
     , "table": object.tileContext.table
-    , "filters": object.tileContext.filters
+    , "filters": filters
     , "uniqueCountOn": object.tileContext.uniqueCountOn && object.tileContext.uniqueCountOn != "none" ? object.tileContext.uniqueCountOn : null
     , "field": object.tileContext.stackedBarField
     , period: periodFromWindow(object.tileContext.period, (globalFilters ? getGlobalFilters() : getPeriodSelect(object.id)))
@@ -103,7 +110,6 @@ function unique(list) {
   return result;
 }
 StackedBarTile.prototype.getData = function (data) {
-  this.object.tileContext.filters.pop();
   if(this.object.tileContext.uiFiltersList == undefined) {
     this.object.tileContext.uiFiltersList = [];
     this.object.tileContext.uiFiltersSelectedList = [];

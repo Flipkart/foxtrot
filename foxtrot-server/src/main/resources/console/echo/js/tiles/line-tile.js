@@ -58,15 +58,22 @@ function clearLineChartForm() {
 }
 LineTile.prototype.getQuery = function (object) {
   this.object = object;
+  var filters = [];
   if(globalFilters) {
-    object.tileContext.filters.push(timeValue(object.tileContext.period, object.tileContext.timeframe, getGlobalFilters()))
+    filters.push(timeValue(object.tileContext.period, object.tileContext.timeframe, getGlobalFilters()))
   } else {
-    object.tileContext.filters.push(timeValue(object.tileContext.period, object.tileContext.timeframe, getPeriodSelect(object.id)))
+    filters.push(timeValue(object.tileContext.period, object.tileContext.timeframe, getPeriodSelect(object.id)))
+  }
+
+  if(object.tileContext.filters) {
+    for (var i = 0; i < object.tileContext.filters.length; i++) {
+      filters.push(object.tileContext.filters[i]);
+    }
   }
   var data = {
     "opcode": "histogram"
     , "table": object.tileContext.table
-    , "filters": object.tileContext.filters
+    , "filters": filters
     , "field": "_timestamp"
     , "period": object.tileContext.period
     , "uniqueCountOn": object.uniqueCountOn && object.uniqueCountOn != "none" ? object.uniqueCountOn : null
@@ -84,7 +91,6 @@ LineTile.prototype.getQuery = function (object) {
   });
 }
 LineTile.prototype.getData = function (data) {
-  this.object.tileContext.filters.pop();
   if (data.counts == undefined || data.counts.length == 0) return;
   var rows = [];
   rows.push(['date', 'count']);
