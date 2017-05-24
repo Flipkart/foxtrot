@@ -277,7 +277,8 @@ StackedBarTile.prototype.render = function (d) {
       padding: '2px',
       'background-color': '#425057',
       opacity: 0.80,
-      color: "#fff"
+      color: "#fff",
+      'z-index': 5000,
     }).appendTo("body").fadeIn(200).fadeOut(60000);
   }
 
