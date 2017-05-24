@@ -448,6 +448,11 @@ function showDashboardBtn() {
   $("#add-page-btn").show();
 }
 
+function clearPageSettings() {
+  sections = [];
+  $("#page-lists-content").empty();
+}
+
 function createDashboard() {
   var tabName = $("#tab-name").val();
   var dashboardName = $(".dashboard-name").val();
@@ -461,6 +466,8 @@ function createDashboard() {
   $("#listConsole").val('none');
   clearForms();
   showDashboardBtn();
+  clearPageSettings();
+  generateNewPageList(0, tabName);
 }
 
 function addSections() {
