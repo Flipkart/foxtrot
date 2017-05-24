@@ -102,14 +102,6 @@ StackedBarTile.prototype.getQuery = function (object) {
   });
 }
 
-function unique(list) {
-  var result = [];
-  $.each(list, function (i, e) {
-    if ($.inArray(e, result) == -1) result.push(e);
-  });
-  return result;
-}
-
 StackedBarTile.prototype.getData = function (data) {
   if(this.object.tileContext.uiFiltersList == undefined) {
     this.object.tileContext.uiFiltersList = [];

@@ -108,13 +108,6 @@ StackedTile.prototype.getQuery = function (object) {
   });
 }
 
-function unique(list) {
-  var result = [];
-  $.each(list, function (i, e) {
-    if ($.inArray(e, result) == -1) result.push(e);
-  });
-  return result;
-}
 StackedTile.prototype.getData = function (data) {
   if (data.result == undefined || data.result.length == 0) return;
   var xAxis = [];
