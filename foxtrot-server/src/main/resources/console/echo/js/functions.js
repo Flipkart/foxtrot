@@ -96,7 +96,7 @@ function clearModal() {
   $(".tile-table").change();
   $("#tileTimeFrame").val('');
   $(".tile-time-unit").val('minutes');
-  $(".tileId").val('');
+  $(".sidebar-tileId").val('');
   $(".vizualization-type").show();
   $(".vizualization-type").removeClass("vizualization-type-active");
   removeFilters();
