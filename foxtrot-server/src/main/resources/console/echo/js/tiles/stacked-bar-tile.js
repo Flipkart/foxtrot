@@ -191,7 +191,9 @@ StackedBarTile.prototype.render = function (d) {
   var chartDiv = $("#"+object.id).find(".chart-item");
   var borderColorArray = ["#9e8cd9", "#f3a534", "#9bc95b", "#50e3c2"]
   var ctx = chartDiv.find("#" + object.id);
-  ctx.addClass('col-sm-10');
+  console.log('=?'+object.tileContext.widgetSize)
+  var chartClassName = object.tileContext.widgetSize == undefined ? getFullWidgetClassName(12) : getFullWidgetClassName(object.tileContext.widgetSize);
+  ctx.addClass(chartClassName);
   $("#"+object.id).find(".chart-item").find(".legend").addClass('full-widget-legend');
   //$("#"+object.id).find(".chart-item").css('margin-top', "53px");
   ctx.width(ctx.width);

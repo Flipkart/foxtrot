@@ -199,7 +199,9 @@ StackedTile.prototype.render = function (yAxisSeries, xAxisTicks) {
   var ctx = chartDiv.find("#" + object.id);
   ctx.width(ctx.width);
   ctx.height(230);
-  ctx.addClass('col-sm-10');
+  console.log('==='+object.tileContext.widgetSize)
+  var chartClassName = object.tileContext.widgetSize == undefined ? getFullWidgetClassName(12) : getFullWidgetClassName(object.tileContext.widgetSize);
+  ctx.addClass(chartClassName);
   $("#"+object.id).find(".chart-item").find(".legend").addClass('full-widget-legend');
   $.plot(ctx, yAxisSeries, {
     series: {

@@ -363,3 +363,14 @@ function drawLegend(columns, element) {
 function convertName(name) {
   return name.trim().toLowerCase().split(' ').join("_");
 }
+
+function getFullWidgetClassName(size) {
+  console.log(size);
+  if(size == 9) {
+    return 'col-sm-9';
+  } else if(size == 6) {
+    return 'col-sm-8'
+  } else {
+    return 'col-sm-10';
+  }
+}

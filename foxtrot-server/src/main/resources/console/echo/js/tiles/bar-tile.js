@@ -152,7 +152,8 @@ BarTile.prototype.render = function (xAxisOptions, columns) {
   var chartDiv = $("#"+object.id).find(".chart-item");
   var ctx = chartDiv.find("#" + object.id);
   ctx.width(ctx.width);
-  ctx.addClass('col-sm-10');
+  var chartClassName = object.tileContext.widgetSize == undefined ? getFullWidgetClassName(12) : getFullWidgetClassName(object.tileContext.widgetSize);
+  ctx.addClass(chartClassName);
   $("#"+object.id).find(".chart-item").find(".legend").addClass('full-widget-legend');
   ctx.height(230);
   var chartOptions = {
