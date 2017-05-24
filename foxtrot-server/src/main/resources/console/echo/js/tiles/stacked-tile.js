@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 function StackedTile() {
-  this.newDiv = "";
   this.object = "";
 }
 
@@ -75,8 +74,7 @@ function clearstackedChartForm() {
   stackingBarUniqueKey.find('option:eq(0)').prop('selected', true);
   $(stackingBarUniqueKey).selectpicker('refresh');
 }
-StackedTile.prototype.getQuery = function (newDiv, object) {
-  this.newDiv = newDiv;
+StackedTile.prototype.getQuery = function (object) {
   this.object = object;
   this.object.tileContext.filters.pop();
   if(globalFilters) {
@@ -193,7 +191,6 @@ StackedTile.prototype.getData = function (data) {
   this.render(yAxisSeries, xAxisTicks)
 }
 StackedTile.prototype.render = function (yAxisSeries, xAxisTicks) {
-  var newDiv = this.newDiv;
   var object = this.object;
   var chartDiv = $("#"+object.id).find(".chart-item");
   var ctx = chartDiv.find("#" + object.id);

@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 function LineTile() {
-  this.newDiv = "";
   this.object = "";
 }
 
@@ -57,8 +56,7 @@ function clearLineChartForm() {
   $(uniqeKey).selectpicker('refresh');
   parentElement.find("#line-timeframe").val('');
 }
-LineTile.prototype.getQuery = function (newDiv, object) {
-  this.newDiv = newDiv;
+LineTile.prototype.getQuery = function (object) {
   this.object = object;
   if(globalFilters) {
     object.tileContext.filters.push(timeValue(object.tileContext.period, object.tileContext.timeframe, getGlobalFilters()))
@@ -96,7 +94,6 @@ LineTile.prototype.getData = function (data) {
   this.render(rows);
 }
 LineTile.prototype.render = function (rows) {
-  var newDiv = this.newDiv;
   var object = this.object;
   var borderColorArray = ["#9e8cd9", "#f3a534", "#9bc95b", "#50e3c2"]
   var chartDiv = $("#"+object.id).find(".chart-item");
@@ -160,7 +157,7 @@ LineTile.prototype.render = function (rows) {
     }
     , colors: [borderColorArray[Math.floor(Math.random()*borderColorArray.length)]]
   , });
-  var healthParentDiv = newDiv.find(".widget-header")
+  var healthParentDiv = $("#"+object.id).find(".widget-header")
   var healthDiv = healthParentDiv.find("#" + object.id + "-health");
   healthDiv.width(100);
   healthDiv.addClass('health-div');

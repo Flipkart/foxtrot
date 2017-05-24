@@ -298,40 +298,40 @@ TileFactory.prototype.createGraph = function (object, tileElement) {
   if (object.tileContext.chartType == "line") {
     var lineGraph = new LineTile();
     //lineGraph.render(tileElement, object);
-    lineGraph.getQuery(tileElement, object);
+    lineGraph.getQuery(object);
   }
   else if (object.tileContext.chartType == "radar") {
     tileElement.find(".chart-item").append('<div id="radar-' + object.id + '" style="width:200;height:200"></div>');
     var radarGraph = new RadarTile();
-    radarGraph.getQuery(tileElement, object);
+    radarGraph.getQuery(object);
   }
   else if (object.tileContext.chartType == "trend") {
     var trendGraph = new TrendTile();
-    trendGraph.getQuery(tileElement, object);
+    trendGraph.getQuery(object);
   }
   else if (object.tileContext.chartType == "gauge") {
     var gaugeGraph = new GaugeTile();
-    gaugeGraph.getQuery(tileElement, object);
+    gaugeGraph.getQuery(object);
   }
   else if (object.tileContext.chartType == "stacked") {
     var stackedGraph = new StackedTile();
-    stackedGraph.getQuery(tileElement, object);
+    stackedGraph.getQuery(object);
   }
   else if (object.tileContext.chartType == "stackedBar") {
     var stackedBarGraph = new StackedBarTile();
-    stackedBarGraph.getQuery(tileElement, object);
+    stackedBarGraph.getQuery(object);
   }
   else if (object.tileContext.chartType == "pie") {
     var pieGraph = new PieTile();
-    pieGraph.getQuery(tileElement, object);
+    pieGraph.getQuery(object);
   }
   else if (object.tileContext.chartType == "statsTrend") {
     var statsTrendGraph = new StatsTrendTile();
-    statsTrendGraph.getQuery(tileElement, object);
+    statsTrendGraph.getQuery(object);
   }
   else if (object.tileContext.chartType == "bar") {
     var barGraph = new BarTile();
-    barGraph.getQuery(tileElement, object);
+    barGraph.getQuery(object);
   }
 }
 TileFactory.prototype.create = function () {

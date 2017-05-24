@@ -15,7 +15,6 @@
  */
 
 function TrendTile() {
-  this.newDiv = "";
   this.object = "";
 }
 
@@ -85,8 +84,7 @@ function setTrendChartFormValues(object) {
   parentElement.find(".trend-ignored-digits").val(parseInt(object.tileContext.ignoreDigits == undefined ? 0 : object.tileContext.ignoreDigits));
 }
 
-TrendTile.prototype.getQuery = function(newDiv, object) {
-  this.newDiv = newDiv;
+TrendTile.prototype.getQuery = function(object) {
   this.object = object;
   if(globalFilters) {
     object.tileContext.filters.push(timeValue(object.tileContext.period, object.tileContext.timeframe, getGlobalFilters()))
@@ -131,7 +129,6 @@ TrendTile.prototype.getData = function(data) {
 }
 
 TrendTile.prototype.render = function (displayValue) {
-  var newDiv = this.newDiv;
   var object = this.object;
   var chartDiv = $("#"+object.id).find(".chart-item");
   chartDiv.addClass("trend-chart");

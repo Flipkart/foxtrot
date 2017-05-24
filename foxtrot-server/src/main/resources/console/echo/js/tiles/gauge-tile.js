@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 function GaugeTile() {
-  this.newDiv = "";
   this.object = "";
 }
 
@@ -58,8 +57,7 @@ function clearGaugeChartForm() {
   $(timeUnitEl).selectpicker('refresh');
   parentElement.find("#gauge-timeframe").val('');
 }
-GaugeTile.prototype.getQuery = function (newDiv, object) {
-  this.newDiv = newDiv;
+GaugeTile.prototype.getQuery = function (object) {
   this.object = object;
   if(globalFilters) {
     object.tileContext.filters.push(timeValue(object.tileContext.period, object.tileContext.timeframe, getGlobalFilters()))
@@ -95,7 +93,6 @@ GaugeTile.prototype.getData = function (data) {
   this.render(percentage % 100);
 }
 GaugeTile.prototype.render = function (data) {
-  var newDiv = this.newDiv;
   var object = this.object;
   var d = [data];
   var chartDiv = $("#"+object.id).find(".chart-item");

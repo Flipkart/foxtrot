@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 function PieTile() {
-  this.newDiv = "";
   this.object = "";
 }
 
@@ -70,8 +69,7 @@ function clearPieChartForm() {
   $(stackingBarUniqueKey).selectpicker('refresh');
   $(".pie-ignored-digits").val(0);
 }
-PieTile.prototype.getQuery = function (newDiv, object) {
-  this.newDiv = newDiv;
+PieTile.prototype.getQuery = function (object) {
   this.object = object;
   if(globalFilters) {
     object.tileContext.filters.push(timeValue(object.tileContext.period, object.tileContext.timeframe, getGlobalFilters()))
@@ -124,7 +122,6 @@ PieTile.prototype.getData = function (data) {
   this.render(columns)
 }
 PieTile.prototype.render = function (columns) {
-  var newDiv = this.newDiv;
   var object = this.object;
   var chartDiv = $("#"+object.id).find(".chart-item");
   var ctx = chartDiv.find("#" + object.id);

@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 function StackedBarTile() {
-  this.newDiv = "";
   this.object = "";
 }
 
@@ -67,8 +66,7 @@ function clearStackedBarChartForm() {
   $(stackingBarUniqueKey).selectpicker('refresh');
   $(".stackedBar-ignored-digits").val(0);
 }
-StackedBarTile.prototype.getQuery = function (newDiv, object) {
-  this.newDiv = newDiv;
+StackedBarTile.prototype.getQuery = function (object) {
   this.object = object;
   if(globalFilters) {
     object.tileContext.filters.push(timeValue(object.tileContext.period, object.tileContext.timeframe, getGlobalFilters()))
@@ -184,7 +182,6 @@ StackedBarTile.prototype.getData = function (data) {
   this.render(d);
 }
 StackedBarTile.prototype.render = function (d) {
-  var newDiv = this.newDiv;
   var object = this.object;
   var chartDiv = $("#"+object.id).find(".chart-item");
   var borderColorArray = ["#9e8cd9", "#f3a534", "#9bc95b", "#50e3c2"]

@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 function BarTile() {
-  this.newDiv = "";
   this.object = "";
 }
 
@@ -66,8 +65,7 @@ function clearBarChartForm() {
   stackingBarUniqueKey.find('option:eq(0)').prop('selected', true);
   $(stackingBarUniqueKey).selectpicker('refresh');
 }
-BarTile.prototype.getQuery = function (newDiv, object) {
-  this.newDiv = newDiv;
+BarTile.prototype.getQuery = function (object) {
   this.object = object;
   this.object.tileContext.filters.pop();
   if(globalFilters) {
@@ -145,7 +143,6 @@ BarTile.prototype.getData = function (data) {
   this.render(xAxisOptions, columns);
 }
 BarTile.prototype.render = function (xAxisOptions, columns) {
-  var newDiv = this.newDiv;
   var object = this.object;
   var chartDiv = $("#"+object.id).find(".chart-item");
   var ctx = chartDiv.find("#" + object.id);

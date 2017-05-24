@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 function RadarTile() {
-  this.newDiv = "";
   this.object = "";
 }
 
@@ -54,8 +53,7 @@ function clearRadarChartForm() {
   $(timeUnitEl).selectpicker('refresh');
   $("#radar-timeframe").val('');
 }
-RadarTile.prototype.getQuery = function (newDiv, object) {
-  this.newDiv = newDiv;
+RadarTile.prototype.getQuery = function (object) {
   this.object = object;
   if(globalFilters) {
     object.tileContext.filters.push(timeValue(object.tileContext.period, object.tileContext.timeframe, getGlobalFilters()))
@@ -98,7 +96,6 @@ RadarTile.prototype.getData = function (data) {
 RadarTile.prototype.render = function (data) {
   var a = [];
   a.push(data);
-  var newDiv = this.newDiv;
   var object = this.object;
   var d = a;
   var chartDiv = $("#"+object.id).find(".chart-item");
