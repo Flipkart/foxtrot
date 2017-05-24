@@ -325,7 +325,7 @@ StackedBarTile.prototype.render = function (d) {
     plot  .draw();
   });
 
-  $('.legend ul li').on('mouseleave', function() {
+  $(chartDiv.find('.legend ul li')).on('mouseleave', function() {
     var label = $(this).text();
     var allSeries = plot.getData();
     for (var i = 0; i < allSeries.length; i++){

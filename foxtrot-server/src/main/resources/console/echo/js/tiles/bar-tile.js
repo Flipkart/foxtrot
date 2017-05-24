@@ -222,7 +222,7 @@ BarTile.prototype.render = function (xAxisOptions, columns) {
 
   drawLegend(columns, $(chartDiv.find(".legend")));
 
-  $('.legend ul li').on('mouseenter', function() {
+  $(chartDiv.find('.legend ul li')).on('mouseenter', function() {
     var label = $(this).text();
     var allSeries = plot.getData();
     for (var i = 0; i < allSeries.length; i++){
@@ -235,7 +235,7 @@ BarTile.prototype.render = function (xAxisOptions, columns) {
     plot.draw();
   });
 
-  $('.legend ul li').on('mouseleave', function() {
+  $(chartDiv.find('.legend ul li')).on('mouseleave', function() {
     var label = $(this).text();
     var allSeries = plot.getData();
     for (var i = 0; i < allSeries.length; i++){
