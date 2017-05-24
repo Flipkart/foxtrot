@@ -15,7 +15,6 @@
  */
 
 function TrendTile() {
-  this.newDiv = "";
   this.object = "";
 }
 
@@ -85,18 +84,25 @@ function setTrendChartFormValues(object) {
   parentElement.find(".trend-ignored-digits").val(parseInt(object.tileContext.ignoreDigits == undefined ? 0 : object.tileContext.ignoreDigits));
 }
 
-TrendTile.prototype.getQuery = function(newDiv, object) {
-  this.newDiv = newDiv;
+TrendTile.prototype.getQuery = function(object) {
   this.object = object;
+  var filters = [];
   if(globalFilters) {
-    object.tileContext.filters.push(timeValue(object.tileContext.period, object.tileContext.timeframe, getGlobalFilters()))
+    filters.push(timeValue(object.tileContext.period, object.tileContext.timeframe, getGlobalFilters()))
   } else {
-    object.tileContext.filters.push(timeValue(object.tileContext.period, object.tileContext.timeframe, getPeriodSelect(object.id)))
+    filters.push(timeValue(object.tileContext.period, object.tileContext.timeframe, getPeriodSelect(object.id)))
   }
+
+  if(object.tileContext.filters) {
+    for (var i = 0; i < object.tileContext.filters.length; i++) {
+      filters.push(object.tileContext.filters[i]);
+    }
+  }
+
   var data = {
     "opcode": "stats",
     "table": object.tileContext.table,
-    "filters": object.tileContext.filters,
+    "filters": filters,
     "field": object.tileContext.statsFieldName
   }
   $.ajax({
@@ -113,7 +119,6 @@ TrendTile.prototype.getQuery = function(newDiv, object) {
 }
 
 TrendTile.prototype.getData = function(data) {
-  this.object.tileContext.filters.pop();
   if(!data.result)
     return;
   var statsObject = data.result.stats;
@@ -131,7 +136,6 @@ TrendTile.prototype.getData = function(data) {
 }
 
 TrendTile.prototype.render = function (displayValue) {
-  var newDiv = this.newDiv;
   var object = this.object;
   var chartDiv = $("#"+object.id).find(".chart-item");
   chartDiv.addClass("trend-chart");

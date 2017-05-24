@@ -15,7 +15,6 @@
  */
 
 function StatsTrendTile() {
-  this.newDiv = "";
   this.object = "";
 }
 
@@ -85,18 +84,24 @@ function setStatsTrendTileChartFormValues(object) {
   parentElement.find(".stats-trend-ignored-digits").val(parseInt(object.tileContext.ignoreDigits == undefined ? 0 : object.tileContext.ignoreDigits));
 }
 
-StatsTrendTile.prototype.getQuery = function(newDiv, object) {
-  this.newDiv = newDiv;
+StatsTrendTile.prototype.getQuery = function(object) {
   this.object = object;
+  var filters = [];
   if(globalFilters) {
-    object.tileContext.filters.push(timeValue(object.tileContext.period, object.tileContext.timeframe, getGlobalFilters()))
+    filters.push(timeValue(object.tileContext.period, object.tileContext.timeframe, getGlobalFilters()))
   } else {
-    object.tileContext.filters.push(timeValue(object.tileContext.period, object.tileContext.timeframe, getPeriodSelect(object.id)))
+    filters.push(timeValue(object.tileContext.period, object.tileContext.timeframe, getPeriodSelect(object.id)))
+  }
+
+  if(object.tileContext.filters) {
+    for (var i = 0; i < object.tileContext.filters.length; i++) {
+      filters.push(object.tileContext.filters[i]);
+    }
   }
   var data = {
     "opcode": "statstrend",
     "table": object.tileContext.table,
-    "filters": object.tileContext.filters,
+    "filters": filters,
     "field": object.tileContext.statsFieldName,
     "period": periodFromWindow(object.tileContext.period, "custom")
   }
@@ -114,7 +119,6 @@ StatsTrendTile.prototype.getQuery = function(newDiv, object) {
 }
 
 StatsTrendTile.prototype.getData = function(data) {
-  this.object.tileContext.filters.pop();
   if(!data.result)
     return;
   var rows = [];
@@ -138,7 +142,6 @@ StatsTrendTile.prototype.getData = function(data) {
 }
 
 StatsTrendTile.prototype.render = function (rows) {
-  var newDiv = this.newDiv;
   var object = this.object;
   var borderColorArray = ["#9e8cd9", "#f3a534", "#9bc95b", "#50e3c2"]
   var chartDiv = $("#"+object.id).find(".chart-item");

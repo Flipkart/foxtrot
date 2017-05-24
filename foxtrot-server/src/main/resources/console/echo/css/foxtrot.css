@@ -7,7 +7,7 @@ body {
 }
 
 .tile-default-size {
-  height: 430px;
+  height: 460px;
 }
 
 .pageheader {
@@ -155,6 +155,7 @@ h1 {
   font-size: smaller;
   background: rgb(245, 245, 245);
   font-family: Open Sans Regular;
+  cursor: pointer;
 }
 
 .title-header-toolbar-icon-container {
@@ -398,7 +399,7 @@ h1 {
 }
 
 .trend-chart {
-  margin-top: 10px;
+  margin-top: -15px;
 }
 
 .trend-chart hr {
@@ -587,6 +588,7 @@ h1 {
   height: 14px;
   border-radius: 100px;
   background-color: #dde4e7;
+  cursor: pointer;
 }
 
 .tile-header {
@@ -604,6 +606,7 @@ h1 {
   top: 12px;
   right: 16px;
   background: #fff;
+  cursor: pointer;
 }
 
 .filter {
@@ -725,7 +728,7 @@ div.tab button.active {
 .legend {
   width: auto;
   height:300px;
-  overflow: scroll;
+  overflow-y: scroll;
   margin-top: 12px;
   font-family: Open Sans Regular;
   font-size: 10px;
@@ -840,6 +843,7 @@ th, td {
   background: #fff;
   border: none;
   font-family: Open Sans;
+  cursor: pointer;
 }
 
 .listConsole {
@@ -867,6 +871,7 @@ th, td {
 
 #listConsole {
   width: auto;
+  cursor: pointer;
 }
 #listConsole option {
   width: 250px;
@@ -979,7 +984,7 @@ th, td {
 
 #sidebar {
   width: 356px;
-  position: absolute;
+  position: fixed;
   background: #282b38;
   right: 0;
   z-index: 1000;
@@ -1104,6 +1109,14 @@ th, td {
   overflow-y: scroll;
   height: 100%;
   padding-bottom: 150px;
+/*
+  position: fixed;
+  top:80px;
+*/
+}
+
+#sidebar-content form {
+/*  padding-right: 0px;*/
 }
 
 .chart-forms {
@@ -1276,6 +1289,7 @@ input[type="checkbox"].tinyswitch.ios-switch:checked + div > div {
 .filter-delete {
   left: 12px;
   top: 5px;
+  cursor: pointer;
 }
 
 .glyphicon-trash{
@@ -1541,6 +1555,7 @@ select {
   position: absolute;
   left: -40px;
   padding: 6px 6px 9px 10px;
+  cursor: pointer;
 }
 
 .hide-filters {
@@ -1834,11 +1849,12 @@ div.tab button:first-child {
 
 #page-settings {
   width: 356px;
-  position: absolute;
+  position: fixed;
   background: #282b38;
   right: 0;
   z-index: 1000;
   top: 0;
+  display: none;
   height: 100%;
 }
 
@@ -1909,6 +1925,7 @@ div.tab button:first-child {
   position: absolute;
   left: -40px;
   padding: 6px 6px 9px 10px;
+  cursor: pointer;
 }
 
 #page-settings-heading  h1{
@@ -1941,6 +1958,7 @@ div.tab button:first-child {
   float: right;
   position: relative;
   top: -26px;
+  cursor: pointer;
 }
 
 .page-remove-img:hover {
@@ -1971,8 +1989,31 @@ div.tab button:first-child {
 .delete-dashboard {
   width: 300px;
   height: 36px;
-  background-color: #fa6073;
   border: none;
-  color: #fff;
+  color: #a6a8b5;
   margin-top: 15px;
+  background: none;
+  border: 1px solid #fa6073;
+  font-size: 12px;
+}
+
+.delete-dashboard:hover {
+  background: #fa6073;
+  color: #fff;
+}
+
+.max-height {
+  max-height:460px;overflow:hidden;
+}
+
+.full-widget-min-width {
+  width: 50%;
+}
+
+.full-widget-max-width {
+  width: 100%;
+}
+
+.full-widget-medium-width {
+  width: 75%;
 }

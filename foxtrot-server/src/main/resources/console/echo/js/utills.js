@@ -363,3 +363,27 @@ function drawLegend(columns, element) {
 function convertName(name) {
   return name.trim().toLowerCase().split(' ').join("_");
 }
+
+function getFullWidgetClassName(size) {
+  if(size == 9) {
+    return 'col-sm-9';
+  } else if(size == 6) {
+    return 'col-sm-8'
+  } else {
+    return 'col-sm-10';
+  }
+}
+
+function fullWidgetChartHeight() {
+  return 270;
+}
+
+function convertHex(hex,opacity){
+  hex = hex.replace('#','');
+  r = parseInt(hex.substring(0,2), 16);
+  g = parseInt(hex.substring(2,4), 16);
+  b = parseInt(hex.substring(4,6), 16);
+
+  result = 'rgba('+r+','+g+','+b+','+opacity/100+')';
+  return result;
+}

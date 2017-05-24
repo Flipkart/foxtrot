@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 function LineTile() {
-  this.newDiv = "";
   this.object = "";
 }
 
@@ -57,18 +56,24 @@ function clearLineChartForm() {
   $(uniqeKey).selectpicker('refresh');
   parentElement.find("#line-timeframe").val('');
 }
-LineTile.prototype.getQuery = function (newDiv, object) {
-  this.newDiv = newDiv;
+LineTile.prototype.getQuery = function (object) {
   this.object = object;
+  var filters = [];
   if(globalFilters) {
-    object.tileContext.filters.push(timeValue(object.tileContext.period, object.tileContext.timeframe, getGlobalFilters()))
+    filters.push(timeValue(object.tileContext.period, object.tileContext.timeframe, getGlobalFilters()))
   } else {
-    object.tileContext.filters.push(timeValue(object.tileContext.period, object.tileContext.timeframe, getPeriodSelect(object.id)))
+    filters.push(timeValue(object.tileContext.period, object.tileContext.timeframe, getPeriodSelect(object.id)))
+  }
+
+  if(object.tileContext.filters) {
+    for (var i = 0; i < object.tileContext.filters.length; i++) {
+      filters.push(object.tileContext.filters[i]);
+    }
   }
   var data = {
     "opcode": "histogram"
     , "table": object.tileContext.table
-    , "filters": object.tileContext.filters
+    , "filters": filters
     , "field": "_timestamp"
     , "period": object.tileContext.period
     , "uniqueCountOn": object.uniqueCountOn && object.uniqueCountOn != "none" ? object.uniqueCountOn : null
@@ -86,7 +91,6 @@ LineTile.prototype.getQuery = function (newDiv, object) {
   });
 }
 LineTile.prototype.getData = function (data) {
-  this.object.tileContext.filters.pop();
   if (data.counts == undefined || data.counts.length == 0) return;
   var rows = [];
   rows.push(['date', 'count']);
@@ -96,13 +100,12 @@ LineTile.prototype.getData = function (data) {
   this.render(rows);
 }
 LineTile.prototype.render = function (rows) {
-  var newDiv = this.newDiv;
   var object = this.object;
   var borderColorArray = ["#9e8cd9", "#f3a534", "#9bc95b", "#50e3c2"]
   var chartDiv = $("#"+object.id).find(".chart-item");
   var ctx = chartDiv.find("#" + object.id);
   ctx.width(ctx.width - 100);
-  ctx.height(230);
+  ctx.height(fullWidgetChartHeight());
   $.plot(ctx, [
     {
       data: rows
@@ -160,7 +163,7 @@ LineTile.prototype.render = function (rows) {
     }
     , colors: [borderColorArray[Math.floor(Math.random()*borderColorArray.length)]]
   , });
-  var healthParentDiv = newDiv.find(".widget-header")
+  var healthParentDiv = $("#"+object.id).find(".widget-header")
   var healthDiv = healthParentDiv.find("#" + object.id + "-health");
   healthDiv.width(100);
   healthDiv.addClass('health-div');

@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 function BarTile() {
-  this.newDiv = "";
   this.object = "";
 }
 
@@ -42,7 +41,6 @@ function getBarChartFormValues() {
 }
 
 function setBarChartFormValues(object) {
-  console.log(object)
   $(".bar-time-unit").val(object.tileContext.period);
   $(".bar-time-unit").selectpicker('refresh');
   $(".bar-timeframe").val(object.tileContext.timeframe);
@@ -67,19 +65,24 @@ function clearBarChartForm() {
   stackingBarUniqueKey.find('option:eq(0)').prop('selected', true);
   $(stackingBarUniqueKey).selectpicker('refresh');
 }
-BarTile.prototype.getQuery = function (newDiv, object) {
-  this.newDiv = newDiv;
+BarTile.prototype.getQuery = function (object) {
   this.object = object;
-  this.object.tileContext.filters.pop();
+  var filters = [];
   if(globalFilters) {
-    object.tileContext.filters.push(timeValue(object.tileContext.period, object.tileContext.timeframe, getGlobalFilters()))
+    filters.push(timeValue(object.tileContext.period, object.tileContext.timeframe, getGlobalFilters()))
   } else {
-    object.tileContext.filters.push(timeValue(object.tileContext.period, object.tileContext.timeframe, getPeriodSelect(object.id)))
+    filters.push(timeValue(object.tileContext.period, object.tileContext.timeframe, getPeriodSelect(object.id)))
+  }
+
+  if(object.tileContext.filters) {
+    for (var i = 0; i < object.tileContext.filters.length; i++) {
+      filters.push(object.tileContext.filters[i]);
+    }
   }
   var data = {
     "opcode": "group"
     , "table": object.tileContext.table
-    , "filters": object.tileContext.filters
+    , "filters": filters
     , "uniqueCountOn": object.tileContext.uniqueCountOn && object.tileContext.uniqueCountOn != "none" ? object.tileContext.uniqueCountOn : null
     , "nesting": object.tileContext.nesting
   }
@@ -96,7 +99,6 @@ BarTile.prototype.getQuery = function (newDiv, object) {
   });
 }
 BarTile.prototype.getData = function (data) {
-  this.object.tileContext.filters.pop();
   if(this.object.tileContext.uiFiltersList == undefined) {
     this.object.tileContext.uiFiltersList = [];
     this.object.tileContext.uiFiltersSelectedList = [];
@@ -146,15 +148,14 @@ BarTile.prototype.getData = function (data) {
   this.render(xAxisOptions, columns);
 }
 BarTile.prototype.render = function (xAxisOptions, columns) {
-  console.log(columns);
-  var newDiv = this.newDiv;
   var object = this.object;
   var chartDiv = $("#"+object.id).find(".chart-item");
   var ctx = chartDiv.find("#" + object.id);
   ctx.width(ctx.width);
-  ctx.addClass('col-sm-10');
+  var chartClassName = object.tileContext.widgetSize == undefined ? getFullWidgetClassName(12) : getFullWidgetClassName(object.tileContext.widgetSize);
+  ctx.addClass(chartClassName);
   $("#"+object.id).find(".chart-item").find(".legend").addClass('full-widget-legend');
-  ctx.height(230);
+  ctx.height(fullWidgetChartHeight());
   var chartOptions = {
     series: {
       bars: {
@@ -221,7 +222,7 @@ BarTile.prototype.render = function (xAxisOptions, columns) {
 
   drawLegend(columns, $(chartDiv.find(".legend")));
 
-  $('.legend ul li').on('mouseenter', function() {
+  $(chartDiv.find('.legend ul li')).on('mouseenter', function() {
     var label = $(this).text();
     var allSeries = plot.getData();
     for (var i = 0; i < allSeries.length; i++){
@@ -234,7 +235,7 @@ BarTile.prototype.render = function (xAxisOptions, columns) {
     plot.draw();
   });
 
-  $('.legend ul li').on('mouseleave', function() {
+  $(chartDiv.find('.legend ul li')).on('mouseleave', function() {
     var label = $(this).text();
     var allSeries = plot.getData();
     for (var i = 0; i < allSeries.length; i++){

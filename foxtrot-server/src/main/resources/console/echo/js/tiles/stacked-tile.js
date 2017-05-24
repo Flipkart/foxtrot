@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 function StackedTile() {
-  this.newDiv = "";
   this.object = "";
 }
 
@@ -75,19 +74,24 @@ function clearstackedChartForm() {
   stackingBarUniqueKey.find('option:eq(0)').prop('selected', true);
   $(stackingBarUniqueKey).selectpicker('refresh');
 }
-StackedTile.prototype.getQuery = function (newDiv, object) {
-  this.newDiv = newDiv;
+StackedTile.prototype.getQuery = function (object) {
   this.object = object;
-  this.object.tileContext.filters.pop();
+  var filters = [];
   if(globalFilters) {
-    object.tileContext.filters.push(timeValue(object.tileContext.period, object.tileContext.timeframe, getGlobalFilters()))
+    filters.push(timeValue(object.tileContext.period, object.tileContext.timeframe, getGlobalFilters()))
   } else {
-    object.tileContext.filters.push(timeValue(object.tileContext.period, object.tileContext.timeframe, getPeriodSelect(object.id)))
+    filters.push(timeValue(object.tileContext.period, object.tileContext.timeframe, getPeriodSelect(object.id)))
+  }
+
+  if(object.tileContext.filters) {
+    for (var i = 0; i < object.tileContext.filters.length; i++) {
+      filters.push(object.tileContext.filters[i]);
+    }
   }
   var data = {
     "opcode": "group"
     , "table": object.tileContext.table
-    , "filters": object.tileContext.filters
+    , "filters": filters
     , "uniqueCountOn": object.tileContext.uniqueCountOn && object.tileContext.uniqueCountOn != "none" ? object.tileContext.uniqueCountOn : null
     , "nesting": object.tileContext.nesting
   }
@@ -104,15 +108,7 @@ StackedTile.prototype.getQuery = function (newDiv, object) {
   });
 }
 
-function unique(list) {
-  var result = [];
-  $.each(list, function (i, e) {
-    if ($.inArray(e, result) == -1) result.push(e);
-  });
-  return result;
-}
 StackedTile.prototype.getData = function (data) {
-  this.object.tileContext.filters.pop();
   if (data.result == undefined || data.result.length == 0) return;
   var xAxis = [];
   var yAxis = [];
@@ -193,13 +189,13 @@ StackedTile.prototype.getData = function (data) {
   this.render(yAxisSeries, xAxisTicks)
 }
 StackedTile.prototype.render = function (yAxisSeries, xAxisTicks) {
-  var newDiv = this.newDiv;
   var object = this.object;
   var chartDiv = $("#"+object.id).find(".chart-item");
   var ctx = chartDiv.find("#" + object.id);
   ctx.width(ctx.width);
-  ctx.height(230);
-  ctx.addClass('col-sm-10');
+  ctx.height(fullWidgetChartHeight());
+  var chartClassName = object.tileContext.widgetSize == undefined ? getFullWidgetClassName(12) : getFullWidgetClassName(object.tileContext.widgetSize);
+  ctx.addClass(chartClassName);
   $("#"+object.id).find(".chart-item").find(".legend").addClass('full-widget-legend');
   $.plot(ctx, yAxisSeries, {
     series: {

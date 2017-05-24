@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 function StackedBarTile() {
-  this.newDiv = "";
   this.object = "";
 }
 
@@ -42,7 +41,6 @@ function getstackedBarChartFormValues() {
 }
 
 function setStackedBarChartFormValues(object) {
-  console.log(object.tileContext);
   $(".stacked-bar-time-unit").val(object.tileContext.period);
   $(".stacked-bar-time-unit").selectpicker('refresh');
   $(".stacked-bar-timeframe").val(object.tileContext.timeframe);
@@ -68,19 +66,25 @@ function clearStackedBarChartForm() {
   $(stackingBarUniqueKey).selectpicker('refresh');
   $(".stackedBar-ignored-digits").val(0);
 }
-StackedBarTile.prototype.getQuery = function (newDiv, object) {
-  this.newDiv = newDiv;
+StackedBarTile.prototype.getQuery = function (object) {
   this.object = object;
+  var filters = [];
   if(globalFilters) {
-    object.tileContext.filters.push(timeValue(object.tileContext.period, object.tileContext.timeframe, getGlobalFilters()))
+    filters.push(timeValue(object.tileContext.period, object.tileContext.timeframe, getGlobalFilters()))
   } else {
-    object.tileContext.filters.push(timeValue(object.tileContext.period, object.tileContext.timeframe, getPeriodSelect(object.id)))
+    filters.push(timeValue(object.tileContext.period, object.tileContext.timeframe, getPeriodSelect(object.id)))
+  }
+
+  if(object.tileContext.filters) {
+    for (var i = 0; i < object.tileContext.filters.length; i++) {
+      filters.push(object.tileContext.filters[i]);
+    }
   }
 
   var data = {
     "opcode": "trend"
     , "table": object.tileContext.table
-    , "filters": object.tileContext.filters
+    , "filters": filters
     , "uniqueCountOn": object.tileContext.uniqueCountOn && object.tileContext.uniqueCountOn != "none" ? object.tileContext.uniqueCountOn : null
     , "field": object.tileContext.stackedBarField
     , period: periodFromWindow(object.tileContext.period, (globalFilters ? getGlobalFilters() : getPeriodSelect(object.id)))
@@ -98,15 +102,7 @@ StackedBarTile.prototype.getQuery = function (newDiv, object) {
   });
 }
 
-function unique(list) {
-  var result = [];
-  $.each(list, function (i, e) {
-    if ($.inArray(e, result) == -1) result.push(e);
-  });
-  return result;
-}
 StackedBarTile.prototype.getData = function (data) {
-  this.object.tileContext.filters.pop();
   if(this.object.tileContext.uiFiltersList == undefined) {
     this.object.tileContext.uiFiltersList = [];
     this.object.tileContext.uiFiltersSelectedList = [];
@@ -169,7 +165,7 @@ StackedBarTile.prototype.getData = function (data) {
     if((visible == -1 ? true : false)) {
       d.push({
         data: rows
-        , color: colors[colorIdx]
+        , color: convertHex(colors.nextColor(), 100)
         , label: trend
         , fill: 0.3
         , fillColor: "#A3A3A3"
@@ -182,20 +178,19 @@ StackedBarTile.prototype.getData = function (data) {
     }
     this.object.tileContext.uiFiltersList.push(trend);
   }
-  //console.log(this.object.tileContext.uiFiltersList)
   this.render(d);
 }
 StackedBarTile.prototype.render = function (d) {
-  var newDiv = this.newDiv;
   var object = this.object;
   var chartDiv = $("#"+object.id).find(".chart-item");
   var borderColorArray = ["#9e8cd9", "#f3a534", "#9bc95b", "#50e3c2"]
   var ctx = chartDiv.find("#" + object.id);
-  ctx.addClass('col-sm-10');
+  var chartClassName = object.tileContext.widgetSize == undefined ? getFullWidgetClassName(12) : getFullWidgetClassName(object.tileContext.widgetSize);
+  ctx.addClass(chartClassName);
   $("#"+object.id).find(".chart-item").find(".legend").addClass('full-widget-legend');
   //$("#"+object.id).find(".chart-item").css('margin-top', "53px");
   ctx.width(ctx.width);
-  ctx.height(230);
+  ctx.height(fullWidgetChartHeight());
   var plot = $.plot(ctx, d, {
     series: {
       stack: true
@@ -274,7 +269,8 @@ StackedBarTile.prototype.render = function (d) {
       padding: '2px',
       'background-color': '#425057',
       opacity: 0.80,
-      color: "#fff"
+      color: "#fff",
+      'z-index': 5000,
     }).appendTo("body").fadeIn(200).fadeOut(60000);
   }
 
@@ -323,7 +319,7 @@ StackedBarTile.prototype.render = function (d) {
     plot  .draw();
   });
 
-  $('.legend ul li').on('mouseleave', function() {
+  $(chartDiv.find('.legend ul li')).on('mouseleave', function() {
     var label = $(this).text();
     var allSeries = plot.getData();
     for (var i = 0; i < allSeries.length; i++){
