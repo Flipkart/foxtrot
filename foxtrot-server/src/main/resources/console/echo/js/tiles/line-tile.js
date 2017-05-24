@@ -102,7 +102,7 @@ LineTile.prototype.render = function (rows) {
   var chartDiv = $("#"+object.id).find(".chart-item");
   var ctx = chartDiv.find("#" + object.id);
   ctx.width(ctx.width - 100);
-  ctx.height(230);
+  ctx.height(fullWidgetChartHeight());
   $.plot(ctx, [
     {
       data: rows

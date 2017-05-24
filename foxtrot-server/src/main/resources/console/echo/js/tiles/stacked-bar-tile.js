@@ -194,7 +194,7 @@ StackedBarTile.prototype.render = function (d) {
   $("#"+object.id).find(".chart-item").find(".legend").addClass('full-widget-legend');
   //$("#"+object.id).find(".chart-item").css('margin-top', "53px");
   ctx.width(ctx.width);
-  ctx.height(230);
+  ctx.height(fullWidgetChartHeight());
   var plot = $.plot(ctx, d, {
     series: {
       stack: true

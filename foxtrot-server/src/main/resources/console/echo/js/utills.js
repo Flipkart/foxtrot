@@ -373,3 +373,7 @@ function getFullWidgetClassName(size) {
     return 'col-sm-10';
   }
 }
+
+function fullWidgetChartHeight() {
+  return 270;
+}
