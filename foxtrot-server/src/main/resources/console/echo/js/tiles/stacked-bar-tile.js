@@ -109,6 +109,7 @@ function unique(list) {
   });
   return result;
 }
+
 StackedBarTile.prototype.getData = function (data) {
   if(this.object.tileContext.uiFiltersList == undefined) {
     this.object.tileContext.uiFiltersList = [];
@@ -172,7 +173,7 @@ StackedBarTile.prototype.getData = function (data) {
     if((visible == -1 ? true : false)) {
       d.push({
         data: rows
-        , color: colors[colorIdx]
+        , color: convertHex(colors.nextColor(), 100)
         , label: trend
         , fill: 0.3
         , fillColor: "#A3A3A3"
