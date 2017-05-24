@@ -1109,6 +1109,12 @@ th, td {
   overflow-y: scroll;
   height: 100%;
   padding-bottom: 150px;
+  position: fixed;
+  top:80px;
+}
+
+#sidebar-content form {
+  padding-right: 0px;
 }
 
 .chart-forms {
@@ -1855,6 +1861,12 @@ div.tab button:first-child {
   overflow-y: scroll;
   height: 100%;
   padding-bottom: 150px;
+  position: fixed;
+  top: 80px;
+}
+
+#page-settings form{
+  padding-right: 0px;
 }
 
 #page-settings label {
