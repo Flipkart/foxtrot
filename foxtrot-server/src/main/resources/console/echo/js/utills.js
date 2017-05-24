@@ -365,7 +365,6 @@ function convertName(name) {
 }
 
 function getFullWidgetClassName(size) {
-  console.log(size);
   if(size == 9) {
     return 'col-sm-9';
   } else if(size == 6) {

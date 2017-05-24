@@ -441,7 +441,6 @@ TileFactory.prototype.create = function () {
   var optionValue = timeFrame+getPeroidSelectString(this.tileObject.tileContext.period);
   var labelString = this.tileObject.tileContext.period;
   var optionLabel = (parseInt(this.tileObject.tileContext.timeframe) <= 1 ? labelString.substring(0, labelString.length - 1)  : labelString);
-  console.log(labelString.substring(0, labelString.length - 1));
   $(periodSelectElement).prepend('<option selected value='+optionValue+'>'+timeFrame+'  '+optionLabel+'</option>');
 
   this.createGraph(this.tileObject, tileElement);

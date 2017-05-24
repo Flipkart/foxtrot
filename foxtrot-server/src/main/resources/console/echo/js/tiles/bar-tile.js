@@ -42,7 +42,6 @@ function getBarChartFormValues() {
 }
 
 function setBarChartFormValues(object) {
-  console.log(object)
   $(".bar-time-unit").val(object.tileContext.period);
   $(".bar-time-unit").selectpicker('refresh');
   $(".bar-timeframe").val(object.tileContext.timeframe);
@@ -146,7 +145,6 @@ BarTile.prototype.getData = function (data) {
   this.render(xAxisOptions, columns);
 }
 BarTile.prototype.render = function (xAxisOptions, columns) {
-  console.log(columns);
   var newDiv = this.newDiv;
   var object = this.object;
   var chartDiv = $("#"+object.id).find(".chart-item");

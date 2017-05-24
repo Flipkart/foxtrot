@@ -224,7 +224,6 @@ function saveConsole() {
       , name: name
       , sections: globalData
     };
-    console.log(representation);
     $.ajax({
       url: apiUrl+("/v2/consoles"),
       type: 'POST',
@@ -314,11 +313,9 @@ function deletePageList(id) {
 
 function generateNewPageList(i, name) {
   var pageNumber = i + 1;
-  console.log(name);
   $("#page-lists-content").append('<div class="form-group page-row-'+i+'"><label class="control-label">Page: '+ pageNumber +'</label><input type="text" id="page-name-'+i+'" value="'+ (name.length > 0 ? name : '""') +'" class="form-control"><img src="img/remove.png" id="page-row-'+i+'" class="page-remove-img" onClick="deletePageList('+i+')" /></div>');
   sectionNumber = i;
   sections.push(i);
-  console.log(sections);
 }
 
 function generatePageList(resp) {

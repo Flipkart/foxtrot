@@ -42,7 +42,6 @@ function getstackedBarChartFormValues() {
 }
 
 function setStackedBarChartFormValues(object) {
-  console.log(object.tileContext);
   $(".stacked-bar-time-unit").val(object.tileContext.period);
   $(".stacked-bar-time-unit").selectpicker('refresh');
   $(".stacked-bar-timeframe").val(object.tileContext.timeframe);
@@ -182,7 +181,6 @@ StackedBarTile.prototype.getData = function (data) {
     }
     this.object.tileContext.uiFiltersList.push(trend);
   }
-  //console.log(this.object.tileContext.uiFiltersList)
   this.render(d);
 }
 StackedBarTile.prototype.render = function (d) {
@@ -191,7 +189,6 @@ StackedBarTile.prototype.render = function (d) {
   var chartDiv = $("#"+object.id).find(".chart-item");
   var borderColorArray = ["#9e8cd9", "#f3a534", "#9bc95b", "#50e3c2"]
   var ctx = chartDiv.find("#" + object.id);
-  console.log('=?'+object.tileContext.widgetSize)
   var chartClassName = object.tileContext.widgetSize == undefined ? getFullWidgetClassName(12) : getFullWidgetClassName(object.tileContext.widgetSize);
   ctx.addClass(chartClassName);
   $("#"+object.id).find(".chart-item").find(".legend").addClass('full-widget-legend');
