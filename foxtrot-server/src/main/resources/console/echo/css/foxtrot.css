@@ -2040,7 +2040,7 @@ div.tab button:first-child {
 
 .pie-center-div hr {
   margin: 0;
-  border-bottom: 1px solid #9cb2cd;
+  border-bottom: 0px solid #9cb2cd;
   max-width: 140px;
 }
 
