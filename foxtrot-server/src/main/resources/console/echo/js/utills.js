@@ -108,19 +108,12 @@ function generateDropDown(fields, element) {
   var el = $(element);
   var arr = fields;
   el.find('option').remove();
-  var textToInsert = [];
-  var i = 0;
-  var length = arr.length;
-  for (var a = 0; a < length; a += 1) {
-    textToInsert[i++] = '<option value=' + a + '>';
-    textToInsert[i++] = arr[a].field;
-    textToInsert[i++] = '</option>';
-  }
-  $(el).append($('<option>', {
-    value: "none"
-    , text: "none"
-  }));
-  $(el).append(textToInsert.join(''));
+
+  $.each(arr, function(key, value) {
+    $(el).append($("<option></option>")
+                 .attr("value",key)
+                 .text(value.field));
+  });
   $(el).selectpicker('refresh');
 }
 
