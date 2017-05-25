@@ -171,7 +171,7 @@
                 <option value="30d"> 30 Days</option>
               </select>
             </div>
-            <div class="col-sm-2 filter-settings hide-filters"><img src="img/settings.png"></div>
+            <div class="col-sm-2 filter-settings hide-filters"><img src="img/Settings_normal.png"></div>
           </div>
         </div>
         <div class="tile-container" id="tileContainer">
@@ -632,26 +632,14 @@
     </ul>
   </script>
 
-  <script id="table-template" type="text/x-handlebars-template">
-<table class="table table-bordered table-hover table-condensed dataview-table">
-  <thead class="dataview-tablehead">
-    <tr>
-      {{#each headers}}
-      <th>{{this}}</th>
-      {{/each}}
-    </tr>
-    </thead>
-  <tbody>
-    {{#each data}}
-    <tr>
-      {{#each this}}
-      <td>{{this}}</td>
-      {{/each}}
-    </tr>
-    {{/each}}
-    </tbody>
-    </table>
+  <script id="group-legend-pie-template" type="text/x-handlebars-template">
+  <ul>
+  {{#each data}}
+  <li style="color:{{color}}"><span class="legend-label">{{label}} - ({{data}})</span></li>
+  {{/each}}
+    </ul>
   </script>
+
   <!-- /container -->
   <!-- Bootstrap core JavaScript
     ================================================== -->

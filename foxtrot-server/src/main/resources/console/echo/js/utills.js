@@ -361,6 +361,16 @@ function drawLegend(columns, element) {
   element.html(handlebars("#group-legend-template", {data: columns}));
 }
 
+function drawPieLegend(columns, element) {
+  if(!element) {
+    return;
+  }
+  columns.sort(function (lhs, rhs){
+    return rhs.data - lhs.data;
+  });
+  element.html(handlebars("#group-legend-pie-template", {data: columns}));
+}
+
 function convertName(name) {
   return name.trim().toLowerCase().split(' ').join("_");
 }

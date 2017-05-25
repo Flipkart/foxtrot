@@ -183,9 +183,10 @@ PieTile.prototype.render = function (columns) {
 
   $("#"+object.id).find(".chart-item").find("#"+object.id).append('<div class="pie-center-div"><div><p class="pie-center-value"></p><hr/><p class="pie-center-label"></p></div></div>');
 
-  drawLegend(columns, $(chartDiv.find(".legend")));
+  drawPieLegend(columns, $(chartDiv.find(".legend")));
   $(chartDiv.find('.legend ul li')).on('mouseenter', function() {
     var label = $(this).text();
+    label = label.substring(0, label.indexOf('-'));
     var allSeries = plot.getData();
     for (var i = 0; i < allSeries.length; i++){
       if (allSeries[i].label == $.trim(label)){
