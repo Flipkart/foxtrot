@@ -23,6 +23,7 @@ function getPieChartFormValues() {
   var chartField = $(".eventtype-field").val();
   var uniqueKey = $(".pie-uniquekey").val();
   var ignoreDigits = $(".pie-ignored-digits").val();
+  var selectedValue = $(".pie-selected-value").val();
   if (chartField == "none") {
     return [[], false];
   }
@@ -37,6 +38,7 @@ function getPieChartFormValues() {
     , "uniqueKey": uniqueKey
     , "eventFiled": chartField
     , "ignoreDigits" : ignoreDigits
+    , "selectedValue": selectedValue
   , }, status]
 }
 
@@ -52,6 +54,7 @@ function setPieChartFormValues(object) {
   $(".pie-bar-uniquekey").val(stackingUniqueField);
   $(".pie-bar-uniquekey").selectpicker('refresh');
   $(".pie-ignored-digits").val(parseInt(object.tileContext.ignoreDigits == undefined ? 0 : object.tileContext.ignoreDigits));
+  $(".pie-selected-value").val((object.tileContext.selectedValue == undefined ? '' : object.tileContext.selectedValue));
 }
 
 function clearPieChartForm() {
@@ -68,6 +71,7 @@ function clearPieChartForm() {
   stackingBarUniqueKey.find('option:eq(0)').prop('selected', true);
   $(stackingBarUniqueKey).selectpicker('refresh');
   $(".pie-ignored-digits").val(0);
+  $(".bar-selected-value").val('');
 }
 PieTile.prototype.getQuery = function (object) {
   this.object = object;
@@ -82,6 +86,13 @@ PieTile.prototype.getQuery = function (object) {
     for (var i = 0; i < object.tileContext.filters.length; i++) {
       filters.push(object.tileContext.filters[i]);
     }
+  }
+  if (object.tileContext.selectedValue) {
+    filters.push({
+      field: object.tileContext.nesting.toString(),
+      operator: "in",
+      values: object.tileContext.selectedValue.split(',')
+    });
   }
   var data = {
     "opcode": "group"
@@ -135,6 +146,7 @@ PieTile.prototype.render = function (columns) {
   ctx.css('margin-top', '35px');
   $("#"+object.id).find(".chart-item").find(".legend").addClass('pie-legend');
   $("#"+object.id).find(".chart-item").css('margin-top', "53px");
+
   ctx.width(ctx.width);
   ctx.height(230);
   var chartOptions = {
@@ -168,14 +180,21 @@ PieTile.prototype.render = function (columns) {
 
 
   var plot = $.plot(ctx, columns, chartOptions);
-  drawLegend(columns, $(chartDiv.find(".legend")));
+
+  $("#"+object.id).find(".chart-item").find("#"+object.id).append('<div class="pie-center-div"><div><p class="pie-center-value"></p><hr/><p class="pie-center-label"></p></div></div>');
+
+  drawPieLegend(columns, $(chartDiv.find(".legend")));
   $(chartDiv.find('.legend ul li')).on('mouseenter', function() {
     var label = $(this).text();
+    label = label.substring(0, label.indexOf('-'));
     var allSeries = plot.getData();
     for (var i = 0; i < allSeries.length; i++){
       if (allSeries[i].label == $.trim(label)){
         allSeries[i].oldColor = allSeries[i].color;
         allSeries[i].color = 'black';
+        $("#"+object.id).find(".chart-item").find(".pie-center-div").show();
+        $("#"+object.id).find(".chart-item").find(".pie-center-div").find('.pie-center-value').text(allSeries[i].data[0][1]);
+        $("#"+object.id).find(".chart-item").find(".pie-center-div").find('.pie-center-label').text(allSeries[i].label);
         break;
       }
     }
@@ -184,10 +203,12 @@ PieTile.prototype.render = function (columns) {
 
   $(chartDiv.find('.legend ul li')).on('mouseleave', function() {
     var label = $(this).text();
+    label = label.substring(0, label.indexOf('-'));
     var allSeries = plot.getData();
     for (var i = 0; i < allSeries.length; i++){
       if (allSeries[i].label == $.trim(label)){
         allSeries[i].color = allSeries[i].oldColor;
+        $("#"+object.id).find(".chart-item").find(".pie-center-div").hide();
         break;
       }
     }

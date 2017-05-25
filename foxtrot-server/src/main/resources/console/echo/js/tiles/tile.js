@@ -108,33 +108,36 @@ TileFactory.prototype.getTileFormValue = function (form, modal, object) {
 }
 
 function setConfigValue(object) {
-  if (currentChartType == "gauge") {
-    setGaugeChartFormValues(object);
-  }
-  else if (currentChartType == "line") {
-    setLineChartFormValues(object);
-  }
-  else if (currentChartType == "trend") {
-    setTrendChartFormValues(object);
-  }
-  else if (currentChartType == "stacked") {
-    setStackedChartFormValues(object);
-  }
-  else if (currentChartType == "radar") {
-    setRadarChartFormValues(object);
-  }
-  else if (currentChartType == "stackedBar") {
-    setStackedBarChartFormValues(object);
-  }
-  else if (currentChartType == "pie") {
-    setPieChartFormValues(object);
-  }
-  else if (currentChartType == "statsTrend") {
-    setStatsTrendTileChartFormValues(object);
-  }
-  else if (currentChartType == "bar") {
-    setBarChartFormValues(object);
-  }
+  setTimeout(function(){
+    if (currentChartType == "gauge") {
+      setGaugeChartFormValues(object);
+    }
+    else if (currentChartType == "line") {
+      setLineChartFormValues(object);
+    }
+    else if (currentChartType == "trend") {
+      setTrendChartFormValues(object);
+    }
+    else if (currentChartType == "stacked") {
+      setStackedChartFormValues(object);
+    }
+    else if (currentChartType == "radar") {
+      setRadarChartFormValues(object);
+    }
+    else if (currentChartType == "stackedBar") {
+      setStackedBarChartFormValues(object);
+    }
+    else if (currentChartType == "pie") {
+      setPieChartFormValues(object);
+    }
+    else if (currentChartType == "statsTrend") {
+      setStatsTrendTileChartFormValues(object);
+    }
+    else if (currentChartType == "bar") {
+      setBarChartFormValues(object);
+    }
+  }, 1000);
+
 }
 
 function newBtnElement(widget) {
@@ -178,10 +181,13 @@ TileFactory.prototype.createNewRow = function (tileElement) {
 }
 TileFactory.prototype.updateFilterCreation = function (object) {
   currentChartType = object.tileContext.chartType;
-  removeFilters();
+  //removeFilters();
   var tileListIndex = tileList.indexOf(object.id);
   var tileDataIndex = tileData[tileListIndex];
   var selectedTileObject = tileData[object.id];
+
+
+  var form = $("#sidebar").find("form");
   if (object.tileContext.tableFields != undefined) { // this is for without console
     currentFieldList = object.tileContext.tableFields;
   }
@@ -189,9 +195,7 @@ TileFactory.prototype.updateFilterCreation = function (object) {
     currentFieldList = tableFiledsArray[object.tileContext.table].mappings;
   }
 
-  var form = $("#sidebar").find("form");
-  form.find(".tile-title").val(object.title);
-  form.find("#sidebar-tileId").val(object.id);
+
   if (object.tileContext.tableDropdownIndex == undefined) {
     form.find(".tile-table").val(parseInt(tableNameList.indexOf(object.tileContext.table)));
   }
@@ -199,8 +203,7 @@ TileFactory.prototype.updateFilterCreation = function (object) {
     form.find(".tile-table").val(parseInt(object.tileContext.tableDropdownIndex));
   }
   $('.tile-table').selectpicker('refresh');
-  $(".chart-type").val(object.tileContext.chartType)
-  clickedChartType($(".chart-type"));
+
 
   if (selectedTileObject) {
     setConfigValue(selectedTileObject);
@@ -267,7 +270,15 @@ TileFactory.prototype.triggerConfig = function (tileElement, object) {
     $("#sidebar").find("#modal-heading").hide();
     $(".vizualization-type").hide();
     $(".chart-type").hide();
-    setTimeout(function() { instanceVar.updateFilterCreation(object); }, 2000);
+
+    var form = $("#sidebar").find("form");
+    form.find(".tile-title").val(object.title);
+    form.find("#sidebar-tileId").val(object.id);
+
+    $(".chart-type").val(object.tileContext.chartType)
+    clickedChartType($(".chart-type"));
+
+    setTimeout(function() { instanceVar.updateFilterCreation(object); }, 1000);
     $(".delete-widget").show();
     $("#delete-widget-divider").show();
     $("#delete-widget-value").val(object.id);

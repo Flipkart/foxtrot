@@ -620,7 +620,7 @@ h1 {
 .filter img {
   float: left;
   margin-right: 7px;
-  margin-top: 4px;
+  margin-top: 8px;
 }
 
 .settings-icon {
@@ -1574,14 +1574,6 @@ div.tab button:first-child {
   padding-left: 0px;
 }
 
-.filter>img:hover {
-  background-image: url('../img/Filter_hover.png');
-}
-
-.settings-icon:hover {
-  background-image: url('../img/Setings_hover.png');
-}
-
 .bs-searchbox, .bs-actionsbox {
   background: #fff;
 }
@@ -2016,4 +2008,38 @@ div.tab button:first-child {
 
 .full-widget-medium-width {
   width: 75%;
+}
+
+.pie-center-div {
+  text-align: center;
+  position: relative;
+  top: 60px;
+  font-size: 14px;
+  font-family: Open Sans;
+  width: 51%;
+  height: 100px;
+  padding: 10px;
+  font-family: Oswald Light;
+  display: none;
+  left: 24%;
+  overflow: hidden;
+}
+
+.pie-center-value {
+  margin-bottom: 3px;
+  font-size: 32px;
+}
+
+.pie-center-div hr {
+  margin: 0;
+  border-bottom: 0px solid #9cb2cd;
+  max-width: 140px;
+}
+
+.pie-center-label {
+  word-break: break-word;
+  font-family: Open Sans;
+  color: #94A3b5;
+  font-size: 12px;
+  margin-top: 10px;
 }
