@@ -23,6 +23,7 @@ function getBarChartFormValues() {
   var eventField = $(".bar-event-field").val();
   var uniqueKey = $(".bar-uniquekey").val();
   var ignoreDigits = $(".bar-ignored-digits").val();
+  var selectedValue = $(".bar-selected-value").val();
   if (eventField == "none") {
     return [[], false];
   }
@@ -37,6 +38,7 @@ function getBarChartFormValues() {
     , "nesting": [groupingString]
     , "uniqueKey": uniqueKey
     , "ignoreDigits" : ignoreDigits
+    , "selectedValue": selectedValue
   }, status]
 }
 
@@ -49,6 +51,7 @@ function setBarChartFormValues(object) {
   $(".bar-uniquekey").val(currentFieldList.findIndex(x => x.field == object.tileContext.uniqueKey));
   $(".bar-uniquekey").selectpicker('refresh');
   $(".bar-ignored-digits").val(parseInt(object.tileContext.ignoreDigits == undefined ? 0 : object.tileContext.ignoreDigits));
+  $(".bar-selected-value").val((object.tileContext.selectedValue == undefined ? '' : object.tileContext.selectedValue));
 }
 
 function clearBarChartForm() {
@@ -64,6 +67,7 @@ function clearBarChartForm() {
   var stackingBarUniqueKey = parentElement.find(".bar-uniquekey");
   stackingBarUniqueKey.find('option:eq(0)').prop('selected', true);
   $(stackingBarUniqueKey).selectpicker('refresh');
+  $(".bar-selected-value").val('');
 }
 BarTile.prototype.getQuery = function (object) {
   this.object = object;
@@ -78,6 +82,14 @@ BarTile.prototype.getQuery = function (object) {
     for (var i = 0; i < object.tileContext.filters.length; i++) {
       filters.push(object.tileContext.filters[i]);
     }
+  }
+
+  if (object.tileContext.selectedValue) {
+    filters.push({
+      field: object.tileContext.nesting.toString(),
+      operator: "in",
+      values: object.tileContext.selectedValue.split(',')
+    });
   }
   var data = {
     "opcode": "group"
