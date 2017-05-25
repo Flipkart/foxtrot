@@ -2025,17 +2025,23 @@ div.tab button:first-child {
   font-size: 14px;
   font-family: Open Sans;
   width: 51%;
-  height: 57px;
+  height: 100px;
   padding: 10px;
   font-family: Oswald Light;
   display: none;
   left: 24%;
+  overflow: hidden;
 }
 
 .pie-center-value {
-  border-bottom: 1px solid #9cb2cd;
   margin-bottom: 3px;
   font-size: 32px;
+}
+
+.pie-center-div hr {
+  margin: 0;
+  border-bottom: 1px solid #9cb2cd;
+  max-width: 140px;
 }
 
 .pie-center-label {

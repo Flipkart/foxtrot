@@ -181,7 +181,7 @@ PieTile.prototype.render = function (columns) {
 
   var plot = $.plot(ctx, columns, chartOptions);
 
-  $("#"+object.id).find(".chart-item").find("#"+object.id).append('<div class="pie-center-div"><div><p class="pie-center-value"></p><p class="pie-center-label"></p></div></div>');
+  $("#"+object.id).find(".chart-item").find("#"+object.id).append('<div class="pie-center-div"><div><p class="pie-center-value"></p><hr/><p class="pie-center-label"></p></div></div>');
 
   drawLegend(columns, $(chartDiv.find(".legend")));
   $(chartDiv.find('.legend ul li')).on('mouseenter', function() {
