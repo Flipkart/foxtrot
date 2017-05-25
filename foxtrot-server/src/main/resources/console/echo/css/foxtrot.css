@@ -620,7 +620,7 @@ h1 {
 .filter img {
   float: left;
   margin-right: 7px;
-  margin-top: 4px;
+  margin-top: 8px;
 }
 
 .settings-icon {
@@ -1572,14 +1572,6 @@ select {
 
 div.tab button:first-child {
   padding-left: 0px;
-}
-
-.filter>img:hover {
-  background-image: url('../img/Filter_hover.png');
-}
-
-.settings-icon:hover {
-  background-image: url('../img/Setings_hover.png');
 }
 
 .bs-searchbox, .bs-actionsbox {
