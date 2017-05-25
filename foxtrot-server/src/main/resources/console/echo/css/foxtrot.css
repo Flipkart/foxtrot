@@ -2047,4 +2047,7 @@ div.tab button:first-child {
 .pie-center-label {
   word-break: break-word;
   font-family: Open Sans;
+  color: #94A3b5;
+  font-size: 12px;
+  margin-top: 10px;
 }
