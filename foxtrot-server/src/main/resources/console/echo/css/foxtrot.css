@@ -2017,3 +2017,28 @@ div.tab button:first-child {
 .full-widget-medium-width {
   width: 75%;
 }
+
+.pie-center-div {
+  text-align: center;
+  position: relative;
+  top: 60px;
+  font-size: 14px;
+  font-family: Open Sans;
+  width: 51%;
+  height: 57px;
+  padding: 10px;
+  font-family: Oswald Light;
+  display: none;
+  left: 24%;
+}
+
+.pie-center-value {
+  border-bottom: 1px solid #9cb2cd;
+  margin-bottom: 3px;
+  font-size: 32px;
+}
+
+.pie-center-label {
+  word-break: break-word;
+  font-family: Open Sans;
+}

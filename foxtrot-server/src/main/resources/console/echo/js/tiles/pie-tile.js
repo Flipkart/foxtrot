@@ -146,6 +146,7 @@ PieTile.prototype.render = function (columns) {
   ctx.css('margin-top', '35px');
   $("#"+object.id).find(".chart-item").find(".legend").addClass('pie-legend');
   $("#"+object.id).find(".chart-item").css('margin-top', "53px");
+
   ctx.width(ctx.width);
   ctx.height(230);
   var chartOptions = {
@@ -179,6 +180,9 @@ PieTile.prototype.render = function (columns) {
 
 
   var plot = $.plot(ctx, columns, chartOptions);
+
+  $("#"+object.id).find(".chart-item").find("#"+object.id).append('<div class="pie-center-div"><div><p class="pie-center-value"></p><p class="pie-center-label"></p></div></div>');
+
   drawLegend(columns, $(chartDiv.find(".legend")));
   $(chartDiv.find('.legend ul li')).on('mouseenter', function() {
     var label = $(this).text();
@@ -187,6 +191,9 @@ PieTile.prototype.render = function (columns) {
       if (allSeries[i].label == $.trim(label)){
         allSeries[i].oldColor = allSeries[i].color;
         allSeries[i].color = 'black';
+        $("#"+object.id).find(".chart-item").find(".pie-center-div").show();
+        $("#"+object.id).find(".chart-item").find(".pie-center-div").find('.pie-center-value').text(allSeries[i].data[0][1]);
+        $("#"+object.id).find(".chart-item").find(".pie-center-div").find('.pie-center-label').text(allSeries[i].label);
         break;
       }
     }
@@ -199,6 +206,7 @@ PieTile.prototype.render = function (columns) {
     for (var i = 0; i < allSeries.length; i++){
       if (allSeries[i].label == $.trim(label)){
         allSeries[i].color = allSeries[i].oldColor;
+        $("#"+object.id).find(".chart-item").find(".pie-center-div").hide();
         break;
       }
     }
