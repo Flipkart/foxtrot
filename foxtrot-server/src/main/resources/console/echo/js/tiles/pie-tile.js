@@ -203,6 +203,7 @@ PieTile.prototype.render = function (columns) {
 
   $(chartDiv.find('.legend ul li')).on('mouseleave', function() {
     var label = $(this).text();
+    label = label.substring(0, label.indexOf('-'));
     var allSeries = plot.getData();
     for (var i = 0; i < allSeries.length; i++){
       if (allSeries[i].label == $.trim(label)){
