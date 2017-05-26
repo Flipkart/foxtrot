@@ -11,11 +11,15 @@ function formatDate(date) {
 }
 
 function periodFromWindow(periodUnit, customPeriodString) {
+  console.log(customPeriodString);
   if (!customPeriodString) {
     return "days";
   }
-  if (customPeriodString == "custom") {
-    return periodUnit;
+  if (customPeriodString.endsWith("m")) {
+    return 'minutes';
+  }
+  if (customPeriodString.endsWith("h")) {
+    return "hours";
   }
   if (customPeriodString === "1d") {
     return "hours";
