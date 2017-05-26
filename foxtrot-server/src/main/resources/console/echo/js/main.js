@@ -35,6 +35,7 @@ var tableFiledsArray = {};
 var previousWidget = "";
 var isNewRowCount = 0;
 var firstWidgetType = "";
+var smallWidgetCount = 0;
 
 function TablesView(id, tables) {
   this.id = id;

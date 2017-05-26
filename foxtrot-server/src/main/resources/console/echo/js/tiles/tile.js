@@ -358,6 +358,12 @@ TileFactory.prototype.create = function () {
     , title: this.tileObject.title
   }));
 
+  if(this.tileObject.tileContext.widgetType == "small") {
+    smallWidgetCount = smallWidgetCount + 1;
+  } else {
+    smallWidgetCount = 0;
+  }
+
   if(this.tileObject.tileContext.isnewRow) {
     isNewRowCount = 0;
     firstWidgetType = this.tileObject.tileContext.widgetType;
@@ -451,6 +457,10 @@ TileFactory.prototype.create = function () {
   }
   else if (this.tileObject.tileContext.widgetType == "medium") {
     tileElement.find(".widget-header").addClass('reduce-widget-header-size');
+  }
+
+  if(smallWidgetCount == 4) {
+    $(".custom-btn-div").remove();
   }
 
   var periodSelectElement = tileElement.find(".period-select");
