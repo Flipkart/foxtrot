@@ -137,7 +137,7 @@ function getWidgetType() {
   else if (currentChartType == "radar" || currentChartType == "pie") {
     return "medium";
   }
-  else if (currentChartType == "gauge" || currentChartType == "trend") {
+  else if (currentChartType == "gauge" || currentChartType == "trend" || currentChartType == "count") {
     return "small";
   }
   else {
@@ -199,6 +199,9 @@ function getChartFormValues() {
   }
   else if(currentChartType == "bar") {
     return getBarChartFormValues();
+  }
+  else if(currentChartType == "count") {
+    return getCountChartFormValues();
   }
 }
 function deleteFilterRow(el) {
@@ -272,6 +275,9 @@ function reloadDropdowns() {
       generateDropDown(currentFieldList, "#bar-event-field");
       generateDropDown(currentFieldList, "#bar-uniquekey");
     }
+    else if(currentChartType == "count") {
+      generateDropDown(currentFieldList, "#count-field");
+    }
   }, 1000);
 
 }
@@ -304,6 +310,9 @@ function invokeClearChartForm() {
     }
     else if(currentChartType == "bar") {
       clearBarChartForm();
+    }
+    else if(currentChartType == "count") {
+      clearCountChartForm();
     }
   }, 1000);
 }

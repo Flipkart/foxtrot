@@ -266,6 +266,7 @@
               <option value="bar">Bar Chart</option>
               <option value="stacked">Stacked Bar chart</option>
               <option value="trend">Trend / Number Chart</option>
+              <option value="count">Count Chart</option>
               <option value="statsTrend">Stats Trend chart</option>
               <option value="pie">Pie chart</option>
               <option value="gauge">Gauge Chart</option>
@@ -528,6 +529,30 @@
                   </div>
                 </div>
               </div>
+              <div id="count-chart-data">
+                <div class="col-md-12 chart-forms">
+                  <div class="form-group">
+                    <label class="control-label">Period <span class="mandatory-text">*</span></label>
+                    <select class="selectpicker count-time-unit form-control" id="count-time-unit">
+                      <option value="minutes" selected="selected">Minute</option>
+                      <option value="hours">Hour</option>
+                      <option value="days">Day</option>
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label class="control-label">Time Frame <span class="mandatory-text">*</span></label>
+                    <input type="number" class="count-timeframe form-control" id="count-timeframe" placeholder="Enter time frame" required>
+                  </div>
+                  <div class="form-group">
+                    <label class="control-label">Field</label>
+                    <select class="selectpicker count-field form-control" id="count-field" data-live-search="true" data-style="btn-warning"> </select>
+                  </div>
+                  <div class="form-group">
+                    <label class="control-label" for="count-ignored-digits"><strong>Shift Decimal Left By</strong> </label>
+                    <input type="number" min="0" value="0" class="form-control count-ignored-digits" placeholder="" id="count-ignored-digits">
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
           <h4 id="sidebar-filter-heading">Filters</h4>
@@ -669,6 +694,7 @@
   <script src="js/tiles/trend-tile.js"></script>
   <script src="js/tiles/gauge-tile.js"></script>
   <script src="js/tiles/stacked-tile.js"></script>
+  <script src="js/tiles/count-tile.js"></script>
   <script src="js/flot/jquery.flot.time.min.js"></script>
   <script src="js/jquery.validate.min.js"></script>
   <script src="js/tiles/stacked-bar-tile.js"></script>

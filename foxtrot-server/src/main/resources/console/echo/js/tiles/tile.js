@@ -136,6 +136,9 @@ function setConfigValue(object) {
     else if (currentChartType == "bar") {
       setBarChartFormValues(object);
     }
+    else if (currentChartType == "count") {
+      setCountChartFormValues(object);
+    }
   }, 1000);
 
 }
@@ -343,6 +346,10 @@ TileFactory.prototype.createGraph = function (object, tileElement) {
   else if (object.tileContext.chartType == "bar") {
     var barGraph = new BarTile();
     barGraph.getQuery(object);
+  }
+  else if (object.tileContext.chartType == "count") {
+    var countGraph = new CountTile();
+    countGraph.getQuery(object);
   }
 }
 TileFactory.prototype.create = function () {
