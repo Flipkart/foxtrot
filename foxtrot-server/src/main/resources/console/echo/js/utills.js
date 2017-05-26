@@ -14,8 +14,11 @@ function periodFromWindow(periodUnit, customPeriodString) {
   if (!customPeriodString) {
     return "days";
   }
-  if (customPeriodString == "custom") {
-    return periodUnit;
+  if (customPeriodString.endsWith("m")) {
+    return 'minutes';
+  }
+  if (customPeriodString.endsWith("h")) {
+    return "hours";
   }
   if (customPeriodString === "1d") {
     return "hours";
@@ -109,20 +112,17 @@ function generateDropDown(fields, element) {
   var arr = fields;
   el.find('option').remove();
 
+  $(el).append($('<option>', {
+    value: "none"
+    , text: "none"
+  }));
+
   $.each(arr, function(key, value) {
     $(el).append($("<option></option>")
                  .attr("value",key)
                  .text(value.field));
   });
   $(el).selectpicker('refresh');
-}
-
-function getLegendColumn(widgetType) {
-  if(widgetType == "full") {
-    return 6;
-  } else if(widgetType == "medium") {
-    return 4;
-  }
 }
 
 function getWidgetType() {
@@ -132,7 +132,7 @@ function getWidgetType() {
   else if (currentChartType == "radar" || currentChartType == "pie") {
     return "medium";
   }
-  else if (currentChartType == "gauge" || currentChartType == "trend") {
+  else if (currentChartType == "gauge" || currentChartType == "trend" || currentChartType == "count") {
     return "small";
   }
   else {
@@ -194,6 +194,9 @@ function getChartFormValues() {
   }
   else if(currentChartType == "bar") {
     return getBarChartFormValues();
+  }
+  else if(currentChartType == "count") {
+    return getCountChartFormValues();
   }
 }
 function deleteFilterRow(el) {
@@ -267,6 +270,9 @@ function reloadDropdowns() {
       generateDropDown(currentFieldList, "#bar-event-field");
       generateDropDown(currentFieldList, "#bar-uniquekey");
     }
+    else if(currentChartType == "count") {
+      generateDropDown(currentFieldList, "#count-field");
+    }
   }, 1000);
 
 }
@@ -300,6 +306,9 @@ function invokeClearChartForm() {
     else if(currentChartType == "bar") {
       clearBarChartForm();
     }
+    else if(currentChartType == "count") {
+      clearCountChartForm();
+    }
   }, 1000);
 }
 
@@ -331,7 +340,18 @@ function unique(list) {
 }
 
 function numberWithCommas(x) {
-  return x.toLocaleString();
+  x=x.toString();
+  var afterPoint = '';
+  if(x.indexOf('.') > 0)
+    afterPoint = x.substring(x.indexOf('.'),x.length);
+  x = Math.floor(x);
+  x=x.toString();
+  var lastThree = x.substring(x.length-3);
+  var otherNumbers = x.substring(0,x.length-3);
+  if(otherNumbers != '')
+    lastThree = ',' + lastThree;
+  var res = otherNumbers.replace(/\B(?=(\d{2})+(?!\d))/g, ",") + lastThree + afterPoint;
+  return res;
 }
 
 function deleteWidget(id) {
@@ -386,7 +406,7 @@ function getFullWidgetClassName(size) {
 }
 
 function fullWidgetChartHeight() {
-  return 270;
+  return 290;
 }
 
 function convertHex(hex,opacity){

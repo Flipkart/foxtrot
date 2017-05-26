@@ -163,9 +163,7 @@ PieTile.prototype.render = function (columns) {
       color: "#FF00FF"
     }
     , legend: {
-      show: false,
-      noColumns:getLegendColumn(object.tileContext.widgetType),
-      container: $(chartDiv.find(".legend"))
+      show: false
     }
     , grid: {
       hoverable: true

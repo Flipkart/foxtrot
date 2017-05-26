@@ -245,11 +245,6 @@ StackedTile.prototype.render = function (yAxisSeries, xAxisTicks) {
     }
     ,legend: {
       show: false
-      , noColumns: getLegendColumn(object.tileContext.widgetType)
-      , labelFormatter: function (label, series) {
-        return '<span class="legend-custom"> &nbsp;' + label + ' &nbsp;</span>';
-      }
-      , container: $(chartDiv.find(".legend"))
     }
   });
   drawLegend(yAxisSeries, $(chartDiv.find(".legend")));

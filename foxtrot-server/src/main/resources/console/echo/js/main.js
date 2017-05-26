@@ -35,6 +35,7 @@ var tableFiledsArray = {};
 var previousWidget = "";
 var isNewRowCount = 0;
 var firstWidgetType = "";
+var smallWidgetCount = 0;
 
 function TablesView(id, tables) {
   this.id = id;
@@ -192,8 +193,7 @@ function clickedChartType(el) {
   // show
   currentChartType = $(".chart-type").val();
   setTimeout(function(){ reloadDropdowns(); }, 1000);
-
-  //invokeClearChartForm();
+  invokeClearChartForm();
   $("#table-units").show();
   var chartDataEle = $("#table-units").find("#" + currentChartType + "-chart-data");
   if (chartDataEle.length > 0) {
@@ -233,8 +233,6 @@ function saveConsole() {
       data: JSON.stringify(representation),
       success: function(resp) {
         alert('console saved sucessfully');
-        window.location.assign("?console=" + convertedName);
-
       },
       error: function() {
         error("Could not save console");
@@ -246,6 +244,16 @@ function saveConsole() {
 function appendConsoleList() {
   var textToInsert = [];
   var i = 0;
+
+  consoleList.sort(function(a, b){
+    var nameA=a.name.toLowerCase(), nameB=b.name.toLowerCase();
+    if (nameA < nameB) //sort string ascending
+      return -1;
+    if (nameA > nameB)
+      return 1;
+    return 0; //default return value (no sorting)
+  });
+
   for (var a = 0; a < consoleList.length; a += 1) {
     textToInsert[i++] = '<option value=' + consoleList[a].id + '>';
     textToInsert[i++] = consoleList[a].name;
@@ -490,11 +498,6 @@ function showHideSideBar() {
     setTimeout(function(){
       removeFilters();
     }, 1000);
-
-    setTimeout(function(){
-      invokeClearChartForm();
-    }, 2000);
-
   }
   else {
     $('#sidebar').show();

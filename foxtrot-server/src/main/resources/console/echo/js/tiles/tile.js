@@ -136,6 +136,9 @@ function setConfigValue(object) {
     else if (currentChartType == "bar") {
       setBarChartFormValues(object);
     }
+    else if (currentChartType == "count") {
+      setCountChartFormValues(object);
+    }
   }, 1000);
 
 }
@@ -344,12 +347,22 @@ TileFactory.prototype.createGraph = function (object, tileElement) {
     var barGraph = new BarTile();
     barGraph.getQuery(object);
   }
+  else if (object.tileContext.chartType == "count") {
+    var countGraph = new CountTile();
+    countGraph.getQuery(object);
+  }
 }
 TileFactory.prototype.create = function () {
   var tileElement = $(handlebars("#tile-template", {
     tileId: this.tileObject.id
     , title: this.tileObject.title
   }));
+
+  if(this.tileObject.tileContext.widgetType == "small") {
+    smallWidgetCount = smallWidgetCount + 1;
+  } else {
+    smallWidgetCount = 0;
+  }
 
   if(this.tileObject.tileContext.isnewRow) {
     isNewRowCount = 0;
@@ -444,6 +457,10 @@ TileFactory.prototype.create = function () {
   }
   else if (this.tileObject.tileContext.widgetType == "medium") {
     tileElement.find(".widget-header").addClass('reduce-widget-header-size');
+  }
+
+  if(smallWidgetCount == 4) {
+    $(".custom-btn-div").remove();
   }
 
   var periodSelectElement = tileElement.find(".period-select");

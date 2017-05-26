@@ -136,7 +136,7 @@ LineTile.prototype.render = function (rows) {
       tickLength: 0
       , mode: "time"
       , timezone: "browser"
-      , timeformat: axisTimeFormat(object.tileContext.period, getPeriodSelect(object.id))
+      , timeformat: axisTimeFormat(object.tileContext.period, (globalFilters ? getGlobalFilters() : getPeriodSelect(object.id)))
     , }
     , yaxis: {
       markingsStyle: 'dashed',
