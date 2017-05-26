@@ -236,12 +236,12 @@
         <form class="col-md-12">
           <div class="row"><span class="top-error">*Please enter all the information</span></div>
           <div class="form-group">
-            <label class="control-label">Name : </label>
+            <label class="control-label">Name <span class="mandatory-text">*</span> </label>
             <input type="hidden" value="" class="sidebar-tileId" id="sidebar-tileId">
             <input type="text" class="tile-title sidebar-tile form-control" id="tileTitle" placeholder="Give a title" />
           </div>
           <div class="form-group">
-            <label class="control-label">Table</label>
+            <label class="control-label">Table <span class="mandatory-text">*</span></label>
             <select class="selectpicker tile-table form-control" id="tileTable" data-live-search="true" data-style="btn-warning"> </select>
           </div>
 <!--
@@ -257,7 +257,7 @@
             </div>
           </div>
 -->
-          <h4 id="modal-heading">VISUALIZATION TYPE</h4>
+          <h4 id="modal-heading">VISUALIZATION TYPE <span class="mandatory-text">*</span></h4>
           <div class="row" id="vizualization">
             <select id="chart-type" class="chart-type form-control">
               <option value="none">Select Visualization Type</option>
