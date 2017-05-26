@@ -191,9 +191,8 @@ function clickedChartType(el) {
   $("#table-units>div.table-units-active").removeClass("table-units-active");
   // show
   currentChartType = $(".chart-type").val();
-  setTimeout(function(){ reloadDropdowns(); }, 1000);
-
-  //invokeClearChartForm();
+  reloadDropdowns();
+  invokeClearChartForm();
   $("#table-units").show();
   var chartDataEle = $("#table-units").find("#" + currentChartType + "-chart-data");
   if (chartDataEle.length > 0) {
@@ -490,11 +489,6 @@ function showHideSideBar() {
     setTimeout(function(){
       removeFilters();
     }, 1000);
-
-    setTimeout(function(){
-      invokeClearChartForm();
-    }, 2000);
-
   }
   else {
     $('#sidebar').show();
