@@ -245,6 +245,16 @@ function saveConsole() {
 function appendConsoleList() {
   var textToInsert = [];
   var i = 0;
+
+  consoleList.sort(function(a, b){
+    var nameA=a.name.toLowerCase(), nameB=b.name.toLowerCase();
+    if (nameA < nameB) //sort string ascending
+      return -1;
+    if (nameA > nameB)
+      return 1;
+    return 0; //default return value (no sorting)
+  });
+
   for (var a = 0; a < consoleList.length; a += 1) {
     textToInsert[i++] = '<option value=' + consoleList[a].id + '>';
     textToInsert[i++] = consoleList[a].name;
