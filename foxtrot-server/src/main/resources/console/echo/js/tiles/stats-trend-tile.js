@@ -126,7 +126,6 @@ StatsTrendTile.prototype.getData = function(data) {
   var selString = "";
 
   var selectedStats = this.object.tileContext.statsToPlot;
-  console.log(selectedStats)
   if( typeof selectedStats === 'string' ) {
     var arr = [];
     arr.push(selectedStats);

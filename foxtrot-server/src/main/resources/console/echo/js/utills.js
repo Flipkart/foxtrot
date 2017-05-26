@@ -11,7 +11,6 @@ function formatDate(date) {
 }
 
 function periodFromWindow(periodUnit, customPeriodString) {
-  console.log(customPeriodString);
   if (!customPeriodString) {
     return "days";
   }
