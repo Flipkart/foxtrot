@@ -151,6 +151,7 @@ StatsTrendTile.prototype.render = function (rows) {
   $.plot(ctx, [
     {
       data: rows
+      , color: "#38d9a9",
     }
     , ], {
     series: {
