@@ -246,11 +246,6 @@ StackedBarTile.prototype.render = function (d) {
     }
     , legend: {
       show: false
-      , noColumns: d.length
-      , labelFormatter: function (label, series) {
-        return '<span class="legend-custom"> &nbsp;' + label + ' &nbsp;</span>';
-      }
-      , container: $(chartDiv.find(".legend"))
     }
     ,highlightSeries: {
       color: "#FF00FF"

@@ -126,14 +126,6 @@ function generateDropDown(fields, element) {
   $(el).selectpicker('refresh');
 }
 
-function getLegendColumn(widgetType) {
-  if(widgetType == "full") {
-    return 6;
-  } else if(widgetType == "medium") {
-    return 4;
-  }
-}
-
 function getWidgetType() {
   if (currentChartType == "line" || currentChartType == "stacked" || currentChartType == "stackedBar" || currentChartType == "statsTrend" || currentChartType == "bar") {
     return "full";

@@ -223,11 +223,6 @@ BarTile.prototype.render = function (xAxisOptions, columns) {
     }
     ,legend: {
       show: false
-      , noColumns: getLegendColumn(object.tileContext.widgetType)
-      , labelFormatter: function (label, series) {
-        return '<span class="legend-custom"> &nbsp;' + label + ' &nbsp;</span>';
-      }
-      , container: $(chartDiv.find(".legend"))
     }
   };
   var plot = $.plot(ctx, columns, chartOptions);
