@@ -109,6 +109,11 @@ function generateDropDown(fields, element) {
   var arr = fields;
   el.find('option').remove();
 
+  $(el).append($('<option>', {
+    value: "none"
+    , text: "none"
+  }));
+
   $.each(arr, function(key, value) {
     $(el).append($("<option></option>")
                  .attr("value",key)
