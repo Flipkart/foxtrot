@@ -60,6 +60,7 @@ function filterTypeTriggered(el) {
 }
 
 function addFitlers() {
+
   var filterCount = filterRowArray.length;
   filterRowArray.push(filterCount);
   var filterRow = '<div class="row filters clearfix" id="filter-row-' + filterCount + '"><span class="filter-headings"> FILTER '+(filterCount + 1)+'</span><img src="img/remove.png" class="filter-remove-img filter-delete" /><div class="form-group"><select class="selectpicker form-control filter-column filter-background" id="filter-row-' + filterCount + '" data-live-search="true"><option>select</option></select></div><div class="form-group"><select class="selectpicker filter-type filter-background form-control" data-live-search="true"><option>select</option><option value="between">Between</option><option value="greater_equal">Greater than equals</option><option value="greater_than">Greatert than</option><option value="less_equal">Between</option><option value="less_than">Less than equals</option><option value="less_than">Less than</option><option value="equals">Equals</option><option value="not_equals">Not equals</option><option value="contains">Contains</option><option value="last">Last</option><option value="in">In</option></select></div><div class="form-group"><input id="filter-column-row-' + filterCount + '" type="text" class="form-control filter-value form-control"></div></span></div></div>';
@@ -68,7 +69,10 @@ function addFitlers() {
   var filterType = $("#filter-row-" + filterCount).find('.filter-type');
   $(filterType).selectpicker('refresh');
   var filterColumn = $("#filter-row-" + filterCount).find('.filter-column')
-  generateDropDown(currentFieldList, filterColumn);
+  setTimeout(function(){
+    generateDropDown(currentFieldList, filterColumn);
+  }, 0);
+
   $(filterValueEl).click(function () {
     deleteFilterRow(this);
   });
