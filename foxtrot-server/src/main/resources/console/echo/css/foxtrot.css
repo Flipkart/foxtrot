@@ -2043,3 +2043,9 @@ div.tab button:first-child {
   font-size: 12px;
   margin-top: 10px;
 }
+
+.mandatory-text {
+  color: #FE415C;
+  font-family: Open Sans;
+  font-size: 14px;
+}
