@@ -2049,3 +2049,7 @@ div.tab button:first-child {
   font-family: Open Sans;
   font-size: 14px;
 }
+
+#count-chart-data {
+  display: none;
+}
