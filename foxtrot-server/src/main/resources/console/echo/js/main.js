@@ -191,7 +191,7 @@ function clickedChartType(el) {
   $("#table-units>div.table-units-active").removeClass("table-units-active");
   // show
   currentChartType = $(".chart-type").val();
-  reloadDropdowns();
+  setTimeout(function(){ reloadDropdowns(); }, 1000);
   invokeClearChartForm();
   $("#table-units").show();
   var chartDataEle = $("#table-units").find("#" + currentChartType + "-chart-data");
