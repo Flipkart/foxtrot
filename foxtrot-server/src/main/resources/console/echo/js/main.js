@@ -233,8 +233,6 @@ function saveConsole() {
       data: JSON.stringify(representation),
       success: function(resp) {
         alert('console saved sucessfully');
-        window.location.assign("?console=" + convertedName);
-
       },
       error: function() {
         error("Could not save console");
