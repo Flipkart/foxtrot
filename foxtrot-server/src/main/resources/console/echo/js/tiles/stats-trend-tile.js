@@ -121,24 +121,49 @@ StatsTrendTile.prototype.getQuery = function(object) {
 StatsTrendTile.prototype.getData = function(data) {
   if(!data.result)
     return;
-  var rows = [];
-  rows.push(['date', 'count']);
-  for (var i = data.result.length - 1; i >= 0; i--) {
-    var statsObject = data.result[i].stats
-    var percentile = data.result[i].percentiles;
-    var displayValue = "";
-    var objectToshow = this.object.tileContext.statsToPlot.split('.');
-    if(this.object.tileContext.statsToPlot.match('stats')) {
-      objectToshow = objectToshow[1].toString();
-      displayValue = statsObject[objectToshow];
-    } else {
-      var displayObject = objectToshow[1]+'.'+objectToshow[2].toString();
-      displayValue = percentile[displayObject];
-    }
-    rows.push([data.result[i].period, Math.pow(10, (this.object.tileContext.ignoreDigits == undefined ? 0 : this.object.tileContext.ignoreDigits))]);
-  }
-  this.render(rows);
 
+  var results = data.result;
+  var selString = "";
+
+  var selectedStats = this.object.tileContext.statsToPlot;
+  console.log(selectedStats)
+  if( typeof selectedStats === 'string' ) {
+    var arr = [];
+    arr.push(selectedStats);
+    selectedStats = arr;
+  }
+  var colors = new Colors(selectedStats.length);
+  var d = [];
+  var colorIdx = 0;
+  for (var j = 0; j < selectedStats.length; j++) {
+    d.push({
+      data: [],
+      color: colors.nextColor(),
+      label: selectedStats[j],
+      lines: {show: true},
+      shadowSize: 0/*, curvedLines: {apply: true}*/
+    });
+  }
+  var colorIdx = 0;
+  var timestamp = new Date().getTime();
+  var tmpData = new Object();
+  for (var i = 0; i < results.length; i++) {
+    var stats = results[i].stats;
+    var percentiles = results[i].percentiles;
+    console.log(percentiles);
+    for (var j = 0; j < selectedStats.length; j++) {
+      var selected = selectedStats[j];
+      var value = 0;
+      if (selected.startsWith('percentiles.')) {
+        value = percentiles[selected.split("percentiles.")[1]];
+      }
+      if (selected.startsWith('stats.')) {
+        value = stats[selected.split("stats.")[1]];
+      }
+      d[j].data.push([results[i].period, value / Math.pow(10, this.object.tileContext.ignoreDigits)]);
+    }
+  }
+  this.render(d);
 }
 
 StatsTrendTile.prototype.render = function (rows) {
@@ -146,14 +171,12 @@ StatsTrendTile.prototype.render = function (rows) {
   var borderColorArray = ["#9e8cd9", "#f3a534", "#9bc95b", "#50e3c2"]
   var chartDiv = $("#"+object.id).find(".chart-item");
   var ctx = chartDiv.find("#" + object.id);
+  var chartClassName = object.tileContext.widgetSize == undefined ? getFullWidgetClassName(12) : getFullWidgetClassName(object.tileContext.widgetSize);
+  ctx.addClass(chartClassName);
+  $("#"+object.id).find(".chart-item").find(".legend").addClass('full-widget-legend');
   ctx.width(ctx.width - 100);
-  ctx.height(230);
-  $.plot(ctx, [
-    {
-      data: rows
-      , color: "#38d9a9",
-    }
-    , ], {
+  ctx.height(fullWidgetChartHeight);
+  var plot = $.plot(ctx, rows, {
     series: {
       lines: {
         show: true
@@ -185,6 +208,9 @@ StatsTrendTile.prototype.render = function (rows) {
       tickFormatter: function(val, axis) {
         return numDifferentiation(val);
       },
+    },
+    legend: {
+      show: false
     }
     , grid: {
       hoverable: true
@@ -203,6 +229,7 @@ StatsTrendTile.prototype.render = function (rows) {
       content: "%y events at %x"
       , defaultFormat: true
     }
-    , colors: [borderColorArray[Math.floor(Math.random()*borderColorArray.length)]]
     , });
+
+  drawLegend(rows, $(chartDiv.find(".legend")));
 }

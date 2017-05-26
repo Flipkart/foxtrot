@@ -400,7 +400,7 @@ function getFullWidgetClassName(size) {
 }
 
 function fullWidgetChartHeight() {
-  return 270;
+  return 290;
 }
 
 function convertHex(hex,opacity){
