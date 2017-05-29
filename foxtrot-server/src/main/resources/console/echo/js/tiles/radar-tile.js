@@ -38,7 +38,7 @@ function getRadarChartFormValues() {
 }
 
 function setRadarChartFormValues(object) {
-  $(".radar-nesting").val(currentFieldList.findIndex(x => x.field == object.tileContext.nesting[0]));
+  $(".radar-nesting").val(parseInt(currentFieldList.findIndex(x => x.field == object.tileContext.nesting[0])));
   $(".radar-nesting").selectpicker('refresh');
   $("#radar-timeframe").val(object.tileContext.timeframe);
   $("#radar-time-unit").val(object.tileContext.period);

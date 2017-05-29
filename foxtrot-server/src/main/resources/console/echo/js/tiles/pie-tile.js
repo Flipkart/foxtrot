@@ -48,10 +48,10 @@ function setPieChartFormValues(object) {
   $(".pie-timeframe").val(object.tileContext.timeframe);
   $("pie-timeframe").selectpicker('refresh');
   var stackingField = currentFieldList.findIndex(x => x.field == object.tileContext.eventFiled);
-  $(".eventtype-field").val(stackingField);
+  $(".eventtype-field").val(parseInt(stackingField));
   $(".eventtype-field").selectpicker('refresh');
   var stackingUniqueField = currentFieldList.findIndex(x => x.field == object.tileContext.uniqueKey);
-  $(".pie-bar-uniquekey").val(stackingUniqueField);
+  $(".pie-bar-uniquekey").val(parseInt(stackingUniqueField));
   $(".pie-bar-uniquekey").selectpicker('refresh');
   $(".pie-ignored-digits").val(parseInt(object.tileContext.ignoreDigits == undefined ? 0 : object.tileContext.ignoreDigits));
   $(".pie-selected-value").val((object.tileContext.selectedValue == undefined ? '' : object.tileContext.selectedValue));

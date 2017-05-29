@@ -49,9 +49,9 @@ function setStackedChartFormValues(object) {
   $(".stacked-time-unit").val(object.tileContext.period);
   $("stacked-time-unit").selectpicker('refresh');
   $(".stacked-timeframe").val(object.tileContext.timeframe);
-  $(".stacked-grouping-key").val(currentFieldList.findIndex(x => x.field == object.tileContext.groupingKey));
+  $(".stacked-grouping-key").val(parseInt(currentFieldList.findIndex(x => x.field == object.tileContext.groupingKey)));
   $(".stacked-grouping-key").selectpicker('refresh');
-  $(".stacking-key").val(currentFieldList.findIndex(x => x.field == object.tileContext.stackingKey));
+  $(".stacking-key").val(parseInt(currentFieldList.findIndex(x => x.field == object.tileContext.stackingKey)));
   $(".stacking-key").selectpicker('refresh');
   $(".stacked-uniquekey").val(currentFieldList.findIndex(x => x.field == object.tileContext.uniqueKey));
   $(".stacked-uniquekey").selectpicker('refresh');

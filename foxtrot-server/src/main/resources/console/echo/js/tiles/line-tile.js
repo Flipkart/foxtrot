@@ -40,7 +40,7 @@ function setLineChartFormValues(object) {
   timeUnitEl.val(object.tileContext.period);
   $(timeUnitEl).selectpicker('refresh');
   var uniqeKey = parentElement.find("#uniqueKey");
-  uniqeKey.val(object.tileContext.uniqueCountOn);
+  uniqeKey.val(currentFieldList.findIndex(x => x.field == object.tileContext.uniqueCountOn[0]));
   $(uniqeKey).selectpicker('refresh');
   parentElement.find("#line-timeframe").val(object.tileContext.timeframe);
   $(".line-ignored-digits").val(parseInt(object.tileContext.ignoreDigits == undefined ? 0 : object.tileContext.ignoreDigits));

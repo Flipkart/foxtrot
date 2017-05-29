@@ -39,7 +39,7 @@ function getGaugeChartFormValues() {
 
 function setGaugeChartFormValues(object) {
   var selectedNesting = object.tileContext.nesting.toString();
-  var selectedNestingArrayIndex = currentFieldList.findIndex(x => x.field == selectedNesting);
+  var selectedNestingArrayIndex = parseInt(currentFieldList.findIndex(x => x.field == selectedNesting));
   var nesting = $(".gauge-nesting").val(selectedNestingArrayIndex);
   $(".gauge-nesting").selectpicker('refresh');
   var timeUnit = $("#gauge-time-unit").val(object.tileContext.period);

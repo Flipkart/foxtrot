@@ -72,7 +72,7 @@ function setCountChartFormValues(object) {
 
   var statsFieldEl = parentElement.find(".count-field");
   var statsFieldIndex = currentFieldList.findIndex(x => x.field== object.tileContext.field);
-  statsFieldEl.val(statsFieldIndex);
+  statsFieldEl.val(parseInt(statsFieldIndex));
   $(statsFieldEl).selectpicker('refresh');
 
   parentElement.find("#count-timeframe").val(object.tileContext.timeframe);

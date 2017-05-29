@@ -44,9 +44,9 @@ function setStackedBarChartFormValues(object) {
   $(".stacked-bar-time-unit").val(object.tileContext.period);
   $(".stacked-bar-time-unit").selectpicker('refresh');
   $(".stacked-bar-timeframe").val(object.tileContext.timeframe);
-  $(".stacked-bar-field").val(currentFieldList.findIndex(x => x.field == object.tileContext.stackedBarField));
+  $(".stacked-bar-field").val(parseInt(currentFieldList.findIndex(x => x.field == object.tileContext.stackedBarField)));
   $(".stacked-bar-field").selectpicker('refresh');
-  $(".stacked-bar-uniquekey").val(currentFieldList.findIndex(x => x.field == object.tileContext.uniqueKey));
+  $(".stacked-bar-uniquekey").val(parseInt(currentFieldList.findIndex(x => x.field == object.tileContext.uniqueKey)));
   $(".stacked-bar-uniquekey").selectpicker('refresh');
   $(".stackedBar-ignored-digits").val(parseInt(object.tileContext.ignoreDigits == undefined ? 0 : object.tileContext.ignoreDigits));
 }

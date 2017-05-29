@@ -73,7 +73,7 @@ function setTrendChartFormValues(object) {
 
   var statsFieldEl = parentElement.find(".stats-field");
   var statsFieldIndex = currentFieldList.findIndex(x => x.field== object.tileContext.statsFieldName);
-  statsFieldEl.val(statsFieldIndex);
+  statsFieldEl.val(parseInt(statsFieldIndex));
   $(statsFieldEl).selectpicker('refresh');
 
   var statsToPlot = parentElement.find(".statistic_to_plot");

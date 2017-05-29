@@ -46,9 +46,9 @@ function setBarChartFormValues(object) {
   $(".bar-time-unit").val(object.tileContext.period);
   $(".bar-time-unit").selectpicker('refresh');
   $(".bar-timeframe").val(object.tileContext.timeframe);
-  $(".bar-event-field").val(currentFieldList.findIndex(x => x.field == object.tileContext.nesting[0]));
+  $(".bar-event-field").val(parseInt(currentFieldList.findIndex(x => x.field == object.tileContext.nesting[0])));
   $(".bar-event-field").selectpicker('refresh');
-  $(".bar-uniquekey").val(currentFieldList.findIndex(x => x.field == object.tileContext.uniqueKey));
+  $(".bar-uniquekey").val(parseInt(currentFieldList.findIndex(x => x.field == object.tileContext.uniqueKey)));
   $(".bar-uniquekey").selectpicker('refresh');
   $(".bar-ignored-digits").val(parseInt(object.tileContext.ignoreDigits == undefined ? 0 : object.tileContext.ignoreDigits));
   $(".bar-selected-value").val((object.tileContext.selectedValue == undefined ? '' : object.tileContext.selectedValue));
