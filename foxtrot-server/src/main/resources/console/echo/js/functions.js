@@ -59,7 +59,7 @@ function filterTypeTriggered(el) {
   }
 }
 
-function addFitlers() {
+function addFilters() {
 
   var filterCount = filterRowArray.length;
   filterRowArray.push(filterCount);

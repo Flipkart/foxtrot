@@ -215,7 +215,7 @@ TileFactory.prototype.updateFilterCreation = function (object) {
   if (object.tileContext.filters.length > 0) {
     filterRowArray = [];
     for (var invokeFilter = 0; invokeFilter < selectedTileObject.tileContext.filters.length; invokeFilter++) {
-      addFitlers();
+      addFilters();
     }
     //setFilters(object);
     setTimeout(function () { //calls click event after a certain time

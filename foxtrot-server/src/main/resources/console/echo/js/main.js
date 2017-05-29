@@ -180,7 +180,7 @@ FoxTrot.prototype.addTile = function () {
 };
 
 FoxTrot.prototype.addFilters = function () {
-  addFitlers();
+  addFilters();
 }
 
 
