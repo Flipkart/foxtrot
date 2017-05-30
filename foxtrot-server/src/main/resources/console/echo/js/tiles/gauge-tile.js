@@ -21,6 +21,7 @@ function getGaugeChartFormValues() {
   var nesting = $("#gauge-nesting").val();
   var timeframe = $("#gauge-timeframe").val();
   var period = $("#gauge-time-unit").val();
+  var successField = $("#gauge-success-field").val();
   var status = false;
   if ($("#gauge-nesting").valid() && $("#gauge-timeframe").valid() && $("#gauge-time-unit").valid()) {
     status = true;
@@ -34,6 +35,7 @@ function getGaugeChartFormValues() {
     "nesting": nestingArray
     , "period": period
     , "timeframe": timeframe
+    , "successField" : successField
   }, status]
 }
 
@@ -42,9 +44,13 @@ function setGaugeChartFormValues(object) {
   var selectedNestingArrayIndex = parseInt(currentFieldList.findIndex(x => x.field == selectedNesting));
   var nesting = $("#gauge-nesting").val(selectedNestingArrayIndex);
   $("#gauge-nesting").selectpicker('refresh');
+
   var timeUnit = $("#gauge-time-unit").val(object.tileContext.period);
   timeUnit.selectpicker('refresh');
+
   $("#gauge-timeframe").val(object.tileContext.timeframe)
+
+  $("#gauge-success-field").val((object.tileContext.successField == undefined ? '' : object.tileContext.successField));
 }
 
 function clearGaugeChartForm() {
@@ -52,9 +58,13 @@ function clearGaugeChartForm() {
   var nestingEl = parentElement.find("#gauge-nesting");
   nestingEl.find('option:eq(0)').prop('selected', true);
   $(nestingEl).selectpicker('refresh');
+
+  $("#gauge-success-field").val('');
+
   var timeUnitEl = parentElement.find("#gauge-time-unit");
   timeUnitEl.find('option:eq(0)').prop('selected', true);
   $(timeUnitEl).selectpicker('refresh');
+
   parentElement.find("#gauge-timeframe").val('');
 }
 GaugeTile.prototype.getQuery = function (object) {
@@ -90,27 +100,39 @@ GaugeTile.prototype.getQuery = function (object) {
   });
 }
 GaugeTile.prototype.getData = function (data) {
+
+  var successField = "";
+  var successRate = 0;
+
+  if(this.object.tileContext.successField) {
+    successField = this.object.tileContext.successField;
+  }
+
   if (data.result == undefined || data.result.length == 0) return;
-  var percentage = 0;
+  var total = 0;
   for (var key in data.result) {
     var value = data.result[key];
-    percentage = percentage + value;
+    total = total + value;
+    console.log(data.result);
+    if(successField == key) {
+      successRate = value;
+    }
   }
-  this.render(percentage % 100);
+  this.render(total, successRate, (successRate/total*100));
 }
-GaugeTile.prototype.render = function (data) {
+GaugeTile.prototype.render = function (total, successRate, diff) {
   var object = this.object;
-  var d = [data];
+  var d = [total];
   var chartDiv = $("#"+object.id).find(".chart-item");
   chartDiv.addClass("gauge-chart");
   var minNumber = 1;
-  var maxNumber = 100
-  var randomNumber = data;
+  var maxNumber = total
+  var randomNumber = successRate;
   var findExistingChart = chartDiv.find("#gauge-" + object.id);
   if (findExistingChart.length != 0) {
     findExistingChart.remove();
   }
-  chartDiv.append('<div id="gauge-' + object.id + '"><div class="halfDonut"><div class="halfDonutChart"></div><div class="halfDonutTotal bold gauge-percentage" data-percent="' + randomNumber + '" data-color="#82c91e">' + randomNumber + '%</div></div></div>')
+  chartDiv.append('<div id="gauge-' + object.id + '"><div class="halfDonut"><div class="halfDonutChart"></div><div class="halfDonutTotal bold gauge-percentage" data-percent="' + successRate + '" data-color="#82c91e">' + Math.round(diff) + '%</div></div></div>')
   var ctx = chartDiv.find("#gauge-" + object.id);
   var donutDiv = ctx.find(".halfDonutChart");
   $(donutDiv).each(function (index, chart) {
@@ -121,11 +143,8 @@ GaugeTile.prototype.render = function (data) {
       data: percent
       , color: "#82c91e"
     }, {
-      data: 100 - percent
+      data:total
       , color: "#eaeaea"
-    }, {
-      data: 100
-      , color: '#eaeaea'
     }], {
       series: {
         pie: {
