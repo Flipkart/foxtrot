@@ -189,16 +189,7 @@ TileFactory.prototype.updateFilterCreation = function (object) {
   var tileDataIndex = tileData[tileListIndex];
   var selectedTileObject = tileData[object.id];
 
-
   var form = $("#sidebar").find("form");
-  if (object.tileContext.tableFields != undefined) { // this is for without console
-    currentFieldList = object.tileContext.tableFields;
-  }
-  else { // with console
-    currentFieldList = tableFiledsArray[object.tileContext.table].mappings;
-  }
-
-
   if (object.tileContext.tableDropdownIndex == undefined) {
     form.find(".tile-table").val(parseInt(tableNameList.indexOf(object.tileContext.table)));
   }
@@ -279,6 +270,14 @@ TileFactory.prototype.triggerConfig = function (tileElement, object) {
     form.find("#sidebar-tileId").val(object.id);
 
     $(".chart-type").val(object.tileContext.chartType)
+
+    if (object.tileContext.tableFields != undefined) { // this is for without console
+      currentFieldList = object.tileContext.tableFields;
+    }
+    else { // with console
+      currentFieldList = tableFiledsArray[object.tileContext.table].mappings;
+    }
+
     clickedChartType($(".chart-type"));
 
     setTimeout(function() { instanceVar.updateFilterCreation(object); }, 1000);
