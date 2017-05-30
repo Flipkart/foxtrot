@@ -21,7 +21,7 @@ function getLineChartFormValues() {
   var period = $("#tile-time-unit").val();
   var uniqueCount = $("#uniqueKey").val();
   var timeframe = $("#line-timeframe").val();
-  var ignoreDigits = $("#line-ignored-digits").val();
+  var ignoreDigits = $(".line-ignored-digits").val();
   var status = false;
   if ($("#uniqueKey").valid() && $("#tile-time-unit").valid() && $("#line-timeframe").valid()) {
     status = true;
@@ -43,7 +43,7 @@ function setLineChartFormValues(object) {
   uniqeKey.val(currentFieldList.findIndex(x => x.field == object.tileContext.uniqueCountOn[0]));
   $(uniqeKey).selectpicker('refresh');
   parentElement.find("#line-timeframe").val(object.tileContext.timeframe);
-  $("#line-ignored-digits").val(parseInt(object.tileContext.ignoreDigits == undefined ? 0 : object.tileContext.ignoreDigits));
+  $(".line-ignored-digits").val(parseInt(object.tileContext.ignoreDigits == undefined ? 0 : object.tileContext.ignoreDigits));
 }
 
 function clearLineChartForm() {

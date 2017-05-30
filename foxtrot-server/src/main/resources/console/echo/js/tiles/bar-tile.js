@@ -22,7 +22,7 @@ function getBarChartFormValues() {
   var timeframe = $("#bar-timeframe").val();
   var eventField = $("#bar-event-field").val();
   var uniqueKey = $("#bar-uniquekey").val();
-  var ignoreDigits = $("#bar-ignored-digits").val();
+  var ignoreDigits = $(".bar-ignored-digits").val();
   var selectedValue = $("#bar-selected-value").val();
   if (eventField == "none") {
     return [[], false];
@@ -50,7 +50,7 @@ function setBarChartFormValues(object) {
   $("#bar-event-field").selectpicker('refresh');
   $("#bar-uniquekey").val(parseInt(currentFieldList.findIndex(x => x.field == object.tileContext.uniqueKey)));
   $("#bar-uniquekey").selectpicker('refresh');
-  $("#bar-ignored-digits").val(parseInt(object.tileContext.ignoreDigits == undefined ? 0 : object.tileContext.ignoreDigits));
+  $(".bar-ignored-digits").val(parseInt(object.tileContext.ignoreDigits == undefined ? 0 : object.tileContext.ignoreDigits));
   $("#bar-selected-value").val((object.tileContext.selectedValue == undefined ? '' : object.tileContext.selectedValue));
 }
 

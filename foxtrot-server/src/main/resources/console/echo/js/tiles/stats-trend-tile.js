@@ -23,7 +23,7 @@ function getStatsTrendTileChartFormValues() {
   var statsField = $("#stats-trend-field").val();
   var statsToPlot = $("#stats-trend-statics-to-plot").val();
   var timeframe = $("#stats-trend-timeframe").val();
-  var ignoreDigits = $("#stats-trend-ignored-digits").val();
+  var ignoreDigits = $(".stats-trend-ignored-digits").val();
 
   var status = true;
 
@@ -61,7 +61,7 @@ function clearStatsTrendTileChartForm() {
   $(statsToPlot).selectpicker('refresh');
 
   parentElement.find("#stats-trend-timeframe").val('');
-  parentElement.find("#stats-trend-ignored-digits").val(0);
+  parentElement.find(".stats-trend-ignored-digits").val(0);
 }
 
 function setStatsTrendTileChartFormValues(object) {
@@ -81,7 +81,7 @@ function setStatsTrendTileChartFormValues(object) {
   $(statsToPlot).selectpicker('refresh');
 
   parentElement.find("#stats-trend-timeframe").val(object.tileContext.timeframe);
-  parentElement.find("#stats-trend-ignored-digits").val(parseInt(object.tileContext.ignoreDigits == undefined ? 0 : object.tileContext.ignoreDigits));
+  parentElement.find(".stats-trend-ignored-digits").val(parseInt(object.tileContext.ignoreDigits == undefined ? 0 : object.tileContext.ignoreDigits));
 }
 
 StatsTrendTile.prototype.getQuery = function(object) {

@@ -22,7 +22,7 @@ function getCountChartFormValues() {
   var period = $("#count-time-unit").val();
   var statsField = $("#count-field").val();
   var timeframe = $("#count-timeframe").val();
-  var ignoreDigits = $("#count-ignored-digits").val();
+  var ignoreDigits = $(".count-ignored-digits").val();
 
   var status = true;
 
@@ -60,7 +60,7 @@ function clearCountChartForm() {
   $(statsFieldEl).selectpicker('refresh');
 
   parentElement.find("#count-timeframe").val('');
-  parentElement.find("#count-ignored-digits").val(0);
+  parentElement.find(".count-ignored-digits").val(0);
 }
 
 function setCountChartFormValues(object) {
@@ -76,7 +76,7 @@ function setCountChartFormValues(object) {
   $(statsFieldEl).selectpicker('refresh');
 
   parentElement.find("#count-timeframe").val(object.tileContext.timeframe);
-  parentElement.find("#count-ignored-digits").val(parseInt(object.tileContext.ignoreDigits == undefined ? 0 : object.tileContext.ignoreDigits));
+  parentElement.find(".count-ignored-digits").val(parseInt(object.tileContext.ignoreDigits == undefined ? 0 : object.tileContext.ignoreDigits));
 }
 
 CountTile.prototype.getQuery = function(object) {

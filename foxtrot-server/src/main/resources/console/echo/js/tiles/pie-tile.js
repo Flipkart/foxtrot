@@ -22,7 +22,7 @@ function getPieChartFormValues() {
   var timeframe = $("#pie-timeframe").val();
   var chartField = $("#eventtype-field").val();
   var uniqueKey = $("#pie-uniquekey").val();
-  var ignoreDigits = $("#pie-ignored-digits").val();
+  var ignoreDigits = $(".pie-ignored-digits").val();
   var selectedValue = $("#pie-selected-value").val();
   if (chartField == "none") {
     return [[], false];
@@ -53,7 +53,7 @@ function setPieChartFormValues(object) {
   var stackingUniqueField = currentFieldList.findIndex(x => x.field == object.tileContext.uniqueKey);
   $("#pie-bar-uniquekey").val(parseInt(stackingUniqueField));
   $("#pie-bar-uniquekey").selectpicker('refresh');
-  $("#pie-ignored-digits").val(parseInt(object.tileContext.ignoreDigits == undefined ? 0 : object.tileContext.ignoreDigits));
+  $(".pie-ignored-digits").val(parseInt(object.tileContext.ignoreDigits == undefined ? 0 : object.tileContext.ignoreDigits));
   $("#pie-selected-value").val((object.tileContext.selectedValue == undefined ? '' : object.tileContext.selectedValue));
 }
 
@@ -70,7 +70,7 @@ function clearPieChartForm() {
   var stackingBarUniqueKey = parentElement.find("#pie-uniquekey");
   stackingBarUniqueKey.find('option:eq(0)').prop('selected', true);
   $(stackingBarUniqueKey).selectpicker('refresh');
-  $("#pie-ignored-digits").val(0);
+  $(".pie-ignored-digits").val(0);
   $("#bar-selected-value").val('');
 }
 PieTile.prototype.getQuery = function (object) {

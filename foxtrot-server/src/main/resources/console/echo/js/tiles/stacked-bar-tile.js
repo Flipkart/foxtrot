@@ -55,7 +55,7 @@ function setStackedBarChartFormValues(object) {
   $("#stacked-bar-field").selectpicker('refresh');
   $("#stacked-bar-uniquekey").val(parseInt(currentFieldList.findIndex(x => x.field == object.tileContext.uniqueKey)));
   $("#stacked-bar-uniquekey").selectpicker('refresh');
-  $("#stackedBar-ignored-digits").val(parseInt(object.tileContext.ignoreDigits == undefined ? 0 : object.tileContext.ignoreDigits));
+  $(".stackedBar-ignored-digits").val(parseInt(object.tileContext.ignoreDigits == undefined ? 0 : object.tileContext.ignoreDigits));
 }
 
 function clearStackedBarChartForm() {
@@ -71,7 +71,7 @@ function clearStackedBarChartForm() {
   var stackingBarUniqueKey = parentElement.find("#stacked-bar-uniquekey");
   stackingBarUniqueKey.find('option:eq(0)').prop('selected', true);
   $(stackingBarUniqueKey).selectpicker('refresh');
-  $("#stackedBar-ignored-digits").val(0);
+  $(".stackedBar-ignored-digits").val(0);
 }
 StackedBarTile.prototype.getQuery = function (object) {
   this.object = object;
