@@ -276,38 +276,36 @@ function reloadDropdowns() {
 }
 
 function invokeClearChartForm() {
-  setTimeout(function(){
-    if (currentChartType == "line") {
-      clearLineChartForm();
-    }
-    else if (currentChartType == "trend") {
-      clearTrendChartForm();
-    }
-    else if (currentChartType == "stacked") {
-      clearstackedChartForm();
-    }
-    else if (currentChartType == "radar") {
-      clearRadarChartForm();
-    }
-    else if (currentChartType == "gauge") {
-      clearGaugeChartForm();
-    }
-    else if (currentChartType == "stackedBar") {
-      clearStackedBarChartForm();
-    }
-    else if (currentChartType == "pie") {
-      clearPieChartForm();
-    }
-    else if(currentChartType == "statsTrend") {
-      clearStatsTrendTileChartForm();
-    }
-    else if(currentChartType == "bar") {
-      clearBarChartForm();
-    }
-    else if(currentChartType == "count") {
-      clearCountChartForm();
-    }
-  }, 1000);
+  if (currentChartType == "line") {
+    clearLineChartForm();
+  }
+  else if (currentChartType == "trend") {
+    clearTrendChartForm();
+  }
+  else if (currentChartType == "stacked") {
+    clearstackedChartForm();
+  }
+  else if (currentChartType == "radar") {
+    clearRadarChartForm();
+  }
+  else if (currentChartType == "gauge") {
+    clearGaugeChartForm();
+  }
+  else if (currentChartType == "stackedBar") {
+    clearStackedBarChartForm();
+  }
+  else if (currentChartType == "pie") {
+    clearPieChartForm();
+  }
+  else if(currentChartType == "statsTrend") {
+    clearStatsTrendTileChartForm();
+  }
+  else if(currentChartType == "bar") {
+    clearBarChartForm();
+  }
+  else if(currentChartType == "count") {
+    clearCountChartForm();
+  }
 }
 
 // Get the remaining array between two arrays having same values
