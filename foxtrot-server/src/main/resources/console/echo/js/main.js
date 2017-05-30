@@ -103,6 +103,17 @@ FoxTrot.prototype.init = function () {
 };
 
 FoxTrot.prototype.addTile = function () {
+
+  // check for basic form
+  if(!$("#basic-form").valid()) {
+    return;
+  }
+
+  // check particular form
+  if(!$("#"+currentChartType).valid()) {
+    return;
+  }
+
   var title = $("#tileTitle").val();
   var filterDetails = getFilters();
   var tableId = parseInt($("#tileTable").val());
@@ -189,7 +200,7 @@ FoxTrot.prototype.resetModal = function () {
 }
 function clickedChartType(el) {
   // hide
-  $("#table-units>div.table-units-active").removeClass("table-units-active");
+  $("#table-units>form>div.table-units-active").removeClass("table-units-active");
   // show
   currentChartType = $(".chart-type").val();
   reloadDropdowns();
@@ -201,7 +212,7 @@ function clickedChartType(el) {
     $(chartDataEle).addClass("table-units-active");
   }
   else {
-    showHideForms();
+    showHideForms(currentChartType);
   }
   $(".vizualization-type").removeClass("vizualization-type-active");
   $(el).addClass("vizualization-type-active");
@@ -542,7 +553,6 @@ function showHidePageSettings() {
 $(document).ready(function () {
   var type = $("#widgetType").val();
   var foxtrot = new FoxTrot();
-  $("#addWidgetModal").validator();
   $("#addWidgetConfirm").click($.proxy(foxtrot.addTile, foxtrot));
   $("#sidebar-filter-btn").click($.proxy(foxtrot.addFilters, foxtrot));
   $("#default-btn").click(function () {
@@ -611,6 +621,13 @@ $(document).ready(function () {
 
   $(".page-setting-save-btn").click(function() {
     savePageSettings();
+  });
+
+  $("#sidebar-btn-form").validate({
+    submitHandler: function (form) { // for demo
+      alert('valid form submitted'); // for demo
+      return false; // for demo
+    }
   });
 
 });

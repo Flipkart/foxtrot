@@ -2053,3 +2053,7 @@ div.tab button:first-child {
 #count-chart-data {
   display: none;
 }
+
+.error {
+  color: red !important;
+}

@@ -113,7 +113,7 @@ function generateDropDown(fields, element) {
   el.find('option').remove();
 
   $(el).append($('<option>', {
-    value: "none"
+    value: ""
     , text: "none"
   }));
 

@@ -81,9 +81,10 @@ function addFilters() {
   });
 }
 
-function showHideForms() {
+function showHideForms(currentChartType) {
   $("#table-units").hide();
-  $("#table-units").find(".table-units-active").removeClass(".table-units-active");
+  console.log(currentChartType);
+  $("#table-units").find("#"+currentChartType).find(".table-units-active").removeClass(".table-units-active");
 }
 
 function removeFilters() {
