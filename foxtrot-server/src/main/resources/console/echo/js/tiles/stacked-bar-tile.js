@@ -18,10 +18,10 @@ function StackedBarTile() {
 }
 
 function getstackedBarChartFormValues() {
-  var period = $(".stacked-bar-time-unit").val();
+  var period = $("#stacked-bar-time-unit").val();
   var timeframe = $(".stacked-bar-timeframe").val();
-  var chartField = $(".stacked-bar-field").val();
-  var uniqueKey = $(".stacked-uniquekey").val();
+  var chartField = $("#stacked-bar-field").val();
+  var uniqueKey = $("#stacked-uniquekey").val();
   var ignoreDigits = $(".stackedBar-ignored-digits").val();
   if (chartField == "none") {
     return [[], false];
@@ -31,6 +31,13 @@ function getstackedBarChartFormValues() {
   if (!$("#stacked-bar-time-unit").valid() || !$("#stacked-bar-timeframe").valid()) {
     status = false;
   }
+  console.log({
+    "period": period
+    , "timeframe": timeframe
+    , "uniqueKey": uniqueKey
+    , "stackedBarField": chartField
+    , "ignoreDigits" : ignoreDigits
+    , })
   return [{
     "period": period
     , "timeframe": timeframe
@@ -41,30 +48,30 @@ function getstackedBarChartFormValues() {
 }
 
 function setStackedBarChartFormValues(object) {
-  $(".stacked-bar-time-unit").val(object.tileContext.period);
-  $(".stacked-bar-time-unit").selectpicker('refresh');
-  $(".stacked-bar-timeframe").val(object.tileContext.timeframe);
-  $(".stacked-bar-field").val(parseInt(currentFieldList.findIndex(x => x.field == object.tileContext.stackedBarField)));
-  $(".stacked-bar-field").selectpicker('refresh');
-  $(".stacked-bar-uniquekey").val(parseInt(currentFieldList.findIndex(x => x.field == object.tileContext.uniqueKey)));
-  $(".stacked-bar-uniquekey").selectpicker('refresh');
-  $(".stackedBar-ignored-digits").val(parseInt(object.tileContext.ignoreDigits == undefined ? 0 : object.tileContext.ignoreDigits));
+  $("#stacked-bar-time-unit").val(object.tileContext.period);
+  $("#stacked-bar-time-unit").selectpicker('refresh');
+  $("#stacked-bar-timeframe").val(object.tileContext.timeframe);
+  $("#stacked-bar-field").val(parseInt(currentFieldList.findIndex(x => x.field == object.tileContext.stackedBarField)));
+  $("#stacked-bar-field").selectpicker('refresh');
+  $("#stacked-bar-uniquekey").val(parseInt(currentFieldList.findIndex(x => x.field == object.tileContext.uniqueKey)));
+  $("#stacked-bar-uniquekey").selectpicker('refresh');
+  $("#stackedBar-ignored-digits").val(parseInt(object.tileContext.ignoreDigits == undefined ? 0 : object.tileContext.ignoreDigits));
 }
 
 function clearStackedBarChartForm() {
   var parentElement = $("#" + currentChartType + "-chart-data");
-  var timeUnitEl = parentElement.find(".stacked-bar-time-unit");
+  var timeUnitEl = parentElement.find("#stacked-bar-time-unit");
   timeUnitEl.find('option:eq(0)').prop('selected', true);
   $(timeUnitEl).selectpicker('refresh');
-  var timeframe = parentElement.find(".stacked-bar-timeframe");
+  var timeframe = parentElement.find("#stacked-bar-timeframe");
   timeframe.val('');
-  var stackingKey = parentElement.find(".stacked-bar-field");
+  var stackingKey = parentElement.find("#stacked-bar-field");
   stackingKey.find('option:eq(0)').prop('selected', true);
   $(stackingKey).selectpicker('refresh');
-  var stackingBarUniqueKey = parentElement.find(".stacked-bar-uniquekey");
+  var stackingBarUniqueKey = parentElement.find("#stacked-bar-uniquekey");
   stackingBarUniqueKey.find('option:eq(0)').prop('selected', true);
   $(stackingBarUniqueKey).selectpicker('refresh');
-  $(".stackedBar-ignored-digits").val(0);
+  $("#stackedBar-ignored-digits").val(0);
 }
 StackedBarTile.prototype.getQuery = function (object) {
   this.object = object;

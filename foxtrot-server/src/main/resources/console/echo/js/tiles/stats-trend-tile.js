@@ -19,11 +19,11 @@ function StatsTrendTile() {
 }
 
 function getStatsTrendTileChartFormValues() {
-  var period = $(".stats-trend-time-unit").val();
-  var statsField = $(".stats-trend-field").val();
-  var statsToPlot = $(".stats-trend-statics-to-plot").val();
+  var period = $("#stats-trend-time-unit").val();
+  var statsField = $("#stats-trend-field").val();
+  var statsToPlot = $("#stats-trend-statics-to-plot").val();
   var timeframe = $("#stats-trend-timeframe").val();
-  var ignoreDigits = $(".stats-trend-ignored-digits").val();
+  var ignoreDigits = $("#stats-trend-ignored-digits").val();
 
   var status = true;
 
@@ -48,40 +48,40 @@ function getStatsTrendTileChartFormValues() {
 function clearStatsTrendTileChartForm() {
   var parentElement = $("#"+currentChartType+"-chart-data");
 
-  var timeUnitEl = parentElement.find(".stats-trend-time-unit");
+  var timeUnitEl = parentElement.find("#stats-trend-time-unit");
   timeUnitEl.find('option:eq(0)').prop('selected', true);
   $(timeUnitEl).selectpicker('refresh');
 
-  var statsFieldEl = parentElement.find(".stats-trend-field");
+  var statsFieldEl = parentElement.find("#stats-trend-field");
   statsFieldEl.find('option:eq(0)').prop('selected', true);
   $(statsFieldEl).selectpicker('refresh');
 
-  var statsToPlot = parentElement.find(".stats-trend-statics-to-plot");
+  var statsToPlot = parentElement.find("#stats-trend-statics-to-plot");
   statsToPlot.find('option:eq(0)').prop('selected', true);
   $(statsToPlot).selectpicker('refresh');
 
   parentElement.find("#stats-trend-timeframe").val('');
-  parentElement.find(".stats-trend-ignored-digits").val(0);
+  parentElement.find("#stats-trend-ignored-digits").val(0);
 }
 
 function setStatsTrendTileChartFormValues(object) {
   var parentElement = $("#"+currentChartType+"-chart-data");
 
-  var timeUnitEl = parentElement.find(".stats-trend-time-unit");
+  var timeUnitEl = parentElement.find("#stats-trend-time-unit");
   timeUnitEl.val(object.tileContext.period);
   $(timeUnitEl).selectpicker('refresh');
 
-  var statsFieldEl = parentElement.find(".stats-trend-field");
+  var statsFieldEl = parentElement.find("#stats-trend-field");
   var statsFieldIndex = currentFieldList.findIndex(x => x.field== object.tileContext.statsFieldName);
   statsFieldEl.val(parseInt(statsFieldIndex));
   $(statsFieldEl).selectpicker('refresh');
 
-  var statsToPlot = parentElement.find(".stats-trend-statics-to-plot");
+  var statsToPlot = parentElement.find("#stats-trend-statics-to-plot");
   statsToPlot.val(object.tileContext.statsToPlot);
   $(statsToPlot).selectpicker('refresh');
 
   parentElement.find("#stats-trend-timeframe").val(object.tileContext.timeframe);
-  parentElement.find(".stats-trend-ignored-digits").val(parseInt(object.tileContext.ignoreDigits == undefined ? 0 : object.tileContext.ignoreDigits));
+  parentElement.find("#stats-trend-ignored-digits").val(parseInt(object.tileContext.ignoreDigits == undefined ? 0 : object.tileContext.ignoreDigits));
 }
 
 StatsTrendTile.prototype.getQuery = function(object) {

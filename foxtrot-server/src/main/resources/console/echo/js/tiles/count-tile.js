@@ -19,10 +19,10 @@ function CountTile() {
 }
 
 function getCountChartFormValues() {
-  var period = $(".count-time-unit").val();
-  var statsField = $(".count-field").val();
+  var period = $("#count-time-unit").val();
+  var statsField = $("#count-field").val();
   var timeframe = $("#count-timeframe").val();
-  var ignoreDigits = $(".count-ignored-digits").val();
+  var ignoreDigits = $("#count-ignored-digits").val();
 
   var status = true;
 
@@ -51,32 +51,32 @@ function getCountChartFormValues() {
 function clearCountChartForm() {
   var parentElement = $("#"+currentChartType+"-chart-data");
 
-  var timeUnitEl = parentElement.find(".count-time-unit");
+  var timeUnitEl = parentElement.find("#count-time-unit");
   timeUnitEl.find('option:eq(0)').prop('selected', true);
   $(timeUnitEl).selectpicker('refresh');
 
-  var statsFieldEl = parentElement.find(".count-field");
+  var statsFieldEl = parentElement.find("#count-field");
   statsFieldEl.find('option:eq(0)').prop('selected', true);
   $(statsFieldEl).selectpicker('refresh');
 
   parentElement.find("#count-timeframe").val('');
-  parentElement.find(".count-ignored-digits").val(0);
+  parentElement.find("#count-ignored-digits").val(0);
 }
 
 function setCountChartFormValues(object) {
   var parentElement = $("#"+currentChartType+"-chart-data");
 
-  var timeUnitEl = parentElement.find(".count-time-unit");
+  var timeUnitEl = parentElement.find("#count-time-unit");
   timeUnitEl.val(object.tileContext.period);
   $(timeUnitEl).selectpicker('refresh');
 
-  var statsFieldEl = parentElement.find(".count-field");
+  var statsFieldEl = parentElement.find("#count-field");
   var statsFieldIndex = currentFieldList.findIndex(x => x.field== object.tileContext.field);
   statsFieldEl.val(parseInt(statsFieldIndex));
   $(statsFieldEl).selectpicker('refresh');
 
   parentElement.find("#count-timeframe").val(object.tileContext.timeframe);
-  parentElement.find(".count-ignored-digits").val(parseInt(object.tileContext.ignoreDigits == undefined ? 0 : object.tileContext.ignoreDigits));
+  parentElement.find("#count-ignored-digits").val(parseInt(object.tileContext.ignoreDigits == undefined ? 0 : object.tileContext.ignoreDigits));
 }
 
 CountTile.prototype.getQuery = function(object) {

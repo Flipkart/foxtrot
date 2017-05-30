@@ -18,7 +18,7 @@ function GaugeTile() {
 }
 
 function getGaugeChartFormValues() {
-  var nesting = $(".gauge-nesting").val();
+  var nesting = $("#gauge-nesting").val();
   var timeframe = $("#gauge-timeframe").val();
   var period = $("#gauge-time-unit").val();
   var status = false;
@@ -40,8 +40,8 @@ function getGaugeChartFormValues() {
 function setGaugeChartFormValues(object) {
   var selectedNesting = object.tileContext.nesting.toString();
   var selectedNestingArrayIndex = parseInt(currentFieldList.findIndex(x => x.field == selectedNesting));
-  var nesting = $(".gauge-nesting").val(selectedNestingArrayIndex);
-  $(".gauge-nesting").selectpicker('refresh');
+  var nesting = $("#gauge-nesting").val(selectedNestingArrayIndex);
+  $("#gauge-nesting").selectpicker('refresh');
   var timeUnit = $("#gauge-time-unit").val(object.tileContext.period);
   timeUnit.selectpicker('refresh');
   $("#gauge-timeframe").val(object.tileContext.timeframe)
@@ -49,10 +49,10 @@ function setGaugeChartFormValues(object) {
 
 function clearGaugeChartForm() {
   var parentElement = $("#" + currentChartType + "-chart-data");
-  var nestingEl = parentElement.find(".gauge-nesting");
+  var nestingEl = parentElement.find("#gauge-nesting");
   nestingEl.find('option:eq(0)').prop('selected', true);
   $(nestingEl).selectpicker('refresh');
-  var timeUnitEl = parentElement.find(".gauge-time-unit");
+  var timeUnitEl = parentElement.find("#gauge-time-unit");
   timeUnitEl.find('option:eq(0)').prop('selected', true);
   $(timeUnitEl).selectpicker('refresh');
   parentElement.find("#gauge-timeframe").val('');

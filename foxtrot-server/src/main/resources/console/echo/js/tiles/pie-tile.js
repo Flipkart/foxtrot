@@ -18,12 +18,12 @@ function PieTile() {
 }
 
 function getPieChartFormValues() {
-  var period = $(".pie-time-unit").val();
-  var timeframe = $(".pie-timeframe").val();
-  var chartField = $(".eventtype-field").val();
-  var uniqueKey = $(".pie-uniquekey").val();
-  var ignoreDigits = $(".pie-ignored-digits").val();
-  var selectedValue = $(".pie-selected-value").val();
+  var period = $("#pie-time-unit").val();
+  var timeframe = $("#pie-timeframe").val();
+  var chartField = $("#eventtype-field").val();
+  var uniqueKey = $("#pie-uniquekey").val();
+  var ignoreDigits = $("#pie-ignored-digits").val();
+  var selectedValue = $("#pie-selected-value").val();
   if (chartField == "none") {
     return [[], false];
   }
@@ -43,35 +43,35 @@ function getPieChartFormValues() {
 }
 
 function setPieChartFormValues(object) {
-  $(".pie-time-unit").val(object.tileContext.period);
-  $(".pie-time-unit").selectpicker('refresh');
-  $(".pie-timeframe").val(object.tileContext.timeframe);
-  $("pie-timeframe").selectpicker('refresh');
+  $("#pie-time-unit").val(object.tileContext.period);
+  $("#pie-time-unit").selectpicker('refresh');
+  $("#pie-timeframe").val(object.tileContext.timeframe);
+  $("#pie-timeframe").selectpicker('refresh');
   var stackingField = currentFieldList.findIndex(x => x.field == object.tileContext.eventFiled);
-  $(".eventtype-field").val(parseInt(stackingField));
-  $(".eventtype-field").selectpicker('refresh');
+  $("#eventtype-field").val(parseInt(stackingField));
+  $("#eventtype-field").selectpicker('refresh');
   var stackingUniqueField = currentFieldList.findIndex(x => x.field == object.tileContext.uniqueKey);
-  $(".pie-bar-uniquekey").val(parseInt(stackingUniqueField));
-  $(".pie-bar-uniquekey").selectpicker('refresh');
-  $(".pie-ignored-digits").val(parseInt(object.tileContext.ignoreDigits == undefined ? 0 : object.tileContext.ignoreDigits));
-  $(".pie-selected-value").val((object.tileContext.selectedValue == undefined ? '' : object.tileContext.selectedValue));
+  $("#pie-bar-uniquekey").val(parseInt(stackingUniqueField));
+  $("#pie-bar-uniquekey").selectpicker('refresh');
+  $("#pie-ignored-digits").val(parseInt(object.tileContext.ignoreDigits == undefined ? 0 : object.tileContext.ignoreDigits));
+  $("#pie-selected-value").val((object.tileContext.selectedValue == undefined ? '' : object.tileContext.selectedValue));
 }
 
 function clearPieChartForm() {
   var parentElement = $("#" + currentChartType + "-chart-data");
-  var timeUnitEl = parentElement.find(".pie-time-unit");
+  var timeUnitEl = parentElement.find("#pie-time-unit");
   timeUnitEl.find('option:eq(0)').prop('selected', true);
   $(timeUnitEl).selectpicker('refresh');
-  var timeframe = parentElement.find(".pie-timeframe");
+  var timeframe = parentElement.find("#pie-timeframe");
   timeframe.val('');
-  var stackingKey = parentElement.find(".eventtype-field");
+  var stackingKey = parentElement.find("#eventtype-field");
   stackingKey.find('option:eq(0)').prop('selected', true);
   $(stackingKey).selectpicker('refresh');
-  var stackingBarUniqueKey = parentElement.find(".pie-uniquekey");
+  var stackingBarUniqueKey = parentElement.find("#pie-uniquekey");
   stackingBarUniqueKey.find('option:eq(0)').prop('selected', true);
   $(stackingBarUniqueKey).selectpicker('refresh');
-  $(".pie-ignored-digits").val(0);
-  $(".bar-selected-value").val('');
+  $("#pie-ignored-digits").val(0);
+  $("#bar-selected-value").val('');
 }
 PieTile.prototype.getQuery = function (object) {
   this.object = object;
