@@ -110,6 +110,7 @@ FoxTrot.prototype.addTile = function () {
   }
 
   // check particular form
+
   if(!$("#"+currentChartType).valid()) {
     return;
   }
@@ -627,6 +628,15 @@ $(document).ready(function () {
     submitHandler: function (form) { // for demo
       alert('valid form submitted'); // for demo
       return false; // for demo
+    }
+  });
+
+  $('#table-units .selectpicker').on('change', function(){
+    var selected = $(this).val();
+    if(selected) {
+      $(this).next().css( "display", "none" );
+    } else {
+      $(this).next().css( "display", "block" );
     }
   });
 
