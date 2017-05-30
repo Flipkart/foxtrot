@@ -149,7 +149,6 @@ StatsTrendTile.prototype.getData = function(data) {
   for (var i = 0; i < results.length; i++) {
     var stats = results[i].stats;
     var percentiles = results[i].percentiles;
-    console.log(percentiles);
     for (var j = 0; j < selectedStats.length; j++) {
       var selected = selectedStats[j];
       var value = 0;

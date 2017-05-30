@@ -61,7 +61,7 @@ function clearTrendChartForm() {
   $(statsToPlot).selectpicker('refresh');
 
   parentElement.find("#trend-timeframe").val('');
-  parentElement.find("#trend-ignored-digits").val(0);
+  parentElement.find(".trend-ignored-digits").val(0);
 }
 
 function setTrendChartFormValues(object) {
@@ -81,7 +81,7 @@ function setTrendChartFormValues(object) {
   $(statsToPlot).selectpicker('refresh');
 
   parentElement.find("#trend-timeframe").val(object.tileContext.timeframe);
-  parentElement.find("#trend-ignored-digits").val(parseInt(object.tileContext.ignoreDigits == undefined ? 0 : object.tileContext.ignoreDigits));
+  parentElement.find(".trend-ignored-digits").val(parseInt(object.tileContext.ignoreDigits == undefined ? 0 : object.tileContext.ignoreDigits));
 }
 
 TrendTile.prototype.getQuery = function(object) {
