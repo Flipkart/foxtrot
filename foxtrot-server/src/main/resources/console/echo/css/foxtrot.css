@@ -2057,3 +2057,7 @@ div.tab button:first-child {
 .error {
   color: red !important;
 }
+
+.bootstrap-select {
+  margin-bottom: 7px !important;
+}
