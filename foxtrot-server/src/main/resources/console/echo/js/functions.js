@@ -59,7 +59,7 @@ function filterTypeTriggered(el) {
   }
 }
 
-function addFitlers() {
+function addFilters() {
 
   var filterCount = filterRowArray.length;
   filterRowArray.push(filterCount);
@@ -81,9 +81,10 @@ function addFitlers() {
   });
 }
 
-function showHideForms() {
+function showHideForms(currentChartType) {
   $("#table-units").hide();
-  $("#table-units").find(".table-units-active").removeClass(".table-units-active");
+  console.log(currentChartType);
+  $("#table-units").find("#"+currentChartType).find(".table-units-active").removeClass(".table-units-active");
 }
 
 function removeFilters() {

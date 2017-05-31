@@ -36,11 +36,11 @@ function getLineChartFormValues() {
 
 function setLineChartFormValues(object) {
   var parentElement = $("#" + object.tileContext.chartType + "-chart-data");
-  var timeUnitEl = parentElement.find(".tile-time-unit");
+  var timeUnitEl = parentElement.find("#tile-time-unit");
   timeUnitEl.val(object.tileContext.period);
   $(timeUnitEl).selectpicker('refresh');
   var uniqeKey = parentElement.find("#uniqueKey");
-  uniqeKey.val(object.tileContext.uniqueCountOn);
+  uniqeKey.val(currentFieldList.findIndex(x => x.field == object.tileContext.uniqueCountOn[0]));
   $(uniqeKey).selectpicker('refresh');
   parentElement.find("#line-timeframe").val(object.tileContext.timeframe);
   $(".line-ignored-digits").val(parseInt(object.tileContext.ignoreDigits == undefined ? 0 : object.tileContext.ignoreDigits));
@@ -48,7 +48,7 @@ function setLineChartFormValues(object) {
 
 function clearLineChartForm() {
   var parentElement = $("#" + currentChartType + "-chart-data");
-  var timeUnitEl = parentElement.find(".tile-time-unit");
+  var timeUnitEl = parentElement.find("#tile-time-unit");
   timeUnitEl.find('option:eq(0)').prop('selected', true);
   $(timeUnitEl).selectpicker('refresh');
   var uniqeKey = parentElement.find("#uniqueKey");

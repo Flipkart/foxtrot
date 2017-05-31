@@ -113,7 +113,7 @@ function generateDropDown(fields, element) {
   el.find('option').remove();
 
   $(el).append($('<option>', {
-    value: "none"
+    value: ""
     , text: "none"
   }));
 
@@ -237,79 +237,75 @@ function setFilters(object) {
 
 }
 function reloadDropdowns() {
-  setTimeout(function(){
-    if (currentChartType == "line") {
-      generateDropDown(currentFieldList, "#uniqueKey");
-    }
-    else if (currentChartType == "trend") {
-      generateDropDown(currentFieldList, "#stats-field");
-    }
-    else if (currentChartType == "stacked") {
-      generateDropDown(currentFieldList, "#stacking-key");
-      generateDropDown(currentFieldList, "#stacked-uniquekey");
-      generateDropDown(currentFieldList, "#stacked-grouping-key");
-    }
-    else if (currentChartType == "radar") {
-      generateDropDown(currentFieldList, "#radar-nesting");
-    }
-    else if (currentChartType == "gauge") {
-      generateDropDown(currentFieldList, "#gauge-nesting");
-    }
-    else if (currentChartType == "stackedBar") {
-      generateDropDown(currentFieldList, "#stacked-bar-field");
-      generateDropDown(currentFieldList, "#stacked-bar-uniquekey");
-    }
-    else if (currentChartType == "pie") {
-      generateDropDown(currentFieldList, "#eventtype-field");
-      generateDropDown(currentFieldList, "#pie-uniquekey");
-    }
-    else if(currentChartType == "statsTrend") {
-      generateDropDown(currentFieldList, "#stats-trend-field");
-    }
-    else if(currentChartType == "bar") {
-      generateDropDown(currentFieldList, "#bar-event-field");
-      generateDropDown(currentFieldList, "#bar-uniquekey");
-    }
-    else if(currentChartType == "count") {
-      generateDropDown(currentFieldList, "#count-field");
-    }
-  }, 1000);
-
+  if (currentChartType == "line") {
+    generateDropDown(currentFieldList, "#uniqueKey");
+  }
+  else if (currentChartType == "trend") {
+    console.log(currentFieldList);
+    generateDropDown(currentFieldList, "#stats-field");
+  }
+  else if (currentChartType == "stacked") {
+    generateDropDown(currentFieldList, "#stacking-key");
+    generateDropDown(currentFieldList, "#stacked-uniquekey");
+    generateDropDown(currentFieldList, "#stacked-grouping-key");
+  }
+  else if (currentChartType == "radar") {
+    generateDropDown(currentFieldList, "#radar-nesting");
+  }
+  else if (currentChartType == "gauge") {
+    generateDropDown(currentFieldList, "#gauge-nesting");
+  }
+  else if (currentChartType == "stackedBar") {
+    generateDropDown(currentFieldList, "#stacked-bar-field");
+    generateDropDown(currentFieldList, "#stacked-bar-uniquekey");
+  }
+  else if (currentChartType == "pie") {
+    generateDropDown(currentFieldList, "#eventtype-field");
+    generateDropDown(currentFieldList, "#pie-uniquekey");
+  }
+  else if(currentChartType == "statsTrend") {
+    generateDropDown(currentFieldList, "#stats-trend-field");
+  }
+  else if(currentChartType == "bar") {
+    generateDropDown(currentFieldList, "#bar-event-field");
+    generateDropDown(currentFieldList, "#bar-uniquekey");
+  }
+  else if(currentChartType == "count") {
+    generateDropDown(currentFieldList, "#count-field");
+  }
 }
 
 function invokeClearChartForm() {
-  setTimeout(function(){
-    if (currentChartType == "line") {
-      clearLineChartForm();
-    }
-    else if (currentChartType == "trend") {
-      clearTrendChartForm();
-    }
-    else if (currentChartType == "stacked") {
-      clearstackedChartForm();
-    }
-    else if (currentChartType == "radar") {
-      clearRadarChartForm();
-    }
-    else if (currentChartType == "gauge") {
-      clearGaugeChartForm();
-    }
-    else if (currentChartType == "stackedBar") {
-      clearStackedBarChartForm();
-    }
-    else if (currentChartType == "pie") {
-      clearPieChartForm();
-    }
-    else if(currentChartType == "statsTrend") {
-      clearStatsTrendTileChartForm();
-    }
-    else if(currentChartType == "bar") {
-      clearBarChartForm();
-    }
-    else if(currentChartType == "count") {
-      clearCountChartForm();
-    }
-  }, 1000);
+  if (currentChartType == "line") {
+    clearLineChartForm();
+  }
+  else if (currentChartType == "trend") {
+    clearTrendChartForm();
+  }
+  else if (currentChartType == "stacked") {
+    clearstackedChartForm();
+  }
+  else if (currentChartType == "radar") {
+    clearRadarChartForm();
+  }
+  else if (currentChartType == "gauge") {
+    clearGaugeChartForm();
+  }
+  else if (currentChartType == "stackedBar") {
+    clearStackedBarChartForm();
+  }
+  else if (currentChartType == "pie") {
+    clearPieChartForm();
+  }
+  else if(currentChartType == "statsTrend") {
+    clearStatsTrendTileChartForm();
+  }
+  else if(currentChartType == "bar") {
+    clearBarChartForm();
+  }
+  else if(currentChartType == "count") {
+    clearCountChartForm();
+  }
 }
 
 // Get the remaining array between two arrays having same values

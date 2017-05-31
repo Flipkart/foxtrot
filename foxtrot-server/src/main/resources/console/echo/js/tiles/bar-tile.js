@@ -18,12 +18,12 @@ function BarTile() {
 }
 
 function getBarChartFormValues() {
-  var period = $(".bar-time-unit").val();
-  var timeframe = $(".bar-timeframe").val();
-  var eventField = $(".bar-event-field").val();
-  var uniqueKey = $(".bar-uniquekey").val();
+  var period = $("#bar-time-unit").val();
+  var timeframe = $("#bar-timeframe").val();
+  var eventField = $("#bar-event-field").val();
+  var uniqueKey = $("#bar-uniquekey").val();
   var ignoreDigits = $(".bar-ignored-digits").val();
-  var selectedValue = $(".bar-selected-value").val();
+  var selectedValue = $("#bar-selected-value").val();
   if (eventField == "none") {
     return [[], false];
   }
@@ -43,28 +43,28 @@ function getBarChartFormValues() {
 }
 
 function setBarChartFormValues(object) {
-  $(".bar-time-unit").val(object.tileContext.period);
-  $(".bar-time-unit").selectpicker('refresh');
-  $(".bar-timeframe").val(object.tileContext.timeframe);
-  $(".bar-event-field").val(currentFieldList.findIndex(x => x.field == object.tileContext.nesting[0]));
-  $(".bar-event-field").selectpicker('refresh');
-  $(".bar-uniquekey").val(currentFieldList.findIndex(x => x.field == object.tileContext.uniqueKey));
-  $(".bar-uniquekey").selectpicker('refresh');
+  $("#bar-time-unit").val(object.tileContext.period);
+  $("#bar-time-unit").selectpicker('refresh');
+  $("#bar-timeframe").val(object.tileContext.timeframe);
+  $("#bar-event-field").val(parseInt(currentFieldList.findIndex(x => x.field == object.tileContext.nesting[0])));
+  $("#bar-event-field").selectpicker('refresh');
+  $("#bar-uniquekey").val(parseInt(currentFieldList.findIndex(x => x.field == object.tileContext.uniqueKey)));
+  $("#bar-uniquekey").selectpicker('refresh');
   $(".bar-ignored-digits").val(parseInt(object.tileContext.ignoreDigits == undefined ? 0 : object.tileContext.ignoreDigits));
-  $(".bar-selected-value").val((object.tileContext.selectedValue == undefined ? '' : object.tileContext.selectedValue));
+  $("#bar-selected-value").val((object.tileContext.selectedValue == undefined ? '' : object.tileContext.selectedValue));
 }
 
 function clearBarChartForm() {
   var parentElement = $("#" + currentChartType + "-chart-data");
-  var timeUnitEl = parentElement.find(".bar-time-unit");
+  var timeUnitEl = parentElement.find("#bar-time-unit");
   timeUnitEl.find('option:eq(0)').prop('selected', true);
   $(timeUnitEl).selectpicker('refresh');
-  var timeframe = parentElement.find(".bar-timeframe");
+  var timeframe = parentElement.find("#bar-timeframe");
   timeframe.val('');
-  var groupingKey = parentElement.find(".bar-event-field");
+  var groupingKey = parentElement.find("#bar-event-field");
   groupingKey.find('option:eq(0)').prop('selected', true);
   $(groupingKey).selectpicker('refresh');
-  var stackingBarUniqueKey = parentElement.find(".bar-uniquekey");
+  var stackingBarUniqueKey = parentElement.find("#bar-uniquekey");
   stackingBarUniqueKey.find('option:eq(0)').prop('selected', true);
   $(stackingBarUniqueKey).selectpicker('refresh');
   $(".bar-selected-value").val('');

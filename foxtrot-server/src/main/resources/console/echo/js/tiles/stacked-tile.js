@@ -18,11 +18,11 @@ function StackedTile() {
 }
 
 function getstackedChartFormValues() {
-  var period = $(".stacked-time-unit").val();
-  var timeframe = $(".stacked-timeframe").val();
-  var groupingKey = $(".stacked-grouping-key").val();
-  var stackingKey = $(".stacking-key").val();
-  var uniqueKey = $(".stacked-uniquekey").val();
+  var period = $("#stacked-time-unit").val();
+  var timeframe = $("#stacked-timeframe").val();
+  var groupingKey = $("#stacked-grouping-key").val();
+  var stackingKey = $("#stacking-key").val();
+  var uniqueKey = $("#stacked-uniquekey").val();
   if (groupingKey == "none" || stackingKey == "none") {
     return [[], false];
   }
@@ -46,31 +46,31 @@ function getstackedChartFormValues() {
 }
 
 function setStackedChartFormValues(object) {
-  $(".stacked-time-unit").val(object.tileContext.period);
-  $("stacked-time-unit").selectpicker('refresh');
-  $(".stacked-timeframe").val(object.tileContext.timeframe);
-  $(".stacked-grouping-key").val(currentFieldList.findIndex(x => x.field == object.tileContext.groupingKey));
-  $(".stacked-grouping-key").selectpicker('refresh');
-  $(".stacking-key").val(currentFieldList.findIndex(x => x.field == object.tileContext.stackingKey));
-  $(".stacking-key").selectpicker('refresh');
-  $(".stacked-uniquekey").val(currentFieldList.findIndex(x => x.field == object.tileContext.uniqueKey));
-  $(".stacked-uniquekey").selectpicker('refresh');
+  $("#stacked-time-unit").val(object.tileContext.period);
+  $("#stacked-time-unit").selectpicker('refresh');
+  $("#stacked-timeframe").val(object.tileContext.timeframe);
+  $("#stacked-grouping-key").val(parseInt(currentFieldList.findIndex(x => x.field == object.tileContext.groupingKey)));
+  $("#stacked-grouping-key").selectpicker('refresh');
+  $("#stacking-key").val(parseInt(currentFieldList.findIndex(x => x.field == object.tileContext.stackingKey)));
+  $("#stacking-key").selectpicker('refresh');
+  $("#stacked-uniquekey").val(currentFieldList.findIndex(x => x.field == object.tileContext.uniqueKey));
+  $("#stacked-uniquekey").selectpicker('refresh');
 }
 
 function clearstackedChartForm() {
   var parentElement = $("#" + currentChartType + "-chart-data");
-  var timeUnitEl = parentElement.find(".stacked-time-unit");
+  var timeUnitEl = parentElement.find("#stacked-time-unit");
   timeUnitEl.find('option:eq(0)').prop('selected', true);
   $(timeUnitEl).selectpicker('refresh');
-  var timeframe = parentElement.find(".stacked-timeframe");
+  var timeframe = parentElement.find("#stacked-timeframe");
   timeframe.val('');
-  var groupingKey = parentElement.find(".stacked-grouping-key");
+  var groupingKey = parentElement.find("#stacked-grouping-key");
   groupingKey.find('option:eq(0)').prop('selected', true);
   $(groupingKey).selectpicker('refresh');
-  var stackingKey = parentElement.find(".stacking-key");
+  var stackingKey = parentElement.find("#stacking-key");
   stackingKey.find('option:eq(0)').prop('selected', true);
   $(stackingKey).selectpicker('refresh');
-  var stackingBarUniqueKey = parentElement.find(".stacked-uniquekey");
+  var stackingBarUniqueKey = parentElement.find("#stacked-uniquekey");
   stackingBarUniqueKey.find('option:eq(0)').prop('selected', true);
   $(stackingBarUniqueKey).selectpicker('refresh');
 }
