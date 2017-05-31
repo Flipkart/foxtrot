@@ -113,7 +113,6 @@ GaugeTile.prototype.getData = function (data) {
   for (var key in data.result) {
     var value = data.result[key];
     total = total + value;
-    console.log(data.result);
     if(successField == key) {
       successRate = value;
     }
