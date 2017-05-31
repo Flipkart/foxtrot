@@ -87,7 +87,7 @@ h1 {
 }
 
 .tile-container {
-  margin-top: 85px;
+  margin-top: 35px;
   height: 95%;
 }
 
@@ -567,6 +567,7 @@ h1 {
   height: 67px;
   background: #fff;
   border-bottom: 1px solid rgba(151, 151, 151, 0.3);
+  overflow: hidden;
 }
 
 .inner-header {
@@ -2060,4 +2061,48 @@ div.tab button:first-child {
 
 .bootstrap-select {
   margin-bottom: 7px !important;
+}
+
+.floating-btns {
+  overflow: hidden;
+}
+@media (max-width:320px)  { /* smartphones, portrait iPhone, portrait 480x320 phones (Android) */
+
+  .new-header {
+  height: 200px;
+}
+.floating-btns {
+  height: 200px;
+}
+}
+
+@media (max-width: 375px) and (min-width: 375px) { /* smartphones, portrait iPhone, portrait 480x320 phones (Android) */
+
+  .new-header {
+    height: 200px;
+  }
+  .floating-btns {
+    height: 200px;
+  }
+}
+
+
+@media (max-width:425px)  { /* smartphones, portrait iPhone, portrait 480x320 phones (Android) */
+
+  .new-header {
+    height: 140px !important;
+  }
+  .floating-btns {
+    height: 140px !important;
+  }
+}
+
+@media (max-width:768px)  { /* smartphones, portrait iPhone, portrait 480x320 phones (Android) */
+
+  .new-header {
+    height: 110px;
+  }
+  .floating-btns {
+    height: 110px;
+  }
 }
