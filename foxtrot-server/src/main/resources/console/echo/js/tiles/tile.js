@@ -365,6 +365,7 @@ TileFactory.prototype.create = function () {
 
   if(this.tileObject.tileContext.isnewRow) {
     isNewRowCount = 0;
+    smallWidgetCount = 1;
     firstWidgetType = this.tileObject.tileContext.widgetType;
   } else {
     isNewRowCount++;
