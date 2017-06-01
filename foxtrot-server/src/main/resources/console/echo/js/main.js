@@ -250,6 +250,8 @@ function saveConsole() {
         error("Could not save console");
       }
     })
+  } else {
+    alert('Add atleast one widget');
   }
 }
 
@@ -639,5 +641,7 @@ $(document).ready(function () {
       $(this).next().css( "display", "block" );
     }
   });
+  //Initialize libs
+  $('.selectpicker').selectpicker();
 
 });

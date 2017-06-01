@@ -145,8 +145,8 @@ function getFilters() {
   for (var filter = 0; filter < filterRowArray.length; filter++) {
     var filterId = filterRowArray[filter];
     var el = $("#filter-row-" + filterId);
-    var filterColumn = $(el).find(".filter-column").val();
-    var filterType = $(el).find(".filter-type").val();
+    var filterColumn = $(el).find("select.filter-column").val();
+    var filterType = $(el).find("select.filter-type").val();
     var filterValue = $(el).find(".filter-value").val();
     var filterObject;
     if(filterType == "in") {
