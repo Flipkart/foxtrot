@@ -639,5 +639,7 @@ $(document).ready(function () {
       $(this).next().css( "display", "block" );
     }
   });
+  //Initialize libs
+  $('.selectpicker').selectpicker();
 
 });
