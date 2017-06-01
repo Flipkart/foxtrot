@@ -250,6 +250,8 @@ function saveConsole() {
         error("Could not save console");
       }
     })
+  } else {
+    alert('Add atleast one widget');
   }
 }
 
