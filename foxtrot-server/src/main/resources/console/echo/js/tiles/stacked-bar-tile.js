@@ -286,20 +286,23 @@ StackedBarTile.prototype.render = function (d) {
       var color = item.series.color;
 
       var a = axisTimeFormatNew(object.tileContext.period, (globalFilters ? getGlobalFilters() : getPeriodSelect(object.id)));
-      var strTip = y + " for " + item.series.label + " at "+moment(x).format(a); // start string with current hover
+      var strTip = ""; // start string with current hover
+      var total = 0;
       var allSeries = plot.getData();
       $.each(allSeries, function(i,s){ // loop all series
-        if (s == hoverSeries) return; // if the loop series is my hover, just keep going
         $.each(s.data, function(j,p){
           if (p[0] == x){  // if my hover x == point x add to string
-            strTip += "</br>"+ p[1] + " for " + "<span style="+s.color+">"+s.label+"<span>"+ " at "+moment(x).format(a);
+            strTip += "</br>"+ numberWithCommas(p[1]) + " for " + "<span style="+s.color+">"+s.label+"<span>"+ " at "+moment(x).format(a);
+            total = total +p[1];
           }
           else {
             $("#tooltip").remove();
             previousPoint = null;
           }
         });
+
       });
+      strTip = "Total value : " +numberWithCommas(total)+strTip ;
       showTooltip(item.pageX, item.pageY, strTip, color);
     } else {
       $("#tooltip").remove();
