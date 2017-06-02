@@ -14,6 +14,15 @@ function periodFromWindow(periodUnit, customPeriodString) {
   if (!customPeriodString) {
     return "days";
   }
+
+  if (!customPeriodString) {
+    return "days";
+  }
+
+  if (customPeriodString == "custom") {
+    return periodUnit;
+  }
+
   if (customPeriodString.endsWith("m")) {
     return 'minutes';
   }
@@ -149,7 +158,7 @@ function getFilters() {
     var filterType = $(el).find("select.filter-type").val();
     var filterValue = $(el).find(".filter-value").val();
     var filterObject;
-    if(filterType == "in") {
+    if(filterType == "in" || filterType == "not_in") {
       filterValue = filterValue.split(',');
       filterObject = {
         "operator": filterType

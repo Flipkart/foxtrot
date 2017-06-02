@@ -79,6 +79,8 @@ function pushTilesObject(object) {
 }
 
 TileFactory.prototype.updateTileData = function () {
+  console.log('===>')
+  console.log(this.tileObject);
   var selectedTile = $("#" + this.tileObject.id);
   selectedTile.find(".tile-title").text(this.tileObject.title);
   var tileid = this.tileObject.id;
@@ -257,6 +259,9 @@ TileFactory.prototype.triggerFilter = function (tileElement, object) {
 TileFactory.prototype.triggerConfig = function (tileElement, object) {
   var instanceVar = this;
   tileElement.find(".widget-toolbox").find(".glyphicon-cog").click(function () {
+    object = tileData[object.id];
+    isEdit = true;
+    editingRow = object.tileContext.row;
     showHideSideBar();
     $('.tile-container').find("#"+object.id).addClass('highlight-tile');
     //$("#addWidgetModal").modal('show');
@@ -365,6 +370,7 @@ TileFactory.prototype.create = function () {
 
   if(this.tileObject.tileContext.isnewRow) {
     isNewRowCount = 0;
+    smallWidgetCount = 1;
     firstWidgetType = this.tileObject.tileContext.widgetType;
   } else {
     isNewRowCount++;
@@ -392,23 +398,6 @@ TileFactory.prototype.create = function () {
     row = this.tileObject.tileContext.row;
     if(isNewConsole) {
       tileElement.append(newBtnElement(this.tileObject.tileContext.widgetType));
-    }
-    if (this.tileObject.tileContext.widgetType == 'small') {
-
-//      if(customBtn != undefined) {
-//        var findElement = $("." + customBtn.id);
-//        var column1Length = findElement.find(".row-col-1").length;
-//        if (column1Length == 0 || column1Length == 2) {
-//          if (column1Length == 0) {
-//            tileElement.addClass('row-col-1');
-//          }
-//          else if (column1Length == 2) {
-//            tileElement.addClass('row-col-2');
-//          }
-//          var rowCol2Length = findElement.find(".row-col-2").length;
-//          if (rowCol2Length == 0) tileElement.append("<div class='widget-add-btn'><button data-target='#addWidgetModal' class='tile-add-btn tile-add-btn btn btn-primary filter-nav-button glyphicon glyphicon-plus custom-add-btn row-col-1'onClick='setClicketData(this)'  data-toggle='modal' id='row-" + row + "'></button><div>");
-//        }
-//      }
     }
   }
 
@@ -468,7 +457,7 @@ TileFactory.prototype.create = function () {
   var optionValue = timeFrame+getPeroidSelectString(this.tileObject.tileContext.period);
   var labelString = this.tileObject.tileContext.period;
   var optionLabel = (parseInt(this.tileObject.tileContext.timeframe) <= 1 ? labelString.substring(0, labelString.length - 1)  : labelString);
-  $(periodSelectElement).prepend('<option selected value='+optionValue+'>'+timeFrame+'  '+optionLabel+'</option>');
+  $(periodSelectElement).prepend('<option selected value="custom">'+timeFrame+'  '+optionLabel+'</option>');
 
   this.createGraph(this.tileObject, tileElement);
   this.triggerConfig(tileElement, this.tileObject); // add event for tile config

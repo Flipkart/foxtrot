@@ -29,8 +29,8 @@
   <link href="css/open-sans.css" rel="stylesheet">
   <link href="css/bootstrap.min.css" rel="stylesheet">
   <link href="css/bootstrap-select.min.css" rel="stylesheet">
-  <link href="css/bootstrap-datetimepicker.min.css">
-  <link href="css/bootstrap-multiselect.css">
+  <link href="css/bootstrap-datetimepicker.min.css" rel="stylesheet">
+  <link href="css/bootstrap-multiselect.css" rel="stylesheet">
   <link rel="stylesheet" href="css/jquery-ui.css">
   <link rel="stylesheet" href="css/bootstrapValidator.min.css">
   <link href="css/foxtrot.css" rel="stylesheet">
@@ -51,7 +51,7 @@
     <div class="new-header">
       <div class="inner-header container-fluid">
         <h1 class="col-sm-4 heading">
-          <a href="index.htm"><img src="img/echo_1.png" /></a>
+          <a href="index.htm"><img src="img/echo_1.png" alt="logo" /></a>
         </h1>
         <div id="console-list-dropdown">
           <select id="listConsole" class="listConsole">
@@ -92,7 +92,7 @@
             </form>
           </div>
         </div>
-        <div id="add-dashboard-side-close" data-dismiss="modal" ><img src="img/combined-shape.png"></div>
+        <div id="add-dashboard-side-close" data-dismiss="modal" ><img src="img/combined-shape.png" alt="close"></div>
       </div>
     </div>
     <div class="modal fade" id="addTab" tabindex="-2" role="dialog" aria-labelledby="addSections" aria-hidden="true">
@@ -115,7 +115,7 @@
             </form>
           </div>
         </div>
-        <div id="add-page-side-close" data-dismiss="modal" ><img src="img/combined-shape.png"></div>
+        <div id="add-page-side-close" data-dismiss="modal" ><img src="img/combined-shape.png" alt="close"></div>
       </div>
     </div>
     <div class="modal fade" id="save-dashboard" tabindex="-2" role="dialog" aria-labelledby="addSections" aria-hidden="true">
@@ -172,7 +172,7 @@
                 <option value="30d"> 30 Days</option>
               </select>
             </div>
-            <div class="col-sm-2 filter-settings hide-filters"><img src="img/Settings_normal.png"></div>
+            <div class="col-sm-2 filter-settings hide-filters"><img src="img/Settings_normal.png" alt="settings"></div>
           </div>
         </div>
         <div class="tile-container" id="tileContainer">
@@ -190,7 +190,7 @@
     </section>
 
     <div id="page-settings">
-      <div id="page-settings-close-btn"><img src="img/combined-shape.png" /></div>
+      <div id="page-settings-close-btn"><img src="img/combined-shape.png" alt="close" /></div>
       <div class="col-md-12 page-settings-top-btns">
         <div class="row">
           <div class="col-xs-8 form-group tile-name-parent">
@@ -222,7 +222,7 @@
     </div>
 
     <div id="sidebar">
-      <div id="filter-close-btn" data-dismiss="modal" aria-hidden="true"><img src="img/combined-shape.png" /></div>
+      <div id="filter-close-btn" data-dismiss="modal" aria-hidden="true"><img src="img/combined-shape.png" alt="close" /></div>
       <div class="col-md-12 sidebar-widget-btns">
         <form id="sidebar-btn-form">
           <div class="row">
@@ -383,7 +383,7 @@
                     </div>
                     <div class="form-group">
                       <label class="control-label">Shift Decimal Left By</label>
-                      <input type="number" min="0" class="form-control trend-ignored-digits" placeholder="" id="stats-decimal-places trend-ignored-digits">
+                      <input type="number" min="0" class="form-control trend-ignored-digits" placeholder="" id="trend-ignored-digits">
                     </div>
                   </div>
                 </div>
@@ -427,7 +427,7 @@
                     </div>
                     <div class="form-group">
                       <label class="control-label">Shift Decimal Left By</label>
-                      <input type="number" min="0" value="0" class="form-control stats-trend-ignored-digits" placeholder="" id="stats-decimal-places stats-trend-ignored-digits"></div>
+                      <input type="number" min="0" value="0" class="form-control stats-trend-ignored-digits" placeholder="" id="stats-trend-ignored-digits"></div>
                   </div>
                 </div>
               </form>
