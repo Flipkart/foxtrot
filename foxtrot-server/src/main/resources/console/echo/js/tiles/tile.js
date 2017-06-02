@@ -395,23 +395,6 @@ TileFactory.prototype.create = function () {
     if(isNewConsole) {
       tileElement.append(newBtnElement(this.tileObject.tileContext.widgetType));
     }
-    if (this.tileObject.tileContext.widgetType == 'small') {
-
-//      if(customBtn != undefined) {
-//        var findElement = $("." + customBtn.id);
-//        var column1Length = findElement.find(".row-col-1").length;
-//        if (column1Length == 0 || column1Length == 2) {
-//          if (column1Length == 0) {
-//            tileElement.addClass('row-col-1');
-//          }
-//          else if (column1Length == 2) {
-//            tileElement.addClass('row-col-2');
-//          }
-//          var rowCol2Length = findElement.find(".row-col-2").length;
-//          if (rowCol2Length == 0) tileElement.append("<div class='widget-add-btn'><button data-target='#addWidgetModal' class='tile-add-btn tile-add-btn btn btn-primary filter-nav-button glyphicon glyphicon-plus custom-add-btn row-col-1'onClick='setClicketData(this)'  data-toggle='modal' id='row-" + row + "'></button><div>");
-//        }
-//      }
-    }
   }
 
   if (this.tileObject.tileContext.widgetType == "medium") {
