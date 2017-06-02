@@ -187,7 +187,7 @@ StatsTrendTile.prototype.render = function (rows) {
             opacity: 0.25
           }]
         }
-        , fill: true
+        , fill: false
       }
       , points: {
         show: false

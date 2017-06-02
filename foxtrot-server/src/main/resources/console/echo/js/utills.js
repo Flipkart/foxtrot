@@ -14,6 +14,15 @@ function periodFromWindow(periodUnit, customPeriodString) {
   if (!customPeriodString) {
     return "days";
   }
+
+  if (!customPeriodString) {
+    return "days";
+  }
+
+  if (customPeriodString == "custom") {
+    return periodUnit;
+  }
+
   if (customPeriodString.endsWith("m")) {
     return 'minutes';
   }
