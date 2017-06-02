@@ -36,7 +36,8 @@ var previousWidget = "";
 var isNewRowCount = 0;
 var firstWidgetType = "";
 var smallWidgetCount = 0;
-
+var editingRow = 0;
+var isEdit = false;
 function TablesView(id, tables) {
   this.id = id;
   this.tables = tables;
@@ -137,7 +138,10 @@ FoxTrot.prototype.addTile = function () {
   if (!isChild && editTileId) tileId = editTileId;
 
   var objectRow = 0; var objectColumn = 0; var isnewRow = false;
-  if(defaultPlusBtn) { // find new row
+  if(isEdit) {
+    isnewRow = false;
+    objectRow = editingRow;
+  }else if(defaultPlusBtn) { // find new row
     if(panelRow.length == 0){
       objectRow = 1;
     } else {
@@ -146,6 +150,7 @@ FoxTrot.prototype.addTile = function () {
     isnewRow = true;
     isNewConsole = true;
   } else { // get existing row column
+    console.log('==>')
     var splitValue = customBtn.id.split("-");
     var rowObject = panelRow[splitValue[1] - 1];
     clickedRow = rowObject.id
@@ -189,6 +194,9 @@ FoxTrot.prototype.addTile = function () {
   //$("#addWidgetModal").modal('hide');
   showHideSideBar();
   removeFilters();
+  if(isEdit) {
+    clearEditFields();
+  }
 };
 
 FoxTrot.prototype.addFilters = function () {
@@ -502,6 +510,11 @@ function clearFilterValues() {
   $(".filter_values").empty();
 }
 
+function clearEditFields() {
+  isEdit = false;
+  editingRow = 0;
+}
+
 function showHideSideBar() {
   if( $('#sidebar').is(':visible') ) {
     $('#sidebar').hide();
@@ -512,6 +525,7 @@ function showHideSideBar() {
     setTimeout(function(){
       removeFilters();
     }, 1000);
+    clearEditFields();
   }
   else {
     $('#sidebar').show();

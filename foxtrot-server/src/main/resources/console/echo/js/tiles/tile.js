@@ -79,6 +79,8 @@ function pushTilesObject(object) {
 }
 
 TileFactory.prototype.updateTileData = function () {
+  console.log('===>')
+  console.log(this.tileObject);
   var selectedTile = $("#" + this.tileObject.id);
   selectedTile.find(".tile-title").text(this.tileObject.title);
   var tileid = this.tileObject.id;
@@ -258,6 +260,8 @@ TileFactory.prototype.triggerConfig = function (tileElement, object) {
   var instanceVar = this;
   tileElement.find(".widget-toolbox").find(".glyphicon-cog").click(function () {
     object = tileData[object.id];
+    isEdit = true;
+    editingRow = object.tileContext.row;
     showHideSideBar();
     $('.tile-container').find("#"+object.id).addClass('highlight-tile');
     //$("#addWidgetModal").modal('show');
