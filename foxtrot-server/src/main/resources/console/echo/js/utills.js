@@ -158,7 +158,7 @@ function getFilters() {
     var filterType = $(el).find("select.filter-type").val();
     var filterValue = $(el).find(".filter-value").val();
     var filterObject;
-    if(filterType == "in") {
+    if(filterType == "in" || filterType == "not_in") {
       filterValue = filterValue.split(',');
       filterObject = {
         "operator": filterType
