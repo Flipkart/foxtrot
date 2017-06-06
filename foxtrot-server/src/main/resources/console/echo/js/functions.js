@@ -127,6 +127,9 @@ function showFilters() {
   $(".hide-filters").css({"display": "block"});
   $(".global-filter-switch-div").css({'border-right': "1px solid #aeb8bd"});
   $(".global-filters").css({'width': "auto"});
+}
 
+function hideSaveConsole() {
+  $("#save-dashboard").modal('hide');
 }
 

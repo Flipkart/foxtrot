@@ -253,13 +253,16 @@ function saveConsole() {
       data: JSON.stringify(representation),
       success: function(resp) {
         alert('console saved sucessfully');
+        hideSaveConsole();
       },
       error: function() {
         error("Could not save console");
+        hideSaveConsole();
       }
     })
   } else {
     alert('Add atleast one widget');
+    hideSaveConsole();
   }
 }
 
