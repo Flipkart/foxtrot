@@ -148,11 +148,11 @@ function newBtnElement(widget, btnRow) {
   var height = "";
   var customClass = "";
   if(widget == "medium") {
-    columnSize = "col-md-6";
+    columnSize = "col-md-6 medium-btn-height";
     height = 500;
     customClass = "medium-btn-color";
   } else {
-    columnSize = "col-md-3";
+    columnSize = "col-md-3 small-btn-height";
     height= 220;
     customClass = "small-btn-color";
   }
