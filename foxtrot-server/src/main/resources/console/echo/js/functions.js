@@ -26,7 +26,6 @@ function fetchTableFields() {
     return tablesToRender.indexOf(item) == pos;
   });
   for(var i = 0; i < uniqueArray.length; i++) {
-    console.log(uniqueArray[i])
     fetchFields(uniqueArray[i]);
   }
 }

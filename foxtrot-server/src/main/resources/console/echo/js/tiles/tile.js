@@ -144,7 +144,6 @@ function setConfigValue(object) {
 }
 
 function newBtnElement(widget, btnRow) {
-  console.log('@'+btnRow)
   var columnSize = "";
   var height = "";
   var customClass = "";
@@ -182,6 +181,7 @@ TileFactory.prototype.createNewRow = function (tileElement) {
   if (this.tileObject.tileContext.widgetType != "full") { // dont add row add button for full widget
     var btnRow = row;
     var newBtn = newBtnElement(this.tileObject.tileContext.widgetType, btnRow);
+    console.log(newBtn);
     tileElement.append(newBtn);
   }
 
@@ -365,15 +365,8 @@ TileFactory.prototype.create = function () {
     , title: this.tileObject.title
   }));
 
-  if(this.tileObject.tileContext.widgetType == "small") {
-    smallWidgetCount = smallWidgetCount + 1;
-  } else {
-    smallWidgetCount = 0;
-  }
-
   if(this.tileObject.tileContext.isnewRow) {
     isNewRowCount = 0;
-    smallWidgetCount = 1;
     firstWidgetType = this.tileObject.tileContext.widgetType;
   } else {
     isNewRowCount++;
@@ -400,7 +393,7 @@ TileFactory.prototype.create = function () {
   } else {
     row = this.tileObject.tileContext.row;
     if(isNewConsole) {
-      tileElement.append(newBtnElement(this.tileObject.tileContext.widgetType), row);
+      tileElement.append(newBtnElement(this.tileObject.tileContext.widgetType, row));
     }
   }
 
@@ -436,6 +429,7 @@ TileFactory.prototype.create = function () {
     $(tileElement).insertBefore($('.row-' + row).find(".custom-btn-div"));
     $('.row-' + row).find(".custom-btn-div").remove();
     $('.row-' + row).append(newBtnElement(this.tileObject.tileContext.widgetType, this.tileObject.tileContext.row));
+    console.log(newBtnElement(this.tileObject.tileContext.widgetType, this.tileObject.tileContext.row));
   }
 
   if (this.tileObject.tileContext.widgetType == "small") {
@@ -449,8 +443,8 @@ TileFactory.prototype.create = function () {
     tileElement.find(".widget-header").addClass('reduce-widget-header-size');
   }
 
-  if(smallWidgetCount == 4) {
-    //$(".custom-btn-div").remove();
+  if($('.row-' + row).find(".small-widget").length == 4) {
+    $('.row-' + row).find(".custom-btn-div").remove();
   }
 
   var periodSelectElement = tileElement.find(".period-select");

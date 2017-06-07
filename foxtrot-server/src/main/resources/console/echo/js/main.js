@@ -430,6 +430,9 @@ function consoleTabs(evt, el) {
   var currentTabName = currentTab.toLowerCase();
   isNewConsole = false;
   renderTilesObject(currentTabName);
+  isNewRowCount = 0;
+  smallWidgetCount = 0;
+  firstWidgetType = "";
 }
 var tableNameList = [];
 function getTables() {
