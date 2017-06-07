@@ -181,10 +181,8 @@ TileFactory.prototype.createNewRow = function (tileElement) {
   if (this.tileObject.tileContext.widgetType != "full") { // dont add row add button for full widget
     var btnRow = row;
     var newBtn = newBtnElement(this.tileObject.tileContext.widgetType, btnRow);
-    console.log(newBtn);
     tileElement.append(newBtn);
   }
-
   return tileElement;
 }
 TileFactory.prototype.updateFilterCreation = function (object) {
@@ -429,7 +427,6 @@ TileFactory.prototype.create = function () {
     $(tileElement).insertBefore($('.row-' + row).find(".custom-btn-div"));
     $('.row-' + row).find(".custom-btn-div").remove();
     $('.row-' + row).append(newBtnElement(this.tileObject.tileContext.widgetType, this.tileObject.tileContext.row));
-    console.log(newBtnElement(this.tileObject.tileContext.widgetType, this.tileObject.tileContext.row));
   }
 
   if (this.tileObject.tileContext.widgetType == "small") {
