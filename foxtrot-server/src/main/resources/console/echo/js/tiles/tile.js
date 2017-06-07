@@ -372,8 +372,6 @@ TileFactory.prototype.create = function () {
 
   var smallWidgetCountForRow = $('.row-' + this.tileObject.tileContext.row).find(".small-widget").length;
   var MediumWidgetCountForRow = $('.row-' + this.tileObject.tileContext.row).find(".medium-widget").length;
-  console.log(MediumWidgetCountForRow)
-
   if(MediumWidgetCountForRow == 1) {
     tileElement.find(".tile").addClass((this.tileObject.tileContext.isnewRow ? 'full-widget-max-width' : 'full-widget-min-width'));
   } else if( (smallWidgetCountForRow == 1) & (this.tileObject.tileContext.widgetType == "full")) {
