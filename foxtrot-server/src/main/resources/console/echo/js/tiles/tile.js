@@ -79,8 +79,6 @@ function pushTilesObject(object) {
 }
 
 TileFactory.prototype.updateTileData = function () {
-  console.log('===>')
-  console.log(this.tileObject);
   var selectedTile = $("#" + this.tileObject.id);
   selectedTile.find(".tile-title").text(this.tileObject.title);
   var tileid = this.tileObject.id;
@@ -145,7 +143,8 @@ function setConfigValue(object) {
 
 }
 
-function newBtnElement(widget) {
+function newBtnElement(widget, btnRow) {
+  console.log('@'+btnRow)
   var columnSize = "";
   var height = "";
   var customClass = "";
@@ -158,7 +157,7 @@ function newBtnElement(widget) {
     height= 220;
     customClass = "small-btn-color";
   }
-  return "<div class='"+columnSize+" custom-btn-div' style='height:"+height+"px;'><button data-target='#addWidgetModal' class='tile-add-btn tile-add-btn filter-nav-button  custom-add-btn "+customClass+"'onClick='setClicketData(this)'  data-toggle='modal' id='row-" + row + "'>+Add widget</button><div>"
+  return "<div class='"+columnSize+" custom-btn-div' style='height:"+height+"px;'><button data-target='#addWidgetModal' class='tile-add-btn tile-add-btn filter-nav-button  custom-add-btn "+customClass+"'onClick='setClicketData(this)'  data-toggle='modal' id='row-" + btnRow + "'>+Add widget</button><div>"
 }
 // create new div
 TileFactory.prototype.createNewRow = function (tileElement) {
@@ -180,8 +179,12 @@ TileFactory.prototype.createNewRow = function (tileElement) {
     row = panelRow.length;
     tileElement.addClass("row-" + row);
   }
-  if (this.tileObject.tileContext.widgetType != "full" && isNewConsole) // dont add row add button for full widget
-    tileElement.append(newBtnElement(this.tileObject.tileContext.widgetType));
+  if (this.tileObject.tileContext.widgetType != "full") { // dont add row add button for full widget
+    var btnRow = row;
+    var newBtn = newBtnElement(this.tileObject.tileContext.widgetType, btnRow);
+    tileElement.append(newBtn);
+  }
+
   return tileElement;
 }
 TileFactory.prototype.updateFilterCreation = function (object) {
@@ -397,7 +400,7 @@ TileFactory.prototype.create = function () {
   } else {
     row = this.tileObject.tileContext.row;
     if(isNewConsole) {
-      tileElement.append(newBtnElement(this.tileObject.tileContext.widgetType));
+      tileElement.append(newBtnElement(this.tileObject.tileContext.widgetType), row);
     }
   }
 
@@ -430,12 +433,11 @@ TileFactory.prototype.create = function () {
     tileElement.insertBefore('.float-clear');
   }
   else { // remove row btn and add new div based on type
-    if(customBtn) {
-      customBtn.remove();
-      $(".custom-btn-div").remove();
-    }
-    $('.row-' + row).append(tileElement);
+    $(tileElement).insertBefore($('.row-' + row).find(".custom-btn-div"));
+    $('.row-' + row).find(".custom-btn-div").remove();
+    $('.row-' + row).append(newBtnElement(this.tileObject.tileContext.widgetType, this.tileObject.tileContext.row));
   }
+
   if (this.tileObject.tileContext.widgetType == "small") {
     tileElement.find(".settings").addClass('reduce-filter-size');
     tileElement.find(".widget-timeframe").addClass('reduce-filter-option');
@@ -448,7 +450,7 @@ TileFactory.prototype.create = function () {
   }
 
   if(smallWidgetCount == 4) {
-    $(".custom-btn-div").remove();
+    //$(".custom-btn-div").remove();
   }
 
   var periodSelectElement = tileElement.find(".period-select");

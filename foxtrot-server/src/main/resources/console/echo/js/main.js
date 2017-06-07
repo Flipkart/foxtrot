@@ -150,7 +150,6 @@ FoxTrot.prototype.addTile = function () {
     isnewRow = true;
     isNewConsole = true;
   } else { // get existing row column
-    console.log('==>')
     var splitValue = customBtn.id.split("-");
     var rowObject = panelRow[splitValue[1] - 1];
     clickedRow = rowObject.id
