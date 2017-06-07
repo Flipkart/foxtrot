@@ -127,7 +127,7 @@ PieTile.prototype.getData = function (data) {
       columns.push({
         label: property
         , data: data.result[property] / Math.pow(10, (this.object.tileContext.ignoreDigits == undefined ? 0 : this.object.tileContext.ignoreDigits))
-        , color: colors.nextColor()
+        , color: convertHex(colors.nextColor(), 100)
         , lines: {
           show: true
         }
@@ -182,18 +182,21 @@ PieTile.prototype.render = function (columns) {
   $("#"+object.id).find(".chart-item").find("#"+object.id).append('<div class="pie-center-div"><div><p class="pie-center-value"></p><hr/><p class="pie-center-label"></p></div></div>');
 
   drawPieLegend(columns, $(chartDiv.find(".legend")));
+  var re = re = /\(([0-9]+,[0-9]+,[0-9]+)/;
   $(chartDiv.find('.legend ul li')).on('mouseenter', function() {
     var label = $(this).text();
     label = label.substring(0, label.indexOf('-'));
     var allSeries = plot.getData();
     for (var i = 0; i < allSeries.length; i++){
+      console
       if (allSeries[i].label == $.trim(label)){
         allSeries[i].oldColor = allSeries[i].color;
-        allSeries[i].color = 'black';
+        allSeries[i].color = 'rgba(' + re.exec(allSeries[i].color)[1] + ',' + 1 + ')';
         $("#"+object.id).find(".chart-item").find(".pie-center-div").show();
         $("#"+object.id).find(".chart-item").find(".pie-center-div").find('.pie-center-value').text(allSeries[i].data[0][1]);
         $("#"+object.id).find(".chart-item").find(".pie-center-div").find('.pie-center-label').text(allSeries[i].label);
-        break;
+      } else {
+        allSeries[i].color = 'rgba(' + re.exec(allSeries[i].color)[1] + ',' + 0.1 + ')';
       }
     }
     plot  .draw();
@@ -204,10 +207,10 @@ PieTile.prototype.render = function (columns) {
     label = label.substring(0, label.indexOf('-'));
     var allSeries = plot.getData();
     for (var i = 0; i < allSeries.length; i++){
+      allSeries[i].color = 'rgba(' + re.exec(allSeries[i].color)[1] + ',' + 1 + ')';
       if (allSeries[i].label == $.trim(label)){
         allSeries[i].color = allSeries[i].oldColor;
         $("#"+object.id).find(".chart-item").find(".pie-center-div").hide();
-        break;
       }
     }
     plot.draw();
