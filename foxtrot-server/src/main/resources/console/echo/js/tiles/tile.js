@@ -370,19 +370,43 @@ TileFactory.prototype.create = function () {
     isNewRowCount++;
   }
 
-  if (this.tileObject.tileContext.widgetType == "full") {
-    if(isNewRowCount == 1 && previousWidget == 'small') {
-      this.tileObject.tileContext.widgetSize = 9;
-      tileElement.find(".tile").addClass('full-widget-medium-width');
-    } else if(isNewRowCount <= 2 && firstWidgetType != 'pie' && firstWidgetType != "radar") {
-      tileElement.find(".tile").addClass((this.tileObject.tileContext.isnewRow ? 'full-widget-max-width' : 'full-widget-min-width'));
-      this.tileObject.tileContext.isnewRow ? this.tileObject.tileContext.widgetSize = 12 : this.tileObject.tileContext.widgetSize = 6;
+  var smallWidgetCountForRow = $('.row-' + this.tileObject.tileContext.row).find(".small-widget").length;
+  var MediumWidgetCountForRow = $('.row-' + this.tileObject.tileContext.row).find(".medium-widget").length;
+  console.log(MediumWidgetCountForRow)
 
-    } else {
-      this.tileObject.tileContext.isnewRow = true;
-      this.tileObject.tileContext.widgetSize = 12;
-    }
+  if(MediumWidgetCountForRow == 1) {
+    tileElement.find(".tile").addClass((this.tileObject.tileContext.isnewRow ? 'full-widget-max-width' : 'full-widget-min-width'));
+  } else if( (smallWidgetCountForRow == 1) & (this.tileObject.tileContext.widgetType == "full")) {
+    tileElement.find(".tile").addClass('full-widget-medium-width');
+    this.tileObject.tileContext.widgetSize = 9;
   }
+  else if( (smallWidgetCountForRow == 2) & (this.tileObject.tileContext.widgetType == "full")) {
+    tileElement.find(".tile").addClass('full-widget-min-width');
+    this.tileObject.tileContext.widgetSize = 6;
+  }
+  else if( (smallWidgetCountForRow == 3) & (this.tileObject.tileContext.widgetType == "full")) {
+    tileElement.find(".tile").addClass('full-widget-small-width');
+    this.tileObject.tileContext.widgetSize = 3;
+  }
+  else if(this.tileObject.tileContext.widgetType == "full") {
+    this.tileObject.tileContext.isnewRow = true;
+    this.tileObject.tileContext.widgetSize = 12;
+  }
+
+
+//  if (this.tileObject.tileContext.widgetType == "full") {
+//    if(isNewRowCount == 1 && previousWidget == 'small') {
+//      this.tileObject.tileContext.widgetSize = 9;
+//      tileElement.find(".tile").addClass('full-widget-medium-width');
+//    } else if(isNewRowCount <= 2 && firstWidgetType != 'pie' && firstWidgetType != "radar") {
+//      tileElement.find(".tile").addClass((this.tileObject.tileContext.isnewRow ? 'full-widget-max-width' : 'full-widget-min-width'));
+//      this.tileObject.tileContext.isnewRow ? this.tileObject.tileContext.widgetSize = 12 : this.tileObject.tileContext.widgetSize = 6;
+//
+//    } else {
+//      this.tileObject.tileContext.isnewRow = true;
+//      this.tileObject.tileContext.widgetSize = 12;
+//    }
+//  }
 
   var clickedRow; // clicked row
   if(this.tileObject.tileContext.isnewRow) {

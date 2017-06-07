@@ -2077,3 +2077,7 @@ div.tab button:first-child {
   height: 200px !important;
   margin-top: 10px;
 }
+
+.full-widget-small-width {
+  width: 25% !important;
+}

@@ -131,4 +131,3 @@ function showFilters() {
 function hideSaveConsole() {
   $("#save-dashboard").modal('hide');
 }
-
