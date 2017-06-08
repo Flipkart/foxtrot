@@ -158,6 +158,44 @@ function newBtnElement(widget, btnRow) {
   }
   return "<div class='"+columnSize+" custom-btn-div' style='height:"+height+"px;'><button data-target='#addWidgetModal' class='tile-add-btn tile-add-btn filter-nav-button  custom-add-btn "+customClass+"'onClick='setClicketData(this)'  data-toggle='modal' id='row-" + btnRow + "'>+Add widget</button><div>"
 }
+
+function upRow(ob) {
+  var e = $(".tile-container").find(".row-"+ob);
+
+  if(ob != 1) {
+    console.log(e.length)
+    e.prev().insertAfter(e);
+    var row = parseInt(ob);
+    console.log(e.index)
+    //if()
+
+    $(e.find('.tile')).each(function( index ) {
+      console.log( index + ": " + $( this).attr('id') );
+      var tileId = $( this).attr('id');
+      var newId = row - 1;
+      tileData[tileId].tileContext.row = newId;
+    });
+
+//    e.removeClass('.row-'+ob);
+//    e.addClass(".row-"+ ob - 1);
+//    e.find("#arrow-btn").remove();
+//    e.prepend('<div id="arrow-btn"><button type="button"onClick="upRow('+ ob - 1+')" class="row-identifier-'+row+' up-arrow" id="row-up">Up</button><button type="button" onClick="downRow('+ob - 1+')" class="row-identifier-'+row+'" id="row-down">Down </button></div>')
+
+    var previousEl = $(".tile-container").find(".row-"+ parseInt(ob) - 1)
+    $(previousEl.find('.tile')).each(function( index ) {
+      console.log( index + ": " + $( this).attr('id') );
+      var tileId = $( this).attr('id');
+      var newId = parseInt(ob) - 1;
+      tileData[tileId].tileContext.row = newId;
+    });
+  }
+}
+
+function downRow(ob) {
+  var e = $(".tile-container").find(".row-"+ob);
+  e.next().insertBefore(e);
+}
+
 // create new div
 TileFactory.prototype.createNewRow = function (tileElement) {
   tileElement.addClass("col-md-12"); // add class for div which is full width
@@ -178,6 +216,8 @@ TileFactory.prototype.createNewRow = function (tileElement) {
     row = panelRow.length;
     tileElement.addClass("row-" + row);
   }
+  //tileElement.prepend('<div id="arrow-btn"><button type="button"onClick="upRow('+row+')" class="row-identifier-'+row+' up-arrow" id="row-up">Up</button><button type="button" onClick="downRow('+row+')" class="row-identifier-'+row+'" id="row-down">Down </button></div>')
+
   if (this.tileObject.tileContext.widgetType != "full") { // dont add row add button for full widget
     var btnRow = row;
     var newBtn = newBtnElement(this.tileObject.tileContext.widgetType, btnRow);
