@@ -150,7 +150,6 @@ FoxTrot.prototype.addTile = function () {
     isnewRow = true;
     isNewConsole = true;
   } else { // get existing row column
-    console.log('==>')
     var splitValue = customBtn.id.split("-");
     var rowObject = panelRow[splitValue[1] - 1];
     clickedRow = rowObject.id
@@ -253,13 +252,16 @@ function saveConsole() {
       data: JSON.stringify(representation),
       success: function(resp) {
         alert('console saved sucessfully');
+        hideSaveConsole();
       },
       error: function() {
         error("Could not save console");
+        hideSaveConsole();
       }
     })
   } else {
     alert('Add atleast one widget');
+    hideSaveConsole();
   }
 }
 
@@ -428,6 +430,9 @@ function consoleTabs(evt, el) {
   var currentTabName = currentTab.toLowerCase();
   isNewConsole = false;
   renderTilesObject(currentTabName);
+  isNewRowCount = 0;
+  smallWidgetCount = 0;
+  firstWidgetType = "";
 }
 var tableNameList = [];
 function getTables() {

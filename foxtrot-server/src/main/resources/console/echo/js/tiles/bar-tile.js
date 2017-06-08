@@ -131,7 +131,7 @@ BarTile.prototype.getData = function (data) {
       var dataElement = {
         label: property
         , data: [[i, value]]
-        , color: colors.nextColor()
+        , color: convertHex(colors.nextColor(), 100)
       };
       columns.push(dataElement);
       ticks.push([i, property]);
@@ -229,14 +229,16 @@ BarTile.prototype.render = function (xAxisOptions, columns) {
 
   drawLegend(columns, $(chartDiv.find(".legend")));
 
+  var re = re = /\(([0-9]+,[0-9]+,[0-9]+)/;
   $(chartDiv.find('.legend ul li')).on('mouseenter', function() {
     var label = $(this).text();
     var allSeries = plot.getData();
     for (var i = 0; i < allSeries.length; i++){
       if (allSeries[i].label == $.trim(label)){
         allSeries[i].oldColor = allSeries[i].color;
-        allSeries[i].color = 'black';
-        break;
+        allSeries[i].color = 'rgba(' + re.exec(allSeries[i].color)[1] + ',' + 1 + ')';
+      } else {
+        allSeries[i].color = 'rgba(' + re.exec(allSeries[i].color)[1] + ',' + 0.1 + ')';
       }
     }
     plot.draw();
@@ -246,10 +248,7 @@ BarTile.prototype.render = function (xAxisOptions, columns) {
     var label = $(this).text();
     var allSeries = plot.getData();
     for (var i = 0; i < allSeries.length; i++){
-      if (allSeries[i].label == $.trim(label)){
-        allSeries[i].color = allSeries[i].oldColor;
-        break;
-      }
+      allSeries[i].color = 'rgba(' + re.exec(allSeries[i].color)[1] + ',' + 1 + ')';
     }
     plot.draw();
   });

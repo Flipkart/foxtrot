@@ -26,7 +26,6 @@ function fetchTableFields() {
     return tablesToRender.indexOf(item) == pos;
   });
   for(var i = 0; i < uniqueArray.length; i++) {
-    console.log(uniqueArray[i])
     fetchFields(uniqueArray[i]);
   }
 }
@@ -127,6 +126,8 @@ function showFilters() {
   $(".hide-filters").css({"display": "block"});
   $(".global-filter-switch-div").css({'border-right': "1px solid #aeb8bd"});
   $(".global-filters").css({'width': "auto"});
-
 }
 
+function hideSaveConsole() {
+  $("#save-dashboard").modal('hide');
+}
