@@ -244,7 +244,7 @@ function saveConsole() {
       , name: name
       , sections: globalData
     };
-    console.log(representation);
+    //console.log(representation);
     $.ajax({
       url: apiUrl+("/v2/consoles"),
       type: 'POST',
@@ -332,6 +332,7 @@ function deletePageList(id) {
   sections.splice(deleteIndex, 1);
   var removeTabName = $("#page-lists-content").find("#page-name-"+id).val();
   var deleteIndex = -1;
+  panelRow = [];
   for(var i = 0; i < globalData.length; i++) {
     if(globalData[i].name == removeTabName) {
       deleteIndex = i;

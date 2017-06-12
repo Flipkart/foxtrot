@@ -159,36 +159,103 @@ function newBtnElement(widget, btnRow) {
   return "<div class='"+columnSize+" custom-btn-div' style='height:"+height+"px;'><button data-target='#addWidgetModal' class='tile-add-btn tile-add-btn filter-nav-button  custom-add-btn "+customClass+"'onClick='setClicketData(this)'  data-toggle='modal' id='row-" + btnRow + "'>+Add widget</button><div>"
 }
 
-function upRow(ob) {
-  var e = $(".tile-container").find(".row-"+ob);
+function move(arr, old_index, new_index) {
+  while (old_index < 0) {
+    old_index += arr.length;
+  }
+  while (new_index < 0) {
+    new_index += arr.length;
+  }
+  if (new_index >= arr.length) {
+    var k = new_index - arr.length;
+    while ((k--) + 1) {
+      arr.push(undefined);
+    }
+  }
+  arr.splice(new_index, 0, arr.splice(old_index, 1)[0]);
+  return arr;
+}
 
+var movedArray = [];
+var isUp = false;
+var movedRow = 0;
+
+function moveTileList() {
+  console.log(movedArray)
+
+  for(var i = 0; i < panelRow.length; i++) {
+    var e = $(".tile-container").find(".row-"+(i + 1));
+    console.log(e)
+    $(e.find('.tile')).each(function( index ) {
+      console.log(index + ": " + $( this).attr('id'));
+//      var tileId = $( this).attr('id');
+//      var newId = row - 1;
+//      tileData[tileId].tileContext.row = newId;
+//      movedArray.push(tileId);
+    });
+    return;
+  }
+
+
+
+
+  var startingIndex = 0;
+  for(var i = 0 ; i < tileList.length; i++) {
+    if(movedArray.indexOf(tileList[i]) > -1) {
+      console.log(i);
+      //move(tileList, i, i)
+      lastId = tileList[i - 1];
+      tileList.splice(i, movedArray.length);
+      for(var j = 0; j < movedArray.length; j++) {
+        var newIn = tileList.indexOf(lastId);
+        //tileList.splice(newIn, 0, movedArray[j]);
+      }
+      return;
+    }
+  }
+}
+
+function upRow(ob) {
+  movedArray = [];
+  var e = $(".tile-container").find(".row-"+ob);
+  var prev = ob - 1;
+  var previous = $(".tile-container").find(".row-"+ prev);
   if(ob != 1) {
     console.log(e.length)
     e.prev().insertAfter(e);
     var row = parseInt(ob);
-    console.log(e.index)
-    //if()
 
     $(e.find('.tile')).each(function( index ) {
-      console.log( index + ": " + $( this).attr('id') );
+      console.log(index + ": " + $( this).attr('id'));
       var tileId = $( this).attr('id');
       var newId = row - 1;
       tileData[tileId].tileContext.row = newId;
+      movedArray.push(tileId);
     });
 
-//    e.removeClass('.row-'+ob);
-//    e.addClass(".row-"+ ob - 1);
-//    e.find("#arrow-btn").remove();
-//    e.prepend('<div id="arrow-btn"><button type="button"onClick="upRow('+ ob - 1+')" class="row-identifier-'+row+' up-arrow" id="row-up">Up</button><button type="button" onClick="downRow('+ob - 1+')" class="row-identifier-'+row+'" id="row-down">Down </button></div>')
-
-    var previousEl = $(".tile-container").find(".row-"+ parseInt(ob) - 1)
-    $(previousEl.find('.tile')).each(function( index ) {
-      console.log( index + ": " + $( this).attr('id') );
+    $(previous.find('.tile')).each(function( index ) {
+      console.log(index + ": " + $( this).attr('id'));
       var tileId = $( this).attr('id');
-      var newId = parseInt(ob) - 1;
+      var newId = row;
       tileData[tileId].tileContext.row = newId;
+      movedArray.push(tileId);
     });
   }
+//  moveTileList();
+//  isUp = true;
+
+  var keysSorted = Object.keys(tileData).sort(function(a,b){ console.log(tileData[a].tileContext.row); return tileData[a].tileContext.row - tileData[b].tileContext.row})
+
+  tileList = [];
+  tileList = keysSorted;
+  console.log(keysSorted)
+//  clearContainer();
+//  for (var i = 0; i < tileList.length; i++) {
+//    renderTiles(tileData[tileList[i]]);
+//  }
+  globalData[0].tileList = keysSorted;
+//  console.log(globalData)
+  //renderTilesObject("tab_one");
 }
 
 function downRow(ob) {
@@ -216,7 +283,7 @@ TileFactory.prototype.createNewRow = function (tileElement) {
     row = panelRow.length;
     tileElement.addClass("row-" + row);
   }
-  //tileElement.prepend('<div id="arrow-btn"><button type="button"onClick="upRow('+row+')" class="row-identifier-'+row+' up-arrow" id="row-up">Up</button><button type="button" onClick="downRow('+row+')" class="row-identifier-'+row+'" id="row-down">Down </button></div>')
+  tileElement.prepend('<div id="arrow-btn"><button type="button"onClick="upRow('+row+')" class="row-identifier-'+row+' up-arrow glyphicon glyphicon-arrow-up" id="row-up"></button><button type="button" onClick="downRow('+row+')" class="row-identifier-'+row+' glyphicon glyphicon-arrow-down" id="row-down"></button></div>')
 
   if (this.tileObject.tileContext.widgetType != "full") { // dont add row add button for full widget
     var btnRow = row;

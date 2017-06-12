@@ -2081,3 +2081,15 @@ div.tab button:first-child {
 .full-widget-small-width {
   width: 25% !important;
 }
+
+#arrow-btn button {
+  background: none;
+  border: none;
+}
+
+#arrow-btn {
+  width: 2%;
+  position: absolute;
+  top: 11px;
+  left: -1px;
+}
