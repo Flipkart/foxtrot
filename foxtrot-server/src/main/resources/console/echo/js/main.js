@@ -38,6 +38,7 @@ var firstWidgetType = "";
 var smallWidgetCount = 0;
 var editingRow = 0;
 var isEdit = false;
+var tileColumn = 1;
 function TablesView(id, tables) {
   this.id = id;
   this.tables = tables;
@@ -244,7 +245,7 @@ function saveConsole() {
       , name: name
       , sections: globalData
     };
-    //console.log(representation);
+    console.log(representation);
     $.ajax({
       url: apiUrl+("/v2/consoles"),
       type: 'POST',
@@ -404,6 +405,11 @@ function renderTilesObject(currentTabName) {
 function clearContainer() {
   $(".tile-container").empty();
   $(".tile-container").append('<div class="float-clear"></div>');
+  isNewRowCount = 0;
+  firstWidgetType = "";
+  previousWidget = "";
+  panelRow = [];
+  tileColumn = 1;
 }
 
 function consoleTabs(evt, el) {
