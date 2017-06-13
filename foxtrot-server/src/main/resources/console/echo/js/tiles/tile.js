@@ -214,7 +214,13 @@ function upRow(ob) {
   }
 
   /* sort array list */
-  var keysSorted = Object.keys(tileData).sort(function(a,b){return tileData[a].tileContext.row - tileData[b].tileContext.row})
+  var keysSorted = Object.keys(tileData).sort(function (x, y) {
+    var n = tileData[x].tileContext.row - tileData[y].tileContext.row;
+    if (n !== 0) {
+      return n;
+    }
+    return tileData[x].tileContext.position - tileData[y].tileContext.position;
+  });
 
   tileList = [];
   tileList = keysSorted;
@@ -246,9 +252,13 @@ function downRow(ob) {
     movedArray.push(tileId);
   });
 
-  /* sorting tilelsit object based on row */
-  var keysSorted = Object.keys(tileData).sort(function(a,b){return tileData[a].tileContext.row - tileData[b].tileContext.row})
-
+  var keysSorted = Object.keys(tileData).sort(function (x, y) {
+    var n = tileData[x].tileContext.row - tileData[y].tileContext.row;
+    if (n !== 0) {
+      return n;
+    }
+    return tileData[x].tileContext.position - tileData[y].tileContext.position;
+  });
   tileList = [];
   tileList = keysSorted;
   globalData[getActiveTabIndex()].tileList = keysSorted;
