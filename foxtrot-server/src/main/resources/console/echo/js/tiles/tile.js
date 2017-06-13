@@ -210,7 +210,7 @@ function upRow(ob) {
 
   tileList = [];
   tileList = keysSorted;
-  globalData[0].tileList = keysSorted;
+  globalData[getActiveTabIndex()].tileList = keysSorted;
 }
 
 function downRow(ob) {
@@ -242,7 +242,8 @@ function downRow(ob) {
 
   tileList = [];
   tileList = keysSorted;
-  globalData[0].tileList = keysSorted;
+  console.log(getActiveTabIndex());
+  globalData[getActiveTabIndex()].tileList = keysSorted;
 }
 
 // create new div
