@@ -177,51 +177,14 @@ function move(arr, old_index, new_index) {
 }
 
 var movedArray = [];
-var isUp = false;
-var movedRow = 0;
 
-function moveTileList() {
-  console.log(movedArray)
-
-  for(var i = 0; i < panelRow.length; i++) {
-    var e = $(".tile-container").find(".row-"+(i + 1));
-    console.log(e)
-    $(e.find('.tile')).each(function( index ) {
-      console.log(index + ": " + $( this).attr('id'));
-//      var tileId = $( this).attr('id');
-//      var newId = row - 1;
-//      tileData[tileId].tileContext.row = newId;
-//      movedArray.push(tileId);
-    });
-    return;
-  }
-
-
-
-
-  var startingIndex = 0;
-  for(var i = 0 ; i < tileList.length; i++) {
-    if(movedArray.indexOf(tileList[i]) > -1) {
-      console.log(i);
-      //move(tileList, i, i)
-      lastId = tileList[i - 1];
-      tileList.splice(i, movedArray.length);
-      for(var j = 0; j < movedArray.length; j++) {
-        var newIn = tileList.indexOf(lastId);
-        //tileList.splice(newIn, 0, movedArray[j]);
-      }
-      return;
-    }
-  }
-}
-
+/* move row up */
 function upRow(ob) {
   movedArray = [];
   var e = $(".tile-container").find(".row-"+ob);
   var prev = ob - 1;
   var previous = $(".tile-container").find(".row-"+ prev);
   if(ob != 1) {
-    console.log(e.length)
     e.prev().insertAfter(e);
     var row = parseInt(ob);
 
@@ -229,7 +192,7 @@ function upRow(ob) {
       console.log(index + ": " + $( this).attr('id'));
       var tileId = $( this).attr('id');
       var newId = row - 1;
-      tileData[tileId].tileContext.row = newId;
+      tileData[tileId].tileContext.row = newId;//change new row number -1
       movedArray.push(tileId);
     });
 
@@ -237,11 +200,12 @@ function upRow(ob) {
       console.log(index + ": " + $( this).attr('id'));
       var tileId = $( this).attr('id');
       var newId = row;
-      tileData[tileId].tileContext.row = newId;
+      tileData[tileId].tileContext.row = newId;// change new row number +1
       movedArray.push(tileId);
     });
   }
 
+  /* sort array list */
   var keysSorted = Object.keys(tileData).sort(function(a,b){ console.log(tileData[a].tileContext.row); return tileData[a].tileContext.row - tileData[b].tileContext.row})
 
   tileList = [];
@@ -262,19 +226,18 @@ function downRow(ob) {
   $(e.find('.tile')).each(function( index ) {
     var tileId = $( this).attr('id');
     var newId = row + 1;
-    tileData[tileId].tileContext.row = newId;
+    tileData[tileId].tileContext.row = newId; // new row number +1
     movedArray.push(tileId);
-    console.log(movedArray)
   });
 
   $(previous.find('.tile')).each(function( index ) {
-    console.log(index + ": " + $( this).attr('id'));
     var tileId = $( this).attr('id');
     var newId = row;
-    tileData[tileId].tileContext.row = newId;
+    tileData[tileId].tileContext.row = newId; // new row nubmer -1
     movedArray.push(tileId);
   });
 
+  /* sorting tilelsit object based on row */
   var keysSorted = Object.keys(tileData).sort(function(a,b){ console.log(tileData[a].tileContext.row); return tileData[a].tileContext.row - tileData[b].tileContext.row})
 
   tileList = [];
