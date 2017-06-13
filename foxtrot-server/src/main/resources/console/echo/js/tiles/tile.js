@@ -464,11 +464,12 @@ TileFactory.prototype.create = function () {
 
   if(this.tileObject.tileContext.isnewRow) {
     isNewRowCount = 0;
-    tileColumn = 0;
+    tileColumn = 1;
     firstWidgetType = this.tileObject.tileContext.widgetType;
   } else {
     isNewRowCount++;
-    tileColumn = tileColumn+1;
+    var column = $(".tile-container").find(".row-"+this.tileObject.tileContext.row).find(".tile").length;
+    tileColumn = column+1;
   }
 
   this.tileObject.tileContext.position = tileColumn;
