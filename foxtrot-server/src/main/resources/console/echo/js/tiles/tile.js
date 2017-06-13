@@ -241,26 +241,45 @@ function upRow(ob) {
       movedArray.push(tileId);
     });
   }
-//  moveTileList();
-//  isUp = true;
 
   var keysSorted = Object.keys(tileData).sort(function(a,b){ console.log(tileData[a].tileContext.row); return tileData[a].tileContext.row - tileData[b].tileContext.row})
 
   tileList = [];
   tileList = keysSorted;
-  console.log(keysSorted)
-//  clearContainer();
-//  for (var i = 0; i < tileList.length; i++) {
-//    renderTiles(tileData[tileList[i]]);
-//  }
   globalData[0].tileList = keysSorted;
-//  console.log(globalData)
-  //renderTilesObject("tab_one");
 }
 
 function downRow(ob) {
   var e = $(".tile-container").find(".row-"+ob);
   e.next().insertBefore(e);
+
+  movedArray = [];
+  var e = $(".tile-container").find(".row-"+ob);
+  var prev = ob+1;
+  var previous = $(".tile-container").find(".row-"+ prev);
+  var row = parseInt(ob);
+
+  $(e.find('.tile')).each(function( index ) {
+    var tileId = $( this).attr('id');
+    var newId = row + 1;
+    tileData[tileId].tileContext.row = newId;
+    movedArray.push(tileId);
+    console.log(movedArray)
+  });
+
+  $(previous.find('.tile')).each(function( index ) {
+    console.log(index + ": " + $( this).attr('id'));
+    var tileId = $( this).attr('id');
+    var newId = row;
+    tileData[tileId].tileContext.row = newId;
+    movedArray.push(tileId);
+  });
+
+  var keysSorted = Object.keys(tileData).sort(function(a,b){ console.log(tileData[a].tileContext.row); return tileData[a].tileContext.row - tileData[b].tileContext.row})
+
+  tileList = [];
+  tileList = keysSorted;
+  globalData[0].tileList = keysSorted;
 }
 
 // create new div
