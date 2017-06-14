@@ -16,6 +16,7 @@
 
 package com.flipkart.foxtrot.core.datastore.impl.hbase;
 
+import com.google.common.base.Strings;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.HBaseConfiguration;
 import org.apache.hadoop.hbase.HColumnDescriptor;
@@ -67,6 +68,10 @@ public abstract class HBaseUtil {
 
         if(null != hbaseConfig.getHbaseZookeeperQuorum()){
             configuration.set("hbase.zookeeper.quorum", hbaseConfig.getHbaseZookeeperQuorum());
+        }
+
+        if(!Strings.isNullOrEmpty(hbaseConfig.getHbaseZookeeperZnodeParent())){
+            configuration.set("zookeeper.znode.parent", hbaseConfig.getHbaseZookeeperZnodeParent());
         }
 
         if(null != hbaseConfig.getHbaseZookeeperClientPort()){
