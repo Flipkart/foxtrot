@@ -158,6 +158,113 @@ function newBtnElement(widget, btnRow) {
   }
   return "<div class='"+columnSize+" custom-btn-div' style='height:"+height+"px;'><button data-target='#addWidgetModal' class='tile-add-btn tile-add-btn filter-nav-button  custom-add-btn "+customClass+"'onClick='setClicketData(this)'  data-toggle='modal' id='row-" + btnRow + "'>+Add widget</button><div>"
 }
+
+function move(arr, old_index, new_index) {
+  while (old_index < 0) {
+    old_index += arr.length;
+  }
+  while (new_index < 0) {
+    new_index += arr.length;
+  }
+  if (new_index >= arr.length) {
+    var k = new_index - arr.length;
+    while ((k--) + 1) {
+      arr.push(undefined);
+    }
+  }
+  arr.splice(new_index, 0, arr.splice(old_index, 1)[0]);
+  return arr;
+}
+
+function renderAfterRearrange() {
+  clearContainer();
+  for (var i = 0; i < tileList.length; i++) {
+    renderTiles(tileData[tileList[i]]);
+  }
+  fetchTableFields();
+}
+
+var movedArray = [];
+
+/* move row up */
+function upRow(ob) {
+  movedArray = [];
+  var e = $(".tile-container").find(".row-"+ob);
+  var prev = ob - 1;
+  var previous = $(".tile-container").find(".row-"+ prev);
+  if(ob != 1) {
+    e.prev().insertAfter(e);
+    var row = parseInt(ob);
+
+    $(e.find('.tile')).each(function( index ) {
+      console.log(index + ": " + $( this).attr('id'));
+      var tileId = $( this).attr('id');
+      var newId = row - 1;
+      tileData[tileId].tileContext.row = newId;//change new row number -1
+      movedArray.push(tileId);
+    });
+
+    $(previous.find('.tile')).each(function( index ) {
+      console.log(index + ": " + $( this).attr('id'));
+      var tileId = $( this).attr('id');
+      var newId = row;
+      tileData[tileId].tileContext.row = newId;// change new row number +1
+      movedArray.push(tileId);
+    });
+  }
+
+  /* sort array list */
+  var keysSorted = Object.keys(tileData).sort(function (x, y) {
+    var n = tileData[x].tileContext.row - tileData[y].tileContext.row;
+    if (n !== 0) {
+      return n;
+    }
+    return tileData[x].tileContext.position - tileData[y].tileContext.position;
+  });
+
+  tileList = [];
+  tileList = keysSorted;
+  globalData[getActiveTabIndex()].tileList = keysSorted;
+  renderAfterRearrange();
+}
+
+function downRow(ob) {
+  var e = $(".tile-container").find(".row-"+ob);
+  e.next().insertBefore(e);
+
+  movedArray = [];
+  var e = $(".tile-container").find(".row-"+ob);
+  var prev = ob+1;
+  var previous = $(".tile-container").find(".row-"+ prev);
+  var row = parseInt(ob);
+
+  $(e.find('.tile')).each(function( index ) {
+    var tileId = $( this).attr('id');
+    var newId = row + 1;
+    tileData[tileId].tileContext.row = newId; // new row number +1
+    movedArray.push(tileId);
+  });
+
+  $(previous.find('.tile')).each(function( index ) {
+    var tileId = $( this).attr('id');
+    var newId = row;
+    tileData[tileId].tileContext.row = newId; // new row nubmer -1
+    movedArray.push(tileId);
+  });
+
+  var keysSorted = Object.keys(tileData).sort(function (x, y) {
+    var n = tileData[x].tileContext.row - tileData[y].tileContext.row;
+    if (n !== 0) {
+      return n;
+    }
+    return tileData[x].tileContext.position - tileData[y].tileContext.position;
+  });
+  tileList = [];
+  tileList = keysSorted;
+  globalData[getActiveTabIndex()].tileList = keysSorted;
+  renderAfterRearrange();
+}
+
 // create new div
 TileFactory.prototype.createNewRow = function (tileElement) {
   tileElement.addClass("col-md-12"); // add class for div which is full width
@@ -178,6 +285,8 @@ TileFactory.prototype.createNewRow = function (tileElement) {
     row = panelRow.length;
     tileElement.addClass("row-" + row);
   }
+  tileElement.prepend('<div id="arrow-btn"><button type="button"onClick="upRow('+row+')" class="row-identifier-'+row+' up-arrow glyphicon glyphicon-arrow-up" id="row-up"></button><button type="button" onClick="downRow('+row+')" class="row-identifier-'+row+' glyphicon glyphicon-arrow-down" id="row-down"></button></div>')
+
   if (this.tileObject.tileContext.widgetType != "full") { // dont add row add button for full widget
     var btnRow = row;
     var newBtn = newBtnElement(this.tileObject.tileContext.widgetType, btnRow);
@@ -365,10 +474,15 @@ TileFactory.prototype.create = function () {
 
   if(this.tileObject.tileContext.isnewRow) {
     isNewRowCount = 0;
+    tileColumn = 1;
     firstWidgetType = this.tileObject.tileContext.widgetType;
   } else {
     isNewRowCount++;
+    var column = $(".tile-container").find(".row-"+this.tileObject.tileContext.row).find(".tile").length;
+    tileColumn = column+1;
   }
+
+  this.tileObject.tileContext.position = tileColumn;
 
   var smallWidgetCountForRow = $('.row-' + this.tileObject.tileContext.row).find(".small-widget").length;
   var MediumWidgetCountForRow = $('.row-' + this.tileObject.tileContext.row).find(".medium-widget").length;

@@ -131,3 +131,8 @@ function showFilters() {
 function hideSaveConsole() {
   $("#save-dashboard").modal('hide');
 }
+
+function getActiveTabIndex() {
+  var activeIndex = $('.tab button.active').index();
+  return parseInt(activeIndex);
+}

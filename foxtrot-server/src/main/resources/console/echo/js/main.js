@@ -38,6 +38,7 @@ var firstWidgetType = "";
 var smallWidgetCount = 0;
 var editingRow = 0;
 var isEdit = false;
+var tileColumn = 1;
 function TablesView(id, tables) {
   this.id = id;
   this.tables = tables;
@@ -332,6 +333,7 @@ function deletePageList(id) {
   sections.splice(deleteIndex, 1);
   var removeTabName = $("#page-lists-content").find("#page-name-"+id).val();
   var deleteIndex = -1;
+  panelRow = [];
   for(var i = 0; i < globalData.length; i++) {
     if(globalData[i].name == removeTabName) {
       deleteIndex = i;
@@ -403,6 +405,11 @@ function renderTilesObject(currentTabName) {
 function clearContainer() {
   $(".tile-container").empty();
   $(".tile-container").append('<div class="float-clear"></div>');
+  isNewRowCount = 0;
+  firstWidgetType = "";
+  previousWidget = "";
+  panelRow = [];
+  tileColumn = 1;
 }
 
 function consoleTabs(evt, el) {
