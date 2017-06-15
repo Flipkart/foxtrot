@@ -247,55 +247,8 @@ StackedTile.prototype.render = function (yAxisSeries, xAxisTicks) {
       show: false
     }
   });
+
   drawLegend(yAxisSeries, $(chartDiv.find(".legend")));
-
-  function showTooltip(x, y, contents, color) {
-    $('<div id="tooltip">' + contents + '</div>').css({
-      position: 'absolute',
-      display: 'none',
-      top: y + 5,
-      left: x + 5,
-      border: '1px solid #3a4246',
-      padding: '2px',
-      'background-color': '#425057',
-      opacity: 0.80,
-      color: "#fff",
-      'z-index': 5000,
-    }).appendTo("body").fadeIn(200).fadeOut(60000);
-  }
-
-  var previousPoint = null;
-  $(ctx).bind("plothover", function (event, pos, item) {
-    if (item) {
-      $("#tooltip").remove();
-      var hoverSeries = item.series; // what series am I hovering?
-      var x = item.datapoint[0],
-          y = item.datapoint[1];
-      var color = item.series.color;
-
-      var a = axisTimeFormatNew(object.tileContext.period, (globalFilters ? getGlobalFilters() : getPeriodSelect(object.id)));
-      var strTip = ""; // start string with current hover
-      var total = 0;
-      var allSeries = plot.getData();
-      $.each(allSeries, function(i,s){ // loop all series
-        $.each(s.data, function(j,p){
-          if (p[0] == x){  // if my hover x == point x add to string
-            strTip += "</br>"+ numberWithCommas(p[1]) + " for " + "<span style="+s.color+">"+s.label+"<span>"+ " at "+moment(x).format(a);
-            total = total +p[1];
-          }
-          else {
-            $("#tooltip").remove();
-            previousPoint = null;
-          }
-        });
-
-      });
-      strTip = "Total value : " +numberWithCommas(total)+strTip ;
-      showTooltip(item.pageX, item.pageY, strTip, color);
-    } else {
-      $("#tooltip").remove();
-    }
-  });
 
   var re = re = /\(([0-9]+,[0-9]+,[0-9]+)/;
   $(chartDiv.find('.legend ul li')).on('mouseenter', function() {
@@ -311,7 +264,7 @@ StackedTile.prototype.render = function (yAxisSeries, xAxisTicks) {
         allSeries[i].color = 'rgba(' + re.exec(allSeries[i].color)[1] + ',' + 0.1 + ')';
       }
     }
-    plot  .draw();
+    plot.draw();
   });
 
   $(chartDiv.find('.legend ul li')).on('mouseleave', function() {
