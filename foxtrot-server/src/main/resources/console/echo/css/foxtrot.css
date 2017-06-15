@@ -2085,13 +2085,14 @@ div.tab button:first-child {
 #arrow-btn button {
   background: none;
   border: none;
+  width: 10px;
 }
 
 #arrow-btn {
   width: 2%;
   position: absolute;
   top: 11px;
-  left: -1px;
+  left: -5px;
 }
 
 .tooltip-text {
@@ -2104,4 +2105,12 @@ div.tab button:first-child {
 .tooltip-count {
   font-family: oswald-bold;
   font-size: 16px;
+}
+
+.down:hover {
+  background-image: url('../img/context-arrow-down-hover.png');
+}
+
+.arrow-up:hover {
+  background-image: url('../img/context-arrow-up-hover.png');
 }
