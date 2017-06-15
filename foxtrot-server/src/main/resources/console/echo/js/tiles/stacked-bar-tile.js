@@ -292,7 +292,7 @@ StackedBarTile.prototype.render = function (d) {
       $.each(allSeries, function(i,s){ // loop all series
         $.each(s.data, function(j,p){
           if (p[0] == x){  // if my hover x == point x add to string
-            strTip += "</br> <span class='tooltip-text'>"+s.label+ "</span>  " + "<span style='color:"+s.color+"'>"+numberWithCommas(p[1]) + '</span>';
+            strTip += "</br> <span class='tooltip-text'>"+s.label+ "</span>" + "            <span style='color:"+s.color+"' class='tooltip-count'>"+numberWithCommas(p[1]) + '</span>';
             total = total +p[1];
           }
           else {
@@ -302,7 +302,7 @@ StackedBarTile.prototype.render = function (d) {
         });
 
       });
-      strTip =  "<span class='tooltip-text'>"+moment(x).format(a)+ "</br>" +" <span class='tooltip-text'><b>Total value : " +numberWithCommas(total) + "</b></span>"+strTip ;
+      strTip =  "<span class='tooltip-text'>"+moment(x).format(a)+ "</br>" +" <span class='tooltip-text'><b>Total value : " + "<span class='tooltip-count'>" +numberWithCommas(total) + "</span></b></span>"+strTip ;
       showTooltip(item.pageX, item.pageY, strTip, color);
     } else {
       $("#tooltip").remove();

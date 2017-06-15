@@ -2098,4 +2098,10 @@ div.tab button:first-child {
   color:#859fc0;
   font-family:open Sans;
   font-size:12px;
+  padding-right: 10px;
+}
+
+.tooltip-count {
+  font-family: oswald-bold;
+  font-size: 16px;
 }
