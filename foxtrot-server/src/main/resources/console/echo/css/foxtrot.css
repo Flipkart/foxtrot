@@ -2093,3 +2093,9 @@ div.tab button:first-child {
   top: 11px;
   left: -1px;
 }
+
+.tooltip-text {
+  color:#859fc0;
+  font-family:open Sans;
+  font-size:12px;
+}
