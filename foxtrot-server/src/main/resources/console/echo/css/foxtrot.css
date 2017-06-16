@@ -2137,3 +2137,9 @@ div.tab button:first-child {
   color:#fff;
   padding: 0px;
 }
+
+.data-point-value {
+  position: absolute;
+  white-space: nowrap;
+  font-size: 11px;
+}

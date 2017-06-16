@@ -253,10 +253,8 @@ StackedTile.prototype.render = function (yAxisSeries, xAxisTicks) {
   var re = re = /\(([0-9]+,[0-9]+,[0-9]+)/;
   $(chartDiv.find('.legend ul li')).on('mouseenter', function() {
     var label = $(this).text();
-    console.log(label)
     var allSeries = plot.getData();
     for (var i = 0; i < allSeries.length; i++){
-      console.log(allSeries[i].color);
       if (allSeries[i].label == $.trim(label)){
         allSeries[i].oldColor = allSeries[i].color;
         allSeries[i].color = 'rgba(' + re.exec(allSeries[i].color)[1] + ',' + 1 + ')';
@@ -275,4 +273,67 @@ StackedTile.prototype.render = function (yAxisSeries, xAxisTicks) {
     }
     plot.draw();
   });
+
+  displayBarValues();
+
+  // display values on top of bars
+  function displayBarValues() {
+    var plotData = plot.getData();
+    var xValueToStackValueMapping = [];
+
+    // loop through each data series
+    for (var i = 0; i < plotData.length; i++) {
+      var series = plotData[i];
+
+      // loop through each data point in the series
+      for (var j = 0; j < series.data.length; j++) {
+        var value = series.data[j];
+
+        // if the x axis value is not in the mapping, add it.
+        if (!xValueExistsInMapping(xValueToStackValueMapping, value[0])) {
+          xValueToStackValueMapping.push([value[0], 0]);
+        }
+
+        // add the value of the bar to the x value mapping
+        addValueToMapping(xValueToStackValueMapping, value[0], value[1]);
+      }
+    }
+
+    // loop through each of our stacked values and place them on the bar chart
+    $.each(xValueToStackValueMapping, function(i, value) {
+      // find the offset of the top left of the bar
+      var leftoffset = plot.pointOffset({ x: value[0] - .5, y: value[1] });
+
+      // find the offset of the top right of the bar (our bar width is .5)
+      var rightoffset = plot.pointOffset({ x: value[0] + .5, y: value[1] });
+
+      $('<div class="data-point-value">' + numberWithCommas(value[1]) + '</div>').css({
+        left: leftoffset.left,
+        top: leftoffset.top - 25,
+        width: rightoffset.left - leftoffset.left,
+        textAlign: 'center',
+        'font-size': '14px',
+        'font-family': "Oswald Light"
+      }).appendTo(plot.getPlaceholder());
+    });
+
+
+  }
+
+  function xValueExistsInMapping(mapping, value) {
+    for (var i = 0; i < mapping.length; i++) {
+      if (mapping[i][0] !== undefined && mapping[i][0] === value) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  function addValueToMapping(mapping, xValue, yValue) {
+    for (var i = 0; i < mapping.length; i++) {
+      if (mapping[i][0] === xValue) {
+        mapping[i][1] = mapping[i][1] + yValue;
+      }
+    }
+  }
 }
