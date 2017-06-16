@@ -286,13 +286,13 @@ StackedBarTile.prototype.render = function (d) {
       var a = axisTimeFormatNew(object.tileContext.period, (globalFilters ? getGlobalFilters() : getPeriodSelect(object.id)));
       var strTip = "<table border='1' class='stacked-tooltip'><tr><td class='tooltip-table-first-td' colspan='2'>"+moment(x).format(a)+"</td>"; // start string with current hover
       var total = 0;
-
+      var strTipInsideRows = "";
       var allSeries = plot.getData();
       $.each(allSeries, function(i,s){ // loop all series
         $.each(s.data, function(j,p){
           if (p[0] == x){  // if my hover x == point x add to string
             total = total +p[1];
-            strTip += "<tr><td class='tooltip-text'>"+s.label+ "</td>" + "<td class='tooltip-count' style='color:"+s.color+"'>"+numberWithCommas(p[1]) + '</td></tr>';
+            strTipInsideRows += "<tr><td class='tooltip-text'>"+s.label+ "</td>" + "<td class='tooltip-count' style='color:"+s.color+"'>"+numberWithCommas(p[1]) + '</td></tr>';
           }
           else {
             $("#tooltip").remove();
@@ -301,7 +301,7 @@ StackedBarTile.prototype.render = function (d) {
         });
 
       });
-      strTip =  strTip+ "<tr><td class='tooltip-text'>Total value</td> <td style='color:#42b1f7' class='tooltip-count'>"+numberWithCommas(total)+"</td></tr></table>" ;
+      strTip =  strTip+ "<tr><td class='tooltip-text'>TOTAL</td> <td style='color:#42b1f7' class='tooltip-count'>"+numberWithCommas(total)+"</td></tr>"+strTipInsideRows+"</table>" ;
       showTooltip(item.pageX, item.pageY, strTip, color);
     } else {
       $("#tooltip").remove();
