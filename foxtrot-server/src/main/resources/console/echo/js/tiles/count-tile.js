@@ -23,7 +23,7 @@ function getCountChartFormValues() {
   var statsField = $("#count-field").val();
   var timeframe = $("#count-timeframe").val();
   var ignoreDigits = $(".count-ignored-digits").val();
-
+  var isDistinct = $("#count-dist").is(":checked");
   var status = true;
 
   if(period == "none" || timeframe == "") {
@@ -45,6 +45,7 @@ function getCountChartFormValues() {
     "field": statsField,
     "timeframe": timeframe
     , "ignoreDigits" : ignoreDigits
+    , "isDistinct": isDistinct
   }, status];
 }
 
@@ -61,6 +62,8 @@ function clearCountChartForm() {
 
   parentElement.find("#count-timeframe").val('');
   parentElement.find(".count-ignored-digits").val(0);
+  parentElement.find("#count-distinct").attr('checked', false); // Unchecks it
+
 }
 
 function setCountChartFormValues(object) {
@@ -77,6 +80,7 @@ function setCountChartFormValues(object) {
 
   parentElement.find("#count-timeframe").val(object.tileContext.timeframe);
   parentElement.find(".count-ignored-digits").val(parseInt(object.tileContext.ignoreDigits == undefined ? 0 : object.tileContext.ignoreDigits));
+  parentElement.find("#count-distinct").val(object.tileContext.isDistinct == undefined ? parentElement.find("#count-distinct").attr('checked', false) : parentElement.find("#count-distinct").attr('checked', object.tileContext.isDistinct)) ;
 }
 
 CountTile.prototype.getQuery = function(object) {
@@ -94,12 +98,22 @@ CountTile.prototype.getQuery = function(object) {
     }
   }
 
-  var data = {
-    "opcode": "count",
-    "table": object.tileContext.table,
-    "filters": filters,
-    "field": object.tileContext.field && object.tileContext.field != "none" ? object.tileContext.field : null,
-    "distinct": object.tileContext.field && object.uniqueCountOn != "none" ? true : false
+  var data = {};
+
+  if(object.tileContext.field && object.tileContext.field != "none") {
+    data = {
+      "opcode": "count",
+      "table": object.tileContext.table,
+      "filters": filters,
+      "field": object.tileContext.field && object.tileContext.field != "none" ? object.tileContext.field : null,
+      "distinct": object.tileContext.isDistinct == undefined ? false : object.tileContext.isDistinct
+    }
+  } else {
+    data = {
+      "opcode": "count",
+      "table": object.tileContext.table,
+      "filters": filters
+    }
   }
   $.ajax({
     method: "post",
