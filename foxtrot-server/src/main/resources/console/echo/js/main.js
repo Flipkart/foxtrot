@@ -125,6 +125,9 @@ FoxTrot.prototype.addTile = function () {
   var tileId = guid();
   var isChild = $(".child-tile").val();
   var periodInterval = $("#period-select").val();
+  var widgetSize = "";
+  var position = "";
+
   isChild = (isChild == 'true');
   if ($("#tileTitle").val().length == 0 || !$("#tileTable").valid() || getWidgetType() == false) {
     $(".top-error").show();
@@ -158,6 +161,15 @@ FoxTrot.prototype.addTile = function () {
     isnewRow = false;
   }
 
+
+  if(editTileId) {
+    widgetSize = tileData[tileId].tileContext.widgetSize;
+    position = tileData[tileId].tileContext.position;
+  } else {
+    widgetSize = null;
+    position = 1;
+  }
+
   var context = {
     "widgetType": widgetType
     , "table": table.name
@@ -171,6 +183,8 @@ FoxTrot.prototype.addTile = function () {
     , "row": objectRow
     , "isnewRow": isnewRow
     , "tabName": $(".tab .active").attr('id')
+    , "position": position
+    , "widgetSize" : widgetSize
   }
   context = $.extend({}, getChartFormValues()[0], context);
   var object = {
@@ -189,6 +203,8 @@ FoxTrot.prototype.addTile = function () {
   }
   else { // edit tile
     tileFactory.tileObject = object;
+    console.log('========>');
+    console.log(object)
     tileFactory.updateTileData();
   }
   //$("#addWidgetModal").modal('hide');
