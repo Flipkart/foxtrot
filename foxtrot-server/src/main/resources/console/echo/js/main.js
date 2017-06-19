@@ -544,6 +544,7 @@ function clearEditFields() {
 }
 
 function showHideSideBar() {
+  sideBarScrollTop();
   if( $('#sidebar').is(':visible') ) {
     $('#sidebar').hide();
     $(".global-filters").css({'flot' :'right'});

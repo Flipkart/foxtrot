@@ -136,3 +136,7 @@ function getActiveTabIndex() {
   var activeIndex = $('.tab button.active').index();
   return parseInt(activeIndex);
 }
+
+function sideBarScrollTop() {
+  $("#sidebar-content").animate({ scrollTop: 0 }, "fast");
+}
