@@ -360,9 +360,42 @@ function numberWithCommas(x) { // Indian numbers without thousands/lakhs in the 
 
 function deleteWidget(id) { // delete widget
   showHideSideBar();
+
+  // delete
+  var deleteRow = tileData[id].tileContext.row;
+  console.log(deleteRow);
   delete tileData[id];
+
   var idx = tileList.indexOf(id);
   if (idx != -1) tileList.splice(idx, 1);
+
+  var count = 0; // count is for more than two div in a row
+  for (var i in tileList) {
+    if(tileList[i] != id) {
+      var tileRow = tileData[tileList[i]].tileContext.row;
+      if(tileRow == deleteRow) {
+        count++;
+        tileData[tileList[i]].tileContext.row = tileData[tileList[i]].tileContext.row;
+        }
+      else if(tileRow > deleteRow && count == 0) {
+          console.log(tileData[tileList[i]].id +" => "+tileData[tileList[i]].tileContext.row)
+          tileData[tileList[i]].tileContext.row = tileData[tileList[i]].tileContext.row -1;
+        }
+      }
+    }
+
+  /* sort array list */
+  var keysSorted = Object.keys(tileData).sort(function (x, y) {
+    var n = tileData[x].tileContext.row - tileData[y].tileContext.row;
+    if (n !== 0) {
+      return n;
+    }
+    return tileData[x].tileContext.position - tileData[y].tileContext.position;
+  });
+  tileList = [];
+  tileList = keysSorted;
+  globalData[getActiveTabIndex()].tileList = keysSorted;
+  renderAfterRearrange();
 }
 
 function getPeroidSelectString(string) {
