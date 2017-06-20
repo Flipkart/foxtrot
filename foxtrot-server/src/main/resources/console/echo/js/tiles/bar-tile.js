@@ -29,17 +29,15 @@ function getBarChartFormValues() {
   }
   var groupingString = currentFieldList[parseInt(eventField)].field;
   var status = true;
-  if (!$("#bar-time-unit").valid() || !$("#bar-timeframe").valid()) {
-    status = false;
-  }
-  return [{
+
+  return {
     "period": period
     , "timeframe": timeframe
     , "nesting": [groupingString]
     , "uniqueKey": uniqueKey
     , "ignoreDigits" : ignoreDigits
     , "selectedValue": selectedValue
-  }, status]
+  };
 }
 
 function setBarChartFormValues(object) {

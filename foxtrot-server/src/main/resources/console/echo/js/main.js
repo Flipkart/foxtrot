@@ -133,10 +133,7 @@ FoxTrot.prototype.addTile = function () {
     $(".top-error").show();
     return;
   }
-  if (getChartFormValues()[1] == false) {
-    $(".top-error").show();
-    return;
-  }
+
   $(".top-error").hide();
   var widgetType = getWidgetType();
   if (!isChild && editTileId) tileId = editTileId;
@@ -186,7 +183,7 @@ FoxTrot.prototype.addTile = function () {
     , "position": position
     , "widgetSize" : widgetSize
   }
-  context = $.extend({}, getChartFormValues()[0], context);
+  context = $.extend({}, getChartFormValues(), context);
   var object = {
     "id": tileId
     , "title": title
@@ -203,8 +200,6 @@ FoxTrot.prototype.addTile = function () {
   }
   else { // edit tile
     tileFactory.tileObject = object;
-    console.log('========>');
-    console.log(object)
     tileFactory.updateTileData();
   }
   //$("#addWidgetModal").modal('hide');

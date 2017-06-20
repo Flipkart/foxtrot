@@ -28,18 +28,14 @@ function getPieChartFormValues() {
     return [[], false];
   }
   chartField = currentFieldList[parseInt(chartField)].field;
-  var status = true;
-  if (!$("#stacked-bar-time-unit").valid() || !$("#stacked-bar-timeframe").valid()) {
-    status = false;
-  }
-  return [{
+  return {
     "period": period
     , "timeframe": timeframe
     , "uniqueKey": uniqueKey
     , "eventFiled": chartField
     , "ignoreDigits" : ignoreDigits
     , "selectedValue": selectedValue
-  , }, status]
+    , };
 }
 
 function setPieChartFormValues(object) {

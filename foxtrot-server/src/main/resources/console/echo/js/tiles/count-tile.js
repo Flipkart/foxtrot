@@ -30,23 +30,19 @@ function getCountChartFormValues() {
     return[[], false];
   }
 
-  if(!$("#count-time-unit").valid() || !$("#count-timeframe").valid) {
-    status = false;
-  }
-
   if(statsField && statsField != "none") {
     statsField = currentFieldList[parseInt(statsField)].field;
   } else {
     statsField = null;
   }
 
-  return [{
+  return {
     "period": period,
     "field": statsField,
     "timeframe": timeframe
     , "ignoreDigits" : ignoreDigits
     , "isDistinct": isDistinct
-  }, status];
+  };
 }
 
 function clearCountChartForm() {

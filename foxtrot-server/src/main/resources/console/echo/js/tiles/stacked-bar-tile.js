@@ -27,24 +27,13 @@ function getstackedBarChartFormValues() {
     return [[], false];
   }
   chartField = currentFieldList[parseInt(chartField)].field;
-  var status = true;
-  if (!$("#stacked-bar-time-unit").valid() || !$("#stacked-bar-timeframe").valid()) {
-    status = false;
-  }
-  console.log({
+  return {
     "period": period
     , "timeframe": timeframe
     , "uniqueKey": uniqueKey
     , "stackedBarField": chartField
     , "ignoreDigits" : ignoreDigits
-    , })
-  return [{
-    "period": period
-    , "timeframe": timeframe
-    , "uniqueKey": uniqueKey
-    , "stackedBarField": chartField
-    , "ignoreDigits" : ignoreDigits
-  , }, status]
+    , };
 }
 
 function setStackedBarChartFormValues(object) {

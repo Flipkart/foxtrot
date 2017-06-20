@@ -31,18 +31,15 @@ function getstackedChartFormValues() {
   var nestingArray = [];
   nestingArray.push(groupingString);
   nestingArray.push(stackingString);
-  var status = true;
-  if (!$("#stacked-time-unit").valid() || !$("#stacked-timeframe").valid()) {
-    status = false;
-  }
-  return [{
+
+  return {
     "period": period
     , "timeframe": timeframe
     , "groupingKey": groupingString
     , "stackingKey": stackingString
     , "uniqueKey": uniqueKey
     , "nesting": nestingArray
-  }, status]
+  };
 }
 
 function setStackedChartFormValues(object) {
