@@ -250,7 +250,6 @@ function reloadDropdowns() {
     generateDropDown(currentFieldList, "#uniqueKey");
   }
   else if (currentChartType == "trend") {
-    console.log(currentFieldList);
     generateDropDown(currentFieldList, "#stats-field");
   }
   else if (currentChartType == "stacked") {

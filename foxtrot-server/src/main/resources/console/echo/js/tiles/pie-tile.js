@@ -174,7 +174,6 @@ PieTile.prototype.render = function (columns) {
       }
       ,onHover: function(flotItem, $tooltipEl) {
         $tooltipEl.hide();
-        console.log($tooltipEl)
       }
     }
   };
