@@ -45,7 +45,7 @@ function clearStatsTrendTileChartForm() {
   $(statsFieldEl).selectpicker('refresh');
 
   var statsToPlot = parentElement.find("#stats-trend-statics-to-plot");
-  statsToPlot.find('option:eq(0)').prop('selected', true);
+  $("#stats-trend-statics-to-plot option:selected").prop("selected", false);
   $(statsToPlot).selectpicker('refresh');
 
   parentElement.find("#stats-trend-timeframe").val('');
