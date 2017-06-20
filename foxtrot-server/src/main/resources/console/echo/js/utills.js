@@ -363,7 +363,7 @@ function deleteWidget(id) { // delete widget
 
   // delete
   var deleteRow = tileData[id].tileContext.row;
-  console.log(deleteRow);
+  var deletePosition = tileData[id].tileContext.position;
   delete tileData[id];
 
   var idx = tileList.indexOf(id);
@@ -373,7 +373,18 @@ function deleteWidget(id) { // delete widget
   for (var i in tileList) {
     if(tileList[i] != id) {
       var tileRow = tileData[tileList[i]].tileContext.row;
+      var rowPosition = tileData[tileList[i]].tileContext.position;
       if(tileRow == deleteRow) {
+
+
+        if(rowPosition > deletePosition) { // change position if row pos is greater than delete
+          tileData[tileList[i]].tileContext.position = tileData[tileList[i]].tileContext.position - 1;
+        }
+
+        if(rowPosition > deletePosition && count == 0) { // if first column deleted set first item to new row
+          tileData[tileList[i]].tileContext.isnewRow = true;
+        }
+
         count++;
         tileData[tileList[i]].tileContext.row = tileData[tileList[i]].tileContext.row;
         }
