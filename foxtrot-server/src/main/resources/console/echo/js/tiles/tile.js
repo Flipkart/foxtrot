@@ -43,7 +43,7 @@ function TileFactory() {
   this.tileObject = "";
 }
 
-function refereshTiles() {
+function refereshTiles() { // auto query for each tile
   for (var key in tileData) {
     if (tileData.hasOwnProperty(key)) {
       var a = new TileFactory();
@@ -52,11 +52,11 @@ function refereshTiles() {
   }
 }
 
-setInterval(function () {
+setInterval(function () { // function trigger for every 6 seconds
   refereshTiles();
 }, 6000);
 
-function pushTilesObject(object) {
+function pushTilesObject(object) { // save each tile data
   tileData[object.id] = object;
   var tabName = (object.tileContext.tabName == undefined ? $(".tab .active").attr('id') : object.tileContext.tabName) ;
   var tempObject = {
@@ -78,7 +78,7 @@ function pushTilesObject(object) {
   }
 }
 
-TileFactory.prototype.updateTileData = function () {
+TileFactory.prototype.updateTileData = function () { // update tile details
   var selectedTile = $("#" + this.tileObject.id);
   selectedTile.find(".tile-title").text(this.tileObject.title);
   var tileid = this.tileObject.id;
@@ -88,7 +88,7 @@ TileFactory.prototype.updateTileData = function () {
   delete tileData[tileDataIndex.id];
   tileData[this.tileObject.id] = this.tileObject;
 }
-TileFactory.prototype.createTileData = function (object) {
+TileFactory.prototype.createTileData = function (object) { // store tile list
   var selectedTile = $("#" + object.id);
   selectedTile.find(".tile-title").text(object.title);
   var tileid = object.id;
@@ -107,7 +107,7 @@ TileFactory.prototype.getTileFormValue = function (form, modal, object) {
   //updateTile(tileFormValue, modal);
 }
 
-function setConfigValue(object) {
+function setConfigValue(object) { // set widget form values
   setTimeout(function(){
     if (currentChartType == "gauge") {
       setGaugeChartFormValues(object);
@@ -143,7 +143,7 @@ function setConfigValue(object) {
 
 }
 
-function newBtnElement(widget, btnRow) {
+function newBtnElement(widget, btnRow) { // create custom btn element
   var columnSize = "";
   var height = "";
   var customClass = "";
@@ -159,7 +159,7 @@ function newBtnElement(widget, btnRow) {
   return "<div class='"+columnSize+" custom-btn-div' style='height:"+height+"px;'><button data-target='#addWidgetModal' class='tile-add-btn tile-add-btn filter-nav-button  custom-add-btn "+customClass+"'onClick='setClicketData(this)'  data-toggle='modal' id='row-" + btnRow + "'>+Add widget</button><div>"
 }
 
-function move(arr, old_index, new_index) {
+function move(arr, old_index, new_index) { // move array index
   while (old_index < 0) {
     old_index += arr.length;
   }
@@ -176,7 +176,7 @@ function move(arr, old_index, new_index) {
   return arr;
 }
 
-function renderAfterRearrange() {
+function renderAfterRearrange() { // move row up and down and refresh object
   clearContainer();
   for (var i = 0; i < tileList.length; i++) {
     renderTiles(tileData[tileList[i]]);
@@ -187,7 +187,7 @@ function renderAfterRearrange() {
 var movedArray = [];
 
 /* move row up */
-function upRow(ob) {
+function upRow(ob) { // row moved up
   movedArray = [];
   var e = $(".tile-container").find(".row-"+ob);
   var prev = ob - 1;
@@ -228,7 +228,7 @@ function upRow(ob) {
   renderAfterRearrange();
 }
 
-function downRow(ob) {
+function downRow(ob) { // row moved down
   var e = $(".tile-container").find(".row-"+ob);
   e.next().insertBefore(e);
 
@@ -294,7 +294,7 @@ TileFactory.prototype.createNewRow = function (tileElement) {
   }
   return tileElement;
 }
-TileFactory.prototype.updateFilterCreation = function (object) {
+TileFactory.prototype.updateFilterCreation = function (object) { // setting widget form values
   currentChartType = object.tileContext.chartType;
   //removeFilters();
   var tileListIndex = tileList.indexOf(object.id);
@@ -333,7 +333,7 @@ TileFactory.prototype.updateFilters = function (filters) {
   instanceVar.tileObject.tileContext.uiFiltersSelectedList = arr_diff(instanceVar.tileObject.tileContext.uiFiltersList, filters)
 }
 // Filter configuration
-TileFactory.prototype.triggerFilter = function (tileElement, object) {
+TileFactory.prototype.triggerFilter = function (tileElement, object) { // filter modal
   if(object.tileContext.chartType != "radar" && object.tileContext.chartType != "line") {
     var instanceVar = this;
     tileElement.find(".widget-toolbox").find(".filter").click(function () {
@@ -366,7 +366,7 @@ TileFactory.prototype.triggerFilter = function (tileElement, object) {
   }
 }
 // Add click event for tile config icon
-TileFactory.prototype.triggerConfig = function (tileElement, object) {
+TileFactory.prototype.triggerConfig = function (tileElement, object) { // code to show sidebar when edit
   var instanceVar = this;
   tileElement.find(".widget-toolbox").find(".glyphicon-cog").click(function () {
     object = tileData[object.id];
@@ -401,7 +401,7 @@ TileFactory.prototype.triggerConfig = function (tileElement, object) {
     $("#delete-widget-value").val(object.id);
   });
 }
-TileFactory.prototype.triggerChildBtn = function (tileElement, object) {
+TileFactory.prototype.triggerChildBtn = function (tileElement, object) { // child btn
   var instanceVar = this;
   tileElement.find(".add-child-btn").find(".child-btn").click(function () {
     $("#addWidgetModal").modal('show');
@@ -411,7 +411,7 @@ TileFactory.prototype.triggerChildBtn = function (tileElement, object) {
   });
 }
 // Save action for tile config save button
-TileFactory.prototype.saveTileConfig = function (object) {
+TileFactory.prototype.saveTileConfig = function (object) { // save tile
   $("#tile-configuration").find(".save-changes").click(function () {
     var form = $("#tile-configuration").find("form");
     form.off('submit');
@@ -422,7 +422,7 @@ TileFactory.prototype.saveTileConfig = function (object) {
     }, object));
   });
 }
-TileFactory.prototype.createGraph = function (object, tileElement) {
+TileFactory.prototype.createGraph = function (object, tileElement) { // get query
   if (object.tileContext.chartType == "line") {
     var lineGraph = new LineTile();
     //lineGraph.render(tileElement, object);

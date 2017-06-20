@@ -1,4 +1,4 @@
-function addTilesList(object) {
+function addTilesList(object) { // add tiles list to tile list array
   tiles[object.id] = object;
   tileList.push(object.id);
 }
@@ -10,7 +10,7 @@ function setClicketData(ele) {
   showHideSideBar();
 }
 
-function fetchFields(tableName) {
+function fetchFields(tableName) { // fetching field for particular table
   $.ajax({
     url: apiUrl+"/v1/tables/" + tableName + "/fields",
     contentType: "application/json",
@@ -37,14 +37,14 @@ function renderTiles(object) {
   tileFactory.create();
 }
 
-function getPeriodSelect(tileId) {
+function getPeriodSelect(tileId) { // period select value for each tiles
   return $("#" + tileId).find(".period-select").val();
 }
 
-function getGlobalFilters() {
+function getGlobalFilters() { // return global filter values
   return $(".global-filter-period-select").val();
 }
-function filterTypeTriggered(el) {
+function filterTypeTriggered(el) { // changing filter value attribute based on type
   var selectedColumn = $(el).val();
   var columnType = currentFieldList[selectedColumn].type;
   var rowString = $(el).attr('id');
@@ -58,7 +58,7 @@ function filterTypeTriggered(el) {
   }
 }
 
-function addFilters() {
+function addFilters() { // new filter row
 
   var filterCount = filterRowArray.length;
   filterRowArray.push(filterCount);
@@ -80,9 +80,8 @@ function addFilters() {
   });
 }
 
-function showHideForms(currentChartType) {
+function showHideForms(currentChartType) { // remove active class for widget forms
   $("#table-units").hide();
-  console.log(currentChartType);
   $("#table-units").find("#"+currentChartType).find(".table-units-active").removeClass(".table-units-active");
 }
 

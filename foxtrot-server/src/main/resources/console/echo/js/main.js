@@ -13,6 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+/* Variables */
 var tiles = {};
 var tileList = [];
 var tileData = {};
@@ -39,6 +41,10 @@ var smallWidgetCount = 0;
 var editingRow = 0;
 var isEdit = false;
 var tileColumn = 1;
+var sectionNumber = 0;
+var sections = [];
+var tableNameList = [];
+
 function TablesView(id, tables) {
   this.id = id;
   this.tables = tables;
@@ -202,7 +208,6 @@ FoxTrot.prototype.addTile = function () {
     tileFactory.tileObject = object;
     tileFactory.updateTileData();
   }
-  //$("#addWidgetModal").modal('hide');
   showHideSideBar();
   removeFilters();
   if(isEdit) {
@@ -213,8 +218,6 @@ FoxTrot.prototype.addTile = function () {
 FoxTrot.prototype.addFilters = function () {
   addFilters();
 }
-
-
 FoxTrot.prototype.resetModal = function () {
   clearModal();
 }
@@ -228,7 +231,6 @@ function clickedChartType(el) {
   $("#table-units").show();
   var chartDataEle = $("#table-units").find("#" + currentChartType + "-chart-data");
   if (chartDataEle.length > 0) {
-    //$(chartDataEle).show();
     $(chartDataEle).addClass("table-units-active");
   }
   else {
@@ -238,10 +240,10 @@ function clickedChartType(el) {
   $(el).addClass("vizualization-type-active");
 }
 
-function saveConsole() {
+function saveConsole() { // Save console api
   if(globalData.length > 0 && currentConsoleName !=  undefined) {
     var name =  currentConsoleName;
-    for(var i = 0; i < globalData.length; i++) {
+    for(var i = 0; i < globalData.length; i++) { // remove unwanted objects used when adding widgets
       var secArray = globalData[i].tileData;
       for(var key in  secArray) {
         var deleteObject = secArray[key];
@@ -256,7 +258,6 @@ function saveConsole() {
       , name: name
       , sections: globalData
     };
-    console.log(representation);
     $.ajax({
       url: apiUrl+("/v2/consoles"),
       type: 'POST',
@@ -277,11 +278,10 @@ function saveConsole() {
   }
 }
 
-function appendConsoleList() {
+function appendConsoleList() { // console list to dropdown
   var textToInsert = [];
   var i = 0;
-
-  consoleList.sort(function(a, b){
+  consoleList.sort(function(a, b){ // sort by name
     var nameA=a.name.toLowerCase(), nameB=b.name.toLowerCase();
     if (nameA < nameB) //sort string ascending
       return -1;
@@ -298,7 +298,7 @@ function appendConsoleList() {
   $("#listConsole").append(textToInsert.join(''));
 }
 
-function loadConsole() {
+function loadConsole() { // load console list api
   $.ajax({
     url: apiUrl+("/v2/consoles/"),
     type: 'GET',
@@ -313,7 +313,7 @@ function loadConsole() {
   })
 }
 
-function generateTabBtnForConsole(array) {
+function generateTabBtnForConsole(array) { // new btn for tabs
   $(".tab").empty();
   for(var i = 0; i < array.sections.length; i++) {
     generateSectionbtn(array.sections[i].name, false);
@@ -321,15 +321,12 @@ function generateTabBtnForConsole(array) {
   $('.tab button:first').addClass('active');
 }
 
-function setListConsole(value) {
+function setListConsole(value) { // making current console name selected
   $("#listConsole").val(value);
   $("#save-dashboard-name").val(currentConsoleName);
 }
 
-var sectionNumber = 0;
-var sections = [];
-
-function removeTab(btnName) {
+function removeTab(btnName) { // remove tab
   btnName = btnName.split(" ").join('_');
   var removeElement = $(".tab").find("."+btnName);
   var clasName = $(removeElement).attr('class');
@@ -339,7 +336,7 @@ function removeTab(btnName) {
   $(".tab").find("."+btnName).remove();
 }
 
-function deletePageList(id) {
+function deletePageList(id) { // delete page
   var deleteIndex = sections.indexOf(id);
   sections.splice(deleteIndex, 1);
   var removeTabName = $("#page-lists-content").find("#page-name-"+id).val();
@@ -358,7 +355,7 @@ function deletePageList(id) {
   removeTab(removeTabName);
 }
 
-function generateNewPageList(i, name) {
+function generateNewPageList(i, name) { // create new tab
   var pageNumber = i + 1;
   $("#page-lists-content").append('<div class="form-group page-row-'+i+'"><label class="control-label">Page: '+ pageNumber +'</label><input type="text" id="page-name-'+i+'" value="'+ (name.length > 0 ? name : '""') +'" class="form-control"><img src="img/remove.png" id="page-row-'+i+'" class="page-remove-img" onClick="deletePageList('+i+')" /></div>');
   sectionNumber = i;
@@ -371,7 +368,7 @@ function generatePageList(resp) {
   }
 }
 
-function getConsoleById(selectedConsole) {
+function getConsoleById(selectedConsole) { // get particular console list
   $.ajax({
     url: apiUrl+("/v2/consoles/" +selectedConsole),
     type: 'GET',
@@ -394,13 +391,13 @@ function getConsoleById(selectedConsole) {
   })
 }
 
-function loadParticularConsole() {
+function loadParticularConsole() { // reload page based on selected console
   var selectedConsole = $("#listConsole").val();
   window.location.assign("?console=" + selectedConsole);
   $("#save-dashboard-name").val(currentConsoleName);
 }
 
-function renderTilesObject(currentTabName) {
+function renderTilesObject(currentTabName) { // render tiles based on current tab
   showDashboardBtn();
   var tabIndex = globalData.findIndex(x => x.id == currentTabName.trim().toLowerCase().split(' ').join("_"));
   if (tabIndex >= 0) {
@@ -413,7 +410,7 @@ function renderTilesObject(currentTabName) {
   }
 }
 
-function clearContainer() {
+function clearContainer() { // clear page when switching tabs
   $(".tile-container").empty();
   $(".tile-container").append('<div class="float-clear"></div>');
   isNewRowCount = 0;
@@ -423,7 +420,7 @@ function clearContainer() {
   tileColumn = 1;
 }
 
-function consoleTabs(evt, el) {
+function consoleTabs(evt, el) { // logic for tab switching
   var currentTab = el.id;
   var i, tabcontent, tablinks;
   tabcontent = document.getElementsByClassName("tabcontent");
@@ -452,10 +449,9 @@ function consoleTabs(evt, el) {
   smallWidgetCount = 0;
   firstWidgetType = "";
 }
-var tableNameList = [];
-function getTables() {
+function getTables() { // get table list
   $.ajax({
-    url: "http://foxtrot.traefik.prod.phonepe.com/foxtrot/v1/tables/",
+    url: apiUrl+"/v1/tables/",
     contentType: "application/json",
     context: this,
     success: function(tables) {
@@ -486,7 +482,7 @@ function generateSectionbtn(tabName, isNew) {
   }
 }
 
-function clearForms() {
+function clearForms() { // clear all details
   clearModal();
   clearContainer();
   globalData = [];
@@ -495,19 +491,19 @@ function clearForms() {
   panelRow = [];
 }
 
-function showDashboardBtn() {
+function showDashboardBtn() { // dashboard modal
   $("#saveConsole").show();
   $("#default-btn").show();
   $(".global-filters").show();
   $("#add-page-btn").show();
 }
 
-function clearPageSettings() {
+function clearPageSettings() { // page modal
   sections = [];
   $("#page-lists-content").empty();
 }
 
-function createDashboard() {
+function createDashboard() { // create dashboard
   var tabName = $("#tab-name").val();
   var dashboardName = $(".dashboard-name").val();
   currentConsoleName = dashboardName;
@@ -524,12 +520,12 @@ function createDashboard() {
   generateNewPageList(0, tabName);
 }
 
-function addSections() {
+function addSections() { // page sections
   var tabName = $("#section-name").val();
   generateSectionbtn(tabName, true);
   $("#section-name").val('');
 }
-function clearFilterValues() {
+function clearFilterValues() { // clear filter in sidebar
   $(".filter_values").empty();
 }
 
@@ -538,7 +534,7 @@ function clearEditFields() {
   editingRow = 0;
 }
 
-function showHideSideBar() {
+function showHideSideBar() { // show sidebar for adding widgets
   sideBarScrollTop();
   if( $('#sidebar').is(':visible') ) {
     $('#sidebar').hide();
@@ -559,7 +555,7 @@ function showHideSideBar() {
   }
 }
 
-function savePageSettings() {
+function savePageSettings() { // save page settings modal
   for(var i = 0; i<sections.length; i++) {
     var nthNumber = i + 1;
     var ele = $( ".tab button:nth-child("+nthNumber+")" );
@@ -579,8 +575,7 @@ function savePageSettings() {
   showHidePageSettings();
 }
 
-
-function showHidePageSettings() {
+function showHidePageSettings() { // page setting modal
   $(".page-dashboard-name").val(currentConsoleName);
   if( $('#page-settings').is(':visible') ) {
     $('#page-settings').hide();
@@ -671,7 +666,7 @@ $(document).ready(function () {
     }
   });
 
-  $('#table-units .selectpicker').on('change', function(){
+  $('#table-units .selectpicker').on('change', function(){ // select picker refresh for sidebar
     var selected = $(this).val();
     if(selected) {
       $(this).next().css( "display", "none" );
