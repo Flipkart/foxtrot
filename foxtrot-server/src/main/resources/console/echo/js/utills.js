@@ -87,10 +87,10 @@ function axisTimeFormat(periodUnit, customPeriod) {
   return "%e %b";
 }
 
-function axisTimeFormatNew(periodUnit, customPeriod) {
+function axisTimeFormatNew(periodUnit, customPeriod) { // different time format
   var period = periodFromWindow(periodUnit, customPeriod);
   if (period == "hours" || period == "minutes") {
-    return "HH:MM ss";
+    return "HH:mm ss";
   }
   if (period == "days") {
     return "DD MMM";
@@ -98,7 +98,7 @@ function axisTimeFormatNew(periodUnit, customPeriod) {
   return "HH:MM ss";
 }
 
-function findIndex(currentTabName) {
+function findIndex(currentTabName) { // index of given tab name
   var index = -1;
   for (var i = 0; i < globalData.length; i++) {
     for (var indexData in globalData[i]) {
@@ -109,14 +109,14 @@ function findIndex(currentTabName) {
   return index;
 }
 
-function numDifferentiation(val) {
+function numDifferentiation(val) { // indian numbers conversion
   if(val >= 10000000) val = parseFloat((val/10000000).toFixed(1)) + 'Cr';
   else if(val >= 100000) val = parseFloat((val/100000).toFixed(1)) + 'L';
   else if(val >= 1000) val = parseFloat((val/1000).toFixed(1)) + 'K';
   return val;
 }
 
-function generateDropDown(fields, element) {
+function generateDropDown(fields, element) { // generating all dropdowns
   var el = $(element);
   var arr = fields;
   el.find('option').remove();
@@ -134,7 +134,7 @@ function generateDropDown(fields, element) {
   $(el).selectpicker('refresh');
 }
 
-function getWidgetType() {
+function getWidgetType() { // widget types
   if (currentChartType == "line" || currentChartType == "stacked" || currentChartType == "stackedBar" || currentChartType == "statsTrend" || currentChartType == "bar") {
     return "full";
   }
@@ -149,7 +149,7 @@ function getWidgetType() {
   }
 }
 
-function getFilters() {
+function getFilters() { // returns filter values
   var filterDetails = [];
   for (var filter = 0; filter < filterRowArray.length; filter++) {
     var filterId = filterRowArray[filter];
@@ -176,7 +176,7 @@ function getFilters() {
   }
   return filterDetails;
 }
-function getChartFormValues() {
+function getChartFormValues() { // get current widget form values
   if (currentChartType == "line") {
     return getLineChartFormValues();
   }
@@ -208,7 +208,7 @@ function getChartFormValues() {
     return getCountChartFormValues();
   }
 }
-function deleteFilterRow(el) {
+function deleteFilterRow(el) { // delete given filter row
   var parentRow = $(el).parent();
   var parentRowId = parentRow.attr('id');
   var getRowId = parentRowId.split('-');
@@ -218,7 +218,7 @@ function deleteFilterRow(el) {
   });
   $(parentRow).remove();
 }
-function setFilters(object) {
+function setFilters(object) { // setter for filters
   setTimeout(function(){
     for (var filter = 0; filter <object.length; filter++) {
       var filterId = filter;
@@ -245,12 +245,11 @@ function setFilters(object) {
   }, 1000);
 
 }
-function reloadDropdowns() {
+function reloadDropdowns() { // change dropdown values for all charts when table changes
   if (currentChartType == "line") {
     generateDropDown(currentFieldList, "#uniqueKey");
   }
   else if (currentChartType == "trend") {
-    console.log(currentFieldList);
     generateDropDown(currentFieldList, "#stats-field");
   }
   else if (currentChartType == "stacked") {
@@ -284,7 +283,7 @@ function reloadDropdowns() {
   }
 }
 
-function invokeClearChartForm() {
+function invokeClearChartForm() { // clear widget forms
   if (currentChartType == "line") {
     clearLineChartForm();
   }
@@ -344,7 +343,7 @@ function unique(list) {
   return result;
 }
 
-function numberWithCommas(x) {
+function numberWithCommas(x) { // Indian numbers without thousands/lakhs in the end
   x=x.toString();
   var afterPoint = '';
   if(x.indexOf('.') > 0)
@@ -359,7 +358,7 @@ function numberWithCommas(x) {
   return res;
 }
 
-function deleteWidget(id) {
+function deleteWidget(id) { // delete widget
   showHideSideBar();
   delete tileData[id];
   var idx = tileList.indexOf(id);
@@ -376,7 +375,7 @@ function getPeroidSelectString(string) {
   }
 }
 
-function drawLegend(columns, element) {
+function drawLegend(columns, element) { // legend
   if(!element) {
     return;
   }
@@ -386,7 +385,7 @@ function drawLegend(columns, element) {
   element.html(handlebars("#group-legend-template", {data: columns}));
 }
 
-function drawPieLegend(columns, element) {
+function drawPieLegend(columns, element) { // pie legend
   if(!element) {
     return;
   }
@@ -396,7 +395,7 @@ function drawPieLegend(columns, element) {
   element.html(handlebars("#group-legend-pie-template", {data: columns}));
 }
 
-function convertName(name) {
+function convertName(name) { // convert given name into machine readable
   return name.trim().toLowerCase().split(' ').join("_");
 }
 
@@ -414,7 +413,7 @@ function fullWidgetChartHeight() {
   return 290;
 }
 
-function convertHex(hex,opacity){
+function convertHex(hex,opacity){ // converting given hexa decial value to rgb
   hex = hex.replace('#','');
   r = parseInt(hex.substring(0,2), 16);
   g = parseInt(hex.substring(2,4), 16);

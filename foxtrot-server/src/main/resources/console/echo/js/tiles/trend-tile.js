@@ -25,24 +25,13 @@ function getTrendChartFormValues() {
   var timeframe = $("#trend-timeframe").val();
   var ignoreDigits = $(".trend-ignored-digits").val();
 
-  var status = true;
-
-  if(period == "none" || statsField == "none" || statsToPlot == "none" || timeframe == "") {
-    return[[], false];
-  }
-
-  if(!$("#trend-time-unit").valid() || !$("#stats-field").valid() || !$("#statistic_to_plot").valid || !$("#trend-timeframe").valid) {
-    status = false;
-  }
-
-
-  return [{
+  return {
     "period": period,
     "statsFieldName": currentFieldList[parseInt(statsField)].field,
     "statsToPlot": statsToPlot,
     "timeframe": timeframe
     , "ignoreDigits" : ignoreDigits
-  }, status];
+  };
 }
 
 function clearTrendChartForm() {

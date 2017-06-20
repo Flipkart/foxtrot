@@ -22,16 +22,13 @@ function getLineChartFormValues() {
   var uniqueCount = $("#uniqueKey").val();
   var timeframe = $("#line-timeframe").val();
   var ignoreDigits = $(".line-ignored-digits").val();
-  var status = false;
-  if ($("#uniqueKey").valid() && $("#tile-time-unit").valid() && $("#line-timeframe").valid()) {
-    status = true;
-  }
-  return [{
+
+  return {
     "period": period
     , "uniqueCountOn": uniqueCount
     , "timeframe": timeframe
     , "ignoreDigits" : ignoreDigits
-  , }, status]
+    , };
 }
 
 function setLineChartFormValues(object) {

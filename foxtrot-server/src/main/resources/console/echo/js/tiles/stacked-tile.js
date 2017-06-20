@@ -31,18 +31,15 @@ function getstackedChartFormValues() {
   var nestingArray = [];
   nestingArray.push(groupingString);
   nestingArray.push(stackingString);
-  var status = true;
-  if (!$("#stacked-time-unit").valid() || !$("#stacked-timeframe").valid()) {
-    status = false;
-  }
-  return [{
+
+  return {
     "period": period
     , "timeframe": timeframe
     , "groupingKey": groupingString
     , "stackingKey": stackingString
     , "uniqueKey": uniqueKey
     , "nesting": nestingArray
-  }, status]
+  };
 }
 
 function setStackedChartFormValues(object) {
@@ -247,63 +244,14 @@ StackedTile.prototype.render = function (yAxisSeries, xAxisTicks) {
       show: false
     }
   });
+
   drawLegend(yAxisSeries, $(chartDiv.find(".legend")));
-
-  function showTooltip(x, y, contents, color) {
-    $('<div id="tooltip">' + contents + '</div>').css({
-      position: 'absolute',
-      display: 'none',
-      top: y + 5,
-      left: x + 5,
-      border: '1px solid #3a4246',
-      padding: '2px',
-      'background-color': '#425057',
-      opacity: 0.80,
-      color: "#fff",
-      'z-index': 5000,
-    }).appendTo("body").fadeIn(200).fadeOut(60000);
-  }
-
-  var previousPoint = null;
-  $(ctx).bind("plothover", function (event, pos, item) {
-    if (item) {
-      $("#tooltip").remove();
-      var hoverSeries = item.series; // what series am I hovering?
-      var x = item.datapoint[0],
-          y = item.datapoint[1];
-      var color = item.series.color;
-
-      var a = axisTimeFormatNew(object.tileContext.period, (globalFilters ? getGlobalFilters() : getPeriodSelect(object.id)));
-      var strTip = ""; // start string with current hover
-      var total = 0;
-      var allSeries = plot.getData();
-      $.each(allSeries, function(i,s){ // loop all series
-        $.each(s.data, function(j,p){
-          if (p[0] == x){  // if my hover x == point x add to string
-            strTip += "</br>"+ numberWithCommas(p[1]) + " for " + "<span style="+s.color+">"+s.label+"<span>"+ " at "+moment(x).format(a);
-            total = total +p[1];
-          }
-          else {
-            $("#tooltip").remove();
-            previousPoint = null;
-          }
-        });
-
-      });
-      strTip = "Total value : " +numberWithCommas(total)+strTip ;
-      showTooltip(item.pageX, item.pageY, strTip, color);
-    } else {
-      $("#tooltip").remove();
-    }
-  });
 
   var re = re = /\(([0-9]+,[0-9]+,[0-9]+)/;
   $(chartDiv.find('.legend ul li')).on('mouseenter', function() {
     var label = $(this).text();
-    console.log(label)
     var allSeries = plot.getData();
     for (var i = 0; i < allSeries.length; i++){
-      console.log(allSeries[i].color);
       if (allSeries[i].label == $.trim(label)){
         allSeries[i].oldColor = allSeries[i].color;
         allSeries[i].color = 'rgba(' + re.exec(allSeries[i].color)[1] + ',' + 1 + ')';
@@ -311,7 +259,7 @@ StackedTile.prototype.render = function (yAxisSeries, xAxisTicks) {
         allSeries[i].color = 'rgba(' + re.exec(allSeries[i].color)[1] + ',' + 0.1 + ')';
       }
     }
-    plot  .draw();
+    plot.draw();
   });
 
   $(chartDiv.find('.legend ul li')).on('mouseleave', function() {
@@ -322,4 +270,67 @@ StackedTile.prototype.render = function (yAxisSeries, xAxisTicks) {
     }
     plot.draw();
   });
+
+  displayBarValues();
+
+  // display values on top of bars
+  function displayBarValues() {
+    var plotData = plot.getData();
+    var xValueToStackValueMapping = [];
+
+    // loop through each data series
+    for (var i = 0; i < plotData.length; i++) {
+      var series = plotData[i];
+
+      // loop through each data point in the series
+      for (var j = 0; j < series.data.length; j++) {
+        var value = series.data[j];
+
+        // if the x axis value is not in the mapping, add it.
+        if (!xValueExistsInMapping(xValueToStackValueMapping, value[0])) {
+          xValueToStackValueMapping.push([value[0], 0]);
+        }
+
+        // add the value of the bar to the x value mapping
+        addValueToMapping(xValueToStackValueMapping, value[0], value[1]);
+      }
+    }
+
+    // loop through each of our stacked values and place them on the bar chart
+    $.each(xValueToStackValueMapping, function(i, value) {
+      // find the offset of the top left of the bar
+      var leftoffset = plot.pointOffset({ x: value[0] - .5, y: value[1] });
+
+      // find the offset of the top right of the bar (our bar width is .5)
+      var rightoffset = plot.pointOffset({ x: value[0] + .5, y: value[1] });
+
+      $('<div class="data-point-value">' + numberWithCommas(value[1]) + '</div>').css({
+        left: leftoffset.left,
+        top: leftoffset.top - 25,
+        width: rightoffset.left - leftoffset.left,
+        textAlign: 'center',
+        'font-size': '14px',
+        'font-family': "Oswald Light"
+      }).appendTo(plot.getPlaceholder());
+    });
+
+
+  }
+
+  function xValueExistsInMapping(mapping, value) {
+    for (var i = 0; i < mapping.length; i++) {
+      if (mapping[i][0] !== undefined && mapping[i][0] === value) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  function addValueToMapping(mapping, xValue, yValue) {
+    for (var i = 0; i < mapping.length; i++) {
+      if (mapping[i][0] === xValue) {
+        mapping[i][1] = mapping[i][1] + yValue;
+      }
+    }
+  }
 }

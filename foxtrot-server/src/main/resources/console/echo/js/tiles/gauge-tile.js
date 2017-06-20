@@ -23,20 +23,15 @@ function getGaugeChartFormValues() {
   var period = $("#gauge-time-unit").val();
   var successField = $("#gauge-success-field").val();
   var status = false;
-  if ($("#gauge-nesting").valid() && $("#gauge-timeframe").valid() && $("#gauge-time-unit").valid()) {
-    status = true;
-  }
-  if (nesting == "none") {
-    return [[], false];
-  }
+
   var nestingArray = [];
   nestingArray.push(currentFieldList[parseInt(nesting)].field);
-  return [{
+  return {
     "nesting": nestingArray
     , "period": period
     , "timeframe": timeframe
     , "successField" : successField
-  }, status]
+  };
 }
 
 function setGaugeChartFormValues(object) {

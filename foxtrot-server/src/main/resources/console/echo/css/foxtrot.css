@@ -2085,11 +2085,61 @@ div.tab button:first-child {
 #arrow-btn button {
   background: none;
   border: none;
+  width: 10px;
 }
 
 #arrow-btn {
   width: 2%;
   position: absolute;
   top: 11px;
-  left: -1px;
+  left: -5px;
+}
+
+.tooltip-text {
+  color:#859fc0;
+  font-family:open Sans;
+  font-size:12px;
+  padding-right: 10px;
+}
+
+.tooltip-count {
+  font-size: 16px;
+  font-family: Oswald Light;
+  font-weight: 300;
+}
+
+.down:hover {
+  background-image: url('../img/context-arrow-down-hover.png');
+}
+
+.arrow-up:hover {
+  background-image: url('../img/context-arrow-up-hover.png');
+}
+
+.stacked-tooltip tr {
+  border: solid 1px #c0cbd1;
+}
+
+.stacked-tooltip td {
+  border: 0;
+  padding-right: 15px;
+  padding-left: 15px;
+  padding-bottom: 10px;
+  padding-top: 5px;
+}
+
+.stacked-tooltip {
+  border-collapse: collapse;
+}
+
+.tooltip-table-first-td {
+  background-color: #b7c4cb;
+  color:#fff;
+  padding: 0px;
+}
+
+.data-point-value {
+  position: absolute;
+  white-space: nowrap;
+  font-size: 11px;
 }

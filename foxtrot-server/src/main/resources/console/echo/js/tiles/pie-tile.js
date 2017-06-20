@@ -28,18 +28,14 @@ function getPieChartFormValues() {
     return [[], false];
   }
   chartField = currentFieldList[parseInt(chartField)].field;
-  var status = true;
-  if (!$("#stacked-bar-time-unit").valid() || !$("#stacked-bar-timeframe").valid()) {
-    status = false;
-  }
-  return [{
+  return {
     "period": period
     , "timeframe": timeframe
     , "uniqueKey": uniqueKey
     , "eventFiled": chartField
     , "ignoreDigits" : ignoreDigits
     , "selectedValue": selectedValue
-  , }, status]
+    , };
 }
 
 function setPieChartFormValues(object) {
@@ -171,7 +167,13 @@ PieTile.prototype.render = function (columns) {
     , tooltip: true
     , tooltipOpts: {
       content: function (label, x, y) {
-        return label + ": " + y;
+        $("#"+object.id).find(".chart-item").find(".pie-center-div").show();
+        $("#"+object.id).find(".chart-item").find(".pie-center-div").find('.pie-center-value').text(y);
+        $("#"+object.id).find(".chart-item").find(".pie-center-div").find('.pie-center-label').text(label);
+        return "" + ": " + "";
+      }
+      ,onHover: function(flotItem, $tooltipEl) {
+        $tooltipEl.hide();
       }
     }
   };
@@ -188,7 +190,6 @@ PieTile.prototype.render = function (columns) {
     label = label.substring(0, label.indexOf('-'));
     var allSeries = plot.getData();
     for (var i = 0; i < allSeries.length; i++){
-      console
       if (allSeries[i].label == $.trim(label)){
         allSeries[i].oldColor = allSeries[i].color;
         allSeries[i].color = 'rgba(' + re.exec(allSeries[i].color)[1] + ',' + 1 + ')';
@@ -214,5 +215,10 @@ PieTile.prototype.render = function (columns) {
       }
     }
     plot.draw();
+  });
+  $(ctx).bind("plothover", function (event, pos, item) {
+    if(!item) {
+      $("#"+object.id).find(".chart-item").find(".pie-center-div").hide();
+    }
   });
 }

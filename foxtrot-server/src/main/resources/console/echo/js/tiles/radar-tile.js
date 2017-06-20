@@ -24,17 +24,13 @@ function getRadarChartFormValues() {
   if (nesting == "none") {
     return [[], false];
   }
-  var status = true;
-  if (!$("#radar-nesting").valid() || !$("#radar-timeframe").valid() || !$("#radar-time-unit").valid()) {
-    status = false;
-  }
   var nestingArray = [];
   nestingArray.push(currentFieldList[parseInt(nesting)].field);
-  return [{
+  return {
     "nesting": nestingArray
     , "timeframe": timeframe
     , "period": period
-  }, status];
+  };
 }
 
 function setRadarChartFormValues(object) {
