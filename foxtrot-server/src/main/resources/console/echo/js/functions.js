@@ -157,3 +157,7 @@ function getFilterCheckBox() {
   });
   return allVals;
 }
+
+function selectAllUiCheckbox() {
+  $(".ui-filter-checkbox").prop('checked', 'true');
+}

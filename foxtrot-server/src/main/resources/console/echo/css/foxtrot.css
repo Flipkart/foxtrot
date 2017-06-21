@@ -2181,3 +2181,16 @@ div.tab button:first-child {
 .ui-filter-checkbox {
   margin-right: 10px !important;
 }
+
+#select-all-checkbox {
+  float: right;
+  margin-top: -18px;
+  width: 49px;
+  height: 17px;
+  font-family: Open Sans;
+  font-size: 12px;
+  text-align: left;
+  color: #7d909a;
+  cursor: pointer;
+  text-decoration: underline;
+}
