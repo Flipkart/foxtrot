@@ -214,14 +214,7 @@ function upRow(ob) { // row moved up
   }
 
   /* sort array list */
-  var keysSorted = Object.keys(tileData).sort(function (x, y) {
-    var n = tileData[x].tileContext.row - tileData[y].tileContext.row;
-    if (n !== 0) {
-      return n;
-    }
-    return tileData[x].tileContext.position - tileData[y].tileContext.position;
-  });
-
+  var keysSorted = sortTiles(tileData);
   tileList = [];
   tileList = keysSorted;
   globalData[getActiveTabIndex()].tileList = keysSorted;
@@ -252,13 +245,7 @@ function downRow(ob) { // row moved down
     movedArray.push(tileId);
   });
 
-  var keysSorted = Object.keys(tileData).sort(function (x, y) {
-    var n = tileData[x].tileContext.row - tileData[y].tileContext.row;
-    if (n !== 0) {
-      return n;
-    }
-    return tileData[x].tileContext.position - tileData[y].tileContext.position;
-  });
+  var keysSorted = sortTiles(tileData);
   tileList = [];
   tileList = keysSorted;
   globalData[getActiveTabIndex()].tileList = keysSorted;

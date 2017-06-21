@@ -396,13 +396,7 @@ function deleteWidget(id) { // delete widget
     }
 
   /* sort array list */
-  var keysSorted = Object.keys(tileData).sort(function (x, y) {
-    var n = tileData[x].tileContext.row - tileData[y].tileContext.row;
-    if (n !== 0) {
-      return n;
-    }
-    return tileData[x].tileContext.position - tileData[y].tileContext.position;
-  });
+  var keysSorted = sortTiles(tileData);
   tileList = [];
   tileList = keysSorted;
   globalData[getActiveTabIndex()].tileList = keysSorted;

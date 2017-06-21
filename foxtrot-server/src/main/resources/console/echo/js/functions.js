@@ -139,3 +139,13 @@ function getActiveTabIndex() {
 function sideBarScrollTop() {
   $("#sidebar-content").animate({ scrollTop: 0 }, "fast");
 }
+
+function sortTiles(tileData) {
+  return Object.keys(tileData).sort(function (x, y) {
+    var n = tileData[x].tileContext.row - tileData[y].tileContext.row;
+    if (n !== 0) {
+      return n;
+    }
+    return tileData[x].tileContext.position - tileData[y].tileContext.position;
+  });
+}
