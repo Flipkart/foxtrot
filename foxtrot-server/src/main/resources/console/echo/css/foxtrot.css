@@ -2143,3 +2143,41 @@ div.tab button:first-child {
   white-space: nowrap;
   font-size: 11px;
 }
+
+#setupFilterModalLabel {
+  width: 104px;
+  height: 19px;
+  font-family: Open Sans;
+  font-size: 14px;
+  font-weight: bold;
+  text-align: left;
+  color: #42b1f7;
+}
+
+.filters-form {
+  width: 249px;
+  height: 332px;
+  margin-left: 150px;
+}
+
+#ui-filter-close-btn {
+  width: 40px;
+  height: 37px;
+  background-color: #33434b;
+  position: absolute;
+  right: 162px;
+  padding: 6px 6px 9px 10px;
+  cursor: pointer;
+}
+
+#filter-checkbox-div {
+  margin-left: 10px;
+  font-family: Open Sans;
+  font-size: 12px;
+  text-align: left;
+  color: #7d909a;
+}
+
+.ui-filter-checkbox {
+  margin-right: 10px !important;
+}

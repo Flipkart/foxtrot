@@ -526,7 +526,7 @@ function addSections() { // page sections
   $("#section-name").val('');
 }
 function clearFilterValues() { // clear filter in sidebar
-  $(".filter_values").empty();
+  $("#filter-checkbox-div").empty();
 }
 
 function clearEditFields() {

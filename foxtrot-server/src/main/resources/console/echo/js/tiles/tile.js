@@ -328,11 +328,10 @@ TileFactory.prototype.triggerFilter = function (tileElement, object) { // filter
       clearFilterValues();
       var modal = $("#setupFiltersModal").modal('show');
       var fv = $("#setupFiltersModal").find(".filter_values");
-      fv.multiselect('refresh');
       var form = modal.find("form");
       form.off('submit');
       form.on('submit', $.proxy(function (e) {
-        instanceVar.updateFilters($("#filter_values").val());
+        instanceVar.updateFilters(getFilterCheckBox());
         $("#setupFiltersModal").modal('hide');
         e.preventDefault();
       }));
@@ -340,16 +339,13 @@ TileFactory.prototype.triggerFilter = function (tileElement, object) { // filter
       if (object.tileContext.uiFiltersList == undefined) return;
       for (var i = 0; i < object.tileContext.uiFiltersList.length; i++) {
         var value = object.tileContext.uiFiltersList[i];
-        var index = $.inArray( value, object.tileContext.uiFiltersSelectedList)
-        options.push({
-          label: value
-          , title: value
-          , value: value
-          , selected: (index == -1 ? true : false)
-        });
+        var index = $.inArray( value, object.tileContext.uiFiltersSelectedList);
+        if(index == -1) {
+          $("#filter-checkbox-div").append('<label><input name="filter-checkbox" class="ui-filter-checkbox" type="checkbox" value="'+value+'" checked="checked">'+value+'</label>  <br/>');
+        } else {
+          $("#filter-checkbox-div").append('<label><input name="filter-checkbox" class="ui-filter-checkbox" type="checkbox" value="'+value+'">'+value+'</label>  <br/>');
+        }
       }
-      fv.multiselect('dataprovider', options);
-      fv.multiselect('refresh');
     });
   }
 }

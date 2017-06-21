@@ -149,3 +149,11 @@ function sortTiles(tileData) {
     return tileData[x].tileContext.position - tileData[y].tileContext.position;
   });
 }
+
+function getFilterCheckBox() {
+  var allVals = [];
+  $('input[name=filter-checkbox]:checked').each(function() {
+    allVals.push($(this).val());
+  });
+  return allVals;
+}

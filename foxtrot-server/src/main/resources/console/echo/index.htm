@@ -597,11 +597,11 @@
     <!--Filter-->
     <div class="modal fade" tabindex="-1" id="setupFiltersModal" role="dialog" aria-labelledby="setupFilterModalLabel" aria-hidden="true">
       <div class="modal-dialog">
-        <form class="form-horizontal settings-form" role="form" data-toggle="validate" data-delay="" id="setupFilterModalForm">
+        <form class="form-horizontal filters-form" role="form" data-toggle="validate" data-delay="" id="setupFilterModalForm">
+          <div id="ui-filter-close-btn" data-dismiss="modal" aria-hidden="true"><img src="img/combined-shape.png" alt="close"></div>
           <div class="modal-content">
             <div class="modal-header">
-              <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-              <h4 class="modal-title" id="setupFilterModalLabel">Setup Filters</h4>
+              <h4 class="modal-title" id="setupFilterModalLabel">STATS TO PLOT</h4>
             </div>
             <div class="modal-body">
               <div class="form-group">
@@ -610,12 +610,16 @@
                 </div>
               </div>
               <div class="form-group">
+                <div id="filter-checkbox-div">
+                </div>
+<!--
                 <label class="col-sm-4 control-label" for="stats_to_plot"><strong>Stats to plot</strong></label>
                 <div class="col-sm-8">
                   <select id="filter_values" class="filter_values" multiple="multiple">
                   </select>
                   <div class="help-block with-errors">Select the field from the above list.</div>
                 </div>
+-->
               </div>
             </div>
             <div class="modal-footer">
