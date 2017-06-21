@@ -224,32 +224,33 @@ function upRow(ob) { // row moved up
 function downRow(ob) { // row moved down
   var e = $(".tile-container").find(".row-"+ob);
   e.next().insertBefore(e);
+  if(panelRow.length != ob) {
+    movedArray = [];
+    var e = $(".tile-container").find(".row-"+ob);
+    var prev = ob+1;
+    var previous = $(".tile-container").find(".row-"+ prev);
+    var row = parseInt(ob);
 
-  movedArray = [];
-  var e = $(".tile-container").find(".row-"+ob);
-  var prev = ob+1;
-  var previous = $(".tile-container").find(".row-"+ prev);
-  var row = parseInt(ob);
+    $(e.find('.tile')).each(function( index ) {
+      var tileId = $( this).attr('id');
+      var newId = row + 1;
+      tileData[tileId].tileContext.row = newId; // new row number +1
+      movedArray.push(tileId);
+    });
 
-  $(e.find('.tile')).each(function( index ) {
-    var tileId = $( this).attr('id');
-    var newId = row + 1;
-    tileData[tileId].tileContext.row = newId; // new row number +1
-    movedArray.push(tileId);
-  });
+    $(previous.find('.tile')).each(function( index ) {
+      var tileId = $( this).attr('id');
+      var newId = row;
+      tileData[tileId].tileContext.row = newId; // new row nubmer -1
+      movedArray.push(tileId);
+    });
 
-  $(previous.find('.tile')).each(function( index ) {
-    var tileId = $( this).attr('id');
-    var newId = row;
-    tileData[tileId].tileContext.row = newId; // new row nubmer -1
-    movedArray.push(tileId);
-  });
-
-  var keysSorted = sortTiles(tileData);
-  tileList = [];
-  tileList = keysSorted;
-  globalData[getActiveTabIndex()].tileList = keysSorted;
-  renderAfterRearrange();
+    var keysSorted = sortTiles(tileData);
+    tileList = [];
+    tileList = keysSorted;
+    globalData[getActiveTabIndex()].tileList = keysSorted;
+    renderAfterRearrange();
+  }
 }
 
 // create new div
