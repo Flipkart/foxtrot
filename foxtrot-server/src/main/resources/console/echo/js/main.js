@@ -44,6 +44,7 @@ var tileColumn = 1;
 var sectionNumber = 0;
 var sections = [];
 var tableNameList = [];
+var refreshTime = 6000;
 
 function TablesView(id, tables) {
   this.id = id;
