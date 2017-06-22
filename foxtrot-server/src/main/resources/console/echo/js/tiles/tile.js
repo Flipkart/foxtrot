@@ -489,21 +489,6 @@ TileFactory.prototype.create = function () {
     this.tileObject.tileContext.widgetSize = 12;
   }
 
-
-//  if (this.tileObject.tileContext.widgetType == "full") {
-//    if(isNewRowCount == 1 && previousWidget == 'small') {
-//      this.tileObject.tileContext.widgetSize = 9;
-//      tileElement.find(".tile").addClass('full-widget-medium-width');
-//    } else if(isNewRowCount <= 2 && firstWidgetType != 'pie' && firstWidgetType != "radar") {
-//      tileElement.find(".tile").addClass((this.tileObject.tileContext.isnewRow ? 'full-widget-max-width' : 'full-widget-min-width'));
-//      this.tileObject.tileContext.isnewRow ? this.tileObject.tileContext.widgetSize = 12 : this.tileObject.tileContext.widgetSize = 6;
-//
-//    } else {
-//      this.tileObject.tileContext.isnewRow = true;
-//      this.tileObject.tileContext.widgetSize = 12;
-//    }
-//  }
-
   var clickedRow; // clicked row
   if(this.tileObject.tileContext.isnewRow) {
     tileElement = this.createNewRow(tileElement);
