@@ -34,7 +34,7 @@ function getBarChartFormValues() {
     "period": period
     , "timeframe": timeframe
     , "nesting": [groupingString]
-    , "uniqueKey": uniqueKey
+    , "uniqueKey": currentFieldList[parseInt(uniqueKey)].field
     , "ignoreDigits" : ignoreDigits
     , "selectedValue": selectedValue
   };
@@ -89,13 +89,15 @@ BarTile.prototype.getQuery = function (object) {
       values: object.tileContext.selectedValue.split(',')
     });
   }
+
   var data = {
     "opcode": "group"
     , "table": object.tileContext.table
     , "filters": filters
-    , "uniqueCountOn": object.tileContext.uniqueCountOn && object.tileContext.uniqueCountOn != "none" ? object.tileContext.uniqueCountOn : null
+    , "uniqueCountOn": object.tileContext.uniqueKey && object.tileContext.uniqueKey != "none" ? object.tileContext.uniqueKey : null
     , "nesting": object.tileContext.nesting
   }
+
   $.ajax({
     method: "post"
     , dataType: 'json'
