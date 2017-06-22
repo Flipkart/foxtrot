@@ -290,7 +290,7 @@ StackedBarTile.prototype.render = function (d) {
           }
         });
       }
-      strTip =  strTip+strTipInsideRows+"<tr><td class='tooltip-text'>TOTAL</td> <td style='color:#42b1f7' class='tooltip-count'>"+numberWithCommas(total)+"</td></tr></table>" ;
+      strTip =  strTip+strTipInsideRows+"<tr><td class='tooltip-text'><b>TOTAL</b></td> <td style='color:#42b1f7' class='tooltip-count'>"+numberWithCommas(total)+"</td></tr></table>" ;
       showTooltip(item.pageX, item.pageY, strTip, color);
     } else {
       $("#tooltip").remove();
