@@ -277,20 +277,20 @@ StackedBarTile.prototype.render = function (d) {
       var total = 0;
       var strTipInsideRows = "";
       var allSeries = plot.getData();
-      $.each(allSeries, function(i,s){ // loop all series
-        $.each(s.data, function(j,p){
+      for (var i = allSeries.length - 1; i >= 0; i--) {
+        var data = allSeries[i].data;
+        $.each(data, function(j,p){
           if (p[0] == x){  // if my hover x == point x add to string
             total = total +p[1];
-            strTipInsideRows += "<tr><td class='tooltip-text'>"+s.label+ "</td>" + "<td class='tooltip-count' style='color:"+s.color+"'>"+numberWithCommas(p[1]) + '</td></tr>';
+            strTipInsideRows += "<tr><td class='tooltip-text'>"+allSeries[i].label+ "</td>" + "<td class='tooltip-count' style='color:"+allSeries[i].color+"'>"+numberWithCommas(p[1]) + '</td></tr>';
           }
           else {
             $("#tooltip").remove();
             previousPoint = null;
           }
         });
-
-      });
-      strTip =  strTip+ "<tr><td class='tooltip-text'>TOTAL</td> <td style='color:#42b1f7' class='tooltip-count'>"+numberWithCommas(total)+"</td></tr>"+strTipInsideRows+"</table>" ;
+      }
+      strTip =  strTip+strTipInsideRows+"<tr><td class='tooltip-text'><b>TOTAL</b></td> <td style='color:#42b1f7' class='tooltip-count'>"+numberWithCommas(total)+"</td></tr></table>" ;
       showTooltip(item.pageX, item.pageY, strTip, color);
     } else {
       $("#tooltip").remove();

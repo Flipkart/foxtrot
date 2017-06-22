@@ -58,8 +58,10 @@
             <option value="none">Select console</option>
           </select>
             <ul id="left-menu">
+<!--
               <li><a>Browse Events</a></li>
               <li><a>Explore</a></li>
+-->
               <li id="add-sections" data-target="#addDashboard" data-toggle="modal">
                 <span id="create-new-dashboard">Create New Dashboard</span>
               </li>
@@ -271,7 +273,7 @@
                 <div id="line-chart-data">
                   <div class="col-md-12 chart-forms">
                     <div class="form-group">
-                      <label class="control-label">Period <span class="mandatory-text">*</span></label>
+                      <label class="control-label">Time unit <span class="mandatory-text">*</span></label>
                       <select class="selectpicker tile-time-unit form-control" name="tile-time-unit" id="tile-time-unit">
                         <option value="minutes" selected="selected">Minute</option>
                         <option value="hours">Hour</option>
@@ -283,7 +285,7 @@
                       <input type="number" class="line-timeframe form-control" id="line-timeframe" placeholder="Enter time frame" name="line-timeframe" required>
                     </div>
                     <div class="form-group">
-                      <label class="control-label">Generate Unique of</label>
+                      <label class="control-label">Unique of</label>
                       <select class="selectpicker unique-key form-control" id="uniqueKey" data-live-search="true" data-style="btn-warning"></select>
                     </div>
                     <div class="form-group">
@@ -297,7 +299,7 @@
                 <div id="radar-chart-data">
                   <div class="col-md-12 chart-forms">
                     <div class="form-group">
-                      <label class="control-label">Period <span class="mandatory-text">*</span></label>
+                      <label class="control-label">Time unit <span class="mandatory-text">*</span></label>
                       <select class="selectpicker radar-time-unit form-control" name="radar-time-unit" id="radar-time-unit" required>
                         <option value="minutes" selected="selected">Minute</option>
                         <option value="hours">Hour</option>
@@ -309,7 +311,7 @@
                       <input type="number" name="radar-timeframe" class="radar-timeframe form-control" id="radar-timeframe" placeholder="Enter time frame" required>
                     </div>
                     <div class="form-group">
-                      <label class="control-label">Nesting of <span class="mandatory-text">*</span></label>
+                      <label class="control-label">Field to classify <span class="mandatory-text">*</span></label>
                       <select name="radar-nesting" class="selectpicker radar-nesting form-control" id="radar-nesting" data-live-search="true" data-style="btn-warning" required> </select>
                     </div>
                   </div>
@@ -319,7 +321,7 @@
                 <div id="gauge-chart-data">
                   <div class="col-md-12 chart-forms">
                     <div class="form-group">
-                      <label class="control-label">Period <span class="mandatory-text">*</span></label>
+                      <label class="control-label">Time unit <span class="mandatory-text">*</span></label>
                       <select name="gauge-time-unit" required class="selectpicker gauge-time-unit form-control" id="gauge-time-unit">
                         <option value="minutes" selected="selected">Minute</option>
                         <option value="hours">Hour</option>
@@ -331,11 +333,11 @@
                       <input type="number" name="gauge-timeframe" class="gauge-timeframe form-control" id="gauge-timeframe" placeholder="Enter time frame" required>
                     </div>
                     <div class="form-group">
-                      <label class="control-label">Nesting of <span class="mandatory-text">*</span></label>
+                      <label class="control-label">Field to classify <span class="mandatory-text">*</span></label>
                       <select name="gauge-nesting" class="selectpicker gauge-nesting form-control" id="gauge-nesting" data-live-search="true" data-style="btn-warning" required> </select>
                     </div>
                     <div class="form-group">
-                      <label class="control-label">Success field<span class="mandatory-text">*</span></label>
+                      <label class="control-label">Success value<span class="mandatory-text">*</span></label>
                       <input type="text" name="gauge-success-field" class="selectpicker gauge-success-field form-control" id="gauge-success-field" required />
                     </div>
                   </div>
@@ -345,7 +347,7 @@
                 <div id="trend-chart-data">
                   <div class="col-md-12 chart-forms">
                     <div class="form-group">
-                      <label class="control-label">Period <span class="mandatory-text">*</span></label>
+                      <label class="control-label">Time unit <span class="mandatory-text">*</span></label>
                       <select required name="trend-time-unit" class="selectpicker trend-time-unit form-control" id="trend-time-unit">
                         <option value="minutes" selected="selected">Minute</option>
                         <option value="hours">Hour</option>
@@ -357,11 +359,11 @@
                       <input type="number" class="trend-timeframe form-control" id="trend-timeframe" placeholder="Enter time frame" required>
                     </div>
                     <div class="form-group">
-                      <label class="control-label">Field to run statistics on <span class="mandatory-text">*</span> </label>
+                      <label class="control-label">Field to run calculation on <span class="mandatory-text">*</span> </label>
                       <select name="stats-field" required class="stats-field form-control selectpicker" id="stats-field" data-live-search="true"> </select>
                     </div>
                     <div class="form-group">
-                      <label class="control-label">Statistic to plot <span class="mandatory-text">*</span></label>
+                      <label class="control-label">Calculation to plot <span class="mandatory-text">*</span></label>
                       <select name="statistic_to_plot" required id="statistic_to_plot" class="selectpicker statistic_to_plot form-control" data-live-search="true">
                         <option value="">none</option>
                         <option value=percentiles.1.0>1 percentile</option>
@@ -392,7 +394,7 @@
                 <div id="statsTrend-chart-data">
                   <div class="col-md-12 chart-forms">
                     <div class="form-group">
-                      <label class="control-label">Period <span class="mandatory-text">*</span></label>
+                      <label class="control-label">Time unit <span class="mandatory-text">*</span></label>
                       <select name="stats-trend-time-unit" required class="selectpicker stats-trend-time-unit form-control" id="stats-trend-time-unit">
                         <option value="minutes" selected="selected">Minute</option>
                         <option value="hours">Hour</option>
@@ -402,10 +404,10 @@
                     <div class="form-group">
                       <label class="control-label">Time Frame <span class="mandatory-text">*</span></label>
                       <input type="number" name="stats-trend-timeframe" class="stats-trend-timeframe form-control" id="stats-trend-timeframe" placeholder="Enter time frame" required> </div>
-                    <div class="form-group"><label class="control-label">Field to run statistics on <span class="mandatory-text">*</span></label>
+                    <div class="form-group"><label class="control-label">Field to run calculations on <span class="mandatory-text">*</span></label>
                       <select name="stats-trend-field" required class="stats-trend-field form-control selectpicker" id="stats-trend-field" data-live-search="true"> </select></div>
                     <div class="form-group">
-                      <label class="control-label">Statistic to plot <span class="mandatory-text">*</span></label>
+                      <label class="control-label">Calculation to plot <span class="mandatory-text">*</span></label>
                       <select required name="stats-trend-statics-to-plot" id="stats-trend-statics-to-plot" multiple="multiple" class="selectpicker stats-trend-statics-to-plot form-control" data-live-search="true">
                         <option value="">none</option>
                         <option value=percentiles.1.0>1 percentile</option>
@@ -447,14 +449,14 @@
                       <input name="bar-timeframe" type="number" class="bar-timeframe form-control" id="bar-timeframe" placeholder="Enter time frame" required>
                     </div>
                     <div class="form-group">
-                      <label class="control-label">Event Field <span class="mandatory-text">*</span></label>
+                      <label class="control-label">Field to classify <span class="mandatory-text">*</span></label>
                       <select name="bar-event-field" required class="selectpicker bar-event-field form-control" id="bar-event-field" data-live-search="true"> </select></div>
                     <div class="form-group">
                       <label class="control-label">Only consider particular values</label>
                       <input type="text" class="bar-selected-value form-control" id="bar-selected-value" placeholder="Comma separated list of values to select">
                     </div>
                     <div class="form-group">
-                      <label class="control-label">Generate unique of</label>
+                      <label class="control-label">Unique of</label>
                       <select id="bar-uniquekey" class="selectpicker bar-uniquekey form-control" data-live-search="true"> </select></div>
                     <div class="form-group">
                       <label class="control-label">Shift Decimal Left By</label>
@@ -476,17 +478,17 @@
                       <label class="control-label">Time Frame <span class="mandatory-text">*</span></label>
                       <input type="number" name="stacked-timeframe" class="stacked-timeframe form-control" id="stacked-timeframe" placeholder="Enter time frame" required></div>
                     <div class="form-group">
-                      <label class="control-label">Grouping Key <span class="mandatory-text">*</span></label>
+                      <label class="control-label">Field to classify <span class="mandatory-text">*</span></label>
                       <select name="stacked-grouping-key" required class="selectpicker stacked-grouping-key form-control" id="stacked-grouping-key" data-live-search="true">
                         <option value="minutes" selected="selected">Minute</option>
                       </select></div>
                     <div class="form-group">
-                      <label class="control-label">Stacking Key <span class="mandatory-text">*</span></label>
+                      <label class="control-label">Stack by <span class="mandatory-text">*</span></label>
                       <select name="stacking-key" required id="stacking-key" class="selectpicker stacking-key form-control" data-live-search="true">
                         <option value="minutes" selected="selected">Minute</option>
                       </select></div>
                     <div class="form-group">
-                      <label class="control-label">Generate unique of</label>
+                      <label class="control-label">Unique of</label>
                       <select id="stacked-uniquekey" class="selectpicker stacked-uniquekey form-control" data-live-search="true">
                         <option value="minutes" selected="selected"></option>
                       </select></div>
@@ -506,7 +508,7 @@
                       <input name="stacked-bar-timeframe" type="number" class="stacked-bar-timeframe form-control" id="stacked-bar-timeframe" placeholder="Enter time frame" required></div>
                     <div class="form-group"><label class="control-label">Field to classify <span class="mandatory-text">*</span></label>
                       <select name="stacked-bar-field" required class="selectpicker stacked-bar-field form-control" id="stacked-bar-field" data-live-search="true"></select></div>
-                    <div class="form-group"><label class="control-label">Generate unique of</label>
+                    <div class="form-group"><label class="control-label">Unique of</label>
                       <select id="stacked-bar-uniquekey" class="selectpicker stacked-bar-uniquekey form-control" data-live-search="true">
                         <option value="minutes" selected="selected">Minute</option>
                       </select></div>
@@ -530,13 +532,13 @@
                     <div class="form-group">
                       <label class="control-label">Time Frame <span class="mandatory-text">*</span></label>
                       <input name="pie-timeframe" type="number" class="pie-timeframe form-control" id="pie-timeframe" placeholder="Enter time frame" required></div>
-                    <div class="form-group"><label class="control-label">Eventtype field <span class="mandatory-text">*</span></label>
+                    <div class="form-group"><label class="control-label">Field to classify <span class="mandatory-text">*</span></label>
                       <select name="eventtype-field" required class="selectpicker eventtype-field form-control" id="eventtype-field" data-live-search="true"> </select></div>
                     <div class="form-group">
                       <label class="control-label">Only consider particular values</label>
                       <input type="text" class="pie-selected-value form-control" id="pie-selected-value" placeholder="Comma separated list of values to select">
                     </div>
-                    <div class="form-group"><label class="control-label">Generate unique of</label>
+                    <div class="form-group"><label class="control-label">Unique of</label>
                       <select id="pie-uniquekey" class="selectpicker pie-uniquekey form-control" data-live-search="true"> </select></div>
                     <div class="form-group">
                       <label class="control-label" for="pie-ignored-digits"><strong>Shift Decimal Left By</strong> </label>
@@ -549,7 +551,7 @@
                 <div id="count-chart-data">
                   <div class="col-md-12 chart-forms">
                     <div class="form-group">
-                      <label class="control-label">Period <span class="mandatory-text">*</span></label>
+                      <label class="control-label">Time unit <span class="mandatory-text">*</span></label>
                       <select name="count-time-unit" required class="selectpicker count-time-unit form-control" id="count-time-unit">
                         <option value="minutes" selected="selected">Minute</option>
                         <option value="hours">Hour</option>
@@ -561,7 +563,7 @@
                       <input name="count-timeframe" type="number" class="count-timeframe form-control" id="count-timeframe" placeholder="Enter time frame" required>
                     </div>
                     <div class="form-group">
-                      <label class="control-label">Distinct field</label>
+                      <label class="control-label">Distinct count on field</label>
                       <select class="selectpicker count-field form-control" id="count-field" data-live-search="true" data-style="btn-warning" name="count-field"> </select>
                     </div>
                     <div class="row">
@@ -597,28 +599,33 @@
     <!--Filter-->
     <div class="modal fade" tabindex="-1" id="setupFiltersModal" role="dialog" aria-labelledby="setupFilterModalLabel" aria-hidden="true">
       <div class="modal-dialog">
-        <form class="form-horizontal settings-form" role="form" data-toggle="validate" data-delay="" id="setupFilterModalForm">
+        <form class="form-horizontal filters-form" role="form" data-toggle="validate" data-delay="" id="setupFilterModalForm">
+          <div id="ui-filter-close-btn" data-dismiss="modal" aria-hidden="true"><img src="img/combined-shape.png" alt="close"></div>
           <div class="modal-content">
             <div class="modal-header">
-              <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-              <h4 class="modal-title" id="setupFilterModalLabel">Setup Filters</h4>
+              <h4 class="modal-title" id="setupFilterModalLabel">STATS TO PLOT</h4>
+              <p onClick="selectAllUiCheckbox();" id="select-all-checkbox">Select all</p>
             </div>
-            <div class="modal-body">
+            <div class="modal-body ui-filter-body">
               <div class="form-group">
                 <div class="col-sm-12">
                   <input type="hidden" class="tileId">
                 </div>
               </div>
               <div class="form-group">
+                <div id="filter-checkbox-div">
+                </div>
+<!--
                 <label class="col-sm-4 control-label" for="stats_to_plot"><strong>Stats to plot</strong></label>
                 <div class="col-sm-8">
                   <select id="filter_values" class="filter_values" multiple="multiple">
                   </select>
                   <div class="help-block with-errors">Select the field from the above list.</div>
                 </div>
+-->
               </div>
             </div>
-            <div class="modal-footer">
+            <div class="modal-footer ui-filter-btn">
               <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
               <button type="submit" class="btn btn-primary">Done</button>
             </div>

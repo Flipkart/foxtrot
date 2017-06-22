@@ -360,9 +360,47 @@ function numberWithCommas(x) { // Indian numbers without thousands/lakhs in the 
 
 function deleteWidget(id) { // delete widget
   showHideSideBar();
+
+  // delete
+  var deleteRow = tileData[id].tileContext.row;
+  var deletePosition = tileData[id].tileContext.position;
   delete tileData[id];
+
   var idx = tileList.indexOf(id);
   if (idx != -1) tileList.splice(idx, 1);
+
+  var count = 0; // count is for more than two div in a row
+  for (var i in tileList) {
+    if(tileList[i] != id) {
+      var tileRow = tileData[tileList[i]].tileContext.row;
+      var rowPosition = tileData[tileList[i]].tileContext.position;
+      if(tileRow == deleteRow) {
+
+
+        if(rowPosition > deletePosition) { // change position if row pos is greater than delete
+          tileData[tileList[i]].tileContext.position = tileData[tileList[i]].tileContext.position - 1;
+        }
+
+        if(rowPosition > deletePosition && count == 0) { // if first column deleted set first item to new row
+          tileData[tileList[i]].tileContext.isnewRow = true;
+        }
+
+        count++;
+        tileData[tileList[i]].tileContext.row = tileData[tileList[i]].tileContext.row;
+        }
+      else if(tileRow > deleteRow && count == 0) {
+          console.log(tileData[tileList[i]].id +" => "+tileData[tileList[i]].tileContext.row)
+          tileData[tileList[i]].tileContext.row = tileData[tileList[i]].tileContext.row -1;
+        }
+      }
+    }
+
+  /* sort array list */
+  var keysSorted = sortTiles(tileData);
+  tileList = [];
+  tileList = keysSorted;
+  globalData[getActiveTabIndex()].tileList = keysSorted;
+  renderAfterRearrange();
 }
 
 function getPeroidSelectString(string) {

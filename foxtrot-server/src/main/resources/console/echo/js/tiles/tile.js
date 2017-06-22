@@ -52,9 +52,9 @@ function refereshTiles() { // auto query for each tile
   }
 }
 
-setInterval(function () { // function trigger for every 6 seconds
+setInterval(function () { // function trigger for every x seconds
   refereshTiles();
-}, 6000);
+}, refreshTime);
 
 function pushTilesObject(object) { // save each tile data
   tileData[object.id] = object;
@@ -214,14 +214,7 @@ function upRow(ob) { // row moved up
   }
 
   /* sort array list */
-  var keysSorted = Object.keys(tileData).sort(function (x, y) {
-    var n = tileData[x].tileContext.row - tileData[y].tileContext.row;
-    if (n !== 0) {
-      return n;
-    }
-    return tileData[x].tileContext.position - tileData[y].tileContext.position;
-  });
-
+  var keysSorted = sortTiles(tileData);
   tileList = [];
   tileList = keysSorted;
   globalData[getActiveTabIndex()].tileList = keysSorted;
@@ -231,38 +224,33 @@ function upRow(ob) { // row moved up
 function downRow(ob) { // row moved down
   var e = $(".tile-container").find(".row-"+ob);
   e.next().insertBefore(e);
+  if(panelRow.length != ob) {
+    movedArray = [];
+    var e = $(".tile-container").find(".row-"+ob);
+    var prev = ob+1;
+    var previous = $(".tile-container").find(".row-"+ prev);
+    var row = parseInt(ob);
 
-  movedArray = [];
-  var e = $(".tile-container").find(".row-"+ob);
-  var prev = ob+1;
-  var previous = $(".tile-container").find(".row-"+ prev);
-  var row = parseInt(ob);
+    $(e.find('.tile')).each(function( index ) {
+      var tileId = $( this).attr('id');
+      var newId = row + 1;
+      tileData[tileId].tileContext.row = newId; // new row number +1
+      movedArray.push(tileId);
+    });
 
-  $(e.find('.tile')).each(function( index ) {
-    var tileId = $( this).attr('id');
-    var newId = row + 1;
-    tileData[tileId].tileContext.row = newId; // new row number +1
-    movedArray.push(tileId);
-  });
+    $(previous.find('.tile')).each(function( index ) {
+      var tileId = $( this).attr('id');
+      var newId = row;
+      tileData[tileId].tileContext.row = newId; // new row nubmer -1
+      movedArray.push(tileId);
+    });
 
-  $(previous.find('.tile')).each(function( index ) {
-    var tileId = $( this).attr('id');
-    var newId = row;
-    tileData[tileId].tileContext.row = newId; // new row nubmer -1
-    movedArray.push(tileId);
-  });
-
-  var keysSorted = Object.keys(tileData).sort(function (x, y) {
-    var n = tileData[x].tileContext.row - tileData[y].tileContext.row;
-    if (n !== 0) {
-      return n;
-    }
-    return tileData[x].tileContext.position - tileData[y].tileContext.position;
-  });
-  tileList = [];
-  tileList = keysSorted;
-  globalData[getActiveTabIndex()].tileList = keysSorted;
-  renderAfterRearrange();
+    var keysSorted = sortTiles(tileData);
+    tileList = [];
+    tileList = keysSorted;
+    globalData[getActiveTabIndex()].tileList = keysSorted;
+    renderAfterRearrange();
+  }
 }
 
 // create new div
@@ -340,11 +328,10 @@ TileFactory.prototype.triggerFilter = function (tileElement, object) { // filter
       clearFilterValues();
       var modal = $("#setupFiltersModal").modal('show');
       var fv = $("#setupFiltersModal").find(".filter_values");
-      fv.multiselect('refresh');
       var form = modal.find("form");
       form.off('submit');
       form.on('submit', $.proxy(function (e) {
-        instanceVar.updateFilters($("#filter_values").val());
+        instanceVar.updateFilters(getFilterCheckBox());
         $("#setupFiltersModal").modal('hide');
         e.preventDefault();
       }));
@@ -352,16 +339,13 @@ TileFactory.prototype.triggerFilter = function (tileElement, object) { // filter
       if (object.tileContext.uiFiltersList == undefined) return;
       for (var i = 0; i < object.tileContext.uiFiltersList.length; i++) {
         var value = object.tileContext.uiFiltersList[i];
-        var index = $.inArray( value, object.tileContext.uiFiltersSelectedList)
-        options.push({
-          label: value
-          , title: value
-          , value: value
-          , selected: (index == -1 ? true : false)
-        });
+        var index = $.inArray( value, object.tileContext.uiFiltersSelectedList);
+        if(index == -1) {
+          $("#filter-checkbox-div").append('<label><input name="filter-checkbox" class="ui-filter-checkbox" type="checkbox" value="'+value+'" checked="checked">'+value+'</label>  <br/>');
+        } else {
+          $("#filter-checkbox-div").append('<label><input name="filter-checkbox" class="ui-filter-checkbox" type="checkbox" value="'+value+'">'+value+'</label>  <br/>');
+        }
       }
-      fv.multiselect('dataprovider', options);
-      fv.multiselect('refresh');
     });
   }
 }
@@ -504,21 +488,6 @@ TileFactory.prototype.create = function () {
     this.tileObject.tileContext.isnewRow = true;
     this.tileObject.tileContext.widgetSize = 12;
   }
-
-
-//  if (this.tileObject.tileContext.widgetType == "full") {
-//    if(isNewRowCount == 1 && previousWidget == 'small') {
-//      this.tileObject.tileContext.widgetSize = 9;
-//      tileElement.find(".tile").addClass('full-widget-medium-width');
-//    } else if(isNewRowCount <= 2 && firstWidgetType != 'pie' && firstWidgetType != "radar") {
-//      tileElement.find(".tile").addClass((this.tileObject.tileContext.isnewRow ? 'full-widget-max-width' : 'full-widget-min-width'));
-//      this.tileObject.tileContext.isnewRow ? this.tileObject.tileContext.widgetSize = 12 : this.tileObject.tileContext.widgetSize = 6;
-//
-//    } else {
-//      this.tileObject.tileContext.isnewRow = true;
-//      this.tileObject.tileContext.widgetSize = 12;
-//    }
-//  }
 
   var clickedRow; // clicked row
   if(this.tileObject.tileContext.isnewRow) {
