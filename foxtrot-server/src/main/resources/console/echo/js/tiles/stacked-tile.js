@@ -37,7 +37,7 @@ function getstackedChartFormValues() {
     , "timeframe": timeframe
     , "groupingKey": groupingString
     , "stackingKey": stackingString
-    , "uniqueKey": uniqueKey
+    , "uniqueKey": currentFieldList[parseInt(uniqueKey)].field
     , "nesting": nestingArray
   };
 }
@@ -89,7 +89,7 @@ StackedTile.prototype.getQuery = function (object) {
     "opcode": "group"
     , "table": object.tileContext.table
     , "filters": filters
-    , "uniqueCountOn": object.tileContext.uniqueCountOn && object.tileContext.uniqueCountOn != "none" ? object.tileContext.uniqueCountOn : null
+    , "uniqueCountOn": object.tileContext.uniqueKey && object.tileContext.uniqueKey != "none" ? object.tileContext.uniqueKey : null
     , "nesting": object.tileContext.nesting
   }
   $.ajax({

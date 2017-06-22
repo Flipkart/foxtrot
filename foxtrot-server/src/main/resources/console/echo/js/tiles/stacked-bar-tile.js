@@ -30,7 +30,7 @@ function getstackedBarChartFormValues() {
   return {
     "period": period
     , "timeframe": timeframe
-    , "uniqueKey": uniqueKey
+    , "uniqueKey": currentFieldList[parseInt(uniqueKey)].field
     , "stackedBarField": chartField
     , "ignoreDigits" : ignoreDigits
     , };
@@ -81,7 +81,7 @@ StackedBarTile.prototype.getQuery = function (object) {
     "opcode": "trend"
     , "table": object.tileContext.table
     , "filters": filters
-    , "uniqueCountOn": object.tileContext.uniqueCountOn && object.tileContext.uniqueCountOn != "none" ? object.tileContext.uniqueCountOn : null
+    , "uniqueCountOn": object.tileContext.uniqueKey && object.tileContext.uniqueKey != "none" ? object.tileContext.uniqueKey : null
     , "field": object.tileContext.stackedBarField
     , period: periodFromWindow(object.tileContext.period, (globalFilters ? getGlobalFilters() : getPeriodSelect(object.id)))
   }

@@ -31,7 +31,7 @@ function getPieChartFormValues() {
   return {
     "period": period
     , "timeframe": timeframe
-    , "uniqueKey": uniqueKey
+    , "uniqueKey": currentFieldList[parseInt(uniqueKey)].field
     , "eventFiled": chartField
     , "ignoreDigits" : ignoreDigits
     , "selectedValue": selectedValue
@@ -94,7 +94,7 @@ PieTile.prototype.getQuery = function (object) {
     "opcode": "group"
     , "table": object.tileContext.table
     , "filters": filters
-    , "uniqueCountOn": object.tileContext.uniqueCountOn && object.tileContext.uniqueCountOn != "none" ? object.tileContext.uniqueCountOn : null
+    , "uniqueCountOn": object.tileContext.uniqueKey && object.tileContext.uniqueKey != "none" ? object.tileContext.uniqueKey : null
     , nesting: [object.tileContext.eventFiled]
   }
   $.ajax({
