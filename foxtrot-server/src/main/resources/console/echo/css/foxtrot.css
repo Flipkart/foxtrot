@@ -2149,7 +2149,7 @@ div.tab button:first-child {
   height: 19px;
   font-family: Open Sans;
   font-size: 14px;
-  font-weight: bold;
+  font-weight: 500;
   text-align: left;
   color: #42b1f7;
 }
@@ -2176,6 +2176,8 @@ div.tab button:first-child {
   font-size: 12px;
   text-align: left;
   color: #7d909a;
+  line-height: 2.5;
+  margin-top: -26px;
 }
 
 .ui-filter-checkbox {
@@ -2193,4 +2195,16 @@ div.tab button:first-child {
   color: #7d909a;
   cursor: pointer;
   text-decoration: underline;
+}
+
+.ui-filter-body {
+  padding-bottom: 0;
+}
+
+.ui-filter-btn button{
+  padding: 6px 12px;
+}
+
+.ui-filter-btn {
+  padding: 12px 20px 15px;
 }
