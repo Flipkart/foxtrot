@@ -23,6 +23,13 @@ function getLineChartFormValues() {
   var timeframe = $("#line-timeframe").val();
   var ignoreDigits = $(".line-ignored-digits").val();
 
+  console.log(uniqueCount);
+  if(uniqueCount == "none" || uniqueCount == "" || uniqueCount == null) {
+    uniqueCount = null;
+  } else {
+    uniqueCount = currentFieldList[parseInt(uniqueCount)].field
+  }
+
   return {
     "period": period
     , "uniqueCountOn": uniqueCount
@@ -37,7 +44,7 @@ function setLineChartFormValues(object) {
   timeUnitEl.val(object.tileContext.period);
   $(timeUnitEl).selectpicker('refresh');
   var uniqeKey = parentElement.find("#uniqueKey");
-  uniqeKey.val(currentFieldList.findIndex(x => x.field == object.tileContext.uniqueCountOn[0]));
+  uniqeKey.val(currentFieldList.findIndex(x => x.field == object.tileContext.uniqueCountOn));
   $(uniqeKey).selectpicker('refresh');
   parentElement.find("#line-timeframe").val(object.tileContext.timeframe);
   $(".line-ignored-digits").val(parseInt(object.tileContext.ignoreDigits == undefined ? 0 : object.tileContext.ignoreDigits));

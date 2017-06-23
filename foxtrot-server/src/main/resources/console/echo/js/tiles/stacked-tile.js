@@ -32,12 +32,18 @@ function getstackedChartFormValues() {
   nestingArray.push(groupingString);
   nestingArray.push(stackingString);
 
+  if(uniqueKey == "none" || uniqueKey == "" || uniqueKey == null) {
+    uniqueKey = null;
+  } else {
+    uniqueKey = currentFieldList[parseInt(uniqueKey)].field
+  }
+
   return {
     "period": period
     , "timeframe": timeframe
     , "groupingKey": groupingString
     , "stackingKey": stackingString
-    , "uniqueKey": currentFieldList[parseInt(uniqueKey)].field
+    , "uniqueKey": uniqueKey
     , "nesting": nestingArray
   };
 }

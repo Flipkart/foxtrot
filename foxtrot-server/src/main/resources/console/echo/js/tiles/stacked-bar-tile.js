@@ -21,8 +21,20 @@ function getstackedBarChartFormValues() {
   var period = $("#stacked-bar-time-unit").val();
   var timeframe = $(".stacked-bar-timeframe").val();
   var chartField = $("#stacked-bar-field").val();
-  var uniqueKey = $("#stacked-uniquekey").val();
+  var uniqueKey = $("#stacked-bar-uniquekey").val();
+
+  console.log('==>'+uniqueKey);
+
   var ignoreDigits = $(".stackedBar-ignored-digits").val();
+
+  console.log(uniqueKey);
+  if(uniqueKey == "none" || uniqueKey == "" || uniqueKey == null) {
+    uniqueKey = null;
+  } else {
+    uniqueKey = currentFieldList[parseInt(uniqueKey)].field
+  }
+
+  console.log(uniqueKey);
   if (chartField == "none") {
     return [[], false];
   }
@@ -30,7 +42,7 @@ function getstackedBarChartFormValues() {
   return {
     "period": period
     , "timeframe": timeframe
-    , "uniqueKey": currentFieldList[parseInt(uniqueKey)].field
+    , "uniqueKey": uniqueKey
     , "stackedBarField": chartField
     , "ignoreDigits" : ignoreDigits
     , };
