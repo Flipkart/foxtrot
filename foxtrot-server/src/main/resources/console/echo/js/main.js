@@ -169,6 +169,7 @@ FoxTrot.prototype.addTile = function () {
   if(editTileId) {
     widgetSize = tileData[tileId].tileContext.widgetSize;
     position = tileData[tileId].tileContext.position;
+    isnewRow = tileData[tileId].tileContext.isnewRow;
   } else {
     widgetSize = null;
     position = 1;
