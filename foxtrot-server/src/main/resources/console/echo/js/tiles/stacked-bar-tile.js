@@ -23,6 +23,14 @@ function getstackedBarChartFormValues() {
   var chartField = $("#stacked-bar-field").val();
   var uniqueKey = $("#stacked-uniquekey").val();
   var ignoreDigits = $(".stackedBar-ignored-digits").val();
+
+  console.log(uniqueKey);
+  if(uniqueKey == "none" || uniqueKey == null) {
+    uniqueKey = null;
+  } else {
+    uniqueKey = currentFieldList[parseInt(uniqueKey)].field
+  }
+
   if (chartField == "none") {
     return [[], false];
   }
@@ -30,7 +38,7 @@ function getstackedBarChartFormValues() {
   return {
     "period": period
     , "timeframe": timeframe
-    , "uniqueKey": currentFieldList[parseInt(uniqueKey)].field
+    , "uniqueKey": uniqueKey
     , "stackedBarField": chartField
     , "ignoreDigits" : ignoreDigits
     , };
