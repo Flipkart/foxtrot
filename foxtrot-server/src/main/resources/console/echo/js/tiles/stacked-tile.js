@@ -32,7 +32,7 @@ function getstackedChartFormValues() {
   nestingArray.push(groupingString);
   nestingArray.push(stackingString);
 
-  if(uniqueKey == "none" || uniqueKey == "") {
+  if(uniqueKey == "none" || uniqueKey == "" || uniqueKey == null) {
     uniqueKey = null;
   } else {
     uniqueKey = currentFieldList[parseInt(uniqueKey)].field

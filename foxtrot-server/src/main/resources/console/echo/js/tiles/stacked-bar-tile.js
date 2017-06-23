@@ -24,7 +24,8 @@ function getstackedBarChartFormValues() {
   var uniqueKey = $("#stacked-uniquekey").val();
   var ignoreDigits = $(".stackedBar-ignored-digits").val();
 
-  if(uniqueKey == "none" || uniqueKey == "") {
+  console.log(uniqueKey);
+  if(uniqueKey == "none" || uniqueKey == "" || uniqueKey == null) {
     uniqueKey = null;
   } else {
     uniqueKey = currentFieldList[parseInt(uniqueKey)].field

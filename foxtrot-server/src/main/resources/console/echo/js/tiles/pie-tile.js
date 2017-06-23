@@ -28,7 +28,7 @@ function getPieChartFormValues() {
     return [[], false];
   }
 
-  if(uniqueKey == "none" || uniqueKey == "") {
+  if(uniqueKey == "none" || uniqueKey == "" || uniqueKey == null) {
     uniqueKey = null;
   } else {
     uniqueKey = currentFieldList[parseInt(uniqueKey)].field
@@ -54,8 +54,8 @@ function setPieChartFormValues(object) {
   $("#eventtype-field").val(parseInt(stackingField));
   $("#eventtype-field").selectpicker('refresh');
   var stackingUniqueField = currentFieldList.findIndex(x => x.field == object.tileContext.uniqueKey);
-  $("#pie-bar-uniquekey").val(parseInt(stackingUniqueField));
-  $("#pie-bar-uniquekey").selectpicker('refresh');
+  $("#pie-uniquekey").val(parseInt(stackingUniqueField));
+  $("#pie-uniquekey").selectpicker('refresh');
   $(".pie-ignored-digits").val(parseInt(object.tileContext.ignoreDigits == undefined ? 0 : object.tileContext.ignoreDigits));
   $("#pie-selected-value").val((object.tileContext.selectedValue == undefined ? '' : object.tileContext.selectedValue));
 }

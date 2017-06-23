@@ -24,7 +24,7 @@ function getLineChartFormValues() {
   var ignoreDigits = $(".line-ignored-digits").val();
 
   console.log(uniqueCount);
-  if(uniqueCount == "none" || uniqueCount == "") {
+  if(uniqueCount == "none" || uniqueCount == "" || uniqueCount == null) {
     uniqueCount = null;
   } else {
     uniqueCount = currentFieldList[parseInt(uniqueCount)].field

@@ -30,7 +30,7 @@ function getBarChartFormValues() {
   var groupingString = currentFieldList[parseInt(eventField)].field;
   var status = true;
 
-  if(uniqueKey == "none" || uniqueKey == "") {
+  if(uniqueKey == "none" || uniqueKey == "" || uniqueKey == null) {
     uniqueKey = null;
   } else {
     uniqueKey = currentFieldList[parseInt(uniqueKey)].field
