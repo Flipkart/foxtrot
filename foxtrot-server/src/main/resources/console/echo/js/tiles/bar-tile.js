@@ -30,11 +30,17 @@ function getBarChartFormValues() {
   var groupingString = currentFieldList[parseInt(eventField)].field;
   var status = true;
 
+  if(uniqueKey == "none" || uniqueKey == "") {
+    uniqueKey = null;
+  } else {
+    uniqueKey = currentFieldList[parseInt(uniqueKey)].field
+  }
+
   return {
     "period": period
     , "timeframe": timeframe
     , "nesting": [groupingString]
-    , "uniqueKey": currentFieldList[parseInt(uniqueKey)].field
+    , "uniqueKey": uniqueKey
     , "ignoreDigits" : ignoreDigits
     , "selectedValue": selectedValue
   };

@@ -27,11 +27,18 @@ function getPieChartFormValues() {
   if (chartField == "none") {
     return [[], false];
   }
+
+  if(uniqueKey == "none" || uniqueKey == "") {
+    uniqueKey = null;
+  } else {
+    uniqueKey = currentFieldList[parseInt(uniqueKey)].field
+  }
+
   chartField = currentFieldList[parseInt(chartField)].field;
   return {
     "period": period
     , "timeframe": timeframe
-    , "uniqueKey": currentFieldList[parseInt(uniqueKey)].field
+    , "uniqueKey": uniqueKey
     , "eventFiled": chartField
     , "ignoreDigits" : ignoreDigits
     , "selectedValue": selectedValue
