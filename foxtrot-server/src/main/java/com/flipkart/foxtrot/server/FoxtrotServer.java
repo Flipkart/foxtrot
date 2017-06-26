@@ -145,8 +145,8 @@ public class FoxtrotServer extends Application<FoxtrotServerConfiguration> {
         DataDeletionManager dataDeletionManager = new DataDeletionManager(dataDeletionManagerConfig, queryStore);
 
         List<HealthCheck> healthChecks = new ArrayList<>();
-        ElasticSearchHealthCheck elasticSearchHealthCheck = new ElasticSearchHealthCheck(elasticsearchConnection);
-        healthChecks.add(elasticSearchHealthCheck);
+//        ElasticSearchHealthCheck elasticSearchHealthCheck = new ElasticSearchHealthCheck(elasticsearchConnection);
+//        healthChecks.add(elasticSearchHealthCheck);
         ClusterManager clusterManager = new ClusterManager(hazelcastConnection, healthChecks, configuration.getServerFactory());
 
         environment.lifecycle().manage(HBaseTableConnection);
@@ -172,7 +172,7 @@ public class FoxtrotServer extends Application<FoxtrotServerConfiguration> {
         environment.jersey().register(new UtilResource(configuration));
         environment.jersey().register(new ClusterHealthResource(queryStore));
 
-        environment.healthChecks().register("ES Health Check", elasticSearchHealthCheck);
+//        environment.healthChecks().register("ES Health Check", elasticSearchHealthCheck);
 
         environment.jersey().register(new FlatResponseTextProvider());
         environment.jersey().register(new FlatResponseCsvProvider());
