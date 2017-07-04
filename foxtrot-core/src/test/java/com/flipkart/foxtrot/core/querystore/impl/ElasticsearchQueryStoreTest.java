@@ -128,7 +128,7 @@ public class ElasticsearchQueryStoreTest {
             queryStore.save(TestUtils.TEST_TABLE + "-missing", expectedDocument);
             fail();
         } catch (FoxtrotException qse) {
-            assertEquals(ErrorCode.TABLE_NOT_FOUND, qse.getCode());
+            assertEquals(ErrorCode.INVALID_REQUEST, qse.getCode());
         }
     }
 
@@ -240,7 +240,7 @@ public class ElasticsearchQueryStoreTest {
             queryStore.save(TestUtils.TEST_TABLE + "-missing", documents);
             fail();
         } catch (FoxtrotException qse) {
-            assertEquals(ErrorCode.TABLE_NOT_FOUND, qse.getCode());
+            assertEquals(ErrorCode.INVALID_REQUEST, qse.getCode());
         }
     }
 
@@ -412,7 +412,7 @@ public class ElasticsearchQueryStoreTest {
             queryStore.getFieldMappings(TestUtils.TEST_TABLE + "-test");
             fail();
         } catch (FoxtrotException qse) {
-            assertEquals(ErrorCode.TABLE_NOT_FOUND, qse.getCode());
+            assertEquals(ErrorCode.INVALID_REQUEST, qse.getCode());
         }
     }
 
