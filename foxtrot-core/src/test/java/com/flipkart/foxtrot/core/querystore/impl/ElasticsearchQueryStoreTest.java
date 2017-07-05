@@ -28,12 +28,12 @@ import com.flipkart.foxtrot.core.table.TableMetadataManager;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.sematext.hbase.ds.RowKeyDistributorByHashPrefix;
 import org.elasticsearch.action.admin.cluster.health.ClusterHealthResponse;
 import org.elasticsearch.action.admin.cluster.node.stats.NodesStatsResponse;
 import org.elasticsearch.action.admin.indices.stats.IndicesStatsResponse;
 import org.elasticsearch.action.get.GetResponse;
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -392,11 +392,11 @@ public class ElasticsearchQueryStoreTest {
         queryStore.save(TestUtils.TEST_TABLE_NAME, TestUtils.getMappingDocuments(mapper));
         Thread.sleep(500);
 
-        Set<FieldTypeMapping> mappings = new HashSet<FieldTypeMapping>();
-        mappings.add(new FieldTypeMapping("word", FieldType.STRING));
-        mappings.add(new FieldTypeMapping("data.data", FieldType.STRING));
-        mappings.add(new FieldTypeMapping("header.hello", FieldType.STRING));
-        mappings.add(new FieldTypeMapping("head.hello", FieldType.LONG));
+        Set<FieldMetadata> mappings = new HashSet<FieldMetadata>();
+        mappings.add(FieldMetadata.builder().field("word").type(FieldType.STRING).build());
+        mappings.add(FieldMetadata.builder().field("data.data").type(FieldType.STRING).build());
+        mappings.add(FieldMetadata.builder().field("header.hello").type(FieldType.STRING).build());
+        mappings.add(FieldMetadata.builder().field("head.hello").type(FieldType.LONG).build());
 
         TableFieldMapping tableFieldMapping = new TableFieldMapping(TestUtils.TEST_TABLE_NAME, mappings);
         TableFieldMapping responseMapping = queryStore.getFieldMappings(TestUtils.TEST_TABLE_NAME);
@@ -470,6 +470,23 @@ public class ElasticsearchQueryStoreTest {
 
     }
 
+    @Test
+    public void testEstimation() throws Exception {
+        doReturn(TestUtils.getFieldCardinalityEstimationDocuments(mapper)).when(dataStore).saveAll(any(Table.class), anyListOf(Document.class));
+        queryStore.save(TestUtils.TEST_TABLE.getName(), TestUtils.getFieldCardinalityEstimationDocuments(mapper));
+        elasticsearchServer.refresh(ElasticsearchUtils.getIndices(TestUtils.TEST_TABLE_NAME));
+
+        TableFieldMapping mappings = queryStore.getFieldMappings(TestUtils.TEST_TABLE_NAME);
+        System.out.println(mapper.writerWithDefaultPrettyPrinter().writeValueAsString(mappings));
+        FieldCardinality response = queryStore.estimate(TestUtils.TEST_TABLE_NAME, "word");
+        Assert.assertEquals(2, response.getCardinality());
+        Assert.assertEquals(3, response.getCount());
+
+        response = queryStore.estimate(TestUtils.TEST_TABLE_NAME, "data.exclusiveField");
+        Assert.assertEquals(1, response.getCardinality());
+        Assert.assertEquals(1, response.getCount());
+
+    }
 
     private Document createDummyDocument() {
         Document document = new Document();
