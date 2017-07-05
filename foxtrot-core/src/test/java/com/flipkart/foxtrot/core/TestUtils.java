@@ -29,8 +29,10 @@ import com.flipkart.foxtrot.core.querystore.DocumentTranslator;
 import com.flipkart.foxtrot.core.querystore.actions.spi.ActionMetadata;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsLoader;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsProvider;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import org.joda.time.DateTime;
 import org.mockito.Matchers;
 import org.mockito.Mockito;
 import org.reflections.Reflections;
@@ -244,6 +246,32 @@ public class TestUtils {
         document.put("data", Collections.singletonMap("data", "d"));
         document.put("head", Collections.singletonList(Collections.singletonMap("hello", 23)));
         documents.add(new Document("Y", System.currentTimeMillis(), mapper.valueToTree(document)));
+        return documents;
+    }
+
+    public static List<Document> getFieldCardinalityEstimationDocuments(ObjectMapper mapper) {
+        List<Document> documents = new Vector<>();
+        Map<String, Object> document = Maps.newHashMap();
+        document.put("word", "1234");
+        document.put("data", Collections.singletonMap("someField", "d"));
+        document.put("header", Collections.singletonList(Collections.singletonMap("someHeaderField", "client1")));
+        final long time = DateTime.now().minusDays(1).toDate().getTime();
+//        final long time = System.currentTimeMillis();
+        documents.add(new Document("Z", time, mapper.valueToTree(document)));
+
+        document = Maps.newHashMap();
+        document.put("word", "2345");
+        document.put("data", ImmutableMap.of(
+                "someField", "c", "someOtherField", "blah", "exclusiveField", "hmmm"));
+        document.put("header", Collections.singletonList(Collections.singletonMap("someHeaderField", "client1")));
+        documents.add(new Document("Y", time, mapper.valueToTree(document)));
+
+        document = Maps.newHashMap();
+        document.put("word", "2345");
+        document.put("data", ImmutableMap.of("someField", "c", "someOtherField", "blah"));
+        document.put("header", Collections.singletonList(Collections.singletonMap("someHeaderField", "client1")));
+        documents.add(new Document("X", time, mapper.valueToTree(document)));
+
         return documents;
     }
 
