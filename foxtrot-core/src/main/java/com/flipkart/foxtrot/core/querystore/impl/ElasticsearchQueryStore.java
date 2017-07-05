@@ -18,15 +18,13 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.flipkart.foxtrot.common.Document;
-import com.flipkart.foxtrot.common.FieldTypeMapping;
-import com.flipkart.foxtrot.common.Table;
-import com.flipkart.foxtrot.common.TableFieldMapping;
+import com.flipkart.foxtrot.common.*;
 import com.flipkart.foxtrot.core.datastore.DataStore;
 import com.flipkart.foxtrot.core.exception.FoxtrotException;
 import com.flipkart.foxtrot.core.exception.FoxtrotExceptions;
 import com.flipkart.foxtrot.core.parsers.ElasticsearchMappingParser;
 import com.flipkart.foxtrot.core.querystore.QueryStore;
+import com.flipkart.foxtrot.core.querystore.actions.Utils;
 import com.flipkart.foxtrot.core.table.TableMetadataManager;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
@@ -42,10 +40,19 @@ import org.elasticsearch.action.bulk.BulkItemResponse;
 import org.elasticsearch.action.bulk.BulkRequestBuilder;
 import org.elasticsearch.action.bulk.BulkResponse;
 import org.elasticsearch.action.index.IndexRequest;
+import org.elasticsearch.action.search.MultiSearchRequestBuilder;
+import org.elasticsearch.action.search.MultiSearchResponse;
+import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
+import org.elasticsearch.client.Client;
 import org.elasticsearch.cluster.metadata.MappingMetaData;
 import org.elasticsearch.common.unit.TimeValue;
+import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
+import org.elasticsearch.search.aggregations.Aggregation;
+import org.elasticsearch.search.aggregations.AggregationBuilders;
+import org.elasticsearch.search.aggregations.Aggregations;
+import org.elasticsearch.search.aggregations.metrics.cardinality.Cardinality;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -247,9 +254,11 @@ public class ElasticsearchQueryStore implements QueryStore {
         }
         try {
             ElasticsearchMappingParser mappingParser = new ElasticsearchMappingParser(mapper);
-            Set<FieldTypeMapping> mappings = new HashSet<>();
+            Set<FieldMetadata> mappings = new HashSet<>();
+            final String indices = ElasticsearchUtils.getIndices(table);
+            logger.info("Selected indices: {}", indices);
             GetMappingsResponse mappingsResponse = connection.getClient().admin()
-                    .indices().prepareGetMappings(ElasticsearchUtils.getIndices(table)).execute().actionGet();
+                    .indices().prepareGetMappings(indices).execute().actionGet();
 
             for (ObjectCursor<String> index : mappingsResponse.getMappings().keys()) {
                 MappingMetaData mappingData = mappingsResponse.mappings().get(index.value).get(ElasticsearchUtils.DOCUMENT_TYPE_NAME);
@@ -330,6 +339,58 @@ public class ElasticsearchQueryStore implements QueryStore {
     @Override
     public IndicesStatsResponse getIndicesStats() throws ExecutionException, InterruptedException {
         return connection.getClient().admin().indices().prepareStats(ElasticsearchUtils.getAllIndicesPattern()).clear().setDocs(true).setStore(true).execute().get();
+    }
+
+    @Override
+    public void estimateCardinality(final String table, final List<FieldMetadata> fields) throws FoxtrotException {
+        Map<String, FieldMetadata> fieldMap = fields
+                .stream()
+                .collect(Collectors.toMap(FieldMetadata::getField, fieldMetadata -> fieldMetadata));
+        final String index
+                = ElasticsearchUtils.getCurrentIndex(
+                ElasticsearchUtils.getValidTableName(table),
+                DateTime.now()
+                        .minusDays(1)
+                        .toDate()
+                        .getTime());
+        final Client client = connection.getClient();
+
+        MultiSearchRequestBuilder multiQuery = client.prepareMultiSearch();
+
+        fields
+                .forEach(fieldMetadata -> {
+                    String field = fieldMetadata.getField();
+                    SearchRequestBuilder query = client.prepareSearch(index)
+                            .setIndicesOptions(Utils.indicesOptions())
+                            .setQuery(QueryBuilders.existsQuery(field))
+                            .setSize(0)
+                            .addAggregation(AggregationBuilders.cardinality(field)
+                                    .field(field)
+                                    .precisionThreshold(5));
+                    multiQuery.add(query);
+                });
+
+        MultiSearchResponse multiResponse = multiQuery
+                .execute()
+                .actionGet();
+
+        logger.debug("Response: {}", multiResponse);
+
+        for (MultiSearchResponse.Item item : multiResponse.getResponses()) {
+            SearchResponse response = item.getResponse();
+            final long hits = response.getHits().totalHits();
+            if(hits == 0) {
+                continue;
+            }
+            Aggregations aggregations = response.getAggregations();
+            Map<String, Aggregation> output = aggregations.asMap();
+            output.forEach((key, value) -> {
+                Cardinality cardinality = (Cardinality) value;
+                FieldMetadata fieldMetadata = fieldMap.get(key);
+                fieldMetadata.setCardinality(cardinality.getValue());
+                fieldMetadata.setCount(hits);
+            });
+        }
     }
 
     private String convert(Document translatedDocument) {

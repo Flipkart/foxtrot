@@ -18,7 +18,7 @@ package com.flipkart.foxtrot.core.parsers;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.flipkart.foxtrot.common.FieldType;
-import com.flipkart.foxtrot.common.FieldTypeMapping;
+import com.flipkart.foxtrot.common.FieldMetadata;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
 import org.elasticsearch.cluster.metadata.MappingMetaData;
 
@@ -39,13 +39,13 @@ public class ElasticsearchMappingParser {
         this.mapper = mapper;
     }
 
-    public Set<FieldTypeMapping> getFieldMappings(MappingMetaData metaData) throws IOException {
+    public Set<FieldMetadata> getFieldMappings(MappingMetaData metaData) throws IOException {
         JsonNode jsonNode = mapper.valueToTree(metaData.getSourceAsMap());
         return generateFieldMappings(null, jsonNode.get("properties"));
     }
 
-    private Set<FieldTypeMapping> generateFieldMappings(String parentField, JsonNode jsonNode) {
-        Set<FieldTypeMapping> fieldTypeMappings = new HashSet<FieldTypeMapping>();
+    private Set<FieldMetadata> generateFieldMappings(String parentField, JsonNode jsonNode) {
+        Set<FieldMetadata> fieldTypeMappings = new HashSet<FieldMetadata>();
         Iterator<Map.Entry<String, JsonNode>> iterator = jsonNode.fields();
         while (iterator.hasNext()) {
             Map.Entry<String, JsonNode> entry = iterator.next();
@@ -57,7 +57,10 @@ public class ElasticsearchMappingParser {
                 fieldTypeMappings.addAll(generateFieldMappings(currentField, entry.getValue().get("properties")));
             } else {
                 FieldType fieldType = getFieldType(entry.getValue().get("type"));
-                fieldTypeMappings.add(new FieldTypeMapping(currentField, fieldType));
+                fieldTypeMappings.add(FieldMetadata.builder()
+                        .field(currentField)
+                        .type(fieldType)
+                        .build());
             }
         }
         return fieldTypeMappings;
