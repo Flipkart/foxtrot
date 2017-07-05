@@ -477,15 +477,27 @@ public class ElasticsearchQueryStoreTest {
         elasticsearchServer.refresh(ElasticsearchUtils.getIndices(TestUtils.TEST_TABLE_NAME));
 
         TableFieldMapping mappings = queryStore.getFieldMappings(TestUtils.TEST_TABLE_NAME);
-        System.out.println(mapper.writerWithDefaultPrettyPrinter().writeValueAsString(mappings));
-        FieldCardinality response = queryStore.estimate(TestUtils.TEST_TABLE_NAME, "word");
+        /*FieldCardinality response = queryStore.estimate(TestUtils.TEST_TABLE_NAME, "word");
         Assert.assertEquals(2, response.getCardinality());
         Assert.assertEquals(3, response.getCount());
 
         response = queryStore.estimate(TestUtils.TEST_TABLE_NAME, "data.exclusiveField");
         Assert.assertEquals(1, response.getCardinality());
-        Assert.assertEquals(1, response.getCount());
-
+        Assert.assertEquals(1, response.getCount());*/
+        queryStore.estimateCardinality(TestUtils.TEST_TABLE_NAME,
+                mappings.getMappings()
+                        .stream()
+                        .filter(fieldMetadata -> fieldMetadata.getType().equals(FieldType.STRING))
+                        .collect(Collectors.toList()));
+        System.out.println(mapper.writerWithDefaultPrettyPrinter().writeValueAsString(mappings));
+        Assert.assertTrue(mappings.getMappings()
+                .stream()
+                .mapToLong(FieldMetadata::getCardinality)
+                .sum() > 0);
+        Assert.assertTrue(mappings.getMappings()
+                .stream()
+                .mapToLong(FieldMetadata::getCount)
+                .sum() > 0);
     }
 
     private Document createDummyDocument() {

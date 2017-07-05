@@ -30,6 +30,6 @@ import lombok.NoArgsConstructor;
 public class FieldMetadata {
     private String field;
     private FieldType type;
-    private long estimatedCardinalityScore;
-    private long estimatedCountScore;
+    private long cardinality;
+    private long count;
 }
