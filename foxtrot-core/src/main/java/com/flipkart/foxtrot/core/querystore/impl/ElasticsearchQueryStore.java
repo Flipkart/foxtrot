@@ -357,18 +357,17 @@ public class ElasticsearchQueryStore implements QueryStore {
 
         MultiSearchRequestBuilder multiQuery = client.prepareMultiSearch();
 
-        fields
-                .forEach(fieldMetadata -> {
-                    String field = fieldMetadata.getField();
-                    SearchRequestBuilder query = client.prepareSearch(index)
-                            .setIndicesOptions(Utils.indicesOptions())
-                            .setQuery(QueryBuilders.existsQuery(field))
-                            .setSize(0)
-                            .addAggregation(AggregationBuilders.cardinality(field)
-                                    .field(field)
-                                    .precisionThreshold(5));
-                    multiQuery.add(query);
-                });
+        fields.forEach(fieldMetadata -> {
+            String field = fieldMetadata.getField();
+            SearchRequestBuilder query = client.prepareSearch(index)
+                    .setIndicesOptions(Utils.indicesOptions())
+                    .setQuery(QueryBuilders.existsQuery(field))
+                    .setSize(0)
+                    .addAggregation(AggregationBuilders.cardinality(field)
+                            .field(field)
+                            .precisionThreshold(5));
+            multiQuery.add(query);
+        });
 
         MultiSearchResponse multiResponse = multiQuery
                 .execute()
@@ -377,9 +376,12 @@ public class ElasticsearchQueryStore implements QueryStore {
         logger.debug("Response: {}", multiResponse);
 
         for (MultiSearchResponse.Item item : multiResponse.getResponses()) {
+            if(item.isFailure()) {
+                continue;
+            }
             SearchResponse response = item.getResponse();
             final long hits = response.getHits().totalHits();
-            if(hits == 0) {
+            if (hits == 0) {
                 continue;
             }
             Aggregations aggregations = response.getAggregations();
