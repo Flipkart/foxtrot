@@ -24,12 +24,12 @@ import java.util.Set;
  */
 public class TableFieldMapping {
     private String table;
-    private Set<FieldTypeMapping> mappings;
+    private Set<FieldMetadata> mappings;
 
     public TableFieldMapping() {
     }
 
-    public TableFieldMapping(String table, Set<FieldTypeMapping> mappings) {
+    public TableFieldMapping(String table, Set<FieldMetadata> mappings) {
         this.table = table;
         this.mappings = mappings;
     }
@@ -42,11 +42,11 @@ public class TableFieldMapping {
         this.table = table;
     }
 
-    public Set<FieldTypeMapping> getMappings() {
+    public Set<FieldMetadata> getMappings() {
         return mappings;
     }
 
-    public void setMappings(Set<FieldTypeMapping> mappings) {
+    public void setMappings(Set<FieldMetadata> mappings) {
         this.mappings = mappings;
     }
 

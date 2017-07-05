@@ -16,8 +16,10 @@
 package com.flipkart.foxtrot.server.resources;
 
 import com.flipkart.foxtrot.common.Table;
+import com.flipkart.foxtrot.common.TableFieldMapping;
 import com.flipkart.foxtrot.core.exception.FoxtrotException;
 import com.flipkart.foxtrot.core.querystore.QueryStore;
+import com.flipkart.foxtrot.core.querystore.metaman.FieldMetaManager;
 import com.flipkart.foxtrot.core.table.TableManager;
 
 import javax.ws.rs.GET;
@@ -66,4 +68,13 @@ public class TableFieldMappingResource {
                                 })))
                 .build();
     }
+
+    @GET
+    @Path("/{name}/fields/estimations")
+    public Response getEstimations(@PathParam("name") final String table) throws FoxtrotException {
+        final TableFieldMapping fieldMappings = queryStore.getFieldMappings(table);
+        new FieldMetaManager(queryStore).estimateCardinality(fieldMappings);
+        return Response.ok(fieldMappings).build();
+    }
+
 }
