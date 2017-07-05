@@ -40,6 +40,8 @@ import org.elasticsearch.action.bulk.BulkItemResponse;
 import org.elasticsearch.action.bulk.BulkRequestBuilder;
 import org.elasticsearch.action.bulk.BulkResponse;
 import org.elasticsearch.action.index.IndexRequest;
+import org.elasticsearch.action.search.MultiSearchRequestBuilder;
+import org.elasticsearch.action.search.MultiSearchResponse;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.Client;
@@ -47,6 +49,7 @@ import org.elasticsearch.cluster.metadata.MappingMetaData;
 import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
+import org.elasticsearch.search.aggregations.Aggregation;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.Aggregations;
 import org.elasticsearch.search.aggregations.metrics.cardinality.Cardinality;
@@ -339,38 +342,55 @@ public class ElasticsearchQueryStore implements QueryStore {
     }
 
     @Override
-    public FieldCardinality estimate(String table, String field) throws FoxtrotException {
+    public void estimateCardinality(final String table, final List<FieldMetadata> fields) throws FoxtrotException {
+        Map<String, FieldMetadata> fieldMap = fields
+                .stream()
+                .collect(Collectors.toMap(FieldMetadata::getField, fieldMetadata -> fieldMetadata));
         final String index
                 = ElasticsearchUtils.getCurrentIndex(
-                    ElasticsearchUtils.getValidTableName(table),
-                    DateTime.now()
+                ElasticsearchUtils.getValidTableName(table),
+                DateTime.now()
                         .minusDays(1)
                         .toDate()
                         .getTime());
         final Client client = connection.getClient();
 
-        SearchRequestBuilder query = client.prepareSearch(index)
-                .setIndicesOptions(Utils.indicesOptions())
-                .setQuery(QueryBuilders.existsQuery(field))
-                .setSize(0)
-                .addAggregation(AggregationBuilders.cardinality("count")
-                        .field(field)
-                        .precisionThreshold(5));
-        logger.info("Estimation on index: {} {}", index, query.toString());
-        SearchResponse response = query
+        MultiSearchRequestBuilder multiQuery = client.prepareMultiSearch();
+
+        fields
+                .forEach(fieldMetadata -> {
+                    String field = fieldMetadata.getField();
+                    SearchRequestBuilder query = client.prepareSearch(index)
+                            .setIndicesOptions(Utils.indicesOptions())
+                            .setQuery(QueryBuilders.existsQuery(field))
+                            .setSize(0)
+                            .addAggregation(AggregationBuilders.cardinality(field)
+                                    .field(field)
+                                    .precisionThreshold(5));
+                    multiQuery.add(query);
+                });
+
+        MultiSearchResponse multiResponse = multiQuery
                 .execute()
                 .actionGet();
 
-        System.out.println(response);
-        Aggregations aggregations = response.getAggregations();
-        final long hits = response.getHits().totalHits();
-        Cardinality cardinality = hits == 0 ? null : aggregations.get("count");
-        return FieldCardinality.builder()
-                .cardinality(null == cardinality
-                        ? 0L
-                        : cardinality.getValue())
-                .count(hits)
-                .build();
+        logger.debug("Response: {}", multiResponse);
+
+        for (MultiSearchResponse.Item item : multiResponse.getResponses()) {
+            SearchResponse response = item.getResponse();
+            final long hits = response.getHits().totalHits();
+            if(hits == 0) {
+                continue;
+            }
+            Aggregations aggregations = response.getAggregations();
+            Map<String, Aggregation> output = aggregations.asMap();
+            output.forEach((key, value) -> {
+                Cardinality cardinality = (Cardinality) value;
+                FieldMetadata fieldMetadata = fieldMap.get(key);
+                fieldMetadata.setCardinality(cardinality.getValue());
+                fieldMetadata.setCount(hits);
+            });
+        }
     }
 
     private String convert(Document translatedDocument) {
