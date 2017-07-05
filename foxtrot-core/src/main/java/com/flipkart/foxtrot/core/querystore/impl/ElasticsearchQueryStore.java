@@ -346,13 +346,11 @@ public class ElasticsearchQueryStore implements QueryStore {
         Map<String, FieldMetadata> fieldMap = fields
                 .stream()
                 .collect(Collectors.toMap(FieldMetadata::getField, fieldMetadata -> fieldMetadata));
-        final String index
-                = ElasticsearchUtils.getCurrentIndex(
-                ElasticsearchUtils.getValidTableName(table),
-                DateTime.now()
-                        .minusDays(1)
-                        .toDate()
-                        .getTime());
+        final long yesterday = DateTime.now()
+                .minusDays(1)
+                .toDate()
+                .getTime();
+        final String index = ElasticsearchUtils.getCurrentIndex(ElasticsearchUtils.getValidTableName(table), yesterday);
         final Client client = connection.getClient();
 
         MultiSearchRequestBuilder multiQuery = client.prepareMultiSearch();
@@ -376,7 +374,7 @@ public class ElasticsearchQueryStore implements QueryStore {
         logger.debug("Response: {}", multiResponse);
 
         for (MultiSearchResponse.Item item : multiResponse.getResponses()) {
-            if(item.isFailure()) {
+            if (item.isFailure()) {
                 continue;
             }
             SearchResponse response = item.getResponse();
