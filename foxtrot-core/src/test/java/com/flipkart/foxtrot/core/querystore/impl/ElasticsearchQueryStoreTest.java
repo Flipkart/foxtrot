@@ -18,6 +18,7 @@ package com.flipkart.foxtrot.core.querystore.impl;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.flipkart.foxtrot.common.*;
+import com.flipkart.foxtrot.common.estimation.EstimationDataType;
 import com.flipkart.foxtrot.core.MockElasticsearchServer;
 import com.flipkart.foxtrot.core.TestUtils;
 import com.flipkart.foxtrot.core.datastore.DataStore;
@@ -478,18 +479,30 @@ public class ElasticsearchQueryStoreTest {
 
         TableFieldMapping mappings = queryStore.getFieldMappings(TestUtils.TEST_TABLE_NAME);
         queryStore.estimateCardinality(TestUtils.TEST_TABLE_NAME,
-                mappings.getMappings()
-                        .stream()
-                        .filter(fieldMetadata -> fieldMetadata.getType().equals(FieldType.STRING))
-                        .collect(Collectors.toList()));
+                new ArrayList<>(mappings.getMappings()));
+        System.out.println(mapper.writerWithDefaultPrettyPrinter().writeValueAsString(mappings));
+        Assert.assertTrue(mappings.getMappings()
+            .stream()
+            .filter(fieldMetadata -> fieldMetadata.getType().equals(FieldType.BOOLEAN))
+            .filter(fieldMetadata -> fieldMetadata.getEstimationData() != null
+                    && fieldMetadata.getEstimationData().getType().equals(EstimationDataType.FIXED))
+            .count() == 1);
         Assert.assertTrue(mappings.getMappings()
                 .stream()
-                .mapToLong(FieldMetadata::getCardinality)
-                .sum() > 0);
+                .filter(fieldMetadata -> fieldMetadata.getType().equals(FieldType.LONG))
+                .filter(fieldMetadata -> fieldMetadata.getEstimationData() != null
+                        && fieldMetadata.getEstimationData().getType().equals(EstimationDataType.BUCKET_BASED))
+                .count() == 1);
+        long numStringFields = mappings.getMappings()
+                .stream()
+                .filter(fieldMetadata -> fieldMetadata.getType().equals(FieldType.STRING))
+                .count();
         Assert.assertTrue(mappings.getMappings()
                 .stream()
-                .mapToLong(FieldMetadata::getCount)
-                .sum() > 0);
+                .filter(fieldMetadata -> fieldMetadata.getType().equals(FieldType.STRING))
+                .filter(fieldMetadata -> fieldMetadata.getEstimationData() != null
+                            && fieldMetadata.getEstimationData().getType() == EstimationDataType.CARDINALITY_BASED)
+                .count() == numStringFields);
     }
 
     private Document createDummyDocument() {

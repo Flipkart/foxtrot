@@ -15,6 +15,7 @@
  */
 package com.flipkart.foxtrot.common;
 
+import com.flipkart.foxtrot.common.estimation.EstimationData;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -30,6 +31,5 @@ import lombok.NoArgsConstructor;
 public class FieldMetadata {
     private String field;
     private FieldType type;
-    private long cardinality;
-    private long count;
+    private EstimationData estimationData;
 }

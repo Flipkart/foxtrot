@@ -19,6 +19,9 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.flipkart.foxtrot.common.*;
+import com.flipkart.foxtrot.common.estimation.BucketBasedEstimationData;
+import com.flipkart.foxtrot.common.estimation.CardinalityBasedEstimationData;
+import com.flipkart.foxtrot.common.estimation.FixedEstimationData;
 import com.flipkart.foxtrot.core.datastore.DataStore;
 import com.flipkart.foxtrot.core.exception.FoxtrotException;
 import com.flipkart.foxtrot.core.exception.FoxtrotExceptions;
@@ -53,6 +56,7 @@ import org.elasticsearch.search.aggregations.Aggregation;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.Aggregations;
 import org.elasticsearch.search.aggregations.metrics.cardinality.Cardinality;
+import org.elasticsearch.search.aggregations.metrics.percentiles.Percentiles;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -360,10 +364,28 @@ public class ElasticsearchQueryStore implements QueryStore {
             SearchRequestBuilder query = client.prepareSearch(index)
                     .setIndicesOptions(Utils.indicesOptions())
                     .setQuery(QueryBuilders.existsQuery(field))
-                    .setSize(0)
-                    .addAggregation(AggregationBuilders.cardinality(field)
+                    .setSize(0);
+            switch (fieldMetadata.getType()) {
+
+                case STRING: {
+                    query.addAggregation(AggregationBuilders.cardinality(field)
                             .field(field)
                             .precisionThreshold(5));
+                    break;
+                }
+                case INTEGER:
+                case LONG:
+                case FLOAT:
+                case DOUBLE: {
+                    query.addAggregation(AggregationBuilders.percentiles(field)
+                            .field(field)
+                            .percentiles(10, 20, 30, 40, 50, 60, 70, 80, 90, 100));
+                    break;
+                }
+                case BOOLEAN:
+                case DATE:
+                case OBJECT:
+            }
             multiQuery.add(query);
         });
 
@@ -371,26 +393,54 @@ public class ElasticsearchQueryStore implements QueryStore {
                 .execute()
                 .actionGet();
 
-        logger.debug("Response: {}", multiResponse);
-
         for (MultiSearchResponse.Item item : multiResponse.getResponses()) {
             if (item.isFailure()) {
                 continue;
             }
             SearchResponse response = item.getResponse();
             final long hits = response.getHits().totalHits();
-            if (hits == 0) {
+            Aggregations aggregations = response.getAggregations();
+            if(null == aggregations) {
                 continue;
             }
-            Aggregations aggregations = response.getAggregations();
             Map<String, Aggregation> output = aggregations.asMap();
             output.forEach((key, value) -> {
-                Cardinality cardinality = (Cardinality) value;
                 FieldMetadata fieldMetadata = fieldMap.get(key);
-                fieldMetadata.setCardinality(cardinality.getValue());
-                fieldMetadata.setCount(hits);
+                switch (fieldMetadata.getType()) {
+                    case STRING: {
+                        Cardinality cardinality = (Cardinality) value;
+                        fieldMetadata.setEstimationData(CardinalityBasedEstimationData.builder()
+                                .cardinality(cardinality.getValue())
+                                .count(hits)
+                                .build());
+                        break;
+                    }
+                    case INTEGER:
+                    case LONG:
+                    case FLOAT:
+                    case DOUBLE: {
+                        double values[] = new double[10];
+                        Percentiles percentiles = (Percentiles)value;
+                        for(int i = 10; i <= 100; i += 10)
+                        values[(i / 10) - 1] = percentiles.percentile(i);
+                        fieldMetadata.setEstimationData(BucketBasedEstimationData.builder()
+                                .values(values)
+                                .count(hits)
+                                .build());
+                        break;
+                    }
+                    case BOOLEAN:
+                    case DATE:
+                    case OBJECT:
+                }
             });
         }
+        fields.stream()
+                .filter(fieldMetadata -> fieldMetadata.getType().equals(FieldType.BOOLEAN))
+                .forEach(fieldMetadata -> fieldMetadata.setEstimationData(FixedEstimationData.builder()
+                        .probability(50)
+                        .count(100)
+                        .build()));
     }
 
     private String convert(Document translatedDocument) {
