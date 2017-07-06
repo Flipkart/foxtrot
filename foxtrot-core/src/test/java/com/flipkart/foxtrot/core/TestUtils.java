@@ -253,6 +253,8 @@ public class TestUtils {
         List<Document> documents = new Vector<>();
         Map<String, Object> document = Maps.newHashMap();
         document.put("word", "1234");
+        document.put("numeric", 20);
+        document.put("boolean", true);
         document.put("data", Collections.singletonMap("someField", "d"));
         document.put("header", Collections.singletonList(Collections.singletonMap("someHeaderField", "client1")));
         final long time = DateTime.now().minusDays(1).toDate().getTime();
@@ -261,6 +263,8 @@ public class TestUtils {
 
         document = Maps.newHashMap();
         document.put("word", "2345");
+        document.put("numeric", 30);
+        document.put("boolean", true);
         document.put("data", ImmutableMap.of(
                 "someField", "c", "someOtherField", "blah", "exclusiveField", "hmmm"));
         document.put("header", Collections.singletonList(Collections.singletonMap("someHeaderField", "client1")));
@@ -268,6 +272,8 @@ public class TestUtils {
 
         document = Maps.newHashMap();
         document.put("word", "2345");
+        document.put("numeric", 25);
+        document.put("boolean", false);
         document.put("data", ImmutableMap.of("someField", "c", "someOtherField", "blah"));
         document.put("header", Collections.singletonList(Collections.singletonMap("someHeaderField", "client1")));
         documents.add(new Document("X", time, mapper.valueToTree(document)));
