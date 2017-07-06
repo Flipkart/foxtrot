@@ -480,7 +480,7 @@ public class ElasticsearchQueryStoreTest {
         TableFieldMapping mappings = queryStore.getFieldMappings(TestUtils.TEST_TABLE_NAME);
         queryStore.estimateCardinality(TestUtils.TEST_TABLE_NAME,
                 new ArrayList<>(mappings.getMappings()));
-        System.out.println(mapper.writerWithDefaultPrettyPrinter().writeValueAsString(mappings));
+        //TODO::REMOVE System.out.println(mapper.writerWithDefaultPrettyPrinter().writeValueAsString(mappings));
         Assert.assertTrue(mappings.getMappings()
             .stream()
             .filter(fieldMetadata -> fieldMetadata.getType().equals(FieldType.BOOLEAN))
