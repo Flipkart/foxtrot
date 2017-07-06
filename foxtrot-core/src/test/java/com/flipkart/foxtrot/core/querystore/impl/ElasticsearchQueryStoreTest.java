@@ -493,7 +493,7 @@ public class ElasticsearchQueryStoreTest {
                 .filter(fieldMetadata -> fieldMetadata.getType().equals(FieldType.LONG))
                 .filter(fieldMetadata -> fieldMetadata.getEstimationData() != null
                         && fieldMetadata.getEstimationData().getType().equals(EstimationDataType.BUCKET_BASED))
-                .count() == 1);
+                .count() == 2);
         long numStringFields = mappings.getMappings()
                 .stream()
                 .filter(fieldMetadata -> fieldMetadata.getType().equals(FieldType.STRING))
