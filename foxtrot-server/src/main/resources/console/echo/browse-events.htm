@@ -63,9 +63,9 @@
           <div class="row"><span class="top-error">*Please enter all the information</span></div>
           <div class="form-group">
             <label class="control-label">Table <span class="mandatory-text">*</span></label>
-            <select class="selectpicker tile-table form-control" name="tile-table" id="tileTable" data-live-search="true" data-style="btn-warning" required> </select>
+            <select class="selectpicker browse-table form-control" name="browse-table" id="browse-table" data-live-search="true" data-style="btn-warning" required> </select>
           </div>
-          <div class="browse-add-filter-row filters"></div>
+          <div class="browse-add-filter-row browse-filters"></div>
           <div class="form-group">
             <div id="filter-add">
               <button type="button" id="browse-events-add-query" class="form-control"> <span id="filter-add-btn"> Add query</span> </button>
@@ -91,13 +91,56 @@
   <script src="js/tables.js"></script>
   <script src="js/functions.js"></script>
   <script type="text/javascript">
+
+    var tableNameList = [];
+    var apiUrl = "http://foxtrot.traefik.prod.phonepe.com/foxtrot";
     var filterRowArray = [];
     var currentFieldList = [];
+    var tableFiledsArray = {};
+    var currentTable = "";
+
+    function getBrowseTables() {
+      var select = $(".browse-table");
+      $.ajax({
+        url: apiUrl+"/v1/tables/",
+        contentType: "application/json",
+        context: this,
+        success: function(tables) {
+          for (var i = tables.length - 1; i >= 0; i--) {
+            tableNameList.push(tables[i].name);
+
+          }
+          $.each(tableNameList, function(key, value) {
+            $(select).append($("<option></option>")
+                             .attr("value",value)
+                         .text(value));
+          });
+          select.selectpicker('refresh');
+          select.change();
+        }});
+    }
+
+    getBrowseTables();
+
+    function clear() {
+      $(".browse-add-filter-row").empty();
+      filterRowArray = [];
+    }
+
+    $( ".browse-table" ).change(function() {
+      var tableId = this.value;
+      fetchFields(tableId);
+      currentTable = tableId;
+      clear();
+    });
+
     $( "#browse-events-add-query" ).click(function() {
+      console.log(currentTable)
+      currentFieldList = tableFiledsArray[currentTable].mappings;
       var filterCount = filterRowArray.length;
       console.log(filterRowArray)
       filterRowArray.push(filterCount);
-      var filterRow = '<div class="row clearfix" id="filter-row-' + filterCount + '"><img src="img/remove.png" class="browse-events-filter-remove-img browse-events-delete" /><div class="col-sm-4"><select class="selectpicker form-control filter-column filter-background" id="filter-row-' + filterCount + '" data-live-search="true"><option>select</option></select></div><div class="col-sm-4"><select class="selectpicker filter-type filter-background form-control" data-live-search="true"><option>select</option><option value="between">Between</option><option value="greater_equal">Greater than equals</option><option value="greater_than">Greatert than</option><option value="less_equal">Between</option><option value="less_than">Less than equals</option><option value="less_than">Less than</option><option value="equals">Equals</option><option value="not_equals">Not equals</option><option value="contains">Contains</option><option value="last">Last</option><option value="in">In</option><option value="not_in">Not In</option></select></div><div class="col-sm-4"><input id="filter-column-row-' + filterCount + '" type="text" class="form-control browse-events-filter-value form-control"></div></span></div></div>';
+      var filterRow = '<div class="row clearfix" id="filter-row-' + filterCount + '"><img src="img/remove.png" class="browse-events-filter-remove-img browse-events-delete" /><div class="col-sm-3"><select class="selectpicker form-control filter-column filter-background" id="filter-row-' + filterCount + '" data-live-search="true"><option>select</option></select></div><div class="col-sm-3"><select class="selectpicker filter-type filter-background form-control" data-live-search="true"><option>select</option><option value="between">Between</option><option value="greater_equal">Greater than equals</option><option value="greater_than">Greatert than</option><option value="less_equal">Between</option><option value="less_than">Less than equals</option><option value="less_than">Less than</option><option value="equals">Equals</option><option value="not_equals">Not equals</option><option value="contains">Contains</option><option value="last">Last</option><option value="in">In</option><option value="not_in">Not In</option></select></div><div class="col-sm-3"><input id="filter-column-row-' + filterCount + '" type="text" class="form-control browse-events-filter-value form-control"></div><div class="col-sm-3"><input id="filter-column-row-' + filterCount + '" type="text" class="form-control browse-events-filter-between-value form-control" disabled></div></span></div></div>';
       $(".browse-add-filter-row").append(filterRow);
       var filterValueEl = $("#filter-row-" + filterCount).find('.filter-delete');
       var filterType = $("#filter-row-" + filterCount).find('.filter-type');
@@ -115,7 +158,7 @@
       });
     });
 
-    $( "#browse-events-add-query" ).trigger( "click" );
+    //$( "#browse-events-add-query" ).trigger( "click" );
 
   </script>
   <!--Application-->

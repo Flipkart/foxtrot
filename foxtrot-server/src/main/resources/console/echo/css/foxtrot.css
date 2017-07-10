@@ -2238,10 +2238,17 @@ div.tab button:first-child {
 }
 
 .browse-events-filter-value {
-  margin-top: -9px;
+  margin-top: 12px;
   padding: 0 0 0 2%;
   height: 36px;
 }
+
+.browse-events-filter-between-value {
+  margin-top: -6px;
+  padding: 0 0 0 2%;
+  height: 36px;
+}
+
 
 .browse-events-filter-remove-img {
   float: right;
@@ -2252,4 +2259,21 @@ div.tab button:first-child {
 
 .browse-add-filter-row {
   margin-bottom: 15px;
+}
+
+.browse-filters {
+  line-height: 4;
+  margin-top: 23px;
+  background: #000;
+  padding: 0px 29px 9px 25px;
+}
+
+.browse-filters-form {
+  width: 249px;
+  height: 332px;
+  margin-left: 150px;
+}
+
+.browse-events-filter-between-value[disabled] {
+  background: none;
 }
