@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<!--
+* Copyright 2014 Flipkart Internet Pvt. Ltd.
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+* http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+-->
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="">
+  <meta name="author" content="">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="shortcut icon" href="../../assets/ico/favicon.ico">
+  <title>Foxtrot</title>
+  <!-- Bootstrap core CSS -->
+  <link href="css/open-sans.css" rel="stylesheet">
+  <link href="css/bootstrap.min.css" rel="stylesheet">
+  <link href="css/bootstrap-select.min.css" rel="stylesheet">
+  <link href="css/bootstrap-datetimepicker.min.css" rel="stylesheet">
+  <link href="css/bootstrap-multiselect.css" rel="stylesheet">
+  <link rel="stylesheet" href="css/jquery-ui.css">
+  <link rel="stylesheet" href="css/bootstrapValidator.min.css">
+  <link href="css/foxtrot.css" rel="stylesheet">
+  <link href="css/mobile.css" rel="stylesheet">
+  <!-- Custom styles for this template -->
+  <!-- Just for debugging purposes. Don't actually copy this line! -->
+  <!--[if lt IE 9]><script src="../../assets/js/ie8-responsive-file-warning.js"></script><![endif]-->
+  <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+  <!--[if lt IE 9]>
+<script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+<script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+<![endif]-->
+</head>
+
+<body> <span id="ruler"></span>
+  <div class="container-full">
+    <div class="new-header">
+      <div class="inner-header container-fluid">
+        <a href="index.htm"><img src="img/echo_1.png" alt="logo" /></a>
+        <h1 id="browse-events-heading"> Browse events</h1>
+      </div>
+    </div>
+    <!-- Modal -->
+
+
+
+    <div class="container-full" id="browse-events-content">
+      <div id="browse-event-settings">
+        <form id="basic-form" class="col-md-12 col-sm-12">
+          <div class="row"><span class="top-error">*Please enter all the information</span></div>
+          <div class="form-group">
+            <label class="control-label">Table <span class="mandatory-text">*</span></label>
+            <select class="selectpicker tile-table form-control" name="tile-table" id="tileTable" data-live-search="true" data-style="btn-warning" required> </select>
+          </div>
+          <div class="browse-add-filter-row filters"></div>
+          <div class="form-group">
+            <div id="filter-add">
+              <button type="button" id="browse-events-add-query" class="form-control"> <span id="filter-add-btn"> Add query</span> </button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  ================================================== -->
+  <!-- Placed at the end of the document so the pages load faster -->
+  <script src="js/jquery.js"></script>
+  <script src="js/common-utils.js"></script>
+  <script src="js/handlebars-v1.3.0.js"></script>
+  <script src="js/handlebars-helper.js"></script>
+  <script src="js/tileutils.js"></script>
+  <script src="js/bootstrap/bootstrap.min.js"></script>
+  <script src="js/bootstrap/bootstrap-select.min.js"></script>
+  <script src="js/bootstrap/bootstrap-multiselect.js"></script>
+  <script src="js/jquery-ui.js"></script>
+  <script src="js/utills.js"></script>
+  <script src="js/tables.js"></script>
+  <script src="js/functions.js"></script>
+  <script type="text/javascript">
+    var filterRowArray = [];
+    var currentFieldList = [];
+    $( "#browse-events-add-query" ).click(function() {
+      var filterCount = filterRowArray.length;
+      console.log(filterRowArray)
+      filterRowArray.push(filterCount);
+      var filterRow = '<div class="row clearfix" id="filter-row-' + filterCount + '"><img src="img/remove.png" class="browse-events-filter-remove-img browse-events-delete" /><div class="col-sm-4"><select class="selectpicker form-control filter-column filter-background" id="filter-row-' + filterCount + '" data-live-search="true"><option>select</option></select></div><div class="col-sm-4"><select class="selectpicker filter-type filter-background form-control" data-live-search="true"><option>select</option><option value="between">Between</option><option value="greater_equal">Greater than equals</option><option value="greater_than">Greatert than</option><option value="less_equal">Between</option><option value="less_than">Less than equals</option><option value="less_than">Less than</option><option value="equals">Equals</option><option value="not_equals">Not equals</option><option value="contains">Contains</option><option value="last">Last</option><option value="in">In</option><option value="not_in">Not In</option></select></div><div class="col-sm-4"><input id="filter-column-row-' + filterCount + '" type="text" class="form-control browse-events-filter-value form-control"></div></span></div></div>';
+      $(".browse-add-filter-row").append(filterRow);
+      var filterValueEl = $("#filter-row-" + filterCount).find('.filter-delete');
+      var filterType = $("#filter-row-" + filterCount).find('.filter-type');
+      $(filterType).selectpicker('refresh');
+      var filterColumn = $("#filter-row-" + filterCount).find('.filter-column')
+      setTimeout(function(){
+        generateDropDown(currentFieldList, filterColumn);
+      }, 0);
+
+      $(filterValueEl).click(function () {
+        deleteFilterRow(this);
+      });
+      $(filterColumn).change(function () {
+        filterTypeTriggered(this);
+      });
+    });
+
+    $( "#browse-events-add-query" ).trigger( "click" );
+
+  </script>
+  <!--Application-->
+</body>
+
+</html>

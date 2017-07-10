@@ -2208,3 +2208,48 @@ div.tab button:first-child {
 .ui-filter-btn {
   padding: 12px 20px 15px;
 }
+
+#browse-events-heading {
+  text-align: center;
+  margin: -29px;
+}
+
+#browse-event-settings {
+  background: #282b38;
+  margin-top: 10px;
+}
+
+#browse-events-add-query {
+  height: 100px;
+  border: 1px dashed #90a2ac;
+  font-size: 14px;
+  color: #bfcbd1;
+  margin-top: 40px;
+}
+
+#browse-events-content {
+  background: #282b38;
+}
+
+#browse-events-content label {
+  font-family: Open Sans;
+  font-size: 12px;
+  color: #a6a8b5;
+}
+
+.browse-events-filter-value {
+  margin-top: -9px;
+  padding: 0 0 0 2%;
+  height: 36px;
+}
+
+.browse-events-filter-remove-img {
+  float: right;
+  top: 19px;
+  position: relative;
+  right: -14px;
+}
+
+.browse-add-filter-row {
+  margin-bottom: 15px;
+}
