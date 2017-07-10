@@ -2220,11 +2220,11 @@ div.tab button:first-child {
 }
 
 #browse-events-add-query {
-  height: 100px;
+  height: 45px;
   border: 1px dashed #90a2ac;
   font-size: 14px;
   color: #bfcbd1;
-  margin-top: 40px;
+  margin-top: 20px;
 }
 
 #browse-events-content {
@@ -2276,4 +2276,12 @@ div.tab button:first-child {
 
 .browse-events-filter-between-value[disabled] {
   background: none;
+}
+
+#browse-filter-add {
+  padding-top: 1px;
+}
+
+.browse-rows {
+  padding-top: 10px;
 }
