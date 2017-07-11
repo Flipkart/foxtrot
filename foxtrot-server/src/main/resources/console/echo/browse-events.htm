@@ -65,28 +65,39 @@
             <label class="control-label">Table <span class="mandatory-text">*</span></label>
             <select class="selectpicker browse-table form-control" name="browse-table" id="browse-table" data-live-search="true" data-style="btn-warning" required> </select>
           </div>
+          <div class="row" id="browseDateTime">
+            <div class="col-xs-4 form-group">
+              <div class='input-group date' id='datetimeFrom'>
+                <input type='text' class="form-control date-from" />
+                <span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span>
+                </span>
+              </div>
+            </div>
+            <div class="col-xs-4 form-group">
+              <div class='input-group date' id='datetimeTo'>
+                <input type='text' class="form-control date-to" />
+                <span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span>
+                </span>
+              </div>
+            </div>
+            <div class="col-xs-4 form-group">
+              <select class="selectpicker dataSort" name="dataSort" id="dataSort">
+                <option value="desc">Latest first</option>
+                <option value="asc">Oldest first</option>
+              </select>
+            </div>
+          </div>
           <div class="browse-add-filter-row browse-filters">
             <div class="browse-rows">
-            </div>
-            <div class="row" id="browseDateTime">
-              <div class="col-xs-6 form-group">
-                <div class='input-group date' id='datetimeFrom'>
-                  <input type='text' class="form-control date-from" />
-                  <span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span>
-                  </span>
-                </div>
-              </div>
-              <div class="col-xs-6 form-group">
-                <div class='input-group date' id='datetimeTo'>
-                  <input type='text' class="form-control date-to" />
-                  <span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span>
-                  </span>
-                </div>
-              </div>
             </div>
             <div class="form-group">
               <div id="browse-filter-add">
                 <button type="button" id="browse-events-add-query" class="form-control"> <span id="filter-add-btn"> Add query</span> </button>
+              </div>
+              <div class="form-group col-sm-3 pull-right">
+                <div id="browse-run-query-btn-div">
+                  <button type="button" id="browse-events-run-query" class="form-control"> <span id="filter-add-btn"> Browse Events</span> </button>
+                </div>
               </div>
             </div>
           </div>

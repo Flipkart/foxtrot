@@ -77,6 +77,53 @@ $( ".browse-table" ).change(function() {
   clear();
 });
 
+function runQuery() {
+  var filters = [];
+  for(var filterId in this.filterSet) {
+    var filter = this.filterSet[filterId];
+    filters.push(operationFactory.create(filter, filter.opMeta));
+  }
+  var filterSection = $("#browse-events-form");
+  var fromDate = filterSection.find(".date-from").data("DateTimePicker").getDate().unix();
+  var toDate = filterSection.find(".date-to").data("DateTimePicker").getDate().unix();
+  if((fromDate - toDate) > 1000) {
+    filters.push({
+      field: "_timestamp",
+      operator: "between",
+      from: fromDate,
+      to: toDate
+    });
+  }
+
+  var table = currentTable;
+  var request = {
+    opcode: "query",
+    table: table,
+    filters: filters,
+    sort: {
+      field: "_timestamp",
+      order: filterSection.find("#dataSort").val()
+    },
+    from: 0,
+    limit: 10
+  };
+  $.ajax({
+    method: 'POST',
+    url: apiUrl+"/v1/analytics",
+    contentType: "application/json",
+    data: JSON.stringify(request),
+    dataType: 'json',
+    success: function(resp) {
+    console.log(resp);
+  }
+  });
+  console.log(request);
+}
+
+$( "#browse-events-run-query" ).click(function() {
+  runQuery();
+});
+
 $( "#browse-events-add-query" ).click(function() {
   currentFieldList = tableFiledsArray[currentTable].mappings;
   var filterCount = browseFilterRowArray.length;

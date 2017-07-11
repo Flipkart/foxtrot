@@ -2265,7 +2265,7 @@ div.tab button:first-child {
   line-height: 4;
   margin-top: 23px;
   background: #000;
-  padding: 0px 29px 9px 25px;
+  padding: 0px 29px 55px 25px;
 }
 
 .browse-filters-form {
@@ -2309,4 +2309,8 @@ div.tab button:first-child {
 #browse-events-form input:hover {
   border: 1px solid #fff;
   color: #fff;
+}
+
+#browse-run-query-btn-div {
+  padding-top: 20px;
 }
