@@ -2279,7 +2279,7 @@ div.tab button:first-child {
 }
 
 #browse-filter-add {
-  padding-top: 1px;
+  padding-top: 23px;
 }
 
 .browse-rows {
@@ -2288,4 +2288,25 @@ div.tab button:first-child {
 
 .browse-events-filter-remove-img {
   cursor: pointer;
+}
+
+#browseDateTime {
+  margin-top: 15px;
+}
+
+#browse-events-form input {
+  background: none;
+  border: none;
+  border: solid 1px #777a89;
+  color: #dbdbdb;
+}
+
+#browse-events-form input:focus {
+  outline: none;
+  box-shadow: none;
+}
+
+#browse-events-form input:hover {
+  border: 1px solid #fff;
+  color: #fff;
 }

@@ -59,7 +59,7 @@
 
     <div class="container-full" id="browse-events-content">
       <div id="browse-event-settings">
-        <form id="basic-form" class="col-md-12 col-sm-12">
+        <form id="browse-events-form" class="col-md-12 col-sm-12">
           <div class="row"><span class="top-error">*Please enter all the information</span></div>
           <div class="form-group">
             <label class="control-label">Table <span class="mandatory-text">*</span></label>
@@ -67,6 +67,22 @@
           </div>
           <div class="browse-add-filter-row browse-filters">
             <div class="browse-rows">
+            </div>
+            <div class="row" id="browseDateTime">
+              <div class="col-xs-6 form-group">
+                <div class='input-group date' id='datetimeFrom'>
+                  <input type='text' class="form-control date-from" />
+                  <span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span>
+                  </span>
+                </div>
+              </div>
+              <div class="col-xs-6 form-group">
+                <div class='input-group date' id='datetimeTo'>
+                  <input type='text' class="form-control date-to" />
+                  <span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span>
+                  </span>
+                </div>
+              </div>
             </div>
             <div class="form-group">
               <div id="browse-filter-add">
@@ -94,6 +110,13 @@
   <script src="js/tables.js"></script>
   <script src="js/functions.js"></script>
   <script src="js/event-search.js"></script>
+  <script src="js/moment.min.js"></script>
+  <script src="js/bootstrap/bootstrap-datetimepicker.min.js"></script>
+
+  <script type="text/javascript">
+    $(".date-from").datetimepicker();
+    $(".date-to").datetimepicker()
+  </script>
   <!--Application-->
 </body>
 
