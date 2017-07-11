@@ -114,11 +114,56 @@ function runQuery() {
     data: JSON.stringify(request),
     dataType: 'json',
     success: function(resp) {
-    console.log(resp);
+      renderTable(resp);
   }
   });
   console.log(request);
 }
+
+function renderTable(data) {
+  if(!data.hasOwnProperty("documents") || data.documents.length == 0) {
+    return;
+  }
+  var parent = $(".filter-event-container");
+  var headers = [];
+  var headerMap = new Object();
+  var rows = [];
+  var flatRows = [];
+
+  for (var i = data.documents.length - 1; i >= 0; i--) {
+    var flatObject = flat.flatten(data.documents[i]);
+    for(field in flatObject) {
+      if(flatObject.hasOwnProperty(field)) {
+        if(field === "id" || field === "timestamp") {
+          continue;
+        }
+        headerMap[field]=1;
+      }
+    }
+    flatRows.push(flatObject);
+  }
+  headers = Object.keys(headerMap);
+  for (var i = flatRows.length - 1; i >= 0; i--) {
+    var row = [];
+    var flatData = flatRows[i];
+    for (var j = 0; j < headers.length; j++) {
+      var header = headers[j];
+      if(flatData.hasOwnProperty(header)) {
+        row.push(flatData[header]);
+      }
+      else {
+        row.push("");
+      }
+    }
+    rows.push(row);
+  }
+  for (var j = 0; j < headers.length; j++) {
+    headers[j] = headers[j].replace("data.","");
+  }
+  var tableData = {headers : headers, data: rows};
+  parent.html(handlebars("#eventbrowser-template", tableData));
+}
+
 
 $( "#browse-events-run-query" ).click(function() {
   runQuery();

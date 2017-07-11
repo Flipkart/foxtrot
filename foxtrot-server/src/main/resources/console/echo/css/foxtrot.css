@@ -2314,3 +2314,9 @@ div.tab button:first-child {
 #browse-run-query-btn-div {
   padding-top: 20px;
 }
+
+.table-bordered {
+  color: #fff;
+}
+
+

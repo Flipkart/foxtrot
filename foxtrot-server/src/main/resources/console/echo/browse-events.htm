@@ -103,6 +103,28 @@
           </div>
         </form>
       </div>
+      <div class="row filter-event-container container-fluid" style="min-height: 200px">
+        <script id="eventbrowser-template" type="text/x-handlebars-template">
+          <table class="table table-bordered table-condensed">
+            <thead>
+              <tr>
+                {{#each headers}}
+                <th>{{this}}</th>
+                {{/each}}
+              </tr>
+            </thead>
+            <tbody>
+              {{#each data}}
+              <tr>
+                {{#each this}}
+                <td>{{this}}</td>
+                {{/each}}
+              </tr>
+              {{/each}}
+            </tbody>
+          </table>
+        </script>
+      </div>
     </div>
   </div>
 
@@ -122,6 +144,7 @@
   <script src="js/functions.js"></script>
   <script src="js/event-search.js"></script>
   <script src="js/moment.min.js"></script>
+  <script src="js/flat.js"></script>
   <script src="js/bootstrap/bootstrap-datetimepicker.min.js"></script>
 
   <script type="text/javascript">
