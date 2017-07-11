@@ -2285,3 +2285,7 @@ div.tab button:first-child {
 .browse-rows {
   padding-top: 10px;
 }
+
+.browse-events-filter-remove-img {
+  cursor: pointer;
+}
