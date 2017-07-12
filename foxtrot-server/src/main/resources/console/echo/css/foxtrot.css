@@ -2215,7 +2215,6 @@ div.tab button:first-child {
 }
 
 #browse-event-settings {
-  background: #282b38;
   margin-top: 10px;
 }
 
@@ -2228,7 +2227,7 @@ div.tab button:first-child {
 }
 
 #browse-events-content {
-  background: #282b38;
+  background: #f7f9fa;
 }
 
 #browse-events-content label {
@@ -2263,9 +2262,7 @@ div.tab button:first-child {
 
 .browse-filters {
   line-height: 4;
-  margin-top: 23px;
-  background: #000;
-  padding: 0px 29px 55px 25px;
+  margin-top: -25px;
 }
 
 .browse-filters-form {
@@ -2276,6 +2273,10 @@ div.tab button:first-child {
 
 .browse-events-filter-between-value[disabled] {
   background: none;
+}
+
+.browse-events-filter-between-value {
+  margin-top: -8px;
 }
 
 #browse-filter-add {
@@ -2297,10 +2298,11 @@ div.tab button:first-child {
 #browse-events-form input {
   background: none;
   border: none;
-  border: solid 1px #777a89;
-  color: #dbdbdb;
+  border: solid 1px #c0cbd1;
+  color: #7d909a;
 }
 
+/*
 #browse-events-form input:focus {
   outline: none;
   box-shadow: none;
@@ -2310,6 +2312,7 @@ div.tab button:first-child {
   border: 1px solid #fff;
   color: #fff;
 }
+*/
 
 #browse-run-query-btn-div {
   padding-top: 20px;
@@ -2319,4 +2322,30 @@ div.tab button:first-child {
   color: #fff;
 }
 
+.filter-event-container {
+  background: #fff;
+}
 
+#query-container {
+  background: #fff;
+}
+
+#browse-events-run-query {
+  width: 156px;
+  height: 42px;
+  background-color: #32a6f9;
+  font-family: Open Sans Regular;
+  font-size: 14px;
+  font-weight: bold;
+  text-align: left;
+  color: #ffffff !important;
+  border: none;
+}
+
+#browse-events-run-query span{
+  margin-left: 23px;
+}
+
+#browse-events-form {
+  margin-top: 26px;
+}

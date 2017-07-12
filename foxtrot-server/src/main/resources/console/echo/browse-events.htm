@@ -34,6 +34,7 @@
   <link rel="stylesheet" href="css/jquery-ui.css">
   <link rel="stylesheet" href="css/bootstrapValidator.min.css">
   <link href="css/foxtrot.css" rel="stylesheet">
+  <link href="css/daterangepicker.css" rel="stylesheet">
   <link href="css/mobile.css" rel="stylesheet">
   <!-- Custom styles for this template -->
   <!-- Just for debugging purposes. Don't actually copy this line! -->
@@ -55,53 +56,43 @@
     </div>
     <!-- Modal -->
 
-
-
     <div class="container-full" id="browse-events-content">
-      <div id="browse-event-settings">
-        <form id="browse-events-form" class="col-md-12 col-sm-12">
-          <div class="row"><span class="top-error">*Please enter all the information</span></div>
-          <div class="form-group">
-            <label class="control-label">Table <span class="mandatory-text">*</span></label>
-            <select class="selectpicker browse-table form-control" name="browse-table" id="browse-table" data-live-search="true" data-style="btn-warning" required> </select>
-          </div>
-          <div class="row" id="browseDateTime">
-            <div class="col-xs-4 form-group">
-              <div class='input-group date' id='datetimeFrom'>
-                <input type='text' class="form-control date-from" />
-                <span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span>
-                </span>
+      <div class="container-fluid" id="query-container">
+        <div id="browse-event-settings" class="container">
+          <form id="browse-events-form">
+            <div class="form-group row">
+              <div class="col-xs-4 form-group">
+                <label class="control-label">From Table <span class="mandatory-text">*</span></label>
+                <select class="selectpicker browse-table form-control" name="browse-table" id="browse-table" data-live-search="true" data-style="btn-warning" required> </select>
               </div>
-            </div>
-            <div class="col-xs-4 form-group">
-              <div class='input-group date' id='datetimeTo'>
-                <input type='text' class="form-control date-to" />
-                <span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span>
-                </span>
+              <div class="col-xs-4 form-group">
+                <label class="control-label">Date Range <span class="mandatory-text">*</span></label>
+                <input type="text" name="daterange" value="" class="form-control" />
               </div>
-            </div>
-            <div class="col-xs-4 form-group">
-              <select class="selectpicker dataSort" name="dataSort" id="dataSort">
+              <div class="col-xs-4 form-group">
+                <label class="control-label">Sort <span class="mandatory-text">*</span></label>
+               <select class="selectpicker dataSort form-control" name="dataSort" id="dataSort">
                 <option value="desc">Latest first</option>
                 <option value="asc">Oldest first</option>
-              </select>
+                </select>
             </div>
-          </div>
-          <div class="browse-add-filter-row browse-filters">
-            <div class="browse-rows">
             </div>
-            <div class="form-group">
-              <div id="browse-filter-add">
-                <button type="button" id="browse-events-add-query" class="form-control"> <span id="filter-add-btn"> Add query</span> </button>
+            <div class="browse-add-filter-row browse-filters form-group row">
+              <div class="browse-rows row">
               </div>
-              <div class="form-group col-sm-3 pull-right">
-                <div id="browse-run-query-btn-div">
-                  <button type="button" id="browse-events-run-query" class="form-control"> <span id="filter-add-btn"> Browse Events</span> </button>
+              <div class="form-group row">
+                <div id="browse-filter-add">
+                  <button type="button" id="browse-events-add-query" class="form-control"> <span id="filter-add-btn"> Add query</span> </button>
+                </div>
+                <div class="form-group pull-right">
+                  <div id="browse-run-query-btn-div">
+                    <button type="button" id="browse-events-run-query" class="form-control"> <span> Browse Events</span> </button>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-        </form>
+          </form>
+        </div>
       </div>
       <div class="row filter-event-container container-fluid" style="min-height: 200px">
         <script id="eventbrowser-template" type="text/x-handlebars-template">
@@ -143,13 +134,21 @@
   <script src="js/tables.js"></script>
   <script src="js/functions.js"></script>
   <script src="js/event-search.js"></script>
-  <script src="js/moment.min.js"></script>
+  <script src="js/datepicker.moment.min.js"></script>
   <script src="js/flat.js"></script>
   <script src="js/bootstrap/bootstrap-datetimepicker.min.js"></script>
+  <script src="js/daterangepicker.js"></script>
 
   <script type="text/javascript">
-    $(".date-from").datetimepicker();
-    $(".date-to").datetimepicker()
+    $(function() {
+      $('input[name="daterange"]').daterangepicker({
+        timePicker: true,
+        timePickerIncrement: 30,
+        locale: {
+          format: 'MM/DD/YYYY h:mm A'
+        }
+      });
+    });
   </script>
   <!--Application-->
 </body>
