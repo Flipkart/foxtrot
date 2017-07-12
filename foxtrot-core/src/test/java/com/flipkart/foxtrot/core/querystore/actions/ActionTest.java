@@ -1,6 +1,7 @@
 package com.flipkart.foxtrot.core.querystore.actions;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.flipkart.foxtrot.common.Table;
 import com.flipkart.foxtrot.core.MockElasticsearchServer;
 import com.flipkart.foxtrot.core.TestUtils;
 import com.flipkart.foxtrot.core.cache.CacheManager;
@@ -11,11 +12,12 @@ import com.flipkart.foxtrot.core.querystore.QueryStore;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsLoader;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConnection;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchQueryStore;
-import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
 import com.flipkart.foxtrot.core.querystore.impl.HazelcastConnection;
-import com.flipkart.foxtrot.core.table.TableMetadataManager;
+import com.flipkart.foxtrot.core.table.impl.DistributedTableMetadataManager;
+import com.hazelcast.config.Config;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.test.TestHazelcastInstanceFactory;
+import lombok.Getter;
 import org.joda.time.DateTimeZone;
 import org.junit.After;
 import org.junit.Before;
@@ -25,12 +27,12 @@ import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.when;
 
 /**
  * Created by rishabh.goyal on 26/12/15.
  */
+@Getter
 public class ActionTest {
 
     private ObjectMapper mapper;
@@ -39,24 +41,24 @@ public class ActionTest {
     private HazelcastInstance hazelcastInstance;
     private MockElasticsearchServer elasticsearchServer;
     private ElasticsearchConnection elasticsearchConnection;
+    private DistributedTableMetadataManager tableMetadataManager;
 
     @Before
     public void setUp() throws Exception {
         DateTimeZone.setDefault(DateTimeZone.forID("Asia/Kolkata"));
         this.mapper = new ObjectMapper();
         HazelcastConnection hazelcastConnection = Mockito.mock(HazelcastConnection.class);
-        this.hazelcastInstance = new TestHazelcastInstanceFactory(1).newHazelcastInstance();
+        Config config = new Config();
+        this.hazelcastInstance = new TestHazelcastInstanceFactory(1).newHazelcastInstance(config);
         when(hazelcastConnection.getHazelcast()).thenReturn(hazelcastInstance);
-
+        when(hazelcastConnection.getHazelcastConfig()).thenReturn(config);
         this.elasticsearchServer = new MockElasticsearchServer(UUID.randomUUID().toString());
-        elasticsearchServer = spy(elasticsearchServer);
-        this.elasticsearchConnection = Mockito.mock(ElasticsearchConnection.class);
-        doReturn(elasticsearchServer.getClient()).when(elasticsearchConnection).getClient();
-        ElasticsearchUtils.initializeMappings(elasticsearchServer.getClient());
+        elasticsearchConnection = TestUtils.initESConnection(elasticsearchServer);
 
-        TableMetadataManager tableMetadataManager = Mockito.mock(TableMetadataManager.class);
-        doReturn(true).when(tableMetadataManager).exists(TestUtils.TEST_TABLE_NAME);
-        doReturn(TestUtils.TEST_TABLE).when(tableMetadataManager).get(anyString());
+        tableMetadataManager = new DistributedTableMetadataManager(hazelcastConnection, elasticsearchConnection, mapper);
+        tableMetadataManager.start();
+
+        tableMetadataManager.save(Table.builder().name(TestUtils.TEST_TABLE_NAME).ttl(30).build());
 
         DataStore dataStore = TestUtils.getDataStore();
         this.queryStore = new ElasticsearchQueryStore(tableMetadataManager, elasticsearchConnection, dataStore, mapper);
@@ -76,29 +78,5 @@ public class ActionTest {
     public void tearDown() throws Exception {
         getElasticsearchServer().shutdown();
         getHazelcastInstance().shutdown();
-    }
-
-    public ObjectMapper getMapper() {
-        return mapper;
-    }
-
-    public HazelcastInstance getHazelcastInstance() {
-        return hazelcastInstance;
-    }
-
-    public MockElasticsearchServer getElasticsearchServer() {
-        return elasticsearchServer;
-    }
-
-    public QueryStore getQueryStore() {
-        return queryStore;
-    }
-
-    public QueryExecutor getQueryExecutor() {
-        return queryExecutor;
-    }
-
-    public ElasticsearchConnection getElasticsearchConnection() {
-        return elasticsearchConnection;
     }
 }

@@ -16,7 +16,6 @@
 package com.flipkart.foxtrot.core.querystore;
 
 import com.flipkart.foxtrot.common.Document;
-import com.flipkart.foxtrot.common.FieldMetadata;
 import com.flipkart.foxtrot.common.TableFieldMapping;
 import com.flipkart.foxtrot.core.exception.FoxtrotException;
 import org.elasticsearch.action.admin.cluster.health.ClusterHealthResponse;
@@ -46,8 +45,6 @@ public interface QueryStore {
 
     List<Document> getAll(final String table, final List<String> ids, boolean bypassMetaLookup) throws FoxtrotException;
 
-    TableFieldMapping getFieldMappings(final String table) throws FoxtrotException;
-
     void cleanupAll() throws FoxtrotException;
 
     void cleanup(final String table) throws FoxtrotException;
@@ -60,5 +57,5 @@ public interface QueryStore {
 
     IndicesStatsResponse getIndicesStats() throws ExecutionException, InterruptedException;
 
-    void estimateCardinality(final String table, final List<FieldMetadata> field) throws FoxtrotException;
+    TableFieldMapping getFieldMappings(String testTableName) throws FoxtrotException;
 }

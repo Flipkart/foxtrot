@@ -98,13 +98,14 @@ public class FoxtrotServer extends Application<FoxtrotServerConfiguration> {
         HazelcastConnection hazelcastConnection = new HazelcastConnection(configuration.getCluster());
         ElasticsearchUtils.setTableNamePrefix(configuration.getElasticsearch());
 
-        TableMetadataManager tableMetadataManager = new DistributedTableMetadataManager(hazelcastConnection, elasticsearchConnection);
+        final ObjectMapper objectMapper = environment.getObjectMapper();
+        TableMetadataManager tableMetadataManager = new DistributedTableMetadataManager(hazelcastConnection, elasticsearchConnection, objectMapper);
         DataStore dataStore = new HBaseDataStore(HBaseTableConnection,
-                environment.getObjectMapper(), new DocumentTranslator(configuration.getHbase()));
-        QueryStore queryStore = new ElasticsearchQueryStore(tableMetadataManager, elasticsearchConnection, dataStore, environment.getObjectMapper());
+                objectMapper, new DocumentTranslator(configuration.getHbase()));
+        QueryStore queryStore = new ElasticsearchQueryStore(tableMetadataManager, elasticsearchConnection, dataStore, objectMapper);
         FoxtrotTableManager tableManager = new FoxtrotTableManager(tableMetadataManager, queryStore, dataStore);
-        CacheManager cacheManager = new CacheManager(new DistributedCacheFactory(hazelcastConnection, environment.getObjectMapper()));
-        AnalyticsLoader analyticsLoader = new AnalyticsLoader(tableMetadataManager, dataStore, queryStore, elasticsearchConnection, cacheManager, environment.getObjectMapper());
+        CacheManager cacheManager = new CacheManager(new DistributedCacheFactory(hazelcastConnection, objectMapper));
+        AnalyticsLoader analyticsLoader = new AnalyticsLoader(tableMetadataManager, dataStore, queryStore, elasticsearchConnection, cacheManager, objectMapper);
         QueryExecutor executor = new QueryExecutor(analyticsLoader, executorService);
         DataDeletionManagerConfig dataDeletionManagerConfig = configuration.getTableDataManagerConfig();
         DataDeletionManager dataDeletionManager = new DataDeletionManager(dataDeletionManagerConfig, queryStore);
@@ -126,12 +127,12 @@ public class FoxtrotServer extends Application<FoxtrotServerConfiguration> {
         environment.jersey().register(new AsyncResource(cacheManager));
         environment.jersey().register(new AnalyticsResource(executor));
         environment.jersey().register(new TableManagerResource(tableManager));
-        environment.jersey().register(new TableFieldMappingResource(tableManager, queryStore));
+        environment.jersey().register(new TableFieldMappingResource(tableManager, tableMetadataManager, queryStore));
         environment.jersey().register(new ConsoleResource(
-                new ElasticsearchConsolePersistence(elasticsearchConnection, environment.getObjectMapper())));
+                new ElasticsearchConsolePersistence(elasticsearchConnection, objectMapper)));
         environment.jersey().register(new ConsoleV2Resource(
-                new ElasticsearchConsolePersistence(elasticsearchConnection, environment.getObjectMapper())));
-        FqlEngine fqlEngine = new FqlEngine(tableMetadataManager, queryStore, executor, environment.getObjectMapper());
+                new ElasticsearchConsolePersistence(elasticsearchConnection, objectMapper)));
+        FqlEngine fqlEngine = new FqlEngine(tableMetadataManager, queryStore, executor, objectMapper);
         environment.jersey().register(new FqlResource(fqlEngine));
         environment.jersey().register(new ClusterInfoResource(clusterManager));
         environment.jersey().register(new UtilResource(configuration));
@@ -142,7 +143,7 @@ public class FoxtrotServer extends Application<FoxtrotServerConfiguration> {
         environment.jersey().register(new FlatResponseTextProvider());
         environment.jersey().register(new FlatResponseCsvProvider());
         environment.jersey().register(new FlatResponseErrorTextProvider());
-        environment.jersey().register(new FoxtrotExceptionMapper(environment.getObjectMapper()));
+        environment.jersey().register(new FoxtrotExceptionMapper(objectMapper));
 
         // Enable CORS headers
         final FilterRegistration.Dynamic cors =

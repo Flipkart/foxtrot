@@ -15,7 +15,10 @@
  */
 package com.flipkart.foxtrot.common;
 
-import org.apache.commons.lang3.builder.ToStringBuilder;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.validation.constraints.Max;
@@ -24,10 +27,12 @@ import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 
 /**
- * User: Santanu Sinha (santanu.sinha@flipkart.com)
- * Date: 15/03/14
- * Time: 9:51 PM
+ * Representation for a table on foxtrot.
  */
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
 public class Table implements Serializable {
 
     private static final long serialVersionUID = -3086868483579299018L;
@@ -41,53 +46,4 @@ public class Table implements Serializable {
     private int ttl;
 
     private boolean seggregatedBackend = false;
-
-    public Table() {
-    }
-
-    public Table(String name, int ttl) {
-        this.name = name;
-        this.ttl = ttl;
-    }
-
-    public Table(String name, int ttl, boolean seggregatedBackend) {
-        this.name = name;
-        this.ttl = ttl;
-        this.seggregatedBackend = seggregatedBackend;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public int getTtl() {
-        return ttl;
-    }
-
-    public void setTtl(int ttl) {
-        this.ttl = ttl;
-    }
-
-
-    @Override
-    public String toString() {
-        return new ToStringBuilder(this)
-                .append("name", name)
-                .append("ttl", ttl)
-                .append("seggregatedBackend", seggregatedBackend)
-                .toString();
-    }
-
-    public boolean isSeggregatedBackend() {
-        return seggregatedBackend;
-    }
-
-    public void setSeggregatedBackend(boolean seggregatedBackend) {
-        this.seggregatedBackend = seggregatedBackend;
-    }
-
 }

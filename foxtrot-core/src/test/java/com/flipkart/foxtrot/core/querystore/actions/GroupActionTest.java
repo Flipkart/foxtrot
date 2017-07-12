@@ -1,12 +1,12 @@
 /**
  * Copyright 2014 Flipkart Internet Pvt. Ltd.
- *
+ * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
+ * <p>
  * http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -47,6 +47,7 @@ public class GroupActionTest extends ActionTest {
         List<Document> documents = TestUtils.getGroupDocuments(getMapper());
         getQueryStore().save(TestUtils.TEST_TABLE_NAME, documents);
         getElasticsearchServer().getClient().admin().indices().prepareRefresh("*").execute().actionGet();
+        getTableMetadataManager().updateEstimationData(TestUtils.TEST_TABLE_NAME, 1397658117000L);
     }
 
     @Ignore
@@ -54,12 +55,13 @@ public class GroupActionTest extends ActionTest {
     public void testGroupActionSingleQueryException() throws FoxtrotException, JsonProcessingException {
         GroupRequest groupRequest = new GroupRequest();
         groupRequest.setTable(TestUtils.TEST_TABLE_NAME);
-        groupRequest.setNesting(Arrays.asList("os"));
+        groupRequest.setNesting(Collections.singletonList("os"));
         doReturn(null).when(getElasticsearchConnection()).getClient();
         try {
             getQueryExecutor().execute(groupRequest);
             fail();
         } catch (FoxtrotException ex) {
+            ex.printStackTrace();
             assertEquals(ErrorCode.ACTION_EXECUTION_ERROR, ex.getCode());
         }
     }
@@ -68,7 +70,7 @@ public class GroupActionTest extends ActionTest {
     public void testGroupActionSingleFieldNoFilter() throws FoxtrotException, JsonProcessingException {
         GroupRequest groupRequest = new GroupRequest();
         groupRequest.setTable(TestUtils.TEST_TABLE_NAME);
-        groupRequest.setNesting(Arrays.asList("os"));
+        groupRequest.setNesting(Collections.singletonList("os"));
 
         Map<String, Object> response = Maps.newHashMap();
         response.put("android", 7L);
@@ -82,12 +84,13 @@ public class GroupActionTest extends ActionTest {
     public void testGroupActionSingleFieldEmptyFieldNoFilter() throws FoxtrotException, JsonProcessingException {
         GroupRequest groupRequest = new GroupRequest();
         groupRequest.setTable(TestUtils.TEST_TABLE_NAME);
-        groupRequest.setNesting(Arrays.asList(""));
+        groupRequest.setNesting(Collections.singletonList(""));
 
         try {
             getQueryExecutor().execute(groupRequest);
             fail();
         } catch (FoxtrotException ex) {
+            ex.printStackTrace();
             assertEquals(ErrorCode.MALFORMED_QUERY, ex.getCode());
         }
     }
@@ -102,6 +105,7 @@ public class GroupActionTest extends ActionTest {
             getQueryExecutor().execute(groupRequest);
             fail();
         } catch (FoxtrotException ex) {
+            ex.printStackTrace();
             assertEquals(ErrorCode.MALFORMED_QUERY, ex.getCode());
         }
     }
