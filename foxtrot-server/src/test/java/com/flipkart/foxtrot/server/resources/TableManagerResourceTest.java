@@ -32,6 +32,7 @@ import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.util.UUID;
 
+import static com.flipkart.foxtrot.core.TestUtils.TEST_TABLE_NAME;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.mockito.Matchers.any;
@@ -63,12 +64,13 @@ public class TableManagerResourceTest extends FoxtrotResourceTest {
     public void testSave() throws Exception {
         doNothing().when(getDataStore()).initializeTable(any(Table.class));
         doNothing().when(getQueryStore()).initializeTable(any(String.class));
-
-        Table table = new Table(TestUtils.TEST_TABLE_NAME, 30);
+        Table table = Table.builder()
+                .name(TEST_TABLE_NAME)
+                .ttl(7)
+                .build();
         Entity<Table> tableEntity = Entity.json(table);
         resources.client().target("/v1/tables").request().post(tableEntity);
 
-        doReturn(table).when(getTableMetadataManager()).get(anyString());
         Table response = tableManager.get(table.getName());
         assertNotNull(response);
         assertEquals(table.getName(), response.getName());
@@ -86,7 +88,7 @@ public class TableManagerResourceTest extends FoxtrotResourceTest {
 
     @Test
     public void testSaveNullTableName() throws Exception {
-        Table table = new Table(null, 30);
+        Table table = Table.builder().name(null).ttl(30).build();
         Entity<Table> tableEntity = Entity.json(table);
         Response response = resources.client().target("/v1/tables").request().post(tableEntity);
         assertEquals(HttpStatus.SC_UNPROCESSABLE_ENTITY, response.getStatus());
@@ -94,7 +96,7 @@ public class TableManagerResourceTest extends FoxtrotResourceTest {
 
     @Test
     public void testSaveBackendError() throws Exception {
-        Table table = new Table(UUID.randomUUID().toString(), 30);
+        Table table = Table.builder().name(UUID.randomUUID().toString()).ttl(30).build();
         Entity<Table> tableEntity = Entity.json(table);
         doThrow(FoxtrotExceptions.createExecutionException("dummy", new IOException())).when(tableManager).save(Matchers.<Table>any());
         Response response = resources.client().target("/v1/tables").request().post(tableEntity);
@@ -104,9 +106,8 @@ public class TableManagerResourceTest extends FoxtrotResourceTest {
 
     @Test
     public void testSaveIllegalTtl() throws Exception {
-        reset(getTableMetadataManager());
         reset(tableManager);
-        Table table = new Table(TestUtils.TEST_TABLE_NAME, 0);
+        Table table = Table.builder().name(TestUtils.TEST_TABLE_NAME).ttl(0).build();
         Entity<Table> tableEntity = Entity.json(table);
         Response response = resources.client().target("/v1/tables").request().post(tableEntity);
         assertEquals(HttpStatus.SC_UNPROCESSABLE_ENTITY, response.getStatus());
@@ -117,19 +118,16 @@ public class TableManagerResourceTest extends FoxtrotResourceTest {
         doNothing().when(getDataStore()).initializeTable(any(Table.class));
         doNothing().when(getQueryStore()).initializeTable(any(String.class));
 
-        Table table = new Table(TestUtils.TEST_TABLE_NAME, 30);
-        tableManager.save(table);
-        doReturn(table).when(getTableMetadataManager()).get(anyString());
 
-        Table response = resources.client().target(String.format("/v1/tables/%s", table.getName())).request().get(Table.class);
+        Table response = resources.client().target(String.format("/v1/tables/%s", TEST_TABLE_NAME)).request().get(Table.class);
         assertNotNull(response);
-        assertEquals(table.getName(), response.getName());
-        assertEquals(table.getTtl(), response.getTtl());
+        assertEquals(TEST_TABLE_NAME, response.getName());
+        assertEquals(7, response.getTtl());
     }
 
     @Test
     public void testGetMissingTable() throws Exception {
-        Response response = resources.client().target(String.format("/v1/tables/%s", TestUtils.TEST_TABLE_NAME + "_missing")).request().get();
+        Response response = resources.client().target(String.format("/v1/tables/%s", TEST_TABLE_NAME + "_missing")).request().get();
         assertEquals(Response.Status.NOT_FOUND.getStatusCode(), response.getStatus());
     }
 }

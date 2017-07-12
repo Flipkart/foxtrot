@@ -26,8 +26,8 @@ public class LastFilter extends Filter {
     }
 
     @Override
-    public void accept(FilterVisitor visitor) throws Exception {
-        visitor.visit(this);
+    public<T> T accept(FilterVisitor<T> visitor) throws Exception {
+        return visitor.visit(this);
     }
 
     public long getCurrentTime() {

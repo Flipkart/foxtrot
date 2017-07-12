@@ -52,14 +52,12 @@ public class TableFieldMappingResourceTest extends FoxtrotResourceTest {
 
     public TableFieldMappingResourceTest() throws Exception {
         super();
-        doReturn(true).when(getTableMetadataManager()).exists(TestUtils.TEST_TABLE_NAME);
-        doReturn(TestUtils.TEST_TABLE).when(getTableMetadataManager()).get(anyString());
         QueryStore queryStore = getQueryStore();
 
         tableManager = mock(FoxtrotTableManager.class);
         when(tableManager.getAll()).thenReturn(Collections.singletonList(TestUtils.TEST_TABLE));
         resources = ResourceTestRule.builder()
-                .addResource(new TableFieldMappingResource(tableManager, queryStore))
+                .addResource(new TableFieldMappingResource(tableManager, getTableMetadataManager(), queryStore))
                 .setMapper(getMapper())
                 .addProvider(new FoxtrotExceptionMapper(getMapper()))
                 .build();

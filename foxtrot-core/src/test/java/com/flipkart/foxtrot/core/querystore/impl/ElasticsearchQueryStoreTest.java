@@ -26,9 +26,13 @@ import com.flipkart.foxtrot.core.exception.ErrorCode;
 import com.flipkart.foxtrot.core.exception.FoxtrotException;
 import com.flipkart.foxtrot.core.exception.FoxtrotExceptions;
 import com.flipkart.foxtrot.core.table.TableMetadataManager;
+import com.flipkart.foxtrot.core.table.impl.DistributedTableMetadataManager;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.hazelcast.config.Config;
+import com.hazelcast.core.HazelcastInstance;
+import com.hazelcast.test.TestHazelcastInstanceFactory;
 import org.elasticsearch.action.admin.cluster.health.ClusterHealthResponse;
 import org.elasticsearch.action.admin.cluster.node.stats.NodesStatsResponse;
 import org.elasticsearch.action.admin.indices.stats.IndicesStatsResponse;
@@ -59,6 +63,7 @@ public class ElasticsearchQueryStoreTest {
     private DataStore dataStore;
     private ElasticsearchQueryStore queryStore;
     private TableMetadataManager tableMetadataManager;
+    private HazelcastInstance hazelcastInstance;
 
     @Before
     public void setUp() throws Exception {
@@ -68,17 +73,27 @@ public class ElasticsearchQueryStoreTest {
         ElasticsearchConnection elasticsearchConnection = Mockito.mock(ElasticsearchConnection.class);
         when(elasticsearchConnection.getClient()).thenReturn(elasticsearchServer.getClient());
         ElasticsearchUtils.initializeMappings(elasticsearchConnection.getClient());
+        hazelcastInstance = new TestHazelcastInstanceFactory(1).newHazelcastInstance();
+        HazelcastConnection hazelcastConnection = Mockito.mock(HazelcastConnection.class);
+        when(hazelcastConnection.getHazelcast()).thenReturn(hazelcastInstance);
+        when(hazelcastConnection.getHazelcastConfig()).thenReturn(new Config());
 
-        this.tableMetadataManager = Mockito.mock(TableMetadataManager.class);
-        when(tableMetadataManager.exists(TestUtils.TEST_TABLE_NAME)).thenReturn(true);
+        hazelcastConnection.start();
+
+        this.tableMetadataManager = new DistributedTableMetadataManager(hazelcastConnection, elasticsearchConnection, mapper);
+        tableMetadataManager.start();
+        tableMetadataManager.save(Table.builder().name(TestUtils.TEST_TABLE_NAME).ttl(30).build());
+/*
+        when(tableMetadataManager.exists(anyString())).thenReturn(true);
         when(tableMetadataManager.get(anyString())).thenReturn(TestUtils.TEST_TABLE);
-
+*/
         this.queryStore = new ElasticsearchQueryStore(tableMetadataManager, elasticsearchConnection, dataStore, mapper);
     }
 
     @After
     public void tearDown() throws Exception {
         elasticsearchServer.shutdown();
+        hazelcastInstance.shutdown();
     }
 
 
@@ -478,9 +493,8 @@ public class ElasticsearchQueryStoreTest {
         elasticsearchServer.refresh(ElasticsearchUtils.getIndices(TestUtils.TEST_TABLE_NAME));
 
         TableFieldMapping mappings = queryStore.getFieldMappings(TestUtils.TEST_TABLE_NAME);
-        queryStore.estimateCardinality(TestUtils.TEST_TABLE_NAME,
-                new ArrayList<>(mappings.getMappings()));
         //TODO::REMOVE System.out.println(mapper.writerWithDefaultPrettyPrinter().writeValueAsString(mappings));
+        Assert.assertNotNull(mappings);
         Assert.assertTrue(mappings.getMappings()
             .stream()
             .filter(fieldMetadata -> fieldMetadata.getType().equals(FieldType.BOOLEAN))
@@ -491,7 +505,7 @@ public class ElasticsearchQueryStoreTest {
                 .stream()
                 .filter(fieldMetadata -> fieldMetadata.getType().equals(FieldType.LONG))
                 .filter(fieldMetadata -> fieldMetadata.getEstimationData() != null
-                        && fieldMetadata.getEstimationData().getType().equals(EstimationDataType.BUCKET_BASED))
+                        && fieldMetadata.getEstimationData().getType().equals(EstimationDataType.PERCENTILE))
                 .count() == 1);
         long numStringFields = mappings.getMappings()
                 .stream()
@@ -501,7 +515,7 @@ public class ElasticsearchQueryStoreTest {
                 .stream()
                 .filter(fieldMetadata -> fieldMetadata.getType().equals(FieldType.STRING))
                 .filter(fieldMetadata -> fieldMetadata.getEstimationData() != null
-                            && fieldMetadata.getEstimationData().getType() == EstimationDataType.CARDINALITY_BASED)
+                            && fieldMetadata.getEstimationData().getType() == EstimationDataType.CARDINALITY)
                 .count() == numStringFields);
     }
 

@@ -21,6 +21,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.io.Serializable;
+
 /**
  * Metadata about fields
  */
@@ -28,7 +30,9 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class FieldMetadata {
+public class FieldMetadata implements Serializable {
+    private static final long serialVersionUID = 4583132990544615374L;
+
     private String field;
     private FieldType type;
     private EstimationData estimationData;

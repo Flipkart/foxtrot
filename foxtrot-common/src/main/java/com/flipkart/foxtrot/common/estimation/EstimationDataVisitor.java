@@ -7,7 +7,7 @@ public interface EstimationDataVisitor<T> {
 
     T visit(FixedEstimationData fixedEstimationData);
 
-    T visit(BucketBasedEstimationData bucketBasedEstimationData);
+    T visit(PercentileEstimationData percentileEstimationData);
 
-    T visit(CardinalityBasedEstimationData cardinalityBasedEstimationData);
+    T visit(CardinalityEstimationData cardinalityEstimationData);
 }

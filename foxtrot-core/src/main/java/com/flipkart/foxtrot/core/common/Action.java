@@ -110,13 +110,12 @@ public abstract class Action<ParameterType extends ActionRequest> implements Cal
         if (cachedData != null) {
             return cachedData;
         }
-        Stopwatch stopwatch = new Stopwatch();
+        Stopwatch stopwatch = Stopwatch.createStarted();
         try {
-            stopwatch.start();
             ActionResponse result = execute(parameter);
-            stopwatch.stop();
             // Publish success metrics
-            MetricUtil.getInstance().registerActionSuccess(cacheToken, getMetricKey(), stopwatch.elapsed(TimeUnit.MILLISECONDS));
+            MetricUtil.getInstance().registerActionSuccess(
+                    cacheToken, getMetricKey(), stopwatch.elapsed(TimeUnit.MILLISECONDS));
 
             // Now cache data
             updateCachedData(result);
@@ -125,7 +124,8 @@ public abstract class Action<ParameterType extends ActionRequest> implements Cal
         } catch (FoxtrotException e) {
             stopwatch.stop();
             // Publish failure metrics
-            MetricUtil.getInstance().registerActionFailure(cacheToken, getMetricKey(), stopwatch.elapsed(TimeUnit.MILLISECONDS));
+            MetricUtil.getInstance().registerActionFailure(
+                    cacheToken, getMetricKey(), stopwatch.elapsed(TimeUnit.MILLISECONDS));
             throw e;
         }
     }

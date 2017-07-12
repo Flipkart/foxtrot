@@ -6,22 +6,22 @@ import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
 /**
- *
+ * Estimated cardinality data
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
-public class BucketBasedEstimationData extends EstimationData {
-    private double[] values;
+public class CardinalityEstimationData extends EstimationData {
+    private long cardinality;
 
-    public BucketBasedEstimationData() {
-        super(EstimationDataType.BUCKET_BASED);
+    public CardinalityEstimationData() {
+        super(EstimationDataType.CARDINALITY);
     }
 
     @Builder
-    public BucketBasedEstimationData(double[] values, long count) {
-        super(EstimationDataType.BUCKET_BASED, count);
-        this.values = values;
+    public CardinalityEstimationData(long cardinality, long count) {
+        super(EstimationDataType.CARDINALITY, count);
+        this.cardinality = cardinality;
     }
 
     @Override
