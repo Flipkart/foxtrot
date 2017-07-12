@@ -96,10 +96,10 @@
       </div>
 
       <div class="container-fluid">
-        <h1>Events</h1>
-        <div class="row" style="min-height: 200px">
+        <h1 id="event-display-heading">Events</h1>
+        <div class="row event-display-container">
           <script id="eventbrowser-template" type="text/x-handlebars-template">
-            <table class="table table-bordered table-condensed">
+            <table class="table-bordered event-table">
               <thead>
                 <tr>
                   {{#each headers}}

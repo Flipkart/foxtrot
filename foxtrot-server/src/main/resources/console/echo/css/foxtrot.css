@@ -2386,3 +2386,40 @@ div.tab button:first-child {
   color: #000;
 }
 
+.event-table thead{
+  background-color: #f7f9fa;
+  box-shadow: 1px 1px 4px 0 rgba(195, 210, 217, 0.4);
+  border: solid 1px #e8eff3;
+  font-family: Open Sans Regular;
+  font-size: 12px;
+  text-align: left;
+  color: #7d909a;
+}
+
+.event-table thead tr th{
+  padding: 30px 10px;
+  word-wrap: break-word;
+  text-align: center;
+}
+
+.event-table tbody tr td{
+  background-color: #ffffff;
+  border: solid 1px #e8eff3;
+  font-family: Open Sans;
+  font-size: 12px;
+  font-weight: 600;
+  color: #282c38;
+  padding: 10px 10px;
+}
+
+.event-table tr:hover td {
+  background-color: #e8eff3;
+}
+
+.event-display-container {
+  margin-top: 30px;
+}
+
+#event-display-heading {
+  margin-top: 30px;
+}

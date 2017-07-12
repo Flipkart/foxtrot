@@ -134,7 +134,7 @@ function renderTable(data) {
   if(!data.hasOwnProperty("documents") || data.documents.length == 0) {
     return;
   }
-  var parent = $(".filter-event-container");
+  var parent = $(".event-display-container");
   var headers = [];
   var headerMap = new Object();
   var rows = [];
