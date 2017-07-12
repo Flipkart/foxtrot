@@ -38,9 +38,8 @@ function deleteBrowseQueryRow(el) {
   var parentRowId = parentRow.attr('id');
   var getRowId = parentRowId.split('-');
   var rowId = getRowId[2];
-  browseFilterRowArray = jQuery.grep(browseFilterRowArray, function (value) {
-    return value != rowId;
-  });
+  var index = browseFilterRowArray.indexOf(parseInt(rowId));
+  browseFilterRowArray.splice(index, 1);
   $(parentRow).remove();
 }
 
@@ -172,7 +171,14 @@ $( "#browse-events-run-query" ).click(function() {
 $( "#browse-events-add-query" ).click(function() {
   currentFieldList = tableFiledsArray[currentTable].mappings;
   var filterCount = browseFilterRowArray.length;
-  browseFilterRowArray.push(filterCount);
+
+  if(browseFilterRowArray.length == 0) {
+    browseFilterRowArray.push(filterCount);
+  } else {
+    filterCount = browseFilterRowArray[browseFilterRowArray.length - 1] + 1;
+    browseFilterRowArray.push(filterCount);
+  }
+
   var filterRow = '<div class="row clearfix" id="filter-row-' + filterCount + '"><img src="img/remove.png" class="browse-events-filter-remove-img browse-events-delete" id="'+filterCount+'" /><div class="col-sm-3"><select class="selectpicker form-control filter-column filter-background" id="filter-row-' + filterCount + '" data-live-search="true"><option>select</option></select></div><div class="col-sm-3"><select class="selectpicker filter-type filter-background form-control" id="'+filterCount+'" data-live-search="true"><option>select</option><option value="equals">Equal to</option><option value="not_equals">Not Equal to</option><option value="less_than">Less than</option><option value="less_equal">Less or equal to</option><option value="greater_than">Greater than</option><option value="greater_equal">Greater or equal to</option><option value="contains">Equals</option><option value="not_equals">Not equals</option><option value="contains">Contains</option><option value="between">Between</option></select></div><div class="col-sm-3"><input id="filter-column-row-' + filterCount + '" type="text" class="form-control browse-events-filter-value form-control"></div><div class="col-sm-3"><input id="filter-between-input-' + filterCount + '" type="text" class="form-control browse-events-filter-between-value form-control" disabled></div></span></div></div>';
   $(".browse-rows").append(filterRow);
   var filterValueEl = $("#filter-row-" + filterCount).find('.browse-events-delete');
