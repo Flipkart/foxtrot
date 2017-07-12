@@ -134,6 +134,26 @@ function runQuery() {
   console.log(request);
 }
 
+function reDisplayTable() {
+  var tmpHeader = [];
+  var tmpRow = [];
+  var parent = $(".event-display-container");
+  for(var column in selectedList) {
+    var columnName = selectedList[column];
+    tmpHeader.push(columnName);
+    tmpRow.push(rowList[headerList.indexOf(columnName)]);
+  }
+
+  var tableData = {
+    headers: tmpHeader
+    , data: tmpRow
+  };
+  console.log(tableData);
+  parent.html(handlebars("#eventbrowser-template", tableData));
+
+}
+
+
 function generateColumChooserList() {
   var parent = $("#column-chooser");
   var listElement = parent.find("#column-list");
@@ -148,7 +168,6 @@ function generateColumChooserList() {
 
   var selections = []
     , render_selections = function () {
-      selections.join(', ');
       selectedList = [];
       selectedList = selections;
     };

@@ -194,6 +194,10 @@
           showHideColumnChooser();
       });
 
+      $("#column-chooser-save-btn").click(function() {
+        reDisplayTable();
+      });
+
 
       $('input[name="daterange"]').daterangepicker({
         timePicker: true
