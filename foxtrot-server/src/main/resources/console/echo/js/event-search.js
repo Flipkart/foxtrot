@@ -78,9 +78,20 @@ $( ".browse-table" ).change(function() {
 
 function runQuery() {
   var filters = [];
-  for(var filterId in this.filterSet) {
-    var filter = this.filterSet[filterId];
-    filters.push(operationFactory.create(filter, filter.opMeta));
+
+  for (var filter = 0; filter < browseFilterRowArray.length; filter++) {
+    var filterId = browseFilterRowArray[filter];
+    var el = $("#filter-row-" + filterId);
+    var filterColumn = $(el).find("select.filter-column").val();
+    var filterType = $(el).find("select.filter-type").val();
+    var filterValue = $(el).find(".browse-events-filter-value").val();
+    var filterObject;
+    filterObject = {
+      "operator": filterType
+      , "value": filterValue
+      , "field": currentFieldList[parseInt(filterColumn)].field
+    }
+    filters.push(filterObject);
   }
   var filterSection = $("#browse-events-form");
   var fromDate = filterSection.find(".date-from").data("DateTimePicker").getDate().unix();
