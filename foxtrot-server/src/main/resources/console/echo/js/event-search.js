@@ -94,8 +94,8 @@ function runQuery() {
     filters.push(filterObject);
   }
   var filterSection = $("#browse-events-form");
-  var fromDate = filterSection.find(".date-from").data("DateTimePicker").getDate().unix();
-  var toDate = filterSection.find(".date-to").data("DateTimePicker").getDate().unix();
+  var fromDate = $('input[name="daterange"]').daterangepicker.from;
+  var toDate = $('input[name="daterange"]').daterangepicker.toDate;
   if((fromDate - toDate) > 1000) {
     filters.push({
       field: "_timestamp",

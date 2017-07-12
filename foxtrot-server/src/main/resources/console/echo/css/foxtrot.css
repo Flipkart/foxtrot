@@ -2349,3 +2349,40 @@ div.tab button:first-child {
 #browse-events-form {
   margin-top: 26px;
 }
+
+#browse-events-form .btn-warning:hover, .btn-warning:focus, .btn-warning:active, .btn-warning.active, .open .dropdown-toggle.btn-warning {
+  color: #000 !important;
+  outline: none;
+  box-shadow: none;
+  border: 1px solid #c0cbd1 !important;
+}
+
+#browse-events-form .btn-group.open .dropdown-toggle {
+  outline: none;
+  box-shadow: none;
+}
+
+#browse-events-form .dropdown-menu>.active>a, .dropdown-menu>.active>a:hover, .dropdown-menu>.active>a:focus {
+  background: #0E6650 !important;
+}
+
+#browse-events-form .bootstrap-select:hover .btn:hover {
+  border: 1px solid #c0cbd1;
+  color: #7d909a !important;
+}
+
+#browse-events-form .bootstrap-select .btn {
+  border: 1px solid #c0cbd1;
+  color: #7d909a !important;
+}
+
+#browse-events-form .dropdown-menu>li>a:hover, .dropdown-menu>li>a:focus {
+  background: #50e3c2 !important;
+  color: #0E6650;
+}
+
+#browse-events-form .dropdown-menu>.active>a, .dropdown-menu>.active>a:hover, .dropdown-menu>.active>a:focus {
+  background: #50e3c2 !important;
+  color: #000;
+}
+

@@ -71,11 +71,11 @@
               </div>
               <div class="col-xs-4 form-group">
                 <label class="control-label">Sort <span class="mandatory-text">*</span></label>
-               <select class="selectpicker dataSort form-control" name="dataSort" id="dataSort">
-                <option value="desc">Latest first</option>
-                <option value="asc">Oldest first</option>
+                <select class="selectpicker dataSort form-control" name="dataSort" id="dataSort">
+                  <option value="desc">Latest first</option>
+                  <option value="asc">Oldest first</option>
                 </select>
-            </div>
+              </div>
             </div>
             <div class="browse-add-filter-row browse-filters form-group row">
               <div class="browse-rows row">
@@ -94,27 +94,31 @@
           </form>
         </div>
       </div>
-      <div class="row filter-event-container container-fluid" style="min-height: 200px">
-        <script id="eventbrowser-template" type="text/x-handlebars-template">
-          <table class="table table-bordered table-condensed">
-            <thead>
-              <tr>
-                {{#each headers}}
-                <th>{{this}}</th>
+
+      <div class="container-fluid">
+        <h1>Events</h1>
+        <div class="row" style="min-height: 200px">
+          <script id="eventbrowser-template" type="text/x-handlebars-template">
+            <table class="table table-bordered table-condensed">
+              <thead>
+                <tr>
+                  {{#each headers}}
+                  <th>{{this}}</th>
+                  {{/each}}
+                </tr>
+              </thead>
+              <tbody>
+                {{#each data}}
+                <tr>
+                  {{#each this}}
+                  <td>{{this}}</td>
+                  {{/each}}
+                </tr>
                 {{/each}}
-              </tr>
-            </thead>
-            <tbody>
-              {{#each data}}
-              <tr>
-                {{#each this}}
-                <td>{{this}}</td>
-                {{/each}}
-              </tr>
-              {{/each}}
-            </tbody>
-          </table>
-        </script>
+              </tbody>
+            </table>
+          </script>
+        </div>
       </div>
     </div>
   </div>
@@ -140,11 +144,11 @@
   <script src="js/daterangepicker.js"></script>
 
   <script type="text/javascript">
-    $(function() {
+    $(function () {
       $('input[name="daterange"]').daterangepicker({
-        timePicker: true,
-        timePickerIncrement: 30,
-        locale: {
+        timePicker: true
+        , timePickerIncrement: 30
+        , locale: {
           format: 'MM/DD/YYYY h:mm A'
         }
       });
