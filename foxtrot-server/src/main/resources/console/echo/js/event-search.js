@@ -211,4 +211,15 @@ $( "#browse-events-add-query" ).click(function() {
   });
 });
 
+function showHideColumnChooser() { // page setting modal
+  console.log('==')
+  if( $('#column-chooser').is(':visible') ) {
+    $('#column-chooser').hide();
+  }
+  else {
+    $('#column-chooser').show();
+    $('#column-chooser').css({ 'width': '356px' });
+  }
+}
+
 //$( "#browse-events-add-query" ).trigger( "click" );

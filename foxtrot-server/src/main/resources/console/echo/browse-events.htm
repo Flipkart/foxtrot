@@ -126,6 +126,34 @@
           </script>
         </div>
       </div>
+
+      <div id="column-chooser">
+        <div id="column-chooser-close-btn"><img src="img/combined-shape.png" alt="close" /></div>
+        <div class="col-md-12 column-chooser-top-btns">
+          <div class="row">
+            <div class="col-xs-8 form-group tile-name-parent">
+              <button type="submit" class="column-chooser-left-btn">COLUMN SELECTION</button>
+            </div>
+            <div class="col-xs-4 form-group">
+              <button type="submit" class="column-chooser-save-btn" id="column-chooser-save-btn">Save</button>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-12" id="column-chooser-content">
+          <form class="col-md-12">
+            <div>
+              <label><input type="checkbox" class="" id="" />
+                <span id="select-all-column">Select all available columns</span>
+              </label>
+            </div>
+            <div id="column-list">
+
+            </div>
+          </form>
+        </div>
+      </div>
+
+
     </div>
   </div>
 
@@ -151,6 +179,21 @@
 
   <script type="text/javascript">
     $(function () {
+
+      $('#column-chooser').hide();
+      $('#column-chooser').animate({ 'width': '0px' }, 'slow', function(){
+        $('#column-chooser').hide();
+      });
+
+      $("#column-chooser-close-btn").click(function() {
+        showHideColumnChooser();
+      });
+
+      $(".event-choose-btn").click(function() {
+        showHideColumnChooser();
+      });
+
+
       $('input[name="daterange"]').daterangepicker({
         timePicker: true
         , timePickerIncrement: 30
