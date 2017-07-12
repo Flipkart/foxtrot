@@ -2482,7 +2482,7 @@ div.tab button:first-child {
   background: none;
   border: none;
   border: solid 1px #777a89;
-  color: #dbdbdb;
+  color: #ffffff;
 }
 
 #column-chooser input:focus {
@@ -2564,4 +2564,14 @@ div.tab button:first-child {
   font-family: Open Sans;
   font-size: 14px;
   color: #ffffff;
+}
+
+#column-list label{
+  color: #ffffff;
+  font-family: Open Sans;
+  font-size: 12px;
+  font-weight: bold;
+  text-align: left;
+  color: #ffffff;
+  line-height: 2;
 }

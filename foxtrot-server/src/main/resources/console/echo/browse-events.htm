@@ -190,7 +190,8 @@
       });
 
       $(".event-choose-btn").click(function() {
-        showHideColumnChooser();
+        if(headerList.length > 0)
+          showHideColumnChooser();
       });
 
 
