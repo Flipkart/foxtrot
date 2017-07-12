@@ -2423,3 +2423,27 @@ div.tab button:first-child {
 #event-display-heading {
   margin-top: 30px;
 }
+
+.event-export-btn {
+  width: 99px;
+  height: 36px;
+  background-color: #ffffff;
+  border: solid 1px #c9d2e1;
+  font-family: OpenSans;
+  font-size: 12px;
+  color: #859fc0;
+  position: relative;
+  top: 36px;
+  left: 151px;
+}
+
+.event-choose-btn {
+  width: 126px;
+  height: 36px;
+  background-color: #ffffff;
+  border: solid 1px #c9d2e1;
+  font-family: OpenSans;
+  font-size: 12px;
+  color: #859fc0;
+  float: right;
+}

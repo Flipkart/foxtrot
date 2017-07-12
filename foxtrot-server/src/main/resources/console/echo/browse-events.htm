@@ -96,7 +96,13 @@
       </div>
 
       <div class="container-fluid">
-        <h1 id="event-display-heading">Events</h1>
+        <div class="row">
+          <div class="col-sm-8"><h1 id="event-display-heading">Events</h1></div>
+          <div class="col-sm-4">
+            <button type="button" class="form-control event-export-btn"> <span> Export data</span> </button>
+            <button type="button" class="form-control event-choose-btn"> <span> Choose columns</span> </button>
+          </div>
+        </div>
         <div class="row event-display-container">
           <script id="eventbrowser-template" type="text/x-handlebars-template">
             <table class="table-bordered event-table">
