@@ -67,7 +67,7 @@
               </div>
               <div class="col-xs-4 form-group">
                 <label class="control-label">Date Range <span class="mandatory-text">*</span></label>
-                <input type="text" name="daterange" value="" class="form-control" />
+                <input type="text" name="daterange" value="" class="form-control"/>
               </div>
               <div class="col-xs-4 form-group">
                 <label class="control-label">Sort <span class="mandatory-text">*</span></label>
@@ -176,6 +176,7 @@
   <script src="js/flat.js"></script>
   <script src="js/bootstrap/bootstrap-datetimepicker.min.js"></script>
   <script src="js/daterangepicker.js"></script>
+  <script src="js/validate.js"></script>
 
   <script type="text/javascript">
     $(function () {
@@ -221,7 +222,6 @@
       $('input[name="daterange"]').on('cancel.daterangepicker', function(ev, picker) {
         $(this).val('');
       });
-
     });
   </script>
   <!--Application-->
