@@ -37,7 +37,12 @@ getBrowseTables();
 
 function clear() {
   $(".browse-rows").empty();
+  $("#column-chooser").find("#column-list").empty();
+  $(".event-display-container").find('.event-table').remove();
   browseFilterRowArray = [];
+  selectedList = [];
+  fetchedData = [];
+  isEdit = false;
 }
 
 function deleteBrowseQueryRow(el) {
@@ -161,12 +166,7 @@ function generateColumChooserList() {
   var parent = $("#column-chooser");
   var listElement = parent.find("#column-list");
   for (var column in headerList) {
-    if (column <= 9) {
-      listElement.append("<label><input type='checkbox' value='" + headerList[column] + "' class='column-chooser' checked> &nbsp;&nbsp;&nbsp;" + headerList[column] + "</label><br/>");
-      selectedList.push(headerList[column]);
-    } else {
-      listElement.append("<label><input type='checkbox' value='" + headerList[column] + "' class='column-chooser'> &nbsp;&nbsp;&nbsp;" + headerList[column] + "</label><br/>");
-    }
+    listElement.append("<label><input type='checkbox' value='" + headerList[column] + "' class='column-chooser'> &nbsp;&nbsp;&nbsp;" + headerList[column] + "</label><br/>");
   }
 
   var selections = []
