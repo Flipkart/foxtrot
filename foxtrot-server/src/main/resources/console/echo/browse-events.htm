@@ -123,6 +123,7 @@
                 {{/each}}
               </tbody>
             </table>
+            <div><button type="submit" id="load-more" class="load-more" onClick="loadMore();">Load more data</button></div>
           </script>
         </div>
       </div>
@@ -142,7 +143,7 @@
         <div class="col-md-12" id="column-chooser-content">
           <form class="col-md-12">
             <div>
-              <label><input type="checkbox" class="" id="" />
+              <label><input type="checkbox" class="" id="select-all" name="select-all"/>
                 <span id="select-all-column">Select all available columns</span>
               </label>
             </div>
@@ -199,7 +200,7 @@
         //reDisplayTable();
         isEdit = true;
         renderTable(fetchedData);
-
+        showHideColumnChooser();
       });
 
 
@@ -222,6 +223,20 @@
       $('input[name="daterange"]').on('cancel.daterangepicker', function(ev, picker) {
         $(this).val('');
       });
+
+      $('#select-all').click(function(event) {
+        if(this.checked) {
+          // Iterate each checkbox
+          $('.column-chooser').each(function() {
+            this.checked = true;
+          });
+        } else {
+          $('.column-chooser').each(function() {
+            this.checked = false;
+          });
+        }
+      });
+
     });
   </script>
   <!--Application-->

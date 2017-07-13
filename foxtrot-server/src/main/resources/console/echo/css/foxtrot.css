@@ -2418,6 +2418,7 @@ div.tab button:first-child {
 
 .event-display-container {
   margin-top: 30px;
+  overflow-x: scroll;
 }
 
 #event-display-heading {

@@ -11,6 +11,8 @@ var fetchedData = [];
 var isEdit = false;
 var fromDate = 0;
 var toDate = 0
+var offset = 0;
+var isLoadMoreClicked = false;
 
 
 function getBrowseTables() {
@@ -126,7 +128,7 @@ function runQuery() {
       field: "_timestamp"
       , order: filterSection.find("#dataSort").val()
     }
-    , from: 0
+    , from: offset
     , limit: 10
   };
   $.ajax({
@@ -136,31 +138,28 @@ function runQuery() {
     , data: JSON.stringify(request)
     , dataType: 'json'
     , success: function (resp) {
-      fetchedData = resp;
-      renderTable(resp);
+      console.log(fetchedData)
+      if(fetchedData.documents) {
+        console.log('==')
+        var tmpData = fetchedData.documents;
+        console.log(tmpData)
+        tmpData.push.apply(tmpData, resp.documents);
+        console.log(tmpData)
+        fetchedData.documents = tmpData;
+        //console.log(fetchedData);
+        renderTable(fetchedData);
+      } else {
+        renderTable(resp);
+        fetchedData = resp;
+      }
     }
   });
 }
 
-function reDisplayTable() {
-  var tmpHeader = [];
-  var tmpRow = [];
-  var parent = $(".event-display-container");
-  for(var column in selectedList) {
-    var columnName = selectedList[column];
-    tmpHeader.push(columnName);
-    tmpRow.push(rowList[headerList.indexOf(columnName)]);
-  }
-
-  var tableData = {
-    headers: tmpHeader
-    , data: tmpRow
-  };
-  console.log(tableData);
-  parent.html(handlebars("#eventbrowser-template", tableData));
-
+function loadMore() {
+  offset = fetchedData.documents.length;
+  runQuery();
 }
-
 
 function generateColumChooserList() {
   var parent = $("#column-chooser");
