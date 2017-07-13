@@ -9,6 +9,8 @@ var rowList = [];
 var selectedList = [];
 var fetchedData = [];
 var isEdit = false;
+var fromDate = 0;
+var toDate = 0
 
 
 function getBrowseTables() {
@@ -106,8 +108,6 @@ function runQuery() {
     filters.push(filterObject);
   }
   var filterSection = $("#browse-events-form");
-  var fromDate = $('input[name="daterange"]').daterangepicker.from;
-  var toDate = $('input[name="daterange"]').daterangepicker.toDate;
   if ((fromDate - toDate) > 1000) {
     filters.push({
       field: "_timestamp"

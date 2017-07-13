@@ -202,13 +202,26 @@
       });
 
 
+      var dateFormat = "MM/DD/YYYY h:mm A";
       $('input[name="daterange"]').daterangepicker({
-        timePicker: true
+        timePicker: true,
+        autoUpdateInput: false
         , timePickerIncrement: 30
         , locale: {
-          format: 'MM/DD/YYYY h:mm A'
+          format: dateFormat
         }
       });
+
+      $('input[name="daterange"]').on('apply.daterangepicker', function(ev, picker) {
+        $(this).val(picker.startDate.format(dateFormat) + ' - ' + picker.endDate.format(dateFormat));
+        fromDate = picker.startDate.unix();
+        toDate = picker.endDate.unix();
+      });
+
+      $('input[name="daterange"]').on('cancel.daterangepicker', function(ev, picker) {
+        $(this).val('');
+      });
+
     });
   </script>
   <!--Application-->
