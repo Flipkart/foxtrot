@@ -7,6 +7,9 @@ var currentTable = "";
 var headerList = [];
 var rowList = [];
 var selectedList = [];
+var fetchedData = [];
+var isEdit = false;
+
 
 function getBrowseTables() {
   var select = $(".browse-table");
@@ -128,10 +131,10 @@ function runQuery() {
     , data: JSON.stringify(request)
     , dataType: 'json'
     , success: function (resp) {
+      fetchedData = resp;
       renderTable(resp);
     }
   });
-  console.log(request);
 }
 
 function reDisplayTable() {
@@ -203,6 +206,21 @@ function renderTable(data) {
     flatRows.push(flatObject);
   }
   headers = Object.keys(headerMap);
+
+  if(isEdit) {
+    var tmpHeaders = [];
+    for(column in headers) {
+      var header = headers[column];
+      var tempHeader = header.replace('data.','');
+      console.log(selectedList.indexOf(tempHeader));
+      if(selectedList.indexOf(tempHeader) != -1) {
+        tmpHeaders.push(header);
+      }
+    }
+    headers = [];
+    headers = tmpHeaders;
+  }
+
   for (var i = flatRows.length - 1; i >= 0; i--) {
     var row = [];
     var flatData = flatRows[i];
@@ -221,7 +239,10 @@ function renderTable(data) {
   }
   headerList = headers;
   rowList = rows;
-  generateColumChooserList();
+
+  if(!isEdit)
+    generateColumChooserList();
+
   var tableData = {
     headers: headers
     , data: rows

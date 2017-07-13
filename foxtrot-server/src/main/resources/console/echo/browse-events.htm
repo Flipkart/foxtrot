@@ -195,7 +195,10 @@
       });
 
       $("#column-chooser-save-btn").click(function() {
-        reDisplayTable();
+        //reDisplayTable();
+        isEdit = true;
+        renderTable(fetchedData);
+
       });
 
 
