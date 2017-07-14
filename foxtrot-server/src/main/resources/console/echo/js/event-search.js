@@ -165,9 +165,22 @@ function generateColumChooserList() {
   var parent = $("#column-chooser");
   var listElement = parent.find("#column-list");
   for (var column in headerList) {
-    listElement.append("<label><input type='checkbox' value='" + headerList[column] + "' class='column-chooser'> &nbsp;&nbsp;&nbsp;" + headerList[column] + "</label><br/>");
+    listElement.append("<div><label><input type='checkbox' value='" + headerList[column] + "' class='column-chooser'> &nbsp;&nbsp;&nbsp;" + headerList[column] + "</label></div>");
   }
 
+  // Search columns
+  $('.search-columns').on('keyup', function() {
+    var query = this.value;
+    $('[class^="column-chooser"]').each(function(i, elem) {
+      if (elem.value.indexOf(query) != -1) {
+        $(this).closest('label').show();
+      }else{
+        $(this).closest('label').hide();
+      }
+    });
+  });
+
+  // get all selected columns
   var selections = []
     , render_selections = function () {
       selectedList = [];

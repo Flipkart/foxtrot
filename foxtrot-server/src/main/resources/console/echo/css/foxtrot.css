@@ -2595,3 +2595,10 @@ div.tab button:first-child {
 .load-more-parent-div {
   text-align: center;
 }
+
+#search-columns {
+  width: 291px;
+  height: 33px;
+  border: solid 1px #979797;
+  margin-top: 21px;
+}
