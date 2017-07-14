@@ -264,7 +264,7 @@ public class GroupAction extends Action<GroupRequest> {
                                             .orElse(9);
 
                                     int numBuckets = maxBound - minBound + 1;
-                                    final double result = (numBuckets / 10);
+                                    final double result = (double)numBuckets / 10.0;
                                     log.debug("Between filter: {} " +
                                                     "percentiles[{}] = {} to percentiles[{}] = {} " +
                                                     "buckets {} multiplier {}",
@@ -281,7 +281,7 @@ public class GroupAction extends Action<GroupRequest> {
                                 @Override
                                 public Double visit(EqualsFilter equalsFilter) throws Exception {
                                     // There is a match, so contribution can only by 1 / N
-                                    final double result = (1 / numMatches);
+                                    final double result = 1.0 / (double)numMatches;
                                     log.debug("Equals filter: {} numMatches: {} multiplier: {}",
                                             equalsFilter, numMatches, result);
                                     return result;
@@ -306,7 +306,7 @@ public class GroupAction extends Action<GroupRequest> {
                                             .orElse(0);
 
                                     //Everything below this percentile do not affect
-                                    final double result = ((10 - minBound) / 10);
+                                    final double result = (double)(10 - minBound - 1) / 10.0;
                                     log.debug("Greater than filter: {} percentiles[{}] = {} multiplier: {}",
                                             greaterThanFilter,
                                             minBound,
@@ -327,7 +327,7 @@ public class GroupAction extends Action<GroupRequest> {
                                             .orElse(0);
 
                                     //Everything below this do not affect
-                                    final double result = ((10 - minBound) / 10);
+                                    final double result = (double)(10 - minBound - 1) / 10.0;
                                     log.debug("Greater equals filter: {} percentiles[{}] = {} multiplier: {}",
                                             greaterEqualFilter,
                                             minBound,
@@ -348,7 +348,7 @@ public class GroupAction extends Action<GroupRequest> {
                                             .orElse(0);
 
                                     //Everything above this do not affect
-                                    final double result = (double)minBound / 10.0;
+                                    final double result = ((double)minBound + 1.0)/ 10.0;
                                     log.debug("Less than filter: {} percentiles[{}] = {} multiplier: {}",
                                             lessThanFilter,
                                             minBound,
@@ -368,7 +368,7 @@ public class GroupAction extends Action<GroupRequest> {
                                             .findFirst()
                                             .orElse(0);
                                     //Everything above this do not affect
-                                    final double result = (minBound / 10);
+                                    final double result = ((double)minBound + 1.0) / 10.0;
                                     log.debug("Less equals filter: {} percentiles[{}] = {} multiplier: {}",
                                             lessEqualFilter,
                                             minBound,
