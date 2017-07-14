@@ -21,16 +21,13 @@ import com.flipkart.foxtrot.core.querystore.QueryStore;
 import com.flipkart.foxtrot.core.table.TableManager;
 import com.flipkart.foxtrot.core.table.TableMetadataManager;
 
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
+import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.stream.Collectors;
 
 /**
- * Created by rishabh.goyal on 06/05/14.
+ * Table metadata related apis
  */
 @Path("/v1/tables")
 @Produces(MediaType.APPLICATION_JSON)
@@ -67,6 +64,16 @@ public class TableFieldMappingResource {
                                         throw new RuntimeException(e);
                                     }
                                 })))
+                .build();
+    }
+
+    @POST
+    @Path("/{name}/fields/update")
+    public Response updateEstimation(
+            @PathParam("name") final String table,
+            @QueryParam("time") @DefaultValue("0") long epoch) throws FoxtrotException {
+        tableMetadataManager.updateEstimationData(table, 0 == epoch ? System.currentTimeMillis() : epoch);
+        return Response.ok()
                 .build();
     }
 }
