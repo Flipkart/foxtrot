@@ -2303,17 +2303,15 @@ div.tab button:first-child {
   color: #7d909a;
 }
 
-/*
 #browse-events-form input:focus {
   outline: none;
   box-shadow: none;
 }
 
 #browse-events-form input:hover {
-  border: 1px solid #fff;
-  color: #fff;
+  border: 1px solid #32a6f9;
+  color: #000;
 }
-*/
 
 #browse-run-query-btn-div {
   padding-top: 20px;
@@ -2369,8 +2367,8 @@ div.tab button:first-child {
 }
 
 #browse-events-form .bootstrap-select:hover .btn:hover {
-  border: 1px solid #c0cbd1;
-  color: #7d909a !important;
+  border: 1px solid #32a6f9;
+  color: #000 !important;
 }
 
 #browse-events-form .bootstrap-select .btn {
@@ -2402,7 +2400,7 @@ div.tab button:first-child {
 }
 
 .event-table thead tr th{
-  padding: 30px 10px;
+  padding: 20px 8px;
   word-wrap: break-word;
   text-align: center;
 }
@@ -2610,4 +2608,9 @@ div.tab button:first-child {
   height: 33px;
   border: solid 1px #979797;
   margin-top: 21px;
+}
+
+#browse-events-add-query:hover{
+  border: 1px dashed #32a6f9;
+  color: #32a6f9;
 }
