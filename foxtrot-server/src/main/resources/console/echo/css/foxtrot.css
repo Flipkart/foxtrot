@@ -2386,6 +2386,9 @@ div.tab button:first-child {
   color: #000;
 }
 
+.event-table {
+  min-width: 100%;
+}
 .event-table thead{
   background-color: #f7f9fa;
   box-shadow: 1px 1px 4px 0 rgba(195, 210, 217, 0.4);
@@ -2575,4 +2578,20 @@ div.tab button:first-child {
   text-align: left;
   color: #ffffff;
   line-height: 2;
+}
+
+.load-more {
+  width: 156px;
+  height: 42px;
+  background-color: #32a6f9;
+  font-family: Open Sans Regular;
+  font-size: 14px;
+  font-weight: bold;
+  text-align: left;
+  color: #ffffff !important;
+  border: none;
+}
+
+.load-more-parent-div {
+  text-align: center;
 }

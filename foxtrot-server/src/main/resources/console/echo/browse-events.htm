@@ -123,7 +123,7 @@
                 {{/each}}
               </tbody>
             </table>
-            <div><button type="submit" id="load-more" class="load-more" onClick="loadMore();">Load more data</button></div>
+            <div class="load-more-parent-div"><button type="submit" id="load-more" class="load-more btn" onClick="loadMore();">Load more data</button></div>
           </script>
         </div>
       </div>
@@ -229,10 +229,12 @@
           // Iterate each checkbox
           $('.column-chooser').each(function() {
             this.checked = true;
+            selectedList.push(this.value);
           });
         } else {
           $('.column-chooser').each(function() {
             this.checked = false;
+            selectedList = [];
           });
         }
       });
