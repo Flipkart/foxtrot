@@ -46,10 +46,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 /**
  * Created by rishabh.goyal on 28/04/14.
@@ -161,6 +161,34 @@ public class TestUtils {
         documents.add(TestUtils.getDocument("F", 1397658118005L, new Object[]{"os", "ios", "version", 2, "device", "nexus", "battery", 35}, mapper));
         documents.add(TestUtils.getDocument("G", 1397658118006L, new Object[]{"os", "ios", "version", 2, "device", "ipad", "battery", 44}, mapper));
         return documents;
+    }
+
+    public static List<Document> getGroupDocumentsForEstimation(ObjectMapper mapper) {
+        Random random = new Random();
+        return IntStream.rangeClosed(0, 2000)
+                .mapToObj(i -> Document.builder()
+                        .id(UUID.randomUUID().toString())
+                        .timestamp(i * 60000 + 1397658117000L)
+                        .data(mapper.valueToTree(
+                                ImmutableMap.<String, Object>builder()
+                                        .put("deviceId", UUID.randomUUID().toString())
+                                        .put("os",
+                                                new String[]{
+                                                        "ios",
+                                                        "android",
+                                                        "android",
+                                                        "android"
+                                                }[random.nextInt(2)])
+                                        .put("registered",
+                                                new boolean[]{
+                                                        true,
+                                                        false,
+                                                        false
+                                                }[random.nextInt(3)])
+                                        .put("value", random.nextInt(101))
+                                        .build()))
+                        .build())
+                .collect(Collectors.toList());
     }
 
     public static List<Document> getHistogramDocuments(ObjectMapper mapper) {

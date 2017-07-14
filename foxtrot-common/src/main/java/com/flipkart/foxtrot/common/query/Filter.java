@@ -120,6 +120,7 @@ public abstract class Filter {
                 .toString();
     }
 
+    @JsonIgnore
     public boolean isFilterTemporal() {
         return false;
     }

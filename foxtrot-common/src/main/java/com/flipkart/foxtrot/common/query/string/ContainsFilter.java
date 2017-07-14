@@ -18,10 +18,11 @@ package com.flipkart.foxtrot.common.query.string;
 import com.flipkart.foxtrot.common.query.Filter;
 import com.flipkart.foxtrot.common.query.FilterOperator;
 import com.flipkart.foxtrot.common.query.FilterVisitor;
-import org.apache.commons.lang3.builder.ToStringBuilder;
-import org.hibernate.validator.constraints.NotEmpty;
+import lombok.Builder;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
-import javax.validation.constraints.NotNull;
 import java.util.Set;
 
 /**
@@ -29,55 +30,26 @@ import java.util.Set;
  * Date: 14/03/14
  * Time: 3:46 PM
  */
+@Data
+@EqualsAndHashCode(callSuper = true)
+@ToString(callSuper = true)
 public class ContainsFilter extends Filter {
 
-    @NotNull
-    @NotEmpty
     private String value;
 
     public ContainsFilter() {
         super(FilterOperator.contains);
     }
 
-    @Override
-    public<T> T accept(FilterVisitor<T> visitor) throws Exception {
-        return visitor.visit(this);
-    }
-
-    public String getValue() {
-        return value;
-    }
-
-    public void setValue(String value) {
+    @Builder
+    public ContainsFilter(String value) {
+        super(FilterOperator.contains);
         this.value = value;
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        if (!super.equals(o)) return false;
-
-        ContainsFilter that = (ContainsFilter) o;
-
-        return value.equals(that.value);
-
-    }
-
-    @Override
-    public int hashCode() {
-        int result = super.hashCode();
-        result = 31 * result + value.hashCode();
-        return result;
-    }
-
-
-    @Override
-    public String toString() {
-        return new ToStringBuilder(this)
-                .appendSuper(super.toString())
-                .append("value", value)
-                .toString();
+    public<T> T accept(FilterVisitor<T> visitor) throws Exception {
+        return visitor.visit(this);
     }
 
     @Override

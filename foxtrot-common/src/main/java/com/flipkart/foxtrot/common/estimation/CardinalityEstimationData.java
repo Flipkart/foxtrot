@@ -12,6 +12,7 @@ import lombok.ToString;
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
 public class CardinalityEstimationData extends EstimationData {
+    private static final long serialVersionUID = -7107697070895705011L;
     private long cardinality;
 
     public CardinalityEstimationData() {

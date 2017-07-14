@@ -25,7 +25,7 @@ import java.util.List;
  * Date: 26/03/14
  * Time: 7:49 PM
  */
-@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "opcode")
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.EXISTING_PROPERTY, property = "opcode")
 public abstract class ActionRequest {
 
     private final String opcode;
