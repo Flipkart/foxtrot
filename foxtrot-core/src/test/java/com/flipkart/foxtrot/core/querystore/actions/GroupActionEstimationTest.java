@@ -10,6 +10,7 @@ import com.flipkart.foxtrot.common.query.numeric.LessThanFilter;
 import com.flipkart.foxtrot.core.TestUtils;
 import com.flipkart.foxtrot.core.exception.CardinalityOverflowException;
 import com.google.common.collect.ImmutableList;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -20,6 +21,7 @@ import java.util.List;
 /**
  * Tests cardinality estimation
  */
+@Slf4j
 public class GroupActionEstimationTest extends ActionTest {
 
     @Before
@@ -69,9 +71,9 @@ public class GroupActionEstimationTest extends ActionTest {
                         .build()
         ));
 
-        System.out.println(getMapper().writerWithDefaultPrettyPrinter().writeValueAsString(groupRequest));
+        log.debug(getMapper().writerWithDefaultPrettyPrinter().writeValueAsString(groupRequest));
         GroupResponse response = GroupResponse.class.cast(getQueryExecutor().execute(groupRequest));
-        System.out.println(getMapper().writerWithDefaultPrettyPrinter().writeValueAsString(response));
+        log.debug(getMapper().writerWithDefaultPrettyPrinter().writeValueAsString(response));
         Assert.assertFalse(response.getResult().isEmpty());
     }
 
@@ -89,9 +91,9 @@ public class GroupActionEstimationTest extends ActionTest {
                         .build()
         ));
 
-        System.out.println(getMapper().writerWithDefaultPrettyPrinter().writeValueAsString(groupRequest));
+        log.debug(getMapper().writerWithDefaultPrettyPrinter().writeValueAsString(groupRequest));
         GroupResponse response = GroupResponse.class.cast(getQueryExecutor().execute(groupRequest));
-        System.out.println(getMapper().writerWithDefaultPrettyPrinter().writeValueAsString(response));
+        log.debug(getMapper().writerWithDefaultPrettyPrinter().writeValueAsString(response));
         Assert.assertFalse(response.getResult().isEmpty());
     }
 
@@ -122,9 +124,9 @@ public class GroupActionEstimationTest extends ActionTest {
                         .value(30)
                         .build()
         ));
-        System.out.println(getMapper().writerWithDefaultPrettyPrinter().writeValueAsString(groupRequest));
+        log.debug(getMapper().writerWithDefaultPrettyPrinter().writeValueAsString(groupRequest));
         GroupResponse response = GroupResponse.class.cast(getQueryExecutor().execute(groupRequest));
-        System.out.println(getMapper().writerWithDefaultPrettyPrinter().writeValueAsString(response));
+        log.debug(getMapper().writerWithDefaultPrettyPrinter().writeValueAsString(response));
         Assert.assertFalse(response.getResult().isEmpty());
     }
 
@@ -140,10 +142,8 @@ public class GroupActionEstimationTest extends ActionTest {
                         .value(80)
                         .build()
         ));
-        System.out.println(getMapper().writerWithDefaultPrettyPrinter().writeValueAsString(groupRequest));
-        GroupResponse response = GroupResponse.class.cast(getQueryExecutor().execute(groupRequest));
-        System.out.println(getMapper().writerWithDefaultPrettyPrinter().writeValueAsString(response));
-        Assert.assertFalse(response.getResult().isEmpty());
+        log.debug(getMapper().writerWithDefaultPrettyPrinter().writeValueAsString(groupRequest));
+        getQueryExecutor().execute(groupRequest)
     }
 
 }
