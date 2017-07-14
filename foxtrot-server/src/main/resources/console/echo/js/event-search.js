@@ -92,8 +92,13 @@ $(".browse-table").change(function () {
   clear();
 });
 
-function runQuery() {
+function runQuery(isBrowse) {
   var filters = [];
+
+  if(isBrowse) {
+    offset = 0;
+    fetchedData = [];
+  }
 
   for (var filter = 0; filter < browseFilterRowArray.length; filter++) {
     var filterId = browseFilterRowArray[filter];
@@ -138,15 +143,10 @@ function runQuery() {
     , data: JSON.stringify(request)
     , dataType: 'json'
     , success: function (resp) {
-      console.log(fetchedData)
       if(fetchedData.documents) {
-        console.log('==')
         var tmpData = fetchedData.documents;
-        console.log(tmpData)
         tmpData.push.apply(tmpData, resp.documents);
-        console.log(tmpData)
         fetchedData.documents = tmpData;
-        //console.log(fetchedData);
         renderTable(fetchedData);
       } else {
         renderTable(resp);
@@ -158,7 +158,7 @@ function runQuery() {
 
 function loadMore() {
   offset = fetchedData.documents.length;
-  runQuery();
+  runQuery(false);
 }
 
 function generateColumChooserList() {
@@ -267,8 +267,7 @@ $("#browse-events-run-query").click(function () {
   if(!$("#browse-events-form").valid()) {
     return;
   }
-
-  runQuery();
+  runQuery(true);
 });
 
 $("#browse-events-add-query").click(function () {
