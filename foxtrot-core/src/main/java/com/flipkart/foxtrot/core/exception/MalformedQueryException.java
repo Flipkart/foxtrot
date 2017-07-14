@@ -3,7 +3,6 @@ package com.flipkart.foxtrot.core.exception;
 import com.flipkart.foxtrot.common.ActionRequest;
 import com.google.common.collect.Maps;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -17,6 +16,12 @@ public class MalformedQueryException extends FoxtrotException {
 
     protected MalformedQueryException(ActionRequest actionRequest, List<String> reasons) {
         super(ErrorCode.MALFORMED_QUERY);
+        this.actionRequest = actionRequest;
+        this.reasons = reasons;
+    }
+
+    protected MalformedQueryException(ErrorCode errorCode, ActionRequest actionRequest, List<String> reasons) {
+        super(errorCode);
         this.actionRequest = actionRequest;
         this.reasons = reasons;
     }

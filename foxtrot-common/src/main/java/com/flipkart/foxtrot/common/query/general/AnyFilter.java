@@ -18,9 +18,15 @@ package com.flipkart.foxtrot.common.query.general;
 import com.flipkart.foxtrot.common.query.Filter;
 import com.flipkart.foxtrot.common.query.FilterOperator;
 import com.flipkart.foxtrot.common.query.FilterVisitor;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
 import java.util.Set;
 
+@Data
+@EqualsAndHashCode(callSuper = true)
+@ToString(callSuper = true)
 public class AnyFilter extends Filter {
 
     public AnyFilter() {
@@ -31,24 +37,6 @@ public class AnyFilter extends Filter {
     public<T> T accept(FilterVisitor<T> visitor) throws Exception {
         return visitor.visit(this);
     }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        if (!super.equals(o)) return false;
-
-        EqualsFilter that = (EqualsFilter) o;
-
-        return getField().equals(that.getField());
-
-    }
-
-    @Override
-    public int hashCode() {
-        return "any".hashCode();
-    }
-
 
     @Override
     public Set<String> validate() {

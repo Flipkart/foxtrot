@@ -17,6 +17,10 @@ package com.flipkart.foxtrot.common;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.JsonNode;
+import lombok.Builder;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.validation.constraints.NotNull;
@@ -27,7 +31,13 @@ import java.io.Serializable;
  * Date: 12/03/14
  * Time: 9:17 PM
  */
+
+@Data
+@EqualsAndHashCode
+@ToString
 public class Document implements Serializable {
+    private static final long serialVersionUID = 1394184997687819635L;
+
     @NotNull
     @NotEmpty
     @JsonProperty
@@ -52,6 +62,7 @@ public class Document implements Serializable {
         this.data = data;
     }
 
+    @Builder
     public Document(String id, long timestamp, DocumentMetadata metadata, JsonNode data) {
         this.id = id;
         this.timestamp = timestamp;
@@ -59,45 +70,4 @@ public class Document implements Serializable {
         this.data = data;
     }
 
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
-    }
-
-    public JsonNode getData() {
-        return data;
-    }
-
-    public void setData(JsonNode data) {
-        this.data = data;
-    }
-
-    public long getTimestamp() {
-        return timestamp;
-    }
-
-    public void setTimestamp(long timestamp) {
-        this.timestamp = timestamp;
-    }
-
-    public DocumentMetadata getMetadata() {
-        return metadata;
-    }
-
-    public void setMetadata(DocumentMetadata metadata) {
-        this.metadata = metadata;
-    }
-
-    @Override
-    public String toString() {
-        return "Document{" +
-                "id='" + id + '\'' +
-                ", timestamp=" + timestamp +
-                ", metadata=" + metadata +
-                ", data=" + data +
-                '}';
-    }
 }

@@ -137,6 +137,12 @@ public class GroupAction extends Action<GroupRequest> {
             validationErrors.add("unique field cannot be empty (can be null)");
         }
 
+        if (!CollectionUtils.isNullOrEmpty(validationErrors)) {
+            throw FoxtrotExceptions.createMalformedQueryException(parameter, validationErrors);
+        }
+
+        // Perform cardinality analysis and see how much this fucks up the cluster
+        double probability = 0;
         try {
             TableFieldMapping fieldMappings = getTableMetadataManager().getFieldMappings(parameter.getTable());
             if (null == fieldMappings) {
@@ -146,17 +152,15 @@ public class GroupAction extends Action<GroupRequest> {
                         .build();
             }
 
-            if (estimateProbability(fieldMappings, parameter) > 0.5) {
-                validationErrors.add("Blocked as probability is " + Double.toString(0.5));
-            }
-
+            probability = estimateProbability(fieldMappings, parameter);
         } catch (Exception e) {
             log.error("Error running estimation", e);
         }
 
-        if (!CollectionUtils.isNullOrEmpty(validationErrors)) {
-            throw FoxtrotExceptions.createMalformedQueryException(parameter, validationErrors);
+        if (probability > 0.5) {
+            throw FoxtrotExceptions.createCardinalityOverflow(parameter, parameter.getNesting().get(0), probability);
         }
+
     }
 
     private double estimateProbability(TableFieldMapping tableFieldMapping, GroupRequest parameter) throws Exception {
@@ -174,7 +178,7 @@ public class GroupAction extends Action<GroupRequest> {
         }
         final long count = meta.getEstimationData().getCount();
 
-        long estimatedDocs = (count / 1440) * minutes;
+        long estimatedDocs = (count * minutes) / 1440;
 
         if (estimatedDocs < MIN_ESTIMATION_THRESHOLD) { //Not worth checking
             log.debug("Estimator skipped as # docs ({}) < threshold ({})",
@@ -202,10 +206,10 @@ public class GroupAction extends Action<GroupRequest> {
             @Override
             public Double visit(CardinalityEstimationData cardinalityBasedEstimationData) {
                 final double result = (
-                        Long.min(
+                        (double)(Long.min(
                                 cardinalityBasedEstimationData.getCardinality(),
-                                cardinalityBasedEstimationData.getCount())
-                                / cardinalityBasedEstimationData.getCount());
+                                cardinalityBasedEstimationData.getCount()))
+                                / (double)cardinalityBasedEstimationData.getCount());
                 log.debug("Result from cardinality estimation: min({}, {})/ {} = {}",
                         cardinalityBasedEstimationData.getCardinality(),
                         cardinalityBasedEstimationData.getCount(),
@@ -215,11 +219,16 @@ public class GroupAction extends Action<GroupRequest> {
             }
         });
         log.debug("First phase probability for field {} is {}", field, probability);
+        if(CollectionUtils.isNullOrEmpty(filters)) {
+            log.debug("No filters in this query. Final probability is: {}", probability);
+            return probability;
+        }
         for (Filter filter : filters) {
             final String filterField = filter.getField();
             FieldMetadata fieldMetadata = metaMap.get(filterField);
-            if (null == fieldMetadata.getEstimationData()) {
-                log.warn("No estimation data found for: {}", fieldMetadata);
+            if (null == fieldMetadata
+                    || null == fieldMetadata.getEstimationData()) {
+                log.warn("No estimation data found for field {} meta {}", filterField, fieldMetadata);
                 continue;
             }
             log.info("Starting estimation for filter: {} with mapping: {}", filter, fieldMetadata);
@@ -329,15 +338,15 @@ public class GroupAction extends Action<GroupRequest> {
                                 public Double visit(LessThanFilter lessThanFilter) throws Exception {
                                     //Percentage of values lesser than to bound
                                     //Found when we find a percentile value >= bound
-                                    int minBound = IntStream.rangeClosed(0, 9)
+                                    int minBound = 9 - IntStream.rangeClosed(0, 9)
                                             .filter(i ->
-                                                    percentiles[i] < lessThanFilter.getValue().doubleValue())
+                                                    percentiles[9 - i] < lessThanFilter.getValue().doubleValue())
                                             //Stop when we find a value >= bound
                                             .findFirst()
                                             .orElse(0);
 
                                     //Everything above this do not affect
-                                    final double result = (minBound / 10);
+                                    final double result = (double)minBound / 10.0;
                                     log.debug("Less than filter: {} percentiles[{}] = {} multiplier: {}",
                                             lessThanFilter,
                                             minBound,
@@ -350,9 +359,9 @@ public class GroupAction extends Action<GroupRequest> {
                                 public Double visit(LessEqualFilter lessEqualFilter) throws Exception {
                                     //Percentage of values lesser than or equal to bound
                                     //Found when we find a percentile value > bound
-                                    int minBound = IntStream.rangeClosed(0, 9)
+                                    int minBound = 9 - IntStream.rangeClosed(0, 9)
                                             .filter(i ->
-                                                    percentiles[i] <= lessEqualFilter.getValue().doubleValue())
+                                                    percentiles[9 - i] <= lessEqualFilter.getValue().doubleValue())
                                             //Stop when we find a value > bound
                                             .findFirst()
                                             .orElse(0);
@@ -376,40 +385,39 @@ public class GroupAction extends Action<GroupRequest> {
                                 @Override
                                 public Double visit(EqualsFilter equalsFilter) throws Exception {
                                     //If there is a match it will be atmost one out of all the values present
-                                    return (double) (1 / cardinalityEstimationData.getCount());
+                                    return 1.0 / Utils.ensureOne(cardinalityEstimationData.getCardinality());
                                 }
 
                                 @Override
                                 public Double visit(NotEqualsFilter notEqualsFilter) throws Exception {
                                     // Assuming a match, there will be N-1 unmatched values
-                                    long numerator = Utils.ensurePositive(cardinalityEstimationData.getCardinality() - 1);
-                                    return (double) (numerator
-                                            / cardinalityEstimationData.getCount());
+                                    double numerator = Utils.ensurePositive(cardinalityEstimationData.getCardinality() - 1);
+                                    return numerator / Utils.ensureOne(cardinalityEstimationData.getCardinality());
+
                                 }
 
                                 @Override
                                 public Double visit(ContainsFilter stringContainsFilterElement) throws Exception {
                                     // Assuming there is a match to a value.
                                     // Can be more, but we err on the side of optimism.
-                                    return (double) (1 / cardinalityEstimationData.getCount());
+                                    return  (1.0 / Utils.ensureOne(cardinalityEstimationData.getCardinality()));
+
                                 }
 
                                 @Override
                                 public Double visit(InFilter inFilter) throws Exception {
                                     // Assuming there are M matches, the probability is M/N
-                                    return (double) (
-                                            Utils.ensurePositive(inFilter.getValues().size())
-                                                    / cardinalityEstimationData.getCount());
+                                    return Utils.ensurePositive(inFilter.getValues().size())
+                                            / Utils.ensureOne(cardinalityEstimationData.getCardinality());
                                 }
 
                                 @Override
                                 public Double visit(NotInFilter inFilter) throws Exception {
                                     // Assuming there are M matches, then probability will be N - M / N
-                                    return (double) (
-                                            Utils.ensurePositive(
+                                    return Utils.ensurePositive(
                                                     cardinalityEstimationData.getCardinality()
                                                             - inFilter.getValues().size())
-                                                    / cardinalityEstimationData.getCount());
+                                                    / Utils.ensureOne(cardinalityEstimationData.getCardinality());
                                 }
                             });
                         }

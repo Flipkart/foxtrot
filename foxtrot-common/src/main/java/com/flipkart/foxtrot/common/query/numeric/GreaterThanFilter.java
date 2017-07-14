@@ -17,18 +17,26 @@ package com.flipkart.foxtrot.common.query.numeric;
 
 import com.flipkart.foxtrot.common.query.FilterOperator;
 import com.flipkart.foxtrot.common.query.FilterVisitor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
 /**
  * User: Santanu Sinha (santanu.sinha@flipkart.com)
  * Date: 14/03/14
  * Time: 8:17 PM
  */
+@Data
+@EqualsAndHashCode(callSuper = true)
+@ToString(callSuper = true)
 public class GreaterThanFilter extends NumericBinaryFilter {
 
     public GreaterThanFilter() {
         super(FilterOperator.greater_than);
     }
 
+    @Builder
     public GreaterThanFilter(String field, Number value, boolean temporal) {
         super(FilterOperator.greater_than, field, value, temporal);
     }

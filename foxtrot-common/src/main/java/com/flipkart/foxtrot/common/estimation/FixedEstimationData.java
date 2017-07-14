@@ -13,6 +13,7 @@ import lombok.ToString;
 @ToString(callSuper = true)
 public class FixedEstimationData extends EstimationData {
 
+    private static final long serialVersionUID = 9133737808349090291L;
     private long probability;
 
     public FixedEstimationData() {
