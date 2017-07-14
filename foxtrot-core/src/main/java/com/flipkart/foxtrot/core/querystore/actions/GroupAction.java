@@ -158,6 +158,8 @@ public class GroupAction extends Action<GroupRequest> {
         }
 
         if (probability > 0.5) {
+            log.warn("Blocked query as it might have screwed up the cluster. Probability: {} Query: {}",
+                        probability, parameter);
             throw FoxtrotExceptions.createCardinalityOverflow(parameter, parameter.getNesting().get(0), probability);
         }
 
