@@ -143,7 +143,7 @@ public class GroupActionEstimationTest extends ActionTest {
                         .build()
         ));
         log.debug(getMapper().writerWithDefaultPrettyPrinter().writeValueAsString(groupRequest));
-        getQueryExecutor().execute(groupRequest)
+        getQueryExecutor().execute(groupRequest);
     }
 
 }
