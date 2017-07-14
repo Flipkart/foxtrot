@@ -22,7 +22,6 @@ import com.flipkart.foxtrot.core.exception.FoxtrotExceptions;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
 import com.flipkart.foxtrot.server.providers.exception.FoxtrotExceptionMapper;
 import io.dropwizard.testing.junit.ResourceTestRule;
-import org.assertj.core.util.Lists;
 import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.Matchers;
@@ -200,7 +199,7 @@ public class DocumentResourceTest extends FoxtrotResourceTest {
 
     @Test
     public void testSaveDocumentsEmptyList() throws Exception {
-        Entity<List<Document>> list = Entity.json(Lists.emptyList());
+        Entity<List<Document>> list = Entity.json(Collections.emptyList());
         Response response = resources.client().target(String.format("/v1/document/%s/bulk", TestUtils.TEST_TABLE_NAME))
                 .request()
                 .post(list);
