@@ -124,15 +124,19 @@ function runQuery(isBrowse) {
     });
   }
 
+  var sortValue = filterSection.find("#dataSort").val();
+  var sortObject = {field: "_timestamp"};
+
+  if(sortValue != "none") {
+    sortObject.order = sortValue;
+  }
+
   var table = currentTable;
   var request = {
     opcode: "query"
     , table: table
     , filters: filters
-    , sort: {
-      field: "_timestamp"
-      , order: filterSection.find("#dataSort").val()
-    }
+    , sort: sortObject
     , from: offset
     , limit: 10
   };
