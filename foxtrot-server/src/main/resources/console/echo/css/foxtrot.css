@@ -2272,7 +2272,9 @@ div.tab button:first-child {
 }
 
 .browse-events-filter-between-value[disabled] {
-  background: none;
+  cursor: not-allowed;
+  background-color: #eeeeee !important;
+  opacity: 1;
 }
 
 .browse-events-filter-between-value {
