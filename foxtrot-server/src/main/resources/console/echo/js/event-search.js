@@ -270,6 +270,9 @@ function renderTable(data) {
     , data: rows
   };
   parent.html(handlebars("#eventbrowser-template", tableData));
+
+  if(offset==0)
+    document.getElementById("scroll-ref").scrollIntoView();
 }
 
 
