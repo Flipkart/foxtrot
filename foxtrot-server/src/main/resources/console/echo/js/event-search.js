@@ -13,15 +13,15 @@ var fromDate = 0;
 var toDate = 0
 var offset = 0;
 var isLoadMoreClicked = false;
-
+var didScroll = false;
 
 function getBrowseTables() {
   var select = $(".browse-table");
   $.ajax({
-    url: apiUrl + "/v1/tables/"
-    , contentType: "application/json"
-    , context: this
-    , success: function (tables) {
+    url: apiUrl + "/v1/tables/",
+    contentType: "application/json",
+    context: this,
+    success: function (tables) {
       for (var i = tables.length - 1; i >= 0; i--) {
         tableNameList.push(tables[i].name);
 
@@ -95,7 +95,7 @@ $(".browse-table").change(function () {
 function runQuery(isBrowse) {
   var filters = [];
 
-  if(isBrowse) {
+  if (isBrowse) {
     offset = 0;
     fetchedData = [];
   }
@@ -108,46 +108,48 @@ function runQuery(isBrowse) {
     var filterValue = $(el).find(".browse-events-filter-value").val();
     var filterObject;
     filterObject = {
-      "operator": filterType
-      , "value": filterValue
-      , "field": currentFieldList[parseInt(filterColumn)].field
+      "operator": filterType,
+      "value": filterValue,
+      "field": currentFieldList[parseInt(filterColumn)].field
     }
     filters.push(filterObject);
   }
   var filterSection = $("#browse-events-form");
   if ((fromDate - toDate) > 1000) {
     filters.push({
-      field: "_timestamp"
-      , operator: "between"
-      , from: fromDate
-      , to: toDate
+      field: "_timestamp",
+      operator: "between",
+      from: fromDate,
+      to: toDate
     });
   }
 
   var sortValue = filterSection.find("#dataSort").val();
-  var sortObject = {field: "_timestamp"};
+  var sortObject = {
+    field: "_timestamp"
+  };
 
-  if(sortValue != "none") {
+  if (sortValue != "none") {
     sortObject.order = sortValue;
   }
 
   var table = currentTable;
   var request = {
-    opcode: "query"
-    , table: table
-    , filters: filters
-    , sort: sortObject
-    , from: offset
-    , limit: 10
+    opcode: "query",
+    table: table,
+    filters: filters,
+    sort: sortObject,
+    from: offset,
+    limit: 10
   };
   $.ajax({
-    method: 'POST'
-    , url: apiUrl + "/v1/analytics"
-    , contentType: "application/json"
-    , data: JSON.stringify(request)
-    , dataType: 'json'
-    , success: function (resp) {
-      if(fetchedData.documents) {
+    method: 'POST',
+    url: apiUrl + "/v1/analytics",
+    contentType: "application/json",
+    data: JSON.stringify(request),
+    dataType: 'json',
+    success: function (resp) {
+      if (fetchedData.documents) {
         var tmpData = fetchedData.documents;
         tmpData.push.apply(tmpData, resp.documents);
         fetchedData.documents = tmpData;
@@ -174,20 +176,20 @@ function generateColumChooserList() {
   }
 
   // Search columns
-  $('.search-columns').on('keyup', function() {
+  $('.search-columns').on('keyup', function () {
     var query = this.value;
-    $('[class^="column-chooser"]').each(function(i, elem) {
+    $('[class^="column-chooser"]').each(function (i, elem) {
       if (elem.value.indexOf(query) != -1) {
         $(this).closest('label').show();
-      }else{
+      } else {
         $(this).closest('label').hide();
       }
     });
   });
 
   // get all selected columns
-  var selections = []
-    , render_selections = function () {
+  var selections = [],
+    render_selections = function () {
       selectedList = [];
       selectedList = selections;
     };
@@ -233,13 +235,13 @@ function renderTable(data) {
   }
   headers = Object.keys(headerMap);
 
-  if(isEdit) {
+  if (isEdit) {
     var tmpHeaders = [];
-    for(column in headers) {
+    for (column in headers) {
       var header = headers[column];
-      var tempHeader = header.replace('data.','');
+      var tempHeader = header.replace('data.', '');
       console.log(selectedList.indexOf(tempHeader));
-      if(selectedList.indexOf(tempHeader) != -1) {
+      if (selectedList.indexOf(tempHeader) != -1) {
         tmpHeaders.push(header);
       }
     }
@@ -266,22 +268,22 @@ function renderTable(data) {
   headerList = headers;
   rowList = rows;
 
-  if(!isEdit)
+  if (!isEdit)
     generateColumChooserList();
 
   var tableData = {
-    headers: headers
-    , data: rows
+    headers: headers,
+    data: rows
   };
   parent.html(handlebars("#eventbrowser-template", tableData));
 
-  if(offset==0)
+  if (offset == 0)
     document.getElementById("scroll-ref").scrollIntoView();
 }
 
 
 $("#browse-events-run-query").click(function () {
-  if(!$("#browse-events-form").valid()) {
+  if (!$("#browse-events-form").valid()) {
     return;
   }
   runQuery(true);
@@ -298,7 +300,7 @@ $("#browse-events-add-query").click(function () {
     browseFilterRowArray.push(filterCount);
   }
 
-  var filterRow = '<div class="row clearfix" id="filter-row-' + filterCount + '"><img src="img/remove.png" class="browse-events-filter-remove-img browse-events-delete" id="' + filterCount + '" /><div class="col-sm-3"><select class="selectpicker form-control filter-column filter-background" id="filter-row-' + filterCount + '" data-live-search="true" name="filter-column-'+filterCount+'" required></select></div><div class="col-sm-3"><select class="selectpicker filter-type filter-background form-control" id="' + filterCount + '"><option value="equals">Equal to</option><option value="not_equals">Not Equal to</option><option value="less_than">Less than</option><option value="less_equal">Less or equal to</option><option value="greater_than">Greater than</option><option value="greater_equal">Greater or equal to</option><option value="contains">Equals</option><option value="not_equals">Not equals</option><option value="contains">Contains</option><option value="between">Between</option></select></div><div class="col-sm-3"><input id="filter-column-row-' + filterCount + '" type="text" class="form-control browse-events-filter-value form-control" name="browse-events-filter-value-'+filterCount+'" required></div><div class="col-sm-3"><input id="filter-between-input-' + filterCount + '" type="text" class="form-control browse-events-filter-between-value form-control" disabled></div></span></div></div>';
+  var filterRow = '<div class="row clearfix" id="filter-row-' + filterCount + '"><img src="img/remove.png" class="browse-events-filter-remove-img browse-events-delete" id="' + filterCount + '" /><div class="col-sm-3"><select class="selectpicker form-control filter-column filter-background" id="filter-row-' + filterCount + '" data-live-search="true" name="filter-column-' + filterCount + '" required></select></div><div class="col-sm-3"><select class="selectpicker filter-type filter-background form-control" id="' + filterCount + '"><option value="equals">Equal to</option><option value="not_equals">Not Equal to</option><option value="less_than">Less than</option><option value="less_equal">Less or equal to</option><option value="greater_than">Greater than</option><option value="greater_equal">Greater or equal to</option><option value="contains">Equals</option><option value="not_equals">Not equals</option><option value="contains">Contains</option><option value="between">Between</option></select></div><div class="col-sm-3"><input id="filter-column-row-' + filterCount + '" type="text" class="form-control browse-events-filter-value form-control" name="browse-events-filter-value-' + filterCount + '" required></div><div class="col-sm-3"><input id="filter-between-input-' + filterCount + '" type="text" class="form-control browse-events-filter-between-value form-control" disabled></div></span></div></div>';
   $(".browse-rows").append(filterRow);
   var filterValueEl = $("#filter-row-" + filterCount).find('.browse-events-delete');
   var filterType = $("#filter-row-" + filterCount).find('.filter-type');
@@ -313,10 +315,10 @@ $("#browse-events-add-query").click(function () {
   });
   $(filterColumn).change(function () {
     var selected = $(this).val();
-    if(selected) {
-      $(this).next().css( "display", "none" );
+    if (selected) {
+      $(this).next().css("display", "none");
     } else {
-      $(this).next().css( "display", "block" );
+      $(this).next().css("display", "block");
     }
     queryTypeTriggered(this);
   });
@@ -337,17 +339,33 @@ function showHideColumnChooser() { // page setting modal
 }
 
 
-$("#show-more").click(function() {
+$("#show-more").click(function () {
   $("#more-fields").toggle();
-  if(this.text == "Show more") {
+  if (this.text == "Show more") {
     this.text = "Show Less";
   } else {
     this.text = "Show more"
   }
 });
 
-$("#add-sections").click(function() {
+$("#add-sections").click(function () {
   window.location = "index.htm?openDashboard=true";
 });
+
+document.addEventListener('scroll', function (event) {
+  console.log(window.scrollY)
+  if (fetchedData.documents)
+    didScroll = true;
+}, true);
+
+setInterval(function () {
+  if (didScroll) {
+    offset = fetchedData.documents.length;
+    if (offset <= 30) {
+      runQuery(false);
+    }
+    didScroll = false;
+  }
+}, 2000);
 
 //$( "#browse-events-add-query" ).trigger( "click" );
