@@ -2648,3 +2648,15 @@ div.tab button:first-child {
 .dataSort {
   bottom: 10px;
 }
+
+.other-list-console {
+  color: #9aa4ab;
+  font-family: Open Sans;
+  font-weight: normal;
+}
+
+.active-browse-link {
+  color: #42b2f7 !important;
+  font-weight: 600;
+  font-family: Open Sans;
+}
