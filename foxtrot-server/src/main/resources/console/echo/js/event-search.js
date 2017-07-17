@@ -76,8 +76,10 @@ function queryTypeTriggered(el) {
 function setBetweenInput(el) {
   var selectedType = $(el).val();
   var rowString = $(el).attr('id');
-  var rowId = parseInt(rowString);
-  if (selectedType == "between") {
+
+  var rowIdArray = rowString.split('-');
+  var rowId = rowIdArray[3];
+    if (selectedType == "between") {
     $('#filter-between-input-' + rowId).prop("disabled", false);
   } else {
     $('#filter-between-input-' + rowId).prop("disabled", true);
@@ -289,6 +291,52 @@ $("#browse-events-run-query").click(function () {
   runQuery(true);
 });
 
+
+function getWhereOption(fieldType) {
+  var allOption = '<option value="">Select</option><option value="equals">Equal to</option><option value="not_equals">Not Equal to</option><option value="less_than">Less than</option><option value="less_equal">Less or equal to</option><option value="greater_than">Greater than</option><option value="greater_equal">Greater or equal to</option><option value="contains">Equals</option><option value="not_equals">Not equals</option><option value="contains">Contains</option><option value="between">Between</option>';
+
+  var stringOption = '<option value="">Select</option><option value="equals">Equal to</option><option value="not_equals">Not Equal to</option><option value="contains">Contains</option>';
+
+  var boolOption = '<option value="">Select</option><option value="equals">Equal to</option><option value="not_equals">Not Equal to</option>';
+
+  var intOption = '<option value="">Select</option><option value="equals">Equal to</option><option value="not_equals">Not Equal to</option><option value="less_than">Less than</option><option value="less_equal">Less or equal to</option><option value="greater_than">Greater than</option><option value="greater_equal">Greater or equal to</option><option value="contains">Equals</option><option value="not_equals">Not equals</option><option value="between">Between</option>';
+
+  var intArray = ["LONG", "INTEGER", "SHORT", "BYTE", "DATE", "FLOAT", "DOUBLE"];
+  var boolArray = ["BOOLEAN"];
+  var stringArray = ["STRING"];
+
+  if(intArray.indexOf(fieldType) > -1) {
+    return intOption;
+
+  } else if(boolArray.indexOf(fieldType) > -1) {
+    return boolOption;
+
+  } else if(stringArray.indexOf(fieldType) > -1) {
+    return stringOption;
+  } else {
+    return allOption;
+  }
+}
+
+function generateOption(el, type) {
+  var selectedColumn = $(el).val();
+  var columnType = currentFieldList[selectedColumn].type;
+  var rowString = $(el).attr('id');
+  var rowIdArray = rowString.split('-');
+  var rowId = rowIdArray[2];
+  var optionString = getWhereOption(type);
+  var el = $("#filter-type-option-"+rowId);
+
+  $("#browse-events-form").find(el)
+    .find('option')
+    .remove()
+    .end()
+    .append(getWhereOption(type));
+  $("#browse-events-form").find(el).selectpicker('refresh')
+
+}
+
+
 $("#browse-events-add-query").click(function () {
   currentFieldList = tableFiledsArray[currentTable].mappings;
   var filterCount = browseFilterRowArray.length;
@@ -300,7 +348,7 @@ $("#browse-events-add-query").click(function () {
     browseFilterRowArray.push(filterCount);
   }
 
-  var filterRow = '<div class="row clearfix" id="filter-row-' + filterCount + '"><img src="img/remove.png" class="browse-events-filter-remove-img browse-events-delete" id="' + filterCount + '" /><div class="col-sm-3"><select class="selectpicker form-control filter-column filter-background" id="filter-row-' + filterCount + '" data-live-search="true" name="filter-column-' + filterCount + '" required></select></div><div class="col-sm-3"><select class="selectpicker filter-type filter-background form-control" id="' + filterCount + '"><option value="equals">Equal to</option><option value="not_equals">Not Equal to</option><option value="less_than">Less than</option><option value="less_equal">Less or equal to</option><option value="greater_than">Greater than</option><option value="greater_equal">Greater or equal to</option><option value="contains">Equals</option><option value="not_equals">Not equals</option><option value="contains">Contains</option><option value="between">Between</option></select></div><div class="col-sm-3"><input id="filter-column-row-' + filterCount + '" type="text" class="form-control browse-events-filter-value form-control" name="browse-events-filter-value-' + filterCount + '" required></div><div class="col-sm-3"><input id="filter-between-input-' + filterCount + '" type="text" class="form-control browse-events-filter-between-value form-control" disabled></div></span></div></div>';
+  var filterRow = '<div class="row clearfix" id="filter-row-' + filterCount + '"><img src="img/remove.png" class="browse-events-filter-remove-img browse-events-delete" id="' + filterCount + '" /><div class="col-sm-3"><select class="selectpicker form-control filter-column filter-background" id="filter-row-' + filterCount + '" data-live-search="true" name="filter-column-' + filterCount + '" required></select></div><div class="col-sm-3"><select required class="filter-type filter-type-option-'+filterCount+' filter-background form-control" id="filter-type-option-'+filterCount+'"></select></div><div class="col-sm-3"><input id="filter-column-row-' + filterCount + '" type="text" class="form-control browse-events-filter-value form-control" name="browse-events-filter-value-' + filterCount + '" required></div><div class="col-sm-3"><input id="filter-between-input-' + filterCount + '" type="text" class="form-control browse-events-filter-between-value form-control" disabled></div></span></div></div>';
   $(".browse-rows").append(filterRow);
   var filterValueEl = $("#filter-row-" + filterCount).find('.browse-events-delete');
   var filterType = $("#filter-row-" + filterCount).find('.filter-type');
@@ -321,6 +369,7 @@ $("#browse-events-add-query").click(function () {
       $(this).next().css("display", "block");
     }
     queryTypeTriggered(this);
+    generateOption(this, currentFieldList[parseInt(selected)].type);
   });
   $(filterType).change(function () {
     setBetweenInput(this);
