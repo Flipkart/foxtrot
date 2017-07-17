@@ -165,7 +165,7 @@ function generateColumChooserList() {
   var parent = $("#column-chooser");
   var listElement = parent.find("#column-list");
   for (var column in headerList) {
-    listElement.append("<div><label><input type='checkbox' checked value='" + headerList[column] + "' class='column-chooser'> &nbsp;&nbsp;&nbsp;" + headerList[column] + "</label></div>");
+    listElement.append("<div class='column-chooser-div'><label><input type='checkbox' checked value='" + headerList[column] + "' class='column-chooser'><span class='column-name-text-display'>" + headerList[column] + "</span></label></div>");
     selectedList.push(headerList[column]);
   }
 

@@ -50,8 +50,21 @@
   <div class="container-full">
     <div class="new-header">
       <div class="inner-header container-fluid">
-        <a href="index.htm"><img src="img/echo_1.png" alt="logo" /></a>
-        <h1 id="browse-events-heading"> Browse events</h1>
+        <h1 class="col-sm-4 heading">
+          <a href="index.htm"><img src="img/echo_1.png" alt="logo" /></a>
+        </h1>
+        <div id="console-list-dropdown">
+          <select id="listConsole" class="listConsole">
+            <option value="none">Select console</option>
+          </select>
+          <ul id="left-menu">
+            <li><a href="browse-events.htm">Browse Events</a></li>
+            <!--              <li><a>Explore</a></li>-->
+            <li id="add-sections" data-target="#addDashboard" data-toggle="modal">
+              <span id="create-new-dashboard">Create New Dashboard</span>
+            </li>
+          </ul>
+        </div>
       </div>
     </div>
     <!-- Modal -->

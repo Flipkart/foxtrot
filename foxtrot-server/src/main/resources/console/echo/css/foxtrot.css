@@ -2614,3 +2614,21 @@ div.tab button:first-child {
   border: 1px dashed #32a6f9;
   color: #32a6f9;
 }
+
+.column-name-text-display {
+  position: relative;
+  bottom: 25px;
+  left: 20px;
+  display: block;
+  text-overflow: ellipsis;
+  width: 284px;
+  overflow: hidden;
+}
+
+.column-chooser-div {
+  height: 25px;
+}
+
+.column-chooser-div:last-child {
+  margin-bottom: 20px;
+}
