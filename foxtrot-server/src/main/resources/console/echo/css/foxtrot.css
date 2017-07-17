@@ -2632,3 +2632,19 @@ div.tab button:first-child {
 .column-chooser-div:last-child {
   margin-bottom: 20px;
 }
+
+#more-fields {
+  display: none;
+}
+
+#show-more {
+  margin-left: 15px;
+  color: #a6a8b5;
+  font-family: Open Sans;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.dataSort {
+  bottom: 10px;
+}

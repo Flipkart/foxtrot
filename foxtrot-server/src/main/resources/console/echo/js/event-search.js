@@ -329,4 +329,14 @@ function showHideColumnChooser() { // page setting modal
   }
 }
 
+
+$("#show-more").click(function() {
+  $("#more-fields").toggle();
+  if(this.text == "Show more") {
+    this.text = "Show Less";
+  } else {
+    this.text = "Show more"
+  }
+});
+
 //$( "#browse-events-add-query" ).trigger( "click" );
