@@ -165,7 +165,8 @@ function generateColumChooserList() {
   var parent = $("#column-chooser");
   var listElement = parent.find("#column-list");
   for (var column in headerList) {
-    listElement.append("<div><label><input type='checkbox' value='" + headerList[column] + "' class='column-chooser'> &nbsp;&nbsp;&nbsp;" + headerList[column] + "</label></div>");
+    listElement.append("<div><label><input type='checkbox' checked value='" + headerList[column] + "' class='column-chooser'> &nbsp;&nbsp;&nbsp;" + headerList[column] + "</label></div>");
+    selectedList.push(headerList[column]);
   }
 
   // Search columns
@@ -191,6 +192,15 @@ function generateColumChooserList() {
     selections = $.map($('input[type="checkbox"]:checked'), function (a) {
       return a.value;
     })
+
+    // check select all checkbox check or uncheck
+    if ($('.column-chooser:checked').length == $('.column-chooser').length) {
+      //do something
+      $(".select-all").prop('checked', true);
+    } else {
+      $(".select-all").prop('checked', false);
+    }
+
     render_selections();
   });
 }
