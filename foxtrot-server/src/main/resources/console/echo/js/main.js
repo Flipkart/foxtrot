@@ -647,6 +647,11 @@ $(document).ready(function () {
     isNewConsole = true;
   }
 
+  var isOpenDashboard = getParameterByName("openDashboard");
+  if(isOpenDashboard) {
+    $("#addDashboard").modal('show');
+  }
+
   $(".delete-widget-btn").click( function() {
     var id = $("#delete-widget-value").val();
     $(".tile-container").find('#'+id).remove();

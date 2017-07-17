@@ -342,4 +342,8 @@ $("#show-more").click(function() {
   }
 });
 
+$("#add-sections").click(function() {
+  window.location = "index.htm?openDashboard=true";
+});
+
 //$( "#browse-events-add-query" ).trigger( "click" );
