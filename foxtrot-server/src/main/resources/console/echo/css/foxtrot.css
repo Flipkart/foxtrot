@@ -2223,7 +2223,6 @@ div.tab button:first-child {
   border: 1px dashed #90a2ac;
   font-size: 14px;
   color: #bfcbd1;
-  margin-top: 20px;
 }
 
 #browse-events-content {
@@ -2272,7 +2271,9 @@ div.tab button:first-child {
 }
 
 .browse-events-filter-between-value[disabled] {
-  background: none;
+  cursor: not-allowed;
+  background-color: #eeeeee !important;
+  opacity: 1;
 }
 
 .browse-events-filter-between-value {
@@ -2298,26 +2299,23 @@ div.tab button:first-child {
 
 #browse-events-form input {
   background: none;
-  border: none;
   border: solid 1px #c0cbd1;
   color: #7d909a;
 }
 
-/*
 #browse-events-form input:focus {
   outline: none;
   box-shadow: none;
 }
 
 #browse-events-form input:hover {
-  border: 1px solid #fff;
-  color: #fff;
+  border: 1px solid #32a6f9;
+  color: #000;
 }
-*/
 
 #browse-run-query-btn-div {
-  padding-top: 20px;
-  margin-right: 15px;
+  padding-top: 26px;
+  float: right;
 }
 
 .table-bordered {
@@ -2369,8 +2367,8 @@ div.tab button:first-child {
 }
 
 #browse-events-form .bootstrap-select:hover .btn:hover {
-  border: 1px solid #c0cbd1;
-  color: #7d909a !important;
+  border: 1px solid #32a6f9;
+  color: #000 !important;
 }
 
 #browse-events-form .bootstrap-select .btn {
@@ -2402,9 +2400,10 @@ div.tab button:first-child {
 }
 
 .event-table thead tr th{
-  padding: 30px 10px;
+  padding: 20px 8px;
   word-wrap: break-word;
   text-align: center;
+  border-bottom-width: 1px;
 }
 
 .event-table tbody tr td{
@@ -2610,4 +2609,58 @@ div.tab button:first-child {
   height: 33px;
   border: solid 1px #979797;
   margin-top: 21px;
+}
+
+#browse-events-add-query:hover{
+  border: 1px dashed #32a6f9;
+  color: #32a6f9;
+}
+
+.column-name-text-display {
+  position: relative;
+  bottom: 25px;
+  left: 20px;
+  display: block;
+  text-overflow: ellipsis;
+  width: 284px;
+  overflow: hidden;
+}
+
+.column-chooser-div {
+  height: 25px;
+}
+
+.column-chooser-div:last-child {
+  margin-bottom: 20px;
+}
+
+#more-fields {
+  display: none;
+}
+
+#show-more {
+  color: #a6a8b5;
+  font-family: Open Sans;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.dataSort {
+  bottom: 10px;
+}
+
+.other-list-console {
+  color: #9aa4ab;
+  font-family: Open Sans;
+  font-weight: normal;
+}
+
+.active-browse-link {
+  color: #42b2f7 !important;
+  font-weight: 600;
+  font-family: Open Sans;
+}
+
+.filter-value-div {
+  line-height: 1.4;
 }
