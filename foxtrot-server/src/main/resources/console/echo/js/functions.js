@@ -161,3 +161,28 @@ function getFilterCheckBox() {
 function selectAllUiCheckbox() {
   $(".ui-filter-checkbox").prop('checked', 'true');
 }
+
+function appendConsoleList(array) { // console list to dropdown
+  var textToInsert = [];
+  var i = 0;
+  array.sort(function(a, b){ // sort by name
+    var nameA=a.name.toLowerCase(), nameB=b.name.toLowerCase();
+    if (nameA < nameB) //sort string ascending
+      return -1;
+    if (nameA > nameB)
+      return 1;
+    return 0; //default return value (no sorting)
+  });
+
+  for (var a = 0; a < array.length; a += 1) {
+    textToInsert[i++] = '<option value=' + array[a].id + '>';
+    textToInsert[i++] = array[a].name;
+    textToInsert[i++] = '</option>';
+  }
+  $("#listConsole").append(textToInsert.join(''));
+}
+
+function loadParticularConsole() { // reload page based on selected console
+  var selectedConsole = $("#listConsole").val();
+  window.location.assign("index.htm?console=" + selectedConsole);
+}

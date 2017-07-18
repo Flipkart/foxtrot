@@ -417,4 +417,23 @@ setInterval(function () {
   }
 }, 2000);
 
+function loadConsole() { // load console list api
+  $.ajax({
+    url: apiUrl+("/v2/consoles/"),
+    type: 'GET',
+    contentType: 'application/json',
+    success: function(res) {
+      appendConsoleList(res);
+    },
+    error: function() {
+      error("Could not save console");
+    }
+  })
+}
+
+$("#listConsole").change(function () {
+  loadParticularConsole();
+});
+
+loadConsole();
 //$( "#browse-events-add-query" ).trigger( "click" );

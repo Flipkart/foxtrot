@@ -280,26 +280,6 @@ function saveConsole() { // Save console api
   }
 }
 
-function appendConsoleList() { // console list to dropdown
-  var textToInsert = [];
-  var i = 0;
-  consoleList.sort(function(a, b){ // sort by name
-    var nameA=a.name.toLowerCase(), nameB=b.name.toLowerCase();
-    if (nameA < nameB) //sort string ascending
-      return -1;
-    if (nameA > nameB)
-      return 1;
-    return 0; //default return value (no sorting)
-  });
-
-  for (var a = 0; a < consoleList.length; a += 1) {
-    textToInsert[i++] = '<option value=' + consoleList[a].id + '>';
-    textToInsert[i++] = consoleList[a].name;
-    textToInsert[i++] = '</option>';
-  }
-  $("#listConsole").append(textToInsert.join(''));
-}
-
 function loadConsole() { // load console list api
   $.ajax({
     url: apiUrl+("/v2/consoles/"),
@@ -307,7 +287,7 @@ function loadConsole() { // load console list api
     contentType: 'application/json',
     success: function(res) {
       consoleList = res;
-      appendConsoleList();
+      appendConsoleList(res);
     },
     error: function() {
       error("Could not save console");
@@ -393,10 +373,9 @@ function getConsoleById(selectedConsole) { // get particular console list
   })
 }
 
-function loadParticularConsole() { // reload page based on selected console
-  var selectedConsole = $("#listConsole").val();
-  window.location.assign("?console=" + selectedConsole);
+function loadParticularConsoleList() { // reload page based on selected console
   $("#save-dashboard-name").val(currentConsoleName);
+  loadParticularConsole();
 }
 
 function renderTilesObject(currentTabName) { // render tiles based on current tab
@@ -604,7 +583,7 @@ $(document).ready(function () {
     saveConsole();
   });
   $("#listConsole").change(function () {
-    loadParticularConsole();
+    loadParticularConsoleList();
   });
   $("#addDashboardConfirm").click(function() {
     createDashboard();
