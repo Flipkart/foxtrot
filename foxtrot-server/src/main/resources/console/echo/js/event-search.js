@@ -242,7 +242,6 @@ function renderTable(data) {
     for (column in headers) {
       var header = headers[column];
       var tempHeader = header.replace('data.', '');
-      console.log(selectedList.indexOf(tempHeader));
       if (selectedList.indexOf(tempHeader) != -1) {
         tmpHeaders.push(header);
       }
@@ -411,6 +410,7 @@ setInterval(function () {
   if (didScroll) {
     offset = fetchedData.documents.length;
     if (offset <= 30) {
+      isEdit = true;
       runQuery(false);
     }
     didScroll = false;
