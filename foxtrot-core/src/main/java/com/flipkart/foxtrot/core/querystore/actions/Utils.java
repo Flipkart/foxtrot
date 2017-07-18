@@ -110,4 +110,12 @@ public class Utils {
         return percentiles;
     }
 
+    public static double ensurePositive(long number) {
+        return number <= 0.0 ? 0.0 : number;
+    }
+
+
+    public static double ensureOne(long number) {
+        return number <= 0 ? 1 : number;
+    }
 }

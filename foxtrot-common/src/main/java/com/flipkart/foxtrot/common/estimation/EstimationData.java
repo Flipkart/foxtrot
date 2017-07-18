@@ -4,6 +4,8 @@ import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import lombok.Getter;
 
+import java.io.Serializable;
+
 /**
  * Type specific estimation data
  */
@@ -11,8 +13,9 @@ import lombok.Getter;
 @JsonSubTypes({
         @JsonSubTypes.Type(name = "FIXED", value = FixedEstimationData.class),
 })
-public abstract class EstimationData {
+public abstract class EstimationData implements Serializable {
 
+    private static final long serialVersionUID = -6542054750045180777L;
     @Getter
     private final EstimationDataType type;
 

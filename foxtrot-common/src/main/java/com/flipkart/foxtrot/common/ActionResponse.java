@@ -31,7 +31,7 @@ import com.flipkart.foxtrot.common.trend.TrendResponse;
  * Date: 25/03/14
  * Time: 9:17 PM
  */
-@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "opcode")
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.EXISTING_PROPERTY, property = "opcode")
 @JsonSubTypes({
         @JsonSubTypes.Type(value = CountResponse.class, name = Opcodes.COUNT),
         @JsonSubTypes.Type(value = DistinctResponse.class, name = Opcodes.DISTINCT),

@@ -1,12 +1,12 @@
 /**
  * Copyright 2014 Flipkart Internet Pvt. Ltd.
- *
+ * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
+ * <p>
  * http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -15,22 +15,51 @@
  */
 package com.flipkart.foxtrot.core.table.impl;
 
+import com.carrotsearch.hppc.cursors.ObjectCursor;
+import com.codahale.metrics.annotation.Timed;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.flipkart.foxtrot.common.FieldMetadata;
+import com.flipkart.foxtrot.common.FieldType;
 import com.flipkart.foxtrot.common.Table;
+import com.flipkart.foxtrot.common.TableFieldMapping;
+import com.flipkart.foxtrot.common.estimation.CardinalityEstimationData;
+import com.flipkart.foxtrot.common.estimation.FixedEstimationData;
+import com.flipkart.foxtrot.common.estimation.PercentileEstimationData;
+import com.flipkart.foxtrot.common.util.CollectionUtils;
 import com.flipkart.foxtrot.core.cache.impl.DistributedCache;
 import com.flipkart.foxtrot.core.exception.FoxtrotException;
+import com.flipkart.foxtrot.core.exception.FoxtrotExceptions;
+import com.flipkart.foxtrot.core.parsers.ElasticsearchMappingParser;
+import com.flipkart.foxtrot.core.querystore.actions.Utils;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConnection;
+import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
 import com.flipkart.foxtrot.core.querystore.impl.HazelcastConnection;
 import com.flipkart.foxtrot.core.table.TableMetadataManager;
 import com.google.common.collect.Lists;
 import com.hazelcast.config.MapConfig;
 import com.hazelcast.config.MapStoreConfig;
 import com.hazelcast.core.IMap;
+import lombok.SneakyThrows;
+import org.elasticsearch.action.admin.indices.mapping.get.GetMappingsResponse;
+import org.elasticsearch.action.search.MultiSearchRequestBuilder;
+import org.elasticsearch.action.search.MultiSearchResponse;
+import org.elasticsearch.action.search.SearchRequestBuilder;
+import org.elasticsearch.action.search.SearchResponse;
+import org.elasticsearch.client.Client;
+import org.elasticsearch.cluster.metadata.MappingMetaData;
+import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.search.aggregations.Aggregation;
+import org.elasticsearch.search.aggregations.AggregationBuilders;
+import org.elasticsearch.search.aggregations.Aggregations;
+import org.elasticsearch.search.aggregations.metrics.cardinality.Cardinality;
+import org.elasticsearch.search.aggregations.metrics.percentiles.Percentiles;
+import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.io.IOException;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * User: Santanu Sinha (santanu.sinha@flipkart.com)
@@ -41,12 +70,19 @@ import java.util.List;
 public class DistributedTableMetadataManager implements TableMetadataManager {
     private static final Logger logger = LoggerFactory.getLogger(DistributedTableMetadataManager.class);
     public static final String DATA_MAP = "tablemetadatamap";
+    public static final String FIELD_MAP = "tablefieldmap";
     private final HazelcastConnection hazelcastConnection;
+    private final ElasticsearchConnection elasticsearchConnection;
+    private final ObjectMapper mapper;
     private IMap<String, Table> tableDataStore;
+    private IMap<String, TableFieldMapping> fieldDataCache;
 
     public DistributedTableMetadataManager(HazelcastConnection hazelcastConnection,
-                                           ElasticsearchConnection elasticsearchConnection) {
+                                           ElasticsearchConnection elasticsearchConnection,
+                                           ObjectMapper mapper) {
         this.hazelcastConnection = hazelcastConnection;
+        this.elasticsearchConnection = elasticsearchConnection;
+        this.mapper = mapper;
         MapStoreConfig mapStoreConfig = new MapStoreConfig();
         mapStoreConfig.setFactoryImplementation(TableMapStore.factory(elasticsearchConnection));
         mapStoreConfig.setEnabled(true);
@@ -76,13 +112,163 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
     }
 
     @Override
+    @SneakyThrows
     public List<Table> get() throws FoxtrotException {
         if (0 == tableDataStore.size()) { //HACK::Check https://github.com/hazelcast/hazelcast/issues/1404
             return Collections.emptyList();
         }
         ArrayList<Table> tables = Lists.newArrayList(tableDataStore.values());
-        Collections.sort(tables, (lhs, rhs) -> lhs.getName().toLowerCase().compareTo(rhs.getName().toLowerCase()));
+        tables.sort(Comparator.comparing(table -> table.getName().toLowerCase()));
         return tables;
+    }
+
+    @Override
+    @Timed
+    public TableFieldMapping getFieldMappings(String table) throws FoxtrotException {
+        table = ElasticsearchUtils.getValidTableName(table);
+
+        if (!tableDataStore.containsKey(table)) {
+            throw FoxtrotExceptions.createBadRequestException(table,
+                    String.format("unknown_table table:%s", table));
+        }
+        if (fieldDataCache.containsKey(table)) {
+            return fieldDataCache.get(table);
+        }
+        try {
+            ElasticsearchMappingParser mappingParser = new ElasticsearchMappingParser(mapper);
+            Set<FieldMetadata> mappings = new HashSet<>();
+            final String indices = ElasticsearchUtils.getIndices(table);
+            logger.info("Selected indices: {}", indices);
+            GetMappingsResponse mappingsResponse = elasticsearchConnection.getClient().admin()
+                    .indices().prepareGetMappings(indices).execute().actionGet();
+
+            for (ObjectCursor<String> index : mappingsResponse.getMappings().keys()) {
+                MappingMetaData mappingData = mappingsResponse.mappings().get(index.value).get(ElasticsearchUtils.DOCUMENT_TYPE_NAME);
+                mappings.addAll(mappingParser.getFieldMappings(mappingData));
+            }
+
+            TableFieldMapping tableFieldMapping = new TableFieldMapping(table, mappings);
+            estimateCardinality(
+                    table,
+                    tableFieldMapping.getMappings(),
+                    DateTime.now()
+                            .minusDays(1)
+                            .toDate()
+                            .getTime());
+            fieldDataCache.put(table, tableFieldMapping);
+            return tableFieldMapping;
+        } catch (IOException e) {
+            throw FoxtrotExceptions.createExecutionException(table, e);
+        }
+    }
+
+    @Override
+    public void updateEstimationData(final String table, long timestamp) throws FoxtrotException {
+        if (!tableDataStore.containsKey(table)) {
+            throw FoxtrotExceptions.createBadRequestException(table,
+                    String.format("unknown_table table:%s", table));
+        }
+        final TableFieldMapping tableFieldMapping = getFieldMappings(table);
+        estimateCardinality(table, tableFieldMapping.getMappings(), timestamp);
+        fieldDataCache.put(table, tableFieldMapping);
+    }
+
+    private void estimateCardinality(final String table, final Collection<FieldMetadata> fields, long time) throws FoxtrotException {
+        if (CollectionUtils.isNullOrEmpty(fields)) {
+            logger.warn("No fields.. Nothing to query");
+            return;
+        }
+        Map<String, FieldMetadata> fieldMap = fields
+                .stream()
+                .collect(Collectors.toMap(FieldMetadata::getField, fieldMetadata -> fieldMetadata));
+
+        final String index = ElasticsearchUtils.getCurrentIndex(ElasticsearchUtils.getValidTableName(table), time);
+        final Client client = elasticsearchConnection.getClient();
+
+        MultiSearchRequestBuilder multiQuery = client.prepareMultiSearch();
+
+        fields.forEach(fieldMetadata -> {
+            String field = fieldMetadata.getField();
+            SearchRequestBuilder query = client.prepareSearch(index)
+                    .setIndicesOptions(Utils.indicesOptions())
+                    .setQuery(QueryBuilders.existsQuery(field))
+                    .setSize(0);
+            switch (fieldMetadata.getType()) {
+
+                case STRING: {
+                    query.addAggregation(AggregationBuilders.cardinality(field)
+                            .field(field)
+                            .precisionThreshold(5));
+                    break;
+                }
+                case INTEGER:
+                case LONG:
+                case FLOAT:
+                case DOUBLE: {
+                    query.addAggregation(AggregationBuilders.percentiles(field)
+                            .field(field)
+                            .percentiles(10, 20, 30, 40, 50, 60, 70, 80, 90, 100));
+                    break;
+                }
+                case BOOLEAN:
+                case DATE:
+                case OBJECT:
+            }
+            multiQuery.add(query);
+        });
+
+        MultiSearchResponse multiResponse = multiQuery
+                .execute()
+                .actionGet();
+
+        for (MultiSearchResponse.Item item : multiResponse.getResponses()) {
+            if (item.isFailure()) {
+                continue;
+            }
+            SearchResponse response = item.getResponse();
+            final long hits = response.getHits().totalHits();
+            Aggregations aggregations = response.getAggregations();
+            if (null == aggregations) {
+                continue;
+            }
+            Map<String, Aggregation> output = aggregations.asMap();
+            output.forEach((key, value) -> {
+                FieldMetadata fieldMetadata = fieldMap.get(key);
+                switch (fieldMetadata.getType()) {
+                    case STRING: {
+                        Cardinality cardinality = (Cardinality) value;
+                        fieldMetadata.setEstimationData(CardinalityEstimationData.builder()
+                                .cardinality(cardinality.getValue())
+                                .count(hits)
+                                .build());
+                        break;
+                    }
+                    case INTEGER:
+                    case LONG:
+                    case FLOAT:
+                    case DOUBLE: {
+                        double values[] = new double[10];
+                        Percentiles percentiles = (Percentiles) value;
+                        for (int i = 10; i <= 100; i += 10)
+                            values[(i / 10) - 1] = percentiles.percentile(i);
+                        fieldMetadata.setEstimationData(PercentileEstimationData.builder()
+                                .values(values)
+                                .count(hits)
+                                .build());
+                        break;
+                    }
+                    case BOOLEAN:
+                    case DATE:
+                    case OBJECT:
+                }
+            });
+        }
+        fields.stream()
+                .filter(fieldMetadata -> fieldMetadata.getType().equals(FieldType.BOOLEAN))
+                .forEach(fieldMetadata -> fieldMetadata.setEstimationData(FixedEstimationData.builder()
+                        .probability(50)
+                        .count(100)
+                        .build()));
     }
 
     @Override
@@ -102,6 +288,7 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
     @Override
     public void start() throws Exception {
         tableDataStore = hazelcastConnection.getHazelcast().getMap(DATA_MAP);
+        fieldDataCache = hazelcastConnection.getHazelcast().getMap(FIELD_MAP);
     }
 
     @Override

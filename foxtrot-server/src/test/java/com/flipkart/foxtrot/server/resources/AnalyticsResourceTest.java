@@ -48,8 +48,6 @@ public class AnalyticsResourceTest extends FoxtrotResourceTest {
 
     public AnalyticsResourceTest() throws Exception {
         super();
-        doReturn(true).when(getTableMetadataManager()).exists(anyString());
-        doReturn(TestUtils.TEST_TABLE).when(getTableMetadataManager()).get(anyString());
         List<Document> documents = TestUtils.getGroupDocuments(getMapper());
         getQueryStore().save(TestUtils.TEST_TABLE_NAME, documents);
         getElasticsearchServer().getClient().admin().indices().prepareRefresh("*").execute().actionGet();

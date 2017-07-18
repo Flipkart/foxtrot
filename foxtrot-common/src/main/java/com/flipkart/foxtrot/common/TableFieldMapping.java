@@ -15,47 +15,22 @@
  */
 package com.flipkart.foxtrot.common;
 
-import org.apache.commons.lang3.builder.ToStringBuilder;
+import lombok.*;
 
+import java.io.Serializable;
 import java.util.Set;
 
 /**
- * Created by rishabh.goyal on 06/05/14.
+ * Mapping of fields in a table
  */
-public class TableFieldMapping {
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+@ToString
+@Builder
+public class TableFieldMapping implements Serializable {
+    private static final long serialVersionUID = 251932689582302800L;
     private String table;
     private Set<FieldMetadata> mappings;
 
-    public TableFieldMapping() {
-    }
-
-    public TableFieldMapping(String table, Set<FieldMetadata> mappings) {
-        this.table = table;
-        this.mappings = mappings;
-    }
-
-    public String getTable() {
-        return table;
-    }
-
-    public void setTable(String table) {
-        this.table = table;
-    }
-
-    public Set<FieldMetadata> getMappings() {
-        return mappings;
-    }
-
-    public void setMappings(Set<FieldMetadata> mappings) {
-        this.mappings = mappings;
-    }
-
-
-    @Override
-    public String toString() {
-        return new ToStringBuilder(this)
-                .append("table", table)
-                .append("mappings", mappings)
-                .toString();
-    }
 }

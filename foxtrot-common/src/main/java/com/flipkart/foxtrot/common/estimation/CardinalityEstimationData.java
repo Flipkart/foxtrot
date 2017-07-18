@@ -11,16 +11,17 @@ import lombok.ToString;
 @Data
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
-public class CardinalityBasedEstimationData extends EstimationData {
+public class CardinalityEstimationData extends EstimationData {
+    private static final long serialVersionUID = -7107697070895705011L;
     private long cardinality;
 
-    public CardinalityBasedEstimationData() {
-        super(EstimationDataType.CARDINALITY_BASED);
+    public CardinalityEstimationData() {
+        super(EstimationDataType.CARDINALITY);
     }
 
     @Builder
-    public CardinalityBasedEstimationData(long cardinality, long count) {
-        super(EstimationDataType.CARDINALITY_BASED, count);
+    public CardinalityEstimationData(long cardinality, long count) {
+        super(EstimationDataType.CARDINALITY, count);
         this.cardinality = cardinality;
     }
 

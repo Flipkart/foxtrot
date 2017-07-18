@@ -17,10 +17,10 @@ public enum EstimationDataType {
      *  {@link com.flipkart.foxtrot.common.FieldType#FLOAT}
      *  {@link com.flipkart.foxtrot.common.FieldType#INTEGER}
      */
-    BUCKET_BASED,
+    PERCENTILE,
     /**
      * Fixed estimation data, for:
      *  {@link com.flipkart.foxtrot.common.FieldType#STRING}
      */
-    CARDINALITY_BASED
+    CARDINALITY
 }

@@ -1,12 +1,12 @@
 /**
  * Copyright 2014 Flipkart Internet Pvt. Ltd.
- *
+ * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
+ * <p>
  * http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -29,9 +29,14 @@ import com.flipkart.foxtrot.core.querystore.DocumentTranslator;
 import com.flipkart.foxtrot.core.querystore.actions.spi.ActionMetadata;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsLoader;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsProvider;
+import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConnection;
+import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
+import com.flipkart.foxtrot.core.table.impl.TableMapStore;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import org.elasticsearch.action.admin.indices.create.CreateIndexRequest;
+import org.elasticsearch.common.settings.Settings;
 import org.joda.time.DateTime;
 import org.mockito.Matchers;
 import org.mockito.Mockito;
@@ -41,9 +46,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.*;
 
 /**
  * Created by rishabh.goyal on 28/04/14.
@@ -52,7 +58,11 @@ public class TestUtils {
 
     private static final Logger logger = LoggerFactory.getLogger(TestUtils.class.getSimpleName());
     public static String TEST_TABLE_NAME = "test-table";
-    public static Table TEST_TABLE = new Table(TEST_TABLE_NAME, 7);
+    public static Table TEST_TABLE
+            = Table.builder()
+            .name(TEST_TABLE_NAME)
+            .ttl(7)
+            .build();
 
     public static DataStore getDataStore() throws FoxtrotException {
         org.apache.hadoop.hbase.client.Table tableInterface = MockHTable.create();
@@ -151,6 +161,34 @@ public class TestUtils {
         documents.add(TestUtils.getDocument("F", 1397658118005L, new Object[]{"os", "ios", "version", 2, "device", "nexus", "battery", 35}, mapper));
         documents.add(TestUtils.getDocument("G", 1397658118006L, new Object[]{"os", "ios", "version", 2, "device", "ipad", "battery", 44}, mapper));
         return documents;
+    }
+
+    public static List<Document> getGroupDocumentsForEstimation(ObjectMapper mapper) {
+        Random random = new Random();
+        return IntStream.rangeClosed(0, 2000)
+                .mapToObj(i -> Document.builder()
+                        .id(UUID.randomUUID().toString())
+                        .timestamp(i * 60000 + 1397658117000L)
+                        .data(mapper.valueToTree(
+                                ImmutableMap.<String, Object>builder()
+                                        .put("deviceId", UUID.randomUUID().toString())
+                                        .put("os",
+                                                new String[]{
+                                                        "ios",
+                                                        "android",
+                                                        "android",
+                                                        "android"
+                                                }[random.nextInt(2)])
+                                        .put("registered",
+                                                new boolean[]{
+                                                        true,
+                                                        false,
+                                                        false
+                                                }[random.nextInt(3)])
+                                        .put("value", random.nextInt(101))
+                                        .build()))
+                        .build())
+                .collect(Collectors.toList());
     }
 
     public static List<Document> getHistogramDocuments(ObjectMapper mapper) {
@@ -293,5 +331,17 @@ public class TestUtils {
         documents.add(TestUtils.getDocument("D", startTimestamp++, new Object[]{"os", "ios", "version", 1, "device", "iphone"}, mapper));
         documents.add(TestUtils.getDocument("E", startTimestamp++, new Object[]{"os", "ios", "version", 2, "device", "ipad"}, mapper));
         return documents;
+    }
+
+    public static ElasticsearchConnection initESConnection(MockElasticsearchServer elasticsearchServer) {
+        CreateIndexRequest createRequest = new CreateIndexRequest(TableMapStore.TABLE_META_INDEX);
+        Settings indexSettings = Settings.builder().put("number_of_replicas", 0).build();
+        createRequest.settings(indexSettings);
+        elasticsearchServer.getClient().admin().indices().create(createRequest).actionGet();
+        elasticsearchServer.getClient().admin().cluster().prepareHealth().setWaitForGreenStatus().execute().actionGet();
+        ElasticsearchConnection elasticsearchConnection = Mockito.mock(ElasticsearchConnection.class);
+        when(elasticsearchConnection.getClient()).thenReturn(elasticsearchServer.getClient());
+        ElasticsearchUtils.initializeMappings(elasticsearchServer.getClient());
+        return elasticsearchConnection;
     }
 }

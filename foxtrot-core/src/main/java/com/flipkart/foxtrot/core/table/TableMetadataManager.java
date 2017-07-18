@@ -16,6 +16,7 @@
 package com.flipkart.foxtrot.core.table;
 
 import com.flipkart.foxtrot.common.Table;
+import com.flipkart.foxtrot.common.TableFieldMapping;
 import com.flipkart.foxtrot.core.exception.FoxtrotException;
 import io.dropwizard.lifecycle.Managed;
 
@@ -33,6 +34,10 @@ public interface TableMetadataManager extends Managed {
     Table get(String tableName) throws FoxtrotException;
 
     List<Table> get() throws FoxtrotException;
+
+    TableFieldMapping getFieldMappings(String table) throws FoxtrotException;
+
+    void updateEstimationData(String table, long timestamp) throws FoxtrotException;
 
     boolean exists(String tableName) throws FoxtrotException;
 

@@ -1,12 +1,12 @@
 /**
  * Copyright 2014 Flipkart Internet Pvt. Ltd.
- *
+ * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
+ * <p>
  * http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -21,13 +21,10 @@ import com.flipkart.foxtrot.common.group.GroupResponse;
 import com.flipkart.foxtrot.core.MockElasticsearchServer;
 import com.flipkart.foxtrot.core.TestUtils;
 import com.flipkart.foxtrot.core.table.impl.DistributedTableMetadataManager;
-import com.flipkart.foxtrot.core.table.impl.TableMapStore;
 import com.hazelcast.config.Config;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
 import com.hazelcast.test.TestHazelcastInstanceFactory;
-import org.elasticsearch.action.admin.indices.create.CreateIndexRequest;
-import org.elasticsearch.common.settings.Settings;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -60,19 +57,15 @@ public class DistributedTableMetadataManagerTest {
 
         //Create index for table meta. Not created automatically
         elasticsearchServer = new MockElasticsearchServer(UUID.randomUUID().toString());
-        CreateIndexRequest createRequest = new CreateIndexRequest(TableMapStore.TABLE_META_INDEX);
-        Settings indexSettings = Settings.builder().put("number_of_replicas", 0).build();
-        createRequest.settings(indexSettings);
-        elasticsearchServer.getClient().admin().indices().create(createRequest).actionGet();
-        elasticsearchServer.getClient().admin().cluster().prepareHealth().setWaitForGreenStatus().execute().actionGet();
-        ElasticsearchConnection elasticsearchConnection = Mockito.mock(ElasticsearchConnection.class);
-        when(elasticsearchConnection.getClient()).thenReturn(elasticsearchServer.getClient());
-        ElasticsearchUtils.initializeMappings(elasticsearchServer.getClient());
+        ElasticsearchConnection elasticsearchConnection = TestUtils.initESConnection(elasticsearchServer);
 
         String DATA_MAP = "tablemetadatamap";
         tableDataStore = hazelcastInstance.getMap(DATA_MAP);
-        distributedTableMetadataManager = new DistributedTableMetadataManager(hazelcastConnection,
-                elasticsearchConnection);
+        distributedTableMetadataManager
+                = new DistributedTableMetadataManager(
+                hazelcastConnection,
+                elasticsearchConnection,
+                mapper);
         distributedTableMetadataManager.start();
     }
 

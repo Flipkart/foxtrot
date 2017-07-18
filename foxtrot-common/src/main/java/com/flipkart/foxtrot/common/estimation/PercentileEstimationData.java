@@ -11,16 +11,18 @@ import lombok.ToString;
 @Data
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
-public class BucketBasedEstimationData extends EstimationData {
+public class PercentileEstimationData extends EstimationData {
+    private static final long serialVersionUID = -4790803356348252020L;
+
     private double[] values;
 
-    public BucketBasedEstimationData() {
-        super(EstimationDataType.BUCKET_BASED);
+    public PercentileEstimationData() {
+        super(EstimationDataType.PERCENTILE);
     }
 
     @Builder
-    public BucketBasedEstimationData(double[] values, long count) {
-        super(EstimationDataType.BUCKET_BASED, count);
+    public PercentileEstimationData(double[] values, long count) {
+        super(EstimationDataType.PERCENTILE, count);
         this.values = values;
     }
 

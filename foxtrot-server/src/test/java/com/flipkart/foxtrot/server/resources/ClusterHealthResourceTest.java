@@ -31,9 +31,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.doReturn;
-
 /**
  * Created by swapnil on 25/01/16.
  */
@@ -44,8 +41,6 @@ public class ClusterHealthResourceTest extends FoxtrotResourceTest {
 
     public ClusterHealthResourceTest() throws Exception {
         super();
-        doReturn(true).when(getTableMetadataManager()).exists(anyString());
-        doReturn(TestUtils.TEST_TABLE).when(getTableMetadataManager()).get(anyString());
         resources = ResourceTestRule.builder()
                 .addResource(new ClusterHealthResource(getQueryStore()))
                 .addProvider(new FoxtrotExceptionMapper(getMapper()))

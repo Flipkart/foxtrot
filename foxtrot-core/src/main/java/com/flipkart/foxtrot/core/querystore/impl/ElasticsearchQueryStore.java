@@ -12,22 +12,18 @@
  */
 package com.flipkart.foxtrot.core.querystore.impl;
 
-import com.carrotsearch.hppc.cursors.ObjectCursor;
 import com.codahale.metrics.annotation.Timed;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.flipkart.foxtrot.common.*;
-import com.flipkart.foxtrot.common.estimation.BucketBasedEstimationData;
-import com.flipkart.foxtrot.common.estimation.CardinalityBasedEstimationData;
-import com.flipkart.foxtrot.common.estimation.FixedEstimationData;
+import com.flipkart.foxtrot.common.Document;
+import com.flipkart.foxtrot.common.Table;
+import com.flipkart.foxtrot.common.TableFieldMapping;
 import com.flipkart.foxtrot.core.datastore.DataStore;
 import com.flipkart.foxtrot.core.exception.FoxtrotException;
 import com.flipkart.foxtrot.core.exception.FoxtrotExceptions;
-import com.flipkart.foxtrot.core.parsers.ElasticsearchMappingParser;
 import com.flipkart.foxtrot.core.querystore.QueryStore;
-import com.flipkart.foxtrot.core.querystore.actions.Utils;
 import com.flipkart.foxtrot.core.table.TableMetadataManager;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
@@ -37,32 +33,22 @@ import org.elasticsearch.action.WriteConsistencyLevel;
 import org.elasticsearch.action.admin.cluster.health.ClusterHealthResponse;
 import org.elasticsearch.action.admin.cluster.node.stats.NodesStatsRequest;
 import org.elasticsearch.action.admin.cluster.node.stats.NodesStatsResponse;
-import org.elasticsearch.action.admin.indices.mapping.get.GetMappingsResponse;
 import org.elasticsearch.action.admin.indices.stats.IndicesStatsResponse;
 import org.elasticsearch.action.bulk.BulkItemResponse;
 import org.elasticsearch.action.bulk.BulkRequestBuilder;
 import org.elasticsearch.action.bulk.BulkResponse;
 import org.elasticsearch.action.index.IndexRequest;
-import org.elasticsearch.action.search.MultiSearchRequestBuilder;
-import org.elasticsearch.action.search.MultiSearchResponse;
-import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.client.Client;
-import org.elasticsearch.cluster.metadata.MappingMetaData;
 import org.elasticsearch.common.unit.TimeValue;
-import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
-import org.elasticsearch.search.aggregations.Aggregation;
-import org.elasticsearch.search.aggregations.AggregationBuilders;
-import org.elasticsearch.search.aggregations.Aggregations;
-import org.elasticsearch.search.aggregations.metrics.cardinality.Cardinality;
-import org.elasticsearch.search.aggregations.metrics.percentiles.Percentiles;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -248,33 +234,6 @@ public class ElasticsearchQueryStore implements QueryStore {
     }
 
     @Override
-    @Timed
-    public TableFieldMapping getFieldMappings(String table) throws FoxtrotException {
-        table = ElasticsearchUtils.getValidTableName(table);
-
-        if (!tableMetadataManager.exists(table)) {
-            throw FoxtrotExceptions.createBadRequestException(table,
-                    String.format("unknown_table table:%s", table));
-        }
-        try {
-            ElasticsearchMappingParser mappingParser = new ElasticsearchMappingParser(mapper);
-            Set<FieldMetadata> mappings = new HashSet<>();
-            final String indices = ElasticsearchUtils.getIndices(table);
-            logger.info("Selected indices: {}", indices);
-            GetMappingsResponse mappingsResponse = connection.getClient().admin()
-                    .indices().prepareGetMappings(indices).execute().actionGet();
-
-            for (ObjectCursor<String> index : mappingsResponse.getMappings().keys()) {
-                MappingMetaData mappingData = mappingsResponse.mappings().get(index.value).get(ElasticsearchUtils.DOCUMENT_TYPE_NAME);
-                mappings.addAll(mappingParser.getFieldMappings(mappingData));
-            }
-            return new TableFieldMapping(table, mappings);
-        } catch (IOException e) {
-            throw FoxtrotExceptions.createExecutionException(table, e);
-        }
-    }
-
-    @Override
     public void cleanupAll() throws FoxtrotException {
         Set<String> tables = tableMetadataManager.get().stream().map(Table::getName).collect(Collectors.toSet());
         cleanup(tables);
@@ -346,107 +305,14 @@ public class ElasticsearchQueryStore implements QueryStore {
     }
 
     @Override
-    public void estimateCardinality(final String table, final List<FieldMetadata> fields) throws FoxtrotException {
-        Map<String, FieldMetadata> fieldMap = fields
-                .stream()
-                .collect(Collectors.toMap(FieldMetadata::getField, fieldMetadata -> fieldMetadata));
-        final long yesterday = DateTime.now()
-                .minusDays(1)
-                .toDate()
-                .getTime();
-        final String index = ElasticsearchUtils.getCurrentIndex(ElasticsearchUtils.getValidTableName(table), yesterday);
-        final Client client = connection.getClient();
-
-        MultiSearchRequestBuilder multiQuery = client.prepareMultiSearch();
-
-        fields.forEach(fieldMetadata -> {
-            String field = fieldMetadata.getField();
-            SearchRequestBuilder query = client.prepareSearch(index)
-                    .setIndicesOptions(Utils.indicesOptions())
-                    .setQuery(QueryBuilders.existsQuery(field))
-                    .setSize(0);
-            switch (fieldMetadata.getType()) {
-
-                case STRING: {
-                    query.addAggregation(AggregationBuilders.cardinality(field)
-                            .field(field)
-                            .precisionThreshold(5));
-                    break;
-                }
-                case INTEGER:
-                case LONG:
-                case FLOAT:
-                case DOUBLE: {
-                    query.addAggregation(AggregationBuilders.percentiles(field)
-                            .field(field)
-                            .percentiles(10, 20, 30, 40, 50, 60, 70, 80, 90, 100));
-                    break;
-                }
-                case BOOLEAN:
-                case DATE:
-                case OBJECT:
-            }
-            multiQuery.add(query);
-        });
-
-        MultiSearchResponse multiResponse = multiQuery
-                .execute()
-                .actionGet();
-
-        for (MultiSearchResponse.Item item : multiResponse.getResponses()) {
-            if (item.isFailure()) {
-                continue;
-            }
-            SearchResponse response = item.getResponse();
-            final long hits = response.getHits().totalHits();
-            Aggregations aggregations = response.getAggregations();
-            if(null == aggregations) {
-                continue;
-            }
-            Map<String, Aggregation> output = aggregations.asMap();
-            output.forEach((key, value) -> {
-                FieldMetadata fieldMetadata = fieldMap.get(key);
-                switch (fieldMetadata.getType()) {
-                    case STRING: {
-                        Cardinality cardinality = (Cardinality) value;
-                        fieldMetadata.setEstimationData(CardinalityBasedEstimationData.builder()
-                                .cardinality(cardinality.getValue())
-                                .count(hits)
-                                .build());
-                        break;
-                    }
-                    case INTEGER:
-                    case LONG:
-                    case FLOAT:
-                    case DOUBLE: {
-                        double values[] = new double[10];
-                        Percentiles percentiles = (Percentiles)value;
-                        for(int i = 10; i <= 100; i += 10)
-                        values[(i / 10) - 1] = percentiles.percentile(i);
-                        fieldMetadata.setEstimationData(BucketBasedEstimationData.builder()
-                                .values(values)
-                                .count(hits)
-                                .build());
-                        break;
-                    }
-                    case BOOLEAN:
-                    case DATE:
-                    case OBJECT:
-                }
-            });
-        }
-        fields.stream()
-                .filter(fieldMetadata -> fieldMetadata.getType().equals(FieldType.BOOLEAN))
-                .forEach(fieldMetadata -> fieldMetadata.setEstimationData(FixedEstimationData.builder()
-                        .probability(50)
-                        .count(100)
-                        .build()));
+    public TableFieldMapping getFieldMappings(String testTableName) throws FoxtrotException {
+        return tableMetadataManager.getFieldMappings(testTableName);
     }
 
     private String convert(Document translatedDocument) {
         JsonNode metaNode = mapper.valueToTree(translatedDocument.getMetadata());
         ObjectNode dataNode = translatedDocument.getData().deepCopy();
-        dataNode.put(ElasticsearchUtils.DOCUMENT_META_FIELD_NAME, metaNode);
+        dataNode.set(ElasticsearchUtils.DOCUMENT_META_FIELD_NAME, metaNode);
         return dataNode.toString();
     }
 

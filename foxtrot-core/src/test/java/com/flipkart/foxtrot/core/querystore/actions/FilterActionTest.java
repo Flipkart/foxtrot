@@ -663,7 +663,9 @@ public class FilterActionTest extends ActionTest {
                     .execute().actionGet();
         }
         GetIndexResponse response = getElasticsearchServer().getClient().admin().indices().getIndex(new GetIndexRequest()).actionGet();
-        assertEquals(3, response.getIndices().length);
+        assertEquals(3, Arrays.stream(response.getIndices())
+                .filter(index -> !index.equals("table-meta"))
+                .count());
 
         Query query = new Query();
         query.setLimit(documents.size());

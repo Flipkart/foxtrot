@@ -16,39 +16,37 @@
 package com.flipkart.foxtrot.server.resources;
 
 import com.flipkart.foxtrot.common.Table;
-import com.flipkart.foxtrot.common.TableFieldMapping;
 import com.flipkart.foxtrot.core.exception.FoxtrotException;
 import com.flipkart.foxtrot.core.querystore.QueryStore;
-import com.flipkart.foxtrot.core.querystore.metaman.FieldMetaManager;
 import com.flipkart.foxtrot.core.table.TableManager;
+import com.flipkart.foxtrot.core.table.TableMetadataManager;
 
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
+import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.stream.Collectors;
 
 /**
- * Created by rishabh.goyal on 06/05/14.
+ * Table metadata related apis
  */
 @Path("/v1/tables")
 @Produces(MediaType.APPLICATION_JSON)
 public class TableFieldMappingResource {
 
     private final TableManager tableManager;
+    private final TableMetadataManager tableMetadataManager;
     private final QueryStore queryStore;
 
-    public TableFieldMappingResource(TableManager tableManager, QueryStore queryStore) {
+    public TableFieldMappingResource(TableManager tableManager, TableMetadataManager tableMetadataManager, QueryStore queryStore) {
         this.tableManager = tableManager;
+        this.tableMetadataManager = tableMetadataManager;
         this.queryStore = queryStore;
     }
 
     @GET
     @Path("/{name}/fields")
     public Response get(@PathParam("name") final String table) throws FoxtrotException {
-        return Response.ok(queryStore.getFieldMappings(table)).build();
+        return Response.ok(tableMetadataManager.getFieldMappings(table)).build();
     }
 
 
@@ -61,7 +59,7 @@ public class TableFieldMappingResource {
                         .collect(
                                 Collectors.toMap(Table::getName, table -> {
                                     try {
-                                        return queryStore.getFieldMappings(table.getName());
+                                        return tableMetadataManager.getFieldMappings(table.getName());
                                     } catch (FoxtrotException e) {
                                         throw new RuntimeException(e);
                                     }
@@ -69,12 +67,13 @@ public class TableFieldMappingResource {
                 .build();
     }
 
-    @GET
-    @Path("/{name}/fields/estimations")
-    public Response getEstimations(@PathParam("name") final String table) throws FoxtrotException {
-        final TableFieldMapping fieldMappings = queryStore.getFieldMappings(table);
-        new FieldMetaManager(queryStore).estimateCardinality(fieldMappings);
-        return Response.ok(fieldMappings).build();
+    @POST
+    @Path("/{name}/fields/update")
+    public Response updateEstimation(
+            @PathParam("name") final String table,
+            @QueryParam("time") @DefaultValue("0") long epoch) throws FoxtrotException {
+        tableMetadataManager.updateEstimationData(table, 0 == epoch ? System.currentTimeMillis() : epoch);
+        return Response.ok()
+                .build();
     }
-
 }
