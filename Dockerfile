@@ -10,7 +10,8 @@ RUN \
   && echo debconf shared/accepted-oracle-license-v1-1 select true |  debconf-set-selections \
   && echo debconf shared/accepted-oracle-license-v1-1 seen true |  debconf-set-selections \
   && apt-get install -y --no-install-recommends oracle-java8-installer \
-  && apt-get install -y --no-install-recommends curl
+  && apt-get install -y --no-install-recommends curl \
+  && apt-get install -y --no-install-recommends iproute2
 
 EXPOSE 17000
 EXPOSE 17001
