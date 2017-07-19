@@ -214,7 +214,7 @@ function getWhereOption(fieldType) {
 
   var boolOption = '<option value="">Select</option><option value="equals">Equal to</option><option value="not_equals">Not Equal to</option>';
 
-  var intOption = '<option value="">Select</option><option value="equals">Equal to</option><option value="not_equals">Not Equal to</option><option value="less_than">Less than</option><option value="less_equal">Less or equal to</option><option value="greater_than">Greater than</option><option value="greater_equal">Greater or equal to</option><option value="contains">Equals</option><option value="not_equals">Not equals</option><option value="between">Between</option>';
+  var intOption = '<option value="">Select</option><option value="equals">Equal to</option><option value="not_equals">Not Equal to</option><option value="less_than">Less than</option><option value="less_equal">Less or equal to</option><option value="greater_than">Greater than</option><option value="greater_equal">Greater or equal to</option><option value="between">Between</option>';
 
   var intArray = ["LONG", "INTEGER", "SHORT", "BYTE", "DATE", "FLOAT", "DOUBLE"];
   var boolArray = ["BOOLEAN"];
@@ -240,7 +240,7 @@ function getTilesFilterWhereOption(fieldType) {
 
   var boolOption = '<option value="">Select</option><option value="equals">Equal to</option><option value="not_equals">Not Equal to</option>';
 
-  var intOption = '<option value="">Select</option><option value="equals">Equal to</option><option value="not_equals">Not Equal to</option><option value="less_than">Less than</option><option value="less_equal">Less or equal to</option><option value="greater_than">Greater than</option><option value="greater_equal">Greater or equal to</option><option value="contains">Equals</option><option value="not_equals">Not equals</option><option value="between">Between</option>';
+  var intOption = '<option value="">Select</option><option value="equals">Equal to</option><option value="not_equals">Not Equal to</option><option value="less_than">Less than</option><option value="less_equal">Less or equal to</option><option value="greater_than">Greater than</option><option value="greater_equal">Greater or equal to</option><option value="between">Between</option>';
 
   var intArray = ["LONG", "INTEGER", "SHORT", "BYTE", "DATE", "FLOAT", "DOUBLE"];
   var boolArray = ["BOOLEAN"];
