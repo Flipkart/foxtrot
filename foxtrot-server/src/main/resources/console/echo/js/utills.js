@@ -155,7 +155,7 @@ function getFilters() { // returns filter values
     var filterId = filterRowArray[filter];
     var el = $("#filter-row-" + filterId);
     var filterColumn = $(el).find("select.filter-column").val();
-    var filterType = $(el).find("select.filter-type").val();
+    var filterType = $(el).find("select.filter-type-"+filter).val();
     var filterValue = $(el).find(".filter-value").val();
     var filterObject;
     if(filterType == "in" || filterType == "not_in") {
@@ -224,7 +224,10 @@ function setFilters(object) { // setter for filters
       var filterId = filter;
       var el = $("#filter-row-" + filterId);
       var fieldDropdown = $(el).find(".filter-column").val(currentFieldList.findIndex(x => x.field == object[filter].field));
-      var operatorDropdown = $(el).find(".filter-type").val(object[filter].operator);
+      $(fieldDropdown).selectpicker('refresh');
+      $(fieldDropdown).trigger('change');
+      var operatorDropdown = $(el).find(".filter-type-"+filter).val(object[filter].operator);
+      $(operatorDropdown).selectpicker('refresh');
       var filterValue;
 
       if(object[filter].value == undefined) {
@@ -238,8 +241,6 @@ function setFilters(object) { // setter for filters
       } else {
         $(el).find(".filter-value").val(filterValue);
       }
-
-      $(fieldDropdown).selectpicker('refresh');
       $(operatorDropdown).selectpicker('refresh');
     }
   }, 1000);

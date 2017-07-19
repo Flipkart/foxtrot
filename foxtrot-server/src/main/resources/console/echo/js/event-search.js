@@ -290,33 +290,6 @@ $("#browse-events-run-query").click(function () {
   runQuery(true);
 });
 
-
-function getWhereOption(fieldType) {
-  var allOption = '<option value="">Select</option><option value="equals">Equal to</option><option value="not_equals">Not Equal to</option><option value="less_than">Less than</option><option value="less_equal">Less or equal to</option><option value="greater_than">Greater than</option><option value="greater_equal">Greater or equal to</option><option value="contains">Equals</option><option value="not_equals">Not equals</option><option value="contains">Contains</option><option value="between">Between</option>';
-
-  var stringOption = '<option value="">Select</option><option value="equals">Equal to</option><option value="not_equals">Not Equal to</option><option value="contains">Contains</option>';
-
-  var boolOption = '<option value="">Select</option><option value="equals">Equal to</option><option value="not_equals">Not Equal to</option>';
-
-  var intOption = '<option value="">Select</option><option value="equals">Equal to</option><option value="not_equals">Not Equal to</option><option value="less_than">Less than</option><option value="less_equal">Less or equal to</option><option value="greater_than">Greater than</option><option value="greater_equal">Greater or equal to</option><option value="contains">Equals</option><option value="not_equals">Not equals</option><option value="between">Between</option>';
-
-  var intArray = ["LONG", "INTEGER", "SHORT", "BYTE", "DATE", "FLOAT", "DOUBLE"];
-  var boolArray = ["BOOLEAN"];
-  var stringArray = ["STRING"];
-
-  if(intArray.indexOf(fieldType) > -1) {
-    return intOption;
-
-  } else if(boolArray.indexOf(fieldType) > -1) {
-    return boolOption;
-
-  } else if(stringArray.indexOf(fieldType) > -1) {
-    return stringOption;
-  } else {
-    return allOption;
-  }
-}
-
 function generateOption(el, type) {
   var selectedColumn = $(el).val();
   var columnType = currentFieldList[selectedColumn].type;
@@ -331,8 +304,7 @@ function generateOption(el, type) {
     .remove()
     .end()
     .append(getWhereOption(type));
-  $("#browse-events-form").find(el).selectpicker('refresh')
-
+  $("#browse-events-form").find(el).selectpicker('refresh');
 }
 
 
