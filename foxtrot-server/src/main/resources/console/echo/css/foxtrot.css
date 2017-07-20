@@ -2661,6 +2661,12 @@ div.tab button:first-child {
   font-family: Open Sans;
 }
 
+#active-fql {
+  color: #42b2f7 !important;
+  font-weight: 600;
+  font-family: Open Sans;
+}
+
 .filter-value-div {
   line-height: 1.4;
 }
@@ -2675,4 +2681,95 @@ div.tab button:first-child {
 
 .browse-remove-top {
   margin-top: 10px;
+}
+
+#fql-content {
+  background: #f7f9fa;
+}
+
+#fql label {
+  font-family: Open Sans;
+  font-size: 12px;
+  color: #a6a8b5;
+}
+
+#fql-container{
+  background: #fff;
+}
+
+#fql-settings {
+  margin-top: 10px;
+}
+
+#fql-form input {
+  background: none;
+  border: solid 1px #c0cbd1;
+  color: #7d909a;
+}
+
+#fql-form input:focus {
+  outline: none;
+  box-shadow: none;
+}
+
+#fql-form input:hover {
+  border: 1px solid #32a6f9;
+  color: #000;
+}
+
+
+#fql-form {
+  margin-top: 26px;
+}
+
+#fql-form .btn-warning:hover, .btn-warning:focus, .btn-warning:active, .btn-warning.active, .open .dropdown-toggle.btn-warning {
+  color: #000 !important;
+  outline: none;
+  box-shadow: none;
+  border: 1px solid #c0cbd1 !important;
+}
+
+#fql-form .btn-group.open .dropdown-toggle {
+  outline: none;
+  box-shadow: none;
+}
+
+#fql-form .dropdown-menu>.active>a, .dropdown-menu>.active>a:hover, .dropdown-menu>.active>a:focus {
+  background: #0E6650 !important;
+}
+
+#fql-form .bootstrap-select:hover .btn:hover {
+  border: 1px solid #32a6f9;
+  color: #000 !important;
+}
+
+#fql-form .bootstrap-select .btn {
+  border: 1px solid #c0cbd1;
+  color: #7d909a !important;
+}
+
+#fql-form .dropdown-menu>li>a:hover, .dropdown-menu>li>a:focus {
+  background: #50e3c2 !important;
+  color: #0E6650;
+}
+
+#fql-form .dropdown-menu>.active>a, .dropdown-menu>.active>a:hover, .dropdown-menu>.active>a:focus {
+  background: #50e3c2 !important;
+  color: #000;
+}
+
+#fql-run-query {
+  width: 156px;
+  height: 42px;
+  background-color: #32a6f9;
+  font-family: Open Sans Regular;
+  font-size: 14px;
+  font-weight: bold;
+  text-align: left;
+  color: #ffffff !important;
+  border: none;
+}
+
+#fql-run-query span{
+  margin-left: 23px;
 }
