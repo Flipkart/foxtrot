@@ -79,10 +79,16 @@ function setBetweenInput(el) {
 
   var rowIdArray = rowString.split('-');
   var rowId = rowIdArray[3];
-    if (selectedType == "between") {
+  if (selectedType == "between") {
     $('#filter-between-input-' + rowId).prop("disabled", false);
+    $("#browse-events-form").find("#filter-row-"+rowId).find(".between-element").show();
+    $("#browse-events-form").find("#filter-row-"+rowId).find(".filter-value-div").removeClass('col-sm-6').addClass('col-sm-3');
+    $("#browse-events-form").find("#filter-row-"+rowId).find(".browse-events-filter-value").addClass('browse-remove-top');
   } else {
     $('#filter-between-input-' + rowId).prop("disabled", true);
+    $("#browse-events-form").find("#filter-row-"+rowId).find(".between-element").hide();
+    $("#browse-events-form").find("#filter-row-"+rowId).find(".filter-value-div").removeClass('col-sm-3').addClass('col-sm-6');
+    $("#browse-events-form").find("#filter-row-"+rowId).find(".browse-events-filter-value").removeClass('browse-remove-top');
   }
   $('#filter-between-input-' + rowId).val("");
 }
@@ -319,7 +325,7 @@ $("#browse-events-add-query").click(function () {
     browseFilterRowArray.push(filterCount);
   }
 
-  var filterRow = '<div class="row clearfix" id="filter-row-' + filterCount + '"><img src="img/remove.png" class="browse-events-filter-remove-img browse-events-delete" id="' + filterCount + '" /><div class="col-sm-3"><select class="selectpicker form-control filter-column filter-background" id="filter-row-' + filterCount + '" data-live-search="true" name="filter-column-' + filterCount + '" required></select></div><div class="col-sm-3"><select required class="filter-type filter-type-option-'+filterCount+' filter-background form-control" id="filter-type-option-'+filterCount+'"></select></div><div class="col-sm-3 filter-value-div"><input id="filter-column-row-' + filterCount + '" type="text" class="form-control browse-events-filter-value form-control" name="browse-events-filter-value-' + filterCount + '" required></div><div class="col-sm-3"><input id="filter-between-input-' + filterCount + '" type="number" class="form-control browse-events-filter-between-value form-control" disabled></div></span></div></div>';
+  var filterRow = '<div class="row clearfix" id="filter-row-' + filterCount + '"><img src="img/remove.png" class="browse-events-filter-remove-img browse-events-delete" id="' + filterCount + '" /><div class="col-sm-3"><select class="selectpicker form-control filter-column filter-background" id="filter-row-' + filterCount + '" data-live-search="true" name="filter-column-' + filterCount + '" required></select></div><div class="col-sm-3"><select required class="filter-type filter-type-option-'+filterCount+' filter-background form-control" id="filter-type-option-'+filterCount+'"></select></div><div class="col-sm-6 filter-value-div"><input id="filter-column-row-' + filterCount + '" type="text" class="form-control browse-events-filter-value form-control" name="browse-events-filter-value-' + filterCount + '" required></div><div class="col-sm-3 between-element"><input id="filter-between-input-' + filterCount + '" type="number" class="form-control browse-events-filter-between-value  form-control" id="between-value-'+filterCount+'" disabled></div></span></div></div>';
   $(".browse-rows").append(filterRow);
   var filterValueEl = $("#filter-row-" + filterCount).find('.browse-events-delete');
   var filterType = $("#filter-row-" + filterCount).find('.filter-type');

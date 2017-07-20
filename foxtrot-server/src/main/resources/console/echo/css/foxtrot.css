@@ -2664,3 +2664,15 @@ div.tab button:first-child {
 .filter-value-div {
   line-height: 1.4;
 }
+
+.between-element {
+  display: none;
+}
+
+.browse-events-filter-value {
+  margin-top: -8px;
+}
+
+.browse-remove-top {
+  margin-top: 10px;
+}
