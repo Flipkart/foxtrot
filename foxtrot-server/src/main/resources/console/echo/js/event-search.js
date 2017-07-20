@@ -284,6 +284,17 @@ function renderTable(data) {
   };
   parent.html(handlebars("#eventbrowser-template", tableData));
 
+  $('.event-table').DataTable( {
+    scrollX:        true,
+    scrollCollapse: true,
+    paging:         false,
+    info:           false,
+    bFilter:         false,
+    fixedColumns:   {
+      leftColumns: 2
+    }
+  } );
+
   if (offset == 0)
     document.getElementById("scroll-ref").scrollIntoView();
 }
@@ -413,4 +424,5 @@ $("#listConsole").change(function () {
 });
 
 loadConsole();
+
 //$( "#browse-events-add-query" ).trigger( "click" );
