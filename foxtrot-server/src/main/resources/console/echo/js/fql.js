@@ -1,4 +1,4 @@
-var apiUrl = "http://foxtrot.traefik.prod.phonepe.com/foxtrot";
+var apiUrl = getHostUrl();
 var isEdit = false;
 var headerList = [];
 var rowList = [];

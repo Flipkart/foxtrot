@@ -1,5 +1,5 @@
 var tableNameList = [];
-var apiUrl = "http://foxtrot.traefik.prod.phonepe.com/foxtrot";
+var apiUrl = getHostUrl();
 var browseFilterRowArray = [];
 var currentFieldList = [];
 var tableFiledsArray = {};
