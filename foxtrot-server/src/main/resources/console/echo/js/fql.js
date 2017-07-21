@@ -7,13 +7,13 @@ var fetchedData = [];
 
 function loadConsole() { // load console list api
   $.ajax({
-    url: apiUrl+("/v2/consoles/"),
+    url: apiUrl + ("/v2/consoles/"),
     type: 'GET',
     contentType: 'application/json',
-    success: function(res) {
+    success: function (res) {
       appendConsoleList(res);
     },
-    error: function() {
+    error: function () {
       error("Could not save console");
     }
   })
@@ -64,20 +64,24 @@ function renderTable(dataRaw) {
   if (!isEdit)
     generateColumChooserList();
 
-  var tableData = {headers: headers, data: rows};
+  var tableData = {
+    headers: headers,
+    data: rows
+  };
   $(".fql-display-container").html(handlebars("#fql-template", tableData));
 }
+
 function fqlQuery() {
   $.ajax({
     method: 'POST',
-    url: apiUrl+"/v1/fql",
+    url: apiUrl + "/v1/fql",
     data: $(".fql-query").val(),
     dataType: "text",
     accepts: {
       text: 'application/json',
       csv: 'text/csv'
     },
-    success: function(dataRaw) {
+    success: function (dataRaw) {
       renderTable(dataRaw);
       fetchedData = dataRaw;
     }
@@ -116,10 +120,10 @@ function generateColumChooserList() {
 
   // get all selected columns
   var selections = [],
-      render_selections = function () {
-        selectedList = [];
-        selectedList = selections;
-      };
+    render_selections = function () {
+      selectedList = [];
+      selectedList = selections;
+    };
 
   $('.fql-column-chooser-checkbox').change(function () {
     selections = $.map($('input[type="checkbox"]:checked'), function (a) {
