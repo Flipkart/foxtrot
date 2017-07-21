@@ -3,7 +3,7 @@ var isEdit = false;
 var headerList = [];
 var rowList = [];
 var selectedList = [];
-
+var fetchedData = [];
 
 function loadConsole() { // load console list api
   $.ajax({
@@ -29,6 +29,44 @@ $("#add-sections").click(function () {
   window.location = "index.htm?openDashboard=true";
 });
 
+function renderTable(dataRaw) {
+  var data = JSON.parse(dataRaw);
+  var headerData = data['headers'];
+  var headers = []
+  for (var i = 0; i < headerData.length; i++) {
+    headers.push(headerData[i]['name']);
+  }
+
+  if (isEdit) {
+    var tmpHeaders = [];
+    for (column in headers) {
+      var header = headers[column];
+      var tempHeader = header.replace('data.', '');
+      if (selectedList.indexOf(tempHeader) != -1) {
+        tmpHeaders.push(header);
+      }
+    }
+    headers = [];
+    headers = tmpHeaders;
+  }
+
+  var rowData = data['rows'];
+  var rows = [];
+  for (var i = 0; i < rowData.length; i++) {
+    var row = []
+    for (var j = 0; j < headers.length; j++) {
+      row.push(rowData[i][headers[j]]);
+    }
+    rows.push(row);
+  }
+
+  headerList = headers;
+  if (!isEdit)
+    generateColumChooserList();
+
+  var tableData = {headers: headers, data: rows};
+  $(".fql-display-container").html(handlebars("#fql-template", tableData));
+}
 function fqlQuery() {
   $.ajax({
     method: 'POST',
@@ -40,29 +78,8 @@ function fqlQuery() {
       csv: 'text/csv'
     },
     success: function(dataRaw) {
-      var data = JSON.parse(dataRaw);
-      var headerData = data['headers'];
-      var headers = []
-      for (var i = 0; i < headerData.length; i++) {
-        headers.push(headerData[i]['name']);
-      }
-      var rowData = data['rows'];
-      var rows = [];
-      for (var i = 0; i < rowData.length; i++) {
-        var row = []
-        for (var j = 0; j < headers.length; j++) {
-          row.push(rowData[i][headers[j]]);
-        }
-        rows.push(row);
-      }
-
-      headerList = headers;
-
-      if (!isEdit)
-        generateColumChooserList();
-
-      var tableData = {headers: headers, data: rows};
-      $(".fql-display-container").html(handlebars("#fql-template", tableData));
+      renderTable(dataRaw);
+      fetchedData = dataRaw;
     }
   });
 }
@@ -84,6 +101,7 @@ function generateColumChooserList() {
     selectedList.push(headerList[column]);
   }
 
+  console.log(selectedList);
   // Search columns
   $('.fql-search-columns').on('keyup', function () {
     var query = this.value;
@@ -103,17 +121,17 @@ function generateColumChooserList() {
         selectedList = selections;
       };
 
-  $('.column-chooser').change(function () {
+  $('.fql-column-chooser-checkbox').change(function () {
     selections = $.map($('input[type="checkbox"]:checked'), function (a) {
       return a.value;
     })
 
     // check select all checkbox check or uncheck
-    if ($('.column-chooser:checked').length == $('.column-chooser').length) {
+    if ($('.fql-column-chooser-checkbox:checked').length == $('.fql-column-chooser').length) {
       //do something
-      $(".select-all").prop('checked', true);
+      $(".fql-select-all").prop('checked', true);
     } else {
-      $(".select-all").prop('checked', false);
+      $(".fql-select-all").prop('checked', false);
     }
 
     render_selections();
