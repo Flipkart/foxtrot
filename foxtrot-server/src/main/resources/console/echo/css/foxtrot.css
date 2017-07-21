@@ -2773,3 +2773,159 @@ div.tab button:first-child {
 #fql-run-query span{
   margin-left: 23px;
 }
+
+#fql-column-chooser {
+  width: 356px;
+  position: fixed;
+  background: #282b38;
+  right: 0;
+  z-index: 1000;
+  top: 0;
+  display: none;
+  height: 100%;
+}
+
+#fql-column-chooser-content {
+  margin-left: 4px;
+  overflow-y: scroll;
+  height: 100%;
+  padding-bottom: 150px;
+}
+
+#fql-column-chooser label {
+  font-family: Open Sans;
+  font-size: 12px;
+  color: #a6a8b5;
+}
+
+.fql-column-chooser-form-heading {
+  padding-bottom: 10px;
+  margin-left: -16px;
+  overflow: hidden;
+}
+
+#fql-column-chooser input {
+  background: none;
+  border: none;
+  border: solid 1px #777a89;
+  color: #ffffff;
+}
+
+#fql-column-chooser input:focus {
+  outline: none;
+  box-shadow: none;
+}
+
+#fql-column-chooser input:hover {
+  border: 1px solid #fff;
+  color: #fff;
+}
+
+.fql-column-chooser-top-btns {
+  margin-top: 23px;
+}
+
+.fql-column-chooser-save-btn {
+  width: 63px;
+  height: 30px;
+  background-color: #50e3c2;
+  border: solid 1px #50e3c2;
+  font-family: Open Sans Regular;
+  float: right;
+}
+
+.fql-column-chooser-left-btn {
+  height: 19px;
+  font-family: Open Sans Regular;
+  font-size: 14px;
+  font-weight: bold;
+  color: #35dbb1;
+  border: none;
+  background: none;
+  margin-left: 10px;
+}
+
+#fql-column-chooser-close-btn {
+  width: 40px;
+  height: 37px;
+  background-color: #33434b;
+  position: absolute;
+  left: -40px;
+  padding: 6px 6px 9px 10px;
+  cursor: pointer;
+  top: -1px;
+}
+
+#fql-column-chooser-heading  h1{
+  height: 19px;
+  font-family: Open Sans;
+  font-size: 14px;
+  font-weight: 600;
+  text-align: center;
+  color: #ffffff;
+  margin-top: 20px;
+  margin-bottom: 20px;
+}
+
+#fql-column-chooser {
+  width: 292px;
+  background-color: #000000;
+  border: solid 1px #6c6e7e;
+}
+
+#fql-column-chooser-content {
+  padding: 16px;
+}
+
+.fql-column-chooser-remove-img {
+  float: right;
+  position: relative;
+  top: -26px;
+  cursor: pointer;
+}
+
+.fql-event-choose-btn {
+  width: 126px;
+  height: 36px;
+  background-color: #ffffff;
+  border: solid 1px #c9d2e1;
+  font-family: OpenSans;
+  font-size: 12px;
+  color: #859fc0;
+  float: right;
+}
+
+.fql-column-name-text-display {
+  position: relative;
+  bottom: 25px;
+  left: 20px;
+  display: block;
+  text-overflow: ellipsis;
+  width: 284px;
+  overflow: hidden;
+}
+
+.fql-column-chooser-div {
+  height: 25px;
+}
+
+.fql-column-chooser-div:last-child {
+  margin-bottom: 20px;
+}
+
+#fql-column-list label{
+  color: #ffffff;
+  font-family: Open Sans;
+  font-size: 12px;
+  font-weight: bold;
+  text-align: left;
+  color: #ffffff;
+  line-height: 2;
+}
+
+#fql-search-columns {
+  width: 291px;
+  height: 33px;
+  border: solid 1px #979797;
+  margin-top: 21px;
+}

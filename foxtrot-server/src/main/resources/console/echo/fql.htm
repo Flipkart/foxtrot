@@ -91,7 +91,7 @@
           <div class="col-sm-8"><span id="event-display-heading">Events</span></div>
           <div class="col-sm-4">
             <button type="button" class="form-control event-export-btn"> <span> Export data</span> </button>
-            <button type="button" class="form-control event-choose-btn"> <span> Choose columns</span> </button>
+            <button type="button" class="form-control fql-event-choose-btn"> <span> Choose columns</span> </button>
           </div>
         </div>
         <div class="row fql-display-container">
@@ -148,6 +148,35 @@
         </div>
       </div>
 
+      <div id="fql-column-chooser">
+        <div id="fql-column-chooser-close-btn"><img src="img/combined-shape.png" alt="close" /></div>
+        <div class="col-md-12 fql-column-chooser-top-btns">
+          <div class="row">
+            <div class="col-xs-8 form-group tile-name-parent">
+              <button type="submit" class="column-chooser-left-btn">COLUMN SELECTION</button>
+            </div>
+            <div class="col-xs-4 form-group">
+              <button type="submit" class="fql-column-chooser-save-btn" id="fql-column-chooser-save-btn">Save</button>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-12" id="fql-column-chooser-content">
+          <form class="col-md-12">
+            <div>
+              <label><input type="checkbox" class="fql-select-all" checked id="fql-select-all" name="fql-select-all"/>
+                <span id="select-all-column">Select all available columns</span>
+              </label>
+            </div>
+            <div class="form-group">
+              <input type="text" placeholder="Search" id="fql-search-columns" class="fql-search-columns" />
+            </div>
+            <div id="fql-column-list">
+
+            </div>
+          </form>
+        </div>
+      </div>
+
 
     </div>
   </div>
@@ -168,6 +197,36 @@
   <script src="js/validate.js"></script>
 
   <script type="text/javascript">
+    $("#fql-column-chooser-close-btn").click(function() {
+      showHideColumnChooser();
+    });
+
+    $(".fql-event-choose-btn").click(function() {
+      if(headerList.length > 0)
+        showHideColumnChooser();
+    });
+
+    $("#fql-column-chooser-save-btn").click(function() {
+      //reDisplayTable();
+      isEdit = true;
+      renderTable(fetchedData);
+      showHideColumnChooser();
+    });
+
+    $('#fql-select-all').click(function(event) {
+      if(this.checked) {
+        // Iterate each checkbox
+        $('.fql-column-chooser-checkbox').each(function() {
+          this.checked = true;
+          selectedList.push(this.value);
+        });
+      } else {
+        $('.fql-column-chooser-checkbox').each(function() {
+          this.checked = false;
+          selectedList = [];
+        });
+      }
+    });
   </script>
   <!--Application-->
 </body>
