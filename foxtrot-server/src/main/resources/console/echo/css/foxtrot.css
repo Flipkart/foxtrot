@@ -2435,6 +2435,10 @@ div.tab button:first-child {
   top: 31px;
 }
 
+.fql-display-container {
+  margin-top: 30px;
+  overflow-x: scroll;
+}
 .event-export-btn {
   width: 99px;
   height: 36px;
@@ -2768,6 +2772,7 @@ div.tab button:first-child {
   text-align: left;
   color: #ffffff !important;
   border: none;
+  margin-left: 15px;
 }
 
 #fql-run-query span{
