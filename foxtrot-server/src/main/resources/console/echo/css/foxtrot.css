@@ -2939,3 +2939,25 @@ div.tab button:first-child {
   max-width:200px;
   word-wrap: break-word;
 }
+
+#fql-csv-download {
+  width: 156px;
+  height: 42px;
+  background-color: #32a6f9;
+  font-family: Open Sans Regular;
+  font-size: 14px;
+  font-weight: bold;
+  text-align: left;
+  color: #ffffff !important;
+  border: none;
+  margin-left: 15px;
+}
+
+#fql-csv-download span{
+  margin-left: 23px;
+}
+
+#fql-buttons {
+  position: relative;
+  left: -29px;
+}

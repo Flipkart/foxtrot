@@ -161,3 +161,16 @@ function showHideColumnChooser() { // page setting modal
     });
   }
 }
+
+// Download css
+$("#fql-csv-download").click(function (event) {
+  $(".dataview").html("");
+  var fqlQueryInput = $(".fql-query");
+  var fqlQuery = fqlQueryInput.val();
+  if (!fqlQuery) {
+    alert("Please enter a valid query");
+    return;
+  }
+  window.open(apiUrl+"/v1/fql/download"+ "?q=" + encodeURIComponent($(".fql-query").val()), '_blank');
+  event.preventDefault();
+})
