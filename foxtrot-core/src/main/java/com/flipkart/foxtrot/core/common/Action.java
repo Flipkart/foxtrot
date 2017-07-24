@@ -17,6 +17,7 @@ package com.flipkart.foxtrot.core.common;
 
 import com.flipkart.foxtrot.common.ActionRequest;
 import com.flipkart.foxtrot.common.ActionResponse;
+import com.flipkart.foxtrot.common.ActionValidationResponse;
 import com.flipkart.foxtrot.common.query.Filter;
 import com.flipkart.foxtrot.common.query.general.AnyFilter;
 import com.flipkart.foxtrot.common.query.numeric.LessThanFilter;
@@ -37,6 +38,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Callable;
@@ -104,6 +106,26 @@ public abstract class Action<ParameterType extends ActionRequest> implements Cal
         return cacheKey;
     }
 
+    public ActionValidationResponse validate() {
+        try {
+            preProcessRequest();
+        } catch (MalformedQueryException e) {
+            return ActionValidationResponse.builder()
+                    .processedRequest(parameter)
+                    .validationErrors(e.getReasons())
+                    .build();
+        } catch (Exception e) {
+            return ActionValidationResponse.builder()
+                    .processedRequest(parameter)
+                    .validationErrors(Collections.singletonList(e.getMessage()))
+                    .build();
+        }
+        return ActionValidationResponse.builder()
+                .processedRequest(parameter)
+                .validationErrors(Collections.emptyList())
+                .build();
+    }
+
     public ActionResponse execute() throws FoxtrotException {
         preProcessRequest();
         ActionResponse cachedData = readCachedData();
@@ -166,10 +188,6 @@ public abstract class Action<ParameterType extends ActionRequest> implements Cal
         if (!CollectionUtils.isNullOrEmpty(validationErrors)) {
             throw FoxtrotExceptions.createMalformedQueryException(parameter, validationErrors);
         }
-    }
-
-    public void validateImpl() throws MalformedQueryException {
-        validateImpl(parameter);
     }
 
     /**

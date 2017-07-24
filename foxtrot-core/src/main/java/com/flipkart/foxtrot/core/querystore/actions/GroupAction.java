@@ -162,7 +162,9 @@ public class GroupAction extends Action<GroupRequest> {
                         probability, parameter);
             throw FoxtrotExceptions.createCardinalityOverflow(parameter, parameter.getNesting().get(0), probability);
         }
-
+        else {
+            log.info("Allowing group by with probability {} for query: {}", probability, parameter);
+        }
     }
 
     private double estimateProbability(TableFieldMapping tableFieldMapping, GroupRequest parameter) throws Exception {
