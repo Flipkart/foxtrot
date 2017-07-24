@@ -150,6 +150,7 @@ function runQuery(isBrowse) {
     from: offset,
     limit: 10
   };
+  showLoader();
   $.ajax({
     method: 'POST',
     url: apiUrl + "/v1/analytics",
@@ -157,6 +158,7 @@ function runQuery(isBrowse) {
     data: JSON.stringify(request),
     dataType: 'json',
     success: function (resp) {
+      hideLoader();
       if (fetchedData.documents) {
         var tmpData = fetchedData.documents;
         tmpData.push.apply(tmpData, resp.documents);
