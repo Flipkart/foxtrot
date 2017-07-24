@@ -15,7 +15,6 @@
  */
 package com.flipkart.foxtrot.core.table.impl;
 
-import com.carrotsearch.hppc.cursors.ObjectCursor;
 import com.codahale.metrics.annotation.Timed;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.flipkart.foxtrot.common.FieldMetadata;
@@ -46,7 +45,6 @@ import org.elasticsearch.action.search.MultiSearchResponse;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.Client;
-import org.elasticsearch.cluster.metadata.MappingMetaData;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.aggregations.Aggregation;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
@@ -60,6 +58,8 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 /**
  * User: Santanu Sinha (santanu.sinha@flipkart.com)
@@ -124,8 +124,8 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
 
     @Override
     @Timed
-    public TableFieldMapping getFieldMappings(String table) throws FoxtrotException {
-        table = ElasticsearchUtils.getValidTableName(table);
+    public TableFieldMapping getFieldMappings(String originalTableName) throws FoxtrotException {
+        final String table = ElasticsearchUtils.getValidTableName(originalTableName);
 
         if (!tableDataStore.containsKey(table)) {
             throw FoxtrotExceptions.createBadRequestException(table,
@@ -134,32 +134,47 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
         if (fieldDataCache.containsKey(table)) {
             return fieldDataCache.get(table);
         }
-        try {
-            ElasticsearchMappingParser mappingParser = new ElasticsearchMappingParser(mapper);
-            Set<FieldMetadata> mappings = new HashSet<>();
-            final String indices = ElasticsearchUtils.getIndices(table);
-            logger.info("Selected indices: {}", indices);
-            GetMappingsResponse mappingsResponse = elasticsearchConnection.getClient().admin()
-                    .indices().prepareGetMappings(indices).execute().actionGet();
+        ElasticsearchMappingParser mappingParser = new ElasticsearchMappingParser(mapper);
+        final String indices = ElasticsearchUtils.getIndices(table);
+        logger.info("Selected indices: {}", indices);
+        GetMappingsResponse mappingsResponse = elasticsearchConnection.getClient().admin()
+                .indices().prepareGetMappings(indices).execute().actionGet();
 
-            for (ObjectCursor<String> index : mappingsResponse.getMappings().keys()) {
-                MappingMetaData mappingData = mappingsResponse.mappings().get(index.value).get(ElasticsearchUtils.DOCUMENT_TYPE_NAME);
-                mappings.addAll(mappingParser.getFieldMappings(mappingData));
-            }
+        Set<FieldMetadata> mappings = StreamSupport.stream(mappingsResponse.getMappings().keys().spliterator(), false)
+                .sorted((lhs, rhs) -> {
+                    Date lhsDate = ElasticsearchUtils.parseIndexDate(lhs.value, table).toDate();
+                    Date rhsDate = ElasticsearchUtils.parseIndexDate(rhs.value, table).toDate();
+                    if(null == lhsDate) {
+                        return 1;
+                    }
+                    else if( null == rhsDate) {
+                        return -1;
+                    }
+                    return 0 - lhsDate.compareTo(rhsDate);
+                })
+                .map(index -> mappingsResponse.mappings()
+                        .get(index.value)
+                        .get(ElasticsearchUtils.DOCUMENT_TYPE_NAME))
+                .flatMap(mappingData -> {
+                    try {
+                        return mappingParser.getFieldMappings(mappingData).stream();
+                    } catch (IOException e) {
+                        logger.error("Could not read mapping from " + mappingData, e);
+                        return Stream.empty();
+                    }
+                })
+                .collect(Collectors.toSet());
 
-            TableFieldMapping tableFieldMapping = new TableFieldMapping(table, mappings);
-            estimateCardinality(
-                    table,
-                    tableFieldMapping.getMappings(),
-                    DateTime.now()
-                            .minusDays(1)
-                            .toDate()
-                            .getTime());
-            fieldDataCache.put(table, tableFieldMapping);
-            return tableFieldMapping;
-        } catch (IOException e) {
-            throw FoxtrotExceptions.createExecutionException(table, e);
-        }
+        TableFieldMapping tableFieldMapping = new TableFieldMapping(table, mappings);
+        estimateCardinality(
+                table,
+                tableFieldMapping.getMappings(),
+                DateTime.now()
+                        .minusDays(1)
+                        .toDate()
+                        .getTime());
+        fieldDataCache.put(table, tableFieldMapping);
+        return tableFieldMapping;
     }
 
     @Override
@@ -180,7 +195,7 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
         }
         Map<String, FieldMetadata> fieldMap = fields
                 .stream()
-                .collect(Collectors.toMap(FieldMetadata::getField, fieldMetadata -> fieldMetadata));
+                .collect(Collectors.toMap(FieldMetadata::getField, fieldMetadata -> fieldMetadata, (lhs, rhs) -> lhs));
 
         final String index = ElasticsearchUtils.getCurrentIndex(ElasticsearchUtils.getValidTableName(table), time);
         final Client client = elasticsearchConnection.getClient();

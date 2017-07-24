@@ -230,12 +230,16 @@ public class ElasticsearchUtils {
             return false;
         }
 
-        String indexPrefix = getIndexPrefix(table.getName());
-        String creationDateString = index.substring(index.indexOf(indexPrefix) + indexPrefix.length());
-        DateTime creationDate = DATE_TIME_FORMATTER.parseDateTime(creationDateString);
+        DateTime creationDate = parseIndexDate(index, table.getName());
         DateTime startTime = new DateTime(0L);
         DateTime endTime = new DateTime().minusDays(table.getTtl()).toDateMidnight().toDateTime();
         return creationDate.isAfter(startTime) && creationDate.isBefore(endTime);
+    }
+
+    public static DateTime parseIndexDate(String index, String table) {
+        String indexPrefix = getIndexPrefix(table);
+        String creationDateString = index.substring(index.indexOf(indexPrefix) + indexPrefix.length());
+        return DATE_TIME_FORMATTER.parseDateTime(creationDateString);
     }
 
     public static String getTableNameFromIndex(String currentIndex) {
