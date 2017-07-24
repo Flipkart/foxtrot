@@ -73,6 +73,7 @@ function renderTable(dataRaw) {
 
 // Get query
 function fqlQuery() {
+  showLoader();
   $.ajax({
     method: 'POST',
     url: apiUrl + "/v1/fql",
@@ -84,6 +85,7 @@ function fqlQuery() {
     },
     statusCode: {
       500: function (data) {
+        hideLoader();
         if (data.hasOwnProperty("responseText")) {
           var error = JSON.parse(data["responseText"]);
           if (error.hasOwnProperty('message')) {
@@ -95,6 +97,7 @@ function fqlQuery() {
     success: function (dataRaw) {
       renderTable(dataRaw);
       fetchedData = dataRaw;
+      hideLoader();
     }
   });
 }
