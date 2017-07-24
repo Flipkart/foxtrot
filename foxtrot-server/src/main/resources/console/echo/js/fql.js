@@ -109,7 +109,7 @@ function checkValidForm() {
 }
 
 $("#fql-run-query").click(function () {
-  if(checkValidForm()) {
+  if (checkValidForm()) {
     fqlQuery();
   }
 });
@@ -176,6 +176,6 @@ $("#fql-csv-download").click(function (event) {
   if (!checkValidForm()) {
     return;
   }
-  window.open(apiUrl+"/v1/fql/download"+ "?q=" + encodeURIComponent($(".fql-query").val()), '_blank');
+  window.open(apiUrl + "/v1/fql/download" + "?q=" + encodeURIComponent($(".fql-query").val()), '_blank');
   event.preventDefault();
 });
