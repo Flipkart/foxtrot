@@ -1,5 +1,5 @@
 var tableNameList = [];
-var apiUrl = "http://foxtrot.traefik.prod.phonepe.com/foxtrot";
+var apiUrl = getHostUrl();
 var browseFilterRowArray = [];
 var currentFieldList = [];
 var tableFiledsArray = {};
@@ -79,10 +79,16 @@ function setBetweenInput(el) {
 
   var rowIdArray = rowString.split('-');
   var rowId = rowIdArray[3];
-    if (selectedType == "between") {
+  if (selectedType == "between") {
     $('#filter-between-input-' + rowId).prop("disabled", false);
+    $("#browse-events-form").find("#filter-row-" + rowId).find(".between-element").show();
+    $("#browse-events-form").find("#filter-row-" + rowId).find(".filter-value-div").removeClass('col-sm-6').addClass('col-sm-3');
+    $("#browse-events-form").find("#filter-row-" + rowId).find(".browse-events-filter-value").addClass('browse-remove-top');
   } else {
     $('#filter-between-input-' + rowId).prop("disabled", true);
+    $("#browse-events-form").find("#filter-row-" + rowId).find(".between-element").hide();
+    $("#browse-events-form").find("#filter-row-" + rowId).find(".filter-value-div").removeClass('col-sm-3').addClass('col-sm-6');
+    $("#browse-events-form").find("#filter-row-" + rowId).find(".browse-events-filter-value").removeClass('browse-remove-top');
   }
   $('#filter-between-input-' + rowId).val("");
 }
@@ -144,6 +150,7 @@ function runQuery(isBrowse) {
     from: offset,
     limit: 10
   };
+  showLoader();
   $.ajax({
     method: 'POST',
     url: apiUrl + "/v1/analytics",
@@ -151,6 +158,7 @@ function runQuery(isBrowse) {
     data: JSON.stringify(request),
     dataType: 'json',
     success: function (resp) {
+      hideLoader();
       if (fetchedData.documents) {
         var tmpData = fetchedData.documents;
         tmpData.push.apply(tmpData, resp.documents);
@@ -208,7 +216,6 @@ function generateColumChooserList() {
     } else {
       $(".select-all").prop('checked', false);
     }
-
     render_selections();
   });
 }
@@ -278,6 +285,17 @@ function renderTable(data) {
   };
   parent.html(handlebars("#eventbrowser-template", tableData));
 
+  $('.event-table').DataTable({
+    scrollX: true,
+    scrollCollapse: true,
+    paging: false,
+    info: false,
+    bFilter: false,
+    fixedColumns: {
+      leftColumns: 2
+    }
+  });
+
   if (offset == 0)
     document.getElementById("scroll-ref").scrollIntoView();
 }
@@ -297,7 +315,7 @@ function generateOption(el, type) {
   var rowIdArray = rowString.split('-');
   var rowId = rowIdArray[2];
   var optionString = getWhereOption(type);
-  var el = $("#filter-type-option-"+rowId);
+  var el = $("#filter-type-option-" + rowId);
 
   $("#browse-events-form").find(el)
     .find('option')
@@ -319,7 +337,7 @@ $("#browse-events-add-query").click(function () {
     browseFilterRowArray.push(filterCount);
   }
 
-  var filterRow = '<div class="row clearfix" id="filter-row-' + filterCount + '"><img src="img/remove.png" class="browse-events-filter-remove-img browse-events-delete" id="' + filterCount + '" /><div class="col-sm-3"><select class="selectpicker form-control filter-column filter-background" id="filter-row-' + filterCount + '" data-live-search="true" name="filter-column-' + filterCount + '" required></select></div><div class="col-sm-3"><select required class="filter-type filter-type-option-'+filterCount+' filter-background form-control" id="filter-type-option-'+filterCount+'"></select></div><div class="col-sm-3 filter-value-div"><input id="filter-column-row-' + filterCount + '" type="text" class="form-control browse-events-filter-value form-control" name="browse-events-filter-value-' + filterCount + '" required></div><div class="col-sm-3"><input id="filter-between-input-' + filterCount + '" type="number" class="form-control browse-events-filter-between-value form-control" disabled></div></span></div></div>';
+  var filterRow = '<div class="row clearfix" id="filter-row-' + filterCount + '"><img src="img/remove.png" class="browse-events-filter-remove-img browse-events-delete" id="' + filterCount + '" /><div class="col-sm-3"><select class="selectpicker form-control filter-column filter-background" id="filter-row-' + filterCount + '" data-live-search="true" name="filter-column-' + filterCount + '" required></select></div><div class="col-sm-3"><select required class="filter-type filter-type-option-' + filterCount + ' filter-background form-control" id="filter-type-option-' + filterCount + '"></select></div><div class="col-sm-6 filter-value-div"><input id="filter-column-row-' + filterCount + '" type="text" class="form-control browse-events-filter-value form-control" name="browse-events-filter-value-' + filterCount + '" required></div><div class="col-sm-3 between-element"><input id="filter-between-input-' + filterCount + '" type="number" class="form-control browse-events-filter-between-value  form-control" id="between-value-' + filterCount + '" disabled></div></span></div></div>';
   $(".browse-rows").append(filterRow);
   var filterValueEl = $("#filter-row-" + filterCount).find('.browse-events-delete');
   var filterType = $("#filter-row-" + filterCount).find('.filter-type');
@@ -390,13 +408,13 @@ setInterval(function () {
 
 function loadConsole() { // load console list api
   $.ajax({
-    url: apiUrl+("/v2/consoles/"),
+    url: apiUrl + ("/v2/consoles/"),
     type: 'GET',
     contentType: 'application/json',
-    success: function(res) {
+    success: function (res) {
       appendConsoleList(res);
     },
-    error: function() {
+    error: function () {
       error("Could not save console");
     }
   })
@@ -407,4 +425,3 @@ $("#listConsole").change(function () {
 });
 
 loadConsole();
-//$( "#browse-events-add-query" ).trigger( "click" );

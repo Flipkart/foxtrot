@@ -258,3 +258,11 @@ function getTilesFilterWhereOption(fieldType) {
     return allOption;
   }
 }
+
+function showLoader() {
+  $(".loading").show();
+}
+
+function hideLoader() {
+  $(".loading").hide();
+}

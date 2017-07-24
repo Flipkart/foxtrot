@@ -26,7 +26,7 @@ var filterRowArray = [];
 var currentChartType;
 var tableList = [];
 var currentFieldList = [];
-var apiUrl = "http://foxtrot.traefik.prod.phonepe.com/foxtrot";
+var apiUrl = getHostUrl();
 var interval = null;
 var consoleList = [];
 var currentConsoleName;
