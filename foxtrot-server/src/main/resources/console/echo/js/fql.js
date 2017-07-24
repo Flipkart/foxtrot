@@ -81,6 +81,16 @@ function fqlQuery() {
       text: 'application/json',
       csv: 'text/csv'
     },
+    statusCode: {
+      500: function (data) {
+        if (data.hasOwnProperty("responseText")) {
+          var error = JSON.parse(data["responseText"]);
+          if (error.hasOwnProperty('message')) {
+            alert(error['message']);
+          }
+        }
+      }
+    },
     success: function (dataRaw) {
       renderTable(dataRaw);
       fetchedData = dataRaw;
@@ -105,7 +115,6 @@ function generateColumChooserList() {
     selectedList.push(headerList[column]);
   }
 
-  console.log(selectedList);
   // Search columns
   $('.fql-search-columns').on('keyup', function () {
     var query = this.value;
