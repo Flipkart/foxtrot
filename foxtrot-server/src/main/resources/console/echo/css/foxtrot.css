@@ -2898,6 +2898,7 @@ div.tab button:first-child {
   font-size: 12px;
   color: #859fc0;
   float: right;
+  margin-top: 36px;
 }
 
 .fql-column-name-text-display {
