@@ -2934,3 +2934,8 @@ div.tab button:first-child {
   border: solid 1px #979797;
   margin-top: 21px;
 }
+
+.td-width {
+  max-width:200px;
+  word-wrap: break-word;
+}
