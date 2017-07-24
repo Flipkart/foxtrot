@@ -71,6 +71,7 @@ function renderTable(dataRaw) {
   $(".fql-display-container").html(handlebars("#fql-template", tableData));
 }
 
+// Get query
 function fqlQuery() {
   $.ajax({
     method: 'POST',
@@ -98,14 +99,20 @@ function fqlQuery() {
   });
 }
 
+// Check valid form
+function checkValidForm() {
+  if (!$("#fql-form").valid()) {
+    return false;
+  } else {
+    return true;
+  }
+}
 
 $("#fql-run-query").click(function () {
-  if (!$("#fql-form").valid()) {
-    return;
+  if(checkValidForm()) {
+    fqlQuery();
   }
-  fqlQuery();
 });
-
 
 function generateColumChooserList() {
   var parent = $("#fql-column-chooser");
@@ -162,13 +169,11 @@ function showHideColumnChooser() { // page setting modal
   }
 }
 
-// Download css
+// Download csv
 $("#fql-csv-download").click(function (event) {
-  $(".dataview").html("");
   var fqlQueryInput = $(".fql-query");
   var fqlQuery = fqlQueryInput.val();
-  if (!fqlQuery) {
-    alert("Please enter a valid query");
+  if (!checkValidForm()) {
     return;
   }
   window.open(apiUrl+"/v1/fql/download"+ "?q=" + encodeURIComponent($(".fql-query").val()), '_blank');
