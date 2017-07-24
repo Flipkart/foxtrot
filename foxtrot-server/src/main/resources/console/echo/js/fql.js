@@ -178,4 +178,4 @@ $("#fql-csv-download").click(function (event) {
   }
   window.open(apiUrl+"/v1/fql/download"+ "?q=" + encodeURIComponent($(".fql-query").val()), '_blank');
   event.preventDefault();
-})
+});
