@@ -266,3 +266,11 @@ function showLoader() {
 function hideLoader() {
   $(".loading").hide();
 }
+
+function showErrorAlert(title, msg) {
+  swal(
+    title,
+    msg,
+    'error'
+  );
+}

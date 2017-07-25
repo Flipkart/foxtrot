@@ -89,7 +89,7 @@ function fqlQuery() {
         if (data.hasOwnProperty("responseText")) {
           var error = JSON.parse(data["responseText"]);
           if (error.hasOwnProperty('message')) {
-            alert(error['message']);
+            showErrorAlert('Oops', error['message']);
           }
         }
       }
