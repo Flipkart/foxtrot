@@ -300,7 +300,7 @@ function generateTabBtnForConsole(array) { // new btn for tabs
   for(var i = 0; i < array.sections.length; i++) {
     generateSectionbtn(array.sections[i].name, false);
   }
-  $('.tab button:first').addClass('active');
+  //$('.tab button:first').addClass('active');
 }
 
 function setListConsole(value) { // making current console name selected
@@ -361,7 +361,22 @@ function getConsoleById(selectedConsole) { // get particular console list
       globalData = [];
       globalData = res.sections;
       generateTabBtnForConsole(res);
-      renderTilesObject(res.sections[0].id);
+
+      // check any tab name present in url
+      var tabName = getParameterByName("tab");
+      var tabIndex = 0;
+      if(tabName) {
+        var tabIndex = res.sections.findIndex(x => x.id == tabName);
+        renderTilesObject(res.sections[tabIndex].id);
+        tabIndex = tabIndex+1;
+      } else {
+        renderTilesObject(res.sections[0].id);
+        tabIndex = 1;
+      }
+
+      // make tab button active
+      $('.tab button:nth-child('+tabIndex+')').addClass('active');
+
       getTables();
       generatePageList(res);
       setTimeout(function() { setListConsole(selectedConsole); }, 2000);
@@ -423,6 +438,19 @@ function consoleTabs(evt, el) { // logic for tab switching
   //document.getElementById(cityName).style.display = "block";
   clearContainer();
   evt.currentTarget.className += " active";
+
+  // adding tab name to url query parameter
+  var url = getParameterByName("tab");
+  var appendQuery = currentTab.trim().toLowerCase().split(' ').join("_");
+  if(url) {
+    var fullUrl = window.location.href;
+    var newUrl = fullUrl.substr(0, fullUrl.indexOf('&'));
+    window.history.pushState(null, "Echo", newUrl+"&tab="+appendQuery);
+  } else {
+    window.history.pushState(null, "Echo", window.location.href+"&tab="+appendQuery);
+  }
+  // query parameter ends
+
   var currentTabName = currentTab.toLowerCase();
   isNewConsole = false;
   renderTilesObject(currentTabName);
