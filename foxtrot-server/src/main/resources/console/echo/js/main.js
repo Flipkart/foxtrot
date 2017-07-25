@@ -266,16 +266,16 @@ function saveConsole() { // Save console api
       contentType: 'application/json',
       data: JSON.stringify(representation),
       success: function(resp) {
-        alert('console saved sucessfully');
+        showSuccessAlert('Success', 'console saved sucessfully')
         hideSaveConsole();
       },
       error: function() {
-        error("Could not save console");
+        showErrorAlert("Oops","Could not save console");
         hideSaveConsole();
       }
     })
   } else {
-    alert('Add atleast one widget');
+    showErrorAlert("Oops",'Add atleast one widget');
     hideSaveConsole();
   }
 }

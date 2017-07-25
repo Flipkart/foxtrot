@@ -274,3 +274,11 @@ function showErrorAlert(title, msg) {
     'error'
   );
 }
+
+function showSuccessAlert(title, msg) {
+  swal(
+    title,
+    msg,
+    'success'
+  );
+}
