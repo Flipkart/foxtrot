@@ -232,6 +232,13 @@
         });
       }
     });
+
+    $('#fql-form').bind('keydown', function(e) {
+      if (e.keyCode == 13) {
+        e.preventDefault();
+        $("#fql-run-query").trigger("click");
+      }
+    });
   </script>
   <!--Application-->
 </body>
