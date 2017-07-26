@@ -11,10 +11,6 @@ function loadConsole() { // load console list api
   });
 }
 
-$("#listConsole").change(function () {
-  loadParticularConsole();
-});
-
 loadConsole();
 
 $("#add-sections").click(function () {

@@ -296,3 +296,7 @@ function getConsole() {
     }
   });
 }
+
+$("#listConsole").change(function () {
+  loadParticularConsole();
+});
