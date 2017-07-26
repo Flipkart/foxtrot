@@ -43,11 +43,21 @@ function TileFactory() {
   this.tileObject = "";
 }
 
+// Change period select dropdown values for every tiles
+function changeDropdownValue(el) {
+  if(globalFilters) {
+    $(el).find(".period-select").val($("#global-filter-period-select").val());
+  } else {
+    $(el).find(".period-select").val("custom");
+  }
+}
+
 function refereshTiles() { // auto query for each tile
   for (var key in tileData) {
     if (tileData.hasOwnProperty(key)) {
       var a = new TileFactory();
       a.createGraph(tileData[key], $("#"+ key));
+      changeDropdownValue($("#"+ key));
     }
   }
 }
