@@ -386,10 +386,6 @@ $("#show-more").click(function () {
   }
 });
 
-$("#add-sections").click(function () {
-  window.location = "index.htm?openDashboard=true";
-});
-
 document.addEventListener('scroll', function (event) {
   if (fetchedData.documents)
     didScroll = true;

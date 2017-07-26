@@ -13,10 +13,6 @@ function loadConsole() { // load console list api
 
 loadConsole();
 
-$("#add-sections").click(function () {
-  window.location = "index.htm?openDashboard=true";
-});
-
 function renderTable(dataRaw) {
   var data = JSON.parse(dataRaw);
   var headerData = data['headers'];

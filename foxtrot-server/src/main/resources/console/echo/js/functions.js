@@ -300,3 +300,7 @@ function getConsole() {
 $("#listConsole").change(function () {
   loadParticularConsole();
 });
+
+$("#add-sections").click(function () {
+  window.location = "index.htm?openDashboard=true";
+});
