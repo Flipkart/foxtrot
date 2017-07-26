@@ -342,7 +342,7 @@ $("#browse-events-add-query").click(function () {
   var filterValueEl = $("#filter-row-" + filterCount).find('.browse-events-delete');
   var filterType = $("#filter-row-" + filterCount).find('.filter-type');
   $(filterType).selectpicker('refresh');
-  var filterColumn = $("#filter-row-" + filterCount).find('.filter-column')
+  var filterColumn = $("#filter-row-" + filterCount).find('.filter-column');
   setTimeout(function () {
     generateDropDown(currentFieldList, filterColumn);
   }, 0);
@@ -376,13 +376,12 @@ function showHideColumnChooser() { // page setting modal
   }
 }
 
-
 $("#show-more").click(function () {
   $("#more-fields").toggle();
   if (this.text == "Show more") {
     this.text = "Show Less";
   } else {
-    this.text = "Show more"
+    this.text = "Show more";
   }
 });
 
