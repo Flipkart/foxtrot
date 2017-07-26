@@ -610,6 +610,9 @@ $(document).ready(function () {
     currentConsoleName = $("#save-dashboard-name").val();
     saveConsole();
   });
+  $("#listConsole").change(function () {
+    loadParticularConsoleList();
+  });
   $("#addDashboardConfirm").click(function() {
     createDashboard();
   });
