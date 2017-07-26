@@ -266,3 +266,19 @@ function showLoader() {
 function hideLoader() {
   $(".loading").hide();
 }
+
+function showErrorAlert(title, msg) {
+  swal(
+    title,
+    msg,
+    'error'
+  );
+}
+
+function showSuccessAlert(title, msg) {
+  swal(
+    title,
+    msg,
+    'success'
+  );
+}

@@ -80,7 +80,7 @@ LineTile.prototype.getQuery = function (object) {
     , "filters": filters
     , "field": "_timestamp"
     , "period": object.tileContext.period
-    , "uniqueCountOn": object.uniqueCountOn && object.uniqueCountOn != "none" ? object.uniqueCountOn : null
+    , "uniqueCountOn": object.tileContext.uniqueCountOn && object.tileContext.uniqueCountOn != "none" ? object.tileContext.uniqueCountOn : null
   }
   $.ajax({
     method: "post"
