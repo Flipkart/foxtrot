@@ -407,17 +407,9 @@ setInterval(function () {
 }, 2000);
 
 function loadConsole() { // load console list api
-  $.ajax({
-    url: apiUrl + ("/v2/consoles/"),
-    type: 'GET',
-    contentType: 'application/json',
-    success: function (res) {
-      appendConsoleList(res);
-    },
-    error: function () {
-      error("Could not save console");
-    }
-  })
+  $.when(getConsole()).done(function(a1){
+    appendConsoleList(a1);
+  });
 }
 
 $("#listConsole").change(function () {
