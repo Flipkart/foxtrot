@@ -290,7 +290,7 @@ function loadConsole() { // load console list api
       appendConsoleList(res);
     },
     error: function() {
-      error("Could not save console");
+      showErrorAlert("Could not save console");
     }
   })
 }
@@ -382,7 +382,7 @@ function getConsoleById(selectedConsole) { // get particular console list
       setTimeout(function() { setListConsole(selectedConsole); }, 2000);
     },
     error: function() {
-      error("Could not save console");
+      showErrorAlert("Could not save console");
       setListConsole(selectedConsole);
     }
   })
