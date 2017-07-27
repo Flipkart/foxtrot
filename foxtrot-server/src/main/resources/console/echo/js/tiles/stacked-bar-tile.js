@@ -273,6 +273,12 @@ StackedBarTile.prototype.render = function (d) {
       'z-index': 5000,
       'line-height': 2,
     }).appendTo("body").fadeIn(200).fadeOut(60000);
+    // adjust position of tooltip
+    var width = $("#tooltip").width();
+    if(x > 900 && width > 300) {
+      console.log('===')
+      $("#tooltip").css({"left": x - width});
+    }
   }
 
   var previousPoint = null;
