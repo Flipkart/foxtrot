@@ -3086,3 +3086,22 @@ div.tab button:first-child {
 .loading {
   display: none;
 }
+
+.ui-filter-list {
+  height: 25px;
+}
+
+.ui-filter-list label {
+  text-align: left;
+  line-height: 2;
+}
+
+.ui-filter-list span{
+  position: relative;
+  bottom: 25px;
+  left: 20px;
+  display: block;
+  text-overflow: ellipsis;
+  width: 196px;
+  overflow: hidden;
+}

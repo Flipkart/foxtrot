@@ -351,9 +351,9 @@ TileFactory.prototype.triggerFilter = function (tileElement, object) { // filter
         var value = object.tileContext.uiFiltersList[i];
         var index = $.inArray( value, object.tileContext.uiFiltersSelectedList);
         if(index == -1) {
-          $("#filter-checkbox-div").append('<label><input name="filter-checkbox" class="ui-filter-checkbox" type="checkbox" value="'+value+'" checked="checked">'+value+'</label>  <br/>');
+          $("#filter-checkbox-div").append('<div class="ui-filter-list"><label><input name="filter-checkbox" class="ui-filter-checkbox" type="checkbox" value="'+value+'" checked="checked"><span>'+value+'</span></label>  </div>');
         } else {
-          $("#filter-checkbox-div").append('<label><input name="filter-checkbox" class="ui-filter-checkbox" type="checkbox" value="'+value+'">'+value+'</label>  <br/>');
+          $("#filter-checkbox-div").append('<div class="ui-filter-list"><label><input name="filter-checkbox" class="ui-filter-checkbox" type="checkbox" value="'+value+'"><span>'+value+'</span></label>  </div>');
         }
       }
     });
