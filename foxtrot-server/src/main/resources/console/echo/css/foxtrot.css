@@ -1347,7 +1347,7 @@ input[type="checkbox"].tinyswitch.ios-switch:checked + div > div {
 }
 
 .small-widget-title {
-  width: 150px !important;
+  width: 50% !important;
   overflow: hidden;
   height: 36px;
 }
