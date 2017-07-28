@@ -181,18 +181,18 @@ function generateColumChooserList() {
   var parent = $("#column-chooser");
   var listElement = parent.find("#column-list");
   for (var column in headerList) {
-    listElement.append("<div class='column-chooser-div'><label><input type='checkbox' checked value='" + headerList[column] + "' class='column-chooser'><span class='column-name-text-display'>" + headerList[column] + "</span></label></div>");
+    listElement.append("<div class='column-chooser-div'><label><input type='checkbox' checked value='" + headerList[column] + "' class='column-chooser-checkbox'><span class='column-name-text-display'>" + headerList[column] + "</span></label></div>");
     selectedList.push(headerList[column]);
   }
 
   // Search columns
   $('.search-columns').on('keyup', function () {
     var query = this.value;
-    $('[class^="column-chooser"]').each(function (i, elem) {
+    $('[class^="column-chooser-checkbox"]').each(function (i, elem) {
       if (elem.value.indexOf(query) != -1) {
-        $(this).closest('label').show();
+        $(this).closest('label').parent().show();
       } else {
-        $(this).closest('label').hide();
+        $(this).closest('label').parent().hide();
       }
     });
   });
@@ -204,13 +204,13 @@ function generateColumChooserList() {
       selectedList = selections;
     };
 
-  $('.column-chooser').change(function () {
+  $('.column-chooser-checkbox').change(function () {
     selections = $.map($('input[type="checkbox"]:checked'), function (a) {
       return a.value;
     })
 
     // check select all checkbox check or uncheck
-    if ($('.column-chooser:checked').length == $('.column-chooser').length) {
+    if ($('.column-chooser-checkbox:checked').length == $('.column-chooser-checkbox').length) {
       //do something
       $(".select-all").prop('checked', true);
     } else {
