@@ -16,15 +16,20 @@
 package com.flipkart.foxtrot.core.querystore.impl;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.flipkart.foxtrot.common.Document;
+import com.flipkart.foxtrot.common.FieldType;
 import com.flipkart.foxtrot.common.Table;
+import com.flipkart.foxtrot.common.TableFieldMapping;
 import com.flipkart.foxtrot.common.group.GroupResponse;
 import com.flipkart.foxtrot.core.MockElasticsearchServer;
 import com.flipkart.foxtrot.core.TestUtils;
+import com.flipkart.foxtrot.core.datastore.DataStore;
 import com.flipkart.foxtrot.core.table.impl.DistributedTableMetadataManager;
 import com.hazelcast.config.Config;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
 import com.hazelcast.test.TestHazelcastInstanceFactory;
+import org.joda.time.DateTime;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -33,6 +38,7 @@ import org.mockito.Mockito;
 import java.util.UUID;
 
 import static org.junit.Assert.*;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.when;
 
 
@@ -40,24 +46,40 @@ import static org.mockito.Mockito.when;
  * Created by rishabh.goyal on 29/04/14.
  */
 public class DistributedTableMetadataManagerTest {
+
+    private DataStore dataStore;
+    private ElasticsearchQueryStore queryStore;
     private HazelcastInstance hazelcastInstance;
     private DistributedTableMetadataManager distributedTableMetadataManager;
     private MockElasticsearchServer elasticsearchServer;
     private IMap<String, Table> tableDataStore;
+    private ObjectMapper objectMapper;
 
     @Before
     public void setUp() throws Exception {
-        HazelcastConnection hazelcastConnection = Mockito.mock(HazelcastConnection.class);
+        this.dataStore = Mockito.mock(DataStore.class);
+        this.elasticsearchServer = new MockElasticsearchServer(UUID.randomUUID().toString());
+        ElasticsearchConnection elasticsearchConnection = Mockito.mock(ElasticsearchConnection.class);
+        when(elasticsearchConnection.getClient()).thenReturn(elasticsearchServer.getClient());
+
+        ElasticsearchUtils.initializeMappings(elasticsearchConnection.getClient());
+
         hazelcastInstance = new TestHazelcastInstanceFactory(1).newHazelcastInstance();
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.registerSubtypes(GroupResponse.class);
+        HazelcastConnection hazelcastConnection = Mockito.mock(HazelcastConnection.class);
         when(hazelcastConnection.getHazelcast()).thenReturn(hazelcastInstance);
-        Config config = new Config();
-        when(hazelcastConnection.getHazelcastConfig()).thenReturn(config);
+        when(hazelcastConnection.getHazelcastConfig()).thenReturn(new Config());
+        hazelcastConnection.start();
+
+        this.distributedTableMetadataManager = new DistributedTableMetadataManager(hazelcastConnection,
+                elasticsearchConnection, objectMapper);
+        distributedTableMetadataManager.start();
+
+        objectMapper = new ObjectMapper();
+        objectMapper.registerSubtypes(GroupResponse.class);
 
         //Create index for table meta. Not created automatically
         elasticsearchServer = new MockElasticsearchServer(UUID.randomUUID().toString());
-        ElasticsearchConnection elasticsearchConnection = TestUtils.initESConnection(elasticsearchServer);
+        elasticsearchConnection = TestUtils.initESConnection(elasticsearchServer);
 
         String DATA_MAP = "tablemetadatamap";
         tableDataStore = hazelcastInstance.getMap(DATA_MAP);
@@ -65,8 +87,10 @@ public class DistributedTableMetadataManagerTest {
                 = new DistributedTableMetadataManager(
                 hazelcastConnection,
                 elasticsearchConnection,
-                mapper);
+                objectMapper);
         distributedTableMetadataManager.start();
+        this.queryStore = new ElasticsearchQueryStore(distributedTableMetadataManager, elasticsearchConnection,
+                dataStore, objectMapper);
     }
 
     @After
@@ -112,5 +136,32 @@ public class DistributedTableMetadataManagerTest {
         distributedTableMetadataManager.save(table);
         assertTrue(distributedTableMetadataManager.exists(table.getName()));
         assertFalse(distributedTableMetadataManager.exists("DUMMY_TEST_NAME_NON_EXISTENT"));
+    }
+
+    @Test
+    public void testGetFieldMappings() throws Exception {
+        Table table = new Table();
+        table.setName(TestUtils.TEST_TABLE_NAME);
+        table.setTtl(15);
+        distributedTableMetadataManager.save(table);
+
+        Document document = TestUtils.getDocument("A",
+                new DateTime().minusDays(1).getMillis(), new Object[]{"os", "android", "version", 1}, objectMapper);
+        Document translatedDocument = TestUtils.translatedDocumentWithRowKeyVersion1(table, document);
+        doReturn(translatedDocument).when(dataStore).save(table, document);
+        queryStore.save(TestUtils.TEST_TABLE_NAME, document);
+
+        document = TestUtils.getDocument("B",
+                new DateTime().getMillis(), new Object[]{"os", "android", "version", "abcd"}, objectMapper);
+        translatedDocument = TestUtils.translatedDocumentWithRowKeyVersion1(table, document);
+        doReturn(translatedDocument).when(dataStore).save(table, document);
+        queryStore.save(TestUtils.TEST_TABLE_NAME, document);
+
+        TableFieldMapping tableFieldMapping = distributedTableMetadataManager.getFieldMappings(TestUtils.TEST_TABLE_NAME);
+        assertEquals(2, tableFieldMapping.getMappings().size());
+        assertEquals(FieldType.STRING, tableFieldMapping.getMappings().stream()
+                .filter(x -> x.getField().equals("version")).findAny().get().getType());
+        assertEquals(FieldType.STRING, tableFieldMapping.getMappings().stream()
+                .filter(x -> x.getField().equals("os")).findAny().get().getType());
     }
 }
