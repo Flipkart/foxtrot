@@ -57,11 +57,13 @@ public class DistributedTableMetadataManagerTest {
 
     @Before
     public void setUp() throws Exception {
+        objectMapper = new ObjectMapper();
+        objectMapper.registerSubtypes(GroupResponse.class);
+
         this.dataStore = Mockito.mock(DataStore.class);
         this.elasticsearchServer = new MockElasticsearchServer(UUID.randomUUID().toString());
-        ElasticsearchConnection elasticsearchConnection = Mockito.mock(ElasticsearchConnection.class);
+        ElasticsearchConnection elasticsearchConnection = TestUtils.initESConnection(elasticsearchServer);
         when(elasticsearchConnection.getClient()).thenReturn(elasticsearchServer.getClient());
-
         ElasticsearchUtils.initializeMappings(elasticsearchConnection.getClient());
 
         hazelcastInstance = new TestHazelcastInstanceFactory(1).newHazelcastInstance();
@@ -74,21 +76,7 @@ public class DistributedTableMetadataManagerTest {
                 elasticsearchConnection, objectMapper);
         distributedTableMetadataManager.start();
 
-        objectMapper = new ObjectMapper();
-        objectMapper.registerSubtypes(GroupResponse.class);
-
-        //Create index for table meta. Not created automatically
-        elasticsearchServer = new MockElasticsearchServer(UUID.randomUUID().toString());
-        elasticsearchConnection = TestUtils.initESConnection(elasticsearchServer);
-
-        String DATA_MAP = "tablemetadatamap";
-        tableDataStore = hazelcastInstance.getMap(DATA_MAP);
-        distributedTableMetadataManager
-                = new DistributedTableMetadataManager(
-                hazelcastConnection,
-                elasticsearchConnection,
-                objectMapper);
-        distributedTableMetadataManager.start();
+        tableDataStore = hazelcastInstance.getMap("tablemetadatamap");
         this.queryStore = new ElasticsearchQueryStore(distributedTableMetadataManager, elasticsearchConnection,
                 dataStore, objectMapper);
     }
