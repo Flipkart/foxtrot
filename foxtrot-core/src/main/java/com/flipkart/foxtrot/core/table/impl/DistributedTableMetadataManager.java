@@ -15,6 +15,7 @@
  */
 package com.flipkart.foxtrot.core.table.impl;
 
+import com.carrotsearch.hppc.cursors.ObjectCursor;
 import com.codahale.metrics.annotation.Timed;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.flipkart.foxtrot.common.FieldMetadata;
@@ -35,6 +36,7 @@ import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
 import com.flipkart.foxtrot.core.querystore.impl.HazelcastConnection;
 import com.flipkart.foxtrot.core.table.TableMetadataManager;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import com.hazelcast.config.MapConfig;
 import com.hazelcast.config.MapStoreConfig;
 import com.hazelcast.core.IMap;
@@ -56,10 +58,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
 
 /**
  * User: Santanu Sinha (santanu.sinha@flipkart.com)
@@ -92,6 +94,24 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
         mapConfig.setReadBackupData(true);
         hazelcastConnection.getHazelcastConfig().addMapConfig(mapConfig);
         DistributedCache.setupConfig(hazelcastConnection);
+    }
+
+    private static class FieldMetadataComparator implements Comparator<FieldMetadata>, Serializable {
+
+        private static final long serialVersionUID = 8557746595191991528L;
+
+        @Override
+        public int compare(FieldMetadata o1, FieldMetadata o2) {
+            if (o1 == null && o2 == null) {
+                return 0;
+            } else if (o1 == null) {
+                return -1;
+            } else if (o2 == null) {
+                return 1;
+            } else {
+                return o1.getField().compareTo(o2.getField());
+            }
+        }
     }
 
 
@@ -140,20 +160,19 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
         GetMappingsResponse mappingsResponse = elasticsearchConnection.getClient().admin()
                 .indices().prepareGetMappings(indices).execute().actionGet();
 
-        Set<FieldMetadata> mappings = StreamSupport.stream(mappingsResponse.getMappings().keys().spliterator(), false)
+        Set<String> indicesName = Sets.newHashSet();
+        for (ObjectCursor<String> index : mappingsResponse.getMappings().keys()) {
+            indicesName.add(index.value);
+        }
+        List<FieldMetadata> fieldMetadata = indicesName.stream()
+                .filter(x -> !CollectionUtils.isNullOrEmpty(x))
                 .sorted((lhs, rhs) -> {
-                    Date lhsDate = ElasticsearchUtils.parseIndexDate(lhs.value, table).toDate();
-                    Date rhsDate = ElasticsearchUtils.parseIndexDate(rhs.value, table).toDate();
-                    if(null == lhsDate) {
-                        return 1;
-                    }
-                    else if( null == rhsDate) {
-                        return -1;
-                    }
+                    Date lhsDate = ElasticsearchUtils.parseIndexDate(lhs, table).toDate();
+                    Date rhsDate = ElasticsearchUtils.parseIndexDate(rhs, table).toDate();
                     return 0 - lhsDate.compareTo(rhsDate);
                 })
                 .map(index -> mappingsResponse.mappings()
-                        .get(index.value)
+                        .get(index)
                         .get(ElasticsearchUtils.DOCUMENT_TYPE_NAME))
                 .flatMap(mappingData -> {
                     try {
@@ -163,9 +182,10 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
                         return Stream.empty();
                     }
                 })
-                .collect(Collectors.toSet());
-
-        TableFieldMapping tableFieldMapping = new TableFieldMapping(table, mappings);
+                .collect(Collectors.toList());
+        final TreeSet<FieldMetadata> fieldMetadataTreeSet = new TreeSet<>(new FieldMetadataComparator());
+        fieldMetadataTreeSet.addAll(fieldMetadata);
+        TableFieldMapping tableFieldMapping = new TableFieldMapping(table, fieldMetadataTreeSet);
         estimateCardinality(
                 table,
                 tableFieldMapping.getMappings(),

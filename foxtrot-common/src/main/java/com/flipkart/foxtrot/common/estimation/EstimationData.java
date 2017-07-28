@@ -2,7 +2,9 @@ package com.flipkart.foxtrot.common.estimation;
 
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.ToString;
 
 import java.io.Serializable;
 
@@ -12,7 +14,11 @@ import java.io.Serializable;
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.EXISTING_PROPERTY, property = "type")
 @JsonSubTypes({
         @JsonSubTypes.Type(name = "FIXED", value = FixedEstimationData.class),
+        @JsonSubTypes.Type(name = "CARDINALITY", value = CardinalityEstimationData.class),
+        @JsonSubTypes.Type(name = "PERCENTILE", value = PercentileEstimationData.class)
 })
+@EqualsAndHashCode
+@ToString
 public abstract class EstimationData implements Serializable {
 
     private static final long serialVersionUID = -6542054750045180777L;
