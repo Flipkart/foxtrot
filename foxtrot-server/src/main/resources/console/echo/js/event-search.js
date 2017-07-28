@@ -385,13 +385,8 @@ $("#show-more").click(function () {
   }
 });
 
-document.addEventListener('scroll', function (event) {
-  if (fetchedData.documents)
-    didScroll = true;
-}, true);
-
-setInterval(function () {
-  if (didScroll) {
+function fetchAuto() {
+  if (didScroll && fetchedData.documents) {
     offset = fetchedData.documents.length;
     if (offset <= 30) {
       isEdit = true;
@@ -399,7 +394,17 @@ setInterval(function () {
     }
     didScroll = false;
   }
-}, 2000);
+}
+
+$('.container-full').scroll( function(){
+  console.log($(this).scrollTop()+' + '+ $(this).height()+' = '+ ($(this).scrollTop() + $(this).height())   +' _ '+ $(this)[0].scrollHeight  );
+  if($(this).scrollTop() + $(this).height() == $(this)[0].scrollHeight){
+    console.log('bottom found');
+    didScroll = true;
+    fetchAuto();
+  }
+});
+
 
 function loadConsole() { // load console list api
   $.when(getConsole()).done(function(a1){
