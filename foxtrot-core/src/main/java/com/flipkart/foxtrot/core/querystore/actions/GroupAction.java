@@ -190,7 +190,7 @@ public class GroupAction extends Action<GroupRequest> {
             return 0.0;
         }
         List<Filter> filters = parameter.getFilters();
-        log.debug("Starting estimation with: {}", meta);
+        log.debug("Starting estimation with: {} estimatedDocs:{}", meta, estimatedDocs);
         double probability = meta.getEstimationData().accept(new EstimationDataVisitor<Double>() {
             @Override
             public Double visit(FixedEstimationData fixedEstimationData) {
