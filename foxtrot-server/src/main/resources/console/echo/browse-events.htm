@@ -249,12 +249,12 @@
       $('#select-all').click(function(event) {
         if (this.checked) {
           // Iterate each checkbox
-          $('.column-chooser').each(function() {
+          $('.column-chooser-checkbox').each(function() {
             this.checked = true;
             selectedList.push(this.value);
           });
         } else {
-          $('.column-chooser').each(function() {
+          $('.column-chooser-checkbox').each(function() {
             this.checked = false;
             selectedList = [];
           });

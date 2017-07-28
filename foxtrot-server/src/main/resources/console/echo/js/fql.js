@@ -6,28 +6,12 @@ var selectedList = [];
 var fetchedData = [];
 
 function loadConsole() { // load console list api
-  $.ajax({
-    url: apiUrl + ("/v2/consoles/"),
-    type: 'GET',
-    contentType: 'application/json',
-    success: function (res) {
-      appendConsoleList(res);
-    },
-    error: function () {
-      error("Could not save console");
-    }
-  })
+  $.when(getConsole()).done(function(a1){
+    appendConsoleList(a1);
+  });
 }
 
-$("#listConsole").change(function () {
-  loadParticularConsole();
-});
-
 loadConsole();
-
-$("#add-sections").click(function () {
-  window.location = "index.htm?openDashboard=true";
-});
 
 function renderTable(dataRaw) {
   var data = JSON.parse(dataRaw);
@@ -129,10 +113,11 @@ function generateColumChooserList() {
   $('.fql-search-columns').on('keyup', function () {
     var query = this.value;
     $('[class^="fql-column-chooser-checkbox"]').each(function (i, elem) {
+      console.log(elem.value.indexOf(query))
       if (elem.value.indexOf(query) != -1) {
-        $(this).closest('label').show();
+        $(this).closest('label').parent().css({"display": "block"});
       } else {
-        $(this).closest('label').hide();
+        $(this).closest('label').parent().css({"display": "none"});
       }
     });
   });

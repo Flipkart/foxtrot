@@ -282,3 +282,25 @@ function showSuccessAlert(title, msg) {
     'success'
   );
 }
+
+function getConsole() {
+  return $.ajax({
+    url: apiUrl+("/v2/consoles/"),
+    type: 'GET',
+    contentType: 'application/json',
+    success: function(res) {
+      return res;
+    },
+    error: function() {
+      showErrorAlert("Oops", "Could not save console");
+    }
+  });
+}
+
+$("#listConsole").change(function () {
+  loadParticularConsole();
+});
+
+$("#add-sections").click(function () {
+  window.location = "index.htm?openDashboard=true";
+});

@@ -181,18 +181,18 @@ function generateColumChooserList() {
   var parent = $("#column-chooser");
   var listElement = parent.find("#column-list");
   for (var column in headerList) {
-    listElement.append("<div class='column-chooser-div'><label><input type='checkbox' checked value='" + headerList[column] + "' class='column-chooser'><span class='column-name-text-display'>" + headerList[column] + "</span></label></div>");
+    listElement.append("<div class='column-chooser-div'><label><input type='checkbox' checked value='" + headerList[column] + "' class='column-chooser-checkbox'><span class='column-name-text-display'>" + headerList[column] + "</span></label></div>");
     selectedList.push(headerList[column]);
   }
 
   // Search columns
   $('.search-columns').on('keyup', function () {
     var query = this.value;
-    $('[class^="column-chooser"]').each(function (i, elem) {
+    $('[class^="column-chooser-checkbox"]').each(function (i, elem) {
       if (elem.value.indexOf(query) != -1) {
-        $(this).closest('label').show();
+        $(this).closest('label').parent().show();
       } else {
-        $(this).closest('label').hide();
+        $(this).closest('label').parent().hide();
       }
     });
   });
@@ -204,13 +204,13 @@ function generateColumChooserList() {
       selectedList = selections;
     };
 
-  $('.column-chooser').change(function () {
+  $('.column-chooser-checkbox').change(function () {
     selections = $.map($('input[type="checkbox"]:checked'), function (a) {
       return a.value;
     })
 
     // check select all checkbox check or uncheck
-    if ($('.column-chooser:checked').length == $('.column-chooser').length) {
+    if ($('.column-chooser-checkbox:checked').length == $('.column-chooser-checkbox').length) {
       //do something
       $(".select-all").prop('checked', true);
     } else {
@@ -342,7 +342,7 @@ $("#browse-events-add-query").click(function () {
   var filterValueEl = $("#filter-row-" + filterCount).find('.browse-events-delete');
   var filterType = $("#filter-row-" + filterCount).find('.filter-type');
   $(filterType).selectpicker('refresh');
-  var filterColumn = $("#filter-row-" + filterCount).find('.filter-column')
+  var filterColumn = $("#filter-row-" + filterCount).find('.filter-column');
   setTimeout(function () {
     generateDropDown(currentFieldList, filterColumn);
   }, 0);
@@ -376,27 +376,17 @@ function showHideColumnChooser() { // page setting modal
   }
 }
 
-
 $("#show-more").click(function () {
   $("#more-fields").toggle();
   if (this.text == "Show more") {
     this.text = "Show Less";
   } else {
-    this.text = "Show more"
+    this.text = "Show more";
   }
 });
 
-$("#add-sections").click(function () {
-  window.location = "index.htm?openDashboard=true";
-});
-
-document.addEventListener('scroll', function (event) {
-  if (fetchedData.documents)
-    didScroll = true;
-}, true);
-
-setInterval(function () {
-  if (didScroll) {
+function fetchAuto() {
+  if (didScroll && fetchedData.documents) {
     offset = fetchedData.documents.length;
     if (offset <= 30) {
       isEdit = true;
@@ -404,24 +394,22 @@ setInterval(function () {
     }
     didScroll = false;
   }
-}, 2000);
-
-function loadConsole() { // load console list api
-  $.ajax({
-    url: apiUrl + ("/v2/consoles/"),
-    type: 'GET',
-    contentType: 'application/json',
-    success: function (res) {
-      appendConsoleList(res);
-    },
-    error: function () {
-      error("Could not save console");
-    }
-  })
 }
 
-$("#listConsole").change(function () {
-  loadParticularConsole();
+$('.container-full').scroll( function(){
+  console.log($(this).scrollTop()+' + '+ $(this).height()+' = '+ ($(this).scrollTop() + $(this).height())   +' _ '+ $(this)[0].scrollHeight  );
+  if($(this).scrollTop() + $(this).height() == $(this)[0].scrollHeight){
+    console.log('bottom found');
+    didScroll = true;
+    fetchAuto();
+  }
 });
+
+
+function loadConsole() { // load console list api
+  $.when(getConsole()).done(function(a1){
+    appendConsoleList(a1);
+  });
+}
 
 loadConsole();

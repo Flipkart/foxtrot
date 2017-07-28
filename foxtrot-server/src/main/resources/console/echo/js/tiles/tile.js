@@ -43,11 +43,21 @@ function TileFactory() {
   this.tileObject = "";
 }
 
+// Change period select dropdown values for every tiles
+function changeDropdownValue(el) {
+  if(globalFilters) {
+    $(el).find(".period-select").val($("#global-filter-period-select").val());
+  } else {
+    $(el).find(".period-select").val("custom");
+  }
+}
+
 function refereshTiles() { // auto query for each tile
   for (var key in tileData) {
     if (tileData.hasOwnProperty(key)) {
       var a = new TileFactory();
       a.createGraph(tileData[key], $("#"+ key));
+      changeDropdownValue($("#"+ key));
     }
   }
 }
@@ -273,7 +283,7 @@ TileFactory.prototype.createNewRow = function (tileElement) {
     row = panelRow.length;
     tileElement.addClass("row-" + row);
   }
-  tileElement.prepend('<div id="arrow-btn"><button type="button"onClick="upRow('+row+')" class="row-identifier-'+row+' up-arrow arrow-up" id="row-up"><img class="arrow-up" src="img/context-arrow-up-normal.png" /></button><button type="button" onClick="downRow('+row+')" class="row-identifier-'+row+'" id="row-down"><img class="down" src="img/context-arrow-down-normal.png"/></button></div>')
+  tileElement.prepend('<div id="arrow-btn"><button type="button"onClick="upRow('+row+')" class="row-identifier-'+row+' up-arrow arrow-up" id="row-up"><img class="arrow-up" src="img/context-arrow-up-normal.png" /></button><button type="button" onClick="downRow('+row+')" class="row-identifier-'+row+'" id="row-down"><img class="down" src="img/context-arrow-down-normal.png"/></button></div>');
 
   if (this.tileObject.tileContext.widgetType != "full") { // dont add row add button for full widget
     var btnRow = row;
@@ -318,7 +328,7 @@ TileFactory.prototype.updateFilterCreation = function (object) { // setting widg
 TileFactory.prototype.updateFilters = function (filters) {
   var instanceVar = this;
   var temp = [];
-  instanceVar.tileObject.tileContext.uiFiltersSelectedList = arr_diff(instanceVar.tileObject.tileContext.uiFiltersList, filters)
+  instanceVar.tileObject.tileContext.uiFiltersSelectedList = arr_diff(instanceVar.tileObject.tileContext.uiFiltersList, filters);
 }
 // Filter configuration
 TileFactory.prototype.triggerFilter = function (tileElement, object) { // filter modal
@@ -341,9 +351,9 @@ TileFactory.prototype.triggerFilter = function (tileElement, object) { // filter
         var value = object.tileContext.uiFiltersList[i];
         var index = $.inArray( value, object.tileContext.uiFiltersSelectedList);
         if(index == -1) {
-          $("#filter-checkbox-div").append('<label><input name="filter-checkbox" class="ui-filter-checkbox" type="checkbox" value="'+value+'" checked="checked">'+value+'</label>  <br/>');
+          $("#filter-checkbox-div").append('<div class="ui-filter-list"><label><input name="filter-checkbox" class="ui-filter-checkbox" type="checkbox" value="'+value+'" checked="checked"><span>'+value+'</span></label>  </div>');
         } else {
-          $("#filter-checkbox-div").append('<label><input name="filter-checkbox" class="ui-filter-checkbox" type="checkbox" value="'+value+'">'+value+'</label>  <br/>');
+          $("#filter-checkbox-div").append('<div class="ui-filter-list"><label><input name="filter-checkbox" class="ui-filter-checkbox" type="checkbox" value="'+value+'"><span>'+value+'</span></label>  </div>');
         }
       }
     });
