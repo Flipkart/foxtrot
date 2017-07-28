@@ -113,10 +113,11 @@ function generateColumChooserList() {
   $('.fql-search-columns').on('keyup', function () {
     var query = this.value;
     $('[class^="fql-column-chooser-checkbox"]').each(function (i, elem) {
+      console.log(elem.value.indexOf(query))
       if (elem.value.indexOf(query) != -1) {
-        $(this).closest('label').show();
+        $(this).closest('label').parent().css({"display": "block"});
       } else {
-        $(this).closest('label').hide();
+        $(this).closest('label').parent().css({"display": "none"});
       }
     });
   });
