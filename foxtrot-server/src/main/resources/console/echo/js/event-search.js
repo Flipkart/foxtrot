@@ -14,6 +14,7 @@ var toDate = 0
 var offset = 0;
 var isLoadMoreClicked = false;
 var didScroll = false;
+var totalHits = 0;
 
 function getBrowseTables() {
   var select = $(".browse-table");
@@ -159,6 +160,13 @@ function runQuery(isBrowse) {
     dataType: 'json',
     success: function (resp) {
       hideLoader();
+      totalHits = resp.totalHits;
+
+      if(totalHits == 0) {
+        showErrorAlert('Oops', "No results found");
+        return;
+      }
+
       if (fetchedData.documents) {
         var tmpData = fetchedData.documents;
         tmpData.push.apply(tmpData, resp.documents);
@@ -397,11 +405,10 @@ function fetchAuto() {
 }
 
 $('.container-full').scroll( function(){
-  console.log($(this).scrollTop()+' + '+ $(this).height()+' = '+ ($(this).scrollTop() + $(this).height())   +' _ '+ $(this)[0].scrollHeight  );
   if($(this).scrollTop() + $(this).height() == $(this)[0].scrollHeight){
-    console.log('bottom found');
     didScroll = true;
-    fetchAuto();
+    if(totalHits > 0)
+      fetchAuto();
   }
 });
 

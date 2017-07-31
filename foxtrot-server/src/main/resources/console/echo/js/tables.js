@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+var apiUrl = getHostUrl();
 
  function Table(name, ttl) {
   this.name = name;
@@ -30,7 +31,7 @@ function Tables() {
 
 Tables.prototype.init = function(callback) {
   $.ajax({
-    url: "http://foxtrot.traefik.prod.phonepe.com/foxtrot/v1/tables/",
+    url: apiUrl+"/v1/tables/",
     contentType: "application/json",
     context: this,
     success: function(tables) {

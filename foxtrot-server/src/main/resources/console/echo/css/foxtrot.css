@@ -2417,7 +2417,7 @@ div.tab button:first-child {
 }
 
 .event-table tr:hover td {
-  background-color: #e8eff3;
+  background-color: #f7f9fa;
 }
 
 .event-display-container {
@@ -2763,8 +2763,8 @@ div.tab button:first-child {
 }
 
 #fql-run-query {
-  width: 156px;
-  height: 42px;
+  width: 130px;
+  height: 45px;
   background-color: #32a6f9;
   font-family: Open Sans Regular;
   font-size: 14px;
@@ -2772,11 +2772,11 @@ div.tab button:first-child {
   text-align: left;
   color: #ffffff !important;
   border: none;
-  margin-left: 15px;
+  margin-left: 40px;
 }
 
 #fql-run-query span{
-  margin-left: 23px;
+  margin-left: 25px;
 }
 
 #fql-column-chooser {
@@ -2944,23 +2944,29 @@ div.tab button:first-child {
 #fql-csv-download {
   width: 156px;
   height: 42px;
-  background-color: #32a6f9;
   font-family: Open Sans Regular;
   font-size: 14px;
   font-weight: bold;
   text-align: left;
-  color: #ffffff !important;
+  color: #32a6f9 !important;
   border: none;
   margin-left: 15px;
 }
 
 #fql-csv-download span{
-  margin-left: 23px;
+  margin-left: 45px;
 }
 
 #fql-buttons {
-  position: relative;
-  left: -29px;
+  float: right;
+  margin-right: -49px;
+  margin-bottom: 18px;
+}
+
+#fql-csv-download:focus {
+  border: none;
+  outline: 0;
+  box-shadow: none;
 }
 
 /* Absolute Center Spinner */
