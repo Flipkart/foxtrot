@@ -69,7 +69,7 @@ function refereshTiles() { // auto query for each tile
 
 setInterval(function () { // function trigger for every x seconds
   refereshTiles();
-}, refreshTime);
+}, getRefreshTime());
 
 function pushTilesObject(object) { // save each tile data
   tileData[object.id] = object;

@@ -304,3 +304,7 @@ $("#listConsole").change(function () {
 $("#add-sections").click(function () {
   window.location = "index.htm?openDashboard=true";
 });
+
+function getRefreshTime() {
+  return 6000; // 6 seconds
+}
