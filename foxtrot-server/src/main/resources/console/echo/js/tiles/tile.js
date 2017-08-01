@@ -45,10 +45,14 @@ function TileFactory() {
 
 // Change period select dropdown values for every tiles
 function changeDropdownValue(el) {
-  if(globalFilters) {
-    $(el).find(".period-select").val($("#global-filter-period-select").val());
-  } else {
-    $(el).find(".period-select").val("custom");
+  $(el).find(".period-select").val($("#global-filter-period-select").val());
+}
+
+function resetPeriodDropdown() { // reset all dropdown values to custom if global filters set to false
+  for (var key in tileData) {
+    if (tileData.hasOwnProperty(key)) {
+      $("#"+ key).find(".period-select").val('custom');
+    }
   }
 }
 
@@ -57,7 +61,8 @@ function refereshTiles() { // auto query for each tile
     if (tileData.hasOwnProperty(key)) {
       var a = new TileFactory();
       a.createGraph(tileData[key], $("#"+ key));
-      changeDropdownValue($("#"+ key));
+      if(globalFilters)
+        changeDropdownValue($("#"+ key));
     }
   }
 }

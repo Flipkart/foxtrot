@@ -643,6 +643,7 @@ $(document).ready(function () {
     } else {
       globalFilters = false;
       hideFilters();
+      resetPeriodDropdown();
     }
   });
 
