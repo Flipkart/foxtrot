@@ -180,7 +180,7 @@ StackedBarTile.prototype.getData = function (data) {
         , lines: {
           show: true
         },
-        points:{show: (rows.length <= 50 ? true :false)}
+        points:{show: (rows.length <= 50 ? true :false), radius : 3.5}
         , shadowSize: 0 /*, curvedLines: {apply: true}*/
       });
     }
