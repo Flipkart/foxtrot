@@ -262,7 +262,7 @@ StackedBarTile.prototype.render = function (d) {
 
   drawLegend(d, $(chartDiv.find(".legend")));
 
-  function showTooltip(x, y, contents, color) {
+  function showTooltip(x, y, contents, color, ctx) {
     $('<div id="tooltip">' + contents + '</div>').css({
       position: 'absolute',
       display: 'none',
@@ -275,9 +275,21 @@ StackedBarTile.prototype.render = function (d) {
     }).appendTo("body").fadeIn(200).fadeOut(60000);
     // adjust position of tooltip
     var width = $("#tooltip").width();
+    var height = $("#tooltip").height();
     if(x > 900 && width > 300) {
       console.log('===')
       $("#tooltip").css({"left": x - width});
+    }
+
+    var topPosition = Math.abs($("#"+$(ctx).attr('id')).offset().top);
+
+    if(height <= 200) {
+      $("#tooltip").css({"top" : y});
+    }
+    else if(topPosition <= 100) {
+      $("#tooltip").css({"top" : topPosition});
+    } else {
+      $("#tooltip").css({"top" : topPosition - 40});
     }
   }
 
@@ -309,7 +321,7 @@ StackedBarTile.prototype.render = function (d) {
         });
       }
       strTip =  strTip+strTipInsideRows+"<tr><td class='tooltip-text'><b>TOTAL</b></td> <td style='color:#42b1f7' class='tooltip-count'>"+numberWithCommas(total)+"</td></tr></table>" ;
-      showTooltip(item.pageX, item.pageY, strTip, color);
+      showTooltip(item.pageX, item.pageY, strTip, color, ctx);
     } else {
       $("#tooltip").remove();
     }
