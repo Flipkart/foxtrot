@@ -822,8 +822,8 @@ th, td {
 .global-filters{
   float: right;
   border: 1px solid #d0d7e7;
-  top: 27px;
-  right: 21px;
+  top: 10px;
+  left: 15px;
   padding: 7px;
   font-family: Open Sans;
   height: 36px;
@@ -3110,4 +3110,10 @@ div.tab button:first-child {
   text-overflow: ellipsis;
   width: 196px;
   overflow: hidden;
+}
+
+#right-action-btns {
+  position: relative;
+  right: 14px;
+  top: 20px;
 }
