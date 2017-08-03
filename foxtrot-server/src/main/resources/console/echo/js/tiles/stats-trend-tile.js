@@ -210,7 +210,7 @@ StatsTrendTile.prototype.render = function (rows) {
       }
       , borderColor: "#EEEEEE"
       , }
-    , tooltip: true
+    , tooltip: false
     , tooltipOpts: {
       content: "%y events at %x"
       , defaultFormat: true
@@ -218,4 +218,32 @@ StatsTrendTile.prototype.render = function (rows) {
     , });
 
   drawLegend(rows, $(chartDiv.find(".legend")));
+
+  function showTooltip(x, y, xValue, yValue) {
+    var a = axisTimeFormatNew(object.tileContext.period, (globalFilters ? getGlobalFilters() : getPeriodSelect(object.id)));
+    $('<div id="flot-custom-tooltip"> <div class="tooltip-custom-content"><p class="">'+numDifferentiation(yValue)+'</p><p class="tooltip-custom-date-text">' + moment(xValue).format(a) + '</p></div></div>').css( {
+      position: 'absolute',
+      display: 'none',
+      top: y - 50,
+      left: x + 5,
+    }).appendTo("body").fadeIn(200);
+  }
+
+  var previousPoint = null;
+  $(ctx).bind("plothover", function (event, pos, item) {
+    if (item) {
+      if (previousPoint != item.datapoint) {
+        previousPoint = item.datapoint;
+
+        $("#flot-custom-tooltip").remove();
+        var x = item.datapoint[0].toFixed(0),
+            y = item.datapoint[1].toFixed(2);
+        showTooltip(item.pageX, item.pageY, Number(x), y);
+      }
+    } else {
+      $("#flot-custom-tooltip").remove();
+      clicksYet = false;
+      previousPoint = null;
+    }
+  });
 }
