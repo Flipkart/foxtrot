@@ -110,7 +110,7 @@ LineTile.prototype.render = function (rows) {
   var ctx = chartDiv.find("#" + object.id);
   ctx.width(ctx.width - 100);
   ctx.height(fullWidgetChartHeight());
-  $.plot(ctx, [
+  var plot = $.plot(ctx, [
     {
       data: rows
       , color: "#75c400",
@@ -160,10 +160,9 @@ LineTile.prototype.render = function (rows) {
       }
       , borderColor: "#EEEEEE"
     , }
-    , tooltip: true
+    , tooltip: false
     , tooltipOpts: {
-      content: "%y events at %x"
-      , defaultFormat: true
+      content: ""
     }
     , colors: [borderColorArray[Math.floor(Math.random()*borderColorArray.length)]]
   , });
@@ -214,4 +213,32 @@ LineTile.prototype.render = function (rows) {
     }
     , colors: ['#000']
   , });*/
+
+  function showTooltip(x, y, xValue, yValue) {
+    var a = axisTimeFormatNew(object.tileContext.period, (globalFilters ? getGlobalFilters() : getPeriodSelect(object.id)));
+    $('<div id="flot-custom-tooltip"> <div class="tooltip-custom-content"><p class="">'+numDifferentiation(yValue)+'</p><p class="tooltip-custom-date-text">' + moment(xValue).format(a) + '</p></div></div>').css( {
+      position: 'absolute',
+      display: 'none',
+      top: y - 50,
+      left: x + 5,
+    }).appendTo("body").fadeIn(200);
+  }
+
+  var previousPoint = null;
+  $(ctx).bind("plothover", function (event, pos, item) {
+    if (item) {
+      if (previousPoint != item.datapoint) {
+        previousPoint = item.datapoint;
+
+        $("#flot-custom-tooltip").remove();
+        var x = item.datapoint[0].toFixed(0),
+            y = item.datapoint[1].toFixed(2);
+        showTooltip(item.pageX, item.pageY, Number(x), y);
+      }
+    } else {
+      $("#flot-custom-tooltip").remove();
+      clicksYet = false;
+      previousPoint = null;
+    }
+  });
 }

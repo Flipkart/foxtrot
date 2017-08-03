@@ -3117,3 +3117,29 @@ div.tab button:first-child {
   right: 14px;
   top: 20px;
 }
+
+.flot-custom {
+  background: green;
+}
+
+#flot-custom-tooltip {
+  background-color: #7d909a;
+  width: auto;
+}
+
+.tooltip-custom-content {
+  font-family: Oswald;
+  font-size: 20px;
+  font-weight: bold;
+  color: #ffffff;
+  padding: 3px 8px;
+  min-width: 48px;
+  max-height: 50px;
+}
+
+.tooltip-custom-date-text {
+  font-family: Open Sans;
+  font-size: 10px;
+  color: #ffffff;
+  margin-top: -14px;
+}
