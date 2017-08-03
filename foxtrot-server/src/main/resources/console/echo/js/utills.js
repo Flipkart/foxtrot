@@ -90,7 +90,7 @@ function axisTimeFormat(periodUnit, customPeriod) {
 function axisTimeFormatNew(periodUnit, customPeriod) { // different time format
   var period = periodFromWindow(periodUnit, customPeriod);
   if (period == "hours" || period == "minutes") {
-    return "HH:mm ss";
+    return "HH:mm DD MMM";
   }
   if (period == "days") {
     return "DD MMM";

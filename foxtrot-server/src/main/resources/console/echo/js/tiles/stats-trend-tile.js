@@ -225,7 +225,7 @@ StatsTrendTile.prototype.render = function (rows) {
       position: 'absolute',
       display: 'none',
       top: y - 60,
-      left: x,
+      left: x - 2,
     }).appendTo("body").fadeIn(200);
   }
 
