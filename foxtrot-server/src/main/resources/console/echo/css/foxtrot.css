@@ -3138,8 +3138,30 @@ div.tab button:first-child {
 }
 
 .tooltip-custom-date-text {
-  font-family: Open Sans;
+  font-family: Open Sans Regular;
   font-size: 10px;
   color: #ffffff;
   margin-top: -14px;
+}
+
+#flot-custom-tooltip:after, #flot-custom-tooltip:before {
+  top: 100%;
+  left: 20%;
+  border: solid transparent;
+  content: " ";
+  height: 0;
+  width: 0;
+  position: absolute;
+  pointer-events: none;
+}
+
+#flot-custom-tooltip:after {
+  border-top-color: #7d909a;
+  border-width: 4px;
+  margin-left: -10px;
+}
+#flot-custom-tooltip:before {
+  border-color: rgba(194, 225, 245, 0);
+  border-width: 6px;
+  margin-left: -6px;
 }

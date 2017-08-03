@@ -219,8 +219,8 @@ LineTile.prototype.render = function (rows) {
     $('<div id="flot-custom-tooltip"> <div class="tooltip-custom-content"><p class="">'+numDifferentiation(yValue)+'</p><p class="tooltip-custom-date-text">' + moment(xValue).format(a) + '</p></div></div>').css( {
       position: 'absolute',
       display: 'none',
-      top: y - 50,
-      left: x + 5,
+      top: y - 60,
+      left: x,
     }).appendTo("body").fadeIn(200);
   }
 
