@@ -113,6 +113,8 @@ function numDifferentiation(val) { // indian numbers conversion
   if(val >= 10000000) val = parseFloat((val/10000000).toFixed(1)) + 'Cr';
   else if(val >= 100000) val = parseFloat((val/100000).toFixed(1)) + 'L';
   else if(val >= 1000) val = parseFloat((val/1000).toFixed(1)) + 'K';
+  else
+    val = parseFloat(val).toFixed(0);
   return val;
 }
 
