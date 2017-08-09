@@ -1,12 +1,12 @@
 /**
  * Copyright 2014 Flipkart Internet Pvt. Ltd.
- *
+ * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
+ * <p>
  * http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -20,7 +20,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.flipkart.foxtrot.common.ActionResponse;
 import com.flipkart.foxtrot.core.cache.Cache;
 import com.flipkart.foxtrot.core.querystore.impl.HazelcastConnection;
-import com.hazelcast.config.*;
 import com.hazelcast.core.IMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,24 +38,6 @@ public class DistributedCache implements Cache {
     private static final Logger logger = LoggerFactory.getLogger(DistributedCache.class.getSimpleName());
     private final IMap<String, String> distributedMap;
     private final ObjectMapper mapper;
-
-    public static void setupConfig(HazelcastConnection hazelcastConnection) {
-        MapConfig mapConfig = hazelcastConnection.getHazelcastConfig().getMapConfig(NAME_PREFIX + "*");
-        mapConfig.setInMemoryFormat(InMemoryFormat.BINARY);
-        mapConfig.setTimeToLiveSeconds(30);
-        mapConfig.setMaxIdleSeconds(30);
-        mapConfig.setBackupCount(0);
-        mapConfig.setEvictionPolicy(EvictionPolicy.LRU);
-        mapConfig.setMaxSizeConfig(new MaxSizeConfig()
-                .setMaxSizePolicy(MaxSizeConfig.MaxSizePolicy.PER_NODE)
-                .setSize(200));
-        NearCacheConfig nearCacheConfig = new NearCacheConfig();
-        nearCacheConfig.setTimeToLiveSeconds(30);
-        nearCacheConfig.setInvalidateOnChange(true);
-        nearCacheConfig.setMaxSize(100);
-        nearCacheConfig.setMaxIdleSeconds(30);
-        mapConfig.setNearCacheConfig(nearCacheConfig);
-    }
 
     public DistributedCache(HazelcastConnection hazelcastConnection, String name, ObjectMapper mapper) {
         this.distributedMap = hazelcastConnection.getHazelcast().getMap(NAME_PREFIX + name);
