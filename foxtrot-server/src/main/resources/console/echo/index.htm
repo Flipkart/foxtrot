@@ -144,36 +144,38 @@
     </div>
     <section id="main-content">
       <div class="container-fluid" id="monitoring">
-        <div class="floating-btns">
-          <div class="tab col-md-5"></div>
-          <div class="col-md-4 widget-btns">
-            <div>
-<!--              <button type="button" id="add-page-btn" data-target="#addTab" data-toggle="modal">Add page</button>-->
-              <button type="button" id="add-page-btn">Page settings</button>
-              <button type="button" data-target="#save-dashboard" data-toggle="modal" id="saveConsole">Save Dashboard</button>
+        <div class="row">
+          <div class="col-md-4">
+            <div class="tab">
             </div>
           </div>
-          <div class="col-sm-3 global-filters">
-            <div class="col-sm-5 global-filter-switch-div"><label>Global filters<input type="checkbox" class="ios-switch blue filter-switch tinyswitch"/><div id="switch"><div></div></div></label></div>
-            <div class="col-sm-5 hide-filters">
-              <select class="global-filter-period-select" id="global-filter-period-select">
-                <option value="custom" selected>Custom</option>
-                <option value="5m">5 Minutes</option>
-                <option value="15m">15 Minutes</option>
-                <option value="30m">30 Minutes</option>
-                <option value="1h"> 1 Hour</option>
-                <option value="3h"> 3 Hour</option>
-                <option value="6h"> 6 Hours</option>
-                <option value="12h"> 12 Hours</option>
-                <option value="1d"> 1 Day</option>
-                <option value="2d"> 2 Days</option>
-                <option value="5d"> 5 Days</option>
-                <option value="7d"> 7 Days</option>
-                <option value="15d"> 15 Days</option>
-                <option value="30d"> 30 Days</option>
-              </select>
+          <div class="col-md-8">
+            <div class="pull-right" id="right-action-btns">
+              <button type="button" id="add-page-btn">Page settings</button>
+              <button type="button" data-target="#save-dashboard" data-toggle="modal" id="saveConsole">Save Dashboard</button>
+              <div class="col-sm-3 global-filters">
+                <div class="col-sm-5 global-filter-switch-div"><label>Global filters<input type="checkbox" class="ios-switch blue filter-switch tinyswitch"/><div id="switch"><div></div></div></label></div>
+                <div class="col-sm-5 hide-filters">
+                  <select class="global-filter-period-select" id="global-filter-period-select">
+                    <option value="custom" selected>Custom</option>
+                    <option value="5m">5 Minutes</option>
+                    <option value="15m">15 Minutes</option>
+                    <option value="30m">30 Minutes</option>
+                    <option value="1h"> 1 Hour</option>
+                    <option value="3h"> 3 Hour</option>
+                    <option value="6h"> 6 Hours</option>
+                    <option value="12h"> 12 Hours</option>
+                    <option value="1d"> 1 Day</option>
+                    <option value="2d"> 2 Days</option>
+                    <option value="5d"> 5 Days</option>
+                    <option value="7d"> 7 Days</option>
+                    <option value="15d"> 15 Days</option>
+                    <option value="30d"> 30 Days</option>
+                  </select>
+                </div>
+                <div class="col-sm-2 filter-settings hide-filters"><img src="img/Settings_normal.png" alt="settings"></div>
+              </div>
             </div>
-            <div class="col-sm-2 filter-settings hide-filters"><img src="img/Settings_normal.png" alt="settings"></div>
           </div>
         </div>
         <div class="tile-container" id="tileContainer">

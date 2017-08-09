@@ -822,8 +822,8 @@ th, td {
 .global-filters{
   float: right;
   border: 1px solid #d0d7e7;
-  top: 27px;
-  right: 21px;
+  top: 10px;
+  left: 15px;
   padding: 7px;
   font-family: Open Sans;
   height: 36px;
@@ -2020,7 +2020,6 @@ div.tab button:first-child {
   font-family: Open Sans;
   width: 51%;
   height: 100px;
-  padding: 10px;
   font-family: Oswald Light;
   display: none;
   left: 24%;
@@ -2028,12 +2027,14 @@ div.tab button:first-child {
 }
 
 .pie-center-value {
-  margin-bottom: 3px;
   font-size: 32px;
+  position: relative;
+  top: 9px;
 }
 
 .pie-center-div hr {
-  margin: 0;
+  margin-bottom: 0px;
+  margin-top: 8px;
   border-bottom: 0px solid #9cb2cd;
   max-width: 140px;
 }
@@ -3110,4 +3111,58 @@ div.tab button:first-child {
   text-overflow: ellipsis;
   width: 196px;
   overflow: hidden;
+}
+
+#right-action-btns {
+  position: relative;
+  right: 14px;
+  top: 20px;
+}
+
+.flot-custom {
+  background: green;
+}
+
+#flot-custom-tooltip {
+  background-color: #7d909a;
+  width: auto;
+}
+
+.tooltip-custom-content {
+  font-family: Oswald;
+  font-size: 20px;
+  font-weight: bold;
+  color: #ffffff;
+  padding: 3px 8px;
+  min-width: 48px;
+  max-height: 50px;
+}
+
+.tooltip-custom-date-text {
+  font-family: Open Sans Regular;
+  font-size: 10px;
+  color: #ffffff;
+  margin-top: -14px;
+}
+
+#flot-custom-tooltip:after, #flot-custom-tooltip:before {
+  top: 100%;
+  left: 20%;
+  border: solid transparent;
+  content: " ";
+  height: 0;
+  width: 0;
+  position: absolute;
+  pointer-events: none;
+}
+
+#flot-custom-tooltip:after {
+  border-top-color: #7d909a;
+  border-width: 4px;
+  margin-left: -10px;
+}
+#flot-custom-tooltip:before {
+  border-color: rgba(194, 225, 245, 0);
+  border-width: 6px;
+  margin-left: -6px;
 }
