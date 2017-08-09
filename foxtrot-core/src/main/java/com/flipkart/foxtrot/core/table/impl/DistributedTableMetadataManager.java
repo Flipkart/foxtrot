@@ -26,7 +26,6 @@ import com.flipkart.foxtrot.common.estimation.CardinalityEstimationData;
 import com.flipkart.foxtrot.common.estimation.FixedEstimationData;
 import com.flipkart.foxtrot.common.estimation.PercentileEstimationData;
 import com.flipkart.foxtrot.common.util.CollectionUtils;
-import com.flipkart.foxtrot.core.cache.impl.DistributedCache;
 import com.flipkart.foxtrot.core.exception.FoxtrotException;
 import com.flipkart.foxtrot.core.exception.FoxtrotExceptions;
 import com.flipkart.foxtrot.core.parsers.ElasticsearchMappingParser;
@@ -37,8 +36,10 @@ import com.flipkart.foxtrot.core.querystore.impl.HazelcastConnection;
 import com.flipkart.foxtrot.core.table.TableMetadataManager;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import com.hazelcast.config.InMemoryFormat;
 import com.hazelcast.config.MapConfig;
 import com.hazelcast.config.MapStoreConfig;
+import com.hazelcast.config.NearCacheConfig;
 import com.hazelcast.core.IMap;
 import lombok.SneakyThrows;
 import org.elasticsearch.action.admin.indices.mapping.get.GetMappingsResponse;
@@ -85,15 +86,49 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
         this.hazelcastConnection = hazelcastConnection;
         this.elasticsearchConnection = elasticsearchConnection;
         this.mapper = mapper;
+
+        hazelcastConnection.getHazelcastConfig().getMapConfigs().put(DATA_MAP, tableMapConfig());
+        hazelcastConnection.getHazelcastConfig().getMapConfigs().put(FIELD_MAP, fieldMetaMapConfig());
+    }
+
+
+    private MapConfig tableMapConfig() {
+        MapConfig mapConfig = new MapConfig();
+        mapConfig.setReadBackupData(true);
+        mapConfig.setInMemoryFormat(InMemoryFormat.BINARY);
+        mapConfig.setTimeToLiveSeconds(10);
+        mapConfig.setMaxIdleSeconds(10);
+        mapConfig.setBackupCount(0);
+
         MapStoreConfig mapStoreConfig = new MapStoreConfig();
         mapStoreConfig.setFactoryImplementation(TableMapStore.factory(elasticsearchConnection));
         mapStoreConfig.setEnabled(true);
         mapStoreConfig.setInitialLoadMode(MapStoreConfig.InitialLoadMode.EAGER);
-        MapConfig mapConfig = new MapConfig(DATA_MAP);
         mapConfig.setMapStoreConfig(mapStoreConfig);
+
+        NearCacheConfig nearCacheConfig = new NearCacheConfig();
+        nearCacheConfig.setTimeToLiveSeconds(10);
+        nearCacheConfig.setInvalidateOnChange(true);
+        nearCacheConfig.setMaxIdleSeconds(10);
+        mapConfig.setNearCacheConfig(nearCacheConfig);
+        return mapConfig;
+    }
+
+    private MapConfig fieldMetaMapConfig() {
+        MapConfig mapConfig = new MapConfig();
         mapConfig.setReadBackupData(true);
-        hazelcastConnection.getHazelcastConfig().addMapConfig(mapConfig);
-        DistributedCache.setupConfig(hazelcastConnection);
+        mapConfig.setInMemoryFormat(InMemoryFormat.BINARY);
+        mapConfig.setTimeToLiveSeconds(90);
+        mapConfig.setMaxIdleSeconds(90);
+        mapConfig.setBackupCount(0);
+
+        NearCacheConfig nearCacheConfig = new NearCacheConfig();
+        nearCacheConfig.setTimeToLiveSeconds(90);
+        nearCacheConfig.setInvalidateOnChange(true);
+        nearCacheConfig.setMaxIdleSeconds(90);
+        mapConfig.setNearCacheConfig(nearCacheConfig);
+
+        return mapConfig;
     }
 
     private static class FieldMetadataComparator implements Comparator<FieldMetadata>, Serializable {
