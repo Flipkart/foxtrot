@@ -2020,7 +2020,6 @@ div.tab button:first-child {
   font-family: Open Sans;
   width: 51%;
   height: 100px;
-  padding: 10px;
   font-family: Oswald Light;
   display: none;
   left: 24%;
@@ -2028,12 +2027,14 @@ div.tab button:first-child {
 }
 
 .pie-center-value {
-  margin-bottom: 3px;
   font-size: 32px;
+  position: relative;
+  top: 9px;
 }
 
 .pie-center-div hr {
-  margin: 0;
+  margin-bottom: 0px;
+  margin-top: 8px;
   border-bottom: 0px solid #9cb2cd;
   max-width: 140px;
 }
