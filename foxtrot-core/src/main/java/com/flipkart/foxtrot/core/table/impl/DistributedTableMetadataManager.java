@@ -54,7 +54,6 @@ import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.Aggregations;
 import org.elasticsearch.search.aggregations.metrics.cardinality.Cardinality;
 import org.elasticsearch.search.aggregations.metrics.percentiles.Percentiles;
-import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -221,13 +220,7 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
         final TreeSet<FieldMetadata> fieldMetadataTreeSet = new TreeSet<>(new FieldMetadataComparator());
         fieldMetadataTreeSet.addAll(fieldMetadata);
         TableFieldMapping tableFieldMapping = new TableFieldMapping(table, fieldMetadataTreeSet);
-        estimateCardinality(
-                table,
-                tableFieldMapping.getMappings(),
-                DateTime.now()
-                        .minusDays(1)
-                        .toDate()
-                        .getTime());
+//        estimateCardinality(table,tableFieldMapping.getMappings(),DateTime.now().minusDays(1).toDate().getTime());
         fieldDataCache.put(table, tableFieldMapping);
         return tableFieldMapping;
     }
