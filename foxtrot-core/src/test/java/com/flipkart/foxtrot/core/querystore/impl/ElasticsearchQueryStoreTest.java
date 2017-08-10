@@ -37,10 +37,7 @@ import org.elasticsearch.action.admin.cluster.health.ClusterHealthResponse;
 import org.elasticsearch.action.admin.cluster.node.stats.NodesStatsResponse;
 import org.elasticsearch.action.admin.indices.stats.IndicesStatsResponse;
 import org.elasticsearch.action.get.GetResponse;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.*;
 import org.mockito.Mockito;
 
 import java.util.*;
@@ -488,6 +485,7 @@ public class ElasticsearchQueryStoreTest {
     }
 
     @Test
+    @Ignore
     public void testEstimation() throws Exception {
         doReturn(TestUtils.getFieldCardinalityEstimationDocuments(mapper)).when(dataStore).saveAll(any(Table.class), anyListOf(Document.class));
         queryStore.save(TestUtils.TEST_TABLE.getName(), TestUtils.getFieldCardinalityEstimationDocuments(mapper));
