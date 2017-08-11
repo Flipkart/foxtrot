@@ -221,7 +221,7 @@ BarTile.prototype.render = function (xAxisOptions, columns) {
     ,highlightSeries: {
       color: "#FF00FF"
     }
-    , tooltip: false
+    , tooltip: true
     , tooltipOpts: {
       content: function (label, x, y) {
         return label + ": " + y;
