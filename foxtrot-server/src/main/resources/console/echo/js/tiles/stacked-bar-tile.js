@@ -263,78 +263,78 @@ StackedBarTile.prototype.render = function (d) {
   drawLegend(d, $(chartDiv.find(".legend")));
 
   // Series point for every time
-  var updateLegendTimeout = null;
-  var latestPosition = null;
-  function updateLegend() {
-    updateLegendTimeout = null;
-    var pos = latestPosition;
-    var axes = plot.getAxes();
-    if (pos.x < axes.xaxis.min || pos.x > axes.xaxis.max ||
-        pos.y < axes.yaxis.min || pos.y > axes.yaxis.max) {
-      return;
-    }
-
-    var i, j, dataset = plot.getData();
-    var total = 0;
-    var series, globalX ,globalY;
-    $("#tooltip").remove();
-    var strTip = "";
-    var strTipInsideRows = "";
-    if(dataset) {
-      for (i = 0; i < dataset.length; ++i) {
-        var series = dataset[i];
-        for (j = 0; j < series.data.length; ++j) {
-          if (series.data[j][0] > pos.x) {
-            break;
-          }
-        }
-
-        //DD MMM HH:mm ss
-        var a = axisTimeFormatNew(object.tileContext.period, (globalFilters ? getGlobalFilters() : getPeriodSelect(object.id)));
-        strTip = "<table border='1' class='stacked-tooltip'><tr><td class='tooltip-table-first-td' colspan='2'>"+moment(pos.x).format(a)+"</td>";
-        var y,x,
-            p1 = series.data[j - 1],
-            p2 = series.data[j];
-
-        if (p1 == null) {
-          y = p2[1];
-          x = p2[0];
-        } else if (p2 == null) {
-          y = p1[1];
-          x = p1[0]
-        } else {
-          y = p1[1] + (p2[1] - p1[1]) * (pos.x - p1[0]) / (p2[0] - p1[0]);
-          x = p1[0]
-          console.log('=='+p1[1])
-        }
-
-        var o = plot.pointOffset({
-          x: pos.x,
-          y: y
-        });
-
-        //console.log(x);
-        total = total+parseFloat(y);
-        strTipInsideRows += "<tr><td class='tooltip-text'>"+series.label+ "</td>" + "<td class='tooltip-count' style='color:"+series.color+"'>"+numberWithCommas(y.toFixed(0)) + '</td></tr>';
-        strTip =  strTip+strTipInsideRows+"<tr><td class='tooltip-text'><b>TOTAL</b></td> <td style='color:#42b1f7' class='tooltip-count'>"+numberWithCommas(total.toFixed(0))+"</td></tr></table>" ;
-        globalX = pos.pageX;
-        globalY = pos.pageY;
-      }
-      showTooltip(globalX, globalY, strTip, "", ctx);
-    }else {
-      $("#tooltip").remove();
-    }
-  }
-
-  $(ctx).bind("plothover",  function (event, pos, item) {
-    latestPosition = pos;
-    if (!updateLegendTimeout) {
-      $("#tooltip").remove();
-      updateLegendTimeout = setTimeout(updateLegend, 50);
-    }
-    $("#tooltip").remove();
-  });
-
+//  var updateLegendTimeout = null;
+//  var latestPosition = null;
+//  function updateLegend() {
+//    updateLegendTimeout = null;
+//    var pos = latestPosition;
+//    var axes = plot.getAxes();
+//    if (pos.x < axes.xaxis.min || pos.x > axes.xaxis.max ||
+//        pos.y < axes.yaxis.min || pos.y > axes.yaxis.max) {
+//      return;
+//    }
+//
+//    var i, j, dataset = plot.getData();
+//    var total = 0;
+//    var series, globalX ,globalY;
+//    $("#tooltip").remove();
+//    var strTip = "";
+//    var strTipInsideRows = "";
+//    if(dataset) {
+//      for (i = 0; i < dataset.length; ++i) {
+//        var series = dataset[i];
+//        for (j = 0; j < series.data.length; ++j) {
+//          if (series.data[j][0] > pos.x) {
+//            break;
+//          }
+//        }
+//
+//        //DD MMM HH:mm ss
+//        var a = axisTimeFormatNew(object.tileContext.period, (globalFilters ? getGlobalFilters() : getPeriodSelect(object.id)));
+//        strTip = "<table border='1' class='stacked-tooltip'><tr><td class='tooltip-table-first-td' colspan='2'>"+moment(pos.x).format(a)+"</td>";
+//        var y,x,
+//            p1 = series.data[j - 1],
+//            p2 = series.data[j];
+//
+//        if (p1 == null) {
+//          y = p2[1];
+//          x = p2[0];
+//        } else if (p2 == null) {
+//          y = p1[1];
+//          x = p1[0]
+//        } else {
+//          y = p1[1] + (p2[1] - p1[1]) * (pos.x - p1[0]) / (p2[0] - p1[0]);
+//          x = p1[0]
+//          console.log('=='+p1[1])
+//        }
+//
+//        var o = plot.pointOffset({
+//          x: pos.x,
+//          y: y
+//        });
+//
+//        //console.log(x);
+//        total = total+parseFloat(y);
+//        strTipInsideRows += "<tr><td class='tooltip-text'>"+series.label+ "</td>" + "<td class='tooltip-count' style='color:"+series.color+"'>"+numberWithCommas(y.toFixed(0)) + '</td></tr>';
+//        strTip =  strTip+strTipInsideRows+"<tr><td class='tooltip-text'><b>TOTAL</b></td> <td style='color:#42b1f7' class='tooltip-count'>"+numberWithCommas(total.toFixed(0))+"</td></tr></table>" ;
+//        globalX = pos.pageX;
+//        globalY = pos.pageY;
+//      }
+//      showTooltip(globalX, globalY, strTip, "", ctx);
+//    }else {
+//      $("#tooltip").remove();
+//    }
+//  }
+//
+//  $(ctx).bind("plothover",  function (event, pos, item) {
+//    latestPosition = pos;
+//    if (!updateLegendTimeout) {
+//      $("#tooltip").remove();
+//      updateLegendTimeout = setTimeout(updateLegend, 50);
+//    }
+//    $("#tooltip").remove();
+//  });
+//
   function showTooltip(x, y, contents, color, ctx) {
     $('<div id="tooltip">' + contents + '</div>').css({
       position: 'absolute',
@@ -365,7 +365,6 @@ StackedBarTile.prototype.render = function (d) {
     }
   }
 
-  /* old tooltip incase needed
   var previousPoint = null;
   $(ctx).bind("plothover", function (event, pos, item) {
     if (item) {
@@ -398,7 +397,7 @@ StackedBarTile.prototype.render = function (d) {
     } else {
       $("#tooltip").remove();
     }
-  }); */
+  });
 
   var re = re = /\(([0-9]+,[0-9]+,[0-9]+)/;
   $(chartDiv.find('.legend ul li')).on('mouseenter', function() {
