@@ -95,9 +95,6 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
         MapConfig mapConfig = new MapConfig();
         mapConfig.setReadBackupData(true);
         mapConfig.setInMemoryFormat(InMemoryFormat.BINARY);
-        mapConfig.setTimeToLiveSeconds(10);
-        mapConfig.setMaxIdleSeconds(10);
-        mapConfig.setBackupCount(0);
 
         MapStoreConfig mapStoreConfig = new MapStoreConfig();
         mapStoreConfig.setFactoryImplementation(TableMapStore.factory(elasticsearchConnection));
