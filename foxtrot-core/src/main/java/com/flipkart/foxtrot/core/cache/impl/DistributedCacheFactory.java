@@ -33,6 +33,7 @@ public class DistributedCacheFactory implements CacheFactory {
     public DistributedCacheFactory(HazelcastConnection connection, ObjectMapper mapper) {
         this.connection = connection;
         this.mapper = mapper;
+        DistributedCache.setup(connection);
     }
 
     @Override
