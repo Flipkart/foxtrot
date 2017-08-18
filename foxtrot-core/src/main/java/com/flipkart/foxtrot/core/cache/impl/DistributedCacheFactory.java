@@ -55,11 +55,6 @@ public class DistributedCacheFactory implements CacheFactory {
         maxSizeConfig.setMaxSizePolicy(MaxSizeConfig.MaxSizePolicy.USED_HEAP_PERCENTAGE);
         maxSizeConfig.setSize(70);
         mapConfig.setMaxSizeConfig(maxSizeConfig);
-        NearCacheConfig nearCacheConfig = new NearCacheConfig();
-        nearCacheConfig.setTimeToLiveSeconds(15);
-        nearCacheConfig.setInvalidateOnChange(true);
-        nearCacheConfig.setMaxIdleSeconds(15);
-        mapConfig.setNearCacheConfig(nearCacheConfig);
         return mapConfig;
     }
 }
