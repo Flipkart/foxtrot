@@ -20,12 +20,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.flipkart.foxtrot.common.ActionResponse;
 import com.flipkart.foxtrot.core.cache.Cache;
 import com.flipkart.foxtrot.core.querystore.impl.HazelcastConnection;
-import com.hazelcast.config.*;
 import com.hazelcast.core.IMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+
+import static com.flipkart.foxtrot.core.querystore.actions.Constants.CACHE_NAME_PREFIX;
 
 /**
  * User: Santanu Sinha (santanu.sinha@flipkart.com)
@@ -34,18 +35,13 @@ import java.io.IOException;
  */
 
 public class DistributedCache implements Cache {
-    private static final String NAME_PREFIX = "cache-for-";
 
     private static final Logger logger = LoggerFactory.getLogger(DistributedCache.class.getSimpleName());
     private final IMap<String, String> distributedMap;
     private final ObjectMapper mapper;
 
-    public static void setup(HazelcastConnection hazelcastConnection) {
-        hazelcastConnection.getHazelcastConfig().addMapConfig(getDefaultMapConfig());
-    }
-
     public DistributedCache(HazelcastConnection hazelcastConnection, String name, ObjectMapper mapper) {
-        this.distributedMap = hazelcastConnection.getHazelcast().getMap(NAME_PREFIX + name);
+        this.distributedMap = hazelcastConnection.getHazelcast().getMap(CACHE_NAME_PREFIX + name);
         this.mapper = mapper;
     }
 
@@ -88,24 +84,5 @@ public class DistributedCache implements Cache {
     @Override
     public boolean has(String key) {
         return null != key && distributedMap.containsKey(key);
-    }
-
-    private static MapConfig getDefaultMapConfig() {
-        MapConfig mapConfig = new MapConfig(NAME_PREFIX + "*");
-        mapConfig.setInMemoryFormat(InMemoryFormat.BINARY);
-        mapConfig.setBackupCount(0);
-        mapConfig.setMaxIdleSeconds(15);
-        mapConfig.setTimeToLiveSeconds(15);
-        mapConfig.setEvictionPolicy(EvictionPolicy.LRU);
-        MaxSizeConfig maxSizeConfig = new MaxSizeConfig();
-        maxSizeConfig.setMaxSizePolicy(MaxSizeConfig.MaxSizePolicy.USED_HEAP_PERCENTAGE);
-        maxSizeConfig.setSize(70);
-        mapConfig.setMaxSizeConfig(maxSizeConfig);
-        NearCacheConfig nearCacheConfig = new NearCacheConfig();
-        nearCacheConfig.setTimeToLiveSeconds(15);
-        nearCacheConfig.setInvalidateOnChange(true);
-        nearCacheConfig.setMaxIdleSeconds(15);
-        mapConfig.setNearCacheConfig(nearCacheConfig);
-        return mapConfig;
     }
 }
