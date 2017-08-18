@@ -19,6 +19,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.flipkart.foxtrot.core.cache.Cache;
 import com.flipkart.foxtrot.core.cache.CacheFactory;
 import com.flipkart.foxtrot.core.querystore.impl.HazelcastConnection;
+import com.hazelcast.config.*;
+
+import static com.flipkart.foxtrot.core.querystore.actions.Constants.CACHE_NAME_PREFIX;
 
 /**
  * User: Santanu Sinha (santanu.sinha@flipkart.com)
@@ -33,10 +36,25 @@ public class DistributedCacheFactory implements CacheFactory {
     public DistributedCacheFactory(HazelcastConnection connection, ObjectMapper mapper) {
         this.connection = connection;
         this.mapper = mapper;
+        this.connection.getHazelcastConfig().addMapConfig(getDefaultMapConfig());
     }
 
     @Override
     public Cache create(String name) {
         return new DistributedCache(connection, name, mapper);
+    }
+
+    private static MapConfig getDefaultMapConfig() {
+        MapConfig mapConfig = new MapConfig(CACHE_NAME_PREFIX + "*");
+        mapConfig.setInMemoryFormat(InMemoryFormat.BINARY);
+        mapConfig.setBackupCount(0);
+        mapConfig.setMaxIdleSeconds(15);
+        mapConfig.setTimeToLiveSeconds(15);
+        mapConfig.setEvictionPolicy(EvictionPolicy.LRU);
+        MaxSizeConfig maxSizeConfig = new MaxSizeConfig();
+        maxSizeConfig.setMaxSizePolicy(MaxSizeConfig.MaxSizePolicy.USED_HEAP_PERCENTAGE);
+        maxSizeConfig.setSize(70);
+        mapConfig.setMaxSizeConfig(maxSizeConfig);
+        return mapConfig;
     }
 }
