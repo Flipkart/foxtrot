@@ -135,10 +135,7 @@ StackedBarTile.prototype.getData = function (data) {
       tmpData[time][trend] = count;
     }
   }
-  if (0 == Object.keys(tmpData).length) {
-    canvas.empty();
-    return;
-  }
+
   var trendWiseData = new Object();
   for (var time in tmpData) {
     for (var trend in data.trends) {
@@ -399,17 +396,36 @@ StackedBarTile.prototype.render = function (d) {
     }
   });
 
+
+  function individualTooltip(x, y, xValue, yValue) {
+    var a = axisTimeFormatNew(object.tileContext.period, (globalFilters ? getGlobalFilters() : getPeriodSelect(object.id)));
+    $('<div id="flot-custom-tooltip" class="custom-tooltip"> <div class="tooltip-custom-content"><p class="">'+numDifferentiation(yValue)+'</p><p class="tooltip-custom-date-text">' + moment(xValue).format(a) + '</p></div></div>').css({
+      position: 'absolute',
+      display: 'none',
+      top: y,
+      left: x,
+    }).appendTo("body").fadeIn(200);
+  }
+
   var re = re = /\(([0-9]+,[0-9]+,[0-9]+)/;
   $(chartDiv.find('.legend ul li')).on('mouseenter', function() {
     var label = $(this).text();
-    var allSeries = plot.getData();
-    for (var i = 0; i < allSeries.length; i++){
-      if (allSeries[i].label == $.trim(label)){
-        allSeries[i].oldColor = allSeries[i].color;
-        allSeries[i].color = 'rgba(' + re.exec(allSeries[i].color)[1] + ',' + 1 + ')';
+    var points = plot.getData();
+    var graphx = ctx.offset().left;
+    graphx = graphx + 30; // replace with offset of canvas on graph
+    var graphy = ctx.offset().top;
+    graphy = graphy + 10; // how low you want the label to hang underneath the point
+    for(var k = 0; k < points.length; k++){
+      if(points[k].label== $.trim(label)) {
+        for(var m = 0; m < points[k].data.length; m++){
+          individualTooltip(graphx + points[k].xaxis.p2c(points[k].data[m][0]), points[k].yaxis.p2c(points[k].data[m][1]) + graphy - 70, points[k].data[m][0], points[k].data[m][1])
+        }
+        points[k].oldColor = points[k].color;
+        points[k].color = 'rgba(' + re.exec(points[k].color)[1] + ',' + 1 + ')';
       } else {
-        allSeries[i].color = 'rgba(' + re.exec(allSeries[i].color)[1] + ',' + 0.1 + ')';
+        points[k].color = 'rgba(' + re.exec(points[k].color)[1] + ',' + 0.1 + ')';
       }
+
     }
     plot.draw();
   });
@@ -417,8 +433,11 @@ StackedBarTile.prototype.render = function (d) {
   $(chartDiv.find('.legend ul li')).on('mouseleave', function() {
     var label = $(this).text();
     var allSeries = plot.getData();
+    $("#flot-custom-tooltip").remove();
     for (var i = 0; i < allSeries.length; i++){
       allSeries[i].color = 'rgba(' + re.exec(allSeries[i].color)[1] + ',' + 1 + ')';
+      $(".custom-tooltip").remove();
+      $(".data-point-label").remove();
     }
     plot.draw();
   });
