@@ -264,6 +264,7 @@
                 <option value="statsTrend">Stats Trend chart</option>
                 <option value="pie">Pie chart</option>
                 <option value="gauge">Gauge Chart</option>
+                <option value="percentageGauge">Percentage Gauge Chart</option>
                 <option value="radar">Radar/Spider Chart</option>
               </select>
             </div>
@@ -340,6 +341,36 @@
                     <div class="form-group">
                       <label class="control-label">Success value<span class="mandatory-text">*</span></label>
                       <input type="text" name="gauge-success-field" class="selectpicker gauge-success-field form-control" id="gauge-success-field" required />
+                    </div>
+                  </div>
+                </div>
+              </form>
+              <form id="percentageGauge">
+                <div id="percentageGauge-chart-data">
+                  <div class="col-md-12 chart-forms">
+                    <div class="form-group">
+                      <label class="control-label">Time unit <span class="mandatory-text">*</span></label>
+                      <select name="gauge-time-unit" required class="selectpicker percentage-gauge-time-unit form-control" id="percentage-gauge-time-unit">
+                        <option value="minutes" selected="selected">Minute</option>
+                        <option value="hours">Hour</option>
+                        <option value="days">Day</option>
+                      </select>
+                    </div>
+                    <div class="form-group">
+                      <label class="control-label">Time Frame <span class="mandatory-text">*</span></label>
+                      <input type="number" name="percentage-gauge-timeframe" class="percentage-gauge-timeframe form-control" id="percentage-gauge-timeframe" placeholder="Enter time frame" required>
+                    </div>
+                    <div class="form-group">
+                      <label class="control-label">Field to classify <span class="mandatory-text">*</span></label>
+                      <select name="percentage-gauge-nesting" class="selectpicker percentage-gauge-nesting form-control" id="percentage-gauge-nesting" data-live-search="true" data-style="btn-warning" required> </select>
+                    </div>
+                    <div class="form-group">
+                      <label class="control-label">Numertaor value<span class="mandatory-text">*</span></label>
+                      <input type="text" name="percentage-gauge-success-field" class="selectpicker percentage-gauge-numerator-field form-control" id="percentage-gauge-numerator-field" placeholder="Enter numerator value" required />
+                    </div>
+                    <div class="form-group">
+                      <label class="control-label">Denominator value<span class="mandatory-text">*</span></label>
+                      <input type="text" name="percentage-gauge-denominator-field" class="selectpicker percentage-gauge-denominator-field form-control" placeholder="Enter denominator value" id="percentage-gauge-denominator-field" required />
                     </div>
                   </div>
                 </div>
@@ -719,6 +750,7 @@
   <script src="js/tiles/radar-tile.js"></script>
   <script src="js/tiles/trend-tile.js"></script>
   <script src="js/tiles/gauge-tile.js"></script>
+  <script src="js/tiles/percentage-gauge-tile.js"></script>
   <script src="js/tiles/stacked-tile.js"></script>
   <script src="js/tiles/count-tile.js"></script>
   <script src="js/flot/jquery.flot.time.min.js"></script>

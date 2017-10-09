@@ -143,7 +143,7 @@ function getWidgetType() { // widget types
   else if (currentChartType == "radar" || currentChartType == "pie") {
     return "medium";
   }
-  else if (currentChartType == "gauge" || currentChartType == "trend" || currentChartType == "count") {
+  else if (currentChartType == "gauge" || currentChartType == "percentageGauge"  || currentChartType == "trend" || currentChartType == "count") {
     return "small";
   }
   else {
@@ -193,6 +193,9 @@ function getChartFormValues() { // get current widget form values
   }
   else if (currentChartType == "gauge") {
     return getGaugeChartFormValues();
+  }
+  else if (currentChartType == "percentageGauge") {
+    return getPercentageGaugeChartFormValues();
   }
   else if (currentChartType == "stackedBar") {
     return getstackedBarChartFormValues();
@@ -266,6 +269,9 @@ function reloadDropdowns() { // change dropdown values for all charts when table
   else if (currentChartType == "gauge") {
     generateDropDown(currentFieldList, "#gauge-nesting");
   }
+  else if (currentChartType == "percentageGauge") {
+    generateDropDown(currentFieldList, "#percentage-gauge-nesting");
+  }
   else if (currentChartType == "stackedBar") {
     generateDropDown(currentFieldList, "#stacked-bar-field");
     generateDropDown(currentFieldList, "#stacked-bar-uniquekey");
@@ -301,6 +307,9 @@ function invokeClearChartForm() { // clear widget forms
   }
   else if (currentChartType == "gauge") {
     clearGaugeChartForm();
+  }
+  else if (currentChartType == "percentageGauge") {
+    clearPercentageGaugeChartForm();
   }
   else if (currentChartType == "stackedBar") {
     clearStackedBarChartForm();

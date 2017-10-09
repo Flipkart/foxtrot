@@ -485,6 +485,14 @@ h1 {
   display: none;
 }
 
+#percentageGauge-chart-data {
+  display: none;
+}
+
+.percentage-gauge-chart {
+  margin-top: 33px;
+}
+
 .bold {
   font-family: oswald;
 }
