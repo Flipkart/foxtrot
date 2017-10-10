@@ -9,10 +9,7 @@ import com.flipkart.foxtrot.core.datastore.DataStore;
 import com.flipkart.foxtrot.core.querystore.QueryExecutor;
 import com.flipkart.foxtrot.core.querystore.QueryStore;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsLoader;
-import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConnection;
-import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchQueryStore;
-import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
-import com.flipkart.foxtrot.core.querystore.impl.HazelcastConnection;
+import com.flipkart.foxtrot.core.querystore.impl.*;
 import com.flipkart.foxtrot.core.table.TableMetadataManager;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.test.TestHazelcastInstanceFactory;
@@ -50,6 +47,7 @@ public class ActionTest {
         elasticsearchServer = spy(elasticsearchServer);
         this.elasticsearchConnection = Mockito.mock(ElasticsearchConnection.class);
         doReturn(elasticsearchServer.getClient()).when(elasticsearchConnection).getClient();
+        doReturn(elasticsearchServer.getElasticsearchConfig()).when(elasticsearchConnection).getConfig();
         ElasticsearchUtils.initializeMappings(elasticsearchServer.getClient());
 
         TableMetadataManager tableMetadataManager = Mockito.mock(TableMetadataManager.class);

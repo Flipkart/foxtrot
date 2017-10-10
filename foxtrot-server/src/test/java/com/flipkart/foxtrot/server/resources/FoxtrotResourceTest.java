@@ -33,6 +33,7 @@ import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
@@ -69,6 +70,7 @@ public abstract class FoxtrotResourceTest extends ResourceTest {
         elasticsearchServer = new MockElasticsearchServer(UUID.randomUUID().toString());
         ElasticsearchConnection elasticsearchConnection = Mockito.mock(ElasticsearchConnection.class);
         when(elasticsearchConnection.getClient()).thenReturn(elasticsearchServer.getClient());
+        doReturn(elasticsearchServer.getElasticsearchConfig()).when(elasticsearchConnection).getConfig();
         ElasticsearchUtils.initializeMappings(elasticsearchServer.getClient());
 
         Settings indexSettings = ImmutableSettings.settingsBuilder().put("number_of_replicas", 0).build();

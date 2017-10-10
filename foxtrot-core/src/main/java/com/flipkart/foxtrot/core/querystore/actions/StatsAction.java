@@ -24,6 +24,7 @@ import com.google.common.collect.Lists;
 import org.apache.commons.lang3.StringUtils;
 import org.elasticsearch.ElasticsearchException;
 import org.elasticsearch.action.search.SearchRequestBuilder;
+import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.search.SearchType;
 import org.elasticsearch.search.aggregations.AbstractAggregationBuilder;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
@@ -35,6 +36,7 @@ import org.elasticsearch.search.aggregations.metrics.stats.extended.InternalExte
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Created by rishabh.goyal on 02/08/14.
@@ -143,7 +145,12 @@ public class StatsAction extends Action<StatsRequest> {
             throw FoxtrotExceptions.queryCreationException(parameter, e);
         }
         try {
-            Aggregations aggregations = searchRequestBuilder.execute().actionGet().getAggregations();
+            Aggregations aggregations;
+            if(isCountQueryTimeBounded()) {
+                aggregations = searchRequestBuilder.execute().actionGet(getCountQueryTimeout(), TimeUnit.SECONDS).getAggregations();
+            } else {
+                aggregations = searchRequestBuilder.execute().actionGet().getAggregations();
+            }
             if (aggregations != null) {
                 return buildResponse(parameter, aggregations);
             }
