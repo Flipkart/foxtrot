@@ -41,6 +41,7 @@ import org.elasticsearch.search.sort.SortOrder;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 /**
  * User: Santanu Sinha (santanu.sinha@flipkart.com)
@@ -131,7 +132,12 @@ public class FilterAction extends Action<Query> {
             throw FoxtrotExceptions.queryCreationException(parameter, e);
         }
         try {
-            SearchResponse response = search.execute().actionGet();
+            SearchResponse response;
+            if(isFetchQueryTimeBounded()) {
+                response = search.execute().actionGet(getFetchQueryTimeout(), TimeUnit.SECONDS);
+            } else {
+                response = search.execute().actionGet();
+            }
             List<String> ids = new ArrayList<>();
             SearchHits searchHits = response.getHits();
             for (SearchHit searchHit : searchHits) {

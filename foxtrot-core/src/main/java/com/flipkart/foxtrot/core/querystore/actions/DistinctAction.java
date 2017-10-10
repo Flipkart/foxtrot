@@ -33,6 +33,7 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 /**
@@ -141,7 +142,12 @@ public class DistinctAction extends Action<DistinctRequest> {
         }
 
         try {
-            SearchResponse response = query.execute().actionGet();
+            SearchResponse response;
+            if(isCountQueryTimeBounded()) {
+                response = query.execute().actionGet(getCountQueryTimeout(), TimeUnit.SECONDS);
+            } else {
+                response = query.execute().actionGet();
+            }
             Aggregations aggregations = response.getAggregations();
             // Check if any aggregation is present or not
             if (aggregations == null) {

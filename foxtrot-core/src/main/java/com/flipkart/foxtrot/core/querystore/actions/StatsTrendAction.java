@@ -41,6 +41,7 @@ import org.elasticsearch.search.aggregations.metrics.stats.extended.InternalExte
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Created by rishabh.goyal on 02/08/14.
@@ -134,8 +135,13 @@ public class StatsTrendAction extends Action<StatsTrendRequest> {
         }
 
         try {
-            SearchResponse response = searchRequestBuilder.execute().actionGet();
-            Aggregations aggregations = response.getAggregations();
+            SearchResponse searchResponse;
+            if(isCountQueryTimeBounded()) {
+                searchResponse = searchRequestBuilder.execute().actionGet(getCountQueryTimeout(), TimeUnit.SECONDS);
+            } else {
+                searchResponse = searchRequestBuilder.execute().actionGet();
+            }
+            Aggregations aggregations = searchResponse.getAggregations();
             if (aggregations != null) {
                 return buildResponse(parameter, aggregations);
             }

@@ -29,6 +29,7 @@ import org.elasticsearch.search.aggregations.metrics.cardinality.Cardinality;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Created by rishabh.goyal on 02/11/14.
@@ -108,7 +109,12 @@ public class CountAction extends Action<CountRequest> {
             }
 
             try {
-                SearchResponse response = query.execute().actionGet();
+                SearchResponse response;
+                if(isCountQueryTimeBounded()) {
+                    response = query.execute().actionGet(getCountQueryTimeout(), TimeUnit.SECONDS);
+                } else {
+                    response = query.execute().actionGet();
+                }
                 Aggregations aggregations = response.getAggregations();
                 Cardinality cardinality = aggregations.get(Utils.sanitizeFieldForAggregation(parameter.getField()));
                 if (cardinality == null) {
@@ -130,7 +136,12 @@ public class CountAction extends Action<CountRequest> {
                 throw FoxtrotExceptions.queryCreationException(parameter, e);
             }
             try {
-                org.elasticsearch.action.count.CountResponse countResponse = countRequestBuilder.execute().actionGet();
+                org.elasticsearch.action.count.CountResponse countResponse;
+                if(isCountQueryTimeBounded()) {
+                    countResponse = countRequestBuilder.execute().actionGet(getCountQueryTimeout(),TimeUnit.SECONDS);
+} else {
+                    countResponse = countRequestBuilder.execute().actionGet();
+                }
                 return new CountResponse(countResponse.getCount());
             } catch (ElasticsearchException e) {
                 throw FoxtrotExceptions.createQueryExecutionException(parameter, e);

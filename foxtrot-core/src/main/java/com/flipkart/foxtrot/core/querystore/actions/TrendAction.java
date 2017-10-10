@@ -56,6 +56,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.concurrent.TimeUnit;
 
 /**
  * User: Santanu Sinha (santanu.sinha@flipkart.com)
@@ -158,7 +159,12 @@ public class TrendAction extends Action<TrendRequest> {
             throw FoxtrotExceptions.queryCreationException(parameter, e);
         }
         try {
-            SearchResponse searchResponse = searchRequestBuilder.execute().actionGet();
+            SearchResponse searchResponse;
+            if(isCountQueryTimeBounded()) {
+                searchResponse = searchRequestBuilder.execute().actionGet(getCountQueryTimeout(), TimeUnit.SECONDS);
+            } else {
+                searchResponse = searchRequestBuilder.execute().actionGet();
+            }
             Aggregations aggregations = searchResponse.getAggregations();
             if (aggregations != null) {
                 return buildResponse(parameter, aggregations);
