@@ -123,15 +123,7 @@ PercentageGaugeTile.prototype.getData = function (data) {
       denominator = value;
     }
   }
-
-  console.log(numerator/100*denominator);
-  //console.log(denominator)
-
-  var total = numerator+denominator;
-  var numeratorSum = numerator/total*100;
-  var denomenatorSum = denominator/total*100;
-
-  this.render(total, numerator+denominator, numeratorSum+denomenatorSum);
+  this.render(total, (denominator), (denominator/numerator*100));
 }
 PercentageGaugeTile.prototype.render = function (total, successRate, diff) {
   var object = this.object;
@@ -144,8 +136,6 @@ PercentageGaugeTile.prototype.render = function (total, successRate, diff) {
   if (findExistingChart.length != 0) {
     findExistingChart.remove();
   }
-
-  console.log(diff);
 
   chartDiv.append('<div id="percentage-gauge-' + object.id + '"><div class="halfDonut"><div class="halfDonutChart"></div><div class="halfDonutTotal bold gauge-percentage" data-percent="' + successRate + '" data-color="#82c91e">' + Math.round(diff) + '%</div></div></div>')
   var ctx = chartDiv.find("#percentage-gauge-" + object.id);
