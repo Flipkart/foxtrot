@@ -37,20 +37,20 @@ import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
 import com.flipkart.foxtrot.core.querystore.query.ElasticSearchQueryGenerator;
 import com.flipkart.foxtrot.core.table.TableMetadataManager;
 import com.google.common.collect.Lists;
-import com.yammer.dropwizard.util.Duration;
+import io.dropwizard.util.Duration;
 import org.apache.commons.lang3.StringUtils;
 import org.elasticsearch.ElasticsearchException;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.action.search.SearchType;
 import org.elasticsearch.search.aggregations.AbstractAggregationBuilder;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.Aggregations;
-import org.elasticsearch.search.aggregations.bucket.histogram.DateHistogram;
 import org.elasticsearch.search.aggregations.bucket.histogram.DateHistogramBuilder;
+import org.elasticsearch.search.aggregations.bucket.histogram.DateHistogramInterval;
 import org.elasticsearch.search.aggregations.bucket.histogram.Histogram;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.elasticsearch.search.aggregations.metrics.cardinality.Cardinality;
+import org.joda.time.DateTime;
 
 import java.util.Collections;
 import java.util.List;
@@ -153,7 +153,7 @@ public class TrendAction extends Action<TrendRequest> {
                     .prepareSearch(ElasticsearchUtils.getIndices(parameter.getTable(), parameter))
                     .setIndicesOptions(Utils.indicesOptions())
                     .setQuery(new ElasticSearchQueryGenerator(FilterCombinerType.and).genFilter(parameter.getFilters()))
-                    .setSearchType(SearchType.COUNT)
+                    .setSize(0)
                     .addAggregation(aggregationBuilder);
         } catch (Exception e) {
             throw FoxtrotExceptions.queryCreationException(parameter, e);
@@ -185,7 +185,7 @@ public class TrendAction extends Action<TrendRequest> {
     }
 
     private AbstractAggregationBuilder buildAggregation(TrendRequest request) {
-        DateHistogram.Interval interval = Utils.getHistogramInterval(request.getPeriod());
+        DateHistogramInterval interval = Utils.getHistogramInterval(request.getPeriod());
         String field = request.getField();
 
         DateHistogramBuilder histogramBuilder = Utils.buildDateHistogramAggregation(request.getTimestamp(), interval);
@@ -204,7 +204,7 @@ public class TrendAction extends Action<TrendRequest> {
         Map<String, List<TrendResponse.Count>> trendCounts = new TreeMap<>();
         Terms terms = aggregations.get(Utils.sanitizeFieldForAggregation(field));
         for (Terms.Bucket bucket : terms.getBuckets()) {
-            final String key = bucket.getKeyAsText().string();
+            final String key = String.valueOf(bucket.getKey());
             List<TrendResponse.Count> counts = Lists.newArrayList();
             Aggregations subAggregations = bucket.getAggregations();
             Histogram histogram = subAggregations.get(Utils.getDateHistogramKey(request.getTimestamp()));
@@ -212,9 +212,11 @@ public class TrendAction extends Action<TrendRequest> {
                 if (!CollectionUtils.isNullOrEmpty(getParameter().getUniqueCountOn())) {
                     String uniqueCountKey = Utils.sanitizeFieldForAggregation(getParameter().getUniqueCountOn());
                     Cardinality cardinality = histogramBucket.getAggregations().get(uniqueCountKey);
-                    counts.add(new TrendResponse.Count(histogramBucket.getKeyAsNumber(), cardinality.getValue()));
+                    counts.add(new TrendResponse.Count(((DateTime) histogramBucket.getKey()).getMillis(),
+                            cardinality.getValue()));
                 } else {
-                    counts.add(new TrendResponse.Count(histogramBucket.getKeyAsNumber(), histogramBucket.getDocCount()));
+                    counts.add(new TrendResponse.Count(((DateTime) histogramBucket.getKey()).getMillis(),
+                            histogramBucket.getDocCount()));
                 }
             }
             trendCounts.put(key, counts);

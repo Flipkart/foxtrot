@@ -135,7 +135,7 @@ public class DistinctAction extends Action<DistinctRequest> {
             }
             query.setQuery(new ElasticSearchQueryGenerator(FilterCombinerType.and)
                     .genFilter(request.getFilters()))
-                    .setSearchType(SearchType.COUNT)
+                    .setSize(0)
                     .addAggregation(rootBuilder);
         } catch (Exception e) {
             throw FoxtrotExceptions.queryCreationException(request, e);
@@ -178,9 +178,9 @@ public class DistinctAction extends Action<DistinctRequest> {
         Terms terms = aggregations.get(Utils.sanitizeFieldForAggregation(field));
         for (Terms.Bucket bucket : terms.getBuckets()) {
             if (fields.size() == 1) {
-                responseList.add(getValueList(parentKey, bucket.getKey()));
+                responseList.add(getValueList(parentKey, String.valueOf(bucket.getKey())));
             } else {
-                flatten(getProperKey(parentKey, bucket.getKey()), remainingFields, responseList, bucket.getAggregations());
+                flatten(getProperKey(parentKey, String.valueOf(bucket.getKey())), remainingFields, responseList, bucket.getAggregations());
             }
         }
     }

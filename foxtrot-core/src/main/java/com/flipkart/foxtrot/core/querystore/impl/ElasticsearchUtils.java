@@ -21,9 +21,7 @@ import com.flipkart.foxtrot.core.common.PeriodSelector;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
 import org.elasticsearch.action.admin.indices.template.put.PutIndexTemplateRequest;
-import org.elasticsearch.action.admin.indices.template.put.PutIndexTemplateRequestBuilder;
 import org.elasticsearch.client.Client;
-import org.elasticsearch.client.IndicesAdminClient;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.common.xcontent.XContentFactory;
 import org.joda.time.DateTime;
@@ -102,13 +100,12 @@ public class ElasticsearchUtils {
                 ElasticsearchUtils.TABLENAME_POSTFIX, datePostfix);
     }
 
-    public static PutIndexTemplateRequest getClusterTemplateMapping(IndicesAdminClient indicesAdminClient) {
+    public static PutIndexTemplateRequest getClusterTemplateMapping() {
         try {
-            PutIndexTemplateRequestBuilder builder = new PutIndexTemplateRequestBuilder(indicesAdminClient, "generic_template");
-            builder.setTemplate(String.format("%s-*", ElasticsearchUtils.TABLENAME_PREFIX));
-            System.out.println(getDocumentMapping().string());
-            builder.addMapping(DOCUMENT_TYPE_NAME, getDocumentMapping());
-            return builder.request();
+            return new PutIndexTemplateRequest()
+                    .name("template_foxtrot_mappings")
+                    .template(String.format("%s-*", ElasticsearchUtils.TABLENAME_PREFIX))
+                    .mapping(DOCUMENT_TYPE_NAME, getDocumentMapping());
         } catch (IOException ex) {
             logger.error("TEMPLATE_CREATION_FAILED", ex);
             return null;
@@ -131,7 +128,6 @@ public class ElasticsearchUtils {
                 .field("_timestamp")
                 .startObject()
                 .field("enabled", true)
-                .field("store", true)
                 .endObject()
                 .field("dynamic_templates")
                 .startArray()
@@ -215,7 +211,7 @@ public class ElasticsearchUtils {
     }
 
     public static void initializeMappings(Client client) {
-        PutIndexTemplateRequest templateRequest = getClusterTemplateMapping(client.admin().indices());
+        PutIndexTemplateRequest templateRequest = getClusterTemplateMapping();
         client.admin().indices().putTemplate(templateRequest).actionGet();
     }
 
@@ -252,7 +248,7 @@ public class ElasticsearchUtils {
         }
     }
 
-    public static String getAllIndicesPattern(){
+    public static String getAllIndicesPattern() {
         return String.format("%s-*-%s-*", ElasticsearchUtils.TABLENAME_PREFIX, ElasticsearchUtils.TABLENAME_POSTFIX);
     }
 }

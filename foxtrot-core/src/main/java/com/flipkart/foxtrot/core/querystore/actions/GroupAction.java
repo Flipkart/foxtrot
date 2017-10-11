@@ -37,7 +37,6 @@ import com.google.common.collect.Maps;
 import org.elasticsearch.ElasticsearchException;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.action.search.SearchType;
 import org.elasticsearch.search.aggregations.AbstractAggregationBuilder;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.Aggregations;
@@ -90,7 +89,7 @@ public class GroupAction extends Action<GroupRequest> {
             }
         }
 
-        if (null != query.getUniqueCountOn()){
+        if (null != query.getUniqueCountOn()) {
             filterHashKey += 31 * query.getUniqueCountOn().hashCode();
         }
 
@@ -136,7 +135,7 @@ public class GroupAction extends Action<GroupRequest> {
             AbstractAggregationBuilder aggregation = buildAggregation();
             query.setQuery(new ElasticSearchQueryGenerator(FilterCombinerType.and)
                     .genFilter(parameter.getFilters()))
-                    .setSearchType(SearchType.COUNT)
+                    .setSize(0)
                     .addAggregation(aggregation);
         } catch (Exception e) {
             throw FoxtrotExceptions.queryCreationException(parameter, e);
@@ -196,12 +195,12 @@ public class GroupAction extends Action<GroupRequest> {
                 if (!CollectionUtils.isNullOrEmpty(getParameter().getUniqueCountOn())) {
                     String key = Utils.sanitizeFieldForAggregation(getParameter().getUniqueCountOn());
                     Cardinality cardinality = bucket.getAggregations().get(key);
-                    levelCount.put(bucket.getKey(), cardinality.getValue());
+                    levelCount.put(String.valueOf(bucket.getKey()), cardinality.getValue());
                 } else {
-                    levelCount.put(bucket.getKey(), bucket.getDocCount());
+                    levelCount.put(String.valueOf(bucket.getKey()), bucket.getDocCount());
                 }
             } else {
-                levelCount.put(bucket.getKey(), getMap(remainingFields, bucket.getAggregations()));
+                levelCount.put(String.valueOf(bucket.getKey()), getMap(remainingFields, bucket.getAggregations()));
             }
         }
         return levelCount;

@@ -31,7 +31,7 @@ import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.Aggregations;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.elasticsearch.search.aggregations.bucket.terms.TermsBuilder;
-import org.elasticsearch.search.aggregations.metrics.percentiles.InternalPercentiles;
+import org.elasticsearch.search.aggregations.metrics.percentiles.Percentiles;
 import org.elasticsearch.search.aggregations.metrics.stats.extended.InternalExtendedStats;
 
 import java.util.ArrayList;
@@ -112,8 +112,7 @@ public class StatsAction extends Action<StatsRequest> {
                     .setTypes(ElasticsearchUtils.DOCUMENT_TYPE_NAME)
                     .setIndicesOptions(Utils.indicesOptions())
                     .setQuery(new ElasticSearchQueryGenerator(parameter.getCombiner()).genFilter(parameter.getFilters()))
-                    .setSize(0)
-                    .setSearchType(SearchType.COUNT);
+                    .setSize(0);
 
             AbstractAggregationBuilder percentiles = Utils.buildPercentileAggregation(getParameter().getField());
             AbstractAggregationBuilder extendedStats = Utils.buildExtendedStatsAggregation(getParameter().getField());
@@ -185,7 +184,7 @@ public class StatsAction extends Action<StatsRequest> {
         List<BucketResponse<StatsValue>> bucketResponses = Lists.newArrayList();
         for (Terms.Bucket bucket : terms.getBuckets()) {
             BucketResponse<StatsValue> bucketResponse = new BucketResponse<>();
-            bucketResponse.setKey(bucket.getKey());
+            bucketResponse.setKey(String.valueOf(bucket.getKey()));
             if (nesting.size() == 1) {
                 bucketResponse.setResult(buildStatsValue(getParameter().getField(), bucket.getAggregations()));
             } else {
@@ -204,7 +203,7 @@ public class StatsAction extends Action<StatsRequest> {
         StatsValue statsValue = new StatsValue();
         InternalExtendedStats extendedStats = InternalExtendedStats.class.cast(aggregations.getAsMap().get(metricKey));
         statsValue.setStats(Utils.createExtendedStatsResponse(extendedStats));
-        InternalPercentiles internalPercentile = InternalPercentiles.class.cast(aggregations.getAsMap().get(percentileMetricKey));
+        Percentiles internalPercentile = Percentiles.class.cast(aggregations.getAsMap().get(percentileMetricKey));
         statsValue.setPercentiles(Utils.createPercentilesResponse(internalPercentile));
         return statsValue;
     }

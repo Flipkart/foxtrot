@@ -146,37 +146,49 @@
     <table class="data-table table table-bordered table-hover table-condensed dataview-table tablesorter">
         <thead>
         <tr>
-            <th class="section-end {sorter: 'text'}">Host</th>
-            <th>Load</th>
-            <th>Memory</th>
-            <th class="section-end">Disk</th>
-            <th class="{sorter: 'sizesorter'}">JVM Size</th>
-            <th>JVM Used</th>
-            <th>JVM Oldgen</th>
-            <th class="section-end">JVM Eden</th>
+            <th class="{sorter: 'text'}"> IP </th>
+            <th class="{sorter: 'text'}">Host</th>
+
+            <th class="{sorter: 'sizesorter'}"> Load </th>
+            <th class="{sorter: 'sizesorter'}"> Memory Total </th>
+            <th class="{sorter: 'sizesorter'}"> Memory Used </th>
+            <th class="{sorter: 'text'}"> Memory Used (%) </th>
+
+            <th class="{sorter: 'sizesorter'}"> Disk Total </th>
+            <th class="{sorter: 'sizesorter'}"> Disk Used </th>
+            <th class="{sorter: 'text'}"> Disk Used (%) </th>
+
+            <th class="{sorter: 'sizesorter'}"> Heap Committed </th>
+            <th class="{sorter: 'sizesorter'}"> Heap Used </th>
+            <th class="{sorter: 'sizesorter'}"> Heap Used (%) </th>
+
             <th class="{sorter: 'sizesorter'}">Field cache</th>
-            <th>Field cache (%)</th>
-            <th class="section-end">Evictions</th>
-            <th  class="{sorter: 'sizesorter'}">Filter cache</th>
-            <th  class="section-end">Evictions</th>
+            <th class="{sorter: 'text'}"> Field cache (%) </th>
+            <th class="{sorter: 'sizesorter'}">Field Cache Evictions</th>
         </tr>
         </thead>
         <tbody>
         {{#each hosts}}
         <tr>
-            <td  class="section-end {sorter: 'text'}">{{host}}</td>
-            <td>                         {{load}}</td>
-            <td class="percentage-value">{{memoryUsed}}</td>
-            <td class="percentage-value section-end">{{diskUsed}}</td>
-            <td >{{jvmSize}}</td>
-            <td class="percentage-value">{{jvmUsed}}</td>
-            <td class="percentage-value">{{jvmOldgen}}</td>
-            <td class="percentage-value section-end">{{jvmEden}}</td>
-            <td>{{fieldCacheAbs}}</td>
+            <td  class="{sorter: 'text'}">{{ip}}</td>
+            <td  class="{sorter: 'text'}">{{host}}</td>
+
+            <td  class="{sorter: 'sizesorter'}">{{load}}</td>
+            <td  class="{sorter: 'sizesorter'}">{{memoryTotal}}</td>
+            <td  class="{sorter: 'sizesorter'}">{{memoryUsed}}</td>
+            <td  class="{sorter: 'sizesorter'}">{{memoryUsedPercent}}</td>
+
+            <td  class="{sorter: 'sizesorter'}">{{diskTotal}}</td>
+            <td  class="{sorter: 'sizesorter'}">{{diskUsed}}</td>
+            <td  class="percentage-value section-end">{{diskUsedPercent}}</td>
+
+            <td  class="{sorter: 'sizesorter'}">{{jvmTotal}}</td>
+            <td  class="{sorter: 'sizesorter'}">{{jvmUsed}}</td>
+            <td class="percentage-value section-end">{{jvmUsedPercent}}</td>
+
+            <td class="{sorter: 'sizesorter'}">{{fieldCacheAbs}}</td>
             <td class="percentage-value">{{fieldCache}}</td>
-            <td class="section-end">{{fieldCacheEvictions}}</td>
-            <td>{{filterCache}}</td>
-            <td class="section-end">{{filterCacheEvictions}}</td>
+            <td class="{sorter: 'sizesorter'}">{{fieldCacheEvictions}}</td>
         </tr>
         {{/each}}
         </tbody>

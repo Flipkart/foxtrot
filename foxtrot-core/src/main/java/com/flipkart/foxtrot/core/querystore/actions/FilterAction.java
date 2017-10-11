@@ -37,6 +37,8 @@ import org.elasticsearch.action.search.SearchType;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
 import org.elasticsearch.search.sort.SortOrder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -50,7 +52,7 @@ import java.util.concurrent.TimeUnit;
  */
 @AnalyticsProvider(opcode = "query", request = Query.class, response = QueryResponse.class, cacheable = false)
 public class FilterAction extends Action<Query> {
-
+    private static final Logger logger = LoggerFactory.getLogger(FilterAction.class);
     public FilterAction(Query parameter,
                         TableMetadataManager tableMetadataManager,
                         DataStore dataStore,
@@ -132,6 +134,7 @@ public class FilterAction extends Action<Query> {
             throw FoxtrotExceptions.queryCreationException(parameter, e);
         }
         try {
+            logger.info("Search: {}", search);
             SearchResponse response;
             if(isFetchQueryTimeBounded()) {
                 response = search.execute().actionGet(getFetchQueryTimeout(), TimeUnit.SECONDS);

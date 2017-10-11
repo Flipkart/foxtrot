@@ -26,11 +26,13 @@ import com.flipkart.foxtrot.common.query.numeric.LessThanFilter;
 import com.flipkart.foxtrot.core.TestUtils;
 import com.flipkart.foxtrot.core.exception.FoxtrotException;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.doReturn;
@@ -45,7 +47,7 @@ public class HistogramActionTest extends ActionTest {
         super.setUp();
         List<Document> documents = TestUtils.getHistogramDocuments(getMapper());
         getQueryStore().save(TestUtils.TEST_TABLE_NAME, documents);
-        getElasticsearchServer().getClient().admin().indices().prepareRefresh("*").setForce(true).execute().actionGet();
+        getElasticsearchServer().getClient().admin().indices().prepareRefresh("*").execute().actionGet();
     }
 
     private void filterNonZeroCounts(HistogramResponse response) {
@@ -126,12 +128,12 @@ public class HistogramActionTest extends ActionTest {
         filterNonZeroCounts(response);
 
         List<HistogramResponse.Count> counts = new ArrayList<HistogramResponse.Count>();
-        counts.add(new HistogramResponse.Count(1397649600000L, 2));
-        counts.add(new HistogramResponse.Count(1397656800000L, 4));
-        counts.add(new HistogramResponse.Count(1397757600000L, 1));
-        counts.add(new HistogramResponse.Count(1397955600000L, 1));
-        counts.add(new HistogramResponse.Count(1398650400000L, 2));
-        counts.add(new HistogramResponse.Count(1398657600000L, 1));
+        counts.add(new HistogramResponse.Count(1397647800000L, 2));
+        counts.add(new HistogramResponse.Count(1397655000000L, 4));
+        counts.add(new HistogramResponse.Count(1397755800000L, 1));
+        counts.add(new HistogramResponse.Count(1397957400000L, 1));
+        counts.add(new HistogramResponse.Count(1398652200000L, 2));
+        counts.add(new HistogramResponse.Count(1398655800000L, 1));
         assertTrue(response.getCounts().equals(counts));
     }
 
@@ -154,10 +156,10 @@ public class HistogramActionTest extends ActionTest {
         HistogramResponse response = HistogramResponse.class.cast(getQueryExecutor().execute(histogramRequest));
         filterNonZeroCounts(response);
         List<HistogramResponse.Count> counts = new ArrayList<HistogramResponse.Count>();
-        counts.add(new HistogramResponse.Count(1397649600000L, 1));
-        counts.add(new HistogramResponse.Count(1397656800000L, 3));
-        counts.add(new HistogramResponse.Count(1397955600000L, 1));
-        counts.add(new HistogramResponse.Count(1398657600000L, 1));
+        counts.add(new HistogramResponse.Count(1397647800000L, 1));
+        counts.add(new HistogramResponse.Count(1397655000000L, 3));
+        counts.add(new HistogramResponse.Count(1397957400000L, 1));
+        counts.add(new HistogramResponse.Count(1398655800000L, 1));
         assertTrue(response.getCounts().equals(counts));
     }
 
@@ -175,10 +177,10 @@ public class HistogramActionTest extends ActionTest {
         HistogramResponse response = HistogramResponse.class.cast(getQueryExecutor().execute(histogramRequest));
         filterNonZeroCounts(response);
         List<HistogramResponse.Count> counts = new ArrayList<HistogramResponse.Count>();
-        counts.add(new HistogramResponse.Count(1397606400000L, 6));
-        counts.add(new HistogramResponse.Count(1397692800000L, 1));
-        counts.add(new HistogramResponse.Count(1397952000000L, 1));
-        counts.add(new HistogramResponse.Count(1398643200000L, 3));
+        counts.add(new HistogramResponse.Count(1397586600000L, 6));
+        counts.add(new HistogramResponse.Count(1397673000000L, 1));
+        counts.add(new HistogramResponse.Count(1397932200000L, 1));
+        counts.add(new HistogramResponse.Count(1398623400000L, 3));
         assertTrue(response.getCounts().equals(counts));
     }
 
@@ -200,9 +202,9 @@ public class HistogramActionTest extends ActionTest {
         HistogramResponse response = HistogramResponse.class.cast(getQueryExecutor().execute(histogramRequest));
         filterNonZeroCounts(response);
         List<HistogramResponse.Count> counts = new ArrayList<HistogramResponse.Count>();
-        counts.add(new HistogramResponse.Count(1397606400000L, 4));
-        counts.add(new HistogramResponse.Count(1397952000000L, 1));
-        counts.add(new HistogramResponse.Count(1398643200000L, 1));
+        counts.add(new HistogramResponse.Count(1397586600000L, 4));
+        counts.add(new HistogramResponse.Count(1397932200000L, 1));
+        counts.add(new HistogramResponse.Count(1398623400000L, 1));
         assertTrue(response.getCounts().equals(counts));
     }
 }

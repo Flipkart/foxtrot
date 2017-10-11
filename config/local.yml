@@ -1,7 +1,10 @@
-http:
-  port: 17000
-  adminPort: 17001
-  connectorType: nonblocking
+server:
+  applicationConnectors:
+    - type: http
+      port: 17000
+  adminConnectors:
+    - type: http
+      port: 17001
 
 elasticsearch:
   hosts:
@@ -20,8 +23,10 @@ hbase:
 
 cluster:
   name: foxtrot
-  disableMulticast: true
-  members: ["localhost:5701", "localhost:5702"]
+  discovery:
+    type: foxtrot_simple
+    disableMulticast: true
+    members: ["localhost:5701"]
 
 logging:
   level: INFO

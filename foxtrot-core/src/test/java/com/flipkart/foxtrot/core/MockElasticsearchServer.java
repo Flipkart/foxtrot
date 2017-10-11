@@ -1,12 +1,12 @@
 /**
  * Copyright 2014 Flipkart Internet Pvt. Ltd.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -20,7 +20,7 @@ import org.apache.commons.io.FileUtils;
 import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;
 import org.elasticsearch.action.admin.indices.refresh.RefreshRequest;
 import org.elasticsearch.client.Client;
-import org.elasticsearch.common.settings.ImmutableSettings;
+import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.node.Node;
 
 import java.io.File;
@@ -40,13 +40,14 @@ public class MockElasticsearchServer {
 
     public MockElasticsearchServer(String directory) {
         this.DATA_DIRECTORY = UUID.randomUUID().toString() + "/" + directory;
-        ImmutableSettings.Builder elasticsearchSettings = ImmutableSettings.settingsBuilder()
+        Settings settings = Settings.builder()
                 .put("http.enabled", "false")
-                .put("path.data", "target/" + DATA_DIRECTORY);
+                .put("path.home", "target/" + DATA_DIRECTORY)
+                .build();
 
         node = nodeBuilder()
                 .local(true)
-                .settings(elasticsearchSettings.build())
+                .settings(settings)
                 .node();
         elasticsearchConfig = new ElasticsearchConfig();
     }

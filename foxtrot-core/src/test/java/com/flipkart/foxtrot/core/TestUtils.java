@@ -31,7 +31,6 @@ import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsLoader;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsProvider;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import org.apache.hadoop.hbase.client.HTableInterface;
 import org.mockito.Matchers;
 import org.mockito.Mockito;
 import org.reflections.Reflections;
@@ -54,7 +53,7 @@ public class TestUtils {
     public static Table TEST_TABLE = new Table(TEST_TABLE_NAME, 7);
 
     public static DataStore getDataStore() throws FoxtrotException {
-        HTableInterface tableInterface = MockHTable.create();
+        org.apache.hadoop.hbase.client.Table tableInterface = MockHTable.create();
         HbaseTableConnection tableConnection = Mockito.mock(HbaseTableConnection.class);
         doReturn(tableInterface).when(tableConnection).getTable(Matchers.<Table>any());
         doReturn(new HbaseConfig()).when(tableConnection).getHbaseConfig();
@@ -149,7 +148,6 @@ public class TestUtils {
         documents.add(TestUtils.getDocument("E", 1397658118004L, new Object[]{"os", "ios", "version", 2, "device", "ipad", "battery", 56}, mapper));
         documents.add(TestUtils.getDocument("F", 1397658118005L, new Object[]{"os", "ios", "version", 2, "device", "nexus", "battery", 35}, mapper));
         documents.add(TestUtils.getDocument("G", 1397658118006L, new Object[]{"os", "ios", "version", 2, "device", "ipad", "battery", 44}, mapper));
-        documents.add(TestUtils.getDocument("ABCD", 1397658118006L, new Object[]{"header.data", "ios"}, mapper));
         return documents;
     }
 

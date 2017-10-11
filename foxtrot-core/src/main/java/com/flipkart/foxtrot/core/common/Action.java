@@ -41,6 +41,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.TimeUnit;
 
 /**
  * User: Santanu Sinha (santanu.sinha@flipkart.com)
@@ -113,17 +114,18 @@ public abstract class Action<ParameterType extends ActionRequest> implements Cal
         try {
             stopwatch.start();
             ActionResponse result = execute(parameter);
-
+            stopwatch.stop();
             // Publish success metrics
-            MetricUtil.getInstance().registerActionSuccess(cacheToken, getMetricKey(), stopwatch.elapsedMillis());
+            MetricUtil.getInstance().registerActionSuccess(cacheToken, getMetricKey(), stopwatch.elapsed(TimeUnit.MILLISECONDS));
 
             // Now cache data
             updateCachedData(result);
 
             return result;
         } catch (FoxtrotException e) {
+            stopwatch.stop();
             // Publish failure metrics
-            MetricUtil.getInstance().registerActionFailure(cacheToken, getMetricKey(), stopwatch.elapsedMillis());
+            MetricUtil.getInstance().registerActionFailure(cacheToken, getMetricKey(), stopwatch.elapsed(TimeUnit.MILLISECONDS));
             throw e;
         }
     }

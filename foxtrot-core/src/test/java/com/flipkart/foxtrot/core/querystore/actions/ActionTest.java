@@ -13,6 +13,7 @@ import com.flipkart.foxtrot.core.querystore.impl.*;
 import com.flipkart.foxtrot.core.table.TableMetadataManager;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.test.TestHazelcastInstanceFactory;
+import org.joda.time.DateTimeZone;
 import org.junit.After;
 import org.junit.Before;
 import org.mockito.Mockito;
@@ -38,6 +39,7 @@ public class ActionTest {
 
     @Before
     public void setUp() throws Exception {
+        DateTimeZone.setDefault(DateTimeZone.forID("Asia/Kolkata"));
         this.mapper = new ObjectMapper();
         HazelcastConnection hazelcastConnection = Mockito.mock(HazelcastConnection.class);
         this.hazelcastInstance = new TestHazelcastInstanceFactory(1).newHazelcastInstance();

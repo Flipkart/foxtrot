@@ -28,6 +28,7 @@ import com.flipkart.foxtrot.core.table.TableMetadataManager;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.sematext.hbase.ds.RowKeyDistributorByHashPrefix;
 import org.elasticsearch.action.admin.cluster.health.ClusterHealthResponse;
 import org.elasticsearch.action.admin.cluster.node.stats.NodesStatsResponse;
 import org.elasticsearch.action.admin.indices.stats.IndicesStatsResponse;
@@ -127,7 +128,7 @@ public class ElasticsearchQueryStoreTest {
             queryStore.save(TestUtils.TEST_TABLE + "-missing", expectedDocument);
             fail();
         } catch (FoxtrotException qse) {
-            assertEquals(ErrorCode.TABLE_NOT_FOUND, qse.getCode());
+            assertEquals(ErrorCode.INVALID_REQUEST, qse.getCode());
         }
     }
 
@@ -239,7 +240,7 @@ public class ElasticsearchQueryStoreTest {
             queryStore.save(TestUtils.TEST_TABLE + "-missing", documents);
             fail();
         } catch (FoxtrotException qse) {
-            assertEquals(ErrorCode.TABLE_NOT_FOUND, qse.getCode());
+            assertEquals(ErrorCode.INVALID_REQUEST, qse.getCode());
         }
     }
 
@@ -410,7 +411,7 @@ public class ElasticsearchQueryStoreTest {
             queryStore.getFieldMappings(TestUtils.TEST_TABLE + "-test");
             fail();
         } catch (FoxtrotException qse) {
-            assertEquals(ErrorCode.TABLE_NOT_FOUND, qse.getCode());
+            assertEquals(ErrorCode.INVALID_REQUEST, qse.getCode());
         }
     }
 
