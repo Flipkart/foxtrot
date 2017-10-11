@@ -1,13 +1,16 @@
 package com.flipkart.foxtrot.server.cluster;
 
+import com.codahale.metrics.health.HealthCheck;
 import com.flipkart.foxtrot.core.querystore.impl.HazelcastConnection;
+import com.flipkart.foxtrot.server.utils.ServerUtils;
+import com.google.common.base.Preconditions;
+import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.hazelcast.config.EvictionPolicy;
 import com.hazelcast.config.MapConfig;
 import com.hazelcast.core.IMap;
-import com.yammer.dropwizard.config.HttpConfiguration;
-import com.yammer.dropwizard.lifecycle.Managed;
-import com.yammer.metrics.core.HealthCheck;
+import io.dropwizard.lifecycle.Managed;
+import io.dropwizard.server.ServerFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,7 +35,7 @@ public class ClusterManager implements Managed {
 
     public ClusterManager(HazelcastConnection connection,
                           List<HealthCheck> healthChecks,
-                          HttpConfiguration httpConfiguration) throws Exception {
+                          ServerFactory serverFactory) throws Exception {
         this.hazelcastConnection = connection;
         this.healthChecks = healthChecks;
         MapConfig mapConfig = new MapConfig(MAP_NAME);
@@ -41,10 +44,17 @@ public class ClusterManager implements Managed {
         mapConfig.setAsyncBackupCount(2);
         mapConfig.setEvictionPolicy(EvictionPolicy.NONE);
         hazelcastConnection.getHazelcastConfig().getMapConfigs().put(MAP_NAME, mapConfig);
-
         String hostname = Inet4Address.getLocalHost().getCanonicalHostName();
+        //Auto detect marathon environment and query for host environment variable
+        if(!Strings.isNullOrEmpty(System.getenv("HOST")))
+            hostname = System.getenv("HOST");
+        Preconditions.checkNotNull(hostname, "Could not retrieve hostname, cannot proceed");
+        int port = ServerUtils.port(serverFactory);
+        //Auto detect marathon environment and query for host environment variable
+        if(!Strings.isNullOrEmpty(System.getenv("PORT_" +port)))
+            port = Integer.parseInt(System.getenv("PORT_" +port));
         executor = Executors.newScheduledThreadPool(1);
-        clusterMember = new ClusterMember(hostname, httpConfiguration.getPort());
+        clusterMember = new ClusterMember(hostname, port);
     }
 
     @Override

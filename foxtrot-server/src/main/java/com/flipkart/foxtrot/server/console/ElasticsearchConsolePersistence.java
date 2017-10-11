@@ -39,6 +39,7 @@ import static org.elasticsearch.search.sort.SortBuilders.fieldSort;
 public class ElasticsearchConsolePersistence implements ConsolePersistence {
     private static final Logger logger = LoggerFactory.getLogger(ElasticsearchConsolePersistence.class);
     private static final String INDEX = "consoles";
+    private static final String INDEX_V2 = "consoles_v2";
     private static final String TYPE = "console_data";
 
     private ElasticsearchConnection connection;
@@ -88,24 +89,6 @@ public class ElasticsearchConsolePersistence implements ConsolePersistence {
     }
 
     @Override
-    public void delete(final String id) throws FoxtrotException {
-        try {
-            connection.getClient()
-                    .prepareDelete()
-                    .setConsistencyLevel(WriteConsistencyLevel.ALL)
-                    .setRefresh(true)
-                    .setIndex(INDEX)
-                    .setType(TYPE)
-                    .setId(id)
-                    .execute()
-                    .actionGet();
-            logger.info(String.format("Deleted Console : %s", id));
-        } catch (Exception e) {
-            throw new ConsolePersistenceException(id, "console deletion_failed", e);
-        }
-    }
-
-    @Override
     public List<Console> get() throws FoxtrotException {
         SearchResponse response = connection.getClient().prepareSearch(INDEX)
                 .setTypes(TYPE)
@@ -133,6 +116,112 @@ public class ElasticsearchConsolePersistence implements ConsolePersistence {
             return results;
         } catch (Exception e) {
             throw new ConsoleFetchException(e);
+        }
+    }
+
+    @Override
+    public void delete(final String id) throws FoxtrotException {
+        try {
+            connection.getClient()
+                    .prepareDelete()
+                    .setConsistencyLevel(WriteConsistencyLevel.ALL)
+                    .setRefresh(true)
+                    .setIndex(INDEX)
+                    .setType(TYPE)
+                    .setId(id)
+                    .execute()
+                    .actionGet();
+            logger.info(String.format("Deleted Console : %s", id));
+        } catch (Exception e) {
+            throw new ConsolePersistenceException(id, "console deletion_failed", e);
+        }
+    }
+
+    @Override
+    public void saveV2(ConsoleV2 console) throws FoxtrotException {
+        try {
+            connection.getClient()
+                    .prepareIndex()
+                    .setIndex(INDEX_V2)
+                    .setType(TYPE)
+                    .setId(console.getId())
+                    .setSource(mapper.writeValueAsBytes(console))
+                    .setRefresh(true)
+                    .setConsistencyLevel(WriteConsistencyLevel.ALL)
+                    .execute()
+                    .get();
+            logger.info(String.format("Saved Console : %s", console));
+        } catch (Exception e) {
+            throw new ConsolePersistenceException(console.getId(), "console save failed", e);
+        }
+    }
+
+    @Override
+    public ConsoleV2 getV2(String id) throws FoxtrotException {
+        try {
+            GetResponse result = connection.getClient()
+                    .prepareGet()
+                    .setIndex(INDEX_V2)
+                    .setType(TYPE)
+                    .setId(id)
+                    .execute()
+                    .actionGet();
+            if (!result.isExists()) {
+                return null;
+            }
+            return mapper.readValue(result.getSourceAsBytes(), ConsoleV2.class);
+        } catch (Exception e) {
+            throw new ConsolePersistenceException(id, "console save failed", e);
+        }
+    }
+
+    @Override
+    public List<ConsoleV2> getV2() throws FoxtrotException {
+        SearchResponse response = connection.getClient()
+                .prepareSearch(INDEX_V2)
+                .setTypes(TYPE)
+                .setQuery(boolQuery().must(matchAllQuery()))
+                .addSort(fieldSort("name").order(SortOrder.DESC))
+                .setScroll(new TimeValue(60000))
+                .setSearchType(SearchType.SCAN)
+                .execute()
+                .actionGet();
+        try {
+            Vector<ConsoleV2> results = new Vector<ConsoleV2>();
+            while (true) {
+                response = connection.getClient().prepareSearchScroll(response.getScrollId())
+                        .setScroll(new TimeValue(60000))
+                        .execute()
+                        .actionGet();
+                SearchHits hits = response.getHits();
+                for (SearchHit hit : hits) {
+                    results.add(mapper.readValue(hit.sourceAsString(), ConsoleV2.class));
+                }
+                if (0 == response.getHits().hits().length) {
+                    break;
+                }
+            }
+            return results;
+        } catch (Exception e) {
+            throw new ConsoleFetchException(e);
+        }
+    }
+
+    @Override
+    public void deleteV2(String id) throws FoxtrotException {
+        try {
+            connection.getClient()
+                    .prepareDelete()
+                    .setConsistencyLevel(WriteConsistencyLevel.ALL)
+                    .setRefresh(true)
+                    .setIndex(INDEX_V2)
+                    .setType(TYPE)
+                    .setId(id)
+                    .execute()
+                    .actionGet();
+            logger.info(String.format("Deleted Console : %s", id));
+        } catch (Exception e) {
+            throw new ConsolePersistenceException(id, "console deletion_failed", e);
         }
     }
 }

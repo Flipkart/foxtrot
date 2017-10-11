@@ -23,7 +23,7 @@ import com.flipkart.foxtrot.sql.query.FqlDescribeTable;
 import com.flipkart.foxtrot.sql.query.FqlShowTablesQuery;
 import com.flipkart.foxtrot.sql.util.QueryUtils;
 import com.google.common.collect.Lists;
-import com.yammer.dropwizard.util.Duration;
+import io.dropwizard.util.Duration;
 import net.sf.jsqlparser.expression.*;
 import net.sf.jsqlparser.expression.operators.conditional.AndExpression;
 import net.sf.jsqlparser.expression.operators.relational.*;

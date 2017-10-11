@@ -15,10 +15,10 @@
  */
 package com.flipkart.foxtrot.server.resources;
 
+import com.codahale.metrics.annotation.Timed;
 import com.flipkart.foxtrot.common.Document;
 import com.flipkart.foxtrot.core.exception.FoxtrotException;
 import com.flipkart.foxtrot.core.querystore.QueryStore;
-import com.yammer.metrics.annotation.Timed;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;

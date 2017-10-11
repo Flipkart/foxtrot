@@ -15,6 +15,7 @@
  */
 package com.flipkart.foxtrot.core.datastore.impl.hbase;
 
+import com.codahale.metrics.annotation.Timed;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.flipkart.foxtrot.common.Document;
@@ -27,9 +28,7 @@ import com.flipkart.foxtrot.core.querystore.DocumentTranslator;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
-import com.yammer.metrics.annotation.Timed;
 import org.apache.hadoop.hbase.client.Get;
-import org.apache.hadoop.hbase.client.HTableInterface;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.util.Bytes;
@@ -86,7 +85,7 @@ public class HBaseDataStore implements DataStore {
         if (document == null || document.getData() == null || document.getId() == null) {
             throw FoxtrotExceptions.createBadRequestException(table.getName(), "Invalid Input Document");
         }
-        HTableInterface hTable = null;
+        org.apache.hadoop.hbase.client.Table hTable = null;
         Document translatedDocument = null;
         try {
             translatedDocument = translator.translate(table, document);
@@ -144,7 +143,7 @@ public class HBaseDataStore implements DataStore {
             throw FoxtrotExceptions.createBadRequestException(table.getName(), errorMessages);
         }
 
-        HTableInterface hTable = null;
+        org.apache.hadoop.hbase.client.Table hTable = null;
         try {
             hTable = tableWrapper.getTable(table);
             hTable.put(puts);
@@ -165,7 +164,7 @@ public class HBaseDataStore implements DataStore {
     @Override
     @Timed
     public Document get(final Table table, String id) throws FoxtrotException {
-        HTableInterface hTable = null;
+        org.apache.hadoop.hbase.client.Table hTable = null;
         try {
             Get get = new Get(Bytes.toBytes(translator.rawStorageIdFromDocumentId(table, id)))
                     .addColumn(COLUMN_FAMILY, DOCUMENT_FIELD_NAME)
@@ -204,8 +203,7 @@ public class HBaseDataStore implements DataStore {
         if (ids == null) {
             throw FoxtrotExceptions.createBadRequestException(table.getName(), "Empty ID List");
         }
-
-        HTableInterface hTable = null;
+        org.apache.hadoop.hbase.client.Table hTable = null;
         try {
             List<Get> gets = new ArrayList<>(ids.size());
             for (String id : ids) {
@@ -261,9 +259,9 @@ public class HBaseDataStore implements DataStore {
     @VisibleForTesting
     public Put getPutForDocument(Document document) throws JsonProcessingException {
         return new Put(Bytes.toBytes(document.getMetadata().getRawStorageId()))
-                .add(COLUMN_FAMILY, DOCUMENT_META_FIELD_NAME, mapper.writeValueAsBytes(document.getMetadata()))
-                .add(COLUMN_FAMILY, DOCUMENT_FIELD_NAME, mapper.writeValueAsBytes(document.getData()))
-                .add(COLUMN_FAMILY, TIMESTAMP_FIELD_NAME, Bytes.toBytes(document.getTimestamp()));
+                .addColumn(COLUMN_FAMILY, DOCUMENT_META_FIELD_NAME, mapper.writeValueAsBytes(document.getMetadata()))
+                .addColumn(COLUMN_FAMILY, DOCUMENT_FIELD_NAME, mapper.writeValueAsBytes(document.getData()))
+                .addColumn(COLUMN_FAMILY, TIMESTAMP_FIELD_NAME, Bytes.toBytes(document.getTimestamp()));
     }
 
 }
