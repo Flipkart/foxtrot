@@ -16,6 +16,8 @@
 package com.flipkart.foxtrot.common.group;
 
 import com.flipkart.foxtrot.common.ActionRequest;
+import com.flipkart.foxtrot.common.Opcodes;
+import com.flipkart.foxtrot.common.query.Filter;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
 import java.util.List;
@@ -34,6 +36,14 @@ public class GroupRequest extends ActionRequest {
     private List<String> nesting;
 
     public GroupRequest() {
+        super(Opcodes.GROUP);
+    }
+
+    public GroupRequest(List<Filter> filters, String table, String uniqueCountOn, List<String> nesting) {
+        super(Opcodes.GROUP, filters);
+        this.table = table;
+        this.uniqueCountOn = uniqueCountOn;
+        this.nesting = nesting;
     }
 
     public String getTable() {

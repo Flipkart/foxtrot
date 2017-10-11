@@ -16,6 +16,7 @@
 package com.flipkart.foxtrot.common.distinct;
 
 import com.flipkart.foxtrot.common.ActionResponse;
+import com.flipkart.foxtrot.common.Opcodes;
 import com.flipkart.foxtrot.common.ResponseVisitor;
 
 import java.util.List;
@@ -25,14 +26,16 @@ import java.util.List;
  * Date: 21/03/14
  * Time: 5:07 PM
  */
-public class DistinctResponse implements ActionResponse {
+public class DistinctResponse extends ActionResponse {
     private List<String> headers;
     private List<List<String>> result;
 
     public DistinctResponse() {
+        super(Opcodes.DISTINCT);
     }
 
     public DistinctResponse(List<String> headers, List<List<String>> result) {
+        super(Opcodes.DISTINCT);
         this.headers = headers;
         this.result = result;
     }

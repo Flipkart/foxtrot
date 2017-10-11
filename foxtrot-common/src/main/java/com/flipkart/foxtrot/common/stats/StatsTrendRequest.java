@@ -1,7 +1,9 @@
 package com.flipkart.foxtrot.common.stats;
 
 import com.flipkart.foxtrot.common.ActionRequest;
+import com.flipkart.foxtrot.common.Opcodes;
 import com.flipkart.foxtrot.common.Period;
+import com.flipkart.foxtrot.common.query.Filter;
 import com.flipkart.foxtrot.common.query.FilterCombinerType;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
@@ -25,7 +27,17 @@ public class StatsTrendRequest extends ActionRequest {
     private String timestamp = "_timestamp";
 
     public StatsTrendRequest() {
+        super(Opcodes.STATS_TREND);
+    }
 
+    public StatsTrendRequest(List<Filter> filters, String table, String field, FilterCombinerType combiner, List<String> nesting, Period period, String timestamp) {
+        super(Opcodes.STATS_TREND, filters);
+        this.table = table;
+        this.field = field;
+        this.combiner = combiner;
+        this.nesting = nesting;
+        this.period = period;
+        this.timestamp = timestamp;
     }
 
     public String getTable() {

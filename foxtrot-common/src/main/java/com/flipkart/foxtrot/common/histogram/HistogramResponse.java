@@ -16,6 +16,7 @@
 package com.flipkart.foxtrot.common.histogram;
 
 import com.flipkart.foxtrot.common.ActionResponse;
+import com.flipkart.foxtrot.common.Opcodes;
 import com.flipkart.foxtrot.common.ResponseVisitor;
 
 import java.util.List;
@@ -25,7 +26,7 @@ import java.util.List;
  * Date: 21/03/14
  * Time: 12:14 AM
  */
-public class HistogramResponse implements ActionResponse {
+public class HistogramResponse extends ActionResponse {
 
     public static class Count {
         private Number period;
@@ -86,9 +87,11 @@ public class HistogramResponse implements ActionResponse {
     private List<Count> counts;
 
     public HistogramResponse() {
+        super(Opcodes.HISTOGRAM);
     }
 
     public HistogramResponse(List<Count> counts) {
+        super(Opcodes.HISTOGRAM);
         this.counts = counts;
     }
 

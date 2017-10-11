@@ -45,6 +45,10 @@ public class StatsTrendActionTest extends ActionTest {
         getElasticsearchServer().getClient().admin().indices().prepareRefresh("*").setForce(true).execute().actionGet();
     }
 
+    private void filterNonZeroCounts(StatsTrendResponse statsTrendResponse) {
+        statsTrendResponse.getResult().removeIf(statsTrendValue -> statsTrendValue.getStats().get("count").equals(0L));
+    }
+
     @Test
     public void testStatsTrendActionWithoutNesting() throws FoxtrotException, JsonProcessingException {
         StatsTrendRequest request = new StatsTrendRequest();
@@ -60,6 +64,7 @@ public class StatsTrendActionTest extends ActionTest {
         request.setFilters(Collections.<Filter>singletonList(betweenFilter));
 
         StatsTrendResponse statsTrendResponse = StatsTrendResponse.class.cast(getQueryExecutor().execute(request));
+        filterNonZeroCounts(statsTrendResponse);
         assertNotNull(statsTrendResponse);
         assertNotNull(statsTrendResponse.getResult());
         assertEquals(5, statsTrendResponse.getResult().size());

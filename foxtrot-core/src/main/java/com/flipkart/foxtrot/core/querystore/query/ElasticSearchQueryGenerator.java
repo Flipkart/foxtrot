@@ -46,7 +46,7 @@ public class ElasticSearchQueryGenerator extends FilterVisitor {
         addFilter(FilterBuilders.rangeFilter(betweenFilter.getField())
                 .from(betweenFilter.getFrom())
                 .to(betweenFilter.getTo())
-                .cache(!betweenFilter.isTemporal()));
+                .cache(!betweenFilter.isFilterTemporal()));
     }
 
     @Override
@@ -75,7 +75,7 @@ public class ElasticSearchQueryGenerator extends FilterVisitor {
         addFilter(
                 FilterBuilders.rangeFilter(greaterThanFilter.getField())
                         .gt(greaterThanFilter.getValue())
-                        .cache(!greaterThanFilter.isTemporal()));
+                        .cache(!greaterThanFilter.isFilterTemporal()));
     }
 
     @Override
@@ -83,7 +83,7 @@ public class ElasticSearchQueryGenerator extends FilterVisitor {
         addFilter(
                 FilterBuilders.rangeFilter(greaterEqualFilter.getField())
                         .gte(greaterEqualFilter.getValue())
-                        .cache(!greaterEqualFilter.isTemporal()));
+                        .cache(!greaterEqualFilter.isFilterTemporal()));
     }
 
     @Override
@@ -91,7 +91,7 @@ public class ElasticSearchQueryGenerator extends FilterVisitor {
         addFilter(
                 FilterBuilders.rangeFilter(lessThanFilter.getField())
                         .lt(lessThanFilter.getValue())
-                        .cache(!lessThanFilter.isTemporal()));
+                        .cache(!lessThanFilter.isFilterTemporal()));
 
     }
 
@@ -100,7 +100,7 @@ public class ElasticSearchQueryGenerator extends FilterVisitor {
         addFilter(
                 FilterBuilders.rangeFilter(lessEqualFilter.getField())
                         .lte(lessEqualFilter.getValue())
-                        .cache(!lessEqualFilter.isTemporal()));
+                        .cache(!lessEqualFilter.isFilterTemporal()));
 
     }
 
@@ -113,6 +113,12 @@ public class ElasticSearchQueryGenerator extends FilterVisitor {
     public void visit(InFilter inFilter) throws Exception {
         addFilter(
                 FilterBuilders.inFilter(inFilter.getField(), inFilter.getValues()));
+    }
+
+    @Override
+    public void visit(NotInFilter notInFilter) throws Exception {
+        addFilter(
+                FilterBuilders.notFilter(FilterBuilders.inFilter(notInFilter.getField(), notInFilter.getValues())));
     }
 
     @Override

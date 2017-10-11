@@ -16,8 +16,12 @@
 package com.flipkart.foxtrot.common.histogram;
 
 import com.flipkart.foxtrot.common.ActionRequest;
+import com.flipkart.foxtrot.common.Opcodes;
 import com.flipkart.foxtrot.common.Period;
+import com.flipkart.foxtrot.common.query.Filter;
 import org.apache.commons.lang3.builder.ToStringBuilder;
+
+import java.util.List;
 
 /**
  * User: Santanu Sinha (santanu.sinha@flipkart.com)
@@ -35,8 +39,17 @@ public class HistogramRequest extends ActionRequest {
     private Period period;
 
     public HistogramRequest() {
+        super(Opcodes.HISTOGRAM);
         this.field = "_timestamp";
         this.period = Period.minutes;
+    }
+
+    public HistogramRequest(List<Filter> filters, String table, String field, String uniqueCountOn, Period period) {
+        super(Opcodes.HISTOGRAM, filters);
+        this.table = table;
+        this.field = field;
+        this.uniqueCountOn = uniqueCountOn;
+        this.period = period;
     }
 
     public String getTable() {
