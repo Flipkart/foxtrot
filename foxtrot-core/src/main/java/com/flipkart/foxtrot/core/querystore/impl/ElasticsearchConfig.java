@@ -63,5 +63,4 @@ public class ElasticsearchConfig {
     public void setTableNamePrefix(String tableNamePrefix) {
         this.tableNamePrefix = tableNamePrefix;
     }
-
 }

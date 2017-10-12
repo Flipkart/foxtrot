@@ -11,7 +11,6 @@ elasticsearch:
   - localhost
   cluster: foxtrot
   tableNamePrefix: foxtrot
-  
 
 hbase:
   secure : false

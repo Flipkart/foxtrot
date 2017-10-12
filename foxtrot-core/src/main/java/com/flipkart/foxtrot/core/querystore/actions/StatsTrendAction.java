@@ -42,7 +42,6 @@ import org.joda.time.DateTime;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Created by rishabh.goyal on 02/08/14.
@@ -135,8 +134,8 @@ public class StatsTrendAction extends Action<StatsTrendRequest> {
         }
 
         try {
-            SearchResponse searchResponse = searchRequestBuilder.execute().actionGet();
-            Aggregations aggregations = searchResponse.getAggregations();
+            SearchResponse response = searchRequestBuilder.execute().actionGet();
+            Aggregations aggregations = response.getAggregations();
             if (aggregations != null) {
                 return buildResponse(parameter, aggregations);
             }

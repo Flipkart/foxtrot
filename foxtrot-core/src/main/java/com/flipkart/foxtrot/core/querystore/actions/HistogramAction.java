@@ -139,8 +139,8 @@ public class HistogramAction extends Action<HistogramRequest> {
         }
 
         try {
-            SearchResponse searchResponse = searchRequestBuilder.execute().actionGet();
-            Aggregations aggregations = searchResponse.getAggregations();
+            SearchResponse response = searchRequestBuilder.execute().actionGet();
+            Aggregations aggregations = response.getAggregations();
             return buildResponse(aggregations);
         } catch (ElasticsearchException e) {
             throw FoxtrotExceptions.createQueryExecutionException(parameter, e);

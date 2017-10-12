@@ -27,7 +27,6 @@ import org.elasticsearch.search.aggregations.metrics.cardinality.Cardinality;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Created by rishabh.goyal on 02/11/14.
@@ -130,7 +129,7 @@ public class CountAction extends Action<CountRequest> {
                 throw FoxtrotExceptions.queryCreationException(parameter, e);
             }
             try {
-                    return new CountResponse(requestBuilder.execute().actionGet().getHits().getTotalHits());
+                return new CountResponse(requestBuilder.execute().actionGet().getHits().getTotalHits());
             } catch (ElasticsearchException e) {
                 throw FoxtrotExceptions.createQueryExecutionException(parameter, e);
             }
