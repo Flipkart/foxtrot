@@ -15,7 +15,6 @@
  */
 package com.flipkart.foxtrot.core;
 
-import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConfig;
 import org.apache.commons.io.FileUtils;
 import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;
 import org.elasticsearch.action.admin.indices.refresh.RefreshRequest;
@@ -35,7 +34,6 @@ import static org.elasticsearch.node.NodeBuilder.nodeBuilder;
 
 public class MockElasticsearchServer {
     private final Node node;
-    private ElasticsearchConfig elasticsearchConfig;
     private String DATA_DIRECTORY = UUID.randomUUID().toString() + "/elasticsearch-data";
 
     public MockElasticsearchServer(String directory) {
@@ -49,7 +47,6 @@ public class MockElasticsearchServer {
                 .local(true)
                 .settings(settings)
                 .node();
-        elasticsearchConfig = new ElasticsearchConfig();
     }
 
     public void refresh(final String index) {
@@ -58,10 +55,6 @@ public class MockElasticsearchServer {
 
     public Client getClient() {
         return node.client();
-    }
-
-    public ElasticsearchConfig getElasticsearchConfig() {
-        return elasticsearchConfig;
     }
 
     public void shutdown() throws IOException {

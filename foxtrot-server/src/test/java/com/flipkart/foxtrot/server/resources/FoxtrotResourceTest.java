@@ -110,7 +110,6 @@ public abstract class FoxtrotResourceTest {
         elasticsearchServer = new MockElasticsearchServer(UUID.randomUUID().toString());
         ElasticsearchConnection elasticsearchConnection = Mockito.mock(ElasticsearchConnection.class);
         when(elasticsearchConnection.getClient()).thenReturn(elasticsearchServer.getClient());
-        doReturn(elasticsearchServer.getElasticsearchConfig()).when(elasticsearchConnection).getConfig();
         ElasticsearchUtils.initializeMappings(elasticsearchServer.getClient());
 
         Settings indexSettings = Settings.builder().put("number_of_replicas", 0).build();

@@ -239,21 +239,4 @@ public abstract class Action<ParameterType extends ActionRequest> implements Cal
         return filters;
     }
 
-    public boolean isCountQueryTimeBounded() {
-        return getConnection().getConfig().getCountQueryTimeout()>0;
     }
-
-    public boolean isFetchQueryTimeBounded() {
-        return getConnection().getConfig().getFetchQueryTimeout()>0;
-    }
-
-    public long getCountQueryTimeout() {
-        return getConnection().getConfig().getCountQueryTimeout();
-    }
-
-    public long getFetchQueryTimeout() {
-        return getConnection().getConfig().getFetchQueryTimeout();
-    }
-
-
-}

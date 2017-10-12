@@ -11,9 +11,7 @@ elasticsearch:
   - localhost
   cluster: foxtrot
   tableNamePrefix: foxtrot
-  countQueryTimeout: 10
-  fetchQueryTimeout: 10
-
+  
 
 hbase:
   secure : false

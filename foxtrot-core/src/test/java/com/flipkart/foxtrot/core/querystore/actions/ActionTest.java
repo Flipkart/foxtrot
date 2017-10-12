@@ -49,7 +49,6 @@ public class ActionTest {
         elasticsearchServer = spy(elasticsearchServer);
         this.elasticsearchConnection = Mockito.mock(ElasticsearchConnection.class);
         doReturn(elasticsearchServer.getClient()).when(elasticsearchConnection).getClient();
-        doReturn(elasticsearchServer.getElasticsearchConfig()).when(elasticsearchConnection).getConfig();
         ElasticsearchUtils.initializeMappings(elasticsearchServer.getClient());
 
         TableMetadataManager tableMetadataManager = Mockito.mock(TableMetadataManager.class);

@@ -37,10 +37,6 @@ public class ElasticsearchConfig {
     private String cluster;
     private String tableNamePrefix = "foxtrot";
 
-    private long countQueryTimeout;
-    private long fetchQueryTimeout;
-
-
     public ElasticsearchConfig() {
     }
 
@@ -68,11 +64,4 @@ public class ElasticsearchConfig {
         this.tableNamePrefix = tableNamePrefix;
     }
 
-    public long getCountQueryTimeout() {
-        return countQueryTimeout;
-    }
-
-    public long getFetchQueryTimeout() {
-        return fetchQueryTimeout;
-    }
 }

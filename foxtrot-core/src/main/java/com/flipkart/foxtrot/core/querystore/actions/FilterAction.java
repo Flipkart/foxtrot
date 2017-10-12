@@ -135,12 +135,7 @@ public class FilterAction extends Action<Query> {
         }
         try {
             logger.info("Search: {}", search);
-            SearchResponse response;
-            if(isFetchQueryTimeBounded()) {
-                response = search.execute().actionGet(getFetchQueryTimeout(), TimeUnit.SECONDS);
-            } else {
-                response = search.execute().actionGet();
-            }
+            SearchResponse response = search.execute().actionGet();
             List<String> ids = new ArrayList<>();
             SearchHits searchHits = response.getHits();
             for (SearchHit searchHit : searchHits) {
