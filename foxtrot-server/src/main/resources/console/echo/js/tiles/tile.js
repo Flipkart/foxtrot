@@ -126,6 +126,8 @@ function setConfigValue(object) { // set widget form values
   setTimeout(function(){
     if (currentChartType == "gauge") {
       setGaugeChartFormValues(object);
+    }else if (currentChartType == "percentageGauge") {
+      setPercentageGaugeChartFormValues(object);
     }
     else if (currentChartType == "line") {
       setLineChartFormValues(object);
@@ -213,7 +215,7 @@ function upRow(ob) { // row moved up
 
     $(e.find('.tile')).each(function( index ) {
       console.log(index + ": " + $( this).attr('id'));
-      var tileId = $( this).attr('id');
+      var tileId = $( this).agattr('id');
       var newId = row - 1;
       tileData[tileId].tileContext.row = newId;//change new row number -1
       movedArray.push(tileId);
@@ -438,6 +440,9 @@ TileFactory.prototype.createGraph = function (object, tileElement) { // get quer
   }
   else if (object.tileContext.chartType == "gauge") {
     var gaugeGraph = new GaugeTile();
+    gaugeGraph.getQuery(object);
+  }else if (object.tileContext.chartType == "percentageGauge") {
+    var gaugeGraph = new PercentageGaugeTile();
     gaugeGraph.getQuery(object);
   }
   else if (object.tileContext.chartType == "stacked") {
