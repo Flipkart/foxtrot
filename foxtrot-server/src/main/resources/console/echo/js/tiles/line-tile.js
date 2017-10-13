@@ -23,7 +23,6 @@ function getLineChartFormValues() {
   var timeframe = $("#line-timeframe").val();
   var ignoreDigits = $(".line-ignored-digits").val();
 
-  console.log(uniqueCount);
   if(uniqueCount == "none" || uniqueCount == "" || uniqueCount == null) {
     uniqueCount = null;
   } else {
@@ -51,14 +50,8 @@ function setLineChartFormValues(object) {
 }
 
 function clearLineChartForm() {
-  var parentElement = $("#" + currentChartType + "-chart-data");
-  var timeUnitEl = parentElement.find("#tile-time-unit");
-  timeUnitEl.find('option:eq(0)').prop('selected', true);
-  $(timeUnitEl).selectpicker('refresh');
-  var uniqeKey = parentElement.find("#uniqueKey");
-  uniqeKey.find('option:eq(0)').prop('selected', true);
-  $(uniqeKey).selectpicker('refresh');
-  parentElement.find("#line-timeframe").val('');
+  $('.lineForm')[0].reset();
+  $(".lineForm").find('.selectpicker').selectpicker('refresh');
 }
 LineTile.prototype.getQuery = function (object) {
   this.object = object;

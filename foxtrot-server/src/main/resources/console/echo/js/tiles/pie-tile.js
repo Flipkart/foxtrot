@@ -61,21 +61,10 @@ function setPieChartFormValues(object) {
 }
 
 function clearPieChartForm() {
-  var parentElement = $("#" + currentChartType + "-chart-data");
-  var timeUnitEl = parentElement.find("#pie-time-unit");
-  timeUnitEl.find('option:eq(0)').prop('selected', true);
-  $(timeUnitEl).selectpicker('refresh');
-  var timeframe = parentElement.find("#pie-timeframe");
-  timeframe.val('');
-  var stackingKey = parentElement.find("#eventtype-field");
-  stackingKey.find('option:eq(0)').prop('selected', true);
-  $(stackingKey).selectpicker('refresh');
-  var stackingBarUniqueKey = parentElement.find("#pie-uniquekey");
-  stackingBarUniqueKey.find('option:eq(0)').prop('selected', true);
-  $(stackingBarUniqueKey).selectpicker('refresh');
-  $(".pie-ignored-digits").val(0);
-  $("#bar-selected-value").val('');
+  $('.pieForm')[0].reset();
+  $(".pieForm").find('.selectpicker').selectpicker('refresh');
 }
+
 PieTile.prototype.getQuery = function (object) {
   this.object = object;
   var filters = [];

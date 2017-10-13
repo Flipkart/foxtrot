@@ -60,20 +60,10 @@ function setStackedBarChartFormValues(object) {
 }
 
 function clearStackedBarChartForm() {
-  var parentElement = $("#" + currentChartType + "-chart-data");
-  var timeUnitEl = parentElement.find("#stacked-bar-time-unit");
-  timeUnitEl.find('option:eq(0)').prop('selected', true);
-  $(timeUnitEl).selectpicker('refresh');
-  var timeframe = parentElement.find("#stacked-bar-timeframe");
-  timeframe.val('');
-  var stackingKey = parentElement.find("#stacked-bar-field");
-  stackingKey.find('option:eq(0)').prop('selected', true);
-  $(stackingKey).selectpicker('refresh');
-  var stackingBarUniqueKey = parentElement.find("#stacked-bar-uniquekey");
-  stackingBarUniqueKey.find('option:eq(0)').prop('selected', true);
-  $(stackingBarUniqueKey).selectpicker('refresh');
-  $(".stackedBar-ignored-digits").val(0);
+  $('.stackedBarForm')[0].reset();
+  $(".stackedBarForm").find('.selectpicker').selectpicker('refresh');
 }
+
 StackedBarTile.prototype.getQuery = function (object) {
   this.object = object;
   var filters = [];
