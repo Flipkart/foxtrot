@@ -142,12 +142,7 @@ public class DistinctAction extends Action<DistinctRequest> {
         }
 
         try {
-            SearchResponse response;
-            if(isCountQueryTimeBounded()) {
-                response = query.execute().actionGet(getCountQueryTimeout(), TimeUnit.SECONDS);
-            } else {
-                response = query.execute().actionGet();
-            }
+            SearchResponse response = query.execute().actionGet(getCountQueryTimeout(), TimeUnit.MILLISECONDS);
             Aggregations aggregations = response.getAggregations();
             // Check if any aggregation is present or not
             if (aggregations == null) {

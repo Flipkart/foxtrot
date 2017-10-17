@@ -141,12 +141,7 @@ public class GroupAction extends Action<GroupRequest> {
             throw FoxtrotExceptions.queryCreationException(parameter, e);
         }
         try {
-            SearchResponse response;
-            if(isCountQueryTimeBounded()) {
-                response = query.execute().actionGet(getCountQueryTimeout(), TimeUnit.SECONDS);
-            } else {
-                response = query.execute().actionGet();
-            }
+            SearchResponse response = query.execute().actionGet(getCountQueryTimeout(), TimeUnit.MILLISECONDS);
             List<String> fields = parameter.getNesting();
             Aggregations aggregations = response.getAggregations();
             // Check if any aggregation is present or not

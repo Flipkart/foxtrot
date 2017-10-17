@@ -144,12 +144,7 @@ public class StatsAction extends Action<StatsRequest> {
             throw FoxtrotExceptions.queryCreationException(parameter, e);
         }
         try {
-            Aggregations aggregations;
-            if(isCountQueryTimeBounded()) {
-                aggregations = searchRequestBuilder.execute().actionGet(getCountQueryTimeout(), TimeUnit.SECONDS).getAggregations();
-            } else {
-                aggregations = searchRequestBuilder.execute().actionGet().getAggregations();
-            }
+            Aggregations aggregations = searchRequestBuilder.execute().actionGet(getCountQueryTimeout(), TimeUnit.MILLISECONDS).getAggregations();
             if (aggregations != null) {
                 return buildResponse(parameter, aggregations);
             }

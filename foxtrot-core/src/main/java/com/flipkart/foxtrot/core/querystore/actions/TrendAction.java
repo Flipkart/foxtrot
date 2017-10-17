@@ -159,12 +159,7 @@ public class TrendAction extends Action<TrendRequest> {
             throw FoxtrotExceptions.queryCreationException(parameter, e);
         }
         try {
-            SearchResponse searchResponse;
-            if(isCountQueryTimeBounded()) {
-                searchResponse = searchRequestBuilder.execute().actionGet(getCountQueryTimeout(), TimeUnit.SECONDS);
-            } else {
-                searchResponse = searchRequestBuilder.execute().actionGet();
-            }
+            SearchResponse searchResponse = searchRequestBuilder.execute().actionGet(getCountQueryTimeout(), TimeUnit.MILLISECONDS);
             Aggregations aggregations = searchResponse.getAggregations();
             if (aggregations != null) {
                 return buildResponse(parameter, aggregations);
