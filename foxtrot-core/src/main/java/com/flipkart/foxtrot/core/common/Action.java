@@ -28,6 +28,7 @@ import com.flipkart.foxtrot.core.exception.FoxtrotException;
 import com.flipkart.foxtrot.core.exception.FoxtrotExceptions;
 import com.flipkart.foxtrot.core.exception.MalformedQueryException;
 import com.flipkart.foxtrot.core.querystore.QueryStore;
+import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConfig;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConnection;
 import com.flipkart.foxtrot.core.table.TableMetadataManager;
 import com.flipkart.foxtrot.core.util.MetricUtil;
@@ -241,13 +242,11 @@ public abstract class Action<ParameterType extends ActionRequest> implements Cal
     }
 
     public long getCountQueryTimeout() {
-        long queryTimeout = getConnection().getConfig().getCountQueryTimeout();
-        return (queryTimeout==0)?DEFAULT_TIMEOUT:queryTimeout;
+        return (getConnection().getConfig().getCountQueryTimeout()==0)?DEFAULT_TIMEOUT:getConnection().getConfig().getCountQueryTimeout();
     }
 
     public long getFetchQueryTimeout() {
-        long fetchTimeout = getConnection().getConfig().getFetchQueryTimeout();
-        return (fetchTimeout==0)?DEFAULT_TIMEOUT:fetchTimeout;
+        return (getConnection().getConfig().getFetchQueryTimeout()==0)?DEFAULT_TIMEOUT:getConnection().getConfig().getFetchQueryTimeout();
     }
 
 
