@@ -215,7 +215,7 @@ function upRow(ob) { // row moved up
 
     $(e.find('.tile')).each(function( index ) {
       console.log(index + ": " + $( this).attr('id'));
-      var tileId = $( this).agattr('id');
+      var tileId = $( this).attr('id');
       var newId = row - 1;
       tileData[tileId].tileContext.row = newId;//change new row number -1
       movedArray.push(tileId);
