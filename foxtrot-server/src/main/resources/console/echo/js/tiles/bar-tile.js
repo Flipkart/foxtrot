@@ -59,20 +59,10 @@ function setBarChartFormValues(object) {
 }
 
 function clearBarChartForm() {
-  var parentElement = $("#" + currentChartType + "-chart-data");
-  var timeUnitEl = parentElement.find("#bar-time-unit");
-  timeUnitEl.find('option:eq(0)').prop('selected', true);
-  $(timeUnitEl).selectpicker('refresh');
-  var timeframe = parentElement.find("#bar-timeframe");
-  timeframe.val('');
-  var groupingKey = parentElement.find("#bar-event-field");
-  groupingKey.find('option:eq(0)').prop('selected', true);
-  $(groupingKey).selectpicker('refresh');
-  var stackingBarUniqueKey = parentElement.find("#bar-uniquekey");
-  stackingBarUniqueKey.find('option:eq(0)').prop('selected', true);
-  $(stackingBarUniqueKey).selectpicker('refresh');
-  $(".bar-selected-value").val('');
+  $('.barForm')[0].reset();
+  $(".barForm").find('.selectpicker').selectpicker('refresh');
 }
+
 BarTile.prototype.getQuery = function (object) {
   this.object = object;
   var filters = [];

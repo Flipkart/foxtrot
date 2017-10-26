@@ -34,22 +34,8 @@ function getStatsTrendTileChartFormValues() {
 }
 
 function clearStatsTrendTileChartForm() {
-  var parentElement = $("#"+currentChartType+"-chart-data");
-
-  var timeUnitEl = parentElement.find("#stats-trend-time-unit");
-  timeUnitEl.find('option:eq(0)').prop('selected', true);
-  $(timeUnitEl).selectpicker('refresh');
-
-  var statsFieldEl = parentElement.find("#stats-trend-field");
-  statsFieldEl.find('option:eq(0)').prop('selected', true);
-  $(statsFieldEl).selectpicker('refresh');
-
-  var statsToPlot = parentElement.find("#stats-trend-statics-to-plot");
-  $("#stats-trend-statics-to-plot option:selected").prop("selected", false);
-  $(statsToPlot).selectpicker('refresh');
-
-  parentElement.find("#stats-trend-timeframe").val('');
-  parentElement.find(".stats-trend-ignored-digits").val(0);
+  $('.statsTrendForm')[0].reset();
+  $(".statsTrendForm").find('.selectpicker').selectpicker('refresh');
 }
 
 function setStatsTrendTileChartFormValues(object) {

@@ -46,20 +46,8 @@ function getCountChartFormValues() {
 }
 
 function clearCountChartForm() {
-  var parentElement = $("#"+currentChartType+"-chart-data");
-
-  var timeUnitEl = parentElement.find("#count-time-unit");
-  timeUnitEl.find('option:eq(0)').prop('selected', true);
-  $(timeUnitEl).selectpicker('refresh');
-
-  var statsFieldEl = parentElement.find("#count-field");
-  statsFieldEl.find('option:eq(0)').prop('selected', true);
-  $(statsFieldEl).selectpicker('refresh');
-
-  parentElement.find("#count-timeframe").val('');
-  parentElement.find(".count-ignored-digits").val(0);
-  parentElement.find("#count-distinct").attr('checked', false); // Unchecks it
-
+  $('.countForm')[0].reset();
+  $(".countForm").find('.selectpicker').selectpicker('refresh');
 }
 
 function setCountChartFormValues(object) {

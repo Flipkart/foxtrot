@@ -42,12 +42,8 @@ function setRadarChartFormValues(object) {
 }
 
 function clearRadarChartForm() {
-  var parentElement = $("#" + currentChartType + "-chart-data");
-  $("#radar-periodValue").val('');
-  var timeUnitEl = parentElement.find("#radar-time-unit");
-  timeUnitEl.find('option:eq(0)').prop('selected', true);
-  $(timeUnitEl).selectpicker('refresh');
-  $("#radar-timeframe").val('');
+  $('.radarForm')[0].reset();
+  $(".radarForm").find('.selectpicker').selectpicker('refresh');
 }
 RadarTile.prototype.getQuery = function (object) {
   this.object = object;

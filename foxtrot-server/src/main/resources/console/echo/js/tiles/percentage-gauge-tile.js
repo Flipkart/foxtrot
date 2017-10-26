@@ -53,19 +53,8 @@ function setPercentageGaugeChartFormValues(object) {
 }
 
 function clearPercentageGaugeChartForm() {
-  var parentElement = $("#" + currentChartType + "-chart-data");
-  var nestingEl = parentElement.find("#percentage-gauge-nesting");
-  nestingEl.find('option:eq(0)').prop('selected', true);
-  $(nestingEl).selectpicker('refresh');
-
-  $("#percentage-gauge-numerator-field").val('');
-  $("#percentage-gauge-denominator-field").val('');
-
-  var timeUnitEl = parentElement.find("#percentage-gauge-time-unit");
-  timeUnitEl.find('option:eq(0)').prop('selected', true);
-  $(timeUnitEl).selectpicker('refresh');
-
-  parentElement.find("#percentage-gauge-timeframe").val('');
+  $('.percentageGaugeForm')[0].reset();
+  $(".percentageGaugeForm").find('.selectpicker').selectpicker('refresh');
 }
 PercentageGaugeTile.prototype.getQuery = function (object) {
   this.object = object;

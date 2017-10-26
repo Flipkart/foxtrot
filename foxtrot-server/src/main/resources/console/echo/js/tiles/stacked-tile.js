@@ -61,21 +61,8 @@ function setStackedChartFormValues(object) {
 }
 
 function clearstackedChartForm() {
-  var parentElement = $("#" + currentChartType + "-chart-data");
-  var timeUnitEl = parentElement.find("#stacked-time-unit");
-  timeUnitEl.find('option:eq(0)').prop('selected', true);
-  $(timeUnitEl).selectpicker('refresh');
-  var timeframe = parentElement.find("#stacked-timeframe");
-  timeframe.val('');
-  var groupingKey = parentElement.find("#stacked-grouping-key");
-  groupingKey.find('option:eq(0)').prop('selected', true);
-  $(groupingKey).selectpicker('refresh');
-  var stackingKey = parentElement.find("#stacking-key");
-  stackingKey.find('option:eq(0)').prop('selected', true);
-  $(stackingKey).selectpicker('refresh');
-  var stackingBarUniqueKey = parentElement.find("#stacked-uniquekey");
-  stackingBarUniqueKey.find('option:eq(0)').prop('selected', true);
-  $(stackingBarUniqueKey).selectpicker('refresh');
+  $('.stackedForm')[0].reset();
+  $(".stackedForm").find('.selectpicker').selectpicker('refresh');
 }
 StackedTile.prototype.getQuery = function (object) {
   this.object = object;
