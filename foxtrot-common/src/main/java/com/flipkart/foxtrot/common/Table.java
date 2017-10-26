@@ -40,6 +40,9 @@ public class Table implements Serializable {
     @Max(180)
     private int ttl;
 
+    @Min(1)
+    private int documentTimeToLiveInSecs = Integer.MAX_VALUE;
+
     private boolean seggregatedBackend = false;
 
     public Table() {
@@ -72,12 +75,20 @@ public class Table implements Serializable {
         this.ttl = ttl;
     }
 
+    public int getDocumentTtlInSecs() {
+        return documentTimeToLiveInSecs;
+    }
+
+    public void setDocumentTtlInSecs(int documentTimeToLiveInSecs) {
+        this.documentTimeToLiveInSecs = documentTimeToLiveInSecs;
+    }
 
     @Override
     public String toString() {
         return new ToStringBuilder(this)
                 .append("name", name)
                 .append("ttl", ttl)
+                .append("documentTtlInSecs", documentTimeToLiveInSecs)
                 .append("seggregatedBackend", seggregatedBackend)
                 .toString();
     }

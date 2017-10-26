@@ -90,7 +90,9 @@ public class HBaseDataStore implements DataStore {
         try {
             translatedDocument = translator.translate(table, document);
             hTable = tableWrapper.getTable(table);
-            hTable.put(getPutForDocument(translatedDocument));
+            Put put = getPutForDocument(translatedDocument);
+            put.setTTL(table.getDocumentTtlInSecs() * 1000L);
+            hTable.put(put);
         } catch (JsonProcessingException e) {
             throw FoxtrotExceptions.createBadRequestException(table, e);
         } catch (IOException e) {
@@ -133,7 +135,9 @@ public class HBaseDataStore implements DataStore {
                     continue;
                 }
                 Document translatedDocument = translator.translate(table, document);
-                puts.add(getPutForDocument(translatedDocument));
+                Put put = getPutForDocument(translatedDocument);
+                put.setTTL(table.getDocumentTtlInSecs() * 1000L);
+                puts.add(put);
                 translatedDocuments.add(translatedDocument);
             }
         } catch (JsonProcessingException e) {
