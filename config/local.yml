@@ -14,7 +14,6 @@ elasticsearch:
   countQueryTimeout: 10000
   fetchQueryTimeout: 10000
 
-
 hbase:
   secure : false
   tableName: foxtrot
