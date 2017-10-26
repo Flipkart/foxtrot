@@ -28,6 +28,7 @@ import com.flipkart.foxtrot.core.exception.FoxtrotException;
 import com.flipkart.foxtrot.core.exception.FoxtrotExceptions;
 import com.flipkart.foxtrot.core.exception.MalformedQueryException;
 import com.flipkart.foxtrot.core.querystore.QueryStore;
+import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConfig;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConnection;
 import com.flipkart.foxtrot.core.table.TableMetadataManager;
 import com.flipkart.foxtrot.core.util.MetricUtil;
@@ -239,4 +240,11 @@ public abstract class Action<ParameterType extends ActionRequest> implements Cal
         return filters;
     }
 
+    public long getCountQueryTimeout() {
+        return (getConnection().getConfig().getCountQueryTimeout());
+    }
+
+    public long getFetchQueryTimeout() {
+        return (getConnection().getConfig().getFetchQueryTimeout());
+    }
 }

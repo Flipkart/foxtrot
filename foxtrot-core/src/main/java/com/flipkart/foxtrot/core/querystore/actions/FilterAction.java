@@ -43,6 +43,7 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 /**
  * User: Santanu Sinha (santanu.sinha@flipkart.com)
@@ -134,7 +135,7 @@ public class FilterAction extends Action<Query> {
         }
         try {
             logger.info("Search: {}", search);
-            SearchResponse response = search.execute().actionGet();
+            SearchResponse response = search.execute().actionGet(getFetchQueryTimeout(), TimeUnit.MILLISECONDS);
             List<String> ids = new ArrayList<>();
             SearchHits searchHits = response.getHits();
             for (SearchHit searchHit : searchHits) {

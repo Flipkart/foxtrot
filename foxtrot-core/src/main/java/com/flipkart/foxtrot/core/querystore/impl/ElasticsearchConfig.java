@@ -36,6 +36,13 @@ public class ElasticsearchConfig {
     @JsonProperty
     private String cluster;
     private String tableNamePrefix = "foxtrot";
+    private static final long DEFAULT_TIMEOUT = 300000L;
+
+
+    private long countQueryTimeout;
+    private long fetchQueryTimeout;
+
+
 
     public ElasticsearchConfig() {
     }
@@ -62,5 +69,13 @@ public class ElasticsearchConfig {
 
     public void setTableNamePrefix(String tableNamePrefix) {
         this.tableNamePrefix = tableNamePrefix;
+    }
+
+    public long getCountQueryTimeout() {
+        return countQueryTimeout>0?countQueryTimeout:DEFAULT_TIMEOUT;
+    }
+
+    public long getFetchQueryTimeout() {
+        return fetchQueryTimeout>0?fetchQueryTimeout:DEFAULT_TIMEOUT;
     }
 }

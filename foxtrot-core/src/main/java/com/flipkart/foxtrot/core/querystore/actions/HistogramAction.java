@@ -50,6 +50,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 /**
  * User: Santanu Sinha (santanu.sinha@flipkart.com)
@@ -138,8 +139,8 @@ public class HistogramAction extends Action<HistogramRequest> {
         }
 
         try {
-            SearchResponse response = searchRequestBuilder.execute().actionGet();
-            Aggregations aggregations = response.getAggregations();
+            SearchResponse searchResponse = searchRequestBuilder.execute().actionGet(getCountQueryTimeout(), TimeUnit.MILLISECONDS);
+            Aggregations aggregations = searchResponse.getAggregations();
             return buildResponse(aggregations);
         } catch (ElasticsearchException e) {
             throw FoxtrotExceptions.createQueryExecutionException(parameter, e);
