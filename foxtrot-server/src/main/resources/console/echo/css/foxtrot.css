@@ -3174,3 +3174,11 @@ div.tab button:first-child {
   border-width: 6px;
   margin-left: -6px;
 }
+
+.dropdown-menu {
+  margin-top: 5px !important;
+}
+
+.dropdown-menu .inner {
+  margin-top: 0px !important;
+}
