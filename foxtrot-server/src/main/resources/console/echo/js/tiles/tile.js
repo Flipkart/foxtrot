@@ -123,41 +123,39 @@ TileFactory.prototype.getTileFormValue = function (form, modal, object) {
 }
 
 function setConfigValue(object) { // set widget form values
-  setTimeout(function(){
-    if (currentChartType == "gauge") {
-      setGaugeChartFormValues(object);
-    }else if (currentChartType == "percentageGauge") {
-      setPercentageGaugeChartFormValues(object);
-    }
-    else if (currentChartType == "line") {
-      setLineChartFormValues(object);
-    }
-    else if (currentChartType == "trend") {
-      setTrendChartFormValues(object);
-    }
-    else if (currentChartType == "stacked") {
-      setStackedChartFormValues(object);
-    }
-    else if (currentChartType == "radar") {
-      setRadarChartFormValues(object);
-    }
-    else if (currentChartType == "stackedBar") {
-      setStackedBarChartFormValues(object);
-    }
-    else if (currentChartType == "pie") {
-      setPieChartFormValues(object);
-    }
-    else if (currentChartType == "statsTrend") {
-      setStatsTrendTileChartFormValues(object);
-    }
-    else if (currentChartType == "bar") {
-      setBarChartFormValues(object);
-    }
-    else if (currentChartType == "count") {
-      setCountChartFormValues(object);
-    }
-  }, 1000);
-
+  if (currentChartType == "gauge") {
+    setGaugeChartFormValues(object);
+  }
+  else if (currentChartType == "percentageGauge") {
+    setPercentageGaugeChartFormValues(object);
+  }
+  else if (currentChartType == "line") {
+    setLineChartFormValues(object);
+  }
+  else if (currentChartType == "trend") {
+    setTrendChartFormValues(object);
+  }
+  else if (currentChartType == "stacked") {
+    setStackedChartFormValues(object);
+  }
+  else if (currentChartType == "radar") {
+    setRadarChartFormValues(object);
+  }
+  else if (currentChartType == "stackedBar") {
+    setStackedBarChartFormValues(object);
+  }
+  else if (currentChartType == "pie") {
+    setPieChartFormValues(object);
+  }
+  else if (currentChartType == "statsTrend") {
+    setStatsTrendTileChartFormValues(object);
+  }
+  else if (currentChartType == "bar") {
+    setBarChartFormValues(object);
+  }
+  else if (currentChartType == "count") {
+    setCountChartFormValues(object);
+  }
 }
 
 function newBtnElement(widget, btnRow) { // create custom btn element
