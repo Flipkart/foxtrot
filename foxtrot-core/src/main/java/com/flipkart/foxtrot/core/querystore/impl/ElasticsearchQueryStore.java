@@ -25,6 +25,7 @@ import com.flipkart.foxtrot.core.exception.FoxtrotException;
 import com.flipkart.foxtrot.core.exception.FoxtrotExceptions;
 import com.flipkart.foxtrot.core.querystore.QueryStore;
 import com.flipkart.foxtrot.core.table.TableMetadataManager;
+import com.google.common.base.Stopwatch;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
@@ -98,8 +99,15 @@ public class ElasticsearchQueryStore implements QueryStore {
             if (new DateTime().plusDays(1).minus(document.getTimestamp()).getMillis() < 0) {
                 return;
             }
+            Stopwatch stopwatch = Stopwatch.createStarted();
             final Table tableMeta = tableMetadataManager.get(table);
+            logger.info("TableMetaGetTook:{}", stopwatch.elapsed(TimeUnit.MILLISECONDS));
+            stopwatch.reset();
+
             final Document translatedDocument = dataStore.save(tableMeta, document);
+            logger.info("DataStoreTook:{}", stopwatch.elapsed(TimeUnit.MILLISECONDS));
+            stopwatch.reset();
+
             long timestamp = translatedDocument.getTimestamp();
             connection.getClient()
                     .prepareIndex()
@@ -111,6 +119,7 @@ public class ElasticsearchQueryStore implements QueryStore {
                     .setConsistencyLevel(WriteConsistencyLevel.QUORUM)
                     .execute()
                     .get(2, TimeUnit.SECONDS);
+            logger.info("QueryStoreTook:{}", stopwatch.elapsed(TimeUnit.MILLISECONDS));
         } catch (InterruptedException | ExecutionException | TimeoutException e) {
             throw FoxtrotExceptions.createExecutionException(table, e);
         }
@@ -128,12 +137,18 @@ public class ElasticsearchQueryStore implements QueryStore {
             if (documents == null || documents.size() == 0) {
                 throw FoxtrotExceptions.createBadRequestException(table, "Empty Document List Not Allowed");
             }
+
+            Stopwatch stopwatch = Stopwatch.createStarted();
             final Table tableMeta = tableMetadataManager.get(table);
+            logger.info("TableMetaGetTook:{}", stopwatch.elapsed(TimeUnit.MILLISECONDS));
+            stopwatch.reset();
+
             final List<Document> translatedDocuments = dataStore.saveAll(tableMeta, documents);
+            logger.info("DataStoreTook:{}", stopwatch.elapsed(TimeUnit.MILLISECONDS));
+            stopwatch.reset();
+
             BulkRequestBuilder bulkRequestBuilder = connection.getClient().prepareBulk();
-
             DateTime dateTime = new DateTime().plusDays(1);
-
             for (Document document : translatedDocuments) {
                 long timestamp = document.getTimestamp();
                 if (dateTime.minus(timestamp).getMillis() < 0) {
@@ -153,6 +168,7 @@ public class ElasticsearchQueryStore implements QueryStore {
                         .setConsistencyLevel(WriteConsistencyLevel.QUORUM)
                         .execute()
                         .get(10, TimeUnit.SECONDS);
+                logger.info("QueryStoreTook:{}", stopwatch.elapsed(TimeUnit.MILLISECONDS));
                 for (int i = 0; i < responses.getItems().length; i++) {
                     BulkItemResponse itemResponse = responses.getItems()[i];
                     if (itemResponse.isFailed()) {
