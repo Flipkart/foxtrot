@@ -102,11 +102,11 @@ public class ElasticsearchQueryStore implements QueryStore {
             Stopwatch stopwatch = Stopwatch.createStarted();
             final Table tableMeta = tableMetadataManager.get(table);
             logger.info("TableMetaGetTook:{}", stopwatch.elapsed(TimeUnit.MILLISECONDS));
-            stopwatch.reset();
+            stopwatch.reset().start();
 
             final Document translatedDocument = dataStore.save(tableMeta, document);
             logger.info("DataStoreTook:{}", stopwatch.elapsed(TimeUnit.MILLISECONDS));
-            stopwatch.reset();
+            stopwatch.reset().start();
 
             long timestamp = translatedDocument.getTimestamp();
             connection.getClient()
@@ -141,11 +141,11 @@ public class ElasticsearchQueryStore implements QueryStore {
             Stopwatch stopwatch = Stopwatch.createStarted();
             final Table tableMeta = tableMetadataManager.get(table);
             logger.info("TableMetaGetTook:{}", stopwatch.elapsed(TimeUnit.MILLISECONDS));
-            stopwatch.reset();
+            stopwatch.reset().start();
 
             final List<Document> translatedDocuments = dataStore.saveAll(tableMeta, documents);
             logger.info("DataStoreTook:{}", stopwatch.elapsed(TimeUnit.MILLISECONDS));
-            stopwatch.reset();
+            stopwatch.reset().start();
 
             BulkRequestBuilder bulkRequestBuilder = connection.getClient().prepareBulk();
             DateTime dateTime = new DateTime().plusDays(1);
