@@ -1,12 +1,12 @@
 /**
  * Copyright 2014 Flipkart Internet Pvt. Ltd.
- *
+ * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
+ * <p>
  * http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -20,6 +20,7 @@ import com.flipkart.foxtrot.common.group.GroupRequest;
 import com.flipkart.foxtrot.common.group.GroupResponse;
 import com.flipkart.foxtrot.common.query.Filter;
 import com.flipkart.foxtrot.common.query.FilterCombinerType;
+import com.flipkart.foxtrot.common.query.ResultSort;
 import com.flipkart.foxtrot.common.util.CollectionUtils;
 import com.flipkart.foxtrot.core.cache.CacheManager;
 import com.flipkart.foxtrot.core.common.Action;
@@ -34,14 +35,13 @@ import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
 import com.flipkart.foxtrot.core.querystore.query.ElasticSearchQueryGenerator;
 import com.flipkart.foxtrot.core.table.TableMetadataManager;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import org.elasticsearch.ElasticsearchException;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.search.aggregations.AbstractAggregationBuilder;
-import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.Aggregations;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
-import org.elasticsearch.search.aggregations.bucket.terms.TermsBuilder;
 import org.elasticsearch.search.aggregations.metrics.cardinality.Cardinality;
 
 import java.util.ArrayList;
@@ -134,7 +134,7 @@ public class GroupAction extends Action<GroupRequest> {
             AbstractAggregationBuilder aggregation = buildAggregation();
             query.setQuery(new ElasticSearchQueryGenerator(FilterCombinerType.and)
                     .genFilter(parameter.getFilters()))
-                    .setSize(0)
+                    .setSize(1000)
                     .addAggregation(aggregation);
         } catch (Exception e) {
             throw FoxtrotExceptions.queryCreationException(parameter, e);
@@ -154,28 +154,11 @@ public class GroupAction extends Action<GroupRequest> {
     }
 
     private AbstractAggregationBuilder buildAggregation() {
-        TermsBuilder rootBuilder = null;
-        TermsBuilder termsBuilder = null;
-        for (String field : getParameter().getNesting()) {
-            if (null == termsBuilder) {
-                termsBuilder = AggregationBuilders.terms(Utils.sanitizeFieldForAggregation(field)).field(field);
-            } else {
-                TermsBuilder tempBuilder = AggregationBuilders.terms(Utils.sanitizeFieldForAggregation(field)).field(field);
-                termsBuilder.subAggregation(tempBuilder);
-                termsBuilder = tempBuilder;
-            }
-            termsBuilder.size(0);
-            if (null == rootBuilder) {
-                rootBuilder = termsBuilder;
-            }
-        }
-
-        if (!CollectionUtils.isNullOrEmpty(getParameter().getUniqueCountOn())) {
-            assert termsBuilder != null;
-            termsBuilder.subAggregation(Utils.buildCardinalityAggregation(getParameter().getUniqueCountOn()));
-        }
-
-        return rootBuilder;
+        return Utils.buildTermsAggregation(getParameter().getNesting().stream()
+                        .map(x -> new ResultSort(x, ResultSort.Order.asc))
+                        .collect(Collectors.toList()),
+                !CollectionUtils.isNullOrEmpty(getParameter().getUniqueCountOn()) ?
+                        Sets.newHashSet(Utils.buildCardinalityAggregation(getParameter().getUniqueCountOn())) : Sets.newHashSet());
     }
 
     private Map<String, Object> getMap(List<String> fields, Aggregations aggregations) {

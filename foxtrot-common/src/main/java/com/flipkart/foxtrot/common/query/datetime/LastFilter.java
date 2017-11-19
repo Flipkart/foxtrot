@@ -30,6 +30,7 @@ public class LastFilter extends Filter {
         visitor.visit(this);
     }
 
+
     public long getCurrentTime() {
         return currentTime;
     }

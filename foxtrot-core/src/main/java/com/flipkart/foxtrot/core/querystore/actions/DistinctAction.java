@@ -19,14 +19,12 @@ import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConnection;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
 import com.flipkart.foxtrot.core.querystore.query.ElasticSearchQueryGenerator;
 import com.flipkart.foxtrot.core.table.TableMetadataManager;
+import com.google.common.collect.Sets;
 import org.elasticsearch.ElasticsearchException;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.action.search.SearchType;
-import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.Aggregations;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
-import org.elasticsearch.search.aggregations.bucket.terms.TermsBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -113,29 +111,10 @@ public class DistinctAction extends Action<DistinctRequest> {
             query = getConnection().getClient()
                     .prepareSearch(ElasticsearchUtils.getIndices(request.getTable(), request))
                     .setIndicesOptions(Utils.indicesOptions());
-            TermsBuilder rootBuilder = null;
-            TermsBuilder termsBuilder = null;
-
-            for (ResultSort nestedField : request.getNesting()) {
-                String aggregationKey = Utils.sanitizeFieldForAggregation(nestedField.getField());
-                Terms.Order order = (nestedField.getOrder() == ResultSort.Order.desc) ? Terms.Order.term(false) : Terms.Order.term(true);
-
-                if (null == termsBuilder) {
-                    termsBuilder = AggregationBuilders.terms(aggregationKey).field(nestedField.getField()).order(order);
-                } else {
-                    TermsBuilder tempBuilder = AggregationBuilders.terms(aggregationKey).field(nestedField.getField()).order(order);
-                    termsBuilder.subAggregation(tempBuilder);
-                    termsBuilder = tempBuilder;
-                }
-                termsBuilder.size(0);
-                if (null == rootBuilder) {
-                    rootBuilder = termsBuilder;
-                }
-            }
             query.setQuery(new ElasticSearchQueryGenerator(FilterCombinerType.and)
                     .genFilter(request.getFilters()))
-                    .setSize(0)
-                    .addAggregation(rootBuilder);
+                    .setSize(1000)
+                    .addAggregation(Utils.buildTermsAggregation(request.getNesting(), Sets.newHashSet()));
         } catch (Exception e) {
             throw FoxtrotExceptions.queryCreationException(request, e);
         }

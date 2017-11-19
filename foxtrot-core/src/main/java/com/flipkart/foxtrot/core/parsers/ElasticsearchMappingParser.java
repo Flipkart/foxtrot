@@ -65,6 +65,10 @@ public class ElasticsearchMappingParser {
 
     private FieldType getFieldType(JsonNode jsonNode) {
         String type = jsonNode.asText();
-        return FieldType.valueOf(type.toUpperCase());
+        FieldType fieldType = FieldType.valueOf(type.toUpperCase());
+        if (fieldType == FieldType.TEXT || fieldType == FieldType.KEYWORD){
+            return FieldType.STRING;
+        }
+        return fieldType;
     }
 }

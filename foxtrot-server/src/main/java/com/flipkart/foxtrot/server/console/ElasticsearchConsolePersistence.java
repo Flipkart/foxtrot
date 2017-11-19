@@ -18,10 +18,9 @@ package com.flipkart.foxtrot.server.console;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.flipkart.foxtrot.core.exception.FoxtrotException;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConnection;
-import org.elasticsearch.action.WriteConsistencyLevel;
 import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.action.search.SearchType;
+import org.elasticsearch.action.support.WriteRequest;
 import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
@@ -59,8 +58,7 @@ public class ElasticsearchConsolePersistence implements ConsolePersistence {
                     .setType(TYPE)
                     .setId(console.getId())
                     .setSource(mapper.writeValueAsBytes(console))
-                    .setRefresh(true)
-                    .setConsistencyLevel(WriteConsistencyLevel.ALL)
+                    .setRefreshPolicy(WriteRequest.RefreshPolicy.IMMEDIATE)
                     .execute()
                     .get();
             logger.info(String.format("Saved Console : %s", console));
@@ -95,7 +93,6 @@ public class ElasticsearchConsolePersistence implements ConsolePersistence {
                 .setQuery(boolQuery().must(matchAllQuery()))
                 .addSort(fieldSort("name").order(SortOrder.DESC))
                 .setScroll(new TimeValue(60000))
-                .setSearchType(SearchType.SCAN)
                 .execute()
                 .actionGet();
         try {
@@ -124,8 +121,7 @@ public class ElasticsearchConsolePersistence implements ConsolePersistence {
         try {
             connection.getClient()
                     .prepareDelete()
-                    .setConsistencyLevel(WriteConsistencyLevel.ALL)
-                    .setRefresh(true)
+                    .setRefreshPolicy(WriteRequest.RefreshPolicy.IMMEDIATE)
                     .setIndex(INDEX)
                     .setType(TYPE)
                     .setId(id)
@@ -146,8 +142,7 @@ public class ElasticsearchConsolePersistence implements ConsolePersistence {
                     .setType(TYPE)
                     .setId(console.getId())
                     .setSource(mapper.writeValueAsBytes(console))
-                    .setRefresh(true)
-                    .setConsistencyLevel(WriteConsistencyLevel.ALL)
+                    .setRefreshPolicy(WriteRequest.RefreshPolicy.IMMEDIATE)
                     .execute()
                     .get();
             logger.info(String.format("Saved Console : %s", console));
@@ -183,7 +178,6 @@ public class ElasticsearchConsolePersistence implements ConsolePersistence {
                 .setQuery(boolQuery().must(matchAllQuery()))
                 .addSort(fieldSort("name").order(SortOrder.DESC))
                 .setScroll(new TimeValue(60000))
-                .setSearchType(SearchType.SCAN)
                 .execute()
                 .actionGet();
         try {
@@ -212,8 +206,7 @@ public class ElasticsearchConsolePersistence implements ConsolePersistence {
         try {
             connection.getClient()
                     .prepareDelete()
-                    .setConsistencyLevel(WriteConsistencyLevel.ALL)
-                    .setRefresh(true)
+                    .setRefreshPolicy(WriteRequest.RefreshPolicy.IMMEDIATE)
                     .setIndex(INDEX_V2)
                     .setType(TYPE)
                     .setId(id)

@@ -126,7 +126,7 @@ public class FilterAction extends Action<Query> {
                     .setQuery(new ElasticSearchQueryGenerator(FilterCombinerType.and).genFilter(parameter.getFilters()))
                     .setSearchType(SearchType.QUERY_THEN_FETCH)
                     .setFrom(parameter.getFrom())
-                    .addSort(parameter.getSort().getField(),
+                    .addSort(Utils.storedFieldName(parameter.getSort().getField()),
                             ResultSort.Order.desc == parameter.getSort().getOrder() ? SortOrder.DESC : SortOrder.ASC)
                     .setSize(parameter.getLimit());
         } catch (Exception e) {

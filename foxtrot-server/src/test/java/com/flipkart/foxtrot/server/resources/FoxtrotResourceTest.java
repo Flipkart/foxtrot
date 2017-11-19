@@ -35,6 +35,7 @@ import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
 import org.elasticsearch.action.admin.indices.create.CreateIndexRequest;
 import org.elasticsearch.common.settings.Settings;
+import org.elasticsearch.node.NodeValidationException;
 import org.junit.After;
 import org.mockito.Mockito;
 
@@ -91,7 +92,7 @@ public abstract class FoxtrotResourceTest {
 
     }
 
-    public FoxtrotResourceTest() {
+    public FoxtrotResourceTest() throws NodeValidationException {
         try {
             dataStore = TestUtils.getDataStore();
         } catch (FoxtrotException e) {

@@ -20,6 +20,7 @@ import org.elasticsearch.client.Client;
 import org.elasticsearch.client.transport.TransportClient;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.transport.InetSocketTransportAddress;
+import org.elasticsearch.transport.client.PreBuiltTransportClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,11 +42,12 @@ public class ElasticsearchConnection implements Managed {
 
     @Override
     public void start() throws Exception {
-        logger.info("Starting Elasticsearch Client");
-        Settings settings = Settings.settingsBuilder()
-                .put("cluster.name", config.getCluster()).build();
+        logger.info("Starting ElasticSearch Client");
+        Settings settings = Settings.builder()
+                .put("cluster.name", config.getCluster())
+                .build();
 
-        TransportClient esClient = TransportClient.builder().settings(settings).build();
+        TransportClient esClient = new PreBuiltTransportClient(settings);
         for (String host : config.getHosts()) {
             String tokenizedHosts[] = host.split(",");
             for (String tokenizedHost : tokenizedHosts) {

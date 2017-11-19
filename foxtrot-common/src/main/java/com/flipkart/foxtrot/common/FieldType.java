@@ -26,5 +26,7 @@ public enum FieldType {
     DOUBLE,
     BOOLEAN,
     DATE,
-    OBJECT
+    OBJECT,
+    KEYWORD,
+    TEXT
 }

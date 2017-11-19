@@ -28,7 +28,6 @@ import com.flipkart.foxtrot.core.table.TableMetadataManager;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.sematext.hbase.ds.RowKeyDistributorByHashPrefix;
 import org.elasticsearch.action.admin.cluster.health.ClusterHealthResponse;
 import org.elasticsearch.action.admin.cluster.node.stats.NodesStatsResponse;
 import org.elasticsearch.action.admin.indices.stats.IndicesStatsResponse;
@@ -95,10 +94,11 @@ public class ElasticsearchQueryStoreTest {
                 .prepareGet(ElasticsearchUtils.getCurrentIndex(TestUtils.TEST_TABLE_NAME, originalDocument.getTimestamp()),
                         ElasticsearchUtils.DOCUMENT_TYPE_NAME,
                         originalDocument.getId())
-                .setFields("_timestamp").execute().actionGet();
+                .setStoredFields(ElasticsearchUtils.DOCUMENT_TIMESTAMP_FIELD_NAME).execute().actionGet();
         assertTrue("Id should exist in ES", getResponse.isExists());
         assertEquals("Id should match requestId", originalDocument.getId(), getResponse.getId());
-        assertEquals("Timestamp should match request timestamp", originalDocument.getTimestamp(), getResponse.getField("_timestamp").getValue());
+        assertEquals("Timestamp should match request timestamp", originalDocument.getTimestamp(),
+                getResponse.getField(ElasticsearchUtils.DOCUMENT_TIMESTAMP_FIELD_NAME).getValue());
     }
 
     @Test
@@ -115,10 +115,11 @@ public class ElasticsearchQueryStoreTest {
                 .prepareGet(ElasticsearchUtils.getCurrentIndex(TestUtils.TEST_TABLE_NAME, originalDocument.getTimestamp()),
                         ElasticsearchUtils.DOCUMENT_TYPE_NAME,
                         translatedDocument.getId())
-                .setFields("_timestamp").execute().actionGet();
+                .setStoredFields(ElasticsearchUtils.DOCUMENT_TIMESTAMP_FIELD_NAME).execute().actionGet();
         assertTrue("Id should exist in ES", getResponse.isExists());
         assertEquals("Id should match requestId", translatedDocument.getId(), getResponse.getId());
-        assertEquals("Timestamp should match request timestamp", originalDocument.getTimestamp(), getResponse.getField("_timestamp").getValue());
+        assertEquals("Timestamp should match request timestamp", originalDocument.getTimestamp(),
+                getResponse.getField(ElasticsearchUtils.DOCUMENT_TIMESTAMP_FIELD_NAME).getValue());
     }
 
     @Test
@@ -157,10 +158,11 @@ public class ElasticsearchQueryStoreTest {
                     .prepareGet(ElasticsearchUtils.getCurrentIndex(TestUtils.TEST_TABLE_NAME, document.getTimestamp()),
                             ElasticsearchUtils.DOCUMENT_TYPE_NAME,
                             document.getId())
-                    .setFields("_timestamp").execute().actionGet();
+                    .setStoredFields(ElasticsearchUtils.DOCUMENT_TIMESTAMP_FIELD_NAME).execute().actionGet();
             assertTrue("Id should exist in ES", getResponse.isExists());
             assertEquals("Id should match requestId", document.getId(), getResponse.getId());
-            assertEquals("Timestamp should match request timestamp", document.getTimestamp(), getResponse.getField("_timestamp").getValue());
+            assertEquals("Timestamp should match request timestamp", document.getTimestamp(),
+                    getResponse.getField(ElasticsearchUtils.DOCUMENT_TIMESTAMP_FIELD_NAME).getValue());
         }
     }
 
@@ -189,7 +191,7 @@ public class ElasticsearchQueryStoreTest {
                     .prepareGet(ElasticsearchUtils.getCurrentIndex(TestUtils.TEST_TABLE_NAME, document.getTimestamp()),
                             ElasticsearchUtils.DOCUMENT_TYPE_NAME,
                             document.getId())
-                    .setFields("_timestamp").execute().actionGet();
+                    .setStoredFields(ElasticsearchUtils.DOCUMENT_TIMESTAMP_FIELD_NAME).execute().actionGet();
 
             assertFalse("Id should not exist in ES", getResponse.isExists());
         }
@@ -200,11 +202,12 @@ public class ElasticsearchQueryStoreTest {
                     .prepareGet(ElasticsearchUtils.getCurrentIndex(TestUtils.TEST_TABLE_NAME, document.getTimestamp()),
                             ElasticsearchUtils.DOCUMENT_TYPE_NAME,
                             document.getId())
-                    .setFields("_timestamp").execute().actionGet();
+                    .setStoredFields(ElasticsearchUtils.DOCUMENT_TIMESTAMP_FIELD_NAME).execute().actionGet();
 
             assertTrue("Id should exist in ES", getResponse.isExists());
             assertEquals("Id should match requestId", document.getId(), getResponse.getId());
-            assertEquals("Timestamp should match request timestamp", document.getTimestamp(), getResponse.getField("_timestamp").getValue());
+            assertEquals("Timestamp should match request timestamp", document.getTimestamp(),
+                    getResponse.getField(ElasticsearchUtils.DOCUMENT_TIMESTAMP_FIELD_NAME).getValue());
         }
     }
 
