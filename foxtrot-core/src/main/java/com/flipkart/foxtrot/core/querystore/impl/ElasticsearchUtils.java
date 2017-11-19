@@ -46,8 +46,9 @@ public class ElasticsearchUtils {
     public static final String DOCUMENT_TYPE_NAME = "document";
     public static final String DOCUMENT_META_TYPE_NAME = "metadata";
     public static final String DOCUMENT_META_FIELD_NAME = "__FOXTROT_METADATA__";
-    public static final String DOCUMENT_TIMESTAMP_FIELD_NAME = "__FOXTROT_TIMESTAMP__";
     public static final String DOCUMENT_META_ID_FIELD_NAME = String.format("%s.id", DOCUMENT_META_FIELD_NAME);
+    public static final String DOCUMENT_META_TIMESTAMP_FIELD_NAME = String.format("%s.time", DOCUMENT_META_FIELD_NAME);
+
     public static String TABLENAME_PREFIX = "foxtrot";
     public static final String TABLENAME_POSTFIX = "table";
     private static final DateTimeFormatter FORMATTER = DateTimeFormat.forPattern("dd-M-yyyy");
@@ -128,8 +129,36 @@ public class ElasticsearchUtils {
                 .endObject()
                 .field("dynamic_templates")
                 .startArray()
+
                 .startObject()
-                .field("template_metadata_fields")
+                .field("template_metadata_timestamp")
+                .startObject()
+                .field("path_match", ElasticsearchUtils.DOCUMENT_META_TIMESTAMP_FIELD_NAME)
+                .field("mapping")
+                .startObject()
+                .field("store", true)
+                .field("index", true)
+                .field("type", "date")
+                .endObject()
+                .endObject()
+                .endObject()
+
+                .startObject()
+                .field("template_metadata_string")
+                .startObject()
+                .field("path_match", ElasticsearchUtils.DOCUMENT_META_FIELD_NAME + ".*")
+                .field("match_mapping_type", "string")
+                .field("mapping")
+                .startObject()
+                .field("store", true)
+                .field("index", true)
+                .field("type", "keyword")
+                .endObject()
+                .endObject()
+                .endObject()
+
+                .startObject()
+                .field("template_metadata_others")
                 .startObject()
                 .field("path_match", ElasticsearchUtils.DOCUMENT_META_FIELD_NAME + ".*")
                 .field("mapping")
@@ -139,18 +168,7 @@ public class ElasticsearchUtils {
                 .endObject()
                 .endObject()
                 .endObject()
-                .startObject()
-                .field("template_timestamp")
-                .startObject()
-                .field("match", ElasticsearchUtils.DOCUMENT_TIMESTAMP_FIELD_NAME)
-                .field("mapping")
-                .startObject()
-                .field("store", true)
-                .field("index", true)
-                .field("type", "date")
-                .endObject()
-                .endObject()
-                .endObject()
+
                 .startObject()
                 .field("template_no_store_analyzed")
                 .startObject()
@@ -173,6 +191,7 @@ public class ElasticsearchUtils {
                 .endObject()
                 .endObject()
                 .endObject()
+
                 .startObject()
                 .field("template_no_store")
                 .startObject()
@@ -186,6 +205,7 @@ public class ElasticsearchUtils {
                 .endObject()
                 .endObject()
                 .endObject()
+
                 .endArray()
                 .endObject()
                 .endObject();

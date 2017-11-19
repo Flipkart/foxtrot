@@ -92,7 +92,7 @@ public class Utils {
 
     public static String storedFieldName(String field) {
         if ("_timestamp".equalsIgnoreCase(field)) {
-            return ElasticsearchUtils.DOCUMENT_TIMESTAMP_FIELD_NAME;
+            return ElasticsearchUtils.DOCUMENT_META_TIMESTAMP_FIELD_NAME;
         }
         return field;
     }

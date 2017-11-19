@@ -79,12 +79,10 @@ public class DocumentTranslator {
 
     public DocumentMetadata metadata(final Table table, final Document inDocument) {
         final String rowKey = generateScalableKey(rawStorageIdFromDocument(table, inDocument));
-
         DocumentMetadata metadata = new DocumentMetadata();
         metadata.setRawStorageId(rowKey);
         metadata.setId(inDocument.getId());
-
-        //logger.debug("Doc row key: {}, {}, {}", rowKey, inDocument, metadata);
+        metadata.setTime(inDocument.getTimestamp());
         return metadata;
     }
 

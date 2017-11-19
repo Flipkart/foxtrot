@@ -8,13 +8,15 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 public class DocumentMetadata {
     private String id;
     private String rawStorageId;
+    private long time;
 
     public DocumentMetadata() {
     }
 
-    public DocumentMetadata(String id, String rawStorageId) {
+    public DocumentMetadata(String id, String rawStorageId, long time) {
         this.id = id;
         this.rawStorageId = rawStorageId;
+        this.time = time;
     }
 
     public String getId() {
@@ -33,11 +35,20 @@ public class DocumentMetadata {
         this.rawStorageId = rawStorageId;
     }
 
+    public long getTime() {
+        return time;
+    }
+
+    public void setTime(long time) {
+        this.time = time;
+    }
+
     @Override
     public String toString() {
-        return new ToStringBuilder(this)
-                .append("id", id)
-                .append("rawStorageId", rawStorageId)
-                .toString();
+        return "DocumentMetadata{" +
+                "id='" + id + '\'' +
+                ", rawStorageId='" + rawStorageId + '\'' +
+                ", time=" + time +
+                '}';
     }
 }

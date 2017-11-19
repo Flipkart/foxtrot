@@ -186,7 +186,7 @@ public class ElasticsearchQueryStore implements QueryStore {
                 .setSize(1)
                 .execute()
                 .actionGet();
-        if (searchResponse.getHits().totalHits() == 0) {
+        if (searchResponse.getHits().getTotalHits() == 0) {
             logger.warn("Going into compatibility mode, looks using passed in ID as the data store id: {}", id);
             lookupKey = id;
         } else {
@@ -331,7 +331,6 @@ public class ElasticsearchQueryStore implements QueryStore {
         JsonNode metaNode = mapper.valueToTree(translatedDocument.getMetadata());
         ObjectNode dataNode = translatedDocument.getData().deepCopy();
         dataNode.put(ElasticsearchUtils.DOCUMENT_META_FIELD_NAME, metaNode);
-        dataNode.put(ElasticsearchUtils.DOCUMENT_TIMESTAMP_FIELD_NAME, translatedDocument.getTimestamp());
         return dataNode.toString();
     }
 
