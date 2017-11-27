@@ -167,6 +167,11 @@ function getFilters() { // returns filter values
         , "values": filterValue
         , "field": currentFieldList[parseInt(filterColumn)].field
       }
+    }else if(filterType == "exists") {
+      filterObject = {
+        "operator": filterType
+        , "field": currentFieldList[parseInt(filterColumn)].field
+      }
     } else {
       filterObject = {
         "operator": filterType
@@ -224,32 +229,39 @@ function deleteFilterRow(el) { // delete given filter row
   $(parentRow).remove();
 }
 function setFilters(object) { // setter for filters
-  setTimeout(function(){
-    for (var filter = 0; filter <object.length; filter++) {
-      var filterId = filter;
-      var el = $("#filter-row-" + filterId);
-      var fieldDropdown = $(el).find(".filter-column").val(currentFieldList.findIndex(x => x.field == object[filter].field));
-      $(fieldDropdown).selectpicker('refresh');
-      $(fieldDropdown).trigger('change');
-      var operatorDropdown = $(el).find(".filter-type-"+filter).val(object[filter].operator);
-      $(operatorDropdown).selectpicker('refresh');
-      var filterValue;
+  for (var filter = 0; filter <object.length; filter++) {
+    var filterId = filter;
+    var el = $("#filter-row-" + filterId);
+    var fieldDropdown = $(el).find(".filter-column").val(currentFieldList.findIndex(x => x.field == object[filter].field));
+    $(fieldDropdown).selectpicker('refresh');
+    $(fieldDropdown).trigger('change');
+    var operatorDropdown = $(el).find(".filter-type-"+filter).val(object[filter].operator);
+    $(operatorDropdown).selectpicker('refresh');
+    var filterValue;
 
-      if(object[filter].value == undefined) {
-        filterValue = object[filter].values;
-      } else {
-        filterValue = object[filter].value;
-      }
+    if(object[filter].value == undefined) {
+      filterValue = object[filter].values;
+    } else {
+      filterValue = object[filter].value;
+    }
 
+    // hide value element if operator is exists
+    if(object[filter].operator == "exists") {
+      $(el).find(".filter-value").hide();
+    } else {
+      $(el).find(".filter-value").show();
+    }
+
+    // Ignore for exist
+    if(filterValue) {
       if(filterValue.isArray ) {
         $(el).find(".filter-value").val(filterValue.toString());
       } else {
         $(el).find(".filter-value").val(filterValue);
       }
-      $(operatorDropdown).selectpicker('refresh');
     }
-  }, 1000);
-
+    $(operatorDropdown).selectpicker('refresh');
+  }
 }
 function reloadDropdowns() { // change dropdown values for all charts when table changes
   if (currentChartType == "line") {
