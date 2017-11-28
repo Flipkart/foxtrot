@@ -194,8 +194,39 @@ function getFilterCheckBox() {
   return allVals;
 }
 
+function showSelectAllAction() {
+  $("#select-all-checkbox").removeClass('show');  
+  $("#select-all-checkbox").addClass('hide');
+  $("#un-select-all-checkbox").removeClass('hide');
+  $("#un-select-all-checkbox").removeClass('show');
+}
+
+function showUnselectAllAction() {
+  $("#un-select-all-checkbox").removeClass('show');
+  $("#un-select-all-checkbox").addClass('hide');  
+  $("#slect-all-checkbox").removeClass('hide');
+  $("#select-all-checkbox").addClass('show');
+}
+
 function selectAllUiCheckbox() {
   $(".ui-filter-checkbox").prop('checked', 'true');
+  showSelectAllAction();
+}
+
+function unSelectAllUiCheckbox() {
+  $(".ui-filter-checkbox").removeAttr('checked');
+  showUnselectAllAction();
+}
+
+// listen and enable/disable check/uncheck button
+function listenUiFilterCheck() {
+  var totalCount = $('.ui-filter-checkbox').length;
+  var totalCheckedLegnth = $('.ui-filter-checkbox:checkbox:checked').length;
+  if(totalCount == totalCheckedLegnth) {
+    showSelectAllAction();
+  } else {
+    showUnselectAllAction();
+  }
 }
 
 function appendConsoleList(array) { // console list to dropdown

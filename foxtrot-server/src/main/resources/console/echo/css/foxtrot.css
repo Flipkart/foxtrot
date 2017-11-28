@@ -2193,10 +2193,10 @@ div.tab button:first-child {
   margin-right: 10px !important;
 }
 
-#select-all-checkbox {
+.filter-check-text {
   float: right;
   margin-top: -18px;
-  width: 49px;
+  width: 72px;
   height: 17px;
   font-family: Open Sans;
   font-size: 12px;
@@ -3181,4 +3181,10 @@ div.tab button:first-child {
 
 .dropdown-menu .inner {
   margin-top: 0px !important;
+}
+.hide {
+  display: none;
+}
+.show {
+  display: block;
 }
