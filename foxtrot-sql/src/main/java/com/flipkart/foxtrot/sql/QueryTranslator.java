@@ -12,6 +12,7 @@ import com.flipkart.foxtrot.common.query.ResultSort;
 import com.flipkart.foxtrot.common.query.datetime.LastFilter;
 import com.flipkart.foxtrot.common.query.general.*;
 import com.flipkart.foxtrot.common.query.numeric.*;
+import com.flipkart.foxtrot.common.query.string.ContainsFilter;
 import com.flipkart.foxtrot.common.stats.StatsRequest;
 import com.flipkart.foxtrot.common.stats.StatsTrendRequest;
 import com.flipkart.foxtrot.common.trend.TrendRequest;
@@ -523,7 +524,10 @@ public class QueryTranslator extends SqlElementVisitor {
         @Override
         public void visit(LikeExpression likeExpression) {
             super.visit(likeExpression);
-            //ContainsFilter containsFilter = new ContainsFilter(); TODO
+            ContainsFilter containsFilter = new ContainsFilter();
+            containsFilter.setValue(getStringValue(likeExpression.getRightExpression()));
+            containsFilter.setField(((Column)likeExpression.getLeftExpression()).getFullyQualifiedName().replaceAll(Constants.SQL_FIELD_REGEX, ""));
+            filters.add(containsFilter);
         }
 
         @Override
@@ -578,6 +582,13 @@ public class QueryTranslator extends SqlElementVisitor {
                 return ((StringValue) expression).getValue();
             }
             return getNumbericValue(expression);
+        }
+
+        private String getStringValue(Expression expression) {
+            if(expression instanceof StringValue) {
+                return ((StringValue) expression).getValue();
+            }
+            throw new RuntimeException("Unsupported value type.");
         }
 
         private Number getNumbericValue(Expression expression) {
