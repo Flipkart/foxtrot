@@ -35,12 +35,10 @@ public class TableFieldMappingResource {
 
     private final TableManager tableManager;
     private final TableMetadataManager tableMetadataManager;
-    private final QueryStore queryStore;
 
-    public TableFieldMappingResource(TableManager tableManager, TableMetadataManager tableMetadataManager, QueryStore queryStore) {
+    public TableFieldMappingResource(TableManager tableManager, TableMetadataManager tableMetadataManager) {
         this.tableManager = tableManager;
         this.tableMetadataManager = tableMetadataManager;
-        this.queryStore = queryStore;
     }
 
     @GET

@@ -54,6 +54,7 @@ import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.Aggregations;
 import org.elasticsearch.search.aggregations.metrics.cardinality.Cardinality;
 import org.elasticsearch.search.aggregations.metrics.percentiles.Percentiles;
+import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -71,8 +72,8 @@ import java.util.stream.Stream;
 
 public class DistributedTableMetadataManager implements TableMetadataManager {
     private static final Logger logger = LoggerFactory.getLogger(DistributedTableMetadataManager.class);
-    public static final String DATA_MAP = "tablemetadatamap";
-    public static final String FIELD_MAP = "tablefieldmap";
+    private static final String DATA_MAP = "tablemetadatamap";
+    private static final String FIELD_MAP = "tablefieldmap";
     private final HazelcastConnection hazelcastConnection;
     private final ElasticsearchConnection elasticsearchConnection;
     private final ObjectMapper mapper;
@@ -95,6 +96,8 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
         MapConfig mapConfig = new MapConfig();
         mapConfig.setReadBackupData(true);
         mapConfig.setInMemoryFormat(InMemoryFormat.BINARY);
+        mapConfig.setTimeToLiveSeconds(300);
+        mapConfig.setBackupCount(0);
 
         MapStoreConfig mapStoreConfig = new MapStoreConfig();
         mapStoreConfig.setFactoryImplementation(TableMapStore.factory(elasticsearchConnection));
@@ -103,9 +106,8 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
         mapConfig.setMapStoreConfig(mapStoreConfig);
 
         NearCacheConfig nearCacheConfig = new NearCacheConfig();
-        nearCacheConfig.setTimeToLiveSeconds(10);
+        nearCacheConfig.setTimeToLiveSeconds(300);
         nearCacheConfig.setInvalidateOnChange(true);
-        nearCacheConfig.setMaxIdleSeconds(10);
         mapConfig.setNearCacheConfig(nearCacheConfig);
         return mapConfig;
     }
@@ -114,14 +116,12 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
         MapConfig mapConfig = new MapConfig();
         mapConfig.setReadBackupData(true);
         mapConfig.setInMemoryFormat(InMemoryFormat.BINARY);
-        mapConfig.setTimeToLiveSeconds(90);
-        mapConfig.setMaxIdleSeconds(90);
+        mapConfig.setTimeToLiveSeconds(300);
         mapConfig.setBackupCount(0);
 
         NearCacheConfig nearCacheConfig = new NearCacheConfig();
-        nearCacheConfig.setTimeToLiveSeconds(90);
+        nearCacheConfig.setTimeToLiveSeconds(300);
         nearCacheConfig.setInvalidateOnChange(true);
-        nearCacheConfig.setMaxIdleSeconds(90);
         mapConfig.setNearCacheConfig(nearCacheConfig);
 
         return mapConfig;
@@ -217,7 +217,7 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
         final TreeSet<FieldMetadata> fieldMetadataTreeSet = new TreeSet<>(new FieldMetadataComparator());
         fieldMetadataTreeSet.addAll(fieldMetadata);
         TableFieldMapping tableFieldMapping = new TableFieldMapping(table, fieldMetadataTreeSet);
-//        estimateCardinality(table,tableFieldMapping.getMappings(),DateTime.now().minusDays(1).toDate().getTime());
+        estimateCardinality(table,tableFieldMapping.getMappings(), DateTime.now().minusDays(1).toDate().getTime());
         fieldDataCache.put(table, tableFieldMapping);
         return tableFieldMapping;
     }
@@ -254,8 +254,8 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
                     .setQuery(QueryBuilders.existsQuery(field))
                     .setSize(0);
             switch (fieldMetadata.getType()) {
-
                 case STRING: {
+                    logger.info("table:{} field:{} type:{} aggregationType:{}", table, field, fieldMetadata.getType(), "cardinality");
                     query.addAggregation(AggregationBuilders.cardinality(field)
                             .field(field)
                             .precisionThreshold(5));
@@ -265,6 +265,7 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
                 case LONG:
                 case FLOAT:
                 case DOUBLE: {
+                    logger.info("table:{} field:{} type:{} aggregationType:{}", table, field, fieldMetadata.getType(), "percentile");
                     query.addAggregation(AggregationBuilders.percentiles(field)
                             .field(field)
                             .percentiles(10, 20, 30, 40, 50, 60, 70, 80, 90, 100));
@@ -283,6 +284,8 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
 
         for (MultiSearchResponse.Item item : multiResponse.getResponses()) {
             if (item.isFailure()) {
+                logger.info("FailureInDeducingCardinality table:{} failureMessage:{}", table,
+                        item.getFailureMessage());
                 continue;
             }
             SearchResponse response = item.getResponse();
@@ -297,6 +300,8 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
                 switch (fieldMetadata.getType()) {
                     case STRING: {
                         Cardinality cardinality = (Cardinality) value;
+                        logger.info("table:{} field:{} type:{} aggregationType:{} value:{}",
+                                table, key, fieldMetadata.getType(), "cardinality", cardinality.getValue());
                         fieldMetadata.setEstimationData(CardinalityEstimationData.builder()
                                 .cardinality(cardinality.getValue())
                                 .count(hits)
@@ -311,6 +316,8 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
                         Percentiles percentiles = (Percentiles) value;
                         for (int i = 10; i <= 100; i += 10)
                             values[(i / 10) - 1] = percentiles.percentile(i);
+                        logger.info("table:{} field:{} type:{} aggregationType:{} value:{}",
+                                table, key, fieldMetadata.getType(), "percentile", values);
                         fieldMetadata.setEstimationData(PercentileEstimationData.builder()
                                 .values(values)
                                 .count(hits)
