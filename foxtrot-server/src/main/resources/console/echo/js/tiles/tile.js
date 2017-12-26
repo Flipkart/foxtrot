@@ -123,41 +123,39 @@ TileFactory.prototype.getTileFormValue = function (form, modal, object) {
 }
 
 function setConfigValue(object) { // set widget form values
-  setTimeout(function(){
-    if (currentChartType == "gauge") {
-      setGaugeChartFormValues(object);
-    }else if (currentChartType == "percentageGauge") {
-      setPercentageGaugeChartFormValues(object);
-    }
-    else if (currentChartType == "line") {
-      setLineChartFormValues(object);
-    }
-    else if (currentChartType == "trend") {
-      setTrendChartFormValues(object);
-    }
-    else if (currentChartType == "stacked") {
-      setStackedChartFormValues(object);
-    }
-    else if (currentChartType == "radar") {
-      setRadarChartFormValues(object);
-    }
-    else if (currentChartType == "stackedBar") {
-      setStackedBarChartFormValues(object);
-    }
-    else if (currentChartType == "pie") {
-      setPieChartFormValues(object);
-    }
-    else if (currentChartType == "statsTrend") {
-      setStatsTrendTileChartFormValues(object);
-    }
-    else if (currentChartType == "bar") {
-      setBarChartFormValues(object);
-    }
-    else if (currentChartType == "count") {
-      setCountChartFormValues(object);
-    }
-  }, 1000);
-
+  if (currentChartType == "gauge") {
+    setGaugeChartFormValues(object);
+  }
+  else if (currentChartType == "percentageGauge") {
+    setPercentageGaugeChartFormValues(object);
+  }
+  else if (currentChartType == "line") {
+    setLineChartFormValues(object);
+  }
+  else if (currentChartType == "trend") {
+    setTrendChartFormValues(object);
+  }
+  else if (currentChartType == "stacked") {
+    setStackedChartFormValues(object);
+  }
+  else if (currentChartType == "radar") {
+    setRadarChartFormValues(object);
+  }
+  else if (currentChartType == "stackedBar") {
+    setStackedBarChartFormValues(object);
+  }
+  else if (currentChartType == "pie") {
+    setPieChartFormValues(object);
+  }
+  else if (currentChartType == "statsTrend") {
+    setStatsTrendTileChartFormValues(object);
+  }
+  else if (currentChartType == "bar") {
+    setBarChartFormValues(object);
+  }
+  else if (currentChartType == "count") {
+    setCountChartFormValues(object);
+  }
 }
 
 function newBtnElement(widget, btnRow) { // create custom btn element
@@ -358,9 +356,16 @@ TileFactory.prototype.triggerFilter = function (tileElement, object) { // filter
         var value = object.tileContext.uiFiltersList[i];
         var index = $.inArray( value, object.tileContext.uiFiltersSelectedList);
         if(index == -1) {
-          $("#filter-checkbox-div").append('<div class="ui-filter-list"><label><input name="filter-checkbox" class="ui-filter-checkbox" type="checkbox" value="'+value+'" checked="checked"><span>'+value+'</span></label>  </div>');
+          $("#filter-checkbox-div").append('<div class="ui-filter-list"><label><input name="filter-checkbox" class="ui-filter-checkbox" type="checkbox" value="'+value+'" checked="checked" onclick="listenUiFilterCheck();"><span>'+value+'</span></label>  </div>');
         } else {
-          $("#filter-checkbox-div").append('<div class="ui-filter-list"><label><input name="filter-checkbox" class="ui-filter-checkbox" type="checkbox" value="'+value+'"><span>'+value+'</span></label>  </div>');
+          $("#filter-checkbox-div").append('<div class="ui-filter-list"><label><input name="filter-checkbox" onclick="listenUiFilterCheck();" class="ui-filter-checkbox" type="checkbox" value="'+value+'"><span>'+value+'</span></label>  </div>');
+        }
+        if(object.tileContext.uiFiltersSelectedList) {
+          if(object.tileContext.uiFiltersSelectedList.length > 0) {
+            showUnselectAllAction();
+          } else {
+            showSelectAllAction();
+          }
         }
       }
     });

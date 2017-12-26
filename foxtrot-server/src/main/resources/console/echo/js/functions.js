@@ -76,6 +76,18 @@ function generateOption(el, type) {
 
 }
 
+function filterFieldTriggered(el) {
+  var selectedColumn = $(el).val();
+  var rowString = $(el).attr('id');
+  var rowIdArray = rowString.split('-');
+  var rowId = rowIdArray[2];
+  if(selectedColumn == "exists") {
+    $('#filter-column-row-'+rowId).hide();
+  } else {
+    $('#filter-column-row-'+rowId).show();
+  }
+}
+
 function addFilters() { // new filter row
 
   var filterCount = filterRowArray.length;
@@ -97,6 +109,10 @@ function addFilters() { // new filter row
     var selected = $(this).val();
     filterTypeTriggered(this);
     generateOption(this, currentFieldList[parseInt(selected)].type);
+  });
+  $(filterType).change(function () {
+    var selected = $(this).val();
+    filterFieldTriggered(this);
   });
 }
 
@@ -178,8 +194,39 @@ function getFilterCheckBox() {
   return allVals;
 }
 
+function showSelectAllAction() {
+  $("#select-all-checkbox").removeClass('show');  
+  $("#select-all-checkbox").addClass('hide');
+  $("#un-select-all-checkbox").removeClass('hide');
+  $("#un-select-all-checkbox").removeClass('show');
+}
+
+function showUnselectAllAction() {
+  $("#un-select-all-checkbox").removeClass('show');
+  $("#un-select-all-checkbox").addClass('hide');  
+  $("#slect-all-checkbox").removeClass('hide');
+  $("#select-all-checkbox").addClass('show');
+}
+
 function selectAllUiCheckbox() {
   $(".ui-filter-checkbox").prop('checked', 'true');
+  showSelectAllAction();
+}
+
+function unSelectAllUiCheckbox() {
+  $(".ui-filter-checkbox").removeAttr('checked');
+  showUnselectAllAction();
+}
+
+// listen and enable/disable check/uncheck button
+function listenUiFilterCheck() {
+  var totalCount = $('.ui-filter-checkbox').length;
+  var totalCheckedLegnth = $('.ui-filter-checkbox:checkbox:checked').length;
+  if(totalCount == totalCheckedLegnth) {
+    showSelectAllAction();
+  } else {
+    showUnselectAllAction();
+  }
 }
 
 function appendConsoleList(array) { // console list to dropdown
@@ -208,13 +255,13 @@ function loadParticularConsole() { // reload page based on selected console
 }
 
 function getWhereOption(fieldType) {
-  var allOption = '<option value="">Select</option><option value="equals">Equal to</option><option value="not_equals">Not Equal to</option><option value="less_than">Less than</option><option value="less_equal">Less or equal to</option><option value="greater_than">Greater than</option><option value="greater_equal">Greater or equal to</option><option value="contains">Equals</option><option value="not_equals">Not equals</option><option value="contains">Contains</option><option value="between">Between</option>';
+  var allOption = '<option value="">Select</option><option value="equals">Equal to</option><option value="not_equals">Not Equal to</option><option value="less_than">Less than</option><option value="less_equal">Less or equal to</option><option value="greater_than">Greater than</option><option value="greater_equal">Greater or equal to</option><option value="contains">Equals</option><option value="not_equals">Not equals</option><option value="contains">Contains</option><option value="between">Between</option><option value="exits">Exist</option>';
 
-  var stringOption = '<option value="">Select</option><option value="equals">Equal to</option><option value="not_equals">Not Equal to</option><option value="contains">Contains</option>';
+  var stringOption = '<option value="">Select</option><option value="equals">Equal to</option><option value="not_equals">Not Equal to</option><option value="contains">Contains</option><option value="exits">Exist</option>';
 
-  var boolOption = '<option value="">Select</option><option value="equals">Equal to</option><option value="not_equals">Not Equal to</option>';
+  var boolOption = '<option value="">Select</option><option value="equals">Equal to</option><option value="not_equals">Not Equal to</option><option value="exits">Exist</option>';
 
-  var intOption = '<option value="">Select</option><option value="equals">Equal to</option><option value="not_equals">Not Equal to</option><option value="less_than">Less than</option><option value="less_equal">Less or equal to</option><option value="greater_than">Greater than</option><option value="greater_equal">Greater or equal to</option><option value="between">Between</option>';
+  var intOption = '<option value="">Select</option><option value="equals">Equal to</option><option value="not_equals">Not Equal to</option><option value="less_than">Less than</option><option value="less_equal">Less or equal to</option><option value="greater_than">Greater than</option><option value="greater_equal">Greater or equal to</option><option value="between">Between</option><option value="exits">Exist</option>';
 
   var intArray = ["LONG", "INTEGER", "SHORT", "BYTE", "DATE", "FLOAT", "DOUBLE"];
   var boolArray = ["BOOLEAN"];
@@ -234,13 +281,13 @@ function getWhereOption(fieldType) {
 }
 
 function getTilesFilterWhereOption(fieldType) {
-  var allOption = '<option value="">Select</option><option value="equals">Equal to</option><option value="not_equals">Not Equal to</option><option value="less_than">Less than</option><option value="less_equal">Less or equal to</option><option value="greater_than">Greater than</option><option value="greater_equal">Greater or equal to</option><option value="contains">Contains</option><option value="between">Between</option><option value="last">Last</option><option value="in">In</option><option value="not_in">Not In</option>';
+  var allOption = '<option value="">Select</option><option value="equals">Equal to</option><option value="not_equals">Not Equal to</option><option value="less_than">Less than</option><option value="less_equal">Less or equal to</option><option value="greater_than">Greater than</option><option value="greater_equal">Greater or equal to</option><option value="contains">Contains</option><option value="between">Between</option><option value="last">Last</option><option value="in">In</option><option value="not_in">Not In</option><option value="exists">Exist</option>';
 
-  var stringOption = '<option value="">Select</option><option value="equals">Equal to</option><option value="not_equals">Not Equal to</option><option value="contains">Contains</option><option value="in">In</option><option value="not_in">Not In</option><option value="last">Last</option>';
+  var stringOption = '<option value="">Select</option><option value="equals">Equal to</option><option value="not_equals">Not Equal to</option><option value="contains">Contains</option><option value="in">In</option><option value="not_in">Not In</option><option value="last">Last</option><option value="exists">Exist</option>';
 
-  var boolOption = '<option value="">Select</option><option value="equals">Equal to</option><option value="not_equals">Not Equal to</option>';
+  var boolOption = '<option value="">Select</option><option value="equals">Equal to</option><option value="not_equals">Not Equal to</option><option value="exists">Exist</option>';
 
-  var intOption = '<option value="">Select</option><option value="equals">Equal to</option><option value="not_equals">Not Equal to</option><option value="less_than">Less than</option><option value="less_equal">Less or equal to</option><option value="greater_than">Greater than</option><option value="greater_equal">Greater or equal to</option><option value="between">Between</option>';
+  var intOption = '<option value="">Select</option><option value="equals">Equal to</option><option value="not_equals">Not Equal to</option><option value="less_than">Less than</option><option value="less_equal">Less or equal to</option><option value="greater_than">Greater than</option><option value="greater_equal">Greater or equal to</option><option value="between">Between</option><option value="exists">Exist</option>';
 
   var intArray = ["LONG", "INTEGER", "SHORT", "BYTE", "DATE", "FLOAT", "DOUBLE"];
   var boolArray = ["BOOLEAN"];
