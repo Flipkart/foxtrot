@@ -8,6 +8,9 @@ HEADERS = {
     "Content-Type": "application/json"
 }
 
+field1 = ['a', 'b', 'c', 'd', 'e']
+field2 = [1, 2, 3, 4, 5]
+
 
 def create_table(table):
     request = {
@@ -30,6 +33,10 @@ def current_time():
     return int(time.time()) * 1000
 
 
+def pick_random(data):
+    return random.choice(data)
+
+
 def create_documents():
     documents = []
     for _ in range(1, 500):
@@ -40,7 +47,9 @@ def create_documents():
                 "key1": random_value(20),
                 "key2": random_value(20),
                 "key3": random_value(20),
-                "key4": random_value(20)
+                "key4": random_value(20),
+                "low1": pick_random(field1),
+                "low2": pick_random(field2)
             }
         })
 
