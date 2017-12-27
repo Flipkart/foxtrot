@@ -141,6 +141,8 @@ public class GroupAction extends Action<GroupRequest> {
             throw FoxtrotExceptions.createMalformedQueryException(parameter, validationErrors);
         }
 
+        final String cacheKey = getRequestCacheKey();
+
         // Perform cardinality analysis and see how much this fucks up the cluster
         double probability = 0;
         try {
@@ -154,15 +156,14 @@ public class GroupAction extends Action<GroupRequest> {
 
             probability = estimateProbability(fieldMappings, parameter);
         } catch (Exception e) {
-            log.error("Error running estimation", e);
+            log.error(String.format("cacheKey:%s msg:ESTIMATION_FAILED", cacheKey), e);
         }
 
         if (probability > 0.5) {
-            log.warn("Blocked query as it might have screwed up the cluster. Probability: {} Query: {}",
-                    probability, parameter);
+            log.warn("cacheKey:{} msg:QUERY_BLOCKED probability:{} query:{}", cacheKey, probability, parameter);
             throw FoxtrotExceptions.createCardinalityOverflow(parameter, parameter.getNesting().get(0), probability);
         } else {
-            log.info("Allowing group by with probability {} for query: {}", probability, parameter);
+            log.info("cacheKey:{} msg:QUERY_ALLOWED probability:{} query:{}", cacheKey, probability, parameter);
         }
     }
 
@@ -200,27 +201,30 @@ public class GroupAction extends Action<GroupRequest> {
         Map<String, FieldMetadata> metaMap = mappings.stream()
                 .collect(Collectors.toMap(FieldMetadata::getField, mapping -> mapping));
 
+        String cacheKey = getRequestCacheKey();
         long estimatedMaxDocCount = extractMaxDocCount(metaMap);
-        log.debug("msg:DOC_COUNT_ESTIMATION_COMPLETED maxDocCount:{}", estimatedMaxDocCount);
+        log.debug("cacheKey:{} msg:DOC_COUNT_ESTIMATION_COMPLETED maxDocCount:{}",
+                cacheKey, estimatedMaxDocCount);
         long estimatedDocCountBasedOnTime = estimateDocCountBasedOnTime(estimatedMaxDocCount, parameter);
-        log.debug("msg:TIME_BASED_DOC_ESTIMATION_COMPLETED maxDocCount:{} docCountAfterTimeFilters:{}",
-                estimatedMaxDocCount, estimatedDocCountBasedOnTime);
+        log.debug("cacheKey:{} msg:TIME_BASED_DOC_ESTIMATION_COMPLETED maxDocCount:{} docCountAfterTimeFilters:{}",
+                cacheKey, estimatedMaxDocCount, estimatedDocCountBasedOnTime);
         long estimatedDocCountAfterFilters = estimateDocCountWithFilters(estimatedDocCountBasedOnTime, metaMap, parameter.getFilters());
-        log.debug("msg:ALL_FILTER_ESTIMATION_COMPLETED maxDocCount:{} docCountAfterTimeFilters:{} docCountAfterFilters:{}",
-                estimatedMaxDocCount, estimatedDocCountBasedOnTime, estimatedDocCountAfterFilters);
+        log.debug("cacheKey:{} msg:ALL_FILTER_ESTIMATION_COMPLETED maxDocCount:{} docCountAfterTimeFilters:{} docCountAfterFilters:{}",
+                cacheKey, estimatedMaxDocCount, estimatedDocCountBasedOnTime, estimatedDocCountAfterFilters);
         if (estimatedDocCountAfterFilters < MIN_ESTIMATION_THRESHOLD) {
-            log.debug("msg:NESTING_ESTIMATION_SKIPPED estimatedDocCount:{} threshold:{}", estimatedDocCountAfterFilters, MIN_ESTIMATION_THRESHOLD);
+            log.debug("cacheKey:{} msg:NESTING_ESTIMATION_SKIPPED estimatedDocCount:{} threshold:{}",
+                    cacheKey, estimatedDocCountAfterFilters, MIN_ESTIMATION_THRESHOLD);
             return 0.0;
         }
 
-        long estimatedOutputCardinality = 1;
+        long outputCardinality = 1;
         for (String field : parameter.getNesting()) {
             FieldMetadata meta = metaMap.get(field);
             if (null == meta || null == meta.getEstimationData()) {
-                log.warn("No estimation data found for field {} of table {}", field, parameter.getTable());
+                log.warn("cacheKey:{} msg:NO_FIELD_ESTIMATION_DATA table:{} field:{}", cacheKey, parameter.getTable(), field);
                 continue;
             }
-            long estimatedNestingFieldCardinality = meta.getEstimationData().accept(new EstimationDataVisitor<Long>() {
+            long fieldCardinality = meta.getEstimationData().accept(new EstimationDataVisitor<Long>() {
                 @Override
                 public Long visit(FixedEstimationData fixedEstimationData) {
                     return fixedEstimationData.getCount();
@@ -236,14 +240,14 @@ public class GroupAction extends Action<GroupRequest> {
                     return (cardinalityEstimationData.getCardinality() * estimatedDocCountAfterFilters) / cardinalityEstimationData.getCount();
                 }
             });
-            log.debug("msg:NESTING_FIELD_ESTIMATION_COMPLETED field:{} currentOverallCardinality:{} estimatedCardinality:{} estimatedOutputCardinality:{}",
-                    field, estimatedOutputCardinality, estimatedNestingFieldCardinality, estimatedOutputCardinality * estimatedNestingFieldCardinality);
-            estimatedOutputCardinality *= estimatedNestingFieldCardinality;
+            log.debug("cacheKey:{} msg:NESTING_FIELD_ESTIMATION_COMPLETED field:{} overallCardinality:{} fieldCardinality:{} newCardinality:{}",
+                    cacheKey, field, outputCardinality, fieldCardinality, outputCardinality * fieldCardinality);
+            outputCardinality *= fieldCardinality;
         }
 
-        log.debug("msg:NESTING_FIELDS_ESTIMATION_COMPLETED maxDocCount:{} docCountAfterTimeFilters:{} docCountAfterFilters:{} estimatedOutputCardinality:{}",
-                estimatedMaxDocCount, estimatedDocCountBasedOnTime, estimatedDocCountAfterFilters, estimatedOutputCardinality);
-        if (estimatedOutputCardinality > MAX_CARDINALITY) {
+        log.debug("cacheKey:{} msg:NESTING_FIELDS_ESTIMATION_COMPLETED maxDocCount:{} docCountAfterTimeFilters:{} docCountAfterFilters:{} outputCardinality:{}",
+                cacheKey, estimatedMaxDocCount, estimatedDocCountBasedOnTime, estimatedDocCountAfterFilters, outputCardinality);
+        if (outputCardinality > MAX_CARDINALITY) {
             return 1.0;
         } else {
             return 0;
@@ -270,15 +274,17 @@ public class GroupAction extends Action<GroupRequest> {
             return currentDocCount;
         }
 
+        String cacheKey = getRequestCacheKey();
+
         double overallFilterMultiplier = 1;
         for (Filter filter : filters) {
             final String filterField = filter.getField();
             FieldMetadata fieldMetadata = metaMap.get(filterField);
             if (null == fieldMetadata || null == fieldMetadata.getEstimationData()) {
-                log.warn("No estimation data found for field {} meta {}", filterField, fieldMetadata);
+                log.warn("cacheKey:{} msg:NO_FIELD_ESTIMATION_DATA field:{}", cacheKey, filterField);
                 continue;
             }
-            log.debug("msg:FILTER_ESTIMATION_STARTED filter:{} mapping:{}", filter, fieldMetadata);
+            log.debug("cacheKey:{} msg:FILTER_ESTIMATION_STARTED filter:{} mapping:{}", cacheKey, filter, fieldMetadata);
             double currentFilterMultiplier = fieldMetadata.getEstimationData()
                     .accept(new EstimationDataVisitor<Double>() {
                         @Override
@@ -348,9 +354,10 @@ public class GroupAction extends Action<GroupRequest> {
 
                                     int numBuckets = maxBound - minBound + 1;
                                     final double result = (double) numBuckets / 10.0;
-                                    log.debug("Between filter: {} " +
+                                    log.debug("cacheKey:{} Between filter: {} " +
                                                     "percentiles[{}] = {} to percentiles[{}] = {} " +
                                                     "buckets {} multiplier {}",
+                                            cacheKey,
                                             betweenFilter,
                                             minBound,
                                             percentiles[minBound],
@@ -376,15 +383,15 @@ public class GroupAction extends Action<GroupRequest> {
                                             .orElse(9);
                                     int numBuckets = maxBound - minBound + 1;
                                     final double result = (double) numBuckets / 10.0;
-                                    log.debug("Equals filter: {} numMatches: {} multiplier: {}",
-                                            equalsFilter, numMatches, result);
+                                    log.debug("cacheKey:{} EqualsFilter:{} numMatches:{} multiplier:{}",
+                                            cacheKey, equalsFilter, numMatches, result);
                                     return result;
                                 }
 
                                 @Override
                                 public Double visit(NotEqualsFilter notEqualsFilter) throws Exception {
                                     // There is no match, so all values will be considered
-                                    log.debug("Not equals filter: {} multiplier: 1.0", notEqualsFilter);
+                                    log.debug("cacheKey:{} NotEqualsFilter:{} multiplier: 1.0", cacheKey, notEqualsFilter);
                                     return 1.0;
                                 }
 
@@ -401,7 +408,8 @@ public class GroupAction extends Action<GroupRequest> {
 
                                     //Everything below this percentile do not affect
                                     final double result = (double) (10 - minBound - 1) / 10.0;
-                                    log.debug("Greater than filter: {} percentiles[{}] = {} multiplier: {}",
+                                    log.debug("cacheKey:{} GreaterThanFilter: {} percentiles[{}] = {} multiplier: {}",
+                                            cacheKey,
                                             greaterThanFilter,
                                             minBound,
                                             percentiles[minBound],
@@ -422,7 +430,8 @@ public class GroupAction extends Action<GroupRequest> {
 
                                     //Everything below this do not affect
                                     final double result = (double) (10 - minBound - 1) / 10.0;
-                                    log.debug("Greater equals filter: {} percentiles[{}] = {} multiplier: {}",
+                                    log.debug("cacheKey:{} GreaterEqualsFilter:{} percentiles[{}] = {} multiplier: {}",
+                                            cacheKey,
                                             greaterEqualFilter,
                                             minBound,
                                             percentiles[minBound],
@@ -443,7 +452,8 @@ public class GroupAction extends Action<GroupRequest> {
 
                                     //Everything above this do not affect
                                     final double result = ((double) minBound + 1.0) / 10.0;
-                                    log.debug("Less than filter: {} percentiles[{}] = {} multiplier: {}",
+                                    log.debug("cacheKey:{} LessThanFilter:{} percentiles[{}] = {} multiplier: {}",
+                                            cacheKey,
                                             lessThanFilter,
                                             minBound,
                                             percentiles[minBound],
@@ -463,7 +473,8 @@ public class GroupAction extends Action<GroupRequest> {
                                             .orElse(0);
                                     //Everything above this do not affect
                                     final double result = ((double) minBound + 1.0) / 10.0;
-                                    log.debug("Less equals filter: {} percentiles[{}] = {} multiplier: {}",
+                                    log.debug("cacheKey:{} LessEqualsFilter: {} percentiles[{}] = {} multiplier: {}",
+                                            cacheKey,
                                             lessEqualFilter,
                                             minBound,
                                             percentiles[minBound],
@@ -518,8 +529,8 @@ public class GroupAction extends Action<GroupRequest> {
                             });
                         }
                     });
-            log.debug("msg:FILTER_ESTIMATION_COMPLETED field:{} fieldMultiplier:{} overallOldMultiplier:{} overallNewMultiplier:{}",
-                    filterField, currentFilterMultiplier, overallFilterMultiplier, overallFilterMultiplier * currentFilterMultiplier);
+            log.debug("cacheKey:{} msg:FILTER_ESTIMATION_COMPLETED field:{} fieldMultiplier:{} overallOldMultiplier:{} overallNewMultiplier:{}",
+                    cacheKey, filterField, currentFilterMultiplier, overallFilterMultiplier, overallFilterMultiplier * currentFilterMultiplier);
             overallFilterMultiplier *= currentFilterMultiplier;
         }
         return (long) (currentDocCount * overallFilterMultiplier);
