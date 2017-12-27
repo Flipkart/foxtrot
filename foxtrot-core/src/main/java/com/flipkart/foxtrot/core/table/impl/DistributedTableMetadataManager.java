@@ -258,7 +258,7 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
                     logger.info("table:{} field:{} type:{} aggregationType:{}", table, field, fieldMetadata.getType(), "cardinality");
                     query.addAggregation(AggregationBuilders.cardinality(field)
                             .field(field)
-                            .precisionThreshold(4000));
+                            .precisionThreshold(100));
                     break;
                 }
                 case INTEGER:
