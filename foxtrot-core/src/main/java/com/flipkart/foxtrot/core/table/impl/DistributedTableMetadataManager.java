@@ -217,7 +217,7 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
         final TreeSet<FieldMetadata> fieldMetadataTreeSet = new TreeSet<>(new FieldMetadataComparator());
         fieldMetadataTreeSet.addAll(fieldMetadata);
         TableFieldMapping tableFieldMapping = new TableFieldMapping(table, fieldMetadataTreeSet);
-//        estimateCardinality(table, tableFieldMapping.getMappings(), DateTime.now().minusDays(1).toDate().getTime());
+        estimateCardinality(table, tableFieldMapping.getMappings(), DateTime.now().minusDays(1).toDate().getTime());
         fieldDataCache.put(table, tableFieldMapping);
         return tableFieldMapping;
     }
