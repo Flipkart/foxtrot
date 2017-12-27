@@ -29,6 +29,6 @@ logging:
   level: INFO
 
 deletionconfig:
-  active: true
+  active: false
   interval: 86400
   initialdelay: 60

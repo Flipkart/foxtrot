@@ -258,7 +258,7 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
                     logger.info("table:{} field:{} type:{} aggregationType:{}", table, field, fieldMetadata.getType(), "cardinality");
                     query.addAggregation(AggregationBuilders.cardinality(field)
                             .field(field)
-                            .precisionThreshold(5));
+                            .precisionThreshold(4000));
                     break;
                 }
                 case INTEGER:
@@ -333,8 +333,7 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
         fields.stream()
                 .filter(fieldMetadata -> fieldMetadata.getType().equals(FieldType.BOOLEAN))
                 .forEach(fieldMetadata -> fieldMetadata.setEstimationData(FixedEstimationData.builder()
-                        .probability(50)
-                        .count(100)
+                        .count(2)
                         .build()));
     }
 
