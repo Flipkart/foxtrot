@@ -26,6 +26,8 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 
+import static com.flipkart.foxtrot.core.querystore.actions.Constants.CACHE_NAME_PREFIX;
+
 /**
  * User: Santanu Sinha (santanu.sinha@flipkart.com)
  * Date: 25/03/14
@@ -33,14 +35,13 @@ import java.io.IOException;
  */
 
 public class DistributedCache implements Cache {
-    private static final String NAME_PREFIX = "cache-for-";
 
     private static final Logger logger = LoggerFactory.getLogger(DistributedCache.class.getSimpleName());
     private final IMap<String, String> distributedMap;
     private final ObjectMapper mapper;
 
     public DistributedCache(HazelcastConnection hazelcastConnection, String name, ObjectMapper mapper) {
-        this.distributedMap = hazelcastConnection.getHazelcast().getMap(NAME_PREFIX + name);
+        this.distributedMap = hazelcastConnection.getHazelcast().getMap(CACHE_NAME_PREFIX + name);
         this.mapper = mapper;
     }
 
