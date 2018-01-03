@@ -173,51 +173,63 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
 
     @Override
     @Timed
-    public TableFieldMapping getFieldMappings(String originalTableName) throws FoxtrotException {
+    public TableFieldMapping getFieldMappings(String originalTableName, boolean withCardinality) throws FoxtrotException {
         final String table = ElasticsearchUtils.getValidTableName(originalTableName);
 
         if (!tableDataStore.containsKey(table)) {
             throw FoxtrotExceptions.createBadRequestException(table,
                     String.format("unknown_table table:%s", table));
         }
-        if (fieldDataCache.containsKey(table)) {
-            return fieldDataCache.get(table);
-        }
-        ElasticsearchMappingParser mappingParser = new ElasticsearchMappingParser(mapper);
-        final String indices = ElasticsearchUtils.getIndices(table);
-        logger.info("Selected indices: {}", indices);
-        GetMappingsResponse mappingsResponse = elasticsearchConnection.getClient().admin()
-                .indices().prepareGetMappings(indices).execute().actionGet();
 
-        Set<String> indicesName = Sets.newHashSet();
-        for (ObjectCursor<String> index : mappingsResponse.getMappings().keys()) {
-            indicesName.add(index.value);
+        TableFieldMapping tableFieldMapping;
+        if (fieldDataCache.containsKey(table)) {
+            tableFieldMapping = fieldDataCache.get(table);
+        } else {
+            ElasticsearchMappingParser mappingParser = new ElasticsearchMappingParser(mapper);
+            final String indices = ElasticsearchUtils.getIndices(table);
+            logger.info("Selected indices: {}", indices);
+            GetMappingsResponse mappingsResponse = elasticsearchConnection.getClient().admin()
+                    .indices().prepareGetMappings(indices).execute().actionGet();
+
+            Set<String> indicesName = Sets.newHashSet();
+            for (ObjectCursor<String> index : mappingsResponse.getMappings().keys()) {
+                indicesName.add(index.value);
+            }
+            List<FieldMetadata> fieldMetadata = indicesName.stream()
+                    .filter(x -> !CollectionUtils.isNullOrEmpty(x))
+                    .sorted((lhs, rhs) -> {
+                        Date lhsDate = ElasticsearchUtils.parseIndexDate(lhs, table).toDate();
+                        Date rhsDate = ElasticsearchUtils.parseIndexDate(rhs, table).toDate();
+                        return 0 - lhsDate.compareTo(rhsDate);
+                    })
+                    .map(index -> mappingsResponse.mappings()
+                            .get(index)
+                            .get(ElasticsearchUtils.DOCUMENT_TYPE_NAME))
+                    .flatMap(mappingData -> {
+                        try {
+                            return mappingParser.getFieldMappings(mappingData).stream();
+                        } catch (IOException e) {
+                            logger.error("Could not read mapping from " + mappingData, e);
+                            return Stream.empty();
+                        }
+                    })
+                    .collect(Collectors.toList());
+            final TreeSet<FieldMetadata> fieldMetadataTreeSet = new TreeSet<>(new FieldMetadataComparator());
+            fieldMetadataTreeSet.addAll(fieldMetadata);
+            tableFieldMapping = new TableFieldMapping(table, fieldMetadataTreeSet);
+            //        estimateCardinality(table, tableFieldMapping.getMappings(), DateTime.now().minusDays(1).toDate().getTime());
+            fieldDataCache.put(table, tableFieldMapping);
         }
-        List<FieldMetadata> fieldMetadata = indicesName.stream()
-                .filter(x -> !CollectionUtils.isNullOrEmpty(x))
-                .sorted((lhs, rhs) -> {
-                    Date lhsDate = ElasticsearchUtils.parseIndexDate(lhs, table).toDate();
-                    Date rhsDate = ElasticsearchUtils.parseIndexDate(rhs, table).toDate();
-                    return 0 - lhsDate.compareTo(rhsDate);
-                })
-                .map(index -> mappingsResponse.mappings()
-                        .get(index)
-                        .get(ElasticsearchUtils.DOCUMENT_TYPE_NAME))
-                .flatMap(mappingData -> {
-                    try {
-                        return mappingParser.getFieldMappings(mappingData).stream();
-                    } catch (IOException e) {
-                        logger.error("Could not read mapping from " + mappingData, e);
-                        return Stream.empty();
-                    }
-                })
-                .collect(Collectors.toList());
-        final TreeSet<FieldMetadata> fieldMetadataTreeSet = new TreeSet<>(new FieldMetadataComparator());
-        fieldMetadataTreeSet.addAll(fieldMetadata);
-        TableFieldMapping tableFieldMapping = new TableFieldMapping(table, fieldMetadataTreeSet);
-//        estimateCardinality(table, tableFieldMapping.getMappings(), DateTime.now().minusDays(1).toDate().getTime());
-        fieldDataCache.put(table, tableFieldMapping);
-        return tableFieldMapping;
+        return TableFieldMapping.builder()
+                .table(table)
+                .mappings(tableFieldMapping.getMappings().stream()
+                        .map(x -> FieldMetadata.builder()
+                                .field(x.getField())
+                                .type(x.getType())
+                                .estimationData(withCardinality ? x.getEstimationData() : null)
+                                .build())
+                        .collect(Collectors.toSet()))
+                .build();
     }
 
     @Override
@@ -226,7 +238,7 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
             throw FoxtrotExceptions.createBadRequestException(table,
                     String.format("unknown_table table:%s", table));
         }
-        final TableFieldMapping tableFieldMapping = getFieldMappings(table);
+        final TableFieldMapping tableFieldMapping = getFieldMappings(table, false);
         estimateCardinality(table, tableFieldMapping.getMappings(), timestamp);
         fieldDataCache.put(table, tableFieldMapping);
     }
