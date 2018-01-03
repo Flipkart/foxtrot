@@ -22,5 +22,7 @@ public enum EstimationDataType {
      * Fixed estimation data, for:
      *  {@link com.flipkart.foxtrot.common.FieldType#STRING}
      */
-    CARDINALITY
+    CARDINALITY,
+
+    TERM_HISTOGRAM
 }

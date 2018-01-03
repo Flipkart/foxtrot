@@ -27,6 +27,8 @@ cluster:
 
 logging:
   level: INFO
+  loggers:
+    com.flipkart.foxtrot.core.querystore.actions: DEBUG
 
 deletionconfig:
   active: false

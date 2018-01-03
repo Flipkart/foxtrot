@@ -67,7 +67,7 @@ public class FilterVisitorAdapter<T> extends FilterVisitor<T> {
     }
 
     @Override
-    public T visit(NotInFilter inFilter) throws Exception {
+    public T visit(NotInFilter notInFilter) throws Exception {
         return defaultValue;
     }
 
