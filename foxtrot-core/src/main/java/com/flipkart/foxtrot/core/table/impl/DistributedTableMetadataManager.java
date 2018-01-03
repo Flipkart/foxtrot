@@ -378,7 +378,8 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
                     if (cardinalityEstimationData.getCount() > 0 && cardinalityEstimationData.getCardinality() > 0) {
                         int countToCardinalityRatio = (int) (cardinalityEstimationData.getCount() / cardinalityEstimationData.getCardinality());
                         int documentToCountRatio = (int) (maxDocuments / cardinalityEstimationData.getCount());
-                        if (countToCardinalityRatio > 100 && documentToCountRatio < 100) {
+                        if (cardinalityEstimationData.getCardinality() < 100
+                                || (countToCardinalityRatio > 100 && documentToCountRatio < 100)) {
                             logger.info("field:{} maxCount:{} countToCardinalityRatio:{} documentToCountRatio:{}",
                                     key, maxDocuments, countToCardinalityRatio, documentToCountRatio);
                             SearchRequestBuilder query = client.prepareSearch(index)
