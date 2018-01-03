@@ -322,7 +322,7 @@ public class ElasticsearchQueryStore implements QueryStore {
 
     @Override
     public TableFieldMapping getFieldMappings(String testTableName) throws FoxtrotException {
-        return tableMetadataManager.getFieldMappings(testTableName);
+        return tableMetadataManager.getFieldMappings(testTableName, false);
     }
 
     private String convert(Document translatedDocument) {
