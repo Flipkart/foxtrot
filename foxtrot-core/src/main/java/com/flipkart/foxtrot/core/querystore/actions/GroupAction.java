@@ -18,10 +18,7 @@ package com.flipkart.foxtrot.core.querystore.actions;
 import com.flipkart.foxtrot.common.ActionResponse;
 import com.flipkart.foxtrot.common.FieldMetadata;
 import com.flipkart.foxtrot.common.TableFieldMapping;
-import com.flipkart.foxtrot.common.estimation.CardinalityEstimationData;
-import com.flipkart.foxtrot.common.estimation.EstimationDataVisitor;
-import com.flipkart.foxtrot.common.estimation.FixedEstimationData;
-import com.flipkart.foxtrot.common.estimation.PercentileEstimationData;
+import com.flipkart.foxtrot.common.estimation.*;
 import com.flipkart.foxtrot.common.group.GroupRequest;
 import com.flipkart.foxtrot.common.group.GroupResponse;
 import com.flipkart.foxtrot.common.query.Filter;
@@ -239,6 +236,11 @@ public class GroupAction extends Action<GroupRequest> {
                 public Long visit(CardinalityEstimationData cardinalityEstimationData) {
                     return (cardinalityEstimationData.getCardinality() * estimatedDocCountAfterFilters) / cardinalityEstimationData.getCount();
                 }
+
+                @Override
+                public Long visit(TermHistogramEstimationData termEstimationData) {
+                    return (long) termEstimationData.getTermCounts().size();
+                }
             });
             log.debug("cacheKey:{} msg:NESTING_FIELD_ESTIMATION_COMPLETED field:{} overallCardinality:{} fieldCardinality:{} newCardinality:{}",
                     cacheKey, field, outputCardinality, fieldCardinality, outputCardinality * fieldCardinality);
@@ -322,9 +324,9 @@ public class GroupAction extends Action<GroupRequest> {
                                 }
 
                                 @Override
-                                public Double visit(NotInFilter inFilter) throws Exception {
+                                public Double visit(NotInFilter notInFilter) throws Exception {
                                     // Assuming there are M matches, then probability will be N - M / N
-                                    return Utils.ensurePositive(fixedEstimationData.getCount() - inFilter.getValues().size())
+                                    return Utils.ensurePositive(fixedEstimationData.getCount() - notInFilter.getValues().size())
                                             / Utils.ensureOne(fixedEstimationData.getCount());
                                 }
                             });
@@ -519,12 +521,71 @@ public class GroupAction extends Action<GroupRequest> {
                                 }
 
                                 @Override
-                                public Double visit(NotInFilter inFilter) throws Exception {
+                                public Double visit(NotInFilter notInFilter) throws Exception {
                                     // Assuming there are M matches, then probability will be N - M / N
                                     return Utils.ensurePositive(
                                             cardinalityEstimationData.getCardinality()
-                                                    - inFilter.getValues().size())
+                                                    - notInFilter.getValues().size())
                                             / Utils.ensureOne(cardinalityEstimationData.getCardinality());
+                                }
+                            });
+                        }
+
+                        @Override
+                        @SneakyThrows
+                        public Double visit(TermHistogramEstimationData termEstimationData) {
+                            long totalCount = termEstimationData.getCount();
+                            return filter.accept(new FilterVisitorAdapter<Double>(1.0) {
+                                @Override
+                                public Double visit(EqualsFilter equalsFilter) throws Exception {
+                                    if (!(equalsFilter.getValue() instanceof String)
+                                            || !termEstimationData.getTermCounts().containsKey(equalsFilter.getValue())) {
+                                        return 1.0;
+                                    }
+                                    long matchingDocCount = termEstimationData.getTermCounts().get(equalsFilter.getValue());
+                                    return (double) matchingDocCount / totalCount;
+                                }
+
+                                @Override
+                                public Double visit(NotEqualsFilter notEqualsFilter) throws Exception {
+                                    if (!(notEqualsFilter.getValue() instanceof String)
+                                            || !termEstimationData.getTermCounts().containsKey(notEqualsFilter.getValue())) {
+                                        return 1.0;
+                                    }
+                                    long matchingDocCount = termEstimationData.getTermCounts().get(notEqualsFilter.getValue());
+                                    return (double) (totalCount - matchingDocCount) / totalCount;
+                                }
+
+                                @Override
+                                public Double visit(InFilter inFilter) throws Exception {
+                                    for (Object value : inFilter.getValues()){
+                                        if (!(value instanceof String)){
+                                            return 1.0;
+                                        }
+                                    }
+
+                                    long matchingDocCount = 0;
+                                    for (Object value : inFilter.getValues()){
+                                        Long count = termEstimationData.getTermCounts().get(value);
+                                        matchingDocCount += count == null ? 0 : count;
+                                    }
+                                    return (double) (matchingDocCount) / totalCount;
+                                }
+
+                                @Override
+                                public Double visit(NotInFilter notInFilter) throws Exception {
+                                    for (Object value : notInFilter.getValues()){
+                                        if (!(value instanceof String)){
+                                            return 1.0;
+                                        }
+                                    }
+
+                                    long matchingDocCount = 0;
+                                    for (Object value : notInFilter.getValues()){
+                                        Long count = termEstimationData.getTermCounts().get(value);
+                                        matchingDocCount += count == null ? 0 : count;
+                                    }
+                                    return (double) (totalCount - matchingDocCount) / totalCount;
                                 }
                             });
                         }
