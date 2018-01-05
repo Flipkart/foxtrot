@@ -71,7 +71,7 @@ import java.util.stream.IntStream;
 @Slf4j
 public class GroupAction extends Action<GroupRequest> {
 
-    private static final long MAX_CARDINALITY = 5000;
+    private static final long MAX_CARDINALITY = 50000;
     private static final long MIN_ESTIMATION_THRESHOLD = 1000;
 
     public GroupAction(GroupRequest parameter,
@@ -215,13 +215,14 @@ public class GroupAction extends Action<GroupRequest> {
         }
 
         long outputCardinality = 1;
-        for (String field : parameter.getNesting()) {
-            FieldMetadata meta = metaMap.get(field);
-            if (null == meta || null == meta.getEstimationData()) {
+        for (int i = 0; i < parameter.getNesting().size(); i++) {
+            final String field = parameter.getNesting().get(i);
+            FieldMetadata metadata = metaMap.get(field);
+            if (null == metadata || null == metadata.getEstimationData()) {
                 log.warn("cacheKey:{} msg:NO_FIELD_ESTIMATION_DATA table:{} field:{}", cacheKey, parameter.getTable(), field);
                 continue;
             }
-            long fieldCardinality = meta.getEstimationData().accept(new EstimationDataVisitor<Long>() {
+            long fieldCardinality = metadata.getEstimationData().accept(new EstimationDataVisitor<Long>() {
                 @Override
                 public Long visit(FixedEstimationData fixedEstimationData) {
                     return fixedEstimationData.getCount();
@@ -242,6 +243,11 @@ public class GroupAction extends Action<GroupRequest> {
                     return (long) termEstimationData.getTermCounts().size();
                 }
             });
+            log.debug("cacheKey:{} msg:NESTING_FIELD_ESTIMATED field:{} overallCardinality:{} fieldCardinality:{} newCardinality:{}",
+                    cacheKey, field, outputCardinality, fieldCardinality, outputCardinality * fieldCardinality);
+            if (fieldCardinality != 0) {
+                fieldCardinality = (long) Utils.ensureOne((long) Math.pow(Math.abs(fieldCardinality), 1 / Math.pow(2, i + 1)));
+            }
             log.debug("cacheKey:{} msg:NESTING_FIELD_ESTIMATION_COMPLETED field:{} overallCardinality:{} fieldCardinality:{} newCardinality:{}",
                     cacheKey, field, outputCardinality, fieldCardinality, outputCardinality * fieldCardinality);
             outputCardinality *= fieldCardinality;
@@ -558,14 +564,14 @@ public class GroupAction extends Action<GroupRequest> {
 
                                 @Override
                                 public Double visit(InFilter inFilter) throws Exception {
-                                    for (Object value : inFilter.getValues()){
-                                        if (!(value instanceof String)){
+                                    for (Object value : inFilter.getValues()) {
+                                        if (!(value instanceof String)) {
                                             return 1.0;
                                         }
                                     }
 
                                     long matchingDocCount = 0;
-                                    for (Object value : inFilter.getValues()){
+                                    for (Object value : inFilter.getValues()) {
                                         Long count = termEstimationData.getTermCounts().get(value);
                                         matchingDocCount += count == null ? 0 : count;
                                     }
@@ -574,14 +580,14 @@ public class GroupAction extends Action<GroupRequest> {
 
                                 @Override
                                 public Double visit(NotInFilter notInFilter) throws Exception {
-                                    for (Object value : notInFilter.getValues()){
-                                        if (!(value instanceof String)){
+                                    for (Object value : notInFilter.getValues()) {
+                                        if (!(value instanceof String)) {
                                             return 1.0;
                                         }
                                     }
 
                                     long matchingDocCount = 0;
-                                    for (Object value : notInFilter.getValues()){
+                                    for (Object value : notInFilter.getValues()) {
                                         Long count = termEstimationData.getTermCounts().get(value);
                                         matchingDocCount += count == null ? 0 : count;
                                     }
