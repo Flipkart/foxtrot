@@ -46,11 +46,13 @@ function getCountChartFormValues() {
 }
 
 function clearCountChartForm() {
+  $(".countForm").find('#count-dist').attr('checked', false);  
   $('.countForm')[0].reset();
   $(".countForm").find('.selectpicker').selectpicker('refresh');
 }
 
 function setCountChartFormValues(object) {
+  
   var parentElement = $("#"+currentChartType+"-chart-data");
 
   var timeUnitEl = parentElement.find("#count-time-unit");
@@ -64,7 +66,7 @@ function setCountChartFormValues(object) {
 
   parentElement.find("#count-timeframe").val(object.tileContext.timeframe);
   parentElement.find(".count-ignored-digits").val(parseInt(object.tileContext.ignoreDigits == undefined ? 0 : object.tileContext.ignoreDigits));
-  parentElement.find("#count-distinct").val(object.tileContext.isDistinct == undefined ? parentElement.find("#count-distinct").attr('checked', false) : parentElement.find("#count-distinct").attr('checked', object.tileContext.isDistinct)) ;
+  parentElement.find("#count-dist").val(object.tileContext.isDistinct == undefined ? parentElement.find("#count-dist").attr('checked', false) : parentElement.find("#count-dist").attr('checked', object.tileContext.isDistinct)) ;
 }
 
 CountTile.prototype.getQuery = function(object) {
