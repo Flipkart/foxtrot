@@ -5,6 +5,8 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
+import java.util.Date;
+
 /**
  *
  */
@@ -21,8 +23,8 @@ public class PercentileEstimationData extends EstimationData {
     }
 
     @Builder
-    public PercentileEstimationData(double[] values, long count) {
-        super(EstimationDataType.PERCENTILE, count);
+    public PercentileEstimationData(double[] values, long count, Date lastEstimated) {
+        super(EstimationDataType.PERCENTILE, count, lastEstimated);
         this.values = values;
     }
 

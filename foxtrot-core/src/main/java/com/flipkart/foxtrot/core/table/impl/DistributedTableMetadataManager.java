@@ -36,12 +36,10 @@ import com.flipkart.foxtrot.core.querystore.impl.HazelcastConnection;
 import com.flipkart.foxtrot.core.table.TableMetadataManager;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-import com.hazelcast.config.InMemoryFormat;
-import com.hazelcast.config.MapConfig;
-import com.hazelcast.config.MapStoreConfig;
-import com.hazelcast.config.NearCacheConfig;
+import com.hazelcast.config.*;
 import com.hazelcast.core.IMap;
 import lombok.SneakyThrows;
+import lombok.val;
 import org.elasticsearch.action.admin.indices.mapping.get.GetMappingsResponse;
 import org.elasticsearch.action.search.MultiSearchRequestBuilder;
 import org.elasticsearch.action.search.MultiSearchResponse;
@@ -61,6 +59,9 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.*;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -80,15 +81,20 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
     private IMap<String, Table> tableDataStore;
     private IMap<String, TableFieldMapping> fieldDataCache;
 
-    public DistributedTableMetadataManager(HazelcastConnection hazelcastConnection,
-                                           ElasticsearchConnection elasticsearchConnection,
-                                           ObjectMapper mapper) {
+    private ScheduledExecutorService executor;
+
+    public DistributedTableMetadataManager(
+            HazelcastConnection hazelcastConnection,
+            ElasticsearchConnection elasticsearchConnection,
+            ObjectMapper mapper
+                                          ) {
         this.hazelcastConnection = hazelcastConnection;
         this.elasticsearchConnection = elasticsearchConnection;
         this.mapper = mapper;
 
         hazelcastConnection.getHazelcastConfig().getMapConfigs().put(DATA_MAP, tableMapConfig());
         hazelcastConnection.getHazelcastConfig().getMapConfigs().put(FIELD_MAP, fieldMetaMapConfig());
+        executor = Executors.newSingleThreadScheduledExecutor();
     }
 
 
@@ -96,8 +102,7 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
         MapConfig mapConfig = new MapConfig();
         mapConfig.setReadBackupData(true);
         mapConfig.setInMemoryFormat(InMemoryFormat.BINARY);
-        mapConfig.setTimeToLiveSeconds(10);
-        mapConfig.setMaxIdleSeconds(10);
+        mapConfig.setEvictionPolicy(EvictionPolicy.NONE); //Never expire entries in this cache
         mapConfig.setBackupCount(0);
 
         MapStoreConfig mapStoreConfig = new MapStoreConfig();
@@ -118,9 +123,10 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
         MapConfig mapConfig = new MapConfig();
         mapConfig.setReadBackupData(true);
         mapConfig.setInMemoryFormat(InMemoryFormat.BINARY);
-        mapConfig.setTimeToLiveSeconds(90);
-        mapConfig.setMaxIdleSeconds(90);
+        mapConfig.setTimeToLiveSeconds(86400);
+        mapConfig.setMaxIdleSeconds(86400);
         mapConfig.setBackupCount(0);
+        mapConfig.setEvictionPolicy(EvictionPolicy.LFU);
 
         NearCacheConfig nearCacheConfig = new NearCacheConfig();
         nearCacheConfig.setTimeToLiveSeconds(90);
@@ -139,11 +145,14 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
         public int compare(FieldMetadata o1, FieldMetadata o2) {
             if (o1 == null && o2 == null) {
                 return 0;
-            } else if (o1 == null) {
+            }
+            else if (o1 == null) {
                 return -1;
-            } else if (o2 == null) {
+            }
+            else if (o2 == null) {
                 return 1;
-            } else {
+            }
+            else {
                 return o1.getField().compareTo(o2.getField());
             }
         }
@@ -177,18 +186,105 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
         return tables;
     }
 
+    public void updateFieldsIfRequired() {
+        for (val tableName : tableDataStore.keySet()) {
+            logger.info("Checking updation required for: {}", tableName);
+            final TreeSet<FieldMetadata> fieldMetadata = loadFieldMeta(tableName);
+            final Set<String> actualFields = fieldMetadata
+                    .stream()
+                    .map(FieldMetadata::getField)
+                    .collect(Collectors.toSet());
+            final Set<FieldMetadata> cachedMappings = fieldDataCache.get(tableName)
+                    .getMappings();
+            Set<String> cachedFields = cachedMappings
+                    .stream()
+                    .map(FieldMetadata::getField)
+                    .collect(Collectors.toSet());
+            Set<String> existingFields = Sets.intersection(actualFields, cachedFields);
+            if (existingFields.size() == actualFields.size()) {
+                logger.info("All available fields are cached in field meta for {}", tableName);
+            }
+            else {
+                logger.info("Reloading field meta, will also do cardinality estimation this time for table: {} ", tableName);
+                Map<String, FieldMetadata> meta = cachedMappings.stream()
+                        .collect(Collectors.toMap(FieldMetadata::getField, fMetadata -> fMetadata));
+
+                final Set<String> fields = existingFields
+                        .stream()
+                        .filter(field -> meta.get(field).getEstimationData() == null
+                                || meta.get(field)
+                                .getEstimationData()
+                                .getLastEstimated()
+                                .before(new Date(System.currentTimeMillis() - 86400000)))
+                        .collect(Collectors.toSet());
+
+                if (!CollectionUtils.isNullOrEmpty(fields)) {
+                    logger.info(
+                            "Looks like estimation data is missing for one or more existing fields for {}", tableName);
+                    try {
+                        estimateCardinality(
+                                tableName,
+                                fieldMetadata.stream()
+                                    .filter( field -> fields.contains(field.getField()))
+                                    .collect(Collectors.toList()),
+                                DateTime.now()
+                                        .minusDays(1)
+                                        .toDate()
+                                        .getTime());
+                        logger.info("Cardinality estimation completed for {}", tableName);
+                    }
+                    catch (FoxtrotException e) {
+                        logger.error("Error estimating cardinality for " + tableName, e);
+                    }
+                }
+
+                TableFieldMapping tableFieldMapping = new TableFieldMapping(tableName, fieldMetadata);
+                logger.info("Caching fresh field meta for: {}", tableName);
+                fieldDataCache.put(tableName, tableFieldMapping);
+            }
+        }
+    }
+
     @Override
     @Timed
-    public TableFieldMapping getFieldMappings(String originalTableName) throws FoxtrotException {
+    public TableFieldMapping getFieldMappings(String originalTableName, boolean withCardinality) throws FoxtrotException {
         final String table = ElasticsearchUtils.getValidTableName(originalTableName);
 
         if (!tableDataStore.containsKey(table)) {
             throw FoxtrotExceptions.createBadRequestException(table,
-                    String.format("unknown_table table:%s", table));
+                                                              String.format("unknown_table table:%s", table));
         }
         if (fieldDataCache.containsKey(table)) {
             return fieldDataCache.get(table);
         }
+        final TreeSet<FieldMetadata> fieldMetadataTreeSet = loadFieldMeta(table);
+        TableFieldMapping tableFieldMapping = new TableFieldMapping(table, fieldMetadataTreeSet);
+        if (withCardinality) {
+            logger.info("Cadrinality estimation requested ");
+            estimateCardinality(
+                    table,
+                    tableFieldMapping.getMappings(),
+                    DateTime.now()
+                            .minusDays(1)
+                            .toDate()
+                            .getTime());
+        }
+        fieldDataCache.put(table, tableFieldMapping);
+        return tableFieldMapping;
+    }
+
+    @Override
+    public void updateEstimationData(final String table, long timestamp) throws FoxtrotException {
+        if (!tableDataStore.containsKey(table)) {
+            throw FoxtrotExceptions.createBadRequestException(table,
+                                                              String.format("unknown_table table:%s", table));
+        }
+        final TableFieldMapping tableFieldMapping = getFieldMappings(table, false);
+        estimateCardinality(table, tableFieldMapping.getMappings(), timestamp);
+        fieldDataCache.put(table, tableFieldMapping);
+    }
+
+    private TreeSet<FieldMetadata> loadFieldMeta(String table) {
         ElasticsearchMappingParser mappingParser = new ElasticsearchMappingParser(mapper);
         final String indices = ElasticsearchUtils.getIndices(table);
         logger.info("Selected indices: {}", indices);
@@ -212,7 +308,8 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
                 .flatMap(mappingData -> {
                     try {
                         return mappingParser.getFieldMappings(mappingData).stream();
-                    } catch (IOException e) {
+                    }
+                    catch (IOException e) {
                         logger.error("Could not read mapping from " + mappingData, e);
                         return Stream.empty();
                     }
@@ -220,27 +317,7 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
                 .collect(Collectors.toList());
         final TreeSet<FieldMetadata> fieldMetadataTreeSet = new TreeSet<>(new FieldMetadataComparator());
         fieldMetadataTreeSet.addAll(fieldMetadata);
-        TableFieldMapping tableFieldMapping = new TableFieldMapping(table, fieldMetadataTreeSet);
-        estimateCardinality(
-                table,
-                tableFieldMapping.getMappings(),
-                DateTime.now()
-                        .minusDays(1)
-                        .toDate()
-                        .getTime());
-        fieldDataCache.put(table, tableFieldMapping);
-        return tableFieldMapping;
-    }
-
-    @Override
-    public void updateEstimationData(final String table, long timestamp) throws FoxtrotException {
-        if (!tableDataStore.containsKey(table)) {
-            throw FoxtrotExceptions.createBadRequestException(table,
-                    String.format("unknown_table table:%s", table));
-        }
-        final TableFieldMapping tableFieldMapping = getFieldMappings(table);
-        estimateCardinality(table, tableFieldMapping.getMappings(), timestamp);
-        fieldDataCache.put(table, tableFieldMapping);
+        return fieldMetadataTreeSet;
     }
 
     private void estimateCardinality(final String table, final Collection<FieldMetadata> fields, long time) throws FoxtrotException {
@@ -267,8 +344,8 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
 
                 case STRING: {
                     query.addAggregation(AggregationBuilders.cardinality(field)
-                            .field(field)
-                            .precisionThreshold(5));
+                                                 .field(field)
+                                                 .precisionThreshold(5));
                     break;
                 }
                 case INTEGER:
@@ -276,8 +353,8 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
                 case FLOAT:
                 case DOUBLE: {
                     query.addAggregation(AggregationBuilders.percentiles(field)
-                            .field(field)
-                            .percentiles(10, 20, 30, 40, 50, 60, 70, 80, 90, 100));
+                                                 .field(field)
+                                                 .percentiles(10, 20, 30, 40, 50, 60, 70, 80, 90, 100));
                     break;
                 }
                 case BOOLEAN:
@@ -308,9 +385,9 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
                     case STRING: {
                         Cardinality cardinality = (Cardinality) value;
                         fieldMetadata.setEstimationData(CardinalityEstimationData.builder()
-                                .cardinality(cardinality.getValue())
-                                .count(hits)
-                                .build());
+                                                                .cardinality(cardinality.getValue())
+                                                                .count(hits)
+                                                                .build());
                         break;
                     }
                     case INTEGER:
@@ -319,12 +396,13 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
                     case DOUBLE: {
                         double values[] = new double[10];
                         Percentiles percentiles = (Percentiles) value;
-                        for (int i = 10; i <= 100; i += 10)
+                        for (int i = 10; i <= 100; i += 10) {
                             values[(i / 10) - 1] = percentiles.percentile(i);
+                        }
                         fieldMetadata.setEstimationData(PercentileEstimationData.builder()
-                                .values(values)
-                                .count(hits)
-                                .build());
+                                                                .values(values)
+                                                                .count(hits)
+                                                                .build());
                         break;
                     }
                     case BOOLEAN:
@@ -336,9 +414,9 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
         fields.stream()
                 .filter(fieldMetadata -> fieldMetadata.getType().equals(FieldType.BOOLEAN))
                 .forEach(fieldMetadata -> fieldMetadata.setEstimationData(FixedEstimationData.builder()
-                        .probability(50)
-                        .count(100)
-                        .build()));
+                                                                                  .probability(50)
+                                                                                  .count(100)
+                                                                                  .build()));
     }
 
     @Override
@@ -359,6 +437,8 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
     public void start() throws Exception {
         tableDataStore = hazelcastConnection.getHazelcast().getMap(DATA_MAP);
         fieldDataCache = hazelcastConnection.getHazelcast().getMap(FIELD_MAP);
+
+        executor.scheduleWithFixedDelay(this::updateFieldsIfRequired, 30, 600, TimeUnit.SECONDS);
     }
 
     @Override

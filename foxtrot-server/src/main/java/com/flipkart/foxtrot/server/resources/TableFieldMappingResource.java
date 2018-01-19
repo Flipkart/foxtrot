@@ -46,7 +46,7 @@ public class TableFieldMappingResource {
     @GET
     @Path("/{name}/fields")
     public Response get(@PathParam("name") final String table) throws FoxtrotException {
-        return Response.ok(tableMetadataManager.getFieldMappings(table)).build();
+        return Response.ok(tableMetadataManager.getFieldMappings(table, false)).build();
     }
 
 
@@ -59,7 +59,7 @@ public class TableFieldMappingResource {
                         .collect(
                                 Collectors.toMap(Table::getName, table -> {
                                     try {
-                                        return tableMetadataManager.getFieldMappings(table.getName());
+                                        return tableMetadataManager.getFieldMappings(table.getName(), false);
                                     } catch (FoxtrotException e) {
                                         throw new RuntimeException(e);
                                     }

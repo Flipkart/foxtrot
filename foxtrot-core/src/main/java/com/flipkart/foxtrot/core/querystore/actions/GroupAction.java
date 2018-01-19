@@ -144,7 +144,7 @@ public class GroupAction extends Action<GroupRequest> {
         // Perform cardinality analysis and see how much this fucks up the cluster
         double probability = 0;
         try {
-            TableFieldMapping fieldMappings = getTableMetadataManager().getFieldMappings(parameter.getTable());
+            TableFieldMapping fieldMappings = getTableMetadataManager().getFieldMappings(parameter.getTable(), true);
             if (null == fieldMappings) {
                 fieldMappings = TableFieldMapping.builder()
                         .mappings(Collections.emptySet())

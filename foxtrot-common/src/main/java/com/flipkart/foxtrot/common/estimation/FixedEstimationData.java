@@ -5,6 +5,8 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
+import java.util.Date;
+
 /**
  * Fixed estimation data
  */
@@ -21,8 +23,8 @@ public class FixedEstimationData extends EstimationData {
     }
 
     @Builder
-    public FixedEstimationData(long probability, long count) {
-        super(EstimationDataType.FIXED, count);
+    public FixedEstimationData(long probability, long count, Date lastEstimated) {
+        super(EstimationDataType.FIXED, count, lastEstimated);
         this.probability = probability;
     }
 

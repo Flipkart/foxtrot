@@ -5,6 +5,8 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
+import java.util.Date;
+
 /**
  * Estimated cardinality data
  */
@@ -20,8 +22,8 @@ public class CardinalityEstimationData extends EstimationData {
     }
 
     @Builder
-    public CardinalityEstimationData(long cardinality, long count) {
-        super(EstimationDataType.CARDINALITY, count);
+    public CardinalityEstimationData(long cardinality, long count, Date lastEstimated) {
+        super(EstimationDataType.CARDINALITY, count, lastEstimated);
         this.cardinality = cardinality;
     }
 
