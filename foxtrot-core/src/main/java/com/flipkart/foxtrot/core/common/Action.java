@@ -59,7 +59,6 @@ public abstract class Action<ParameterType extends ActionRequest> implements Cal
     private final QueryStore queryStore;
     private final String cacheToken;
     private final CacheManager cacheManager;
-    private static final long DEFAULT_TIMEOUT = 300000L;
 
     protected Action(ParameterType parameter,
                      TableMetadataManager tableMetadataManager,
@@ -242,12 +241,10 @@ public abstract class Action<ParameterType extends ActionRequest> implements Cal
     }
 
     public long getCountQueryTimeout() {
-        return (getConnection().getConfig().getCountQueryTimeout()==0)?DEFAULT_TIMEOUT:getConnection().getConfig().getCountQueryTimeout();
+        return (getConnection().getConfig().getCountQueryTimeout());
     }
 
     public long getFetchQueryTimeout() {
-        return (getConnection().getConfig().getFetchQueryTimeout()==0)?DEFAULT_TIMEOUT:getConnection().getConfig().getFetchQueryTimeout();
+        return (getConnection().getConfig().getFetchQueryTimeout());
     }
-
-
 }
