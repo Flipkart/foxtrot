@@ -15,6 +15,7 @@
  */
 package com.flipkart.foxtrot.server;
 
+import ch.qos.logback.classic.Logger;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
@@ -47,14 +48,18 @@ import com.flipkart.foxtrot.server.providers.FlatResponseErrorTextProvider;
 import com.flipkart.foxtrot.server.providers.FlatResponseTextProvider;
 import com.flipkart.foxtrot.server.providers.exception.FoxtrotExceptionMapper;
 import com.flipkart.foxtrot.server.resources.*;
+import com.flipkart.foxtrot.server.utils.FoxtrotLoggerUtils;
 import com.flipkart.foxtrot.sql.FqlEngine;
 import com.yammer.dropwizard.Service;
 import com.yammer.dropwizard.assets.AssetsBundle;
 import com.yammer.dropwizard.config.Bootstrap;
 import com.yammer.dropwizard.config.Environment;
+import com.yammer.dropwizard.config.LoggingConfiguration;
+import com.yammer.dropwizard.logging.AsyncAppender;
 import com.yammer.metrics.core.HealthCheck;
 import net.sourceforge.cobertura.CoverageIgnore;
 import org.eclipse.jetty.servlets.CrossOriginFilter;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -78,6 +83,12 @@ public class FoxtrotServer extends Service<FoxtrotServerConfiguration> {
 
     @Override
     public void run(FoxtrotServerConfiguration configuration, Environment environment) throws Exception {
+        Logger root =  (Logger) LoggerFactory.getLogger(org.slf4j.Logger.ROOT_LOGGER_NAME);
+        LoggingConfiguration.FileConfiguration fileConfiguration = configuration.getLoggingConfiguration().getFileConfiguration();
+        if (fileConfiguration.isEnabled()) {
+            root.detachAndStopAllAppenders();
+            root.addAppender(AsyncAppender.wrap(FoxtrotLoggerUtils.buildFileAppender(fileConfiguration, root.getLoggerContext(), fileConfiguration.getLogFormat(), configuration.getLogRotationFileConfig())));
+        }
         configuration.getHttpConfiguration().setRootPath("/foxtrot/*");
         configureObjectMapper(environment);
 
