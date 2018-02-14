@@ -283,6 +283,7 @@ function reloadDropdowns() { // change dropdown values for all charts when table
   }
   else if (currentChartType == "percentageGauge") {
     generateDropDown(currentFieldList, "#percentage-gauge-nesting");
+    generateDropDown(currentFieldList, "#percentage-gauge-uniquekey");
   }
   else if (currentChartType == "stackedBar") {
     generateDropDown(currentFieldList, "#stacked-bar-field");

@@ -24,6 +24,13 @@ function getPercentageGaugeChartFormValues() {
   var numeratorField = $("#percentage-gauge-numerator-field").val();
   var denominatorField = $("#percentage-gauge-denominator-field").val();
   var status = false;
+  var uniqueKey = $("#percentage-gauge-uniquekey").val();
+
+  if(uniqueKey == "none" || uniqueKey == "" || uniqueKey == null) {
+    uniqueKey = null;
+  } else {
+    uniqueKey = currentFieldList[parseInt(uniqueKey)].field
+  }
 
   var nestingArray = [];
   nestingArray.push(currentFieldList[parseInt(nesting)].field);
@@ -33,6 +40,7 @@ function getPercentageGaugeChartFormValues() {
     , "timeframe": timeframe
     , "numerator" : numeratorField
     , "denominator" : denominatorField
+    , "uniqueKey": uniqueKey
   };
 }
 
@@ -50,6 +58,10 @@ function setPercentageGaugeChartFormValues(object) {
   $("#percentage-gauge-numerator-field").val((object.tileContext.numerator == undefined ? '' : object.tileContext.numerator));
 
   $("#percentage-gauge-denominator-field").val((object.tileContext.denominator == undefined ? '' : object.tileContext.denominator));
+
+  var stackingUniqueField = currentFieldList.findIndex(x => x.field == object.tileContext.uniqueKey);
+  $("#percentage-gauge-uniquekey").val(parseInt(stackingUniqueField));
+  $("#percentage-gauge-uniquekey").selectpicker('refresh');
 }
 
 function clearPercentageGaugeChartForm() {
@@ -75,6 +87,7 @@ PercentageGaugeTile.prototype.getQuery = function (object) {
     , "table": object.tileContext.table
     , "filters": filters
     , "nesting": object.tileContext.nesting
+    , "uniqueCountOn": object.tileContext.uniqueKey && object.tileContext.uniqueKey != "none" ? object.tileContext.uniqueKey : null
   }
   $.ajax({
     method: "post"
