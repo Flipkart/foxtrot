@@ -372,6 +372,8 @@
                       <label class="control-label">Denominator value<span class="mandatory-text">*</span></label>
                       <input type="text" name="percentage-gauge-denominator-field" class="selectpicker percentage-gauge-denominator-field form-control" placeholder="Enter denominator value" id="percentage-gauge-denominator-field" required />
                     </div>
+                    <div class="form-group"><label class="control-label">Unique of</label>
+                      <select id="percentage-gauge-uniquekey" class="selectpicker show-menu-arrow percentage-gauge-uniquekey form-control" data-live-search="true"> </select></div>
                   </div>
                 </div>
               </form>
@@ -596,7 +598,7 @@
                       <select class="selectpicker show-menu-arrow count-field form-control" id="count-field" data-live-search="true" data-style="btn-warning" name="count-field"> </select>
                     </div>
                     <div class="row">
-                      <label id="count-distinct-label"><input type="checkbox" class="count-dist" value="true" id="count-dist"> &nbsp;&nbsp;Distinct Count</label>
+                      <label id="count-distinct-label"><input type="checkbox" class="count-dist" value="false" id="count-dist"> &nbsp;&nbsp;Distinct Count</label>
                     </div>
                     <div class="form-group">
                       <label class="control-label" for="count-ignored-digits"><strong>Shift Decimal Left By</strong> </label>

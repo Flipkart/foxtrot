@@ -330,7 +330,10 @@ function generateOption(el, type) {
     .remove()
     .end()
     .append(getWhereOption(type));
-  $("#browse-events-form").find(el).selectpicker('refresh');
+    setTimeout(function(){
+      $("#browse-events-form").find(el).val('equals');
+      $("#browse-events-form").find(el).selectpicker('refresh');
+    }, 0);
 }
 
 
