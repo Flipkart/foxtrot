@@ -32,6 +32,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import org.apache.commons.httpclient.HttpStatus;
 import org.elasticsearch.action.WriteConsistencyLevel;
 import org.elasticsearch.action.admin.cluster.health.ClusterHealthResponse;
 import org.elasticsearch.action.admin.cluster.node.stats.NodesStatsRequest;
@@ -162,6 +163,13 @@ public class ElasticsearchQueryStore implements QueryStore {
                         logger.error(String.format("Table : %s Failure Message : %s Document : %s", table,
                                 itemResponse.getFailureMessage(),
                                 mapper.writeValueAsString(documents.get(i))));
+                        int httpStatus = itemResponse.getFailure().getStatus().getStatus();
+                        Exception e = new Exception(itemResponse.getFailureMessage());
+                        if (httpStatus>= HttpStatus.SC_INTERNAL_SERVER_ERROR) {
+                            throw FoxtrotExceptions.createExecutionException(table, e);
+                        } else {
+                            throw FoxtrotExceptions.createBadRequestException(table,e);
+                        }
                     }
                 }
             }
