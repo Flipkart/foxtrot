@@ -24,6 +24,7 @@ import com.yammer.dropwizard.config.Configuration;
 import net.sourceforge.cobertura.CoverageIgnore;
 
 import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 
 /**
  * User: Santanu Sinha (santanu.sinha@flipkart.com)
@@ -41,6 +42,9 @@ public class FoxtrotServerConfiguration extends Configuration {
     @Valid
     private final ClusterConfig cluster;
 
+    @NotNull
+    private LogRotationFileConfig logRotationFileConfig;
+
     @Valid
     @JsonProperty("deletionconfig")
     private final DataDeletionManagerConfig deletionManagerConfig;
@@ -51,6 +55,8 @@ public class FoxtrotServerConfiguration extends Configuration {
         this.cluster = new ClusterConfig();
         this.deletionManagerConfig = new DataDeletionManagerConfig();
     }
+
+    public LogRotationFileConfig getLogRotationFileConfig() { return logRotationFileConfig; }
 
     public HbaseConfig getHbase() {
         return hbase;
