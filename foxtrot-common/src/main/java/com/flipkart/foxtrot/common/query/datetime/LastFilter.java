@@ -57,6 +57,16 @@ public class LastFilter extends Filter {
     }
 
     @Override
+    public String toString() {
+        return "WindowFilter{" +
+                "field=" + getField() +
+                ", currentTime=" + currentTime +
+                ", duration=" + duration +
+                '}';
+    }
+
+    @Override
+    @JsonIgnore
     public boolean isFilterTemporal() {
         return true;
     }
