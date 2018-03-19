@@ -69,6 +69,7 @@ public class LastFilter extends Filter {
     }
 
     @Override
+    @JsonIgnore
     public boolean isFilterTemporal() {
         return true;
     }
