@@ -15,7 +15,6 @@
  */
 package com.flipkart.foxtrot.common.query.numeric;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.flipkart.foxtrot.common.query.Filter;
 import com.flipkart.foxtrot.common.query.FilterOperator;
 import com.flipkart.foxtrot.common.query.FilterVisitor;
