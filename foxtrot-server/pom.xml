@@ -5,7 +5,7 @@
     <parent>
         <artifactId>foxtrot</artifactId>
         <groupId>com.flipkart.foxtrot</groupId>
-        <version>${project.version}</version>
+        <version>0.5.4.4</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -41,22 +41,22 @@
         <dependency>
             <groupId>com.flipkart.foxtrot</groupId>
             <artifactId>foxtrot-sql</artifactId>
-            <version>${project.version}</version>
+            <version>0.5.4.4</version>
         </dependency>
         <dependency>
             <groupId>com.flipkart.foxtrot</groupId>
             <artifactId>foxtrot-common</artifactId>
-            <version>${project.version}</version>
+            <version>0.5.4.4</version>
         </dependency>
         <dependency>
             <groupId>com.flipkart.foxtrot</groupId>
             <artifactId>foxtrot-core</artifactId>
-            <version>${project.version}</version>
+            <version>0.5.4.4</version>
         </dependency>
         <dependency>
             <groupId>com.flipkart.foxtrot</groupId>
             <artifactId>foxtrot-core</artifactId>
-            <version>${project.version}</version>
+            <version>0.5.4.4</version>
             <type>test-jar</type>
             <scope>test</scope>
         </dependency>
@@ -91,7 +91,7 @@
                         <artifactId>docker-maven-plugin</artifactId>
                         <version>0.4.10</version>
                         <configuration>
-                            <imageName>docker.phonepe.com:5000/foxtrot:${project.version}</imageName>
+                            <imageName>docker.phonepe.com:5000/foxtrot:0.5.4.4</imageName>
                             <dockerDirectory>${project.basedir}/..</dockerDirectory>
                             <registryUrl>http://docker.phonepe.com:5000/</registryUrl>
                         </configuration>
@@ -110,7 +110,7 @@
                                     <goal>push</goal>
                                 </goals>
                                 <configuration>
-                                    <imageName>docker.phonepe.com:5000/foxtrot:${project.version}</imageName>
+                                    <imageName>docker.phonepe.com:5000/foxtrot:0.5.4.4</imageName>
                                 </configuration>
                             </execution>
                         </executions>
