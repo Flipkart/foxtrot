@@ -18,6 +18,27 @@
 
     <dependencies>
         <dependency>
+            <groupId>io.dropwizard</groupId>
+            <artifactId>dropwizard-core</artifactId>
+            <version>${dropwizard.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+            <version>3.3.1</version>
+        </dependency>
+        <dependency>
+            <groupId>com.sematext.hbase.ds</groupId>
+            <artifactId>hbase-ds</artifactId>
+            <version>0.0.2-SNAPSHOT</version>
+        </dependency>
+        <!-- Hazelcast Marathon discovery SPI -->
+        <dependency>
+            <groupId>com.marathon.hazelcast.servicediscovery</groupId>
+            <artifactId>hazelcast-marathon-discovery</artifactId>
+            <version>0.0.3</version>
+        </dependency>
+        <dependency>
             <groupId>org.apache.hbase</groupId>
             <artifactId>hbase-server</artifactId>
             <version>${hbase.version}</version>
