@@ -17,7 +17,6 @@ package com.flipkart.foxtrot.server.resources;
 
 import com.flipkart.foxtrot.common.Table;
 import com.flipkart.foxtrot.core.exception.FoxtrotException;
-import com.flipkart.foxtrot.core.querystore.QueryStore;
 import com.flipkart.foxtrot.core.table.TableManager;
 import com.flipkart.foxtrot.core.table.TableMetadataManager;
 
@@ -35,31 +34,30 @@ public class TableFieldMappingResource {
 
     private final TableManager tableManager;
     private final TableMetadataManager tableMetadataManager;
-    private final QueryStore queryStore;
 
-    public TableFieldMappingResource(TableManager tableManager, TableMetadataManager tableMetadataManager, QueryStore queryStore) {
+    public TableFieldMappingResource(TableManager tableManager, TableMetadataManager tableMetadataManager) {
         this.tableManager = tableManager;
         this.tableMetadataManager = tableMetadataManager;
-        this.queryStore = queryStore;
     }
 
     @GET
     @Path("/{name}/fields")
-    public Response get(@PathParam("name") final String table) throws FoxtrotException {
-        return Response.ok(tableMetadataManager.getFieldMappings(table)).build();
+    public Response get(@PathParam("name") final String table,
+                        @QueryParam("withCardinality") @DefaultValue("false") boolean withCardinality) throws FoxtrotException {
+        return Response.ok(tableMetadataManager.getFieldMappings(table, withCardinality)).build();
     }
 
 
     @GET
     @Path("/fields")
-    public Response getAllFields() throws FoxtrotException {
+    public Response getAllFields(@QueryParam("withCardinality") @DefaultValue("false") boolean withCardinality) throws FoxtrotException {
         return Response.ok()
                 .entity(tableManager.getAll()
                         .stream()
                         .collect(
                                 Collectors.toMap(Table::getName, table -> {
                                     try {
-                                        return tableMetadataManager.getFieldMappings(table.getName());
+                                        return tableMetadataManager.getFieldMappings(table.getName(), withCardinality);
                                     } catch (FoxtrotException e) {
                                         throw new RuntimeException(e);
                                     }

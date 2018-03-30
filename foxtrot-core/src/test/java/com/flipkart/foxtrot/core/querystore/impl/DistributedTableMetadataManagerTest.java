@@ -145,8 +145,9 @@ public class DistributedTableMetadataManagerTest {
         doReturn(translatedDocument).when(dataStore).save(table, document);
         queryStore.save(TestUtils.TEST_TABLE_NAME, document);
 
-        TableFieldMapping tableFieldMapping = distributedTableMetadataManager.getFieldMappings(TestUtils.TEST_TABLE_NAME);
+        TableFieldMapping tableFieldMapping = distributedTableMetadataManager.getFieldMappings(TestUtils.TEST_TABLE_NAME, true);
         assertEquals(2, tableFieldMapping.getMappings().size());
+
         assertEquals(FieldType.STRING, tableFieldMapping.getMappings().stream()
                 .filter(x -> x.getField().equals("version")).findAny().get().getType());
         assertEquals(FieldType.STRING, tableFieldMapping.getMappings().stream()
