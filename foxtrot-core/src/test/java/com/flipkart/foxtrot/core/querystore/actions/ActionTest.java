@@ -1,5 +1,7 @@
 package com.flipkart.foxtrot.core.querystore.actions;
 
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.Logger;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.flipkart.foxtrot.common.Table;
 import com.flipkart.foxtrot.core.MockElasticsearchServer;
@@ -22,6 +24,7 @@ import org.joda.time.DateTimeZone;
 import org.junit.After;
 import org.junit.Before;
 import org.mockito.Mockito;
+import org.slf4j.LoggerFactory;
 
 import java.util.UUID;
 import java.util.concurrent.ExecutorService;
@@ -42,6 +45,11 @@ public class ActionTest {
     private MockElasticsearchServer elasticsearchServer;
     private ElasticsearchConnection elasticsearchConnection;
     private DistributedTableMetadataManager tableMetadataManager;
+
+    static {
+        Logger root = (Logger)LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
+        root.setLevel(Level.WARN);
+    }
 
     @Before
     public void setUp() throws Exception {
