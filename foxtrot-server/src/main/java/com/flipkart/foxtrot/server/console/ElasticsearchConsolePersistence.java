@@ -104,9 +104,9 @@ public class ElasticsearchConsolePersistence implements ConsolePersistence {
                         .actionGet();
                 SearchHits hits = response.getHits();
                 for (SearchHit hit : hits) {
-                    results.add(mapper.readValue(hit.sourceAsString(), Console.class));
+                    results.add(mapper.readValue(hit.getSourceAsString(), Console.class));
                 }
-                if (0 == response.getHits().hits().length) {
+                if (0 == response.getHits().getHits().length) {
                     break;
                 }
             }
@@ -189,9 +189,9 @@ public class ElasticsearchConsolePersistence implements ConsolePersistence {
                         .actionGet();
                 SearchHits hits = response.getHits();
                 for (SearchHit hit : hits) {
-                    results.add(mapper.readValue(hit.sourceAsString(), ConsoleV2.class));
+                    results.add(mapper.readValue(hit.getSourceAsString(), ConsoleV2.class));
                 }
-                if (0 == response.getHits().hits().length) {
+                if (0 == response.getHits().getHits().length) {
                     break;
                 }
             }

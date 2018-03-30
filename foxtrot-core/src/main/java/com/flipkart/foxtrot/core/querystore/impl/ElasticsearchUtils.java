@@ -106,7 +106,7 @@ public class ElasticsearchUtils {
         try {
             return new PutIndexTemplateRequest()
                     .name("template_foxtrot_mappings")
-                    .template(String.format("%s-*", ElasticsearchUtils.TABLENAME_PREFIX))
+                    .patterns(Lists.newArrayList(String.format("%s-*", ElasticsearchUtils.TABLENAME_PREFIX)))
                     .mapping(DOCUMENT_TYPE_NAME, getDocumentMapping());
         } catch (IOException ex) {
             logger.error("TEMPLATE_CREATION_FAILED", ex);

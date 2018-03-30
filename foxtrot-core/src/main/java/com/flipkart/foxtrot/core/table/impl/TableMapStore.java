@@ -214,7 +214,7 @@ public class TableMapStore implements MapStore<String, Table> {
             for (SearchHit hit : hits) {
                 ids.add(hit.getId());
             }
-            if (0 == response.getHits().hits().length) {
+            if (0 == response.getHits().getHits().length) {
                 break;
             }
         }
