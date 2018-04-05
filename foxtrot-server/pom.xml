@@ -91,7 +91,7 @@
                         <artifactId>docker-maven-plugin</artifactId>
                         <version>0.4.10</version>
                         <configuration>
-                            <imageName>docker.phonepe.com:5000/foxtrot:0.5.4.4</imageName>
+                            <imageName>docker.phonepe.com:5000/foxtrot:${project.version}</imageName>
                             <dockerDirectory>${project.basedir}/..</dockerDirectory>
                             <registryUrl>http://docker.phonepe.com:5000/</registryUrl>
                         </configuration>
@@ -110,7 +110,7 @@
                                     <goal>push</goal>
                                 </goals>
                                 <configuration>
-                                    <imageName>docker.phonepe.com:5000/foxtrot:0.5.4.4</imageName>
+                                    <imageName>docker.phonepe.com:5000/foxtrot:${project.version}</imageName>
                                 </configuration>
                             </execution>
                         </executions>
