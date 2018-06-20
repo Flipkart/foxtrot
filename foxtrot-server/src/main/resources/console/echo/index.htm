@@ -256,6 +256,7 @@
               <select id="chart-type" name="chart-type" class="chart-type form-control" required>
                 <option value="">Select Visualization Type</option>
                 <option value="line">Line / Histogram chart</option>
+                <option value="lineRatio">Line Ratio Chart</option>
                 <option value="stackedBar">Stacked Line chart</option>
                 <option value="bar">Bar Chart</option>
                 <option value="stacked">Stacked Bar chart</option>
@@ -550,6 +551,37 @@
                   </div>
                 </div>
               </form>
+              <form id="lineRatio" class="lineRatioForm">
+                <div id="lineRatio-chart-data">
+                  <div class="col-md-12 chart-forms">
+                    <div class="form-group"><label class="control-label">Time Unit <span class="mandatory-text">*</span></label>
+                      <select name="line-ratio-time-unit" required class="selectpicker show-menu-arrow line-ratio-time-unit form-control" id="line-ratio-time-unit">
+                        <option value="minutes" selected="selected">Minute</option>
+                        <option value="hours">Hour</option>
+                        <option value="days">Day</option>
+                      </select></div>
+                    <div class="form-group"><label class="control-label">Time Frame <span class="mandatory-text">*</span></label>
+                      <input name="line-ratio-timeframe" type="number" class="line-ratio-timeframe form-control" id="line-ratio-timeframe" placeholder="Enter time frame" required></div>
+                    <div class="form-group"><label class="control-label">Field to classify <span class="mandatory-text">*</span></label>
+                      <select name="line-ratio-field" required class="selectpicker show-menu-arrow line-ratio-field form-control" id="line-ratio-field" data-live-search="true"></select></div>
+                      <div class="form-group">
+                        <label class="control-label">Numertaor value<span class="mandatory-text">*</span></label>
+                        <input type="text" name="line-ratio-numerator-field" class="selectpicker line-ratio-numerator-field form-control" id="line-ratio-numerator-field" placeholder="Enter numerator value" required />
+                      </div>
+                      <div class="form-group">
+                        <label class="control-label">Denominator value<span class="mandatory-text">*</span></label>
+                        <input type="text" name="line-ratio-denominator-field" class="selectpicker line-ratio-denominator-field form-control" placeholder="Enter denominator value" id="line-ratio-denominator-field" required />
+                      </div>
+                    <div class="form-group"><label class="control-label">Unique of</label>
+                      <select id="line-ratio-uniquekey" class="selectpicker show-menu-arrow line-ratio-uniquekey form-control" data-live-search="true">
+                      </select></div>
+                    <div class="form-group">
+                      <label class="control-label">Shift Decimal Left By</label>
+                      <input type="number" min="0" value="0" class="form-control line-ratio-ignored-digits" placeholder="" id="line-ratio-ignored-digits">
+                    </div>
+                  </div>
+                </div>
+              </form>
               <form id="pie" class="pieForm">
                 <div id="pie-chart-data">
                   <div class="col-md-12 chart-forms">
@@ -758,6 +790,7 @@
   <script src="js/tiles/count-tile.js"></script>
   <script src="js/flot/jquery.flot.time.min.js"></script>
   <script src="js/tiles/stacked-bar-tile.js"></script>
+  <script src="js/tiles/line-ratio-tile.js"></script>
   <script src="js/colorgen.js"></script>
   <script src="js/tiles/pie-tile.js"></script>
   <script src="js/flot/jquery.flot.tooltip.js"></script>
