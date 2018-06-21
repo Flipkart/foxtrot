@@ -22,7 +22,7 @@ function LineRatioTile() {
     var timeframe = $(".line-ratio-timeframe").val();
     var chartField = $("#line-ratio-field").val();
     var uniqueKey = $("#line-ratio-uniquekey").val();  
-    var ignoreDigits = $(".stackedBar-ignored-digits").val();
+    //var ignoreDigits = $(".stackedBar-ignored-digits").val();
     var numeratorField = $("#line-ratio-numerator-field").val();
     var denominatorField = $("#line-ratio-denominator-field").val();
     
@@ -43,8 +43,7 @@ function LineRatioTile() {
       , "lineRatioField": chartField
       , "numerator" : numeratorField
       , "denominator" : denominatorField
-      , "ignoreDigits" : ignoreDigits
-      , };
+    };
   }
   
   function setLineRatioChartFormValues(object) {
@@ -55,7 +54,7 @@ function LineRatioTile() {
     $("#line-ratio-field").selectpicker('refresh');
     $("#line-ratio-uniquekey").val(parseInt(currentFieldList.findIndex(x => x.field == object.tileContext.uniqueKey)));
     $("#line-ratio-uniquekey").selectpicker('refresh');
-    $(".line-ratio-ignored-digits").val(parseInt(object.tileContext.ignoreDigits == undefined ? 0 : object.tileContext.ignoreDigits));
+    //$(".line-ratio-ignored-digits").val(parseInt(object.tileContext.ignoreDigits == undefined ? 0 : object.tileContext.ignoreDigits));
 
     $("#line-ratio-numerator-field").val((object.tileContext.numerator == undefined ? '' : object.tileContext.numerator));
     
@@ -107,23 +106,21 @@ function LineRatioTile() {
 
     var numerator = data.trends[this.object.tileContext.numerator];
     var denominator = data.trends[this.object.tileContext.denominator];
-
-    console.log(numerator);
-    console.log(denominator);
-
-    if(numerator.length == denominator.length) {
-      var newData = [];
-      newData.push(['date', 'count']);
-      for(var nume = 0; nume < numerator.length; nume++) {
-        var percentage = (denominator[nume].count/numerator[nume].count*100);
-        var percentageValue = isNaN(percentage) ?  0 : percentage;  
-        newData.push([numerator[nume].period, (percentageValue / Math.pow(10, 0))]);
+    
+    if(numerator != undefined && denominator != undefined) {
+      if(numerator.length == denominator.length) {
+        var newData = [];
+        newData.push(['date', 'count']);
+        for(var nume = 0; nume < numerator.length; nume++) {
+          var percentage = (denominator[nume].count/numerator[nume].count*100);
+          var percentageValue = isNaN(percentage) ?  0 : percentage;  
+          newData.push([numerator[nume].period, (percentageValue / Math.pow(10, 0))]);
+        }
+        this.render(newData);
+      } else {
+        this.render(newData);
       }
-      this.render(newData);
-    } else {
-      this.render(newData);
     }
-
   }
 
   LineRatioTile.prototype.render = function (rows) {
