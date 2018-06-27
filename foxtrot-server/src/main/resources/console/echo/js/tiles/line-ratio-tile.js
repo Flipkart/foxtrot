@@ -108,18 +108,30 @@ function LineRatioTile() {
     var denominator = data.trends[this.object.tileContext.denominator];
     
     if(numerator != undefined && denominator != undefined) {
-      if(numerator.length == denominator.length) {
-        var newData = [];
-        newData.push(['date', 'count']);
-        for(var nume = 0; nume < numerator.length; nume++) {
-          var percentage = (denominator[nume].count/numerator[nume].count*100);
-          var percentageValue = isNaN(percentage) ?  0 : percentage;  
-          newData.push([numerator[nume].period, (percentageValue / Math.pow(10, 0))]);
+      var newData = [];
+      newData.push(['date', 'count']);
+      for(var loopIndex = 0; loopIndex < denominator.length; loopIndex++) {
+
+        var numeratorValue = 0;
+        if(numerator[loopIndex] !== void 0) {
+          /* void 0 === undefined * See concern about ``undefined'' below. */
+          /* index doesn't point to an undefined item. */
+          numeratorValue = numerator[loopIndex].count;
         }
-        this.render(newData);
-      } else {
-        this.render(newData);
+
+        var denominotorValue = 0;
+        if(denominator[loopIndex] !== void 0) {
+          denominotorValue = denominator[loopIndex].count;
+        }
+        
+        console.log(numerator.length+'===>'+denominator.length);
+        var percentage = (denominotorValue/numeratorValue*100);
+        var percentageValue = isNaN(percentage) ?  0 : percentage;  
+        newData.push([denominator[loopIndex].period, (percentageValue / Math.pow(10, 0))]);
       }
+      this.render(newData);
+    } else {
+      this.render(newData);
     }
   }
 
