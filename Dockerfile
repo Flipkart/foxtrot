@@ -1,17 +1,4 @@
-FROM ubuntu:16.04
-MAINTAINER Swapnil Marghade <s.g.marghade [at] gmail.com>
-
-
-RUN \
-  apt-get clean && apt-get update && apt-get install -y --no-install-recommends software-properties-common \
-  && add-apt-repository ppa:webupd8team/java \
-  && gpg --keyserver hkp://keys.gnupg.net --recv-keys 409B6B1796C275462A1703113804BB82D39DC0E3 \
-  && apt-get update \
-  && echo debconf shared/accepted-oracle-license-v1-1 select true |  debconf-set-selections \
-  && echo debconf shared/accepted-oracle-license-v1-1 seen true |  debconf-set-selections \
-  && apt-get install -y --no-install-recommends oracle-java8-installer \
-  && apt-get install -y --no-install-recommends curl \
-  && apt-get install -y --no-install-recommends iproute2
+FROM docker.phonepe.com:5000/pp-ops-xenial:0.1
 
 EXPOSE 17000
 EXPOSE 17001
