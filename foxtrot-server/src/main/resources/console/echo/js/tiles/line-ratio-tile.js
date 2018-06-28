@@ -110,21 +110,22 @@ function LineRatioTile() {
     if(numerator != undefined && denominator != undefined) {
       var newData = [];
       newData.push(['date', 'count']);
+      var numeratorValue = 0;
+      var denominotorValue = 0;
       for(var loopIndex = 0; loopIndex < denominator.length; loopIndex++) {
 
-        var numeratorValue = 0;
+        
         if(numerator[loopIndex] !== void 0) {
           /* void 0 === undefined * See concern about ``undefined'' below. */
           /* index doesn't point to an undefined item. */
-          numeratorValue = numerator[loopIndex].count;
+          numeratorValue = numeratorValue+numerator[loopIndex].count;
         }
 
-        var denominotorValue = 0;
+        
         if(denominator[loopIndex] !== void 0) {
-          denominotorValue = denominator[loopIndex].count;
+          denominotorValue = denominotorValue+denominator[loopIndex].count;
         }
         
-        console.log(numerator.length+'===>'+denominator.length);
         var percentage = (denominotorValue/numeratorValue*100);
         var percentageValue = isNaN(percentage) ?  0 : percentage;  
         newData.push([denominator[loopIndex].period, (percentageValue / Math.pow(10, 0))]);
