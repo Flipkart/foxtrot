@@ -156,6 +156,9 @@ function setConfigValue(object) { // set widget form values
   else if (currentChartType == "count") {
     setCountChartFormValues(object);
   }
+  else if (currentChartType == "lineRatio") {
+    setLineRatioChartFormValues(object);
+  }
 }
 
 function newBtnElement(widget, btnRow) { // create custom btn element
@@ -337,7 +340,7 @@ TileFactory.prototype.updateFilters = function (filters) {
 }
 // Filter configuration
 TileFactory.prototype.triggerFilter = function (tileElement, object) { // filter modal
-  if(object.tileContext.chartType != "radar" && object.tileContext.chartType != "line") {
+  if(object.tileContext.chartType != "radar" && object.tileContext.chartType != "line" && object.tileContext.chartType != "lineRatio") {
     var instanceVar = this;
     tileElement.find(".widget-toolbox").find(".filter").click(function () {
       clearFilterValues();
@@ -474,6 +477,10 @@ TileFactory.prototype.createGraph = function (object, tileElement) { // get quer
     var countGraph = new CountTile();
     countGraph.getQuery(object);
   }
+  else if (object.tileContext.chartType == "lineRatio") {
+    var lineRatioGraph = new LineRatioTile();
+    lineRatioGraph.getQuery(object);
+  }
 }
 TileFactory.prototype.create = function () {
   var tileElement = $(handlebars("#tile-template", {
@@ -544,7 +551,7 @@ TileFactory.prototype.create = function () {
     tileElement.find(".trend-chart").remove();
     tileElement.find(".chart-item").addClass("radar-chart");
   }
-  else if (this.tileObject.tileContext.chartType == "line" || this.tileObject.tileContext.chartType == "stacked" || this.tileObject.tileContext.chartType == "stackedBar" || this.tileObject.tileContext.chartType == "pie" || this.tileObject.tileContext.chartType == "statsTrend" || this.tileObject.tileContext.chartType == "bar") {
+  else if (this.tileObject.tileContext.chartType == "line" || this.tileObject.tileContext.chartType == "stacked" || this.tileObject.tileContext.chartType == "stackedBar" || this.tileObject.tileContext.chartType == "pie" || this.tileObject.tileContext.chartType == "statsTrend" || this.tileObject.tileContext.chartType == "bar" || this.tileObject.tileContext.chartType == "lineRatio") {
     /*tileElement.find(".widget-header").append('<div id="' + this.tileObject.id + '-health-text" class="lineGraph-health-text">No Data available</div>');*/
     tileElement.find(".widget-header").append('<div id="' + this.tileObject.id + '-health" style=""></div>');
     tileElement.find(".chart-item").append('<div class="row"><div id="' + this.tileObject.id + '"></div><div class="legend"></div></div>');

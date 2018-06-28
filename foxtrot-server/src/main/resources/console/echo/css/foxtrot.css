@@ -473,6 +473,10 @@ h1 {
   display: none;
 }
 
+#lineRatio-chart-data {
+  display: none;
+}
+
 #stackedBar-chart-data {
   display: none;
 }

@@ -137,7 +137,7 @@ function generateDropDown(fields, element) { // generating all dropdowns
 }
 
 function getWidgetType() { // widget types
-  if (currentChartType == "line" || currentChartType == "stacked" || currentChartType == "stackedBar" || currentChartType == "statsTrend" || currentChartType == "bar") {
+  if (currentChartType == "line" || currentChartType == "stacked" || currentChartType == "stackedBar" || currentChartType == "statsTrend" || currentChartType == "bar" || currentChartType == "lineRatio") {
     return "full";
   }
   else if (currentChartType == "radar" || currentChartType == "pie") {
@@ -216,6 +216,9 @@ function getChartFormValues() { // get current widget form values
   }
   else if(currentChartType == "count") {
     return getCountChartFormValues();
+  }
+  else if(currentChartType == "lineRatio") {
+    return getLineRatioChartFormValues();
   }
 }
 function deleteFilterRow(el) { // delete given filter row
@@ -303,6 +306,10 @@ function reloadDropdowns() { // change dropdown values for all charts when table
   else if(currentChartType == "count") {
     generateDropDown(currentFieldList, "#count-field");
   }
+  else if (currentChartType == "lineRatio") {
+    generateDropDown(currentFieldList, "#line-ratio-field");
+    generateDropDown(currentFieldList, "#line-ratio-uniquekey");
+  }
 }
 
 function invokeClearChartForm() { // clear widget forms
@@ -338,6 +345,9 @@ function invokeClearChartForm() { // clear widget forms
   }
   else if(currentChartType == "count") {
     clearCountChartForm();
+  }
+  else if(currentChartType == "lineRatio") {
+    clearLineRatioChartForm();
   }
 }
 
