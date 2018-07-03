@@ -385,9 +385,7 @@ TileFactory.prototype.triggerConfig = function (tileElement, object) { // code t
     $('.tile-container').find("#"+object.id).addClass('highlight-tile');
     //$("#addWidgetModal").modal('show');
     $("#sidebar").find(".tileId").val(object.id);
-    $("#sidebar").find("#modal-heading").hide();
-    $(".vizualization-type").hide();
-    $(".chart-type").hide();
+    $(".chart-type").attr('disabled', true);
 
     var form = $("#sidebar").find("form");
     form.find(".tile-title").val(object.title);
