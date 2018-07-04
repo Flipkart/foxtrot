@@ -102,6 +102,16 @@ TileFactory.prototype.updateTileData = function () { // update tile details
   var tileDataIndex = tileData[this.tileObject.id];
   delete tileData[tileDataIndex.id];
   tileData[this.tileObject.id] = this.tileObject;
+
+  // adding changed timeframe units in timeunit dropdown
+  var periodSelectElement = selectedTile.find(".period-select");
+  $(periodSelectElement).find('option').get(0).remove();
+  var timeFrame = this.tileObject.tileContext.timeframe;
+  var optionValue = timeFrame+getPeroidSelectString(this.tileObject.tileContext.period);
+  var labelString = this.tileObject.tileContext.period;
+  var optionLabel = (parseInt(this.tileObject.tileContext.timeframe) <= 1 ? labelString.substring(0, labelString.length - 1)  : labelString);
+  $(periodSelectElement).prepend('<option selected value="custom">'+timeFrame+'  '+optionLabel+'</option>');
+
 }
 TileFactory.prototype.createTileData = function (object) { // store tile list
   var selectedTile = $("#" + object.id);
