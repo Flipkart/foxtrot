@@ -102,6 +102,16 @@ TileFactory.prototype.updateTileData = function () { // update tile details
   var tileDataIndex = tileData[this.tileObject.id];
   delete tileData[tileDataIndex.id];
   tileData[this.tileObject.id] = this.tileObject;
+
+  // adding changed timeframe units in timeunit dropdown
+  var periodSelectElement = selectedTile.find(".period-select");
+  $(periodSelectElement).find('option').get(0).remove();
+  var timeFrame = this.tileObject.tileContext.timeframe;
+  var optionValue = timeFrame+getPeroidSelectString(this.tileObject.tileContext.period);
+  var labelString = this.tileObject.tileContext.period;
+  var optionLabel = (parseInt(this.tileObject.tileContext.timeframe) <= 1 ? labelString.substring(0, labelString.length - 1)  : labelString);
+  $(periodSelectElement).prepend('<option selected value="custom">'+timeFrame+'  '+optionLabel+'</option>');
+
 }
 TileFactory.prototype.createTileData = function (object) { // store tile list
   var selectedTile = $("#" + object.id);
@@ -385,9 +395,7 @@ TileFactory.prototype.triggerConfig = function (tileElement, object) { // code t
     $('.tile-container').find("#"+object.id).addClass('highlight-tile');
     //$("#addWidgetModal").modal('show');
     $("#sidebar").find(".tileId").val(object.id);
-    $("#sidebar").find("#modal-heading").hide();
-    $(".vizualization-type").hide();
-    $(".chart-type").hide();
+    $(".chart-type").attr('disabled', true);
 
     var form = $("#sidebar").find("form");
     form.find(".tile-title").val(object.title);

@@ -339,7 +339,7 @@ function getConsole() {
       return res;
     },
     error: function() {
-      showErrorAlert("Oops", "Could not save console");
+      showErrorAlert("Oops", "Could not get console details");
     }
   });
 }
@@ -350,6 +350,10 @@ $("#listConsole").change(function () {
 
 $("#add-sections").click(function () {
   window.location = "index.htm?openDashboard=true";
+});
+
+$("#fql-dashboard").click(function () {
+  window.location = "../index.htm?openDashboard=true";
 });
 
 function getRefreshTime() {
