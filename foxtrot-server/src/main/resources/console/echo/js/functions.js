@@ -339,7 +339,7 @@ function getConsole() {
       return res;
     },
     error: function() {
-      showErrorAlert("Oops", "Could not save console");
+      showErrorAlert("Oops", "Could not get console details");
     }
   });
 }
