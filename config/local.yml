@@ -40,3 +40,9 @@ deletionconfig:
   active: false
   interval: 86400
   initialdelay: 60
+  
+  logRotationFileConfig:
+    minIndex: 0
+    maxIndex: 3
+    maxFileSize: 1MB
+    filePattern: /var/log/flipkart/foxtrot-server/server-%i.log.gz
