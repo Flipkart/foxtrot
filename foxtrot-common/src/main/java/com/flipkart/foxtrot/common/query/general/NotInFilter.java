@@ -8,7 +8,10 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
+import org.hibernate.validator.constraints.NotEmpty;
 
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import java.util.List;
 import java.util.Set;
 
@@ -24,6 +27,9 @@ import java.util.Set;
 @ToString(callSuper = true)
 public class NotInFilter extends Filter {
 
+    @NotNull
+    @NotEmpty
+    @Size(min = 1, max = 10000)
     private List<Object> values;
 
     public NotInFilter() {

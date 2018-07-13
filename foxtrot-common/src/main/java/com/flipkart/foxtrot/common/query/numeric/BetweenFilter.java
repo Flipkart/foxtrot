@@ -23,6 +23,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
+import javax.validation.constraints.NotNull;
 import java.util.Set;
 
 /**
@@ -35,10 +36,12 @@ import java.util.Set;
 @Data
 public class BetweenFilter extends Filter {
 
-    private boolean temporal = false;
+    private boolean temporal;
 
+    @NotNull
     private Number from;
 
+    @NotNull
     private Number to;
 
     public BetweenFilter() {

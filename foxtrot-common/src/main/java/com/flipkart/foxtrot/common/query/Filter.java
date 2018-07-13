@@ -24,7 +24,9 @@ import com.flipkart.foxtrot.common.query.numeric.*;
 import com.flipkart.foxtrot.common.query.string.ContainsFilter;
 import com.flipkart.foxtrot.common.util.CollectionUtils;
 import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.hibernate.validator.constraints.NotEmpty;
 
+import javax.validation.constraints.NotNull;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -33,7 +35,7 @@ import java.util.Set;
  * Date: 14/03/14
  * Time: 2:09 AM
  */
-@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "operator")
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.EXISTING_PROPERTY, property = "operator")
 @JsonSubTypes({
         //Numeric
         @JsonSubTypes.Type(value = GreaterEqualFilter.class, name = FilterOperator.greater_equal),
@@ -59,7 +61,9 @@ import java.util.Set;
 })
 
 public abstract class Filter {
-    @JsonIgnore
+
+    @NotNull
+    @NotEmpty
     private final String operator;
 
     private String field;

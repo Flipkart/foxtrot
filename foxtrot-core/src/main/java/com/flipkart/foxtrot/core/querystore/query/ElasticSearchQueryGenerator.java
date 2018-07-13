@@ -16,7 +16,6 @@
 package com.flipkart.foxtrot.core.querystore.query;
 
 import com.flipkart.foxtrot.common.query.Filter;
-import com.flipkart.foxtrot.common.query.FilterCombinerType;
 import com.flipkart.foxtrot.common.query.FilterVisitor;
 import com.flipkart.foxtrot.common.query.datetime.LastFilter;
 import com.flipkart.foxtrot.common.query.general.*;
@@ -37,11 +36,9 @@ import static org.elasticsearch.index.query.QueryBuilders.*;
  */
 public class ElasticSearchQueryGenerator extends FilterVisitor<Void> {
     private final BoolQueryBuilder boolFilterBuilder;
-    private final FilterCombinerType combinerType;
 
-    public ElasticSearchQueryGenerator(FilterCombinerType combinerType) {
+    public ElasticSearchQueryGenerator() {
         this.boolFilterBuilder = boolQuery();
-        this.combinerType = combinerType;
     }
 
     @Override
@@ -129,13 +126,8 @@ public class ElasticSearchQueryGenerator extends FilterVisitor<Void> {
         return null;
     }
 
-    private void addFilter(QueryBuilder queryBuilder) throws Exception {
-        if (combinerType == FilterCombinerType.and) {
-            boolFilterBuilder.filter(queryBuilder);
-            return;
-        }
-        //boolFilterBuilder.should(elasticSearchFilter);
-        throw new UnsupportedOperationException(String.format("%s is not supported", FilterCombinerType.or.name()));
+    private void addFilter(QueryBuilder queryBuilder) {
+        boolFilterBuilder.filter(queryBuilder);
     }
 
     public QueryBuilder genFilter(List<Filter> filters) throws Exception {

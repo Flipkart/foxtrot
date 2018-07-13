@@ -20,6 +20,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
+import javax.validation.constraints.NotNull;
 import java.util.Set;
 
 /**
@@ -32,6 +33,7 @@ import java.util.Set;
 @ToString(callSuper = true)
 public abstract class NumericBinaryFilter extends Filter {
 
+    @NotNull
     private Number value;
 
     private boolean temporal = false;

@@ -89,7 +89,7 @@ public abstract class Action<ParameterType extends ActionRequest> implements Cal
 
     private void preProcessRequest() throws MalformedQueryException {
         if (parameter.getFilters() == null) {
-            parameter.setFilters(Lists.<Filter>newArrayList(new AnyFilter()));
+            parameter.setFilters(Lists.newArrayList(new AnyFilter()));
         }
         preprocess();
         parameter.setFilters(checkAndAddTemporalBoundary(parameter.getFilters()));

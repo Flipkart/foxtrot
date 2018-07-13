@@ -23,6 +23,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
+import javax.validation.constraints.NotNull;
 import java.util.Set;
 
 /**
@@ -35,6 +36,7 @@ import java.util.Set;
 @ToString(callSuper = true)
 public class NotEqualsFilter extends Filter {
 
+    @NotNull
     private Object value;
 
     public NotEqualsFilter() {

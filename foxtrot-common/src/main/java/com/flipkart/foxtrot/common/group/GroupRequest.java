@@ -19,7 +19,9 @@ import com.flipkart.foxtrot.common.ActionRequest;
 import com.flipkart.foxtrot.common.Opcodes;
 import com.flipkart.foxtrot.common.query.Filter;
 import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.hibernate.validator.constraints.NotEmpty;
 
+import javax.validation.constraints.NotNull;
 import java.util.List;
 
 /**
@@ -29,10 +31,14 @@ import java.util.List;
  */
 public class GroupRequest extends ActionRequest {
 
+    @NotNull
+    @NotEmpty
     private String table;
 
     private String uniqueCountOn;
 
+    @NotNull
+    @NotEmpty
     private List<String> nesting;
 
     public GroupRequest() {

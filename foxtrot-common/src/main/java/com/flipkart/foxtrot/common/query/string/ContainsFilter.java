@@ -22,7 +22,9 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
+import org.hibernate.validator.constraints.NotEmpty;
 
+import javax.validation.constraints.NotNull;
 import java.util.Set;
 
 /**
@@ -35,6 +37,8 @@ import java.util.Set;
 @ToString(callSuper = true)
 public class ContainsFilter extends Filter {
 
+    @NotNull
+    @NotEmpty
     private String value;
 
     public ContainsFilter() {

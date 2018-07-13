@@ -9,7 +9,11 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.hibernate.validator.constraints.NotEmpty;
 
+import javax.validation.constraints.Max;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import java.util.List;
 import java.util.Set;
 
@@ -25,6 +29,9 @@ import java.util.Set;
 @ToString(callSuper = true)
 public class InFilter extends Filter {
 
+    @NotNull
+    @NotEmpty
+    @Size(min = 1, max = 10000)
     private List<Object> values;
 
     public InFilter() {
