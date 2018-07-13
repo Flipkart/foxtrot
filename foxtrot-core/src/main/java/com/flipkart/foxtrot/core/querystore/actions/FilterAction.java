@@ -123,7 +123,7 @@ public class FilterAction extends Action<Query> {
             search = getConnection().getClient().prepareSearch(ElasticsearchUtils.getIndices(parameter.getTable(), parameter))
                     .setTypes(ElasticsearchUtils.DOCUMENT_TYPE_NAME)
                     .setIndicesOptions(Utils.indicesOptions())
-                    .setQuery(new ElasticSearchQueryGenerator(FilterCombinerType.and).genFilter(parameter.getFilters()))
+                    .setQuery(new ElasticSearchQueryGenerator().genFilter(parameter.getFilters()))
                     .setSearchType(SearchType.QUERY_THEN_FETCH)
                     .setFrom(parameter.getFrom())
                     .addSort(parameter.getSort().getField(),

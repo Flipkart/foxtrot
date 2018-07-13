@@ -20,7 +20,11 @@ import com.flipkart.foxtrot.common.Opcodes;
 import com.flipkart.foxtrot.common.query.Filter;
 import com.flipkart.foxtrot.common.query.ResultSort;
 import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.hibernate.validator.constraints.NotEmpty;
 
+import javax.validation.constraints.Max;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import java.util.List;
 
 /**
@@ -30,8 +34,11 @@ import java.util.List;
  */
 public class DistinctRequest extends ActionRequest {
 
+    @NotNull
+    @NotEmpty
     private String table;
 
+    @Size(max = 10)
     private List<ResultSort> nesting;
 
     public DistinctRequest() {

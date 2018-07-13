@@ -20,7 +20,9 @@ import com.flipkart.foxtrot.common.Opcodes;
 import com.flipkart.foxtrot.common.Period;
 import com.flipkart.foxtrot.common.query.Filter;
 import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.hibernate.validator.constraints.NotEmpty;
 
+import javax.validation.constraints.NotNull;
 import java.util.List;
 
 /**
@@ -30,13 +32,18 @@ import java.util.List;
  */
 public class HistogramRequest extends ActionRequest {
 
+    @NotNull
+    @NotEmpty
     private String table;
 
-    private String field = "_timestamp";
+    @NotNull
+    @NotEmpty
+    private String field;
+
+    @NotNull
+    private Period period;
 
     private String uniqueCountOn;
-
-    private Period period;
 
     public HistogramRequest() {
         super(Opcodes.HISTOGRAM);

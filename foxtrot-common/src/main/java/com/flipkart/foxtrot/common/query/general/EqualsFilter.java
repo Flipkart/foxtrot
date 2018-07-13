@@ -20,6 +20,7 @@ import com.flipkart.foxtrot.common.query.FilterOperator;
 import com.flipkart.foxtrot.common.query.FilterVisitor;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
+import javax.validation.constraints.NotNull;
 import java.util.Set;
 
 /**
@@ -29,6 +30,7 @@ import java.util.Set;
  */
 public class EqualsFilter extends Filter {
 
+    @NotNull
     private Object value;
 
     public EqualsFilter() {
