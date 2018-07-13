@@ -9,7 +9,6 @@ import com.flipkart.foxtrot.common.query.FilterVisitor;
  */
 public class MissingFilter extends Filter{
 
-
 	public MissingFilter() {
 		super(FilterOperator.missing);
 	}

@@ -17,6 +17,7 @@ package com.flipkart.foxtrot.common.query.numeric;
 
 import com.flipkart.foxtrot.common.query.Filter;
 
+import javax.validation.constraints.NotNull;
 import java.util.Set;
 
 /**
@@ -26,6 +27,7 @@ import java.util.Set;
  */
 public abstract class NumericBinaryFilter extends Filter {
 
+    @NotNull
     private Number value;
 
     private boolean temporal = false;

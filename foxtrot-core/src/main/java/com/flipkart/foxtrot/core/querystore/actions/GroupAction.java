@@ -19,7 +19,6 @@ import com.flipkart.foxtrot.common.ActionResponse;
 import com.flipkart.foxtrot.common.group.GroupRequest;
 import com.flipkart.foxtrot.common.group.GroupResponse;
 import com.flipkart.foxtrot.common.query.Filter;
-import com.flipkart.foxtrot.common.query.FilterCombinerType;
 import com.flipkart.foxtrot.common.util.CollectionUtils;
 import com.flipkart.foxtrot.core.cache.CacheManager;
 import com.flipkart.foxtrot.core.common.Action;
@@ -132,7 +131,7 @@ public class GroupAction extends Action<GroupRequest> {
                     .prepareSearch(ElasticsearchUtils.getIndices(parameter.getTable(), parameter))
                     .setIndicesOptions(Utils.indicesOptions());
             AbstractAggregationBuilder aggregation = buildAggregation();
-            query.setQuery(new ElasticSearchQueryGenerator(FilterCombinerType.and)
+            query.setQuery(new ElasticSearchQueryGenerator()
                     .genFilter(parameter.getFilters()))
                     .setSize(0)
                     .addAggregation(aggregation);

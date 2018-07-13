@@ -5,7 +5,10 @@ import com.flipkart.foxtrot.common.query.FilterOperator;
 import com.flipkart.foxtrot.common.query.FilterVisitor;
 import com.flipkart.foxtrot.common.util.CollectionUtils;
 import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.hibernate.validator.constraints.NotEmpty;
 
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import java.util.List;
 import java.util.Set;
 
@@ -18,6 +21,9 @@ import java.util.Set;
  */
 public class NotInFilter extends Filter {
 
+    @NotNull
+    @NotEmpty
+    @Size(max = 10000)
     private List<Object> values;
 
     public NotInFilter() {

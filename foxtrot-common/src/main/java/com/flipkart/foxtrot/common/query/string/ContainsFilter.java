@@ -19,7 +19,9 @@ import com.flipkart.foxtrot.common.query.Filter;
 import com.flipkart.foxtrot.common.query.FilterOperator;
 import com.flipkart.foxtrot.common.query.FilterVisitor;
 import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.hibernate.validator.constraints.NotEmpty;
 
+import javax.validation.constraints.NotNull;
 import java.util.Set;
 
 /**
@@ -29,6 +31,8 @@ import java.util.Set;
  */
 public class ContainsFilter extends Filter {
 
+    @NotNull
+    @NotEmpty
     private String value;
 
     public ContainsFilter() {
