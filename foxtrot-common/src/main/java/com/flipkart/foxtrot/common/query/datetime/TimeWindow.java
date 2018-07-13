@@ -3,7 +3,6 @@ package com.flipkart.foxtrot.common.query.datetime;
 import java.util.Date;
 
 public class TimeWindow {
-
     private long startTime;
     private long endTime;
 

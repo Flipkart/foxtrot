@@ -23,7 +23,7 @@ public class NotInFilter extends Filter {
 
     @NotNull
     @NotEmpty
-    @Size(max = 10000)
+    @Size(min = 1, max = 10000)
     private List<Object> values;
 
     public NotInFilter() {
