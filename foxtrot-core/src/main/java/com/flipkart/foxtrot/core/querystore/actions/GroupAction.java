@@ -25,7 +25,6 @@ import com.flipkart.foxtrot.common.estimation.PercentileEstimationData;
 import com.flipkart.foxtrot.common.group.GroupRequest;
 import com.flipkart.foxtrot.common.group.GroupResponse;
 import com.flipkart.foxtrot.common.query.Filter;
-import com.flipkart.foxtrot.common.query.FilterCombinerType;
 import com.flipkart.foxtrot.common.query.FilterVisitorAdapter;
 import com.flipkart.foxtrot.common.query.general.EqualsFilter;
 import com.flipkart.foxtrot.common.query.general.InFilter;
@@ -158,13 +157,9 @@ public class GroupAction extends Action<GroupRequest> {
         }
 
         if (probability > 0.5) {
-            log.warn("Blocked query as it might have screwed up the cluster. Probability: {} Query: {}",
-                        probability, parameter);
             throw FoxtrotExceptions.createCardinalityOverflow(parameter, parameter.getNesting().get(0), probability);
         }
-        else {
-            log.info("Allowing group by with probability {} for query: {}", probability, parameter);
-        }
+
     }
 
     private double estimateProbability(TableFieldMapping tableFieldMapping, GroupRequest parameter) throws Exception {
@@ -176,7 +171,7 @@ public class GroupAction extends Action<GroupRequest> {
         final String field = parameter.getNesting().get(0);
         FieldMetadata meta = metaMap.get(field);
 
-        if(null == meta || null == meta.getEstimationData()) {
+        if (null == meta || null == meta.getEstimationData()) {
             log.warn("No estimation data found for field {} of table {}", field, parameter.getTable());
             return 0.0;
         }
@@ -190,7 +185,7 @@ public class GroupAction extends Action<GroupRequest> {
             return 0.0;
         }
         List<Filter> filters = parameter.getFilters();
-        log.debug("Starting estimation with: {} estimatedDocs:{}", meta, estimatedDocs);
+        log.debug("Starting estimation with: {}", meta);
         double probability = meta.getEstimationData().accept(new EstimationDataVisitor<Double>() {
             @Override
             public Double visit(FixedEstimationData fixedEstimationData) {
@@ -210,10 +205,10 @@ public class GroupAction extends Action<GroupRequest> {
             @Override
             public Double visit(CardinalityEstimationData cardinalityBasedEstimationData) {
                 final double result = (
-                        (double)(Long.min(
+                        (double) (Long.min(
                                 cardinalityBasedEstimationData.getCardinality(),
                                 cardinalityBasedEstimationData.getCount()))
-                                / (double)cardinalityBasedEstimationData.getCount());
+                                / (double) cardinalityBasedEstimationData.getCount());
                 log.debug("Result from cardinality estimation: min({}, {})/ {} = {}",
                         cardinalityBasedEstimationData.getCardinality(),
                         cardinalityBasedEstimationData.getCount(),
@@ -223,7 +218,7 @@ public class GroupAction extends Action<GroupRequest> {
             }
         });
         log.debug("First phase probability for field {} is {}", field, probability);
-        if(CollectionUtils.isNullOrEmpty(filters)) {
+        if (CollectionUtils.isNullOrEmpty(filters)) {
             log.debug("No filters in this query. Final probability is: {}", probability);
             return probability;
         }
@@ -266,7 +261,7 @@ public class GroupAction extends Action<GroupRequest> {
                                             .orElse(9);
 
                                     int numBuckets = maxBound - minBound + 1;
-                                    final double result = (double)numBuckets / 10.0;
+                                    final double result = (numBuckets / 10);
                                     log.debug("Between filter: {} " +
                                                     "percentiles[{}] = {} to percentiles[{}] = {} " +
                                                     "buckets {} multiplier {}",
@@ -283,7 +278,7 @@ public class GroupAction extends Action<GroupRequest> {
                                 @Override
                                 public Double visit(EqualsFilter equalsFilter) throws Exception {
                                     // There is a match, so contribution can only by 1 / N
-                                    final double result = 1.0 / (double)numMatches;
+                                    final double result = (1 / numMatches);
                                     log.debug("Equals filter: {} numMatches: {} multiplier: {}",
                                             equalsFilter, numMatches, result);
                                     return result;
@@ -308,7 +303,7 @@ public class GroupAction extends Action<GroupRequest> {
                                             .orElse(0);
 
                                     //Everything below this percentile do not affect
-                                    final double result = (double)(10 - minBound - 1) / 10.0;
+                                    final double result = ((10 - minBound) / 10);
                                     log.debug("Greater than filter: {} percentiles[{}] = {} multiplier: {}",
                                             greaterThanFilter,
                                             minBound,
@@ -329,7 +324,7 @@ public class GroupAction extends Action<GroupRequest> {
                                             .orElse(0);
 
                                     //Everything below this do not affect
-                                    final double result = (double)(10 - minBound - 1) / 10.0;
+                                    final double result = ((10 - minBound) / 10);
                                     log.debug("Greater equals filter: {} percentiles[{}] = {} multiplier: {}",
                                             greaterEqualFilter,
                                             minBound,
@@ -350,7 +345,7 @@ public class GroupAction extends Action<GroupRequest> {
                                             .orElse(0);
 
                                     //Everything above this do not affect
-                                    final double result = ((double)minBound + 1.0)/ 10.0;
+                                    final double result = (double) minBound / 10.0;
                                     log.debug("Less than filter: {} percentiles[{}] = {} multiplier: {}",
                                             lessThanFilter,
                                             minBound,
@@ -370,7 +365,7 @@ public class GroupAction extends Action<GroupRequest> {
                                             .findFirst()
                                             .orElse(0);
                                     //Everything above this do not affect
-                                    final double result = ((double)minBound + 1.0) / 10.0;
+                                    final double result = (minBound / 10);
                                     log.debug("Less equals filter: {} percentiles[{}] = {} multiplier: {}",
                                             lessEqualFilter,
                                             minBound,
@@ -404,7 +399,7 @@ public class GroupAction extends Action<GroupRequest> {
                                 public Double visit(ContainsFilter stringContainsFilterElement) throws Exception {
                                     // Assuming there is a match to a value.
                                     // Can be more, but we err on the side of optimism.
-                                    return  (1.0 / Utils.ensureOne(cardinalityEstimationData.getCardinality()));
+                                    return (1.0 / Utils.ensureOne(cardinalityEstimationData.getCardinality()));
 
                                 }
 
@@ -419,9 +414,9 @@ public class GroupAction extends Action<GroupRequest> {
                                 public Double visit(NotInFilter inFilter) throws Exception {
                                     // Assuming there are M matches, then probability will be N - M / N
                                     return Utils.ensurePositive(
-                                                    cardinalityEstimationData.getCardinality()
-                                                            - inFilter.getValues().size())
-                                                    / Utils.ensureOne(cardinalityEstimationData.getCardinality());
+                                            cardinalityEstimationData.getCardinality()
+                                                    - inFilter.getValues().size())
+                                            / Utils.ensureOne(cardinalityEstimationData.getCardinality());
                                 }
                             });
                         }
@@ -434,6 +429,7 @@ public class GroupAction extends Action<GroupRequest> {
         }
         return probability;
     }
+
     @Override
     public ActionResponse execute(GroupRequest parameter) throws FoxtrotException {
         SearchRequestBuilder query;
@@ -442,7 +438,7 @@ public class GroupAction extends Action<GroupRequest> {
                     .prepareSearch(ElasticsearchUtils.getIndices(parameter.getTable(), parameter))
                     .setIndicesOptions(Utils.indicesOptions());
             AbstractAggregationBuilder aggregation = buildAggregation();
-            query.setQuery(new ElasticSearchQueryGenerator(FilterCombinerType.and)
+            query.setQuery(new ElasticSearchQueryGenerator()
                     .genFilter(parameter.getFilters()))
                     .setSize(0)
                     .addAggregation(aggregation);
