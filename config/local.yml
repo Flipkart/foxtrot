@@ -7,15 +7,14 @@ server:
       port: 17001
 
 elasticsearch:
-  hosts:
-  - localhost
-  cluster: foxtrot
+  hosts: localhost
+  cluster: elasticsearch
   tableNamePrefix: foxtrot
 
 serviceDiscovery:
   namespace: phonepe
   environment: local
-  zookeeper: stg-mesosm001.phonepe.int:2181
+  zookeeper: localhost:2181
   publishedHost: 127.0.0.1
   publishedPort: 8080
 
@@ -36,21 +35,14 @@ hbase:
 cluster:
   name: foxtrot
   discovery:
-    type: foxtrot_marathon
-    endpoint: ${MARATHON_ENDPOINT}
-    appId:  ${MARATHON_APP_ID}
-    portIndex:  2
+    type: foxtrot_simple
+    disableMulticast: true
+    members: ["localhost:5701"]
 
 logging:
   level: INFO
 
 deletionconfig:
-  active: true
+  active: false
   interval: 86400
   initialdelay: 60
-
-logRotationFileConfig:
-    minIndex: 0
-    maxIndex: 3
-    maxFileSize: 1MB
-    filePattern: /var/log/flipkart/foxtrot-server/server-%i.log.gz
