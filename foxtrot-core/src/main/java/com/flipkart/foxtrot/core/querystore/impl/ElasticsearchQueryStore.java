@@ -12,20 +12,17 @@
  */
 package com.flipkart.foxtrot.core.querystore.impl;
 
-import com.carrotsearch.hppc.cursors.ObjectCursor;
 import com.codahale.metrics.annotation.Timed;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.flipkart.foxtrot.common.Document;
-import com.flipkart.foxtrot.common.FieldTypeMapping;
 import com.flipkart.foxtrot.common.Table;
 import com.flipkart.foxtrot.common.TableFieldMapping;
 import com.flipkart.foxtrot.core.datastore.DataStore;
 import com.flipkart.foxtrot.core.exception.FoxtrotException;
 import com.flipkart.foxtrot.core.exception.FoxtrotExceptions;
-import com.flipkart.foxtrot.core.parsers.ElasticsearchMappingParser;
 import com.flipkart.foxtrot.core.querystore.QueryStore;
 import com.flipkart.foxtrot.core.table.TableMetadataManager;
 import com.google.common.collect.ImmutableList;
@@ -36,22 +33,22 @@ import org.elasticsearch.action.WriteConsistencyLevel;
 import org.elasticsearch.action.admin.cluster.health.ClusterHealthResponse;
 import org.elasticsearch.action.admin.cluster.node.stats.NodesStatsRequest;
 import org.elasticsearch.action.admin.cluster.node.stats.NodesStatsResponse;
-import org.elasticsearch.action.admin.indices.mapping.get.GetMappingsResponse;
 import org.elasticsearch.action.admin.indices.stats.IndicesStatsResponse;
 import org.elasticsearch.action.bulk.BulkItemResponse;
 import org.elasticsearch.action.bulk.BulkRequestBuilder;
 import org.elasticsearch.action.bulk.BulkResponse;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.cluster.metadata.MappingMetaData;
 import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.search.SearchHit;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -237,31 +234,6 @@ public class ElasticsearchQueryStore implements QueryStore {
     }
 
     @Override
-    @Timed
-    public TableFieldMapping getFieldMappings(String table) throws FoxtrotException {
-        table = ElasticsearchUtils.getValidTableName(table);
-
-        if (!tableMetadataManager.exists(table)) {
-            throw FoxtrotExceptions.createBadRequestException(table,
-                    String.format("unknown_table table:%s", table));
-        }
-        try {
-            ElasticsearchMappingParser mappingParser = new ElasticsearchMappingParser(mapper);
-            Set<FieldTypeMapping> mappings = new HashSet<>();
-            GetMappingsResponse mappingsResponse = connection.getClient().admin()
-                    .indices().prepareGetMappings(ElasticsearchUtils.getIndices(table)).execute().actionGet();
-
-            for (ObjectCursor<String> index : mappingsResponse.getMappings().keys()) {
-                MappingMetaData mappingData = mappingsResponse.mappings().get(index.value).get(ElasticsearchUtils.DOCUMENT_TYPE_NAME);
-                mappings.addAll(mappingParser.getFieldMappings(mappingData));
-            }
-            return new TableFieldMapping(table, mappings);
-        } catch (IOException e) {
-            throw FoxtrotExceptions.createExecutionException(table, e);
-        }
-    }
-
-    @Override
     public void cleanupAll() throws FoxtrotException {
         Set<String> tables = tableMetadataManager.get().stream().map(Table::getName).collect(Collectors.toSet());
         cleanup(tables);
@@ -332,10 +304,15 @@ public class ElasticsearchQueryStore implements QueryStore {
         return connection.getClient().admin().indices().prepareStats(ElasticsearchUtils.getAllIndicesPattern()).clear().setDocs(true).setStore(true).execute().get();
     }
 
+    @Override
+    public TableFieldMapping getFieldMappings(String testTableName) throws FoxtrotException {
+        return tableMetadataManager.getFieldMappings(testTableName, false);
+    }
+
     private String convert(Document translatedDocument) {
         JsonNode metaNode = mapper.valueToTree(translatedDocument.getMetadata());
         ObjectNode dataNode = translatedDocument.getData().deepCopy();
-        dataNode.put(ElasticsearchUtils.DOCUMENT_META_FIELD_NAME, metaNode);
+        dataNode.set(ElasticsearchUtils.DOCUMENT_META_FIELD_NAME, metaNode);
         return dataNode.toString();
     }
 

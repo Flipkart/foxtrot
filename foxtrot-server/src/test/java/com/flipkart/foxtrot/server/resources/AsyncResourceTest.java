@@ -22,18 +22,15 @@ import com.flipkart.foxtrot.core.TestUtils;
 import com.flipkart.foxtrot.core.common.AsyncDataToken;
 import com.flipkart.foxtrot.server.providers.exception.FoxtrotExceptionMapper;
 import io.dropwizard.testing.junit.ResourceTestRule;
-import org.apache.commons.httpclient.HttpStatus;
 import org.junit.Rule;
 import org.junit.Test;
 
-import javax.ws.rs.ProcessingException;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
 import java.util.*;
 
-import static org.junit.Assert.*;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.doReturn;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 /**
  * Created by rishabh.goyal on 05/05/14.
@@ -45,8 +42,6 @@ public class AsyncResourceTest extends FoxtrotResourceTest {
 
     public AsyncResourceTest() throws Exception {
         super();
-        doReturn(true).when(getTableMetadataManager()).exists(anyString());
-        doReturn(TestUtils.TEST_TABLE).when(getTableMetadataManager()).get(anyString());
         List<Document> documents = TestUtils.getGroupDocuments(getMapper());
         getQueryStore().save(TestUtils.TEST_TABLE_NAME, documents);
         getElasticsearchServer().getClient().admin().indices().prepareRefresh("*").execute().actionGet();

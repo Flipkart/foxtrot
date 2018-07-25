@@ -49,6 +49,7 @@ public class FoxtrotExceptionMapper implements ExceptionMapper<FoxtrotException>
             case ACTION_EXECUTION_ERROR:
                 return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(response).build();
             case MALFORMED_QUERY:
+            case CARDINALITY_OVERFLOW:
             case ACTION_RESOLUTION_FAILURE:
             case UNRESOLVABLE_OPERATION:
             case INVALID_REQUEST:

@@ -17,53 +17,61 @@ package com.flipkart.foxtrot.server.resources;
 
 import com.flipkart.foxtrot.common.Table;
 import com.flipkart.foxtrot.core.exception.FoxtrotException;
-import com.flipkart.foxtrot.core.querystore.QueryStore;
 import com.flipkart.foxtrot.core.table.TableManager;
+import com.flipkart.foxtrot.core.table.TableMetadataManager;
 
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
+import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.stream.Collectors;
 
 /**
- * Created by rishabh.goyal on 06/05/14.
+ * Table metadata related apis
  */
 @Path("/v1/tables")
 @Produces(MediaType.APPLICATION_JSON)
 public class TableFieldMappingResource {
 
     private final TableManager tableManager;
-    private final QueryStore queryStore;
+    private final TableMetadataManager tableMetadataManager;
 
-    public TableFieldMappingResource(TableManager tableManager, QueryStore queryStore) {
+    public TableFieldMappingResource(TableManager tableManager, TableMetadataManager tableMetadataManager) {
         this.tableManager = tableManager;
-        this.queryStore = queryStore;
+        this.tableMetadataManager = tableMetadataManager;
     }
 
     @GET
     @Path("/{name}/fields")
-    public Response get(@PathParam("name") final String table) throws FoxtrotException {
-        return Response.ok(queryStore.getFieldMappings(table)).build();
+    public Response get(@PathParam("name") final String table,
+                        @QueryParam("withCardinality") @DefaultValue("false") boolean withCardinality) throws FoxtrotException {
+        return Response.ok(tableMetadataManager.getFieldMappings(table, withCardinality)).build();
     }
 
 
     @GET
     @Path("/fields")
-    public Response getAllFields() throws FoxtrotException {
+    public Response getAllFields(@QueryParam("withCardinality") @DefaultValue("false") boolean withCardinality) throws FoxtrotException {
         return Response.ok()
                 .entity(tableManager.getAll()
                         .stream()
                         .collect(
                                 Collectors.toMap(Table::getName, table -> {
                                     try {
-                                        return queryStore.getFieldMappings(table.getName());
+                                        return tableMetadataManager.getFieldMappings(table.getName(), withCardinality);
                                     } catch (FoxtrotException e) {
                                         throw new RuntimeException(e);
                                     }
                                 })))
+                .build();
+    }
+
+    @POST
+    @Path("/{name}/fields/update")
+    public Response updateEstimation(
+            @PathParam("name") final String table,
+            @QueryParam("time") @DefaultValue("0") long epoch) throws FoxtrotException {
+        tableMetadataManager.updateEstimationData(table, 0 == epoch ? System.currentTimeMillis() : epoch);
+        return Response.ok()
                 .build();
     }
 }

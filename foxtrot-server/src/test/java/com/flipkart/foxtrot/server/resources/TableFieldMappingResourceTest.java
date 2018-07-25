@@ -15,8 +15,8 @@
  */
 package com.flipkart.foxtrot.server.resources;
 
+import com.flipkart.foxtrot.common.FieldMetadata;
 import com.flipkart.foxtrot.common.FieldType;
-import com.flipkart.foxtrot.common.FieldTypeMapping;
 import com.flipkart.foxtrot.common.TableFieldMapping;
 import com.flipkart.foxtrot.core.TestUtils;
 import com.flipkart.foxtrot.core.querystore.QueryStore;
@@ -37,7 +37,6 @@ import java.util.Set;
 
 import static org.junit.Assert.*;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.*;
 
 /**
@@ -52,14 +51,10 @@ public class TableFieldMappingResourceTest extends FoxtrotResourceTest {
 
     public TableFieldMappingResourceTest() throws Exception {
         super();
-        doReturn(true).when(getTableMetadataManager()).exists(TestUtils.TEST_TABLE_NAME);
-        doReturn(TestUtils.TEST_TABLE).when(getTableMetadataManager()).get(anyString());
-        QueryStore queryStore = getQueryStore();
-
         tableManager = mock(FoxtrotTableManager.class);
         when(tableManager.getAll()).thenReturn(Collections.singletonList(TestUtils.TEST_TABLE));
         resources = ResourceTestRule.builder()
-                .addResource(new TableFieldMappingResource(tableManager, queryStore))
+                .addResource(new TableFieldMappingResource(tableManager, getTableMetadataManager()))
                 .setMapper(getMapper())
                 .addProvider(new FoxtrotExceptionMapper(getMapper()))
                 .build();
@@ -70,12 +65,11 @@ public class TableFieldMappingResourceTest extends FoxtrotResourceTest {
         getQueryStore().save(TestUtils.TEST_TABLE_NAME, TestUtils.getMappingDocuments(getMapper()));
         Thread.sleep(500);
 
-        Set<FieldTypeMapping> mappings = new HashSet<FieldTypeMapping>();
-        mappings.add(new FieldTypeMapping("word", FieldType.STRING));
-        mappings.add(new FieldTypeMapping("data.data", FieldType.STRING));
-        mappings.add(new FieldTypeMapping("header.hello", FieldType.STRING));
-        mappings.add(new FieldTypeMapping("head.hello", FieldType.LONG));
-        mappings.add(new FieldTypeMapping("time", FieldType.LONG));
+        Set<FieldMetadata> mappings = new HashSet<>();
+        mappings.add(FieldMetadata.builder().field("word").type(FieldType.STRING).build());
+        mappings.add(FieldMetadata.builder().field("data.data").type(FieldType.STRING).build());
+        mappings.add(FieldMetadata.builder().field("header.hello").type(FieldType.STRING).build());
+        mappings.add(FieldMetadata.builder().field("head.hello").type(FieldType.LONG).build());
 
         TableFieldMapping tableFieldMapping = new TableFieldMapping(TestUtils.TEST_TABLE_NAME, mappings);
         String response = resources.client().target(String.format("/v1/tables/%s/fields", TestUtils.TEST_TABLE_NAME))

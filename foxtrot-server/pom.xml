@@ -45,6 +45,16 @@
         </dependency>
         <dependency>
             <groupId>com.flipkart.foxtrot</groupId>
+            <artifactId>foxtrot-common</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.flipkart.foxtrot</groupId>
+            <artifactId>foxtrot-core</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.flipkart.foxtrot</groupId>
             <artifactId>foxtrot-core</artifactId>
             <version>${project.version}</version>
             <type>test-jar</type>

@@ -45,8 +45,6 @@ public interface QueryStore {
 
     List<Document> getAll(final String table, final List<String> ids, boolean bypassMetaLookup) throws FoxtrotException;
 
-    TableFieldMapping getFieldMappings(final String table) throws FoxtrotException;
-
     void cleanupAll() throws FoxtrotException;
 
     void cleanup(final String table) throws FoxtrotException;
@@ -58,4 +56,6 @@ public interface QueryStore {
     NodesStatsResponse getNodeStats() throws ExecutionException, InterruptedException;
 
     IndicesStatsResponse getIndicesStats() throws ExecutionException, InterruptedException;
+
+    TableFieldMapping getFieldMappings(String testTableName) throws FoxtrotException;
 }

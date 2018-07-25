@@ -85,24 +85,14 @@ public class HBaseDataStore implements DataStore {
         if (document == null || document.getData() == null || document.getId() == null) {
             throw FoxtrotExceptions.createBadRequestException(table.getName(), "Invalid Input Document");
         }
-        org.apache.hadoop.hbase.client.Table hTable = null;
         Document translatedDocument = null;
-        try {
+        try(org.apache.hadoop.hbase.client.Table hTable = tableWrapper.getTable(table)) {
             translatedDocument = translator.translate(table, document);
-            hTable = tableWrapper.getTable(table);
             hTable.put(getPutForDocument(translatedDocument));
         } catch (JsonProcessingException e) {
             throw FoxtrotExceptions.createBadRequestException(table, e);
         } catch (IOException e) {
             throw FoxtrotExceptions.createConnectionException(table, e);
-        } finally {
-            if (null != hTable) {
-                try {
-                    hTable.close();
-                } catch (IOException e) {
-                    logger.error("Error closing HBase table", e);
-                }
-            }
         }
         return translatedDocument;
     }
@@ -143,20 +133,10 @@ public class HBaseDataStore implements DataStore {
             throw FoxtrotExceptions.createBadRequestException(table.getName(), errorMessages);
         }
 
-        org.apache.hadoop.hbase.client.Table hTable = null;
-        try {
-            hTable = tableWrapper.getTable(table);
+        try(org.apache.hadoop.hbase.client.Table hTable = tableWrapper.getTable(table)) {
             hTable.put(puts);
         } catch (IOException e) {
             throw FoxtrotExceptions.createConnectionException(table, e);
-        } finally {
-            if (null != hTable) {
-                try {
-                    hTable.close();
-                } catch (IOException e) {
-                    logger.error("Error closing HBase table", e);
-                }
-            }
         }
         return translatedDocuments.build();
     }
@@ -164,14 +144,12 @@ public class HBaseDataStore implements DataStore {
     @Override
     @Timed
     public Document get(final Table table, String id) throws FoxtrotException {
-        org.apache.hadoop.hbase.client.Table hTable = null;
-        try {
+        try(org.apache.hadoop.hbase.client.Table hTable = tableWrapper.getTable(table)) {
             Get get = new Get(Bytes.toBytes(translator.rawStorageIdFromDocumentId(table, id)))
                     .addColumn(COLUMN_FAMILY, DOCUMENT_FIELD_NAME)
                     .addColumn(COLUMN_FAMILY, DOCUMENT_META_FIELD_NAME)
                     .addColumn(COLUMN_FAMILY, TIMESTAMP_FIELD_NAME)
                     .setMaxVersions(1);
-            hTable = tableWrapper.getTable(table);
             Result getResult = hTable.get(get);
             if (!getResult.isEmpty()) {
                 byte[] data = getResult.getValue(COLUMN_FAMILY, DOCUMENT_FIELD_NAME);
@@ -186,14 +164,6 @@ public class HBaseDataStore implements DataStore {
             }
         } catch (IOException e) {
             throw FoxtrotExceptions.createConnectionException(table, e);
-        } finally {
-            if (null != hTable) {
-                try {
-                    hTable.close();
-                } catch (IOException e) {
-                    logger.error("Error closing HBase table", e);
-                }
-            }
         }
     }
 
@@ -203,8 +173,7 @@ public class HBaseDataStore implements DataStore {
         if (ids == null) {
             throw FoxtrotExceptions.createBadRequestException(table.getName(), "Empty ID List");
         }
-        org.apache.hadoop.hbase.client.Table hTable = null;
-        try {
+        try(org.apache.hadoop.hbase.client.Table hTable = tableWrapper.getTable(table)) {
             List<Get> gets = new ArrayList<>(ids.size());
             for (String id : ids) {
                 Get get = new Get(Bytes.toBytes(translator.rawStorageIdFromDocumentId(table, id)))
@@ -214,7 +183,6 @@ public class HBaseDataStore implements DataStore {
                         .setMaxVersions(1);
                 gets.add(get);
             }
-            hTable = tableWrapper.getTable(table);
             Result[] getResults = hTable.get(gets);
             List<String> missingIds = new ArrayList<>();
             List<Document> results = new ArrayList<>(ids.size());
@@ -245,14 +213,6 @@ public class HBaseDataStore implements DataStore {
             throw FoxtrotExceptions.createBadRequestException(table, e);
         } catch (IOException e) {
             throw FoxtrotExceptions.createConnectionException(table, e);
-        } finally {
-            if (null != hTable) {
-                try {
-                    hTable.close();
-                } catch (IOException e) {
-                    logger.error("Error closing HBase table", e);
-                }
-            }
         }
     }
 

@@ -24,6 +24,7 @@ import com.flipkart.foxtrot.core.MockHTable;
 import com.flipkart.foxtrot.core.TestUtils;
 import com.flipkart.foxtrot.core.exception.ErrorCode;
 import com.flipkart.foxtrot.core.exception.FoxtrotException;
+import com.flipkart.foxtrot.core.exception.StoreConnectionException;
 import com.flipkart.foxtrot.core.querystore.DocumentTranslator;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -39,6 +40,7 @@ import org.mockito.Mockito;
 import java.io.IOException;
 import java.util.*;
 
+import static com.flipkart.foxtrot.core.TestUtils.TEST_TABLE_NAME;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
@@ -54,8 +56,11 @@ public class HBaseDataStoreTest {
 
     private static final byte[] COLUMN_FAMILY = Bytes.toBytes("d");
     private static final byte[] DATA_FIELD_NAME = Bytes.toBytes("data");
-    private static final String TEST_APP_NAME = "test-app";
-    private static final Table TEST_APP = new Table(TEST_APP_NAME, 7);
+    private static final Table TEST_APP
+            = Table.builder()
+            .name(TEST_TABLE_NAME)
+            .ttl(7)
+            .build();
 
     @Before
     public void setUp() throws Exception {
@@ -143,7 +148,7 @@ public class HBaseDataStoreTest {
         }
     }
 
-    @Test
+    @Test(expected = StoreConnectionException.class)
     public void testSaveSingleHBaseCloseException() throws Exception {
         Document document = new Document(UUID.randomUUID().toString(),
                 System.currentTimeMillis(),
@@ -152,7 +157,6 @@ public class HBaseDataStoreTest {
                 .when(tableInterface)
                 .close();
         hbaseDataStore.save(TEST_APP, document);
-        verify(tableInterface, times(1)).close();
     }
 
     @Test
@@ -240,7 +244,7 @@ public class HBaseDataStoreTest {
         }
     }
 
-    @Test
+    @Test(expected = StoreConnectionException.class)
     public void testSaveBulkHBaseCloseException() throws Exception {
         List<Document> documents = new Vector<Document>();
         documents.add(new Document(UUID.randomUUID().toString(),
@@ -250,7 +254,6 @@ public class HBaseDataStoreTest {
                 .when(tableInterface)
                 .close();
         hbaseDataStore.saveAll(TEST_APP, documents);
-        verify(tableInterface, times(1)).close();
     }
 
     public void validateSave(String id, Document expectedDocument) throws Exception {
@@ -264,7 +267,7 @@ public class HBaseDataStoreTest {
     }
 
     private String v1FormatKey(String id) {
-        return String.format("%s:%s", id, TEST_APP_NAME);
+        return String.format("%s:%s", id, TestUtils.TEST_TABLE_NAME);
     }
 
     @Test
@@ -280,8 +283,8 @@ public class HBaseDataStoreTest {
         JsonNode data = mapper.valueToTree(Collections.singletonMap("TEST_NAME", "SINGLE_SAVE_TEST"));
         Document expectedDocument = new Document(id, timestamp, data);
         tableInterface.put(new Put(Bytes.toBytes(v1FormatKey(id)))
-                .add(COLUMN_FAMILY, Bytes.toBytes("data"), mapper.writeValueAsBytes(data))
-                .add(COLUMN_FAMILY, Bytes.toBytes("timestamp"), Bytes.toBytes(timestamp)));
+                .addColumn(COLUMN_FAMILY, Bytes.toBytes("data"), mapper.writeValueAsBytes(data))
+                .addColumn(COLUMN_FAMILY, Bytes.toBytes("timestamp"), Bytes.toBytes(timestamp)));
         Document actualDocument = hbaseDataStore.get(TEST_APP, id);
         compare(expectedDocument, actualDocument);
 
@@ -345,7 +348,7 @@ public class HBaseDataStoreTest {
         }
     }
 
-    @Test
+    @Test(expected = StoreConnectionException.class)
     public void testGetSingleHBaseCloseException() throws Exception {
         Document originalDocument = createDummyDocument();
         originalDocument.setMetadata(new DocumentMetadata(originalDocument.getId(), v1FormatKey(originalDocument.getId())));
@@ -359,7 +362,6 @@ public class HBaseDataStoreTest {
                 .when(tableInterface)
                 .close();
         hbaseDataStore.get(TEST_APP, originalDocument.getId());
-        verify(tableInterface, times(1)).close();
     }
 
     @Test
@@ -470,7 +472,7 @@ public class HBaseDataStoreTest {
         }
     }
 
-    @Test
+    @Test(expected = StoreConnectionException.class)
     public void testGetBulkHBaseCloseException() throws Exception {
         List<String> ids = new Vector<>();
         List<Put> putList = new Vector<>();

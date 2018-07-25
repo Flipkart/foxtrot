@@ -27,8 +27,10 @@ cluster:
 
 logging:
   level: INFO
+  loggers:
+    com.flipkart.foxtrot.core.querystore.actions: DEBUG
 
 deletionconfig:
-  active: true
+  active: false
   interval: 86400
   initialdelay: 60

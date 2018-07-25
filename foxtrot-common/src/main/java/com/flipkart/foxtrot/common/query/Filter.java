@@ -89,7 +89,7 @@ public abstract class Filter {
         return operator;
     }
 
-    public abstract void accept(FilterVisitor visitor) throws Exception;
+    public abstract<T> T accept(FilterVisitor<T> visitor) throws Exception;
 
     @Override
     public boolean equals(Object o) {
@@ -120,6 +120,7 @@ public abstract class Filter {
                 .toString();
     }
 
+    @JsonIgnore
     public boolean isFilterTemporal() {
         return false;
     }
