@@ -126,6 +126,12 @@
                 </plugins>
             </build>
         </profile>
+        <profile>
+            <id>local</id>
+            <properties>
+                <project.version>0.5.4</project.version>
+            </properties>
+        </profile>
     </profiles>
 
     <dependencyManagement>
