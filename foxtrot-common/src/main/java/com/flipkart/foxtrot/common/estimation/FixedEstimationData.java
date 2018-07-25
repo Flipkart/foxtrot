@@ -14,16 +14,14 @@ import lombok.ToString;
 public class FixedEstimationData extends EstimationData {
 
     private static final long serialVersionUID = 9133737808349090291L;
-    private long probability;
 
     public FixedEstimationData() {
         super(EstimationDataType.FIXED);
     }
 
     @Builder
-    public FixedEstimationData(long probability, long count) {
+    public FixedEstimationData(long count) {
         super(EstimationDataType.FIXED, count);
-        this.probability = probability;
     }
 
     @Override

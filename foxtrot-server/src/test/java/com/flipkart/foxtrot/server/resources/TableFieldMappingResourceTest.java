@@ -37,7 +37,6 @@ import java.util.Set;
 
 import static org.junit.Assert.*;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.*;
 
 /**
@@ -52,12 +51,10 @@ public class TableFieldMappingResourceTest extends FoxtrotResourceTest {
 
     public TableFieldMappingResourceTest() throws Exception {
         super();
-        QueryStore queryStore = getQueryStore();
-
         tableManager = mock(FoxtrotTableManager.class);
         when(tableManager.getAll()).thenReturn(Collections.singletonList(TestUtils.TEST_TABLE));
         resources = ResourceTestRule.builder()
-                .addResource(new TableFieldMappingResource(tableManager, getTableMetadataManager(), queryStore))
+                .addResource(new TableFieldMappingResource(tableManager, getTableMetadataManager()))
                 .setMapper(getMapper())
                 .addProvider(new FoxtrotExceptionMapper(getMapper()))
                 .build();

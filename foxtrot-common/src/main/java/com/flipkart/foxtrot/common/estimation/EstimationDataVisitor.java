@@ -10,4 +10,6 @@ public interface EstimationDataVisitor<T> {
     T visit(PercentileEstimationData percentileEstimationData);
 
     T visit(CardinalityEstimationData cardinalityEstimationData);
+
+    T visit(TermHistogramEstimationData termHistogramEstimationData);
 }
