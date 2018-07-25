@@ -158,7 +158,8 @@ public class GroupAction extends Action<GroupRequest> {
         if (probability > PROBABILITY_CUT_OFF) {
             log.warn("Blocked query as it might have screwed up the cluster. Probability: {} Query: {}",
                     probability, parameter);
-            throw FoxtrotExceptions.createCardinalityOverflow(parameter, parameter.getNesting().get(0), probability);
+            //TODO Uncomment it later after testing
+            //throw FoxtrotExceptions.createCardinalityOverflow(parameter, parameter.getNesting().get(0), probability);
         } else {
             log.info("Allowing group by with probability {} for query: {}", probability, parameter);
         }
@@ -257,6 +258,9 @@ public class GroupAction extends Action<GroupRequest> {
         log.debug("cacheKey:{} msg:NESTING_FIELDS_ESTIMATION_COMPLETED maxDocCount:{} docCountAfterTimeFilters:{} docCountAfterFilters:{} outputCardinality:{}",
                 cacheKey, estimatedMaxDocCount, estimatedDocCountBasedOnTime, estimatedDocCountAfterFilters, outputCardinality);
         if (outputCardinality > MAX_CARDINALITY) {
+            log.warn("Output cardinality : {}, estimatedMaxDocCount : {}, estimatedDocCountBasedOnTime : {}, " +
+                            "estimatedDocCountAfterFilters : {}, TableFieldMapping : {}", outputCardinality,
+                    estimatedMaxDocCount, estimatedDocCountBasedOnTime, estimatedDocCountAfterFilters, tableFieldMapping);
             return 1.0;
         } else {
             return 0;
