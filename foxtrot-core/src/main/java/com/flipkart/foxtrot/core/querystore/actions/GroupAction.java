@@ -61,6 +61,7 @@ import org.elasticsearch.search.aggregations.metrics.cardinality.Cardinality;
 import org.joda.time.Interval;
 
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -75,6 +76,7 @@ public class GroupAction extends Action<GroupRequest> {
 
     private static final long MAX_CARDINALITY = 50;
     private static final long MIN_ESTIMATION_THRESHOLD = 1000;
+    private static final double PROBABILITY_CUT_OFF = 0.5;
 
     public GroupAction(GroupRequest parameter,
                        TableMetadataManager tableMetadataManager,
@@ -156,68 +158,53 @@ public class GroupAction extends Action<GroupRequest> {
             log.error("Error running estimation", e);
         }
 
-        if (probability > 0.5) {
+        if (probability > PROBABILITY_CUT_OFF) {
+            log.warn("Blocked query as it might have screwed up the cluster. Probability: {} Query: {}",
+                    probability, parameter);
             throw FoxtrotExceptions.createCardinalityOverflow(parameter, parameter.getNesting().get(0), probability);
+        } else {
+            log.info("Allowing group by with probability {} for query: {}", probability, parameter);
         }
-
     }
 
     private double estimateProbability(TableFieldMapping tableFieldMapping, GroupRequest parameter) throws Exception {
         Set<FieldMetadata> mappings = tableFieldMapping.getMappings();
-        Interval queryInterval = new PeriodSelector(parameter.getFilters()).analyze();
-        long minutes = queryInterval.toDuration().getStandardMinutes();
         Map<String, FieldMetadata> metaMap = mappings.stream()
                 .collect(Collectors.toMap(FieldMetadata::getField, mapping -> mapping));
-        final String field = parameter.getNesting().get(0);
-        FieldMetadata meta = metaMap.get(field);
 
+        Interval queryInterval = new PeriodSelector(parameter.getFilters()).analyze();
+        long minutes = queryInterval.toDuration().getStandardMinutes();
+
+        String field = parameter.getNesting().get(0);
+        FieldMetadata meta = metaMap.get(field);
         if (null == meta || null == meta.getEstimationData()) {
             log.warn("No estimation data found for field {} of table {}", field, parameter.getTable());
             return 0.0;
         }
         final long count = meta.getEstimationData().getCount();
 
-        long estimatedDocs = (count * minutes) / 1440;
+        long estimatedDocs = (count * minutes) / TimeUnit.DAYS.toMinutes(1);
 
+        //Checking explicitly for the first grouping to ignore the algo
         if (estimatedDocs < MIN_ESTIMATION_THRESHOLD) { //Not worth checking
             log.debug("Estimator skipped as # docs ({}) < threshold ({})",
                     estimatedDocs, MIN_ESTIMATION_THRESHOLD);
             return 0.0;
         }
+
+        log.debug("Starting estimation with: {} estimatedDocs:{}", meta, estimatedDocs);
+        Double probability = 0.0;
+
+        for (String innerField : parameter.getNesting()) {
+            //Some inner group might be corrupted
+            Double probabilityOfField = getProbabilityForField(metaMap, innerField, parameter, minutes);
+            log.debug("First phase probability for field {} is {}", innerField, probabilityOfField);
+            //Taking maximum of the probability assuming this field will bring the cluster down
+            probability = Math.max(probability, probabilityOfField);
+        }
+
+
         List<Filter> filters = parameter.getFilters();
-        log.debug("Starting estimation with: {}", meta);
-        double probability = meta.getEstimationData().accept(new EstimationDataVisitor<Double>() {
-            @Override
-            public Double visit(FixedEstimationData fixedEstimationData) {
-                final double result = (fixedEstimationData.getProbability() / 100);
-                log.debug("From fixed probability: {} / 100 = {}",
-                        fixedEstimationData.getProbability(),
-                        result);
-                return result;
-            }
-
-            @Override
-            public Double visit(PercentileEstimationData bucketBasedEstimationData) {
-                log.debug("Returning fixed estimation data 1.0");
-                return 1.0;
-            }
-
-            @Override
-            public Double visit(CardinalityEstimationData cardinalityBasedEstimationData) {
-                final double result = (
-                        (double) (Long.min(
-                                cardinalityBasedEstimationData.getCardinality(),
-                                cardinalityBasedEstimationData.getCount()))
-                                / (double) cardinalityBasedEstimationData.getCount());
-                log.debug("Result from cardinality estimation: min({}, {})/ {} = {}",
-                        cardinalityBasedEstimationData.getCardinality(),
-                        cardinalityBasedEstimationData.getCount(),
-                        cardinalityBasedEstimationData.getCount(),
-                        result);
-                return result;
-            }
-        });
-        log.debug("First phase probability for field {} is {}", field, probability);
         if (CollectionUtils.isNullOrEmpty(filters)) {
             log.debug("No filters in this query. Final probability is: {}", probability);
             return probability;
@@ -261,7 +248,7 @@ public class GroupAction extends Action<GroupRequest> {
                                             .orElse(9);
 
                                     int numBuckets = maxBound - minBound + 1;
-                                    final double result = (numBuckets / 10);
+                                    final double result = (double) numBuckets / 10.0;
                                     log.debug("Between filter: {} " +
                                                     "percentiles[{}] = {} to percentiles[{}] = {} " +
                                                     "buckets {} multiplier {}",
@@ -278,7 +265,7 @@ public class GroupAction extends Action<GroupRequest> {
                                 @Override
                                 public Double visit(EqualsFilter equalsFilter) throws Exception {
                                     // There is a match, so contribution can only by 1 / N
-                                    final double result = (1 / numMatches);
+                                    final double result = 1.0 / (double) numMatches;
                                     log.debug("Equals filter: {} numMatches: {} multiplier: {}",
                                             equalsFilter, numMatches, result);
                                     return result;
@@ -303,7 +290,7 @@ public class GroupAction extends Action<GroupRequest> {
                                             .orElse(0);
 
                                     //Everything below this percentile do not affect
-                                    final double result = ((10 - minBound) / 10);
+                                    final double result = (double) (10 - minBound - 1) / 10.0;
                                     log.debug("Greater than filter: {} percentiles[{}] = {} multiplier: {}",
                                             greaterThanFilter,
                                             minBound,
@@ -324,7 +311,7 @@ public class GroupAction extends Action<GroupRequest> {
                                             .orElse(0);
 
                                     //Everything below this do not affect
-                                    final double result = ((10 - minBound) / 10);
+                                    final double result = (double) (10 - minBound - 1) / 10.0;
                                     log.debug("Greater equals filter: {} percentiles[{}] = {} multiplier: {}",
                                             greaterEqualFilter,
                                             minBound,
@@ -345,7 +332,7 @@ public class GroupAction extends Action<GroupRequest> {
                                             .orElse(0);
 
                                     //Everything above this do not affect
-                                    final double result = (double) minBound / 10.0;
+                                    final double result = ((double) minBound + 1.0) / 10.0;
                                     log.debug("Less than filter: {} percentiles[{}] = {} multiplier: {}",
                                             lessThanFilter,
                                             minBound,
@@ -365,7 +352,7 @@ public class GroupAction extends Action<GroupRequest> {
                                             .findFirst()
                                             .orElse(0);
                                     //Everything above this do not affect
-                                    final double result = (minBound / 10);
+                                    final double result = ((double) minBound + 1.0) / 10.0;
                                     log.debug("Less equals filter: {} percentiles[{}] = {} multiplier: {}",
                                             lessEqualFilter,
                                             minBound,
@@ -428,6 +415,56 @@ public class GroupAction extends Action<GroupRequest> {
             probability *= multiplier;
         }
         return probability;
+    }
+
+    private Double getProbabilityForField(Map<String, FieldMetadata> metaMap, String field, GroupRequest parameter, long minutes) throws Exception {
+        FieldMetadata meta = metaMap.get(field);
+        if (null == meta || null == meta.getEstimationData()) {
+            log.warn("No estimation data found for field {} of table {}", field, parameter.getTable());
+            return 0.0;
+        }
+
+        final long count = meta.getEstimationData().getCount();
+
+        long estimatedDocs = (count * minutes) / TimeUnit.DAYS.toMinutes(1);
+
+        if (estimatedDocs < MIN_ESTIMATION_THRESHOLD) { //Not worth checking
+            log.debug("Estimator skipped as # docs ({}) < threshold ({})",
+                    estimatedDocs, MIN_ESTIMATION_THRESHOLD);
+            return 0.0;
+        }
+
+        return meta.getEstimationData().accept(new EstimationDataVisitor<Double>() {
+            @Override
+            public Double visit(FixedEstimationData fixedEstimationData) {
+                final double result = ((double) fixedEstimationData.getProbability() / 100);
+                log.debug("From fixed probability: {} / 100 = {}",
+                        fixedEstimationData.getProbability(),
+                        result);
+                return result;
+            }
+
+            @Override
+            public Double visit(PercentileEstimationData bucketBasedEstimationData) {
+                log.debug("Returning fixed estimation data 1.0");
+                return 1.0;
+            }
+
+            @Override
+            public Double visit(CardinalityEstimationData cardinalityBasedEstimationData) {
+                final double result = (
+                        (double) (Long.min(
+                                cardinalityBasedEstimationData.getCardinality(),
+                                cardinalityBasedEstimationData.getCount()))
+                                / (double) cardinalityBasedEstimationData.getCount());
+                log.debug("Result from cardinality estimation: min({}, {})/ {} = {}",
+                        cardinalityBasedEstimationData.getCardinality(),
+                        cardinalityBasedEstimationData.getCount(),
+                        cardinalityBasedEstimationData.getCount(),
+                        result);
+                return result;
+            }
+        });
     }
 
     @Override

@@ -53,6 +53,7 @@ import org.elasticsearch.search.aggregations.Aggregation;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.Aggregations;
 import org.elasticsearch.search.aggregations.metrics.cardinality.Cardinality;
+import org.elasticsearch.search.aggregations.metrics.cardinality.CardinalityBuilder;
 import org.elasticsearch.search.aggregations.metrics.percentiles.Percentiles;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
@@ -72,8 +73,9 @@ import java.util.stream.Stream;
 
 public class DistributedTableMetadataManager implements TableMetadataManager {
     private static final Logger logger = LoggerFactory.getLogger(DistributedTableMetadataManager.class);
-    public static final String DATA_MAP = "tablemetadatamap";
-    public static final String FIELD_MAP = "tablefieldmap";
+    private static final String DATA_MAP = "tablemetadatamap";
+    private static final String FIELD_MAP = "tablefieldmap";
+    private static final int PRECISION_THRESHOLD = 10;
     private final HazelcastConnection hazelcastConnection;
     private final ElasticsearchConnection elasticsearchConnection;
     private final ObjectMapper mapper;
@@ -96,8 +98,6 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
         MapConfig mapConfig = new MapConfig();
         mapConfig.setReadBackupData(true);
         mapConfig.setInMemoryFormat(InMemoryFormat.BINARY);
-        mapConfig.setTimeToLiveSeconds(10);
-        mapConfig.setMaxIdleSeconds(10);
         mapConfig.setBackupCount(0);
 
         MapStoreConfig mapStoreConfig = new MapStoreConfig();
@@ -107,9 +107,7 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
         mapConfig.setMapStoreConfig(mapStoreConfig);
 
         NearCacheConfig nearCacheConfig = new NearCacheConfig();
-        nearCacheConfig.setTimeToLiveSeconds(10);
         nearCacheConfig.setInvalidateOnChange(true);
-        nearCacheConfig.setMaxIdleSeconds(10);
         mapConfig.setNearCacheConfig(nearCacheConfig);
         return mapConfig;
     }
@@ -118,14 +116,10 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
         MapConfig mapConfig = new MapConfig();
         mapConfig.setReadBackupData(true);
         mapConfig.setInMemoryFormat(InMemoryFormat.BINARY);
-        mapConfig.setTimeToLiveSeconds(90);
-        mapConfig.setMaxIdleSeconds(90);
         mapConfig.setBackupCount(0);
 
         NearCacheConfig nearCacheConfig = new NearCacheConfig();
-        nearCacheConfig.setTimeToLiveSeconds(90);
         nearCacheConfig.setInvalidateOnChange(true);
-        nearCacheConfig.setMaxIdleSeconds(90);
         mapConfig.setNearCacheConfig(nearCacheConfig);
 
         return mapConfig;
@@ -268,7 +262,7 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
                 case STRING: {
                     query.addAggregation(AggregationBuilders.cardinality(field)
                             .field(field)
-                            .precisionThreshold(5));
+                            .precisionThreshold(PRECISION_THRESHOLD));
                     break;
                 }
                 case INTEGER:
@@ -278,6 +272,9 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
                     query.addAggregation(AggregationBuilders.percentiles(field)
                             .field(field)
                             .percentiles(10, 20, 30, 40, 50, 60, 70, 80, 90, 100));
+                    /*query.addAggregation(AggregationBuilders.cardinality(field + field)
+                            .field(field)
+                            .precisionThreshold(PRECISION_THRESHOLD));*/
                     break;
                 }
                 case BOOLEAN:
