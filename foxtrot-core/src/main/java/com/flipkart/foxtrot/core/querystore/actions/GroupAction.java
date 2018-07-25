@@ -58,6 +58,7 @@ import org.elasticsearch.search.aggregations.metrics.cardinality.Cardinality;
 import org.joda.time.Interval;
 
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -72,6 +73,7 @@ public class GroupAction extends Action<GroupRequest> {
 
     private static final long MAX_CARDINALITY = 50000;
     private static final long MIN_ESTIMATION_THRESHOLD = 1000;
+    private static final double PROBABILITY_CUT_OFF = 0.5;
 
     public GroupAction(GroupRequest parameter,
                        TableMetadataManager tableMetadataManager,
@@ -137,8 +139,6 @@ public class GroupAction extends Action<GroupRequest> {
             throw FoxtrotExceptions.createMalformedQueryException(parameter, validationErrors);
         }
 
-        final String cacheKey = getRequestCacheKey();
-
         // Perform cardinality analysis and see how much this fucks up the cluster
         double probability = 0;
         try {
@@ -152,14 +152,15 @@ public class GroupAction extends Action<GroupRequest> {
 
             probability = estimateProbability(fieldMappings, parameter);
         } catch (Exception e) {
-            log.error(String.format("cacheKey:%s msg:ESTIMATION_FAILED", cacheKey), e);
+            log.error("Error running estimation", e);
         }
 
-        if (probability > 0.5) {
-            log.warn("cacheKey:{} msg:QUERY_BLOCKED probability:{} query:{}", cacheKey, probability, parameter);
+        if (probability > PROBABILITY_CUT_OFF) {
+            log.warn("Blocked query as it might have screwed up the cluster. Probability: {} Query: {}",
+                    probability, parameter);
             throw FoxtrotExceptions.createCardinalityOverflow(parameter, parameter.getNesting().get(0), probability);
         } else {
-            log.info("cacheKey:{} msg:QUERY_ALLOWED probability:{} query:{}", cacheKey, probability, parameter);
+            log.info("Allowing group by with probability {} for query: {}", probability, parameter);
         }
     }
 
@@ -244,9 +245,10 @@ public class GroupAction extends Action<GroupRequest> {
             });
             log.debug("cacheKey:{} msg:NESTING_FIELD_ESTIMATED field:{} overallCardinality:{} fieldCardinality:{} newCardinality:{}",
                     cacheKey, field, outputCardinality, fieldCardinality, outputCardinality * fieldCardinality);
-            if (fieldCardinality != 0) {
+            /*if (fieldCardinality != 0) {
                 fieldCardinality = (long) Utils.ensureOne((long) Math.pow(Math.abs(fieldCardinality), 1 / Math.pow(2, i + 1)));
-            }
+            }*/
+            fieldCardinality = (long) Utils.ensureOne(fieldCardinality);
             log.debug("cacheKey:{} msg:NESTING_FIELD_ESTIMATION_COMPLETED field:{} overallCardinality:{} fieldCardinality:{} newCardinality:{}",
                     cacheKey, field, outputCardinality, fieldCardinality, outputCardinality * fieldCardinality);
             outputCardinality *= fieldCardinality;
@@ -264,7 +266,7 @@ public class GroupAction extends Action<GroupRequest> {
     private long estimateDocCountBasedOnTime(long currentDocCount, GroupRequest parameter) throws Exception {
         Interval queryInterval = new PeriodSelector(parameter.getFilters()).analyze();
         long minutes = queryInterval.toDuration().getStandardMinutes();
-        return (currentDocCount * minutes) / 1440;
+        return (currentDocCount * minutes) / TimeUnit.DAYS.toHours(1);
     }
 
     private long extractMaxDocCount(Map<String, FieldMetadata> metaMap) {

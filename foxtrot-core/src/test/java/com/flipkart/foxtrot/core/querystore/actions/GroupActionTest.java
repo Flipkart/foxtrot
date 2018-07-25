@@ -23,6 +23,7 @@ import com.flipkart.foxtrot.common.query.Filter;
 import com.flipkart.foxtrot.common.query.general.EqualsFilter;
 import com.flipkart.foxtrot.common.query.numeric.GreaterThanFilter;
 import com.flipkart.foxtrot.core.TestUtils;
+import com.flipkart.foxtrot.core.exception.CardinalityOverflowException;
 import com.flipkart.foxtrot.core.exception.ErrorCode;
 import com.flipkart.foxtrot.core.exception.FoxtrotException;
 import com.google.common.collect.Maps;
@@ -191,7 +192,7 @@ public class GroupActionTest extends ActionTest {
         assertEquals(response, actualResult.getResult());
     }
 
-    @Test
+    @Test(expected = CardinalityOverflowException.class)
     public void testGroupActionMultipleFieldsNoFilter() throws FoxtrotException, JsonProcessingException {
         GroupRequest groupRequest = new GroupRequest();
         groupRequest.setTable(TestUtils.TEST_TABLE_NAME);

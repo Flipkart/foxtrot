@@ -1,5 +1,7 @@
 package com.flipkart.foxtrot.server.resources;
 
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.Logger;
 import com.codahale.metrics.health.HealthCheckRegistry;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.DeserializationFeature;
@@ -36,6 +38,7 @@ import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
 import org.junit.After;
 import org.mockito.Mockito;
+import org.slf4j.LoggerFactory;
 
 import java.util.UUID;
 import java.util.concurrent.ExecutorService;
@@ -88,6 +91,8 @@ public abstract class FoxtrotResourceTest {
         environment.jersey().register(new FoxtrotExceptionMapper(mapper));
         mapper = environment.getObjectMapper();
 
+        Logger root = (Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
+        root.setLevel(Level.WARN);
     }
 
     public FoxtrotResourceTest() throws Exception {

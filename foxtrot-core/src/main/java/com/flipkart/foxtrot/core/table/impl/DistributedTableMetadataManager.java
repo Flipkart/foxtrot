@@ -73,6 +73,7 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
     private static final Logger logger = LoggerFactory.getLogger(DistributedTableMetadataManager.class);
     private static final String DATA_MAP = "tablemetadatamap";
     private static final String FIELD_MAP = "tablefieldmap";
+    private static final int PRECISION_THRESHOLD = 100;
     private final HazelcastConnection hazelcastConnection;
     private final ElasticsearchConnection elasticsearchConnection;
     private final ObjectMapper mapper;
@@ -125,25 +126,6 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
 
         return mapConfig;
     }
-
-    private static class FieldMetadataComparator implements Comparator<FieldMetadata>, Serializable {
-
-        private static final long serialVersionUID = 8557746595191991528L;
-
-        @Override
-        public int compare(FieldMetadata o1, FieldMetadata o2) {
-            if (o1 == null && o2 == null) {
-                return 0;
-            } else if (o1 == null) {
-                return -1;
-            } else if (o2 == null) {
-                return 1;
-            } else {
-                return o1.getField().compareTo(o2.getField());
-            }
-        }
-    }
-
 
     @Override
     public void save(Table table) throws FoxtrotException {
@@ -275,7 +257,7 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
                     logger.info("table:{} field:{} type:{} aggregationType:{}", table, field, fieldMetadata.getType(), "cardinality");
                     query.addAggregation(AggregationBuilders.cardinality(field)
                             .field(field)
-                            .precisionThreshold(500));
+                            .precisionThreshold(PRECISION_THRESHOLD));
                     break;
                 }
                 case INTEGER:
@@ -380,7 +362,7 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
                         int countToCardinalityRatio = (int) (cardinalityEstimationData.getCount() / cardinalityEstimationData.getCardinality());
                         int documentToCountRatio = (int) (maxDocuments / cardinalityEstimationData.getCount());
                         if (cardinalityEstimationData.getCardinality() <= 100
-                                || (countToCardinalityRatio > 100 && documentToCountRatio < 100 && cardinalityEstimationData.getCardinality() <= 5000 )) {
+                                || (countToCardinalityRatio > 100 && documentToCountRatio < 100 && cardinalityEstimationData.getCardinality() <= 5000)) {
                             logger.info("field:{} maxCount:{} countToCardinalityRatio:{} documentToCountRatio:{}",
                                     key, maxDocuments, countToCardinalityRatio, documentToCountRatio);
                             SearchRequestBuilder query = client.prepareSearch(index)
@@ -452,5 +434,23 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
 
     @Override
     public void stop() throws Exception {
+    }
+
+    private static class FieldMetadataComparator implements Comparator<FieldMetadata>, Serializable {
+
+        private static final long serialVersionUID = 8557746595191991528L;
+
+        @Override
+        public int compare(FieldMetadata o1, FieldMetadata o2) {
+            if (o1 == null && o2 == null) {
+                return 0;
+            } else if (o1 == null) {
+                return -1;
+            } else if (o2 == null) {
+                return 1;
+            } else {
+                return o1.getField().compareTo(o2.getField());
+            }
+        }
     }
 }

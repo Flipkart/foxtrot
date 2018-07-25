@@ -51,7 +51,7 @@ public class DistributedCache implements Cache {
             final String serializedData = mapper.writeValueAsString(data);
             if (serializedData != null) {
                 // Only cache if size is less that 32 KB
-                if (serializedData.length() <= 256 * 1024) {
+                if (serializedData.length() <= 32 * 1024) {
                     distributedMap.put(key, mapper.writeValueAsString(data));
                 } else {
                     logger.error(
