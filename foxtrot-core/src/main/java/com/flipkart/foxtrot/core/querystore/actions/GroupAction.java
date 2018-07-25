@@ -259,8 +259,8 @@ public class GroupAction extends Action<GroupRequest> {
                 cacheKey, estimatedMaxDocCount, estimatedDocCountBasedOnTime, estimatedDocCountAfterFilters, outputCardinality);
         if (outputCardinality > MAX_CARDINALITY) {
             log.warn("Output cardinality : {}, estimatedMaxDocCount : {}, estimatedDocCountBasedOnTime : {}, " +
-                            "estimatedDocCountAfterFilters : {}, TableFieldMapping : {}", outputCardinality,
-                    estimatedMaxDocCount, estimatedDocCountBasedOnTime, estimatedDocCountAfterFilters, tableFieldMapping);
+                            "estimatedDocCountAfterFilters : {}, TableFieldMapping : {},  {} Query: {}", outputCardinality,
+                    estimatedMaxDocCount, estimatedDocCountBasedOnTime, estimatedDocCountAfterFilters, tableFieldMapping, parameter);
             return 1.0;
         } else {
             return 0;
