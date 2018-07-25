@@ -83,14 +83,15 @@ public class AnalyticsLoader implements Managed {
                         QueryStore.class,
                         ElasticsearchConnection.class,
                         String.class,
-                        CacheManager.class);
+                        CacheManager.class, ObjectMapper.class);
                 return constructor.newInstance(r,
                         tableMetadataManager,
                         dataStore,
                         queryStore,
                         elasticsearchConnection,
                         metadata.getCacheToken(),
-                        cacheManager);
+                        cacheManager,
+                        objectMapper);
             }
         }
         return null;

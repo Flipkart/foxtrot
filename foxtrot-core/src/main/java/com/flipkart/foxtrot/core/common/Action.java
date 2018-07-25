@@ -15,6 +15,7 @@
  */
 package com.flipkart.foxtrot.core.common;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.flipkart.foxtrot.common.ActionRequest;
 import com.flipkart.foxtrot.common.ActionResponse;
 import com.flipkart.foxtrot.common.ActionValidationResponse;
@@ -60,6 +61,7 @@ public abstract class Action<ParameterType extends ActionRequest> implements Cal
     private final QueryStore queryStore;
     private final String cacheToken;
     private final CacheManager cacheManager;
+    private final ObjectMapper objectMapper;
 
     protected Action(ParameterType parameter,
                      TableMetadataManager tableMetadataManager,
@@ -67,7 +69,7 @@ public abstract class Action<ParameterType extends ActionRequest> implements Cal
                      QueryStore queryStore,
                      ElasticsearchConnection connection,
                      String cacheToken,
-                     CacheManager cacheManager) {
+                     CacheManager cacheManager, ObjectMapper objectMapper) {
         this.parameter = parameter;
         this.tableMetadataManager = tableMetadataManager;
         this.queryStore = queryStore;
@@ -75,6 +77,7 @@ public abstract class Action<ParameterType extends ActionRequest> implements Cal
         this.cacheManager = cacheManager;
         this.connection = connection;
         this.dataStore = dataStore;
+        this.objectMapper = objectMapper;
     }
 
     public String cacheKey() {
@@ -193,7 +196,7 @@ public abstract class Action<ParameterType extends ActionRequest> implements Cal
     /**
      * Returns a metric key for current action. Ideally this key's cardinality should be less since each new value of
      * this key will create new JMX metric
-     *
+     * <p>
      * Sample use cases - Used for reporting per action
      * success/failure metrics
      * cache hit/miss metrics
@@ -230,6 +233,10 @@ public abstract class Action<ParameterType extends ActionRequest> implements Cal
 
     public QueryStore getQueryStore() {
         return queryStore;
+    }
+
+    public ObjectMapper getObjectMapper() {
+        return objectMapper;
     }
 
     protected Filter getDefaultTimeSpan() {

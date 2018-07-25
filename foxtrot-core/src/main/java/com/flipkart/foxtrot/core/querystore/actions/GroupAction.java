@@ -46,6 +46,7 @@ import com.flipkart.foxtrot.core.table.TableMetadataManager;
 import com.google.common.collect.Maps;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.elasticsearch.ElasticsearchException;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
@@ -81,8 +82,8 @@ public class GroupAction extends Action<GroupRequest> {
                        QueryStore queryStore,
                        ElasticsearchConnection connection,
                        String cacheToken,
-                       CacheManager cacheManager) {
-        super(parameter, tableMetadataManager, dataStore, queryStore, connection, cacheToken, cacheManager);
+                       CacheManager cacheManager, ObjectMapper objectMapper) {
+        super(parameter, tableMetadataManager, dataStore, queryStore, connection, cacheToken, cacheManager, objectMapper);
     }
 
     @Override
@@ -260,7 +261,8 @@ public class GroupAction extends Action<GroupRequest> {
         if (outputCardinality > MAX_CARDINALITY) {
             log.warn("Output cardinality : {}, estimatedMaxDocCount : {}, estimatedDocCountBasedOnTime : {}, " +
                             "estimatedDocCountAfterFilters : {}, TableFieldMapping : {},  {} Query: {}", outputCardinality,
-                    estimatedMaxDocCount, estimatedDocCountBasedOnTime, estimatedDocCountAfterFilters, tableFieldMapping, parameter);
+                    estimatedMaxDocCount, estimatedDocCountBasedOnTime, estimatedDocCountAfterFilters, tableFieldMapping,
+                    getObjectMapper().writerWithDefaultPrettyPrinter().writeValueAsString(parameter));
             return 1.0;
         } else {
             return 0;
