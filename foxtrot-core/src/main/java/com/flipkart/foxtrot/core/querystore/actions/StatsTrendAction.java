@@ -1,9 +1,9 @@
 package com.flipkart.foxtrot.core.querystore.actions;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.flipkart.foxtrot.common.ActionResponse;
 import com.flipkart.foxtrot.common.Period;
 import com.flipkart.foxtrot.common.query.Filter;
-import com.flipkart.foxtrot.common.query.FilterCombinerType;
 import com.flipkart.foxtrot.common.query.ResultSort;
 import com.flipkart.foxtrot.common.query.datetime.LastFilter;
 import com.flipkart.foxtrot.common.stats.BucketResponse;
@@ -43,6 +43,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import static com.flipkart.foxtrot.core.util.ElasticsearchQueryUtils.QUERY_SIZE;
 
 /**
  * Created by rishabh.goyal on 02/08/14.
@@ -127,8 +129,8 @@ public class StatsTrendAction extends Action<StatsTrendRequest> {
                     ElasticsearchUtils.getIndices(parameter.getTable(), parameter))
                     .setTypes(ElasticsearchUtils.DOCUMENT_TYPE_NAME)
                     .setIndicesOptions(Utils.indicesOptions())
-                    .setQuery(new ElasticSearchQueryGenerator(parameter.getCombiner()).genFilter(parameter.getFilters()))
-                    .setSize(1000)
+                    .setQuery(new ElasticSearchQueryGenerator().genFilter(parameter.getFilters()))
+                    .setSize(QUERY_SIZE)
                     .addAggregation(aggregation);
         } catch (Exception e) {
             throw FoxtrotExceptions.queryCreationException(parameter, e);

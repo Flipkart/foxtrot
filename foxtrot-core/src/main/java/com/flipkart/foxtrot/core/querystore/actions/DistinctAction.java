@@ -1,5 +1,6 @@
 package com.flipkart.foxtrot.core.querystore.actions;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.flipkart.foxtrot.common.ActionResponse;
 import com.flipkart.foxtrot.common.distinct.DistinctRequest;
 import com.flipkart.foxtrot.common.distinct.DistinctResponse;
@@ -32,6 +33,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import static com.flipkart.foxtrot.core.util.ElasticsearchQueryUtils.QUERY_SIZE;
 
 /**
  * Created by rishabh.goyal on 17/11/14.
@@ -111,9 +114,9 @@ public class DistinctAction extends Action<DistinctRequest> {
             query = getConnection().getClient()
                     .prepareSearch(ElasticsearchUtils.getIndices(request.getTable(), request))
                     .setIndicesOptions(Utils.indicesOptions());
-            query.setQuery(new ElasticSearchQueryGenerator(FilterCombinerType.and)
+            query.setQuery(new ElasticSearchQueryGenerator()
                     .genFilter(request.getFilters()))
-                    .setSize(1000)
+                    .setSize(QUERY_SIZE)
                     .addAggregation(Utils.buildTermsAggregation(request.getNesting(), Sets.newHashSet()));
         } catch (Exception e) {
             throw FoxtrotExceptions.queryCreationException(request, e);

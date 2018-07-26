@@ -50,6 +50,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import static com.flipkart.foxtrot.core.util.ElasticsearchQueryUtils.QUERY_SIZE;
+
 /**
  * User: Santanu Sinha (santanu.sinha@flipkart.com)
  * Date: 27/03/14
@@ -134,7 +136,7 @@ public class GroupAction extends Action<GroupRequest> {
             AbstractAggregationBuilder aggregation = buildAggregation();
             query.setQuery(new ElasticSearchQueryGenerator(FilterCombinerType.and)
                     .genFilter(parameter.getFilters()))
-                    .setSize(1000)
+                    .setSize(QUERY_SIZE)
                     .addAggregation(aggregation);
         } catch (Exception e) {
             throw FoxtrotExceptions.queryCreationException(parameter, e);

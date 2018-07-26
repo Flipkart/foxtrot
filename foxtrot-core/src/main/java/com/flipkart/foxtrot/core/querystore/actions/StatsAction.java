@@ -2,7 +2,6 @@ package com.flipkart.foxtrot.core.querystore.actions;
 
 import com.flipkart.foxtrot.common.ActionResponse;
 import com.flipkart.foxtrot.common.query.Filter;
-import com.flipkart.foxtrot.common.query.FilterCombinerType;
 import com.flipkart.foxtrot.common.query.ResultSort;
 import com.flipkart.foxtrot.common.stats.BucketResponse;
 import com.flipkart.foxtrot.common.stats.StatsRequest;
@@ -35,6 +34,8 @@ import org.elasticsearch.search.aggregations.metrics.stats.extended.InternalExte
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import static com.flipkart.foxtrot.core.util.ElasticsearchQueryUtils.QUERY_SIZE;
 
 /**
  * Created by rishabh.goyal on 02/08/14.
@@ -109,8 +110,8 @@ public class StatsAction extends Action<StatsRequest> {
                     ElasticsearchUtils.getIndices(parameter.getTable(), parameter))
                     .setTypes(ElasticsearchUtils.DOCUMENT_TYPE_NAME)
                     .setIndicesOptions(Utils.indicesOptions())
-                    .setQuery(new ElasticSearchQueryGenerator(parameter.getCombiner()).genFilter(parameter.getFilters()))
-                    .setSize(1000);
+                    .setQuery(new ElasticSearchQueryGenerator().genFilter(parameter.getFilters()))
+                    .setSize(QUERY_SIZE);
 
             AbstractAggregationBuilder percentiles = Utils.buildPercentileAggregation(getParameter().getField());
             AbstractAggregationBuilder extendedStats = Utils.buildExtendedStatsAggregation(getParameter().getField());

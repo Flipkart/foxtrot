@@ -51,6 +51,8 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
+import static com.flipkart.foxtrot.core.util.ElasticsearchQueryUtils.QUERY_SIZE;
+
 /**
  * User: Santanu Sinha (santanu.sinha@flipkart.com)
  * Date: 29/03/14
@@ -129,9 +131,9 @@ public class HistogramAction extends Action<HistogramRequest> {
                     ElasticsearchUtils.getIndices(parameter.getTable(), parameter))
                     .setTypes(ElasticsearchUtils.DOCUMENT_TYPE_NAME)
                     .setIndicesOptions(Utils.indicesOptions())
-                    .setQuery(new ElasticSearchQueryGenerator(FilterCombinerType.and)
+                    .setQuery(new ElasticSearchQueryGenerator()
                             .genFilter(parameter.getFilters()))
-                    .setSize(1000)
+                    .setSize(QUERY_SIZE)
                     .addAggregation(aggregationBuilder);
         } catch (Exception e) {
             throw FoxtrotExceptions.queryCreationException(parameter, e);

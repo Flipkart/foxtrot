@@ -1,10 +1,13 @@
 package com.flipkart.foxtrot.common;
 
-import org.apache.commons.lang3.builder.ToStringBuilder;
+import lombok.Data;
+import lombok.ToString;
 
 /**
  * Metadata for a document
  */
+@Data
+@ToString
 public class DocumentMetadata {
     private String id;
     private String rawStorageId;
@@ -19,36 +22,4 @@ public class DocumentMetadata {
         this.time = time;
     }
 
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
-    }
-
-    public String getRawStorageId() {
-        return rawStorageId;
-    }
-
-    public void setRawStorageId(String rawStorageId) {
-        this.rawStorageId = rawStorageId;
-    }
-
-    public long getTime() {
-        return time;
-    }
-
-    public void setTime(long time) {
-        this.time = time;
-    }
-
-    @Override
-    public String toString() {
-        return "DocumentMetadata{" +
-                "id='" + id + '\'' +
-                ", rawStorageId='" + rawStorageId + '\'' +
-                ", time=" + time +
-                '}';
-    }
 }

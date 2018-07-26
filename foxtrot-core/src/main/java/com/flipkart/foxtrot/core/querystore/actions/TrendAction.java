@@ -18,7 +18,6 @@ package com.flipkart.foxtrot.core.querystore.actions;
 import com.flipkart.foxtrot.common.ActionResponse;
 import com.flipkart.foxtrot.common.Period;
 import com.flipkart.foxtrot.common.query.Filter;
-import com.flipkart.foxtrot.common.query.FilterCombinerType;
 import com.flipkart.foxtrot.common.query.ResultSort;
 import com.flipkart.foxtrot.common.query.datetime.LastFilter;
 import com.flipkart.foxtrot.common.query.general.InFilter;
@@ -57,6 +56,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
+
+import static com.flipkart.foxtrot.core.util.ElasticsearchQueryUtils.QUERY_SIZE;
 
 /**
  * User: Santanu Sinha (santanu.sinha@flipkart.com)
@@ -152,8 +153,8 @@ public class TrendAction extends Action<TrendRequest> {
             searchRequestBuilder = getConnection().getClient()
                     .prepareSearch(ElasticsearchUtils.getIndices(parameter.getTable(), parameter))
                     .setIndicesOptions(Utils.indicesOptions())
-                    .setQuery(new ElasticSearchQueryGenerator(FilterCombinerType.and).genFilter(parameter.getFilters()))
-                    .setSize(1000)
+                    .setQuery(new ElasticSearchQueryGenerator().genFilter(parameter.getFilters()))
+                    .setSize(QUERY_SIZE)
                     .addAggregation(aggregationBuilder);
         } catch (Exception e) {
             throw FoxtrotExceptions.queryCreationException(parameter, e);

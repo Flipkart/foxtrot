@@ -2,6 +2,7 @@ package com.flipkart.foxtrot.core.querystore.actions;
 
 import com.flipkart.foxtrot.common.Period;
 import com.flipkart.foxtrot.common.query.ResultSort;
+import com.flipkart.foxtrot.common.util.CollectionUtils;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
 import com.google.common.collect.Maps;
 import org.elasticsearch.action.support.IndicesOptions;
@@ -11,7 +12,6 @@ import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.BucketOrder;
 import org.elasticsearch.search.aggregations.bucket.histogram.DateHistogramAggregationBuilder;
 import org.elasticsearch.search.aggregations.bucket.histogram.DateHistogramInterval;
-import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.elasticsearch.search.aggregations.bucket.terms.TermsAggregationBuilder;
 import org.elasticsearch.search.aggregations.metrics.cardinality.CardinalityAggregationBuilder;
 import org.elasticsearch.search.aggregations.metrics.percentiles.Percentile;
@@ -22,6 +22,8 @@ import org.joda.time.DateTimeZone;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import static com.flipkart.foxtrot.core.util.ElasticsearchQueryUtils.QUERY_SIZE;
 
 /**
  * Created by rishabh.goyal on 24/08/14.
@@ -47,12 +49,12 @@ public class Utils {
                 termsBuilder.subAggregation(tempBuilder);
                 termsBuilder = tempBuilder;
             }
-            termsBuilder.size(1000);
+            termsBuilder.size(QUERY_SIZE);
             if (null == rootBuilder) {
                 rootBuilder = termsBuilder;
             }
         }
-        if (subAggregations != null && !subAggregations.isEmpty()) {
+        if (!CollectionUtils.isNullOrEmpty(subAggregations)) {
             assert termsBuilder != null;
             for (AggregationBuilder aggregationBuilder : subAggregations) {
                 termsBuilder.subAggregation(aggregationBuilder);
