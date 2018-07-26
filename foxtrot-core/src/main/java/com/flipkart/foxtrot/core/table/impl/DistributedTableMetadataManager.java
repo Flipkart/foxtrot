@@ -200,7 +200,7 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
             final TreeSet<FieldMetadata> fieldMetadataTreeSet = new TreeSet<>(new FieldMetadataComparator());
             fieldMetadataTreeSet.addAll(fieldMetadata);
             tableFieldMapping = new TableFieldMapping(table, fieldMetadataTreeSet);
-//            estimateCardinality(table, tableFieldMapping.getMappings(), DateTime.now().minusDays(1).toDate().getTime());
+            estimateCardinality(table, tableFieldMapping.getMappings(), DateTime.now().minusDays(1).toDate().getTime());
             fieldDataCache.put(table, tableFieldMapping);
         }
         return TableFieldMapping.builder()
@@ -221,8 +221,8 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
             throw FoxtrotExceptions.createBadRequestException(table,
                     String.format("unknown_table table:%s", table));
         }
-        final TableFieldMapping tableFieldMapping = getFieldMappings(table, false);
-//        estimateCardinality(table, tableFieldMapping.getMappings(), timestamp);
+        final TableFieldMapping tableFieldMapping = getFieldMappings(table, true);
+        //estimateCardinality(table, tableFieldMapping.getMappings(), timestamp);
         fieldDataCache.put(table, tableFieldMapping);
     }
 
