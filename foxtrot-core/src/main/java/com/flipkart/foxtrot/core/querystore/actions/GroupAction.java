@@ -265,6 +265,10 @@ public class GroupAction extends Action<GroupRequest> {
             outputCardinality *= fieldCardinality;
         }
 
+        //Although cardinality will not be reduced by the same factor as documents count reduced.
+        //To give benefit of doubt or if someone is making query on a smaller time frame using fields of higher cardinality, reducing cardinality for that query
+        outputCardinality *= ((double)estimatedDocCountAfterFilters / estimatedMaxDocCount);
+
         log.debug("cacheKey:{} msg:NESTING_FIELDS_ESTIMATION_COMPLETED maxDocCount:{} docCountAfterTimeFilters:{} docCountAfterFilters:{} outputCardinality:{}",
                 cacheKey, estimatedMaxDocCount, estimatedDocCountBasedOnTime, estimatedDocCountAfterFilters, outputCardinality);
         if (outputCardinality > MAX_CARDINALITY) {
