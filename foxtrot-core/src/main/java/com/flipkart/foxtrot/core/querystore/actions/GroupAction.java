@@ -15,6 +15,7 @@
  */
 package com.flipkart.foxtrot.core.querystore.actions;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.flipkart.foxtrot.common.ActionResponse;
 import com.flipkart.foxtrot.common.FieldMetadata;
@@ -157,13 +158,21 @@ public class GroupAction extends Action<GroupRequest> {
         }
 
         if (probability > PROBABILITY_CUT_OFF) {
-            log.warn("Blocked query as it might have screwed up the cluster. Probability: {} Query: {}",
-                    probability, parameter);
+            try {
+                log.warn("Blocked query as it might have screwed up the cluster. Probability: {} Query: {}",
+                        probability, getObjectMapper().writeValueAsString(parameter));
+            } catch (JsonProcessingException e) {
+                log.warn("Blocked query as it might have screwed up the cluster. Probability: {} Query: {}",
+                        probability, parameter);
+            }
             //TODO Uncomment it later after testing
             //throw FoxtrotExceptions.createCardinalityOverflow(parameter, parameter.getNesting().get(0), probability);
-        } else {
+        } else
+
+        {
             log.info("Allowing group by with probability {} for query: {}", probability, parameter);
         }
+
     }
 
     @Override
@@ -272,7 +281,7 @@ public class GroupAction extends Action<GroupRequest> {
     private long estimateDocCountBasedOnTime(long currentDocCount, GroupRequest parameter) throws Exception {
         Interval queryInterval = new PeriodSelector(parameter.getFilters()).analyze();
         long minutes = queryInterval.toDuration().getStandardMinutes();
-        return (currentDocCount * minutes) / TimeUnit.DAYS.toHours(1);
+        return (currentDocCount * minutes) / TimeUnit.DAYS.toMinutes(1);
     }
 
     private long extractMaxDocCount(Map<String, FieldMetadata> metaMap) {
