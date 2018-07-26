@@ -162,13 +162,17 @@ public class GroupAction extends Action<GroupRequest> {
                 log.warn("Blocked query as it might have screwed up the cluster. Probability: {} Query: {}",
                         probability, getObjectMapper().writeValueAsString(parameter));
             } catch (JsonProcessingException e) {
-                //Do nothing
+                log.warn("Blocked query as it might have screwed up the cluster. Probability: {} Query: {}",
+                        probability, parameter);
             }
             //TODO Uncomment it later after testing
             //throw FoxtrotExceptions.createCardinalityOverflow(parameter, parameter.getNesting().get(0), probability);
-        } else {
+        } else
+
+        {
             log.info("Allowing group by with probability {} for query: {}", probability, parameter);
         }
+
     }
 
     @Override
