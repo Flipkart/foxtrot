@@ -15,6 +15,7 @@
  */
 package com.flipkart.foxtrot.core.querystore.actions;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.flipkart.foxtrot.common.ActionResponse;
 import com.flipkart.foxtrot.common.FieldMetadata;
 import com.flipkart.foxtrot.common.TableFieldMapping;
@@ -46,7 +47,6 @@ import com.flipkart.foxtrot.core.table.TableMetadataManager;
 import com.google.common.collect.Maps;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.elasticsearch.ElasticsearchException;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
@@ -262,7 +262,7 @@ public class GroupAction extends Action<GroupRequest> {
             log.warn("Output cardinality : {}, estimatedMaxDocCount : {}, estimatedDocCountBasedOnTime : {}, " +
                             "estimatedDocCountAfterFilters : {}, TableFieldMapping : {},  Query: {}", outputCardinality,
                     estimatedMaxDocCount, estimatedDocCountBasedOnTime, estimatedDocCountAfterFilters, tableFieldMapping,
-                    getObjectMapper().writerWithDefaultPrettyPrinter().writeValueAsString(parameter));
+                    getObjectMapper().writeValueAsString(parameter));
             return 1.0;
         } else {
             return 0;
