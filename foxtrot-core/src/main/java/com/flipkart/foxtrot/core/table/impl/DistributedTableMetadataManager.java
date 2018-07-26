@@ -222,7 +222,7 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
                     String.format("unknown_table table:%s", table));
         }
         final TableFieldMapping tableFieldMapping = getFieldMappings(table, false);
-        estimateCardinality(table, tableFieldMapping.getMappings(), timestamp);
+        //estimateCardinality(table, tableFieldMapping.getMappings(), timestamp);
         fieldDataCache.put(table, tableFieldMapping);
     }
 
