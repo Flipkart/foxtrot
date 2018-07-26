@@ -260,7 +260,7 @@ public class GroupAction extends Action<GroupRequest> {
                 cacheKey, estimatedMaxDocCount, estimatedDocCountBasedOnTime, estimatedDocCountAfterFilters, outputCardinality);
         if (outputCardinality > MAX_CARDINALITY) {
             log.warn("Output cardinality : {}, estimatedMaxDocCount : {}, estimatedDocCountBasedOnTime : {}, " +
-                            "estimatedDocCountAfterFilters : {}, TableFieldMapping : {},  {} Query: {}", outputCardinality,
+                            "estimatedDocCountAfterFilters : {}, TableFieldMapping : {},  Query: {}", outputCardinality,
                     estimatedMaxDocCount, estimatedDocCountBasedOnTime, estimatedDocCountAfterFilters, tableFieldMapping,
                     getObjectMapper().writerWithDefaultPrettyPrinter().writeValueAsString(parameter));
             return 1.0;
