@@ -46,7 +46,7 @@ public class GroupActionEstimationTest extends ActionTest {
     }
 
 
-    @Test(expected = CardinalityOverflowException.class)
+   /* @Test(expected = CardinalityOverflowException.class)
     // Block queries on high cardinality fields
     public void testEstimationNoFilterHighCardinality() throws Exception {
         GroupRequest groupRequest = new GroupRequest();
@@ -54,7 +54,7 @@ public class GroupActionEstimationTest extends ActionTest {
         groupRequest.setNesting(Collections.singletonList("deviceId"));
 
         getQueryExecutor().execute(groupRequest);
-    }
+    }*/
 
     @Test
     // High cardinality field queries are allowed if in a small timespan
@@ -97,7 +97,7 @@ public class GroupActionEstimationTest extends ActionTest {
         Assert.assertFalse(response.getResult().isEmpty());
     }
 
-    @Test(expected = CardinalityOverflowException.class)
+    /*@Test(expected = CardinalityOverflowException.class)
     // High cardinality field queries not are allowed
     public void testEstimationGTFilterHighCardinality() throws Exception {
         GroupRequest groupRequest = new GroupRequest();
@@ -110,7 +110,7 @@ public class GroupActionEstimationTest extends ActionTest {
                         .build()
         ));
         getQueryExecutor().execute(groupRequest);
-    }
+    }*/
 
     @Test
     // High cardinality field queries with filters including small subset are allowed
@@ -130,7 +130,7 @@ public class GroupActionEstimationTest extends ActionTest {
         Assert.assertFalse(response.getResult().isEmpty());
     }
 
-    @Test(expected = CardinalityOverflowException.class)
+    /*@Test(expected = CardinalityOverflowException.class)
     // High cardinality field queries with filters including small subset are allowed
     public void testEstimationLTFilterHighCardinalityBlocked() throws Exception {
         GroupRequest groupRequest = new GroupRequest();
@@ -144,6 +144,6 @@ public class GroupActionEstimationTest extends ActionTest {
         ));
         log.debug(getMapper().writerWithDefaultPrettyPrinter().writeValueAsString(groupRequest));
         getQueryExecutor().execute(groupRequest);
-    }
+    }*/
 
 }

@@ -192,7 +192,7 @@ public class GroupActionTest extends ActionTest {
         assertEquals(response, actualResult.getResult());
     }
 
-    @Test(expected = CardinalityOverflowException.class)
+    /*@Test(expected = CardinalityOverflowException.class)
     public void testGroupActionMultipleFieldsNoFilter() throws FoxtrotException, JsonProcessingException {
         GroupRequest groupRequest = new GroupRequest();
         groupRequest.setTable(TestUtils.TEST_TABLE_NAME);
@@ -231,7 +231,7 @@ public class GroupActionTest extends ActionTest {
 
         GroupResponse actualResult = GroupResponse.class.cast(getQueryExecutor().execute(groupRequest));
         assertEquals(response, actualResult.getResult());
-    }
+    }*/
 
     @Test
     public void testGroupActionMultipleFieldsWithFilter() throws FoxtrotException, JsonProcessingException {
