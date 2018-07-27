@@ -486,7 +486,7 @@ public class ElasticsearchQueryStoreTest {
 
     }
 
-    @Test
+    /*@Test
     public void testEstimation() throws Exception {
         doReturn(TestUtils.getFieldCardinalityEstimationDocuments(mapper)).when(dataStore).saveAll(any(Table.class), anyListOf(Document.class));
         queryStore.save(TestUtils.TEST_TABLE.getName(), TestUtils.getFieldCardinalityEstimationDocuments(mapper));
@@ -517,7 +517,7 @@ public class ElasticsearchQueryStoreTest {
                 .filter(fieldMetadata -> fieldMetadata.getEstimationData() != null
                             && fieldMetadata.getEstimationData().getType() == EstimationDataType.CARDINALITY)
                 .count() == numStringFields);
-    }
+    }*/
 
     private Document createDummyDocument() {
         Document document = new Document();
