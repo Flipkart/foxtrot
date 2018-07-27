@@ -46,6 +46,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -168,7 +169,7 @@ public class TestUtils {
         return IntStream.rangeClosed(0, 2000)
                 .mapToObj(i -> Document.builder()
                         .id(UUID.randomUUID().toString())
-                        .timestamp(i * 60000 + 1397658117000L)
+                        .timestamp(i * 60000 + System.currentTimeMillis() - TimeUnit.DAYS.toMillis(1))
                         .data(mapper.valueToTree(
                                 ImmutableMap.<String, Object>builder()
                                         .put("deviceId", UUID.randomUUID().toString())
