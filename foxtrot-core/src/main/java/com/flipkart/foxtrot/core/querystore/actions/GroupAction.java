@@ -19,6 +19,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.flipkart.foxtrot.common.ActionResponse;
 import com.flipkart.foxtrot.common.FieldMetadata;
+import com.flipkart.foxtrot.common.Table;
 import com.flipkart.foxtrot.common.TableFieldMapping;
 import com.flipkart.foxtrot.common.estimation.*;
 import com.flipkart.foxtrot.common.group.GroupRequest;
@@ -61,6 +62,7 @@ import org.joda.time.Interval;
 
 import java.util.*;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -213,7 +215,8 @@ public class GroupAction extends Action<GroupRequest> {
         long estimatedMaxDocCount = extractMaxDocCount(metaMap);
         log.debug("cacheKey:{} msg:DOC_COUNT_ESTIMATION_COMPLETED maxDocCount:{}",
                 cacheKey, estimatedMaxDocCount);
-        long estimatedDocCountBasedOnTime = estimateDocCountBasedOnTime(estimatedMaxDocCount, parameter);
+        long estimatedDocCountBasedOnTime = estimateDocCountBasedOnTime(estimatedMaxDocCount, parameter,
+                getTableMetadataManager(), tableFieldMapping.getTable());
         log.debug("cacheKey:{} msg:TIME_BASED_DOC_ESTIMATION_COMPLETED maxDocCount:{} docCountAfterTimeFilters:{}",
                 cacheKey, estimatedMaxDocCount, estimatedDocCountBasedOnTime);
         long estimatedDocCountAfterFilters = estimateDocCountWithFilters(estimatedDocCountBasedOnTime, metaMap, parameter.getFilters());
@@ -226,6 +229,7 @@ public class GroupAction extends Action<GroupRequest> {
         }
 
         long outputCardinality = 1;
+        final AtomicBoolean isTermHistogramFieldPresent = new AtomicBoolean(false);
         for (int i = 0; i < parameter.getNesting().size(); i++) {
             final String field = parameter.getNesting().get(i);
             FieldMetadata metadata = metaMap.get(field);
@@ -251,6 +255,7 @@ public class GroupAction extends Action<GroupRequest> {
 
                 @Override
                 public Long visit(TermHistogramEstimationData termEstimationData) {
+                    isTermHistogramFieldPresent.getAndSet(true);
                     return (long) termEstimationData.getTermCounts().size();
                 }
             });
@@ -267,7 +272,10 @@ public class GroupAction extends Action<GroupRequest> {
 
         //Although cardinality will not be reduced by the same factor as documents count reduced.
         //To give benefit of doubt or if someone is making query on a smaller time frame using fields of higher cardinality, reducing cardinality for that query
-        outputCardinality = (long)(outputCardinality * ((double)estimatedDocCountAfterFilters / estimatedMaxDocCount));
+        //Only reducing cardinality if the doc count is actually less than docCount for a day. Assuming cardinality will remain same if query for more than 1 day
+        if (((double) estimatedDocCountAfterFilters / estimatedMaxDocCount) < 1.0 && isTermHistogramFieldPresent.get()) {
+            outputCardinality = (long) (outputCardinality * ((double) estimatedDocCountAfterFilters / estimatedMaxDocCount));
+        }
 
         log.debug("cacheKey:{} msg:NESTING_FIELDS_ESTIMATION_COMPLETED maxDocCount:{} docCountAfterTimeFilters:{} docCountAfterFilters:{} outputCardinality:{}",
                 cacheKey, estimatedMaxDocCount, estimatedDocCountBasedOnTime, estimatedDocCountAfterFilters, outputCardinality);
@@ -282,10 +290,26 @@ public class GroupAction extends Action<GroupRequest> {
         }
     }
 
-    private long estimateDocCountBasedOnTime(long currentDocCount, GroupRequest parameter) throws Exception {
+    private long estimateDocCountBasedOnTime(long currentDocCount, GroupRequest parameter,
+                                             TableMetadataManager tableMetadataManager, String table) throws Exception {
         Interval queryInterval = new PeriodSelector(parameter.getFilters()).analyze();
         long minutes = queryInterval.toDuration().getStandardMinutes();
-        return (currentDocCount * minutes) / TimeUnit.DAYS.toMinutes(1);
+        double days = (double) minutes / TimeUnit.DAYS.toMinutes(1);
+        Table tableMetadata = tableMetadataManager.get(table);
+        int maxDays = 0;
+        if (tableMetadata != null) {
+            maxDays = tableMetadata.getTtl();
+        }
+        //If we don't have it in metadata, assuming max data of 30 days
+        if (maxDays == 0) {
+            maxDays = 30;
+        }
+        //This is done because we only store docs for last maxDays. Sometimes, we get startTime starting from 1970 year
+        if (days > maxDays) {
+            return currentDocCount * maxDays;
+        } else {
+            return (long) (currentDocCount * days);
+        }
     }
 
     private long extractMaxDocCount(Map<String, FieldMetadata> metaMap) {
