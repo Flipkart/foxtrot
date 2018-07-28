@@ -268,6 +268,9 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
                     query.addAggregation(AggregationBuilders.percentiles(field)
                             .field(field)
                             .percentiles(10, 20, 30, 40, 50, 60, 70, 80, 90, 100));
+                    query.addAggregation(AggregationBuilders.cardinality("_" + field)
+                            .field(field)
+                            .precisionThreshold(PRECISION_THRESHOLD));
                     break;
                 }
                 case BOOLEAN:
@@ -293,6 +296,12 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
             Map<String, Aggregation> output = aggregations.asMap();
             output.forEach((key, value) -> {
                 FieldMetadata fieldMetadata = fields.get(key);
+                if (fieldMetadata == null) {
+                    fieldMetadata = fields.get(key.replace("_", ""));
+                }
+                if (fieldMetadata == null) {
+                    return;
+                }
                 switch (fieldMetadata.getType()) {
                     case STRING: {
                         Cardinality cardinality = (Cardinality) value;
@@ -308,16 +317,30 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
                     case LONG:
                     case FLOAT:
                     case DOUBLE: {
-                        double values[] = new double[10];
-                        Percentiles percentiles = (Percentiles) value;
-                        for (int i = 10; i <= 100; i += 10)
-                            values[(i / 10) - 1] = percentiles.percentile(i);
-                        logger.info("table:{} field:{} type:{} aggregationType:{} value:{}",
-                                table, key, fieldMetadata.getType(), "percentile", values);
-                        estimationDataMap.put(key, PercentileEstimationData.builder()
-                                .values(values)
-                                .count(hits)
-                                .build());
+                        if (value instanceof Percentiles) {
+                            Percentiles percentiles = (Percentiles) value;
+                            double values[] = new double[10];
+                            for (int i = 10; i <= 100; i += 10)
+                                values[(i / 10) - 1] = percentiles.percentile(i);
+                            logger.info("table:{} field:{} type:{} aggregationType:{} value:{}",
+                                    table, key, fieldMetadata.getType(), "percentile", values);
+                            estimationDataMap.put(key, PercentileEstimationData.builder()
+                                    .values(values)
+                                    .count(hits)
+                                    .build());
+                        } else if (value instanceof Cardinality) {
+                            Cardinality cardinality = (Cardinality) value;
+                            logger.info("table:{} field:{} type:{} aggregationType:{} value:{}",
+                                    table, key, fieldMetadata.getType(), "cardinality", cardinality.getValue());
+                            EstimationData estimationData = estimationDataMap.get(key.replace("_", ""));
+                            if (estimationData != null && estimationData instanceof PercentileEstimationData) {
+                                ((PercentileEstimationData) estimationData).setCardinality(cardinality.getValue());
+                            } else {
+                                estimationDataMap.put(key.replace("_", ""), PercentileEstimationData.builder()
+                                        .cardinality(cardinality.getValue())
+                                        .build());
+                            }
+                        }
                         break;
                     }
                     case BOOLEAN: {
