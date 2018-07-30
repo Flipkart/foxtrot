@@ -32,6 +32,7 @@ import com.flipkart.foxtrot.common.query.general.NotEqualsFilter;
 import com.flipkart.foxtrot.common.query.general.NotInFilter;
 import com.flipkart.foxtrot.common.query.numeric.*;
 import com.flipkart.foxtrot.common.query.string.ContainsFilter;
+import com.flipkart.foxtrot.common.query.ResultSort;
 import com.flipkart.foxtrot.common.util.CollectionUtils;
 import com.flipkart.foxtrot.core.cache.CacheManager;
 import com.flipkart.foxtrot.core.common.Action;
@@ -47,16 +48,15 @@ import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
 import com.flipkart.foxtrot.core.querystore.query.ElasticSearchQueryGenerator;
 import com.flipkart.foxtrot.core.table.TableMetadataManager;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.elasticsearch.ElasticsearchException;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.search.aggregations.AbstractAggregationBuilder;
-import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.Aggregations;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
-import org.elasticsearch.search.aggregations.bucket.terms.TermsBuilder;
 import org.elasticsearch.search.aggregations.metrics.cardinality.Cardinality;
 import org.joda.time.Interval;
 
@@ -65,6 +65,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+
+import static com.flipkart.foxtrot.core.util.ElasticsearchQueryUtils.QUERY_SIZE;
 
 /**
  * User: Santanu Sinha (santanu.sinha@flipkart.com)
@@ -185,7 +187,7 @@ public class GroupAction extends Action<GroupRequest> {
             AbstractAggregationBuilder aggregation = buildAggregation();
             query.setQuery(new ElasticSearchQueryGenerator()
                     .genFilter(parameter.getFilters()))
-                    .setSize(0)
+                    .setSize(QUERY_SIZE)
                     .addAggregation(aggregation);
         } catch (Exception e) {
             throw FoxtrotExceptions.queryCreationException(parameter, e);
@@ -647,28 +649,11 @@ public class GroupAction extends Action<GroupRequest> {
     }
 
     private AbstractAggregationBuilder buildAggregation() {
-        TermsBuilder rootBuilder = null;
-        TermsBuilder termsBuilder = null;
-        for (String field : getParameter().getNesting()) {
-            if (null == termsBuilder) {
-                termsBuilder = AggregationBuilders.terms(Utils.sanitizeFieldForAggregation(field)).field(field);
-            } else {
-                TermsBuilder tempBuilder = AggregationBuilders.terms(Utils.sanitizeFieldForAggregation(field)).field(field);
-                termsBuilder.subAggregation(tempBuilder);
-                termsBuilder = tempBuilder;
-            }
-            termsBuilder.size(0);
-            if (null == rootBuilder) {
-                rootBuilder = termsBuilder;
-            }
-        }
-
-        if (!CollectionUtils.isNullOrEmpty(getParameter().getUniqueCountOn())) {
-            assert termsBuilder != null;
-            termsBuilder.subAggregation(Utils.buildCardinalityAggregation(getParameter().getUniqueCountOn()));
-        }
-
-        return rootBuilder;
+        return Utils.buildTermsAggregation(getParameter().getNesting().stream()
+                        .map(x -> new ResultSort(x, ResultSort.Order.asc))
+                        .collect(Collectors.toList()),
+                !CollectionUtils.isNullOrEmpty(getParameter().getUniqueCountOn()) ?
+                        Sets.newHashSet(Utils.buildCardinalityAggregation(getParameter().getUniqueCountOn())) : Sets.newHashSet());
     }
 
     private Map<String, Object> getMap(List<String> fields, Aggregations aggregations) {

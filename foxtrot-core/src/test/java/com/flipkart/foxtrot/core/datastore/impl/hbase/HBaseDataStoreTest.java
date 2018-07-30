@@ -296,7 +296,7 @@ public class HBaseDataStoreTest {
         id = UUID.randomUUID().toString();
         data = mapper.valueToTree(Collections.singletonMap("TEST_NAME", "SINGLE_SAVE_TEST"));
         String newId = v1FormatKey(id);
-        expectedDocument = new Document(id, System.currentTimeMillis(), new DocumentMetadata(id, newId), data);
+        expectedDocument = new Document(id, System.currentTimeMillis(), new DocumentMetadata(id, newId, timestamp), data);
         tableInterface.put(hbaseDataStore.getPutForDocument(expectedDocument));
         actualDocument = hbaseDataStore.get(TEST_APP, id);
         compare(expectedDocument, actualDocument);
@@ -310,7 +310,7 @@ public class HBaseDataStoreTest {
         data = mapper.valueToTree(Collections.singletonMap("TEST_NAME", "SINGLE_SAVE_TEST"));
         Document originalDocument = new Document(id, System.currentTimeMillis(), data);
         newId = documentTranslator.translate(TEST_APP, originalDocument).getId();
-        expectedDocument = new Document(newId, originalDocument.getTimestamp(), new DocumentMetadata(id, newId), data);
+        expectedDocument = new Document(newId, originalDocument.getTimestamp(), new DocumentMetadata(id, newId, timestamp), data);
         tableInterface.put(hbaseDataStore.getPutForDocument(expectedDocument));
         actualDocument = hbaseDataStore.get(TEST_APP, newId);
         compare(originalDocument, actualDocument);
@@ -334,7 +334,7 @@ public class HBaseDataStoreTest {
 
         Document expectedDocument = new Document(id,
                 System.currentTimeMillis(),
-                new DocumentMetadata(id, v1FormatKey(id)),
+                new DocumentMetadata(id, v1FormatKey(id), System.currentTimeMillis()),
                 data);
         tableInterface.put(hbaseDataStore.getPutForDocument(expectedDocument));
         doThrow(new IOException())
@@ -351,7 +351,8 @@ public class HBaseDataStoreTest {
     @Test(expected = StoreConnectionException.class)
     public void testGetSingleHBaseCloseException() throws Exception {
         Document originalDocument = createDummyDocument();
-        originalDocument.setMetadata(new DocumentMetadata(originalDocument.getId(), v1FormatKey(originalDocument.getId())));
+        originalDocument.setMetadata(new DocumentMetadata(originalDocument.getId(),
+                v1FormatKey(originalDocument.getId()), System.currentTimeMillis()));
         Document expectedDocument = new Document(v1FormatKey(originalDocument.getId()),
                 originalDocument.getTimestamp(),
                 originalDocument.getMetadata(),
@@ -377,7 +378,7 @@ public class HBaseDataStoreTest {
             String rawId = v1FormatKey(id);
             ids.add(id);
             Document document = new Document(rawId, timestamp,
-                    new DocumentMetadata(id, rawId), data);
+                    new DocumentMetadata(id, rawId, timestamp), data);
             putList.add(hbaseDataStore.getPutForDocument(document));
             idValues.put(id, new Document(id, timestamp, data));
         }
@@ -456,7 +457,7 @@ public class HBaseDataStoreTest {
         for (int i = 0; i < 10; i++) {
             String id = UUID.randomUUID().toString();
             Document document = new Document(id, System.currentTimeMillis(),
-                    new DocumentMetadata(id, String.format("row:%d", i)),
+                    new DocumentMetadata(id, String.format("row:%d", i), System.currentTimeMillis()),
                     mapper.valueToTree(Collections.singletonMap("TEST_NAME", "BULK_GET_TEST")));
             putList.add(hbaseDataStore.getPutForDocument(document));
         }
@@ -479,7 +480,7 @@ public class HBaseDataStoreTest {
         for (int i = 0; i < 10; i++) {
             String id = UUID.randomUUID().toString();
             Document document = new Document(id, System.currentTimeMillis(),
-                    new DocumentMetadata(id, String.format("row:%d", i)),
+                    new DocumentMetadata(id, String.format("row:%d", i), System.currentTimeMillis()),
                     mapper.valueToTree(Collections.singletonMap("TEST_NAME", "BULK_GET_TEST")));
             putList.add(hbaseDataStore.getPutForDocument(document));
         }

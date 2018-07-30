@@ -1,12 +1,12 @@
 /**
  * Copyright 2014 Flipkart Internet Pvt. Ltd.
- *
+ * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
+ * <p>
  * http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -47,6 +47,8 @@ public class ElasticsearchUtils {
     public static final String DOCUMENT_META_TYPE_NAME = "metadata";
     public static final String DOCUMENT_META_FIELD_NAME = "__FOXTROT_METADATA__";
     public static final String DOCUMENT_META_ID_FIELD_NAME = String.format("%s.id", DOCUMENT_META_FIELD_NAME);
+    public static final String DOCUMENT_META_TIMESTAMP_FIELD_NAME = String.format("%s.time", DOCUMENT_META_FIELD_NAME);
+
     public static String TABLENAME_PREFIX = "foxtrot";
     public static final String TABLENAME_POSTFIX = "table";
     private static final DateTimeFormatter FORMATTER = DateTimeFormat.forPattern("dd-M-yyyy");
@@ -104,7 +106,7 @@ public class ElasticsearchUtils {
         try {
             return new PutIndexTemplateRequest()
                     .name("template_foxtrot_mappings")
-                    .template(String.format("%s-*", ElasticsearchUtils.TABLENAME_PREFIX))
+                    .patterns(Lists.newArrayList(String.format("%s-*", ElasticsearchUtils.TABLENAME_PREFIX)))
                     .mapping(DOCUMENT_TYPE_NAME, getDocumentMapping());
         } catch (IOException ex) {
             logger.error("TEMPLATE_CREATION_FAILED", ex);
@@ -125,44 +127,48 @@ public class ElasticsearchUtils {
                 .startObject()
                 .field("enabled", false)
                 .endObject()
-                .field("_timestamp")
-                .startObject()
-                .field("enabled", true)
-                .endObject()
                 .field("dynamic_templates")
                 .startArray()
+
                 .startObject()
-                .field("template_metadata_fields")
+                .field("template_metadata_timestamp")
+                .startObject()
+                .field("path_match", ElasticsearchUtils.DOCUMENT_META_TIMESTAMP_FIELD_NAME)
+                .field("mapping")
+                .startObject()
+                .field("store", true)
+                .field("index", true)
+                .field("type", "date")
+                .endObject()
+                .endObject()
+                .endObject()
+
+                .startObject()
+                .field("template_metadata_string")
+                .startObject()
+                .field("path_match", ElasticsearchUtils.DOCUMENT_META_FIELD_NAME + ".*")
+                .field("match_mapping_type", "string")
+                .field("mapping")
+                .startObject()
+                .field("store", true)
+                .field("index", true)
+                .field("type", "keyword")
+                .endObject()
+                .endObject()
+                .endObject()
+
+                .startObject()
+                .field("template_metadata_others")
                 .startObject()
                 .field("path_match", ElasticsearchUtils.DOCUMENT_META_FIELD_NAME + ".*")
                 .field("mapping")
                 .startObject()
                 .field("store", true)
-                .field("doc_values", true)
-                .field("index", "not_analyzed")
-                .field("fielddata")
-                .startObject()
-                .field("format", "doc_values")
+                .field("index", true)
                 .endObject()
                 .endObject()
                 .endObject()
-                .endObject()
-                .startObject()
-                .field("template_timestamp")
-                .startObject()
-                .field("match", "timestamp")
-                .field("mapping")
-                .startObject()
-                .field("store", false)
-                .field("index", "not_analyzed")
-                .field("fielddata")
-                .startObject()
-                .field("format", "doc_values")
-                .endObject()
-                .field("type", "date")
-                .endObject()
-                .endObject()
-                .endObject()
+
                 .startObject()
                 .field("template_no_store_analyzed")
                 .startObject()
@@ -170,41 +176,36 @@ public class ElasticsearchUtils {
                 .field("match_mapping_type", "string")
                 .field("mapping")
                 .startObject()
-                .field("store", false)
-                .field("index", "not_analyzed")
-                .field("fielddata")
-                .startObject()
-                .field("format", "doc_values")
-                .endObject()
+                .field("store", true)
+                .field("index", true)
+                .field("type", "keyword")
                 .field("fields")
                 .startObject()
                 .field("analyzed")
                 .startObject()
                 .field("store", false)
-                .field("type", "string")
-                .field("index", "analyzed")
+                .field("index", true)
+                .field("type", "text")
                 .endObject()
                 .endObject()
                 .endObject()
                 .endObject()
                 .endObject()
+
                 .startObject()
                 .field("template_no_store")
                 .startObject()
-                .field("match_mapping_type", "date|boolean|double|long|integer")
+                .field("match_mapping_type", "*")
                 .field("match_pattern", "regex")
                 .field("path_match", ".*")
                 .field("mapping")
                 .startObject()
                 .field("store", false)
-                .field("index", "not_analyzed")
-                .field("fielddata")
-                .startObject()
-                .field("format", "doc_values")
+                .field("index", true)
                 .endObject()
                 .endObject()
                 .endObject()
-                .endObject()
+
                 .endArray()
                 .field("properties")
                 .startObject()

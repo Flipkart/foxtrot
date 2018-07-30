@@ -35,11 +35,26 @@ public class LastFilter extends Filter {
     public LastFilter(String field, long currentTime, Duration duration, RoundingMode roundingMode) {
         super(FilterOperator.last);
         super.setField(Strings.isNullOrEmpty(field)
-                        ? "_timestamp"
-                        : field);
+                ? "_timestamp"
+                : field);
         this.currentTime = currentTime == 0
                 ? System.currentTimeMillis()
                 : currentTime;
+    }
+
+    public long getCurrentTime() {
+        return currentTime;
+    }
+
+    public void setCurrentTime(long currentTime) {
+        this.currentTime = currentTime;
+    }
+
+    public Duration getDuration() {
+        return duration;
+    }
+
+    public void setDuration(Duration duration) {
         this.duration = duration;
         this.roundingMode = roundingMode == null
                 ? RoundingMode.NONE

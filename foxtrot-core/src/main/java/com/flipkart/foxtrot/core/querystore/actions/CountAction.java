@@ -1,5 +1,6 @@
 package com.flipkart.foxtrot.core.querystore.actions;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.flipkart.foxtrot.common.ActionResponse;
 import com.flipkart.foxtrot.common.count.CountRequest;
 import com.flipkart.foxtrot.common.count.CountResponse;
@@ -27,6 +28,8 @@ import org.elasticsearch.search.aggregations.metrics.cardinality.Cardinality;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static com.flipkart.foxtrot.core.util.ElasticsearchQueryUtils.QUERY_SIZE;
 
 /**
  * Created by rishabh.goyal on 02/11/14.
@@ -97,7 +100,7 @@ public class CountAction extends Action<CountRequest> {
                 query = getConnection().getClient()
                         .prepareSearch(ElasticsearchUtils.getIndices(parameter.getTable(), parameter))
                         .setIndicesOptions(Utils.indicesOptions())
-                        .setSize(0)
+                        .setSize(QUERY_SIZE)
                         .setQuery(new ElasticSearchQueryGenerator().genFilter(parameter.getFilters()))
                         .addAggregation(Utils.buildCardinalityAggregation(parameter.getField()));
             } catch (Exception e) {
@@ -122,7 +125,7 @@ public class CountAction extends Action<CountRequest> {
                 requestBuilder = getConnection().getClient()
                         .prepareSearch(ElasticsearchUtils.getIndices(parameter.getTable(), parameter))
                         .setIndicesOptions(Utils.indicesOptions())
-                        .setSize(0)
+                        .setSize(QUERY_SIZE)
                         .setQuery(new ElasticSearchQueryGenerator().genFilter(parameter.getFilters()));
             } catch (Exception e) {
                 throw FoxtrotExceptions.queryCreationException(parameter, e);

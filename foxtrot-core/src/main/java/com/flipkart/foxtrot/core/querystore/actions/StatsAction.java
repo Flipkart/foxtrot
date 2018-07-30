@@ -2,6 +2,7 @@ package com.flipkart.foxtrot.core.querystore.actions;
 
 import com.flipkart.foxtrot.common.ActionResponse;
 import com.flipkart.foxtrot.common.query.Filter;
+import com.flipkart.foxtrot.common.query.ResultSort;
 import com.flipkart.foxtrot.common.stats.BucketResponse;
 import com.flipkart.foxtrot.common.stats.StatsRequest;
 import com.flipkart.foxtrot.common.stats.StatsResponse;
@@ -21,18 +22,21 @@ import com.flipkart.foxtrot.core.querystore.query.ElasticSearchQueryGenerator;
 import com.flipkart.foxtrot.core.table.TableMetadataManager;
 import com.google.common.collect.Lists;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.collect.Sets;
+import org.apache.commons.lang3.StringUtils;
 import org.elasticsearch.ElasticsearchException;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.search.aggregations.AbstractAggregationBuilder;
-import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.Aggregations;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
-import org.elasticsearch.search.aggregations.bucket.terms.TermsBuilder;
 import org.elasticsearch.search.aggregations.metrics.percentiles.Percentiles;
 import org.elasticsearch.search.aggregations.metrics.stats.extended.InternalExtendedStats;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
+
+import static com.flipkart.foxtrot.core.util.ElasticsearchQueryUtils.QUERY_SIZE;
 
 /**
  * Created by rishabh.goyal on 02/08/14.
@@ -104,33 +108,18 @@ public class StatsAction extends Action<StatsRequest> {
                     .setTypes(ElasticsearchUtils.DOCUMENT_TYPE_NAME)
                     .setIndicesOptions(Utils.indicesOptions())
                     .setQuery(new ElasticSearchQueryGenerator().genFilter(parameter.getFilters()))
-                    .setSize(0);
+                    .setSize(QUERY_SIZE);
 
             AbstractAggregationBuilder percentiles = Utils.buildPercentileAggregation(getParameter().getField());
             AbstractAggregationBuilder extendedStats = Utils.buildExtendedStatsAggregation(getParameter().getField());
-
             searchRequestBuilder.addAggregation(percentiles);
             searchRequestBuilder.addAggregation(extendedStats);
 
             if (!CollectionUtils.isNullOrEmpty(getParameter().getNesting())) {
-                TermsBuilder rootBuilder = null;
-                TermsBuilder termsBuilder = null;
-                for (String field : getParameter().getNesting()) {
-                    if (null == termsBuilder) {
-                        termsBuilder = AggregationBuilders.terms(Utils.sanitizeFieldForAggregation(field)).field(field);
-                    } else {
-                        TermsBuilder tempBuilder = AggregationBuilders.terms(Utils.sanitizeFieldForAggregation(field)).field(field);
-                        termsBuilder.subAggregation(tempBuilder);
-                        termsBuilder = tempBuilder;
-                    }
-                    termsBuilder.size(0);
-                    if (null == rootBuilder) {
-                        rootBuilder = termsBuilder;
-                    }
-                }
-                termsBuilder.subAggregation(percentiles);
-                termsBuilder.subAggregation(extendedStats);
-                searchRequestBuilder.addAggregation(rootBuilder);
+                searchRequestBuilder.addAggregation(Utils.buildTermsAggregation(getParameter().getNesting().stream()
+                                .map(x -> new ResultSort(x, ResultSort.Order.asc))
+                                .collect(Collectors.toList()),
+                        Sets.newHashSet(percentiles, extendedStats)));
             }
         } catch (Exception e) {
             throw FoxtrotExceptions.queryCreationException(parameter, e);

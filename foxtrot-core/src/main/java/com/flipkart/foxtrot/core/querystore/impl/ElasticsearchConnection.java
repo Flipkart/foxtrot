@@ -1,12 +1,12 @@
 /**
  * Copyright 2014 Flipkart Internet Pvt. Ltd.
- *
+ * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
+ * <p>
  * http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -19,7 +19,8 @@ import io.dropwizard.lifecycle.Managed;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.client.transport.TransportClient;
 import org.elasticsearch.common.settings.Settings;
-import org.elasticsearch.common.transport.InetSocketTransportAddress;
+import org.elasticsearch.common.transport.TransportAddress;
+import org.elasticsearch.transport.client.PreBuiltTransportClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,16 +42,17 @@ public class ElasticsearchConnection implements Managed {
 
     @Override
     public void start() throws Exception {
-        logger.info("Starting Elasticsearch Client");
-        Settings settings = Settings.settingsBuilder()
-                .put("cluster.name", config.getCluster()).build();
+        logger.info("Starting ElasticSearch Client");
+        Settings settings = Settings.builder()
+                .put("cluster.name", config.getCluster())
+                .build();
 
-        TransportClient esClient = TransportClient.builder().settings(settings).build();
+        TransportClient esClient = new PreBuiltTransportClient(settings);
         for (String host : config.getHosts()) {
             String tokenizedHosts[] = host.split(",");
             for (String tokenizedHost : tokenizedHosts) {
                 esClient.addTransportAddress(
-                        new InetSocketTransportAddress(InetAddress.getByName(tokenizedHost), 9300));
+                        new TransportAddress(InetAddress.getByName(tokenizedHost), 9300));
                 logger.info(String.format("Added Elasticsearch Node : %s", host));
             }
         }

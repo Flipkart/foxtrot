@@ -127,7 +127,7 @@ public class FilterAction extends Action<Query> {
                     .setQuery(new ElasticSearchQueryGenerator().genFilter(parameter.getFilters()))
                     .setSearchType(SearchType.QUERY_THEN_FETCH)
                     .setFrom(parameter.getFrom())
-                    .addSort(parameter.getSort().getField(),
+                    .addSort(Utils.storedFieldName(parameter.getSort().getField()),
                             ResultSort.Order.desc == parameter.getSort().getOrder() ? SortOrder.DESC : SortOrder.ASC)
                     .setSize(parameter.getLimit());
         } catch (Exception e) {
@@ -144,7 +144,7 @@ public class FilterAction extends Action<Query> {
             if (ids.isEmpty()) {
                 return new QueryResponse(Collections.<Document>emptyList(), 0);
             }
-            return new QueryResponse(getQueryStore().getAll(parameter.getTable(), ids, true), searchHits.totalHits());
+            return new QueryResponse(getQueryStore().getAll(parameter.getTable(), ids, true), searchHits.getTotalHits());
         } catch (ElasticsearchException e) {
             throw FoxtrotExceptions.createQueryExecutionException(parameter, e);
         }

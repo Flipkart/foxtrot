@@ -1,5 +1,6 @@
 package com.flipkart.foxtrot.core.querystore.actions;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.flipkart.foxtrot.common.ActionResponse;
 import com.flipkart.foxtrot.common.distinct.DistinctRequest;
 import com.flipkart.foxtrot.common.distinct.DistinctResponse;
@@ -19,13 +20,13 @@ import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
 import com.flipkart.foxtrot.core.querystore.query.ElasticSearchQueryGenerator;
 import com.flipkart.foxtrot.core.table.TableMetadataManager;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.collect.Sets;
 import org.elasticsearch.ElasticsearchException;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.Aggregations;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
-import org.elasticsearch.search.aggregations.bucket.terms.TermsBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,6 +34,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import static com.flipkart.foxtrot.core.util.ElasticsearchQueryUtils.QUERY_SIZE;
 
 /**
  * Created by rishabh.goyal on 17/11/14.
@@ -112,28 +115,10 @@ public class DistinctAction extends Action<DistinctRequest> {
             query = getConnection().getClient()
                     .prepareSearch(ElasticsearchUtils.getIndices(request.getTable(), request))
                     .setIndicesOptions(Utils.indicesOptions());
-            TermsBuilder rootBuilder = null;
-            TermsBuilder termsBuilder = null;
-
-            for (ResultSort nestedField : request.getNesting()) {
-                String aggregationKey = Utils.sanitizeFieldForAggregation(nestedField.getField());
-                Terms.Order order = (nestedField.getOrder() == ResultSort.Order.desc) ? Terms.Order.term(false) : Terms.Order.term(true);
-
-                if (null == termsBuilder) {
-                    termsBuilder = AggregationBuilders.terms(aggregationKey).field(nestedField.getField()).order(order);
-                } else {
-                    TermsBuilder tempBuilder = AggregationBuilders.terms(aggregationKey).field(nestedField.getField()).order(order);
-                    termsBuilder.subAggregation(tempBuilder);
-                    termsBuilder = tempBuilder;
-                }
-                termsBuilder.size(0);
-                if (null == rootBuilder) {
-                    rootBuilder = termsBuilder;
-                }
-            }
-            query.setQuery(new ElasticSearchQueryGenerator().genFilter(request.getFilters()))
-                    .setSize(0)
-                    .addAggregation(rootBuilder);
+            query.setQuery(new ElasticSearchQueryGenerator()
+                    .genFilter(request.getFilters()))
+                    .setSize(QUERY_SIZE)
+                    .addAggregation(Utils.buildTermsAggregation(request.getNesting(), Sets.newHashSet()));
         } catch (Exception e) {
             throw FoxtrotExceptions.queryCreationException(request, e);
         }
