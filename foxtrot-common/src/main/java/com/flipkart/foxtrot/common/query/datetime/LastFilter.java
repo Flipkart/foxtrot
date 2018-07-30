@@ -62,8 +62,8 @@ public class LastFilter extends Filter {
     }
 
     @Override
-    public <T> T accept(FilterVisitor<T> visitor) throws Exception {
-        return visitor.visit(this);
+    public void accept(FilterVisitor visitor) throws Exception {
+        visitor.visit(this);
     }
 
     @JsonIgnore
