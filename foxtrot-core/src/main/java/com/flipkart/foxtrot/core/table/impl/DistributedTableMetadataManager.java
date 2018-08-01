@@ -295,13 +295,14 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
             }
             Map<String, Aggregation> output = aggregations.asMap();
             output.forEach((key, value) -> {
-                FieldMetadata fieldMetadata = fields.get(key);
-                if (fieldMetadata == null) {
-                    fieldMetadata = fields.get(key.replace("_", ""));
+                FieldMetadata metadata = fields.get(key);
+                if (metadata == null) {
+                    metadata = fields.get(key.replace("_", ""));
                 }
-                if (fieldMetadata == null) {
+                if (metadata == null) {
                     return;
                 }
+                final FieldMetadata fieldMetadata = metadata;
                 switch (fieldMetadata.getType()) {
                     case STRING: {
                         Cardinality cardinality = (Cardinality) value;
@@ -317,32 +318,40 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
                     case LONG:
                     case FLOAT:
                     case DOUBLE: {
-                        if (value instanceof Percentiles) {
-                            Percentiles percentiles = (Percentiles) value;
-                            double values[] = new double[10];
-                            for (int i = 10; i <= 100; i += 10)
-                                values[(i / 10) - 1] = percentiles.percentile(i);
-                            logger.info("table:{} field:{} type:{} aggregationType:{} value:{}",
-                                    table, key, fieldMetadata.getType(), "percentile", values);
-                            estimationDataMap.put(key, PercentileEstimationData.builder()
-                                    .values(values)
-                                    .count(hits)
-                                    .build());
-                        } else if (value instanceof Cardinality) {
-                            Cardinality cardinality = (Cardinality) value;
-                            logger.info("table:{} field:{} type:{} aggregationType:{} value:{}",
-                                    table, key, fieldMetadata.getType(), "cardinality", cardinality.getValue());
-                            EstimationData estimationData = estimationDataMap.get(key.replace("_", ""));
-                            if (estimationData != null && estimationData instanceof PercentileEstimationData) {
-                                ((PercentileEstimationData) estimationData).setCardinality(cardinality.getValue());
-                            } else {
-                                estimationDataMap.put(key.replace("_", ""), PercentileEstimationData.builder()
-                                        .cardinality(cardinality.getValue())
+                        new NumericMetricsAggregationVisitor<Void>() {
+
+                            @Override
+                            public Void visit(Percentiles value) {
+
+                                double values[] = new double[10];
+                                for (int i = 10; i <= 100; i += 10)
+                                    values[(i / 10) - 1] = value.percentile(i);
+                                logger.info("table:{} field:{} type:{} aggregationType:{} value:{}",
+                                        table, key, fieldMetadata.getType(), "percentile", values);
+                                estimationDataMap.put(key, PercentileEstimationData.builder()
+                                        .values(values)
+                                        .count(hits)
                                         .build());
+                                return null;
                             }
-                        }
-                        break;
+
+                            @Override
+                            public Void visit(Cardinality value) {
+                                logger.info("table:{} field:{} type:{} aggregationType:{} value:{}",
+                                        table, key, fieldMetadata.getType(), "cardinality", value.getValue());
+                                EstimationData estimationData = estimationDataMap.get(key.replace("_", ""));
+                                if (estimationData instanceof PercentileEstimationData) {
+                                    ((PercentileEstimationData) estimationData).setCardinality(value.getValue());
+                                } else {
+                                    estimationDataMap.put(key.replace("_", ""), PercentileEstimationData.builder()
+                                            .cardinality(value.getValue()).build());
+                                }
+                                return null;
+                            }
+                        };
                     }
+                    //Need to pass this visitor to cal visit method
+                    break;
                     case BOOLEAN: {
                         estimationDataMap.put(key, FixedEstimationData.builder()
                                 .count(2)
