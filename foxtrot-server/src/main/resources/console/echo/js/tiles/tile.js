@@ -67,9 +67,37 @@ function refereshTiles() { // auto query for each tile
   }
 }
 
-setInterval(function () { // function trigger for every x seconds
-  refereshTiles();
-}, getRefreshTime());
+/** Refresh widgets from choosed value in dropdown */
+var refreshInterval;
+// get choosed value
+function getTimeInterval() {
+  var intervalValue = $("#refresh-time").val();
+  var multiplyFactor  = getRefreshTimeMultiplyeFactor(intervalValue);
+  var number = getNumberFromString(intervalValue);
+  return number * multiplyFactor;
+}
+
+// Start interval
+function startRefreshInterval() {
+  refreshInterval = setInterval(function() {
+    refereshTiles();
+  }, getTimeInterval());  
+}
+
+// Stop interval
+function stopRefreshInterval() {
+  clearInterval(refreshInterval);
+}
+
+// Stop and Start intervals 
+$("#refresh-time").change(function() {
+  stopRefreshInterval();
+  startRefreshInterval();
+});
+
+startRefreshInterval(); // onLoad start
+
+/** Refresh widgets from choosed value in dropdown */
 
 function pushTilesObject(object) { // save each tile data
   tileData[object.id] = object;

@@ -3192,3 +3192,11 @@ div.tab button:first-child {
 .show {
   display: block;
 }
+#refresh-time {
+  position: relative;
+  right: 12px;
+  background: #fff;
+  border: none;
+  font-family: Open Sans;
+  cursor: pointer;
+}

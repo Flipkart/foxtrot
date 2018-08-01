@@ -359,3 +359,19 @@ $("#fql-dashboard").click(function () {
 function getRefreshTime() {
   return 6000; // 6 seconds
 }
+
+function getRefreshTimeMultiplyeFactor(str) {
+  if(str.endsWith('s')) {
+    return 1000; // seconds
+  } else if(str.endsWith('m')) {
+    return 60 * 1000; // minutes
+  }else if(str.endsWith('h')) {
+    return 60 * 60 * 1000; // hours
+  }else if(str.endsWith('d')) {
+    return 1000 * 60 * 60 * 24; // days
+  }
+}
+
+function getNumberFromString(thestring) {
+  return parseInt(thestring.replace( /^\D+/g, ''));
+}
