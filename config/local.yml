@@ -11,21 +11,6 @@ elasticsearch:
   cluster: elasticsearch
   tableNamePrefix: foxtrot
 
-serviceDiscovery:
-  namespace: phonepe
-  environment: local
-  zookeeper: localhost:2181
-  publishedHost: 127.0.0.1
-  publishedPort: 8080
-
-riemann:
-  host: riemann-stage.phonepe.int
-  port: 5555
-  prefix: phonepe.local.foxtrot
-  pollingInterval: 30
-  tags:
-    - foxtrot
-
 hbase:
   secure : false
   tableName: foxtrot

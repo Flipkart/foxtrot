@@ -31,6 +31,6 @@ logging:
     com.flipkart.foxtrot.core.querystore.actions: DEBUG
 
 deletionconfig:
-  active: false
+  active: true
   interval: 86400
   initialdelay: 60

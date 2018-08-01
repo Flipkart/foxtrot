@@ -52,17 +52,6 @@
         </developer>
     </developers>
 
-    <distributionManagement>
-        <repository>
-            <id>phonepe-releases</id>
-            <url>http://artifactory.phonepe.com/content/repositories/releases</url>
-        </repository>
-        <snapshotRepository>
-            <id>phonepe-snapshots</id>
-            <url>http://artifactory.phonepe.com/content/repositories/snapshots</url>
-        </snapshotRepository>
-    </distributionManagement>
-
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <dropwizard.version>1.0.6</dropwizard.version>
