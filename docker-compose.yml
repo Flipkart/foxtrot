@@ -1,10 +1,21 @@
 elasticsearch:
-  image: library/elasticsearch:2.3.3
-  hostname: elasticsearch
-  command: elasticsearch -Des.http.cors.enabled=true
-  ports:
-   - "9200:9200"
-   - "9300:9300"
+    image: docker.elastic.co/elasticsearch/elasticsearch:6.0.1
+    container_name: elasticsearch
+    hostname: elasticsearch
+    environment:
+          - cluster.name=elasticsearch
+          - bootstrap.memory_lock=true
+          - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ulimits:
+          memlock:
+            soft: -1
+            hard: -1
+    command: elasticsearch -Ehttp.cors.enabled=true
+    volumes:
+          - /elasticsearch/data
+    ports:
+     - "9200:9200"
+     - "9300:9300"
 
 # hbase compose
 hbase:
