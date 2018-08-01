@@ -1,6 +1,5 @@
 package com.flipkart.foxtrot.core.querystore.actions;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.flipkart.foxtrot.common.ActionResponse;
 import com.flipkart.foxtrot.common.count.CountRequest;
 import com.flipkart.foxtrot.common.count.CountResponse;

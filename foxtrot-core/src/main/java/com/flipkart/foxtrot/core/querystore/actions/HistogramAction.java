@@ -131,8 +131,7 @@ public class HistogramAction extends Action<HistogramRequest> {
                     ElasticsearchUtils.getIndices(parameter.getTable(), parameter))
                     .setTypes(ElasticsearchUtils.DOCUMENT_TYPE_NAME)
                     .setIndicesOptions(Utils.indicesOptions())
-                    .setQuery(new ElasticSearchQueryGenerator()
-                            .genFilter(parameter.getFilters()))
+                    .setQuery(new ElasticSearchQueryGenerator().genFilter(parameter.getFilters()))
                     .setSize(QUERY_SIZE)
                     .addAggregation(aggregationBuilder);
         } catch (Exception e) {

@@ -288,7 +288,7 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
                 continue;
             }
             SearchResponse response = item.getResponse();
-            final long hits = response.getHits().totalHits();
+            final long hits = response.getHits().getTotalHits();
             Aggregations aggregations = response.getAggregations();
             if (null == aggregations) {
                 continue;
@@ -416,7 +416,7 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
                 continue;
             }
             SearchResponse response = item.getResponse();
-            final long hits = response.getHits().totalHits();
+            final long hits = response.getHits().getTotalHits();
             Aggregations aggregations = response.getAggregations();
             if (null == aggregations) {
                 continue;

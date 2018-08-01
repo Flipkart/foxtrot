@@ -25,6 +25,7 @@ import com.flipkart.foxtrot.core.exception.FoxtrotException;
 import com.flipkart.foxtrot.core.exception.FoxtrotExceptions;
 import com.flipkart.foxtrot.core.querystore.QueryStore;
 import com.flipkart.foxtrot.core.table.TableMetadataManager;
+import com.flipkart.foxtrot.core.util.ElasticsearchQueryUtils;
 import com.google.common.base.Stopwatch;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
@@ -320,11 +321,10 @@ public class ElasticsearchQueryStore implements QueryStore {
         return tableMetadataManager.getFieldMappings(testTableName, false);
     }
 
-    private String convert(Document translatedDocument) {
+    private Map<String, Object> convert(Document translatedDocument) {
         JsonNode metaNode = mapper.valueToTree(translatedDocument.getMetadata());
         ObjectNode dataNode = translatedDocument.getData().deepCopy();
         dataNode.set(ElasticsearchUtils.DOCUMENT_META_FIELD_NAME, metaNode);
-        return dataNode.toString();
+        return ElasticsearchQueryUtils.getSourceMap(dataNode, mapper);
     }
-
 }

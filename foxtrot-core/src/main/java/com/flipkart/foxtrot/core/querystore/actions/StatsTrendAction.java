@@ -27,7 +27,6 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import io.dropwizard.util.Duration;
 import org.apache.commons.lang3.StringUtils;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.elasticsearch.ElasticsearchException;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;

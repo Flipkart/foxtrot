@@ -42,18 +42,6 @@ public class LastFilter extends Filter {
                 : currentTime;
     }
 
-    public long getCurrentTime() {
-        return currentTime;
-    }
-
-    public void setCurrentTime(long currentTime) {
-        this.currentTime = currentTime;
-    }
-
-    public Duration getDuration() {
-        return duration;
-    }
-
     public void setDuration(Duration duration) {
         this.duration = duration;
         this.roundingMode = roundingMode == null
