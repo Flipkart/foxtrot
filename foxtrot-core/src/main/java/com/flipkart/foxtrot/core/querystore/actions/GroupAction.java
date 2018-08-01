@@ -169,9 +169,7 @@ public class GroupAction extends Action<GroupRequest> {
             }
             //TODO Uncomment it later after testing
             //throw FoxtrotExceptions.createCardinalityOverflow(parameter, parameter.getNesting().get(0), probability);
-        } else
-
-        {
+        } else {
             log.info("Allowing group by with probability {} for query: {}", probability, parameter);
         }
 
@@ -229,7 +227,7 @@ public class GroupAction extends Action<GroupRequest> {
         }
 
         long outputCardinality = 1;
-        final AtomicBoolean isTermHistogramFieldPresent = new AtomicBoolean(false);
+        final AtomicBoolean reduceCardinality = new AtomicBoolean(false);
         for (int i = 0; i < parameter.getNesting().size(); i++) {
             final String field = parameter.getNesting().get(i);
             FieldMetadata metadata = metaMap.get(field);
@@ -245,7 +243,8 @@ public class GroupAction extends Action<GroupRequest> {
 
                 @Override
                 public Long visit(PercentileEstimationData percentileEstimationData) {
-                    return percentileEstimationData.getCount();
+                    reduceCardinality.getAndSet(true);
+                    return percentileEstimationData.getCardinality();
                 }
 
                 @Override
@@ -255,7 +254,7 @@ public class GroupAction extends Action<GroupRequest> {
 
                 @Override
                 public Long visit(TermHistogramEstimationData termEstimationData) {
-                    isTermHistogramFieldPresent.getAndSet(true);
+                    reduceCardinality.getAndSet(true);
                     return (long) termEstimationData.getTermCounts().size();
                 }
             });
@@ -273,7 +272,7 @@ public class GroupAction extends Action<GroupRequest> {
         //Although cardinality will not be reduced by the same factor as documents count reduced.
         //To give benefit of doubt or if someone is making query on a smaller time frame using fields of higher cardinality, reducing cardinality for that query
         //Only reducing cardinality if the doc count is actually less than docCount for a day. Assuming cardinality will remain same if query for more than 1 day
-        if (((double) estimatedDocCountAfterFilters / estimatedMaxDocCount) < 1.0 && isTermHistogramFieldPresent.get()) {
+        if (((double) estimatedDocCountAfterFilters / estimatedMaxDocCount) < 1.0 && reduceCardinality.get()) {
             outputCardinality = (long) (outputCardinality * ((double) estimatedDocCountAfterFilters / estimatedMaxDocCount));
         }
 
