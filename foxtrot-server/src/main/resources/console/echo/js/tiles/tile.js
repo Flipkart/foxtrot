@@ -81,11 +81,13 @@ function getTimeInterval() {
 function startRefreshInterval() {
   refreshInterval = setInterval(function() {
     refereshTiles();
+    console.log('started');
   }, getTimeInterval());  
 }
 
 // Stop interval
 function stopRefreshInterval() {
+  console.log('stopped');
   clearInterval(refreshInterval);
 }
 
@@ -97,7 +99,29 @@ $("#refresh-time").change(function() {
 
 startRefreshInterval(); // onLoad start
 
-/** Refresh widgets from choosed value in dropdown */
+/** Refresh widgets from choosed value in dropdown ends */
+
+/**
+ * Start and Stop fetching data in n interval 
+ * if user goes to another tab stop  fetching data from API
+ * If User comes back to tab start fetching data from API
+ */
+$(window).on("blur focus", function(e) {
+  var prevType = $(this).data("prevType");
+  if (prevType != e.type) {   //  reduce double fire issues
+    switch (e.type) {
+      case "blur":
+              console.log('Stopped fetching data');
+              stopRefreshInterval();
+              break;
+      case "focus":
+              console.log('Started fetching data');
+              startRefreshInterval();
+              break;
+      }
+  }
+  $(this).data("prevType", e.type);
+});
 
 function pushTilesObject(object) { // save each tile data
   tileData[object.id] = object;
