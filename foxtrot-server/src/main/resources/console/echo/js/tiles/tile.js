@@ -79,6 +79,7 @@ function getTimeInterval() {
 
 // Start interval
 function startRefreshInterval() {
+  if($("#refresh-time").val() == "off") return;  
   refreshInterval = setInterval(function() {
     refereshTiles();
     console.log('started');
@@ -92,9 +93,13 @@ function stopRefreshInterval() {
 }
 
 // Stop and Start intervals 
-$("#refresh-time").change(function() {
-  stopRefreshInterval();
-  startRefreshInterval();
+$("#refresh-time").on('change', function (e) {
+  if($("#refresh-time").val() == "off") {
+    stopRefreshInterval();
+  } else {
+    stopRefreshInterval();
+    startRefreshInterval();
+  }
 });
 
 startRefreshInterval(); // onLoad start
