@@ -1,12 +1,12 @@
 /**
  * Copyright 2014 Flipkart Internet Pvt. Ltd.
- *
+ * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
+ * <p>
  * http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -68,7 +68,7 @@ public class HBaseDataStore implements DataStore {
     @Timed
     public void initializeTable(Table table) throws FoxtrotException {
         // Check for existence of HBase table during init to make sure HBase is ready for taking writes
-        try {
+       /* try {
             boolean isTableAvailable = tableWrapper.isTableAvailable(table);
             if (!isTableAvailable) {
                 throw FoxtrotExceptions.createTableInitializationException(table,
@@ -76,7 +76,7 @@ public class HBaseDataStore implements DataStore {
             }
         } catch (IOException e) {
             throw FoxtrotExceptions.createConnectionException(table, e);
-        }
+        }*/
     }
 
     @Override
@@ -85,26 +85,11 @@ public class HBaseDataStore implements DataStore {
         if (document == null || document.getData() == null || document.getId() == null) {
             throw FoxtrotExceptions.createBadRequestException(table.getName(), "Invalid Input Document");
         }
-        org.apache.hadoop.hbase.client.Table hTable = null;
-        Document translatedDocument = null;
-        try {
-            translatedDocument = translator.translate(table, document);
-            hTable = tableWrapper.getTable(table);
-            hTable.put(getPutForDocument(translatedDocument));
-        } catch (JsonProcessingException e) {
-            throw FoxtrotExceptions.createBadRequestException(table, e);
-        } catch (IOException e) {
-            throw FoxtrotExceptions.createConnectionException(table, e);
-        } finally {
-            if (null != hTable) {
-                try {
-                    hTable.close();
-                } catch (IOException e) {
-                    logger.error("Error closing HBase table", e);
-                }
-            }
-        }
-        return translatedDocument;
+        return translator.translate(table, document);
+        //hTable = tableWrapper.getTable(table);
+        //hTable.put(getPutForDocument(translatedDocument));
+
+
     }
 
     @Override
@@ -133,10 +118,10 @@ public class HBaseDataStore implements DataStore {
                     continue;
                 }
                 Document translatedDocument = translator.translate(table, document);
-                puts.add(getPutForDocument(translatedDocument));
+                //puts.add(getPutForDocument(translatedDocument));
                 translatedDocuments.add(translatedDocument);
             }
-        } catch (JsonProcessingException e) {
+        } catch (Exception e) {
             throw FoxtrotExceptions.createBadRequestException(table, e);
         }
         if (!errorMessages.isEmpty()) {
