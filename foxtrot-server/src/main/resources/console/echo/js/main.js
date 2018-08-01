@@ -690,5 +690,5 @@ $(document).ready(function () {
   });
   //Initialize libs
   $('.selectpicker').selectpicker();
-
+  $('#refresh-time').tooltip(); 
 });
