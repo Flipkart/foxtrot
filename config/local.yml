@@ -7,14 +7,9 @@ server:
       port: 17001
 
 elasticsearch:
-  hosts: prd-es104.phonepe.nm1
-  cluster: prd-es0xx
+  hosts: localhost
+  cluster: elasticsearch
   tableNamePrefix: foxtrot
-
-#elasticsearch:
-  #hosts: localhost
-  #cluster: elasticsearch
-  #tableNamePrefix: foxtrot
 
 serviceDiscovery:
   namespace: phonepe
