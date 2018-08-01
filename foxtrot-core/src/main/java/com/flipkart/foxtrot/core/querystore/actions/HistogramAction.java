@@ -34,6 +34,7 @@ import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConnection;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
 import com.flipkart.foxtrot.core.querystore.query.ElasticSearchQueryGenerator;
 import com.flipkart.foxtrot.core.table.TableMetadataManager;
+import com.flipkart.foxtrot.core.util.ElasticsearchQueryUtils;
 import io.dropwizard.util.Duration;
 import org.elasticsearch.ElasticsearchException;
 import org.elasticsearch.action.search.SearchRequestBuilder;
@@ -129,8 +130,8 @@ public class HistogramAction extends Action<HistogramRequest> {
                     ElasticsearchUtils.getIndices(parameter.getTable(), parameter))
                     .setTypes(ElasticsearchUtils.DOCUMENT_TYPE_NAME)
                     .setIndicesOptions(Utils.indicesOptions())
-                    .setQuery(new ElasticSearchQueryGenerator().genFilter(parameter.getFilters()))
-                    .setSize(QUERY_SIZE)
+                    .setQuery(new ElasticSearchQueryGenerator(FilterCombinerType.and).genFilter(parameter.getFilters()))
+                    .setSize(ElasticsearchQueryUtils.QUERY_SIZE)
                     .addAggregation(aggregationBuilder);
         } catch (Exception e) {
             throw FoxtrotExceptions.queryCreationException(parameter, e);
