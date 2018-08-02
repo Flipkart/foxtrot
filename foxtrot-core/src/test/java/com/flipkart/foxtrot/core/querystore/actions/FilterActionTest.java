@@ -1,12 +1,12 @@
 /**
  * Copyright 2014 Flipkart Internet Pvt. Ltd.
- *
+ * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
+ * <p>
  * http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -47,7 +47,8 @@ import static org.mockito.Mockito.when;
 /**
  * Created by rishabh.goyal on 28/04/14.
  */
-
+//To uncomment it later on once we start stroing docs in HBase
+@Ignore
 public class FilterActionTest extends ActionTest {
 
     @Before
@@ -55,7 +56,7 @@ public class FilterActionTest extends ActionTest {
         super.setUp();
         List<Document> documents = TestUtils.getQueryDocuments(getMapper());
         getQueryStore().save(TestUtils.TEST_TABLE_NAME, documents);
-        getElasticsearchServer().getClient().admin().indices().prepareRefresh("*").execute().actionGet();
+        getElasticsearchConnection().getClient().admin().indices().prepareRefresh("*").execute().actionGet();
     }
 
     @Test(expected = FoxtrotException.class)
@@ -658,11 +659,11 @@ public class FilterActionTest extends ActionTest {
         documents.addAll(TestUtils.getQueryDocumentsDifferentDate(getMapper(), new Date(2014 - 1900, 4, 5).getTime()));
         getQueryStore().save(TestUtils.TEST_TABLE_NAME, documents);
         for (Document document : documents) {
-            getElasticsearchServer().getClient().admin().indices()
+            getElasticsearchConnection().getClient().admin().indices()
                     .prepareRefresh(ElasticsearchUtils.getCurrentIndex(TestUtils.TEST_TABLE_NAME, document.getTimestamp()))
                     .execute().actionGet();
         }
-        GetIndexResponse response = getElasticsearchServer().getClient().admin().indices().getIndex(new GetIndexRequest()).actionGet();
+        GetIndexResponse response = getElasticsearchConnection().getClient().admin().indices().getIndex(new GetIndexRequest()).actionGet();
         assertEquals(3, Arrays.stream(response.getIndices())
                 .filter(index -> !index.equals("table-meta"))
                 .count());
