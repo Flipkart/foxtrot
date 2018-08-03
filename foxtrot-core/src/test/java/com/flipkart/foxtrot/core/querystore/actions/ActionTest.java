@@ -4,7 +4,6 @@ import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.flipkart.foxtrot.common.Table;
-import com.flipkart.foxtrot.core.MockElasticsearchServer;
 import com.flipkart.foxtrot.core.TestUtils;
 import com.flipkart.foxtrot.core.cache.CacheManager;
 import com.flipkart.foxtrot.core.cache.impl.DistributedCacheFactory;
@@ -16,17 +15,23 @@ import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConnection;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchQueryStore;
 import com.flipkart.foxtrot.core.querystore.impl.HazelcastConnection;
 import com.flipkart.foxtrot.core.table.impl.DistributedTableMetadataManager;
+import com.flipkart.foxtrot.core.table.impl.ElasticsearchTestUtils;
+import com.flipkart.foxtrot.core.table.impl.TableMapStore;
 import com.hazelcast.config.Config;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.test.TestHazelcastInstanceFactory;
 import lombok.Getter;
+import org.elasticsearch.action.admin.indices.create.CreateIndexRequest;
+import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;
+import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsRequest;
+import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsResponse;
+import org.elasticsearch.common.settings.Settings;
 import org.joda.time.DateTimeZone;
 import org.junit.After;
 import org.junit.Before;
 import org.mockito.Mockito;
 import org.slf4j.LoggerFactory;
 
-import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -42,12 +47,11 @@ public class ActionTest {
     private QueryStore queryStore;
     private QueryExecutor queryExecutor;
     private HazelcastInstance hazelcastInstance;
-    private MockElasticsearchServer elasticsearchServer;
     private ElasticsearchConnection elasticsearchConnection;
     private DistributedTableMetadataManager tableMetadataManager;
 
     static {
-        Logger root = (Logger)LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
+        Logger root = (Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
         root.setLevel(Level.WARN);
     }
 
@@ -60,8 +64,16 @@ public class ActionTest {
         this.hazelcastInstance = new TestHazelcastInstanceFactory(1).newHazelcastInstance(config);
         when(hazelcastConnection.getHazelcast()).thenReturn(hazelcastInstance);
         when(hazelcastConnection.getHazelcastConfig()).thenReturn(config);
-        this.elasticsearchServer = new MockElasticsearchServer(UUID.randomUUID().toString());
-        elasticsearchConnection = TestUtils.initESConnection(elasticsearchServer);
+        elasticsearchConnection = ElasticsearchTestUtils.getConnection();
+
+        IndicesExistsRequest indicesExistsRequest = new IndicesExistsRequest().indices(TableMapStore.TABLE_META_INDEX);
+        IndicesExistsResponse indicesExistsResponse = elasticsearchConnection.getClient().admin().indices().exists(indicesExistsRequest).actionGet();
+
+        if (!indicesExistsResponse.isExists()) {
+            Settings indexSettings = Settings.builder().put("number_of_replicas", 0).build();
+            CreateIndexRequest createRequest = new CreateIndexRequest(TableMapStore.TABLE_META_INDEX).settings(indexSettings);
+            elasticsearchConnection.getClient().admin().indices().create(createRequest).actionGet();
+        }
 
         tableMetadataManager = new DistributedTableMetadataManager(hazelcastConnection, elasticsearchConnection, mapper);
         tableMetadataManager.start();
@@ -84,7 +96,13 @@ public class ActionTest {
 
     @After
     public void tearDown() throws Exception {
-        getElasticsearchServer().shutdown();
+        try {
+            DeleteIndexRequest deleteIndexRequest = new DeleteIndexRequest("*");
+            elasticsearchConnection.getClient().admin().indices().delete(deleteIndexRequest);
+        } catch (Exception e) {
+            //Do Nothing
+        }
+        elasticsearchConnection.stop();
         getHazelcastInstance().shutdown();
     }
 }

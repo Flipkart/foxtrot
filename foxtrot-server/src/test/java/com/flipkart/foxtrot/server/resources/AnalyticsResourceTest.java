@@ -50,7 +50,7 @@ public class AnalyticsResourceTest extends FoxtrotResourceTest {
         super();
         List<Document> documents = TestUtils.getGroupDocuments(getMapper());
         getQueryStore().save(TestUtils.TEST_TABLE_NAME, documents);
-        getElasticsearchServer().getClient().admin().indices().prepareRefresh("*").execute().actionGet();
+        getElasticsearchConnection().getClient().admin().indices().prepareRefresh("*").execute().actionGet();
         resources = ResourceTestRule.builder()
                 .setMapper(getMapper())
                 .addResource(new AnalyticsResource(getQueryExecutor()))

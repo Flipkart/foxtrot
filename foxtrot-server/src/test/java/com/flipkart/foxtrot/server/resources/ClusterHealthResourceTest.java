@@ -71,7 +71,7 @@ public class ClusterHealthResourceTest extends FoxtrotResourceTest {
         documents.add(document1);
         documents.add(document2);
         getQueryStore().save(TestUtils.TEST_TABLE_NAME, documents);
-        getElasticsearchServer().refresh(ElasticsearchUtils.getIndices(TestUtils.TEST_TABLE_NAME));
+        getElasticsearchConnection().refresh(ElasticsearchUtils.getIndices(TestUtils.TEST_TABLE_NAME));
         JsonNode response = resources.client().target("/v1/clusterhealth/indicesstats").request().get(JsonNode.class);
         Assert.assertEquals(2, response.path("primaries").path("docs").path("count").asInt());
         Assert.assertNotEquals(0, response.path("total").path("store").path("sizeInBytes").asInt());

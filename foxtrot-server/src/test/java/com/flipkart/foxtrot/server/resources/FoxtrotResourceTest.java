@@ -10,7 +10,6 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.jsontype.SubtypeResolver;
 import com.fasterxml.jackson.databind.jsontype.impl.StdSubtypeResolver;
 import com.flipkart.foxtrot.common.Table;
-import com.flipkart.foxtrot.core.MockElasticsearchServer;
 import com.flipkart.foxtrot.core.TestUtils;
 import com.flipkart.foxtrot.core.cache.CacheManager;
 import com.flipkart.foxtrot.core.cache.impl.DistributedCacheFactory;
@@ -24,6 +23,7 @@ import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchQueryStore;
 import com.flipkart.foxtrot.core.querystore.impl.HazelcastConnection;
 import com.flipkart.foxtrot.core.table.TableMetadataManager;
 import com.flipkart.foxtrot.core.table.impl.DistributedTableMetadataManager;
+import com.flipkart.foxtrot.core.table.impl.ElasticsearchTestUtils;
 import com.flipkart.foxtrot.server.config.FoxtrotServerConfiguration;
 import com.flipkart.foxtrot.server.providers.exception.FoxtrotExceptionMapper;
 import com.hazelcast.config.Config;
@@ -40,7 +40,6 @@ import org.junit.After;
 import org.mockito.Mockito;
 import org.slf4j.LoggerFactory;
 
-import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -52,7 +51,6 @@ import static org.mockito.Mockito.*;
 public abstract class FoxtrotResourceTest {
 
     private TableMetadataManager tableMetadataManager;
-    private MockElasticsearchServer elasticsearchServer;
     private HazelcastInstance hazelcastInstance;
     private QueryExecutor queryExecutor;
     private QueryStore queryStore;
@@ -60,6 +58,7 @@ public abstract class FoxtrotResourceTest {
     private static ObjectMapper mapper;
     private CacheManager cacheManager;
     private AnalyticsLoader analyticsLoader;
+    private ElasticsearchConnection elasticsearchConnection;
 
 
     protected final static HealthCheckRegistry healthChecks = mock(HealthCheckRegistry.class);
@@ -111,8 +110,7 @@ public abstract class FoxtrotResourceTest {
 
         cacheManager = new CacheManager(new DistributedCacheFactory(hazelcastConnection, mapper));
 
-        elasticsearchServer = new MockElasticsearchServer(UUID.randomUUID().toString());
-        ElasticsearchConnection elasticsearchConnection = TestUtils.initESConnection(elasticsearchServer);
+        elasticsearchConnection = ElasticsearchTestUtils.getConnection();
 
         tableMetadataManager = new DistributedTableMetadataManager(hazelcastConnection, elasticsearchConnection, mapper);
         tableMetadataManager.start();
@@ -142,7 +140,7 @@ public abstract class FoxtrotResourceTest {
 
     @After
     public void tearDown() throws Exception {
-        elasticsearchServer.shutdown();
+        elasticsearchConnection.stop();
         hazelcastInstance.shutdown();
         tableMetadataManager.stop();
         analyticsLoader.stop();
@@ -152,8 +150,8 @@ public abstract class FoxtrotResourceTest {
         return tableMetadataManager;
     }
 
-    public MockElasticsearchServer getElasticsearchServer() {
-        return elasticsearchServer;
+    public ElasticsearchConnection getElasticsearchConnection() {
+        return elasticsearchConnection;
     }
 
     public HazelcastInstance getHazelcastInstance() {

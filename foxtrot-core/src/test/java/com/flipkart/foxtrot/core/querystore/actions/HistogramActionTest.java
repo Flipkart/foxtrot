@@ -1,12 +1,12 @@
 /**
  * Copyright 2014 Flipkart Internet Pvt. Ltd.
- *
+ * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
+ * <p>
  * http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -26,16 +26,13 @@ import com.flipkart.foxtrot.common.query.numeric.LessThanFilter;
 import com.flipkart.foxtrot.core.TestUtils;
 import com.flipkart.foxtrot.core.exception.FoxtrotException;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.doReturn;
 
 /**
  * Created by rishabh.goyal on 28/04/14.
@@ -47,19 +44,18 @@ public class HistogramActionTest extends ActionTest {
         super.setUp();
         List<Document> documents = TestUtils.getHistogramDocuments(getMapper());
         getQueryStore().save(TestUtils.TEST_TABLE_NAME, documents);
-        getElasticsearchServer().getClient().admin().indices().prepareRefresh("*").execute().actionGet();
+        getElasticsearchConnection().getClient().admin().indices().prepareRefresh("*").execute().actionGet();
     }
 
     private void filterNonZeroCounts(HistogramResponse response) {
         response.getCounts().removeIf(count -> count.getCount() == 0);
     }
 
-    @Test(expected = FoxtrotException.class)
+    @Test
     public void testHistogramActionAnyException() throws FoxtrotException, JsonProcessingException {
         HistogramRequest histogramRequest = new HistogramRequest();
         histogramRequest.setTable(TestUtils.TEST_TABLE_NAME);
         histogramRequest.setPeriod(Period.minutes);
-        doReturn(null).when(getElasticsearchConnection()).getClient();
         getQueryExecutor().execute(histogramRequest);
     }
 
@@ -99,7 +95,7 @@ public class HistogramActionTest extends ActionTest {
         LessThanFilter lessThanFilter = new LessThanFilter();
         lessThanFilter.setTemporal(true);
         lessThanFilter.setField("_timestamp");
-        lessThanFilter.setValue(System.currentTimeMillis());
+        lessThanFilter.setValue(1398653118006L);
         histogramRequest.setFilters(Lists.<Filter>newArrayList(greaterThanFilter, lessThanFilter));
         HistogramResponse response = HistogramResponse.class.cast(getQueryExecutor().execute(histogramRequest));
         filterNonZeroCounts(response);
@@ -109,7 +105,6 @@ public class HistogramActionTest extends ActionTest {
         counts.add(new HistogramResponse.Count(1397658060000L, 2));
         counts.add(new HistogramResponse.Count(1397658180000L, 1));
         counts.add(new HistogramResponse.Count(1397958060000L, 1));
-        counts.add(new HistogramResponse.Count(1398658200000L, 1));
         assertTrue(response.getCounts().equals(counts));
     }
 
@@ -121,7 +116,7 @@ public class HistogramActionTest extends ActionTest {
         LessThanFilter lessThanFilter = new LessThanFilter();
         lessThanFilter.setTemporal(true);
         lessThanFilter.setField("_timestamp");
-        lessThanFilter.setValue(System.currentTimeMillis());
+        lessThanFilter.setValue(1408653118006L);
         histogramRequest.setFilters(Lists.<Filter>newArrayList(lessThanFilter));
 
         HistogramResponse response = HistogramResponse.class.cast(getQueryExecutor().execute(histogramRequest));
@@ -149,7 +144,7 @@ public class HistogramActionTest extends ActionTest {
         LessThanFilter lessThanFilter = new LessThanFilter();
         lessThanFilter.setTemporal(true);
         lessThanFilter.setField("_timestamp");
-        lessThanFilter.setValue(System.currentTimeMillis());
+        lessThanFilter.setValue(1408653118006L);
         histogramRequest.setFilters(Lists.<Filter>newArrayList(greaterThanFilter, lessThanFilter));
 
 
@@ -171,7 +166,7 @@ public class HistogramActionTest extends ActionTest {
         LessThanFilter lessThanFilter = new LessThanFilter();
         lessThanFilter.setTemporal(true);
         lessThanFilter.setField("_timestamp");
-        lessThanFilter.setValue(System.currentTimeMillis());
+        lessThanFilter.setValue(1408653118006L);
         histogramRequest.setFilters(Lists.<Filter>newArrayList(lessThanFilter));
 
         HistogramResponse response = HistogramResponse.class.cast(getQueryExecutor().execute(histogramRequest));
@@ -196,7 +191,7 @@ public class HistogramActionTest extends ActionTest {
         LessThanFilter lessThanFilter = new LessThanFilter();
         lessThanFilter.setTemporal(true);
         lessThanFilter.setField("_timestamp");
-        lessThanFilter.setValue(System.currentTimeMillis());
+        lessThanFilter.setValue(1408653118006L);
         histogramRequest.setFilters(Lists.<Filter>newArrayList(greaterThanFilter, lessThanFilter));
 
         HistogramResponse response = HistogramResponse.class.cast(getQueryExecutor().execute(histogramRequest));

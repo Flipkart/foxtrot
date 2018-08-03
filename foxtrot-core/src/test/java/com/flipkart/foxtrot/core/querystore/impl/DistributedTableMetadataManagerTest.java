@@ -21,21 +21,20 @@ import com.flipkart.foxtrot.common.FieldType;
 import com.flipkart.foxtrot.common.Table;
 import com.flipkart.foxtrot.common.TableFieldMapping;
 import com.flipkart.foxtrot.common.group.GroupResponse;
-import com.flipkart.foxtrot.core.MockElasticsearchServer;
 import com.flipkart.foxtrot.core.TestUtils;
 import com.flipkart.foxtrot.core.datastore.DataStore;
 import com.flipkart.foxtrot.core.table.impl.DistributedTableMetadataManager;
+import com.flipkart.foxtrot.core.table.impl.ElasticsearchTestUtils;
 import com.hazelcast.config.Config;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
 import com.hazelcast.test.TestHazelcastInstanceFactory;
+import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;
 import org.joda.time.DateTime;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
-
-import java.util.UUID;
 
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.doReturn;
@@ -51,8 +50,8 @@ public class DistributedTableMetadataManagerTest {
     private ElasticsearchQueryStore queryStore;
     private HazelcastInstance hazelcastInstance;
     private DistributedTableMetadataManager distributedTableMetadataManager;
-    private MockElasticsearchServer elasticsearchServer;
     private IMap<String, Table> tableDataStore;
+    private ElasticsearchConnection elasticsearchConnection;
     private ObjectMapper objectMapper;
 
     @Before
@@ -61,10 +60,29 @@ public class DistributedTableMetadataManagerTest {
         objectMapper.registerSubtypes(GroupResponse.class);
 
         this.dataStore = Mockito.mock(DataStore.class);
-        this.elasticsearchServer = new MockElasticsearchServer(UUID.randomUUID().toString());
-        ElasticsearchConnection elasticsearchConnection = TestUtils.initESConnection(elasticsearchServer);
-        when(elasticsearchConnection.getClient()).thenReturn(elasticsearchServer.getClient());
+
+        elasticsearchConnection = ElasticsearchTestUtils.getConnection();
+        elasticsearchConnection.start();
         ElasticsearchUtils.initializeMappings(elasticsearchConnection.getClient());
+
+        /*ElasticsearchContainer container = new ElasticsearchContainer();
+        container.withVersion("6.0.1");
+        container.withBaseUrl("docker.elastic.co/elasticsearch/elasticsearch");
+        //container.withPlugin("discovery-gce");
+        //container.withPluginDir(Paths.get("/path/to/zipped-plugins-dir"));
+        container.withEnv("ELASTIC_PASSWORD", "foxtrot");
+        container.start();
+
+        ElasticsearchConfig config = new ElasticsearchConfig();
+        config.setCluster("test");
+        config.setHosts("localhost");
+        config.setTableNamePrefix("foxtrot");
+        config.setPort(container.getHost().getPort());
+
+        elasticsearchConnection = new ElasticsearchConnection(config);
+        elasticsearchConnection.start();
+        ElasticsearchUtils.initializeMappings(elasticsearchConnection.getClient());*/
+
 
         hazelcastInstance = new TestHazelcastInstanceFactory(1).newHazelcastInstance();
         HazelcastConnection hazelcastConnection = Mockito.mock(HazelcastConnection.class);
@@ -84,7 +102,13 @@ public class DistributedTableMetadataManagerTest {
     @After
     public void tearDown() throws Exception {
         hazelcastInstance.shutdown();
-        elasticsearchServer.shutdown();
+        try {
+            DeleteIndexRequest deleteIndexRequest = new DeleteIndexRequest("*");
+            elasticsearchConnection.getClient().admin().indices().delete(deleteIndexRequest);
+        } catch (Exception e) {
+            //Do Nothing
+        }
+        elasticsearchConnection.stop();
         distributedTableMetadataManager.stop();
     }
 
@@ -146,7 +170,7 @@ public class DistributedTableMetadataManagerTest {
         queryStore.save(TestUtils.TEST_TABLE_NAME, document);
 
         TableFieldMapping tableFieldMapping = distributedTableMetadataManager.getFieldMappings(TestUtils.TEST_TABLE_NAME, true);
-        assertEquals(2, tableFieldMapping.getMappings().size());
+        assertEquals(3, tableFieldMapping.getMappings().size());
 
         assertEquals(FieldType.STRING, tableFieldMapping.getMappings().stream()
                 .filter(x -> x.getField().equals("version")).findAny().get().getType());

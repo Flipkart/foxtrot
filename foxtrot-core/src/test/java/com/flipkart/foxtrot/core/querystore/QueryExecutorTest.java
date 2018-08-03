@@ -1,12 +1,12 @@
 /**
  * Copyright 2014 Flipkart Internet Pvt. Ltd.
- *
+ * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
+ * <p>
  * http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -17,7 +17,6 @@ package com.flipkart.foxtrot.core.querystore;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.flipkart.foxtrot.common.ActionRequest;
-import com.flipkart.foxtrot.core.MockElasticsearchServer;
 import com.flipkart.foxtrot.core.TestUtils;
 import com.flipkart.foxtrot.core.cache.CacheManager;
 import com.flipkart.foxtrot.core.cache.impl.DistributedCacheFactory;
@@ -32,6 +31,7 @@ import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConnection;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
 import com.flipkart.foxtrot.core.querystore.impl.HazelcastConnection;
 import com.flipkart.foxtrot.core.table.TableMetadataManager;
+import com.flipkart.foxtrot.core.table.impl.ElasticsearchTestUtils;
 import com.hazelcast.config.Config;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.test.TestHazelcastInstanceFactory;
@@ -41,7 +41,6 @@ import org.junit.Test;
 import org.mockito.Mockito;
 
 import java.io.IOException;
-import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -55,9 +54,9 @@ import static org.mockito.Mockito.*;
 public class QueryExecutorTest {
     private QueryExecutor queryExecutor;
     private ObjectMapper mapper = new ObjectMapper();
-    private MockElasticsearchServer elasticsearchServer;
     private HazelcastInstance hazelcastInstance;
     private AnalyticsLoader analyticsLoader;
+    private ElasticsearchConnection elasticsearchConnection;
 
     @Before
     public void setUp() throws Exception {
@@ -69,10 +68,8 @@ public class QueryExecutorTest {
         when(hazelcastConnection.getHazelcast()).thenReturn(hazelcastInstance);
         when(hazelcastConnection.getHazelcastConfig()).thenReturn(new Config());
         CacheManager cacheManager = new CacheManager(new DistributedCacheFactory(hazelcastConnection, mapper));
-        elasticsearchServer = new MockElasticsearchServer(UUID.randomUUID().toString());
-        ElasticsearchConnection elasticsearchConnection = Mockito.mock(ElasticsearchConnection.class);
-        when(elasticsearchConnection.getClient()).thenReturn(elasticsearchServer.getClient());
-        ElasticsearchUtils.initializeMappings(elasticsearchServer.getClient());
+        elasticsearchConnection = ElasticsearchTestUtils.getConnection();
+        ElasticsearchUtils.initializeMappings(elasticsearchConnection.getClient());
         TableMetadataManager tableMetadataManager = mock(TableMetadataManager.class);
         when(tableMetadataManager.exists(anyString())).thenReturn(true);
         when(tableMetadataManager.get(anyString())).thenReturn(TestUtils.TEST_TABLE);
@@ -85,7 +82,7 @@ public class QueryExecutorTest {
 
     @After
     public void tearDown() throws Exception {
-        elasticsearchServer.shutdown();
+        elasticsearchConnection.stop();
         hazelcastInstance.shutdown();
     }
 
