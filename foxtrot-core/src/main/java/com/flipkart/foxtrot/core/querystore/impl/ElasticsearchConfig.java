@@ -36,6 +36,7 @@ public class ElasticsearchConfig {
     @JsonProperty
     private String cluster;
     private String tableNamePrefix = "foxtrot";
+    private Integer port;
 
     public ElasticsearchConfig() {
     }
@@ -62,5 +63,13 @@ public class ElasticsearchConfig {
 
     public void setTableNamePrefix(String tableNamePrefix) {
         this.tableNamePrefix = tableNamePrefix;
+    }
+
+    public Integer getPort() {
+        return port;
+    }
+
+    public void setPort(Integer port) {
+        this.port = port;
     }
 }
