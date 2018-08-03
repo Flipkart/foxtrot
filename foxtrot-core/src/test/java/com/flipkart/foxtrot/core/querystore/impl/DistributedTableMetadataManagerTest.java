@@ -57,7 +57,6 @@ public class DistributedTableMetadataManagerTest {
         this.dataStore = Mockito.mock(DataStore.class);
 
         elasticsearchConnection = ElasticsearchTestUtils.getConnection();
-        elasticsearchConnection.start();
         ElasticsearchUtils.initializeMappings(elasticsearchConnection.getClient());
 
         /*ElasticsearchContainer container = new ElasticsearchContainer();
