@@ -53,7 +53,6 @@ public class ActionTest {
         HazelcastConnection hazelcastConnection = Mockito.mock(HazelcastConnection.class);
         this.hazelcastInstance = new TestHazelcastInstanceFactory(1).newHazelcastInstance();
         when(hazelcastConnection.getHazelcast()).thenReturn(hazelcastInstance);
-        when(hazelcastConnection.getHazelcastConfig()).thenReturn(config);
         elasticsearchConnection = ElasticsearchTestUtils.getConnection();
 
         IndicesExistsRequest indicesExistsRequest = new IndicesExistsRequest().indices(TableMapStore.TABLE_META_INDEX);

@@ -20,17 +20,17 @@ package impl;/**
 
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConfig;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConnection;
-import lombok.extern.slf4j.Slf4j;
 import org.elasticsearch.client.Client;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
+import java.util.Vector;
+
 /***
  Created by nitish.goyal on 01/08/18
  ***/
 @Category(IntegrationTest.class)
-@Slf4j
 public class ESFieldMetadataStoreTest {
 
     @Before
@@ -49,12 +49,13 @@ public class ESFieldMetadataStoreTest {
 
         ElasticsearchConfig config = new ElasticsearchConfig();
         config.setCluster("test");
-        config.setHosts("localhost");
+        Vector<String> hosts = new Vector<>();
+        hosts.add("localhost");
+        config.setHosts(hosts);
         config.setTableNamePrefix("foxtrot");
 
         ElasticsearchConnection connection = new ElasticsearchConnection(config);
         connection.start();
-        log.info("Connected to ES");
         //CachedFieldMetadataStore fieldMetadataStore
         //= new CachedFieldMetadataStore(new ESFieldMetadataStore(mapper, connection));
         Client client = connection.getClient();

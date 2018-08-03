@@ -50,6 +50,7 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <dropwizard.version>1.0.6</dropwizard.version>
+        <project.version>es6-1.0</project.version>
     </properties>
 
     <modules>
