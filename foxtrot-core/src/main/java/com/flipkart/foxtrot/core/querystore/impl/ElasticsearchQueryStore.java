@@ -123,10 +123,10 @@ public class ElasticsearchQueryStore implements QueryStore {
     public void save(String table, List<Document> documents) throws FoxtrotException {
         table = ElasticsearchUtils.getValidTableName(table);
         try {
-            if (!tableMetadataManager.exists(table)) {
+            /*if (!tableMetadataManager.exists(table)) {
                 throw FoxtrotExceptions.createBadRequestException(table,
                         String.format("unknown_table table:%s", table));
-            }
+            }*/
             if (documents == null || documents.size() == 0) {
                 throw FoxtrotExceptions.createBadRequestException(table, "Empty Document List Not Allowed");
             }
