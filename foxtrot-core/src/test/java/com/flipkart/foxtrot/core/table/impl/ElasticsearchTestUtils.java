@@ -29,7 +29,6 @@ public class ElasticsearchTestUtils {
         config.setTableNamePrefix("foxtrot");
 
         ElasticsearchConnection elasticsearchConnection = new ElasticsearchConnection(config);
-        elasticsearchConnection.stop();
         elasticsearchConnection.start();
         return elasticsearchConnection;
     }
