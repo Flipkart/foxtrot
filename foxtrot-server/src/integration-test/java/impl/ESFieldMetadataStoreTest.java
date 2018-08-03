@@ -49,9 +49,7 @@ public class ESFieldMetadataStoreTest {
 
         ElasticsearchConfig config = new ElasticsearchConfig();
         config.setCluster("test");
-        Vector<String> hosts = new Vector<>();
-        hosts.add("localhost");
-        config.setHosts(hosts);
+        config.setHosts("localhost");
         config.setTableNamePrefix("foxtrot");
 
         ElasticsearchConnection connection = new ElasticsearchConnection(config);
