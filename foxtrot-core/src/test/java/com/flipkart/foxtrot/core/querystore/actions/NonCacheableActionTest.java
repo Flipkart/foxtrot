@@ -34,7 +34,7 @@ public class NonCacheableActionTest extends ActionTest {
         super.setUp();
         List<Document> documents = TestUtils.getHistogramDocuments(getMapper());
         getQueryStore().save(TestUtils.TEST_TABLE_NAME, documents);
-        getElasticsearchServer().getClient().admin().indices().prepareRefresh("*").execute().actionGet();
+        getElasticsearchConnection().getClient().admin().indices().prepareRefresh("*").execute().actionGet();
     }
 
     //TODO how to verify if cache is hit or not ?
