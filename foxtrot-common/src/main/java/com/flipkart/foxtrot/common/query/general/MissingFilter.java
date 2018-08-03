@@ -8,8 +8,6 @@ import com.flipkart.foxtrot.common.query.FilterVisitor;
  * Created by avanish.pandey on 23/11/15.
  */
 public class MissingFilter extends Filter{
-
-
 	public MissingFilter() {
 		super(FilterOperator.missing);
 	}

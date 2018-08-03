@@ -3,7 +3,6 @@ package com.flipkart.foxtrot.core.querystore.actions;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.flipkart.foxtrot.common.ActionResponse;
 import com.flipkart.foxtrot.common.query.Filter;
-import com.flipkart.foxtrot.common.query.FilterCombinerType;
 import com.flipkart.foxtrot.common.query.ResultSort;
 import com.flipkart.foxtrot.common.stats.BucketResponse;
 import com.flipkart.foxtrot.common.stats.StatsRequest;
@@ -80,7 +79,6 @@ public class StatsAction extends Action<StatsRequest> {
             }
         }
 
-        statsHashKey += 31 * statsRequest.getCombiner().hashCode();
         return String.format("%s-%s-%d", statsRequest.getTable(), statsRequest.getField(), statsHashKey);
     }
 
@@ -93,10 +91,6 @@ public class StatsAction extends Action<StatsRequest> {
         if (CollectionUtils.isNullOrEmpty(parameter.getField())) {
             validationErrors.add("field name cannot be null or empty");
         }
-        if (parameter.getCombiner() == null) {
-            validationErrors.add(String.format("specify filter combiner (%s)", StringUtils.join(FilterCombinerType.values())));
-        }
-
         if (!CollectionUtils.isNullOrEmpty(validationErrors)) {
             throw FoxtrotExceptions.createMalformedQueryException(parameter, validationErrors);
         }
@@ -110,7 +104,7 @@ public class StatsAction extends Action<StatsRequest> {
                     ElasticsearchUtils.getIndices(parameter.getTable(), parameter))
                     .setTypes(ElasticsearchUtils.DOCUMENT_TYPE_NAME)
                     .setIndicesOptions(Utils.indicesOptions())
-                    .setQuery(new ElasticSearchQueryGenerator(parameter.getCombiner()).genFilter(parameter.getFilters()))
+                    .setQuery(new ElasticSearchQueryGenerator().genFilter(parameter.getFilters()))
                     .setSize(1000);
 
             AbstractAggregationBuilder percentiles = Utils.buildPercentileAggregation(getParameter().getField());

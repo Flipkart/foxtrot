@@ -4,7 +4,6 @@ import com.flipkart.foxtrot.common.ActionResponse;
 import com.flipkart.foxtrot.common.count.CountRequest;
 import com.flipkart.foxtrot.common.count.CountResponse;
 import com.flipkart.foxtrot.common.query.Filter;
-import com.flipkart.foxtrot.common.query.FilterCombinerType;
 import com.flipkart.foxtrot.common.query.general.ExistsFilter;
 import com.flipkart.foxtrot.common.util.CollectionUtils;
 import com.flipkart.foxtrot.core.cache.CacheManager;
@@ -98,7 +97,7 @@ public class CountAction extends Action<CountRequest> {
                         .prepareSearch(ElasticsearchUtils.getIndices(parameter.getTable(), parameter))
                         .setIndicesOptions(Utils.indicesOptions())
                         .setSize(1000)
-                        .setQuery(new ElasticSearchQueryGenerator(FilterCombinerType.and)
+                        .setQuery(new ElasticSearchQueryGenerator()
                                 .genFilter(parameter.getFilters()))
                         .addAggregation(Utils.buildCardinalityAggregation(parameter.getField()));
             } catch (Exception e) {
@@ -124,7 +123,7 @@ public class CountAction extends Action<CountRequest> {
                         .prepareSearch(ElasticsearchUtils.getIndices(parameter.getTable(), parameter))
                         .setIndicesOptions(Utils.indicesOptions())
                         .setSize(1000)
-                        .setQuery(new ElasticSearchQueryGenerator(FilterCombinerType.and).genFilter(parameter.getFilters()));
+                        .setQuery(new ElasticSearchQueryGenerator().genFilter(parameter.getFilters()));
             } catch (Exception e) {
                 throw FoxtrotExceptions.queryCreationException(parameter, e);
             }

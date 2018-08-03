@@ -19,7 +19,6 @@ import com.flipkart.foxtrot.common.ActionResponse;
 import com.flipkart.foxtrot.common.histogram.HistogramRequest;
 import com.flipkart.foxtrot.common.histogram.HistogramResponse;
 import com.flipkart.foxtrot.common.query.Filter;
-import com.flipkart.foxtrot.common.query.FilterCombinerType;
 import com.flipkart.foxtrot.common.query.datetime.LastFilter;
 import com.flipkart.foxtrot.common.util.CollectionUtils;
 import com.flipkart.foxtrot.core.cache.CacheManager;
@@ -130,7 +129,7 @@ public class HistogramAction extends Action<HistogramRequest> {
                     ElasticsearchUtils.getIndices(parameter.getTable(), parameter))
                     .setTypes(ElasticsearchUtils.DOCUMENT_TYPE_NAME)
                     .setIndicesOptions(Utils.indicesOptions())
-                    .setQuery(new ElasticSearchQueryGenerator(FilterCombinerType.and).genFilter(parameter.getFilters()))
+                    .setQuery(new ElasticSearchQueryGenerator().genFilter(parameter.getFilters()))
                     .setSize(ElasticsearchQueryUtils.QUERY_SIZE)
                     .addAggregation(aggregationBuilder);
         } catch (Exception e) {

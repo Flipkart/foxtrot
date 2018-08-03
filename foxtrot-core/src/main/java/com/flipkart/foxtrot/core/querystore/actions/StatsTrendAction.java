@@ -3,7 +3,6 @@ package com.flipkart.foxtrot.core.querystore.actions;
 import com.flipkart.foxtrot.common.ActionResponse;
 import com.flipkart.foxtrot.common.Period;
 import com.flipkart.foxtrot.common.query.Filter;
-import com.flipkart.foxtrot.common.query.FilterCombinerType;
 import com.flipkart.foxtrot.common.query.ResultSort;
 import com.flipkart.foxtrot.common.query.datetime.LastFilter;
 import com.flipkart.foxtrot.common.stats.BucketResponse;
@@ -106,13 +105,9 @@ public class StatsTrendAction extends Action<StatsTrendRequest> {
         if (CollectionUtils.isNullOrEmpty(parameter.getTimestamp())) {
             validationErrors.add("timestamp field cannot be null or empty");
         }
-        if (parameter.getCombiner() == null) {
-            validationErrors.add(String.format("specify filter combiner (%s)", StringUtils.join(FilterCombinerType.values())));
-        }
         if (parameter.getPeriod() == null) {
             validationErrors.add(String.format("specify time period (%s)", StringUtils.join(Period.values())));
         }
-
         if (!CollectionUtils.isNullOrEmpty(validationErrors)) {
             throw FoxtrotExceptions.createMalformedQueryException(parameter, validationErrors);
         }
@@ -127,7 +122,7 @@ public class StatsTrendAction extends Action<StatsTrendRequest> {
                     ElasticsearchUtils.getIndices(parameter.getTable(), parameter))
                     .setTypes(ElasticsearchUtils.DOCUMENT_TYPE_NAME)
                     .setIndicesOptions(Utils.indicesOptions())
-                    .setQuery(new ElasticSearchQueryGenerator(parameter.getCombiner()).genFilter(parameter.getFilters()))
+                    .setQuery(new ElasticSearchQueryGenerator().genFilter(parameter.getFilters()))
                     .setSize(1000)
                     .addAggregation(aggregation);
         } catch (Exception e) {

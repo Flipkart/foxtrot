@@ -4,7 +4,6 @@ import com.flipkart.foxtrot.common.ActionResponse;
 import com.flipkart.foxtrot.common.distinct.DistinctRequest;
 import com.flipkart.foxtrot.common.distinct.DistinctResponse;
 import com.flipkart.foxtrot.common.query.Filter;
-import com.flipkart.foxtrot.common.query.FilterCombinerType;
 import com.flipkart.foxtrot.common.query.ResultSort;
 import com.flipkart.foxtrot.common.util.CollectionUtils;
 import com.flipkart.foxtrot.core.cache.CacheManager;
@@ -111,7 +110,7 @@ public class DistinctAction extends Action<DistinctRequest> {
             query = getConnection().getClient()
                     .prepareSearch(ElasticsearchUtils.getIndices(request.getTable(), request))
                     .setIndicesOptions(Utils.indicesOptions());
-            query.setQuery(new ElasticSearchQueryGenerator(FilterCombinerType.and)
+            query.setQuery(new ElasticSearchQueryGenerator()
                     .genFilter(request.getFilters()))
                     .setSize(1000)
                     .addAggregation(Utils.buildTermsAggregation(request.getNesting(), Sets.newHashSet()));

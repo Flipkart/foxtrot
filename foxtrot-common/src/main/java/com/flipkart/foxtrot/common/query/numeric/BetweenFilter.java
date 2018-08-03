@@ -21,6 +21,7 @@ import com.flipkart.foxtrot.common.query.FilterVisitor;
 import com.flipkart.foxtrot.common.query.datetime.TimeWindow;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
+import javax.validation.constraints.NotNull;
 import java.util.Set;
 
 /**
@@ -30,10 +31,12 @@ import java.util.Set;
  */
 public class BetweenFilter extends Filter {
 
-    private boolean temporal = false;
+    private boolean temporal;
 
+    @NotNull
     private Number from;
 
+    @NotNull
     private Number to;
 
     public BetweenFilter() {
