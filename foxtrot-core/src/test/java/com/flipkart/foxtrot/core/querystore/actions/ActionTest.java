@@ -63,7 +63,6 @@ public class ActionTest {
         Config config = new Config();
         this.hazelcastInstance = new TestHazelcastInstanceFactory(1).newHazelcastInstance(config);
         when(hazelcastConnection.getHazelcast()).thenReturn(hazelcastInstance);
-        when(hazelcastConnection.getHazelcastConfig()).thenReturn(config);
         elasticsearchConnection = ElasticsearchTestUtils.getConnection();
 
         IndicesExistsRequest indicesExistsRequest = new IndicesExistsRequest().indices(TableMapStore.TABLE_META_INDEX);

@@ -38,6 +38,10 @@ import org.elasticsearch.action.admin.cluster.node.stats.NodesStatsResponse;
 import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;
 import org.elasticsearch.action.admin.indices.stats.IndicesStatsResponse;
 import org.elasticsearch.action.get.GetResponse;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Ignore;
+import org.junit.Test;
 import org.junit.*;
 import org.mockito.Mockito;
 
@@ -60,7 +64,6 @@ public class ElasticsearchQueryStoreTest {
     private DataStore dataStore;
     private ElasticsearchQueryStore queryStore;
     private TableMetadataManager tableMetadataManager;
-    private HazelcastInstance hazelcastInstance;
     private ElasticsearchConnection elasticsearchConnection;
 
     @Before
@@ -69,9 +72,7 @@ public class ElasticsearchQueryStoreTest {
 
         elasticsearchConnection = ElasticsearchTestUtils.getConnection();
         ElasticsearchUtils.initializeMappings(elasticsearchConnection.getClient());
-        hazelcastInstance = new TestHazelcastInstanceFactory(1).newHazelcastInstance();
         HazelcastConnection hazelcastConnection = Mockito.mock(HazelcastConnection.class);
-        when(hazelcastConnection.getHazelcast()).thenReturn(hazelcastInstance);
         when(hazelcastConnection.getHazelcastConfig()).thenReturn(new Config());
 
         hazelcastConnection.start();
@@ -95,7 +96,6 @@ public class ElasticsearchQueryStoreTest {
             //Do Nothing
         }
         elasticsearchConnection.stop();
-        hazelcastInstance.shutdown();
     }
 
 
@@ -450,6 +450,7 @@ public class ElasticsearchQueryStoreTest {
     }
 
     @Test
+    @Ignore
     public void testEsNodesStats() throws FoxtrotException, ExecutionException, InterruptedException {
         List<Document> documents = Lists.newArrayList();
         for (int i = 0; i < 10; i++) {
