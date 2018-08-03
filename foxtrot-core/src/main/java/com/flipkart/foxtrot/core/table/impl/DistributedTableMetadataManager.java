@@ -31,6 +31,7 @@ import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConnection;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
 import com.flipkart.foxtrot.core.querystore.impl.HazelcastConnection;
 import com.flipkart.foxtrot.core.table.TableMetadataManager;
+import com.flipkart.foxtrot.core.util.ElasticsearchQueryUtils;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
@@ -391,7 +392,7 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
                             SearchRequestBuilder query = client.prepareSearch(index)
                                     .setIndicesOptions(Utils.indicesOptions())
                                     .setQuery(QueryBuilders.existsQuery(key))
-                                    .addAggregation(AggregationBuilders.terms(key).field(key).size(0))
+                                    .addAggregation(AggregationBuilders.terms(key).field(key).size(ElasticsearchQueryUtils.QUERY_SIZE))
                                     .setSize(0);
                             multiQuery.add(query);
                         }

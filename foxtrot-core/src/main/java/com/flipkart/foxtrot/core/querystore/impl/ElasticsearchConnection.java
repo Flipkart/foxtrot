@@ -16,6 +16,7 @@
 package com.flipkart.foxtrot.core.querystore.impl;
 
 import io.dropwizard.lifecycle.Managed;
+import org.elasticsearch.action.admin.indices.refresh.RefreshRequest;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.client.transport.TransportClient;
 import org.elasticsearch.common.settings.Settings;
@@ -48,11 +49,17 @@ public class ElasticsearchConnection implements Managed {
                 .put("client.transport.ignore_cluster_name", true).build();
 
         TransportClient esClient = new PreBuiltTransportClient(settings);
+        Integer port;
+        if (config.getPort() == null) {
+            port = 9300;
+        } else {
+            port = config.getPort();
+        }
         for (String host : config.getHosts()) {
             String tokenizedHosts[] = host.split(",");
             for (String tokenizedHost : tokenizedHosts) {
                 esClient.addTransportAddress(
-                        new TransportAddress(InetAddress.getByName(tokenizedHost), 9300));
+                        new TransportAddress(InetAddress.getByName(tokenizedHost), port));
                 logger.info(String.format("Added Elasticsearch Node : %s", host));
             }
         }
@@ -74,5 +81,9 @@ public class ElasticsearchConnection implements Managed {
 
     public ElasticsearchConfig getConfig() {
         return config;
+    }
+
+    public void refresh(final String index) {
+        client.admin().indices().refresh(new RefreshRequest().indices(index)).actionGet();
     }
 }
