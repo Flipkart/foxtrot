@@ -12,7 +12,7 @@ elasticsearch:
             hard: -1
     command: elasticsearch -Ehttp.cors.enabled=true
     volumes:
-          - /elasticsearch/data
+          - /data/elasticsearch/data
     ports:
      - "9200:9200"
      - "9300:9300"
