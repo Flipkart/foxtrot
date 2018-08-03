@@ -7,7 +7,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.jsontype.SubtypeResolver;
 import com.fasterxml.jackson.databind.jsontype.impl.StdSubtypeResolver;
-import com.flipkart.foxtrot.core.MockElasticsearchServer;
+import com.flipkart.foxtrot.common.Table;
 import com.flipkart.foxtrot.core.TestUtils;
 import com.flipkart.foxtrot.core.cache.CacheManager;
 import com.flipkart.foxtrot.core.cache.impl.DistributedCacheFactory;
@@ -21,7 +21,8 @@ import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchQueryStore;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
 import com.flipkart.foxtrot.core.querystore.impl.HazelcastConnection;
 import com.flipkart.foxtrot.core.table.TableMetadataManager;
-import com.flipkart.foxtrot.core.table.impl.TableMapStore;
+import com.flipkart.foxtrot.core.table.impl.DistributedTableMetadataManager;
+import com.flipkart.foxtrot.core.table.impl.ElasticsearchTestUtils;
 import com.flipkart.foxtrot.server.config.FoxtrotServerConfiguration;
 import com.flipkart.foxtrot.server.providers.exception.FoxtrotExceptionMapper;
 import com.hazelcast.core.HazelcastInstance;
@@ -39,7 +40,6 @@ import org.elasticsearch.node.NodeValidationException;
 import org.junit.After;
 import org.mockito.Mockito;
 
-import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -51,7 +51,6 @@ import static org.mockito.Mockito.*;
 public abstract class FoxtrotResourceTest {
 
     private TableMetadataManager tableMetadataManager;
-    private MockElasticsearchServer elasticsearchServer;
     private HazelcastInstance hazelcastInstance;
     private QueryExecutor queryExecutor;
     private QueryStore queryStore;
@@ -59,6 +58,7 @@ public abstract class FoxtrotResourceTest {
     private static ObjectMapper mapper;
     private CacheManager cacheManager;
     private AnalyticsLoader analyticsLoader;
+    private ElasticsearchConnection elasticsearchConnection;
 
 
     protected final static HealthCheckRegistry healthChecks = mock(HealthCheckRegistry.class);
@@ -105,15 +105,12 @@ public abstract class FoxtrotResourceTest {
         when(hazelcastConnection.getHazelcast()).thenReturn(hazelcastInstance);
         cacheManager = new CacheManager(new DistributedCacheFactory(hazelcastConnection, mapper));
 
-        elasticsearchServer = new MockElasticsearchServer(UUID.randomUUID().toString());
-        ElasticsearchConnection elasticsearchConnection = Mockito.mock(ElasticsearchConnection.class);
-        when(elasticsearchConnection.getClient()).thenReturn(elasticsearchServer.getClient());
-        ElasticsearchUtils.initializeMappings(elasticsearchServer.getClient());
+        elasticsearchConnection = ElasticsearchTestUtils.getConnection();
 
         Settings indexSettings = Settings.builder().put("number_of_replicas", 0).build();
         CreateIndexRequest createRequest = new CreateIndexRequest(TableMapStore.TABLE_META_INDEX).settings(indexSettings);
-        elasticsearchServer.getClient().admin().indices().create(createRequest).actionGet();
-        elasticsearchServer.getClient().admin().cluster().prepareHealth().setWaitForGreenStatus().execute().actionGet();
+        elasticsearchConnection.getClient().admin().indices().create(createRequest).actionGet();
+        elasticsearchConnection.getClient().admin().cluster().prepareHealth().setWaitForGreenStatus().execute().actionGet();
 
         tableMetadataManager = Mockito.mock(TableMetadataManager.class);
         try {
@@ -142,7 +139,7 @@ public abstract class FoxtrotResourceTest {
 
     @After
     public void tearDown() throws Exception {
-        elasticsearchServer.shutdown();
+        elasticsearchConnection.stop();
         hazelcastInstance.shutdown();
         tableMetadataManager.stop();
         analyticsLoader.stop();
@@ -152,8 +149,8 @@ public abstract class FoxtrotResourceTest {
         return tableMetadataManager;
     }
 
-    public MockElasticsearchServer getElasticsearchServer() {
-        return elasticsearchServer;
+    public ElasticsearchConnection getElasticsearchConnection() {
+        return elasticsearchConnection;
     }
 
     public HazelcastInstance getHazelcastInstance() {
