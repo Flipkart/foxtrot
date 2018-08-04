@@ -621,6 +621,19 @@ public class GroupAction extends Action<GroupRequest> {
                                 }
 
                                 @Override
+                                public Double visit(ContainsFilter containsFilter) throws Exception {
+                                    String filterValue = containsFilter.getValue();
+                                    StringTokenizer stringTokenizer = new StringTokenizer(filterValue, ",");
+                                    long matchingDocCount = 0;
+                                    while (stringTokenizer.hasMoreTokens()) {
+                                        Long count = termEstimationData.getTermCounts().get(stringTokenizer.nextToken());
+                                        matchingDocCount += count == null ? 0 : count;
+                                    }
+                                    return (double) (matchingDocCount) / totalCount;
+                                }
+
+
+                                @Override
                                 public Double visit(NotInFilter notInFilter) throws Exception {
                                     for (Object value : notInFilter.getValues()) {
                                         if (!(value instanceof String)) {
