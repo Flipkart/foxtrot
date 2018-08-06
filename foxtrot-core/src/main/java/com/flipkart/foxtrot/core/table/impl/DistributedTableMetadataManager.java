@@ -160,10 +160,10 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
     public TableFieldMapping getFieldMappings(String originalTableName, boolean withCardinality) throws FoxtrotException {
         final String table = ElasticsearchUtils.getValidTableName(originalTableName);
 
-        if (!tableDataStore.containsKey(table)) {
+       /* if (!tableDataStore.containsKey(table)) {
             throw FoxtrotExceptions.createBadRequestException(table,
                     String.format("unknown_table table:%s", table));
-        }
+        }*/
 
         TableFieldMapping tableFieldMapping;
         if (fieldDataCache.containsKey(table)) {
@@ -218,10 +218,10 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
 
     @Override
     public void updateEstimationData(final String table, long timestamp) throws FoxtrotException {
-        if (!tableDataStore.containsKey(table)) {
+        /*if (!tableDataStore.containsKey(table)) {
             throw FoxtrotExceptions.createBadRequestException(table,
                     String.format("unknown_table table:%s", table));
-        }
+        }*/
         final TableFieldMapping tableFieldMapping = getFieldMappings(table, true);
         //estimateCardinality(table, tableFieldMapping.getMappings(), timestamp);
         fieldDataCache.put(table, tableFieldMapping);
