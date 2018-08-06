@@ -46,6 +46,7 @@ logging:
 
 cardinality
   cardinalityEnabled: false
+  subListSize: 50
 
 deletionconfig:
   active: false

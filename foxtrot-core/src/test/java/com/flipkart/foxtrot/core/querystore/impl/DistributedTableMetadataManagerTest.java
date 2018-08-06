@@ -74,12 +74,12 @@ public class DistributedTableMetadataManagerTest {
         hazelcastConnection.start();
 
         this.distributedTableMetadataManager = new DistributedTableMetadataManager(hazelcastConnection,
-                elasticsearchConnection, objectMapper, new CardinalityConfig(true));
+                elasticsearchConnection, objectMapper, new CardinalityConfig(true, ElasticsearchUtils.DEFAULT_SUB_LIST_SIZE));
         distributedTableMetadataManager.start();
 
         tableDataStore = hazelcastInstance.getMap("tablemetadatamap");
         this.queryStore = new ElasticsearchQueryStore(distributedTableMetadataManager, elasticsearchConnection,
-                dataStore, objectMapper, new CardinalityConfig(true));
+                dataStore, objectMapper, new CardinalityConfig(true, ElasticsearchUtils.DEFAULT_SUB_LIST_SIZE));
     }
 
     @After

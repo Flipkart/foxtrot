@@ -1,4 +1,5 @@
-package com.flipkart.foxtrot.core.common;/**
+package com.flipkart.foxtrot.core.common;
+/**
  * Copyright 2014 Flipkart Internet Pvt. Ltd.
  * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,6 +19,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import javax.ws.rs.DefaultValue;
+
 /***
  Created by nitish.goyal on 06/08/18
  ***/
@@ -27,4 +30,7 @@ import lombok.NoArgsConstructor;
 public class CardinalityConfig {
 
     private boolean cardinalityEnabled;
+
+    @DefaultValue("50")
+    private int subListSize;
 }
