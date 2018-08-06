@@ -3200,3 +3200,6 @@ div.tab button:first-child {
 .no-margin {
   margin: 0;
 }
+.form-control[disabled], .form-control[readonly], fieldset[disabled] .form-control {
+  background: inherit;
+}
