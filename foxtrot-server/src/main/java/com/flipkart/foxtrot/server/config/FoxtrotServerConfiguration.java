@@ -1,12 +1,12 @@
 /**
  * Copyright 2014 Flipkart Internet Pvt. Ltd.
- *
+ * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
+ * <p>
  * http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -16,6 +16,7 @@
 package com.flipkart.foxtrot.server.config;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.flipkart.foxtrot.core.common.CardinalityConfig;
 import com.flipkart.foxtrot.core.common.DataDeletionManagerConfig;
 import com.flipkart.foxtrot.core.datastore.impl.hbase.HbaseConfig;
 import com.flipkart.foxtrot.core.querystore.impl.ClusterConfig;
@@ -23,6 +24,7 @@ import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConfig;
 import io.dropwizard.Configuration;
 import io.dropwizard.discovery.bundle.ServiceDiscoveryConfiguration;
 import io.dropwizard.riemann.RiemannConfig;
+import lombok.Data;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
@@ -32,6 +34,7 @@ import javax.validation.constraints.NotNull;
  * Date: 15/03/14
  * Time: 9:26 PM
  */
+@Data
 public class FoxtrotServerConfiguration extends Configuration {
     @Valid
     private final HbaseConfig hbase;
@@ -49,6 +52,9 @@ public class FoxtrotServerConfiguration extends Configuration {
     @NotNull
     @Valid
     private RiemannConfig riemann;
+
+    @Valid
+    private CardinalityConfig cardinality;
 
     @Valid
     @JsonProperty("deletionconfig")

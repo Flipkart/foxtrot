@@ -23,6 +23,7 @@ import com.flipkart.foxtrot.common.TableFieldMapping;
 import com.flipkart.foxtrot.common.group.GroupResponse;
 import com.flipkart.foxtrot.core.MockElasticsearchServer;
 import com.flipkart.foxtrot.core.TestUtils;
+import com.flipkart.foxtrot.core.common.CardinalityConfig;
 import com.flipkart.foxtrot.core.datastore.DataStore;
 import com.flipkart.foxtrot.core.table.impl.DistributedTableMetadataManager;
 import com.hazelcast.config.Config;
@@ -73,12 +74,12 @@ public class DistributedTableMetadataManagerTest {
         hazelcastConnection.start();
 
         this.distributedTableMetadataManager = new DistributedTableMetadataManager(hazelcastConnection,
-                elasticsearchConnection, objectMapper);
+                elasticsearchConnection, objectMapper, new CardinalityConfig(true));
         distributedTableMetadataManager.start();
 
         tableDataStore = hazelcastInstance.getMap("tablemetadatamap");
         this.queryStore = new ElasticsearchQueryStore(distributedTableMetadataManager, elasticsearchConnection,
-                dataStore, objectMapper);
+                dataStore, objectMapper, new CardinalityConfig(true));
     }
 
     @After

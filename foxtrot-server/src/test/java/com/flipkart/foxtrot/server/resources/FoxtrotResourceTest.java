@@ -14,6 +14,7 @@ import com.flipkart.foxtrot.core.MockElasticsearchServer;
 import com.flipkart.foxtrot.core.TestUtils;
 import com.flipkart.foxtrot.core.cache.CacheManager;
 import com.flipkart.foxtrot.core.cache.impl.DistributedCacheFactory;
+import com.flipkart.foxtrot.core.common.CardinalityConfig;
 import com.flipkart.foxtrot.core.datastore.DataStore;
 import com.flipkart.foxtrot.core.exception.FoxtrotException;
 import com.flipkart.foxtrot.core.querystore.QueryExecutor;
@@ -113,15 +114,16 @@ public abstract class FoxtrotResourceTest {
 
         elasticsearchServer = new MockElasticsearchServer(UUID.randomUUID().toString());
         ElasticsearchConnection elasticsearchConnection = TestUtils.initESConnection(elasticsearchServer);
+        CardinalityConfig cardinalityConfig = new CardinalityConfig(true);
 
-        tableMetadataManager = new DistributedTableMetadataManager(hazelcastConnection, elasticsearchConnection, mapper);
+        tableMetadataManager = new DistributedTableMetadataManager(hazelcastConnection, elasticsearchConnection, mapper, cardinalityConfig);
         tableMetadataManager.start();
         tableMetadataManager.save(
                 Table.builder()
                         .name(TestUtils.TEST_TABLE_NAME)
                         .ttl(7)
                         .build());
-        queryStore = new ElasticsearchQueryStore(tableMetadataManager, elasticsearchConnection, dataStore, mapper);
+        queryStore = new ElasticsearchQueryStore(tableMetadataManager, elasticsearchConnection, dataStore, mapper, cardinalityConfig);
         queryStore = spy(queryStore);
 
         analyticsLoader = new AnalyticsLoader(tableMetadataManager, dataStore, queryStore, elasticsearchConnection, cacheManager, mapper);
