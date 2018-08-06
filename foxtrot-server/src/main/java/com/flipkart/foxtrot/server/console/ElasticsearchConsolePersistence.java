@@ -1,12 +1,12 @@
 /**
  * Copyright 2014 Flipkart Internet Pvt. Ltd.
- *
+ * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
+ * <p>
  * http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -18,6 +18,7 @@ package com.flipkart.foxtrot.server.console;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.flipkart.foxtrot.core.exception.FoxtrotException;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConnection;
+import com.flipkart.foxtrot.core.util.ElasticsearchQueryUtils;
 import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.support.WriteRequest;
@@ -57,7 +58,7 @@ public class ElasticsearchConsolePersistence implements ConsolePersistence {
                     .setIndex(INDEX)
                     .setType(TYPE)
                     .setId(console.getId())
-                    .setSource(mapper.writeValueAsBytes(console))
+                    .setSource(ElasticsearchQueryUtils.getSourceMap(console, console.getClass()))
                     .setRefreshPolicy(WriteRequest.RefreshPolicy.IMMEDIATE)
                     .execute()
                     .get();
@@ -141,7 +142,7 @@ public class ElasticsearchConsolePersistence implements ConsolePersistence {
                     .setIndex(INDEX_V2)
                     .setType(TYPE)
                     .setId(console.getId())
-                    .setSource(mapper.writeValueAsBytes(console))
+                    .setSource(ElasticsearchQueryUtils.getSourceMap(console, ConsoleV2.class))
                     .setRefreshPolicy(WriteRequest.RefreshPolicy.IMMEDIATE)
                     .execute()
                     .get();
