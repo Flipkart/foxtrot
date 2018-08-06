@@ -30,6 +30,8 @@ var apiUrl = getHostUrl();
 var interval = null;
 var consoleList = [];
 var currentConsoleName;
+var isCopyWidget = false;
+var lastConsoleName = "";
 var globalFilters = false;
 var isNewConsole = false;
 var tablesToRender = [];
@@ -265,12 +267,21 @@ function saveConsole() { // Save console api
       contentType: 'application/json',
       data: JSON.stringify(representation),
       success: function(resp) {
-        showSuccessAlert('Success', 'console saved sucessfully')
+        if(isCopyWidget) { // copy widget action
+          showSuccessAlert('Success', 'Console copied Sucessfully');
+          setTimeout(function(){ window.location.href = window.location.origin+window.location.pathname+"?console="+convertedName; }, 3000);
+        } else {
+          showSuccessAlert('Success', 'console saved sucessfully');
+        }
         hideSaveConsole();
       },
       error: function() {
-        showErrorAlert("Oops","Could not save console");
+        var msg = isCopyWidget ? "Could not copy console" : "Could not save console";
+        showErrorAlert("Oops",msg);
         hideSaveConsole();
+        if(lastConsoleName.length > 0) {
+          currentConsoleName = lastConsoleName;
+        }
       }
     })
   } else {
@@ -607,6 +618,12 @@ $(document).ready(function () {
   foxtrot.init();
   $("#save-dashboard-tab-btn").click(function () {
     currentConsoleName = $("#save-dashboard-name").val();
+    saveConsole();
+  });
+  $(".copy-dashboard-submit").click(function () {
+    lastConsoleName = currentConsoleName;
+    isCopyWidget = true;
+    currentConsoleName = $("#copy-dashboard-name").val();
     saveConsole();
   });
   $("#listConsole").change(function () {

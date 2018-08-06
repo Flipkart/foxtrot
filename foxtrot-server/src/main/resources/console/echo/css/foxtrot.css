@@ -3203,3 +3203,90 @@ div.tab button:first-child {
 .form-control[disabled], .form-control[readonly], fieldset[disabled] .form-control {
   background: inherit;
 }
+.custom-modal-tab-btn {
+  width: 292px;
+  background-color: #32a6f9;
+  margin-top: 40px;
+  color: #fff;
+  text-align: center;
+  height: 40px;
+  padding: 0px 0px;
+  font-family: Open Sans Regular;
+}
+
+.custom-modal-tab-btn:hover {
+  background: #fff;
+  color: #42b1f7;
+}
+.custom-modal-close {
+  border: none;
+  background: none;
+  color: #d3d2d3;
+  font-weight: normal;
+  margin-top: 3px;
+  font-family: Open Sans Regular;
+}
+
+.custom-modal-close:hover {
+  color: #fff;
+}
+#custom-modal-modal {
+  width: 372px;
+  background-color: #485962;
+  margin-left: 95px;
+  height: 270px;
+}
+
+#custom-modal-model-heading {
+  height: 43px;
+  font-family: Open Sans;
+  font-size: 32px;
+  font-weight: 300;
+  text-align: center;
+  color: #50e3c2;
+  padding-top: 23px;
+}
+
+#custom-modal-model-heading-underline {
+  width: 60px;
+  border: solid 1px #c4d4dc;
+  margin-top: 14px;
+}
+
+.custom-modal-form {
+  margin-top: 60px;
+  position: relative;
+  right: 29px;
+}
+
+.custom-modal-form {
+  margin-left: 63px;
+  margin-top: 33px;
+}
+
+.custom-modal-form label {
+  color: #c4d4dc;
+  font-family: Open Sans Regular;
+}
+
+.custom-modal-form input {
+  background: none;
+  border: none;
+  border: 1px solid #c4d4dc;
+  color: #fff;
+  outline: none;
+  box-shadow: none;
+  height: 40px;
+}
+
+.custom-modal-form input:hover {
+  border: 1px solid #35dbb1;
+}
+
+.custom-modal-form input:focus {
+  outline: none;
+  box-shadow: none;
+}
+.custom-modal-tab-btn span{
+  margin-right: 30px;
+}
