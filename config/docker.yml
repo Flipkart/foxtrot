@@ -31,8 +31,8 @@ logging:
     com.flipkart.foxtrot.core.querystore.actions: DEBUG
 
 cardinality
-  cardinalityEnabled: false
-  subListSize: 50
+  cardinalityEnabled: ${CARDINALITY_ENABLED}
+  subListSize: ${DEFAULT_LIST_SIZE}
 
 deletionconfig:
   active: true

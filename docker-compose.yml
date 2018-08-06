@@ -45,3 +45,5 @@ services:
      - HAZELCAST_CLUSTER_NAME=foxtrot
      - CONFIG_SERVICE_HOST_PORT=configservice.stg-mesos.phonepe.int
      - CONFIG_ENV=stage
+     - CARDINALITY_ENABLED=false
+     - DEFAULT_LIST_SIZE=50
