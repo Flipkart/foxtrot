@@ -23,6 +23,7 @@ import com.flipkart.foxtrot.common.Table;
 import com.flipkart.foxtrot.common.TableFieldMapping;
 import com.flipkart.foxtrot.common.estimation.*;
 import com.flipkart.foxtrot.common.util.CollectionUtils;
+import com.flipkart.foxtrot.core.common.CardinalityConfig;
 import com.flipkart.foxtrot.core.exception.FoxtrotException;
 import com.flipkart.foxtrot.core.exception.FoxtrotExceptions;
 import com.flipkart.foxtrot.core.parsers.ElasticsearchMappingParser;
@@ -79,13 +80,15 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
     private final ObjectMapper mapper;
     private IMap<String, Table> tableDataStore;
     private IMap<String, TableFieldMapping> fieldDataCache;
+    private final CardinalityConfig cardinalityConfig;
 
     public DistributedTableMetadataManager(HazelcastConnection hazelcastConnection,
                                            ElasticsearchConnection elasticsearchConnection,
-                                           ObjectMapper mapper) {
+                                           ObjectMapper mapper, CardinalityConfig cardinalityConfig) {
         this.hazelcastConnection = hazelcastConnection;
         this.elasticsearchConnection = elasticsearchConnection;
         this.mapper = mapper;
+        this.cardinalityConfig = cardinalityConfig;
 
         hazelcastConnection.getHazelcastConfig().getMapConfigs().put(DATA_MAP, tableMapConfig());
         hazelcastConnection.getHazelcastConfig().getMapConfigs().put(FIELD_MAP, fieldMetaMapConfig());
@@ -200,7 +203,10 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
             final TreeSet<FieldMetadata> fieldMetadataTreeSet = new TreeSet<>(new FieldMetadataComparator());
             fieldMetadataTreeSet.addAll(fieldMetadata);
             tableFieldMapping = new TableFieldMapping(table, fieldMetadataTreeSet);
-            estimateCardinality(table, tableFieldMapping.getMappings(), DateTime.now().minusDays(1).toDate().getTime());
+
+            if (withCardinality) {
+                estimateCardinality(table, tableFieldMapping.getMappings(), DateTime.now().minusDays(1).toDate().getTime());
+            }
             fieldDataCache.put(table, tableFieldMapping);
         }
         return TableFieldMapping.builder()
@@ -221,7 +227,7 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
             throw FoxtrotExceptions.createBadRequestException(table,
                     String.format("unknown_table table:%s", table));
         }
-        final TableFieldMapping tableFieldMapping = getFieldMappings(table, true);
+        final TableFieldMapping tableFieldMapping = getFieldMappings(table, cardinalityConfig.isCardinalityEnabled());
         //estimateCardinality(table, tableFieldMapping.getMappings(), timestamp);
         fieldDataCache.put(table, tableFieldMapping);
     }

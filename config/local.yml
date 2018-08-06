@@ -42,6 +42,9 @@ cluster:
 logging:
   level: INFO
 
+cardinality:
+  cardinalityEnabled: false
+
 deletionconfig:
   active: false
   interval: 86400

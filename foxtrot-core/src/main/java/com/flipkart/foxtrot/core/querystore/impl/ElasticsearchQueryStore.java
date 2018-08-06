@@ -20,6 +20,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.flipkart.foxtrot.common.Document;
 import com.flipkart.foxtrot.common.Table;
 import com.flipkart.foxtrot.common.TableFieldMapping;
+import com.flipkart.foxtrot.core.common.CardinalityConfig;
 import com.flipkart.foxtrot.core.datastore.DataStore;
 import com.flipkart.foxtrot.core.exception.FoxtrotException;
 import com.flipkart.foxtrot.core.exception.FoxtrotExceptions;
@@ -30,6 +31,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import lombok.Data;
 import org.elasticsearch.action.WriteConsistencyLevel;
 import org.elasticsearch.action.admin.cluster.health.ClusterHealthResponse;
 import org.elasticsearch.action.admin.cluster.node.stats.NodesStatsRequest;
@@ -62,7 +64,7 @@ import static org.elasticsearch.index.query.QueryBuilders.*;
  * Date: 14/03/14
  * Time: 12:27 AM
  */
-
+@Data
 public class ElasticsearchQueryStore implements QueryStore {
     private static final Logger logger = LoggerFactory.getLogger(ElasticsearchQueryStore.class.getSimpleName());
 
@@ -70,15 +72,17 @@ public class ElasticsearchQueryStore implements QueryStore {
     private final DataStore dataStore;
     private final TableMetadataManager tableMetadataManager;
     private final ObjectMapper mapper;
+    private final CardinalityConfig cardinalityConfig;
 
     public ElasticsearchQueryStore(TableMetadataManager tableMetadataManager,
                                    ElasticsearchConnection connection,
                                    DataStore dataStore,
-                                   ObjectMapper mapper) {
+                                   ObjectMapper mapper, CardinalityConfig cardinalityConfig) {
         this.connection = connection;
         this.dataStore = dataStore;
         this.tableMetadataManager = tableMetadataManager;
         this.mapper = mapper;
+        this.cardinalityConfig = cardinalityConfig;
     }
 
     @Override
