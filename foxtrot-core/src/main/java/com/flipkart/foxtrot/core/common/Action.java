@@ -15,6 +15,7 @@
  */
 package com.flipkart.foxtrot.core.common;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.flipkart.foxtrot.common.ActionRequest;
 import com.flipkart.foxtrot.common.ActionResponse;
@@ -139,8 +140,17 @@ public abstract class Action<ParameterType extends ActionRequest> implements Cal
         try {
             ActionResponse result = execute(parameter);
             // Publish success metrics
-            MetricUtil.getInstance().registerActionSuccess(
-                    cacheToken, getMetricKey(), stopwatch.elapsed(TimeUnit.MILLISECONDS));
+            final long elapsed = stopwatch.elapsed(TimeUnit.MILLISECONDS);
+            MetricUtil.getInstance().registerActionSuccess(cacheToken, getMetricKey(), elapsed);
+            if(elapsed > 1000) {
+                try {
+                    logger.warn("SLOW_QUERY: Time: {} ms Query: {}",
+                                elapsed, getObjectMapper().writeValueAsString(parameter));
+                }
+                catch (JsonProcessingException e) {
+                    logger.error("Error serializing slow query", e);
+                }
+            }
 
             // Now cache data
             updateCachedData(result);
