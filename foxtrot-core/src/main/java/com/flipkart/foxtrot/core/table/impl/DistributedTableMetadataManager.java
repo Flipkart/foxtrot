@@ -31,6 +31,7 @@ import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConnection;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
 import com.flipkart.foxtrot.core.querystore.impl.HazelcastConnection;
 import com.flipkart.foxtrot.core.table.TableMetadataManager;
+import com.google.common.base.Stopwatch;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
@@ -60,6 +61,7 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -280,7 +282,14 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
             multiQuery.add(query);
         });
         Map<String, EstimationData> estimationDataMap = Maps.newHashMap();
-        MultiSearchResponse multiResponse = multiQuery.execute().actionGet();
+        Stopwatch stopwatch = Stopwatch.createStarted();
+        MultiSearchResponse multiResponse;
+        try {
+            multiResponse = multiQuery.execute().actionGet();
+        } finally {
+            logger.info("Cardinality query on table {} for {} fields took {} ms",
+                        table, fields.size(), stopwatch.elapsed(TimeUnit.MILLISECONDS));
+        }
         for (MultiSearchResponse.Item item : multiResponse.getResponses()) {
             if (item.isFailure()) {
                 logger.info("FailureInDeducingCardinality table:{} failureMessage:{}", table,
