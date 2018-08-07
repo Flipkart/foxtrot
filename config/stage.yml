@@ -45,8 +45,8 @@ logging:
   level: INFO
 
 cardinality:
-  cardinalityEnabled: true
-  subListSize: 50
+  cardinality: ${CARDINALITY_ENABLED}
+  listSize: ${DEFAULT_LIST_SIZE}
 
 deletionconfig:
   active: false

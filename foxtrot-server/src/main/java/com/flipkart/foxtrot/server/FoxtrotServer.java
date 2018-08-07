@@ -135,7 +135,7 @@ public class FoxtrotServer extends Application<FoxtrotServerConfiguration> {
         ElasticsearchUtils.setTableNamePrefix(configuration.getElasticsearch());
         CardinalityConfig cardinalityConfig = configuration.getCardinality();
         if (cardinalityConfig == null) {
-            cardinalityConfig = new CardinalityConfig(false, ElasticsearchUtils.DEFAULT_SUB_LIST_SIZE);
+            cardinalityConfig = new CardinalityConfig("false", String.valueOf(ElasticsearchUtils.DEFAULT_SUB_LIST_SIZE));
         }
 
         final ObjectMapper objectMapper = environment.getObjectMapper();

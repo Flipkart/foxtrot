@@ -64,7 +64,7 @@ public class ActionTest {
         when(hazelcastConnection.getHazelcastConfig()).thenReturn(config);
         this.elasticsearchServer = new MockElasticsearchServer(UUID.randomUUID().toString());
         elasticsearchConnection = TestUtils.initESConnection(elasticsearchServer);
-        CardinalityConfig cardinalityConfig = new CardinalityConfig(true, ElasticsearchUtils.DEFAULT_SUB_LIST_SIZE);
+        CardinalityConfig cardinalityConfig = new CardinalityConfig("true", String.valueOf(ElasticsearchUtils.DEFAULT_SUB_LIST_SIZE));
 
         tableMetadataManager = new DistributedTableMetadataManager(hazelcastConnection, elasticsearchConnection, mapper, cardinalityConfig);
         tableMetadataManager.start();
