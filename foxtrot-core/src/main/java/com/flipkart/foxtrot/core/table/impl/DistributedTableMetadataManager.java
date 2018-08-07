@@ -77,12 +77,17 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
     private static final Logger logger = LoggerFactory.getLogger(DistributedTableMetadataManager.class);
     private static final String DATA_MAP = "tablemetadatamap";
     private static final String FIELD_MAP = "tablefieldmap";
+    private static final String CARDINALITY_FIELD_MAP = "cardinalitytablefieldmap";
     private static final int PRECISION_THRESHOLD = 100;
+    private static final int TIME_TO_LIVE_CACHE = (int) TimeUnit.MINUTES.toSeconds(15);
+    private static final int TIME_TO_LIVE_CARDINALITY_CACHE = (int) TimeUnit.DAYS.toSeconds(1);
+    private static final int TIME_TO_NEAR_CACHE = (int) TimeUnit.MINUTES.toSeconds(1);
     private final HazelcastConnection hazelcastConnection;
     private final ElasticsearchConnection elasticsearchConnection;
     private final ObjectMapper mapper;
     private IMap<String, Table> tableDataStore;
     private IMap<String, TableFieldMapping> fieldDataCache;
+    private IMap<String, TableFieldMapping> fieldDataCardinalityCache;
     private final CardinalityConfig cardinalityConfig;
 
     public DistributedTableMetadataManager(HazelcastConnection hazelcastConnection,
@@ -95,6 +100,7 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
 
         hazelcastConnection.getHazelcastConfig().getMapConfigs().put(DATA_MAP, tableMapConfig());
         hazelcastConnection.getHazelcastConfig().getMapConfigs().put(FIELD_MAP, fieldMetaMapConfig());
+        hazelcastConnection.getHazelcastConfig().getMapConfigs().put(CARDINALITY_FIELD_MAP, cardinalityFieldMetaMapConfig());
     }
 
 
@@ -102,7 +108,7 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
         MapConfig mapConfig = new MapConfig();
         mapConfig.setReadBackupData(true);
         mapConfig.setInMemoryFormat(InMemoryFormat.BINARY);
-        mapConfig.setTimeToLiveSeconds(900);
+        mapConfig.setTimeToLiveSeconds(TIME_TO_LIVE_CACHE);
         mapConfig.setBackupCount(0);
 
         MapStoreConfig mapStoreConfig = new MapStoreConfig();
@@ -112,7 +118,7 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
         mapConfig.setMapStoreConfig(mapStoreConfig);
 
         NearCacheConfig nearCacheConfig = new NearCacheConfig();
-        nearCacheConfig.setTimeToLiveSeconds(900);
+        nearCacheConfig.setTimeToLiveSeconds(TIME_TO_NEAR_CACHE);
         nearCacheConfig.setInvalidateOnChange(true);
         mapConfig.setNearCacheConfig(nearCacheConfig);
         return mapConfig;
@@ -122,11 +128,26 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
         MapConfig mapConfig = new MapConfig();
         mapConfig.setReadBackupData(true);
         mapConfig.setInMemoryFormat(InMemoryFormat.BINARY);
-        mapConfig.setTimeToLiveSeconds(900);
+        mapConfig.setTimeToLiveSeconds(TIME_TO_LIVE_CACHE);
         mapConfig.setBackupCount(0);
 
         NearCacheConfig nearCacheConfig = new NearCacheConfig();
-        nearCacheConfig.setTimeToLiveSeconds(900);
+        nearCacheConfig.setTimeToLiveSeconds(TIME_TO_NEAR_CACHE);
+        nearCacheConfig.setInvalidateOnChange(true);
+        mapConfig.setNearCacheConfig(nearCacheConfig);
+
+        return mapConfig;
+    }
+
+    private MapConfig cardinalityFieldMetaMapConfig() {
+        MapConfig mapConfig = new MapConfig();
+        mapConfig.setReadBackupData(true);
+        mapConfig.setInMemoryFormat(InMemoryFormat.BINARY);
+        mapConfig.setTimeToLiveSeconds(TIME_TO_LIVE_CARDINALITY_CACHE);
+        mapConfig.setBackupCount(0);
+
+        NearCacheConfig nearCacheConfig = new NearCacheConfig();
+        nearCacheConfig.setTimeToLiveSeconds(TIME_TO_LIVE_CARDINALITY_CACHE);
         nearCacheConfig.setInvalidateOnChange(true);
         mapConfig.setNearCacheConfig(nearCacheConfig);
 
@@ -171,8 +192,10 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
         }
 
         TableFieldMapping tableFieldMapping;
-        if (fieldDataCache.containsKey(table)) {
+        if (fieldDataCache.containsKey(table) && !withCardinality) {
             tableFieldMapping = fieldDataCache.get(table);
+        } else if (fieldDataCardinalityCache.containsKey(table) && withCardinality) {
+            tableFieldMapping = fieldDataCardinalityCache.get(table);
         } else {
             ElasticsearchMappingParser mappingParser = new ElasticsearchMappingParser(mapper);
             final String indices = ElasticsearchUtils.getIndices(table);
@@ -209,8 +232,10 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
 
             if (withCardinality) {
                 estimateCardinality(table, tableFieldMapping.getMappings(), DateTime.now().minusDays(1).toDate().getTime());
+                fieldDataCardinalityCache.put(table, tableFieldMapping);
+            } else {
+                fieldDataCache.put(table, tableFieldMapping);
             }
-            fieldDataCache.put(table, tableFieldMapping);
         }
         return TableFieldMapping.builder()
                 .table(table)
@@ -482,6 +507,7 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
     public void start() throws Exception {
         tableDataStore = hazelcastConnection.getHazelcast().getMap(DATA_MAP);
         fieldDataCache = hazelcastConnection.getHazelcast().getMap(FIELD_MAP);
+        fieldDataCardinalityCache = hazelcastConnection.getHazelcast().getMap(CARDINALITY_FIELD_MAP);
     }
 
     @Override
