@@ -2106,6 +2106,11 @@ div.tab button:first-child {
   background-image: url('../img/context-arrow-up-hover.png');
 }
 
+.stacked-tooltip {
+  height: 200px;
+  overflow: hidden;
+}
+
 .stacked-tooltip tr {
   border: solid 1px #c0cbd1;
 }
@@ -3294,5 +3299,8 @@ div.tab button:first-child {
   display: none;
 }
 .copy-db-error {
+  display: none;
+}
+.save-dashboard-name {
   display: none;
 }
