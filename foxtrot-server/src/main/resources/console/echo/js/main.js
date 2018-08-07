@@ -513,7 +513,7 @@ function clearForms() { // clear all details
 function showDashboardBtn() { // dashboard modal
   $("#saveConsole").show();
   $("#default-btn").show();
-  $(".global-filters").show();
+  $(".global-filters, .refreshtime-block, #top-settings").show();
   $("#add-page-btn").show();
 }
 
@@ -620,7 +620,13 @@ $(document).ready(function () {
     currentConsoleName = $("#save-dashboard-name").val();
     saveConsole();
   });
-  $(".copy-dashboard-submit").click(function () {
+  $(".copy-dashboard-submit").click(function (e) {
+    if($(".copy-dashboard-name").val().length == 0) {
+      $(".copy-db-error").show();
+      return;
+    } else {
+      $(".copy-db-error").hide();
+    }
     lastConsoleName = currentConsoleName;
     isCopyWidget = true;
     currentConsoleName = $("#copy-dashboard-name").val();

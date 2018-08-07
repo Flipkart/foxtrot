@@ -3290,3 +3290,9 @@ div.tab button:first-child {
 .custom-modal-tab-btn span{
   margin-right: 30px;
 }
+#top-settings, .refreshtime-block {
+  display: none;
+}
+.copy-db-error {
+  display: none;
+}
