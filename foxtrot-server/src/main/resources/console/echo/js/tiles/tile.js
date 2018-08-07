@@ -92,17 +92,27 @@ function stopRefreshInterval() {
   clearInterval(refreshInterval);
 }
 
-// Stop and Start intervals 
-$("#refresh-time").on('change', function (e) {
+// Start and stop
+function decideFetchingData() {
   if($("#refresh-time").val() == "off") {
     stopRefreshInterval();
   } else {
     stopRefreshInterval();
     startRefreshInterval();
   }
+}
+
+// Stop and Start intervals 
+$("#refresh-time").on('change', function (e) {
+  decideFetchingData();
 });
 
 startRefreshInterval(); // onLoad start
+
+// when global filters is turned on/off or changed directly refresh tiles
+$(".global-filter-period-select").change( function() {
+  refereshTiles();
+});
 
 /** Refresh widgets from choosed value in dropdown ends */
 
