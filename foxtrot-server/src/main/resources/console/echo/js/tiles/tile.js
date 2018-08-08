@@ -79,7 +79,6 @@ function getTimeInterval() {
 
 // Start interval
 function startRefreshInterval() {
-  console.log('----->')
   if($("#refresh-time").val() == "off") return;  
   refreshInterval = setInterval(function() {
     refereshTiles();
