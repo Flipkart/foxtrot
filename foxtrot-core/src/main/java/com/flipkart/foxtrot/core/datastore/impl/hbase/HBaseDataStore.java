@@ -1,12 +1,12 @@
 /**
  * Copyright 2014 Flipkart Internet Pvt. Ltd.
- *
+ * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
+ * <p>
  * http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -86,9 +86,9 @@ public class HBaseDataStore implements DataStore {
             throw FoxtrotExceptions.createBadRequestException(table.getName(), "Invalid Input Document");
         }
         Document translatedDocument = null;
-        try(org.apache.hadoop.hbase.client.Table hTable = tableWrapper.getTable(table)) {
+        try (org.apache.hadoop.hbase.client.Table hTable = tableWrapper.getTable(table)) {
             translatedDocument = translator.translate(table, document);
-            hTable.put(getPutForDocument(translatedDocument));
+            //hTable.put(getPutForDocument(translatedDocument));
         } catch (JsonProcessingException e) {
             throw FoxtrotExceptions.createBadRequestException(table, e);
         } catch (IOException e) {
@@ -144,7 +144,7 @@ public class HBaseDataStore implements DataStore {
     @Override
     @Timed
     public Document get(final Table table, String id) throws FoxtrotException {
-        try(org.apache.hadoop.hbase.client.Table hTable = tableWrapper.getTable(table)) {
+        try (org.apache.hadoop.hbase.client.Table hTable = tableWrapper.getTable(table)) {
             Get get = new Get(Bytes.toBytes(translator.rawStorageIdFromDocumentId(table, id)))
                     .addColumn(COLUMN_FAMILY, DOCUMENT_FIELD_NAME)
                     .addColumn(COLUMN_FAMILY, DOCUMENT_META_FIELD_NAME)
@@ -173,7 +173,7 @@ public class HBaseDataStore implements DataStore {
         if (ids == null) {
             throw FoxtrotExceptions.createBadRequestException(table.getName(), "Empty ID List");
         }
-        try(org.apache.hadoop.hbase.client.Table hTable = tableWrapper.getTable(table)) {
+        try (org.apache.hadoop.hbase.client.Table hTable = tableWrapper.getTable(table)) {
             List<Get> gets = new ArrayList<>(ids.size());
             for (String id : ids) {
                 Get get = new Get(Bytes.toBytes(translator.rawStorageIdFromDocumentId(table, id)))
