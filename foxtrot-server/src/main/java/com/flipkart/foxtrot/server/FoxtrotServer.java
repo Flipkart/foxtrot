@@ -97,7 +97,7 @@ public class FoxtrotServer extends Application<FoxtrotServerConfiguration> {
 
             @Override
             protected String getServiceName(FoxtrotServerConfiguration configuration) {
-                return "foxtrot";
+                return "foxtrot-es6";
             }
 
             @Override
