@@ -203,7 +203,7 @@ function LineRatioTile() {
 
     function showTooltip(x, y, xValue, yValue) {
       var a = axisTimeFormatNew(object.tileContext.period, (globalFilters ? getGlobalFilters() : getPeriodSelect(object.id)));
-      $('<div id="flot-custom-tooltip"> <div class="tooltip-custom-content"><p class="">'+numDifferentiation(yValue)+'</p><p class="tooltip-custom-date-text">' + moment(xValue).format(a) + '</p></div></div>').css( {
+      $('<div id="flot-custom-tooltip"> <div class="tooltip-custom-content"><p class="">'+yValue+'</p><p class="tooltip-custom-date-text">' + moment(xValue).format(a) + '</p></div></div>').css( {
         position: 'absolute',
         display: 'none',
         top: y - 60,
@@ -218,8 +218,8 @@ function LineRatioTile() {
           previousPoint = item.datapoint;
   
           $("#flot-custom-tooltip").remove();
-          var x = item.datapoint[0].toFixed(0),
-              y = item.datapoint[1].toFixed(2);
+          var x = item.datapoint[0].toFixed(2),
+              y = item.datapoint[1].toFixed(1);
           showTooltip(item.pageX, item.pageY, Number(x), y);
         }
       } else {
