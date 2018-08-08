@@ -407,13 +407,13 @@ function fetchAuto() {
   }
 }
 
-$('.container-full').scroll( function(){
-  if($(this).scrollTop() + $(this).height() == $(this)[0].scrollHeight){
-    didScroll = true;
-    if(totalHits > 0)
-      fetchAuto();
-  }
-});
+// $('.container-full').scroll( function(){
+//   if($(this).scrollTop() + $(this).height() == $(this)[0].scrollHeight){
+//     didScroll = true;
+//     if(totalHits > 0)
+//       fetchAuto();
+//   }
+// });
 
 
 function loadConsole() { // load console list api

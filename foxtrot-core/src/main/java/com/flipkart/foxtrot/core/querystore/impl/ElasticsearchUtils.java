@@ -50,6 +50,7 @@ public class ElasticsearchUtils {
     public static String TABLENAME_PREFIX = "foxtrot";
     public static final String TABLENAME_POSTFIX = "table";
     public static final String TIME_FIELD = "time";
+    public static final int DEFAULT_SUB_LIST_SIZE = 50;
     private static final DateTimeFormatter FORMATTER = DateTimeFormat.forPattern("dd-M-yyyy");
     public static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormat.forPattern("dd-M-yyyy");
 

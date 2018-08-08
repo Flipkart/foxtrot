@@ -53,12 +53,12 @@ import io.dropwizard.configuration.SubstitutingSourceProvider;
 import io.dropwizard.discovery.bundle.ServiceDiscoveryBundle;
 import io.dropwizard.discovery.bundle.ServiceDiscoveryConfiguration;
 import io.dropwizard.oor.OorBundle;
-import io.dropwizard.riemann.RiemannBundle;
-import io.dropwizard.riemann.RiemannConfig;
 import io.dropwizard.server.AbstractServerFactory;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
 import io.dropwizard.util.Duration;
+import io.riemann.dropwizard.RiemannDropwizardBundle;
+import io.riemann.dropwizard.RiemannDropwizardConfig;
 import org.eclipse.jetty.servlets.CrossOriginFilter;
 
 import javax.servlet.DispatcherType;
@@ -107,9 +107,9 @@ public class FoxtrotServer extends Application<FoxtrotServerConfiguration> {
             }
         });
 
-        bootstrap.addBundle(new RiemannBundle<FoxtrotServerConfiguration>() {
+        bootstrap.addBundle(new RiemannDropwizardBundle<FoxtrotServerConfiguration>() {
             @Override
-            public RiemannConfig getRiemannConfiguration(FoxtrotServerConfiguration configuration) {
+            public RiemannDropwizardConfig getRiemannConfiguration(FoxtrotServerConfiguration configuration) {
                 return configuration.getRiemann();
             }
         });
@@ -135,7 +135,7 @@ public class FoxtrotServer extends Application<FoxtrotServerConfiguration> {
         ElasticsearchUtils.setTableNamePrefix(configuration.getElasticsearch());
         CardinalityConfig cardinalityConfig = configuration.getCardinality();
         if (cardinalityConfig == null) {
-            cardinalityConfig = new CardinalityConfig(false);
+            cardinalityConfig = new CardinalityConfig("false", String.valueOf(ElasticsearchUtils.DEFAULT_SUB_LIST_SIZE));
         }
 
         final ObjectMapper objectMapper = environment.getObjectMapper();

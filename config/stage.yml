@@ -44,8 +44,9 @@ cluster:
 logging:
   level: INFO
 
-cardinality
-  cardinalityEnabled: false
+cardinality:
+  cardinality: ${CARDINALITY_ENABLED}
+  listSize: ${DEFAULT_LIST_SIZE}
 
 deletionconfig:
   active: false

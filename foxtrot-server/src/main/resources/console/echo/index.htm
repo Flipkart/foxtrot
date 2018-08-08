@@ -128,10 +128,10 @@
           <div class="save-dashboard-form">
             <form class="add-page-form">
               <div class="form-group">
-                <label class="control-label" for="widgetType"><strong>Dashboard Name</strong></label>
-                <input type="text" class="form-control save-dashboard-name" id="save-dashboard-name">
+                <!-- <label class="control-label" for="widgetType"><strong>Dashboard Name</strong></label> -->
+                <input type="text" class="form-control save-dashboard-name" id="save-dashboard-name" disabled>
               </div>
-              <div class="form-group add-page-btn-div">
+              <div class="form-group save-page-btn-div">
                 <button type="button" class="btn save-dashboard-tab-btn" id="save-dashboard-tab-btn"><span>Save</span></button>
                 <button type="button" class="btn save-dashboard-close" data-dismiss="modal">Cancel</button>
               </div>
@@ -141,6 +141,32 @@
         <div id="add-page-side-close" data-dismiss="modal" ><img src="img/combined-shape.png"></div>
       </div>
     </div>
+    <!-- copy dashbard modal -->
+    <div class="modal fade" id="copy-dashboard" tabindex="-2" role="dialog" aria-labelledby="addSections" aria-hidden="true">
+        <div class="modal-dialog">
+          <div id="custom-modal-modal">
+            <div id="custom-modal-model-heading">
+              <h1>Copy Dashboard</h1>
+              <hr id="custom-modal-model-heading-underline"/>
+            </div>
+            <div class="custom-modal-form">
+              <form class="add-page-form">
+                <div class="form-group">
+                  <label class="control-label" for="widgetType"><strong>Dashboard Name</strong></label>
+                  <input type="text" class="form-control copy-dashboard-name" id="copy-dashboard-name">
+                  <span class="error copy-db-error">Please enter dashbard name</span>
+                </div>
+                <div class="form-group add-page-btn-div">
+                  <button type="button" class="btn custom-modal-tab-btn copy-dashboard-submit" id="custom-modal-tab-btn"><span>Save</span></button>
+                  <button type="button" class="btn close-copy-dashboard-submit custom-modal-close" data-dismiss="modal">Cancel</button>
+                </div>
+              </form>
+            </div>
+          </div>
+          <div id="add-page-side-close" data-dismiss="modal" ><img src="img/combined-shape.png"></div>
+        </div>
+      </div>
+      <!-- copy dashbard modal -->
     <section id="main-content">
       <div class="container-fluid" id="monitoring">
         <div class="row">
@@ -150,10 +176,31 @@
           </div>
           <div class="col-md-6">
             <div class="pull-right" id="right-action-btns">
-              <button type="button" id="add-page-btn">Page settings</button>
-              <button type="button" data-target="#save-dashboard" data-toggle="modal" id="saveConsole">Save Dashboard</button>
+                <div id="top-settings">
+                    <img src="img/copy.png" data-target="#copy-dashboard" data-toggle="modal" title="Copy Widget" alt="Copy Widget" />
+                    <img data-target="#save-dashboard" data-toggle="modal" id="saveConsole" src="img/save.png" alt="Save Dashboard" title="Save Dashboard" />
+                    <img id="add-page-btn" src="img/Settings.png" title="Page Settings" alt="Page Settings" />
+                </div>
+                <div class="form-group refreshtime-block">
+                    <p class="no-margin">Refresh Time</p>
+                    <select id="refresh-time" class="refresh-time">
+                      <option value="off">Off</option>
+                      <option value="5s">5s</option>
+                      <option value="10s">10s</option>
+                      <option value="30s">30s</option>
+                      <option value="1m">1m</option>
+                      <option value="5m" selected>5m</option>
+                      <option value="15m">15m</option>
+                      <option value="30m">30m</option>
+                      <option value="1h">1h</option>
+                      <option value="2h">2h</option>
+                      <option value="1d">1d</option>
+                    </select>
+                  </div>
+                <!-- <button type="button" >Page settings</button>
+              <button type="button" >Save Dashboard</button> -->
               <div class="col-sm-3 global-filters">
-                <div class="col-sm-5 global-filter-switch-div"><label>Global filters<input type="checkbox" class="ios-switch blue filter-switch tinyswitch"/><div id="switch"><div></div></div></label></div>
+                <div class="col-sm-6 global-filter-switch-div"><label>Global filters<input type="checkbox" class="ios-switch blue filter-switch tinyswitch"/><div id="switch"><div></div></div></label></div>
                 <div class="col-sm-5 hide-filters">
                   <select class="global-filter-period-select" id="global-filter-period-select">
                     <option value="custom" selected>Custom</option>
@@ -170,21 +217,6 @@
                     <option value="7d"> 7 Days</option>
                     <option value="15d"> 15 Days</option>
                     <option value="30d"> 30 Days</option>
-                  </select>
-                </div>
-                <div class="col-sm-2 filter-settings hide-filters">
-                  <select id="refresh-time" class="refresh-time" data-placement="top" data-toggle="tooltip" title="Refresh rate">
-                    <option value="off">Off</option>
-                    <option value="5s">5s</option>
-                    <option value="10s">10s</option>
-                    <option value="30s">30s</option>
-                    <option value="1m">1m</option>
-                    <option value="5m" selected>5m</option>
-                    <option value="15m">15m</option>
-                    <option value="30m">30m</option>
-                    <option value="1h">1h</option>
-                    <option value="2h">2h</option>
-                    <option value="1d">1d</option>
                   </select>
                 </div>
               </div>
