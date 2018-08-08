@@ -80,6 +80,7 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
     private static final String CARDINALITY_FIELD_MAP = "cardinalitytablefieldmap";
     private static final int PRECISION_THRESHOLD = 100;
     private static final int TIME_TO_LIVE_CACHE = (int) TimeUnit.MINUTES.toSeconds(15);
+    private static final int TIME_TO_LIVE_TABLE_CACHE = (int) TimeUnit.DAYS.toSeconds(30);
     private static final int TIME_TO_LIVE_CARDINALITY_CACHE = (int) TimeUnit.DAYS.toSeconds(1);
     private static final int TIME_TO_NEAR_CACHE = (int) TimeUnit.MINUTES.toSeconds(1);
     private final HazelcastConnection hazelcastConnection;
@@ -108,7 +109,7 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
         MapConfig mapConfig = new MapConfig();
         mapConfig.setReadBackupData(true);
         mapConfig.setInMemoryFormat(InMemoryFormat.BINARY);
-        mapConfig.setTimeToLiveSeconds(TIME_TO_LIVE_CACHE);
+        mapConfig.setTimeToLiveSeconds(TIME_TO_LIVE_TABLE_CACHE);
         mapConfig.setBackupCount(0);
 
         MapStoreConfig mapStoreConfig = new MapStoreConfig();
@@ -118,7 +119,7 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
         mapConfig.setMapStoreConfig(mapStoreConfig);
 
         NearCacheConfig nearCacheConfig = new NearCacheConfig();
-        nearCacheConfig.setTimeToLiveSeconds(TIME_TO_NEAR_CACHE);
+        nearCacheConfig.setTimeToLiveSeconds(TIME_TO_LIVE_TABLE_CACHE);
         nearCacheConfig.setInvalidateOnChange(true);
         mapConfig.setNearCacheConfig(nearCacheConfig);
         return mapConfig;
