@@ -1671,6 +1671,11 @@ div.tab button:first-child {
   top: -26px;
 }
 
+.save-page-btn-div {
+  overflow: hidden;
+  text-align: center;
+  position: relative;
+}
 
 #add-page-side-close {
   position: relative;
@@ -3195,9 +3200,7 @@ div.tab button:first-child {
   float: left;
 }
 #top-settings img {
-  width: 40px;
-  height: 40px;
-  margin-top: 10px;
+  margin-top: 12px;
   margin-right: 6px;
   margin-left: 10px;
   cursor: pointer;
