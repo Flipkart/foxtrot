@@ -79,6 +79,7 @@ function getTimeInterval() {
 
 // Start interval
 function startRefreshInterval() {
+  console.log('----->')
   if($("#refresh-time").val() == "off") return;  
   refreshInterval = setInterval(function() {
     refereshTiles();
@@ -107,7 +108,7 @@ $("#refresh-time").on('change', function (e) {
   decideFetchingData();
 });
 
-startRefreshInterval(); // onLoad start
+setTimeout(startRefreshInterval, 10000); // onLoad start
 
 // when global filters is turned on/off or changed directly refresh tiles
 $(".global-filter-period-select").change( function() {
