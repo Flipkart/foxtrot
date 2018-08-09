@@ -23,7 +23,7 @@ import com.flipkart.foxtrot.core.querystore.impl.ClusterConfig;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConfig;
 import io.dropwizard.Configuration;
 import io.dropwizard.discovery.bundle.ServiceDiscoveryConfiguration;
-import io.riemann.dropwizard.RiemannDropwizardConfig;
+import io.dropwizard.riemann.RiemannConfig;
 import lombok.Data;
 
 import javax.validation.Valid;
@@ -51,7 +51,7 @@ public class FoxtrotServerConfiguration extends Configuration {
 
     @NotNull
     @Valid
-    private RiemannDropwizardConfig riemann;
+    private RiemannConfig riemann;
 
     @Valid
     private CardinalityConfig cardinality;
@@ -91,11 +91,11 @@ public class FoxtrotServerConfiguration extends Configuration {
         this.serviceDiscovery = serviceDiscovery;
     }
 
-    public RiemannDropwizardConfig getRiemann() {
+    public RiemannConfig getRiemann() {
         return riemann;
     }
 
-    public void setRiemann(RiemannDropwizardConfig riemann) {
+    public void setRiemann(RiemannConfig riemann) {
         this.riemann = riemann;
     }
 }
