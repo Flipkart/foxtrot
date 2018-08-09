@@ -189,8 +189,10 @@ function generateColumChooserList() {
   var parent = $("#column-chooser");
   var listElement = parent.find("#column-list");
   for (var column in headerList) {
-    listElement.append("<div class='column-chooser-div'><label><input type='checkbox' checked value='" + headerList[column] + "' class='column-chooser-checkbox'><span class='column-name-text-display'>" + headerList[column] + "</span></label></div>");
-    selectedList.push(headerList[column]);
+    if($.inArray(headerList[column], selectedList) == -1) {
+      listElement.append("<div class='column-chooser-div'><label><input type='checkbox' checked value='" + headerList[column] + "' class='column-chooser-checkbox'><span class='column-name-text-display'>" + headerList[column] + "</span></label></div>");
+      selectedList.push(headerList[column])
+    }
   }
 
   // Search columns
@@ -284,8 +286,7 @@ function renderTable(data) {
   headerList = headers;
   rowList = rows;
 
-  if (!isEdit)
-    generateColumChooserList();
+  generateColumChooserList();
 
   var tableData = {
     headers: headers,
