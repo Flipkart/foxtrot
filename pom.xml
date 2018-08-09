@@ -45,11 +45,6 @@
             <name>Balaji S</name>
             <email>balajispsg@gmail.com</email>
         </developer>
-        <developer>
-            <id>nitishgoyal13</id>
-            <name>Nitish Goyal</name>
-            <email>nitishgoyal13@gmail.com</email>
-        </developer>
     </developers>
 
     <distributionManagement>
@@ -207,11 +202,6 @@
             <artifactId>dropwizard-testing</artifactId>
             <version>${dropwizard.version}</version>
             <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.google.protobuf</groupId>
-            <artifactId>protobuf-java</artifactId>
-            <version>2.6.1</version>
         </dependency>
     </dependencies>
 
