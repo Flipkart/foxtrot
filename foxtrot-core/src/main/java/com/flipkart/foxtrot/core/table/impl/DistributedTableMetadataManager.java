@@ -147,10 +147,10 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
         mapConfig.setTimeToLiveSeconds(TIME_TO_LIVE_CARDINALITY_CACHE);
         mapConfig.setBackupCount(0);
 
-        NearCacheConfig nearCacheConfig = new NearCacheConfig();
+       /* NearCacheConfig nearCacheConfig = new NearCacheConfig();
         nearCacheConfig.setTimeToLiveSeconds(TIME_TO_LIVE_CARDINALITY_CACHE);
         nearCacheConfig.setInvalidateOnChange(false);
-        mapConfig.setNearCacheConfig(nearCacheConfig);
+        mapConfig.setNearCacheConfig(nearCacheConfig);*/
 
         return mapConfig;
     }
