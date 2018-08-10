@@ -30,6 +30,7 @@ logging:
   loggers:
     com.flipkart.foxtrot.core.querystore.actions: DEBUG
 
+
 cardinality:
   cardinality: ${CARDINALITY_ENABLED}
   listSize: ${DEFAULT_LIST_SIZE}
