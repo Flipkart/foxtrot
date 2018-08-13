@@ -23,7 +23,7 @@ import com.flipkart.foxtrot.common.Table;
 import com.flipkart.foxtrot.common.TableFieldMapping;
 import com.flipkart.foxtrot.common.estimation.*;
 import com.flipkart.foxtrot.common.util.CollectionUtils;
-import com.flipkart.foxtrot.core.common.CardinalityConfig;
+import com.flipkart.foxtrot.core.cardinality.CardinalityConfig;
 import com.flipkart.foxtrot.core.exception.FoxtrotException;
 import com.flipkart.foxtrot.core.exception.FoxtrotExceptions;
 import com.flipkart.foxtrot.core.parsers.ElasticsearchMappingParser;
@@ -78,7 +78,6 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
     private static final String DATA_MAP = "tablemetadatamap";
     private static final String FIELD_MAP = "tablefieldmap";
     private static final String CARDINALITY_FIELD_MAP = "cardinalitytablefieldmap";
-    private static final String CARDINALITY_CALCULATED_MAP = "cardinalityCalculatedMap";
     private static final int PRECISION_THRESHOLD = 100;
     private static final int TIME_TO_LIVE_CACHE = (int) TimeUnit.MINUTES.toSeconds(15);
     private static final int TIME_TO_LIVE_TABLE_CACHE = (int) TimeUnit.DAYS.toSeconds(30);
@@ -90,7 +89,6 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
     private IMap<String, Table> tableDataStore;
     private IMap<String, TableFieldMapping> fieldDataCache;
     private IMap<String, TableFieldMapping> fieldDataCardinalityCache;
-    private IMap<String, Boolean> cardinalityCalculatedCache;
     private final CardinalityConfig cardinalityConfig;
 
     public DistributedTableMetadataManager(HazelcastConnection hazelcastConnection,
@@ -104,7 +102,6 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
         hazelcastConnection.getHazelcastConfig().getMapConfigs().put(DATA_MAP, tableMapConfig());
         hazelcastConnection.getHazelcastConfig().getMapConfigs().put(FIELD_MAP, fieldMetaMapConfig());
         hazelcastConnection.getHazelcastConfig().getMapConfigs().put(CARDINALITY_FIELD_MAP, cardinalityFieldMetaMapConfig());
-        hazelcastConnection.getHazelcastConfig().getMapConfigs().put(CARDINALITY_CALCULATED_MAP, cardinalityCalculatedConfig());
     }
 
 
@@ -158,21 +155,6 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
         return mapConfig;
     }
 
-    private MapConfig cardinalityCalculatedConfig() {
-        MapConfig mapConfig = new MapConfig();
-        mapConfig.setReadBackupData(true);
-        mapConfig.setInMemoryFormat(InMemoryFormat.BINARY);
-        mapConfig.setTimeToLiveSeconds(TIME_TO_LIVE_CARDINALITY_CACHE);
-        mapConfig.setBackupCount(0);
-
-        NearCacheConfig nearCacheConfig = new NearCacheConfig();
-        nearCacheConfig.setTimeToLiveSeconds(TIME_TO_LIVE_CARDINALITY_CACHE);
-        nearCacheConfig.setInvalidateOnChange(true);
-        mapConfig.setNearCacheConfig(nearCacheConfig);
-
-        return mapConfig;
-    }
-
     @Override
     public void save(Table table) throws FoxtrotException {
         logger.info(String.format("Saving Table : %s", table));
@@ -202,7 +184,7 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
 
     @Override
     @Timed
-    public TableFieldMapping getFieldMappings(String originalTableName, boolean withCardinality) throws FoxtrotException {
+    public TableFieldMapping getFieldMappings(String originalTableName, boolean withCardinality, boolean calculateCardinality) throws FoxtrotException {
         final String table = ElasticsearchUtils.getValidTableName(originalTableName);
 
         if (!tableDataStore.containsKey(table)) {
@@ -249,9 +231,7 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
             fieldMetadataTreeSet.addAll(fieldMetadata);
             tableFieldMapping = new TableFieldMapping(table, fieldMetadataTreeSet);
 
-            Boolean cardinalityCalculated = cardinalityCalculatedCache.get(table);
-            if (withCardinality && (cardinalityCalculated == null || !cardinalityCalculated)) {
-                cardinalityCalculatedCache.put(table, Boolean.TRUE);
+            if (calculateCardinality) {
                 estimateCardinality(table, tableFieldMapping.getMappings(), DateTime.now().minusDays(1).toDate().getTime());
                 fieldDataCardinalityCache.put(table, tableFieldMapping);
             } else {
@@ -276,7 +256,7 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
             throw FoxtrotExceptions.createBadRequestException(table,
                     String.format("unknown_table table:%s", table));
         }
-        final TableFieldMapping tableFieldMapping = getFieldMappings(table, cardinalityConfig.isCardinalityEnabled());
+        final TableFieldMapping tableFieldMapping = getFieldMappings(table, cardinalityConfig.isCardinalityEnabled(), false);
         //estimateCardinality(table, tableFieldMapping.getMappings(), timestamp);
         fieldDataCache.put(table, tableFieldMapping);
     }
@@ -529,7 +509,6 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
         tableDataStore = hazelcastConnection.getHazelcast().getMap(DATA_MAP);
         fieldDataCache = hazelcastConnection.getHazelcast().getMap(FIELD_MAP);
         fieldDataCardinalityCache = hazelcastConnection.getHazelcast().getMap(CARDINALITY_FIELD_MAP);
-        cardinalityCalculatedCache = hazelcastConnection.getHazelcast().getMap(CARDINALITY_CALCULATED_MAP);
     }
 
     @Override

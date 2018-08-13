@@ -150,7 +150,7 @@ public class GroupAction extends Action<GroupRequest> {
                 ((ElasticsearchQueryStore) queryStore).getCardinalityConfig().isCardinalityEnabled()) {
             double probability = 0;
             try {
-                TableFieldMapping fieldMappings = getTableMetadataManager().getFieldMappings(parameter.getTable(), true);
+                TableFieldMapping fieldMappings = getTableMetadataManager().getFieldMappings(parameter.getTable(), true, false);
                 if (null == fieldMappings) {
                     fieldMappings = TableFieldMapping.builder()
                             .mappings(Collections.emptySet())

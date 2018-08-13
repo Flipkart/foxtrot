@@ -1,4 +1,4 @@
-package com.flipkart.foxtrot.core.common;
+package com.flipkart.foxtrot.core.cardinality;
 /**
  * Copyright 2014 Flipkart Internet Pvt. Ltd.
  * <p>
@@ -15,11 +15,15 @@ package com.flipkart.foxtrot.core.common;
  * limitations under the License.
  */
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
+
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotNull;
 
 /***
  Created by nitish.goyal on 06/08/18
@@ -35,6 +39,19 @@ public class CardinalityConfig {
     private boolean cardinalityEnabled;
 
     private int subListSize;
+
+    @Min(3600)
+    private int interval;
+
+    /*
+    Initial day in hours. Used to run the config at ith hour of the day
+     */
+    @Min(1)
+    @JsonProperty("initialdelay")
+    private int initialDelay;
+
+    @NotNull
+    private boolean active;
 
     public CardinalityConfig(String cardinality, String listSize) {
         this.cardinality = cardinality;
