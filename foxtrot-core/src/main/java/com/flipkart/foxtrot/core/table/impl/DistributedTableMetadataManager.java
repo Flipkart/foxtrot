@@ -250,7 +250,7 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
             tableFieldMapping = new TableFieldMapping(table, fieldMetadataTreeSet);
 
             Boolean cardinalityCalculated = cardinalityCalculatedCache.get(table);
-            if (withCardinality && !cardinalityCalculated) {
+            if (withCardinality && (cardinalityCalculated == null || !cardinalityCalculated)) {
                 cardinalityCalculatedCache.put(table, Boolean.TRUE);
                 estimateCardinality(table, tableFieldMapping.getMappings(), DateTime.now().minusDays(1).toDate().getTime());
                 fieldDataCardinalityCache.put(table, tableFieldMapping);
