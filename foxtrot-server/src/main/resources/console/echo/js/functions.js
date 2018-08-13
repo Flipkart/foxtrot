@@ -375,3 +375,28 @@ function getRefreshTimeMultiplyeFactor(str) {
 function getNumberFromString(thestring) {
   return parseInt(thestring.replace( /^\D+/g, ''));
 }
+
+/**
+ * 
+ * show refresh failed msg
+ */
+function showFetchError(data) {
+  var el = $("#"+data.id).find(".fetch-error");
+  $(el).show();
+  var widgetType = data.tileContext.widgetType;
+  if(widgetType == "medium") {
+    $(el).addClass('fetch-error-medium-widget');
+  } else if(widgetType == "full") {
+    $(el).addClass('fetch-error-full-widget');
+  } else if(widgetType == "small") {
+    $(el).addClass('fetch-error-small-widget');
+  }
+}
+
+/**
+ * 
+ * Hide refresh failed msg
+ */
+function hideFetchError(data) {
+  $("#"+data.id).find(".fetch-error").hide();
+} 
