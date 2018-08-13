@@ -78,6 +78,7 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
     private static final String DATA_MAP = "tablemetadatamap";
     private static final String FIELD_MAP = "tablefieldmap";
     private static final String CARDINALITY_FIELD_MAP = "cardinalitytablefieldmap";
+    private static final String CARDINALITY_CALCULATED_MAP = "cardinalityCalculatedMap";
     private static final int PRECISION_THRESHOLD = 100;
     private static final int TIME_TO_LIVE_CACHE = (int) TimeUnit.MINUTES.toSeconds(15);
     private static final int TIME_TO_LIVE_TABLE_CACHE = (int) TimeUnit.DAYS.toSeconds(30);
@@ -89,6 +90,7 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
     private IMap<String, Table> tableDataStore;
     private IMap<String, TableFieldMapping> fieldDataCache;
     private IMap<String, TableFieldMapping> fieldDataCardinalityCache;
+    private IMap<String, Boolean> cardinalityCalculatedCache;
     private final CardinalityConfig cardinalityConfig;
 
     public DistributedTableMetadataManager(HazelcastConnection hazelcastConnection,
@@ -102,6 +104,7 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
         hazelcastConnection.getHazelcastConfig().getMapConfigs().put(DATA_MAP, tableMapConfig());
         hazelcastConnection.getHazelcastConfig().getMapConfigs().put(FIELD_MAP, fieldMetaMapConfig());
         hazelcastConnection.getHazelcastConfig().getMapConfigs().put(CARDINALITY_FIELD_MAP, cardinalityFieldMetaMapConfig());
+        hazelcastConnection.getHazelcastConfig().getMapConfigs().put(CARDINALITY_CALCULATED_MAP, cardinalityCalculatedConfig());
     }
 
 
@@ -147,10 +150,25 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
         mapConfig.setTimeToLiveSeconds(TIME_TO_LIVE_CARDINALITY_CACHE);
         mapConfig.setBackupCount(0);
 
-       /* NearCacheConfig nearCacheConfig = new NearCacheConfig();
+        NearCacheConfig nearCacheConfig = new NearCacheConfig();
         nearCacheConfig.setTimeToLiveSeconds(TIME_TO_LIVE_CARDINALITY_CACHE);
-        nearCacheConfig.setInvalidateOnChange(false);
-        mapConfig.setNearCacheConfig(nearCacheConfig);*/
+        nearCacheConfig.setInvalidateOnChange(true);
+        mapConfig.setNearCacheConfig(nearCacheConfig);
+
+        return mapConfig;
+    }
+
+    private MapConfig cardinalityCalculatedConfig() {
+        MapConfig mapConfig = new MapConfig();
+        mapConfig.setReadBackupData(true);
+        mapConfig.setInMemoryFormat(InMemoryFormat.BINARY);
+        mapConfig.setTimeToLiveSeconds(TIME_TO_LIVE_CARDINALITY_CACHE);
+        mapConfig.setBackupCount(0);
+
+        NearCacheConfig nearCacheConfig = new NearCacheConfig();
+        nearCacheConfig.setTimeToLiveSeconds(TIME_TO_LIVE_CARDINALITY_CACHE);
+        nearCacheConfig.setInvalidateOnChange(true);
+        mapConfig.setNearCacheConfig(nearCacheConfig);
 
         return mapConfig;
     }
@@ -231,7 +249,9 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
             fieldMetadataTreeSet.addAll(fieldMetadata);
             tableFieldMapping = new TableFieldMapping(table, fieldMetadataTreeSet);
 
-            if (withCardinality) {
+            Boolean cardinalityCalculated = cardinalityCalculatedCache.get(table);
+            if (withCardinality && !cardinalityCalculated) {
+                cardinalityCalculatedCache.put(table, Boolean.TRUE);
                 estimateCardinality(table, tableFieldMapping.getMappings(), DateTime.now().minusDays(1).toDate().getTime());
                 fieldDataCardinalityCache.put(table, tableFieldMapping);
             } else {
@@ -509,6 +529,7 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
         tableDataStore = hazelcastConnection.getHazelcast().getMap(DATA_MAP);
         fieldDataCache = hazelcastConnection.getHazelcast().getMap(FIELD_MAP);
         fieldDataCardinalityCache = hazelcastConnection.getHazelcast().getMap(CARDINALITY_FIELD_MAP);
+        cardinalityCalculatedCache = hazelcastConnection.getHazelcast().getMap(CARDINALITY_CALCULATED_MAP);
     }
 
     @Override
