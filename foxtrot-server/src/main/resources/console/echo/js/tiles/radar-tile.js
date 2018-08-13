@@ -65,6 +65,7 @@ RadarTile.prototype.getQuery = function (object) {
     , "filters": filters
     , "nesting": object.tileContext.nesting
   }
+  var refObject = this.object;
   $.ajax({
     method: "post"
     , dataType: 'json'
@@ -75,9 +76,17 @@ RadarTile.prototype.getQuery = function (object) {
     , contentType: "application/json"
     , data: JSON.stringify(data)
     , success: $.proxy(this.getData, this)
+    ,error: function(xhr, textStatus, error) {
+      showFetchError(refObject);
+    }
   });
 }
 RadarTile.prototype.getData = function (data) {
+  if(data.length == 0)
+    showFetchError(this.object);
+  else
+    hideFetchError(this.object);
+    
   this.object.tileContext.filters.pop();
   if (data.result == undefined || data.result.length == 0) return;
   var chartData = [];

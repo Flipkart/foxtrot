@@ -85,6 +85,7 @@ StackedTile.prototype.getQuery = function (object) {
     , "uniqueCountOn": object.tileContext.uniqueKey && object.tileContext.uniqueKey != "none" ? object.tileContext.uniqueKey : null
     , "nesting": object.tileContext.nesting
   }
+  var currentTileId = this.object.id;
   $.ajax({
     method: "post"
     , dataType: 'json'
@@ -95,10 +96,18 @@ StackedTile.prototype.getQuery = function (object) {
     , contentType: "application/json"
     , data: JSON.stringify(data)
     , success: $.proxy(this.getData, this)
+    ,error: function(xhr, textStatus, error) {
+      showFetchError(currentTileId);
+    }
   });
 }
 
 StackedTile.prototype.getData = function (data) {
+  if(data.result.length == 0)
+    showFetchError(this.object);
+  else
+    hideFetchError(this.object);
+    
   if (data.result == undefined || data.result.length == 0) return;
   var xAxis = [];
   var yAxis = [];

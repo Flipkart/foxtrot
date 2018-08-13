@@ -79,6 +79,7 @@ StatsTrendTile.prototype.getQuery = function(object) {
     "field": object.tileContext.statsFieldName,
     "period": periodFromWindow(object.tileContext.period, "custom")
   }
+  var refObject = this.object;
   $.ajax({
     method: "post",
     dataType: 'json',
@@ -89,10 +90,19 @@ StatsTrendTile.prototype.getQuery = function(object) {
     contentType: "application/json",
     data: JSON.stringify(data),
     success: $.proxy(this.getData, this)
+    ,error: function(xhr, textStatus, error) {
+      showFetchError(refObject);
+    }
   });
 }
 
 StatsTrendTile.prototype.getData = function(data) {
+
+  if(data.length == 0)
+    showFetchError(this.object);
+  else
+    hideFetchError(this.object);
+
   if(!data.result)
     return;
 
@@ -139,6 +149,9 @@ StatsTrendTile.prototype.getData = function(data) {
 }
 
 StatsTrendTile.prototype.render = function (rows) {
+  
+  if(rows.length == 0)
+    showFetchError(this.object);  
   var object = this.object;
   var borderColorArray = ["#9e8cd9", "#f3a534", "#9bc95b", "#50e3c2"]
   var chartDiv = $("#"+object.id).find(".chart-item");
