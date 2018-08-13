@@ -89,6 +89,7 @@ function LineRatioTile() {
       , "field": object.tileContext.lineRatioField
       , period: periodFromWindow(object.tileContext.period, (globalFilters ? getGlobalFilters() : getPeriodSelect(object.id)))
     }
+    var refObject = this.object;
     $.ajax({
       method: "post"
       , dataType: 'json'
@@ -99,10 +100,18 @@ function LineRatioTile() {
       , contentType: "application/json"
       , data: JSON.stringify(data)
       , success: $.proxy(this.getData, this)
+      ,error: function(xhr, textStatus, error) {
+        showFetchError(refObject);
+      }
     });
   }
   
   LineRatioTile.prototype.getData = function (data) {
+    
+    if(data.length == 0)
+      showFetchError(this.object);
+    else
+      hideFetchError(this.object);
 
     var numerator = data.trends[this.object.tileContext.numerator];
     var denominator = data.trends[this.object.tileContext.denominator];

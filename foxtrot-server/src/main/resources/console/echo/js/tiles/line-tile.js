@@ -75,6 +75,7 @@ LineTile.prototype.getQuery = function (object) {
     , "period": object.tileContext.period
     , "uniqueCountOn": object.tileContext.uniqueCountOn && object.tileContext.uniqueCountOn != "none" ? object.tileContext.uniqueCountOn : null
   }
+  var refObject = this.object;
   $.ajax({
     method: "post"
     , dataType: 'json'
@@ -85,6 +86,9 @@ LineTile.prototype.getQuery = function (object) {
     , contentType: "application/json"
     , data: JSON.stringify(data)
     , success: $.proxy(this.getData, this)
+    ,error: function(xhr, textStatus, error) {
+      showFetchError(refObject);
+    }
   });
 }
 LineTile.prototype.getData = function (data) {
@@ -97,6 +101,11 @@ LineTile.prototype.getData = function (data) {
   this.render(rows);
 }
 LineTile.prototype.render = function (rows) {
+  if(rows.length == 0)
+    showFetchError(this.object);
+  else
+    hideFetchError(this.object);
+    
   var object = this.object;
   var borderColorArray = ["#9e8cd9", "#f3a534", "#9bc95b", "#50e3c2"]
   var chartDiv = $("#"+object.id).find(".chart-item");

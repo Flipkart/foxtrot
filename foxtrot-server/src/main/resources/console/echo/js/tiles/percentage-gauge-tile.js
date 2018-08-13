@@ -89,6 +89,7 @@ PercentageGaugeTile.prototype.getQuery = function (object) {
     , "nesting": object.tileContext.nesting
     , "uniqueCountOn": object.tileContext.uniqueKey && object.tileContext.uniqueKey != "none" ? object.tileContext.uniqueKey : null
   }
+  var refObject = this.object;
   $.ajax({
     method: "post"
     , dataType: 'json'
@@ -99,10 +100,18 @@ PercentageGaugeTile.prototype.getQuery = function (object) {
     , contentType: "application/json"
     , data: JSON.stringify(data)
     , success: $.proxy(this.getData, this)
+    ,error: function(xhr, textStatus, error) {
+      showFetchError(refObject);
+    }
   });
 }
 PercentageGaugeTile.prototype.getData = function (data) {
 
+  if(data.length == 0)
+    showFetchError(this.object);
+  else
+    hideFetchError(this.object);
+    
   var numerator = 0;
   var denominator = 0;
 

@@ -87,6 +87,7 @@ StackedBarTile.prototype.getQuery = function (object) {
     , "field": object.tileContext.stackedBarField
     , period: periodFromWindow(object.tileContext.period, (globalFilters ? getGlobalFilters() : getPeriodSelect(object.id)))
   }
+  var refObject = this.object;
   $.ajax({
     method: "post"
     , dataType: 'json'
@@ -97,10 +98,19 @@ StackedBarTile.prototype.getQuery = function (object) {
     , contentType: "application/json"
     , data: JSON.stringify(data)
     , success: $.proxy(this.getData, this)
+    ,error: function(xhr, textStatus, error) {
+      showFetchError(refObject);
+    }
   });
 }
 
 StackedBarTile.prototype.getData = function (data) {
+
+  if(data.length == 0)
+    showFetchError(this.object);
+  else
+    hideFetchError(this.object);
+
   if(this.object.tileContext.uiFiltersList == undefined) {
     this.object.tileContext.uiFiltersList = [];
     this.object.tileContext.uiFiltersSelectedList = [];
@@ -176,6 +186,10 @@ StackedBarTile.prototype.getData = function (data) {
   this.render(d);
 }
 StackedBarTile.prototype.render = function (d) {
+
+  if(d.length == 0)
+    showFetchError(this.object);
+
   var object = this.object;
   var chartDiv = $("#"+object.id).find(".chart-item");
   var borderColorArray = ["#9e8cd9", "#f3a534", "#9bc95b", "#50e3c2"]
