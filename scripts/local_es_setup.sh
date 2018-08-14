@@ -11,7 +11,7 @@ curl -H 'Content-type: application/json' -XPUT ${1}:9200/_template/template_foxt
   "settings": {
     "number_of_shards": 2,
     "number_of_replicas": 1,
-    "index.mapping.total_fields.limit": 3000
+    "mapping.total_fields.limit": 5000
   },
   "mappings": {
     "document": {
