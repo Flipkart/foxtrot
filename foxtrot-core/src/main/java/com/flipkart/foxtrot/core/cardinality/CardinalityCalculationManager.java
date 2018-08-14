@@ -26,6 +26,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.time.*;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 /***
@@ -35,16 +37,18 @@ public class CardinalityCalculationManager implements Managed {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CardinalityCalculationManager.class.getSimpleName());
     private static final String TIME_ZONE = "Asia/Kolkata";
-    private static final int MAX_TIME_TO_RUN_TASK_IN_HOURS = 1;
+    private static final int MAX_TIME_TO_RUN_TASK_IN_HOURS = 2;
 
     private final TableMetadataManager tableMetadataManager;
     private final CardinalityConfig cardinalityConfig;
     private final HazelcastConnection hazelcastConnection;
+    private final ScheduledExecutorService scheduledExecutorService;
 
     public CardinalityCalculationManager(TableMetadataManager tableMetadataManager, CardinalityConfig cardinalityConfig, HazelcastConnection hazelcastConnection) {
         this.tableMetadataManager = tableMetadataManager;
         this.cardinalityConfig = cardinalityConfig;
         this.hazelcastConnection = hazelcastConnection;
+        this.scheduledExecutorService = Executors.newSingleThreadScheduledExecutor();
     }
 
     @Override
@@ -62,9 +66,16 @@ public class CardinalityCalculationManager implements Managed {
             Duration duration = Duration.between(zonedNow, zonedNext5);
             long initialDelay = duration.getSeconds();
 
-            LockingTaskExecutor executor = new DefaultLockingTaskExecutor(new HazelcastLockProvider(hazelcastConnection.getHazelcast()));
-            Instant lockAtMostUntil = Instant.now().plusSeconds(initialDelay).plusSeconds(TimeUnit.HOURS.toSeconds(MAX_TIME_TO_RUN_TASK_IN_HOURS));
-            executor.executeWithLock(new CardinalityCalculationRunnable(tableMetadataManager), new LockConfiguration("cardinalityCalculation", lockAtMostUntil));
+            scheduledExecutorService.scheduleAtFixedRate(new Runnable() {
+                @Override
+                public void run() {
+                    LockingTaskExecutor executor = new DefaultLockingTaskExecutor(new HazelcastLockProvider(hazelcastConnection.getHazelcast()));
+                    Instant lockAtMostUntil = Instant.now().plusSeconds(TimeUnit.HOURS.toSeconds(MAX_TIME_TO_RUN_TASK_IN_HOURS));
+                    executor.executeWithLock(new CardinalityCalculationRunnable(tableMetadataManager), new LockConfiguration("cardinalityCalculation", lockAtMostUntil));
+
+                }
+            }, initialDelay, cardinalityConfig.getInterval(), TimeUnit.SECONDS);
+
             LOGGER.info("Scheduled  cardinality calculation job");
         } else {
             LOGGER.info("Not scheduling cardinality calculation job");
