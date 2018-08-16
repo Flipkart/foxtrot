@@ -48,6 +48,7 @@ cardinality:
   active: true
   interval: 86400
   initialdelay: 6
+  maxCardinality: 20000
 
 deletionconfig:
   active: false

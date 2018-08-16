@@ -24,6 +24,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
+import javax.ws.rs.DefaultValue;
 
 /***
  Created by nitish.goyal on 06/08/18
@@ -39,6 +40,9 @@ public class CardinalityConfig {
     private boolean cardinalityEnabled;
 
     private int subListSize;
+
+    @DefaultValue("50000")
+    private long maxCardinality;
 
     @Min(3600)
     private int interval;
