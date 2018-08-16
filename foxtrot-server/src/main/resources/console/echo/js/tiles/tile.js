@@ -56,10 +56,23 @@ function resetPeriodDropdown() { // reset all dropdown values to custom if globa
   }
 }
 
+
+/**
+ * 
+ * Refresh single tile at at time
+ */
+function refreshSingleTile(object) {
+  var a = new TileFactory();
+  a.createGraph(object, $("#"+ object.id));
+  if(globalFilters)
+    changeDropdownValue($("#"+ key));
+}
+
 function refereshTiles() { // auto query for each tile
   for (var key in tileData) {
     if (tileData.hasOwnProperty(key)) {
       var a = new TileFactory();
+      console.log(key);
       a.createGraph(tileData[key], $("#"+ key));
       if(globalFilters)
         changeDropdownValue($("#"+ key));
@@ -451,6 +464,18 @@ TileFactory.prototype.triggerFilter = function (tileElement, object) { // filter
     });
   }
 }
+
+/**
+ * 
+ * add change event to period select dropdown
+ */
+TileFactory.prototype.addEventToPeriodSelect = function (tileElement, object) {
+  tileElement.find(".period-select").change( function() {
+    refreshSingleTile(object);// refresh immediately
+  });
+};
+
+
 // Add click event for tile config icon
 TileFactory.prototype.triggerConfig = function (tileElement, object) { // code to show sidebar when edit
   var instanceVar = this;
@@ -672,4 +697,5 @@ TileFactory.prototype.create = function () {
   this.saveTileConfig(this.tileObject); // add event for tile save btn
 
   previousWidget = this.tileObject.tileContext.widgetType;
+  this.addEventToPeriodSelect(tileElement, this.tileObject);
 };
