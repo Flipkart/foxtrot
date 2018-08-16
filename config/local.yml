@@ -7,8 +7,9 @@ server:
       port: 17001
 
 elasticsearch:
-  hosts: localhost
-  cluster: elasticsearch
+  hosts:
+  - localhost
+  cluster: foxtrot
   tableNamePrefix: foxtrot
 
 hbase:
