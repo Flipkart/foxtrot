@@ -72,7 +72,6 @@ function refereshTiles() { // auto query for each tile
   for (var key in tileData) {
     if (tileData.hasOwnProperty(key)) {
       var a = new TileFactory();
-      console.log(key);
       a.createGraph(tileData[key], $("#"+ key));
       if(globalFilters)
         changeDropdownValue($("#"+ key));
