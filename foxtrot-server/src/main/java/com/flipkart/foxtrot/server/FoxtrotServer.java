@@ -41,6 +41,7 @@ import com.flipkart.foxtrot.core.util.MetricUtil;
 import com.flipkart.foxtrot.server.cluster.ClusterManager;
 import com.flipkart.foxtrot.server.config.FoxtrotServerConfiguration;
 import com.flipkart.foxtrot.server.console.ElasticsearchConsolePersistence;
+import com.flipkart.foxtrot.server.healthcheck.ElasticSearchHealthCheck;
 import com.flipkart.foxtrot.server.providers.FlatResponseCsvProvider;
 import com.flipkart.foxtrot.server.providers.FlatResponseErrorTextProvider;
 import com.flipkart.foxtrot.server.providers.FlatResponseTextProvider;
@@ -51,11 +52,6 @@ import io.dropwizard.Application;
 import io.dropwizard.assets.AssetsBundle;
 import io.dropwizard.configuration.EnvironmentVariableSubstitutor;
 import io.dropwizard.configuration.SubstitutingSourceProvider;
-import io.dropwizard.discovery.bundle.ServiceDiscoveryBundle;
-import io.dropwizard.discovery.bundle.ServiceDiscoveryConfiguration;
-import io.dropwizard.oor.OorBundle;
-import io.dropwizard.riemann.RiemannBundle;
-import io.dropwizard.riemann.RiemannConfig;
 import io.dropwizard.server.AbstractServerFactory;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
@@ -85,36 +81,6 @@ public class FoxtrotServer extends Application<FoxtrotServerConfiguration> {
                 )
         );
         bootstrap.addBundle(new AssetsBundle("/console/", "/", "index.html", "console"));
-        bootstrap.addBundle(new OorBundle<FoxtrotServerConfiguration>() {
-            public boolean withOor() {
-                return false;
-            }
-        });
-
-        bootstrap.addBundle(new ServiceDiscoveryBundle<FoxtrotServerConfiguration>() {
-            @Override
-            protected ServiceDiscoveryConfiguration getRangerConfiguration(FoxtrotServerConfiguration configuration) {
-                return configuration.getServiceDiscovery();
-            }
-
-            @Override
-            protected String getServiceName(FoxtrotServerConfiguration configuration) {
-                return "foxtrot";
-            }
-
-            @Override
-            protected int getPort(FoxtrotServerConfiguration configuration) {
-                return configuration.getServiceDiscovery().getPublishedPort();
-            }
-        });
-
-        bootstrap.addBundle(new RiemannBundle<FoxtrotServerConfiguration>() {
-            @Override
-            public RiemannConfig getRiemannConfiguration(FoxtrotServerConfiguration configuration) {
-                return configuration.getRiemann();
-            }
-        });
-
         bootstrap.addCommand(new InitializerCommand());
         configureObjectMapper(bootstrap.getObjectMapper());
     }
@@ -153,8 +119,8 @@ public class FoxtrotServer extends Application<FoxtrotServerConfiguration> {
         CardinalityCalculationManager cardinalityCalculationManager = new CardinalityCalculationManager(tableMetadataManager, cardinalityConfig, hazelcastConnection);
 
         List<HealthCheck> healthChecks = new ArrayList<>();
-//        ElasticSearchHealthCheck elasticSearchHealthCheck = new ElasticSearchHealthCheck(elasticsearchConnection);
-//        healthChecks.add(elasticSearchHealthCheck);
+        ElasticSearchHealthCheck elasticSearchHealthCheck = new ElasticSearchHealthCheck(elasticsearchConnection);
+        healthChecks.add(elasticSearchHealthCheck);
         ClusterManager clusterManager = new ClusterManager(hazelcastConnection, healthChecks, configuration.getServerFactory());
 
         environment.lifecycle().manage(HBaseTableConnection);
@@ -181,7 +147,7 @@ public class FoxtrotServer extends Application<FoxtrotServerConfiguration> {
         environment.jersey().register(new UtilResource(configuration));
         environment.jersey().register(new ClusterHealthResource(queryStore));
 
-//        environment.healthChecks().register("ES Health Check", elasticSearchHealthCheck);
+        environment.healthChecks().register("ES Health Check", elasticSearchHealthCheck);
 
         environment.jersey().register(new FlatResponseTextProvider());
         environment.jersey().register(new FlatResponseCsvProvider());

@@ -496,17 +496,17 @@ public class ElasticsearchQueryStoreTest {
         //TODO::REMOVE System.out.println(mapper.writerWithDefaultPrettyPrinter().writeValueAsString(mappings));
         Assert.assertNotNull(mappings);
         Assert.assertTrue(mappings.getMappings()
-                .stream()
-                .filter(fieldMetadata -> fieldMetadata.getType().equals(FieldType.BOOLEAN))
-                .filter(fieldMetadata -> fieldMetadata.getEstimationData() != null
-                        && fieldMetadata.getEstimationData().getType().equals(EstimationDataType.FIXED))
-                .count() == 1);
+            .stream()
+            .filter(fieldMetadata -> fieldMetadata.getType().equals(FieldType.BOOLEAN))
+            .filter(fieldMetadata -> fieldMetadata.getEstimationData() != null
+                    && fieldMetadata.getEstimationData().getType().equals(EstimationDataType.FIXED))
+            .count() == 1);
         Assert.assertTrue(mappings.getMappings()
                 .stream()
                 .filter(fieldMetadata -> fieldMetadata.getType().equals(FieldType.LONG))
                 .filter(fieldMetadata -> fieldMetadata.getEstimationData() != null
                         && fieldMetadata.getEstimationData().getType().equals(EstimationDataType.PERCENTILE))
-                .count() == 2);
+                .count() == 1);
         long numStringFields = mappings.getMappings()
                 .stream()
                 .filter(fieldMetadata -> fieldMetadata.getType().equals(FieldType.STRING))
@@ -515,7 +515,7 @@ public class ElasticsearchQueryStoreTest {
                 .stream()
                 .filter(fieldMetadata -> fieldMetadata.getType().equals(FieldType.STRING))
                 .filter(fieldMetadata -> fieldMetadata.getEstimationData() != null
-                        && fieldMetadata.getEstimationData().getType() == EstimationDataType.CARDINALITY)
+                            && fieldMetadata.getEstimationData().getType() == EstimationDataType.CARDINALITY)
                 .count() == numStringFields);
     }
 

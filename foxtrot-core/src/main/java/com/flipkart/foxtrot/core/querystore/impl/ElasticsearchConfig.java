@@ -19,7 +19,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
-import java.util.Collections;
 import java.util.Vector;
 
 /**
@@ -45,14 +44,8 @@ public class ElasticsearchConfig {
         return hosts;
     }
 
-    public void setHosts(String hostString) {
-        if (hostString == null || hostString.trim().isEmpty()) {
-            return;
-        }
-
-        String[] hostParts = hostString.split(",");
-        this.hosts = new Vector<>();
-        Collections.addAll(this.hosts, hostParts);
+    public void setHosts(Vector<String> hosts) {
+        this.hosts = hosts;
     }
 
     public String getCluster() {
