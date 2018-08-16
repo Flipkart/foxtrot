@@ -1,7 +1,7 @@
 package com.flipkart.foxtrot.core.exception;
 
 import com.flipkart.foxtrot.common.ActionRequest;
-import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Maps;
 import lombok.Getter;
 
 import java.util.Collections;
@@ -28,10 +28,10 @@ public class CardinalityOverflowException extends MalformedQueryException {
 
     @Override
     public Map<String, Object> toMap() {
-        return ImmutableMap.<String, Object>builder()
-                .put("request", super.getActionRequest())
-                .put("field", field)
-                .put("probability", probability)
-                .build();
+        Map<String, Object> map = Maps.newHashMap();
+        map.put("request", super.getActionRequest());
+        map.put("field", field);
+        map.put("probability", probability);
+        return map;
     }
 }

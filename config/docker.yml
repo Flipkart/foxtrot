@@ -19,7 +19,7 @@ hbase:
   hbaseZookeeperClientPort: ${HBASE_ZOOKEEPER_CLIENT_PORT}
 
 cluster:
-  name: foxtrot
+  name: ${HAZELCAST_CLUSTER_NAME}
   discovery:
     type: foxtrot_simple
     disableMulticast: true
@@ -29,6 +29,11 @@ logging:
   level: INFO
   loggers:
     com.flipkart.foxtrot.core.querystore.actions: DEBUG
+
+
+cardinality:
+  cardinality: ${CARDINALITY_ENABLED}
+  listSize: ${DEFAULT_LIST_SIZE}
 
 deletionconfig:
   active: true

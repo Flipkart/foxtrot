@@ -8,12 +8,14 @@ import com.flipkart.foxtrot.core.MockElasticsearchServer;
 import com.flipkart.foxtrot.core.TestUtils;
 import com.flipkart.foxtrot.core.cache.CacheManager;
 import com.flipkart.foxtrot.core.cache.impl.DistributedCacheFactory;
+import com.flipkart.foxtrot.core.cardinality.CardinalityConfig;
 import com.flipkart.foxtrot.core.datastore.DataStore;
 import com.flipkart.foxtrot.core.querystore.QueryExecutor;
 import com.flipkart.foxtrot.core.querystore.QueryStore;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsLoader;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConnection;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchQueryStore;
+import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
 import com.flipkart.foxtrot.core.querystore.impl.HazelcastConnection;
 import com.flipkart.foxtrot.core.table.impl.DistributedTableMetadataManager;
 import com.hazelcast.config.Config;
@@ -47,7 +49,7 @@ public class ActionTest {
     private DistributedTableMetadataManager tableMetadataManager;
 
     static {
-        Logger root = (Logger)LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
+        Logger root = (Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
         root.setLevel(Level.WARN);
     }
 
@@ -62,14 +64,15 @@ public class ActionTest {
         when(hazelcastConnection.getHazelcastConfig()).thenReturn(config);
         this.elasticsearchServer = new MockElasticsearchServer(UUID.randomUUID().toString());
         elasticsearchConnection = TestUtils.initESConnection(elasticsearchServer);
+        CardinalityConfig cardinalityConfig = new CardinalityConfig("true", String.valueOf(ElasticsearchUtils.DEFAULT_SUB_LIST_SIZE));
 
-        tableMetadataManager = new DistributedTableMetadataManager(hazelcastConnection, elasticsearchConnection, mapper);
+        tableMetadataManager = new DistributedTableMetadataManager(hazelcastConnection, elasticsearchConnection, mapper, cardinalityConfig);
         tableMetadataManager.start();
 
         tableMetadataManager.save(Table.builder().name(TestUtils.TEST_TABLE_NAME).ttl(30).build());
 
         DataStore dataStore = TestUtils.getDataStore();
-        this.queryStore = new ElasticsearchQueryStore(tableMetadataManager, elasticsearchConnection, dataStore, mapper);
+        this.queryStore = new ElasticsearchQueryStore(tableMetadataManager, elasticsearchConnection, dataStore, mapper, cardinalityConfig);
         CacheManager cacheManager = new CacheManager(new DistributedCacheFactory(hazelcastConnection, mapper));
         AnalyticsLoader analyticsLoader = new AnalyticsLoader(tableMetadataManager,
                 dataStore,

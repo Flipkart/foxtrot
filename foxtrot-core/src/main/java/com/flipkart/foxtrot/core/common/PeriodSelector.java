@@ -21,6 +21,7 @@ import com.flipkart.foxtrot.common.query.FilterVisitorAdapter;
 import com.flipkart.foxtrot.common.query.datetime.LastFilter;
 import com.flipkart.foxtrot.common.query.datetime.TimeWindow;
 import com.flipkart.foxtrot.common.query.numeric.*;
+import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
 import org.joda.time.Interval;
 
 import java.util.List;
@@ -44,6 +45,11 @@ public class PeriodSelector extends FilterVisitorAdapter<Void> {
     public Interval analyze(long currentTime) throws Exception {
         for (Filter filter : filters) {
             if (filter.isFilterTemporal()) {
+                filter.accept(this);
+            }
+        }
+        for (Filter filter : filters) {
+            if (filter.getField().equals(ElasticsearchUtils.TIME_FIELD)) {
                 filter.accept(this);
             }
         }

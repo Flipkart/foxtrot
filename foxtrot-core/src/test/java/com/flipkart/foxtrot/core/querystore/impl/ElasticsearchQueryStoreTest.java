@@ -1,12 +1,12 @@
 /**
  * Copyright 2014 Flipkart Internet Pvt. Ltd.
- *
+ * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
+ * <p>
  * http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -21,6 +21,7 @@ import com.flipkart.foxtrot.common.*;
 import com.flipkart.foxtrot.common.estimation.EstimationDataType;
 import com.flipkart.foxtrot.core.MockElasticsearchServer;
 import com.flipkart.foxtrot.core.TestUtils;
+import com.flipkart.foxtrot.core.cardinality.CardinalityConfig;
 import com.flipkart.foxtrot.core.datastore.DataStore;
 import com.flipkart.foxtrot.core.exception.ErrorCode;
 import com.flipkart.foxtrot.core.exception.FoxtrotException;
@@ -37,10 +38,7 @@ import org.elasticsearch.action.admin.cluster.health.ClusterHealthResponse;
 import org.elasticsearch.action.admin.cluster.node.stats.NodesStatsResponse;
 import org.elasticsearch.action.admin.indices.stats.IndicesStatsResponse;
 import org.elasticsearch.action.get.GetResponse;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.*;
 import org.mockito.Mockito;
 
 import java.util.*;
@@ -79,15 +77,15 @@ public class ElasticsearchQueryStoreTest {
         when(hazelcastConnection.getHazelcastConfig()).thenReturn(new Config());
 
         hazelcastConnection.start();
-
-        this.tableMetadataManager = new DistributedTableMetadataManager(hazelcastConnection, elasticsearchConnection, mapper);
+        CardinalityConfig cardinalityConfig = new CardinalityConfig("true", String.valueOf(ElasticsearchUtils.DEFAULT_SUB_LIST_SIZE));
+        this.tableMetadataManager = new DistributedTableMetadataManager(hazelcastConnection, elasticsearchConnection, mapper, cardinalityConfig);
         tableMetadataManager.start();
         tableMetadataManager.save(Table.builder().name(TestUtils.TEST_TABLE_NAME).ttl(30).build());
 /*
         when(tableMetadataManager.exists(anyString())).thenReturn(true);
         when(tableMetadataManager.get(anyString())).thenReturn(TestUtils.TEST_TABLE);
 */
-        this.queryStore = new ElasticsearchQueryStore(tableMetadataManager, elasticsearchConnection, dataStore, mapper);
+        this.queryStore = new ElasticsearchQueryStore(tableMetadataManager, elasticsearchConnection, dataStore, mapper, cardinalityConfig);
     }
 
     @After
@@ -159,9 +157,9 @@ public class ElasticsearchQueryStoreTest {
 
         List<Document> translatedDocuments = Lists.newArrayList();
         translatedDocuments.addAll(documents
-                        .stream()
-                        .map(document -> TestUtils.translatedDocumentWithRowKeyVersion1(table, document))
-                        .collect(Collectors.toList())
+                .stream()
+                .map(document -> TestUtils.translatedDocumentWithRowKeyVersion1(table, document))
+                .collect(Collectors.toList())
         );
 
         doReturn(translatedDocuments).when(dataStore).saveAll(table, documents);
@@ -191,9 +189,9 @@ public class ElasticsearchQueryStoreTest {
 
         List<Document> translatedDocuments = Lists.newArrayList();
         translatedDocuments.addAll(documents
-                        .stream()
-                        .map(document -> TestUtils.translatedDocumentWithRowKeyVersion2(table, document))
-                        .collect(Collectors.toList())
+                .stream()
+                .map(document -> TestUtils.translatedDocumentWithRowKeyVersion2(table, document))
+                .collect(Collectors.toList())
         );
 
         doReturn(translatedDocuments).when(dataStore).saveAll(table, documents);
@@ -409,6 +407,7 @@ public class ElasticsearchQueryStoreTest {
         Thread.sleep(500);
 
         Set<FieldMetadata> mappings = new HashSet<FieldMetadata>();
+        mappings.add(FieldMetadata.builder().field("time").type(FieldType.LONG).build());
         mappings.add(FieldMetadata.builder().field("word").type(FieldType.STRING).build());
         mappings.add(FieldMetadata.builder().field("data.data").type(FieldType.STRING).build());
         mappings.add(FieldMetadata.builder().field("header.hello").type(FieldType.STRING).build());
@@ -486,7 +485,8 @@ public class ElasticsearchQueryStoreTest {
 
     }
 
-    /*@Test
+    @Test
+    @Ignore
     public void testEstimation() throws Exception {
         doReturn(TestUtils.getFieldCardinalityEstimationDocuments(mapper)).when(dataStore).saveAll(any(Table.class), anyListOf(Document.class));
         queryStore.save(TestUtils.TEST_TABLE.getName(), TestUtils.getFieldCardinalityEstimationDocuments(mapper));
@@ -496,17 +496,17 @@ public class ElasticsearchQueryStoreTest {
         //TODO::REMOVE System.out.println(mapper.writerWithDefaultPrettyPrinter().writeValueAsString(mappings));
         Assert.assertNotNull(mappings);
         Assert.assertTrue(mappings.getMappings()
-            .stream()
-            .filter(fieldMetadata -> fieldMetadata.getType().equals(FieldType.BOOLEAN))
-            .filter(fieldMetadata -> fieldMetadata.getEstimationData() != null
-                    && fieldMetadata.getEstimationData().getType().equals(EstimationDataType.FIXED))
-            .count() == 1);
+                .stream()
+                .filter(fieldMetadata -> fieldMetadata.getType().equals(FieldType.BOOLEAN))
+                .filter(fieldMetadata -> fieldMetadata.getEstimationData() != null
+                        && fieldMetadata.getEstimationData().getType().equals(EstimationDataType.FIXED))
+                .count() == 1);
         Assert.assertTrue(mappings.getMappings()
                 .stream()
                 .filter(fieldMetadata -> fieldMetadata.getType().equals(FieldType.LONG))
                 .filter(fieldMetadata -> fieldMetadata.getEstimationData() != null
                         && fieldMetadata.getEstimationData().getType().equals(EstimationDataType.PERCENTILE))
-                .count() == 1);
+                .count() == 2);
         long numStringFields = mappings.getMappings()
                 .stream()
                 .filter(fieldMetadata -> fieldMetadata.getType().equals(FieldType.STRING))
@@ -515,9 +515,9 @@ public class ElasticsearchQueryStoreTest {
                 .stream()
                 .filter(fieldMetadata -> fieldMetadata.getType().equals(FieldType.STRING))
                 .filter(fieldMetadata -> fieldMetadata.getEstimationData() != null
-                            && fieldMetadata.getEstimationData().getType() == EstimationDataType.CARDINALITY)
+                        && fieldMetadata.getEstimationData().getType() == EstimationDataType.CARDINALITY)
                 .count() == numStringFields);
-    }*/
+    }
 
     private Document createDummyDocument() {
         Document document = new Document();

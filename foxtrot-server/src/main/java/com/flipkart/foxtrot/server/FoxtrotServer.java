@@ -22,6 +22,8 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.jsontype.NamedType;
 import com.flipkart.foxtrot.core.cache.CacheManager;
 import com.flipkart.foxtrot.core.cache.impl.DistributedCacheFactory;
+import com.flipkart.foxtrot.core.cardinality.CardinalityCalculationManager;
+import com.flipkart.foxtrot.core.cardinality.CardinalityConfig;
 import com.flipkart.foxtrot.core.common.DataDeletionManager;
 import com.flipkart.foxtrot.core.common.DataDeletionManagerConfig;
 import com.flipkart.foxtrot.core.datastore.DataStore;
@@ -35,10 +37,10 @@ import com.flipkart.foxtrot.core.querystore.impl.*;
 import com.flipkart.foxtrot.core.table.TableMetadataManager;
 import com.flipkart.foxtrot.core.table.impl.DistributedTableMetadataManager;
 import com.flipkart.foxtrot.core.table.impl.FoxtrotTableManager;
+import com.flipkart.foxtrot.core.util.MetricUtil;
 import com.flipkart.foxtrot.server.cluster.ClusterManager;
 import com.flipkart.foxtrot.server.config.FoxtrotServerConfiguration;
 import com.flipkart.foxtrot.server.console.ElasticsearchConsolePersistence;
-import com.flipkart.foxtrot.server.healthcheck.ElasticSearchHealthCheck;
 import com.flipkart.foxtrot.server.providers.FlatResponseCsvProvider;
 import com.flipkart.foxtrot.server.providers.FlatResponseErrorTextProvider;
 import com.flipkart.foxtrot.server.providers.FlatResponseTextProvider;
@@ -49,6 +51,11 @@ import io.dropwizard.Application;
 import io.dropwizard.assets.AssetsBundle;
 import io.dropwizard.configuration.EnvironmentVariableSubstitutor;
 import io.dropwizard.configuration.SubstitutingSourceProvider;
+import io.dropwizard.discovery.bundle.ServiceDiscoveryBundle;
+import io.dropwizard.discovery.bundle.ServiceDiscoveryConfiguration;
+import io.dropwizard.oor.OorBundle;
+import io.dropwizard.riemann.RiemannBundle;
+import io.dropwizard.riemann.RiemannConfig;
 import io.dropwizard.server.AbstractServerFactory;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
@@ -78,6 +85,36 @@ public class FoxtrotServer extends Application<FoxtrotServerConfiguration> {
                 )
         );
         bootstrap.addBundle(new AssetsBundle("/console/", "/", "index.html", "console"));
+        bootstrap.addBundle(new OorBundle<FoxtrotServerConfiguration>() {
+            public boolean withOor() {
+                return false;
+            }
+        });
+
+        bootstrap.addBundle(new ServiceDiscoveryBundle<FoxtrotServerConfiguration>() {
+            @Override
+            protected ServiceDiscoveryConfiguration getRangerConfiguration(FoxtrotServerConfiguration configuration) {
+                return configuration.getServiceDiscovery();
+            }
+
+            @Override
+            protected String getServiceName(FoxtrotServerConfiguration configuration) {
+                return "foxtrot";
+            }
+
+            @Override
+            protected int getPort(FoxtrotServerConfiguration configuration) {
+                return configuration.getServiceDiscovery().getPublishedPort();
+            }
+        });
+
+        bootstrap.addBundle(new RiemannBundle<FoxtrotServerConfiguration>() {
+            @Override
+            public RiemannConfig getRiemannConfiguration(FoxtrotServerConfiguration configuration) {
+                return configuration.getRiemann();
+            }
+        });
+
         bootstrap.addCommand(new InitializerCommand());
         configureObjectMapper(bootstrap.getObjectMapper());
     }
@@ -97,22 +134,27 @@ public class FoxtrotServer extends Application<FoxtrotServerConfiguration> {
         ElasticsearchConnection elasticsearchConnection = new ElasticsearchConnection(configuration.getElasticsearch());
         HazelcastConnection hazelcastConnection = new HazelcastConnection(configuration.getCluster());
         ElasticsearchUtils.setTableNamePrefix(configuration.getElasticsearch());
+        CardinalityConfig cardinalityConfig = configuration.getCardinality();
+        if (cardinalityConfig == null) {
+            cardinalityConfig = new CardinalityConfig("false", String.valueOf(ElasticsearchUtils.DEFAULT_SUB_LIST_SIZE));
+        }
 
         final ObjectMapper objectMapper = environment.getObjectMapper();
-        TableMetadataManager tableMetadataManager = new DistributedTableMetadataManager(hazelcastConnection, elasticsearchConnection, objectMapper);
+        TableMetadataManager tableMetadataManager = new DistributedTableMetadataManager(hazelcastConnection, elasticsearchConnection, objectMapper, cardinalityConfig);
         DataStore dataStore = new HBaseDataStore(HBaseTableConnection,
                 objectMapper, new DocumentTranslator(configuration.getHbase()));
-        QueryStore queryStore = new ElasticsearchQueryStore(tableMetadataManager, elasticsearchConnection, dataStore, objectMapper);
+        QueryStore queryStore = new ElasticsearchQueryStore(tableMetadataManager, elasticsearchConnection, dataStore, objectMapper, cardinalityConfig);
         FoxtrotTableManager tableManager = new FoxtrotTableManager(tableMetadataManager, queryStore, dataStore);
         CacheManager cacheManager = new CacheManager(new DistributedCacheFactory(hazelcastConnection, objectMapper));
         AnalyticsLoader analyticsLoader = new AnalyticsLoader(tableMetadataManager, dataStore, queryStore, elasticsearchConnection, cacheManager, objectMapper);
         QueryExecutor executor = new QueryExecutor(analyticsLoader, executorService);
         DataDeletionManagerConfig dataDeletionManagerConfig = configuration.getTableDataManagerConfig();
         DataDeletionManager dataDeletionManager = new DataDeletionManager(dataDeletionManagerConfig, queryStore);
+        CardinalityCalculationManager cardinalityCalculationManager = new CardinalityCalculationManager(tableMetadataManager, cardinalityConfig, hazelcastConnection);
 
         List<HealthCheck> healthChecks = new ArrayList<>();
-        ElasticSearchHealthCheck elasticSearchHealthCheck = new ElasticSearchHealthCheck(elasticsearchConnection);
-        healthChecks.add(elasticSearchHealthCheck);
+//        ElasticSearchHealthCheck elasticSearchHealthCheck = new ElasticSearchHealthCheck(elasticsearchConnection);
+//        healthChecks.add(elasticSearchHealthCheck);
         ClusterManager clusterManager = new ClusterManager(hazelcastConnection, healthChecks, configuration.getServerFactory());
 
         environment.lifecycle().manage(HBaseTableConnection);
@@ -122,6 +164,7 @@ public class FoxtrotServer extends Application<FoxtrotServerConfiguration> {
         environment.lifecycle().manage(analyticsLoader);
         environment.lifecycle().manage(dataDeletionManager);
         environment.lifecycle().manage(clusterManager);
+        environment.lifecycle().manage(cardinalityCalculationManager);
 
         environment.jersey().register(new DocumentResource(queryStore));
         environment.jersey().register(new AsyncResource(cacheManager));
@@ -138,7 +181,7 @@ public class FoxtrotServer extends Application<FoxtrotServerConfiguration> {
         environment.jersey().register(new UtilResource(configuration));
         environment.jersey().register(new ClusterHealthResource(queryStore));
 
-        environment.healthChecks().register("ES Health Check", elasticSearchHealthCheck);
+//        environment.healthChecks().register("ES Health Check", elasticSearchHealthCheck);
 
         environment.jersey().register(new FlatResponseTextProvider());
         environment.jersey().register(new FlatResponseCsvProvider());
@@ -157,7 +200,9 @@ public class FoxtrotServer extends Application<FoxtrotServerConfiguration> {
         // Add URL mapping
         cors.addMappingForUrlPatterns(EnumSet.allOf(DispatcherType.class), true, "/*");
 
-        ((AbstractServerFactory)configuration.getServerFactory()).setJerseyRootPath("/foxtrot");
+        ((AbstractServerFactory) configuration.getServerFactory()).setJerseyRootPath("/foxtrot");
+
+        MetricUtil.setup(environment.metrics());
     }
 
     private void configureObjectMapper(ObjectMapper objectMapper) {

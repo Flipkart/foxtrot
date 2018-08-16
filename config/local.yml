@@ -27,6 +27,13 @@ cluster:
 logging:
   level: INFO
 
+cardinality:
+  cardinality: true
+  listSize: 10
+  active: true
+  interval: 86400
+  initialdelay: 6
+
 deletionconfig:
   active: false
   interval: 86400

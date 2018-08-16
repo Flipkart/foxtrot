@@ -66,6 +66,7 @@ public class TableFieldMappingResourceTest extends FoxtrotResourceTest {
         Thread.sleep(500);
 
         Set<FieldMetadata> mappings = new HashSet<>();
+        mappings.add(FieldMetadata.builder().field("time").type(FieldType.LONG).build());
         mappings.add(FieldMetadata.builder().field("word").type(FieldType.STRING).build());
         mappings.add(FieldMetadata.builder().field("data.data").type(FieldType.STRING).build());
         mappings.add(FieldMetadata.builder().field("header.hello").type(FieldType.STRING).build());

@@ -42,7 +42,7 @@ public class Utils {
     public static CardinalityBuilder buildCardinalityAggregation(String field) {
         return AggregationBuilders
                 .cardinality(Utils.sanitizeFieldForAggregation(field))
-                .precisionThreshold(40000)
+                .precisionThreshold(500)
                 .field(field);
     }
 
