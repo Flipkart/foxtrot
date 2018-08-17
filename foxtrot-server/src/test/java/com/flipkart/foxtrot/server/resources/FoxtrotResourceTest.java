@@ -33,6 +33,9 @@ import io.dropwizard.lifecycle.setup.LifecycleEnvironment;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
 import org.elasticsearch.action.admin.indices.create.CreateIndexRequest;
+import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;
+import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsRequest;
+import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsResponse;
 import org.elasticsearch.common.settings.Settings;
 import org.junit.After;
 import org.mockito.Mockito;
@@ -95,6 +98,11 @@ public abstract class FoxtrotResourceTest {
         } catch (FoxtrotException e) {
             e.printStackTrace();
         }
+        elasticsearchConnection = ElasticsearchTestUtils.getConnection();
+
+        //Delete indices
+        DeleteIndexRequest deleteIndexRequest = new DeleteIndexRequest("*");
+        elasticsearchConnection.getClient().admin().indices().delete(deleteIndexRequest);
 
         //Initializing Cache Factory
         hazelcastInstance = new TestHazelcastInstanceFactory(1).newHazelcastInstance();
@@ -102,12 +110,15 @@ public abstract class FoxtrotResourceTest {
         when(hazelcastConnection.getHazelcast()).thenReturn(hazelcastInstance);
         cacheManager = new CacheManager(new DistributedCacheFactory(hazelcastConnection, mapper));
 
-        elasticsearchConnection = ElasticsearchTestUtils.getConnection();
 
-        Settings indexSettings = Settings.builder().put("number_of_replicas", 0).build();
-        CreateIndexRequest createRequest = new CreateIndexRequest(TableMapStore.TABLE_META_INDEX).settings(indexSettings);
-        elasticsearchConnection.getClient().admin().indices().create(createRequest).actionGet();
-        elasticsearchConnection.getClient().admin().cluster().prepareHealth().setWaitForGreenStatus().execute().actionGet();
+
+        IndicesExistsRequest indicesExistsRequest = new IndicesExistsRequest().indices(TableMapStore.TABLE_META_INDEX);
+        IndicesExistsResponse indicesExistsResponse = elasticsearchConnection.getClient().admin().indices().exists(indicesExistsRequest).actionGet();
+        if (!indicesExistsResponse.isExists()) {
+            Settings indexSettings = Settings.builder().put("number_of_replicas", 0).build();
+            CreateIndexRequest createRequest = new CreateIndexRequest(TableMapStore.TABLE_META_INDEX).settings(indexSettings);
+            elasticsearchConnection.getClient().admin().indices().create(createRequest).actionGet();
+        }
 
         tableMetadataManager = Mockito.mock(TableMetadataManager.class);
         try {

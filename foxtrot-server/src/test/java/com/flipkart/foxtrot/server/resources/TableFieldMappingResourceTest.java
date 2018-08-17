@@ -75,6 +75,7 @@ public class TableFieldMappingResourceTest extends FoxtrotResourceTest {
         mappings.add(new FieldTypeMapping("data.data", FieldType.STRING));
         mappings.add(new FieldTypeMapping("header.hello", FieldType.STRING));
         mappings.add(new FieldTypeMapping("head.hello", FieldType.LONG));
+        mappings.add(new FieldTypeMapping("time", FieldType.LONG));
 
         TableFieldMapping tableFieldMapping = new TableFieldMapping(TestUtils.TEST_TABLE_NAME, mappings);
         String response = resources.client().target(String.format("/v1/tables/%s/fields", TestUtils.TEST_TABLE_NAME))
@@ -83,7 +84,9 @@ public class TableFieldMappingResourceTest extends FoxtrotResourceTest {
 
         TableFieldMapping mapping = getMapper().readValue(response, TableFieldMapping.class);
         assertEquals(tableFieldMapping.getTable(), mapping.getTable());
-        assertTrue(tableFieldMapping.getMappings().equals(mapping.getMappings()));
+        for (FieldTypeMapping fieldTypeMapping : mappings) {
+            assertTrue(tableFieldMapping.getMappings().contains(fieldTypeMapping));
+        }
     }
 
     @Test
@@ -115,7 +118,8 @@ public class TableFieldMappingResourceTest extends FoxtrotResourceTest {
 
         Map<String, TableFieldMapping> response = resources.client().target("/v1/tables/fields")
                 .request()
-                .get(new GenericType<Map<String, TableFieldMapping>>() {});
+                .get(new GenericType<Map<String, TableFieldMapping>>() {
+                });
         //System.out.println(new ObjectMapper().writerWithDefaultPrettyPrinter().writeValueAsString(response));
         Assert.assertFalse(response.isEmpty());
         Assert.assertEquals(1, response.size());

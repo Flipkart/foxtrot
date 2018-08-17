@@ -181,11 +181,16 @@
             <version>${dropwizard.version}</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.elasticsearch-6</groupId>
+            <artifactId>elasticsearch-embedded-cluster</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
     </dependencies>
 
     <build>
         <plugins>
-            <plugin>
+            <!--<plugin>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>2.19.1</version>
                 <executions>
@@ -196,7 +201,7 @@
                         </configuration>
                     </execution>
                 </executions>
-            </plugin>
+            </plugin>-->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
@@ -333,7 +338,7 @@
                     </execution>
                 </executions>
             </plugin>-->
-            <plugin>
+            <!--<plugin>
                 <artifactId>maven-dependency-plugin</artifactId>
                 <version>2.10</version>
                 <executions>
@@ -389,7 +394,7 @@
                         </goals>
                     </execution>
                 </executions>
-            </plugin>
+            </plugin>-->
             <!--<plugin>
                 <artifactId>maven-antrun-plugin</artifactId>
                 <version>1.8</version>

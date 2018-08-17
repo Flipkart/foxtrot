@@ -27,7 +27,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.Matchers;
 
-import javax.ws.rs.ProcessingException;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;

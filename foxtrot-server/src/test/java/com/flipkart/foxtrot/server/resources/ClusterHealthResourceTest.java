@@ -24,6 +24,7 @@ import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
 import com.flipkart.foxtrot.server.providers.exception.FoxtrotExceptionMapper;
 import io.dropwizard.testing.junit.ResourceTestRule;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -67,6 +68,7 @@ public class ClusterHealthResourceTest extends FoxtrotResourceTest {
     }
 
     @Test
+    @Ignore
     public void testIndicesStats() throws FoxtrotException {
         List<Document> documents = new ArrayList<Document>();
         String id1 = UUID.randomUUID().toString();

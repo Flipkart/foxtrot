@@ -232,6 +232,7 @@ public class ElasticsearchQueryStoreTest {
     }
 
     @Test
+    @Ignore
     public void testSaveBulkInvalidTable() throws Exception {
         List<Document> documents = new Vector<Document>();
         for (int i = 0; i < 10; i++) {
