@@ -51,7 +51,6 @@ public class CardinalityConfig {
     Initial day in hours. Used to run the config at ith hour of the day
      */
     @Min(1)
-    @JsonProperty("initialdelay")
     private int initialDelay;
 
     @NotNull
