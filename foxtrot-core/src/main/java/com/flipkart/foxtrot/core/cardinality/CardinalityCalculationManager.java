@@ -53,7 +53,7 @@ public class CardinalityCalculationManager implements Managed {
 
     @Override
     public void start() throws Exception {
-        LOGGER.info("Starting Deletion Manager");
+        LOGGER.info("Starting Cardinality Manager");
         if (cardinalityConfig.isActive()) {
             LOGGER.info("Scheduling cardinality calculation job");
             LocalDateTime localNow = LocalDateTime.now();
@@ -86,6 +86,7 @@ public class CardinalityCalculationManager implements Managed {
     @Override
     public void stop() throws Exception {
         LOGGER.info("Stopping Cardinality Manager");
+        scheduledExecutorService.shutdown();
         LOGGER.info("Stopped Cardinality Manager");
     }
 }

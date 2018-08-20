@@ -282,12 +282,10 @@ public class GroupAction extends Action<GroupRequest> {
 
         log.debug("cacheKey:{} msg:NESTING_FIELDS_ESTIMATION_COMPLETED maxDocCount:{} docCountAfterTimeFilters:{} docCountAfterFilters:{} outputCardinality:{}",
                 cacheKey, estimatedMaxDocCount, estimatedDocCountBasedOnTime, estimatedDocCountAfterFilters, outputCardinality);
-        long maxCardinality;
+        long maxCardinality = MAX_CARDINALITY;
         if (getQueryStore() instanceof ElasticsearchQueryStore && ((ElasticsearchQueryStore) getQueryStore()).getCardinalityConfig() != null
                 && ((ElasticsearchQueryStore) getQueryStore()).getCardinalityConfig().getMaxCardinality() != 0) {
             maxCardinality = ((ElasticsearchQueryStore) getQueryStore()).getCardinalityConfig().getMaxCardinality();
-        } else {
-            maxCardinality = MAX_CARDINALITY;
         }
         if (outputCardinality > maxCardinality) {
             log.warn("Output cardinality : {}, estimatedMaxDocCount : {}, estimatedDocCountBasedOnTime : {}, " +
