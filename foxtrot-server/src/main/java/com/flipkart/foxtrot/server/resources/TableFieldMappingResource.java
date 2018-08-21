@@ -43,21 +43,23 @@ public class TableFieldMappingResource {
     @GET
     @Path("/{name}/fields")
     public Response get(@PathParam("name") final String table,
-                        @QueryParam("withCardinality") @DefaultValue("false") boolean withCardinality) throws FoxtrotException {
+                        @QueryParam("withCardinality") @DefaultValue("false") boolean withCardinality,
+                        @QueryParam("calculateCardinality") @DefaultValue("false") boolean calculateCardinality) throws FoxtrotException {
         return Response.ok(tableMetadataManager.getFieldMappings(table, withCardinality, withCardinality)).build();
     }
 
 
     @GET
     @Path("/fields")
-    public Response getAllFields(@QueryParam("withCardinality") @DefaultValue("false") boolean withCardinality) throws FoxtrotException {
+    public Response getAllFields(@QueryParam("withCardinality") @DefaultValue("false") boolean withCardinality,
+                                 @QueryParam("calculateCardinality") @DefaultValue("false") boolean calculateCardinality) throws FoxtrotException {
         return Response.ok()
                 .entity(tableManager.getAll()
                         .stream()
                         .collect(
                                 Collectors.toMap(Table::getName, table -> {
                                     try {
-                                        return tableMetadataManager.getFieldMappings(table.getName(), withCardinality, withCardinality);
+                                        return tableMetadataManager.getFieldMappings(table.getName(), withCardinality, calculateCardinality);
                                     } catch (FoxtrotException e) {
                                         throw new RuntimeException(e);
                                     }
