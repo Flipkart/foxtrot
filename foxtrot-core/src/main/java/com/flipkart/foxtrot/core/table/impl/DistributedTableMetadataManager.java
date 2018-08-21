@@ -195,7 +195,7 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
         TableFieldMapping tableFieldMapping;
         if (fieldDataCache.containsKey(table) && !withCardinality) {
             tableFieldMapping = fieldDataCache.get(table);
-        } else if (fieldDataCardinalityCache.containsKey(table) && withCardinality) {
+        } else if (fieldDataCardinalityCache.containsKey(table) && withCardinality && !calculateCardinality) {
             tableFieldMapping = fieldDataCardinalityCache.get(table);
         } else {
             ElasticsearchMappingParser mappingParser = new ElasticsearchMappingParser(mapper);
