@@ -33,7 +33,7 @@ cardinality:
   listSize: 10
   active: true
   interval: 86400
-  initialdelay: 6
+  initialDelay: 6
   maxCardinality: 20000
 
 deletionconfig:
