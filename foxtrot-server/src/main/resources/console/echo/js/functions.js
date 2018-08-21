@@ -405,12 +405,6 @@ function hideFetchError(data) {
  * Convert epoch to readble date
  */
 function readbleDate(epochValue) {
-  var dateVal = "/Date("+epochValue+")/";
-  var date = new Date( parseFloat( dateVal.substr(6 )));
-  var month = date.getMonth()+1;
-
-  if(month <= 9)
-    month = "0"+month;
-
-  return date.getDate()+"/"+month +"/"+date.getFullYear()+" "+date.getHours() + ":" +date.getMinutes() + ":" +date.getSeconds()+":"+date.getMilliseconds();
+  var day = moment(epochValue); //milliseconds
+  return day.format('DD/MM/YYYY, hh:mm:ss a');
 }

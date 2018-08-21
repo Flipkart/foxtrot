@@ -3,14 +3,6 @@ var flat = {
   unflatten: unflatten
 }
 
-function GetFormattedDate(timeStamp) {
-  var todayTime = new Date(timeStamp);
-  var month = format(todayTime .getMonth() + 1);
-  var day = format(todayTime .getDate());
-  var year = format(todayTime .getFullYear());
-  return day + "/" + month + "/" + year;
-}
-
 function flatten(target, opts) {
   opts = opts || {}
 
