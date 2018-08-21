@@ -3,6 +3,14 @@ var flat = {
   unflatten: unflatten
 }
 
+function GetFormattedDate(timeStamp) {
+  var todayTime = new Date(timeStamp);
+  var month = format(todayTime .getMonth() + 1);
+  var day = format(todayTime .getDate());
+  var year = format(todayTime .getFullYear());
+  return day + "/" + month + "/" + year;
+}
+
 function flatten(target, opts) {
   opts = opts || {}
 
@@ -26,8 +34,15 @@ function flatten(target, opts) {
       if (!isarray && isobject) {
         return step(value, newKey)
       }
+      output[newKey] = value;
 
-      output[newKey] = value
+      /**
+       *  add human readable date
+       */
+      if(newKey == "data.time") {
+        output["Date"] = readbleDate(value);
+      }
+
     })
   }
 
