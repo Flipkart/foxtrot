@@ -45,7 +45,7 @@ public class TableFieldMappingResource {
     public Response get(@PathParam("name") final String table,
                         @QueryParam("withCardinality") @DefaultValue("false") boolean withCardinality,
                         @QueryParam("calculateCardinality") @DefaultValue("false") boolean calculateCardinality) throws FoxtrotException {
-        return Response.ok(tableMetadataManager.getFieldMappings(table, withCardinality, withCardinality)).build();
+        return Response.ok(tableMetadataManager.getFieldMappings(table, withCardinality, calculateCardinality)).build();
     }
 
 
