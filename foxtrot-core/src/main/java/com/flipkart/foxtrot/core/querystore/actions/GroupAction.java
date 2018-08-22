@@ -150,7 +150,7 @@ public class GroupAction extends Action<GroupRequest> {
                 ((ElasticsearchQueryStore) queryStore).getCardinalityConfig().isCardinalityEnabled()) {
             double probability = 0;
             try {
-                TableFieldMapping fieldMappings = getTableMetadataManager().getFieldMappings(parameter.getTable(), true);
+                TableFieldMapping fieldMappings = getTableMetadataManager().getFieldMappings(parameter.getTable(), true, false);
                 if (null == fieldMappings) {
                     fieldMappings = TableFieldMapping.builder()
                             .mappings(Collections.emptySet())
@@ -282,7 +282,12 @@ public class GroupAction extends Action<GroupRequest> {
 
         log.debug("cacheKey:{} msg:NESTING_FIELDS_ESTIMATION_COMPLETED maxDocCount:{} docCountAfterTimeFilters:{} docCountAfterFilters:{} outputCardinality:{}",
                 cacheKey, estimatedMaxDocCount, estimatedDocCountBasedOnTime, estimatedDocCountAfterFilters, outputCardinality);
-        if (outputCardinality > MAX_CARDINALITY) {
+        long maxCardinality = MAX_CARDINALITY;
+        if (getQueryStore() instanceof ElasticsearchQueryStore && ((ElasticsearchQueryStore) getQueryStore()).getCardinalityConfig() != null
+                && ((ElasticsearchQueryStore) getQueryStore()).getCardinalityConfig().getMaxCardinality() != 0) {
+            maxCardinality = ((ElasticsearchQueryStore) getQueryStore()).getCardinalityConfig().getMaxCardinality();
+        }
+        if (outputCardinality > maxCardinality) {
             log.warn("Output cardinality : {}, estimatedMaxDocCount : {}, estimatedDocCountBasedOnTime : {}, " +
                             "estimatedDocCountAfterFilters : {}, TableFieldMapping : {},  Query: {}", outputCardinality,
                     estimatedMaxDocCount, estimatedDocCountBasedOnTime, estimatedDocCountAfterFilters, tableFieldMapping,

@@ -49,7 +49,7 @@ public class PeriodSelector extends FilterVisitorAdapter<Void> {
             }
         }
         for (Filter filter : filters) {
-            if (filter.getField().equals(ElasticsearchUtils.TIME_FIELD)) {
+            if (ElasticsearchUtils.TIME_FIELD.equals(filter.getField())) {
                 filter.accept(this);
             }
         }

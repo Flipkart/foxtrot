@@ -22,7 +22,8 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.jsontype.NamedType;
 import com.flipkart.foxtrot.core.cache.CacheManager;
 import com.flipkart.foxtrot.core.cache.impl.DistributedCacheFactory;
-import com.flipkart.foxtrot.core.common.CardinalityConfig;
+import com.flipkart.foxtrot.core.cardinality.CardinalityCalculationManager;
+import com.flipkart.foxtrot.core.cardinality.CardinalityConfig;
 import com.flipkart.foxtrot.core.common.DataDeletionManager;
 import com.flipkart.foxtrot.core.common.DataDeletionManagerConfig;
 import com.flipkart.foxtrot.core.datastore.DataStore;
@@ -149,6 +150,7 @@ public class FoxtrotServer extends Application<FoxtrotServerConfiguration> {
         QueryExecutor executor = new QueryExecutor(analyticsLoader, executorService);
         DataDeletionManagerConfig dataDeletionManagerConfig = configuration.getTableDataManagerConfig();
         DataDeletionManager dataDeletionManager = new DataDeletionManager(dataDeletionManagerConfig, queryStore);
+        CardinalityCalculationManager cardinalityCalculationManager = new CardinalityCalculationManager(tableMetadataManager, cardinalityConfig, hazelcastConnection);
 
         List<HealthCheck> healthChecks = new ArrayList<>();
 //        ElasticSearchHealthCheck elasticSearchHealthCheck = new ElasticSearchHealthCheck(elasticsearchConnection);
@@ -162,6 +164,7 @@ public class FoxtrotServer extends Application<FoxtrotServerConfiguration> {
         environment.lifecycle().manage(analyticsLoader);
         environment.lifecycle().manage(dataDeletionManager);
         environment.lifecycle().manage(clusterManager);
+        environment.lifecycle().manage(cardinalityCalculationManager);
 
         environment.jersey().register(new DocumentResource(queryStore));
         environment.jersey().register(new AsyncResource(cacheManager));
@@ -177,6 +180,7 @@ public class FoxtrotServer extends Application<FoxtrotServerConfiguration> {
         environment.jersey().register(new ClusterInfoResource(clusterManager));
         environment.jersey().register(new UtilResource(configuration));
         environment.jersey().register(new ClusterHealthResource(queryStore));
+        environment.jersey().register(new CacheUpdateResource(executorService, tableMetadataManager));
 
 //        environment.healthChecks().register("ES Health Check", elasticSearchHealthCheck);
 

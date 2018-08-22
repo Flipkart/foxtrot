@@ -23,7 +23,7 @@ import com.flipkart.foxtrot.common.Table;
 import com.flipkart.foxtrot.common.TableFieldMapping;
 import com.flipkart.foxtrot.common.estimation.*;
 import com.flipkart.foxtrot.common.util.CollectionUtils;
-import com.flipkart.foxtrot.core.common.CardinalityConfig;
+import com.flipkart.foxtrot.core.cardinality.CardinalityConfig;
 import com.flipkart.foxtrot.core.exception.FoxtrotException;
 import com.flipkart.foxtrot.core.exception.FoxtrotExceptions;
 import com.flipkart.foxtrot.core.parsers.ElasticsearchMappingParser;
@@ -147,10 +147,10 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
         mapConfig.setTimeToLiveSeconds(TIME_TO_LIVE_CARDINALITY_CACHE);
         mapConfig.setBackupCount(0);
 
-       /* NearCacheConfig nearCacheConfig = new NearCacheConfig();
+        NearCacheConfig nearCacheConfig = new NearCacheConfig();
         nearCacheConfig.setTimeToLiveSeconds(TIME_TO_LIVE_CARDINALITY_CACHE);
-        nearCacheConfig.setInvalidateOnChange(false);
-        mapConfig.setNearCacheConfig(nearCacheConfig);*/
+        nearCacheConfig.setInvalidateOnChange(true);
+        mapConfig.setNearCacheConfig(nearCacheConfig);
 
         return mapConfig;
     }
@@ -184,7 +184,7 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
 
     @Override
     @Timed
-    public TableFieldMapping getFieldMappings(String originalTableName, boolean withCardinality) throws FoxtrotException {
+    public TableFieldMapping getFieldMappings(String originalTableName, boolean withCardinality, boolean calculateCardinality) throws FoxtrotException {
         final String table = ElasticsearchUtils.getValidTableName(originalTableName);
 
         if (!tableDataStore.containsKey(table)) {
@@ -195,7 +195,7 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
         TableFieldMapping tableFieldMapping;
         if (fieldDataCache.containsKey(table) && !withCardinality) {
             tableFieldMapping = fieldDataCache.get(table);
-        } else if (fieldDataCardinalityCache.containsKey(table) && withCardinality) {
+        } else if (fieldDataCardinalityCache.containsKey(table) && withCardinality && !calculateCardinality) {
             tableFieldMapping = fieldDataCardinalityCache.get(table);
         } else {
             ElasticsearchMappingParser mappingParser = new ElasticsearchMappingParser(mapper);
@@ -231,7 +231,7 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
             fieldMetadataTreeSet.addAll(fieldMetadata);
             tableFieldMapping = new TableFieldMapping(table, fieldMetadataTreeSet);
 
-            if (withCardinality) {
+            if (calculateCardinality) {
                 estimateCardinality(table, tableFieldMapping.getMappings(), DateTime.now().minusDays(1).toDate().getTime());
                 fieldDataCardinalityCache.put(table, tableFieldMapping);
             } else {
@@ -256,7 +256,7 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
             throw FoxtrotExceptions.createBadRequestException(table,
                     String.format("unknown_table table:%s", table));
         }
-        final TableFieldMapping tableFieldMapping = getFieldMappings(table, cardinalityConfig.isCardinalityEnabled());
+        final TableFieldMapping tableFieldMapping = getFieldMappings(table, cardinalityConfig.isCardinalityEnabled(), false);
         //estimateCardinality(table, tableFieldMapping.getMappings(), timestamp);
         fieldDataCache.put(table, tableFieldMapping);
     }

@@ -20,7 +20,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.flipkart.foxtrot.common.Document;
 import com.flipkart.foxtrot.common.Table;
 import com.flipkart.foxtrot.common.TableFieldMapping;
-import com.flipkart.foxtrot.core.common.CardinalityConfig;
+import com.flipkart.foxtrot.core.cardinality.CardinalityConfig;
 import com.flipkart.foxtrot.core.datastore.DataStore;
 import com.flipkart.foxtrot.core.exception.FoxtrotException;
 import com.flipkart.foxtrot.core.exception.FoxtrotExceptions;
@@ -326,7 +326,7 @@ public class ElasticsearchQueryStore implements QueryStore {
 
     @Override
     public TableFieldMapping getFieldMappings(String testTableName) throws FoxtrotException {
-        return tableMetadataManager.getFieldMappings(testTableName, false);
+        return tableMetadataManager.getFieldMappings(testTableName, false, false);
     }
 
     private String convert(Document translatedDocument) {

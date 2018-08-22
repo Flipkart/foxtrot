@@ -44,7 +44,11 @@ logging:
 
 cardinality:
   cardinality: true
-  listSize: 50
+  listSize: 10
+  active: true
+  interval: 86400
+  initialDelay: 6
+  maxCardinality: 20000
 
 deletionconfig:
   active: false
