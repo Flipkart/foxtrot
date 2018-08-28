@@ -23,6 +23,7 @@ import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.support.WriteRequest;
 import org.elasticsearch.common.unit.TimeValue;
+import org.elasticsearch.common.xcontent.XContentType;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
 import org.elasticsearch.search.sort.SortOrder;
@@ -142,7 +143,7 @@ public class ElasticsearchConsolePersistence implements ConsolePersistence {
                     .setIndex(INDEX_V2)
                     .setType(TYPE)
                     .setId(console.getId())
-                    .setSource(ElasticsearchQueryUtils.getSourceMap(console, ConsoleV2.class))
+                    .setSource(mapper.writeValueAsBytes(console), XContentType.JSON)
                     .setRefreshPolicy(WriteRequest.RefreshPolicy.IMMEDIATE)
                     .execute()
                     .get();
@@ -184,14 +185,14 @@ public class ElasticsearchConsolePersistence implements ConsolePersistence {
         try {
             Vector<ConsoleV2> results = new Vector<ConsoleV2>();
             while (true) {
-                response = connection.getClient().prepareSearchScroll(response.getScrollId())
-                        .setScroll(new TimeValue(60000))
-                        .execute()
-                        .actionGet();
                 SearchHits hits = response.getHits();
                 for (SearchHit hit : hits) {
                     results.add(mapper.readValue(hit.getSourceAsString(), ConsoleV2.class));
                 }
+                response = connection.getClient().prepareSearchScroll(response.getScrollId())
+                        .setScroll(new TimeValue(60000))
+                        .execute()
+                        .actionGet();
                 if (0 == response.getHits().getHits().length) {
                     break;
                 }

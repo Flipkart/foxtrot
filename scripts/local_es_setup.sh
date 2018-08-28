@@ -9,10 +9,17 @@ curl -H 'Content-type: application/json' -XPUT ${1}:9200/_template/template_foxt
 {
   "template": "'${2}'-*",
   "settings": {
-    "number_of_shards": 2,
-    "number_of_replicas": 1,
-    "mapping.total_fields.limit": 5000
-  },
+            "index": {
+                "number_of_shards": "2",
+                "number_of_replicas": "1",
+                "mapping": {
+                    "total_fields": {
+                        "limit": "5000"
+                    }
+                },
+                "codec" : "best_compression"
+            }
+        },
   "mappings": {
     "document": {
       "_source": {
@@ -103,11 +110,65 @@ curl -H 'Content-type: application/json' -XPUT ${1}:9200/_template/template_foxt
   }
 }'
 
+curl -H 'Content-type: application/json' -XPUT ${1}:9200/_template/console_v2 -d '
+{
+  "template": "consoles_v2*",
+  "settings": {
+            "index": {
+                "number_of_shards": "1",
+                "number_of_replicas": "1"
+            }
+        },
+  "mappings": {
+    "document": {
+      "dynamic_templates": [
+
+        {
+          "template_object_store_analyzed": {
+            "match": "*",
+            "match_mapping_type": "object",
+            "mapping": {
+              "index": "true"
+            }
+          }
+        },
+        {
+          "template_no_store_analyzed": {
+            "match": "*",
+            "match_mapping_type": "string",
+            "mapping": {
+              "index": "true",
+              "type": "keyword",
+              "fields": {
+                "analyzed": {
+                  "type": "text",
+                  "index": "true"
+                }
+              }
+            }
+          }
+        },
+        {
+          "template_no_store": {
+            "match_mapping_type": "*",
+            "match_pattern": "regex",
+            "path_match": ".*",
+            "mapping": {
+              "index": "true"
+            }
+          }
+        }
+      ]
+    }
+  }
+}'
+
+
 curl -H 'Content-type: application/json' -XPUT "http://${1}:9200/consoles/" -d '{
     "settings" : {
         "index" : {
             "number_of_shards" : 1,
-            "number_of_replicas" : 0
+            "number_of_replicas" : 1
         }
     }
 }'
