@@ -15,7 +15,6 @@ package com.flipkart.foxtrot.core.cardinality;
  * limitations under the License.
  */
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -35,11 +34,9 @@ import javax.ws.rs.DefaultValue;
 public class CardinalityConfig {
 
     private String cardinality;
-    private String listSize;
+    private String batchSize;
 
     private boolean cardinalityEnabled;
-
-    private int subListSize;
 
     @DefaultValue("50000")
     private long maxCardinality;
@@ -56,9 +53,9 @@ public class CardinalityConfig {
     @NotNull
     private boolean active;
 
-    public CardinalityConfig(String cardinality, String listSize) {
+    public CardinalityConfig(String cardinality, String batchSize) {
         this.cardinality = cardinality;
-        this.listSize = listSize;
+        this.batchSize = batchSize;
     }
 
     public boolean isCardinalityEnabled() {
@@ -69,9 +66,9 @@ public class CardinalityConfig {
     }
 
     public int getSubListSize() {
-        if (StringUtils.isEmpty(listSize)) {
+        if (StringUtils.isEmpty(batchSize)) {
             return ElasticsearchUtils.DEFAULT_SUB_LIST_SIZE;
         }
-        return Integer.valueOf(listSize);
+        return Integer.valueOf(batchSize);
     }
 }

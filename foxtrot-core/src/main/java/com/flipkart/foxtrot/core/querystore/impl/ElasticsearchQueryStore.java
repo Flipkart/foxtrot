@@ -325,8 +325,8 @@ public class ElasticsearchQueryStore implements QueryStore {
     }
 
     @Override
-    public TableFieldMapping getFieldMappings(String testTableName) throws FoxtrotException {
-        return tableMetadataManager.getFieldMappings(testTableName, false, false);
+    public TableFieldMapping getFieldMappings(String table) throws FoxtrotException {
+        return tableMetadataManager.getFieldMappings(table, false, false);
     }
 
     private String convert(Document translatedDocument) {
