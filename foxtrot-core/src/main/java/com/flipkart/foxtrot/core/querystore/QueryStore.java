@@ -57,5 +57,5 @@ public interface QueryStore {
 
     IndicesStatsResponse getIndicesStats() throws ExecutionException, InterruptedException;
 
-    TableFieldMapping getFieldMappings(String testTableName) throws FoxtrotException;
+    TableFieldMapping getFieldMappings(String table) throws FoxtrotException;
 }
