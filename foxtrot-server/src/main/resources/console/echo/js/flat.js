@@ -26,8 +26,15 @@ function flatten(target, opts) {
       if (!isarray && isobject) {
         return step(value, newKey)
       }
+      output[newKey] = value;
 
-      output[newKey] = value
+      /**
+       *  add human readable date
+       */
+      if(newKey == "data.time") {
+        output["Date"] = readbleDate(value);
+      }
+
     })
   }
 

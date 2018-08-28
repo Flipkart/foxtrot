@@ -400,3 +400,11 @@ function showFetchError(data) {
 function hideFetchError(data) {
   $("#"+data.id).find(".fetch-error").hide();
 } 
+
+/**
+ * Convert epoch to readble date
+ */
+function readbleDate(epochValue) {
+  var day = moment(epochValue); //milliseconds
+  return day.format('DD/MM/YYYY, hh:mm:ss a');
+}
