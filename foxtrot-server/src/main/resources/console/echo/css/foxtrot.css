@@ -2117,15 +2117,19 @@ div.tab button:first-child {
 }
 
 .stacked-tooltip tr {
-  border: solid 1px #c0cbd1;
+  border-bottom: solid 1px #c0cbd1;
 }
 
 .stacked-tooltip td {
   border: 0;
   padding-right: 15px;
   padding-left: 15px;
-  padding-bottom: 10px;
+  padding-bottom: 15px;
   padding-top: 5px;
+}
+
+.stacked-tooltip tr:last-child {
+  border-top: 1px #c0cbd1;
 }
 
 .stacked-tooltip {
@@ -3328,4 +3332,20 @@ div.tab button:first-child {
 }
 .fetch-error-medium-widget {
   margin-left: 2.5%;
+}
+.stacked-tooltip {
+  table-layout:fixed;
+  border: none;
+}
+.stacked-tooltip thead, tfoot{
+  display: inherit;
+}
+.tooltip-total {
+  float: right;
+}
+.stacked-tooltip tbody {
+  max-height: 300px;
+  overflow: scroll;
+  display: block;
+  margin-left: -1px;
 }
