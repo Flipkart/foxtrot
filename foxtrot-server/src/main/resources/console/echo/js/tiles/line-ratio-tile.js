@@ -127,12 +127,12 @@ function LineRatioTile() {
         if(numerator[loopIndex] !== void 0) {
           /* void 0 === undefined * See concern about ``undefined'' below. */
           /* index doesn't point to an undefined item. */
-          numeratorValue = numeratorValue+numerator[loopIndex].count;
+          numeratorValue = numerator[loopIndex].count;
         }
 
         
         if(denominator[loopIndex] !== void 0) {
-          denominotorValue = denominotorValue+denominator[loopIndex].count;
+          denominotorValue = denominator[loopIndex].count;
         }
         
         var percentage = (denominotorValue/numeratorValue*100);
