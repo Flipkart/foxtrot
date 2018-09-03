@@ -134,10 +134,13 @@ function LineRatioTile() {
         if(denominator[loopIndex] !== void 0) {
           denominotorValue = denominator[loopIndex].count;
         }
-        
+
         var percentage = (denominotorValue/numeratorValue*100);
-        var percentageValue = isNaN(percentage) ?  0 : percentage;  
-        newData.push([denominator[loopIndex].period, (percentageValue / Math.pow(10, 0))]);
+        var percentageValue = isNaN(percentage) ?  0 : percentage;
+
+        if(loopIndex > 0) { // dont plot index 0
+          newData.push([denominator[loopIndex].period, (percentageValue / Math.pow(10, 0))]);          
+        }
       }
       this.render(newData);
     } else {
