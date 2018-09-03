@@ -347,7 +347,13 @@ StackedBarTile.prototype.render = function (d) {
       'z-index': 5000,
       'line-height': 2
     }).appendTo("body");
-  
+
+    var closeEl = $(tooltip).find(".close-tooltip");// find tooltip elemetn
+    $(closeEl).click(function() { // add click event
+      $(tooltip).hide();
+    });
+
+
     $(tooltip).width($(".stacked-tooltip tbody").width());
     $(".stacked-tooltip thead").width($(".stacked-tooltip tbody").width());
     $(".stacked-tooltip tfoot").width($(".stacked-tooltip tbody").width());
@@ -380,7 +386,7 @@ StackedBarTile.prototype.render = function (d) {
       var color = item.series.color;
 
       var a = axisTimeFormatNew(object.tileContext.period, (globalFilters ? getGlobalFilters() : getPeriodSelect(object.id)));
-      var strTip = "<table border='1' class='stacked-tooltip'><thead><tr><td class='tooltip-table-first-td' colspan='2'>"+moment(x).format(a)+"</td><td class='tooltip-table-first-td' colspan='2'><span onclick='closeTooltip();'>Close</span></td></tr></thead>"; // start string with current hover
+      var strTip = "<table border='1' class='stacked-tooltip'><thead><tr><td class='tooltip-table-first-td' colspan='2'>"+moment(x).format(a)+"</td><td class='tooltip-table-first-td' colspan='2'><span class='close-tooltip'>Close</span></td></tr></thead>"; // start string with current hover
       var total = 0;
       var strTipInsideRows = "";
       var allSeries = plot.getData();

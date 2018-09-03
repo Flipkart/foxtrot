@@ -3349,3 +3349,8 @@ div.tab button:first-child {
   display: block;
   margin-left: -1px;
 }
+.close-tooltip {
+  float: right;
+  cursor: pointer;
+  text-decoration: underline;
+}
