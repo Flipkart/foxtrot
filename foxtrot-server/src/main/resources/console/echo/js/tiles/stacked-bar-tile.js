@@ -353,7 +353,6 @@ StackedBarTile.prototype.render = function (d) {
       $(tooltip).hide();
     });
 
-
     $(tooltip).width($(".stacked-tooltip tbody").width());
     $(".stacked-tooltip thead").width($(".stacked-tooltip tbody").width());
     $(".stacked-tooltip tfoot").width($(".stacked-tooltip tbody").width());
@@ -405,8 +404,6 @@ StackedBarTile.prototype.render = function (d) {
       }
       strTip =  strTip+strTipInsideRows+"<tfoot><tr><td class='tooltip-text'><b>TOTAL</b></td> <td style='color:#42b1f7' class='tooltip-count tooltip-total'>"+numberWithCommas(total)+"</td></tr></tfoot></table>" ;
       showTooltip(item.pageX, item.pageY, strTip, color, ctx);
-    } else {
-      //$("#tooltip").remove();
     }
   });
 
