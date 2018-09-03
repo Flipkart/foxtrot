@@ -337,7 +337,7 @@ StackedBarTile.prototype.render = function (d) {
 //  });
 //
   function showTooltip(x, y, contents, color, ctx) {
-    $('<div id="tooltip">' + contents + '</div>').css({
+   var tooltip =  $('<div id="tooltip">' + contents + '</div>').css({
       position: 'absolute',
       display: 'block',
       top: y + 5,
@@ -345,8 +345,17 @@ StackedBarTile.prototype.render = function (d) {
       'background-color': '#fff',
       'box-shadow': '0 2px 4px 0 #cbd7e9',
       'z-index': 5000,
-      'line-height': 2,
-    }).appendTo("body").fadeOut(60000);
+      'line-height': 2
+    }).appendTo("body");
+
+    var closeEl = $(tooltip).find(".close-tooltip");// find tooltip elemetn
+    $(closeEl).click(function() { // add click event
+      $(tooltip).hide();
+    });
+
+    $(tooltip).width($(".stacked-tooltip tbody").width());
+    $(".stacked-tooltip thead").width($(".stacked-tooltip tbody").width());
+    $(".stacked-tooltip tfoot").width($(".stacked-tooltip tbody").width());
     // adjust position of tooltip
     var width = $("#tooltip").width();
     var height = $("#tooltip").height();
@@ -376,7 +385,7 @@ StackedBarTile.prototype.render = function (d) {
       var color = item.series.color;
 
       var a = axisTimeFormatNew(object.tileContext.period, (globalFilters ? getGlobalFilters() : getPeriodSelect(object.id)));
-      var strTip = "<table border='1' class='stacked-tooltip'><tr><td class='tooltip-table-first-td' colspan='2'>"+moment(x).format(a)+"</td>"; // start string with current hover
+      var strTip = "<table border='1' class='stacked-tooltip'><thead><tr><td class='tooltip-table-first-td' colspan='2'>"+moment(x).format(a)+"</td><td class='tooltip-table-first-td' colspan='2'><span class='close-tooltip'>Close</span></td></tr></thead>"; // start string with current hover
       var total = 0;
       var strTipInsideRows = "";
       var allSeries = plot.getData();
@@ -393,10 +402,8 @@ StackedBarTile.prototype.render = function (d) {
           }
         });
       }
-      strTip =  strTip+strTipInsideRows+"<tr><td class='tooltip-text'><b>TOTAL</b></td> <td style='color:#42b1f7' class='tooltip-count'>"+numberWithCommas(total)+"</td></tr></table>" ;
+      strTip =  strTip+strTipInsideRows+"<tfoot><tr><td class='tooltip-text'><b>TOTAL</b></td> <td style='color:#42b1f7' class='tooltip-count tooltip-total'>"+numberWithCommas(total)+"</td></tr></tfoot></table>" ;
       showTooltip(item.pageX, item.pageY, strTip, color, ctx);
-    } else {
-      $("#tooltip").remove();
     }
   });
 

@@ -127,17 +127,20 @@ function LineRatioTile() {
         if(numerator[loopIndex] !== void 0) {
           /* void 0 === undefined * See concern about ``undefined'' below. */
           /* index doesn't point to an undefined item. */
-          numeratorValue = numeratorValue+numerator[loopIndex].count;
+          numeratorValue = numerator[loopIndex].count;
         }
 
         
         if(denominator[loopIndex] !== void 0) {
-          denominotorValue = denominotorValue+denominator[loopIndex].count;
+          denominotorValue = denominator[loopIndex].count;
         }
-        
+
         var percentage = (denominotorValue/numeratorValue*100);
-        var percentageValue = isNaN(percentage) ?  0 : percentage;  
-        newData.push([denominator[loopIndex].period, (percentageValue / Math.pow(10, 0))]);
+        var percentageValue = isNaN(percentage) ?  0 : percentage;
+
+        if(loopIndex > 0) { // dont plot index 0
+          newData.push([denominator[loopIndex].period, (percentageValue / Math.pow(10, 0))]);          
+        }
       }
       this.render(newData);
     } else {
