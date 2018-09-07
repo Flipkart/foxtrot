@@ -44,7 +44,7 @@ logging:
 
 cardinality:
   cardinality: true
-  listSize: 10
+  batchSize: 10
   active: true
   interval: 86400
   initialDelay: 6

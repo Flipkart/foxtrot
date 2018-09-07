@@ -184,8 +184,8 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
 
     @Override
     @Timed
-    public TableFieldMapping getFieldMappings(String originalTableName, boolean withCardinality, boolean calculateCardinality) throws FoxtrotException {
-        final String table = ElasticsearchUtils.getValidTableName(originalTableName);
+    public TableFieldMapping getFieldMappings(String tableName, boolean withCardinality, boolean calculateCardinality) throws FoxtrotException {
+        final String table = ElasticsearchUtils.getValidTableName(tableName);
 
         if (!tableDataStore.containsKey(table)) {
             throw FoxtrotExceptions.createBadRequestException(table,
