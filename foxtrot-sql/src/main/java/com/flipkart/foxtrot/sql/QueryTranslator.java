@@ -184,6 +184,7 @@ public class QueryTranslator extends SqlElementVisitor {
                 group.setTable(tableName);
                 group.setNesting(groupBycolumnsList);
                 group.setFilters(filters);
+                setUniqueCountOn(group);
                 request = group;
                 break;
             }
@@ -254,7 +255,17 @@ public class QueryTranslator extends SqlElementVisitor {
         return null;
     }
 
-    private List<ResultSort> generateColumnSort(List<OrderByElement> orderItems){
+    private void setUniqueCountOn(GroupRequest group) {
+        if(calledAction instanceof CountRequest) {
+            CountRequest calledAction = (CountRequest)this.calledAction;
+            boolean distinct = calledAction.isDistinct();
+            if(distinct) {
+                group.setUniqueCountOn(calledAction.getField());
+            }
+        }
+    }
+
+    private List<ResultSort> generateColumnSort(List<OrderByElement> orderItems) {
         List<ResultSort> resultSortList = Lists.newArrayList();
         if (orderItems == null || orderItems.isEmpty()){
             return resultSortList;
