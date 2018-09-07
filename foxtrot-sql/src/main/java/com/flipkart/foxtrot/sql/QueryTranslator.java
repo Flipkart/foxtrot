@@ -79,7 +79,7 @@ public class QueryTranslator extends SqlElementVisitor {
             queryType = FqlQueryType.group;
             for(Object groupByItem : groupByItems) {
                 if(groupByItem instanceof Column) {
-                    Column column = (Column) groupByItem;
+                    Column column = (Column)groupByItem;
                     groupBycolumnsList.add(column.getFullyQualifiedName());
                 }
             }
@@ -87,7 +87,7 @@ public class QueryTranslator extends SqlElementVisitor {
         if(FqlQueryType.select == queryType) {
             List orderByElements = plainSelect.getOrderByElements();
             resultSort = generateResultSort(orderByElements);
-            if (null != plainSelect.getLimit()) {
+            if(null != plainSelect.getLimit()) {
                 hasLimit = true;
                 limitFrom = plainSelect.getLimit().getOffset();
                 limitCount = plainSelect.getLimit().getRowCount();
@@ -102,17 +102,17 @@ public class QueryTranslator extends SqlElementVisitor {
 
         // Handle distinct
         List<ResultSort> tempColumnsWithSort = generateColumnSort(plainSelect.getOrderByElements());
-        if (null != plainSelect.getDistinct()){
-            for (String selectedColumn : selectedColumns){
+        if(null != plainSelect.getDistinct()) {
+            for(String selectedColumn : selectedColumns) {
                 boolean alreadyAdded = false;
-                for (ResultSort columnWithSort : tempColumnsWithSort){
-                    if (selectedColumn.equalsIgnoreCase(columnWithSort.getField())){
+                for(ResultSort columnWithSort : tempColumnsWithSort) {
+                    if(selectedColumn.equalsIgnoreCase(columnWithSort.getField())) {
                         columnsWithSort.add(columnWithSort);
                         alreadyAdded = true;
                         break;
                     }
                 }
-                if (!alreadyAdded){
+                if(!alreadyAdded) {
                     ResultSort resultSort = new ResultSort();
                     resultSort.setField(selectedColumn);
                     resultSort.setOrder(ResultSort.Order.desc);
@@ -163,7 +163,7 @@ public class QueryTranslator extends SqlElementVisitor {
 
         CCJSqlParserManager ccjSqlParserManager = new CCJSqlParserManager();
         Statement statement = ccjSqlParserManager.parse(new StringReader(sql));
-        Select select = (Select) statement;
+        Select select = (Select)statement;
         select.accept(this);
         ActionRequest request = null;
         switch (queryType) {
@@ -173,7 +173,7 @@ public class QueryTranslator extends SqlElementVisitor {
                 query.setSort(resultSort);
                 if(hasLimit) {
                     query.setFrom((int)limitFrom);
-                    query.setLimit((int) limitCount);
+                    query.setLimit((int)limitCount);
                 }
                 query.setFilters(filters);
                 request = query;
@@ -184,25 +184,26 @@ public class QueryTranslator extends SqlElementVisitor {
                 group.setTable(tableName);
                 group.setNesting(groupBycolumnsList);
                 group.setFilters(filters);
+                setUniqueCountOn(group);
                 request = group;
                 break;
             }
             case trend: {
-                TrendRequest trend =  (TrendRequest)calledAction;
+                TrendRequest trend = (TrendRequest)calledAction;
                 trend.setTable(tableName);
                 trend.setFilters(filters);
                 request = trend;
                 break;
             }
             case statstrend: {
-                StatsTrendRequest statsTrend =  (StatsTrendRequest)calledAction;
+                StatsTrendRequest statsTrend = (StatsTrendRequest)calledAction;
                 statsTrend.setTable(tableName);
                 statsTrend.setFilters(filters);
                 request = statsTrend;
                 break;
             }
             case stats: {
-                StatsRequest stats =  (StatsRequest)calledAction;
+                StatsRequest stats = (StatsRequest)calledAction;
                 stats.setTable(tableName);
                 stats.setFilters(filters);
                 request = stats;
@@ -247,23 +248,33 @@ public class QueryTranslator extends SqlElementVisitor {
             Column sortColumn = (Column)orderByElement.getExpression();
             ResultSort resultSort = new ResultSort();
             resultSort.setField(sortColumn.getFullyQualifiedName());
-            resultSort.setOrder(orderByElement.isAsc()? ResultSort.Order.asc : ResultSort.Order.desc);
+            resultSort.setOrder(orderByElement.isAsc() ? ResultSort.Order.asc : ResultSort.Order.desc);
             logger.info("ResultSort: " + resultSort);
             return resultSort;
         }
         return null;
     }
 
-    private List<ResultSort> generateColumnSort(List<OrderByElement> orderItems){
+    private void setUniqueCountOn(GroupRequest group) {
+        if(calledAction instanceof CountRequest) {
+            CountRequest calledAction = (CountRequest)this.calledAction;
+            boolean distinct = calledAction.isDistinct();
+            if(distinct) {
+                group.setUniqueCountOn(calledAction.getField());
+            }
+        }
+    }
+
+    private List<ResultSort> generateColumnSort(List<OrderByElement> orderItems) {
         List<ResultSort> resultSortList = Lists.newArrayList();
-        if (orderItems == null || orderItems.isEmpty()){
+        if(orderItems == null || orderItems.isEmpty()) {
             return resultSortList;
         }
-        for (OrderByElement orderByElement : orderItems){
+        for(OrderByElement orderByElement : orderItems) {
             Column sortColumn = (Column)orderByElement.getExpression();
             ResultSort resultSort = new ResultSort();
             resultSort.setField(sortColumn.getFullyQualifiedName());
-            resultSort.setOrder(orderByElement.isAsc()? ResultSort.Order.asc : ResultSort.Order.desc);
+            resultSort.setOrder(orderByElement.isAsc() ? ResultSort.Order.asc : ResultSort.Order.desc);
             resultSortList.add(resultSort);
         }
         return resultSortList;
@@ -302,10 +313,9 @@ public class QueryTranslator extends SqlElementVisitor {
                     case group:
                         break;
                 }
-            }
-            else {
+            } else {
 
-                if (expression instanceof Parenthesis){
+                if(expression instanceof Parenthesis) {
                     columnName = ((Column)((Parenthesis)expression).getExpression()).getFullyQualifiedName();
                 } else if(expression instanceof Column) {
                     columnName = ((Column)expression).getFullyQualifiedName();
@@ -337,12 +347,12 @@ public class QueryTranslator extends SqlElementVisitor {
                 throw new RuntimeException("trend function has following format: trend(fieldname, [period, [timestamp field]])");
             }
             TrendRequest trendRequest = new TrendRequest();
-            trendRequest.setField(QueryUtils.expressionToString((Expression) expressions.get(0)));
+            trendRequest.setField(QueryUtils.expressionToString((Expression)expressions.get(0)));
             if(expressions.size() > 1) {
-                trendRequest.setPeriod(Period.valueOf(QueryUtils.expressionToString((Expression) expressions.get(1)).toLowerCase()));
+                trendRequest.setPeriod(Period.valueOf(QueryUtils.expressionToString((Expression)expressions.get(1)).toLowerCase()));
             }
             if(expressions.size() > 2) {
-                trendRequest.setTimestamp(QueryUtils.expressionToString((Expression) expressions.get(2)));
+                trendRequest.setTimestamp(QueryUtils.expressionToString((Expression)expressions.get(2)));
             }
             return trendRequest;
         }
@@ -352,9 +362,9 @@ public class QueryTranslator extends SqlElementVisitor {
                 throw new RuntimeException("statstrend function has following format: statstrend(fieldname, [period])");
             }
             StatsTrendRequest statsTrendRequest = new StatsTrendRequest();
-            statsTrendRequest.setField(QueryUtils.expressionToString((Expression) expressions.get(0)));
+            statsTrendRequest.setField(QueryUtils.expressionToString((Expression)expressions.get(0)));
             if(expressions.size() > 1) {
-                statsTrendRequest.setPeriod(Period.valueOf(QueryUtils.expressionToString((Expression) expressions.get(1)).toLowerCase()));
+                statsTrendRequest.setPeriod(Period.valueOf(QueryUtils.expressionToString((Expression)expressions.get(1)).toLowerCase()));
             }
             return statsTrendRequest;
         }
@@ -364,7 +374,7 @@ public class QueryTranslator extends SqlElementVisitor {
                 throw new RuntimeException("stats function has following format: stats(fieldname)");
             }
             StatsRequest statsRequest = new StatsRequest();
-            statsRequest.setField(QueryUtils.expressionToString((Expression) expressions.get(0)));
+            statsRequest.setField(QueryUtils.expressionToString((Expression)expressions.get(0)));
             return statsRequest;
         }
 
@@ -375,9 +385,9 @@ public class QueryTranslator extends SqlElementVisitor {
             HistogramRequest histogramRequest = new HistogramRequest();
             if(null != expressionList) {
                 List expressions = expressionList.getExpressions();
-                histogramRequest.setPeriod(Period.valueOf(QueryUtils.expressionToString((Expression) expressions.get(0)).toLowerCase()));
+                histogramRequest.setPeriod(Period.valueOf(QueryUtils.expressionToString((Expression)expressions.get(0)).toLowerCase()));
                 if(expressions.size() > 1) {
-                    histogramRequest.setField(QueryUtils.expressionToString((Expression) expressions.get(1)));
+                    histogramRequest.setField(QueryUtils.expressionToString((Expression)expressions.get(1)));
                 }
             }
             return histogramRequest;
@@ -386,14 +396,14 @@ public class QueryTranslator extends SqlElementVisitor {
         private ActionRequest parseCountRequest(ExpressionList expressionList, boolean allColumns, boolean isDistinct) {
 
             CountRequest countRequest = new CountRequest();
-            if (allColumns){
+            if(allColumns) {
                 countRequest.setField(null);
                 return countRequest;
             }
 
-            if (expressionList != null && (expressionList.getExpressions() != null && expressionList.getExpressions().size() == 1)) {
+            if(expressionList != null && (expressionList.getExpressions() != null && expressionList.getExpressions().size() == 1)) {
                 List<Expression> expressions = expressionList.getExpressions();
-                if (allColumns){
+                if(allColumns) {
                     countRequest.setField(null);
                 } else {
                     countRequest.setField(expressionToString(expressions.get(0)));
@@ -498,7 +508,7 @@ public class QueryTranslator extends SqlElementVisitor {
             ExpressionList expressionList = (ExpressionList)itemsList;
             List<Object> filterValues = Lists.newArrayList();
             for(Object expressionObject : expressionList.getExpressions()) {
-                Expression expression = (Expression) expressionObject;
+                Expression expression = (Expression)expressionObject;
                 filterValues.add(getValueFromExpression(expression));
             }
             inFilter.setValues(filterValues);
@@ -509,7 +519,7 @@ public class QueryTranslator extends SqlElementVisitor {
         public void visit(IsNullExpression isNullExpression) {
             super.visit(isNullExpression);
             ColumnData columnData = setupColumn(isNullExpression.getLeftExpression());
-            if (isNullExpression.isNot()) {
+            if(isNullExpression.isNot()) {
                 ExistsFilter existsFilter = new ExistsFilter();
 
                 existsFilter.setField(columnData.getColumnName().replaceAll(Constants.SQL_FIELD_REGEX, ""));
@@ -526,7 +536,8 @@ public class QueryTranslator extends SqlElementVisitor {
             super.visit(likeExpression);
             ContainsFilter containsFilter = new ContainsFilter();
             containsFilter.setValue(getStringValue(likeExpression.getRightExpression()));
-            containsFilter.setField(((Column)likeExpression.getLeftExpression()).getFullyQualifiedName().replaceAll(Constants.SQL_FIELD_REGEX, ""));
+            containsFilter.setField(
+                    ((Column)likeExpression.getLeftExpression()).getFullyQualifiedName().replaceAll(Constants.SQL_FIELD_REGEX, ""));
             filters.add(containsFilter);
         }
 
@@ -567,26 +578,27 @@ public class QueryTranslator extends SqlElementVisitor {
                 throw new RuntimeException("last function has following format: last(duration, [start-time, [timestamp field]])");
             }
             LastFilter lastFilter = new LastFilter();
-            lastFilter.setDuration(Duration.parse(QueryUtils.expressionToString((Expression) expressions.get(0))));
+            lastFilter.setDuration(Duration.parse(QueryUtils.expressionToString((Expression)expressions.get(0))));
             if(expressions.size() > 1) {
-                lastFilter.setCurrentTime(QueryUtils.expressionToNumber((Expression) expressions.get(1)).longValue());
+                lastFilter.setCurrentTime(QueryUtils.expressionToNumber((Expression)expressions.get(1)).longValue());
             }
             if(expressions.size() > 2) {
-                lastFilter.setField(QueryUtils.expressionToString((Expression) expressions.get(2)).replaceAll(Constants.SQL_FIELD_REGEX, ""));
+                lastFilter
+                        .setField(QueryUtils.expressionToString((Expression)expressions.get(2)).replaceAll(Constants.SQL_FIELD_REGEX, ""));
             }
             return lastFilter;
         }
 
         private Object getValueFromExpression(Expression expression) {
             if(expression instanceof StringValue) {
-                return ((StringValue) expression).getValue();
+                return ((StringValue)expression).getValue();
             }
             return getNumbericValue(expression);
         }
 
         private String getStringValue(Expression expression) {
             if(expression instanceof StringValue) {
-                return ((StringValue) expression).getValue();
+                return ((StringValue)expression).getValue();
             }
             throw new RuntimeException("Unsupported value type.");
         }
@@ -641,12 +653,13 @@ public class QueryTranslator extends SqlElementVisitor {
                 return window;
             }
         }
+
         private ColumnData setupColumn(Expression expression) {
             if(expression instanceof Function) {
-                Function function = (Function) expression;
+                Function function = (Function)expression;
                 if(function.getName().equalsIgnoreCase("temporal")) {
                     List parameters = function.getParameters().getExpressions();
-                    if(parameters.size() != 1 || ! (parameters.get(0) instanceof Column)) {
+                    if(parameters.size() != 1 || !(parameters.get(0) instanceof Column)) {
                         throw new RuntimeException("temporal function must have a fieldname as parameter");
                     }
                     return ColumnData.temporal(((Column)parameters.get(0)).getFullyQualifiedName());
