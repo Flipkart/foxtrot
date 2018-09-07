@@ -35,7 +35,7 @@ public interface TableMetadataManager extends Managed {
 
     List<Table> get() throws FoxtrotException;
 
-    TableFieldMapping getFieldMappings(String originalTableName, boolean withCardinality, boolean calculateCardinality) throws FoxtrotException;
+    TableFieldMapping getFieldMappings(String table, boolean withCardinality, boolean calculateCardinality) throws FoxtrotException;
 
     void updateEstimationData(String table, long timestamp) throws FoxtrotException;
 
