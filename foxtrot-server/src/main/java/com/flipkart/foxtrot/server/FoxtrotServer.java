@@ -156,11 +156,10 @@ public class FoxtrotServer extends Application<FoxtrotServerConfiguration> {
                 new AnalyticsLoader(tableMetadataManager, dataStore, queryStore, elasticsearchConnection, cacheManager, objectMapper);
         QueryExecutor executor = new QueryExecutor(analyticsLoader, executorService);
         DataDeletionManagerConfig dataDeletionManagerConfig = configuration.getTableDataManagerConfig();
-        DataDeletionManager dataDeletionManager = new DataDeletionManager(dataDeletionManagerConfig, queryStore);
-        CardinalityCalculationManager cardinalityCalculationManager = new CardinalityCalculationManager(tableMetadataManager,
-                                                                                                        cardinalityConfig,
-                                                                                                        hazelcastConnection,
-                                                                                                        scheduledExecutorService);
+        DataDeletionManager dataDeletionManager =
+                new DataDeletionManager(dataDeletionManagerConfig, queryStore, scheduledExecutorService, hazelcastConnection);
+        CardinalityCalculationManager cardinalityCalculationManager =
+                new CardinalityCalculationManager(tableMetadataManager, cardinalityConfig, hazelcastConnection, scheduledExecutorService);
 
         List<HealthCheck> healthChecks = new ArrayList<>();
 //        ElasticSearchHealthCheck elasticSearchHealthCheck = new ElasticSearchHealthCheck(elasticsearchConnection);
