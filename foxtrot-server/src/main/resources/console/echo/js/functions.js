@@ -55,6 +55,7 @@ function filterTypeTriggered(el) { // changing filter value attribute based on t
     $('#filter-column-row-'+rowId).prop("type", "text");
   } else if(columnType == "LONG") {
     $('#filter-column-row-'+rowId).prop("type", "number");
+    $(".filter-date-picker-"+rowId).show();
   }
 }
 
@@ -88,11 +89,30 @@ function filterFieldTriggered(el) {
   }
 }
 
+function setDatePicker(el){
+  var selectedColumn = $(el).val();
+  var rowString = $(el).attr('class');
+  var rowIdArray = rowString.split('-');
+  var rowId = rowIdArray[3];
+  if(selectedColumn == "true") {
+    $("#filter-column-row-div" +rowId).datetimepicker();
+    $('#filter-column-row-div'+rowId).datetimepicker({format: 'YYYY-MM-DD hh:mm'});
+    $('#filter-column-row-div'+rowId).on("dp.change",function(e) {
+       var ts = moment(e.date, "YYYY-MM-DD hh:mm").unix();
+       $("#filter-column-row-" + rowId).val(ts);
+    });
+  } else {
+    var tempElement = $("#filter-column-row-div" +rowId);
+    $("#filter-column-row-div" +rowId).remove();
+    $("#filter-row-"+rowId).append(tempElement);
+  }
+}
+
 function addFilters() { // new filter row
 
   var filterCount = filterRowArray.length;
   filterRowArray.push(filterCount);
-  var filterRow = '<div class="row filters clearfix" id="filter-row-' + filterCount + '"><span class="filter-headings"> FILTER '+(filterCount + 1)+'</span><img src="img/remove.png" class="filter-remove-img filter-delete" /><div class="form-group"><select class="selectpicker form-control filter-column filter-background" id="filter-row-' + filterCount + '" data-live-search="true"><option>select</option></select></div><div class="form-group"><select class="selectpicker filter-type-' + filterCount + ' filter-background form-control" data-live-search="true" id="filter-type-' + filterCount + '"><option>select</option></select></div><div class="form-group"><input id="filter-column-row-' + filterCount + '" type="text" class="form-control filter-value form-control"></div></span></div></div>';
+  var filterRow = '<div class="row filters clearfix" id="filter-row-' + filterCount + '"><span class="filter-headings"> FILTER '+(filterCount + 1)+'</span><img src="img/remove.png" class="filter-remove-img filter-delete" /><div class="form-group"><select class="selectpicker form-control filter-column filter-background" id="filter-row-' + filterCount + '" data-live-search="true"><option>select</option></select></div><div class="form-group"><select class="selectpicker filter-type-' + filterCount + ' filter-background form-control" data-live-search="true" id="filter-type-' + filterCount + '"><option>select</option></select></div><div class="form-group filter-date-picker-radio-btn filter-date-picker-'+filterCount+'"><label id="date-picker-lbl">Date picker?</label><input type="radio" name="enableDatePicker" value="true" class="display-date-picker-' + filterCount + '"><label class="date-picker-radio-text">Yes</label><input type="radio" name="enableDatePicker" value="false" class="display-date-picker-' + filterCount + '"><label class="date-picker-radio-text">No</label></div><div class="form-group filter-date-field input-group date" id="filter-column-row-div' + filterCount + '"><input  id="filter-column-row-' + filterCount + '" type="number" class="form-control filter-value form-control" /><span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span></div></span></div></div>';
   $(".add-filter-row").append(filterRow);
   var filterValueEl = $("#filter-row-" + filterCount).find('.filter-delete');
   var filterType = $("#filter-row-" + filterCount).find('.filter-type-'+ filterCount);
@@ -114,6 +134,12 @@ function addFilters() { // new filter row
     var selected = $(this).val();
     filterFieldTriggered(this);
   });
+
+  var enableDatePicker = $("#filter-row-" + filterCount).find('.display-date-picker-'+ filterCount);
+  $(enableDatePicker).click(function(){
+    setDatePicker(this);
+  });
+
 }
 
 function showHideForms(currentChartType) { // remove active class for widget forms
