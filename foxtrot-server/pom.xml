@@ -5,7 +5,7 @@
     <parent>
         <artifactId>foxtrot</artifactId>
         <groupId>com.flipkart.foxtrot</groupId>
-        <version>0.5.0-SNAPSHOT</version>
+        <version>0.5.4</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -40,18 +40,23 @@
         <!-- Internal -->
         <dependency>
             <groupId>com.flipkart.foxtrot</groupId>
-            <artifactId>foxtrot-core</artifactId>
-            <version>${project.parent.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.flipkart.foxtrot</groupId>
             <artifactId>foxtrot-sql</artifactId>
-            <version>${project.parent.version}</version>
+            <version>0.5.4</version>
+        </dependency>
+        <dependency>
+            <groupId>com.flipkart.foxtrot</groupId>
+            <artifactId>foxtrot-common</artifactId>
+            <version>0.5.4</version>
         </dependency>
         <dependency>
             <groupId>com.flipkart.foxtrot</groupId>
             <artifactId>foxtrot-core</artifactId>
-            <version>${project.parent.version}</version>
+            <version>0.5.4</version>
+        </dependency>
+        <dependency>
+            <groupId>com.flipkart.foxtrot</groupId>
+            <artifactId>foxtrot-core</artifactId>
+            <version>0.5.4</version>
             <type>test-jar</type>
             <scope>test</scope>
         </dependency>
@@ -76,9 +81,15 @@
             <build>
                 <plugins>
                     <plugin>
+                        <artifactId>maven-deploy-plugin</artifactId>
+                        <configuration>
+                            <skip>true</skip>
+                        </configuration>
+                    </plugin>
+                    <plugin>
                         <groupId>com.spotify</groupId>
                         <artifactId>docker-maven-plugin</artifactId>
-                        <version>0.4.0</version>
+                        <version>0.4.10</version>
                         <configuration>
                             <imageName>foxtrot:${project.version}</imageName>
                             <dockerDirectory>${project.parent.basedir}/../foxtrot</dockerDirectory>

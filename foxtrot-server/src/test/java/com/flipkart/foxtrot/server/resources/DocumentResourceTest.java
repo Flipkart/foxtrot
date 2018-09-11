@@ -22,12 +22,10 @@ import com.flipkart.foxtrot.core.exception.FoxtrotExceptions;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
 import com.flipkart.foxtrot.server.providers.exception.FoxtrotExceptionMapper;
 import io.dropwizard.testing.junit.ResourceTestRule;
-import org.assertj.core.util.Lists;
 import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.Matchers;
 
-import javax.ws.rs.ProcessingException;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
@@ -37,7 +35,6 @@ import java.util.*;
 import static org.junit.Assert.*;
 import static org.mockito.Matchers.anyListOf;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
 
 /**
@@ -50,8 +47,6 @@ public class DocumentResourceTest extends FoxtrotResourceTest {
 
     public DocumentResourceTest() throws Exception {
         super();
-        doReturn(true).when(getTableMetadataManager()).exists(anyString());
-        doReturn(TestUtils.TEST_TABLE).when(getTableMetadataManager()).get(anyString());
         resources = ResourceTestRule.builder()
                 .addResource(new DocumentResource(getQueryStore()))
                 .addProvider(new FoxtrotExceptionMapper(getMapper()))
@@ -204,7 +199,7 @@ public class DocumentResourceTest extends FoxtrotResourceTest {
 
     @Test
     public void testSaveDocumentsEmptyList() throws Exception {
-        Entity<List<Document>> list = Entity.json(Lists.emptyList());
+        Entity<List<Document>> list = Entity.json(Collections.emptyList());
         Response response = resources.client().target(String.format("/v1/document/%s/bulk", TestUtils.TEST_TABLE_NAME))
                 .request()
                 .post(list);

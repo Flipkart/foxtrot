@@ -28,13 +28,15 @@ cluster:
 logging:
   level: INFO
 
-deletionconfig:
+cardinality:
+  cardinality: true
+  batchSize: 10
   active: true
   interval: 86400
-  initialdelay: 60
+  initialDelay: 6
+  maxCardinality: 20000
 
-logRotationFileConfig:
-    minIndex: 0
-    maxIndex: 3
-    maxFileSize: 1MB
-    filePattern: /var/log/flipkart/foxtrot-server/server-%i.log.gz
+deletionconfig:
+  active: false
+  interval: 86400
+  initialdelay: 60

@@ -42,7 +42,7 @@ public class Utils {
     public static CardinalityBuilder buildCardinalityAggregation(String field) {
         return AggregationBuilders
                 .cardinality(Utils.sanitizeFieldForAggregation(field))
-                .precisionThreshold(40000)
+                .precisionThreshold(500)
                 .field(field);
     }
 
@@ -110,4 +110,12 @@ public class Utils {
         return percentiles;
     }
 
+    public static double ensurePositive(long number) {
+        return number <= 0.0 ? 0.0 : number;
+    }
+
+
+    public static double ensureOne(long number) {
+        return number <= 0 ? 1 : number;
+    }
 }

@@ -10,7 +10,7 @@ import java.util.concurrent.TimeUnit;
  */
 public class MetricUtil {
 
-    private static final MetricRegistry metrics;
+    private static MetricRegistry metrics;
     private static final MetricUtil metricsHelper;
 
     private static final String packagePrefix = "com.flipkart.foxtrot.core";
@@ -19,6 +19,10 @@ public class MetricUtil {
     static {
         metrics = new MetricRegistry();
         metricsHelper = new MetricUtil();
+    }
+
+    public static void setup(MetricRegistry metrics) {
+        MetricUtil.metrics = metrics;
     }
 
     public static MetricUtil getInstance() {

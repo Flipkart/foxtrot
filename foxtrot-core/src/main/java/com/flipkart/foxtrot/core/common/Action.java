@@ -1,12 +1,12 @@
 /**
  * Copyright 2014 Flipkart Internet Pvt. Ltd.
- *
+ * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
+ * <p>
  * http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -15,8 +15,10 @@
  */
 package com.flipkart.foxtrot.core.common;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.flipkart.foxtrot.common.ActionRequest;
 import com.flipkart.foxtrot.common.ActionResponse;
+import com.flipkart.foxtrot.common.ActionValidationResponse;
 import com.flipkart.foxtrot.common.query.Filter;
 import com.flipkart.foxtrot.common.query.general.AnyFilter;
 import com.flipkart.foxtrot.common.query.numeric.LessThanFilter;
@@ -37,6 +39,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Callable;
@@ -58,6 +61,7 @@ public abstract class Action<ParameterType extends ActionRequest> implements Cal
     private final QueryStore queryStore;
     private final String cacheToken;
     private final CacheManager cacheManager;
+    private final ObjectMapper objectMapper;
 
     protected Action(ParameterType parameter,
                      TableMetadataManager tableMetadataManager,
@@ -65,7 +69,7 @@ public abstract class Action<ParameterType extends ActionRequest> implements Cal
                      QueryStore queryStore,
                      ElasticsearchConnection connection,
                      String cacheToken,
-                     CacheManager cacheManager) {
+                     CacheManager cacheManager, ObjectMapper objectMapper) {
         this.parameter = parameter;
         this.tableMetadataManager = tableMetadataManager;
         this.queryStore = queryStore;
@@ -73,6 +77,7 @@ public abstract class Action<ParameterType extends ActionRequest> implements Cal
         this.cacheManager = cacheManager;
         this.connection = connection;
         this.dataStore = dataStore;
+        this.objectMapper = objectMapper;
     }
 
     public String cacheKey() {
@@ -104,19 +109,38 @@ public abstract class Action<ParameterType extends ActionRequest> implements Cal
         return cacheKey;
     }
 
+    public ActionValidationResponse validate() {
+        try {
+            preProcessRequest();
+        } catch (MalformedQueryException e) {
+            return ActionValidationResponse.builder()
+                    .processedRequest(parameter)
+                    .validationErrors(e.getReasons())
+                    .build();
+        } catch (Exception e) {
+            return ActionValidationResponse.builder()
+                    .processedRequest(parameter)
+                    .validationErrors(Collections.singletonList(e.getMessage()))
+                    .build();
+        }
+        return ActionValidationResponse.builder()
+                .processedRequest(parameter)
+                .validationErrors(Collections.emptyList())
+                .build();
+    }
+
     public ActionResponse execute() throws FoxtrotException {
         preProcessRequest();
         ActionResponse cachedData = readCachedData();
         if (cachedData != null) {
             return cachedData;
         }
-        Stopwatch stopwatch = new Stopwatch();
+        Stopwatch stopwatch = Stopwatch.createStarted();
         try {
-            stopwatch.start();
             ActionResponse result = execute(parameter);
-            stopwatch.stop();
             // Publish success metrics
-            MetricUtil.getInstance().registerActionSuccess(cacheToken, getMetricKey(), stopwatch.elapsed(TimeUnit.MILLISECONDS));
+            MetricUtil.getInstance().registerActionSuccess(
+                    cacheToken, getMetricKey(), stopwatch.elapsed(TimeUnit.MILLISECONDS));
 
             // Now cache data
             updateCachedData(result);
@@ -125,7 +149,8 @@ public abstract class Action<ParameterType extends ActionRequest> implements Cal
         } catch (FoxtrotException e) {
             stopwatch.stop();
             // Publish failure metrics
-            MetricUtil.getInstance().registerActionFailure(cacheToken, getMetricKey(), stopwatch.elapsed(TimeUnit.MILLISECONDS));
+            MetricUtil.getInstance().registerActionFailure(
+                    cacheToken, getMetricKey(), stopwatch.elapsed(TimeUnit.MILLISECONDS));
             throw e;
         }
     }
@@ -168,14 +193,10 @@ public abstract class Action<ParameterType extends ActionRequest> implements Cal
         }
     }
 
-    public void validateImpl() throws MalformedQueryException {
-        validateImpl(parameter);
-    }
-
     /**
      * Returns a metric key for current action. Ideally this key's cardinality should be less since each new value of
      * this key will create new JMX metric
-     *
+     * <p>
      * Sample use cases - Used for reporting per action
      * success/failure metrics
      * cache hit/miss metrics
@@ -212,6 +233,10 @@ public abstract class Action<ParameterType extends ActionRequest> implements Cal
 
     public QueryStore getQueryStore() {
         return queryStore;
+    }
+
+    public ObjectMapper getObjectMapper() {
+        return objectMapper;
     }
 
     protected Filter getDefaultTimeSpan() {

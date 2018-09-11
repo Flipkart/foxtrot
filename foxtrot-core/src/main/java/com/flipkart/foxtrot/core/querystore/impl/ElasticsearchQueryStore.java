@@ -12,46 +12,46 @@
  */
 package com.flipkart.foxtrot.core.querystore.impl;
 
-import com.carrotsearch.hppc.cursors.ObjectCursor;
 import com.codahale.metrics.annotation.Timed;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.flipkart.foxtrot.common.Document;
-import com.flipkart.foxtrot.common.FieldTypeMapping;
 import com.flipkart.foxtrot.common.Table;
 import com.flipkart.foxtrot.common.TableFieldMapping;
+import com.flipkart.foxtrot.core.cardinality.CardinalityConfig;
 import com.flipkart.foxtrot.core.datastore.DataStore;
 import com.flipkart.foxtrot.core.exception.FoxtrotException;
 import com.flipkart.foxtrot.core.exception.FoxtrotExceptions;
-import com.flipkart.foxtrot.core.parsers.ElasticsearchMappingParser;
 import com.flipkart.foxtrot.core.querystore.QueryStore;
 import com.flipkart.foxtrot.core.table.TableMetadataManager;
+import com.google.common.base.Stopwatch;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import lombok.Data;
 import org.elasticsearch.action.WriteConsistencyLevel;
 import org.elasticsearch.action.admin.cluster.health.ClusterHealthResponse;
 import org.elasticsearch.action.admin.cluster.node.stats.NodesStatsRequest;
 import org.elasticsearch.action.admin.cluster.node.stats.NodesStatsResponse;
-import org.elasticsearch.action.admin.indices.mapping.get.GetMappingsResponse;
 import org.elasticsearch.action.admin.indices.stats.IndicesStatsResponse;
 import org.elasticsearch.action.bulk.BulkItemResponse;
 import org.elasticsearch.action.bulk.BulkRequestBuilder;
 import org.elasticsearch.action.bulk.BulkResponse;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.cluster.metadata.MappingMetaData;
 import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.search.SearchHit;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -64,7 +64,7 @@ import static org.elasticsearch.index.query.QueryBuilders.*;
  * Date: 14/03/14
  * Time: 12:27 AM
  */
-
+@Data
 public class ElasticsearchQueryStore implements QueryStore {
     private static final Logger logger = LoggerFactory.getLogger(ElasticsearchQueryStore.class.getSimpleName());
 
@@ -72,15 +72,17 @@ public class ElasticsearchQueryStore implements QueryStore {
     private final DataStore dataStore;
     private final TableMetadataManager tableMetadataManager;
     private final ObjectMapper mapper;
+    private final CardinalityConfig cardinalityConfig;
 
     public ElasticsearchQueryStore(TableMetadataManager tableMetadataManager,
                                    ElasticsearchConnection connection,
                                    DataStore dataStore,
-                                   ObjectMapper mapper) {
+                                   ObjectMapper mapper, CardinalityConfig cardinalityConfig) {
         this.connection = connection;
         this.dataStore = dataStore;
         this.tableMetadataManager = tableMetadataManager;
         this.mapper = mapper;
+        this.cardinalityConfig = cardinalityConfig;
     }
 
     @Override
@@ -101,8 +103,15 @@ public class ElasticsearchQueryStore implements QueryStore {
             if (new DateTime().plusDays(1).minus(document.getTimestamp()).getMillis() < 0) {
                 return;
             }
+            Stopwatch stopwatch = Stopwatch.createStarted();
             final Table tableMeta = tableMetadataManager.get(table);
+            logger.info("TableMetaGetTook:{}", stopwatch.elapsed(TimeUnit.MILLISECONDS));
+            stopwatch.reset().start();
+
             final Document translatedDocument = dataStore.save(tableMeta, document);
+            logger.info("DataStoreTook:{}", stopwatch.elapsed(TimeUnit.MILLISECONDS));
+            stopwatch.reset().start();
+
             long timestamp = translatedDocument.getTimestamp();
             connection.getClient()
                     .prepareIndex()
@@ -114,6 +123,7 @@ public class ElasticsearchQueryStore implements QueryStore {
                     .setConsistencyLevel(WriteConsistencyLevel.QUORUM)
                     .execute()
                     .get(2, TimeUnit.SECONDS);
+            logger.info("QueryStoreTook:{}", stopwatch.elapsed(TimeUnit.MILLISECONDS));
         } catch (InterruptedException | ExecutionException | TimeoutException e) {
             throw FoxtrotExceptions.createExecutionException(table, e);
         }
@@ -131,12 +141,18 @@ public class ElasticsearchQueryStore implements QueryStore {
             if (documents == null || documents.size() == 0) {
                 throw FoxtrotExceptions.createBadRequestException(table, "Empty Document List Not Allowed");
             }
+
+            Stopwatch stopwatch = Stopwatch.createStarted();
             final Table tableMeta = tableMetadataManager.get(table);
+            logger.info("TableMetaGetTook:{}", stopwatch.elapsed(TimeUnit.MILLISECONDS));
+            stopwatch.reset().start();
+
             final List<Document> translatedDocuments = dataStore.saveAll(tableMeta, documents);
+            logger.info("DataStoreTook:{}", stopwatch.elapsed(TimeUnit.MILLISECONDS));
+            stopwatch.reset().start();
+
             BulkRequestBuilder bulkRequestBuilder = connection.getClient().prepareBulk();
-
             DateTime dateTime = new DateTime().plusDays(1);
-
             for (Document document : translatedDocuments) {
                 long timestamp = document.getTimestamp();
                 if (dateTime.minus(timestamp).getMillis() < 0) {
@@ -156,6 +172,7 @@ public class ElasticsearchQueryStore implements QueryStore {
                         .setConsistencyLevel(WriteConsistencyLevel.QUORUM)
                         .execute()
                         .get(10, TimeUnit.SECONDS);
+                logger.info("QueryStoreTook:{}", stopwatch.elapsed(TimeUnit.MILLISECONDS));
                 for (int i = 0; i < responses.getItems().length; i++) {
                     BulkItemResponse itemResponse = responses.getItems()[i];
                     if (itemResponse.isFailed()) {
@@ -237,31 +254,6 @@ public class ElasticsearchQueryStore implements QueryStore {
     }
 
     @Override
-    @Timed
-    public TableFieldMapping getFieldMappings(String table) throws FoxtrotException {
-        table = ElasticsearchUtils.getValidTableName(table);
-
-        if (!tableMetadataManager.exists(table)) {
-            throw FoxtrotExceptions.createBadRequestException(table,
-                    String.format("unknown_table table:%s", table));
-        }
-        try {
-            ElasticsearchMappingParser mappingParser = new ElasticsearchMappingParser(mapper);
-            Set<FieldTypeMapping> mappings = new HashSet<>();
-            GetMappingsResponse mappingsResponse = connection.getClient().admin()
-                    .indices().prepareGetMappings(ElasticsearchUtils.getIndices(table)).execute().actionGet();
-
-            for (ObjectCursor<String> index : mappingsResponse.getMappings().keys()) {
-                MappingMetaData mappingData = mappingsResponse.mappings().get(index.value).get(ElasticsearchUtils.DOCUMENT_TYPE_NAME);
-                mappings.addAll(mappingParser.getFieldMappings(mappingData));
-            }
-            return new TableFieldMapping(table, mappings);
-        } catch (IOException e) {
-            throw FoxtrotExceptions.createExecutionException(table, e);
-        }
-    }
-
-    @Override
     public void cleanupAll() throws FoxtrotException {
         Set<String> tables = tableMetadataManager.get().stream().map(Table::getName).collect(Collectors.toSet());
         cleanup(tables);
@@ -332,10 +324,15 @@ public class ElasticsearchQueryStore implements QueryStore {
         return connection.getClient().admin().indices().prepareStats(ElasticsearchUtils.getAllIndicesPattern()).clear().setDocs(true).setStore(true).execute().get();
     }
 
+    @Override
+    public TableFieldMapping getFieldMappings(String table) throws FoxtrotException {
+        return tableMetadataManager.getFieldMappings(table, false, false);
+    }
+
     private String convert(Document translatedDocument) {
         JsonNode metaNode = mapper.valueToTree(translatedDocument.getMetadata());
         ObjectNode dataNode = translatedDocument.getData().deepCopy();
-        dataNode.put(ElasticsearchUtils.DOCUMENT_META_FIELD_NAME, metaNode);
+        dataNode.set(ElasticsearchUtils.DOCUMENT_META_FIELD_NAME, metaNode);
         return dataNode.toString();
     }
 
