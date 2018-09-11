@@ -44,8 +44,7 @@ public class CardinalityCalculationManager implements Managed {
     private static final String TIME_ZONE = "Asia/Kolkata";
 
     public CardinalityCalculationManager(TableMetadataManager tableMetadataManager, CardinalityConfig cardinalityConfig,
-                                         HazelcastConnection hazelcastConnection,
-                                         ScheduledExecutorService scheduledExecutorService) {
+                                         HazelcastConnection hazelcastConnection, ScheduledExecutorService scheduledExecutorService) {
         this.tableMetadataManager = tableMetadataManager;
         this.cardinalityConfig = cardinalityConfig;
         this.hazelcastConnection = hazelcastConnection;
@@ -55,13 +54,13 @@ public class CardinalityCalculationManager implements Managed {
     @Override
     public void start() throws Exception {
         LOGGER.info("Starting Cardinality Manager");
-        if (cardinalityConfig.isActive()) {
+        if(cardinalityConfig.isActive()) {
             LOGGER.info("Scheduling cardinality calculation job");
             LocalDateTime localNow = LocalDateTime.now();
             ZoneId currentZone = ZoneId.of(TIME_ZONE);
             ZonedDateTime zonedNow = ZonedDateTime.of(localNow, currentZone);
             ZonedDateTime zonedNext5 = zonedNow.withHour(cardinalityConfig.getInitialDelay()).withMinute(0).withSecond(0);
-            if (zonedNow.compareTo(zonedNext5) > 0)
+            if(zonedNow.compareTo(zonedNext5) > 0)
                 zonedNext5 = zonedNext5.plusDays(1);
 
             Duration duration = Duration.between(zonedNow, zonedNext5);
