@@ -53,9 +53,12 @@ function filterTypeTriggered(el) { // changing filter value attribute based on t
   $('#filter-column-row-'+rowId).val('');
   if(columnType == "STRING") {
     $('#filter-column-row-'+rowId).prop("type", "text");
+    $(".filter-date-picker-"+rowId).hide();
   } else if(columnType == "LONG") {
     $('#filter-column-row-'+rowId).prop("type", "number");
     $(".filter-date-picker-"+rowId).show();
+  } else {
+    $(".filter-date-picker-"+rowId).hide();
   }
 }
 
