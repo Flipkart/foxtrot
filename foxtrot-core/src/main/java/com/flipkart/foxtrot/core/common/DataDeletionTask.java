@@ -2,7 +2,6 @@ package com.flipkart.foxtrot.core.common;
 
 import com.flipkart.foxtrot.core.exception.FoxtrotException;
 import com.flipkart.foxtrot.core.querystore.QueryStore;
-import net.javacrumbs.shedlock.core.SchedulerLock;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,7 +18,6 @@ public class DataDeletionTask extends TimerTask {
         this.queryStore = queryStore;
     }
 
-    @SchedulerLock(name = "dataDeletion")
     @Override
     public void run() {
         logger.info("Starting Deletion Job");

@@ -45,7 +45,8 @@ public class CardinalityCalculationManager implements Managed {
     private final ScheduledExecutorService scheduledExecutorService;
 
     public CardinalityCalculationManager(TableMetadataManager tableMetadataManager, CardinalityConfig cardinalityConfig,
-                                         HazelcastConnection hazelcastConnection, ScheduledExecutorService scheduledExecutorService) {
+                                         HazelcastConnection hazelcastConnection,
+                                         ScheduledExecutorService scheduledExecutorService) {
         this.tableMetadataManager = tableMetadataManager;
         this.cardinalityConfig = cardinalityConfig;
         this.hazelcastConnection = hazelcastConnection;
@@ -58,7 +59,8 @@ public class CardinalityCalculationManager implements Managed {
         if (cardinalityConfig.isActive()) {
             LOGGER.info("Scheduling cardinality calculation job");
             LocalDateTime localNow = LocalDateTime.now();
-            ZoneId currentZone = ZoneId.of(TIME_ZONE);
+            Calendar now = Calendar.getInstance();
+            ZoneId currentZone = ZoneId.of(now.getTimeZone().getID());
             ZonedDateTime zonedNow = ZonedDateTime.of(localNow, currentZone);
             ZonedDateTime zonedNext5 = zonedNow.withHour(cardinalityConfig.getInitialDelay()).withMinute(0).withSecond(0);
             if (zonedNow.compareTo(zonedNext5) > 0)
@@ -87,6 +89,8 @@ public class CardinalityCalculationManager implements Managed {
 
     @Override
     public void stop() throws Exception {
+        LOGGER.info("Stopping Cardinality Manager");
+        scheduledExecutorService.shutdown();
         LOGGER.info("Stopped Cardinality Manager");
     }
 }

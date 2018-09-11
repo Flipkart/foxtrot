@@ -144,24 +144,27 @@ public class FoxtrotServer extends Application<FoxtrotServerConfiguration> {
         }
 
         final ObjectMapper objectMapper = environment.getObjectMapper();
-        TableMetadataManager tableMetadataManager = new DistributedTableMetadataManager(hazelcastConnection, elasticsearchConnection, objectMapper, cardinalityConfig);
+        TableMetadataManager tableMetadataManager =
+                new DistributedTableMetadataManager(hazelcastConnection, elasticsearchConnection, objectMapper, cardinalityConfig);
         DataStore dataStore = new HBaseDataStore(HBaseTableConnection,
-                objectMapper, new DocumentTranslator(configuration.getHbase()));
-        QueryStore queryStore = new ElasticsearchQueryStore(tableMetadataManager, elasticsearchConnection, dataStore, objectMapper, cardinalityConfig);
+                                                 objectMapper, new DocumentTranslator(configuration.getHbase()));
+        QueryStore queryStore =
+                new ElasticsearchQueryStore(tableMetadataManager, elasticsearchConnection, dataStore, objectMapper, cardinalityConfig);
         FoxtrotTableManager tableManager = new FoxtrotTableManager(tableMetadataManager, queryStore, dataStore);
         CacheManager cacheManager = new CacheManager(new DistributedCacheFactory(hazelcastConnection, objectMapper));
         AnalyticsLoader analyticsLoader =
                 new AnalyticsLoader(tableMetadataManager, dataStore, queryStore, elasticsearchConnection, cacheManager, objectMapper);
         QueryExecutor executor = new QueryExecutor(analyticsLoader, executorService);
         DataDeletionManagerConfig dataDeletionManagerConfig = configuration.getTableDataManagerConfig();
-        DataDeletionManager dataDeletionManager =
-                new DataDeletionManager(dataDeletionManagerConfig, queryStore, scheduledExecutorService, hazelcastConnection);
-        CardinalityCalculationManager cardinalityCalculationManager =
-                new CardinalityCalculationManager(tableMetadataManager, cardinalityConfig, hazelcastConnection, scheduledExecutorService);
+        DataDeletionManager dataDeletionManager = new DataDeletionManager(dataDeletionManagerConfig, queryStore);
+        CardinalityCalculationManager cardinalityCalculationManager = new CardinalityCalculationManager(tableMetadataManager,
+                                                                                                        cardinalityConfig,
+                                                                                                        hazelcastConnection,
+                                                                                                        scheduledExecutorService);
 
         List<HealthCheck> healthChecks = new ArrayList<>();
-        //        ElasticSearchHealthCheck elasticSearchHealthCheck = new ElasticSearchHealthCheck(elasticsearchConnection);
-        //        healthChecks.add(elasticSearchHealthCheck);
+//        ElasticSearchHealthCheck elasticSearchHealthCheck = new ElasticSearchHealthCheck(elasticsearchConnection);
+//        healthChecks.add(elasticSearchHealthCheck);
         ClusterManager clusterManager = new ClusterManager(hazelcastConnection, healthChecks, configuration.getServerFactory());
 
         environment.lifecycle().manage(HBaseTableConnection);
@@ -178,8 +181,10 @@ public class FoxtrotServer extends Application<FoxtrotServerConfiguration> {
         environment.jersey().register(new AnalyticsResource(executor));
         environment.jersey().register(new TableManagerResource(tableManager));
         environment.jersey().register(new TableFieldMappingResource(tableManager, tableMetadataManager));
-        environment.jersey().register(new ConsoleResource(new ElasticsearchConsolePersistence(elasticsearchConnection, objectMapper)));
-        environment.jersey().register(new ConsoleV2Resource(new ElasticsearchConsolePersistence(elasticsearchConnection, objectMapper)));
+        environment.jersey().register(new ConsoleResource(
+                new ElasticsearchConsolePersistence(elasticsearchConnection, objectMapper)));
+        environment.jersey().register(new ConsoleV2Resource(
+                new ElasticsearchConsolePersistence(elasticsearchConnection, objectMapper)));
         FqlEngine fqlEngine = new FqlEngine(tableMetadataManager, queryStore, executor, objectMapper);
         environment.jersey().register(new FqlResource(fqlEngine));
         environment.jersey().register(new ClusterInfoResource(clusterManager));
@@ -187,7 +192,7 @@ public class FoxtrotServer extends Application<FoxtrotServerConfiguration> {
         environment.jersey().register(new ClusterHealthResource(queryStore));
         environment.jersey().register(new CacheUpdateResource(executorService, tableMetadataManager));
 
-        //        environment.healthChecks().register("ES Health Check", elasticSearchHealthCheck);
+//        environment.healthChecks().register("ES Health Check", elasticSearchHealthCheck);
 
         environment.jersey().register(new FlatResponseTextProvider());
         environment.jersey().register(new FlatResponseCsvProvider());
@@ -195,7 +200,8 @@ public class FoxtrotServer extends Application<FoxtrotServerConfiguration> {
         environment.jersey().register(new FoxtrotExceptionMapper(objectMapper));
 
         // Enable CORS headers
-        final FilterRegistration.Dynamic cors = environment.servlets().addFilter("CORS", CrossOriginFilter.class);
+        final FilterRegistration.Dynamic cors =
+                environment.servlets().addFilter("CORS", CrossOriginFilter.class);
 
         // Configure CORS parameters
         cors.setInitParameter("allowedOrigins", "*");
@@ -205,7 +211,7 @@ public class FoxtrotServer extends Application<FoxtrotServerConfiguration> {
         // Add URL mapping
         cors.addMappingForUrlPatterns(EnumSet.allOf(DispatcherType.class), true, "/*");
 
-        ((AbstractServerFactory)configuration.getServerFactory()).setJerseyRootPath("/foxtrot");
+        ((AbstractServerFactory) configuration.getServerFactory()).setJerseyRootPath("/foxtrot");
 
         MetricUtil.setup(environment.metrics());
     }
