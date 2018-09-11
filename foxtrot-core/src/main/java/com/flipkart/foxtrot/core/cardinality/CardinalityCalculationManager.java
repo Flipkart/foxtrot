@@ -86,6 +86,8 @@ public class CardinalityCalculationManager implements Managed {
 
     @Override
     public void stop() throws Exception {
+        LOGGER.info("Stopping Cardinality Manager");
+        scheduledExecutorService.shutdown();
         LOGGER.info("Stopped Cardinality Manager");
     }
 }
