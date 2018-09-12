@@ -21,11 +21,13 @@ import com.flipkart.foxtrot.core.exception.FoxtrotExceptions;
 import com.flipkart.foxtrot.core.util.TableUtil;
 import io.dropwizard.lifecycle.Managed;
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.hbase.HColumnDescriptor;
 import org.apache.hadoop.hbase.HTableDescriptor;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Admin;
 import org.apache.hadoop.hbase.client.Connection;
 import org.apache.hadoop.hbase.client.ConnectionFactory;
+import org.apache.hadoop.hbase.io.compress.Compression;
 import org.apache.hadoop.security.UserGroupInformation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,6 +42,7 @@ import java.io.IOException;
 public class HbaseTableConnection implements Managed {
 
     private static final Logger logger = LoggerFactory.getLogger(HbaseTableConnection.class.getSimpleName());
+    private static final String DEFAULT_FAMILY_NAME = "d";
 
     private final HbaseConfig hbaseConfig;
     private Connection connection;
@@ -51,7 +54,7 @@ public class HbaseTableConnection implements Managed {
 
     public synchronized org.apache.hadoop.hbase.client.Table getTable(final Table table) throws FoxtrotException {
         try {
-            if (hbaseConfig.isSecure() && UserGroupInformation.isSecurityEnabled()) {
+            if(hbaseConfig.isSecure() && UserGroupInformation.isSecurityEnabled()) {
                 UserGroupInformation.getCurrentUser().reloginFromKeytab();
             }
             return connection.getTable(TableName.valueOf(TableUtil.getTableName(hbaseConfig, table)));
@@ -67,7 +70,12 @@ public class HbaseTableConnection implements Managed {
 
     public synchronized void createTable(final Table table) throws IOException {
         String tableName = TableUtil.getTableName(hbaseConfig, table);
-        hBaseAdmin.createTable(new HTableDescriptor(tableName));
+
+        HTableDescriptor hTableDescriptor = new HTableDescriptor(tableName);
+        HColumnDescriptor hColumnDescriptor = new HColumnDescriptor(DEFAULT_FAMILY_NAME);
+        hColumnDescriptor.setCompressionType(Compression.Algorithm.GZ);
+        hTableDescriptor.addFamily(hColumnDescriptor);
+        hBaseAdmin.createTable(hTableDescriptor);
     }
 
     public String getHBaseTableName(final Table table) throws IOException {
