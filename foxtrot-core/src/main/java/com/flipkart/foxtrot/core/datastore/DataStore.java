@@ -29,6 +29,8 @@ import java.util.List;
 public interface DataStore {
     void initializeTable(final Table table) throws FoxtrotException;
 
+    void initializeTable(final Table table, boolean forceSave) throws FoxtrotException;
+
     Document save(final Table table, final Document document) throws FoxtrotException;
 
     List<Document> saveAll(final Table table, final List<Document> documents) throws FoxtrotException;

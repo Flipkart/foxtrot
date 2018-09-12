@@ -21,6 +21,7 @@ import com.flipkart.foxtrot.core.exception.FoxtrotExceptions;
 import com.flipkart.foxtrot.core.util.TableUtil;
 import io.dropwizard.lifecycle.Managed;
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.hbase.HTableDescriptor;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Admin;
 import org.apache.hadoop.hbase.client.Connection;
@@ -62,6 +63,11 @@ public class HbaseTableConnection implements Managed {
     public synchronized boolean isTableAvailable(final Table table) throws IOException {
         String tableName = TableUtil.getTableName(hbaseConfig, table);
         return hBaseAdmin.isTableAvailable(TableName.valueOf(tableName));
+    }
+
+    public synchronized void createTable(final Table table) throws IOException {
+        String tableName = TableUtil.getTableName(hbaseConfig, table);
+        hBaseAdmin.createTable(new HTableDescriptor(tableName));
     }
 
     public String getHBaseTableName(final Table table) throws IOException {

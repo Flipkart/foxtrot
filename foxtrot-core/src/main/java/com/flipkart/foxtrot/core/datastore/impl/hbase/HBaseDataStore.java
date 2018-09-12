@@ -81,6 +81,21 @@ public class HBaseDataStore implements DataStore {
 
     @Override
     @Timed
+    public void initializeTable(Table table, boolean saveInHBase) throws FoxtrotException {
+        // Check for existence of HBase table during init to make sure HBase is ready for taking writes
+        try {
+            boolean isTableAvailable = tableWrapper.isTableAvailable(table);
+            if(!isTableAvailable) {
+                throw FoxtrotExceptions.createTableInitializationException(table, String.format("Create HBase Table - %s",
+                                                                                                tableWrapper.getHBaseTableName(table)));
+            }
+        } catch (IOException e) {
+            throw FoxtrotExceptions.createConnectionException(table, e);
+        }
+    }
+
+    @Override
+    @Timed
     public Document save(final Table table, Document document) throws FoxtrotException {
         if (document == null || document.getData() == null || document.getId() == null) {
             throw FoxtrotExceptions.createBadRequestException(table.getName(), "Invalid Input Document");
