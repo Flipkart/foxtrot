@@ -112,7 +112,7 @@ public class ElasticsearchQueryStore implements QueryStore {
 
             final Document translatedDocument = dataStore.save(tableMeta, document);
             logger.info("DataStoreTook:{}", stopwatch.elapsed(TimeUnit.MILLISECONDS));
-            MetricUtil.getInstance().registerActionSuccess("dateStore", table, stopwatch.elapsed(TimeUnit.MILLISECONDS));
+            MetricUtil.getInstance().registerActionSuccess("dataStore", table, stopwatch.elapsed(TimeUnit.MILLISECONDS));
             stopwatch.reset().start();
 
             long timestamp = translatedDocument.getTimestamp();
