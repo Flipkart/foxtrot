@@ -25,7 +25,6 @@ import io.dropwizard.Configuration;
 import lombok.Data;
 
 import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
 
 /**
  * User: Santanu Sinha (santanu.sinha@flipkart.com)
@@ -43,9 +42,6 @@ public class FoxtrotServerConfiguration extends Configuration {
     @Valid
     private final ClusterConfig cluster;
 
-    @NotNull
-    private LogRotationFileConfig logRotationFileConfig;
-
     @Valid
     private CardinalityConfig cardinality;
 
@@ -59,8 +55,6 @@ public class FoxtrotServerConfiguration extends Configuration {
         this.cluster = new ClusterConfig();
         this.deletionManagerConfig = new DataDeletionManagerConfig();
     }
-
-    public LogRotationFileConfig getLogRotationFileConfig() { return logRotationFileConfig; }
 
     public HbaseConfig getHbase() {
         return hbase;
