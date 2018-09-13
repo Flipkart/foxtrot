@@ -47,8 +47,7 @@ public class DataDeletionManager implements Managed {
                     LockingTaskExecutor executor =
                             new DefaultLockingTaskExecutor(new HazelcastLockProvider(hazelcastConnection.getHazelcast()));
                     Instant lockAtMostUntil = Instant.now().plusSeconds(TimeUnit.HOURS.toSeconds(MAX_TIME_TO_RUN_TASK_IN_HOURS));
-                    executor.executeWithLock(new DataDeletionTask(queryStore),
-                                             new LockConfiguration("cardinalityCalculation", lockAtMostUntil));
+                    executor.executeWithLock(new DataDeletionTask(queryStore), new LockConfiguration("dataDeletion", lockAtMostUntil));
 
                 }
             }, config.getInitialDelay(), config.getInterval(), TimeUnit.SECONDS);
