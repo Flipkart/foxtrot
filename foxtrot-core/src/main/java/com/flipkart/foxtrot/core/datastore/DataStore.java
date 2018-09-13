@@ -27,9 +27,8 @@ import java.util.List;
  * Time: 9:17 PM
  */
 public interface DataStore {
-    void initializeTable(final Table table) throws FoxtrotException;
 
-    void initializeTable(final Table table, boolean forceSave) throws FoxtrotException;
+    void initializeTable(final Table table, boolean forceTableCreate) throws FoxtrotException;
 
     Document save(final Table table, final Document document) throws FoxtrotException;
 

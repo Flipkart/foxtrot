@@ -12,7 +12,7 @@ public interface TableManager {
 
     void save(Table table) throws FoxtrotException;
 
-    void save(Table table, boolean forceSave) throws FoxtrotException;
+    void save(Table table, boolean forceCreateTable) throws FoxtrotException;
 
     Table get(String name) throws FoxtrotException;
 

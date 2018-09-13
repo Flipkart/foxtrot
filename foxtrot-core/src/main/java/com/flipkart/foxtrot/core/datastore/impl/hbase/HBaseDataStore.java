@@ -66,27 +66,18 @@ public class HBaseDataStore implements DataStore {
 
     @Override
     @Timed
-    public void initializeTable(Table table) throws FoxtrotException {
+    public void initializeTable(Table table, boolean forceTableCreate) throws FoxtrotException {
         // Check for existence of HBase table during init to make sure HBase is ready for taking writes
         try {
             boolean isTableAvailable = tableWrapper.isTableAvailable(table);
-            if (!isTableAvailable) {
-                throw FoxtrotExceptions.createTableInitializationException(table,
-                        String.format("Create HBase Table - %s", tableWrapper.getHBaseTableName(table)));
+            if(isTableAvailable) {
+                return;
             }
-        } catch (IOException e) {
-            throw FoxtrotExceptions.createConnectionException(table, e);
-        }
-    }
-
-    @Override
-    @Timed
-    public void initializeTable(Table table, boolean forceSave) throws FoxtrotException {
-        // Check for existence of HBase table during init to make sure HBase is ready for taking writes
-        try {
-            boolean isTableAvailable = tableWrapper.isTableAvailable(table);
-            if(!isTableAvailable) {
+            if(forceTableCreate) {
                 tableWrapper.createTable(table);
+            } else {
+                throw FoxtrotExceptions.createTableInitializationException(table, String.format("Create HBase Table - %s",
+                                                                                                tableWrapper.getHBaseTableName(table)));
             }
         } catch (IOException e) {
             throw FoxtrotExceptions.createConnectionException(table, e);

@@ -40,11 +40,7 @@ public class TableManagerResource {
     public Response save(@Valid final Table table, @QueryParam("forceSave") @DefaultValue("false") boolean forceSave)
             throws FoxtrotException {
         table.setName(ElasticsearchUtils.getValidTableName(table.getName()));
-        if(forceSave) {
-            tableManager.save(table, forceSave);
-        } else {
-            tableManager.save(table);
-        }
+        tableManager.save(table, forceSave);
         return Response.ok(table).build();
     }
 
