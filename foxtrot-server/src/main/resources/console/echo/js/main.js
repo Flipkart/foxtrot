@@ -557,6 +557,7 @@ function showHideSideBar() { // show sidebar for adding widgets
   sideBarScrollTop();
   if( $('#sidebar').is(':visible') ) {
     $('#sidebar').hide();
+    $('#sidebar').find(".chart-type").attr('disabled', false);
     $(".global-filters").css({'flot' :'right'});
     $(".top-error").hide();
     $('.tile-container').find(".highlight-tile").removeClass('highlight-tile');
