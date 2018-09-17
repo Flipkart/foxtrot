@@ -116,10 +116,19 @@ function runQuery(isBrowse) {
     var filterType = $(el).find("select.filter-type").val();
     var filterValue = $(el).find(".browse-events-filter-value").val();
     var filterObject;
-    filterObject = {
-      "operator": filterType,
-      "value": filterValue,
-      "field": currentFieldList[parseInt(filterColumn)].field
+    if(filterType == "in" || filterType == "not_in") {
+      filterValue = filterValue.split(',');
+      filterObject = {
+        "operator": filterType
+        , "values": filterValue
+        , "field": currentFieldList[parseInt(filterColumn)].field
+      }
+    } else {
+      filterObject = {
+        "operator": filterType,
+        "value": filterValue,
+        "field": currentFieldList[parseInt(filterColumn)].field
+      }
     }
     filters.push(filterObject);
   }
