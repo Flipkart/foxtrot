@@ -185,6 +185,9 @@ function runQuery(isBrowse) {
         renderTable(resp);
         fetchedData = resp;
       }
+    }, error: function (jqXHR, exception) {
+      hideLoader();
+      showErrorAlert('Oops', "Something Went wrong, Please try again/Check your inputs");
     }
   });
 }
