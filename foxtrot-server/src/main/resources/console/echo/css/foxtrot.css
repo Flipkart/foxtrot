@@ -351,11 +351,10 @@ h1 {
   line-height: 4;
   margin-top: 23px;
   background: #000;
-  padding: 0px 29px 9px 25px;
+  padding: 0px 29px 16px 25px;
 }
 
 .filter-value {
-  margin-top: 12px;
   padding: 0 0 0 2%;
   height: 40px;
 }
@@ -3353,4 +3352,21 @@ div.tab button:first-child {
   float: right;
   cursor: pointer;
   text-decoration: underline;
+}
+#date-picker-lbl {
+  margin-right: 5%;
+}
+.date-picker-radio-text {
+  color: #fff !important;
+  padding-left: 5px;
+  padding-right: 10px;
+}
+.filter-date-picker-radio-btn {
+  margin-bottom: 0;
+  line-height: 1;
+  margin-top: -10px;
+  display: none;
+}
+.filter-date-field {
+  top: 10px;
 }

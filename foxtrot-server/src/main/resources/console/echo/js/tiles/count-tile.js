@@ -119,13 +119,13 @@ CountTile.prototype.getQuery = function(object) {
 }
 
 CountTile.prototype.getData = function(data) {
-  
-  if(!data.count)
+
+  if(!data)
     showFetchError(this.object);
   else
     hideFetchError(this.object);
     
-  if(!data.count)
+  if(!data)
     return;
   this.render(data.count);
 }
