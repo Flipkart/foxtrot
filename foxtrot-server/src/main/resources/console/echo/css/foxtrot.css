@@ -3370,3 +3370,13 @@ div.tab button:first-child {
 .filter-date-field {
   top: 10px;
 }
+.copy-widget-btn {
+  font-family: Open Sans Regular;
+  background: #F96073;
+  color: #fff;
+  width: 200px;
+  border: none;
+  height: 30px;
+  margin-top: 20px;
+  margin-left: 19%;
+}
