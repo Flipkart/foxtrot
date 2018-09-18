@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2014 Flipkart Internet Pvt. Ltd.
  * <p/>
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -125,8 +125,9 @@ public class FoxtrotServer extends Application<FoxtrotServerConfiguration> {
     @Override
     public void run(FoxtrotServerConfiguration configuration, Environment environment) throws Exception {
 
-        ExecutorService executorService = environment.lifecycle().executorService("query-executor-%s").minThreads(20).maxThreads(30)
-                .keepAliveTime(Duration.seconds(30)).build();
+        ExecutorService executorService = environment.lifecycle().executorService("query-executor-%s")
+                .minThreads(20).maxThreads(30).keepAliveTime(Duration.seconds(30))
+                .build();
         ScheduledExecutorService scheduledExecutorService =
                 environment.lifecycle().scheduledExecutorService("cardinality-executor").threads(1).build();
 
@@ -135,14 +136,15 @@ public class FoxtrotServer extends Application<FoxtrotServerConfiguration> {
         HazelcastConnection hazelcastConnection = new HazelcastConnection(configuration.getCluster());
         ElasticsearchUtils.setTableNamePrefix(configuration.getElasticsearch());
         CardinalityConfig cardinalityConfig = configuration.getCardinality();
-        if(cardinalityConfig == null) {
+        if (cardinalityConfig == null) {
             cardinalityConfig = new CardinalityConfig("false", String.valueOf(ElasticsearchUtils.DEFAULT_SUB_LIST_SIZE));
         }
 
         final ObjectMapper objectMapper = environment.getObjectMapper();
         TableMetadataManager tableMetadataManager =
                 new DistributedTableMetadataManager(hazelcastConnection, elasticsearchConnection, objectMapper, cardinalityConfig);
-        DataStore dataStore = new HBaseDataStore(HBaseTableConnection, objectMapper, new DocumentTranslator(configuration.getHbase()));
+        DataStore dataStore = new HBaseDataStore(HBaseTableConnection,
+                                                 objectMapper, new DocumentTranslator(configuration.getHbase()));
         QueryStore queryStore =
                 new ElasticsearchQueryStore(tableMetadataManager, elasticsearchConnection, dataStore, objectMapper, cardinalityConfig);
         FoxtrotTableManager tableManager = new FoxtrotTableManager(tableMetadataManager, queryStore, dataStore);
@@ -175,8 +177,10 @@ public class FoxtrotServer extends Application<FoxtrotServerConfiguration> {
         environment.jersey().register(new AnalyticsResource(executor));
         environment.jersey().register(new TableManagerResource(tableManager));
         environment.jersey().register(new TableFieldMappingResource(tableManager, tableMetadataManager));
-        environment.jersey().register(new ConsoleResource(new ElasticsearchConsolePersistence(elasticsearchConnection, objectMapper)));
-        environment.jersey().register(new ConsoleV2Resource(new ElasticsearchConsolePersistence(elasticsearchConnection, objectMapper)));
+        environment.jersey().register(new ConsoleResource(
+                new ElasticsearchConsolePersistence(elasticsearchConnection, objectMapper)));
+        environment.jersey().register(new ConsoleV2Resource(
+                new ElasticsearchConsolePersistence(elasticsearchConnection, objectMapper)));
         FqlEngine fqlEngine = new FqlEngine(tableMetadataManager, queryStore, executor, objectMapper);
         environment.jersey().register(new FqlResource(fqlEngine));
         environment.jersey().register(new ClusterInfoResource(clusterManager));
@@ -192,7 +196,8 @@ public class FoxtrotServer extends Application<FoxtrotServerConfiguration> {
         environment.jersey().register(new FoxtrotExceptionMapper(objectMapper));
 
         // Enable CORS headers
-        final FilterRegistration.Dynamic cors = environment.servlets().addFilter("CORS", CrossOriginFilter.class);
+        final FilterRegistration.Dynamic cors =
+                environment.servlets().addFilter("CORS", CrossOriginFilter.class);
 
         // Configure CORS parameters
         cors.setInitParameter("allowedOrigins", "*");
@@ -202,7 +207,7 @@ public class FoxtrotServer extends Application<FoxtrotServerConfiguration> {
         // Add URL mapping
         cors.addMappingForUrlPatterns(EnumSet.allOf(DispatcherType.class), true, "/*");
 
-        ((AbstractServerFactory)configuration.getServerFactory()).setJerseyRootPath("/foxtrot");
+        ((AbstractServerFactory) configuration.getServerFactory()).setJerseyRootPath("/foxtrot");
 
         MetricUtil.setup(environment.metrics());
     }
