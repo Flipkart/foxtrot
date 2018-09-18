@@ -35,6 +35,7 @@ import java.util.concurrent.TimeUnit;
 public class CardinalityCalculationManager implements Managed {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CardinalityCalculationManager.class.getSimpleName());
+    private static final String TIME_ZONE = "Asia/Kolkata";
     private static final int MAX_TIME_TO_RUN_TASK_IN_HOURS = 2;
 
     private final TableMetadataManager tableMetadataManager;
