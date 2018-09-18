@@ -42,7 +42,6 @@ public class CardinalityCalculationManager implements Managed {
     private final CardinalityConfig cardinalityConfig;
     private final HazelcastConnection hazelcastConnection;
     private final ScheduledExecutorService scheduledExecutorService;
-    private static final String TIME_ZONE = "Asia/Kolkata";
 
     public CardinalityCalculationManager(TableMetadataManager tableMetadataManager, CardinalityConfig cardinalityConfig,
                                          HazelcastConnection hazelcastConnection, ScheduledExecutorService scheduledExecutorService) {
