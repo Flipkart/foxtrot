@@ -41,7 +41,6 @@ import com.flipkart.foxtrot.core.util.MetricUtil;
 import com.flipkart.foxtrot.server.cluster.ClusterManager;
 import com.flipkart.foxtrot.server.config.FoxtrotServerConfiguration;
 import com.flipkart.foxtrot.server.console.ElasticsearchConsolePersistence;
-import com.flipkart.foxtrot.server.healthcheck.ElasticSearchHealthCheck;
 import com.flipkart.foxtrot.server.providers.FlatResponseCsvProvider;
 import com.flipkart.foxtrot.server.providers.FlatResponseErrorTextProvider;
 import com.flipkart.foxtrot.server.providers.FlatResponseTextProvider;
@@ -52,6 +51,11 @@ import io.dropwizard.Application;
 import io.dropwizard.assets.AssetsBundle;
 import io.dropwizard.configuration.EnvironmentVariableSubstitutor;
 import io.dropwizard.configuration.SubstitutingSourceProvider;
+import io.dropwizard.discovery.bundle.ServiceDiscoveryBundle;
+import io.dropwizard.discovery.bundle.ServiceDiscoveryConfiguration;
+import io.dropwizard.oor.OorBundle;
+import io.dropwizard.riemann.RiemannBundle;
+import io.dropwizard.riemann.RiemannConfig;
 import io.dropwizard.server.AbstractServerFactory;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
@@ -77,11 +81,38 @@ public class FoxtrotServer extends Application<FoxtrotServerConfiguration> {
     @Override
     public void initialize(Bootstrap<FoxtrotServerConfiguration> bootstrap) {
         bootstrap.setConfigurationSourceProvider(
-                new SubstitutingSourceProvider(bootstrap.getConfigurationSourceProvider(),
-                        new EnvironmentVariableSubstitutor(false)
-                )
-        );
+                new SubstitutingSourceProvider(bootstrap.getConfigurationSourceProvider(), new EnvironmentVariableSubstitutor(false)));
         bootstrap.addBundle(new AssetsBundle("/console/", "/", "index.html", "console"));
+        bootstrap.addBundle(new OorBundle<FoxtrotServerConfiguration>() {
+            public boolean withOor() {
+                return false;
+            }
+        });
+
+        bootstrap.addBundle(new ServiceDiscoveryBundle<FoxtrotServerConfiguration>() {
+            @Override
+            protected ServiceDiscoveryConfiguration getRangerConfiguration(FoxtrotServerConfiguration configuration) {
+                return configuration.getServiceDiscovery();
+            }
+
+            @Override
+            protected String getServiceName(FoxtrotServerConfiguration configuration) {
+                return "foxtrot";
+            }
+
+            @Override
+            protected int getPort(FoxtrotServerConfiguration configuration) {
+                return configuration.getServiceDiscovery().getPublishedPort();
+            }
+        });
+
+        bootstrap.addBundle(new RiemannBundle<FoxtrotServerConfiguration>() {
+            @Override
+            public RiemannConfig getRiemannConfiguration(FoxtrotServerConfiguration configuration) {
+                return configuration.getRiemann();
+            }
+        });
+
         bootstrap.addCommand(new InitializerCommand());
         configureObjectMapper(bootstrap.getObjectMapper());
     }
@@ -94,9 +125,8 @@ public class FoxtrotServer extends Application<FoxtrotServerConfiguration> {
     @Override
     public void run(FoxtrotServerConfiguration configuration, Environment environment) throws Exception {
 
-        ExecutorService executorService = environment.lifecycle().executorService("query-executor-%s")
-                .minThreads(20).maxThreads(30).keepAliveTime(Duration.seconds(30))
-                .build();
+        ExecutorService executorService = environment.lifecycle().executorService("query-executor-%s").minThreads(20).maxThreads(30)
+                .keepAliveTime(Duration.seconds(30)).build();
         ScheduledExecutorService scheduledExecutorService =
                 environment.lifecycle().scheduledExecutorService("cardinality-executor").threads(1).build();
 
@@ -105,15 +135,14 @@ public class FoxtrotServer extends Application<FoxtrotServerConfiguration> {
         HazelcastConnection hazelcastConnection = new HazelcastConnection(configuration.getCluster());
         ElasticsearchUtils.setTableNamePrefix(configuration.getElasticsearch());
         CardinalityConfig cardinalityConfig = configuration.getCardinality();
-        if (cardinalityConfig == null) {
+        if(cardinalityConfig == null) {
             cardinalityConfig = new CardinalityConfig("false", String.valueOf(ElasticsearchUtils.DEFAULT_SUB_LIST_SIZE));
         }
 
         final ObjectMapper objectMapper = environment.getObjectMapper();
         TableMetadataManager tableMetadataManager =
                 new DistributedTableMetadataManager(hazelcastConnection, elasticsearchConnection, objectMapper, cardinalityConfig);
-        DataStore dataStore = new HBaseDataStore(HBaseTableConnection,
-                                                 objectMapper, new DocumentTranslator(configuration.getHbase()));
+        DataStore dataStore = new HBaseDataStore(HBaseTableConnection, objectMapper, new DocumentTranslator(configuration.getHbase()));
         QueryStore queryStore =
                 new ElasticsearchQueryStore(tableMetadataManager, elasticsearchConnection, dataStore, objectMapper, cardinalityConfig);
         FoxtrotTableManager tableManager = new FoxtrotTableManager(tableMetadataManager, queryStore, dataStore);
@@ -122,15 +151,14 @@ public class FoxtrotServer extends Application<FoxtrotServerConfiguration> {
                 new AnalyticsLoader(tableMetadataManager, dataStore, queryStore, elasticsearchConnection, cacheManager, objectMapper);
         QueryExecutor executor = new QueryExecutor(analyticsLoader, executorService);
         DataDeletionManagerConfig dataDeletionManagerConfig = configuration.getTableDataManagerConfig();
-        DataDeletionManager dataDeletionManager = new DataDeletionManager(dataDeletionManagerConfig, queryStore);
-        CardinalityCalculationManager cardinalityCalculationManager = new CardinalityCalculationManager(tableMetadataManager,
-                                                                                                        cardinalityConfig,
-                                                                                                        hazelcastConnection,
-                                                                                                        scheduledExecutorService);
+        DataDeletionManager dataDeletionManager =
+                new DataDeletionManager(dataDeletionManagerConfig, queryStore, scheduledExecutorService, hazelcastConnection);
+        CardinalityCalculationManager cardinalityCalculationManager =
+                new CardinalityCalculationManager(tableMetadataManager, cardinalityConfig, hazelcastConnection, scheduledExecutorService);
 
         List<HealthCheck> healthChecks = new ArrayList<>();
-        ElasticSearchHealthCheck elasticSearchHealthCheck = new ElasticSearchHealthCheck(elasticsearchConnection);
-        healthChecks.add(elasticSearchHealthCheck);
+        //        ElasticSearchHealthCheck elasticSearchHealthCheck = new ElasticSearchHealthCheck(elasticsearchConnection);
+        //        healthChecks.add(elasticSearchHealthCheck);
         ClusterManager clusterManager = new ClusterManager(hazelcastConnection, healthChecks, configuration.getServerFactory());
 
         environment.lifecycle().manage(HBaseTableConnection);
@@ -147,10 +175,8 @@ public class FoxtrotServer extends Application<FoxtrotServerConfiguration> {
         environment.jersey().register(new AnalyticsResource(executor));
         environment.jersey().register(new TableManagerResource(tableManager));
         environment.jersey().register(new TableFieldMappingResource(tableManager, tableMetadataManager));
-        environment.jersey().register(new ConsoleResource(
-                new ElasticsearchConsolePersistence(elasticsearchConnection, objectMapper)));
-        environment.jersey().register(new ConsoleV2Resource(
-                new ElasticsearchConsolePersistence(elasticsearchConnection, objectMapper)));
+        environment.jersey().register(new ConsoleResource(new ElasticsearchConsolePersistence(elasticsearchConnection, objectMapper)));
+        environment.jersey().register(new ConsoleV2Resource(new ElasticsearchConsolePersistence(elasticsearchConnection, objectMapper)));
         FqlEngine fqlEngine = new FqlEngine(tableMetadataManager, queryStore, executor, objectMapper);
         environment.jersey().register(new FqlResource(fqlEngine));
         environment.jersey().register(new ClusterInfoResource(clusterManager));
@@ -158,7 +184,7 @@ public class FoxtrotServer extends Application<FoxtrotServerConfiguration> {
         environment.jersey().register(new ClusterHealthResource(queryStore));
         environment.jersey().register(new CacheUpdateResource(executorService, tableMetadataManager));
 
-        environment.healthChecks().register("ES Health Check", elasticSearchHealthCheck);
+        //        environment.healthChecks().register("ES Health Check", elasticSearchHealthCheck);
 
         environment.jersey().register(new FlatResponseTextProvider());
         environment.jersey().register(new FlatResponseCsvProvider());
@@ -166,8 +192,7 @@ public class FoxtrotServer extends Application<FoxtrotServerConfiguration> {
         environment.jersey().register(new FoxtrotExceptionMapper(objectMapper));
 
         // Enable CORS headers
-        final FilterRegistration.Dynamic cors =
-                environment.servlets().addFilter("CORS", CrossOriginFilter.class);
+        final FilterRegistration.Dynamic cors = environment.servlets().addFilter("CORS", CrossOriginFilter.class);
 
         // Configure CORS parameters
         cors.setInitParameter("allowedOrigins", "*");
@@ -177,7 +202,7 @@ public class FoxtrotServer extends Application<FoxtrotServerConfiguration> {
         // Add URL mapping
         cors.addMappingForUrlPatterns(EnumSet.allOf(DispatcherType.class), true, "/*");
 
-        ((AbstractServerFactory) configuration.getServerFactory()).setJerseyRootPath("/foxtrot");
+        ((AbstractServerFactory)configuration.getServerFactory()).setJerseyRootPath("/foxtrot");
 
         MetricUtil.setup(environment.metrics());
     }
