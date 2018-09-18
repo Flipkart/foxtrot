@@ -689,6 +689,13 @@ $(document).ready(function () {
     deleteWidget(id);
   });
 
+  // Scroll to new copied div
+  function goToWidget(id) {
+    document.getElementById(id).scrollIntoView({
+      behavior: 'smooth'
+    });
+  }
+
   // function to insert as a new row of copied widget
   function insertNewRow(object) {
     var lastItem = tileList[tileList.length-1];
@@ -696,7 +703,6 @@ $(document).ready(function () {
 
     // create a new object
     var newRowObject = Object.assign({}, object);
-    console.log(newRowObject);
     newRowObject.tileContext.row = newRow;
     newRowObject.tileContext.position = 1;
     newRowObject.id = guid();
@@ -709,6 +715,7 @@ $(document).ready(function () {
     // create copied tiles
     renderTiles(newRowObject);
     showHideSideBar(); // close sidebar
+    goToWidget(newRowObject.id);
   }
 
   $(".copy-widget-btn").click( function() {
