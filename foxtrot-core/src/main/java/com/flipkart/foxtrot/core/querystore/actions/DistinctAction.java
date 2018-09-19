@@ -139,7 +139,7 @@ public class DistinctAction extends Action<DistinctRequest> {
         }
 
         try {
-            SearchResponse response = query.execute().actionGet();
+            SearchResponse response = query.execute().actionGet(getGetQueryTimeout());
             Aggregations aggregations = response.getAggregations();
             // Check if any aggregation is present or not
             if (aggregations == null) {

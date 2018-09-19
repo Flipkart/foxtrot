@@ -135,7 +135,7 @@ public class FilterAction extends Action<Query> {
         }
         try {
             logger.info("Search: {}", search);
-            SearchResponse response = search.execute().actionGet();
+            SearchResponse response = search.execute().actionGet(getGetQueryTimeout());
             List<String> ids = new ArrayList<>();
             SearchHits searchHits = response.getHits();
             for (SearchHit searchHit : searchHits) {

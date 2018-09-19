@@ -165,6 +165,10 @@ public abstract class Action<ParameterType extends ActionRequest> implements Cal
         }
     }
 
+    public long getGetQueryTimeout() {
+        return getConnection().getConfig().getGetQueryTimeout();
+    }
+
     private void updateCachedData(ActionResponse result) {
         Cache cache = cacheManager.getCacheFor(this.cacheToken);
         if (isCacheable()) {
