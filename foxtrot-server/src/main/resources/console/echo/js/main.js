@@ -718,15 +718,40 @@ $(document).ready(function () {
     goToWidget(newRowObject.id);
   }
 
+  // function to insert a new row of copied widget - 6 column free space available
+  function insertRowInto6Column(object, lastPosition) {
+    var row = object.tileContext.row;
+    var indexOfClickedObject = tileList.indexOf(object.id);
+    
+    // create a new object
+    var newRowObject = JSON.parse(JSON.stringify(object));
+    newRowObject.tileContext.row = row;
+    newRowObject.tileContext.isnewRow = false;
+
+    newRowObject.id = guid();
+    newRowObject.title = newRowObject.title+" - copy";
+    
+    // add new object to tilelist and tiledata
+    tileList.splice(indexOfClickedObject+1, 0, newRowObject.id);
+    tileData[newRowObject.id] = newRowObject;
+
+    // create copied tiles
+    renderTiles(newRowObject);
+    showHideSideBar(); // close sidebar
+    goToWidget(newRowObject.id);
+  }
+
   $(".copy-widget-btn").click( function() {
     var clickedObject = $("#copy-widget-value").data("tile"); // Read data attributes
     var copiedRow = clickedObject.tileContext.row; // get row
     var copiedPosition = clickedObject.tileContext.position; // get position
     var totalUsedSize = 0; // calculate total size used in a row
     var rowFound = false;
-    for(var loop = 0; loop < tileList.length; loop++) { // loop to find out total used size
+    var lastPosition = 0;
+    for(var loop = 0; loop < tileList.length; loop++) { // loop to find out total used size      
       if(tileData[tileList[loop]].tileContext.row == copiedRow) { // if copied row and loop row is same
         rowFound = true;
+        lastPosition = tileData[tileList[loop]].tileContext.position;
         totalUsedSize = totalUsedSize+getWidgetSize(tileData[tileList[loop]].tileContext.chartType); // calculate size
       } else {
         // if row found stop executing loop
@@ -742,6 +767,7 @@ $(document).ready(function () {
       console.log('3 column space available');
     } else if(totalUsedSize == 6) {
       console.log('6 column space available');
+      insertRowInto6Column(clickedObject, lastPosition);
     }
     else if(totalUsedSize == 3) {
       console.log('9 column space available');
