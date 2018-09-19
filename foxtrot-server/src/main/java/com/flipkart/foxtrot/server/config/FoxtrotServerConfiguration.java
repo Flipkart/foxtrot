@@ -22,9 +22,12 @@ import com.flipkart.foxtrot.core.datastore.impl.hbase.HbaseConfig;
 import com.flipkart.foxtrot.core.querystore.impl.ClusterConfig;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConfig;
 import io.dropwizard.Configuration;
+import io.dropwizard.discovery.bundle.ServiceDiscoveryConfiguration;
+import io.dropwizard.riemann.RiemannConfig;
 import lombok.Data;
 
 import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 
 /**
  * User: Santanu Sinha (santanu.sinha@flipkart.com)
@@ -41,6 +44,14 @@ public class FoxtrotServerConfiguration extends Configuration {
 
     @Valid
     private final ClusterConfig cluster;
+
+    @NotNull
+    @Valid
+    private ServiceDiscoveryConfiguration serviceDiscovery;
+
+    @NotNull
+    @Valid
+    private RiemannConfig riemann;
 
     @Valid
     private CardinalityConfig cardinality;
@@ -70,5 +81,21 @@ public class FoxtrotServerConfiguration extends Configuration {
 
     public DataDeletionManagerConfig getTableDataManagerConfig() {
         return deletionManagerConfig;
+    }
+
+    public ServiceDiscoveryConfiguration getServiceDiscovery() {
+        return serviceDiscovery;
+    }
+
+    public void setServiceDiscovery(ServiceDiscoveryConfiguration serviceDiscovery) {
+        this.serviceDiscovery = serviceDiscovery;
+    }
+
+    public RiemannConfig getRiemann() {
+        return riemann;
+    }
+
+    public void setRiemann(RiemannConfig riemann) {
+        this.riemann = riemann;
     }
 }
