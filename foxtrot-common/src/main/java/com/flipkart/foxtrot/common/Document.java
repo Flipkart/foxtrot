@@ -25,6 +25,7 @@ import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
+import java.util.List;
 
 /**
  * User: Santanu Sinha (santanu.sinha@flipkart.com)
@@ -46,6 +47,7 @@ public class Document implements Serializable {
     @JsonProperty
     private long timestamp;
 
+    private DocumentMeta documentMeta;
     private DocumentMetadata metadata;
 
     @NotNull
@@ -68,6 +70,12 @@ public class Document implements Serializable {
         this.timestamp = timestamp;
         this.metadata = metadata;
         this.data = data;
+    }
+
+    @Data
+    public class DocumentMeta {
+
+        private List<String> fieldsNotToIndex;
     }
 
 }

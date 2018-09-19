@@ -20,6 +20,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.flipkart.foxtrot.common.Document;
 import com.flipkart.foxtrot.common.Table;
 import com.flipkart.foxtrot.common.TableFieldMapping;
+import com.flipkart.foxtrot.common.util.CollectionUtils;
 import com.flipkart.foxtrot.core.cardinality.CardinalityConfig;
 import com.flipkart.foxtrot.core.datastore.DataStore;
 import com.flipkart.foxtrot.core.exception.FoxtrotException;
@@ -130,8 +131,7 @@ public class ElasticsearchQueryStore implements QueryStore {
                     .setIndex(ElasticsearchUtils.getCurrentIndex(table, timestamp))
                     .setType(ElasticsearchUtils.DOCUMENT_TYPE_NAME)
                     .setId(translatedDocument.getId())
-                    .setTimestamp(Long.toString(timestamp))
-                    .setSource(convert(translatedDocument))
+                    .setTimestamp(Long.toString(timestamp)).setSource(convert(translatedDocument, document))
                     .setConsistencyLevel(WriteConsistencyLevel.QUORUM)
                     .execute()
                     .get(2, TimeUnit.SECONDS);
@@ -183,8 +183,7 @@ public class ElasticsearchQueryStore implements QueryStore {
                         .index(index)
                         .type(ElasticsearchUtils.DOCUMENT_TYPE_NAME)
                         .id(document.getId())
-                        .timestamp(Long.toString(timestamp))
-                        .source(convert(document));
+                        .timestamp(Long.toString(timestamp)).source(convert(document, document));
                 bulkRequestBuilder.add(indexRequest);
             }
             if (bulkRequestBuilder.numberOfActions() > 0) {
@@ -352,11 +351,22 @@ public class ElasticsearchQueryStore implements QueryStore {
         return tableMetadataManager.getFieldMappings(table, false, false);
     }
 
-    private String convert(Document translatedDocument) {
+    private String convert(Document translatedDocument, Document originalDocument) {
         JsonNode metaNode = mapper.valueToTree(translatedDocument.getMetadata());
         ObjectNode dataNode = translatedDocument.getData().deepCopy();
         dataNode.set(ElasticsearchUtils.DOCUMENT_META_FIELD_NAME, metaNode);
+        removeNonIndexedFields(originalDocument, dataNode);
         return dataNode.toString();
+    }
+
+    private void removeNonIndexedFields(Document document, ObjectNode dataNode) {
+        Document.DocumentMeta documentMeta = document.getDocumentMeta();
+        if(documentMeta == null || CollectionUtils.isNullOrEmpty(documentMeta.getFieldsNotToIndex())) {
+            return;
+        }
+        for(String field : document.getDocumentMeta().getFieldsNotToIndex()) {
+            dataNode.remove(field);
+        }
     }
 
 }
