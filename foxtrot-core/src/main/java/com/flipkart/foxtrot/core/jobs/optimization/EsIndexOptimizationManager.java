@@ -91,11 +91,11 @@ public class EsIndexOptimizationManager extends BaseJobManager {
                     Stopwatch stopwatch = Stopwatch.createStarted();
                     elasticsearchConnection.getClient().admin().indices().prepareForceMerge(indices.toArray(new String[0]))
                             .setMaxNumSegments(SEGMENTS_TO_OPTIMIZE_TO).setFlush(true).setOnlyExpungeDeletes(false).execute().actionGet();
-                    LOGGER.info("No of indexes optimized : " + indicesToOptimize.size());
+                    LOGGER.info("No of indexes optimized : " + indices.size());
                     MetricUtil.getInstance().registerActionSuccess("indexesOptimized", CollectionUtils.mkString(indices, ","),
                                                                    stopwatch.elapsed(TimeUnit.MILLISECONDS));
                 }
-
+                LOGGER.info("No of indexes optimized : " + indicesToOptimize.size());
             } catch (Exception e) {
                 LOGGER.error("Error occurred while calling optimization API", e);
             }
