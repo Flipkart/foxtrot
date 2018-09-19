@@ -702,11 +702,12 @@ $(document).ready(function () {
     var newRow = tileData[lastItem].tileContext.row + 1;
 
     // create a new object
-    var newRowObject = Object.assign({}, object);
+    var newRowObject = JSON.parse(JSON.stringify(object));
     newRowObject.tileContext.row = newRow;
     newRowObject.tileContext.position = 1;
     newRowObject.id = guid();
     newRowObject.title = newRowObject.title+" - copy";
+    newRowObject.tileContext.isnewRow = true;
     
     // add new object to tilelist and tiledata
     tileList.push(newRowObject.id);
@@ -719,7 +720,7 @@ $(document).ready(function () {
   }
 
   // function to insert a new row of copied widget - 6 column free space available
-  function insertRowInto6Column(object, lastPosition) {
+  function insertIntoExistingRow(object, lastPosition) {
     var row = object.tileContext.row;
     var indexOfClickedObject = tileList.indexOf(object.id);
     
@@ -761,16 +762,13 @@ $(document).ready(function () {
     }
     
     if(totalUsedSize >= 12) {
-      console.log('new row');
       insertNewRow(clickedObject, );
     } else if(totalUsedSize == 9) {
-      console.log('3 column space available');
+      insertIntoExistingRow(clickedObject, lastPosition);
     } else if(totalUsedSize == 6) {
-      console.log('6 column space available');
-      insertRowInto6Column(clickedObject, lastPosition);
-    }
-    else if(totalUsedSize == 3) {
-      console.log('9 column space available');
+      insertIntoExistingRow(clickedObject, lastPosition);
+    } else if(totalUsedSize == 3) {
+      insertIntoExistingRow(clickedObject, lastPosition);
     }
 
   })
