@@ -364,8 +364,24 @@ public class ElasticsearchQueryStore implements QueryStore {
         if(documentMeta == null || CollectionUtils.isNullOrEmpty(documentMeta.getFieldsNotToIndex())) {
             return;
         }
-        for(String field : document.getDocumentMeta().getFieldsNotToIndex()) {
-            dataNode.remove(field);
+        try {
+            JsonNode innerNode = dataNode;
+            for(String field : document.getDocumentMeta().getFieldsNotToIndex()) {
+                String[] splits = StringUtils.split(field, ".");
+                int length = splits.length;
+                for(int i = 0; i < length - 1; i++) {
+                    if(innerNode == null) {
+                        break;
+                    }
+                    innerNode = innerNode.get(splits[i]);
+                }
+                if(innerNode != null) {
+                    ((ObjectNode)innerNode).remove(splits[length - 1]);
+                }
+
+            }
+        } catch (Exception e) {
+            logger.error("Error occureed while removing non indexed fields", e);
         }
     }
 
