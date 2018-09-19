@@ -72,16 +72,19 @@ public class EsIndexOptimizationManager extends BaseJobManager {
 
                 Map<String, IndexSegments> segmentResponseIndices = indicesSegmentResponse.getIndices();
                 for(Map.Entry<String, IndexSegments> entry : segmentResponseIndices.entrySet()) {
-                    String table = ElasticsearchUtils.getTableNameFromIndex(entry.getKey());
+                    String index = entry.getKey();
+                    String table = ElasticsearchUtils.getTableNameFromIndex(index);
                     String currentIndex = ElasticsearchUtils.getCurrentIndex(table, System.currentTimeMillis());
-                    if(entry.getKey().equals(currentIndex) || com.flipkart.foxtrot.common.util.CollectionUtils.isNullOrEmpty(table)) {
+                    String nextDayIndex = ElasticsearchUtils.getCurrentIndex(table, System.currentTimeMillis() + TimeUnit.DAYS.toMillis(1));
+                    if(index.equals(currentIndex) || index.equals(nextDayIndex) ||
+                       com.flipkart.foxtrot.common.util.CollectionUtils.isNullOrEmpty(table)) {
                         continue;
                     }
                     Map<Integer, IndexShardSegments> indexShardSegmentsMap = entry.getValue().getShards();
                     for(Map.Entry<Integer, IndexShardSegments> indexShardSegmentsEntry : indexShardSegmentsMap.entrySet()) {
                         List<Segment> segments = indexShardSegmentsEntry.getValue().iterator().next().getSegments();
                         if(segments.size() > SEGMENTS_TO_OPTIMIZE_TO) {
-                            indicesToOptimize.add(entry.getKey());
+                            indicesToOptimize.add(index);
                             break;
                         }
                     }
