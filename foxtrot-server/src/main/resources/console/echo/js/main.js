@@ -698,6 +698,7 @@ $(document).ready(function () {
 
   // function to insert as a new row of copied widget
   function insertNewRow(object) {
+    console.log(object);
     var lastItem = tileList[tileList.length-1];
     var newRow = tileData[lastItem].tileContext.row + 1;
 
@@ -766,13 +767,13 @@ $(document).ready(function () {
    */
   function findSpaceAvailableInLAstRow(clickedObject) {
     var getLastElement = tileList[tileList.length - 1];
-    var findLastRowSpace = findSpaceAvailable(tileData[getLastElement].tileContext.row);
-
-    if(findLastRowSpace < 12) {
-      insertIntoExistingRow(clickedObject, true, tileData[getLastElement].tileContext.row);
-    } else {
-      insertNewRow(clickedObject);
-    }
+    var findLastRowSpace = findSpaceAvailable(tileData[getLastElement].tileContext.row, function(val) {
+      if(val > 0 & val < 12) {
+        insertIntoExistingRow(clickedObject, true, tileData[getLastElement].tileContext.row);
+      } else {
+        insertNewRow(clickedObject);
+      }
+    });
   }
 
   /**
@@ -783,34 +784,42 @@ $(document).ready(function () {
   function triggerRenderTile(totalUsedSize , clickedObject){
     if(totalUsedSize >= 12) { 
       findSpaceAvailableInLAstRow(clickedObject);
+      return;
     } else if(totalUsedSize == 9) {
-      insertIntoExistingRow(clickedObject, false, 0);
+      insertIntoExistingRow(clickedObject, false, 0)
+      return;
     } else if(totalUsedSize == 6) {
       insertIntoExistingRow(clickedObject , false, 0);
+      return;
     } else if(totalUsedSize == 3) {
       insertIntoExistingRow(clickedObject, false, 0);
+      return;
     } else {
       insertNewRow(clickedObject);
+      return;
     }
   }
 
   // find how many space left in given row
-   function findSpaceAvailable(copiedRow) {
+   function findSpaceAvailable(copiedRow, callback) {
     var totalUsedSize = 0; // calculate total size used in a row
     for(var loop = 0; loop < tileList.length; loop++) { // loop to find out total used size  
       if(tileData[tileList[loop]].tileContext.row == copiedRow) { // if copied row and loop row is same
         lastPosition = tileData[tileList[loop]].tileContext.position;
         totalUsedSize = totalUsedSize+getWidgetSize(tileData[tileList[loop]].tileContext.chartType); // calculate size
       }
-      return totalUsedSize;
-      }
+    }
+    callback(totalUsedSize);
+    return;
     }
 
   $(".copy-widget-btn").click( function() {
     var clickedObject = $("#copy-widget-value").data("tile"); // Read data attributes
     var copiedRow = clickedObject.tileContext.row; // get row
     // check available space and render tile
-    triggerRenderTile(findSpaceAvailable(copiedRow), clickedObject); 
+    findSpaceAvailable(copiedRow, function(val) {
+      triggerRenderTile(val, clickedObject);
+    });
   })
 
   $("#add-new-page-list").click(function() {
