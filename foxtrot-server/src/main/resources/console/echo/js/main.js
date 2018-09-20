@@ -719,11 +719,22 @@ $(document).ready(function () {
     goToWidget(newRowObject.id);
   }
 
-  // function to insert a new row of copied widget - 6 column free space available
-  function insertIntoExistingRow(object, lastPosition) {
-    var row = object.tileContext.row;
+  // function to insert a new row of copied widget into existing row
+  /**
+    * isLastRow true means the copied object can be fit into the last row
+    * Else it will rendered as an new row
+  */
+  function insertIntoExistingRow(object, isLastRow, lastRowValue) {
+    var row  = 0;
+
+    if(!isLastRow) {
+      row = object.tileContext.row
+    } else {
+      row = lastRowValue;
+    }
+
     var indexOfClickedObject = tileList.indexOf(object.id);
-    
+
     // create a new object
     var newRowObject = JSON.parse(JSON.stringify(object));
     newRowObject.tileContext.row = row;
@@ -733,7 +744,13 @@ $(document).ready(function () {
     newRowObject.title = newRowObject.title+" - copy";
     
     // add new object to tilelist and tiledata
-    tileList.splice(indexOfClickedObject+1, 0, newRowObject.id);
+
+    if(isLastRow) {
+      tileList.push(newRowObject.id); // add at end
+    } else {
+      tileList.splice(indexOfClickedObject+1, 0, newRowObject.id); // add at index
+    }
+
     tileData[newRowObject.id] = newRowObject;
 
     // create copied tiles
@@ -742,35 +759,58 @@ $(document).ready(function () {
     goToWidget(newRowObject.id);
   }
 
+  /**
+   * Check space is available in last row
+   * if available insert new tile in last row
+   * Else insert as an new row
+   */
+  function findSpaceAvailableInLAstRow(clickedObject) {
+    var getLastElement = tileList[tileList.length - 1];
+    var findLastRowSpace = findSpaceAvailable(tileData[getLastElement].tileContext.row);
+
+    if(findLastRowSpace < 12) {
+      insertIntoExistingRow(clickedObject, true, tileData[getLastElement].tileContext.row);
+    } else {
+      insertNewRow(clickedObject);
+    }
+  }
+
+  /**
+   * trigger correct function to insert copied row
+   * @param {*} totalUsedSize 
+   * @param {*} clickedObject 
+   */
+  function triggerRenderTile(totalUsedSize , clickedObject){
+    if(totalUsedSize >= 12) { 
+      findSpaceAvailableInLAstRow(clickedObject);
+    } else if(totalUsedSize == 9) {
+      insertIntoExistingRow(clickedObject, false, 0);
+    } else if(totalUsedSize == 6) {
+      insertIntoExistingRow(clickedObject , false, 0);
+    } else if(totalUsedSize == 3) {
+      insertIntoExistingRow(clickedObject, false, 0);
+    } else {
+      insertNewRow(clickedObject);
+    }
+  }
+
+  // find how many space left in given row
+   function findSpaceAvailable(copiedRow) {
+    var totalUsedSize = 0; // calculate total size used in a row
+    for(var loop = 0; loop < tileList.length; loop++) { // loop to find out total used size  
+      if(tileData[tileList[loop]].tileContext.row == copiedRow) { // if copied row and loop row is same
+        lastPosition = tileData[tileList[loop]].tileContext.position;
+        totalUsedSize = totalUsedSize+getWidgetSize(tileData[tileList[loop]].tileContext.chartType); // calculate size
+      }
+      return totalUsedSize;
+      }
+    }
+
   $(".copy-widget-btn").click( function() {
     var clickedObject = $("#copy-widget-value").data("tile"); // Read data attributes
     var copiedRow = clickedObject.tileContext.row; // get row
-    var copiedPosition = clickedObject.tileContext.position; // get position
-    var totalUsedSize = 0; // calculate total size used in a row
-    var rowFound = false;
-    var lastPosition = 0;
-    for(var loop = 0; loop < tileList.length; loop++) { // loop to find out total used size      
-      if(tileData[tileList[loop]].tileContext.row == copiedRow) { // if copied row and loop row is same
-        rowFound = true;
-        lastPosition = tileData[tileList[loop]].tileContext.position;
-        totalUsedSize = totalUsedSize+getWidgetSize(tileData[tileList[loop]].tileContext.chartType); // calculate size
-      } else {
-        // if row found stop executing loop
-        if(rowFound)
-          break;
-      }
-    }
-    
-    if(totalUsedSize >= 12) {
-      insertNewRow(clickedObject, );
-    } else if(totalUsedSize == 9) {
-      insertIntoExistingRow(clickedObject, lastPosition);
-    } else if(totalUsedSize == 6) {
-      insertIntoExistingRow(clickedObject, lastPosition);
-    } else if(totalUsedSize == 3) {
-      insertIntoExistingRow(clickedObject, lastPosition);
-    }
-
+    // check available space and render tile
+    triggerRenderTile(findSpaceAvailable(copiedRow), clickedObject); 
   })
 
   $("#add-new-page-list").click(function() {
