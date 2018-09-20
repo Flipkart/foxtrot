@@ -20,6 +20,7 @@ import com.flipkart.foxtrot.core.cardinality.CardinalityConfig;
 import com.flipkart.foxtrot.core.common.DataDeletionManagerConfig;
 import com.flipkart.foxtrot.core.datastore.impl.hbase.HbaseConfig;
 import com.flipkart.foxtrot.core.jobs.optimization.EsIndexOptimizationConfig;
+import com.flipkart.foxtrot.core.querystore.impl.CacheConfig;
 import com.flipkart.foxtrot.core.querystore.impl.ClusterConfig;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConfig;
 import io.dropwizard.Configuration;
@@ -63,6 +64,8 @@ public class FoxtrotServerConfiguration extends Configuration {
     @Valid
     @JsonProperty("deletionconfig")
     private final DataDeletionManagerConfig deletionManagerConfig;
+
+    private CacheConfig cacheConfig;
 
     public FoxtrotServerConfiguration() {
         this.hbase = new HbaseConfig();
