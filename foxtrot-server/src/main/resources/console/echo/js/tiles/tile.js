@@ -512,6 +512,7 @@ TileFactory.prototype.triggerConfig = function (tileElement, object) { // code t
     $(".delete-widget").show();
     $("#delete-widget-divider").show();
     $("#delete-widget-value").val(object.id);
+    $("#copy-widget-value").data("tile", object);
   });
 }
 TileFactory.prototype.triggerChildBtn = function (tileElement, object) { // child btn

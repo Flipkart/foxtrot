@@ -495,3 +495,18 @@ function convertHex(hex,opacity){ // converting given hexa decial value to rgb
   result = 'rgba('+r+','+g+','+b+','+opacity/100+')';
   return result;
 }
+
+function getWidgetSize(type) { // widget types
+  if (type == "line" || type == "stacked" || type == "stackedBar" || type == "statsTrend" || type == "bar" || type == "lineRatio") {
+    return 12;
+  }
+  else if (type == "radar" || type == "pie") {
+    return 6;
+  }
+  else if (type == "gauge" || type == "percentageGauge"  || type == "trend" || type == "count") {
+    return 3;
+  }
+  else {
+    return 0;
+  }
+}
