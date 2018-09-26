@@ -20,6 +20,7 @@ import io.dropwizard.lifecycle.Managed;
 import net.javacrumbs.shedlock.core.DefaultLockingTaskExecutor;
 import net.javacrumbs.shedlock.core.LockingTaskExecutor;
 import net.javacrumbs.shedlock.provider.hazelcast.HazelcastLockProvider;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,6 +35,7 @@ import java.util.concurrent.TimeUnit;
 public abstract class BaseJobManager implements Managed {
 
     private static final int MAX_TIME_TO_RUN_TASK_IN_MINUTES = 120;
+    private static final String TIME_ZONE = "Asia/Kolkata";
     private static final Logger LOGGER = LoggerFactory.getLogger(BaseJobManager.class.getSimpleName());
     private final BaseJobConfig baseJobConfig;
     private final ScheduledExecutorService scheduledExecutorService;
@@ -55,7 +57,11 @@ public abstract class BaseJobManager implements Managed {
         LOGGER.info(String.format("Scheduling %s Job", baseJobConfig.getJobName()));
         LocalDateTime localNow = LocalDateTime.now();
         Calendar now = Calendar.getInstance();
-        ZoneId currentZone = ZoneId.of(now.getTimeZone().getID());
+        String timeZone = now.getTimeZone().getID();
+        if(StringUtils.isEmpty(timeZone)) {
+            timeZone = TIME_ZONE;
+        }
+        ZoneId currentZone = ZoneId.of(timeZone);
         ZonedDateTime zonedNow = ZonedDateTime.of(localNow, currentZone);
         ZonedDateTime timeToRunJob = zonedNow.withHour(baseJobConfig.getInitialDelay()).withMinute(0).withSecond(0);
         if(zonedNow.compareTo(timeToRunJob) > 0)

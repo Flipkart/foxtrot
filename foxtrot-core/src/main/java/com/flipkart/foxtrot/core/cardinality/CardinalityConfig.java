@@ -15,14 +15,13 @@ package com.flipkart.foxtrot.core.cardinality;
  * limitations under the License.
  */
 
+import com.flipkart.foxtrot.core.jobs.BaseJobConfig;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 
-import javax.validation.constraints.Min;
-import javax.validation.constraints.NotNull;
 import javax.ws.rs.DefaultValue;
 
 /***
@@ -31,25 +30,15 @@ import javax.ws.rs.DefaultValue;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class CardinalityConfig {
+public class CardinalityConfig extends BaseJobConfig {
+
+    private static final String JOB_NAME = "CardinalityConfigJob";
 
     private String enabled;
     private String batchSize;
 
     @DefaultValue("50000")
     private long maxCardinality;
-
-    @Min(3600)
-    private int interval;
-
-    /*
-    Initial day in hours. Used to run the config at ith hour of the day
-     */
-    @Min(1)
-    private int initialDelay;
-
-    @NotNull
-    private boolean active;
 
     public CardinalityConfig(String enabled, String batchSize) {
         this.enabled = enabled;
@@ -64,9 +53,14 @@ public class CardinalityConfig {
     }
 
     public int getSubListSize() {
-        if (StringUtils.isEmpty(batchSize)) {
+        if(StringUtils.isEmpty(batchSize)) {
             return ElasticsearchUtils.DEFAULT_SUB_LIST_SIZE;
         }
         return Integer.parseInt(batchSize);
+    }
+
+    @Override
+    public String getJobName() {
+        return JOB_NAME;
     }
 }

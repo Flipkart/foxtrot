@@ -141,6 +141,9 @@ public class FoxtrotServer extends Application<FoxtrotServerConfiguration> {
             cardinalityConfig = new CardinalityConfig("false", String.valueOf(ElasticsearchUtils.DEFAULT_SUB_LIST_SIZE));
         }
         EsIndexOptimizationConfig esIndexOptimizationConfig = configuration.getEsIndexOptimizationConfig();
+        if(esIndexOptimizationConfig == null) {
+            esIndexOptimizationConfig = new EsIndexOptimizationConfig();
+        }
         CacheConfig cacheConfig = configuration.getCacheConfig();
 
         final ObjectMapper objectMapper = environment.getObjectMapper();
