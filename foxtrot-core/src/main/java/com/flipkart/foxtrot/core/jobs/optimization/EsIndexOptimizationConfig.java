@@ -22,7 +22,7 @@ import com.flipkart.foxtrot.core.jobs.BaseJobConfig;
  ***/
 public class EsIndexOptimizationConfig extends BaseJobConfig {
 
-    private static final String JOB_NAME = "Index Optimizer";
+    private static final String JOB_NAME = "ESIndexOptimizer";
 
     @Override
     public String getJobName() {

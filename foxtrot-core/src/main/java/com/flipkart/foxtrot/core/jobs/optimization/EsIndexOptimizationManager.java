@@ -25,6 +25,7 @@ import com.google.common.base.Stopwatch;
 import com.google.common.collect.Sets;
 import net.javacrumbs.shedlock.core.LockConfiguration;
 import net.javacrumbs.shedlock.core.LockingTaskExecutor;
+import org.apache.commons.lang3.StringUtils;
 import org.elasticsearch.action.admin.indices.segments.IndexSegments;
 import org.elasticsearch.action.admin.indices.segments.IndexShardSegments;
 import org.elasticsearch.action.admin.indices.segments.IndicesSegmentResponse;
@@ -74,10 +75,12 @@ public class EsIndexOptimizationManager extends BaseJobManager {
                 for(Map.Entry<String, IndexSegments> entry : segmentResponseIndices.entrySet()) {
                     String index = entry.getKey();
                     String table = ElasticsearchUtils.getTableNameFromIndex(index);
+                    if(StringUtils.isEmpty(table)) {
+                        continue;
+                    }
                     String currentIndex = ElasticsearchUtils.getCurrentIndex(table, System.currentTimeMillis());
                     String nextDayIndex = ElasticsearchUtils.getCurrentIndex(table, System.currentTimeMillis() + TimeUnit.DAYS.toMillis(1));
-                    if(index.equals(currentIndex) || index.equals(nextDayIndex) ||
-                       com.flipkart.foxtrot.common.util.CollectionUtils.isNullOrEmpty(table)) {
+                    if(index.equals(currentIndex) || index.equals(nextDayIndex)) {
                         continue;
                     }
                     Map<Integer, IndexShardSegments> indexShardSegmentsMap = entry.getValue().getShards();
