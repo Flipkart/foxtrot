@@ -158,7 +158,7 @@ public class TrendAction extends Action<TrendRequest> {
             throw FoxtrotExceptions.queryCreationException(parameter, e);
         }
         try {
-            SearchResponse searchResponse = searchRequestBuilder.execute().actionGet();
+            SearchResponse searchResponse = searchRequestBuilder.execute().actionGet(getGetQueryTimeout());
             Aggregations aggregations = searchResponse.getAggregations();
             if (aggregations != null) {
                 return buildResponse(parameter, aggregations);

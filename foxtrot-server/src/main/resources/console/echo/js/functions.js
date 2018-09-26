@@ -284,9 +284,10 @@ function loadParticularConsole() { // reload page based on selected console
 }
 
 function getWhereOption(fieldType) {
-  var allOption = '<option value="">Select</option><option value="equals">Equal to</option><option value="not_equals">Not Equal to</option><option value="less_than">Less than</option><option value="less_equal">Less or equal to</option><option value="greater_than">Greater than</option><option value="greater_equal">Greater or equal to</option><option value="contains">Equals</option><option value="not_equals">Not equals</option><option value="contains">Contains</option><option value="between">Between</option><option value="exits">Exist</option>';
+  var allOption = '<option value="">Select</option><option value="equals">Equal to</option><option value="not_equals">Not Equal to</option><option value="less_than">Less than</option><option value="less_equal">Less or equal to</option><option value="greater_than">Greater than</option><option value="greater_equal">Greater or equal to</option><option value="contains">Equals</option><option value="not_equals">Not equals</option><option value="contains">Contains</option><option value="between">Between</option><option value="exits">Exist</option><option value="not_in">Not In</option>';
 
-  var stringOption = '<option value="">Select</option><option value="equals">Equal to</option><option value="not_equals">Not Equal to</option><option value="contains">Contains</option><option value="exits">Exist</option>';
+
+  var stringOption = '<option value="">Select</option><option value="equals">Equal to</option><option value="not_equals">Not Equal to</option><option value="contains">Contains</option><option value="exits">Exist</option><option value="not_in">Not In</option>';
 
   var boolOption = '<option value="">Select</option><option value="equals">Equal to</option><option value="not_equals">Not Equal to</option><option value="exits">Exist</option>';
 
@@ -429,3 +430,11 @@ function showFetchError(data) {
 function hideFetchError(data) {
   $("#"+data.id).find(".fetch-error").hide();
 } 
+
+/**
+ * Convert epoch to readble date
+ */
+function readbleDate(epochValue) {
+  var day = moment(epochValue); //milliseconds
+  return day.format('DD/MM/YYYY, hh:mm:ss a');
+}

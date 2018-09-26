@@ -256,7 +256,7 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
             throw FoxtrotExceptions.createBadRequestException(table,
                     String.format("unknown_table table:%s", table));
         }
-        final TableFieldMapping tableFieldMapping = getFieldMappings(table, cardinalityConfig.isCardinalityEnabled(), false);
+        final TableFieldMapping tableFieldMapping = getFieldMappings(table, cardinalityConfig.isEnabled(), false);
         //estimateCardinality(table, tableFieldMapping.getMappings(), timestamp);
         fieldDataCache.put(table, tableFieldMapping);
     }

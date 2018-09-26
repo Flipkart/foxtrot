@@ -11,6 +11,7 @@ elasticsearch:
   - localhost
   cluster: foxtrot
   tableNamePrefix: foxtrot
+  getQueryTimeout: 10000
 
 hbase:
   secure : false
@@ -25,16 +26,25 @@ cluster:
     disableMulticast: true
     members: ["localhost:5701"]
 
+cacheConfig:
+  maxIdleSeconds: 15
+  timeToLiveSeconds: 15
+
 logging:
   level: INFO
 
 cardinality:
-  cardinality: true
+  enabled: true
   batchSize: 10
   active: true
   interval: 86400
   initialDelay: 6
   maxCardinality: 20000
+
+esIndexOptimizationConfig:
+  active: true
+  interval: 86400
+  initialDelay: 6
 
 deletionconfig:
   active: false

@@ -62,7 +62,7 @@ public class TableManagerResourceTest extends FoxtrotResourceTest {
 
     @Test
     public void testSave() throws Exception {
-        doNothing().when(getDataStore()).initializeTable(any(Table.class));
+        doNothing().when(getDataStore()).initializeTable(any(Table.class), anyBoolean());
         doNothing().when(getQueryStore()).initializeTable(any(String.class));
         Table table = Table.builder()
                 .name(TEST_TABLE_NAME)
@@ -115,7 +115,7 @@ public class TableManagerResourceTest extends FoxtrotResourceTest {
 
     @Test
     public void testGet() throws Exception {
-        doNothing().when(getDataStore()).initializeTable(any(Table.class));
+        doNothing().when(getDataStore()).initializeTable(any(Table.class), anyBoolean());
         doNothing().when(getQueryStore()).initializeTable(any(String.class));
 
 

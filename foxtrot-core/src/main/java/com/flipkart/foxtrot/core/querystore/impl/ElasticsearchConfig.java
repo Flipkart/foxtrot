@@ -37,6 +37,9 @@ public class ElasticsearchConfig {
     private String cluster;
     private String tableNamePrefix = "foxtrot";
 
+    public static final long DEFAULT_TIMEOUT = 10000L;
+    private long getQueryTimeout;
+
     public ElasticsearchConfig() {
     }
 
@@ -62,5 +65,9 @@ public class ElasticsearchConfig {
 
     public void setTableNamePrefix(String tableNamePrefix) {
         this.tableNamePrefix = tableNamePrefix;
+    }
+
+    public long getGetQueryTimeout() {
+        return getQueryTimeout > 0 ? getQueryTimeout : DEFAULT_TIMEOUT;
     }
 }

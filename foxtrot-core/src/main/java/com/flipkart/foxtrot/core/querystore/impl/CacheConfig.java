@@ -1,4 +1,5 @@
-/**
+package com.flipkart.foxtrot.core.querystore.impl;
+/*
  * Copyright 2014 Flipkart Internet Pvt. Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,13 +14,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.flipkart.foxtrot.core.cache;
 
-/**
- * User: Santanu Sinha (santanu.sinha@flipkart.com)
- * Date: 24/03/14
- * Time: 5:39 PM
- */
-public interface CacheFactory {
-    Cache create(String name);
+import lombok.Data;
+
+/***
+ Created by nitish.goyal on 20/09/18
+ ***/
+@Data
+public class CacheConfig {
+
+    private int maxIdleSeconds;
+    private int timeToLiveSeconds;
+    private int size;
+
+
 }

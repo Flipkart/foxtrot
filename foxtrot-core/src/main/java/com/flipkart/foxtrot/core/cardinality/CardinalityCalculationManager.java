@@ -15,77 +15,48 @@ package com.flipkart.foxtrot.core.cardinality;
  * limitations under the License.
  */
 
+import com.flipkart.foxtrot.common.Table;
+import com.flipkart.foxtrot.core.jobs.BaseJobManager;
 import com.flipkart.foxtrot.core.querystore.impl.HazelcastConnection;
 import com.flipkart.foxtrot.core.table.TableMetadataManager;
-import io.dropwizard.lifecycle.Managed;
-import net.javacrumbs.shedlock.core.DefaultLockingTaskExecutor;
 import net.javacrumbs.shedlock.core.LockConfiguration;
 import net.javacrumbs.shedlock.core.LockingTaskExecutor;
-import net.javacrumbs.shedlock.provider.hazelcast.HazelcastLockProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.time.*;
+import java.time.Instant;
+import java.util.Set;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 /***
  Created by nitish.goyal on 13/08/18
  ***/
-public class CardinalityCalculationManager implements Managed {
+public class CardinalityCalculationManager extends BaseJobManager {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CardinalityCalculationManager.class.getSimpleName());
-    private static final String TIME_ZONE = "Asia/Kolkata";
-    private static final int MAX_TIME_TO_RUN_TASK_IN_HOURS = 2;
 
     private final TableMetadataManager tableMetadataManager;
     private final CardinalityConfig cardinalityConfig;
-    private final HazelcastConnection hazelcastConnection;
-    private final ScheduledExecutorService scheduledExecutorService;
 
     public CardinalityCalculationManager(TableMetadataManager tableMetadataManager, CardinalityConfig cardinalityConfig,
                                          HazelcastConnection hazelcastConnection, ScheduledExecutorService scheduledExecutorService) {
+        super(cardinalityConfig, scheduledExecutorService, hazelcastConnection);
         this.tableMetadataManager = tableMetadataManager;
         this.cardinalityConfig = cardinalityConfig;
-        this.hazelcastConnection = hazelcastConnection;
-        this.scheduledExecutorService = scheduledExecutorService;
     }
 
     @Override
-    public void start() throws Exception {
-        LOGGER.info("Starting Cardinality Manager");
-        if(cardinalityConfig.isActive()) {
-            LOGGER.info("Scheduling cardinality calculation job");
-            LocalDateTime localNow = LocalDateTime.now();
-            ZoneId currentZone = ZoneId.of(TIME_ZONE);
-            ZonedDateTime zonedNow = ZonedDateTime.of(localNow, currentZone);
-            ZonedDateTime zonedNext5 = zonedNow.withHour(cardinalityConfig.getInitialDelay()).withMinute(0).withSecond(0);
-            if(zonedNow.compareTo(zonedNext5) > 0)
-                zonedNext5 = zonedNext5.plusDays(1);
-
-            Duration duration = Duration.between(zonedNow, zonedNext5);
-            long initialDelay = duration.getSeconds();
-
-            scheduledExecutorService.scheduleAtFixedRate(new Runnable() {
-                @Override
-                public void run() {
-                    LockingTaskExecutor executor =
-                            new DefaultLockingTaskExecutor(new HazelcastLockProvider(hazelcastConnection.getHazelcast()));
-                    Instant lockAtMostUntil = Instant.now().plusSeconds(TimeUnit.HOURS.toSeconds(MAX_TIME_TO_RUN_TASK_IN_HOURS));
-                    executor.executeWithLock(new CardinalityCalculationRunnable(tableMetadataManager),
-                                             new LockConfiguration("cardinalityCalculation", lockAtMostUntil));
-
+    protected void runImpl(LockingTaskExecutor executor, Instant lockAtMostUntil) {
+        executor.executeWithLock(() -> {
+            try {
+                Set<String> tables = tableMetadataManager.get().stream().map(Table::getName).collect(Collectors.toSet());
+                for(String table : tables) {
+                    tableMetadataManager.getFieldMappings(table, true, true);
                 }
-            }, initialDelay, cardinalityConfig.getInterval(), TimeUnit.SECONDS);
-
-            LOGGER.info("Scheduled  cardinality calculation job");
-        } else {
-            LOGGER.info("Not scheduling cardinality calculation job");
-        }
-    }
-
-    @Override
-    public void stop() throws Exception {
-        LOGGER.info("Stopped Cardinality Manager");
+            } catch (Exception e) {
+                LOGGER.error("Error occurred while calculating cardinality " + e);
+            }
+        }, new LockConfiguration(cardinalityConfig.getJobName(), lockAtMostUntil));
     }
 }
