@@ -40,6 +40,10 @@ cluster:
     disableMulticast: true
     members: ["localhost:5701"]
 
+cacheConfig:
+  maxIdleSeconds: 15
+  timeToLiveSeconds: 15
+
 logging:
   level: INFO
 

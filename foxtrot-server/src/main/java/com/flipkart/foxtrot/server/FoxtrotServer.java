@@ -141,6 +141,7 @@ public class FoxtrotServer extends Application<FoxtrotServerConfiguration> {
             cardinalityConfig = new CardinalityConfig("false", String.valueOf(ElasticsearchUtils.DEFAULT_SUB_LIST_SIZE));
         }
         EsIndexOptimizationConfig esIndexOptimizationConfig = configuration.getEsIndexOptimizationConfig();
+        CacheConfig cacheConfig = configuration.getCacheConfig();
 
         final ObjectMapper objectMapper = environment.getObjectMapper();
         TableMetadataManager tableMetadataManager =
@@ -149,7 +150,7 @@ public class FoxtrotServer extends Application<FoxtrotServerConfiguration> {
         QueryStore queryStore =
                 new ElasticsearchQueryStore(tableMetadataManager, elasticsearchConnection, dataStore, objectMapper, cardinalityConfig);
         FoxtrotTableManager tableManager = new FoxtrotTableManager(tableMetadataManager, queryStore, dataStore);
-        CacheManager cacheManager = new CacheManager(new DistributedCacheFactory(hazelcastConnection, objectMapper));
+        CacheManager cacheManager = new CacheManager(new DistributedCacheFactory(hazelcastConnection, objectMapper, cacheConfig));
         AnalyticsLoader analyticsLoader =
                 new AnalyticsLoader(tableMetadataManager, dataStore, queryStore, elasticsearchConnection, cacheManager, objectMapper);
         QueryExecutor executor = new QueryExecutor(analyticsLoader, executorService);
