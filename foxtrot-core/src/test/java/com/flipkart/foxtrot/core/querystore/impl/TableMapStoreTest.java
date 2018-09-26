@@ -137,8 +137,8 @@ public class TableMapStoreTest {
             Table table = mapper.readValue(multiGetItemResponse.getResponse().getSourceAsString(), Table.class);
             responseTables.put(table.getName(), table);
         }
-        for (String name : tables.keySet()) {
-            compareTables(tables.get(name), responseTables.get(name));
+        for(Map.Entry<String, Table> entry : tables.entrySet()) {
+            compareTables(entry.getValue(), responseTables.get(entry.getKey()));
         }
     }
 

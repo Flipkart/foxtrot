@@ -43,7 +43,7 @@ public class CacheUpdateResourceTest extends FoxtrotResourceTest {
 
     @Test
     public void testUpdateCache() {
-        Response response = resources.client().target("/v1/cache/update/cardinality").request().post(null);
+        resources.client().target("/v1/cache/update/cardinality").request().post(null);
 
     }
 }

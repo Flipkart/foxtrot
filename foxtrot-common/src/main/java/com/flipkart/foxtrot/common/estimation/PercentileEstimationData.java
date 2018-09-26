@@ -5,6 +5,8 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
+import java.util.Arrays;
+
 /**
  *
  */
@@ -19,6 +21,10 @@ public class PercentileEstimationData extends EstimationData {
 
     public PercentileEstimationData() {
         super(EstimationDataType.PERCENTILE);
+    }
+
+    public double[] getValues() {
+        return Arrays.copyOf(values, values.length);
     }
 
     @Builder

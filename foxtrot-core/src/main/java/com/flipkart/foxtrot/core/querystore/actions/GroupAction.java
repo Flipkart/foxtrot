@@ -146,8 +146,7 @@ public class GroupAction extends Action<GroupRequest> {
 
         // Perform cardinality analysis and see how much this fucks up the cluster
         QueryStore queryStore = getQueryStore();
-        if (queryStore instanceof ElasticsearchQueryStore &&
-                ((ElasticsearchQueryStore) queryStore).getCardinalityConfig().isCardinalityEnabled()) {
+        if(queryStore instanceof ElasticsearchQueryStore && ((ElasticsearchQueryStore)queryStore).getCardinalityConfig().isEnabled()) {
             double probability = 0;
             try {
                 TableFieldMapping fieldMappings = getTableMetadataManager().getFieldMappings(parameter.getTable(), true, false);

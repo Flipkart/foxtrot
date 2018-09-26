@@ -33,10 +33,8 @@ import javax.ws.rs.DefaultValue;
 @NoArgsConstructor
 public class CardinalityConfig {
 
-    private String cardinality;
+    private String enabled;
     private String batchSize;
-
-    private boolean cardinalityEnabled;
 
     @DefaultValue("50000")
     private long maxCardinality;
@@ -53,22 +51,22 @@ public class CardinalityConfig {
     @NotNull
     private boolean active;
 
-    public CardinalityConfig(String cardinality, String batchSize) {
-        this.cardinality = cardinality;
+    public CardinalityConfig(String enabled, String batchSize) {
+        this.enabled = enabled;
         this.batchSize = batchSize;
     }
 
-    public boolean isCardinalityEnabled() {
-        if (StringUtils.isEmpty(cardinality)) {
+    public boolean isEnabled() {
+        if(StringUtils.isEmpty(enabled)) {
             return false;
         }
-        return Boolean.valueOf(cardinality);
+        return Boolean.valueOf(enabled);
     }
 
     public int getSubListSize() {
         if (StringUtils.isEmpty(batchSize)) {
             return ElasticsearchUtils.DEFAULT_SUB_LIST_SIZE;
         }
-        return Integer.valueOf(batchSize);
+        return Integer.parseInt(batchSize);
     }
 }

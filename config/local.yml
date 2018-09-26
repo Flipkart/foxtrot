@@ -44,7 +44,7 @@ logging:
   level: INFO
 
 cardinality:
-  cardinality: true
+  enabled: true
   batchSize: 10
   active: true
   interval: 86400

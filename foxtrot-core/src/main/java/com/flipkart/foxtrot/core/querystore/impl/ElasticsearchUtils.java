@@ -43,11 +43,11 @@ public class ElasticsearchUtils {
     private static final Logger logger = LoggerFactory.getLogger(ElasticsearchUtils.class.getSimpleName());
 
 
+    private static String TABLENAME_PREFIX = "foxtrot";
     public static final String DOCUMENT_TYPE_NAME = "document";
     public static final String DOCUMENT_META_TYPE_NAME = "metadata";
     public static final String DOCUMENT_META_FIELD_NAME = "__FOXTROT_METADATA__";
     public static final String DOCUMENT_META_ID_FIELD_NAME = String.format("%s.id", DOCUMENT_META_FIELD_NAME);
-    public static String TABLENAME_PREFIX = "foxtrot";
     public static final String TABLENAME_POSTFIX = "table";
     public static final String TIME_FIELD = "time";
     public static final int DEFAULT_SUB_LIST_SIZE = 50;
