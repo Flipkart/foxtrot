@@ -230,6 +230,7 @@ public class QueryTranslator extends SqlElementVisitor {
                 distinctRequest.setFilters(filters);
                 distinctRequest.setNesting(columnsWithSort);
                 request = distinctRequest;
+                break;
             }
 
         }
@@ -403,12 +404,8 @@ public class QueryTranslator extends SqlElementVisitor {
 
             if(expressionList != null && (expressionList.getExpressions() != null && expressionList.getExpressions().size() == 1)) {
                 List<Expression> expressions = expressionList.getExpressions();
-                if(allColumns) {
-                    countRequest.setField(null);
-                } else {
-                    countRequest.setField(expressionToString(expressions.get(0)));
-                    countRequest.setDistinct(isDistinct);
-                }
+                countRequest.setField(expressionToString(expressions.get(0)));
+                countRequest.setDistinct(isDistinct);
                 return countRequest;
             }
             throw new RuntimeException("count function has the following format: count([distinct] */column_name)");

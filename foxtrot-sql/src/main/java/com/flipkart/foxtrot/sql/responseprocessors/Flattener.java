@@ -245,8 +245,8 @@ public class Flattener implements ResponseVisitor {
     private List<FieldHeader> getFieldsFromList(Map<String, Integer> fieldNames) {
         List<FieldHeader> headers = Lists.newArrayList();
         if (null == fieldsToReturn || fieldsToReturn.isEmpty()) {
-            for (String fieldName : fieldNames.keySet()) {
-                headers.add(new FieldHeader(fieldName, fieldNames.get(fieldName)));
+            for(Map.Entry<String, Integer> entry : fieldNames.entrySet()) {
+                headers.add(new FieldHeader(entry.getKey(), entry.getValue()));
             }
         } else {
             for (String fieldName : fieldsToReturn) {

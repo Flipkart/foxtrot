@@ -58,8 +58,8 @@ import static org.mockito.Mockito.*;
 public class TestUtils {
 
     private static final Logger logger = LoggerFactory.getLogger(TestUtils.class.getSimpleName());
-    public static String TEST_TABLE_NAME = "test-table";
-    public static Table TEST_TABLE
+    public static final String TEST_TABLE_NAME = "test-table";
+    public static final Table TEST_TABLE
             = Table.builder()
             .name(TEST_TABLE_NAME)
             .ttl(7)
@@ -330,7 +330,7 @@ public class TestUtils {
         documents.add(TestUtils.getDocument("B", startTimestamp++, new Object[]{"os", "android", "version", 1, "device", "galaxy"}, mapper));
         documents.add(TestUtils.getDocument("C", startTimestamp++, new Object[]{"os", "android", "version", 2, "device", "nexus"}, mapper));
         documents.add(TestUtils.getDocument("D", startTimestamp++, new Object[]{"os", "ios", "version", 1, "device", "iphone"}, mapper));
-        documents.add(TestUtils.getDocument("E", startTimestamp++, new Object[]{"os", "ios", "version", 2, "device", "ipad"}, mapper));
+        documents.add(TestUtils.getDocument("E", startTimestamp, new Object[]{"os", "ios", "version", 2, "device", "ipad"}, mapper));
         return documents;
     }
 
