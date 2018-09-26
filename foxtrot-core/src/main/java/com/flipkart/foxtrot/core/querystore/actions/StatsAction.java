@@ -136,7 +136,7 @@ public class StatsAction extends Action<StatsRequest> {
             throw FoxtrotExceptions.queryCreationException(parameter, e);
         }
         try {
-            Aggregations aggregations = searchRequestBuilder.execute().actionGet().getAggregations();
+            Aggregations aggregations = searchRequestBuilder.execute().actionGet(getGetQueryTimeout()).getAggregations();
             if (aggregations != null) {
                 return buildResponse(parameter, aggregations);
             }

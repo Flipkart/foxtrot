@@ -10,6 +10,7 @@ elasticsearch:
   hosts: localhost
   cluster: elasticsearch
   tableNamePrefix: foxtrot
+  getQueryTimeout: 10000
 
 serviceDiscovery:
   namespace: phonepe
