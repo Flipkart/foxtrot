@@ -50,6 +50,11 @@ cardinality:
   initialDelay: 6
   maxCardinality: 20000
 
+esIndexOptimizationConfig:
+  active: true
+  interval: 86400
+  initialDelay: 6
+
 deletionconfig:
   active: false
   interval: 86400

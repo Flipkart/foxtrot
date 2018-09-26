@@ -26,6 +26,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.time.*;
+import java.util.Calendar;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
@@ -57,7 +58,8 @@ public class CardinalityCalculationManager implements Managed {
         if(cardinalityConfig.isActive()) {
             LOGGER.info("Scheduling cardinality calculation job");
             LocalDateTime localNow = LocalDateTime.now();
-            ZoneId currentZone = ZoneId.of(TIME_ZONE);
+            Calendar now = Calendar.getInstance();
+            ZoneId currentZone = ZoneId.of(now.getTimeZone().getID());
             ZonedDateTime zonedNow = ZonedDateTime.of(localNow, currentZone);
             ZonedDateTime zonedNext5 = zonedNow.withHour(cardinalityConfig.getInitialDelay()).withMinute(0).withSecond(0);
             if(zonedNow.compareTo(zonedNext5) > 0)
