@@ -34,7 +34,18 @@ public class FoxtrotTableManager implements TableManager {
             throw FoxtrotExceptions.createTableExistsException(table.getName());
         }
         queryStore.initializeTable(table.getName());
-        dataStore.initializeTable(table);
+        dataStore.initializeTable(table, false);
+        metadataManager.save(table);
+    }
+
+    @Override
+    public void save(Table table, boolean forceCreateTable) throws FoxtrotException {
+        validateTableParams(table);
+        if(metadataManager.exists(table.getName())) {
+            throw FoxtrotExceptions.createTableExistsException(table.getName());
+        }
+        dataStore.initializeTable(table, forceCreateTable);
+        queryStore.initializeTable(table.getName());
         metadataManager.save(table);
     }
 
