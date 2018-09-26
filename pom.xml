@@ -45,6 +45,11 @@
             <name>Balaji S</name>
             <email>balajispsg@gmail.com</email>
         </developer>
+        <developer>
+            <id>nitishgoyal13</id>
+            <name>Nitish Goyal</name>
+            <email>nitishgoyal13@gmail.com</email>
+        </developer>
     </developers>
 
     <distributionManagement>
