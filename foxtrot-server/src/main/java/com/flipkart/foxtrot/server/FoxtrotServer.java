@@ -29,6 +29,8 @@ import com.flipkart.foxtrot.core.common.DataDeletionManagerConfig;
 import com.flipkart.foxtrot.core.datastore.DataStore;
 import com.flipkart.foxtrot.core.datastore.impl.hbase.HBaseDataStore;
 import com.flipkart.foxtrot.core.datastore.impl.hbase.HbaseTableConnection;
+import com.flipkart.foxtrot.core.jobs.optimization.EsIndexOptimizationConfig;
+import com.flipkart.foxtrot.core.jobs.optimization.EsIndexOptimizationManager;
 import com.flipkart.foxtrot.core.querystore.DocumentTranslator;
 import com.flipkart.foxtrot.core.querystore.QueryExecutor;
 import com.flipkart.foxtrot.core.querystore.QueryStore;
@@ -139,6 +141,11 @@ public class FoxtrotServer extends Application<FoxtrotServerConfiguration> {
         if (cardinalityConfig == null) {
             cardinalityConfig = new CardinalityConfig("false", String.valueOf(ElasticsearchUtils.DEFAULT_SUB_LIST_SIZE));
         }
+        EsIndexOptimizationConfig esIndexOptimizationConfig = configuration.getEsIndexOptimizationConfig();
+        if(esIndexOptimizationConfig == null) {
+            esIndexOptimizationConfig = new EsIndexOptimizationConfig();
+        }
+        CacheConfig cacheConfig = configuration.getCacheConfig();
 
         final ObjectMapper objectMapper = environment.getObjectMapper();
         TableMetadataManager tableMetadataManager =
@@ -148,7 +155,7 @@ public class FoxtrotServer extends Application<FoxtrotServerConfiguration> {
         QueryStore queryStore =
                 new ElasticsearchQueryStore(tableMetadataManager, elasticsearchConnection, dataStore, objectMapper, cardinalityConfig);
         FoxtrotTableManager tableManager = new FoxtrotTableManager(tableMetadataManager, queryStore, dataStore);
-        CacheManager cacheManager = new CacheManager(new DistributedCacheFactory(hazelcastConnection, objectMapper));
+        CacheManager cacheManager = new CacheManager(new DistributedCacheFactory(hazelcastConnection, objectMapper, cacheConfig));
         AnalyticsLoader analyticsLoader =
                 new AnalyticsLoader(tableMetadataManager, dataStore, queryStore, elasticsearchConnection, cacheManager, objectMapper);
         QueryExecutor executor = new QueryExecutor(analyticsLoader, executorService);
@@ -157,6 +164,9 @@ public class FoxtrotServer extends Application<FoxtrotServerConfiguration> {
                 new DataDeletionManager(dataDeletionManagerConfig, queryStore, scheduledExecutorService, hazelcastConnection);
         CardinalityCalculationManager cardinalityCalculationManager =
                 new CardinalityCalculationManager(tableMetadataManager, cardinalityConfig, hazelcastConnection, scheduledExecutorService);
+        EsIndexOptimizationManager esIndexOptimizationManager =
+                new EsIndexOptimizationManager(scheduledExecutorService, esIndexOptimizationConfig, elasticsearchConnection,
+                                               hazelcastConnection);
 
         List<HealthCheck> healthChecks = new ArrayList<>();
         //        ElasticSearchHealthCheck elasticSearchHealthCheck = new ElasticSearchHealthCheck(elasticsearchConnection);
@@ -171,6 +181,7 @@ public class FoxtrotServer extends Application<FoxtrotServerConfiguration> {
         environment.lifecycle().manage(dataDeletionManager);
         environment.lifecycle().manage(clusterManager);
         environment.lifecycle().manage(cardinalityCalculationManager);
+        environment.lifecycle().manage(esIndexOptimizationManager);
 
         environment.jersey().register(new DocumentResource(queryStore));
         environment.jersey().register(new AsyncResource(cacheManager));

@@ -145,32 +145,35 @@ public class GroupAction extends Action<GroupRequest> {
         }
 
         // Perform cardinality analysis and see how much this fucks up the cluster
-        double probability = 0;
-        try {
-            TableFieldMapping fieldMappings = getTableMetadataManager().getFieldMappings(parameter.getTable(), true, false);
-            if (null == fieldMappings) {
-                fieldMappings = TableFieldMapping.builder()
-                        .mappings(Collections.emptySet())
-                        .table(parameter.getTable())
-                        .build();
-            }
-
-            probability = estimateProbability(fieldMappings, parameter);
-        } catch (Exception e) {
-            log.error("Error running estimation", e);
-        }
-
-        if (probability > PROBABILITY_CUT_OFF) {
+        QueryStore queryStore = getQueryStore();
+        if(queryStore instanceof ElasticsearchQueryStore && ((ElasticsearchQueryStore)queryStore).getCardinalityConfig().isEnabled()) {
+            double probability = 0;
             try {
-                log.warn("Blocked query as it might have screwed up the cluster. Probability: {} Query: {}",
-                        probability, getObjectMapper().writeValueAsString(parameter));
-            } catch (JsonProcessingException e) {
-                log.warn("Blocked query as it might have screwed up the cluster. Probability: {} Query: {}",
-                        probability, parameter);
+                TableFieldMapping fieldMappings = getTableMetadataManager().getFieldMappings(parameter.getTable(), true, false);
+                if (null == fieldMappings) {
+                    fieldMappings = TableFieldMapping.builder()
+                            .mappings(Collections.emptySet())
+                            .table(parameter.getTable())
+                            .build();
+                }
+
+                probability = estimateProbability(fieldMappings, parameter);
+            } catch (Exception e) {
+                log.error("Error running estimation", e);
             }
-            throw FoxtrotExceptions.createCardinalityOverflow(parameter, parameter.getNesting().get(0), probability);
-        } else {
-            log.info("Allowing group by with probability {} for query: {}", probability, parameter);
+
+            if (probability > PROBABILITY_CUT_OFF) {
+                try {
+                    log.warn("Blocked query as it might have screwed up the cluster. Probability: {} Query: {}",
+                            probability, getObjectMapper().writeValueAsString(parameter));
+                } catch (JsonProcessingException e) {
+                    log.warn("Blocked query as it might have screwed up the cluster. Probability: {} Query: {}",
+                            probability, parameter);
+                }
+                throw FoxtrotExceptions.createCardinalityOverflow(parameter, parameter.getNesting().get(0), probability);
+            } else {
+                log.info("Allowing group by with probability {} for query: {}", probability, parameter);
+            }
         }
 
     }
@@ -191,7 +194,7 @@ public class GroupAction extends Action<GroupRequest> {
             throw FoxtrotExceptions.queryCreationException(parameter, e);
         }
         try {
-            SearchResponse response = query.execute().actionGet();
+            SearchResponse response = query.execute().actionGet(getGetQueryTimeout());
             List<String> fields = parameter.getNesting();
             Aggregations aggregations = response.getAggregations();
             // Check if any aggregation is present or not

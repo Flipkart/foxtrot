@@ -105,7 +105,7 @@ public class CountAction extends Action<CountRequest> {
             }
 
             try {
-                SearchResponse response = query.execute().actionGet();
+                SearchResponse response = query.execute().actionGet(getGetQueryTimeout());
                 Aggregations aggregations = response.getAggregations();
                 Cardinality cardinality = aggregations.get(Utils.sanitizeFieldForAggregation(parameter.getField()));
                 if (cardinality == null) {
@@ -128,7 +128,7 @@ public class CountAction extends Action<CountRequest> {
                 throw FoxtrotExceptions.queryCreationException(parameter, e);
             }
             try {
-                return new CountResponse(requestBuilder.execute().actionGet().getHits().getTotalHits());
+                return new CountResponse(requestBuilder.execute().actionGet(getGetQueryTimeout()).getHits().getTotalHits());
             } catch (ElasticsearchException e) {
                 throw FoxtrotExceptions.createQueryExecutionException(parameter, e);
             }

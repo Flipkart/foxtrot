@@ -130,7 +130,7 @@ public class StatsTrendAction extends Action<StatsTrendRequest> {
         }
 
         try {
-            SearchResponse response = searchRequestBuilder.execute().actionGet();
+            SearchResponse response = searchRequestBuilder.execute().actionGet(getGetQueryTimeout());
             Aggregations aggregations = response.getAggregations();
             if (aggregations != null) {
                 return buildResponse(parameter, aggregations);

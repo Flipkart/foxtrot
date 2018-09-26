@@ -18,6 +18,7 @@ package com.flipkart.foxtrot.core.cache.impl;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.flipkart.foxtrot.core.cache.Cache;
 import com.flipkart.foxtrot.core.cache.CacheFactory;
+import com.flipkart.foxtrot.core.querystore.impl.CacheConfig;
 import com.flipkart.foxtrot.core.querystore.impl.HazelcastConnection;
 import com.hazelcast.config.*;
 
@@ -32,11 +33,14 @@ import static com.flipkart.foxtrot.core.querystore.actions.Constants.CACHE_NAME_
 public class DistributedCacheFactory implements CacheFactory {
     private final HazelcastConnection connection;
     private final ObjectMapper mapper;
+    private static final int DEFAULT_TIME_TO_LIVE_SECONDS = 15;
+    private static final int DEFAULT_MAX_IDLE_SECONDS = 15;
+    private static final int DEFAULT_SIZE = 70;
 
-    public DistributedCacheFactory(HazelcastConnection connection, ObjectMapper mapper) {
+    public DistributedCacheFactory(HazelcastConnection connection, ObjectMapper mapper, CacheConfig cacheConfig) {
         this.connection = connection;
         this.mapper = mapper;
-        this.connection.getHazelcastConfig().addMapConfig(getDefaultMapConfig());
+        this.connection.getHazelcastConfig().addMapConfig(getDefaultMapConfig(cacheConfig));
     }
 
     @Override
@@ -44,16 +48,31 @@ public class DistributedCacheFactory implements CacheFactory {
         return new DistributedCache(connection, name, mapper);
     }
 
-    private static MapConfig getDefaultMapConfig() {
+    private MapConfig getDefaultMapConfig(CacheConfig cacheConfig) {
         MapConfig mapConfig = new MapConfig(CACHE_NAME_PREFIX + "*");
         mapConfig.setInMemoryFormat(InMemoryFormat.BINARY);
         mapConfig.setBackupCount(0);
-        mapConfig.setMaxIdleSeconds(15);
-        mapConfig.setTimeToLiveSeconds(15);
         mapConfig.setEvictionPolicy(EvictionPolicy.LRU);
+
+        if(cacheConfig.getMaxIdleSeconds() == 0) {
+            mapConfig.setMaxIdleSeconds(DEFAULT_MAX_IDLE_SECONDS);
+        } else {
+            mapConfig.setMaxIdleSeconds(cacheConfig.getMaxIdleSeconds());
+        }
+
+        if(cacheConfig.getTimeToLiveSeconds() == 0) {
+            mapConfig.setTimeToLiveSeconds(DEFAULT_TIME_TO_LIVE_SECONDS);
+        } else {
+            mapConfig.setTimeToLiveSeconds(cacheConfig.getTimeToLiveSeconds());
+        }
+
         MaxSizeConfig maxSizeConfig = new MaxSizeConfig();
         maxSizeConfig.setMaxSizePolicy(MaxSizeConfig.MaxSizePolicy.USED_HEAP_PERCENTAGE);
-        maxSizeConfig.setSize(70);
+        if(cacheConfig.getSize() == 0) {
+            maxSizeConfig.setSize(DEFAULT_SIZE);
+        } else {
+            maxSizeConfig.setSize(cacheConfig.getSize());
+        }
         mapConfig.setMaxSizeConfig(maxSizeConfig);
         return mapConfig;
     }
