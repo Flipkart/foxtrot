@@ -1,12 +1,12 @@
 /**
  * Copyright 2014 Flipkart Internet Pvt. Ltd.
- *
+ * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
+ * <p>
  * http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -57,13 +57,16 @@ public class DistributedCacheTest {
         when(hazelcastConnection.getHazelcast()).thenReturn(hazelcastInstance);
         when(hazelcastConnection.getHazelcastConfig()).thenReturn(new Config());
         distributedCache = new DistributedCache(hazelcastConnection, "TEST", mapper);
-        CacheManager cacheManager = new CacheManager(new DistributedCacheFactory(hazelcastConnection, mapper, new CacheConfig()));
+        CacheManager cacheManager = new CacheManager(
+                new DistributedCacheFactory(hazelcastConnection, mapper, new CacheConfig()));
 
         TableMetadataManager tableMetadataManager = Mockito.mock(TableMetadataManager.class);
         when(tableMetadataManager.exists(TestUtils.TEST_TABLE_NAME)).thenReturn(true);
         QueryStore queryStore = Mockito.mock(QueryStore.class);
 
-        AnalyticsLoader analyticsLoader = new AnalyticsLoader(tableMetadataManager, null, queryStore, null, cacheManager, mapper);
+        AnalyticsLoader analyticsLoader = new AnalyticsLoader(tableMetadataManager, null, queryStore, null,
+                                                              cacheManager, mapper
+        );
         TestUtils.registerActions(analyticsLoader, mapper);
     }
 
@@ -79,16 +82,19 @@ public class DistributedCacheTest {
         assertEquals(expectedResponse, returnResponse);
 
         GroupResponse actualResponse = GroupResponse.class.cast(distributedCache.get("DUMMY_KEY_PUT"));
-        assertEquals(GroupResponse.class.cast(expectedResponse).getResult(), actualResponse.getResult());
+        assertEquals(GroupResponse.class.cast(expectedResponse)
+                             .getResult(), actualResponse.getResult());
     }
 
     @Test
     public void testPutCacheException() throws Exception {
-        doThrow(new JsonGenerationException("TEST_EXCEPTION")).when(mapper).writeValueAsString(any());
+        doThrow(new JsonGenerationException("TEST_EXCEPTION")).when(mapper)
+                .writeValueAsString(any());
         ActionResponse returnResponse = distributedCache.put("DUMMY_KEY_PUT", null);
         verify(mapper, times(1)).writeValueAsString(any());
         assertNull(returnResponse);
-        assertNull(hazelcastInstance.getMap("TEST").get("DUMMY_KEY_PUT"));
+        assertNull(hazelcastInstance.getMap("TEST")
+                           .get("DUMMY_KEY_PUT"));
     }
 
     @Test

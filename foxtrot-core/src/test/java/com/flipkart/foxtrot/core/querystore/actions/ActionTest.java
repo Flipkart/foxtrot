@@ -37,6 +37,11 @@ import static org.mockito.Mockito.when;
 @Getter
 public class ActionTest {
 
+    static {
+        Logger root = (Logger)LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
+        root.setLevel(Level.WARN);
+    }
+
     private ObjectMapper mapper;
     private QueryStore queryStore;
     private QueryExecutor queryExecutor;
@@ -44,11 +49,6 @@ public class ActionTest {
     private MockElasticsearchServer elasticsearchServer;
     private ElasticsearchConnection elasticsearchConnection;
     private DistributedTableMetadataManager tableMetadataManager;
-
-    static {
-        Logger root = (Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
-        root.setLevel(Level.WARN);
-    }
 
     @Before
     public void setUp() throws Exception {
@@ -59,24 +59,31 @@ public class ActionTest {
         this.hazelcastInstance = new TestHazelcastInstanceFactory(1).newHazelcastInstance(config);
         when(hazelcastConnection.getHazelcast()).thenReturn(hazelcastInstance);
         when(hazelcastConnection.getHazelcastConfig()).thenReturn(config);
-        this.elasticsearchServer = new MockElasticsearchServer(UUID.randomUUID().toString());
+        this.elasticsearchServer = new MockElasticsearchServer(UUID.randomUUID()
+                                                                       .toString());
         elasticsearchConnection = TestUtils.initESConnection(elasticsearchServer);
-        CardinalityConfig cardinalityConfig = new CardinalityConfig("true", String.valueOf(ElasticsearchUtils.DEFAULT_SUB_LIST_SIZE));
+        CardinalityConfig cardinalityConfig = new CardinalityConfig("true", String.valueOf(
+                ElasticsearchUtils.DEFAULT_SUB_LIST_SIZE));
 
-        tableMetadataManager = new DistributedTableMetadataManager(hazelcastConnection, elasticsearchConnection, mapper, cardinalityConfig);
+        tableMetadataManager = new DistributedTableMetadataManager(hazelcastConnection, elasticsearchConnection, mapper,
+                                                                   cardinalityConfig
+        );
         tableMetadataManager.start();
 
-        tableMetadataManager.save(Table.builder().name(TestUtils.TEST_TABLE_NAME).ttl(30).build());
+        tableMetadataManager.save(Table.builder()
+                                          .name(TestUtils.TEST_TABLE_NAME)
+                                          .ttl(30)
+                                          .build());
 
         DataStore dataStore = TestUtils.getDataStore();
-        this.queryStore = new ElasticsearchQueryStore(tableMetadataManager, elasticsearchConnection, dataStore, mapper, cardinalityConfig);
-        CacheManager cacheManager = new CacheManager(new DistributedCacheFactory(hazelcastConnection, mapper, new CacheConfig()));
-        AnalyticsLoader analyticsLoader = new AnalyticsLoader(tableMetadataManager,
-                dataStore,
-                queryStore,
-                elasticsearchConnection,
-                cacheManager,
-                mapper);
+        this.queryStore = new ElasticsearchQueryStore(tableMetadataManager, elasticsearchConnection, dataStore, mapper,
+                                                      cardinalityConfig
+        );
+        CacheManager cacheManager = new CacheManager(
+                new DistributedCacheFactory(hazelcastConnection, mapper, new CacheConfig()));
+        AnalyticsLoader analyticsLoader = new AnalyticsLoader(tableMetadataManager, dataStore, queryStore,
+                                                              elasticsearchConnection, cacheManager, mapper
+        );
         analyticsLoader.start();
         ExecutorService executorService = Executors.newFixedThreadPool(1);
         this.queryExecutor = new QueryExecutor(analyticsLoader, executorService);

@@ -1,12 +1,12 @@
 /**
  * Copyright 2014 Flipkart Internet Pvt. Ltd.
- *
+ * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
+ * <p>
  * http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -69,8 +69,10 @@ public class QueryExecutorTest {
         HazelcastConnection hazelcastConnection = Mockito.mock(HazelcastConnection.class);
         when(hazelcastConnection.getHazelcast()).thenReturn(hazelcastInstance);
         when(hazelcastConnection.getHazelcastConfig()).thenReturn(new Config());
-        CacheManager cacheManager = new CacheManager(new DistributedCacheFactory(hazelcastConnection, mapper, new CacheConfig()));
-        elasticsearchServer = new MockElasticsearchServer(UUID.randomUUID().toString());
+        CacheManager cacheManager = new CacheManager(
+                new DistributedCacheFactory(hazelcastConnection, mapper, new CacheConfig()));
+        elasticsearchServer = new MockElasticsearchServer(UUID.randomUUID()
+                                                                  .toString());
         ElasticsearchConnection elasticsearchConnection = Mockito.mock(ElasticsearchConnection.class);
         when(elasticsearchConnection.getClient()).thenReturn(elasticsearchServer.getClient());
         ElasticsearchUtils.initializeMappings(elasticsearchServer.getClient());
@@ -78,7 +80,10 @@ public class QueryExecutorTest {
         when(tableMetadataManager.exists(anyString())).thenReturn(true);
         when(tableMetadataManager.get(anyString())).thenReturn(TestUtils.TEST_TABLE);
         QueryStore queryStore = mock(QueryStore.class);
-        analyticsLoader = spy(new AnalyticsLoader(tableMetadataManager, dataStore, queryStore, elasticsearchConnection, cacheManager, mapper));
+        analyticsLoader = spy(
+                new AnalyticsLoader(tableMetadataManager, dataStore, queryStore, elasticsearchConnection, cacheManager,
+                                    mapper
+                ));
         TestUtils.registerActions(analyticsLoader, mapper);
         ExecutorService executorService = Executors.newFixedThreadPool(1);
         queryExecutor = new QueryExecutor(analyticsLoader, executorService);
@@ -92,7 +97,8 @@ public class QueryExecutorTest {
 
     @Test
     public void testResolve() throws Exception {
-        assertEquals(NonCacheableAction.class, queryExecutor.resolve(new NonCacheableActionRequest()).getClass());
+        assertEquals(NonCacheableAction.class, queryExecutor.resolve(new NonCacheableActionRequest())
+                .getClass());
     }
 
     @Test
@@ -108,7 +114,8 @@ public class QueryExecutorTest {
     @Test
     public void testResolveLoaderException() throws Exception {
         try {
-            doThrow(new IOException()).when(analyticsLoader).getAction(any(ActionRequest.class));
+            doThrow(new IOException()).when(analyticsLoader)
+                    .getAction(any(ActionRequest.class));
             queryExecutor.resolve(new NonCacheableActionRequest());
             fail();
         } catch (FoxtrotException e) {

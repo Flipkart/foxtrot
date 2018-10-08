@@ -55,22 +55,17 @@ import java.util.concurrent.TimeUnit;
  */
 public abstract class Action<ParameterType extends ActionRequest> implements Callable<String> {
     private static final Logger logger = LoggerFactory.getLogger(Action.class.getSimpleName());
-
-    private ParameterType parameter;
-    private DataStore dataStore;
-    private ElasticsearchConnection connection;
     private final TableMetadataManager tableMetadataManager;
     private final QueryStore queryStore;
     private final String cacheToken;
     private final CacheManager cacheManager;
     private final ObjectMapper objectMapper;
+    private ParameterType parameter;
+    private DataStore dataStore;
+    private ElasticsearchConnection connection;
 
-    protected Action(ParameterType parameter,
-                     TableMetadataManager tableMetadataManager,
-                     DataStore dataStore,
-                     QueryStore queryStore,
-                     ElasticsearchConnection connection,
-                     String cacheToken,
+    protected Action(ParameterType parameter, TableMetadataManager tableMetadataManager, DataStore dataStore,
+                     QueryStore queryStore, ElasticsearchConnection connection, String cacheToken,
                      CacheManager cacheManager, ObjectMapper objectMapper) {
         this.parameter = parameter;
         this.tableMetadataManager = tableMetadataManager;
@@ -93,7 +88,7 @@ public abstract class Action<ParameterType extends ActionRequest> implements Cal
     }
 
     private void preProcessRequest() throws MalformedQueryException {
-        if (parameter.getFilters() == null) {
+        if(parameter.getFilters() == null) {
             parameter.setFilters(Lists.newArrayList(new AnyFilter()));
         }
         preprocess();
@@ -107,7 +102,8 @@ public abstract class Action<ParameterType extends ActionRequest> implements Cal
     @Override
     public String call() throws Exception {
         final String cacheKey = cacheKey();
-        cacheManager.getCacheFor(this.cacheToken).put(cacheKey, execute(parameter));
+        cacheManager.getCacheFor(this.cacheToken)
+                .put(cacheKey, execute(parameter));
         return cacheKey;
     }
 
@@ -134,7 +130,7 @@ public abstract class Action<ParameterType extends ActionRequest> implements Cal
     public ActionResponse execute() throws FoxtrotException {
         preProcessRequest();
         ActionResponse cachedData = readCachedData();
-        if (cachedData != null) {
+        if(cachedData != null) {
             return cachedData;
         }
         Stopwatch stopwatch = Stopwatch.createStarted();
@@ -142,13 +138,14 @@ public abstract class Action<ParameterType extends ActionRequest> implements Cal
             ActionResponse result = execute(parameter);
             // Publish success metrics
             final long elapsed = stopwatch.elapsed(TimeUnit.MILLISECONDS);
-            MetricUtil.getInstance().registerActionSuccess(cacheToken, getMetricKey(), elapsed);
+            MetricUtil.getInstance()
+                    .registerActionSuccess(cacheToken, getMetricKey(), elapsed);
             if(elapsed > 1000) {
                 try {
-                    logger.warn("SLOW_QUERY: Time: {} ms Query: {}",
-                                elapsed, getObjectMapper().writeValueAsString(parameter));
-                }
-                catch (JsonProcessingException e) {
+                    logger.warn("SLOW_QUERY: Time: {} ms Query: {}", elapsed,
+                                getObjectMapper().writeValueAsString(parameter)
+                               );
+                } catch (JsonProcessingException e) {
                     logger.error("Error serializing slow query", e);
                 }
             }
@@ -160,8 +157,8 @@ public abstract class Action<ParameterType extends ActionRequest> implements Cal
         } catch (FoxtrotException e) {
             stopwatch.stop();
             // Publish failure metrics
-            MetricUtil.getInstance().registerActionFailure(
-                    cacheToken, getMetricKey(), stopwatch.elapsed(TimeUnit.MILLISECONDS));
+            MetricUtil.getInstance()
+                    .registerActionFailure(cacheToken, getMetricKey(), stopwatch.elapsed(TimeUnit.MILLISECONDS));
             throw e;
         }
     }
@@ -170,12 +167,13 @@ public abstract class Action<ParameterType extends ActionRequest> implements Cal
         if(getConnection().getConfig() == null) {
             return ElasticsearchConfig.DEFAULT_TIMEOUT;
         }
-        return getConnection().getConfig().getGetQueryTimeout();
+        return getConnection().getConfig()
+                .getGetQueryTimeout();
     }
 
     private void updateCachedData(ActionResponse result) {
         Cache cache = cacheManager.getCacheFor(this.cacheToken);
-        if (isCacheable()) {
+        if(isCacheable()) {
             cache.put(cacheKey(), result);
         }
     }
@@ -183,13 +181,15 @@ public abstract class Action<ParameterType extends ActionRequest> implements Cal
     protected ActionResponse readCachedData() {
         Cache cache = cacheManager.getCacheFor(this.cacheToken);
         final String cacheKeyValue = cacheKey();
-        if (isCacheable()) {
-            if (cache.has(cacheKeyValue)) {
-                MetricUtil.getInstance().registerActionCacheHit(cacheToken, getMetricKey());
+        if(isCacheable()) {
+            if(cache.has(cacheKeyValue)) {
+                MetricUtil.getInstance()
+                        .registerActionCacheHit(cacheToken, getMetricKey());
                 logger.info("Cache hit for key: " + cacheKeyValue);
                 return cache.get(cacheKey());
             } else {
-                MetricUtil.getInstance().registerActionCacheMiss(cacheToken, getMetricKey());
+                MetricUtil.getInstance()
+                        .registerActionCacheMiss(cacheToken, getMetricKey());
                 logger.info("Cache miss for key: " + cacheKeyValue);
             }
         }
@@ -198,15 +198,15 @@ public abstract class Action<ParameterType extends ActionRequest> implements Cal
 
     private void validateBase(ParameterType parameter) throws MalformedQueryException {
         List<String> validationErrors = new ArrayList<>();
-        if (!CollectionUtils.isNullOrEmpty(parameter.getFilters())) {
-            for (Filter filter : parameter.getFilters()) {
+        if(!CollectionUtils.isNullOrEmpty(parameter.getFilters())) {
+            for(Filter filter : parameter.getFilters()) {
                 Set<String> errors = filter.validate();
-                if (!CollectionUtils.isNullOrEmpty(errors)) {
+                if(!CollectionUtils.isNullOrEmpty(errors)) {
                     validationErrors.addAll(errors);
                 }
             }
         }
-        if (!CollectionUtils.isNullOrEmpty(validationErrors)) {
+        if(!CollectionUtils.isNullOrEmpty(validationErrors)) {
             throw FoxtrotExceptions.createMalformedQueryException(parameter, validationErrors);
         }
     }
@@ -266,14 +266,14 @@ public abstract class Action<ParameterType extends ActionRequest> implements Cal
     }
 
     private List<Filter> checkAndAddTemporalBoundary(List<Filter> filters) {
-        if (null != filters) {
-            for (Filter filter : filters) {
-                if (filter.isFilterTemporal()) {
+        if(null != filters) {
+            for(Filter filter : filters) {
+                if(filter.isFilterTemporal()) {
                     return filters;
                 }
             }
         }
-        if (null == filters) {
+        if(null == filters) {
             filters = Lists.newArrayList();
         } else {
             filters = Lists.newArrayList(filters);

@@ -49,17 +49,19 @@ public class DocumentResource {
     public Response saveDocument(@PathParam("table") final String table, @Valid final Document document)
             throws FoxtrotException {
         queryStore.save(table, document);
-        return Response.created(URI.create("/" + document.getId())).build();
+        return Response.created(URI.create("/" + document.getId()))
+                .build();
     }
 
     @POST
     @Path("/bulk")
     @Consumes(MediaType.APPLICATION_JSON)
     @Timed
-    public Response saveDocuments(@PathParam("table") final String table,
-                                  @Valid final List<Document> documents) throws FoxtrotException {
+    public Response saveDocuments(@PathParam("table") final String table, @Valid final List<Document> documents)
+            throws FoxtrotException {
         queryStore.save(table, documents);
-        return Response.created(URI.create("/" + table)).build();
+        return Response.created(URI.create("/" + table))
+                .build();
     }
 
     @GET
@@ -67,13 +69,15 @@ public class DocumentResource {
     @Timed
     public Response getDocument(@PathParam("table") final String table, @PathParam("id") @NotNull final String id)
             throws FoxtrotException {
-        return Response.ok(queryStore.get(table, id)).build();
+        return Response.ok(queryStore.get(table, id))
+                .build();
     }
 
     @GET
     @Timed
-    public Response getDocuments(@PathParam("table") final String table, @QueryParam("id") @NotNull final List<String> ids)
-            throws FoxtrotException {
-        return Response.ok(queryStore.getAll(table, ids)).build();
+    public Response getDocuments(@PathParam("table") final String table,
+                                 @QueryParam("id") @NotNull final List<String> ids) throws FoxtrotException {
+        return Response.ok(queryStore.getAll(table, ids))
+                .build();
     }
 }

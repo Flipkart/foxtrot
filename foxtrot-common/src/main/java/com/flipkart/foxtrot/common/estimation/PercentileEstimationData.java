@@ -23,15 +23,15 @@ public class PercentileEstimationData extends EstimationData {
         super(EstimationDataType.PERCENTILE);
     }
 
-    public double[] getValues() {
-        return Arrays.copyOf(values, values.length);
-    }
-
     @Builder
     public PercentileEstimationData(double[] values, long count, long cardinality) {
         super(EstimationDataType.PERCENTILE, count);
         this.values = values;
         this.cardinality = cardinality;
+    }
+
+    public double[] getValues() {
+        return Arrays.copyOf(values, values.length);
     }
 
     @Override

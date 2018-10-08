@@ -55,7 +55,8 @@ public class ClusterHealthResource {
 
     @GET
     @Path("indicesstats")
-    public IndicesStatsResponse getIndicesStat() throws ExecutionException, InterruptedException, JsonProcessingException {
+    public IndicesStatsResponse getIndicesStat()
+            throws ExecutionException, InterruptedException, JsonProcessingException {
         return queryStore.getIndicesStats();
     }
 }

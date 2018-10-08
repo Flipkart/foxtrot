@@ -47,7 +47,12 @@ public class GroupActionTest extends ActionTest {
         super.setUp();
         List<Document> documents = TestUtils.getGroupDocuments(getMapper());
         getQueryStore().save(TestUtils.TEST_TABLE_NAME, documents);
-        getElasticsearchServer().getClient().admin().indices().prepareRefresh("*").execute().actionGet();
+        getElasticsearchServer().getClient()
+                .admin()
+                .indices()
+                .prepareRefresh("*")
+                .execute()
+                .actionGet();
         getTableMetadataManager().updateEstimationData(TestUtils.TEST_TABLE_NAME, 1397658117000L);
     }
 
@@ -57,7 +62,8 @@ public class GroupActionTest extends ActionTest {
         GroupRequest groupRequest = new GroupRequest();
         groupRequest.setTable(TestUtils.TEST_TABLE_NAME);
         groupRequest.setNesting(Collections.singletonList("os"));
-        doReturn(null).when(getElasticsearchConnection()).getClient();
+        doReturn(null).when(getElasticsearchConnection())
+                .getClient();
         try {
             getQueryExecutor().execute(groupRequest);
             fail();
@@ -112,7 +118,8 @@ public class GroupActionTest extends ActionTest {
     }
 
     @Test
-    public void testGroupActionSingleFieldHavingSpecialCharactersWithFilter() throws FoxtrotException, JsonProcessingException {
+    public void testGroupActionSingleFieldHavingSpecialCharactersWithFilter()
+            throws FoxtrotException, JsonProcessingException {
         GroupRequest groupRequest = new GroupRequest();
         groupRequest.setTable(TestUtils.TEST_TABLE_NAME);
 

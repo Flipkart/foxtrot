@@ -1,12 +1,12 @@
 /**
  * Copyright 2014 Flipkart Internet Pvt. Ltd.
- *
+ * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
+ * <p>
  * http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -20,7 +20,6 @@ import com.flipkart.foxtrot.common.Document;
 import com.flipkart.foxtrot.common.stats.BucketResponse;
 import com.flipkart.foxtrot.common.stats.StatsRequest;
 import com.flipkart.foxtrot.common.stats.StatsResponse;
-import com.flipkart.foxtrot.common.stats.StatsTrendRequest;
 import com.flipkart.foxtrot.core.TestUtils;
 import com.flipkart.foxtrot.core.exception.FoxtrotException;
 import com.flipkart.foxtrot.core.exception.MalformedQueryException;
@@ -41,7 +40,12 @@ public class StatsActionTest extends ActionTest {
         super.setUp();
         List<Document> documents = TestUtils.getStatsDocuments(getMapper());
         getQueryStore().save(TestUtils.TEST_TABLE_NAME, documents);
-        getElasticsearchServer().getClient().admin().indices().prepareRefresh("*").execute().actionGet();
+        getElasticsearchServer().getClient()
+                .admin()
+                .indices()
+                .prepareRefresh("*")
+                .execute()
+                .actionGet();
     }
 
     @Test
@@ -53,8 +57,14 @@ public class StatsActionTest extends ActionTest {
         StatsResponse statsResponse = StatsResponse.class.cast(getQueryExecutor().execute(request));
         assertNotNull(statsResponse);
         assertNotNull(statsResponse.getResult());
-        assertEquals(150, statsResponse.getResult().getStats().get("sum").intValue());
-        assertEquals(5, statsResponse.getResult().getStats().get("count").intValue());
+        assertEquals(150, statsResponse.getResult()
+                .getStats()
+                .get("sum")
+                .intValue());
+        assertEquals(5, statsResponse.getResult()
+                .getStats()
+                .get("count")
+                .intValue());
         assertNull(statsResponse.getBuckets());
     }
 
@@ -68,8 +78,9 @@ public class StatsActionTest extends ActionTest {
         StatsResponse statsResponse = StatsResponse.class.cast(getQueryExecutor().execute(request));
         assertNotNull(statsResponse);
         assertNotNull(statsResponse.getResult());
-        assertEquals(3, statsResponse.getBuckets().size());
-        for (BucketResponse bucketResponse : statsResponse.getBuckets()) {
+        assertEquals(3, statsResponse.getBuckets()
+                .size());
+        for(BucketResponse bucketResponse : statsResponse.getBuckets()) {
             assertNotNull(bucketResponse.getResult());
         }
     }
@@ -84,8 +95,9 @@ public class StatsActionTest extends ActionTest {
         StatsResponse statsResponse = StatsResponse.class.cast(getQueryExecutor().execute(request));
         assertNotNull(statsResponse);
         assertNotNull(statsResponse.getResult());
-        assertEquals(3, statsResponse.getBuckets().size());
-        for (BucketResponse bucketResponse : statsResponse.getBuckets()) {
+        assertEquals(3, statsResponse.getBuckets()
+                .size());
+        for(BucketResponse bucketResponse : statsResponse.getBuckets()) {
             assertNull(bucketResponse.getResult());
             assertNotNull(bucketResponse.getBuckets());
         }

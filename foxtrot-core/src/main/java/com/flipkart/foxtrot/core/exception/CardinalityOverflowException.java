@@ -19,9 +19,9 @@ public class CardinalityOverflowException extends MalformedQueryException {
     private double probability;
 
     protected CardinalityOverflowException(ActionRequest actionRequest, String field, double probability) {
-        super(ErrorCode.CARDINALITY_OVERFLOW,
-                actionRequest,
-                Collections.singletonList("Query blocked as probability > 0.5"));
+        super(ErrorCode.CARDINALITY_OVERFLOW, actionRequest,
+              Collections.singletonList("Query blocked as probability > 0.5")
+             );
         this.field = field;
         this.probability = probability;
     }

@@ -55,8 +55,7 @@ public class ConsoleSection {
 
     @Override
     public String toString() {
-        return new ToStringBuilder(this)
-                .append("id", id)
+        return new ToStringBuilder(this).append("id", id)
                 .append("name", name)
                 .append("tileList", tileList)
                 .append("tileData", tileData)

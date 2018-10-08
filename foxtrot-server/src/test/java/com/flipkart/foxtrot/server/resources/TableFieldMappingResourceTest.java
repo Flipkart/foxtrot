@@ -19,7 +19,6 @@ import com.flipkart.foxtrot.common.FieldMetadata;
 import com.flipkart.foxtrot.common.FieldType;
 import com.flipkart.foxtrot.common.TableFieldMapping;
 import com.flipkart.foxtrot.core.TestUtils;
-import com.flipkart.foxtrot.core.querystore.QueryStore;
 import com.flipkart.foxtrot.core.table.impl.FoxtrotTableManager;
 import com.flipkart.foxtrot.server.providers.exception.FoxtrotExceptionMapper;
 import io.dropwizard.testing.junit.ResourceTestRule;
@@ -66,36 +65,57 @@ public class TableFieldMappingResourceTest extends FoxtrotResourceTest {
         Thread.sleep(500);
 
         Set<FieldMetadata> mappings = new HashSet<>();
-        mappings.add(FieldMetadata.builder().field("time").type(FieldType.LONG).build());
-        mappings.add(FieldMetadata.builder().field("word").type(FieldType.STRING).build());
-        mappings.add(FieldMetadata.builder().field("data.data").type(FieldType.STRING).build());
-        mappings.add(FieldMetadata.builder().field("header.hello").type(FieldType.STRING).build());
-        mappings.add(FieldMetadata.builder().field("head.hello").type(FieldType.LONG).build());
+        mappings.add(FieldMetadata.builder()
+                             .field("time")
+                             .type(FieldType.LONG)
+                             .build());
+        mappings.add(FieldMetadata.builder()
+                             .field("word")
+                             .type(FieldType.STRING)
+                             .build());
+        mappings.add(FieldMetadata.builder()
+                             .field("data.data")
+                             .type(FieldType.STRING)
+                             .build());
+        mappings.add(FieldMetadata.builder()
+                             .field("header.hello")
+                             .type(FieldType.STRING)
+                             .build());
+        mappings.add(FieldMetadata.builder()
+                             .field("head.hello")
+                             .type(FieldType.LONG)
+                             .build());
 
         TableFieldMapping tableFieldMapping = new TableFieldMapping(TestUtils.TEST_TABLE_NAME, mappings);
-        String response = resources.client().target(String.format("/v1/tables/%s/fields", TestUtils.TEST_TABLE_NAME))
+        String response = resources.client()
+                .target(String.format("/v1/tables/%s/fields", TestUtils.TEST_TABLE_NAME))
                 .request()
                 .get(String.class);
 
         TableFieldMapping mapping = getMapper().readValue(response, TableFieldMapping.class);
         assertEquals(tableFieldMapping.getTable(), mapping.getTable());
-        assertTrue(tableFieldMapping.getMappings().equals(mapping.getMappings()));
+        assertTrue(tableFieldMapping.getMappings()
+                           .equals(mapping.getMappings()));
     }
 
     @Test
     public void testGetInvalidTable() throws Exception {
         try {
-            resources.client().target(
-                    String.format("/v1/tables/%s/fields", TestUtils.TEST_TABLE_NAME + "-missing")).request().head();
+            resources.client()
+                    .target(String.format("/v1/tables/%s/fields", TestUtils.TEST_TABLE_NAME + "-missing"))
+                    .request()
+                    .head();
         } catch (WebApplicationException ex) {
-            assertEquals(Response.Status.NOT_FOUND.getStatusCode(), ex.getResponse().getStatus());
+            assertEquals(Response.Status.NOT_FOUND.getStatusCode(), ex.getResponse()
+                    .getStatus());
         }
     }
 
     @Test
     public void testGetTableWithNoDocument() throws Exception {
         TableFieldMapping request = new TableFieldMapping(TestUtils.TEST_TABLE_NAME, new HashSet<>());
-        TableFieldMapping response = resources.client().target(String.format("/v1/tables/%s/fields", TestUtils.TEST_TABLE_NAME))
+        TableFieldMapping response = resources.client()
+                .target(String.format("/v1/tables/%s/fields", TestUtils.TEST_TABLE_NAME))
                 .request()
                 .get(TableFieldMapping.class);
         assertEquals(request.getTable(), response.getTable());
@@ -104,14 +124,17 @@ public class TableFieldMappingResourceTest extends FoxtrotResourceTest {
 
     @Test
     public void getAllFields() throws Exception {
-        doNothing().when(getQueryStore()).initializeTable(any(String.class));
+        doNothing().when(getQueryStore())
+                .initializeTable(any(String.class));
 
         getQueryStore().save(TestUtils.TEST_TABLE_NAME, TestUtils.getMappingDocuments(getMapper()));
         Thread.sleep(500);
 
-        Map<String, TableFieldMapping> response = resources.client().target("/v1/tables/fields")
+        Map<String, TableFieldMapping> response = resources.client()
+                .target("/v1/tables/fields")
                 .request()
-                .get(new GenericType<Map<String, TableFieldMapping>>() {});
+                .get(new GenericType<Map<String, TableFieldMapping>>() {
+                });
         //System.out.println(new ObjectMapper().writerWithDefaultPrettyPrinter().writeValueAsString(response));
         Assert.assertFalse(response.isEmpty());
         Assert.assertEquals(1, response.size());

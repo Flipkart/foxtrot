@@ -38,8 +38,7 @@ public class DocumentMetadata implements Serializable {
 
     @Override
     public String toString() {
-        return new ToStringBuilder(this)
-                .append("id", id)
+        return new ToStringBuilder(this).append("id", id)
                 .append("rawStorageId", rawStorageId)
                 .toString();
     }

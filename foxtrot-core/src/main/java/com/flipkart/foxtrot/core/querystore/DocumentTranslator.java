@@ -23,26 +23,28 @@ import java.util.List;
 public class DocumentTranslator {
 
     private static final Logger logger = LoggerFactory.getLogger(DocumentTranslator.class);
-
-    private String rawKeyVersion;
     private final AbstractRowKeyDistributor keyDistributor;
+    private String rawKeyVersion;
 
     public DocumentTranslator(HbaseConfig hbaseConfig) {
-        if (CollectionUtils.isNullOrEmpty(hbaseConfig.getRawKeyVersion())
-                || hbaseConfig.getRawKeyVersion().equalsIgnoreCase("1.0")) {
+        if(CollectionUtils.isNullOrEmpty(hbaseConfig.getRawKeyVersion()) || hbaseConfig.getRawKeyVersion()
+                .equalsIgnoreCase("1.0")) {
             this.keyDistributor = new IdentityKeyDistributor();
             this.rawKeyVersion = "1.0";
-        } else if (hbaseConfig.getRawKeyVersion().equalsIgnoreCase("2.0")) {
-            this.keyDistributor = new RowKeyDistributorByHashPrefix(new RowKeyDistributorByHashPrefix.OneByteSimpleHash(32));
+        } else if(hbaseConfig.getRawKeyVersion()
+                .equalsIgnoreCase("2.0")) {
+            this.keyDistributor = new RowKeyDistributorByHashPrefix(
+                    new RowKeyDistributorByHashPrefix.OneByteSimpleHash(32));
             this.rawKeyVersion = "2.0";
         } else {
-            throw new IllegalArgumentException(String.format("rawKeyVersion not supported version=[%s]", hbaseConfig.getRawKeyVersion()));
+            throw new IllegalArgumentException(
+                    String.format("rawKeyVersion not supported version=[%s]", hbaseConfig.getRawKeyVersion()));
         }
     }
 
     public List<Document> translate(final Table table, final List<Document> inDocuments) {
         ImmutableList.Builder<Document> docListBuilder = ImmutableList.builder();
-        for (Document document : inDocuments) {
+        for(Document document : inDocuments) {
             docListBuilder.add(translate(table, document));
         }
         return docListBuilder.build();
@@ -60,7 +62,8 @@ public class DocumentTranslator {
                 document.setId(metadata.getRawStorageId());
                 break;
             default:
-                throw new IllegalArgumentException(String.format("rawKeyVersion not supported version=[%s]", rawKeyVersion));
+                throw new IllegalArgumentException(
+                        String.format("rawKeyVersion not supported version=[%s]", rawKeyVersion));
         }
         document.setTimestamp(inDocument.getTimestamp());
         document.setMetadata(metadata);
@@ -71,7 +74,8 @@ public class DocumentTranslator {
 
     public Document translateBack(final Document inDocument) {
         Document document = new Document();
-        document.setId(inDocument.getMetadata() != null ? inDocument.getMetadata().getId() : inDocument.getId());
+        document.setId(inDocument.getMetadata() != null ? inDocument.getMetadata()
+                .getId() : inDocument.getId());
         document.setTimestamp(inDocument.getTimestamp());
         document.setData(inDocument.getData());
         return document;
@@ -93,10 +97,12 @@ public class DocumentTranslator {
             case "1.0":
                 return document.getId() + ":" + table.getName();
             case "2.0":
-                return String.format("%s:%020d:%s:%s",
-                        table.getName(), document.getTimestamp(), document.getId(), Constants.rawKeyVersionToSuffixMap.get(rawKeyVersion));
+                return String.format("%s:%020d:%s:%s", table.getName(), document.getTimestamp(), document.getId(),
+                                     Constants.rawKeyVersionToSuffixMap.get(rawKeyVersion)
+                                    );
             default:
-                throw new IllegalArgumentException(String.format("rawKeyVersion not supported version=[%s]", rawKeyVersion));
+                throw new IllegalArgumentException(
+                        String.format("rawKeyVersion not supported version=[%s]", rawKeyVersion));
         }
     }
 
@@ -106,7 +112,7 @@ public class DocumentTranslator {
     }
 
     public String rawStorageIdFromDocumentId(Table table, String id) {
-        if (id.endsWith(Constants.rawKeyVersionToSuffixMap.get("2.0"))) {
+        if(id.endsWith(Constants.rawKeyVersionToSuffixMap.get("2.0"))) {
             return id;
         }
 

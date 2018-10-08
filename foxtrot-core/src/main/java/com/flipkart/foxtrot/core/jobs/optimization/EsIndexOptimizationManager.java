@@ -54,7 +54,8 @@ public class EsIndexOptimizationManager extends BaseJobManager {
     private final EsIndexOptimizationConfig esIndexOptimizationConfig;
 
     public EsIndexOptimizationManager(ScheduledExecutorService scheduledExecutorService,
-                                      EsIndexOptimizationConfig esIndexOptimizationConfig, ElasticsearchConnection elasticsearchConnection,
+                                      EsIndexOptimizationConfig esIndexOptimizationConfig,
+                                      ElasticsearchConnection elasticsearchConnection,
                                       HazelcastConnection hazelcastConnection) {
         super(esIndexOptimizationConfig, scheduledExecutorService, hazelcastConnection);
         this.esIndexOptimizationConfig = esIndexOptimizationConfig;
@@ -67,8 +68,11 @@ public class EsIndexOptimizationManager extends BaseJobManager {
         executor.executeWithLock(() -> {
             try {
                 IndicesSegmentsRequest indicesSegmentsRequest = new IndicesSegmentsRequest();
-                IndicesSegmentResponse indicesSegmentResponse =
-                        elasticsearchConnection.getClient().admin().indices().segments(indicesSegmentsRequest).actionGet();
+                IndicesSegmentResponse indicesSegmentResponse = elasticsearchConnection.getClient()
+                        .admin()
+                        .indices()
+                        .segments(indicesSegmentsRequest)
+                        .actionGet();
                 Set<String> indicesToOptimize = Sets.newHashSet();
 
                 Map<String, IndexSegments> segmentResponseIndices = indicesSegmentResponse.getIndices();
@@ -79,13 +83,19 @@ public class EsIndexOptimizationManager extends BaseJobManager {
                         continue;
                     }
                     String currentIndex = ElasticsearchUtils.getCurrentIndex(table, System.currentTimeMillis());
-                    String nextDayIndex = ElasticsearchUtils.getCurrentIndex(table, System.currentTimeMillis() + TimeUnit.DAYS.toMillis(1));
+                    String nextDayIndex = ElasticsearchUtils.getCurrentIndex(table, System.currentTimeMillis() +
+                                                                                    TimeUnit.DAYS.toMillis(1));
                     if(index.equals(currentIndex) || index.equals(nextDayIndex)) {
                         continue;
                     }
-                    Map<Integer, IndexShardSegments> indexShardSegmentsMap = entry.getValue().getShards();
-                    for(Map.Entry<Integer, IndexShardSegments> indexShardSegmentsEntry : indexShardSegmentsMap.entrySet()) {
-                        List<Segment> segments = indexShardSegmentsEntry.getValue().iterator().next().getSegments();
+                    Map<Integer, IndexShardSegments> indexShardSegmentsMap = entry.getValue()
+                            .getShards();
+                    for(Map.Entry<Integer, IndexShardSegments> indexShardSegmentsEntry : indexShardSegmentsMap
+                            .entrySet()) {
+                        List<Segment> segments = indexShardSegmentsEntry.getValue()
+                                .iterator()
+                                .next()
+                                .getSegments();
                         if(segments.size() > SEGMENTS_TO_OPTIMIZE_TO) {
                             indicesToOptimize.add(index);
                             break;
@@ -95,11 +105,20 @@ public class EsIndexOptimizationManager extends BaseJobManager {
                 List<List<String>> batchOfIndicesToOptimize = CollectionUtils.partition(indicesToOptimize, BATCH_SIZE);
                 for(List<String> indices : batchOfIndicesToOptimize) {
                     Stopwatch stopwatch = Stopwatch.createStarted();
-                    elasticsearchConnection.getClient().admin().indices().prepareForceMerge(indices.toArray(new String[0]))
-                            .setMaxNumSegments(SEGMENTS_TO_OPTIMIZE_TO).setFlush(true).setOnlyExpungeDeletes(false).execute().actionGet();
+                    elasticsearchConnection.getClient()
+                            .admin()
+                            .indices()
+                            .prepareForceMerge(indices.toArray(new String[0]))
+                            .setMaxNumSegments(SEGMENTS_TO_OPTIMIZE_TO)
+                            .setFlush(true)
+                            .setOnlyExpungeDeletes(false)
+                            .execute()
+                            .actionGet();
                     LOGGER.info("No of indexes optimized : " + indices.size());
-                    MetricUtil.getInstance().registerActionSuccess("indexesOptimized", CollectionUtils.mkString(indices, ","),
-                                                                   stopwatch.elapsed(TimeUnit.MILLISECONDS));
+                    MetricUtil.getInstance()
+                            .registerActionSuccess("indexesOptimized", CollectionUtils.mkString(indices, ","),
+                                                   stopwatch.elapsed(TimeUnit.MILLISECONDS)
+                                                  );
                 }
                 LOGGER.info("No of indexes optimized : " + indicesToOptimize.size());
             } catch (Exception e) {

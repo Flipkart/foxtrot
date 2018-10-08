@@ -59,8 +59,7 @@ public class CountRequest extends ActionRequest {
 
     @Override
     public String toString() {
-        return new ToStringBuilder(this)
-                .appendSuper(super.toString())
+        return new ToStringBuilder(this).appendSuper(super.toString())
                 .append("table", table)
                 .append("field", field)
                 .append("isDistinct", isDistinct)

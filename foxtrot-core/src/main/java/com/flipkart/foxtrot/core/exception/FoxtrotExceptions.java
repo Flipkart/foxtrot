@@ -45,10 +45,8 @@ public class FoxtrotExceptions {
         return new MalformedQueryException(actionRequest, reasons);
     }
 
-    public static CardinalityOverflowException createCardinalityOverflow(
-            ActionRequest actionRequest,
-            String field,
-            double probability) {
+    public static CardinalityOverflowException createCardinalityOverflow(ActionRequest actionRequest, String field,
+                                                                         double probability) {
         return new CardinalityOverflowException(actionRequest, field, probability);
     }
 

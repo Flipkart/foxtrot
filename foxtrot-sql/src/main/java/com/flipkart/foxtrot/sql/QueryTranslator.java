@@ -73,7 +73,8 @@ public class QueryTranslator extends SqlElementVisitor {
             queryType = functionReader.queryType;
         }
 
-        plainSelect.getFromItem().accept(this); //Populate table name
+        plainSelect.getFromItem()
+                .accept(this); //Populate table name
         List groupByItems = plainSelect.getGroupByColumnReferences();
         if(null != groupByItems) {
             queryType = FqlQueryType.group;
@@ -89,14 +90,17 @@ public class QueryTranslator extends SqlElementVisitor {
             resultSort = generateResultSort(orderByElements);
             if(null != plainSelect.getLimit()) {
                 hasLimit = true;
-                limitFrom = plainSelect.getLimit().getOffset();
-                limitCount = plainSelect.getLimit().getRowCount();
+                limitFrom = plainSelect.getLimit()
+                        .getOffset();
+                limitCount = plainSelect.getLimit()
+                        .getRowCount();
             }
         }
 
         if(null != plainSelect.getWhere()) {
             FilterParser filterParser = new FilterParser();
-            plainSelect.getWhere().accept(filterParser);
+            plainSelect.getWhere()
+                    .accept(filterParser);
             filters = (filterParser.filters.isEmpty()) ? null : filterParser.filters;
         }
 
@@ -125,17 +129,20 @@ public class QueryTranslator extends SqlElementVisitor {
 
     @Override
     public void visit(Select select) {
-        select.getSelectBody().accept(this);
+        select.getSelectBody()
+                .accept(this);
     }
 
     @Override
     public void visit(Table tableName) {
-        this.tableName = tableName.getName().replaceAll(Constants.SQL_TABLE_REGEX, "");
+        this.tableName = tableName.getName()
+                .replaceAll(Constants.SQL_TABLE_REGEX, "");
     }
 
     @Override
     public void visit(Function function) {
-        List params = function.getParameters().getExpressions();
+        List params = function.getParameters()
+                .getExpressions();
 
         ((Expression)params.toArray()[0]).accept(this); //TODO
     }
@@ -150,7 +157,8 @@ public class QueryTranslator extends SqlElementVisitor {
 
     @Override
     public void visit(SelectExpressionItem selectExpressionItem) {
-        selectExpressionItem.getExpression().accept(this);
+        selectExpressionItem.getExpression()
+                .accept(this);
     }
 
     public FqlQuery translate(String sql) throws Exception {
@@ -282,9 +290,9 @@ public class QueryTranslator extends SqlElementVisitor {
     }
 
     private static final class FunctionReader extends SqlElementVisitor {
+        public FqlQueryType queryType = FqlQueryType.select;
         private boolean allColumn = false;
         private ActionRequest actionRequest;
-        public FqlQueryType queryType = FqlQueryType.select;
         private String columnName = null;
 
         @Override
@@ -295,19 +303,24 @@ public class QueryTranslator extends SqlElementVisitor {
                 queryType = getType(function.getName());
                 switch (queryType) {
                     case trend:
-                        actionRequest = parseTrendFunction(function.getParameters().getExpressions());
+                        actionRequest = parseTrendFunction(function.getParameters()
+                                                                   .getExpressions());
                         break;
                     case statstrend:
-                        actionRequest = parseStatsTrendFunction(function.getParameters().getExpressions());
+                        actionRequest = parseStatsTrendFunction(function.getParameters()
+                                                                        .getExpressions());
                         break;
                     case stats:
-                        actionRequest = parseStatsFunction(function.getParameters().getExpressions());
+                        actionRequest = parseStatsFunction(function.getParameters()
+                                                                   .getExpressions());
                         break;
                     case histogram:
                         actionRequest = parseHistogramRequest(function.getParameters());
                         break;
                     case count:
-                        actionRequest = parseCountRequest(function.getParameters(), function.isAllColumns(), function.isDistinct());
+                        actionRequest = parseCountRequest(function.getParameters(), function.isAllColumns(),
+                                                          function.isDistinct()
+                                                         );
                         break;
                     case desc:
                     case select:
@@ -345,12 +358,14 @@ public class QueryTranslator extends SqlElementVisitor {
 
         private TrendRequest parseTrendFunction(List expressions) {
             if(expressions == null || expressions.isEmpty() || expressions.size() > 3) {
-                throw new RuntimeException("trend function has following format: trend(fieldname, [period, [timestamp field]])");
+                throw new RuntimeException(
+                        "trend function has following format: trend(fieldname, [period, [timestamp field]])");
             }
             TrendRequest trendRequest = new TrendRequest();
             trendRequest.setField(QueryUtils.expressionToString((Expression)expressions.get(0)));
             if(expressions.size() > 1) {
-                trendRequest.setPeriod(Period.valueOf(QueryUtils.expressionToString((Expression)expressions.get(1)).toLowerCase()));
+                trendRequest.setPeriod(Period.valueOf(QueryUtils.expressionToString((Expression)expressions.get(1))
+                                                              .toLowerCase()));
             }
             if(expressions.size() > 2) {
                 trendRequest.setTimestamp(QueryUtils.expressionToString((Expression)expressions.get(2)));
@@ -365,7 +380,8 @@ public class QueryTranslator extends SqlElementVisitor {
             StatsTrendRequest statsTrendRequest = new StatsTrendRequest();
             statsTrendRequest.setField(QueryUtils.expressionToString((Expression)expressions.get(0)));
             if(expressions.size() > 1) {
-                statsTrendRequest.setPeriod(Period.valueOf(QueryUtils.expressionToString((Expression)expressions.get(1)).toLowerCase()));
+                statsTrendRequest.setPeriod(Period.valueOf(QueryUtils.expressionToString((Expression)expressions.get(1))
+                                                                   .toLowerCase()));
             }
             return statsTrendRequest;
         }
@@ -380,13 +396,16 @@ public class QueryTranslator extends SqlElementVisitor {
         }
 
         private HistogramRequest parseHistogramRequest(ExpressionList expressionList) {
-            if(expressionList != null && (expressionList.getExpressions() != null && expressionList.getExpressions().size() > 2)) {
-                throw new RuntimeException("histogram function has the following format: histogram([period, [timestamp field]])");
+            if(expressionList != null && (expressionList.getExpressions() != null && expressionList.getExpressions()
+                                                                                             .size() > 2)) {
+                throw new RuntimeException(
+                        "histogram function has the following format: histogram([period, [timestamp field]])");
             }
             HistogramRequest histogramRequest = new HistogramRequest();
             if(null != expressionList) {
                 List expressions = expressionList.getExpressions();
-                histogramRequest.setPeriod(Period.valueOf(QueryUtils.expressionToString((Expression)expressions.get(0)).toLowerCase()));
+                histogramRequest.setPeriod(Period.valueOf(QueryUtils.expressionToString((Expression)expressions.get(0))
+                                                                  .toLowerCase()));
                 if(expressions.size() > 1) {
                     histogramRequest.setField(QueryUtils.expressionToString((Expression)expressions.get(1)));
                 }
@@ -402,7 +421,8 @@ public class QueryTranslator extends SqlElementVisitor {
                 return countRequest;
             }
 
-            if(expressionList != null && (expressionList.getExpressions() != null && expressionList.getExpressions().size() == 1)) {
+            if(expressionList != null && (expressionList.getExpressions() != null && expressionList.getExpressions()
+                                                                                             .size() == 1)) {
                 List<Expression> expressions = expressionList.getExpressions();
                 countRequest.setField(expressionToString(expressions.get(0)));
                 countRequest.setDistinct(isDistinct);
@@ -456,15 +476,18 @@ public class QueryTranslator extends SqlElementVisitor {
 
         @Override
         public void visit(AndExpression andExpression) {
-            andExpression.getLeftExpression().accept(this);
-            andExpression.getRightExpression().accept(this);
+            andExpression.getLeftExpression()
+                    .accept(this);
+            andExpression.getRightExpression()
+                    .accept(this);
         }
 
         @Override
         public void visit(Between between) {
             BetweenFilter betweenFilter = new BetweenFilter();
             ColumnData columnData = setupColumn(between.getLeftExpression());
-            betweenFilter.setField(columnData.getColumnName().replaceAll(Constants.SQL_FIELD_REGEX, ""));
+            betweenFilter.setField(columnData.getColumnName()
+                                           .replaceAll(Constants.SQL_FIELD_REGEX, ""));
             betweenFilter.setTemporal(columnData.isTemporal());
             Number from = getNumbericValue(between.getBetweenExpressionStart());
             Number to = getNumbericValue(between.getBetweenExpressionEnd());
@@ -477,7 +500,8 @@ public class QueryTranslator extends SqlElementVisitor {
         public void visit(GreaterThan greaterThan) {
             GreaterThanFilter greaterThanFilter = new GreaterThanFilter();
             ColumnData columnData = setupColumn(greaterThan.getLeftExpression());
-            greaterThanFilter.setField(columnData.getColumnName().replaceAll(Constants.SQL_FIELD_REGEX, ""));
+            greaterThanFilter.setField(columnData.getColumnName()
+                                               .replaceAll(Constants.SQL_FIELD_REGEX, ""));
             greaterThanFilter.setTemporal(columnData.isTemporal());
             greaterThanFilter.setValue(getNumbericValue(greaterThan.getRightExpression()));
             filters.add(greaterThanFilter);
@@ -487,7 +511,8 @@ public class QueryTranslator extends SqlElementVisitor {
         public void visit(GreaterThanEquals greaterThanEquals) {
             GreaterEqualFilter greaterEqualFilter = new GreaterEqualFilter();
             ColumnData columnData = setupColumn(greaterThanEquals.getLeftExpression());
-            greaterEqualFilter.setField(columnData.getColumnName().replaceAll(Constants.SQL_FIELD_REGEX, ""));
+            greaterEqualFilter.setField(columnData.getColumnName()
+                                                .replaceAll(Constants.SQL_FIELD_REGEX, ""));
             greaterEqualFilter.setTemporal(columnData.isTemporal());
             greaterEqualFilter.setValue(getNumbericValue(greaterThanEquals.getRightExpression()));
             filters.add(greaterEqualFilter);
@@ -496,7 +521,8 @@ public class QueryTranslator extends SqlElementVisitor {
         @Override
         public void visit(InExpression inExpression) {
             InFilter inFilter = new InFilter();
-            inFilter.setField(((Column)inExpression.getLeftExpression()).getFullyQualifiedName().replaceAll(Constants.SQL_FIELD_REGEX, ""));
+            inFilter.setField(((Column)inExpression.getLeftExpression()).getFullyQualifiedName()
+                                      .replaceAll(Constants.SQL_FIELD_REGEX, ""));
             ItemsList itemsList = inExpression.getRightItemsList();
             if(!(itemsList instanceof ExpressionList)) {
                 throw new RuntimeException("Sub selects not supported");
@@ -519,11 +545,13 @@ public class QueryTranslator extends SqlElementVisitor {
             if(isNullExpression.isNot()) {
                 ExistsFilter existsFilter = new ExistsFilter();
 
-                existsFilter.setField(columnData.getColumnName().replaceAll(Constants.SQL_FIELD_REGEX, ""));
+                existsFilter.setField(columnData.getColumnName()
+                                              .replaceAll(Constants.SQL_FIELD_REGEX, ""));
                 filters.add(existsFilter);
             } else {
                 MissingFilter missingFilter = new MissingFilter();
-                missingFilter.setField(columnData.getColumnName().replaceAll(Constants.SQL_FIELD_REGEX, ""));
+                missingFilter.setField(columnData.getColumnName()
+                                               .replaceAll(Constants.SQL_FIELD_REGEX, ""));
                 filters.add(missingFilter);
             }
         }
@@ -533,8 +561,8 @@ public class QueryTranslator extends SqlElementVisitor {
             super.visit(likeExpression);
             ContainsFilter containsFilter = new ContainsFilter();
             containsFilter.setValue(getStringValue(likeExpression.getRightExpression()));
-            containsFilter.setField(
-                    ((Column)likeExpression.getLeftExpression()).getFullyQualifiedName().replaceAll(Constants.SQL_FIELD_REGEX, ""));
+            containsFilter.setField(((Column)likeExpression.getLeftExpression()).getFullyQualifiedName()
+                                            .replaceAll(Constants.SQL_FIELD_REGEX, ""));
             filters.add(containsFilter);
         }
 
@@ -542,7 +570,8 @@ public class QueryTranslator extends SqlElementVisitor {
         public void visit(MinorThan minorThan) {
             LessThanFilter lessThanFilter = new LessThanFilter();
             ColumnData columnData = setupColumn(minorThan.getLeftExpression());
-            lessThanFilter.setField(columnData.getColumnName().replaceAll(Constants.SQL_FIELD_REGEX, ""));
+            lessThanFilter.setField(columnData.getColumnName()
+                                            .replaceAll(Constants.SQL_FIELD_REGEX, ""));
             lessThanFilter.setTemporal(columnData.isTemporal());
             lessThanFilter.setValue(getNumbericValue(minorThan.getRightExpression()));
             filters.add(lessThanFilter);
@@ -553,7 +582,8 @@ public class QueryTranslator extends SqlElementVisitor {
         public void visit(MinorThanEquals minorThanEquals) {
             LessEqualFilter lessEqualFilter = new LessEqualFilter();
             ColumnData columnData = setupColumn(minorThanEquals.getLeftExpression());
-            lessEqualFilter.setField(columnData.getColumnName().replaceAll(Constants.SQL_FIELD_REGEX, ""));
+            lessEqualFilter.setField(columnData.getColumnName()
+                                             .replaceAll(Constants.SQL_FIELD_REGEX, ""));
             lessEqualFilter.setTemporal(columnData.isTemporal());
             lessEqualFilter.setValue(getNumbericValue(minorThanEquals.getRightExpression()));
             filters.add(lessEqualFilter);
@@ -561,8 +591,10 @@ public class QueryTranslator extends SqlElementVisitor {
 
         @Override
         public void visit(Function function) {
-            if(function.getName().equalsIgnoreCase("last")) {
-                LastFilter lastFilter = parseWindowFunction(function.getParameters().getExpressions());
+            if(function.getName()
+                    .equalsIgnoreCase("last")) {
+                LastFilter lastFilter = parseWindowFunction(function.getParameters()
+                                                                    .getExpressions());
                 filters.add(lastFilter);
                 return;
             }
@@ -572,16 +604,18 @@ public class QueryTranslator extends SqlElementVisitor {
 
         private LastFilter parseWindowFunction(List expressions) {
             if(expressions == null || expressions.isEmpty() || expressions.size() > 3) {
-                throw new RuntimeException("last function has following format: last(duration, [start-time, [timestamp field]])");
+                throw new RuntimeException(
+                        "last function has following format: last(duration, [start-time, [timestamp field]])");
             }
             LastFilter lastFilter = new LastFilter();
             lastFilter.setDuration(Duration.parse(QueryUtils.expressionToString((Expression)expressions.get(0))));
             if(expressions.size() > 1) {
-                lastFilter.setCurrentTime(QueryUtils.expressionToNumber((Expression)expressions.get(1)).longValue());
+                lastFilter.setCurrentTime(QueryUtils.expressionToNumber((Expression)expressions.get(1))
+                                                  .longValue());
             }
             if(expressions.size() > 2) {
-                lastFilter
-                        .setField(QueryUtils.expressionToString((Expression)expressions.get(2)).replaceAll(Constants.SQL_FIELD_REGEX, ""));
+                lastFilter.setField(QueryUtils.expressionToString((Expression)expressions.get(2))
+                                            .replaceAll(Constants.SQL_FIELD_REGEX, ""));
             }
             return lastFilter;
         }
@@ -608,13 +642,36 @@ public class QueryTranslator extends SqlElementVisitor {
                 return ((LongValue)expression).getValue();
             }
             if(expression instanceof DateValue) {
-                return ((DateValue)expression).getValue().getTime();
+                return ((DateValue)expression).getValue()
+                        .getTime();
             }
             if(expression instanceof TimeValue) {
-                return ((TimeValue)expression).getValue().getTime();
+                return ((TimeValue)expression).getValue()
+                        .getTime();
             }
             throw new RuntimeException("Unsupported value type.");
 
+        }
+
+        private ColumnData setupColumn(Expression expression) {
+            if(expression instanceof Function) {
+                Function function = (Function)expression;
+                if(function.getName()
+                        .equalsIgnoreCase("temporal")) {
+                    List parameters = function.getParameters()
+                            .getExpressions();
+                    if(parameters.size() != 1 || !(parameters.get(0) instanceof Column)) {
+                        throw new RuntimeException("temporal function must have a fieldname as parameter");
+                    }
+                    return ColumnData.temporal(((Column)parameters.get(0)).getFullyQualifiedName());
+                }
+                throw new RuntimeException("Only the function 'temporal' is supported in where clause");
+            }
+            if(expression instanceof Column) {
+                return new ColumnData(((Column)expression).getFullyQualifiedName());
+            }
+            throw new RuntimeException(
+                    "Only the function 'temporal([fieldname)' and fieldname is supported in where clause");
         }
 
         private static final class ColumnData {
@@ -650,24 +707,6 @@ public class QueryTranslator extends SqlElementVisitor {
                 return window;
             }
         }
-
-        private ColumnData setupColumn(Expression expression) {
-            if(expression instanceof Function) {
-                Function function = (Function)expression;
-                if(function.getName().equalsIgnoreCase("temporal")) {
-                    List parameters = function.getParameters().getExpressions();
-                    if(parameters.size() != 1 || !(parameters.get(0) instanceof Column)) {
-                        throw new RuntimeException("temporal function must have a fieldname as parameter");
-                    }
-                    return ColumnData.temporal(((Column)parameters.get(0)).getFullyQualifiedName());
-                }
-                throw new RuntimeException("Only the function 'temporal' is supported in where clause");
-            }
-            if(expression instanceof Column) {
-                return new ColumnData(((Column)expression).getFullyQualifiedName());
-            }
-            throw new RuntimeException("Only the function 'temporal([fieldname)' and fieldname is supported in where clause");
-        }
     }
 
     private static final class ExtendedSqlParser extends SqlElementVisitor {
@@ -675,7 +714,8 @@ public class QueryTranslator extends SqlElementVisitor {
 
         @Override
         public void visit(Describe describe) {
-            query = new FqlDescribeTable(describe.getTable().getName());
+            query = new FqlDescribeTable(describe.getTable()
+                                                 .getName());
         }
 
         @Override

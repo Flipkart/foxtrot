@@ -1,12 +1,12 @@
 /**
  * Copyright 2014 Flipkart Internet Pvt. Ltd.
- *
+ * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
+ * <p>
  * http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -28,6 +28,7 @@ import java.util.Vector;
  * Time: 12:28 AM
  */
 public class ElasticsearchConfig {
+    public static final long DEFAULT_TIMEOUT = 10000L;
     @Valid
     @NotNull
     @JsonProperty
@@ -37,8 +38,6 @@ public class ElasticsearchConfig {
     @JsonProperty
     private String cluster;
     private String tableNamePrefix = "foxtrot";
-
-    public static final long DEFAULT_TIMEOUT = 10000L;
     private long getQueryTimeout;
 
     public ElasticsearchConfig() {
@@ -49,7 +48,8 @@ public class ElasticsearchConfig {
     }
 
     public void setHosts(String hostString) {
-        if (hostString == null || hostString.trim().isEmpty()) {
+        if(hostString == null || hostString.trim()
+                .isEmpty()) {
             return;
         }
 

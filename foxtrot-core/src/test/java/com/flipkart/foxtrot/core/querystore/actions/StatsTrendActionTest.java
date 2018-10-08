@@ -1,12 +1,12 @@
 /**
  * Copyright 2014 Flipkart Internet Pvt. Ltd.
- *
+ * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
+ * <p>
  * http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -42,11 +42,19 @@ public class StatsTrendActionTest extends ActionTest {
         super.setUp();
         List<Document> documents = TestUtils.getStatsTrendDocuments(getMapper());
         getQueryStore().save(TestUtils.TEST_TABLE_NAME, documents);
-        getElasticsearchServer().getClient().admin().indices().prepareRefresh("*").execute().actionGet();
+        getElasticsearchServer().getClient()
+                .admin()
+                .indices()
+                .prepareRefresh("*")
+                .execute()
+                .actionGet();
     }
 
     private void filterNonZeroCounts(StatsTrendResponse statsTrendResponse) {
-        statsTrendResponse.getResult().removeIf(statsTrendValue -> statsTrendValue.getStats().get("count").equals(0L));
+        statsTrendResponse.getResult()
+                .removeIf(statsTrendValue -> statsTrendValue.getStats()
+                        .get("count")
+                        .equals(0L));
     }
 
     @Test
@@ -67,7 +75,8 @@ public class StatsTrendActionTest extends ActionTest {
         filterNonZeroCounts(statsTrendResponse);
         assertNotNull(statsTrendResponse);
         assertNotNull(statsTrendResponse.getResult());
-        assertEquals(5, statsTrendResponse.getResult().size());
+        assertEquals(5, statsTrendResponse.getResult()
+                .size());
         assertNull(statsTrendResponse.getBuckets());
     }
 
@@ -90,7 +99,8 @@ public class StatsTrendActionTest extends ActionTest {
         assertNotNull(statsTrendResponse);
         assertNull(statsTrendResponse.getResult());
         assertNotNull(statsTrendResponse.getBuckets());
-        assertEquals(3, statsTrendResponse.getBuckets().size());
+        assertEquals(3, statsTrendResponse.getBuckets()
+                .size());
     }
 
     @Test
@@ -112,11 +122,21 @@ public class StatsTrendActionTest extends ActionTest {
         assertNotNull(statsTrendResponse);
         assertNull(statsTrendResponse.getResult());
         assertNotNull(statsTrendResponse.getBuckets());
-        assertEquals(3, statsTrendResponse.getBuckets().size());
+        assertEquals(3, statsTrendResponse.getBuckets()
+                .size());
 
-        assertEquals(1, statsTrendResponse.getBuckets().get(0).getBuckets().size());
-        assertEquals(2, statsTrendResponse.getBuckets().get(1).getBuckets().size());
-        assertEquals(1, statsTrendResponse.getBuckets().get(2).getBuckets().size());
+        assertEquals(1, statsTrendResponse.getBuckets()
+                .get(0)
+                .getBuckets()
+                .size());
+        assertEquals(2, statsTrendResponse.getBuckets()
+                .get(1)
+                .getBuckets()
+                .size());
+        assertEquals(1, statsTrendResponse.getBuckets()
+                .get(2)
+                .getBuckets()
+                .size());
     }
 
     @Test

@@ -22,12 +22,14 @@ public class Utils {
 
     public static AbstractAggregationBuilder buildExtendedStatsAggregation(String field) {
         String metricKey = getExtendedStatsAggregationKey(field);
-        return AggregationBuilders.extendedStats(metricKey).field(field);
+        return AggregationBuilders.extendedStats(metricKey)
+                .field(field);
     }
 
     public static AbstractAggregationBuilder buildPercentileAggregation(String field) {
         String metricKey = getPercentileAggregationKey(field);
-        return AggregationBuilders.percentiles(metricKey).field(field);
+        return AggregationBuilders.percentiles(metricKey)
+                .field(field);
     }
 
     public static DateHistogramBuilder buildDateHistogramAggregation(String field, DateHistogramInterval interval) {
@@ -35,13 +37,13 @@ public class Utils {
         return AggregationBuilders.dateHistogram(metricKey)
                 .minDocCount(0)
                 .field(field)
-                .timeZone(DateTimeZone.getDefault().getID())
+                .timeZone(DateTimeZone.getDefault()
+                                  .getID())
                 .interval(interval);
     }
 
     public static CardinalityBuilder buildCardinalityAggregation(String field) {
-        return AggregationBuilders
-                .cardinality(Utils.sanitizeFieldForAggregation(field))
+        return AggregationBuilders.cardinality(Utils.sanitizeFieldForAggregation(field))
                 .precisionThreshold(500)
                 .field(field);
     }
@@ -104,7 +106,7 @@ public class Utils {
 
     public static Map<Number, Number> createPercentilesResponse(Percentiles internalPercentiles) {
         Map<Number, Number> percentiles = Maps.newHashMap();
-        for (Percentile percentile : internalPercentiles) {
+        for(Percentile percentile : internalPercentiles) {
             percentiles.put(percentile.getPercent(), percentile.getValue());
         }
         return percentiles;

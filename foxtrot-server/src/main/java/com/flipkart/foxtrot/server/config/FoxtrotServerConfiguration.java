@@ -46,25 +46,19 @@ public class FoxtrotServerConfiguration extends Configuration {
 
     @Valid
     private final ClusterConfig cluster;
-
-    @NotNull
-    @Valid
-    private ServiceDiscoveryConfiguration serviceDiscovery;
-
-    @NotNull
-    @Valid
-    private RiemannConfig riemann;
-
-    @Valid
-    private CardinalityConfig cardinality;
-
-    @Valid
-    private EsIndexOptimizationConfig esIndexOptimizationConfig;
-
     @Valid
     @JsonProperty("deletionconfig")
     private final DataDeletionManagerConfig deletionManagerConfig;
-
+    @NotNull
+    @Valid
+    private ServiceDiscoveryConfiguration serviceDiscovery;
+    @NotNull
+    @Valid
+    private RiemannConfig riemann;
+    @Valid
+    private CardinalityConfig cardinality;
+    @Valid
+    private EsIndexOptimizationConfig esIndexOptimizationConfig;
     private CacheConfig cacheConfig;
 
     public FoxtrotServerConfiguration() {

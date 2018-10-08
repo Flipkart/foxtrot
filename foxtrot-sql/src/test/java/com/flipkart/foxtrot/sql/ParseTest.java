@@ -70,7 +70,8 @@ public class ParseTest {
             System.out.println(writer.writeValueAsString(request));
         }
         {
-            String sql = "select * from europa where a = 'b' and c=2.5 and temporal(e) between 10 and 30 and x > 99 order by test.name limit 20 offset 5";
+            String sql = "select * from europa where a = 'b' and c=2.5 and temporal(e) between 10 and 30 and x > 99
+            order by test.name limit 20 offset 5";
             QueryTranslator queryTranslator = new QueryTranslator();
             ActionRequest request = queryTranslator.translate(sql);
             System.out.println(writer.writeValueAsString(request));
@@ -92,8 +93,10 @@ public class ParseTest {
             query.setSort(null);
             ImmutableList filters = ImmutableList.of(new MissingFilter("a"));
             query.setFilters(filters);
-            FqlActionQuery fqlActionQuery = new FqlActionQuery(FqlQueryType.select,query, new ArrayList<String>());
-            Assert.assertEquals(writer.writeValueAsString(fqlActionQuery), writer.writeValueAsString(queryTranslator.translate(sql)));
+            FqlActionQuery fqlActionQuery = new FqlActionQuery(FqlQueryType.select, query, new ArrayList<String>());
+            Assert.assertEquals(writer.writeValueAsString(fqlActionQuery),
+                                writer.writeValueAsString(queryTranslator.translate(sql))
+                               );
 
         }
     }

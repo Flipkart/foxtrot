@@ -1,12 +1,12 @@
 /**
  * Copyright 2014 Flipkart Internet Pvt. Ltd.
- *
+ * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
+ * <p>
  * http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -79,7 +79,7 @@ public class ElasticsearchConsolePersistence implements ConsolePersistence {
                     .setId(id)
                     .execute()
                     .actionGet();
-            if (!result.isExists()) {
+            if(!result.isExists()) {
                 return null;
             }
             return mapper.readValue(result.getSourceAsBytes(), Console.class);
@@ -90,7 +90,8 @@ public class ElasticsearchConsolePersistence implements ConsolePersistence {
 
     @Override
     public List<Console> get() throws FoxtrotException {
-        SearchResponse response = connection.getClient().prepareSearch(INDEX)
+        SearchResponse response = connection.getClient()
+                .prepareSearch(INDEX)
                 .setTypes(TYPE)
                 .setQuery(boolQuery().must(matchAllQuery()))
                 .addSort(fieldSort("name").order(SortOrder.DESC))
@@ -101,15 +102,17 @@ public class ElasticsearchConsolePersistence implements ConsolePersistence {
         try {
             Vector<Console> results = new Vector<Console>();
             while (true) {
-                response = connection.getClient().prepareSearchScroll(response.getScrollId())
+                response = connection.getClient()
+                        .prepareSearchScroll(response.getScrollId())
                         .setScroll(new TimeValue(60000))
                         .execute()
                         .actionGet();
                 SearchHits hits = response.getHits();
-                for (SearchHit hit : hits) {
+                for(SearchHit hit : hits) {
                     results.add(mapper.readValue(hit.sourceAsString(), Console.class));
                 }
-                if (0 == response.getHits().hits().length) {
+                if(0 == response.getHits()
+                        .hits().length) {
                     break;
                 }
             }
@@ -166,7 +169,7 @@ public class ElasticsearchConsolePersistence implements ConsolePersistence {
                     .setId(id)
                     .execute()
                     .actionGet();
-            if (!result.isExists()) {
+            if(!result.isExists()) {
                 return null;
             }
             return mapper.readValue(result.getSourceAsBytes(), ConsoleV2.class);
@@ -189,15 +192,17 @@ public class ElasticsearchConsolePersistence implements ConsolePersistence {
         try {
             Vector<ConsoleV2> results = new Vector<ConsoleV2>();
             while (true) {
-                response = connection.getClient().prepareSearchScroll(response.getScrollId())
+                response = connection.getClient()
+                        .prepareSearchScroll(response.getScrollId())
                         .setScroll(new TimeValue(60000))
                         .execute()
                         .actionGet();
                 SearchHits hits = response.getHits();
-                for (SearchHit hit : hits) {
+                for(SearchHit hit : hits) {
                     results.add(mapper.readValue(hit.sourceAsString(), ConsoleV2.class));
                 }
-                if (0 == response.getHits().hits().length) {
+                if(0 == response.getHits()
+                        .hits().length) {
                     break;
                 }
             }

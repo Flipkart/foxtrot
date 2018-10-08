@@ -42,7 +42,8 @@ public class CacheUpdateResource {
     @POST
     public Response updateCardinalityCache() {
         executorService.submit(new CardinalityCalculationRunnable(tableMetadataManager));
-        return Response.ok().build();
+        return Response.ok()
+                .build();
     }
 
 }
