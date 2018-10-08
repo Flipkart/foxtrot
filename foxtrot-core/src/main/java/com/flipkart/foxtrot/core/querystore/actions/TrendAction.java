@@ -24,6 +24,7 @@ import com.flipkart.foxtrot.common.query.general.InFilter;
 import com.flipkart.foxtrot.common.trend.TrendRequest;
 import com.flipkart.foxtrot.common.trend.TrendResponse;
 import com.flipkart.foxtrot.common.util.CollectionUtils;
+import com.flipkart.foxtrot.core.alerts.EmailConfig;
 import com.flipkart.foxtrot.core.cache.CacheManager;
 import com.flipkart.foxtrot.core.common.Action;
 import com.flipkart.foxtrot.core.datastore.DataStore;
@@ -67,9 +68,9 @@ public class TrendAction extends Action<TrendRequest> {
 
     public TrendAction(TrendRequest parameter, TableMetadataManager tableMetadataManager, DataStore dataStore,
                        QueryStore queryStore, ElasticsearchConnection connection, String cacheToken,
-                       CacheManager cacheManager, ObjectMapper objectMapper) {
+                       CacheManager cacheManager, ObjectMapper objectMapper, EmailConfig emailConfig) {
         super(parameter, tableMetadataManager, dataStore, queryStore, connection, cacheToken, cacheManager,
-              objectMapper
+              objectMapper, emailConfig
              );
     }
 

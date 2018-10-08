@@ -33,6 +33,9 @@ import com.flipkart.foxtrot.common.query.general.NotInFilter;
 import com.flipkart.foxtrot.common.query.numeric.*;
 import com.flipkart.foxtrot.common.query.string.ContainsFilter;
 import com.flipkart.foxtrot.common.util.CollectionUtils;
+import com.flipkart.foxtrot.core.alerts.EmailClient;
+import com.flipkart.foxtrot.core.alerts.EmailConfig;
+import com.flipkart.foxtrot.core.alerts.EventAlertPublisher;
 import com.flipkart.foxtrot.core.cache.CacheManager;
 import com.flipkart.foxtrot.core.common.Action;
 import com.flipkart.foxtrot.core.common.PeriodSelector;
@@ -48,6 +51,9 @@ import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
 import com.flipkart.foxtrot.core.querystore.query.ElasticSearchQueryGenerator;
 import com.flipkart.foxtrot.core.table.TableMetadataManager;
 import com.google.common.collect.Maps;
+import com.olacabs.fabric.compute.util.ComponentPropertyReader;
+import com.olacabs.fabric.model.common.ComponentMetadata;
+import com.phonepe.models.fabric.EmailAlertEvent;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.elasticsearch.ElasticsearchException;
@@ -79,13 +85,16 @@ public class GroupAction extends Action<GroupRequest> {
     private static final long MAX_CARDINALITY = 50000;
     private static final long MIN_ESTIMATION_THRESHOLD = 1000;
     private static final double PROBABILITY_CUT_OFF = 0.5;
+    private EventAlertPublisher eventAlertPublisher;
 
     public GroupAction(GroupRequest parameter, TableMetadataManager tableMetadataManager, DataStore dataStore,
                        QueryStore queryStore, ElasticsearchConnection connection, String cacheToken,
-                       CacheManager cacheManager, ObjectMapper objectMapper) {
+                       CacheManager cacheManager, ObjectMapper objectMapper, EmailConfig emailConfig) {
         super(parameter, tableMetadataManager, dataStore, queryStore, connection, cacheToken, cacheManager,
-              objectMapper
+              objectMapper, emailConfig
              );
+        EmailClient emailClient = getEmailClient(emailConfig);
+        eventAlertPublisher = new EventAlertPublisher(emailClient);
     }
 
     @Override
@@ -171,6 +180,12 @@ public class GroupAction extends Action<GroupRequest> {
 
             if(probability > PROBABILITY_CUT_OFF) {
                 try {
+                    EmailAlertEvent emailAlertEvent = new EmailAlertEvent();
+                    emailAlertEvent.setMessage(getObjectMapper().writeValueAsString(parameter));
+                    emailAlertEvent.setSubject("Blocked query as it might have screwed up the cluster");
+                    emailAlertEvent.setToEmailId("payments-dev@phonepe.com");
+                    emailAlertEvent.send(eventAlertPublisher);
+
                     log.warn("Blocked query as it might have screwed up the cluster. Probability: {} Query: {}",
                              probability, getObjectMapper().writeValueAsString(parameter)
                             );
@@ -747,6 +762,10 @@ public class GroupAction extends Action<GroupRequest> {
         }
         return levelCount;
 
+    }
+
+    private EmailClient getEmailClient(EmailConfig emailConfig) {
+        return new EmailClient(emailConfig);
     }
 
 }

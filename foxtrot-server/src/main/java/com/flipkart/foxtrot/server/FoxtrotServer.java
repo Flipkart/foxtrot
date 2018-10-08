@@ -20,6 +20,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.jsontype.NamedType;
+import com.flipkart.foxtrot.core.alerts.EmailConfig;
 import com.flipkart.foxtrot.core.cache.CacheManager;
 import com.flipkart.foxtrot.core.cache.impl.DistributedCacheFactory;
 import com.flipkart.foxtrot.core.cardinality.CardinalityCalculationManager;
@@ -156,6 +157,7 @@ public class FoxtrotServer extends Application<FoxtrotServerConfiguration> {
             esIndexOptimizationConfig = new EsIndexOptimizationConfig();
         }
         CacheConfig cacheConfig = configuration.getCacheConfig();
+        EmailConfig emailConfig = configuration.getEmailConfig();
 
         final ObjectMapper objectMapper = environment.getObjectMapper();
         TableMetadataManager tableMetadataManager = new DistributedTableMetadataManager(hazelcastConnection,
@@ -172,10 +174,11 @@ public class FoxtrotServer extends Application<FoxtrotServerConfiguration> {
         CacheManager cacheManager = new CacheManager(
                 new DistributedCacheFactory(hazelcastConnection, objectMapper, cacheConfig));
         AnalyticsLoader analyticsLoader = new AnalyticsLoader(tableMetadataManager, dataStore, queryStore,
-                                                              elasticsearchConnection, cacheManager, objectMapper
+                                                              elasticsearchConnection, cacheManager, objectMapper,
+                                                              emailConfig
         );
         QueryExecutor executor = new QueryExecutor(analyticsLoader, executorService);
-        DataDeletionManagerConfig dataDeletionManagerConfig = configuration.getTableDataManagerConfig();
+        DataDeletionManagerConfig dataDeletionManagerConfig = configuration.getDeletionManagerConfig();
         DataDeletionManager dataDeletionManager = new DataDeletionManager(dataDeletionManagerConfig, queryStore,
                                                                           scheduledExecutorService, hazelcastConnection
         );

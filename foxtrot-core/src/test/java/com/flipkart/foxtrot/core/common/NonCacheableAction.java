@@ -17,6 +17,7 @@ package com.flipkart.foxtrot.core.common;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.flipkart.foxtrot.common.ActionResponse;
+import com.flipkart.foxtrot.core.alerts.EmailConfig;
 import com.flipkart.foxtrot.core.cache.CacheManager;
 import com.flipkart.foxtrot.core.datastore.DataStore;
 import com.flipkart.foxtrot.core.exception.FoxtrotException;
@@ -37,9 +38,10 @@ public class NonCacheableAction extends Action<NonCacheableActionRequest> {
 
     public NonCacheableAction(NonCacheableActionRequest parameter, TableMetadataManager tableMetadataManager,
                               DataStore dataStore, QueryStore queryStore, ElasticsearchConnection connection,
-                              String cacheToken, CacheManager cacheManager, ObjectMapper objectMapper) {
+                              String cacheToken, CacheManager cacheManager, ObjectMapper objectMapper,
+                              EmailConfig emailConfig) {
         super(parameter, tableMetadataManager, dataStore, queryStore, connection, cacheToken, cacheManager,
-              objectMapper
+              objectMapper, emailConfig
              );
     }
 
