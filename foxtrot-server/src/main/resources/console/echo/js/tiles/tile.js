@@ -479,6 +479,7 @@ TileFactory.prototype.addEventToPeriodSelect = function (tileElement, object) {
 TileFactory.prototype.triggerConfig = function (tileElement, object) { // code to show sidebar when edit
   var instanceVar = this;
   tileElement.find(".widget-toolbox").find(".glyphicon-cog").click(function () {
+    $(".copy-widget-btn").show();
     object = tileData[object.id];
     isEdit = true;
     editingRow = object.tileContext.row;
