@@ -615,6 +615,7 @@ $(document).ready(function () {
     defaultPlusBtn = true;
     foxtrot.resetModal();
     $(".settings-form").find("input[type=text], textarea").val("");
+    $(".copy-widget-btn").hide();
   });
   foxtrot.init();
   $("#save-dashboard-tab-btn").click(function () {

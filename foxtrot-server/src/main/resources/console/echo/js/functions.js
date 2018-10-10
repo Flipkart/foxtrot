@@ -58,6 +58,7 @@ function filterTypeTriggered(el) { // changing filter value attribute based on t
     $('#filter-column-row-'+rowId).prop("type", "number");
     $(".filter-date-picker-"+rowId).show();
   } else {
+    $('#filter-column-row-'+rowId).prop("type", "text"); // for boolean or others type
     $(".filter-date-picker-"+rowId).hide();
   }
 }
