@@ -121,21 +121,19 @@ GaugeTile.prototype.getData = function (data) {
       successRate = value;
     }
   }
-  this.render(total, successRate, (successRate/total*100));
+  this.render(100, (successRate/total*100));
 }
-GaugeTile.prototype.render = function (total, successRate, diff) {
+GaugeTile.prototype.render = function (total, diff) {
   var object = this.object;
   var d = [total];
   var chartDiv = $("#"+object.id).find(".chart-item");
   chartDiv.addClass("gauge-chart");
   var minNumber = 1;
-  var maxNumber = total
-  var randomNumber = successRate;
   var findExistingChart = chartDiv.find("#gauge-" + object.id);
   if (findExistingChart.length != 0) {
     findExistingChart.remove();
   }
-  chartDiv.append('<div id="gauge-' + object.id + '"><div class="halfDonut"><div class="halfDonutChart"></div><div class="halfDonutTotal bold gauge-percentage" data-percent="' + successRate + '" data-color="#82c91e">' + Math.round(diff) + '%</div></div></div>')
+  chartDiv.append('<div id="gauge-' + object.id + '"><div class="halfDonut"><div class="halfDonutChart"></div><div class="halfDonutTotal bold gauge-percentage" data-percent="' + diff + '" data-color="#82c91e">' + Math.round(diff) + '%</div></div></div>')
   var ctx = chartDiv.find("#gauge-" + object.id);
   var donutDiv = ctx.find(".halfDonutChart");
   $(donutDiv).each(function (index, chart) {
