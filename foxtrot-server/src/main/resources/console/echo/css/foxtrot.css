@@ -3117,7 +3117,7 @@ div.tab button:first-child {
 
 #right-action-btns {
   position: relative;
-  right: 14px;
+  right: 35px;
   top: 20px;
 }
 
@@ -3390,15 +3390,22 @@ div.tab button:first-child {
   z-index: 1600 !important; /* has to be larger than 1050 */
 }
 .global-date-picker-modal {
-  height: 400px;
+  height: 555px;
   width: 700px;
 }
 .global-date-footer {
-  margin-top: -27px;
+  margin-top: -12px;
 }
 .close-global-date-filter {
   padding: 30px;
 }
 .global-date-picker-modal a {
   text-decoration: none;
+}
+#global-date-picker-info-text {
+  margin-left: 36px;
+}
+#global-date-picker-info-text span {
+  color: #42b1f7;
+  margin-right: 5px;
 }
