@@ -167,6 +167,25 @@
           <div id="add-page-side-close" data-dismiss="modal" ><img src="img/combined-shape.png"></div>
         </div>
       </div>
+
+      <div id="myModal" class="modal">
+        <div class="modal-dialog">
+          <div class="global-date-picker-modal modal-content">
+            <div class="modal-header">
+              <h4></h4>
+            </div>
+            <div class="modal-body">
+            </div>
+            <div class="global-date-footer modal-footer">
+                <a data-dismiss="modal" class="close-global-date-filter" >Close</a>
+                <a id="submit-global-date-picker">Okay</a>
+            </div>  
+          </div>
+        </div>
+      </div>
+
+
+
       <!-- copy dashbard modal -->
     <section id="main-content">
       <div class="container-fluid" id="monitoring">
@@ -200,7 +219,7 @@
                   </div>
                 <!-- <button type="button" >Page settings</button>
               <button type="button" >Save Dashboard</button> -->
-              <div class="col-sm-3 global-filters">
+              <div class="col-sm-4 global-filters">
                 <div class="col-sm-6 global-filter-switch-div"><label>Global filters<input type="checkbox" class="ios-switch blue filter-switch tinyswitch"/><div id="switch"><div></div></div></label></div>
                 <div class="col-sm-5 hide-filters">
                   <select class="global-filter-period-select" id="global-filter-period-select">
@@ -219,6 +238,8 @@
                     <option value="15d"> 15 Days</option>
                     <option value="30d"> 30 Days</option>
                   </select>
+                  <a href="#myModal" role="button" data-toggle="modal"><span class="global-date glyphicon glyphicon-calendar"></span></a>
+                </div>
                 </div>
               </div>
             </div>
