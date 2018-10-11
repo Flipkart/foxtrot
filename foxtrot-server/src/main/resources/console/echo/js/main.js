@@ -864,24 +864,24 @@ $(document).ready(function () {
     format: 'DD/MM/YYYY, hh:mm:ss a'
   });
 
-  $(".global-date").click(function() {
-    $("#myModal").modal("show");
-  });
-
   function resetGloblaDateFilter() {
     isGlobalDateFilter = false;
     globalDateFilterValue = "";
+    $("#selected-global-date span").text('');
+    $("#selected-global-date").hide();
   }
 
   $(".close-global-date-filter").click(function(){
     $("#myModal").modal("hide");
-    resetGloblaDateFilter();
+    //resetGloblaDateFilter();
   })
 
   $("#submit-global-date-picker").click(function() {
     isGlobalDateFilter = true;
+    $("#selected-global-date").show();
     var date = $('#datetimepicker12').data('date');
     var conv = moment(date, "DD/MM/YYYY, hh:mm:ss a");
+    $("#selected-global-date span").text(moment(conv).format('MM/DD/YYYY, hh:mm a'));
     globalDateFilterValue = conv.valueOf();
     refereshTiles();
     $("#myModal").modal("hide");    
