@@ -39,8 +39,13 @@ function periodFromWindow(periodUnit, customPeriodString) {
 }
 
 function timeValue(periodUnit, periodValue, selectedPeriodString) {
-  var timestamp = new Date().getTime();
-  if (selectedPeriodString === "custom" || !selectedPeriodString) {
+  var timestamp;
+  if(isGlobalDateFilter) {
+      timestamp = globalDateFilterValue;
+  } else {
+      timestamp = new Date().getTime();
+  }
+  if (selectedPeriodString === "custom" || !selectedPeriodString || isGlobalDateFilter) {
     return {
       field: "_timestamp"
       , operator: "last"

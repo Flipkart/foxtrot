@@ -46,6 +46,8 @@ var tileColumn = 1;
 var sectionNumber = 0;
 var sections = [];
 var tableNameList = [];
+var isGlobalDateFilter = false;
+var globalDateFilterValue = "";
 
 function TablesView(id, tables) {
   this.id = id;
@@ -849,4 +851,26 @@ $(document).ready(function () {
   //Initialize libs
   $('.selectpicker').selectpicker();
   $('#refresh-time').tooltip(); 
+
+  $(".global-date").click(function() {
+    $("#myModal .modal-header h4").html("Select Your Date");
+    $("#myModal .modal-body").html('<div style="overflow:hidden;"><div class="form-group"><div class="row"><div class="col-md-8"><div id="datetimepicker12"></div></div></div></div>');
+    $("#myModal").modal("show");
+
+    $('#datetimepicker12').datetimepicker({
+      inline: true,
+      sideBySide: true,
+      format: 'DD/MM/YYYY, hh:mm:ss a'
+    });
+
+  });
+
+  $("#submit-global-date-picker").click(function() {
+    isGlobalDateFilter = true;
+    var date = $('#datetimepicker12').data('date');
+    var conv = moment(date, "DD/MM/YYYY, hh:mm:ss a");
+    globalDateFilterValue = conv.valueOf();
+    refereshTiles();
+    $("#myModal").modal("hide");    
+  })
 });
