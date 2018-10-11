@@ -881,7 +881,7 @@ $(document).ready(function () {
     $("#selected-global-date").show();
     var date = $('#datetimepicker12').data('date');
     var conv = moment(date, "DD/MM/YYYY, hh:mm:ss a");
-    $("#selected-global-date span").text(moment(conv).format('MM/DD/YYYY, hh:mm a'));
+    $("#selected-global-date span").text(moment(conv).format('DD/MM/YYYY, hh:mm a'));
     globalDateFilterValue = conv.valueOf();
     refereshTiles();
     $("#myModal").modal("hide");    
