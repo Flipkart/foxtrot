@@ -3117,7 +3117,7 @@ div.tab button:first-child {
 
 #right-action-btns {
   position: relative;
-  right: 14px;
+  right: 35px;
   top: 20px;
 }
 
@@ -3379,4 +3379,63 @@ div.tab button:first-child {
   height: 30px;
   margin-top: 20px;
   margin-left: 19%;
+}
+.global-date{
+  position: relative;
+  left: 116px;
+  top: -21px;
+  cursor: pointer;
+}
+.datepicker {
+  z-index: 1600 !important; /* has to be larger than 1050 */
+}
+.global-date-picker-modal {
+  height: 555px;
+  width: 700px;
+}
+.global-date-footer {
+  margin-top: -12px;
+}
+.close-global-date-filter {
+  padding: 30px;
+}
+.global-date-picker-modal a {
+  text-decoration: none;
+}
+#global-date-picker-info-text {
+  margin-left: 36px;
+}
+#global-date-picker-info-text span {
+  color: #42b1f7;
+  margin-right: 5px;
+}
+#selected-global-date {
+  position: absolute;
+  right: -41px;
+  top: -37px;
+  font-size: 14px;
+  background: #000;
+  border-radius: 0.4em;
+  color: #fff;
+  padding: 10px;
+  height: 27px;
+  display: none;
+}
+#selected-global-date span {
+  position: relative;
+  bottom: 6px;
+}
+#selected-global-date:after {
+	content: '';
+  position: absolute;
+  bottom: 0;
+  left: 86%;
+  width: 0;
+  height: 0;
+  border: 16px solid transparent;
+  border-top-color: #000;
+  border-bottom: 0;
+  border-left: 0;
+  margin-left: -8px;
+  margin-bottom: -15px;
 }

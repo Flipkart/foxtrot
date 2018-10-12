@@ -167,6 +167,23 @@
           <div id="add-page-side-close" data-dismiss="modal" ><img src="img/combined-shape.png"></div>
         </div>
       </div>
+
+      <div id="myModal" class="modal">
+        <div class="modal-dialog">
+          <div class="global-date-picker-modal modal-content">
+            <div class="modal-header">
+              <h4></h4>
+            </div>
+            <div class="modal-body">
+            </div>
+            <div class="global-date-footer modal-footer">
+                <a data-dismiss="modal" class="close-global-date-filter" >Cancel</a>
+                <a id="submit-global-date-picker">Okay</a>
+            </div>  
+          </div>
+        </div>
+      </div>
+
       <!-- copy dashbard modal -->
     <section id="main-content">
       <div class="container-fluid" id="monitoring">
@@ -200,7 +217,7 @@
                   </div>
                 <!-- <button type="button" >Page settings</button>
               <button type="button" >Save Dashboard</button> -->
-              <div class="col-sm-3 global-filters">
+              <div class="col-sm-4 global-filters">
                 <div class="col-sm-6 global-filter-switch-div"><label>Global filters<input type="checkbox" class="ios-switch blue filter-switch tinyswitch"/><div id="switch"><div></div></div></label></div>
                 <div class="col-sm-5 hide-filters">
                   <select class="global-filter-period-select" id="global-filter-period-select">
@@ -219,6 +236,9 @@
                     <option value="15d"> 15 Days</option>
                     <option value="30d"> 30 Days</option>
                   </select>
+                  <a href="#myModal" role="button" data-toggle="modal"><span class="global-date glyphicon glyphicon-calendar"></span></a>
+                  <div id="selected-global-date"><span></span></div>
+                </div>
                 </div>
               </div>
             </div>
@@ -612,11 +632,11 @@
                       <select name="line-ratio-field" required class="selectpicker show-menu-arrow line-ratio-field form-control" id="line-ratio-field" data-live-search="true"></select></div>
                       <div class="form-group">
                         <label class="control-label">Denominator  value<span class="mandatory-text">*</span></label>
-                        <input type="text" name="line-ratio-numerator-field" class="selectpicker line-ratio-numerator-field form-control" id="line-ratio-numerator-field" placeholder="Enter numerator value" required />
+                        <input type="text" name="line-ratio-numerator-field" class="selectpicker line-ratio-numerator-field form-control" id="line-ratio-numerator-field" placeholder="Enter Denominator value" required />
                       </div>
                       <div class="form-group">
-                        <label class="control-label">Numertaor value<span class="mandatory-text">*</span></label>
-                        <input type="text" name="line-ratio-denominator-field" class="selectpicker line-ratio-denominator-field form-control" placeholder="Enter denominator value" id="line-ratio-denominator-field" required />
+                        <label class="control-label">Numerator value<span class="mandatory-text">*</span></label>
+                        <input type="text" name="line-ratio-denominator-field" class="selectpicker line-ratio-denominator-field form-control" placeholder="Enter Numerator value" id="line-ratio-denominator-field" required />
                       </div>
                     <div class="form-group"><label class="control-label">Unique of</label>
                       <select id="line-ratio-uniquekey" class="selectpicker show-menu-arrow line-ratio-uniquekey form-control" data-live-search="true">

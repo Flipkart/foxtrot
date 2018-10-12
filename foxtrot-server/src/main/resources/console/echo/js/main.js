@@ -46,6 +46,8 @@ var tileColumn = 1;
 var sectionNumber = 0;
 var sections = [];
 var tableNameList = [];
+var isGlobalDateFilter = false;
+var globalDateFilterValue = "";
 
 function TablesView(id, tables) {
   this.id = id;
@@ -668,6 +670,7 @@ $(document).ready(function () {
       globalFilters = false;
       hideFilters();
       resetPeriodDropdown();
+      resetGloblaDateFilter();
     }
   });
 
@@ -849,4 +852,38 @@ $(document).ready(function () {
   //Initialize libs
   $('.selectpicker').selectpicker();
   $('#refresh-time').tooltip(); 
+
+  /**
+   * Initialize global date filter
+   */
+  $("#myModal .modal-header h4").html("Select Your Date");
+  $("#myModal .modal-body").html('<div style="overflow:hidden;"><div class="form-group"><div class="row"><div class="col-md-8"><div id="datetimepicker12"></div></div></div></div><div id="global-date-picker-info-text"><p><span class="glyphicon glyphicon-info-sign"></span>Graph would operate between (time selected in date picker - x), where x is the value in mins/hours/days of the individual widget</p> <ul><li>If time selected in date picker is 1 pm and the widget has time range of 15 mins, widget would show data from (1pm -15 mins)</li> <li>If time selected in date picker is 1 pm and the global filters has time range of 15 mins, all widgets would show data from (1pm -15 mins)</li></ul></p></div>');
+  $('#datetimepicker12').datetimepicker({
+    inline: true,
+    sideBySide: true,
+    format: 'DD/MM/YYYY, hh:mm:ss a'
+  });
+
+  function resetGloblaDateFilter() {
+    isGlobalDateFilter = false;
+    globalDateFilterValue = "";
+    $("#selected-global-date span").text('');
+    $("#selected-global-date").hide();
+  }
+
+  $(".close-global-date-filter").click(function(){
+    $("#myModal").modal("hide");
+    //resetGloblaDateFilter();
+  })
+
+  $("#submit-global-date-picker").click(function() {
+    isGlobalDateFilter = true;
+    $("#selected-global-date").show();
+    var date = $('#datetimepicker12').data('date');
+    var conv = moment(date, "DD/MM/YYYY, hh:mm:ss a");
+    $("#selected-global-date span").text(moment(conv).format('DD/MM/YYYY, hh:mm a'));
+    globalDateFilterValue = conv.valueOf();
+    refereshTiles();
+    $("#myModal").modal("hide");    
+  })
 });
