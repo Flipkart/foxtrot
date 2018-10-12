@@ -15,6 +15,7 @@
  */
 package com.flipkart.foxtrot.server.resources;
 
+import com.codahale.metrics.annotation.Timed;
 import com.flipkart.foxtrot.common.Table;
 import com.flipkart.foxtrot.core.exception.FoxtrotException;
 import com.flipkart.foxtrot.core.table.TableManager;
@@ -41,6 +42,7 @@ public class TableFieldMappingResource {
     }
 
     @GET
+    @Timed
     @Path("/{name}/fields")
     public Response get(@PathParam("name") final String table,
                         @QueryParam("withCardinality") @DefaultValue("false") boolean withCardinality,
@@ -52,6 +54,7 @@ public class TableFieldMappingResource {
 
 
     @GET
+    @Timed
     @Path("/fields")
     public Response getAllFields(@QueryParam("withCardinality") @DefaultValue("false") boolean withCardinality,
                                  @QueryParam("calculateCardinality") @DefaultValue("false") boolean
@@ -73,6 +76,7 @@ public class TableFieldMappingResource {
     }
 
     @POST
+    @Timed
     @Path("/{name}/fields/update")
     public Response updateEstimation(@PathParam("name") final String table,
                                      @QueryParam("time") @DefaultValue("0") long epoch) throws FoxtrotException {

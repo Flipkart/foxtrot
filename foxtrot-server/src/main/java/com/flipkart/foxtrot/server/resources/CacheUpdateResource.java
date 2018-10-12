@@ -14,6 +14,7 @@ package com.flipkart.foxtrot.server.resources;/**
  * limitations under the License.
  */
 
+import com.codahale.metrics.annotation.Timed;
 import com.flipkart.foxtrot.core.cardinality.CardinalityCalculationRunnable;
 import com.flipkart.foxtrot.core.table.TableMetadataManager;
 import lombok.AllArgsConstructor;
@@ -39,6 +40,7 @@ public class CacheUpdateResource {
     private TableMetadataManager tableMetadataManager;
 
     @Path("/cardinality")
+    @Timed
     @POST
     public Response updateCardinalityCache() {
         executorService.submit(new CardinalityCalculationRunnable(tableMetadataManager));

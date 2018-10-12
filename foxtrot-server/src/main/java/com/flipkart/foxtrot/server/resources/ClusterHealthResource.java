@@ -16,6 +16,7 @@
 
 package com.flipkart.foxtrot.server.resources;
 
+import com.codahale.metrics.annotation.Timed;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.flipkart.foxtrot.core.querystore.QueryStore;
 import org.elasticsearch.action.admin.cluster.health.ClusterHealthResponse;
@@ -43,17 +44,20 @@ public class ClusterHealthResource {
 
 
     @GET
+    @Timed
     public ClusterHealthResponse getHealth() throws ExecutionException, InterruptedException, JsonProcessingException {
         return queryStore.getClusterHealth();
     }
 
     @GET
+    @Timed
     @Path("/nodestats")
     public NodesStatsResponse getNodeStat() throws ExecutionException, InterruptedException, JsonProcessingException {
         return queryStore.getNodeStats();
     }
 
     @GET
+    @Timed
     @Path("indicesstats")
     public IndicesStatsResponse getIndicesStat()
             throws ExecutionException, InterruptedException, JsonProcessingException {

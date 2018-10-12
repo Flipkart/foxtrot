@@ -15,6 +15,7 @@
  */
 package com.flipkart.foxtrot.server.resources;
 
+import com.codahale.metrics.annotation.Timed;
 import com.flipkart.foxtrot.common.ActionRequest;
 import com.flipkart.foxtrot.common.ActionResponse;
 import com.flipkart.foxtrot.common.ActionValidationResponse;
@@ -46,18 +47,21 @@ public class AnalyticsResource {
     }
 
     @POST
+    @Timed
     public ActionResponse runSync(@Valid final ActionRequest request) throws FoxtrotException {
         return queryExecutor.execute(request);
     }
 
     @POST
     @Path("/async")
+    @Timed
     public AsyncDataToken runSyncAsync(@Valid final ActionRequest request) throws FoxtrotException {
         return queryExecutor.executeAsync(request);
     }
 
     @POST
     @Path("/validate")
+    @Timed
     public ActionValidationResponse validateQuery(@Valid final ActionRequest request) throws FoxtrotException {
         return queryExecutor.validate(request);
     }

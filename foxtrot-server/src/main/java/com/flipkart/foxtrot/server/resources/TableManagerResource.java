@@ -15,6 +15,7 @@
  */
 package com.flipkart.foxtrot.server.resources;
 
+import com.codahale.metrics.annotation.Timed;
 import com.flipkart.foxtrot.common.Table;
 import com.flipkart.foxtrot.core.exception.FoxtrotException;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
@@ -37,6 +38,7 @@ public class TableManagerResource {
     }
 
     @POST
+    @Timed
     public Response save(@Valid final Table table,
                          @QueryParam("forceCreate") @DefaultValue("false") boolean forceCreate)
             throws FoxtrotException {
@@ -47,6 +49,7 @@ public class TableManagerResource {
     }
 
     @GET
+    @Timed
     @Path("/{name}")
     public Response get(@PathParam("name") String name) throws FoxtrotException {
         name = ElasticsearchUtils.getValidTableName(name);
@@ -57,6 +60,7 @@ public class TableManagerResource {
     }
 
     @PUT
+    @Timed
     @Path("/{name}")
     public Response get(@PathParam("name") final String name, @Valid final Table table) throws FoxtrotException {
         table.setName(name);
@@ -66,6 +70,7 @@ public class TableManagerResource {
     }
 
     @DELETE
+    @Timed
     @Path("/{name}/delete")
     public Response delete(@PathParam("name") String name) throws FoxtrotException {
         name = ElasticsearchUtils.getValidTableName(name);
@@ -75,6 +80,7 @@ public class TableManagerResource {
     }
 
     @GET
+    @Timed
     public Response getAll() throws FoxtrotException {
         return Response.ok()
                 .entity(tableManager.getAll())

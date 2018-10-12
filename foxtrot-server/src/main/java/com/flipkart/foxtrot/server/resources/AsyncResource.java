@@ -15,6 +15,7 @@
  */
 package com.flipkart.foxtrot.server.resources;
 
+import com.codahale.metrics.annotation.Timed;
 import com.flipkart.foxtrot.common.ActionResponse;
 import com.flipkart.foxtrot.core.cache.CacheManager;
 import com.flipkart.foxtrot.core.common.AsyncDataToken;
@@ -41,12 +42,14 @@ public class AsyncResource {
 
     @GET
     @Path("/{action}/{id}")
+    @Timed
     public Response getResponse(@PathParam("action") final String action, @NotNull @PathParam("id") final String id) {
         return Response.ok(getData(new AsyncDataToken(action, id)))
                 .build();
     }
 
     @POST
+    @Timed
     public Response getResponsePost(final AsyncDataToken dataToken) {
         return Response.ok(getData(dataToken))
                 .build();
