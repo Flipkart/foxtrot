@@ -16,6 +16,7 @@
 package com.flipkart.foxtrot.server.console;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import lombok.Data;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.hibernate.validator.constraints.NotEmpty;
 
@@ -23,6 +24,7 @@ import javax.validation.constraints.NotNull;
 import java.util.List;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
+@Data
 public class ConsoleV2 {
 
     @NotNull
@@ -33,32 +35,10 @@ public class ConsoleV2 {
     @NotEmpty
     private String name;
 
+    private long updatedAt;
+
     @NotNull
     private List<ConsoleSection> sections;
-
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public List<ConsoleSection> getSections() {
-        return sections;
-    }
-
-    public void setSections(List<ConsoleSection> sections) {
-        this.sections = sections;
-    }
 
     @Override
     public String toString() {
