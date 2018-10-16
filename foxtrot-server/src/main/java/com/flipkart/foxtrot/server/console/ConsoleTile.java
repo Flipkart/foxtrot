@@ -1,5 +1,6 @@
 package com.flipkart.foxtrot.server.console;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
@@ -7,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 
 @Data
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class ConsoleTile {
 
     private String id;
