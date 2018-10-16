@@ -346,7 +346,21 @@ StackedBarTile.prototype.render = function (d) {
       'box-shadow': '0 2px 4px 0 #cbd7e9',
       'z-index': 5000,
       'line-height': 2
-    }).appendTo("body");
+    }).appendTo("body").fadeOut(10000);
+
+    // stop fadeout
+    $(tooltip).mouseenter(
+      function () {
+        if($(this).is(':animated')) {
+           $(this).stop( true, true ).fadeIn();
+        }
+      }
+    );
+
+    // remove tooltip when user leaves the mousehover
+    $(tooltip).mouseleave(function() {
+      $(this).remove();
+    });
 
     var closeEl = $(tooltip).find(".close-tooltip");// find tooltip elemetn
     $(closeEl).click(function() { // add click event
