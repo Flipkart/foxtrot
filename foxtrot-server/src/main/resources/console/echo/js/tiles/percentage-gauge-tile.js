@@ -125,17 +125,48 @@ PercentageGaugeTile.prototype.getData = function (data) {
 
   if (data.result == undefined || data.result.length == 0) return;
   var total = 0;
-  for (var key in data.result) {
-    var value = data.result[key];
-    total = total + value;
-    if(numerator == key) {
-      numerator = value;
-    } else if(denominator == key) {
-      denominator = value;
+
+  /**
+   * Check special character exist
+   * if exist split by space
+   * loop array and get values from response
+   * if unable to get value from response
+   * set value as zero
+   * eval numerator and denominator strings
+   */
+  var format = /^[ !@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/;
+  var numeratorStringEval = "";  
+  var denominatorStringEval = "";
+  
+  if(isSpecialCharacter(numerator)) {
+    var numeratorSplitArray = numerator.split(" ");
+    for(var i = 0; i < numeratorSplitArray.length; i++) {
+      if(format.test(numeratorSplitArray[i])) { // check string or special character
+        numeratorStringEval+= numeratorSplitArray[i];
+      } else {
+        var string = data.result[numeratorSplitArray[i]];
+        numeratorStringEval+= string == undefined ? 0 : string;
+      }
     }
+  } else {
+    numeratorStringEval = data.result[numerator];
   }
-  //this.render(total, denominator, (denominator/numerator*100));
-  this.render(100,(denominator/numerator*100));
+
+  if(isSpecialCharacter(denominator)) {
+    var denominatorSplitArray = denominator.split(" ");
+    for(var i = 0; i < denominatorSplitArray.length; i++) {
+      if(format.test(denominatorSplitArray[i])) { // check string or special character
+        denominatorStringEval+= denominatorSplitArray[i];
+      } else {
+        var string = data.result[denominatorSplitArray[i]];
+        denominatorStringEval+= string == undefined ? 0 : string;
+      }
+    }
+  } else {
+    denominatorStringEval = data.result[denominator];
+  }
+
+  this.render(100, (eval(denominatorStringEval)/eval(numeratorStringEval)*100));
 }
 PercentageGaugeTile.prototype.render = function (total, diff) {
   var object = this.object;
