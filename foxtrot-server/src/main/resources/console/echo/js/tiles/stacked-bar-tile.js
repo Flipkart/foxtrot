@@ -346,7 +346,7 @@ StackedBarTile.prototype.render = function (d) {
       'box-shadow': '0 2px 4px 0 #cbd7e9',
       'z-index': 5000,
       'line-height': 2
-    }).appendTo("body").fadeOut(10000);
+    }).appendTo("body").fadeOut(50000);
 
     // stop fadeout
     $(tooltip).mouseenter(
