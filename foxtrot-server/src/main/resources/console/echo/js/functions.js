@@ -439,3 +439,23 @@ function readbleDate(epochValue) {
   var day = moment(epochValue); //milliseconds
   return day.format('DD/MM/YYYY, hh:mm:ss a');
 }
+
+/**
+ * Check string has special characters
+ */
+function isSpecialCharacter(string) {
+  var format = /(?=[-+*\/])/;
+  
+  if(format.test(string)){
+    return true;
+  } else {
+    return false;
+  }
+}
+
+/**
+ * Split string by every artimetic operator
+ */
+function splitArithmetic(arithmetic) {
+  return arithmetic.split(/(?=[-+*\/])/)
+}

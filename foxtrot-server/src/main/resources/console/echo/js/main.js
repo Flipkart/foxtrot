@@ -671,6 +671,7 @@ $(document).ready(function () {
       hideFilters();
       resetPeriodDropdown();
       resetGloblaDateFilter();
+      refereshTiles();
     }
   });
 
