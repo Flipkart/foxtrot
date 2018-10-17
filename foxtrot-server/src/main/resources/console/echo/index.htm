@@ -407,6 +407,7 @@
                     </div>
                     <div class="form-group">
                       <label class="control-label">Success value<span class="mandatory-text">*</span></label>
+                      <span class="glyphicon glyphicon-info-sign mathematical-info" data-toggle="tooltip" data-placement="top" title="Use space delimiter to use mathematical formula"></span>
                       <input type="text" name="gauge-success-field" class="selectpicker gauge-success-field form-control" id="gauge-success-field" required />
                     </div>
                   </div>
@@ -433,10 +434,12 @@
                     </div>
                     <div class="form-group">
                       <label class="control-label">Numertaor value<span class="mandatory-text">*</span></label>
+                      <span class="glyphicon glyphicon-info-sign mathematical-info" data-toggle="tooltip" data-placement="top" title="Use space delimiter to use mathematical formula"></span>
                       <input type="text" name="percentage-gauge-denominator-field" class="selectpicker percentage-gauge-denominator-field form-control" placeholder="Enter Numertaor value" id="percentage-gauge-denominator-field" required />
                     </div>
                     <div class="form-group">
                       <label class="control-label">Denominator value<span class="mandatory-text">*</span></label>
+                      <span class="glyphicon glyphicon-info-sign mathematical-info" data-toggle="tooltip" data-placement="top" title="Use space delimiter to use mathematical formula"></span>
                       <input type="text" name="percentage-gauge-success-field" class="selectpicker percentage-gauge-numerator-field form-control" id="percentage-gauge-numerator-field" placeholder="Enter Denominator value" required />
                     </div>
                     <div class="form-group"><label class="control-label">Unique of</label>
@@ -902,6 +905,8 @@
       showHidePageSettings();
     });
     hideFilters();
+    
+    $('.mathematical-info').tooltip();
   </script>
   <!--Application-->
 </body>
