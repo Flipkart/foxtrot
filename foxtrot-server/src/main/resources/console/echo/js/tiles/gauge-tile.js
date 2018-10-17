@@ -117,11 +117,39 @@ GaugeTile.prototype.getData = function (data) {
   for (var key in data.result) {
     var value = data.result[key];
     total = total + value;
-    if(successField == key) {
-      successRate = value;
-    }
+    // if(successField == key) {
+    //   successRate = value;
+    // }
   }
-  this.render(100, (successRate/total*100));
+
+
+
+  /**
+   * Check special character exist
+   * if exist split by space
+   * loop array and get values from response
+   * if unable to get value from response
+   * set value as zero
+   * eval successField string
+   */
+  var format = /^[ !@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/;
+  var successFieldStringEval = "";  
+  
+  if(isSpecialCharacter(successField)) {
+    var successFieldSplitArray = successField.split(" ");
+    for(var i = 0; i < successFieldSplitArray.length; i++) {
+      if(format.test(successFieldSplitArray[i])) { // check string or special character
+        successFieldStringEval+= successFieldSplitArray[i];
+      } else {
+        var string = data.result[successFieldSplitArray[i]];
+        successFieldStringEval+= string == undefined ? 0 : string;
+      }
+    }
+  } else {
+    successFieldStringEval = data.result[successField];
+  }
+  
+  this.render(100, (eval(successFieldStringEval)/total*100));
 }
 GaugeTile.prototype.render = function (total, diff) {
   var object = this.object;
