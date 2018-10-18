@@ -137,6 +137,7 @@ FoxTrot.prototype.addTile = function () {
   var periodInterval = $("#period-select").val();
   var widgetSize = "";
   var position = "";
+  var description = $("#tile-description").val();
 
   isChild = (isChild == 'true');
   if ($("#tileTitle").val().length == 0 || !$("#tileTable").valid() || getWidgetType() == false) {
@@ -193,6 +194,7 @@ FoxTrot.prototype.addTile = function () {
     , "tabName": $(".tab .active").attr('id')
     , "position": position
     , "widgetSize" : widgetSize
+    , "description": description
   }
   context = $.extend({}, getChartFormValues(), context);
   var object = {

@@ -491,6 +491,8 @@ TileFactory.prototype.triggerConfig = function (tileElement, object) { // code t
 
     var form = $("#sidebar").find("form");
     form.find(".tile-title").val(object.title);
+    var tileDescription = object.tileContext.description == undefined ? "" : object.tileContext.description;
+    form.find("#tile-description").val(tileDescription);
     form.find("#sidebar-tileId").val(object.id);
 
     $(".chart-type").val(object.tileContext.chartType)
