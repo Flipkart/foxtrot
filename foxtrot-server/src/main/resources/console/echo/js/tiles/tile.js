@@ -174,7 +174,10 @@ function pushTilesObject(object) { // save each tile data
 
 TileFactory.prototype.updateTileData = function () { // update tile details
   var selectedTile = $("#" + this.tileObject.id);
-  selectedTile.find(".tile-title").text(this.tileObject.title);
+  selectedTile.find(".tile-title").find(".title-title-span").text(this.tileObject.title);
+  selectedTile.find(".tile-title").find(".widget-description").tooltip();
+  var widgetDesc = this.tileObject.tileContext.description == undefined ? "Description  N/A" : this.tileObject.tileContext.description;
+  selectedTile.find(".tile-title").find(".widget-description").attr("title", widgetDesc);
   var tileid = this.tileObject.id;
   this.createGraph(this.tileObject, selectedTile);
   var tileListIndex = tileList.indexOf(this.tileObject.id);
