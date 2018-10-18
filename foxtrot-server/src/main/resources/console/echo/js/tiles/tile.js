@@ -194,7 +194,10 @@ TileFactory.prototype.updateTileData = function () { // update tile details
 }
 TileFactory.prototype.createTileData = function (object) { // store tile list
   var selectedTile = $("#" + object.id);
-  selectedTile.find(".tile-title").text(object.title);
+  selectedTile.find(".tile-title").find(".title-title-span").text(object.title);
+  selectedTile.find(".tile-title").find(".widget-description").tooltip();
+  var widgetDesc = object.tileContext.description == undefined ? "Description  N/A" : object.tileContext.description;
+  selectedTile.find(".tile-title").find(".widget-description").attr("title", widgetDesc);
   var tileid = object.id;
   var prepareTileData = {};
   prepareTileData[object.id] = object;
