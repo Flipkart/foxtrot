@@ -314,6 +314,11 @@
               <input type="text" name="sidebar-tile" required class="tile-title sidebar-tile form-control" id="tileTitle" placeholder="Give a title"/>
             </div>
             <div class="form-group">
+                <label class="control-label">Description </label>
+                <textarea rows="2" cols="50" name="tile-description" class="form-control" id="tile-description" placeholder="Enter description">
+                </textarea>
+              </div>
+            <div class="form-group">
               <label class="control-label">Table <span class="mandatory-text">*</span></label>
               <select class="selectpicker tile-table form-control" name="tile-table" id="tileTable" data-live-search="true" data-style="btn-warning" required> </select>
             </div>
@@ -777,7 +782,7 @@
       <div>
         <div class='tile tile-gradient tile-default-size' id='{{tileId}}'>
             <div class="fetch-error">Data Refresh Failed</div>
-          <div class="widget-header"> <p class="tile-title">Title bar</p>
+          <div class="widget-header"> <p class="tile-title"><span class="title-title-span">Title bar</span>&nbsp;<span class="glyphicon glyphicon-info-sign widget-description" data-toggle="tooltip" data-placement="top" title=""></span></p>
             <div class='widget-toolbox'>
               <div class="settings">
                 <div class="widget-timeframe">

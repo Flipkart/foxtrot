@@ -1067,6 +1067,23 @@ th, td {
   color: #fff;
 }
 
+textarea {
+  background: none !important;
+  border: none !important;
+  border: solid 1px #777a89 !important;
+  color: #dbdbdb !important;
+}
+
+textarea:focus {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+textarea:hover {
+  border: 1px solid #fff !important;
+  color: #fff !important;
+}
+
 #sidebar-filter-heading {
   font-size: 14px;
   font-weight: bold;

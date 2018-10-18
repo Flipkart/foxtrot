@@ -179,7 +179,10 @@ function pushTilesObject(object) { // save each tile data
 
 TileFactory.prototype.updateTileData = function () { // update tile details
   var selectedTile = $("#" + this.tileObject.id);
-  selectedTile.find(".tile-title").text(this.tileObject.title);
+  selectedTile.find(".tile-title").find(".title-title-span").text(this.tileObject.title);
+  selectedTile.find(".tile-title").find(".widget-description").tooltip();
+  var widgetDesc = this.tileObject.tileContext.description == undefined ? "Description  N/A" : this.tileObject.tileContext.description;
+  selectedTile.find(".tile-title").find(".widget-description").attr("title", widgetDesc);
   var tileid = this.tileObject.id;
   this.createGraph(this.tileObject, selectedTile);
   var tileListIndex = tileList.indexOf(this.tileObject.id);
@@ -199,7 +202,10 @@ TileFactory.prototype.updateTileData = function () { // update tile details
 }
 TileFactory.prototype.createTileData = function (object) { // store tile list
   var selectedTile = $("#" + object.id);
-  selectedTile.find(".tile-title").text(object.title);
+  selectedTile.find(".tile-title").find(".title-title-span").text(object.title);
+  selectedTile.find(".tile-title").find(".widget-description").tooltip();
+  var widgetDesc = object.tileContext.description == undefined ? "Description  N/A" : object.tileContext.description;
+  selectedTile.find(".tile-title").find(".widget-description").attr("title", widgetDesc);
   var tileid = object.id;
   var prepareTileData = {};
   prepareTileData[object.id] = object;
@@ -496,6 +502,8 @@ TileFactory.prototype.triggerConfig = function (tileElement, object) { // code t
 
     var form = $("#sidebar").find("form");
     form.find(".tile-title").val(object.title);
+    var tileDescription = object.tileContext.description == undefined ? "" : object.tileContext.description;
+    form.find("#tile-description").val(tileDescription);
     form.find("#sidebar-tileId").val(object.id);
 
     $(".chart-type").val(object.tileContext.chartType)
