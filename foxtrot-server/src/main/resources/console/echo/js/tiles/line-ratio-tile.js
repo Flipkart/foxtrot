@@ -113,40 +113,141 @@ function LineRatioTile() {
     else
       hideFetchError(this.object);
 
-    var numerator = data.trends[this.object.tileContext.numerator];
-    var denominator = data.trends[this.object.tileContext.denominator];
-    
-    if(numerator != undefined && denominator != undefined) {
-      var newData = [];
-      newData.push(['date', 'count']);
-      var numeratorValue = 0;
-      var denominotorValue = 0;
-      for(var loopIndex = 0; loopIndex < denominator.length; loopIndex++) {
+    /**
+   * Check special character exist
+   * if exist split by space
+   * loop array and get values from response
+   * if unable to get value from response
+   * set value as zero
+   * eval numerator and denominator strings
+   */
+  var format = /^[ !@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/;
+  var numeratorObject =  {};
+  var numeratorCount = [];
+  var denominatorCount = [];
+  var denominatorObject = {};
+  
+  var numerator = this.object.tileContext.numerator;
+  var denominator = this.object.tileContext.denominator;
 
-        
-        if(numerator[loopIndex] !== void 0) {
-          /* void 0 === undefined * See concern about ``undefined'' below. */
-          /* index doesn't point to an undefined item. */
-          numeratorValue = numerator[loopIndex].count;
-        }
-
-        
-        if(denominator[loopIndex] !== void 0) {
-          denominotorValue = denominator[loopIndex].count;
-        }
-
-        var percentage = (denominotorValue/numeratorValue*100);
-        var percentageValue = isNaN(percentage) ?  0 : percentage;
-
-        if(loopIndex > 0) { // dont plot index 0
-          newData.push([denominator[loopIndex].period, (percentageValue / Math.pow(10, 0))]);          
-        }
+  /**
+   * Separate numerator and denominator and store count of that
+   */
+  if(isSpecialCharacter(numerator)) {
+    var numeratorSplitArray = numerator.split(" ");
+    for(var i = 0; i < numeratorSplitArray.length; i++) {
+      if(!format.test(numeratorSplitArray[i])) { // check string or special character
+        var string = data.trends[numeratorSplitArray[i]];
+        numeratorObject[numeratorSplitArray[i]] =  data.trends[numeratorSplitArray[i]];
+        numeratorCount.push(data.trends[numeratorSplitArray[i]].length);
       }
-      this.render(newData);
-    } else {
-      this.render(newData);
     }
+  } else {
+    numeratorObject[numerator] = data.trends[numerator];
+    numeratorCount.push(data.trends[numerator].length);
   }
+
+  if(isSpecialCharacter(denominator)) {
+    var denominatorSplitArray = denominator.split(" ");
+    for(var i = 0; i < denominatorSplitArray.length; i++) {
+      if(!format.test(denominatorSplitArray[i])) { // check string or special character
+        var string = data.trends[denominatorSplitArray[i]];
+        denominatorObject[denominatorSplitArray[i]] =  data.trends[denominatorSplitArray[i]];
+        denominatorCount.push(data.trends[denominatorSplitArray[i]].length);
+      }
+    }
+  } else {
+    denominatorObject[denominator] = data.trends[denominator];
+    denominatorCount.push(data.trends[denominator].length);
+  }
+
+  // get least value of both
+  var leastNumeratorIndex = numeratorCount.indexOf(Math.min.apply(null,numeratorCount));
+  var leastDenominatorIndex = denominatorCount.indexOf(Math.min.apply(null,denominatorCount));
+
+  console.log(leastNumeratorIndex == leastDenominatorIndex);
+  
+  var newData = [];
+  newData.push(['date', 'count']);
+
+  var finalNumerator = [];
+  var finalDenominator = [];
+
+  var numeratorkeys;
+  var denominatorkeys;
+  
+  numeratorkeys = Object.keys(numeratorObject);
+  denominatorkeys = Object.keys(denominatorObject);
+
+  var numeratorkeys = Object.keys(numeratorObject);
+  var denominatorkeys = Object.keys(denominatorObject);
+  var evalString = "";
+  var period = 0;
+  
+  for(var resultLoop = 0; resultLoop < numeratorObject[numeratorkeys[0]].length; resultLoop++ ) 
+  {
+    if(isSpecialCharacter(numerator)) {
+      var resultNumerator = numerator.split(" ");
+      for(var i = 0; i < resultNumerator.length; i++) {
+        if(format.test(resultNumerator[i])) { // check string or special character
+          evalString+= resultNumerator[i];
+        } else {
+          var string = numeratorObject[resultNumerator[i]][resultLoop].count;
+          evalString+= string == undefined ? 0 : string;
+          period = (numeratorObject[resultNumerator[i]][resultLoop].period == undefined ? 0 : numeratorObject[resultNumerator[i]][resultLoop].period);
+        }          
+      }
+    } else {
+      var countVariable = numeratorObject[numerator][resultLoop].count;
+      evalString+= countVariable == undefined ? 0 : countVariable;
+      period = (numeratorObject[numerator][resultLoop].period == undefined ? 0 : numeratorObject[numerator][resultLoop].period);
+    }
+    finalNumerator.push({"period": period, "count": eval(evalString)});
+    evalString = "";
+    period = 0;
+  }
+
+  for(var resultLoop = 0; resultLoop < denominatorObject[denominatorkeys[0]].length; resultLoop++ ) 
+  {
+    if(isSpecialCharacter(numerator)) {
+      var resultNumerator = denominator.split(" ");
+      for(var i = 0; i < resultNumerator.length; i++) {
+        if(format.test(resultNumerator[i])) { // check string or special character
+          evalString+= resultNumerator[i];
+        } else {
+          var string = denominatorObject[resultNumerator[i]][resultLoop].count;
+          evalString+= string == undefined ? 0 : string;
+          period = (denominatorObject[resultNumerator[i]][resultLoop].period == undefined ? 0 : denominatorObject[resultNumerator[i]][resultLoop].period);
+        }          
+      }
+    } else {
+      var countVariable = denominatorObject[denominator][resultLoop].count;
+      evalString+= countVariable == undefined ? 0 : countVariable;
+      period = (denominatorObject[denominator][resultLoop].period == undefined ? 0 : denominatorObject[denominator][resultLoop].period);
+    }
+    finalDenominator.push({"period": period, "count": eval(evalString)});
+    evalString = "";
+    period = 0;
+  }
+
+  for(var finalValue = 0; finalValue < finalNumerator.length; finalValue++) {
+    var denominatorTotal;
+    var numeratorTotal;
+    
+    if(finalDenominator[finalValue]) { // check value exist
+      denominatorTotal = finalDenominator[finalValue].count
+    }
+
+    if(finalNumerator[finalValue]) {// check value exist
+      numeratorTotal = finalNumerator[finalValue].count;
+    }
+
+    var percentage = (denominatorTotal/numeratorTotal*100);
+    newData.push([finalNumerator[finalValue].period, (percentage / Math.pow(10, 0))]); 
+  }
+
+  this.render(newData);
+}
 
   LineRatioTile.prototype.render = function (rows) {
     var object = this.object;
