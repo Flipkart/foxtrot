@@ -163,10 +163,7 @@ function LineRatioTile() {
 
   // get least value of both
   var leastNumeratorIndex = numeratorCount.indexOf(Math.min.apply(null,numeratorCount));
-  var leastDenominatorIndex = denominatorCount.indexOf(Math.min.apply(null,denominatorCount));
-
-  console.log(leastNumeratorIndex == leastDenominatorIndex);
-  
+  var leastDenominatorIndex = denominatorCount.indexOf(Math.min.apply(null,denominatorCount));  
   var newData = [];
   newData.push(['date', 'count']);
 
@@ -179,12 +176,11 @@ function LineRatioTile() {
   numeratorkeys = Object.keys(numeratorObject);
   denominatorkeys = Object.keys(denominatorObject);
 
-  var numeratorkeys = Object.keys(numeratorObject);
-  var denominatorkeys = Object.keys(denominatorObject);
   var evalString = "";
   var period = 0;
   
-  for(var resultLoop = 0; resultLoop < numeratorObject[numeratorkeys[0]].length; resultLoop++ ) 
+  // loop till figured out least number
+  for(var resultLoop = 0; resultLoop < numeratorCount[leastNumeratorIndex]; resultLoop++ ) 
   {
     if(isSpecialCharacter(numerator)) {
       var resultNumerator = numerator.split(" ");
@@ -207,7 +203,7 @@ function LineRatioTile() {
     period = 0;
   }
 
-  for(var resultLoop = 0; resultLoop < denominatorObject[denominatorkeys[0]].length; resultLoop++ ) 
+  for(var resultLoop = 0; resultLoop < denominatorCount[leastDenominatorIndex]; resultLoop++ ) 
   {
     if(isSpecialCharacter(numerator)) {
       var resultNumerator = denominator.split(" ");
@@ -215,6 +211,7 @@ function LineRatioTile() {
         if(format.test(resultNumerator[i])) { // check string or special character
           evalString+= resultNumerator[i];
         } else {
+          
           var string = denominatorObject[resultNumerator[i]][resultLoop].count;
           evalString+= string == undefined ? 0 : string;
           period = (denominatorObject[resultNumerator[i]][resultLoop].period == undefined ? 0 : denominatorObject[resultNumerator[i]][resultLoop].period);
