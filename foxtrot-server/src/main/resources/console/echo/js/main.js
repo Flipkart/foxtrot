@@ -277,12 +277,12 @@ function saveConsole() { // Save console api
         } else {
           showSuccessAlert('Success', 'console saved sucessfully');
         }
-        hideSaveConsole();
+        hideConsoleModal("save-dashboard");
       },
       error: function() {
         var msg = isCopyWidget ? "Could not copy console" : "Could not save console";
         showErrorAlert("Oops",msg);
-        hideSaveConsole();
+        hideConsoleModal("save-dashboard");
         if(lastConsoleName.length > 0) {
           currentConsoleName = lastConsoleName;
         }
@@ -290,7 +290,32 @@ function saveConsole() { // Save console api
     })
   } else {
     showErrorAlert("Oops",'Add atleast one widget');
-    hideSaveConsole();
+    hideConsoleModal("save-dashboard");
+  }
+}
+
+function deleteConsole() { // Delete console api
+  if(currentConsoleName !=  undefined) {
+    var name =  currentConsoleName;
+    var convertedName = convertName(name);
+    var url = apiUrl+("/v2/consoles/")+convertedName+("/delete");
+    $.ajax({
+      url: url,
+      type: 'DELETE',
+      contentType: 'application/json',
+      success: function(resp) {
+        showSuccessAlert('Success', 'console deleted sucessfully');
+        hideConsoleModal("delete-dashboard");
+        window.location = "index.htm";
+      },
+      error: function() {
+        showErrorAlert('Oops','Could not delete console');
+        hideConsoleModal("delete-dashboard");
+      }
+    })
+  } else {
+    showErrorAlert("Oops",'Add atleast one widget');
+    hideConsoleModal("delete-dashboard");
   }
 }
 
@@ -320,6 +345,7 @@ function generateTabBtnForConsole(array) { // new btn for tabs
 function setListConsole(value) { // making current console name selected
   $("#listConsole").val(value);
   $("#save-dashboard-name").val(currentConsoleName);
+  $("#delete-dashboard-name").val(currentConsoleName);
 }
 
 function removeTab(btnName) { // remove tab
@@ -404,6 +430,7 @@ function getConsoleById(selectedConsole) { // get particular console list
 
 function loadParticularConsoleList() { // reload page based on selected console
   $("#save-dashboard-name").val(currentConsoleName);
+  $("#delete-dashboard-name").val(currentConsoleName);
   loadParticularConsole();
 }
 
@@ -535,6 +562,7 @@ function createDashboard() { // create dashboard
   $("#addDashboard").modal('hide');
   $(".dashboard-name").val('');
   $(".save-dashboard-name").val(currentConsoleName);
+  $("#delete-dashboard-name").val(currentConsoleName);
   $("#tab-name").val('');
   $("#listConsole").val('none');
   clearForms();
@@ -596,6 +624,7 @@ function savePageSettings() { // save page settings modal
   }
   currentConsoleName = $("#page-dashboard-name").val();
   $(".save-dashboard-name").val(currentConsoleName);
+  $("#delete-dashboard-name").val(currentConsoleName);
   showHidePageSettings();
 }
 
@@ -637,6 +666,10 @@ $(document).ready(function () {
     isCopyWidget = true;
     currentConsoleName = $("#copy-dashboard-name").val();
     saveConsole();
+  });
+  $("#delete-dashboard-tab-btn").click(function () {
+    currentConsoleName = $("#delete-dashboard-name").val();
+    deleteConsole();
   });
   $("#listConsole").change(function () {
     loadParticularConsoleList();
@@ -831,6 +864,10 @@ $(document).ready(function () {
 
   $("#add-new-page-list").click(function() {
     generateNewPageList(sectionNumber+1 , "");
+  });
+
+  $("#delete-dashboard-btn").click(function() {
+    $("#delete-dashboard").modal('show');
   });
 
   $(".page-setting-save-btn").click(function() {

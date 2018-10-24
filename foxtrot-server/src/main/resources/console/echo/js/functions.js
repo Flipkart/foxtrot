@@ -193,10 +193,9 @@ function showFilters() {
   $(".global-filters").css({'width': "auto"});
 }
 
-function hideSaveConsole() {
-  $("#save-dashboard").modal('hide');
+function hideConsoleModal(id) {
+  $("#"+id).modal('hide');
 }
-
 function getActiveTabIndex() {
   var activeIndex = $('.tab button.active').index();
   return parseInt(activeIndex);
