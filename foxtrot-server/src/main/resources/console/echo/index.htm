@@ -68,7 +68,7 @@
         </div>
       </div>
     </div>
-    <!-- Modal -->
+    <!-- add dashboard modal -->
     <div class="modal fade" id="addDashboard" tabindex="-2" role="dialog" aria-labelledby="addTab" aria-hidden="true">
       <div class="modal-dialog">
         <div id="console-modal">
@@ -119,6 +119,7 @@
         <div id="add-page-side-close" data-dismiss="modal" ><img src="img/combined-shape.png" alt="close"></div>
       </div>
     </div>
+    <!-- save dashbard modal -->
     <div class="modal fade" id="save-dashboard" tabindex="-2" role="dialog" aria-labelledby="addSections" aria-hidden="true">
       <div class="modal-dialog">
         <div id="save-dashboard-modal">
@@ -166,25 +167,47 @@
           </div>
           <div id="add-page-side-close" data-dismiss="modal" ><img src="img/combined-shape.png"></div>
         </div>
-      </div>
-
-      <div id="myModal" class="modal">
-        <div class="modal-dialog">
-          <div class="global-date-picker-modal modal-content">
-            <div class="modal-header">
-              <h4></h4>
-            </div>
-            <div class="modal-body">
-            </div>
-            <div class="global-date-footer modal-footer">
-                <a data-dismiss="modal" class="close-global-date-filter" >Cancel</a>
-                <a id="submit-global-date-picker">Okay</a>
-            </div>  
+    </div>
+    <!-- delete dashbard modal -->
+    <div class="modal fade" id="delete-dashboard" tabindex="-2" role="dialog" aria-labelledby="addSections" aria-hidden="true">
+      <div class="modal-dialog">
+        <div id="save-dashboard-modal">
+          <div id="save-dashboard-model-heading">
+            <h1>Delete Dashboard</h1>
+            <hr id="save-dashboard-model-heading-underline"/>
+          </div>
+          <div class="save-dashboard-form">
+            <form class="add-page-form">
+              <div class="form-group">
+                <input type="text" class="form-control save-dashboard-name" id="delete-dashboard-name" disabled>
+              </div>
+              <div class="form-group save-page-btn-div">
+                <button type="button" class="btn custom-modal-tab-btn" id="delete-dashboard-tab-btn"><span>Delete</span></button>
+                <button type="button" class="btn custom-modal-close" data-dismiss="modal">Cancel</button>
+              </div>
+            </form>
           </div>
         </div>
+        <div id="add-page-side-close" data-dismiss="modal" ><img src="img/combined-shape.png"></div>
       </div>
+    </div>
 
-      <!-- copy dashbard modal -->
+    <div id="myModal" class="modal">
+      <div class="modal-dialog">
+        <div class="global-date-picker-modal modal-content">
+          <div class="modal-header">
+            <h4></h4>
+          </div>
+          <div class="modal-body">
+          </div>
+          <div class="global-date-footer modal-footer">
+              <a data-dismiss="modal" class="close-global-date-filter" >Cancel</a>
+              <a id="submit-global-date-picker">Okay</a>
+          </div>  
+        </div>
+      </div>
+    </div>
+  
     <section id="main-content">
       <div class="container-fluid" id="monitoring">
         <div class="row">
@@ -195,8 +218,9 @@
           <div class="col-md-6">
             <div class="pull-right" id="right-action-btns">
                 <div id="top-settings">
-                    <img src="img/copy-db.png" data-target="#copy-dashboard" data-toggle="modal" title="Copy Widget" alt="Copy Widget" />
+                    <img src="img/copy-db.png" data-target="#copy-dashboard" data-toggle="modal" title="Copy Dashboard" alt="Copy Dashboard" />
                     <img data-target="#save-dashboard" data-toggle="modal" id="saveConsole" src="img/save.png" alt="Save Dashboard" title="Save Dashboard" />
+                    <img data-target="#delete-dashboard" data-toggle="modal" id="deleteConsole" src="img/remove.png" alt="Delete Dashboard" title="Delete Dashboard" />
                     <img id="add-page-btn" src="img/pg-settings.png" title="Page Settings" alt="Page Settings" />
                 </div>
                 <div class="form-group refreshtime-block">
@@ -285,7 +309,7 @@
             </div>
           </div>
           <hr id='page-settings-divider'/>
-          <button type="button" class="delete-dashboard"> Delete Dashboard</button>
+          <button type="button" class="delete-dashboard" id="delete-dashboard-btn"> Delete Dashboard</button>
         </form>
       </div>
     </div>
@@ -639,12 +663,14 @@
                     <div class="form-group"><label class="control-label">Field to classify <span class="mandatory-text">*</span></label>
                       <select name="line-ratio-field" required class="selectpicker show-menu-arrow line-ratio-field form-control" id="line-ratio-field" data-live-search="true"></select></div>
                       <div class="form-group">
-                        <label class="control-label">Denominator  value<span class="mandatory-text">*</span></label>
-                        <input type="text" name="line-ratio-numerator-field" class="selectpicker line-ratio-numerator-field form-control" id="line-ratio-numerator-field" placeholder="Enter Denominator value" required />
+                        <label class="control-label">Numerator value<span class="mandatory-text">*</span></label>
+                        <span class="glyphicon glyphicon-info-sign mathematical-info" data-toggle="tooltip" data-placement="top" title="Use space delimiter to use mathematical formula"></span>
+                        <input type="text" name="line-ratio-denominator-field" class="selectpicker line-ratio-denominator-field form-control" placeholder="Enter Numerator value" id="line-ratio-denominator-field" required />
                       </div>
                       <div class="form-group">
-                        <label class="control-label">Numerator value<span class="mandatory-text">*</span></label>
-                        <input type="text" name="line-ratio-denominator-field" class="selectpicker line-ratio-denominator-field form-control" placeholder="Enter Numerator value" id="line-ratio-denominator-field" required />
+                        <label class="control-label">Denominator  value<span class="mandatory-text">*</span></label>
+                        <span class="glyphicon glyphicon-info-sign mathematical-info" data-toggle="tooltip" data-placement="top" title="Use space delimiter to use mathematical formula"></span>
+                        <input type="text" name="line-ratio-numerator-field" class="selectpicker form-control" id="line-ratio-numerator-field" placeholder="Enter Denominator value" required />
                       </div>
                     <div class="form-group"><label class="control-label">Unique of</label>
                       <select id="line-ratio-uniquekey" class="selectpicker show-menu-arrow line-ratio-uniquekey form-control" data-live-search="true">
