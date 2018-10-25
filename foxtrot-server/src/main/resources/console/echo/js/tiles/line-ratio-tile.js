@@ -161,9 +161,10 @@ function LineRatioTile() {
     denominatorCount.push(data.trends[denominator].length);
   }
 
-  // get least value of both
-  var leastNumeratorIndex = numeratorCount.indexOf(Math.min.apply(null,numeratorCount));
-  var leastDenominatorIndex = denominatorCount.indexOf(Math.min.apply(null,denominatorCount));  
+  // find least number of iteration
+  var combinedNumberOfCount = numeratorCount.concat(denominatorCount);
+  var numberofIteration = Math.min.apply(null,combinedNumberOfCount);  
+  
   var newData = [];
   newData.push(['date', 'count']);
 
@@ -180,7 +181,7 @@ function LineRatioTile() {
   var period = 0;
   
   // loop till figured out least number
-  for(var resultLoop = 0; resultLoop < numeratorCount[leastNumeratorIndex]; resultLoop++ ) 
+  for(var resultLoop = 0; resultLoop < numberofIteration; resultLoop++ ) 
   {
     if(isSpecialCharacter(numerator)) {
       var resultNumerator = numerator.split(" ");
@@ -203,7 +204,7 @@ function LineRatioTile() {
     period = 0;
   }
 
-  for(var resultLoop = 0; resultLoop < denominatorCount[leastDenominatorIndex]; resultLoop++ ) 
+  for(var resultLoop = 0; resultLoop < numberofIteration; resultLoop++ ) 
   {
     if(isSpecialCharacter(denominator)) {
       var resultNumerator = denominator.split(" ");
@@ -240,7 +241,11 @@ function LineRatioTile() {
     }
 
     var percentage = (denominatorTotal/numeratorTotal*100);
-    if(isNaN(percentage))
+
+    if(isNaN(percentage))// if nan
+      percentage = 0;
+
+    if(percentage == "Infinity") // if 4/0*100 = infinity, if this is true set percentage as 0
       percentage = 0;
 
     newData.push([finalNumerator[finalValue].period, (percentage / Math.pow(10, 0))]); 
