@@ -230,7 +230,7 @@ function LineRatioTile() {
   for(var finalValue = 0; finalValue < finalNumerator.length; finalValue++) {
     var denominatorTotal;
     var numeratorTotal;
-    
+
     if(finalDenominator[finalValue]) { // check value exist
       denominatorTotal = finalDenominator[finalValue].count
     }
@@ -240,6 +240,9 @@ function LineRatioTile() {
     }
 
     var percentage = (denominatorTotal/numeratorTotal*100);
+    if(isNaN(percentage))
+      percentage = 0;
+
     newData.push([finalNumerator[finalValue].period, (percentage / Math.pow(10, 0))]); 
   }
 
