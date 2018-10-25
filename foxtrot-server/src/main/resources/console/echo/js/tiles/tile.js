@@ -386,7 +386,7 @@ TileFactory.prototype.createNewRow = function (tileElement) {
     row = panelRow.length;
     tileElement.addClass("row-" + row);
   }
-  tileElement.prepend('<div id="arrow-btn"><button type="button"onClick="upRow('+row+')" class="row-identifier-'+row+' up-arrow arrow-up" id="row-up"><img class="arrow-up" src="img/context-arrow-up-normal.png" /></button><button type="button" onClick="downRow('+row+')" class="row-identifier-'+row+'" id="row-down"><img class="down" src="img/context-arrow-down-normal.png"/></button></div>');
+  tileElement.prepend('<div id="arrow-btn"><button type="button"onClick="upRow('+row+')" class="row-identifier-'+row+' up-arrow arrow-up" id="row-up"><img class="arrow-up" src="img/context-arrow-up-hover.png" /></button><button type="button" onClick="downRow('+row+')" class="row-identifier-'+row+'" id="row-down"><img class="down" src="img/context-arrow-down-hover.png"/></button></div>');
 
   if (this.tileObject.tileContext.widgetType != "full") { // dont add row add button for full widget
     var btnRow = row;
