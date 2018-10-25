@@ -167,10 +167,10 @@ function LineRatioTile() {
   var newData = [];
   newData.push(['date', 'count']);
 
-  var finalNumerator = [];
+  var finalNumerator = []; // to calculate formula
   var finalDenominator = [];
 
-  var numeratorkeys;
+  var numeratorkeys; // separate keys alone
   var denominatorkeys;
   
   numeratorkeys = Object.keys(numeratorObject);
@@ -205,13 +205,12 @@ function LineRatioTile() {
 
   for(var resultLoop = 0; resultLoop < denominatorCount[leastDenominatorIndex]; resultLoop++ ) 
   {
-    if(isSpecialCharacter(numerator)) {
+    if(isSpecialCharacter(denominator)) {
       var resultNumerator = denominator.split(" ");
       for(var i = 0; i < resultNumerator.length; i++) {
         if(format.test(resultNumerator[i])) { // check string or special character
           evalString+= resultNumerator[i];
         } else {
-          
           var string = denominatorObject[resultNumerator[i]][resultLoop].count;
           evalString+= string == undefined ? 0 : string;
           period = (denominatorObject[resultNumerator[i]][resultLoop].period == undefined ? 0 : denominatorObject[resultNumerator[i]][resultLoop].period);
@@ -227,6 +226,7 @@ function LineRatioTile() {
     period = 0;
   }
 
+  // Loop final value and calculate percentage
   for(var finalValue = 0; finalValue < finalNumerator.length; finalValue++) {
     var denominatorTotal;
     var numeratorTotal;
