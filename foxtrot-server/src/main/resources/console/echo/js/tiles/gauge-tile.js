@@ -173,7 +173,7 @@ GaugeTile.prototype.render = function (total, diff) {
   // if percentage is less than threshold configured in widget
   var thresholdError = chartDiv.find(".threshold-msg");
   if(this.object.tileContext.threshold) {
-    if(diff > this.object.tileContext.threshold)
+    if(diff < this.object.tileContext.threshold)
     {
       if($(thresholdError).length == 0 ) {
         $(chartDiv).append("<p class='threshold-msg gauge-threshold-msg'>"+thresholdErrorMsg()+"</p>");
