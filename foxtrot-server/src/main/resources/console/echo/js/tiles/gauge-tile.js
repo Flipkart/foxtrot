@@ -163,11 +163,23 @@ GaugeTile.prototype.render = function (total, diff) {
   var chartDiv = $("#"+object.id).find(".chart-item");
   chartDiv.addClass("gauge-chart");
 
+
+  var minNumber = 1;
+  var findExistingChart = chartDiv.find("#gauge-" + object.id);
+  if (findExistingChart.length != 0) {
+    findExistingChart.remove();
+  }
+
   // if percentage is less than threshold configured in widget
+  var thresholdError = chartDiv.find(".threshold-msg");
   if(this.object.tileContext.threshold) {
     if(diff > this.object.tileContext.threshold)
     {
-      $(chartDiv).append("<p class='threshold-msg gauge-threshold-msg'>"+thresholdErrorMsg()+"</p>");
+      if($(thresholdError).length == 0 ) {
+        $(chartDiv).append("<p class='threshold-msg gauge-threshold-msg'>"+thresholdErrorMsg()+"</p>");
+      } else {
+        $(chartDiv).find(".threshold-msg").show();
+      }
       $(chartDiv).find(".threshold-msg").show();
       return;
     } else {
@@ -175,12 +187,6 @@ GaugeTile.prototype.render = function (total, diff) {
     }
   }
 
-
-  var minNumber = 1;
-  var findExistingChart = chartDiv.find("#gauge-" + object.id);
-  if (findExistingChart.length != 0) {
-    findExistingChart.remove();
-  }
   chartDiv.append('<div id="gauge-' + object.id + '"><div class="halfDonut"><div class="halfDonutChart"></div><div class="halfDonutTotal bold gauge-percentage" data-percent="' + diff + '" data-color="#82c91e">' + Math.round(diff) + '%</div></div></div>')
   var ctx = chartDiv.find("#gauge-" + object.id);
   var donutDiv = ctx.find(".halfDonutChart");
