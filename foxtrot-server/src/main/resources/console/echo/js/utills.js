@@ -515,3 +515,7 @@ function getWidgetSize(type) { // widget types
     return 0;
   }
 }
+
+function thresholdErrorMsg() {
+  return "Denominator value is below the threshold value. Hence, graph plotting not possible";
+}

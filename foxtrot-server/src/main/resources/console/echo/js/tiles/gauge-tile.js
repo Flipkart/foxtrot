@@ -23,6 +23,7 @@ function getGaugeChartFormValues() {
   var period = $("#gauge-time-unit").val();
   var successField = $("#gauge-success-field").val();
   var status = false;
+  var thresholdField = $("#gauge-threshold-field").val();
 
   var nestingArray = [];
   nestingArray.push(currentFieldList[parseInt(nesting)].field);
@@ -31,6 +32,7 @@ function getGaugeChartFormValues() {
     , "period": period
     , "timeframe": timeframe
     , "successField" : successField
+    , "threshold": thresholdField
   };
 }
 
@@ -46,6 +48,9 @@ function setGaugeChartFormValues(object) {
   $("#gauge-timeframe").val(object.tileContext.timeframe)
 
   $("#gauge-success-field").val((object.tileContext.successField == undefined ? '' : object.tileContext.successField));
+
+  var threshold = object.tileContext.threshold == undefined ? '' : object.tileContext.threshold;
+  $("#gauge-threshold-field").val(threshold);
 }
 
 function clearGaugeChartForm() {
@@ -61,6 +66,7 @@ function clearGaugeChartForm() {
   $(timeUnitEl).selectpicker('refresh');
 
   parentElement.find("#gauge-timeframe").val('');
+  parentElement.find("#gauge-threshold-field").val('');
 }
 GaugeTile.prototype.getQuery = function (object) {
   this.object = object;
@@ -156,11 +162,31 @@ GaugeTile.prototype.render = function (total, diff) {
   var d = [total];
   var chartDiv = $("#"+object.id).find(".chart-item");
   chartDiv.addClass("gauge-chart");
+
+
   var minNumber = 1;
   var findExistingChart = chartDiv.find("#gauge-" + object.id);
   if (findExistingChart.length != 0) {
     findExistingChart.remove();
   }
+
+  // if percentage is less than threshold configured in widget
+  var thresholdError = chartDiv.find(".threshold-msg");
+  if(this.object.tileContext.threshold) {
+    if(diff > this.object.tileContext.threshold)
+    {
+      if($(thresholdError).length == 0 ) {
+        $(chartDiv).append("<p class='threshold-msg gauge-threshold-msg'>"+thresholdErrorMsg()+"</p>");
+      } else {
+        $(chartDiv).find(".threshold-msg").show();
+      }
+      $(chartDiv).find(".threshold-msg").show();
+      return;
+    } else {
+      $(chartDiv).find(".threshold-msg").hide();
+    }
+  }
+
   chartDiv.append('<div id="gauge-' + object.id + '"><div class="halfDonut"><div class="halfDonutChart"></div><div class="halfDonutTotal bold gauge-percentage" data-percent="' + diff + '" data-color="#82c91e">' + Math.round(diff) + '%</div></div></div>')
   var ctx = chartDiv.find("#gauge-" + object.id);
   var donutDiv = ctx.find(".halfDonutChart");

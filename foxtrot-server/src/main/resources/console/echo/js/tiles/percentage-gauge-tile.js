@@ -23,6 +23,7 @@ function getPercentageGaugeChartFormValues() {
   var period = $("#percentage-gauge-time-unit").val();
   var numeratorField = $("#percentage-gauge-numerator-field").val();
   var denominatorField = $("#percentage-gauge-denominator-field").val();
+  var thresholdField = $("#percentage-gauge-threshold-field").val();
   var status = false;
   var uniqueKey = $("#percentage-gauge-uniquekey").val();
 
@@ -41,7 +42,8 @@ function getPercentageGaugeChartFormValues() {
     , "numerator" : numeratorField
     , "denominator" : denominatorField
     , "uniqueKey": uniqueKey
-  };
+    , "threshold": thresholdField
+  }; 
 }
 
 function setPercentageGaugeChartFormValues(object) {
@@ -62,6 +64,10 @@ function setPercentageGaugeChartFormValues(object) {
   var stackingUniqueField = currentFieldList.findIndex(x => x.field == object.tileContext.uniqueKey);
   $("#percentage-gauge-uniquekey").val(parseInt(stackingUniqueField));
   $("#percentage-gauge-uniquekey").selectpicker('refresh');
+
+  var threshold = object.tileContext.threshold == undefined ? '' : object.tileContext.threshold;
+  $("#percentage-gauge-threshold-field").val(threshold);
+
 }
 
 function clearPercentageGaugeChartForm() {
@@ -169,14 +175,34 @@ PercentageGaugeTile.prototype.getData = function (data) {
   this.render(100, (eval(denominatorStringEval)/eval(numeratorStringEval)*100));
 }
 PercentageGaugeTile.prototype.render = function (total, diff) {
+
   var object = this.object;
   var d = [total];
   var chartDiv = $("#"+object.id).find(".chart-item");
   chartDiv.addClass("percentage-gauge-chart");
+
+
   var minNumber = 1;
   var findExistingChart = chartDiv.find("#percentage-gauge-" + object.id);
   if (findExistingChart.length != 0) {
     findExistingChart.remove();
+  }
+
+  // if percentage is less than threshold configured in widget
+  var thresholdError = chartDiv.find(".threshold-msg");    
+  if(this.object.tileContext.threshold) {
+    if(diff < this.object.tileContext.threshold)
+    {
+      if($(thresholdError).length == 0 ) {
+        $(chartDiv).append("<p class='threshold-msg'>"+thresholdErrorMsg()+"</p>");
+      } else {
+        $(chartDiv).find(".threshold-msg").show();
+      }
+      $(chartDiv).find(".threshold-msg").show();
+      return;
+    } else {
+      $(chartDiv).find(".threshold-msg").hide();
+    }
   }
 
   chartDiv.append('<div id="percentage-gauge-' + object.id + '"><div class="halfDonut"><div class="halfDonutChart"></div><div class="halfDonutTotal bold gauge-percentage" data-percent="' + diff + '" data-color="#82c91e">' + Math.round(diff) + '%</div></div></div>')
