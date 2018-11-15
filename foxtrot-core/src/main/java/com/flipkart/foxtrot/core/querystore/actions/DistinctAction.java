@@ -162,8 +162,9 @@ public class DistinctAction extends Action<DistinctRequest> {
     }
 
     @Override
-    public ActionResponse getResponse(org.elasticsearch.action.ActionResponse response, DistinctRequest parameter) throws FoxtrotException {
-        Aggregations aggregations = ((SearchResponse) response).getAggregations();
+    public ActionResponse getResponse(org.elasticsearch.action.ActionResponse response, DistinctRequest parameter)
+            throws FoxtrotException {
+        Aggregations aggregations = ((SearchResponse)response).getAggregations();
         // Check if any aggregation is present or not
         if(aggregations == null) {
             logger.error("Null response for Group. Request : " + parameter.toString());

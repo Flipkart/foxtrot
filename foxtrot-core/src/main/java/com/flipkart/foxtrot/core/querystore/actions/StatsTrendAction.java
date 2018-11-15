@@ -150,9 +150,10 @@ public class StatsTrendAction extends Action<StatsTrendRequest> {
     }
 
     @Override
-    public ActionResponse getResponse(org.elasticsearch.action.ActionResponse response, StatsTrendRequest parameter) throws FoxtrotException {
-        Aggregations aggregations = ((SearchResponse) response).getAggregations();
-        if (aggregations != null) {
+    public ActionResponse getResponse(org.elasticsearch.action.ActionResponse response, StatsTrendRequest parameter)
+            throws FoxtrotException {
+        Aggregations aggregations = ((SearchResponse)response).getAggregations();
+        if(aggregations != null) {
             return buildResponse(parameter, aggregations);
         }
         return null;

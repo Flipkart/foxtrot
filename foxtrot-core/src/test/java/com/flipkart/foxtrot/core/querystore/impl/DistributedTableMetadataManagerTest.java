@@ -160,8 +160,10 @@ public class DistributedTableMetadataManagerTest {
                 .save(table, document);
         queryStore.save(TestUtils.TEST_TABLE_NAME, document);
 
-        TableFieldMapping tableFieldMapping = distributedTableMetadataManager.getFieldMappings(TestUtils.TEST_TABLE_NAME, true, true);
-        assertEquals(3, tableFieldMapping.getMappings().size());
+        TableFieldMapping tableFieldMapping = distributedTableMetadataManager.getFieldMappings(
+                TestUtils.TEST_TABLE_NAME, true, true);
+        assertEquals(3, tableFieldMapping.getMappings()
+                .size());
 
         assertEquals(FieldType.STRING, tableFieldMapping.getMappings()
                 .stream()

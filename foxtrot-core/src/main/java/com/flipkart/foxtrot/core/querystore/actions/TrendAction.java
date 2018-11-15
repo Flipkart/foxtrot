@@ -179,9 +179,10 @@ public class TrendAction extends Action<TrendRequest> {
     }
 
     @Override
-    public ActionResponse getResponse(org.elasticsearch.action.ActionResponse response, TrendRequest parameter) throws FoxtrotException {
-        Aggregations aggregations = ((SearchResponse) response).getAggregations();
-        if (aggregations != null) {
+    public ActionResponse getResponse(org.elasticsearch.action.ActionResponse response, TrendRequest parameter)
+            throws FoxtrotException {
+        Aggregations aggregations = ((SearchResponse)response).getAggregations();
+        if(aggregations != null) {
             return buildResponse(parameter, aggregations);
         } else {
             return new TrendResponse(Collections.<String, List<TrendResponse.Count>>emptyMap());

@@ -29,14 +29,14 @@ import java.util.Map;
 @Data
 public class MultiQueryRequest extends ActionRequest {
 
+    private Map<String, ActionRequest> requests;
+
     public MultiQueryRequest(Map<String, ActionRequest> requests) {
         super(Opcodes.MULTI_QUERY);
         Assert.assertNotNull(requests);
         Assert.assertEquals(CollectionUtils.isNotEmpty(requests), true);
         this.requests = requests;
     }
-
-    private Map<String, ActionRequest> requests;
 
     @Override
     public String toString() {

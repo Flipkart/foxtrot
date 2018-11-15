@@ -219,7 +219,8 @@ public class GroupAction extends Action<GroupRequest> {
     }
 
     @Override
-    public ActionResponse getResponse(org.elasticsearch.action.ActionResponse response, GroupRequest parameter) throws FoxtrotException {
+    public ActionResponse getResponse(org.elasticsearch.action.ActionResponse response, GroupRequest parameter)
+            throws FoxtrotException {
         List<String> fields = parameter.getNesting();
         Aggregations aggregations = ((SearchResponse)response).getAggregations();
         // Check if any aggregation is present or not

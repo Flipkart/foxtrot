@@ -28,7 +28,6 @@ import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConnection;
 import com.flipkart.foxtrot.core.table.TableMetadataManager;
 import com.google.common.annotations.VisibleForTesting;
 import org.elasticsearch.action.search.SearchRequestBuilder;
-import org.elasticsearch.action.search.SearchResponse;
 
 /**
  * Created by rishabh.goyal on 02/05/14.
@@ -73,7 +72,8 @@ public class NonCacheableAction extends Action<NonCacheableActionRequest> {
     }
 
     @Override
-    public ActionResponse getResponse(org.elasticsearch.action.ActionResponse response, NonCacheableActionRequest parameter) throws FoxtrotException {
+    public ActionResponse getResponse(org.elasticsearch.action.ActionResponse response,
+                                      NonCacheableActionRequest parameter) throws FoxtrotException {
         return null;
     }
 

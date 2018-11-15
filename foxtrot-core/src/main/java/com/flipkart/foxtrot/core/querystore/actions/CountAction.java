@@ -134,9 +134,10 @@ public class CountAction extends Action<CountRequest> {
     }
 
     @Override
-    public ActionResponse getResponse(org.elasticsearch.action.ActionResponse response, CountRequest parameter) throws FoxtrotException {
-        if (parameter.isDistinct()) {
-            Aggregations aggregations = ((SearchResponse) response).getAggregations();
+    public ActionResponse getResponse(org.elasticsearch.action.ActionResponse response, CountRequest parameter)
+            throws FoxtrotException {
+        if(parameter.isDistinct()) {
+            Aggregations aggregations = ((SearchResponse)response).getAggregations();
             Cardinality cardinality = aggregations.get(Utils.sanitizeFieldForAggregation(parameter.getField()));
             if(cardinality == null) {
                 return new CountResponse(0);
@@ -144,7 +145,8 @@ public class CountAction extends Action<CountRequest> {
                 return new CountResponse(cardinality.getValue());
             }
         } else {
-            return new CountResponse(((SearchResponse) response).getHits().getTotalHits());
+            return new CountResponse(((SearchResponse)response).getHits()
+                                             .getTotalHits());
         }
 
     }

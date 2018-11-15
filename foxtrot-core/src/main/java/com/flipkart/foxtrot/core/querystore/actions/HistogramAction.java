@@ -153,8 +153,9 @@ public class HistogramAction extends Action<HistogramRequest> {
     }
 
     @Override
-    public ActionResponse getResponse(org.elasticsearch.action.ActionResponse response, HistogramRequest parameter) throws FoxtrotException {
-        Aggregations aggregations = ((SearchResponse) response).getAggregations();
+    public ActionResponse getResponse(org.elasticsearch.action.ActionResponse response, HistogramRequest parameter)
+            throws FoxtrotException {
+        Aggregations aggregations = ((SearchResponse)response).getAggregations();
         return buildResponse(aggregations);
     }
 

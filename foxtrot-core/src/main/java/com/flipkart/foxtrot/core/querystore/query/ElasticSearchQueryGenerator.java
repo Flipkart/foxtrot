@@ -134,8 +134,8 @@ public class ElasticSearchQueryGenerator extends FilterVisitor<Void> {
     }
 
     public QueryBuilder genFilter(List<Filter> filters) throws Exception {
-        if (CollectionUtils.isNotEmpty(filters)) {
-            for (Filter filter : filters) {
+        if(CollectionUtils.isNotEmpty(filters)) {
+            for(Filter filter : filters) {
                 filter.accept(this);
             }
         }

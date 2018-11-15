@@ -51,6 +51,21 @@ public class StatsAction extends Action<StatsRequest> {
              );
     }
 
+    private static StatsValue buildStatsValue(String field, Aggregations aggregations) {
+        String metricKey = Utils.getExtendedStatsAggregationKey(field);
+        String percentileMetricKey = Utils.getPercentileAggregationKey(field);
+
+        // Build top level stats
+        StatsValue statsValue = new StatsValue();
+        InternalExtendedStats extendedStats = InternalExtendedStats.class.cast(aggregations.getAsMap()
+                                                                                       .get(metricKey));
+        statsValue.setStats(Utils.createExtendedStatsResponse(extendedStats));
+        Percentiles internalPercentile = Percentiles.class.cast(aggregations.getAsMap()
+                                                                        .get(percentileMetricKey));
+        statsValue.setPercentiles(Utils.createPercentilesResponse(internalPercentile));
+        return statsValue;
+    }
+
     @Override
     public void preprocess() {
         getParameter().setTable(ElasticsearchUtils.getValidTableName(getParameter().getTable()));
@@ -152,9 +167,10 @@ public class StatsAction extends Action<StatsRequest> {
     }
 
     @Override
-    public ActionResponse getResponse(org.elasticsearch.action.ActionResponse response, StatsRequest parameter) throws FoxtrotException {
-        Aggregations aggregations = ((SearchResponse) response).getAggregations();
-        if (aggregations != null) {
+    public ActionResponse getResponse(org.elasticsearch.action.ActionResponse response, StatsRequest parameter)
+            throws FoxtrotException {
+        Aggregations aggregations = ((SearchResponse)response).getAggregations();
+        if(aggregations != null) {
             return buildResponse(parameter, aggregations);
         }
         return null;
@@ -195,21 +211,6 @@ public class StatsAction extends Action<StatsRequest> {
             bucketResponses.add(bucketResponse);
         }
         return bucketResponses;
-    }
-
-    private static StatsValue buildStatsValue(String field, Aggregations aggregations) {
-        String metricKey = Utils.getExtendedStatsAggregationKey(field);
-        String percentileMetricKey = Utils.getPercentileAggregationKey(field);
-
-        // Build top level stats
-        StatsValue statsValue = new StatsValue();
-        InternalExtendedStats extendedStats = InternalExtendedStats.class.cast(aggregations.getAsMap()
-                                                                                       .get(metricKey));
-        statsValue.setStats(Utils.createExtendedStatsResponse(extendedStats));
-        Percentiles internalPercentile = Percentiles.class.cast(aggregations.getAsMap()
-                                                                        .get(percentileMetricKey));
-        statsValue.setPercentiles(Utils.createPercentilesResponse(internalPercentile));
-        return statsValue;
     }
 
 }
