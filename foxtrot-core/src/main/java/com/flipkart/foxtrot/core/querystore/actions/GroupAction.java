@@ -41,6 +41,7 @@ import com.flipkart.foxtrot.core.exception.FoxtrotException;
 import com.flipkart.foxtrot.core.exception.FoxtrotExceptions;
 import com.flipkart.foxtrot.core.exception.MalformedQueryException;
 import com.flipkart.foxtrot.core.querystore.QueryStore;
+import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsLoader;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsProvider;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConnection;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchQueryStore;
@@ -82,14 +83,14 @@ public class GroupAction extends Action<GroupRequest> {
 
     public GroupAction(GroupRequest parameter, TableMetadataManager tableMetadataManager, DataStore dataStore,
                        QueryStore queryStore, ElasticsearchConnection connection, String cacheToken,
-                       CacheManager cacheManager, ObjectMapper objectMapper) {
+                       CacheManager cacheManager, ObjectMapper objectMapper, AnalyticsLoader analyticsLoader) {
         super(parameter, tableMetadataManager, dataStore, queryStore, connection, cacheToken, cacheManager,
               objectMapper
              );
     }
 
     @Override
-    protected void preprocess() {
+    public void preprocess() {
         getParameter().setTable(ElasticsearchUtils.getValidTableName(getParameter().getTable()));
     }
 
@@ -99,14 +100,14 @@ public class GroupAction extends Action<GroupRequest> {
     }
 
     @Override
-    protected String getRequestCacheKey() {
+    public String getRequestCacheKey() {
         long filterHashKey = 0L;
         GroupRequest query = getParameter();
-        if(null != query.getFilters()) {
-            for(Filter filter : query.getFilters()) {
-                filterHashKey += 31 * filter.hashCode();
-            }
+
+        for(Filter filter : com.collections.CollectionUtils.nullSafeList(query.getFilters())) {
+            filterHashKey += 31 * filter.hashCode();
         }
+
 
         if(null != query.getUniqueCountOn()) {
             filterHashKey += 31 * query.getUniqueCountOn()
@@ -190,6 +191,18 @@ public class GroupAction extends Action<GroupRequest> {
 
     @Override
     public ActionResponse execute(GroupRequest parameter) throws FoxtrotException {
+        SearchRequestBuilder query = getRequestBuilder(parameter);
+        try {
+            SearchResponse response = query.execute()
+                    .actionGet();
+            return getResponse(response, parameter);
+        } catch (ElasticsearchException e) {
+            throw FoxtrotExceptions.createQueryExecutionException(parameter, e);
+        }
+    }
+
+    @Override
+    public SearchRequestBuilder getRequestBuilder(GroupRequest parameter) throws FoxtrotException {
         SearchRequestBuilder query;
         try {
             query = getConnection().getClient()
@@ -202,19 +215,18 @@ public class GroupAction extends Action<GroupRequest> {
         } catch (Exception e) {
             throw FoxtrotExceptions.queryCreationException(parameter, e);
         }
-        try {
-            SearchResponse response = query.execute()
-                    .actionGet(getGetQueryTimeout());
-            List<String> fields = parameter.getNesting();
-            Aggregations aggregations = response.getAggregations();
-            // Check if any aggregation is present or not
-            if(aggregations == null) {
-                return new GroupResponse(Collections.<String, Object>emptyMap());
-            }
-            return new GroupResponse(getMap(fields, aggregations));
-        } catch (ElasticsearchException e) {
-            throw FoxtrotExceptions.createQueryExecutionException(parameter, e);
+        return query;
+    }
+
+    @Override
+    public ActionResponse getResponse(org.elasticsearch.action.ActionResponse response, GroupRequest parameter) throws FoxtrotException {
+        List<String> fields = parameter.getNesting();
+        Aggregations aggregations = ((SearchResponse)response).getAggregations();
+        // Check if any aggregation is present or not
+        if(aggregations == null) {
+            return new GroupResponse(Collections.<String, Object>emptyMap());
         }
+        return new GroupResponse(getMap(fields, aggregations));
     }
 
     private double estimateProbability(TableFieldMapping tableFieldMapping, GroupRequest parameter) throws Exception {
@@ -235,10 +247,9 @@ public class GroupAction extends Action<GroupRequest> {
         long estimatedDocCountAfterFilters = estimateDocCountWithFilters(estimatedDocCountBasedOnTime, metaMap,
                                                                          parameter.getFilters()
                                                                         );
-        log.debug(
-                "cacheKey:{} msg:ALL_FILTER_ESTIMATION_COMPLETED maxDocCount:{} docCountAfterTimeFilters:{} " +
-                "docCountAfterFilters:{}",
-                cacheKey, estimatedMaxDocCount, estimatedDocCountBasedOnTime, estimatedDocCountAfterFilters
+        log.debug("cacheKey:{} msg:ALL_FILTER_ESTIMATION_COMPLETED maxDocCount:{} docCountAfterTimeFilters:{} " +
+                  "docCountAfterFilters:{}", cacheKey, estimatedMaxDocCount, estimatedDocCountBasedOnTime,
+                  estimatedDocCountAfterFilters
                  );
         if(estimatedDocCountAfterFilters < MIN_ESTIMATION_THRESHOLD) {
             log.debug("cacheKey:{} msg:NESTING_ESTIMATION_SKIPPED estimatedDocCount:{} threshold:{}", cacheKey,
@@ -286,20 +297,18 @@ public class GroupAction extends Action<GroupRequest> {
                                     .size();
                         }
                     });
-            log.debug(
-                    "cacheKey:{} msg:NESTING_FIELD_ESTIMATED field:{} overallCardinality:{} fieldCardinality:{} " +
-                    "newCardinality:{}",
-                    cacheKey, field, outputCardinality, fieldCardinality, outputCardinality * fieldCardinality
+            log.debug("cacheKey:{} msg:NESTING_FIELD_ESTIMATED field:{} overallCardinality:{} fieldCardinality:{} " +
+                      "newCardinality:{}", cacheKey, field, outputCardinality, fieldCardinality,
+                      outputCardinality * fieldCardinality
                      );
             /*if (fieldCardinality != 0) {
                 fieldCardinality = (long) Utils.ensureOne((long) Math.pow(Math.abs(fieldCardinality), 1 / Math.pow(2,
                  i + 1)));
             }*/
             fieldCardinality = (long)Utils.ensureOne(fieldCardinality);
-            log.debug(
-                    "cacheKey:{} msg:NESTING_FIELD_ESTIMATION_COMPLETED field:{} overallCardinality:{} " +
-                    "fieldCardinality:{} newCardinality:{}",
-                    cacheKey, field, outputCardinality, fieldCardinality, outputCardinality * fieldCardinality
+            log.debug("cacheKey:{} msg:NESTING_FIELD_ESTIMATION_COMPLETED field:{} overallCardinality:{} " +
+                      "fieldCardinality:{} newCardinality:{}", cacheKey, field, outputCardinality, fieldCardinality,
+                      outputCardinality * fieldCardinality
                      );
             outputCardinality *= fieldCardinality;
         }
@@ -314,11 +323,9 @@ public class GroupAction extends Action<GroupRequest> {
                     (long)(outputCardinality * ((double)estimatedDocCountAfterFilters / estimatedMaxDocCount));
         }
 
-        log.debug(
-                "cacheKey:{} msg:NESTING_FIELDS_ESTIMATION_COMPLETED maxDocCount:{} docCountAfterTimeFilters:{} " +
-                "docCountAfterFilters:{} outputCardinality:{}",
-                cacheKey, estimatedMaxDocCount, estimatedDocCountBasedOnTime, estimatedDocCountAfterFilters,
-                outputCardinality
+        log.debug("cacheKey:{} msg:NESTING_FIELDS_ESTIMATION_COMPLETED maxDocCount:{} docCountAfterTimeFilters:{} " +
+                  "docCountAfterFilters:{} outputCardinality:{}", cacheKey, estimatedMaxDocCount,
+                  estimatedDocCountBasedOnTime, estimatedDocCountAfterFilters, outputCardinality
                  );
         long maxCardinality = MAX_CARDINALITY;
         if(getQueryStore() instanceof ElasticsearchQueryStore &&
@@ -690,8 +697,7 @@ public class GroupAction extends Action<GroupRequest> {
                     });
             log.debug(
                     "cacheKey:{} msg:FILTER_ESTIMATION_COMPLETED field:{} fieldMultiplier:{} overallOldMultiplier:{} " +
-                    "overallNewMultiplier:{}",
-                    cacheKey, filterField, currentFilterMultiplier, overallFilterMultiplier,
+                    "overallNewMultiplier:{}", cacheKey, filterField, currentFilterMultiplier, overallFilterMultiplier,
                     overallFilterMultiplier * currentFilterMultiplier
                      );
             overallFilterMultiplier *= currentFilterMultiplier;

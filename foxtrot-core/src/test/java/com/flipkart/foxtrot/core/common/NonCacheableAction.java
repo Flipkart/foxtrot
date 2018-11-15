@@ -22,10 +22,13 @@ import com.flipkart.foxtrot.core.datastore.DataStore;
 import com.flipkart.foxtrot.core.exception.FoxtrotException;
 import com.flipkart.foxtrot.core.exception.MalformedQueryException;
 import com.flipkart.foxtrot.core.querystore.QueryStore;
+import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsLoader;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsProvider;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConnection;
 import com.flipkart.foxtrot.core.table.TableMetadataManager;
 import com.google.common.annotations.VisibleForTesting;
+import org.elasticsearch.action.search.SearchRequestBuilder;
+import org.elasticsearch.action.search.SearchResponse;
 
 /**
  * Created by rishabh.goyal on 02/05/14.
@@ -37,14 +40,15 @@ public class NonCacheableAction extends Action<NonCacheableActionRequest> {
 
     public NonCacheableAction(NonCacheableActionRequest parameter, TableMetadataManager tableMetadataManager,
                               DataStore dataStore, QueryStore queryStore, ElasticsearchConnection connection,
-                              String cacheToken, CacheManager cacheManager, ObjectMapper objectMapper) {
+                              String cacheToken, CacheManager cacheManager, ObjectMapper objectMapper,
+                              AnalyticsLoader analyticsLoader) {
         super(parameter, tableMetadataManager, dataStore, queryStore, connection, cacheToken, cacheManager,
               objectMapper
              );
     }
 
     @Override
-    protected void preprocess() {
+    public void preprocess() {
 
     }
 
@@ -54,13 +58,23 @@ public class NonCacheableAction extends Action<NonCacheableActionRequest> {
     }
 
     @Override
-    protected String getRequestCacheKey() {
+    public String getRequestCacheKey() {
         return "TEST_CACHE_KEY";
     }
 
     @Override
     public void validateImpl(NonCacheableActionRequest parameter) throws MalformedQueryException {
 
+    }
+
+    @Override
+    public SearchRequestBuilder getRequestBuilder(NonCacheableActionRequest parameter) throws FoxtrotException {
+        return null;
+    }
+
+    @Override
+    public ActionResponse getResponse(org.elasticsearch.action.ActionResponse response, NonCacheableActionRequest parameter) throws FoxtrotException {
+        return null;
     }
 
     @Override

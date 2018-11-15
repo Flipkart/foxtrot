@@ -21,6 +21,7 @@ import com.flipkart.foxtrot.common.query.datetime.LastFilter;
 import com.flipkart.foxtrot.common.query.general.*;
 import com.flipkart.foxtrot.common.query.numeric.*;
 import com.flipkart.foxtrot.common.query.string.ContainsFilter;
+import org.apache.commons.collections.CollectionUtils;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
@@ -133,8 +134,10 @@ public class ElasticSearchQueryGenerator extends FilterVisitor<Void> {
     }
 
     public QueryBuilder genFilter(List<Filter> filters) throws Exception {
-        for(Filter filter : filters) {
-            filter.accept(this);
+        if (CollectionUtils.isNotEmpty(filters)) {
+            for (Filter filter : filters) {
+                filter.accept(this);
+            }
         }
         return QueryBuilders.constantScoreQuery(boolFilterBuilder);
     }

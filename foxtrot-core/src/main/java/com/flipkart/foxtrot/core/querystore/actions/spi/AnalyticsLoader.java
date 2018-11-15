@@ -79,10 +79,10 @@ public class AnalyticsLoader implements Managed {
                 Constructor<? extends Action> constructor = metadata.getAction()
                         .getConstructor(metadata.getRequest(), TableMetadataManager.class, DataStore.class,
                                         QueryStore.class, ElasticsearchConnection.class, String.class,
-                                        CacheManager.class, ObjectMapper.class
+                                        CacheManager.class, ObjectMapper.class, AnalyticsLoader.class
                                        );
                 return constructor.newInstance(r, tableMetadataManager, dataStore, queryStore, elasticsearchConnection,
-                                               metadata.getCacheToken(), cacheManager, objectMapper
+                                               metadata.getCacheToken(), cacheManager, objectMapper, this
                                               );
             }
         }

@@ -17,6 +17,7 @@ package com.flipkart.foxtrot.common;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.flipkart.foxtrot.common.query.Filter;
+import com.google.common.collect.Lists;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
 import java.util.List;
@@ -47,6 +48,9 @@ public abstract class ActionRequest {
     }
 
     public List<Filter> getFilters() {
+        if(filters == null) {
+            return Lists.newArrayList();
+        }
         return filters;
     }
 
