@@ -115,9 +115,9 @@ import java.util.Map.Entry;
  * <p/>
  *
  * @author erdem
- *         <p/>
- *         Copied from https://gist.github.com/raw/613217/70df8a70dcac2fff1d239d43e8f52c43043d30bf/MockHTable.java.
- *         See http://blog.erdemagaoglu.com/post/1254694314/unit-testing-hbase-applications.
+ * <p/>
+ * Copied from https://gist.github.com/raw/613217/70df8a70dcac2fff1d239d43e8f52c43043d30bf/MockHTable.java.
+ * See http://blog.erdemagaoglu.com/post/1254694314/unit-testing-hbase-applications.
  */
 public class MockHTable implements Table {
     /**

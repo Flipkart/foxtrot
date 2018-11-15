@@ -235,10 +235,9 @@ public class GroupAction extends Action<GroupRequest> {
         long estimatedDocCountAfterFilters = estimateDocCountWithFilters(estimatedDocCountBasedOnTime, metaMap,
                                                                          parameter.getFilters()
                                                                         );
-        log.debug(
-                "cacheKey:{} msg:ALL_FILTER_ESTIMATION_COMPLETED maxDocCount:{} docCountAfterTimeFilters:{} " +
-                "docCountAfterFilters:{}",
-                cacheKey, estimatedMaxDocCount, estimatedDocCountBasedOnTime, estimatedDocCountAfterFilters
+        log.debug("cacheKey:{} msg:ALL_FILTER_ESTIMATION_COMPLETED maxDocCount:{} docCountAfterTimeFilters:{} " +
+                  "docCountAfterFilters:{}", cacheKey, estimatedMaxDocCount, estimatedDocCountBasedOnTime,
+                  estimatedDocCountAfterFilters
                  );
         if(estimatedDocCountAfterFilters < MIN_ESTIMATION_THRESHOLD) {
             log.debug("cacheKey:{} msg:NESTING_ESTIMATION_SKIPPED estimatedDocCount:{} threshold:{}", cacheKey,
@@ -286,20 +285,18 @@ public class GroupAction extends Action<GroupRequest> {
                                     .size();
                         }
                     });
-            log.debug(
-                    "cacheKey:{} msg:NESTING_FIELD_ESTIMATED field:{} overallCardinality:{} fieldCardinality:{} " +
-                    "newCardinality:{}",
-                    cacheKey, field, outputCardinality, fieldCardinality, outputCardinality * fieldCardinality
+            log.debug("cacheKey:{} msg:NESTING_FIELD_ESTIMATED field:{} overallCardinality:{} fieldCardinality:{} " +
+                      "newCardinality:{}", cacheKey, field, outputCardinality, fieldCardinality,
+                      outputCardinality * fieldCardinality
                      );
             /*if (fieldCardinality != 0) {
                 fieldCardinality = (long) Utils.ensureOne((long) Math.pow(Math.abs(fieldCardinality), 1 / Math.pow(2,
                  i + 1)));
             }*/
             fieldCardinality = (long)Utils.ensureOne(fieldCardinality);
-            log.debug(
-                    "cacheKey:{} msg:NESTING_FIELD_ESTIMATION_COMPLETED field:{} overallCardinality:{} " +
-                    "fieldCardinality:{} newCardinality:{}",
-                    cacheKey, field, outputCardinality, fieldCardinality, outputCardinality * fieldCardinality
+            log.debug("cacheKey:{} msg:NESTING_FIELD_ESTIMATION_COMPLETED field:{} overallCardinality:{} " +
+                      "fieldCardinality:{} newCardinality:{}", cacheKey, field, outputCardinality, fieldCardinality,
+                      outputCardinality * fieldCardinality
                      );
             outputCardinality *= fieldCardinality;
         }
@@ -314,11 +311,9 @@ public class GroupAction extends Action<GroupRequest> {
                     (long)(outputCardinality * ((double)estimatedDocCountAfterFilters / estimatedMaxDocCount));
         }
 
-        log.debug(
-                "cacheKey:{} msg:NESTING_FIELDS_ESTIMATION_COMPLETED maxDocCount:{} docCountAfterTimeFilters:{} " +
-                "docCountAfterFilters:{} outputCardinality:{}",
-                cacheKey, estimatedMaxDocCount, estimatedDocCountBasedOnTime, estimatedDocCountAfterFilters,
-                outputCardinality
+        log.debug("cacheKey:{} msg:NESTING_FIELDS_ESTIMATION_COMPLETED maxDocCount:{} docCountAfterTimeFilters:{} " +
+                  "docCountAfterFilters:{} outputCardinality:{}", cacheKey, estimatedMaxDocCount,
+                  estimatedDocCountBasedOnTime, estimatedDocCountAfterFilters, outputCardinality
                  );
         long maxCardinality = MAX_CARDINALITY;
         if(getQueryStore() instanceof ElasticsearchQueryStore &&
@@ -690,8 +685,7 @@ public class GroupAction extends Action<GroupRequest> {
                     });
             log.debug(
                     "cacheKey:{} msg:FILTER_ESTIMATION_COMPLETED field:{} fieldMultiplier:{} overallOldMultiplier:{} " +
-                    "overallNewMultiplier:{}",
-                    cacheKey, filterField, currentFilterMultiplier, overallFilterMultiplier,
+                    "overallNewMultiplier:{}", cacheKey, filterField, currentFilterMultiplier, overallFilterMultiplier,
                     overallFilterMultiplier * currentFilterMultiplier
                      );
             overallFilterMultiplier *= currentFilterMultiplier;

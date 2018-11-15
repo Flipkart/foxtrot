@@ -16,33 +16,47 @@ public class TestsMultiRowParse {
         objectMapper.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
         objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
         ObjectWriter writer = objectMapper.writerWithDefaultPrettyPrinter();
-        final String json =
-                "{\"table\":\"europa\",\"mappings\":[{\"field\":\"data.checkoutId\",\"type\":\"STRING\"}," +
-                "{\"field\":\"data.errorMessage\",\"type\":\"STRING\"},{\"field\":\"data.startTime\"," +
-                "\"type\":\"LONG\"},{\"field\":\"data.error\",\"type\":\"STRING\"},{\"field\":\"data.pin\"," +
-                "\"type\":\"LONG\"},{\"field\":\"data.version\",\"type\":\"STRING\"},{\"field\":\"data" +
-                ".invalidationReason\",\"type\":\"STRING\"},{\"field\":\"data.request.clientHostName\"," +
-                "\"type\":\"STRING\"},{\"field\":\"data.storedValueType\",\"type\":\"STRING\"},{\"field\":\"data" +
-                ".request.clientTraceId\",\"type\":\"STRING\"},{\"field\":\"data.accountId\",\"type\":\"STRING\"}," +
-                "{\"field\":\"header.profile\",\"type\":\"STRING\"},{\"field\":\"data.endTime\",\"type\":\"LONG\"}," +
-                "{\"field\":\"data.channel.sessionId\",\"type\":\"STRING\"},{\"field\":\"data.channel.salesChannel\"," +
-                "\"type\":\"STRING\"},{\"field\":\"data.storedValue\",\"type\":\"STRING\"},{\"field\":\"data" +
-                ".duration\",\"type\":\"LONG\"},{\"field\":\"data.invalidationMessage\",\"type\":\"STRING\"}," +
-                "{\"field\":\"data.channel.terminalId\",\"type\":\"STRING\"},{\"field\":\"data.email\"," +
-                "\"type\":\"STRING\"},{\"field\":\"data.channel.channelSource\",\"type\":\"STRING\"}," +
-                "{\"field\":\"header.configName\",\"type\":\"STRING\"},{\"field\":\"header.appName\"," +
-                "\"type\":\"STRING\"},{\"field\":\"data.errorCode\",\"type\":\"STRING\"},{\"field\":\"header" +
-                ".timestamp\",\"type\":\"DATE\"},{\"field\":\"data.request.requestId\",\"type\":\"STRING\"}," +
-                "{\"field\":\"data.request.clientAppIPAddress\",\"type\":\"STRING\"},{\"field\":\"data.key\"," +
-                "\"type\":\"STRING\"},{\"field\":\"data.channel.createdBy\",\"type\":\"STRING\"},{\"field\":\"data" +
-                ".callistoAPI\",\"type\":\"STRING\"},{\"field\":\"data.addressId\",\"type\":\"STRING\"}," +
-                "{\"field\":\"data.channel.userAgent\",\"type\":\"STRING\"},{\"field\":\"data.salesChannel\"," +
-                "\"type\":\"STRING\"},{\"field\":\"header.instanceId\",\"type\":\"STRING\"},{\"field\":\"data.request" +
-                ".checkoutId\",\"type\":\"STRING\"},{\"field\":\"data.checkoutType\",\"type\":\"STRING\"}," +
-                "{\"field\":\"data.channel.userIp\",\"type\":\"STRING\"},{\"field\":\"data.tenant\"," +
-                "\"type\":\"STRING\"},{\"field\":\"header.eventId\",\"type\":\"STRING\"},{\"field\":\"data.actionType" +
-                ".type\",\"type\":\"STRING\"},{\"field\":\"data.request.client\",\"type\":\"STRING\"}," +
-                "{\"field\":\"data.dataFlow\",\"type\":\"STRING\"}]}";
+        final String json = "{\"table\":\"europa\",\"mappings\":[{\"field\":\"data.checkoutId\",\"type\":\"STRING\"}," +
+                            "{\"field\":\"data.errorMessage\",\"type\":\"STRING\"},{\"field\":\"data.startTime\"," +
+                            "\"type\":\"LONG\"},{\"field\":\"data.error\",\"type\":\"STRING\"},{\"field\":\"data" +
+                            ".pin\"," +
+                            "\"type\":\"LONG\"},{\"field\":\"data.version\",\"type\":\"STRING\"},{\"field\":\"data" +
+                            ".invalidationReason\",\"type\":\"STRING\"},{\"field\":\"data.request.clientHostName\"," +
+                            "\"type\":\"STRING\"},{\"field\":\"data.storedValueType\",\"type\":\"STRING\"}," +
+                            "{\"field\":\"data" +
+                            ".request.clientTraceId\",\"type\":\"STRING\"},{\"field\":\"data.accountId\"," +
+                            "\"type\":\"STRING\"}," +
+                            "{\"field\":\"header.profile\",\"type\":\"STRING\"},{\"field\":\"data.endTime\"," +
+                            "\"type\":\"LONG\"}," +
+                            "{\"field\":\"data.channel.sessionId\",\"type\":\"STRING\"},{\"field\":\"data.channel" +
+                            ".salesChannel\"," +
+                            "\"type\":\"STRING\"},{\"field\":\"data.storedValue\",\"type\":\"STRING\"}," +
+                            "{\"field\":\"data" +
+                            ".duration\",\"type\":\"LONG\"},{\"field\":\"data.invalidationMessage\"," +
+                            "\"type\":\"STRING\"}," +
+                            "{\"field\":\"data.channel.terminalId\",\"type\":\"STRING\"},{\"field\":\"data.email\"," +
+                            "\"type\":\"STRING\"},{\"field\":\"data.channel.channelSource\",\"type\":\"STRING\"}," +
+                            "{\"field\":\"header.configName\",\"type\":\"STRING\"},{\"field\":\"header.appName\"," +
+                            "\"type\":\"STRING\"},{\"field\":\"data.errorCode\",\"type\":\"STRING\"}," +
+                            "{\"field\":\"header" +
+                            ".timestamp\",\"type\":\"DATE\"},{\"field\":\"data.request.requestId\"," +
+                            "\"type\":\"STRING\"}," +
+                            "{\"field\":\"data.request.clientAppIPAddress\",\"type\":\"STRING\"},{\"field\":\"data" +
+                            ".key\"," +
+                            "\"type\":\"STRING\"},{\"field\":\"data.channel.createdBy\",\"type\":\"STRING\"}," +
+                            "{\"field\":\"data" +
+                            ".callistoAPI\",\"type\":\"STRING\"},{\"field\":\"data.addressId\",\"type\":\"STRING\"}," +
+                            "{\"field\":\"data.channel.userAgent\",\"type\":\"STRING\"},{\"field\":\"data" +
+                            ".salesChannel\"," +
+                            "\"type\":\"STRING\"},{\"field\":\"header.instanceId\",\"type\":\"STRING\"}," +
+                            "{\"field\":\"data.request" +
+                            ".checkoutId\",\"type\":\"STRING\"},{\"field\":\"data.checkoutType\"," +
+                            "\"type\":\"STRING\"}," +
+                            "{\"field\":\"data.channel.userIp\",\"type\":\"STRING\"},{\"field\":\"data.tenant\"," +
+                            "\"type\":\"STRING\"},{\"field\":\"header.eventId\",\"type\":\"STRING\"}," +
+                            "{\"field\":\"data.actionType" +
+                            ".type\",\"type\":\"STRING\"},{\"field\":\"data.request.client\",\"type\":\"STRING\"}," +
+                            "{\"field\":\"data.dataFlow\",\"type\":\"STRING\"}]}";
         JsonNode root = objectMapper.readTree(json);
         FlatRepresentation representation = FlatteningUtils.genericMultiRowParse(root.get("mappings"), null, "field");
         System.out.println(writer.writeValueAsString(representation));

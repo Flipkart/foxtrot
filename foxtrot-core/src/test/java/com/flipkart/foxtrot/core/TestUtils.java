@@ -440,15 +440,18 @@ public class TestUtils {
                                             mapper
                                            ));
         documents.add(TestUtils.getDocument("A", 1397658118000L,
-                                            new Object[]{"os", "android", "version", 3, "device", "nexus", "battery", 87},
+                                            new Object[]{"os", "android", "version", 3, "device", "nexus", "battery",
+                                                         87},
                                             mapper
                                            ));
         documents.add(TestUtils.getDocument("B", 1397658218001L,
-                                            new Object[]{"os", "android", "version", 2, "device", "galaxy", "battery", 76},
+                                            new Object[]{"os", "android", "version", 2, "device", "galaxy",
+                                                         "battery", 76},
                                             mapper
                                            ));
         documents.add(TestUtils.getDocument("C", 1398658218002L,
-                                            new Object[]{"os", "android", "version", 2, "device", "nexus", "battery", 78},
+                                            new Object[]{"os", "android", "version", 2, "device", "nexus", "battery",
+                                                         78},
                                             mapper
                                            ));
         documents.add(TestUtils.getDocument("D", 1397758218003L,
@@ -473,15 +476,18 @@ public class TestUtils {
     public static List<Document> getDistinctDocuments(ObjectMapper mapper) {
         List<Document> documents = new Vector<Document>();
         documents.add(TestUtils.getDocument("Z", 1397658117000L,
-                                            new Object[]{"os", "android", "version", 1, "device", "nexus", "battery", 24},
+                                            new Object[]{"os", "android", "version", 1, "device", "nexus", "battery",
+                                                         24},
                                             mapper
                                            ));
         documents.add(TestUtils.getDocument("Y", 1397651117000L,
-                                            new Object[]{"os", "android", "version", 1, "device", "nexus", "battery", 48},
+                                            new Object[]{"os", "android", "version", 1, "device", "nexus", "battery",
+                                                         48},
                                             mapper
                                            ));
         documents.add(TestUtils.getDocument("A", 1397658118000L,
-                                            new Object[]{"os", "android", "version", 3, "device", "nexus", "battery", 87},
+                                            new Object[]{"os", "android", "version", 3, "device", "nexus", "battery",
+                                                         87},
                                             mapper
                                            ));
         documents.add(TestUtils.getDocument("D", 1397758218003L,

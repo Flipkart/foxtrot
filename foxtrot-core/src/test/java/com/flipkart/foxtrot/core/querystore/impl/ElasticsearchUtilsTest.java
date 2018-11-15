@@ -191,7 +191,8 @@ public class ElasticsearchUtilsTest {
                                                                  TEST_CURRENT_TIME)
                                                         );
         Assert.assertArrayEquals(
-                new String[]{"azkaban-test-table-02-4-2015", "azkaban-test-table-03-4-2015", "azkaban-test-table-04-4-2015"},
+                new String[]{"azkaban-test-table-02-4-2015", "azkaban-test-table-03-4-2015",
+                             "azkaban-test-table-04-4-2015"},
                 indexes
                                 );
         config.setTableNamePrefix("foxtrot");
