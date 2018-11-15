@@ -142,6 +142,7 @@ public class ElasticsearchConsolePersistence implements ConsolePersistence {
 
     @Override
     public void saveV2(ConsoleV2 console) throws FoxtrotException {
+        preProcess(console);
         try {
             connection.getClient()
                     .prepareIndex()
@@ -210,6 +211,19 @@ public class ElasticsearchConsolePersistence implements ConsolePersistence {
         } catch (Exception e) {
             throw new ConsoleFetchException(e);
         }
+    }
+
+    private void preProcess(ConsoleV2 console) throws FoxtrotException {
+        if(console.getUpdatedAt() == 0L) {
+            console.setUpdatedAt(System.currentTimeMillis());
+        }
+        ConsoleV2 oldConsole = getV2(console.getId());
+        if(oldConsole.getUpdatedAt() != 0L && oldConsole.getUpdatedAt() > console.getUpdatedAt()) {
+            throw new ConsolePersistenceException(console.getId(), "Updated version of console exists. Kindly refresh" +
+                                                                   " your dashboard");
+        }
+        console.setUpdatedAt(System.currentTimeMillis());
+
     }
 
     @Override
