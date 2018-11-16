@@ -15,7 +15,6 @@ package com.flipkart.foxtrot.core.alerts;
  * limitations under the License.
  */
 
-import com.phonepe.models.fabric.EmailAlertEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,25 +45,22 @@ public class EmailClient {
         this.session = Session.getDefaultInstance(mailProps);
     }
 
-    public boolean sendEmail(EmailAlertEvent emailAlertEvent) {
+    public boolean sendEmail(String subject, String content, String recipients) {
         try {
             MimeMessage message = new MimeMessage(session);
             message.setFrom(new InternetAddress(emailConfig.getFrom()));
-            message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(emailAlertEvent.getToEmailId()));
-            message.setSubject(emailAlertEvent.getSubject());
+            message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(recipients));
+            message.setSubject(subject);
 
             InternetHeaders headers = new InternetHeaders();
             headers.addHeader("Content-type", "text/html; charset=UTF-8");
 
-            BodyPart messageBodyPart = new MimeBodyPart(headers, emailAlertEvent.getMessage()
-                    .getBytes("UTF-8"));
+            BodyPart messageBodyPart = new MimeBodyPart(headers, content.getBytes("UTF-8"));
             Multipart multipart = new MimeMultipart();
             multipart.addBodyPart(messageBodyPart);
             message.setContent(multipart);
 
             Transport.send(message, emailConfig.getUser(), emailConfig.getPassword());
-
-
         } catch (Exception e) {
             LOGGER.error("Error occurred while sending the email : " + e);
             return false;
