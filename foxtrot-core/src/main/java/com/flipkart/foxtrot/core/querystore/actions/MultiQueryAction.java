@@ -52,8 +52,8 @@ import java.util.Map;
 /***
  Created by nitish.goyal on 22/08/18
  ***/
-@AnalyticsProvider(opcode = "multiQuery", request = MultiQueryRequest.class, response = MultiQueryResponse.class,
-                   cacheable = false)
+@AnalyticsProvider(opcode = "multi_query", request = MultiQueryRequest.class, response = MultiQueryResponse.class,
+                   cacheable = true)
 public class MultiQueryAction extends Action<MultiQueryRequest> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MultiQueryAction.class);

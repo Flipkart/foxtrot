@@ -31,10 +31,13 @@ public class MultiQueryRequest extends ActionRequest {
 
     private Map<String, ActionRequest> requests;
 
+    public MultiQueryRequest() {
+        super(Opcodes.MULTI_QUERY);
+    }
+
     public MultiQueryRequest(Map<String, ActionRequest> requests) {
         super(Opcodes.MULTI_QUERY);
-        Assert.assertNotNull(requests);
-        Assert.assertEquals(CollectionUtils.isNotEmpty(requests), true);
+        Assert.assertTrue(CollectionUtils.isNotEmpty(requests));
         this.requests = requests;
     }
 
