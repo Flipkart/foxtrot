@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.flipkart.foxtrot.common.Table;
 import com.flipkart.foxtrot.core.MockElasticsearchServer;
 import com.flipkart.foxtrot.core.TestUtils;
+import com.flipkart.foxtrot.core.alerts.EmailConfig;
 import com.flipkart.foxtrot.core.cache.CacheManager;
 import com.flipkart.foxtrot.core.cache.impl.DistributedCacheFactory;
 import com.flipkart.foxtrot.core.cardinality.CardinalityConfig;
@@ -82,7 +83,8 @@ public class ActionTest {
         CacheManager cacheManager = new CacheManager(
                 new DistributedCacheFactory(hazelcastConnection, mapper, new CacheConfig()));
         AnalyticsLoader analyticsLoader = new AnalyticsLoader(tableMetadataManager, dataStore, queryStore,
-                                                              elasticsearchConnection, cacheManager, mapper
+                                                              elasticsearchConnection, cacheManager, mapper,
+                                                              new EmailConfig()
         );
         analyticsLoader.start();
         ExecutorService executorService = Executors.newFixedThreadPool(1);

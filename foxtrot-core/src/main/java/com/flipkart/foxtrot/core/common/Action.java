@@ -24,6 +24,7 @@ import com.flipkart.foxtrot.common.query.Filter;
 import com.flipkart.foxtrot.common.query.general.AnyFilter;
 import com.flipkart.foxtrot.common.query.numeric.LessThanFilter;
 import com.flipkart.foxtrot.common.util.CollectionUtils;
+import com.flipkart.foxtrot.core.alerts.EmailConfig;
 import com.flipkart.foxtrot.core.cache.Cache;
 import com.flipkart.foxtrot.core.cache.CacheManager;
 import com.flipkart.foxtrot.core.datastore.DataStore;
@@ -60,13 +61,14 @@ public abstract class Action<ParameterType extends ActionRequest> implements Cal
     private final String cacheToken;
     private final CacheManager cacheManager;
     private final ObjectMapper objectMapper;
+    private final EmailConfig emailConfig;
     private ParameterType parameter;
     private DataStore dataStore;
     private ElasticsearchConnection connection;
 
     protected Action(ParameterType parameter, TableMetadataManager tableMetadataManager, DataStore dataStore,
                      QueryStore queryStore, ElasticsearchConnection connection, String cacheToken,
-                     CacheManager cacheManager, ObjectMapper objectMapper) {
+                     CacheManager cacheManager, ObjectMapper objectMapper, EmailConfig emailConfig) {
         this.parameter = parameter;
         this.tableMetadataManager = tableMetadataManager;
         this.queryStore = queryStore;
@@ -75,6 +77,7 @@ public abstract class Action<ParameterType extends ActionRequest> implements Cal
         this.connection = connection;
         this.dataStore = dataStore;
         this.objectMapper = objectMapper;
+        this.emailConfig = emailConfig;
     }
 
     public String cacheKey() {

@@ -7,6 +7,7 @@ import com.flipkart.foxtrot.common.distinct.DistinctResponse;
 import com.flipkart.foxtrot.common.query.Filter;
 import com.flipkart.foxtrot.common.query.ResultSort;
 import com.flipkart.foxtrot.common.util.CollectionUtils;
+import com.flipkart.foxtrot.core.alerts.EmailConfig;
 import com.flipkart.foxtrot.core.cache.CacheManager;
 import com.flipkart.foxtrot.core.common.Action;
 import com.flipkart.foxtrot.core.datastore.DataStore;
@@ -45,9 +46,9 @@ public class DistinctAction extends Action<DistinctRequest> {
 
     public DistinctAction(DistinctRequest parameter, TableMetadataManager tableMetadataManager, DataStore dataStore,
                           QueryStore queryStore, ElasticsearchConnection connection, String cacheToken,
-                          CacheManager cacheManager, ObjectMapper objectMapper) {
+                          CacheManager cacheManager, ObjectMapper objectMapper, EmailConfig emailConfig) {
         super(parameter, tableMetadataManager, dataStore, queryStore, connection, cacheToken, cacheManager,
-              objectMapper
+              objectMapper, emailConfig
              );
     }
 

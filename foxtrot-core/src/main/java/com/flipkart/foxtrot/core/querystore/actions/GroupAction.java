@@ -33,6 +33,8 @@ import com.flipkart.foxtrot.common.query.general.NotInFilter;
 import com.flipkart.foxtrot.common.query.numeric.*;
 import com.flipkart.foxtrot.common.query.string.ContainsFilter;
 import com.flipkart.foxtrot.common.util.CollectionUtils;
+import com.flipkart.foxtrot.core.alerts.EmailClient;
+import com.flipkart.foxtrot.core.alerts.EmailConfig;
 import com.flipkart.foxtrot.core.cache.CacheManager;
 import com.flipkart.foxtrot.core.common.Action;
 import com.flipkart.foxtrot.core.common.PeriodSelector;
@@ -79,13 +81,15 @@ public class GroupAction extends Action<GroupRequest> {
     private static final long MAX_CARDINALITY = 50000;
     private static final long MIN_ESTIMATION_THRESHOLD = 1000;
     private static final double PROBABILITY_CUT_OFF = 0.5;
+    private EmailClient emailClient;
 
     public GroupAction(GroupRequest parameter, TableMetadataManager tableMetadataManager, DataStore dataStore,
                        QueryStore queryStore, ElasticsearchConnection connection, String cacheToken,
-                       CacheManager cacheManager, ObjectMapper objectMapper) {
+                       CacheManager cacheManager, ObjectMapper objectMapper, EmailConfig emailConfig) {
         super(parameter, tableMetadataManager, dataStore, queryStore, connection, cacheToken, cacheManager,
-              objectMapper
+              objectMapper, emailConfig
              );
+        emailClient = getEmailClient(emailConfig);
     }
 
     @Override
@@ -171,6 +175,10 @@ public class GroupAction extends Action<GroupRequest> {
 
             if(probability > PROBABILITY_CUT_OFF) {
                 try {
+                    String subject = "Blocked query as it might have screwed up the cluster";
+                    String content = getObjectMapper().writeValueAsString(parameter);
+                    String recipients = "payments-dev@phonepe.com";
+                    emailClient.sendEmail(subject, content, recipients);
                     log.warn("Blocked query as it might have screwed up the cluster. Probability: {} Query: {}",
                              probability, getObjectMapper().writeValueAsString(parameter)
                             );
@@ -741,6 +749,10 @@ public class GroupAction extends Action<GroupRequest> {
         }
         return levelCount;
 
+    }
+
+    private EmailClient getEmailClient(EmailConfig emailConfig) {
+        return new EmailClient(emailConfig);
     }
 
 }
