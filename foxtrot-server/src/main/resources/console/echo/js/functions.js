@@ -458,3 +458,33 @@ function isSpecialCharacter(string) {
 function splitArithmetic(arithmetic) {
   return arithmetic.split(/(?=[-+*\/])/)
 }
+/**
+ * prepare multi series query data
+ */
+function prepareMultiSeriesQueryObject(data, object, filters) {
+
+  //console.log(object)
+
+  var currentTime = filters[0].currentTime;
+  var duration = filters[0].duration;
+  var period = data.period;
+  var loopValue = object.tileContext.multiSeries;
+  var durationInNumbers = duration.split(/([0-9]+)/)[1];// seperate string and number
+    
+  var mapDetails = {};
+  for( var i = 0; i < loopValue; i++) {
+    var tmpObj = JSON.parse(JSON.stringify(data));
+    tmpObj.opcode = "statstrend";
+    console.log(durationInNumbers * i);
+    if(period == "days") {
+      tmpObj.filters[0].currentTime = moment().subtract(durationInNumbers * i, "days").valueOf();
+    } else if(period == "hours") {
+      tmpObj.filters[0].currentTime = moment().subtract(durationInNumbers * i, "hours").valueOf();
+    } else if(period == "minutes") {
+      tmpObj.filters[0].currentTime = moment().subtract( durationInNumbers * i, "minutes").valueOf();
+    }
+    mapDetails[i+1] = tmpObj;
+  }
+
+  return mapDetails;
+}

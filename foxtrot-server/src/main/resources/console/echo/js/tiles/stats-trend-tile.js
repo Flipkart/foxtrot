@@ -24,12 +24,15 @@ function getStatsTrendTileChartFormValues() {
   var statsToPlot = $("#stats-trend-statics-to-plot").val();
   var timeframe = $("#stats-trend-timeframe").val();
   var ignoreDigits = $(".stats-trend-ignored-digits").val();
+  var multiSeries = $("#stats-trend-multiple-series-value").val();
+  console.log(multiSeries);
   return {
     "period": period,
     "statsFieldName": currentFieldList[parseInt(statsField)].field,
     "statsToPlot": statsToPlot,
     "timeframe": timeframe
     , "ignoreDigits" : ignoreDigits
+    , "multiSeries": parseInt(multiSeries)
   };
 }
 
@@ -56,6 +59,11 @@ function setStatsTrendTileChartFormValues(object) {
 
   parentElement.find("#stats-trend-timeframe").val(object.tileContext.timeframe);
   parentElement.find(".stats-trend-ignored-digits").val(parseInt(object.tileContext.ignoreDigits == undefined ? 0 : object.tileContext.ignoreDigits));
+
+  var multiSeries = parentElement.find("#stats-trend-multiple-series-value");
+  var multiSeriesValue = (object.tileContext.multiSeries == undefined ? "" : object.tileContext.multiSeries)
+  multiSeries.val(parseInt(multiSeriesValue));
+  $(multiSeries).selectpicker('refresh');
 }
 
 StatsTrendTile.prototype.getQuery = function(object) {
@@ -73,12 +81,23 @@ StatsTrendTile.prototype.getQuery = function(object) {
     }
   }
   var data = {
-    "opcode": "statstrend",
+    "opcode": "multi_query",
     "table": object.tileContext.table,
     "filters": filters,
     "field": object.tileContext.statsFieldName,
     "period": periodFromWindow(object.tileContext.period, "custom")
   }
+
+  var multiQueryData = {};
+  var multiSeiresValue = object.tileContext.multiSeries;
+  if((multiSeiresValue != undefined) && (multiSeiresValue != "") && (multiSeiresValue > 1)) {
+    multiQueryData["requests"] = prepareMultiSeriesQueryObject(data, object, filters);
+    multiQueryData["opcode"] = "multi_query";
+  } else {
+    data["opcode"] = "statstrend";
+    multiQueryData = data;
+  }
+
   var refObject = this.object;
   $.ajax({
     method: "post",
@@ -88,7 +107,7 @@ StatsTrendTile.prototype.getQuery = function(object) {
     },
     url: apiUrl+"/v1/analytics",
     contentType: "application/json",
-    data: JSON.stringify(data),
+    data: JSON.stringify(multiQueryData),
     success: $.proxy(this.getData, this)
     ,error: function(xhr, textStatus, error) {
       showFetchError(refObject);
@@ -103,10 +122,18 @@ StatsTrendTile.prototype.getData = function(data) {
   else
     hideFetchError(this.object);
 
-  if(!data.result)
-    return;
+  // if(!data.result)
+  //   return;
 
-  var results = data.result;
+  var results;
+  var isMultiQuery = false;
+  if(data.result) {
+    results = data.result;
+  } else {
+    isMultiQuery = true;
+    results = data.responses;
+  }
+
   var selString = "";
 
   var selectedStats = this.object.tileContext.statsToPlot;
@@ -115,9 +142,11 @@ StatsTrendTile.prototype.getData = function(data) {
     arr.push(selectedStats);
     selectedStats = arr;
   }
+
   var colors = new Colors(selectedStats.length);
   var d = [];
   var colorIdx = 0;
+  var ins = 0;
   for (var j = 0; j < selectedStats.length; j++) {
     d.push({
       data: [],
@@ -126,23 +155,71 @@ StatsTrendTile.prototype.getData = function(data) {
       lines: {show: true},
       shadowSize: 0/*, curvedLines: {apply: true}*/
     });
+    ins = ins+j+1;
+    if(isMultiQuery) {
+      var numberOfIteration = Object.keys(results).length; 
+      var multiLineColors =  new Colors(numberOfIteration);
+      var multiColorIdx = 0;
+      for( var k = 0; k < numberOfIteration; k++) {
+        console.log(results[k+1]);
+        d.push({
+          data: [],
+          color: multiLineColors.nextColor(),
+          label: selectedStats[j]+ " - "+ readbleDate(results[k+1].result[0].period),
+          lines: {show: true},
+          shadowSize: 0/*, curvedLines: {apply: true}*/
+        });
+        ins = ins+k+1;
+      }
+    }
   }
-  var colorIdx = 0;
-  var timestamp = new Date().getTime();
-  var tmpData = new Object();
-  for (var i = 0; i < results.length; i++) {
-    var stats = results[i].stats;
-    var percentiles = results[i].percentiles;
-    for (var j = 0; j < selectedStats.length; j++) {
-      var selected = selectedStats[j];
-      var value = 0;
-      if (selected.startsWith('percentiles.')) {
-        value = percentiles[selected.split("percentiles.")[1]];
+
+  if(isMultiQuery) {
+    var responseObject = []; // store only values from response ignoring {"1": {}} key
+    for (var key in results) {
+      if (results.hasOwnProperty(key)) {
+        responseObject.push(results[key].result);
       }
-      if (selected.startsWith('stats.')) {
-        value = stats[selected.split("stats.")[1]];
+    }
+    
+    // loop response object
+    for(var loopMultiQuery = 0; loopMultiQuery < responseObject.length; loopMultiQuery++) {
+      var results = responseObject[loopMultiQuery];
+      
+      for (var i = 0; i < results.length; i++) {
+        var stats = results[i].stats;
+        var percentiles = results[i].percentiles;
+        
+        for (var j = 0; j < selectedStats.length; j++) {
+          var selected = selectedStats[j];
+          var value = 0;
+          if (selected.startsWith('percentiles.')) {
+            value = percentiles[selected.split("percentiles.")[1]];
+          }
+          if (selected.startsWith('stats.')) {
+            value = stats[selected.split("stats.")[1]];
+          }
+          d[loopMultiQuery].data.push([results[i].period, value / Math.pow(10, this.object.tileContext.ignoreDigits)]);
+          //d[j].data.push([results[i].period, value / Math.pow(10, this.object.tileContext.ignoreDigits)]);
+        }
       }
-      d[j].data.push([results[i].period, value / Math.pow(10, this.object.tileContext.ignoreDigits)]);
+    }
+
+  } else { // if multi query is false
+    for (var i = 0; i < results.length; i++) {
+      var stats = results[i].stats;
+      var percentiles = results[i].percentiles;
+      for (var j = 0; j < selectedStats.length; j++) {
+        var selected = selectedStats[j];
+        var value = 0;
+        if (selected.startsWith('percentiles.')) {
+          value = percentiles[selected.split("percentiles.")[1]];
+        }
+        if (selected.startsWith('stats.')) {
+          value = stats[selected.split("stats.")[1]];
+        }
+        d[j].data.push([results[i].period, value / Math.pow(10, this.object.tileContext.ignoreDigits)]);
+      }
     }
   }
   this.render(d);
