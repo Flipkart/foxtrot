@@ -41,6 +41,7 @@ public class ElasticsearchConsolePersistence implements ConsolePersistence {
     private static final String INDEX = "consoles";
     private static final String INDEX_V2 = "consoles_v2";
     private static final String TYPE = "console_data";
+    private static final int SCROLL_SIZE = 500;
 
     private ElasticsearchConnection connection;
     private ObjectMapper mapper;
@@ -185,6 +186,7 @@ public class ElasticsearchConsolePersistence implements ConsolePersistence {
                 .prepareSearch(INDEX_V2)
                 .setTypes(TYPE)
                 .setQuery(boolQuery().must(matchAllQuery()))
+                .setSize(SCROLL_SIZE)
                 .addSort(fieldSort("name").order(SortOrder.DESC))
                 .setScroll(new TimeValue(60000))
                 .setSearchType(SearchType.SCAN)
