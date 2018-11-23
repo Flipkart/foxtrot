@@ -199,7 +199,7 @@ public class GroupActionTest extends ActionTest {
         assertEquals(response, actualResult.getResult());
     }
 
-    @Test
+    @Test(expected = CardinalityOverflowException.class)
     public void testGroupActionMultipleFieldsNoFilter() throws FoxtrotException, JsonProcessingException {
         GroupRequest groupRequest = new GroupRequest();
         groupRequest.setTable(TestUtils.TEST_TABLE_NAME);
@@ -235,14 +235,9 @@ public class GroupActionTest extends ActionTest {
             put("ipad", iPadResponse);
             put("iphone", iPhoneResponse);
         }});
-        try {
 
             GroupResponse actualResult = GroupResponse.class.cast(getQueryExecutor().execute(groupRequest));
             assertEquals(response, actualResult.getResult());
-        } catch (CardinalityOverflowException e) {
-            //Cardinality over the allowed limits
-        }
-
     }
 
     @Test

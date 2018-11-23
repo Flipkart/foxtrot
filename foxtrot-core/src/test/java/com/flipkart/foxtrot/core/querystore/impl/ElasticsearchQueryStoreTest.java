@@ -60,7 +60,7 @@ public class ElasticsearchQueryStoreTest {
     private ElasticsearchQueryStore queryStore;
     private TableMetadataManager tableMetadataManager;
     private ElasticsearchConnection elasticsearchConnection;
-    private CardinalityConfig cardinalityConfig;
+
 
     @Before
     public void setUp() throws Exception {
@@ -72,6 +72,8 @@ public class ElasticsearchQueryStoreTest {
         when(hazelcastConnection.getHazelcastConfig()).thenReturn(new Config());
 
         hazelcastConnection.start();
+        CardinalityConfig cardinalityConfig = new CardinalityConfig("true", String.valueOf(
+                ElasticsearchUtils.DEFAULT_SUB_LIST_SIZE));
 
         this.tableMetadataManager = new DistributedTableMetadataManager(hazelcastConnection, elasticsearchConnection,
                                                                         mapper, cardinalityConfig

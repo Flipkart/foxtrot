@@ -54,17 +54,14 @@ public class GroupActionEstimationTest extends ActionTest {
     }
 
 
-    @Test
+    @Test(expected = CardinalityOverflowException.class)
     // Block queries on high cardinality fields
     public void testEstimationNoFilterHighCardinality() throws Exception {
         GroupRequest groupRequest = new GroupRequest();
         groupRequest.setTable(TestUtils.TEST_TABLE_NAME);
         groupRequest.setNesting(Collections.singletonList("deviceId"));
-        try {
+
             getQueryExecutor().execute(groupRequest);
-        } catch (CardinalityOverflowException e) {
-            //Cardinality is greater than allowed cardinality
-        }
     }
 
     @Test
@@ -76,8 +73,8 @@ public class GroupActionEstimationTest extends ActionTest {
         groupRequest.setFilters(ImmutableList.of(BetweenFilter.builder()
                                                          .field("_timestamp")
                                                          .temporal(true)
-                                                         .from(System.currentTimeMillis() - TimeUnit.DAYS.toMillis(1))
-                                                         .to(System.currentTimeMillis() + 2 * 60000)
+                                                         .from(1397658117000L)
+                                                         .to(1397658117000L + 2 * 60000)
                                                          .build()));
 
         log.debug(getMapper().writerWithDefaultPrettyPrinter()
@@ -110,7 +107,7 @@ public class GroupActionEstimationTest extends ActionTest {
                                    .isEmpty());
     }
 
-    @Test
+    @Test(expected = CardinalityOverflowException.class)
     // High cardinality field queries not are allowed
     public void testEstimationGTFilterHighCardinality() throws Exception {
         GroupRequest groupRequest = new GroupRequest();
@@ -120,11 +117,7 @@ public class GroupActionEstimationTest extends ActionTest {
                                                          .field("value")
                                                          .value(10)
                                                          .build()));
-        try {
             getQueryExecutor().execute(groupRequest);
-        } catch (CardinalityOverflowException e) {
-            //Cardinality is greater than allowed cardinality
-        }
     }
 
     @Test
@@ -146,7 +139,7 @@ public class GroupActionEstimationTest extends ActionTest {
                                    .isEmpty());
     }
 
-    @Test
+    @Test(expected = CardinalityOverflowException.class)
     // High cardinality field queries with filters including small subset are allowed
     public void testEstimationLTFilterHighCardinalityBlocked() throws Exception {
         GroupRequest groupRequest = new GroupRequest();
@@ -158,11 +151,7 @@ public class GroupActionEstimationTest extends ActionTest {
                                                          .build()));
         log.debug(getMapper().writerWithDefaultPrettyPrinter()
                           .writeValueAsString(groupRequest));
-        try {
             getQueryExecutor().execute(groupRequest);
-        } catch (CardinalityOverflowException e) {
-            //Cardinality is greater than allowed cardinality
-        }
     }
 
 }

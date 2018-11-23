@@ -157,7 +157,7 @@
         <profile>
             <id>local</id>
             <properties>
-                <project.version>es6-1.0</project.version>
+                <project.version>6.3.1.0</project.version>
             </properties>
         </profile>
     </profiles>

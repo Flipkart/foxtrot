@@ -36,6 +36,8 @@ public class LastFilter extends Filter {
         super(FilterOperator.last);
         super.setField(Strings.isNullOrEmpty(field) ? "_timestamp" : field);
         this.currentTime = currentTime == 0 ? System.currentTimeMillis() : currentTime;
+        this.duration = duration;
+        this.roundingMode = roundingMode == null ? RoundingMode.NONE : roundingMode;
     }
 
     public void setDuration(Duration duration) {

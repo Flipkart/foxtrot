@@ -35,21 +35,17 @@ public class GroupActionCardinalityTest extends ActionTest {
         getTableMetadataManager().updateEstimationData(TestUtils.TEST_TABLE_NAME, 1397658117000L);
     }
 
-    @Test
+    @Test(expected = CardinalityOverflowException.class)
     public void testEstimationWithMultipleNestingHighCardinality() throws Exception {
         GroupRequest groupRequest = new GroupRequest();
         groupRequest.setTable(TestUtils.TEST_TABLE_NAME);
         groupRequest.setNesting(Lists.newArrayList("os", "deviceId"));
 
-        try {
             GroupResponse response = GroupResponse.class.cast(getQueryExecutor().execute(groupRequest));
             Assert.assertTrue(response.getResult()
                                       .containsKey("android"));
             Assert.assertTrue(response.getResult()
                                       .containsKey("ios"));
-        } catch (CardinalityOverflowException e) {
-            //Cardinality is over the allowed cardinality
-        }
     }
 
     @Test
@@ -78,18 +74,15 @@ public class GroupActionCardinalityTest extends ActionTest {
 
     }
 
-    @Test
+    @Test(expected = CardinalityOverflowException.class)
     public void testEstimationPercentileCardinality() throws Exception {
         GroupRequest groupRequest = new GroupRequest();
         groupRequest.setTable(TestUtils.TEST_TABLE_NAME);
         groupRequest.setNesting(Collections.singletonList("value"));
-        try {
+
             GroupResponse response = GroupResponse.class.cast(getQueryExecutor().execute(groupRequest));
             Assert.assertTrue(response.getResult()
                                       .containsKey("0"));
-        } catch (CardinalityOverflowException e) {
-            //Cardinality is greater than allowed
-        }
 
     }
 }

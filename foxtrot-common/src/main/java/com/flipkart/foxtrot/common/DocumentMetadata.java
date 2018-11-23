@@ -2,6 +2,7 @@ package com.flipkart.foxtrot.common;
 
 import lombok.Data;
 import lombok.ToString;
+import org.apache.commons.lang3.builder.ToStringBuilder;
 
 import java.io.Serializable;
 
@@ -25,4 +26,10 @@ public class DocumentMetadata implements Serializable {
         this.time = time;
     }
 
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this).append("id", id)
+                .append("rawStorageId", rawStorageId)
+                .toString();
+    }
 }

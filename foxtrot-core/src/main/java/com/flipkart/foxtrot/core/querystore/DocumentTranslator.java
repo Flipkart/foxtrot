@@ -23,9 +23,8 @@ import java.util.List;
 public class DocumentTranslator {
 
     private static final Logger logger = LoggerFactory.getLogger(DocumentTranslator.class);
-
-    private String rawKeyVersion;
     private final AbstractRowKeyDistributor keyDistributor;
+    private String rawKeyVersion;
 
     public DocumentTranslator(HbaseConfig hbaseConfig) {
         if(CollectionUtils.isNullOrEmpty(hbaseConfig.getRawKeyVersion()) || hbaseConfig.getRawKeyVersion()
