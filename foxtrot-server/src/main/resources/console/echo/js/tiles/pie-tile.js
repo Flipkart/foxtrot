@@ -93,6 +93,7 @@ PieTile.prototype.getQuery = function (object) {
     , "uniqueCountOn": object.tileContext.uniqueKey && object.tileContext.uniqueKey != "none" ? object.tileContext.uniqueKey : null
     , nesting: [object.tileContext.eventFiled]
   }
+  var refObject = this.object;
   $.ajax({
     method: "post"
     , dataType: 'json'
@@ -103,9 +104,18 @@ PieTile.prototype.getQuery = function (object) {
     , contentType: "application/json"
     , data: JSON.stringify(data)
     , success: $.proxy(this.getData, this)
+    ,error: function(xhr, textStatus, error) {
+      showFetchError(refObject);
+    }
   });
 }
 PieTile.prototype.getData = function (data) {
+
+  if(data.length == 0)
+    showFetchError(this.object);
+  else
+    hideFetchError(this.object);
+
   if(this.object.tileContext.uiFiltersList == undefined) {
     this.object.tileContext.uiFiltersList = [];
     this.object.tileContext.uiFiltersSelectedList = [];

@@ -27,7 +27,8 @@ public class StatsTrendRequest extends ActionRequest {
         super(Opcodes.STATS_TREND);
     }
 
-    public StatsTrendRequest(List<Filter> filters, String table, String field, List<String> nesting, Period period, String timestamp) {
+    public StatsTrendRequest(List<Filter> filters, String table, String field, List<String> nesting, Period period,
+                             String timestamp) {
         super(Opcodes.STATS_TREND, filters);
         this.table = table;
         this.field = field;
@@ -78,8 +79,7 @@ public class StatsTrendRequest extends ActionRequest {
 
     @Override
     public String toString() {
-        return new ToStringBuilder(this)
-                .appendSuper(super.toString())
+        return new ToStringBuilder(this).appendSuper(super.toString())
                 .append("table", table)
                 .append("field", field)
                 .append("nesting", nesting)

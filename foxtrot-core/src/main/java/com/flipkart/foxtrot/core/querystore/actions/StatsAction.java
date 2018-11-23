@@ -9,6 +9,7 @@ import com.flipkart.foxtrot.common.stats.StatsRequest;
 import com.flipkart.foxtrot.common.stats.StatsResponse;
 import com.flipkart.foxtrot.common.stats.StatsValue;
 import com.flipkart.foxtrot.common.util.CollectionUtils;
+import com.flipkart.foxtrot.core.alerts.EmailConfig;
 import com.flipkart.foxtrot.core.cache.CacheManager;
 import com.flipkart.foxtrot.core.common.Action;
 import com.flipkart.foxtrot.core.datastore.DataStore;
@@ -44,15 +45,27 @@ import static com.flipkart.foxtrot.core.util.ElasticsearchQueryUtils.QUERY_SIZE;
 @AnalyticsProvider(opcode = "stats", request = StatsRequest.class, response = StatsResponse.class, cacheable = false)
 public class StatsAction extends Action<StatsRequest> {
 
-    public StatsAction(StatsRequest parameter,
-                       TableMetadataManager tableMetadataManager,
-                       DataStore dataStore,
-                       QueryStore queryStore,
-                       ElasticsearchConnection connection,
-                       String cacheToken,
-                       CacheManager cacheManager,
-                       ObjectMapper objectMapper) {
-        super(parameter, tableMetadataManager, dataStore, queryStore, connection, cacheToken, cacheManager, objectMapper);
+    public StatsAction(StatsRequest parameter, TableMetadataManager tableMetadataManager, DataStore dataStore,
+                       QueryStore queryStore, ElasticsearchConnection connection, String cacheToken,
+                       CacheManager cacheManager, ObjectMapper objectMapper, EmailConfig emailConfig) {
+        super(parameter, tableMetadataManager, dataStore, queryStore, connection, cacheToken, cacheManager,
+              objectMapper, emailConfig
+             );
+    }
+
+    private static StatsValue buildStatsValue(String field, Aggregations aggregations) {
+        String metricKey = Utils.getExtendedStatsAggregationKey(field);
+        String percentileMetricKey = Utils.getPercentileAggregationKey(field);
+
+        // Build top level stats
+        StatsValue statsValue = new StatsValue();
+        InternalExtendedStats extendedStats = InternalExtendedStats.class.cast(aggregations.getAsMap()
+                                                                                       .get(metricKey));
+        statsValue.setStats(Utils.createExtendedStatsResponse(extendedStats));
+        Percentiles internalPercentile = Percentiles.class.cast(aggregations.getAsMap()
+                                                                        .get(percentileMetricKey));
+        statsValue.setPercentiles(Utils.createPercentilesResponse(internalPercentile));
+        return statsValue;
     }
 
     @Override
@@ -69,14 +82,14 @@ public class StatsAction extends Action<StatsRequest> {
     protected String getRequestCacheKey() {
         long statsHashKey = 0L;
         StatsRequest statsRequest = getParameter();
-        if (null != statsRequest.getFilters()) {
-            for (Filter filter : statsRequest.getFilters()) {
+        if(null != statsRequest.getFilters()) {
+            for(Filter filter : statsRequest.getFilters()) {
                 statsHashKey += 31 * filter.hashCode();
             }
         }
 
-        if (!CollectionUtils.isNullOrEmpty(statsRequest.getNesting())) {
-            for (String nestingKey : statsRequest.getNesting()) {
+        if(!CollectionUtils.isNullOrEmpty(statsRequest.getNesting())) {
+            for(String nestingKey : statsRequest.getNesting()) {
                 statsHashKey += 31 * nestingKey.hashCode();
             }
         }
@@ -87,13 +100,13 @@ public class StatsAction extends Action<StatsRequest> {
     @Override
     public void validateImpl(StatsRequest parameter) throws MalformedQueryException {
         List<String> validationErrors = Lists.newArrayList();
-        if (CollectionUtils.isNullOrEmpty(parameter.getTable())) {
+        if(CollectionUtils.isNullOrEmpty(parameter.getTable())) {
             validationErrors.add("table name cannot be null or empty");
         }
-        if (CollectionUtils.isNullOrEmpty(parameter.getField())) {
+        if(CollectionUtils.isNullOrEmpty(parameter.getField())) {
             validationErrors.add("field name cannot be null or empty");
         }
-        if (!CollectionUtils.isNullOrEmpty(validationErrors)) {
+        if(!CollectionUtils.isNullOrEmpty(validationErrors)) {
             throw FoxtrotExceptions.createMalformedQueryException(parameter, validationErrors);
         }
     }
@@ -102,8 +115,8 @@ public class StatsAction extends Action<StatsRequest> {
     public ActionResponse execute(StatsRequest parameter) throws FoxtrotException {
         SearchRequestBuilder searchRequestBuilder;
         try {
-            searchRequestBuilder = getConnection().getClient().prepareSearch(
-                    ElasticsearchUtils.getIndices(parameter.getTable(), parameter))
+            searchRequestBuilder = getConnection().getClient()
+                    .prepareSearch(ElasticsearchUtils.getIndices(parameter.getTable(), parameter))
                     .setTypes(ElasticsearchUtils.DOCUMENT_TYPE_NAME)
                     .setIndicesOptions(Utils.indicesOptions())
                     .setQuery(new ElasticSearchQueryGenerator().genFilter(parameter.getFilters()))
@@ -114,18 +127,26 @@ public class StatsAction extends Action<StatsRequest> {
             searchRequestBuilder.addAggregation(percentiles);
             searchRequestBuilder.addAggregation(extendedStats);
 
-            if (!CollectionUtils.isNullOrEmpty(getParameter().getNesting())) {
-                searchRequestBuilder.addAggregation(Utils.buildTermsAggregation(getParameter().getNesting().stream()
-                                .map(x -> new ResultSort(x, ResultSort.Order.asc))
-                                .collect(Collectors.toList()),
-                        Sets.newHashSet(percentiles, extendedStats)));
+            if(!CollectionUtils.isNullOrEmpty(getParameter().getNesting())) {
+                searchRequestBuilder.addAggregation(Utils.buildTermsAggregation(getParameter().getNesting()
+                                                                                        .stream()
+                                                                                        .map(x -> new ResultSort(x,
+                                                                                                                 ResultSort.Order.asc
+                                                                                        ))
+                                                                                        .collect(Collectors.toList()),
+                                                                                Sets.newHashSet(percentiles,
+                                                                                                extendedStats
+                                                                                               )
+                                                                               ));
             }
         } catch (Exception e) {
             throw FoxtrotExceptions.queryCreationException(parameter, e);
         }
         try {
-            Aggregations aggregations = searchRequestBuilder.execute().actionGet().getAggregations();
-            if (aggregations != null) {
+            Aggregations aggregations = searchRequestBuilder.execute()
+                    .actionGet(getGetQueryTimeout())
+                    .getAggregations();
+            if(aggregations != null) {
                 return buildResponse(parameter, aggregations);
             }
             return null;
@@ -140,7 +161,7 @@ public class StatsAction extends Action<StatsRequest> {
 
         // Now build nested stats if present
         List<BucketResponse<StatsValue>> buckets = null;
-        if (!CollectionUtils.isNullOrEmpty(request.getNesting())) {
+        if(!CollectionUtils.isNullOrEmpty(request.getNesting())) {
             buckets = buildNestedStats(request.getNesting(), aggregations);
         }
 
@@ -153,14 +174,15 @@ public class StatsAction extends Action<StatsRequest> {
 
     private List<BucketResponse<StatsValue>> buildNestedStats(List<String> nesting, Aggregations aggregations) {
         final String field = nesting.get(0);
-        final List<String> remainingFields = (nesting.size() > 1) ? nesting.subList(1, nesting.size())
-                : new ArrayList<>();
+        final List<String> remainingFields = (nesting.size() > 1) ? nesting.subList(1,
+                                                                                    nesting.size()
+                                                                                   ) : new ArrayList<>();
         Terms terms = aggregations.get(Utils.sanitizeFieldForAggregation(field));
         List<BucketResponse<StatsValue>> bucketResponses = Lists.newArrayList();
-        for (Terms.Bucket bucket : terms.getBuckets()) {
+        for(Terms.Bucket bucket : terms.getBuckets()) {
             BucketResponse<StatsValue> bucketResponse = new BucketResponse<>();
             bucketResponse.setKey(String.valueOf(bucket.getKey()));
-            if (nesting.size() == 1) {
+            if(nesting.size() == 1) {
                 bucketResponse.setResult(buildStatsValue(getParameter().getField(), bucket.getAggregations()));
             } else {
                 bucketResponse.setBuckets(buildNestedStats(remainingFields, bucket.getAggregations()));
@@ -168,19 +190,6 @@ public class StatsAction extends Action<StatsRequest> {
             bucketResponses.add(bucketResponse);
         }
         return bucketResponses;
-    }
-
-    private static StatsValue buildStatsValue(String field, Aggregations aggregations) {
-        String metricKey = Utils.getExtendedStatsAggregationKey(field);
-        String percentileMetricKey = Utils.getPercentileAggregationKey(field);
-
-        // Build top level stats
-        StatsValue statsValue = new StatsValue();
-        InternalExtendedStats extendedStats = InternalExtendedStats.class.cast(aggregations.getAsMap().get(metricKey));
-        statsValue.setStats(Utils.createExtendedStatsResponse(extendedStats));
-        Percentiles internalPercentile = Percentiles.class.cast(aggregations.getAsMap().get(percentileMetricKey));
-        statsValue.setPercentiles(Utils.createPercentilesResponse(internalPercentile));
-        return statsValue;
     }
 
 }

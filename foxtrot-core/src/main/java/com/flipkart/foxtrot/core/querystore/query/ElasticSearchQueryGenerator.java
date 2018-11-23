@@ -44,7 +44,8 @@ public class ElasticSearchQueryGenerator extends FilterVisitor<Void> {
 
     @Override
     public Void visit(BetweenFilter filter) throws Exception {
-        addFilter(rangeQuery(Utils.storedFieldName(filter.getField())).from(filter.getFrom()).to(filter.getTo()));
+        addFilter(rangeQuery(Utils.storedFieldName(filter.getField())).from(filter.getFrom())
+                          .to(filter.getTo()));
         return null;
     }
 
@@ -104,7 +105,8 @@ public class ElasticSearchQueryGenerator extends FilterVisitor<Void> {
 
     @Override
     public Void visit(NotInFilter notInFilter) throws Exception {
-        addFilter(boolQuery().mustNot(termsQuery(Utils.storedFieldName(notInFilter.getField()), notInFilter.getValues())));
+        addFilter(boolQuery().mustNot(
+                termsQuery(Utils.storedFieldName(notInFilter.getField()), notInFilter.getValues())));
         return null;
     }
 
@@ -115,8 +117,8 @@ public class ElasticSearchQueryGenerator extends FilterVisitor<Void> {
 
     @Override
     public Void visit(LastFilter filter) throws Exception {
-        addFilter(rangeQuery(Utils.storedFieldName(filter.getField()))
-                .from(filter.getWindow().getStartTime())
+        addFilter(rangeQuery(Utils.storedFieldName(filter.getField())).from(filter.getWindow()
+                                                                                    .getStartTime())
                 .to(filter.getWindow().getEndTime()));
         return null;
     }
@@ -133,7 +135,7 @@ public class ElasticSearchQueryGenerator extends FilterVisitor<Void> {
     }
 
     public QueryBuilder genFilter(List<Filter> filters) throws Exception {
-        for (Filter filter : filters) {
+        for(Filter filter : filters) {
             filter.accept(this);
         }
         return QueryBuilders.constantScoreQuery(boolFilterBuilder);

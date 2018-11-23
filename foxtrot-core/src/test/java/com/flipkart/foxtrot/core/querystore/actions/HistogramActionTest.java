@@ -44,11 +44,17 @@ public class HistogramActionTest extends ActionTest {
         super.setUp();
         List<Document> documents = TestUtils.getHistogramDocuments(getMapper());
         getQueryStore().save(TestUtils.TEST_TABLE_NAME, documents);
-        getElasticsearchConnection().getClient().admin().indices().prepareRefresh("*").execute().actionGet();
+        getElasticsearchConnection().getClient()
+                .admin()
+                .indices()
+                .prepareRefresh("*")
+                .execute()
+                .actionGet();
     }
 
     private void filterNonZeroCounts(HistogramResponse response) {
-        response.getCounts().removeIf(count -> count.getCount() == 0);
+        response.getCounts()
+                .removeIf(count -> count.getCount() == 0);
     }
 
     @Test
@@ -81,7 +87,8 @@ public class HistogramActionTest extends ActionTest {
         counts.add(new HistogramResponse.Count(1397958060000L, 1));
         counts.add(new HistogramResponse.Count(1398653100000L, 2));
         counts.add(new HistogramResponse.Count(1398658200000L, 1));
-        assertTrue(response.getCounts().equals(counts));
+        assertTrue(response.getCounts()
+                           .equals(counts));
     }
 
     @Test
@@ -105,7 +112,8 @@ public class HistogramActionTest extends ActionTest {
         counts.add(new HistogramResponse.Count(1397658060000L, 2));
         counts.add(new HistogramResponse.Count(1397658180000L, 1));
         counts.add(new HistogramResponse.Count(1397958060000L, 1));
-        assertTrue(response.getCounts().equals(counts));
+        assertTrue(response.getCounts()
+                           .equals(counts));
     }
 
     @Test
@@ -129,7 +137,8 @@ public class HistogramActionTest extends ActionTest {
         counts.add(new HistogramResponse.Count(1397957400000L, 1));
         counts.add(new HistogramResponse.Count(1398652200000L, 2));
         counts.add(new HistogramResponse.Count(1398655800000L, 1));
-        assertTrue(response.getCounts().equals(counts));
+        assertTrue(response.getCounts()
+                           .equals(counts));
     }
 
     @Test
@@ -155,7 +164,8 @@ public class HistogramActionTest extends ActionTest {
         counts.add(new HistogramResponse.Count(1397655000000L, 3));
         counts.add(new HistogramResponse.Count(1397957400000L, 1));
         counts.add(new HistogramResponse.Count(1398655800000L, 1));
-        assertTrue(response.getCounts().equals(counts));
+        assertTrue(response.getCounts()
+                           .equals(counts));
     }
 
     @Test
@@ -176,7 +186,8 @@ public class HistogramActionTest extends ActionTest {
         counts.add(new HistogramResponse.Count(1397673000000L, 1));
         counts.add(new HistogramResponse.Count(1397932200000L, 1));
         counts.add(new HistogramResponse.Count(1398623400000L, 3));
-        assertTrue(response.getCounts().equals(counts));
+        assertTrue(response.getCounts()
+                           .equals(counts));
     }
 
     @Test
@@ -200,6 +211,7 @@ public class HistogramActionTest extends ActionTest {
         counts.add(new HistogramResponse.Count(1397586600000L, 4));
         counts.add(new HistogramResponse.Count(1397932200000L, 1));
         counts.add(new HistogramResponse.Count(1398623400000L, 1));
-        assertTrue(response.getCounts().equals(counts));
+        assertTrue(response.getCounts()
+                           .equals(counts));
     }
 }

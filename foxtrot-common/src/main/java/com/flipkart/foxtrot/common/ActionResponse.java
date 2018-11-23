@@ -1,12 +1,12 @@
 /**
  * Copyright 2014 Flipkart Internet Pvt. Ltd.
- *
+ * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
+ * <p>
  * http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -32,16 +32,7 @@ import com.flipkart.foxtrot.common.trend.TrendResponse;
  * Time: 9:17 PM
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.EXISTING_PROPERTY, property = "opcode")
-@JsonSubTypes({
-        @JsonSubTypes.Type(value = CountResponse.class, name = Opcodes.COUNT),
-        @JsonSubTypes.Type(value = DistinctResponse.class, name = Opcodes.DISTINCT),
-        @JsonSubTypes.Type(value = GroupResponse.class, name = Opcodes.GROUP),
-        @JsonSubTypes.Type(value = HistogramResponse.class, name = Opcodes.HISTOGRAM),
-        @JsonSubTypes.Type(value = QueryResponse.class, name = Opcodes.QUERY),
-        @JsonSubTypes.Type(value = StatsResponse.class, name = Opcodes.STATS),
-        @JsonSubTypes.Type(value = TrendResponse.class, name = Opcodes.TREND),
-        @JsonSubTypes.Type(value = StatsTrendResponse.class, name = Opcodes.STATS_TREND)
-})
+@JsonSubTypes({@JsonSubTypes.Type(value = CountResponse.class, name = Opcodes.COUNT), @JsonSubTypes.Type(value = DistinctResponse.class, name = Opcodes.DISTINCT), @JsonSubTypes.Type(value = GroupResponse.class, name = Opcodes.GROUP), @JsonSubTypes.Type(value = HistogramResponse.class, name = Opcodes.HISTOGRAM), @JsonSubTypes.Type(value = QueryResponse.class, name = Opcodes.QUERY), @JsonSubTypes.Type(value = StatsResponse.class, name = Opcodes.STATS), @JsonSubTypes.Type(value = TrendResponse.class, name = Opcodes.TREND), @JsonSubTypes.Type(value = StatsTrendResponse.class, name = Opcodes.STATS_TREND)})
 public abstract class ActionResponse {
 
     private final String opcode;

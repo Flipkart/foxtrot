@@ -11,20 +11,19 @@ import com.fasterxml.jackson.databind.jsontype.SubtypeResolver;
 import com.fasterxml.jackson.databind.jsontype.impl.StdSubtypeResolver;
 import com.flipkart.foxtrot.common.Table;
 import com.flipkart.foxtrot.core.TestUtils;
+import com.flipkart.foxtrot.core.alerts.EmailConfig;
 import com.flipkart.foxtrot.core.cache.CacheManager;
 import com.flipkart.foxtrot.core.cache.impl.DistributedCacheFactory;
+import com.flipkart.foxtrot.core.cardinality.CardinalityConfig;
 import com.flipkart.foxtrot.core.datastore.DataStore;
 import com.flipkart.foxtrot.core.exception.FoxtrotException;
 import com.flipkart.foxtrot.core.querystore.QueryExecutor;
 import com.flipkart.foxtrot.core.querystore.QueryStore;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsLoader;
-import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConnection;
-import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchQueryStore;
-import com.flipkart.foxtrot.core.querystore.impl.HazelcastConnection;
+import com.flipkart.foxtrot.core.querystore.impl.*;
 import com.flipkart.foxtrot.core.table.TableMetadataManager;
 import com.flipkart.foxtrot.core.table.impl.DistributedTableMetadataManager;
 import com.flipkart.foxtrot.core.table.impl.ElasticsearchTestUtils;
-import com.flipkart.foxtrot.core.table.impl.TableMapStore;
 import com.flipkart.foxtrot.server.config.FoxtrotServerConfiguration;
 import com.flipkart.foxtrot.server.providers.exception.FoxtrotExceptionMapper;
 import com.hazelcast.config.Config;
@@ -37,8 +36,6 @@ import io.dropwizard.jetty.MutableServletContextHandler;
 import io.dropwizard.lifecycle.setup.LifecycleEnvironment;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
-import org.elasticsearch.action.admin.indices.create.CreateIndexRequest;
-import org.elasticsearch.common.settings.Settings;
 import org.junit.After;
 import org.mockito.Mockito;
 import org.slf4j.LoggerFactory;
@@ -53,24 +50,13 @@ import static org.mockito.Mockito.*;
  */
 public abstract class FoxtrotResourceTest {
 
-    private TableMetadataManager tableMetadataManager;
-    private HazelcastInstance hazelcastInstance;
-    private QueryExecutor queryExecutor;
-    private QueryStore queryStore;
-    private DataStore dataStore;
-    private static ObjectMapper mapper;
-    private CacheManager cacheManager;
-    private AnalyticsLoader analyticsLoader;
-    private ElasticsearchConnection elasticsearchConnection;
-
-
     protected final static HealthCheckRegistry healthChecks = mock(HealthCheckRegistry.class);
     protected final static JerseyEnvironment jerseyEnvironment = mock(JerseyEnvironment.class);
     protected final static LifecycleEnvironment lifecycleEnvironment = new LifecycleEnvironment();
     protected static final Environment environment = mock(Environment.class);
     protected final static Bootstrap<FoxtrotServerConfiguration> bootstrap = mock(Bootstrap.class);
-
     protected static final ObjectMapper objectMapper = new ObjectMapper();
+    private static ObjectMapper mapper;
 
     static {
         when(jerseyEnvironment.getResourceConfig()).thenReturn(new DropwizardResourceConfig());
@@ -83,19 +69,34 @@ public abstract class FoxtrotResourceTest {
         when(environment.getAdminContext()).thenReturn(new MutableServletContextHandler());
         when(environment.getValidator()).thenReturn(Validators.newValidator());
 
-        environment.getObjectMapper().setSerializationInclusion(JsonInclude.Include.NON_NULL);
-        environment.getObjectMapper().setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
+        environment.getObjectMapper()
+                .setSerializationInclusion(JsonInclude.Include.NON_NULL);
+        environment.getObjectMapper()
+                .setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
 
-        environment.getObjectMapper().disable(SerializationFeature.FAIL_ON_EMPTY_BEANS);
-        environment.getObjectMapper().disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
+        environment.getObjectMapper()
+                .disable(SerializationFeature.FAIL_ON_EMPTY_BEANS);
+        environment.getObjectMapper()
+                .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
         SubtypeResolver subtypeResolver = new StdSubtypeResolver();
-        environment.getObjectMapper().setSubtypeResolver(subtypeResolver);
-        environment.jersey().register(new FoxtrotExceptionMapper(mapper));
+        environment.getObjectMapper()
+                .setSubtypeResolver(subtypeResolver);
+        environment.jersey()
+                .register(new FoxtrotExceptionMapper(mapper));
         mapper = environment.getObjectMapper();
 
-        Logger root = (Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
+        Logger root = (Logger)LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
         root.setLevel(Level.WARN);
     }
+
+    private TableMetadataManager tableMetadataManager;
+    private HazelcastInstance hazelcastInstance;
+    private QueryExecutor queryExecutor;
+    private QueryStore queryStore;
+    private DataStore dataStore;
+    private CacheManager cacheManager;
+    private AnalyticsLoader analyticsLoader;
+    private ElasticsearchConnection elasticsearchConnection;
 
     public FoxtrotResourceTest() throws Exception {
         try {
@@ -111,21 +112,29 @@ public abstract class FoxtrotResourceTest {
         when(hazelcastConnection.getHazelcast()).thenReturn(hazelcastInstance);
         when(hazelcastConnection.getHazelcastConfig()).thenReturn(config);
 
-        cacheManager = new CacheManager(new DistributedCacheFactory(hazelcastConnection, mapper));
+        cacheManager = new CacheManager(new DistributedCacheFactory(hazelcastConnection, mapper, new CacheConfig()));
 
         elasticsearchConnection = ElasticsearchTestUtils.getConnection();
 
-        tableMetadataManager = new DistributedTableMetadataManager(hazelcastConnection, elasticsearchConnection, mapper);
+        CardinalityConfig cardinalityConfig = new CardinalityConfig("true", String.valueOf(
+                ElasticsearchUtils.DEFAULT_SUB_LIST_SIZE));
+
+        tableMetadataManager = new DistributedTableMetadataManager(hazelcastConnection, elasticsearchConnection, mapper,
+                                                                   cardinalityConfig
+        );
         tableMetadataManager.start();
-        tableMetadataManager.save(
-                Table.builder()
-                        .name(TestUtils.TEST_TABLE_NAME)
-                        .ttl(7)
-                        .build());
-        queryStore = new ElasticsearchQueryStore(tableMetadataManager, elasticsearchConnection, dataStore, mapper);
+        tableMetadataManager.save(Table.builder()
+                                          .name(TestUtils.TEST_TABLE_NAME)
+                                          .ttl(7)
+                                          .build());
+        queryStore = new ElasticsearchQueryStore(tableMetadataManager, elasticsearchConnection, dataStore, mapper,
+                                                 cardinalityConfig
+        );
         queryStore = spy(queryStore);
 
-        analyticsLoader = new AnalyticsLoader(tableMetadataManager, dataStore, queryStore, elasticsearchConnection, cacheManager, mapper);
+        analyticsLoader = new AnalyticsLoader(tableMetadataManager, dataStore, queryStore, elasticsearchConnection,
+                                              cacheManager, mapper, new EmailConfig()
+        );
         try {
             analyticsLoader.start();
         } catch (Exception e) {

@@ -77,13 +77,14 @@ public class TableMapStore implements MapStore<String, Table> {
 
     @Override
     public void store(String key, Table value) {
-        if (key == null || value == null || value.getName() == null) {
+        if(key == null || value == null || value.getName() == null) {
             throw new RuntimeException(String.format("Illegal Store Request - %s - %s", key, value));
         }
         logger.info("Storing key: " + key);
         try {
             Map<String, Object> sourceMap = ElasticsearchQueryUtils.getSourceMap(value, value.getClass());
-            elasticsearchConnection.getClient().prepareIndex()
+            elasticsearchConnection.getClient()
+                    .prepareIndex()
                     .setIndex(TABLE_META_INDEX)
                     .setType(TABLE_META_TYPE)
                     .setSource(sourceMap)
@@ -98,36 +99,40 @@ public class TableMapStore implements MapStore<String, Table> {
 
     @Override
     public void storeAll(Map<String, Table> map) {
-        if (map == null) {
+        if(map == null) {
             throw new RuntimeException("Illegal Store Request - Null Map");
         }
-        if (map.containsKey(null)) {
+        if(map.containsKey(null)) {
             throw new RuntimeException("Illegal Store Request - Null Key is Present");
         }
 
         logger.info("Store all called for multiple values");
-        BulkRequestBuilder bulkRequestBuilder = elasticsearchConnection.getClient().prepareBulk()
+        BulkRequestBuilder bulkRequestBuilder = elasticsearchConnection.getClient()
+                .prepareBulk()
                 .setRefreshPolicy(WriteRequest.RefreshPolicy.IMMEDIATE);
-        for (Map.Entry<String, Table> mapEntry : map.entrySet()) {
+        for(Map.Entry<String, Table> mapEntry : map.entrySet()) {
             try {
-                if (mapEntry.getValue() == null) {
-                    throw new RuntimeException(String.format("Illegal Store Request - Object is Null for Table - %s", mapEntry.getKey()));
+                if(mapEntry.getValue() == null) {
+                    throw new RuntimeException(
+                            String.format("Illegal Store Request - Object is Null for Table - %s", mapEntry.getKey()));
                 }
                 Map<String, Object> sourceMap = ElasticsearchQueryUtils.getSourceMap(mapEntry.getValue(), Table.class);
                 bulkRequestBuilder.add(elasticsearchConnection.getClient()
-                        .prepareIndex(TABLE_META_INDEX, TABLE_META_TYPE, mapEntry.getKey())
-                        .setSource(sourceMap));
+                                               .prepareIndex(TABLE_META_INDEX, TABLE_META_TYPE, mapEntry.getKey())
+                                               .setSource(sourceMap));
             } catch (Exception e) {
                 throw new RuntimeException("Error bulk saving meta: ", e);
             }
         }
-        bulkRequestBuilder.execute().actionGet();
+        bulkRequestBuilder.execute()
+                .actionGet();
     }
 
     @Override
     public void delete(String key) {
         logger.info("Delete called for value: " + key);
-        elasticsearchConnection.getClient().prepareDelete()
+        elasticsearchConnection.getClient()
+                .prepareDelete()
                 .setRefreshPolicy(WriteRequest.RefreshPolicy.IMMEDIATE)
                 .setIndex(TABLE_META_INDEX)
                 .setType(TABLE_META_TYPE)
@@ -143,24 +148,26 @@ public class TableMapStore implements MapStore<String, Table> {
         BulkRequestBuilder bulRequestBuilder = elasticsearchConnection.getClient()
                 .prepareBulk()
                 .setRefreshPolicy(WriteRequest.RefreshPolicy.IMMEDIATE);
-        for (String key : keys) {
+        for(String key : keys) {
             bulRequestBuilder.add(elasticsearchConnection.getClient()
-                    .prepareDelete(TABLE_META_INDEX, TABLE_META_TYPE, key));
+                                          .prepareDelete(TABLE_META_INDEX, TABLE_META_TYPE, key));
         }
-        bulRequestBuilder.execute().actionGet();
+        bulRequestBuilder.execute()
+                .actionGet();
         logger.info(String.format("Deleted multiple values: %s", keys));
     }
 
     @Override
     public Table load(String key) {
         logger.info("Load called for: " + key);
-        GetResponse response = elasticsearchConnection.getClient().prepareGet()
+        GetResponse response = elasticsearchConnection.getClient()
+                .prepareGet()
                 .setIndex(TABLE_META_INDEX)
                 .setType(TABLE_META_TYPE)
                 .setId(key)
                 .execute()
                 .actionGet();
-        if (!response.isExists()) {
+        if(!response.isExists()) {
             return null;
         }
         try {
@@ -179,7 +186,7 @@ public class TableMapStore implements MapStore<String, Table> {
                 .execute()
                 .actionGet();
         Map<String, Table> tables = Maps.newHashMap();
-        for (MultiGetItemResponse multiGetItemResponse : response) {
+        for(MultiGetItemResponse multiGetItemResponse : response) {
             try {
                 Table table = objectMapper.readValue(multiGetItemResponse.getResponse().getSourceAsString(),
                         Table.class);
@@ -206,15 +213,18 @@ public class TableMapStore implements MapStore<String, Table> {
                 .actionGet();
         Set<String> ids = Sets.newHashSet();
         do {
-            for (SearchHit hit : response.getHits().getHits()) {
+            for(SearchHit hit : response.getHits()
+                    .getHits()) {
                 ids.add(hit.getId());
             }
             if (0 == response.getHits().getHits().length) {
                 break;
             }
             response = elasticsearchConnection.getClient().prepareSearchScroll(response.getScrollId()).setScroll(new TimeValue(60000)).execute().actionGet();
-        } while (response.getHits().getHits().length != 0);
-        logger.info("Loaded value count: " + ids.size());
-        return ids;
+            } while (response.getHits()
+                             .getHits().length != 0)
+                ;
+            logger.info("Loaded value count: " + ids.size());
+            return ids;
+        }
     }
-}

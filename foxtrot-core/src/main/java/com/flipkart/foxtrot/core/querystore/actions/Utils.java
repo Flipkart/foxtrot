@@ -35,28 +35,29 @@ public class Utils {
                                                                 Set<AggregationBuilder> subAggregations) {
         TermsAggregationBuilder rootBuilder = null;
         TermsAggregationBuilder termsBuilder = null;
-        for (ResultSort nestingField : fields) {
+        for(ResultSort nestingField : fields) {
             String field = nestingField.getField();
             BucketOrder bucketOrder = BucketOrder.key(nestingField.getOrder() != ResultSort.Order.desc);
-            if (null == termsBuilder) {
+            if(null == termsBuilder) {
                 termsBuilder = AggregationBuilders.terms(Utils.sanitizeFieldForAggregation(field))
                         .field(storedFieldName(field))
                         .order(bucketOrder);
             } else {
-                TermsAggregationBuilder tempBuilder = AggregationBuilders.terms(Utils.sanitizeFieldForAggregation(field))
+                TermsAggregationBuilder tempBuilder = AggregationBuilders.terms(
+                        Utils.sanitizeFieldForAggregation(field))
                         .field(storedFieldName(field))
                         .order(bucketOrder);
                 termsBuilder.subAggregation(tempBuilder);
                 termsBuilder = tempBuilder;
             }
             termsBuilder.size(QUERY_SIZE);
-            if (null == rootBuilder) {
+            if(null == rootBuilder) {
                 rootBuilder = termsBuilder;
             }
         }
-        if (!CollectionUtils.isNullOrEmpty(subAggregations)) {
+        if(!CollectionUtils.isNullOrEmpty(subAggregations)) {
             assert termsBuilder != null;
-            for (AggregationBuilder aggregationBuilder : subAggregations) {
+            for(AggregationBuilder aggregationBuilder : subAggregations) {
                 termsBuilder.subAggregation(aggregationBuilder);
             }
         }
@@ -65,15 +66,18 @@ public class Utils {
 
     public static AbstractAggregationBuilder buildExtendedStatsAggregation(String field) {
         String metricKey = getExtendedStatsAggregationKey(field);
-        return AggregationBuilders.extendedStats(metricKey).field(storedFieldName(field));
+        return AggregationBuilders.extendedStats(metricKey)
+                .field(storedFieldName(field));
     }
 
     public static AbstractAggregationBuilder buildPercentileAggregation(String field) {
         String metricKey = getPercentileAggregationKey(field);
-        return AggregationBuilders.percentiles(metricKey).field(storedFieldName(field));
+        return AggregationBuilders.percentiles(metricKey)
+                .field(storedFieldName(field));
     }
 
-    public static DateHistogramAggregationBuilder buildDateHistogramAggregation(String field, DateHistogramInterval interval) {
+    public static DateHistogramAggregationBuilder buildDateHistogramAggregation(String field,
+                                                                                DateHistogramInterval interval) {
         String metricKey = getDateHistogramKey(field);
         return AggregationBuilders.dateHistogram(metricKey)
                 .minDocCount(0)
@@ -83,8 +87,7 @@ public class Utils {
     }
 
     public static CardinalityAggregationBuilder buildCardinalityAggregation(String field) {
-        return AggregationBuilders
-                .cardinality(Utils.sanitizeFieldForAggregation(field))
+        return AggregationBuilders.cardinality(Utils.sanitizeFieldForAggregation(field))
                 .precisionThreshold(40000)
                 .field(storedFieldName(field));
     }
@@ -94,7 +97,7 @@ public class Utils {
     }
 
     public static String storedFieldName(String field) {
-        if ("_timestamp".equalsIgnoreCase(field)) {
+        if("_timestamp".equalsIgnoreCase(field)) {
             return ElasticsearchUtils.DOCUMENT_META_TIMESTAMP_FIELD_NAME;
         }
         return field;
@@ -153,7 +156,7 @@ public class Utils {
 
     public static Map<Number, Number> createPercentilesResponse(Percentiles internalPercentiles) {
         Map<Number, Number> percentiles = Maps.newHashMap();
-        for (Percentile percentile : internalPercentiles) {
+        for(Percentile percentile : internalPercentiles) {
             percentiles.put(percentile.getPercent(), percentile.getValue());
         }
         return percentiles;

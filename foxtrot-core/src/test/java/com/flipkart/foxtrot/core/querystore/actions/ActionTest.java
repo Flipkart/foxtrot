@@ -5,12 +5,15 @@ import ch.qos.logback.classic.Logger;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.flipkart.foxtrot.common.Table;
 import com.flipkart.foxtrot.core.TestUtils;
+import com.flipkart.foxtrot.core.alerts.EmailConfig;
 import com.flipkart.foxtrot.core.cache.CacheManager;
 import com.flipkart.foxtrot.core.cache.impl.DistributedCacheFactory;
+import com.flipkart.foxtrot.core.cardinality.CardinalityConfig;
 import com.flipkart.foxtrot.core.datastore.DataStore;
 import com.flipkart.foxtrot.core.querystore.QueryExecutor;
 import com.flipkart.foxtrot.core.querystore.QueryStore;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsLoader;
+import com.flipkart.foxtrot.core.querystore.impl.CacheConfig;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConnection;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchQueryStore;
 import com.flipkart.foxtrot.core.querystore.impl.HazelcastConnection;
@@ -49,6 +52,7 @@ public class ActionTest {
     private HazelcastInstance hazelcastInstance;
     private ElasticsearchConnection elasticsearchConnection;
     private DistributedTableMetadataManager tableMetadataManager;
+    private CardinalityConfig cardinalityConfig;
 
     static {
         Logger root = (Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
@@ -66,28 +70,45 @@ public class ActionTest {
         elasticsearchConnection = ElasticsearchTestUtils.getConnection();
 
         IndicesExistsRequest indicesExistsRequest = new IndicesExistsRequest().indices(TableMapStore.TABLE_META_INDEX);
-        IndicesExistsResponse indicesExistsResponse = elasticsearchConnection.getClient().admin().indices().exists(indicesExistsRequest).actionGet();
+        IndicesExistsResponse indicesExistsResponse = elasticsearchConnection.getClient()
+                .admin()
+                .indices()
+                .exists(indicesExistsRequest)
+                .actionGet();
 
-        if (!indicesExistsResponse.isExists()) {
-            Settings indexSettings = Settings.builder().put("number_of_replicas", 0).build();
-            CreateIndexRequest createRequest = new CreateIndexRequest(TableMapStore.TABLE_META_INDEX).settings(indexSettings);
-            elasticsearchConnection.getClient().admin().indices().create(createRequest).actionGet();
+        if(!indicesExistsResponse.isExists()) {
+            Settings indexSettings = Settings.builder()
+                    .put("number_of_replicas", 0)
+                    .build();
+            CreateIndexRequest createRequest = new CreateIndexRequest(TableMapStore.TABLE_META_INDEX).settings(
+                    indexSettings);
+            elasticsearchConnection.getClient()
+                    .admin()
+                    .indices()
+                    .create(createRequest)
+                    .actionGet();
         }
 
-        tableMetadataManager = new DistributedTableMetadataManager(hazelcastConnection, elasticsearchConnection, mapper);
+        tableMetadataManager = new DistributedTableMetadataManager(hazelcastConnection, elasticsearchConnection, mapper,
+                                                                   cardinalityConfig
+        );
         tableMetadataManager.start();
 
-        tableMetadataManager.save(Table.builder().name(TestUtils.TEST_TABLE_NAME).ttl(30).build());
+        tableMetadataManager.save(Table.builder()
+                                          .name(TestUtils.TEST_TABLE_NAME)
+                                          .ttl(30)
+                                          .build());
 
         DataStore dataStore = TestUtils.getDataStore();
-        this.queryStore = new ElasticsearchQueryStore(tableMetadataManager, elasticsearchConnection, dataStore, mapper);
-        CacheManager cacheManager = new CacheManager(new DistributedCacheFactory(hazelcastConnection, mapper));
-        AnalyticsLoader analyticsLoader = new AnalyticsLoader(tableMetadataManager,
-                dataStore,
-                queryStore,
-                elasticsearchConnection,
-                cacheManager,
-                mapper);
+        this.queryStore = new ElasticsearchQueryStore(tableMetadataManager, elasticsearchConnection, dataStore, mapper,
+                                                      cardinalityConfig
+        );
+        CacheManager cacheManager = new CacheManager(
+                new DistributedCacheFactory(hazelcastConnection, mapper, new CacheConfig()));
+        AnalyticsLoader analyticsLoader = new AnalyticsLoader(tableMetadataManager, dataStore, queryStore,
+                                                              elasticsearchConnection, cacheManager, mapper,
+                                                              new EmailConfig()
+        );
         analyticsLoader.start();
         ExecutorService executorService = Executors.newFixedThreadPool(1);
         this.queryExecutor = new QueryExecutor(analyticsLoader, executorService);
@@ -97,7 +118,10 @@ public class ActionTest {
     public void tearDown() throws Exception {
         try {
             DeleteIndexRequest deleteIndexRequest = new DeleteIndexRequest("*");
-            elasticsearchConnection.getClient().admin().indices().delete(deleteIndexRequest);
+            elasticsearchConnection.getClient()
+                    .admin()
+                    .indices()
+                    .delete(deleteIndexRequest);
         } catch (Exception e) {
             //Do Nothing
         }

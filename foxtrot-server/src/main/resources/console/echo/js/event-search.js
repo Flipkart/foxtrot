@@ -116,10 +116,19 @@ function runQuery(isBrowse) {
     var filterType = $(el).find("select.filter-type").val();
     var filterValue = $(el).find(".browse-events-filter-value").val();
     var filterObject;
-    filterObject = {
-      "operator": filterType,
-      "value": filterValue,
-      "field": currentFieldList[parseInt(filterColumn)].field
+    if(filterType == "in" || filterType == "not_in") {
+      filterValue = filterValue.split(',');
+      filterObject = {
+        "operator": filterType
+        , "values": filterValue
+        , "field": currentFieldList[parseInt(filterColumn)].field
+      }
+    } else {
+      filterObject = {
+        "operator": filterType,
+        "value": filterValue,
+        "field": currentFieldList[parseInt(filterColumn)].field
+      }
     }
     filters.push(filterObject);
   }
@@ -176,6 +185,9 @@ function runQuery(isBrowse) {
         renderTable(resp);
         fetchedData = resp;
       }
+    }, error: function (jqXHR, exception) {
+      hideLoader();
+      showErrorAlert('Oops', "Something Went wrong, Please try again/Check your inputs");
     }
   });
 }
@@ -189,8 +201,10 @@ function generateColumChooserList() {
   var parent = $("#column-chooser");
   var listElement = parent.find("#column-list");
   for (var column in headerList) {
-    listElement.append("<div class='column-chooser-div'><label><input type='checkbox' checked value='" + headerList[column] + "' class='column-chooser-checkbox'><span class='column-name-text-display'>" + headerList[column] + "</span></label></div>");
-    selectedList.push(headerList[column]);
+    if($.inArray(headerList[column], selectedList) == -1) {
+      listElement.append("<div class='column-chooser-div'><label><input type='checkbox' checked value='" + headerList[column] + "' class='column-chooser-checkbox'><span class='column-name-text-display'>" + headerList[column] + "</span></label></div>");
+      selectedList.push(headerList[column])
+    }
   }
 
   // Search columns
@@ -284,8 +298,7 @@ function renderTable(data) {
   headerList = headers;
   rowList = rows;
 
-  if (!isEdit)
-    generateColumChooserList();
+  generateColumChooserList();
 
   var tableData = {
     headers: headers,
@@ -407,13 +420,13 @@ function fetchAuto() {
   }
 }
 
-$('.container-full').scroll( function(){
-  if($(this).scrollTop() + $(this).height() == $(this)[0].scrollHeight){
-    didScroll = true;
-    if(totalHits > 0)
-      fetchAuto();
-  }
-});
+// $('.container-full').scroll( function(){
+//   if($(this).scrollTop() + $(this).height() == $(this)[0].scrollHeight){
+//     didScroll = true;
+//     if(totalHits > 0)
+//       fetchAuto();
+//   }
+// });
 
 
 function loadConsole() { // load console list api

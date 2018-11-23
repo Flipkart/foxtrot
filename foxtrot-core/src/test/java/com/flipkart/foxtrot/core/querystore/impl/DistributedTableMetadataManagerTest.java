@@ -22,6 +22,7 @@ import com.flipkart.foxtrot.common.Table;
 import com.flipkart.foxtrot.common.TableFieldMapping;
 import com.flipkart.foxtrot.common.group.GroupResponse;
 import com.flipkart.foxtrot.core.TestUtils;
+import com.flipkart.foxtrot.core.cardinality.CardinalityConfig;
 import com.flipkart.foxtrot.core.datastore.DataStore;
 import com.flipkart.foxtrot.core.table.impl.DistributedTableMetadataManager;
 import com.flipkart.foxtrot.core.table.impl.ElasticsearchTestUtils;
@@ -90,12 +91,15 @@ public class DistributedTableMetadataManagerTest {
         hazelcastConnection.start();
 
         this.distributedTableMetadataManager = new DistributedTableMetadataManager(hazelcastConnection,
-                elasticsearchConnection, objectMapper);
+                                                                                   elasticsearchConnection,
+                                                                                   objectMapper, new CardinalityConfig()
+        );
         distributedTableMetadataManager.start();
 
         tableDataStore = hazelcastInstance.getMap("tablemetadatamap");
         this.queryStore = new ElasticsearchQueryStore(distributedTableMetadataManager, elasticsearchConnection,
-                dataStore, objectMapper);
+                                                      dataStore, objectMapper, new CardinalityConfig()
+        );
     }
 
     @After
@@ -103,7 +107,10 @@ public class DistributedTableMetadataManagerTest {
         hazelcastInstance.shutdown();
         try {
             DeleteIndexRequest deleteIndexRequest = new DeleteIndexRequest("*");
-            elasticsearchConnection.getClient().admin().indices().delete(deleteIndexRequest);
+            elasticsearchConnection.getClient()
+                    .admin()
+                    .indices()
+                    .delete(deleteIndexRequest);
         } catch (Exception e) {
             //Do Nothing
         }
@@ -156,24 +163,39 @@ public class DistributedTableMetadataManagerTest {
         table.setTtl(15);
         distributedTableMetadataManager.save(table);
 
-        Document document = TestUtils.getDocument("A",
-                new DateTime().minusDays(1).getMillis(), new Object[]{"os", "android", "version", 1}, objectMapper);
+        Document document = TestUtils.getDocument("A", new DateTime().minusDays(1)
+                .getMillis(), new Object[]{"os", "android", "version", 1}, objectMapper);
         Document translatedDocument = TestUtils.translatedDocumentWithRowKeyVersion1(table, document);
-        doReturn(translatedDocument).when(dataStore).save(table, document);
+        doReturn(translatedDocument).when(dataStore)
+                .save(table, document);
         queryStore.save(TestUtils.TEST_TABLE_NAME, document);
 
-        document = TestUtils.getDocument("B",
-                new DateTime().getMillis(), new Object[]{"os", "android", "version", "abcd"}, objectMapper);
+        document = TestUtils.getDocument("B", new DateTime().getMillis(),
+                                         new Object[]{"os", "android", "version", "abcd"}, objectMapper
+                                        );
         translatedDocument = TestUtils.translatedDocumentWithRowKeyVersion1(table, document);
-        doReturn(translatedDocument).when(dataStore).save(table, document);
+        doReturn(translatedDocument).when(dataStore)
+                .save(table, document);
         queryStore.save(TestUtils.TEST_TABLE_NAME, document);
 
-        TableFieldMapping tableFieldMapping = distributedTableMetadataManager.getFieldMappings(TestUtils.TEST_TABLE_NAME, true);
-        assertEquals(3, tableFieldMapping.getMappings().size());
+        TableFieldMapping tableFieldMapping = distributedTableMetadataManager.getFieldMappings(
+                TestUtils.TEST_TABLE_NAME, true, false);
+        assertEquals(3, tableFieldMapping.getMappings()
+                .size());
 
-        assertEquals(FieldType.STRING, tableFieldMapping.getMappings().stream()
-                .filter(x -> x.getField().equals("version")).findAny().get().getType());
-        assertEquals(FieldType.STRING, tableFieldMapping.getMappings().stream()
-                .filter(x -> x.getField().equals("os")).findAny().get().getType());
+        assertEquals(FieldType.STRING, tableFieldMapping.getMappings()
+                .stream()
+                .filter(x -> x.getField()
+                        .equals("version"))
+                .findAny()
+                .get()
+                .getType());
+        assertEquals(FieldType.STRING, tableFieldMapping.getMappings()
+                .stream()
+                .filter(x -> x.getField()
+                        .equals("os"))
+                .findAny()
+                .get()
+                .getType());
     }
 }

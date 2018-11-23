@@ -11,8 +11,8 @@ if __name__ == "__main__":
     parser.add_argument("--p", required=True, help="Foxtrot Port")
     args = vars(parser.parse_args())
 
-    url = "http://" + args["h"] + ":" + args["p"]  + "/foxtrot/v1/tables"
-    table = { "name" : args["name"], "ttl" : args["ttl"] }
+    url = "http://" + args["h"] + ":" + args["p"] + "/foxtrot/v1/tables"
+    table = {"name": args["name"], "ttl": args["ttl"]}
     data = json.dumps(table)
     headers = {'Content-Type': 'application/json'}
     request = urllib2.Request(url, data, headers)

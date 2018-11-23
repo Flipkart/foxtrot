@@ -25,8 +25,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
-import java.util.Vector;
-
 /***
  Created by nitish.goyal on 01/08/18
  ***/

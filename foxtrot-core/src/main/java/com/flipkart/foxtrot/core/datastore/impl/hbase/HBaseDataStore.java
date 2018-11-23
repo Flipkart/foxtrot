@@ -66,13 +66,22 @@ public class HBaseDataStore implements DataStore {
 
     @Override
     @Timed
-    public void initializeTable(Table table) throws FoxtrotException {
+    public void initializeTable(Table table, boolean forceTableCreate) throws FoxtrotException {
         // Check for existence of HBase table during init to make sure HBase is ready for taking writes
         try {
             boolean isTableAvailable = tableWrapper.isTableAvailable(table);
-            if (!isTableAvailable) {
+            if(isTableAvailable) {
+                return;
+            }
+            if(forceTableCreate) {
+                tableWrapper.createTable(table);
+            } else {
                 throw FoxtrotExceptions.createTableInitializationException(table,
-                        String.format("Create HBase Table - %s", tableWrapper.getHBaseTableName(table)));
+                                                                           String.format("Create HBase Table - %s",
+                                                                                         tableWrapper.getHBaseTableName(
+                                                                                                 table)
+                                                                                        )
+                                                                          );
             }
         } catch (IOException e) {
             throw FoxtrotExceptions.createConnectionException(table, e);
@@ -82,7 +91,7 @@ public class HBaseDataStore implements DataStore {
     @Override
     @Timed
     public Document save(final Table table, Document document) throws FoxtrotException {
-        if (document == null || document.getData() == null || document.getId() == null) {
+        if(document == null || document.getData() == null || document.getId() == null) {
             throw FoxtrotExceptions.createBadRequestException(table.getName(), "Invalid Input Document");
         }
         Document translatedDocument = null;
@@ -100,25 +109,27 @@ public class HBaseDataStore implements DataStore {
     @Override
     @Timed
     public List<Document> saveAll(final Table table, List<Document> documents) throws FoxtrotException {
-        if (documents == null || documents.isEmpty()) {
+        if(documents == null || documents.isEmpty()) {
             throw FoxtrotExceptions.createBadRequestException(table.getName(), "null/empty document list not allowed");
         }
         List<Put> puts = new Vector<>();
         ImmutableList.Builder<Document> translatedDocuments = ImmutableList.builder();
         List<String> errorMessages = new ArrayList<>();
         try {
-            for (int i = 0; i < documents.size(); i++) {
+            for(int i = 0; i < documents.size(); i++) {
                 Document document = documents.get(i);
-                if (document == null) {
+                if(document == null) {
                     errorMessages.add("null document at index - " + i);
                     continue;
                 }
-                if (document.getId() == null || document.getId().trim().isEmpty()) {
+                if(document.getId() == null || document.getId()
+                        .trim()
+                        .isEmpty()) {
                     errorMessages.add("null/empty document id at index - " + i);
                     continue;
                 }
 
-                if (document.getData() == null) {
+                if(document.getData() == null) {
                     errorMessages.add("null document data at index - " + i);
                     continue;
                 }
@@ -129,7 +140,7 @@ public class HBaseDataStore implements DataStore {
         } catch (JsonProcessingException e) {
             throw FoxtrotExceptions.createBadRequestException(table, e);
         }
-        if (!errorMessages.isEmpty()) {
+        if(!errorMessages.isEmpty()) {
             throw FoxtrotExceptions.createBadRequestException(table.getName(), errorMessages);
         }
 
@@ -145,18 +156,21 @@ public class HBaseDataStore implements DataStore {
     @Timed
     public Document get(final Table table, String id) throws FoxtrotException {
         try (org.apache.hadoop.hbase.client.Table hTable = tableWrapper.getTable(table)) {
-            Get get = new Get(Bytes.toBytes(translator.rawStorageIdFromDocumentId(table, id)))
-                    .addColumn(COLUMN_FAMILY, DOCUMENT_FIELD_NAME)
+            Get get = new Get(Bytes.toBytes(translator.rawStorageIdFromDocumentId(table, id))).addColumn(COLUMN_FAMILY,
+                                                                                                         DOCUMENT_FIELD_NAME
+                                                                                                        )
                     .addColumn(COLUMN_FAMILY, DOCUMENT_META_FIELD_NAME)
                     .addColumn(COLUMN_FAMILY, TIMESTAMP_FIELD_NAME)
                     .setMaxVersions(1);
             Result getResult = hTable.get(get);
-            if (!getResult.isEmpty()) {
+            if(!getResult.isEmpty()) {
                 byte[] data = getResult.getValue(COLUMN_FAMILY, DOCUMENT_FIELD_NAME);
                 byte[] metadata = getResult.getValue(COLUMN_FAMILY, DOCUMENT_META_FIELD_NAME);
                 byte[] timestamp = getResult.getValue(COLUMN_FAMILY, TIMESTAMP_FIELD_NAME);
                 long time = Bytes.toLong(timestamp);
-                DocumentMetadata documentMetadata = (null != metadata) ? mapper.readValue(metadata, DocumentMetadata.class) : null;
+                DocumentMetadata documentMetadata = (null != metadata) ? mapper.readValue(metadata,
+                                                                                          DocumentMetadata.class
+                                                                                         ) : null;
                 return translator.translateBack(new Document(id, time, documentMetadata, mapper.readTree(data)));
             } else {
                 logger.error("ID missing in HBase - " + id);
@@ -170,14 +184,14 @@ public class HBaseDataStore implements DataStore {
     @Override
     @Timed
     public List<Document> getAll(final Table table, List<String> ids) throws FoxtrotException {
-        if (ids == null) {
+        if(ids == null) {
             throw FoxtrotExceptions.createBadRequestException(table.getName(), "Empty ID List");
         }
         try (org.apache.hadoop.hbase.client.Table hTable = tableWrapper.getTable(table)) {
             List<Get> gets = new ArrayList<>(ids.size());
-            for (String id : ids) {
-                Get get = new Get(Bytes.toBytes(translator.rawStorageIdFromDocumentId(table, id)))
-                        .addColumn(COLUMN_FAMILY, DOCUMENT_FIELD_NAME)
+            for(String id : ids) {
+                Get get = new Get(Bytes.toBytes(translator.rawStorageIdFromDocumentId(table, id))).addColumn(
+                        COLUMN_FAMILY, DOCUMENT_FIELD_NAME)
                         .addColumn(COLUMN_FAMILY, DOCUMENT_META_FIELD_NAME)
                         .addColumn(COLUMN_FAMILY, TIMESTAMP_FIELD_NAME)
                         .setMaxVersions(1);
@@ -186,25 +200,26 @@ public class HBaseDataStore implements DataStore {
             Result[] getResults = hTable.get(gets);
             List<String> missingIds = new ArrayList<>();
             List<Document> results = new ArrayList<>(ids.size());
-            for (int index = 0; index < getResults.length; index++) {
+            for(int index = 0; index < getResults.length; index++) {
                 Result getResult = getResults[index];
-                if (!getResult.isEmpty()) {
+                if(!getResult.isEmpty()) {
                     byte[] data = getResult.getValue(COLUMN_FAMILY, DOCUMENT_FIELD_NAME);
                     byte[] metadata = getResult.getValue(COLUMN_FAMILY, DOCUMENT_META_FIELD_NAME);
                     byte[] timestamp = getResult.getValue(COLUMN_FAMILY, TIMESTAMP_FIELD_NAME);
                     long time = Bytes.toLong(timestamp);
-                    DocumentMetadata documentMetadata = (null != metadata)
-                            ? mapper.readValue(metadata, DocumentMetadata.class)
-                            : null;
-                    final String docId = (null == metadata)
-                            ? Bytes.toString(getResult.getRow()).split(":")[0]
-                            : documentMetadata.getRawStorageId();
-                    results.add(translator.translateBack(new Document(docId, time, documentMetadata, mapper.readTree(data))));
+                    DocumentMetadata documentMetadata = (null != metadata) ? mapper.readValue(metadata,
+                                                                                              DocumentMetadata.class
+                                                                                             ) : null;
+                    final String docId = (null == metadata) ? Bytes.toString(getResult.getRow())
+                            .split(":")[0] : documentMetadata.getRawStorageId();
+                    results.add(translator.translateBack(
+                            new Document(docId, time, documentMetadata, mapper.readTree(data))));
                 } else {
                     missingIds.add(ids.get(index));
                 }
-                if (!missingIds.isEmpty()) {
-                    logger.error("ID's missing in HBase - " + Joiner.on(",").join(ids));
+                if(!missingIds.isEmpty()) {
+                    logger.error("ID's missing in HBase - " + Joiner.on(",")
+                            .join(ids));
                     throw FoxtrotExceptions.createMissingDocumentsException(table, ids);
                 }
             }
@@ -218,8 +233,11 @@ public class HBaseDataStore implements DataStore {
 
     @VisibleForTesting
     public Put getPutForDocument(Document document) throws JsonProcessingException {
-        return new Put(Bytes.toBytes(document.getMetadata().getRawStorageId()))
-                .addColumn(COLUMN_FAMILY, DOCUMENT_META_FIELD_NAME, mapper.writeValueAsBytes(document.getMetadata()))
+        return new Put(Bytes.toBytes(document.getMetadata()
+                                             .getRawStorageId())).addColumn(COLUMN_FAMILY, DOCUMENT_META_FIELD_NAME,
+                                                                            mapper.writeValueAsBytes(
+                                                                                    document.getMetadata())
+                                                                           )
                 .addColumn(COLUMN_FAMILY, DOCUMENT_FIELD_NAME, mapper.writeValueAsBytes(document.getData()))
                 .addColumn(COLUMN_FAMILY, TIMESTAMP_FIELD_NAME, Bytes.toBytes(document.getTimestamp()));
     }

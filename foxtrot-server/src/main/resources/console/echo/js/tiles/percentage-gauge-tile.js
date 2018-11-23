@@ -23,6 +23,7 @@ function getPercentageGaugeChartFormValues() {
   var period = $("#percentage-gauge-time-unit").val();
   var numeratorField = $("#percentage-gauge-numerator-field").val();
   var denominatorField = $("#percentage-gauge-denominator-field").val();
+  var thresholdField = $("#percentage-gauge-threshold-field").val();
   var status = false;
   var uniqueKey = $("#percentage-gauge-uniquekey").val();
 
@@ -41,7 +42,8 @@ function getPercentageGaugeChartFormValues() {
     , "numerator" : numeratorField
     , "denominator" : denominatorField
     , "uniqueKey": uniqueKey
-  };
+    , "threshold": thresholdField
+  }; 
 }
 
 function setPercentageGaugeChartFormValues(object) {
@@ -62,6 +64,10 @@ function setPercentageGaugeChartFormValues(object) {
   var stackingUniqueField = currentFieldList.findIndex(x => x.field == object.tileContext.uniqueKey);
   $("#percentage-gauge-uniquekey").val(parseInt(stackingUniqueField));
   $("#percentage-gauge-uniquekey").selectpicker('refresh');
+
+  var threshold = object.tileContext.threshold == undefined ? '' : object.tileContext.threshold;
+  $("#percentage-gauge-threshold-field").val(threshold);
+
 }
 
 function clearPercentageGaugeChartForm() {
@@ -89,6 +95,7 @@ PercentageGaugeTile.prototype.getQuery = function (object) {
     , "nesting": object.tileContext.nesting
     , "uniqueCountOn": object.tileContext.uniqueKey && object.tileContext.uniqueKey != "none" ? object.tileContext.uniqueKey : null
   }
+  var refObject = this.object;
   $.ajax({
     method: "post"
     , dataType: 'json'
@@ -99,10 +106,18 @@ PercentageGaugeTile.prototype.getQuery = function (object) {
     , contentType: "application/json"
     , data: JSON.stringify(data)
     , success: $.proxy(this.getData, this)
+    ,error: function(xhr, textStatus, error) {
+      showFetchError(refObject);
+    }
   });
 }
 PercentageGaugeTile.prototype.getData = function (data) {
 
+  if(data.length == 0)
+    showFetchError(this.object);
+  else
+    hideFetchError(this.object);
+    
   var numerator = 0;
   var denominator = 0;
 
@@ -116,30 +131,81 @@ PercentageGaugeTile.prototype.getData = function (data) {
 
   if (data.result == undefined || data.result.length == 0) return;
   var total = 0;
-  for (var key in data.result) {
-    var value = data.result[key];
-    total = total + value;
-    if(numerator == key) {
-      numerator = value;
-    } else if(denominator == key) {
-      denominator = value;
+
+  /**
+   * Check special character exist
+   * if exist split by space
+   * loop array and get values from response
+   * if unable to get value from response
+   * set value as zero
+   * eval numerator and denominator strings
+   */
+  var format = /^[ !@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/;
+  var numeratorStringEval = "";  
+  var denominatorStringEval = "";
+  
+  if(isSpecialCharacter(numerator)) {
+    var numeratorSplitArray = numerator.split(" ");
+    for(var i = 0; i < numeratorSplitArray.length; i++) {
+      if(format.test(numeratorSplitArray[i])) { // check string or special character
+        numeratorStringEval+= numeratorSplitArray[i];
+      } else {
+        var string = data.result[numeratorSplitArray[i]];
+        numeratorStringEval+= string == undefined ? 0 : string;
+      }
     }
+  } else {
+    numeratorStringEval = data.result[numerator];
   }
-  this.render(total, (denominator), (denominator/numerator*100));
+
+  if(isSpecialCharacter(denominator)) {
+    var denominatorSplitArray = denominator.split(" ");
+    for(var i = 0; i < denominatorSplitArray.length; i++) {
+      if(format.test(denominatorSplitArray[i])) { // check string or special character
+        denominatorStringEval+= denominatorSplitArray[i];
+      } else {
+        var string = data.result[denominatorSplitArray[i]];
+        denominatorStringEval+= string == undefined ? 0 : string;
+      }
+    }
+  } else {
+    denominatorStringEval = data.result[denominator];
+  }
+
+  this.render(100, (eval(denominatorStringEval)/eval(numeratorStringEval)*100));
 }
-PercentageGaugeTile.prototype.render = function (total, successRate, diff) {
+PercentageGaugeTile.prototype.render = function (total, diff) {
+
   var object = this.object;
   var d = [total];
   var chartDiv = $("#"+object.id).find(".chart-item");
   chartDiv.addClass("percentage-gauge-chart");
+
+
   var minNumber = 1;
-  var maxNumber = total
   var findExistingChart = chartDiv.find("#percentage-gauge-" + object.id);
   if (findExistingChart.length != 0) {
     findExistingChart.remove();
   }
 
-  chartDiv.append('<div id="percentage-gauge-' + object.id + '"><div class="halfDonut"><div class="halfDonutChart"></div><div class="halfDonutTotal bold gauge-percentage" data-percent="' + successRate + '" data-color="#82c91e">' + Math.round(diff) + '%</div></div></div>')
+  // if percentage is less than threshold configured in widget
+  var thresholdError = chartDiv.find(".threshold-msg");    
+  if(this.object.tileContext.threshold) {
+    if(diff < this.object.tileContext.threshold)
+    {
+      if($(thresholdError).length == 0 ) {
+        $(chartDiv).append("<p class='threshold-msg'>"+thresholdErrorMsg()+"</p>");
+      } else {
+        $(chartDiv).find(".threshold-msg").show();
+      }
+      $(chartDiv).find(".threshold-msg").show();
+      return;
+    } else {
+      $(chartDiv).find(".threshold-msg").hide();
+    }
+  }
+
+  chartDiv.append('<div id="percentage-gauge-' + object.id + '"><div class="halfDonut"><div class="halfDonutChart"></div><div class="halfDonutTotal bold gauge-percentage" data-percent="' + diff + '" data-color="#82c91e">' + Math.round(diff) + '%</div></div></div>')
   var ctx = chartDiv.find("#percentage-gauge-" + object.id);
   var donutDiv = ctx.find(".halfDonutChart");
   $(donutDiv).each(function (index, chart) {

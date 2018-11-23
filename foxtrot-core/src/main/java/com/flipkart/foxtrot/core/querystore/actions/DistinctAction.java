@@ -7,6 +7,7 @@ import com.flipkart.foxtrot.common.distinct.DistinctResponse;
 import com.flipkart.foxtrot.common.query.Filter;
 import com.flipkart.foxtrot.common.query.ResultSort;
 import com.flipkart.foxtrot.common.util.CollectionUtils;
+import com.flipkart.foxtrot.core.alerts.EmailConfig;
 import com.flipkart.foxtrot.core.cache.CacheManager;
 import com.flipkart.foxtrot.core.common.Action;
 import com.flipkart.foxtrot.core.datastore.DataStore;
@@ -39,18 +40,17 @@ import static com.flipkart.foxtrot.core.util.ElasticsearchQueryUtils.QUERY_SIZE;
  * Created by rishabh.goyal on 17/11/14.
  */
 
-@AnalyticsProvider(opcode = "distinct", request = DistinctRequest.class, response = DistinctResponse.class, cacheable = true)
+@AnalyticsProvider(opcode = "distinct", request = DistinctRequest.class, response = DistinctResponse.class, cacheable
+        = true)
 public class DistinctAction extends Action<DistinctRequest> {
     private static final Logger logger = LoggerFactory.getLogger(DistinctAction.class);
 
-    public DistinctAction(DistinctRequest parameter,
-                          TableMetadataManager tableMetadataManager,
-                          DataStore dataStore,
-                          QueryStore queryStore,
-                          ElasticsearchConnection connection,
-                          String cacheToken,
-                          CacheManager cacheManager, ObjectMapper objectMapper) {
-        super(parameter, tableMetadataManager, dataStore, queryStore, connection, cacheToken, cacheManager, objectMapper);
+    public DistinctAction(DistinctRequest parameter, TableMetadataManager tableMetadataManager, DataStore dataStore,
+                          QueryStore queryStore, ElasticsearchConnection connection, String cacheToken,
+                          CacheManager cacheManager, ObjectMapper objectMapper, EmailConfig emailConfig) {
+        super(parameter, tableMetadataManager, dataStore, queryStore, connection, cacheToken, cacheManager,
+              objectMapper, emailConfig
+             );
     }
 
     @Override
@@ -67,13 +67,16 @@ public class DistinctAction extends Action<DistinctRequest> {
     protected String getRequestCacheKey() {
         long filterHashKey = 0L;
         DistinctRequest query = getParameter();
-        if (null != query.getFilters()) {
-            for (Filter filter : query.getFilters()) {
+        if(null != query.getFilters()) {
+            for(Filter filter : query.getFilters()) {
                 filterHashKey += 31 * filter.hashCode();
             }
         }
-        for (int i = 0; i < query.getNesting().size(); i++) {
-            filterHashKey += 31 * query.getNesting().get(i).hashCode() * (i + 1);
+        for(int i = 0; i < query.getNesting()
+                .size(); i++) {
+            filterHashKey += 31 * query.getNesting()
+                    .get(i)
+                    .hashCode() * (i + 1);
         }
         return String.format("%s-%d", query.getTable(), filterHashKey);
     }
@@ -81,27 +84,27 @@ public class DistinctAction extends Action<DistinctRequest> {
     @Override
     public void validateImpl(DistinctRequest parameter) throws MalformedQueryException {
         List<String> validationErrors = new ArrayList<>();
-        if (CollectionUtils.isNullOrEmpty(parameter.getTable())) {
+        if(CollectionUtils.isNullOrEmpty(parameter.getTable())) {
             validationErrors.add("table name cannot be null or empty");
         }
 
-        if (CollectionUtils.isNullOrEmpty(parameter.getNesting())) {
+        if(CollectionUtils.isNullOrEmpty(parameter.getNesting())) {
             validationErrors.add("At least one nesting parameter is required");
         } else {
-            for (ResultSort resultSort : parameter.getNesting()) {
-                if (resultSort == null) {
+            for(ResultSort resultSort : parameter.getNesting()) {
+                if(resultSort == null) {
                     validationErrors.add("nested parameter cannot be null");
                 } else {
-                    if (CollectionUtils.isNullOrEmpty(resultSort.getField())) {
+                    if(CollectionUtils.isNullOrEmpty(resultSort.getField())) {
                         validationErrors.add("nested parameter cannot have null name");
                     }
-                    if (resultSort.getOrder() == null) {
+                    if(resultSort.getOrder() == null) {
                         validationErrors.add("nested parameter cannot have null sorting order");
                     }
                 }
             }
         }
-        if (!CollectionUtils.isNullOrEmpty(validationErrors)) {
+        if(!CollectionUtils.isNullOrEmpty(validationErrors)) {
             throw FoxtrotExceptions.createMalformedQueryException(parameter, validationErrors);
         }
     }
@@ -113,8 +116,7 @@ public class DistinctAction extends Action<DistinctRequest> {
             query = getConnection().getClient()
                     .prepareSearch(ElasticsearchUtils.getIndices(request.getTable(), request))
                     .setIndicesOptions(Utils.indicesOptions());
-            query.setQuery(new ElasticSearchQueryGenerator()
-                    .genFilter(request.getFilters()))
+            query.setQuery(new ElasticSearchQueryGenerator().genFilter(request.getFilters()))
                     .setSize(QUERY_SIZE)
                     .addAggregation(Utils.buildTermsAggregation(request.getNesting(), Sets.newHashSet()));
         } catch (Exception e) {
@@ -122,10 +124,11 @@ public class DistinctAction extends Action<DistinctRequest> {
         }
 
         try {
-            SearchResponse response = query.execute().actionGet();
+            SearchResponse response = query.execute()
+                    .actionGet(getGetQueryTimeout());
             Aggregations aggregations = response.getAggregations();
             // Check if any aggregation is present or not
-            if (aggregations == null) {
+            if(aggregations == null) {
                 logger.error("Null response for Group. Request : " + request.toString());
                 return new DistinctResponse(new ArrayList<>(), new ArrayList<>());
             }
@@ -137,7 +140,10 @@ public class DistinctAction extends Action<DistinctRequest> {
 
     private DistinctResponse getDistinctResponse(DistinctRequest request, Aggregations aggregations) {
         DistinctResponse response = new DistinctResponse();
-        List<String> headerList = request.getNesting().stream().map(ResultSort::getField).collect(Collectors.toList());
+        List<String> headerList = request.getNesting()
+                .stream()
+                .map(ResultSort::getField)
+                .collect(Collectors.toList());
         response.setHeaders(headerList);
 
         List<List<String>> responseList = new ArrayList<>();
@@ -146,16 +152,18 @@ public class DistinctAction extends Action<DistinctRequest> {
         return response;
     }
 
-    private void flatten(String parentKey, List<String> fields, List<List<String>> responseList, Aggregations aggregations) {
+    private void flatten(String parentKey, List<String> fields, List<List<String>> responseList,
+                         Aggregations aggregations) {
         final String field = fields.get(0);
-        final List<String> remainingFields = (fields.size() > 1) ? fields.subList(1, fields.size())
-                : new ArrayList<>();
+        final List<String> remainingFields = (fields.size() > 1) ? fields.subList(1, fields.size()) : new ArrayList<>();
         Terms terms = aggregations.get(Utils.sanitizeFieldForAggregation(field));
-        for (Terms.Bucket bucket : terms.getBuckets()) {
-            if (fields.size() == 1) {
+        for(Terms.Bucket bucket : terms.getBuckets()) {
+            if(fields.size() == 1) {
                 responseList.add(getValueList(parentKey, String.valueOf(bucket.getKey())));
             } else {
-                flatten(getProperKey(parentKey, String.valueOf(bucket.getKey())), remainingFields, responseList, bucket.getAggregations());
+                flatten(getProperKey(parentKey, String.valueOf(bucket.getKey())), remainingFields, responseList,
+                        bucket.getAggregations()
+                       );
             }
         }
     }

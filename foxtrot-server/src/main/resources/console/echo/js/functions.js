@@ -53,8 +53,13 @@ function filterTypeTriggered(el) { // changing filter value attribute based on t
   $('#filter-column-row-'+rowId).val('');
   if(columnType == "STRING") {
     $('#filter-column-row-'+rowId).prop("type", "text");
+    $(".filter-date-picker-"+rowId).hide();
   } else if(columnType == "LONG") {
     $('#filter-column-row-'+rowId).prop("type", "number");
+    $(".filter-date-picker-"+rowId).show();
+  } else {
+    $('#filter-column-row-'+rowId).prop("type", "text"); // for boolean or others type
+    $(".filter-date-picker-"+rowId).hide();
   }
 }
 
@@ -88,11 +93,30 @@ function filterFieldTriggered(el) {
   }
 }
 
+function setDatePicker(el){
+  var selectedColumn = $(el).val();
+  var rowString = $(el).attr('class');
+  var rowIdArray = rowString.split('-');
+  var rowId = rowIdArray[3];
+  if(selectedColumn == "true") {
+    $("#filter-column-row-div" +rowId).datetimepicker();
+    $('#filter-column-row-div'+rowId).datetimepicker({format: 'YYYY-MM-DD hh:mm'});
+    $('#filter-column-row-div'+rowId).on("dp.change",function(e) {
+       var ts = moment(e.date, "YYYY-MM-DD hh:mm").valueOf();
+       $("#filter-column-row-" + rowId).val(ts);
+    });
+  } else {
+    var tempElement = $("#filter-column-row-div" +rowId);
+    $("#filter-column-row-div" +rowId).remove();
+    $("#filter-row-"+rowId).append(tempElement);
+  }
+}
+
 function addFilters() { // new filter row
 
   var filterCount = filterRowArray.length;
   filterRowArray.push(filterCount);
-  var filterRow = '<div class="row filters clearfix" id="filter-row-' + filterCount + '"><span class="filter-headings"> FILTER '+(filterCount + 1)+'</span><img src="img/remove.png" class="filter-remove-img filter-delete" /><div class="form-group"><select class="selectpicker form-control filter-column filter-background" id="filter-row-' + filterCount + '" data-live-search="true"><option>select</option></select></div><div class="form-group"><select class="selectpicker filter-type-' + filterCount + ' filter-background form-control" data-live-search="true" id="filter-type-' + filterCount + '"><option>select</option></select></div><div class="form-group"><input id="filter-column-row-' + filterCount + '" type="text" class="form-control filter-value form-control"></div></span></div></div>';
+  var filterRow = '<div class="row filters clearfix" id="filter-row-' + filterCount + '"><span class="filter-headings"> FILTER '+(filterCount + 1)+'</span><img src="img/remove.png" class="filter-remove-img filter-delete" /><div class="form-group"><select class="selectpicker form-control filter-column filter-background" id="filter-row-' + filterCount + '" data-live-search="true"><option>select</option></select></div><div class="form-group"><select class="selectpicker filter-type-' + filterCount + ' filter-background form-control" data-live-search="true" id="filter-type-' + filterCount + '"><option>select</option></select></div><div class="form-group filter-date-picker-radio-btn filter-date-picker-'+filterCount+'"><label id="date-picker-lbl">Date picker?</label><input type="radio" name="enableDatePicker" value="true" class="display-date-picker-' + filterCount + '"><label class="date-picker-radio-text">Yes</label><input type="radio" name="enableDatePicker" value="false" class="display-date-picker-' + filterCount + '"><label class="date-picker-radio-text">No</label></div><div class="form-group filter-date-field input-group date" id="filter-column-row-div' + filterCount + '"><input  id="filter-column-row-' + filterCount + '" type="number" class="form-control filter-value form-control" /><span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span></div></span></div></div>';
   $(".add-filter-row").append(filterRow);
   var filterValueEl = $("#filter-row-" + filterCount).find('.filter-delete');
   var filterType = $("#filter-row-" + filterCount).find('.filter-type-'+ filterCount);
@@ -114,6 +138,12 @@ function addFilters() { // new filter row
     var selected = $(this).val();
     filterFieldTriggered(this);
   });
+
+  var enableDatePicker = $("#filter-row-" + filterCount).find('.display-date-picker-'+ filterCount);
+  $(enableDatePicker).click(function(){
+    setDatePicker(this);
+  });
+
 }
 
 function showHideForms(currentChartType) { // remove active class for widget forms
@@ -163,10 +193,9 @@ function showFilters() {
   $(".global-filters").css({'width': "auto"});
 }
 
-function hideSaveConsole() {
-  $("#save-dashboard").modal('hide');
+function hideConsoleModal(id) {
+  $("#"+id).modal('hide');
 }
-
 function getActiveTabIndex() {
   var activeIndex = $('.tab button.active').index();
   return parseInt(activeIndex);
@@ -255,9 +284,10 @@ function loadParticularConsole() { // reload page based on selected console
 }
 
 function getWhereOption(fieldType) {
-  var allOption = '<option value="">Select</option><option value="equals">Equal to</option><option value="not_equals">Not Equal to</option><option value="less_than">Less than</option><option value="less_equal">Less or equal to</option><option value="greater_than">Greater than</option><option value="greater_equal">Greater or equal to</option><option value="contains">Equals</option><option value="not_equals">Not equals</option><option value="contains">Contains</option><option value="between">Between</option><option value="exits">Exist</option>';
+  var allOption = '<option value="">Select</option><option value="equals">Equal to</option><option value="not_equals">Not Equal to</option><option value="less_than">Less than</option><option value="less_equal">Less or equal to</option><option value="greater_than">Greater than</option><option value="greater_equal">Greater or equal to</option><option value="contains">Equals</option><option value="not_equals">Not equals</option><option value="contains">Contains</option><option value="between">Between</option><option value="exits">Exist</option><option value="not_in">Not In</option>';
 
-  var stringOption = '<option value="">Select</option><option value="equals">Equal to</option><option value="not_equals">Not Equal to</option><option value="contains">Contains</option><option value="exits">Exist</option>';
+
+  var stringOption = '<option value="">Select</option><option value="equals">Equal to</option><option value="not_equals">Not Equal to</option><option value="contains">Contains</option><option value="exits">Exist</option><option value="not_in">Not In</option>';
 
   var boolOption = '<option value="">Select</option><option value="equals">Equal to</option><option value="not_equals">Not Equal to</option><option value="exits">Exist</option>';
 
@@ -358,4 +388,73 @@ $("#fql-dashboard").click(function () {
 
 function getRefreshTime() {
   return 6000; // 6 seconds
+}
+
+function getRefreshTimeMultiplyeFactor(str) {
+  if(str.endsWith('s')) {
+    return 1000; // seconds
+  } else if(str.endsWith('m')) {
+    return 60 * 1000; // minutes
+  }else if(str.endsWith('h')) {
+    return 60 * 60 * 1000; // hours
+  }else if(str.endsWith('d')) {
+    return 1000 * 60 * 60 * 24; // days
+  }
+}
+
+function getNumberFromString(thestring) {
+  return parseInt(thestring.replace( /^\D+/g, ''));
+}
+
+/**
+ * 
+ * show refresh failed msg
+ */
+function showFetchError(data) {
+  var el = $("#"+data.id).find(".fetch-error");
+  $(el).show();
+  var widgetType = data.tileContext.widgetType;
+  if(widgetType == "medium") {
+    $(el).addClass('fetch-error-medium-widget');
+  } else if(widgetType == "full") {
+    $(el).addClass('fetch-error-full-widget');
+  } else if(widgetType == "small") {
+    $(el).addClass('fetch-error-small-widget');
+  }
+}
+
+/**
+ * 
+ * Hide refresh failed msg
+ */
+function hideFetchError(data) {
+  $("#"+data.id).find(".fetch-error").hide();
+} 
+
+/**
+ * Convert epoch to readble date
+ */
+function readbleDate(epochValue) {
+  var day = moment(epochValue); //milliseconds
+  return day.format('DD/MM/YYYY, hh:mm:ss a');
+}
+
+/**
+ * Check string has special characters
+ */
+function isSpecialCharacter(string) {
+  var format = /(?=[-+*\/])/;
+  
+  if(format.test(string)){
+    return true;
+  } else {
+    return false;
+  }
+}
+
+/**
+ * Split string by every artimetic operator
+ */
+function splitArithmetic(arithmetic) {
+  return arithmetic.split(/(?=[-+*\/])/)
 }

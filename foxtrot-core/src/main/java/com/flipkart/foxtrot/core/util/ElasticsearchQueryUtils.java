@@ -33,7 +33,7 @@ public class ElasticsearchQueryUtils {
         try {
             Field[] fields = kClass.getDeclaredFields();
             Map<String, Object> sourceMap = new HashMap<String, Object>();
-            for (Field f : fields) {
+            for(Field f : fields) {
                 f.setAccessible(true);
                 sourceMap.put(f.getName(), f.get(value));
             }
@@ -45,7 +45,8 @@ public class ElasticsearchQueryUtils {
 
     public static Map<String, Object> getSourceMap(ObjectNode node, ObjectMapper mapper) {
         try {
-            final MapType type = mapper.getTypeFactory().constructMapType(Map.class, String.class, Object.class);
+            final MapType type = mapper.getTypeFactory()
+                    .constructMapType(Map.class, String.class, Object.class);
             return mapper.readValue(node.toString(), type);
         } catch (Exception e) {
             throw new RuntimeException("Exception occurred while coverting to map", e);

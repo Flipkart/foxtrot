@@ -30,6 +30,8 @@ var apiUrl = getHostUrl();
 var interval = null;
 var consoleList = [];
 var currentConsoleName;
+var isCopyWidget = false;
+var lastConsoleName = "";
 var globalFilters = false;
 var isNewConsole = false;
 var tablesToRender = [];
@@ -44,6 +46,8 @@ var tileColumn = 1;
 var sectionNumber = 0;
 var sections = [];
 var tableNameList = [];
+var isGlobalDateFilter = false;
+var globalDateFilterValue = "";
 
 function TablesView(id, tables) {
   this.id = id;
@@ -133,6 +137,7 @@ FoxTrot.prototype.addTile = function () {
   var periodInterval = $("#period-select").val();
   var widgetSize = "";
   var position = "";
+  var description = $("#tile-description").val();
 
   isChild = (isChild == 'true');
   if ($("#tileTitle").val().length == 0 || !$("#tileTable").valid() || getWidgetType() == false) {
@@ -189,6 +194,7 @@ FoxTrot.prototype.addTile = function () {
     , "tabName": $(".tab .active").attr('id')
     , "position": position
     , "widgetSize" : widgetSize
+    , "description": description
   }
   context = $.extend({}, getChartFormValues(), context);
   var object = {
@@ -265,17 +271,51 @@ function saveConsole() { // Save console api
       contentType: 'application/json',
       data: JSON.stringify(representation),
       success: function(resp) {
-        showSuccessAlert('Success', 'console saved sucessfully')
-        hideSaveConsole();
+        if(isCopyWidget) { // copy widget action
+          showSuccessAlert('Success', 'Console copied Sucessfully');
+          setTimeout(function(){ window.location.href = window.location.origin+window.location.pathname+"?console="+convertedName; }, 3000);
+        } else {
+          showSuccessAlert('Success', 'console saved sucessfully');
+        }
+        hideConsoleModal("save-dashboard");
       },
       error: function() {
-        showErrorAlert("Oops","Could not save console");
-        hideSaveConsole();
+        var msg = isCopyWidget ? "Could not copy console" : "Could not save console";
+        showErrorAlert("Oops",msg);
+        hideConsoleModal("save-dashboard");
+        if(lastConsoleName.length > 0) {
+          currentConsoleName = lastConsoleName;
+        }
       }
     })
   } else {
     showErrorAlert("Oops",'Add atleast one widget');
-    hideSaveConsole();
+    hideConsoleModal("save-dashboard");
+  }
+}
+
+function deleteConsole() { // Delete console api
+  if(currentConsoleName !=  undefined) {
+    var name =  currentConsoleName;
+    var convertedName = convertName(name);
+    var url = apiUrl+("/v2/consoles/")+convertedName+("/delete");
+    $.ajax({
+      url: url,
+      type: 'DELETE',
+      contentType: 'application/json',
+      success: function(resp) {
+        showSuccessAlert('Success', 'console deleted sucessfully');
+        hideConsoleModal("delete-dashboard");
+        window.location = "index.htm";
+      },
+      error: function() {
+        showErrorAlert('Oops','Could not delete console');
+        hideConsoleModal("delete-dashboard");
+      }
+    })
+  } else {
+    showErrorAlert("Oops",'Add atleast one widget');
+    hideConsoleModal("delete-dashboard");
   }
 }
 
@@ -305,6 +345,7 @@ function generateTabBtnForConsole(array) { // new btn for tabs
 function setListConsole(value) { // making current console name selected
   $("#listConsole").val(value);
   $("#save-dashboard-name").val(currentConsoleName);
+  $("#delete-dashboard-name").val(currentConsoleName);
 }
 
 function removeTab(btnName) { // remove tab
@@ -389,6 +430,7 @@ function getConsoleById(selectedConsole) { // get particular console list
 
 function loadParticularConsoleList() { // reload page based on selected console
   $("#save-dashboard-name").val(currentConsoleName);
+  $("#delete-dashboard-name").val(currentConsoleName);
   loadParticularConsole();
 }
 
@@ -502,7 +544,7 @@ function clearForms() { // clear all details
 function showDashboardBtn() { // dashboard modal
   $("#saveConsole").show();
   $("#default-btn").show();
-  $(".global-filters").show();
+  $(".global-filters, .refreshtime-block, #top-settings").show();
   $("#add-page-btn").show();
 }
 
@@ -520,6 +562,7 @@ function createDashboard() { // create dashboard
   $("#addDashboard").modal('hide');
   $(".dashboard-name").val('');
   $(".save-dashboard-name").val(currentConsoleName);
+  $("#delete-dashboard-name").val(currentConsoleName);
   $("#tab-name").val('');
   $("#listConsole").val('none');
   clearForms();
@@ -546,6 +589,7 @@ function showHideSideBar() { // show sidebar for adding widgets
   sideBarScrollTop();
   if( $('#sidebar').is(':visible') ) {
     $('#sidebar').hide();
+    $('#sidebar').find(".chart-type").attr('disabled', false);
     $(".global-filters").css({'flot' :'right'});
     $(".top-error").hide();
     $('.tile-container').find(".highlight-tile").removeClass('highlight-tile');
@@ -580,6 +624,7 @@ function savePageSettings() { // save page settings modal
   }
   currentConsoleName = $("#page-dashboard-name").val();
   $(".save-dashboard-name").val(currentConsoleName);
+  $("#delete-dashboard-name").val(currentConsoleName);
   showHidePageSettings();
 }
 
@@ -603,11 +648,28 @@ $(document).ready(function () {
     defaultPlusBtn = true;
     foxtrot.resetModal();
     $(".settings-form").find("input[type=text], textarea").val("");
+    $(".copy-widget-btn").hide();
   });
   foxtrot.init();
   $("#save-dashboard-tab-btn").click(function () {
     currentConsoleName = $("#save-dashboard-name").val();
     saveConsole();
+  });
+  $(".copy-dashboard-submit").click(function (e) {
+    if($(".copy-dashboard-name").val().length == 0) {
+      $(".copy-db-error").show();
+      return;
+    } else {
+      $(".copy-db-error").hide();
+    }
+    lastConsoleName = currentConsoleName;
+    isCopyWidget = true;
+    currentConsoleName = $("#copy-dashboard-name").val();
+    saveConsole();
+  });
+  $("#delete-dashboard-tab-btn").click(function () {
+    currentConsoleName = $("#delete-dashboard-name").val();
+    deleteConsole();
   });
   $("#listConsole").change(function () {
     loadParticularConsoleList();
@@ -643,6 +705,8 @@ $(document).ready(function () {
       globalFilters = false;
       hideFilters();
       resetPeriodDropdown();
+      resetGloblaDateFilter();
+      refereshTiles();
     }
   });
 
@@ -663,10 +727,147 @@ $(document).ready(function () {
     var id = $("#delete-widget-value").val();
     $(".tile-container").find('#'+id).remove();
     deleteWidget(id);
+  });
+
+  // Scroll to new copied div
+  function goToWidget(id) {
+    document.getElementById(id).scrollIntoView({
+      behavior: 'smooth'
+    });
+  }
+
+  // function to insert as a new row of copied widget
+  function insertNewRow(object) {
+    console.log(object);
+    var lastItem = tileList[tileList.length-1];
+    var newRow = tileData[lastItem].tileContext.row + 1;
+
+    // create a new object
+    var newRowObject = JSON.parse(JSON.stringify(object));
+    newRowObject.tileContext.row = newRow;
+    newRowObject.tileContext.position = 1;
+    newRowObject.id = guid();
+    newRowObject.title = newRowObject.title+" - copy";
+    newRowObject.tileContext.isnewRow = true;
+    
+    // add new object to tilelist and tiledata
+    tileList.push(newRowObject.id);
+    tileData[newRowObject.id] = newRowObject;
+
+    // create copied tiles
+    renderTiles(newRowObject);
+    showHideSideBar(); // close sidebar
+    goToWidget(newRowObject.id);
+  }
+
+  // function to insert a new row of copied widget into existing row
+  /**
+    * isLastRow true means the copied object can be fit into the last row
+    * Else it will rendered as an new row
+  */
+  function insertIntoExistingRow(object, isLastRow, lastRowValue) {
+    var row  = 0;
+
+    if(!isLastRow) {
+      row = object.tileContext.row
+    } else {
+      row = lastRowValue;
+    }
+
+    var indexOfClickedObject = tileList.indexOf(object.id);
+
+    // create a new object
+    var newRowObject = JSON.parse(JSON.stringify(object));
+    newRowObject.tileContext.row = row;
+    newRowObject.tileContext.isnewRow = false;
+
+    newRowObject.id = guid();
+    newRowObject.title = newRowObject.title+" - copy";
+    
+    // add new object to tilelist and tiledata
+
+    if(isLastRow) {
+      tileList.push(newRowObject.id); // add at end
+    } else {
+      tileList.splice(indexOfClickedObject+1, 0, newRowObject.id); // add at index
+    }
+
+    tileData[newRowObject.id] = newRowObject;
+
+    // create copied tiles
+    renderTiles(newRowObject);
+    showHideSideBar(); // close sidebar
+    goToWidget(newRowObject.id);
+  }
+
+  /**
+   * Check space is available in last row
+   * if available insert new tile in last row
+   * Else insert as an new row
+   */
+  function findSpaceAvailableInLAstRow(clickedObject) {
+    var getLastElement = tileList[tileList.length - 1];
+    var findLastRowSpace = findSpaceAvailable(tileData[getLastElement].tileContext.row, function(val) {
+      if(val > 0 & val < 12) {
+        insertIntoExistingRow(clickedObject, true, tileData[getLastElement].tileContext.row);
+      } else {
+        insertNewRow(clickedObject);
+      }
+    });
+  }
+
+  /**
+   * trigger correct function to insert copied row
+   * @param {*} totalUsedSize 
+   * @param {*} clickedObject 
+   */
+  function triggerRenderTile(totalUsedSize , clickedObject){
+    if(totalUsedSize >= 12) { 
+      findSpaceAvailableInLAstRow(clickedObject);
+      return;
+    } else if(totalUsedSize == 9) {
+      insertIntoExistingRow(clickedObject, false, 0)
+      return;
+    } else if(totalUsedSize == 6) {
+      insertIntoExistingRow(clickedObject , false, 0);
+      return;
+    } else if(totalUsedSize == 3) {
+      insertIntoExistingRow(clickedObject, false, 0);
+      return;
+    } else {
+      insertNewRow(clickedObject);
+      return;
+    }
+  }
+
+  // find how many space left in given row
+   function findSpaceAvailable(copiedRow, callback) {
+    var totalUsedSize = 0; // calculate total size used in a row
+    for(var loop = 0; loop < tileList.length; loop++) { // loop to find out total used size  
+      if(tileData[tileList[loop]].tileContext.row == copiedRow) { // if copied row and loop row is same
+        lastPosition = tileData[tileList[loop]].tileContext.position;
+        totalUsedSize = totalUsedSize+getWidgetSize(tileData[tileList[loop]].tileContext.chartType); // calculate size
+      }
+    }
+    callback(totalUsedSize);
+    return;
+    }
+
+  $(".copy-widget-btn").click( function() {
+    var clickedObject = $("#copy-widget-value").data("tile"); // Read data attributes
+    var copiedRow = clickedObject.tileContext.row; // get row
+    // check available space and render tile
+    findSpaceAvailable(copiedRow, function(val) {
+      triggerRenderTile(val, clickedObject);
+    });
   })
 
   $("#add-new-page-list").click(function() {
     generateNewPageList(sectionNumber+1 , "");
+  });
+
+  $("#delete-dashboard-btn").click(function() {
+    $("#delete-dashboard").modal('show');
   });
 
   $(".page-setting-save-btn").click(function() {
@@ -690,5 +891,39 @@ $(document).ready(function () {
   });
   //Initialize libs
   $('.selectpicker').selectpicker();
+  $('#refresh-time').tooltip(); 
 
+  /**
+   * Initialize global date filter
+   */
+  $("#myModal .modal-header h4").html("Select Your Date");
+  $("#myModal .modal-body").html('<div style="overflow:hidden;"><div class="form-group"><div class="row"><div class="col-md-8"><div id="datetimepicker12"></div></div></div></div><div id="global-date-picker-info-text"><p><span class="glyphicon glyphicon-info-sign"></span>Graph would operate between (time selected in date picker - x), where x is the value in mins/hours/days of the individual widget</p> <ul><li>If time selected in date picker is 1 pm and the widget has time range of 15 mins, widget would show data from (1pm -15 mins)</li> <li>If time selected in date picker is 1 pm and the global filters has time range of 15 mins, all widgets would show data from (1pm -15 mins)</li></ul></p></div>');
+  $('#datetimepicker12').datetimepicker({
+    inline: true,
+    sideBySide: true,
+    format: 'DD/MM/YYYY, hh:mm:ss a'
+  });
+
+  function resetGloblaDateFilter() {
+    isGlobalDateFilter = false;
+    globalDateFilterValue = "";
+    $("#selected-global-date span").text('');
+    $("#selected-global-date").hide();
+  }
+
+  $(".close-global-date-filter").click(function(){
+    $("#myModal").modal("hide");
+    //resetGloblaDateFilter();
+  })
+
+  $("#submit-global-date-picker").click(function() {
+    isGlobalDateFilter = true;
+    $("#selected-global-date").show();
+    var date = $('#datetimepicker12').data('date');
+    var conv = moment(date, "DD/MM/YYYY, hh:mm:ss a");
+    $("#selected-global-date span").text(moment(conv).format('DD/MM/YYYY, hh:mm a'));
+    globalDateFilterValue = conv.valueOf();
+    refereshTiles();
+    $("#myModal").modal("hide");    
+  })
 });

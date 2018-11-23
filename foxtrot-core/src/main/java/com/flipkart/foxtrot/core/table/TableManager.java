@@ -12,6 +12,8 @@ public interface TableManager {
 
     void save(Table table) throws FoxtrotException;
 
+    void save(Table table, boolean forceCreateTable) throws FoxtrotException;
+
     Table get(String name) throws FoxtrotException;
 
     List<Table> getAll() throws FoxtrotException;

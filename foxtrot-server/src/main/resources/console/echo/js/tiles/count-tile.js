@@ -101,6 +101,7 @@ CountTile.prototype.getQuery = function(object) {
       "filters": filters
     }
   }
+  var refObject = this.object;
   $.ajax({
     method: "post",
     dataType: 'json',
@@ -111,11 +112,20 @@ CountTile.prototype.getQuery = function(object) {
     contentType: "application/json",
     data: JSON.stringify(data),
     success: $.proxy(this.getData, this)
+    ,error: function(xhr, textStatus, error) {
+      showFetchError(refObject);
+    }
   });
 }
 
 CountTile.prototype.getData = function(data) {
-  if(!data.count)
+
+  if(!data)
+    showFetchError(this.object);
+  else
+    hideFetchError(this.object);
+    
+  if(!data)
     return;
   this.render(data.count);
 }

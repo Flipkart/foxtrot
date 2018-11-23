@@ -10,6 +10,7 @@ elasticsearch:
   hosts: localhost
   cluster: elasticsearch
   tableNamePrefix: foxtrot
+  getQueryTimeout: 10000
 
 serviceDiscovery:
   namespace: phonepe
@@ -39,10 +40,35 @@ cluster:
     disableMulticast: true
     members: ["localhost:5701"]
 
+cacheConfig:
+  maxIdleSeconds: 15
+  timeToLiveSeconds: 15
+
 logging:
   level: INFO
+
+cardinality:
+  enabled: true
+  batchSize: 10
+  active: true
+  interval: 86400
+  initialDelay: 6
+  maxCardinality: 20000
+
+esIndexOptimizationConfig:
+  active: true
+  interval: 86400
+  initialDelay: 6
 
 deletionconfig:
   active: false
   interval: 86400
   initialdelay: 60
+
+emailConfig:
+  from: noreply@phonepe.com
+  host: ops-jump001.phonepe.nm1
+  port: 25
+  user: AKIAJLCWHAOEDK4ZDOGQ
+  password: AgjCxNI68hrnj6bIzuJCiZBlDXW+TioRoU11++Yx97
+  url: /

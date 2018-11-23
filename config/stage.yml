@@ -44,6 +44,10 @@ cluster:
 logging:
   level: INFO
 
+cardinality:
+  cardinality: ${CARDINALITY_ENABLED}
+  batchSize: ${DEFAULT_BATCH_SIZE}
+
 deletionconfig:
   active: false
   interval: 86400

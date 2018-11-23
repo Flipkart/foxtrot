@@ -46,13 +46,12 @@ import static org.mockito.Mockito.spy;
  * Created by rishabh.goyal on 02/05/14.
  */
 public class TableMapStoreTest {
-    private ObjectMapper mapper = new ObjectMapper();
-    private ElasticsearchConnection elasticsearchConnection;
-    private TableMapStore tableMapStore;
-
     public static final String TEST_TABLE = "test-table";
     public static final String TABLE_META_INDEX = "table-meta";
     public static final String TABLE_META_TYPE = "table-meta";
+    private ObjectMapper mapper = new ObjectMapper();
+    private ElasticsearchConnection elasticsearchConnection;
+    private TableMapStore tableMapStore;
 
     @Before
     public void setUp() throws Exception {
@@ -62,15 +61,32 @@ public class TableMapStoreTest {
         ElasticsearchUtils.initializeMappings(elasticsearchConnection.getClient());
 
         //Create index for table meta. Not created automatically
-        Settings indexSettings = Settings.builder().put("number_of_replicas", 0).build();
+        Settings indexSettings = Settings.builder()
+                .put("number_of_replicas", 0)
+                .build();
 
         IndicesExistsRequest indicesExistsRequest = new IndicesExistsRequest().indices(TableMapStore.TABLE_META_INDEX);
-        IndicesExistsResponse indicesExistsResponse = elasticsearchConnection.getClient().admin().indices().exists(indicesExistsRequest).actionGet();
-        if (!indicesExistsResponse.isExists()) {
-            CreateIndexRequest createRequest = new CreateIndexRequest(TableMapStore.TABLE_META_INDEX).settings(indexSettings);
-            elasticsearchConnection.getClient().admin().indices().create(createRequest).actionGet();
+        IndicesExistsResponse indicesExistsResponse = elasticsearchConnection.getClient()
+                .admin()
+                .indices()
+                .exists(indicesExistsRequest)
+                .actionGet();
+        if(!indicesExistsResponse.isExists()) {
+            CreateIndexRequest createRequest = new CreateIndexRequest(TableMapStore.TABLE_META_INDEX).settings(
+                    indexSettings);
+            elasticsearchConnection.getClient()
+                    .admin()
+                    .indices()
+                    .create(createRequest)
+                    .actionGet();
         }
-        elasticsearchConnection.getClient().admin().cluster().prepareHealth().setWaitForGreenStatus().execute().actionGet();
+        elasticsearchConnection.getClient()
+                .admin()
+                .cluster()
+                .prepareHealth()
+                .setWaitForGreenStatus()
+                .execute()
+                .actionGet();
         TableMapStore.Factory factory = new TableMapStore.Factory(elasticsearchConnection);
         tableMapStore = factory.newMapStore(null, null);
     }
@@ -79,7 +95,10 @@ public class TableMapStoreTest {
     public void tearDown() throws Exception {
         try {
             DeleteIndexRequest deleteIndexRequest = new DeleteIndexRequest("*");
-            elasticsearchConnection.getClient().admin().indices().delete(deleteIndexRequest);
+            elasticsearchConnection.getClient()
+                    .admin()
+                    .indices()
+                    .delete(deleteIndexRequest);
         } catch (Exception e) {
             //Do Nothing
         }
@@ -94,7 +113,8 @@ public class TableMapStoreTest {
         table.setTtl(30);
         tableMapStore.store(table.getName(), table);
 
-        GetResponse response = elasticsearchConnection.getClient().prepareGet()
+        GetResponse response = elasticsearchConnection.getClient()
+                .prepareGet()
                 .setIndex(TABLE_META_INDEX)
                 .setType(TABLE_META_TYPE)
                 .setId(table.getName())
@@ -130,9 +150,10 @@ public class TableMapStoreTest {
     @Test
     public void testStoreAll() throws Exception {
         Map<String, Table> tables = Maps.newHashMap();
-        for (int i = 0; i < 10; i++) {
+        for(int i = 0; i < 10; i++) {
             Table table = new Table();
-            table.setName(UUID.randomUUID().toString());
+            table.setName(UUID.randomUUID()
+                                  .toString());
             table.setTtl(20);
             tables.put(table.getName(), table);
         }
@@ -144,11 +165,12 @@ public class TableMapStoreTest {
                 .execute()
                 .actionGet();
         Map<String, Table> responseTables = Maps.newHashMap();
-        for (MultiGetItemResponse multiGetItemResponse : response) {
-            Table table = mapper.readValue(multiGetItemResponse.getResponse().getSourceAsString(), Table.class);
+        for(MultiGetItemResponse multiGetItemResponse : response) {
+            Table table = mapper.readValue(multiGetItemResponse.getResponse()
+                                                   .getSourceAsString(), Table.class);
             responseTables.put(table.getName(), table);
         }
-        for (String name : tables.keySet()) {
+        for(String name : tables.keySet()) {
             compareTables(tables.get(name), responseTables.get(name));
         }
     }
@@ -161,9 +183,10 @@ public class TableMapStoreTest {
     @Test(expected = RuntimeException.class)
     public void testStoreAllNullTableKey() throws Exception {
         Map<String, Table> tables = Maps.newHashMap();
-        for (int i = 0; i < 10; i++) {
+        for(int i = 0; i < 10; i++) {
             Table table = new Table();
-            table.setName(UUID.randomUUID().toString());
+            table.setName(UUID.randomUUID()
+                                  .toString());
             table.setTtl(20);
             tables.put(null, table);
         }
@@ -173,8 +196,9 @@ public class TableMapStoreTest {
     @Test(expected = RuntimeException.class)
     public void testStoreAllNullTableValue() throws Exception {
         Map<String, Table> tables = Maps.newHashMap();
-        for (int i = 0; i < 10; i++) {
-            tables.put(UUID.randomUUID().toString(), null);
+        for(int i = 0; i < 10; i++) {
+            tables.put(UUID.randomUUID()
+                               .toString(), null);
         }
         tableMapStore.storeAll(tables);
     }
@@ -182,7 +206,7 @@ public class TableMapStoreTest {
     @Test(expected = RuntimeException.class)
     public void testStoreAllNullTableKeyValue() throws Exception {
         Map<String, Table> tables = Maps.newHashMap();
-        for (int i = 0; i < 10; i++) {
+        for(int i = 0; i < 10; i++) {
             tables.put(null, null);
         }
         tableMapStore.storeAll(tables);
@@ -191,15 +215,17 @@ public class TableMapStoreTest {
     @Test(expected = RuntimeException.class)
     public void testStoreAllSomeNullKeys() throws Exception {
         Map<String, Table> tables = Maps.newHashMap();
-        for (int i = 0; i < 10; i++) {
+        for(int i = 0; i < 10; i++) {
             Table table = new Table();
-            table.setName(UUID.randomUUID().toString());
+            table.setName(UUID.randomUUID()
+                                  .toString());
             table.setTtl(20);
             tables.put(table.getName(), table);
         }
 
         Table table = new Table();
-        table.setName(UUID.randomUUID().toString());
+        table.setName(UUID.randomUUID()
+                              .toString());
         table.setTtl(20);
         tables.put(null, table);
         tableMapStore.storeAll(tables);
@@ -208,15 +234,17 @@ public class TableMapStoreTest {
     @Test(expected = RuntimeException.class)
     public void testStoreAllSomeNullValues() throws Exception {
         Map<String, Table> tables = Maps.newHashMap();
-        for (int i = 0; i < 10; i++) {
+        for(int i = 0; i < 10; i++) {
             Table table = new Table();
-            table.setName(UUID.randomUUID().toString());
+            table.setName(UUID.randomUUID()
+                                  .toString());
             table.setTtl(20);
             tables.put(table.getName(), table);
         }
 
         Table table = new Table();
-        table.setName(UUID.randomUUID().toString());
+        table.setName(UUID.randomUUID()
+                              .toString());
         table.setTtl(20);
         tables.put(table.getName(), null);
         tableMapStore.storeAll(tables);
@@ -225,9 +253,10 @@ public class TableMapStoreTest {
     @Test(expected = RuntimeException.class)
     public void testStoreAllSomeNullKeyValues() throws Exception {
         Map<String, Table> tables = Maps.newHashMap();
-        for (int i = 0; i < 10; i++) {
+        for(int i = 0; i < 10; i++) {
             Table table = new Table();
-            table.setName(UUID.randomUUID().toString());
+            table.setName(UUID.randomUUID()
+                                  .toString());
             table.setTtl(20);
             tables.put(table.getName(), table);
         }
@@ -242,7 +271,8 @@ public class TableMapStoreTest {
         table.setName(TEST_TABLE);
         table.setTtl(30);
         tableMapStore.store(table.getName(), table);
-        GetResponse response = elasticsearchConnection.getClient().prepareGet()
+        GetResponse response = elasticsearchConnection.getClient()
+                .prepareGet()
                 .setIndex(TABLE_META_INDEX)
                 .setType(TABLE_META_TYPE)
                 .setId(table.getName())
@@ -251,7 +281,8 @@ public class TableMapStoreTest {
         assertTrue(response.isExists());
 
         tableMapStore.delete(table.getName());
-        response = elasticsearchConnection.getClient().prepareGet()
+        response = elasticsearchConnection.getClient()
+                .prepareGet()
                 .setIndex(TABLE_META_INDEX)
                 .setType(TABLE_META_TYPE)
                 .setId(table.getName())
@@ -275,15 +306,17 @@ public class TableMapStoreTest {
     @Test
     public void testDeleteAll() throws Exception {
         Map<String, Table> tables = Maps.newHashMap();
-        for (int i = 0; i < 10; i++) {
+        for(int i = 0; i < 10; i++) {
             Table table = new Table();
-            table.setName(UUID.randomUUID().toString());
+            table.setName(UUID.randomUUID()
+                                  .toString());
             table.setTtl(20);
             tables.put(table.getName(), table);
         }
         tableMapStore.storeAll(tables);
-        for (String name : tables.keySet()) {
-            GetResponse response = elasticsearchConnection.getClient().prepareGet()
+        for(String name : tables.keySet()) {
+            GetResponse response = elasticsearchConnection.getClient()
+                    .prepareGet()
                     .setIndex(TABLE_META_INDEX)
                     .setType(TABLE_META_TYPE)
                     .setId(name)
@@ -293,8 +326,9 @@ public class TableMapStoreTest {
         }
 
         tableMapStore.deleteAll(tables.keySet());
-        for (String name : tables.keySet()) {
-            GetResponse response = elasticsearchConnection.getClient().prepareGet()
+        for(String name : tables.keySet()) {
+            GetResponse response = elasticsearchConnection.getClient()
+                    .prepareGet()
                     .setIndex(TABLE_META_INDEX)
                     .setType(TABLE_META_TYPE)
                     .setId(name)
@@ -325,7 +359,8 @@ public class TableMapStoreTest {
         table.setName(TEST_TABLE);
         table.setTtl(30);
         Map<String, Object> sourceMap = ElasticsearchQueryUtils.getSourceMap(table, Table.class);
-        elasticsearchConnection.getClient().prepareIndex()
+        elasticsearchConnection.getClient()
+                .prepareIndex()
                 .setIndex(TABLE_META_INDEX)
                 .setType(TABLE_META_TYPE)
                 .setSource(sourceMap)
@@ -340,19 +375,22 @@ public class TableMapStoreTest {
 
     @Test
     public void testLoadMissingKey() throws Exception {
-        assertNull(tableMapStore.load(UUID.randomUUID().toString()));
+        assertNull(tableMapStore.load(UUID.randomUUID()
+                                              .toString()));
     }
 
     //TODO Why not an error ?
     @Test
     public void testLoadNullKey() throws Exception {
-        assertNull(tableMapStore.load(UUID.randomUUID().toString()));
+        assertNull(tableMapStore.load(UUID.randomUUID()
+                                              .toString()));
     }
 
     // Exception Caught because of Runtime. Not an IOException
     @Test(expected = RuntimeException.class)
     public void testLoadKeyWithWrongJson() throws Exception {
-        elasticsearchConnection.getClient().prepareIndex()
+        elasticsearchConnection.getClient()
+                .prepareIndex()
                 .setIndex(TABLE_META_INDEX)
                 .setType(TABLE_META_TYPE)
                 .setSource("{ \"test\" : \"test\"}")
@@ -367,13 +405,15 @@ public class TableMapStoreTest {
     @Test
     public void testLoadAll() throws Exception {
         Map<String, Table> tables = Maps.newHashMap();
-        for (int i = 0; i < 10; i++) {
+        for(int i = 0; i < 10; i++) {
             Table table = new Table();
-            table.setName(UUID.randomUUID().toString());
+            table.setName(UUID.randomUUID()
+                                  .toString());
             table.setTtl(20);
             tables.put(table.getName(), table);
             Map<String, Object> sourceMap = ElasticsearchQueryUtils.getSourceMap(table, Table.class);
-            elasticsearchConnection.getClient().prepareIndex()
+            elasticsearchConnection.getClient()
+                    .prepareIndex()
                     .setIndex(TABLE_META_INDEX)
                     .setType(TABLE_META_TYPE)
                     .setSource(sourceMap)
@@ -386,7 +426,7 @@ public class TableMapStoreTest {
         Set<String> names = ImmutableSet.copyOf(Iterables.limit(tables.keySet(), 5));
         Map<String, Table> responseTables = tableMapStore.loadAll(names);
         assertEquals(names.size(), responseTables.size());
-        for (String name : names) {
+        for(String name : names) {
             compareTables(tables.get(name), responseTables.get(name));
         }
     }
@@ -398,7 +438,8 @@ public class TableMapStoreTest {
 
     @Test(expected = RuntimeException.class)
     public void testLoadAllKeyWithWrongJson() throws Exception {
-        elasticsearchConnection.getClient().prepareIndex()
+        elasticsearchConnection.getClient()
+                .prepareIndex()
                 .setIndex(TABLE_META_INDEX)
                 .setType(TABLE_META_TYPE)
                 .setSource("{ \"test\" : \"test\"}")
@@ -413,13 +454,15 @@ public class TableMapStoreTest {
     @Test
     public void testLoadAllKeys() throws Exception {
         Map<String, Table> tables = Maps.newHashMap();
-        for (int i = 0; i < 10; i++) {
+        for(int i = 0; i < 10; i++) {
             Table table = new Table();
-            table.setName(UUID.randomUUID().toString());
+            table.setName(UUID.randomUUID()
+                                  .toString());
             table.setTtl(20);
             tables.put(table.getName(), table);
             Map<String, Object> sourceMap = ElasticsearchQueryUtils.getSourceMap(table, Table.class);
-            elasticsearchConnection.getClient().prepareIndex()
+            elasticsearchConnection.getClient()
+                    .prepareIndex()
                     .setIndex(TABLE_META_INDEX)
                     .setType(TABLE_META_TYPE)
                     .setSource(sourceMap)
@@ -430,7 +473,7 @@ public class TableMapStoreTest {
         }
 
         Set<String> responseKeys = tableMapStore.loadAllKeys();
-        for (String name : tables.keySet()) {
+        for(String name : tables.keySet()) {
             assertTrue(responseKeys.contains(name));
         }
     }

@@ -23,7 +23,12 @@ public class CountActionTest extends ActionTest {
         super.setUp();
         List<Document> documents = TestUtils.getCountDocuments(getMapper());
         getQueryStore().save(TestUtils.TEST_TABLE_NAME, documents);
-        getElasticsearchConnection().getClient().admin().indices().prepareRefresh("*").execute().actionGet();
+        getElasticsearchConnection().getClient()
+                .admin()
+                .indices()
+                .prepareRefresh("*")
+                .execute()
+                .actionGet();
     }
 
     @Test

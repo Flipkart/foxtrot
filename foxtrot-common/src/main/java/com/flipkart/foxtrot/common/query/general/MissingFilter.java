@@ -14,20 +14,20 @@ import lombok.ToString;
 @Data
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
-public class MissingFilter extends Filter{
-	public MissingFilter() {
-		super(FilterOperator.missing);
-	}
+public class MissingFilter extends Filter {
+    public MissingFilter() {
+        super(FilterOperator.missing);
+    }
 
-	@Builder
-	public MissingFilter(String field) {
-		super(FilterOperator.missing, field);
-	}
+    @Builder
+    public MissingFilter(String field) {
+        super(FilterOperator.missing, field);
+    }
 
-	@Override
-	public<T> T accept(FilterVisitor<T> visitor) throws Exception {
-		return visitor.visit(this);
-	}
+    @Override
+    public <T> T accept(FilterVisitor<T> visitor) throws Exception {
+        return visitor.visit(this);
+    }
 
 
 }

@@ -1,12 +1,12 @@
 /**
  * Copyright 2014 Flipkart Internet Pvt. Ltd.
- *
+ * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
+ * <p>
  * http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -27,7 +27,6 @@ import com.flipkart.foxtrot.common.trend.TrendResponse;
 import com.flipkart.foxtrot.core.TestUtils;
 import com.flipkart.foxtrot.core.exception.ErrorCode;
 import com.flipkart.foxtrot.core.exception.FoxtrotException;
-import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.junit.Before;
@@ -37,7 +36,6 @@ import java.util.*;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
-import static org.mockito.Mockito.doReturn;
 
 /**
  * Created by rishabh.goyal on 29/04/14.
@@ -48,7 +46,12 @@ public class TrendActionTest extends ActionTest {
         super.setUp();
         List<Document> documents = TestUtils.getTrendDocuments(getMapper());
         getQueryStore().save(TestUtils.TEST_TABLE_NAME, documents);
-        getElasticsearchConnection().getClient().admin().indices().prepareRefresh("*").execute().actionGet();
+        getElasticsearchConnection().getClient()
+                .admin()
+                .indices()
+                .prepareRefresh("*")
+                .execute()
+                .actionGet();
     }
 
     private void filterNonZeroCounts(List<TrendResponse.Count> counts) {
@@ -200,8 +203,10 @@ public class TrendActionTest extends ActionTest {
         expectedResponse.setTrends(trends);
 
         TrendResponse actualResponse = TrendResponse.class.cast(getQueryExecutor().execute(trendRequest));
-        filterNonZeroCounts(actualResponse.getTrends().get("android"));
-        filterNonZeroCounts(actualResponse.getTrends().get("ios"));
+        filterNonZeroCounts(actualResponse.getTrends()
+                                    .get("android"));
+        filterNonZeroCounts(actualResponse.getTrends()
+                                    .get("ios"));
         assertEquals(expectedResponse, actualResponse);
     }
 
@@ -234,8 +239,10 @@ public class TrendActionTest extends ActionTest {
         expectedResponse.setTrends(trends);
 
         TrendResponse actualResponse = TrendResponse.class.cast(getQueryExecutor().execute(trendRequest));
-        filterNonZeroCounts(actualResponse.getTrends().get("android"));
-        filterNonZeroCounts(actualResponse.getTrends().get("ios"));
+        filterNonZeroCounts(actualResponse.getTrends()
+                                    .get("android"));
+        filterNonZeroCounts(actualResponse.getTrends()
+                                    .get("ios"));
         assertEquals(expectedResponse, actualResponse);
     }
 
@@ -268,8 +275,10 @@ public class TrendActionTest extends ActionTest {
         expectedResponse.setTrends(trends);
 
         TrendResponse actualResponse = TrendResponse.class.cast(getQueryExecutor().execute(trendRequest));
-        filterNonZeroCounts(actualResponse.getTrends().get("android"));
-        filterNonZeroCounts(actualResponse.getTrends().get("ios"));
+        filterNonZeroCounts(actualResponse.getTrends()
+                                    .get("android"));
+        filterNonZeroCounts(actualResponse.getTrends()
+                                    .get("ios"));
         assertEquals(expectedResponse, actualResponse);
     }
 
@@ -297,7 +306,8 @@ public class TrendActionTest extends ActionTest {
         expectedResponse.setTrends(trends);
 
         TrendResponse actualResponse = TrendResponse.class.cast(getQueryExecutor().execute(trendRequest));
-        filterNonZeroCounts(actualResponse.getTrends().get("android"));
+        filterNonZeroCounts(actualResponse.getTrends()
+                                    .get("android"));
         assertEquals(expectedResponse, actualResponse);
     }
 

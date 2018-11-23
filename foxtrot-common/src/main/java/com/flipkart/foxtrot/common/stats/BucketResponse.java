@@ -37,8 +37,7 @@ public class BucketResponse<T> {
 
     @Override
     public String toString() {
-        return new ToStringBuilder(this)
-                .append("key", key)
+        return new ToStringBuilder(this).append("key", key)
                 .append("result", result)
                 .append("buckets", buckets)
                 .toString();

@@ -35,10 +35,12 @@ import java.util.concurrent.TimeUnit;
 
 public class MockElasticsearchServer {
     private final Node node;
-    private String DATA_DIRECTORY = UUID.randomUUID().toString() + "/elasticsearch-data";
+    private String DATA_DIRECTORY = UUID.randomUUID()
+                                            .toString() + "/elasticsearch-data";
 
     public MockElasticsearchServer(String directory) throws NodeValidationException {
-        this.DATA_DIRECTORY = UUID.randomUUID().toString() + "/" + directory;
+        this.DATA_DIRECTORY = UUID.randomUUID()
+                                      .toString() + "/" + directory;
         Settings settings = Settings.builder()
                 .put("http.enabled", "false")
                 .put("path.home", "target/" + DATA_DIRECTORY)
@@ -50,7 +52,11 @@ public class MockElasticsearchServer {
     }
 
     public void refresh(final String index) {
-        node.client().admin().indices().refresh(new RefreshRequest().indices(index)).actionGet();
+        node.client()
+                .admin()
+                .indices()
+                .refresh(new RefreshRequest().indices(index))
+                .actionGet();
     }
 
     public Client getClient() {
@@ -58,7 +64,10 @@ public class MockElasticsearchServer {
     }
 
     public void shutdown() throws IOException {
-        node.client().admin().indices().delete(new DeleteIndexRequest("table-meta"));
+        node.client()
+                .admin()
+                .indices()
+                .delete(new DeleteIndexRequest("table-meta"));
         node.close();
         deleteDataDirectory();
     }

@@ -1,12 +1,12 @@
 /**
  * Copyright 2014 Flipkart Internet Pvt. Ltd.
- *
+ * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
+ * <p>
  * http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -15,6 +15,7 @@
  */
 package com.flipkart.foxtrot.server.resources;
 
+import com.codahale.metrics.annotation.Timed;
 import com.flipkart.foxtrot.common.ActionResponse;
 import com.flipkart.foxtrot.core.cache.CacheManager;
 import com.flipkart.foxtrot.core.common.AsyncDataToken;
@@ -41,16 +42,21 @@ public class AsyncResource {
 
     @GET
     @Path("/{action}/{id}")
+    @Timed
     public Response getResponse(@PathParam("action") final String action, @NotNull @PathParam("id") final String id) {
-        return Response.ok(getData(new AsyncDataToken(action, id))).build();
+        return Response.ok(getData(new AsyncDataToken(action, id)))
+                .build();
     }
 
     @POST
+    @Timed
     public Response getResponsePost(final AsyncDataToken dataToken) {
-        return Response.ok(getData(dataToken)).build();
+        return Response.ok(getData(dataToken))
+                .build();
     }
 
     private ActionResponse getData(final AsyncDataToken dataToken) {
-        return cacheManager.getCacheFor(dataToken.getAction()).get(dataToken.getKey());
+        return cacheManager.getCacheFor(dataToken.getAction())
+                .get(dataToken.getKey());
     }
 }

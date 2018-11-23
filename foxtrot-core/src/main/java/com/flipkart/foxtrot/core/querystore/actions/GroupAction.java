@@ -26,14 +26,16 @@ import com.flipkart.foxtrot.common.group.GroupRequest;
 import com.flipkart.foxtrot.common.group.GroupResponse;
 import com.flipkart.foxtrot.common.query.Filter;
 import com.flipkart.foxtrot.common.query.FilterVisitorAdapter;
+import com.flipkart.foxtrot.common.query.ResultSort;
 import com.flipkart.foxtrot.common.query.general.EqualsFilter;
 import com.flipkart.foxtrot.common.query.general.InFilter;
 import com.flipkart.foxtrot.common.query.general.NotEqualsFilter;
 import com.flipkart.foxtrot.common.query.general.NotInFilter;
 import com.flipkart.foxtrot.common.query.numeric.*;
 import com.flipkart.foxtrot.common.query.string.ContainsFilter;
-import com.flipkart.foxtrot.common.query.ResultSort;
 import com.flipkart.foxtrot.common.util.CollectionUtils;
+import com.flipkart.foxtrot.core.alerts.EmailClient;
+import com.flipkart.foxtrot.core.alerts.EmailConfig;
 import com.flipkart.foxtrot.core.cache.CacheManager;
 import com.flipkart.foxtrot.core.common.Action;
 import com.flipkart.foxtrot.core.common.PeriodSelector;
@@ -44,6 +46,7 @@ import com.flipkart.foxtrot.core.exception.MalformedQueryException;
 import com.flipkart.foxtrot.core.querystore.QueryStore;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsProvider;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConnection;
+import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchQueryStore;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
 import com.flipkart.foxtrot.core.querystore.query.ElasticSearchQueryGenerator;
 import com.flipkart.foxtrot.core.table.TableMetadataManager;
@@ -80,15 +83,15 @@ public class GroupAction extends Action<GroupRequest> {
     private static final long MAX_CARDINALITY = 50000;
     private static final long MIN_ESTIMATION_THRESHOLD = 1000;
     private static final double PROBABILITY_CUT_OFF = 0.5;
+    private EmailClient emailClient;
 
-    public GroupAction(GroupRequest parameter,
-                       TableMetadataManager tableMetadataManager,
-                       DataStore dataStore,
-                       QueryStore queryStore,
-                       ElasticsearchConnection connection,
-                       String cacheToken,
-                       CacheManager cacheManager, ObjectMapper objectMapper) {
-        super(parameter, tableMetadataManager, dataStore, queryStore, connection, cacheToken, cacheManager, objectMapper);
+    public GroupAction(GroupRequest parameter, TableMetadataManager tableMetadataManager, DataStore dataStore,
+                       QueryStore queryStore, ElasticsearchConnection connection, String cacheToken,
+                       CacheManager cacheManager, ObjectMapper objectMapper, EmailConfig emailConfig) {
+        super(parameter, tableMetadataManager, dataStore, queryStore, connection, cacheToken, cacheManager,
+              objectMapper, emailConfig
+             );
+        emailClient = getEmailClient(emailConfig);
     }
 
     @Override
@@ -105,18 +108,22 @@ public class GroupAction extends Action<GroupRequest> {
     protected String getRequestCacheKey() {
         long filterHashKey = 0L;
         GroupRequest query = getParameter();
-        if (null != query.getFilters()) {
-            for (Filter filter : query.getFilters()) {
+        if(null != query.getFilters()) {
+            for(Filter filter : query.getFilters()) {
                 filterHashKey += 31 * filter.hashCode();
             }
         }
 
-        if (null != query.getUniqueCountOn()) {
-            filterHashKey += 31 * query.getUniqueCountOn().hashCode();
+        if(null != query.getUniqueCountOn()) {
+            filterHashKey += 31 * query.getUniqueCountOn()
+                    .hashCode();
         }
 
-        for (int i = 0; i < query.getNesting().size(); i++) {
-            filterHashKey += 31 * query.getNesting().get(i).hashCode() * (i + 1);
+        for(int i = 0; i < query.getNesting()
+                .size(); i++) {
+            filterHashKey += 31 * query.getNesting()
+                    .get(i)
+                    .hashCode() * (i + 1);
         }
         return String.format("%s-%d", query.getTable(), filterHashKey);
     }
@@ -124,55 +131,69 @@ public class GroupAction extends Action<GroupRequest> {
     @Override
     public void validateImpl(GroupRequest parameter) throws MalformedQueryException {
         List<String> validationErrors = new ArrayList<>();
-        if (CollectionUtils.isNullOrEmpty(parameter.getTable())) {
+        if(CollectionUtils.isNullOrEmpty(parameter.getTable())) {
             validationErrors.add("table name cannot be null or empty");
         }
 
-        if (CollectionUtils.isNullOrEmpty(parameter.getNesting())) {
+        if(CollectionUtils.isNullOrEmpty(parameter.getNesting())) {
             validationErrors.add("at least one grouping parameter is required");
         } else {
-            validationErrors.addAll(parameter.getNesting().stream()
-                    .filter(CollectionUtils::isNullOrEmpty)
-                    .map(field -> "grouping parameter cannot have null or empty name")
-                    .collect(Collectors.toList()));
+            validationErrors.addAll(parameter.getNesting()
+                                            .stream()
+                                            .filter(CollectionUtils::isNullOrEmpty)
+                                            .map(field -> "grouping parameter cannot have null or empty name")
+                                            .collect(Collectors.toList()));
         }
 
-        if (parameter.getUniqueCountOn() != null && parameter.getUniqueCountOn().isEmpty()) {
+        if(parameter.getUniqueCountOn() != null && parameter.getUniqueCountOn()
+                .isEmpty()) {
             validationErrors.add("unique field cannot be empty (can be null)");
         }
 
-        if (!CollectionUtils.isNullOrEmpty(validationErrors)) {
+        if(!CollectionUtils.isNullOrEmpty(validationErrors)) {
             throw FoxtrotExceptions.createMalformedQueryException(parameter, validationErrors);
         }
 
         // Perform cardinality analysis and see how much this fucks up the cluster
-        double probability = 0;
-        try {
-            TableFieldMapping fieldMappings = getTableMetadataManager().getFieldMappings(parameter.getTable(), true);
-            if (null == fieldMappings) {
-                fieldMappings = TableFieldMapping.builder()
-                        .mappings(Collections.emptySet())
-                        .table(parameter.getTable())
-                        .build();
-            }
-
-            probability = estimateProbability(fieldMappings, parameter);
-        } catch (Exception e) {
-            log.error("Error running estimation", e);
-        }
-
-        if (probability > PROBABILITY_CUT_OFF) {
+        QueryStore queryStore = getQueryStore();
+        if(queryStore instanceof ElasticsearchQueryStore && ((ElasticsearchQueryStore)queryStore).getCardinalityConfig()
+                .isEnabled()) {
+            double probability = 0;
             try {
-                log.warn("Blocked query as it might have screwed up the cluster. Probability: {} Query: {}",
-                        probability, getObjectMapper().writeValueAsString(parameter));
-            } catch (JsonProcessingException e) {
-                log.warn("Blocked query as it might have screwed up the cluster. Probability: {} Query: {}",
-                        probability, parameter);
+                TableFieldMapping fieldMappings = getTableMetadataManager().getFieldMappings(parameter.getTable(), true,
+                                                                                             false
+                                                                                            );
+                if(null == fieldMappings) {
+                    fieldMappings = TableFieldMapping.builder()
+                            .mappings(Collections.emptySet())
+                            .table(parameter.getTable())
+                            .build();
+                }
+
+                probability = estimateProbability(fieldMappings, parameter);
+            } catch (Exception e) {
+                log.error("Error running estimation", e);
             }
-            //TODO Uncomment it later after testing
-            //throw FoxtrotExceptions.createCardinalityOverflow(parameter, parameter.getNesting().get(0), probability);
-        } else {
-            log.info("Allowing group by with probability {} for query: {}", probability, parameter);
+
+            if(probability > PROBABILITY_CUT_OFF) {
+                try {
+                    String subject = "Blocked query as it might have screwed up the cluster";
+                    String content = getObjectMapper().writeValueAsString(parameter);
+                    String recipients = "payments-dev@phonepe.com";
+                    emailClient.sendEmail(subject, content, recipients);
+                    log.warn("Blocked query as it might have screwed up the cluster. Probability: {} Query: {}",
+                             probability, getObjectMapper().writeValueAsString(parameter)
+                            );
+                } catch (JsonProcessingException e) {
+                    log.warn("Blocked query as it might have screwed up the cluster. Probability: {} Query: {}",
+                             probability, parameter
+                            );
+                }
+                throw FoxtrotExceptions.createCardinalityOverflow(parameter, parameter.getNesting()
+                        .get(0), probability);
+            } else {
+                log.info("Allowing group by with probability {} for query: {}", probability, parameter);
+            }
         }
 
     }
@@ -193,11 +214,12 @@ public class GroupAction extends Action<GroupRequest> {
             throw FoxtrotExceptions.queryCreationException(parameter, e);
         }
         try {
-            SearchResponse response = query.execute().actionGet();
+            SearchResponse response = query.execute()
+                    .actionGet(getGetQueryTimeout());
             List<String> fields = parameter.getNesting();
             Aggregations aggregations = response.getAggregations();
             // Check if any aggregation is present or not
-            if (aggregations == null) {
+            if(aggregations == null) {
                 return new GroupResponse(Collections.<String, Object>emptyMap());
             }
             return new GroupResponse(getMap(fields, aggregations));
@@ -213,78 +235,111 @@ public class GroupAction extends Action<GroupRequest> {
 
         String cacheKey = getRequestCacheKey();
         long estimatedMaxDocCount = extractMaxDocCount(metaMap);
-        log.debug("cacheKey:{} msg:DOC_COUNT_ESTIMATION_COMPLETED maxDocCount:{}",
-                cacheKey, estimatedMaxDocCount);
+        log.debug("cacheKey:{} msg:DOC_COUNT_ESTIMATION_COMPLETED maxDocCount:{}", cacheKey, estimatedMaxDocCount);
         long estimatedDocCountBasedOnTime = estimateDocCountBasedOnTime(estimatedMaxDocCount, parameter,
-                getTableMetadataManager(), tableFieldMapping.getTable());
+                                                                        getTableMetadataManager(),
+                                                                        tableFieldMapping.getTable()
+                                                                       );
         log.debug("cacheKey:{} msg:TIME_BASED_DOC_ESTIMATION_COMPLETED maxDocCount:{} docCountAfterTimeFilters:{}",
-                cacheKey, estimatedMaxDocCount, estimatedDocCountBasedOnTime);
-        long estimatedDocCountAfterFilters = estimateDocCountWithFilters(estimatedDocCountBasedOnTime, metaMap, parameter.getFilters());
-        log.debug("cacheKey:{} msg:ALL_FILTER_ESTIMATION_COMPLETED maxDocCount:{} docCountAfterTimeFilters:{} docCountAfterFilters:{}",
-                cacheKey, estimatedMaxDocCount, estimatedDocCountBasedOnTime, estimatedDocCountAfterFilters);
-        if (estimatedDocCountAfterFilters < MIN_ESTIMATION_THRESHOLD) {
-            log.debug("cacheKey:{} msg:NESTING_ESTIMATION_SKIPPED estimatedDocCount:{} threshold:{}",
-                    cacheKey, estimatedDocCountAfterFilters, MIN_ESTIMATION_THRESHOLD);
+                  cacheKey, estimatedMaxDocCount, estimatedDocCountBasedOnTime
+                 );
+        long estimatedDocCountAfterFilters = estimateDocCountWithFilters(estimatedDocCountBasedOnTime, metaMap,
+                                                                         parameter.getFilters()
+                                                                        );
+        log.debug("cacheKey:{} msg:ALL_FILTER_ESTIMATION_COMPLETED maxDocCount:{} docCountAfterTimeFilters:{} " +
+                  "docCountAfterFilters:{}", cacheKey, estimatedMaxDocCount, estimatedDocCountBasedOnTime,
+                  estimatedDocCountAfterFilters
+                 );
+        if(estimatedDocCountAfterFilters < MIN_ESTIMATION_THRESHOLD) {
+            log.debug("cacheKey:{} msg:NESTING_ESTIMATION_SKIPPED estimatedDocCount:{} threshold:{}", cacheKey,
+                      estimatedDocCountAfterFilters, MIN_ESTIMATION_THRESHOLD
+                     );
             return 0.0;
         }
 
         long outputCardinality = 1;
         final AtomicBoolean reduceCardinality = new AtomicBoolean(false);
-        for (int i = 0; i < parameter.getNesting().size(); i++) {
-            final String field = parameter.getNesting().get(i);
+        for(int i = 0; i < parameter.getNesting()
+                .size(); i++) {
+            final String field = parameter.getNesting()
+                    .get(i);
             FieldMetadata metadata = metaMap.get(field);
-            if (null == metadata || null == metadata.getEstimationData()) {
-                log.warn("cacheKey:{} msg:NO_FIELD_ESTIMATION_DATA table:{} field:{}", cacheKey, parameter.getTable(), field);
+            if(null == metadata || null == metadata.getEstimationData()) {
+                log.warn("cacheKey:{} msg:NO_FIELD_ESTIMATION_DATA table:{} field:{}", cacheKey, parameter.getTable(),
+                         field
+                        );
                 continue;
             }
-            long fieldCardinality = metadata.getEstimationData().accept(new EstimationDataVisitor<Long>() {
-                @Override
-                public Long visit(FixedEstimationData fixedEstimationData) {
-                    return fixedEstimationData.getCount();
-                }
+            long fieldCardinality = metadata.getEstimationData()
+                    .accept(new EstimationDataVisitor<Long>() {
+                        @Override
+                        public Long visit(FixedEstimationData fixedEstimationData) {
+                            return fixedEstimationData.getCount();
+                        }
 
-                @Override
-                public Long visit(PercentileEstimationData percentileEstimationData) {
-                    reduceCardinality.getAndSet(true);
-                    return percentileEstimationData.getCardinality();
-                }
+                        @Override
+                        public Long visit(PercentileEstimationData percentileEstimationData) {
+                            reduceCardinality.getAndSet(true);
+                            return percentileEstimationData.getCardinality();
+                        }
 
-                @Override
-                public Long visit(CardinalityEstimationData cardinalityEstimationData) {
-                    return (cardinalityEstimationData.getCardinality() * estimatedDocCountAfterFilters) / cardinalityEstimationData.getCount();
-                }
+                        @Override
+                        public Long visit(CardinalityEstimationData cardinalityEstimationData) {
+                            return (cardinalityEstimationData.getCardinality() * estimatedDocCountAfterFilters) /
+                                   cardinalityEstimationData.getCount();
+                        }
 
-                @Override
-                public Long visit(TermHistogramEstimationData termEstimationData) {
-                    reduceCardinality.getAndSet(true);
-                    return (long) termEstimationData.getTermCounts().size();
-                }
-            });
-            log.debug("cacheKey:{} msg:NESTING_FIELD_ESTIMATED field:{} overallCardinality:{} fieldCardinality:{} newCardinality:{}",
-                    cacheKey, field, outputCardinality, fieldCardinality, outputCardinality * fieldCardinality);
+                        @Override
+                        public Long visit(TermHistogramEstimationData termEstimationData) {
+                            reduceCardinality.getAndSet(true);
+                            return (long)termEstimationData.getTermCounts()
+                                    .size();
+                        }
+                    });
+            log.debug("cacheKey:{} msg:NESTING_FIELD_ESTIMATED field:{} overallCardinality:{} fieldCardinality:{} " +
+                      "newCardinality:{}", cacheKey, field, outputCardinality, fieldCardinality,
+                      outputCardinality * fieldCardinality
+                     );
             /*if (fieldCardinality != 0) {
-                fieldCardinality = (long) Utils.ensureOne((long) Math.pow(Math.abs(fieldCardinality), 1 / Math.pow(2, i + 1)));
+                fieldCardinality = (long) Utils.ensureOne((long) Math.pow(Math.abs(fieldCardinality), 1 / Math.pow(2,
+                 i + 1)));
             }*/
-            fieldCardinality = (long) Utils.ensureOne(fieldCardinality);
-            log.debug("cacheKey:{} msg:NESTING_FIELD_ESTIMATION_COMPLETED field:{} overallCardinality:{} fieldCardinality:{} newCardinality:{}",
-                    cacheKey, field, outputCardinality, fieldCardinality, outputCardinality * fieldCardinality);
+            fieldCardinality = (long)Utils.ensureOne(fieldCardinality);
+            log.debug("cacheKey:{} msg:NESTING_FIELD_ESTIMATION_COMPLETED field:{} overallCardinality:{} " +
+                      "fieldCardinality:{} newCardinality:{}", cacheKey, field, outputCardinality, fieldCardinality,
+                      outputCardinality * fieldCardinality
+                     );
             outputCardinality *= fieldCardinality;
         }
 
         //Although cardinality will not be reduced by the same factor as documents count reduced.
-        //To give benefit of doubt or if someone is making query on a smaller time frame using fields of higher cardinality, reducing cardinality for that query
-        //Only reducing cardinality if the doc count is actually less than docCount for a day. Assuming cardinality will remain same if query for more than 1 day
-        if (((double) estimatedDocCountAfterFilters / estimatedMaxDocCount) < 1.0 && reduceCardinality.get()) {
-            outputCardinality = (long) (outputCardinality * ((double) estimatedDocCountAfterFilters / estimatedMaxDocCount));
+        //To give benefit of doubt or if someone is making query on a smaller time frame using fields of higher
+        // cardinality, reducing cardinality for that query
+        //Only reducing cardinality if the doc count is actually less than docCount for a day. Assuming cardinality
+        // will remain same if query for more than 1 day
+        if(((double)estimatedDocCountAfterFilters / estimatedMaxDocCount) < 1.0 && reduceCardinality.get()) {
+            outputCardinality =
+                    (long)(outputCardinality * ((double)estimatedDocCountAfterFilters / estimatedMaxDocCount));
         }
 
-        log.debug("cacheKey:{} msg:NESTING_FIELDS_ESTIMATION_COMPLETED maxDocCount:{} docCountAfterTimeFilters:{} docCountAfterFilters:{} outputCardinality:{}",
-                cacheKey, estimatedMaxDocCount, estimatedDocCountBasedOnTime, estimatedDocCountAfterFilters, outputCardinality);
-        if (outputCardinality > MAX_CARDINALITY) {
+        log.debug("cacheKey:{} msg:NESTING_FIELDS_ESTIMATION_COMPLETED maxDocCount:{} docCountAfterTimeFilters:{} " +
+                  "docCountAfterFilters:{} outputCardinality:{}", cacheKey, estimatedMaxDocCount,
+                  estimatedDocCountBasedOnTime, estimatedDocCountAfterFilters, outputCardinality
+                 );
+        long maxCardinality = MAX_CARDINALITY;
+        if(getQueryStore() instanceof ElasticsearchQueryStore &&
+           ((ElasticsearchQueryStore)getQueryStore()).getCardinalityConfig() != null &&
+           ((ElasticsearchQueryStore)getQueryStore()).getCardinalityConfig()
+                   .getMaxCardinality() != 0) {
+            maxCardinality = ((ElasticsearchQueryStore)getQueryStore()).getCardinalityConfig()
+                    .getMaxCardinality();
+        }
+        if(outputCardinality > maxCardinality) {
             log.warn("Output cardinality : {}, estimatedMaxDocCount : {}, estimatedDocCountBasedOnTime : {}, " +
-                            "estimatedDocCountAfterFilters : {}, TableFieldMapping : {},  Query: {}", outputCardinality,
-                    estimatedMaxDocCount, estimatedDocCountBasedOnTime, estimatedDocCountAfterFilters, tableFieldMapping,
-                    getObjectMapper().writeValueAsString(parameter));
+                     "estimatedDocCountAfterFilters : {}, TableFieldMapping : {},  Query: {}", outputCardinality,
+                     estimatedMaxDocCount, estimatedDocCountBasedOnTime, estimatedDocCountAfterFilters,
+                     tableFieldMapping, getObjectMapper().writeValueAsString(parameter)
+                    );
             return 1.0;
         } else {
             return 0;
@@ -294,50 +349,54 @@ public class GroupAction extends Action<GroupRequest> {
     private long estimateDocCountBasedOnTime(long currentDocCount, GroupRequest parameter,
                                              TableMetadataManager tableMetadataManager, String table) throws Exception {
         Interval queryInterval = new PeriodSelector(parameter.getFilters()).analyze();
-        long minutes = queryInterval.toDuration().getStandardMinutes();
-        double days = (double) minutes / TimeUnit.DAYS.toMinutes(1);
+        long minutes = queryInterval.toDuration()
+                .getStandardMinutes();
+        double days = (double)minutes / TimeUnit.DAYS.toMinutes(1);
         Table tableMetadata = tableMetadataManager.get(table);
         int maxDays = 0;
-        if (tableMetadata != null) {
+        if(tableMetadata != null) {
             maxDays = tableMetadata.getTtl();
         }
         //If we don't have it in metadata, assuming max data of 30 days
-        if (maxDays == 0) {
+        if(maxDays == 0) {
             maxDays = 30;
         }
         //This is done because we only store docs for last maxDays. Sometimes, we get startTime starting from 1970 year
-        if (days > maxDays) {
+        if(days > maxDays) {
             return currentDocCount * maxDays;
         } else {
-            return (long) (currentDocCount * days);
+            return (long)(currentDocCount * days);
         }
     }
 
     private long extractMaxDocCount(Map<String, FieldMetadata> metaMap) {
-        return metaMap.values().stream()
-                .map(x -> x.getEstimationData() == null ? 0 : x.getEstimationData().getCount())
+        return metaMap.values()
+                .stream()
+                .map(x -> x.getEstimationData() == null ? 0 : x.getEstimationData()
+                        .getCount())
                 .max(Comparator.naturalOrder())
-                .orElse((long) 0);
+                .orElse((long)0);
     }
 
-    private long estimateDocCountWithFilters(long currentDocCount,
-                                             Map<String, FieldMetadata> metaMap,
+    private long estimateDocCountWithFilters(long currentDocCount, Map<String, FieldMetadata> metaMap,
                                              List<Filter> filters) throws Exception {
-        if (CollectionUtils.isNullOrEmpty(filters)) {
+        if(CollectionUtils.isNullOrEmpty(filters)) {
             return currentDocCount;
         }
 
         String cacheKey = getRequestCacheKey();
 
         double overallFilterMultiplier = 1;
-        for (Filter filter : filters) {
+        for(Filter filter : filters) {
             final String filterField = filter.getField();
             FieldMetadata fieldMetadata = metaMap.get(filterField);
-            if (null == fieldMetadata || null == fieldMetadata.getEstimationData()) {
+            if(null == fieldMetadata || null == fieldMetadata.getEstimationData()) {
                 log.warn("cacheKey:{} msg:NO_FIELD_ESTIMATION_DATA field:{}", cacheKey, filterField);
                 continue;
             }
-            log.debug("cacheKey:{} msg:FILTER_ESTIMATION_STARTED filter:{} mapping:{}", cacheKey, filter, fieldMetadata);
+            log.debug("cacheKey:{} msg:FILTER_ESTIMATION_STARTED filter:{} mapping:{}", cacheKey, filter,
+                      fieldMetadata
+                     );
             double currentFilterMultiplier = fieldMetadata.getEstimationData()
                     .accept(new EstimationDataVisitor<Double>() {
                         @Override
@@ -370,15 +429,16 @@ public class GroupAction extends Action<GroupRequest> {
                                 @Override
                                 public Double visit(InFilter inFilter) throws Exception {
                                     // Assuming there are M matches, the probability is M/N
-                                    return Utils.ensurePositive(inFilter.getValues().size())
-                                            / Utils.ensureOne(fixedEstimationData.getCount());
+                                    return Utils.ensurePositive(inFilter.getValues()
+                                                                        .size()) / Utils.ensureOne(
+                                            fixedEstimationData.getCount());
                                 }
 
                                 @Override
                                 public Double visit(NotInFilter notInFilter) throws Exception {
                                     // Assuming there are M matches, then probability will be N - M / N
-                                    return Utils.ensurePositive(fixedEstimationData.getCount() - notInFilter.getValues().size())
-                                            / Utils.ensureOne(fixedEstimationData.getCount());
+                                    return Utils.ensurePositive(fixedEstimationData.getCount() - notInFilter.getValues()
+                                            .size()) / Utils.ensureOne(fixedEstimationData.getCount());
                                 }
                             });
                         }
@@ -394,36 +454,30 @@ public class GroupAction extends Action<GroupRequest> {
 
                                     //What percentage percentiles are >= above lower bound
                                     int minBound = IntStream.rangeClosed(0, 9)
-                                            .filter(i -> betweenFilter.getFrom().doubleValue()
-                                                    <= percentiles[i])
+                                            .filter(i -> betweenFilter.getFrom()
+                                                                 .doubleValue() <= percentiles[i])
                                             .findFirst()
                                             .orElse(0);
                                     // What percentage of values are > upper bound
                                     int maxBound = IntStream.rangeClosed(0, 9)
-                                            .filter(i -> betweenFilter.getTo().doubleValue()
-                                                    < percentiles[i])
+                                            .filter(i -> betweenFilter.getTo()
+                                                                 .doubleValue() < percentiles[i])
                                             .findFirst()
                                             .orElse(9);
 
                                     int numBuckets = maxBound - minBound + 1;
-                                    final double result = (double) numBuckets / 10.0;
+                                    final double result = (double)numBuckets / 10.0;
                                     log.debug("cacheKey:{} Between filter: {} " +
-                                                    "percentiles[{}] = {} to percentiles[{}] = {} " +
-                                                    "buckets {} multiplier {}",
-                                            cacheKey,
-                                            betweenFilter,
-                                            minBound,
-                                            percentiles[minBound],
-                                            maxBound,
-                                            percentiles[maxBound],
-                                            numBuckets,
-                                            result);
+                                              "percentiles[{}] = {} to percentiles[{}] = {} " +
+                                              "buckets {} multiplier {}", cacheKey, betweenFilter, minBound,
+                                              percentiles[minBound], maxBound, percentiles[maxBound], numBuckets, result
+                                             );
                                     return result;
                                 }
 
                                 @Override
                                 public Double visit(EqualsFilter equalsFilter) throws Exception {
-                                    Long value = (Long) equalsFilter.getValue();
+                                    Long value = (Long)equalsFilter.getValue();
                                     //What percentage percentiles are >= above lower bound
                                     int minBound = IntStream.rangeClosed(0, 9)
                                             .filter(i -> value <= percentiles[i])
@@ -435,16 +489,19 @@ public class GroupAction extends Action<GroupRequest> {
                                             .findFirst()
                                             .orElse(9);
                                     int numBuckets = maxBound - minBound + 1;
-                                    final double result = (double) numBuckets / 10.0;
-                                    log.debug("cacheKey:{} EqualsFilter:{} numMatches:{} multiplier:{}",
-                                            cacheKey, equalsFilter, numMatches, result);
+                                    final double result = (double)numBuckets / 10.0;
+                                    log.debug("cacheKey:{} EqualsFilter:{} numMatches:{} multiplier:{}", cacheKey,
+                                              equalsFilter, numMatches, result
+                                             );
                                     return result;
                                 }
 
                                 @Override
                                 public Double visit(NotEqualsFilter notEqualsFilter) throws Exception {
                                     // There is no match, so all values will be considered
-                                    log.debug("cacheKey:{} NotEqualsFilter:{} multiplier: 1.0", cacheKey, notEqualsFilter);
+                                    log.debug("cacheKey:{} NotEqualsFilter:{} multiplier: 1.0", cacheKey,
+                                              notEqualsFilter
+                                             );
                                     return 1.0;
                                 }
 
@@ -453,20 +510,17 @@ public class GroupAction extends Action<GroupRequest> {
                                     //Percentage of values greater than given value
                                     //Found when we find a percentile value > bound
                                     int minBound = IntStream.rangeClosed(0, 9)
-                                            .filter(i ->
-                                                    percentiles[i] > greaterThanFilter.getValue().doubleValue())
+                                            .filter(i -> percentiles[i] > greaterThanFilter.getValue()
+                                                    .doubleValue())
                                             //Stop when we find a value
                                             .findFirst()
                                             .orElse(0);
 
                                     //Everything below this percentile do not affect
-                                    final double result = (double) (10 - minBound - 1) / 10.0;
+                                    final double result = (double)(10 - minBound - 1) / 10.0;
                                     log.debug("cacheKey:{} GreaterThanFilter: {} percentiles[{}] = {} multiplier: {}",
-                                            cacheKey,
-                                            greaterThanFilter,
-                                            minBound,
-                                            percentiles[minBound],
-                                            result);
+                                              cacheKey, greaterThanFilter, minBound, percentiles[minBound], result
+                                             );
                                     return result;
                                 }
 
@@ -475,20 +529,17 @@ public class GroupAction extends Action<GroupRequest> {
                                     //Percentage of values greater than or equal to given value
                                     //Found when we find a percentile value > bound
                                     int minBound = IntStream.rangeClosed(0, 9)
-                                            .filter(i ->
-                                                    percentiles[i] >= greaterEqualFilter.getValue().doubleValue())
+                                            .filter(i -> percentiles[i] >= greaterEqualFilter.getValue()
+                                                    .doubleValue())
                                             //Stop when we find a value >= bound
                                             .findFirst()
                                             .orElse(0);
 
                                     //Everything below this do not affect
-                                    final double result = (double) (10 - minBound - 1) / 10.0;
+                                    final double result = (double)(10 - minBound - 1) / 10.0;
                                     log.debug("cacheKey:{} GreaterEqualsFilter:{} percentiles[{}] = {} multiplier: {}",
-                                            cacheKey,
-                                            greaterEqualFilter,
-                                            minBound,
-                                            percentiles[minBound],
-                                            result);
+                                              cacheKey, greaterEqualFilter, minBound, percentiles[minBound], result
+                                             );
                                     return result;
                                 }
 
@@ -497,20 +548,17 @@ public class GroupAction extends Action<GroupRequest> {
                                     //Percentage of values lesser than to bound
                                     //Found when we find a percentile value >= bound
                                     int minBound = 9 - IntStream.rangeClosed(0, 9)
-                                            .filter(i ->
-                                                    percentiles[9 - i] < lessThanFilter.getValue().doubleValue())
+                                            .filter(i -> percentiles[9 - i] < lessThanFilter.getValue()
+                                                    .doubleValue())
                                             //Stop when we find a value >= bound
                                             .findFirst()
                                             .orElse(0);
 
                                     //Everything above this do not affect
-                                    final double result = ((double) minBound + 1.0) / 10.0;
+                                    final double result = ((double)minBound + 1.0) / 10.0;
                                     log.debug("cacheKey:{} LessThanFilter:{} percentiles[{}] = {} multiplier: {}",
-                                            cacheKey,
-                                            lessThanFilter,
-                                            minBound,
-                                            percentiles[minBound],
-                                            result);
+                                              cacheKey, lessThanFilter, minBound, percentiles[minBound], result
+                                             );
                                     return result;
                                 }
 
@@ -519,19 +567,16 @@ public class GroupAction extends Action<GroupRequest> {
                                     //Percentage of values lesser than or equal to bound
                                     //Found when we find a percentile value > bound
                                     int minBound = 9 - IntStream.rangeClosed(0, 9)
-                                            .filter(i ->
-                                                    percentiles[9 - i] <= lessEqualFilter.getValue().doubleValue())
+                                            .filter(i -> percentiles[9 - i] <= lessEqualFilter.getValue()
+                                                    .doubleValue())
                                             //Stop when we find a value > bound
                                             .findFirst()
                                             .orElse(0);
                                     //Everything above this do not affect
-                                    final double result = ((double) minBound + 1.0) / 10.0;
+                                    final double result = ((double)minBound + 1.0) / 10.0;
                                     log.debug("cacheKey:{} LessEqualsFilter: {} percentiles[{}] = {} multiplier: {}",
-                                            cacheKey,
-                                            lessEqualFilter,
-                                            minBound,
-                                            percentiles[minBound],
-                                            result);
+                                              cacheKey, lessEqualFilter, minBound, percentiles[minBound], result
+                                             );
                                     return result;
                                 }
                             });
@@ -551,7 +596,8 @@ public class GroupAction extends Action<GroupRequest> {
                                 @Override
                                 public Double visit(NotEqualsFilter notEqualsFilter) throws Exception {
                                     // Assuming a match, there will be N-1 unmatched values
-                                    double numerator = Utils.ensurePositive(cardinalityEstimationData.getCardinality() - 1);
+                                    double numerator = Utils.ensurePositive(
+                                            cardinalityEstimationData.getCardinality() - 1);
                                     return numerator / Utils.ensureOne(cardinalityEstimationData.getCardinality());
 
                                 }
@@ -567,17 +613,18 @@ public class GroupAction extends Action<GroupRequest> {
                                 @Override
                                 public Double visit(InFilter inFilter) throws Exception {
                                     // Assuming there are M matches, the probability is M/N
-                                    return Utils.ensurePositive(inFilter.getValues().size())
-                                            / Utils.ensureOne(cardinalityEstimationData.getCardinality());
+                                    return Utils.ensurePositive(inFilter.getValues()
+                                                                        .size()) / Utils.ensureOne(
+                                            cardinalityEstimationData.getCardinality());
                                 }
 
                                 @Override
                                 public Double visit(NotInFilter notInFilter) throws Exception {
                                     // Assuming there are M matches, then probability will be N - M / N
-                                    return Utils.ensurePositive(
-                                            cardinalityEstimationData.getCardinality()
-                                                    - notInFilter.getValues().size())
-                                            / Utils.ensureOne(cardinalityEstimationData.getCardinality());
+                                    return Utils.ensurePositive(cardinalityEstimationData.getCardinality() -
+                                                                notInFilter.getValues()
+                                                                        .size()) / Utils.ensureOne(
+                                            cardinalityEstimationData.getCardinality());
                                 }
                             });
                         }
@@ -589,84 +636,94 @@ public class GroupAction extends Action<GroupRequest> {
                             return filter.accept(new FilterVisitorAdapter<Double>(1.0) {
                                 @Override
                                 public Double visit(EqualsFilter equalsFilter) throws Exception {
-                                    if (!(equalsFilter.getValue() instanceof String)
-                                            || !termEstimationData.getTermCounts().containsKey(equalsFilter.getValue())) {
+                                    if(!(equalsFilter.getValue() instanceof String) ||
+                                       !termEstimationData.getTermCounts()
+                                               .containsKey(equalsFilter.getValue())) {
                                         return 1.0;
                                     }
-                                    long matchingDocCount = termEstimationData.getTermCounts().get(equalsFilter.getValue());
-                                    return (double) matchingDocCount / totalCount;
+                                    long matchingDocCount = termEstimationData.getTermCounts()
+                                            .get(equalsFilter.getValue());
+                                    return (double)matchingDocCount / totalCount;
                                 }
 
                                 @Override
                                 public Double visit(NotEqualsFilter notEqualsFilter) throws Exception {
-                                    if (!(notEqualsFilter.getValue() instanceof String)
-                                            || !termEstimationData.getTermCounts().containsKey(notEqualsFilter.getValue())) {
+                                    if(!(notEqualsFilter.getValue() instanceof String) ||
+                                       !termEstimationData.getTermCounts()
+                                               .containsKey(notEqualsFilter.getValue())) {
                                         return 1.0;
                                     }
-                                    long matchingDocCount = termEstimationData.getTermCounts().get(notEqualsFilter.getValue());
-                                    return (double) (totalCount - matchingDocCount) / totalCount;
+                                    long matchingDocCount = termEstimationData.getTermCounts()
+                                            .get(notEqualsFilter.getValue());
+                                    return (double)(totalCount - matchingDocCount) / totalCount;
                                 }
 
                                 @Override
                                 public Double visit(InFilter inFilter) throws Exception {
-                                    for (Object value : inFilter.getValues()) {
-                                        if (!(value instanceof String)) {
+                                    for(Object value : inFilter.getValues()) {
+                                        if(!(value instanceof String)) {
                                             return 1.0;
                                         }
                                     }
 
                                     long matchingDocCount = 0;
-                                    for (Object value : inFilter.getValues()) {
-                                        Long count = termEstimationData.getTermCounts().get(value);
+                                    for(Object value : inFilter.getValues()) {
+                                        Long count = termEstimationData.getTermCounts()
+                                                .get(value);
                                         matchingDocCount += count == null ? 0 : count;
                                     }
-                                    return (double) (matchingDocCount) / totalCount;
+                                    return (double)(matchingDocCount) / totalCount;
                                 }
 
                                 @Override
                                 public Double visit(NotInFilter notInFilter) throws Exception {
-                                    for (Object value : notInFilter.getValues()) {
-                                        if (!(value instanceof String)) {
+                                    for(Object value : notInFilter.getValues()) {
+                                        if(!(value instanceof String)) {
                                             return 1.0;
                                         }
                                     }
 
                                     long matchingDocCount = 0;
-                                    for (Object value : notInFilter.getValues()) {
-                                        Long count = termEstimationData.getTermCounts().get(value);
+                                    for(Object value : notInFilter.getValues()) {
+                                        Long count = termEstimationData.getTermCounts()
+                                                .get(value);
                                         matchingDocCount += count == null ? 0 : count;
                                     }
-                                    return (double) (totalCount - matchingDocCount) / totalCount;
+                                    return (double)(totalCount - matchingDocCount) / totalCount;
                                 }
                             });
                         }
                     });
-            log.debug("cacheKey:{} msg:FILTER_ESTIMATION_COMPLETED field:{} fieldMultiplier:{} overallOldMultiplier:{} overallNewMultiplier:{}",
-                    cacheKey, filterField, currentFilterMultiplier, overallFilterMultiplier, overallFilterMultiplier * currentFilterMultiplier);
+            log.debug(
+                    "cacheKey:{} msg:FILTER_ESTIMATION_COMPLETED field:{} fieldMultiplier:{} overallOldMultiplier:{} " +
+                    "overallNewMultiplier:{}", cacheKey, filterField, currentFilterMultiplier, overallFilterMultiplier,
+                    overallFilterMultiplier * currentFilterMultiplier
+                     );
             overallFilterMultiplier *= currentFilterMultiplier;
         }
-        return (long) (currentDocCount * overallFilterMultiplier);
+        return (long)(currentDocCount * overallFilterMultiplier);
     }
 
     private AbstractAggregationBuilder buildAggregation() {
-        return Utils.buildTermsAggregation(getParameter().getNesting().stream()
-                        .map(x -> new ResultSort(x, ResultSort.Order.asc))
-                        .collect(Collectors.toList()),
-                !CollectionUtils.isNullOrEmpty(getParameter().getUniqueCountOn()) ?
-                        Sets.newHashSet(Utils.buildCardinalityAggregation(getParameter().getUniqueCountOn())) : Sets.newHashSet());
+        return Utils.buildTermsAggregation(getParameter().getNesting()
+                                                   .stream()
+                                                   .map(x -> new ResultSort(x, ResultSort.Order.asc))
+                                                   .collect(Collectors.toList()), !CollectionUtils.isNullOrEmpty(
+                getParameter().getUniqueCountOn()) ? Sets.newHashSet(
+                Utils.buildCardinalityAggregation(getParameter().getUniqueCountOn())) : Sets.newHashSet());
     }
 
     private Map<String, Object> getMap(List<String> fields, Aggregations aggregations) {
         final String field = fields.get(0);
-        final List<String> remainingFields = (fields.size() > 1) ? fields.subList(1, fields.size())
-                : new ArrayList<>();
+        final List<String> remainingFields = (fields.size() > 1) ? fields.subList(1, fields.size()) : new ArrayList<>();
         Terms terms = aggregations.get(Utils.sanitizeFieldForAggregation(field));
         Map<String, Object> levelCount = Maps.newHashMap();
-        for (Terms.Bucket bucket : terms.getBuckets()) {
-            if (fields.size() == 1) {
-                if (!CollectionUtils.isNullOrEmpty(getParameter().getUniqueCountOn())) {
+        for(Terms.Bucket bucket : terms.getBuckets()) {
+            if(fields.size() == 1) {
+                if(!CollectionUtils.isNullOrEmpty(getParameter().getUniqueCountOn())) {
                     String key = Utils.sanitizeFieldForAggregation(getParameter().getUniqueCountOn());
-                    Cardinality cardinality = bucket.getAggregations().get(key);
+                    Cardinality cardinality = bucket.getAggregations()
+                            .get(key);
                     levelCount.put(String.valueOf(bucket.getKey()), cardinality.getValue());
                 } else {
                     levelCount.put(String.valueOf(bucket.getKey()), bucket.getDocCount());
@@ -677,6 +734,10 @@ public class GroupAction extends Action<GroupRequest> {
         }
         return levelCount;
 
+    }
+
+    private EmailClient getEmailClient(EmailConfig emailConfig) {
+        return new EmailClient(emailConfig);
     }
 
 }
