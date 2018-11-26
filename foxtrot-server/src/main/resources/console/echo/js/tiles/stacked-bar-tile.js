@@ -168,8 +168,13 @@ StackedBarTile.prototype.getData = function (data) {
               var newRhs = [];
               var or = [];
               for(var rhs = 0; rhs < obj[k].length; rhs++) {
-                newRhs.push({"period":zeroIndex[rhs].period, "count": obj[k][rhs].count})
-                or.push([obj[k][rhs].period, obj[k][rhs].count]);
+                if(zeroIndex[rhs]) {
+                  newRhs.push({"period":zeroIndex[rhs].period, "count": obj[k][rhs].count})
+                  
+                }
+                if(obj[k][rhs]) {
+                  or.push([obj[k][rhs].period, obj[k][rhs].count]);
+                }
               }
               tmpArray[lhs] = newRhs;
               originalTmpArray[lhs] = or;
