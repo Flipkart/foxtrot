@@ -15,6 +15,7 @@
  */
 package com.flipkart.foxtrot.core.common;
 
+import com.collections.CollectionUtils;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.flipkart.foxtrot.common.ActionRequest;
@@ -23,7 +24,6 @@ import com.flipkart.foxtrot.common.ActionValidationResponse;
 import com.flipkart.foxtrot.common.query.Filter;
 import com.flipkart.foxtrot.common.query.general.AnyFilter;
 import com.flipkart.foxtrot.common.query.numeric.LessThanFilter;
-import com.flipkart.foxtrot.common.util.CollectionUtils;
 import com.flipkart.foxtrot.core.alerts.EmailConfig;
 import com.flipkart.foxtrot.core.cache.Cache;
 import com.flipkart.foxtrot.core.cache.CacheManager;
@@ -38,6 +38,7 @@ import com.flipkart.foxtrot.core.table.TableMetadataManager;
 import com.flipkart.foxtrot.core.util.MetricUtil;
 import com.google.common.base.Stopwatch;
 import com.google.common.collect.Lists;
+import org.elasticsearch.action.ActionRequestBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -99,8 +100,6 @@ public abstract class Action<ParameterType extends ActionRequest> implements Cal
         validateBase(parameter);
         validateImpl(parameter);
     }
-
-    protected abstract void preprocess();
 
     @Override
     public String call() throws Exception {
@@ -201,15 +200,13 @@ public abstract class Action<ParameterType extends ActionRequest> implements Cal
 
     private void validateBase(ParameterType parameter) throws MalformedQueryException {
         List<String> validationErrors = new ArrayList<>();
-        if(!CollectionUtils.isNullOrEmpty(parameter.getFilters())) {
-            for(Filter filter : parameter.getFilters()) {
-                Set<String> errors = filter.validate();
-                if(!CollectionUtils.isNullOrEmpty(errors)) {
-                    validationErrors.addAll(errors);
-                }
+        for(Filter filter : com.collections.CollectionUtils.nullSafeList(parameter.getFilters())) {
+            Set<String> errors = filter.validate();
+            if(!CollectionUtils.isEmpty(errors)) {
+                validationErrors.addAll(errors);
             }
         }
-        if(!CollectionUtils.isNullOrEmpty(validationErrors)) {
+        if(!CollectionUtils.isEmpty(validationErrors)) {
             throw FoxtrotExceptions.createMalformedQueryException(parameter, validationErrors);
         }
     }
@@ -226,7 +223,14 @@ public abstract class Action<ParameterType extends ActionRequest> implements Cal
      */
     abstract public String getMetricKey();
 
-    abstract protected String getRequestCacheKey();
+    public abstract String getRequestCacheKey();
+
+    public abstract void preprocess();
+
+    public abstract ActionRequestBuilder getRequestBuilder(ParameterType parameter) throws FoxtrotException;
+
+    public abstract ActionResponse getResponse(org.elasticsearch.action.ActionResponse response,
+                                               ParameterType parameter) throws FoxtrotException;
 
     abstract public void validateImpl(ParameterType parameter) throws MalformedQueryException;
 

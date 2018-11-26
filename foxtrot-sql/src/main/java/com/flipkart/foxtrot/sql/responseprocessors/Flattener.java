@@ -10,6 +10,7 @@ import com.flipkart.foxtrot.common.distinct.DistinctResponse;
 import com.flipkart.foxtrot.common.group.GroupRequest;
 import com.flipkart.foxtrot.common.group.GroupResponse;
 import com.flipkart.foxtrot.common.histogram.HistogramResponse;
+import com.flipkart.foxtrot.common.query.MultiQueryResponse;
 import com.flipkart.foxtrot.common.query.QueryResponse;
 import com.flipkart.foxtrot.common.stats.StatsResponse;
 import com.flipkart.foxtrot.common.stats.StatsTrendResponse;
@@ -249,6 +250,11 @@ public class Flattener implements ResponseVisitor {
             rows.add(row);
         }
         flatRepresentation = new FlatRepresentation("distinct", fieldHeaders, rows);
+    }
+
+    @Override
+    public void visit(MultiQueryResponse multiQueryResponse) {
+        throw new RuntimeException("Fql query not supported for this operation");
     }
 
     public FlatRepresentation getFlatRepresentation() {

@@ -9,6 +9,7 @@ public class Opcodes {
     public final static String DISTINCT = "distinct";
     public final static String GROUP = "group";
     public final static String HISTOGRAM = "histogram";
+    public final static String MULTI_QUERY = "multi_query";
     public final static String QUERY = "query";
     public final static String STATS = "stats";
     public final static String TREND = "trend";

@@ -16,6 +16,7 @@ import com.flipkart.foxtrot.core.exception.FoxtrotException;
 import com.flipkart.foxtrot.core.exception.FoxtrotExceptions;
 import com.flipkart.foxtrot.core.exception.MalformedQueryException;
 import com.flipkart.foxtrot.core.querystore.QueryStore;
+import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsLoader;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsProvider;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConnection;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
@@ -24,6 +25,7 @@ import com.flipkart.foxtrot.core.table.TableMetadataManager;
 import com.google.common.collect.Lists;
 import org.elasticsearch.ElasticsearchException;
 import org.elasticsearch.action.search.SearchRequestBuilder;
+import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.search.aggregations.AbstractAggregationBuilder;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.Aggregations;
@@ -44,7 +46,8 @@ public class StatsAction extends Action<StatsRequest> {
 
     public StatsAction(StatsRequest parameter, TableMetadataManager tableMetadataManager, DataStore dataStore,
                        QueryStore queryStore, ElasticsearchConnection connection, String cacheToken,
-                       CacheManager cacheManager, ObjectMapper objectMapper, EmailConfig emailConfig) {
+                       CacheManager cacheManager, ObjectMapper objectMapper, EmailConfig emailConfig, AnalyticsLoader
+                       analyticsLoader) {
         super(parameter, tableMetadataManager, dataStore, queryStore, connection, cacheToken, cacheManager,
               objectMapper, emailConfig
              );
@@ -66,7 +69,7 @@ public class StatsAction extends Action<StatsRequest> {
     }
 
     @Override
-    protected void preprocess() {
+    public void preprocess() {
         getParameter().setTable(ElasticsearchUtils.getValidTableName(getParameter().getTable()));
     }
 
@@ -76,7 +79,7 @@ public class StatsAction extends Action<StatsRequest> {
     }
 
     @Override
-    protected String getRequestCacheKey() {
+    public String getRequestCacheKey() {
         long statsHashKey = 0L;
         StatsRequest statsRequest = getParameter();
         if(null != statsRequest.getFilters()) {
@@ -110,6 +113,18 @@ public class StatsAction extends Action<StatsRequest> {
 
     @Override
     public ActionResponse execute(StatsRequest parameter) throws FoxtrotException {
+        SearchRequestBuilder searchRequestBuilder = getRequestBuilder(parameter);
+        try {
+            SearchResponse response = searchRequestBuilder.execute()
+                    .actionGet();
+            return getResponse(response, parameter);
+        } catch (ElasticsearchException e) {
+            throw FoxtrotExceptions.createQueryExecutionException(parameter, e);
+        }
+    }
+
+    @Override
+    public SearchRequestBuilder getRequestBuilder(StatsRequest parameter) throws FoxtrotException {
         SearchRequestBuilder searchRequestBuilder;
         try {
             searchRequestBuilder = getConnection().getClient()
@@ -150,17 +165,17 @@ public class StatsAction extends Action<StatsRequest> {
         } catch (Exception e) {
             throw FoxtrotExceptions.queryCreationException(parameter, e);
         }
-        try {
-            Aggregations aggregations = searchRequestBuilder.execute()
-                    .actionGet(getGetQueryTimeout())
-                    .getAggregations();
-            if(aggregations != null) {
-                return buildResponse(parameter, aggregations);
-            }
-            return null;
-        } catch (ElasticsearchException e) {
-            throw FoxtrotExceptions.createQueryExecutionException(parameter, e);
+        return searchRequestBuilder;
+    }
+
+    @Override
+    public ActionResponse getResponse(org.elasticsearch.action.ActionResponse response, StatsRequest parameter)
+            throws FoxtrotException {
+        Aggregations aggregations = ((SearchResponse)response).getAggregations();
+        if(aggregations != null) {
+            return buildResponse(parameter, aggregations);
         }
+        return null;
     }
 
     private StatsResponse buildResponse(StatsRequest request, Aggregations aggregations) {

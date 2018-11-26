@@ -218,6 +218,11 @@
             <artifactId>utils</artifactId>
             <version>1.2</version>
         </dependency>
+        <dependency>
+            <groupId>com.platform</groupId>
+            <artifactId>utils</artifactId>
+            <version>1.2</version>
+        </dependency>
     </dependencies>
 
     <build>

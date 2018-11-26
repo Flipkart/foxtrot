@@ -5,6 +5,7 @@ import com.flipkart.foxtrot.common.group.GroupRequest;
 import com.flipkart.foxtrot.common.group.GroupResponse;
 import com.flipkart.foxtrot.core.TestUtils;
 import com.flipkart.foxtrot.core.exception.CardinalityOverflowException;
+import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchQueryStore;
 import com.google.common.collect.Lists;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Assert;
@@ -32,6 +33,9 @@ public class GroupActionCardinalityTest extends ActionTest {
                 .prepareRefresh("*")
                 .execute()
                 .actionGet();
+        getTableMetadataManager().getFieldMappings(TestUtils.TEST_TABLE_NAME, true, true);
+        ((ElasticsearchQueryStore)getQueryStore()).getCardinalityConfig()
+                .setMaxCardinality(15000);
         getTableMetadataManager().updateEstimationData(TestUtils.TEST_TABLE_NAME, 1397658117000L);
     }
 
@@ -75,7 +79,7 @@ public class GroupActionCardinalityTest extends ActionTest {
 
     }
 
-    @Test(expected = CardinalityOverflowException.class)
+    @Test
     public void testEstimationPercentileCardinality() throws Exception {
         GroupRequest groupRequest = new GroupRequest();
         groupRequest.setTable(TestUtils.TEST_TABLE_NAME);

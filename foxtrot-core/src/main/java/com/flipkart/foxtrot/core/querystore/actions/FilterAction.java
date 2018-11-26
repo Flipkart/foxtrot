@@ -16,6 +16,7 @@
 package com.flipkart.foxtrot.core.querystore.actions;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.flipkart.foxtrot.common.ActionResponse;
 import com.flipkart.foxtrot.common.Document;
 import com.flipkart.foxtrot.common.query.Filter;
 import com.flipkart.foxtrot.common.query.Query;
@@ -30,6 +31,7 @@ import com.flipkart.foxtrot.core.exception.FoxtrotException;
 import com.flipkart.foxtrot.core.exception.FoxtrotExceptions;
 import com.flipkart.foxtrot.core.exception.MalformedQueryException;
 import com.flipkart.foxtrot.core.querystore.QueryStore;
+import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsLoader;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsProvider;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConnection;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
@@ -60,14 +62,15 @@ public class FilterAction extends Action<Query> {
 
     public FilterAction(Query parameter, TableMetadataManager tableMetadataManager, DataStore dataStore,
                         QueryStore queryStore, ElasticsearchConnection connection, String cacheToken,
-                        CacheManager cacheManager, ObjectMapper objectMapper, EmailConfig emailConfig) {
+                        CacheManager cacheManager, ObjectMapper objectMapper, EmailConfig emailConfig,
+                        AnalyticsLoader analyticsLoader) {
         super(parameter, tableMetadataManager, dataStore, queryStore, connection, cacheToken, cacheManager,
               objectMapper, emailConfig
              );
     }
 
     @Override
-    protected void preprocess() {
+    public void preprocess() {
         getParameter().setTable(ElasticsearchUtils.getValidTableName(getParameter().getTable()));
         if(null == getParameter().getSort()) {
             ResultSort resultSort = new ResultSort();
@@ -83,14 +86,14 @@ public class FilterAction extends Action<Query> {
     }
 
     @Override
-    protected String getRequestCacheKey() {
+    public String getRequestCacheKey() {
         long filterHashKey = 0L;
         Query query = getParameter();
-        if(null != query.getFilters()) {
-            for(Filter filter : query.getFilters()) {
-                filterHashKey += 31 * filter.hashCode();
-            }
+
+        for(Filter filter : com.collections.CollectionUtils.nullSafeList(query.getFilters())) {
+            filterHashKey += 31 * filter.hashCode();
         }
+
         filterHashKey += 31 * (query.getSort() != null ? query.getSort()
                 .hashCode() : "SORT".hashCode());
 
@@ -121,7 +124,20 @@ public class FilterAction extends Action<Query> {
     }
 
     @Override
-    public QueryResponse execute(Query parameter) throws FoxtrotException {
+    public ActionResponse execute(Query parameter) throws FoxtrotException {
+        SearchRequestBuilder search = getRequestBuilder(parameter);
+        try {
+            logger.info("Search: {}", search);
+            SearchResponse response = search.execute()
+                    .actionGet();
+            return getResponse(response, parameter);
+        } catch (ElasticsearchException e) {
+            throw FoxtrotExceptions.createQueryExecutionException(parameter, e);
+        }
+    }
+
+    @Override
+    public SearchRequestBuilder getRequestBuilder(Query parameter) throws FoxtrotException {
         SearchRequestBuilder search;
         try {
             search = getConnection().getClient()
@@ -138,21 +154,20 @@ public class FilterAction extends Action<Query> {
         } catch (Exception e) {
             throw FoxtrotExceptions.queryCreationException(parameter, e);
         }
-        try {
-            logger.info("Search: {}", search);
-            SearchResponse response = search.execute()
-                    .actionGet(getGetQueryTimeout());
-            List<String> ids = new ArrayList<>();
-            SearchHits searchHits = response.getHits();
-            for(SearchHit searchHit : searchHits) {
-                ids.add(searchHit.getId());
-            }
-            if(ids.isEmpty()) {
-                return new QueryResponse(Collections.<Document>emptyList(), 0);
-            }
-            return new QueryResponse(getQueryStore().getAll(parameter.getTable(), ids, true), searchHits.totalHits());
-        } catch (ElasticsearchException e) {
-            throw FoxtrotExceptions.createQueryExecutionException(parameter, e);
+        return search;
+    }
+
+    @Override
+    public ActionResponse getResponse(org.elasticsearch.action.ActionResponse response, Query parameter)
+            throws FoxtrotException {
+        List<String> ids = new ArrayList<>();
+        SearchHits searchHits = ((SearchResponse)response).getHits();
+        for(SearchHit searchHit : searchHits) {
+            ids.add(searchHit.getId());
         }
+        if(ids.isEmpty()) {
+            return new QueryResponse(Collections.<Document>emptyList(), 0);
+        }
+        return new QueryResponse(getQueryStore().getAll(parameter.getTable(), ids, true), searchHits.totalHits());
     }
 }

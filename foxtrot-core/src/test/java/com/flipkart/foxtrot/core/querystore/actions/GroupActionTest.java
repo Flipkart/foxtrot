@@ -23,9 +23,9 @@ import com.flipkart.foxtrot.common.query.Filter;
 import com.flipkart.foxtrot.common.query.general.EqualsFilter;
 import com.flipkart.foxtrot.common.query.numeric.GreaterThanFilter;
 import com.flipkart.foxtrot.core.TestUtils;
-import com.flipkart.foxtrot.core.exception.CardinalityOverflowException;
 import com.flipkart.foxtrot.core.exception.ErrorCode;
 import com.flipkart.foxtrot.core.exception.FoxtrotException;
+import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchQueryStore;
 import com.google.common.collect.Maps;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -53,6 +53,9 @@ public class GroupActionTest extends ActionTest {
                 .prepareRefresh("*")
                 .execute()
                 .actionGet();
+        getTableMetadataManager().getFieldMappings(TestUtils.TEST_TABLE_NAME, true, true);
+        ((ElasticsearchQueryStore)getQueryStore()).getCardinalityConfig()
+                .setMaxCardinality(15000);
         getTableMetadataManager().updateEstimationData(TestUtils.TEST_TABLE_NAME, 1397658117000L);
     }
 
@@ -199,7 +202,7 @@ public class GroupActionTest extends ActionTest {
         assertEquals(response, actualResult.getResult());
     }
 
-    @Test(expected = CardinalityOverflowException.class)
+    @Test
     public void testGroupActionMultipleFieldsNoFilter() throws FoxtrotException, JsonProcessingException {
         GroupRequest groupRequest = new GroupRequest();
         groupRequest.setTable(TestUtils.TEST_TABLE_NAME);
