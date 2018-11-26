@@ -22,6 +22,7 @@ import com.flipkart.foxtrot.common.ActionResponse;
 import com.flipkart.foxtrot.common.Opcodes;
 import com.flipkart.foxtrot.common.query.MultiQueryRequest;
 import com.flipkart.foxtrot.common.query.MultiQueryResponse;
+import com.flipkart.foxtrot.core.alerts.EmailConfig;
 import com.flipkart.foxtrot.core.cache.CacheManager;
 import com.flipkart.foxtrot.core.common.Action;
 import com.flipkart.foxtrot.core.datastore.DataStore;
@@ -62,9 +63,10 @@ public class MultiQueryAction extends Action<MultiQueryRequest> {
 
     public MultiQueryAction(MultiQueryRequest parameter, TableMetadataManager tableMetadataManager, DataStore dataStore,
                             QueryStore queryStore, ElasticsearchConnection connection, String cacheToken,
-                            CacheManager cacheManager, ObjectMapper objectMapper, AnalyticsLoader analyticsLoader) {
+                            CacheManager cacheManager, ObjectMapper objectMapper, EmailConfig emailConfig,
+                            AnalyticsLoader analyticsLoader) {
         super(parameter, tableMetadataManager, dataStore, queryStore, connection, cacheToken, cacheManager,
-              objectMapper
+              objectMapper, emailConfig
              );
         this.analyticsLoader = analyticsLoader;
     }
