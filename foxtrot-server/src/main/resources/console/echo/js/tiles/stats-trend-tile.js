@@ -24,15 +24,14 @@ function getStatsTrendTileChartFormValues() {
   var statsToPlot = $("#stats-trend-statics-to-plot").val();
   var timeframe = $("#stats-trend-timeframe").val();
   var ignoreDigits = $(".stats-trend-ignored-digits").val();
-  var multiSeries = $("#stats-trend-multiple-series-value").val();
-  console.log(multiSeries);
+  //var multiSeries = $("#stats-trend-multiple-series-value").val();
   return {
     "period": period,
     "statsFieldName": currentFieldList[parseInt(statsField)].field,
     "statsToPlot": statsToPlot,
     "timeframe": timeframe
     , "ignoreDigits" : ignoreDigits
-    , "multiSeries": parseInt(multiSeries)
+    // , "multiSeries": parseInt(multiSeries)
   };
 }
 
@@ -60,10 +59,10 @@ function setStatsTrendTileChartFormValues(object) {
   parentElement.find("#stats-trend-timeframe").val(object.tileContext.timeframe);
   parentElement.find(".stats-trend-ignored-digits").val(parseInt(object.tileContext.ignoreDigits == undefined ? 0 : object.tileContext.ignoreDigits));
 
-  var multiSeries = parentElement.find("#stats-trend-multiple-series-value");
-  var multiSeriesValue = (object.tileContext.multiSeries == undefined ? "" : object.tileContext.multiSeries)
-  multiSeries.val(parseInt(multiSeriesValue));
-  $(multiSeries).selectpicker('refresh');
+  // var multiSeries = parentElement.find("#stats-trend-multiple-series-value");
+  // var multiSeriesValue = (object.tileContext.multiSeries == undefined ? "" : object.tileContext.multiSeries)
+  // multiSeries.val(parseInt(multiSeriesValue));
+  // $(multiSeries).selectpicker('refresh');
 }
 
 StatsTrendTile.prototype.getQuery = function(object) {
@@ -81,22 +80,22 @@ StatsTrendTile.prototype.getQuery = function(object) {
     }
   }
   var data = {
-    "opcode": "multi_query",
+    "opcode": "statstrend",
     "table": object.tileContext.table,
     "filters": filters,
     "field": object.tileContext.statsFieldName,
     "period": periodFromWindow(object.tileContext.period, "custom")
   }
 
-  var multiQueryData = {};
-  var multiSeiresValue = object.tileContext.multiSeries;
-  if((multiSeiresValue != undefined) && (multiSeiresValue != "") && (multiSeiresValue > 1)) {
-    multiQueryData["requests"] = prepareMultiSeriesQueryObject(data, object, filters);
-    multiQueryData["opcode"] = "multi_query";
-  } else {
-    data["opcode"] = "statstrend";
-    multiQueryData = data;
-  }
+  // var multiQueryData = {};
+  // var multiSeiresValue = object.tileContext.multiSeries;
+  // if((multiSeiresValue != undefined) && (multiSeiresValue != "") && (multiSeiresValue > 1)) {
+  //   multiQueryData["requests"] = prepareMultiSeriesQueryObject(data, object, filters);
+  //   multiQueryData["opcode"] = "multi_query";
+  // } else {
+  //   data["opcode"] = "statstrend";
+  //   multiQueryData = data;
+  // }
 
   var refObject = this.object;
   $.ajax({
@@ -107,7 +106,7 @@ StatsTrendTile.prototype.getQuery = function(object) {
     },
     url: apiUrl+"/v1/analytics",
     contentType: "application/json",
-    data: JSON.stringify(multiQueryData),
+    data: JSON.stringify(data),
     success: $.proxy(this.getData, this)
     ,error: function(xhr, textStatus, error) {
       showFetchError(refObject);
@@ -122,17 +121,17 @@ StatsTrendTile.prototype.getData = function(data) {
   else
     hideFetchError(this.object);
 
-  // if(!data.result)
-  //   return;
+  if(!data.result)
+    return;
 
-  var results;
+  var results = data.result;
   var isMultiQuery = false;
-  if(data.result) {
-    results = data.result;
-  } else {
-    isMultiQuery = true;
-    results = data.responses;
-  }
+  // if(data.result) {
+  //   results = data.result;
+  // } else {
+  //   isMultiQuery = true;
+  //   results = data.responses;
+  // }
 
   var selString = "";
 
@@ -155,23 +154,23 @@ StatsTrendTile.prototype.getData = function(data) {
       lines: {show: true},
       shadowSize: 0/*, curvedLines: {apply: true}*/
     });
-    ins = ins+j+1;
-    if(isMultiQuery) {
-      var numberOfIteration = Object.keys(results).length; 
-      var multiLineColors =  new Colors(numberOfIteration);
-      var multiColorIdx = 0;
-      for( var k = 0; k < numberOfIteration; k++) {
-        console.log(results[k+1]);
-        d.push({
-          data: [],
-          color: multiLineColors.nextColor(),
-          label: selectedStats[j]+ " - "+ readbleDate(results[k+1].result[0].period),
-          lines: {show: true},
-          shadowSize: 0/*, curvedLines: {apply: true}*/
-        });
-        ins = ins+k+1;
-      }
-    }
+    // ins = ins+j+1;
+    // if(isMultiQuery) {
+    //   var numberOfIteration = Object.keys(results).length; 
+    //   var multiLineColors =  new Colors(numberOfIteration);
+    //   var multiColorIdx = 0;
+    //   for( var k = 0; k < numberOfIteration; k++) {
+    //     console.log(results[k+1]);
+    //     d.push({
+    //       data: [],
+    //       color: multiLineColors.nextColor(),
+    //       label: selectedStats[j]+ " - "+ readbleDate(results[k+1].result[0].period),
+    //       lines: {show: true},
+    //       shadowSize: 0/*, curvedLines: {apply: true}*/
+    //     });
+    //     ins = ins+k+1;
+    //   }
+    // }
   }
 
   if(isMultiQuery) {
@@ -238,7 +237,8 @@ StatsTrendTile.prototype.render = function (rows) {
   $("#"+object.id).find(".chart-item").find(".legend").addClass('full-widget-legend');
   ctx.width(ctx.width - 100);
   ctx.height(fullWidgetChartHeight);
-  var plot = $.plot(ctx, rows, {
+  var currentRow = rows;
+  var plot = $.plot(ctx, currentRow, {
     series: {
       lines: {
         show: true
@@ -294,6 +294,22 @@ StatsTrendTile.prototype.render = function (rows) {
     , });
 
   drawLegend(rows, $(chartDiv.find(".legend")));
+
+
+  var re = re = /\(([0-9]+,[0-9]+,[0-9]+)/;
+  $(chartDiv.find('.legend ul li')).on('mouseenter', function() {
+    currentRow = [rows[$(this).index()]]
+    plot.setData(currentRow);    
+    plot.setupGrid();
+    plot.draw();
+  });
+
+  $(chartDiv.find('.legend ul li')).on('mouseleave', function() {
+    currentRow = rows;
+    plot.setData(currentRow);    
+    plot.setupGrid();
+    plot.draw();
+  });
 
   function showTooltip(x, y, xValue, yValue) {
     var a = axisTimeFormatNew(object.tileContext.period, (globalFilters ? getGlobalFilters() : getPeriodSelect(object.id)));

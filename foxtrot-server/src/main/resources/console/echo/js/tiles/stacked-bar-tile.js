@@ -22,19 +22,16 @@ function getstackedBarChartFormValues() {
   var timeframe = $(".stacked-bar-timeframe").val();
   var chartField = $("#stacked-bar-field").val();
   var uniqueKey = $("#stacked-bar-uniquekey").val();
-
-  console.log('==>'+uniqueKey);
+  var multiSeries = $("#stacked-bar-multiple-series-value").val();
 
   var ignoreDigits = $(".stackedBar-ignored-digits").val();
 
-  console.log(uniqueKey);
   if(uniqueKey == "none" || uniqueKey == "" || uniqueKey == null) {
     uniqueKey = null;
   } else {
     uniqueKey = currentFieldList[parseInt(uniqueKey)].field
   }
 
-  console.log(uniqueKey);
   if (chartField == "none") {
     return [[], false];
   }
@@ -45,7 +42,7 @@ function getstackedBarChartFormValues() {
     , "uniqueKey": uniqueKey
     , "stackedBarField": chartField
     , "ignoreDigits" : ignoreDigits
-    , };
+    , "multiSeries": parseInt(multiSeries)};
 }
 
 function setStackedBarChartFormValues(object) {
@@ -57,6 +54,12 @@ function setStackedBarChartFormValues(object) {
   $("#stacked-bar-uniquekey").val(parseInt(currentFieldList.findIndex(x => x.field == object.tileContext.uniqueKey)));
   $("#stacked-bar-uniquekey").selectpicker('refresh');
   $(".stackedBar-ignored-digits").val(parseInt(object.tileContext.ignoreDigits == undefined ? 0 : object.tileContext.ignoreDigits));
+
+  var parentElement = $("#"+currentChartType+"-chart-data");
+  var multiSeries = parentElement.find("#stacked-bar-multiple-series-value");
+  var multiSeriesValue = (object.tileContext.multiSeries == undefined ? "" : object.tileContext.multiSeries)
+  multiSeries.val(parseInt(multiSeriesValue));
+  $(multiSeries).selectpicker('refresh');
 }
 
 function clearStackedBarChartForm() {
@@ -80,13 +83,24 @@ StackedBarTile.prototype.getQuery = function (object) {
   }
 
   var data = {
-    "opcode": "trend"
+    "opcode": "multi_query"
     , "table": object.tileContext.table
     , "filters": filters
     , "uniqueCountOn": object.tileContext.uniqueKey && object.tileContext.uniqueKey != "none" ? object.tileContext.uniqueKey : null
     , "field": object.tileContext.stackedBarField
     , period: periodFromWindow(object.tileContext.period, (globalFilters ? getGlobalFilters() : getPeriodSelect(object.id)))
   }
+
+  var multiQueryData = {};
+  var multiSeiresValue = object.tileContext.multiSeries;
+  if((multiSeiresValue != undefined) && (multiSeiresValue != "") && (multiSeiresValue > 1)) {
+    multiQueryData["requests"] = prepareMultiSeriesQueryObject(data, object, filters);
+    multiQueryData["opcode"] = "multi_query";
+  } else {
+    data["opcode"] = "trend";
+    multiQueryData = data;
+  }
+
   var refObject = this.object;
   $.ajax({
     method: "post"
@@ -96,12 +110,21 @@ StackedBarTile.prototype.getQuery = function (object) {
     }
     , url: apiUrl + "/v1/analytics"
     , contentType: "application/json"
-    , data: JSON.stringify(data)
+    , data: JSON.stringify(multiQueryData)
     , success: $.proxy(this.getData, this)
     ,error: function(xhr, textStatus, error) {
       showFetchError(refObject);
     }
   });
+}
+
+// prepare data for individual lines
+function prepareCusotmdata(obj) {
+  var data = [];
+  for(var rhs = 0;  rhs < obj.length; rhs++) {
+    data.push([obj[rhs].period, obj[rhs].count]);
+  }
+  return data;
 }
 
 StackedBarTile.prototype.getData = function (data) {
@@ -115,12 +138,59 @@ StackedBarTile.prototype.getData = function (data) {
     this.object.tileContext.uiFiltersList = [];
     this.object.tileContext.uiFiltersSelectedList = [];
   }
+
+  var originalSeries = [];
+  var isMultiSeries = false;
+  if(!data.trends) { // if multi series line present prepare data similar to normal lines
+    isMultiSeries = true;
+    var tmpArray = {};
+    var originalTmpArray = {}; // dummy object to keep extra information on original data
+    var tmpData = data.responses;
+    var index = 0;
+    var zeroIndex = [];
+    for(var tmpValue in tmpData) {
+      if (tmpData.hasOwnProperty(tmpValue)) {
+        var obj = tmpData[tmpValue].trends;
+        for(var k in obj) {
+          if(obj.hasOwnProperty(k)) {
+            
+            if(index == 0)
+              zeroIndex = obj[k];
+            
+            // add unique identification to draw the line
+            var lhs = k+" ("+(index+1)+") "+readableShortDate(obj[k][0].period);
+            
+              if(index == 0) {
+              tmpArray[lhs] = obj[k];
+              originalTmpArray[lhs] = prepareCusotmdata(obj[k]);
+            } else {
+              //except first line replace x value to first data line to remaining lines to plot graph
+              var newRhs = [];
+              var or = [];
+              for(var rhs = 0; rhs < obj[k].length; rhs++) {
+                newRhs.push({"period":zeroIndex[rhs].period, "count": obj[k][rhs].count})
+                or.push([obj[k][rhs].period, obj[k][rhs].count]);
+              }
+              tmpArray[lhs] = newRhs;
+              originalTmpArray[lhs] = or;
+            }
+          }
+        }
+        index++;
+     }
+    }
+    data.trends = tmpArray;
+    originalSeries = originalTmpArray;
+  }
   var colors = new Colors(Object.keys(data.trends).length);
   var d = [];
   var colorIdx = 0;
   var timestamp = new Date().getTime();
   var tmpData = new Object();
   var regexp = null;
+
+  
+
   for (var trend in data.trends) {
     if (regexp && !regexp.test(trend)) {
       continue;
@@ -158,6 +228,7 @@ StackedBarTile.prototype.getData = function (data) {
     }
   }
   this.object.tileContext.uiFiltersList = [];
+  var originalData = [];
   for (var trend in trendWiseData) {
     var rows = trendWiseData[trend];
     if (regexp && !regexp.test(trend)) {
@@ -168,9 +239,10 @@ StackedBarTile.prototype.getData = function (data) {
     })
     var visible = $.inArray( trend, this.object.tileContext.uiFiltersSelectedList);
     if((visible == -1 ? true : false)) {
+      var commonColor = colors.nextColor();
       d.push({
         data: rows
-        , color: convertHex(colors.nextColor(), 100)
+        , color: convertHex(commonColor, 100)
         , label: trend
         , fill: 0.3
         , fillColor: "#A3A3A3"
@@ -180,12 +252,26 @@ StackedBarTile.prototype.getData = function (data) {
         points:{show: (rows.length <= 50 ? true :false), radius : 3.5}
         , shadowSize: 0 /*, curvedLines: {apply: true}*/
       });
+      if(isMultiSeries) { // have same data similar to normal one
+        originalData.push({
+          data: originalSeries[trend]
+          , color: convertHex(commonColor, 100)
+          , label: trend
+          , fill: 0.3
+          , fillColor: "#A3A3A3"
+          , lines: {
+            show: true
+          },
+          points:{show: (rows.length <= 50 ? true :false), radius : 3.5}
+          , shadowSize: 0 /*, curvedLines: {apply: true}*/
+        });
+      }
     }
     this.object.tileContext.uiFiltersList.push(trend);
   }
-  this.render(d);
+  this.render(d,isMultiSeries, originalData);
 }
-StackedBarTile.prototype.render = function (d) {
+StackedBarTile.prototype.render = function (d, isMultiSeries, originalData) {
 
   if(d.length == 0)
     showFetchError(this.object);
@@ -440,17 +526,31 @@ StackedBarTile.prototype.render = function (d) {
     graphx = graphx + 30; // replace with offset of canvas on graph
     var graphy = ctx.offset().top;
     graphy = graphy + 10; // how low you want the label to hang underneath the point
+    var currentIndex = 0;
     for(var k = 0; k < points.length; k++){
+      currentIndex = $(this).index();
       if(points[k].label== $.trim(label)) {
         for(var m = 0; m < points[k].data.length; m++){
-          individualTooltip(graphx + points[k].xaxis.p2c(points[k].data[m][0]), points[k].yaxis.p2c(points[k].data[m][1]) + graphy - 70, points[k].data[m][0], points[k].data[m][1])
+          if(isMultiSeries) { // muli series and change x and y value by using origital data variable
+            var realValue = originalData[$(this).index()];
+            if(realValue.data[m]) {
+              individualTooltip(graphx + points[k].xaxis.p2c(points[k].data[m][0]), points[k].yaxis.p2c(points[k].data[m][1]) + graphy - 190, realValue.data[m][0], points[k].data[m][1]);
+            }
+          } else {
+            individualTooltip(graphx + points[k].xaxis.p2c(points[k].data[m][0]), points[k].yaxis.p2c(points[k].data[m][1]) + graphy - 70, points[k].data[m][0], points[k].data[m][1]);
+          }
         }
         points[k].oldColor = points[k].color;
-        points[k].color = 'rgba(' + re.exec(points[k].color)[1] + ',' + 1 + ')';
+        points[k].color = 'rgba(' + re.exec(points[k].color)[1] + ',' + 1 + ')'; 
       } else {
+        currentValue = [];
         points[k].color = 'rgba(' + re.exec(points[k].color)[1] + ',' + 0.1 + ')';
       }
-
+    }
+    // if multi series set data and upgrade grid for new x and y    
+    if(isMultiSeries) {
+      plot.setData([originalData[currentIndex]]); 
+      plot.setupGrid();
     }
     plot.draw();
   });
@@ -464,6 +564,8 @@ StackedBarTile.prototype.render = function (d) {
       $(".custom-tooltip").remove();
       $(".data-point-label").remove();
     }
+    plot.setData(d);    
+    plot.setupGrid();
     plot.draw();
   });
 }

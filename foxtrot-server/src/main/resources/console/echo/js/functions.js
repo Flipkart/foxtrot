@@ -438,6 +438,13 @@ function readbleDate(epochValue) {
   var day = moment(epochValue); //milliseconds
   return day.format('DD/MM/YYYY, hh:mm:ss a');
 }
+/**
+ * Convert epoch to readble date d/m/y
+ */
+function readableShortDate(epochValue) {
+  var day = moment(epochValue); //milliseconds
+  return day.format('DD/MM/YYYY');
+}
 
 /**
  * Check string has special characters
@@ -458,6 +465,17 @@ function isSpecialCharacter(string) {
 function splitArithmetic(arithmetic) {
   return arithmetic.split(/(?=[-+*\/])/)
 }
+
+/**
+ * Get opcode
+ */
+function getOpcode(object) {
+  if(object.tileContext.chartType == "stackedBar")
+    return "trend";
+  else if(object.tileContext.chartType == "statstrend")
+    return "statstrend";
+}
+
 /**
  * prepare multi series query data
  */
@@ -474,8 +492,7 @@ function prepareMultiSeriesQueryObject(data, object, filters) {
   var mapDetails = {};
   for( var i = 0; i < loopValue; i++) {
     var tmpObj = JSON.parse(JSON.stringify(data));
-    tmpObj.opcode = "statstrend";
-    console.log(durationInNumbers * i);
+    tmpObj.opcode = getOpcode(object);
     if(period == "days") {
       tmpObj.filters[0].currentTime = moment().subtract(durationInNumbers * i, "days").valueOf();
     } else if(period == "hours") {
