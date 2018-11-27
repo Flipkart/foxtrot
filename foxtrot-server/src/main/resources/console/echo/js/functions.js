@@ -102,7 +102,7 @@ function setDatePicker(el){
     $("#filter-column-row-div" +rowId).datetimepicker();
     $('#filter-column-row-div'+rowId).datetimepicker({format: 'YYYY-MM-DD hh:mm'});
     $('#filter-column-row-div'+rowId).on("dp.change",function(e) {
-       var ts = moment(e.date, "YYYY-MM-DD hh:mm").unix();
+       var ts = moment(e.date, "YYYY-MM-DD hh:mm a").valueOf();
        $("#filter-column-row-" + rowId).val(ts);
     });
   } else {
