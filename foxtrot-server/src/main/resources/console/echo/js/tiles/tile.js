@@ -126,11 +126,6 @@ $(".global-filter-period-select").change( function() {
   refereshTiles();
 });
 
-// when global filters is turned on/off or changed directly refresh tiles
-$(".global-filter-period-select").change( function() {
-  refereshTiles();
-});
-
 /** Refresh widgets from choosed value in dropdown ends */
 
 /**
@@ -481,7 +476,7 @@ TileFactory.prototype.triggerFilter = function (tileElement, object) { // filter
  */
 TileFactory.prototype.addEventToPeriodSelect = function (tileElement, object) {
   tileElement.find(".period-select").change( function() {
-    refreshSingleTile(object);// refresh immediately
+    refreshSingleTile(tileData[object.id]);// refresh immediately
   });
 };
 
