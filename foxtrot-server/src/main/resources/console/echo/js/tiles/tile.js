@@ -481,7 +481,7 @@ TileFactory.prototype.triggerFilter = function (tileElement, object) { // filter
  */
 TileFactory.prototype.addEventToPeriodSelect = function (tileElement, object) {
   tileElement.find(".period-select").change( function() {
-    refreshSingleTile(object);// refresh immediately
+    refreshSingleTile(tileData[object.id]);// refresh immediately
   });
 };
 

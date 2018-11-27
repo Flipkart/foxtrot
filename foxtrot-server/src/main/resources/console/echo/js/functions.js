@@ -102,7 +102,7 @@ function setDatePicker(el){
     $("#filter-column-row-div" +rowId).datetimepicker();
     $('#filter-column-row-div'+rowId).datetimepicker({format: 'YYYY-MM-DD hh:mm'});
     $('#filter-column-row-div'+rowId).on("dp.change",function(e) {
-       var ts = moment(e.date, "YYYY-MM-DD hh:mm").valueOf();
+       var ts = moment(e.date, "YYYY-MM-DD hh:mm").unix();
        $("#filter-column-row-" + rowId).val(ts);
     });
   } else {
@@ -438,6 +438,13 @@ function readbleDate(epochValue) {
   var day = moment(epochValue); //milliseconds
   return day.format('DD/MM/YYYY, hh:mm:ss a');
 }
+/**
+ * Convert epoch to readble date d/m/y
+ */
+function readableShortDate(epochValue) {
+  var day = moment(epochValue); //milliseconds
+  return day.format('DD/MM/YYYY');
+}
 
 /**
  * Check string has special characters
@@ -457,4 +464,44 @@ function isSpecialCharacter(string) {
  */
 function splitArithmetic(arithmetic) {
   return arithmetic.split(/(?=[-+*\/])/)
+}
+
+/**
+ * Get opcode
+ */
+function getOpcode(object) {
+  if(object.tileContext.chartType == "stackedBar")
+    return "trend";
+  else if(object.tileContext.chartType == "statstrend")
+    return "statstrend";
+}
+
+/**
+ * prepare multi series query data
+ */
+function prepareMultiSeriesQueryObject(data, object, filters) {
+
+  //console.log(object)
+
+  var currentTime = filters[0].currentTime;
+  var duration = filters[0].duration;
+  var period = data.period;
+  var loopValue = object.tileContext.multiSeries;
+  var durationInNumbers = duration.split(/([0-9]+)/)[1];// seperate string and number
+    
+  var mapDetails = {};
+  for( var i = 0; i < loopValue; i++) {
+    var tmpObj = JSON.parse(JSON.stringify(data));
+    tmpObj.opcode = getOpcode(object);
+    if(period == "days") {
+      tmpObj.filters[0].currentTime = moment().subtract(durationInNumbers * i, "days").valueOf();
+    } else if(period == "hours") {
+      tmpObj.filters[0].currentTime = moment().subtract(durationInNumbers * i, "hours").valueOf();
+    } else if(period == "minutes") {
+      tmpObj.filters[0].currentTime = moment().subtract( durationInNumbers * i, "minutes").valueOf();
+    }
+    mapDetails[i+1] = tmpObj;
+  }
+
+  return mapDetails;
 }
