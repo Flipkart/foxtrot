@@ -56,6 +56,18 @@ function resetPeriodDropdown() { // reset all dropdown values to custom if globa
   }
 }
 
+
+/**
+ * 
+ * Refresh single tile at at time
+ */
+function refreshSingleTile(object) {
+  var a = new TileFactory();
+  a.createGraph(object, $("#"+ object.id));
+  if(globalFilters)
+    changeDropdownValue($("#"+ key));
+}
+
 function refereshTiles() { // auto query for each tile
   for (var key in tileData) {
     if (tileData.hasOwnProperty(key)) {
@@ -67,9 +79,76 @@ function refereshTiles() { // auto query for each tile
   }
 }
 
-setInterval(function () { // function trigger for every x seconds
+/** Refresh widgets from choosed value in dropdown */
+var refreshInterval;
+// get choosed value
+function getTimeInterval() {
+  var intervalValue = $("#refresh-time").val();
+  var multiplyFactor  = getRefreshTimeMultiplyeFactor(intervalValue);
+  var number = getNumberFromString(intervalValue);
+  return number * multiplyFactor;
+}
+
+// Start interval
+function startRefreshInterval() {
+  if($("#refresh-time").val() == "off") return;  
+  refreshInterval = setInterval(function() {
+    refereshTiles();
+    console.log('started');
+  }, getTimeInterval());  
+}
+
+// Stop interval
+function stopRefreshInterval() {
+  console.log('stopped');
+  clearInterval(refreshInterval);
+}
+
+// Start and stop
+function decideFetchingData() {
+  if($("#refresh-time").val() == "off") {
+    stopRefreshInterval();
+  } else {
+    stopRefreshInterval();
+    startRefreshInterval();
+  }
+}
+
+// Stop and Start intervals 
+$("#refresh-time").on('change', function (e) {
+  decideFetchingData();
+});
+
+setTimeout(startRefreshInterval, 10000); // onLoad start
+
+// when global filters is turned on/off or changed directly refresh tiles
+$(".global-filter-period-select").change( function() {
   refereshTiles();
-}, getRefreshTime());
+});
+
+/** Refresh widgets from choosed value in dropdown ends */
+
+/**
+ * Start and Stop fetching data in n interval 
+ * if user goes to another tab stop  fetching data from API
+ * If User comes back to tab start fetching data from API
+ */
+$(window).on("blur focus", function(e) {
+  var prevType = $(this).data("prevType");
+  if (prevType != e.type) {   //  reduce double fire issues
+    switch (e.type) {
+      case "blur":
+              console.log('Stopped fetching data');
+              stopRefreshInterval();
+              break;
+      case "focus":
+              console.log('Started fetching data');
+              startRefreshInterval();
+              break;
+      }
+  }
+  $(this).data("prevType", e.type);
+});
 
 function pushTilesObject(object) { // save each tile data
   tileData[object.id] = object;
@@ -95,7 +174,10 @@ function pushTilesObject(object) { // save each tile data
 
 TileFactory.prototype.updateTileData = function () { // update tile details
   var selectedTile = $("#" + this.tileObject.id);
-  selectedTile.find(".tile-title").text(this.tileObject.title);
+  selectedTile.find(".tile-title").find(".title-title-span").text(this.tileObject.title);
+  selectedTile.find(".tile-title").find(".widget-description").tooltip();
+  var widgetDesc = this.tileObject.tileContext.description == undefined ? "Description  N/A" : this.tileObject.tileContext.description;
+  selectedTile.find(".tile-title").find(".widget-description").attr("title", widgetDesc);
   var tileid = this.tileObject.id;
   this.createGraph(this.tileObject, selectedTile);
   var tileListIndex = tileList.indexOf(this.tileObject.id);
@@ -115,7 +197,10 @@ TileFactory.prototype.updateTileData = function () { // update tile details
 }
 TileFactory.prototype.createTileData = function (object) { // store tile list
   var selectedTile = $("#" + object.id);
-  selectedTile.find(".tile-title").text(object.title);
+  selectedTile.find(".tile-title").find(".title-title-span").text(object.title);
+  selectedTile.find(".tile-title").find(".widget-description").tooltip();
+  var widgetDesc = object.tileContext.description == undefined ? "Description  N/A" : object.tileContext.description;
+  selectedTile.find(".tile-title").find(".widget-description").attr("title", widgetDesc);
   var tileid = object.id;
   var prepareTileData = {};
   prepareTileData[object.id] = object;
@@ -301,7 +386,7 @@ TileFactory.prototype.createNewRow = function (tileElement) {
     row = panelRow.length;
     tileElement.addClass("row-" + row);
   }
-  tileElement.prepend('<div id="arrow-btn"><button type="button"onClick="upRow('+row+')" class="row-identifier-'+row+' up-arrow arrow-up" id="row-up"><img class="arrow-up" src="img/context-arrow-up-normal.png" /></button><button type="button" onClick="downRow('+row+')" class="row-identifier-'+row+'" id="row-down"><img class="down" src="img/context-arrow-down-normal.png"/></button></div>');
+  tileElement.prepend('<div id="arrow-btn"><button type="button"onClick="upRow('+row+')" class="row-identifier-'+row+' up-arrow arrow-up" id="row-up"><img class="arrow-up" src="img/context-arrow-up-hover.png" /></button><button type="button" onClick="downRow('+row+')" class="row-identifier-'+row+'" id="row-down"><img class="down" src="img/context-arrow-down-hover.png"/></button></div>');
 
   if (this.tileObject.tileContext.widgetType != "full") { // dont add row add button for full widget
     var btnRow = row;
@@ -384,10 +469,23 @@ TileFactory.prototype.triggerFilter = function (tileElement, object) { // filter
     });
   }
 }
+
+/**
+ * 
+ * add change event to period select dropdown
+ */
+TileFactory.prototype.addEventToPeriodSelect = function (tileElement, object) {
+  tileElement.find(".period-select").change( function() {
+    refreshSingleTile(tileData[object.id]);// refresh immediately
+  });
+};
+
+
 // Add click event for tile config icon
 TileFactory.prototype.triggerConfig = function (tileElement, object) { // code to show sidebar when edit
   var instanceVar = this;
   tileElement.find(".widget-toolbox").find(".glyphicon-cog").click(function () {
+    $(".copy-widget-btn").show();
     object = tileData[object.id];
     isEdit = true;
     editingRow = object.tileContext.row;
@@ -399,6 +497,8 @@ TileFactory.prototype.triggerConfig = function (tileElement, object) { // code t
 
     var form = $("#sidebar").find("form");
     form.find(".tile-title").val(object.title);
+    var tileDescription = object.tileContext.description == undefined ? "" : object.tileContext.description;
+    form.find("#tile-description").val(tileDescription);
     form.find("#sidebar-tileId").val(object.id);
 
     $(".chart-type").val(object.tileContext.chartType)
@@ -416,6 +516,7 @@ TileFactory.prototype.triggerConfig = function (tileElement, object) { // code t
     $(".delete-widget").show();
     $("#delete-widget-divider").show();
     $("#delete-widget-value").val(object.id);
+    $("#copy-widget-value").data("tile", object);
   });
 }
 TileFactory.prototype.triggerChildBtn = function (tileElement, object) { // child btn
@@ -605,4 +706,5 @@ TileFactory.prototype.create = function () {
   this.saveTileConfig(this.tileObject); // add event for tile save btn
 
   previousWidget = this.tileObject.tileContext.widgetType;
+  this.addEventToPeriodSelect(tileElement, this.tileObject);
 };

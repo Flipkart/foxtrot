@@ -39,8 +39,13 @@ function periodFromWindow(periodUnit, customPeriodString) {
 }
 
 function timeValue(periodUnit, periodValue, selectedPeriodString) {
-  var timestamp = new Date().getTime();
-  if (selectedPeriodString === "custom" || !selectedPeriodString) {
+  var timestamp;
+  if(isGlobalDateFilter) {
+      timestamp = globalDateFilterValue;
+  } else {
+      timestamp = new Date().getTime();
+  }
+  if (selectedPeriodString === "custom" || !selectedPeriodString || isGlobalDateFilter) {
     return {
       field: "_timestamp"
       , operator: "last"
@@ -494,4 +499,23 @@ function convertHex(hex,opacity){ // converting given hexa decial value to rgb
 
   result = 'rgba('+r+','+g+','+b+','+opacity/100+')';
   return result;
+}
+
+function getWidgetSize(type) { // widget types
+  if (type == "line" || type == "stacked" || type == "stackedBar" || type == "statsTrend" || type == "bar" || type == "lineRatio") {
+    return 12;
+  }
+  else if (type == "radar" || type == "pie") {
+    return 6;
+  }
+  else if (type == "gauge" || type == "percentageGauge"  || type == "trend" || type == "count") {
+    return 3;
+  }
+  else {
+    return 0;
+  }
+}
+
+function thresholdErrorMsg() {
+  return "Denominator value is below the threshold value. Hence, graph plotting not possible";
 }
