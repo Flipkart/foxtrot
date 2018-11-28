@@ -101,7 +101,7 @@ function LineRatioTile() {
       , data: JSON.stringify(data)
       , success: $.proxy(this.getData, this)
       ,error: function(xhr, textStatus, error) {
-        showFetchError(refObject);
+        showFetchError(refObject, "refresh");
       }
     });
   }
