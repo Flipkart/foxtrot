@@ -110,12 +110,6 @@ PieTile.prototype.getQuery = function (object) {
   });
 }
 PieTile.prototype.getData = function (data) {
-
-  if(data.length == 0)
-    showFetchError(this.object);
-  else
-    hideFetchError(this.object);
-
   if(this.object.tileContext.uiFiltersList == undefined) {
     this.object.tileContext.uiFiltersList = [];
     this.object.tileContext.uiFiltersSelectedList = [];
@@ -138,9 +132,16 @@ PieTile.prototype.getData = function (data) {
     }
     this.object.tileContext.uiFiltersList.push(property);
   }
-  this.render(columns)
+  this.render(columns, Object.keys(data.result).length)
 }
-PieTile.prototype.render = function (columns) {
+PieTile.prototype.render = function (columns, dataLength) {
+
+  if(dataLength == 0) {
+    showFetchError(this.object, "data");
+  } else {
+    hideFetchError(this.object);
+  }
+
   var object = this.object;
   var chartDiv = $("#"+object.id).find(".chart-item");
   var ctx = chartDiv.find("#" + object.id);
@@ -149,82 +150,89 @@ PieTile.prototype.render = function (columns) {
   $("#"+object.id).find(".chart-item").find(".legend").addClass('pie-legend');
   $("#"+object.id).find(".chart-item").css('margin-top', "53px");
 
-  ctx.width(ctx.width);
-  ctx.height(230);
-  var chartOptions = {
-    series: {
-      pie: {
-        innerRadius: 0.8
-        , show: true
-        , label: {
-          show: false
+  if(dataLength == 0) {
+    ctx.hide();
+    $(chartDiv).find(".legend").hide();
+  } else {
+    $(chartDiv).find(".legend").show();
+    ctx.show();
+    ctx.width(ctx.width);
+    ctx.height(230);
+    var chartOptions = {
+      series: {
+        pie: {
+          innerRadius: 0.8
+          , show: true
+          , label: {
+            show: false
+          }
         }
       }
-    }
-    ,highlightSeries: {
-      color: "#FF00FF"
-    }
-    , legend: {
-      show: false
-    }
-    , grid: {
-      hoverable: true
-    }
-    , tooltip: true
-    , tooltipOpts: {
-      content: function (label, x, y) {
-        $("#"+object.id).find(".chart-item").find(".pie-center-div").show();
-        $("#"+object.id).find(".chart-item").find(".pie-center-div").find('.pie-center-value').text(y);
-        $("#"+object.id).find(".chart-item").find(".pie-center-div").find('.pie-center-label').text(label);
-        return "" + ": " + "";
+      ,highlightSeries: {
+        color: "#FF00FF"
       }
-      ,onHover: function(flotItem, $tooltipEl) {
-        $tooltipEl.hide();
+      , legend: {
+        show: false
       }
-    }
-  };
-
-
-  var plot = $.plot(ctx, columns, chartOptions);
-
-  $("#"+object.id).find(".chart-item").find("#"+object.id).append('<div class="pie-center-div"><div><p class="pie-center-value"></p><hr/><p class="pie-center-label"></p></div></div>');
-
-  drawPieLegend(columns, $(chartDiv.find(".legend")));
-  var re = re = /\(([0-9]+,[0-9]+,[0-9]+)/;
-  $(chartDiv.find('.legend ul li')).on('mouseenter', function() {
-    var label = $(this).text();
-    label = label.substring(0, label.indexOf('-'));
-    var allSeries = plot.getData();
-    for (var i = 0; i < allSeries.length; i++){
-      if (allSeries[i].label == $.trim(label)){
-        allSeries[i].oldColor = allSeries[i].color;
+      , grid: {
+        hoverable: true
+      }
+      , tooltip: true
+      , tooltipOpts: {
+        content: function (label, x, y) {
+          $("#"+object.id).find(".chart-item").find(".pie-center-div").show();
+          $("#"+object.id).find(".chart-item").find(".pie-center-div").find('.pie-center-value').text(y);
+          $("#"+object.id).find(".chart-item").find(".pie-center-div").find('.pie-center-label').text(label);
+          return "" + ": " + "";
+        }
+        ,onHover: function(flotItem, $tooltipEl) {
+          $tooltipEl.hide();
+        }
+      }
+    };
+  
+  
+    var plot = $.plot(ctx, columns, chartOptions);
+  
+    $("#"+object.id).find(".chart-item").find("#"+object.id).append('<div class="pie-center-div"><div><p class="pie-center-value"></p><hr/><p class="pie-center-label"></p></div></div>');
+  
+    drawPieLegend(columns, $(chartDiv.find(".legend")));
+    var re = re = /\(([0-9]+,[0-9]+,[0-9]+)/;
+    $(chartDiv.find('.legend ul li')).on('mouseenter', function() {
+      var label = $(this).text();
+      label = label.substring(0, label.indexOf('-'));
+      var allSeries = plot.getData();
+      for (var i = 0; i < allSeries.length; i++){
+        if (allSeries[i].label == $.trim(label)){
+          allSeries[i].oldColor = allSeries[i].color;
+          allSeries[i].color = 'rgba(' + re.exec(allSeries[i].color)[1] + ',' + 1 + ')';
+          $("#"+object.id).find(".chart-item").find(".pie-center-div").show();
+          $("#"+object.id).find(".chart-item").find(".pie-center-div").find('.pie-center-value').text(allSeries[i].data[0][1]);
+          $("#"+object.id).find(".chart-item").find(".pie-center-div").find('.pie-center-label').text(allSeries[i].label);
+        } else {
+          allSeries[i].color = 'rgba(' + re.exec(allSeries[i].color)[1] + ',' + 0.1 + ')';
+        }
+      }
+      plot  .draw();
+    });
+  
+    $(chartDiv.find('.legend ul li')).on('mouseleave', function() {
+      var label = $(this).text();
+      label = label.substring(0, label.indexOf('-'));
+      var allSeries = plot.getData();
+      for (var i = 0; i < allSeries.length; i++){
         allSeries[i].color = 'rgba(' + re.exec(allSeries[i].color)[1] + ',' + 1 + ')';
-        $("#"+object.id).find(".chart-item").find(".pie-center-div").show();
-        $("#"+object.id).find(".chart-item").find(".pie-center-div").find('.pie-center-value').text(allSeries[i].data[0][1]);
-        $("#"+object.id).find(".chart-item").find(".pie-center-div").find('.pie-center-label').text(allSeries[i].label);
-      } else {
-        allSeries[i].color = 'rgba(' + re.exec(allSeries[i].color)[1] + ',' + 0.1 + ')';
+        if (allSeries[i].label == $.trim(label)){
+          allSeries[i].color = allSeries[i].oldColor;
+          $("#"+object.id).find(".chart-item").find(".pie-center-div").hide();
+        }
       }
-    }
-    plot  .draw();
-  });
-
-  $(chartDiv.find('.legend ul li')).on('mouseleave', function() {
-    var label = $(this).text();
-    label = label.substring(0, label.indexOf('-'));
-    var allSeries = plot.getData();
-    for (var i = 0; i < allSeries.length; i++){
-      allSeries[i].color = 'rgba(' + re.exec(allSeries[i].color)[1] + ',' + 1 + ')';
-      if (allSeries[i].label == $.trim(label)){
-        allSeries[i].color = allSeries[i].oldColor;
+      plot.draw();
+    });
+    $(ctx).bind("plothover", function (event, pos, item) {
+      if(!item) {
         $("#"+object.id).find(".chart-item").find(".pie-center-div").hide();
       }
-    }
-    plot.draw();
-  });
-  $(ctx).bind("plothover", function (event, pos, item) {
-    if(!item) {
-      $("#"+object.id).find(".chart-item").find(".pie-center-div").hide();
-    }
-  });
+    });
+  }
 }

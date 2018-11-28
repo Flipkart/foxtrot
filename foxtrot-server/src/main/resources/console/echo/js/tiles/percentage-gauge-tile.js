@@ -111,13 +111,7 @@ PercentageGaugeTile.prototype.getQuery = function (object) {
     }
   });
 }
-PercentageGaugeTile.prototype.getData = function (data) {
-
-  if(data.length == 0)
-    showFetchError(this.object);
-  else
-    hideFetchError(this.object);
-    
+PercentageGaugeTile.prototype.getData = function (data) {    
   var numerator = 0;
   var denominator = 0;
 
@@ -172,9 +166,15 @@ PercentageGaugeTile.prototype.getData = function (data) {
     denominatorStringEval = data.result[denominator];
   }
 
-  this.render(100, (eval(denominatorStringEval)/eval(numeratorStringEval)*100));
+  this.render(100, (eval(denominatorStringEval)/eval(numeratorStringEval)*100), Object.keys(data.result).length);
 }
-PercentageGaugeTile.prototype.render = function (total, diff) {
+PercentageGaugeTile.prototype.render = function (total, diff, dataLength) {
+
+  if(dataLength == 0) {
+    showFetchError(this.object, "data");
+  } else {
+    hideFetchError(this.object);
+  }
 
   var object = this.object;
   var d = [total];
@@ -234,4 +234,11 @@ PercentageGaugeTile.prototype.render = function (total, diff) {
       }
     });
   });
+  
+  if(dataLength == 0) {
+    ctx.hide();
+  } else {
+    ctx.show();
+  }
+
 }
