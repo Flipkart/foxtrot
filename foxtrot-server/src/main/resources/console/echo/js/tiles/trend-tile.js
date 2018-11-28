@@ -99,42 +99,56 @@ TrendTile.prototype.getQuery = function(object) {
 
 TrendTile.prototype.getData = function(data) {
 
-  if(data.length == 0)
-    showFetchError(this.object);
-  else
-    hideFetchError(this.object);
+  var dataLength = Object.keys(data.result).length
 
-  if(!data.result)
-    return;
-  var statsObject = data.result.stats;
-  var percentile = data.result.percentiles;
-  var displayValue = "";
-  var objectToshow = this.object.tileContext.statsToPlot.split('.');
-  if(this.object.tileContext.statsToPlot.match('stats')) {
-    objectToshow = objectToshow[1].toString();
-    displayValue = statsObject[objectToshow];
+  if(dataLength > 0) {
+    var statsObject = data.result.stats;
+    var percentile = data.result.percentiles;
+    var displayValue = "";
+    var objectToshow = this.object.tileContext.statsToPlot.split('.');
+    if(this.object.tileContext.statsToPlot.match('stats')) {
+      objectToshow = objectToshow[1].toString();
+      displayValue = statsObject[objectToshow];
+    } else {
+      var displayObject = objectToshow[1]+'.'+objectToshow[2].toString();
+      displayValue = percentile[displayObject];
+    }
+    this.render(displayValue, dataLength);
   } else {
-    var displayObject = objectToshow[1]+'.'+objectToshow[2].toString();
-    displayValue = percentile[displayObject];
+    this.render(displayValue, dataLength);
   }
-  this.render(displayValue);
 }
 
-TrendTile.prototype.render = function (displayValue) {
+TrendTile.prototype.render = function (displayValue, dataLength) {
+
+  if(dataLength == 0) {
+    showFetchError(this.object, "data");
+  } else {
+    hideFetchError(this.object);
+  }
+
   var object = this.object;
   var chartDiv = $("#"+object.id).find(".chart-item");
   chartDiv.addClass("trend-chart");
 
-  var a = chartDiv.find("#"+object.id);
-  if(a.length != 0) {
-    a.remove();
+  if(dataLength == 0) {
+    chartDiv.hide();
+  } else {
+    chartDiv.show();
+    var a = chartDiv.find("#"+object.id);
+    if(a.length != 0) {
+      a.remove();
+    }
+  
+    displayValue = displayValue / Math.pow(10, (this.object.tileContext.ignoreDigits == undefined ? 0 : this.object.tileContext.ignoreDigits));
+    chartDiv.append("<div id="+object.id+"><p class='trend-value-big bold'>"+numberWithCommas(displayValue)+"</p><dhr/><p class='trend-value-small'></p><div id='trend-'"+object.id+" class='trend-chart-health'></div><div class='trend-chart-health-percentage bold'></div></div>");
+    var healthDiv = chartDiv.find("#trend-"+object.id);
+    healthDiv.width(100);
+    healthDiv.height(50);
   }
 
-  displayValue = displayValue / Math.pow(10, (this.object.tileContext.ignoreDigits == undefined ? 0 : this.object.tileContext.ignoreDigits));
-  chartDiv.append("<div id="+object.id+"><p class='trend-value-big bold'>"+numberWithCommas(displayValue)+"</p><dhr/><p class='trend-value-small'></p><div id='trend-'"+object.id+" class='trend-chart-health'></div><div class='trend-chart-health-percentage bold'></div></div>");
-  var healthDiv = chartDiv.find("#trend-"+object.id);
-  healthDiv.width(100);
-  healthDiv.height(50);
+
+  
   /*$.plot(healthDiv, [
     { data: yAxis },
   ],{
