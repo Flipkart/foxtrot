@@ -539,7 +539,7 @@ StackedBarTile.prototype.render = function (d, isMultiSeries, originalData) {
           if(isMultiSeries) { // muli series and change x and y value by using origital data variable
             var realValue = originalData[$(this).index()];
             if(realValue.data[m]) {
-              individualTooltip(graphx + points[k].xaxis.p2c(points[k].data[m][0]), points[k].yaxis.p2c(points[k].data[m][1]) + graphy - 190, realValue.data[m][0], points[k].data[m][1]);
+              individualTooltip(graphx + points[k].xaxis.p2c(points[k].data[m][0]), points[k].yaxis.p2c(points[k].data[m][1]) + graphy - 150, realValue.data[m][0], points[k].data[m][1]);
             }
           } else {
             individualTooltip(graphx + points[k].xaxis.p2c(points[k].data[m][0]), points[k].yaxis.p2c(points[k].data[m][1]) + graphy - 70, points[k].data[m][0], points[k].data[m][1]);

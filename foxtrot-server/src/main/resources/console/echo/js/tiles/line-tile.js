@@ -92,17 +92,19 @@ LineTile.prototype.getQuery = function (object) {
   });
 }
 LineTile.prototype.getData = function (data) {
-  if (data.counts == undefined || data.counts.length == 0) return;
   var rows = [];
-  rows.push(['date', 'count']);
-  for (var i = data.counts.length - 1; i >= 0; i--) {
-    rows.push([data.counts[i].period, (data.counts[i].count / Math.pow(10, this.object.tileContext.ignoreDigits == undefined ? 0 : this.object.tileContext.ignoreDigits))]);
+  if (data.counts && data.counts.length > 0) {
+    rows.push(['date', 'count']);
+    for (var i = data.counts.length - 1; i >= 0; i--) {
+      rows.push([data.counts[i].period, (data.counts[i].count / Math.pow(10, this.object.tileContext.ignoreDigits == undefined ? 0 : this.object.tileContext.ignoreDigits))]);
+    }
   }
   this.render(rows);
 }
 LineTile.prototype.render = function (rows) {
+
   if(rows.length == 0)
-    showFetchError(this.object);
+    showFetchError(this.object, "data");
   else
     hideFetchError(this.object);
     
@@ -168,6 +170,14 @@ LineTile.prototype.render = function (rows) {
     }
     , colors: [borderColorArray[Math.floor(Math.random()*borderColorArray.length)]]
   , });
+
+
+  if(rows.length == 0) {
+    $(ctx).hide();
+  } else {
+    $(ctx).show();
+  }
+
   var healthParentDiv = $("#"+object.id).find(".widget-header")
   var healthDiv = healthParentDiv.find("#" + object.id + "-health");
   healthDiv.width(100);

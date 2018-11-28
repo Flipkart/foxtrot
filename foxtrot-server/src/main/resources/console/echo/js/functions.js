@@ -410,8 +410,9 @@ function getNumberFromString(thestring) {
  * 
  * show refresh failed msg
  */
-function showFetchError(data) {
+function showFetchError(data, errorType) {
   var el = $("#"+data.id).find(".fetch-error");
+  $(el).text(getErrorMsg(errorType));
   $(el).show();
   var widgetType = data.tileContext.widgetType;
   if(widgetType == "medium") {
@@ -504,4 +505,15 @@ function prepareMultiSeriesQueryObject(data, object, filters) {
   }
 
   return mapDetails;
+}
+
+/**
+ * Error msgs
+ */
+function getErrorMsg(errorType) {
+  if(errorType == "refresh") {
+    return "Data Refresh Failed";
+  } else if(errorType == "data") {
+    return "No results found";
+  }
 }

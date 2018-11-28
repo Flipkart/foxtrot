@@ -105,11 +105,6 @@ GaugeTile.prototype.getQuery = function (object) {
   });
 }
 GaugeTile.prototype.getData = function (data) {
-
-  if(data.length == 0)
-    showFetchError(this.object);
-  else
-    hideFetchError(this.object);
     
   var successField = "";
   var successRate = 0;
@@ -155,9 +150,17 @@ GaugeTile.prototype.getData = function (data) {
     successFieldStringEval = data.result[successField];
   }
   
-  this.render(100, (eval(successFieldStringEval)/total*100));
+  this.render(100, (eval(successFieldStringEval)/total*100), Object.keys(data.result).length);
 }
-GaugeTile.prototype.render = function (total, diff) {
+GaugeTile.prototype.render = function (total, diff, dataLength) {
+
+
+  if(dataLength == 0) {
+    showFetchError(this.object, "data");
+  } else {
+    hideFetchError(this.object);
+  }
+
   var object = this.object;
   var d = [total];
   var chartDiv = $("#"+object.id).find(".chart-item");
@@ -216,4 +219,11 @@ GaugeTile.prototype.render = function (total, diff) {
       }
     });
   });
+  
+  if(dataLength == 0) {
+    ctx.hide();
+  } else {
+    ctx.show();
+  }
+
 }

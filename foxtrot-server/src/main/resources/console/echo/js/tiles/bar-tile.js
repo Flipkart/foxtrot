@@ -110,11 +110,6 @@ BarTile.prototype.getQuery = function (object) {
   });
 }
 BarTile.prototype.getData = function (data) {
-  
-  if(data.length == 0)
-      showFetchError(this.object);
-  else
-      hideFetchError(this.object);
       
   if(this.object.tileContext.uiFiltersList == undefined) {
     this.object.tileContext.uiFiltersList = [];
@@ -165,6 +160,12 @@ BarTile.prototype.getData = function (data) {
   this.render(xAxisOptions, columns);
 }
 BarTile.prototype.render = function (xAxisOptions, columns) {
+
+  if(columns.length == 0) {
+    showFetchError(this.object, "data")
+  }  else {
+    hideFetchError(this.object);
+  } 
   var object = this.object;
   var chartDiv = $("#"+object.id).find(".chart-item");
   var ctx = chartDiv.find("#" + object.id);
@@ -232,6 +233,12 @@ BarTile.prototype.render = function (xAxisOptions, columns) {
   };
   var plot = $.plot(ctx, columns, chartOptions);
 
+  if(columns.length == 0) {
+    $(ctx).hide();
+  } else {
+    $(ctx).show();
+  }
+  
   drawLegend(columns, $(chartDiv.find(".legend")));
 
   var re = re = /\(([0-9]+,[0-9]+,[0-9]+)/;
