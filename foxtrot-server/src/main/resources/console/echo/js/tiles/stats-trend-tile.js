@@ -116,7 +116,7 @@ StatsTrendTile.prototype.getQuery = function(object) {
 
 StatsTrendTile.prototype.getData = function(data) {
 
-  var results = data.result;
+  var results = (data == undefined ? [] : data.result);
   var isMultiQuery = false;
   // if(data.result) {
   //   results = data.result;

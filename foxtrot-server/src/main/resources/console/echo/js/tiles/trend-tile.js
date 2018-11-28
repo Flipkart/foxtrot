@@ -99,8 +99,7 @@ TrendTile.prototype.getQuery = function(object) {
 
 TrendTile.prototype.getData = function(data) {
 
-  var dataLength = Object.keys(data.result).length
-
+  var dataLength = (data == undefined ? 0 : Object.keys(data.result).length)
   if(dataLength > 0) {
     var statsObject = data.result.stats;
     var percentile = data.result.percentiles;

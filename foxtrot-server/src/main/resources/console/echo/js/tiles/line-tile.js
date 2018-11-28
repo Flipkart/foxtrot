@@ -112,145 +112,147 @@ LineTile.prototype.render = function (rows) {
   var borderColorArray = ["#9e8cd9", "#f3a534", "#9bc95b", "#50e3c2"]
   var chartDiv = $("#"+object.id).find(".chart-item");
   var ctx = chartDiv.find("#" + object.id);
-  ctx.width(ctx.width - 100);
-  ctx.height(fullWidgetChartHeight());
-  var plot = $.plot(ctx, [
-    {
-      data: rows
-      , color: "#75c400",
-        }
-  , ], {
-    series: {
-      lines: {
-        show: true
-        , lineWidth: 1.0
-        , color: "#9bc95b"
-        , fill: true
-        , fillColor: {
-          colors: [{
-            opacity: 0.7
-          }, {
-            opacity: 0.1
-          }]
-        }
-      }
-      , points: {
-        show: false
-      }
-      , shadowSize: 0
-      , curvedLines: { active: true }
-    }
-    , xaxis: {
-      tickLength: 0
-      , mode: "time"
-      , timezone: "browser"
-      , timeformat: axisTimeFormat(object.tileContext.period, (globalFilters ? getGlobalFilters() : getPeriodSelect(object.id)))
-    , }
-    , yaxis: {
-      markingsStyle: 'dashed',
-        tickFormatter: function(val, axis) {
-        return numDifferentiation(val);
-      },
-    }
-    , grid: {
-      hoverable: true
-      , color: "#B2B2B2"
-      , show: true
-      , borderWidth: {
-        top: 0
-        , right: 0
-        , bottom: 1
-        , left: 1
-      }
-      , borderColor: "#EEEEEE"
-    , }
-    , tooltip: false
-    , tooltipOpts: {
-      content: ""
-    }
-    , colors: [borderColorArray[Math.floor(Math.random()*borderColorArray.length)]]
-  , });
-
 
   if(rows.length == 0) {
     $(ctx).hide();
   } else {
     $(ctx).show();
-  }
-
-  var healthParentDiv = $("#"+object.id).find(".widget-header")
-  var healthDiv = healthParentDiv.find("#" + object.id + "-health");
-  healthDiv.width(100);
-  healthDiv.addClass('health-div');
-  /*$.plot(healthDiv, [
-    {
-      data: rows
+    ctx.width(ctx.width - 100);
+    ctx.height(fullWidgetChartHeight());
+    var plot = $.plot(ctx, [
+      {
+        data: rows
+        , color: "#75c400",
+          }
+    , ], {
+      series: {
+        lines: {
+          show: true
+          , lineWidth: 1.0
+          , color: "#9bc95b"
+          , fill: true
+          , fillColor: {
+            colors: [{
+              opacity: 0.7
+            }, {
+              opacity: 0.1
+            }]
+          }
         }
-  , ], {
-    series: {
-      lines: {
-        show: true
+        , points: {
+          show: false
+        }
+        , shadowSize: 0
+        , curvedLines: { active: true }
       }
-      , points: {
-        show: false
+      , xaxis: {
+        tickLength: 0
+        , mode: "time"
+        , timezone: "browser"
+        , timeformat: axisTimeFormat(object.tileContext.period, (globalFilters ? getGlobalFilters() : getPeriodSelect(object.id)))
+      , }
+      , yaxis: {
+        markingsStyle: 'dashed',
+          tickFormatter: function(val, axis) {
+          return numDifferentiation(val);
+        },
       }
-      , shadowSize: 0
-      , curvedLines: { active: true }
-    }
-    , xaxis: {
-      mode: "time"
-      , timezone: "browser"
-      , timeformat: axisTimeFormat(object.tileContext.period, getPeriodSelect(object.id))
-    , }
-    , grid: {
-      color: "#B2B2B2"
-      , show: false
-      , borderWidth: {
-        top: 0
-        , right: 0
-        , bottom: 1
-        , left: 1
+      , grid: {
+        hoverable: true
+        , color: "#B2B2B2"
+        , show: true
+        , borderWidth: {
+          top: 0
+          , right: 0
+          , bottom: 1
+          , left: 1
+        }
+        , borderColor: "#EEEEEE"
+      , }
+      , tooltip: false
+      , tooltipOpts: {
+        content: ""
       }
-      , borderColor: "#EEEEEE"
-      , hoverable:false
-    , }
-    ,selection: {
-      mode: "x",
-      minSize: 1
+      , colors: [borderColorArray[Math.floor(Math.random()*borderColorArray.length)]]
+    , });
+  
+  
+    
+  
+    var healthParentDiv = $("#"+object.id).find(".widget-header")
+    var healthDiv = healthParentDiv.find("#" + object.id + "-health");
+    healthDiv.width(100);
+    healthDiv.addClass('health-div');
+    /*$.plot(healthDiv, [
+      {
+        data: rows
+          }
+    , ], {
+      series: {
+        lines: {
+          show: true
+        }
+        , points: {
+          show: false
+        }
+        , shadowSize: 0
+        , curvedLines: { active: true }
+      }
+      , xaxis: {
+        mode: "time"
+        , timezone: "browser"
+        , timeformat: axisTimeFormat(object.tileContext.period, getPeriodSelect(object.id))
+      , }
+      , grid: {
+        color: "#B2B2B2"
+        , show: false
+        , borderWidth: {
+          top: 0
+          , right: 0
+          , bottom: 1
+          , left: 1
+        }
+        , borderColor: "#EEEEEE"
+        , hoverable:false
+      , }
+      ,selection: {
+        mode: "x",
+        minSize: 1
+      }
+      , tooltip: false
+      , tooltipOpts: {
+        content: "%y events at %x"
+        , defaultFormat: true
+      }
+      , colors: ['#000']
+    , });*/
+  
+    function showTooltip(x, y, xValue, yValue) {
+      var a = axisTimeFormatNew(object.tileContext.period, (globalFilters ? getGlobalFilters() : getPeriodSelect(object.id)));
+      $('<div id="flot-custom-tooltip"> <div class="tooltip-custom-content"><p class="">'+numDifferentiation(yValue)+'</p><p class="tooltip-custom-date-text">' + moment(xValue).format(a) + '</p></div></div>').css( {
+        position: 'absolute',
+        display: 'none',
+        top: y - 60,
+        left: x - 2,
+      }).appendTo("body").fadeIn(200);
     }
-    , tooltip: false
-    , tooltipOpts: {
-      content: "%y events at %x"
-      , defaultFormat: true
-    }
-    , colors: ['#000']
-  , });*/
-
-  function showTooltip(x, y, xValue, yValue) {
-    var a = axisTimeFormatNew(object.tileContext.period, (globalFilters ? getGlobalFilters() : getPeriodSelect(object.id)));
-    $('<div id="flot-custom-tooltip"> <div class="tooltip-custom-content"><p class="">'+numDifferentiation(yValue)+'</p><p class="tooltip-custom-date-text">' + moment(xValue).format(a) + '</p></div></div>').css( {
-      position: 'absolute',
-      display: 'none',
-      top: y - 60,
-      left: x - 2,
-    }).appendTo("body").fadeIn(200);
-  }
-
-  var previousPoint = null;
-  $(ctx).bind("plothover", function (event, pos, item) {
-    if (item) {
-      if (previousPoint != item.datapoint) {
-        previousPoint = item.datapoint;
-
+  
+    var previousPoint = null;
+    $(ctx).bind("plothover", function (event, pos, item) {
+      if (item) {
+        if (previousPoint != item.datapoint) {
+          previousPoint = item.datapoint;
+  
+          $("#flot-custom-tooltip").remove();
+          var x = item.datapoint[0].toFixed(0),
+              y = item.datapoint[1].toFixed(2);
+          showTooltip(item.pageX, item.pageY, Number(x), y);
+        }
+      } else {
         $("#flot-custom-tooltip").remove();
-        var x = item.datapoint[0].toFixed(0),
-            y = item.datapoint[1].toFixed(2);
-        showTooltip(item.pageX, item.pageY, Number(x), y);
+        clicksYet = false;
+        previousPoint = null;
       }
-    } else {
-      $("#flot-custom-tooltip").remove();
-      clicksYet = false;
-      previousPoint = null;
-    }
-  });
+    });
+  }
 }
