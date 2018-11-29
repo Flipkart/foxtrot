@@ -31,10 +31,12 @@ function fetchTableFields() {
 }
 
 function renderTiles(object) {
-  var tileFactory = new TileFactory();
-  tileFactory.tileObject = object;
-  tablesToRender.push(object.tileContext.table);
-  tileFactory.create();
+  if(object) {
+    var tileFactory = new TileFactory();
+    tileFactory.tileObject = object;
+    tablesToRender.push(object.tileContext.table);
+    tileFactory.create();
+  }
 }
 
 function getPeriodSelect(tileId) { // period select value for each tiles
