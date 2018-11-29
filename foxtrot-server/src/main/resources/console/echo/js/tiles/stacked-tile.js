@@ -97,16 +97,12 @@ StackedTile.prototype.getQuery = function (object) {
     , data: JSON.stringify(data)
     , success: $.proxy(this.getData, this)
     ,error: function(xhr, textStatus, error) {
-      showFetchError(currentTileId);
+      showFetchError(currentTileId, "refresh");
     }
   });
 }
 
 StackedTile.prototype.getData = function (data) {
-  if(data.result.length == 0)
-    showFetchError(this.object);
-  else
-    hideFetchError(this.object);
     
   if (data.result == undefined || data.result.length == 0) return;
   var xAxis = [];
@@ -188,6 +184,13 @@ StackedTile.prototype.getData = function (data) {
   this.render(yAxisSeries, xAxisTicks)
 }
 StackedTile.prototype.render = function (yAxisSeries, xAxisTicks) {
+
+  if(xAxisTicks.length == 0) {
+    showFetchError(this.object, "data");
+  } else {
+    hideFetchError(this.object);
+  }
+
   var object = this.object;
   var chartDiv = $("#"+object.id).find(".chart-item");
   var ctx = chartDiv.find("#" + object.id);
@@ -334,5 +337,11 @@ StackedTile.prototype.render = function (yAxisSeries, xAxisTicks) {
         mapping[i][1] = mapping[i][1] + yValue;
       }
     }
+  }
+
+  if(xAxisTicks.length == 0) {
+    ctx.hide();
+  } else {
+    ctx.show();
   }
 }

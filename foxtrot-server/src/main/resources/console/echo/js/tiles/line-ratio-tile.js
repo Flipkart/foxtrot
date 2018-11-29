@@ -101,19 +101,15 @@ function LineRatioTile() {
       , data: JSON.stringify(data)
       , success: $.proxy(this.getData, this)
       ,error: function(xhr, textStatus, error) {
-        showFetchError(refObject);
+        showFetchError(refObject, "refresh");
       }
     });
   }
   
   LineRatioTile.prototype.getData = function (data) {
-    
-    if(data.length == 0)
-      showFetchError(this.object);
-    else
-      hideFetchError(this.object);
-
-    /**
+    var dataLength = Object.keys(data.trends).length;
+   if(dataLength > 0) {
+      /**
    * Check special character exist
    * if exist split by space
    * loop array and get values from response
@@ -250,102 +246,114 @@ function LineRatioTile() {
 
     newData.push([finalNumerator[finalValue].period, (percentage / Math.pow(10, 0))]); 
   }
-
-  this.render(newData);
+  this.render(newData, dataLength);
+  } else {
+    this.render([], dataLength);
+  }
 }
 
-  LineRatioTile.prototype.render = function (rows) {
+  LineRatioTile.prototype.render = function (rows, dataLength) {
+    if(dataLength == 0)
+      showFetchError(this.object, "data");
+    else
+      hideFetchError(this.object);
+
     var object = this.object;
     var chartDiv = $("#"+object.id).find(".chart-item");
     var borderColorArray = ["#9e8cd9", "#f3a534", "#9bc95b", "#50e3c2"];
     var ctx = chartDiv.find("#" + object.id);
-    ctx.width(ctx.width - 100);
-    ctx.height(fullWidgetChartHeight());
-    var plot = $.plot(ctx, [
-      {
-        data: rows
-        , color: "#FF69B4",
-          }
-    , ], {
-      series: {
-        stack: true,
-        lines: {
-          show: true
-          , lineWidth: 1.0
-          , color: "red"
-          , fill: false
-          , fillColor: {
-            colors: [{
-              opacity: 0.7
-            }, {
-              opacity: 0.1
-            }]
-          }
-        }
-        , points: {
-          show: true
-        }
-        , shadowSize: 0
-        , curvedLines: { active: true }
-      }
-      , xaxis: {
-        tickLength: 0
-        , mode: "time"
-        , timezone: "browser"
-        , timeformat: axisTimeFormat(object.tileContext.period, (globalFilters ? getGlobalFilters() : getPeriodSelect(object.id)))
-      , }
-      , yaxis: {
-        markingsStyle: 'dashed',
-          tickFormatter: function(val, axis) {
-          return numDifferentiation(val);
-        },
-      }
-      , grid: {
-        hoverable: true
-        , color: "#B2B2B2"
-        , show: true
-        , borderWidth: {
-          top: 0
-          , right: 0
-          , bottom: 1
-          , left: 1
-        }
-        , borderColor: "#EEEEEE"
-      , }
-      , tooltip: false
-      , tooltipOpts: {
-        content: ""
-      }
-      , colors: [borderColorArray[Math.floor(Math.random()*borderColorArray.length)]]
-    , });
 
-    function showTooltip(x, y, xValue, yValue) {
-      var a = axisTimeFormatNew(object.tileContext.period, (globalFilters ? getGlobalFilters() : getPeriodSelect(object.id)));
-      $('<div id="flot-custom-tooltip"> <div class="tooltip-custom-content"><p class="">'+yValue+'</p><p class="tooltip-custom-date-text">' + moment(xValue).format(a) + '</p></div></div>').css( {
-        position: 'absolute',
-        display: 'none',
-        top: y - 60,
-        left: x - 2,
-      }).appendTo("body").fadeIn(200);
-    }
-  
-    var previousPoint = null;
-    $(ctx).bind("plothover", function (event, pos, item) {
-      if (item) {
-        if (previousPoint != item.datapoint) {
-          previousPoint = item.datapoint;
-  
-          $("#flot-custom-tooltip").remove();
-          var x = item.datapoint[0].toFixed(2),
-              y = item.datapoint[1].toFixed(1);
-          showTooltip(item.pageX, item.pageY, Number(x), y);
+    if(dataLength == 0) {
+      ctx.hide();
+    } else {
+      ctx.show();
+      ctx.width(ctx.width - 100);
+      ctx.height(fullWidgetChartHeight());
+      var plot = $.plot(ctx, [
+        {
+          data: rows
+          , color: "#FF69B4",
+            }
+      , ], {
+        series: {
+          stack: true,
+          lines: {
+            show: true
+            , lineWidth: 1.0
+            , color: "red"
+            , fill: false
+            , fillColor: {
+              colors: [{
+                opacity: 0.7
+              }, {
+                opacity: 0.1
+              }]
+            }
+          }
+          , points: {
+            show: true
+          }
+          , shadowSize: 0
+          , curvedLines: { active: true }
         }
-      } else {
-        $("#flot-custom-tooltip").remove();
-        clicksYet = false;
-        previousPoint = null;
+        , xaxis: {
+          tickLength: 0
+          , mode: "time"
+          , timezone: "browser"
+          , timeformat: axisTimeFormat(object.tileContext.period, (globalFilters ? getGlobalFilters() : getPeriodSelect(object.id)))
+        , }
+        , yaxis: {
+          markingsStyle: 'dashed',
+            tickFormatter: function(val, axis) {
+            return numDifferentiation(val);
+          },
+        }
+        , grid: {
+          hoverable: true
+          , color: "#B2B2B2"
+          , show: true
+          , borderWidth: {
+            top: 0
+            , right: 0
+            , bottom: 1
+            , left: 1
+          }
+          , borderColor: "#EEEEEE"
+        , }
+        , tooltip: false
+        , tooltipOpts: {
+          content: ""
+        }
+        , colors: [borderColorArray[Math.floor(Math.random()*borderColorArray.length)]]
+      , });
+  
+      function showTooltip(x, y, xValue, yValue) {
+        var a = axisTimeFormatNew(object.tileContext.period, (globalFilters ? getGlobalFilters() : getPeriodSelect(object.id)));
+        $('<div id="flot-custom-tooltip"> <div class="tooltip-custom-content"><p class="">'+yValue+'</p><p class="tooltip-custom-date-text">' + moment(xValue).format(a) + '</p></div></div>').css( {
+          position: 'absolute',
+          display: 'none',
+          top: y - 60,
+          left: x - 2,
+        }).appendTo("body").fadeIn(200);
       }
-    });
     
+      var previousPoint = null;
+      $(ctx).bind("plothover", function (event, pos, item) {
+        if (item) {
+          if (previousPoint != item.datapoint) {
+            previousPoint = item.datapoint;
+    
+            $("#flot-custom-tooltip").remove();
+            var x = item.datapoint[0].toFixed(2),
+                y = item.datapoint[1].toFixed(1);
+            showTooltip(item.pageX, item.pageY, Number(x), y);
+          }
+        } else {
+          $("#flot-custom-tooltip").remove();
+          clicksYet = false;
+          previousPoint = null;
+        }
+      });
+    }
   }
   
