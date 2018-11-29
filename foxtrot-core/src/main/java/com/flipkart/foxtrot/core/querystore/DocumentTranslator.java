@@ -69,7 +69,7 @@ public class DocumentTranslator {
         document.setTimestamp(inDocument.getTimestamp());
         document.setMetadata(metadata);
         document.setData(inDocument.getData());
-        document.setTime(Utils.getTime(inDocument.getTimestamp()));
+        document.setDate(Utils.getDate(inDocument.getTimestamp()));
 
         return document;
     }
@@ -80,7 +80,7 @@ public class DocumentTranslator {
                 .getId() : inDocument.getId());
         document.setTimestamp(inDocument.getTimestamp());
         document.setData(inDocument.getData());
-        document.setTime(Utils.getTime(inDocument.getTimestamp()));
+        document.setDate(Utils.getDate(inDocument.getTimestamp()));
         return document;
     }
 

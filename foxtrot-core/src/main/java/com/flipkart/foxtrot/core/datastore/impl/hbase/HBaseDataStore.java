@@ -53,7 +53,7 @@ public class HBaseDataStore implements DataStore {
     private static final byte[] DOCUMENT_FIELD_NAME = Bytes.toBytes("data");
     private static final byte[] DOCUMENT_META_FIELD_NAME = Bytes.toBytes("metadata");
     private static final byte[] TIMESTAMP_FIELD_NAME = Bytes.toBytes("timestamp");
-    private static final byte[] TIME_FIELD_NAME = Bytes.toBytes("time");
+    private static final byte[] DATE_FIELD_NAME = Bytes.toBytes("date");
 
     private final HbaseTableConnection tableWrapper;
     private final ObjectMapper mapper;
@@ -241,7 +241,7 @@ public class HBaseDataStore implements DataStore {
                                                                            )
                 .addColumn(COLUMN_FAMILY, DOCUMENT_FIELD_NAME, mapper.writeValueAsBytes(document.getData()))
                 .addColumn(COLUMN_FAMILY, TIMESTAMP_FIELD_NAME, Bytes.toBytes(document.getTimestamp()))
-                .addColumn(COLUMN_FAMILY, TIME_FIELD_NAME,  mapper.writeValueAsBytes(document.getTime()));
+                .addColumn(COLUMN_FAMILY, DATE_FIELD_NAME, mapper.writeValueAsBytes(document.getDate()));
     }
 
 }
