@@ -361,6 +361,7 @@
                 <option value="pie">Pie chart</option>
                 <option value="gauge">Gauge Chart</option>
                 <option value="percentageGauge">Percentage Gauge Chart</option>
+                <option value="sunburst">Sunburst</option>
                 <option value="radar">Radar/Spider Chart</option>
               </select>
             </div>
@@ -767,6 +768,32 @@
                   </div>
                 </div>
               </form>
+              <form id="sunburst" class="sunburstForm">
+                <div id="sunburst-chart-data">
+                  <div class="col-md-12 chart-forms">
+                    <div class="form-group">
+                      <label class="control-label">Time unit <span class="mandatory-text">*</span></label>
+                      <select class="selectpicker show-menu-arrow sunburst-time-unit form-control" name="sunburst-time-unit" id="sunburst-time-unit" required>
+                        <option value="minutes" selected="selected">Minute</option>
+                        <option value="hours">Hour</option>
+                        <option value="days">Day</option>
+                      </select>
+                    </div>
+                    <div class="form-group">
+                      <label class="control-label">Time Frame <span class="mandatory-text">*</span></label>
+                      <input type="number" name="sunburst-timeframe" class="sunburst-timeframe form-control" id="sunburst-timeframe" placeholder="Enter time frame" required>
+                    </div>
+                    <div class="form-group">
+                      <label class="control-label">Nesting Element <span class="mandatory-text">*</span></label>
+                      <select multiple name="sunburst-nesting-field" class="selectpicker show-menu-arrow sunburst-nesting-field form-control" id="sunburst-nesting-field" data-live-search="true" data-style="btn-warning" required> </select>
+                    </div>
+                    <div class="form-group">
+                      <label class="control-label">Unique of</label>
+                      <select class="selectpicker show-menu-arrow sunburst-uniqueKey form-control" id="sunburst-uniqueKey" data-live-search="true" data-style="btn-warning"></select>
+                    </div>
+                  </div>
+                </div>
+              </form>
             </div>
           </div>
           <div class="col-md-12" id="modal-filters">
@@ -930,6 +957,7 @@
   <script src="js/flot/jquery.flot.tooltip.js"></script>
   <script src="js/tiles/stats-trend-tile.js"></script>
   <script src="js/tiles/bar-tile.js"></script>
+  <script src="js/tiles/sunburst-tile.js"></script>
   <script src="js/jquery.flot.crosshair.js"></script>
   <script src="js/flot/jquery.flot.stack.min.js"></script>
   <script src="js/flot/jquery.flot.valuelabels.js"></script>

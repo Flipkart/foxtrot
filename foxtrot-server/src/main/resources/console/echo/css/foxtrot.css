@@ -3468,3 +3468,6 @@ div.tab button:first-child {
 .gauge-threshold-msg {
   margin-left: -15px;
 }
+#sunburst-chart-data {
+  display: none;
+}
