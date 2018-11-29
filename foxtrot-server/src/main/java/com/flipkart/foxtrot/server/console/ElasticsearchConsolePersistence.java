@@ -220,6 +220,9 @@ public class ElasticsearchConsolePersistence implements ConsolePersistence {
             console.setUpdatedAt(System.currentTimeMillis());
         }
         ConsoleV2 oldConsole = getV2(console.getId());
+        if(oldConsole == null){
+            return;
+        }
         if(oldConsole.getUpdatedAt() != 0L && oldConsole.getUpdatedAt() > console.getUpdatedAt()) {
             throw new ConsolePersistenceException(console.getId(), "Updated version of console exists. Kindly refresh" +
                                                                    " your dashboard");
