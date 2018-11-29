@@ -1,4 +1,4 @@
-package com.flipkart.foxtrot.common;
+package com.flipkart.foxtrot.common.util;
 /*
  * Copyright 2014 Flipkart Internet Pvt. Ltd.
  *
@@ -15,31 +15,17 @@ package com.flipkart.foxtrot.common;
  * limitations under the License.
  */
 
-import lombok.Data;
+import com.flipkart.foxtrot.common.Time;
 import org.joda.time.DateTime;
 
 /***
  Created by nitish.goyal on 29/11/18
  ***/
-@Data
-public class Time {
+public class Utils {
 
-    private int year;
-    private int monthOfYear;
-    private int dayOfWeek;
-    private int dayOfMonth;
-    private int hourOfDay;
-    private int minuteOfHour;
-    private int minuteOfDay;
-
-    public Time(DateTime dateTime) {
-
-        this.year = dateTime.getYear();
-        this.monthOfYear = dateTime.getMonthOfYear();
-        this.dayOfWeek = dateTime.getDayOfWeek();
-        this.dayOfMonth = dateTime.getDayOfMonth();
-        this.hourOfDay = dateTime.getHourOfDay();
-        this.minuteOfHour = dateTime.getMinuteOfHour();
-        this.minuteOfDay = dateTime.getMinuteOfDay();
+    public static Time getTime(long timestamp) {
+        DateTime dateTime = new DateTime(timestamp);
+        return new Time(dateTime);
     }
+
 }

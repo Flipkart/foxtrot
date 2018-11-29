@@ -4,6 +4,7 @@ import com.flipkart.foxtrot.common.Document;
 import com.flipkart.foxtrot.common.DocumentMetadata;
 import com.flipkart.foxtrot.common.Table;
 import com.flipkart.foxtrot.common.util.CollectionUtils;
+import com.flipkart.foxtrot.common.util.Utils;
 import com.flipkart.foxtrot.core.datastore.impl.hbase.HbaseConfig;
 import com.flipkart.foxtrot.core.datastore.impl.hbase.IdentityKeyDistributor;
 import com.flipkart.foxtrot.core.querystore.actions.Constants;
@@ -68,6 +69,7 @@ public class DocumentTranslator {
         document.setTimestamp(inDocument.getTimestamp());
         document.setMetadata(metadata);
         document.setData(inDocument.getData());
+        document.setTime(Utils.getTime(inDocument.getTimestamp()));
 
         return document;
     }
@@ -78,6 +80,7 @@ public class DocumentTranslator {
                 .getId() : inDocument.getId());
         document.setTimestamp(inDocument.getTimestamp());
         document.setData(inDocument.getData());
+        document.setTime(Utils.getTime(inDocument.getTimestamp()));
         return document;
     }
 
