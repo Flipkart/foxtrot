@@ -46,6 +46,8 @@ public class Document implements Serializable {
     @JsonProperty
     private long timestamp;
 
+    private Time time;
+
     private DocumentMetadata metadata;
 
     @NotNull
@@ -54,6 +56,7 @@ public class Document implements Serializable {
 
     public Document() {
         this.timestamp = System.currentTimeMillis();
+        this.time = new Time();
     }
 
     public Document(String id, long timestamp, JsonNode data) {
