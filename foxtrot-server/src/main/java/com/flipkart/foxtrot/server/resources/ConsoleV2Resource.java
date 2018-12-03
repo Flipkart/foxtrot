@@ -62,4 +62,31 @@ public class ConsoleV2Resource {
         return consolePersistence.getV2();
     }
 
+    @GET
+    @Timed
+    @Path("/{id}/old/get")
+    public ConsoleV2 getOldVersion(@PathParam("id") final String id) throws FoxtrotException {
+        return consolePersistence.getOldVersion(id);
+    }
+
+    @GET
+    @Timed
+    @Path("/{name}/old")
+    public List<ConsoleV2> getOldVersionList(@PathParam("name") final String name) throws FoxtrotException {
+        return consolePersistence.getAllOldVersions(name);
+    }
+
+    @DELETE
+    @Path("/{id}/old/delete")
+    @Timed
+    public void deleteOldVersion(@PathParam("id") final String id) throws FoxtrotException {
+        consolePersistence.deleteOldVersion(id);
+    }
+
+    @GET
+    @Timed
+    @Path("/{id}/old/set/current")
+    public void setOldVersionAsCurrent(@PathParam("id") final String id) throws FoxtrotException {
+        consolePersistence.setOldVersionAsCurrent(id);
+    }
 }

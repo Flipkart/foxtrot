@@ -37,6 +37,8 @@ public class ConsoleV2 {
 
     private long updatedAt;
 
+    private String version;
+
     @NotNull
     private List<ConsoleSection> sections;
 
