@@ -143,8 +143,8 @@ public class ElasticsearchConsolePersistence implements ConsolePersistence {
         }
     }
 
-    @Override public void saveV2 (ConsoleV2 console) throws FoxtrotException {
-        preProcess(console);
+    @Override public void saveV2 (ConsoleV2 console, boolean freshConsole) throws FoxtrotException {
+        preProcess(console, freshConsole);
         try {
             connection.getClient()
                     .prepareIndex()
@@ -262,18 +262,18 @@ public class ElasticsearchConsolePersistence implements ConsolePersistence {
         try {
             ConsoleV2 console = getOldVersion(id);
             deleteOldVersion(id);
-            saveV2(console);
+            saveV2(console, false);
         } catch (Exception e) {
             throw new ConsoleFetchException(e);
         }
     }
 
-    private void preProcess (ConsoleV2 console) throws FoxtrotException {
+    private void preProcess (ConsoleV2 console, boolean freshConsole) throws FoxtrotException {
         if(console.getUpdatedAt() == 0L) {
             console.setUpdatedAt(System.currentTimeMillis());
         }
         ConsoleV2 oldConsole = getV2(console.getId());
-        if(oldConsole.getUpdatedAt() != 0L && oldConsole.getUpdatedAt() > console.getUpdatedAt()) {
+        if(oldConsole.getUpdatedAt() != 0L && oldConsole.getUpdatedAt() > console.getUpdatedAt() && freshConsole) {
             throw new ConsolePersistenceException(console.getId(),
                                                   "Updated version of console exists. Kindly refresh" +
                                                   " your dashboard"
@@ -325,6 +325,7 @@ public class ElasticsearchConsolePersistence implements ConsolePersistence {
                     .prepareIndex()
                     .setIndex(INDEX_HISTORY)
                     .setType(TYPE)
+                    .setId(console.getVersion())
                     .setSource(mapper.writeValueAsBytes(console), XContentType.JSON)
                     .setRefreshPolicy(WriteRequest.RefreshPolicy.IMMEDIATE)
                     .execute()

@@ -38,7 +38,7 @@ public class ConsoleV2Resource {
     @POST
     @Timed
     public ConsoleV2 save(ConsoleV2 console) throws FoxtrotException {
-        consolePersistence.saveV2(console);
+        consolePersistence.saveV2(console, true);
         return console;
     }
 
