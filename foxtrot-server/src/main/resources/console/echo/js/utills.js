@@ -226,7 +226,7 @@ function getChartFormValues() { // get current widget form values
     return getLineRatioChartFormValues();
   }
   else if(currentChartType == "sunburst") {
-    return getLineSunburstChartFormValues();
+    return getSunburstChartFormValues();
   }
 }
 function deleteFilterRow(el) { // delete given filter row
