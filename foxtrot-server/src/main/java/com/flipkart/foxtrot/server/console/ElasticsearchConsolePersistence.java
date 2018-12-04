@@ -219,7 +219,7 @@ public class ElasticsearchConsolePersistence implements ConsolePersistence {
             SearchHits searchHits = connection.getClient()
                     .prepareSearch(INDEX_HISTORY)
                     .setSearchType(SearchType.QUERY_THEN_FETCH)
-                    .setQuery(QueryBuilders.termQuery("name", name))
+                    .setQuery(QueryBuilders.termQuery("name.keyword", name))
                     .addSort(SortBuilders
                             .fieldSort(updatedAt)
                             .order(SortOrder.DESC))
@@ -326,12 +326,14 @@ public class ElasticsearchConsolePersistence implements ConsolePersistence {
     }
 
     private void saveOldConsole (ConsoleV2 console) throws FoxtrotException {
+        String id = UUID.randomUUID().toString();
+        console.setId(id);
         try {
             connection.getClient()
                     .prepareIndex()
                     .setIndex(INDEX_HISTORY)
                     .setType(TYPE)
-                    .setId(String.valueOf(console.getVersion()))
+                    .setId(id)
                     .setSource(mapper.writeValueAsBytes(console), XContentType.JSON)
                     .setRefreshPolicy(WriteRequest.RefreshPolicy.IMMEDIATE)
                     .execute()
