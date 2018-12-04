@@ -285,12 +285,12 @@ public class ElasticsearchConsolePersistence implements ConsolePersistence {
                                                   " your dashboard"
             );
         }
-        if(oldConsole.getVersion() == null) {
-            oldConsole.setVersion(UUID.randomUUID().toString());
+        if(oldConsole.getVersion() == 0) {
+            oldConsole.setVersion(1);
         }
         saveOldConsole(oldConsole);
         console.setUpdatedAt(System.currentTimeMillis());
-        console.setVersion(UUID.randomUUID().toString());
+        console.setVersion(oldConsole.getVersion() + 1);
     }
 
     @Override public void deleteV2 (String id) throws FoxtrotException {
@@ -331,7 +331,7 @@ public class ElasticsearchConsolePersistence implements ConsolePersistence {
                     .prepareIndex()
                     .setIndex(INDEX_HISTORY)
                     .setType(TYPE)
-                    .setId(console.getVersion())
+                    .setId(String.valueOf(console.getVersion()))
                     .setSource(mapper.writeValueAsBytes(console), XContentType.JSON)
                     .setRefreshPolicy(WriteRequest.RefreshPolicy.IMMEDIATE)
                     .execute()
