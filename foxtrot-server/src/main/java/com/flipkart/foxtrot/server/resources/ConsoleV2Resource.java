@@ -72,7 +72,7 @@ public class ConsoleV2Resource {
     @GET
     @Timed
     @Path("/{name}/old")
-    public List<ConsoleV2> getOldVersionList(@PathParam("name") final String name) throws FoxtrotException {
+    public List<ConsoleV2> getOldVersions(@PathParam("name") final String name) throws FoxtrotException {
         return consolePersistence.getAllOldVersions(name);
     }
 

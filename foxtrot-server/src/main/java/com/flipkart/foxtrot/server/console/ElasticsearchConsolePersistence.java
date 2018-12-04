@@ -143,8 +143,8 @@ public class ElasticsearchConsolePersistence implements ConsolePersistence {
         }
     }
 
-    @Override public void saveV2 (ConsoleV2 console, boolean freshConsole) throws FoxtrotException {
-        preProcess(console, freshConsole);
+    @Override public void saveV2 (ConsoleV2 console, boolean newConsole) throws FoxtrotException {
+        preProcess(console, newConsole);
         try {
             connection.getClient()
                     .prepareIndex()
@@ -268,12 +268,18 @@ public class ElasticsearchConsolePersistence implements ConsolePersistence {
         }
     }
 
-    private void preProcess (ConsoleV2 console, boolean freshConsole) throws FoxtrotException {
+    private void preProcess (ConsoleV2 console, boolean newConsole) throws FoxtrotException {
         if(console.getUpdatedAt() == 0L) {
             console.setUpdatedAt(System.currentTimeMillis());
         }
         ConsoleV2 oldConsole = getV2(console.getId());
-        if(oldConsole.getUpdatedAt() != 0L && oldConsole.getUpdatedAt() > console.getUpdatedAt() && freshConsole) {
+        if(oldConsole == null){
+            oldConsole = getOldVersion(console.getId());
+        }
+        if(oldConsole == null){
+            return;
+        }
+        if(oldConsole.getUpdatedAt() != 0L && oldConsole.getUpdatedAt() > console.getUpdatedAt() && newConsole) {
             throw new ConsolePersistenceException(console.getId(),
                                                   "Updated version of console exists. Kindly refresh" +
                                                   " your dashboard"
@@ -335,4 +341,4 @@ public class ElasticsearchConsolePersistence implements ConsolePersistence {
             throw new ConsolePersistenceException(console.getId(), "old console save failed", e);
         }
     }
-    }
+}
