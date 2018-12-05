@@ -118,20 +118,25 @@ SunburstTile.prototype.render = function(data) {
     var object = this.object;
     var d = a;
     var ctx = $("#" + object.id).find(".chart-item");
+
+    var parentEl = $("#" + object.id).parent();
+    $("#" + object.id).addClass('sunburst-tile');
+    $(parentEl).removeClass('max-height');
+    $(parentEl).addClass('sun-burst-max-height');
     var widgetHead = $("#" + object.id).find(".widget-header");
-    console.log(widgetHead);
     $(widgetHead).height(60)
     $(ctx).addClass('sunburst-item')
     ctx.append('<div id="sequence"></div>');
     ctx.append('<div id="explanation" style="visibility: hidden;"><spanid="percentage"></span><br/>of visits begin with this sequence of pages</div>')
+    
     // Dimensions of sunburst.
-    var width = 300;
-    var height = 300;
+    var width = 400;
+    var height = 400;
     var radius = Math.min(width, height) / 2;
 
     // Breadcrumb dimensions: width, height, spacing, width of tip/tail.
     var b = {
-        w: 75,
+        w: 145,
         h: 30,
         s: 3,
         t: 10
@@ -198,7 +203,6 @@ SunburstTile.prototype.render = function(data) {
             .filter(function(d) {
                 return (d.dx > 0.005); // 0.005 radians = 0.29 degrees
             });
-        console.log(nodes)
         var uniqueNames = (function(a) {
             var output = [];
             a.forEach(function(d) {
@@ -214,8 +218,6 @@ SunburstTile.prototype.render = function(data) {
 
         // make sure this is done after setting the domain
         drawLegend();
-
-
         var path = vis.data([json]).selectAll("path")
             .data(nodes)
             .enter().append("svg:path")
@@ -232,7 +234,6 @@ SunburstTile.prototype.render = function(data) {
 
         // Add the mouseleave handler to the bounding circle.
         d3.select("#container").on("mouseleave", mouseleave);
-        console.log(path);
         // Get total size of the tree = value of root node from partition.
         totalSize = path.node().__data__.value;
     };
@@ -430,80 +431,22 @@ SunburstTile.prototype.render = function(data) {
         }
     }
 
-
-
     function getData() {
-
-        console.log(data)
+        var obj = [];        
         for (var key in data.result) {
-            console.log(key)
-            if (data.hasOwnProperty(key)) {
-                console.log(key + " -> " + data[key]);
+            var childArray = [];
+            if (data.result.hasOwnProperty(key)) {
+                var anotherLoop = data.result[key];
+                var dummy = [];
+                for(var k in anotherLoop) {
+                    if(anotherLoop.hasOwnProperty(k)) {
+                        var value = anotherLoop[k];
+                        dummy.push({"name": k, "size":Object.values(value)[0]})
+                    }
+                }
+                obj.push({"name": key, "children": dummy});
             }
         }
-
-        return {
-            "name": "RAVON",
-            "children": [{
-                "name": "etc",
-                "children": [{
-                        "name": "Null",
-                        "size": 64
-                    },
-                    {
-                        "name": "Null",
-                        "size": 164
-                    },
-                    {
-                        "name": "Null",
-                        "size": 264
-                    },
-                    {
-                        "name": "NullClass",
-                        "size": 89
-                    },
-                    {
-                        "name": "NullG",
-                        "size": 109
-                    },
-                    {
-                        "name": "NullGroup",
-                        "size": 153
-                    },
-                    {
-                        "name": "NullM",
-                        "size": 174
-                    },
-                    {
-                        "name": "NullModu",
-                        "size": 162
-                    },
-                    {
-                        "name": "NullP",
-                        "size": 97
-                    },
-                    {
-                        "name": "NullSt",
-                        "size": 87
-                    },
-                    {
-                        "name": "NullSta",
-                        "size": 95
-                    },
-                    {
-                        "name": "NullTest",
-                        "size": 101
-                    },
-                    {
-                        "name": "NullWidg",
-                        "size": 213
-                    },
-                    {
-                        "name": "NullWidget",
-                        "size": 149
-                    }
-                ]
-            }]
-        };
+        return {"name": "test", "children": obj};
     };
 }

@@ -3485,19 +3485,15 @@ div.tab button:first-child {
   fill: #fff;
 }
 
-/* #chart {
-  position: relative;
-} */
-
-#chart path {
+/* #chart path {
   stroke: #fff;
-}
+} */
 
 #barchart {
   position: absolute;
   top: 260px;
   left: 750px;
-  width: 300px;
+  width: auto;
   text-align: center;
   color: #666;
   z-index: -1;
@@ -3518,7 +3514,7 @@ div.tab button:first-child {
   position: absolute;
   top: 260px;
   left: 305px;
-  width: 140px;
+  width: auto;
   text-align: center;
   color: #666;
   z-index: -1;
@@ -3530,5 +3526,11 @@ div.tab button:first-child {
 
 .sunburst-item {
   margin-top: 46px;
-  margin-left: 40%;
+  margin-left: 20%;
+}
+.sun-burst-max-height {
+  max-height: 600px;
+}
+.sunburst-tile {
+  height: 600px !important;
 }
