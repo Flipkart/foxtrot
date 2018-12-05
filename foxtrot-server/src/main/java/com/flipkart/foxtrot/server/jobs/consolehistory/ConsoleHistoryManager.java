@@ -60,7 +60,7 @@ public class ConsoleHistoryManager extends BaseJobManager {
                 SearchResponse searchResponse = connection.getClient()
                         .prepareSearch(INDEX_V2)
                         .setSearchType(SearchType.QUERY_THEN_FETCH)
-                        .addAggregation(AggregationBuilders.terms("names").field("name.keyword"))
+                        .addAggregation(AggregationBuilders.terms("names").field("name.keyword").size(1000))
                         .execute()
                         .actionGet();
                 Terms agg = searchResponse.getAggregations().get("names");
