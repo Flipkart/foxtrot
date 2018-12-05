@@ -148,7 +148,7 @@ SunburstTile.prototype.render = function(data) {
     // Total size of all segments; we set this later, after loading the data.
     var totalSize = 0;
 
-    var vis = d3.select(ctx[0]).append("svg:svg")
+    var vis = d3.select($(ctx)[0]).append("svg:svg")
         .attr("width", width)
         .attr("height", height)
         .append("svg:g")
@@ -190,7 +190,7 @@ SunburstTile.prototype.render = function(data) {
         // Basic setup of page elements.
         initializeBreadcrumbTrail();
 
-        d3.select("#togglelegend").on("click", toggleLegend);
+        //d3.select("#togglelegend").on("click", toggleLegend);
 
         // Bounding circle underneath the sunburst, to make it easier to detect
         // when the mouse leaves the parent g.
@@ -218,7 +218,7 @@ SunburstTile.prototype.render = function(data) {
 
         // make sure this is done after setting the domain
         drawLegend();
-        var path = vis.data([json]).selectAll("path")
+        var path = vis.data([json]).selectAll($(ctx[0]).find("#path")[0])
             .data(nodes)
             .enter().append("svg:path")
             .attr("display", function(d) {
@@ -233,11 +233,15 @@ SunburstTile.prototype.render = function(data) {
             .on("mouseover", mouseover);
 
         // Add the mouseleave handler to the bounding circle.
-        d3.select("#container").on("mouseleave", mouseleave);
+        d3.select($(ctx[0]).find("#container")[0]).on("mouseleave", mouseleave);
         // Get total size of the tree = value of root node from partition.
         totalSize = path.node().__data__.value;
     };
-
+    
+    var explanation = $(ctx[0]).find("#explanation");
+    var percentage = $(ctx[0]).find("#percentage");
+    var trail = $(ctx[0]).find("#trail");
+    
     // Fade all but the current sequence, and show it in the breadcrumb trail.
     function mouseover(d) {
 
@@ -247,11 +251,8 @@ SunburstTile.prototype.render = function(data) {
             percentageString = "< 0.1%";
         }
 
-        d3.select("#percentage")
-            .text(percentageString);
-
-        d3.select("#explanation")
-            .style("visibility", "");
+        d3.select($(percentage)).text(percentageString);        
+        d3.select(explanation[0]).style("visibility", "");
 
         var sequenceArray = getAncestors(d);
         updateBreadcrumbs(sequenceArray, percentageString);
@@ -272,7 +273,7 @@ SunburstTile.prototype.render = function(data) {
     function mouseleave(d) {
 
         // Hide the breadcrumb trail
-        d3.select("#trail")
+        d3.select($(trail)[0])
             .style("visibility", "hidden");
 
         // Deactivate all segments during transition.
@@ -287,7 +288,7 @@ SunburstTile.prototype.render = function(data) {
                 d3.select(this).on("mouseover", mouseover);
             });
 
-        d3.select("#explanation")
+        d3.select(explanation[0])
             .transition()
             .duration(1000)
             .style("visibility", "hidden");
@@ -434,10 +435,8 @@ SunburstTile.prototype.render = function(data) {
     function getData() {
         var obj = [];        
         for (var key in data.result) {
-            var childArray = [];
             if (data.result.hasOwnProperty(key)) {
                 var anotherLoop = data.result[key];
-                console.log(anotherLoop)
                 var dummy = [];
                 for(var k in anotherLoop) {
                     if(anotherLoop.hasOwnProperty(k)) {
@@ -450,9 +449,15 @@ SunburstTile.prototype.render = function(data) {
                         
                     }
                 }
+
                 obj.push({"name": key, "children": dummy});
             }
         }
+
+        if(object.title == "Sun burst 2 three") {
+            //console.log({"name": "test", "children": obj})
+        }
+
         //console.log({"name": "test", "children": obj})
         return {"name": "test", "children": obj};
     };
