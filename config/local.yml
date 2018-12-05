@@ -60,6 +60,11 @@ esIndexOptimizationConfig:
   interval: 86400
   initialDelay: 6
 
+consoleHistoryConfig:
+  active: true
+  interval: 86400
+  initialDelay: 60
+
 deletionconfig:
   active: false
   interval: 86400

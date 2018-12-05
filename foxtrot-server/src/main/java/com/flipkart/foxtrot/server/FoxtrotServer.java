@@ -44,6 +44,8 @@ import com.flipkart.foxtrot.core.util.MetricUtil;
 import com.flipkart.foxtrot.server.cluster.ClusterManager;
 import com.flipkart.foxtrot.server.config.FoxtrotServerConfiguration;
 import com.flipkart.foxtrot.server.console.ElasticsearchConsolePersistence;
+import com.flipkart.foxtrot.server.jobs.consolehistory.ConsoleHistoryConfig;
+import com.flipkart.foxtrot.server.jobs.consolehistory.ConsoleHistoryManager;
 import com.flipkart.foxtrot.server.providers.FlatResponseCsvProvider;
 import com.flipkart.foxtrot.server.providers.FlatResponseErrorTextProvider;
 import com.flipkart.foxtrot.server.providers.FlatResponseTextProvider;
@@ -156,6 +158,10 @@ public class FoxtrotServer extends Application<FoxtrotServerConfiguration> {
         if(esIndexOptimizationConfig == null) {
             esIndexOptimizationConfig = new EsIndexOptimizationConfig();
         }
+        ConsoleHistoryConfig consoleHistoryConfig = configuration.getConsoleHistoryConfig();
+        if(consoleHistoryConfig == null) {
+            consoleHistoryConfig = new ConsoleHistoryConfig();
+        }
         CacheConfig cacheConfig = configuration.getCacheConfig();
         EmailConfig emailConfig = configuration.getEmailConfig();
 
@@ -189,6 +195,11 @@ public class FoxtrotServer extends Application<FoxtrotServerConfiguration> {
                                                                                                elasticsearchConnection,
                                                                                                hazelcastConnection
         );
+        ConsoleHistoryManager consoleHistoryManager = new ConsoleHistoryManager(scheduledExecutorService,
+                                                                                consoleHistoryConfig,
+                                                                                elasticsearchConnection,
+                                                                                hazelcastConnection,
+                                                                                objectMapper);
 
         List<HealthCheck> healthChecks = new ArrayList<>();
         //        ElasticSearchHealthCheck elasticSearchHealthCheck = new ElasticSearchHealthCheck
@@ -216,6 +227,8 @@ public class FoxtrotServer extends Application<FoxtrotServerConfiguration> {
                 .manage(cardinalityCalculationManager);
         environment.lifecycle()
                 .manage(esIndexOptimizationManager);
+        environment.lifecycle()
+                .manage(consoleHistoryManager);
 
         environment.jersey()
                 .register(new DocumentResource(queryStore));
