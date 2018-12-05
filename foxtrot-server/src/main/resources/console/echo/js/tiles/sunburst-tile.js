@@ -437,16 +437,23 @@ SunburstTile.prototype.render = function(data) {
             var childArray = [];
             if (data.result.hasOwnProperty(key)) {
                 var anotherLoop = data.result[key];
+                console.log(anotherLoop)
                 var dummy = [];
                 for(var k in anotherLoop) {
                     if(anotherLoop.hasOwnProperty(k)) {
                         var value = anotherLoop[k];
-                        dummy.push({"name": k, "size":Object.values(value)[0]})
+                        if((typeof value === "object")) {
+                            dummy.push({"name": k, "size":Object.values(value)[0]})
+                        } else {
+                            dummy.push({"name": k, "size":value})
+                        }
+                        
                     }
                 }
                 obj.push({"name": key, "children": dummy});
             }
         }
+        //console.log({"name": "test", "children": obj})
         return {"name": "test", "children": obj};
     };
 }
