@@ -338,7 +338,8 @@ SunburstTile.prototype.render = function(data) {
     function updateBreadcrumbs(nodeArray, percentageString) {
 
         // Data join; key function combines name and depth (= position in sequence).
-        var g = d3.select("#trail")
+        console.log(ctx.find("#trail"))
+        var g = d3.select(ctx.find("#trail")[0])
             .selectAll("g")
             .data(nodeArray, function(d) {
                 return d.name + d.depth;
@@ -371,7 +372,7 @@ SunburstTile.prototype.render = function(data) {
         g.exit().remove();
 
         // Now move and update the percentage at the end.
-        d3.select("#trail").select("#endlabel")
+        d3.select(ctx.find("#trail")[0]).select("#endlabel")
             .attr("x", (nodeArray.length + 0.5) * (b.w + b.s))
             .attr("y", b.h / 2)
             .attr("dy", "0.35em")
@@ -379,7 +380,7 @@ SunburstTile.prototype.render = function(data) {
             .text(percentageString);
 
         // Make the breadcrumb trail visible, if it's hidden.
-        d3.select("#trail")
+        d3.select(ctx.find("#trail")[0])
             .style("visibility", "");
 
     }
