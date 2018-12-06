@@ -258,7 +258,7 @@ SunburstTile.prototype.render = function(data) {
         updateBreadcrumbs(sequenceArray, percentageString);
 
         // Fade all the segments.
-        d3.selectAll("path")
+        d3.selectAll($(ctx[0]).find("path"))
             .style("opacity", 0.3);
 
         // Then highlight only those that are an ancestor of the current segment.
@@ -269,6 +269,7 @@ SunburstTile.prototype.render = function(data) {
             .style("opacity", 1);
     }
 
+    //var path = $(ctx[0])
     // Restore everything to full opacity when moving off the visualization.
     function mouseleave(d) {
 
@@ -277,10 +278,10 @@ SunburstTile.prototype.render = function(data) {
             .style("visibility", "hidden");
 
         // Deactivate all segments during transition.
-        d3.selectAll("path").on("mouseover", null);
+        d3.selectAll($(ctx[0]).find("path")).on("mouseover", null);
 
         // Transition each segment to full opacity and then reactivate it.
-        d3.selectAll("path")
+        d3.selectAll($(ctx[0]).find("path"))
             .transition()
             .duration(1000)
             .style("opacity", 1)
@@ -449,7 +450,6 @@ SunburstTile.prototype.render = function(data) {
                         
                     }
                 }
-
                 obj.push({"name": key, "children": dummy});
             }
         }
