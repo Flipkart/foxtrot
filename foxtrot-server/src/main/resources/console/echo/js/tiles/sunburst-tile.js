@@ -434,6 +434,67 @@ SunburstTile.prototype.render = function(data) {
         }
     }
 
+    // function getData() {
+    //     var dummy = [];
+    //     var index = 0;
+    //     var globalRootName = '';
+    //     var globalRootCount = 0;
+    //     printList(data.result);
+    //     function printList(items) {
+    //         switch ($.type(items)) {
+    //             case "object":
+    //                 getChildren(items);
+    //                 break;
+    //         }
+            
+    //     }
+    //     var root = '';
+    //     function getChildren(parent) {
+    //     var sam = [];
+    //         for (var child in parent) {
+            
+    //         if(globalRootCount == 0) {
+    //             globalRootName = child;
+    //         }     
+                 
+    //              if(globalRootCount > 0) {
+    //             if(index == 0) {
+    //                  root = child;
+    //              }
+    //              var value = 0;
+    //              if(!isNaN(parent[child])) {
+    //                  value = parent[child];
+    //              }
+                 
+    //              if(index > 0) {
+    //              sam.push({"name": child, "size": value})
+    //              }
+                 
+    //              index++;
+    //         }
+        
+                 
+                 
+    //             printList(parent[child]);
+    //             globalRootCount++;
+    //         }
+    //         dummy.push({"name": root, "childeren": sam})
+    //         root = 0;
+    //        index = 0;
+    //     }
+    //     console.log({"name": "root", "children": dummy})
+    //     return {"name": "root", "children": dummy};
+    // }
+
+
+
+
+
+
+
+
+
+
     function getData() {
         var obj = [];        
         for (var key in data.result) {
@@ -456,10 +517,64 @@ SunburstTile.prototype.render = function(data) {
         }
 
         if(object.title == "Sun burst 2 three") {
+           // traverseObject(data.result, 0)
             //console.log({"name": "test", "children": obj})
         }
 
         //console.log({"name": "test", "children": obj})
         return {"name": "test", "children": obj};
     };
+
+
+    var treeObj, i = 0, j = 0, parent, hasChild, parents = 0;
+    var newJSON = [];
+    CreateTree(data.result)
+    function CreateTree(Data) {
+        
+                        //Initially creates the root level/parent node.
+        
+                        //Converts the standardly serialized JSON to the required format necessary to form the TreeView.
+        
+                        $.each(Data, function (key, value) {
+        
+                            //While converting, creates the object for the tree with the required "ID",parentID,hasChild attributes.
+        
+                            //Pushes the newly created JSON format to a new object.
+        
+                            newJSON.push({ id: ++i, name: key, hasChild: true });
+        
+                            ++parents;
+        
+                            if (value != null && typeof value == "object") {
+        
+                                enumerate(value, parents);
+        
+                            }
+        
+                        });
+        
+                    }
+        
+                    //Recursive function creates the sub nodes for the root element.
+        
+                    function enumerate(data, parentID) {
+        
+                        $.each(data, function (k, v) {
+        
+                            if (typeof v == "object") {
+        
+                                newJSON.push({ pid: parentID, id: "child_" + ++j, name: k, hasChild: true });
+        
+                                enumerate(v, "child_" + j);
+        
+                            }
+        
+                            else
+        
+                                newJSON.push({ pid: parentID, id: "child_" + ++j, name: k, hasChild: false });
+        
+                        });
+        
+                    }
+                console.log(newJSON);
 }
