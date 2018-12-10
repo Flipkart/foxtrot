@@ -3321,7 +3321,7 @@ div.tab button:first-child {
 #top-settings, .refreshtime-block {
   display: none;
 }
-.copy-db-error {
+.copy-db-error, .copy-pg-error {
   display: none;
 }
 .save-dashboard-name {
@@ -3533,4 +3533,8 @@ div.tab button:first-child {
 }
 .sunburst-tile {
   height: 600px !important;
+}
+#copy-page-img {
+  width: 24px;
+  height: 24px;
 }

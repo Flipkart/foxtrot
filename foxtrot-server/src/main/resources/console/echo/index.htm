@@ -143,6 +143,31 @@
         <div id="add-page-side-close" data-dismiss="modal" ><img src="img/combined-shape.png"></div>
       </div>
     </div>
+    <!-- copy Page modal -->
+    <div class="modal fade" id="copy-page" tabindex="-2" role="dialog" aria-labelledby="addSections" aria-hidden="true">
+      <div class="modal-dialog">
+        <div id="custom-modal-modal">
+          <div id="custom-modal-model-heading">
+            <h1>Copy Page</h1>
+            <hr id="custom-modal-model-heading-underline"/>
+          </div>
+          <div class="custom-modal-form">
+            <form class="add-page-form">
+              <div class="form-group">
+                <label class="control-label" for="widgetType"><strong>Page Name</strong></label>
+                <input type="text" class="form-control copy-page-name" id="copy-page-name">
+                <span class="error copy-pg-error">Please enter page name</span>
+              </div>
+              <div class="form-group add-page-btn-div">
+                <button type="button" class="btn custom-modal-tab-btn copy-page-submit" id="custom-modal-tab-btn"><span>Save</span></button>
+                <button type="button" class="btn close-copy-page-submit custom-modal-close" data-dismiss="modal">Cancel</button>
+              </div>
+            </form>
+          </div>
+        </div>
+        <div id="add-page-side-close" data-dismiss="modal" ><img src="img/combined-shape.png"></div>
+      </div>
+  </div>
     <!-- copy dashbard modal -->
     <div class="modal fade" id="copy-dashboard" tabindex="-2" role="dialog" aria-labelledby="addSections" aria-hidden="true">
         <div class="modal-dialog">
@@ -218,7 +243,8 @@
           <div class="col-md-6">
             <div class="pull-right" id="right-action-btns">
                 <div id="top-settings">
-                    <img src="img/copy-db.png" data-target="#copy-dashboard" data-toggle="modal" title="Copy Dashboard" alt="Copy Dashboard" />
+                  <img src="img/sub-page.png" data-target="#copy-page" data-toggle="modal" title="Copy Page" id="copy-page-img" alt="Copy Page" />  
+                  <img src="img/copy-db.png" data-target="#copy-dashboard" data-toggle="modal" title="Copy Dashboard" alt="Copy Dashboard" />
                     <img data-target="#save-dashboard" data-toggle="modal" id="saveConsole" src="img/save.png" alt="Save Dashboard" title="Save Dashboard" />
                     <img data-target="#delete-dashboard" data-toggle="modal" id="deleteConsole" src="img/remove.png" alt="Delete Dashboard" title="Delete Dashboard" />
                     <img id="add-page-btn" src="img/pg-settings.png" title="Page Settings" alt="Page Settings" />
@@ -768,7 +794,7 @@
                   </div>
                 </div>
               </form>
-              <form id="sunburst" class="sunburstForm">
+              <!-- <form id="sunburst" class="sunburstForm">
                 <div id="sunburst-chart-data">
                   <div class="col-md-12 chart-forms">
                     <div class="form-group">
@@ -793,7 +819,7 @@
                     </div>
                   </div>
                 </div>
-              </form>
+              </form> -->
             </div>
           </div>
           <div class="col-md-12" id="modal-filters">
