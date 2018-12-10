@@ -259,6 +259,9 @@ function setConfigValue(object) { // set widget form values
   else if (currentChartType == "lineRatio") {
     setLineRatioChartFormValues(object);
   }
+  else if (currentChartType == "sunburst") {
+    setSunBurstChartFormValues(object);
+  }
 }
 
 function newBtnElement(widget, btnRow) { // create custom btn element
@@ -594,6 +597,10 @@ TileFactory.prototype.createGraph = function (object, tileElement) { // get quer
   else if (object.tileContext.chartType == "lineRatio") {
     var lineRatioGraph = new LineRatioTile();
     lineRatioGraph.getQuery(object);
+  }
+  else if (object.tileContext.chartType == "sunburst") {
+    var sunburstGraph = new SunburstTile();
+    sunburstGraph.getQuery(object);
   }
 }
 TileFactory.prototype.create = function () {
