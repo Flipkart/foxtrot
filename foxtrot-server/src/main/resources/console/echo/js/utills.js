@@ -142,7 +142,7 @@ function generateDropDown(fields, element) { // generating all dropdowns
 }
 
 function getWidgetType() { // widget types
-  if (currentChartType == "line" || currentChartType == "stacked" || currentChartType == "stackedBar" || currentChartType == "statsTrend" || currentChartType == "bar" || currentChartType == "lineRatio") {
+  if (currentChartType == "line" || currentChartType == "stacked" || currentChartType == "stackedBar" || currentChartType == "statsTrend" || currentChartType == "bar" || currentChartType == "lineRatio" || currentChartType == "sunburst") {
     return "full";
   }
   else if (currentChartType == "radar" || currentChartType == "pie") {
@@ -224,6 +224,9 @@ function getChartFormValues() { // get current widget form values
   }
   else if(currentChartType == "lineRatio") {
     return getLineRatioChartFormValues();
+  }
+  else if(currentChartType == "sunburst") {
+    return getSunburstChartFormValues();
   }
 }
 function deleteFilterRow(el) { // delete given filter row
@@ -315,6 +318,10 @@ function reloadDropdowns() { // change dropdown values for all charts when table
     generateDropDown(currentFieldList, "#line-ratio-field");
     generateDropDown(currentFieldList, "#line-ratio-uniquekey");
   }
+  else if (currentChartType == "sunburst") {
+    generateDropDown(currentFieldList, "#sunburst-nesting-field");
+    generateDropDown(currentFieldList, "#sunburst-uniqueKey");
+  }
 }
 
 function invokeClearChartForm() { // clear widget forms
@@ -353,6 +360,9 @@ function invokeClearChartForm() { // clear widget forms
   }
   else if(currentChartType == "lineRatio") {
     clearLineRatioChartForm();
+  }
+  else if(currentChartType == "sunburst") {
+    clearSunburstChartForm();
   }
 }
 
