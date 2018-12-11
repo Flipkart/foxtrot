@@ -87,9 +87,9 @@ SunburstTile.prototype.getQuery = function(object) {
     }
     var data = {
         "opcode": "group",
-        "table": "mercury",
+        "table": object.tileContext.table,
         "filters": filters,
-        "nesting": ["eventData.requestType", "eventData.sourceType", "eventType"]
+        "nesting": object.tileContext.nesting
     }
     var refObject = this.object;
     $.ajax({
@@ -455,16 +455,19 @@ SunburstTile.prototype.render = function(data) {
                 console.log(child, (!isNaN(item[child]) ? item[child] : 0), source);
                 
                 if(checkIsObject(item[child])) {
-                    //console.log(item[child])
                     getChildren(item[child], "child");
+                } else {
+                    for(var inner in item) {
+                        console.log(inner)
+                        dummy.push({"name": inner, "size":(!isNaN(item[inner]) ? item[inner] : 0)})
+                    }
                 }
-                
+
                 if(source == "root") {
                     rootName = child;
                     root++;
-                } else {
-                    dummy.push({"name": child, "size":(!isNaN(item[child]) ? item[child] : 0)})   
                 }
+                dummy.push({"name": child, "size":(!isNaN(item[child]) ? item[child] : 0)})
             }
             dummy = [];
             return [{"name": rootName, "children": dummy}];
