@@ -434,137 +434,53 @@ SunburstTile.prototype.render = function(data) {
         }
     }
 
-    // function getData() {
-    //     var dummy = [];
-    //     var index = 0;
-    //     var globalRootName = '';
-    //     var globalRootCount = 0;
-    //     printList(data.result);
-    //     function printList(items) {
-    //         switch ($.type(items)) {
-    //             case "object":
-    //                 getChildren(items);
-    //                 break;
-    //         }
-            
-    //     }
-    //     var root = '';
-    //     function getChildren(parent) {
-    //     var sam = [];
-    //         for (var child in parent) {
-            
-    //         if(globalRootCount == 0) {
-    //             globalRootName = child;
-    //         }     
-                 
-    //              if(globalRootCount > 0) {
-    //             if(index == 0) {
-    //                  root = child;
-    //              }
-    //              var value = 0;
-    //              if(!isNaN(parent[child])) {
-    //                  value = parent[child];
-    //              }
-                 
-    //              if(index > 0) {
-    //              sam.push({"name": child, "size": value})
-    //              }
-                 
-    //              index++;
-    //         }
-        
-                 
-                 
-    //             printList(parent[child]);
-    //             globalRootCount++;
-    //         }
-    //         dummy.push({"name": root, "childeren": sam})
-    //         root = 0;
-    //        index = 0;
-    //     }
-    //     console.log({"name": "root", "children": dummy})
-    //     return {"name": "root", "children": dummy};
-    // }
-
-    // function checkIsObject(obj) {
-    //     if(typeof obj === "object") {
-    //         return true;
-    //     } else {
-    //         return false;
-    //     }
-    //     return false;
-    // }
+    function checkIsObject(obj) {
+        if(typeof obj === "object") {
+            return true;
+        } else {
+            return false;
+        }
+        return false;
+    }
 
     
-    // function getData() {
-    //     var result = data.result;
-    //     var dummy = [];
-        
-    //     function getChildren(item, source) {
-    //         var root = 0;
-    //         var rootName = '';
-    //         for(var child in item) {
-    //             console.log(child, (!isNaN(item[child]) ? item[child] : 0), source);
-                
-    //             if(checkIsObject(item[child])) {
-    //                 //console.log(item[child])
-    //                 getChildren(item[child], "child");
-    //             }
-                
-    //             if(source == "root") {
-    //                 rootName = child;
-    //                 root++;
-    //             } else {
-    //                 dummy.push({"name": child, "size":(!isNaN(item[child]) ? item[child] : 0)})   
-    //             }
-    //         }
-    //         dummy = [];
-    //         return {"name": rootName, "children": dummy};
-    //     }
-    
-    //     function prepareDumb(item) {
-    //         var obj = [];
-    //         for(var child in item) {
-    //             if(item.hasOwnProperty(child)) {
-    //                 var iteration = getChildren(item[child], "root");
-    //                 obj.push({"name": child, "children": iteration});
-    //             }
-    //         }
-    //         console.log({"name": "root", "children": obj})
-    //     }
-    
-    
-    //     //console.log(paths(result))
-    //     return prepareDumb(result);
-    // }
-
     function getData() {
-        var obj = [];        
-        for (var key in data.result) {
-            if (data.result.hasOwnProperty(key)) {
-                var anotherLoop = data.result[key];
-                var dummy = [];
-                for(var k in anotherLoop) {
-                    if(anotherLoop.hasOwnProperty(k)) {
-                        var value = anotherLoop[k];
-                        if((typeof value === "object")) {
-                            dummy.push({"name": k, "size":Object.values(value)[0]})
-                        } else {
-                            dummy.push({"name": k, "size":value})
-                        }
-                        
-                    }
+        var result = data.result;
+        var dummy = [];
+        
+        function getChildren(item, source) {
+            var root = 0;
+            var rootName = '';
+            for(var child in item) {
+                console.log(child, (!isNaN(item[child]) ? item[child] : 0), source);
+                
+                if(checkIsObject(item[child])) {
+                    //console.log(item[child])
+                    getChildren(item[child], "child");
                 }
-                obj.push({"name": key, "children": dummy});
+                
+                if(source == "root") {
+                    rootName = child;
+                    root++;
+                } else {
+                    dummy.push({"name": child, "size":(!isNaN(item[child]) ? item[child] : 0)})   
+                }
             }
+            dummy = [];
+            return [{"name": rootName, "children": dummy}];
         }
-
-        if(object.title == "Sun burst 2 three") {
-           // traverseObject(data.result, 0)
-            //console.log({"name": "test", "children": obj})
+    
+        function prepareDumb(item) {
+            var obj = [];
+            for(var child in item) {
+                if(item.hasOwnProperty(child)) {
+                    var iteration = getChildren(item[child], "root");
+                    obj.push({"name": child, "children": iteration});
+                }
+            }
+            console.log({"name": "root", "children": obj})
+            return {"name": "root", "children": obj};
         }
-
-        console.log({"name": "test", "children": obj})
-        return {"name": "test", "children": obj};
-    };
+        return prepareDumb(result);
+    }
 }
