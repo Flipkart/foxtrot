@@ -87,9 +87,9 @@ SunburstTile.prototype.getQuery = function(object) {
     }
     var data = {
         "opcode": "group",
-        "table": object.tileContext.table,
+        "table": "mercury",
         "filters": filters,
-        "nesting": object.tileContext.nesting
+        "nesting": ["eventData.requestType", "eventData.sourceType", "eventType"]
     }
     var refObject = this.object;
     $.ajax({
@@ -338,7 +338,7 @@ SunburstTile.prototype.render = function(data) {
     function updateBreadcrumbs(nodeArray, percentageString) {
 
         // Data join; key function combines name and depth (= position in sequence).
-        console.log(ctx.find("#trail"))
+        //console.log(ctx.find("#trail"))
         var g = d3.select(ctx.find("#trail")[0])
             .selectAll("g")
             .data(nodeArray, function(d) {
@@ -486,14 +486,57 @@ SunburstTile.prototype.render = function(data) {
     //     return {"name": "root", "children": dummy};
     // }
 
+    // function checkIsObject(obj) {
+    //     if(typeof obj === "object") {
+    //         return true;
+    //     } else {
+    //         return false;
+    //     }
+    //     return false;
+    // }
 
-
-
-
-
-
-
-
+    
+    // function getData() {
+    //     var result = data.result;
+    //     var dummy = [];
+        
+    //     function getChildren(item, source) {
+    //         var root = 0;
+    //         var rootName = '';
+    //         for(var child in item) {
+    //             console.log(child, (!isNaN(item[child]) ? item[child] : 0), source);
+                
+    //             if(checkIsObject(item[child])) {
+    //                 //console.log(item[child])
+    //                 getChildren(item[child], "child");
+    //             }
+                
+    //             if(source == "root") {
+    //                 rootName = child;
+    //                 root++;
+    //             } else {
+    //                 dummy.push({"name": child, "size":(!isNaN(item[child]) ? item[child] : 0)})   
+    //             }
+    //         }
+    //         dummy = [];
+    //         return {"name": rootName, "children": dummy};
+    //     }
+    
+    //     function prepareDumb(item) {
+    //         var obj = [];
+    //         for(var child in item) {
+    //             if(item.hasOwnProperty(child)) {
+    //                 var iteration = getChildren(item[child], "root");
+    //                 obj.push({"name": child, "children": iteration});
+    //             }
+    //         }
+    //         console.log({"name": "root", "children": obj})
+    //     }
+    
+    
+    //     //console.log(paths(result))
+    //     return prepareDumb(result);
+    // }
 
     function getData() {
         var obj = [];        
@@ -521,60 +564,7 @@ SunburstTile.prototype.render = function(data) {
             //console.log({"name": "test", "children": obj})
         }
 
-        //console.log({"name": "test", "children": obj})
+        console.log({"name": "test", "children": obj})
         return {"name": "test", "children": obj};
     };
-
-
-    var treeObj, i = 0, j = 0, parent, hasChild, parents = 0;
-    var newJSON = [];
-    CreateTree(data.result)
-    function CreateTree(Data) {
-        
-                        //Initially creates the root level/parent node.
-        
-                        //Converts the standardly serialized JSON to the required format necessary to form the TreeView.
-        
-                        $.each(Data, function (key, value) {
-        
-                            //While converting, creates the object for the tree with the required "ID",parentID,hasChild attributes.
-        
-                            //Pushes the newly created JSON format to a new object.
-        
-                            newJSON.push({ id: ++i, name: key, hasChild: true });
-        
-                            ++parents;
-        
-                            if (value != null && typeof value == "object") {
-        
-                                enumerate(value, parents);
-        
-                            }
-        
-                        });
-        
-                    }
-        
-                    //Recursive function creates the sub nodes for the root element.
-        
-                    function enumerate(data, parentID) {
-        
-                        $.each(data, function (k, v) {
-        
-                            if (typeof v == "object") {
-        
-                                newJSON.push({ pid: parentID, id: "child_" + ++j, name: k, hasChild: true });
-        
-                                enumerate(v, "child_" + j);
-        
-                            }
-        
-                            else
-        
-                                newJSON.push({ pid: parentID, id: "child_" + ++j, name: k, hasChild: false });
-        
-                        });
-        
-                    }
-                console.log(newJSON);
 }
