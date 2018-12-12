@@ -87,9 +87,9 @@ SunburstTile.prototype.getQuery = function(object) {
     }
     var data = {
         "opcode": "group",
-        "table": object.tileContext.table,
+        "table": "clockwork",
         "filters": filters,
-        "nesting": object.tileContext.nesting
+        "nesting": ["app","eventType", "eventData.status", "date.monthOfYear"]
     }
     var refObject = this.object;
     $.ajax({
@@ -127,7 +127,7 @@ SunburstTile.prototype.render = function(data) {
     $(widgetHead).height(60)
     $(ctx).addClass('sunburst-item')
     ctx.append('<div id="sequence"></div>');
-    ctx.append('<div id="explanation" style="visibility: hidden;"><spanid="percentage"></span><br/>of visits begin with this sequence of pages</div>')
+    ctx.append('<div id="explanation" style="visibility: hidden;"><span id="percentage">1000</span><br/>of visits begin with this sequence of pages</div>')
     
     // Dimensions of sunburst.
     var width = 400;
@@ -239,7 +239,7 @@ SunburstTile.prototype.render = function(data) {
     };
     
     var explanation = $(ctx[0]).find("#explanation");
-    var percentage = $(ctx[0]).find("#percentage");
+    var percentage = $(ctx[0]).find("#explanation").find("#percentage");
     var trail = $(ctx[0]).find("#trail");
     
     // Fade all but the current sequence, and show it in the breadcrumb trail.
@@ -250,8 +250,9 @@ SunburstTile.prototype.render = function(data) {
         if (percentage < 0.1) {
             percentageString = "< 0.1%";
         }
-
-        d3.select($(percentage)).text(percentageString);        
+        console.log(percentage);
+        console.log($(ctx[0]).find("#explanation").find("#percentage")[0])
+        d3.select($(ctx[0]).find("#explanation").find("#percentage")[0]).text(percentageString);        
         d3.select(explanation[0]).style("visibility", "");
 
         var sequenceArray = getAncestors(d);

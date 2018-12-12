@@ -3475,8 +3475,9 @@ div.tab button:first-child {
 #sequence {
   width: 500px;
   height: 70px;
+  position: relative;
+  top: 90px;
 }
-
 
 #sequence text {
   font-family: 'Open Sans', sans-serif;
@@ -3511,13 +3512,12 @@ div.tab button:first-child {
 }
 
 #explanation {
-  position: absolute;
-  top: 260px;
-  left: 305px;
-  width: auto;
+  position: relative;
+  top: 227px;
+  left: 100px;
+  width: 200px;
   text-align: center;
   color: #666;
-  z-index: -1;
 }
 
 #percentage {
@@ -3525,7 +3525,7 @@ div.tab button:first-child {
 }
 
 .sunburst-item {
-  margin-top: 46px;
+  margin-top: -60px;
   margin-left: 20%;
 }
 .sun-burst-max-height {
