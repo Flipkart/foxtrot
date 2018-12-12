@@ -448,37 +448,50 @@ SunburstTile.prototype.render = function(data) {
         var result = data.result;
         var dummy = [];
         
+        // traverse object
         function getChildren(item, source) {
             var root = 0;
             var rootName = '';
+            
+            var isNotObject = false;
             for(var child in item) {
-                console.log(child, (!isNaN(item[child]) ? item[child] : 0), source);
-                
-                if(checkIsObject(item[child])) {
+                //console.log(child, (!isNaN(item[child]) ? item[child] : 0), source);
+                dummy = [];
+                if(checkIsObject(item[child])) { // {"key": {"bla": "bla", "bla", "bla"}}
                     getChildren(item[child], "child");
-                } else {
+                } else { // for single {"bla": "bla", "bla", "bla"}
+                    isNotObject = true;
                     for(var inner in item) {
-                        console.log(inner)
+                        // console.log(' ==> ' +inner)
+                        // console.log({"name": inner, "size":(!isNaN(item[inner]) ? item[inner] : 0)})
                         dummy.push({"name": inner, "size":(!isNaN(item[inner]) ? item[inner] : 0)})
                     }
                 }
 
-                if(source == "root") {
+                if(source == "root") { // if root asign root name and skip data to dummy array
                     rootName = child;
                     root++;
+                } else {
+                    dummy.push({"name": child, "size":(!isNaN(item[child]) ? item[child] : 0)})
                 }
-                dummy.push({"name": child, "size":(!isNaN(item[child]) ? item[child] : 0)})
             }
-            dummy = [];
-            return [{"name": rootName, "children": dummy}];
+            if(isNotObject) {
+                return ['false', dummy];
+            } else {
+                return [true, {"name": rootName, "children": dummy}]
+            }
         }
     
         function prepareDumb(item) {
             var obj = [];
             for(var child in item) {
                 if(item.hasOwnProperty(child)) {
-                    var iteration = getChildren(item[child], "root");
-                    obj.push({"name": child, "children": iteration});
+                    var iteration = getChildren(item[child], "root"); // traverse each children
+                    if(iteration[0]) { // child
+                        obj.push({"name": child, "children": iteration[1]});
+                    } else { // no child
+                        obj.push({"name": child, "children": iteration[1]});
+                    }
                 }
             }
             console.log({"name": "root", "children": obj})
