@@ -92,6 +92,13 @@ SunburstTile.prototype.getQuery = function(object) {
         "filters": filters,
         "nesting": ["app","eventType", "eventData.status", "date.monthOfYear"]
     }
+
+    // var data = {
+    //     "opcode": "group",
+    //     "table": object.tileContext.table,
+    //     "filters": filters,
+    //     "nesting": object.tileContext.nesting
+    // }
     var refObject = this.object;
     $.ajax({
         method: "post",
@@ -465,16 +472,21 @@ SunburstTile.prototype.render = function(data) {
 		}
         function prepareDumb(item) {
             var dum = [];
+            var index = 0;
             for(var child in item) {
+
                 if(item.hasOwnProperty(child)) {
                     var obj = [];
                     obj.push({"name": child, "children": ''});
+                    //console.log(index)
                     obj = for_child(item[child], "root",obj); // traverse each children
-                    dum.push(obj);
+                    dum.push({"name": child, "children": obj});
                 }
+
             }
             console.log({"name": "root", "children": dum})
-            return {"name": "root", "children": dum[0]};
+            //console.log(dum[3])
+            return {"name": "root", "children": dum};
         }
         return prepareDumb(data.result);        
     }
