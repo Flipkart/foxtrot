@@ -85,6 +85,7 @@ SunburstTile.prototype.getQuery = function(object) {
             filters.push(object.tileContext.filters[i]);
         }
     }
+    // ["app","eventType", "eventData.status", "date.monthOfYear"]
     var data = {
         "opcode": "group",
         "table": "clockwork",
@@ -444,60 +445,38 @@ SunburstTile.prototype.render = function(data) {
         return false;
     }
 
-    
     function getData() {
-        var result = data.result;
-        var dummy = [];
-        
-        // traverse object
-        function getChildren(item, source) {
-            var root = 0;
-            var rootName = '';
-            
-            var isNotObject = false;
-            for(var child in item) {
-                //console.log(child, (!isNaN(item[child]) ? item[child] : 0), source);
-                dummy = [];
-                if(checkIsObject(item[child])) { // {"key": {"bla": "bla", "bla", "bla"}}
-                    getChildren(item[child], "child");
-                } else { // for single {"bla": "bla", "bla", "bla"}
-                    isNotObject = true;
-                    for(var inner in item) {
-                        // console.log(' ==> ' +inner)
-                        // console.log({"name": inner, "size":(!isNaN(item[inner]) ? item[inner] : 0)})
-                        dummy.push({"name": inner, "size":(!isNaN(item[inner]) ? item[inner] : 0)})
-                    }
-                }
-
-                if(source == "root") { // if root asign root name and skip data to dummy array
-                    rootName = child;
-                    root++;
-                } else {
-                    dummy.push({"name": child, "size":(!isNaN(item[child]) ? item[child] : 0)})
-                }
+        function for_child(item,source,res) {
+			var rootName = '';
+			var isNotObject = false;
+			var dummy = [];
+			for(var child in item) {
+                chld2=[];
+				if(checkIsObject(item[child])) {
+					chld2.push({"name": child, "children": ''});
+					chld2 = for_child(item[child], "child",chld2);
+					dummy.push(chld2[0]);
+				} else {
+					dummy.push({"name": child, "size":(!isNaN(item[child]) ? item[child] : 0)})
+				}
             }
-            if(isNotObject) {
-                return ['false', dummy];
-            } else {
-                return [true, {"name": rootName, "children": dummy}]
-            }
-        }
-    
+            res[0]["children"] = dummy
+			return res;
+		}
         function prepareDumb(item) {
-            var obj = [];
+            var dum = [];
             for(var child in item) {
                 if(item.hasOwnProperty(child)) {
-                    var iteration = getChildren(item[child], "root"); // traverse each children
-                    if(iteration[0]) { // child
-                        obj.push({"name": child, "children": iteration[1]});
-                    } else { // no child
-                        obj.push({"name": child, "children": iteration[1]});
-                    }
+                    var obj = [];
+                    obj.push({"name": child, "children": ''});
+                    obj = for_child(item[child], "root",obj); // traverse each children
+                    dum.push(obj);
                 }
             }
-            console.log({"name": "root", "children": obj})
-            return {"name": "root", "children": obj};
+            console.log({"name": "root", "children": dum})
+            return {"name": "root", "children": dum[0]};
         }
-        return prepareDumb(result);
+        return prepareDumb(data.result);        
     }
+
 }
