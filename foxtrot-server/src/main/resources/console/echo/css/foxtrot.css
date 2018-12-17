@@ -3476,7 +3476,8 @@ div.tab button:first-child {
   width: 500px;
   height: 70px;
   position: relative;
-  top: 90px;
+  top: 49px;
+  left: 150px;
 }
 
 #sequence text {
@@ -3513,8 +3514,8 @@ div.tab button:first-child {
 
 #explanation {
   position: relative;
-  top: 227px;
-  left: 100px;
+  top: 233px;
+  left: 33%;
   width: 200px;
   text-align: center;
   color: #666;
@@ -3525,8 +3526,8 @@ div.tab button:first-child {
 }
 
 .sunburst-item {
-  margin-top: -60px;
-  margin-left: 20%;
+  margin-top: -20px;
+  margin-left: 10%;
 }
 .sun-burst-max-height {
   max-height: 600px;

@@ -86,19 +86,19 @@ SunburstTile.prototype.getQuery = function(object) {
         }
     }
     // ["app","eventType", "eventData.status", "date.monthOfYear"]
-    var data = {
-        "opcode": "group",
-        "table": "clockwork",
-        "filters": filters,
-        "nesting": ["app","eventType", "eventData.status", "date.monthOfYear"]
-    }
-
     // var data = {
     //     "opcode": "group",
-    //     "table": object.tileContext.table,
+    //     "table": "clockwork",
     //     "filters": filters,
-    //     "nesting": object.tileContext.nesting
+    //     "nesting": ["app","eventType", "eventData.status", "date.monthOfYear"]
     // }
+
+    var data = {
+        "opcode": "group",
+        "table": object.tileContext.table,
+        "filters": filters,
+        "nesting": object.tileContext.nesting
+    }
     var refObject = this.object;
     $.ajax({
         method: "post",
@@ -135,18 +135,18 @@ SunburstTile.prototype.render = function(data) {
     $(widgetHead).height(60)
     $(ctx).addClass('sunburst-item')
     ctx.append('<div id="sequence"></div>');
-    ctx.append('<div id="explanation" style="visibility: hidden;"><span id="percentage">1000</span><br/>of visits begin with this sequence of pages</div>')
+    ctx.append('<div id="explanation" style="visibility: hidden;"><span id="percentage">1000</span><br/></div>')
     
     // Dimensions of sunburst.
-    var width = 400;
+    var width = 900;
     var height = 400;
     var radius = Math.min(width, height) / 2;
 
     // Breadcrumb dimensions: width, height, spacing, width of tip/tail.
     var b = {
-        w: 145,
+        w: 185,
         h: 30,
-        s: 3,
+        s: 9,
         t: 10
     };
 
@@ -258,8 +258,6 @@ SunburstTile.prototype.render = function(data) {
         if (percentage < 0.1) {
             percentageString = "< 0.1%";
         }
-        console.log(percentage);
-        console.log($(ctx[0]).find("#explanation").find("#percentage")[0])
         d3.select($(ctx[0]).find("#explanation").find("#percentage")[0]).text(percentageString);        
         d3.select(explanation[0]).style("visibility", "");
 
@@ -485,10 +483,8 @@ SunburstTile.prototype.render = function(data) {
 
             }
             console.log({"name": "root", "children": dum})
-            //console.log(dum[3])
             return {"name": "root", "children": dum};
         }
         return prepareDumb(data.result);        
     }
-
 }

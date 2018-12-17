@@ -228,6 +228,13 @@ FoxTrot.prototype.addFilters = function () {
 FoxTrot.prototype.resetModal = function () {
   clearModal();
 }
+
+// function setMultipleForSunburst(chartType) {
+//   if(chartType == "sunburst") {
+//     $('#sunburst-nesting-field').multiselect();
+//   }
+// }
+
 function clickedChartType(el) {
   // hide
   $("#table-units>form>div.table-units-active").removeClass("table-units-active");
