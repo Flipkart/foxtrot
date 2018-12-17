@@ -52,7 +52,6 @@ function setSunBurstChartFormValues(object) {
     var parentElement = $("#" + object.tileContext.chartType + "-chart-data");
 
     var parentEl = $(".sunburstForm");
-    console.log(object.tileContext.nesting)
     for(var i = 0; i < object.tileContext.nesting.length; i++) {
         var tmp = i+1;
         var elements = $(parentEl).find(".sunburst-nesting-field"+tmp);
@@ -124,18 +123,23 @@ SunburstTile.prototype.getQuery = function(object) {
     });
 }
 SunburstTile.prototype.getData = function(data) {
-    var colors = new Colors(Object.keys(data).length);
     this.render(data);
 }
 
 SunburstTile.prototype.render = function(data) {
-    var a = [];
-    a.push(data);
+
+    var dataLength = Object.keys(data.result).length;
+
+    if(dataLength == 0) {
+        showFetchError(this.object, "data");
+        return;
+    } else {
+        hideFetchError(this.object);        
+    }
+
     var object = this.object;
-    var d = a;
     var ctx = $("#" + object.id).find(".chart-item");
 
-    console.log($(ctx).find("#sequence").length)
 
     if($(ctx).find("#sequence").length > 0) {
         $(ctx).find("#sequence").remove();
@@ -493,7 +497,7 @@ SunburstTile.prototype.render = function(data) {
                     obj.push({"name": child, "children": ''});
                     //console.log(index)
                     obj = for_child(item[child], "root",obj); // traverse each children
-                    console.log(obj[0]["children"])
+                    //console.log(obj[0]["children"])
                     dum.push({"name": child, "children": obj[0]["children"]});
                 }
             }
