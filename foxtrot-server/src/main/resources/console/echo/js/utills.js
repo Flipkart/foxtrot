@@ -159,6 +159,14 @@ function generateSunBurstDropDown(fields) { // generating all dropdowns
     $("#sunburst-nesting-field"+i).selectpicker('refresh');
   }
   
+  var unique = $(".sunburstForm").find("#sunburst-uniqueKey");
+  $(unique).find('option').remove();
+  $(unique).append($('<option>', {
+    value: ""
+    , text: "none"
+  }));   
+  $(unique).append(option);
+  $(unique).selectpicker('refresh');
 }
 
 function getWidgetType() { // widget types
@@ -340,7 +348,6 @@ function reloadDropdowns() { // change dropdown values for all charts when table
   }
   else if (currentChartType == "sunburst") {
     generateSunBurstDropDown(currentFieldList);
-    generateDropDown(currentFieldList, "#sunburst-uniqueKey");
  }
 }
 
