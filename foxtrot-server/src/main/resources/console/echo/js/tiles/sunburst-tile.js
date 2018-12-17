@@ -135,6 +135,14 @@ SunburstTile.prototype.render = function(data) {
     var d = a;
     var ctx = $("#" + object.id).find(".chart-item");
 
+    console.log($(ctx).find("#sequence").length)
+
+    if($(ctx).find("#sequence").length > 0) {
+        $(ctx).find("#sequence").remove();
+        $(ctx).find("#explanation").remove();
+        $(ctx).find("svg").remove();
+    }
+
     var parentEl = $("#" + object.id).parent();
     $("#" + object.id).addClass('sunburst-tile');
     $(parentEl).removeClass('max-height');
