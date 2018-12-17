@@ -26,17 +26,22 @@ function prepareNesting(array) {
 }
 
 function getSunburstChartFormValues() {
-    var nesting = $("#sunburst-nesting-field").val();
     var timeframe = $("#sunburst-timeframe").val();
     var period = $("#sunburst-time-unit").val();
     var unique = $("#sunburst-uniqueKey").val();
-    if (nesting == "none") {
-        return [
-            [], false
-        ];
+    
+    var nestingArray = [];
+    var parentEl = $(".sunburstForm")
+    for(var i = 1; i < 6; i++) { // 2,3,4,5
+        var elements = $(parentEl).find("#sunburst-nesting-field"+i);
+        var value = elements.val();
+        if(value) {
+            nestingArray.push(value)
+        }
     }
+    //console.log(nestingArray)
     return {
-        "nesting": prepareNesting(nesting),
+        "nesting": prepareNesting(nestingArray),
         "timeframe": timeframe,
         "period": period,
         "uniqueCountOn": unique
@@ -46,14 +51,17 @@ function getSunburstChartFormValues() {
 function setSunBurstChartFormValues(object) {
     var parentElement = $("#" + object.tileContext.chartType + "-chart-data");
 
-    var nestingElement = [];
-    $.each(object.tileContext.nesting, function(index, value) {
-        nestingElement.push(parseInt(currentFieldList.findIndex(x => x.field == object.tileContext.nesting[index])));
-    });
+    var parentEl = $(".sunburstForm");
+    console.log(object.tileContext.nesting)
+    for(var i = 0; i < object.tileContext.nesting.length; i++) {
+        var tmp = i+1;
+        var elements = $(parentEl).find(".sunburst-nesting-field"+tmp);
+        $(elements).val(currentFieldList.findIndex(function(person) {
+            return person.field == object.tileContext.nesting[i]}))
+        $("#sunburst-nesting-field"+tmp).selectpicker('refresh');
+    }
 
-    parentElement.find("#sunburst-nesting-field").val(nestingElement);
-
-    $("#sunburst-nesting-field").selectpicker('refresh');
+    
 
     parentElement.find("#sunburst-timeframe").val(object.tileContext.timeframe);
 
@@ -470,19 +478,19 @@ SunburstTile.prototype.render = function(data) {
 		}
         function prepareDumb(item) {
             var dum = [];
-            var index = 0;
             for(var child in item) {
-
+               
                 if(item.hasOwnProperty(child)) {
                     var obj = [];
                     obj.push({"name": child, "children": ''});
                     //console.log(index)
                     obj = for_child(item[child], "root",obj); // traverse each children
-                    dum.push({"name": child, "children": obj});
+                    console.log(obj[0]["children"])
+                    dum.push({"name": child, "children": obj[0]["children"]});
                 }
-
             }
             console.log({"name": "root", "children": dum})
+            //console.log(JSON.stringify(dum))
             return {"name": "root", "children": dum};
         }
         return prepareDumb(data.result);        

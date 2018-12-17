@@ -319,7 +319,11 @@ function reloadDropdowns() { // change dropdown values for all charts when table
     generateDropDown(currentFieldList, "#line-ratio-uniquekey");
   }
   else if (currentChartType == "sunburst") {
-    generateDropDown(currentFieldList, "#sunburst-nesting-field");
+    generateDropDown(currentFieldList, "#sunburst-nesting-field1");
+    generateDropDown(currentFieldList, "#sunburst-nesting-field2");
+    generateDropDown(currentFieldList, "#sunburst-nesting-field3");
+    generateDropDown(currentFieldList, "#sunburst-nesting-field4");
+    generateDropDown(currentFieldList, "#sunburst-nesting-field5");
     generateDropDown(currentFieldList, "#sunburst-uniqueKey");
   }
 }
