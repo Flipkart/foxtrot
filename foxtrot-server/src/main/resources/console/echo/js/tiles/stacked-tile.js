@@ -86,6 +86,7 @@ StackedTile.prototype.getQuery = function (object) {
     , "nesting": object.tileContext.nesting
   }
   var currentTileId = this.object.id;
+  var refObject = this.object;
   $.ajax({
     method: "post"
     , dataType: 'json'
