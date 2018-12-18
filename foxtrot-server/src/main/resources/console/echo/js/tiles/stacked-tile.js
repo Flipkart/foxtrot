@@ -97,7 +97,7 @@ StackedTile.prototype.getQuery = function (object) {
     , data: JSON.stringify(data)
     , success: $.proxy(this.getData, this)
     ,error: function(xhr, textStatus, error) {
-      showFetchError(currentTileId, "refresh");
+      showFetchError(refObject, "refresh", JSON.parse(xhr.responseText));
     }
   });
 }
@@ -186,7 +186,7 @@ StackedTile.prototype.getData = function (data) {
 StackedTile.prototype.render = function (yAxisSeries, xAxisTicks) {
 
   if(xAxisTicks.length == 0) {
-    showFetchError(this.object, "data");
+    showFetchError(this.object, "data", null);
   } else {
     hideFetchError(this.object);
   }
