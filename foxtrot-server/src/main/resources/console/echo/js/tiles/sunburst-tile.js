@@ -121,19 +121,19 @@ SunburstTile.prototype.getData = function(data) {
 
 SunburstTile.prototype.render = function(data) {
 
+    var object = this.object;
+    var ctx = $("#" + object.id).find(".chart-item");
+
     var dataLength = Object.keys(data.result).length;
 
     if(dataLength == 0) {
         showFetchError(this.object, "data", null);
+        $(ctx).hide();
         return;
     } else {
         hideFetchError(this.object);        
     }
-
-    var object = this.object;
-    var ctx = $("#" + object.id).find(".chart-item");
-
-
+    $(ctx).show();
     if($(ctx).find("#sequence").length > 0) {
         $(ctx).find("#sequence").remove();
         $(ctx).find("#explanation").remove();

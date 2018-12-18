@@ -416,6 +416,12 @@ function showFetchError(data, errorType, err) {
   var el = $("#"+data.id).find(".fetch-error");
   $(el).text(getErrorMsg(errorType, err));
   $(el).show();
+
+  if(data.tileContext.chartType == "sunburst") { // only for sun burst
+    var chartItem = $("#"+data.id).find(".chart-item")
+    $(chartItem).hide();
+  }
+  
   var widgetType = data.tileContext.widgetType;
   if(widgetType == "medium") {
     $(el).addClass('fetch-error-medium-widget');
