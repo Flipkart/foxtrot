@@ -21,6 +21,7 @@ import com.flipkart.foxtrot.common.query.datetime.LastFilter;
 import com.flipkart.foxtrot.common.query.general.*;
 import com.flipkart.foxtrot.common.query.numeric.*;
 import com.flipkart.foxtrot.common.query.string.ContainsFilter;
+import com.flipkart.foxtrot.common.query.string.WildCardFilter;
 import com.flipkart.foxtrot.core.querystore.actions.Utils;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
@@ -63,7 +64,7 @@ public class ElasticSearchQueryGenerator extends FilterVisitor<Void> {
 
     @Override
     public Void visit(ContainsFilter filter) throws Exception {
-        addFilter(queryStringQuery(filter.getValue()).defaultField(String.format("%s.analyzed", filter.getField())));
+        addFilter(queryStringQuery(filter.getValue()).defaultField(filter.getField()));
         return null;
     }
 
@@ -126,6 +127,12 @@ public class ElasticSearchQueryGenerator extends FilterVisitor<Void> {
     @Override
     public Void visit(MissingFilter filter) throws Exception {
         addFilter(boolQuery().mustNot(existsQuery(Utils.storedFieldName(filter.getField()))));
+        return null;
+    }
+
+    @Override
+    public Void visit(WildCardFilter filter) throws Exception {
+        addFilter(wildcardQuery(Utils.storedFieldName(filter.getField()), filter.getValue().concat("*")));
         return null;
     }
 
