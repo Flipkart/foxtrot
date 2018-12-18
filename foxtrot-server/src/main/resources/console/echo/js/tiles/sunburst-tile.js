@@ -92,13 +92,6 @@ SunburstTile.prototype.getQuery = function(object) {
             filters.push(object.tileContext.filters[i]);
         }
     }
-    // ["app","eventType", "eventData.status", "date.monthOfYear"]
-    // var data = {
-    //     "opcode": "group",
-    //     "table": "clockwork",
-    //     "filters": filters,
-    //     "nesting": ["app","eventType", "eventData.status", "date.monthOfYear"]
-    // }
 
     var data = {
         "opcode": "group",
@@ -118,7 +111,7 @@ SunburstTile.prototype.getQuery = function(object) {
         data: JSON.stringify(data),
         success: $.proxy(this.getData, this),
         error: function(xhr, textStatus, error) {
-            showFetchError(refObject, "refresh");
+            showFetchError(refObject, "refresh", JSON.parse(xhr.responseText));
         }
     });
 }
@@ -131,7 +124,7 @@ SunburstTile.prototype.render = function(data) {
     var dataLength = Object.keys(data.result).length;
 
     if(dataLength == 0) {
-        showFetchError(this.object, "data");
+        showFetchError(this.object, "data", null);
         return;
     } else {
         hideFetchError(this.object);        

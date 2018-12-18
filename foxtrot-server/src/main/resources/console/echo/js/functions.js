@@ -412,9 +412,9 @@ function getNumberFromString(thestring) {
  * 
  * show refresh failed msg
  */
-function showFetchError(data, errorType) {
+function showFetchError(data, errorType, err) {
   var el = $("#"+data.id).find(".fetch-error");
-  $(el).text(getErrorMsg(errorType));
+  $(el).text(getErrorMsg(errorType, err));
   $(el).show();
   var widgetType = data.tileContext.widgetType;
   if(widgetType == "medium") {
@@ -512,9 +512,10 @@ function prepareMultiSeriesQueryObject(data, object, filters) {
 /**
  * Error msgs
  */
-function getErrorMsg(errorType) {
+function getErrorMsg(errorType, err) {
   if(errorType == "refresh") {
-    return "Data Refresh Failed";
+    var errorMsg = (err["error"] == undefined ? err["code"] : err["error"])
+    return (errorMsg.length == 0 ? "Refresh failed" : (errorMsg instanceof Array ? errorMsg.join(" ; ") : errorMsg));
   } else if(errorType == "data") {
     return "No results found";
   }
