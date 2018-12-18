@@ -141,6 +141,34 @@ function generateDropDown(fields, element) { // generating all dropdowns
   $(el).selectpicker('refresh');
 }
 
+function generateSunBurstDropDown(fields) { // generating all dropdowns
+  var arr = fields;
+
+  var option = "";
+  $.each(arr, function(key, value) {
+    option+= "<option value="+key+">"+value.field+"</option>"
+  });
+  
+  for(var i = 1; i < 6; i++) {
+    $("#sunburst-nesting-field"+i).find('option').remove();
+    $("#sunburst-nesting-field"+i).append($('<option>', {
+      value: ""
+      , text: "none"
+    }));   
+    $("#sunburst-nesting-field"+i).append(option);
+    $("#sunburst-nesting-field"+i).selectpicker('refresh');
+  }
+  
+  var unique = $(".sunburstForm").find("#sunburst-uniqueKey");
+  $(unique).find('option').remove();
+  $(unique).append($('<option>', {
+    value: ""
+    , text: "none"
+  }));   
+  $(unique).append(option);
+  $(unique).selectpicker('refresh');
+}
+
 function getWidgetType() { // widget types
   if (currentChartType == "line" || currentChartType == "stacked" || currentChartType == "stackedBar" || currentChartType == "statsTrend" || currentChartType == "bar" || currentChartType == "lineRatio" || currentChartType == "sunburst") {
     return "full";
@@ -319,9 +347,8 @@ function reloadDropdowns() { // change dropdown values for all charts when table
     generateDropDown(currentFieldList, "#line-ratio-uniquekey");
   }
   else if (currentChartType == "sunburst") {
-    generateDropDown(currentFieldList, "#sunburst-nesting-field");
-    generateDropDown(currentFieldList, "#sunburst-uniqueKey");
-  }
+    generateSunBurstDropDown(currentFieldList);
+ }
 }
 
 function invokeClearChartForm() { // clear widget forms

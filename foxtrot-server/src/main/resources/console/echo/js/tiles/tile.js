@@ -438,7 +438,7 @@ TileFactory.prototype.updateFilters = function (filters) {
 }
 // Filter configuration
 TileFactory.prototype.triggerFilter = function (tileElement, object) { // filter modal
-  if(object.tileContext.chartType != "radar" && object.tileContext.chartType != "line" && object.tileContext.chartType != "lineRatio") {
+  if(object.tileContext.chartType != "radar" && object.tileContext.chartType != "line" && object.tileContext.chartType != "lineRatio" && object.tileContext.chartType != "sunburst") {
     var instanceVar = this;
     tileElement.find(".widget-toolbox").find(".filter").click(function () {
       clearFilterValues();
