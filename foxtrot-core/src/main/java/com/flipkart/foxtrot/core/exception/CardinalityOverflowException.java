@@ -20,7 +20,7 @@ public class CardinalityOverflowException extends MalformedQueryException {
 
     protected CardinalityOverflowException(ActionRequest actionRequest, String field, double probability) {
         super(ErrorCode.CARDINALITY_OVERFLOW, actionRequest,
-              Collections.singletonList("Query blocked as probability > 0.5")
+              Collections.singletonList("Query blocked due to high cardinality. Consider using shorter time period")
              );
         this.field = field;
         this.probability = probability;
@@ -32,6 +32,7 @@ public class CardinalityOverflowException extends MalformedQueryException {
         map.put("request", super.getActionRequest());
         map.put("field", field);
         map.put("probability", probability);
+        map.put("error", super.getReasons());
         return map;
     }
 }
