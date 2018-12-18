@@ -3539,3 +3539,35 @@ div.tab button:first-child {
   width: 24px;
   height: 24px;
 }
+@media only screen and (max-width: 1024px) {
+  #explanation {
+    position: absolute;
+    top: 297px;
+    left: 47%;
+    width: 200px;
+    text-align: center;
+    color: #666;
+  }
+  .sunburst-item {
+    margin-top: 50px;
+  }
+  #sequence {
+    top: -9px;
+  }
+}
+@media (max-width: 2560px) and (min-width: 1440px) {
+  #explanation {
+    position: absolute;
+    top: 297px;
+    left: 36%;
+    width: 200px;
+    text-align: center;
+    color: #666;
+  }
+  .sunburst-item {
+    margin-top: 50px;
+  }
+  #sequence {
+    top: -9px;
+  }
+}
