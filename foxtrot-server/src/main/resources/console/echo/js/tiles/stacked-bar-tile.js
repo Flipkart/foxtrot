@@ -302,7 +302,7 @@ StackedBarTile.prototype.render = function (d, isMultiSeries, originalData) {
     ctx.show();
     var plot = $.plot(ctx, d, {
       series: {
-        stack: true
+        stack: false
         , lines: {
           show: true
           , fill: false
