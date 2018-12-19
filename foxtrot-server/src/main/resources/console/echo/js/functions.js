@@ -282,7 +282,11 @@ function appendConsoleList(array) { // console list to dropdown
 
 function loadParticularConsole() { // reload page based on selected console
   var selectedConsole = $("#listConsole").val();
-  window.location.assign("index.htm?console=" + selectedConsole);
+  if(window.location.href.indexOf("fql") > -1) {
+    window.location.href = "/echo/index.htm?console=" + selectedConsole    
+ } else {
+    window.location.assign("index.htm?console=" + selectedConsole);
+ }
 }
 
 function getWhereOption(fieldType) {
