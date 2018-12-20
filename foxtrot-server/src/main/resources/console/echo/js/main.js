@@ -271,7 +271,9 @@ function saveConsole() { // Save console api
       id: convertedName
       , name: name
       , sections: globalData
+      , "freshConsole": true
     };
+    console.log(representation)
     $.ajax({
       url: apiUrl+("/v2/consoles"),
       type: 'POST',

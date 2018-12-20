@@ -665,6 +665,7 @@ h1 {
 div.tab {
   overflow: hidden;
   margin-top: 32px;
+  margin-left: 14px;
 }
 
 
@@ -831,9 +832,8 @@ th, td {
 }
 
 .global-filters{
-  float: right;
   border: 1px solid #d0d7e7;
-  top: 10px;
+  top: 15px;
   left: 15px;
   padding: 7px;
   font-family: Open Sans;
@@ -3134,8 +3134,9 @@ div.tab button:first-child {
 
 #right-action-btns {
   position: relative;
-  right: 35px;
   top: 20px;
+  float: right;
+  right: 14px;
 }
 
 .flot-custom {
