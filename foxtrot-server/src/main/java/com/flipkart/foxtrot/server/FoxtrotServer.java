@@ -65,6 +65,8 @@ import io.dropwizard.server.AbstractServerFactory;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
 import io.dropwizard.util.Duration;
+import io.federecio.dropwizard.swagger.SwaggerBundle;
+import io.federecio.dropwizard.swagger.SwaggerBundleConfiguration;
 import org.eclipse.jetty.servlets.CrossOriginFilter;
 
 import javax.servlet.DispatcherType;
@@ -118,6 +120,13 @@ public class FoxtrotServer extends Application<FoxtrotServerConfiguration> {
             @Override
             public RiemannConfig getRiemannConfiguration(FoxtrotServerConfiguration configuration) {
                 return configuration.getRiemann();
+            }
+        });
+
+        bootstrap.addBundle(new SwaggerBundle<FoxtrotServerConfiguration>() {
+            @Override
+            protected SwaggerBundleConfiguration getSwaggerBundleConfiguration(FoxtrotServerConfiguration configuration) {
+                return configuration.swagger;
             }
         });
 

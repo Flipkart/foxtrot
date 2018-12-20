@@ -1,8 +1,8 @@
 version: '2'
 services:
-  elasticsearch:
+  elasticsearch1:
     image: docker.elastic.co/elasticsearch/elasticsearch:6.0.1
-    container_name: elasticsearch
+    container_name: elasticsearch1
     hostname: elasticsearch
     environment:
           - cluster.name=elasticsearch
@@ -35,7 +35,7 @@ services:
 
   foxtrot-server:
     depends_on:
-     - elasticsearch
+     - elasticsearch1
      - hbase
     container_name: foxtrot_server
     build: .
