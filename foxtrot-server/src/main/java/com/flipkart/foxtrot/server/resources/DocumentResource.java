@@ -19,6 +19,8 @@ import com.codahale.metrics.annotation.Timed;
 import com.flipkart.foxtrot.common.Document;
 import com.flipkart.foxtrot.core.exception.FoxtrotException;
 import com.flipkart.foxtrot.core.querystore.QueryStore;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
@@ -37,6 +39,7 @@ import java.util.List;
 @Produces(MediaType.APPLICATION_JSON)
 public class DocumentResource {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(DocumentResource.class);
     private final QueryStore queryStore;
 
     public DocumentResource(QueryStore queryStore) {
@@ -59,7 +62,11 @@ public class DocumentResource {
     @Timed
     public Response saveDocuments(@PathParam("table") final String table, @Valid final List<Document> documents)
             throws FoxtrotException {
-        queryStore.save(table, documents);
+        try {
+            queryStore.save(table, documents);
+        } catch (Exception e) {
+            LOGGER.error("Error occurred in savingDocuments : " + e);
+        }
         return Response.created(URI.create("/" + table))
                 .build();
     }
