@@ -354,6 +354,7 @@ function loadConsole() { // load console list api
     success: function(res) {
       consoleList = res;
       appendConsoleList(res);
+      appendVersionConsoleList(res);
     },
     error: function() {
       showErrorAlert("Could not save console");
@@ -370,10 +371,10 @@ function loadVersionConsole(consoleId) { // load console list api
     success: function(res) {
       console.lastConsoleName(res)
       // consoleList = res;
-      // appendConsoleList(res);
+      // appendVersionConsoleList(res);
     },
     error: function() {
-      showErrorAlert("Could not save console");
+      showErrorAlert("Could not load versioning console list");
     }
   })
 }
@@ -411,6 +412,11 @@ function setVersionDefault(consoleId) { // load console list api
     }
   })
 }
+
+$("#set-default").click(function(){
+    setVersionDefault("test");
+});
+
 function generateTabBtnForConsole(array) { // new btn for tabs
   $(".tab").empty();
   for(var i = 0; i < array.sections.length; i++) {
@@ -841,7 +847,7 @@ $(document).ready(function () {
   if(consoleId) {
     getConsoleById(consoleId);
     isNewConsole = false;
-    loadVersionConsole(consoleId);
+    //loadVersionConsole(consoleId);
   } else {
     isNewConsole = true;
   }

@@ -3134,9 +3134,14 @@ div.tab button:first-child {
 
 #right-action-btns {
   position: relative;
+    top: 20px;
+    float: right;
+    right: 14px;
+}
+
+#left-action-btns {
+  position: relative;
   top: 20px;
-  float: right;
-  right: 14px;
 }
 
 .flot-custom {
@@ -3208,6 +3213,7 @@ div.tab button:first-child {
   cursor: pointer;
   width: 90px;
 }
+
 .refreshtime-block {
   float: left;
   margin-top: 15px;
@@ -3217,6 +3223,26 @@ div.tab button:first-child {
   font-size: 14px;
   width: 100px;
 }
+
+#version-list {
+  position: relative;
+  background: #fff;
+  border: none;
+  font-family: Open Sans;
+  cursor: pointer;
+  width: 180px;
+}
+
+.version-list-block {
+  float: left;
+  margin-top: 15px;
+  margin: 0;
+  margin-top: 9px;
+  margin-left: 13px;
+  font-size: 14px;
+  width: 200px;
+}
+
 #top-settings {
   float: left;
 }
@@ -3571,4 +3597,11 @@ div.tab button:first-child {
   #sequence {
     top: -9px;
   }
+}
+#set-default {
+  width: 24px;
+  height: 24px;
+  margin-left: 20px;
+  margin-top: 24px;
+  cursor: pointer;
 }

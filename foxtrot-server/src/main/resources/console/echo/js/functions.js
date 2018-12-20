@@ -260,10 +260,9 @@ function listenUiFilterCheck() {
   }
 }
 
-function appendConsoleList(array) { // console list to dropdown
-  var textToInsert = [];
-  var i = 0;
-  array.sort(function(a, b){ // sort by name
+// sort by name
+function sortConsoleArray(array) {
+   return array.sort(function(a, b){ // sort by name
     var nameA=a.name.toLowerCase(), nameB=b.name.toLowerCase();
     if (nameA < nameB) //sort string ascending
       return -1;
@@ -271,13 +270,26 @@ function appendConsoleList(array) { // console list to dropdown
       return 1;
     return 0; //default return value (no sorting)
   });
+}
 
+function prepareListOption(array) {
+  var textToInsert = [];
+  var i = 0;
+  array = sortConsoleArray(array);
   for (var a = 0; a < array.length; a += 1) {
     textToInsert[i++] = '<option value=' + array[a].id + '>';
     textToInsert[i++] = array[a].name;
     textToInsert[i++] = '</option>';
   }
-  $("#listConsole").append(textToInsert.join(''));
+  return textToInsert;
+}
+
+function appendConsoleList(array) { // console list to dropdown
+  $("#listConsole").append(prepareListOption(array).join(''));
+}
+
+function appendVersionConsoleList(array) {
+  $("#version-list").append(prepareListOption(array).join(''));
 }
 
 function loadParticularConsole() { // reload page based on selected console
