@@ -26,17 +26,22 @@ function prepareNesting(array) {
 }
 
 function getSunburstChartFormValues() {
-    var nesting = $("#sunburst-nesting-field").val();
     var timeframe = $("#sunburst-timeframe").val();
     var period = $("#sunburst-time-unit").val();
     var unique = $("#sunburst-uniqueKey").val();
-    if (nesting == "none") {
-        return [
-            [], false
-        ];
+    
+    var nestingArray = [];
+    var parentEl = $(".sunburstForm")
+    for(var i = 1; i < 6; i++) { // 2,3,4,5
+        var elements = $(parentEl).find("#sunburst-nesting-field"+i);
+        var value = elements.val();
+        if(value) {
+            nestingArray.push(value)
+        }
     }
+    //console.log(nestingArray)
     return {
-        "nesting": prepareNesting(nesting),
+        "nesting": prepareNesting(nestingArray),
         "timeframe": timeframe,
         "period": period,
         "uniqueCountOn": unique
@@ -46,14 +51,16 @@ function getSunburstChartFormValues() {
 function setSunBurstChartFormValues(object) {
     var parentElement = $("#" + object.tileContext.chartType + "-chart-data");
 
-    var nestingElement = [];
-    $.each(object.tileContext.nesting, function(index, value) {
-        nestingElement.push(parseInt(currentFieldList.findIndex(x => x.field == object.tileContext.nesting[index])));
-    });
+    var parentEl = $(".sunburstForm");
+    for(var i = 0; i < object.tileContext.nesting.length; i++) {
+        var tmp = i+1;
+        var elements = $(parentEl).find(".sunburst-nesting-field"+tmp);
+        $(elements).val(currentFieldList.findIndex(function(person) {
+            return person.field == object.tileContext.nesting[i]}))
+        $("#sunburst-nesting-field"+tmp).selectpicker('refresh');
+    }
 
-    parentElement.find("#sunburst-nesting-field").val(nestingElement);
-
-    $("#sunburst-nesting-field").selectpicker('refresh');
+    
 
     parentElement.find("#sunburst-timeframe").val(object.tileContext.timeframe);
 
@@ -85,6 +92,7 @@ SunburstTile.prototype.getQuery = function(object) {
             filters.push(object.tileContext.filters[i]);
         }
     }
+
     var data = {
         "opcode": "group",
         "table": object.tileContext.table,
@@ -103,21 +111,34 @@ SunburstTile.prototype.getQuery = function(object) {
         data: JSON.stringify(data),
         success: $.proxy(this.getData, this),
         error: function(xhr, textStatus, error) {
-            showFetchError(refObject, "refresh");
+            showFetchError(refObject, "refresh", JSON.parse(xhr.responseText));
         }
     });
 }
 SunburstTile.prototype.getData = function(data) {
-    var colors = new Colors(Object.keys(data).length);
     this.render(data);
 }
 
 SunburstTile.prototype.render = function(data) {
-    var a = [];
-    a.push(data);
+
     var object = this.object;
-    var d = a;
     var ctx = $("#" + object.id).find(".chart-item");
+
+    var dataLength = Object.keys(data.result).length;
+
+    if(dataLength == 0) {
+        showFetchError(this.object, "data", null);
+        $(ctx).hide();
+        return;
+    } else {
+        hideFetchError(this.object);        
+    }
+    $(ctx).show();
+    if($(ctx).find("#sequence").length > 0) {
+        $(ctx).find("#sequence").remove();
+        $(ctx).find("#explanation").remove();
+        $(ctx).find("svg").remove();
+    }
 
     var parentEl = $("#" + object.id).parent();
     $("#" + object.id).addClass('sunburst-tile');
@@ -127,18 +148,18 @@ SunburstTile.prototype.render = function(data) {
     $(widgetHead).height(60)
     $(ctx).addClass('sunburst-item')
     ctx.append('<div id="sequence"></div>');
-    ctx.append('<div id="explanation" style="visibility: hidden;"><spanid="percentage"></span><br/>of visits begin with this sequence of pages</div>')
+    ctx.append('<div id="explanation" style="visibility: hidden;"><span id="percentage">1000</span><br/></div>')
     
     // Dimensions of sunburst.
-    var width = 400;
+    var width = 900;
     var height = 400;
     var radius = Math.min(width, height) / 2;
 
     // Breadcrumb dimensions: width, height, spacing, width of tip/tail.
     var b = {
-        w: 145,
+        w: 185,
         h: 30,
-        s: 3,
+        s: 9,
         t: 10
     };
 
@@ -239,7 +260,7 @@ SunburstTile.prototype.render = function(data) {
     };
     
     var explanation = $(ctx[0]).find("#explanation");
-    var percentage = $(ctx[0]).find("#percentage");
+    var percentage = $(ctx[0]).find("#explanation").find("#percentage");
     var trail = $(ctx[0]).find("#trail");
     
     // Fade all but the current sequence, and show it in the breadcrumb trail.
@@ -250,8 +271,7 @@ SunburstTile.prototype.render = function(data) {
         if (percentage < 0.1) {
             percentageString = "< 0.1%";
         }
-
-        d3.select($(percentage)).text(percentageString);        
+        d3.select($(ctx[0]).find("#explanation").find("#percentage")[0]).text(percentageString);        
         d3.select(explanation[0]).style("visibility", "");
 
         var sequenceArray = getAncestors(d);
@@ -338,7 +358,7 @@ SunburstTile.prototype.render = function(data) {
     function updateBreadcrumbs(nodeArray, percentageString) {
 
         // Data join; key function combines name and depth (= position in sequence).
-        console.log(ctx.find("#trail"))
+        //console.log(ctx.find("#trail"))
         var g = d3.select(ctx.find("#trail")[0])
             .selectAll("g")
             .data(nodeArray, function(d) {
@@ -434,147 +454,50 @@ SunburstTile.prototype.render = function(data) {
         }
     }
 
-    // function getData() {
-    //     var dummy = [];
-    //     var index = 0;
-    //     var globalRootName = '';
-    //     var globalRootCount = 0;
-    //     printList(data.result);
-    //     function printList(items) {
-    //         switch ($.type(items)) {
-    //             case "object":
-    //                 getChildren(items);
-    //                 break;
-    //         }
-            
-    //     }
-    //     var root = '';
-    //     function getChildren(parent) {
-    //     var sam = [];
-    //         for (var child in parent) {
-            
-    //         if(globalRootCount == 0) {
-    //             globalRootName = child;
-    //         }     
-                 
-    //              if(globalRootCount > 0) {
-    //             if(index == 0) {
-    //                  root = child;
-    //              }
-    //              var value = 0;
-    //              if(!isNaN(parent[child])) {
-    //                  value = parent[child];
-    //              }
-                 
-    //              if(index > 0) {
-    //              sam.push({"name": child, "size": value})
-    //              }
-                 
-    //              index++;
-    //         }
-        
-                 
-                 
-    //             printList(parent[child]);
-    //             globalRootCount++;
-    //         }
-    //         dummy.push({"name": root, "childeren": sam})
-    //         root = 0;
-    //        index = 0;
-    //     }
-    //     console.log({"name": "root", "children": dummy})
-    //     return {"name": "root", "children": dummy};
-    // }
-
-
-
-
-
-
-
-
-
+    function checkIsObject(obj) {
+        if(typeof obj === "object") {
+            return true;
+        } else {
+            return false;
+        }
+        return false;
+    }
 
     function getData() {
-        var obj = [];        
-        for (var key in data.result) {
-            if (data.result.hasOwnProperty(key)) {
-                var anotherLoop = data.result[key];
-                var dummy = [];
-                for(var k in anotherLoop) {
-                    if(anotherLoop.hasOwnProperty(k)) {
-                        var value = anotherLoop[k];
-                        if((typeof value === "object")) {
-                            dummy.push({"name": k, "size":Object.values(value)[0]})
-                        } else {
-                            dummy.push({"name": k, "size":value})
-                        }
-                        
-                    }
-                }
-                obj.push({"name": key, "children": dummy});
+        function for_child(item,source,res) {
+			var rootName = '';
+			var isNotObject = false;
+			var dummy = [];
+			for(var child in item) {
+                chld2=[];
+				if(checkIsObject(item[child])) {
+					chld2.push({"name": child, "children": ''});
+					chld2 = for_child(item[child], "child",chld2);
+					dummy.push(chld2[0]);
+				} else {
+					dummy.push({"name": child, "size":(!isNaN(item[child]) ? item[child] : 0)})
+				}
             }
+            res[0]["children"] = dummy
+			return res;
+		}
+        function prepareDumb(item) {
+            var dum = [];
+            for(var child in item) {
+               
+                if(item.hasOwnProperty(child)) {
+                    var obj = [];
+                    obj.push({"name": child, "children": ''});
+                    //console.log(index)
+                    obj = for_child(item[child], "root",obj); // traverse each children
+                    //console.log(obj[0]["children"])
+                    dum.push({"name": child, "children": obj[0]["children"]});
+                }
+            }
+            console.log({"name": "root", "children": dum})
+            //console.log(JSON.stringify(dum))
+            return {"name": "root", "children": dum};
         }
-
-        if(object.title == "Sun burst 2 three") {
-           // traverseObject(data.result, 0)
-            //console.log({"name": "test", "children": obj})
-        }
-
-        //console.log({"name": "test", "children": obj})
-        return {"name": "test", "children": obj};
-    };
-
-
-    var treeObj, i = 0, j = 0, parent, hasChild, parents = 0;
-    var newJSON = [];
-    CreateTree(data.result)
-    function CreateTree(Data) {
-        
-                        //Initially creates the root level/parent node.
-        
-                        //Converts the standardly serialized JSON to the required format necessary to form the TreeView.
-        
-                        $.each(Data, function (key, value) {
-        
-                            //While converting, creates the object for the tree with the required "ID",parentID,hasChild attributes.
-        
-                            //Pushes the newly created JSON format to a new object.
-        
-                            newJSON.push({ id: ++i, name: key, hasChild: true });
-        
-                            ++parents;
-        
-                            if (value != null && typeof value == "object") {
-        
-                                enumerate(value, parents);
-        
-                            }
-        
-                        });
-        
-                    }
-        
-                    //Recursive function creates the sub nodes for the root element.
-        
-                    function enumerate(data, parentID) {
-        
-                        $.each(data, function (k, v) {
-        
-                            if (typeof v == "object") {
-        
-                                newJSON.push({ pid: parentID, id: "child_" + ++j, name: k, hasChild: true });
-        
-                                enumerate(v, "child_" + j);
-        
-                            }
-        
-                            else
-        
-                                newJSON.push({ pid: parentID, id: "child_" + ++j, name: k, hasChild: false });
-        
-                        });
-        
-                    }
-                console.log(newJSON);
+        return prepareDumb(data.result);        
+    }
 }

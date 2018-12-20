@@ -107,7 +107,7 @@ PercentageGaugeTile.prototype.getQuery = function (object) {
     , data: JSON.stringify(data)
     , success: $.proxy(this.getData, this)
     ,error: function(xhr, textStatus, error) {
-      showFetchError(refObject, "refresh");
+      showFetchError(refObject, "refresh", JSON.parse(xhr.responseText));
     }
   });
 }
@@ -171,7 +171,7 @@ PercentageGaugeTile.prototype.getData = function (data) {
 PercentageGaugeTile.prototype.render = function (total, diff, dataLength) {
 
   if(dataLength == 0) {
-    showFetchError(this.object, "data");
+    showFetchError(this.object, "data", null);
   } else {
     hideFetchError(this.object);
   }

@@ -101,7 +101,7 @@ function LineRatioTile() {
       , data: JSON.stringify(data)
       , success: $.proxy(this.getData, this)
       ,error: function(xhr, textStatus, error) {
-        showFetchError(refObject, "refresh");
+        showFetchError(refObject, "refresh", JSON.parse(xhr.responseText));
       }
     });
   }
@@ -254,7 +254,7 @@ function LineRatioTile() {
 
   LineRatioTile.prototype.render = function (rows, dataLength) {
     if(dataLength == 0)
-      showFetchError(this.object, "data");
+      showFetchError(this.object, "data", null);
     else
       hideFetchError(this.object);
 

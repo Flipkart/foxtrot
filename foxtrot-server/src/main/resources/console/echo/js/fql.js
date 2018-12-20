@@ -67,21 +67,24 @@ function fqlQuery() {
       text: 'application/json',
       csv: 'text/csv'
     },
-    statusCode: {
-      500: function (data) {
-        hideLoader();
-        if (data.hasOwnProperty("responseText")) {
-          var error = JSON.parse(data["responseText"]);
-          if (error.hasOwnProperty('message')) {
-            showErrorAlert('Oops', error['message']);
-          }
+    success: function (dataRaw) {
+      hideLoader();
+      if(dataRaw) {
+        renderTable(dataRaw);
+        fetchedData = dataRaw;
+      } else {
+        showErrorAlert('Oops', "No response found");
+      }
+    },error: function(xhr, textStatus, error) {
+      hideLoader();
+      if (xhr.hasOwnProperty("responseText")) {
+        var error = JSON.parse(xhr["responseText"]);
+        if (error.hasOwnProperty('code')) {
+          showErrorAlert('Oops', error['code']);
+        } else {
+          showErrorAlert('Oops', "Something went wrong");
         }
       }
-    },
-    success: function (dataRaw) {
-      renderTable(dataRaw);
-      fetchedData = dataRaw;
-      hideLoader();
     }
   });
 }

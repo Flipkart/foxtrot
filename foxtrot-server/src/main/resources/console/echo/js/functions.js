@@ -282,7 +282,11 @@ function appendConsoleList(array) { // console list to dropdown
 
 function loadParticularConsole() { // reload page based on selected console
   var selectedConsole = $("#listConsole").val();
-  window.location.assign("index.htm?console=" + selectedConsole);
+  if(window.location.href.indexOf("fql") > -1) {
+    window.location.href = "/echo/index.htm?console=" + selectedConsole    
+ } else {
+    window.location.assign("index.htm?console=" + selectedConsole);
+ }
 }
 
 function getWhereOption(fieldType) {
@@ -412,10 +416,16 @@ function getNumberFromString(thestring) {
  * 
  * show refresh failed msg
  */
-function showFetchError(data, errorType) {
+function showFetchError(data, errorType, err) {
   var el = $("#"+data.id).find(".fetch-error");
-  $(el).text(getErrorMsg(errorType));
+  $(el).text(getErrorMsg(errorType, err));
   $(el).show();
+
+  if(data.tileContext.chartType == "sunburst") { // only for sun burst
+    var chartItem = $("#"+data.id).find(".chart-item")
+    $(chartItem).hide();
+  }
+  
   var widgetType = data.tileContext.widgetType;
   if(widgetType == "medium") {
     $(el).addClass('fetch-error-medium-widget');
@@ -512,9 +522,10 @@ function prepareMultiSeriesQueryObject(data, object, filters) {
 /**
  * Error msgs
  */
-function getErrorMsg(errorType) {
+function getErrorMsg(errorType, err) {
   if(errorType == "refresh") {
-    return "Data Refresh Failed";
+    var errorMsg = (err["error"] == undefined ? err["code"] : err["error"])
+    return (errorMsg.length == 0 ? "Refresh failed" : (errorMsg instanceof Array ? errorMsg.join(" ; ") : errorMsg));
   } else if(errorType == "data") {
     return "No results found";
   }
