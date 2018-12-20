@@ -68,7 +68,7 @@ consoleHistoryConfig:
 deletionconfig:
   active: false
   interval: 86400
-  initialdelay: 10
+  initialdelay: 60
 
 emailConfig:
   from: noreply@phonepe.com
