@@ -303,12 +303,9 @@ function saveConsole() { // Save console api
   }
 }
 
-function deleteConsole() { // Delete console api
-  if(currentConsoleName !=  undefined) {
-    var name =  currentConsoleName;
-    var convertedName = convertName(name);
-    var url = apiUrl+("/v2/consoles/")+convertedName+("/delete");
-    $.ajax({
+// delete given console default/versioning
+function deleteConsoleAPI(url) {
+  $.ajax({
       url: url,
       type: 'DELETE',
       contentType: 'application/json',
@@ -321,7 +318,28 @@ function deleteConsole() { // Delete console api
         showErrorAlert('Oops','Could not delete console');
         hideConsoleModal("delete-dashboard");
       }
-    })
+    });
+}
+
+function deleteConsole() { // Delete console api
+  if(currentConsoleName !=  undefined) {
+    var name =  currentConsoleName;
+    var convertedName = convertName(name);
+    var url = apiUrl+("/v2/consoles/")+convertedName+("/delete");
+    deleteConsoleAPI(url)
+  }else {
+    showErrorAlert("Oops",'Add atleast one widget');
+    hideConsoleModal("delete-dashboard");
+  }
+}
+
+// Delete version console
+function deleteVersionConsole() { // Delete console api
+  if(currentConsoleName !=  undefined) {
+    var name =  currentConsoleName;
+    var convertedName = convertName(name);
+    var url = apiUrl+("/v2/consoles/")+convertedName+("/old/delete");
+    deleteConsoleAPI(url)
   } else {
     showErrorAlert("Oops",'Add atleast one widget');
     hideConsoleModal("delete-dashboard");
@@ -343,6 +361,56 @@ function loadConsole() { // load console list api
   })
 }
 
+// load version api for given console
+function loadVersionConsole(consoleId) { // load console list api
+  $.ajax({
+    url: apiUrl+("/v2/consoles/")+consoleId+"/old/get",
+    type: 'GET',
+    contentType: 'application/json',
+    success: function(res) {
+      console.lastConsoleName(res)
+      // consoleList = res;
+      // appendConsoleList(res);
+    },
+    error: function() {
+      showErrorAlert("Could not save console");
+    }
+  })
+}
+
+// load version api for given console
+function loadVersionConsoleByName(consoleName) { // load console list api
+  $.ajax({
+    url: apiUrl+("/v2/consoles/")+consoleName+"/old",
+    type: 'GET',
+    contentType: 'application/json',
+    success: function(res) {
+      console.lastConsoleName(res)
+      // consoleList = res;
+      // appendConsoleList(res);
+    },
+    error: function() {
+      showErrorAlert("Could not save console");
+    }
+  })
+}
+
+// set given console as default
+function setVersionDefault(consoleId) { // load console list api
+  $.ajax({
+    url: apiUrl+("/v2/consoles/")+consoleId+"/old/set/current",
+    type: 'GET',
+    contentType: 'application/json',
+    success: function(res) {
+      if(res) {
+        showErrorAlert("Console set as default");
+      }
+    },
+    error: function() {
+      showErrorAlert("Could not save console");
+    }
+  })
+}
 function generateTabBtnForConsole(array) { // new btn for tabs
   $(".tab").empty();
   for(var i = 0; i < array.sections.length; i++) {
@@ -773,6 +841,7 @@ $(document).ready(function () {
   if(consoleId) {
     getConsoleById(consoleId);
     isNewConsole = false;
+    loadVersionConsole(consoleId);
   } else {
     isNewConsole = true;
   }
