@@ -274,9 +274,6 @@ function saveConsole() { // Save console api
       , sections: globalData
       , "freshConsole": (isViewingVersionConsole == true ? false : true)
     };
-    console.log(consoleList)
-    console.log(representation);
-    //return;
     $.ajax({
       url: apiUrl+("/v2/consoles"),
       type: 'POST',
@@ -315,7 +312,7 @@ function deleteConsoleAPI(url, sucessMsg, redirect) {
       success: function(resp) {
         showSuccessAlert('Success', sucessMsg);
         hideConsoleModal("delete-dashboard");
-        //window.location = redirect;
+        window.location = redirect;
       },
       error: function() {
         showErrorAlert('Oops','Could not delete console');
@@ -423,7 +420,7 @@ function setVersionDefault(consoleId) { // load console list api
 }
 
 $("#set-default").click(function(){
-    setVersionDefault("test");
+    setVersionDefault(getVerisonViewingId());
 });
 
 function generateTabBtnForConsole(array) { // new btn for tabs
