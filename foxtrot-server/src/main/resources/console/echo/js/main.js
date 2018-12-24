@@ -267,7 +267,7 @@ function saveConsole() { // Save console api
         delete deleteObject.tileContext.tableDropdownIndex;
       }
     }
-    var convertedName = (isViewingVersionConsole == true ? $(".version-list").val() : convertName(name));
+    var convertedName = (isViewingVersionConsole == true ? getVerisonViewingId() : convertName(name));
     var representation = {
       id: convertedName
       , name: name
@@ -307,15 +307,15 @@ function saveConsole() { // Save console api
 }
 
 // delete given console default/versioning
-function deleteConsoleAPI(url) {
+function deleteConsoleAPI(url, sucessMsg, redirect) {
   $.ajax({
       url: url,
       type: 'DELETE',
       contentType: 'application/json',
       success: function(resp) {
-        showSuccessAlert('Success', 'console deleted sucessfully');
+        showSuccessAlert('Success', sucessMsg);
         hideConsoleModal("delete-dashboard");
-        window.location = "index.htm";
+        //window.location = redirect;
       },
       error: function() {
         showErrorAlert('Oops','Could not delete console');
@@ -329,20 +329,24 @@ function deleteConsole() { // Delete console api
     var name =  currentConsoleName;
     var convertedName = convertName(name);
     var url = apiUrl+("/v2/consoles/")+convertedName+("/delete");
-    deleteConsoleAPI(url)
+    deleteConsoleAPI(url, "console deleted sucessfully", "index.htm")
   }else {
     showErrorAlert("Oops",'Add atleast one widget');
     hideConsoleModal("delete-dashboard");
   }
 }
 
+function getVerisonViewingId() {
+  return $(".version-list").val();
+}
+
 // Delete version console
 function deleteVersionConsole() { // Delete console api
-  if(currentConsoleName !=  undefined) {
-    var name =  currentConsoleName;
-    var convertedName = convertName(name);
-    var url = apiUrl+("/v2/consoles/")+convertedName+("/old/delete");
-    deleteConsoleAPI(url)
+  var versionId = getVerisonViewingId();
+  if(versionId) {
+    var msg = versionId+" is sucessfully deleted";
+    var url = apiUrl+("/v2/consoles/")+versionId+("/old/delete");
+    deleteConsoleAPI(url, msg, "index.htm")
   } else {
     showErrorAlert("Oops",'Add atleast one widget');
     hideConsoleModal("delete-dashboard");
@@ -398,7 +402,7 @@ function loadVersionConsoleByName(consoleName) { // load console list api
 
 // listen version-list change event and trigger fetch console
 $(".version-list").change(function(e) {
-  loadVersionConsoleById($(".version-list").val());
+  loadVersionConsoleById(getVerisonViewingId());
 });
 
 // set given console as default
@@ -820,7 +824,7 @@ $(document).ready(function () {
   $("#delete-dashboard-tab-btn").click(function () {
     currentConsoleName = $("#delete-dashboard-name").val();
     if(isViewingVersionConsole) {
-      //deleteVersionConsole();
+      deleteVersionConsole();
     } else {
       deleteConsole();
     }
