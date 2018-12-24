@@ -48,6 +48,7 @@ var sections = [];
 var tableNameList = [];
 var isGlobalDateFilter = false;
 var globalDateFilterValue = "";
+var isViewingVersionConsole = false;
 
 function TablesView(id, tables) {
   this.id = id;
@@ -266,14 +267,16 @@ function saveConsole() { // Save console api
         delete deleteObject.tileContext.tableDropdownIndex;
       }
     }
-    var convertedName = convertName(name);
+    var convertedName = (isViewingVersionConsole == true ? $(".version-list").val() : convertName(name));
     var representation = {
       id: convertedName
       , name: name
       , sections: globalData
-      , "freshConsole": true
+      , "freshConsole": (isViewingVersionConsole == true ? false : true)
     };
-    console.log(representation)
+    console.log(consoleList)
+    console.log(representation);
+    //return;
     $.ajax({
       url: apiUrl+("/v2/consoles"),
       type: 'POST',
@@ -354,7 +357,6 @@ function loadConsole() { // load console list api
     success: function(res) {
       consoleList = res;
       appendConsoleList(res);
-      appendVersionConsoleList(res);
     },
     error: function() {
       showErrorAlert("Could not save console");
@@ -363,15 +365,15 @@ function loadConsole() { // load console list api
 }
 
 // load version api for given console
-function loadVersionConsole(consoleId) { // load console list api
+function loadVersionConsoleById(consoleId) { // load console list api
+  console.log(consoleId)
   $.ajax({
     url: apiUrl+("/v2/consoles/")+consoleId+"/old/get",
     type: 'GET',
     contentType: 'application/json',
     success: function(res) {
-      console.lastConsoleName(res)
-      // consoleList = res;
-      // appendVersionConsoleList(res);
+      isViewingVersionConsole = true;
+      preparePageRendering(res, ""); // second params is none
     },
     error: function() {
       showErrorAlert("Could not load versioning console list");
@@ -386,15 +388,18 @@ function loadVersionConsoleByName(consoleName) { // load console list api
     type: 'GET',
     contentType: 'application/json',
     success: function(res) {
-      console.lastConsoleName(res)
-      // consoleList = res;
-      // appendConsoleList(res);
+      appendVersionConsoleList(res);
     },
     error: function() {
       showErrorAlert("Could not save console");
     }
   })
 }
+
+// listen version-list change event and trigger fetch console
+$(".version-list").change(function(e) {
+  loadVersionConsoleById($(".version-list").val());
+});
 
 // set given console as default
 function setVersionDefault(consoleId) { // load console list api
@@ -473,39 +478,51 @@ function generatePageList(resp) {
   }
 }
 
+function clearPageSidebar() {
+  $("#page-lists-content").empty();
+  sections = [];
+}
+
+function preparePageRendering(res, selectedConsole) {
+  currentConsoleName = res.name;
+  clearContainer();
+  globalData = [];
+  globalData = res.sections;
+  generateTabBtnForConsole(res);
+
+  // check any tab name present in url
+  var tabName = getParameterByName("tab");
+  var tabIndex = 0;
+  if(tabName) {
+    var tabIndex = res.sections.findIndex(x => x.id == tabName);
+    renderTilesObject(res.sections[tabIndex].id);
+    tabIndex = tabIndex+1;
+  } else {
+    renderTilesObject(res.sections[0].id);
+    tabIndex = 1;
+  }
+
+  // make tab button active
+  $('.tab button:nth-child('+tabIndex+')').addClass('active');
+
+  getTables();
+  clearPageSidebar();
+  generatePageList(res);
+  if(!isViewingVersionConsole) {
+    setTimeout(function() { setListConsole(selectedConsole); }, 2000);
+  }
+}
+
 function getConsoleById(selectedConsole) { // get particular console list
   $.ajax({
     url: apiUrl+("/v2/consoles/" +selectedConsole),
     type: 'GET',
     contentType: 'application/json',
     success: function(res) {
-      currentConsoleName = res.name;
-      clearContainer();
-      globalData = [];
-      globalData = res.sections;
-      generateTabBtnForConsole(res);
-
-      // check any tab name present in url
-      var tabName = getParameterByName("tab");
-      var tabIndex = 0;
-      if(tabName) {
-        var tabIndex = res.sections.findIndex(x => x.id == tabName);
-        renderTilesObject(res.sections[tabIndex].id);
-        tabIndex = tabIndex+1;
-      } else {
-        renderTilesObject(res.sections[0].id);
-        tabIndex = 1;
-      }
-
-      // make tab button active
-      $('.tab button:nth-child('+tabIndex+')').addClass('active');
-
-      getTables();
-      generatePageList(res);
-      setTimeout(function() { setListConsole(selectedConsole); }, 2000);
+      preparePageRendering(res,selectedConsole);
     },
     error: function() {
-      showErrorAlert("Could not save console");
+      showErrorAlert("Could not read console");
       setListConsole(selectedConsole);
     }
   })
@@ -802,7 +819,11 @@ $(document).ready(function () {
   });
   $("#delete-dashboard-tab-btn").click(function () {
     currentConsoleName = $("#delete-dashboard-name").val();
-    deleteConsole();
+    if(isViewingVersionConsole) {
+      //deleteVersionConsole();
+    } else {
+      deleteConsole();
+    }
   });
   $("#listConsole").change(function () {
     loadParticularConsoleList();
@@ -847,7 +868,18 @@ $(document).ready(function () {
   if(consoleId) {
     getConsoleById(consoleId);
     isNewConsole = false;
-    //loadVersionConsole(consoleId);
+    setTimeout(function(){
+      var index = _.indexOf(_.pluck(consoleList, 'id'), consoleId);
+      if(index >= 0) {
+        var consoleObject = consoleList[index];
+        console.log(consoleObject)
+        var numberOfVerison = consoleObject.version;
+        if(numberOfVerison > 0) {
+          loadVersionConsoleByName(consoleObject.name);
+        }
+      }
+      
+      }, 3000);
   } else {
     isNewConsole = true;
   }

@@ -272,24 +272,26 @@ function sortConsoleArray(array) {
   });
 }
 
-function prepareListOption(array) {
+function prepareListOption(array, appendVersion) {
+  console.log(appendVersion)
   var textToInsert = [];
   var i = 0;
   array = sortConsoleArray(array);
   for (var a = 0; a < array.length; a += 1) {
+    var versionString = " - v"+array[a].version;
     textToInsert[i++] = '<option value=' + array[a].id + '>';
-    textToInsert[i++] = array[a].name;
+    textToInsert[i++] = array[a].name+(appendVersion == true ? versionString : '');
     textToInsert[i++] = '</option>';
   }
   return textToInsert;
 }
 
 function appendConsoleList(array) { // console list to dropdown
-  $("#listConsole").append(prepareListOption(array).join(''));
+  $("#listConsole").append(prepareListOption(array, false).join(''));
 }
 
 function appendVersionConsoleList(array) {
-  $("#version-list").append(prepareListOption(array).join(''));
+  $("#version-list").append(prepareListOption(array, true).join(''));
 }
 
 function loadParticularConsole() { // reload page based on selected console
