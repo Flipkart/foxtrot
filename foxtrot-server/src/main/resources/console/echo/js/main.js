@@ -408,7 +408,13 @@ function loadVersionConsoleByName(consoleName) { // load console list api
 
 // listen version-list change event and trigger fetch console
 $(".version-list").change(function(e) {
-  loadVersionConsoleById(getVerisonViewingId());
+  var id = getVerisonViewingId();
+  if(id) {
+    loadVersionConsoleById();
+  } else {
+    var consoleId = getParameterByName("console").replace('/','');
+    window.location.assign("index.htm?console=" + consoleId);
+  }
 });
 
 // set given console as default
