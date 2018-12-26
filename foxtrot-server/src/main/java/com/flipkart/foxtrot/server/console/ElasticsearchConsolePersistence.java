@@ -275,6 +275,12 @@ public class ElasticsearchConsolePersistence implements ConsolePersistence {
         ConsoleV2 oldConsole = getV2(console.getId());
         if(oldConsole == null){
             oldConsole = getOldVersion(console.getId());
+            //In this case old Console Id (random Id) is passed therefore changing the id to current console Id
+            if(oldConsole != null) {
+                String id = oldConsole.getName().replaceAll("\\s+", "_").toLowerCase();
+                oldConsole = getV2(id);
+                console.setId(id);
+            }
         }
         if(oldConsole == null){
             return;
