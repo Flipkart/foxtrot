@@ -650,7 +650,7 @@ function clearForms() { // clear all details
 function showDashboardBtn() { // dashboard modal
   $("#saveConsole").show();
   $("#default-btn").show();
-  $(".global-filters, .refreshtime-block, #top-settings").show();
+  $(".global-filters, .refreshtime-block, #top-settings, .version-list-block, #set-default").show();
   $("#add-page-btn").show();
 }
 

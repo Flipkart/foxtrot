@@ -3345,7 +3345,7 @@ div.tab button:first-child {
 .custom-modal-tab-btn span{
   margin-right: 30px;
 }
-#top-settings, .refreshtime-block {
+#top-settings, .refreshtime-block, .version-list-block, #set-default {
   display: none;
 }
 .copy-db-error, .copy-pg-error {
