@@ -283,6 +283,9 @@ function saveConsole() { // Save console api
         if(isCopyWidget) { // copy widget action
           showSuccessAlert('Success', 'Console copied Sucessfully');
           setTimeout(function(){ window.location.href = window.location.origin+window.location.pathname+"?console="+convertedName; }, 3000);
+        } else if(isViewingVersionConsole) {
+          showSuccessAlert('Success', 'Console Saved Sucessfully');
+          setTimeout(function(){ window.location.href = window.location.origin+window.location.pathname+"?console="+convertedName; }, 3000);
         } else {
           showSuccessAlert('Success', 'console saved sucessfully');
         }
@@ -346,9 +349,11 @@ function getVerisonViewingId() {
 function deleteVersionConsole() { // Delete console api
   var versionId = getVerisonViewingId();
   if(versionId) {
-    var msg = versionId+" is sucessfully deleted";
+    var msg = "Version is sucessfully deleted";
     var url = apiUrl+("/v2/consoles/")+versionId+("/old/delete");
-    deleteConsoleAPI(url, msg, "index.htm")
+    var name =  currentConsoleName;
+    var convertedName = convertName(name);
+    deleteConsoleAPI(url, msg, "index.htm?console="+convertedName);
   } else {
     showErrorAlert("Oops",'Add atleast one widget');
     hideConsoleModal("delete-dashboard");
@@ -413,9 +418,8 @@ function setVersionDefault(consoleId) { // load console list api
     type: 'GET',
     contentType: 'application/json',
     success: function(res) {
-      if(res) {
-        showErrorAlert("Console set as default");
-      }
+      showSuccessAlert("Console set as default");
+      setTimeout(function(){ location.reload(); }, 3000);
     },
     error: function() {
       showErrorAlert("Could not save console");
