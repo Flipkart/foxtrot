@@ -291,6 +291,7 @@ function appendConsoleList(array) { // console list to dropdown
 }
 
 function appendVersionConsoleList(array) {
+  $("#version-list").find('option').not(':first').remove();// remove all except first 
   $("#version-list").append(prepareListOption(array, true).join(''));
 }
 

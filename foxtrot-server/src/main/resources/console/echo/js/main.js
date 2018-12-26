@@ -287,6 +287,11 @@ function saveConsole() { // Save console api
           showSuccessAlert('Success', 'console saved sucessfully');
         }
         hideConsoleModal("save-dashboard");
+        
+        if(!isViewingVersionConsole) { // fetch recent version ist
+          loadVersionConsoleByName(name);
+        }
+
       },
       error: function() {
         var msg = isCopyWidget ? "Could not copy console" : "Could not save console";
@@ -367,7 +372,6 @@ function loadConsole() { // load console list api
 
 // load version api for given console
 function loadVersionConsoleById(consoleId) { // load console list api
-  console.log(consoleId)
   $.ajax({
     url: apiUrl+("/v2/consoles/")+consoleId+"/old/get",
     type: 'GET',
@@ -873,7 +877,6 @@ $(document).ready(function () {
       var index = _.indexOf(_.pluck(consoleList, 'id'), consoleId);
       if(index >= 0) {
         var consoleObject = consoleList[index];
-        console.log(consoleObject)
         var numberOfVerison = consoleObject.version;
         if(numberOfVerison > 0) {
           loadVersionConsoleByName(consoleObject.name);
@@ -905,7 +908,6 @@ $(document).ready(function () {
 
   // function to insert as a new row of copied widget
   function insertNewRow(object) {
-    console.log(object);
     var lastItem = tileList[tileList.length-1];
     var newRow = tileData[lastItem].tileContext.row + 1;
 
