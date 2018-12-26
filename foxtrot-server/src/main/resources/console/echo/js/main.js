@@ -267,7 +267,7 @@ function saveConsole() { // Save console api
         delete deleteObject.tileContext.tableDropdownIndex;
       }
     }
-    var convertedName = (isViewingVersionConsole == true ? getVerisonViewingId() : convertName(name));
+    var convertedName = convertName(name);
     var representation = {
       id: convertedName
       , name: name
