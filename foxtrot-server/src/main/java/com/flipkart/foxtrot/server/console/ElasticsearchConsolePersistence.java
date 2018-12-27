@@ -261,7 +261,6 @@ public class ElasticsearchConsolePersistence implements ConsolePersistence {
     public void setOldVersionAsCurrent (final String id) throws FoxtrotException {
         try {
             ConsoleV2 console = getOldVersion(id);
-            deleteOldVersion(id);
             saveV2(console, false);
         } catch (Exception e) {
             throw new ConsoleFetchException(e);
