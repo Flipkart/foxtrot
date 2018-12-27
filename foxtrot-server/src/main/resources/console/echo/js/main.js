@@ -434,7 +434,12 @@ function setVersionDefault(consoleId) { // load console list api
 }
 
 $("#set-default").click(function(){
-    setVersionDefault(getVerisonViewingId());
+  var versionId = getVerisonViewingId();
+  if(versionId) {
+    setVersionDefault(versionId);
+  } else {
+    showErrorAlert("Attention", "Please select a version.");
+  }
 });
 
 function generateTabBtnForConsole(array) { // new btn for tabs
