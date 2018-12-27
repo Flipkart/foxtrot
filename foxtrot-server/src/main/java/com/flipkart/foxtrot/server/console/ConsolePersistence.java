@@ -29,7 +29,7 @@ public interface ConsolePersistence {
 
     void delete(final String id) throws FoxtrotException;
 
-    void saveV2(ConsoleV2 console) throws FoxtrotException;
+    void saveV2(ConsoleV2 console, boolean freshConsole) throws FoxtrotException;
 
     ConsoleV2 getV2(final String id) throws FoxtrotException;
 
@@ -37,4 +37,11 @@ public interface ConsolePersistence {
 
     void deleteV2(final String id) throws FoxtrotException;
 
+    List<ConsoleV2> getAllOldVersions(final String name) throws FoxtrotException;
+
+    ConsoleV2 getOldVersion (final String id) throws FoxtrotException;
+
+    void deleteOldVersion (String id) throws FoxtrotException;
+
+    void setOldVersionAsCurrent (final String id) throws FoxtrotException;
 }

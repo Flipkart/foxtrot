@@ -17,6 +17,8 @@ package com.flipkart.foxtrot.server.resources;/**
 import com.codahale.metrics.annotation.Timed;
 import com.flipkart.foxtrot.core.cardinality.CardinalityCalculationRunnable;
 import com.flipkart.foxtrot.core.table.TableMetadataManager;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import lombok.AllArgsConstructor;
 
 import javax.ws.rs.Consumes;
@@ -34,6 +36,7 @@ import java.util.concurrent.ExecutorService;
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
 @AllArgsConstructor
+@Api(value = "/v1/cache/update", description = "Cache Update API")
 public class CacheUpdateResource {
 
     private ExecutorService executorService;
@@ -42,6 +45,7 @@ public class CacheUpdateResource {
     @Path("/cardinality")
     @Timed
     @POST
+    @ApiOperation("updateCardinalityCache")
     public Response updateCardinalityCache() {
         executorService.submit(new CardinalityCalculationRunnable(tableMetadataManager));
         return Response.ok()

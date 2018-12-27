@@ -24,9 +24,11 @@ import com.flipkart.foxtrot.core.jobs.optimization.EsIndexOptimizationConfig;
 import com.flipkart.foxtrot.core.querystore.impl.CacheConfig;
 import com.flipkart.foxtrot.core.querystore.impl.ClusterConfig;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConfig;
+import com.flipkart.foxtrot.server.jobs.consolehistory.ConsoleHistoryConfig;
 import io.dropwizard.Configuration;
 import io.dropwizard.discovery.bundle.ServiceDiscoveryConfiguration;
 import io.dropwizard.riemann.RiemannConfig;
+import io.federecio.dropwizard.swagger.SwaggerBundleConfiguration;
 import lombok.Data;
 
 import javax.validation.Valid;
@@ -60,8 +62,12 @@ public class FoxtrotServerConfiguration extends Configuration {
     private CardinalityConfig cardinality;
     @Valid
     private EsIndexOptimizationConfig esIndexOptimizationConfig;
+    @Valid
+    private ConsoleHistoryConfig consoleHistoryConfig;
     private EmailConfig emailConfig;
     private CacheConfig cacheConfig;
+
+    public SwaggerBundleConfiguration swagger;
 
     public FoxtrotServerConfiguration() {
         this.hbase = new HbaseConfig();

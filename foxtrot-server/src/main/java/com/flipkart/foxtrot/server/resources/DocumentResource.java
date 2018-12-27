@@ -19,6 +19,8 @@ import com.codahale.metrics.annotation.Timed;
 import com.flipkart.foxtrot.common.Document;
 import com.flipkart.foxtrot.core.exception.FoxtrotException;
 import com.flipkart.foxtrot.core.querystore.QueryStore;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
@@ -35,6 +37,7 @@ import java.util.List;
  */
 @Path("/v1/document/{table}")
 @Produces(MediaType.APPLICATION_JSON)
+@Api(value = "/v1/document/{table}", description = "Document API")
 public class DocumentResource {
 
     private final QueryStore queryStore;
@@ -46,6 +49,7 @@ public class DocumentResource {
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Timed
+    @ApiOperation("Save Document")
     public Response saveDocument(@PathParam("table") final String table, @Valid final Document document)
             throws FoxtrotException {
         queryStore.save(table, document);
@@ -57,6 +61,7 @@ public class DocumentResource {
     @Path("/bulk")
     @Consumes(MediaType.APPLICATION_JSON)
     @Timed
+    @ApiOperation("Save list of documents")
     public Response saveDocuments(@PathParam("table") final String table, @Valid final List<Document> documents)
             throws FoxtrotException {
         queryStore.save(table, documents);
@@ -67,6 +72,7 @@ public class DocumentResource {
     @GET
     @Path("/{id}")
     @Timed
+    @ApiOperation("Get Document")
     public Response getDocument(@PathParam("table") final String table, @PathParam("id") @NotNull final String id)
             throws FoxtrotException {
         return Response.ok(queryStore.get(table, id))
@@ -75,6 +81,7 @@ public class DocumentResource {
 
     @GET
     @Timed
+    @ApiOperation("Get Documents")
     public Response getDocuments(@PathParam("table") final String table,
                                  @QueryParam("id") @NotNull final List<String> ids) throws FoxtrotException {
         return Response.ok(queryStore.getAll(table, ids))

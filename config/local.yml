@@ -60,6 +60,11 @@ esIndexOptimizationConfig:
   interval: 86400
   initialDelay: 6
 
+consoleHistoryConfig:
+  active: true
+  interval: 86400
+  initialDelay: 10
+
 deletionconfig:
   active: false
   interval: 86400
@@ -72,3 +77,9 @@ emailConfig:
   user: AKIAJLCWHAOEDK4ZDOGQ
   password: AgjCxNI68hrnj6bIzuJCiZBlDXW+TioRoU11++Yx97
   url: /
+
+swagger:
+  resourcePackage: com.flipkart.foxtrot.server.resources
+  title: Foxtrot
+  description: A store abstraction and analytics system for real-time event data.
+  uriPrefix: "/foxtrot"
