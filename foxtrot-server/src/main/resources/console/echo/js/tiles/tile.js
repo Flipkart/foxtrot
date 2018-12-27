@@ -63,15 +63,13 @@ function resetPeriodDropdown() { // reset all dropdown values to custom if globa
  */
 function changeTimeFrameInformation(object) {
   var selectedValue = $("#"+ object.id).find(".period-select").val();
-  if(selectedValue != "custom") {
-    var separateNumberAndString = seperateStringAndNumber(selectedValue);
-    // index zero is - number, index one is - text
-    var period = getPeriodText(separateNumberAndString[1]);
-    var periodInterval = separateNumberAndString[0]+labelPeriodString(period);
-    tileData[object.id].tileContext.period = period;
-    tileData[object.id].tileContext.periodInterval = periodInterval;
-    tileData[object.id].tileContext.timeframe = separateNumberAndString[0];
-  }
+  var separateNumberAndString = seperateStringAndNumber((selectedValue == "custom" ? $("#"+ object.id).find(".period-select").text() : selectedValue));
+  // index zero is - number, index one is - text
+  var period = getPeriodText(separateNumberAndString[1]);// seperate 23h as [23, h]
+  var periodInterval = separateNumberAndString[0]+labelPeriodString(period);
+  tileData[object.id].tileContext.period = period;
+  tileData[object.id].tileContext.periodInterval = periodInterval;
+  tileData[object.id].tileContext.timeframe = separateNumberAndString[0];
 }
 
 
@@ -510,7 +508,6 @@ TileFactory.prototype.triggerConfig = function (tileElement, object) { // code t
   tileElement.find(".widget-toolbox").find(".glyphicon-cog").click(function () {
     $(".copy-widget-btn").show();
     object = tileData[object.id];
-    console.log(object)
     isEdit = true;
     editingRow = object.tileContext.row;
     showHideSideBar();
