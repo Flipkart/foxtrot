@@ -410,7 +410,7 @@ function loadVersionConsoleByName(consoleName) { // load console list api
 $(".version-list").change(function(e) {
   var id = getVerisonViewingId();
   if(id) {
-    loadVersionConsoleById();
+    loadVersionConsoleById(id);
   } else {
     var consoleId = getParameterByName("console").replace('/','');
     window.location.assign("index.htm?console=" + consoleId);
