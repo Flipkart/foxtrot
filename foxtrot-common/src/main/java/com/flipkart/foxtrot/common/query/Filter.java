@@ -22,6 +22,7 @@ import com.flipkart.foxtrot.common.query.datetime.LastFilter;
 import com.flipkart.foxtrot.common.query.general.*;
 import com.flipkart.foxtrot.common.query.numeric.*;
 import com.flipkart.foxtrot.common.query.string.ContainsFilter;
+import com.flipkart.foxtrot.common.query.string.WildCardFilter;
 import com.flipkart.foxtrot.common.util.CollectionUtils;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.hibernate.validator.constraints.NotEmpty;
@@ -51,8 +52,9 @@ import java.util.Set;
                       @JsonSubTypes.Type(value = AnyFilter.class, name = FilterOperator.any), @JsonSubTypes.Type
                               (value = ExistsFilter.class, name = FilterOperator.exists), @JsonSubTypes.Type(value = MissingFilter.class, name = FilterOperator.missing),
 
-                      //String
-                      @JsonSubTypes.Type(value = ContainsFilter.class, name = FilterOperator.contains),
+        //String
+        @JsonSubTypes.Type(value = ContainsFilter.class, name = FilterOperator.contains),
+        @JsonSubTypes.Type(value = WildCardFilter.class, name = FilterOperator.wildcard),
 
                       //String
                       @JsonSubTypes.Type(value = LastFilter.class, name = FilterOperator.last)})

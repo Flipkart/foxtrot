@@ -19,6 +19,7 @@ import com.flipkart.foxtrot.common.query.datetime.LastFilter;
 import com.flipkart.foxtrot.common.query.general.*;
 import com.flipkart.foxtrot.common.query.numeric.*;
 import com.flipkart.foxtrot.common.query.string.ContainsFilter;
+import com.flipkart.foxtrot.common.query.string.WildCardFilter;
 
 /**
  * User: Santanu Sinha (santanu.sinha@flipkart.com)
@@ -54,4 +55,6 @@ public abstract class FilterVisitor<T> {
     public abstract T visit(LastFilter lastFilter) throws Exception;
 
     public abstract T visit(MissingFilter missingFilter) throws Exception;
+
+    public abstract T visit(WildCardFilter wildCardFilter) throws Exception;
 }

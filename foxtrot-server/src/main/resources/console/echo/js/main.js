@@ -228,6 +228,13 @@ FoxTrot.prototype.addFilters = function () {
 FoxTrot.prototype.resetModal = function () {
   clearModal();
 }
+
+// function setMultipleForSunburst(chartType) {
+//   if(chartType == "sunburst") {
+//     $('#sunburst-nesting-field').multiselect();
+//   }
+// }
+
 function clickedChartType(el) {
   // hide
   $("#table-units>form>div.table-units-active").removeClass("table-units-active");
@@ -478,7 +485,12 @@ function consoleTabs(evt, el) { // logic for tab switching
   }
   //document.getElementById(cityName).style.display = "block";
   clearContainer();
-  evt.currentTarget.className += " active";
+  
+  if(evt.currentTarget) {
+    evt.currentTarget.className += " active";
+  } else { // for copy tab
+    $(".tab button:last-child").addClass('active');
+  }
 
   // adding tab name to url query parameter
   var url = getParameterByName("tab");
@@ -666,6 +678,51 @@ $(document).ready(function () {
     isCopyWidget = true;
     currentConsoleName = $("#copy-dashboard-name").val();
     saveConsole();
+  });
+  $(".copy-page-submit").click(function (e) {
+    
+    var currentViewingTab = getParameterByName("tab");
+    
+    // validation
+    if($(".copy-page-name").val().length == 0) {
+      $(".copy-pg-error").show();
+      return;
+    } else {
+      $(".copy-pg-error").hide();
+      var tabIndex = 0;      
+    
+      // figure out index
+      if(currentViewingTab.length > 0 ) {
+        tabIndex = globalData.findIndex(x => x.id == currentViewingTab.trim().toLowerCase().split(' ').join("_"));
+      }
+      
+      // loop and update the required details for new tab/page
+      var newName = $(".copy-page-name").val();
+      var tmpObject = JSON.parse(JSON.stringify(globalData[tabIndex]));
+      var converntedString = convertName(newName);
+      tmpObject["id"] = converntedString;
+      tmpObject["name"] = newName;
+      var tileListArray = tmpObject["tileList"];
+      var newTileData = {}
+      for( var i = 0; i < tileListArray.length; i++) {
+        var newID = guid();
+        var tmpTileData = tmpObject["tileData"][tileListArray[i]];
+        newTileData[newID] = Object.values(tmpTileData);
+        tileListArray[i] = newID;        
+        tmpTileData["id"] = newID;
+        tmpTileData["tileContext"]["tabName"] = newName;
+        newTileData[newID] = tmpTileData;
+      }
+      
+      tmpObject.tileData = newTileData
+      globalData.push(tmpObject);
+      hideConsoleModal("copy-page");
+      generateNewPageList(sectionNumber+1 ,newName);
+      generateSectionbtn(newName, false);
+      
+      consoleTabs({}, {"id" : newName});
+      $(".copy-page-name").val('');
+    }
   });
   $("#delete-dashboard-tab-btn").click(function () {
     currentConsoleName = $("#delete-dashboard-name").val();

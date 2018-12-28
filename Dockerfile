@@ -6,7 +6,7 @@ EXPOSE 5701
 
 VOLUME /var/log/foxtrot
 
-ENV CONFIG_PATH foxtrot.yml
+ENV CONFIG_PATH foxtrot-es6.yml
 ENV JAR_FILE foxtrot.jar
 
 ADD foxtrot-server/target/foxtrot*.jar ${JAR_FILE}

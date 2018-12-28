@@ -141,8 +141,36 @@ function generateDropDown(fields, element) { // generating all dropdowns
   $(el).selectpicker('refresh');
 }
 
+function generateSunBurstDropDown(fields) { // generating all dropdowns
+  var arr = fields;
+
+  var option = "";
+  $.each(arr, function(key, value) {
+    option+= "<option value="+key+">"+value.field+"</option>"
+  });
+  
+  for(var i = 1; i < 6; i++) {
+    $("#sunburst-nesting-field"+i).find('option').remove();
+    $("#sunburst-nesting-field"+i).append($('<option>', {
+      value: ""
+      , text: "none"
+    }));   
+    $("#sunburst-nesting-field"+i).append(option);
+    $("#sunburst-nesting-field"+i).selectpicker('refresh');
+  }
+  
+  var unique = $(".sunburstForm").find("#sunburst-uniqueKey");
+  $(unique).find('option').remove();
+  $(unique).append($('<option>', {
+    value: ""
+    , text: "none"
+  }));   
+  $(unique).append(option);
+  $(unique).selectpicker('refresh');
+}
+
 function getWidgetType() { // widget types
-  if (currentChartType == "line" || currentChartType == "stacked" || currentChartType == "stackedBar" || currentChartType == "statsTrend" || currentChartType == "bar" || currentChartType == "lineRatio") {
+  if (currentChartType == "line" || currentChartType == "stacked" || currentChartType == "stackedBar" || currentChartType == "statsTrend" || currentChartType == "bar" || currentChartType == "lineRatio" || currentChartType == "sunburst") {
     return "full";
   }
   else if (currentChartType == "radar" || currentChartType == "pie") {
@@ -224,6 +252,9 @@ function getChartFormValues() { // get current widget form values
   }
   else if(currentChartType == "lineRatio") {
     return getLineRatioChartFormValues();
+  }
+  else if(currentChartType == "sunburst") {
+    return getSunburstChartFormValues();
   }
 }
 function deleteFilterRow(el) { // delete given filter row
@@ -315,6 +346,9 @@ function reloadDropdowns() { // change dropdown values for all charts when table
     generateDropDown(currentFieldList, "#line-ratio-field");
     generateDropDown(currentFieldList, "#line-ratio-uniquekey");
   }
+  else if (currentChartType == "sunburst") {
+    generateSunBurstDropDown(currentFieldList);
+ }
 }
 
 function invokeClearChartForm() { // clear widget forms
@@ -353,6 +387,9 @@ function invokeClearChartForm() { // clear widget forms
   }
   else if(currentChartType == "lineRatio") {
     clearLineRatioChartForm();
+  }
+  else if(currentChartType == "sunburst") {
+    clearSunburstChartForm();
   }
 }
 
