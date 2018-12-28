@@ -187,6 +187,7 @@ StackedBarTile.prototype.getData = function (data) {
     data.trends = tmpArray;
     originalSeries = originalTmpArray;
   }
+  
   var colors = new Colors(Object.keys(data.trends).length);
   var d = [];
   var colorIdx = 0;
@@ -234,6 +235,14 @@ StackedBarTile.prototype.getData = function (data) {
   }
   this.object.tileContext.uiFiltersList = [];
   var originalData = [];
+  console.log(trendWiseData)
+
+  var a = _.mapObject(trendWiseData, function(val, key) {
+    return val[0];
+  });
+
+  console.log(_.values(trendWiseData) );
+
   for (var trend in trendWiseData) {
     var rows = trendWiseData[trend];
     if (regexp && !regexp.test(trend)) {
@@ -273,6 +282,33 @@ StackedBarTile.prototype.getData = function (data) {
       }
     }
     this.object.tileContext.uiFiltersList.push(trend);
+  }
+
+  var multiTotal = [];
+  if(!isMultiSeries) {
+    var allValues = _.values(trendWiseData);
+    var singleValue = allValues[0];
+    var allLength = allValues.length;
+    for(var i = 0; i < singleValue.length; i++) {
+      var total = allValues[0][i][1];
+      for(var j = 1; j < allLength; j++) {
+        total+= allValues[j][i][1];
+      }
+      multiTotal.push([allValues[0][i][0],total])
+      total = 0;
+    }
+    d.push({
+      data: multiTotal
+      , color: "#33CAFF"
+      , label: "Total"
+      , fill: 0.3
+      , fillColor: "#A3A3A3"
+      , lines: {
+        show: true
+      },
+      points:{show: (rows.length <= 50 ? true :false), radius : 3.5}
+      , shadowSize: 0 /*, curvedLines: {apply: true}*/
+    })
   }
   this.render(d,isMultiSeries, originalData);
 }
@@ -516,7 +552,8 @@ StackedBarTile.prototype.render = function (d, isMultiSeries, originalData) {
             }
           });
         }
-        strTip =  strTip+strTipInsideRows+"<tfoot><tr><td class='tooltip-text'><b>TOTAL</b></td> <td style='color:#42b1f7' class='tooltip-count tooltip-total'>"+numberWithCommas(total)+"</td></tr></tfoot></table>" ;
+        strTip =  strTip+strTipInsideRows+"</table>";
+        //<tfoot><tr><td class='tooltip-text'><b>TOTAL</b></td> <td style='color:#42b1f7' class='tooltip-count tooltip-total'>"+numberWithCommas(total)+"</td></tr></tfoot>
         showTooltip(item.pageX, item.pageY, strTip, color, ctx);
       }
     });
