@@ -235,13 +235,6 @@ StackedBarTile.prototype.getData = function (data) {
   }
   this.object.tileContext.uiFiltersList = [];
   var originalData = [];
-  console.log(trendWiseData)
-
-  var a = _.mapObject(trendWiseData, function(val, key) {
-    return val[0];
-  });
-
-  console.log(_.values(trendWiseData) );
 
   for (var trend in trendWiseData) {
     var rows = trendWiseData[trend];
@@ -299,7 +292,7 @@ StackedBarTile.prototype.getData = function (data) {
     }
     d.push({
       data: multiTotal
-      , color: "#33CAFF"
+      , color: convertHex("#33CAFF", 100)
       , label: "Total"
       , fill: 0.3
       , fillColor: "#A3A3A3"
@@ -594,7 +587,7 @@ StackedBarTile.prototype.render = function (d, isMultiSeries, originalData) {
           points[k].oldColor = points[k].color;
           points[k].color = 'rgba(' + re.exec(points[k].color)[1] + ',' + 1 + ')'; 
         } else {
-          currentValue = [];
+          currentValue = [];          
           points[k].color = 'rgba(' + re.exec(points[k].color)[1] + ',' + 0.1 + ')';
         }
       }
