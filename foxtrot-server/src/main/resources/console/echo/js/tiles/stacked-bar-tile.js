@@ -292,7 +292,7 @@ StackedBarTile.prototype.getData = function (data) {
       multiTotal.push([allValues[0][i][0],total])
       total = 0;
     }
-    d.push({
+    d.splice(0, 0,{
       data: multiTotal
       , color: convertHex("#33CAFF", 100)
       , label: "Total"
@@ -324,11 +324,11 @@ StackedBarTile.prototype.getData = function (data) {
       }
       finalArray.push(multiValue)
     }
-    
+
     var colors = new Colors(finalArray.length);
     for(var n = 0; n < finalArray.length; n++) {
       var totalColor = colors.nextColor();
-      d.push({
+      d.splice(0, 0, {
         data: finalArray[n]
         , color: convertHex(totalColor, 100)
         , label: "Series "+(n+1)+" Total"
@@ -340,7 +340,7 @@ StackedBarTile.prototype.getData = function (data) {
         points:{show: (finalArray[n].length <= 50 ? true :false), radius : 3.5}
         , shadowSize: 0 /*, curvedLines: {apply: true}*/
       });
-      originalData.push({
+      originalData.splice(0, 0,{
         data: finalArray[n]
         , color: convertHex(totalColor, 100)
         , label: "Series "+(n+1)+" Total"
