@@ -125,7 +125,7 @@ function addFilters() { // new filter row
   $(filterType).selectpicker('refresh');
   var filterColumn = $("#filter-row-" + filterCount).find('.filter-column')
   setTimeout(function(){
-    generateDropDown(currentFieldList, filterColumn);
+    generateFiltersDropDown(currentFieldList, filterColumn);
   }, 0);
 
   $(filterValueEl).click(function () {

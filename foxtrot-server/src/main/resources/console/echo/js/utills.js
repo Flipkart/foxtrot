@@ -123,7 +123,7 @@ function numDifferentiation(val) { // indian numbers conversion
   return val;
 }
 
-function generateDropDown(fields, element) { // generating all dropdowns
+function generateFiltersDropDown(fields, element) { // generating all dropdowns
   var el = $(element);
   var arr = fields;
   el.find('option').remove();
@@ -133,12 +133,49 @@ function generateDropDown(fields, element) { // generating all dropdowns
     , text: "none"
   }));
 
+  var option = "";
   $.each(arr, function(key, value) {
-    $(el).append($("<option></option>")
-                 .attr("value",key)
-                 .text(value.field));
+    option+= "<option value="+key+">"+value.field+"</option>"
   });
+  $(el).append(option);
   $(el).selectpicker('refresh');
+}
+
+function generateDropDown(fields, element) { // generating all dropdowns
+
+  console.log(element)
+  var arr = fields;
+  
+  var option = "";
+  $.each(arr, function(key, value) {
+    option+= "<option value="+key+">"+value.field+"</option>"
+  });
+
+  for(var i = 0; i < element.length; i++) {
+    $(element[i]).find('option').remove();
+    $(element[i]).append($('<option>', {
+      value: ""
+      , text: "none"
+    }));   
+    $(element[i]).append(option);
+    $(element[i]).selectpicker('refresh');
+  }
+  
+  // var el = $(element);
+  // var arr = fields;
+  // el.find('option').remove();
+
+  // $(el).append($('<option>', {
+  //   value: ""
+  //   , text: "none"
+  // }));
+
+  // $.each(arr, function(key, value) {
+  //   $(el).append($("<option></option>")
+  //                .attr("value",key)
+  //                .text(value.field));
+  // });
+  // $(el).selectpicker('refresh');
 }
 
 function generateSunBurstDropDown(fields) { // generating all dropdowns
@@ -283,47 +320,41 @@ function setFilters(object) { // setter for filters
 function reloadDropdowns() { // change dropdown values for all charts when table changes
   switch (currentChartType) {
     case "line":
-      generateDropDown(currentFieldList, "#uniqueKey");
+      generateDropDown(currentFieldList, ["#uniqueKey"]);
       break;
     case "trend":
-      generateDropDown(currentFieldList, "#stats-field");
+      generateDropDown(currentFieldList, ["#stats-field"]);
       break;
     case "stacked":
-      generateDropDown(currentFieldList, "#stacking-key");
-      generateDropDown(currentFieldList, "#stacked-uniquekey");
-      generateDropDown(currentFieldList, "#stacked-grouping-key");
+      generateDropDown(currentFieldList, ["#stacking-key", "#stacked-uniquekey", "#stacked-grouping-key"]);
       break;
     case "radar":
-      generateDropDown(currentFieldList, "#radar-nesting");
+      generateDropDown(currentFieldList, ["#radar-nesting"]);
       break;
     case "gauge":
-      generateDropDown(currentFieldList, "#gauge-nesting");
+      generateDropDown(currentFieldList, ["#gauge-nesting"]);
       break;
     case "percentageGauge":
-      generateDropDown(currentFieldList, "#percentage-gauge-nesting");
-      generateDropDown(currentFieldList, "#percentage-gauge-uniquekey");
+      generateDropDown(currentFieldList, ["#percentage-gauge-nesting", "#percentage-gauge-uniquekey"]);
       break;
     case "stackedBar":
-      generateDropDown(currentFieldList, "#stacked-bar-field");
-      generateDropDown(currentFieldList, "#stacked-bar-uniquekey");
-      breakl
+      generateDropDown(currentFieldList, ["#stacked-bar-field", "#stacked-bar-uniquekey"]);
+      break;
     case "pie":
-      generateDropDown(currentFieldList, "#eventtype-field");
-      generateDropDown(currentFieldList, "#pie-uniquekey");
+      generateDropDown(currentFieldList, ["#eventtype-field", "#pie-uniquekey"]);
       break;
     case "statsTrend":
-      generateDropDown(currentFieldList, "#stats-trend-field");
+      generateDropDown(currentFieldList, ["#stats-trend-field"]);
       break;
     case "bar":
-      generateDropDown(currentFieldList, "#bar-event-field");
-      generateDropDown(currentFieldList, "#bar-uniquekey");
+      generateDropDown(currentFieldList, ["#bar-event-field", "#bar-uniquekey"]);
       break;
     case "count":
-      generateDropDown(currentFieldList, "#count-field");
+      generateDropDown(currentFieldList, ["#count-field"]);
       break;
     case "lineRatio":
-      generateDropDown(currentFieldList, "#line-ratio-field");
-      generateDropDown(currentFieldList, "#line-ratio-uniquekey");
+      generateDropDown(currentFieldList, ["#line-ratio-field", "#line-ratio-uniquekey"]);
+      generateDropDown(currentFieldList, );
       break;
     case "sunburst":
       generateSunBurstDropDown(currentFieldList);
