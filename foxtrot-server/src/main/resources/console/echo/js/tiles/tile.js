@@ -56,6 +56,22 @@ function resetPeriodDropdown() { // reset all dropdown values to custom if globa
   }
 }
 
+/**
+ * To update period,periodinterval and timeframe in a tiledata
+ * it gets updated once user changes time frame in individual widgets
+ * @param {*} object 
+ */
+function changeTimeFrameInformation(object) {
+  var selectedValue = $("#"+ object.id).find(".period-select").val();
+  var separateNumberAndString = seperateStringAndNumber((selectedValue == "custom" ? $("#"+ object.id).find(".period-select").text() : selectedValue));
+  // index zero is - number, index one is - text
+  var period = getPeriodText(separateNumberAndString[1]);// seperate 23h as [23, h]
+  var periodInterval = separateNumberAndString[0]+labelPeriodString(period);
+  tileData[object.id].tileContext.period = period;
+  tileData[object.id].tileContext.periodInterval = periodInterval;
+  tileData[object.id].tileContext.timeframe = separateNumberAndString[0];
+}
+
 
 /**
  * 
@@ -64,8 +80,10 @@ function resetPeriodDropdown() { // reset all dropdown values to custom if globa
 function refreshSingleTile(object) {
   var a = new TileFactory();
   a.createGraph(object, $("#"+ object.id));
-  if(globalFilters)
+  changeTimeFrameInformation(object);
+  if(globalFilters) {
     changeDropdownValue($("#"+ key));
+  }
 }
 
 function refereshTiles() { // auto query for each tile
