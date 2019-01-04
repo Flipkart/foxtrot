@@ -236,79 +236,62 @@
     <section id="main-content">
       <div class="container-fluid" id="monitoring">
         <div class="row">
-          <div class="col-md-12 no-padding">
+          <div class="col-md-6">
             <div class="tab">
             </div>
           </div>
-          </div>
-          <div class="row">
-            <div class="col-md-12 no-padding">
-              <div class="col-md-4 no-padding">
-                <div id="left-action-btns">
-                    <div class="form-group version-list-block">
-                      <p class="no-margin">Version List</p>
-                        <select id="version-list" class="version-list">
-                          <option value="">Select</option>
-                        </select>
-                      </div>
-                      <div>
-                          <img src="img/default.png" title="Set default" id="set-default" alt="Set default" /> 
-                      </div>
+          <div class="col-md-6">
+            <div class="pull-right" id="right-action-btns">
+                <div id="top-settings">
+                  <img src="img/sub-page.png" data-target="#copy-page" data-toggle="modal" title="Copy Page" id="copy-page-img" alt="Copy Page" />  
+                  <img src="img/copy-db.png" data-target="#copy-dashboard" data-toggle="modal" title="Copy Dashboard" alt="Copy Dashboard" />
+                    <img data-target="#save-dashboard" data-toggle="modal" id="saveConsole" src="img/save.png" alt="Save Dashboard" title="Save Dashboard" />
+                    <img data-target="#delete-dashboard" data-toggle="modal" id="deleteConsole" src="img/remove.png" alt="Delete Dashboard" title="Delete Dashboard" />
+                    <img id="add-page-btn" src="img/pg-settings.png" title="Page Settings" alt="Page Settings" />
                 </div>
-              </div>
-              <div class="col-md-8">
-                <div id="right-action-btns">
-                  <div id="top-settings">
-                    <img src="img/sub-page.png" data-target="#copy-page" data-toggle="modal" title="Copy Page" id="copy-page-img" alt="Copy Page" />  
-                    <img src="img/copy-db.png" data-target="#copy-dashboard" data-toggle="modal" title="Copy Dashboard" alt="Copy Dashboard" />
-                      <img data-target="#save-dashboard" data-toggle="modal" id="saveConsole" src="img/save.png" alt="Save Dashboard" title="Save Dashboard" />
-                      <img data-target="#delete-dashboard" data-toggle="modal" id="deleteConsole" src="img/remove.png" alt="Delete Dashboard" title="Delete Dashboard" />
-                      <img id="add-page-btn" src="img/pg-settings.png" title="Page Settings" alt="Page Settings" />
-                  </div>
-                  <div class="form-group refreshtime-block">
-                      <p class="no-margin">Refresh Time</p>
-                      <select id="refresh-time" class="refresh-time">
-                        <option value="off">Off</option>
-                        <option value="5s">5s</option>
-                        <option value="10s">10s</option>
-                        <option value="30s">30s</option>
-                        <option value="1m">1m</option>
-                        <option value="5m" selected>5m</option>
-                        <option value="15m">15m</option>
-                        <option value="30m">30m</option>
-                        <option value="1h">1h</option>
-                        <option value="2h">2h</option>
-                        <option value="1d">1d</option>
-                      </select>
-                    </div>
-                  <!-- <button type="button" >Page settings</button>
-                <button type="button" >Save Dashboard</button> -->
-                <div class="col-sm-4 global-filters">
-                  <div class="col-sm-6 global-filter-switch-div"><label>Global filters<input type="checkbox" class="ios-switch blue filter-switch tinyswitch"/><div id="switch"><div></div></div></label></div>
-                  <div class="col-sm-5 hide-filters">
-                    <select class="global-filter-period-select" id="global-filter-period-select">
-                      <option value="custom" selected>Custom</option>
-                      <option value="5m">5 Minutes</option>
-                      <option value="15m">15 Minutes</option>
-                      <option value="30m">30 Minutes</option>
-                      <option value="1h"> 1 Hour</option>
-                      <option value="3h"> 3 Hour</option>
-                      <option value="6h"> 6 Hours</option>
-                      <option value="12h"> 12 Hours</option>
-                      <option value="1d"> 1 Day</option>
-                      <option value="2d"> 2 Days</option>
-                      <option value="5d"> 5 Days</option>
-                      <option value="7d"> 7 Days</option>
-                      <option value="15d"> 15 Days</option>
-                      <option value="30d"> 30 Days</option>
+                <div class="form-group refreshtime-block">
+                    <p class="no-margin">Refresh Time</p>
+                    <select id="refresh-time" class="refresh-time">
+                      <option value="off">Off</option>
+                      <option value="5s">5s</option>
+                      <option value="10s">10s</option>
+                      <option value="30s">30s</option>
+                      <option value="1m">1m</option>
+                      <option value="5m" selected>5m</option>
+                      <option value="15m">15m</option>
+                      <option value="30m">30m</option>
+                      <option value="1h">1h</option>
+                      <option value="2h">2h</option>
+                      <option value="1d">1d</option>
                     </select>
-                    <a href="#myModal" role="button" data-toggle="modal"><span class="global-date glyphicon glyphicon-calendar"></span></a>
-                    <div id="selected-global-date"><span></span></div>
                   </div>
-                  </div>
+                <!-- <button type="button" >Page settings</button>
+              <button type="button" >Save Dashboard</button> -->
+              <div class="col-sm-4 global-filters">
+                <div class="col-sm-6 global-filter-switch-div"><label>Global filters<input type="checkbox" class="ios-switch blue filter-switch tinyswitch"/><div id="switch"><div></div></div></label></div>
+                <div class="col-sm-5 hide-filters">
+                  <select class="global-filter-period-select" id="global-filter-period-select">
+                    <option value="custom" selected>Custom</option>
+                    <option value="5m">5 Minutes</option>
+                    <option value="15m">15 Minutes</option>
+                    <option value="30m">30 Minutes</option>
+                    <option value="1h"> 1 Hour</option>
+                    <option value="3h"> 3 Hour</option>
+                    <option value="6h"> 6 Hours</option>
+                    <option value="12h"> 12 Hours</option>
+                    <option value="1d"> 1 Day</option>
+                    <option value="2d"> 2 Days</option>
+                    <option value="5d"> 5 Days</option>
+                    <option value="7d"> 7 Days</option>
+                    <option value="15d"> 15 Days</option>
+                    <option value="30d"> 30 Days</option>
+                  </select>
+                  <a href="#myModal" role="button" data-toggle="modal"><span class="global-date glyphicon glyphicon-calendar"></span></a>
+                  <div id="selected-global-date"><span></span></div>
+                </div>
                 </div>
               </div>
-              </div>
+            </div>
           </div>
         </div>
         <div class="tile-container" id="tileContainer">
@@ -1025,8 +1008,7 @@
   <script src="js/moment.min.js"></script>
   <script src="js/validate.js"></script>
   <script src="js/sweetalert/sweetalert2.min.js"></script>
-  <script src="js/bootstrap-datetimepicker.min.js"></script>
-  <script src="js/underscore-min.js"></script>  
+  <script src="js/bootstrap-datetimepicker.min.js"></script>  
   <script type="text/javascript">
     $('.navbar').on('click', function(){
       showHideSideBar();
