@@ -142,10 +142,8 @@ function generateFiltersDropDown(fields, element) { // generating all dropdowns
 }
 
 function generateDropDown(fields, element) { // generating all dropdowns
-
-  console.log(element)
-  var arr = fields;
   
+  var arr = fields;
   var option = "";
   $.each(arr, function(key, value) {
     option+= "<option value="+key+">"+value.field+"</option>"
@@ -160,22 +158,6 @@ function generateDropDown(fields, element) { // generating all dropdowns
     $(element[i]).append(option);
     $(element[i]).selectpicker('refresh');
   }
-  
-  // var el = $(element);
-  // var arr = fields;
-  // el.find('option').remove();
-
-  // $(el).append($('<option>', {
-  //   value: ""
-  //   , text: "none"
-  // }));
-
-  // $.each(arr, function(key, value) {
-  //   $(el).append($("<option></option>")
-  //                .attr("value",key)
-  //                .text(value.field));
-  // });
-  // $(el).selectpicker('refresh');
 }
 
 function generateSunBurstDropDown(fields) { // generating all dropdowns
@@ -354,7 +336,6 @@ function reloadDropdowns() { // change dropdown values for all charts when table
       break;
     case "lineRatio":
       generateDropDown(currentFieldList, ["#line-ratio-field", "#line-ratio-uniquekey"]);
-      generateDropDown(currentFieldList, );
       break;
     case "sunburst":
       generateSunBurstDropDown(currentFieldList);
