@@ -52,6 +52,8 @@ import com.flipkart.foxtrot.server.providers.FlatResponseTextProvider;
 import com.flipkart.foxtrot.server.providers.exception.FoxtrotExceptionMapper;
 import com.flipkart.foxtrot.server.resources.*;
 import com.flipkart.foxtrot.sql.FqlEngine;
+import com.flipkart.foxtrot.sql.fqlstore.FqlStoreService;
+import com.flipkart.foxtrot.sql.fqlstore.FqlStoreServiceImpl;
 import io.dropwizard.Application;
 import io.dropwizard.assets.AssetsBundle;
 import io.dropwizard.configuration.EnvironmentVariableSubstitutor;
@@ -185,6 +187,7 @@ public class FoxtrotServer extends Application<FoxtrotServerConfiguration> {
         QueryStore queryStore = new ElasticsearchQueryStore(tableMetadataManager, elasticsearchConnection, dataStore,
                                                             objectMapper, cardinalityConfig
         );
+        FqlStoreService fqlStoreService = new FqlStoreServiceImpl(elasticsearchConnection, objectMapper);
         FoxtrotTableManager tableManager = new FoxtrotTableManager(tableMetadataManager, queryStore, dataStore);
         CacheManager cacheManager = new CacheManager(
                 new DistributedCacheFactory(hazelcastConnection, objectMapper, cacheConfig));
@@ -257,7 +260,7 @@ public class FoxtrotServer extends Application<FoxtrotServerConfiguration> {
                         new ElasticsearchConsolePersistence(elasticsearchConnection, objectMapper)));
         FqlEngine fqlEngine = new FqlEngine(tableMetadataManager, queryStore, executor, objectMapper);
         environment.jersey()
-                .register(new FqlResource(fqlEngine));
+                .register(new FqlResource(fqlEngine, fqlStoreService));
         environment.jersey()
                 .register(new ClusterInfoResource(clusterManager));
         environment.jersey()
