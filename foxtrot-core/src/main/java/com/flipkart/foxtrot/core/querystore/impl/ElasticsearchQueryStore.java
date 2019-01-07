@@ -101,19 +101,20 @@ public class ElasticsearchQueryStore implements QueryStore {
         Stopwatch stopwatch = Stopwatch.createStarted();
         String action = StringUtils.EMPTY;
         try {
-            /*if (!tableMetadataManager.exists(table)) {
+            if(!tableMetadataManager.exists(table)) {
                 throw FoxtrotExceptions.createBadRequestException(table,
-                        String.format("unknown_table table:%s", table));
-            }*/
+                                                                  String.format("unknown_table table:%s", table)
+                                                                 );
+            }
             if(new DateTime().plusDays(1)
                        .minus(document.getTimestamp())
                        .getMillis() < 0) {
                 return;
             }
-            Table tableMeta = tableMetadataManager.get(table);
-            if(tableMeta == null) {
-                tableMeta = new Table(table, 30, false);
-            }
+            action = TABLE_META;
+            stopwatch.reset()
+                    .start();
+            final Table tableMeta = tableMetadataManager.get(table);
             logger.info("TableMetaGetTook:{}", stopwatch.elapsed(TimeUnit.MILLISECONDS));
             MetricUtil.getInstance()
                     .registerActionSuccess(action, table, stopwatch.elapsed(TimeUnit.MILLISECONDS));
@@ -155,18 +156,18 @@ public class ElasticsearchQueryStore implements QueryStore {
         Stopwatch stopwatch = Stopwatch.createStarted();
         String action = StringUtils.EMPTY;
         try {
-            /*if (!tableMetadataManager.exists(table)) {
+            if(!tableMetadataManager.exists(table)) {
                 throw FoxtrotExceptions.createBadRequestException(table,
-                        String.format("unknown_table table:%s", table));
-            }*/
+                                                                  String.format("unknown_table table:%s", table)
+                                                                 );
+            }
             if(documents == null || documents.size() == 0) {
                 throw FoxtrotExceptions.createBadRequestException(table, "Empty Document List Not Allowed");
             }
-
-            Table tableMeta = tableMetadataManager.get(table);
-            if(tableMeta == null) {
-                tableMeta = new Table(table, 30, false);
-            }
+            action = TABLE_META;
+            stopwatch.reset()
+                    .start();
+            final Table tableMeta = tableMetadataManager.get(table);
             logger.info("TableMetaGetTook:{}", stopwatch.elapsed(TimeUnit.MILLISECONDS));
             MetricUtil.getInstance()
                     .registerActionSuccess(action, table, stopwatch.elapsed(TimeUnit.MILLISECONDS));
@@ -230,14 +231,10 @@ public class ElasticsearchQueryStore implements QueryStore {
     public Document get(String table, String id) throws FoxtrotException {
         table = ElasticsearchUtils.getValidTableName(table);
         Table fxTable;
-        /*if (!tableMetadataManager.exists(table)) {
-            throw FoxtrotExceptions.createBadRequestException(table,
-                    String.format("unknown_table table:%s", table));
-        }*/
-        fxTable = tableMetadataManager.get(table);
-        if(fxTable == null) {
-            fxTable = new Table(table, 30, false);
+        if(!tableMetadataManager.exists(table)) {
+            throw FoxtrotExceptions.createBadRequestException(table, String.format("unknown_table table:%s", table));
         }
+        fxTable = tableMetadataManager.get(table);
         String lookupKey;
         SearchResponse searchResponse = connection.getClient()
                 .prepareSearch(ElasticsearchUtils.getIndices(table))
@@ -268,10 +265,9 @@ public class ElasticsearchQueryStore implements QueryStore {
     @Timed
     public List<Document> getAll(String table, List<String> ids, boolean bypassMetalookup) throws FoxtrotException {
         table = ElasticsearchUtils.getValidTableName(table);
-       /* if (!tableMetadataManager.exists(table)) {
-            throw FoxtrotExceptions.createBadRequestException(table,
-                    String.format("unknown_table table:%s", table));
-        }*/
+        if(!tableMetadataManager.exists(table)) {
+            throw FoxtrotExceptions.createBadRequestException(table, String.format("unknown_table table:%s", table));
+        }
         Map<String, String> rowKeys = Maps.newLinkedHashMap();
         for(String id : ids) {
             rowKeys.put(id, id);

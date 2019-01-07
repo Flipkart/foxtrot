@@ -17,7 +17,6 @@ curl -H 'Content-type: application/json' -XPUT ${1}:9200/_template/template_foxt
                         "limit": "5000"
                     }
                 },
-                "codec" : "best_compression"
             }
         },
   "mappings": {

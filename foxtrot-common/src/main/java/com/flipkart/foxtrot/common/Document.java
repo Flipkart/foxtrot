@@ -17,11 +17,13 @@ package com.flipkart.foxtrot.common;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.flipkart.foxtrot.common.util.Utils;
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import org.hibernate.validator.constraints.NotEmpty;
+import org.joda.time.DateTime;
 
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
@@ -46,6 +48,8 @@ public class Document implements Serializable {
     @JsonProperty
     private long timestamp;
 
+    private Date date;
+
     private DocumentMetadata metadata;
 
     @NotNull
@@ -54,12 +58,14 @@ public class Document implements Serializable {
 
     public Document() {
         this.timestamp = System.currentTimeMillis();
+        this.date = new Date(DateTime.now());
     }
 
     public Document(String id, long timestamp, JsonNode data) {
         this.id = id;
         this.timestamp = timestamp;
         this.data = data;
+        this.date = Utils.getDate(timestamp);
     }
 
     @Builder
@@ -68,6 +74,7 @@ public class Document implements Serializable {
         this.timestamp = timestamp;
         this.metadata = metadata;
         this.data = data;
+        this.date = Utils.getDate(timestamp);
     }
 
 }

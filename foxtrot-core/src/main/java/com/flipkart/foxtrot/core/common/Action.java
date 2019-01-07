@@ -38,6 +38,7 @@ import com.flipkart.foxtrot.core.table.TableMetadataManager;
 import com.flipkart.foxtrot.core.util.MetricUtil;
 import com.google.common.base.Stopwatch;
 import com.google.common.collect.Lists;
+import org.elasticsearch.action.ActionRequestBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -100,7 +101,7 @@ public abstract class Action<ParameterType extends ActionRequest> implements Cal
         validateImpl(parameter);
     }
 
-    protected abstract void preprocess();
+    public abstract void preprocess();
 
     @Override
     public String call() throws Exception {
@@ -226,7 +227,13 @@ public abstract class Action<ParameterType extends ActionRequest> implements Cal
      */
     abstract public String getMetricKey();
 
-    abstract protected String getRequestCacheKey();
+    abstract public String getRequestCacheKey();
+
+    public abstract ActionRequestBuilder getRequestBuilder(ParameterType parameter) throws FoxtrotException;
+
+    public abstract ActionResponse getResponse(org.elasticsearch.action.ActionResponse response,
+                                               ParameterType parameter) throws FoxtrotException;
+
 
     abstract public void validateImpl(ParameterType parameter) throws MalformedQueryException;
 

@@ -44,6 +44,7 @@ import com.flipkart.foxtrot.core.exception.FoxtrotException;
 import com.flipkart.foxtrot.core.exception.FoxtrotExceptions;
 import com.flipkart.foxtrot.core.exception.MalformedQueryException;
 import com.flipkart.foxtrot.core.querystore.QueryStore;
+import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsLoader;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsProvider;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConnection;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchQueryStore;
@@ -87,7 +88,8 @@ public class GroupAction extends Action<GroupRequest> {
 
     public GroupAction(GroupRequest parameter, TableMetadataManager tableMetadataManager, DataStore dataStore,
                        QueryStore queryStore, ElasticsearchConnection connection, String cacheToken,
-                       CacheManager cacheManager, ObjectMapper objectMapper, EmailConfig emailConfig) {
+                       CacheManager cacheManager, ObjectMapper objectMapper, EmailConfig emailConfig, AnalyticsLoader
+                       analyticsLoader) {
         super(parameter, tableMetadataManager, dataStore, queryStore, connection, cacheToken, cacheManager,
               objectMapper, emailConfig
              );
@@ -95,7 +97,7 @@ public class GroupAction extends Action<GroupRequest> {
     }
 
     @Override
-    protected void preprocess() {
+    public void preprocess() {
         getParameter().setTable(ElasticsearchUtils.getValidTableName(getParameter().getTable()));
     }
 
@@ -105,7 +107,7 @@ public class GroupAction extends Action<GroupRequest> {
     }
 
     @Override
-    protected String getRequestCacheKey() {
+    public String getRequestCacheKey() {
         long filterHashKey = 0L;
         GroupRequest query = getParameter();
         if(null != query.getFilters()) {
@@ -200,6 +202,18 @@ public class GroupAction extends Action<GroupRequest> {
 
     @Override
     public ActionResponse execute(GroupRequest parameter) throws FoxtrotException {
+        SearchRequestBuilder query = getRequestBuilder(parameter);
+        try {
+            SearchResponse response = query.execute()
+                    .actionGet(getGetQueryTimeout());
+            return getResponse(response, parameter);
+        } catch (ElasticsearchException e) {
+            throw FoxtrotExceptions.createQueryExecutionException(parameter, e);
+        }
+    }
+
+    @Override
+    public SearchRequestBuilder getRequestBuilder(GroupRequest parameter) throws FoxtrotException {
         SearchRequestBuilder query;
         try {
             query = getConnection().getClient()
@@ -207,25 +221,25 @@ public class GroupAction extends Action<GroupRequest> {
                     .setIndicesOptions(Utils.indicesOptions());
             AbstractAggregationBuilder aggregation = buildAggregation();
             query.setQuery(new ElasticSearchQueryGenerator()
-                    .genFilter(parameter.getFilters()))
+                                   .genFilter(parameter.getFilters()))
                     .setSize(QUERY_SIZE)
                     .addAggregation(aggregation);
         } catch (Exception e) {
             throw FoxtrotExceptions.queryCreationException(parameter, e);
         }
-        try {
-            SearchResponse response = query.execute()
-                    .actionGet(getGetQueryTimeout());
-            List<String> fields = parameter.getNesting();
-            Aggregations aggregations = response.getAggregations();
-            // Check if any aggregation is present or not
-            if(aggregations == null) {
-                return new GroupResponse(Collections.<String, Object>emptyMap());
-            }
-            return new GroupResponse(getMap(fields, aggregations));
-        } catch (ElasticsearchException e) {
-            throw FoxtrotExceptions.createQueryExecutionException(parameter, e);
+        return query;
+    }
+
+    @Override
+    public ActionResponse getResponse(org.elasticsearch.action.ActionResponse response, GroupRequest parameter)
+            throws FoxtrotException {
+        List<String> fields = parameter.getNesting();
+        Aggregations aggregations = ((SearchResponse)response).getAggregations();
+        // Check if any aggregation is present or not
+        if(aggregations == null) {
+            return new GroupResponse(Collections.<String, Object>emptyMap());
         }
+        return new GroupResponse(getMap(fields, aggregations));
     }
 
     private double estimateProbability(TableFieldMapping tableFieldMapping, GroupRequest parameter) throws Exception {

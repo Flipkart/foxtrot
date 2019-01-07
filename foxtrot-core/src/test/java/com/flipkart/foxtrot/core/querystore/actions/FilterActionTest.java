@@ -47,8 +47,7 @@ import static org.mockito.Mockito.when;
 /**
  * Created by rishabh.goyal on 28/04/14.
  */
-//To uncomment it later on once we start stroing docs in HBase
-@Ignore
+
 public class FilterActionTest extends ActionTest {
 
     @Before

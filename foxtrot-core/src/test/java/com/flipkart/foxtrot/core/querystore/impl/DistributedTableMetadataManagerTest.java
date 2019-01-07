@@ -65,25 +65,6 @@ public class DistributedTableMetadataManagerTest {
         elasticsearchConnection = ElasticsearchTestUtils.getConnection();
         ElasticsearchUtils.initializeMappings(elasticsearchConnection.getClient());
 
-        /*ElasticsearchContainer container = new ElasticsearchContainer();
-        container.withVersion("6.0.1");
-        container.withBaseUrl("docker.elastic.co/elasticsearch/elasticsearch");
-        //container.withPlugin("discovery-gce");
-        //container.withPluginDir(Paths.get("/path/to/zipped-plugins-dir"));
-        container.withEnv("ELASTIC_PASSWORD", "foxtrot");
-        container.start();
-
-        ElasticsearchConfig config = new ElasticsearchConfig();
-        config.setCluster("test");
-        config.setHosts("localhost");
-        config.setTableNamePrefix("foxtrot");
-        config.setPort(container.getHost().getPort());
-
-        elasticsearchConnection = new ElasticsearchConnection(config);
-        elasticsearchConnection.start();
-        ElasticsearchUtils.initializeMappings(elasticsearchConnection.getClient());*/
-
-
         hazelcastInstance = new TestHazelcastInstanceFactory(1).newHazelcastInstance();
         HazelcastConnection hazelcastConnection = Mockito.mock(HazelcastConnection.class);
         when(hazelcastConnection.getHazelcast()).thenReturn(hazelcastInstance);

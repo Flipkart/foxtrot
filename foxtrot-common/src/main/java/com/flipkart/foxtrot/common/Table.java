@@ -15,7 +15,6 @@
  */
 package com.flipkart.foxtrot.common;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -34,7 +33,6 @@ import java.io.Serializable;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-@JsonIgnoreProperties(ignoreUnknown = true)
 public class Table implements Serializable {
 
     private static final long serialVersionUID = -3086868483579299018L;

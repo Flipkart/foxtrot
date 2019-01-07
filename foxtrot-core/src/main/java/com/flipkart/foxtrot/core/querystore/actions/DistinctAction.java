@@ -15,6 +15,7 @@ import com.flipkart.foxtrot.core.exception.FoxtrotException;
 import com.flipkart.foxtrot.core.exception.FoxtrotExceptions;
 import com.flipkart.foxtrot.core.exception.MalformedQueryException;
 import com.flipkart.foxtrot.core.querystore.QueryStore;
+import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsLoader;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsProvider;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConnection;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
@@ -24,6 +25,7 @@ import com.google.common.collect.Sets;
 import org.elasticsearch.ElasticsearchException;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
+import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.Aggregations;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.slf4j.Logger;
@@ -47,14 +49,15 @@ public class DistinctAction extends Action<DistinctRequest> {
 
     public DistinctAction(DistinctRequest parameter, TableMetadataManager tableMetadataManager, DataStore dataStore,
                           QueryStore queryStore, ElasticsearchConnection connection, String cacheToken,
-                          CacheManager cacheManager, ObjectMapper objectMapper, EmailConfig emailConfig) {
+                          CacheManager cacheManager, ObjectMapper objectMapper,EmailConfig emailConfig,
+                          AnalyticsLoader analyticsLoader) {
         super(parameter, tableMetadataManager, dataStore, queryStore, connection, cacheToken, cacheManager,
               objectMapper, emailConfig
              );
     }
 
     @Override
-    protected void preprocess() {
+    public void preprocess() {
         getParameter().setTable(ElasticsearchUtils.getValidTableName(getParameter().getTable()));
     }
 
@@ -64,7 +67,7 @@ public class DistinctAction extends Action<DistinctRequest> {
     }
 
     @Override
-    protected String getRequestCacheKey() {
+    public String getRequestCacheKey() {
         long filterHashKey = 0L;
         DistinctRequest query = getParameter();
         if(null != query.getFilters()) {
@@ -126,16 +129,39 @@ public class DistinctAction extends Action<DistinctRequest> {
         try {
             SearchResponse response = query.execute()
                     .actionGet(getGetQueryTimeout());
-            Aggregations aggregations = response.getAggregations();
-            // Check if any aggregation is present or not
-            if(aggregations == null) {
-                logger.error("Null response for Group. Request : " + request.toString());
-                return new DistinctResponse(new ArrayList<>(), new ArrayList<>());
-            }
-            return getDistinctResponse(request, aggregations);
+            return getResponse(response, getParameter());
         } catch (ElasticsearchException e) {
             throw FoxtrotExceptions.createQueryExecutionException(request, e);
         }
+    }
+
+    @Override
+    public SearchRequestBuilder getRequestBuilder(DistinctRequest request) throws FoxtrotException {
+        SearchRequestBuilder query;
+        try {
+            query = getConnection().getClient()
+                    .prepareSearch(ElasticsearchUtils.getIndices(request.getTable(), request))
+                    .setIndicesOptions(Utils.indicesOptions());
+            query.setQuery(new ElasticSearchQueryGenerator().genFilter(request.getFilters()))
+                    .setSize(QUERY_SIZE)
+                    .addAggregation(Utils.buildTermsAggregation(request.getNesting(), Sets.newHashSet()));
+
+        } catch (Exception e) {
+            throw FoxtrotExceptions.queryCreationException(request, e);
+        }
+        return query;
+    }
+
+    @Override
+    public ActionResponse getResponse(org.elasticsearch.action.ActionResponse response, DistinctRequest parameter)
+            throws FoxtrotException {
+        Aggregations aggregations = ((SearchResponse)response).getAggregations();
+        // Check if any aggregation is present or not
+        if(aggregations == null) {
+            logger.error("Null response for Group. Request : " + parameter.toString());
+            return new DistinctResponse(new ArrayList<>(), new ArrayList<>());
+        }
+        return getDistinctResponse(parameter, aggregations);
     }
 
     private DistinctResponse getDistinctResponse(DistinctRequest request, Aggregations aggregations) {

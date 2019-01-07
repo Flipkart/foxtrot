@@ -53,6 +53,7 @@ public class HBaseDataStore implements DataStore {
     private static final byte[] DOCUMENT_FIELD_NAME = Bytes.toBytes("data");
     private static final byte[] DOCUMENT_META_FIELD_NAME = Bytes.toBytes("metadata");
     private static final byte[] TIMESTAMP_FIELD_NAME = Bytes.toBytes("timestamp");
+    private static final byte[] DATE_FIELD_NAME = Bytes.toBytes("date");
 
     private final HbaseTableConnection tableWrapper;
     private final ObjectMapper mapper;
@@ -97,7 +98,7 @@ public class HBaseDataStore implements DataStore {
         Document translatedDocument = null;
         try (org.apache.hadoop.hbase.client.Table hTable = tableWrapper.getTable(table)) {
             translatedDocument = translator.translate(table, document);
-            //hTable.put(getPutForDocument(translatedDocument));
+            hTable.put(getPutForDocument(translatedDocument));
         } catch (JsonProcessingException e) {
             throw FoxtrotExceptions.createBadRequestException(table, e);
         } catch (IOException e) {
@@ -144,11 +145,12 @@ public class HBaseDataStore implements DataStore {
             throw FoxtrotExceptions.createBadRequestException(table.getName(), errorMessages);
         }
 
-       /* try(org.apache.hadoop.hbase.client.Table hTable = tableWrapper.getTable(table)) {
+        try (org.apache.hadoop.hbase.client.Table hTable = tableWrapper.getTable(table)) {
             hTable.put(puts);
         } catch (IOException e) {
+            logger.error("Error occurred while ingesting event in HBase : " + e);
             throw FoxtrotExceptions.createConnectionException(table, e);
-        }*/
+        }
         return translatedDocuments.build();
     }
 
@@ -239,7 +241,8 @@ public class HBaseDataStore implements DataStore {
                                                                                     document.getMetadata())
                                                                            )
                 .addColumn(COLUMN_FAMILY, DOCUMENT_FIELD_NAME, mapper.writeValueAsBytes(document.getData()))
-                .addColumn(COLUMN_FAMILY, TIMESTAMP_FIELD_NAME, Bytes.toBytes(document.getTimestamp()));
+                .addColumn(COLUMN_FAMILY, TIMESTAMP_FIELD_NAME, Bytes.toBytes(document.getTimestamp()))
+                .addColumn(COLUMN_FAMILY, DATE_FIELD_NAME, mapper.writeValueAsBytes(document.getDate()));
     }
 
 }

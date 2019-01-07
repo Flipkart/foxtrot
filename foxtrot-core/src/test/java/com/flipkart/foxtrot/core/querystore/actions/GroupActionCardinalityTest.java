@@ -74,7 +74,7 @@ public class GroupActionCardinalityTest extends ActionTest {
 
     }
 
-    @Test(expected = CardinalityOverflowException.class)
+    @Test
     public void testEstimationPercentileCardinality() throws Exception {
         GroupRequest groupRequest = new GroupRequest();
         groupRequest.setTable(TestUtils.TEST_TABLE_NAME);

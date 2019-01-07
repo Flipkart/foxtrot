@@ -19,6 +19,7 @@ import com.flipkart.foxtrot.core.exception.FoxtrotException;
 import com.flipkart.foxtrot.core.exception.FoxtrotExceptions;
 import com.flipkart.foxtrot.core.exception.MalformedQueryException;
 import com.flipkart.foxtrot.core.querystore.QueryStore;
+import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsLoader;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsProvider;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConnection;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
@@ -57,14 +58,15 @@ public class StatsTrendAction extends Action<StatsTrendRequest> {
 
     public StatsTrendAction(StatsTrendRequest parameter, TableMetadataManager tableMetadataManager, DataStore dataStore,
                             QueryStore queryStore, ElasticsearchConnection connection, String cacheToken,
-                            CacheManager cacheManager, ObjectMapper objectMapper, EmailConfig emailConfig) {
+                            CacheManager cacheManager, ObjectMapper objectMapper, EmailConfig emailConfig,
+                            AnalyticsLoader analyticsLoader) {
         super(parameter, tableMetadataManager, dataStore, queryStore, connection, cacheToken, cacheManager,
               objectMapper, emailConfig
              );
     }
 
     @Override
-    protected void preprocess() {
+    public void preprocess() {
         getParameter().setTable(ElasticsearchUtils.getValidTableName(getParameter().getTable()));
     }
 
@@ -74,7 +76,7 @@ public class StatsTrendAction extends Action<StatsTrendRequest> {
     }
 
     @Override
-    protected String getRequestCacheKey() {
+    public String getRequestCacheKey() {
         StatsTrendRequest statsRequest = getParameter();
         long hashKey = 0L;
         if(statsRequest.getFilters() != null) {
@@ -123,6 +125,19 @@ public class StatsTrendAction extends Action<StatsTrendRequest> {
 
     @Override
     public ActionResponse execute(StatsTrendRequest parameter) throws FoxtrotException {
+        SearchRequestBuilder searchRequestBuilder = getRequestBuilder(parameter);
+
+        try {
+            SearchResponse response = searchRequestBuilder.execute()
+                    .actionGet(getGetQueryTimeout());
+            return getResponse(response, parameter);
+        } catch (ElasticsearchException e) {
+            throw FoxtrotExceptions.createQueryExecutionException(parameter, e);
+        }
+    }
+
+    @Override
+    public SearchRequestBuilder getRequestBuilder(StatsTrendRequest parameter) throws FoxtrotException {
         SearchRequestBuilder searchRequestBuilder;
         try {
             AbstractAggregationBuilder aggregation = buildAggregation(parameter);
@@ -136,16 +151,15 @@ public class StatsTrendAction extends Action<StatsTrendRequest> {
         } catch (Exception e) {
             throw FoxtrotExceptions.queryCreationException(parameter, e);
         }
+        return searchRequestBuilder;
+    }
 
-        try {
-            SearchResponse response = searchRequestBuilder.execute()
-                    .actionGet(getGetQueryTimeout());
-            Aggregations aggregations = response.getAggregations();
-            if(aggregations != null) {
-                return buildResponse(parameter, aggregations);
-            }
-        } catch (ElasticsearchException e) {
-            throw FoxtrotExceptions.createQueryExecutionException(parameter, e);
+    @Override
+    public ActionResponse getResponse(org.elasticsearch.action.ActionResponse response, StatsTrendRequest parameter)
+            throws FoxtrotException {
+        Aggregations aggregations = ((SearchResponse)response).getAggregations();
+        if(aggregations != null) {
+            return buildResponse(parameter, aggregations);
         }
         return null;
     }
