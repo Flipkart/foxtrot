@@ -3,9 +3,9 @@ package com.flipkart.foxtrot.sql.fqlstore;
 import com.collections.CollectionUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConnection;
-import com.flipkart.foxtrot.core.querystore.query.ElasticSearchQueryGenerator;
 import org.elasticsearch.action.search.SearchType;
 import org.elasticsearch.common.xcontent.XContentType;
+import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
 import org.slf4j.Logger;
@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.UUID;
 
 import static com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils.DOCUMENT_TYPE_NAME;
+import static com.flipkart.foxtrot.sql.fqlstore.FqlStore.TITLE;
 
 /***
  Created by mudit.g on Jan, 2019
@@ -52,16 +53,16 @@ public class FqlStoreServiceImpl implements FqlStoreService {
     }
 
     @Override
-    public List<FqlStore> get(FilterRequest filterRequest) throws Exception {
+    public List<FqlStore> get(FqlGetRequest fqlGetRequest) throws Exception {
         SearchHits searchHits;
         List<FqlStore> fqlStoreList = new ArrayList<>();
         searchHits = elasticsearchConnection.getClient()
                 .prepareSearch(FQL_STORE_INDEX)
                 .setTypes(DOCUMENT_TYPE_NAME)
-                .setQuery(new ElasticSearchQueryGenerator().genFilter(filterRequest.getFilters()))
+                .setQuery(QueryBuilders.prefixQuery(TITLE, fqlGetRequest.getTitle().toLowerCase()))
                 .setSearchType(SearchType.QUERY_THEN_FETCH)
-                .setFrom(filterRequest.getFrom())
-                .setSize(filterRequest.getSize())
+                .setFrom(fqlGetRequest.getFrom())
+                .setSize(fqlGetRequest.getSize())
                 .execute()
                 .actionGet()
                 .getHits();

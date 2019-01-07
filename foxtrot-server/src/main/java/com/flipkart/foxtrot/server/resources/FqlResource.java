@@ -4,7 +4,7 @@ import com.codahale.metrics.annotation.Timed;
 import com.flipkart.foxtrot.server.providers.FlatToCsvConverter;
 import com.flipkart.foxtrot.server.providers.FoxtrotExtraMediaType;
 import com.flipkart.foxtrot.sql.FqlEngine;
-import com.flipkart.foxtrot.sql.fqlstore.FilterRequest;
+import com.flipkart.foxtrot.sql.fqlstore.FqlGetRequest;
 import com.flipkart.foxtrot.sql.fqlstore.FqlStore;
 import com.flipkart.foxtrot.sql.fqlstore.FqlStoreService;
 import com.flipkart.foxtrot.sql.responseprocessors.model.FlatRepresentation;
@@ -67,11 +67,11 @@ public class FqlResource {
 
     @POST
     @Produces(MediaType.APPLICATION_JSON)
-    @Path("/filter")
-    @ApiOperation("Get List<FqlStore> - via FilterRequest")
-    public List<FqlStore> get(FilterRequest filterRequest) {
+    @Path("/get")
+    @ApiOperation("Get List<FqlStore>")
+    public List<FqlStore> get(FqlGetRequest fqlGetRequest) {
         try {
-            return fqlStoreService.get(filterRequest);
+            return fqlStoreService.get(fqlGetRequest);
         } catch (Exception e) {
             throw new RuntimeException("Couldn't get FqlStore from filterRequest. Error Message: " + e);
         }
