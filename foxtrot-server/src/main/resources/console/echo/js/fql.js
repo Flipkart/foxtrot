@@ -170,3 +170,37 @@ $("#fql-csv-download").click(function (event) {
   window.open(apiUrl + "/v1/fql/download" + "?q=" + encodeURIComponent($(".fql-query").val()), '_blank');
   event.preventDefault();
 });
+
+// Get query
+function saveFqlQuery() {
+  showLoader();
+  var data = {
+    "title": $(".fql-title").val(),
+    "query": $(".fql-query").val()
+  }
+  $.ajax({
+    method: 'POST',
+    url: apiUrl + "/v1/fql/save",
+    data: JSON.stringify(data),
+    accepts: {
+      text: 'application/json',
+    },
+    success: function (dataRaw) {
+      hideLoader();
+      if(dataRaw) {
+      } else {
+        showErrorAlert('Oops', "No response found");
+      }
+    },error: function(xhr, textStatus, error) {
+      hideLoader();
+      if (xhr.hasOwnProperty("responseText")) {
+        var error = JSON.parse(xhr["responseText"]);
+        if (error.hasOwnProperty('code')) {
+          showErrorAlert('Oops', error['code']);
+        } else {
+          showErrorAlert('Oops', "Something went wrong");
+        }
+      }
+    }
+  });
+}

@@ -2961,9 +2961,9 @@ div.tab button:first-child {
   word-wrap: break-word;
 }
 
-#fql-csv-download {
+#fql-csv-download, #open-fql-modal {
   width: 156px;
-  height: 42px;
+  /* height: 42px; */
   font-family: Open Sans Regular;
   font-size: 14px;
   font-weight: bold;
@@ -3604,4 +3604,17 @@ div.tab button:first-child {
   margin-left: 20px;
   margin-top: 24px;
   cursor: pointer;
+}
+.fql-modal {
+  height: 310px !important;
+}
+.fql-modal-close {
+  bottom: 310px !important;
+}
+.fql-title-error {
+  display: none;
+  color: red;
+}
+#open-fql-modal:hover {
+  text-decoration: none;
 }
