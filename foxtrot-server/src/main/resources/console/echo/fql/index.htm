@@ -233,6 +233,7 @@
 <script src="../js/sweetalert/sweetalert2.min.js"></script>
 <script src="../js/validate.js"></script>
 <script src="../js/fql.js"></script>
+<script src="../js/jquery-ui.js"></script>
 
 <script type="text/javascript">
 
@@ -253,6 +254,35 @@
             saveFqlQuery();
             $(".fql-title-error").hide();
         }
+    });
+
+
+    var availableTags = [
+      "ActionScript",
+      "AppleScript",
+      "Asp",
+      "BASIC",
+      "C",
+      "C++",
+      "Clojure",
+      "COBOL",
+      "ColdFusion",
+      "Erlang",
+      "Fortran",
+      "Groovy",
+      "Haskell",
+      "Java",
+      "JavaScript",
+      "Lisp",
+      "Perl",
+      "PHP",
+      "Python",
+      "Ruby",
+      "Scala",
+      "Scheme"
+    ];
+    $( ".fql-query" ).autocomplete({
+      source: availableTags
     });
 
     $("#fql-column-chooser-close-btn").click(function() {

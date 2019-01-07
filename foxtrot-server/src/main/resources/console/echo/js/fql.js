@@ -181,13 +181,13 @@ function saveFqlQuery() {
   $.ajax({
     method: 'POST',
     url: apiUrl + "/v1/fql/save",
+    contentType: 'application/json',
     data: JSON.stringify(data),
-    accepts: {
-      text: 'application/json',
-    },
-    success: function (dataRaw) {
+    success: function (response) {
       hideLoader();
-      if(dataRaw) {
+      if(response) {
+        showSuccessAlert('Success', 'FQL is saved sucessfully.');
+        $("#save-fql-modal").modal('hide');
       } else {
         showErrorAlert('Oops', "No response found");
       }
