@@ -73,7 +73,7 @@ public class FqlResource {
         try {
             return fqlStoreService.get(fqlGetRequest);
         } catch (Exception e) {
-            throw new RuntimeException("Couldn't get FqlStore from filterRequest. Error Message: " + e);
+            throw new RuntimeException("Couldn't get FqlStore from FqlGetRequest. Error Message: " + e);
         }
     }
 }
