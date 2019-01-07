@@ -1,4 +1,4 @@
-FROM docker.phonepe.com:5000/pp-ops-xenial:0.1
+FROM docker.phonepe.com:5000/pp-ops-xenial:0.6
 
 EXPOSE 17000
 EXPOSE 17001
