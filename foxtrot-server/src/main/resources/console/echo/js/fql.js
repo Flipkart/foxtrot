@@ -218,7 +218,6 @@ function generateAutoSugest(obj) {
         var list = '';
         $.each(obj, function (key, value) {
             list += "<li class='list'><label>" + value.query + "</label></li>";
-            console.log(value.title);
         })
         $("#auto-suggest").append(list);
         $("#auto-suggest").show();
@@ -297,3 +296,14 @@ $input.on('keydown', function () {
 function doneTyping() {
     triggerAPI();
 }
+
+// hide auto suggest if user clicks anywhere on screen except list
+$(document).on('click', function(e) {
+  if (e.target.id === 'auto-suggest') {
+      //alert('Div Clicked !!');
+      console.log('Auto suggest clicked');
+  } else {
+      $('#auto-suggest').hide();
+  }
+
+})
