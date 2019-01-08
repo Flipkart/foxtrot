@@ -204,3 +204,54 @@ function saveFqlQuery() {
     }
   });
 }
+
+function generateAutoSugest(obj) {
+  $('#auto-suggest').empty();
+  var list = '';
+  $.each(obj, function( key, value ) {
+      list +="<li class='list'><label>" + value.query + "</label></li>";
+      console.log(value.title);
+  })
+  $("#auto-suggest").append(list);
+  $("#auto-suggest").show();  
+}
+
+$("#auto-suggest").on("click", ".list", function(){
+  $(".fql-query").val($(this).text())
+  $("#auto-suggest li").hide();
+});
+
+$(".fql-query").keyup(function(){
+  var value = $(".fql-query").val();
+  if(value.length > 3) {
+      showLoader();
+      var data = {
+          "title": value,
+      }
+      $.ajax({
+          method: 'POST',
+          url: apiUrl + "/v1/fql/get",
+          contentType: 'application/json',
+          data: JSON.stringify(data),
+          success: function (response) {
+          hideLoader();
+          if(response) {
+              generateAutoSugest(response);
+              console.log(response)
+          } else {
+              showErrorAlert('Oops', "No response found");
+          }
+          },error: function(xhr, textStatus, error) {
+          hideLoader();
+          if (xhr.hasOwnProperty("responseText")) {
+              var error = JSON.parse(xhr["responseText"]);
+              if (error.hasOwnProperty('code')) {
+              showErrorAlert('Oops', error['code']);
+              } else {
+              showErrorAlert('Oops', "Something went wrong");
+              }
+          }
+          }
+      });
+  }
+});

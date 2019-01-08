@@ -3618,3 +3618,20 @@ div.tab button:first-child {
 #open-fql-modal:hover {
   text-decoration: none;
 }
+#auto-suggest {
+  list-style-type: none;
+  padding-left: 0;
+  cursor: pointer;
+  display: none;
+}
+#auto-suggest li {
+  padding-top: 10px;
+  padding-bottom: 10px;
+  border: 1px solid lightgray;
+}
+#auto-suggest li label {
+  margin-left: 10px;
+}  
+#auto-suggest li:hover {
+  background: lightgray;
+}
