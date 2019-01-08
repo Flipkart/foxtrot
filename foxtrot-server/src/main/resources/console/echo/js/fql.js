@@ -218,13 +218,12 @@ function generateAutoSugest(obj) {
 
 $("#auto-suggest").on("click", ".list", function(){
   $(".fql-query").val($(this).text())
-  $("#auto-suggest li").hide();
+  $("#auto-suggest").hide();
 });
 
 $(".fql-query").keyup(function(){
   var value = $(".fql-query").val();
   if(value.length > 3) {
-      showLoader();
       var data = {
           "title": value,
       }
@@ -234,15 +233,13 @@ $(".fql-query").keyup(function(){
           contentType: 'application/json',
           data: JSON.stringify(data),
           success: function (response) {
-          hideLoader();
           if(response) {
               generateAutoSugest(response);
               console.log(response)
           } else {
-              showErrorAlert('Oops', "No response found");
+              //showErrorAlert('Oops', "No response found");
           }
           },error: function(xhr, textStatus, error) {
-          hideLoader();
           if (xhr.hasOwnProperty("responseText")) {
               var error = JSON.parse(xhr["responseText"]);
               if (error.hasOwnProperty('code')) {

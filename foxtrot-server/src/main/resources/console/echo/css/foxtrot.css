@@ -3623,15 +3623,24 @@ div.tab button:first-child {
   padding-left: 0;
   cursor: pointer;
   display: none;
+  height: 120px;
+  overflow: scroll;
+  border: 1px solid lightgray;
 }
 #auto-suggest li {
   padding-top: 10px;
   padding-bottom: 10px;
-  border: 1px solid lightgray;
+  border-bottom: 1px solid lightgray;
 }
 #auto-suggest li label {
   margin-left: 10px;
 }  
 #auto-suggest li:hover {
   background: lightgray;
+}
+#auto-suggest li:first-child {
+  border-top:none;
+}
+#auto-suggest li:last-child {
+  border-bottom:none;
 }
