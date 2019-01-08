@@ -188,6 +188,7 @@ function saveFqlQuery() {
       if(response) {
         showSuccessAlert('Success', 'FQL is saved sucessfully.');
         $("#save-fql-modal").modal('hide');
+        $(".fql-title").val('');
       } else {
         showErrorAlert('Oops', "No response found");
       }
@@ -207,13 +208,17 @@ function saveFqlQuery() {
 
 function generateAutoSugest(obj) {
   $('#auto-suggest').empty();
-  var list = '';
-  $.each(obj, function( key, value ) {
-      list +="<li class='list'><label>" + value.query + "</label></li>";
-      console.log(value.title);
-  })
-  $("#auto-suggest").append(list);
-  $("#auto-suggest").show();  
+  if(obj.length > 0) {
+    var list = '';
+    $.each(obj, function( key, value ) {
+        list +="<li class='list'><label>" + value.query + "</label></li>";
+        console.log(value.title);
+    })
+    $("#auto-suggest").append(list);
+    $("#auto-suggest").show();  
+  } else {
+    $("#auto-suggest").hide();
+  }
 }
 
 $("#auto-suggest").on("click", ".list", function(){
@@ -237,9 +242,11 @@ $(".fql-query").keyup(function(){
               generateAutoSugest(response);
               console.log(response)
           } else {
+            $("#auto-suggest").hide();
               //showErrorAlert('Oops', "No response found");
           }
           },error: function(xhr, textStatus, error) {
+            $("#auto-suggest").hide();
           if (xhr.hasOwnProperty("responseText")) {
               var error = JSON.parse(xhr["responseText"]);
               if (error.hasOwnProperty('code')) {
