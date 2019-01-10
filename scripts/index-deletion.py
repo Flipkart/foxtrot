@@ -6,7 +6,7 @@ import argparse
 
 host = "http://stg-els601.phonepe.nm2:9200/"
 
-r = requests.get(host + "foxtrot-*/_settings/index.creation_date")
+r = requests.get(host + "foxtrot-*-table*/_settings/index.creation_date")
 data = r.json()
 # pprint.pprint(data)
 
@@ -24,3 +24,4 @@ for indexName in data:
     creation_date = data[indexName]["settings"]["index"]["creation_date"]
     if (currentTime*1000 - int(creation_date)) > args.day*oneDaySeconds*1000:
         r = requests.delete(host + indexName)
+        time.sleep(0.300)
