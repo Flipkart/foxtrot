@@ -20,6 +20,7 @@ import com.flipkart.foxtrot.common.query.Filter;
 import com.google.common.collect.Lists;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -28,7 +29,7 @@ import java.util.List;
  * Time: 7:49 PM
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.EXISTING_PROPERTY, property = "opcode")
-public abstract class ActionRequest {
+public abstract class ActionRequest implements Cloneable {
 
     private final String opcode;
 
@@ -63,5 +64,12 @@ public abstract class ActionRequest {
         return new ToStringBuilder(this).append("opcode", opcode)
                 .append("filters", filters)
                 .toString();
+    }
+
+    public Object clone() throws CloneNotSupportedException {
+        ActionRequest actionRequestClone = (ActionRequest) super.clone();
+        List<Filter> filters = new ArrayList<>(this.filters);
+        actionRequestClone.setFilters(filters);
+        return actionRequestClone;
     }
 }
