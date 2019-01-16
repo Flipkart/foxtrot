@@ -22,7 +22,6 @@ import com.flipkart.foxtrot.common.Table;
 import com.flipkart.foxtrot.common.TableFieldMapping;
 import com.flipkart.foxtrot.core.alerts.EmailClient;
 import com.flipkart.foxtrot.core.alerts.EmailConfig;
-import com.flipkart.foxtrot.core.cache.CacheManager;
 import com.flipkart.foxtrot.core.cardinality.CardinalityConfig;
 import com.flipkart.foxtrot.core.datastore.DataStore;
 import com.flipkart.foxtrot.core.exception.FoxtrotException;
@@ -68,7 +67,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.stream.Collectors;
 
-import static com.flipkart.foxtrot.core.querystore.actions.Constants.CACHE_NAME_PREFIX;
 import static org.elasticsearch.index.query.QueryBuilders.*;
 
 /**
