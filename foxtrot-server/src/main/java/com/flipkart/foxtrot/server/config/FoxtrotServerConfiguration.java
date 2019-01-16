@@ -62,6 +62,7 @@ public class FoxtrotServerConfiguration extends Configuration {
     private EsIndexOptimizationConfig esIndexOptimizationConfig;
     private EmailConfig emailConfig;
     private CacheConfig cacheConfig;
+    private CacheConfig queryStoreCacheConfig;
 
     public FoxtrotServerConfiguration() {
         this.hbase = new HbaseConfig();

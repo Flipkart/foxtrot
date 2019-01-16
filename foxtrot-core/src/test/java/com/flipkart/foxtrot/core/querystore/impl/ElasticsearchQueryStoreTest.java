@@ -21,6 +21,7 @@ import com.flipkart.foxtrot.common.*;
 import com.flipkart.foxtrot.common.estimation.EstimationDataType;
 import com.flipkart.foxtrot.core.MockElasticsearchServer;
 import com.flipkart.foxtrot.core.TestUtils;
+import com.flipkart.foxtrot.core.alerts.EmailConfig;
 import com.flipkart.foxtrot.core.cardinality.CardinalityConfig;
 import com.flipkart.foxtrot.core.datastore.DataStore;
 import com.flipkart.foxtrot.core.exception.ErrorCode;
@@ -93,7 +94,7 @@ public class ElasticsearchQueryStoreTest {
         when(tableMetadataManager.get(anyString())).thenReturn(TestUtils.TEST_TABLE);
 */
         this.queryStore = new ElasticsearchQueryStore(tableMetadataManager, elasticsearchConnection, dataStore, mapper,
-                                                      cardinalityConfig
+                                                      cardinalityConfig, new EmailConfig(), new CacheConfig(), hazelcastConnection
         );
     }
 

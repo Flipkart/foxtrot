@@ -57,6 +57,7 @@ public class ActionTest {
         this.mapper = new ObjectMapper();
         HazelcastConnection hazelcastConnection = Mockito.mock(HazelcastConnection.class);
         Config config = new Config();
+        EmailConfig emailConfig = new EmailConfig();
         this.hazelcastInstance = new TestHazelcastInstanceFactory(1).newHazelcastInstance(config);
         when(hazelcastConnection.getHazelcast()).thenReturn(hazelcastInstance);
         when(hazelcastConnection.getHazelcastConfig()).thenReturn(config);
@@ -78,7 +79,7 @@ public class ActionTest {
 
         DataStore dataStore = TestUtils.getDataStore();
         this.queryStore = new ElasticsearchQueryStore(tableMetadataManager, elasticsearchConnection, dataStore, mapper,
-                                                      cardinalityConfig
+                                                      cardinalityConfig, emailConfig, new CacheConfig(), hazelcastConnection
         );
         CacheManager cacheManager = new CacheManager(
                 new DistributedCacheFactory(hazelcastConnection, mapper, new CacheConfig()));
