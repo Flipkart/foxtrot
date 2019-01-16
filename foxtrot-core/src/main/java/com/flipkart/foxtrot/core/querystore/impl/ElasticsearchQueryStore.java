@@ -20,6 +20,9 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.flipkart.foxtrot.common.Document;
 import com.flipkart.foxtrot.common.Table;
 import com.flipkart.foxtrot.common.TableFieldMapping;
+import com.flipkart.foxtrot.core.alerts.EmailClient;
+import com.flipkart.foxtrot.core.alerts.EmailConfig;
+import com.flipkart.foxtrot.core.cache.CacheManager;
 import com.flipkart.foxtrot.core.cardinality.CardinalityConfig;
 import com.flipkart.foxtrot.core.datastore.DataStore;
 import com.flipkart.foxtrot.core.exception.FoxtrotException;
@@ -32,6 +35,11 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.hazelcast.config.EvictionPolicy;
+import com.hazelcast.config.InMemoryFormat;
+import com.hazelcast.config.MapConfig;
+import com.hazelcast.config.MaxSizeConfig;
+import com.hazelcast.core.IMap;
 import lombok.Data;
 import org.apache.commons.lang3.StringUtils;
 import org.elasticsearch.action.WriteConsistencyLevel;
@@ -46,6 +54,7 @@ import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.search.SearchHit;
+import org.elasticsearch.transport.RemoteTransportException;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -59,6 +68,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.stream.Collectors;
 
+import static com.flipkart.foxtrot.core.querystore.actions.Constants.CACHE_NAME_PREFIX;
 import static org.elasticsearch.index.query.QueryBuilders.*;
 
 /**
@@ -72,20 +82,37 @@ public class ElasticsearchQueryStore implements QueryStore {
     private static final String TABLE_META = "tableMeta";
     private static final String DATA_STORE = "dataStore";
     private static final String QUERY_STORE = "queryStore";
+    private static final String WRITES_ERROR_TOKEN = "writesError";
+    private static final String WRITES_ERROR_KEY = "writesErrorKey";
+    private static final String WRITES_ERROR_VALUE = "writesErrorValue";
+
+    private static final int DEFAULT_TIME_TO_LIVE_SECONDS = 60*10;
+    private static final int DEFAULT_MAX_IDLE_SECONDS = 60*10;
+    private static final int DEFAULT_SIZE = 2;
 
     private final ElasticsearchConnection connection;
     private final DataStore dataStore;
     private final TableMetadataManager tableMetadataManager;
     private final ObjectMapper mapper;
     private final CardinalityConfig cardinalityConfig;
+    private final CacheConfig cacheConfig;
+    private final HazelcastConnection hazelcastConnection;
+    private final EmailClient emailClient;
+    private IMap<String, String> distributedMap;
 
     public ElasticsearchQueryStore(TableMetadataManager tableMetadataManager, ElasticsearchConnection connection,
-                                   DataStore dataStore, ObjectMapper mapper, CardinalityConfig cardinalityConfig) {
+                                   DataStore dataStore, ObjectMapper mapper, CardinalityConfig cardinalityConfig,
+                                   EmailConfig emailConfig, CacheConfig cacheConfig, HazelcastConnection hazelcastConnection) {
         this.connection = connection;
         this.dataStore = dataStore;
         this.tableMetadataManager = tableMetadataManager;
         this.mapper = mapper;
         this.cardinalityConfig = cardinalityConfig;
+        this.emailClient = getEmailClient(emailConfig);
+        this.cacheConfig = cacheConfig;
+        this.hazelcastConnection = hazelcastConnection;
+        this.hazelcastConnection.getHazelcastConfig()
+                .addMapConfig(getDefaultMapConfig(cacheConfig));
     }
 
     @Override
@@ -219,6 +246,21 @@ public class ElasticsearchQueryStore implements QueryStore {
                     }
                 }
             }
+        } catch (RemoteTransportException e) {
+            if (distributedMap == null) {
+                this.distributedMap = this.hazelcastConnection.getHazelcast()
+                    .getMap(WRITES_ERROR_TOKEN);
+            }
+            if (!distributedMap.containsKey(WRITES_ERROR_KEY)) {
+                String subject = "Writes on ES Failing";
+                String content = e.getMessage();
+                String recipients = "payments-dev@phonepe.com";
+                emailClient.sendEmail(subject, content, recipients);
+                distributedMap.put(WRITES_ERROR_KEY, WRITES_ERROR_VALUE);
+            }
+            MetricUtil.getInstance()
+                    .registerActionFailure(action, table, stopwatch.elapsed(TimeUnit.MILLISECONDS));
+            throw FoxtrotExceptions.createExecutionException(table, e);
         } catch (JsonProcessingException e) {
             MetricUtil.getInstance()
                     .registerActionFailure(action, table, stopwatch.elapsed(TimeUnit.MILLISECONDS));
@@ -426,4 +468,36 @@ public class ElasticsearchQueryStore implements QueryStore {
         return dataNode.toString();
     }
 
+    private EmailClient getEmailClient(EmailConfig emailConfig) {
+        return new EmailClient(emailConfig);
+    }
+
+    private MapConfig getDefaultMapConfig(CacheConfig cacheConfig) {
+        MapConfig mapConfig = new MapConfig(WRITES_ERROR_TOKEN);
+        mapConfig.setInMemoryFormat(InMemoryFormat.BINARY);
+        mapConfig.setBackupCount(0);
+        mapConfig.setEvictionPolicy(EvictionPolicy.NONE);
+
+        if(cacheConfig.getMaxIdleSeconds() == 0) {
+            mapConfig.setMaxIdleSeconds(DEFAULT_MAX_IDLE_SECONDS);
+        } else {
+            mapConfig.setMaxIdleSeconds(cacheConfig.getMaxIdleSeconds());
+        }
+
+        if(cacheConfig.getTimeToLiveSeconds() == 0) {
+            mapConfig.setTimeToLiveSeconds(DEFAULT_TIME_TO_LIVE_SECONDS);
+        } else {
+            mapConfig.setTimeToLiveSeconds(cacheConfig.getTimeToLiveSeconds());
+        }
+
+        MaxSizeConfig maxSizeConfig = new MaxSizeConfig();
+        maxSizeConfig.setMaxSizePolicy(MaxSizeConfig.MaxSizePolicy.USED_HEAP_PERCENTAGE);
+        if(cacheConfig.getSize() == 0) {
+            maxSizeConfig.setSize(DEFAULT_SIZE);
+        } else {
+            maxSizeConfig.setSize(cacheConfig.getSize());
+        }
+        mapConfig.setMaxSizeConfig(maxSizeConfig);
+        return mapConfig;
+    }
 }
