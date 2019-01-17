@@ -158,6 +158,10 @@ public class FoxtrotServer extends Application<FoxtrotServerConfiguration> {
         }
         CacheConfig cacheConfig = configuration.getCacheConfig();
         EmailConfig emailConfig = configuration.getEmailConfig();
+        CacheConfig queryStoreCacheConfig = configuration.getQueryStoreCacheConfig();
+        if (queryStoreCacheConfig == null) {
+            queryStoreCacheConfig = new CacheConfig();
+        }
 
         final ObjectMapper objectMapper = environment.getObjectMapper();
         TableMetadataManager tableMetadataManager = new DistributedTableMetadataManager(hazelcastConnection,
@@ -167,8 +171,10 @@ public class FoxtrotServer extends Application<FoxtrotServerConfiguration> {
         DataStore dataStore = new HBaseDataStore(hbaseTableConnection, objectMapper,
                                                  new DocumentTranslator(configuration.getHbase())
         );
+
         QueryStore queryStore = new ElasticsearchQueryStore(tableMetadataManager, elasticsearchConnection, dataStore,
-                                                            objectMapper, cardinalityConfig
+                                                            objectMapper, cardinalityConfig, emailConfig,
+                                                            queryStoreCacheConfig, hazelcastConnection
         );
         FoxtrotTableManager tableManager = new FoxtrotTableManager(tableMetadataManager, queryStore, dataStore);
         CacheManager cacheManager = new CacheManager(

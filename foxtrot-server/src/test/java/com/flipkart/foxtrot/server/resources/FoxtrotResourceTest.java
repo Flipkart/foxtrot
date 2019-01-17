@@ -129,8 +129,9 @@ public abstract class FoxtrotResourceTest {
                                           .name(TestUtils.TEST_TABLE_NAME)
                                           .ttl(7)
                                           .build());
+        EmailConfig emailConfig = new EmailConfig();
         queryStore = new ElasticsearchQueryStore(tableMetadataManager, elasticsearchConnection, dataStore, mapper,
-                                                 cardinalityConfig
+                                                 cardinalityConfig, emailConfig, new CacheConfig(), hazelcastConnection
         );
         queryStore = spy(queryStore);
 

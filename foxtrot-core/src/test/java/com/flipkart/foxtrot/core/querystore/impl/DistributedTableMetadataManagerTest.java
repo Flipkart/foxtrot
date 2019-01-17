@@ -23,6 +23,7 @@ import com.flipkart.foxtrot.common.TableFieldMapping;
 import com.flipkart.foxtrot.common.group.GroupResponse;
 import com.flipkart.foxtrot.core.MockElasticsearchServer;
 import com.flipkart.foxtrot.core.TestUtils;
+import com.flipkart.foxtrot.core.alerts.EmailConfig;
 import com.flipkart.foxtrot.core.cardinality.CardinalityConfig;
 import com.flipkart.foxtrot.core.datastore.DataStore;
 import com.flipkart.foxtrot.core.table.impl.DistributedTableMetadataManager;
@@ -67,6 +68,7 @@ public class DistributedTableMetadataManagerTest {
         ElasticsearchConnection elasticsearchConnection = TestUtils.initESConnection(elasticsearchServer);
         when(elasticsearchConnection.getClient()).thenReturn(elasticsearchServer.getClient());
         ElasticsearchUtils.initializeMappings(elasticsearchConnection.getClient());
+        EmailConfig emailConfig = new EmailConfig();
 
         hazelcastInstance = new TestHazelcastInstanceFactory(1).newHazelcastInstance();
         HazelcastConnection hazelcastConnection = Mockito.mock(HazelcastConnection.class);
@@ -89,7 +91,7 @@ public class DistributedTableMetadataManagerTest {
                                                       dataStore, objectMapper, new CardinalityConfig("true",
                                                                                                      String.valueOf(
                                                                                                              ElasticsearchUtils.DEFAULT_SUB_LIST_SIZE)
-        )
+        ), emailConfig, new CacheConfig(), hazelcastConnection
         );
     }
 
