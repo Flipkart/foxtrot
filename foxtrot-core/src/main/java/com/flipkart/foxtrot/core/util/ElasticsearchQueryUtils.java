@@ -49,7 +49,7 @@ public class ElasticsearchQueryUtils {
                     .constructMapType(Map.class, String.class, Object.class);
             return mapper.readValue(node.toString(), type);
         } catch (Exception e) {
-            throw new RuntimeException("Exception occurred while coverting to map", e);
+            throw new RuntimeException("Exception occurred while converting to map", e);
         }
     }
 }
