@@ -45,6 +45,32 @@
 </head>
 
 <body><span id="ruler"></span>
+    <!-- save fql modal -->
+    <div class="modal fade" id="save-fql-modal" tabindex="-2" role="dialog" aria-labelledby="addSections" aria-hidden="true">
+        <div class="modal-dialog">
+            <div id="save-dashboard-modal" class="fql-modal">
+                <div id="save-dashboard-model-heading">
+                    <h1>Save FQL</h1>
+                    <hr id="save-dashboard-model-heading-underline"/>
+                </div>
+                <div class="save-dashboard-form">
+                <form class="add-page-form">
+                <div class="form-group">
+                        <label class="control-label" for="widgetType"><strong>Title</strong></label>
+                        <input type="text" class="form-control fql-title" id="fql-title">
+                        <span class="fql-title-error">Title is required</span>
+                </div>
+                <div class="form-group save-page-btn-div">
+                    <button type="button" class="btn custom-modal-tab-btn" id="save-fql-btn"><span>Save</span></button>
+                    <button type="button" class="btn custom-modal-close" data-dismiss="modal">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <div class="fql-modal-close" id="add-page-side-close" data-dismiss="modal" ><img src="../img/combined-shape.png"></div>
+    </div>
+    </div>
+
 <div class="container-full">
     <div class="new-header">
         <div class="inner-header container-fluid">
@@ -76,10 +102,17 @@
                         <div class="col-xs-12 form-group">
                             <label class="control-label">Fql query <span class="mandatory-text">*</span></label>
                             <input type="text" class="fql-query form-control" name="fql-query" id="fql-query" required/>
+                            <ul id="auto-suggest">
+                            </ul>
                         </div>
                     </div>
                     <div class="row" id="fql-buttons">
                         <div class="col-sm-12">
+                                <div class="col-sm-3">
+                                        <a href="#" id="open-fql-modal" class="form-control">
+                                            <span> Save FQL</span>
+                                        </a>
+                                    </div>
                             <div class="col-sm-5">
                                 <button type="button" id="fql-csv-download" class="form-control">
                                     <span> Download CSV</span>
@@ -202,8 +235,29 @@
 <script src="../js/sweetalert/sweetalert2.min.js"></script>
 <script src="../js/validate.js"></script>
 <script src="../js/fql.js"></script>
+<script src="../js/jquery-ui.js"></script>
 
 <script type="text/javascript">
+
+    $("#open-fql-modal").click(function(){
+        var fql = $(".fql-query").val();
+        if(fql.length > 0) {
+            $("#save-fql-modal").modal('show');
+        } else {
+            alert('Please enter your query.');
+        }
+    });
+
+    $("#save-fql-btn").click(function(){
+        var fql = $(".fql-title").val();
+        if(fql.length == 0) {
+            $(".fql-title-error").show();
+        } else {
+            saveFqlQuery();
+            $(".fql-title-error").hide();
+        }
+    });
+
     $("#fql-column-chooser-close-btn").click(function() {
       showHideColumnChooser();
     });
