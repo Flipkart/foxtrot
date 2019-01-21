@@ -4,6 +4,9 @@ import com.codahale.metrics.annotation.Timed;
 import com.flipkart.foxtrot.server.providers.FlatToCsvConverter;
 import com.flipkart.foxtrot.server.providers.FoxtrotExtraMediaType;
 import com.flipkart.foxtrot.sql.FqlEngine;
+import com.flipkart.foxtrot.sql.fqlstore.FqlGetRequest;
+import com.flipkart.foxtrot.sql.fqlstore.FqlStore;
+import com.flipkart.foxtrot.sql.fqlstore.FqlStoreService;
 import com.flipkart.foxtrot.sql.responseprocessors.model.FlatRepresentation;
 import com.google.common.base.Preconditions;
 import io.swagger.annotations.Api;
@@ -13,14 +16,17 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.StreamingOutput;
 import java.io.OutputStreamWriter;
+import java.util.List;
 
 @Path("/v1/fql")
 @Api(value = "/v1/fql", description = "FQL API")
 public class FqlResource {
     private FqlEngine fqlEngine;
+    private FqlStoreService fqlStoreService;
 
-    public FqlResource(final FqlEngine fqlEngine) {
+    public FqlResource(final FqlEngine fqlEngine, final FqlStoreService fqlStoreService) {
         this.fqlEngine = fqlEngine;
+        this.fqlStoreService = fqlStoreService;
     }
 
     @GET
@@ -48,5 +54,26 @@ public class FqlResource {
             root = root.getCause();
         }
         return root.getMessage();
+    }
+
+    @POST
+    @Produces(MediaType.APPLICATION_JSON)
+    @Path("/save")
+    @ApiOperation("Save FQL query")
+    public FqlStore saveFQL(final FqlStore fqlStore) throws Exception {
+        fqlStoreService.save(fqlStore);
+        return fqlStore;
+    }
+
+    @POST
+    @Produces(MediaType.APPLICATION_JSON)
+    @Path("/get")
+    @ApiOperation("Get List<FqlStore>")
+    public List<FqlStore> get(FqlGetRequest fqlGetRequest) {
+        try {
+            return fqlStoreService.get(fqlGetRequest);
+        } catch (Exception e) {
+            throw new RuntimeException("Couldn't get FqlStore from FqlGetRequest. Error Message: " + e);
+        }
     }
 }
