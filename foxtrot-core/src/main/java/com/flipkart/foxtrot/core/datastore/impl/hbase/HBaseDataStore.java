@@ -145,11 +145,11 @@ public class HBaseDataStore implements DataStore {
             throw FoxtrotExceptions.createBadRequestException(table.getName(), errorMessages);
         }
 
-       try(org.apache.hadoop.hbase.client.Table hTable = tableWrapper.getTable(table)) {
+       /*try(org.apache.hadoop.hbase.client.Table hTable = tableWrapper.getTable(table)) {
             hTable.put(puts);
         } catch (IOException e) {
             throw FoxtrotExceptions.createConnectionException(table, e);
-        }
+        }*/
         return translatedDocuments.build();
     }
 
