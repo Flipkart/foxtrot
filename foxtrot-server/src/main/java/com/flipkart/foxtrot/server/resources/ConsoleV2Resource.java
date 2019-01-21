@@ -82,7 +82,8 @@ public class ConsoleV2Resource {
     @Path("/{name}/old")
     @ApiOperation("Get All Old versions of console with name: {name}")
     public List<ConsoleV2> getOldVersions(@PathParam("name") final String name) throws FoxtrotException {
-        return consolePersistence.getAllOldVersions(name);
+        String sortBy = "updatedAt";
+        return consolePersistence.getAllOldVersions(name, sortBy);
     }
 
     @DELETE

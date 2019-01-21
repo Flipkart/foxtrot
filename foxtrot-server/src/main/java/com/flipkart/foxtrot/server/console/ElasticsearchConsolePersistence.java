@@ -213,15 +213,14 @@ public class ElasticsearchConsolePersistence implements ConsolePersistence {
     }
 
     @Override
-    public List<ConsoleV2> getAllOldVersions (final String name) throws FoxtrotException {
-        String updatedAt = "updatedAt";
+    public List<ConsoleV2> getAllOldVersions (final String name, final String sortBy) throws FoxtrotException {
         try {
             SearchHits searchHits = connection.getClient()
                     .prepareSearch(INDEX_HISTORY)
                     .setSearchType(SearchType.QUERY_THEN_FETCH)
                     .setQuery(QueryBuilders.termQuery("name.keyword", name))
                     .addSort(SortBuilders
-                            .fieldSort(updatedAt)
+                            .fieldSort(sortBy)
                             .order(SortOrder.DESC))
                     .setFrom(0)
                     .setSize(10)
@@ -282,6 +281,7 @@ public class ElasticsearchConsolePersistence implements ConsolePersistence {
             }
         }
         if(oldConsole == null){
+            console.setVersion(1);
             return;
         }
         if(oldConsole.getUpdatedAt() != 0L && oldConsole.getUpdatedAt() > console.getUpdatedAt() && newConsole) {
@@ -290,12 +290,25 @@ public class ElasticsearchConsolePersistence implements ConsolePersistence {
                                                   " your dashboard"
             );
         }
-        if(oldConsole.getVersion() == 0) {
-            oldConsole.setVersion(1);
+
+        String name = oldConsole.getName().replaceAll("\\s+", "_").toLowerCase();
+        String sortBy = "version";
+        List<ConsoleV2> consoleV2s;
+        int maxOldConsoleVersion = 0;
+        consoleV2s = getAllOldVersions (name, sortBy);
+        if (consoleV2s != null && consoleV2s.size() != 0){
+            maxOldConsoleVersion = consoleV2s.get(0).getVersion();
         }
-        saveOldConsole(oldConsole);
+
+        int oldCurrentConsoleVersion = oldConsole.getVersion();
+        int version = Math.max(oldCurrentConsoleVersion, maxOldConsoleVersion);
+        if (oldCurrentConsoleVersion > maxOldConsoleVersion) {
+            saveOldConsole(oldConsole);
+        }
         console.setUpdatedAt(System.currentTimeMillis());
-        console.setVersion(oldConsole.getVersion() + 1);
+        if (newConsole) {
+            console.setVersion(version + 1);
+        }
     }
 
     @Override public void deleteV2 (String id) throws FoxtrotException {
