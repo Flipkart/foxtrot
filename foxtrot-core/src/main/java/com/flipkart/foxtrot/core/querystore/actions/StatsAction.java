@@ -62,8 +62,8 @@ public class StatsAction extends Action<StatsRequest> {
         InternalExtendedStats extendedStats = InternalExtendedStats.class.cast(aggregations.getAsMap()
                                                                                        .get(metricKey));
         statsValue.setStats(Utils.createExtendedStatsResponse(extendedStats));
-        Percentiles internalPercentile = Percentiles.class.cast(aggregations.getAsMap()
-                                                                        .get(percentileMetricKey));
+        Percentiles internalPercentile = (Percentiles) aggregations.getAsMap()
+                .get(percentileMetricKey);
         statsValue.setPercentiles(Utils.createPercentilesResponse(internalPercentile));
         return statsValue;
     }
@@ -134,7 +134,8 @@ public class StatsAction extends Action<StatsRequest> {
                     .setQuery(new ElasticSearchQueryGenerator().genFilter(parameter.getFilters()))
                     .setSize(QUERY_SIZE);
 
-            AbstractAggregationBuilder percentiles = Utils.buildPercentileAggregation(getParameter().getField());
+            AbstractAggregationBuilder percentiles = Utils.buildPercentileAggregation(getParameter().getField(),
+                    getParameter().getPercentiles());
             AbstractAggregationBuilder extendedStats = Utils.buildExtendedStatsAggregation(getParameter().getField());
             searchRequestBuilder.addAggregation(percentiles);
             searchRequestBuilder.addAggregation(extendedStats);
