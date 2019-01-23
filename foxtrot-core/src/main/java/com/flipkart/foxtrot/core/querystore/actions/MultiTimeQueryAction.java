@@ -66,7 +66,13 @@ public class MultiTimeQueryAction extends Action<MultiTimeQueryRequest> {
         } else {
             sampleSize = (int) (24/(multiTimeQueryRequest.getSkipDuration().toHours()));
         }
-        multiTimeQueryRequest.getActionRequest().getFilters().addAll(multiTimeQueryRequest.getFilters());
+        if (multiTimeQueryRequest.getFilters() != null && multiTimeQueryRequest.getActionRequest() != null
+                && multiTimeQueryRequest.getActionRequest().getFilters() != null) {
+            multiTimeQueryRequest.getActionRequest().getFilters().addAll(multiTimeQueryRequest.getFilters());
+        } else if (multiTimeQueryRequest.getFilters() != null && multiTimeQueryRequest.getActionRequest() != null
+                && multiTimeQueryRequest.getActionRequest().getFilters() == null) {
+            multiTimeQueryRequest.getActionRequest().setFilters(multiTimeQueryRequest.getFilters());
+        }
         multiQueryRequest = createMultiQueryRequests(sampleSize, betweenFilter);
         try {
             action = analyticsLoader.getAction(multiQueryRequest);
