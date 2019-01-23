@@ -66,6 +66,7 @@ public class MultiTimeQueryAction extends Action<MultiTimeQueryRequest> {
         } else {
             sampleSize = (int) (24/(multiTimeQueryRequest.getSkipDuration().toHours()));
         }
+        multiTimeQueryRequest.getActionRequest().getFilters().addAll(multiTimeQueryRequest.getFilters());
         multiQueryRequest = createMultiQueryRequests(sampleSize, betweenFilter);
         try {
             action = analyticsLoader.getAction(multiQueryRequest);
