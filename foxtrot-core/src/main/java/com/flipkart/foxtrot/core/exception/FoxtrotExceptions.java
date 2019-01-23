@@ -74,6 +74,10 @@ public class FoxtrotExceptions {
         return new DataCleanupException(message, e);
     }
 
+    public static ServerException createServerException(String message, Exception e) {
+        return new ServerException(message, e);
+    }
+
     public static QueryCreationException queryCreationException(ActionRequest actionRequest, Exception e) {
         return new QueryCreationException(actionRequest, e);
     }
@@ -85,4 +89,6 @@ public class FoxtrotExceptions {
     public static UnresolvableActionException createUnresolvableActionException(ActionRequest actionRequest) {
         return new UnresolvableActionException(actionRequest);
     }
+
+
 }

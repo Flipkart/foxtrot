@@ -58,7 +58,6 @@ public class ActionTest {
         HazelcastConnection hazelcastConnection = Mockito.mock(HazelcastConnection.class);
         Config config = new Config();
         EmailConfig emailConfig = new EmailConfig();
-        emailConfig.setHost("localhost");
         emailConfig.setHost("127.0.0.1");
         this.hazelcastInstance = new TestHazelcastInstanceFactory(1).newHazelcastInstance(config);
         when(hazelcastConnection.getHazelcast()).thenReturn(hazelcastInstance);
@@ -87,8 +86,7 @@ public class ActionTest {
                 new DistributedCacheFactory(hazelcastConnection, mapper, new CacheConfig()));
         AnalyticsLoader analyticsLoader = new AnalyticsLoader(tableMetadataManager, dataStore, queryStore,
                                                               elasticsearchConnection, cacheManager, mapper,
-                                                              new EmailConfig()
-        );
+                                                              emailConfig);
         analyticsLoader.start();
         ExecutorService executorService = Executors.newFixedThreadPool(1);
         this.queryExecutor = new QueryExecutor(analyticsLoader, executorService);

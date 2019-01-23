@@ -7,6 +7,7 @@ import com.flipkart.foxtrot.common.query.Filter;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
 import java.util.List;
+import java.util.Set;
 
 /**
  * Created by rishabh.goyal on 02/08/14.
@@ -19,6 +20,8 @@ public class StatsTrendRequest extends ActionRequest {
 
     private List<String> nesting;
 
+    private Set<Stat> stats;
+
     private List<Double> percentiles;
 
     private Period period = Period.hours;
@@ -30,6 +33,7 @@ public class StatsTrendRequest extends ActionRequest {
     }
 
     public StatsTrendRequest(List<Filter> filters, String table, String field,
+                             Set<Stat> stats,
                              List<String> nesting,
                              List<Double> percentiles,
                              Period period,
@@ -38,6 +42,7 @@ public class StatsTrendRequest extends ActionRequest {
         this.table = table;
         this.field = field;
         this.nesting = nesting;
+        this.stats = stats;
         this.percentiles = percentiles;
         this.period = period;
         this.timestamp = timestamp;
@@ -91,12 +96,21 @@ public class StatsTrendRequest extends ActionRequest {
         this.percentiles = percentiles;
     }
 
+    public Set<Stat> getStats() {
+        return stats;
+    }
+
+    public void setStats(Set<Stat> stats) {
+        this.stats = stats;
+    }
+
     @Override
     public String toString() {
         return new ToStringBuilder(this).appendSuper(super.toString())
                 .append("table", table)
                 .append("field", field)
                 .append("nesting", nesting)
+                .append("stats", stats)
                 .append("percentiles", percentiles)
                 .append("period", period)
                 .append("timestamp", timestamp)

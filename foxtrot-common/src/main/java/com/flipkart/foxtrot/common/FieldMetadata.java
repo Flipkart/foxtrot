@@ -16,10 +16,7 @@
 package com.flipkart.foxtrot.common;
 
 import com.flipkart.foxtrot.common.estimation.EstimationData;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.io.Serializable;
 
@@ -30,6 +27,7 @@ import java.io.Serializable;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
+@EqualsAndHashCode
 public class FieldMetadata implements Serializable {
     private static final long serialVersionUID = 4583132990544615374L;
 

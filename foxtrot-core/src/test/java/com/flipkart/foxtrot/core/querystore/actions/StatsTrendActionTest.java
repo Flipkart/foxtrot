@@ -19,6 +19,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.flipkart.foxtrot.common.Document;
 import com.flipkart.foxtrot.common.query.Filter;
 import com.flipkart.foxtrot.common.query.numeric.BetweenFilter;
+import com.flipkart.foxtrot.common.stats.Stat;
 import com.flipkart.foxtrot.common.stats.StatsTrendRequest;
 import com.flipkart.foxtrot.common.stats.StatsTrendResponse;
 import com.flipkart.foxtrot.core.TestUtils;
@@ -29,7 +30,9 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.util.Collections;
+import java.util.EnumSet;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static org.junit.Assert.*;
 
@@ -52,9 +55,8 @@ public class StatsTrendActionTest extends ActionTest {
 
     private void filterNonZeroCounts(StatsTrendResponse statsTrendResponse) {
         statsTrendResponse.getResult()
-                .removeIf(statsTrendValue -> statsTrendValue.getStats()
-                        .get("count")
-                        .equals(0L));
+                .removeIf(statsTrendValue -> statsTrendValue.getStats().containsKey("count")
+                        && statsTrendValue.getStats().get("count").equals(0L));
     }
 
     @Test
@@ -75,13 +77,182 @@ public class StatsTrendActionTest extends ActionTest {
         filterNonZeroCounts(statsTrendResponse);
         assertNotNull(statsTrendResponse);
         assertNotNull(statsTrendResponse.getResult());
-        assertEquals(5, statsTrendResponse.getResult()
-                .size());
+        assertEquals(5, statsTrendResponse.getResult().size());
+        assertEquals(8, statsTrendResponse.getResult().get(0).getStats().size());
+        assertEquals(7, statsTrendResponse.getResult().get(0).getPercentiles().size());
         assertNull(statsTrendResponse.getBuckets());
     }
 
     @Test
-    public void testStatsTrendActionWithNesting() throws FoxtrotException, JsonProcessingException {
+    public void testStatsTrendActionNoExtendedStat() throws FoxtrotException, JsonProcessingException {
+        StatsTrendRequest request = new StatsTrendRequest();
+        request.setTable(TestUtils.TEST_TABLE_NAME);
+        request.setTimestamp("_timestamp");
+        request.setField("battery");
+        request.setStats(EnumSet.allOf(Stat.class).stream().filter(x -> !x.isExtended()).collect(Collectors.toSet()));
+
+        BetweenFilter betweenFilter = new BetweenFilter();
+        betweenFilter.setFrom(1L);
+        betweenFilter.setTo(System.currentTimeMillis());
+        betweenFilter.setTemporal(true);
+        betweenFilter.setField("_timestamp");
+        request.setFilters(Collections.<Filter>singletonList(betweenFilter));
+
+        StatsTrendResponse statsTrendResponse = StatsTrendResponse.class.cast(getQueryExecutor().execute(request));
+        filterNonZeroCounts(statsTrendResponse);
+        assertNotNull(statsTrendResponse);
+        assertNotNull(statsTrendResponse.getResult());
+        assertEquals(5, statsTrendResponse.getResult().size());
+        assertEquals(5, statsTrendResponse.getResult().get(0).getStats().size());
+        assertEquals(7, statsTrendResponse.getResult().get(0).getPercentiles().size());
+        assertNull(statsTrendResponse.getBuckets());
+    }
+
+    @Test
+    public void testStatsTrendActionOnlyCountStat() throws FoxtrotException {
+        StatsTrendRequest request = new StatsTrendRequest();
+        request.setTable(TestUtils.TEST_TABLE_NAME);
+        request.setTimestamp("_timestamp");
+        request.setField("battery");
+        request.setStats(Collections.singleton(Stat.count));
+
+        BetweenFilter betweenFilter = new BetweenFilter();
+        betweenFilter.setFrom(1L);
+        betweenFilter.setTo(System.currentTimeMillis());
+        betweenFilter.setTemporal(true);
+        betweenFilter.setField("_timestamp");
+        request.setFilters(Collections.<Filter>singletonList(betweenFilter));
+
+        StatsTrendResponse statsTrendResponse = StatsTrendResponse.class.cast(getQueryExecutor().execute(request));
+        filterNonZeroCounts(statsTrendResponse);
+        assertNotNull(statsTrendResponse);
+        assertNotNull(statsTrendResponse.getResult());
+        assertEquals(1, statsTrendResponse.getResult().get(0).getStats().size());
+        assertTrue(statsTrendResponse.getResult().get(0).getStats().containsKey("count"));
+        assertNull(statsTrendResponse.getBuckets());
+    }
+
+    @Test
+    public void testStatsTrendActionOnlyMaxStat() throws FoxtrotException {
+        StatsTrendRequest request = new StatsTrendRequest();
+        request.setTable(TestUtils.TEST_TABLE_NAME);
+        request.setTimestamp("_timestamp");
+        request.setField("battery");
+        request.setStats(Collections.singleton(Stat.max));
+
+        BetweenFilter betweenFilter = new BetweenFilter();
+        betweenFilter.setFrom(1L);
+        betweenFilter.setTo(System.currentTimeMillis());
+        betweenFilter.setTemporal(true);
+        betweenFilter.setField("_timestamp");
+        request.setFilters(Collections.<Filter>singletonList(betweenFilter));
+
+        StatsTrendResponse statsTrendResponse = StatsTrendResponse.class.cast(getQueryExecutor().execute(request));
+        filterNonZeroCounts(statsTrendResponse);
+        assertNotNull(statsTrendResponse);
+        assertNotNull(statsTrendResponse.getResult());
+        assertEquals(1, statsTrendResponse.getResult().get(0).getStats().size());
+        assertTrue(statsTrendResponse.getResult().get(0).getStats().containsKey("max"));
+        assertNull(statsTrendResponse.getBuckets());
+    }
+
+    @Test
+    public void testStatsTrendActionOnlyMinStat() throws FoxtrotException {
+        StatsTrendRequest request = new StatsTrendRequest();
+        request.setTable(TestUtils.TEST_TABLE_NAME);
+        request.setTimestamp("_timestamp");
+        request.setField("battery");
+        request.setStats(Collections.singleton(Stat.min));
+
+        BetweenFilter betweenFilter = new BetweenFilter();
+        betweenFilter.setFrom(1L);
+        betweenFilter.setTo(System.currentTimeMillis());
+        betweenFilter.setTemporal(true);
+        betweenFilter.setField("_timestamp");
+        request.setFilters(Collections.<Filter>singletonList(betweenFilter));
+
+        StatsTrendResponse statsTrendResponse = StatsTrendResponse.class.cast(getQueryExecutor().execute(request));
+        filterNonZeroCounts(statsTrendResponse);
+        assertNotNull(statsTrendResponse);
+        assertNotNull(statsTrendResponse.getResult());
+        assertEquals(1, statsTrendResponse.getResult().get(0).getStats().size());
+        assertTrue(statsTrendResponse.getResult().get(0).getStats().containsKey("min"));
+        assertNull(statsTrendResponse.getBuckets());
+    }
+
+    @Test
+    public void testStatsTrendActionOnlyAvgStat() throws FoxtrotException {
+        StatsTrendRequest request = new StatsTrendRequest();
+        request.setTable(TestUtils.TEST_TABLE_NAME);
+        request.setTimestamp("_timestamp");
+        request.setField("battery");
+        request.setStats(Collections.singleton(Stat.avg));
+
+        BetweenFilter betweenFilter = new BetweenFilter();
+        betweenFilter.setFrom(1L);
+        betweenFilter.setTo(System.currentTimeMillis());
+        betweenFilter.setTemporal(true);
+        betweenFilter.setField("_timestamp");
+        request.setFilters(Collections.<Filter>singletonList(betweenFilter));
+
+        StatsTrendResponse statsTrendResponse = StatsTrendResponse.class.cast(getQueryExecutor().execute(request));
+        filterNonZeroCounts(statsTrendResponse);
+        assertNotNull(statsTrendResponse);
+        assertNotNull(statsTrendResponse.getResult());
+        assertEquals(1, statsTrendResponse.getResult().get(0).getStats().size());
+        assertTrue(statsTrendResponse.getResult().get(0).getStats().containsKey("avg"));
+        assertNull(statsTrendResponse.getBuckets());
+    }
+
+    @Test
+    public void testStatsTrendActionOnlySumStat() throws FoxtrotException, JsonProcessingException {
+        StatsTrendRequest request = new StatsTrendRequest();
+        request.setTable(TestUtils.TEST_TABLE_NAME);
+        request.setTimestamp("_timestamp");
+        request.setField("battery");
+        request.setStats(Collections.singleton(Stat.sum));
+
+        BetweenFilter betweenFilter = new BetweenFilter();
+        betweenFilter.setFrom(1L);
+        betweenFilter.setTo(System.currentTimeMillis());
+        betweenFilter.setTemporal(true);
+        betweenFilter.setField("_timestamp");
+        request.setFilters(Collections.<Filter>singletonList(betweenFilter));
+
+        StatsTrendResponse statsTrendResponse = StatsTrendResponse.class.cast(getQueryExecutor().execute(request));
+        filterNonZeroCounts(statsTrendResponse);
+        assertNotNull(statsTrendResponse);
+        assertNotNull(statsTrendResponse.getResult());
+        assertEquals(1, statsTrendResponse.getResult().get(0).getStats().size());
+        assertTrue(statsTrendResponse.getResult().get(0).getStats().containsKey("sum"));
+        assertNull(statsTrendResponse.getBuckets());
+    }
+
+    @Test
+    public void testStatsTrendActionOnlyOnePercentile() throws FoxtrotException {
+        StatsTrendRequest request = new StatsTrendRequest();
+        request.setTable(TestUtils.TEST_TABLE_NAME);
+        request.setTimestamp("_timestamp");
+        request.setField("battery");
+        request.setPercentiles(Collections.singletonList(5d));
+
+        BetweenFilter betweenFilter = new BetweenFilter();
+        betweenFilter.setFrom(1L);
+        betweenFilter.setTo(System.currentTimeMillis());
+        betweenFilter.setTemporal(true);
+        betweenFilter.setField("_timestamp");
+        request.setFilters(Collections.<Filter>singletonList(betweenFilter));
+
+        StatsTrendResponse statsTrendResponse = StatsTrendResponse.class.cast(getQueryExecutor().execute(request));
+        filterNonZeroCounts(statsTrendResponse);
+        assertNotNull(statsTrendResponse);
+        assertNotNull(statsTrendResponse.getResult());
+        assertEquals(1, statsTrendResponse.getResult().get(0).getPercentiles().size());
+        assertTrue(statsTrendResponse.getResult().get(0).getPercentiles().containsKey(5d));
+    }
+
+    @Test
+    public void testStatsTrendActionWithNesting() throws FoxtrotException {
         StatsTrendRequest request = new StatsTrendRequest();
         request.setTable(TestUtils.TEST_TABLE_NAME);
         request.setTimestamp("_timestamp");

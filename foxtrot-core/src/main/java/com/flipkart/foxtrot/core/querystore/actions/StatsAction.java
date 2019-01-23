@@ -32,7 +32,6 @@ import org.elasticsearch.search.aggregations.Aggregations;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.elasticsearch.search.aggregations.bucket.terms.TermsBuilder;
 import org.elasticsearch.search.aggregations.metrics.percentiles.Percentiles;
-import org.elasticsearch.search.aggregations.metrics.stats.extended.InternalExtendedStats;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -51,21 +50,6 @@ public class StatsAction extends Action<StatsRequest> {
         super(parameter, tableMetadataManager, dataStore, queryStore, connection, cacheToken, cacheManager,
               objectMapper, emailConfig
              );
-    }
-
-    private static StatsValue buildStatsValue(String field, Aggregations aggregations) {
-        String metricKey = Utils.getExtendedStatsAggregationKey(field);
-        String percentileMetricKey = Utils.getPercentileAggregationKey(field);
-
-        // Build top level stats
-        StatsValue statsValue = new StatsValue();
-        InternalExtendedStats extendedStats = InternalExtendedStats.class.cast(aggregations.getAsMap()
-                                                                                       .get(metricKey));
-        statsValue.setStats(Utils.createExtendedStatsResponse(extendedStats));
-        Percentiles internalPercentile = (Percentiles) aggregations.getAsMap()
-                .get(percentileMetricKey);
-        statsValue.setPercentiles(Utils.createPercentilesResponse(internalPercentile));
-        return statsValue;
     }
 
     @Override
@@ -136,7 +120,8 @@ public class StatsAction extends Action<StatsRequest> {
 
             AbstractAggregationBuilder percentiles = Utils.buildPercentileAggregation(getParameter().getField(),
                     getParameter().getPercentiles());
-            AbstractAggregationBuilder extendedStats = Utils.buildExtendedStatsAggregation(getParameter().getField());
+            AbstractAggregationBuilder extendedStats = Utils.buildStatsAggregation(getParameter().getField(),
+                    getParameter().getStats());
 
             searchRequestBuilder.addAggregation(percentiles);
             searchRequestBuilder.addAggregation(extendedStats);
@@ -214,6 +199,19 @@ public class StatsAction extends Action<StatsRequest> {
             bucketResponses.add(bucketResponse);
         }
         return bucketResponses;
+    }
+
+    private static StatsValue buildStatsValue(String field, Aggregations aggregations) {
+        String metricKey = Utils.getExtendedStatsAggregationKey(field);
+        String percentileMetricKey = Utils.getPercentileAggregationKey(field);
+
+        // Build top level stats
+        StatsValue statsValue = new StatsValue();
+        statsValue.setStats(Utils.toStats(aggregations.getAsMap().get(metricKey)));
+        Percentiles internalPercentile = (Percentiles) aggregations.getAsMap()
+                .get(percentileMetricKey);
+        statsValue.setPercentiles(Utils.createPercentilesResponse(internalPercentile));
+        return statsValue;
     }
 
 }

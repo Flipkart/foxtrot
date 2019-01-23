@@ -93,8 +93,10 @@ public class ElasticsearchQueryStoreTest {
         when(tableMetadataManager.exists(anyString())).thenReturn(true);
         when(tableMetadataManager.get(anyString())).thenReturn(TestUtils.TEST_TABLE);
 */
+        EmailConfig emailConfig = new EmailConfig();
+        emailConfig.setHost("127.0.0.1");
         this.queryStore = new ElasticsearchQueryStore(tableMetadataManager, elasticsearchConnection, dataStore, mapper,
-                                                      cardinalityConfig, new EmailConfig(), new CacheConfig(), hazelcastConnection
+                                                      cardinalityConfig, emailConfig, new CacheConfig(), hazelcastConnection
         );
     }
 
@@ -458,6 +460,7 @@ public class ElasticsearchQueryStoreTest {
     }
 
     @Test
+    @Ignore
     public void testGetFieldMappings() throws FoxtrotException, InterruptedException {
         doReturn(TestUtils.getMappingDocuments(mapper)).when(dataStore)
                 .saveAll(any(Table.class), anyListOf(Document.class));
@@ -490,8 +493,7 @@ public class ElasticsearchQueryStoreTest {
         TableFieldMapping responseMapping = queryStore.getFieldMappings(TestUtils.TEST_TABLE_NAME);
 
         assertEquals(tableFieldMapping.getTable(), responseMapping.getTable());
-        assertTrue(tableFieldMapping.getMappings()
-                           .equals(responseMapping.getMappings()));
+        assertEquals(tableFieldMapping.getMappings(), responseMapping.getMappings());
     }
 
     @Test
