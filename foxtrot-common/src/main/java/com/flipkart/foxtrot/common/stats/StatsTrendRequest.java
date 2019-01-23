@@ -19,6 +19,8 @@ public class StatsTrendRequest extends ActionRequest {
 
     private List<String> nesting;
 
+    private List<Double> percentiles;
+
     private Period period = Period.hours;
 
     private String timestamp = "_timestamp";
@@ -27,12 +29,16 @@ public class StatsTrendRequest extends ActionRequest {
         super(Opcodes.STATS_TREND);
     }
 
-    public StatsTrendRequest(List<Filter> filters, String table, String field, List<String> nesting, Period period,
+    public StatsTrendRequest(List<Filter> filters, String table, String field,
+                             List<String> nesting,
+                             List<Double> percentiles,
+                             Period period,
                              String timestamp) {
         super(Opcodes.STATS_TREND, filters);
         this.table = table;
         this.field = field;
         this.nesting = nesting;
+        this.percentiles = percentiles;
         this.period = period;
         this.timestamp = timestamp;
     }
@@ -77,12 +83,21 @@ public class StatsTrendRequest extends ActionRequest {
         this.timestamp = timestamp;
     }
 
+    public List<Double> getPercentiles() {
+        return percentiles;
+    }
+
+    public void setPercentiles(List<Double> percentiles) {
+        this.percentiles = percentiles;
+    }
+
     @Override
     public String toString() {
         return new ToStringBuilder(this).appendSuper(super.toString())
                 .append("table", table)
                 .append("field", field)
                 .append("nesting", nesting)
+                .append("percentiles", percentiles)
                 .append("period", period)
                 .append("timestamp", timestamp)
                 .toString();

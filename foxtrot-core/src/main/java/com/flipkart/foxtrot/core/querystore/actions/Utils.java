@@ -2,6 +2,7 @@ package com.flipkart.foxtrot.core.querystore.actions;
 
 import com.flipkart.foxtrot.common.Period;
 import com.google.common.collect.Maps;
+import org.apache.commons.lang3.ArrayUtils;
 import org.elasticsearch.action.support.IndicesOptions;
 import org.elasticsearch.search.aggregations.AbstractAggregationBuilder;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
@@ -13,12 +14,16 @@ import org.elasticsearch.search.aggregations.metrics.percentiles.Percentiles;
 import org.elasticsearch.search.aggregations.metrics.stats.extended.InternalExtendedStats;
 import org.joda.time.DateTimeZone;
 
+import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * Created by rishabh.goyal on 24/08/14.
  */
 public class Utils {
+
+    private static final double[] DEFAULT_PERCENTILES = {1d, 5d, 25, 50d, 75d, 95d, 99d};
 
     public static AbstractAggregationBuilder buildExtendedStatsAggregation(String field) {
         String metricKey = getExtendedStatsAggregationKey(field);
@@ -26,9 +31,13 @@ public class Utils {
                 .field(field);
     }
 
-    public static AbstractAggregationBuilder buildPercentileAggregation(String field) {
+    public static AbstractAggregationBuilder buildPercentileAggregation(String field, List<Double> inputPercentiles) {
+        double[] percentiles = inputPercentiles != null
+                ? ArrayUtils.toPrimitive((Double[]) inputPercentiles.stream().filter(Objects::nonNull).toArray())
+                : DEFAULT_PERCENTILES;
         String metricKey = getPercentileAggregationKey(field);
         return AggregationBuilders.percentiles(metricKey)
+                .percentiles(percentiles)
                 .field(field);
     }
 

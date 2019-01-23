@@ -23,6 +23,8 @@ public class StatsRequest extends ActionRequest {
     @NotEmpty
     private String field;
 
+    private List<Double> percentiles;
+
     @Size(max = 10)
     private List<String> nesting;
 
@@ -30,10 +32,11 @@ public class StatsRequest extends ActionRequest {
         super(Opcodes.STATS);
     }
 
-    public StatsRequest(List<Filter> filters, String table, String field, List<String> nesting) {
+    public StatsRequest(List<Filter> filters, String table, String field, List<Double> percentiles, List<String> nesting) {
         super(Opcodes.STATS, filters);
         this.table = table;
         this.field = field;
+        this.percentiles = percentiles;
         this.nesting = nesting;
     }
 
@@ -61,11 +64,20 @@ public class StatsRequest extends ActionRequest {
         this.nesting = nesting;
     }
 
+    public List<Double> getPercentiles() {
+        return percentiles;
+    }
+
+    public void setPercentiles(List<Double> percentiles) {
+        this.percentiles = percentiles;
+    }
+
     @Override
     public String toString() {
         return new ToStringBuilder(this).appendSuper(super.toString())
                 .append("table", table)
                 .append("field", field)
+                .append("percentiles", percentiles)
                 .append("nesting", nesting)
                 .toString();
     }
