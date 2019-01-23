@@ -59,7 +59,7 @@ public class ActionTest {
         Config config = new Config();
         EmailConfig emailConfig = new EmailConfig();
         emailConfig.setHost("localhost");
-        emailConfig.setHost("127.0.0.1");
+        emailConfig.setHost("127.0.0.1");com.flipkart.foxtrot.core.datastore.impl.hbase.HBaseDataStoreTest
         this.hazelcastInstance = new TestHazelcastInstanceFactory(1).newHazelcastInstance(config);
         when(hazelcastConnection.getHazelcast()).thenReturn(hazelcastInstance);
         when(hazelcastConnection.getHazelcastConfig()).thenReturn(config);
