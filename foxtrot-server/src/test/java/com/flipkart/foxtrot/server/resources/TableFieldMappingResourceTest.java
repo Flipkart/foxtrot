@@ -85,6 +85,34 @@ public class TableFieldMappingResourceTest extends FoxtrotResourceTest {
                              .field("head.hello")
                              .type(FieldType.LONG)
                              .build());
+        mappings.add(FieldMetadata.builder()
+                             .field("date.dayOfWeek")
+                             .type(FieldType.LONG)
+                             .build());
+        mappings.add(FieldMetadata.builder()
+                             .field("date.minuteOfDay")
+                             .type(FieldType.LONG)
+                             .build());
+        mappings.add(FieldMetadata.builder()
+                             .field("date.monthOfYear")
+                             .type(FieldType.LONG)
+                             .build());
+        mappings.add(FieldMetadata.builder()
+                             .field("date.hourOfDay")
+                             .type(FieldType.LONG)
+                             .build());
+        mappings.add(FieldMetadata.builder()
+                             .field("date.year")
+                             .type(FieldType.LONG)
+                             .build());
+        mappings.add(FieldMetadata.builder()
+                             .field("date.dayOfMonth")
+                             .type(FieldType.LONG)
+                             .build());
+        mappings.add(FieldMetadata.builder()
+                             .field("date.minuteOfHour")
+                             .type(FieldType.LONG)
+                             .build());
 
         TableFieldMapping tableFieldMapping = new TableFieldMapping(TestUtils.TEST_TABLE_NAME, mappings);
         String response = resources.client()

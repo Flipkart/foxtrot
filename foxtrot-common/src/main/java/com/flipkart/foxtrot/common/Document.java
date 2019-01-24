@@ -68,6 +68,13 @@ public class Document implements Serializable {
         this.date = Utils.getDate(timestamp);
     }
 
+    public Document(String id, long timestamp, JsonNode data, Date date){
+        this.id = id;
+        this.timestamp = timestamp;
+        this.data = data;
+        this.date = date;
+    }
+
     @Builder
     public Document(String id, long timestamp, DocumentMetadata metadata, JsonNode data) {
         this.id = id;

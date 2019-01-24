@@ -66,6 +66,7 @@ public class DocumentResource {
             queryStore.save(table, documents);
         } catch (Exception e) {
             LOGGER.error("Error occurred in savingDocuments : " + e);
+            throw  e;
         }
         return Response.created(URI.create("/" + table))
                 .build();

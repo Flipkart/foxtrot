@@ -17,7 +17,7 @@ public class DocumentMetadata implements Serializable {
     public DocumentMetadata() {
     }
 
-    public DocumentMetadata(String id, String rawStoDocumentMetadatarageId) {
+    public DocumentMetadata(String id, String rawStorageId) {
         this.id = id;
         this.rawStorageId = rawStorageId;
     }
