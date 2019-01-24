@@ -69,6 +69,7 @@ public class DistributedTableMetadataManagerTest {
         when(elasticsearchConnection.getClient()).thenReturn(elasticsearchServer.getClient());
         ElasticsearchUtils.initializeMappings(elasticsearchConnection.getClient());
         EmailConfig emailConfig = new EmailConfig();
+        emailConfig.setHost("127.0.0.1");
 
         hazelcastInstance = new TestHazelcastInstanceFactory(1).newHazelcastInstance();
         HazelcastConnection hazelcastConnection = Mockito.mock(HazelcastConnection.class);
@@ -164,7 +165,7 @@ public class DistributedTableMetadataManagerTest {
 
         TableFieldMapping tableFieldMapping = distributedTableMetadataManager.getFieldMappings(
                 TestUtils.TEST_TABLE_NAME, true, true);
-        assertEquals(3, tableFieldMapping.getMappings()
+        assertEquals(10, tableFieldMapping.getMappings()
                 .size());
 
         assertEquals(FieldType.STRING, tableFieldMapping.getMappings()

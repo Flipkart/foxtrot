@@ -28,6 +28,7 @@ import java.util.Set;
 @NoArgsConstructor
 @ToString
 @Builder
+@EqualsAndHashCode
 public class TableFieldMapping implements Serializable {
     private static final long serialVersionUID = 251932689582302800L;
     private String table;
