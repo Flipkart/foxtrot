@@ -520,9 +520,6 @@ public class QueryTranslator extends SqlElementVisitor {
 
         @Override
         public void visit(InExpression inExpression) {
-            InFilter inFilter = new InFilter();
-            inFilter.setField(((Column)inExpression.getLeftExpression()).getFullyQualifiedName()
-                                      .replaceAll(Constants.SQL_FIELD_REGEX, ""));
             ItemsList itemsList = inExpression.getRightItemsList();
             if(!(itemsList instanceof ExpressionList)) {
                 throw new RuntimeException("Sub selects not supported");
@@ -534,8 +531,19 @@ public class QueryTranslator extends SqlElementVisitor {
                 Expression expression = (Expression)expressionObject;
                 filterValues.add(getValueFromExpression(expression));
             }
-            inFilter.setValues(filterValues);
-            filters.add(inFilter);
+            if (inExpression.isNot()) {
+                NotInFilter filter = new NotInFilter();
+                filter.setField(((Column)inExpression.getLeftExpression()).getFullyQualifiedName()
+                        .replaceAll(Constants.SQL_FIELD_REGEX, ""));
+                filter.setValues(filterValues);
+                filters.add(filter);
+            } else {
+                InFilter filter = new InFilter();
+                filter.setField(((Column)inExpression.getLeftExpression()).getFullyQualifiedName()
+                        .replaceAll(Constants.SQL_FIELD_REGEX, ""));
+                filter.setValues(filterValues);
+                filters.add(filter);
+            }
         }
 
         @Override
