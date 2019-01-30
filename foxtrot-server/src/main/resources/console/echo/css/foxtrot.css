@@ -385,6 +385,10 @@ h1 {
   display: none;
 }
 
+#nonStackedLine-chart-data {
+  display: none;
+}
+
 .add-child-btn {
   text-align: center;
   display: none;

@@ -189,7 +189,7 @@ function generateSunBurstDropDown(fields) { // generating all dropdowns
 }
 
 function getWidgetType() { // widget types
-  if (currentChartType == "line" || currentChartType == "stacked" || currentChartType == "stackedBar" || currentChartType == "statsTrend" || currentChartType == "bar" || currentChartType == "lineRatio" || currentChartType == "sunburst") {
+  if (currentChartType == "line" || currentChartType == "stacked" || currentChartType == "stackedBar" || currentChartType == "statsTrend" || currentChartType == "bar" || currentChartType == "lineRatio" || currentChartType == "sunburst" || currentChartType == "nonStackedLine") {
     return "full";
   }
   else if (currentChartType == "radar" || currentChartType == "pie") {
@@ -251,6 +251,7 @@ function getChartFormValues() { // get current widget form values
       case "count": return getCountChartFormValues();
       case "lineRatio": return getLineRatioChartFormValues();
       case "sunburst":  return getSunburstChartFormValues();
+      case "nonStackedLine":  return getNonStackedLineFormValues();
       default: return {};
   }
 }
@@ -340,6 +341,9 @@ function reloadDropdowns() { // change dropdown values for all charts when table
     case "sunburst":
       generateSunBurstDropDown(currentFieldList);
       break;
+    case "nonStackedLine":
+      generateDropDown(currentFieldList, ["#non-stacked-line-field", "#non-stacked-line-uniquekey"]);
+      break;
   }
 }
 
@@ -359,6 +363,7 @@ function invokeClearChartForm() { // clear widget forms
       case "count": clearCountChartForm(); break;
       case "lineRatio": clearLineRatioChartForm(); break;
       case "sunburst":  clearSunburstChartForm(); break;
+      case "nonStackedLine":  clearNonStackedLineChartForm(); break;
       default: return "";
   }
 }
@@ -518,6 +523,7 @@ function getWidgetSize(type) { // widget types
     case "bar":
     case "sunburst":
     case "lineRatio":
+    case "nonStackedLine":
       return 12;
     case "radar":
     case "pie":
