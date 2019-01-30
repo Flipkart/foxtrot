@@ -498,7 +498,7 @@ function splitArithmetic(arithmetic) {
  * Get opcode
  */
 function getOpcode(object) {
-  if(object.tileContext.chartType == "stackedBar")
+  if(object.tileContext.chartType == "stackedBar" || object.tileContext.chartType == "nonStackedLine")
     return "trend";
   else if(object.tileContext.chartType == "statstrend")
     return "statstrend";
