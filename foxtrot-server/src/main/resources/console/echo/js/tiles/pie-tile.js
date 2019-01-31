@@ -179,9 +179,9 @@ PieTile.prototype.render = function (columns, dataLength) {
       }
       , tooltip: true
       , tooltipOpts: {
-        content: function (label, x, y) {
+        content: function (label, x, y, point) {
           $("#"+object.id).find(".chart-item").find(".pie-center-div").show();
-          $("#"+object.id).find(".chart-item").find(".pie-center-div").find('.pie-center-value').text(y);
+          $("#"+object.id).find(".chart-item").find(".pie-center-div").find('.pie-center-value').text(y+"("+point.series.percent.toFixed(1) + '%)');
           $("#"+object.id).find(".chart-item").find(".pie-center-div").find('.pie-center-label').text(label);
           return "" + ": " + "";
         }
@@ -207,7 +207,7 @@ PieTile.prototype.render = function (columns, dataLength) {
           allSeries[i].oldColor = allSeries[i].color;
           allSeries[i].color = 'rgba(' + re.exec(allSeries[i].color)[1] + ',' + 1 + ')';
           $("#"+object.id).find(".chart-item").find(".pie-center-div").show();
-          $("#"+object.id).find(".chart-item").find(".pie-center-div").find('.pie-center-value').text(allSeries[i].data[0][1]);
+          $("#"+object.id).find(".chart-item").find(".pie-center-div").find('.pie-center-value').text(allSeries[i].data[0][1]+"("+allSeries[i].percent.toFixed(1) + '%)');
           $("#"+object.id).find(".chart-item").find(".pie-center-div").find('.pie-center-label').text(allSeries[i].label);
         } else {
           allSeries[i].color = 'rgba(' + re.exec(allSeries[i].color)[1] + ',' + 0.1 + ')';

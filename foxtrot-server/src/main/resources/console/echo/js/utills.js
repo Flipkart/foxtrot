@@ -507,7 +507,20 @@ function drawPieLegend(columns, element) { // pie legend
   columns.sort(function (lhs, rhs){
     return rhs.data - lhs.data;
   });
-  element.html(handlebars("#group-legend-pie-template", {data: columns}));
+  
+  var sum = columns.reduce((s, f) => {
+    return s + f.data;               // return the sum of the accumulator and the current time, as the the new accumulator
+  }, 0); // calculate total value
+
+  var percentage = _.map(columns, function(value, key){
+    return ((value.data)/sum * 100).toFixed(1);
+  }); // calculate sum for each value
+
+  var final = _.each(columns, function(element, index) {
+    _.extend(element, { "percentage" : percentage[index]});
+  }); // extend percentage to original array
+
+  element.html(handlebars("#group-legend-pie-template", {data: final}));
 }
 
 function convertName(name) { // convert given name into machine readable
