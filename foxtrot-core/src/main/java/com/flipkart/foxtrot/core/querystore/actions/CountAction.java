@@ -4,7 +4,6 @@ import com.flipkart.foxtrot.common.ActionResponse;
 import com.flipkart.foxtrot.common.count.CountRequest;
 import com.flipkart.foxtrot.common.count.CountResponse;
 import com.flipkart.foxtrot.common.query.Filter;
-import com.flipkart.foxtrot.common.query.FilterCombinerType;
 import com.flipkart.foxtrot.common.query.general.ExistsFilter;
 import com.flipkart.foxtrot.common.util.CollectionUtils;
 import com.flipkart.foxtrot.core.cache.CacheManager;
@@ -19,11 +18,10 @@ import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConnection;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
 import com.flipkart.foxtrot.core.querystore.query.ElasticSearchQueryGenerator;
 import com.flipkart.foxtrot.core.table.TableMetadataManager;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.elasticsearch.ElasticsearchException;
-import org.elasticsearch.action.count.CountRequestBuilder;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.action.search.SearchType;
 import org.elasticsearch.search.aggregations.Aggregations;
 import org.elasticsearch.search.aggregations.metrics.cardinality.Cardinality;
 
@@ -43,8 +41,8 @@ public class CountAction extends Action<CountRequest> {
                        QueryStore queryStore,
                        ElasticsearchConnection connection,
                        String cacheToken,
-                       CacheManager cacheManager) {
-        super(parameter, tableMetadataManager, dataStore, queryStore, connection, cacheToken, cacheManager);
+                       CacheManager cacheManager, ObjectMapper objectMapper) {
+        super(parameter, tableMetadataManager, dataStore, queryStore, connection, cacheToken, cacheManager, objectMapper);
 
     }
 
@@ -99,16 +97,15 @@ public class CountAction extends Action<CountRequest> {
                 query = getConnection().getClient()
                         .prepareSearch(ElasticsearchUtils.getIndices(parameter.getTable(), parameter))
                         .setIndicesOptions(Utils.indicesOptions())
-                        .setSearchType(SearchType.COUNT)
-                        .setQuery(new ElasticSearchQueryGenerator(FilterCombinerType.and)
-                                .genFilter(parameter.getFilters()))
+                        .setSize(0)
+                        .setQuery(new ElasticSearchQueryGenerator().genFilter(parameter.getFilters()))
                         .addAggregation(Utils.buildCardinalityAggregation(parameter.getField()));
             } catch (Exception e) {
                 throw FoxtrotExceptions.queryCreationException(parameter, e);
             }
 
             try {
-                SearchResponse response = query.execute().actionGet();
+                SearchResponse response = query.execute().actionGet(getGetQueryTimeout());
                 Aggregations aggregations = response.getAggregations();
                 Cardinality cardinality = aggregations.get(Utils.sanitizeFieldForAggregation(parameter.getField()));
                 if (cardinality == null) {
@@ -120,18 +117,18 @@ public class CountAction extends Action<CountRequest> {
                 throw FoxtrotExceptions.createQueryExecutionException(parameter, e);
             }
         } else {
-            CountRequestBuilder countRequestBuilder;
+            SearchRequestBuilder requestBuilder;
             try {
-                countRequestBuilder = getConnection().getClient()
-                        .prepareCount(ElasticsearchUtils.getIndices(parameter.getTable(), parameter))
+                requestBuilder = getConnection().getClient()
+                        .prepareSearch(ElasticsearchUtils.getIndices(parameter.getTable(), parameter))
                         .setIndicesOptions(Utils.indicesOptions())
-                        .setQuery(new ElasticSearchQueryGenerator(FilterCombinerType.and).genFilter(parameter.getFilters()));
+                        .setSize(0)
+                        .setQuery(new ElasticSearchQueryGenerator().genFilter(parameter.getFilters()));
             } catch (Exception e) {
                 throw FoxtrotExceptions.queryCreationException(parameter, e);
             }
             try {
-                org.elasticsearch.action.count.CountResponse countResponse = countRequestBuilder.execute().actionGet();
-                return new CountResponse(countResponse.getCount());
+                return new CountResponse(requestBuilder.execute().actionGet(getGetQueryTimeout()).getHits().getTotalHits());
             } catch (ElasticsearchException e) {
                 throw FoxtrotExceptions.createQueryExecutionException(parameter, e);
             }

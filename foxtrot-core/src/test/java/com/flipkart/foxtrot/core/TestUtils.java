@@ -1,12 +1,12 @@
 /**
  * Copyright 2014 Flipkart Internet Pvt. Ltd.
- *
+ * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
+ * <p>
  * http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -29,9 +29,15 @@ import com.flipkart.foxtrot.core.querystore.DocumentTranslator;
 import com.flipkart.foxtrot.core.querystore.actions.spi.ActionMetadata;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsLoader;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsProvider;
+import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConnection;
+import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
+import com.flipkart.foxtrot.core.table.impl.TableMapStore;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import org.apache.hadoop.hbase.client.HTableInterface;
+import org.elasticsearch.action.admin.indices.create.CreateIndexRequest;
+import org.elasticsearch.common.settings.Settings;
+import org.joda.time.DateTime;
 import org.mockito.Matchers;
 import org.mockito.Mockito;
 import org.reflections.Reflections;
@@ -40,9 +46,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.*;
 
 /**
  * Created by rishabh.goyal on 28/04/14.
@@ -50,11 +58,15 @@ import static org.mockito.Mockito.spy;
 public class TestUtils {
 
     private static final Logger logger = LoggerFactory.getLogger(TestUtils.class.getSimpleName());
-    public static String TEST_TABLE_NAME = "test-table";
-    public static Table TEST_TABLE = new Table(TEST_TABLE_NAME, 7);
+    public static final String TEST_TABLE_NAME = "test-table";
+    public static final Table TEST_TABLE
+            = Table.builder()
+            .name(TEST_TABLE_NAME)
+            .ttl(7)
+            .build();
 
     public static DataStore getDataStore() throws FoxtrotException {
-        HTableInterface tableInterface = MockHTable.create();
+        org.apache.hadoop.hbase.client.Table tableInterface = MockHTable.create();
         HbaseTableConnection tableConnection = Mockito.mock(HbaseTableConnection.class);
         doReturn(tableInterface).when(tableConnection).getTable(Matchers.<Table>any());
         doReturn(new HbaseConfig()).when(tableConnection).getHbaseConfig();
@@ -149,8 +161,35 @@ public class TestUtils {
         documents.add(TestUtils.getDocument("E", 1397658118004L, new Object[]{"os", "ios", "version", 2, "device", "ipad", "battery", 56}, mapper));
         documents.add(TestUtils.getDocument("F", 1397658118005L, new Object[]{"os", "ios", "version", 2, "device", "nexus", "battery", 35}, mapper));
         documents.add(TestUtils.getDocument("G", 1397658118006L, new Object[]{"os", "ios", "version", 2, "device", "ipad", "battery", 44}, mapper));
-        documents.add(TestUtils.getDocument("ABCD", 1397658118006L, new Object[]{"header.data", "ios"}, mapper));
         return documents;
+    }
+
+    public static List<Document> getGroupDocumentsForEstimation(ObjectMapper mapper) {
+        Random random = new Random();
+        return IntStream.rangeClosed(0, 2000)
+                .mapToObj(i -> Document.builder()
+                        .id(UUID.randomUUID().toString())
+                        .timestamp(i * 60000 + System.currentTimeMillis() - TimeUnit.DAYS.toMillis(1))
+                        .data(mapper.valueToTree(
+                                ImmutableMap.<String, Object>builder()
+                                        .put("deviceId", UUID.randomUUID().toString())
+                                        .put("os",
+                                                new String[]{
+                                                        "ios",
+                                                        "android",
+                                                        "android",
+                                                        "android"
+                                                }[random.nextInt(2)])
+                                        .put("registered",
+                                                new boolean[]{
+                                                        true,
+                                                        false,
+                                                        false
+                                                }[random.nextInt(3)])
+                                        .put("value", random.nextInt(101))
+                                        .build()))
+                        .build())
+                .collect(Collectors.toList());
     }
 
     public static List<Document> getHistogramDocuments(ObjectMapper mapper) {
@@ -249,6 +288,38 @@ public class TestUtils {
         return documents;
     }
 
+    public static List<Document> getFieldCardinalityEstimationDocuments(ObjectMapper mapper) {
+        List<Document> documents = new Vector<>();
+        Map<String, Object> document = Maps.newHashMap();
+        document.put("word", "1234");
+        document.put("numeric", 20);
+        document.put("boolean", true);
+        document.put("data", Collections.singletonMap("someField", "d"));
+        document.put("header", Collections.singletonList(Collections.singletonMap("someHeaderField", "client1")));
+        final long time = DateTime.now().minusDays(1).toDate().getTime();
+//        final long time = System.currentTimeMillis();
+        documents.add(new Document("Z", time, mapper.valueToTree(document)));
+
+        document = Maps.newHashMap();
+        document.put("word", "2345");
+        document.put("numeric", 30);
+        document.put("boolean", true);
+        document.put("data", ImmutableMap.of(
+                "someField", "c", "someOtherField", "blah", "exclusiveField", "hmmm"));
+        document.put("header", Collections.singletonList(Collections.singletonMap("someHeaderField", "client1")));
+        documents.add(new Document("Y", time, mapper.valueToTree(document)));
+
+        document = Maps.newHashMap();
+        document.put("word", "2345");
+        document.put("numeric", 25);
+        document.put("boolean", false);
+        document.put("data", ImmutableMap.of("someField", "c", "someOtherField", "blah"));
+        document.put("header", Collections.singletonList(Collections.singletonMap("someHeaderField", "client1")));
+        documents.add(new Document("X", time, mapper.valueToTree(document)));
+
+        return documents;
+    }
+
     public static List<Document> getQueryDocumentsDifferentDate(ObjectMapper mapper, long startTimestamp) {
         List<Document> documents = new Vector<Document>();
         documents.add(TestUtils.getDocument("Z", startTimestamp, new Object[]{"os", "android", "device", "nexus", "battery", 24}, mapper));
@@ -259,7 +330,19 @@ public class TestUtils {
         documents.add(TestUtils.getDocument("B", startTimestamp++, new Object[]{"os", "android", "version", 1, "device", "galaxy"}, mapper));
         documents.add(TestUtils.getDocument("C", startTimestamp++, new Object[]{"os", "android", "version", 2, "device", "nexus"}, mapper));
         documents.add(TestUtils.getDocument("D", startTimestamp++, new Object[]{"os", "ios", "version", 1, "device", "iphone"}, mapper));
-        documents.add(TestUtils.getDocument("E", startTimestamp++, new Object[]{"os", "ios", "version", 2, "device", "ipad"}, mapper));
+        documents.add(TestUtils.getDocument("E", startTimestamp, new Object[]{"os", "ios", "version", 2, "device", "ipad"}, mapper));
         return documents;
+    }
+
+    public static ElasticsearchConnection initESConnection(MockElasticsearchServer elasticsearchServer) {
+        CreateIndexRequest createRequest = new CreateIndexRequest(TableMapStore.TABLE_META_INDEX);
+        Settings indexSettings = Settings.builder().put("number_of_replicas", 0).build();
+        createRequest.settings(indexSettings);
+        elasticsearchServer.getClient().admin().indices().create(createRequest).actionGet();
+        elasticsearchServer.getClient().admin().cluster().prepareHealth().setWaitForGreenStatus().execute().actionGet();
+        ElasticsearchConnection elasticsearchConnection = Mockito.mock(ElasticsearchConnection.class);
+        when(elasticsearchConnection.getClient()).thenReturn(elasticsearchServer.getClient());
+        ElasticsearchUtils.initializeMappings(elasticsearchServer.getClient());
+        return elasticsearchConnection;
     }
 }

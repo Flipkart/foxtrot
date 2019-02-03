@@ -2,10 +2,13 @@ package com.flipkart.foxtrot.common;
 
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
+import java.io.Serializable;
+
 /**
  * Metadata for a document
  */
-public class DocumentMetadata {
+public class DocumentMetadata implements Serializable {
+    private static final long serialVersionUID = -2513729439392513459L;
     private String id;
     private String rawStorageId;
 

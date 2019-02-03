@@ -17,22 +17,22 @@
 package com.flipkart.foxtrot.core.common;
 
 import com.flipkart.foxtrot.common.query.Filter;
-import com.flipkart.foxtrot.common.query.FilterVisitor;
+import com.flipkart.foxtrot.common.query.FilterVisitorAdapter;
 import com.flipkart.foxtrot.common.query.datetime.LastFilter;
 import com.flipkart.foxtrot.common.query.datetime.TimeWindow;
-import com.flipkart.foxtrot.common.query.general.*;
 import com.flipkart.foxtrot.common.query.numeric.*;
-import com.flipkart.foxtrot.common.query.string.ContainsFilter;
+import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
 import org.joda.time.Interval;
 
 import java.util.List;
 
-public class PeriodSelector extends FilterVisitor {
+public class PeriodSelector extends FilterVisitorAdapter<Void> {
 
     private final TimeWindow timeWindow = new TimeWindow();
     private final List<Filter> filters;
 
     public PeriodSelector(final List<Filter> filters) {
+        super(null);
         this.filters = filters;
         timeWindow.setStartTime(Long.MAX_VALUE);
         timeWindow.setEndTime(Long.MIN_VALUE);
@@ -48,78 +48,53 @@ public class PeriodSelector extends FilterVisitor {
                 filter.accept(this);
             }
         }
+        for (Filter filter : filters) {
+            if (ElasticsearchUtils.TIME_FIELD.equals(filter.getField())) {
+                filter.accept(this);
+            }
+        }
         timeWindow.setStartTime(timeWindow.getStartTime() == Long.MAX_VALUE ? 0 : timeWindow.getStartTime());
         timeWindow.setEndTime(timeWindow.getEndTime() == Long.MIN_VALUE ? currentTime : timeWindow.getEndTime());
         return new Interval(timeWindow.getStartTime(), timeWindow.getEndTime());
     }
 
     @Override
-    public void visit(BetweenFilter betweenFilter) throws Exception {
+    public Void visit(BetweenFilter betweenFilter) throws Exception {
         timeWindow.setStartTime(Math.min((Long) betweenFilter.getFrom(), timeWindow.getStartTime()));
         timeWindow.setEndTime(Math.max((Long) betweenFilter.getTo(), timeWindow.getEndTime()));
+        return null;
     }
 
     @Override
-    public void visit(EqualsFilter equalsFilter) throws Exception {
-    }
-
-    @Override
-    public void visit(NotEqualsFilter notEqualsFilter) throws Exception {
-    }
-
-    @Override
-    public void visit(ContainsFilter stringContainsFilterElement) throws Exception {
-    }
-
-    @Override
-    public void visit(GreaterThanFilter greaterThanFilter) throws Exception {
+    public Void visit(GreaterThanFilter greaterThanFilter) throws Exception {
         timeWindow.setStartTime(Math.min((Long) greaterThanFilter.getValue() + 1, timeWindow.getStartTime()));
+        return null;
     }
 
     @Override
-    public void visit(GreaterEqualFilter greaterEqualFilter) throws Exception {
+    public Void visit(GreaterEqualFilter greaterEqualFilter) throws Exception {
         timeWindow.setStartTime(Math.min((Long) greaterEqualFilter.getValue(), timeWindow.getStartTime()));
+        return null;
     }
 
     @Override
-    public void visit(LessThanFilter lessThanFilter) throws Exception {
+    public Void visit(LessThanFilter lessThanFilter) throws Exception {
         timeWindow.setEndTime(Math.max((Long) lessThanFilter.getValue() - 1, timeWindow.getEndTime()));
+        return null;
     }
 
     @Override
-    public void visit(LessEqualFilter lessEqualFilter) throws Exception {
+    public Void visit(LessEqualFilter lessEqualFilter) throws Exception {
         timeWindow.setEndTime(Math.max((Long) lessEqualFilter.getValue(), timeWindow.getEndTime()));
+        return null;
     }
 
     @Override
-    public void visit(AnyFilter anyFilter) throws Exception {
-
-    }
-
-    @Override
-    public void visit(InFilter inFilter) throws Exception {
-
-    }
-
-    @Override
-    public void visit(NotInFilter inFilter) throws Exception {
-
-    }
-
-    @Override
-    public void visit(ExistsFilter existsFilter) throws Exception {
-
-    }
-
-    @Override
-    public void visit(LastFilter lastFilter) throws Exception {
+    public Void visit(LastFilter lastFilter) throws Exception {
         TimeWindow window = lastFilter.getWindow();
         timeWindow.setStartTime(window.getStartTime());
         timeWindow.setEndTime(window.getEndTime());
+        return null;
     }
 
-    @Override
-    public void visit(MissingFilter missingFilter) throws Exception {
-
-    }
 }

@@ -1,0 +1,889 @@
+<!DOCTYPE html>
+<!--
+* Copyright 2014 Flipkart Internet Pvt. Ltd.
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+* http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+-->
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="">
+  <meta name="author" content="">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="shortcut icon" href="../../assets/ico/favicon.ico">
+  <title>Echo</title>
+  <!-- Bootstrap core CSS -->
+  <link href="css/open-sans.css" rel="stylesheet">
+  <link href="css/bootstrap.min.css" rel="stylesheet">
+  <link href="css/bootstrap-select.min.css" rel="stylesheet">
+  <link href="css/bootstrap-datetimepicker.min.css" rel="stylesheet">
+  <link href="css/bootstrap-multiselect.css" rel="stylesheet">
+  <link rel="stylesheet" href="css/jquery-ui.css">
+  <link rel="stylesheet" href="css/bootstrapValidator.min.css">
+  <link href="css/foxtrot.css" rel="stylesheet">
+  <link href="css/radar-chart.min.css" rel="stylesheet">
+  <link href="css/mobile.css" rel="stylesheet">
+  <link href="css/sweetalert2.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.7.14/css/bootstrap-datetimepicker.min.css">  
+  <!-- Custom styles for this template -->
+  <!-- Just for debugging purposes. Don't actually copy this line! -->
+  <!--[if lt IE 9]><script src="../../assets/js/ie8-responsive-file-warning.js"></script><![endif]-->
+  <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+  <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+      <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+      <![endif]-->
+</head>
+
+<body> <span id="ruler"></span>
+  <div class="container-full">
+    <div class="new-header">
+      <div class="inner-header container-fluid">
+        <h1 class="col-sm-4 heading">
+          <a href="index.htm"><img src="img/echo_1.png" alt="logo" /></a>
+        </h1>
+        <div id="console-list-dropdown">
+          <select id="listConsole" class="listConsole">
+            <option value="none">Select console</option>
+          </select>
+            <ul id="left-menu">
+              <li><a href="browse-events.htm">Browse Events</a></li>
+              <li id="add-sections" data-target="#addDashboard" data-toggle="modal">
+                <span id="create-new-dashboard">Create New Dashboard</span>
+              </li>
+            </ul>
+        </div>
+      </div>
+    </div>
+    <!-- Modal -->
+    <div class="modal fade" id="addDashboard" tabindex="-2" role="dialog" aria-labelledby="addTab" aria-hidden="true">
+      <div class="modal-dialog">
+        <div id="console-modal">
+          <div id="add-tab-heading">
+            <h1>NEW DASHBOARD</h1>
+            <hr id="add-tab-heading-underline"/>
+          </div>
+          <div class="add-tab-form">
+            <form>
+              <div class="form-group">
+                <label class="control-label" for="widgetType"><strong>Dashboard Name</strong></label>
+                <input type="text" class="form-control dashboard-name" id="dashboard-name">
+              </div>
+              <div class="form-group">
+                <label class="control-label" for="widgetType"><strong>Page Name</strong></label>
+                  <input type="text" class="form-control tab-name" id="tab-name">
+              </div>
+              <div class="form-group add-dashboard-btn-div">
+                <button type="button" class="btn btn-primary add-tab-btn" id="addDashboardConfirm">Add</button>
+                <button type="button" class="btn add-dashboard-close" data-dismiss="modal">Cancel</button>
+              </div>
+            </form>
+          </div>
+        </div>
+        <div id="add-dashboard-side-close" data-dismiss="modal" ><img src="img/combined-shape.png" alt="close"></div>
+      </div>
+    </div>
+    <div class="modal fade" id="addTab" tabindex="-2" role="dialog" aria-labelledby="addSections" aria-hidden="true">
+      <div class="modal-dialog">
+        <div id="add-tab-modal">
+          <div id="add-tab-model-heading">
+            <h1>Add Page</h1>
+            <hr id="add-tab-model-heading-underline"/>
+          </div>
+          <div class="new-tab-form">
+            <form class="add-page-form">
+              <div class="form-group">
+                <label class="control-label" for="widgetType"><strong>Page Name</strong></label>
+                <input type="text" class="form-control section-name" id="section-name">
+              </div>
+              <div class="form-group add-page-btn-div">
+                <button type="button" class="btn add-tab-btn" id="addTabConfirm"><span>Add</span></button>
+                <button type="button" class="btn add-page-close" data-dismiss="modal">Cancel</button>
+              </div>
+            </form>
+          </div>
+        </div>
+        <div id="add-page-side-close" data-dismiss="modal" ><img src="img/combined-shape.png" alt="close"></div>
+      </div>
+    </div>
+    <div class="modal fade" id="save-dashboard" tabindex="-2" role="dialog" aria-labelledby="addSections" aria-hidden="true">
+      <div class="modal-dialog">
+        <div id="save-dashboard-modal">
+          <div id="save-dashboard-model-heading">
+            <h1>Save Dashboard</h1>
+            <hr id="save-dashboard-model-heading-underline"/>
+          </div>
+          <div class="save-dashboard-form">
+            <form class="add-page-form">
+              <div class="form-group">
+                <!-- <label class="control-label" for="widgetType"><strong>Dashboard Name</strong></label> -->
+                <input type="text" class="form-control save-dashboard-name" id="save-dashboard-name" disabled>
+              </div>
+              <div class="form-group save-page-btn-div">
+                <button type="button" class="btn save-dashboard-tab-btn" id="save-dashboard-tab-btn"><span>Save</span></button>
+                <button type="button" class="btn save-dashboard-close" data-dismiss="modal">Cancel</button>
+              </div>
+            </form>
+          </div>
+        </div>
+        <div id="add-page-side-close" data-dismiss="modal" ><img src="img/combined-shape.png"></div>
+      </div>
+    </div>
+    <!-- copy dashbard modal -->
+    <div class="modal fade" id="copy-dashboard" tabindex="-2" role="dialog" aria-labelledby="addSections" aria-hidden="true">
+        <div class="modal-dialog">
+          <div id="custom-modal-modal">
+            <div id="custom-modal-model-heading">
+              <h1>Copy Dashboard</h1>
+              <hr id="custom-modal-model-heading-underline"/>
+            </div>
+            <div class="custom-modal-form">
+              <form class="add-page-form">
+                <div class="form-group">
+                  <label class="control-label" for="widgetType"><strong>Dashboard Name</strong></label>
+                  <input type="text" class="form-control copy-dashboard-name" id="copy-dashboard-name">
+                  <span class="error copy-db-error">Please enter dashbard name</span>
+                </div>
+                <div class="form-group add-page-btn-div">
+                  <button type="button" class="btn custom-modal-tab-btn copy-dashboard-submit" id="custom-modal-tab-btn"><span>Save</span></button>
+                  <button type="button" class="btn close-copy-dashboard-submit custom-modal-close" data-dismiss="modal">Cancel</button>
+                </div>
+              </form>
+            </div>
+          </div>
+          <div id="add-page-side-close" data-dismiss="modal" ><img src="img/combined-shape.png"></div>
+        </div>
+      </div>
+      <!-- copy dashbard modal -->
+    <section id="main-content">
+      <div class="container-fluid" id="monitoring">
+        <div class="row">
+          <div class="col-md-6">
+            <div class="tab">
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="pull-right" id="right-action-btns">
+                <div id="top-settings">
+                    <img src="img/copy-db.png" data-target="#copy-dashboard" data-toggle="modal" title="Copy Widget" alt="Copy Widget" />
+                    <img data-target="#save-dashboard" data-toggle="modal" id="saveConsole" src="img/save.png" alt="Save Dashboard" title="Save Dashboard" />
+                    <img id="add-page-btn" src="img/pg-settings.png" title="Page Settings" alt="Page Settings" />
+                </div>
+                <div class="form-group refreshtime-block">
+                    <p class="no-margin">Refresh Time</p>
+                    <select id="refresh-time" class="refresh-time">
+                      <option value="off">Off</option>
+                      <option value="5s">5s</option>
+                      <option value="10s">10s</option>
+                      <option value="30s">30s</option>
+                      <option value="1m">1m</option>
+                      <option value="5m" selected>5m</option>
+                      <option value="15m">15m</option>
+                      <option value="30m">30m</option>
+                      <option value="1h">1h</option>
+                      <option value="2h">2h</option>
+                      <option value="1d">1d</option>
+                    </select>
+                  </div>
+                <!-- <button type="button" >Page settings</button>
+              <button type="button" >Save Dashboard</button> -->
+              <div class="col-sm-3 global-filters">
+                <div class="col-sm-6 global-filter-switch-div"><label>Global filters<input type="checkbox" class="ios-switch blue filter-switch tinyswitch"/><div id="switch"><div></div></div></label></div>
+                <div class="col-sm-5 hide-filters">
+                  <select class="global-filter-period-select" id="global-filter-period-select">
+                    <option value="custom" selected>Custom</option>
+                    <option value="5m">5 Minutes</option>
+                    <option value="15m">15 Minutes</option>
+                    <option value="30m">30 Minutes</option>
+                    <option value="1h"> 1 Hour</option>
+                    <option value="3h"> 3 Hour</option>
+                    <option value="6h"> 6 Hours</option>
+                    <option value="12h"> 12 Hours</option>
+                    <option value="1d"> 1 Day</option>
+                    <option value="2d"> 2 Days</option>
+                    <option value="5d"> 5 Days</option>
+                    <option value="7d"> 7 Days</option>
+                    <option value="15d"> 15 Days</option>
+                    <option value="30d"> 30 Days</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="tile-container" id="tileContainer">
+          <div class="float-clear"></div>
+        </div>
+        <div class="widget-new-btn">
+          <div class="btn-group">
+            <button type="button" class="btn btn-primary filter-nav-button default-add-widget-btn col-md-3"  data-toggle="modal" id="default-btn">+Add Widget</button>
+          </div>
+        </div>
+        <div id="save-console-div">
+          <button type="button" class="btn btn-primary filter-nav-button" id="saveConsole">Save console</button>
+        </div>
+      </div>
+    </section>
+
+    <div id="page-settings">
+      <div id="page-settings-close-btn"><img src="img/combined-shape.png" alt="close" /></div>
+      <div class="col-md-12 page-settings-top-btns">
+        <div class="row">
+          <div class="col-xs-8 form-group tile-name-parent">
+            <button type="submit" class="page-settings-left-btn">DASHBOARD SETTINGS</button>
+          </div>
+          <div class="col-xs-4 form-group">
+            <button type="submit" class="page-setting-save-btn" id="page-setting-save-btn">Save</button>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-12" id="page-settings-content">
+        <form class="col-md-12">
+          <div class="form-group">
+            <label class="control-label">Name : </label>
+            <input type="hidden" value="" class="tileId">
+            <input type="text" class="form-control page-dashboard-name" id="page-dashboard-name" />
+          </div>
+          <div id="page-settings-heading"><h1>PAGES</h1></div>
+          <div id="page-lists">
+            <div class="page-list-content-div">
+              <div id="page-lists-content"></div>
+              <button type="button" id="add-new-page-list"> Add Page</button>
+            </div>
+          </div>
+          <hr id='page-settings-divider'/>
+          <button type="button" class="delete-dashboard"> Delete Dashboard</button>
+        </form>
+      </div>
+    </div>
+
+    <div id="sidebar">
+      <div id="filter-close-btn" data-dismiss="modal" aria-hidden="true"><img src="img/combined-shape.png" alt="close" /></div>
+      <div class="col-md-12 sidebar-widget-btns">
+        <form id="sidebar-btn-form">
+          <div class="row">
+            <div class="col-xs-6 form-group tile-name-parent">
+              <button type="submit" class="sidebar-settings-btn">Settings</button>
+            </div>
+            <div class="col-xs-6 form-group">
+              <button type="button" class="filters-save-changes modal-done-btn save-changes" id="addWidgetConfirm">Save</button>
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="col-md-12" id="sidebar-content">
+        <div class="col-md-12">
+          <form id="basic-form">
+            <div class="row"><span class="top-error">*Please enter all the information</span></div>
+            <div class="form-group">
+              <label class="control-label">Name <span class="mandatory-text">*</span> </label>
+              <input type="hidden" value="" class="sidebar-tileId" id="sidebar-tileId">
+              <input type="text" name="sidebar-tile" required class="tile-title sidebar-tile form-control" id="tileTitle" placeholder="Give a title"/>
+            </div>
+            <div class="form-group">
+              <label class="control-label">Table <span class="mandatory-text">*</span></label>
+              <select class="selectpicker tile-table form-control" name="tile-table" id="tileTable" data-live-search="true" data-style="btn-warning" required> </select>
+            </div>
+            <h4 id="modal-heading">VISUALIZATION TYPE <span class="mandatory-text">*</span></h4>
+            <div class="row" id="vizualization">
+              <select id="chart-type" name="chart-type" class="chart-type form-control" required>
+                <option value="">Select Visualization Type</option>
+                <option value="line">Line / Histogram chart</option>
+                <option value="lineRatio">Line Ratio Chart</option>
+                <option value="stackedBar">Stacked Line chart</option>
+                <option value="bar">Bar Chart</option>
+                <option value="stacked">Stacked Bar chart</option>
+                <option value="trend">Trend / Number Chart</option>
+                <option value="count">Count Chart</option>
+                <option value="statsTrend">Stats Trend chart</option>
+                <option value="pie">Pie chart</option>
+                <option value="gauge">Gauge Chart</option>
+                <option value="percentageGauge">Percentage Gauge Chart</option>
+                <option value="radar">Radar/Spider Chart</option>
+              </select>
+            </div>
+          </form>
+
+            <div class="row" id="table-units">
+              <form id="line" class="lineForm">
+                <div id="line-chart-data">
+                  <div class="col-md-12 chart-forms">
+                    <div class="form-group">
+                      <label class="control-label">Time unit <span class="mandatory-text">*</span></label>
+                      <select class="selectpicker show-menu-arrow tile-time-unit form-control" name="tile-time-unit" id="tile-time-unit">
+                        <option value="minutes" selected="selected">Minute</option>
+                        <option value="hours">Hour</option>
+                        <option value="days">Day</option>
+                      </select>
+                    </div>
+                    <div class="form-group">
+                      <label class="control-label">Time Frame <span class="mandatory-text">*</span></label>
+                      <input type="number" class="line-timeframe form-control" id="line-timeframe" placeholder="Enter time frame" name="line-timeframe" required>
+                    </div>
+                    <div class="form-group">
+                      <label class="control-label">Unique of</label>
+                      <select class="selectpicker show-menu-arrow unique-key form-control" id="uniqueKey" data-live-search="true" data-style="btn-warning"></select>
+                    </div>
+                    <div class="form-group">
+                      <label class="control-label">Shift Decimal Left By</label>
+                      <input type="number" min="0" value="0" class="form-control line-ignored-digits" placeholder="" id="line-ignored-digits">
+                    </div>
+                  </div>
+                </div>
+              </form>
+              <form id="radar" class="radarForm">
+                <div id="radar-chart-data">
+                  <div class="col-md-12 chart-forms">
+                    <div class="form-group">
+                      <label class="control-label">Time unit <span class="mandatory-text">*</span></label>
+                      <select class="selectpicker show-menu-arrow radar-time-unit form-control" name="radar-time-unit" id="radar-time-unit" required>
+                        <option value="minutes" selected="selected">Minute</option>
+                        <option value="hours">Hour</option>
+                        <option value="days">Day</option>
+                      </select>
+                    </div>
+                    <div class="form-group">
+                      <label class="control-label">Time Frame <span class="mandatory-text">*</span></label>
+                      <input type="number" name="radar-timeframe" class="radar-timeframe form-control" id="radar-timeframe" placeholder="Enter time frame" required>
+                    </div>
+                    <div class="form-group">
+                      <label class="control-label">Field to classify <span class="mandatory-text">*</span></label>
+                      <select name="radar-nesting" class="selectpicker show-menu-arrow radar-nesting form-control" id="radar-nesting" data-live-search="true" data-style="btn-warning" required> </select>
+                    </div>
+                  </div>
+                </div>
+              </form>
+              <form id="gauge" class="gaugeForm">
+                <div id="gauge-chart-data">
+                  <div class="col-md-12 chart-forms">
+                    <div class="form-group">
+                      <label class="control-label">Time unit <span class="mandatory-text">*</span></label>
+                      <select name="gauge-time-unit" required class="selectpicker show-menu-arrow gauge-time-unit form-control" id="gauge-time-unit">
+                        <option value="minutes" selected="selected">Minute</option>
+                        <option value="hours">Hour</option>
+                        <option value="days">Day</option>
+                      </select>
+                    </div>
+                    <div class="form-group">
+                      <label class="control-label">Time Frame <span class="mandatory-text">*</span></label>
+                      <input type="number" name="gauge-timeframe" class="gauge-timeframe form-control" id="gauge-timeframe" placeholder="Enter time frame" required>
+                    </div>
+                    <div class="form-group">
+                      <label class="control-label">Field to classify <span class="mandatory-text">*</span></label>
+                      <select name="gauge-nesting" class="selectpicker show-menu-arrow gauge-nesting form-control" id="gauge-nesting" data-live-search="true" data-style="btn-warning" required> </select>
+                    </div>
+                    <div class="form-group">
+                      <label class="control-label">Success value<span class="mandatory-text">*</span></label>
+                      <input type="text" name="gauge-success-field" class="selectpicker gauge-success-field form-control" id="gauge-success-field" required />
+                    </div>
+                  </div>
+                </div>
+              </form>
+              <form id="percentageGauge" class="percentageGaugeForm">
+                <div id="percentageGauge-chart-data">
+                  <div class="col-md-12 chart-forms">
+                    <div class="form-group">
+                      <label class="control-label">Time unit <span class="mandatory-text">*</span></label>
+                      <select name="gauge-time-unit" required class="selectpicker show-menu-arrow percentage-gauge-time-unit form-control" id="percentage-gauge-time-unit">
+                        <option value="minutes" selected="selected">Minute</option>
+                        <option value="hours">Hour</option>
+                        <option value="days">Day</option>
+                      </select>
+                    </div>
+                    <div class="form-group">
+                      <label class="control-label">Time Frame <span class="mandatory-text">*</span></label>
+                      <input type="number" name="percentage-gauge-timeframe" class="percentage-gauge-timeframe form-control" id="percentage-gauge-timeframe" placeholder="Enter time frame" required>
+                    </div>
+                    <div class="form-group">
+                      <label class="control-label">Field to classify <span class="mandatory-text">*</span></label>
+                      <select name="percentage-gauge-nesting" class="selectpicker show-menu-arrow percentage-gauge-nesting form-control" id="percentage-gauge-nesting" data-live-search="true" data-style="btn-warning" required> </select>
+                    </div>
+                    <div class="form-group">
+                      <label class="control-label">Denominator value<span class="mandatory-text">*</span></label>
+                      <input type="text" name="percentage-gauge-success-field" class="selectpicker percentage-gauge-numerator-field form-control" id="percentage-gauge-numerator-field" placeholder="Enter numerator value" required />
+                    </div>
+                    <div class="form-group">
+                      <label class="control-label">Numertaor value<span class="mandatory-text">*</span></label>
+                      <input type="text" name="percentage-gauge-denominator-field" class="selectpicker percentage-gauge-denominator-field form-control" placeholder="Enter denominator value" id="percentage-gauge-denominator-field" required />
+                    </div>
+                    <div class="form-group"><label class="control-label">Unique of</label>
+                      <select id="percentage-gauge-uniquekey" class="selectpicker show-menu-arrow percentage-gauge-uniquekey form-control" data-live-search="true"> </select></div>
+                  </div>
+                </div>
+              </form>
+              <form id="trend" class="trendForm">
+                <div id="trend-chart-data">
+                  <div class="col-md-12 chart-forms">
+                    <div class="form-group">
+                      <label class="control-label">Time unit <span class="mandatory-text">*</span></label>
+                      <select required name="trend-time-unit" class="selectpicker show-menu-arrow trend-time-unit form-control" id="trend-time-unit">
+                        <option value="minutes" selected="selected">Minute</option>
+                        <option value="hours">Hour</option>
+                        <option value="days">Day</option>
+                      </select>
+                    </div>
+                    <div class="form-group">
+                      <label class="control-label">Time Frame <span class="mandatory-text">*</span></label>
+                      <input type="number" class="trend-timeframe form-control" id="trend-timeframe" placeholder="Enter time frame" required>
+                    </div>
+                    <div class="form-group">
+                      <label class="control-label">Field to run calculation on <span class="mandatory-text">*</span> </label>
+                      <select name="stats-field" required class="stats-field show-menu-arrow form-control selectpicker" id="stats-field" data-live-search="true"> </select>
+                    </div>
+                    <div class="form-group">
+                      <label class="control-label">Calculation to plot <span class="mandatory-text">*</span></label>
+                      <select name="statistic_to_plot" required id="statistic_to_plot" class="selectpicker show-menu-arrow statistic_to_plot form-control" data-live-search="true">
+                        <option value="">none</option>
+                        <option value=percentiles.1.0>1 percentile</option>
+                        <option value=percentiles.25.0>25 percentile</option>
+                        <option value=percentiles.5.0>5 percentile</option>
+                        <option value=percentiles.50.0>50 percentile</option>
+                        <option value=percentiles.75.0>75 percentile</option>
+                        <option value=percentiles.95.0>95 percentile</option>
+                        <option value=percentiles.99.0>99 percentile</option>
+                        <option value=stats.avg>Average</option>
+                        <option value=stats.count>Count</option>
+                        <option value=stats.max>Max</option>
+                        <option value=stats.min>Min</option>
+                        <option value=stats.std_deviation>Standard Deviation</option>
+                        <option value=stats.sum>Sum</option>
+                        <option value=stats.sum_of_squares>Sum of squares</option>
+                        <option value=stats.variance>Variance</option>
+                      </select>
+                    </div>
+                    <div class="form-group">
+                      <label class="control-label">Shift Decimal Left By</label>
+                      <input type="number" min="0" class="form-control trend-ignored-digits" placeholder="" id="trend-ignored-digits">
+                    </div>
+                  </div>
+                </div>
+              </form>
+              <form id="statsTrend" class="statsTrendForm">
+                <div id="statsTrend-chart-data">
+                  <div class="col-md-12 chart-forms">
+                    <div class="form-group">
+                      <label class="control-label">Time unit <span class="mandatory-text">*</span></label>
+                      <select name="stats-trend-time-unit" required class="selectpicker show-menu-arrow stats-trend-time-unit form-control" id="stats-trend-time-unit">
+                        <option value="minutes" selected="selected">Minute</option>
+                        <option value="hours">Hour</option>
+                        <option value="days">Day</option>
+                      </select>
+                    </div>
+                    <div class="form-group">
+                      <label class="control-label">Time Frame <span class="mandatory-text">*</span></label>
+                      <input type="number" name="stats-trend-timeframe" class="stats-trend-timeframe form-control" id="stats-trend-timeframe" placeholder="Enter time frame" required> </div>
+                    <div class="form-group"><label class="control-label">Field to run calculations on <span class="mandatory-text">*</span></label>
+                      <select name="stats-trend-field" required class="stats-trend-field form-control selectpicker" id="stats-trend-field" data-live-search="true"> </select></div>
+                    <div class="form-group">
+                      <label class="control-label">Calculation to plot <span class="mandatory-text">*</span></label>
+                      <select required name="stats-trend-statics-to-plot" id="stats-trend-statics-to-plot" multiple="multiple" class="selectpicker show-menu-arrow stats-trend-statics-to-plot form-control" data-live-search="true">
+                        <option value="">none</option>
+                        <option value=percentiles.1.0>1 percentile</option>
+                        <option value=percentiles.25.0>25 percentile</option>
+                        <option value=percentiles.5.0>5 percentile</option>
+                        <option value=percentiles.50.0>50 percentile</option>
+                        <option value=percentiles.75.0>75 percentile</option>
+                        <option value=percentiles.95.0>95 percentile</option>
+                        <option value=percentiles.99.0>99 percentile</option>
+                        <option value=stats.avg>Average</option>
+                        <option value=stats.count>Count</option>
+                        <option value=stats.max>Max</option>
+                        <option value=stats.min>Min</option>
+                        <option value=stats.std_deviation>Standard Deviation</option>
+                        <option value=stats.sum>Sum</option>
+                        <option value=stats.sum_of_squares>Sum of squares</option>
+                        <option value=stats.variance>Variance</option>
+                      </select>
+                    </div>
+                    <div class="form-group">
+                      <label class="control-label">Shift Decimal Left By</label>
+                      <input type="number" min="0" value="0" class="form-control stats-trend-ignored-digits" placeholder="" id="stats-trend-ignored-digits"></div>
+                  </div>
+                </div>
+              </form>
+              <form id="bar" class="barForm">
+                <div id="bar-chart-data">
+                  <div class="col-md-12 chart-forms">
+                    <div class="form-group">
+                      <label class="control-label">Time Unit <span class="mandatory-text">*</span></label>
+                      <select required name="bar-time-unit" class="selectpicker show-menu-arrow bar-time-unit form-control" id="bar-time-unit">
+                        <option value="minutes" selected="selected">Minute</option>
+                        <option value="hours">Hour</option>
+                        <option value="days">Day</option>
+                      </select>
+                    </div>
+                    <div class="form-group">
+                      <label class="control-label">Time Frame <span class="mandatory-text">*</span></label>
+                      <input name="bar-timeframe" type="number" class="bar-timeframe form-control" id="bar-timeframe" placeholder="Enter time frame" required>
+                    </div>
+                    <div class="form-group">
+                      <label class="control-label">Field to classify <span class="mandatory-text">*</span></label>
+                      <select name="bar-event-field" required class="selectpicker show-menu-arrow bar-event-field form-control" id="bar-event-field" data-live-search="true"> </select></div>
+                    <div class="form-group">
+                      <label class="control-label">Only consider particular values</label>
+                      <input type="text" class="bar-selected-value form-control" id="bar-selected-value" placeholder="Comma separated list of values to select">
+                    </div>
+                    <div class="form-group">
+                      <label class="control-label">Unique of</label>
+                      <select id="bar-uniquekey" class="selectpicker show-menu-arrow bar-uniquekey form-control" data-live-search="true"> </select></div>
+                    <div class="form-group">
+                      <label class="control-label">Shift Decimal Left By</label>
+                      <input type="number" min="0" value="0" class="form-control bar-ignored-digits" placeholder="" id="bar-ignored-digits"></div>
+                  </div>
+                </div>
+              </form>
+              <form id="stacked" class="stackedForm">
+                <div id="stacked-chart-data">
+                  <div class="col-md-12 chart-forms">
+                    <div class="form-group">
+                      <label class="control-label">Time Unit <span class="mandatory-text">*</span></label>
+                      <select name="stacked-time-unit" required class="selectpicker show-menu-arrow stacked-time-unit form-control" id="stacked-time-unit">
+                        <option value="minutes" selected="selected">Minute</option>
+                        <option value="hours">Hour</option>
+                        <option value="days">Day</option>
+                      </select></div>
+                    <div class="form-group">
+                      <label class="control-label">Time Frame <span class="mandatory-text">*</span></label>
+                      <input type="number" name="stacked-timeframe" class="stacked-timeframe form-control" id="stacked-timeframe" placeholder="Enter time frame" required></div>
+                    <div class="form-group">
+                      <label class="control-label">Field to classify <span class="mandatory-text">*</span></label>
+                      <select name="stacked-grouping-key" required class="selectpicker show-menu-arrow stacked-grouping-key form-control" id="stacked-grouping-key" data-live-search="true">
+                        <option value="minutes" selected="selected">Minute</option>
+                      </select></div>
+                    <div class="form-group">
+                      <label class="control-label">Stack by <span class="mandatory-text">*</span></label>
+                      <select name="stacking-key" required id="stacking-key" class="selectpicker show-menu-arrow stacking-key form-control" data-live-search="true">
+                      </select></div>
+                    <div class="form-group">
+                      <label class="control-label">Unique of</label>
+                      <select id="stacked-uniquekey" class="selectpicker show-menu-arrow stacked-uniquekey form-control" data-live-search="true">
+                      </select></div>
+                  </div>
+                </div>
+              </form>
+              <form id="stackedBar" class="stackedBarForm">
+                <div id="stackedBar-chart-data">
+                  <div class="col-md-12 chart-forms">
+                    <div class="form-group"><label class="control-label">Time Unit <span class="mandatory-text">*</span></label>
+                      <select name="stacked-bar-time-unit" required class="selectpicker show-menu-arrow stacked-bar-time-unit form-control" id="stacked-bar-time-unit">
+                        <option value="minutes" selected="selected">Minute</option>
+                        <option value="hours">Hour</option>
+                        <option value="days">Day</option>
+                      </select></div>
+                    <div class="form-group"><label class="control-label">Time Frame <span class="mandatory-text">*</span></label>
+                      <input name="stacked-bar-timeframe" type="number" class="stacked-bar-timeframe form-control" id="stacked-bar-timeframe" placeholder="Enter time frame" required></div>
+                    <div class="form-group"><label class="control-label">Field to classify <span class="mandatory-text">*</span></label>
+                      <select name="stacked-bar-field" required class="selectpicker show-menu-arrow stacked-bar-field form-control" id="stacked-bar-field" data-live-search="true"></select></div>
+                    <div class="form-group"><label class="control-label">Unique of</label>
+                      <select id="stacked-bar-uniquekey" class="selectpicker show-menu-arrow stacked-bar-uniquekey form-control" data-live-search="true">
+                      </select></div>
+                    <div class="form-group">
+                      <label class="control-label">Shift Decimal Left By</label>
+                      <input type="number" min="0" value="0" class="form-control stackedBar-ignored-digits" placeholder="" id="stackedBar-ignored-digits">
+                    </div>
+                  </div>
+                </div>
+              </form>
+              <form id="lineRatio" class="lineRatioForm">
+                <div id="lineRatio-chart-data">
+                  <div class="col-md-12 chart-forms">
+                    <div class="form-group"><label class="control-label">Time Unit <span class="mandatory-text">*</span></label>
+                      <select name="line-ratio-time-unit" required class="selectpicker show-menu-arrow line-ratio-time-unit form-control" id="line-ratio-time-unit">
+                        <option value="minutes" selected="selected">Minute</option>
+                        <option value="hours">Hour</option>
+                        <option value="days">Day</option>
+                      </select></div>
+                    <div class="form-group"><label class="control-label">Time Frame <span class="mandatory-text">*</span></label>
+                      <input name="line-ratio-timeframe" type="number" class="line-ratio-timeframe form-control" id="line-ratio-timeframe" placeholder="Enter time frame" required></div>
+                    <div class="form-group"><label class="control-label">Field to classify <span class="mandatory-text">*</span></label>
+                      <select name="line-ratio-field" required class="selectpicker show-menu-arrow line-ratio-field form-control" id="line-ratio-field" data-live-search="true"></select></div>
+                      <div class="form-group">
+                        <label class="control-label">Denominator  value<span class="mandatory-text">*</span></label>
+                        <input type="text" name="line-ratio-numerator-field" class="selectpicker line-ratio-numerator-field form-control" id="line-ratio-numerator-field" placeholder="Enter numerator value" required />
+                      </div>
+                      <div class="form-group">
+                        <label class="control-label">Numertaor value<span class="mandatory-text">*</span></label>
+                        <input type="text" name="line-ratio-denominator-field" class="selectpicker line-ratio-denominator-field form-control" placeholder="Enter denominator value" id="line-ratio-denominator-field" required />
+                      </div>
+                    <div class="form-group"><label class="control-label">Unique of</label>
+                      <select id="line-ratio-uniquekey" class="selectpicker show-menu-arrow line-ratio-uniquekey form-control" data-live-search="true">
+                      </select></div>
+                    <!-- <div class="form-group">
+                      <label class="control-label">Shift Decimal Left By</label>
+                      <input type="number" min="0" value="0" class="form-control line-ratio-ignored-digits" placeholder="" id="line-ratio-ignored-digits">
+                    </div> -->
+                  </div>
+                </div>
+              </form>
+              <form id="pie" class="pieForm">
+                <div id="pie-chart-data">
+                  <div class="col-md-12 chart-forms">
+                    <div class="form-group">
+                      <label class="control-label">Time Unit <span class="mandatory-text">*</span></label>
+                      <select name="pie-time-unit" required class="selectpicker show-menu-arrow pie-time-unit form-control" id="pie-time-unit">
+                        <option value="minutes" selected="selected">Minute</option>
+                        <option value="hours">Hour</option>
+                        <option value="days">Day</option>
+                      </select></div>
+                    <div class="form-group">
+                      <label class="control-label">Time Frame <span class="mandatory-text">*</span></label>
+                      <input name="pie-timeframe" type="number" class="pie-timeframe form-control" id="pie-timeframe" placeholder="Enter time frame" required></div>
+                    <div class="form-group"><label class="control-label">Field to classify <span class="mandatory-text">*</span></label>
+                      <select name="eventtype-field" required class="selectpicker show-menu-arrow eventtype-field form-control" id="eventtype-field" data-live-search="true"> </select></div>
+                    <div class="form-group">
+                      <label class="control-label">Only consider particular values</label>
+                      <input type="text" class="pie-selected-value form-control" id="pie-selected-value" placeholder="Comma separated list of values to select">
+                    </div>
+                    <div class="form-group"><label class="control-label">Unique of</label>
+                      <select id="pie-uniquekey" class="selectpicker show-menu-arrow pie-uniquekey form-control" data-live-search="true"> </select></div>
+                    <div class="form-group">
+                      <label class="control-label" for="pie-ignored-digits"><strong>Shift Decimal Left By</strong> </label>
+                      <input type="number" min="0" value="0" class="form-control pie-ignored-digits" placeholder="" id="pie-ignored-digits">
+                    </div>
+                  </div>
+                </div>
+              </form>
+              <form id="count" class="countForm">
+                <div id="count-chart-data">
+                  <div class="col-md-12 chart-forms">
+                    <div class="form-group">
+                      <label class="control-label">Time unit <span class="mandatory-text">*</span></label>
+                      <select name="count-time-unit" required class="selectpicker show-menu-arrow count-time-unit form-control" id="count-time-unit">
+                        <option value="minutes" selected="selected">Minute</option>
+                        <option value="hours">Hour</option>
+                        <option value="days">Day</option>
+                      </select>
+                    </div>
+                    <div class="form-group">
+                      <label class="control-label">Time Frame <span class="mandatory-text">*</span></label>
+                      <input name="count-timeframe" type="number" class="count-timeframe form-control" id="count-timeframe" placeholder="Enter time frame" required>
+                    </div>
+                    <div class="form-group">
+                      <label class="control-label">Distinct count on field</label>
+                      <select class="selectpicker show-menu-arrow count-field form-control" id="count-field" data-live-search="true" data-style="btn-warning" name="count-field"> </select>
+                    </div>
+                    <div class="row">
+                      <label id="count-distinct-label"><input type="checkbox" class="count-dist" value="false" id="count-dist"> &nbsp;&nbsp;Distinct Count</label>
+                    </div>
+                    <div class="form-group">
+                      <label class="control-label" for="count-ignored-digits"><strong>Shift Decimal Left By</strong> </label>
+                      <input type="number" min="0" value="0" class="form-control count-ignored-digits" placeholder="" id="count-ignored-digits">
+                    </div>
+                  </div>
+                </div>
+              </form>
+            </div>
+          </div>
+          <div class="col-md-12" id="modal-filters">
+            <h4 id="sidebar-filter-heading">Filters</h4>
+            <div class="row filter-row">
+              <div class="add-filter-row"></div>
+              <div id="filter-add">
+                <button type="button" id="sidebar-filter-btn" class="form-control"> <span id="filter-add-btn"> Add Filters</span> </button>
+              </div>
+            </div>
+          </div>
+          <hr id="delete-widget-divider">
+          <div class="delete-widget">
+            <input type="hidden" id="delete-widget-value" value="">
+            <button type="button" class="delete-widget-btn">Delete Widget</button>
+          </div>
+          <hr id="delete-widget-divider">
+          <div class="copy-widget">
+            <input type="hidden" id="copy-widget-value" value="">
+            <button type="button" class="copy-widget-btn">Copy Widget</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!--Filter-->
+    <div class="modal fade" tabindex="-1" id="setupFiltersModal" role="dialog" aria-labelledby="setupFilterModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <form class="form-horizontal filters-form" role="form" data-toggle="validate" data-delay="" id="setupFilterModalForm">
+          <div id="ui-filter-close-btn" data-dismiss="modal" aria-hidden="true"><img src="img/combined-shape.png" alt="close"></div>
+          <div class="modal-content">
+            <div class="modal-header">
+              <h4 class="modal-title" id="setupFilterModalLabel">STATS TO PLOT</h4>
+              <p onClick="unSelectAllUiCheckbox();" id="un-select-all-checkbox" class="show filter-check-text">Unselect all</p>
+              <p onClick="selectAllUiCheckbox();" id="select-all-checkbox" class="hide filter-check-text">Select all</p>
+            </div>
+            <div class="modal-body ui-filter-body">
+              <div class="form-group">
+                <div class="col-sm-12">
+                  <input type="hidden" class="tileId">
+                </div>
+              </div>
+              <div class="form-group">
+                <div id="filter-checkbox-div">
+                </div>
+<!--
+                <label class="col-sm-4 control-label" for="stats_to_plot"><strong>Stats to plot</strong></label>
+                <div class="col-sm-8">
+                  <select id="filter_values" class="filter_values" multiple="multiple">
+                  </select>
+                  <div class="help-block with-errors">Select the field from the above list.</div>
+                </div>
+-->
+              </div>
+            </div>
+            <div class="modal-footer ui-filter-btn">
+              <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+              <button type="submit" class="btn btn-primary">Done</button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!--Templates-->
+    <script id="tile-template" type="text/x-handlebars-template">
+      <div>
+        <div class='tile tile-gradient tile-default-size' id='{{tileId}}'>
+            <div class="fetch-error">Data Refresh Failed</div>
+          <div class="widget-header"> <p class="tile-title">Title bar</p>
+            <div class='widget-toolbox'>
+              <div class="settings">
+                <div class="widget-timeframe">
+                  <select class="period-select" id="period-select">
+                    <option value="5m">5 Minutes</option>
+                    <option value="15m">15 Minutes</option>
+                    <option value="30m">30 Minutes</option>
+                    <option value="1h"> 1 Hour</option>
+                    <option value="3h"> 3 Hour</option>
+                    <option value="6h"> 6 Hours</option>
+                    <option value="12h"> 12 Hours</option>
+                    <option value="1d"> 1 Day</option>
+                    <option value="2d"> 2 Days</option>
+                    <option value="5d"> 5 Days</option>
+                    <option value="7d"> 7 Days</option>
+                    <option value="15d"> 15 Days</option>
+                    <option value="30d"> 30 Days</option>
+                  </select>
+                </div>
+                <div class="title-header-toolbar-icon-container">
+                  <div class="filter"><img src="img/Filter_normal.png" title="settings" onmouseover="this.src='img/filter_hover.png';" onmouseout="this.src='img/Filter_normal.png';" ></div> <img class="glyphicon-cog settings-icon" src="img/Settings_normal.png" title="settings" onmouseover="this.src='img/settings_hover.png';" onmouseout="this.src='img/Settings_normal.png';"> </div>
+              </div>
+            </div>
+          </div>
+          <div class='chart-content' id='content-for-{{tileId}}'>
+            <div class="trend-chart"> </div>
+            <div class="chart-item"> </div>
+          </div>
+          <div class="add-child-btn">
+            <button type="button" class="primary-button child-btn">Add child</button>
+          </div>
+        </div>
+      </div>
+    </script>
+    <div class="footer">
+    </div>
+  </div>
+
+  <script id="group-legend-template" type="text/x-handlebars-template">
+  <ul>
+    {{#each data}}
+    <li style="color:{{color}}"><span class="legend-label">{{label}}</span></li>
+    {{/each}}
+    </ul>
+  </script>
+
+  <script id="group-legend-pie-template" type="text/x-handlebars-template">
+  <ul>
+  {{#each data}}
+  <li style="color:{{color}}"><span class="legend-label">{{label}} - ({{data}})</span></li>
+  {{/each}}
+    </ul>
+  </script>
+
+  <!-- /container -->
+  <!-- Bootstrap core JavaScript
+    ================================================== -->
+  <!-- Placed at the end of the document so the pages load faster -->
+  <script src="js/hostdetails.js"></script>
+  <script src="js/jquery.js"></script>
+  <script src="js/common-utils.js"></script>
+  <script src="js/handlebars-v1.3.0.js"></script>
+  <script src="js/handlebars-helper.js"></script>
+  <script src="js/tileutils.js"></script>
+  <script src="js/bootstrap/bootstrap.min.js"></script>
+  <script src="js/bootstrap/bootstrap-select.min.js"></script>
+  <script src="js/bootstrap/bootstrap-multiselect.js"></script>
+  <script src="js/jquery-ui.js"></script>
+  <script src="js/utills.js"></script>
+  <script src="js/tables.js"></script>
+  <script src="js/main.js"></script>
+  <script src="js/functions.js"></script>
+  <script src="js/flot/jquery.flot.min.js"></script>
+  <script src="js/flot/jquery.flot.resize.min.js"></script>
+  <script src="js/flot/jquery.flot.pie.min.js"></script>
+  <script src="js/tiles/line-tile.js"></script>
+  <script src="js/tiles/tile.js"></script>
+  <script src="js/d3.js"></script>
+  <script src="js/radar-chart.min.js"></script>
+  <script src="js/tiles/radar-tile.js"></script>
+  <script src="js/tiles/trend-tile.js"></script>
+  <script src="js/tiles/gauge-tile.js"></script>
+  <script src="js/tiles/percentage-gauge-tile.js"></script>
+  <script src="js/tiles/stacked-tile.js"></script>
+  <script src="js/tiles/count-tile.js"></script>
+  <script src="js/flot/jquery.flot.time.min.js"></script>
+  <script src="js/tiles/stacked-bar-tile.js"></script>
+  <script src="js/tiles/line-ratio-tile.js"></script>
+  <script src="js/colorgen.js"></script>
+  <script src="js/tiles/pie-tile.js"></script>
+  <script src="js/flot/jquery.flot.tooltip.js"></script>
+  <script src="js/tiles/stats-trend-tile.js"></script>
+  <script src="js/tiles/bar-tile.js"></script>
+  <script src="js/jquery.flot.crosshair.js"></script>
+  <script src="js/flot/jquery.flot.stack.min.js"></script>
+  <script src="js/flot/jquery.flot.valuelabels.js"></script>
+  <script src="js/flot/curvedLines.js"></script>
+  <script src="js/flat.js"></script>
+  <script src="js/moment.min.js"></script>
+  <script src="js/validate.js"></script>
+  <script src="js/sweetalert/sweetalert2.min.js"></script>
+  <script src="js/bootstrap-datetimepicker.min.js"></script>  
+  <script type="text/javascript">
+    $('.navbar').on('click', function(){
+      showHideSideBar();
+    });
+
+    $('#add-page-btn').on('click', function(){
+      showHidePageSettings();
+    });
+
+    $('#sidebar').hide();
+    $('#sidebar').animate({ 'width': '0px' }, 'slow', function(){
+      $('#sidebar').hide();
+    });
+
+    $('#page-settings').hide();
+    $('#page-settings').animate({ 'width': '0px' }, 'slow', function(){
+      $('#page-settings').hide();
+    });
+
+    $('#main-content').css({ 'margin-left': '0px' });
+
+    $("#page-settings-close-btn").click(function() {
+      showHidePageSettings();
+    });
+    hideFilters();
+  </script>
+  <!--Application-->
+</body>
+
+</html>

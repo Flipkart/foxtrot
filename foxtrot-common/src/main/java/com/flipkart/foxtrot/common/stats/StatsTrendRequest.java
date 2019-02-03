@@ -4,7 +4,6 @@ import com.flipkart.foxtrot.common.ActionRequest;
 import com.flipkart.foxtrot.common.Opcodes;
 import com.flipkart.foxtrot.common.Period;
 import com.flipkart.foxtrot.common.query.Filter;
-import com.flipkart.foxtrot.common.query.FilterCombinerType;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
 import java.util.List;
@@ -18,8 +17,6 @@ public class StatsTrendRequest extends ActionRequest {
 
     private String field;
 
-    private FilterCombinerType combiner = FilterCombinerType.and;
-
     private List<String> nesting;
 
     private Period period = Period.hours;
@@ -30,11 +27,10 @@ public class StatsTrendRequest extends ActionRequest {
         super(Opcodes.STATS_TREND);
     }
 
-    public StatsTrendRequest(List<Filter> filters, String table, String field, FilterCombinerType combiner, List<String> nesting, Period period, String timestamp) {
+    public StatsTrendRequest(List<Filter> filters, String table, String field, List<String> nesting, Period period, String timestamp) {
         super(Opcodes.STATS_TREND, filters);
         this.table = table;
         this.field = field;
-        this.combiner = combiner;
         this.nesting = nesting;
         this.period = period;
         this.timestamp = timestamp;
@@ -64,14 +60,6 @@ public class StatsTrendRequest extends ActionRequest {
         this.nesting = nesting;
     }
 
-    public FilterCombinerType getCombiner() {
-        return combiner;
-    }
-
-    public void setCombiner(FilterCombinerType combiner) {
-        this.combiner = combiner;
-    }
-
     public Period getPeriod() {
         return period;
     }
@@ -94,7 +82,6 @@ public class StatsTrendRequest extends ActionRequest {
                 .appendSuper(super.toString())
                 .append("table", table)
                 .append("field", field)
-                .append("combiner", combiner)
                 .append("nesting", nesting)
                 .append("period", period)
                 .append("timestamp", timestamp)

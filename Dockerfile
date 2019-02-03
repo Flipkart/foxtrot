@@ -14,6 +14,7 @@ RUN \
 
 EXPOSE 17000
 EXPOSE 17001
+EXPOSE 5701
 
 VOLUME /var/log/foxtrot-server
 

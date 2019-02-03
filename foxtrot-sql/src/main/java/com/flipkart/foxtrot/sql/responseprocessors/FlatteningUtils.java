@@ -59,10 +59,8 @@ public class FlatteningUtils {
             }
         }
         else {
-            for (String definedHeaders : headerData.keySet()) {
-                if (headerData.containsKey(definedHeaders)) {
-                    headers.add(new FieldHeader(definedHeaders, headerData.get(definedHeaders)));
-                }
+            for(Map.Entry<String, Integer> entry : headerData.entrySet()) {
+                headers.add(new FieldHeader(entry.getKey(), entry.getValue()));
             }
         }
         return new FlatRepresentation(headers, rows);

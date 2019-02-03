@@ -1,12 +1,12 @@
 /**
  * Copyright 2014 Flipkart Internet Pvt. Ltd.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -27,7 +27,6 @@ import org.elasticsearch.action.admin.indices.create.CreateIndexRequest;
 import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.get.MultiGetItemResponse;
 import org.elasticsearch.action.get.MultiGetResponse;
-import org.elasticsearch.common.settings.ImmutableSettings;
 import org.elasticsearch.common.settings.Settings;
 import org.junit.After;
 import org.junit.Before;
@@ -63,7 +62,7 @@ public class TableMapStoreTest {
         when(elasticsearchConnection.getClient()).thenReturn(elasticsearchServer.getClient());
 
         //Create index for table meta. Not created automatically
-        Settings indexSettings = ImmutableSettings.settingsBuilder().put("number_of_replicas", 0).build();
+        Settings indexSettings = Settings.builder().put("number_of_replicas", 0).build();
         CreateIndexRequest createRequest = new CreateIndexRequest(TableMapStore.TABLE_META_INDEX).settings(indexSettings);
         elasticsearchServer.getClient().admin().indices().create(createRequest).actionGet();
         elasticsearchServer.getClient().admin().cluster().prepareHealth().setWaitForGreenStatus().execute().actionGet();
@@ -138,8 +137,8 @@ public class TableMapStoreTest {
             Table table = mapper.readValue(multiGetItemResponse.getResponse().getSourceAsString(), Table.class);
             responseTables.put(table.getName(), table);
         }
-        for (String name : tables.keySet()) {
-            compareTables(tables.get(name), responseTables.get(name));
+        for(Map.Entry<String, Table> entry : tables.entrySet()) {
+            compareTables(entry.getValue(), responseTables.get(entry.getKey()));
         }
     }
 

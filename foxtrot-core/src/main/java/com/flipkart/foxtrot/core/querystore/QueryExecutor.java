@@ -17,6 +17,7 @@ package com.flipkart.foxtrot.core.querystore;
 
 import com.flipkart.foxtrot.common.ActionRequest;
 import com.flipkart.foxtrot.common.ActionResponse;
+import com.flipkart.foxtrot.common.ActionValidationResponse;
 import com.flipkart.foxtrot.core.common.Action;
 import com.flipkart.foxtrot.core.common.AsyncDataToken;
 import com.flipkart.foxtrot.core.exception.FoxtrotException;
@@ -41,16 +42,16 @@ public class QueryExecutor {
         this.executorService = executorService;
     }
 
+    public <T extends ActionRequest> ActionValidationResponse validate(T request) throws FoxtrotException {
+        return resolve(request).validate();
+    }
+
     public <T extends ActionRequest> ActionResponse execute(T request) throws FoxtrotException {
         return resolve(request).execute();
     }
 
     public <T extends ActionRequest> AsyncDataToken executeAsync(T request) throws FoxtrotException {
         return resolve(request).execute(executorService);
-    }
-
-    public <T extends ActionRequest> void validate(T request) throws FoxtrotException {
-        resolve(request).validateImpl();
     }
 
     public <T extends ActionRequest> Action resolve(T request) throws FoxtrotException {

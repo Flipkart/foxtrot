@@ -17,10 +17,12 @@ package com.flipkart.foxtrot.server.resources;
 
 import com.flipkart.foxtrot.common.ActionRequest;
 import com.flipkart.foxtrot.common.ActionResponse;
+import com.flipkart.foxtrot.common.ActionValidationResponse;
 import com.flipkart.foxtrot.core.common.AsyncDataToken;
 import com.flipkart.foxtrot.core.exception.FoxtrotException;
 import com.flipkart.foxtrot.core.querystore.QueryExecutor;
 
+import javax.validation.Valid;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -44,19 +46,19 @@ public class AnalyticsResource {
     }
 
     @POST
-    public ActionResponse runSync(final ActionRequest request) throws FoxtrotException {
+    public ActionResponse runSync(@Valid final ActionRequest request) throws FoxtrotException {
         return queryExecutor.execute(request);
     }
 
     @POST
     @Path("/async")
-    public AsyncDataToken runSyncAsync(final ActionRequest request) throws FoxtrotException {
+    public AsyncDataToken runSyncAsync(@Valid final ActionRequest request) throws FoxtrotException {
         return queryExecutor.executeAsync(request);
     }
 
     @POST
     @Path("/validate")
-    public void validateQuery(final ActionRequest request) throws FoxtrotException {
-        queryExecutor.validate(request);
+    public ActionValidationResponse validateQuery(@Valid final ActionRequest request) throws FoxtrotException {
+        return queryExecutor.validate(request);
     }
 }

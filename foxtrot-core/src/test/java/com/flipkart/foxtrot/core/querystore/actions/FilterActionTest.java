@@ -55,7 +55,7 @@ public class FilterActionTest extends ActionTest {
         super.setUp();
         List<Document> documents = TestUtils.getQueryDocuments(getMapper());
         getQueryStore().save(TestUtils.TEST_TABLE_NAME, documents);
-        getElasticsearchServer().getClient().admin().indices().prepareRefresh("*").setForce(true).execute().actionGet();
+        getElasticsearchServer().getClient().admin().indices().prepareRefresh("*").execute().actionGet();
     }
 
     @Test(expected = FoxtrotException.class)
@@ -660,10 +660,12 @@ public class FilterActionTest extends ActionTest {
         for (Document document : documents) {
             getElasticsearchServer().getClient().admin().indices()
                     .prepareRefresh(ElasticsearchUtils.getCurrentIndex(TestUtils.TEST_TABLE_NAME, document.getTimestamp()))
-                    .setForce(true).execute().actionGet();
+                    .execute().actionGet();
         }
         GetIndexResponse response = getElasticsearchServer().getClient().admin().indices().getIndex(new GetIndexRequest()).actionGet();
-        assertEquals(3, response.getIndices().length);
+        assertEquals(3, Arrays.stream(response.getIndices())
+                .filter(index -> !index.equals("table-meta"))
+                .count());
 
         Query query = new Query();
         query.setLimit(documents.size());

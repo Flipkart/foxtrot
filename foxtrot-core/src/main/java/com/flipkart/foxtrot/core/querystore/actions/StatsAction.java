@@ -2,7 +2,6 @@ package com.flipkart.foxtrot.core.querystore.actions;
 
 import com.flipkart.foxtrot.common.ActionResponse;
 import com.flipkart.foxtrot.common.query.Filter;
-import com.flipkart.foxtrot.common.query.FilterCombinerType;
 import com.flipkart.foxtrot.common.stats.BucketResponse;
 import com.flipkart.foxtrot.common.stats.StatsRequest;
 import com.flipkart.foxtrot.common.stats.StatsResponse;
@@ -21,16 +20,15 @@ import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
 import com.flipkart.foxtrot.core.querystore.query.ElasticSearchQueryGenerator;
 import com.flipkart.foxtrot.core.table.TableMetadataManager;
 import com.google.common.collect.Lists;
-import org.apache.commons.lang3.StringUtils;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.elasticsearch.ElasticsearchException;
 import org.elasticsearch.action.search.SearchRequestBuilder;
-import org.elasticsearch.action.search.SearchType;
 import org.elasticsearch.search.aggregations.AbstractAggregationBuilder;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.Aggregations;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.elasticsearch.search.aggregations.bucket.terms.TermsBuilder;
-import org.elasticsearch.search.aggregations.metrics.percentiles.InternalPercentiles;
+import org.elasticsearch.search.aggregations.metrics.percentiles.Percentiles;
 import org.elasticsearch.search.aggregations.metrics.stats.extended.InternalExtendedStats;
 
 import java.util.ArrayList;
@@ -49,8 +47,9 @@ public class StatsAction extends Action<StatsRequest> {
                        QueryStore queryStore,
                        ElasticsearchConnection connection,
                        String cacheToken,
-                       CacheManager cacheManager) {
-        super(parameter, tableMetadataManager, dataStore, queryStore, connection, cacheToken, cacheManager);
+                       CacheManager cacheManager,
+                       ObjectMapper objectMapper) {
+        super(parameter, tableMetadataManager, dataStore, queryStore, connection, cacheToken, cacheManager, objectMapper);
     }
 
     @Override
@@ -79,7 +78,6 @@ public class StatsAction extends Action<StatsRequest> {
             }
         }
 
-        statsHashKey += 31 * statsRequest.getCombiner().hashCode();
         return String.format("%s-%s-%d", statsRequest.getTable(), statsRequest.getField(), statsHashKey);
     }
 
@@ -92,10 +90,6 @@ public class StatsAction extends Action<StatsRequest> {
         if (CollectionUtils.isNullOrEmpty(parameter.getField())) {
             validationErrors.add("field name cannot be null or empty");
         }
-        if (parameter.getCombiner() == null) {
-            validationErrors.add(String.format("specify filter combiner (%s)", StringUtils.join(FilterCombinerType.values())));
-        }
-
         if (!CollectionUtils.isNullOrEmpty(validationErrors)) {
             throw FoxtrotExceptions.createMalformedQueryException(parameter, validationErrors);
         }
@@ -109,9 +103,8 @@ public class StatsAction extends Action<StatsRequest> {
                     ElasticsearchUtils.getIndices(parameter.getTable(), parameter))
                     .setTypes(ElasticsearchUtils.DOCUMENT_TYPE_NAME)
                     .setIndicesOptions(Utils.indicesOptions())
-                    .setQuery(new ElasticSearchQueryGenerator(parameter.getCombiner()).genFilter(parameter.getFilters()))
-                    .setSize(0)
-                    .setSearchType(SearchType.COUNT);
+                    .setQuery(new ElasticSearchQueryGenerator().genFilter(parameter.getFilters()))
+                    .setSize(0);
 
             AbstractAggregationBuilder percentiles = Utils.buildPercentileAggregation(getParameter().getField());
             AbstractAggregationBuilder extendedStats = Utils.buildExtendedStatsAggregation(getParameter().getField());
@@ -143,7 +136,7 @@ public class StatsAction extends Action<StatsRequest> {
             throw FoxtrotExceptions.queryCreationException(parameter, e);
         }
         try {
-            Aggregations aggregations = searchRequestBuilder.execute().actionGet().getAggregations();
+            Aggregations aggregations = searchRequestBuilder.execute().actionGet(getGetQueryTimeout()).getAggregations();
             if (aggregations != null) {
                 return buildResponse(parameter, aggregations);
             }
@@ -178,7 +171,7 @@ public class StatsAction extends Action<StatsRequest> {
         List<BucketResponse<StatsValue>> bucketResponses = Lists.newArrayList();
         for (Terms.Bucket bucket : terms.getBuckets()) {
             BucketResponse<StatsValue> bucketResponse = new BucketResponse<>();
-            bucketResponse.setKey(bucket.getKey());
+            bucketResponse.setKey(String.valueOf(bucket.getKey()));
             if (nesting.size() == 1) {
                 bucketResponse.setResult(buildStatsValue(getParameter().getField(), bucket.getAggregations()));
             } else {
@@ -197,7 +190,7 @@ public class StatsAction extends Action<StatsRequest> {
         StatsValue statsValue = new StatsValue();
         InternalExtendedStats extendedStats = InternalExtendedStats.class.cast(aggregations.getAsMap().get(metricKey));
         statsValue.setStats(Utils.createExtendedStatsResponse(extendedStats));
-        InternalPercentiles internalPercentile = InternalPercentiles.class.cast(aggregations.getAsMap().get(percentileMetricKey));
+        Percentiles internalPercentile = Percentiles.class.cast(aggregations.getAsMap().get(percentileMetricKey));
         statsValue.setPercentiles(Utils.createPercentilesResponse(internalPercentile));
         return statsValue;
     }

@@ -4,7 +4,6 @@ import com.flipkart.foxtrot.common.ActionResponse;
 import com.flipkart.foxtrot.common.distinct.DistinctRequest;
 import com.flipkart.foxtrot.common.distinct.DistinctResponse;
 import com.flipkart.foxtrot.common.query.Filter;
-import com.flipkart.foxtrot.common.query.FilterCombinerType;
 import com.flipkart.foxtrot.common.query.ResultSort;
 import com.flipkart.foxtrot.common.util.CollectionUtils;
 import com.flipkart.foxtrot.core.cache.CacheManager;
@@ -19,10 +18,10 @@ import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConnection;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
 import com.flipkart.foxtrot.core.querystore.query.ElasticSearchQueryGenerator;
 import com.flipkart.foxtrot.core.table.TableMetadataManager;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.elasticsearch.ElasticsearchException;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.action.search.SearchType;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.Aggregations;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
@@ -49,8 +48,8 @@ public class DistinctAction extends Action<DistinctRequest> {
                           QueryStore queryStore,
                           ElasticsearchConnection connection,
                           String cacheToken,
-                          CacheManager cacheManager) {
-        super(parameter, tableMetadataManager, dataStore, queryStore, connection, cacheToken, cacheManager);
+                          CacheManager cacheManager, ObjectMapper objectMapper) {
+        super(parameter, tableMetadataManager, dataStore, queryStore, connection, cacheToken, cacheManager, objectMapper);
     }
 
     @Override
@@ -132,16 +131,15 @@ public class DistinctAction extends Action<DistinctRequest> {
                     rootBuilder = termsBuilder;
                 }
             }
-            query.setQuery(new ElasticSearchQueryGenerator(FilterCombinerType.and)
-                    .genFilter(request.getFilters()))
-                    .setSearchType(SearchType.COUNT)
+            query.setQuery(new ElasticSearchQueryGenerator().genFilter(request.getFilters()))
+                    .setSize(0)
                     .addAggregation(rootBuilder);
         } catch (Exception e) {
             throw FoxtrotExceptions.queryCreationException(request, e);
         }
 
         try {
-            SearchResponse response = query.execute().actionGet();
+            SearchResponse response = query.execute().actionGet(getGetQueryTimeout());
             Aggregations aggregations = response.getAggregations();
             // Check if any aggregation is present or not
             if (aggregations == null) {
@@ -172,9 +170,9 @@ public class DistinctAction extends Action<DistinctRequest> {
         Terms terms = aggregations.get(Utils.sanitizeFieldForAggregation(field));
         for (Terms.Bucket bucket : terms.getBuckets()) {
             if (fields.size() == 1) {
-                responseList.add(getValueList(parentKey, bucket.getKey()));
+                responseList.add(getValueList(parentKey, String.valueOf(bucket.getKey())));
             } else {
-                flatten(getProperKey(parentKey, bucket.getKey()), remainingFields, responseList, bucket.getAggregations());
+                flatten(getProperKey(parentKey, String.valueOf(bucket.getKey())), remainingFields, responseList, bucket.getAggregations());
             }
         }
     }

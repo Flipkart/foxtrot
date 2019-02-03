@@ -1,12 +1,12 @@
 /**
  * Copyright 2014 Flipkart Internet Pvt. Ltd.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -37,6 +37,9 @@ public class ElasticsearchConfig {
     private String cluster;
     private String tableNamePrefix = "foxtrot";
 
+    public static final long DEFAULT_TIMEOUT = 10000L;
+    private long getQueryTimeout;
+
     public ElasticsearchConfig() {
     }
 
@@ -62,5 +65,9 @@ public class ElasticsearchConfig {
 
     public void setTableNamePrefix(String tableNamePrefix) {
         this.tableNamePrefix = tableNamePrefix;
+    }
+
+    public long getGetQueryTimeout() {
+        return getQueryTimeout > 0 ? getQueryTimeout : DEFAULT_TIMEOUT;
     }
 }

@@ -21,10 +21,11 @@ import com.flipkart.foxtrot.common.Document;
 import com.flipkart.foxtrot.core.TestUtils;
 import com.flipkart.foxtrot.core.exception.FoxtrotException;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
-import org.elasticsearch.action.admin.cluster.health.ClusterHealthResponse;
+import com.flipkart.foxtrot.server.providers.exception.FoxtrotExceptionMapper;
+import io.dropwizard.testing.junit.ResourceTestRule;
 import org.junit.Assert;
+import org.junit.Rule;
 import org.junit.Test;
-import org.mockito.Mockito;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,31 +34,30 @@ import java.util.UUID;
 /**
  * Created by swapnil on 25/01/16.
  */
-public class ClusterHealthResourceTest extends FoxtrotResourceTest{
+public class ClusterHealthResourceTest extends FoxtrotResourceTest {
+
+    @Rule
+    public ResourceTestRule resources;
 
     public ClusterHealthResourceTest() throws Exception {
         super();
-        Mockito.doReturn(true).when(getTableMetadataManager()).exists(Mockito.anyString());
-        Mockito.doReturn(TestUtils.TEST_TABLE).when(getTableMetadataManager()).get(Mockito.anyString());
-    }
-
-    @Override
-    protected void setUpResources() throws Exception {
-        addResource(new ClusterHealthResource(getQueryStore()));
+        resources = ResourceTestRule.builder()
+                .addResource(new ClusterHealthResource(getQueryStore()))
+                .addProvider(new FoxtrotExceptionMapper(getMapper()))
+                .setMapper(getMapper())
+                .build();
     }
 
     @Test
-    public void testClusterHealthApi(){
-        ClusterHealthResponse response = client().resource("/v1/clusterhealth").get(ClusterHealthResponse.class);
-        Assert.assertEquals("elasticsearch", response.getClusterName());
-        Assert.assertEquals(1,response.getNumberOfNodes());
-        Assert.assertNotNull(response.getIndices().get("table-meta"));
+    public void testClusterHealthApi() {
+        JsonNode response = resources.client().target("/v1/clusterhealth").request().get(JsonNode.class);
+        Assert.assertEquals(1, response.get("numberOfNodes").asInt());
+        Assert.assertNotNull(response.get("indices").has("table-meta"));
     }
 
     @Test
     public void testNodeStats() throws FoxtrotException {
-
-        JsonNode response = client().resource("/v1/clusterhealth/nodestats").get(JsonNode.class);
+        JsonNode response = resources.client().target("/v1/clusterhealth/nodestats").request().get(JsonNode.class);
         Assert.assertEquals(1, response.path("nodesMap").size());
     }
 
@@ -72,8 +72,7 @@ public class ClusterHealthResourceTest extends FoxtrotResourceTest{
         documents.add(document2);
         getQueryStore().save(TestUtils.TEST_TABLE_NAME, documents);
         getElasticsearchServer().refresh(ElasticsearchUtils.getIndices(TestUtils.TEST_TABLE_NAME));
-
-        JsonNode response = client().resource("/v1/clusterhealth/indicesstats").get(JsonNode.class);
+        JsonNode response = resources.client().target("/v1/clusterhealth/indicesstats").request().get(JsonNode.class);
         Assert.assertEquals(2, response.path("primaries").path("docs").path("count").asInt());
         Assert.assertNotEquals(0, response.path("total").path("store").path("sizeInBytes").asInt());
         Assert.assertNotEquals(0, response.path("primaries").path("store").path("sizeInBytes").asInt());

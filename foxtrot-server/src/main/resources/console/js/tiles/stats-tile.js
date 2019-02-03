@@ -172,7 +172,6 @@ Stats.prototype.populateSetupDialog = function () {
     if (this.selectedFilters) {
         modal.find(".selected-filters").val(JSON.stringify(this.selectedFilters));
     }
-
     modal.find('.statistic_to_plot').first().val(this.selectedStat);
     modal.find('.statistic_to_plot').first().selectpicker("refresh");
     modal.find(".ignored-digits").val(this.ignoreDigits);

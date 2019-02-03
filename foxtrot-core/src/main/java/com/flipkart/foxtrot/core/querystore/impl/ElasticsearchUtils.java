@@ -1,12 +1,12 @@
 /**
  * Copyright 2014 Flipkart Internet Pvt. Ltd.
- *
+ * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
+ * <p>
  * http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -21,9 +21,7 @@ import com.flipkart.foxtrot.core.common.PeriodSelector;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
 import org.elasticsearch.action.admin.indices.template.put.PutIndexTemplateRequest;
-import org.elasticsearch.action.admin.indices.template.put.PutIndexTemplateRequestBuilder;
 import org.elasticsearch.client.Client;
-import org.elasticsearch.client.IndicesAdminClient;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.common.xcontent.XContentFactory;
 import org.joda.time.DateTime;
@@ -45,12 +43,14 @@ public class ElasticsearchUtils {
     private static final Logger logger = LoggerFactory.getLogger(ElasticsearchUtils.class.getSimpleName());
 
 
+    private static String TABLENAME_PREFIX = "foxtrot";
     public static final String DOCUMENT_TYPE_NAME = "document";
     public static final String DOCUMENT_META_TYPE_NAME = "metadata";
     public static final String DOCUMENT_META_FIELD_NAME = "__FOXTROT_METADATA__";
     public static final String DOCUMENT_META_ID_FIELD_NAME = String.format("%s.id", DOCUMENT_META_FIELD_NAME);
-    public static String TABLENAME_PREFIX = "foxtrot";
     public static final String TABLENAME_POSTFIX = "table";
+    public static final String TIME_FIELD = "time";
+    public static final int DEFAULT_SUB_LIST_SIZE = 50;
     private static final DateTimeFormatter FORMATTER = DateTimeFormat.forPattern("dd-M-yyyy");
     public static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormat.forPattern("dd-M-yyyy");
 
@@ -102,13 +102,12 @@ public class ElasticsearchUtils {
                 ElasticsearchUtils.TABLENAME_POSTFIX, datePostfix);
     }
 
-    public static PutIndexTemplateRequest getClusterTemplateMapping(IndicesAdminClient indicesAdminClient) {
+    public static PutIndexTemplateRequest getClusterTemplateMapping() {
         try {
-            PutIndexTemplateRequestBuilder builder = new PutIndexTemplateRequestBuilder(indicesAdminClient, "generic_template");
-            builder.setTemplate(String.format("%s-*", ElasticsearchUtils.TABLENAME_PREFIX));
-            System.out.println(getDocumentMapping().string());
-            builder.addMapping(DOCUMENT_TYPE_NAME, getDocumentMapping());
-            return builder.request();
+            return new PutIndexTemplateRequest()
+                    .name("template_foxtrot_mappings")
+                    .template(String.format("%s-*", ElasticsearchUtils.TABLENAME_PREFIX))
+                    .mapping(DOCUMENT_TYPE_NAME, getDocumentMapping());
         } catch (IOException ex) {
             logger.error("TEMPLATE_CREATION_FAILED", ex);
             return null;
@@ -131,7 +130,6 @@ public class ElasticsearchUtils {
                 .field("_timestamp")
                 .startObject()
                 .field("enabled", true)
-                .field("store", true)
                 .endObject()
                 .field("dynamic_templates")
                 .startArray()
@@ -210,17 +208,39 @@ public class ElasticsearchUtils {
                 .endObject()
                 .endObject()
                 .endArray()
+                .field("properties")
+                .startObject()
+                .field("time")
+                .startObject()
+                .field("type", "long")
+                .field("fields")
+                .startObject()
+                .field("date")
+                .startObject()
+                .field("index", "not_analyzed")
+                .field("store", true)
+                .field("type", "date")
+                .field("format", "epoch_millis")
+                .endObject()
+                .endObject()
+                .field("fielddata")
+                .startObject()
+                .field("format", "doc_values")
+                .endObject()
+                .endObject()
+                .endObject()
                 .endObject()
                 .endObject();
     }
 
     public static void initializeMappings(Client client) {
-        PutIndexTemplateRequest templateRequest = getClusterTemplateMapping(client.admin().indices());
+        PutIndexTemplateRequest templateRequest = getClusterTemplateMapping();
         client.admin().indices().putTemplate(templateRequest).actionGet();
     }
 
     public static String getValidTableName(String table) {
-        if (table == null) return null;
+        if (table == null)
+            return null;
         return table.trim().toLowerCase();
     }
 
@@ -234,12 +254,16 @@ public class ElasticsearchUtils {
             return false;
         }
 
-        String indexPrefix = getIndexPrefix(table.getName());
-        String creationDateString = index.substring(index.indexOf(indexPrefix) + indexPrefix.length());
-        DateTime creationDate = DATE_TIME_FORMATTER.parseDateTime(creationDateString);
+        DateTime creationDate = parseIndexDate(index, table.getName());
         DateTime startTime = new DateTime(0L);
         DateTime endTime = new DateTime().minusDays(table.getTtl()).toDateMidnight().toDateTime();
         return creationDate.isAfter(startTime) && creationDate.isBefore(endTime);
+    }
+
+    public static DateTime parseIndexDate(String index, String table) {
+        String indexPrefix = getIndexPrefix(table);
+        String creationDateString = index.substring(index.indexOf(indexPrefix) + indexPrefix.length());
+        return DATE_TIME_FORMATTER.parseDateTime(creationDateString);
     }
 
     public static String getTableNameFromIndex(String currentIndex) {
@@ -252,7 +276,7 @@ public class ElasticsearchUtils {
         }
     }
 
-    public static String getAllIndicesPattern(){
+    public static String getAllIndicesPattern() {
         return String.format("%s-*-%s-*", ElasticsearchUtils.TABLENAME_PREFIX, ElasticsearchUtils.TABLENAME_POSTFIX);
     }
 }

@@ -25,7 +25,7 @@ import com.flipkart.foxtrot.core.querystore.QueryStore;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConnection;
 import com.flipkart.foxtrot.core.table.TableMetadataManager;
 import com.google.common.collect.Maps;
-import com.yammer.dropwizard.lifecycle.Managed;
+import io.dropwizard.lifecycle.Managed;
 import org.reflections.Reflections;
 import org.reflections.scanners.SubTypesScanner;
 import org.slf4j.Logger;
@@ -83,14 +83,15 @@ public class AnalyticsLoader implements Managed {
                         QueryStore.class,
                         ElasticsearchConnection.class,
                         String.class,
-                        CacheManager.class);
+                        CacheManager.class, ObjectMapper.class);
                 return constructor.newInstance(r,
                         tableMetadataManager,
                         dataStore,
                         queryStore,
                         elasticsearchConnection,
                         metadata.getCacheToken(),
-                        cacheManager);
+                        cacheManager,
+                        objectMapper);
             }
         }
         return null;

@@ -42,7 +42,7 @@ public class StatsTrendActionTest extends ActionTest {
         super.setUp();
         List<Document> documents = TestUtils.getStatsTrendDocuments(getMapper());
         getQueryStore().save(TestUtils.TEST_TABLE_NAME, documents);
-        getElasticsearchServer().getClient().admin().indices().prepareRefresh("*").setForce(true).execute().actionGet();
+        getElasticsearchServer().getClient().admin().indices().prepareRefresh("*").execute().actionGet();
     }
 
     private void filterNonZeroCounts(StatsTrendResponse statsTrendResponse) {

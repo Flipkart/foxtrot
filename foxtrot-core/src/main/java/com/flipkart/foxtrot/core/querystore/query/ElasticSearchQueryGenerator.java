@@ -16,138 +16,118 @@
 package com.flipkart.foxtrot.core.querystore.query;
 
 import com.flipkart.foxtrot.common.query.Filter;
-import com.flipkart.foxtrot.common.query.FilterCombinerType;
 import com.flipkart.foxtrot.common.query.FilterVisitor;
 import com.flipkart.foxtrot.common.query.datetime.LastFilter;
-import com.flipkart.foxtrot.common.query.datetime.TimeWindow;
 import com.flipkart.foxtrot.common.query.general.*;
 import com.flipkart.foxtrot.common.query.numeric.*;
 import com.flipkart.foxtrot.common.query.string.ContainsFilter;
-import org.elasticsearch.index.query.*;
+import org.elasticsearch.index.query.BoolQueryBuilder;
+import org.elasticsearch.index.query.QueryBuilder;
+import org.elasticsearch.index.query.QueryBuilders;
 
 import java.util.List;
+
+import static org.elasticsearch.index.query.QueryBuilders.*;
 
 /**
  * User: Santanu Sinha (santanu.sinha@flipkart.com)
  * Date: 14/03/14
  * Time: 2:31 PM
  */
-public class ElasticSearchQueryGenerator extends FilterVisitor {
-    private final BoolFilterBuilder boolFilterBuilder;
-    private final FilterCombinerType combinerType;
+public class ElasticSearchQueryGenerator extends FilterVisitor<Void> {
+    private final BoolQueryBuilder boolFilterBuilder;
 
-    public ElasticSearchQueryGenerator(FilterCombinerType combinerType) {
-        this.boolFilterBuilder = FilterBuilders.boolFilter();
-        this.combinerType = combinerType;
+    public ElasticSearchQueryGenerator() {
+        this.boolFilterBuilder = boolQuery();
     }
 
     @Override
-    public void visit(BetweenFilter betweenFilter) throws Exception {
-        addFilter(FilterBuilders.rangeFilter(betweenFilter.getField())
-                .from(betweenFilter.getFrom())
-                .to(betweenFilter.getTo())
-                .cache(!betweenFilter.isFilterTemporal()));
+    public Void visit(BetweenFilter filter) throws Exception {
+        addFilter(rangeQuery(filter.getField()).from(filter.getFrom()).to(filter.getTo()));
+        return null;
     }
 
     @Override
-    public void visit(EqualsFilter equalsFilter) throws Exception {
-        addFilter(FilterBuilders.termFilter(equalsFilter.getField(), equalsFilter.getValue()));
+    public Void visit(EqualsFilter filter) throws Exception {
+        addFilter(termQuery(filter.getField(), filter.getValue()));
+        return null;
     }
 
     @Override
-    public void visit(NotEqualsFilter notEqualsFilter) throws Exception {
-        addFilter(FilterBuilders.boolFilter().mustNot(
-                FilterBuilders.termFilter(notEqualsFilter.getField(), notEqualsFilter.getValue())));
+    public Void visit(NotEqualsFilter filter) throws Exception {
+        addFilter(boolQuery().mustNot(termQuery(filter.getField(), filter.getValue())));
+        return null;
     }
 
     @Override
-    public void visit(ContainsFilter stringContainsFilterElement) throws Exception {
-        addFilter(
-                FilterBuilders.queryFilter(
-                        QueryBuilders.queryString(
-                                stringContainsFilterElement.getValue())
-                                .defaultField(stringContainsFilterElement.getField() + ".analyzed"))
-                        .cache(false));
+    public Void visit(ContainsFilter filter) throws Exception {
+        addFilter(queryStringQuery(filter.getValue()).defaultField(String.format("%s.analyzed", filter.getField())));
+        return null;
     }
 
     @Override
-    public void visit(GreaterThanFilter greaterThanFilter) throws Exception {
-        addFilter(
-                FilterBuilders.rangeFilter(greaterThanFilter.getField())
-                        .gt(greaterThanFilter.getValue())
-                        .cache(!greaterThanFilter.isFilterTemporal()));
+    public Void visit(GreaterThanFilter filter) throws Exception {
+        addFilter(rangeQuery(filter.getField()).gt(filter.getValue()));
+        return null;
     }
 
     @Override
-    public void visit(GreaterEqualFilter greaterEqualFilter) throws Exception {
-        addFilter(
-                FilterBuilders.rangeFilter(greaterEqualFilter.getField())
-                        .gte(greaterEqualFilter.getValue())
-                        .cache(!greaterEqualFilter.isFilterTemporal()));
+    public Void visit(GreaterEqualFilter filter) throws Exception {
+        addFilter(rangeQuery(filter.getField()).gte(filter.getValue()));
+        return null;
     }
 
     @Override
-    public void visit(LessThanFilter lessThanFilter) throws Exception {
-        addFilter(
-                FilterBuilders.rangeFilter(lessThanFilter.getField())
-                        .lt(lessThanFilter.getValue())
-                        .cache(!lessThanFilter.isFilterTemporal()));
-
+    public Void visit(LessThanFilter filter) throws Exception {
+        addFilter(rangeQuery(filter.getField()).lt(filter.getValue()));
+        return null;
     }
 
     @Override
-    public void visit(LessEqualFilter lessEqualFilter) throws Exception {
-        addFilter(
-                FilterBuilders.rangeFilter(lessEqualFilter.getField())
-                        .lte(lessEqualFilter.getValue())
-                        .cache(!lessEqualFilter.isFilterTemporal()));
-
+    public Void visit(LessEqualFilter filter) throws Exception {
+        addFilter(rangeQuery(filter.getField()).lte(filter.getValue()));
+        return null;
     }
 
     @Override
-    public void visit(AnyFilter anyFilter) throws Exception {
-        addFilter(FilterBuilders.matchAllFilter());
+    public Void visit(AnyFilter filter) throws Exception {
+        addFilter(matchAllQuery());
+        return null;
     }
 
     @Override
-    public void visit(InFilter inFilter) throws Exception {
-        addFilter(
-                FilterBuilders.inFilter(inFilter.getField(), inFilter.getValues()));
+    public Void visit(InFilter filter) throws Exception {
+        addFilter(termsQuery(filter.getField(), filter.getValues()));
+        return null;
     }
 
     @Override
-    public void visit(NotInFilter notInFilter) throws Exception {
-        addFilter(
-                FilterBuilders.notFilter(FilterBuilders.inFilter(notInFilter.getField(), notInFilter.getValues())));
+    public Void visit(NotInFilter notInFilter) throws Exception {
+        addFilter(boolQuery().mustNot(termsQuery(notInFilter.getField(), notInFilter.getValues())));
+        return null;
+    }
+
+    public Void visit(ExistsFilter filter) throws Exception {
+        addFilter(existsQuery(filter.getField()));
+        return null;
     }
 
     @Override
-    public void visit(ExistsFilter existsFilter) throws Exception {
-        addFilter(FilterBuilders.existsFilter(existsFilter.getField()));
+    public Void visit(LastFilter filter) throws Exception {
+        addFilter(rangeQuery(filter.getField())
+                .from(filter.getWindow().getStartTime())
+                .to(filter.getWindow().getEndTime()));
+        return null;
     }
 
     @Override
-    public void visit(LastFilter lastFilter) throws Exception {
-        TimeWindow timeWindow = lastFilter.getWindow();
-        addFilter(
-                FilterBuilders.rangeFilter(lastFilter.getField())
-                        .from(timeWindow.getStartTime())
-                        .to(timeWindow.getEndTime())
-                        .cache(false));
+    public Void visit(MissingFilter filter) throws Exception {
+        addFilter(boolQuery().mustNot(existsQuery(filter.getField())));
+        return null;
     }
 
-    @Override
-    public void visit(MissingFilter missingFilter) throws Exception {
-        addFilter(FilterBuilders.missingFilter(missingFilter.getField()));
-    }
-
-    private void addFilter(FilterBuilder elasticSearchFilter) throws Exception {
-        if (combinerType == FilterCombinerType.and) {
-            boolFilterBuilder.must(elasticSearchFilter);
-            return;
-        }
-        //boolFilterBuilder.should(elasticSearchFilter);
-        throw new UnsupportedOperationException(String.format("%s is not supported", FilterCombinerType.or.name()));
+    private void addFilter(QueryBuilder queryBuilder) {
+        boolFilterBuilder.filter(queryBuilder);
     }
 
     public QueryBuilder genFilter(List<Filter> filters) throws Exception {

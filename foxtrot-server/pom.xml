@@ -5,13 +5,24 @@
     <parent>
         <artifactId>foxtrot</artifactId>
         <groupId>com.flipkart.foxtrot</groupId>
-        <version>0.4.4</version>
+        <version>0.5.4</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>foxtrot-server</artifactId>
 
     <dependencies>
+
+        <dependency>
+            <groupId>io.dropwizard</groupId>
+            <artifactId>dropwizard-core</artifactId>
+            <version>${dropwizard.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.dropwizard</groupId>
+            <artifactId>dropwizard-assets</artifactId>
+            <version>${dropwizard.version}</version>
+        </dependency>
 
         <!-- Reflections for scanning classpath to get analytics providers-->
         <dependency>
@@ -29,30 +40,25 @@
         <!-- Internal -->
         <dependency>
             <groupId>com.flipkart.foxtrot</groupId>
-            <artifactId>foxtrot-core</artifactId>
-            <version>${project.parent.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.flipkart.foxtrot</groupId>
             <artifactId>foxtrot-sql</artifactId>
-            <version>${project.parent.version}</version>
+            <version>0.5.4</version>
+        </dependency>
+        <dependency>
+            <groupId>com.flipkart.foxtrot</groupId>
+            <artifactId>foxtrot-common</artifactId>
+            <version>0.5.4</version>
         </dependency>
         <dependency>
             <groupId>com.flipkart.foxtrot</groupId>
             <artifactId>foxtrot-core</artifactId>
-            <version>${project.parent.version}</version>
+            <version>0.5.4</version>
+        </dependency>
+        <dependency>
+            <groupId>com.flipkart.foxtrot</groupId>
+            <artifactId>foxtrot-core</artifactId>
+            <version>0.5.4</version>
             <type>test-jar</type>
             <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.eclipse.jetty</groupId>
-            <artifactId>jetty-servlets</artifactId>
-            <version>8.1.10.v20130312</version>
-        </dependency>
-        <dependency>
-            <groupId>javax.servlet</groupId>
-            <artifactId>javax.servlet-api</artifactId>
-            <version>3.0.1</version>
         </dependency>
         <dependency>
             <groupId>net.sf.opencsv</groupId>
@@ -62,7 +68,7 @@
         <dependency>
             <groupId>com.hazelcast</groupId>
             <artifactId>hazelcast</artifactId>
-            <version>3.5.3</version>
+            <version>3.6</version>
             <type>test-jar</type>
             <scope>test</scope>
         </dependency>
@@ -75,11 +81,17 @@
             <build>
                 <plugins>
                     <plugin>
+                        <artifactId>maven-deploy-plugin</artifactId>
+                        <configuration>
+                            <skip>true</skip>
+                        </configuration>
+                    </plugin>
+                    <plugin>
                         <groupId>com.spotify</groupId>
                         <artifactId>docker-maven-plugin</artifactId>
-                        <version>0.1.1</version>
+                        <version>0.4.10</version>
                         <configuration>
-                            <imageName>foxtrot-server:${project.version}</imageName>
+                            <imageName>foxtrot:${project.version}</imageName>
                             <dockerDirectory>${project.parent.basedir}/../foxtrot</dockerDirectory>
                             <resources>
                                 <resource>
@@ -113,9 +125,9 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
-                <version>2.3</version>
+                <version>2.4.3</version>
                 <configuration>
-                    <createDependencyReducedPom>true</createDependencyReducedPom>
+                    <createDependencyReducedPom>false</createDependencyReducedPom>
                     <filters>
                         <filter>
                             <artifact>*:*</artifact>
@@ -123,9 +135,7 @@
                                 <exclude>META-INF/*.SF</exclude>
                                 <exclude>META-INF/*.DSA</exclude>
                                 <exclude>META-INF/*.RSA</exclude>
-                                <exclude>org.apache.httpcomponents:httpcore:jar:4.1.1</exclude>
                             </excludes>
-
                         </filter>
                     </filters>
                 </configuration>
@@ -145,7 +155,6 @@
                                 </transformer>
                             </transformers>
                         </configuration>
-
                     </execution>
                 </executions>
             </plugin>

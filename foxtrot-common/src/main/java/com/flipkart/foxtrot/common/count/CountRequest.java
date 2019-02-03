@@ -3,24 +3,24 @@ package com.flipkart.foxtrot.common.count;
 import com.flipkart.foxtrot.common.ActionRequest;
 import com.flipkart.foxtrot.common.Opcodes;
 import com.flipkart.foxtrot.common.query.Filter;
-import com.flipkart.foxtrot.common.util.CollectionUtils;
 import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.hibernate.validator.constraints.NotEmpty;
 
-import java.util.HashSet;
+import javax.validation.constraints.NotNull;
 import java.util.List;
-import java.util.Set;
 
 /**
  * Created by rishabh.goyal on 02/11/14.
  */
 public class CountRequest extends ActionRequest {
 
+    @NotNull
+    @NotEmpty
     private String table;
 
     private String field;
 
-    private boolean isDistinct = false;
-
+    private boolean isDistinct;
 
     public CountRequest() {
         super(Opcodes.COUNT);

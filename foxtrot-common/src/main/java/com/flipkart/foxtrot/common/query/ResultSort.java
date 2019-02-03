@@ -15,17 +15,26 @@
  */
 package com.flipkart.foxtrot.common.query;
 
+import org.hibernate.validator.constraints.NotEmpty;
+
+import javax.validation.constraints.NotNull;
+
 /**
  * User: Santanu Sinha (santanu.sinha@flipkart.com)
  * Date: 14/03/14
  * Time: 9:00 PM
  */
 public class ResultSort {
+
     public enum Order {
         asc,
         desc
     }
+
+    @NotNull
+    @NotEmpty
     private String field;
+
     private Order order = Order.desc;
 
     public ResultSort() {

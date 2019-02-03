@@ -17,24 +17,32 @@ package com.flipkart.foxtrot.common.query.numeric;
 
 import com.flipkart.foxtrot.common.query.FilterOperator;
 import com.flipkart.foxtrot.common.query.FilterVisitor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
 /**
  * User: Santanu Sinha (santanu.sinha@flipkart.com)
  * Date: 14/03/14
  * Time: 8:17 PM
  */
+@Data
+@EqualsAndHashCode(callSuper = true)
+@ToString(callSuper = true)
 public class LessThanFilter extends NumericBinaryFilter {
 
     public LessThanFilter() {
         super(FilterOperator.less_than);
     }
 
+    @Builder
     public LessThanFilter(String field, Number value, boolean temporal) {
         super(FilterOperator.less_than, field, value, temporal);
     }
 
     @Override
-    public void accept(FilterVisitor visitor) throws Exception {
-        visitor.visit(this);
+    public<T> T accept(FilterVisitor<T> visitor) throws Exception {
+        return visitor.visit(this);
     }
 }

@@ -30,6 +30,7 @@ import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConnection;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
 import com.flipkart.foxtrot.core.querystore.query.ElasticSearchQueryGenerator;
 import com.flipkart.foxtrot.core.table.TableMetadataManager;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.elasticsearch.ElasticsearchException;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
@@ -37,6 +38,8 @@ import org.elasticsearch.action.search.SearchType;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
 import org.elasticsearch.search.sort.SortOrder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -49,15 +52,15 @@ import java.util.List;
  */
 @AnalyticsProvider(opcode = "query", request = Query.class, response = QueryResponse.class, cacheable = false)
 public class FilterAction extends Action<Query> {
-
+    private static final Logger logger = LoggerFactory.getLogger(FilterAction.class);
     public FilterAction(Query parameter,
                         TableMetadataManager tableMetadataManager,
                         DataStore dataStore,
                         QueryStore queryStore,
                         ElasticsearchConnection connection,
                         String cacheToken,
-                        CacheManager cacheManager) {
-        super(parameter, tableMetadataManager, dataStore, queryStore, connection, cacheToken, cacheManager);
+                        CacheManager cacheManager, ObjectMapper objectMapper) {
+        super(parameter, tableMetadataManager, dataStore, queryStore, connection, cacheToken, cacheManager, objectMapper);
     }
 
     @Override
@@ -121,7 +124,7 @@ public class FilterAction extends Action<Query> {
             search = getConnection().getClient().prepareSearch(ElasticsearchUtils.getIndices(parameter.getTable(), parameter))
                     .setTypes(ElasticsearchUtils.DOCUMENT_TYPE_NAME)
                     .setIndicesOptions(Utils.indicesOptions())
-                    .setQuery(new ElasticSearchQueryGenerator(FilterCombinerType.and).genFilter(parameter.getFilters()))
+                    .setQuery(new ElasticSearchQueryGenerator().genFilter(parameter.getFilters()))
                     .setSearchType(SearchType.QUERY_THEN_FETCH)
                     .setFrom(parameter.getFrom())
                     .addSort(parameter.getSort().getField(),
@@ -131,7 +134,8 @@ public class FilterAction extends Action<Query> {
             throw FoxtrotExceptions.queryCreationException(parameter, e);
         }
         try {
-            SearchResponse response = search.execute().actionGet();
+            logger.info("Search: {}", search);
+            SearchResponse response = search.execute().actionGet(getGetQueryTimeout());
             List<String> ids = new ArrayList<>();
             SearchHits searchHits = response.getHits();
             for (SearchHit searchHit : searchHits) {

@@ -21,5 +21,5 @@ package com.flipkart.foxtrot.core.cache;
  * Time: 5:39 PM
  */
 public interface CacheFactory {
-    public Cache create(String name);
+    Cache create(String name);
 }

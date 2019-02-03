@@ -17,6 +17,7 @@ package com.flipkart.foxtrot.common;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.flipkart.foxtrot.common.query.Filter;
+import org.apache.commons.lang3.builder.ToStringBuilder;
 
 import java.util.List;
 
@@ -25,7 +26,7 @@ import java.util.List;
  * Date: 26/03/14
  * Time: 7:49 PM
  */
-@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "opcode")
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.EXISTING_PROPERTY, property = "opcode")
 public abstract class ActionRequest {
 
     private final String opcode;
@@ -53,4 +54,11 @@ public abstract class ActionRequest {
         this.filters = filters;
     }
 
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this)
+                .append("opcode", opcode)
+                .append("filters", filters)
+                .toString();
+    }
 }
