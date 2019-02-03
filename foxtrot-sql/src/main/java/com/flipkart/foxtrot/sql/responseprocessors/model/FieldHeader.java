@@ -30,12 +30,15 @@ public class FieldHeader {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if(this == o)
+            return true;
+        if(o == null || getClass() != o.getClass())
+            return false;
 
-        FieldHeader that = (FieldHeader) o;
+        FieldHeader that = (FieldHeader)o;
 
-        if (!name.equals(that.name)) return false;
+        if(!name.equals(that.name))
+            return false;
 
         return true;
     }

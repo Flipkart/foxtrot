@@ -15,7 +15,8 @@ public class MetaStatementMatcherTest {
         Assert.assertNotNull(extendedSqlStatement);
         Assert.assertTrue(extendedSqlStatement instanceof Describe);
         Describe describe = (Describe)extendedSqlStatement;
-        Assert.assertEquals("europa", describe.getTable().getName());
+        Assert.assertEquals("europa", describe.getTable()
+                .getName());
     }
 
     @Test
@@ -24,7 +25,8 @@ public class MetaStatementMatcherTest {
         Assert.assertNotNull(extendedSqlStatement);
         Assert.assertTrue(extendedSqlStatement instanceof Describe);
         Describe describe = (Describe)extendedSqlStatement;
-        Assert.assertEquals("europa", describe.getTable().getName());
+        Assert.assertEquals("europa", describe.getTable()
+                .getName());
     }
 
     @Test

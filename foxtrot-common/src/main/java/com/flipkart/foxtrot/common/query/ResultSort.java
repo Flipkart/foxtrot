@@ -1,12 +1,12 @@
 /**
  * Copyright 2014 Flipkart Internet Pvt. Ltd.
- * 
+ * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ * <p>
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -26,15 +26,9 @@ import javax.validation.constraints.NotNull;
  */
 public class ResultSort {
 
-    public enum Order {
-        asc,
-        desc
-    }
-
     @NotNull
     @NotEmpty
     private String field;
-
     private Order order = Order.desc;
 
     public ResultSort() {
@@ -63,13 +57,17 @@ public class ResultSort {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if(this == o)
+            return true;
+        if(o == null || getClass() != o.getClass())
+            return false;
 
-        ResultSort that = (ResultSort) o;
+        ResultSort that = (ResultSort)o;
 
-        if (!field.equals(that.field)) return false;
-        if (order != that.order) return false;
+        if(!field.equals(that.field))
+            return false;
+        if(order != that.order)
+            return false;
 
         return true;
     }
@@ -83,9 +81,10 @@ public class ResultSort {
 
     @Override
     public String toString() {
-        return "ResultSort{" +
-                "field='" + field + '\'' +
-                ", order=" + order +
-                '}';
+        return "ResultSort{" + "field='" + field + '\'' + ", order=" + order + '}';
+    }
+
+    public enum Order {
+        asc, desc
     }
 }

@@ -179,7 +179,10 @@ function pushTilesObject(object) { // save each tile data
 
 TileFactory.prototype.updateTileData = function () { // update tile details
   var selectedTile = $("#" + this.tileObject.id);
-  selectedTile.find(".tile-title").text(this.tileObject.title);
+  selectedTile.find(".tile-title").find(".title-title-span").text(this.tileObject.title);
+  selectedTile.find(".tile-title").find(".widget-description").tooltip();
+  var widgetDesc = this.tileObject.tileContext.description == undefined ? "Description  N/A" : this.tileObject.tileContext.description;
+  selectedTile.find(".tile-title").find(".widget-description").attr("title", widgetDesc);
   var tileid = this.tileObject.id;
   this.createGraph(this.tileObject, selectedTile);
   var tileListIndex = tileList.indexOf(this.tileObject.id);
@@ -199,7 +202,10 @@ TileFactory.prototype.updateTileData = function () { // update tile details
 }
 TileFactory.prototype.createTileData = function (object) { // store tile list
   var selectedTile = $("#" + object.id);
-  selectedTile.find(".tile-title").text(object.title);
+  selectedTile.find(".tile-title").find(".title-title-span").text(object.title);
+  selectedTile.find(".tile-title").find(".widget-description").tooltip();
+  var widgetDesc = object.tileContext.description == undefined ? "Description  N/A" : object.tileContext.description;
+  selectedTile.find(".tile-title").find(".widget-description").attr("title", widgetDesc);
   var tileid = object.id;
   var prepareTileData = {};
   prepareTileData[object.id] = object;
@@ -252,6 +258,9 @@ function setConfigValue(object) { // set widget form values
   }
   else if (currentChartType == "lineRatio") {
     setLineRatioChartFormValues(object);
+  }
+  else if (currentChartType == "sunburst") {
+    setSunBurstChartFormValues(object);
   }
 }
 
@@ -385,7 +394,7 @@ TileFactory.prototype.createNewRow = function (tileElement) {
     row = panelRow.length;
     tileElement.addClass("row-" + row);
   }
-  tileElement.prepend('<div id="arrow-btn"><button type="button"onClick="upRow('+row+')" class="row-identifier-'+row+' up-arrow arrow-up" id="row-up"><img class="arrow-up" src="img/context-arrow-up-normal.png" /></button><button type="button" onClick="downRow('+row+')" class="row-identifier-'+row+'" id="row-down"><img class="down" src="img/context-arrow-down-normal.png"/></button></div>');
+  tileElement.prepend('<div id="arrow-btn"><button type="button"onClick="upRow('+row+')" class="row-identifier-'+row+' up-arrow arrow-up" id="row-up"><img class="arrow-up" src="img/context-arrow-up-hover.png" /></button><button type="button" onClick="downRow('+row+')" class="row-identifier-'+row+'" id="row-down"><img class="down" src="img/context-arrow-down-hover.png"/></button></div>');
 
   if (this.tileObject.tileContext.widgetType != "full") { // dont add row add button for full widget
     var btnRow = row;
@@ -434,7 +443,7 @@ TileFactory.prototype.updateFilters = function (filters) {
 }
 // Filter configuration
 TileFactory.prototype.triggerFilter = function (tileElement, object) { // filter modal
-  if(object.tileContext.chartType != "radar" && object.tileContext.chartType != "line" && object.tileContext.chartType != "lineRatio") {
+  if(object.tileContext.chartType != "radar" && object.tileContext.chartType != "line" && object.tileContext.chartType != "lineRatio" && object.tileContext.chartType != "sunburst") {
     var instanceVar = this;
     tileElement.find(".widget-toolbox").find(".filter").click(function () {
       clearFilterValues();
@@ -475,7 +484,7 @@ TileFactory.prototype.triggerFilter = function (tileElement, object) { // filter
  */
 TileFactory.prototype.addEventToPeriodSelect = function (tileElement, object) {
   tileElement.find(".period-select").change( function() {
-    refreshSingleTile(object);// refresh immediately
+    refreshSingleTile(tileData[object.id]);// refresh immediately
   });
 };
 
@@ -484,6 +493,7 @@ TileFactory.prototype.addEventToPeriodSelect = function (tileElement, object) {
 TileFactory.prototype.triggerConfig = function (tileElement, object) { // code to show sidebar when edit
   var instanceVar = this;
   tileElement.find(".widget-toolbox").find(".glyphicon-cog").click(function () {
+    $(".copy-widget-btn").show();
     object = tileData[object.id];
     isEdit = true;
     editingRow = object.tileContext.row;
@@ -495,6 +505,8 @@ TileFactory.prototype.triggerConfig = function (tileElement, object) { // code t
 
     var form = $("#sidebar").find("form");
     form.find(".tile-title").val(object.title);
+    var tileDescription = object.tileContext.description == undefined ? "" : object.tileContext.description;
+    form.find("#tile-description").val(tileDescription);
     form.find("#sidebar-tileId").val(object.id);
 
     $(".chart-type").val(object.tileContext.chartType)
@@ -585,6 +597,10 @@ TileFactory.prototype.createGraph = function (object, tileElement) { // get quer
   else if (object.tileContext.chartType == "lineRatio") {
     var lineRatioGraph = new LineRatioTile();
     lineRatioGraph.getQuery(object);
+  }
+  else if (object.tileContext.chartType == "sunburst") {
+    var sunburstGraph = new SunburstTile();
+    sunburstGraph.getQuery(object);
   }
 }
 TileFactory.prototype.create = function () {

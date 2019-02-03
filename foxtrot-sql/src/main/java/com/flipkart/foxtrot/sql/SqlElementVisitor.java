@@ -24,10 +24,12 @@ import net.sf.jsqlparser.statement.select.*;
 import net.sf.jsqlparser.statement.truncate.Truncate;
 import net.sf.jsqlparser.statement.update.Update;
 
-public class SqlElementVisitor implements StatementVisitor, SelectVisitor, FromItemVisitor, ItemsListVisitor,
-                                            ExpressionVisitor, SelectItemVisitor, ExtendedSqlStatementVisitor {
+public class SqlElementVisitor
+        implements StatementVisitor, SelectVisitor, FromItemVisitor, ItemsListVisitor, ExpressionVisitor,
+                   SelectItemVisitor, ExtendedSqlStatementVisitor {
     private void invalid(Object object) {
-        throw new RuntimeException("Unsupported construct: " + object.getClass().getSimpleName());
+        throw new RuntimeException("Unsupported construct: " + object.getClass()
+                .getSimpleName());
     }
 
     @Override

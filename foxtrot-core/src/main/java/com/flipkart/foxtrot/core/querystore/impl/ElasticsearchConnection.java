@@ -1,12 +1,12 @@
 /**
  * Copyright 2014 Flipkart Internet Pvt. Ltd.
- *
+ * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
+ * <p>
  * http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -43,12 +43,15 @@ public class ElasticsearchConnection implements Managed {
     public void start() throws Exception {
         logger.info("Starting Elasticsearch Client");
         Settings settings = Settings.settingsBuilder()
-                .put("cluster.name", config.getCluster()).build();
+                .put("cluster.name", config.getCluster())
+                .build();
 
-        TransportClient esClient = TransportClient.builder().settings(settings).build();
-        for (String host : config.getHosts()) {
+        TransportClient esClient = TransportClient.builder()
+                .settings(settings)
+                .build();
+        for(String host : config.getHosts()) {
             String tokenizedHosts[] = host.split(",");
-            for (String tokenizedHost : tokenizedHosts) {
+            for(String tokenizedHost : tokenizedHosts) {
                 esClient.addTransportAddress(
                         new InetSocketTransportAddress(InetAddress.getByName(tokenizedHost), 9300));
                 logger.info(String.format("Added Elasticsearch Node : %s", host));
@@ -60,7 +63,7 @@ public class ElasticsearchConnection implements Managed {
 
     @Override
     public void stop() throws Exception {
-        if (client != null) {
+        if(client != null) {
             client.close();
         }
         client = null;

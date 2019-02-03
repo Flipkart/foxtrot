@@ -41,8 +41,11 @@ public class CardinalityCalculationRunnable implements Runnable {
     @Override
     public void run() {
         try {
-            Set<String> tables = tableMetadataManager.get().stream().map(Table::getName).collect(Collectors.toSet());
-            for (String table : tables) {
+            Set<String> tables = tableMetadataManager.get()
+                    .stream()
+                    .map(Table::getName)
+                    .collect(Collectors.toSet());
+            for(String table : tables) {
                 tableMetadataManager.getFieldMappings(table, true, true);
             }
         } catch (Exception e) {
