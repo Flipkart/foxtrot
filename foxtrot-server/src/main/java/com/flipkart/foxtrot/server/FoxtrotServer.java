@@ -15,7 +15,6 @@
  */
 package com.flipkart.foxtrot.server;
 
-import com.codahale.metrics.health.HealthCheck;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
@@ -48,7 +47,9 @@ import com.flipkart.foxtrot.server.providers.FlatResponseErrorTextProvider;
 import com.flipkart.foxtrot.server.providers.FlatResponseTextProvider;
 import com.flipkart.foxtrot.server.providers.exception.FoxtrotExceptionMapper;
 import com.flipkart.foxtrot.server.resources.*;
+import com.flipkart.foxtrot.server.utils.FoxtrotLoggerUtils;
 import com.flipkart.foxtrot.sql.FqlEngine;
+
 import io.dropwizard.Application;
 import io.dropwizard.assets.AssetsBundle;
 import io.dropwizard.configuration.EnvironmentVariableSubstitutor;
@@ -62,7 +63,18 @@ import io.dropwizard.server.AbstractServerFactory;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
 import io.dropwizard.util.Duration;
+
+import com.yammer.dropwizard.Service;
+import com.yammer.dropwizard.assets.AssetsBundle;
+import com.yammer.dropwizard.config.Bootstrap;
+import com.yammer.dropwizard.config.Environment;
+import com.yammer.dropwizard.config.LoggingConfiguration;
+import com.yammer.dropwizard.logging.AsyncAppender;
+import com.yammer.metrics.core.HealthCheck;
+import net.sourceforge.cobertura.CoverageIgnore;
+
 import org.eclipse.jetty.servlets.CrossOriginFilter;
+import org.slf4j.LoggerFactory;
 
 import javax.servlet.DispatcherType;
 import javax.servlet.FilterRegistration;

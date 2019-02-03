@@ -61,6 +61,8 @@ public class FoxtrotServerConfiguration extends Configuration {
     @Valid
     private EsIndexOptimizationConfig esIndexOptimizationConfig;
 
+    private LogRotationFileConfig logRotationFileConfig;
+
     @Valid
     @JsonProperty("deletionconfig")
     private final DataDeletionManagerConfig deletionManagerConfig;
@@ -73,6 +75,8 @@ public class FoxtrotServerConfiguration extends Configuration {
         this.cluster = new ClusterConfig();
         this.deletionManagerConfig = new DataDeletionManagerConfig();
     }
+
+    public LogRotationFileConfig getLogRotationFileConfig() { return logRotationFileConfig; }
 
     public HbaseConfig getHbase() {
         return hbase;
