@@ -66,14 +66,6 @@ public final class Stopwatch {
     private long elapsedNanos;
     private long startTick;
 
-    public Stopwatch() {
-        this.ticker = Ticker.systemTicker();
-    }
-
-    Stopwatch(Ticker ticker) {
-        this.ticker = checkNotNull(ticker, "ticker");
-    }
-
     /**
      * Creates (but does not start) a new stopwatch using {@link System#nanoTime} as its time source.
      *
@@ -110,51 +102,12 @@ public final class Stopwatch {
         return new Stopwatch(ticker).start();
     }
 
-    static String formatCompact4Digits(double value) {
-        return String.format(Locale.ROOT, "%.4g", value);
+    public Stopwatch() {
+        this.ticker = Ticker.systemTicker();
     }
 
-    private static TimeUnit chooseUnit(long nanos) {
-        if(DAYS.convert(nanos, NANOSECONDS) > 0) {
-            return DAYS;
-        }
-        if(HOURS.convert(nanos, NANOSECONDS) > 0) {
-            return HOURS;
-        }
-        if(MINUTES.convert(nanos, NANOSECONDS) > 0) {
-            return MINUTES;
-        }
-        if(SECONDS.convert(nanos, NANOSECONDS) > 0) {
-            return SECONDS;
-        }
-        if(MILLISECONDS.convert(nanos, NANOSECONDS) > 0) {
-            return MILLISECONDS;
-        }
-        if(MICROSECONDS.convert(nanos, NANOSECONDS) > 0) {
-            return MICROSECONDS;
-        }
-        return NANOSECONDS;
-    }
-
-    private static String abbreviate(TimeUnit unit) {
-        switch (unit) {
-            case NANOSECONDS:
-                return "ns";
-            case MICROSECONDS:
-                return "\u03bcs"; // μs
-            case MILLISECONDS:
-                return "ms";
-            case SECONDS:
-                return "s";
-            case MINUTES:
-                return "min";
-            case HOURS:
-                return "h";
-            case DAYS:
-                return "d";
-            default:
-                throw new AssertionError();
-        }
+    Stopwatch(Ticker ticker) {
+        this.ticker = checkNotNull(ticker, "ticker");
     }
 
     /**
@@ -222,6 +175,10 @@ public final class Stopwatch {
         return desiredUnit.convert(elapsedNanos(), NANOSECONDS);
     }
 
+    static String formatCompact4Digits(double value) {
+        return String.format(Locale.ROOT, "%.4g", value);
+    }
+
     /**
      * Returns a string representation of the current elapsed time.
      */
@@ -230,9 +187,52 @@ public final class Stopwatch {
         long nanos = elapsedNanos();
 
         TimeUnit unit = chooseUnit(nanos);
-        double value = (double)nanos / NANOSECONDS.convert(1, unit);
+        double value = (double) nanos / NANOSECONDS.convert(1, unit);
 
         // Too bad this functionality is not exposed as a regular method call
         return formatCompact4Digits(value) + " " + abbreviate(unit);
+    }
+
+    private static TimeUnit chooseUnit(long nanos) {
+        if (DAYS.convert(nanos, NANOSECONDS) > 0) {
+            return DAYS;
+        }
+        if (HOURS.convert(nanos, NANOSECONDS) > 0) {
+            return HOURS;
+        }
+        if (MINUTES.convert(nanos, NANOSECONDS) > 0) {
+            return MINUTES;
+        }
+        if (SECONDS.convert(nanos, NANOSECONDS) > 0) {
+            return SECONDS;
+        }
+        if (MILLISECONDS.convert(nanos, NANOSECONDS) > 0) {
+            return MILLISECONDS;
+        }
+        if (MICROSECONDS.convert(nanos, NANOSECONDS) > 0) {
+            return MICROSECONDS;
+        }
+        return NANOSECONDS;
+    }
+
+    private static String abbreviate(TimeUnit unit) {
+        switch (unit) {
+            case NANOSECONDS:
+                return "ns";
+            case MICROSECONDS:
+                return "\u03bcs"; // μs
+            case MILLISECONDS:
+                return "ms";
+            case SECONDS:
+                return "s";
+            case MINUTES:
+                return "min";
+            case HOURS:
+                return "h";
+            case DAYS:
+                return "d";
+            default:
+                throw new AssertionError();
+        }
     }
 }

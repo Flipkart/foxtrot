@@ -40,52 +40,49 @@ public abstract class HBaseUtil {
     public static Configuration create(final HbaseConfig hbaseConfig) throws IOException {
         Configuration configuration = HBaseConfiguration.create();
 
-        if(isValidFile(hbaseConfig.getCoreSite())) {
-            configuration.addResource(new File(hbaseConfig.getCoreSite()).toURI()
-                                              .toURL());
+        if (isValidFile(hbaseConfig.getCoreSite())) {
+            configuration.addResource(new File(hbaseConfig.getCoreSite()).toURI().toURL());
         }
 
-        if(isValidFile(hbaseConfig.getHdfsSite())) {
-            configuration.addResource(new File(hbaseConfig.getHdfsSite()).toURI()
-                                              .toURL());
+        if (isValidFile(hbaseConfig.getHdfsSite())) {
+            configuration.addResource(new File(hbaseConfig.getHdfsSite()).toURI().toURL());
         }
 
-        if(isValidFile(hbaseConfig.getHbasePolicy())) {
-            configuration.addResource(new File(hbaseConfig.getHbasePolicy()).toURI()
-                                              .toURL());
+        if (isValidFile(hbaseConfig.getHbasePolicy())) {
+            configuration.addResource(new File(hbaseConfig.getHbasePolicy()).toURI().toURL());
         }
 
-        if(isValidFile(hbaseConfig.getHbaseSite())) {
-            configuration.addResource(new File(hbaseConfig.getHbaseSite()).toURI()
-                                              .toURL());
+        if (isValidFile(hbaseConfig.getHbaseSite())) {
+            configuration.addResource(new File(hbaseConfig.getHbaseSite()).toURI().toURL());
         }
 
-        if(hbaseConfig.isSecure() && isValidFile(hbaseConfig.getKeytabFileName())) {
+        if (hbaseConfig.isSecure() && isValidFile(hbaseConfig.getKeytabFileName())) {
             configuration.set("hbase.master.kerberos.principal", hbaseConfig.getAuthString());
             configuration.set("hadoop.kerberos.kinit.command", hbaseConfig.getKinitPath());
             UserGroupInformation.setConfiguration(configuration);
             System.setProperty("java.security.krb5.conf", hbaseConfig.getKerberosConfigFile());
-            UserGroupInformation.loginUserFromKeytab(hbaseConfig.getAuthString(), hbaseConfig.getKeytabFileName());
+            UserGroupInformation.loginUserFromKeytab(
+                    hbaseConfig.getAuthString(), hbaseConfig.getKeytabFileName());
             logger.info("Logged into Hbase with User: " + UserGroupInformation.getLoginUser());
         }
 
-        if(null != hbaseConfig.getHbaseZookeeperQuorum()) {
+        if(null != hbaseConfig.getHbaseZookeeperQuorum()){
             configuration.set("hbase.zookeeper.quorum", hbaseConfig.getHbaseZookeeperQuorum());
         }
 
-        if(!Strings.isNullOrEmpty(hbaseConfig.getHbaseZookeeperZnodeParent())) {
+        if(!Strings.isNullOrEmpty(hbaseConfig.getHbaseZookeeperZnodeParent())){
             configuration.set("zookeeper.znode.parent", hbaseConfig.getHbaseZookeeperZnodeParent());
         }
 
-        if(null != hbaseConfig.getHbaseZookeeperClientPort()) {
+        if(null != hbaseConfig.getHbaseZookeeperClientPort()){
             configuration.setInt("hbase.zookeeper.property.clientPort", hbaseConfig.getHbaseZookeeperClientPort());
         }
         return configuration;
     }
 
     public static boolean isValidFile(String fileName) {
-        return fileName != null && !fileName.trim()
-                .isEmpty() && new File(fileName).exists();
+        return fileName != null && !fileName.trim().isEmpty() &&
+                new File(fileName).exists();
     }
 
     public static void createTable(final HbaseConfig hbaseConfig, final String tableName) throws IOException {
@@ -106,12 +103,12 @@ public abstract class HBaseUtil {
                 if(hBaseAdmin != null) {
                     hBaseAdmin.close();
                 }
-            } catch (Exception e) {
+            } catch(Exception e) {
                 logger.error("Error closing hbase admin", e);
             }
             try {
                 connection.close();
-            } catch (Exception e) {
+            } catch(Exception e) {
                 logger.error("Error closing hbase connection", e);
             }
         }

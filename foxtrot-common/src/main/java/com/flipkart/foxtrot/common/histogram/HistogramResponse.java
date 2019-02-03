@@ -1,12 +1,12 @@
 /**
  * Copyright 2014 Flipkart Internet Pvt. Ltd.
- * <p>
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * <p>
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * <p>
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -27,30 +27,6 @@ import java.util.List;
  * Time: 12:14 AM
  */
 public class HistogramResponse extends ActionResponse {
-
-    private List<Count> counts;
-
-    public HistogramResponse() {
-        super(Opcodes.HISTOGRAM);
-    }
-
-    public HistogramResponse(List<Count> counts) {
-        super(Opcodes.HISTOGRAM);
-        this.counts = counts;
-    }
-
-    public List<Count> getCounts() {
-        return counts;
-    }
-
-    public void setCounts(List<Count> counts) {
-        this.counts = counts;
-    }
-
-    @Override
-    public void accept(ResponseVisitor visitor) {
-        visitor.visit(this);
-    }
 
     public static class Count {
         private Number period;
@@ -82,17 +58,13 @@ public class HistogramResponse extends ActionResponse {
 
         @Override
         public boolean equals(Object o) {
-            if(this == o)
-                return true;
-            if(!(o instanceof Count))
-                return false;
+            if (this == o) return true;
+            if (!(o instanceof Count)) return false;
 
-            Count count1 = (Count)o;
+            Count count1 = (Count) o;
 
-            if(count != count1.count)
-                return false;
-            if(!period.equals(count1.period))
-                return false;
+            if (count != count1.count) return false;
+            if (!period.equals(count1.period)) return false;
 
             return true;
         }
@@ -100,14 +72,40 @@ public class HistogramResponse extends ActionResponse {
         @Override
         public int hashCode() {
             int result = period.hashCode();
-            result = 31 * result + (int)(count ^ (count >>> 32));
+            result = 31 * result + (int) (count ^ (count >>> 32));
             return result;
         }
 
         @Override
         public String toString() {
-            return "Count{" + "period=" + period + ", count=" + count + '}';
+            return "Count{" +
+                    "period=" + period +
+                    ", count=" + count +
+                    '}';
         }
+    }
+    private List<Count> counts;
+
+    public HistogramResponse() {
+        super(Opcodes.HISTOGRAM);
+    }
+
+    public HistogramResponse(List<Count> counts) {
+        super(Opcodes.HISTOGRAM);
+        this.counts = counts;
+    }
+
+    public List<Count> getCounts() {
+        return counts;
+    }
+
+    public void setCounts(List<Count> counts) {
+        this.counts = counts;
+    }
+
+    @Override
+    public void accept(ResponseVisitor visitor) {
+        visitor.visit(this);
     }
 
 }

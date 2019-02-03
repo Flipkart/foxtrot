@@ -14,25 +14,21 @@ public enum RoundingMode {
                 case MICROSECONDS:
                     return dateTime;
                 case MILLISECONDS:
-                    return dateTime.millisOfSecond()
-                            .roundFloorCopy();
+                    return dateTime.millisOfSecond().roundFloorCopy();
                 case SECONDS:
-                    return dateTime.secondOfMinute()
-                            .roundFloorCopy();
+                    return dateTime.secondOfMinute().roundFloorCopy();
                 case MINUTES:
-                    return dateTime.minuteOfHour()
-                            .roundFloorCopy();
+                    return dateTime.minuteOfHour().roundFloorCopy();
                 case HOURS:
-                    return dateTime.hourOfDay()
-                            .roundFloorCopy();
+                    return dateTime.hourOfDay().roundFloorCopy();
                 case DAYS:
-                    return dateTime.dayOfMonth()
-                            .roundFloorCopy();
+                    return dateTime.dayOfMonth().roundFloorCopy();
                 default:
                     return dateTime;
             }
         }
-    }, CEILING {
+    },
+    CEILING {
         @Override
         public DateTime translate(DateTime dateTime, Duration duration) {
             switch (duration.getUnit()) {
@@ -40,25 +36,21 @@ public enum RoundingMode {
                 case MICROSECONDS:
                     return dateTime;
                 case MILLISECONDS:
-                    return dateTime.millisOfSecond()
-                            .roundCeilingCopy();
+                    return dateTime.millisOfSecond().roundCeilingCopy();
                 case SECONDS:
-                    return dateTime.secondOfMinute()
-                            .roundCeilingCopy();
+                    return dateTime.secondOfMinute().roundCeilingCopy();
                 case MINUTES:
-                    return dateTime.minuteOfHour()
-                            .roundCeilingCopy();
+                    return dateTime.minuteOfHour().roundCeilingCopy();
                 case HOURS:
-                    return dateTime.hourOfDay()
-                            .roundCeilingCopy();
+                    return dateTime.hourOfDay().roundCeilingCopy();
                 case DAYS:
-                    return dateTime.dayOfMonth()
-                            .roundCeilingCopy();
+                    return dateTime.dayOfMonth().roundCeilingCopy();
                 default:
                     return dateTime;
             }
         }
-    }, NONE {
+    },
+    NONE {
         @Override
         public DateTime translate(DateTime dateTime, Duration duration) {
             return dateTime;

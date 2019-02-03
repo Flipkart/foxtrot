@@ -23,7 +23,7 @@
   <meta name="description" content="">
   <meta name="author" content="">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="shortcut icon" href="img/favicon.ico">
+  <link rel="shortcut icon" href="../../assets/ico/favicon.ico">
   <title>Echo</title>
   <!-- Bootstrap core CSS -->
   <link href="css/open-sans.css" rel="stylesheet">
@@ -68,7 +68,7 @@
         </div>
       </div>
     </div>
-    <!-- add dashboard modal -->
+    <!-- Modal -->
     <div class="modal fade" id="addDashboard" tabindex="-2" role="dialog" aria-labelledby="addTab" aria-hidden="true">
       <div class="modal-dialog">
         <div id="console-modal">
@@ -119,7 +119,6 @@
         <div id="add-page-side-close" data-dismiss="modal" ><img src="img/combined-shape.png" alt="close"></div>
       </div>
     </div>
-    <!-- save dashbard modal -->
     <div class="modal fade" id="save-dashboard" tabindex="-2" role="dialog" aria-labelledby="addSections" aria-hidden="true">
       <div class="modal-dialog">
         <div id="save-dashboard-modal">
@@ -143,31 +142,6 @@
         <div id="add-page-side-close" data-dismiss="modal" ><img src="img/combined-shape.png"></div>
       </div>
     </div>
-    <!-- copy Page modal -->
-    <div class="modal fade" id="copy-page" tabindex="-2" role="dialog" aria-labelledby="addSections" aria-hidden="true">
-      <div class="modal-dialog">
-        <div id="custom-modal-modal">
-          <div id="custom-modal-model-heading">
-            <h1>Copy Page</h1>
-            <hr id="custom-modal-model-heading-underline"/>
-          </div>
-          <div class="custom-modal-form">
-            <form class="add-page-form">
-              <div class="form-group">
-                <label class="control-label" for="widgetType"><strong>Page Name</strong></label>
-                <input type="text" class="form-control copy-page-name" id="copy-page-name">
-                <span class="error copy-pg-error">Please enter page name</span>
-              </div>
-              <div class="form-group add-page-btn-div">
-                <button type="button" class="btn custom-modal-tab-btn copy-page-submit" id="custom-modal-tab-btn"><span>Save</span></button>
-                <button type="button" class="btn close-copy-page-submit custom-modal-close" data-dismiss="modal">Cancel</button>
-              </div>
-            </form>
-          </div>
-        </div>
-        <div id="add-page-side-close" data-dismiss="modal" ><img src="img/combined-shape.png"></div>
-      </div>
-  </div>
     <!-- copy dashbard modal -->
     <div class="modal fade" id="copy-dashboard" tabindex="-2" role="dialog" aria-labelledby="addSections" aria-hidden="true">
         <div class="modal-dialog">
@@ -192,47 +166,8 @@
           </div>
           <div id="add-page-side-close" data-dismiss="modal" ><img src="img/combined-shape.png"></div>
         </div>
-    </div>
-    <!-- delete dashbard modal -->
-    <div class="modal fade" id="delete-dashboard" tabindex="-2" role="dialog" aria-labelledby="addSections" aria-hidden="true">
-      <div class="modal-dialog">
-        <div id="save-dashboard-modal">
-          <div id="save-dashboard-model-heading">
-            <h1>Delete Dashboard</h1>
-            <hr id="save-dashboard-model-heading-underline"/>
-          </div>
-          <div class="save-dashboard-form">
-            <form class="add-page-form">
-              <div class="form-group">
-                <input type="text" class="form-control save-dashboard-name" id="delete-dashboard-name" disabled>
-              </div>
-              <div class="form-group save-page-btn-div">
-                <button type="button" class="btn custom-modal-tab-btn" id="delete-dashboard-tab-btn"><span>Delete</span></button>
-                <button type="button" class="btn custom-modal-close" data-dismiss="modal">Cancel</button>
-              </div>
-            </form>
-          </div>
-        </div>
-        <div id="add-page-side-close" data-dismiss="modal" ><img src="img/combined-shape.png"></div>
       </div>
-    </div>
-
-    <div id="myModal" class="modal">
-      <div class="modal-dialog">
-        <div class="global-date-picker-modal modal-content">
-          <div class="modal-header">
-            <h4></h4>
-          </div>
-          <div class="modal-body">
-          </div>
-          <div class="global-date-footer modal-footer">
-              <a data-dismiss="modal" class="close-global-date-filter" >Cancel</a>
-              <a id="submit-global-date-picker">Okay</a>
-          </div>  
-        </div>
-      </div>
-    </div>
-  
+      <!-- copy dashbard modal -->
     <section id="main-content">
       <div class="container-fluid" id="monitoring">
         <div class="row">
@@ -243,10 +178,8 @@
           <div class="col-md-6">
             <div class="pull-right" id="right-action-btns">
                 <div id="top-settings">
-                  <img src="img/sub-page.png" data-target="#copy-page" data-toggle="modal" title="Copy Page" id="copy-page-img" alt="Copy Page" />  
-                  <img src="img/copy-db.png" data-target="#copy-dashboard" data-toggle="modal" title="Copy Dashboard" alt="Copy Dashboard" />
+                    <img src="img/copy-db.png" data-target="#copy-dashboard" data-toggle="modal" title="Copy Widget" alt="Copy Widget" />
                     <img data-target="#save-dashboard" data-toggle="modal" id="saveConsole" src="img/save.png" alt="Save Dashboard" title="Save Dashboard" />
-                    <img data-target="#delete-dashboard" data-toggle="modal" id="deleteConsole" src="img/remove.png" alt="Delete Dashboard" title="Delete Dashboard" />
                     <img id="add-page-btn" src="img/pg-settings.png" title="Page Settings" alt="Page Settings" />
                 </div>
                 <div class="form-group refreshtime-block">
@@ -267,7 +200,7 @@
                   </div>
                 <!-- <button type="button" >Page settings</button>
               <button type="button" >Save Dashboard</button> -->
-              <div class="col-sm-4 global-filters">
+              <div class="col-sm-3 global-filters">
                 <div class="col-sm-6 global-filter-switch-div"><label>Global filters<input type="checkbox" class="ios-switch blue filter-switch tinyswitch"/><div id="switch"><div></div></div></label></div>
                 <div class="col-sm-5 hide-filters">
                   <select class="global-filter-period-select" id="global-filter-period-select">
@@ -286,9 +219,6 @@
                     <option value="15d"> 15 Days</option>
                     <option value="30d"> 30 Days</option>
                   </select>
-                  <a href="#myModal" role="button" data-toggle="modal"><span class="global-date glyphicon glyphicon-calendar"></span></a>
-                  <div id="selected-global-date"><span></span></div>
-                </div>
                 </div>
               </div>
             </div>
@@ -335,7 +265,7 @@
             </div>
           </div>
           <hr id='page-settings-divider'/>
-          <button type="button" class="delete-dashboard" id="delete-dashboard-btn"> Delete Dashboard</button>
+          <button type="button" class="delete-dashboard"> Delete Dashboard</button>
         </form>
       </div>
     </div>
@@ -364,11 +294,6 @@
               <input type="text" name="sidebar-tile" required class="tile-title sidebar-tile form-control" id="tileTitle" placeholder="Give a title"/>
             </div>
             <div class="form-group">
-                <label class="control-label">Description </label>
-                <textarea rows="2" cols="50" name="tile-description" class="form-control" id="tile-description" placeholder="Enter description">
-                </textarea>
-              </div>
-            <div class="form-group">
               <label class="control-label">Table <span class="mandatory-text">*</span></label>
               <select class="selectpicker tile-table form-control" name="tile-table" id="tileTable" data-live-search="true" data-style="btn-warning" required> </select>
             </div>
@@ -387,7 +312,6 @@
                 <option value="pie">Pie chart</option>
                 <option value="gauge">Gauge Chart</option>
                 <option value="percentageGauge">Percentage Gauge Chart</option>
-                <option value="sunburst">Sunburst</option>
                 <option value="radar">Radar/Spider Chart</option>
               </select>
             </div>
@@ -463,12 +387,7 @@
                     </div>
                     <div class="form-group">
                       <label class="control-label">Success value<span class="mandatory-text">*</span></label>
-                      <span class="glyphicon glyphicon-info-sign mathematical-info" data-toggle="tooltip" data-placement="top" title="Use space delimiter to use mathematical formula"></span>
                       <input type="text" name="gauge-success-field" class="selectpicker gauge-success-field form-control" id="gauge-success-field" required />
-                    </div>
-                    <div class="form-group">
-                      <label class="control-label">Denominator Threshold</label>
-                      <input type="number" name="gauge-threshold-field" class=" gauge-threshold-field form-control" id="gauge-threshold-field" placeholder="Enter threshold value" />
                     </div>
                   </div>
                 </div>
@@ -493,18 +412,12 @@
                       <select name="percentage-gauge-nesting" class="selectpicker show-menu-arrow percentage-gauge-nesting form-control" id="percentage-gauge-nesting" data-live-search="true" data-style="btn-warning" required> </select>
                     </div>
                     <div class="form-group">
-                      <label class="control-label">Numertaor value<span class="mandatory-text">*</span></label>
-                      <span class="glyphicon glyphicon-info-sign mathematical-info" data-toggle="tooltip" data-placement="top" title="Use space delimiter to use mathematical formula"></span>
-                      <input type="text" name="percentage-gauge-denominator-field" class="selectpicker percentage-gauge-denominator-field form-control" placeholder="Enter Numertaor value" id="percentage-gauge-denominator-field" required />
-                    </div>
-                    <div class="form-group">
                       <label class="control-label">Denominator value<span class="mandatory-text">*</span></label>
-                      <span class="glyphicon glyphicon-info-sign mathematical-info" data-toggle="tooltip" data-placement="top" title="Use space delimiter to use mathematical formula"></span>
-                      <input type="text" name="percentage-gauge-success-field" class="selectpicker percentage-gauge-numerator-field form-control" id="percentage-gauge-numerator-field" placeholder="Enter Denominator value" required />
+                      <input type="text" name="percentage-gauge-success-field" class="selectpicker percentage-gauge-numerator-field form-control" id="percentage-gauge-numerator-field" placeholder="Enter numerator value" required />
                     </div>
                     <div class="form-group">
-                      <label class="control-label">Denominator Threshold</label>
-                      <input type="number" name="percentage-gauge-threshold-field" class="selectpicker percentage-gauge-threshold-field form-control" id="percentage-gauge-threshold-field" placeholder="Enter threshold value" />
+                      <label class="control-label">Numertaor value<span class="mandatory-text">*</span></label>
+                      <input type="text" name="percentage-gauge-denominator-field" class="selectpicker percentage-gauge-denominator-field form-control" placeholder="Enter denominator value" id="percentage-gauge-denominator-field" required />
                     </div>
                     <div class="form-group"><label class="control-label">Unique of</label>
                       <select id="percentage-gauge-uniquekey" class="selectpicker show-menu-arrow percentage-gauge-uniquekey form-control" data-live-search="true"> </select></div>
@@ -595,16 +508,6 @@
                         <option value=stats.variance>Variance</option>
                       </select>
                     </div>
-                    <!-- <div class="form-group">
-                      <label class="control-label">Multiple time series Graph</label>
-                      <select name="stats-trend-multiple-series-value" id="stats-trend-multiple-series-value" class="selectpicker show-menu-arrow stats-trend-multiple-series-value form-control">
-                        <option value="">none</option>
-                        <option value="2">2</option>
-                        <option value="3">3</option>
-                        <option value="4">4</option>
-                        <option value="5">5</option>
-                      </select>
-                    </div> -->
                     <div class="form-group">
                       <label class="control-label">Shift Decimal Left By</label>
                       <input type="number" min="0" value="0" class="form-control stats-trend-ignored-digits" placeholder="" id="stats-trend-ignored-digits"></div>
@@ -687,16 +590,6 @@
                     <div class="form-group"><label class="control-label">Unique of</label>
                       <select id="stacked-bar-uniquekey" class="selectpicker show-menu-arrow stacked-bar-uniquekey form-control" data-live-search="true">
                       </select></div>
-                      <div class="form-group">
-                        <label class="control-label">Multiple time series Graph</label>
-                        <select name="stacked-bar-multiple-series-value" id="stacked-bar-multiple-series-value" class="selectpicker show-menu-arrow stacked-bar-multiple-series-value form-control">
-                          <option value="">none</option>
-                          <option value="2">2</option>
-                          <option value="3">3</option>
-                          <option value="4">4</option>
-                          <option value="5">5</option>
-                        </select>
-                      </div>
                     <div class="form-group">
                       <label class="control-label">Shift Decimal Left By</label>
                       <input type="number" min="0" value="0" class="form-control stackedBar-ignored-digits" placeholder="" id="stackedBar-ignored-digits">
@@ -718,14 +611,12 @@
                     <div class="form-group"><label class="control-label">Field to classify <span class="mandatory-text">*</span></label>
                       <select name="line-ratio-field" required class="selectpicker show-menu-arrow line-ratio-field form-control" id="line-ratio-field" data-live-search="true"></select></div>
                       <div class="form-group">
-                        <label class="control-label">Numerator value<span class="mandatory-text">*</span></label>
-                        <span class="glyphicon glyphicon-info-sign mathematical-info" data-toggle="tooltip" data-placement="top" title="Use space delimiter to use mathematical formula"></span>
-                        <input type="text" name="line-ratio-denominator-field" class="selectpicker line-ratio-denominator-field form-control" placeholder="Enter Numerator value" id="line-ratio-denominator-field" required />
+                        <label class="control-label">Denominator  value<span class="mandatory-text">*</span></label>
+                        <input type="text" name="line-ratio-numerator-field" class="selectpicker line-ratio-numerator-field form-control" id="line-ratio-numerator-field" placeholder="Enter numerator value" required />
                       </div>
                       <div class="form-group">
-                        <label class="control-label">Denominator  value<span class="mandatory-text">*</span></label>
-                        <span class="glyphicon glyphicon-info-sign mathematical-info" data-toggle="tooltip" data-placement="top" title="Use space delimiter to use mathematical formula"></span>
-                        <input type="text" name="line-ratio-numerator-field" class="selectpicker form-control" id="line-ratio-numerator-field" placeholder="Enter Denominator value" required />
+                        <label class="control-label">Numertaor value<span class="mandatory-text">*</span></label>
+                        <input type="text" name="line-ratio-denominator-field" class="selectpicker line-ratio-denominator-field form-control" placeholder="Enter denominator value" id="line-ratio-denominator-field" required />
                       </div>
                     <div class="form-group"><label class="control-label">Unique of</label>
                       <select id="line-ratio-uniquekey" class="selectpicker show-menu-arrow line-ratio-uniquekey form-control" data-live-search="true">
@@ -790,48 +681,6 @@
                     <div class="form-group">
                       <label class="control-label" for="count-ignored-digits"><strong>Shift Decimal Left By</strong> </label>
                       <input type="number" min="0" value="0" class="form-control count-ignored-digits" placeholder="" id="count-ignored-digits">
-                    </div>
-                  </div>
-                </div>
-              </form>
-              <form id="sunburst" class="sunburstForm">
-                <div id="sunburst-chart-data">
-                  <div class="col-md-12 chart-forms">
-                    <div class="form-group">
-                      <label class="control-label">Time unit <span class="mandatory-text">*</span></label>
-                      <select class="selectpicker show-menu-arrow sunburst-time-unit form-control" name="sunburst-time-unit" id="sunburst-time-unit" required>
-                        <option value="minutes" selected="selected">Minute</option>
-                        <option value="hours">Hour</option>
-                        <option value="days">Day</option>
-                      </select>
-                    </div>
-                    <div class="form-group">
-                      <label class="control-label">Time Frame <span class="mandatory-text">*</span></label>
-                      <input type="number" name="sunburst-timeframe" class="sunburst-timeframe form-control" id="sunburst-timeframe" placeholder="Enter time frame" required>
-                    </div>
-                    <div class="form-group">
-                      <label class="control-label">Nesting Element 1 <span class="mandatory-text">*</span></label>
-                      <select name="sunburst-nesting-field1" class="selectpicker show-menu-arrow sunburst-nesting-field1 form-control" id="sunburst-nesting-field1" data-live-search="true" data-style="btn-warning" required> </select>
-                    </div>
-                    <div class="form-group">
-                      <label class="control-label">Nesting Element 2 <span class="mandatory-text">*</span></label></label>
-                      <select name="sunburst-nesting-field2" class="selectpicker show-menu-arrow sunburst-nesting-field2 form-control" id="sunburst-nesting-field2" data-live-search="true" data-style="btn-warning" required> </select>
-                    </div>
-                    <div class="form-group">
-                      <label class="control-label">Nesting Element 3</label>
-                      <select name="sunburst-nesting-field3" class="selectpicker show-menu-arrow sunburst-nesting-field3 form-control" id="sunburst-nesting-field3" data-live-search="true" data-style="btn-warning"> </select>
-                    </div>
-                    <div class="form-group">
-                      <label class="control-label">Nesting Element 4</label>
-                      <select name="sunburst-nesting-field4" class="selectpicker show-menu-arrow sunburst-nesting-field4 form-control" id="sunburst-nesting-field4" data-live-search="true" data-style="btn-warning"> </select>
-                    </div>
-                    <div class="form-group">
-                      <label class="control-label">Nesting Element 5</label>
-                      <select name="sunburst-nesting-field5" class="selectpicker show-menu-arrow sunburst-nesting-field5 form-control" id="sunburst-nesting-field5" data-live-search="true" data-style="btn-warning"> </select>
-                    </div>
-                    <div class="form-group">
-                      <label class="control-label">Unique of</label>
-                      <select class="selectpicker show-menu-arrow sunburst-uniqueKey form-control" id="sunburst-uniqueKey" data-live-search="true" data-style="btn-warning"></select>
                     </div>
                   </div>
                 </div>
@@ -904,8 +753,8 @@
     <script id="tile-template" type="text/x-handlebars-template">
       <div>
         <div class='tile tile-gradient tile-default-size' id='{{tileId}}'>
-            <div class="fetch-error"></div>
-          <div class="widget-header"> <p class="tile-title"><span class="title-title-span">Title bar</span>&nbsp;<span class="glyphicon glyphicon-info-sign widget-description" data-toggle="tooltip" data-placement="top" title=""></span></p>
+            <div class="fetch-error">Data Refresh Failed</div>
+          <div class="widget-header"> <p class="tile-title">Title bar</p>
             <div class='widget-toolbox'>
               <div class="settings">
                 <div class="widget-timeframe">
@@ -955,7 +804,7 @@
   <script id="group-legend-pie-template" type="text/x-handlebars-template">
   <ul>
   {{#each data}}
-  <li style="color:{{color}}"><span class="legend-label">{{label}} - {{data}}({{percentage}}%)</span></li>
+  <li style="color:{{color}}"><span class="legend-label">{{label}} - ({{data}})</span></li>
   {{/each}}
     </ul>
   </script>
@@ -999,7 +848,6 @@
   <script src="js/flot/jquery.flot.tooltip.js"></script>
   <script src="js/tiles/stats-trend-tile.js"></script>
   <script src="js/tiles/bar-tile.js"></script>
-  <script src="js/tiles/sunburst-tile.js"></script>
   <script src="js/jquery.flot.crosshair.js"></script>
   <script src="js/flot/jquery.flot.stack.min.js"></script>
   <script src="js/flot/jquery.flot.valuelabels.js"></script>
@@ -1008,8 +856,7 @@
   <script src="js/moment.min.js"></script>
   <script src="js/validate.js"></script>
   <script src="js/sweetalert/sweetalert2.min.js"></script>
-  <script src="js/bootstrap-datetimepicker.min.js"></script>
-  <script src="js/underscore-min.js"></script>  
+  <script src="js/bootstrap-datetimepicker.min.js"></script>  
   <script type="text/javascript">
     $('.navbar').on('click', function(){
       showHideSideBar();
@@ -1035,8 +882,6 @@
       showHidePageSettings();
     });
     hideFilters();
-    
-    $('.mathematical-info').tooltip();
   </script>
   <!--Application-->
 </body>

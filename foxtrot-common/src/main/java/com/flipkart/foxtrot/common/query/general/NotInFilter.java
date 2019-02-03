@@ -43,14 +43,14 @@ public class NotInFilter extends Filter {
     }
 
     @Override
-    public <T> T accept(FilterVisitor<T> visitor) throws Exception {
+    public<T> T accept(FilterVisitor<T> visitor) throws Exception {
         return visitor.visit(this);
     }
 
     @Override
     public Set<String> validate() {
         Set<String> validationErrors = super.validate();
-        if(CollectionUtils.isNullOrEmpty(values)) {
+        if (CollectionUtils.isNullOrEmpty(values)) {
             validationErrors.add("at least one value needs to be provided for field");
         }
         return validationErrors;

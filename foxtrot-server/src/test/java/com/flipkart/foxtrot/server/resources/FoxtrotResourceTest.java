@@ -12,7 +12,6 @@ import com.fasterxml.jackson.databind.jsontype.impl.StdSubtypeResolver;
 import com.flipkart.foxtrot.common.Table;
 import com.flipkart.foxtrot.core.MockElasticsearchServer;
 import com.flipkart.foxtrot.core.TestUtils;
-import com.flipkart.foxtrot.core.alerts.EmailConfig;
 import com.flipkart.foxtrot.core.cache.CacheManager;
 import com.flipkart.foxtrot.core.cache.impl.DistributedCacheFactory;
 import com.flipkart.foxtrot.core.cardinality.CardinalityConfig;
@@ -51,13 +50,24 @@ import static org.mockito.Mockito.*;
  */
 public abstract class FoxtrotResourceTest {
 
+    private TableMetadataManager tableMetadataManager;
+    private MockElasticsearchServer elasticsearchServer;
+    private HazelcastInstance hazelcastInstance;
+    private QueryExecutor queryExecutor;
+    private QueryStore queryStore;
+    private DataStore dataStore;
+    private static ObjectMapper mapper;
+    private CacheManager cacheManager;
+    private AnalyticsLoader analyticsLoader;
+
+
     protected final static HealthCheckRegistry healthChecks = mock(HealthCheckRegistry.class);
     protected final static JerseyEnvironment jerseyEnvironment = mock(JerseyEnvironment.class);
     protected final static LifecycleEnvironment lifecycleEnvironment = new LifecycleEnvironment();
     protected static final Environment environment = mock(Environment.class);
     protected final static Bootstrap<FoxtrotServerConfiguration> bootstrap = mock(Bootstrap.class);
+
     protected static final ObjectMapper objectMapper = new ObjectMapper();
-    private static ObjectMapper mapper;
 
     static {
         when(jerseyEnvironment.getResourceConfig()).thenReturn(new DropwizardResourceConfig());
@@ -70,34 +80,19 @@ public abstract class FoxtrotResourceTest {
         when(environment.getAdminContext()).thenReturn(new MutableServletContextHandler());
         when(environment.getValidator()).thenReturn(Validators.newValidator());
 
-        environment.getObjectMapper()
-                .setSerializationInclusion(JsonInclude.Include.NON_NULL);
-        environment.getObjectMapper()
-                .setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
+        environment.getObjectMapper().setSerializationInclusion(JsonInclude.Include.NON_NULL);
+        environment.getObjectMapper().setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
 
-        environment.getObjectMapper()
-                .disable(SerializationFeature.FAIL_ON_EMPTY_BEANS);
-        environment.getObjectMapper()
-                .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
+        environment.getObjectMapper().disable(SerializationFeature.FAIL_ON_EMPTY_BEANS);
+        environment.getObjectMapper().disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
         SubtypeResolver subtypeResolver = new StdSubtypeResolver();
-        environment.getObjectMapper()
-                .setSubtypeResolver(subtypeResolver);
-        environment.jersey()
-                .register(new FoxtrotExceptionMapper(mapper));
+        environment.getObjectMapper().setSubtypeResolver(subtypeResolver);
+        environment.jersey().register(new FoxtrotExceptionMapper(mapper));
         mapper = environment.getObjectMapper();
 
-        Logger root = (Logger)LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
+        Logger root = (Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
         root.setLevel(Level.WARN);
     }
-
-    private TableMetadataManager tableMetadataManager;
-    private MockElasticsearchServer elasticsearchServer;
-    private HazelcastInstance hazelcastInstance;
-    private QueryExecutor queryExecutor;
-    private QueryStore queryStore;
-    private DataStore dataStore;
-    private CacheManager cacheManager;
-    private AnalyticsLoader analyticsLoader;
 
     public FoxtrotResourceTest() throws Exception {
         try {
@@ -115,29 +110,21 @@ public abstract class FoxtrotResourceTest {
 
         cacheManager = new CacheManager(new DistributedCacheFactory(hazelcastConnection, mapper, new CacheConfig()));
 
-        elasticsearchServer = new MockElasticsearchServer(UUID.randomUUID()
-                                                                  .toString());
+        elasticsearchServer = new MockElasticsearchServer(UUID.randomUUID().toString());
         ElasticsearchConnection elasticsearchConnection = TestUtils.initESConnection(elasticsearchServer);
-        CardinalityConfig cardinalityConfig = new CardinalityConfig("true", String.valueOf(
-                ElasticsearchUtils.DEFAULT_SUB_LIST_SIZE));
+        CardinalityConfig cardinalityConfig = new CardinalityConfig("true", String.valueOf(ElasticsearchUtils.DEFAULT_SUB_LIST_SIZE));
 
-        tableMetadataManager = new DistributedTableMetadataManager(hazelcastConnection, elasticsearchConnection, mapper,
-                                                                   cardinalityConfig
-        );
+        tableMetadataManager = new DistributedTableMetadataManager(hazelcastConnection, elasticsearchConnection, mapper, cardinalityConfig);
         tableMetadataManager.start();
-        tableMetadataManager.save(Table.builder()
-                                          .name(TestUtils.TEST_TABLE_NAME)
-                                          .ttl(7)
-                                          .build());
-        EmailConfig emailConfig = new EmailConfig();
-        queryStore = new ElasticsearchQueryStore(tableMetadataManager, elasticsearchConnection, dataStore, mapper,
-                                                 cardinalityConfig, emailConfig, new CacheConfig(), hazelcastConnection
-        );
+        tableMetadataManager.save(
+                Table.builder()
+                        .name(TestUtils.TEST_TABLE_NAME)
+                        .ttl(7)
+                        .build());
+        queryStore = new ElasticsearchQueryStore(tableMetadataManager, elasticsearchConnection, dataStore, mapper, cardinalityConfig);
         queryStore = spy(queryStore);
 
-        analyticsLoader = new AnalyticsLoader(tableMetadataManager, dataStore, queryStore, elasticsearchConnection,
-                                              cacheManager, mapper, new EmailConfig()
-        );
+        analyticsLoader = new AnalyticsLoader(tableMetadataManager, dataStore, queryStore, elasticsearchConnection, cacheManager, mapper);
         try {
             analyticsLoader.start();
         } catch (Exception e) {

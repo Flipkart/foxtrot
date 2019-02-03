@@ -20,8 +20,6 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.flipkart.foxtrot.common.Document;
 import com.flipkart.foxtrot.common.Table;
 import com.flipkart.foxtrot.common.TableFieldMapping;
-import com.flipkart.foxtrot.core.alerts.EmailClient;
-import com.flipkart.foxtrot.core.alerts.EmailConfig;
 import com.flipkart.foxtrot.core.cardinality.CardinalityConfig;
 import com.flipkart.foxtrot.core.datastore.DataStore;
 import com.flipkart.foxtrot.core.exception.FoxtrotException;
@@ -34,11 +32,6 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.hazelcast.config.EvictionPolicy;
-import com.hazelcast.config.InMemoryFormat;
-import com.hazelcast.config.MapConfig;
-import com.hazelcast.config.MaxSizeConfig;
-import com.hazelcast.core.IMap;
 import lombok.Data;
 import org.apache.commons.lang3.StringUtils;
 import org.elasticsearch.action.WriteConsistencyLevel;
@@ -53,7 +46,6 @@ import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.search.SearchHit;
-import org.elasticsearch.transport.RemoteTransportException;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -80,37 +72,22 @@ public class ElasticsearchQueryStore implements QueryStore {
     private static final String TABLE_META = "tableMeta";
     private static final String DATA_STORE = "dataStore";
     private static final String QUERY_STORE = "queryStore";
-    private static final String WRITES_ERROR_TOKEN = "writesError";
-    private static final String WRITES_ERROR_KEY = "writesErrorKey";
-    private static final String WRITES_ERROR_VALUE = "writesErrorValue";
-
-    private static final int DEFAULT_TIME_TO_LIVE_SECONDS = 60*10;
-    private static final int DEFAULT_MAX_IDLE_SECONDS = 60*10;
-    private static final int DEFAULT_SIZE = 2;
 
     private final ElasticsearchConnection connection;
     private final DataStore dataStore;
     private final TableMetadataManager tableMetadataManager;
     private final ObjectMapper mapper;
     private final CardinalityConfig cardinalityConfig;
-    private final CacheConfig cacheConfig;
-    private final HazelcastConnection hazelcastConnection;
-    private final EmailClient emailClient;
-    private IMap<String, String> distributedMap;
 
-    public ElasticsearchQueryStore(TableMetadataManager tableMetadataManager, ElasticsearchConnection connection,
-                                   DataStore dataStore, ObjectMapper mapper, CardinalityConfig cardinalityConfig,
-                                   EmailConfig emailConfig, CacheConfig cacheConfig, HazelcastConnection hazelcastConnection) {
+    public ElasticsearchQueryStore(TableMetadataManager tableMetadataManager,
+                                   ElasticsearchConnection connection,
+                                   DataStore dataStore,
+                                   ObjectMapper mapper, CardinalityConfig cardinalityConfig) {
         this.connection = connection;
         this.dataStore = dataStore;
         this.tableMetadataManager = tableMetadataManager;
         this.mapper = mapper;
         this.cardinalityConfig = cardinalityConfig;
-        this.emailClient = getEmailClient(emailConfig);
-        this.cacheConfig = cacheConfig;
-        this.hazelcastConnection = hazelcastConnection;
-        this.hazelcastConnection.getHazelcastConfig()
-                .addMapConfig(getDefaultMapConfig(cacheConfig));
     }
 
     @Override
@@ -126,33 +103,25 @@ public class ElasticsearchQueryStore implements QueryStore {
         Stopwatch stopwatch = Stopwatch.createStarted();
         String action = StringUtils.EMPTY;
         try {
-            if(!tableMetadataManager.exists(table)) {
+            if (!tableMetadataManager.exists(table)) {
                 throw FoxtrotExceptions.createBadRequestException(table,
-                                                                  String.format("unknown_table table:%s", table)
-                                                                 );
+                        String.format("unknown_table table:%s", table));
             }
-            if(new DateTime().plusDays(1)
-                       .minus(document.getTimestamp())
-                       .getMillis() < 0) {
+            if (new DateTime().plusDays(1).minus(document.getTimestamp()).getMillis() < 0) {
                 return;
             }
             action = TABLE_META;
-            stopwatch.reset()
-                    .start();
+            stopwatch.reset().start();
             final Table tableMeta = tableMetadataManager.get(table);
             logger.info("TableMetaGetTook:{}", stopwatch.elapsed(TimeUnit.MILLISECONDS));
-            MetricUtil.getInstance()
-                    .registerActionSuccess(action, table, stopwatch.elapsed(TimeUnit.MILLISECONDS));
-            stopwatch.reset()
-                    .start();
+            MetricUtil.getInstance().registerActionSuccess(action, table, stopwatch.elapsed(TimeUnit.MILLISECONDS));
+            stopwatch.reset().start();
 
             action = DATA_STORE;
             final Document translatedDocument = dataStore.save(tableMeta, document);
             logger.info("DataStoreTook:{}", stopwatch.elapsed(TimeUnit.MILLISECONDS));
-            MetricUtil.getInstance()
-                    .registerActionSuccess(action, table, stopwatch.elapsed(TimeUnit.MILLISECONDS));
-            stopwatch.reset()
-                    .start();
+            MetricUtil.getInstance().registerActionSuccess(action, table, stopwatch.elapsed(TimeUnit.MILLISECONDS));
+            stopwatch.reset().start();
 
             action = QUERY_STORE;
             long timestamp = translatedDocument.getTimestamp();
@@ -167,11 +136,9 @@ public class ElasticsearchQueryStore implements QueryStore {
                     .execute()
                     .get(2, TimeUnit.SECONDS);
             logger.info("QueryStoreTook:{}", stopwatch.elapsed(TimeUnit.MILLISECONDS));
-            MetricUtil.getInstance()
-                    .registerActionSuccess(action, table, stopwatch.elapsed(TimeUnit.MILLISECONDS));
+            MetricUtil.getInstance().registerActionSuccess(action, table, stopwatch.elapsed(TimeUnit.MILLISECONDS));
         } catch (InterruptedException | ExecutionException | TimeoutException e) {
-            MetricUtil.getInstance()
-                    .registerActionFailure(action, table, stopwatch.elapsed(TimeUnit.MILLISECONDS));
+            MetricUtil.getInstance().registerActionFailure(action, table, stopwatch.elapsed(TimeUnit.MILLISECONDS));
             throw FoxtrotExceptions.createExecutionException(table, e);
         }
     }
@@ -183,89 +150,64 @@ public class ElasticsearchQueryStore implements QueryStore {
         Stopwatch stopwatch = Stopwatch.createStarted();
         String action = StringUtils.EMPTY;
         try {
-            if(!tableMetadataManager.exists(table)) {
+            if (!tableMetadataManager.exists(table)) {
                 throw FoxtrotExceptions.createBadRequestException(table,
-                                                                  String.format("unknown_table table:%s", table)
-                                                                 );
+                        String.format("unknown_table table:%s", table));
             }
-            if(documents == null || documents.size() == 0) {
+            if (documents == null || documents.size() == 0) {
                 throw FoxtrotExceptions.createBadRequestException(table, "Empty Document List Not Allowed");
             }
             action = TABLE_META;
-            stopwatch.reset()
-                    .start();
+            stopwatch.reset().start();
             final Table tableMeta = tableMetadataManager.get(table);
             logger.info("TableMetaGetTook:{}", stopwatch.elapsed(TimeUnit.MILLISECONDS));
-            MetricUtil.getInstance()
-                    .registerActionSuccess(action, table, stopwatch.elapsed(TimeUnit.MILLISECONDS));
-            stopwatch.reset()
-                    .start();
+            MetricUtil.getInstance().registerActionSuccess(action, table, stopwatch.elapsed(TimeUnit.MILLISECONDS));
+            stopwatch.reset().start();
 
             action = DATA_STORE;
             final List<Document> translatedDocuments = dataStore.saveAll(tableMeta, documents);
             logger.info("DataStoreTook:{}", stopwatch.elapsed(TimeUnit.MILLISECONDS));
-            MetricUtil.getInstance()
-                    .registerActionSuccess(action, table, stopwatch.elapsed(TimeUnit.MILLISECONDS));
-            stopwatch.reset()
-                    .start();
+            MetricUtil.getInstance().registerActionSuccess(action, table, stopwatch.elapsed(TimeUnit.MILLISECONDS));
+            stopwatch.reset().start();
 
             action = QUERY_STORE;
-            BulkRequestBuilder bulkRequestBuilder = connection.getClient()
-                    .prepareBulk();
+            BulkRequestBuilder bulkRequestBuilder = connection.getClient().prepareBulk();
             DateTime dateTime = new DateTime().plusDays(1);
-            for(Document document : translatedDocuments) {
+            for (Document document : translatedDocuments) {
                 long timestamp = document.getTimestamp();
-                if(dateTime.minus(timestamp)
-                           .getMillis() < 0) {
+                if (dateTime.minus(timestamp).getMillis() < 0) {
                     continue;
                 }
                 final String index = ElasticsearchUtils.getCurrentIndex(table, timestamp);
-                IndexRequest indexRequest = new IndexRequest().index(index)
+                IndexRequest indexRequest = new IndexRequest()
+                        .index(index)
                         .type(ElasticsearchUtils.DOCUMENT_TYPE_NAME)
                         .id(document.getId())
                         .timestamp(Long.toString(timestamp))
                         .source(convert(document));
                 bulkRequestBuilder.add(indexRequest);
             }
-            if(bulkRequestBuilder.numberOfActions() > 0) {
-                BulkResponse responses = bulkRequestBuilder.setConsistencyLevel(WriteConsistencyLevel.QUORUM)
+            if (bulkRequestBuilder.numberOfActions() > 0) {
+                BulkResponse responses = bulkRequestBuilder
+                        .setConsistencyLevel(WriteConsistencyLevel.QUORUM)
                         .execute()
                         .get(10, TimeUnit.SECONDS);
                 logger.info("QueryStoreTook:{}", stopwatch.elapsed(TimeUnit.MILLISECONDS));
-                MetricUtil.getInstance()
-                        .registerActionSuccess(action, table, stopwatch.elapsed(TimeUnit.MILLISECONDS));
-                for(int i = 0; i < responses.getItems().length; i++) {
+                MetricUtil.getInstance().registerActionSuccess(action, table, stopwatch.elapsed(TimeUnit.MILLISECONDS));
+                for (int i = 0; i < responses.getItems().length; i++) {
                     BulkItemResponse itemResponse = responses.getItems()[i];
-                    if(itemResponse.isFailed()) {
+                    if (itemResponse.isFailed()) {
                         logger.error(String.format("Table : %s Failure Message : %s Document : %s", table,
-                                                   itemResponse.getFailureMessage(),
-                                                   mapper.writeValueAsString(documents.get(i))
-                                                  ));
+                                itemResponse.getFailureMessage(),
+                                mapper.writeValueAsString(documents.get(i))));
                     }
                 }
             }
-        } catch (RemoteTransportException e) {
-            if (distributedMap == null) {
-                this.distributedMap = this.hazelcastConnection.getHazelcast()
-                    .getMap(WRITES_ERROR_TOKEN);
-            }
-            if (!distributedMap.containsKey(WRITES_ERROR_KEY)) {
-                String subject = "Writes on ES Failing";
-                String content = e.getMessage();
-                String recipients = "payments-dev@phonepe.com";
-                emailClient.sendEmail(subject, content, recipients);
-                distributedMap.put(WRITES_ERROR_KEY, WRITES_ERROR_VALUE);
-            }
-            MetricUtil.getInstance()
-                    .registerActionFailure(action, table, stopwatch.elapsed(TimeUnit.MILLISECONDS));
-            throw FoxtrotExceptions.createExecutionException(table, e);
         } catch (JsonProcessingException e) {
-            MetricUtil.getInstance()
-                    .registerActionFailure(action, table, stopwatch.elapsed(TimeUnit.MILLISECONDS));
+            MetricUtil.getInstance().registerActionFailure(action, table, stopwatch.elapsed(TimeUnit.MILLISECONDS));
             throw FoxtrotExceptions.createBadRequestException(table, e);
         } catch (InterruptedException | ExecutionException | TimeoutException e) {
-            MetricUtil.getInstance()
-                    .registerActionFailure(action, table, stopwatch.elapsed(TimeUnit.MILLISECONDS));
+            MetricUtil.getInstance().registerActionFailure(action, table, stopwatch.elapsed(TimeUnit.MILLISECONDS));
             throw FoxtrotExceptions.createExecutionException(table, e);
         }
     }
@@ -275,8 +217,9 @@ public class ElasticsearchQueryStore implements QueryStore {
     public Document get(String table, String id) throws FoxtrotException {
         table = ElasticsearchUtils.getValidTableName(table);
         Table fxTable;
-        if(!tableMetadataManager.exists(table)) {
-            throw FoxtrotExceptions.createBadRequestException(table, String.format("unknown_table table:%s", table));
+        if (!tableMetadataManager.exists(table)) {
+            throw FoxtrotExceptions.createBadRequestException(table,
+                    String.format("unknown_table table:%s", table));
         }
         fxTable = tableMetadataManager.get(table);
         String lookupKey;
@@ -288,13 +231,11 @@ public class ElasticsearchQueryStore implements QueryStore {
                 .setSize(1)
                 .execute()
                 .actionGet();
-        if(searchResponse.getHits()
-                   .totalHits() == 0) {
+        if (searchResponse.getHits().totalHits() == 0) {
             logger.warn("Going into compatibility mode, looks using passed in ID as the data store id: {}", id);
             lookupKey = id;
         } else {
-            lookupKey = searchResponse.getHits()
-                    .getHits()[0].getId();
+            lookupKey = searchResponse.getHits().getHits()[0].getId();
             logger.debug("Translated lookup key for {} is {}.", id, lookupKey);
         }
         return dataStore.get(fxTable, lookupKey);
@@ -309,30 +250,25 @@ public class ElasticsearchQueryStore implements QueryStore {
     @Timed
     public List<Document> getAll(String table, List<String> ids, boolean bypassMetalookup) throws FoxtrotException {
         table = ElasticsearchUtils.getValidTableName(table);
-        if(!tableMetadataManager.exists(table)) {
-            throw FoxtrotExceptions.createBadRequestException(table, String.format("unknown_table table:%s", table));
+        if (!tableMetadataManager.exists(table)) {
+            throw FoxtrotExceptions.createBadRequestException(table,
+                    String.format("unknown_table table:%s", table));
         }
         Map<String, String> rowKeys = Maps.newLinkedHashMap();
-        for(String id : ids) {
+        for (String id : ids) {
             rowKeys.put(id, id);
         }
-        if(!bypassMetalookup) {
-            SearchResponse response = connection.getClient()
-                    .prepareSearch(ElasticsearchUtils.getIndices(table))
+        if (!bypassMetalookup) {
+            SearchResponse response = connection.getClient().prepareSearch(ElasticsearchUtils.getIndices(table))
                     .setTypes(ElasticsearchUtils.DOCUMENT_TYPE_NAME)
-                    .setQuery(boolQuery().filter(termsQuery(ElasticsearchUtils.DOCUMENT_META_ID_FIELD_NAME,
-                                                            ids.toArray(new String[ids.size()])
-                                                           )))
+                    .setQuery(boolQuery().filter(termsQuery(ElasticsearchUtils.DOCUMENT_META_ID_FIELD_NAME, ids.toArray(new String[ids.size()]))))
                     .setFetchSource(false)
                     .addField(ElasticsearchUtils.DOCUMENT_META_ID_FIELD_NAME) // Used for compatibility
                     .setSize(ids.size())
                     .execute()
                     .actionGet();
-            for(SearchHit hit : response.getHits()) {
-                final String id = hit.getFields()
-                        .get(ElasticsearchUtils.DOCUMENT_META_ID_FIELD_NAME)
-                        .getValue()
-                        .toString();
+            for (SearchHit hit : response.getHits()) {
+                final String id = hit.getFields().get(ElasticsearchUtils.DOCUMENT_META_ID_FIELD_NAME).getValue().toString();
                 rowKeys.put(id, hit.getId());
             }
         }
@@ -342,10 +278,7 @@ public class ElasticsearchQueryStore implements QueryStore {
 
     @Override
     public void cleanupAll() throws FoxtrotException {
-        Set<String> tables = tableMetadataManager.get()
-                .stream()
-                .map(Table::getName)
-                .collect(Collectors.toSet());
+        Set<String> tables = tableMetadataManager.get().stream().map(Table::getName).collect(Collectors.toSet());
         cleanup(tables);
     }
 
@@ -360,26 +293,16 @@ public class ElasticsearchQueryStore implements QueryStore {
     public void cleanup(Set<String> tables) throws FoxtrotException {
         List<String> indicesToDelete = new ArrayList<String>();
         try {
-            IndicesStatsResponse response = connection.getClient()
-                    .admin()
-                    .indices()
-                    .prepareStats()
-                    .execute()
-                    .actionGet();
-            Set<String> currentIndices = response.getIndices()
-                    .keySet();
+            IndicesStatsResponse response = connection.getClient().admin().indices().prepareStats().execute().actionGet();
+            Set<String> currentIndices = response.getIndices().keySet();
 
-            for(String currentIndex : currentIndices) {
+            for (String currentIndex : currentIndices) {
                 String table = ElasticsearchUtils.getTableNameFromIndex(currentIndex);
-                if(table != null && tables.contains(table)) {
+                if (table != null && tables.contains(table)) {
                     boolean indexEligibleForDeletion;
                     try {
-                        indexEligibleForDeletion = ElasticsearchUtils.isIndexEligibleForDeletion(currentIndex,
-                                                                                                 tableMetadataManager
-                                                                                                         .get(
-                                                                                                         table)
-                                                                                                );
-                        if(indexEligibleForDeletion) {
+                        indexEligibleForDeletion = ElasticsearchUtils.isIndexEligibleForDeletion(currentIndex, tableMetadataManager.get(table));
+                        if (indexEligibleForDeletion) {
                             logger.warn(String.format("Index eligible for deletion : %s", currentIndex));
                             indicesToDelete.add(currentIndex);
                         }
@@ -389,16 +312,12 @@ public class ElasticsearchQueryStore implements QueryStore {
                 }
             }
             logger.warn(String.format("Deleting Indexes - Indexes - %s", indicesToDelete));
-            if(indicesToDelete.size() > 0) {
+            if (indicesToDelete.size() > 0) {
                 List<List<String>> subLists = Lists.partition(indicesToDelete, 5);
-                for(List<String> subList : subLists) {
+                for (List<String> subList : subLists) {
                     try {
-                        connection.getClient()
-                                .admin()
-                                .indices()
-                                .prepareDelete(subList.toArray(new String[subList.size()]))
-                                .execute()
-                                .actionGet(TimeValue.timeValueMinutes(5));
+                        connection.getClient().admin().indices().prepareDelete(subList.toArray(new String[subList.size()]))
+                                .execute().actionGet(TimeValue.timeValueMinutes(5));
                         logger.warn(String.format("Deleted Indexes - Indexes - %s", subList));
                     } catch (Exception e) {
                         logger.error(String.format("Index deletion failed - Indexes - %s", subList), e);
@@ -406,50 +325,26 @@ public class ElasticsearchQueryStore implements QueryStore {
                 }
             }
         } catch (Exception e) {
-            throw FoxtrotExceptions.createDataCleanupException(
-                    String.format("Index Deletion Failed indexes - %s", indicesToDelete), e);
+            throw FoxtrotExceptions.createDataCleanupException(String.format("Index Deletion Failed indexes - %s", indicesToDelete), e);
         }
     }
 
     @Override
     public ClusterHealthResponse getClusterHealth() throws ExecutionException, InterruptedException {
         //Bug as mentioned in https://github.com/elastic/elasticsearch/issues/10574
-        return connection.getClient()
-                .admin()
-                .cluster()
-                .prepareHealth()
-                .execute()
-                .get();
+        return connection.getClient().admin().cluster().prepareHealth().execute().get();
     }
 
     @Override
     public NodesStatsResponse getNodeStats() throws ExecutionException, InterruptedException {
         NodesStatsRequest nodesStatsRequest = new NodesStatsRequest();
-        nodesStatsRequest.clear()
-                .jvm(true)
-                .os(true)
-                .fs(true)
-                .indices(true)
-                .process(true)
-                .breaker(true);
-        return connection.getClient()
-                .admin()
-                .cluster()
-                .nodesStats(nodesStatsRequest)
-                .actionGet();
+        nodesStatsRequest.clear().jvm(true).os(true).fs(true).indices(true).process(true).breaker(true);
+        return connection.getClient().admin().cluster().nodesStats(nodesStatsRequest).actionGet();
     }
 
     @Override
     public IndicesStatsResponse getIndicesStats() throws ExecutionException, InterruptedException {
-        return connection.getClient()
-                .admin()
-                .indices()
-                .prepareStats(ElasticsearchUtils.getAllIndicesPattern())
-                .clear()
-                .setDocs(true)
-                .setStore(true)
-                .execute()
-                .get();
+        return connection.getClient().admin().indices().prepareStats(ElasticsearchUtils.getAllIndicesPattern()).clear().setDocs(true).setStore(true).execute().get();
     }
 
     @Override
@@ -459,43 +354,9 @@ public class ElasticsearchQueryStore implements QueryStore {
 
     private String convert(Document translatedDocument) {
         JsonNode metaNode = mapper.valueToTree(translatedDocument.getMetadata());
-        ObjectNode dataNode = translatedDocument.getData()
-                .deepCopy();
-        dataNode.set(ElasticsearchUtils.DOCUMENT_TIME_FIELD_NAME, mapper.valueToTree(translatedDocument.getDate()));
+        ObjectNode dataNode = translatedDocument.getData().deepCopy();
         dataNode.set(ElasticsearchUtils.DOCUMENT_META_FIELD_NAME, metaNode);
         return dataNode.toString();
     }
 
-    private EmailClient getEmailClient(EmailConfig emailConfig) {
-        return new EmailClient(emailConfig);
-    }
-
-    private MapConfig getDefaultMapConfig(CacheConfig cacheConfig) {
-        MapConfig mapConfig = new MapConfig(WRITES_ERROR_TOKEN);
-        mapConfig.setInMemoryFormat(InMemoryFormat.BINARY);
-        mapConfig.setBackupCount(0);
-        mapConfig.setEvictionPolicy(EvictionPolicy.NONE);
-
-        if(cacheConfig.getMaxIdleSeconds() == 0) {
-            mapConfig.setMaxIdleSeconds(DEFAULT_MAX_IDLE_SECONDS);
-        } else {
-            mapConfig.setMaxIdleSeconds(cacheConfig.getMaxIdleSeconds());
-        }
-
-        if(cacheConfig.getTimeToLiveSeconds() == 0) {
-            mapConfig.setTimeToLiveSeconds(DEFAULT_TIME_TO_LIVE_SECONDS);
-        } else {
-            mapConfig.setTimeToLiveSeconds(cacheConfig.getTimeToLiveSeconds());
-        }
-
-        MaxSizeConfig maxSizeConfig = new MaxSizeConfig();
-        maxSizeConfig.setMaxSizePolicy(MaxSizeConfig.MaxSizePolicy.USED_HEAP_PERCENTAGE);
-        if(cacheConfig.getSize() == 0) {
-            maxSizeConfig.setSize(DEFAULT_SIZE);
-        } else {
-            maxSizeConfig.setSize(cacheConfig.getSize());
-        }
-        mapConfig.setMaxSizeConfig(maxSizeConfig);
-        return mapConfig;
-    }
 }

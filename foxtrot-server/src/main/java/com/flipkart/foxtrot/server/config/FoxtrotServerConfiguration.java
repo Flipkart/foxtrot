@@ -16,7 +16,6 @@
 package com.flipkart.foxtrot.server.config;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.flipkart.foxtrot.core.alerts.EmailConfig;
 import com.flipkart.foxtrot.core.cardinality.CardinalityConfig;
 import com.flipkart.foxtrot.core.common.DataDeletionManagerConfig;
 import com.flipkart.foxtrot.core.datastore.impl.hbase.HbaseConfig;
@@ -47,30 +46,63 @@ public class FoxtrotServerConfiguration extends Configuration {
 
     @Valid
     private final ClusterConfig cluster;
-    @Valid
-    @JsonProperty("deletionconfig")
-    private final DataDeletionManagerConfig deletionManagerConfig;
+
     @NotNull
     @Valid
     private ServiceDiscoveryConfiguration serviceDiscovery;
+
     @NotNull
     @Valid
     private RiemannConfig riemann;
+
     @Valid
     private CardinalityConfig cardinality;
+
     @Valid
     private EsIndexOptimizationConfig esIndexOptimizationConfig;
-    private EmailConfig emailConfig;
+
+    @Valid
+    @JsonProperty("deletionconfig")
+    private final DataDeletionManagerConfig deletionManagerConfig;
+
     private CacheConfig cacheConfig;
-    private CacheConfig queryStoreCacheConfig;
 
     public FoxtrotServerConfiguration() {
         this.hbase = new HbaseConfig();
         this.elasticsearch = new ElasticsearchConfig();
         this.cluster = new ClusterConfig();
         this.deletionManagerConfig = new DataDeletionManagerConfig();
-        this.emailConfig = new EmailConfig();
     }
 
+    public HbaseConfig getHbase() {
+        return hbase;
+    }
 
+    public ElasticsearchConfig getElasticsearch() {
+        return elasticsearch;
+    }
+
+    public ClusterConfig getCluster() {
+        return cluster;
+    }
+
+    public DataDeletionManagerConfig getTableDataManagerConfig() {
+        return deletionManagerConfig;
+    }
+
+    public ServiceDiscoveryConfiguration getServiceDiscovery() {
+        return serviceDiscovery;
+    }
+
+    public void setServiceDiscovery(ServiceDiscoveryConfiguration serviceDiscovery) {
+        this.serviceDiscovery = serviceDiscovery;
+    }
+
+    public RiemannConfig getRiemann() {
+        return riemann;
+    }
+
+    public void setRiemann(RiemannConfig riemann) {
+        this.riemann = riemann;
+    }
 }

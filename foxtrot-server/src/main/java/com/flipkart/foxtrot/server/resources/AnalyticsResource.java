@@ -1,12 +1,12 @@
 /**
  * Copyright 2014 Flipkart Internet Pvt. Ltd.
- * <p>
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * <p>
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * <p>
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -15,7 +15,6 @@
  */
 package com.flipkart.foxtrot.server.resources;
 
-import com.codahale.metrics.annotation.Timed;
 import com.flipkart.foxtrot.common.ActionRequest;
 import com.flipkart.foxtrot.common.ActionResponse;
 import com.flipkart.foxtrot.common.ActionValidationResponse;
@@ -47,21 +46,18 @@ public class AnalyticsResource {
     }
 
     @POST
-    @Timed
     public ActionResponse runSync(@Valid final ActionRequest request) throws FoxtrotException {
         return queryExecutor.execute(request);
     }
 
     @POST
     @Path("/async")
-    @Timed
     public AsyncDataToken runSyncAsync(@Valid final ActionRequest request) throws FoxtrotException {
         return queryExecutor.executeAsync(request);
     }
 
     @POST
     @Path("/validate")
-    @Timed
     public ActionValidationResponse validateQuery(@Valid final ActionRequest request) throws FoxtrotException {
         return queryExecutor.validate(request);
     }

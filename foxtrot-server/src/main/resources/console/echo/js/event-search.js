@@ -314,8 +314,7 @@ function renderTable(data) {
     bFilter: false,
     fixedColumns: {
       leftColumns: 2
-    },
-    ordering: false,
+    }
   });
 
   if (offset == 0)

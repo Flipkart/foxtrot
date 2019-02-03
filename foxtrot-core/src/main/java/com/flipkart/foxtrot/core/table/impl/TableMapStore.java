@@ -1,12 +1,12 @@
 /**
  * Copyright 2014 Flipkart Internet Pvt. Ltd.
- * <p>
+ * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * <p>
+ * 
  * http://www.apache.org/licenses/LICENSE-2.0
- * <p>
+ * 
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -45,9 +45,28 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 public class TableMapStore implements MapStore<String, Table> {
+    private static final Logger logger = LoggerFactory.getLogger(TableMapStore.class.getSimpleName());
+
     public static final String TABLE_META_INDEX = "table-meta";
     public static final String TABLE_META_TYPE = "table-meta";
-    private static final Logger logger = LoggerFactory.getLogger(TableMapStore.class.getSimpleName());
+
+    public static class Factory implements MapStoreFactory<String, Table> {
+        private final ElasticsearchConnection elasticsearchConnection;
+
+        public Factory(ElasticsearchConnection elasticsearchConnection) {
+            this.elasticsearchConnection = elasticsearchConnection;
+        }
+
+        @Override
+        public TableMapStore newMapStore(String mapName, Properties properties) {
+            return new TableMapStore(elasticsearchConnection);
+        }
+    }
+
+    public static Factory factory(ElasticsearchConnection elasticsearchConnection) {
+        return new Factory(elasticsearchConnection);
+    }
+
     private final ElasticsearchConnection elasticsearchConnection;
     private final ObjectMapper objectMapper;
 
@@ -58,19 +77,14 @@ public class TableMapStore implements MapStore<String, Table> {
         objectMapper.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
     }
 
-    public static Factory factory(ElasticsearchConnection elasticsearchConnection) {
-        return new Factory(elasticsearchConnection);
-    }
-
     @Override
     public void store(String key, Table value) {
-        if(key == null || value == null || value.getName() == null) {
+        if (key == null || value == null || value.getName() == null) {
             throw new RuntimeException(String.format("Illegal Store Request - %s - %s", key, value));
         }
         logger.info("Storing key: " + key);
         try {
-            elasticsearchConnection.getClient()
-                    .prepareIndex()
+            elasticsearchConnection.getClient().prepareIndex()
                     .setIndex(TABLE_META_INDEX)
                     .setType(TABLE_META_TYPE)
                     .setConsistencyLevel(WriteConsistencyLevel.ALL)
@@ -86,40 +100,34 @@ public class TableMapStore implements MapStore<String, Table> {
 
     @Override
     public void storeAll(Map<String, Table> map) {
-        if(map == null) {
+        if (map == null) {
             throw new RuntimeException("Illegal Store Request - Null Map");
         }
-        if(map.containsKey(null)) {
+        if (map.containsKey(null)) {
             throw new RuntimeException("Illegal Store Request - Null Key is Present");
         }
 
         logger.info("Store all called for multiple values");
-        BulkRequestBuilder bulkRequestBuilder = elasticsearchConnection.getClient()
-                .prepareBulk()
-                .setConsistencyLevel(WriteConsistencyLevel.ALL)
-                .setRefresh(true);
-        for(Map.Entry<String, Table> mapEntry : map.entrySet()) {
+        BulkRequestBuilder bulkRequestBuilder = elasticsearchConnection.getClient().prepareBulk().setConsistencyLevel(WriteConsistencyLevel.ALL).setRefresh(true);
+        for (Map.Entry<String, Table> mapEntry : map.entrySet()) {
             try {
-                if(mapEntry.getValue() == null) {
-                    throw new RuntimeException(
-                            String.format("Illegal Store Request - Object is Null for Table - %s", mapEntry.getKey()));
+                if (mapEntry.getValue() == null) {
+                    throw new RuntimeException(String.format("Illegal Store Request - Object is Null for Table - %s", mapEntry.getKey()));
                 }
                 bulkRequestBuilder.add(elasticsearchConnection.getClient()
-                                               .prepareIndex(TABLE_META_INDEX, TABLE_META_TYPE, mapEntry.getKey())
-                                               .setSource(objectMapper.writeValueAsString(mapEntry.getValue())));
+                        .prepareIndex(TABLE_META_INDEX, TABLE_META_TYPE, mapEntry.getKey())
+                        .setSource(objectMapper.writeValueAsString(mapEntry.getValue())));
             } catch (JsonProcessingException e) {
                 throw new RuntimeException("Error bulk saving meta: ", e);
             }
         }
-        bulkRequestBuilder.execute()
-                .actionGet();
+        bulkRequestBuilder.execute().actionGet();
     }
 
     @Override
     public void delete(String key) {
         logger.info("Delete called for value: " + key);
-        elasticsearchConnection.getClient()
-                .prepareDelete()
+        elasticsearchConnection.getClient().prepareDelete()
                 .setConsistencyLevel(WriteConsistencyLevel.ALL)
                 .setRefresh(true)
                 .setIndex(TABLE_META_INDEX)
@@ -133,30 +141,25 @@ public class TableMapStore implements MapStore<String, Table> {
     @Override
     public void deleteAll(Collection<String> keys) {
         logger.info(String.format("Delete all called for multiple values: %s", keys));
-        BulkRequestBuilder bulRequestBuilder = elasticsearchConnection.getClient()
-                .prepareBulk()
-                .setConsistencyLevel(WriteConsistencyLevel.ALL)
-                .setRefresh(true);
-        for(String key : keys) {
+        BulkRequestBuilder bulRequestBuilder = elasticsearchConnection.getClient().prepareBulk().setConsistencyLevel(WriteConsistencyLevel.ALL).setRefresh(true);
+        for (String key : keys) {
             bulRequestBuilder.add(elasticsearchConnection.getClient()
-                                          .prepareDelete(TABLE_META_INDEX, TABLE_META_TYPE, key));
+                    .prepareDelete(TABLE_META_INDEX, TABLE_META_TYPE, key));
         }
-        bulRequestBuilder.execute()
-                .actionGet();
+        bulRequestBuilder.execute().actionGet();
         logger.info(String.format("Deleted multiple values: %s", keys));
     }
 
     @Override
     public Table load(String key) {
         logger.info("Load called for: " + key);
-        GetResponse response = elasticsearchConnection.getClient()
-                .prepareGet()
+        GetResponse response = elasticsearchConnection.getClient().prepareGet()
                 .setIndex(TABLE_META_INDEX)
                 .setType(TABLE_META_TYPE)
                 .setId(key)
                 .execute()
                 .actionGet();
-        if(!response.isExists()) {
+        if (!response.isExists()) {
             return null;
         }
         try {
@@ -175,10 +178,10 @@ public class TableMapStore implements MapStore<String, Table> {
                 .execute()
                 .actionGet();
         Map<String, Table> tables = Maps.newHashMap();
-        for(MultiGetItemResponse multiGetItemResponse : response) {
+        for (MultiGetItemResponse multiGetItemResponse : response) {
             try {
-                Table table = objectMapper.readValue(multiGetItemResponse.getResponse()
-                                                             .getSourceAsString(), Table.class);
+                Table table = objectMapper.readValue(multiGetItemResponse.getResponse().getSourceAsString(),
+                        Table.class);
                 tables.put(table.getName(), table);
             } catch (Exception e) {
                 throw new RuntimeException("Error getting data for table: " + multiGetItemResponse.getId());
@@ -202,34 +205,19 @@ public class TableMapStore implements MapStore<String, Table> {
                 .actionGet();
         Set<String> ids = Sets.newHashSet();
         while (true) {
-            response = elasticsearchConnection.getClient()
-                    .prepareSearchScroll(response.getScrollId())
+            response = elasticsearchConnection.getClient().prepareSearchScroll(response.getScrollId())
                     .setScroll(new TimeValue(60000))
                     .execute()
                     .actionGet();
             SearchHits hits = response.getHits();
-            for(SearchHit hit : hits) {
+            for (SearchHit hit : hits) {
                 ids.add(hit.getId());
             }
-            if(0 == response.getHits()
-                    .hits().length) {
+            if (0 == response.getHits().hits().length) {
                 break;
             }
         }
         logger.info("Loaded value count: " + ids.size());
         return ids;
-    }
-
-    public static class Factory implements MapStoreFactory<String, Table> {
-        private final ElasticsearchConnection elasticsearchConnection;
-
-        public Factory(ElasticsearchConnection elasticsearchConnection) {
-            this.elasticsearchConnection = elasticsearchConnection;
-        }
-
-        @Override
-        public TableMapStore newMapStore(String mapName, Properties properties) {
-            return new TableMapStore(elasticsearchConnection);
-        }
     }
 }

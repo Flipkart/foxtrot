@@ -27,8 +27,7 @@ public class FqlEngine {
     private QueryExecutor queryExecutor;
     private ObjectMapper mapper;
 
-    public FqlEngine(TableMetadataManager tableMetadataManager, QueryStore queryStore, QueryExecutor queryExecutor,
-                     ObjectMapper mapper) {
+    public FqlEngine(TableMetadataManager tableMetadataManager, QueryStore queryStore, QueryExecutor queryExecutor, ObjectMapper mapper) {
         this.tableMetadataManager = tableMetadataManager;
         this.queryStore = queryStore;
         this.queryExecutor = queryExecutor;
@@ -38,11 +37,8 @@ public class FqlEngine {
     public FlatRepresentation parse(final String fql) throws Exception {
         QueryTranslator translator = new QueryTranslator();
         FqlQuery query = translator.translate(fql);
-        FlatRepresentation response = new QueryProcessor(tableMetadataManager, queryStore, queryExecutor,
-                                                         mapper
-        ).process(query);
-        logger.debug("Flat Response: " + mapper.writerWithDefaultPrettyPrinter()
-                .writeValueAsString(response));
+        FlatRepresentation response = new QueryProcessor(tableMetadataManager, queryStore, queryExecutor, mapper).process(query);
+        logger.debug("Flat Response: " + mapper.writerWithDefaultPrettyPrinter().writeValueAsString(response));
         return response;
     }
 
@@ -54,8 +50,7 @@ public class FqlEngine {
 
         private FlatRepresentation result;
 
-        private QueryProcessor(TableMetadataManager tableMetadataManager, QueryStore queryStore,
-                               QueryExecutor queryExecutor, ObjectMapper mapper) {
+        private QueryProcessor(TableMetadataManager tableMetadataManager, QueryStore queryStore, QueryExecutor queryExecutor, ObjectMapper mapper) {
             this.tableMetadataManager = tableMetadataManager;
             this.queryStore = queryStore;
             this.queryExecutor = queryExecutor;
@@ -70,26 +65,24 @@ public class FqlEngine {
         @Override
         public void visit(FqlDescribeTable fqlDescribeTable) throws Exception {
             TableFieldMapping fieldMetaData = queryStore.getFieldMappings(fqlDescribeTable.getTableName());
-            result = FlatteningUtils.genericMultiRowParse(mapper.valueToTree(fieldMetaData.getMappings()),
-                                                          Lists.newArrayList("field", "type"), "field"
-                                                         );
+            result = FlatteningUtils.genericMultiRowParse(
+                    mapper.valueToTree(fieldMetaData.getMappings()),
+                    Lists.newArrayList("field", "type"), "field");
         }
 
         @Override
         public void visit(FqlShowTablesQuery fqlShowTablesQuery) throws Exception {
             List<Table> tables = tableMetadataManager.get();
-            result = FlatteningUtils.genericMultiRowParse(mapper.valueToTree(tables), Lists.newArrayList("name", "ttl"),
-                                                          "name"
-                                                         );
+            result = FlatteningUtils.genericMultiRowParse(
+                    mapper.valueToTree(tables),
+                    Lists.newArrayList("name", "ttl"), "name");
         }
 
         @Override
         public void visit(FqlActionQuery fqlActionQuery) throws Exception {
             logger.info("Generated query: " + mapper.writeValueAsString(fqlActionQuery.getActionRequest()));
             ActionResponse actionResponse = queryExecutor.execute(fqlActionQuery.getActionRequest());
-            Flattener flattener = new Flattener(mapper, fqlActionQuery.getActionRequest(),
-                                                fqlActionQuery.getSelectedFields()
-            );
+            Flattener flattener = new Flattener(mapper, fqlActionQuery.getActionRequest(), fqlActionQuery.getSelectedFields());
             actionResponse.accept(flattener);
             result = flattener.getFlatRepresentation();
         }

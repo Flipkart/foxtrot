@@ -1,12 +1,12 @@
 /**
  * Copyright 2014 Flipkart Internet Pvt. Ltd.
- * <p>
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * <p>
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * <p>
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -21,7 +21,6 @@ import com.flipkart.foxtrot.common.query.datetime.LastFilter;
 import com.flipkart.foxtrot.common.query.general.*;
 import com.flipkart.foxtrot.common.query.numeric.*;
 import com.flipkart.foxtrot.common.query.string.ContainsFilter;
-import org.apache.commons.collections.CollectionUtils;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
@@ -44,8 +43,7 @@ public class ElasticSearchQueryGenerator extends FilterVisitor<Void> {
 
     @Override
     public Void visit(BetweenFilter filter) throws Exception {
-        addFilter(rangeQuery(filter.getField()).from(filter.getFrom())
-                          .to(filter.getTo()));
+        addFilter(rangeQuery(filter.getField()).from(filter.getFrom()).to(filter.getTo()));
         return null;
     }
 
@@ -116,10 +114,9 @@ public class ElasticSearchQueryGenerator extends FilterVisitor<Void> {
 
     @Override
     public Void visit(LastFilter filter) throws Exception {
-        addFilter(rangeQuery(filter.getField()).from(filter.getWindow()
-                                                             .getStartTime())
-                          .to(filter.getWindow()
-                                      .getEndTime()));
+        addFilter(rangeQuery(filter.getField())
+                .from(filter.getWindow().getStartTime())
+                .to(filter.getWindow().getEndTime()));
         return null;
     }
 
@@ -134,10 +131,8 @@ public class ElasticSearchQueryGenerator extends FilterVisitor<Void> {
     }
 
     public QueryBuilder genFilter(List<Filter> filters) throws Exception {
-        if(CollectionUtils.isNotEmpty(filters)) {
-            for(Filter filter : filters) {
-                filter.accept(this);
-            }
+        for (Filter filter : filters) {
+            filter.accept(this);
         }
         return QueryBuilders.constantScoreQuery(boolFilterBuilder);
     }

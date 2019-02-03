@@ -1,12 +1,12 @@
 /**
  * Copyright 2014 Flipkart Internet Pvt. Ltd.
- * <p>
+ * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * <p>
+ * 
  * http://www.apache.org/licenses/LICENSE-2.0
- * <p>
+ * 
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -17,8 +17,8 @@ package com.flipkart.foxtrot.core.parsers;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.flipkart.foxtrot.common.FieldMetadata;
 import com.flipkart.foxtrot.common.FieldType;
+import com.flipkart.foxtrot.common.FieldMetadata;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
 import org.elasticsearch.cluster.metadata.MappingMetaData;
 
@@ -49,24 +49,18 @@ public class ElasticsearchMappingParser {
         Iterator<Map.Entry<String, JsonNode>> iterator = jsonNode.fields();
         while (iterator.hasNext()) {
             Map.Entry<String, JsonNode> entry = iterator.next();
-            if(entry.getKey()
-                    .equals(ElasticsearchUtils.DOCUMENT_META_FIELD_NAME)) {
+            if(entry.getKey().equals(ElasticsearchUtils.DOCUMENT_META_FIELD_NAME)) {
                 continue;
             }
-            String currentField = (parentField == null) ? entry.getKey() : (String.format("%s.%s", parentField,
-                                                                                          entry.getKey()
-                                                                                         ));
-            if(entry.getValue()
-                    .has("properties")) {
-                fieldTypeMappings.addAll(generateFieldMappings(currentField, entry.getValue()
-                        .get("properties")));
+            String currentField = (parentField == null) ? entry.getKey() : (String.format("%s.%s", parentField, entry.getKey()));
+            if (entry.getValue().has("properties")) {
+                fieldTypeMappings.addAll(generateFieldMappings(currentField, entry.getValue().get("properties")));
             } else {
-                FieldType fieldType = getFieldType(entry.getValue()
-                                                           .get("type"));
+                FieldType fieldType = getFieldType(entry.getValue().get("type"));
                 fieldTypeMappings.add(FieldMetadata.builder()
-                                              .field(currentField)
-                                              .type(fieldType)
-                                              .build());
+                        .field(currentField)
+                        .type(fieldType)
+                        .build());
             }
         }
         return fieldTypeMappings;

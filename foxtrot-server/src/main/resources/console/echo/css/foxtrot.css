@@ -1067,23 +1067,6 @@ th, td {
   color: #fff;
 }
 
-textarea {
-  background: none !important;
-  border: none !important;
-  border: solid 1px #777a89 !important;
-  color: #dbdbdb !important;
-}
-
-textarea:focus {
-  outline: none !important;
-  box-shadow: none !important;
-}
-
-textarea:hover {
-  border: 1px solid #fff !important;
-  color: #fff !important;
-}
-
 #sidebar-filter-heading {
   font-size: 14px;
   font-weight: bold;
@@ -2037,7 +2020,7 @@ div.tab button:first-child {
 }
 
 .pie-center-value {
-  font-size: 22px;
+  font-size: 32px;
   position: relative;
   top: 9px;
 }
@@ -3134,7 +3117,7 @@ div.tab button:first-child {
 
 #right-action-btns {
   position: relative;
-  right: 35px;
+  right: 14px;
   top: 20px;
 }
 
@@ -3321,7 +3304,7 @@ div.tab button:first-child {
 #top-settings, .refreshtime-block {
   display: none;
 }
-.copy-db-error, .copy-pg-error {
+.copy-db-error {
   display: none;
 }
 .save-dashboard-name {
@@ -3396,178 +3379,4 @@ div.tab button:first-child {
   height: 30px;
   margin-top: 20px;
   margin-left: 19%;
-}
-.global-date{
-  position: relative;
-  left: 116px;
-  top: -21px;
-  cursor: pointer;
-}
-.datepicker {
-  z-index: 1600 !important; /* has to be larger than 1050 */
-}
-.global-date-picker-modal {
-  height: 555px;
-  width: 700px;
-}
-.global-date-footer {
-  margin-top: -12px;
-}
-.close-global-date-filter {
-  padding: 30px;
-}
-.global-date-picker-modal a {
-  text-decoration: none;
-}
-#global-date-picker-info-text {
-  margin-left: 36px;
-}
-#global-date-picker-info-text span {
-  color: #42b1f7;
-  margin-right: 5px;
-}
-#selected-global-date {
-  position: absolute;
-  right: -41px;
-  top: -37px;
-  font-size: 14px;
-  background: #000;
-  border-radius: 0.4em;
-  color: #fff;
-  padding: 10px;
-  height: 27px;
-  display: none;
-}
-#selected-global-date span {
-  position: relative;
-  bottom: 6px;
-}
-#selected-global-date:after {
-	content: '';
-  position: absolute;
-  bottom: 0;
-  left: 86%;
-  width: 0;
-  height: 0;
-  border: 16px solid transparent;
-  border-top-color: #000;
-  border-bottom: 0;
-  border-left: 0;
-  margin-left: -8px;
-  margin-bottom: -15px;
-}
-.mathematical-info {
-  color: #fff;
-}
-.threshold-msg {
-  margin-top: 58px;
-  padding-right: 10px;
-  font-size: 13px;
-  display: none;
-}
-.gauge-threshold-msg {
-  margin-left: -15px;
-}
-#sunburst-chart-data {
-  display: none;
-}
-
-#sequence {
-  width: 500px;
-  height: 70px;
-  position: relative;
-  top: 49px;
-  left: 150px;
-}
-
-#sequence text {
-  font-family: 'Open Sans', sans-serif;
-  font-size: 10px;
-  font-weight: 600;
-  fill: #fff;
-}
-
-/* #chart path {
-  stroke: #fff;
-} */
-
-#barchart {
-  position: absolute;
-  top: 260px;
-  left: 750px;
-  width: auto;
-  text-align: center;
-  color: #666;
-  z-index: -1;
-}
-
-
-#barchart rect {
-  fill: steelblue;
-}
-
-#Barchart text {
-  fill: white;
-  font: 10px sans-serif;
-  text-anchor: middle;
-}
-
-#explanation {
-  position: relative;
-  top: 233px;
-  left: 33%;
-  width: 200px;
-  text-align: center;
-  color: #666;
-}
-
-#percentage {
-  font-size: 2.5em;
-}
-
-.sunburst-item {
-  margin-top: -20px;
-  margin-left: 10%;
-}
-.sun-burst-max-height {
-  max-height: 600px;
-}
-.sunburst-tile {
-  height: 600px !important;
-}
-#copy-page-img {
-  width: 24px;
-  height: 24px;
-}
-@media only screen and (max-width: 1024px) {
-  #explanation {
-    position: absolute;
-    top: 297px;
-    left: 47%;
-    width: 200px;
-    text-align: center;
-    color: #666;
-  }
-  .sunburst-item {
-    margin-top: 50px;
-  }
-  #sequence {
-    top: -9px;
-  }
-}
-@media (max-width: 2560px) and (min-width: 1440px) {
-  #explanation {
-    position: absolute;
-    top: 297px;
-    left: 36%;
-    width: 200px;
-    text-align: center;
-    color: #666;
-  }
-  .sunburst-item {
-    margin-top: 50px;
-  }
-  #sequence {
-    top: -9px;
-  }
 }

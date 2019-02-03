@@ -31,12 +31,10 @@ function fetchTableFields() {
 }
 
 function renderTiles(object) {
-  if(object) {
-    var tileFactory = new TileFactory();
-    tileFactory.tileObject = object;
-    tablesToRender.push(object.tileContext.table);
-    tileFactory.create();
-  }
+  var tileFactory = new TileFactory();
+  tileFactory.tileObject = object;
+  tablesToRender.push(object.tileContext.table);
+  tileFactory.create();
 }
 
 function getPeriodSelect(tileId) { // period select value for each tiles
@@ -60,7 +58,6 @@ function filterTypeTriggered(el) { // changing filter value attribute based on t
     $('#filter-column-row-'+rowId).prop("type", "number");
     $(".filter-date-picker-"+rowId).show();
   } else {
-    $('#filter-column-row-'+rowId).prop("type", "text"); // for boolean or others type
     $(".filter-date-picker-"+rowId).hide();
   }
 }
@@ -104,7 +101,7 @@ function setDatePicker(el){
     $("#filter-column-row-div" +rowId).datetimepicker();
     $('#filter-column-row-div'+rowId).datetimepicker({format: 'YYYY-MM-DD hh:mm'});
     $('#filter-column-row-div'+rowId).on("dp.change",function(e) {
-       var ts = moment(e.date, "YYYY-MM-DD hh:mm a").valueOf();
+       var ts = moment(e.date, "YYYY-MM-DD hh:mm").unix();
        $("#filter-column-row-" + rowId).val(ts);
     });
   } else {
@@ -195,9 +192,10 @@ function showFilters() {
   $(".global-filters").css({'width': "auto"});
 }
 
-function hideConsoleModal(id) {
-  $("#"+id).modal('hide');
+function hideSaveConsole() {
+  $("#save-dashboard").modal('hide');
 }
+
 function getActiveTabIndex() {
   var activeIndex = $('.tab button.active').index();
   return parseInt(activeIndex);
@@ -282,11 +280,7 @@ function appendConsoleList(array) { // console list to dropdown
 
 function loadParticularConsole() { // reload page based on selected console
   var selectedConsole = $("#listConsole").val();
-  if(window.location.href.indexOf("fql") > -1) {
-    window.location.href = "/echo/index.htm?console=" + selectedConsole    
- } else {
-    window.location.assign("index.htm?console=" + selectedConsole);
- }
+  window.location.assign("index.htm?console=" + selectedConsole);
 }
 
 function getWhereOption(fieldType) {
@@ -416,16 +410,9 @@ function getNumberFromString(thestring) {
  * 
  * show refresh failed msg
  */
-function showFetchError(data, errorType, err) {
+function showFetchError(data) {
   var el = $("#"+data.id).find(".fetch-error");
-  $(el).text(getErrorMsg(errorType, err));
   $(el).show();
-
-  if(data.tileContext.chartType == "sunburst") { // only for sun burst
-    var chartItem = $("#"+data.id).find(".chart-item")
-    $(chartItem).hide();
-  }
-  
   var widgetType = data.tileContext.widgetType;
   if(widgetType == "medium") {
     $(el).addClass('fetch-error-medium-widget');
@@ -450,83 +437,4 @@ function hideFetchError(data) {
 function readbleDate(epochValue) {
   var day = moment(epochValue); //milliseconds
   return day.format('DD/MM/YYYY, hh:mm:ss a');
-}
-/**
- * Convert epoch to readble date d/m/y
- */
-function readableShortDate(epochValue) {
-  var day = moment(epochValue); //milliseconds
-  return day.format('DD/MM/YYYY');
-}
-
-/**
- * Check string has special characters
- */
-function isSpecialCharacter(string) {
-  var format = /(?=[-+*\/])/;
-  
-  if(format.test(string)){
-    return true;
-  } else {
-    return false;
-  }
-}
-
-/**
- * Split string by every artimetic operator
- */
-function splitArithmetic(arithmetic) {
-  return arithmetic.split(/(?=[-+*\/])/)
-}
-
-/**
- * Get opcode
- */
-function getOpcode(object) {
-  if(object.tileContext.chartType == "stackedBar")
-    return "trend";
-  else if(object.tileContext.chartType == "statstrend")
-    return "statstrend";
-}
-
-/**
- * prepare multi series query data
- */
-function prepareMultiSeriesQueryObject(data, object, filters) {
-
-  //console.log(object)
-
-  var currentTime = filters[0].currentTime;
-  var duration = filters[0].duration;
-  var period = data.period;
-  var loopValue = object.tileContext.multiSeries;
-  var durationInNumbers = duration.split(/([0-9]+)/)[1];// seperate string and number
-    
-  var mapDetails = {};
-  for( var i = 0; i < loopValue; i++) {
-    var tmpObj = JSON.parse(JSON.stringify(data));
-    tmpObj.opcode = getOpcode(object);
-    if(period == "days") {
-      tmpObj.filters[0].currentTime = moment().subtract(durationInNumbers * i, "days").valueOf();
-    } else if(period == "hours") {
-      tmpObj.filters[0].currentTime = moment().subtract(durationInNumbers * i, "hours").valueOf();
-    } else if(period == "minutes") {
-      tmpObj.filters[0].currentTime = moment().subtract( durationInNumbers * i, "minutes").valueOf();
-    }
-    mapDetails[i+1] = tmpObj;
-  }
-
-  return mapDetails;
-}
-
-/**
- * Error msgs
- */
-function getErrorMsg(errorType, err) {
-  if(errorType == "refresh") {
-    var errorMsg = (err["error"] == undefined ? err["code"] : err["error"])
-    return (errorMsg.length == 0 ? "Refresh failed" : (errorMsg instanceof Array ? errorMsg.join(" ; ") : errorMsg));
-  } else if(errorType == "data") {
-    return "No results found";
-  }
 }

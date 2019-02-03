@@ -21,7 +21,6 @@ import com.flipkart.foxtrot.common.*;
 import com.flipkart.foxtrot.common.estimation.EstimationDataType;
 import com.flipkart.foxtrot.core.MockElasticsearchServer;
 import com.flipkart.foxtrot.core.TestUtils;
-import com.flipkart.foxtrot.core.alerts.EmailConfig;
 import com.flipkart.foxtrot.core.cardinality.CardinalityConfig;
 import com.flipkart.foxtrot.core.datastore.DataStore;
 import com.flipkart.foxtrot.core.exception.ErrorCode;
@@ -68,8 +67,7 @@ public class ElasticsearchQueryStoreTest {
     public void setUp() throws Exception {
         this.dataStore = Mockito.mock(DataStore.class);
 
-        this.elasticsearchServer = new MockElasticsearchServer(UUID.randomUUID()
-                                                                       .toString());
+        this.elasticsearchServer = new MockElasticsearchServer(UUID.randomUUID().toString());
         ElasticsearchConnection elasticsearchConnection = Mockito.mock(ElasticsearchConnection.class);
         when(elasticsearchConnection.getClient()).thenReturn(elasticsearchServer.getClient());
         ElasticsearchUtils.initializeMappings(elasticsearchConnection.getClient());
@@ -79,25 +77,15 @@ public class ElasticsearchQueryStoreTest {
         when(hazelcastConnection.getHazelcastConfig()).thenReturn(new Config());
 
         hazelcastConnection.start();
-        CardinalityConfig cardinalityConfig = new CardinalityConfig("true", String.valueOf(
-                ElasticsearchUtils.DEFAULT_SUB_LIST_SIZE));
-        this.tableMetadataManager = new DistributedTableMetadataManager(hazelcastConnection, elasticsearchConnection,
-                                                                        mapper, cardinalityConfig
-        );
+        CardinalityConfig cardinalityConfig = new CardinalityConfig("true", String.valueOf(ElasticsearchUtils.DEFAULT_SUB_LIST_SIZE));
+        this.tableMetadataManager = new DistributedTableMetadataManager(hazelcastConnection, elasticsearchConnection, mapper, cardinalityConfig);
         tableMetadataManager.start();
-        tableMetadataManager.save(Table.builder()
-                                          .name(TestUtils.TEST_TABLE_NAME)
-                                          .ttl(30)
-                                          .build());
+        tableMetadataManager.save(Table.builder().name(TestUtils.TEST_TABLE_NAME).ttl(30).build());
 /*
         when(tableMetadataManager.exists(anyString())).thenReturn(true);
         when(tableMetadataManager.get(anyString())).thenReturn(TestUtils.TEST_TABLE);
 */
-        EmailConfig emailConfig = new EmailConfig();
-        emailConfig.setHost("127.0.0.1");
-        this.queryStore = new ElasticsearchQueryStore(tableMetadataManager, elasticsearchConnection, dataStore, mapper,
-                                                      cardinalityConfig, emailConfig, new CacheConfig(), hazelcastConnection
-        );
+        this.queryStore = new ElasticsearchQueryStore(tableMetadataManager, elasticsearchConnection, dataStore, mapper, cardinalityConfig);
     }
 
     @After
@@ -113,24 +101,18 @@ public class ElasticsearchQueryStoreTest {
 
         Document originalDocument = createDummyDocument();
         Document translatedDocument = TestUtils.translatedDocumentWithRowKeyVersion1(table, originalDocument);
-        doReturn(translatedDocument).when(dataStore)
-                .save(table, originalDocument);
+        doReturn(translatedDocument).when(dataStore).save(table, originalDocument);
         queryStore.save(TestUtils.TEST_TABLE_NAME, originalDocument);
 
-        GetResponse getResponse = elasticsearchServer.getClient()
-                .prepareGet(
-                        ElasticsearchUtils.getCurrentIndex(TestUtils.TEST_TABLE_NAME, originalDocument.getTimestamp()),
-                        ElasticsearchUtils.DOCUMENT_TYPE_NAME, originalDocument.getId()
-                           )
-                .setFields("_timestamp")
-                .execute()
-                .actionGet();
+        GetResponse getResponse = elasticsearchServer
+                .getClient()
+                .prepareGet(ElasticsearchUtils.getCurrentIndex(TestUtils.TEST_TABLE_NAME, originalDocument.getTimestamp()),
+                        ElasticsearchUtils.DOCUMENT_TYPE_NAME,
+                        originalDocument.getId())
+                .setFields("_timestamp").execute().actionGet();
         assertTrue("Id should exist in ES", getResponse.isExists());
         assertEquals("Id should match requestId", originalDocument.getId(), getResponse.getId());
-        assertEquals("Timestamp should match request timestamp", originalDocument.getTimestamp(),
-                     getResponse.getField("_timestamp")
-                             .getValue()
-                    );
+        assertEquals("Timestamp should match request timestamp", originalDocument.getTimestamp(), getResponse.getField("_timestamp").getValue());
     }
 
     @Test
@@ -139,24 +121,18 @@ public class ElasticsearchQueryStoreTest {
 
         Document originalDocument = createDummyDocument();
         Document translatedDocument = TestUtils.translatedDocumentWithRowKeyVersion2(table, originalDocument);
-        doReturn(translatedDocument).when(dataStore)
-                .save(table, originalDocument);
+        doReturn(translatedDocument).when(dataStore).save(table, originalDocument);
         queryStore.save(TestUtils.TEST_TABLE_NAME, originalDocument);
 
-        GetResponse getResponse = elasticsearchServer.getClient()
-                .prepareGet(
-                        ElasticsearchUtils.getCurrentIndex(TestUtils.TEST_TABLE_NAME, originalDocument.getTimestamp()),
-                        ElasticsearchUtils.DOCUMENT_TYPE_NAME, translatedDocument.getId()
-                           )
-                .setFields("_timestamp")
-                .execute()
-                .actionGet();
+        GetResponse getResponse = elasticsearchServer
+                .getClient()
+                .prepareGet(ElasticsearchUtils.getCurrentIndex(TestUtils.TEST_TABLE_NAME, originalDocument.getTimestamp()),
+                        ElasticsearchUtils.DOCUMENT_TYPE_NAME,
+                        translatedDocument.getId())
+                .setFields("_timestamp").execute().actionGet();
         assertTrue("Id should exist in ES", getResponse.isExists());
         assertEquals("Id should match requestId", translatedDocument.getId(), getResponse.getId());
-        assertEquals("Timestamp should match request timestamp", originalDocument.getTimestamp(),
-                     getResponse.getField("_timestamp")
-                             .getValue()
-                    );
+        assertEquals("Timestamp should match request timestamp", originalDocument.getTimestamp(), getResponse.getField("_timestamp").getValue());
     }
 
     @Test
@@ -175,35 +151,30 @@ public class ElasticsearchQueryStoreTest {
         Table table = tableMetadataManager.get(TestUtils.TEST_TABLE_NAME);
 
         List<Document> documents = Lists.newArrayList();
-        for(int i = 0; i < 10; i++) {
+        for (int i = 0; i < 10; i++) {
             documents.add(createDummyDocument());
         }
 
         List<Document> translatedDocuments = Lists.newArrayList();
-        translatedDocuments.addAll(documents.stream()
-                                           .map(document -> TestUtils.translatedDocumentWithRowKeyVersion1(table,
-                                                                                                           document
-                                                                                                          ))
-                                           .collect(Collectors.toList()));
+        translatedDocuments.addAll(documents
+                .stream()
+                .map(document -> TestUtils.translatedDocumentWithRowKeyVersion1(table, document))
+                .collect(Collectors.toList())
+        );
 
-        doReturn(translatedDocuments).when(dataStore)
-                .saveAll(table, documents);
+        doReturn(translatedDocuments).when(dataStore).saveAll(table, documents);
         queryStore.save(TestUtils.TEST_TABLE_NAME, documents);
 
-        for(Document document : documents) {
-            GetResponse getResponse = elasticsearchServer.getClient()
+        for (Document document : documents) {
+            GetResponse getResponse = elasticsearchServer
+                    .getClient()
                     .prepareGet(ElasticsearchUtils.getCurrentIndex(TestUtils.TEST_TABLE_NAME, document.getTimestamp()),
-                                ElasticsearchUtils.DOCUMENT_TYPE_NAME, document.getId()
-                               )
-                    .setFields("_timestamp")
-                    .execute()
-                    .actionGet();
+                            ElasticsearchUtils.DOCUMENT_TYPE_NAME,
+                            document.getId())
+                    .setFields("_timestamp").execute().actionGet();
             assertTrue("Id should exist in ES", getResponse.isExists());
             assertEquals("Id should match requestId", document.getId(), getResponse.getId());
-            assertEquals("Timestamp should match request timestamp", document.getTimestamp(),
-                         getResponse.getField("_timestamp")
-                                 .getValue()
-                        );
+            assertEquals("Timestamp should match request timestamp", document.getTimestamp(), getResponse.getField("_timestamp").getValue());
         }
     }
 
@@ -212,48 +183,42 @@ public class ElasticsearchQueryStoreTest {
         Table table = tableMetadataManager.get(TestUtils.TEST_TABLE_NAME);
 
         List<Document> documents = Lists.newArrayList();
-        for(int i = 0; i < 10; i++) {
+        for (int i = 0; i < 10; i++) {
             documents.add(createDummyDocument());
         }
 
         List<Document> translatedDocuments = Lists.newArrayList();
-        translatedDocuments.addAll(documents.stream()
-                                           .map(document -> TestUtils.translatedDocumentWithRowKeyVersion2(table,
-                                                                                                           document
-                                                                                                          ))
-                                           .collect(Collectors.toList()));
+        translatedDocuments.addAll(documents
+                .stream()
+                .map(document -> TestUtils.translatedDocumentWithRowKeyVersion2(table, document))
+                .collect(Collectors.toList())
+        );
 
-        doReturn(translatedDocuments).when(dataStore)
-                .saveAll(table, documents);
+        doReturn(translatedDocuments).when(dataStore).saveAll(table, documents);
         queryStore.save(TestUtils.TEST_TABLE_NAME, documents);
 
-        for(Document document : documents) {
-            GetResponse getResponse = elasticsearchServer.getClient()
+        for (Document document : documents) {
+            GetResponse getResponse = elasticsearchServer
+                    .getClient()
                     .prepareGet(ElasticsearchUtils.getCurrentIndex(TestUtils.TEST_TABLE_NAME, document.getTimestamp()),
-                                ElasticsearchUtils.DOCUMENT_TYPE_NAME, document.getId()
-                               )
-                    .setFields("_timestamp")
-                    .execute()
-                    .actionGet();
+                            ElasticsearchUtils.DOCUMENT_TYPE_NAME,
+                            document.getId())
+                    .setFields("_timestamp").execute().actionGet();
 
             assertFalse("Id should not exist in ES", getResponse.isExists());
         }
 
-        for(Document document : translatedDocuments) {
-            GetResponse getResponse = elasticsearchServer.getClient()
+        for (Document document : translatedDocuments) {
+            GetResponse getResponse = elasticsearchServer
+                    .getClient()
                     .prepareGet(ElasticsearchUtils.getCurrentIndex(TestUtils.TEST_TABLE_NAME, document.getTimestamp()),
-                                ElasticsearchUtils.DOCUMENT_TYPE_NAME, document.getId()
-                               )
-                    .setFields("_timestamp")
-                    .execute()
-                    .actionGet();
+                            ElasticsearchUtils.DOCUMENT_TYPE_NAME,
+                            document.getId())
+                    .setFields("_timestamp").execute().actionGet();
 
             assertTrue("Id should exist in ES", getResponse.isExists());
             assertEquals("Id should match requestId", document.getId(), getResponse.getId());
-            assertEquals("Timestamp should match request timestamp", document.getTimestamp(),
-                         getResponse.getField("_timestamp")
-                                 .getValue()
-                        );
+            assertEquals("Timestamp should match request timestamp", document.getTimestamp(), getResponse.getField("_timestamp").getValue());
         }
     }
 
@@ -282,7 +247,7 @@ public class ElasticsearchQueryStoreTest {
     @Test
     public void testSaveBulkInvalidTable() throws Exception {
         List<Document> documents = new Vector<Document>();
-        for(int i = 0; i < 10; i++) {
+        for (int i = 0; i < 10; i++) {
             documents.add(createDummyDocument());
         }
         try {
@@ -301,10 +266,8 @@ public class ElasticsearchQueryStoreTest {
         Document document = createDummyDocument();
         Document translatedDocument = TestUtils.translatedDocumentWithRowKeyVersion1(table, document);
 
-        doReturn(translatedDocument).when(dataStore)
-                .save(table, document);
-        doReturn(translatedDocument).when(dataStore)
-                .get(table, document.getId());
+        doReturn(translatedDocument).when(dataStore).save(table, document);
+        doReturn(translatedDocument).when(dataStore).get(table, document.getId());
 
         queryStore.save(TestUtils.TEST_TABLE_NAME, document);
 
@@ -312,9 +275,7 @@ public class ElasticsearchQueryStoreTest {
         Document responseDocument = queryStore.get(TestUtils.TEST_TABLE_NAME, document.getId());
         assertNotNull(responseDocument);
         assertEquals(document.getId(), responseDocument.getId());
-        assertEquals("Timestamp should match request timestamp", document.getTimestamp(),
-                     responseDocument.getTimestamp()
-                    );
+        assertEquals("Timestamp should match request timestamp", document.getTimestamp(), responseDocument.getTimestamp());
     }
 
     @Test
@@ -324,10 +285,8 @@ public class ElasticsearchQueryStoreTest {
         Document document = createDummyDocument();
         Document translatedDocument = TestUtils.translatedDocumentWithRowKeyVersion2(table, document);
 
-        doReturn(translatedDocument).when(dataStore)
-                .save(table, document);
-        doReturn(document).when(dataStore)
-                .get(table, translatedDocument.getId());
+        doReturn(translatedDocument).when(dataStore).save(table, document);
+        doReturn(document).when(dataStore).get(table, translatedDocument.getId());
 
         queryStore.save(TestUtils.TEST_TABLE_NAME, document);
 
@@ -335,20 +294,15 @@ public class ElasticsearchQueryStoreTest {
         Document responseDocument = queryStore.get(TestUtils.TEST_TABLE_NAME, document.getId());
         assertNotNull(responseDocument);
         assertEquals(document.getId(), responseDocument.getId());
-        assertEquals("Timestamp should match request timestamp", document.getTimestamp(),
-                     responseDocument.getTimestamp()
-                    );
+        assertEquals("Timestamp should match request timestamp", document.getTimestamp(), responseDocument.getTimestamp());
     }
 
     @Test
     public void testGetSingleInvalidId() throws Exception {
         Table table = tableMetadataManager.get(TestUtils.TEST_TABLE_NAME);
-        doThrow(FoxtrotExceptions.createMissingDocumentException(table, UUID.randomUUID()
-                .toString())).when(dataStore)
-                .get(any(Table.class), anyString());
+        doThrow(FoxtrotExceptions.createMissingDocumentException(table, UUID.randomUUID().toString())).when(dataStore).get(any(Table.class), anyString());
         try {
-            queryStore.get(TestUtils.TEST_TABLE_NAME, UUID.randomUUID()
-                    .toString());
+            queryStore.get(TestUtils.TEST_TABLE_NAME, UUID.randomUUID().toString());
             fail();
         } catch (FoxtrotException dse) {
             assertEquals(ErrorCode.DOCUMENT_NOT_FOUND, dse.getCode());
@@ -363,7 +317,7 @@ public class ElasticsearchQueryStoreTest {
         Map<String, Document> translatedIdValues = Maps.newLinkedHashMap();
 
         List<String> ids = new Vector<String>();
-        for(int i = 0; i < 10; i++) {
+        for (int i = 0; i < 10; i++) {
             Document document = createDummyDocument();
             Document translatedDocument = TestUtils.translatedDocumentWithRowKeyVersion1(table, document);
 
@@ -373,28 +327,23 @@ public class ElasticsearchQueryStoreTest {
         }
 
 
-        doReturn(ImmutableList.copyOf(translatedIdValues.values())).when(dataStore)
-                .saveAll(table, ImmutableList.copyOf(idValues.values()));
-        doReturn(ImmutableList.copyOf(idValues.values())).when(dataStore)
-                .getAll(table, ids);
+        doReturn(ImmutableList.copyOf(translatedIdValues.values())).when(dataStore).saveAll(table, ImmutableList.copyOf(idValues.values()));
+        doReturn(ImmutableList.copyOf(idValues.values())).when(dataStore).getAll(table, ids);
 
         queryStore.save(TestUtils.TEST_TABLE_NAME, ImmutableList.copyOf(idValues.values()));
         elasticsearchServer.refresh(ElasticsearchUtils.getIndices(TestUtils.TEST_TABLE_NAME));
 
         List<Document> responseDocuments = queryStore.getAll(TestUtils.TEST_TABLE_NAME, ids);
         HashMap<String, Document> responseIdValues = Maps.newHashMap();
-        for(Document doc : responseDocuments) {
+        for (Document doc : responseDocuments) {
             responseIdValues.put(doc.getId(), doc);
         }
         assertNotNull("List of returned Documents should not be null", responseDocuments);
-        for(String id : ids) {
+        for (String id : ids) {
             assertTrue("Requested Id should be present in response", responseIdValues.containsKey(id));
             assertNotNull(responseIdValues.get(id));
-            assertEquals(id, responseIdValues.get(id)
-                    .getId());
-            assertEquals("Timestamp should match request timestamp", idValues.get(id)
-                    .getTimestamp(), responseIdValues.get(id)
-                                 .getTimestamp());
+            assertEquals(id, responseIdValues.get(id).getId());
+            assertEquals("Timestamp should match request timestamp", idValues.get(id).getTimestamp(), responseIdValues.get(id).getTimestamp());
         }
     }
 
@@ -407,7 +356,7 @@ public class ElasticsearchQueryStoreTest {
 
         List<String> ids = Lists.newArrayList();
         List<String> translatedIds = Lists.newArrayList();
-        for(int i = 0; i < 10; i++) {
+        for (int i = 0; i < 10; i++) {
             Document document = createDummyDocument();
             Document translatedDocument = TestUtils.translatedDocumentWithRowKeyVersion2(table, document);
 
@@ -417,28 +366,23 @@ public class ElasticsearchQueryStoreTest {
             translatedIdValues.put(document.getId(), translatedDocument);
         }
 
-        doReturn(ImmutableList.copyOf(translatedIdValues.values())).when(dataStore)
-                .saveAll(table, ImmutableList.copyOf(idValues.values()));
-        doReturn(ImmutableList.copyOf(idValues.values())).when(dataStore)
-                .getAll(table, translatedIds);
+        doReturn(ImmutableList.copyOf(translatedIdValues.values())).when(dataStore).saveAll(table, ImmutableList.copyOf(idValues.values()));
+        doReturn(ImmutableList.copyOf(idValues.values())).when(dataStore).getAll(table, translatedIds);
 
         queryStore.save(TestUtils.TEST_TABLE_NAME, ImmutableList.copyOf(idValues.values()));
         elasticsearchServer.refresh(ElasticsearchUtils.getIndices(TestUtils.TEST_TABLE_NAME));
 
         List<Document> responseDocuments = queryStore.getAll(TestUtils.TEST_TABLE_NAME, ids);
         HashMap<String, Document> responseIdValues = Maps.newHashMap();
-        for(Document doc : responseDocuments) {
+        for (Document doc : responseDocuments) {
             responseIdValues.put(doc.getId(), doc);
         }
         assertNotNull("List of returned Documents should not be null", responseDocuments);
-        for(String id : ids) {
+        for (String id : ids) {
             assertTrue("Requested Id should be present in response", responseIdValues.containsKey(id));
             assertNotNull(responseIdValues.get(id));
-            assertEquals(id, responseIdValues.get(id)
-                    .getId());
-            assertEquals("Timestamp should match request timestamp", idValues.get(id)
-                    .getTimestamp(), responseIdValues.get(id)
-                                 .getTimestamp());
+            assertEquals(id, responseIdValues.get(id).getId());
+            assertEquals("Timestamp should match request timestamp", idValues.get(id).getTimestamp(), responseIdValues.get(id).getTimestamp());
         }
     }
 
@@ -446,13 +390,10 @@ public class ElasticsearchQueryStoreTest {
     @Test
     public void testGetBulkInvalidIds() throws Exception {
         Table table = tableMetadataManager.get(TestUtils.TEST_TABLE_NAME);
-        doThrow(FoxtrotExceptions.createMissingDocumentException(table, UUID.randomUUID()
-                .toString())).when(dataStore)
-                .getAll(any(Table.class), anyListOf(String.class));
+        doThrow(FoxtrotExceptions.createMissingDocumentException(table, UUID.randomUUID().toString()))
+                .when(dataStore).getAll(any(Table.class), anyListOf(String.class));
         try {
-            queryStore.getAll(TestUtils.TEST_TABLE_NAME, Arrays.asList(UUID.randomUUID()
-                                                                               .toString(), UUID.randomUUID()
-                                                                               .toString()));
+            queryStore.getAll(TestUtils.TEST_TABLE_NAME, Arrays.asList(UUID.randomUUID().toString(), UUID.randomUUID().toString()));
             fail();
         } catch (FoxtrotException e) {
             assertEquals(ErrorCode.DOCUMENT_NOT_FOUND, e.getCode());
@@ -460,40 +401,23 @@ public class ElasticsearchQueryStoreTest {
     }
 
     @Test
-    @Ignore
     public void testGetFieldMappings() throws FoxtrotException, InterruptedException {
-        doReturn(TestUtils.getMappingDocuments(mapper)).when(dataStore)
-                .saveAll(any(Table.class), anyListOf(Document.class));
+        doReturn(TestUtils.getMappingDocuments(mapper)).when(dataStore).saveAll(any(Table.class), anyListOf(Document.class));
         queryStore.save(TestUtils.TEST_TABLE_NAME, TestUtils.getMappingDocuments(mapper));
         Thread.sleep(500);
 
         Set<FieldMetadata> mappings = new HashSet<FieldMetadata>();
-        mappings.add(FieldMetadata.builder()
-                             .field("time")
-                             .type(FieldType.LONG)
-                             .build());
-        mappings.add(FieldMetadata.builder()
-                             .field("word")
-                             .type(FieldType.STRING)
-                             .build());
-        mappings.add(FieldMetadata.builder()
-                             .field("data.data")
-                             .type(FieldType.STRING)
-                             .build());
-        mappings.add(FieldMetadata.builder()
-                             .field("header.hello")
-                             .type(FieldType.STRING)
-                             .build());
-        mappings.add(FieldMetadata.builder()
-                             .field("head.hello")
-                             .type(FieldType.LONG)
-                             .build());
+        mappings.add(FieldMetadata.builder().field("time").type(FieldType.LONG).build());
+        mappings.add(FieldMetadata.builder().field("word").type(FieldType.STRING).build());
+        mappings.add(FieldMetadata.builder().field("data.data").type(FieldType.STRING).build());
+        mappings.add(FieldMetadata.builder().field("header.hello").type(FieldType.STRING).build());
+        mappings.add(FieldMetadata.builder().field("head.hello").type(FieldType.LONG).build());
 
         TableFieldMapping tableFieldMapping = new TableFieldMapping(TestUtils.TEST_TABLE_NAME, mappings);
         TableFieldMapping responseMapping = queryStore.getFieldMappings(TestUtils.TEST_TABLE_NAME);
 
         assertEquals(tableFieldMapping.getTable(), responseMapping.getTable());
-        assertEquals(tableFieldMapping.getMappings(), responseMapping.getMappings());
+        assertTrue(tableFieldMapping.getMappings().equals(responseMapping.getMappings()));
     }
 
     @Test
@@ -512,72 +436,59 @@ public class ElasticsearchQueryStoreTest {
         TableFieldMapping response = queryStore.getFieldMappings(TestUtils.TEST_TABLE_NAME);
 
         assertEquals(request.getTable(), response.getTable());
-        assertTrue(request.getMappings()
-                           .equals(response.getMappings()));
+        assertTrue(request.getMappings().equals(response.getMappings()));
     }
 
     @Test
     public void testEsClusterHealth() throws ExecutionException, InterruptedException, FoxtrotException {
         List<Document> documents = Lists.newArrayList();
-        for(int i = 0; i < 10; i++) {
+        for (int i = 0; i < 10; i++) {
             documents.add(createDummyDocument());
         }
-        doReturn(documents).when(dataStore)
-                .saveAll(any(Table.class), anyListOf(Document.class));
+        doReturn(documents).when(dataStore).saveAll(any(Table.class), anyListOf(Document.class));
         queryStore.save(TestUtils.TEST_TABLE_NAME, documents);
         elasticsearchServer.refresh(ElasticsearchUtils.getIndices(TestUtils.TEST_TABLE_NAME));
         ClusterHealthResponse clusterHealth = queryStore.getClusterHealth();
         assertEquals("elasticsearch", clusterHealth.getClusterName());
-        assertEquals(1, clusterHealth.getIndices()
-                .size());
+        assertEquals(1, clusterHealth.getIndices().size());
     }
 
     @Test
     public void testEsNodesStats() throws FoxtrotException, ExecutionException, InterruptedException {
         List<Document> documents = Lists.newArrayList();
-        for(int i = 0; i < 10; i++) {
+        for (int i = 0; i < 10; i++) {
             documents.add(createDummyDocument());
         }
-        doReturn(documents).when(dataStore)
-                .saveAll(any(Table.class), anyListOf(Document.class));
+        doReturn(documents).when(dataStore).saveAll(any(Table.class), anyListOf(Document.class));
 
         queryStore.save(TestUtils.TEST_TABLE_NAME, documents);
         elasticsearchServer.refresh(ElasticsearchUtils.getIndices(TestUtils.TEST_TABLE_NAME));
         NodesStatsResponse clusterHealth = queryStore.getNodeStats();
         assertNotNull(clusterHealth);
-        assertEquals(1, clusterHealth.getNodesMap()
-                .size());
+        assertEquals(1, clusterHealth.getNodesMap().size());
     }
 
     @Test
     public void testIndicesStats() throws FoxtrotException, ExecutionException, InterruptedException {
         List<Document> documents = Lists.newArrayList();
-        for(int i = 0; i < 10; i++) {
+        for (int i = 0; i < 10; i++) {
             documents.add(createDummyDocument());
         }
-        doReturn(documents).when(dataStore)
-                .saveAll(any(Table.class), anyListOf(Document.class));
+        doReturn(documents).when(dataStore).saveAll(any(Table.class), anyListOf(Document.class));
 
         queryStore.save(TestUtils.TEST_TABLE_NAME, documents);
         elasticsearchServer.refresh(ElasticsearchUtils.getIndices(TestUtils.TEST_TABLE_NAME));
         IndicesStatsResponse clusterHealth = queryStore.getIndicesStats();
-        assertEquals(10, clusterHealth.getPrimaries()
-                .getDocs()
-                .getCount());
-        assertNotEquals(0, clusterHealth.getTotal()
-                .getStore()
-                .getSizeInBytes());
-        assertNotEquals(0, clusterHealth.getPrimaries()
-                .getStore()
-                .getSizeInBytes());
+        assertEquals(10, clusterHealth.getPrimaries().getDocs().getCount());
+        assertNotEquals(0, clusterHealth.getTotal().getStore().getSizeInBytes());
+        assertNotEquals(0, clusterHealth.getPrimaries().getStore().getSizeInBytes());
 
     }
 
     @Test
     @Ignore
     public void testEstimation() throws Exception {
-        doReturn(TestUtils.getFieldCardinalityEstimationDocuments(mapper)).when(dataStore)
-                .saveAll(any(Table.class), anyListOf(Document.class));
+        doReturn(TestUtils.getFieldCardinalityEstimationDocuments(mapper)).when(dataStore).saveAll(any(Table.class), anyListOf(Document.class));
         queryStore.save(TestUtils.TEST_TABLE.getName(), TestUtils.getFieldCardinalityEstimationDocuments(mapper));
         elasticsearchServer.refresh(ElasticsearchUtils.getIndices(TestUtils.TEST_TABLE_NAME));
 
@@ -585,42 +496,32 @@ public class ElasticsearchQueryStoreTest {
         //TODO::REMOVE System.out.println(mapper.writerWithDefaultPrettyPrinter().writeValueAsString(mappings));
         Assert.assertNotNull(mappings);
         Assert.assertTrue(mappings.getMappings()
-                                  .stream()
-                                  .filter(fieldMetadata -> fieldMetadata.getType()
-                                          .equals(FieldType.BOOLEAN))
-                                  .filter(fieldMetadata -> fieldMetadata.getEstimationData() != null &&
-                                                           fieldMetadata.getEstimationData()
-                                                                   .getType()
-                                                                   .equals(EstimationDataType.FIXED))
-                                  .count() == 1);
+            .stream()
+            .filter(fieldMetadata -> fieldMetadata.getType().equals(FieldType.BOOLEAN))
+            .filter(fieldMetadata -> fieldMetadata.getEstimationData() != null
+                    && fieldMetadata.getEstimationData().getType().equals(EstimationDataType.FIXED))
+            .count() == 1);
         Assert.assertTrue(mappings.getMappings()
-                                  .stream()
-                                  .filter(fieldMetadata -> fieldMetadata.getType()
-                                          .equals(FieldType.LONG))
-                                  .filter(fieldMetadata -> fieldMetadata.getEstimationData() != null &&
-                                                           fieldMetadata.getEstimationData()
-                                                                   .getType()
-                                                                   .equals(EstimationDataType.PERCENTILE))
-                                  .count() == 2);
+                .stream()
+                .filter(fieldMetadata -> fieldMetadata.getType().equals(FieldType.LONG))
+                .filter(fieldMetadata -> fieldMetadata.getEstimationData() != null
+                        && fieldMetadata.getEstimationData().getType().equals(EstimationDataType.PERCENTILE))
+                .count() == 1);
         long numStringFields = mappings.getMappings()
                 .stream()
-                .filter(fieldMetadata -> fieldMetadata.getType()
-                        .equals(FieldType.STRING))
+                .filter(fieldMetadata -> fieldMetadata.getType().equals(FieldType.STRING))
                 .count();
         Assert.assertTrue(mappings.getMappings()
-                                  .stream()
-                                  .filter(fieldMetadata -> fieldMetadata.getType()
-                                          .equals(FieldType.STRING))
-                                  .filter(fieldMetadata -> fieldMetadata.getEstimationData() != null &&
-                                                           fieldMetadata.getEstimationData()
-                                                                   .getType() == EstimationDataType.CARDINALITY)
-                                  .count() == numStringFields);
+                .stream()
+                .filter(fieldMetadata -> fieldMetadata.getType().equals(FieldType.STRING))
+                .filter(fieldMetadata -> fieldMetadata.getEstimationData() != null
+                            && fieldMetadata.getEstimationData().getType() == EstimationDataType.CARDINALITY)
+                .count() == numStringFields);
     }
 
     private Document createDummyDocument() {
         Document document = new Document();
-        document.setId(UUID.randomUUID()
-                               .toString());
+        document.setId(UUID.randomUUID().toString());
         document.setTimestamp(System.currentTimeMillis());
         JsonNode data = mapper.valueToTree(Collections.singletonMap("TEST_NAME", "SINGLE_SAVE_TEST"));
         document.setData(data);

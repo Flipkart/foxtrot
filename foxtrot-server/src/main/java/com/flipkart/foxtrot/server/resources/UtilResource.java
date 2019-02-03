@@ -15,7 +15,6 @@
  */
 package com.flipkart.foxtrot.server.resources;
 
-import com.codahale.metrics.annotation.Timed;
 import com.flipkart.foxtrot.server.config.FoxtrotServerConfiguration;
 
 import javax.ws.rs.GET;
@@ -34,7 +33,6 @@ public class UtilResource {
 
     @GET
     @Path("/config")
-    @Timed
     public FoxtrotServerConfiguration configuration() {
         return configuration;
     }

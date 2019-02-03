@@ -1,6 +1,5 @@
 package com.flipkart.foxtrot.server.resources;
 
-import com.codahale.metrics.annotation.Timed;
 import com.flipkart.foxtrot.server.providers.FlatToCsvConverter;
 import com.flipkart.foxtrot.server.providers.FoxtrotExtraMediaType;
 import com.flipkart.foxtrot.sql.FqlEngine;
@@ -23,7 +22,6 @@ public class FqlResource {
     @GET
     @Produces(FoxtrotExtraMediaType.TEXT_CSV)
     @Path("/download")
-    @Timed
     public StreamingOutput runFqlGet(@QueryParam("q") final String query) throws Exception {
         Preconditions.checkNotNull(query);
         final FlatRepresentation representation = fqlEngine.parse(query);
@@ -31,7 +29,6 @@ public class FqlResource {
     }
 
     @POST
-    @Timed
     @Produces({MediaType.TEXT_PLAIN, MediaType.APPLICATION_JSON, FoxtrotExtraMediaType.TEXT_CSV})
     public FlatRepresentation runFqlPost(final String query) throws Exception {
         return fqlEngine.parse(query);

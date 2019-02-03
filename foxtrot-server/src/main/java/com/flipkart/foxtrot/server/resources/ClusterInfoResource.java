@@ -1,6 +1,5 @@
 package com.flipkart.foxtrot.server.resources;
 
-import com.codahale.metrics.annotation.Timed;
 import com.flipkart.foxtrot.server.cluster.ClusterManager;
 import com.flipkart.foxtrot.server.cluster.ClusterMember;
 
@@ -25,7 +24,6 @@ public class ClusterInfoResource {
 
     @GET
     @Path("/members")
-    @Timed
     public Map<String, Collection<ClusterMember>> members() {
         return Collections.singletonMap("members", clusterManager.getMembers());
     }

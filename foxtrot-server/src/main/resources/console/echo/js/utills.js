@@ -39,13 +39,8 @@ function periodFromWindow(periodUnit, customPeriodString) {
 }
 
 function timeValue(periodUnit, periodValue, selectedPeriodString) {
-  var timestamp;
-  if(isGlobalDateFilter) {
-      timestamp = globalDateFilterValue;
-  } else {
-      timestamp = new Date().getTime();
-  }
-  if (selectedPeriodString === "custom" || !selectedPeriodString || isGlobalDateFilter) {
+  var timestamp = new Date().getTime();
+  if (selectedPeriodString === "custom" || !selectedPeriodString) {
     return {
       field: "_timestamp"
       , operator: "last"
@@ -141,36 +136,8 @@ function generateDropDown(fields, element) { // generating all dropdowns
   $(el).selectpicker('refresh');
 }
 
-function generateSunBurstDropDown(fields) { // generating all dropdowns
-  var arr = fields;
-
-  var option = "";
-  $.each(arr, function(key, value) {
-    option+= "<option value="+key+">"+value.field+"</option>"
-  });
-  
-  for(var i = 1; i < 6; i++) {
-    $("#sunburst-nesting-field"+i).find('option').remove();
-    $("#sunburst-nesting-field"+i).append($('<option>', {
-      value: ""
-      , text: "none"
-    }));   
-    $("#sunburst-nesting-field"+i).append(option);
-    $("#sunburst-nesting-field"+i).selectpicker('refresh');
-  }
-  
-  var unique = $(".sunburstForm").find("#sunburst-uniqueKey");
-  $(unique).find('option').remove();
-  $(unique).append($('<option>', {
-    value: ""
-    , text: "none"
-  }));   
-  $(unique).append(option);
-  $(unique).selectpicker('refresh');
-}
-
 function getWidgetType() { // widget types
-  if (currentChartType == "line" || currentChartType == "stacked" || currentChartType == "stackedBar" || currentChartType == "statsTrend" || currentChartType == "bar" || currentChartType == "lineRatio" || currentChartType == "sunburst") {
+  if (currentChartType == "line" || currentChartType == "stacked" || currentChartType == "stackedBar" || currentChartType == "statsTrend" || currentChartType == "bar" || currentChartType == "lineRatio") {
     return "full";
   }
   else if (currentChartType == "radar" || currentChartType == "pie") {
@@ -252,9 +219,6 @@ function getChartFormValues() { // get current widget form values
   }
   else if(currentChartType == "lineRatio") {
     return getLineRatioChartFormValues();
-  }
-  else if(currentChartType == "sunburst") {
-    return getSunburstChartFormValues();
   }
 }
 function deleteFilterRow(el) { // delete given filter row
@@ -346,9 +310,6 @@ function reloadDropdowns() { // change dropdown values for all charts when table
     generateDropDown(currentFieldList, "#line-ratio-field");
     generateDropDown(currentFieldList, "#line-ratio-uniquekey");
   }
-  else if (currentChartType == "sunburst") {
-    generateSunBurstDropDown(currentFieldList);
- }
 }
 
 function invokeClearChartForm() { // clear widget forms
@@ -387,9 +348,6 @@ function invokeClearChartForm() { // clear widget forms
   }
   else if(currentChartType == "lineRatio") {
     clearLineRatioChartForm();
-  }
-  else if(currentChartType == "sunburst") {
-    clearSunburstChartForm();
   }
 }
 
@@ -507,20 +465,7 @@ function drawPieLegend(columns, element) { // pie legend
   columns.sort(function (lhs, rhs){
     return rhs.data - lhs.data;
   });
-  
-  var sum = columns.reduce((s, f) => {
-    return s + f.data;               // return the sum of the accumulator and the current time, as the the new accumulator
-  }, 0); // calculate total value
-
-  var percentage = _.map(columns, function(value, key){
-    return ((value.data)/sum * 100).toFixed(1);
-  }); // calculate sum for each value
-
-  var final = _.each(columns, function(element, index) {
-    _.extend(element, { "percentage" : percentage[index]});
-  }); // extend percentage to original array
-
-  element.html(handlebars("#group-legend-pie-template", {data: final}));
+  element.html(handlebars("#group-legend-pie-template", {data: columns}));
 }
 
 function convertName(name) { // convert given name into machine readable
@@ -564,8 +509,4 @@ function getWidgetSize(type) { // widget types
   else {
     return 0;
   }
-}
-
-function thresholdErrorMsg() {
-  return "Denominator value is below the threshold value. Hence, graph plotting not possible";
 }

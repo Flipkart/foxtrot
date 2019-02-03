@@ -18,9 +18,9 @@ import java.util.Map;
 public class FlatResponseErrorTextProvider implements MessageBodyWriter<Map> {
     @Override
     public boolean isWriteable(Class<?> type, Type genericType, Annotation[] annotations, MediaType mediaType) {
-        return Map.class.isAssignableFrom(type) && (mediaType.toString()
-                                                            .equals(MediaType.TEXT_PLAIN) || mediaType.toString()
-                                                            .equals(FoxtrotExtraMediaType.TEXT_CSV));
+        return Map.class.isAssignableFrom(type)
+                && (mediaType.toString().equals(MediaType.TEXT_PLAIN)
+                        || mediaType.toString().equals(FoxtrotExtraMediaType.TEXT_CSV));
     }
 
     @Override
@@ -29,30 +29,25 @@ public class FlatResponseErrorTextProvider implements MessageBodyWriter<Map> {
     }
 
     @Override
-    public void writeTo(Map map, Class<?> type, Type genericType, Annotation[] annotations, MediaType mediaType,
-                        MultivaluedMap<String, Object> httpHeaders, OutputStream entityStream)
-            throws IOException, WebApplicationException {
+    public void writeTo(Map map, Class<?> type, Type genericType, Annotation[] annotations, MediaType mediaType, MultivaluedMap<String, Object> httpHeaders, OutputStream entityStream) throws IOException, WebApplicationException {
         StringBuilder data = new StringBuilder();
         for(Object key : map.keySet()) {
             data.append(key.toString());
             data.append(":");
             if(null == map.get(key.toString())) {
                 data.append("Check logs for more details");
-            } else {
-                data.append(map.get(key.toString())
-                                    .toString());
+            }
+            else {
+                data.append(map.get(key.toString()).toString());
             }
             data.append("\n");
         }
-        entityStream.write(data.toString()
-                                   .getBytes());
+        entityStream.write(data.toString().getBytes());
     }
 
     public void hrLine(int length, StringBuilder stringBuilder) {
         char[] chars = new char[length - 3];
         Arrays.fill(chars, '-');
-        stringBuilder.append("+")
-                .append(new String(chars))
-                .append("+\n");
+        stringBuilder.append("+").append(new String(chars)).append("+\n");
     }
 }

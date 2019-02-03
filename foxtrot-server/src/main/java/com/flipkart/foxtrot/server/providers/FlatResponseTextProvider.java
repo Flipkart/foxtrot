@@ -22,20 +22,16 @@ import java.util.Map;
 public class FlatResponseTextProvider implements MessageBodyWriter<FlatRepresentation> {
     @Override
     public boolean isWriteable(Class<?> type, Type genericType, Annotation[] annotations, MediaType mediaType) {
-        return type == FlatRepresentation.class && mediaType.toString()
-                .equals(MediaType.TEXT_PLAIN);
+        return type == FlatRepresentation.class && mediaType.toString().equals(MediaType.TEXT_PLAIN);
     }
 
     @Override
-    public long getSize(FlatRepresentation response, Class<?> type, Type genericType, Annotation[] annotations,
-                        MediaType mediaType) {
+    public long getSize(FlatRepresentation response, Class<?> type, Type genericType, Annotation[] annotations, MediaType mediaType) {
         return -1;
     }
 
     @Override
-    public void writeTo(FlatRepresentation response, Class<?> type, Type genericType, Annotation[] annotations,
-                        MediaType mediaType, MultivaluedMap<String, Object> httpHeaders, OutputStream entityStream)
-            throws IOException, WebApplicationException {
+    public void writeTo(FlatRepresentation response, Class<?> type, Type genericType, Annotation[] annotations, MediaType mediaType, MultivaluedMap<String, Object> httpHeaders, OutputStream entityStream) throws IOException, WebApplicationException {
         if(null == response) {
             entityStream.write("No records found matching the specified criterion".getBytes());
             return;
@@ -64,25 +60,19 @@ public class FlatResponseTextProvider implements MessageBodyWriter<FlatRepresent
             rowBuilder.append("|");
             for(FieldHeader fieldHeader : headers) {
                 rowBuilder.append(" ");
-                rowBuilder.append(
-                        String.format("%" + fieldHeader.getMaxLength() + "s", row.get(fieldHeader.getName())));
+                rowBuilder.append(String.format("%" + fieldHeader.getMaxLength() + "s", row.get(fieldHeader.getName())));
                 rowBuilder.append(" |");
             }
             rowBuilder.append("\n");
-            data.append(rowBuilder.toString()
-                                .replaceAll("\"", " ")
-                                .replaceAll("null", "    "));
+            data.append(rowBuilder.toString().replaceAll("\"", " ").replaceAll("null", "    "));
         }
         hrLine(headerLine.length(), data);
-        entityStream.write(data.toString()
-                                   .getBytes());
+        entityStream.write(data.toString().getBytes());
     }
 
     public void hrLine(int length, StringBuilder stringBuilder) {
         char[] chars = new char[length - 3];
         Arrays.fill(chars, '-');
-        stringBuilder.append("+")
-                .append(new String(chars))
-                .append("+\n");
+        stringBuilder.append("+").append(new String(chars)).append("+\n");
     }
 }

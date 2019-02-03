@@ -1,12 +1,12 @@
 /**
  * Copyright 2014 Flipkart Internet Pvt. Ltd.
- * <p>
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * <p>
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * <p>
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -15,7 +15,6 @@
  */
 package com.flipkart.foxtrot.server.resources;
 
-import com.codahale.metrics.annotation.Timed;
 import com.flipkart.foxtrot.core.exception.FoxtrotException;
 import com.flipkart.foxtrot.server.console.ConsolePersistence;
 import com.flipkart.foxtrot.server.console.ConsoleV2;
@@ -36,14 +35,12 @@ public class ConsoleV2Resource {
     }
 
     @POST
-    @Timed
     public ConsoleV2 save(ConsoleV2 console) throws FoxtrotException {
         consolePersistence.saveV2(console);
         return console;
     }
 
     @GET
-    @Timed
     @Path("/{id}")
     public ConsoleV2 get(@PathParam("id") final String id) throws FoxtrotException {
         return consolePersistence.getV2(id);
@@ -51,13 +48,11 @@ public class ConsoleV2Resource {
 
     @DELETE
     @Path("/{id}/delete")
-    @Timed
     public void delete(@PathParam("id") final String id) throws FoxtrotException {
         consolePersistence.deleteV2(id);
     }
 
     @GET
-    @Timed
     public List<ConsoleV2> getList() throws FoxtrotException {
         return consolePersistence.getV2();
     }

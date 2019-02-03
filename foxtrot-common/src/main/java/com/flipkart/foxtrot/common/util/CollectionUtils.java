@@ -8,8 +8,7 @@ import java.util.Collection;
 public class CollectionUtils {
 
     public static boolean isNullOrEmpty(String s) {
-        return s == null || s.trim()
-                .isEmpty();
+        return s == null || s.trim().isEmpty();
     }
 
     public static boolean isNullOrEmpty(Collection list) {

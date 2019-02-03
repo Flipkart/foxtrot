@@ -40,8 +40,7 @@ public class CardinalityCalculationManager extends BaseJobManager {
     private final CardinalityConfig cardinalityConfig;
 
     public CardinalityCalculationManager(TableMetadataManager tableMetadataManager, CardinalityConfig cardinalityConfig,
-                                         HazelcastConnection hazelcastConnection,
-                                         ScheduledExecutorService scheduledExecutorService) {
+                                         HazelcastConnection hazelcastConnection, ScheduledExecutorService scheduledExecutorService) {
         super(cardinalityConfig, scheduledExecutorService, hazelcastConnection);
         this.tableMetadataManager = tableMetadataManager;
         this.cardinalityConfig = cardinalityConfig;
@@ -51,10 +50,7 @@ public class CardinalityCalculationManager extends BaseJobManager {
     protected void runImpl(LockingTaskExecutor executor, Instant lockAtMostUntil) {
         executor.executeWithLock(() -> {
             try {
-                Set<String> tables = tableMetadataManager.get()
-                        .stream()
-                        .map(Table::getName)
-                        .collect(Collectors.toSet());
+                Set<String> tables = tableMetadataManager.get().stream().map(Table::getName).collect(Collectors.toSet());
                 for(String table : tables) {
                     tableMetadataManager.getFieldMappings(table, true, true);
                 }
