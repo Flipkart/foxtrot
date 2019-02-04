@@ -73,10 +73,6 @@ public class FoxtrotServerConfiguration extends Configuration {
         this.emailConfig = new EmailConfig();
     }
 
-
-
-    public LogRotationFileConfig getLogRotationFileConfig() { return logRotationFileConfig; }
-
     public HbaseConfig getHbase() {
         return hbase;
     }
