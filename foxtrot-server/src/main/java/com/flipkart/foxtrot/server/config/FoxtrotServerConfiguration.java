@@ -85,5 +85,7 @@ public class FoxtrotServerConfiguration extends Configuration {
         return cluster;
     }
 
-
+    public DataDeletionManagerConfig getTableDataManagerConfig() {
+        return deletionManagerConfig;
+    }
 }
