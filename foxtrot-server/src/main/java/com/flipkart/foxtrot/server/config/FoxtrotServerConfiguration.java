@@ -60,6 +60,7 @@ public class FoxtrotServerConfiguration extends Configuration {
     private CardinalityConfig cardinality;
     @Valid
     private EsIndexOptimizationConfig esIndexOptimizationConfig;
+
     private EmailConfig emailConfig;
     private CacheConfig cacheConfig;
     private CacheConfig queryStoreCacheConfig;
@@ -70,6 +71,22 @@ public class FoxtrotServerConfiguration extends Configuration {
         this.cluster = new ClusterConfig();
         this.deletionManagerConfig = new DataDeletionManagerConfig();
         this.emailConfig = new EmailConfig();
+    }
+
+
+
+    public LogRotationFileConfig getLogRotationFileConfig() { return logRotationFileConfig; }
+
+    public HbaseConfig getHbase() {
+        return hbase;
+    }
+
+    public ElasticsearchConfig getElasticsearch() {
+        return elasticsearch;
+    }
+
+    public ClusterConfig getCluster() {
+        return cluster;
     }
 
 

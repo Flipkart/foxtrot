@@ -168,6 +168,7 @@ public class FoxtrotServer extends Application<FoxtrotServerConfiguration> {
                                                                                         elasticsearchConnection,
                                                                                         objectMapper, cardinalityConfig
         );
+
         DataStore dataStore = new HBaseDataStore(hbaseTableConnection, objectMapper,
                                                  new DocumentTranslator(configuration.getHbase())
         );
@@ -184,7 +185,7 @@ public class FoxtrotServer extends Application<FoxtrotServerConfiguration> {
                                                               emailConfig
         );
         QueryExecutor executor = new QueryExecutor(analyticsLoader, executorService);
-        DataDeletionManagerConfig dataDeletionManagerConfig = configuration.getDeletionManagerConfig();
+
         DataDeletionManager dataDeletionManager = new DataDeletionManager(dataDeletionManagerConfig, queryStore,
                                                                           scheduledExecutorService, hazelcastConnection
         );
