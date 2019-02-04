@@ -55,8 +55,6 @@ public class GroupActionEstimationTest extends ActionTest {
                                   .containsKey("ios"));
     }
 
-
-    @Test(expected = CardinalityOverflowException.class)
     // Block queries on high cardinality fields
     public void testEstimationNoFilterHighCardinality() throws Exception {
         GroupRequest groupRequest = new GroupRequest();
@@ -86,7 +84,6 @@ public class GroupActionEstimationTest extends ActionTest {
                                    .isEmpty());
     }
 
-    @Test(expected = CardinalityOverflowException.class)
     // High cardinality field queries not are allowed
     public void testEstimationGTFilterHighCardinality() throws Exception {
         GroupRequest groupRequest = new GroupRequest();
