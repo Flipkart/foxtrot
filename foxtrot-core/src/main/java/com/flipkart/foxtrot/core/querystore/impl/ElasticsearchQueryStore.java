@@ -252,7 +252,7 @@ public class ElasticsearchQueryStore implements QueryStore {
             if (!distributedMap.containsKey(WRITES_ERROR_KEY)) {
                 String subject = "Writes on ES Failing";
                 String content = e.getMessage();
-                String recipients = "payments-dev@phonepe.com";
+                String recipients = "";
                 emailClient.sendEmail(subject, content, recipients);
                 distributedMap.put(WRITES_ERROR_KEY, WRITES_ERROR_VALUE);
             }

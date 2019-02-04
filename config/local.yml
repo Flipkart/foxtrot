@@ -13,16 +13,16 @@ elasticsearch:
   getQueryTimeout: 10000
 
 serviceDiscovery:
-  namespace: phonepe
+  namespace: local
   environment: local
   zookeeper: localhost:2181
   publishedHost: 127.0.0.1
   publishedPort: 8080
 
 riemann:
-  host: riemann-stage.phonepe.int
+  host: riemann-stage.local.int
   port: 5555
-  prefix: phonepe.local.foxtrot
+  prefix: local.foxtrot
   pollingInterval: 30
   tags:
     - foxtrot
@@ -64,11 +64,3 @@ deletionconfig:
   active: false
   interval: 86400
   initialdelay: 60
-
-emailConfig:
-  from: noreply@phonepe.com
-  host: ops-jump001.phonepe.nm1
-  port: 25
-  user: AKIAJLCWHAOEDK4ZDOGQ
-  password: AgjCxNI68hrnj6bIzuJCiZBlDXW+TioRoU11++Yx97
-  url: /

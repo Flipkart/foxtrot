@@ -179,7 +179,7 @@ public class GroupAction extends Action<GroupRequest> {
                 try {
                     String subject = "Blocked query as it might have screwed up the cluster";
                     String content = getObjectMapper().writeValueAsString(parameter);
-                    String recipients = "payments-dev@phonepe.com";
+                    String recipients = "";
                     emailClient.sendEmail(subject, content, recipients);
                     log.warn("Blocked query as it might have screwed up the cluster. Probability: {} Query: {}",
                              probability, getObjectMapper().writeValueAsString(parameter)
