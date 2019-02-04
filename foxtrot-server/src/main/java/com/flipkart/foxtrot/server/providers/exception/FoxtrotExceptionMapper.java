@@ -39,7 +39,9 @@ public class FoxtrotExceptionMapper implements ExceptionMapper<FoxtrotException>
         switch (e.getCode()) {
             case DOCUMENT_NOT_FOUND:
             case TABLE_NOT_FOUND:
-                return Response.status(Response.Status.NOT_FOUND).entity(response).build();
+                return Response.status(Response.Status.NOT_FOUND)
+                        .entity(response)
+                        .build();
             case STORE_CONNECTION_ERROR:
             case TABLE_INITIALIZATION_ERROR:
             case TABLE_METADATA_FETCH_FAILURE:
@@ -47,20 +49,30 @@ public class FoxtrotExceptionMapper implements ExceptionMapper<FoxtrotException>
             case STORE_EXECUTION_ERROR:
             case EXECUTION_EXCEPTION:
             case ACTION_EXECUTION_ERROR:
-                return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(response).build();
+                return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                        .entity(response)
+                        .build();
             case MALFORMED_QUERY:
             case CARDINALITY_OVERFLOW:
             case ACTION_RESOLUTION_FAILURE:
             case UNRESOLVABLE_OPERATION:
             case INVALID_REQUEST:
-                return Response.status(Response.Status.BAD_REQUEST).entity(response).build();
+                return Response.status(Response.Status.BAD_REQUEST)
+                        .entity(response)
+                        .build();
             case TABLE_ALREADY_EXISTS:
-                return Response.status(Response.Status.CONFLICT).entity(response).build();
+                return Response.status(Response.Status.CONFLICT)
+                        .entity(response)
+                        .build();
             case CONSOLE_SAVE_EXCEPTION:
             case CONSOLE_FETCH_EXCEPTION:
-                return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(response).build();
+                return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                        .entity(response)
+                        .build();
             default:
-                return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(response).build();
+                return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                        .entity(response)
+                        .build();
         }
     }
 }

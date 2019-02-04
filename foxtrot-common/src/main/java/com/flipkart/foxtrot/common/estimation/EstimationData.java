@@ -12,11 +12,7 @@ import java.io.Serializable;
  * Type specific estimation data
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.EXISTING_PROPERTY, property = "type")
-@JsonSubTypes({
-        @JsonSubTypes.Type(name = "FIXED", value = FixedEstimationData.class),
-        @JsonSubTypes.Type(name = "CARDINALITY", value = CardinalityEstimationData.class),
-        @JsonSubTypes.Type(name = "PERCENTILE", value = PercentileEstimationData.class)
-})
+@JsonSubTypes({@JsonSubTypes.Type(name = "FIXED", value = FixedEstimationData.class), @JsonSubTypes.Type(name = "CARDINALITY", value = CardinalityEstimationData.class), @JsonSubTypes.Type(name = "PERCENTILE", value = PercentileEstimationData.class)})
 @EqualsAndHashCode
 @ToString
 public abstract class EstimationData implements Serializable {

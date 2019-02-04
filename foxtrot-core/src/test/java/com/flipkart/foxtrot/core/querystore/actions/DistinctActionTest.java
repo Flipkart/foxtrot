@@ -24,7 +24,12 @@ public class DistinctActionTest extends ActionTest {
         super.setUp();
         List<Document> documents = TestUtils.getDistinctDocuments(getMapper());
         getQueryStore().save(TestUtils.TEST_TABLE_NAME, documents);
-        getElasticsearchServer().getClient().admin().indices().prepareRefresh("*").execute().actionGet();
+        getElasticsearchServer().getClient()
+                .admin()
+                .indices()
+                .prepareRefresh("*")
+                .execute()
+                .actionGet();
     }
 
 

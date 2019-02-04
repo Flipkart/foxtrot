@@ -45,10 +45,8 @@ public class FoxtrotExceptions {
         return new MalformedQueryException(actionRequest, reasons);
     }
 
-    public static CardinalityOverflowException createCardinalityOverflow(
-            ActionRequest actionRequest,
-            String field,
-            double probability) {
+    public static CardinalityOverflowException createCardinalityOverflow(ActionRequest actionRequest, String field,
+                                                                         double probability) {
         return new CardinalityOverflowException(actionRequest, field, probability);
     }
 
@@ -76,6 +74,10 @@ public class FoxtrotExceptions {
         return new DataCleanupException(message, e);
     }
 
+    public static ServerException createServerException(String message, Exception e) {
+        return new ServerException(message, e);
+    }
+
     public static QueryCreationException queryCreationException(ActionRequest actionRequest, Exception e) {
         return new QueryCreationException(actionRequest, e);
     }
@@ -87,4 +89,6 @@ public class FoxtrotExceptions {
     public static UnresolvableActionException createUnresolvableActionException(ActionRequest actionRequest) {
         return new UnresolvableActionException(actionRequest);
     }
+
+
 }

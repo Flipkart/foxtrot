@@ -19,7 +19,6 @@ import io.dropwizard.testing.junit.ResourceTestRule;
 import org.junit.Rule;
 import org.junit.Test;
 
-import javax.ws.rs.core.Response;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -43,7 +42,10 @@ public class CacheUpdateResourceTest extends FoxtrotResourceTest {
 
     @Test
     public void testUpdateCache() {
-        resources.client().target("/v1/cache/update/cardinality").request().post(null);
+        resources.client()
+                .target("/v1/cache/update/cardinality")
+                .request()
+                .post(null);
 
     }
 }

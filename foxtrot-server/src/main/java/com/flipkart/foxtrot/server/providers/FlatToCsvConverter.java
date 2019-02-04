@@ -24,9 +24,12 @@ public class FlatToCsvConverter {
         for(Map<String, Object> row : rows) {
             String rowData[] = new String[headers.size()];
             i = 0;
-            for (FieldHeader fieldHeader : headers) {
-                if (row.containsKey(fieldHeader.getName())) {
-                    rowData[i++] = row.get(fieldHeader.getName()).toString().replaceAll("\"", "").replaceAll("null", "");
+            for(FieldHeader fieldHeader : headers) {
+                if(row.containsKey(fieldHeader.getName())) {
+                    rowData[i++] = row.get(fieldHeader.getName())
+                            .toString()
+                            .replaceAll("\"", "")
+                            .replaceAll("null", "");
                 } else {
                     rowData[i++] = "";
                 }

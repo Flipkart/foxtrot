@@ -43,14 +43,17 @@ public class InitializerCommand extends ConfiguredCommand<FoxtrotServerConfigura
     }
 
     @Override
-    protected void run(Bootstrap<FoxtrotServerConfiguration> bootstrap,
-                       Namespace namespace,
+    protected void run(Bootstrap<FoxtrotServerConfiguration> bootstrap, Namespace namespace,
                        FoxtrotServerConfiguration configuration) throws Exception {
         ElasticsearchConfig esConfig = configuration.getElasticsearch();
         ElasticsearchConnection connection = new ElasticsearchConnection(esConfig);
         connection.start();
 
-        ClusterHealthResponse clusterHealth = connection.getClient().admin().cluster().health(new ClusterHealthRequest()).actionGet();
+        ClusterHealthResponse clusterHealth = connection.getClient()
+                .admin()
+                .cluster()
+                .health(new ClusterHealthRequest())
+                .actionGet();
         int numDataNodes = clusterHealth.getNumberOfDataNodes();
         int numReplicas = (numDataNodes < 2) ? 0 : 1;
 
@@ -62,33 +65,41 @@ public class InitializerCommand extends ConfiguredCommand<FoxtrotServerConfigura
 
         logger.info("Creating mapping");
         PutIndexTemplateRequest putIndexTemplateRequest = ElasticsearchUtils.getClusterTemplateMapping();
-        PutIndexTemplateResponse response = connection.getClient().admin().indices().putTemplate(putIndexTemplateRequest).actionGet();
+        PutIndexTemplateResponse response = connection.getClient()
+                .admin()
+                .indices()
+                .putTemplate(putIndexTemplateRequest)
+                .actionGet();
         logger.info("Created mapping: {}", response.isAcknowledged());
 
         logger.info("Creating hbase table");
-        HBaseUtil.createTable(configuration.getHbase(), configuration.getHbase().getTableName());
+        HBaseUtil.createTable(configuration.getHbase(), configuration.getHbase()
+                .getTableName());
     }
 
-    private void createMetaIndex(final ElasticsearchConnection connection,
-                                 final String indexName,
-                                 int replicaCount) throws Exception {
+    private void createMetaIndex(final ElasticsearchConnection connection, final String indexName, int replicaCount)
+            throws Exception {
         try {
             logger.info("'{}' creation started", indexName);
             Settings settings = Settings.builder()
                     .put("number_of_shards", 1)
                     .put("number_of_replicas", replicaCount)
                     .build();
-            CreateIndexRequest createIndexRequest = new CreateIndexRequest()
-                    .index(indexName)
+            CreateIndexRequest createIndexRequest = new CreateIndexRequest().index(indexName)
                     .settings(settings);
-            CreateIndexResponse response = connection.getClient().admin().indices().create(createIndexRequest).actionGet();
+            CreateIndexResponse response = connection.getClient()
+                    .admin()
+                    .indices()
+                    .create(createIndexRequest)
+                    .actionGet();
             logger.info("'{}' creation acknowledged: {}", indexName, response.isAcknowledged());
-            if (!response.isAcknowledged()) {
+            if(!response.isAcknowledged()) {
                 logger.error("Index {} could not be created.", indexName);
             }
         } catch (Exception e) {
-            if (null != e.getCause()) {
-                logger.error("Index {} could not be created: {}", indexName, e.getCause().getLocalizedMessage());
+            if(null != e.getCause()) {
+                logger.error("Index {} could not be created: {}", indexName, e.getCause()
+                        .getLocalizedMessage());
             } else {
                 logger.error("Index {} could not be created: {}", indexName, e.getLocalizedMessage());
             }
