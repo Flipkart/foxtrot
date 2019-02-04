@@ -1,12 +1,12 @@
 /**
  * Copyright 2014 Flipkart Internet Pvt. Ltd.
- *
+ * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
+ * <p>
  * http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -35,8 +35,6 @@ import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.doReturn;
 
 /**
  * Created by rishabh.goyal on 05/05/14.
@@ -50,7 +48,12 @@ public class AnalyticsResourceTest extends FoxtrotResourceTest {
         super();
         List<Document> documents = TestUtils.getGroupDocuments(getMapper());
         getQueryStore().save(TestUtils.TEST_TABLE_NAME, documents);
-        getElasticsearchServer().getClient().admin().indices().prepareRefresh("*").execute().actionGet();
+        getElasticsearchServer().getClient()
+                .admin()
+                .indices()
+                .prepareRefresh("*")
+                .execute()
+                .actionGet();
         resources = ResourceTestRule.builder()
                 .setMapper(getMapper())
                 .addResource(new AnalyticsResource(getQueryExecutor()))
@@ -97,7 +100,9 @@ public class AnalyticsResourceTest extends FoxtrotResourceTest {
         }});
 
         Entity<GroupRequest> serviceUserEntity = Entity.json(groupRequest);
-        GroupResponse response = resources.client().target("/v1/analytics").request()
+        GroupResponse response = resources.client()
+                .target("/v1/analytics")
+                .request()
                 .post(serviceUserEntity, GroupResponse.class);
         assertEquals(expectedResponse, response.getResult());
     }
@@ -110,11 +115,14 @@ public class AnalyticsResourceTest extends FoxtrotResourceTest {
 
         try {
             Entity<GroupRequest> serviceUserEntity = Entity.json(groupRequest);
-            resources.client().target("/v1/generate/test").request()
+            resources.client()
+                    .target("/v1/generate/test")
+                    .request()
                     .post(serviceUserEntity, GroupResponse.class);
             fail();
         } catch (WebApplicationException ex) {
-            assertEquals(Response.Status.NOT_FOUND.getStatusCode(), ex.getResponse().getStatus());
+            assertEquals(Response.Status.NOT_FOUND.getStatusCode(), ex.getResponse()
+                    .getStatus());
         }
     }
 
@@ -155,10 +163,13 @@ public class AnalyticsResourceTest extends FoxtrotResourceTest {
             put("iphone", iPhoneResponse);
         }});
         Entity<GroupRequest> serviceUserEntity = Entity.json(groupRequest);
-        AsyncDataToken response = resources.client().target("/v1/analytics/async").request()
+        AsyncDataToken response = resources.client()
+                .target("/v1/analytics/async")
+                .request()
                 .post(serviceUserEntity, AsyncDataToken.class);
         Thread.sleep(2000);
-        GroupResponse actualResponse = GroupResponse.class.cast(getCacheManager().getCacheFor(response.getAction()).get(response.getKey()));
+        GroupResponse actualResponse = GroupResponse.class.cast(getCacheManager().getCacheFor(response.getAction())
+                                                                        .get(response.getKey()));
         assertEquals(expectedResponse, actualResponse.getResult());
     }
 
@@ -170,10 +181,14 @@ public class AnalyticsResourceTest extends FoxtrotResourceTest {
 
         GroupResponse expectedResponse = new GroupResponse();
         Entity<GroupRequest> serviceUserEntity = Entity.json(groupRequest);
-        AsyncDataToken asyncDataToken = resources.client().target("/v1/analytics/async").request()
+        AsyncDataToken asyncDataToken = resources.client()
+                .target("/v1/analytics/async")
+                .request()
                 .post(serviceUserEntity, AsyncDataToken.class);
         Thread.sleep(2000);
-        GroupResponse actualResponse = GroupResponse.class.cast(getCacheManager().getCacheFor(asyncDataToken.getAction()).get(asyncDataToken.getKey()));
+        GroupResponse actualResponse = GroupResponse.class.cast(
+                getCacheManager().getCacheFor(asyncDataToken.getAction())
+                        .get(asyncDataToken.getKey()));
         assertEquals(expectedResponse.getResult(), actualResponse.getResult());
     }
 }

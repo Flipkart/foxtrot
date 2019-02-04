@@ -10,15 +10,21 @@ import java.util.concurrent.TimeUnit;
  */
 public class MetricUtil {
 
-    private static MetricRegistry metrics;
     private static final MetricUtil metricsHelper;
-
     private static final String packagePrefix = "com.flipkart.foxtrot.core";
     private static final String actionMetricPrefix = "action";
+    private static MetricRegistry metrics;
 
     static {
         metrics = new MetricRegistry();
         metricsHelper = new MetricUtil();
+    }
+
+    private MetricUtil() {
+        JmxReporter.forRegistry(metrics)
+                .convertRatesTo(TimeUnit.MINUTES)
+                .build()
+                .start();
     }
 
     public static void setup(MetricRegistry metrics) {
@@ -27,10 +33,6 @@ public class MetricUtil {
 
     public static MetricUtil getInstance() {
         return metricsHelper;
-    }
-
-    private MetricUtil() {
-        JmxReporter.forRegistry(metrics).convertRatesTo(TimeUnit.MINUTES).build().start();
     }
 
     public void registerActionCacheHit(String opcode, String metricKey) {
@@ -42,9 +44,13 @@ public class MetricUtil {
     }
 
     private void registerActionCacheOperation(String opcode, String metricKey, String status) {
-        metrics.meter(String.format("%s.%s.cache.%s", packagePrefix, actionMetricPrefix, status)).mark();
-        metrics.meter(String.format("%s.%s.%s.cache.%s", packagePrefix, actionMetricPrefix, opcode, status)).mark();
-        metrics.meter(String.format("%s.%s.%s.%s.cache.%s", packagePrefix, actionMetricPrefix, opcode, metricKey, status)).mark();
+        metrics.meter(String.format("%s.%s.cache.%s", packagePrefix, actionMetricPrefix, status))
+                .mark();
+        metrics.meter(String.format("%s.%s.%s.cache.%s", packagePrefix, actionMetricPrefix, opcode, status))
+                .mark();
+        metrics.meter(
+                String.format("%s.%s.%s.%s.cache.%s", packagePrefix, actionMetricPrefix, opcode, metricKey, status))
+                .mark();
     }
 
     public void registerActionSuccess(String opcode, String metricKey, long duration) {

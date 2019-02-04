@@ -19,6 +19,8 @@ import com.codahale.metrics.annotation.Timed;
 import com.flipkart.foxtrot.common.Document;
 import com.flipkart.foxtrot.core.exception.FoxtrotException;
 import com.flipkart.foxtrot.core.querystore.QueryStore;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
@@ -37,6 +39,7 @@ import java.util.List;
 @Produces(MediaType.APPLICATION_JSON)
 public class DocumentResource {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(DocumentResource.class);
     private final QueryStore queryStore;
 
     public DocumentResource(QueryStore queryStore) {
@@ -49,17 +52,24 @@ public class DocumentResource {
     public Response saveDocument(@PathParam("table") final String table, @Valid final Document document)
             throws FoxtrotException {
         queryStore.save(table, document);
-        return Response.created(URI.create("/" + document.getId())).build();
+        return Response.created(URI.create("/" + document.getId()))
+                .build();
     }
 
     @POST
     @Path("/bulk")
     @Consumes(MediaType.APPLICATION_JSON)
     @Timed
-    public Response saveDocuments(@PathParam("table") final String table,
-                                  @Valid final List<Document> documents) throws FoxtrotException {
-        queryStore.save(table, documents);
-        return Response.created(URI.create("/" + table)).build();
+    public Response saveDocuments(@PathParam("table") final String table, @Valid final List<Document> documents)
+            throws FoxtrotException {
+        try {
+            queryStore.save(table, documents);
+        } catch (Exception e) {
+            LOGGER.error("Error occurred in savingDocuments : " + e);
+            throw  e;
+        }
+        return Response.created(URI.create("/" + table))
+                .build();
     }
 
     @GET
@@ -67,13 +77,15 @@ public class DocumentResource {
     @Timed
     public Response getDocument(@PathParam("table") final String table, @PathParam("id") @NotNull final String id)
             throws FoxtrotException {
-        return Response.ok(queryStore.get(table, id)).build();
+        return Response.ok(queryStore.get(table, id))
+                .build();
     }
 
     @GET
     @Timed
-    public Response getDocuments(@PathParam("table") final String table, @QueryParam("id") @NotNull final List<String> ids)
-            throws FoxtrotException {
-        return Response.ok(queryStore.getAll(table, ids)).build();
+    public Response getDocuments(@PathParam("table") final String table,
+                                 @QueryParam("id") @NotNull final List<String> ids) throws FoxtrotException {
+        return Response.ok(queryStore.getAll(table, ids))
+                .build();
     }
 }

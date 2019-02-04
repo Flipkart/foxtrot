@@ -1,4 +1,4 @@
-/*
+/**
  * Copyright 2014 Flipkart Internet Pvt. Ltd.
  * <p/>
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -20,6 +20,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.jsontype.NamedType;
+import com.flipkart.foxtrot.core.alerts.EmailConfig;
 import com.flipkart.foxtrot.core.cache.CacheManager;
 import com.flipkart.foxtrot.core.cache.impl.DistributedCacheFactory;
 import com.flipkart.foxtrot.core.cardinality.CardinalityCalculationManager;
@@ -141,7 +142,7 @@ public class FoxtrotServer extends Application<FoxtrotServerConfiguration> {
                 .threads(1)
                 .build();
 
-        HbaseTableConnection HBaseTableConnection = new HbaseTableConnection(configuration.getHbase());
+        HbaseTableConnection hbaseTableConnection = new HbaseTableConnection(configuration.getHbase());
         ElasticsearchConnection elasticsearchConnection = new ElasticsearchConnection(configuration.getElasticsearch());
         HazelcastConnection hazelcastConnection = new HazelcastConnection(configuration.getCluster());
         ElasticsearchUtils.setTableNamePrefix(configuration.getElasticsearch());
@@ -156,25 +157,35 @@ public class FoxtrotServer extends Application<FoxtrotServerConfiguration> {
             esIndexOptimizationConfig = new EsIndexOptimizationConfig();
         }
         CacheConfig cacheConfig = configuration.getCacheConfig();
+        EmailConfig emailConfig = configuration.getEmailConfig();
+        CacheConfig queryStoreCacheConfig = configuration.getQueryStoreCacheConfig();
+        if (queryStoreCacheConfig == null) {
+            queryStoreCacheConfig = new CacheConfig();
+        }
 
         final ObjectMapper objectMapper = environment.getObjectMapper();
         TableMetadataManager tableMetadataManager = new DistributedTableMetadataManager(hazelcastConnection,
                                                                                         elasticsearchConnection,
                                                                                         objectMapper, cardinalityConfig
         );
-        DataStore dataStore = new HBaseDataStore(HBaseTableConnection, objectMapper,
+
+        DataStore dataStore = new HBaseDataStore(hbaseTableConnection, objectMapper,
                                                  new DocumentTranslator(configuration.getHbase())
         );
+
         QueryStore queryStore = new ElasticsearchQueryStore(tableMetadataManager, elasticsearchConnection, dataStore,
-                                                            objectMapper, cardinalityConfig
+                                                            objectMapper, cardinalityConfig, emailConfig,
+                                                            queryStoreCacheConfig, hazelcastConnection
         );
         FoxtrotTableManager tableManager = new FoxtrotTableManager(tableMetadataManager, queryStore, dataStore);
         CacheManager cacheManager = new CacheManager(
                 new DistributedCacheFactory(hazelcastConnection, objectMapper, cacheConfig));
         AnalyticsLoader analyticsLoader = new AnalyticsLoader(tableMetadataManager, dataStore, queryStore,
-                                                              elasticsearchConnection, cacheManager, objectMapper
+                                                              elasticsearchConnection, cacheManager, objectMapper,
+                                                              emailConfig
         );
         QueryExecutor executor = new QueryExecutor(analyticsLoader, executorService);
+
         DataDeletionManagerConfig dataDeletionManagerConfig = configuration.getTableDataManagerConfig();
         DataDeletionManager dataDeletionManager = new DataDeletionManager(dataDeletionManagerConfig, queryStore,
                                                                           scheduledExecutorService, hazelcastConnection
@@ -196,7 +207,7 @@ public class FoxtrotServer extends Application<FoxtrotServerConfiguration> {
         );
 
         environment.lifecycle()
-                .manage(HBaseTableConnection);
+                .manage(hbaseTableConnection);
         environment.lifecycle()
                 .manage(elasticsearchConnection);
         environment.lifecycle()

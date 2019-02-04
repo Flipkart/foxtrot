@@ -29,16 +29,16 @@ public class StatsResponse extends ActionResponse {
         return result;
     }
 
+    public void setResult(StatsValue result) {
+        this.result = result;
+    }
+
     public List<BucketResponse<StatsValue>> getBuckets() {
         return buckets;
     }
 
     public void setBuckets(List<BucketResponse<StatsValue>> buckets) {
         this.buckets = buckets;
-    }
-
-    public void setResult(StatsValue result) {
-        this.result = result;
     }
 
     @Override
@@ -48,8 +48,7 @@ public class StatsResponse extends ActionResponse {
 
     @Override
     public String toString() {
-        return new ToStringBuilder(this)
-                .append("result", result)
+        return new ToStringBuilder(this).append("result", result)
                 .append("buckets", buckets)
                 .toString();
     }

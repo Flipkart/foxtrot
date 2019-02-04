@@ -23,6 +23,7 @@ import com.flipkart.foxtrot.common.TableFieldMapping;
 import com.flipkart.foxtrot.common.group.GroupResponse;
 import com.flipkart.foxtrot.core.MockElasticsearchServer;
 import com.flipkart.foxtrot.core.TestUtils;
+import com.flipkart.foxtrot.core.alerts.EmailConfig;
 import com.flipkart.foxtrot.core.cardinality.CardinalityConfig;
 import com.flipkart.foxtrot.core.datastore.DataStore;
 import com.flipkart.foxtrot.core.table.impl.DistributedTableMetadataManager;
@@ -62,10 +63,13 @@ public class DistributedTableMetadataManagerTest {
         objectMapper.registerSubtypes(GroupResponse.class);
 
         this.dataStore = Mockito.mock(DataStore.class);
-        this.elasticsearchServer = new MockElasticsearchServer(UUID.randomUUID().toString());
+        this.elasticsearchServer = new MockElasticsearchServer(UUID.randomUUID()
+                                                                       .toString());
         ElasticsearchConnection elasticsearchConnection = TestUtils.initESConnection(elasticsearchServer);
         when(elasticsearchConnection.getClient()).thenReturn(elasticsearchServer.getClient());
         ElasticsearchUtils.initializeMappings(elasticsearchConnection.getClient());
+        EmailConfig emailConfig = new EmailConfig();
+        emailConfig.setHost("127.0.0.1");
 
         hazelcastInstance = new TestHazelcastInstanceFactory(1).newHazelcastInstance();
         HazelcastConnection hazelcastConnection = Mockito.mock(HazelcastConnection.class);
@@ -74,12 +78,22 @@ public class DistributedTableMetadataManagerTest {
         hazelcastConnection.start();
 
         this.distributedTableMetadataManager = new DistributedTableMetadataManager(hazelcastConnection,
-                elasticsearchConnection, objectMapper, new CardinalityConfig("true", String.valueOf(ElasticsearchUtils.DEFAULT_SUB_LIST_SIZE)));
+                                                                                   elasticsearchConnection,
+                                                                                   objectMapper,
+                                                                                   new CardinalityConfig("true",
+                                                                                                         String.valueOf(
+                                                                                                                 ElasticsearchUtils.DEFAULT_SUB_LIST_SIZE)
+                                                                                   )
+        );
         distributedTableMetadataManager.start();
 
         tableDataStore = hazelcastInstance.getMap("tablemetadatamap");
         this.queryStore = new ElasticsearchQueryStore(distributedTableMetadataManager, elasticsearchConnection,
-                dataStore, objectMapper, new CardinalityConfig("true", String.valueOf(ElasticsearchUtils.DEFAULT_SUB_LIST_SIZE)));
+                                                      dataStore, objectMapper, new CardinalityConfig("true",
+                                                                                                     String.valueOf(
+                                                                                                             ElasticsearchUtils.DEFAULT_SUB_LIST_SIZE)
+        ), emailConfig, new CacheConfig(), hazelcastConnection
+        );
     }
 
     @After
@@ -134,24 +148,39 @@ public class DistributedTableMetadataManagerTest {
         table.setTtl(15);
         distributedTableMetadataManager.save(table);
 
-        Document document = TestUtils.getDocument("A",
-                new DateTime().minusDays(1).getMillis(), new Object[]{"os", "android", "version", 1}, objectMapper);
+        Document document = TestUtils.getDocument("A", new DateTime().minusDays(1)
+                .getMillis(), new Object[]{"os", "android", "version", 1}, objectMapper);
         Document translatedDocument = TestUtils.translatedDocumentWithRowKeyVersion1(table, document);
-        doReturn(translatedDocument).when(dataStore).save(table, document);
+        doReturn(translatedDocument).when(dataStore)
+                .save(table, document);
         queryStore.save(TestUtils.TEST_TABLE_NAME, document);
 
-        document = TestUtils.getDocument("B",
-                new DateTime().getMillis(), new Object[]{"os", "android", "version", "abcd"}, objectMapper);
+        document = TestUtils.getDocument("B", new DateTime().getMillis(),
+                                         new Object[]{"os", "android", "version", "abcd"}, objectMapper
+                                        );
         translatedDocument = TestUtils.translatedDocumentWithRowKeyVersion1(table, document);
-        doReturn(translatedDocument).when(dataStore).save(table, document);
+        doReturn(translatedDocument).when(dataStore)
+                .save(table, document);
         queryStore.save(TestUtils.TEST_TABLE_NAME, document);
 
-        TableFieldMapping tableFieldMapping = distributedTableMetadataManager.getFieldMappings(TestUtils.TEST_TABLE_NAME, true, false);
-        assertEquals(3, tableFieldMapping.getMappings().size());
+        TableFieldMapping tableFieldMapping = distributedTableMetadataManager.getFieldMappings(
+                TestUtils.TEST_TABLE_NAME, true, true);
+        assertEquals(10, tableFieldMapping.getMappings()
+                .size());
 
-        assertEquals(FieldType.STRING, tableFieldMapping.getMappings().stream()
-                .filter(x -> x.getField().equals("version")).findAny().get().getType());
-        assertEquals(FieldType.STRING, tableFieldMapping.getMappings().stream()
-                .filter(x -> x.getField().equals("os")).findAny().get().getType());
+        assertEquals(FieldType.STRING, tableFieldMapping.getMappings()
+                .stream()
+                .filter(x -> x.getField()
+                        .equals("version"))
+                .findAny()
+                .get()
+                .getType());
+        assertEquals(FieldType.STRING, tableFieldMapping.getMappings()
+                .stream()
+                .filter(x -> x.getField()
+                        .equals("os"))
+                .findAny()
+                .get()
+                .getType());
     }
 }

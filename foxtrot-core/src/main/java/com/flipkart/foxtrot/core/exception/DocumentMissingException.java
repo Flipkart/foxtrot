@@ -2,7 +2,6 @@ package com.flipkart.foxtrot.core.exception;
 
 import com.google.common.collect.Maps;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 

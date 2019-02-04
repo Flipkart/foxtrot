@@ -2,7 +2,6 @@ package com.flipkart.foxtrot.core.exception;
 
 import com.google.common.collect.Maps;
 
-import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -29,7 +28,8 @@ public class StoreExecutionException extends FoxtrotException {
     public Map<String, Object> toMap() {
         Map<String, Object> map = Maps.newHashMap();
         map.put("table", this.table);
-        map.put("message", this.getCause().getMessage());
+        map.put("message", this.getCause()
+                .getMessage());
         return map;
     }
 }

@@ -1,5 +1,5 @@
 FROM ubuntu:14.04
-MAINTAINER Swapnil Marghade <s.g.marghade [at] gmail.com>
+MAINTAINER Nitish Goyal <nitishgoyal13 [at] gmail.com>
 
 
 RUN \
