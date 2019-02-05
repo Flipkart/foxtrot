@@ -111,6 +111,10 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
                 .put(CARDINALITY_FIELD_MAP, cardinalityFieldMetaMapConfig());
     }
 
+    public IMap<String, TableFieldMapping> getFieldDataCardinalityCache() {
+        return fieldDataCardinalityCache;
+    }
+
     private static <K, V> Collector<Map.Entry<K, V>, ?, List<Map<K, V>>> mapSize(int limit) {
         return Collector.of(ArrayList::new, (l, e) -> {
             if(l.isEmpty() || l.get(l.size() - 1)
