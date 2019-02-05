@@ -16,6 +16,7 @@ package com.flipkart.foxtrot.common.query;
  */
 
 import com.flipkart.foxtrot.common.ActionResponse;
+import com.flipkart.foxtrot.common.Opcodes;
 import com.flipkart.foxtrot.common.ResponseVisitor;
 import lombok.Data;
 
@@ -29,8 +30,9 @@ public class MultiQueryResponse extends ActionResponse {
 
     private Map<String, ActionResponse> responses;
 
-    public MultiQueryResponse(String opcode) {
-        super(opcode);
+    public MultiQueryResponse(Map<String, ActionResponse> responses) {
+        super(Opcodes.MULTI_QUERY);
+        this.responses = responses;
     }
 
     @Override
