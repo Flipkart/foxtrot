@@ -124,9 +124,7 @@ public class MultiTimeQueryAction extends Action<MultiTimeQueryRequest> {
     public ActionResponse getResponse(org.elasticsearch.action.ActionResponse multiSearchResponse,
                                       MultiTimeQueryRequest parameter) throws FoxtrotException {
         MultiQueryResponse multiQueryResponse = (MultiQueryResponse)action.getResponse(multiSearchResponse, multiQueryRequest);
-        MultiTimeQueryResponse multiTimeQueryResponse = new MultiTimeQueryResponse(Opcodes.MULTI_TIME_QUERY);
-        multiTimeQueryResponse.setResponses(multiQueryResponse.getResponses());
-        return multiTimeQueryResponse;
+        return new MultiTimeQueryResponse(multiQueryResponse.getResponses());
     }
 
     private MultiQueryRequest createMultiQueryRequests(int sampleSize, BetweenFilter betweenFilter) {
