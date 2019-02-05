@@ -30,7 +30,7 @@ import java.util.List;
  */
 public interface TableMetadataManager extends Managed {
 
-    IMap<String, TableFieldMapping> getFieldDataCardinalityCache();
+    boolean cardinalityCacheContains(String table);
 
     void save(Table table) throws FoxtrotException;
 

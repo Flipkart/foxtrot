@@ -110,8 +110,8 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
                 .put(CARDINALITY_FIELD_MAP, cardinalityFieldMetaMapConfig());
     }
 
-    public IMap<String, TableFieldMapping> getFieldDataCardinalityCache() {
-        return fieldDataCardinalityCache;
+    public boolean cardinalityCacheContains(String table) {
+        return fieldDataCardinalityCache.containsKey(table);
     }
 
     private static <K, V> Collector<Map.Entry<K, V>, ?, List<Map<K, V>>> mapSize(int limit) {
