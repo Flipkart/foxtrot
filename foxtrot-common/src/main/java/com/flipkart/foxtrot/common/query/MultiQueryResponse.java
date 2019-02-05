@@ -30,6 +30,10 @@ public class MultiQueryResponse extends ActionResponse {
 
     private Map<String, ActionResponse> responses;
 
+    public MultiQueryResponse() {
+        super(Opcodes.MULTI_QUERY);
+    }
+
     public MultiQueryResponse(Map<String, ActionResponse> responses) {
         super(Opcodes.MULTI_QUERY);
         this.responses = responses;

@@ -15,6 +15,10 @@ public class MultiTimeQueryResponse extends ActionResponse {
 
     private Map<String, ActionResponse> responses;
 
+    public MultiTimeQueryResponse() {
+        super(Opcodes.MULTI_TIME_QUERY);
+    }
+
     public MultiTimeQueryResponse(Map<String, ActionResponse> responses) {
         super(Opcodes.MULTI_TIME_QUERY);
         this.responses = responses;
