@@ -18,6 +18,7 @@ package com.flipkart.foxtrot.core.table;
 import com.flipkart.foxtrot.common.Table;
 import com.flipkart.foxtrot.common.TableFieldMapping;
 import com.flipkart.foxtrot.core.exception.FoxtrotException;
+import com.hazelcast.core.IMap;
 import io.dropwizard.lifecycle.Managed;
 
 import java.util.List;
@@ -28,6 +29,8 @@ import java.util.List;
  * Time: 10:08 PM
  */
 public interface TableMetadataManager extends Managed {
+
+    boolean cardinalityCacheContains(String table);
 
     void save(Table table) throws FoxtrotException;
 
