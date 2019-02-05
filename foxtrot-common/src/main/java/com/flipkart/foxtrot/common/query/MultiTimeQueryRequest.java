@@ -38,6 +38,7 @@ public class MultiTimeQueryRequest extends ActionRequest {
         return new ToStringBuilder(this).appendSuper(super.toString())
                 .append("sampleSize", sampleSize)
                 .append("interval", skipDuration.toMilliseconds())
+                .append("actionRequest", actionRequest.toString())
                 .toString();
     }
 }
