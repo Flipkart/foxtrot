@@ -82,7 +82,7 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
     private static final int PRECISION_THRESHOLD = 100;
     private static final int TIME_TO_LIVE_CACHE = (int)TimeUnit.MINUTES.toSeconds(15);
     private static final int TIME_TO_LIVE_TABLE_CACHE = (int)TimeUnit.DAYS.toSeconds(30);
-    private static final int TIME_TO_LIVE_CARDINALITY_CACHE = (int)TimeUnit.DAYS.toSeconds(1);
+    private static final int TIME_TO_LIVE_CARDINALITY_CACHE = (int)TimeUnit.DAYS.toSeconds(7);
     private static final int TIME_TO_NEAR_CACHE = (int)TimeUnit.MINUTES.toSeconds(15);
     private final HazelcastConnection hazelcastConnection;
     private final ElasticsearchConnection elasticsearchConnection;
