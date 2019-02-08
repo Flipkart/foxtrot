@@ -530,3 +530,50 @@ function getErrorMsg(errorType, err) {
     return "No results found";
   }
 }
+
+/**
+ * seperate number and string
+ */
+function seperateStringAndNumber(inputText) {
+  var output = [];
+  var json = inputText.split(' ');
+  json.forEach(function (item) {
+      output.push(item.replace(/\'/g, '').split(/(\d+)/).filter(Boolean));
+  });
+  return output[0];
+}
+
+function getPeriodText(text) {
+  if (!text) {
+    return null;
+  }
+  if (text == "d") {
+    return "days";
+  }
+  else if (text == "h") {
+    return "hours";
+  }
+  else {
+    return "minutes";
+  }
+}
+
+/**
+ * Read cookie to check user is logged in or not
+ * @param {*} cname 
+ */
+function getCookie(cname) {
+  var name = cname + "=";
+  var decodedCookie = decodeURIComponent(document.cookie);
+  var ca = decodedCookie.split(';');
+  for(var i = 0; i <ca.length; i++) {
+    var c = ca[i];
+    while (c.charAt(0) == ' ') {
+      c = c.substring(1);
+    }
+    if (c.indexOf(name) == 0) {
+      return c.substring(name.length, c.length);
+    }
+  }
+  return "";
+}

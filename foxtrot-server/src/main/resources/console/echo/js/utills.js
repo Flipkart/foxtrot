@@ -569,3 +569,28 @@ function getWidgetSize(type) { // widget types
 function thresholdErrorMsg() {
   return "Denominator value is below the threshold value. Hence, graph plotting not possible";
 }
+
+/**
+ * Set cookie name
+ */
+function getCookieConstant() {
+  return "FOXTROT_G_TOKEN";
+}
+
+/**
+ * Get login redirect url
+ */
+function getLoginRedirectUrl() {
+  return "http://localhost:8080/foxtrot";
+}
+
+/**
+ * Check user is logged in
+ */
+function isLoggedIn() {
+  // check user is logged in by reading gandalf cookie
+  var loggedInCookie = getCookie(getCookieConstant());
+  if(loggedInCookie.length == 0) {
+    window.location = getLoginRedirectUrl();
+  }
+}
