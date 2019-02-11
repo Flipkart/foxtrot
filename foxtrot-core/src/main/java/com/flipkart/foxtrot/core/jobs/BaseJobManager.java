@@ -34,7 +34,7 @@ import java.util.concurrent.TimeUnit;
  ***/
 public abstract class BaseJobManager implements Managed {
 
-    private static final int MAX_TIME_TO_RUN_TASK_IN_MINUTES = 120;
+    private static final int LOCK_AT_MOST = 120;
     private static final String TIME_ZONE = "Asia/Kolkata";
     private static final Logger LOGGER = LoggerFactory.getLogger(BaseJobManager.class.getSimpleName());
     private final BaseJobConfig baseJobConfig;
@@ -77,12 +77,12 @@ public abstract class BaseJobManager implements Managed {
             try {
                 LockingTaskExecutor executor = new DefaultLockingTaskExecutor(
                         new HazelcastLockProvider(hazelcastConnection.getHazelcast()));
-                int maxTimeToRunJob = MAX_TIME_TO_RUN_TASK_IN_MINUTES;
-                if(baseJobConfig.getMaxTimeToRunJobInMinutes() != 0) {
-                    maxTimeToRunJob = baseJobConfig.getMaxTimeToRunJobInMinutes();
+                int lockAtMost = LOCK_AT_MOST;
+                if(baseJobConfig.getLockAtMostInMinutes() != 0) {
+                    lockAtMost = baseJobConfig.getLockAtMostInMinutes();
                 }
                 Instant lockAtMostUntil = Instant.now()
-                        .plusSeconds(TimeUnit.MINUTES.toSeconds(maxTimeToRunJob));
+                        .plusSeconds(TimeUnit.MINUTES.toSeconds(lockAtMost));
                 runImpl(executor, lockAtMostUntil);
             } catch (Exception e) {
                 LOGGER.error("Error occurred while running the job : ", e);
