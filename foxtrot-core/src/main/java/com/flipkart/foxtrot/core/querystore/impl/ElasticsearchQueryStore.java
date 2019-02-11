@@ -241,6 +241,17 @@ public class ElasticsearchQueryStore implements QueryStore {
                                                    itemResponse.getFailureMessage(),
                                                    mapper.writeValueAsString(documents.get(i))
                                                   ));
+                        if (distributedMap == null) {
+                            this.distributedMap = this.hazelcastConnection.getHazelcast()
+                                    .getMap(WRITES_ERROR_TOKEN);
+                        }
+                        if (!distributedMap.containsKey(WRITES_ERROR_KEY)) {
+                            String subject = "Writes on ES Failing";
+                            String content = itemResponse.getFailureMessage();
+                            String recipients = "nitish.goyal@phonepe.com";
+                            emailClient.sendEmail(subject, content, recipients);
+                            distributedMap.put(WRITES_ERROR_KEY, WRITES_ERROR_VALUE);
+                        }
                     }
                 }
             }
