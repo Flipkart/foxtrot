@@ -581,7 +581,7 @@ function getCookieConstant() {
  * Get login redirect url
  */
 function getLoginRedirectUrl() {
-  return "http://localhost:8080/foxtrot";
+  return "http://foxtrot.traefik.stg.phonepe.com/echo/index.htm";
 }
 
 /**
