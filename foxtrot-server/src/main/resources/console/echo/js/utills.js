@@ -554,3 +554,37 @@ function getWidgetSize(type) { // widget types
 function thresholdErrorMsg() {
   return "Denominator value is below the threshold value. Hence, graph plotting not possible";
 }
+
+/**
+ * Set cookie name
+ */
+function getCookieConstant() {
+  return "ECHO_G_TOKEN";
+}
+
+/**
+ * Get login redirect url
+ */
+function getLoginRedirectUrl() {
+  if(window.location.href.indexOf('internal') > 0 || window.location.href.indexOf('prod') > 0) {
+    return "http://gandalf-internal.phonepe.com/echo";
+  } else if(window.location.href.indexOf('stg') > 0) {
+    return "http://gandalf.traefik.stg.phonepe.com/echo"; 
+  } else {
+    return 0;
+  }
+}
+
+/**
+ * Check user is logged in
+ */
+function isLoggedIn() {
+  // check user is logged in by reading gandalf cookie
+  var loggedInCookie = getCookie(getCookieConstant());
+  if(loggedInCookie.length == 0) {
+    var redirectUrl = getLoginRedirectUrl();
+    if(redirectUrl != 0) {
+      window.location = redirectUrl;
+    }
+  }
+}
