@@ -559,7 +559,7 @@ function thresholdErrorMsg() {
  * Set cookie name
  */
 function getCookieConstant() {
-  return "FOXTROT_G_TOKEN";
+  return "ECHO_G_TOKEN";
 }
 
 /**
