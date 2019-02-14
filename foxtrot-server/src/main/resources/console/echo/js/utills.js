@@ -581,7 +581,7 @@ function getCookieConstant() {
  * Get login redirect url
  */
 function getLoginRedirectUrl() {
-  return "http://gandalf.traefik.stg.phonepe.com/echo";
+  return "http://gandalf.traefik.stg.phonepe.com/echo/index.html";
 }
 
 /**
