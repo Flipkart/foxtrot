@@ -983,4 +983,8 @@ $(document).ready(function () {
     refereshTiles();
     $("#myModal").modal("hide");    
   })
+
+  setTimeout(function() { isLoggedIn(); // check user is logged in
+  }, 3000);
+
 });
