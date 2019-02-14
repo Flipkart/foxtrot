@@ -566,7 +566,13 @@ function getCookieConstant() {
  * Get login redirect url
  */
 function getLoginRedirectUrl() {
-  return "http://gandalf.traefik.stg.phonepe.com/echo";
+  if(window.location.href.indexOf('internal') > 0 || window.location.href.indexOf('prod') > 0) {
+    return "http://gandalf-internal.phonepe.com/echo";
+  } else if(window.location.href.indexOf('stg') > 0) {
+    return "http://gandalf.traefik.stg.phonepe.com/echo"; 
+  } else {
+    return 0;
+  }
 }
 
 /**
@@ -576,6 +582,10 @@ function isLoggedIn() {
   // check user is logged in by reading gandalf cookie
   var loggedInCookie = getCookie(getCookieConstant());
   if(loggedInCookie.length == 0) {
-    window.location = getLoginRedirectUrl();
+    var redirectUrl = getLoginRedirectUrl();
+    console.log(redirectUrl)
+    if(redirectUrl != 0) {
+      window.location = redirectUrl;
+    }
   }
 }
