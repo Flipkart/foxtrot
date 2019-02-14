@@ -583,7 +583,6 @@ function isLoggedIn() {
   var loggedInCookie = getCookie(getCookieConstant());
   if(loggedInCookie.length == 0) {
     var redirectUrl = getLoginRedirectUrl();
-    console.log(redirectUrl)
     if(redirectUrl != 0) {
       window.location = redirectUrl;
     }
