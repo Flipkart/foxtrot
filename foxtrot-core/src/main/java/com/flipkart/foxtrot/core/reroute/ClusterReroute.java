@@ -92,7 +92,7 @@ public class ClusterReroute {
                 }
             }
             if (retryCount == noOfRetries) {
-                emailClient.sendEmail(SUBJECT, "Exceeded max no. of retries: " + nodeInfoList, clusterRerouteConfig.getRecipients());
+                emailClient.sendEmail(SUBJECT, "Exceeded max no. of retries: " + noOfRetries, clusterRerouteConfig.getRecipients());
             }
         }, new LockConfiguration(ClusterRerouteConfig.getJobName(), lockAtMostUntil));
     }
