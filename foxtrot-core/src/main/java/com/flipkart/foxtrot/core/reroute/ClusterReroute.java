@@ -2,6 +2,8 @@ package com.flipkart.foxtrot.core.reroute;
 
 import com.flipkart.foxtrot.core.alerts.EmailClient;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConnection;
+import net.javacrumbs.shedlock.core.LockConfiguration;
+import net.javacrumbs.shedlock.core.LockingTaskExecutor;
 import org.elasticsearch.action.admin.cluster.node.info.NodesInfoRequest;
 import org.elasticsearch.action.admin.cluster.node.info.NodesInfoResponse;
 import org.elasticsearch.action.admin.cluster.reroute.ClusterRerouteRequest;
@@ -10,7 +12,10 @@ import org.elasticsearch.action.admin.indices.stats.IndicesStatsRequest;
 import org.elasticsearch.action.admin.indices.stats.IndicesStatsResponse;
 import org.elasticsearch.cluster.routing.allocation.command.MoveAllocationCommand;
 import org.elasticsearch.index.shard.ShardId;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.time.Instant;
 import java.util.*;
 
 import static com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils.getTodayIndicesPattern;
@@ -18,69 +23,81 @@ import static com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils.getTo
 /***
  Created by mudit.g on Feb, 2019
  ***/
-public class ClusterReroute implements Runnable {
-
+public class ClusterReroute {
+    private static final Logger logger = LoggerFactory.getLogger(ClusterReroute.class.getSimpleName());
     private ElasticsearchConnection connection;
     private Map<String, String> nodeNameVsNodeId;
-    Map<String, NodeInfo> nodeIdVsNodeInfoMap;
+    private Map<String, NodeInfo> nodeIdVsNodeInfoMap;
     private String fromNodeName;
     private EmailClient emailClient;
     private ClusterRerouteConfig clusterRerouteConfig;
+    private LockingTaskExecutor executor;
+    private Instant lockAtMostUntil;
 
-    private static String Subject = "Shard Reallocation failed";
+    private static final String SUBJECT = "Shard Reallocation failed";
 
     public ClusterReroute(ElasticsearchConnection connection, String fromNodeName,
-                          EmailClient emailClient, ClusterRerouteConfig clusterRerouteConfig) {
+                          EmailClient emailClient, ClusterRerouteConfig clusterRerouteConfig,
+                          LockingTaskExecutor executor, Instant lockAtMostUntil) {
         this.connection = connection;
         this.fromNodeName = fromNodeName;
         this.emailClient = emailClient;
         this.clusterRerouteConfig = clusterRerouteConfig;
+        this.executor = executor;
+        this.lockAtMostUntil = lockAtMostUntil;
         this.nodeNameVsNodeId = new HashMap<>();
         this.nodeIdVsNodeInfoMap = new HashMap<>();
-        createNodeInfoMap();
-        createNodeNameVsNodeIdMap();
     }
 
-    @Override
     public void run() {
-        if (!nodeNameVsNodeId.containsKey(fromNodeName)) {
-            emailClient.sendEmail(Subject, "Could not resolve fromNodeName: " + fromNodeName, clusterRerouteConfig.getRecipients());
-            return;
-        }
-        String fromNodeId = nodeNameVsNodeId.get(fromNodeName);
-        if (!nodeIdVsNodeInfoMap.containsKey(fromNodeId)) {
-            emailClient.sendEmail(Subject, "Could not resolve fromNodeId: " + fromNodeId, clusterRerouteConfig.getRecipients());
-            return;
-        }
-        LinkedList<Map.Entry<String, NodeInfo>> nodeInfoList = getSortedNodeInfoList();
-        List<ShardInfo> shardInfos = nodeIdVsNodeInfoMap.get(fromNodeId).getShardInfos();
-        shardInfos.sort(new Comparator<ShardInfo>() {
-            @Override
-            public int compare(ShardInfo o1, ShardInfo o2) {
-                return Long.compare(o1.getShardSize(), o2.getShardSize());
-            }
-        });
-        int noOfRetries = clusterRerouteConfig.getNoOfRetries();
-        int retryNo;
-        for (retryNo = 0; retryNo < noOfRetries; retryNo++) {
-            String toNodeId = nodeInfoList.get(nodeInfoList.size() -1 -retryNo).getKey();
-            boolean realocationSuccessfull = true;
-            for (int i = 0; i < clusterRerouteConfig.getNoOfShardsToBeRealocated(); i++) {
-                ShardId shardId = shardInfos.get(shardInfos.size() -1 -i).getShardId();
-                if (!shardRealocation(shardId, fromNodeId, toNodeId)) {
-                    realocationSuccessfull = false;
-                }
-            }
-            if (realocationSuccessfull) {
+        executor.executeWithLock(() -> {
+            createNodeInfoMap();
+            createNodeNameVsNodeIdMap();
+            if (!nodeNameVsNodeId.containsKey(fromNodeName)) {
+                emailClient.sendEmail(SUBJECT, "Could not resolve fromNodeName: " + fromNodeName, clusterRerouteConfig.getRecipients());
                 return;
             }
-        }
-        if (retryNo == noOfRetries) {
-            emailClient.sendEmail(Subject, "Exceeded max no. of retries: " + nodeInfoList, clusterRerouteConfig.getRecipients());
-        }
+            String fromNodeId = nodeNameVsNodeId.get(fromNodeName);
+            if (!nodeIdVsNodeInfoMap.containsKey(fromNodeId)) {
+                emailClient.sendEmail(SUBJECT, "Could not resolve fromNodeId: " + fromNodeId, clusterRerouteConfig.getRecipients());
+                return;
+            }
+            LinkedList<Map.Entry<String, NodeInfo>> nodeInfoList = getSortedNodeInfoList();
+            List<ShardInfo> shardInfoList = nodeIdVsNodeInfoMap.get(fromNodeId).getShardInfos();
+            shardInfoList.sort(new Comparator<ShardInfo>() {
+                @Override
+                public int compare(ShardInfo o1, ShardInfo o2) {
+                    return Long.compare(o1.getShardSize(), o2.getShardSize());
+                }
+            });
+            int noOfRetries = clusterRerouteConfig.getNoOfRetries();
+            int retryCount;
+            for (retryCount = 0; retryCount < noOfRetries; retryCount++) {
+                if ((nodeInfoList.size() -1 -retryCount) < 0) {
+                    break;
+                }
+                String toNodeId = nodeInfoList.get(nodeInfoList.size() -1 -retryCount).getKey();
+                boolean reallocationSuccessful = true;
+                for (int i = 0; i < clusterRerouteConfig.getNoOfShardsToBeReallocated(); i++) {
+                    if ((shardInfoList.size() -1 -i) < 0) {
+                        break;
+                    }
+                    ShardId shardId = shardInfoList.get(shardInfoList.size() -1 -i).getShardId();
+                    if (!shardReallocation(shardId, fromNodeId, toNodeId)) {
+                        reallocationSuccessful = false;
+                    }
+                }
+                if (reallocationSuccessful) {
+                    return;
+                }
+            }
+            if (retryCount == noOfRetries) {
+                emailClient.sendEmail(SUBJECT, "Exceeded max no. of retries: " + nodeInfoList, clusterRerouteConfig.getRecipients());
+            }
+        }, new LockConfiguration(ClusterRerouteConfig.getJobName(), lockAtMostUntil));
     }
 
-    private boolean shardRealocation(ShardId shardId, String fromNode, String toNode) {
+    private boolean shardReallocation(ShardId shardId, String fromNode, String toNode) {
         MoveAllocationCommand moveAllocationCommand = new MoveAllocationCommand(shardId, fromNode, toNode);
         ClusterRerouteRequest clusterRerouteRequest = new ClusterRerouteRequest();
         clusterRerouteRequest.add(moveAllocationCommand);
@@ -90,8 +107,10 @@ public class ClusterReroute implements Runnable {
                     .cluster()
                     .reroute(clusterRerouteRequest)
                     .actionGet();
+            logger.info(String.format("Reallocating Shard. From Node: %s To Node: %s", fromNode, toNode));
             return clusterRerouteResponse.isAcknowledged();
         } catch (Exception e) {
+            logger.error(String.format("Error in reallocating Shard. From Node: %s To Node: %s", fromNode, toNode), e);
             return false;
         }
     }
