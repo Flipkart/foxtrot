@@ -22,6 +22,7 @@ import com.flipkart.foxtrot.core.querystore.QueryExecutor;
 import com.flipkart.foxtrot.core.querystore.QueryStore;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsLoader;
 import com.flipkart.foxtrot.core.querystore.impl.*;
+import com.flipkart.foxtrot.core.reroute.ClusterRerouteConfig;
 import com.flipkart.foxtrot.core.table.TableMetadataManager;
 import com.flipkart.foxtrot.core.table.impl.DistributedTableMetadataManager;
 import com.flipkart.foxtrot.server.config.FoxtrotServerConfiguration;
@@ -131,7 +132,7 @@ public abstract class FoxtrotResourceTest {
                                           .build());
         EmailConfig emailConfig = new EmailConfig();
         queryStore = new ElasticsearchQueryStore(tableMetadataManager, elasticsearchConnection, dataStore, mapper,
-                                                 cardinalityConfig, emailConfig, new CacheConfig(), hazelcastConnection
+                                                 cardinalityConfig, emailConfig, hazelcastConnection, new ClusterRerouteConfig()
         );
         queryStore = spy(queryStore);
 

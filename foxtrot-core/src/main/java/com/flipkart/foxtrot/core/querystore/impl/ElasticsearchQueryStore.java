@@ -27,6 +27,8 @@ import com.flipkart.foxtrot.core.datastore.DataStore;
 import com.flipkart.foxtrot.core.exception.FoxtrotException;
 import com.flipkart.foxtrot.core.exception.FoxtrotExceptions;
 import com.flipkart.foxtrot.core.querystore.QueryStore;
+import com.flipkart.foxtrot.core.reroute.ClusterReroute;
+import com.flipkart.foxtrot.core.reroute.ClusterRerouteConfig;
 import com.flipkart.foxtrot.core.table.TableMetadataManager;
 import com.flipkart.foxtrot.core.util.MetricUtil;
 import com.google.common.base.Stopwatch;
@@ -62,9 +64,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
+import java.util.concurrent.*;
 import java.util.stream.Collectors;
 
 import static org.elasticsearch.index.query.QueryBuilders.*;
@@ -84,33 +84,36 @@ public class ElasticsearchQueryStore implements QueryStore {
     private static final String WRITES_ERROR_KEY = "writesErrorKey";
     private static final String WRITES_ERROR_VALUE = "writesErrorValue";
 
-    private static final int DEFAULT_TIME_TO_LIVE_SECONDS = 60*10;
-    private static final int DEFAULT_MAX_IDLE_SECONDS = 60*10;
-    private static final int DEFAULT_SIZE = 2;
+    private static final int DEFAULT_TIME_TO_LIVE_SECONDS = 60*20;
+    private static final int DEFAULT_MAX_IDLE_SECONDS = 60*20;
+    private static final int DEFAULT_SIZE = 20;
 
     private final ElasticsearchConnection connection;
     private final DataStore dataStore;
     private final TableMetadataManager tableMetadataManager;
     private final ObjectMapper mapper;
     private final CardinalityConfig cardinalityConfig;
-    private final CacheConfig cacheConfig;
     private final HazelcastConnection hazelcastConnection;
     private final EmailClient emailClient;
+    private final ClusterRerouteConfig clusterRerouteConfig;
     private IMap<String, String> distributedMap;
+    ExecutorService executorService;
 
     public ElasticsearchQueryStore(TableMetadataManager tableMetadataManager, ElasticsearchConnection connection,
                                    DataStore dataStore, ObjectMapper mapper, CardinalityConfig cardinalityConfig,
-                                   EmailConfig emailConfig, CacheConfig cacheConfig, HazelcastConnection hazelcastConnection) {
+                                   EmailConfig emailConfig, HazelcastConnection hazelcastConnection,
+                                   ClusterRerouteConfig clusterRerouteConfig) {
         this.connection = connection;
         this.dataStore = dataStore;
         this.tableMetadataManager = tableMetadataManager;
         this.mapper = mapper;
         this.cardinalityConfig = cardinalityConfig;
         this.emailClient = getEmailClient(emailConfig);
-        this.cacheConfig = cacheConfig;
         this.hazelcastConnection = hazelcastConnection;
         this.hazelcastConnection.getHazelcastConfig()
-                .addMapConfig(getDefaultMapConfig(cacheConfig));
+                .addMapConfig(getDefaultMapConfig(clusterRerouteConfig));
+        this.clusterRerouteConfig = clusterRerouteConfig;
+        this.executorService = Executors.newSingleThreadExecutor();
     }
 
     @Override
@@ -241,35 +244,26 @@ public class ElasticsearchQueryStore implements QueryStore {
                                                    itemResponse.getFailureMessage(),
                                                    mapper.writeValueAsString(documents.get(i))
                                                   ));
-                        if (distributedMap == null) {
-                            this.distributedMap = this.hazelcastConnection.getHazelcast()
-                                    .getMap(WRITES_ERROR_TOKEN);
-                        }
-                        if (!distributedMap.containsKey(WRITES_ERROR_KEY)) {
-                            String subject = "Writes on ES Failing";
-                            String content = itemResponse.getFailureMessage();
-                            String recipients = "nitish.goyal@phonepe.com";
-                            emailClient.sendEmail(subject, content, recipients);
-                            distributedMap.put(WRITES_ERROR_KEY, WRITES_ERROR_VALUE);
+                        if (itemResponse.getFailureMessage().contains("EsRejectedExecutionException")) {
+                            int nodeNameStartIndex = itemResponse.getFailureMessage().indexOf("[[") + 2;
+                            int nodeNameEndIndex = itemResponse.getFailureMessage().indexOf(']', nodeNameStartIndex);
+                            String nodeName = itemResponse.getFailureMessage().substring(nodeNameStartIndex, nodeNameEndIndex);
+                            if (distributedMap == null) {
+                                this.distributedMap = this.hazelcastConnection.getHazelcast()
+                                        .getMap(WRITES_ERROR_TOKEN);
+                            }
+                            if (!distributedMap.containsKey(nodeName)) {
+                                distributedMap.put(nodeName, WRITES_ERROR_VALUE);
+                                String subject = "Writes on ES Failing";
+                                String content = itemResponse.getFailureMessage();
+                                emailClient.sendEmail(subject, content, clusterRerouteConfig.getRecipients());
+                                executorService.execute(new ClusterReroute(connection, nodeName, emailClient, clusterRerouteConfig));
+                                executorService.shutdown();
+                            }
                         }
                     }
                 }
             }
-        } catch (RemoteTransportException e) {
-            if (distributedMap == null) {
-                this.distributedMap = this.hazelcastConnection.getHazelcast()
-                    .getMap(WRITES_ERROR_TOKEN);
-            }
-            if (!distributedMap.containsKey(WRITES_ERROR_KEY)) {
-                String subject = "Writes on ES Failing";
-                String content = e.getMessage();
-                String recipients = "payments-dev@phonepe.com";
-                emailClient.sendEmail(subject, content, recipients);
-                distributedMap.put(WRITES_ERROR_KEY, WRITES_ERROR_VALUE);
-            }
-            MetricUtil.getInstance()
-                    .registerActionFailure(action, table, stopwatch.elapsed(TimeUnit.MILLISECONDS));
-            throw FoxtrotExceptions.createExecutionException(table, e);
         } catch (JsonProcessingException e) {
             MetricUtil.getInstance()
                     .registerActionFailure(action, table, stopwatch.elapsed(TimeUnit.MILLISECONDS));
@@ -481,30 +475,24 @@ public class ElasticsearchQueryStore implements QueryStore {
         return new EmailClient(emailConfig);
     }
 
-    private MapConfig getDefaultMapConfig(CacheConfig cacheConfig) {
+    private MapConfig getDefaultMapConfig(ClusterRerouteConfig clusterRerouteConfig) {
         MapConfig mapConfig = new MapConfig(WRITES_ERROR_TOKEN);
         mapConfig.setInMemoryFormat(InMemoryFormat.BINARY);
         mapConfig.setBackupCount(0);
         mapConfig.setEvictionPolicy(EvictionPolicy.NONE);
-
-        if(cacheConfig.getMaxIdleSeconds() == 0) {
+        if (clusterRerouteConfig.getWaitBeforeNextReallocation() == 0) {
             mapConfig.setMaxIdleSeconds(DEFAULT_MAX_IDLE_SECONDS);
-        } else {
-            mapConfig.setMaxIdleSeconds(cacheConfig.getMaxIdleSeconds());
-        }
-
-        if(cacheConfig.getTimeToLiveSeconds() == 0) {
             mapConfig.setTimeToLiveSeconds(DEFAULT_TIME_TO_LIVE_SECONDS);
         } else {
-            mapConfig.setTimeToLiveSeconds(cacheConfig.getTimeToLiveSeconds());
+            mapConfig.setMaxIdleSeconds(clusterRerouteConfig.getWaitBeforeNextReallocation());
+            mapConfig.setTimeToLiveSeconds(clusterRerouteConfig.getWaitBeforeNextReallocation());
         }
-
         MaxSizeConfig maxSizeConfig = new MaxSizeConfig();
         maxSizeConfig.setMaxSizePolicy(MaxSizeConfig.MaxSizePolicy.USED_HEAP_PERCENTAGE);
-        if(cacheConfig.getSize() == 0) {
+        if(clusterRerouteConfig.getCacheSize() == 0) {
             maxSizeConfig.setSize(DEFAULT_SIZE);
         } else {
-            maxSizeConfig.setSize(cacheConfig.getSize());
+            maxSizeConfig.setSize(clusterRerouteConfig.getCacheSize());
         }
         mapConfig.setMaxSizeConfig(maxSizeConfig);
         return mapConfig;

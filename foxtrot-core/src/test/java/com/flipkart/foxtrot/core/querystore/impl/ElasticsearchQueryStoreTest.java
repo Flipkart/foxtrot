@@ -27,6 +27,7 @@ import com.flipkart.foxtrot.core.datastore.DataStore;
 import com.flipkart.foxtrot.core.exception.ErrorCode;
 import com.flipkart.foxtrot.core.exception.FoxtrotException;
 import com.flipkart.foxtrot.core.exception.FoxtrotExceptions;
+import com.flipkart.foxtrot.core.reroute.ClusterRerouteConfig;
 import com.flipkart.foxtrot.core.table.TableMetadataManager;
 import com.flipkart.foxtrot.core.table.impl.DistributedTableMetadataManager;
 import com.google.common.collect.ImmutableList;
@@ -96,7 +97,7 @@ public class ElasticsearchQueryStoreTest {
         EmailConfig emailConfig = new EmailConfig();
         emailConfig.setHost("127.0.0.1");
         this.queryStore = new ElasticsearchQueryStore(tableMetadataManager, elasticsearchConnection, dataStore, mapper,
-                                                      cardinalityConfig, emailConfig, new CacheConfig(), hazelcastConnection
+                                                      cardinalityConfig, emailConfig, hazelcastConnection, new ClusterRerouteConfig()
         );
     }
 
