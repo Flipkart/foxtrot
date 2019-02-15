@@ -131,8 +131,8 @@ public class ClusterReroute {
                             nodeIdVsNodeInfoMap.get(nodeId).setNodeSize(nodeSize);
                             nodeIdVsNodeInfoMap.get(nodeId).getShardInfos().add(shardInfo);
                         } else {
-                            List<ShardInfo> shardInfos = new ArrayList<>(Arrays.asList(shardInfo));
-                            NodeInfo nodeInfo = new NodeInfo(shardSize, shardInfos);
+                            List<ShardInfo> shardInfoList = new ArrayList<>(Arrays.asList(shardInfo));
+                            NodeInfo nodeInfo = new NodeInfo(shardSize, shardInfoList);
                             nodeIdVsNodeInfoMap.put(nodeId, nodeInfo);
                         }
                     }
