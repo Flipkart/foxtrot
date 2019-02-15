@@ -581,12 +581,19 @@ function getCookieConstant() {
  * Get login redirect url
  */
 function getLoginRedirectUrl() {
-  if(window.location.href.indexOf('internal') > 0 || window.location.href.indexOf('prod') > 0) {
-    return "http://gandalf-internal.phonepe.com/echo";
-  } else if(window.location.href.indexOf('stg') > 0) {
-    return "http://gandalf.traefik.stg.phonepe.com/echo"; 
-  } else {
-    return 0;
+
+  var hostname = window.location.hostname;
+  var redirectUrl = window.location.protocol+"//"+window.location.hostname+"/echo/index.htm";
+  switch (hostname) {
+      case "foxtrot.traefik.stg.phonepe.com":
+          return "http://gandalf.traefik.stg.phonepe.com/login/echo?redirectUrl=" + redirectUrl;
+      case "foxtrot-internal.phonepe.com":
+      case "foxtrot-gandalf.traefik.prod.phonepe.com":
+      case "foxtrot.traefik.prod.phonepe.com":
+      case "foxtrot-es6.traefik.prod.phonepe.com":
+          return "https://gandalf-internal.phonepe.com/login/echo?redirectUrl=" + redirectUrl;
+      default:
+          return 0;
   }
 }
 
