@@ -2,6 +2,7 @@ package com.flipkart.foxtrot.core.reroute;
 
 import com.flipkart.foxtrot.core.alerts.EmailClient;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConnection;
+import lombok.extern.slf4j.Slf4j;
 import net.javacrumbs.shedlock.core.LockConfiguration;
 import net.javacrumbs.shedlock.core.LockingTaskExecutor;
 import org.elasticsearch.action.admin.cluster.node.info.NodesInfoRequest;
@@ -12,8 +13,6 @@ import org.elasticsearch.action.admin.indices.stats.IndicesStatsRequest;
 import org.elasticsearch.action.admin.indices.stats.IndicesStatsResponse;
 import org.elasticsearch.cluster.routing.allocation.command.MoveAllocationCommand;
 import org.elasticsearch.index.shard.ShardId;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.time.Instant;
 import java.util.*;
@@ -23,8 +22,8 @@ import static com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils.getTo
 /***
  Created by mudit.g on Feb, 2019
  ***/
+@Slf4j
 public class ClusterReroute {
-    private static final Logger logger = LoggerFactory.getLogger(ClusterReroute.class.getSimpleName());
     private static final String SUBJECT = "Shard Reallocation failed";
 
     private ElasticsearchConnection connection;
@@ -110,10 +109,10 @@ public class ClusterReroute {
                     .cluster()
                     .reroute(clusterRerouteRequest)
                     .actionGet();
-            logger.info(String.format("Reallocating Shard. From Node: %s To Node: %s", fromNode, toNode));
+            log.info(String.format("Reallocating Shard. From Node: %s To Node: %s", fromNode, toNode));
             return clusterRerouteResponse.isAcknowledged();
         } catch (Exception e) {
-            logger.error(String.format("Error in reallocating Shard. From Node: %s To Node: %s", fromNode, toNode), e);
+            log.error(String.format("Error in reallocating Shard. From Node: %s To Node: %s", fromNode, toNode), e);
             return false;
         }
     }
