@@ -96,7 +96,7 @@ public class ClusterReroute {
             if(retryCount == noOfRetries) {
                 emailClient.sendEmail(SUBJECT, "Exceeded max no. of retries: " + noOfRetries, clusterRerouteConfig.getRecipients());
             }
-        }, new LockConfiguration(ClusterRerouteConfig.getJobName(), lockAtMostUntil));
+        }, new LockConfiguration(ClusterRerouteConfig.JOB_NAME, lockAtMostUntil));
     }
 
     private boolean shardReallocation(ShardId shardId, String fromNode, String toNode) {

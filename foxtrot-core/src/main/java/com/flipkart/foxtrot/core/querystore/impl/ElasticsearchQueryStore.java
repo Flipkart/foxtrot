@@ -13,6 +13,7 @@
 package com.flipkart.foxtrot.core.querystore.impl;
 
 import com.codahale.metrics.annotation.Timed;
+import com.collections.CollectionUtils;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -67,7 +68,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.*;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.stream.Collectors;
 
 import static org.elasticsearch.index.query.QueryBuilders.*;
@@ -87,8 +90,8 @@ public class ElasticsearchQueryStore implements QueryStore {
     private static final String WRITES_ERROR_KEY = "writesErrorKey";
     private static final String WRITES_ERROR_VALUE = "writesErrorValue";
 
-    private static final int DEFAULT_TIME_TO_LIVE_SECONDS = (int) TimeUnit.MINUTES.toSeconds(20);
-    private static final int DEFAULT_MAX_IDLE_SECONDS = (int) TimeUnit.MINUTES.toSeconds(20);
+    private static final int DEFAULT_TIME_TO_LIVE_SECONDS = (int)TimeUnit.MINUTES.toSeconds(20);
+    private static final int DEFAULT_MAX_IDLE_SECONDS = (int)TimeUnit.MINUTES.toSeconds(20);
     private static final int DEFAULT_SIZE = 20;
 
     private final ElasticsearchConnection connection;
@@ -101,10 +104,9 @@ public class ElasticsearchQueryStore implements QueryStore {
     private final ClusterRerouteConfig clusterRerouteConfig;
     private IMap<String, String> failingNodesMap;
 
-    public ElasticsearchQueryStore(TableMetadataManager tableMetadataManager, ElasticsearchConnection connection,
-                                   DataStore dataStore, ObjectMapper mapper, CardinalityConfig cardinalityConfig,
-                                   EmailConfig emailConfig, HazelcastConnection hazelcastConnection,
-                                   ClusterRerouteConfig clusterRerouteConfig) {
+    public ElasticsearchQueryStore(TableMetadataManager tableMetadataManager, ElasticsearchConnection connection, DataStore dataStore,
+                                   ObjectMapper mapper, CardinalityConfig cardinalityConfig, EmailConfig emailConfig,
+                                   HazelcastConnection hazelcastConnection, ClusterRerouteConfig clusterRerouteConfig) {
         this.connection = connection;
         this.dataStore = dataStore;
         this.tableMetadataManager = tableMetadataManager;
@@ -131,9 +133,7 @@ public class ElasticsearchQueryStore implements QueryStore {
         String action = StringUtils.EMPTY;
         try {
             if(!tableMetadataManager.exists(table)) {
-                throw FoxtrotExceptions.createBadRequestException(table,
-                                                                  String.format("unknown_table table:%s", table)
-                                                                 );
+                throw FoxtrotExceptions.createBadRequestException(table, String.format("unknown_table table:%s", table));
             }
             if(new DateTime().plusDays(1)
                        .minus(document.getTimestamp())
@@ -188,9 +188,7 @@ public class ElasticsearchQueryStore implements QueryStore {
         String action = StringUtils.EMPTY;
         try {
             if(!tableMetadataManager.exists(table)) {
-                throw FoxtrotExceptions.createBadRequestException(table,
-                                                                  String.format("unknown_table table:%s", table)
-                                                                 );
+                throw FoxtrotExceptions.createBadRequestException(table, String.format("unknown_table table:%s", table));
             }
             if(documents == null || documents.size() == 0) {
                 throw FoxtrotExceptions.createBadRequestException(table, "Empty Document List Not Allowed");
@@ -241,18 +239,19 @@ public class ElasticsearchQueryStore implements QueryStore {
                 for(int i = 0; i < responses.getItems().length; i++) {
                     BulkItemResponse itemResponse = responses.getItems()[i];
                     if(itemResponse.isFailed()) {
-                        logger.error(String.format("Table : %s Failure Message : %s Document : %s", table,
-                                                   itemResponse.getFailureMessage(),
+                        logger.error(String.format("Table : %s Failure Message : %s Document : %s", table, itemResponse.getFailureMessage(),
                                                    mapper.writeValueAsString(documents.get(i))
                                                   ));
-                        if (clusterRerouteConfig.getExceptionMessages().parallelStream()
-                                .anyMatch(itemResponse.getFailureMessage()::contains) && clusterRerouteConfig.isRerouteEnabled()) {
+                        if(CollectionUtils.isNotEmpty(clusterRerouteConfig.getExceptionMessages()) &&
+                           clusterRerouteConfig.getExceptionMessages()
+                                   .parallelStream()
+                                   .anyMatch(itemResponse.getFailureMessage()::contains) && clusterRerouteConfig.isRerouteEnabled()) {
                             String nodeName = getNodeName(itemResponse.getFailureMessage());
-                            if (failingNodesMap == null) {
+                            if(failingNodesMap == null) {
                                 this.failingNodesMap = this.hazelcastConnection.getHazelcast()
                                         .getMap(WRITES_ERROR_TOKEN);
                             }
-                            if (!failingNodesMap.containsKey(nodeName)) {
+                            if(!failingNodesMap.containsKey(nodeName)) {
                                 failingNodesMap.put(nodeName, WRITES_ERROR_VALUE);
                                 String subject = "Writes on ES Failing";
                                 String content = itemResponse.getFailureMessage();
@@ -261,8 +260,9 @@ public class ElasticsearchQueryStore implements QueryStore {
                                         new HazelcastLockProvider(hazelcastConnection.getHazelcast()));
                                 Instant lockAtMostUntil = Instant.now()
                                         .plusSeconds(TimeUnit.MINUTES.toSeconds(clusterRerouteConfig.getMaxTimeToRunRerouteJobInMinutes()));
-                                ClusterReroute clusterReroute = new ClusterReroute(connection, nodeName, emailClient,
-                                        clusterRerouteConfig, executor, lockAtMostUntil);
+                                ClusterReroute clusterReroute = new ClusterReroute(connection, nodeName, emailClient, clusterRerouteConfig,
+                                                                                   executor, lockAtMostUntil
+                                );
                                 clusterReroute.run();
                             }
                         }
@@ -330,9 +330,8 @@ public class ElasticsearchQueryStore implements QueryStore {
             SearchResponse response = connection.getClient()
                     .prepareSearch(ElasticsearchUtils.getIndices(table))
                     .setTypes(ElasticsearchUtils.DOCUMENT_TYPE_NAME)
-                    .setQuery(boolQuery().filter(termsQuery(ElasticsearchUtils.DOCUMENT_META_ID_FIELD_NAME,
-                                                            ids.toArray(new String[ids.size()])
-                                                           )))
+                    .setQuery(boolQuery().filter(
+                            termsQuery(ElasticsearchUtils.DOCUMENT_META_ID_FIELD_NAME, ids.toArray(new String[ids.size()]))))
                     .setFetchSource(false)
                     .addField(ElasticsearchUtils.DOCUMENT_META_ID_FIELD_NAME) // Used for compatibility
                     .setSize(ids.size())
@@ -385,9 +384,7 @@ public class ElasticsearchQueryStore implements QueryStore {
                     boolean indexEligibleForDeletion;
                     try {
                         indexEligibleForDeletion = ElasticsearchUtils.isIndexEligibleForDeletion(currentIndex,
-                                                                                                 tableMetadataManager
-                                                                                                         .get(
-                                                                                                         table)
+                                                                                                 tableMetadataManager.get(table)
                                                                                                 );
                         if(indexEligibleForDeletion) {
                             logger.warn(String.format("Index eligible for deletion : %s", currentIndex));
@@ -416,8 +413,7 @@ public class ElasticsearchQueryStore implements QueryStore {
                 }
             }
         } catch (Exception e) {
-            throw FoxtrotExceptions.createDataCleanupException(
-                    String.format("Index Deletion Failed indexes - %s", indicesToDelete), e);
+            throw FoxtrotExceptions.createDataCleanupException(String.format("Index Deletion Failed indexes - %s", indicesToDelete), e);
         }
     }
 
@@ -491,11 +487,11 @@ public class ElasticsearchQueryStore implements QueryStore {
         mapConfig.setInMemoryFormat(InMemoryFormat.BINARY);
         mapConfig.setBackupCount(0);
         mapConfig.setEvictionPolicy(EvictionPolicy.NONE);
-        if (clusterRerouteConfig.getWaitBeforeNextReallocationInMinutes() == 0) {
+        if(clusterRerouteConfig.getWaitBeforeNextReallocationInMinutes() == 0) {
             mapConfig.setMaxIdleSeconds(DEFAULT_MAX_IDLE_SECONDS);
             mapConfig.setTimeToLiveSeconds(DEFAULT_TIME_TO_LIVE_SECONDS);
         } else {
-            int waitBeforeNextReallocation = (int) TimeUnit.MINUTES.toSeconds(clusterRerouteConfig.getWaitBeforeNextReallocationInMinutes());
+            int waitBeforeNextReallocation = (int)TimeUnit.MINUTES.toSeconds(clusterRerouteConfig.getWaitBeforeNextReallocationInMinutes());
             mapConfig.setMaxIdleSeconds(waitBeforeNextReallocation);
             mapConfig.setTimeToLiveSeconds(waitBeforeNextReallocation);
         }

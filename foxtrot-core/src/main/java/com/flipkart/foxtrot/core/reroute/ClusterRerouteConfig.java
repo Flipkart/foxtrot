@@ -11,7 +11,7 @@ import java.util.List;
  ***/
 @Data
 public class ClusterRerouteConfig {
-    private static final String JOB_NAME = "ClusterReroute";
+    public static final String JOB_NAME = "ClusterReroute";
 
     private boolean rerouteEnabled = true;
 
@@ -28,8 +28,4 @@ public class ClusterRerouteConfig {
     private List<String> exceptionMessages = new ArrayList<>(Arrays.asList("EsRejectedExecutionException"));
 
     private int maxTimeToRunRerouteJobInMinutes = 5;
-
-    public static String getJobName() {
-        return JOB_NAME;
-    }
 }
