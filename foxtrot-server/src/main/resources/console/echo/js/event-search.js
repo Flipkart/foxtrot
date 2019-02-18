@@ -17,7 +17,7 @@ var didScroll = false;
 var totalHits = 0;
 
 function getBrowseTables() {
-  isLoggedIn()
+  isLoggedIn();
   var select = $(".browse-table");
   $.ajax({
     url: apiUrl + "/v1/tables/",
