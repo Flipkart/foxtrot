@@ -568,7 +568,7 @@ function getCookieConstant() {
 function getLoginRedirectUrl() {
 
   var hostname = window.location.hostname;
-  var redirectUrl = window.location.href;
+  var redirectUrl = encodeURIComponent(window.location.href);
   switch (hostname) {
       case "foxtrot.traefik.stg.phonepe.com":
           return "http://gandalf.traefik.stg.phonepe.com/login/echo?redirectUrl=" + redirectUrl;
