@@ -30,6 +30,8 @@ function Tables() {
 }
 
 Tables.prototype.init = function(callback) {
+  console.log('trigered')
+  isLoggedIn();
   $.ajax({
     url: apiUrl+"/v1/tables/",
     contentType: "application/json",

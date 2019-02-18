@@ -57,6 +57,7 @@ function renderTable(dataRaw) {
 
 // Get query
 function fqlQuery() {
+    isLoggedIn();
     showLoader();
     $.ajax({
         method: 'POST',
