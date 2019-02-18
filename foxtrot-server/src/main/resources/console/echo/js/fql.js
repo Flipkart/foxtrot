@@ -11,7 +11,9 @@ function loadConsole() { // load console list api
   });
 }
 
-loadConsole();
+if(isLoggedIn()) {
+  loadConsole();  
+}
 
 function renderTable(dataRaw) {
   var data = JSON.parse(dataRaw);

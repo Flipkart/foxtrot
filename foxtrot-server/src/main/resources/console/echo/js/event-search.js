@@ -17,7 +17,7 @@ var didScroll = false;
 var totalHits = 0;
 
 function getBrowseTables() {
-  isLoggedIn();
+  isLoggedIn()
   var select = $(".browse-table");
   $.ajax({
     url: apiUrl + "/v1/tables/",
@@ -38,8 +38,6 @@ function getBrowseTables() {
     }
   });
 }
-
-getBrowseTables();
 
 function clear() {
   $(".browse-rows").empty();
@@ -438,4 +436,7 @@ function loadConsole() { // load console list api
   });
 }
 
-loadConsole();
+if(isLoggedIn()) {
+  getBrowseTables();
+  loadConsole();
+}
