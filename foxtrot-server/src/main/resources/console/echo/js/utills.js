@@ -607,6 +607,10 @@ function isLoggedIn() {
     var redirectUrl = getLoginRedirectUrl();
     if(redirectUrl != 0) {
       window.location = redirectUrl;
+    } else {
+      return true; // for localhost
     }
+  } else {
+    return true; // logged in
   }
 }
