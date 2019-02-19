@@ -189,7 +189,7 @@ function generateSunBurstDropDown(fields) { // generating all dropdowns
 }
 
 function getWidgetType() { // widget types
-  if (currentChartType == "line" || currentChartType == "stacked" || currentChartType == "stackedBar" || currentChartType == "statsTrend" || currentChartType == "bar" || currentChartType == "lineRatio" || currentChartType == "sunburst") {
+  if (currentChartType == "line" || currentChartType == "stacked" || currentChartType == "stackedBar" || currentChartType == "statsTrend" || currentChartType == "bar" || currentChartType == "lineRatio" || currentChartType == "sunburst" || currentChartType == "nonStackedLine") {
     return "full";
   }
   else if (currentChartType == "radar" || currentChartType == "pie") {
@@ -251,6 +251,7 @@ function getChartFormValues() { // get current widget form values
       case "count": return getCountChartFormValues();
       case "lineRatio": return getLineRatioChartFormValues();
       case "sunburst":  return getSunburstChartFormValues();
+      case "nonStackedLine":  return getNonStackedLineFormValues();
       default: return {};
   }
 }
@@ -340,6 +341,9 @@ function reloadDropdowns() { // change dropdown values for all charts when table
     case "sunburst":
       generateSunBurstDropDown(currentFieldList);
       break;
+    case "nonStackedLine":
+      generateDropDown(currentFieldList, ["#non-stacked-line-field", "#non-stacked-line-uniquekey"]);
+      break;
   }
 }
 
@@ -359,6 +363,7 @@ function invokeClearChartForm() { // clear widget forms
       case "count": clearCountChartForm(); break;
       case "lineRatio": clearLineRatioChartForm(); break;
       case "sunburst":  clearSunburstChartForm(); break;
+      case "nonStackedLine":  clearNonStackedLineChartForm(); break;
       default: return "";
   }
 }
@@ -477,7 +482,20 @@ function drawPieLegend(columns, element) { // pie legend
   columns.sort(function (lhs, rhs){
     return rhs.data - lhs.data;
   });
-  element.html(handlebars("#group-legend-pie-template", {data: columns}));
+  
+  var sum = columns.reduce((s, f) => {
+    return s + f.data;               // return the sum of the accumulator and the current time, as the the new accumulator
+  }, 0); // calculate total value
+
+  var percentage = _.map(columns, function(value, key){
+    return ((value.data)/sum * 100).toFixed(1);
+  }); // calculate sum for each value
+
+  var final = _.each(columns, function(element, index) {
+    _.extend(element, { "percentage" : percentage[index]});
+  }); // extend percentage to original array
+
+  element.html(handlebars("#group-legend-pie-template", {data: final}));
 }
 
 function convertName(name) { // convert given name into machine readable
@@ -518,6 +536,7 @@ function getWidgetSize(type) { // widget types
     case "bar":
     case "sunburst":
     case "lineRatio":
+    case "nonStackedLine":
       return 12;
     case "radar":
     case "pie":
@@ -534,4 +553,45 @@ function getWidgetSize(type) { // widget types
 
 function thresholdErrorMsg() {
   return "Denominator value is below the threshold value. Hence, graph plotting not possible";
+}
+
+/**
+ * Set cookie name
+ */
+function getCookieConstant() {
+  return "ECHO_G_TOKEN";
+}
+
+/**
+ * Get login redirect url
+ */
+function getLoginRedirectUrl() {
+
+  var hostname = window.location.hostname;
+  var redirectUrl = encodeURIComponent(window.location.href);
+  switch (hostname) {
+      case "foxtrot.traefik.stg.phonepe.com":
+          return "http://gandalf.traefik.stg.phonepe.com/login/echo?redirectUrl=" + redirectUrl;
+      case "foxtrot-internal.phonepe.com":
+      case "foxtrot-gandalf.traefik.prod.phonepe.com":
+      case "foxtrot.traefik.prod.phonepe.com":
+      case "foxtrot-es6.traefik.prod.phonepe.com":
+          return "https://gandalf-internal.phonepe.com/login/echo?redirectUrl=" + redirectUrl;
+      default:
+          return 0;
+  }
+}
+
+/**
+ * Check user is logged in
+ */
+function isLoggedIn() {
+  // check user is logged in by reading gandalf cookie
+  var loggedInCookie = getCookie(getCookieConstant());
+  if(loggedInCookie.length == 0) {
+    var redirectUrl = getLoginRedirectUrl();
+    if(redirectUrl != 0) {
+      window.location = redirectUrl;
+    }
+  }
 }

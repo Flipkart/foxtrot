@@ -46,7 +46,10 @@ public class CardinalityCalculationRunnable implements Runnable {
                     .map(Table::getName)
                     .collect(Collectors.toSet());
             for(String table : tables) {
-                tableMetadataManager.getFieldMappings(table, true, true);
+                if (!tableMetadataManager.cardinalityCacheContains(table)) {
+                    tableMetadataManager.getFieldMappings(table, true, true);
+                    LOGGER.info("Cardinality calculated for table: " + table);
+                }
             }
         } catch (Exception e) {
             LOGGER.error("Error occurred while calculating cardinality " + e);

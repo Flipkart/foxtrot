@@ -385,6 +385,10 @@ h1 {
   display: none;
 }
 
+#nonStackedLine-chart-data {
+  display: none;
+}
+
 .add-child-btn {
   text-align: center;
   display: none;
@@ -2037,7 +2041,7 @@ div.tab button:first-child {
 }
 
 .pie-center-value {
-  font-size: 32px;
+  font-size: 22px;
   position: relative;
   top: 9px;
 }

@@ -78,6 +78,7 @@ function changeTimeFrameInformation(object) {
  * Refresh single tile at at time
  */
 function refreshSingleTile(object) {
+  isLoggedIn(); // check user is logged in
   var a = new TileFactory();
   a.createGraph(object, $("#"+ object.id));
   changeTimeFrameInformation(object);
@@ -87,6 +88,7 @@ function refreshSingleTile(object) {
 }
 
 function refereshTiles() { // auto query for each tile
+  isLoggedIn(); // check user is logged in
   for (var key in tileData) {
     if (tileData.hasOwnProperty(key)) {
       var a = new TileFactory();
@@ -274,6 +276,9 @@ function setConfigValue(object) { // set widget form values
   }
   else if (currentChartType == "sunburst") {
     setSunBurstChartFormValues(object);
+  }
+  else if (currentChartType == "nonStackedLine") {
+    setNonStackedLineFormValues(object);
   }
 }
 
@@ -615,6 +620,10 @@ TileFactory.prototype.createGraph = function (object, tileElement) { // get quer
     var sunburstGraph = new SunburstTile();
     sunburstGraph.getQuery(object);
   }
+  else if (object.tileContext.chartType == "nonStackedLine") {
+    var nonStackedLineGraph = new NonStackedLineTile();
+    nonStackedLineGraph.getQuery(object);
+  }
 }
 TileFactory.prototype.create = function () {
   var tileElement = $(handlebars("#tile-template", {
@@ -685,7 +694,7 @@ TileFactory.prototype.create = function () {
     tileElement.find(".trend-chart").remove();
     tileElement.find(".chart-item").addClass("radar-chart");
   }
-  else if (this.tileObject.tileContext.chartType == "line" || this.tileObject.tileContext.chartType == "stacked" || this.tileObject.tileContext.chartType == "stackedBar" || this.tileObject.tileContext.chartType == "pie" || this.tileObject.tileContext.chartType == "statsTrend" || this.tileObject.tileContext.chartType == "bar" || this.tileObject.tileContext.chartType == "lineRatio") {
+  else if (this.tileObject.tileContext.chartType == "line" || this.tileObject.tileContext.chartType == "stacked" || this.tileObject.tileContext.chartType == "stackedBar" || this.tileObject.tileContext.chartType == "pie" || this.tileObject.tileContext.chartType == "statsTrend" || this.tileObject.tileContext.chartType == "bar" || this.tileObject.tileContext.chartType == "lineRatio" || this.tileObject.tileContext.chartType == "nonStackedLine") {
     /*tileElement.find(".widget-header").append('<div id="' + this.tileObject.id + '-health-text" class="lineGraph-health-text">No Data available</div>');*/
     tileElement.find(".widget-header").append('<div id="' + this.tileObject.id + '-health" style=""></div>');
     tileElement.find(".chart-item").append('<div class="row"><div id="' + this.tileObject.id + '"></div><div class="legend"></div></div>');
