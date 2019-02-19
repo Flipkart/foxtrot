@@ -28,7 +28,6 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.Set;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 /***
@@ -43,8 +42,7 @@ public class CardinalityCalculationManager extends BaseJobManager {
     private final CardinalityConfig cardinalityConfig;
 
     public CardinalityCalculationManager(TableMetadataManager tableMetadataManager, CardinalityConfig cardinalityConfig,
-                                         HazelcastConnection hazelcastConnection,
-                                         ScheduledExecutorService scheduledExecutorService) {
+                                         HazelcastConnection hazelcastConnection, ScheduledExecutorService scheduledExecutorService) {
         super(cardinalityConfig, scheduledExecutorService, hazelcastConnection);
         this.tableMetadataManager = tableMetadataManager;
         this.cardinalityConfig = cardinalityConfig;
@@ -55,7 +53,7 @@ public class CardinalityCalculationManager extends BaseJobManager {
         executor.executeWithLock(() -> {
             try {
                 int maxTimeToRunJob = MAX_TIME_TO_RUN_JOB;
-                if (cardinalityConfig.getMaxTimeToRunJobInMinutes() != 0) {
+                if(cardinalityConfig.getMaxTimeToRunJobInMinutes() != 0) {
                     maxTimeToRunJob = cardinalityConfig.getMaxTimeToRunJobInMinutes();
                 }
                 Instant start = Instant.now();
@@ -64,13 +62,13 @@ public class CardinalityCalculationManager extends BaseJobManager {
                         .map(Table::getName)
                         .collect(Collectors.toSet());
                 for(String table : tables) {
-                    if (!tableMetadataManager.cardinalityCacheContains(table)) {
+                    if(!tableMetadataManager.cardinalityCacheContains(table)) {
                         tableMetadataManager.getFieldMappings(table, true, true);
                         LOGGER.info("Cardinality calculated for table: " + table);
                     }
                     Instant now = Instant.now();
                     Duration timeElapsed = Duration.between(start, now);
-                    if (timeElapsed.compareTo(Duration.ofMinutes(maxTimeToRunJob)) > 0) {
+                    if(timeElapsed.compareTo(Duration.ofMinutes(maxTimeToRunJob)) > 0) {
                         break;
                     }
                 }

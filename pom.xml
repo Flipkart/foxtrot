@@ -241,7 +241,7 @@
             <version>2.6.1</version>
         </dependency>
         <dependency>
-            <groupId>com.nitish.common.utils</groupId>
+            <groupId>com.platform</groupId>
             <artifactId>utils</artifactId>
             <version>1.2</version>
         </dependency>

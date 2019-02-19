@@ -155,7 +155,7 @@ public class FoxtrotServer extends Application<FoxtrotServerConfiguration> {
                 .threads(1)
                 .build();
 
-        HbaseTableConnection HBaseTableConnection = new HbaseTableConnection(configuration.getHbase());
+        HbaseTableConnection hbaseTableConnection = new HbaseTableConnection(configuration.getHbase());
         ElasticsearchConnection elasticsearchConnection = new ElasticsearchConnection(configuration.getElasticsearch());
         HazelcastConnection hazelcastConnection = new HazelcastConnection(configuration.getCluster());
         ElasticsearchUtils.setTableNamePrefix(configuration.getElasticsearch());
@@ -181,7 +181,7 @@ public class FoxtrotServer extends Application<FoxtrotServerConfiguration> {
                                                                                         elasticsearchConnection,
                                                                                         objectMapper, cardinalityConfig
         );
-        DataStore dataStore = new HBaseDataStore(HBaseTableConnection, objectMapper,
+        DataStore dataStore = new HBaseDataStore(hbaseTableConnection, objectMapper,
                                                  new DocumentTranslator(configuration.getHbase())
         );
         QueryStore queryStore = new ElasticsearchQueryStore(tableMetadataManager, elasticsearchConnection, dataStore,
@@ -222,7 +222,7 @@ public class FoxtrotServer extends Application<FoxtrotServerConfiguration> {
         );
 
         environment.lifecycle()
-                .manage(HBaseTableConnection);
+                .manage(hbaseTableConnection);
         environment.lifecycle()
                 .manage(elasticsearchConnection);
         environment.lifecycle()

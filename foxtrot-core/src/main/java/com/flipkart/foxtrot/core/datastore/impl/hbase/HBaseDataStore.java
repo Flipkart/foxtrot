@@ -98,7 +98,7 @@ public class HBaseDataStore implements DataStore {
         Document translatedDocument = null;
         try (org.apache.hadoop.hbase.client.Table hTable = tableWrapper.getTable(table)) {
             translatedDocument = translator.translate(table, document);
-            //hTable.put(getPutForDocument(translatedDocument));
+            hTable.put(getPutForDocument(translatedDocument));
         } catch (JsonProcessingException e) {
             throw FoxtrotExceptions.createBadRequestException(table, e);
         } catch (IOException e) {
@@ -145,11 +145,12 @@ public class HBaseDataStore implements DataStore {
             throw FoxtrotExceptions.createBadRequestException(table.getName(), errorMessages);
         }
 
-       /*try(org.apache.hadoop.hbase.client.Table hTable = tableWrapper.getTable(table)) {
+        try (org.apache.hadoop.hbase.client.Table hTable = tableWrapper.getTable(table)) {
             hTable.put(puts);
         } catch (IOException e) {
+            logger.error("Error occurred while ingesting event in HBase : " + e);
             throw FoxtrotExceptions.createConnectionException(table, e);
-        }*/
+        }
         return translatedDocuments.build();
     }
 
