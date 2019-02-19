@@ -7,8 +7,8 @@ server:
       port: 17001
 
 elasticsearch:
-  hosts: localhost
-  cluster: elasticsearch
+  hosts: prd-esfoxtrot601.phonepe.nm1
+  cluster: prd-foxtrotes6
   tableNamePrefix: foxtrot
   getQueryTimeout: 10000
 
@@ -30,7 +30,7 @@ riemann:
 hbase:
   secure : false
   tableName: foxtrot
-  hbaseZookeeperQuorum: localhost
+  hbaseZookeeperQuorum: prd-foxtrot001.phonepe.nm1:2181,prd-foxtrot002.phonepe.nm1:2181,prd-foxtrot003.phonepe.nm1:2181
   hbaseZookeeperClientPort: 2181
 
 cluster:

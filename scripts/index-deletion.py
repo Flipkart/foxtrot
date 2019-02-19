@@ -4,11 +4,11 @@ import pprint
 import time
 import argparse
 
-host = "http://stg-els601.phonepe.nm2:9200/"
+host = "http://prd-esfoxtrot601.phonepe.nm1:9200/"
 
 r = requests.get(host + "foxtrot-*-table*/_settings/index.creation_date")
 data = r.json()
-# pprint.pprint(data)
+pprint.pprint(data)
 
 oneDaySeconds = 86400
 oneMonthSeconds = 2592000
@@ -23,5 +23,6 @@ args = parser.parse_args()
 for indexName in data:
     creation_date = data[indexName]["settings"]["index"]["creation_date"]
     if (currentTime*1000 - int(creation_date)) > args.day*oneDaySeconds*1000:
+        pprint.pprint(host + indexName)
         r = requests.delete(host + indexName)
-        time.sleep(0.300)
+        time.sleep(1)

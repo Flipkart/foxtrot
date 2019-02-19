@@ -29,7 +29,7 @@ def convertToGb(dataSize):
     if sizeUnit in switcher:
         return switcher[sizeUnit]
     else:
-        print "Found unknown size unit: " + sizeUnit
+        print ("Found unknown size unit: ")
         return 0
 
 def getData():
@@ -115,17 +115,17 @@ def relocateShard(index, shard, fromHost, toHost, nodeMap):
     }
     alreadyMovedShard[index] = shard
     json_string = json.dumps(body) 
-    print body
+    print (body)
     url = "http://" + host + ":9200/_cluster/reroute"
-    print "Starting reroute of index: " + index + " shard: " + shard + " from: " + fromHost + " to: " + toHost
+    #print ("Starting reroute of index: " + index + " shard: " + shard + " from: " + fromHost + " to: " + toHost)
     try:
         r = requests.post(url = url, data = json_string)
         time.sleep(3)
         if 200 <= r.status_code <= 299:
-            print "Reroute of index acknowledged: " + index + " shard: " + shard + " from: " + fromHost + " to: " + toHost
+            print ("Reroute of index acknowledged: " + index + " shard: " + shard + " from: " + fromHost + " to: " + toHost)
     except requests.exceptions.RequestException as e:
-        print "Reroute of index failed: " + index + " shard: " + shard + " from: " + fromHost + " to: " + toHost
-        print e
+        #print ("Reroute of index failed: " + index + " shard: " + shard + " from: " + fromHost + " to: " + toHost)
+        print (e)
      
 parser = argparse.ArgumentParser(description='Cluster Rerouting')
 parser.add_argument('--shards', type=int, metavar='N', action='store',
