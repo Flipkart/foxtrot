@@ -583,6 +583,26 @@ function getLoginRedirectUrl() {
 }
 
 /**
+ * Read cookie to check user is logged in or not
+ * @param {*} cname 
+ */
+function getCookie(cname) {
+  var name = cname + "=";
+  var decodedCookie = decodeURIComponent(document.cookie);
+  var ca = decodedCookie.split(';');
+  for(var i = 0; i <ca.length; i++) {
+    var c = ca[i];
+    while (c.charAt(0) == ' ') {
+      c = c.substring(1);
+    }
+    if (c.indexOf(name) == 0) {
+      return c.substring(name.length, c.length);
+    }
+  }
+  return "";
+}
+
+/**
  * Check user is logged in
  */
 function isLoggedIn() {
@@ -592,6 +612,10 @@ function isLoggedIn() {
     var redirectUrl = getLoginRedirectUrl();
     if(redirectUrl != 0) {
       window.location = redirectUrl;
+    } else {
+      return false; // for localhost
     }
+  } else {
+    return true; // logged in
   }
 }
