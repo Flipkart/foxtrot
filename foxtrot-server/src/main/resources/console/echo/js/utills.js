@@ -613,7 +613,7 @@ function isLoggedIn() {
     if(redirectUrl != 0) {
       window.location = redirectUrl;
     } else {
-      return false; // for localhost
+      return true; // for localhost
     }
   } else {
     return true; // logged in
