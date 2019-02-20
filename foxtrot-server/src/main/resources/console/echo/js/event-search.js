@@ -39,8 +39,6 @@ function getBrowseTables() {
   });
 }
 
-getBrowseTables();
-
 function clear() {
   $(".browse-rows").empty();
   $("#column-chooser").find("#column-list").empty();
@@ -438,4 +436,8 @@ function loadConsole() { // load console list api
   });
 }
 
-loadConsole();
+if(isLoggedIn()) {
+  getBrowseTables();
+  loadConsole();
+}
+
