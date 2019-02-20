@@ -124,26 +124,41 @@ BarTile.prototype.getData = function (data) {
   this.uniqueValues = [];
   var flatData = [];
   this.object.tileContext.uiFiltersList = [];
-  for (property in data.result) {
-    var value = data.result[property] / Math.pow(10, this.object.tileContext.ignoreDigits);
+
+  // convert object to array
+  var sourceObject = data.result;
+  var sortable = [];
+  for (var vehicle in sourceObject) {
+      sortable.push([vehicle, sourceObject[vehicle]]);
+  }
+  
+  // sorting
+  sortable.sort(function(a, b) {
+      return b[1] - a [1];
+  });
+  
+  for (var i in sortable) {
+    var property = sortable[i][0];
+    var value = sortable[i][1] / Math.pow(10, this.object.tileContext.ignoreDigits);
     var visible = $.inArray( property, this.object.tileContext.uiFiltersSelectedList);
     if((visible == -1 ? true : false)) {
       var dataElement = {
-        label: property
-        , data: [[i, value]]
-        , color: convertHex(colors.nextColor(), 100)
-      };
-      columns.push(dataElement);
-      ticks.push([i, property]);
-      flatData.push({
-        label: property
-        , data: value
-        , color: dataElement.color
-      });
-    }
-    this.object.tileContext.uiFiltersList.push(property);
-    i++;
+      label: property
+      , data: [[i, value]]
+      , color: convertHex(colors.nextColor(), 100)
+    };
+    columns.push(dataElement);
+    ticks.push([i, property]);
+    flatData.push({
+      label: property
+      , data: value
+      , color: dataElement.color
+    });
   }
+  this.object.tileContext.uiFiltersList.push(property);
+  i++;
+}
+
   var xAxisOptions = {
     tickLength: 0
     , labelWidth: 0
