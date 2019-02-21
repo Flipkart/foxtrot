@@ -47,13 +47,10 @@ import static com.flipkart.foxtrot.core.util.ElasticsearchQueryUtils.QUERY_SIZE;
 @AnalyticsProvider(opcode = "stats", request = StatsRequest.class, response = StatsResponse.class, cacheable = false)
 public class StatsAction extends Action<StatsRequest> {
 
-    public StatsAction(StatsRequest parameter, TableMetadataManager tableMetadataManager, DataStore dataStore,
-                       QueryStore queryStore, ElasticsearchConnection connection, String cacheToken,
-                       CacheManager cacheManager, ObjectMapper objectMapper, EmailConfig emailConfig,
-                       AnalyticsLoader analyticsLoader) {
-        super(parameter, tableMetadataManager, dataStore, queryStore, connection, cacheToken, cacheManager,
-              objectMapper, emailConfig
-             );
+    public StatsAction(StatsRequest parameter, TableMetadataManager tableMetadataManager, DataStore dataStore, QueryStore queryStore,
+                       ElasticsearchConnection connection, String cacheToken, CacheManager cacheManager, ObjectMapper objectMapper,
+                       EmailConfig emailConfig, AnalyticsLoader analyticsLoader) {
+        super(parameter, tableMetadataManager, dataStore, queryStore, connection, cacheToken, cacheManager, objectMapper, emailConfig);
     }
 
     private static StatsValue buildStatsValue(String field, Aggregations aggregations) {
@@ -145,13 +142,9 @@ public class StatsAction extends Action<StatsRequest> {
             if(!CollectionUtils.isNullOrEmpty(getParameter().getNesting())) {
                 searchRequestBuilder.addAggregation(Utils.buildTermsAggregation(getParameter().getNesting()
                                                                                         .stream()
-                                                                                        .map(x -> new ResultSort(x,
-                                                                                                                 ResultSort.Order.asc
-                                                                                        ))
+                                                                                        .map(x -> new ResultSort(x, ResultSort.Order.asc))
                                                                                         .collect(Collectors.toList()),
-                                                                                Sets.newHashSet(percentiles,
-                                                                                                extendedStats
-                                                                                               )
+                                                                                Sets.newHashSet(percentiles, extendedStats)
                                                                                ));
             }
         } catch (Exception e) {
@@ -161,8 +154,7 @@ public class StatsAction extends Action<StatsRequest> {
     }
 
     @Override
-    public ActionResponse getResponse(org.elasticsearch.action.ActionResponse response, StatsRequest parameter)
-            throws FoxtrotException {
+    public ActionResponse getResponse(org.elasticsearch.action.ActionResponse response, StatsRequest parameter) throws FoxtrotException {
         Aggregations aggregations = ((SearchResponse)response).getAggregations();
         if(aggregations != null) {
             return buildResponse(parameter, aggregations);
@@ -189,9 +181,7 @@ public class StatsAction extends Action<StatsRequest> {
 
     private List<BucketResponse<StatsValue>> buildNestedStats(List<String> nesting, Aggregations aggregations) {
         final String field = nesting.get(0);
-        final List<String> remainingFields = (nesting.size() > 1) ? nesting.subList(1,
-                                                                                    nesting.size()
-                                                                                   ) : new ArrayList<>();
+        final List<String> remainingFields = (nesting.size() > 1) ? nesting.subList(1, nesting.size()) : new ArrayList<>();
         Terms terms = aggregations.get(Utils.sanitizeFieldForAggregation(field));
         List<BucketResponse<StatsValue>> bucketResponses = Lists.newArrayList();
         for(Terms.Bucket bucket : terms.getBuckets()) {

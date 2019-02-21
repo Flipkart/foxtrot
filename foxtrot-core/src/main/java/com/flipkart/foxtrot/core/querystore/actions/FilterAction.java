@@ -60,13 +60,10 @@ import java.util.List;
 public class FilterAction extends Action<Query> {
     private static final Logger logger = LoggerFactory.getLogger(FilterAction.class);
 
-    public FilterAction(Query parameter, TableMetadataManager tableMetadataManager, DataStore dataStore,
-                        QueryStore queryStore, ElasticsearchConnection connection, String cacheToken,
-                        CacheManager cacheManager, ObjectMapper objectMapper, EmailConfig emailConfig,
-                        AnalyticsLoader analyticsLoader) {
-        super(parameter, tableMetadataManager, dataStore, queryStore, connection, cacheToken, cacheManager,
-              objectMapper, emailConfig
-             );
+    public FilterAction(Query parameter, TableMetadataManager tableMetadataManager, DataStore dataStore, QueryStore queryStore,
+                        ElasticsearchConnection connection, String cacheToken, CacheManager cacheManager, ObjectMapper objectMapper,
+                        EmailConfig emailConfig, AnalyticsLoader analyticsLoader) {
+        super(parameter, tableMetadataManager, dataStore, queryStore, connection, cacheToken, cacheManager, objectMapper, emailConfig);
     }
 
     @Override
@@ -158,8 +155,7 @@ public class FilterAction extends Action<Query> {
     }
 
     @Override
-    public ActionResponse getResponse(org.elasticsearch.action.ActionResponse response, Query parameter)
-            throws FoxtrotException {
+    public ActionResponse getResponse(org.elasticsearch.action.ActionResponse response, Query parameter) throws FoxtrotException {
         List<String> ids = new ArrayList<>();
         SearchHits searchHits = ((SearchResponse)response).getHits();
         for(SearchHit searchHit : searchHits) {

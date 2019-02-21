@@ -106,8 +106,7 @@ public class ElasticSearchQueryGenerator extends FilterVisitor<Void> {
 
     @Override
     public Void visit(NotInFilter notInFilter) throws Exception {
-        addFilter(boolQuery().mustNot(
-                termsQuery(Utils.storedFieldName(notInFilter.getField()), notInFilter.getValues())));
+        addFilter(boolQuery().mustNot(termsQuery(Utils.storedFieldName(notInFilter.getField()), notInFilter.getValues())));
         return null;
     }
 
@@ -120,7 +119,8 @@ public class ElasticSearchQueryGenerator extends FilterVisitor<Void> {
     public Void visit(LastFilter filter) throws Exception {
         addFilter(rangeQuery(Utils.storedFieldName(filter.getField())).from(filter.getWindow()
                                                                                     .getStartTime())
-                .to(filter.getWindow().getEndTime()));
+                          .to(filter.getWindow()
+                                      .getEndTime()));
         return null;
     }
 
@@ -132,7 +132,8 @@ public class ElasticSearchQueryGenerator extends FilterVisitor<Void> {
 
     @Override
     public Void visit(WildCardFilter filter) throws Exception {
-        addFilter(wildcardQuery(Utils.storedFieldName(filter.getField()), filter.getValue().concat("*")));
+        addFilter(wildcardQuery(Utils.storedFieldName(filter.getField()), filter.getValue()
+                .concat("*")));
         return null;
     }
 

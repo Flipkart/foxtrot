@@ -29,7 +29,8 @@ public class ActionExecutionException extends FoxtrotException {
     public Map<String, Object> toMap() {
         Map<String, Object> map = Maps.newHashMap();
         map.put("request", this.actionRequest);
-        map.put("message", this.getCause().getMessage());
+        map.put("message", this.getCause()
+                .getMessage());
         return map;
     }
 }

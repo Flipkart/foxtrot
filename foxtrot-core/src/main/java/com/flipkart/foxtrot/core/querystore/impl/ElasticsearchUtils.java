@@ -59,9 +59,7 @@ public class ElasticsearchUtils {
     }
 
     public static String getIndexPrefix(final String table) {
-        return String.format("%s-%s-%s-", ElasticsearchUtils.TABLENAME_PREFIX, table,
-                             ElasticsearchUtils.TABLENAME_POSTFIX
-                            );
+        return String.format("%s-%s-%s-", ElasticsearchUtils.TABLENAME_PREFIX, table, ElasticsearchUtils.TABLENAME_POSTFIX);
     }
 
     public static String getIndices(final String table) {
@@ -71,9 +69,7 @@ public class ElasticsearchUtils {
             String postfix = new SimpleDateFormat("dd-M-yyyy").format(new Date(currentTime));
             names[i] = String.format("%s-%s-%s", TABLENAME_PREFIX, table, postfix);
         }*/
-        return String.format("%s-%s-%s-*", ElasticsearchUtils.TABLENAME_PREFIX, table,
-                             ElasticsearchUtils.TABLENAME_POSTFIX
-                            );
+        return String.format("%s-%s-%s-*", ElasticsearchUtils.TABLENAME_PREFIX, table, ElasticsearchUtils.TABLENAME_POSTFIX);
     }
 
     public static String[] getIndices(final String table, final ActionRequest request) throws Exception {
@@ -108,16 +104,13 @@ public class ElasticsearchUtils {
     public static String getCurrentIndex(final String table, long timestamp) {
         //TODO::THROW IF TIMESTAMP IS BEYOND TABLE META.TTL
         String datePostfix = FORMATTER.print(timestamp);
-        return String.format("%s-%s-%s-%s", ElasticsearchUtils.TABLENAME_PREFIX, table,
-                             ElasticsearchUtils.TABLENAME_POSTFIX, datePostfix
-                            );
+        return String.format("%s-%s-%s-%s", ElasticsearchUtils.TABLENAME_PREFIX, table, ElasticsearchUtils.TABLENAME_POSTFIX, datePostfix);
     }
 
     public static PutIndexTemplateRequest getClusterTemplateMapping() {
         try {
-            return new PutIndexTemplateRequest()
-                    .name("template_foxtrot_mappings")
-                           .patterns(Lists.newArrayList(String.format("%s-*", ElasticsearchUtils.TABLENAME_PREFIX)))
+            return new PutIndexTemplateRequest().name("template_foxtrot_mappings")
+                    .patterns(Lists.newArrayList(String.format("%s-*", ElasticsearchUtils.TABLENAME_PREFIX)))
                     .mapping(DOCUMENT_TYPE_NAME, getDocumentMapping());
         } catch (IOException ex) {
             logger.error("TEMPLATE_CREATION_FAILED", ex);
@@ -280,8 +273,7 @@ public class ElasticsearchUtils {
 
     public static String getTableNameFromIndex(String currentIndex) {
         if(currentIndex.contains(TABLENAME_PREFIX) && currentIndex.contains(TABLENAME_POSTFIX)) {
-            String tempIndex = currentIndex.substring(
-                    currentIndex.indexOf(TABLENAME_PREFIX) + TABLENAME_PREFIX.length() + 1);
+            String tempIndex = currentIndex.substring(currentIndex.indexOf(TABLENAME_PREFIX) + TABLENAME_PREFIX.length() + 1);
             int position = tempIndex.lastIndexOf(String.format("-%s", TABLENAME_POSTFIX));
             return tempIndex.substring(0, position);
         } else {

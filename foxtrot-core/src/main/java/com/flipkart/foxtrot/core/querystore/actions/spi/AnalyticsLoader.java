@@ -58,8 +58,8 @@ public class AnalyticsLoader implements Managed {
     private final EmailConfig emailConfig;
 
     public AnalyticsLoader(TableMetadataManager tableMetadataManager, DataStore dataStore, QueryStore queryStore,
-                           ElasticsearchConnection elasticsearchConnection, CacheManager cacheManager,
-                           ObjectMapper objectMapper, EmailConfig emailConfig) {
+                           ElasticsearchConnection elasticsearchConnection, CacheManager cacheManager, ObjectMapper objectMapper,
+                           EmailConfig emailConfig) {
         this.tableMetadataManager = tableMetadataManager;
         this.dataStore = dataStore;
         this.queryStore = queryStore;
@@ -71,19 +71,18 @@ public class AnalyticsLoader implements Managed {
 
     @SuppressWarnings("unchecked")
     public <R extends ActionRequest> Action<R> getAction(R request) throws Exception {
-        final String className = request.getClass().getCanonicalName();
-        if (actions.containsKey(className)) {
+        final String className = request.getClass()
+                .getCanonicalName();
+        if(actions.containsKey(className)) {
             ActionMetadata metadata = actions.get(className);
-            if (metadata.getRequest().isInstance(request)) {
-                R r = (R) metadata.getRequest().cast(request);
-                Constructor<? extends Action> constructor
-                        = metadata.getAction().getConstructor(metadata.getRequest(),
-                        TableMetadataManager.class,
-                        DataStore.class,
-                        QueryStore.class,
-                        ElasticsearchConnection.class,
-                        String.class,
-                                        CacheManager.class, ObjectMapper.class, EmailConfig.class, AnalyticsLoader.class
+            if(metadata.getRequest()
+                    .isInstance(request)) {
+                R r = (R)metadata.getRequest()
+                        .cast(request);
+                Constructor<? extends Action> constructor = metadata.getAction()
+                        .getConstructor(metadata.getRequest(), TableMetadataManager.class, DataStore.class, QueryStore.class,
+                                        ElasticsearchConnection.class, String.class, CacheManager.class, ObjectMapper.class,
+                                        EmailConfig.class, AnalyticsLoader.class
                                        );
                 return constructor.newInstance(r, tableMetadataManager, dataStore, queryStore, elasticsearchConnection,
                                                metadata.getCacheToken(), cacheManager, objectMapper, emailConfig, this
@@ -117,12 +116,9 @@ public class AnalyticsLoader implements Managed {
             }
             if(analyticsProvider.opcode()
                     .equalsIgnoreCase("default")) {
-                logger.warn("Action " + action.getCanonicalName() + " does not specify cache token. " +
-                            "Using default cache.");
+                logger.warn("Action " + action.getCanonicalName() + " does not specify cache token. " + "Using default cache.");
             }
-            register(new ActionMetadata(analyticsProvider.request(), action, analyticsProvider.cacheable(),
-                                        analyticsProvider.opcode()
-            ));
+            register(new ActionMetadata(analyticsProvider.request(), action, analyticsProvider.cacheable(), analyticsProvider.opcode()));
             types.add(new NamedType(analyticsProvider.request(), analyticsProvider.opcode()));
             types.add(new NamedType(analyticsProvider.response(), analyticsProvider.opcode()));
             logger.info("Registered action: " + action.getCanonicalName());

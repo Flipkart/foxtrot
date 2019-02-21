@@ -1,7 +1,6 @@
-import urllib2
-import json
 import argparse
-
+import json
+import urllib2
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()

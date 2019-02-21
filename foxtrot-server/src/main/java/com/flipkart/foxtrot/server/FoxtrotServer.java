@@ -90,9 +90,7 @@ public class FoxtrotServer extends Application<FoxtrotServerConfiguration> {
     @Override
     public void initialize(Bootstrap<FoxtrotServerConfiguration> bootstrap) {
         bootstrap.setConfigurationSourceProvider(
-                new SubstitutingSourceProvider(bootstrap.getConfigurationSourceProvider(),
-                                               new EnvironmentVariableSubstitutor(false)
-                ));
+                new SubstitutingSourceProvider(bootstrap.getConfigurationSourceProvider(), new EnvironmentVariableSubstitutor(false)));
         bootstrap.addBundle(new AssetsBundle("/console/", "/", "index.html", "console"));
         bootstrap.addBundle(new OorBundle<FoxtrotServerConfiguration>() {
             public boolean withOor() {
@@ -161,9 +159,7 @@ public class FoxtrotServer extends Application<FoxtrotServerConfiguration> {
         ElasticsearchUtils.setTableNamePrefix(configuration.getElasticsearch());
         CardinalityConfig cardinalityConfig = configuration.getCardinality();
         if(cardinalityConfig == null) {
-            cardinalityConfig = new CardinalityConfig("false",
-                                                      String.valueOf(ElasticsearchUtils.DEFAULT_SUB_LIST_SIZE)
-            );
+            cardinalityConfig = new CardinalityConfig("false", String.valueOf(ElasticsearchUtils.DEFAULT_SUB_LIST_SIZE));
         }
         EsIndexOptimizationConfig esIndexOptimizationConfig = configuration.getEsIndexOptimizationConfig();
         if(esIndexOptimizationConfig == null) {
@@ -177,49 +173,42 @@ public class FoxtrotServer extends Application<FoxtrotServerConfiguration> {
         EmailConfig emailConfig = configuration.getEmailConfig();
 
         final ObjectMapper objectMapper = environment.getObjectMapper();
-        TableMetadataManager tableMetadataManager = new DistributedTableMetadataManager(hazelcastConnection,
-                                                                                        elasticsearchConnection,
+        TableMetadataManager tableMetadataManager = new DistributedTableMetadataManager(hazelcastConnection, elasticsearchConnection,
                                                                                         objectMapper, cardinalityConfig
         );
-        DataStore dataStore = new HBaseDataStore(hbaseTableConnection, objectMapper,
-                                                 new DocumentTranslator(configuration.getHbase())
-        );
-        QueryStore queryStore = new ElasticsearchQueryStore(tableMetadataManager, elasticsearchConnection, dataStore,
-                                                            objectMapper, cardinalityConfig
+        DataStore dataStore = new HBaseDataStore(hbaseTableConnection, objectMapper, new DocumentTranslator(configuration.getHbase()));
+        QueryStore queryStore = new ElasticsearchQueryStore(tableMetadataManager, elasticsearchConnection, dataStore, objectMapper,
+                                                            cardinalityConfig
         );
         FqlStoreService fqlStoreService = new FqlStoreServiceImpl(elasticsearchConnection, objectMapper);
         FoxtrotTableManager tableManager = new FoxtrotTableManager(tableMetadataManager, queryStore, dataStore);
-        CacheManager cacheManager = new CacheManager(
-                new DistributedCacheFactory(hazelcastConnection, objectMapper, cacheConfig));
-        AnalyticsLoader analyticsLoader = new AnalyticsLoader(tableMetadataManager, dataStore, queryStore,
-                                                              elasticsearchConnection, cacheManager, objectMapper,
-                                                              emailConfig
+        CacheManager cacheManager = new CacheManager(new DistributedCacheFactory(hazelcastConnection, objectMapper, cacheConfig));
+        AnalyticsLoader analyticsLoader = new AnalyticsLoader(tableMetadataManager, dataStore, queryStore, elasticsearchConnection,
+                                                              cacheManager, objectMapper, emailConfig
         );
         QueryExecutor executor = new QueryExecutor(analyticsLoader, executorService);
         DataDeletionManagerConfig dataDeletionManagerConfig = configuration.getDeletionManagerConfig();
-        DataDeletionManager dataDeletionManager = new DataDeletionManager(dataDeletionManagerConfig, queryStore,
-                                                                          scheduledExecutorService, hazelcastConnection
+        DataDeletionManager dataDeletionManager = new DataDeletionManager(dataDeletionManagerConfig, queryStore, scheduledExecutorService,
+                                                                          hazelcastConnection
         );
-        CardinalityCalculationManager cardinalityCalculationManager = new CardinalityCalculationManager(
-                tableMetadataManager, cardinalityConfig, hazelcastConnection, scheduledExecutorService);
+        CardinalityCalculationManager cardinalityCalculationManager = new CardinalityCalculationManager(tableMetadataManager,
+                                                                                                        cardinalityConfig,
+                                                                                                        hazelcastConnection,
+                                                                                                        scheduledExecutorService
+        );
         EsIndexOptimizationManager esIndexOptimizationManager = new EsIndexOptimizationManager(scheduledExecutorService,
                                                                                                esIndexOptimizationConfig,
-                                                                                               elasticsearchConnection,
-                                                                                               hazelcastConnection
+                                                                                               elasticsearchConnection, hazelcastConnection
         );
-        ConsoleHistoryManager consoleHistoryManager = new ConsoleHistoryManager(scheduledExecutorService,
-                                                                                consoleHistoryConfig,
-                                                                                elasticsearchConnection,
-                                                                                hazelcastConnection,
-                                                                                objectMapper);
+        ConsoleHistoryManager consoleHistoryManager = new ConsoleHistoryManager(scheduledExecutorService, consoleHistoryConfig,
+                                                                                elasticsearchConnection, hazelcastConnection, objectMapper
+        );
 
         List<HealthCheck> healthChecks = new ArrayList<>();
         //        ElasticSearchHealthCheck elasticSearchHealthCheck = new ElasticSearchHealthCheck
         // (elasticsearchConnection);
         //        healthChecks.add(elasticSearchHealthCheck);
-        ClusterManager clusterManager = new ClusterManager(hazelcastConnection, healthChecks,
-                                                           configuration.getServerFactory()
-        );
+        ClusterManager clusterManager = new ClusterManager(hazelcastConnection, healthChecks, configuration.getServerFactory());
 
         environment.lifecycle()
                 .manage(hbaseTableConnection);
@@ -253,11 +242,9 @@ public class FoxtrotServer extends Application<FoxtrotServerConfiguration> {
         environment.jersey()
                 .register(new TableFieldMappingResource(tableManager, tableMetadataManager));
         environment.jersey()
-                .register(new ConsoleResource(
-                        new ElasticsearchConsolePersistence(elasticsearchConnection, objectMapper)));
+                .register(new ConsoleResource(new ElasticsearchConsolePersistence(elasticsearchConnection, objectMapper)));
         environment.jersey()
-                .register(new ConsoleV2Resource(
-                        new ElasticsearchConsolePersistence(elasticsearchConnection, objectMapper)));
+                .register(new ConsoleV2Resource(new ElasticsearchConsolePersistence(elasticsearchConnection, objectMapper)));
         FqlEngine fqlEngine = new FqlEngine(tableMetadataManager, queryStore, executor, objectMapper);
         environment.jersey()
                 .register(new FqlResource(fqlEngine, fqlStoreService));

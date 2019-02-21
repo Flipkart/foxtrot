@@ -43,8 +43,7 @@ public class TableManagerResource {
     @POST
     @Timed
     @ApiOperation("Save Table")
-    public Response save(@Valid final Table table,
-                         @QueryParam("forceCreate") @DefaultValue("false") boolean forceCreate)
+    public Response save(@Valid final Table table, @QueryParam("forceCreate") @DefaultValue("false") boolean forceCreate)
             throws FoxtrotException {
         table.setName(ElasticsearchUtils.getValidTableName(table.getName()));
         tableManager.save(table, forceCreate);

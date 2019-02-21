@@ -39,9 +39,9 @@ public interface ConsolePersistence {
 
     List<ConsoleV2> getAllOldVersions(final String name, final String sortBy) throws FoxtrotException;
 
-    ConsoleV2 getOldVersion (final String id) throws FoxtrotException;
+    ConsoleV2 getOldVersion(final String id) throws FoxtrotException;
 
-    void deleteOldVersion (String id) throws FoxtrotException;
+    void deleteOldVersion(String id) throws FoxtrotException;
 
-    void setOldVersionAsCurrent (final String id) throws FoxtrotException;
+    void setOldVersionAsCurrent(final String id) throws FoxtrotException;
 }

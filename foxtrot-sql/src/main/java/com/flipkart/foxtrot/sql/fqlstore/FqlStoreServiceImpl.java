@@ -35,7 +35,8 @@ public class FqlStoreServiceImpl implements FqlStoreService {
 
     @Override
     public void save(FqlStore fqlStore) {
-        fqlStore.setId(UUID.randomUUID().toString());
+        fqlStore.setId(UUID.randomUUID()
+                               .toString());
         try {
             elasticsearchConnection.getClient()
                     .prepareIndex()
@@ -47,8 +48,7 @@ public class FqlStoreServiceImpl implements FqlStoreService {
                     .get();
             logger.info(String.format("Saved FQL Query : %s", fqlStore.getQuery()));
         } catch (Exception e) {
-            throw new RuntimeException(
-                    "Request couldn't be saved for FQL query: " + fqlStore.getQuery() + " Error Message: " + e);
+            throw new RuntimeException("Request couldn't be saved for FQL query: " + fqlStore.getQuery() + " Error Message: " + e);
         }
     }
 
@@ -59,7 +59,8 @@ public class FqlStoreServiceImpl implements FqlStoreService {
         searchHits = elasticsearchConnection.getClient()
                 .prepareSearch(FQL_STORE_INDEX)
                 .setTypes(DOCUMENT_TYPE_NAME)
-                .setQuery(QueryBuilders.prefixQuery(TITLE, fqlGetRequest.getTitle().toLowerCase()))
+                .setQuery(QueryBuilders.prefixQuery(TITLE, fqlGetRequest.getTitle()
+                        .toLowerCase()))
                 .setSearchType(SearchType.QUERY_THEN_FETCH)
                 .setFrom(fqlGetRequest.getFrom())
                 .setSize(fqlGetRequest.getSize())

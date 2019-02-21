@@ -31,8 +31,7 @@ import static com.flipkart.foxtrot.core.util.ElasticsearchQueryUtils.QUERY_SIZE;
 public class Utils {
 
 
-    public static TermsAggregationBuilder buildTermsAggregation(List<ResultSort> fields,
-                                                                Set<AggregationBuilder> subAggregations) {
+    public static TermsAggregationBuilder buildTermsAggregation(List<ResultSort> fields, Set<AggregationBuilder> subAggregations) {
         TermsAggregationBuilder rootBuilder = null;
         TermsAggregationBuilder termsBuilder = null;
         for(ResultSort nestingField : fields) {
@@ -43,8 +42,7 @@ public class Utils {
                         .field(storedFieldName(field))
                         .order(bucketOrder);
             } else {
-                TermsAggregationBuilder tempBuilder = AggregationBuilders.terms(
-                        Utils.sanitizeFieldForAggregation(field))
+                TermsAggregationBuilder tempBuilder = AggregationBuilders.terms(Utils.sanitizeFieldForAggregation(field))
                         .field(storedFieldName(field))
                         .order(bucketOrder);
                 termsBuilder.subAggregation(tempBuilder);
@@ -76,8 +74,7 @@ public class Utils {
                 .field(storedFieldName(field));
     }
 
-    public static DateHistogramAggregationBuilder buildDateHistogramAggregation(String field,
-                                                                                DateHistogramInterval interval) {
+    public static DateHistogramAggregationBuilder buildDateHistogramAggregation(String field, DateHistogramInterval interval) {
         String metricKey = getDateHistogramKey(field);
         return AggregationBuilders.dateHistogram(metricKey)
                 .minDocCount(0)

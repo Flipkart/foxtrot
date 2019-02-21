@@ -52,6 +52,7 @@ public class FoxtrotServerConfiguration extends Configuration {
     @Valid
     @JsonProperty("deletionconfig")
     private final DataDeletionManagerConfig deletionManagerConfig;
+    public SwaggerBundleConfiguration swagger;
     @NotNull
     @Valid
     private ServiceDiscoveryConfiguration serviceDiscovery;
@@ -66,8 +67,6 @@ public class FoxtrotServerConfiguration extends Configuration {
     private ConsoleHistoryConfig consoleHistoryConfig;
     private EmailConfig emailConfig;
     private CacheConfig cacheConfig;
-
-    public SwaggerBundleConfiguration swagger;
 
     public FoxtrotServerConfiguration() {
         this.hbase = new HbaseConfig();

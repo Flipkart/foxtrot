@@ -70,13 +70,10 @@ import static com.flipkart.foxtrot.core.util.ElasticsearchQueryUtils.QUERY_SIZE;
 @AnalyticsProvider(opcode = "trend", request = TrendRequest.class, response = TrendResponse.class, cacheable = true)
 public class TrendAction extends Action<TrendRequest> {
 
-    public TrendAction(TrendRequest parameter, TableMetadataManager tableMetadataManager, DataStore dataStore,
-                       QueryStore queryStore, ElasticsearchConnection connection, String cacheToken,
-                       CacheManager cacheManager, ObjectMapper objectMapper, EmailConfig emailConfig, AnalyticsLoader
-                       analyticsLoader) {
-        super(parameter, tableMetadataManager, dataStore, queryStore, connection, cacheToken, cacheManager,
-              objectMapper, emailConfig
-             );
+    public TrendAction(TrendRequest parameter, TableMetadataManager tableMetadataManager, DataStore dataStore, QueryStore queryStore,
+                       ElasticsearchConnection connection, String cacheToken, CacheManager cacheManager, ObjectMapper objectMapper,
+                       EmailConfig emailConfig, AnalyticsLoader analyticsLoader) {
+        super(parameter, tableMetadataManager, dataStore, queryStore, connection, cacheToken, cacheManager, objectMapper, emailConfig);
     }
 
     @Override
@@ -184,8 +181,7 @@ public class TrendAction extends Action<TrendRequest> {
     }
 
     @Override
-    public ActionResponse getResponse(org.elasticsearch.action.ActionResponse response, TrendRequest parameter)
-            throws FoxtrotException {
+    public ActionResponse getResponse(org.elasticsearch.action.ActionResponse response, TrendRequest parameter) throws FoxtrotException {
         Aggregations aggregations = ((SearchResponse)response).getAggregations();
         if(aggregations != null) {
             return buildResponse(parameter, aggregations);
@@ -207,9 +203,7 @@ public class TrendAction extends Action<TrendRequest> {
         DateHistogramInterval interval = Utils.getHistogramInterval(request.getPeriod());
         String field = request.getField();
 
-        DateHistogramAggregationBuilder histogramBuilder = Utils.buildDateHistogramAggregation(request.getTimestamp(),
-                                                                                               interval
-                                                                                              );
+        DateHistogramAggregationBuilder histogramBuilder = Utils.buildDateHistogramAggregation(request.getTimestamp(), interval);
         if(!CollectionUtils.isNullOrEmpty(getParameter().getUniqueCountOn())) {
             histogramBuilder.subAggregation(Utils.buildCardinalityAggregation(getParameter().getUniqueCountOn()));
         }
@@ -232,13 +226,9 @@ public class TrendAction extends Action<TrendRequest> {
                     String uniqueCountKey = Utils.sanitizeFieldForAggregation(getParameter().getUniqueCountOn());
                     Cardinality cardinality = histogramBucket.getAggregations()
                             .get(uniqueCountKey);
-                    counts.add(new TrendResponse.Count(((DateTime)histogramBucket.getKey()).getMillis(),
-                                                       cardinality.getValue()
-                    ));
+                    counts.add(new TrendResponse.Count(((DateTime)histogramBucket.getKey()).getMillis(), cardinality.getValue()));
                 } else {
-                    counts.add(new TrendResponse.Count(((DateTime)histogramBucket.getKey()).getMillis(),
-                                                       histogramBucket.getDocCount()
-                    ));
+                    counts.add(new TrendResponse.Count(((DateTime)histogramBucket.getKey()).getMillis(), histogramBucket.getDocCount()));
                 }
             }
             trendCounts.put(key, counts);

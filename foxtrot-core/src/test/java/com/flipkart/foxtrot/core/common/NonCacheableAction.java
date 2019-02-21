@@ -34,17 +34,14 @@ import org.elasticsearch.action.search.SearchRequestBuilder;
  * Created by rishabh.goyal on 02/05/14.
  */
 @VisibleForTesting
-@AnalyticsProvider(opcode = "testCacheableFalse", request = NonCacheableActionRequest.class, response =
-        NonCacheableActionResponse.class, cacheable = false)
+@AnalyticsProvider(opcode = "testCacheableFalse", request = NonCacheableActionRequest.class, response = NonCacheableActionResponse.class,
+                   cacheable = false)
 public class NonCacheableAction extends Action<NonCacheableActionRequest> {
 
-    public NonCacheableAction(NonCacheableActionRequest parameter, TableMetadataManager tableMetadataManager,
-                              DataStore dataStore, QueryStore queryStore, ElasticsearchConnection connection,
-                              String cacheToken, CacheManager cacheManager, ObjectMapper objectMapper,
-                              EmailConfig emailConfig, AnalyticsLoader analyticsLoader) {
-        super(parameter, tableMetadataManager, dataStore, queryStore, connection, cacheToken, cacheManager,
-              objectMapper, emailConfig
-             );
+    public NonCacheableAction(NonCacheableActionRequest parameter, TableMetadataManager tableMetadataManager, DataStore dataStore,
+                              QueryStore queryStore, ElasticsearchConnection connection, String cacheToken, CacheManager cacheManager,
+                              ObjectMapper objectMapper, EmailConfig emailConfig, AnalyticsLoader analyticsLoader) {
+        super(parameter, tableMetadataManager, dataStore, queryStore, connection, cacheToken, cacheManager, objectMapper, emailConfig);
     }
 
     @Override
@@ -73,8 +70,8 @@ public class NonCacheableAction extends Action<NonCacheableActionRequest> {
     }
 
     @Override
-    public ActionResponse getResponse(org.elasticsearch.action.ActionResponse response,
-                                      NonCacheableActionRequest parameter) throws FoxtrotException {
+    public ActionResponse getResponse(org.elasticsearch.action.ActionResponse response, NonCacheableActionRequest parameter)
+            throws FoxtrotException {
         return null;
     }
 

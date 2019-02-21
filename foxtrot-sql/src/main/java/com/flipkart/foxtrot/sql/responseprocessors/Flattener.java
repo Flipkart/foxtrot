@@ -46,10 +46,7 @@ public class Flattener implements ResponseVisitor {
     public void visit(GroupResponse groupResponse) {
         final String separator = "__SEPARATOR__";
         Map<String, Integer> fieldNames = Maps.newTreeMap();
-        Map<String, MetaData> dataFields = generateFieldMappings(null,
-                                                                 objectMapper.valueToTree(groupResponse.getResult()),
-                                                                 separator
-                                                                );
+        Map<String, MetaData> dataFields = generateFieldMappings(null, objectMapper.valueToTree(groupResponse.getResult()), separator);
         GroupRequest groupRequest = (GroupRequest)request;
         List<Map<String, Object>> rows = Lists.newArrayList();
         for(Map.Entry<String, MetaData> groupData : dataFields.entrySet()) {
@@ -100,8 +97,7 @@ public class Flattener implements ResponseVisitor {
     public void visit(QueryResponse queryResponse) {
         Map<String, Integer> fieldNames = Maps.newTreeMap();
         List<Map<String, Object>> rows = Lists.newArrayList();
-        Set<String> fieldToLookup = (null == fieldsToReturn) ? Collections.<String>emptySet() : new HashSet<String>(
-                fieldsToReturn);
+        Set<String> fieldToLookup = (null == fieldsToReturn) ? Collections.<String>emptySet() : new HashSet<String>(fieldsToReturn);
         boolean isAllFields = fieldToLookup.isEmpty();
         for(Document document : queryResponse.getDocuments()) {
             Map<String, MetaData> docFields = generateFieldMappings(null, objectMapper.valueToTree(document));

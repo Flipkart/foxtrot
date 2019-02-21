@@ -39,22 +39,16 @@ import java.util.Set;
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.EXISTING_PROPERTY, property = "operator")
 @JsonSubTypes({
                       //Numeric
-                      @JsonSubTypes.Type(value = GreaterEqualFilter.class, name = FilterOperator.greater_equal),
-                      @JsonSubTypes.Type(value = GreaterThanFilter.class, name = FilterOperator.greater_than),
-                      @JsonSubTypes.Type(value = LessEqualFilter.class, name = FilterOperator.less_equal),
-                      @JsonSubTypes.Type(value = LessThanFilter.class, name = FilterOperator.less_than),
-                      @JsonSubTypes.Type(value = BetweenFilter.class, name = FilterOperator.between),
+                      @JsonSubTypes.Type(value = GreaterEqualFilter.class, name = FilterOperator.greater_equal), @JsonSubTypes.Type(value = GreaterThanFilter.class, name = FilterOperator.greater_than), @JsonSubTypes.Type(value = LessEqualFilter.class, name = FilterOperator.less_equal), @JsonSubTypes.Type(value = LessThanFilter.class, name = FilterOperator.less_than), @JsonSubTypes.Type(value = BetweenFilter.class, name = FilterOperator.between),
 
                       //General
-                      @JsonSubTypes.Type(value = EqualsFilter.class, name = FilterOperator.equals), @JsonSubTypes
-        .Type(value = InFilter.class, name = FilterOperator.in), @JsonSubTypes.Type(value = NotInFilter.class, name =
-        FilterOperator.not_in), @JsonSubTypes.Type(value = NotEqualsFilter.class, name = FilterOperator.not_equals),
-                      @JsonSubTypes.Type(value = AnyFilter.class, name = FilterOperator.any), @JsonSubTypes.Type
-                              (value = ExistsFilter.class, name = FilterOperator.exists), @JsonSubTypes.Type(value = MissingFilter.class, name = FilterOperator.missing),
+                      @JsonSubTypes.Type(value = EqualsFilter.class, name = FilterOperator.equals), @JsonSubTypes.Type(value = InFilter
+        .class, name = FilterOperator.in), @JsonSubTypes.Type(value = NotInFilter.class, name = FilterOperator.not_in), @JsonSubTypes
+        .Type(value = NotEqualsFilter.class, name = FilterOperator.not_equals), @JsonSubTypes.Type(value = AnyFilter.class, name =
+        FilterOperator.any), @JsonSubTypes.Type(value = ExistsFilter.class, name = FilterOperator.exists), @JsonSubTypes.Type(value = MissingFilter.class, name = FilterOperator.missing),
 
-        //String
-        @JsonSubTypes.Type(value = ContainsFilter.class, name = FilterOperator.contains),
-        @JsonSubTypes.Type(value = WildCardFilter.class, name = FilterOperator.wildcard),
+                      //String
+                      @JsonSubTypes.Type(value = ContainsFilter.class, name = FilterOperator.contains), @JsonSubTypes.Type(value = WildCardFilter.class, name = FilterOperator.wildcard),
 
                       //String
                       @JsonSubTypes.Type(value = LastFilter.class, name = FilterOperator.last)})

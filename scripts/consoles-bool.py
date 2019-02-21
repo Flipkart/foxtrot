@@ -1,7 +1,6 @@
-#Script to correct boolean value of consoles in es6
-import requests
+# Script to correct boolean value of consoles in es6
 import json
-import pprint
+import requests
 import time
 
 host = "prd-esfoxtrot601.phonepe.nm1"
@@ -27,6 +26,8 @@ for hit in data:
 time.sleep(0.2)
 
 mappingsData = {}
+
+
 def getMappingType(data, fieldValue, tableName):
     for field in data:
         if fieldValue == "":
@@ -41,7 +42,8 @@ def getMappingType(data, fieldValue, tableName):
                     mappingsData[tableName].append(fieldValueNow)
                 continue
         else:
-            getMappingType(data[field]["properties"], fieldValueNow, tableName)  
+            getMappingType(data[field]["properties"], fieldValueNow, tableName)
+
 
 URL = "http://" + host + ":9200/*"
 
@@ -53,7 +55,8 @@ for tableName in consolesData:
         print "Error in getting table: " + tableName
         continue
     for value in data.itervalues():
-        if ("mappings" in value) and ("document" in value["mappings"]) and ("properties" in value["mappings"]["document"]):
+        if ("mappings" in value) and ("document" in value["mappings"]) and (
+                "properties" in value["mappings"]["document"]):
             data = value["mappings"]["document"]["properties"]
         else:
             print "Error in getting mapping properties: " + tableName
@@ -61,7 +64,7 @@ for tableName in consolesData:
         fieldValue = ""
         getMappingType(data, fieldValue, tableName)
     time.sleep(0.2)
-    
+
 # pprint.pprint(mappingsData)
 
 time.sleep(0.2)
@@ -76,27 +79,36 @@ t = ["true", "TRUE", "YES", 1, "1"]
 f = ["false", "FALSE", "NO", 0, "0"]
 for hit in data:
     for i in range(0, len(hit["_source"]["sections"])):
-    # for section in hit["_source"]["sections"]:
+        # for section in hit["_source"]["sections"]:
         for tile in hit["_source"]["sections"][i]["tileData"]:
             tableName = hit["_source"]["sections"][i]["tileData"][tile]["tileContext"]["table"]
             if tableName not in consolesData:
                 consolesData[tableName] = []
             for j in range(0, len(hit["_source"]["sections"][i]["tileData"][tile]["tileContext"]["filters"])):
-            # for filt in hit["_source"]["sections"][i]["tileData"][tile]["tileContext"]["filters"]:
+                # for filt in hit["_source"]["sections"][i]["tileData"][tile]["tileContext"]["filters"]:
                 if "field" in hit["_source"]["sections"][i]["tileData"][tile]["tileContext"]["filters"][j]:
                     if (tableName in mappingsData):
-                        if (hit["_source"]["sections"][i]["tileData"][tile]["tileContext"]["filters"][j]["field"] in mappingsData[tableName]):
-                            if hit["_source"]["sections"][i]["tileData"][tile]["tileContext"]["filters"][j]["value"] in t:
-                                hit["_source"]["sections"][i]["tileData"][tile]["tileContext"]["filters"][j]["value"] = "true"
-                            elif hit["_source"]["sections"][i]["tileData"][tile]["tileContext"]["filters"][j]["value"] in f:
-                                hit["_source"]["sections"][i]["tileData"][tile]["tileContext"]["filters"][j]["value"] = "false"
-                            print "Table Name: " + tableName + " Field Name: " + hit["_source"]["sections"][i]["tileData"][tile]["tileContext"]["filters"][j]["field"] + "Value: " + hit["_source"]["sections"][i]["tileData"][tile]["tileContext"]["filters"][j]["value"]
+                        if (hit["_source"]["sections"][i]["tileData"][tile]["tileContext"]["filters"][j]["field"] in
+                                mappingsData[tableName]):
+                            if hit["_source"]["sections"][i]["tileData"][tile]["tileContext"]["filters"][j][
+                                "value"] in t:
+                                hit["_source"]["sections"][i]["tileData"][tile]["tileContext"]["filters"][j][
+                                    "value"] = "true"
+                            elif hit["_source"]["sections"][i]["tileData"][tile]["tileContext"]["filters"][j][
+                                "value"] in f:
+                                hit["_source"]["sections"][i]["tileData"][tile]["tileContext"]["filters"][j][
+                                    "value"] = "false"
+                            print "Table Name: " + tableName + " Field Name: " + \
+                                  hit["_source"]["sections"][i]["tileData"][tile]["tileContext"]["filters"][j][
+                                      "field"] + "Value: " + \
+                                  hit["_source"]["sections"][i]["tileData"][tile]["tileContext"]["filters"][j]["value"]
                     if filt["field"] not in consolesData[tableName]:
-                        consolesData[tableName].append(hit["_source"]["sections"][i]["tileData"][tile]["tileContext"]["filters"][j]["field"])
+                        consolesData[tableName].append(
+                            hit["_source"]["sections"][i]["tileData"][tile]["tileContext"]["filters"][j]["field"])
     URL = "http://" + host + ":9200/consoles_v2/"
     URL = URL + hit["_type"] + "/" + hit["_id"]
     headers = {'Content-type': 'application/json', 'Accept': 'text/plain'}
-    json_string = json.dumps(hit["_source"]) 
+    json_string = json.dumps(hit["_source"])
     r = requests.put(URL, json_string, headers=headers)
     time.sleep(0.2)
     print r.status_code

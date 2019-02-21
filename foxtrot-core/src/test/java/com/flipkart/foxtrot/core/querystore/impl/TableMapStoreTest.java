@@ -72,8 +72,7 @@ public class TableMapStoreTest {
                 .exists(indicesExistsRequest)
                 .actionGet();
         if(!indicesExistsResponse.isExists()) {
-            CreateIndexRequest createRequest = new CreateIndexRequest(TableMapStore.TABLE_META_INDEX).settings(
-                    indexSettings);
+            CreateIndexRequest createRequest = new CreateIndexRequest(TableMapStore.TABLE_META_INDEX).settings(indexSettings);
             elasticsearchConnection.getClient()
                     .admin()
                     .indices()

@@ -1,8 +1,7 @@
-import requests
-import json
-import pprint
-import time
 import argparse
+import pprint
+import requests
+import time
 
 host = "http://prd-esfoxtrot601.phonepe.nm1:9200/"
 
@@ -22,7 +21,7 @@ args = parser.parse_args()
 
 for indexName in data:
     creation_date = data[indexName]["settings"]["index"]["creation_date"]
-    if (currentTime*1000 - int(creation_date)) > args.day*oneDaySeconds*1000:
+    if (currentTime * 1000 - int(creation_date)) > args.day * oneDaySeconds * 1000:
         pprint.pprint(host + indexName)
         r = requests.delete(host + indexName)
         time.sleep(1)

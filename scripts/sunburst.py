@@ -1,6 +1,5 @@
-import requests
-import json
 import pprint
+import requests
 
 url = "http://prd-es101.phonepe.nm1:9200/consoles_v2/_search/?size=150"
 

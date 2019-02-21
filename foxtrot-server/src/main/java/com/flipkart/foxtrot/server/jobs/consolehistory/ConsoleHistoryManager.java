@@ -31,21 +31,16 @@ import java.util.concurrent.ScheduledExecutorService;
 public class ConsoleHistoryManager extends BaseJobManager {
 
     private static final Logger logger = LoggerFactory.getLogger(ConsoleHistoryManager.class.getSimpleName());
-
+    private static final String TYPE = "console_data";
+    private static final String INDEX_V2 = "consoles_v2";
+    private static final String INDEX_HISTORY = "consoles_history";
     private final ElasticsearchConnection connection;
     private final ConsoleHistoryConfig consoleHistoryConfig;
     private final ObjectMapper mapper;
     private final ElasticsearchConsolePersistence elasticsearchConsolePersistence;
 
-    private static final String TYPE = "console_data";
-    private static final String INDEX_V2 = "consoles_v2";
-    private static final String INDEX_HISTORY = "consoles_history";
-
-    public ConsoleHistoryManager(ScheduledExecutorService scheduledExecutorService,
-                                 ConsoleHistoryConfig consoleHistoryConfig,
-                                 ElasticsearchConnection connection,
-                                 HazelcastConnection hazelcastConnection,
-                                 ObjectMapper mapper) {
+    public ConsoleHistoryManager(ScheduledExecutorService scheduledExecutorService, ConsoleHistoryConfig consoleHistoryConfig,
+                                 ElasticsearchConnection connection, HazelcastConnection hazelcastConnection, ObjectMapper mapper) {
         super(consoleHistoryConfig, scheduledExecutorService, hazelcastConnection);
         this.consoleHistoryConfig = consoleHistoryConfig;
         this.connection = connection;
@@ -60,11 +55,14 @@ public class ConsoleHistoryManager extends BaseJobManager {
                 SearchResponse searchResponse = connection.getClient()
                         .prepareSearch(INDEX_V2)
                         .setSearchType(SearchType.QUERY_THEN_FETCH)
-                        .addAggregation(AggregationBuilders.terms("names").field("name.keyword").size(1000))
+                        .addAggregation(AggregationBuilders.terms("names")
+                                                .field("name.keyword")
+                                                .size(1000))
                         .execute()
                         .actionGet();
-                Terms agg = searchResponse.getAggregations().get("names");
-                for (Terms.Bucket entry : agg.getBuckets()) {
+                Terms agg = searchResponse.getAggregations()
+                        .get("names");
+                for(Terms.Bucket entry : agg.getBuckets()) {
                     deleteOldData(entry.getKeyAsString());
                 }
             } catch (Exception e) {
@@ -81,9 +79,8 @@ public class ConsoleHistoryManager extends BaseJobManager {
                     .prepareSearch(INDEX_HISTORY)
                     .setSearchType(SearchType.QUERY_THEN_FETCH)
                     .setQuery(QueryBuilders.termQuery("name.keyword", name))
-                    .addSort(SortBuilders
-                            .fieldSort(updatedAt)
-                            .order(SortOrder.DESC))
+                    .addSort(SortBuilders.fieldSort(updatedAt)
+                                     .order(SortOrder.DESC))
                     .setFrom(10)
                     .setSize(9000)
                     .execute()

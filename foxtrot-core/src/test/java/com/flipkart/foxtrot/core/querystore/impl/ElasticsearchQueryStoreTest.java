@@ -72,11 +72,10 @@ public class ElasticsearchQueryStoreTest {
         when(hazelcastConnection.getHazelcastConfig()).thenReturn(new Config());
 
         hazelcastConnection.start();
-        CardinalityConfig cardinalityConfig = new CardinalityConfig("true", String.valueOf(
-                ElasticsearchUtils.DEFAULT_SUB_LIST_SIZE));
+        CardinalityConfig cardinalityConfig = new CardinalityConfig("true", String.valueOf(ElasticsearchUtils.DEFAULT_SUB_LIST_SIZE));
 
-        this.tableMetadataManager = new DistributedTableMetadataManager(hazelcastConnection, elasticsearchConnection,
-                                                                        mapper, cardinalityConfig
+        this.tableMetadataManager = new DistributedTableMetadataManager(hazelcastConnection, elasticsearchConnection, mapper,
+                                                                        cardinalityConfig
         );
         tableMetadataManager.start();
         tableMetadataManager.save(Table.builder()
@@ -87,8 +86,7 @@ public class ElasticsearchQueryStoreTest {
         when(tableMetadataManager.exists(anyString())).thenReturn(true);
         when(tableMetadataManager.get(anyString())).thenReturn(TestUtils.TEST_TABLE);
 */
-        this.queryStore = new ElasticsearchQueryStore(tableMetadataManager, elasticsearchConnection, dataStore,
-                                                      mapper, cardinalityConfig);
+        this.queryStore = new ElasticsearchQueryStore(tableMetadataManager, elasticsearchConnection, dataStore, mapper, cardinalityConfig);
     }
 
     @After
@@ -117,9 +115,8 @@ public class ElasticsearchQueryStoreTest {
         queryStore.save(TestUtils.TEST_TABLE_NAME, originalDocument);
 
         GetResponse getResponse = elasticsearchConnection.getClient()
-                .prepareGet(
-                        ElasticsearchUtils.getCurrentIndex(TestUtils.TEST_TABLE_NAME, originalDocument.getTimestamp()),
-                        ElasticsearchUtils.DOCUMENT_TYPE_NAME, originalDocument.getId()
+                .prepareGet(ElasticsearchUtils.getCurrentIndex(TestUtils.TEST_TABLE_NAME, originalDocument.getTimestamp()),
+                            ElasticsearchUtils.DOCUMENT_TYPE_NAME, originalDocument.getId()
                            )
                 .setStoredFields(ElasticsearchUtils.DOCUMENT_META_TIMESTAMP_FIELD_NAME)
                 .execute()
@@ -139,9 +136,8 @@ public class ElasticsearchQueryStoreTest {
         queryStore.save(TestUtils.TEST_TABLE_NAME, originalDocument);
 
         GetResponse getResponse = elasticsearchConnection.getClient()
-                .prepareGet(
-                        ElasticsearchUtils.getCurrentIndex(TestUtils.TEST_TABLE_NAME, originalDocument.getTimestamp()),
-                        ElasticsearchUtils.DOCUMENT_TYPE_NAME, translatedDocument.getId()
+                .prepareGet(ElasticsearchUtils.getCurrentIndex(TestUtils.TEST_TABLE_NAME, originalDocument.getTimestamp()),
+                            ElasticsearchUtils.DOCUMENT_TYPE_NAME, translatedDocument.getId()
                            )
                 .setStoredFields(ElasticsearchUtils.DOCUMENT_META_TIMESTAMP_FIELD_NAME)
                 .execute()
@@ -172,9 +168,7 @@ public class ElasticsearchQueryStoreTest {
 
         List<Document> translatedDocuments = Lists.newArrayList();
         translatedDocuments.addAll(documents.stream()
-                                           .map(document -> TestUtils.translatedDocumentWithRowKeyVersion1(table,
-                                                                                                           document
-                                                                                                          ))
+                                           .map(document -> TestUtils.translatedDocumentWithRowKeyVersion1(table, document))
                                            .collect(Collectors.toList()));
 
         doReturn(translatedDocuments).when(dataStore)
@@ -205,9 +199,7 @@ public class ElasticsearchQueryStoreTest {
 
         List<Document> translatedDocuments = Lists.newArrayList();
         translatedDocuments.addAll(documents.stream()
-                                           .map(document -> TestUtils.translatedDocumentWithRowKeyVersion2(table,
-                                                                                                           document
-                                                                                                          ))
+                                           .map(document -> TestUtils.translatedDocumentWithRowKeyVersion2(table, document))
                                            .collect(Collectors.toList()));
 
         doReturn(translatedDocuments).when(dataStore)
@@ -558,19 +550,17 @@ public class ElasticsearchQueryStoreTest {
                                   .stream()
                                   .filter(fieldMetadata -> fieldMetadata.getType()
                                           .equals(FieldType.BOOLEAN))
-                                  .filter(fieldMetadata -> fieldMetadata.getEstimationData() != null &&
-                                                           fieldMetadata.getEstimationData()
-                                                                   .getType()
-                                                                   .equals(EstimationDataType.FIXED))
+                                  .filter(fieldMetadata -> fieldMetadata.getEstimationData() != null && fieldMetadata.getEstimationData()
+                                          .getType()
+                                          .equals(EstimationDataType.FIXED))
                                   .count() == 1);
         Assert.assertTrue(mappings.getMappings()
                                   .stream()
                                   .filter(fieldMetadata -> fieldMetadata.getType()
                                           .equals(FieldType.LONG))
-                                  .filter(fieldMetadata -> fieldMetadata.getEstimationData() != null &&
-                                                           fieldMetadata.getEstimationData()
-                                                                   .getType()
-                                                                   .equals(EstimationDataType.PERCENTILE))
+                                  .filter(fieldMetadata -> fieldMetadata.getEstimationData() != null && fieldMetadata.getEstimationData()
+                                          .getType()
+                                          .equals(EstimationDataType.PERCENTILE))
                                   .count() == 2);
         long numStringFields = mappings.getMappings()
                 .stream()
@@ -581,9 +571,9 @@ public class ElasticsearchQueryStoreTest {
                                   .stream()
                                   .filter(fieldMetadata -> fieldMetadata.getType()
                                           .equals(FieldType.STRING))
-                                  .filter(fieldMetadata -> fieldMetadata.getEstimationData() != null &&
-                                                           fieldMetadata.getEstimationData()
-                                                                   .getType() == EstimationDataType.CARDINALITY)
+                                  .filter(fieldMetadata -> fieldMetadata.getEstimationData() != null && fieldMetadata.getEstimationData()
+                                                                                                                .getType() ==
+                                                                                                        EstimationDataType.CARDINALITY)
                                   .count() == numStringFields);
     }
 

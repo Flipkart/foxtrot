@@ -17,59 +17,63 @@
 <html lang="en">
 
 <head>
-  <meta charset="utf-8">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="">
-  <meta name="author" content="">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="shortcut icon" href="../img/favicon.ico">
-  <title>FQL</title>
-  <!-- Bootstrap core CSS -->
-  <link href="../css/open-sans.css" rel="stylesheet">
-  <link href="../css/bootstrap.min.css" rel="stylesheet">
-  <link href="../css/bootstrap-select.min.css" rel="stylesheet">
-  <link rel="stylesheet" href="../css/jquery-ui.css">
-  <link rel="stylesheet" href="../css/bootstrapValidator.min.css">
-  <link href="../css/foxtrot.css" rel="stylesheet">
-  <link href="../css/mobile.css" rel="stylesheet">
-  <link href="../css/sweetalert2.min.css" rel="stylesheet">
-  <!-- Custom styles for this template -->
-  <!-- Just for debugging purposes. Don't actually copy this line! -->
-  <!--[if lt IE 9]><script src="../../assets/js/ie8-responsive-file-warning.js"></script><![endif]-->
-  <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
-  <!--[if lt IE 9]>
-<script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
-<script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
-<![endif]-->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="shortcut icon" href="../img/favicon.ico">
+    <title>FQL</title>
+    <!-- Bootstrap core CSS -->
+    <link href="../css/open-sans.css" rel="stylesheet">
+    <link href="../css/bootstrap.min.css" rel="stylesheet">
+    <link href="../css/bootstrap-select.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="../css/jquery-ui.css">
+    <link rel="stylesheet" href="../css/bootstrapValidator.min.css">
+    <link href="../css/foxtrot.css" rel="stylesheet">
+    <link href="../css/mobile.css" rel="stylesheet">
+    <link href="../css/sweetalert2.min.css" rel="stylesheet">
+    <!-- Custom styles for this template -->
+    <!-- Just for debugging purposes. Don't actually copy this line! -->
+    <!--[if lt IE 9]>
+    <script src="../../assets/js/ie8-responsive-file-warning.js"></script><![endif]-->
+    <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+    <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+    <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
 </head>
 
 <body><span id="ruler"></span>
-    <!-- save fql modal -->
-    <div class="modal fade" id="save-fql-modal" tabindex="-2" role="dialog" aria-labelledby="addSections" aria-hidden="true">
-        <div class="modal-dialog">
-            <div id="save-dashboard-modal" class="fql-modal">
-                <div id="save-dashboard-model-heading">
-                    <h1>Save FQL</h1>
-                    <hr id="save-dashboard-model-heading-underline"/>
-                </div>
-                <div class="save-dashboard-form">
+<!-- save fql modal -->
+<div class="modal fade" id="save-fql-modal" tabindex="-2" role="dialog" aria-labelledby="addSections"
+     aria-hidden="true">
+    <div class="modal-dialog">
+        <div id="save-dashboard-modal" class="fql-modal">
+            <div id="save-dashboard-model-heading">
+                <h1>Save FQL</h1>
+                <hr id="save-dashboard-model-heading-underline"/>
+            </div>
+            <div class="save-dashboard-form">
                 <form class="add-page-form">
-                <div class="form-group">
+                    <div class="form-group">
                         <label class="control-label" for="widgetType"><strong>Title</strong></label>
                         <input type="text" class="form-control fql-title" id="fql-title">
                         <span class="fql-title-error">Title is required</span>
-                </div>
-                <div class="form-group save-page-btn-div">
-                    <button type="button" class="btn custom-modal-tab-btn" id="save-fql-btn"><span>Save</span></button>
-                    <button type="button" class="btn custom-modal-close" data-dismiss="modal">Cancel</button>
-                </div>
-            </form>
+                    </div>
+                    <div class="form-group save-page-btn-div">
+                        <button type="button" class="btn custom-modal-tab-btn" id="save-fql-btn"><span>Save</span>
+                        </button>
+                        <button type="button" class="btn custom-modal-close" data-dismiss="modal">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <div class="fql-modal-close" id="add-page-side-close" data-dismiss="modal"><img src="../img/combined-shape.png">
         </div>
     </div>
-    <div class="fql-modal-close" id="add-page-side-close" data-dismiss="modal" ><img src="../img/combined-shape.png"></div>
-    </div>
-    </div>
+</div>
 
 <div class="container-full">
     <div class="new-header">
@@ -108,11 +112,11 @@
                     </div>
                     <div class="row" id="fql-buttons">
                         <div class="col-sm-12">
-                                <div class="col-sm-3">
-                                        <a href="#" id="open-fql-modal" class="form-control">
-                                            <span> Save FQL</span>
-                                        </a>
-                                    </div>
+                            <div class="col-sm-3">
+                                <a href="#" id="open-fql-modal" class="form-control">
+                                    <span> Save FQL</span>
+                                </a>
+                            </div>
                             <div class="col-sm-5">
                                 <button type="button" id="fql-csv-download" class="form-control">
                                     <span> Download CSV</span>
@@ -295,6 +299,7 @@
         $("#fql-run-query").trigger("click");
       }
     });
+
 
 
 </script>

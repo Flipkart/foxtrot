@@ -41,11 +41,11 @@ public class GroupActionCardinalityTest extends ActionTest {
         groupRequest.setTable(TestUtils.TEST_TABLE_NAME);
         groupRequest.setNesting(Lists.newArrayList("os", "deviceId"));
 
-            GroupResponse response = GroupResponse.class.cast(getQueryExecutor().execute(groupRequest));
-            Assert.assertTrue(response.getResult()
-                                      .containsKey("android"));
-            Assert.assertTrue(response.getResult()
-                                      .containsKey("ios"));
+        GroupResponse response = GroupResponse.class.cast(getQueryExecutor().execute(groupRequest));
+        Assert.assertTrue(response.getResult()
+                                  .containsKey("android"));
+        Assert.assertTrue(response.getResult()
+                                  .containsKey("ios"));
     }
 
     @Test
@@ -80,9 +80,9 @@ public class GroupActionCardinalityTest extends ActionTest {
         groupRequest.setTable(TestUtils.TEST_TABLE_NAME);
         groupRequest.setNesting(Collections.singletonList("value"));
 
-            GroupResponse response = GroupResponse.class.cast(getQueryExecutor().execute(groupRequest));
-            Assert.assertTrue(response.getResult()
-                                      .containsKey("0"));
+        GroupResponse response = GroupResponse.class.cast(getQueryExecutor().execute(groupRequest));
+        Assert.assertTrue(response.getResult()
+                                  .containsKey("0"));
 
     }
 }

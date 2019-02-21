@@ -318,9 +318,7 @@ public class QueryTranslator extends SqlElementVisitor {
                         actionRequest = parseHistogramRequest(function.getParameters());
                         break;
                     case count:
-                        actionRequest = parseCountRequest(function.getParameters(), function.isAllColumns(),
-                                                          function.isDistinct()
-                                                         );
+                        actionRequest = parseCountRequest(function.getParameters(), function.isAllColumns(), function.isDistinct());
                         break;
                     case desc:
                     case select:
@@ -358,8 +356,7 @@ public class QueryTranslator extends SqlElementVisitor {
 
         private TrendRequest parseTrendFunction(List expressions) {
             if(expressions == null || expressions.isEmpty() || expressions.size() > 3) {
-                throw new RuntimeException(
-                        "trend function has following format: trend(fieldname, [period, [timestamp field]])");
+                throw new RuntimeException("trend function has following format: trend(fieldname, [period, [timestamp field]])");
             }
             TrendRequest trendRequest = new TrendRequest();
             trendRequest.setField(QueryUtils.expressionToString((Expression)expressions.get(0)));
@@ -398,8 +395,7 @@ public class QueryTranslator extends SqlElementVisitor {
         private HistogramRequest parseHistogramRequest(ExpressionList expressionList) {
             if(expressionList != null && (expressionList.getExpressions() != null && expressionList.getExpressions()
                                                                                              .size() > 2)) {
-                throw new RuntimeException(
-                        "histogram function has the following format: histogram([period, [timestamp field]])");
+                throw new RuntimeException("histogram function has the following format: histogram([period, [timestamp field]])");
             }
             HistogramRequest histogramRequest = new HistogramRequest();
             if(null != expressionList) {
@@ -604,8 +600,7 @@ public class QueryTranslator extends SqlElementVisitor {
 
         private LastFilter parseWindowFunction(List expressions) {
             if(expressions == null || expressions.isEmpty() || expressions.size() > 3) {
-                throw new RuntimeException(
-                        "last function has following format: last(duration, [start-time, [timestamp field]])");
+                throw new RuntimeException("last function has following format: last(duration, [start-time, [timestamp field]])");
             }
             LastFilter lastFilter = new LastFilter();
             lastFilter.setDuration(Duration.parse(QueryUtils.expressionToString((Expression)expressions.get(0))));
@@ -670,8 +665,7 @@ public class QueryTranslator extends SqlElementVisitor {
             if(expression instanceof Column) {
                 return new ColumnData(((Column)expression).getFullyQualifiedName());
             }
-            throw new RuntimeException(
-                    "Only the function 'temporal([fieldname)' and fieldname is supported in where clause");
+            throw new RuntimeException("Only the function 'temporal([fieldname)' and fieldname is supported in where clause");
         }
 
         private static final class ColumnData {

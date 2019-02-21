@@ -8,7 +8,8 @@ public enum EstimationDataType {
      * Fixed estimation data, for:
      * {@link com.flipkart.foxtrot.common.FieldType#BOOLEAN}
      */
-    FIXED, /**
+    FIXED,
+    /**
      * Percentile based estimation for:
      * {@link com.flipkart.foxtrot.common.FieldType#LONG}
      * {@link com.flipkart.foxtrot.common.FieldType#DATE}
@@ -16,7 +17,8 @@ public enum EstimationDataType {
      * {@link com.flipkart.foxtrot.common.FieldType#FLOAT}
      * {@link com.flipkart.foxtrot.common.FieldType#INTEGER}
      */
-    PERCENTILE, /**
+    PERCENTILE,
+    /**
      * Fixed estimation data, for:
      * {@link com.flipkart.foxtrot.common.FieldType#STRING}
      */

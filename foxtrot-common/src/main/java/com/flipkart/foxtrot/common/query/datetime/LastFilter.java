@@ -46,7 +46,7 @@ public class LastFilter extends Filter {
     }
 
     @Override
-    public<T> T accept(FilterVisitor<T> visitor) throws Exception {
+    public <T> T accept(FilterVisitor<T> visitor) throws Exception {
         return visitor.visit(this);
     }
 

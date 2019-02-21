@@ -27,8 +27,7 @@ public class StatsTrendRequest extends ActionRequest {
         super(Opcodes.STATS_TREND);
     }
 
-    public StatsTrendRequest(List<Filter> filters, String table, String field, List<String> nesting, Period period,
-                             String timestamp) {
+    public StatsTrendRequest(List<Filter> filters, String table, String field, List<String> nesting, Period period, String timestamp) {
         super(Opcodes.STATS_TREND, filters);
         this.table = table;
         this.field = field;

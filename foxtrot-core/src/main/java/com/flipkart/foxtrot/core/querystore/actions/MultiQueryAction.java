@@ -53,8 +53,7 @@ import java.util.Map;
 /***
  Created by nitish.goyal on 22/08/18
  ***/
-@AnalyticsProvider(opcode = "multi_query", request = MultiQueryRequest.class, response = MultiQueryResponse.class,
-                   cacheable = true)
+@AnalyticsProvider(opcode = "multi_query", request = MultiQueryRequest.class, response = MultiQueryResponse.class, cacheable = true)
 public class MultiQueryAction extends Action<MultiQueryRequest> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MultiQueryAction.class);
@@ -62,12 +61,9 @@ public class MultiQueryAction extends Action<MultiQueryRequest> {
     private Map<ActionRequest, Action> requestActionMap = Maps.newHashMap();
 
     public MultiQueryAction(MultiQueryRequest parameter, TableMetadataManager tableMetadataManager, DataStore dataStore,
-                            QueryStore queryStore, ElasticsearchConnection connection, String cacheToken,
-                            CacheManager cacheManager, ObjectMapper objectMapper, EmailConfig emailConfig,
-                            AnalyticsLoader analyticsLoader) {
-        super(parameter, tableMetadataManager, dataStore, queryStore, connection, cacheToken, cacheManager,
-              objectMapper, emailConfig
-             );
+                            QueryStore queryStore, ElasticsearchConnection connection, String cacheToken, CacheManager cacheManager,
+                            ObjectMapper objectMapper, EmailConfig emailConfig, AnalyticsLoader analyticsLoader) {
+        super(parameter, tableMetadataManager, dataStore, queryStore, connection, cacheToken, cacheManager, objectMapper, emailConfig);
         this.analyticsLoader = analyticsLoader;
     }
 
@@ -152,8 +148,8 @@ public class MultiQueryAction extends Action<MultiQueryRequest> {
     }
 
     @Override
-    public ActionResponse getResponse(org.elasticsearch.action.ActionResponse multiSearchResponse,
-                                      MultiQueryRequest parameter) throws FoxtrotException {
+    public ActionResponse getResponse(org.elasticsearch.action.ActionResponse multiSearchResponse, MultiQueryRequest parameter)
+            throws FoxtrotException {
 
         MultiQueryResponse multiQueryResponse = new MultiQueryResponse(Opcodes.MULTI_QUERY);
         Map<String, ActionResponse> queryVsQueryResponseMap = Maps.newHashMap();

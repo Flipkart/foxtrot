@@ -39,13 +39,10 @@ import static com.flipkart.foxtrot.core.util.ElasticsearchQueryUtils.QUERY_SIZE;
 @AnalyticsProvider(opcode = "count", request = CountRequest.class, response = CountResponse.class, cacheable = false)
 public class CountAction extends Action<CountRequest> {
 
-    public CountAction(CountRequest parameter, TableMetadataManager tableMetadataManager, DataStore dataStore,
-                       QueryStore queryStore, ElasticsearchConnection connection, String cacheToken,
-                       CacheManager cacheManager, ObjectMapper objectMapper, EmailConfig emailConfig, AnalyticsLoader
-                       analyticsLoader) {
-        super(parameter, tableMetadataManager, dataStore, queryStore, connection, cacheToken, cacheManager,
-              objectMapper, emailConfig
-             );
+    public CountAction(CountRequest parameter, TableMetadataManager tableMetadataManager, DataStore dataStore, QueryStore queryStore,
+                       ElasticsearchConnection connection, String cacheToken, CacheManager cacheManager, ObjectMapper objectMapper,
+                       EmailConfig emailConfig, AnalyticsLoader analyticsLoader) {
+        super(parameter, tableMetadataManager, dataStore, queryStore, connection, cacheToken, cacheManager, objectMapper, emailConfig);
 
     }
 
@@ -98,12 +95,12 @@ public class CountAction extends Action<CountRequest> {
     public ActionResponse execute(CountRequest parameter) throws FoxtrotException {
         SearchRequestBuilder query = getRequestBuilder(parameter);
 
-            try {
-                SearchResponse response = query.execute()
+        try {
+            SearchResponse response = query.execute()
                     .actionGet(getGetQueryTimeout());
             return getResponse(response, parameter);
-            } catch (ElasticsearchException e) {
-                throw FoxtrotExceptions.createQueryExecutionException(parameter, e);
+        } catch (ElasticsearchException e) {
+            throw FoxtrotExceptions.createQueryExecutionException(parameter, e);
 
         }
     }
@@ -139,8 +136,7 @@ public class CountAction extends Action<CountRequest> {
     }
 
     @Override
-    public ActionResponse getResponse(org.elasticsearch.action.ActionResponse response, CountRequest parameter)
-            throws FoxtrotException {
+    public ActionResponse getResponse(org.elasticsearch.action.ActionResponse response, CountRequest parameter) throws FoxtrotException {
         if(parameter.isDistinct()) {
             Aggregations aggregations = ((SearchResponse)response).getAggregations();
             Cardinality cardinality = aggregations.get(Utils.sanitizeFieldForAggregation(parameter.getField()));

@@ -92,9 +92,8 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
     private IMap<String, TableFieldMapping> fieldDataCache;
     private IMap<String, TableFieldMapping> fieldDataCardinalityCache;
 
-    public DistributedTableMetadataManager(HazelcastConnection hazelcastConnection,
-                                           ElasticsearchConnection elasticsearchConnection, ObjectMapper mapper,
-                                           CardinalityConfig cardinalityConfig) {
+    public DistributedTableMetadataManager(HazelcastConnection hazelcastConnection, ElasticsearchConnection elasticsearchConnection,
+                                           ObjectMapper mapper, CardinalityConfig cardinalityConfig) {
         this.hazelcastConnection = hazelcastConnection;
         this.elasticsearchConnection = elasticsearchConnection;
         this.mapper = mapper;
@@ -109,10 +108,6 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
         hazelcastConnection.getHazelcastConfig()
                 .getMapConfigs()
                 .put(CARDINALITY_FIELD_MAP, cardinalityFieldMetaMapConfig());
-    }
-
-    public boolean cardinalityCacheContains(String table) {
-        return fieldDataCardinalityCache.containsKey(table);
     }
 
     private static <K, V> Collector<Map.Entry<K, V>, ?, List<Map<K, V>>> mapSize(int limit) {
@@ -151,6 +146,10 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
             l1.addAll(l2);
             return l1;
         });
+    }
+
+    public boolean cardinalityCacheContains(String table) {
+        return fieldDataCardinalityCache.containsKey(table);
     }
 
     private MapConfig tableMapConfig() {
@@ -321,8 +320,7 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
         fieldDataCache.put(table, tableFieldMapping);
     }
 
-    private void estimateCardinality(final String table, final Collection<FieldMetadata> fields, long time)
-            throws FoxtrotException {
+    private void estimateCardinality(final String table, final Collection<FieldMetadata> fields, long time) throws FoxtrotException {
         if(CollectionUtils.isNullOrEmpty(fields)) {
             logger.warn("No fields.. Nothing to query");
             return;
@@ -356,129 +354,129 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
         for(Map<String, FieldMetadata> innerMap : listofMaps) {
 
             innerMap.values()
-                .forEach(fieldMetadata -> {
-                    String field = fieldMetadata.getField();
-                    SearchRequestBuilder query = client.prepareSearch(index)
-                            .setIndicesOptions(Utils.indicesOptions())
-                            .setQuery(QueryBuilders.existsQuery(field))
-                            .setSize(0);
+                    .forEach(fieldMetadata -> {
+                        String field = fieldMetadata.getField();
+                        SearchRequestBuilder query = client.prepareSearch(index)
+                                .setIndicesOptions(Utils.indicesOptions())
+                                .setQuery(QueryBuilders.existsQuery(field))
+                                .setSize(0);
+                        switch (fieldMetadata.getType()) {
+                            case STRING: {
+                                logger.info("table:{} field:{} type:{} aggregationType:{}", table, field, fieldMetadata.getType(),
+                                            "cardinality"
+                                           );
+                                query.addAggregation(AggregationBuilders.cardinality(field)
+                                                             .field(field)
+                                                             .precisionThreshold(PRECISION_THRESHOLD));
+                                break;
+                            }
+                            case INTEGER:
+                            case LONG:
+                            case FLOAT:
+                            case DOUBLE: {
+                                logger.info("table:{} field:{} type:{} aggregationType:{}", table, field, fieldMetadata.getType(),
+                                            "percentile"
+                                           );
+                                query.addAggregation(AggregationBuilders.percentiles(field)
+                                                             .field(field)
+                                                             .percentiles(10, 20, 30, 40, 50, 60, 70, 80, 90, 100));
+                                query.addAggregation(AggregationBuilders.cardinality("_" + field)
+                                                             .field(field)
+                                                             .precisionThreshold(PRECISION_THRESHOLD));
+                                break;
+                            }
+                            case BOOLEAN:
+                            case DATE:
+                            case OBJECT:
+                        }
+                        multiQuery.add(query);
+                    });
+            Stopwatch stopwatch = Stopwatch.createStarted();
+            MultiSearchResponse multiResponse;
+            try {
+                multiResponse = multiQuery.execute()
+                        .actionGet();
+            } finally {
+                logger.info("Cardinality query on table {} for {} fields took {} ms", table, fields.size(),
+                            stopwatch.elapsed(TimeUnit.MILLISECONDS)
+                           );
+            }
+            for(MultiSearchResponse.Item item : multiResponse.getResponses()) {
+                if(item.isFailure()) {
+                    logger.info("FailureInDeducingCardinality table:{} failureMessage:{}", table, item.getFailureMessage());
+                    continue;
+                }
+                SearchResponse response = item.getResponse();
+                final long hits = response.getHits()
+                        .getTotalHits();
+                Aggregations aggregations = response.getAggregations();
+                if(null == aggregations) {
+                    continue;
+                }
+                Map<String, Aggregation> output = aggregations.asMap();
+                output.forEach((key, value) -> {
+                    FieldMetadata fieldMetadata = fields.get(key);
+                    if(fieldMetadata == null) {
+                        fieldMetadata = fields.get(key.replace("_", ""));
+                    }
+                    if(fieldMetadata == null) {
+                        return;
+                    }
                     switch (fieldMetadata.getType()) {
                         case STRING: {
-                            logger.info("table:{} field:{} type:{} aggregationType:{}", table, field,
-                                        fieldMetadata.getType(), "cardinality"
+                            Cardinality cardinality = (Cardinality)value;
+                            logger.info("table:{} field:{} type:{} aggregationType:{} value:{}", table, key, fieldMetadata.getType(),
+                                        "cardinality", cardinality.getValue()
                                        );
-                            query.addAggregation(AggregationBuilders.cardinality(field)
-                                                         .field(field)
-                                                         .precisionThreshold(PRECISION_THRESHOLD));
+                            estimationDataMap.put(key, CardinalityEstimationData.builder()
+                                    .cardinality(cardinality.getValue())
+                                    .count(hits)
+                                    .build());
                             break;
                         }
                         case INTEGER:
                         case LONG:
                         case FLOAT:
                         case DOUBLE: {
-                            logger.info("table:{} field:{} type:{} aggregationType:{}", table, field,
-                                        fieldMetadata.getType(), "percentile"
-                                       );
-                            query.addAggregation(AggregationBuilders.percentiles(field)
-                                                         .field(field)
-                                                         .percentiles(10, 20, 30, 40, 50, 60, 70, 80, 90, 100));
-                            query.addAggregation(AggregationBuilders.cardinality("_" + field)
-                                                         .field(field)
-                                                         .precisionThreshold(PRECISION_THRESHOLD));
+                            if(value instanceof Percentiles) {
+                                Percentiles percentiles = (Percentiles)value;
+                                double values[] = new double[10];
+                                for(int i = 10; i <= 100; i += 10) {
+                                    values[(i / 10) - 1] = percentiles.percentile(i);
+                                }
+                                logger.info("table:{} field:{} type:{} aggregationType:{} value:{}", table, key, fieldMetadata.getType(),
+                                            "percentile", values
+                                           );
+                                estimationDataMap.put(key, PercentileEstimationData.builder()
+                                        .values(values)
+                                        .count(hits)
+                                        .build());
+                            } else if(value instanceof Cardinality) {
+                                Cardinality cardinality = (Cardinality)value;
+                                logger.info("table:{} field:{} type:{} aggregationType:{} value:{}", table, key, fieldMetadata.getType(),
+                                            "cardinality", cardinality.getValue()
+                                           );
+                                EstimationData estimationData = estimationDataMap.get(key.replace("_", ""));
+                                if(estimationData != null && estimationData instanceof PercentileEstimationData) {
+                                    ((PercentileEstimationData)estimationData).setCardinality(cardinality.getValue());
+                                } else {
+                                    estimationDataMap.put(key.replace("_", ""), PercentileEstimationData.builder()
+                                            .cardinality(cardinality.getValue())
+                                            .build());
+                                }
+                            }
                             break;
                         }
-                        case BOOLEAN:
+                        case BOOLEAN: {
+                            estimationDataMap.put(key, FixedEstimationData.builder()
+                                    .count(2)
+                                    .build());
+                        }
                         case DATE:
                         case OBJECT:
                     }
-                    multiQuery.add(query);
                 });
-            Stopwatch stopwatch = Stopwatch.createStarted();
-            MultiSearchResponse multiResponse;
-            try {
-                multiResponse = multiQuery.execute()
-                .actionGet();
-            } finally {
-                logger.info("Cardinality query on table {} for {} fields took {} ms", table, fields.size(),
-                            stopwatch.elapsed(TimeUnit.MILLISECONDS)
-                           );
             }
-        for(MultiSearchResponse.Item item : multiResponse.getResponses()) {
-            if(item.isFailure()) {
-                logger.info("FailureInDeducingCardinality table:{} failureMessage:{}", table, item.getFailureMessage());
-                continue;
-            }
-            SearchResponse response = item.getResponse();
-            final long hits = response.getHits()
-                    .getTotalHits();
-            Aggregations aggregations = response.getAggregations();
-            if(null == aggregations) {
-                continue;
-            }
-            Map<String, Aggregation> output = aggregations.asMap();
-            output.forEach((key, value) -> {
-                FieldMetadata fieldMetadata = fields.get(key);
-                if(fieldMetadata == null) {
-                    fieldMetadata = fields.get(key.replace("_", ""));
-                }
-                if(fieldMetadata == null) {
-                    return;
-                }
-                switch (fieldMetadata.getType()) {
-                    case STRING: {
-                        Cardinality cardinality = (Cardinality)value;
-                        logger.info("table:{} field:{} type:{} aggregationType:{} value:{}", table, key,
-                                    fieldMetadata.getType(), "cardinality", cardinality.getValue()
-                                   );
-                        estimationDataMap.put(key, CardinalityEstimationData.builder()
-                                .cardinality(cardinality.getValue())
-                                .count(hits)
-                                .build());
-                        break;
-                    }
-                    case INTEGER:
-                    case LONG:
-                    case FLOAT:
-                    case DOUBLE: {
-                        if(value instanceof Percentiles) {
-                            Percentiles percentiles = (Percentiles)value;
-                            double values[] = new double[10];
-                            for(int i = 10; i <= 100; i += 10) {
-                                values[(i / 10) - 1] = percentiles.percentile(i);
-                            }
-                            logger.info("table:{} field:{} type:{} aggregationType:{} value:{}", table, key,
-                                        fieldMetadata.getType(), "percentile", values
-                                       );
-                            estimationDataMap.put(key, PercentileEstimationData.builder()
-                                    .values(values)
-                                    .count(hits)
-                                    .build());
-                        } else if(value instanceof Cardinality) {
-                            Cardinality cardinality = (Cardinality)value;
-                            logger.info("table:{} field:{} type:{} aggregationType:{} value:{}", table, key,
-                                        fieldMetadata.getType(), "cardinality", cardinality.getValue()
-                                       );
-                            EstimationData estimationData = estimationDataMap.get(key.replace("_", ""));
-                            if(estimationData != null && estimationData instanceof PercentileEstimationData) {
-                                ((PercentileEstimationData)estimationData).setCardinality(cardinality.getValue());
-                            } else {
-                                estimationDataMap.put(key.replace("_", ""), PercentileEstimationData.builder()
-                                        .cardinality(cardinality.getValue())
-                                        .build());
-                            }
-                        }
-                        break;
-                    }
-                    case BOOLEAN: {
-                        estimationDataMap.put(key, FixedEstimationData.builder()
-                                .count(2)
-                                .build());
-                    }
-                    case DATE:
-                    case OBJECT:
-                }
-            });
-        }
         }
         return estimationDataMap;
     }
@@ -510,14 +508,14 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
                 @Override
                 public Void visit(CardinalityEstimationData cardinalityEstimationData) {
                     if(cardinalityEstimationData.getCount() > 0 && cardinalityEstimationData.getCardinality() > 0) {
-                        int countToCardinalityRatio = (int)(cardinalityEstimationData.getCount() /
-                                                            cardinalityEstimationData.getCardinality());
+                        int countToCardinalityRatio =
+                                (int)(cardinalityEstimationData.getCount() / cardinalityEstimationData.getCardinality());
                         int documentToCountRatio = (int)(maxDocuments / cardinalityEstimationData.getCount());
                         if(cardinalityEstimationData.getCardinality() <= 100 ||
                            (countToCardinalityRatio > 100 && documentToCountRatio < 100 &&
                             cardinalityEstimationData.getCardinality() <= 5000)) {
-                            logger.info("field:{} maxCount:{} countToCardinalityRatio:{} documentToCountRatio:{}", key,
-                                        maxDocuments, countToCardinalityRatio, documentToCountRatio
+                            logger.info("field:{} maxCount:{} countToCardinalityRatio:{} documentToCountRatio:{}", key, maxDocuments,
+                                        countToCardinalityRatio, documentToCountRatio
                                        );
                             SearchRequestBuilder query = client.prepareSearch(index)
                                     .setIndicesOptions(Utils.indicesOptions())
@@ -562,9 +560,7 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
                         .count(hits)
                         .termCounts(terms.getBuckets()
                                             .stream()
-                                            .collect(Collectors.toMap(Terms.Bucket::getKeyAsString,
-                                                                      Terms.Bucket::getDocCount
-                                                                     )))
+                                            .collect(Collectors.toMap(Terms.Bucket::getKeyAsString, Terms.Bucket::getDocCount)))
                         .build());
             });
         }

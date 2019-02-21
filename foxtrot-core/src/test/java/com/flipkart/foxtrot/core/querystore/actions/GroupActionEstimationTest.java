@@ -17,7 +17,6 @@ import org.junit.Test;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Tests cardinality estimation
@@ -61,7 +60,7 @@ public class GroupActionEstimationTest extends ActionTest {
         groupRequest.setTable(TestUtils.TEST_TABLE_NAME);
         groupRequest.setNesting(Collections.singletonList("deviceId"));
 
-            getQueryExecutor().execute(groupRequest);
+        getQueryExecutor().execute(groupRequest);
     }
 
     @Test
@@ -117,7 +116,7 @@ public class GroupActionEstimationTest extends ActionTest {
                                                          .field("value")
                                                          .value(10)
                                                          .build()));
-            getQueryExecutor().execute(groupRequest);
+        getQueryExecutor().execute(groupRequest);
     }
 
     @Test
@@ -151,7 +150,7 @@ public class GroupActionEstimationTest extends ActionTest {
                                                          .build()));
         log.debug(getMapper().writerWithDefaultPrettyPrinter()
                           .writeValueAsString(groupRequest));
-            getQueryExecutor().execute(groupRequest);
+        getQueryExecutor().execute(groupRequest);
     }
 
 }

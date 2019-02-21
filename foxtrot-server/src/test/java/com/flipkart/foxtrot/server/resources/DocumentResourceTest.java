@@ -103,10 +103,8 @@ public class DocumentResourceTest extends FoxtrotResourceTest {
 
     @Test
     public void testSaveDocumentNullData() throws Exception {
-        Document document = new Document(
-                UUID.randomUUID().toString(),
-                System.currentTimeMillis(),
-                null);
+        Document document = new Document(UUID.randomUUID()
+                                                 .toString(), System.currentTimeMillis(), null);
         Entity<Document> documentEntity = Entity.json(document);
         Response response = resources.client()
                 .target("/v1/document/" + TestUtils.TEST_TABLE_NAME)
@@ -383,17 +381,11 @@ public class DocumentResourceTest extends FoxtrotResourceTest {
         assertNotNull("Actual document Id should not be null", actual.getId());
         assertNotNull("Actual document data should not be null", actual.getData());
         assertEquals("Actual Doc Id should match expected Doc Id", expected.getId(), actual.getId());
-        assertEquals("Actual Doc Timestamp should match expected Doc Timestamp", expected.getTimestamp(),
-                     actual.getTimestamp()
-                    );
-        Map<String, Object> expectedMap = getMapper().convertValue(expected.getData(),
-                                                                   new TypeReference<HashMap<String, Object>>() {
-                                                                   }
-                                                                  );
-        Map<String, Object> actualMap = getMapper().convertValue(actual.getData(),
-                                                                 new TypeReference<HashMap<String, Object>>() {
-                                                                 }
-                                                                );
+        assertEquals("Actual Doc Timestamp should match expected Doc Timestamp", expected.getTimestamp(), actual.getTimestamp());
+        Map<String, Object> expectedMap = getMapper().convertValue(expected.getData(), new TypeReference<HashMap<String, Object>>() {
+        });
+        Map<String, Object> actualMap = getMapper().convertValue(actual.getData(), new TypeReference<HashMap<String, Object>>() {
+        });
         assertEquals("Actual data should match expected data", expectedMap, actualMap);
     }
 }
