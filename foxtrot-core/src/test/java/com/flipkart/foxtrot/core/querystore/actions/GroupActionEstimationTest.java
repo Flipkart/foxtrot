@@ -142,7 +142,6 @@ public class GroupActionEstimationTest extends ActionTest {
                                    .isEmpty());
     }
 
-    @Test(expected = CardinalityOverflowException.class)
     // High cardinality field queries with filters including small subset are allowed
     public void testEstimationLTFilterHighCardinalityBlocked() throws Exception {
         GroupRequest groupRequest = new GroupRequest();
