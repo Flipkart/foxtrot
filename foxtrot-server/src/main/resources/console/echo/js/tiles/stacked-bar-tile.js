@@ -279,81 +279,81 @@ StackedBarTile.prototype.getData = function (data) {
     this.object.tileContext.uiFiltersList.push(trend);
   }
 
-  var multiTotal = [];
-  if(!isMultiSeries) {
-    var allValues = _.values(trendWiseData);
-    var singleValue = allValues[0];
-    var allLength = allValues.length;
-    for(var i = 0; i < singleValue.length; i++) {
-      var total = allValues[0][i][1];
-      for(var j = 1; j < allLength; j++) {
-        total+= allValues[j][i][1];
-      }
-      multiTotal.push([allValues[0][i][0],total])
-      total = 0;
-    }
-    d.splice(0, 0,{
-      data: multiTotal
-      , color: convertHex("#33CAFF", 100)
-      , label: "Total"
-      , fill: 0.3
-      , fillColor: "#A3A3A3"
-      , lines: {
-        show: true
-      },
-      points:{show: (multiTotal.length <= 50 ? true :false), radius : 3.5}
-      , shadowSize: 0 /*, curvedLines: {apply: true}*/
-    })
-  } else {
-    var finalArray = [];
-    for(var response in multiTotalResponseArray) {
-      var multiValue = [];
-      if(multiTotalResponseArray.hasOwnProperty(response)) {
-        var final = multiTotalResponseArray[response];
-        console.log(final)
-        var iteration = Object.keys(final).length;
-        var allValues = Object.values(final);
-        for(var i = 0; i < allValues[0].length; i++){ // loop single
-          var total = allValues[0][i]["count"];
-          for(var j = 1; j < allValues.length; j++) { // loop all except first index
-            total+= allValues[j][1]["count"];
-          }
-          multiValue.push([d[0].data[i][0], total]);// d[0] - is sorted time periods
-          total = 0;
-        }
-      }
-      finalArray.push(multiValue)
-    }
+  // var multiTotal = [];
+  // if(!isMultiSeries) {
+  //   var allValues = _.values(trendWiseData);
+  //   var singleValue = allValues[0];
+  //   var allLength = allValues.length;
+  //   for(var i = 0; i < singleValue.length; i++) {
+  //     var total = allValues[0][i][1];
+  //     for(var j = 1; j < allLength; j++) {
+  //       total+= allValues[j][i][1];
+  //     }
+  //     multiTotal.push([allValues[0][i][0],total])
+  //     total = 0;
+  //   }
+  //   d.splice(0, 0,{
+  //     data: multiTotal
+  //     , color: convertHex("#33CAFF", 100)
+  //     , label: "Total"
+  //     , fill: 0.3
+  //     , fillColor: "#A3A3A3"
+  //     , lines: {
+  //       show: true
+  //     },
+  //     points:{show: (multiTotal.length <= 50 ? true :false), radius : 3.5}
+  //     , shadowSize: 0 /*, curvedLines: {apply: true}*/
+  //   })
+  // } else {
+  //   var finalArray = [];
+  //   for(var response in multiTotalResponseArray) {
+  //     var multiValue = [];
+  //     if(multiTotalResponseArray.hasOwnProperty(response)) {
+  //       var final = multiTotalResponseArray[response];
+  //       console.log(final)
+  //       var iteration = Object.keys(final).length;
+  //       var allValues = Object.values(final);
+  //       for(var i = 0; i < allValues[0].length; i++){ // loop single
+  //         var total = allValues[0][i]["count"];
+  //         for(var j = 1; j < allValues.length; j++) { // loop all except first index
+  //           total+= allValues[j][1]["count"];
+  //         }
+  //         multiValue.push([d[0].data[i][0], total]);// d[0] - is sorted time periods
+  //         total = 0;
+  //       }
+  //     }
+  //     finalArray.push(multiValue)
+  //   }
 
-    var colors = new Colors(finalArray.length);
-    for(var n = 0; n < finalArray.length; n++) {
-      var totalColor = colors.nextColor();
-      d.splice(0, 0, {
-        data: finalArray[n]
-        , color: convertHex(totalColor, 100)
-        , label: "Series "+(n+1)+" Total"
-        , fill: 0.3
-        , fillColor: "#A3A3A3"
-        , lines: {
-          show: true
-        },
-        points:{show: (finalArray[n].length <= 50 ? true :false), radius : 3.5}
-        , shadowSize: 0 /*, curvedLines: {apply: true}*/
-      });
-      originalData.splice(0, 0,{
-        data: finalArray[n]
-        , color: convertHex(totalColor, 100)
-        , label: "Series "+(n+1)+" Total"
-        , fill: 0.3
-        , fillColor: "#A3A3A3"
-        , lines: {
-          show: true
-        },
-        points:{show: (finalArray[n].length <= 50 ? true :false), radius : 3.5}
-        , shadowSize: 0 /*, curvedLines: {apply: true}*/
-      })
-    }
-  }
+  //   var colors = new Colors(finalArray.length);
+  //   for(var n = 0; n < finalArray.length; n++) {
+  //     var totalColor = colors.nextColor();
+  //     d.splice(0, 0, {
+  //       data: finalArray[n]
+  //       , color: convertHex(totalColor, 100)
+  //       , label: "Series "+(n+1)+" Total"
+  //       , fill: 0.3
+  //       , fillColor: "#A3A3A3"
+  //       , lines: {
+  //         show: true
+  //       },
+  //       points:{show: (finalArray[n].length <= 50 ? true :false), radius : 3.5}
+  //       , shadowSize: 0 /*, curvedLines: {apply: true}*/
+  //     });
+  //     originalData.splice(0, 0,{
+  //       data: finalArray[n]
+  //       , color: convertHex(totalColor, 100)
+  //       , label: "Series "+(n+1)+" Total"
+  //       , fill: 0.3
+  //       , fillColor: "#A3A3A3"
+  //       , lines: {
+  //         show: true
+  //       },
+  //       points:{show: (finalArray[n].length <= 50 ? true :false), radius : 3.5}
+  //       , shadowSize: 0 /*, curvedLines: {apply: true}*/
+  //     })
+  //   }
+  // }
   this.render(d,isMultiSeries, originalData);
 }
 StackedBarTile.prototype.render = function (d, isMultiSeries, originalData) {
@@ -596,8 +596,7 @@ StackedBarTile.prototype.render = function (d, isMultiSeries, originalData) {
             }
           });
         }
-        strTip =  strTip+strTipInsideRows+"</table>";
-        //<tfoot><tr><td class='tooltip-text'><b>TOTAL</b></td> <td style='color:#42b1f7' class='tooltip-count tooltip-total'>"+numberWithCommas(total)+"</td></tr></tfoot>
+        strTip =  strTip+strTipInsideRows+"<tfoot><tr><td class='tooltip-text'><b>TOTAL</b></td> <td style='color:#42b1f7' class='tooltip-count tooltip-total'>"+numberWithCommas(total)+"</td></tr></tfoot></table>"
         showTooltip(item.pageX, item.pageY, strTip, color, ctx);
       }
     });
