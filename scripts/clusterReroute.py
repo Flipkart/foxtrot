@@ -131,7 +131,7 @@ def relocateShard(index, shard, fromHost, toHost, nodeMap):
         time.sleep(3)
         if 200 <= r.status_code <= 299:
             print (
-                        "Reroute of index acknowledged: " + index + " shard: " + shard + " from: " + fromHost + " to: " + toHost)
+                    "Reroute of index acknowledged: " + index + " shard: " + shard + " from: " + fromHost + " to: " + toHost)
     except requests.exceptions.RequestException as e:
         # print ("Reroute of index failed: " + index + " shard: " + shard + " from: " + fromHost + " to: " + toHost)
         print (e)

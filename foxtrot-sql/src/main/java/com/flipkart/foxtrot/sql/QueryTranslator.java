@@ -530,8 +530,19 @@ public class QueryTranslator extends SqlElementVisitor {
                 Expression expression = (Expression)expressionObject;
                 filterValues.add(getValueFromExpression(expression));
             }
-            inFilter.setValues(filterValues);
-            filters.add(inFilter);
+            if (inExpression.isNot()) {
+                NotInFilter filter = new NotInFilter();
+                filter.setField(((Column)inExpression.getLeftExpression()).getFullyQualifiedName()
+                        .replaceAll(Constants.SQL_FIELD_REGEX, ""));
+                filter.setValues(filterValues);
+                filters.add(filter);
+            } else {
+                InFilter filter = new InFilter();
+                filter.setField(((Column)inExpression.getLeftExpression()).getFullyQualifiedName()
+                        .replaceAll(Constants.SQL_FIELD_REGEX, ""));
+                filter.setValues(filterValues);
+                filters.add(filter);
+            }
         }
 
         @Override

@@ -44,7 +44,7 @@ public class NotEqualsFilter extends Filter {
     }
 
     @Builder
-    public NotEqualsFilter(String field, String value) {
+    public NotEqualsFilter(String field, Object value) {
         super(FilterOperator.not_equals, field);
         this.value = value;
     }

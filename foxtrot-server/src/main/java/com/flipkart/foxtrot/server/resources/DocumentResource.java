@@ -21,6 +21,8 @@ import com.flipkart.foxtrot.core.exception.FoxtrotException;
 import com.flipkart.foxtrot.core.querystore.QueryStore;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
@@ -40,6 +42,7 @@ import java.util.List;
 @Api(value = "/v1/document/{table}", description = "Document API")
 public class DocumentResource {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(DocumentResource.class);
     private final QueryStore queryStore;
 
     public DocumentResource(QueryStore queryStore) {
@@ -62,7 +65,12 @@ public class DocumentResource {
     @Timed
     @ApiOperation("Save list of documents")
     public Response saveDocuments(@PathParam("table") final String table, @Valid final List<Document> documents) throws FoxtrotException {
+       try {
         queryStore.save(table, documents);
+        } catch (Exception e) {
+            LOGGER.error("Error occurred in savingDocuments : " + e);
+            throw  e;
+        }
         return Response.created(URI.create("/" + table))
                 .build();
     }
