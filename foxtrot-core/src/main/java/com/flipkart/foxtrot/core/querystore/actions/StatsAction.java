@@ -119,8 +119,9 @@ public class StatsAction extends Action<StatsRequest> {
                     .setSize(QUERY_SIZE);
 
             AbstractAggregationBuilder percentiles = Utils.buildPercentileAggregation(getParameter().getField(),
-                    getParameter().getPercentiles());
-            AbstractAggregationBuilder extendedStats = Utils.buildExtendedStatsAggregation(getParameter().getField());
+                                                                                      getParameter().getPercentiles()
+                                                                                     );
+            AbstractAggregationBuilder extendedStats = Utils.buildStatsAggregation(getParameter().getField(), getParameter().getStats());
             searchRequestBuilder.addAggregation(percentiles);
             searchRequestBuilder.addAggregation(extendedStats);
 
@@ -188,8 +189,9 @@ public class StatsAction extends Action<StatsRequest> {
 
         // Build top level stats
         StatsValue statsValue = new StatsValue();
-        statsValue.setStats(Utils.toStats(aggregations.getAsMap().get(metricKey)));
-        Percentiles internalPercentile = (Percentiles) aggregations.getAsMap()
+        statsValue.setStats(Utils.toStats(aggregations.getAsMap()
+                                                  .get(metricKey)));
+        Percentiles internalPercentile = (Percentiles)aggregations.getAsMap()
                 .get(percentileMetricKey);
         statsValue.setPercentiles(Utils.createPercentilesResponse(internalPercentile));
         return statsValue;

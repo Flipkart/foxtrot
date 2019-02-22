@@ -38,15 +38,7 @@ import org.elasticsearch.search.aggregations.Aggregations;
 import org.elasticsearch.search.aggregations.bucket.histogram.DateHistogramInterval;
 import org.elasticsearch.search.aggregations.bucket.histogram.Histogram;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
-import org.elasticsearch.search.aggregations.bucket.terms.TermsBuilder;
-import org.elasticsearch.search.aggregations.metrics.avg.InternalAvg;
-import org.elasticsearch.search.aggregations.metrics.max.InternalMax;
-import org.elasticsearch.search.aggregations.metrics.min.InternalMin;
 import org.elasticsearch.search.aggregations.metrics.percentiles.Percentiles;
-import org.elasticsearch.search.aggregations.metrics.stats.InternalStats;
-import org.elasticsearch.search.aggregations.metrics.stats.extended.InternalExtendedStats;
-import org.elasticsearch.search.aggregations.metrics.sum.InternalSum;
-import org.elasticsearch.search.aggregations.metrics.valuecount.InternalValueCount;
 import org.joda.time.DateTime;
 
 import java.util.ArrayList;
@@ -228,7 +220,9 @@ public class StatsTrendAction extends Action<StatsTrendRequest> {
             DateTime key = (DateTime)bucket.getKey();
             statsTrendValue.setPeriod(key.getMillis());
 
-            val statAggregation = bucket.getAggregations().getAsMap().get(metricKey);
+            val statAggregation = bucket.getAggregations()
+                    .getAsMap()
+                    .get(metricKey);
             statsTrendValue.setStats(Utils.toStats(statAggregation));
             Percentiles internalPercentile = Percentiles.class.cast(bucket.getAggregations()
                                                                             .getAsMap()
