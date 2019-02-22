@@ -572,3 +572,18 @@ function getPeriodText(text) {
     return "minutes";
   }
 }
+
+/**
+ * Get old console list
+ */
+function getOldConsoleList(res) {
+  var consoleId = getParameterByName("console").replace('/', '');
+  var index = _.indexOf(_.pluck(res, 'id'), consoleId);
+  if (index >= 0) {
+      var consoleObject = consoleList[index];
+      var numberOfVerison = consoleObject.version;
+      if (numberOfVerison > 0) {
+          loadVersionConsoleByName(consoleObject.name);
+      }
+  }
+}

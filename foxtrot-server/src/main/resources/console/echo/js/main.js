@@ -368,6 +368,7 @@ function loadConsole() { // load console list api
     success: function(res) {
       consoleList = res;
       appendConsoleList(res);
+      getOldConsoleList(res);
     },
     error: function() {
       showErrorAlert("Could not save console");
@@ -891,17 +892,6 @@ $(document).ready(function () {
       if (consoleId) {
           getConsoleById(consoleId);
           isNewConsole = false;
-          setTimeout(function () {
-              var index = _.indexOf(_.pluck(consoleList, 'id'), consoleId);
-              if (index >= 0) {
-                  var consoleObject = consoleList[index];
-                  var numberOfVerison = consoleObject.version;
-                  if (numberOfVerison > 0) {
-                      loadVersionConsoleByName(consoleObject.name);
-                  }
-              }
-
-          }, 3000);
       } else {
           isNewConsole = true;
       }
