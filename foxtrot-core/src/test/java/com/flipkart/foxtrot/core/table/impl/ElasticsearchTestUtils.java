@@ -1,4 +1,5 @@
-package com.flipkart.foxtrot.core.table.impl;/**
+package com.flipkart.foxtrot.core.table.impl;
+/*
  * Copyright 2014 Flipkart Internet Pvt. Ltd.
  * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");

@@ -58,20 +58,6 @@ public class TrendActionTest extends ActionTest {
         counts.removeIf(count -> count.getCount() == 0);
     }
 
-    @Test(expected = FoxtrotException.class)
-    public void testTrendActionAnyException() throws FoxtrotException, JsonProcessingException {
-        TrendRequest trendRequest = new TrendRequest();
-        trendRequest.setTable(null);
-        BetweenFilter betweenFilter = new BetweenFilter();
-        betweenFilter.setFrom(1L);
-        betweenFilter.setTo(System.currentTimeMillis());
-        betweenFilter.setTemporal(true);
-        betweenFilter.setField("_timestamp");
-        trendRequest.setField("os");
-        trendRequest.setFilters(Collections.<Filter>singletonList(betweenFilter));
-        getQueryExecutor().execute(trendRequest);
-    }
-
     //TODO trend action with null field is not working
     @Test
     public void testTrendActionNullField() throws FoxtrotException, JsonProcessingException {
