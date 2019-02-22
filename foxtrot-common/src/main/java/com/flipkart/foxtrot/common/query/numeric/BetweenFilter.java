@@ -22,6 +22,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
+import org.apache.commons.lang.builder.ToStringBuilder;
 
 import javax.validation.constraints.NotNull;
 import java.util.Set;
@@ -77,5 +78,14 @@ public class BetweenFilter extends Filter {
             validationErrors.add("to field cannot be null");
         }
         return validationErrors;
+    }
+
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this).appendSuper(super.toString())
+                .append("temporal", temporal)
+                .append("from", from.toString())
+                .append("to", to.toString())
+                .toString();
     }
 }
