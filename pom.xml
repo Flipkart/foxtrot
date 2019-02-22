@@ -339,7 +339,7 @@
                     </execution>
                 </executions>
             </plugin>
-            <!--<plugin>
+            <plugin>
                 <artifactId>maven-antrun-plugin</artifactId>
                 <version>1.8</version>
                 <executions>
@@ -384,14 +384,14 @@
                         </goals>
                     </execution>
                 </executions>
-                <configuration>
+                <!--<configuration>
                     <includes>
                         <include>**/*.java</include>
                     </includes>
                     <groups>impl.IntegrationTest</groups>
                     <skipTests>false</skipTests>
-                </configuration>
-            </plugin>-->
+                </configuration>-->
+            </plugin>
             <!--<plugin>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>2.19.1</version>

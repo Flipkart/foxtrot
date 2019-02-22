@@ -195,7 +195,7 @@ public class TestUtils {
 
     public static List<Document> getGroupDocumentsForEstimation(ObjectMapper mapper) {
         Random random = new Random();
-        return IntStream.rangeClosed(0, 2000)
+        return IntStream.rangeClosed(0, 10000)
                 .mapToObj(i -> Document.builder()
                         .id(UUID.randomUUID()
                                     .toString())

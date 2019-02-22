@@ -9,6 +9,7 @@ import com.flipkart.foxtrot.common.query.numeric.GreaterThanFilter;
 import com.flipkart.foxtrot.common.query.numeric.LessThanFilter;
 import com.flipkart.foxtrot.core.TestUtils;
 import com.flipkart.foxtrot.core.exception.CardinalityOverflowException;
+import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchQueryStore;
 import com.google.common.collect.ImmutableList;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Assert;
@@ -35,6 +36,9 @@ public class GroupActionEstimationTest extends ActionTest {
                 .prepareRefresh("*")
                 .execute()
                 .actionGet();
+        getTableMetadataManager().getFieldMappings(TestUtils.TEST_TABLE_NAME, true, true);
+        ((ElasticsearchQueryStore)getQueryStore()).getCardinalityConfig()
+                .setMaxCardinality(15000);
         getTableMetadataManager().updateEstimationData(TestUtils.TEST_TABLE_NAME, 1397658117000L);
     }
 
@@ -64,7 +68,7 @@ public class GroupActionEstimationTest extends ActionTest {
     }
 
     @Test
-    // High cardinality field queries are allowed if in a small timespan
+    // High cardinality field queries are allowed if in a small time span
     public void testEstimationTemporalFilterHighCardinality() throws Exception {
         GroupRequest groupRequest = new GroupRequest();
         groupRequest.setTable(TestUtils.TEST_TABLE_NAME);
@@ -81,8 +85,8 @@ public class GroupActionEstimationTest extends ActionTest {
         GroupResponse response = GroupResponse.class.cast(getQueryExecutor().execute(groupRequest));
         log.debug(getMapper().writerWithDefaultPrettyPrinter()
                           .writeValueAsString(response));
-        Assert.assertFalse(response.getResult()
-                                   .isEmpty());
+        Assert.assertTrue(response.getResult()
+                                  .isEmpty());
     }
 
 
