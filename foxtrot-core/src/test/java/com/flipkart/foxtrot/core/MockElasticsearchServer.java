@@ -1,12 +1,12 @@
 /**
  * Copyright 2014 Flipkart Internet Pvt. Ltd.
- *
+ * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
+ * <p>
  * http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -34,23 +34,28 @@ import static org.elasticsearch.node.NodeBuilder.nodeBuilder;
 
 public class MockElasticsearchServer {
     private final Node node;
-    private String DATA_DIRECTORY = UUID.randomUUID().toString() + "/elasticsearch-data";
+    private String DATA_DIRECTORY = UUID.randomUUID()
+                                            .toString() + "/elasticsearch-data";
 
     public MockElasticsearchServer(String directory) {
-        this.DATA_DIRECTORY = UUID.randomUUID().toString() + "/" + directory;
+        this.DATA_DIRECTORY = UUID.randomUUID()
+                                      .toString() + "/" + directory;
         Settings settings = Settings.builder()
                 .put("http.enabled", "false")
                 .put("path.home", "target/" + DATA_DIRECTORY)
                 .build();
 
-        node = nodeBuilder()
-                .local(true)
+        node = nodeBuilder().local(true)
                 .settings(settings)
                 .node();
     }
 
     public void refresh(final String index) {
-        node.client().admin().indices().refresh(new RefreshRequest().indices(index)).actionGet();
+        node.client()
+                .admin()
+                .indices()
+                .refresh(new RefreshRequest().indices(index))
+                .actionGet();
     }
 
     public Client getClient() {
@@ -58,7 +63,10 @@ public class MockElasticsearchServer {
     }
 
     public void shutdown() throws IOException {
-        node.client().admin().indices().delete(new DeleteIndexRequest("table-meta"));
+        node.client()
+                .admin()
+                .indices()
+                .delete(new DeleteIndexRequest("table-meta"));
         node.close();
         deleteDataDirectory();
     }

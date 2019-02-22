@@ -57,13 +57,16 @@ public abstract class BaseJobManager implements Managed {
         LOGGER.info(String.format("Scheduling %s Job", baseJobConfig.getJobName()));
         LocalDateTime localNow = LocalDateTime.now();
         Calendar now = Calendar.getInstance();
-        String timeZone = now.getTimeZone().getID();
+        String timeZone = now.getTimeZone()
+                .getID();
         if(StringUtils.isEmpty(timeZone)) {
             timeZone = TIME_ZONE;
         }
         ZoneId currentZone = ZoneId.of(timeZone);
         ZonedDateTime zonedNow = ZonedDateTime.of(localNow, currentZone);
-        ZonedDateTime timeToRunJob = zonedNow.withHour(baseJobConfig.getInitialDelay()).withMinute(0).withSecond(0);
+        ZonedDateTime timeToRunJob = zonedNow.withHour(baseJobConfig.getInitialDelay())
+                .withMinute(0)
+                .withSecond(0);
         if(zonedNow.compareTo(timeToRunJob) > 0)
             timeToRunJob = timeToRunJob.plusDays(1);
 
@@ -72,13 +75,14 @@ public abstract class BaseJobManager implements Managed {
 
         scheduledExecutorService.scheduleAtFixedRate(() -> {
             try {
-                LockingTaskExecutor executor =
-                        new DefaultLockingTaskExecutor(new HazelcastLockProvider(hazelcastConnection.getHazelcast()));
+                LockingTaskExecutor executor = new DefaultLockingTaskExecutor(
+                        new HazelcastLockProvider(hazelcastConnection.getHazelcast()));
                 int maxTimeToRunJob = MAX_TIME_TO_RUN_TASK_IN_MINUTES;
                 if(baseJobConfig.getMaxTimeToRunJobInMinutes() != 0) {
                     maxTimeToRunJob = baseJobConfig.getMaxTimeToRunJobInMinutes();
                 }
-                Instant lockAtMostUntil = Instant.now().plusSeconds(TimeUnit.MINUTES.toSeconds(maxTimeToRunJob));
+                Instant lockAtMostUntil = Instant.now()
+                        .plusSeconds(TimeUnit.MINUTES.toSeconds(maxTimeToRunJob));
                 runImpl(executor, lockAtMostUntil);
             } catch (Exception e) {
                 LOGGER.error("Error occurred while running the job : ", e);

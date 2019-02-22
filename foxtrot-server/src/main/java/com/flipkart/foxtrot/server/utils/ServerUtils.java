@@ -11,12 +11,12 @@ import io.dropwizard.server.SimpleServerFactory;
  */
 public class ServerUtils {
     public static int port(ServerFactory serverFactory) {
-        if( serverFactory instanceof SimpleServerFactory) {
+        if(serverFactory instanceof SimpleServerFactory) {
             SimpleServerFactory simpleServerFactory = (SimpleServerFactory)serverFactory;
             return getPortFromConnector(simpleServerFactory.getConnector());
 
         }
-        if( serverFactory instanceof DefaultServerFactory) {
+        if(serverFactory instanceof DefaultServerFactory) {
             DefaultServerFactory defaultServerFactory = (DefaultServerFactory)serverFactory;
             for(ConnectorFactory connectorFactory : defaultServerFactory.getApplicationConnectors()) {
                 if(connectorFactory instanceof HttpConnectorFactory) {

@@ -41,7 +41,8 @@ public class DistributedCache implements Cache {
     private final ObjectMapper mapper;
 
     public DistributedCache(HazelcastConnection hazelcastConnection, String name, ObjectMapper mapper) {
-        this.distributedMap = hazelcastConnection.getHazelcast().getMap(CACHE_NAME_PREFIX + name);
+        this.distributedMap = hazelcastConnection.getHazelcast()
+                .getMap(CACHE_NAME_PREFIX + name);
         this.mapper = mapper;
     }
 
@@ -49,14 +50,14 @@ public class DistributedCache implements Cache {
     public ActionResponse put(String key, ActionResponse data) {
         try {
             final String serializedData = mapper.writeValueAsString(data);
-            if (serializedData != null) {
+            if(serializedData != null) {
                 // Only cache if size is less that 32 KB
-                if (serializedData.length() <= 32 * 1024) {
+                if(serializedData.length() <= 32 * 1024) {
                     distributedMap.put(key, mapper.writeValueAsString(data));
                 } else {
-                    logger.error(
-                            String.format("Size of response is too big for cache. Skipping it. Response Part : %s",
-                                    serializedData.substring(0, 1024)));
+                    logger.error(String.format("Size of response is too big for cache. Skipping it. Response Part : %s",
+                                               serializedData.substring(0, 1024)
+                                              ));
                 }
             }
         } catch (JsonProcessingException e) {
@@ -67,11 +68,11 @@ public class DistributedCache implements Cache {
 
     @Override
     public ActionResponse get(String key) {
-        if (null == key) {
+        if(null == key) {
             return null; //Hazelcast map throws NPE if key is null
         }
         String data = distributedMap.get(key);
-        if (null != data) {
+        if(null != data) {
             try {
                 return mapper.readValue(data, ActionResponse.class);
             } catch (IOException e) {

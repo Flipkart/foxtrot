@@ -3,7 +3,6 @@ package com.flipkart.foxtrot.core.exception;
 import com.flipkart.foxtrot.common.ActionRequest;
 import com.google.common.collect.Maps;
 
-import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -30,7 +29,8 @@ public class ActionResolutionException extends FoxtrotException {
     public Map<String, Object> toMap() {
         Map<String, Object> map = Maps.newHashMap();
         map.put("request", this.actionRequest);
-        map.put("message", this.getCause().getMessage());
+        map.put("message", this.getCause()
+                .getMessage());
         return map;
     }
 }
