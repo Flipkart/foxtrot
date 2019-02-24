@@ -3,7 +3,7 @@ import pprint
 import requests
 import time
 
-host = "http://prd-esfoxtrot601.phonepe.nm1:9200/"
+host = "http://localhost:9200/"
 
 r = requests.get(host + "foxtrot-*-table*/_settings/index.creation_date")
 data = r.json()

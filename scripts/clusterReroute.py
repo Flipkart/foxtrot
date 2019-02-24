@@ -15,7 +15,7 @@ import time
 #         }
 #     ]
 # }
-host = "prd-es104.phonepe.nm1"
+host = "localhost"
 
 
 def convertToGb(dataSize):
@@ -36,7 +36,6 @@ def convertToGb(dataSize):
 
 def getData():
     # now = datetime.datetime.now()
-    # host = "prd-es104.phonepe.nm1"
     # url = "http://" + host + ":9200/_cat/shards/foxtrot-*-table-%d-%d-2019" %(now.day, now.month)
     # print url
     url = "http://" + host + ":9200/_cat/shards/"
@@ -70,7 +69,6 @@ def createMonitoringDict(dataSplitLines):
 
 
 def getNodeNameMap():
-    # host = "prd-es104.phonepe.nm1"
     url = "http://" + host + ":9200/_nodes/stats"
     r = requests.get(url)
     data = json.loads(r.text)

@@ -3,7 +3,7 @@ import json
 import requests
 import time
 
-host = "prd-esfoxtrot601.phonepe.nm1"
+host = "localhost"
 r = requests.get("http://" + host + ":9200/consoles_v2/_search/?size=1000")
 # r = requests.get("http://localhost:9200/consoles_v2/_search/?size=1000")
 data = r.json()

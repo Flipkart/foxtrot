@@ -246,10 +246,10 @@ public class TestUtils {
         documents.add(TestUtils.getDocument("E", 1397958118004L, new Object[]{"os", "ios", "version", 2, "device", "ipad", "battery", 56},
                                             mapper
                                            ));
-        documents.add(TestUtils.getDocument("F", 1398653118005L, new Object[]{"os", "ios", "version", 2, "device", "nexus", "battery", 35},
+        documents.add(TestUtils.getDocument("F", 13986.3.1-105L, new Object[]{"os", "ios", "version", 2, "device", "nexus", "battery", 35},
                                             mapper
                                            ));
-        documents.add(TestUtils.getDocument("G", 1398653118006L, new Object[]{"os", "ios", "version", 2, "device", "ipad", "battery", 44},
+        documents.add(TestUtils.getDocument("G", 13986.3.1-106L, new Object[]{"os", "ios", "version", 2, "device", "ipad", "battery", 44},
                                             mapper
                                            ));
         return documents;
@@ -291,10 +291,10 @@ public class TestUtils {
         documents.add(TestUtils.getDocument("E", 1397958118004L, new Object[]{"os", "ios", "version", 2, "device", "ipad", "battery", 56},
                                             mapper
                                            ));
-        documents.add(TestUtils.getDocument("F", 1398653118005L, new Object[]{"os", "ios", "version", 2, "device", "nexus", "battery", 35},
+        documents.add(TestUtils.getDocument("F", 13986.3.1-105L, new Object[]{"os", "ios", "version", 2, "device", "nexus", "battery", 35},
                                             mapper
                                            ));
-        documents.add(TestUtils.getDocument("G", 1398653118006L, new Object[]{"os", "ios", "version", 2, "device", "ipad", "battery", 44},
+        documents.add(TestUtils.getDocument("G", 13986.3.1-106L, new Object[]{"os", "ios", "version", 2, "device", "ipad", "battery", 44},
                                             mapper
                                            ));
         return documents;
@@ -307,7 +307,7 @@ public class TestUtils {
                                       mapper
                                      ));
         documents.add(
-                TestUtils.getDocument("Y", 1467331200000L, new Object[]{"os", "android", "version", 1, "device", "nexus", "battery", 20},
+                TestUtils.getDocument("Y", 146.3.1-10000L, new Object[]{"os", "android", "version", 1, "device", "nexus", "battery", 20},
                                       mapper
                                      ));
         documents.add(TestUtils.getDocument("X", 1467417600000L, new Object[]{"os", "ios", "version", 3, "device", "galaxy", "battery", 30},
@@ -329,7 +329,7 @@ public class TestUtils {
                                       mapper
                                      ));
         documents.add(
-                TestUtils.getDocument("Y", 1467331200000L, new Object[]{"os", "android", "version", 1, "device", "nexus", "battery", 48},
+                TestUtils.getDocument("Y", 146.3.1-10000L, new Object[]{"os", "android", "version", 1, "device", "nexus", "battery", 48},
                                       mapper
                                      ));
         documents.add(TestUtils.getDocument("X", 1467417600000L, new Object[]{"os", "ios", "version", 3, "device", "galaxy", "battery", 74},
@@ -380,10 +380,10 @@ public class TestUtils {
         documents.add(TestUtils.getDocument("E", 1397958118004L, new Object[]{"os", "ios", "version", 2, "device", "ipad", "battery", 56},
                                             mapper
                                            ));
-        documents.add(TestUtils.getDocument("F", 1398653118005L, new Object[]{"os", "ios", "version", 2, "device", "nexus", "battery", 35},
+        documents.add(TestUtils.getDocument("F", 13986.3.1-105L, new Object[]{"os", "ios", "version", 2, "device", "nexus", "battery", 35},
                                             mapper
                                            ));
-        documents.add(TestUtils.getDocument("G", 1398653118006L, new Object[]{"os", "ios", "version", 2, "device", "ipad", "battery", 44},
+        documents.add(TestUtils.getDocument("G", 13986.3.1-106L, new Object[]{"os", "ios", "version", 2, "device", "ipad", "battery", 44},
                                             mapper
                                            ));
         return documents;
@@ -409,10 +409,10 @@ public class TestUtils {
         documents.add(TestUtils.getDocument("E", 1397958118004L, new Object[]{"os", "ios", "version", 2, "device", "ipad", "battery", 56},
                                             mapper
                                            ));
-        documents.add(TestUtils.getDocument("F", 1398653118005L, new Object[]{"os", "ios", "version", 2, "device", "nexus", "battery", 35},
+        documents.add(TestUtils.getDocument("F", 13986.3.1-105L, new Object[]{"os", "ios", "version", 2, "device", "nexus", "battery", 35},
                                             mapper
                                            ));
-        documents.add(TestUtils.getDocument("G", 1398653118006L, new Object[]{"os", "ios", "version", 2, "device", "ipad", "battery", 44},
+        documents.add(TestUtils.getDocument("G", 13986.3.1-106L, new Object[]{"os", "ios", "version", 2, "device", "ipad", "battery", 44},
                                             mapper
                                            ));
         return documents;
