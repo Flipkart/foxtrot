@@ -459,7 +459,7 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
                                             fieldMetadata.getType(), "cardinality", cardinality.getValue()
                                            );
                                 EstimationData estimationData = estimationDataMap.get(key.replace("_", ""));
-                                if(estimationData != null && estimationData instanceof PercentileEstimationData) {
+                                if(estimationData instanceof PercentileEstimationData) {
                                     ((PercentileEstimationData)estimationData).setCardinality(cardinality.getValue());
                                 } else {
                                     estimationDataMap.put(key.replace("_", ""), PercentileEstimationData.builder()
