@@ -26,6 +26,7 @@ import com.flipkart.foxtrot.core.TestUtils;
 import com.flipkart.foxtrot.core.alerts.EmailConfig;
 import com.flipkart.foxtrot.core.cardinality.CardinalityConfig;
 import com.flipkart.foxtrot.core.datastore.DataStore;
+import com.flipkart.foxtrot.core.reroute.ClusterRerouteConfig;
 import com.flipkart.foxtrot.core.table.impl.DistributedTableMetadataManager;
 import com.hazelcast.config.Config;
 import com.hazelcast.core.HazelcastInstance;
@@ -92,7 +93,7 @@ public class DistributedTableMetadataManagerTest {
                                                       dataStore, objectMapper, new CardinalityConfig("true",
                                                                                                      String.valueOf(
                                                                                                              ElasticsearchUtils.DEFAULT_SUB_LIST_SIZE)
-        ), emailConfig, new CacheConfig(), hazelcastConnection
+        ), emailConfig, hazelcastConnection, new ClusterRerouteConfig()
         );
     }
 

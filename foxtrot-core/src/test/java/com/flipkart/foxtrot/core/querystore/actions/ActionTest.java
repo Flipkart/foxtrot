@@ -15,6 +15,7 @@ import com.flipkart.foxtrot.core.querystore.QueryExecutor;
 import com.flipkart.foxtrot.core.querystore.QueryStore;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsLoader;
 import com.flipkart.foxtrot.core.querystore.impl.*;
+import com.flipkart.foxtrot.core.reroute.ClusterRerouteConfig;
 import com.flipkart.foxtrot.core.table.impl.DistributedTableMetadataManager;
 import com.hazelcast.config.Config;
 import com.hazelcast.core.HazelcastInstance;
@@ -80,7 +81,7 @@ public class ActionTest {
 
         DataStore dataStore = TestUtils.getDataStore();
         this.queryStore = new ElasticsearchQueryStore(tableMetadataManager, elasticsearchConnection, dataStore, mapper,
-                                                      cardinalityConfig, emailConfig, new CacheConfig(), hazelcastConnection
+                                                      cardinalityConfig, emailConfig, hazelcastConnection, new ClusterRerouteConfig()
         );
         CacheManager cacheManager = new CacheManager(
                 new DistributedCacheFactory(hazelcastConnection, mapper, new CacheConfig()));

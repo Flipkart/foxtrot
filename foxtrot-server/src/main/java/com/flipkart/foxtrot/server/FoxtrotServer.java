@@ -37,6 +37,7 @@ import com.flipkart.foxtrot.core.querystore.QueryExecutor;
 import com.flipkart.foxtrot.core.querystore.QueryStore;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsLoader;
 import com.flipkart.foxtrot.core.querystore.impl.*;
+import com.flipkart.foxtrot.core.reroute.ClusterRerouteConfig;
 import com.flipkart.foxtrot.core.table.TableMetadataManager;
 import com.flipkart.foxtrot.core.table.impl.DistributedTableMetadataManager;
 import com.flipkart.foxtrot.core.table.impl.FoxtrotTableManager;
@@ -158,10 +159,6 @@ public class FoxtrotServer extends Application<FoxtrotServerConfiguration> {
         }
         CacheConfig cacheConfig = configuration.getCacheConfig();
         EmailConfig emailConfig = configuration.getEmailConfig();
-        CacheConfig queryStoreCacheConfig = configuration.getQueryStoreCacheConfig();
-        if (queryStoreCacheConfig == null) {
-            queryStoreCacheConfig = new CacheConfig();
-        }
 
         final ObjectMapper objectMapper = environment.getObjectMapper();
         TableMetadataManager tableMetadataManager = new DistributedTableMetadataManager(hazelcastConnection,
@@ -171,10 +168,13 @@ public class FoxtrotServer extends Application<FoxtrotServerConfiguration> {
         DataStore dataStore = new HBaseDataStore(hbaseTableConnection, objectMapper,
                                                  new DocumentTranslator(configuration.getHbase())
         );
-
+        ClusterRerouteConfig clusterRerouteConfig = configuration.getClusterRerouteConfig();
+        if (clusterRerouteConfig == null) {
+            clusterRerouteConfig = new ClusterRerouteConfig();
+        }
         QueryStore queryStore = new ElasticsearchQueryStore(tableMetadataManager, elasticsearchConnection, dataStore,
                                                             objectMapper, cardinalityConfig, emailConfig,
-                                                            queryStoreCacheConfig, hazelcastConnection
+                                                            hazelcastConnection, clusterRerouteConfig
         );
         FoxtrotTableManager tableManager = new FoxtrotTableManager(tableMetadataManager, queryStore, dataStore);
         CacheManager cacheManager = new CacheManager(
