@@ -34,12 +34,10 @@ public class DocumentTranslator {
             this.rawKeyVersion = "1.0";
         } else if(hbaseConfig.getRawKeyVersion()
                 .equalsIgnoreCase("2.0")) {
-            this.keyDistributor = new RowKeyDistributorByHashPrefix(
-                    new RowKeyDistributorByHashPrefix.OneByteSimpleHash(32));
+            this.keyDistributor = new RowKeyDistributorByHashPrefix(new RowKeyDistributorByHashPrefix.OneByteSimpleHash(32));
             this.rawKeyVersion = "2.0";
         } else {
-            throw new IllegalArgumentException(
-                    String.format("rawKeyVersion not supported version=[%s]", hbaseConfig.getRawKeyVersion()));
+            throw new IllegalArgumentException(String.format("rawKeyVersion not supported version=[%s]", hbaseConfig.getRawKeyVersion()));
         }
     }
 
@@ -63,8 +61,7 @@ public class DocumentTranslator {
                 document.setId(metadata.getRawStorageId());
                 break;
             default:
-                throw new IllegalArgumentException(
-                        String.format("rawKeyVersion not supported version=[%s]", rawKeyVersion));
+                throw new IllegalArgumentException(String.format("rawKeyVersion not supported version=[%s]", rawKeyVersion));
         }
         document.setTimestamp(inDocument.getTimestamp());
         document.setMetadata(metadata);
@@ -86,12 +83,10 @@ public class DocumentTranslator {
 
     public DocumentMetadata metadata(final Table table, final Document inDocument) {
         final String rowKey = generateScalableKey(rawStorageIdFromDocument(table, inDocument));
-
         DocumentMetadata metadata = new DocumentMetadata();
         metadata.setRawStorageId(rowKey);
         metadata.setId(inDocument.getId());
-
-        //logger.debug("Doc row key: {}, {}, {}", rowKey, inDocument, metadata);
+        metadata.setTime(inDocument.getTimestamp());
         return metadata;
     }
 
@@ -104,8 +99,7 @@ public class DocumentTranslator {
                                      Constants.rawKeyVersionToSuffixMap.get(rawKeyVersion)
                                     );
             default:
-                throw new IllegalArgumentException(
-                        String.format("rawKeyVersion not supported version=[%s]", rawKeyVersion));
+                throw new IllegalArgumentException(String.format("rawKeyVersion not supported version=[%s]", rawKeyVersion));
         }
     }
 

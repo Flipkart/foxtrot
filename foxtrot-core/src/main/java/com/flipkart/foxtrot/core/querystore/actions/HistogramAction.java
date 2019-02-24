@@ -42,7 +42,7 @@ import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.search.aggregations.AbstractAggregationBuilder;
 import org.elasticsearch.search.aggregations.Aggregations;
-import org.elasticsearch.search.aggregations.bucket.histogram.DateHistogramBuilder;
+import org.elasticsearch.search.aggregations.bucket.histogram.DateHistogramAggregationBuilder;
 import org.elasticsearch.search.aggregations.bucket.histogram.DateHistogramInterval;
 import org.elasticsearch.search.aggregations.bucket.histogram.Histogram;
 import org.elasticsearch.search.aggregations.metrics.cardinality.Cardinality;
@@ -53,22 +53,20 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
+import static com.flipkart.foxtrot.core.util.ElasticsearchQueryUtils.QUERY_SIZE;
+
 /**
  * User: Santanu Sinha (santanu.sinha@flipkart.com)
  * Date: 29/03/14
  * Time: 9:22 PM
  */
-@AnalyticsProvider(opcode = "histogram", request = HistogramRequest.class, response = HistogramResponse.class,
-                   cacheable = true)
+@AnalyticsProvider(opcode = "histogram", request = HistogramRequest.class, response = HistogramResponse.class, cacheable = true)
 public class HistogramAction extends Action<HistogramRequest> {
 
     public HistogramAction(HistogramRequest parameter, TableMetadataManager tableMetadataManager, DataStore dataStore,
-                           QueryStore queryStore, ElasticsearchConnection connection, String cacheToken,
-                           CacheManager cacheManager, ObjectMapper objectMapper, EmailConfig emailConfig,
-                           AnalyticsLoader analyticsLoader) {
-        super(parameter, tableMetadataManager, dataStore, queryStore, connection, cacheToken, cacheManager,
-              objectMapper, emailConfig
-             );
+                           QueryStore queryStore, ElasticsearchConnection connection, String cacheToken, CacheManager cacheManager,
+                           ObjectMapper objectMapper, EmailConfig emailConfig, AnalyticsLoader analyticsLoader) {
+        super(parameter, tableMetadataManager, dataStore, queryStore, connection, cacheToken, cacheManager, objectMapper, emailConfig);
     }
 
     @Override
@@ -129,7 +127,7 @@ public class HistogramAction extends Action<HistogramRequest> {
         SearchRequestBuilder searchRequestBuilder = getRequestBuilder(parameter);
         try {
             SearchResponse response = searchRequestBuilder.execute()
-                    .actionGet();
+                    .actionGet(getGetQueryTimeout());
             return getResponse(response, parameter);
         } catch (ElasticsearchException e) {
             throw FoxtrotExceptions.createQueryExecutionException(parameter, e);
@@ -146,7 +144,7 @@ public class HistogramAction extends Action<HistogramRequest> {
                     .setTypes(ElasticsearchUtils.DOCUMENT_TYPE_NAME)
                     .setIndicesOptions(Utils.indicesOptions())
                     .setQuery(new ElasticSearchQueryGenerator().genFilter(parameter.getFilters()))
-                    .setSize(0)
+                    .setSize(QUERY_SIZE)
                     .addAggregation(aggregationBuilder);
         } catch (Exception e) {
             throw FoxtrotExceptions.queryCreationException(parameter, e);
@@ -176,8 +174,7 @@ public class HistogramAction extends Action<HistogramRequest> {
                 String key = Utils.sanitizeFieldForAggregation(getParameter().getUniqueCountOn());
                 Cardinality cardinality = bucket.getAggregations()
                         .get(key);
-                counts.add(
-                        new HistogramResponse.Count(((DateTime)bucket.getKey()).getMillis(), cardinality.getValue()));
+                counts.add(new HistogramResponse.Count(((DateTime)bucket.getKey()).getMillis(), cardinality.getValue()));
             } else {
                 counts.add(new HistogramResponse.Count(((DateTime)bucket.getKey()).getMillis(), bucket.getDocCount()));
             }
@@ -187,9 +184,7 @@ public class HistogramAction extends Action<HistogramRequest> {
 
     private AbstractAggregationBuilder buildAggregation() {
         DateHistogramInterval interval = Utils.getHistogramInterval(getParameter().getPeriod());
-        DateHistogramBuilder histogramBuilder = Utils.buildDateHistogramAggregation(getParameter().getField(),
-                                                                                    interval
-                                                                                   );
+        DateHistogramAggregationBuilder histogramBuilder = Utils.buildDateHistogramAggregation(getParameter().getField(), interval);
         if(!CollectionUtils.isNullOrEmpty(getParameter().getUniqueCountOn())) {
             histogramBuilder.subAggregation(Utils.buildCardinalityAggregation(getParameter().getUniqueCountOn()));
         }

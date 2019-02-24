@@ -40,6 +40,7 @@ public interface FilterOperator {
 
     //String
     String contains = "contains";
+    String wildcard = "wildcard";
 
     //Date time
     String last = "last";

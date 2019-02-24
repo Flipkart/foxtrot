@@ -48,8 +48,7 @@ public class MetricUtil {
                 .mark();
         metrics.meter(String.format("%s.%s.%s.cache.%s", packagePrefix, actionMetricPrefix, opcode, status))
                 .mark();
-        metrics.meter(
-                String.format("%s.%s.%s.%s.cache.%s", packagePrefix, actionMetricPrefix, opcode, metricKey, status))
+        metrics.meter(String.format("%s.%s.%s.%s.cache.%s", packagePrefix, actionMetricPrefix, opcode, metricKey, status))
                 .mark();
     }
 

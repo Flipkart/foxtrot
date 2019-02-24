@@ -33,7 +33,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.doReturn;
 
 /**
  * Created by rishabh.goyal on 28/04/14.
@@ -45,7 +44,7 @@ public class HistogramActionTest extends ActionTest {
         super.setUp();
         List<Document> documents = TestUtils.getHistogramDocuments(getMapper());
         getQueryStore().save(TestUtils.TEST_TABLE_NAME, documents);
-        getElasticsearchServer().getClient()
+        getElasticsearchConnection().getClient()
                 .admin()
                 .indices()
                 .prepareRefresh("*")
@@ -63,8 +62,6 @@ public class HistogramActionTest extends ActionTest {
         HistogramRequest histogramRequest = new HistogramRequest();
         histogramRequest.setTable(TestUtils.TEST_TABLE_NAME);
         histogramRequest.setPeriod(Period.minutes);
-        doReturn(null).when(getElasticsearchConnection())
-                .getClient();
         getQueryExecutor().execute(histogramRequest);
     }
 
@@ -115,7 +112,6 @@ public class HistogramActionTest extends ActionTest {
         counts.add(new HistogramResponse.Count(1397658060000L, 2));
         counts.add(new HistogramResponse.Count(1397658180000L, 1));
         counts.add(new HistogramResponse.Count(1397958060000L, 1));
-        counts.add(new HistogramResponse.Count(1398658200000L, 1));
         assertTrue(response.getCounts()
                            .equals(counts));
     }

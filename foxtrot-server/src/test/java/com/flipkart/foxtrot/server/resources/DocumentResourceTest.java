@@ -66,7 +66,7 @@ public class DocumentResourceTest extends FoxtrotResourceTest {
                 .target("/v1/document/" + TestUtils.TEST_TABLE_NAME)
                 .request()
                 .post(documentEntity);
-        getElasticsearchServer().refresh(ElasticsearchUtils.getIndices(TestUtils.TEST_TABLE_NAME));
+        getElasticsearchConnection().refresh(ElasticsearchUtils.getIndices(TestUtils.TEST_TABLE_NAME));
         Document response = getQueryStore().get(TestUtils.TEST_TABLE_NAME, id);
         compare(document, response);
     }
@@ -152,7 +152,7 @@ public class DocumentResourceTest extends FoxtrotResourceTest {
                 .target(String.format("/v1/document/%s/bulk", TestUtils.TEST_TABLE_NAME))
                 .request()
                 .post(listEntity);
-        getElasticsearchServer().refresh(ElasticsearchUtils.getIndices(TestUtils.TEST_TABLE_NAME));
+        getElasticsearchConnection().refresh(ElasticsearchUtils.getIndices(TestUtils.TEST_TABLE_NAME));
         compare(document1, getQueryStore().get(TestUtils.TEST_TABLE_NAME, id1));
         compare(document2, getQueryStore().get(TestUtils.TEST_TABLE_NAME, id2));
     }
@@ -261,7 +261,7 @@ public class DocumentResourceTest extends FoxtrotResourceTest {
                 .objectNode()
                 .put("D", "data"));
         getQueryStore().save(TestUtils.TEST_TABLE_NAME, document);
-        getElasticsearchServer().refresh(ElasticsearchUtils.getIndices(TestUtils.TEST_TABLE_NAME));
+        getElasticsearchConnection().refresh(ElasticsearchUtils.getIndices(TestUtils.TEST_TABLE_NAME));
         Document response = resources.client()
                 .target(String.format("/v1/document/%s/%s", TestUtils.TEST_TABLE_NAME, id))
                 .request()
@@ -320,7 +320,7 @@ public class DocumentResourceTest extends FoxtrotResourceTest {
         documents.add(document1);
         documents.add(document2);
         getQueryStore().save(TestUtils.TEST_TABLE_NAME, documents);
-        getElasticsearchServer().refresh(ElasticsearchUtils.getIndices(TestUtils.TEST_TABLE_NAME));
+        getElasticsearchConnection().refresh(ElasticsearchUtils.getIndices(TestUtils.TEST_TABLE_NAME));
         String response = resources.client()
                 .target(String.format("/v1/document/%s", TestUtils.TEST_TABLE_NAME))
                 .queryParam("id", id1)
@@ -381,17 +381,11 @@ public class DocumentResourceTest extends FoxtrotResourceTest {
         assertNotNull("Actual document Id should not be null", actual.getId());
         assertNotNull("Actual document data should not be null", actual.getData());
         assertEquals("Actual Doc Id should match expected Doc Id", expected.getId(), actual.getId());
-        assertEquals("Actual Doc Timestamp should match expected Doc Timestamp", expected.getTimestamp(),
-                     actual.getTimestamp()
-                    );
-        Map<String, Object> expectedMap = getMapper().convertValue(expected.getData(),
-                                                                   new TypeReference<HashMap<String, Object>>() {
-                                                                   }
-                                                                  );
-        Map<String, Object> actualMap = getMapper().convertValue(actual.getData(),
-                                                                 new TypeReference<HashMap<String, Object>>() {
-                                                                 }
-                                                                );
+        assertEquals("Actual Doc Timestamp should match expected Doc Timestamp", expected.getTimestamp(), actual.getTimestamp());
+        Map<String, Object> expectedMap = getMapper().convertValue(expected.getData(), new TypeReference<HashMap<String, Object>>() {
+        });
+        Map<String, Object> actualMap = getMapper().convertValue(actual.getData(), new TypeReference<HashMap<String, Object>>() {
+        });
         assertEquals("Actual data should match expected data", expectedMap, actualMap);
     }
 }

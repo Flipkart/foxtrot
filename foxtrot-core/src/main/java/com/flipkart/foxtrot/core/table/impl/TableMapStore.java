@@ -16,25 +16,23 @@
 package com.flipkart.foxtrot.core.table.impl;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.flipkart.foxtrot.common.Table;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConnection;
+import com.flipkart.foxtrot.core.util.ElasticsearchQueryUtils;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.hazelcast.core.MapStore;
 import com.hazelcast.core.MapStoreFactory;
-import org.elasticsearch.action.WriteConsistencyLevel;
 import org.elasticsearch.action.bulk.BulkRequestBuilder;
 import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.get.MultiGetItemResponse;
 import org.elasticsearch.action.get.MultiGetResponse;
 import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.action.search.SearchType;
+import org.elasticsearch.action.support.WriteRequest;
 import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
-import org.elasticsearch.search.SearchHits;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -69,17 +67,17 @@ public class TableMapStore implements MapStore<String, Table> {
         }
         logger.info("Storing key: " + key);
         try {
+            Map<String, Object> sourceMap = ElasticsearchQueryUtils.getSourceMap(value, value.getClass());
             elasticsearchConnection.getClient()
                     .prepareIndex()
                     .setIndex(TABLE_META_INDEX)
                     .setType(TABLE_META_TYPE)
-                    .setConsistencyLevel(WriteConsistencyLevel.ALL)
-                    .setSource(objectMapper.writeValueAsString(value))
+                    .setSource(sourceMap)
                     .setId(key)
-                    .setRefresh(true)
+                    .setRefreshPolicy(WriteRequest.RefreshPolicy.IMMEDIATE)
                     .execute()
                     .actionGet();
-        } catch (JsonProcessingException e) {
+        } catch (Exception e) {
             throw new RuntimeException("Error saving meta: ", e);
         }
     }
@@ -96,18 +94,17 @@ public class TableMapStore implements MapStore<String, Table> {
         logger.info("Store all called for multiple values");
         BulkRequestBuilder bulkRequestBuilder = elasticsearchConnection.getClient()
                 .prepareBulk()
-                .setConsistencyLevel(WriteConsistencyLevel.ALL)
-                .setRefresh(true);
+                .setRefreshPolicy(WriteRequest.RefreshPolicy.IMMEDIATE);
         for(Map.Entry<String, Table> mapEntry : map.entrySet()) {
             try {
                 if(mapEntry.getValue() == null) {
-                    throw new RuntimeException(
-                            String.format("Illegal Store Request - Object is Null for Table - %s", mapEntry.getKey()));
+                    throw new RuntimeException(String.format("Illegal Store Request - Object is Null for Table - %s", mapEntry.getKey()));
                 }
+                Map<String, Object> sourceMap = ElasticsearchQueryUtils.getSourceMap(mapEntry.getValue(), Table.class);
                 bulkRequestBuilder.add(elasticsearchConnection.getClient()
                                                .prepareIndex(TABLE_META_INDEX, TABLE_META_TYPE, mapEntry.getKey())
-                                               .setSource(objectMapper.writeValueAsString(mapEntry.getValue())));
-            } catch (JsonProcessingException e) {
+                                               .setSource(sourceMap));
+            } catch (Exception e) {
                 throw new RuntimeException("Error bulk saving meta: ", e);
             }
         }
@@ -120,8 +117,7 @@ public class TableMapStore implements MapStore<String, Table> {
         logger.info("Delete called for value: " + key);
         elasticsearchConnection.getClient()
                 .prepareDelete()
-                .setConsistencyLevel(WriteConsistencyLevel.ALL)
-                .setRefresh(true)
+                .setRefreshPolicy(WriteRequest.RefreshPolicy.IMMEDIATE)
                 .setIndex(TABLE_META_INDEX)
                 .setType(TABLE_META_TYPE)
                 .setId(key)
@@ -135,8 +131,7 @@ public class TableMapStore implements MapStore<String, Table> {
         logger.info(String.format("Delete all called for multiple values: %s", keys));
         BulkRequestBuilder bulRequestBuilder = elasticsearchConnection.getClient()
                 .prepareBulk()
-                .setConsistencyLevel(WriteConsistencyLevel.ALL)
-                .setRefresh(true);
+                .setRefreshPolicy(WriteRequest.RefreshPolicy.IMMEDIATE);
         for(String key : keys) {
             bulRequestBuilder.add(elasticsearchConnection.getClient()
                                           .prepareDelete(TABLE_META_INDEX, TABLE_META_TYPE, key));
@@ -195,27 +190,29 @@ public class TableMapStore implements MapStore<String, Table> {
                 .prepareSearch(TABLE_META_INDEX)
                 .setTypes(TABLE_META_TYPE)
                 .setQuery(QueryBuilders.matchAllQuery())
-                .setSearchType(SearchType.SCAN)
+                .setSize(ElasticsearchQueryUtils.QUERY_SIZE)
                 .setScroll(new TimeValue(30, TimeUnit.SECONDS))
-                .setNoFields()
+                .setFetchSource(false)
                 .execute()
                 .actionGet();
         Set<String> ids = Sets.newHashSet();
-        while (true) {
+        do {
+            for(SearchHit hit : response.getHits()
+                    .getHits()) {
+                ids.add(hit.getId());
+            }
+            if(0 == response.getHits()
+                    .getHits().length) {
+                break;
+            }
             response = elasticsearchConnection.getClient()
                     .prepareSearchScroll(response.getScrollId())
                     .setScroll(new TimeValue(60000))
                     .execute()
                     .actionGet();
-            SearchHits hits = response.getHits();
-            for(SearchHit hit : hits) {
-                ids.add(hit.getId());
-            }
-            if(0 == response.getHits()
-                    .hits().length) {
-                break;
-            }
-        }
+        } while (response.getHits()
+                         .getHits().length != 0)
+                ;
         logger.info("Loaded value count: " + ids.size());
         return ids;
     }

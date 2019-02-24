@@ -40,13 +40,11 @@ public class FoxtrotExceptions {
         return new BadRequestException(table, e);
     }
 
-    public static MalformedQueryException createMalformedQueryException(ActionRequest actionRequest,
-                                                                        List<String> reasons) {
+    public static MalformedQueryException createMalformedQueryException(ActionRequest actionRequest, List<String> reasons) {
         return new MalformedQueryException(actionRequest, reasons);
     }
 
-    public static CardinalityOverflowException createCardinalityOverflow(ActionRequest actionRequest, String field,
-                                                                         double probability) {
+    public static CardinalityOverflowException createCardinalityOverflow(ActionRequest actionRequest, String field, double probability) {
         return new CardinalityOverflowException(actionRequest, field, probability);
     }
 
@@ -89,6 +87,4 @@ public class FoxtrotExceptions {
     public static UnresolvableActionException createUnresolvableActionException(ActionRequest actionRequest) {
         return new UnresolvableActionException(actionRequest);
     }
-
-
 }

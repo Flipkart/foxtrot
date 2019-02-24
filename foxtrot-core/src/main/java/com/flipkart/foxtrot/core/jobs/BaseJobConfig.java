@@ -44,5 +44,7 @@ public class BaseJobConfig {
 
     private String jobName;
 
+    private int lockAtMostInMinutes;
+
     private int maxTimeToRunJobInMinutes;
 }

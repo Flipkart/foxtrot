@@ -60,13 +60,10 @@ import java.util.List;
 public class FilterAction extends Action<Query> {
     private static final Logger logger = LoggerFactory.getLogger(FilterAction.class);
 
-    public FilterAction(Query parameter, TableMetadataManager tableMetadataManager, DataStore dataStore,
-                        QueryStore queryStore, ElasticsearchConnection connection, String cacheToken,
-                        CacheManager cacheManager, ObjectMapper objectMapper, EmailConfig emailConfig,
-                        AnalyticsLoader analyticsLoader) {
-        super(parameter, tableMetadataManager, dataStore, queryStore, connection, cacheToken, cacheManager,
-              objectMapper, emailConfig
-             );
+    public FilterAction(Query parameter, TableMetadataManager tableMetadataManager, DataStore dataStore, QueryStore queryStore,
+                        ElasticsearchConnection connection, String cacheToken, CacheManager cacheManager, ObjectMapper objectMapper,
+                        EmailConfig emailConfig, AnalyticsLoader analyticsLoader) {
+        super(parameter, tableMetadataManager, dataStore, queryStore, connection, cacheToken, cacheManager, objectMapper, emailConfig);
     }
 
     @Override
@@ -89,11 +86,11 @@ public class FilterAction extends Action<Query> {
     public String getRequestCacheKey() {
         long filterHashKey = 0L;
         Query query = getParameter();
-
-        for(Filter filter : com.collections.CollectionUtils.nullSafeList(query.getFilters())) {
-            filterHashKey += 31 * filter.hashCode();
+        if(null != query.getFilters()) {
+            for(Filter filter : query.getFilters()) {
+                filterHashKey += 31 * filter.hashCode();
+            }
         }
-
         filterHashKey += 31 * (query.getSort() != null ? query.getSort()
                 .hashCode() : "SORT".hashCode());
 
@@ -129,7 +126,7 @@ public class FilterAction extends Action<Query> {
         try {
             logger.info("Search: {}", search);
             SearchResponse response = search.execute()
-                    .actionGet();
+                    .actionGet(getGetQueryTimeout());
             return getResponse(response, parameter);
         } catch (ElasticsearchException e) {
             throw FoxtrotExceptions.createQueryExecutionException(parameter, e);
@@ -147,8 +144,8 @@ public class FilterAction extends Action<Query> {
                     .setQuery(new ElasticSearchQueryGenerator().genFilter(parameter.getFilters()))
                     .setSearchType(SearchType.QUERY_THEN_FETCH)
                     .setFrom(parameter.getFrom())
-                    .addSort(parameter.getSort()
-                                     .getField(), ResultSort.Order.desc == parameter.getSort()
+                    .addSort(Utils.storedFieldName(parameter.getSort()
+                                                           .getField()), ResultSort.Order.desc == parameter.getSort()
                             .getOrder() ? SortOrder.DESC : SortOrder.ASC)
                     .setSize(parameter.getLimit());
         } catch (Exception e) {
@@ -158,8 +155,7 @@ public class FilterAction extends Action<Query> {
     }
 
     @Override
-    public ActionResponse getResponse(org.elasticsearch.action.ActionResponse response, Query parameter)
-            throws FoxtrotException {
+    public ActionResponse getResponse(org.elasticsearch.action.ActionResponse response, Query parameter) throws FoxtrotException {
         List<String> ids = new ArrayList<>();
         SearchHits searchHits = ((SearchResponse)response).getHits();
         for(SearchHit searchHit : searchHits) {
@@ -168,6 +164,6 @@ public class FilterAction extends Action<Query> {
         if(ids.isEmpty()) {
             return new QueryResponse(Collections.<Document>emptyList(), 0);
         }
-        return new QueryResponse(getQueryStore().getAll(parameter.getTable(), ids, true), searchHits.totalHits());
+        return new QueryResponse(getQueryStore().getAll(parameter.getTable(), ids, true), searchHits.getTotalHits());
     }
 }

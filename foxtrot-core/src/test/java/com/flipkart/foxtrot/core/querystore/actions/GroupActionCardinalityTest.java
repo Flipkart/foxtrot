@@ -5,7 +5,6 @@ import com.flipkart.foxtrot.common.group.GroupRequest;
 import com.flipkart.foxtrot.common.group.GroupResponse;
 import com.flipkart.foxtrot.core.TestUtils;
 import com.flipkart.foxtrot.core.exception.CardinalityOverflowException;
-import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchQueryStore;
 import com.google.common.collect.Lists;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Assert;
@@ -27,25 +26,22 @@ public class GroupActionCardinalityTest extends ActionTest {
         super.setUp();
         List<Document> documents = TestUtils.getGroupDocumentsForEstimation(getMapper());
         getQueryStore().save(TestUtils.TEST_TABLE_NAME, documents);
-        getElasticsearchServer().getClient()
+        getElasticsearchConnection().getClient()
                 .admin()
                 .indices()
                 .prepareRefresh("*")
                 .execute()
                 .actionGet();
-        getTableMetadataManager().getFieldMappings(TestUtils.TEST_TABLE_NAME, true, true);
-        ((ElasticsearchQueryStore)getQueryStore()).getCardinalityConfig()
-                .setMaxCardinality(15000);
         getTableMetadataManager().updateEstimationData(TestUtils.TEST_TABLE_NAME, 1397658117000L);
     }
 
+    @Test(expected = CardinalityOverflowException.class)
     public void testEstimationWithMultipleNestingHighCardinality() throws Exception {
         GroupRequest groupRequest = new GroupRequest();
         groupRequest.setTable(TestUtils.TEST_TABLE_NAME);
         groupRequest.setNesting(Lists.newArrayList("os", "deviceId"));
 
         GroupResponse response = GroupResponse.class.cast(getQueryExecutor().execute(groupRequest));
-
         Assert.assertTrue(response.getResult()
                                   .containsKey("android"));
         Assert.assertTrue(response.getResult()

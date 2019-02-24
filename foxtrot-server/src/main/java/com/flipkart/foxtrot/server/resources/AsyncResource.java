@@ -19,6 +19,8 @@ import com.codahale.metrics.annotation.Timed;
 import com.flipkart.foxtrot.common.ActionResponse;
 import com.flipkart.foxtrot.core.cache.CacheManager;
 import com.flipkart.foxtrot.core.common.AsyncDataToken;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.*;
@@ -32,6 +34,7 @@ import javax.ws.rs.core.Response;
  */
 @Path("/v1/async")
 @Produces(MediaType.APPLICATION_JSON)
+@Api(value = "/v1/async", description = "Async API")
 public class AsyncResource {
 
     private CacheManager cacheManager;
@@ -43,6 +46,7 @@ public class AsyncResource {
     @GET
     @Path("/{action}/{id}")
     @Timed
+    @ApiOperation("getResponse")
     public Response getResponse(@PathParam("action") final String action, @NotNull @PathParam("id") final String id) {
         return Response.ok(getData(new AsyncDataToken(action, id)))
                 .build();
@@ -50,6 +54,7 @@ public class AsyncResource {
 
     @POST
     @Timed
+    @ApiOperation("getResponsePost")
     public Response getResponsePost(final AsyncDataToken dataToken) {
         return Response.ok(getData(dataToken))
                 .build();

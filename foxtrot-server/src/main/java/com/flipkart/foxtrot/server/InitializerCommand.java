@@ -43,8 +43,8 @@ public class InitializerCommand extends ConfiguredCommand<FoxtrotServerConfigura
     }
 
     @Override
-    protected void run(Bootstrap<FoxtrotServerConfiguration> bootstrap, Namespace namespace,
-                       FoxtrotServerConfiguration configuration) throws Exception {
+    protected void run(Bootstrap<FoxtrotServerConfiguration> bootstrap, Namespace namespace, FoxtrotServerConfiguration configuration)
+            throws Exception {
         ElasticsearchConfig esConfig = configuration.getElasticsearch();
         ElasticsearchConnection connection = new ElasticsearchConnection(esConfig);
         connection.start();
@@ -77,8 +77,7 @@ public class InitializerCommand extends ConfiguredCommand<FoxtrotServerConfigura
                 .getTableName());
     }
 
-    private void createMetaIndex(final ElasticsearchConnection connection, final String indexName, int replicaCount)
-            throws Exception {
+    private void createMetaIndex(final ElasticsearchConnection connection, final String indexName, int replicaCount) throws Exception {
         try {
             logger.info("'{}' creation started", indexName);
             Settings settings = Settings.builder()

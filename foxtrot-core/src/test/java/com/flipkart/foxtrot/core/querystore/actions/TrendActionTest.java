@@ -36,7 +36,6 @@ import java.util.*;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
-import static org.mockito.Mockito.doReturn;
 
 /**
  * Created by rishabh.goyal on 29/04/14.
@@ -47,7 +46,7 @@ public class TrendActionTest extends ActionTest {
         super.setUp();
         List<Document> documents = TestUtils.getTrendDocuments(getMapper());
         getQueryStore().save(TestUtils.TEST_TABLE_NAME, documents);
-        getElasticsearchServer().getClient()
+        getElasticsearchConnection().getClient()
                 .admin()
                 .indices()
                 .prepareRefresh("*")
@@ -70,8 +69,6 @@ public class TrendActionTest extends ActionTest {
         betweenFilter.setField("_timestamp");
         trendRequest.setField("os");
         trendRequest.setFilters(Collections.<Filter>singletonList(betweenFilter));
-        doReturn(null).when(getElasticsearchConnection())
-                .getClient();
         getQueryExecutor().execute(trendRequest);
     }
 

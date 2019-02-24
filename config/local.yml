@@ -7,22 +7,22 @@ server:
       port: 17001
 
 elasticsearch:
-  hosts: localhost
-  cluster: elasticsearch
+  hosts: prd-esfoxtrot601.phonepe.nm1
+  cluster: prd-foxtrotes6
   tableNamePrefix: foxtrot
   getQueryTimeout: 10000
 
 serviceDiscovery:
-  namespace: local
+  namespace: phonepe
   environment: local
   zookeeper: localhost:2181
   publishedHost: 127.0.0.1
   publishedPort: 8080
 
 riemann:
-  host: riemann-stage.local.int
+  host: riemann-stage.phonepe.int
   port: 5555
-  prefix: local.foxtrot
+  prefix: phonepe.local.foxtrot
   pollingInterval: 30
   tags:
     - foxtrot
@@ -30,7 +30,7 @@ riemann:
 hbase:
   secure : false
   tableName: foxtrot
-  hbaseZookeeperQuorum: localhost
+  hbaseZookeeperQuorum: prd-foxtrot001.phonepe.nm1:2181,prd-foxtrot002.phonepe.nm1:2181,prd-foxtrot003.phonepe.nm1:2181
   hbaseZookeeperClientPort: 2181
 
 cluster:
@@ -60,7 +60,26 @@ esIndexOptimizationConfig:
   interval: 86400
   initialDelay: 6
 
+consoleHistoryConfig:
+  active: true
+  interval: 86400
+  initialDelay: 10
+
 deletionconfig:
   active: false
   interval: 86400
   initialdelay: 60
+
+emailConfig:
+  from: noreply@phonepe.com
+  host: ops-jump001.phonepe.nm1
+  port: 25
+  user: AKIAJLCWHAOEDK4ZDOGQ
+  password: AgjCxNI68hrnj6bIzuJCiZBlDXW+TioRoU11++Yx97
+  url: /
+
+swagger:
+  resourcePackage: com.flipkart.foxtrot.server.resources
+  title: Foxtrot
+  description: A store abstraction and analytics system for real-time event data.
+  uriPrefix: "/foxtrot"
