@@ -339,7 +339,6 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
 
     private Map<String, EstimationData> estimateFirstPhaseData(String table, String index, Client client,
                                                                Map<String, FieldMetadata> fields) {
-        MultiSearchRequestBuilder multiQuery = client.prepareMultiSearch();
         Map<String, EstimationData> estimationDataMap = Maps.newHashMap();
         int subListSize;
         if(cardinalityConfig == null || cardinalityConfig.getSubListSize() == 0) {
@@ -353,7 +352,7 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
                 .collect(mapSize(subListSize));
 
         for(Map<String, FieldMetadata> innerMap : listofMaps) {
-
+            MultiSearchRequestBuilder multiQuery = client.prepareMultiSearch();
             innerMap.values()
                     .forEach(fieldMetadata -> {
                         String field = fieldMetadata.getField();
