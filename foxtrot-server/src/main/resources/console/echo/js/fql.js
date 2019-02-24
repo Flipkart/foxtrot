@@ -11,7 +11,9 @@ function loadConsole() { // load console list api
   });
 }
 
-loadConsole();
+if(isLoggedIn()) {
+  loadConsole();  
+}
 
 function renderTable(dataRaw) {
   var data = JSON.parse(dataRaw);
@@ -57,6 +59,7 @@ function renderTable(dataRaw) {
 
 // Get query
 function fqlQuery() {
+  isLoggedIn();
   showLoader();
   $.ajax({
     method: 'POST',
