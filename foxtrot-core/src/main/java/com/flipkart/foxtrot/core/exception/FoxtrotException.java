@@ -5,7 +5,7 @@ import java.util.Map;
 /**
  * Created by rishabh.goyal on 13/12/15.
  */
-public abstract class FoxtrotException extends RuntimeException {
+public abstract class FoxtrotException extends Exception {
 
     private ErrorCode code;
 
