@@ -23,7 +23,7 @@ hbase:
 
 #enitity store compose
 foxtrot-server:
-  links:
+    depends_on:
    - elasticsearch
    - hbase
   container_name: foxtrot_server
@@ -43,3 +43,7 @@ foxtrot-server:
    - HBASE_TABLE_NAME=foxtrot
    - HBASE_ZOOKEEPER_QUORUM=hbase
    - HBASE_ZOOKEEPER_CLIENT_PORT=2181
+   - HAZELCAST_CLUSTER_NAME=foxtrot
+   - CONFIG_ENV=stage
+   - CARDINALITY_ENABLED=true
+   - DEFAULT_LIST_SIZE=50
