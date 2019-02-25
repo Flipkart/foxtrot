@@ -62,7 +62,6 @@ function resetPeriodDropdown() { // reset all dropdown values to custom if globa
  * Refresh single tile at at time
  */
 function refreshSingleTile(object) {
-  isLoggedIn(); // check user is logged in
   var a = new TileFactory();
   a.createGraph(object, $("#"+ object.id));
   if(globalFilters)
@@ -70,7 +69,6 @@ function refreshSingleTile(object) {
 }
 
 function refereshTiles() { // auto query for each tile
-  isLoggedIn(); // check user is logged in
   for (var key in tileData) {
     if (tileData.hasOwnProperty(key)) {
       var a = new TileFactory();
