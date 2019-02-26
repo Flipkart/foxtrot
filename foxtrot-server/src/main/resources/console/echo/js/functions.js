@@ -530,3 +530,30 @@ function getErrorMsg(errorType, err) {
     return "No results found";
   }
 }
+
+/**
+ * seperate number and string
+ */
+function seperateStringAndNumber(inputText) {
+  var output = [];
+  var json = inputText.split(' ');
+  json.forEach(function (item) {
+      output.push(item.replace(/\'/g, '').split(/(\d+)/).filter(Boolean));
+  });
+  return output[0];
+}
+
+function getPeriodText(text) {
+  if (!text) {
+    return null;
+  }
+  if (text == "d") {
+    return "days";
+  }
+  else if (text == "h") {
+    return "hours";
+  }
+  else {
+    return "minutes";
+  }
+}

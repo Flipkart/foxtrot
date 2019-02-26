@@ -73,19 +73,5 @@ public class FoxtrotServerConfiguration extends Configuration {
         this.emailConfig = new EmailConfig();
     }
 
-    public HbaseConfig getHbase() {
-        return hbase;
-    }
 
-    public ElasticsearchConfig getElasticsearch() {
-        return elasticsearch;
-    }
-
-    public ClusterConfig getCluster() {
-        return cluster;
-    }
-
-    public DataDeletionManagerConfig getTableDataManagerConfig() {
-        return deletionManagerConfig;
-    }
 }
