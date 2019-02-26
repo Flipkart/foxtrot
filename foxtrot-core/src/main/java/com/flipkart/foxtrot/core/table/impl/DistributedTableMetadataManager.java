@@ -110,6 +110,10 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
                 .put(CARDINALITY_FIELD_MAP, cardinalityFieldMetaMapConfig());
     }
 
+    public boolean cardinalityCacheContains(String table) {
+        return fieldDataCardinalityCache.containsKey(table);
+    }
+
     private static <K, V> Collector<Map.Entry<K, V>, ?, List<Map<K, V>>> mapSize(int limit) {
         return Collector.of(ArrayList::new, (l, e) -> {
             if(l.isEmpty() || l.get(l.size() - 1)
@@ -335,7 +339,6 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
 
     private Map<String, EstimationData> estimateFirstPhaseData(String table, String index, Client client,
                                                                Map<String, FieldMetadata> fields) {
-        MultiSearchRequestBuilder multiQuery = client.prepareMultiSearch();
         Map<String, EstimationData> estimationDataMap = Maps.newHashMap();
         int subListSize;
         if(cardinalityConfig == null || cardinalityConfig.getSubListSize() == 0) {
@@ -349,7 +352,7 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
                 .collect(mapSize(subListSize));
 
         for(Map<String, FieldMetadata> innerMap : listofMaps) {
-
+            MultiSearchRequestBuilder multiQuery = client.prepareMultiSearch();
             innerMap.values()
                     .forEach(fieldMetadata -> {
                         String field = fieldMetadata.getField();
@@ -456,7 +459,7 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
                                             fieldMetadata.getType(), "cardinality", cardinality.getValue()
                                            );
                                 EstimationData estimationData = estimationDataMap.get(key.replace("_", ""));
-                                if(estimationData != null && estimationData instanceof PercentileEstimationData) {
+                                if(estimationData instanceof PercentileEstimationData) {
                                     ((PercentileEstimationData)estimationData).setCardinality(cardinality.getValue());
                                 } else {
                                     estimationDataMap.put(key.replace("_", ""), PercentileEstimationData.builder()

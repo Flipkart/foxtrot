@@ -155,7 +155,6 @@ public class MultiQueryAction extends Action<MultiQueryRequest> {
     public ActionResponse getResponse(org.elasticsearch.action.ActionResponse multiSearchResponse,
                                       MultiQueryRequest parameter) throws FoxtrotException {
 
-        MultiQueryResponse multiQueryResponse = new MultiQueryResponse(Opcodes.MULTI_QUERY);
         Map<String, ActionResponse> queryVsQueryResponseMap = Maps.newHashMap();
         int queryCounter = 0;
         List<String> queryKeys = Lists.newArrayList();
@@ -180,8 +179,7 @@ public class MultiQueryAction extends Action<MultiQueryRequest> {
             ActionResponse response = action.getResponse(item.getResponse(), request);
             queryVsQueryResponseMap.put(key, response);
         }
-        multiQueryResponse.setResponses(queryVsQueryResponseMap);
-        return multiQueryResponse;
+        return new MultiQueryResponse(queryVsQueryResponseMap);
     }
 
     private String processForSubQueries(MultiQueryRequest multiQueryRequest, ActionInterface actionInterface) {

@@ -186,7 +186,7 @@ public class FoxtrotServer extends Application<FoxtrotServerConfiguration> {
         );
         QueryExecutor executor = new QueryExecutor(analyticsLoader, executorService);
 
-        DataDeletionManagerConfig dataDeletionManagerConfig = configuration.getTableDataManagerConfig();
+        DataDeletionManagerConfig dataDeletionManagerConfig = configuration.getDeletionManagerConfig();
         DataDeletionManager dataDeletionManager = new DataDeletionManager(dataDeletionManagerConfig, queryStore,
                                                                           scheduledExecutorService, hazelcastConnection
         );
