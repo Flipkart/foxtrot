@@ -350,7 +350,7 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
                 .stream()
                 .collect(mapSize(subListSize));
 
-        for(Map<String, FieldMetadata> innerMap : listofMaps) {
+        for(Map<String, FieldMetadata> innerMap : listOfMaps) {
 
             MultiSearchRequestBuilder multiQuery = client.prepareMultiSearch();
             innerMap.values()
