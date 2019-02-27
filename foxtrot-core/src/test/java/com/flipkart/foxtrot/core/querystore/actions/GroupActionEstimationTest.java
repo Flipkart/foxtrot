@@ -90,7 +90,7 @@ public class GroupActionEstimationTest extends ActionTest {
     }
 
 
-    @Test
+    @Test(expected =  CardinalityOverflowException.class)
     // High cardinality field queries are allowed if scoped in small cardinality field
     public void testEstimationCardinalFilterHighCardinality() throws Exception {
         GroupRequest groupRequest = new GroupRequest();
@@ -110,7 +110,7 @@ public class GroupActionEstimationTest extends ActionTest {
                                    .isEmpty());
     }
 
-    @Test
+    @Test(expected = CardinalityOverflowException.class)
     public void testEstimationGTFilterHighCardinality() throws Exception {
         GroupRequest groupRequest = new GroupRequest();
         groupRequest.setTable(TestUtils.TEST_TABLE_NAME);
