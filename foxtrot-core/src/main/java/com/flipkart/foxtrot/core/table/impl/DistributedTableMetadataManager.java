@@ -350,7 +350,8 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
                 .stream()
                 .collect(mapSize(subListSize));
 
-        for(Map<String, FieldMetadata> innerMap : listOfMaps) {
+        for(Map<String, FieldMetadata> innerMap : listofMaps) {
+
             MultiSearchRequestBuilder multiQuery = client.prepareMultiSearch();
             innerMap.values()
                     .forEach(fieldMetadata -> {
@@ -456,7 +457,7 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
                                             "cardinality", cardinality.getValue()
                                            );
                                 EstimationData estimationData = estimationDataMap.get(key.replace("_", ""));
-                                if(estimationData != null && estimationData instanceof PercentileEstimationData) {
+                                if(estimationData instanceof PercentileEstimationData) {
                                     ((PercentileEstimationData)estimationData).setCardinality(cardinality.getValue());
                                 } else {
                                     estimationDataMap.put(key.replace("_", ""), PercentileEstimationData.builder()
