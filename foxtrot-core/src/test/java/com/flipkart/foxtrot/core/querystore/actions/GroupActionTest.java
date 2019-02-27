@@ -23,6 +23,7 @@ import com.flipkart.foxtrot.common.query.Filter;
 import com.flipkart.foxtrot.common.query.general.EqualsFilter;
 import com.flipkart.foxtrot.common.query.numeric.GreaterThanFilter;
 import com.flipkart.foxtrot.core.TestUtils;
+import com.flipkart.foxtrot.core.exception.CardinalityOverflowException;
 import com.flipkart.foxtrot.core.exception.ErrorCode;
 import com.flipkart.foxtrot.core.exception.FoxtrotException;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchQueryStore;
@@ -47,7 +48,7 @@ public class GroupActionTest extends ActionTest {
         super.setUp();
         List<Document> documents = TestUtils.getGroupDocuments(getMapper());
         getQueryStore().save(TestUtils.TEST_TABLE_NAME, documents);
-        getElasticsearchServer().getClient()
+        getElasticsearchConnection().getClient()
                 .admin()
                 .indices()
                 .prepareRefresh("*")
@@ -121,8 +122,7 @@ public class GroupActionTest extends ActionTest {
     }
 
     @Test
-    public void testGroupActionSingleFieldHavingSpecialCharactersWithFilter()
-            throws FoxtrotException, JsonProcessingException {
+    public void testGroupActionSingleFieldHavingSpecialCharactersWithFilter() throws FoxtrotException, JsonProcessingException {
         GroupRequest groupRequest = new GroupRequest();
         groupRequest.setTable(TestUtils.TEST_TABLE_NAME);
 
@@ -238,6 +238,7 @@ public class GroupActionTest extends ActionTest {
             put("ipad", iPadResponse);
             put("iphone", iPhoneResponse);
         }});
+
 
         GroupResponse actualResult = GroupResponse.class.cast(getQueryExecutor().execute(groupRequest));
         assertEquals(response, actualResult.getResult());

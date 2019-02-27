@@ -17,7 +17,6 @@ package com.flipkart.foxtrot.core.querystore;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.flipkart.foxtrot.common.ActionRequest;
-import com.flipkart.foxtrot.core.MockElasticsearchServer;
 import com.flipkart.foxtrot.core.TestUtils;
 import com.flipkart.foxtrot.core.alerts.EmailConfig;
 import com.flipkart.foxtrot.core.cache.CacheManager;
@@ -34,6 +33,7 @@ import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConnection;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
 import com.flipkart.foxtrot.core.querystore.impl.HazelcastConnection;
 import com.flipkart.foxtrot.core.table.TableMetadataManager;
+import com.flipkart.foxtrot.core.table.impl.ElasticsearchTestUtils;
 import com.hazelcast.config.Config;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.test.TestHazelcastInstanceFactory;
@@ -43,7 +43,6 @@ import org.junit.Test;
 import org.mockito.Mockito;
 
 import java.io.IOException;
-import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -57,9 +56,9 @@ import static org.mockito.Mockito.*;
 public class QueryExecutorTest {
     private QueryExecutor queryExecutor;
     private ObjectMapper mapper = new ObjectMapper();
-    private MockElasticsearchServer elasticsearchServer;
     private HazelcastInstance hazelcastInstance;
     private AnalyticsLoader analyticsLoader;
+    private ElasticsearchConnection elasticsearchConnection;
 
     @Before
     public void setUp() throws Exception {
@@ -70,20 +69,16 @@ public class QueryExecutorTest {
         HazelcastConnection hazelcastConnection = Mockito.mock(HazelcastConnection.class);
         when(hazelcastConnection.getHazelcast()).thenReturn(hazelcastInstance);
         when(hazelcastConnection.getHazelcastConfig()).thenReturn(new Config());
-        CacheManager cacheManager = new CacheManager(
-                new DistributedCacheFactory(hazelcastConnection, mapper, new CacheConfig()));
-        elasticsearchServer = new MockElasticsearchServer(UUID.randomUUID()
-                                                                  .toString());
-        ElasticsearchConnection elasticsearchConnection = Mockito.mock(ElasticsearchConnection.class);
-        when(elasticsearchConnection.getClient()).thenReturn(elasticsearchServer.getClient());
-        ElasticsearchUtils.initializeMappings(elasticsearchServer.getClient());
+        CacheManager cacheManager = new CacheManager(new DistributedCacheFactory(hazelcastConnection, mapper, new CacheConfig()));
+        elasticsearchConnection = ElasticsearchTestUtils.getConnection();
+        ElasticsearchUtils.initializeMappings(elasticsearchConnection.getClient());
         TableMetadataManager tableMetadataManager = mock(TableMetadataManager.class);
         when(tableMetadataManager.exists(anyString())).thenReturn(true);
         when(tableMetadataManager.get(anyString())).thenReturn(TestUtils.TEST_TABLE);
         QueryStore queryStore = mock(QueryStore.class);
         analyticsLoader = spy(
-                new AnalyticsLoader(tableMetadataManager, dataStore, queryStore, elasticsearchConnection, cacheManager,
-                                    mapper, new EmailConfig()
+                new AnalyticsLoader(tableMetadataManager, dataStore, queryStore, elasticsearchConnection, cacheManager, mapper,
+                                    new EmailConfig()
                 ));
         TestUtils.registerActions(analyticsLoader, mapper);
         ExecutorService executorService = Executors.newFixedThreadPool(1);
@@ -92,7 +87,7 @@ public class QueryExecutorTest {
 
     @After
     public void tearDown() throws Exception {
-        elasticsearchServer.shutdown();
+        elasticsearchConnection.stop();
         hazelcastInstance.shutdown();
     }
 

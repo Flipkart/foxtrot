@@ -48,7 +48,7 @@ public class AnalyticsResourceTest extends FoxtrotResourceTest {
         super();
         List<Document> documents = TestUtils.getGroupDocuments(getMapper());
         getQueryStore().save(TestUtils.TEST_TABLE_NAME, documents);
-        getElasticsearchServer().getClient()
+        getElasticsearchConnection().getClient()
                 .admin()
                 .indices()
                 .prepareRefresh("*")
@@ -186,9 +186,8 @@ public class AnalyticsResourceTest extends FoxtrotResourceTest {
                 .request()
                 .post(serviceUserEntity, AsyncDataToken.class);
         Thread.sleep(2000);
-        GroupResponse actualResponse = GroupResponse.class.cast(
-                getCacheManager().getCacheFor(asyncDataToken.getAction())
-                        .get(asyncDataToken.getKey()));
+        GroupResponse actualResponse = GroupResponse.class.cast(getCacheManager().getCacheFor(asyncDataToken.getAction())
+                                                                        .get(asyncDataToken.getKey()));
         assertEquals(expectedResponse.getResult(), actualResponse.getResult());
     }
 }

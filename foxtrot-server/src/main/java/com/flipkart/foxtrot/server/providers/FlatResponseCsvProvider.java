@@ -25,15 +25,13 @@ public class FlatResponseCsvProvider implements MessageBodyWriter<FlatRepresenta
     }
 
     @Override
-    public long getSize(FlatRepresentation response, Class<?> type, Type genericType, Annotation[] annotations,
-                        MediaType mediaType) {
+    public long getSize(FlatRepresentation response, Class<?> type, Type genericType, Annotation[] annotations, MediaType mediaType) {
         return -1;
     }
 
     @Override
-    public void writeTo(FlatRepresentation response, Class<?> type, Type genericType, Annotation[] annotations,
-                        MediaType mediaType, MultivaluedMap<String, Object> httpHeaders, OutputStream entityStream)
-            throws IOException, WebApplicationException {
+    public void writeTo(FlatRepresentation response, Class<?> type, Type genericType, Annotation[] annotations, MediaType mediaType,
+                        MultivaluedMap<String, Object> httpHeaders, OutputStream entityStream) throws IOException, WebApplicationException {
         if(null == response) {
             entityStream.write("No records found matching the specified criterion".getBytes());
             return;

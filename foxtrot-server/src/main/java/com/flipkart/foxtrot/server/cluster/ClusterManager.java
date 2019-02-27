@@ -32,8 +32,7 @@ public class ClusterManager implements Managed {
     private HazelcastConnection hazelcastConnection;
     private ScheduledExecutorService executor;
 
-    public ClusterManager(HazelcastConnection connection, List<HealthCheck> healthChecks, ServerFactory serverFactory)
-            throws Exception {
+    public ClusterManager(HazelcastConnection connection, List<HealthCheck> healthChecks, ServerFactory serverFactory) throws Exception {
         this.hazelcastConnection = connection;
         this.healthChecks = healthChecks;
         MapConfig mapConfig = new MapConfig(MAP_NAME);
@@ -62,9 +61,7 @@ public class ClusterManager implements Managed {
     public void start() throws Exception {
         members = hazelcastConnection.getHazelcast()
                 .getMap(MAP_NAME);
-        executor.scheduleWithFixedDelay(new NodeDataUpdater(healthChecks, members, clusterMember), 0, MAP_REFRESH_TIME,
-                                        TimeUnit.SECONDS
-                                       );
+        executor.scheduleWithFixedDelay(new NodeDataUpdater(healthChecks, members, clusterMember), 0, MAP_REFRESH_TIME, TimeUnit.SECONDS);
     }
 
     @Override
@@ -81,8 +78,7 @@ public class ClusterManager implements Managed {
         private final ClusterMember clusterMember;
         private IMap<String, ClusterMember> members;
 
-        private NodeDataUpdater(List<HealthCheck> healthChecks, IMap<String, ClusterMember> members,
-                                ClusterMember clusterMember) {
+        private NodeDataUpdater(List<HealthCheck> healthChecks, IMap<String, ClusterMember> members, ClusterMember clusterMember) {
             this.healthChecks = ImmutableList.copyOf(healthChecks);
             this.members = members;
             this.clusterMember = clusterMember;

@@ -8,7 +8,7 @@ server:
 
 elasticsearch:
   hosts: localhost
-  cluster: elasticsearch
+  cluster: foxtrot
   tableNamePrefix: foxtrot
   getQueryTimeout: 10000
 
@@ -30,7 +30,7 @@ riemann:
 hbase:
   secure : false
   tableName: foxtrot
-  hbaseZookeeperQuorum: localhost
+  hbaseZookeeperQuorum: localhost:2181
   hbaseZookeeperClientPort: 2181
 
 cluster:
@@ -60,7 +60,18 @@ esIndexOptimizationConfig:
   interval: 86400
   initialDelay: 6
 
+consoleHistoryConfig:
+  active: true
+  interval: 86400
+  initialDelay: 10
+
 deletionconfig:
   active: false
   interval: 86400
   initialdelay: 60
+
+swagger:
+  resourcePackage: com.flipkart.foxtrot.server.resources
+  title: Foxtrot
+  description: A store abstraction and analytics system for real-time event data.
+  uriPrefix: "/foxtrot"

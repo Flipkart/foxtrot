@@ -1,6 +1,8 @@
 package com.flipkart.foxtrot.common;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import lombok.Data;
+import lombok.ToString;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
 import java.io.Serializable;
@@ -8,34 +10,22 @@ import java.io.Serializable;
 /**
  * Metadata for a document
  */
+@Data
+@ToString
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class DocumentMetadata implements Serializable {
     private static final long serialVersionUID = -2513729439392513459L;
     private String id;
     private String rawStorageId;
+    private long time;
 
     public DocumentMetadata() {
     }
 
-    public DocumentMetadata(String id, String rawStorageId) {
+    public DocumentMetadata(String id, String rawStorageId, long time) {
         this.id = id;
         this.rawStorageId = rawStorageId;
-    }
-
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
-    }
-
-    public String getRawStorageId() {
-        return rawStorageId;
-    }
-
-    public void setRawStorageId(String rawStorageId) {
-        this.rawStorageId = rawStorageId;
+        this.time = time;
     }
 
     @Override

@@ -77,12 +77,9 @@ public class HBaseDataStore implements DataStore {
             if(forceTableCreate) {
                 tableWrapper.createTable(table);
             } else {
-                throw FoxtrotExceptions.createTableInitializationException(table,
-                                                                           String.format("Create HBase Table - %s",
-                                                                                         tableWrapper.getHBaseTableName(
-                                                                                                 table)
-                                                                                        )
-                                                                          );
+                throw FoxtrotExceptions.createTableInitializationException(table, String.format("Create HBase Table - %s",
+                                                                                                tableWrapper.getHBaseTableName(table)
+                                                                                               ));
             }
         } catch (IOException e) {
             throw FoxtrotExceptions.createConnectionException(table, e);
@@ -158,9 +155,7 @@ public class HBaseDataStore implements DataStore {
     @Timed
     public Document get(final Table table, String id) throws FoxtrotException {
         try (org.apache.hadoop.hbase.client.Table hTable = tableWrapper.getTable(table)) {
-            Get get = new Get(Bytes.toBytes(translator.rawStorageIdFromDocumentId(table, id))).addColumn(COLUMN_FAMILY,
-                                                                                                         DOCUMENT_FIELD_NAME
-                                                                                                        )
+            Get get = new Get(Bytes.toBytes(translator.rawStorageIdFromDocumentId(table, id))).addColumn(COLUMN_FAMILY, DOCUMENT_FIELD_NAME)
                     .addColumn(COLUMN_FAMILY, DOCUMENT_META_FIELD_NAME)
                     .addColumn(COLUMN_FAMILY, TIMESTAMP_FIELD_NAME)
                     .setMaxVersions(1);
@@ -170,9 +165,7 @@ public class HBaseDataStore implements DataStore {
                 byte[] metadata = getResult.getValue(COLUMN_FAMILY, DOCUMENT_META_FIELD_NAME);
                 byte[] timestamp = getResult.getValue(COLUMN_FAMILY, TIMESTAMP_FIELD_NAME);
                 long time = Bytes.toLong(timestamp);
-                DocumentMetadata documentMetadata = (null != metadata) ? mapper.readValue(metadata,
-                                                                                          DocumentMetadata.class
-                                                                                         ) : null;
+                DocumentMetadata documentMetadata = (null != metadata) ? mapper.readValue(metadata, DocumentMetadata.class) : null;
                 return translator.translateBack(new Document(id, time, documentMetadata, mapper.readTree(data)));
             } else {
                 logger.error("ID missing in HBase - " + id);
@@ -192,8 +185,9 @@ public class HBaseDataStore implements DataStore {
         try (org.apache.hadoop.hbase.client.Table hTable = tableWrapper.getTable(table)) {
             List<Get> gets = new ArrayList<>(ids.size());
             for(String id : ids) {
-                Get get = new Get(Bytes.toBytes(translator.rawStorageIdFromDocumentId(table, id))).addColumn(
-                        COLUMN_FAMILY, DOCUMENT_FIELD_NAME)
+                Get get = new Get(Bytes.toBytes(translator.rawStorageIdFromDocumentId(table, id))).addColumn(COLUMN_FAMILY,
+                                                                                                             DOCUMENT_FIELD_NAME
+                                                                                                            )
                         .addColumn(COLUMN_FAMILY, DOCUMENT_META_FIELD_NAME)
                         .addColumn(COLUMN_FAMILY, TIMESTAMP_FIELD_NAME)
                         .setMaxVersions(1);
@@ -209,13 +203,10 @@ public class HBaseDataStore implements DataStore {
                     byte[] metadata = getResult.getValue(COLUMN_FAMILY, DOCUMENT_META_FIELD_NAME);
                     byte[] timestamp = getResult.getValue(COLUMN_FAMILY, TIMESTAMP_FIELD_NAME);
                     long time = Bytes.toLong(timestamp);
-                    DocumentMetadata documentMetadata = (null != metadata) ? mapper.readValue(metadata,
-                                                                                              DocumentMetadata.class
-                                                                                             ) : null;
+                    DocumentMetadata documentMetadata = (null != metadata) ? mapper.readValue(metadata, DocumentMetadata.class) : null;
                     final String docId = (null == metadata) ? Bytes.toString(getResult.getRow())
                             .split(":")[0] : documentMetadata.getRawStorageId();
-                    results.add(translator.translateBack(
-                            new Document(docId, time, documentMetadata, mapper.readTree(data))));
+                    results.add(translator.translateBack(new Document(docId, time, documentMetadata, mapper.readTree(data))));
                 } else {
                     missingIds.add(ids.get(index));
                 }
@@ -237,8 +228,7 @@ public class HBaseDataStore implements DataStore {
     public Put getPutForDocument(Document document) throws JsonProcessingException {
         return new Put(Bytes.toBytes(document.getMetadata()
                                              .getRawStorageId())).addColumn(COLUMN_FAMILY, DOCUMENT_META_FIELD_NAME,
-                                                                            mapper.writeValueAsBytes(
-                                                                                    document.getMetadata())
+                                                                            mapper.writeValueAsBytes(document.getMetadata())
                                                                            )
                 .addColumn(COLUMN_FAMILY, DOCUMENT_FIELD_NAME, mapper.writeValueAsBytes(document.getData()))
                 .addColumn(COLUMN_FAMILY, TIMESTAMP_FIELD_NAME, Bytes.toBytes(document.getTimestamp()))

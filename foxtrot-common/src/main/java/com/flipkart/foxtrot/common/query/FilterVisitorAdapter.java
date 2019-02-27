@@ -4,6 +4,7 @@ import com.flipkart.foxtrot.common.query.datetime.LastFilter;
 import com.flipkart.foxtrot.common.query.general.*;
 import com.flipkart.foxtrot.common.query.numeric.*;
 import com.flipkart.foxtrot.common.query.string.ContainsFilter;
+import com.flipkart.foxtrot.common.query.string.WildCardFilter;
 
 /**
  * Created by santanu on 6/7/17.
@@ -83,6 +84,11 @@ public class FilterVisitorAdapter<T> extends FilterVisitor<T> {
 
     @Override
     public T visit(MissingFilter missingFilter) throws Exception {
+        return defaultValue;
+    }
+
+    @Override
+    public T visit(WildCardFilter wildCardFilter) throws Exception {
         return defaultValue;
     }
 }

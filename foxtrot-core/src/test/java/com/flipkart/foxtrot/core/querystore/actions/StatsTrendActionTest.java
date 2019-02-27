@@ -45,7 +45,7 @@ public class StatsTrendActionTest extends ActionTest {
         super.setUp();
         List<Document> documents = TestUtils.getStatsTrendDocuments(getMapper());
         getQueryStore().save(TestUtils.TEST_TABLE_NAME, documents);
-        getElasticsearchServer().getClient()
+        getElasticsearchConnection().getClient()
                 .admin()
                 .indices()
                 .prepareRefresh("*")

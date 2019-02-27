@@ -32,8 +32,8 @@ import org.junit.Test;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.doReturn;
 
 /**
  * Created by rishabh.goyal on 28/04/14.
@@ -45,7 +45,7 @@ public class HistogramActionTest extends ActionTest {
         super.setUp();
         List<Document> documents = TestUtils.getHistogramDocuments(getMapper());
         getQueryStore().save(TestUtils.TEST_TABLE_NAME, documents);
-        getElasticsearchServer().getClient()
+        getElasticsearchConnection().getClient()
                 .admin()
                 .indices()
                 .prepareRefresh("*")
@@ -56,16 +56,6 @@ public class HistogramActionTest extends ActionTest {
     private void filterNonZeroCounts(HistogramResponse response) {
         response.getCounts()
                 .removeIf(count -> count.getCount() == 0);
-    }
-
-    @Test(expected = FoxtrotException.class)
-    public void testHistogramActionAnyException() throws FoxtrotException, JsonProcessingException {
-        HistogramRequest histogramRequest = new HistogramRequest();
-        histogramRequest.setTable(TestUtils.TEST_TABLE_NAME);
-        histogramRequest.setPeriod(Period.minutes);
-        doReturn(null).when(getElasticsearchConnection())
-                .getClient();
-        getQueryExecutor().execute(histogramRequest);
     }
 
     @Test
@@ -116,8 +106,7 @@ public class HistogramActionTest extends ActionTest {
         counts.add(new HistogramResponse.Count(1397658180000L, 1));
         counts.add(new HistogramResponse.Count(1397958060000L, 1));
         counts.add(new HistogramResponse.Count(1398658200000L, 1));
-        assertTrue(response.getCounts()
-                           .equals(counts));
+        assertEquals(response.getCounts(), counts);
     }
 
     @Test
@@ -141,8 +130,7 @@ public class HistogramActionTest extends ActionTest {
         counts.add(new HistogramResponse.Count(1397957400000L, 1));
         counts.add(new HistogramResponse.Count(1398652200000L, 2));
         counts.add(new HistogramResponse.Count(1398655800000L, 1));
-        assertTrue(response.getCounts()
-                           .equals(counts));
+        assertEquals(response.getCounts(), counts);
     }
 
     @Test
@@ -190,8 +178,7 @@ public class HistogramActionTest extends ActionTest {
         counts.add(new HistogramResponse.Count(1397673000000L, 1));
         counts.add(new HistogramResponse.Count(1397932200000L, 1));
         counts.add(new HistogramResponse.Count(1398623400000L, 3));
-        assertTrue(response.getCounts()
-                           .equals(counts));
+        assertEquals(response.getCounts(), counts);
     }
 
     @Test

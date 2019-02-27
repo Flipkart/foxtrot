@@ -4,6 +4,7 @@ import com.flipkart.foxtrot.common.Document;
 import com.flipkart.foxtrot.common.group.GroupRequest;
 import com.flipkart.foxtrot.common.group.GroupResponse;
 import com.flipkart.foxtrot.common.query.general.EqualsFilter;
+import com.flipkart.foxtrot.common.query.numeric.BetweenFilter;
 import com.flipkart.foxtrot.common.query.numeric.GreaterThanFilter;
 import com.flipkart.foxtrot.common.query.numeric.LessThanFilter;
 import com.flipkart.foxtrot.core.TestUtils;
@@ -29,7 +30,7 @@ public class GroupActionEstimationTest extends ActionTest {
         super.setUp();
         List<Document> documents = TestUtils.getGroupDocumentsForEstimation(getMapper());
         getQueryStore().save(TestUtils.TEST_TABLE_NAME, documents);
-        getElasticsearchServer().getClient()
+        getElasticsearchConnection().getClient()
                 .admin()
                 .indices()
                 .prepareRefresh("*")
@@ -55,6 +56,8 @@ public class GroupActionEstimationTest extends ActionTest {
                                   .containsKey("ios"));
     }
 
+
+    @Test(expected = CardinalityOverflowException.class)
     // Block queries on high cardinality fields
     public void testEstimationNoFilterHighCardinality() throws Exception {
         GroupRequest groupRequest = new GroupRequest();
@@ -65,6 +68,28 @@ public class GroupActionEstimationTest extends ActionTest {
     }
 
     @Test
+    // High cardinality field queries are allowed if in a small time span
+    public void testEstimationTemporalFilterHighCardinality() throws Exception {
+        GroupRequest groupRequest = new GroupRequest();
+        groupRequest.setTable(TestUtils.TEST_TABLE_NAME);
+        groupRequest.setNesting(Collections.singletonList("deviceId"));
+        groupRequest.setFilters(ImmutableList.of(BetweenFilter.builder()
+                                                         .field("_timestamp")
+                                                         .temporal(true)
+                                                         .from(1397658117000L)
+                                                         .to(1397658117000L + 2 * 60000)
+                                                         .build()));
+
+        log.debug(getMapper().writerWithDefaultPrettyPrinter()
+                          .writeValueAsString(groupRequest));
+        GroupResponse response = GroupResponse.class.cast(getQueryExecutor().execute(groupRequest));
+        log.debug(getMapper().writerWithDefaultPrettyPrinter()
+                          .writeValueAsString(response));
+        Assert.assertTrue(response.getResult()
+                                  .isEmpty());
+    }
+
+   /* @Test
     // High cardinality field queries are allowed if scoped in small cardinality field
     public void testEstimationCardinalFilterHighCardinality() throws Exception {
         GroupRequest groupRequest = new GroupRequest();
@@ -83,8 +108,8 @@ public class GroupActionEstimationTest extends ActionTest {
         Assert.assertFalse(response.getResult()
                                    .isEmpty());
     }
-
-    // High cardinality field queries not are allowed
+*/
+    @Test(expected = CardinalityOverflowException.class)
     public void testEstimationGTFilterHighCardinality() throws Exception {
         GroupRequest groupRequest = new GroupRequest();
         groupRequest.setTable(TestUtils.TEST_TABLE_NAME);
@@ -113,6 +138,20 @@ public class GroupActionEstimationTest extends ActionTest {
                           .writeValueAsString(response));
         Assert.assertFalse(response.getResult()
                                    .isEmpty());
+    }
+
+    // High cardinality field queries with filters including small subset are allowed
+    public void testEstimationLTFilterHighCardinalityBlocked() throws Exception {
+        GroupRequest groupRequest = new GroupRequest();
+        groupRequest.setTable(TestUtils.TEST_TABLE_NAME);
+        groupRequest.setNesting(Collections.singletonList("deviceId"));
+        groupRequest.setFilters(ImmutableList.of(LessThanFilter.builder()
+                                                         .field("value")
+                                                         .value(80)
+                                                         .build()));
+        log.debug(getMapper().writerWithDefaultPrettyPrinter()
+                          .writeValueAsString(groupRequest));
+        getQueryExecutor().execute(groupRequest);
     }
 
 }

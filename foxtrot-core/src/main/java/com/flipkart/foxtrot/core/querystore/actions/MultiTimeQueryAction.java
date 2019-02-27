@@ -3,7 +3,6 @@ package com.flipkart.foxtrot.core.querystore.actions;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.flipkart.foxtrot.common.ActionRequest;
 import com.flipkart.foxtrot.common.ActionResponse;
-import com.flipkart.foxtrot.common.Opcodes;
 import com.flipkart.foxtrot.common.query.*;
 import com.flipkart.foxtrot.common.query.numeric.BetweenFilter;
 import com.flipkart.foxtrot.common.util.CollectionUtils;
@@ -138,7 +137,7 @@ public class MultiTimeQueryAction extends Action<MultiTimeQueryRequest> {
                 if (filters.get(i) instanceof BetweenFilter) {
                     BetweenFilter tempBetweenFilter = (BetweenFilter) filters.get(i);
                     BetweenFilter tempBetweenFilter1 = new BetweenFilter(tempBetweenFilter.getField(),
-                            from, to, tempBetweenFilter.isFilterTemporal());
+                                                                         from, to, tempBetweenFilter.isFilterTemporal());
                     filters.set(i, tempBetweenFilter1);
                     break;
                 }

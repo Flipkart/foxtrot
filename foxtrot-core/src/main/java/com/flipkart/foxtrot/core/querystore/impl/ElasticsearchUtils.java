@@ -45,22 +45,21 @@ public class ElasticsearchUtils {
     public static final String DOCUMENT_META_FIELD_NAME = "__FOXTROT_METADATA__";
     public static final String DOCUMENT_TIME_FIELD_NAME = "date";
     public static final String DOCUMENT_META_ID_FIELD_NAME = String.format("%s.id", DOCUMENT_META_FIELD_NAME);
+    public static final String DOCUMENT_META_TIMESTAMP_FIELD_NAME = String.format("%s.time", DOCUMENT_META_FIELD_NAME);
     public static final String TABLENAME_POSTFIX = "table";
     public static final String TIME_FIELD = "time";
     public static final int DEFAULT_SUB_LIST_SIZE = 50;
     public static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormat.forPattern("dd-M-yyyy");
     private static final Logger logger = LoggerFactory.getLogger(ElasticsearchUtils.class.getSimpleName());
     private static final DateTimeFormatter FORMATTER = DateTimeFormat.forPattern("dd-M-yyyy");
-    private static String TABLENAME_PREFIX = "foxtrot";
+    public static String TABLENAME_PREFIX = "foxtrot";
 
     public static void setTableNamePrefix(ElasticsearchConfig config) {
         ElasticsearchUtils.TABLENAME_PREFIX = config.getTableNamePrefix();
     }
 
     public static String getIndexPrefix(final String table) {
-        return String.format("%s-%s-%s-", ElasticsearchUtils.TABLENAME_PREFIX, table,
-                             ElasticsearchUtils.TABLENAME_POSTFIX
-                            );
+        return String.format("%s-%s-%s-", ElasticsearchUtils.TABLENAME_PREFIX, table, ElasticsearchUtils.TABLENAME_POSTFIX);
     }
 
     public static String getIndices(final String table) {
@@ -70,9 +69,7 @@ public class ElasticsearchUtils {
             String postfix = new SimpleDateFormat("dd-M-yyyy").format(new Date(currentTime));
             names[i] = String.format("%s-%s-%s", TABLENAME_PREFIX, table, postfix);
         }*/
-        return String.format("%s-%s-%s-*", ElasticsearchUtils.TABLENAME_PREFIX, table,
-                             ElasticsearchUtils.TABLENAME_POSTFIX
-                            );
+        return String.format("%s-%s-%s-*", ElasticsearchUtils.TABLENAME_PREFIX, table, ElasticsearchUtils.TABLENAME_POSTFIX);
     }
 
     public static String[] getIndices(final String table, final ActionRequest request) throws Exception {
@@ -107,15 +104,13 @@ public class ElasticsearchUtils {
     public static String getCurrentIndex(final String table, long timestamp) {
         //TODO::THROW IF TIMESTAMP IS BEYOND TABLE META.TTL
         String datePostfix = FORMATTER.print(timestamp);
-        return String.format("%s-%s-%s-%s", ElasticsearchUtils.TABLENAME_PREFIX, table,
-                             ElasticsearchUtils.TABLENAME_POSTFIX, datePostfix
-                            );
+        return String.format("%s-%s-%s-%s", ElasticsearchUtils.TABLENAME_PREFIX, table, ElasticsearchUtils.TABLENAME_POSTFIX, datePostfix);
     }
 
     public static PutIndexTemplateRequest getClusterTemplateMapping() {
         try {
             return new PutIndexTemplateRequest().name("template_foxtrot_mappings")
-                    .template(String.format("%s-*", ElasticsearchUtils.TABLENAME_PREFIX))
+                    .patterns(Lists.newArrayList(String.format("%s-*", ElasticsearchUtils.TABLENAME_PREFIX)))
                     .mapping(DOCUMENT_TYPE_NAME, getDocumentMapping());
         } catch (IOException ex) {
             logger.error("TEMPLATE_CREATION_FAILED", ex);
@@ -136,44 +131,48 @@ public class ElasticsearchUtils {
                 .startObject()
                 .field("enabled", false)
                 .endObject()
-                .field("_timestamp")
-                .startObject()
-                .field("enabled", true)
-                .endObject()
                 .field("dynamic_templates")
                 .startArray()
+
                 .startObject()
-                .field("template_metadata_fields")
+                .field("template_metadata_timestamp")
+                .startObject()
+                .field("path_match", ElasticsearchUtils.DOCUMENT_META_TIMESTAMP_FIELD_NAME)
+                .field("mapping")
+                .startObject()
+                .field("store", true)
+                .field("index", true)
+                .field("type", "date")
+                .endObject()
+                .endObject()
+                .endObject()
+
+                .startObject()
+                .field("template_metadata_string")
+                .startObject()
+                .field("path_match", ElasticsearchUtils.DOCUMENT_META_FIELD_NAME + ".*")
+                .field("match_mapping_type", "string")
+                .field("mapping")
+                .startObject()
+                .field("store", true)
+                .field("index", true)
+                .field("type", "keyword")
+                .endObject()
+                .endObject()
+                .endObject()
+
+                .startObject()
+                .field("template_metadata_others")
                 .startObject()
                 .field("path_match", ElasticsearchUtils.DOCUMENT_META_FIELD_NAME + ".*")
                 .field("mapping")
                 .startObject()
                 .field("store", true)
-                .field("doc_values", true)
-                .field("index", "not_analyzed")
-                .field("fielddata")
-                .startObject()
-                .field("format", "doc_values")
+                .field("index", true)
                 .endObject()
                 .endObject()
                 .endObject()
-                .endObject()
-                .startObject()
-                .field("template_timestamp")
-                .startObject()
-                .field("match", "timestamp")
-                .field("mapping")
-                .startObject()
-                .field("store", false)
-                .field("index", "not_analyzed")
-                .field("fielddata")
-                .startObject()
-                .field("format", "doc_values")
-                .endObject()
-                .field("type", "date")
-                .endObject()
-                .endObject()
-                .endObject()
+
                 .startObject()
                 .field("template_no_store_analyzed")
                 .startObject()
@@ -181,41 +180,36 @@ public class ElasticsearchUtils {
                 .field("match_mapping_type", "string")
                 .field("mapping")
                 .startObject()
-                .field("store", false)
-                .field("index", "not_analyzed")
-                .field("fielddata")
-                .startObject()
-                .field("format", "doc_values")
-                .endObject()
+                .field("store", true)
+                .field("index", true)
+                .field("type", "keyword")
                 .field("fields")
                 .startObject()
                 .field("analyzed")
                 .startObject()
                 .field("store", false)
-                .field("type", "string")
-                .field("index", "analyzed")
+                .field("index", true)
+                .field("type", "text")
                 .endObject()
                 .endObject()
                 .endObject()
                 .endObject()
                 .endObject()
+
                 .startObject()
                 .field("template_no_store")
                 .startObject()
-                .field("match_mapping_type", "date|boolean|double|long|integer")
+                .field("match_mapping_type", "*")
                 .field("match_pattern", "regex")
                 .field("path_match", ".*")
                 .field("mapping")
                 .startObject()
                 .field("store", false)
-                .field("index", "not_analyzed")
-                .field("fielddata")
-                .startObject()
-                .field("format", "doc_values")
+                .field("index", true)
                 .endObject()
                 .endObject()
                 .endObject()
-                .endObject()
+
                 .endArray()
                 .field("properties")
                 .startObject()
@@ -226,15 +220,11 @@ public class ElasticsearchUtils {
                 .startObject()
                 .field("date")
                 .startObject()
-                .field("index", "not_analyzed")
+                .field("index", "true")
                 .field("store", true)
                 .field("type", "date")
                 .field("format", "epoch_millis")
                 .endObject()
-                .endObject()
-                .field("fielddata")
-                .startObject()
-                .field("format", "doc_values")
                 .endObject()
                 .endObject()
                 .endObject()
@@ -283,8 +273,7 @@ public class ElasticsearchUtils {
 
     public static String getTableNameFromIndex(String currentIndex) {
         if(currentIndex.contains(TABLENAME_PREFIX) && currentIndex.contains(TABLENAME_POSTFIX)) {
-            String tempIndex = currentIndex.substring(
-                    currentIndex.indexOf(TABLENAME_PREFIX) + TABLENAME_PREFIX.length() + 1);
+            String tempIndex = currentIndex.substring(currentIndex.indexOf(TABLENAME_PREFIX) + TABLENAME_PREFIX.length() + 1);
             int position = tempIndex.lastIndexOf(String.format("-%s", TABLENAME_POSTFIX));
             return tempIndex.substring(0, position);
         } else {
