@@ -30,7 +30,7 @@ riemann:
 hbase:
   secure : false
   tableName: foxtrot
-  hbaseZookeeperQuorum: prd-foxtrot001.phonepe.nm1:2181,prd-foxtrot002.phonepe.nm1:2181,prd-foxtrot003.phonepe.nm1:2181
+  hbaseZookeeperQuorum: prd-foxtrot002.phonepe.nm1:2181,prd-foxtrot003.phonepe.nm1:2181
   hbaseZookeeperClientPort: 2181
 
 cluster:
