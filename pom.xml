@@ -307,6 +307,7 @@
             <plugin>
                 <artifactId>maven-dependency-plugin</artifactId>
                 <version>2.10</version>
+                <inherited>false</inherited>
                 <executions>
                     <execution>
                         <id>get-es</id>
@@ -361,8 +362,8 @@
                         </configuration>
                     </execution>
                 </executions>
-            </plugin>
-            <plugin>
+            </plugin>-->
+            <!--<plugin>
                 <artifactId>maven-failsafe-plugin</artifactId>
                 <version>2.19.1</version>
                 <executions>
@@ -373,13 +374,13 @@
                         </goals>
                     </execution>
                 </executions>
-                <configuration>
+                &lt;!&ndash;<configuration>
                     <includes>
                         <include>**/*.java</include>
                     </includes>
                     <groups>impl.IntegrationTest</groups>
                     <skipTests>false</skipTests>
-                </configuration>
+                </configuration>&ndash;&gt;
             </plugin>-->
             <!--<plugin>
                 <artifactId>maven-surefire-plugin</artifactId>
@@ -392,10 +393,11 @@
                         </configuration>
                     </execution>
                 </executions>
-            </plugin>
+            </plugin>-->
             <plugin>
                 <artifactId>maven-antrun-plugin</artifactId>
                 <version>1.8</version>
+                <inherited>false</inherited>
                 <executions>
                     <execution>
                         <id>start-es</id>
@@ -425,7 +427,7 @@
                         </goals>
                     </execution>
                 </executions>
-            </plugin>-->
+            </plugin>
             <!--<plugin>
                 <artifactId>maven-antrun-plugin</artifactId>
                 <version>1.8</version>

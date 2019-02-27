@@ -60,15 +60,16 @@ public class ElasticsearchConnection implements Managed {
             String tokenizedHosts[] = host.split(",");
             for(String tokenizedHost : tokenizedHosts) {
                 esClient.addTransportAddress(new TransportAddress(InetAddress.getByName(tokenizedHost), port));
-                logger.info(String.format("Added Elasticsearch Node : %s", host));
+                logger.info(String.format("Added ElasticSearch Node : %s", host));
             }
         }
         client = esClient;
-        logger.info("Started Elasticsearch Client");
+        logger.info("Started ElasticSearch Client");
     }
 
     @Override
     public void stop() throws Exception {
+        logger.info("Stopping ElasticSearch client");
         if(client != null) {
             client.close();
         }

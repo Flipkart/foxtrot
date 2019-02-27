@@ -28,6 +28,7 @@ import com.flipkart.foxtrot.core.table.TableMetadataManager;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import io.dropwizard.util.Duration;
+import lombok.val;
 import org.apache.commons.lang3.StringUtils;
 import org.elasticsearch.ElasticsearchException;
 import org.elasticsearch.action.search.SearchRequestBuilder;
@@ -38,7 +39,6 @@ import org.elasticsearch.search.aggregations.bucket.histogram.DateHistogramInter
 import org.elasticsearch.search.aggregations.bucket.histogram.Histogram;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.elasticsearch.search.aggregations.metrics.percentiles.Percentiles;
-import org.elasticsearch.search.aggregations.metrics.stats.extended.InternalExtendedStats;
 import org.joda.time.DateTime;
 
 import java.util.ArrayList;
@@ -163,8 +163,8 @@ public class StatsTrendAction extends Action<StatsTrendRequest> {
     private AbstractAggregationBuilder buildAggregation(StatsTrendRequest request) {
         DateHistogramInterval interval = Utils.getHistogramInterval(request.getPeriod());
         AbstractAggregationBuilder dateHistogramBuilder = Utils.buildDateHistogramAggregation(request.getTimestamp(), interval)
-                .subAggregation(Utils.buildExtendedStatsAggregation(request.getField()))
-                .subAggregation(Utils.buildPercentileAggregation(request.getField()));
+                .subAggregation(Utils.buildStatsAggregation(request.getField(), getParameter().getStats()))
+                .subAggregation(Utils.buildPercentileAggregation(request.getField(), request.getPercentiles()));
 
         if(CollectionUtils.isNullOrEmpty(getParameter().getNesting())) {
             return dateHistogramBuilder;
@@ -220,10 +220,10 @@ public class StatsTrendAction extends Action<StatsTrendRequest> {
             DateTime key = (DateTime)bucket.getKey();
             statsTrendValue.setPeriod(key.getMillis());
 
-            InternalExtendedStats extendedStats = InternalExtendedStats.class.cast(bucket.getAggregations()
-                                                                                           .getAsMap()
-                                                                                           .get(metricKey));
-            statsTrendValue.setStats(Utils.createExtendedStatsResponse(extendedStats));
+            val statAggregation = bucket.getAggregations()
+                    .getAsMap()
+                    .get(metricKey);
+            statsTrendValue.setStats(Utils.toStats(statAggregation));
             Percentiles internalPercentile = Percentiles.class.cast(bucket.getAggregations()
                                                                             .getAsMap()
                                                                             .get(percentileMetricKey));
