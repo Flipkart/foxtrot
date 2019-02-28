@@ -85,6 +85,7 @@ public class ResultSort {
     }
 
     public enum Order {
-        asc, desc
+        asc,
+        desc
     }
 }

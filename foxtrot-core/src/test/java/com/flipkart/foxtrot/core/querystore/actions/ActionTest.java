@@ -4,7 +4,6 @@ import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.flipkart.foxtrot.common.Table;
-import com.flipkart.foxtrot.core.MockElasticsearchServer;
 import com.flipkart.foxtrot.core.TestUtils;
 import com.flipkart.foxtrot.core.alerts.EmailConfig;
 import com.flipkart.foxtrot.core.cache.CacheManager;
@@ -16,10 +15,17 @@ import com.flipkart.foxtrot.core.querystore.QueryStore;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsLoader;
 import com.flipkart.foxtrot.core.querystore.impl.*;
 import com.flipkart.foxtrot.core.table.impl.DistributedTableMetadataManager;
+import com.flipkart.foxtrot.core.table.impl.ElasticsearchTestUtils;
+import com.flipkart.foxtrot.core.table.impl.TableMapStore;
 import com.hazelcast.config.Config;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.test.TestHazelcastInstanceFactory;
 import lombok.Getter;
+import org.elasticsearch.action.admin.indices.create.CreateIndexRequest;
+import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;
+import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsRequest;
+import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsResponse;
+import org.elasticsearch.common.settings.Settings;
 import org.joda.time.DateTimeZone;
 import org.junit.After;
 import org.junit.Before;
@@ -47,7 +53,6 @@ public class ActionTest {
     private QueryStore queryStore;
     private QueryExecutor queryExecutor;
     private HazelcastInstance hazelcastInstance;
-    private MockElasticsearchServer elasticsearchServer;
     private ElasticsearchConnection elasticsearchConnection;
     private DistributedTableMetadataManager tableMetadataManager;
 
@@ -62,15 +67,29 @@ public class ActionTest {
         this.hazelcastInstance = new TestHazelcastInstanceFactory(1).newHazelcastInstance(config);
         when(hazelcastConnection.getHazelcast()).thenReturn(hazelcastInstance);
         when(hazelcastConnection.getHazelcastConfig()).thenReturn(config);
-        this.elasticsearchServer = new MockElasticsearchServer(UUID.randomUUID()
-                                                                       .toString());
-        elasticsearchConnection = TestUtils.initESConnection(elasticsearchServer);
-        CardinalityConfig cardinalityConfig = new CardinalityConfig("true", String.valueOf(
-                ElasticsearchUtils.DEFAULT_SUB_LIST_SIZE));
+        elasticsearchConnection = ElasticsearchTestUtils.getConnection();
+        CardinalityConfig cardinalityConfig = new CardinalityConfig("true", String.valueOf(ElasticsearchUtils.DEFAULT_SUB_LIST_SIZE));
 
-        tableMetadataManager = new DistributedTableMetadataManager(hazelcastConnection, elasticsearchConnection, mapper,
-                                                                   cardinalityConfig
-        );
+        IndicesExistsRequest indicesExistsRequest = new IndicesExistsRequest().indices(TableMapStore.TABLE_META_INDEX);
+        IndicesExistsResponse indicesExistsResponse = elasticsearchConnection.getClient()
+                .admin()
+                .indices()
+                .exists(indicesExistsRequest)
+                .actionGet();
+
+        if(!indicesExistsResponse.isExists()) {
+            Settings indexSettings = Settings.builder()
+                    .put("number_of_replicas", 0)
+                    .build();
+            CreateIndexRequest createRequest = new CreateIndexRequest(TableMapStore.TABLE_META_INDEX).settings(indexSettings);
+            elasticsearchConnection.getClient()
+                    .admin()
+                    .indices()
+                    .create(createRequest)
+                    .actionGet();
+        }
+
+        tableMetadataManager = new DistributedTableMetadataManager(hazelcastConnection, elasticsearchConnection, mapper, cardinalityConfig);
         tableMetadataManager.start();
 
         tableMetadataManager.save(Table.builder()
@@ -79,14 +98,11 @@ public class ActionTest {
                                           .build());
 
         DataStore dataStore = TestUtils.getDataStore();
-        this.queryStore = new ElasticsearchQueryStore(tableMetadataManager, elasticsearchConnection, dataStore, mapper,
-                                                      cardinalityConfig, emailConfig, new CacheConfig(), hazelcastConnection
+        this.queryStore = new ElasticsearchQueryStore(tableMetadataManager, elasticsearchConnection, dataStore, mapper, cardinalityConfig);
+        CacheManager cacheManager = new CacheManager(new DistributedCacheFactory(hazelcastConnection, mapper, new CacheConfig()));
+        AnalyticsLoader analyticsLoader = new AnalyticsLoader(tableMetadataManager, dataStore, queryStore, elasticsearchConnection,
+                                                              cacheManager, mapper, new EmailConfig()
         );
-        CacheManager cacheManager = new CacheManager(
-                new DistributedCacheFactory(hazelcastConnection, mapper, new CacheConfig()));
-        AnalyticsLoader analyticsLoader = new AnalyticsLoader(tableMetadataManager, dataStore, queryStore,
-                                                              elasticsearchConnection, cacheManager, mapper,
-                                                              emailConfig);
         analyticsLoader.start();
         ExecutorService executorService = Executors.newFixedThreadPool(1);
         this.queryExecutor = new QueryExecutor(analyticsLoader, executorService);
@@ -94,7 +110,16 @@ public class ActionTest {
 
     @After
     public void tearDown() throws Exception {
-        getElasticsearchServer().shutdown();
+        try {
+            DeleteIndexRequest deleteIndexRequest = new DeleteIndexRequest("*");
+            elasticsearchConnection.getClient()
+                    .admin()
+                    .indices()
+                    .delete(deleteIndexRequest);
+        } catch (Exception e) {
+            //Do Nothing
+        }
+        elasticsearchConnection.stop();
         getHazelcastInstance().shutdown();
     }
 }

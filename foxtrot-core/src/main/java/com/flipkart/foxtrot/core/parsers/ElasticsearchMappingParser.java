@@ -50,12 +50,10 @@ public class ElasticsearchMappingParser {
         while (iterator.hasNext()) {
             Map.Entry<String, JsonNode> entry = iterator.next();
             if(entry.getKey()
-                    .equals(ElasticsearchUtils.DOCUMENT_META_FIELD_NAME)) {
+                    .startsWith(ElasticsearchUtils.DOCUMENT_META_FIELD_NAME)) {
                 continue;
             }
-            String currentField = (parentField == null) ? entry.getKey() : (String.format("%s.%s", parentField,
-                                                                                          entry.getKey()
-                                                                                         ));
+            String currentField = (parentField == null) ? entry.getKey() : (String.format("%s.%s", parentField, entry.getKey()));
             if(entry.getValue()
                     .has("properties")) {
                 fieldTypeMappings.addAll(generateFieldMappings(currentField, entry.getValue()
@@ -74,6 +72,10 @@ public class ElasticsearchMappingParser {
 
     private FieldType getFieldType(JsonNode jsonNode) {
         String type = jsonNode.asText();
-        return FieldType.valueOf(type.toUpperCase());
+        FieldType fieldType = FieldType.valueOf(type.toUpperCase());
+        if(fieldType == FieldType.TEXT || fieldType == FieldType.KEYWORD) {
+            return FieldType.STRING;
+        }
+        return fieldType;
     }
 }

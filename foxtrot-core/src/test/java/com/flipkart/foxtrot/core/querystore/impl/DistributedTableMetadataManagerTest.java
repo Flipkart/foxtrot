@@ -21,23 +21,22 @@ import com.flipkart.foxtrot.common.FieldType;
 import com.flipkart.foxtrot.common.Table;
 import com.flipkart.foxtrot.common.TableFieldMapping;
 import com.flipkart.foxtrot.common.group.GroupResponse;
-import com.flipkart.foxtrot.core.MockElasticsearchServer;
 import com.flipkart.foxtrot.core.TestUtils;
 import com.flipkart.foxtrot.core.alerts.EmailConfig;
 import com.flipkart.foxtrot.core.cardinality.CardinalityConfig;
 import com.flipkart.foxtrot.core.datastore.DataStore;
 import com.flipkart.foxtrot.core.table.impl.DistributedTableMetadataManager;
+import com.flipkart.foxtrot.core.table.impl.ElasticsearchTestUtils;
 import com.hazelcast.config.Config;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
 import com.hazelcast.test.TestHazelcastInstanceFactory;
+import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;
 import org.joda.time.DateTime;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
-
-import java.util.UUID;
 
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.doReturn;
@@ -53,8 +52,8 @@ public class DistributedTableMetadataManagerTest {
     private ElasticsearchQueryStore queryStore;
     private HazelcastInstance hazelcastInstance;
     private DistributedTableMetadataManager distributedTableMetadataManager;
-    private MockElasticsearchServer elasticsearchServer;
     private IMap<String, Table> tableDataStore;
+    private ElasticsearchConnection elasticsearchConnection;
     private ObjectMapper objectMapper;
 
     @Before
@@ -63,10 +62,8 @@ public class DistributedTableMetadataManagerTest {
         objectMapper.registerSubtypes(GroupResponse.class);
 
         this.dataStore = Mockito.mock(DataStore.class);
-        this.elasticsearchServer = new MockElasticsearchServer(UUID.randomUUID()
-                                                                       .toString());
-        ElasticsearchConnection elasticsearchConnection = TestUtils.initESConnection(elasticsearchServer);
-        when(elasticsearchConnection.getClient()).thenReturn(elasticsearchServer.getClient());
+
+        elasticsearchConnection = ElasticsearchTestUtils.getConnection();
         ElasticsearchUtils.initializeMappings(elasticsearchConnection.getClient());
         EmailConfig emailConfig = new EmailConfig();
         emailConfig.setHost("127.0.0.1");
@@ -77,29 +74,30 @@ public class DistributedTableMetadataManagerTest {
         when(hazelcastConnection.getHazelcastConfig()).thenReturn(new Config());
         hazelcastConnection.start();
 
-        this.distributedTableMetadataManager = new DistributedTableMetadataManager(hazelcastConnection,
-                                                                                   elasticsearchConnection,
-                                                                                   objectMapper,
-                                                                                   new CardinalityConfig("true",
-                                                                                                         String.valueOf(
-                                                                                                                 ElasticsearchUtils.DEFAULT_SUB_LIST_SIZE)
-                                                                                   )
+        this.distributedTableMetadataManager = new DistributedTableMetadataManager(hazelcastConnection, elasticsearchConnection,
+                                                                                   objectMapper, new CardinalityConfig()
         );
         distributedTableMetadataManager.start();
 
         tableDataStore = hazelcastInstance.getMap("tablemetadatamap");
-        this.queryStore = new ElasticsearchQueryStore(distributedTableMetadataManager, elasticsearchConnection,
-                                                      dataStore, objectMapper, new CardinalityConfig("true",
-                                                                                                     String.valueOf(
-                                                                                                             ElasticsearchUtils.DEFAULT_SUB_LIST_SIZE)
-        ), emailConfig, new CacheConfig(), hazelcastConnection
+        this.queryStore = new ElasticsearchQueryStore(distributedTableMetadataManager, elasticsearchConnection, dataStore, objectMapper,
+                                                      new CardinalityConfig()
         );
     }
 
     @After
     public void tearDown() throws Exception {
         hazelcastInstance.shutdown();
-        elasticsearchServer.shutdown();
+        try {
+            DeleteIndexRequest deleteIndexRequest = new DeleteIndexRequest("*");
+            elasticsearchConnection.getClient()
+                    .admin()
+                    .indices()
+                    .delete(deleteIndexRequest);
+        } catch (Exception e) {
+            //Do Nothing
+        }
+        elasticsearchConnection.stop();
         distributedTableMetadataManager.stop();
     }
 
@@ -155,9 +153,7 @@ public class DistributedTableMetadataManagerTest {
                 .save(table, document);
         queryStore.save(TestUtils.TEST_TABLE_NAME, document);
 
-        document = TestUtils.getDocument("B", new DateTime().getMillis(),
-                                         new Object[]{"os", "android", "version", "abcd"}, objectMapper
-                                        );
+        document = TestUtils.getDocument("B", new DateTime().getMillis(), new Object[]{"os", "android", "version", "abcd"}, objectMapper);
         translatedDocument = TestUtils.translatedDocumentWithRowKeyVersion1(table, document);
         doReturn(translatedDocument).when(dataStore)
                 .save(table, document);

@@ -5,13 +5,20 @@ if [ "$#" -ne 2 ]; then
    exit 1
 fi
 
-curl -XPUT ${1}:9200/_template/template_foxtrot_mappings -d '
+curl -H 'Content-type: application/json' -XPUT ${1}:9200/_template/template_foxtrot_mappings -d '
 {
   "template": "'${2}'-*",
   "settings": {
-    "number_of_shards": 2,
-    "number_of_replicas": 1
-  },
+            "index": {
+                "number_of_shards": "2",
+                "number_of_replicas": "1",
+                "mapping": {
+                    "total_fields": {
+                        "limit": "5000"
+                    }
+                },
+            }
+        },
   "mappings": {
     "document": {
       "_source": {
@@ -20,17 +27,43 @@ curl -XPUT ${1}:9200/_template/template_foxtrot_mappings -d '
       "_all": {
         "enabled": false
       },
-      "_timestamp": {
-        "enabled": true
-      },
       "dynamic_templates": [
         {
-          "template_timestamp": {
-            "match": "timestamp",
+          "template_metadata_timestamp": {
+            "match": "__FOXTROT_METADATA__.time",
             "mapping": {
-              "store": false,
-              "index": "not_analyzed",
+              "store": true,
+              "index": "true",
               "type": "date"
+            }
+          }
+        },
+       {
+          "template_metadata_string": {
+            "match": "__FOXTROT_METADATA__.*",
+            "match_mapping_type": "string",
+            "mapping": {
+              "store": true,
+              "index": "true",
+              "type": "text"
+            }
+          }
+        },
+        {
+          "template_metadata_others": {
+            "match": "__FOXTROT_METADATA__.*",
+            "mapping": {
+              "store": true,
+              "index": "true"
+            }
+          }
+        },
+        {
+          "template_object_store_analyzed": {
+            "match": "*",
+            "match_mapping_type": "object",
+            "mapping": {
+              "index": "true"
             }
           }
         },
@@ -39,83 +72,107 @@ curl -XPUT ${1}:9200/_template/template_foxtrot_mappings -d '
             "match": "*",
             "match_mapping_type": "string",
             "mapping": {
-              "store": false,
-              "index": "not_analyzed",
-              "fielddata": {
-                "format": "doc_values"
-              },
+              "index": "true",
+              "type": "keyword",
               "fields": {
                 "analyzed": {
-                  "store": false,
-                  "type": "string",
-                  "index": "analyzed",
-                  "fielddata": {
-                    "format": "disabled"
-                  }
+                  "type": "text",
+                  "index": "true"
                 }
               }
             }
           }
         },
         {
-          "template_no_store_dv": {
-            "match_mapping_type": "date|boolean|double|long|integer",
+          "template_no_store": {
+            "match_mapping_type": "*",
             "match_pattern": "regex",
             "path_match": ".*",
             "mapping": {
-              "store": false,
-              "index": "not_analyzed",
-              "fielddata": {
-                "format": "doc_values"
+              "index": "true"
+            }
+          }
+        }
+      ],
+
+                "properties": {
+                    "__FOXTROT_METADATA__": {
+                        "properties": {
+                            "time": {
+                                "type": "date",
+                                "index": "true"
+                            }
+                        }
+                    }
+                }
+    }
+  }
+}'
+
+curl -H 'Content-type: application/json' -XPUT ${1}:9200/_template/console_v2 -d '
+{
+  "template": "consoles_v2*",
+  "settings": {
+            "index": {
+                "number_of_shards": "1",
+                "number_of_replicas": "1"
+            }
+        },
+  "mappings": {
+    "document": {
+      "dynamic_templates": [
+
+        {
+          "template_object_store_analyzed": {
+            "match": "*",
+            "match_mapping_type": "object",
+            "mapping": {
+              "index": "true"
+            }
+          }
+        },
+        {
+          "template_no_store_analyzed": {
+            "match": "*",
+            "match_mapping_type": "string",
+            "mapping": {
+              "index": "true",
+              "type": "keyword",
+              "fields": {
+                "analyzed": {
+                  "type": "text",
+                  "index": "true"
+                }
               }
             }
           }
         },
         {
           "template_no_store": {
-            "match_mapping_type": "double",
+            "match_mapping_type": "*",
             "match_pattern": "regex",
             "path_match": ".*",
             "mapping": {
-              "store": false,
-              "index": "not_analyzed",
-              "fielddata": {
-                "format": "doc_values"
-              }
+              "index": "true"
             }
           }
         }
-      ],
-      "properties": {
-        "time": {
-          "type": "long",
-          "fields": {
-            "date": {
-              "index": "not_analyzed",
-              "store": true,
-              "type": "date",
-              "format": "epoch_millis"
-            }
-          },
-          "fielddata": {
-            "format": "doc_values"
-          }
-        }
-      }
+      ]
     }
   }
 }'
 
-curl -XPUT "http://${1}:9200/consoles/" -d '{
+
+curl -H 'Content-type: application/json' -XPUT "http://${1}:9200/consoles/" -d '{
     "settings" : {
         "index" : {
             "number_of_shards" : 1,
-            "number_of_replicas" : 0
+            "number_of_replicas" : 1
         }
     }
 }'
 
-curl -XPUT "http://${1}:9200/table-meta/" -d '{
+curl -H 'Content-type: application/json' -XPUT "http://${1}:9200/table-meta/" -d '{
     "settings" : {
         "index" : {
             "number_of_shards" : 1,

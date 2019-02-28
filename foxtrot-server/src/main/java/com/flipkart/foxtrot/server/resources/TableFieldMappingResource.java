@@ -20,6 +20,8 @@ import com.flipkart.foxtrot.common.Table;
 import com.flipkart.foxtrot.core.exception.FoxtrotException;
 import com.flipkart.foxtrot.core.table.TableManager;
 import com.flipkart.foxtrot.core.table.TableMetadataManager;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
@@ -31,6 +33,7 @@ import java.util.stream.Collectors;
  */
 @Path("/v1/tables")
 @Produces(MediaType.APPLICATION_JSON)
+@Api(value = "/v1/tables", description = "Tables Field Mapping API")
 public class TableFieldMappingResource {
 
     private final TableManager tableManager;
@@ -44,10 +47,10 @@ public class TableFieldMappingResource {
     @GET
     @Timed
     @Path("/{name}/fields")
+    @ApiOperation("Get fields")
     public Response get(@PathParam("name") final String table,
                         @QueryParam("withCardinality") @DefaultValue("false") boolean withCardinality,
-                        @QueryParam("calculateCardinality") @DefaultValue("false") boolean calculateCardinality)
-            throws FoxtrotException {
+                        @QueryParam("calculateCardinality") @DefaultValue("false") boolean calculateCardinality) throws FoxtrotException {
         return Response.ok(tableMetadataManager.getFieldMappings(table, withCardinality, calculateCardinality))
                 .build();
     }
@@ -56,9 +59,9 @@ public class TableFieldMappingResource {
     @GET
     @Timed
     @Path("/fields")
+    @ApiOperation("Get all Fields")
     public Response getAllFields(@QueryParam("withCardinality") @DefaultValue("false") boolean withCardinality,
-                                 @QueryParam("calculateCardinality") @DefaultValue("false") boolean
-                                         calculateCardinality)
+                                 @QueryParam("calculateCardinality") @DefaultValue("false") boolean calculateCardinality)
             throws FoxtrotException {
         return Response.ok()
                 .entity(tableManager.getAll()
@@ -78,8 +81,9 @@ public class TableFieldMappingResource {
     @POST
     @Timed
     @Path("/{name}/fields/update")
-    public Response updateEstimation(@PathParam("name") final String table,
-                                     @QueryParam("time") @DefaultValue("0") long epoch) throws FoxtrotException {
+    @ApiOperation("Update Fields")
+    public Response updateEstimation(@PathParam("name") final String table, @QueryParam("time") @DefaultValue("0") long epoch)
+            throws FoxtrotException {
         tableMetadataManager.updateEstimationData(table, 0 == epoch ? System.currentTimeMillis() : epoch);
         return Response.ok()
                 .build();

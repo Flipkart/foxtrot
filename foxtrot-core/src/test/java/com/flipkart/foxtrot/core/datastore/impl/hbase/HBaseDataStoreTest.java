@@ -306,7 +306,7 @@ public class HBaseDataStoreTest {
                 .toString();
         data = mapper.valueToTree(Collections.singletonMap("TEST_NAME", "SINGLE_SAVE_TEST"));
         String newId = v1FormatKey(id);
-        expectedDocument = new Document(id, System.currentTimeMillis(), new DocumentMetadata(id, newId), data);
+        expectedDocument = new Document(id, System.currentTimeMillis(), new DocumentMetadata(id, newId, timestamp), data);
         tableInterface.put(hbaseDataStore.getPutForDocument(expectedDocument));
         actualDocument = hbaseDataStore.get(TEST_APP, id);
         compare(expectedDocument, actualDocument);
@@ -322,7 +322,7 @@ public class HBaseDataStoreTest {
         Document originalDocument = new Document(id, System.currentTimeMillis(), data);
         newId = documentTranslator.translate(TEST_APP, originalDocument)
                 .getId();
-        expectedDocument = new Document(newId, originalDocument.getTimestamp(), new DocumentMetadata(id, newId), data);
+        expectedDocument = new Document(newId, originalDocument.getTimestamp(), new DocumentMetadata(id, newId, timestamp), data);
         tableInterface.put(hbaseDataStore.getPutForDocument(expectedDocument));
         actualDocument = hbaseDataStore.get(TEST_APP, newId);
         compare(originalDocument, actualDocument);
@@ -347,7 +347,7 @@ public class HBaseDataStoreTest {
         JsonNode data = mapper.valueToTree(Collections.singletonMap("TEST_NAME", "SINGLE_SAVE_TEST"));
 
         Document expectedDocument = new Document(id, System.currentTimeMillis(),
-                                                 new DocumentMetadata(id, v1FormatKey(id)), data
+                                                 new DocumentMetadata(id, v1FormatKey(id), System.currentTimeMillis()), data
         );
         tableInterface.put(hbaseDataStore.getPutForDocument(expectedDocument));
         doThrow(new IOException()).when(tableInterface)
@@ -364,7 +364,7 @@ public class HBaseDataStoreTest {
     public void testGetSingleHBaseCloseException() throws Exception {
         Document originalDocument = createDummyDocument();
         originalDocument.setMetadata(
-                new DocumentMetadata(originalDocument.getId(), v1FormatKey(originalDocument.getId())));
+                new DocumentMetadata(originalDocument.getId(), v1FormatKey(originalDocument.getId()), System.currentTimeMillis()));
         Document expectedDocument = new Document(v1FormatKey(originalDocument.getId()), originalDocument.getTimestamp(),
                                                  originalDocument.getMetadata(), originalDocument.getData()
         );
@@ -388,7 +388,7 @@ public class HBaseDataStoreTest {
             JsonNode data = mapper.valueToTree(Collections.singletonMap("TEST_NAME", "BULK_GET_TEST"));
             String rawId = v1FormatKey(id);
             ids.add(id);
-            Document document = new Document(rawId, timestamp, new DocumentMetadata(id, rawId), data);
+            Document document = new Document(rawId, timestamp, new DocumentMetadata(id, rawId, timestamp), data);
             putList.add(hbaseDataStore.getPutForDocument(document));
             idValues.put(id, new Document(id, timestamp, data));
         }
@@ -469,7 +469,7 @@ public class HBaseDataStoreTest {
             String id = UUID.randomUUID()
                     .toString();
             Document document = new Document(id, System.currentTimeMillis(),
-                                             new DocumentMetadata(id, String.format("row:%d", i)),
+                                             new DocumentMetadata(id, String.format("row:%d", i), System.currentTimeMillis()),
                                              mapper.valueToTree(Collections.singletonMap("TEST_NAME", "BULK_GET_TEST"))
             );
             putList.add(hbaseDataStore.getPutForDocument(document));
@@ -493,7 +493,7 @@ public class HBaseDataStoreTest {
             String id = UUID.randomUUID()
                     .toString();
             Document document = new Document(id, System.currentTimeMillis(),
-                                             new DocumentMetadata(id, String.format("row:%d", i)),
+                                             new DocumentMetadata(id, String.format("row:%d", i), System.currentTimeMillis()),
                                              mapper.valueToTree(Collections.singletonMap("TEST_NAME", "BULK_GET_TEST"))
             );
             putList.add(hbaseDataStore.getPutForDocument(document));
@@ -511,9 +511,7 @@ public class HBaseDataStoreTest {
         assertNotNull("Actual document Id should not be null", actual.getId());
         assertNotNull("Actual document data should not be null", actual.getData());
         assertEquals("Actual Doc Id should match expected Doc Id", expected.getId(), actual.getId());
-        assertEquals("Actual Doc Timestamp should match expected Doc Timestamp", expected.getTimestamp(),
-                     actual.getTimestamp()
-                    );
+        assertEquals("Actual Doc Timestamp should match expected Doc Timestamp", expected.getTimestamp(), actual.getTimestamp());
         String expectedData = mapper.writeValueAsString(expected.getData());
         String actualData = mapper.writeValueAsString(actual.getData());
         assertEquals("Actual data should match expected data", expectedData, actualData);

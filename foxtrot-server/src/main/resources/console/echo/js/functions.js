@@ -125,7 +125,7 @@ function addFilters() { // new filter row
   $(filterType).selectpicker('refresh');
   var filterColumn = $("#filter-row-" + filterCount).find('.filter-column')
   setTimeout(function(){
-    generateDropDown(currentFieldList, filterColumn);
+    generateFiltersDropDown(currentFieldList, filterColumn);
   }, 0);
 
   $(filterValueEl).click(function () {
@@ -260,10 +260,9 @@ function listenUiFilterCheck() {
   }
 }
 
-function appendConsoleList(array) { // console list to dropdown
-  var textToInsert = [];
-  var i = 0;
-  array.sort(function(a, b){ // sort by name
+// sort by name
+function sortConsoleArray(array) {
+   return array.sort(function(a, b){ // sort by name
     var nameA=a.name.toLowerCase(), nameB=b.name.toLowerCase();
     if (nameA < nameB) //sort string ascending
       return -1;
@@ -271,13 +270,29 @@ function appendConsoleList(array) { // console list to dropdown
       return 1;
     return 0; //default return value (no sorting)
   });
+}
 
+function prepareListOption(array, appendVersion) {
+  console.log(appendVersion)
+  var textToInsert = [];
+  var i = 0;
+  array = sortConsoleArray(array);
   for (var a = 0; a < array.length; a += 1) {
+    var versionString = " - v"+array[a].version;
     textToInsert[i++] = '<option value=' + array[a].id + '>';
-    textToInsert[i++] = array[a].name;
+    textToInsert[i++] = array[a].name+(appendVersion == true ? versionString : '');
     textToInsert[i++] = '</option>';
   }
-  $("#listConsole").append(textToInsert.join(''));
+  return textToInsert;
+}
+
+function appendConsoleList(array) { // console list to dropdown
+  $("#listConsole").append(prepareListOption(array, false).join(''));
+}
+
+function appendVersionConsoleList(array) {
+  $("#version-list").find('option').not(':first').remove();// remove all except first 
+  $("#version-list").append(prepareListOption(array, true).join(''));
 }
 
 function loadParticularConsole() { // reload page based on selected console
@@ -483,7 +498,7 @@ function splitArithmetic(arithmetic) {
  * Get opcode
  */
 function getOpcode(object) {
-  if(object.tileContext.chartType == "stackedBar")
+  if(object.tileContext.chartType == "stackedBar" || object.tileContext.chartType == "nonStackedLine")
     return "trend";
   else if(object.tileContext.chartType == "statstrend")
     return "statstrend";
@@ -555,5 +570,20 @@ function getPeriodText(text) {
   }
   else {
     return "minutes";
+  }
+}
+
+/**
+ * Get old console list
+ */
+function getOldConsoleList(res) {
+  var consoleId = getParameterByName("console").replace('/', '');
+  var index = _.indexOf(_.pluck(res, 'id'), consoleId);
+  if (index >= 0) {
+      var consoleObject = consoleList[index];
+      var numberOfVerison = consoleObject.version;
+      if (numberOfVerison > 0) {
+          loadVersionConsoleByName(consoleObject.name);
+      }
   }
 }

@@ -23,6 +23,7 @@ import com.flipkart.foxtrot.core.table.impl.FoxtrotTableManager;
 import com.flipkart.foxtrot.server.providers.exception.FoxtrotExceptionMapper;
 import io.dropwizard.testing.junit.ResourceTestRule;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -59,6 +60,7 @@ public class TableFieldMappingResourceTest extends FoxtrotResourceTest {
                 .build();
     }
 
+    @Ignore
     @Test
     public void testGet() throws Exception {
         getQueryStore().save(TestUtils.TEST_TABLE_NAME, TestUtils.getMappingDocuments(getMapper()));
@@ -139,6 +141,7 @@ public class TableFieldMappingResourceTest extends FoxtrotResourceTest {
         }
     }
 
+    @Ignore
     @Test
     public void testGetTableWithNoDocument() throws Exception {
         TableFieldMapping request = new TableFieldMapping(TestUtils.TEST_TABLE_NAME, new HashSet<>());

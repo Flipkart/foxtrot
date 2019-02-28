@@ -36,7 +36,8 @@
     <!-- Custom styles for this template -->
 
     <!-- Just for debugging purposes. Don't actually copy this line! -->
-    <!--[if lt IE 9]><script src="../../assets/../js/ie8-responsive-file-warning.js"></script><![endif]-->
+    <!--[if lt IE 9]>
+    <script src="../../assets/../js/ie8-responsive-file-warning.js"></script><![endif]-->
 
     <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
     <!--[if lt IE 9]>
@@ -48,41 +49,46 @@
 <body>
 <div class="container container-full">
     <div role="tabpanel">
-    <div class="header-container">
-        <div class="header pageheader">
-            <h1>
-                <div class="col-sm-4"><a href="/"><img src="../images/fox_logo.png" style="height: 40px;"/></a> <span class="console-name">Foxtrot Cluster</span></div>
-            </h1>
-            <div class="pull-right" style="margin-left: 20px; margin-top: 3px">
-                <form class="form-inline">
-                    <div class="checkbox" style="padding-top: 10px;padding-right: 10px;">
-                        <label>
-                            <input type="checkbox" checked class="auto-refresh"> Refresh
-                        </label>
-                    </div>
-                    <!--select class="selectpicker pull-right refresh-interval" data-style="btn-primary">
-                        <option value="10000">Every 10 Seconds</option>
-                        <option value="30000">Every 30 Seconds</option>
-                        <option value="60000">Every 60 Seconds</option>
-                    </select-->
-                </form>
-            </div>
-            <ul class="nav nav-pills pull-right" role="tablist" id="clusterTab">
-                <li role="presentation"  class="active" id="elasticsearch-li"><a href="#elasticsearch" aria-controls="elasticsearch" role="tab" data-toggle="tab">Elasticsearch</a></li>
-                <li role="presentation" id="foxtrot-li"><a href="#foxtrot" aria-controls="foxtrot" role="tab" data-toggle="tab">Foxtrot</a></li>
-                <!--li><a href="/">Home</a></li-->
-            </ul>
-            <!--ul class="nav nav-pills pull-right">
+        <div class="header-container">
+            <div class="header pageheader">
+                <h1>
+                    <div class="col-sm-4"><a href="/"><img src="../images/fox_logo.png" style="height: 40px;"/></a>
+                        <span class="console-name">Foxtrot Cluster</span></div>
+                </h1>
+                <div class="pull-right" style="margin-left: 20px; margin-top: 3px">
+                    <form class="form-inline">
+                        <div class="checkbox" style="padding-top: 10px;padding-right: 10px;">
+                            <label>
+                                <input type="checkbox" checked class="auto-refresh"> Refresh
+                            </label>
+                        </div>
+                        <!--select class="selectpicker pull-right refresh-interval" data-style="btn-primary">
+                            <option value="10000">Every 10 Seconds</option>
+                            <option value="30000">Every 30 Seconds</option>
+                            <option value="60000">Every 60 Seconds</option>
+                        </select-->
+                    </form>
+                </div>
+                <ul class="nav nav-pills pull-right" role="tablist" id="clusterTab">
+                    <li role="presentation" class="active" id="elasticsearch-li"><a href="#elasticsearch"
+                                                                                    aria-controls="elasticsearch"
+                                                                                    role="tab" data-toggle="tab">Elasticsearch</a>
+                    </li>
+                    <li role="presentation" id="foxtrot-li"><a href="#foxtrot" aria-controls="foxtrot" role="tab"
+                                                               data-toggle="tab">Foxtrot</a></li>
+                    <!--li><a href="/">Home</a></li-->
+                </ul>
+                <!--ul class="nav nav-pills pull-right">
 
-            </ul-->
+                </ul-->
+            </div>
+            <hr class="hr-thin">
+            <!--div class="alert alert-dismissable alert-customization">
+                <button type="button" class="close" data-hide="alert" aria-hidden="true">&times;</button>
+                <div class="alert-message"></div>
+            </div-->
         </div>
-        <hr class="hr-thin">
-        <!--div class="alert alert-dismissable alert-customization">
-            <button type="button" class="close" data-hide="alert" aria-hidden="true">&times;</button>
-            <div class="alert-message"></div>
-        </div-->
-    </div>
-    <div class="content" style="margin-left: 20px; margin-right: 20px; margin-top: 60px;">
+        <div class="content" style="margin-left: 20px; margin-right: 20px; margin-top: 60px;">
             <!-- Nav tabs -->
 
             <div class="tab-content">
@@ -95,11 +101,11 @@
                 </div>
             </div>
 
-    </div>
-    <hr>
-    <div class="footer">
-        <p>&copy; flipkart.com 2014</p>
-    </div>
+        </div>
+        <hr>
+        <div class="footer">
+            <p>&copy; flipkart.com 2014</p>
+        </div>
     </div>
 
 </div> <!-- /container -->
@@ -125,8 +131,8 @@
         <tbody>
         {{#with cluster}}
         <tr>
-            <td  class="section-end">{{name}}</td>
-            <td  class="section-end">{{status}}</td>
+            <td class="section-end">{{name}}</td>
+            <td class="section-end">{{status}}</td>
             <td>{{numNodes}}</td>
             <td>{{numDataNodes}}</td>
             <td>{{activeShards}}</td>
@@ -146,44 +152,44 @@
     <table class="data-table table table-bordered table-hover table-condensed dataview-table tablesorter">
         <thead>
         <tr>
-            <th class="{sorter: 'text'}"> IP </th>
+            <th class="{sorter: 'text'}"> IP</th>
             <th class="{sorter: 'text'}">Host</th>
 
-            <th class="{sorter: 'sizesorter'}"> Load </th>
-            <th class="{sorter: 'sizesorter'}"> Memory Total </th>
-            <th class="{sorter: 'sizesorter'}"> Memory Used </th>
-            <th class="{sorter: 'text'}"> Memory Used (%) </th>
+            <th class="{sorter: 'sizesorter'}"> Load</th>
+            <th class="{sorter: 'sizesorter'}"> Memory Total</th>
+            <th class="{sorter: 'sizesorter'}"> Memory Used</th>
+            <th class="{sorter: 'text'}"> Memory Used (%)</th>
 
-            <th class="{sorter: 'sizesorter'}"> Disk Total </th>
-            <th class="{sorter: 'sizesorter'}"> Disk Used </th>
-            <th class="{sorter: 'text'}"> Disk Used (%) </th>
+            <th class="{sorter: 'sizesorter'}"> Disk Total</th>
+            <th class="{sorter: 'sizesorter'}"> Disk Used</th>
+            <th class="{sorter: 'text'}"> Disk Used (%)</th>
 
-            <th class="{sorter: 'sizesorter'}"> Heap Committed </th>
-            <th class="{sorter: 'sizesorter'}"> Heap Used </th>
-            <th class="{sorter: 'sizesorter'}"> Heap Used (%) </th>
+            <th class="{sorter: 'sizesorter'}"> Heap Committed</th>
+            <th class="{sorter: 'sizesorter'}"> Heap Used</th>
+            <th class="{sorter: 'sizesorter'}"> Heap Used (%)</th>
 
             <th class="{sorter: 'sizesorter'}">Field cache</th>
-            <th class="{sorter: 'text'}"> Field cache (%) </th>
+            <th class="{sorter: 'text'}"> Field cache (%)</th>
             <th class="{sorter: 'sizesorter'}">Field Cache Evictions</th>
         </tr>
         </thead>
         <tbody>
         {{#each hosts}}
         <tr>
-            <td  class="{sorter: 'text'}">{{ip}}</td>
-            <td  class="{sorter: 'text'}">{{host}}</td>
+            <td class="{sorter: 'text'}">{{ip}}</td>
+            <td class="{sorter: 'text'}">{{host}}</td>
 
-            <td  class="{sorter: 'sizesorter'}">{{load}}</td>
-            <td  class="{sorter: 'sizesorter'}">{{memoryTotal}}</td>
-            <td  class="{sorter: 'sizesorter'}">{{memoryUsed}}</td>
-            <td  class="{sorter: 'sizesorter'}">{{memoryUsedPercent}}</td>
+            <td class="{sorter: 'sizesorter'}">{{load}}</td>
+            <td class="{sorter: 'sizesorter'}">{{memoryTotal}}</td>
+            <td class="{sorter: 'sizesorter'}">{{memoryUsed}}</td>
+            <td class="{sorter: 'sizesorter'}">{{memoryUsedPercent}}</td>
 
-            <td  class="{sorter: 'sizesorter'}">{{diskTotal}}</td>
-            <td  class="{sorter: 'sizesorter'}">{{diskUsed}}</td>
-            <td  class="percentage-value section-end">{{diskUsedPercent}}</td>
+            <td class="{sorter: 'sizesorter'}">{{diskTotal}}</td>
+            <td class="{sorter: 'sizesorter'}">{{diskUsed}}</td>
+            <td class="percentage-value section-end">{{diskUsedPercent}}</td>
 
-            <td  class="{sorter: 'sizesorter'}">{{jvmTotal}}</td>
-            <td  class="{sorter: 'sizesorter'}">{{jvmUsed}}</td>
+            <td class="{sorter: 'sizesorter'}">{{jvmTotal}}</td>
+            <td class="{sorter: 'sizesorter'}">{{jvmUsed}}</td>
             <td class="percentage-value section-end">{{jvmUsedPercent}}</td>
 
             <td class="{sorter: 'sizesorter'}">{{fieldCacheAbs}}</td>
@@ -208,7 +214,7 @@
         <tbody>
         {{#each tables}}
         <tr>
-            <td  class="section-end">{{name}}</td>
+            <td class="section-end">{{name}}</td>
             <td>{{days}}</td>
             <td>{{events}}</td>
             <td>{{size}}</td>

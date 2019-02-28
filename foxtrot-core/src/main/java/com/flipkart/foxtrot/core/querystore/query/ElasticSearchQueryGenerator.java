@@ -21,7 +21,8 @@ import com.flipkart.foxtrot.common.query.datetime.LastFilter;
 import com.flipkart.foxtrot.common.query.general.*;
 import com.flipkart.foxtrot.common.query.numeric.*;
 import com.flipkart.foxtrot.common.query.string.ContainsFilter;
-import org.apache.commons.collections.CollectionUtils;
+import com.flipkart.foxtrot.common.query.string.WildCardFilter;
+import com.flipkart.foxtrot.core.querystore.actions.Utils;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
@@ -44,50 +45,50 @@ public class ElasticSearchQueryGenerator extends FilterVisitor<Void> {
 
     @Override
     public Void visit(BetweenFilter filter) throws Exception {
-        addFilter(rangeQuery(filter.getField()).from(filter.getFrom())
+        addFilter(rangeQuery(Utils.storedFieldName(filter.getField())).from(filter.getFrom())
                           .to(filter.getTo()));
         return null;
     }
 
     @Override
     public Void visit(EqualsFilter filter) throws Exception {
-        addFilter(termQuery(filter.getField(), filter.getValue()));
+        addFilter(termQuery(Utils.storedFieldName(filter.getField()), filter.getValue()));
         return null;
     }
 
     @Override
     public Void visit(NotEqualsFilter filter) throws Exception {
-        addFilter(boolQuery().mustNot(termQuery(filter.getField(), filter.getValue())));
+        addFilter(boolQuery().mustNot(termQuery(Utils.storedFieldName(filter.getField()), filter.getValue())));
         return null;
     }
 
     @Override
     public Void visit(ContainsFilter filter) throws Exception {
-        addFilter(queryStringQuery(filter.getValue()).defaultField(String.format("%s.analyzed", filter.getField())));
+        addFilter(queryStringQuery(filter.getValue()).defaultField(filter.getField()));
         return null;
     }
 
     @Override
     public Void visit(GreaterThanFilter filter) throws Exception {
-        addFilter(rangeQuery(filter.getField()).gt(filter.getValue()));
+        addFilter(rangeQuery(Utils.storedFieldName(filter.getField())).gt(filter.getValue()));
         return null;
     }
 
     @Override
     public Void visit(GreaterEqualFilter filter) throws Exception {
-        addFilter(rangeQuery(filter.getField()).gte(filter.getValue()));
+        addFilter(rangeQuery(Utils.storedFieldName(filter.getField())).gte(filter.getValue()));
         return null;
     }
 
     @Override
     public Void visit(LessThanFilter filter) throws Exception {
-        addFilter(rangeQuery(filter.getField()).lt(filter.getValue()));
+        addFilter(rangeQuery(Utils.storedFieldName(filter.getField())).lt(filter.getValue()));
         return null;
     }
 
     @Override
     public Void visit(LessEqualFilter filter) throws Exception {
-        addFilter(rangeQuery(filter.getField()).lte(filter.getValue()));
+        addFilter(rangeQuery(Utils.storedFieldName(filter.getField())).lte(filter.getValue()));
         return null;
     }
 
@@ -99,25 +100,25 @@ public class ElasticSearchQueryGenerator extends FilterVisitor<Void> {
 
     @Override
     public Void visit(InFilter filter) throws Exception {
-        addFilter(termsQuery(filter.getField(), filter.getValues()));
+        addFilter(termsQuery(Utils.storedFieldName(filter.getField()), filter.getValues()));
         return null;
     }
 
     @Override
     public Void visit(NotInFilter notInFilter) throws Exception {
-        addFilter(boolQuery().mustNot(termsQuery(notInFilter.getField(), notInFilter.getValues())));
+        addFilter(boolQuery().mustNot(termsQuery(Utils.storedFieldName(notInFilter.getField()), notInFilter.getValues())));
         return null;
     }
 
     public Void visit(ExistsFilter filter) throws Exception {
-        addFilter(existsQuery(filter.getField()));
+        addFilter(existsQuery(Utils.storedFieldName(filter.getField())));
         return null;
     }
 
     @Override
     public Void visit(LastFilter filter) throws Exception {
-        addFilter(rangeQuery(filter.getField()).from(filter.getWindow()
-                                                             .getStartTime())
+        addFilter(rangeQuery(Utils.storedFieldName(filter.getField())).from(filter.getWindow()
+                                                                                    .getStartTime())
                           .to(filter.getWindow()
                                       .getEndTime()));
         return null;
@@ -125,19 +126,25 @@ public class ElasticSearchQueryGenerator extends FilterVisitor<Void> {
 
     @Override
     public Void visit(MissingFilter filter) throws Exception {
-        addFilter(boolQuery().mustNot(existsQuery(filter.getField())));
+        addFilter(boolQuery().mustNot(existsQuery(Utils.storedFieldName(filter.getField()))));
         return null;
     }
 
-    private void addFilter(QueryBuilder queryBuilder) {
+    @Override
+    public Void visit(WildCardFilter filter) throws Exception {
+        addFilter(wildcardQuery(Utils.storedFieldName(filter.getField()), filter.getValue()
+                .concat("*")));
+        return null;
+    }
+
+    private Void addFilter(QueryBuilder queryBuilder) {
         boolFilterBuilder.filter(queryBuilder);
+        return null;
     }
 
     public QueryBuilder genFilter(List<Filter> filters) throws Exception {
-        if(CollectionUtils.isNotEmpty(filters)) {
-            for(Filter filter : filters) {
-                filter.accept(this);
-            }
+        for(Filter filter : filters) {
+            filter.accept(this);
         }
         return QueryBuilders.constantScoreQuery(boolFilterBuilder);
     }

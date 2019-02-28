@@ -46,8 +46,9 @@ public class CardinalityCalculationRunnable implements Runnable {
                     .map(Table::getName)
                     .collect(Collectors.toSet());
             for(String table : tables) {
-                if (!tableMetadataManager.cardinalityCacheContains(table)) {
+                if(!tableMetadataManager.cardinalityCacheContains(table)) {
                     tableMetadataManager.getFieldMappings(table, true, true);
+                    LOGGER.info("Cardinality calculated for table: " + table);
                 }
             }
         } catch (Exception e) {

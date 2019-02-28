@@ -54,8 +54,7 @@ public class EsIndexOptimizationManager extends BaseJobManager {
     private final EsIndexOptimizationConfig esIndexOptimizationConfig;
 
     public EsIndexOptimizationManager(ScheduledExecutorService scheduledExecutorService,
-                                      EsIndexOptimizationConfig esIndexOptimizationConfig,
-                                      ElasticsearchConnection elasticsearchConnection,
+                                      EsIndexOptimizationConfig esIndexOptimizationConfig, ElasticsearchConnection elasticsearchConnection,
                                       HazelcastConnection hazelcastConnection) {
         super(esIndexOptimizationConfig, scheduledExecutorService, hazelcastConnection);
         this.esIndexOptimizationConfig = esIndexOptimizationConfig;
@@ -83,15 +82,13 @@ public class EsIndexOptimizationManager extends BaseJobManager {
                         continue;
                     }
                     String currentIndex = ElasticsearchUtils.getCurrentIndex(table, System.currentTimeMillis());
-                    String nextDayIndex = ElasticsearchUtils.getCurrentIndex(table, System.currentTimeMillis() +
-                                                                                    TimeUnit.DAYS.toMillis(1));
+                    String nextDayIndex = ElasticsearchUtils.getCurrentIndex(table, System.currentTimeMillis() + TimeUnit.DAYS.toMillis(1));
                     if(index.equals(currentIndex) || index.equals(nextDayIndex)) {
                         continue;
                     }
                     Map<Integer, IndexShardSegments> indexShardSegmentsMap = entry.getValue()
                             .getShards();
-                    for(Map.Entry<Integer, IndexShardSegments> indexShardSegmentsEntry : indexShardSegmentsMap
-                            .entrySet()) {
+                    for(Map.Entry<Integer, IndexShardSegments> indexShardSegmentsEntry : indexShardSegmentsMap.entrySet()) {
                         List<Segment> segments = indexShardSegmentsEntry.getValue()
                                 .iterator()
                                 .next()

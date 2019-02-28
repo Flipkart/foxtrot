@@ -45,7 +45,7 @@ public class EmailClient {
         this.session = Session.getDefaultInstance(mailProps);
     }
 
-    public boolean sendEmail(String subject, String content, String recipients) {
+    public void sendEmail(String subject, String content, String recipients) {
         try {
             MimeMessage message = new MimeMessage(session);
             message.setFrom(new InternetAddress(emailConfig.getFrom()));
@@ -63,9 +63,7 @@ public class EmailClient {
             Transport.send(message, emailConfig.getUser(), emailConfig.getPassword());
         } catch (Exception e) {
             LOGGER.error("Error occurred while sending the email : " + e);
-            return false;
-        }
-        return true;
 
+        }
     }
 }

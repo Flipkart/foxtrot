@@ -15,7 +15,6 @@
  */
 package com.flipkart.foxtrot.core.common;
 
-import com.collections.CollectionUtils;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.flipkart.foxtrot.common.ActionRequest;
@@ -24,6 +23,7 @@ import com.flipkart.foxtrot.common.ActionValidationResponse;
 import com.flipkart.foxtrot.common.query.Filter;
 import com.flipkart.foxtrot.common.query.general.AnyFilter;
 import com.flipkart.foxtrot.common.query.numeric.LessThanFilter;
+import com.flipkart.foxtrot.common.util.CollectionUtils;
 import com.flipkart.foxtrot.core.alerts.EmailConfig;
 import com.flipkart.foxtrot.core.cache.Cache;
 import com.flipkart.foxtrot.core.cache.CacheManager;
@@ -67,9 +67,9 @@ public abstract class Action<ParameterType extends ActionRequest> implements Cal
     private DataStore dataStore;
     private ElasticsearchConnection connection;
 
-    protected Action(ParameterType parameter, TableMetadataManager tableMetadataManager, DataStore dataStore,
-                     QueryStore queryStore, ElasticsearchConnection connection, String cacheToken,
-                     CacheManager cacheManager, ObjectMapper objectMapper, EmailConfig emailConfig) {
+    protected Action(ParameterType parameter, TableMetadataManager tableMetadataManager, DataStore dataStore, QueryStore queryStore,
+                     ElasticsearchConnection connection, String cacheToken, CacheManager cacheManager, ObjectMapper objectMapper,
+                     EmailConfig emailConfig) {
         this.parameter = parameter;
         this.tableMetadataManager = tableMetadataManager;
         this.queryStore = queryStore;
@@ -100,6 +100,8 @@ public abstract class Action<ParameterType extends ActionRequest> implements Cal
         validateBase(parameter);
         validateImpl(parameter);
     }
+
+    public abstract void preprocess();
 
     @Override
     public String call() throws Exception {
@@ -144,9 +146,7 @@ public abstract class Action<ParameterType extends ActionRequest> implements Cal
                     .registerActionSuccess(cacheToken, getMetricKey(), elapsed);
             if(elapsed > 1000) {
                 try {
-                    logger.warn("SLOW_QUERY: Time: {} ms Query: {}", elapsed,
-                                getObjectMapper().writeValueAsString(parameter)
-                               );
+                    logger.warn("SLOW_QUERY: Time: {} ms Query: {}", elapsed, getObjectMapper().writeValueAsString(parameter));
                 } catch (JsonProcessingException e) {
                     logger.error("Error serializing slow query", e);
                 }
@@ -200,13 +200,15 @@ public abstract class Action<ParameterType extends ActionRequest> implements Cal
 
     private void validateBase(ParameterType parameter) throws MalformedQueryException {
         List<String> validationErrors = new ArrayList<>();
-        for(Filter filter : com.collections.CollectionUtils.nullSafeList(parameter.getFilters())) {
-            Set<String> errors = filter.validate();
-            if(!CollectionUtils.isEmpty(errors)) {
-                validationErrors.addAll(errors);
+        if(!CollectionUtils.isNullOrEmpty(parameter.getFilters())) {
+            for(Filter filter : parameter.getFilters()) {
+                Set<String> errors = filter.validate();
+                if(!CollectionUtils.isNullOrEmpty(errors)) {
+                    validationErrors.addAll(errors);
+                }
             }
         }
-        if(!CollectionUtils.isEmpty(validationErrors)) {
+        if(!CollectionUtils.isNullOrEmpty(validationErrors)) {
             throw FoxtrotExceptions.createMalformedQueryException(parameter, validationErrors);
         }
     }
@@ -223,14 +225,13 @@ public abstract class Action<ParameterType extends ActionRequest> implements Cal
      */
     abstract public String getMetricKey();
 
-    public abstract String getRequestCacheKey();
-
-    public abstract void preprocess();
+    abstract public String getRequestCacheKey();
 
     public abstract ActionRequestBuilder getRequestBuilder(ParameterType parameter) throws FoxtrotException;
 
-    public abstract ActionResponse getResponse(org.elasticsearch.action.ActionResponse response,
-                                               ParameterType parameter) throws FoxtrotException;
+    public abstract ActionResponse getResponse(org.elasticsearch.action.ActionResponse response, ParameterType parameter)
+            throws FoxtrotException;
+
 
     abstract public void validateImpl(ParameterType parameter) throws MalformedQueryException;
 

@@ -30,6 +30,8 @@ import org.elasticsearch.search.aggregations.metrics.cardinality.Cardinality;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.flipkart.foxtrot.core.util.ElasticsearchQueryUtils.QUERY_SIZE;
+
 /**
  * Created by rishabh.goyal on 02/11/14.
  */
@@ -37,13 +39,10 @@ import java.util.List;
 @AnalyticsProvider(opcode = "count", request = CountRequest.class, response = CountResponse.class, cacheable = false)
 public class CountAction extends Action<CountRequest> {
 
-    public CountAction(CountRequest parameter, TableMetadataManager tableMetadataManager, DataStore dataStore,
-                       QueryStore queryStore, ElasticsearchConnection connection, String cacheToken,
-                       CacheManager cacheManager, ObjectMapper objectMapper, EmailConfig emailConfig, AnalyticsLoader
-                       analyticsLoader) {
-        super(parameter, tableMetadataManager, dataStore, queryStore, connection, cacheToken, cacheManager,
-              objectMapper, emailConfig
-             );
+    public CountAction(CountRequest parameter, TableMetadataManager tableMetadataManager, DataStore dataStore, QueryStore queryStore,
+                       ElasticsearchConnection connection, String cacheToken, CacheManager cacheManager, ObjectMapper objectMapper,
+                       EmailConfig emailConfig, AnalyticsLoader analyticsLoader) {
+        super(parameter, tableMetadataManager, dataStore, queryStore, connection, cacheToken, cacheManager, objectMapper, emailConfig);
 
     }
 
@@ -66,10 +65,11 @@ public class CountAction extends Action<CountRequest> {
     public String getRequestCacheKey() {
         long filterHashKey = 0L;
         CountRequest request = getParameter();
-        for(Filter filter : com.collections.CollectionUtils.nullSafeList(request.getFilters())) {
-            filterHashKey += 31 * filter.hashCode();
+        if(null != request.getFilters()) {
+            for(Filter filter : request.getFilters()) {
+                filterHashKey += 31 * filter.hashCode();
+            }
         }
-
 
         filterHashKey += 31 * (request.isDistinct() ? "TRUE".hashCode() : "FALSE".hashCode());
         filterHashKey += 31 * (request.getField() != null ? request.getField()
@@ -97,7 +97,7 @@ public class CountAction extends Action<CountRequest> {
 
         try {
             SearchResponse response = query.execute()
-                    .actionGet();
+                    .actionGet(getGetQueryTimeout());
             return getResponse(response, parameter);
         } catch (ElasticsearchException e) {
             throw FoxtrotExceptions.createQueryExecutionException(parameter, e);
@@ -113,7 +113,7 @@ public class CountAction extends Action<CountRequest> {
                 query = getConnection().getClient()
                         .prepareSearch(ElasticsearchUtils.getIndices(parameter.getTable(), parameter))
                         .setIndicesOptions(Utils.indicesOptions())
-                        .setSize(0)
+                        .setSize(QUERY_SIZE)
                         .setQuery(new ElasticSearchQueryGenerator().genFilter(parameter.getFilters()))
                         .addAggregation(Utils.buildCardinalityAggregation(parameter.getField()));
                 return query;
@@ -126,7 +126,7 @@ public class CountAction extends Action<CountRequest> {
                 requestBuilder = getConnection().getClient()
                         .prepareSearch(ElasticsearchUtils.getIndices(parameter.getTable(), parameter))
                         .setIndicesOptions(Utils.indicesOptions())
-                        .setSize(0)
+                        .setSize(QUERY_SIZE)
                         .setQuery(new ElasticSearchQueryGenerator().genFilter(parameter.getFilters()));
             } catch (Exception e) {
                 throw FoxtrotExceptions.queryCreationException(parameter, e);
@@ -136,8 +136,7 @@ public class CountAction extends Action<CountRequest> {
     }
 
     @Override
-    public ActionResponse getResponse(org.elasticsearch.action.ActionResponse response, CountRequest parameter)
-            throws FoxtrotException {
+    public ActionResponse getResponse(org.elasticsearch.action.ActionResponse response, CountRequest parameter) throws FoxtrotException {
         if(parameter.isDistinct()) {
             Aggregations aggregations = ((SearchResponse)response).getAggregations();
             Cardinality cardinality = aggregations.get(Utils.sanitizeFieldForAggregation(parameter.getField()));

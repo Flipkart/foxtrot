@@ -17,27 +17,30 @@ package com.flipkart.foxtrot.core.querystore.impl;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.flipkart.foxtrot.common.Table;
-import com.flipkart.foxtrot.core.MockElasticsearchServer;
+import com.flipkart.foxtrot.core.table.impl.ElasticsearchTestUtils;
 import com.flipkart.foxtrot.core.table.impl.TableMapStore;
+import com.flipkart.foxtrot.core.util.ElasticsearchQueryUtils;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Maps;
-import org.elasticsearch.action.WriteConsistencyLevel;
 import org.elasticsearch.action.admin.indices.create.CreateIndexRequest;
+import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;
+import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsRequest;
+import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsResponse;
 import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.get.MultiGetItemResponse;
 import org.elasticsearch.action.get.MultiGetResponse;
+import org.elasticsearch.action.support.WriteRequest;
 import org.elasticsearch.common.settings.Settings;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
-import org.mockito.Mockito;
 
 import java.util.*;
 
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.when;
 
 
 /**
@@ -47,7 +50,6 @@ public class TableMapStoreTest {
     public static final String TEST_TABLE = "test-table";
     public static final String TABLE_META_INDEX = "table-meta";
     public static final String TABLE_META_TYPE = "table-meta";
-    private MockElasticsearchServer elasticsearchServer;
     private ObjectMapper mapper = new ObjectMapper();
     private ElasticsearchConnection elasticsearchConnection;
     private TableMapStore tableMapStore;
@@ -55,24 +57,30 @@ public class TableMapStoreTest {
     @Before
     public void setUp() throws Exception {
         mapper = spy(mapper);
-        elasticsearchServer = new MockElasticsearchServer(UUID.randomUUID()
-                                                                  .toString());
-        ElasticsearchUtils.initializeMappings(elasticsearchServer.getClient());
-        elasticsearchConnection = Mockito.mock(ElasticsearchConnection.class);
-        when(elasticsearchConnection.getClient()).thenReturn(elasticsearchServer.getClient());
+
+        elasticsearchConnection = ElasticsearchTestUtils.getConnection();
+        ElasticsearchUtils.initializeMappings(elasticsearchConnection.getClient());
 
         //Create index for table meta. Not created automatically
         Settings indexSettings = Settings.builder()
                 .put("number_of_replicas", 0)
                 .build();
-        CreateIndexRequest createRequest = new CreateIndexRequest(TableMapStore.TABLE_META_INDEX).settings(
-                indexSettings);
-        elasticsearchServer.getClient()
+
+        IndicesExistsRequest indicesExistsRequest = new IndicesExistsRequest().indices(TableMapStore.TABLE_META_INDEX);
+        IndicesExistsResponse indicesExistsResponse = elasticsearchConnection.getClient()
                 .admin()
                 .indices()
-                .create(createRequest)
+                .exists(indicesExistsRequest)
                 .actionGet();
-        elasticsearchServer.getClient()
+        if(!indicesExistsResponse.isExists()) {
+            CreateIndexRequest createRequest = new CreateIndexRequest(TableMapStore.TABLE_META_INDEX).settings(indexSettings);
+            elasticsearchConnection.getClient()
+                    .admin()
+                    .indices()
+                    .create(createRequest)
+                    .actionGet();
+        }
+        elasticsearchConnection.getClient()
                 .admin()
                 .cluster()
                 .prepareHealth()
@@ -85,7 +93,16 @@ public class TableMapStoreTest {
 
     @After
     public void tearDown() throws Exception {
-        elasticsearchServer.shutdown();
+        try {
+            DeleteIndexRequest deleteIndexRequest = new DeleteIndexRequest("*");
+            elasticsearchConnection.getClient()
+                    .admin()
+                    .indices()
+                    .delete(deleteIndexRequest);
+        } catch (Exception e) {
+            //Do Nothing
+        }
+        elasticsearchConnection.stop();
     }
 
 
@@ -341,15 +358,14 @@ public class TableMapStoreTest {
         Table table = new Table();
         table.setName(TEST_TABLE);
         table.setTtl(30);
-
-        elasticsearchServer.getClient()
+        Map<String, Object> sourceMap = ElasticsearchQueryUtils.getSourceMap(table, Table.class);
+        elasticsearchConnection.getClient()
                 .prepareIndex()
                 .setIndex(TABLE_META_INDEX)
                 .setType(TABLE_META_TYPE)
-                .setConsistencyLevel(WriteConsistencyLevel.ALL)
-                .setSource(mapper.writeValueAsString(table))
+                .setSource(sourceMap)
                 .setId(table.getName())
-                .setRefresh(true)
+                .setRefreshPolicy(WriteRequest.RefreshPolicy.IMMEDIATE)
                 .execute()
                 .actionGet();
 
@@ -373,14 +389,13 @@ public class TableMapStoreTest {
     // Exception Caught because of Runtime. Not an IOException
     @Test(expected = RuntimeException.class)
     public void testLoadKeyWithWrongJson() throws Exception {
-        elasticsearchServer.getClient()
+        elasticsearchConnection.getClient()
                 .prepareIndex()
                 .setIndex(TABLE_META_INDEX)
                 .setType(TABLE_META_TYPE)
-                .setConsistencyLevel(WriteConsistencyLevel.ALL)
                 .setSource("{ \"test\" : \"test\"}")
                 .setId(TEST_TABLE)
-                .setRefresh(true)
+                .setRefreshPolicy(WriteRequest.RefreshPolicy.IMMEDIATE)
                 .execute()
                 .actionGet();
         tableMapStore.load(TEST_TABLE);
@@ -396,14 +411,14 @@ public class TableMapStoreTest {
                                   .toString());
             table.setTtl(20);
             tables.put(table.getName(), table);
-            elasticsearchServer.getClient()
+            Map<String, Object> sourceMap = ElasticsearchQueryUtils.getSourceMap(table, Table.class);
+            elasticsearchConnection.getClient()
                     .prepareIndex()
                     .setIndex(TABLE_META_INDEX)
                     .setType(TABLE_META_TYPE)
-                    .setConsistencyLevel(WriteConsistencyLevel.ALL)
-                    .setSource(mapper.writeValueAsString(table))
+                    .setSource(sourceMap)
                     .setId(table.getName())
-                    .setRefresh(true)
+                    .setRefreshPolicy(WriteRequest.RefreshPolicy.IMMEDIATE)
                     .execute()
                     .actionGet();
         }
@@ -423,14 +438,13 @@ public class TableMapStoreTest {
 
     @Test(expected = RuntimeException.class)
     public void testLoadAllKeyWithWrongJson() throws Exception {
-        elasticsearchServer.getClient()
+        elasticsearchConnection.getClient()
                 .prepareIndex()
                 .setIndex(TABLE_META_INDEX)
                 .setType(TABLE_META_TYPE)
-                .setConsistencyLevel(WriteConsistencyLevel.ALL)
                 .setSource("{ \"test\" : \"test\"}")
                 .setId(TEST_TABLE)
-                .setRefresh(true)
+                .setRefreshPolicy(WriteRequest.RefreshPolicy.IMMEDIATE)
                 .execute()
                 .actionGet();
         tableMapStore.loadAll(Arrays.asList(TEST_TABLE));
@@ -446,14 +460,14 @@ public class TableMapStoreTest {
                                   .toString());
             table.setTtl(20);
             tables.put(table.getName(), table);
-            elasticsearchServer.getClient()
+            Map<String, Object> sourceMap = ElasticsearchQueryUtils.getSourceMap(table, Table.class);
+            elasticsearchConnection.getClient()
                     .prepareIndex()
                     .setIndex(TABLE_META_INDEX)
                     .setType(TABLE_META_TYPE)
-                    .setConsistencyLevel(WriteConsistencyLevel.ALL)
-                    .setSource(mapper.writeValueAsString(table))
+                    .setSource(sourceMap)
                     .setId(table.getName())
-                    .setRefresh(true)
+                    .setRefreshPolicy(WriteRequest.RefreshPolicy.IMMEDIATE)
                     .execute()
                     .actionGet();
         }

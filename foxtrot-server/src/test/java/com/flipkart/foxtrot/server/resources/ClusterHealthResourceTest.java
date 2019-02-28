@@ -24,6 +24,7 @@ import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
 import com.flipkart.foxtrot.server.providers.exception.FoxtrotExceptionMapper;
 import io.dropwizard.testing.junit.ResourceTestRule;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -70,6 +71,7 @@ public class ClusterHealthResourceTest extends FoxtrotResourceTest {
                 .size());
     }
 
+    @Ignore
     @Test
     public void testIndicesStats() throws FoxtrotException {
         List<Document> documents = new ArrayList<Document>();
@@ -86,7 +88,7 @@ public class ClusterHealthResourceTest extends FoxtrotResourceTest {
         documents.add(document1);
         documents.add(document2);
         getQueryStore().save(TestUtils.TEST_TABLE_NAME, documents);
-        getElasticsearchServer().refresh(ElasticsearchUtils.getIndices(TestUtils.TEST_TABLE_NAME));
+        getElasticsearchConnection().refresh(ElasticsearchUtils.getIndices(TestUtils.TEST_TABLE_NAME));
         JsonNode response = resources.client()
                 .target("/v1/clusterhealth/indicesstats")
                 .request()
