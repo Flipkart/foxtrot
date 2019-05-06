@@ -37,7 +37,7 @@ public class ElasticsearchConfig {
     @NotNull
     @JsonProperty
     private String cluster;
-    private String tableNamePrefix = "foxtrot";
+    private String tableNamePrefix = "fo/**/xtrot";
     private long getQueryTimeout;
     private Integer port;
 

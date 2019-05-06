@@ -319,8 +319,8 @@
                             <artifactItems>
                                 <artifactItem>
                                     <groupId>org.elasticsearch.distribution.zip</groupId>
-                                    <artifactId>elasticsearch</artifactId>
-                                    <version>6.0.1</version>
+                                    <artifactId>elasticsearch-oss</artifactId>
+                                    <version>6.4.0</version>
                                     <type>zip</type>
                                 </artifactItem>
                             </artifactItems>
@@ -408,7 +408,7 @@
                         <configuration>
                             <target>
                                 <property name="target.dir" value="${project.build.directory}"/>
-                                <property name="elasticsearch.version" value="6.0.1"/>
+                                <property name="elasticsearch.version" value="6.4.0"/>
                                 <ant antfile="it.xml" target="start"/>
                             </target>
                         </configuration>

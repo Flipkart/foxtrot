@@ -7,7 +7,7 @@
 
     <target name="setup" description="Install Elasticsearch and plugins" unless="${es.dir.exists}">
         <tstamp/>
-        <unzip src="${it.dir}/elasticsearch-${elasticsearch.version}.zip" dest="${it.dir}" overwrite="false"/>
+        <unzip src="${it.dir}/elasticsearch-oss-${elasticsearch.version}.zip" dest="${it.dir}" overwrite="false"/>
     </target>
 
     <macrodef name="read-pid">

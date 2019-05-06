@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<!--
+* Copyright 2014 Flipkart Internet Pvt. Ltd.
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+* http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+-->
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="shortcut icon" href="../../assets/ico/favicon.ico">
+
+    <title>FQL Console</title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="../css/bootstrap.min.css" rel="stylesheet">
+    <link href="../css/bootstrap-select.min.css" rel="stylesheet">
+    <link href="../css/bootstrap-datetimepicker.min.css">
+    <link rel="stylesheet" href="../css/jquery-ui.css">
+    <link rel="stylesheet" href="../css/bootstrapValidator.min.css">
+    <link href="../css/foxtrot.css" rel="stylesheet">
+
+    <!-- Custom styles for this template -->
+
+    <!-- Just for debugging purposes. Don't actually copy this line! -->
+    <!--[if lt IE 9]>
+    <script src="../../assets/../js/ie8-responsive-file-warning.js"></script><![endif]-->
+
+    <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+    <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+    <script src="https://oss.maxcdn.com/libs/respond.../js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+</head>
+
+<body>
+<div class="container container-full">
+    <div class="header-container">
+        <div class="header pageheader">
+            <h1>
+                <div class="col-sm-4"><a href="/"><img src="../images/fox_logo.png" style="height: 40px;"/></a> <span
+                        class="console-name">Foxtrot Mapping</span></div>
+            </h1>
+        </div>
+        <hr class="hr-thin">
+        <!--div class="alert alert-dismissable alert-customization">
+            <button type="button" class="close" data-hide="alert" aria-hidden="true">&times;</button>
+            <div class="alert-message"></div>
+        </div-->
+    </div>
+    <div class="content" style="margin-left: 20px; margin-right: 20px; margin-top: 60px;">
+        <div class="row">
+            <form class="form-inline fql-form" id="fql-form" role="form" autocomplete="on">
+                <div class="form-group" style="width: 94%;">
+                    <label for="fql-query" class="sr-only">Enter query</label>
+                    <input type="text" class="form-control input-xlarge fql-query" id="fql-query"
+                           placeholder="Enter FQL query and press enter" style="width: 100%"/>
+                </div>
+                <button class="btn btn-success" data-toggle="tooltip" data-placement="bottom" title="Run query"><span
+                        class="glyphicon glyphicon-play" aria-hidden="true"></span></button>
+                <button class="btn btn-warning csv-download" data-toggle="tooltip" data-placement="bottom"
+                        title="Download CSV"><span class="glyphicon glyphicon-cloud-download" aria-hidden="true"></span>
+                </button>
+
+                <!--button type="submit" class="btn btn-primary pull-right">Run</button-->
+            </form>
+        </div>
+        <hr>
+        <div class="row dataview">
+
+        </div>
+
+    </div>
+    <div class="footer">
+        <p>&copy; flipkart.com 2014</p>
+    </div>
+
+</div> <!-- /container -->
+
+<!-- Modals -->
+<div class="modal hide" id="wait-dialog" role="dialog" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Processing...</h4>
+            </div>
+            <div class="modal-body">
+                <div class="progress progress-striped active">
+                    <div class="bar" style="width: 100%;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!--Templates-->
+
+<script id="table-template" type="text/x-handlebars-template">
+    <table class="table table-bordered table-hover table-condensed dataview-table sortable">
+        <thead class="dataview-tablehead">
+        <tr>
+            {{#each headers}}
+            <th>{{this}}</th>
+            {{/each}}
+        </tr>
+        </thead>
+        <tbody>
+        {{#each data}}
+        <tr>
+            {{#each this}}
+            <td>{{this}}
+            </th>
+            {{/each}}
+        </tr>
+        {{/each}}
+        </tbody>
+
+    </table>
+</script>
+
+
+<!-- Bootstrap core JavaScript
+================================================== -->
+<!-- Placed at the end of the document so the pages load faster -->
+<script src="../js/jquery.js"></script>
+<script src="../js/bootstrap/bootstrap.min.js"></script>
+<script src="../js/bootstrap/bootstrap-select.min.js"></script>
+<script src="../js/handlebars-v1.3.0.js"></script>
+<script src="../js/jquery-ui.js"></script>
+<script src="../js/validator.js"></script>
+<script src="../js/flot/jquery.flot.min.js"></script>
+<script src="../js/flot/jquery.flot.tooltip.js"></script>
+<script src="../js/flot/jquery.flot.time.min.js"></script>
+<script src="../js/flot/jquery.flot.selection.min.js"></script>
+<script src="../js/flot/jquery.flot.pie.min.js"></script>
+<script src="../js/flot/jquery.flot.stack.min.js"></script>
+<script src="../js/flot/jquery.flot.valuelabels.js"></script>
+<script src="../js/flat.js"></script>
+<script src="../js/moment.min.js"></script>
+<script src="../js/bootstrap/bootstrap-datetimepicker.min.js"></script>
+
+<!--Application-->
+<script src="../js/handlebars-helper.js"></script>
+<script src="../js/common-utils.js"></script>
+<script src="../js/hostdetails.js"></script>
+<script src="../js/config.js"></script>
+<script src="../js/fql.js"></script>
+
+</body>
+</html>

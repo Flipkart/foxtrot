@@ -116,12 +116,12 @@ public class FoxtrotServer extends Application<FoxtrotServerConfiguration> {
             }
         });
 
-        bootstrap.addBundle(new RiemannBundle<FoxtrotServerConfiguration>() {
+        /*bootstrap.addBundle(new RiemannBundle<FoxtrotServerConfiguration>() {
             @Override
             public RiemannConfig getRiemannConfiguration(FoxtrotServerConfiguration configuration) {
                 return configuration.getRiemann();
             }
-        });
+        });*/
 
         bootstrap.addBundle(new SwaggerBundle<FoxtrotServerConfiguration>() {
             @Override
