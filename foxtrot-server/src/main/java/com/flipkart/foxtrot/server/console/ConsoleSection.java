@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Map;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class ConsoleSection {
+public class  ConsoleSection {
 
     @NotNull
     @NotEmpty

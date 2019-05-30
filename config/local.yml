@@ -29,7 +29,7 @@ riemann:
 
 hbase:
   secure : false
-  tableName: foxtrot
+  tableName: foxtro
   hbaseZookeeperQuorum: localhost:2181
   hbaseZookeeperClientPort: 2181
 

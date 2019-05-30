@@ -21,5 +21,6 @@
 
 HostDetails.prototype.url = function(path) {
 	//return "http://" + this.hostname + ":" + this.port + path;
+	var xyz = path;
 	return path;
 };

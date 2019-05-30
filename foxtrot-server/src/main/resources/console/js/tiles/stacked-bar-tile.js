@@ -57,6 +57,37 @@ StackedBar.prototype.render = function (data, animate) {
         canvas.empty();
         return;
     }
+
+    if (this.sendtocosmos) {
+        if (0 == parent.find(".chartcanvas").length) {
+            canvasParent = $("<div>", {class: "chartcanvas"});
+            canvas = $("<div>", {class: "group-chart-area"});
+            canvasParent.append(canvas);
+            legendArea = $("<div>", {class: "group-legend-area"});
+            canvasParent.append(legendArea);
+            parent.append(canvasParent);
+        } else {
+            canvas = parent.find(".chartcanvas").find(".group-chart-area");
+            legendArea = parent.find(".chartcanvas").find(".group-legend-area");
+        }
+        var canvasHeight = canvas.height();
+        var canvasWidth = canvas.width();
+        canvas.width(0.58 * canvas.parent().width());
+        legendArea.width(canvas.parent().width() - canvas.width() - 50);
+       // chartLabel.width(canvas.width());
+        parentWidth = canvasWidth;
+        //chartLabel.height(canvas.height());
+    } else {
+        if (0 == parent.find(".chartcanvas").length) {
+            canvas = $("<div>", {class: "chartcanvas"});
+            parent.append(canvas);
+        }
+        else {
+            canvas = parent.find(".chartcanvas");
+        }
+    }
+
+
     var colors = new Colors(Object.keys(data.trends).length);
     var d = [];
     var colorIdx = 0;
@@ -178,6 +209,7 @@ StackedBar.prototype.render = function (data, animate) {
 };
 
 StackedBar.prototype.getQuery = function () {
+    console.log("inside query builder");
     if (this.isSetupDone()) {
         var filters = [];
         filters.push(timeValue(this.periodUnit, this.periodValue, this.customInterval()));
@@ -201,7 +233,14 @@ StackedBar.prototype.getQuery = function () {
     }
 };
 
+
+StackedBar.prototype.sendQuerytoEagle = function () {
+
+    return this.sendtocosmos;
+};
+
 StackedBar.prototype.isSetupDone = function () {
+
     return this.eventTypeFieldName && this.periodValue != 0 && this.periodUnit;
 };
 
@@ -216,9 +255,12 @@ StackedBar.prototype.configChanged = function () {
     this.periodValue = parseInt(modal.find(".tile-time-value").first().val());
     this.eventTypeFieldName = modal.find(".stacked-bar-chart-field").val();
     this.uniqueCountOn = modal.find("#stacked-bar-unique-field").val();
+    this.sendtocosmos= modal.find(".bar-send-to-cosmos").prop('checked');
+
 
 
     var filters = modal.find(".selected-filters").val();
+
     if (filters != undefined && filters != "") {
         var selectedFilters = JSON.parse(filters);
         if (selectedFilters != undefined) {
@@ -262,6 +304,7 @@ StackedBar.prototype.loadFieldList = function () {
             unique_field_select.val("none");
         }
         unique_field_select.selectpicker('refresh');
+
     }.bind(this));
 };
 
@@ -289,10 +332,15 @@ StackedBar.prototype.populateSetupDialog = function () {
     modal.find(".tile-time-value").first().val(this.periodValue);
     modal.find("#stacked-bar-unique-field").val(this.uniqueCountOn);
 
+
+    modal.find(".bar-send-to-cosmos").prop('checked', this.sendtocosmos);
+
     if (this.selectedFilters) {
         modal.find(".selected-filters").val(JSON.stringify(this.selectedFilters));
     }
     modal.find(".ignored-digits").val(this.ignoreDigits);
+
+    this.sendQuerytoEagle();
 
 };
 
@@ -301,6 +349,8 @@ StackedBar.prototype.registerSpecificData = function (representation) {
     representation['periodValue'] = this.periodValue;
     representation['eventTypeFieldName'] = this.eventTypeFieldName;
     representation['uniqueCountOn'] = this.uniqueCountOn;
+    representation['sendtocosmos'] = this.sendtocosmos;
+
     if (this.selectedFilters) {
         representation['selectedFilters'] = btoa(JSON.stringify(this.selectedFilters));
     }
@@ -321,6 +371,9 @@ StackedBar.prototype.loadSpecificData = function (representation) {
     this.eventTypeFieldName = representation['eventTypeFieldName'];
     if (representation.hasOwnProperty('selectedFilters')) {
         this.selectedFilters = JSON.parse(atob(representation['selectedFilters']));
+    }
+    if (representation.hasOwnProperty('sendtocosmos')) {
+        this.sendtocosmos = representation['sendtocosmos'];
     }
 };
 

@@ -81,6 +81,7 @@ BarTile.prototype.render = function (data, animate) {
         }
     }
 
+
     if (!data.hasOwnProperty("result")) {
         canvas.empty();
         return;

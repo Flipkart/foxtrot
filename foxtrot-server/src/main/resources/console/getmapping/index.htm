@@ -52,7 +52,7 @@
         <div class="header pageheader">
             <h1>
                 <div class="col-sm-4"><a href="/"><img src="../images/fox_logo.png" style="height: 40px;"/></a> <span
-                        class="console-name">Foxtrot Mapping</span></div>
+                        class="console-name">Foxtrot Query</span></div>
             </h1>
         </div>
         <hr class="hr-thin">
@@ -63,19 +63,10 @@
     </div>
     <div class="content" style="margin-left: 20px; margin-right: 20px; margin-top: 60px; padding : 100px;">
         <div class="row">
-            <form class="text" id="query-form" role="form" autocomplete="on">
-                <div class="text" style="width: 100%;">
-                    <label for="query" >Enter query</label>
-                    <input type="text"  id="query"
-                           placeholder="Enter JSON query and press enter" style="width: 100% ; padding : 100px;"/>
-                </div>
-           </form>
-        </div>
-        <div class="row">
-            <form class="text" id="mapping-form" role="form" autocomplete="on">
+            <form class="text" id="get-mapping-form" role="form" autocomplete="on">
                 <div class="text" style="width: 94%;">
-                    <label for="mapping-query" >Enter index</label>
-                    <input type="text"  id="mapping-query"
+                    <label for="get-mapping-query" >Enter index</label>
+                    <input type="text"  id="get-mapping-query"
                            placeholder="Enter Index and press enter" style="width: 100%;"/>
                 </div>
                 <button class="btn btn-success" data-toggle="tooltip" data-placement="bottom" title="Run query"><span
@@ -95,7 +86,7 @@
 </div> <!-- /container -->
 
 <!-- Modals -->
-<div class="modal hide" id="wait-dialog-1" role="dialog" aria-hidden="true">
+<div class="modal hide" id="wait-dialog" role="dialog" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
@@ -161,7 +152,7 @@
 <script src="../js/common-utils.js"></script>
 <script src="../js/hostdetails.js"></script>
 <script src="../js/config.js"></script>
-<script src="../js/mapping.js"></script>
+<script src="../js/getmapping.js"></script>
 
 </body>
 </html>

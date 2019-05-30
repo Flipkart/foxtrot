@@ -63,6 +63,7 @@ function Tile() {
     this.contentType = "application/json";
     this.httpMethod = "POST";
     this.ignoreDigits = 0;
+    this.sendtocosmos=false;
 
 }
 
@@ -99,6 +100,22 @@ Tile.prototype.reloadData = function () {
         data: this.query,
         success: $.proxy(this.newDataReceived, this)
     });
+    console.log("work started ");
+    this.sendtocosmos=this.sendQuerytoEagle();
+    if(this.sendtocosmos) {
+        console.log("sdjksahfkjf");
+        var path = "/foxtrot/trends";
+        $.ajax({
+
+            method: 'PUT',
+            url: path,
+            data: this.query,
+            contentType: "application/json",
+            //  datatype: "json"
+        });
+        console.log("work function ended");
+
+    }
 };
 
 Tile.prototype.newDataReceived = function (data) {
@@ -153,6 +170,10 @@ Tile.prototype.configChanged = function () {
 
 Tile.prototype.getQuery = function () {
     return this.query;
+}
+Tile.prototype.sendQuerytoEagle = function () {
+
+    return this.sendtocosmos;
 }
 
 Tile.prototype.loadTableList = function () {
@@ -283,6 +304,7 @@ function GenericTile() {
         nesting: ["header.configName", "data.name"]
     });
     this.refresh = true;
+    this.sendtocosmos=true;
 }
 
 GenericTile.prototype = new Tile();

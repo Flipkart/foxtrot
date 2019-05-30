@@ -80,7 +80,7 @@ DonutTile.prototype.render = function (data, animate) {
             canvas = parent.find(".chartcanvas");
         }
     }
-
+        current
     if (!data.hasOwnProperty("result")) {
         canvas.empty();
         return;
