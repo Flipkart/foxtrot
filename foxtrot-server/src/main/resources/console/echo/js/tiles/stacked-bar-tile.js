@@ -441,7 +441,7 @@ StackedBarTile.prototype.render = function (d, isMultiSeries, originalData) {
       }
     });
   
-    drawLegend(d, $(chartDiv.find(".legend")));
+    drawStackedLinesLegend(d, $(chartDiv.find(".legend")));
   
     // Series point for every time
   //  var updateLegendTimeout = null;

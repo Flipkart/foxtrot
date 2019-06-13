@@ -37,6 +37,8 @@ public abstract class HBaseUtil {
 
     private static final Logger logger = LoggerFactory.getLogger(HBaseUtil.class);
 
+    private HBaseUtil() {}
+
     public static Configuration create(final HbaseConfig hbaseConfig) throws IOException {
         Configuration configuration = HBaseConfiguration.create();
 
@@ -66,7 +68,7 @@ public abstract class HBaseUtil {
             UserGroupInformation.setConfiguration(configuration);
             System.setProperty("java.security.krb5.conf", hbaseConfig.getKerberosConfigFile());
             UserGroupInformation.loginUserFromKeytab(hbaseConfig.getAuthString(), hbaseConfig.getKeytabFileName());
-            logger.info("Logged into Hbase with User: " + UserGroupInformation.getLoginUser());
+            logger.info("Logged into Hbase with User: {}", UserGroupInformation.getLoginUser());
         }
 
         if(null != hbaseConfig.getHbaseZookeeperQuorum()) {

@@ -42,7 +42,7 @@ public class AwsClusterDiscoveryConfig extends ClusterDiscoveryConfig {
     private int connectionTimeoutSeconds = 5;
 
     public AwsClusterDiscoveryConfig() {
-        super(ClusterDiscoveryType.foxtrot_aws);
+        super(ClusterDiscoveryType.FOXTROT_AWS);
     }
 
     public String getAccessKey() {

@@ -93,7 +93,7 @@ public class ParseTest {
             query.setSort(null);
             ImmutableList filters = ImmutableList.of(new MissingFilter("a"));
             query.setFilters(filters);
-            FqlActionQuery fqlActionQuery = new FqlActionQuery(FqlQueryType.select, query, new ArrayList<String>());
+            FqlActionQuery fqlActionQuery = new FqlActionQuery(query, new ArrayList<>());
             Assert.assertEquals(writer.writeValueAsString(fqlActionQuery), writer.writeValueAsString(queryTranslator.translate(sql)));
 
         }

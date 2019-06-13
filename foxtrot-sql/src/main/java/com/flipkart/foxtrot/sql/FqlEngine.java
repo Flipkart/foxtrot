@@ -1,5 +1,6 @@
 package com.flipkart.foxtrot.sql;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.flipkart.foxtrot.common.ActionResponse;
 import com.flipkart.foxtrot.common.Table;
@@ -59,13 +60,13 @@ public class FqlEngine {
             this.mapper = mapper;
         }
 
-        public FlatRepresentation process(FqlQuery query) throws Exception {
+        public FlatRepresentation process(FqlQuery query) {
             query.receive(this);
             return result;
         }
 
         @Override
-        public void visit(FqlDescribeTable fqlDescribeTable) throws Exception {
+        public void visit(FqlDescribeTable fqlDescribeTable) {
             TableFieldMapping fieldMetaData = queryStore.getFieldMappings(fqlDescribeTable.getTableName());
             result = FlatteningUtils.genericMultiRowParse(mapper.valueToTree(fieldMetaData.getMappings()),
                                                           Lists.newArrayList("field", "type"), "field"
@@ -73,15 +74,21 @@ public class FqlEngine {
         }
 
         @Override
-        public void visit(FqlShowTablesQuery fqlShowTablesQuery) throws Exception {
+        public void visit(FqlShowTablesQuery fqlShowTablesQuery) {
             List<Table> tables = tableMetadataManager.get();
             result = FlatteningUtils.genericMultiRowParse(mapper.valueToTree(tables), Lists.newArrayList("name", "ttl"), "name");
         }
 
         @Override
-        public void visit(FqlActionQuery fqlActionQuery) throws Exception {
-            logger.info("Generated query: " + mapper.writeValueAsString(fqlActionQuery.getActionRequest()));
-            ActionResponse actionResponse = queryExecutor.execute(fqlActionQuery.getActionRequest());
+        public void visit(FqlActionQuery fqlActionQuery) {
+            try {
+                String query = mapper.writeValueAsString(fqlActionQuery.getActionRequest());
+                logger.info("Generated query: {}", query);
+            } catch (JsonProcessingException e) {
+                //ignoring the exception as it is coming while logging.
+                logger.error("Error in serializing action request.", e);
+            }
+            ActionResponse actionResponse = queryExecutor.execute(fqlActionQuery.getActionRequest(), "");
             Flattener flattener = new Flattener(mapper, fqlActionQuery.getActionRequest(), fqlActionQuery.getSelectedFields());
             actionResponse.accept(flattener);
             result = flattener.getFlatRepresentation();

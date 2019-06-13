@@ -5,9 +5,9 @@ import com.flipkart.foxtrot.sql.query.FqlDescribeTable;
 import com.flipkart.foxtrot.sql.query.FqlShowTablesQuery;
 
 public interface FqlQueryVisitor {
-    void visit(FqlDescribeTable fqlDescribeTable) throws Exception;
+    void visit(FqlDescribeTable fqlDescribeTable);
 
-    void visit(FqlShowTablesQuery fqlShowTablesQuery) throws Exception;
+    void visit(FqlShowTablesQuery fqlShowTablesQuery);
 
-    void visit(FqlActionQuery fqlActionQuery) throws Exception;
+    void visit(FqlActionQuery fqlActionQuery);
 }

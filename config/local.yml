@@ -32,6 +32,8 @@ hbase:
   tableName: foxtrot
   hbaseZookeeperQuorum: localhost:2181
   hbaseZookeeperClientPort: 2181
+  seggregatedTablePrefix: foxtrot-
+  hbaseZookeeperZnodeParent: /hbase-unsecure
 
 cluster:
   name: foxtrot

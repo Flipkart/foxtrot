@@ -27,7 +27,7 @@ import javax.ws.rs.core.MediaType;
 
 @Path("/v1/util")
 @Produces(MediaType.APPLICATION_JSON)
-@Api(value = "/v1/util", description = "Util API")
+@Api(value = "/v1/util")
 public class UtilResource {
     private final FoxtrotServerConfiguration configuration;
 

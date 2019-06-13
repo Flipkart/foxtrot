@@ -1,6 +1,7 @@
 package com.flipkart.foxtrot.core.querystore.impl;
 
 import com.flipkart.foxtrot.common.ActionRequest;
+import com.flipkart.foxtrot.common.ActionRequestVisitor;
 import com.flipkart.foxtrot.common.query.Filter;
 import com.flipkart.foxtrot.common.query.datetime.LastFilter;
 import com.flipkart.foxtrot.common.query.numeric.BetweenFilter;
@@ -181,6 +182,10 @@ public class ElasticsearchUtilsTest {
     private final static class TestRequest extends ActionRequest {
         private TestRequest() {
             super("test");
+        }
+
+        public <T> T accept(ActionRequestVisitor<T> visitor) {
+            return null;
         }
     }
 

@@ -30,7 +30,7 @@ var apiUrl = getHostUrl();
 var interval = null;
 var consoleList = [];
 var currentConsoleName;
-var isCopyWidget = false;
+var isCopyDashboard = false;
 var lastConsoleName = "";
 var globalFilters = false;
 var isNewConsole = false;
@@ -280,24 +280,30 @@ function saveConsole() { // Save console api
       contentType: 'application/json',
       data: JSON.stringify(representation),
       success: function(resp) {
-        if(isCopyWidget) { // copy widget action
+        var isOpenDashboard = getParameterByName("openDashboard");
+        hideConsoleModal("save-dashboard");
+        if(isCopyDashboard) { // copy widget action
           showSuccessAlert('Success', 'Console copied Sucessfully');
           setTimeout(function(){ window.location.href = window.location.origin+window.location.pathname+"?console="+convertedName; }, 3000);
+          return;
         } else if(isViewingVersionConsole) {
           showSuccessAlert('Success', 'Console Saved Sucessfully');
           setTimeout(function(){ window.location.href = window.location.origin+window.location.pathname+"?console="+convertedName; }, 3000);
+        } else if(isOpenDashboard) {
+          showSuccessAlert('Success', 'console saved sucessfully');
+          setTimeout(function(){ window.location.href = window.location.origin+window.location.pathname+"?console="+convertedName; }, 3000);
+          return;
         } else {
           showSuccessAlert('Success', 'console saved sucessfully');
         }
-        hideConsoleModal("save-dashboard");
         
-        if(!isViewingVersionConsole) { // fetch recent version ist
+        if(!isViewingVersionConsole ) { // fetch recent version ist
           loadVersionConsoleByName(name);
         }
 
       },
       error: function() {
-        var msg = isCopyWidget ? "Could not copy console" : "Could not save console";
+        var msg = isCopyDashboard ? "Could not copy console" : "Could not save console";
         showErrorAlert("Oops",msg);
         hideConsoleModal("save-dashboard");
         if(lastConsoleName.length > 0) {
@@ -384,7 +390,8 @@ function loadVersionConsoleById(consoleId) { // load console list api
     contentType: 'application/json',
     success: function(res) {
       isViewingVersionConsole = true;
-      preparePageRendering(res, ""); // second params is none
+      resetBrowserUrl();
+      preparePageRendering(res, ""); // second params is none      
     },
     error: function() {
       showErrorAlert("Could not load versioning console list");
@@ -402,7 +409,7 @@ function loadVersionConsoleByName(consoleName) { // load console list api
       appendVersionConsoleList(res);
     },
     error: function() {
-      showErrorAlert("Could not save console");
+      showErrorAlert("Unable to load old version list");
     }
   })
 }
@@ -561,10 +568,18 @@ function renderTilesObject(currentTabName) { // render tiles based on current ta
   if (tabIndex >= 0) {
     tileList = globalData[tabIndex].tileList;
     tileData = globalData[tabIndex].tileData;
-    for (var i = 0; i < tileList.length; i++) {
-      renderTiles(tileData[tileList[i]]);
+    if(tileList) {
+      if(tileList.length > 0) { // check for empty tab details
+        for (var i = 0; i < tileList.length; i++) {
+          renderTiles(tileData[tileList[i]]);
+        }
+        fetchTableFields();
+      } else {
+        showInfoAlert('No widgets found', '');
+      } 
+    } else {
+      showInfoAlert('No widgets found', '');
     }
-    fetchTableFields();
   }
 }
 
@@ -644,6 +659,13 @@ function generateSectionbtn(tabName, isNew) {
   $("#tab-name").val('');
   var tablinks = document.getElementsByClassName("tablinks");
   if(isNew) {
+    var tempObject = {
+      "id":convertName(tabName),
+      "name": tabName,
+      "tileList": []
+      , "tileData": {}
+    }
+    globalData.push(tempObject);
     for (i = 0; i < tablinks.length; i++) {
       var element = $(tablinks[i]);
       if(tablinks[i].id == tabName) {
@@ -730,6 +752,7 @@ function showHideSideBar() { // show sidebar for adding widgets
     $('#sidebar').css({ 'width': '356px' });
     $(".delete-widget").hide();
     $("#delete-widget-divider").hide();
+    $(".save-widget-btn").hide();
   }
 }
 
@@ -766,338 +789,345 @@ function showHidePageSettings() { // page setting modal
 }
 
 $(document).ready(function () {
-  // check user is logged in and proceed
-  var type = $("#widgetType").val();
-  var foxtrot = new FoxTrot();
-  $("#addWidgetConfirm").click($.proxy(foxtrot.addTile, foxtrot));
-  $("#sidebar-filter-btn").click($.proxy(foxtrot.addFilters, foxtrot));
-  $("#default-btn").click(function () {
-      defaultPlusBtn = true;
-      foxtrot.resetModal();
-      $(".settings-form").find("input[type=text], textarea").val("");
-      $(".copy-widget-btn").hide();
-  });
-  foxtrot.init();
-  $("#save-dashboard-tab-btn").click(function () {
-      currentConsoleName = $("#save-dashboard-name").val();
-      saveConsole();
-  });
-  $(".copy-dashboard-submit").click(function (e) {
-      if ($(".copy-dashboard-name").val().length == 0) {
-          $(".copy-db-error").show();
-          return;
-      } else {
-          $(".copy-db-error").hide();
-      }
-      lastConsoleName = currentConsoleName;
-      isCopyWidget = true;
-      currentConsoleName = $("#copy-dashboard-name").val();
-      saveConsole();
-  });
-  $(".copy-page-submit").click(function (e) {
-
-      var currentViewingTab = getParameterByName("tab");
-
-      // validation
-      if ($(".copy-page-name").val().length == 0) {
-          $(".copy-pg-error").show();
-          return;
-      } else {
-          $(".copy-pg-error").hide();
-          var tabIndex = 0;
-
-          // figure out index
-          if (currentViewingTab.length > 0) {
-              tabIndex = globalData.findIndex(x => x.id == currentViewingTab.trim().toLowerCase().split(' ').join("_"));
-          }
-
-          // loop and update the required details for new tab/page
-          var newName = $(".copy-page-name").val();
-          var tmpObject = JSON.parse(JSON.stringify(globalData[tabIndex]));
-          var converntedString = convertName(newName);
-          tmpObject["id"] = converntedString;
-          tmpObject["name"] = newName;
-          var tileListArray = tmpObject["tileList"];
-          var newTileData = {}
-          for (var i = 0; i < tileListArray.length; i++) {
-              var newID = guid();
-              var tmpTileData = tmpObject["tileData"][tileListArray[i]];
-              newTileData[newID] = Object.values(tmpTileData);
-              tileListArray[i] = newID;
-              tmpTileData["id"] = newID;
-              tmpTileData["tileContext"]["tabName"] = newName;
-              newTileData[newID] = tmpTileData;
-          }
-
-          tmpObject.tileData = newTileData
-          globalData.push(tmpObject);
-          hideConsoleModal("copy-page");
-          generateNewPageList(sectionNumber + 1, newName);
-          generateSectionbtn(newName, false);
-
-          consoleTabs({}, {
-              "id": newName
-          });
-          $(".copy-page-name").val('');
-      }
-  });
-  $("#delete-dashboard-tab-btn").click(function () {
-      currentConsoleName = $("#delete-dashboard-name").val();
-      deleteConsole();
-  });
-  $("#listConsole").change(function () {
-      loadParticularConsoleList();
-  });
-  $("#addDashboardConfirm").click(function () {
-      createDashboard();
-  });
-  $("#addTabConfirm").click(function () {
-      addSections();
-  })
-  loadConsole();
-  $(".filter_values").multiselect({
-      numberDisplayed: 0
-  });
-  $("#default-btn").click(function () {
-      showHideSideBar();
-      foxtrot.resetModal();
-  });
-  $(".chart-type").change(function () {
-      clickedChartType(this);
-  })
-
-  $("#filter-close-btn").click(function () {
-      showHideSideBar();
-      foxtrot.resetModal();
-  })
-
-  $(".filter-switch").change(function () {
-      if (this.checked) {
-          globalFilters = true;
-          showFilters();
-      } else {
-          globalFilters = false;
-          hideFilters();
-          resetPeriodDropdown();
-          resetGloblaDateFilter();
-          refereshTiles();
-      }
-  });
-
-  var consoleId = getParameterByName("console").replace('/', '');
-  if (consoleId) {
-      getConsoleById(consoleId);
-      isNewConsole = false;
-  } else {
-      isNewConsole = true;
-  }
-
-  var isOpenDashboard = getParameterByName("openDashboard");
-  if (isOpenDashboard) {
-      $("#addDashboard").modal('show');
-  }
-
-  $(".delete-widget-btn").click(function () {
-      var id = $("#delete-widget-value").val();
-      $(".tile-container").find('#' + id).remove();
-      deleteWidget(id);
-  });
-
-  // Scroll to new copied div
-  function goToWidget(id) {
-      document.getElementById(id).scrollIntoView({
-          behavior: 'smooth'
+  if (isLoggedIn()) {
+      var type = $("#widgetType").val();
+      var foxtrot = new FoxTrot();
+      $("#addWidgetConfirm").click($.proxy(foxtrot.addTile, foxtrot));
+      $(".save-widget-btn").click($.proxy(foxtrot.addTile, foxtrot));
+      $("#sidebar-filter-btn").click($.proxy(foxtrot.addFilters, foxtrot));
+      $("#default-btn").click(function () {
+          defaultPlusBtn = true;
+          foxtrot.resetModal();
+          $(".settings-form").find("input[type=text], textarea").val("");
+          $(".copy-widget-btn").hide();
       });
-  }
+      foxtrot.init();
+      $("#save-dashboard-tab-btn").click(function () {
+          currentConsoleName = $("#save-dashboard-name").val();
+          saveConsole();
+      });
+      $(".copy-dashboard-submit").click(function (e) {
+          if ($(".copy-dashboard-name").val().length == 0) {
+              $(".copy-db-error").show();
+              return;
+          } else {
+              $(".copy-db-error").hide();
+          }
+          lastConsoleName = currentConsoleName;
+          isCopyDashboard = true;
+          currentConsoleName = $("#copy-dashboard-name").val();
+          saveConsole();
+      });
+      $(".copy-page-submit").click(function (e) {
 
-  // function to insert as a new row of copied widget
-  function insertNewRow(object) {
-      console.log(object);
-      var lastItem = tileList[tileList.length - 1];
-      var newRow = tileData[lastItem].tileContext.row + 1;
+          var currentViewingTab = getParameterByName("tab");
 
-      // create a new object
-      var newRowObject = JSON.parse(JSON.stringify(object));
-      newRowObject.tileContext.row = newRow;
-      newRowObject.tileContext.position = 1;
-      newRowObject.id = guid();
-      newRowObject.title = newRowObject.title + " - copy";
-      newRowObject.tileContext.isnewRow = true;
+          // validation
+          if ($(".copy-page-name").val().length == 0) {
+              $(".copy-pg-error").show();
+              return;
+          } else {
+              $(".copy-pg-error").hide();
+              var tabIndex = 0;
 
-      // add new object to tilelist and tiledata
-      tileList.push(newRowObject.id);
-      tileData[newRowObject.id] = newRowObject;
+              // figure out index
+              if (currentViewingTab.length > 0) {
+                  tabIndex = globalData.findIndex(x => x.id == currentViewingTab.trim().toLowerCase().split(' ').join("_"));
+              }
 
-      // create copied tiles
-      renderTiles(newRowObject);
-      showHideSideBar(); // close sidebar
-      goToWidget(newRowObject.id);
-  }
+              // loop and update the required details for new tab/page
+              var newName = $(".copy-page-name").val();
+              var tmpObject = JSON.parse(JSON.stringify(globalData[tabIndex]));
+              var converntedString = convertName(newName);
+              tmpObject["id"] = converntedString;
+              tmpObject["name"] = newName;
+              var tileListArray = tmpObject["tileList"];
+              var newTileData = {}
+              for (var i = 0; i < tileListArray.length; i++) {
+                  var newID = guid();
+                  var tmpTileData = tmpObject["tileData"][tileListArray[i]];
+                  if(tmpTileData != undefined) {
+                    newTileData[newID] = Object.values(tmpTileData);
+                    tileListArray[i] = newID;
+                    tmpTileData["id"] = newID;
+                    tmpTileData["tileContext"]["tabName"] = newName;
+                    newTileData[newID] = tmpTileData;
+                  }
+              }
 
-  // function to insert a new row of copied widget into existing row
-  /**
-   * isLastRow true means the copied object can be fit into the last row
-   * Else it will rendered as an new row
-   */
-  function insertIntoExistingRow(object, isLastRow, lastRowValue) {
-      var row = 0;
+              tmpObject.tileData = newTileData
+              globalData.push(tmpObject);
+              hideConsoleModal("copy-page");
+              generateNewPageList(sectionNumber + 1, newName);
+              generateSectionbtn(newName, false);
 
-      if (!isLastRow) {
-          row = object.tileContext.row
+              consoleTabs({}, {
+                  "id": newName
+              });
+              $(".copy-page-name").val('');
+          }
+      });
+      $("#delete-dashboard-tab-btn").click(function () {
+          currentConsoleName = $("#delete-dashboard-name").val();
+          if (isViewingVersionConsole) {
+              deleteVersionConsole();
+          } else {
+              deleteConsole();
+          }
+      });
+      $("#listConsole").change(function () {
+          loadParticularConsoleList();
+      });
+      $("#addDashboardConfirm").click(function () {
+          createDashboard();
+      });
+      $("#addTabConfirm").click(function () {
+          addSections();
+      })
+      loadConsole();
+      $(".filter_values").multiselect({
+          numberDisplayed: 0
+      });
+      $("#default-btn").click(function () {
+          showHideSideBar();
+          foxtrot.resetModal();
+      });
+      $(".chart-type").change(function () {
+          clickedChartType(this);
+      })
+
+      $("#filter-close-btn").click(function () {
+          showHideSideBar();
+          foxtrot.resetModal();
+      })
+
+      $(".filter-switch").change(function () {
+          if (this.checked) {
+              globalFilters = true;
+              showFilters();
+          } else {
+              globalFilters = false;
+              hideFilters();
+              resetPeriodDropdown();
+              resetGloblaDateFilter();
+              refereshTiles();
+          }
+      });
+
+      var consoleId = getParameterByName("console").replace('/', '');
+      if (consoleId) {
+          getConsoleById(consoleId);
+          isNewConsole = false;
       } else {
-          row = lastRowValue;
+          isNewConsole = true;
       }
 
-      var indexOfClickedObject = tileList.indexOf(object.id);
-
-      // create a new object
-      var newRowObject = JSON.parse(JSON.stringify(object));
-      newRowObject.tileContext.row = row;
-      newRowObject.tileContext.isnewRow = false;
-
-      newRowObject.id = guid();
-      newRowObject.title = newRowObject.title + " - copy";
-
-      // add new object to tilelist and tiledata
-
-      if (isLastRow) {
-          tileList.push(newRowObject.id); // add at end
-      } else {
-          tileList.splice(indexOfClickedObject + 1, 0, newRowObject.id); // add at index
+      var isOpenDashboard = getParameterByName("openDashboard");
+      if (isOpenDashboard) {
+          $("#addDashboard").modal('show');
       }
 
-      tileData[newRowObject.id] = newRowObject;
+      $(".delete-widget-btn").click(function () {
+          var id = $("#delete-widget-value").val();
+          $(".tile-container").find('#' + id).remove();
+          deleteWidget(id);
+      });
 
-      // create copied tiles
-      renderTiles(newRowObject);
-      showHideSideBar(); // close sidebar
-      goToWidget(newRowObject.id);
-  }
+      // Scroll to new copied div
+      function goToWidget(id) {
+          document.getElementById(id).scrollIntoView({
+              behavior: 'smooth'
+          });
+      }
 
-  /**
-   * Check space is available in last row
-   * if available insert new tile in last row
-   * Else insert as an new row
-   */
-  function findSpaceAvailableInLAstRow(clickedObject) {
-      var getLastElement = tileList[tileList.length - 1];
-      var findLastRowSpace = findSpaceAvailable(tileData[getLastElement].tileContext.row, function (val) {
-          if (val > 0 & val < 12) {
-              insertIntoExistingRow(clickedObject, true, tileData[getLastElement].tileContext.row);
+      // function to insert as a new row of copied widget
+      function insertNewRow(object) {
+          var lastItem = tileList[tileList.length - 1];
+          var newRow = tileData[lastItem].tileContext.row + 1;
+
+          // create a new object
+          var newRowObject = JSON.parse(JSON.stringify(object));
+          newRowObject.tileContext.row = newRow;
+          newRowObject.tileContext.position = 1;
+          newRowObject.id = guid();
+          newRowObject.title = newRowObject.title + " - copy";
+          newRowObject.tileContext.isnewRow = true;
+
+          // add new object to tilelist and tiledata
+          tileList.push(newRowObject.id);
+          tileData[newRowObject.id] = newRowObject;
+
+          // create copied tiles
+          renderTiles(newRowObject);
+          showHideSideBar(); // close sidebar
+          goToWidget(newRowObject.id);
+      }
+
+      // function to insert a new row of copied widget into existing row
+      /**
+       * isLastRow true means the copied object can be fit into the last row
+       * Else it will rendered as an new row
+       */
+      function insertIntoExistingRow(object, isLastRow, lastRowValue) {
+          var row = 0;
+
+          if (!isLastRow) {
+              row = object.tileContext.row
+          } else {
+              row = lastRowValue;
+          }
+
+          var indexOfClickedObject = tileList.indexOf(object.id);
+
+          // create a new object
+          var newRowObject = JSON.parse(JSON.stringify(object));
+          newRowObject.tileContext.row = row;
+          newRowObject.tileContext.isnewRow = false;
+
+          newRowObject.id = guid();
+          newRowObject.title = newRowObject.title + " - copy";
+
+          // add new object to tilelist and tiledata
+
+          if (isLastRow) {
+              tileList.push(newRowObject.id); // add at end
+          } else {
+              tileList.splice(indexOfClickedObject + 1, 0, newRowObject.id); // add at index
+          }
+
+          tileData[newRowObject.id] = newRowObject;
+
+          // create copied tiles
+          renderTiles(newRowObject);
+          showHideSideBar(); // close sidebar
+          goToWidget(newRowObject.id);
+      }
+
+      /**
+       * Check space is available in last row
+       * if available insert new tile in last row
+       * Else insert as an new row
+       */
+      function findSpaceAvailableInLAstRow(clickedObject) {
+          var getLastElement = tileList[tileList.length - 1];
+          var findLastRowSpace = findSpaceAvailable(tileData[getLastElement].tileContext.row, function (val) {
+              if (val > 0 & val < 12) {
+                  insertIntoExistingRow(clickedObject, true, tileData[getLastElement].tileContext.row);
+              } else {
+                  insertNewRow(clickedObject);
+              }
+          });
+      }
+
+      /**
+       * trigger correct function to insert copied row
+       * @param {*} totalUsedSize 
+       * @param {*} clickedObject 
+       */
+      function triggerRenderTile(totalUsedSize, clickedObject) {
+          if (totalUsedSize >= 12) {
+              findSpaceAvailableInLAstRow(clickedObject);
+              return;
+          } else if (totalUsedSize == 9) {
+              insertIntoExistingRow(clickedObject, false, 0)
+              return;
+          } else if (totalUsedSize == 6) {
+              insertIntoExistingRow(clickedObject, false, 0);
+              return;
+          } else if (totalUsedSize == 3) {
+              insertIntoExistingRow(clickedObject, false, 0);
+              return;
           } else {
               insertNewRow(clickedObject);
-          }
-      });
-  }
-
-  /**
-   * trigger correct function to insert copied row
-   * @param {*} totalUsedSize 
-   * @param {*} clickedObject 
-   */
-  function triggerRenderTile(totalUsedSize, clickedObject) {
-      if (totalUsedSize >= 12) {
-          findSpaceAvailableInLAstRow(clickedObject);
-          return;
-      } else if (totalUsedSize == 9) {
-          insertIntoExistingRow(clickedObject, false, 0)
-          return;
-      } else if (totalUsedSize == 6) {
-          insertIntoExistingRow(clickedObject, false, 0);
-          return;
-      } else if (totalUsedSize == 3) {
-          insertIntoExistingRow(clickedObject, false, 0);
-          return;
-      } else {
-          insertNewRow(clickedObject);
-          return;
-      }
-  }
-
-  // find how many space left in given row
-  function findSpaceAvailable(copiedRow, callback) {
-      var totalUsedSize = 0; // calculate total size used in a row
-      for (var loop = 0; loop < tileList.length; loop++) { // loop to find out total used size  
-          if (tileData[tileList[loop]].tileContext.row == copiedRow) { // if copied row and loop row is same
-              lastPosition = tileData[tileList[loop]].tileContext.position;
-              totalUsedSize = totalUsedSize + getWidgetSize(tileData[tileList[loop]].tileContext.chartType); // calculate size
+              return;
           }
       }
-      callback(totalUsedSize);
-      return;
-  }
 
-  $(".copy-widget-btn").click(function () {
-      var clickedObject = $("#copy-widget-value").data("tile"); // Read data attributes
-      var copiedRow = clickedObject.tileContext.row; // get row
-      // check available space and render tile
-      findSpaceAvailable(copiedRow, function (val) {
-          triggerRenderTile(val, clickedObject);
+      // find how many space left in given row
+      function findSpaceAvailable(copiedRow, callback) {
+          var totalUsedSize = 0; // calculate total size used in a row
+          for (var loop = 0; loop < tileList.length; loop++) { // loop to find out total used size  
+              if (tileData[tileList[loop]].tileContext.row == copiedRow) { // if copied row and loop row is same
+                  lastPosition = tileData[tileList[loop]].tileContext.position;
+                  totalUsedSize = totalUsedSize + getWidgetSize(tileData[tileList[loop]].tileContext.chartType); // calculate size
+              }
+          }
+          callback(totalUsedSize);
+          return;
+      }
+
+      $(".copy-widget-btn").click(function () {
+          var clickedObject = $("#copy-widget-value").data("tile"); // Read data attributes
+          var copiedRow = clickedObject.tileContext.row; // get row
+          // check available space and render tile
+          findSpaceAvailable(copiedRow, function (val) {
+              triggerRenderTile(val, clickedObject);
+          });
+      })
+
+      $("#add-new-page-list").click(function () {
+          generateNewPageList(sectionNumber + 1, "");
       });
-  })
 
-  $("#add-new-page-list").click(function () {
-      generateNewPageList(sectionNumber + 1, "");
-  });
+      $("#delete-dashboard-btn").click(function () {
+          $("#delete-dashboard").modal('show');
+      });
 
-  $("#delete-dashboard-btn").click(function () {
-      $("#delete-dashboard").modal('show');
-  });
+      $(".page-setting-save-btn").click(function () {
+          savePageSettings();
+      });
 
-  $(".page-setting-save-btn").click(function () {
-      savePageSettings();
-  });
+      $("#sidebar-btn-form").validate({
+          submitHandler: function (form) { // for demo
+              alert('valid form submitted'); // for demo
+              return false; // for demo
+          }
+      });
 
-  $("#sidebar-btn-form").validate({
-      submitHandler: function (form) { // for demo
-          alert('valid form submitted'); // for demo
-          return false; // for demo
+      $('#table-units .selectpicker').on('change', function () { // select picker refresh for sidebar
+          var selected = $(this).val();
+          if (selected) {
+              $(this).next().css("display", "none");
+          } else {
+              $(this).next().css("display", "block");
+          }
+      });
+      //Initialize libs
+      $('.selectpicker').selectpicker();
+      $('#refresh-time').tooltip();
+
+      /**
+       * Initialize global date filter
+       */
+      $("#myModal .modal-header h4").html("Select Your Date");
+      $("#myModal .modal-body").html('<div style="overflow:hidden;"><div class="form-group"><div class="row"><div class="col-md-8"><div id="datetimepicker12"></div></div></div></div><div id="global-date-picker-info-text"><p><span class="glyphicon glyphicon-info-sign"></span>Graph would operate between (time selected in date picker - x), where x is the value in mins/hours/days of the individual widget</p> <ul><li>If time selected in date picker is 1 pm and the widget has time range of 15 mins, widget would show data from (1pm -15 mins)</li> <li>If time selected in date picker is 1 pm and the global filters has time range of 15 mins, all widgets would show data from (1pm -15 mins)</li></ul></p></div>');
+      $('#datetimepicker12').datetimepicker({
+          inline: true,
+          sideBySide: true,
+          format: 'DD/MM/YYYY, hh:mm:ss a'
+      });
+
+      function resetGloblaDateFilter() {
+          isGlobalDateFilter = false;
+          globalDateFilterValue = "";
+          $("#selected-global-date span").text('');
+          $("#selected-global-date").hide();
       }
-  });
 
-  $('#table-units .selectpicker').on('change', function () { // select picker refresh for sidebar
-      var selected = $(this).val();
-      if (selected) {
-          $(this).next().css("display", "none");
-      } else {
-          $(this).next().css("display", "block");
-      }
-  });
-  //Initialize libs
-  $('.selectpicker').selectpicker();
-  $('#refresh-time').tooltip();
+      $(".close-global-date-filter").click(function () {
+          $("#myModal").modal("hide");
+          //resetGloblaDateFilter();
+      })
 
-  /**
-   * Initialize global date filter
-   */
-  $("#myModal .modal-header h4").html("Select Your Date");
-  $("#myModal .modal-body").html('<div style="overflow:hidden;"><div class="form-group"><div class="row"><div class="col-md-8"><div id="datetimepicker12"></div></div></div></div><div id="global-date-picker-info-text"><p><span class="glyphicon glyphicon-info-sign"></span>Graph would operate between (time selected in date picker - x), where x is the value in mins/hours/days of the individual widget</p> <ul><li>If time selected in date picker is 1 pm and the widget has time range of 15 mins, widget would show data from (1pm -15 mins)</li> <li>If time selected in date picker is 1 pm and the global filters has time range of 15 mins, all widgets would show data from (1pm -15 mins)</li></ul></p></div>');
-  $('#datetimepicker12').datetimepicker({
-      inline: true,
-      sideBySide: true,
-      format: 'DD/MM/YYYY, hh:mm:ss a'
-  });
-
-  function resetGloblaDateFilter() {
-      isGlobalDateFilter = false;
-      globalDateFilterValue = "";
-      $("#selected-global-date span").text('');
-      $("#selected-global-date").hide();
+      $("#submit-global-date-picker").click(function () {
+          isGlobalDateFilter = true;
+          $("#selected-global-date").show();
+          var date = $('#datetimepicker12').data('date');
+          var conv = moment(date, "DD/MM/YYYY, hh:mm:ss a");
+          $("#selected-global-date span").text(moment(conv).format('DD/MM/YYYY, hh:mm a'));
+          globalDateFilterValue = conv.valueOf();
+          refereshTiles();
+          $("#myModal").modal("hide");
+      })
   }
-
-  $(".close-global-date-filter").click(function () {
-      $("#myModal").modal("hide");
-      //resetGloblaDateFilter();
-  })
-
-  $("#submit-global-date-picker").click(function () {
-      isGlobalDateFilter = true;
-      $("#selected-global-date").show();
-      var date = $('#datetimepicker12').data('date');
-      var conv = moment(date, "DD/MM/YYYY, hh:mm:ss a");
-      $("#selected-global-date span").text(moment(conv).format('DD/MM/YYYY, hh:mm a'));
-      globalDateFilterValue = conv.valueOf();
-      refereshTiles();
-      $("#myModal").modal("hide");
-  });
 });

@@ -1,26 +1,17 @@
 package com.flipkart.foxtrot.core.querystore.actions;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.flipkart.foxtrot.common.ActionResponse;
 import com.flipkart.foxtrot.common.count.CountRequest;
 import com.flipkart.foxtrot.common.count.CountResponse;
 import com.flipkart.foxtrot.common.query.Filter;
 import com.flipkart.foxtrot.common.query.general.ExistsFilter;
 import com.flipkart.foxtrot.common.util.CollectionUtils;
-import com.flipkart.foxtrot.core.alerts.EmailConfig;
-import com.flipkart.foxtrot.core.cache.CacheManager;
 import com.flipkart.foxtrot.core.common.Action;
-import com.flipkart.foxtrot.core.datastore.DataStore;
-import com.flipkart.foxtrot.core.exception.FoxtrotException;
 import com.flipkart.foxtrot.core.exception.FoxtrotExceptions;
-import com.flipkart.foxtrot.core.exception.MalformedQueryException;
-import com.flipkart.foxtrot.core.querystore.QueryStore;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsLoader;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsProvider;
-import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConnection;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
 import com.flipkart.foxtrot.core.querystore.query.ElasticSearchQueryGenerator;
-import com.flipkart.foxtrot.core.table.TableMetadataManager;
 import org.elasticsearch.ElasticsearchException;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
@@ -39,10 +30,8 @@ import static com.flipkart.foxtrot.core.util.ElasticsearchQueryUtils.QUERY_SIZE;
 @AnalyticsProvider(opcode = "count", request = CountRequest.class, response = CountResponse.class, cacheable = false)
 public class CountAction extends Action<CountRequest> {
 
-    public CountAction(CountRequest parameter, TableMetadataManager tableMetadataManager, DataStore dataStore, QueryStore queryStore,
-                       ElasticsearchConnection connection, String cacheToken, CacheManager cacheManager, ObjectMapper objectMapper,
-                       EmailConfig emailConfig, AnalyticsLoader analyticsLoader) {
-        super(parameter, tableMetadataManager, dataStore, queryStore, connection, cacheToken, cacheManager, objectMapper, emailConfig);
+    public CountAction(CountRequest parameter, String cacheToken, AnalyticsLoader analyticsLoader) {
+        super(parameter, cacheToken, analyticsLoader);
 
     }
 
@@ -78,7 +67,7 @@ public class CountAction extends Action<CountRequest> {
     }
 
     @Override
-    public void validateImpl(CountRequest parameter) throws MalformedQueryException {
+    public void validateImpl(CountRequest parameter, String email) {
         List<String> validationErrors = new ArrayList<>();
         if(CollectionUtils.isNullOrEmpty(parameter.getTable())) {
             validationErrors.add("table name cannot be null or empty");
@@ -92,7 +81,7 @@ public class CountAction extends Action<CountRequest> {
     }
 
     @Override
-    public ActionResponse execute(CountRequest parameter) throws FoxtrotException {
+    public ActionResponse execute(CountRequest parameter) {
         SearchRequestBuilder query = getRequestBuilder(parameter);
 
         try {
@@ -106,7 +95,7 @@ public class CountAction extends Action<CountRequest> {
     }
 
     @Override
-    public SearchRequestBuilder getRequestBuilder(CountRequest parameter) throws FoxtrotException {
+    public SearchRequestBuilder getRequestBuilder(CountRequest parameter) {
         if(parameter.isDistinct()) {
             SearchRequestBuilder query;
             try {
@@ -136,7 +125,7 @@ public class CountAction extends Action<CountRequest> {
     }
 
     @Override
-    public ActionResponse getResponse(org.elasticsearch.action.ActionResponse response, CountRequest parameter) throws FoxtrotException {
+    public ActionResponse getResponse(org.elasticsearch.action.ActionResponse response, CountRequest parameter) {
         if(parameter.isDistinct()) {
             Aggregations aggregations = ((SearchResponse)response).getAggregations();
             Cardinality cardinality = aggregations.get(Utils.sanitizeFieldForAggregation(parameter.getField()));

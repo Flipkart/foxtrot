@@ -7,6 +7,9 @@ import net.sf.jsqlparser.expression.StringValue;
 import net.sf.jsqlparser.schema.Column;
 
 public class QueryUtils {
+
+    private QueryUtils() {}
+
     public static String expressionToString(Expression expression) {
         if(expression instanceof Column) {
             return ((Column)expression).getFullyQualifiedName();

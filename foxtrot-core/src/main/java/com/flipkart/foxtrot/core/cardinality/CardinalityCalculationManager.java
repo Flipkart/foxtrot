@@ -64,7 +64,7 @@ public class CardinalityCalculationManager extends BaseJobManager {
                 for(String table : tables) {
                     if(!tableMetadataManager.cardinalityCacheContains(table)) {
                         tableMetadataManager.getFieldMappings(table, true, true);
-                        LOGGER.info("Cardinality calculated for table: " + table);
+                        LOGGER.info("Cardinality calculated for table: {}", table);
                     }
                     Instant now = Instant.now();
                     Duration timeElapsed = Duration.between(start, now);
@@ -73,7 +73,7 @@ public class CardinalityCalculationManager extends BaseJobManager {
                     }
                 }
             } catch (Exception e) {
-                LOGGER.error("Error occurred while calculating cardinality " + e);
+                LOGGER.error("Error occurred while calculating cardinality {}", e);
             }
         }, new LockConfiguration(cardinalityConfig.getJobName(), lockAtMostUntil));
     }

@@ -52,7 +52,9 @@ public class FoxtrotServerConfiguration extends Configuration {
     @Valid
     @JsonProperty("deletionconfig")
     private final DataDeletionManagerConfig deletionManagerConfig;
-    public SwaggerBundleConfiguration swagger;
+
+    private SwaggerBundleConfiguration swagger;
+
     @NotNull
     @Valid
     private ServiceDiscoveryConfiguration serviceDiscovery;
@@ -68,13 +70,25 @@ public class FoxtrotServerConfiguration extends Configuration {
     private EmailConfig emailConfig;
     private CacheConfig cacheConfig;
 
+    private RangerConfiguration rangerConfiguration;
+
+    private SegregationConfiguration segregationConfiguration;
+
+    @NotNull
+    private boolean restrictAccess;
+
+    private GandalfConfiguration gandalfConfiguration;
+
     public FoxtrotServerConfiguration() {
         this.hbase = new HbaseConfig();
         this.elasticsearch = new ElasticsearchConfig();
         this.cluster = new ClusterConfig();
         this.deletionManagerConfig = new DataDeletionManagerConfig();
         this.emailConfig = new EmailConfig();
+        this.segregationConfiguration = new SegregationConfiguration();
+        this.serviceDiscovery = new ServiceDiscoveryConfiguration();
+        this.riemann = new RiemannConfig();
+        this.restrictAccess = true;
     }
-
 
 }
