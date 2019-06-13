@@ -90,7 +90,8 @@ public class FoxtrotServer extends Application<FoxtrotServerConfiguration> {
     @Override
     public void initialize(Bootstrap<FoxtrotServerConfiguration> bootstrap) {
         bootstrap.setConfigurationSourceProvider(
-                new SubstitutingSourceProvider(bootstrap.getConfigurationSourceProvider(), new EnvironmentVariableSubstitutor(false)));
+                new SubstitutingSourceProvider(bootstrap.getConfigurationSourceProvider(), new EnvironmentVariableSubstitutor()));
+
         bootstrap.addBundle(new AssetsBundle("/console/", "/", "index.html", "console"));
         bootstrap.addBundle(new OorBundle<FoxtrotServerConfiguration>() {
             public boolean withOor() {
@@ -98,7 +99,7 @@ public class FoxtrotServer extends Application<FoxtrotServerConfiguration> {
             }
         });
 
-        bootstrap.addBundle(new ServiceDiscoveryBundle<FoxtrotServerConfiguration>() {
+        ServiceDiscoveryBundle serviceDiscoveryBundle = new ServiceDiscoveryBundle<FoxtrotServerConfiguration>() {
             @Override
             protected ServiceDiscoveryConfiguration getRangerConfiguration(FoxtrotServerConfiguration configuration) {
                 return configuration.getServiceDiscovery();
@@ -106,6 +107,11 @@ public class FoxtrotServer extends Application<FoxtrotServerConfiguration> {
 
             @Override
             protected String getServiceName(FoxtrotServerConfiguration configuration) {
+                if(configuration.getRangerConfiguration() != null && configuration.getRangerConfiguration()
+                                                                             .getServiceName() != null) {
+                    return configuration.getRangerConfiguration()
+                            .getServiceName();
+                }
                 return "foxtrot-es6";
             }
 
@@ -114,7 +120,8 @@ public class FoxtrotServer extends Application<FoxtrotServerConfiguration> {
                 return configuration.getServiceDiscovery()
                         .getPublishedPort();
             }
-        });
+        };
+        bootstrap.addBundle(serviceDiscoveryBundle);
 
         bootstrap.addBundle(new RiemannBundle<FoxtrotServerConfiguration>() {
             @Override
