@@ -100,7 +100,7 @@ BarTile.prototype.getQuery = function (object) {
     , accepts: {
       json: 'application/json'
     }
-    , url: apiUrl + "/v2/analytics"
+    , url: apiUrl + "/v1/analytics"
     , contentType: "application/json"
     , data: JSON.stringify(data)
     , success: $.proxy(this.getData, this)
@@ -133,7 +133,7 @@ BarTile.prototype.getData = function (data) {
   }
   
   sortable.sort(sortFunction);
-  
+
   // sort by first index
   function sortFunction(a, b) {
     if (a[0] === b[0]) {
