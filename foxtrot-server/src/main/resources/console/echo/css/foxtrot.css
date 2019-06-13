@@ -3428,6 +3428,26 @@ div.tab button:first-child {
   margin-top: 20px;
   margin-left: 19%;
 }
+
+.save-widget-btn {
+  /* font-family: Open Sans Regular;
+  background: #F96073;
+  color: #fff;
+  width: 200px;
+  border: none;
+  height: 30px;
+  margin-top: 20px;
+  margin-left: 19%; */
+  background: #F96073;
+  font-family: Open Sans Regular;
+    color: white;
+    width: 200px;
+    height: 30px;
+    border: none;
+    margin-top: 20px;
+    margin-left: 61px;
+    
+}
 .global-date{
   position: relative;
   left: 116px;
@@ -3545,7 +3565,7 @@ div.tab button:first-child {
 
 #explanation {
   position: relative;
-  top: 233px;
+  top: 191px;
   left: 33%;
   width: 200px;
   text-align: center;
@@ -3553,7 +3573,7 @@ div.tab button:first-child {
 }
 
 #percentage {
-  font-size: 2.5em;
+  font-size: 2em;
 }
 
 .sunburst-item {

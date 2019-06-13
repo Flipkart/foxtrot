@@ -1,7 +1,6 @@
 package com.flipkart.foxtrot.server.providers;
 
 import javax.ws.rs.Produces;
-import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.ext.MessageBodyWriter;
@@ -30,7 +29,7 @@ public class FlatResponseErrorTextProvider implements MessageBodyWriter<Map> {
 
     @Override
     public void writeTo(Map map, Class<?> type, Type genericType, Annotation[] annotations, MediaType mediaType,
-                        MultivaluedMap<String, Object> httpHeaders, OutputStream entityStream) throws IOException, WebApplicationException {
+                        MultivaluedMap<String, Object> httpHeaders, OutputStream entityStream) throws IOException {
         StringBuilder data = new StringBuilder();
         for(Object key : map.keySet()) {
             data.append(key.toString());

@@ -34,7 +34,7 @@ import javax.ws.rs.core.Response;
  */
 @Path("/v1/async")
 @Produces(MediaType.APPLICATION_JSON)
-@Api(value = "/v1/async", description = "Async API")
+@Api(value = "/v1/async")
 public class AsyncResource {
 
     private CacheManager cacheManager;

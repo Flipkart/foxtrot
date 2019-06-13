@@ -17,7 +17,6 @@ package com.flipkart.foxtrot.core.table;
 
 import com.flipkart.foxtrot.common.Table;
 import com.flipkart.foxtrot.common.TableFieldMapping;
-import com.flipkart.foxtrot.core.exception.FoxtrotException;
 import io.dropwizard.lifecycle.Managed;
 
 import java.util.List;
@@ -31,17 +30,19 @@ public interface TableMetadataManager extends Managed {
 
     boolean cardinalityCacheContains(String table);
 
-    void save(Table table) throws FoxtrotException;
+    void save(Table table);
 
-    Table get(String tableName) throws FoxtrotException;
+    Table get(String tableName);
 
-    List<Table> get() throws FoxtrotException;
+    List<Table> get();
 
-    TableFieldMapping getFieldMappings(String table, boolean withCardinality, boolean calculateCardinality) throws FoxtrotException;
+    TableFieldMapping getFieldMappings(String table, boolean withCardinality, boolean calculateCardinality);
 
-    void updateEstimationData(String table, long timestamp) throws FoxtrotException;
+    void updateEstimationData(String table, long timestamp);
 
-    boolean exists(String tableName) throws FoxtrotException;
+    boolean exists(String tableName);
 
-    void delete(String tableName) throws FoxtrotException;
+    void delete(String tableName);
+
+    void initializeCardinalityCache();
 }

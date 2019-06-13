@@ -11,8 +11,8 @@ import java.util.concurrent.TimeUnit;
 public class MetricUtil {
 
     private static final MetricUtil metricsHelper;
-    private static final String packagePrefix = "com.flipkart.foxtrot.core";
-    private static final String actionMetricPrefix = "action";
+    private static final String PACKAGE_PREFIX = "com.flipkart.foxtrot.core";
+    private static final String ACTION_METRIC_PREFIX = "action";
     private static MetricRegistry metrics;
 
     static {
@@ -44,11 +44,11 @@ public class MetricUtil {
     }
 
     private void registerActionCacheOperation(String opcode, String metricKey, String status) {
-        metrics.meter(String.format("%s.%s.cache.%s", packagePrefix, actionMetricPrefix, status))
+        metrics.meter(String.format("%s.%s.cache.%s", PACKAGE_PREFIX, ACTION_METRIC_PREFIX, status))
                 .mark();
-        metrics.meter(String.format("%s.%s.%s.cache.%s", packagePrefix, actionMetricPrefix, opcode, status))
+        metrics.meter(String.format("%s.%s.%s.cache.%s", PACKAGE_PREFIX, ACTION_METRIC_PREFIX, opcode, status))
                 .mark();
-        metrics.meter(String.format("%s.%s.%s.%s.cache.%s", packagePrefix, actionMetricPrefix, opcode, metricKey, status))
+        metrics.meter(String.format("%s.%s.%s.%s.cache.%s", PACKAGE_PREFIX, ACTION_METRIC_PREFIX, opcode, metricKey, status))
                 .mark();
     }
 
@@ -61,11 +61,11 @@ public class MetricUtil {
     }
 
     private void registerActionOperation(String opcode, String metricKey, String status, long duration) {
-        metrics.timer(String.format("%s.%s.%s", packagePrefix, actionMetricPrefix, opcode))
+        metrics.timer(String.format("%s.%s.%s", PACKAGE_PREFIX, ACTION_METRIC_PREFIX, opcode))
                 .update(duration, TimeUnit.MILLISECONDS);
-        metrics.timer(String.format("%s.%s.%s.%s", packagePrefix, actionMetricPrefix, opcode, metricKey))
+        metrics.timer(String.format("%s.%s.%s.%s", PACKAGE_PREFIX, ACTION_METRIC_PREFIX, opcode, metricKey))
                 .update(duration, TimeUnit.MILLISECONDS);
-        metrics.timer(String.format("%s.%s.%s.%s.%s", packagePrefix, actionMetricPrefix, opcode, metricKey, status))
+        metrics.timer(String.format("%s.%s.%s.%s.%s", PACKAGE_PREFIX, ACTION_METRIC_PREFIX, opcode, metricKey, status))
                 .update(duration, TimeUnit.MILLISECONDS);
     }
     //////////////////////////////////////////////////////////////////////////////////////////////////////////

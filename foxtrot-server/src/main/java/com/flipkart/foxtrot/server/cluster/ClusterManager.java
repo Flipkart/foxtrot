@@ -14,6 +14,7 @@ import io.dropwizard.server.ServerFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.net.Inet4Address;
 import java.util.Collection;
 import java.util.List;
@@ -32,7 +33,7 @@ public class ClusterManager implements Managed {
     private HazelcastConnection hazelcastConnection;
     private ScheduledExecutorService executor;
 
-    public ClusterManager(HazelcastConnection connection, List<HealthCheck> healthChecks, ServerFactory serverFactory) throws Exception {
+    public ClusterManager(HazelcastConnection connection, List<HealthCheck> healthChecks, ServerFactory serverFactory) throws IOException {
         this.hazelcastConnection = connection;
         this.healthChecks = healthChecks;
         MapConfig mapConfig = new MapConfig(MAP_NAME);

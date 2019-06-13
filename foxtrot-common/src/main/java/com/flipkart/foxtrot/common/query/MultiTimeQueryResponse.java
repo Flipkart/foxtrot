@@ -23,6 +23,7 @@ public class MultiTimeQueryResponse extends ActionResponse {
         super(Opcodes.MULTI_TIME_QUERY);
         this.responses = responses;
     }
+
     @Override
     public void accept(ResponseVisitor visitor) {
         visitor.visit(this);

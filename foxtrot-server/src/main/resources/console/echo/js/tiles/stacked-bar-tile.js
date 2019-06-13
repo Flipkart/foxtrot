@@ -108,7 +108,7 @@ StackedBarTile.prototype.getQuery = function (object) {
     , accepts: {
       json: 'application/json'
     }
-    , url: apiUrl + "/v1/analytics"
+    , url: apiUrl + "/v2/analytics"
     , contentType: "application/json"
     , data: JSON.stringify(multiQueryData)
     , success: $.proxy(this.getData, this)
@@ -441,7 +441,7 @@ StackedBarTile.prototype.render = function (d, isMultiSeries, originalData) {
       }
     });
   
-    drawLegend(d, $(chartDiv.find(".legend")));
+    drawStackedLinesLegend(d, $(chartDiv.find(".legend")));
   
     // Series point for every time
   //  var updateLegendTimeout = null;

@@ -197,6 +197,18 @@ function pushTilesObject(object) { // save each tile data
 
 TileFactory.prototype.updateTileData = function () { // update tile details
   var selectedTile = $("#" + this.tileObject.id);
+
+
+  // adding changed timeframe units in timeunit dropdown
+  var periodSelectElement = selectedTile.find(".period-select");
+  $(periodSelectElement).find('option').get(0).remove();
+  var timeFrame = this.tileObject.tileContext.timeframe;
+  var optionValue = timeFrame+getPeroidSelectString(this.tileObject.tileContext.period);
+  var labelString = this.tileObject.tileContext.period;
+  var optionLabel = (parseInt(this.tileObject.tileContext.timeframe) <= 1 ? labelString.substring(0, labelString.length - 1)  : labelString);
+  console.log('===>', timeFrame, optionLabel)
+  $(periodSelectElement).prepend('<option selected value="custom">'+timeFrame+'  '+optionLabel+'</option>');
+
   selectedTile.find(".tile-title").find(".title-title-span").text(this.tileObject.title);
   selectedTile.find(".tile-title").find(".widget-description").tooltip();
   var widgetDesc = this.tileObject.tileContext.description == undefined ? "Description  N/A" : this.tileObject.tileContext.description;
@@ -207,16 +219,6 @@ TileFactory.prototype.updateTileData = function () { // update tile details
   var tileDataIndex = tileData[this.tileObject.id];
   delete tileData[tileDataIndex.id];
   tileData[this.tileObject.id] = this.tileObject;
-
-  // adding changed timeframe units in timeunit dropdown
-  var periodSelectElement = selectedTile.find(".period-select");
-  $(periodSelectElement).find('option').get(0).remove();
-  var timeFrame = this.tileObject.tileContext.timeframe;
-  var optionValue = timeFrame+getPeroidSelectString(this.tileObject.tileContext.period);
-  var labelString = this.tileObject.tileContext.period;
-  var optionLabel = (parseInt(this.tileObject.tileContext.timeframe) <= 1 ? labelString.substring(0, labelString.length - 1)  : labelString);
-  $(periodSelectElement).prepend('<option selected value="custom">'+timeFrame+'  '+optionLabel+'</option>');
-
 }
 TileFactory.prototype.createTileData = function (object) { // store tile list
   var selectedTile = $("#" + object.id);
@@ -544,6 +546,7 @@ TileFactory.prototype.triggerConfig = function (tileElement, object) { // code t
     setTimeout(function() { instanceVar.updateFilterCreation(object); }, 1000);
     $(".delete-widget").show();
     $("#delete-widget-divider").show();
+    $(".save-widget-btn").show();
     $("#delete-widget-value").val(object.id);
     $("#copy-widget-value").data("tile", object);
   });
@@ -732,8 +735,11 @@ TileFactory.prototype.create = function () {
   var timeFrame = this.tileObject.tileContext.timeframe;
   var optionValue = timeFrame+getPeroidSelectString(this.tileObject.tileContext.period);
   var labelString = this.tileObject.tileContext.period;
-  var optionLabel = (parseInt(this.tileObject.tileContext.timeframe) <= 1 ? labelString.substring(0, labelString.length - 1)  : labelString);
-  $(periodSelectElement).prepend('<option selected value="custom">'+timeFrame+'  '+optionLabel+'</option>');
+  if(labelString) { // check its not null
+    var optionLabel = (parseInt(this.tileObject.tileContext.timeframe) <= 1 ? labelString.substring(0, labelString.length - 1)  : labelString);
+    $(periodSelectElement).prepend('<option selected value="custom">'+timeFrame+'  '+optionLabel+'</option>');
+  }
+  
 
   this.createGraph(this.tileObject, tileElement);
   this.triggerConfig(tileElement, this.tileObject); // add event for tile config

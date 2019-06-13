@@ -105,7 +105,7 @@ SunburstTile.prototype.getQuery = function(object) {
         accepts: {
             json: 'application/json'
         },
-        url: apiUrl + "/v1/analytics",
+        url: apiUrl + "/v2/analytics",
         contentType: "application/json",
         data: JSON.stringify(data),
         success: $.proxy(this.getData, this),
@@ -151,7 +151,7 @@ SunburstTile.prototype.render = function(data) {
     
     // Dimensions of sunburst.
     var width = 900;
-    var height = 400;
+    var height = 380;
     var radius = Math.min(width, height) / 2;
 
     // Breadcrumb dimensions: width, height, spacing, width of tip/tail.
@@ -266,9 +266,9 @@ SunburstTile.prototype.render = function(data) {
     function mouseover(d) {
 
         var percentage = (100 * d.value / totalSize).toPrecision(3);
-        var percentageString = percentage + "%";
+        var percentageString = percentage + "%"+"("+numDifferentiation(d.value)+")";
         if (percentage < 0.1) {
-            percentageString = "< 0.1%";
+            percentageString = "< 0.1%"+"("+numDifferentiation(d.value)+")";
         }
         d3.select($(ctx[0]).find("#explanation").find("#percentage")[0]).text(percentageString);        
         d3.select(explanation[0]).style("visibility", "");

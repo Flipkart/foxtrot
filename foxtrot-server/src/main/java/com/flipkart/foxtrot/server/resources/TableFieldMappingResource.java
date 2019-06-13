@@ -17,7 +17,6 @@ package com.flipkart.foxtrot.server.resources;
 
 import com.codahale.metrics.annotation.Timed;
 import com.flipkart.foxtrot.common.Table;
-import com.flipkart.foxtrot.core.exception.FoxtrotException;
 import com.flipkart.foxtrot.core.table.TableManager;
 import com.flipkart.foxtrot.core.table.TableMetadataManager;
 import io.swagger.annotations.Api;
@@ -33,7 +32,7 @@ import java.util.stream.Collectors;
  */
 @Path("/v1/tables")
 @Produces(MediaType.APPLICATION_JSON)
-@Api(value = "/v1/tables", description = "Tables Field Mapping API")
+@Api(value = "/v1/tables")
 public class TableFieldMappingResource {
 
     private final TableManager tableManager;
@@ -50,7 +49,7 @@ public class TableFieldMappingResource {
     @ApiOperation("Get fields")
     public Response get(@PathParam("name") final String table,
                         @QueryParam("withCardinality") @DefaultValue("false") boolean withCardinality,
-                        @QueryParam("calculateCardinality") @DefaultValue("false") boolean calculateCardinality) throws FoxtrotException {
+                        @QueryParam("calculateCardinality") @DefaultValue("false") boolean calculateCardinality) {
         return Response.ok(tableMetadataManager.getFieldMappings(table, withCardinality, calculateCardinality))
                 .build();
     }
@@ -61,20 +60,15 @@ public class TableFieldMappingResource {
     @Path("/fields")
     @ApiOperation("Get all Fields")
     public Response getAllFields(@QueryParam("withCardinality") @DefaultValue("false") boolean withCardinality,
-                                 @QueryParam("calculateCardinality") @DefaultValue("false") boolean calculateCardinality)
-            throws FoxtrotException {
+                                 @QueryParam("calculateCardinality") @DefaultValue("false") boolean calculateCardinality) {
         return Response.ok()
                 .entity(tableManager.getAll()
                                 .stream()
-                                .collect(Collectors.toMap(Table::getName, table -> {
-                                    try {
-                                        return tableMetadataManager.getFieldMappings(table.getName(), withCardinality,
-                                                                                     calculateCardinality
-                                                                                    );
-                                    } catch (FoxtrotException e) {
-                                        throw new RuntimeException(e);
-                                    }
-                                })))
+                                .collect(Collectors.toMap(Table::getName,
+                                                          table -> tableMetadataManager.getFieldMappings(table.getName(), withCardinality,
+                                                                                                         calculateCardinality
+                                                                                                        )
+                                                         )))
                 .build();
     }
 
@@ -82,8 +76,7 @@ public class TableFieldMappingResource {
     @Timed
     @Path("/{name}/fields/update")
     @ApiOperation("Update Fields")
-    public Response updateEstimation(@PathParam("name") final String table, @QueryParam("time") @DefaultValue("0") long epoch)
-            throws FoxtrotException {
+    public Response updateEstimation(@PathParam("name") final String table, @QueryParam("time") @DefaultValue("0") long epoch) {
         tableMetadataManager.updateEstimationData(table, 0 == epoch ? System.currentTimeMillis() : epoch);
         return Response.ok()
                 .build();

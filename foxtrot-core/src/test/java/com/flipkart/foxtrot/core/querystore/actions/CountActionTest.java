@@ -13,6 +13,7 @@ import org.junit.Test;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.flipkart.foxtrot.core.TestUtils.TEST_EMAIL;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
@@ -37,7 +38,7 @@ public class CountActionTest extends ActionTest {
         countRequest.setTable(TestUtils.TEST_TABLE_NAME);
         countRequest.setField("os");
         countRequest.setDistinct(false);
-        CountResponse countResponse = CountResponse.class.cast(getQueryExecutor().execute(countRequest));
+        CountResponse countResponse = CountResponse.class.cast(getQueryExecutor().execute(countRequest, TEST_EMAIL));
 
         assertNotNull(countResponse);
         assertEquals(11, countResponse.getCount());
@@ -52,7 +53,7 @@ public class CountActionTest extends ActionTest {
         filters.add(new EqualsFilter("os", "android"));
         countRequest.setFilters(filters);
         countRequest.setDistinct(false);
-        CountResponse countResponse = CountResponse.class.cast(getQueryExecutor().execute(countRequest));
+        CountResponse countResponse = CountResponse.class.cast(getQueryExecutor().execute(countRequest, TEST_EMAIL));
 
         assertNotNull(countResponse);
         assertEquals(7, countResponse.getCount());
@@ -64,7 +65,7 @@ public class CountActionTest extends ActionTest {
         countRequest.setTable(TestUtils.TEST_TABLE_NAME);
         countRequest.setField("os");
         countRequest.setDistinct(true);
-        CountResponse countResponse = CountResponse.class.cast(getQueryExecutor().execute(countRequest));
+        CountResponse countResponse = CountResponse.class.cast(getQueryExecutor().execute(countRequest, TEST_EMAIL));
 
         assertNotNull(countResponse);
         assertEquals(2, countResponse.getCount());
@@ -79,7 +80,7 @@ public class CountActionTest extends ActionTest {
         filters.add(new EqualsFilter("device", "nexus"));
         countRequest.setFilters(filters);
         countRequest.setDistinct(true);
-        CountResponse countResponse = CountResponse.class.cast(getQueryExecutor().execute(countRequest));
+        CountResponse countResponse = CountResponse.class.cast(getQueryExecutor().execute(countRequest, TEST_EMAIL));
 
         assertNotNull(countResponse);
         assertEquals(2, countResponse.getCount());
@@ -94,7 +95,7 @@ public class CountActionTest extends ActionTest {
         filters.add(new EqualsFilter("os", "android"));
         countRequest.setFilters(filters);
         countRequest.setDistinct(true);
-        CountResponse countResponse = CountResponse.class.cast(getQueryExecutor().execute(countRequest));
+        CountResponse countResponse = CountResponse.class.cast(getQueryExecutor().execute(countRequest, TEST_EMAIL));
         assertNotNull(countResponse);
         assertEquals(1, countResponse.getCount());
     }

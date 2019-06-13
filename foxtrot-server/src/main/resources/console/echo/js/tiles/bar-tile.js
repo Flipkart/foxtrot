@@ -100,7 +100,7 @@ BarTile.prototype.getQuery = function (object) {
     , accepts: {
       json: 'application/json'
     }
-    , url: apiUrl + "/v1/analytics"
+    , url: apiUrl + "/v2/analytics"
     , contentType: "application/json"
     , data: JSON.stringify(data)
     , success: $.proxy(this.getData, this)
@@ -132,11 +132,18 @@ BarTile.prototype.getData = function (data) {
       sortable.push([vehicle, sourceObject[vehicle]]);
   }
   
-  // sorting
-  sortable.sort(function(a, b) {
-      return b[1] - a [1];
-  });
+  sortable.sort(sortFunction);
   
+  // sort by first index
+  function sortFunction(a, b) {
+    if (a[0] === b[0]) {
+      return 0;
+    }
+    else {
+      return (a[0] < b[0]) ? -1 : 1;
+    }
+  }
+
   for (var i in sortable) {
     var property = sortable[i][0];
     var value = sortable[i][1] / Math.pow(10, this.object.tileContext.ignoreDigits);

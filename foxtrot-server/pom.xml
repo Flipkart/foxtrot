@@ -58,6 +58,11 @@
             <version>6.3.1-1</version>
         </dependency>
         <dependency>
+            <groupId>com.phonepe.platform</groupId>
+            <artifactId>rosey-dropwizard-config</artifactId>
+            <version>1.6</version>
+        </dependency>
+        <dependency>
             <groupId>com.flipkart.foxtrot</groupId>
             <artifactId>foxtrot-core</artifactId>
             <version>6.3.1-1</version>

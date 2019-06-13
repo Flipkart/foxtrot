@@ -18,7 +18,7 @@ import java.util.Map;
 @Path("/v1/cluster")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
-@Api(value = "/v1/cluster", description = "v1 Cluster API")
+@Api(value = "/v1/cluster")
 public class ClusterInfoResource {
     private ClusterManager clusterManager;
 

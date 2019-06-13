@@ -22,23 +22,21 @@ import com.flipkart.foxtrot.common.Document;
 import com.flipkart.foxtrot.common.DocumentMetadata;
 import com.flipkart.foxtrot.common.Table;
 import com.flipkart.foxtrot.core.datastore.DataStore;
-import com.flipkart.foxtrot.core.exception.FoxtrotException;
 import com.flipkart.foxtrot.core.exception.FoxtrotExceptions;
 import com.flipkart.foxtrot.core.querystore.DocumentTranslator;
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
 import org.apache.hadoop.hbase.client.Get;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.util.Bytes;
+import org.apache.hadoop.hbase.util.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Vector;
 
 /**
  * User: Santanu Sinha (santanu.sinha@flipkart.com)
@@ -67,7 +65,7 @@ public class HBaseDataStore implements DataStore {
 
     @Override
     @Timed
-    public void initializeTable(Table table, boolean forceTableCreate) throws FoxtrotException {
+    public void initializeTable(Table table, boolean forceTableCreate) {
         // Check for existence of HBase table during init to make sure HBase is ready for taking writes
         try {
             boolean isTableAvailable = tableWrapper.isTableAvailable(table);
@@ -88,7 +86,7 @@ public class HBaseDataStore implements DataStore {
 
     @Override
     @Timed
-    public Document save(final Table table, Document document) throws FoxtrotException {
+    public Document save(final Table table, Document document) {
         if(document == null || document.getData() == null || document.getId() == null) {
             throw FoxtrotExceptions.createBadRequestException(table.getName(), "Invalid Input Document");
         }
@@ -106,29 +104,17 @@ public class HBaseDataStore implements DataStore {
 
     @Override
     @Timed
-    public List<Document> saveAll(final Table table, List<Document> documents) throws FoxtrotException {
+    public List<Document> saveAll(final Table table, List<Document> documents) {
         if(documents == null || documents.isEmpty()) {
             throw FoxtrotExceptions.createBadRequestException(table.getName(), "null/empty document list not allowed");
         }
-        List<Put> puts = new Vector<>();
+        List<Put> puts = new ArrayList<>();
         ImmutableList.Builder<Document> translatedDocuments = ImmutableList.builder();
         List<String> errorMessages = new ArrayList<>();
         try {
             for(int i = 0; i < documents.size(); i++) {
                 Document document = documents.get(i);
-                if(document == null) {
-                    errorMessages.add("null document at index - " + i);
-                    continue;
-                }
-                if(document.getId() == null || document.getId()
-                        .trim()
-                        .isEmpty()) {
-                    errorMessages.add("null/empty document id at index - " + i);
-                    continue;
-                }
-
-                if(document.getData() == null) {
-                    errorMessages.add("null document data at index - " + i);
+                if(!isValidDocument(document, errorMessages, i)) {
                     continue;
                 }
                 Document translatedDocument = translator.translate(table, document);
@@ -145,15 +131,32 @@ public class HBaseDataStore implements DataStore {
         try (org.apache.hadoop.hbase.client.Table hTable = tableWrapper.getTable(table)) {
             hTable.put(puts);
         } catch (IOException e) {
-            logger.error("Error occurred while ingesting event in HBase : " + e);
             throw FoxtrotExceptions.createConnectionException(table, e);
         }
         return translatedDocuments.build();
     }
 
+    private boolean isValidDocument(Document document, List<String> errorMessages, int index) {
+        if(document == null) {
+            errorMessages.add("null document at index - " + index);
+            return false;
+        }
+        if(document.getId() == null || document.getId()
+                .trim()
+                .isEmpty()) {
+            errorMessages.add("null/empty document id at index - " + index);
+            return false;
+        }
+        if(document.getData() == null) {
+            errorMessages.add("null document data at index - " + index);
+            return false;
+        }
+        return true;
+    }
+
     @Override
     @Timed
-    public Document get(final Table table, String id) throws FoxtrotException {
+    public Document get(final Table table, String id) {
         try (org.apache.hadoop.hbase.client.Table hTable = tableWrapper.getTable(table)) {
             Get get = new Get(Bytes.toBytes(translator.rawStorageIdFromDocumentId(table, id))).addColumn(COLUMN_FAMILY, DOCUMENT_FIELD_NAME)
                     .addColumn(COLUMN_FAMILY, DOCUMENT_META_FIELD_NAME)
@@ -168,7 +171,7 @@ public class HBaseDataStore implements DataStore {
                 DocumentMetadata documentMetadata = (null != metadata) ? mapper.readValue(metadata, DocumentMetadata.class) : null;
                 return translator.translateBack(new Document(id, time, documentMetadata, mapper.readTree(data)));
             } else {
-                logger.error("ID missing in HBase - " + id);
+                logger.error("ID missing in HBase - {}", id);
                 throw FoxtrotExceptions.createMissingDocumentException(table, id);
             }
         } catch (IOException e) {
@@ -178,8 +181,8 @@ public class HBaseDataStore implements DataStore {
 
     @Override
     @Timed
-    public List<Document> getAll(final Table table, List<String> ids) throws FoxtrotException {
-        if(ids == null) {
+    public List<Document> getAll(final Table table, List<String> ids) {
+        if(CollectionUtils.isEmpty(ids)) {
             throw FoxtrotExceptions.createBadRequestException(table.getName(), "Empty ID List");
         }
         try (org.apache.hadoop.hbase.client.Table hTable = tableWrapper.getTable(table)) {
@@ -210,11 +213,11 @@ public class HBaseDataStore implements DataStore {
                 } else {
                     missingIds.add(ids.get(index));
                 }
-                if(!missingIds.isEmpty()) {
-                    logger.error("ID's missing in HBase - " + Joiner.on(",")
-                            .join(ids));
-                    throw FoxtrotExceptions.createMissingDocumentsException(table, ids);
-                }
+            }
+            if(!missingIds.isEmpty()) {
+                String allIds = String.join(",", ids);
+                logger.error("ID's missing in HBase - {}", allIds);
+                throw FoxtrotExceptions.createMissingDocumentsException(table, ids);
             }
             return results;
         } catch (JsonProcessingException e) {
