@@ -55,7 +55,12 @@
         <dependency>
             <groupId>com.flipkart.foxtrot</groupId>
             <artifactId>foxtrot-core</artifactId>
-            <version>6.3.1-2</version>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.phonepe.platform</groupId>
+            <artifactId>rosey-dropwizard-config</artifactId>
+            <version>1.6</version>
         </dependency>
         <dependency>
             <groupId>com.flipkart.foxtrot</groupId>
@@ -195,27 +200,27 @@
                         <artifactId>docker-maven-plugin</artifactId>
                         <version>0.4.10</version>
                         <configuration>
-                            <imageName>foxtrot:${project.version}</imageName>
-                            <dockerDirectory>${project.parent.basedir}/../foxtrot</dockerDirectory>
-                            <resources>
-                                <resource>
-                                    <targetPath>/</targetPath>
-                                    <directory>${project.build.directory}</directory>
-                                    <include>${project.build.finalName}.jar</include>
-                                </resource>
-                                <resource>
-                                    <targetPath>/</targetPath>
-                                    <directory>${project.parent.basedir}/config</directory>
-                                    <include>*.yml</include>
-                                </resource>
-                            </resources>
+                            <imageName>docker.phonepe.com:5000/foxtrot:${project.version}</imageName>
+                            <dockerDirectory>${project.basedir}/..</dockerDirectory>
+                            <registryUrl>http://docker.phonepe.com:5000/</registryUrl>
                         </configuration>
                         <executions>
                             <execution>
+                                <id>build-image</id>
                                 <phase>package</phase>
                                 <goals>
                                     <goal>build</goal>
                                 </goals>
+                            </execution>
+                            <execution>
+                                <id>push-image</id>
+                                <phase>deploy</phase>
+                                <goals>
+                                    <goal>push</goal>
+                                </goals>
+                                <configuration>
+                                    <imageName>docker.phonepe.com:5000/foxtrot:${project.version}</imageName>
+                                </configuration>
                             </execution>
                         </executions>
                     </plugin>
