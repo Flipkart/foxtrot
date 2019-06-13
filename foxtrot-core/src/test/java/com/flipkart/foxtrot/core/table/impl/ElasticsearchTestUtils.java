@@ -1,4 +1,5 @@
-package com.flipkart.foxtrot.core.table.impl;/**
+package com.flipkart.foxtrot.core.table.impl;
+/*
  * Copyright 2014 Flipkart Internet Pvt. Ltd.
  * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -24,7 +25,7 @@ public class ElasticsearchTestUtils {
 
     public static ElasticsearchConnection getConnection() throws Exception {
         ElasticsearchConfig config = new ElasticsearchConfig();
-        config.setCluster("test" + Math.random());
+        config.setCluster("docker-cluster");
         config.setHosts("localhost");
         config.setTableNamePrefix("foxtrot");
 

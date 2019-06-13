@@ -3,16 +3,18 @@ package com.flipkart.foxtrot.common;
 /**
  * Created by mukesh on 16/02/17.
  */
-public class Opcodes {
+public final class Opcodes {
 
-    public final static String COUNT = "count";
-    public final static String DISTINCT = "distinct";
-    public final static String GROUP = "group";
-    public final static String HISTOGRAM = "histogram";
-    public final static String MULTI_QUERY = "multi_query";
-    public final static String MULTI_TIME_QUERY = "multi_time_query";
-    public final static String QUERY = "query";
-    public final static String STATS = "stats";
-    public final static String TREND = "trend";
-    public final static String STATS_TREND = "statstrend";
+    public static final String COUNT = "count";
+    public static final String DISTINCT = "distinct";
+    public static final String GROUP = "group";
+    public static final String HISTOGRAM = "histogram";
+    public static final String MULTI_QUERY = "multi_query";
+    public static final String MULTI_TIME_QUERY = "multi_time_query";
+    public static final String QUERY = "query";
+    public static final String STATS = "stats";
+    public static final String TREND = "trend";
+    public static final String STATS_TREND = "statstrend";
+    private Opcodes() {
+    }
 }

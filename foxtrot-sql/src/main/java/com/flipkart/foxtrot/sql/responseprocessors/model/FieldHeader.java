@@ -37,10 +37,7 @@ public class FieldHeader {
 
         FieldHeader that = (FieldHeader)o;
 
-        if(!name.equals(that.name))
-            return false;
-
-        return true;
+        return name.equals(that.name);
     }
 
     @Override

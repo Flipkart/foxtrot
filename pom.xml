@@ -69,6 +69,13 @@
         <elasticsearch.url>http://localhost:9200</elasticsearch.url>
         <lombok.version>1.16.16</lombok.version>
         <project.version>6.3.1.0</project.version>
+        <sonar.sources>src/main</sonar.sources>
+        <sonar.tests>src/test</sonar.tests>
+        <sonar.java.coveragePlugin>jacoco</sonar.java.coveragePlugin>
+        <sonar.dynamicAnalysis>reuseReports</sonar.dynamicAnalysis>
+        <sonar.jacoco.reportPaths>${project.basedir}/target/jacoco.exec</sonar.jacoco.reportPaths>
+        <sonar.language>java</sonar.language>
+        <sonar.exclusions>**com/flipkart/foxtrot/common/**/*</sonar.exclusions>
     </properties>
 
     <modules>
@@ -245,6 +252,11 @@
             <artifactId>utils</artifactId>
             <version>1.2</version>
         </dependency>
+        <dependency>
+            <groupId>com.phonepe.gandalf</groupId>
+            <artifactId>gandalf-client</artifactId>
+            <version>1.1.9-SNAPSHOT</version>
+        </dependency>
     </dependencies>
 
     <build>
@@ -318,6 +330,7 @@
             <plugin>
                 <artifactId>maven-dependency-plugin</artifactId>
                 <version>2.10</version>
+                <inherited>false</inherited>
                 <executions>
                     <execution>
                         <id>get-es</id>
@@ -372,8 +385,8 @@
                         </configuration>
                     </execution>
                 </executions>
-            </plugin>
-            <plugin>
+            </plugin>-->
+            <!--<plugin>
                 <artifactId>maven-failsafe-plugin</artifactId>
                 <version>2.19.1</version>
                 <executions>
@@ -384,13 +397,13 @@
                         </goals>
                     </execution>
                 </executions>
-                <configuration>
+                &lt;!&ndash;<configuration>
                     <includes>
                         <include>**/*.java</include>
                     </includes>
                     <groups>impl.IntegrationTest</groups>
                     <skipTests>false</skipTests>
-                </configuration>
+                </configuration>&ndash;&gt;
             </plugin>-->
             <!--<plugin>
                 <artifactId>maven-surefire-plugin</artifactId>
@@ -403,10 +416,11 @@
                         </configuration>
                     </execution>
                 </executions>
-            </plugin>
+            </plugin>-->
             <plugin>
                 <artifactId>maven-antrun-plugin</artifactId>
                 <version>1.8</version>
+                <inherited>false</inherited>
                 <executions>
                     <execution>
                         <id>start-es</id>
@@ -436,7 +450,7 @@
                         </goals>
                     </execution>
                 </executions>
-            </plugin>-->
+            </plugin>
             <!--<plugin>
                 <artifactId>maven-antrun-plugin</artifactId>
                 <version>1.8</version>
@@ -457,6 +471,25 @@
                     </execution>
                 </executions>
             </plugin>-->
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <version>0.8.0</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>prepare-agent</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>report</id>
+                        <phase>prepare-package</phase>
+                        <goals>
+                            <goal>report</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
     </build>
 

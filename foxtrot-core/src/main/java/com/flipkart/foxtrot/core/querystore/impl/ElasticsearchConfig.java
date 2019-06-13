@@ -16,23 +16,26 @@
 package com.flipkart.foxtrot.core.querystore.impl;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.NoArgsConstructor;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
+import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Vector;
+import java.util.List;
 
 /**
  * User: Santanu Sinha (santanu.sinha@flipkart.com)
  * Date: 14/03/14
  * Time: 12:28 AM
  */
+@NoArgsConstructor
 public class ElasticsearchConfig {
     public static final long DEFAULT_TIMEOUT = 10000L;
     @Valid
     @NotNull
     @JsonProperty
-    private Vector<String> hosts;
+    private List<String> hosts;
     @Valid
     @NotNull
     @JsonProperty
@@ -41,10 +44,7 @@ public class ElasticsearchConfig {
     private long getQueryTimeout;
     private Integer port;
 
-    public ElasticsearchConfig() {
-    }
-
-    public Vector<String> getHosts() {
+    public List<String> getHosts() {
         return hosts;
     }
 
@@ -55,7 +55,7 @@ public class ElasticsearchConfig {
         }
 
         String[] hostParts = hostString.split(",");
-        this.hosts = new Vector<>();
+        this.hosts = new ArrayList<>();
         Collections.addAll(this.hosts, hostParts);
     }
 

@@ -15,7 +15,7 @@ import time
 #         }
 #     ]
 # }
-host = "prd-es104.phonepe.nm1"
+host = "prd-esfoxtrot601.phonepe.nm1"
 
 
 def convertToGb(dataSize):

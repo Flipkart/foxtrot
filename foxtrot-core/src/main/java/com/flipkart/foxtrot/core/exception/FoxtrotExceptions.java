@@ -11,6 +11,8 @@ import java.util.List;
  */
 public class FoxtrotExceptions {
 
+    private FoxtrotExceptions() {}
+
     public static TableInitializationException createTableInitializationException(Table table, String message) {
         return new TableInitializationException(table.getName(), message);
     }
@@ -86,5 +88,9 @@ public class FoxtrotExceptions {
 
     public static UnresolvableActionException createUnresolvableActionException(ActionRequest actionRequest) {
         return new UnresolvableActionException(actionRequest);
+    }
+
+    public static AuthorizationException createAuthorizationException(ActionRequest actionRequest, Exception e) {
+        return new AuthorizationException(actionRequest, e);
     }
 }

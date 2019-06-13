@@ -16,6 +16,7 @@
 package com.flipkart.foxtrot.common.distinct;
 
 import com.flipkart.foxtrot.common.ActionRequest;
+import com.flipkart.foxtrot.common.ActionRequestVisitor;
 import com.flipkart.foxtrot.common.Opcodes;
 import com.flipkart.foxtrot.common.query.Filter;
 import com.flipkart.foxtrot.common.query.ResultSort;
@@ -48,6 +49,10 @@ public class DistinctRequest extends ActionRequest {
         super(Opcodes.DISTINCT, filters);
         this.table = table;
         this.nesting = nesting;
+    }
+
+    public <T> T accept(ActionRequestVisitor<T> visitor) {
+        return visitor.visit(this);
     }
 
     public String getTable() {

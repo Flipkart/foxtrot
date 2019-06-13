@@ -1,26 +1,20 @@
 package com.flipkart.foxtrot.core.exception;
 
 import com.google.common.collect.Maps;
+import lombok.Getter;
 
 import java.util.Map;
 
 /**
  * Created by rishabh.goyal on 19/12/15.
  */
+@Getter
 public class TableMissingException extends FoxtrotException {
 
-    private String table;
+    private final String table;
 
     protected TableMissingException(String table) {
         super(ErrorCode.TABLE_NOT_FOUND);
-        this.table = table;
-    }
-
-    public String getTable() {
-        return table;
-    }
-
-    public void setTable(String table) {
         this.table = table;
     }
 

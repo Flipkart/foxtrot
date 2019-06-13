@@ -32,6 +32,8 @@ import org.junit.Test;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.flipkart.foxtrot.core.TestUtils.TEST_EMAIL;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 /**
@@ -57,14 +59,6 @@ public class HistogramActionTest extends ActionTest {
                 .removeIf(count -> count.getCount() == 0);
     }
 
-    @Test(expected = FoxtrotException.class)
-    public void testHistogramActionAnyException() throws FoxtrotException, JsonProcessingException {
-        HistogramRequest histogramRequest = new HistogramRequest();
-        histogramRequest.setTable(TestUtils.TEST_TABLE_NAME);
-        histogramRequest.setPeriod(Period.minutes);
-        getQueryExecutor().execute(histogramRequest);
-    }
-
     @Test
     public void testHistogramActionIntervalMinuteNoFilter() throws FoxtrotException, JsonProcessingException {
         HistogramRequest histogramRequest = new HistogramRequest();
@@ -76,7 +70,7 @@ public class HistogramActionTest extends ActionTest {
         lessThanFilter.setValue(System.currentTimeMillis());
         histogramRequest.setFilters(Lists.<Filter>newArrayList(lessThanFilter));
 
-        HistogramResponse response = HistogramResponse.class.cast(getQueryExecutor().execute(histogramRequest));
+        HistogramResponse response = HistogramResponse.class.cast(getQueryExecutor().execute(histogramRequest, TEST_EMAIL));
         filterNonZeroCounts(response);
 
         List<HistogramResponse.Count> counts = new ArrayList<HistogramResponse.Count>();
@@ -104,7 +98,7 @@ public class HistogramActionTest extends ActionTest {
         lessThanFilter.setField("_timestamp");
         lessThanFilter.setValue(System.currentTimeMillis());
         histogramRequest.setFilters(Lists.<Filter>newArrayList(greaterThanFilter, lessThanFilter));
-        HistogramResponse response = HistogramResponse.class.cast(getQueryExecutor().execute(histogramRequest));
+        HistogramResponse response = HistogramResponse.class.cast(getQueryExecutor().execute(histogramRequest, TEST_EMAIL));
         filterNonZeroCounts(response);
 
         List<HistogramResponse.Count> counts = new ArrayList<HistogramResponse.Count>();
@@ -112,8 +106,8 @@ public class HistogramActionTest extends ActionTest {
         counts.add(new HistogramResponse.Count(1397658060000L, 2));
         counts.add(new HistogramResponse.Count(1397658180000L, 1));
         counts.add(new HistogramResponse.Count(1397958060000L, 1));
-        assertTrue(response.getCounts()
-                           .equals(counts));
+        counts.add(new HistogramResponse.Count(1398658200000L, 1));
+        assertEquals(response.getCounts(), counts);
     }
 
     @Test
@@ -127,7 +121,7 @@ public class HistogramActionTest extends ActionTest {
         lessThanFilter.setValue(System.currentTimeMillis());
         histogramRequest.setFilters(Lists.<Filter>newArrayList(lessThanFilter));
 
-        HistogramResponse response = HistogramResponse.class.cast(getQueryExecutor().execute(histogramRequest));
+        HistogramResponse response = HistogramResponse.class.cast(getQueryExecutor().execute(histogramRequest, TEST_EMAIL));
         filterNonZeroCounts(response);
 
         List<HistogramResponse.Count> counts = new ArrayList<HistogramResponse.Count>();
@@ -137,8 +131,7 @@ public class HistogramActionTest extends ActionTest {
         counts.add(new HistogramResponse.Count(1397957400000L, 1));
         counts.add(new HistogramResponse.Count(1398652200000L, 2));
         counts.add(new HistogramResponse.Count(1398655800000L, 1));
-        assertTrue(response.getCounts()
-                           .equals(counts));
+        assertEquals(response.getCounts(), counts);
     }
 
     @Test
@@ -157,7 +150,7 @@ public class HistogramActionTest extends ActionTest {
         histogramRequest.setFilters(Lists.<Filter>newArrayList(greaterThanFilter, lessThanFilter));
 
 
-        HistogramResponse response = HistogramResponse.class.cast(getQueryExecutor().execute(histogramRequest));
+        HistogramResponse response = HistogramResponse.class.cast(getQueryExecutor().execute(histogramRequest, TEST_EMAIL));
         filterNonZeroCounts(response);
         List<HistogramResponse.Count> counts = new ArrayList<HistogramResponse.Count>();
         counts.add(new HistogramResponse.Count(1397647800000L, 1));
@@ -179,15 +172,14 @@ public class HistogramActionTest extends ActionTest {
         lessThanFilter.setValue(System.currentTimeMillis());
         histogramRequest.setFilters(Lists.<Filter>newArrayList(lessThanFilter));
 
-        HistogramResponse response = HistogramResponse.class.cast(getQueryExecutor().execute(histogramRequest));
+        HistogramResponse response = HistogramResponse.class.cast(getQueryExecutor().execute(histogramRequest, TEST_EMAIL));
         filterNonZeroCounts(response);
         List<HistogramResponse.Count> counts = new ArrayList<HistogramResponse.Count>();
         counts.add(new HistogramResponse.Count(1397586600000L, 6));
         counts.add(new HistogramResponse.Count(1397673000000L, 1));
         counts.add(new HistogramResponse.Count(1397932200000L, 1));
         counts.add(new HistogramResponse.Count(1398623400000L, 3));
-        assertTrue(response.getCounts()
-                           .equals(counts));
+        assertEquals(response.getCounts(), counts);
     }
 
     @Test
@@ -205,7 +197,7 @@ public class HistogramActionTest extends ActionTest {
         lessThanFilter.setValue(System.currentTimeMillis());
         histogramRequest.setFilters(Lists.<Filter>newArrayList(greaterThanFilter, lessThanFilter));
 
-        HistogramResponse response = HistogramResponse.class.cast(getQueryExecutor().execute(histogramRequest));
+        HistogramResponse response = HistogramResponse.class.cast(getQueryExecutor().execute(histogramRequest, TEST_EMAIL));
         filterNonZeroCounts(response);
         List<HistogramResponse.Count> counts = new ArrayList<HistogramResponse.Count>();
         counts.add(new HistogramResponse.Count(1397586600000L, 4));

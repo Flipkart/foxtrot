@@ -1,25 +1,11 @@
 package com.flipkart.foxtrot.core.alerts;
-/*
- * Copyright 2014 Flipkart Internet Pvt. Ltd.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.mail.*;
 import javax.mail.internet.*;
+import java.nio.charset.StandardCharsets;
 import java.util.Properties;
 
 /***
@@ -55,14 +41,14 @@ public class EmailClient {
             InternetHeaders headers = new InternetHeaders();
             headers.addHeader("Content-type", "text/html; charset=UTF-8");
 
-            BodyPart messageBodyPart = new MimeBodyPart(headers, content.getBytes("UTF-8"));
+            BodyPart messageBodyPart = new MimeBodyPart(headers, content.getBytes(StandardCharsets.UTF_8));
             Multipart multipart = new MimeMultipart();
             multipart.addBodyPart(messageBodyPart);
             message.setContent(multipart);
 
             Transport.send(message, emailConfig.getUser(), emailConfig.getPassword());
         } catch (Exception e) {
-            LOGGER.error("Error occurred while sending the email : " + e);
+            LOGGER.error("Error occurred while sending the email :%s", e);
             return false;
         }
         return true;

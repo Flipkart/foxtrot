@@ -55,9 +55,10 @@ public class DistributedCache implements Cache {
                 if(serializedData.length() <= 32 * 1024) {
                     distributedMap.put(key, mapper.writeValueAsString(data));
                 } else {
-                    logger.error(String.format("Size of response is too big for cache. Skipping it. Response Part : %s",
-                                               serializedData.substring(0, 1024)
-                                              ));
+                    String responsePart = serializedData.substring(0, 1024);
+                    logger.error("Size of response is too big for cache. Skipping it. Response Part : {}",
+                                 responsePart
+                                );
                 }
             }
         } catch (JsonProcessingException e) {

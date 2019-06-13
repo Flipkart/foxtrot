@@ -22,11 +22,14 @@ import com.flipkart.foxtrot.core.alerts.EmailConfig;
 import com.flipkart.foxtrot.core.cache.CacheManager;
 import com.flipkart.foxtrot.core.common.Action;
 import com.flipkart.foxtrot.core.datastore.DataStore;
+import com.flipkart.foxtrot.core.exception.AnalyticsActionLoaderException;
+import com.flipkart.foxtrot.core.exception.FoxtrotExceptions;
 import com.flipkart.foxtrot.core.querystore.QueryStore;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConnection;
 import com.flipkart.foxtrot.core.table.TableMetadataManager;
 import com.google.common.collect.Maps;
 import io.dropwizard.lifecycle.Managed;
+import lombok.Getter;
 import org.reflections.Reflections;
 import org.reflections.scanners.SubTypesScanner;
 import org.slf4j.Logger;
@@ -44,6 +47,7 @@ import java.util.Set;
  * Time: 12:20 AM
  */
 
+@Getter
 public class AnalyticsLoader implements Managed {
 
     private static final Logger logger = LoggerFactory.getLogger(AnalyticsLoader.class);
@@ -70,7 +74,7 @@ public class AnalyticsLoader implements Managed {
     }
 
     @SuppressWarnings("unchecked")
-    public <R extends ActionRequest> Action<R> getAction(R request) throws Exception {
+    public <R extends ActionRequest> Action<R> getAction(R request) {
         final String className = request.getClass()
                 .getCanonicalName();
         if(actions.containsKey(className)) {
@@ -79,14 +83,13 @@ public class AnalyticsLoader implements Managed {
                     .isInstance(request)) {
                 R r = (R)metadata.getRequest()
                         .cast(request);
-                Constructor<? extends Action> constructor = metadata.getAction()
-                        .getConstructor(metadata.getRequest(), TableMetadataManager.class, DataStore.class, QueryStore.class,
-                                        ElasticsearchConnection.class, String.class, CacheManager.class, ObjectMapper.class,
-                                        EmailConfig.class, AnalyticsLoader.class
-                                       );
-                return constructor.newInstance(r, tableMetadataManager, dataStore, queryStore, elasticsearchConnection,
-                                               metadata.getCacheToken(), cacheManager, objectMapper, emailConfig, this
-                                              );
+                try {
+                    Constructor<? extends Action> constructor = metadata.getAction()
+                            .getConstructor(metadata.getRequest(), String.class, AnalyticsLoader.class);
+                    return constructor.newInstance(r, metadata.getCacheToken(), this);
+                } catch (Exception e) {
+                    throw FoxtrotExceptions.createActionResolutionException(request, e);
+                }
             }
         }
         return null;
@@ -103,25 +106,25 @@ public class AnalyticsLoader implements Managed {
     @Override
     public void start() throws Exception {
         Reflections reflections = new Reflections("com.flipkart.foxtrot", new SubTypesScanner());
-        Set<Class<? extends Action>> actions = reflections.getSubTypesOf(Action.class);
-        if(actions.isEmpty()) {
-            throw new Exception("No analytics actions found!!");
+        Set<Class<? extends Action>> actionSet = reflections.getSubTypesOf(Action.class);
+        if(actionSet.isEmpty()) {
+            throw new AnalyticsActionLoaderException("No analytics actions found!!");
         }
         List<NamedType> types = new ArrayList<>();
-        for(Class<? extends Action> action : actions) {
+        for(Class<? extends Action> action : actionSet) {
             AnalyticsProvider analyticsProvider = action.getAnnotation(AnalyticsProvider.class);
             if(null == analyticsProvider.request() || null == analyticsProvider.opcode() || analyticsProvider.opcode()
                     .isEmpty() || null == analyticsProvider.response()) {
-                throw new Exception("Invalid annotation on " + action.getCanonicalName());
+                throw new AnalyticsActionLoaderException("Invalid annotation on " + action.getCanonicalName());
             }
             if(analyticsProvider.opcode()
                     .equalsIgnoreCase("default")) {
-                logger.warn("Action " + action.getCanonicalName() + " does not specify cache token. " + "Using default cache.");
+                logger.warn("Action {} does not specify cache token. Using default cache.", action.getCanonicalName());
             }
             register(new ActionMetadata(analyticsProvider.request(), action, analyticsProvider.cacheable(), analyticsProvider.opcode()));
             types.add(new NamedType(analyticsProvider.request(), analyticsProvider.opcode()));
             types.add(new NamedType(analyticsProvider.response(), analyticsProvider.opcode()));
-            logger.info("Registered action: " + action.getCanonicalName());
+            logger.info("Registered action: {}", action.getCanonicalName());
         }
         objectMapper.getSubtypeResolver()
                 .registerSubtypes(types.toArray(new NamedType[types.size()]));
@@ -129,6 +132,6 @@ public class AnalyticsLoader implements Managed {
 
     @Override
     public void stop() throws Exception {
-
+        //do nothing
     }
 }

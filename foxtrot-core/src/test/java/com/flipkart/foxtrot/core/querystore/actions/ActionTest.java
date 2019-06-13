@@ -41,7 +41,7 @@ import static org.mockito.Mockito.when;
  * Created by rishabh.goyal on 26/12/15.
  */
 @Getter
-public class ActionTest {
+public abstract class ActionTest {
 
     static {
         Logger root = (Logger)LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
@@ -61,8 +61,11 @@ public class ActionTest {
         this.mapper = new ObjectMapper();
         HazelcastConnection hazelcastConnection = Mockito.mock(HazelcastConnection.class);
         Config config = new Config();
+        EmailConfig emailConfig = new EmailConfig();
+        emailConfig.setHost("127.0.0.1");
         this.hazelcastInstance = new TestHazelcastInstanceFactory(1).newHazelcastInstance(config);
         when(hazelcastConnection.getHazelcast()).thenReturn(hazelcastInstance);
+        when(hazelcastConnection.getHazelcastConfig()).thenReturn(config);
         elasticsearchConnection = ElasticsearchTestUtils.getConnection();
         CardinalityConfig cardinalityConfig = new CardinalityConfig("true", String.valueOf(ElasticsearchUtils.DEFAULT_SUB_LIST_SIZE));
 

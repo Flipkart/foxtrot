@@ -569,17 +569,7 @@ function getLoginRedirectUrl() {
 
   var hostname = window.location.hostname;
   var redirectUrl = encodeURIComponent(window.location.href);
-  switch (hostname) {
-      case "foxtrot.traefik.stg.phonepe.com":
-          return "http://gandalf.traefik.stg.phonepe.com/login/echo?redirectUrl=" + redirectUrl;
-      case "foxtrot-internal.phonepe.com":
-      case "foxtrot-gandalf.traefik.prod.phonepe.com":
-      case "foxtrot.traefik.prod.phonepe.com":
-      case "foxtrot-es6.traefik.prod.phonepe.com":
-          return "https://gandalf-internal.phonepe.com/login/echo?redirectUrl=" + redirectUrl;
-      default:
-          return 0;
-  }
+  return 0;
 }
 
 /**
@@ -606,16 +596,24 @@ function getCookie(cname) {
  * Check user is logged in
  */
 function isLoggedIn() {
-  // check user is logged in by reading gandalf cookie
-  var loggedInCookie = getCookie(getCookieConstant());
-  if(loggedInCookie.length == 0) {
-    var redirectUrl = getLoginRedirectUrl();
-    if(redirectUrl != 0) {
-      window.location = redirectUrl;
-    } else {
-      return true; // for localhost
-    }
-  } else {
     return true; // logged in
+}
+
+/**
+ * Sort non stacked and stacked line chart legends
+ * @param {*} d 
+ * @param {*} element 
+ */
+function drawStackedLinesLegend(d, element) { // pie legend
+  if(!element) {
+    return;
   }
+  var sortingReference = [];
+  for( var i = 0; i < d.length; i++) {
+    var value = d[i].data[0][1];
+    var name = d[i].label;
+    sortingReference.push({ "value": value, "name": name, color: d[i].color});
+  }
+  sortingReference.sort( function( a, b ) { return b.value - a.value; } )
+  element.html(handlebars("#stacked-lines-legend-template", {data: sortingReference}));
 }

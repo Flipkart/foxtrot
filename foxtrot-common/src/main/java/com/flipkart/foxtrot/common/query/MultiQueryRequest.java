@@ -17,6 +17,7 @@ package com.flipkart.foxtrot.common.query;
 
 import com.collections.CollectionUtils;
 import com.flipkart.foxtrot.common.ActionRequest;
+import com.flipkart.foxtrot.common.ActionRequestVisitor;
 import com.flipkart.foxtrot.common.Opcodes;
 import lombok.Data;
 import org.junit.Assert;
@@ -44,6 +45,10 @@ public class MultiQueryRequest extends ActionRequest {
     @Override
     public String toString() {
         return requests.toString();
+    }
+
+    public <T> T accept(ActionRequestVisitor<T> visitor) {
+        return visitor.visit(this);
     }
 
 }

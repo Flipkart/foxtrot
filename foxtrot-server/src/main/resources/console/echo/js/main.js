@@ -30,7 +30,7 @@ var apiUrl = getHostUrl();
 var interval = null;
 var consoleList = [];
 var currentConsoleName;
-var isCopyWidget = false;
+var isCopyDashboard = false;
 var lastConsoleName = "";
 var globalFilters = false;
 var isNewConsole = false;
@@ -280,24 +280,30 @@ function saveConsole() { // Save console api
       contentType: 'application/json',
       data: JSON.stringify(representation),
       success: function(resp) {
-        if(isCopyWidget) { // copy widget action
+        var isOpenDashboard = getParameterByName("openDashboard");
+        hideConsoleModal("save-dashboard");
+        if(isCopyDashboard) { // copy widget action
           showSuccessAlert('Success', 'Console copied Sucessfully');
           setTimeout(function(){ window.location.href = window.location.origin+window.location.pathname+"?console="+convertedName; }, 3000);
+          return;
         } else if(isViewingVersionConsole) {
           showSuccessAlert('Success', 'Console Saved Sucessfully');
           setTimeout(function(){ window.location.href = window.location.origin+window.location.pathname+"?console="+convertedName; }, 3000);
+        } else if(isOpenDashboard) {
+          showSuccessAlert('Success', 'console saved sucessfully');
+          setTimeout(function(){ window.location.href = window.location.origin+window.location.pathname+"?console="+convertedName; }, 3000);
+          return;
         } else {
           showSuccessAlert('Success', 'console saved sucessfully');
         }
-        hideConsoleModal("save-dashboard");
         
-        if(!isViewingVersionConsole) { // fetch recent version ist
+        if(!isViewingVersionConsole ) { // fetch recent version ist
           loadVersionConsoleByName(name);
         }
 
       },
       error: function() {
-        var msg = isCopyWidget ? "Could not copy console" : "Could not save console";
+        var msg = isCopyDashboard ? "Could not copy console" : "Could not save console";
         showErrorAlert("Oops",msg);
         hideConsoleModal("save-dashboard");
         if(lastConsoleName.length > 0) {
@@ -368,6 +374,7 @@ function loadConsole() { // load console list api
     success: function(res) {
       consoleList = res;
       appendConsoleList(res);
+      getOldConsoleList(res);
     },
     error: function() {
       showErrorAlert("Could not save console");
@@ -383,7 +390,8 @@ function loadVersionConsoleById(consoleId) { // load console list api
     contentType: 'application/json',
     success: function(res) {
       isViewingVersionConsole = true;
-      preparePageRendering(res, ""); // second params is none
+      resetBrowserUrl();
+      preparePageRendering(res, ""); // second params is none      
     },
     error: function() {
       showErrorAlert("Could not load versioning console list");
@@ -401,7 +409,7 @@ function loadVersionConsoleByName(consoleName) { // load console list api
       appendVersionConsoleList(res);
     },
     error: function() {
-      showErrorAlert("Could not save console");
+      showErrorAlert("Unable to load old version list");
     }
   })
 }
@@ -560,10 +568,18 @@ function renderTilesObject(currentTabName) { // render tiles based on current ta
   if (tabIndex >= 0) {
     tileList = globalData[tabIndex].tileList;
     tileData = globalData[tabIndex].tileData;
-    for (var i = 0; i < tileList.length; i++) {
-      renderTiles(tileData[tileList[i]]);
+    if(tileList) {
+      if(tileList.length > 0) { // check for empty tab details
+        for (var i = 0; i < tileList.length; i++) {
+          renderTiles(tileData[tileList[i]]);
+        }
+        fetchTableFields();
+      } else {
+        showInfoAlert('No widgets found', '');
+      } 
+    } else {
+      showInfoAlert('No widgets found', '');
     }
-    fetchTableFields();
   }
 }
 
@@ -643,6 +659,13 @@ function generateSectionbtn(tabName, isNew) {
   $("#tab-name").val('');
   var tablinks = document.getElementsByClassName("tablinks");
   if(isNew) {
+    var tempObject = {
+      "id":convertName(tabName),
+      "name": tabName,
+      "tileList": []
+      , "tileData": {}
+    }
+    globalData.push(tempObject);
     for (i = 0; i < tablinks.length; i++) {
       var element = $(tablinks[i]);
       if(tablinks[i].id == tabName) {
@@ -729,6 +752,7 @@ function showHideSideBar() { // show sidebar for adding widgets
     $('#sidebar').css({ 'width': '356px' });
     $(".delete-widget").hide();
     $("#delete-widget-divider").hide();
+    $(".save-widget-btn").hide();
   }
 }
 
@@ -769,6 +793,7 @@ $(document).ready(function () {
       var type = $("#widgetType").val();
       var foxtrot = new FoxTrot();
       $("#addWidgetConfirm").click($.proxy(foxtrot.addTile, foxtrot));
+      $(".save-widget-btn").click($.proxy(foxtrot.addTile, foxtrot));
       $("#sidebar-filter-btn").click($.proxy(foxtrot.addFilters, foxtrot));
       $("#default-btn").click(function () {
           defaultPlusBtn = true;
@@ -789,7 +814,7 @@ $(document).ready(function () {
               $(".copy-db-error").hide();
           }
           lastConsoleName = currentConsoleName;
-          isCopyWidget = true;
+          isCopyDashboard = true;
           currentConsoleName = $("#copy-dashboard-name").val();
           saveConsole();
       });
@@ -821,11 +846,13 @@ $(document).ready(function () {
               for (var i = 0; i < tileListArray.length; i++) {
                   var newID = guid();
                   var tmpTileData = tmpObject["tileData"][tileListArray[i]];
-                  newTileData[newID] = Object.values(tmpTileData);
-                  tileListArray[i] = newID;
-                  tmpTileData["id"] = newID;
-                  tmpTileData["tileContext"]["tabName"] = newName;
-                  newTileData[newID] = tmpTileData;
+                  if(tmpTileData != undefined) {
+                    newTileData[newID] = Object.values(tmpTileData);
+                    tileListArray[i] = newID;
+                    tmpTileData["id"] = newID;
+                    tmpTileData["tileContext"]["tabName"] = newName;
+                    newTileData[newID] = tmpTileData;
+                  }
               }
 
               tmpObject.tileData = newTileData
@@ -891,17 +918,6 @@ $(document).ready(function () {
       if (consoleId) {
           getConsoleById(consoleId);
           isNewConsole = false;
-          setTimeout(function () {
-              var index = _.indexOf(_.pluck(consoleList, 'id'), consoleId);
-              if (index >= 0) {
-                  var consoleObject = consoleList[index];
-                  var numberOfVerison = consoleObject.version;
-                  if (numberOfVerison > 0) {
-                      loadVersionConsoleByName(consoleObject.name);
-                  }
-              }
-
-          }, 3000);
       } else {
           isNewConsole = true;
       }

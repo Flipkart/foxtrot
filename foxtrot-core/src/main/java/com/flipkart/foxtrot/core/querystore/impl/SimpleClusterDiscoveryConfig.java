@@ -29,7 +29,7 @@ public class SimpleClusterDiscoveryConfig extends ClusterDiscoveryConfig {
     private boolean disableMulticast = false;
 
     public SimpleClusterDiscoveryConfig() {
-        super(ClusterDiscoveryType.foxtrot_simple);
+        super(ClusterDiscoveryType.FOXTROT_SIMPLE);
     }
 
     public List<String> getMembers() {

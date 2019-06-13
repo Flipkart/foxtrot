@@ -59,7 +59,7 @@ function Tile() {
     this.queue = null;
     this.cachedData = null;
     this.setupModalName = null;
-    this.url = hostDetails.url("/foxtrot/v1/analytics");
+    this.url = hostDetails.url("/foxtrot/v2/analytics");
     this.contentType = "application/json";
     this.httpMethod = "POST";
     this.ignoreDigits = 0;

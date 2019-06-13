@@ -7,8 +7,8 @@ server:
       port: 17001
 
 elasticsearch:
-  hosts: prd-esfoxtrot601.phonepe.nm1
-  cluster: prd-foxtrotes6
+  hosts: stg-els602.phonepe.nm2
+  cluster: prd-es6xx
   tableNamePrefix: foxtrot
   getQueryTimeout: 10000
 
@@ -30,8 +30,10 @@ riemann:
 hbase:
   secure : false
   tableName: foxtrot
-  hbaseZookeeperQuorum: prd-foxtrot001.phonepe.nm1:2181,prd-foxtrot002.phonepe.nm1:2181,prd-foxtrot003.phonepe.nm1:2181
+  hbaseZookeeperQuorum: stg-dwhxenial002-stg-cloud005.phonepe.nm2:2181
   hbaseZookeeperClientPort: 2181
+  seggregatedTablePrefix: foxtrot-
+  hbaseZookeeperZnodeParent: /hbase-unsecure
 
 cluster:
   name: foxtrot
@@ -83,3 +85,46 @@ swagger:
   title: Foxtrot
   description: A store abstraction and analytics system for real-time event data.
   uriPrefix: "/foxtrot"
+
+gandalfConfig:
+  httpConfig:
+    usingZookeeper: false
+    host: gandalf.traefik.stg.phonepe.com
+    port: 80
+    serviceName: gandalf
+    environment: stage
+    connections: 10
+    idleTimeOutSeconds: 30
+  authConfig:
+    clientId: echo
+    clientKey:  1234
+    namespace:  echo
+  permissionCacheConfig:
+    ttlSeconds: 900
+    enabled: true
+
+primerBundleConfiguration:
+  enabled: true
+  authTypesEnabled:
+    CONFIG: false
+    ANNOTATION: true
+  endpoint:
+    type: simple
+    host: primer.traefik.stg.phonepe.com
+    port: 80
+  cacheExpiry: 60
+  cacheMaxSize: 100000
+  clockSkew: 60
+  prefix: Bearer
+  privateKey: TwhjV5ujkvb41frpmqCve7ZfhqwSDMqOXe01DeDIsb2xCrW4bwfFnax9bi2uC9Kn
+
+restrictAccess: false
+
+segregationConfiguration:
+  tableEventConfigs:
+    phonepe_consumer_app_android:
+      phonepe_consumer_app_android_app_loaded:
+        - APP_LOADED
+  ignoredEventConfigs:
+    phonepe_consumer_app_android:
+      - ACTIVITY_VISITED

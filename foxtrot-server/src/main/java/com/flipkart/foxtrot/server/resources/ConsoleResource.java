@@ -15,7 +15,6 @@
  */
 package com.flipkart.foxtrot.server.resources;
 
-import com.flipkart.foxtrot.core.exception.FoxtrotException;
 import com.flipkart.foxtrot.server.console.Console;
 import com.flipkart.foxtrot.server.console.ConsolePersistence;
 import io.swagger.annotations.Api;
@@ -28,7 +27,7 @@ import java.util.List;
 @Path("/v1/consoles")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
-@Api(value = "/v1/consoles", description = "v1 Consoles API")
+@Api(value = "/v1/consoles")
 public class ConsoleResource {
 
     private ConsolePersistence consolePersistence;
@@ -39,7 +38,7 @@ public class ConsoleResource {
 
     @POST
     @ApiOperation("Save Console")
-    public Console save(Console console) throws FoxtrotException {
+    public Console save(Console console) {
         consolePersistence.save(console);
         return console;
     }
@@ -47,20 +46,20 @@ public class ConsoleResource {
     @GET
     @Path("/{id}")
     @ApiOperation("Get Console - via id")
-    public Console get(@PathParam("id") final String id) throws FoxtrotException {
+    public Console get(@PathParam("id") final String id) {
         return consolePersistence.get(id);
     }
 
     @DELETE
     @Path("/{id}/delete")
     @ApiOperation("Delete Console - via id")
-    public void delete(@PathParam("id") final String id) throws FoxtrotException {
+    public void delete(@PathParam("id") final String id) {
         consolePersistence.delete(id);
     }
 
     @GET
     @ApiOperation("Get All Consoles")
-    public List<Console> getList() throws FoxtrotException {
+    public List<Console> getList() {
         return consolePersistence.get();
     }
 
