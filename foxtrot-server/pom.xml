@@ -5,7 +5,7 @@
     <parent>
         <artifactId>foxtrot</artifactId>
         <groupId>com.flipkart.foxtrot</groupId>
-        <version>6.3.1-1</version>
+        <version>6.3.1-2</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -45,27 +45,22 @@
         <dependency>
             <groupId>com.flipkart.foxtrot</groupId>
             <artifactId>foxtrot-sql</artifactId>
-            <version>6.3.1-1</version>
+            <version>6.3.1-2</version>
         </dependency>
         <dependency>
             <groupId>com.flipkart.foxtrot</groupId>
             <artifactId>foxtrot-common</artifactId>
-            <version>6.3.1-1</version>
+            <version>6.3.1-2</version>
         </dependency>
         <dependency>
             <groupId>com.flipkart.foxtrot</groupId>
             <artifactId>foxtrot-core</artifactId>
-            <version>6.3.1-1</version>
-        </dependency>
-        <dependency>
-            <groupId>com.phonepe.platform</groupId>
-            <artifactId>rosey-dropwizard-config</artifactId>
-            <version>1.6</version>
+            <version>6.3.1-2</version>
         </dependency>
         <dependency>
             <groupId>com.flipkart.foxtrot</groupId>
             <artifactId>foxtrot-core</artifactId>
-            <version>6.3.1-1</version>
+            <version>6.3.1-2</version>
             <type>test-jar</type>
             <scope>test</scope>
         </dependency>

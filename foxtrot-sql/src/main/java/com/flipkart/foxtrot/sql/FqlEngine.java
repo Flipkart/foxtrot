@@ -5,8 +5,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.flipkart.foxtrot.common.ActionResponse;
 import com.flipkart.foxtrot.common.Table;
 import com.flipkart.foxtrot.common.TableFieldMapping;
-import com.flipkart.foxtrot.common.access.AccessService;
-import com.flipkart.foxtrot.core.exception.FoxtrotExceptions;
 import com.flipkart.foxtrot.core.querystore.QueryExecutor;
 import com.flipkart.foxtrot.core.querystore.QueryStore;
 import com.flipkart.foxtrot.core.table.TableMetadataManager;
@@ -17,7 +15,6 @@ import com.flipkart.foxtrot.sql.responseprocessors.Flattener;
 import com.flipkart.foxtrot.sql.responseprocessors.FlatteningUtils;
 import com.flipkart.foxtrot.sql.responseprocessors.model.FlatRepresentation;
 import com.google.common.collect.Lists;
-import com.phonepe.gandalf.models.user.UserDetails;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,15 +35,12 @@ public class FqlEngine {
         this.mapper = mapper;
     }
 
-    public FlatRepresentation parse(final String fql, UserDetails userDetails, AccessService accessService) throws JsonProcessingException{
+    public FlatRepresentation parse(final String fql) throws Exception {
         QueryTranslator translator = new QueryTranslator();
         FqlQuery query = translator.translate(fql);
-        FlatRepresentation response = new QueryProcessor(tableMetadataManager, queryStore, queryExecutor, mapper, userDetails,
-                                                         accessService
-        ).process(query);
-        String prettyResponse = mapper.writerWithDefaultPrettyPrinter()
-                .writeValueAsString(response);
-        logger.debug("Flat Response: {}", prettyResponse);
+        FlatRepresentation response = new QueryProcessor(tableMetadataManager, queryStore, queryExecutor, mapper).process(query);
+        logger.debug("Flat Response: " + mapper.writerWithDefaultPrettyPrinter()
+                .writeValueAsString(response));
         return response;
     }
 
@@ -55,19 +49,15 @@ public class FqlEngine {
         private QueryStore queryStore;
         private QueryExecutor queryExecutor;
         private ObjectMapper mapper;
-        private UserDetails userDetails;
-        private AccessService accessService;
 
         private FlatRepresentation result;
 
         private QueryProcessor(TableMetadataManager tableMetadataManager, QueryStore queryStore, QueryExecutor queryExecutor,
-                               ObjectMapper mapper, UserDetails userDetails, AccessService accessService) {
+                               ObjectMapper mapper) {
             this.tableMetadataManager = tableMetadataManager;
             this.queryStore = queryStore;
             this.queryExecutor = queryExecutor;
             this.mapper = mapper;
-            this.userDetails = userDetails;
-            this.accessService = accessService;
         }
 
         public FlatRepresentation process(FqlQuery query) {
@@ -92,22 +82,13 @@ public class FqlEngine {
         @Override
         public void visit(FqlActionQuery fqlActionQuery) {
             try {
-                if(!accessService.hasAccess(fqlActionQuery.getActionRequest(), userDetails)) {
-                    throw FoxtrotExceptions.createAuthorizationException(fqlActionQuery.getActionRequest(),
-                                                                         new Exception("User not Authorised")
-                                                                        );
-                }
-            } catch (Exception e) {
-                throw FoxtrotExceptions.createAuthorizationException(fqlActionQuery.getActionRequest(), e);
-            }
-            try {
                 String query = mapper.writeValueAsString(fqlActionQuery.getActionRequest());
                 logger.info("Generated query: {}", query);
             } catch (JsonProcessingException e) {
                 //ignoring the exception as it is coming while logging.
                 logger.error("Error in serializing action request.", e);
             }
-            ActionResponse actionResponse = queryExecutor.execute(fqlActionQuery.getActionRequest(), userDetails.getEmail());
+            ActionResponse actionResponse = queryExecutor.execute(fqlActionQuery.getActionRequest(), "");
             Flattener flattener = new Flattener(mapper, fqlActionQuery.getActionRequest(), fqlActionQuery.getSelectedFields());
             actionResponse.accept(flattener);
             result = flattener.getFlatRepresentation();

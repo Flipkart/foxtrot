@@ -25,14 +25,11 @@ import com.flipkart.foxtrot.core.querystore.impl.CacheConfig;
 import com.flipkart.foxtrot.core.querystore.impl.ClusterConfig;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConfig;
 import com.flipkart.foxtrot.server.jobs.consolehistory.ConsoleHistoryConfig;
-import com.phonepe.gandalf.models.client.GandalfClientConfig;
 import io.dropwizard.Configuration;
 import io.dropwizard.discovery.bundle.ServiceDiscoveryConfiguration;
-import io.dropwizard.primer.model.PrimerBundleConfiguration;
 import io.dropwizard.riemann.RiemannConfig;
 import io.federecio.dropwizard.swagger.SwaggerBundleConfiguration;
 import lombok.Data;
-import lombok.NonNull;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
@@ -73,12 +70,6 @@ public class FoxtrotServerConfiguration extends Configuration {
     private EmailConfig emailConfig;
     private CacheConfig cacheConfig;
 
-    @NonNull
-    private GandalfClientConfig gandalfConfig = new GandalfClientConfig();
-
-    @NonNull
-    private PrimerBundleConfiguration primerBundleConfiguration;
-
     private RangerConfiguration rangerConfiguration;
 
     private SegregationConfiguration segregationConfiguration;
@@ -97,7 +88,6 @@ public class FoxtrotServerConfiguration extends Configuration {
         this.segregationConfiguration = new SegregationConfiguration();
         this.serviceDiscovery = new ServiceDiscoveryConfiguration();
         this.riemann = new RiemannConfig();
-        this.primerBundleConfiguration = new PrimerBundleConfiguration();
         this.restrictAccess = true;
     }
 
