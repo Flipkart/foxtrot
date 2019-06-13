@@ -574,7 +574,7 @@ function getLoginRedirectUrl() {
 
 /**
  * Read cookie to check user is logged in or not
- * @param {*} cname
+ * @param {*} cname 
  */
 function getCookie(cname) {
   var name = cname + "=";
@@ -601,8 +601,8 @@ function isLoggedIn() {
 
 /**
  * Sort non stacked and stacked line chart legends
- * @param {*} d
- * @param {*} element
+ * @param {*} d 
+ * @param {*} element 
  */
 function drawStackedLinesLegend(d, element) { // pie legend
   if(!element) {

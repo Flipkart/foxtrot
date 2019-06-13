@@ -133,7 +133,7 @@ BarTile.prototype.getData = function (data) {
   }
   
   sortable.sort(sortFunction);
-
+  
   // sort by first index
   function sortFunction(a, b) {
     if (a[0] === b[0]) {

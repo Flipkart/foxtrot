@@ -391,7 +391,7 @@ function loadVersionConsoleById(consoleId) { // load console list api
     success: function(res) {
       isViewingVersionConsole = true;
       resetBrowserUrl();
-      preparePageRendering(res, ""); // second params is none
+      preparePageRendering(res, ""); // second params is none      
     },
     error: function() {
       showErrorAlert("Could not load versioning console list");
@@ -576,7 +576,7 @@ function renderTilesObject(currentTabName) { // render tiles based on current ta
         fetchTableFields();
       } else {
         showInfoAlert('No widgets found', '');
-      }
+      } 
     } else {
       showInfoAlert('No widgets found', '');
     }
