@@ -112,7 +112,7 @@ public class GroupActionEstimationTest extends ActionTest {
                                    .isEmpty());
     }
 
-    @Test
+    @Test(expected = CardinalityOverflowException.class)
     public void testEstimationGTFilterHighCardinality() throws Exception {
         GroupRequest groupRequest = new GroupRequest();
         groupRequest.setTable(TestUtils.TEST_TABLE_NAME);

@@ -27,6 +27,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.Matchers;
 
+import javax.ws.rs.BadRequestException;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
@@ -99,7 +100,7 @@ public class DocumentResourceTest extends FoxtrotResourceTest {
                 .target("/v1/document/" + TestUtils.TEST_TABLE_NAME)
                 .request()
                 .post(documentEntity);
-        assertEquals(422, response.getStatus());
+        assertEquals(201, response.getStatus());
     }
 
     @Test
@@ -219,7 +220,7 @@ public class DocumentResourceTest extends FoxtrotResourceTest {
                 .target(String.format("/v1/document/%s/bulk", TestUtils.TEST_TABLE_NAME))
                 .request()
                 .post(listEntity);
-        assertEquals(422, response.getStatus());
+        assertEquals(201, response.getStatus());
     }
 
     @Test
@@ -332,14 +333,12 @@ public class DocumentResourceTest extends FoxtrotResourceTest {
         assertEquals(expectedResponse, response);
     }
 
-    @Test
+    @Test(expected = BadRequestException.class)
     public void testGetDocumentsNoIds() throws Exception {
         String response = resources.client()
                 .target(String.format("/v1/document/%s", TestUtils.TEST_TABLE_NAME))
                 .request()
                 .get(String.class);
-        String expectedResponse = getMapper().writeValueAsString(new ArrayList<Document>());
-        assertEquals(expectedResponse, response);
     }
 
     @Test
