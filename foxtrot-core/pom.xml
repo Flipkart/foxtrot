@@ -14,6 +14,7 @@
     <properties>
         <hbase.version>1.2.1</hbase.version>
         <zookeeper.version>3.4.8</zookeeper.version>
+        <sonar.exclusions>**com/flipkart/foxtrot/core/querystore/impl/ElasticsearchConnection*</sonar.exclusions>
     </properties>
 
     <dependencies>
@@ -21,11 +22,6 @@
             <groupId>io.dropwizard</groupId>
             <artifactId>dropwizard-core</artifactId>
             <version>${dropwizard.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-lang3</artifactId>
-            <version>3.3.1</version>
         </dependency>
         <dependency>
             <groupId>com.sematext.hbase.ds</groupId>
