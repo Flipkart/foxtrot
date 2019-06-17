@@ -87,6 +87,16 @@ public abstract class ActionTest {
                     .create(createRequest)
                     .actionGet();
         }
+        Settings indexSettings = Settings.builder()
+                .put("number_of_replicas", 0)
+                .build();
+        CreateIndexRequest createIndexRequest = new CreateIndexRequest(DistributedTableMetadataManager.CARDINALITY_CACHE_INDEX).settings(
+                indexSettings);
+        elasticsearchConnection.getClient()
+                .admin()
+                .indices()
+                .create(createIndexRequest)
+                .actionGet();
 
         tableMetadataManager = new DistributedTableMetadataManager(hazelcastConnection, elasticsearchConnection, mapper, cardinalityConfig);
         tableMetadataManager.start();

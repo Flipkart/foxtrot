@@ -75,8 +75,8 @@ import java.util.stream.Stream;
  */
 
 public class DistributedTableMetadataManager implements TableMetadataManager {
+    public static final String CARDINALITY_CACHE_INDEX = "table_cardinality_cache";
     private static final Logger logger = LoggerFactory.getLogger(DistributedTableMetadataManager.class);
-    private static final String CARDINALITY_CACHE_INDEX = "table_cardinality_cache";
     private static final String DATA_MAP = "tablemetadatamap";
     private static final String FIELD_MAP = "tablefieldmap";
     private static final String CARDINALITY_FIELD_MAP = "cardinalitytablefieldmap";
