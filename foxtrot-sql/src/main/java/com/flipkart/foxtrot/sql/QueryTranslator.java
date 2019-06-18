@@ -79,8 +79,8 @@ public class QueryTranslator extends SqlElementVisitor {
                 .accept(this); //Populate table name
         List<Expression> groupByItems = plainSelect.getGroupByColumnReferences();
         if(null != groupByItems) {
-        queryType = FqlQueryType.GROUP;
         for(Expression groupByItem : CollectionUtils.nullSafeList(groupByItems)) {
+            queryType = FqlQueryType.GROUP;
             if(groupByItem instanceof Column) {
                 Column column = (Column)groupByItem;
                 groupBycolumnsList.add(column.getFullyQualifiedName());
