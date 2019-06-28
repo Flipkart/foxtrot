@@ -57,10 +57,10 @@ public class ElasticsearchConnection implements Managed {
             port = config.getPort();
         }
         for(String host : config.getHosts()) {
-            String tokenizedHosts[] = host.split(",");
+            String[] tokenizedHosts = host.split(",");
             for(String tokenizedHost : tokenizedHosts) {
                 esClient.addTransportAddress(new TransportAddress(InetAddress.getByName(tokenizedHost), port));
-                logger.info(String.format("Added ElasticSearch Node : %s", host));
+                logger.info("Added ElasticSearch Node : {}", host);
             }
         }
         client = esClient;

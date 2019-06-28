@@ -18,8 +18,10 @@ package com.flipkart.foxtrot.common;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.flipkart.foxtrot.common.query.Filter;
 import com.google.common.collect.Lists;
+import lombok.NoArgsConstructor;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,9 +31,10 @@ import java.util.List;
  * Time: 7:49 PM
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.EXISTING_PROPERTY, property = "opcode")
-public abstract class ActionRequest implements Cloneable {
+@NoArgsConstructor
+public abstract class ActionRequest implements Serializable, Cloneable {
 
-    private final String opcode;
+    private String opcode;
 
     private List<Filter> filters;
 
@@ -59,6 +62,8 @@ public abstract class ActionRequest implements Cloneable {
         this.filters = filters;
     }
 
+    public abstract <T> T accept(ActionRequestVisitor<T> var1);
+
     @Override
     public String toString() {
         return new ToStringBuilder(this).append("opcode", opcode)
@@ -67,9 +72,8 @@ public abstract class ActionRequest implements Cloneable {
     }
 
     public Object clone() throws CloneNotSupportedException {
-        ActionRequest actionRequestClone = (ActionRequest) super.clone();
-        List<Filter> filters = new ArrayList<>(this.filters);
-        actionRequestClone.setFilters(filters);
+        ActionRequest actionRequestClone = (ActionRequest)super.clone();
+        actionRequestClone.setFilters(new ArrayList<>(this.filters));
         return actionRequestClone;
     }
 }

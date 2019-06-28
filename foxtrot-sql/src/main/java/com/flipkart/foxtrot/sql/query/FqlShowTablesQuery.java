@@ -1,17 +1,16 @@
 package com.flipkart.foxtrot.sql.query;
 
 import com.flipkart.foxtrot.sql.FqlQuery;
-import com.flipkart.foxtrot.sql.FqlQueryType;
 import com.flipkart.foxtrot.sql.FqlQueryVisitor;
 
-public class FqlShowTablesQuery extends FqlQuery {
+public class FqlShowTablesQuery implements FqlQuery {
 
     public FqlShowTablesQuery() {
-        super(FqlQueryType.showtables);
+        super();
     }
 
     @Override
-    public void receive(FqlQueryVisitor visitor) throws Exception {
+    public void receive(FqlQueryVisitor visitor) {
         visitor.visit(this);
     }
 

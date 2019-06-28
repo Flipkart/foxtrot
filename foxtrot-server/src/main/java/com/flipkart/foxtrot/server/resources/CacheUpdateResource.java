@@ -36,7 +36,7 @@ import java.util.concurrent.ExecutorService;
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
 @AllArgsConstructor
-@Api(value = "/v1/cache/update", description = "Cache Update API")
+@Api(value = "/v1/cache/update")
 public class CacheUpdateResource {
 
     private ExecutorService executorService;

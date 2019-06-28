@@ -18,13 +18,14 @@ package com.flipkart.foxtrot.common.query;
 import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.validation.constraints.NotNull;
+import java.io.Serializable;
 
 /**
  * User: Santanu Sinha (santanu.sinha@flipkart.com)
  * Date: 14/03/14
  * Time: 9:00 PM
  */
-public class ResultSort {
+public class ResultSort implements Serializable {
 
     @NotNull
     @NotEmpty
@@ -66,10 +67,7 @@ public class ResultSort {
 
         if(!field.equals(that.field))
             return false;
-        if(order != that.order)
-            return false;
-
-        return true;
+        return order == that.order;
     }
 
     @Override

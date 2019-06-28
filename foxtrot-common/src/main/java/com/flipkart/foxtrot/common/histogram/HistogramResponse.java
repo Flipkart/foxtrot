@@ -43,10 +43,6 @@ public class HistogramResponse extends ActionResponse {
         return counts;
     }
 
-    public void setCounts(List<Count> counts) {
-        this.counts = counts;
-    }
-
     @Override
     public void accept(ResponseVisitor visitor) {
         visitor.visit(this);
@@ -91,10 +87,7 @@ public class HistogramResponse extends ActionResponse {
 
             if(count != count1.count)
                 return false;
-            if(!period.equals(count1.period))
-                return false;
-
-            return true;
+            return period.equals(count1.period);
         }
 
         @Override

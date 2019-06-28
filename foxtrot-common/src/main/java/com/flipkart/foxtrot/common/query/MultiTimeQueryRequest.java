@@ -1,9 +1,11 @@
 package com.flipkart.foxtrot.common.query;
 
 import com.flipkart.foxtrot.common.ActionRequest;
-import com.flipkart.foxtrot.common.Opcodes;
+import com.flipkart.foxtrot.common.ActionRequestVisitor;
 import io.dropwizard.util.Duration;
-import lombok.Data;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
 import javax.validation.constraints.NotNull;
@@ -11,26 +13,21 @@ import javax.validation.constraints.NotNull;
 /***
  Created by mudit.g on Jan, 2019
  ***/
-@Data
+@Getter
+@Setter
+@AllArgsConstructor
 public class MultiTimeQueryRequest extends ActionRequest {
 
     private int sampleSize;
 
     @NotNull
-    private Duration skipDuration;
+    private transient Duration skipDuration;
 
     @NotNull
     private ActionRequest actionRequest;
 
-    public MultiTimeQueryRequest() {
-        super(Opcodes.MULTI_TIME_QUERY);
-    }
-
-    public MultiTimeQueryRequest(int sampleSize, Duration skipDuration, ActionRequest actionRequest) {
-        super(Opcodes.MULTI_TIME_QUERY);
-        this.sampleSize = sampleSize;
-        this.skipDuration = skipDuration;
-        this.actionRequest = actionRequest;
+    public <T> T accept(ActionRequestVisitor<T> visitor) {
+        return visitor.visit(this);
     }
 
     @Override

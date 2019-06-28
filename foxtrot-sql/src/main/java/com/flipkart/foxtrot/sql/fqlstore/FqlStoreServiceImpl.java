@@ -2,6 +2,7 @@ package com.flipkart.foxtrot.sql.fqlstore;
 
 import com.collections.CollectionUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.flipkart.foxtrot.core.exception.FqlPersistenceException;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConnection;
 import org.elasticsearch.action.search.SearchType;
 import org.elasticsearch.common.xcontent.XContentType;
@@ -16,7 +17,7 @@ import java.util.List;
 import java.util.UUID;
 
 import static com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils.DOCUMENT_TYPE_NAME;
-import static com.flipkart.foxtrot.sql.fqlstore.FqlStore.TITLE;
+import static com.flipkart.foxtrot.sql.fqlstore.FqlStore.TITLE_FIELD;
 
 /***
  Created by mudit.g on Jan, 2019
@@ -46,29 +47,33 @@ public class FqlStoreServiceImpl implements FqlStoreService {
                     .setSource(objectMapper.writeValueAsBytes(fqlStore), XContentType.JSON)
                     .execute()
                     .get();
-            logger.info(String.format("Saved FQL Query : %s", fqlStore.getQuery()));
+            logger.info("Saved FQL Query : {}", fqlStore.getQuery());
         } catch (Exception e) {
-            throw new RuntimeException("Request couldn't be saved for FQL query: " + fqlStore.getQuery() + " Error Message: " + e);
+            throw new FqlPersistenceException("Couldn't save FQL query: " + fqlStore.getQuery() + " Error Message: " + e.getMessage(), e);
         }
     }
 
     @Override
-    public List<FqlStore> get(FqlGetRequest fqlGetRequest) throws Exception {
+    public List<FqlStore> get(FqlGetRequest fqlGetRequest) {
         SearchHits searchHits;
         List<FqlStore> fqlStoreList = new ArrayList<>();
-        searchHits = elasticsearchConnection.getClient()
-                .prepareSearch(FQL_STORE_INDEX)
-                .setTypes(DOCUMENT_TYPE_NAME)
-                .setQuery(QueryBuilders.prefixQuery(TITLE, fqlGetRequest.getTitle()
-                        .toLowerCase()))
-                .setSearchType(SearchType.QUERY_THEN_FETCH)
-                .setFrom(fqlGetRequest.getFrom())
-                .setSize(fqlGetRequest.getSize())
-                .execute()
-                .actionGet()
-                .getHits();
-        for(SearchHit searchHit : CollectionUtils.nullAndEmptySafeValueList(searchHits.getHits())) {
-            fqlStoreList.add(objectMapper.readValue(searchHit.getSourceAsString(), FqlStore.class));
+        try {
+            searchHits = elasticsearchConnection.getClient()
+                    .prepareSearch(FQL_STORE_INDEX)
+                    .setTypes(DOCUMENT_TYPE_NAME)
+                    .setQuery(QueryBuilders.prefixQuery(TITLE_FIELD, fqlGetRequest.getTitle()
+                            .toLowerCase()))
+                    .setSearchType(SearchType.QUERY_THEN_FETCH)
+                    .setFrom(fqlGetRequest.getFrom())
+                    .setSize(fqlGetRequest.getSize())
+                    .execute()
+                    .actionGet()
+                    .getHits();
+            for(SearchHit searchHit : CollectionUtils.nullAndEmptySafeValueList(searchHits.getHits())) {
+                fqlStoreList.add(objectMapper.readValue(searchHit.getSourceAsString(), FqlStore.class));
+            }
+        } catch (Exception e) {
+            throw new FqlPersistenceException("Couldn't get FqlStore: " + e.getMessage(), e);
         }
         return fqlStoreList;
     }

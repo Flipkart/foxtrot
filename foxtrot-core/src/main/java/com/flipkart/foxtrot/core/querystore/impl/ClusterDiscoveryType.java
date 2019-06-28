@@ -16,7 +16,7 @@
 package com.flipkart.foxtrot.core.querystore.impl;
 
 public enum ClusterDiscoveryType {
-    foxtrot_simple,
-    foxtrot_marathon,
-    foxtrot_aws
+    FOXTROT_SIMPLE,
+    FOXTROT_MARATHON,
+    FOXTROT_AWS
 }

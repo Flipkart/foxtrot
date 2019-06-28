@@ -30,7 +30,6 @@ import org.joda.time.DateTimeZone;
 import java.util.*;
 
 import static com.flipkart.foxtrot.core.util.ElasticsearchQueryUtils.QUERY_SIZE;
-import java.util.Objects;
 
 /**
  * Created by rishabh.goyal on 24/08/14.
@@ -38,6 +37,17 @@ import java.util.Objects;
 public class Utils {
 
     private static final double[] DEFAULT_PERCENTILES = {1d, 5d, 25, 50d, 75d, 95d, 99d};
+    private static final double DEFAULT_COMPRESSION = 100.0;
+    private static final String COUNT = "count";
+    private static final String AVG = "avg";
+    private static final String SUM = "sum";
+    private static final String MIN = "min";
+    private static final String MAX = "max";
+    private static final String SUM_OF_SQUARES = "sum_of_squares";
+    private static final String VARIANCE = "variance";
+    private static final String STD_DEVIATION = "std_deviation";
+
+    private Utils() {}
 
     public static TermsAggregationBuilder buildTermsAggregation(List<ResultSort> fields, Set<AggregationBuilder> subAggregations) {
         TermsAggregationBuilder rootBuilder = null;
@@ -136,13 +146,22 @@ public class Utils {
     }
 
     public static AbstractAggregationBuilder buildPercentileAggregation(String field, Collection<Double> inputPercentiles) {
+        return buildPercentileAggregation(field, inputPercentiles, DEFAULT_COMPRESSION);
+    }
+
+    public static AbstractAggregationBuilder buildPercentileAggregation(String field, Collection<Double> inputPercentiles,
+                                                                        double compression) {
         double[] percentiles = inputPercentiles != null ? inputPercentiles.stream()
                 .mapToDouble(x -> x)
                 .toArray() : DEFAULT_PERCENTILES;
+        if(compression == 0.0) {
+            compression = DEFAULT_COMPRESSION;
+        }
         String metricKey = getPercentileAggregationKey(field);
         return AggregationBuilders.percentiles(metricKey)
                 .percentiles(percentiles)
-                .field(storedFieldName(field));
+                .field(storedFieldName(field))
+                .compression(compression);
     }
 
     public static DateHistogramAggregationBuilder buildDateHistogramAggregation(String field, DateHistogramInterval interval) {
@@ -211,45 +230,45 @@ public class Utils {
 
     public static Map<String, Number> createStatsResponse(InternalExtendedStats extendedStats) {
         Map<String, Number> stats = Maps.newHashMap();
-        stats.put("avg", extendedStats.getAvg());
-        stats.put("sum", extendedStats.getSum());
-        stats.put("count", extendedStats.getCount());
-        stats.put("min", extendedStats.getMin());
-        stats.put("max", extendedStats.getMax());
-        stats.put("sum_of_squares", extendedStats.getSumOfSquares());
-        stats.put("variance", extendedStats.getVariance());
-        stats.put("std_deviation", extendedStats.getStdDeviation());
+        stats.put(AVG, extendedStats.getAvg());
+        stats.put(SUM, extendedStats.getSum());
+        stats.put(COUNT, extendedStats.getCount());
+        stats.put(MIN, extendedStats.getMin());
+        stats.put(MAX, extendedStats.getMax());
+        stats.put(SUM_OF_SQUARES, extendedStats.getSumOfSquares());
+        stats.put(VARIANCE, extendedStats.getVariance());
+        stats.put(STD_DEVIATION, extendedStats.getStdDeviation());
         return stats;
     }
 
     public static Map<String, Number> createStatsResponse(InternalStats internalStats) {
         Map<String, Number> stats = Maps.newHashMap();
-        stats.put("avg", internalStats.getAvg());
-        stats.put("sum", internalStats.getSum());
-        stats.put("count", internalStats.getCount());
-        stats.put("min", internalStats.getMin());
-        stats.put("max", internalStats.getMax());
+        stats.put(AVG, internalStats.getAvg());
+        stats.put(SUM, internalStats.getSum());
+        stats.put(COUNT, internalStats.getCount());
+        stats.put(MIN, internalStats.getMin());
+        stats.put(MAX, internalStats.getMax());
         return stats;
     }
 
     public static Map<String, Number> createStatResponse(InternalMax statAggregation) {
-        return ImmutableMap.of("max", statAggregation.getValue());
+        return ImmutableMap.of(MAX, statAggregation.getValue());
     }
 
     public static Map<String, Number> createStatResponse(InternalMin statAggregation) {
-        return ImmutableMap.of("min", statAggregation.getValue());
+        return ImmutableMap.of(MIN, statAggregation.getValue());
     }
 
     public static Map<String, Number> createStatResponse(InternalAvg statAggregation) {
-        return ImmutableMap.of("avg", statAggregation.getValue());
+        return ImmutableMap.of(AVG, statAggregation.getValue());
     }
 
     public static Map<String, Number> createStatResponse(InternalSum statAggregation) {
-        return ImmutableMap.of("sum", statAggregation.getValue());
+        return ImmutableMap.of(SUM, statAggregation.getValue());
     }
 
     public static Map<String, Number> createStatResponse(InternalValueCount statAggregation) {
-        return ImmutableMap.of("count", statAggregation.getValue());
+        return ImmutableMap.of(COUNT, statAggregation.getValue());
     }
 
     public static Map<Number, Number> createPercentilesResponse(Percentiles internalPercentiles) {
