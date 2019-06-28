@@ -9,86 +9,86 @@ import com.flipkart.foxtrot.common.query.string.WildCardFilter;
 /**
  * Created by santanu on 6/7/17.
  */
-public class FilterVisitorAdapter<T> extends FilterVisitor<T> {
+public class FilterVisitorAdapter<T> implements FilterVisitor<T> {
 
-    final T defaultValue;
+    private final T defaultValue;
 
     protected FilterVisitorAdapter(T defaultValue) {
         this.defaultValue = defaultValue;
     }
 
     @Override
-    public T visit(BetweenFilter betweenFilter) throws Exception {
+    public T visit(BetweenFilter betweenFilter) {
         return defaultValue;
     }
 
     @Override
-    public T visit(EqualsFilter equalsFilter) throws Exception {
+    public T visit(EqualsFilter equalsFilter) {
         return defaultValue;
     }
 
     @Override
-    public T visit(NotEqualsFilter notEqualsFilter) throws Exception {
+    public T visit(NotEqualsFilter notEqualsFilter) {
         return defaultValue;
     }
 
     @Override
-    public T visit(ContainsFilter stringContainsFilterElement) throws Exception {
+    public T visit(ContainsFilter stringContainsFilterElement) {
         return defaultValue;
     }
 
     @Override
-    public T visit(GreaterThanFilter greaterThanFilter) throws Exception {
+    public T visit(GreaterThanFilter greaterThanFilter) {
         return defaultValue;
     }
 
     @Override
-    public T visit(GreaterEqualFilter greaterEqualFilter) throws Exception {
+    public T visit(GreaterEqualFilter greaterEqualFilter) {
         return defaultValue;
     }
 
     @Override
-    public T visit(LessThanFilter lessThanFilter) throws Exception {
+    public T visit(LessThanFilter lessThanFilter) {
         return defaultValue;
     }
 
     @Override
-    public T visit(LessEqualFilter lessEqualFilter) throws Exception {
+    public T visit(LessEqualFilter lessEqualFilter) {
         return defaultValue;
     }
 
     @Override
-    public T visit(AnyFilter anyFilter) throws Exception {
+    public T visit(AnyFilter anyFilter) {
         return defaultValue;
     }
 
     @Override
-    public T visit(InFilter inFilter) throws Exception {
+    public T visit(InFilter inFilter) {
         return defaultValue;
     }
 
     @Override
-    public T visit(NotInFilter notInFilter) throws Exception {
+    public T visit(NotInFilter notInFilter) {
         return defaultValue;
     }
 
     @Override
-    public T visit(ExistsFilter existsFilter) throws Exception {
+    public T visit(ExistsFilter existsFilter) {
         return defaultValue;
     }
 
     @Override
-    public T visit(LastFilter lastFilter) throws Exception {
+    public T visit(LastFilter lastFilter) {
         return defaultValue;
     }
 
     @Override
-    public T visit(MissingFilter missingFilter) throws Exception {
+    public T visit(MissingFilter missingFilter) {
         return defaultValue;
     }
 
     @Override
-    public T visit(WildCardFilter wildCardFilter) throws Exception {
+    public T visit(WildCardFilter wildCardFilter) {
         return defaultValue;
     }
 }

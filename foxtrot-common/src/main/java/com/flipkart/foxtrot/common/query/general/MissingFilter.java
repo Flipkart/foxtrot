@@ -25,7 +25,7 @@ public class MissingFilter extends Filter {
     }
 
     @Override
-    public <T> T accept(FilterVisitor<T> visitor) throws Exception {
+    public <T> T accept(FilterVisitor<T> visitor) {
         return visitor.visit(this);
     }
 

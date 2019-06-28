@@ -22,7 +22,6 @@ import com.flipkart.foxtrot.common.FieldType;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
 import org.elasticsearch.cluster.metadata.MappingMetaData;
 
-import java.io.IOException;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
@@ -33,19 +32,20 @@ import java.util.Set;
  */
 public class ElasticsearchMappingParser {
 
+    private static final String PROPERTIES = "properties";
     private ObjectMapper mapper;
 
     public ElasticsearchMappingParser(ObjectMapper mapper) {
         this.mapper = mapper;
     }
 
-    public Set<FieldMetadata> getFieldMappings(MappingMetaData metaData) throws IOException {
+    public Set<FieldMetadata> getFieldMappings(MappingMetaData metaData) {
         JsonNode jsonNode = mapper.valueToTree(metaData.getSourceAsMap());
-        return generateFieldMappings(null, jsonNode.get("properties"));
+        return generateFieldMappings(null, jsonNode.get(PROPERTIES));
     }
 
     private Set<FieldMetadata> generateFieldMappings(String parentField, JsonNode jsonNode) {
-        Set<FieldMetadata> fieldTypeMappings = new HashSet<FieldMetadata>();
+        Set<FieldMetadata> fieldTypeMappings = new HashSet<>();
         Iterator<Map.Entry<String, JsonNode>> iterator = jsonNode.fields();
         while (iterator.hasNext()) {
             Map.Entry<String, JsonNode> entry = iterator.next();
@@ -55,9 +55,9 @@ public class ElasticsearchMappingParser {
             }
             String currentField = (parentField == null) ? entry.getKey() : (String.format("%s.%s", parentField, entry.getKey()));
             if(entry.getValue()
-                    .has("properties")) {
+                    .has(PROPERTIES)) {
                 fieldTypeMappings.addAll(generateFieldMappings(currentField, entry.getValue()
-                        .get("properties")));
+                        .get(PROPERTIES)));
             } else {
                 FieldType fieldType = getFieldType(entry.getValue()
                                                            .get("type"));

@@ -17,7 +17,6 @@ package com.flipkart.foxtrot.core.querystore;
 
 import com.flipkart.foxtrot.common.Document;
 import com.flipkart.foxtrot.common.TableFieldMapping;
-import com.flipkart.foxtrot.core.exception.FoxtrotException;
 import org.elasticsearch.action.admin.cluster.health.ClusterHealthResponse;
 import org.elasticsearch.action.admin.cluster.node.stats.NodesStatsResponse;
 import org.elasticsearch.action.admin.indices.stats.IndicesStatsResponse;
@@ -33,23 +32,23 @@ import java.util.concurrent.ExecutionException;
  */
 public interface QueryStore {
 
-    void initializeTable(final String table) throws FoxtrotException;
+    void initializeTable(final String table);
 
-    void save(final String table, final Document document) throws FoxtrotException;
+    void save(final String table, final Document document);
 
-    void save(final String table, final List<Document> documents) throws FoxtrotException;
+    void save(final String table, final List<Document> documents);
 
-    Document get(final String table, final String id) throws FoxtrotException;
+    Document get(final String table, final String id);
 
-    List<Document> getAll(final String table, final List<String> ids) throws FoxtrotException;
+    List<Document> getAll(final String table, final List<String> ids);
 
-    List<Document> getAll(final String table, final List<String> ids, boolean bypassMetaLookup) throws FoxtrotException;
+    List<Document> getAll(final String table, final List<String> ids, boolean bypassMetaLookup);
 
-    void cleanupAll() throws FoxtrotException;
+    void cleanupAll();
 
-    void cleanup(final String table) throws FoxtrotException;
+    void cleanup(final String table);
 
-    void cleanup(final Set<String> tables) throws FoxtrotException;
+    void cleanup(final Set<String> tables);
 
     ClusterHealthResponse getClusterHealth() throws ExecutionException, InterruptedException;
 
@@ -57,5 +56,5 @@ public interface QueryStore {
 
     IndicesStatsResponse getIndicesStats() throws ExecutionException, InterruptedException;
 
-    TableFieldMapping getFieldMappings(String table) throws FoxtrotException;
+    TableFieldMapping getFieldMappings(String table);
 }

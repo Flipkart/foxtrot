@@ -33,6 +33,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static com.flipkart.foxtrot.core.TestUtils.TEST_EMAIL;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.mockito.Mockito.when;
@@ -75,7 +76,7 @@ public class MultiQueryActionTest extends ActionTest {
         requests.put("2", countRequest);
 
         MultiQueryRequest multiQueryRequest = new MultiQueryRequest(requests);
-        ActionResponse actionResponse = getQueryExecutor().execute(multiQueryRequest);
+        ActionResponse actionResponse = getQueryExecutor().execute(multiQueryRequest, TEST_EMAIL);
         MultiQueryResponse multiQueryResponse = null;
         if(actionResponse instanceof MultiQueryResponse) {
             multiQueryResponse = (MultiQueryResponse)actionResponse;
@@ -109,7 +110,7 @@ public class MultiQueryActionTest extends ActionTest {
         requests.put("2", countRequest);
 
         MultiQueryRequest multiQueryRequest = new MultiQueryRequest(requests);
-        ActionResponse actionResponse = getQueryExecutor().execute(multiQueryRequest);
+        ActionResponse actionResponse = getQueryExecutor().execute(multiQueryRequest, TEST_EMAIL);
         MultiQueryResponse multiQueryResponse = null;
         if(actionResponse instanceof MultiQueryResponse) {
             multiQueryResponse = (MultiQueryResponse)actionResponse;
@@ -157,7 +158,7 @@ public class MultiQueryActionTest extends ActionTest {
         documents.add(TestUtils.getDocument("D", 1397658118003L, new Object[]{"os", "ios", "version", 1, "device", "iphone"}, getMapper()));
         documents.add(TestUtils.getDocument("E", 1397658118004L, new Object[]{"os", "ios", "version", 2, "device", "ipad"}, getMapper()));
 
-        MultiQueryResponse multiQueryResponse = MultiQueryResponse.class.cast(getQueryExecutor().execute(multiQueryRequest));
+        MultiQueryResponse multiQueryResponse = MultiQueryResponse.class.cast(getQueryExecutor().execute(multiQueryRequest, TEST_EMAIL));
         for(Map.Entry<String, ActionResponse> response : multiQueryResponse.getResponses()
                 .entrySet()) {
             compare(documents, ((QueryResponse)response.getValue()).getDocuments());

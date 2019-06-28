@@ -22,8 +22,6 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
-import java.util.Set;
-
 @Data
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
@@ -34,13 +32,9 @@ public class AnyFilter extends Filter {
     }
 
     @Override
-    public <T> T accept(FilterVisitor<T> visitor) throws Exception {
+    public <T> T accept(FilterVisitor<T> visitor) {
         return visitor.visit(this);
     }
 
-    @Override
-    public Set<String> validate() {
-        return super.validate();
-    }
 }
 

@@ -106,16 +106,4 @@ public class QueryExecutorTest {
             assertEquals(ErrorCode.UNRESOLVABLE_OPERATION, e.getCode());
         }
     }
-
-    @Test
-    public void testResolveLoaderException() throws Exception {
-        try {
-            doThrow(new IOException()).when(analyticsLoader)
-                    .getAction(any(ActionRequest.class));
-            queryExecutor.resolve(new NonCacheableActionRequest());
-            fail();
-        } catch (FoxtrotException e) {
-            assertEquals(ErrorCode.ACTION_RESOLUTION_FAILURE, e.getCode());
-        }
-    }
 }

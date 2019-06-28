@@ -126,7 +126,7 @@ public class FoxtrotServer extends Application<FoxtrotServerConfiguration> {
         bootstrap.addBundle(new SwaggerBundle<FoxtrotServerConfiguration>() {
             @Override
             protected SwaggerBundleConfiguration getSwaggerBundleConfiguration(FoxtrotServerConfiguration configuration) {
-                return configuration.swagger;
+                return configuration.getSwagger();
             }
         });
 
@@ -205,9 +205,6 @@ public class FoxtrotServer extends Application<FoxtrotServerConfiguration> {
         );
 
         List<HealthCheck> healthChecks = new ArrayList<>();
-        //        ElasticSearchHealthCheck elasticSearchHealthCheck = new ElasticSearchHealthCheck
-        // (elasticsearchConnection);
-        //        healthChecks.add(elasticSearchHealthCheck);
         ClusterManager clusterManager = new ClusterManager(hazelcastConnection, healthChecks, configuration.getServerFactory());
 
         environment.lifecycle()
@@ -232,7 +229,7 @@ public class FoxtrotServer extends Application<FoxtrotServerConfiguration> {
                 .manage(consoleHistoryManager);
 
         environment.jersey()
-                .register(new DocumentResource(queryStore));
+                .register(new DocumentResource(queryStore, configuration.getSegregationConfiguration()));
         environment.jersey()
                 .register(new AsyncResource(cacheManager));
         environment.jersey()
@@ -256,9 +253,6 @@ public class FoxtrotServer extends Application<FoxtrotServerConfiguration> {
                 .register(new ClusterHealthResource(queryStore));
         environment.jersey()
                 .register(new CacheUpdateResource(executorService, tableMetadataManager));
-
-        //        environment.healthChecks().register("ES Health Check", elasticSearchHealthCheck);
-
         environment.jersey()
                 .register(new FlatResponseTextProvider());
         environment.jersey()
@@ -283,6 +277,7 @@ public class FoxtrotServer extends Application<FoxtrotServerConfiguration> {
         ((AbstractServerFactory)configuration.getServerFactory()).setJerseyRootPath("/foxtrot");
 
         MetricUtil.setup(environment.metrics());
+
     }
 
     private void configureObjectMapper(ObjectMapper objectMapper) {

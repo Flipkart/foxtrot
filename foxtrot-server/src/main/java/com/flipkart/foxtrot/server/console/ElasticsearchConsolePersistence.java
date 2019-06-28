@@ -17,7 +17,6 @@ package com.flipkart.foxtrot.server.console;
 
 import com.collections.CollectionUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.flipkart.foxtrot.core.exception.FoxtrotException;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConnection;
 import com.flipkart.foxtrot.core.util.ElasticsearchQueryUtils;
 import org.elasticsearch.action.get.GetResponse;
@@ -34,9 +33,9 @@ import org.elasticsearch.search.sort.SortOrder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-import java.util.Vector;
 import java.util.concurrent.TimeUnit;
 
 import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
@@ -61,7 +60,7 @@ public class ElasticsearchConsolePersistence implements ConsolePersistence {
     }
 
     @Override
-    public void save(final Console console) throws FoxtrotException {
+    public void save(final Console console) {
         try {
             connection.getClient()
                     .prepareIndex()
@@ -72,14 +71,14 @@ public class ElasticsearchConsolePersistence implements ConsolePersistence {
                     .setRefreshPolicy(WriteRequest.RefreshPolicy.IMMEDIATE)
                     .execute()
                     .get();
-            logger.info(String.format("Saved Console : %s", console));
+            logger.info("Saved Console : {}", console);
         } catch (Exception e) {
             throw new ConsolePersistenceException(console.getId(), "console save failed", e);
         }
     }
 
     @Override
-    public Console get(final String id) throws FoxtrotException {
+    public Console get(final String id) {
         try {
             GetResponse result = connection.getClient()
                     .prepareGet()
@@ -93,12 +92,12 @@ public class ElasticsearchConsolePersistence implements ConsolePersistence {
             }
             return mapper.readValue(result.getSourceAsBytes(), Console.class);
         } catch (Exception e) {
-            throw new ConsolePersistenceException(id, "console save failed", e);
+            throw new ConsolePersistenceException(id, "console get failed", e);
         }
     }
 
     @Override
-    public List<Console> get() throws FoxtrotException {
+    public List<Console> get() {
         SearchResponse response = connection.getClient()
                 .prepareSearch(INDEX)
                 .setTypes(TYPE)
@@ -108,7 +107,7 @@ public class ElasticsearchConsolePersistence implements ConsolePersistence {
                 .execute()
                 .actionGet();
         try {
-            Vector<Console> results = new Vector<Console>();
+            List<Console> results = new ArrayList<>();
             while (true) {
                 response = connection.getClient()
                         .prepareSearchScroll(response.getScrollId())
@@ -131,7 +130,7 @@ public class ElasticsearchConsolePersistence implements ConsolePersistence {
     }
 
     @Override
-    public void delete(final String id) throws FoxtrotException {
+    public void delete(final String id) {
         try {
             connection.getClient()
                     .prepareDelete()
@@ -141,14 +140,14 @@ public class ElasticsearchConsolePersistence implements ConsolePersistence {
                     .setId(id)
                     .execute()
                     .actionGet();
-            logger.info(String.format("Deleted Console : %s", id));
+            logger.info("Deleted Console : {}", id);
         } catch (Exception e) {
             throw new ConsolePersistenceException(id, "console deletion_failed", e);
         }
     }
 
     @Override
-    public void saveV2(ConsoleV2 console, boolean newConsole) throws FoxtrotException {
+    public void saveV2(ConsoleV2 console, boolean newConsole) {
         preProcess(console, newConsole);
         try {
             connection.getClient()
@@ -160,14 +159,14 @@ public class ElasticsearchConsolePersistence implements ConsolePersistence {
                     .setRefreshPolicy(WriteRequest.RefreshPolicy.IMMEDIATE)
                     .execute()
                     .get();
-            logger.info(String.format("Saved Console : %s", console));
+            logger.info("Saved Console : {}", console);
         } catch (Exception e) {
             throw new ConsolePersistenceException(console.getId(), "console save failed", e);
-        }
+    }
     }
 
     @Override
-    public ConsoleV2 getV2(String id) throws FoxtrotException {
+    public ConsoleV2 getV2(String id) {
         try {
             GetResponse result = connection.getClient()
                     .prepareGet()
@@ -181,12 +180,12 @@ public class ElasticsearchConsolePersistence implements ConsolePersistence {
             }
             return mapper.readValue(result.getSourceAsBytes(), ConsoleV2.class);
         } catch (Exception e) {
-            throw new ConsolePersistenceException(id, "console save failed", e);
+            throw new ConsolePersistenceException(id, "console get failed", e);
         }
     }
 
     @Override
-    public List<ConsoleV2> getV2() throws FoxtrotException {
+    public List<ConsoleV2> getV2() {
         SearchResponse response = connection.getClient()
                 .prepareSearch(INDEX_V2)
                 .setTypes(TYPE)
@@ -197,7 +196,7 @@ public class ElasticsearchConsolePersistence implements ConsolePersistence {
                 .execute()
                 .actionGet();
         try {
-            Vector<ConsoleV2> results = new Vector<ConsoleV2>();
+            List<ConsoleV2> results = new ArrayList<>();
             while (true) {
                 SearchHits hits = response.getHits();
                 for(SearchHit hit : hits) {
@@ -221,7 +220,7 @@ public class ElasticsearchConsolePersistence implements ConsolePersistence {
     }
 
     @Override
-    public List<ConsoleV2> getAllOldVersions(final String name, final String sortBy) throws FoxtrotException {
+    public List<ConsoleV2> getAllOldVersions(final String name, final String sortBy) {
         try {
             SearchHits searchHits = connection.getClient()
                     .prepareSearch(INDEX_HISTORY)
@@ -234,7 +233,7 @@ public class ElasticsearchConsolePersistence implements ConsolePersistence {
                     .execute()
                     .actionGet()
                     .getHits();
-            Vector<ConsoleV2> results = new Vector<ConsoleV2>();
+            List<ConsoleV2> results = new ArrayList<>();
             for(SearchHit searchHit : CollectionUtils.nullAndEmptySafeValueList(searchHits.getHits())) {
                 results.add(mapper.readValue(searchHit.getSourceAsString(), ConsoleV2.class));
             }
@@ -245,7 +244,7 @@ public class ElasticsearchConsolePersistence implements ConsolePersistence {
     }
 
     @Override
-    public ConsoleV2 getOldVersion(final String id) throws FoxtrotException {
+    public ConsoleV2 getOldVersion(final String id) {
         try {
             GetResponse result = connection.getClient()
                     .prepareGet()
@@ -264,7 +263,7 @@ public class ElasticsearchConsolePersistence implements ConsolePersistence {
     }
 
     @Override
-    public void setOldVersionAsCurrent(final String id) throws FoxtrotException {
+    public void setOldVersionAsCurrent(final String id) {
         try {
             ConsoleV2 console = getOldVersion(id);
             saveV2(console, false);
@@ -273,7 +272,7 @@ public class ElasticsearchConsolePersistence implements ConsolePersistence {
         }
     }
 
-    private void preProcess(ConsoleV2 console, boolean newConsole) throws FoxtrotException {
+    private void preProcess(ConsoleV2 console, boolean newConsole) {
         if(console.getUpdatedAt() == 0L) {
             console.setUpdatedAt(System.currentTimeMillis());
         }
@@ -297,14 +296,11 @@ public class ElasticsearchConsolePersistence implements ConsolePersistence {
             throw new ConsolePersistenceException(console.getId(), "Updated version of console exists. Kindly refresh" + " your dashboard");
         }
 
-        String name = oldConsole.getName()
-                .replaceAll("\\s+", "_")
-                .toLowerCase();
         String sortBy = "version";
         List<ConsoleV2> consoleV2s;
         int maxOldConsoleVersion = 0;
-        consoleV2s = getAllOldVersions(name, sortBy);
-        if(consoleV2s != null && consoleV2s.size() != 0) {
+        consoleV2s = getAllOldVersions(oldConsole.getName(), sortBy);
+        if(consoleV2s != null && !consoleV2s.isEmpty()) {
             maxOldConsoleVersion = consoleV2s.get(0)
                     .getVersion();
         }
@@ -315,13 +311,11 @@ public class ElasticsearchConsolePersistence implements ConsolePersistence {
             saveOldConsole(oldConsole);
         }
         console.setUpdatedAt(System.currentTimeMillis());
-        if(newConsole) {
-            console.setVersion(version + 1);
-        }
+        console.setVersion(version + 1);
     }
 
     @Override
-    public void deleteV2(String id) throws FoxtrotException {
+    public void deleteV2(String id) {
         try {
             connection.getClient()
                     .prepareDelete()
@@ -331,14 +325,14 @@ public class ElasticsearchConsolePersistence implements ConsolePersistence {
                     .setId(id)
                     .execute()
                     .actionGet();
-            logger.info(String.format("Deleted Console : %s", id));
+            logger.info("Deleted Console : {}", id);
         } catch (Exception e) {
             throw new ConsolePersistenceException(id, "console deletion_failed", e);
         }
     }
 
     @Override
-    public void deleteOldVersion(String id) throws FoxtrotException {
+    public void deleteOldVersion(String id) {
         try {
             connection.getClient()
                     .prepareDelete()
@@ -348,13 +342,13 @@ public class ElasticsearchConsolePersistence implements ConsolePersistence {
                     .setId(id)
                     .execute()
                     .actionGet();
-            logger.info(String.format("Deleted Console : %s", id));
+            logger.info("Deleted Old Console : {}", id);
         } catch (Exception e) {
-            throw new ConsolePersistenceException(id, "console deletion_failed", e);
+            throw new ConsolePersistenceException(id, "old console deletion_failed", e);
         }
     }
 
-    private void saveOldConsole(ConsoleV2 console) throws FoxtrotException {
+    private void saveOldConsole(ConsoleV2 console) {
         String id = UUID.randomUUID()
                 .toString();
         console.setId(id);
@@ -368,7 +362,7 @@ public class ElasticsearchConsolePersistence implements ConsolePersistence {
                     .setRefreshPolicy(WriteRequest.RefreshPolicy.IMMEDIATE)
                     .execute()
                     .get();
-            logger.info(String.format("Saved Old Console : %s", console));
+            logger.info("Saved Old Console : {}", console);
         } catch (Exception e) {
             throw new ConsolePersistenceException(console.getId(), "old console save failed", e);
         }
