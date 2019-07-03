@@ -7,12 +7,12 @@ import com.flipkart.foxtrot.common.query.Query;
 import com.flipkart.foxtrot.common.query.general.MissingFilter;
 import com.flipkart.foxtrot.sql.query.FqlActionQuery;
 import com.google.common.collect.ImmutableList;
+import java.util.ArrayList;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.util.ArrayList;
-
 public class ParseTest {
+
     @Test
     public void test() throws Exception {
         //TODO
@@ -77,7 +77,6 @@ public class ParseTest {
             System.out.println(writer.writeValueAsString(request));
         }*/
 
-
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
         objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
@@ -95,7 +94,7 @@ public class ParseTest {
             query.setFilters(filters);
             FqlActionQuery fqlActionQuery = new FqlActionQuery(query, new ArrayList<>());
             Assert.assertEquals(writer.writeValueAsString(fqlActionQuery),
-                                writer.writeValueAsString(queryTranslator.translate(sql)));
+                    writer.writeValueAsString(queryTranslator.translate(sql)));
 
         }
     }

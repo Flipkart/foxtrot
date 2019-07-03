@@ -22,7 +22,12 @@ import com.flipkart.foxtrot.common.FieldMetadata;
 import com.flipkart.foxtrot.common.FieldType;
 import com.flipkart.foxtrot.common.Table;
 import com.flipkart.foxtrot.common.TableFieldMapping;
-import com.flipkart.foxtrot.common.estimation.*;
+import com.flipkart.foxtrot.common.estimation.CardinalityEstimationData;
+import com.flipkart.foxtrot.common.estimation.EstimationData;
+import com.flipkart.foxtrot.common.estimation.EstimationDataVisitor;
+import com.flipkart.foxtrot.common.estimation.FixedEstimationData;
+import com.flipkart.foxtrot.common.estimation.PercentileEstimationData;
+import com.flipkart.foxtrot.common.estimation.TermHistogramEstimationData;
 import com.flipkart.foxtrot.common.util.CollectionUtils;
 import com.flipkart.foxtrot.core.cardinality.CardinalityConfig;
 import com.flipkart.foxtrot.core.exception.FoxtrotExceptions;
@@ -42,6 +47,23 @@ import com.hazelcast.config.MapConfig;
 import com.hazelcast.config.MapStoreConfig;
 import com.hazelcast.config.NearCacheConfig;
 import com.hazelcast.core.IMap;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.ListIterator;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import lombok.SneakyThrows;
 import org.elasticsearch.action.admin.indices.mapping.get.GetMappingsResponse;
 import org.elasticsearch.action.search.MultiSearchRequestBuilder;
@@ -61,20 +83,12 @@ import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.Serializable;
-import java.util.*;
-import java.util.concurrent.TimeUnit;
-import java.util.stream.Collector;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
 /**
- * User: Santanu Sinha (santanu.sinha@flipkart.com)
- * Date: 15/03/14
- * Time: 10:11 PM
+ * User: Santanu Sinha (santanu.sinha@flipkart.com) Date: 15/03/14 Time: 10:11 PM
  */
 
 public class DistributedTableMetadataManager implements TableMetadataManager {
+
     public static final String CARDINALITY_CACHE_INDEX = "table_cardinality_cache";
     private static final Logger logger = LoggerFactory.getLogger(DistributedTableMetadataManager.class);
     private static final String DATA_MAP = "tablemetadatamap";
@@ -82,10 +96,10 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
     private static final String CARDINALITY_FIELD_MAP = "cardinalitytablefieldmap";
     private static final String CARDINALITY = "cardinality";
     private static final int PRECISION_THRESHOLD = 100;
-    private static final int TIME_TO_LIVE_CACHE = (int)TimeUnit.MINUTES.toSeconds(15);
-    private static final int TIME_TO_LIVE_TABLE_CACHE = (int)TimeUnit.DAYS.toSeconds(30);
-    private static final int TIME_TO_LIVE_CARDINALITY_CACHE = (int)TimeUnit.DAYS.toSeconds(7);
-    private static final int TIME_TO_NEAR_CACHE = (int)TimeUnit.MINUTES.toSeconds(15);
+    private static final int TIME_TO_LIVE_CACHE = (int) TimeUnit.MINUTES.toSeconds(15);
+    private static final int TIME_TO_LIVE_TABLE_CACHE = (int) TimeUnit.DAYS.toSeconds(30);
+    private static final int TIME_TO_LIVE_CARDINALITY_CACHE = (int) TimeUnit.DAYS.toSeconds(7);
+    private static final int TIME_TO_NEAR_CACHE = (int) TimeUnit.MINUTES.toSeconds(15);
     private final HazelcastConnection hazelcastConnection;
     private final ElasticsearchConnection elasticsearchConnection;
     private final ObjectMapper mapper;
@@ -114,33 +128,33 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
 
     private static <K, V> Collector<Map.Entry<K, V>, ?, List<Map<K, V>>> mapSize(int limit) {
         return Collector.of(ArrayList::new, (l, e) -> {
-            if(l.isEmpty() || l.get(l.size() - 1)
-                                      .size() == limit) {
+            if (l.isEmpty() || l.get(l.size() - 1)
+                    .size() == limit) {
                 l.add(new HashMap<>());
             }
             l.get(l.size() - 1)
                     .put(e.getKey(), e.getValue());
         }, (l1, l2) -> {
-            if(l1.isEmpty()) {
+            if (l1.isEmpty()) {
                 return l2;
             }
-            if(l2.isEmpty()) {
+            if (l2.isEmpty()) {
                 return l1;
             }
-            if(l1.get(l1.size() - 1)
-                       .size() < limit) {
+            if (l1.get(l1.size() - 1)
+                    .size() < limit) {
                 Map<K, V> map = l1.get(l1.size() - 1);
                 ListIterator<Map<K, V>> mapsIte = l2.listIterator(l2.size());
-                while(mapsIte.hasPrevious() && map.size() < limit) {
+                while (mapsIte.hasPrevious() && map.size() < limit) {
                     Iterator<Map.Entry<K, V>> ite = mapsIte.previous()
                             .entrySet()
                             .iterator();
-                    while(ite.hasNext() && map.size() < limit) {
+                    while (ite.hasNext() && map.size() < limit) {
                         Map.Entry<K, V> entry = ite.next();
                         map.put(entry.getKey(), entry.getValue());
                         ite.remove();
                     }
-                    if(! ite.hasNext()) {
+                    if (!ite.hasNext()) {
                         mapsIte.remove();
                     }
                 }
@@ -148,10 +162,6 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
             l1.addAll(l2);
             return l1;
         });
-    }
-
-    public boolean cardinalityCacheContains(String table) {
-        return fieldDataCardinalityCache.containsKey(table);
     }
 
     private MapConfig tableMapConfig() {
@@ -204,6 +214,10 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
         return mapConfig;
     }
 
+    public boolean cardinalityCacheContains(String table) {
+        return fieldDataCardinalityCache.containsKey(table);
+    }
+
     @Override
     public void save(Table table) {
         logger.info("Saving Table : {}", table);
@@ -214,7 +228,7 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
     @Override
     public Table get(String tableName) {
         logger.debug("Getting Table : {}", tableName);
-        if(tableDataStore.containsKey(tableName)) {
+        if (tableDataStore.containsKey(tableName)) {
             return tableDataStore.get(tableName);
         }
         return null;
@@ -223,7 +237,7 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
     @Override
     @SneakyThrows
     public List<Table> get() {
-        if(0 == tableDataStore.size()) { //HACK::Check https://github.com/hazelcast/hazelcast/issues/1404
+        if (0 == tableDataStore.size()) { //HACK::Check https://github.com/hazelcast/hazelcast/issues/1404
             return Collections.emptyList();
         }
         ArrayList<Table> tables = Lists.newArrayList(tableDataStore.values());
@@ -237,20 +251,20 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
     public TableFieldMapping getFieldMappings(String tableName, boolean withCardinality, boolean calculateCardinality) {
         final String table = ElasticsearchUtils.getValidTableName(tableName);
 
-        if(! tableDataStore.containsKey(table)) {
+        if (!tableDataStore.containsKey(table)) {
             throw FoxtrotExceptions.createBadRequestException(table, String.format("unknown_table table:%s", table));
         }
-        if(fieldDataCardinalityCache.size() == 0) {
+        if (fieldDataCardinalityCache.size() == 0) {
             initializeCardinalityCache();
         }
         TableFieldMapping tableFieldMapping;
-        if(fieldDataCache.containsKey(table) && ! withCardinality) {
+        if (fieldDataCache.containsKey(table) && !withCardinality) {
             tableFieldMapping = fieldDataCache.get(table);
-        } else if(fieldDataCardinalityCache.containsKey(table) && withCardinality && ! calculateCardinality) {
+        } else if (fieldDataCardinalityCache.containsKey(table) && withCardinality && !calculateCardinality) {
             tableFieldMapping = fieldDataCardinalityCache.get(table);
         } else {
             tableFieldMapping = getTableFieldMapping(table);
-            if(calculateCardinality) {
+            if (calculateCardinality) {
                 estimateCardinality(table, tableFieldMapping.getMappings(), DateTime.now()
                         .minusDays(1)
                         .toDate()
@@ -264,14 +278,23 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
         return TableFieldMapping.builder()
                 .table(table)
                 .mappings(tableFieldMapping.getMappings()
-                                  .stream()
-                                  .map(x -> FieldMetadata.builder()
-                                          .field(x.getField())
-                                          .type(x.getType())
-                                          .estimationData(withCardinality ? x.getEstimationData() : null)
-                                          .build())
-                                  .collect(Collectors.toSet()))
+                        .stream()
+                        .map(x -> FieldMetadata.builder()
+                                .field(x.getField())
+                                .type(x.getType())
+                                .estimationData(withCardinality ? x.getEstimationData() : null)
+                                .build())
+                        .collect(Collectors.toSet()))
                 .build();
+    }
+
+    @Override
+    public void updateEstimationData(final String table, long timestamp) {
+        if (!tableDataStore.containsKey(table)) {
+            throw FoxtrotExceptions.createBadRequestException(table, String.format("unknown_table table:%s", table));
+        }
+        final TableFieldMapping tableFieldMapping = getFieldMappings(table, cardinalityConfig.isEnabled(), false);
+        fieldDataCache.put(table, tableFieldMapping);
     }
 
     private TableFieldMapping getTableFieldMapping(String table) {
@@ -285,12 +308,12 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
                 .execute()
                 .actionGet();
         Set<String> indicesName = Sets.newHashSet();
-        for(ObjectCursor<String> index : mappingsResponse.getMappings()
+        for (ObjectCursor<String> index : mappingsResponse.getMappings()
                 .keys()) {
             indicesName.add(index.value);
         }
         List<FieldMetadata> fieldMetadata = indicesName.stream()
-                .filter(x -> ! CollectionUtils.isNullOrEmpty(x))
+                .filter(x -> !CollectionUtils.isNullOrEmpty(x))
                 .sorted((lhs, rhs) -> {
                     Date lhsDate = ElasticsearchUtils.parseIndexDate(lhs, table)
                             .toDate();
@@ -305,7 +328,7 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
                     try {
                         return mappingParser.getFieldMappings(mappingData)
                                 .stream();
-                    } catch(Exception e) {
+                    } catch (Exception e) {
                         logger.error("Could not read mapping from " + mappingData, e);
                         return Stream.empty();
                     }
@@ -316,17 +339,8 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
         return new TableFieldMapping(table, fieldMetadataTreeSet);
     }
 
-    @Override
-    public void updateEstimationData(final String table, long timestamp) {
-        if(! tableDataStore.containsKey(table)) {
-            throw FoxtrotExceptions.createBadRequestException(table, String.format("unknown_table table:%s", table));
-        }
-        final TableFieldMapping tableFieldMapping = getFieldMappings(table, cardinalityConfig.isEnabled(), false);
-        fieldDataCache.put(table, tableFieldMapping);
-    }
-
     private void estimateCardinality(final String table, final Collection<FieldMetadata> fields, long time) {
-        if(CollectionUtils.isNullOrEmpty(fields)) {
+        if (CollectionUtils.isNullOrEmpty(fields)) {
             logger.warn("No fields.. Nothing to query");
             return;
         }
@@ -341,11 +355,47 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
                 .setEstimationData(value));
     }
 
+    private void saveCardinalityCache(String table, TableFieldMapping tableFieldMapping) {
+        try {
+            elasticsearchConnection.getClient()
+                    .prepareIndex()
+                    .setIndex(CARDINALITY_CACHE_INDEX)
+                    .setType(ElasticsearchUtils.DOCUMENT_TYPE_NAME)
+                    .setId(table)
+                    .setSource(mapper.writeValueAsBytes(tableFieldMapping), XContentType.JSON)
+                    .execute()
+                    .get(2, TimeUnit.SECONDS);
+        } catch (Exception e) {
+            logger.error("Error in saving cardinality cache: " + e.getMessage(), e);
+        }
+    }
+
+    private List<TableFieldMapping> getAllCardinalityCache() {
+        int maxSize = 1000;
+        List<TableFieldMapping> tableFieldMappings = new ArrayList<>();
+        try {
+            SearchResponse response = elasticsearchConnection.getClient()
+                    .prepareSearch(CARDINALITY_CACHE_INDEX)
+                    .setTypes(ElasticsearchUtils.DOCUMENT_TYPE_NAME)
+                    .setSize(maxSize)
+                    .execute()
+                    .actionGet();
+            for (SearchHit hit : com.collections.CollectionUtils.nullAndEmptySafeValueList(response.getHits()
+                    .getHits())) {
+                tableFieldMappings.add(mapper.readValue(hit.getSourceAsString(), TableFieldMapping.class));
+            }
+            return tableFieldMappings;
+        } catch (Exception e) {
+            logger.error("Error in getting cardinality caches: " + e.getMessage(), e);
+            return Collections.emptyList();
+        }
+    }
+
     private Map<String, EstimationData> estimateFirstPhaseData(String table, String index, Client client,
             Map<String, FieldMetadata> fields) {
         Map<String, EstimationData> estimationDataMap = Maps.newHashMap();
         int subListSize;
-        if(cardinalityConfig == null || cardinalityConfig.getSubListSize() == 0) {
+        if (cardinalityConfig == null || cardinalityConfig.getSubListSize() == 0) {
             subListSize = ElasticsearchUtils.DEFAULT_SUB_LIST_SIZE;
         } else {
             subListSize = cardinalityConfig.getSubListSize();
@@ -355,7 +405,7 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
                 .stream()
                 .collect(mapSize(subListSize));
 
-        for(Map<String, FieldMetadata> innerMap : listOfMaps) {
+        for (Map<String, FieldMetadata> innerMap : listOfMaps) {
             MultiSearchRequestBuilder multiQuery = client.prepareMultiSearch();
             innerMap.values()
                     .forEach(fieldMetadata -> {
@@ -364,7 +414,7 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
                                 .setIndicesOptions(Utils.indicesOptions())
                                 .setQuery(QueryBuilders.existsQuery(field))
                                 .setSize(0);
-                        switch(fieldMetadata.getType()) {
+                        switch (fieldMetadata.getType()) {
                             case STRING:
                                 evaluateStringAggregation(table, field, fieldMetadata.getType(), query);
                                 break;
@@ -389,18 +439,95 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
                         .actionGet();
             } finally {
                 logger.info("Cardinality query on table {} for {} fields took {} ms", table, fields.size(),
-                            stopwatch.elapsed(TimeUnit.MILLISECONDS));
+                        stopwatch.elapsed(TimeUnit.MILLISECONDS));
             }
             handleFirstPhaseMultiSearchResponse(multiResponse, table, fields, estimationDataMap);
         }
         return estimationDataMap;
     }
 
+    private Map<String, EstimationData> estimateSecondPhaseData(String table, String index, Client client,
+            Map<String, EstimationData> estimationData) {
+        long maxDocuments = estimationData.values()
+                .stream()
+                .map(EstimationData::getCount)
+                .max(Comparator.naturalOrder())
+                .orElse(0L);
+        if (maxDocuments == 0) {
+            return estimationData;
+        }
+
+        MultiSearchRequestBuilder multiQuery = client.prepareMultiSearch();
+        estimationData.forEach((key, value) -> value.accept(new EstimationDataVisitor<Void>() {
+            @Override
+            public Void visit(FixedEstimationData fixedEstimationData) {
+                return null;
+            }
+
+            @Override
+            public Void visit(PercentileEstimationData percentileEstimationData) {
+                return null;
+            }
+
+            @Override
+            public Void visit(CardinalityEstimationData cardinalityEstimationData) {
+                if (cardinalityEstimationData.getCount() > 0 && cardinalityEstimationData.getCardinality() > 0) {
+                    int countToCardinalityRatio =
+                            (int) (cardinalityEstimationData.getCount() / cardinalityEstimationData.getCardinality());
+                    int documentToCountRatio = (int) (maxDocuments / cardinalityEstimationData.getCount());
+                    if (cardinalityEstimationData.getCardinality() <= 100 ||
+                            (countToCardinalityRatio > 100 && documentToCountRatio < 100 &&
+                                    cardinalityEstimationData.getCardinality() <= 5000)) {
+                        logger.info("field:{} maxCount:{} countToCardinalityRatio:{} documentToCountRatio:{}", key,
+                                maxDocuments, countToCardinalityRatio, documentToCountRatio);
+                        SearchRequestBuilder query = client.prepareSearch(index)
+                                .setIndicesOptions(Utils.indicesOptions())
+                                .setQuery(QueryBuilders.existsQuery(key))
+                                .addAggregation(AggregationBuilders.terms(key)
+                                        .field(key)
+                                        .size(ElasticsearchQueryUtils.QUERY_SIZE))
+                                .setSize(0);
+                        multiQuery.add(query);
+                    }
+                }
+                return null;
+            }
+
+            @Override
+            public Void visit(TermHistogramEstimationData termHistogramEstimationData) {
+                return null;
+            }
+        }));
+
+        Map<String, EstimationData> estimationDataMap = Maps.newHashMap(estimationData);
+        MultiSearchResponse multiResponse = multiQuery.execute()
+                .actionGet();
+        handleSecondPhaseMultiSearchResponse(multiResponse, table, estimationDataMap);
+        return estimationDataMap;
+    }
+
+    private void evaluateStringAggregation(String table, String field, FieldType type, SearchRequestBuilder query) {
+        logger.info("table:{} field:{} type:{} aggregationType:{}", table, field, type, CARDINALITY);
+        query.addAggregation(AggregationBuilders.cardinality(field)
+                .field(field)
+                .precisionThreshold(PRECISION_THRESHOLD));
+    }
+
+    private void evaluateDoubleAggregation(String table, String field, FieldType type, SearchRequestBuilder query) {
+        logger.info("table:{} field:{} type:{} aggregationType:{}", table, field, type, "percentile");
+        query.addAggregation(AggregationBuilders.percentiles(field)
+                .field(field)
+                .percentiles(10, 20, 30, 40, 50, 60, 70, 80, 90, 100));
+        query.addAggregation(AggregationBuilders.cardinality("_" + field)
+                .field(field)
+                .precisionThreshold(PRECISION_THRESHOLD));
+    }
+
     private void handleFirstPhaseMultiSearchResponse(MultiSearchResponse multiResponse, String table,
             Map<String, FieldMetadata> fields, Map<String, EstimationData> estimationDataMap) {
-        for(MultiSearchResponse.Item item : multiResponse.getResponses()) {
+        for (MultiSearchResponse.Item item : multiResponse.getResponses()) {
             SearchResponse response = validateAndGetSearchResponse(item, table);
-            if(null == response) {
+            if (null == response) {
                 continue;
             }
             final long hits = response.getHits()
@@ -409,13 +536,13 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
                     .asMap();
             output.forEach((key, value) -> {
                 FieldMetadata fieldMetadata = fields.get(key);
-                if(fieldMetadata == null) {
+                if (fieldMetadata == null) {
                     fieldMetadata = fields.get(key.replace("_", ""));
                 }
-                if(fieldMetadata == null) {
+                if (fieldMetadata == null) {
                     return;
                 }
-                switch(fieldMetadata.getType()) {
+                switch (fieldMetadata.getType()) {
                     case STRING:
                         evaluateStringEstimation(value, table, key, fieldMetadata.getType(), estimationDataMap, hits);
                         break;
@@ -437,28 +564,47 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
         }
     }
 
-    private void evaluateStringAggregation(String table, String field, FieldType type, SearchRequestBuilder query) {
-        logger.info("table:{} field:{} type:{} aggregationType:{}", table, field, type, CARDINALITY);
-        query.addAggregation(AggregationBuilders.cardinality(field)
-                                     .field(field)
-                                     .precisionThreshold(PRECISION_THRESHOLD));
+    private void handleSecondPhaseMultiSearchResponse(MultiSearchResponse multiResponse, String table,
+            Map<String, EstimationData> estimationDataMap) {
+        for (MultiSearchResponse.Item item : multiResponse.getResponses()) {
+            SearchResponse response = validateAndGetSearchResponse(item, table);
+            if (null == response) {
+                continue;
+            }
+            final long hits = response.getHits()
+                    .getTotalHits();
+            Map<String, Aggregation> output = response.getAggregations()
+                    .asMap();
+            output.forEach((key, value) -> {
+                Terms terms = (Terms) output.get(key);
+                estimationDataMap.put(key, TermHistogramEstimationData.builder()
+                        .count(hits)
+                        .termCounts(terms.getBuckets()
+                                .stream()
+                                .collect(Collectors.toMap(Terms.Bucket::getKeyAsString,
+                                        Terms.Bucket::getDocCount)))
+                        .build());
+            });
+        }
     }
 
-    private void evaluateDoubleAggregation(String table, String field, FieldType type, SearchRequestBuilder query) {
-        logger.info("table:{} field:{} type:{} aggregationType:{}", table, field, type, "percentile");
-        query.addAggregation(AggregationBuilders.percentiles(field)
-                                     .field(field)
-                                     .percentiles(10, 20, 30, 40, 50, 60, 70, 80, 90, 100));
-        query.addAggregation(AggregationBuilders.cardinality("_" + field)
-                                     .field(field)
-                                     .precisionThreshold(PRECISION_THRESHOLD));
+    private SearchResponse validateAndGetSearchResponse(MultiSearchResponse.Item item, String table) {
+        if (item.isFailure()) {
+            logger.info("FailureInDeducingCardinality table:{} failureMessage:{}", table, item.getFailureMessage());
+            return null;
+        }
+        SearchResponse response = item.getResponse();
+        if (null == response.getAggregations()) {
+            return null;
+        }
+        return response;
     }
 
     private void evaluateStringEstimation(Aggregation value, String table, String key, FieldType type,
             Map<String, EstimationData> estimationDataMap, long hits) {
-        Cardinality cardinality = (Cardinality)value;
+        Cardinality cardinality = (Cardinality) value;
         logger.info("table:{} field:{} type:{} aggregationType:{} value:{} ", table, key, type, CARDINALITY,
-                    cardinality.getValue());
+                cardinality.getValue());
         estimationDataMap.put(key, CardinalityEstimationData.builder()
                 .cardinality(cardinality.getValue())
                 .count(hits)
@@ -467,25 +613,25 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
 
     private void evaluateDoubleEstimation(Aggregation value, String table, String key, FieldType type,
             Map<String, EstimationData> estimationDataMap, long hits) {
-        if(value instanceof Percentiles) {
-            Percentiles percentiles = (Percentiles)value;
+        if (value instanceof Percentiles) {
+            Percentiles percentiles = (Percentiles) value;
             double[] values = new double[10];
-            for(int i = 10; i <= 100; i += 10) {
+            for (int i = 10; i <= 100; i += 10) {
                 values[(i / 10) - 1] = percentiles.percentile(i);
             }
             logger.info("table:{} field:{} type:{} aggregationType:{} value:{}", table, key, type, "percentile",
-                        values);
+                    values);
             estimationDataMap.put(key, PercentileEstimationData.builder()
                     .values(values)
                     .count(hits)
                     .build());
-        } else if(value instanceof Cardinality) {
-            Cardinality cardinality = (Cardinality)value;
+        } else if (value instanceof Cardinality) {
+            Cardinality cardinality = (Cardinality) value;
             logger.info("table:{} field:{} type:{} aggregationType:{} value:{}", table, key, type, CARDINALITY,
-                        cardinality.getValue());
+                    cardinality.getValue());
             EstimationData estimationData = estimationDataMap.get(key.replace("_", ""));
-            if(estimationData instanceof PercentileEstimationData) {
-                ((PercentileEstimationData)estimationData).setCardinality(cardinality.getValue());
+            if (estimationData instanceof PercentileEstimationData) {
+                ((PercentileEstimationData) estimationData).setCardinality(cardinality.getValue());
             } else {
                 estimationDataMap.put(key.replace("_", ""), PercentileEstimationData.builder()
                         .cardinality(cardinality.getValue())
@@ -500,103 +646,6 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
                 .build());
     }
 
-    private Map<String, EstimationData> estimateSecondPhaseData(String table, String index, Client client,
-            Map<String, EstimationData> estimationData) {
-        long maxDocuments = estimationData.values()
-                .stream()
-                .map(EstimationData::getCount)
-                .max(Comparator.naturalOrder())
-                .orElse(0L);
-        if(maxDocuments == 0) {
-            return estimationData;
-        }
-
-        MultiSearchRequestBuilder multiQuery = client.prepareMultiSearch();
-        estimationData.forEach((key, value) -> value.accept(new EstimationDataVisitor<Void>() {
-            @Override
-            public Void visit(FixedEstimationData fixedEstimationData) {
-                return null;
-            }
-
-            @Override
-            public Void visit(PercentileEstimationData percentileEstimationData) {
-                return null;
-            }
-
-            @Override
-            public Void visit(CardinalityEstimationData cardinalityEstimationData) {
-                if(cardinalityEstimationData.getCount() > 0 && cardinalityEstimationData.getCardinality() > 0) {
-                    int countToCardinalityRatio =
-                            (int)(cardinalityEstimationData.getCount() / cardinalityEstimationData.getCardinality());
-                    int documentToCountRatio = (int)(maxDocuments / cardinalityEstimationData.getCount());
-                    if(cardinalityEstimationData.getCardinality() <= 100 ||
-                       (countToCardinalityRatio > 100 && documentToCountRatio < 100 &&
-                        cardinalityEstimationData.getCardinality() <= 5000)) {
-                        logger.info("field:{} maxCount:{} countToCardinalityRatio:{} documentToCountRatio:{}", key,
-                                    maxDocuments, countToCardinalityRatio, documentToCountRatio);
-                        SearchRequestBuilder query = client.prepareSearch(index)
-                                .setIndicesOptions(Utils.indicesOptions())
-                                .setQuery(QueryBuilders.existsQuery(key))
-                                .addAggregation(AggregationBuilders.terms(key)
-                                                        .field(key)
-                                                        .size(ElasticsearchQueryUtils.QUERY_SIZE))
-                                .setSize(0);
-                        multiQuery.add(query);
-                    }
-                }
-                return null;
-            }
-
-            @Override
-            public Void visit(TermHistogramEstimationData termHistogramEstimationData) {
-                return null;
-            }
-        }));
-
-
-        Map<String, EstimationData> estimationDataMap = Maps.newHashMap(estimationData);
-        MultiSearchResponse multiResponse = multiQuery.execute()
-                .actionGet();
-        handleSecondPhaseMultiSearchResponse(multiResponse, table, estimationDataMap);
-        return estimationDataMap;
-    }
-
-    private void handleSecondPhaseMultiSearchResponse(MultiSearchResponse multiResponse, String table,
-            Map<String, EstimationData> estimationDataMap) {
-        for(MultiSearchResponse.Item item : multiResponse.getResponses()) {
-            SearchResponse response = validateAndGetSearchResponse(item, table);
-            if(null == response) {
-                continue;
-            }
-            final long hits = response.getHits()
-                    .getTotalHits();
-            Map<String, Aggregation> output = response.getAggregations()
-                    .asMap();
-            output.forEach((key, value) -> {
-                Terms terms = (Terms)output.get(key);
-                estimationDataMap.put(key, TermHistogramEstimationData.builder()
-                        .count(hits)
-                        .termCounts(terms.getBuckets()
-                                            .stream()
-                                            .collect(Collectors.toMap(Terms.Bucket::getKeyAsString,
-                                                                      Terms.Bucket::getDocCount)))
-                        .build());
-            });
-        }
-    }
-
-    private SearchResponse validateAndGetSearchResponse(MultiSearchResponse.Item item, String table) {
-        if(item.isFailure()) {
-            logger.info("FailureInDeducingCardinality table:{} failureMessage:{}", table, item.getFailureMessage());
-            return null;
-        }
-        SearchResponse response = item.getResponse();
-        if(null == response.getAggregations()) {
-            return null;
-        }
-        return response;
-    }
-
     @Override
     public boolean exists(String tableName) {
         return tableDataStore.containsKey(tableName);
@@ -605,10 +654,18 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
     @Override
     public void delete(String tableName) {
         logger.info("Deleting Table : {}", tableName);
-        if(tableDataStore.containsKey(tableName)) {
+        if (tableDataStore.containsKey(tableName)) {
             tableDataStore.delete(tableName);
         }
         logger.info("Deleted Table : {}", tableName);
+    }
+
+    @Override
+    public void initializeCardinalityCache() {
+        List<TableFieldMapping> tableFieldMappings = getAllCardinalityCache();
+        for (TableFieldMapping tableFieldMapping : com.collections.CollectionUtils.nullSafeList(tableFieldMappings)) {
+            fieldDataCardinalityCache.put(tableFieldMapping.getTable(), tableFieldMapping);
+        }
     }
 
     @Override
@@ -626,61 +683,17 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
         //do nothing
     }
 
-    private void saveCardinalityCache(String table, TableFieldMapping tableFieldMapping) {
-        try {
-            elasticsearchConnection.getClient()
-                    .prepareIndex()
-                    .setIndex(CARDINALITY_CACHE_INDEX)
-                    .setType(ElasticsearchUtils.DOCUMENT_TYPE_NAME)
-                    .setId(table)
-                    .setSource(mapper.writeValueAsBytes(tableFieldMapping), XContentType.JSON)
-                    .execute()
-                    .get(2, TimeUnit.SECONDS);
-        } catch(Exception e) {
-            logger.error("Error in saving cardinality cache: " + e.getMessage(), e);
-        }
-    }
-
-    private List<TableFieldMapping> getAllCardinalityCache() {
-        int maxSize = 1000;
-        List<TableFieldMapping> tableFieldMappings = new ArrayList<>();
-        try {
-            SearchResponse response = elasticsearchConnection.getClient()
-                    .prepareSearch(CARDINALITY_CACHE_INDEX)
-                    .setTypes(ElasticsearchUtils.DOCUMENT_TYPE_NAME)
-                    .setSize(maxSize)
-                    .execute()
-                    .actionGet();
-            for(SearchHit hit : com.collections.CollectionUtils.nullAndEmptySafeValueList(response.getHits()
-                                                                                                  .getHits())) {
-                tableFieldMappings.add(mapper.readValue(hit.getSourceAsString(), TableFieldMapping.class));
-            }
-            return tableFieldMappings;
-        } catch(Exception e) {
-            logger.error("Error in getting cardinality caches: " + e.getMessage(), e);
-            return Collections.emptyList();
-        }
-    }
-
-    @Override
-    public void initializeCardinalityCache() {
-        List<TableFieldMapping> tableFieldMappings = getAllCardinalityCache();
-        for(TableFieldMapping tableFieldMapping : com.collections.CollectionUtils.nullSafeList(tableFieldMappings)) {
-            fieldDataCardinalityCache.put(tableFieldMapping.getTable(), tableFieldMapping);
-        }
-    }
-
     private static class FieldMetadataComparator implements Comparator<FieldMetadata>, Serializable {
 
         private static final long serialVersionUID = 8557746595191991528L;
 
         @Override
         public int compare(FieldMetadata o1, FieldMetadata o2) {
-            if(o1 == null && o2 == null) {
+            if (o1 == null && o2 == null) {
                 return 0;
-            } else if(o1 == null) {
-                return - 1;
-            } else if(o2 == null) {
+            } else if (o1 == null) {
+                return -1;
+            } else if (o2 == null) {
                 return 1;
             } else {
                 return o1.getField()

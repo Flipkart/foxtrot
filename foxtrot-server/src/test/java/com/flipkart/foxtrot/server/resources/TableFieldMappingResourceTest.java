@@ -1,19 +1,24 @@
 /**
  * Copyright 2014 Flipkart Internet Pvt. Ltd.
  * <p>
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
  * <p>
  * http://www.apache.org/licenses/LICENSE-2.0
  * <p>
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
+ * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations under the License.
  */
 package com.flipkart.foxtrot.server.resources;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import com.flipkart.foxtrot.common.FieldMetadata;
 import com.flipkart.foxtrot.common.FieldType;
@@ -22,22 +27,17 @@ import com.flipkart.foxtrot.core.TestUtils;
 import com.flipkart.foxtrot.core.table.impl.FoxtrotTableManager;
 import com.flipkart.foxtrot.server.providers.exception.FoxtrotExceptionMapper;
 import io.dropwizard.testing.junit.ResourceTestRule;
-import org.junit.Assert;
-import org.junit.Ignore;
-import org.junit.Rule;
-import org.junit.Test;
-
-import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.GenericType;
-import javax.ws.rs.core.Response;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-
-import static org.junit.Assert.*;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.*;
+import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.GenericType;
+import javax.ws.rs.core.Response;
+import org.junit.Assert;
+import org.junit.Ignore;
+import org.junit.Rule;
+import org.junit.Test;
 
 /**
  * Created by rishabh.goyal on 06/05/14.
@@ -68,53 +68,53 @@ public class TableFieldMappingResourceTest extends FoxtrotResourceTest {
 
         Set<FieldMetadata> mappings = new HashSet<>();
         mappings.add(FieldMetadata.builder()
-                             .field("time")
-                             .type(FieldType.LONG)
-                             .build());
+                .field("time")
+                .type(FieldType.LONG)
+                .build());
         mappings.add(FieldMetadata.builder()
-                             .field("word")
-                             .type(FieldType.STRING)
-                             .build());
+                .field("word")
+                .type(FieldType.STRING)
+                .build());
         mappings.add(FieldMetadata.builder()
-                             .field("data.data")
-                             .type(FieldType.STRING)
-                             .build());
+                .field("data.data")
+                .type(FieldType.STRING)
+                .build());
         mappings.add(FieldMetadata.builder()
-                             .field("header.hello")
-                             .type(FieldType.STRING)
-                             .build());
+                .field("header.hello")
+                .type(FieldType.STRING)
+                .build());
         mappings.add(FieldMetadata.builder()
-                             .field("head.hello")
-                             .type(FieldType.LONG)
-                             .build());
+                .field("head.hello")
+                .type(FieldType.LONG)
+                .build());
         mappings.add(FieldMetadata.builder()
-                             .field("date.dayOfWeek")
-                             .type(FieldType.LONG)
-                             .build());
+                .field("date.dayOfWeek")
+                .type(FieldType.LONG)
+                .build());
         mappings.add(FieldMetadata.builder()
-                             .field("date.minuteOfDay")
-                             .type(FieldType.LONG)
-                             .build());
+                .field("date.minuteOfDay")
+                .type(FieldType.LONG)
+                .build());
         mappings.add(FieldMetadata.builder()
-                             .field("date.monthOfYear")
-                             .type(FieldType.LONG)
-                             .build());
+                .field("date.monthOfYear")
+                .type(FieldType.LONG)
+                .build());
         mappings.add(FieldMetadata.builder()
-                             .field("date.hourOfDay")
-                             .type(FieldType.LONG)
-                             .build());
+                .field("date.hourOfDay")
+                .type(FieldType.LONG)
+                .build());
         mappings.add(FieldMetadata.builder()
-                             .field("date.year")
-                             .type(FieldType.LONG)
-                             .build());
+                .field("date.year")
+                .type(FieldType.LONG)
+                .build());
         mappings.add(FieldMetadata.builder()
-                             .field("date.dayOfMonth")
-                             .type(FieldType.LONG)
-                             .build());
+                .field("date.dayOfMonth")
+                .type(FieldType.LONG)
+                .build());
         mappings.add(FieldMetadata.builder()
-                             .field("date.minuteOfHour")
-                             .type(FieldType.LONG)
-                             .build());
+                .field("date.minuteOfHour")
+                .type(FieldType.LONG)
+                .build());
 
         TableFieldMapping tableFieldMapping = new TableFieldMapping(TestUtils.TEST_TABLE_NAME, mappings);
         String response = resources.client()
@@ -125,7 +125,7 @@ public class TableFieldMappingResourceTest extends FoxtrotResourceTest {
         TableFieldMapping mapping = getMapper().readValue(response, TableFieldMapping.class);
         assertEquals(tableFieldMapping.getTable(), mapping.getTable());
         assertTrue(tableFieldMapping.getMappings()
-                           .equals(mapping.getMappings()));
+                .equals(mapping.getMappings()));
     }
 
     @Test
@@ -135,7 +135,7 @@ public class TableFieldMappingResourceTest extends FoxtrotResourceTest {
                     .target(String.format("/v1/tables/%s/fields", TestUtils.TEST_TABLE_NAME + "-missing"))
                     .request()
                     .head();
-        } catch(WebApplicationException ex) {
+        } catch (WebApplicationException ex) {
             assertEquals(Response.Status.NOT_FOUND.getStatusCode(), ex.getResponse()
                     .getStatus());
         }
@@ -164,7 +164,8 @@ public class TableFieldMappingResourceTest extends FoxtrotResourceTest {
         Map<String, TableFieldMapping> response = resources.client()
                 .target("/v1/tables/fields")
                 .request()
-                .get(new GenericType<Map<String, TableFieldMapping>>() {});
+                .get(new GenericType<Map<String, TableFieldMapping>>() {
+                });
         //System.out.println(new ObjectMapper().writerWithDefaultPrettyPrinter().writeValueAsString(response));
         Assert.assertFalse(response.isEmpty());
         Assert.assertEquals(1, response.size());

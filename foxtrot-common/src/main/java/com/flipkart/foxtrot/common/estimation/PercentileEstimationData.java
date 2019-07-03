@@ -1,11 +1,10 @@
 package com.flipkart.foxtrot.common.estimation;
 
+import java.util.Arrays;
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
-
-import java.util.Arrays;
 
 /**
  *
@@ -14,7 +13,8 @@ import java.util.Arrays;
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
 public class PercentileEstimationData extends EstimationData {
-    private static final long serialVersionUID = - 4790803356348252020L;
+
+    private static final long serialVersionUID = -4790803356348252020L;
 
     private double[] values;
     private long cardinality;

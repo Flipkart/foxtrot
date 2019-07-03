@@ -23,24 +23,27 @@ import com.flipkart.foxtrot.server.config.SegregationConfiguration;
 import com.google.common.collect.Lists;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
-import javax.ws.rs.*;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
 import java.net.URI;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
- * User: Santanu Sinha (santanu.sinha@flipkart.com)
- * Date: 15/03/14
- * Time: 10:55 PM
+ * User: Santanu Sinha (santanu.sinha@flipkart.com) Date: 15/03/14 Time: 10:55 PM
  */
 @Path("/v1/document/{table}")
 @Produces(MediaType.APPLICATION_JSON)
@@ -67,15 +70,56 @@ public class DocumentResource {
     @ApiOperation("Save Document")
     public Response saveDocument(@PathParam("table") String table, @Valid final Document document) {
         String tableName = preProcess(table, document);
-        if(tableName != null) {
+        if (tableName != null) {
             queryStore.save(tableName, document);
         }
-        if(tableName != null && ! table.equals(tableName) && tablesToBeDuplicated != null &&
-           tablesToBeDuplicated.contains(tableName)) {
+        if (tableName != null && !table.equals(tableName) && tablesToBeDuplicated != null &&
+                tablesToBeDuplicated.contains(tableName)) {
             queryStore.save(table, document);
         }
         return Response.created(URI.create("/" + document.getId()))
                 .build();
+    }
+
+    private String preProcess(String table, Document document) {
+        if (document.getData()
+                .has(EVENT_TYPE)) {
+            String eventType = document.getData()
+                    .get(EVENT_TYPE)
+                    .asText();
+            if (eventToBeIgnored(table, eventType)) {
+                LOGGER.info("Skipped event for table: {} with eventType: {} Document: {}", table, eventType, document);
+                return null;
+            }
+            return getSegregatedTableName(table, eventType);
+        }
+        return table;
+    }
+
+    private boolean eventToBeIgnored(String table, String eventType) {
+        return (ignoredEventConfigs != null && ignoredEventConfigs.containsKey(table) && ignoredEventConfigs.get(table)
+                .contains(eventType));
+    }
+
+    private String getSegregatedTableName(String table, String eventType) {
+        if (tableEventConfigs != null && tableEventConfigs.containsKey(table)) {
+            String tableName = getTableForEventType(tableEventConfigs.get(table), eventType);
+            if (tableName != null) {
+                return tableName;
+            }
+        }
+        return table;
+    }
+
+    private String getTableForEventType(Map<String, List<String>> tableNameVsEventTypes, String eventType) {
+        for (Map.Entry<String, List<String>> entry : CollectionUtils.nullSafeSet(tableNameVsEventTypes.entrySet())) {
+            for (String tempEventType : CollectionUtils.nullSafeList(entry.getValue())) {
+                if (tempEventType.equals(eventType)) {
+                    return entry.getKey();
+                }
+            }
+        }
+        return null;
     }
 
     @POST
@@ -85,15 +129,62 @@ public class DocumentResource {
     @ApiOperation("Save list of documents")
     public Response saveDocuments(@PathParam("table") String table, @Valid final List<Document> documents) {
         Map<String, List<Document>> tableVsDocuments = preProcessSaveDocuments(table, documents);
-        for(Map.Entry<String, List<Document>> entry : CollectionUtils.nullSafeSet(tableVsDocuments.entrySet())) {
+        for (Map.Entry<String, List<Document>> entry : CollectionUtils.nullSafeSet(tableVsDocuments.entrySet())) {
             queryStore.save(entry.getKey(), entry.getValue());
-            if(! entry.getKey()
+            if (!entry.getKey()
                     .equals(table) && tablesToBeDuplicated != null && tablesToBeDuplicated.contains(entry.getKey())) {
                 queryStore.save(table, entry.getValue());
             }
         }
         return Response.created(URI.create("/" + table))
                 .build();
+    }
+
+    private Map<String, List<Document>> preProcessSaveDocuments(String table, List<Document> documents) {
+        Map<String, List<Document>> tableVsDocuments = new HashMap<>();
+        filterValidDocuments(table, documents);
+        if (tableEventConfigs != null && tableEventConfigs.containsKey(table)) {
+            for (Document document : CollectionUtils.nullSafeList(documents)) {
+                String tableName = table;
+                if (document.getData()
+                        .has(EVENT_TYPE)) {
+                    String eventType = document.getData()
+                            .get(EVENT_TYPE)
+                            .asText();
+                    tableName = getSegregatedTableName(table, eventType);
+                }
+                if (tableVsDocuments.containsKey(tableName)) {
+                    tableVsDocuments.get(tableName)
+                            .add(document);
+                } else {
+                    List<Document> tableDocuments = Lists.newArrayList(document);
+                    tableVsDocuments.put(tableName, tableDocuments);
+                }
+            }
+        } else {
+            tableVsDocuments.put(table, documents);
+        }
+        return tableVsDocuments;
+    }
+
+    private List<Document> filterValidDocuments(String table, List<Document> documents) {
+        if (ignoredEventConfigs != null && ignoredEventConfigs.containsKey(table)) {
+            for (Iterator<Document> iter = documents.listIterator(); iter.hasNext(); ) {
+                Document document = iter.next();
+                if (document.getData()
+                        .has(EVENT_TYPE)) {
+                    String eventType = document.getData()
+                            .get(EVENT_TYPE)
+                            .asText();
+                    if (eventToBeIgnored(table, eventType)) {
+                        LOGGER.info("Skipped event for table: {} with eventType: {} Document: {}", table, eventType,
+                                document);
+                        iter.remove();
+                    }
+                }
+            }
+        }
+        return documents;
     }
 
     @GET
@@ -112,93 +203,5 @@ public class DocumentResource {
             @QueryParam("id") @NotNull final List<String> ids) {
         return Response.ok(queryStore.getAll(table, ids))
                 .build();
-    }
-
-    private String getTableForEventType(Map<String, List<String>> tableNameVsEventTypes, String eventType) {
-        for(Map.Entry<String, List<String>> entry : CollectionUtils.nullSafeSet(tableNameVsEventTypes.entrySet())) {
-            for(String tempEventType : CollectionUtils.nullSafeList(entry.getValue())) {
-                if(tempEventType.equals(eventType)) {
-                    return entry.getKey();
-                }
-            }
-        }
-        return null;
-    }
-
-    private boolean eventToBeIgnored(String table, String eventType) {
-        return (ignoredEventConfigs != null && ignoredEventConfigs.containsKey(table) && ignoredEventConfigs.get(table)
-                .contains(eventType));
-    }
-
-    private String getSegregatedTableName(String table, String eventType) {
-        if(tableEventConfigs != null && tableEventConfigs.containsKey(table)) {
-            String tableName = getTableForEventType(tableEventConfigs.get(table), eventType);
-            if(tableName != null) {
-                return tableName;
-            }
-        }
-        return table;
-    }
-
-    private String preProcess(String table, Document document) {
-        if(document.getData()
-                .has(EVENT_TYPE)) {
-            String eventType = document.getData()
-                    .get(EVENT_TYPE)
-                    .asText();
-            if(eventToBeIgnored(table, eventType)) {
-                LOGGER.info("Skipped event for table: {} with eventType: {} Document: {}", table, eventType, document);
-                return null;
-            }
-            return getSegregatedTableName(table, eventType);
-        }
-        return table;
-    }
-
-    private Map<String, List<Document>> preProcessSaveDocuments(String table, List<Document> documents) {
-        Map<String, List<Document>> tableVsDocuments = new HashMap<>();
-        filterValidDocuments(table, documents);
-        if(tableEventConfigs != null && tableEventConfigs.containsKey(table)) {
-            for(Document document : CollectionUtils.nullSafeList(documents)) {
-                String tableName = table;
-                if(document.getData()
-                        .has(EVENT_TYPE)) {
-                    String eventType = document.getData()
-                            .get(EVENT_TYPE)
-                            .asText();
-                    tableName = getSegregatedTableName(table, eventType);
-                }
-                if(tableVsDocuments.containsKey(tableName)) {
-                    tableVsDocuments.get(tableName)
-                            .add(document);
-                } else {
-                    List<Document> tableDocuments = Lists.newArrayList(document);
-                    tableVsDocuments.put(tableName, tableDocuments);
-                }
-            }
-        } else {
-            tableVsDocuments.put(table, documents);
-        }
-        return tableVsDocuments;
-    }
-
-    private List<Document> filterValidDocuments(String table, List<Document> documents) {
-        if(ignoredEventConfigs != null && ignoredEventConfigs.containsKey(table)) {
-            for(Iterator<Document> iter = documents.listIterator(); iter.hasNext(); ) {
-                Document document = iter.next();
-                if(document.getData()
-                        .has(EVENT_TYPE)) {
-                    String eventType = document.getData()
-                            .get(EVENT_TYPE)
-                            .asText();
-                    if(eventToBeIgnored(table, eventType)) {
-                        LOGGER.info("Skipped event for table: {} with eventType: {} Document: {}", table, eventType,
-                                    document);
-                        iter.remove();
-                    }
-                }
-            }
-        }
-        return documents;
     }
 }

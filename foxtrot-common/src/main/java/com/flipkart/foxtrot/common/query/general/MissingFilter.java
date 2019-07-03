@@ -15,6 +15,7 @@ import lombok.ToString;
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
 public class MissingFilter extends Filter {
+
     public MissingFilter() {
         super(FilterOperator.missing);
     }

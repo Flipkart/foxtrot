@@ -5,13 +5,12 @@ import com.flipkart.foxtrot.common.ActionRequestVisitor;
 import com.flipkart.foxtrot.common.Opcodes;
 import com.flipkart.foxtrot.common.Period;
 import com.flipkart.foxtrot.common.query.Filter;
+import java.util.List;
+import java.util.Set;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.lang3.builder.ToStringBuilder;
-
-import java.util.List;
-import java.util.Set;
 
 /**
  * Created by rishabh.goyal on 02/08/14.

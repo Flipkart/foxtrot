@@ -1,19 +1,20 @@
 /**
  * Copyright 2014 Flipkart Internet Pvt. Ltd.
  * <p>
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
  * <p>
  * http://www.apache.org/licenses/LICENSE-2.0
  * <p>
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
+ * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations under the License.
  */
 package com.flipkart.foxtrot.server.resources;
+
+import static com.flipkart.foxtrot.core.TestUtils.TEST_EMAIL;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 import com.flipkart.foxtrot.common.Document;
 import com.flipkart.foxtrot.common.group.GroupRequest;
@@ -22,16 +23,15 @@ import com.flipkart.foxtrot.core.TestUtils;
 import com.flipkart.foxtrot.core.common.AsyncDataToken;
 import com.flipkart.foxtrot.server.providers.exception.FoxtrotExceptionMapper;
 import io.dropwizard.testing.junit.ResourceTestRule;
-import org.junit.Rule;
-import org.junit.Test;
-
+import java.util.Arrays;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
-import java.util.*;
-
-import static com.flipkart.foxtrot.core.TestUtils.TEST_EMAIL;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import org.junit.Rule;
+import org.junit.Test;
 
 /**
  * Created by rishabh.goyal on 05/05/14.

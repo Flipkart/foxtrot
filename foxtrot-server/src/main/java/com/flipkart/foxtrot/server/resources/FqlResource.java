@@ -16,16 +16,20 @@ import com.phonepe.gandalf.models.user.UserDetails;
 import io.dropwizard.primer.auth.annotation.Authorize;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-
-import javax.ws.rs.*;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.StreamingOutput;
 import java.io.OutputStreamWriter;
 import java.util.List;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.StreamingOutput;
 
 @Path("/v1/fql")
 @Api(value = "/v1/fql")
 public class FqlResource {
+
     private FqlEngine fqlEngine;
     private FqlStoreService fqlStoreService;
     private AccessService accessService;
@@ -61,7 +65,7 @@ public class FqlResource {
 
     String getMessage(Throwable e) {
         Throwable root = e;
-        while(null != root.getCause()) {
+        while (null != root.getCause()) {
             root = root.getCause();
         }
         return root.getMessage();

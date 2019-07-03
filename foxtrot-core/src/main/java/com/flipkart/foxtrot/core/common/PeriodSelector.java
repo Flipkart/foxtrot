@@ -1,17 +1,14 @@
 /**
  * Copyright 2014 Flipkart Internet Pvt. Ltd.
  * <p/>
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
  * <p/>
  * http://www.apache.org/licenses/LICENSE-2.0
  * <p/>
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
+ * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations under the License.
  */
 
 package com.flipkart.foxtrot.core.common;
@@ -20,11 +17,14 @@ import com.flipkart.foxtrot.common.query.Filter;
 import com.flipkart.foxtrot.common.query.FilterVisitorAdapter;
 import com.flipkart.foxtrot.common.query.datetime.LastFilter;
 import com.flipkart.foxtrot.common.query.datetime.TimeWindow;
-import com.flipkart.foxtrot.common.query.numeric.*;
+import com.flipkart.foxtrot.common.query.numeric.BetweenFilter;
+import com.flipkart.foxtrot.common.query.numeric.GreaterEqualFilter;
+import com.flipkart.foxtrot.common.query.numeric.GreaterThanFilter;
+import com.flipkart.foxtrot.common.query.numeric.LessEqualFilter;
+import com.flipkart.foxtrot.common.query.numeric.LessThanFilter;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
-import org.joda.time.Interval;
-
 import java.util.List;
+import org.joda.time.Interval;
 
 public class PeriodSelector extends FilterVisitorAdapter<Void> {
 
@@ -43,13 +43,13 @@ public class PeriodSelector extends FilterVisitorAdapter<Void> {
     }
 
     public Interval analyze(long currentTime) {
-        for(Filter filter : filters) {
-            if(filter.isFilterTemporal()) {
+        for (Filter filter : filters) {
+            if (filter.isFilterTemporal()) {
                 filter.accept(this);
             }
         }
-        for(Filter filter : filters) {
-            if(ElasticsearchUtils.TIME_FIELD.equals(filter.getField())) {
+        for (Filter filter : filters) {
+            if (ElasticsearchUtils.TIME_FIELD.equals(filter.getField())) {
                 filter.accept(this);
             }
         }
@@ -60,32 +60,32 @@ public class PeriodSelector extends FilterVisitorAdapter<Void> {
 
     @Override
     public Void visit(BetweenFilter betweenFilter) {
-        timeWindow.setStartTime(Math.min((Long)betweenFilter.getFrom(), timeWindow.getStartTime()));
-        timeWindow.setEndTime(Math.max((Long)betweenFilter.getTo(), timeWindow.getEndTime()));
+        timeWindow.setStartTime(Math.min((Long) betweenFilter.getFrom(), timeWindow.getStartTime()));
+        timeWindow.setEndTime(Math.max((Long) betweenFilter.getTo(), timeWindow.getEndTime()));
         return null;
     }
 
     @Override
     public Void visit(GreaterThanFilter greaterThanFilter) {
-        timeWindow.setStartTime(Math.min((Long)greaterThanFilter.getValue() + 1, timeWindow.getStartTime()));
+        timeWindow.setStartTime(Math.min((Long) greaterThanFilter.getValue() + 1, timeWindow.getStartTime()));
         return null;
     }
 
     @Override
     public Void visit(GreaterEqualFilter greaterEqualFilter) {
-        timeWindow.setStartTime(Math.min((Long)greaterEqualFilter.getValue(), timeWindow.getStartTime()));
+        timeWindow.setStartTime(Math.min((Long) greaterEqualFilter.getValue(), timeWindow.getStartTime()));
         return null;
     }
 
     @Override
     public Void visit(LessThanFilter lessThanFilter) {
-        timeWindow.setEndTime(Math.max((Long)lessThanFilter.getValue() - 1, timeWindow.getEndTime()));
+        timeWindow.setEndTime(Math.max((Long) lessThanFilter.getValue() - 1, timeWindow.getEndTime()));
         return null;
     }
 
     @Override
     public Void visit(LessEqualFilter lessEqualFilter) {
-        timeWindow.setEndTime(Math.max((Long)lessEqualFilter.getValue(), timeWindow.getEndTime()));
+        timeWindow.setEndTime(Math.max((Long) lessEqualFilter.getValue(), timeWindow.getEndTime()));
         return null;
     }
 

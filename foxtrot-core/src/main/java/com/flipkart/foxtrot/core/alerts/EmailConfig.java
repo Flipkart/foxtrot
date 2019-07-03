@@ -13,6 +13,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Builder
 public class EmailConfig {
+
     private String host = "127.0.0.1";
     private String user;
     private String password;

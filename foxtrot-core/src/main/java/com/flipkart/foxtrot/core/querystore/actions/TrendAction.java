@@ -1,19 +1,18 @@
 /**
  * Copyright 2014 Flipkart Internet Pvt. Ltd.
  * <p>
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
  * <p>
  * http://www.apache.org/licenses/LICENSE-2.0
  * <p>
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
+ * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations under the License.
  */
 package com.flipkart.foxtrot.core.querystore.actions;
+
+import static com.flipkart.foxtrot.core.util.ElasticsearchQueryUtils.QUERY_SIZE;
 
 import com.flipkart.foxtrot.common.ActionResponse;
 import com.flipkart.foxtrot.common.Period;
@@ -33,6 +32,10 @@ import com.flipkart.foxtrot.core.querystore.query.ElasticSearchQueryGenerator;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import io.dropwizard.util.Duration;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 import org.apache.commons.lang3.StringUtils;
 import org.elasticsearch.ElasticsearchException;
 import org.elasticsearch.action.search.SearchRequestBuilder;
@@ -45,13 +48,6 @@ import org.elasticsearch.search.aggregations.bucket.histogram.Histogram;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.elasticsearch.search.aggregations.metrics.cardinality.Cardinality;
 import org.joda.time.DateTime;
-
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
-
-import static com.flipkart.foxtrot.core.util.ElasticsearchQueryUtils.QUERY_SIZE;
 
 /**
  * User: Santanu Sinha (santanu.sinha@flipkart.com)
@@ -68,9 +64,9 @@ public class TrendAction extends Action<TrendRequest> {
     @Override
     public void preprocess() {
         getParameter().setTable(ElasticsearchUtils.getValidTableName(getParameter().getTable()));
-        if(null != getParameter().getValues() && ! getParameter().getValues()
+        if (null != getParameter().getValues() && !getParameter().getValues()
                 .isEmpty()) {
-            List<Object> values = (List)getParameter().getValues();
+            List<Object> values = (List) getParameter().getValues();
             Filter filter = new InFilter(getParameter().getField(), values);
             getParameter().getFilters()
                     .add(filter);
@@ -78,30 +74,50 @@ public class TrendAction extends Action<TrendRequest> {
     }
 
     @Override
-    public String getMetricKey() {
-        return getParameter().getTable();
+    public void validateImpl(TrendRequest parameter, String email) {
+        List<String> validationErrors = Lists.newArrayList();
+        if (CollectionUtils.isNullOrEmpty(parameter.getTable())) {
+            validationErrors.add("table name cannot be null or empty");
+        }
+        if (CollectionUtils.isNullOrEmpty(parameter.getField())) {
+            validationErrors.add("field name cannot be null or empty");
+        }
+        if (CollectionUtils.isNullOrEmpty(parameter.getTimestamp())) {
+            validationErrors.add("timestamp field cannot be null or empty");
+        }
+        if (parameter.getPeriod() == null) {
+            validationErrors.add(String.format("specify time period (%s)", StringUtils.join(Period.values())));
+        }
+
+        if (parameter.getUniqueCountOn() != null && parameter.getUniqueCountOn()
+                .isEmpty()) {
+            validationErrors.add("unique field cannot be empty (can be null)");
+        }
+
+        if (!CollectionUtils.isNullOrEmpty(validationErrors)) {
+            throw FoxtrotExceptions.createMalformedQueryException(parameter, validationErrors);
+        }
     }
 
     @Override
     public String getRequestCacheKey() {
         TrendRequest query = getParameter();
         long filterHashKey = 0L;
-        if(query.getFilters() != null) {
-            for(Filter filter : query.getFilters()) {
+        if (query.getFilters() != null) {
+            for (Filter filter : query.getFilters()) {
                 filterHashKey += 31 * filter.hashCode();
             }
         }
-        if(query.getValues() != null) {
-            for(String value : query.getValues()) {
+        if (query.getValues() != null) {
+            for (String value : query.getValues()) {
                 filterHashKey += 31 * value.hashCode();
             }
         }
 
-        if(null != query.getUniqueCountOn()) {
+        if (null != query.getUniqueCountOn()) {
             filterHashKey += 31 * query.getUniqueCountOn()
                     .hashCode();
         }
-
 
         filterHashKey += 31 * query.getPeriod()
                 .name()
@@ -115,29 +131,11 @@ public class TrendAction extends Action<TrendRequest> {
     }
 
     @Override
-    public void validateImpl(TrendRequest parameter, String email) {
-        List<String> validationErrors = Lists.newArrayList();
-        if(CollectionUtils.isNullOrEmpty(parameter.getTable())) {
-            validationErrors.add("table name cannot be null or empty");
-        }
-        if(CollectionUtils.isNullOrEmpty(parameter.getField())) {
-            validationErrors.add("field name cannot be null or empty");
-        }
-        if(CollectionUtils.isNullOrEmpty(parameter.getTimestamp())) {
-            validationErrors.add("timestamp field cannot be null or empty");
-        }
-        if(parameter.getPeriod() == null) {
-            validationErrors.add(String.format("specify time period (%s)", StringUtils.join(Period.values())));
-        }
-
-        if(parameter.getUniqueCountOn() != null && parameter.getUniqueCountOn()
-                .isEmpty()) {
-            validationErrors.add("unique field cannot be empty (can be null)");
-        }
-
-        if(! CollectionUtils.isNullOrEmpty(validationErrors)) {
-            throw FoxtrotExceptions.createMalformedQueryException(parameter, validationErrors);
-        }
+    protected Filter getDefaultTimeSpan() {
+        LastFilter lastFilter = new LastFilter();
+        lastFilter.setField("_timestamp");
+        lastFilter.setDuration(Duration.days(1));
+        return lastFilter;
     }
 
     @Override
@@ -147,9 +145,14 @@ public class TrendAction extends Action<TrendRequest> {
             SearchResponse searchResponse = searchRequestBuilder.execute()
                     .actionGet(getGetQueryTimeout());
             return getResponse(searchResponse, parameter);
-        } catch(ElasticsearchException e) {
+        } catch (ElasticsearchException e) {
             throw FoxtrotExceptions.createQueryExecutionException(parameter, e);
         }
+    }
+
+    @Override
+    public String getMetricKey() {
+        return getParameter().getTable();
     }
 
     @Override
@@ -163,7 +166,7 @@ public class TrendAction extends Action<TrendRequest> {
                     .setQuery(new ElasticSearchQueryGenerator().genFilter(parameter.getFilters()))
                     .setSize(QUERY_SIZE)
                     .addAggregation(aggregationBuilder);
-        } catch(Exception e) {
+        } catch (Exception e) {
             throw FoxtrotExceptions.queryCreationException(parameter, e);
         }
         return searchRequestBuilder;
@@ -171,21 +174,12 @@ public class TrendAction extends Action<TrendRequest> {
 
     @Override
     public ActionResponse getResponse(org.elasticsearch.action.ActionResponse response, TrendRequest parameter) {
-        Aggregations aggregations = ((SearchResponse)response).getAggregations();
-        if(aggregations != null) {
+        Aggregations aggregations = ((SearchResponse) response).getAggregations();
+        if (aggregations != null) {
             return buildResponse(parameter, aggregations);
         } else {
             return new TrendResponse(Collections.<String, List<TrendResponse.Count>>emptyMap());
         }
-    }
-
-
-    @Override
-    protected Filter getDefaultTimeSpan() {
-        LastFilter lastFilter = new LastFilter();
-        lastFilter.setField("_timestamp");
-        lastFilter.setDuration(Duration.days(1));
-        return lastFilter;
     }
 
     private AbstractAggregationBuilder buildAggregation(TrendRequest request) {
@@ -193,33 +187,33 @@ public class TrendAction extends Action<TrendRequest> {
         String field = request.getField();
 
         DateHistogramAggregationBuilder histogramBuilder = Utils.buildDateHistogramAggregation(request.getTimestamp(),
-                                                                                               interval);
-        if(! CollectionUtils.isNullOrEmpty(getParameter().getUniqueCountOn())) {
+                interval);
+        if (!CollectionUtils.isNullOrEmpty(getParameter().getUniqueCountOn())) {
             histogramBuilder.subAggregation(Utils.buildCardinalityAggregation(getParameter().getUniqueCountOn()));
         }
         return Utils.buildTermsAggregation(Lists.newArrayList(new ResultSort(field, ResultSort.Order.asc)),
-                                           Sets.newHashSet(histogramBuilder));
+                Sets.newHashSet(histogramBuilder));
     }
 
     private TrendResponse buildResponse(TrendRequest request, Aggregations aggregations) {
         String field = request.getField();
         Map<String, List<TrendResponse.Count>> trendCounts = new TreeMap<>();
         Terms terms = aggregations.get(Utils.sanitizeFieldForAggregation(field));
-        for(Terms.Bucket bucket : terms.getBuckets()) {
+        for (Terms.Bucket bucket : terms.getBuckets()) {
             final String key = String.valueOf(bucket.getKey());
             List<TrendResponse.Count> counts = Lists.newArrayList();
             Aggregations subAggregations = bucket.getAggregations();
             Histogram histogram = subAggregations.get(Utils.getDateHistogramKey(request.getTimestamp()));
-            for(Histogram.Bucket histogramBucket : histogram.getBuckets()) {
-                if(! CollectionUtils.isNullOrEmpty(getParameter().getUniqueCountOn())) {
+            for (Histogram.Bucket histogramBucket : histogram.getBuckets()) {
+                if (!CollectionUtils.isNullOrEmpty(getParameter().getUniqueCountOn())) {
                     String uniqueCountKey = Utils.sanitizeFieldForAggregation(getParameter().getUniqueCountOn());
                     Cardinality cardinality = histogramBucket.getAggregations()
                             .get(uniqueCountKey);
-                    counts.add(new TrendResponse.Count(((DateTime)histogramBucket.getKey()).getMillis(),
-                                                       cardinality.getValue()));
+                    counts.add(new TrendResponse.Count(((DateTime) histogramBucket.getKey()).getMillis(),
+                            cardinality.getValue()));
                 } else {
-                    counts.add(new TrendResponse.Count(((DateTime)histogramBucket.getKey()).getMillis(),
-                                                       histogramBucket.getDocCount()));
+                    counts.add(new TrendResponse.Count(((DateTime) histogramBucket.getKey()).getMillis(),
+                            histogramBucket.getDocCount()));
                 }
             }
             trendCounts.put(key, counts);

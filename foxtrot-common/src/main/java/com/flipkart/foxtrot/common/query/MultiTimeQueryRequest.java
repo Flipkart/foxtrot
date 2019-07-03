@@ -3,12 +3,11 @@ package com.flipkart.foxtrot.common.query;
 import com.flipkart.foxtrot.common.ActionRequest;
 import com.flipkart.foxtrot.common.ActionRequestVisitor;
 import io.dropwizard.util.Duration;
+import javax.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.lang3.builder.ToStringBuilder;
-
-import javax.validation.constraints.NotNull;
 
 /***
  Created by mudit.g on Jan, 2019

@@ -1,5 +1,9 @@
 package com.flipkart.foxtrot.server.resources;
 
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.when;
+
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import com.codahale.metrics.health.HealthCheckRegistry;
@@ -20,7 +24,11 @@ import com.flipkart.foxtrot.core.exception.FoxtrotException;
 import com.flipkart.foxtrot.core.querystore.QueryExecutor;
 import com.flipkart.foxtrot.core.querystore.QueryStore;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsLoader;
-import com.flipkart.foxtrot.core.querystore.impl.*;
+import com.flipkart.foxtrot.core.querystore.impl.CacheConfig;
+import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConnection;
+import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchQueryStore;
+import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
+import com.flipkart.foxtrot.core.querystore.impl.HazelcastConnection;
 import com.flipkart.foxtrot.core.table.TableMetadataManager;
 import com.flipkart.foxtrot.core.table.impl.DistributedTableMetadataManager;
 import com.flipkart.foxtrot.core.table.impl.ElasticsearchTestUtils;
@@ -37,6 +45,8 @@ import io.dropwizard.jetty.MutableServletContextHandler;
 import io.dropwizard.lifecycle.setup.LifecycleEnvironment;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import org.elasticsearch.action.admin.indices.create.CreateIndexRequest;
 import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsRequest;
 import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsResponse;
@@ -44,11 +54,6 @@ import org.elasticsearch.common.settings.Settings;
 import org.junit.After;
 import org.mockito.Mockito;
 import org.slf4j.LoggerFactory;
-
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-
-import static org.mockito.Mockito.*;
 
 /**
  * Created by rishabh.goyal on 27/12/15.
@@ -90,7 +95,7 @@ public abstract class FoxtrotResourceTest {
                 .register(new FoxtrotExceptionMapper(mapper));
         mapper = environment.getObjectMapper();
 
-        Logger root = (Logger)LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
+        Logger root = (Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
         root.setLevel(Level.WARN);
     }
 
@@ -106,7 +111,7 @@ public abstract class FoxtrotResourceTest {
     public FoxtrotResourceTest() throws Exception {
         try {
             dataStore = TestUtils.getDataStore();
-        } catch(FoxtrotException e) {
+        } catch (FoxtrotException e) {
             e.printStackTrace();
         }
 
@@ -124,7 +129,6 @@ public abstract class FoxtrotResourceTest {
         CardinalityConfig cardinalityConfig = new CardinalityConfig("true", String.valueOf(
                 ElasticsearchUtils.DEFAULT_SUB_LIST_SIZE));
 
-
         IndicesExistsRequest indicesExistsRequest = new IndicesExistsRequest().indices(TableMapStore.TABLE_META_INDEX);
         IndicesExistsResponse indicesExistsResponse = elasticsearchConnection.getClient()
                 .admin()
@@ -132,7 +136,7 @@ public abstract class FoxtrotResourceTest {
                 .exists(indicesExistsRequest)
                 .actionGet();
 
-        if(! indicesExistsResponse.isExists()) {
+        if (!indicesExistsResponse.isExists()) {
             Settings indexSettings = Settings.builder()
                     .put("number_of_replicas", 0)
                     .build();
@@ -146,26 +150,26 @@ public abstract class FoxtrotResourceTest {
         }
 
         tableMetadataManager = new DistributedTableMetadataManager(hazelcastConnection, elasticsearchConnection, mapper,
-                                                                   cardinalityConfig);
+                cardinalityConfig);
         tableMetadataManager.start();
         tableMetadataManager.save(Table.builder()
-                                          .name(TestUtils.TEST_TABLE_NAME)
-                                          .ttl(7)
-                                          .build());
+                .name(TestUtils.TEST_TABLE_NAME)
+                .ttl(7)
+                .build());
         queryStore = new ElasticsearchQueryStore(tableMetadataManager, elasticsearchConnection, dataStore, mapper,
-                                                 cardinalityConfig);
+                cardinalityConfig);
         queryStore = spy(queryStore);
 
         analyticsLoader = new AnalyticsLoader(tableMetadataManager, dataStore, queryStore, elasticsearchConnection,
-                                              cacheManager, mapper, new EmailConfig());
+                cacheManager, mapper, new EmailConfig());
         try {
             analyticsLoader.start();
-        } catch(Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
         try {
             TestUtils.registerActions(analyticsLoader, mapper);
-        } catch(Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
         ExecutorService executorService = Executors.newFixedThreadPool(1);

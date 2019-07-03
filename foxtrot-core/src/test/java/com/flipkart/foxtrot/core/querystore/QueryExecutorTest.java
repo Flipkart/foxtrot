@@ -1,19 +1,23 @@
 /**
  * Copyright 2014 Flipkart Internet Pvt. Ltd.
  * <p>
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
  * <p>
  * http://www.apache.org/licenses/LICENSE-2.0
  * <p>
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
+ * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations under the License.
  */
 package com.flipkart.foxtrot.core.querystore;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
+import static org.mockito.Mockito.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.when;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.flipkart.foxtrot.core.TestUtils;
@@ -36,22 +40,18 @@ import com.flipkart.foxtrot.core.table.impl.ElasticsearchTestUtils;
 import com.hazelcast.config.Config;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.test.TestHazelcastInstanceFactory;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
-import static org.mockito.Mockito.*;
-
 /**
  * Created by rishabh.goyal on 02/05/14.
  */
 public class QueryExecutorTest {
+
     private QueryExecutor queryExecutor;
     private ObjectMapper mapper = new ObjectMapper();
     private HazelcastInstance hazelcastInstance;
@@ -77,7 +77,7 @@ public class QueryExecutorTest {
         QueryStore queryStore = mock(QueryStore.class);
         analyticsLoader = spy(
                 new AnalyticsLoader(tableMetadataManager, dataStore, queryStore, elasticsearchConnection, cacheManager,
-                                    mapper, new EmailConfig()));
+                        mapper, new EmailConfig()));
         TestUtils.registerActions(analyticsLoader, mapper);
         ExecutorService executorService = Executors.newFixedThreadPool(1);
         queryExecutor = new QueryExecutor(analyticsLoader, executorService);
@@ -100,7 +100,7 @@ public class QueryExecutorTest {
         try {
             queryExecutor.resolve(new RequestWithNoAction());
             fail();
-        } catch(FoxtrotException e) {
+        } catch (FoxtrotException e) {
             assertEquals(ErrorCode.UNRESOLVABLE_OPERATION, e.getCode());
         }
     }

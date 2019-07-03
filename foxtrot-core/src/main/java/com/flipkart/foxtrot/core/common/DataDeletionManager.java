@@ -3,16 +3,15 @@ package com.flipkart.foxtrot.core.common;
 import com.flipkart.foxtrot.core.querystore.QueryStore;
 import com.flipkart.foxtrot.core.querystore.impl.HazelcastConnection;
 import io.dropwizard.lifecycle.Managed;
+import java.time.Instant;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import net.javacrumbs.shedlock.core.DefaultLockingTaskExecutor;
 import net.javacrumbs.shedlock.core.LockConfiguration;
 import net.javacrumbs.shedlock.core.LockingTaskExecutor;
 import net.javacrumbs.shedlock.provider.hazelcast.HazelcastLockProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.time.Instant;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Created by rishabh.goyal on 07/07/14.
@@ -39,7 +38,7 @@ public class DataDeletionManager implements Managed {
     @Override
     public void start() throws Exception {
         logger.info("Starting Deletion Manager");
-        if(config.isActive()) {
+        if (config.isActive()) {
             logger.info("Scheduling data deletion Job");
             scheduledExecutorService.scheduleAtFixedRate(() -> {
                 LockingTaskExecutor executor = new DefaultLockingTaskExecutor(
@@ -47,7 +46,7 @@ public class DataDeletionManager implements Managed {
                 Instant lockAtMostUntil = Instant.now()
                         .plusSeconds(TimeUnit.HOURS.toSeconds(MAX_TIME_TO_RUN_TASK_IN_HOURS));
                 executor.executeWithLock(new DataDeletionTask(queryStore),
-                                         new LockConfiguration("dataDeletion", lockAtMostUntil));
+                        new LockConfiguration("dataDeletion", lockAtMostUntil));
             }, config.getInitialDelay(), config.getInterval(), TimeUnit.SECONDS);
             logger.info("Scheduled data deletion Job");
         } else {

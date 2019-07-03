@@ -1,19 +1,22 @@
 /**
  * Copyright 2014 Flipkart Internet Pvt. Ltd.
  * <p>
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
  * <p>
  * http://www.apache.org/licenses/LICENSE-2.0
  * <p>
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
+ * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations under the License.
  */
 package com.flipkart.foxtrot.core.querystore.actions;
+
+import static com.flipkart.foxtrot.core.TestUtils.TEST_EMAIL;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 import com.flipkart.foxtrot.common.Document;
 import com.flipkart.foxtrot.common.query.Filter;
@@ -26,21 +29,18 @@ import com.flipkart.foxtrot.core.TestUtils;
 import com.flipkart.foxtrot.core.exception.FoxtrotException;
 import com.flipkart.foxtrot.core.exception.MalformedQueryException;
 import com.google.common.collect.Lists;
-import org.junit.Before;
-import org.junit.Test;
-
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.stream.Collectors;
-
-import static com.flipkart.foxtrot.core.TestUtils.TEST_EMAIL;
-import static org.junit.Assert.*;
+import org.junit.Before;
+import org.junit.Test;
 
 /**
  * Created by rishabh.goyal on 29/04/14.
  */
 public class StatsActionTest extends ActionTest {
+
     @Before
     public void setUp() throws Exception {
         super.setUp();
@@ -80,9 +80,9 @@ public class StatsActionTest extends ActionTest {
         request.setTable(TestUtils.TEST_TABLE_NAME);
         request.setField("battery");
         request.setStats(EnumSet.allOf(Stat.class)
-                                 .stream()
-                                 .filter(x -> ! x.isExtended())
-                                 .collect(Collectors.toSet()));
+                .stream()
+                .filter(x -> !x.isExtended())
+                .collect(Collectors.toSet()));
 
         StatsResponse statsResponse = StatsResponse.class.cast(getQueryExecutor().execute(request, TEST_EMAIL));
         assertNotNull(statsResponse);
@@ -106,8 +106,8 @@ public class StatsActionTest extends ActionTest {
                 .getStats()
                 .size());
         assertTrue(statsResponse.getResult()
-                           .getStats()
-                           .containsKey("count"));
+                .getStats()
+                .containsKey("count"));
     }
 
     @Test
@@ -124,8 +124,8 @@ public class StatsActionTest extends ActionTest {
                 .getStats()
                 .size());
         assertTrue(statsResponse.getResult()
-                           .getStats()
-                           .containsKey("max"));
+                .getStats()
+                .containsKey("max"));
     }
 
     @Test
@@ -142,8 +142,8 @@ public class StatsActionTest extends ActionTest {
                 .getStats()
                 .size());
         assertTrue(statsResponse.getResult()
-                           .getStats()
-                           .containsKey("min"));
+                .getStats()
+                .containsKey("min"));
     }
 
 
@@ -161,8 +161,8 @@ public class StatsActionTest extends ActionTest {
                 .getStats()
                 .size());
         assertTrue(statsResponse.getResult()
-                           .getStats()
-                           .containsKey("avg"));
+                .getStats()
+                .containsKey("avg"));
     }
 
     @Test
@@ -176,8 +176,8 @@ public class StatsActionTest extends ActionTest {
         assertNotNull(statsResponse);
         assertNotNull(statsResponse.getResult());
         assertTrue(statsResponse.getResult()
-                           .getStats()
-                           .containsKey("sum"));
+                .getStats()
+                .containsKey("sum"));
     }
 
     @Test
@@ -194,15 +194,15 @@ public class StatsActionTest extends ActionTest {
         betweenFilter.setField("_timestamp");
         request.setFilters(Collections.<Filter>singletonList(betweenFilter));
 
-        StatsResponse statsResponse = (StatsResponse)getQueryExecutor().execute(request, TEST_EMAIL);
+        StatsResponse statsResponse = (StatsResponse) getQueryExecutor().execute(request, TEST_EMAIL);
         assertNotNull(statsResponse);
         assertNotNull(statsResponse.getResult());
         assertEquals(1, statsResponse.getResult()
                 .getPercentiles()
                 .size());
         assertTrue(statsResponse.getResult()
-                           .getPercentiles()
-                           .containsKey(5d));
+                .getPercentiles()
+                .containsKey(5d));
     }
 
     @Test
@@ -217,7 +217,7 @@ public class StatsActionTest extends ActionTest {
         assertNotNull(statsResponse.getResult());
         assertEquals(3, statsResponse.getBuckets()
                 .size());
-        for(BucketResponse bucketResponse : statsResponse.getBuckets()) {
+        for (BucketResponse bucketResponse : statsResponse.getBuckets()) {
             assertNotNull(bucketResponse.getResult());
         }
     }
@@ -234,7 +234,7 @@ public class StatsActionTest extends ActionTest {
         assertNotNull(statsResponse.getResult());
         assertEquals(3, statsResponse.getBuckets()
                 .size());
-        for(BucketResponse bucketResponse : statsResponse.getBuckets()) {
+        for (BucketResponse bucketResponse : statsResponse.getBuckets()) {
             assertNull(bucketResponse.getResult());
             assertNotNull(bucketResponse.getBuckets());
         }

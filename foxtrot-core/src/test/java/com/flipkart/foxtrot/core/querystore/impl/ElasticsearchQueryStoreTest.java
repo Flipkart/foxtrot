@@ -1,23 +1,37 @@
 /**
  * Copyright 2014 Flipkart Internet Pvt. Ltd.
  * <p>
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
  * <p>
  * http://www.apache.org/licenses/LICENSE-2.0
  * <p>
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
+ * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations under the License.
  */
 package com.flipkart.foxtrot.core.querystore.impl;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.anyListOf;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.when;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.flipkart.foxtrot.common.*;
+import com.flipkart.foxtrot.common.Document;
+import com.flipkart.foxtrot.common.FieldMetadata;
+import com.flipkart.foxtrot.common.FieldType;
+import com.flipkart.foxtrot.common.Table;
+import com.flipkart.foxtrot.common.TableFieldMapping;
 import com.flipkart.foxtrot.common.estimation.EstimationDataType;
 import com.flipkart.foxtrot.core.TestUtils;
 import com.flipkart.foxtrot.core.cardinality.CardinalityConfig;
@@ -34,22 +48,28 @@ import com.google.common.collect.Maps;
 import com.hazelcast.config.Config;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.test.TestHazelcastInstanceFactory;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
+import java.util.Vector;
+import java.util.concurrent.ExecutionException;
+import java.util.stream.Collectors;
 import org.elasticsearch.action.admin.cluster.health.ClusterHealthResponse;
 import org.elasticsearch.action.admin.cluster.node.stats.NodesStatsResponse;
 import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;
 import org.elasticsearch.action.admin.indices.stats.IndicesStatsResponse;
 import org.elasticsearch.action.get.GetResponse;
-import org.junit.*;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Ignore;
+import org.junit.Test;
 import org.mockito.Mockito;
-
-import java.util.*;
-import java.util.concurrent.ExecutionException;
-import java.util.stream.Collectors;
-
-import static org.junit.Assert.*;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.*;
 
 /**
  * Created by rishabh.goyal on 16/04/14.
@@ -81,18 +101,18 @@ public class ElasticsearchQueryStoreTest {
                 ElasticsearchUtils.DEFAULT_SUB_LIST_SIZE));
 
         this.tableMetadataManager = new DistributedTableMetadataManager(hazelcastConnection, elasticsearchConnection,
-                                                                        mapper, cardinalityConfig);
+                mapper, cardinalityConfig);
         tableMetadataManager.start();
         tableMetadataManager.save(Table.builder()
-                                          .name(TestUtils.TEST_TABLE_NAME)
-                                          .ttl(30)
-                                          .build());
+                .name(TestUtils.TEST_TABLE_NAME)
+                .ttl(30)
+                .build());
 /*
         when(tableMetadataManager.exists(anyString())).thenReturn(true);
         when(tableMetadataManager.get(anyString())).thenReturn(TestUtils.TEST_TABLE);
 */
         this.queryStore = new ElasticsearchQueryStore(tableMetadataManager, elasticsearchConnection, dataStore, mapper,
-                                                      cardinalityConfig);
+                cardinalityConfig);
     }
 
     @After
@@ -103,7 +123,7 @@ public class ElasticsearchQueryStoreTest {
                     .admin()
                     .indices()
                     .delete(deleteIndexRequest);
-        } catch(Exception e) {
+        } catch (Exception e) {
             //Do Nothing
         }
         elasticsearchConnection.stop();
@@ -129,6 +149,16 @@ public class ElasticsearchQueryStoreTest {
                 .actionGet();
         assertTrue("Id should exist in ES", getResponse.isExists());
         assertEquals("Id should match requestId", originalDocument.getId(), getResponse.getId());
+    }
+
+    private Document createDummyDocument() {
+        Document document = new Document();
+        document.setId(UUID.randomUUID()
+                .toString());
+        document.setTimestamp(System.currentTimeMillis());
+        JsonNode data = mapper.valueToTree(Collections.singletonMap("TEST_NAME", "SINGLE_SAVE_TEST"));
+        document.setData(data);
+        return document;
     }
 
     @Test
@@ -158,7 +188,7 @@ public class ElasticsearchQueryStoreTest {
         try {
             queryStore.save(TestUtils.TEST_TABLE + "-missing", expectedDocument);
             fail();
-        } catch(FoxtrotException qse) {
+        } catch (FoxtrotException qse) {
             assertEquals(ErrorCode.INVALID_REQUEST, qse.getCode());
         }
     }
@@ -168,24 +198,24 @@ public class ElasticsearchQueryStoreTest {
         Table table = tableMetadataManager.get(TestUtils.TEST_TABLE_NAME);
 
         List<Document> documents = Lists.newArrayList();
-        for(int i = 0; i < 10; i++) {
+        for (int i = 0; i < 10; i++) {
             documents.add(createDummyDocument());
         }
 
         List<Document> translatedDocuments = Lists.newArrayList();
         translatedDocuments.addAll(documents.stream()
-                                           .map(document -> TestUtils.translatedDocumentWithRowKeyVersion1(table,
-                                                                                                           document))
-                                           .collect(Collectors.toList()));
+                .map(document -> TestUtils.translatedDocumentWithRowKeyVersion1(table,
+                        document))
+                .collect(Collectors.toList()));
 
         doReturn(translatedDocuments).when(dataStore)
                 .saveAll(table, documents);
         queryStore.save(TestUtils.TEST_TABLE_NAME, documents);
 
-        for(Document document : documents) {
+        for (Document document : documents) {
             GetResponse getResponse = elasticsearchConnection.getClient()
                     .prepareGet(ElasticsearchUtils.getCurrentIndex(TestUtils.TEST_TABLE_NAME, document.getTimestamp()),
-                                ElasticsearchUtils.DOCUMENT_TYPE_NAME, document.getId())
+                            ElasticsearchUtils.DOCUMENT_TYPE_NAME, document.getId())
                     .setStoredFields(ElasticsearchUtils.DOCUMENT_META_TIMESTAMP_FIELD_NAME)
                     .execute()
                     .actionGet();
@@ -199,24 +229,24 @@ public class ElasticsearchQueryStoreTest {
         Table table = tableMetadataManager.get(TestUtils.TEST_TABLE_NAME);
 
         List<Document> documents = Lists.newArrayList();
-        for(int i = 0; i < 10; i++) {
+        for (int i = 0; i < 10; i++) {
             documents.add(createDummyDocument());
         }
 
         List<Document> translatedDocuments = Lists.newArrayList();
         translatedDocuments.addAll(documents.stream()
-                                           .map(document -> TestUtils.translatedDocumentWithRowKeyVersion2(table,
-                                                                                                           document))
-                                           .collect(Collectors.toList()));
+                .map(document -> TestUtils.translatedDocumentWithRowKeyVersion2(table,
+                        document))
+                .collect(Collectors.toList()));
 
         doReturn(translatedDocuments).when(dataStore)
                 .saveAll(table, documents);
         queryStore.save(TestUtils.TEST_TABLE_NAME, documents);
 
-        for(Document document : documents) {
+        for (Document document : documents) {
             GetResponse getResponse = elasticsearchConnection.getClient()
                     .prepareGet(ElasticsearchUtils.getCurrentIndex(TestUtils.TEST_TABLE_NAME, document.getTimestamp()),
-                                ElasticsearchUtils.DOCUMENT_TYPE_NAME, document.getId())
+                            ElasticsearchUtils.DOCUMENT_TYPE_NAME, document.getId())
                     .setStoredFields(ElasticsearchUtils.DOCUMENT_META_TIMESTAMP_FIELD_NAME)
                     .execute()
                     .actionGet();
@@ -224,10 +254,10 @@ public class ElasticsearchQueryStoreTest {
             assertFalse("Id should not exist in ES", getResponse.isExists());
         }
 
-        for(Document document : translatedDocuments) {
+        for (Document document : translatedDocuments) {
             GetResponse getResponse = elasticsearchConnection.getClient()
                     .prepareGet(ElasticsearchUtils.getCurrentIndex(TestUtils.TEST_TABLE_NAME, document.getTimestamp()),
-                                ElasticsearchUtils.DOCUMENT_TYPE_NAME, document.getId())
+                            ElasticsearchUtils.DOCUMENT_TYPE_NAME, document.getId())
                     .setStoredFields(ElasticsearchUtils.DOCUMENT_META_TIMESTAMP_FIELD_NAME)
                     .execute()
                     .actionGet();
@@ -243,7 +273,7 @@ public class ElasticsearchQueryStoreTest {
         try {
             queryStore.save(TestUtils.TEST_TABLE_NAME, list);
             fail();
-        } catch(FoxtrotException ex) {
+        } catch (FoxtrotException ex) {
             assertEquals(ErrorCode.INVALID_REQUEST, ex.getCode());
         }
     }
@@ -254,7 +284,7 @@ public class ElasticsearchQueryStoreTest {
         try {
             queryStore.save(TestUtils.TEST_TABLE_NAME, list);
             fail();
-        } catch(FoxtrotException ex) {
+        } catch (FoxtrotException ex) {
             assertEquals(ErrorCode.INVALID_REQUEST, ex.getCode());
         }
     }
@@ -262,17 +292,16 @@ public class ElasticsearchQueryStoreTest {
     @Test
     public void testSaveBulkInvalidTable() throws Exception {
         List<Document> documents = new Vector<Document>();
-        for(int i = 0; i < 10; i++) {
+        for (int i = 0; i < 10; i++) {
             documents.add(createDummyDocument());
         }
         try {
             queryStore.save(TestUtils.TEST_TABLE + "-missing", documents);
             fail();
-        } catch(FoxtrotException qse) {
+        } catch (FoxtrotException qse) {
             assertEquals(ErrorCode.INVALID_REQUEST, qse.getCode());
         }
     }
-
 
     @Test
     public void testGetSingleRawKeyVersion1() throws Exception {
@@ -324,7 +353,7 @@ public class ElasticsearchQueryStoreTest {
             queryStore.get(TestUtils.TEST_TABLE_NAME, UUID.randomUUID()
                     .toString());
             fail();
-        } catch(FoxtrotException dse) {
+        } catch (FoxtrotException dse) {
             assertEquals(ErrorCode.DOCUMENT_NOT_FOUND, dse.getCode());
         }
     }
@@ -337,7 +366,7 @@ public class ElasticsearchQueryStoreTest {
         Map<String, Document> translatedIdValues = Maps.newLinkedHashMap();
 
         List<String> ids = new Vector<String>();
-        for(int i = 0; i < 10; i++) {
+        for (int i = 0; i < 10; i++) {
             Document document = createDummyDocument();
             Document translatedDocument = TestUtils.translatedDocumentWithRowKeyVersion1(table, document);
 
@@ -345,7 +374,6 @@ public class ElasticsearchQueryStoreTest {
             idValues.put(document.getId(), document);
             translatedIdValues.put(document.getId(), translatedDocument);
         }
-
 
         doReturn(ImmutableList.copyOf(translatedIdValues.values())).when(dataStore)
                 .saveAll(table, ImmutableList.copyOf(idValues.values()));
@@ -357,11 +385,11 @@ public class ElasticsearchQueryStoreTest {
 
         List<Document> responseDocuments = queryStore.getAll(TestUtils.TEST_TABLE_NAME, ids);
         HashMap<String, Document> responseIdValues = Maps.newHashMap();
-        for(Document doc : responseDocuments) {
+        for (Document doc : responseDocuments) {
             responseIdValues.put(doc.getId(), doc);
         }
         assertNotNull("List of returned Documents should not be null", responseDocuments);
-        for(String id : ids) {
+        for (String id : ids) {
             assertTrue("Requested Id should be present in response", responseIdValues.containsKey(id));
             assertNotNull(responseIdValues.get(id));
             assertEquals(id, responseIdValues.get(id)
@@ -378,7 +406,7 @@ public class ElasticsearchQueryStoreTest {
 
         List<String> ids = Lists.newArrayList();
         List<String> translatedIds = Lists.newArrayList();
-        for(int i = 0; i < 10; i++) {
+        for (int i = 0; i < 10; i++) {
             Document document = createDummyDocument();
             Document translatedDocument = TestUtils.translatedDocumentWithRowKeyVersion2(table, document);
 
@@ -398,18 +426,17 @@ public class ElasticsearchQueryStoreTest {
 
         List<Document> responseDocuments = queryStore.getAll(TestUtils.TEST_TABLE_NAME, ids);
         HashMap<String, Document> responseIdValues = Maps.newHashMap();
-        for(Document doc : responseDocuments) {
+        for (Document doc : responseDocuments) {
             responseIdValues.put(doc.getId(), doc);
         }
         assertNotNull("List of returned Documents should not be null", responseDocuments);
-        for(String id : ids) {
+        for (String id : ids) {
             assertTrue("Requested Id should be present in response", responseIdValues.containsKey(id));
             assertNotNull(responseIdValues.get(id));
             assertEquals(id, responseIdValues.get(id)
                     .getId());
         }
     }
-
 
     @Test
     public void testGetBulkInvalidIds() throws Exception {
@@ -419,10 +446,10 @@ public class ElasticsearchQueryStoreTest {
                 .getAll(any(Table.class), anyListOf(String.class));
         try {
             queryStore.getAll(TestUtils.TEST_TABLE_NAME, Arrays.asList(UUID.randomUUID()
-                                                                               .toString(), UUID.randomUUID()
-                                                                               .toString()));
+                    .toString(), UUID.randomUUID()
+                    .toString()));
             fail();
-        } catch(FoxtrotException e) {
+        } catch (FoxtrotException e) {
             assertEquals(ErrorCode.DOCUMENT_NOT_FOUND, e.getCode());
         }
     }
@@ -437,25 +464,25 @@ public class ElasticsearchQueryStoreTest {
 
         Set<FieldMetadata> mappings = new HashSet<FieldMetadata>();
         mappings.add(FieldMetadata.builder()
-                             .field("time")
-                             .type(FieldType.LONG)
-                             .build());
+                .field("time")
+                .type(FieldType.LONG)
+                .build());
         mappings.add(FieldMetadata.builder()
-                             .field("word")
-                             .type(FieldType.STRING)
-                             .build());
+                .field("word")
+                .type(FieldType.STRING)
+                .build());
         mappings.add(FieldMetadata.builder()
-                             .field("data.data")
-                             .type(FieldType.STRING)
-                             .build());
+                .field("data.data")
+                .type(FieldType.STRING)
+                .build());
         mappings.add(FieldMetadata.builder()
-                             .field("header.hello")
-                             .type(FieldType.STRING)
-                             .build());
+                .field("header.hello")
+                .type(FieldType.STRING)
+                .build());
         mappings.add(FieldMetadata.builder()
-                             .field("head.hello")
-                             .type(FieldType.LONG)
-                             .build());
+                .field("head.hello")
+                .type(FieldType.LONG)
+                .build());
 
         TableFieldMapping tableFieldMapping = new TableFieldMapping(TestUtils.TEST_TABLE_NAME, mappings);
         TableFieldMapping responseMapping = queryStore.getFieldMappings(TestUtils.TEST_TABLE_NAME);
@@ -469,7 +496,7 @@ public class ElasticsearchQueryStoreTest {
         try {
             queryStore.getFieldMappings(TestUtils.TEST_TABLE + "-test");
             fail();
-        } catch(FoxtrotException qse) {
+        } catch (FoxtrotException qse) {
             assertEquals(ErrorCode.INVALID_REQUEST, qse.getCode());
         }
     }
@@ -481,13 +508,13 @@ public class ElasticsearchQueryStoreTest {
 
         assertEquals(request.getTable(), response.getTable());
         assertTrue(request.getMappings()
-                           .equals(response.getMappings()));
+                .equals(response.getMappings()));
     }
 
     @Test
     public void testEsClusterHealth() throws ExecutionException, InterruptedException, FoxtrotException {
         List<Document> documents = Lists.newArrayList();
-        for(int i = 0; i < 10; i++) {
+        for (int i = 0; i < 10; i++) {
             documents.add(createDummyDocument());
         }
         doReturn(documents).when(dataStore)
@@ -504,7 +531,7 @@ public class ElasticsearchQueryStoreTest {
     @Ignore
     public void testEsNodesStats() throws FoxtrotException, ExecutionException, InterruptedException {
         List<Document> documents = Lists.newArrayList();
-        for(int i = 0; i < 10; i++) {
+        for (int i = 0; i < 10; i++) {
             documents.add(createDummyDocument());
         }
         doReturn(documents).when(dataStore)
@@ -521,7 +548,7 @@ public class ElasticsearchQueryStoreTest {
     @Test
     public void testIndicesStats() throws FoxtrotException, ExecutionException, InterruptedException {
         List<Document> documents = Lists.newArrayList();
-        for(int i = 0; i < 10; i++) {
+        for (int i = 0; i < 10; i++) {
             documents.add(createDummyDocument());
         }
         doReturn(documents).when(dataStore)
@@ -552,46 +579,36 @@ public class ElasticsearchQueryStoreTest {
         TableFieldMapping mappings = queryStore.getFieldMappings(TestUtils.TEST_TABLE_NAME);
         Assert.assertNotNull(mappings);
         Assert.assertTrue(mappings.getMappings()
-                                  .stream()
-                                  .filter(fieldMetadata -> fieldMetadata.getType()
-                                          .equals(FieldType.BOOLEAN))
-                                  .filter(fieldMetadata -> fieldMetadata.getEstimationData() != null &&
-                                                           fieldMetadata.getEstimationData()
-                                                                   .getType()
-                                                                   .equals(EstimationDataType.FIXED))
-                                  .count() == 1);
+                .stream()
+                .filter(fieldMetadata -> fieldMetadata.getType()
+                        .equals(FieldType.BOOLEAN))
+                .filter(fieldMetadata -> fieldMetadata.getEstimationData() != null &&
+                        fieldMetadata.getEstimationData()
+                                .getType()
+                                .equals(EstimationDataType.FIXED))
+                .count() == 1);
         Assert.assertTrue(mappings.getMappings()
-                                  .stream()
-                                  .filter(fieldMetadata -> fieldMetadata.getType()
-                                          .equals(FieldType.LONG))
-                                  .filter(fieldMetadata -> fieldMetadata.getEstimationData() != null &&
-                                                           fieldMetadata.getEstimationData()
-                                                                   .getType()
-                                                                   .equals(EstimationDataType.PERCENTILE))
-                                  .count() == 2);
+                .stream()
+                .filter(fieldMetadata -> fieldMetadata.getType()
+                        .equals(FieldType.LONG))
+                .filter(fieldMetadata -> fieldMetadata.getEstimationData() != null &&
+                        fieldMetadata.getEstimationData()
+                                .getType()
+                                .equals(EstimationDataType.PERCENTILE))
+                .count() == 2);
         long numStringFields = mappings.getMappings()
                 .stream()
                 .filter(fieldMetadata -> fieldMetadata.getType()
                         .equals(FieldType.STRING))
                 .count();
         Assert.assertTrue(mappings.getMappings()
-                                  .stream()
-                                  .filter(fieldMetadata -> fieldMetadata.getType()
-                                          .equals(FieldType.STRING))
-                                  .filter(fieldMetadata -> fieldMetadata.getEstimationData() != null &&
-                                                           fieldMetadata.getEstimationData()
-                                                                   .getType() == EstimationDataType.CARDINALITY)
-                                  .count() == numStringFields);
-    }
-
-    private Document createDummyDocument() {
-        Document document = new Document();
-        document.setId(UUID.randomUUID()
-                               .toString());
-        document.setTimestamp(System.currentTimeMillis());
-        JsonNode data = mapper.valueToTree(Collections.singletonMap("TEST_NAME", "SINGLE_SAVE_TEST"));
-        document.setData(data);
-        return document;
+                .stream()
+                .filter(fieldMetadata -> fieldMetadata.getType()
+                        .equals(FieldType.STRING))
+                .filter(fieldMetadata -> fieldMetadata.getEstimationData() != null &&
+                        fieldMetadata.getEstimationData()
+                                .getType() == EstimationDataType.CARDINALITY)
+                .count() == numStringFields);
     }
 
 }

@@ -3,12 +3,11 @@ package com.flipkart.foxtrot.common.query.string;
 import com.flipkart.foxtrot.common.query.Filter;
 import com.flipkart.foxtrot.common.query.FilterOperator;
 import com.flipkart.foxtrot.common.query.FilterVisitor;
+import java.util.Set;
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
-
-import java.util.Set;
 
 /***
  Created by mudit.g on Dec, 2018
@@ -17,6 +16,7 @@ import java.util.Set;
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
 public class WildCardFilter extends Filter {
+
     private String value;
 
     public WildCardFilter() {
@@ -37,7 +37,7 @@ public class WildCardFilter extends Filter {
     @Override
     public Set<String> validate() {
         Set<String> validationErrors = super.validate();
-        if(value == null) {
+        if (value == null) {
             validationErrors.add("filter value cannot be null");
         }
         return validationErrors;

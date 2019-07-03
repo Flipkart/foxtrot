@@ -1,9 +1,8 @@
 package com.flipkart.foxtrot.core.exception;
 
 import com.google.common.collect.Maps;
-import lombok.Getter;
-
 import java.util.Map;
+import lombok.Getter;
 
 /**
  * Created by rishabh.goyal on 19/12/15.

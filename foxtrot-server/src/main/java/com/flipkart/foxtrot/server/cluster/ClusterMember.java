@@ -3,6 +3,7 @@ package com.flipkart.foxtrot.server.cluster;
 import java.io.Serializable;
 
 public class ClusterMember implements Serializable {
+
     private String host;
     private int port;
 

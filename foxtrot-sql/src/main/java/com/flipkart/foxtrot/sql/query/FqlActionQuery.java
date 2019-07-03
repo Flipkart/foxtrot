@@ -3,10 +3,10 @@ package com.flipkart.foxtrot.sql.query;
 import com.flipkart.foxtrot.common.ActionRequest;
 import com.flipkart.foxtrot.sql.FqlQuery;
 import com.flipkart.foxtrot.sql.FqlQueryVisitor;
-
 import java.util.List;
 
 public class FqlActionQuery implements FqlQuery {
+
     private final ActionRequest actionRequest;
     private final List<String> selectedFields;
 

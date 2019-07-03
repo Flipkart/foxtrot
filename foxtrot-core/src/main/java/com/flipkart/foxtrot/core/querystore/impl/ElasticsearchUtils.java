@@ -20,6 +20,8 @@ import com.flipkart.foxtrot.common.Table;
 import com.flipkart.foxtrot.core.common.PeriodSelector;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
+import java.io.IOException;
+import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.elasticsearch.action.admin.indices.template.put.PutIndexTemplateRequest;
 import org.elasticsearch.client.Client;
@@ -32,13 +34,8 @@ import org.joda.time.format.DateTimeFormatter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-import java.util.List;
-
 /**
- * User: Santanu Sinha (santanu.sinha@flipkart.com)
- * Date: 24/03/14
- * Time: 3:46 PM
+ * User: Santanu Sinha (santanu.sinha@flipkart.com) Date: 24/03/14 Time: 3:46 PM
  */
 public class ElasticsearchUtils {
 
@@ -60,26 +57,11 @@ public class ElasticsearchUtils {
     private static final String MATCH_MAPPING_TYPE = "match_mapping_type";
     private static String tableNamePrefix = "foxtrot";
 
-    private ElasticsearchUtils() {}
-
-    private static String getTableNamePrefix() {
-        return tableNamePrefix;
-    }
-
-    public static void setTableNamePrefix(ElasticsearchConfig config) {
-        if(StringUtils.isNotEmpty(config.getTableNamePrefix())) {
-            tableNamePrefix = config.getTableNamePrefix();
-        } else {
-            tableNamePrefix = "foxtrot";
-        }
+    private ElasticsearchUtils() {
     }
 
     private static String getIndexPrefix(final String table) {
         return String.format("%s-%s-%s-", getTableNamePrefix(), table, ElasticsearchUtils.TABLENAME_POSTFIX);
-    }
-
-    public static String getIndices(final String table) {
-        return String.format("%s-%s-%s-*", getTableNamePrefix(), table, ElasticsearchUtils.TABLENAME_POSTFIX);
     }
 
     public static String[] getIndices(final String table, final ActionRequest request) {
@@ -91,7 +73,7 @@ public class ElasticsearchUtils {
         DateTime start = interval.getStart()
                 .toLocalDate()
                 .toDateTimeAtStartOfDay();
-        if(start.getYear() <= 1970) {
+        if (start.getYear() <= 1970) {
             logger.warn("Request of type {} running on all indices", request.getClass()
                     .getSimpleName());
             return new String[]{getIndices(table)};
@@ -101,7 +83,7 @@ public class ElasticsearchUtils {
                 .plusDays(1)
                 .toLocalDate()
                 .toDateTimeAtStartOfDay();
-        while(start.getMillis() < end.getMillis()) {
+        while (start.getMillis() < end.getMillis()) {
             final String index = getCurrentIndex(table, start.getMillis());
             indices.add(index);
             start = start.plusDays(1);
@@ -111,11 +93,35 @@ public class ElasticsearchUtils {
         return indices.toArray(new String[0]);
     }
 
+    public static String getIndices(final String table) {
+        return String.format("%s-%s-%s-*", getTableNamePrefix(), table, ElasticsearchUtils.TABLENAME_POSTFIX);
+    }
+
     public static String getCurrentIndex(final String table, long timestamp) {
         //TODO::THROW IF TIMESTAMP IS BEYOND TABLE META.TTL
         String datePostfix = FORMATTER.print(timestamp);
         return String.format("%s-%s-%s-%s", getTableNamePrefix(), table, ElasticsearchUtils.TABLENAME_POSTFIX,
-                             datePostfix);
+                datePostfix);
+    }
+
+    private static String getTableNamePrefix() {
+        return tableNamePrefix;
+    }
+
+    public static void setTableNamePrefix(ElasticsearchConfig config) {
+        if (StringUtils.isNotEmpty(config.getTableNamePrefix())) {
+            tableNamePrefix = config.getTableNamePrefix();
+        } else {
+            tableNamePrefix = "foxtrot";
+        }
+    }
+
+    public static void initializeMappings(Client client) {
+        PutIndexTemplateRequest templateRequest = getClusterTemplateMapping();
+        client.admin()
+                .indices()
+                .putTemplate(templateRequest)
+                .actionGet();
     }
 
     public static PutIndexTemplateRequest getClusterTemplateMapping() {
@@ -123,7 +129,7 @@ public class ElasticsearchUtils {
             return new PutIndexTemplateRequest().name("template_foxtrot_mappings")
                     .patterns(Lists.newArrayList(String.format("%s-*", getTableNamePrefix())))
                     .mapping(DOCUMENT_TYPE_NAME, getDocumentMapping());
-        } catch(IOException ex) {
+        } catch (IOException ex) {
             logger.error("TEMPLATE_CREATION_FAILED", ex);
             return null;
         }
@@ -243,18 +249,10 @@ public class ElasticsearchUtils {
                 .endObject();
     }
 
-    public static void initializeMappings(Client client) {
-        PutIndexTemplateRequest templateRequest = getClusterTemplateMapping();
-        client.admin()
-                .indices()
-                .putTemplate(templateRequest)
-                .actionGet();
-    }
-
-
     public static String getValidTableName(String table) {
-        if(table == null)
+        if (table == null) {
             return null;
+        }
         return table.trim()
                 .toLowerCase();
     }
@@ -265,7 +263,7 @@ public class ElasticsearchUtils {
     }
 
     static boolean isIndexEligibleForDeletion(String index, Table table) {
-        if(index == null || table == null || ! isIndexValidForTable(index, table.getName())) {
+        if (index == null || table == null || !isIndexValidForTable(index, table.getName())) {
             return false;
         }
 
@@ -284,7 +282,7 @@ public class ElasticsearchUtils {
     }
 
     public static String getTableNameFromIndex(String currentIndex) {
-        if(currentIndex.contains(getTableNamePrefix()) && currentIndex.contains(TABLENAME_POSTFIX)) {
+        if (currentIndex.contains(getTableNamePrefix()) && currentIndex.contains(TABLENAME_POSTFIX)) {
             String tempIndex = currentIndex.substring(
                     currentIndex.indexOf(getTableNamePrefix()) + getTableNamePrefix().length() + 1);
             int position = tempIndex.lastIndexOf(String.format("-%s", TABLENAME_POSTFIX));

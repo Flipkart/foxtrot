@@ -4,14 +4,13 @@ import com.flipkart.foxtrot.common.ActionRequest;
 import com.flipkart.foxtrot.common.ActionRequestVisitor;
 import com.flipkart.foxtrot.common.Opcodes;
 import com.flipkart.foxtrot.common.query.Filter;
+import java.util.List;
+import java.util.Set;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import lombok.Data;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.hibernate.validator.constraints.NotEmpty;
-
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
-import java.util.List;
-import java.util.Set;
 
 /**
  * Created by rishabh.goyal on 02/08/14.
@@ -52,6 +51,17 @@ public class StatsRequest extends ActionRequest {
         return visitor.visit(this);
     }
 
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this).appendSuper(super.toString())
+                .append("table", table)
+                .append("field", field)
+                .append("stats", stats)
+                .append("percentiles", percentiles)
+                .append("nesting", nesting)
+                .toString();
+    }
+
     public String getTable() {
         return table;
     }
@@ -90,16 +100,5 @@ public class StatsRequest extends ActionRequest {
 
     public void setStats(Set<Stat> stats) {
         this.stats = stats;
-    }
-
-    @Override
-    public String toString() {
-        return new ToStringBuilder(this).appendSuper(super.toString())
-                .append("table", table)
-                .append("field", field)
-                .append("stats", stats)
-                .append("percentiles", percentiles)
-                .append("nesting", nesting)
-                .toString();
     }
 }

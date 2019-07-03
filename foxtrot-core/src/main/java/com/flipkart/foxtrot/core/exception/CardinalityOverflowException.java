@@ -2,9 +2,8 @@ package com.flipkart.foxtrot.core.exception;
 
 import com.flipkart.foxtrot.common.ActionRequest;
 import com.google.common.collect.Maps;
-import lombok.Getter;
-
 import java.util.Map;
+import lombok.Getter;
 
 /**
  * Thrown when a group by query fails cardinality check
@@ -12,7 +11,7 @@ import java.util.Map;
 @Getter
 public class CardinalityOverflowException extends FoxtrotException {
 
-    private static final long serialVersionUID = - 8591567152701424689L;
+    private static final long serialVersionUID = -8591567152701424689L;
 
     private final String field;
     private final ActionRequest actionRequest;
@@ -20,7 +19,7 @@ public class CardinalityOverflowException extends FoxtrotException {
 
     protected CardinalityOverflowException(ActionRequest actionRequest, String field, double probability) {
         super(ErrorCode.CARDINALITY_OVERFLOW,
-              "Query blocked due to high cardinality. Consider using shorter time period");
+                "Query blocked due to high cardinality. Consider using shorter time period");
         this.field = field;
         this.actionRequest = actionRequest;
         this.probability = probability;

@@ -2,7 +2,6 @@ package com.flipkart.foxtrot.core.exception;
 
 import com.flipkart.foxtrot.common.ActionRequest;
 import com.flipkart.foxtrot.common.Table;
-
 import java.util.Collections;
 import java.util.List;
 
@@ -11,7 +10,8 @@ import java.util.List;
  */
 public class FoxtrotExceptions {
 
-    private FoxtrotExceptions() {}
+    private FoxtrotExceptions() {
+    }
 
     public static TableInitializationException createTableInitializationException(Table table, String message) {
         return new TableInitializationException(table.getName(), message);

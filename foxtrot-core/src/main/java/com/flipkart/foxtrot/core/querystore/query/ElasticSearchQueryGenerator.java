@@ -1,35 +1,48 @@
 /**
  * Copyright 2014 Flipkart Internet Pvt. Ltd.
  * <p>
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
  * <p>
  * http://www.apache.org/licenses/LICENSE-2.0
  * <p>
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
+ * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations under the License.
  */
 package com.flipkart.foxtrot.core.querystore.query;
+
+import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
+import static org.elasticsearch.index.query.QueryBuilders.existsQuery;
+import static org.elasticsearch.index.query.QueryBuilders.matchAllQuery;
+import static org.elasticsearch.index.query.QueryBuilders.queryStringQuery;
+import static org.elasticsearch.index.query.QueryBuilders.rangeQuery;
+import static org.elasticsearch.index.query.QueryBuilders.termQuery;
+import static org.elasticsearch.index.query.QueryBuilders.termsQuery;
+import static org.elasticsearch.index.query.QueryBuilders.wildcardQuery;
 
 import com.flipkart.foxtrot.common.query.Filter;
 import com.flipkart.foxtrot.common.query.FilterVisitor;
 import com.flipkart.foxtrot.common.query.datetime.LastFilter;
-import com.flipkart.foxtrot.common.query.general.*;
-import com.flipkart.foxtrot.common.query.numeric.*;
+import com.flipkart.foxtrot.common.query.general.AnyFilter;
+import com.flipkart.foxtrot.common.query.general.EqualsFilter;
+import com.flipkart.foxtrot.common.query.general.ExistsFilter;
+import com.flipkart.foxtrot.common.query.general.InFilter;
+import com.flipkart.foxtrot.common.query.general.MissingFilter;
+import com.flipkart.foxtrot.common.query.general.NotEqualsFilter;
+import com.flipkart.foxtrot.common.query.general.NotInFilter;
+import com.flipkart.foxtrot.common.query.numeric.BetweenFilter;
+import com.flipkart.foxtrot.common.query.numeric.GreaterEqualFilter;
+import com.flipkart.foxtrot.common.query.numeric.GreaterThanFilter;
+import com.flipkart.foxtrot.common.query.numeric.LessEqualFilter;
+import com.flipkart.foxtrot.common.query.numeric.LessThanFilter;
 import com.flipkart.foxtrot.common.query.string.ContainsFilter;
 import com.flipkart.foxtrot.common.query.string.WildCardFilter;
 import com.flipkart.foxtrot.core.querystore.actions.Utils;
+import java.util.List;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
-
-import java.util.List;
-
-import static org.elasticsearch.index.query.QueryBuilders.*;
 
 /**
  * User: Santanu Sinha (santanu.sinha@flipkart.com)
@@ -37,6 +50,7 @@ import static org.elasticsearch.index.query.QueryBuilders.*;
  * Time: 2:31 PM
  */
 public class ElasticSearchQueryGenerator implements FilterVisitor<Void> {
+
     private final BoolQueryBuilder boolFilterBuilder;
 
     public ElasticSearchQueryGenerator() {
@@ -46,7 +60,7 @@ public class ElasticSearchQueryGenerator implements FilterVisitor<Void> {
     @Override
     public Void visit(BetweenFilter filter) {
         addFilter(rangeQuery(Utils.storedFieldName(filter.getField())).from(filter.getFrom())
-                          .to(filter.getTo()));
+                .to(filter.getTo()));
         return null;
     }
 
@@ -119,9 +133,9 @@ public class ElasticSearchQueryGenerator implements FilterVisitor<Void> {
     @Override
     public Void visit(LastFilter filter) {
         addFilter(rangeQuery(Utils.storedFieldName(filter.getField())).from(filter.getWindow()
-                                                                                    .getStartTime())
-                          .to(filter.getWindow()
-                                      .getEndTime()));
+                .getStartTime())
+                .to(filter.getWindow()
+                        .getEndTime()));
         return null;
     }
 
@@ -143,7 +157,7 @@ public class ElasticSearchQueryGenerator implements FilterVisitor<Void> {
     }
 
     public QueryBuilder genFilter(List<Filter> filters) {
-        for(Filter filter : filters) {
+        for (Filter filter : filters) {
             filter.accept(this);
         }
         return QueryBuilders.constantScoreQuery(boolFilterBuilder);

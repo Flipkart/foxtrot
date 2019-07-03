@@ -19,6 +19,10 @@ import com.flipkart.foxtrot.core.querystore.query.ElasticSearchQueryGenerator;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import io.dropwizard.util.Duration;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.stream.Collectors;
 import lombok.val;
 import org.apache.commons.lang3.StringUtils;
 import org.elasticsearch.ElasticsearchException;
@@ -32,17 +36,12 @@ import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.elasticsearch.search.aggregations.metrics.percentiles.Percentiles;
 import org.joda.time.DateTime;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.stream.Collectors;
-
 /**
  * Created by rishabh.goyal on 02/08/14.
  */
 
 @AnalyticsProvider(opcode = "statstrend", request = StatsTrendRequest.class, response = StatsTrendResponse.class,
-                   cacheable = false)
+        cacheable = false)
 public class StatsTrendAction extends Action<StatsTrendRequest> {
 
     public StatsTrendAction(StatsTrendRequest parameter, String cacheToken, AnalyticsLoader analyticsLoader) {
@@ -55,22 +54,37 @@ public class StatsTrendAction extends Action<StatsTrendRequest> {
     }
 
     @Override
-    public String getMetricKey() {
-        return getParameter().getTable();
+    public void validateImpl(StatsTrendRequest parameter, String email) {
+        List<String> validationErrors = Lists.newArrayList();
+        if (CollectionUtils.isNullOrEmpty(parameter.getTable())) {
+            validationErrors.add("table name cannot be null or empty");
+        }
+        if (CollectionUtils.isNullOrEmpty(parameter.getField())) {
+            validationErrors.add("field name cannot be null or empty");
+        }
+        if (CollectionUtils.isNullOrEmpty(parameter.getTimestamp())) {
+            validationErrors.add("timestamp field cannot be null or empty");
+        }
+        if (parameter.getPeriod() == null) {
+            validationErrors.add(String.format("specify time period (%s)", StringUtils.join(Period.values())));
+        }
+        if (!CollectionUtils.isNullOrEmpty(validationErrors)) {
+            throw FoxtrotExceptions.createMalformedQueryException(parameter, validationErrors);
+        }
     }
 
     @Override
     public String getRequestCacheKey() {
         StatsTrendRequest statsRequest = getParameter();
         long hashKey = 0L;
-        if(statsRequest.getFilters() != null) {
-            for(Filter filter : statsRequest.getFilters()) {
+        if (statsRequest.getFilters() != null) {
+            for (Filter filter : statsRequest.getFilters()) {
                 hashKey += 31 * filter.hashCode();
             }
         }
 
-        if(! CollectionUtils.isNullOrEmpty(statsRequest.getNesting())) {
-            for(String field : statsRequest.getNesting()) {
+        if (!CollectionUtils.isNullOrEmpty(statsRequest.getNesting())) {
+            for (String field : statsRequest.getNesting()) {
                 hashKey += 31 * field.hashCode();
             }
         }
@@ -83,27 +97,15 @@ public class StatsTrendAction extends Action<StatsTrendRequest> {
         hashKey += 31 * (statsRequest.getField() != null ? statsRequest.getField()
                 .hashCode() : "FIELD".hashCode());
         return String.format("stats-trend-%s-%s-%s-%d", statsRequest.getTable(), statsRequest.getField(),
-                             statsRequest.getPeriod(), hashKey);
+                statsRequest.getPeriod(), hashKey);
     }
 
     @Override
-    public void validateImpl(StatsTrendRequest parameter, String email) {
-        List<String> validationErrors = Lists.newArrayList();
-        if(CollectionUtils.isNullOrEmpty(parameter.getTable())) {
-            validationErrors.add("table name cannot be null or empty");
-        }
-        if(CollectionUtils.isNullOrEmpty(parameter.getField())) {
-            validationErrors.add("field name cannot be null or empty");
-        }
-        if(CollectionUtils.isNullOrEmpty(parameter.getTimestamp())) {
-            validationErrors.add("timestamp field cannot be null or empty");
-        }
-        if(parameter.getPeriod() == null) {
-            validationErrors.add(String.format("specify time period (%s)", StringUtils.join(Period.values())));
-        }
-        if(! CollectionUtils.isNullOrEmpty(validationErrors)) {
-            throw FoxtrotExceptions.createMalformedQueryException(parameter, validationErrors);
-        }
+    protected Filter getDefaultTimeSpan() {
+        LastFilter lastFilter = new LastFilter();
+        lastFilter.setField("_timestamp");
+        lastFilter.setDuration(Duration.days(1));
+        return lastFilter;
     }
 
     @Override
@@ -114,9 +116,14 @@ public class StatsTrendAction extends Action<StatsTrendRequest> {
             SearchResponse response = searchRequestBuilder.execute()
                     .actionGet(getGetQueryTimeout());
             return getResponse(response, parameter);
-        } catch(ElasticsearchException e) {
+        } catch (ElasticsearchException e) {
             throw FoxtrotExceptions.createQueryExecutionException(parameter, e);
         }
+    }
+
+    @Override
+    public String getMetricKey() {
+        return getParameter().getTable();
     }
 
     @Override
@@ -131,7 +138,7 @@ public class StatsTrendAction extends Action<StatsTrendRequest> {
                     .setQuery(new ElasticSearchQueryGenerator().genFilter(parameter.getFilters()))
                     .setSize(0)
                     .addAggregation(aggregation);
-        } catch(Exception e) {
+        } catch (Exception e) {
             throw FoxtrotExceptions.queryCreationException(parameter, e);
         }
         return searchRequestBuilder;
@@ -139,8 +146,8 @@ public class StatsTrendAction extends Action<StatsTrendRequest> {
 
     @Override
     public ActionResponse getResponse(org.elasticsearch.action.ActionResponse response, StatsTrendRequest parameter) {
-        Aggregations aggregations = ((SearchResponse)response).getAggregations();
-        if(aggregations != null) {
+        Aggregations aggregations = ((SearchResponse) response).getAggregations();
+        if (aggregations != null) {
             return buildResponse(parameter, aggregations);
         }
         return null;
@@ -149,30 +156,30 @@ public class StatsTrendAction extends Action<StatsTrendRequest> {
     private AbstractAggregationBuilder buildAggregation(StatsTrendRequest request) {
         DateHistogramInterval interval = Utils.getHistogramInterval(request.getPeriod());
         AbstractAggregationBuilder dateHistogramBuilder = Utils.buildDateHistogramAggregation(request.getTimestamp(),
-                                                                                              interval)
+                interval)
                 .subAggregation(Utils.buildStatsAggregation(request.getField(), getParameter().getStats()))
                 .subAggregation(Utils.buildPercentileAggregation(request.getField(), request.getPercentiles(),
-                                                                 request.getCompression()));
+                        request.getCompression()));
 
-        if(CollectionUtils.isNullOrEmpty(getParameter().getNesting())) {
+        if (CollectionUtils.isNullOrEmpty(getParameter().getNesting())) {
             return dateHistogramBuilder;
         }
         return Utils.buildTermsAggregation(getParameter().getNesting()
-                                                   .stream()
-                                                   .map(x -> new ResultSort(x, ResultSort.Order.asc))
-                                                   .collect(Collectors.toList()),
-                                           Sets.newHashSet(dateHistogramBuilder));
+                        .stream()
+                        .map(x -> new ResultSort(x, ResultSort.Order.asc))
+                        .collect(Collectors.toList()),
+                Sets.newHashSet(dateHistogramBuilder));
     }
 
     private StatsTrendResponse buildResponse(StatsTrendRequest request, Aggregations aggregations) {
         StatsTrendResponse response = new StatsTrendResponse();
 
-        if(CollectionUtils.isNullOrEmpty(request.getNesting())) {
+        if (CollectionUtils.isNullOrEmpty(request.getNesting())) {
             List<StatsTrendValue> trends = buildStatsTrendValue(request.getField(), aggregations);
             response.setResult(trends);
         } else {
             List<BucketResponse<List<StatsTrendValue>>> buckets = buildNestedTrendStats(request.getNesting(),
-                                                                                        aggregations);
+                    aggregations);
             response.setBuckets(buckets);
         }
         return response;
@@ -182,13 +189,13 @@ public class StatsTrendAction extends Action<StatsTrendRequest> {
             Aggregations aggregations) {
         final String field = nesting.get(0);
         final List<String> remainingFields = (nesting.size() > 1) ? nesting.subList(1, nesting.size()) :
-                                             new ArrayList<>();
+                new ArrayList<>();
         Terms terms = aggregations.get(Utils.sanitizeFieldForAggregation(field));
         List<BucketResponse<List<StatsTrendValue>>> bucketResponses = Lists.newArrayList();
-        for(Terms.Bucket bucket : terms.getBuckets()) {
+        for (Terms.Bucket bucket : terms.getBuckets()) {
             BucketResponse<List<StatsTrendValue>> bucketResponse = new BucketResponse<>();
             bucketResponse.setKey(String.valueOf(bucket.getKey()));
-            if(nesting.size() == 1) {
+            if (nesting.size() == 1) {
                 bucketResponse.setResult(buildStatsTrendValue(getParameter().getField(), bucket.getAggregations()));
             } else {
                 bucketResponse.setBuckets(buildNestedTrendStats(remainingFields, bucket.getAggregations()));
@@ -207,9 +214,9 @@ public class StatsTrendAction extends Action<StatsTrendRequest> {
         String percentileMetricKey = Utils.getPercentileAggregationKey(field);
 
         List<StatsTrendValue> statsValueList = Lists.newArrayList();
-        for(Histogram.Bucket bucket : buckets) {
+        for (Histogram.Bucket bucket : buckets) {
             StatsTrendValue statsTrendValue = new StatsTrendValue();
-            DateTime key = (DateTime)bucket.getKey();
+            DateTime key = (DateTime) bucket.getKey();
             statsTrendValue.setPeriod(key.getMillis());
 
             val statAggregation = bucket.getAggregations()
@@ -217,21 +224,12 @@ public class StatsTrendAction extends Action<StatsTrendRequest> {
                     .get(metricKey);
             statsTrendValue.setStats(Utils.toStats(statAggregation));
             Percentiles internalPercentile = Percentiles.class.cast(bucket.getAggregations()
-                                                                            .getAsMap()
-                                                                            .get(percentileMetricKey));
+                    .getAsMap()
+                    .get(percentileMetricKey));
             statsTrendValue.setPercentiles(Utils.createPercentilesResponse(internalPercentile));
             statsValueList.add(statsTrendValue);
         }
         return statsValueList;
-    }
-
-
-    @Override
-    protected Filter getDefaultTimeSpan() {
-        LastFilter lastFilter = new LastFilter();
-        lastFilter.setField("_timestamp");
-        lastFilter.setDuration(Duration.days(1));
-        return lastFilter;
     }
 
 }

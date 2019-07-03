@@ -12,6 +12,9 @@ import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsLoader;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsProvider;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.elasticsearch.ElasticsearchException;
 import org.elasticsearch.action.ActionRequestBuilder;
@@ -22,15 +25,11 @@ import org.glassfish.hk2.api.MultiException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-
 /***
  Created by nitish.goyal on 22/08/18
  ***/
 @AnalyticsProvider(opcode = "multi_query", request = MultiQueryRequest.class, response = MultiQueryResponse.class,
-                   cacheable = true)
+        cacheable = true)
 public class MultiQueryAction extends Action<MultiQueryRequest> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MultiQueryAction.class);
@@ -52,31 +51,26 @@ public class MultiQueryAction extends Action<MultiQueryRequest> {
     }
 
     @Override
-    public String getMetricKey() {
-        return processForSubQueries(getParameter(), (action, request) -> action.getMetricKey());
-    }
-
-    @Override
-    public String getRequestCacheKey() {
-        return processForSubQueries(getParameter(), (action, request) -> action.getRequestCacheKey());
-    }
-
-    @Override
     public void validateImpl(MultiQueryRequest parameter, String email) {
         MultiQueryRequest multiQueryRequest = getParameter();
         MultiException multiException = new MultiException();
         processForSubQueries(multiQueryRequest, (action, request) -> {
             try {
                 action.validateImpl(request, email);
-            } catch(MalformedQueryException e) {
+            } catch (MalformedQueryException e) {
                 multiException.addError(e);
             }
             return null;
         });
-        if(CollectionUtils.isNotEmpty(multiException.getErrors())) {
+        if (CollectionUtils.isNotEmpty(multiException.getErrors())) {
             throw multiException;
         }
 
+    }
+
+    @Override
+    public String getRequestCacheKey() {
+        return processForSubQueries(getParameter(), (action, request) -> action.getRequestCacheKey());
     }
 
     @Override
@@ -87,9 +81,14 @@ public class MultiQueryAction extends Action<MultiQueryRequest> {
             MultiSearchResponse multiSearchResponse = multiSearchRequestBuilder.execute()
                     .actionGet();
             return getResponse(multiSearchResponse, parameter);
-        } catch(ElasticsearchException e) {
+        } catch (ElasticsearchException e) {
             throw FoxtrotExceptions.createQueryExecutionException(parameter, e);
         }
+    }
+
+    @Override
+    public String getMetricKey() {
+        return processForSubQueries(getParameter(), (action, request) -> action.getMetricKey());
     }
 
     @Override
@@ -98,16 +97,16 @@ public class MultiQueryAction extends Action<MultiQueryRequest> {
         MultiSearchRequestBuilder multiSearchRequestBuilder = getConnection().getClient()
                 .prepareMultiSearch();
 
-        for(Map.Entry<String, ActionRequest> entry : parameter.getRequests()
+        for (Map.Entry<String, ActionRequest> entry : parameter.getRequests()
                 .entrySet()) {
             ActionRequest request = entry.getValue();
             Action<ActionRequest> action = analyticsLoader.getAction(request);
-            if(null == action) {
+            if (null == action) {
                 throw FoxtrotExceptions.queryCreationException(request, null);
             }
             ActionRequestBuilder requestBuilder = action.getRequestBuilder(request);
-            if(requestBuilder instanceof SearchRequestBuilder) {
-                multiSearchRequestBuilder.add((SearchRequestBuilder)requestBuilder);
+            if (requestBuilder instanceof SearchRequestBuilder) {
+                multiSearchRequestBuilder.add((SearchRequestBuilder) requestBuilder);
             }
         }
         return multiSearchRequestBuilder;
@@ -121,20 +120,20 @@ public class MultiQueryAction extends Action<MultiQueryRequest> {
         int queryCounter = 0;
         List<String> queryKeys = Lists.newArrayList();
         List<ActionRequest> requests = Lists.newArrayList();
-        for(Map.Entry<String, ActionRequest> entry : getParameter().getRequests()
+        for (Map.Entry<String, ActionRequest> entry : getParameter().getRequests()
                 .entrySet()) {
             queryKeys.add(entry.getKey());
             requests.add(entry.getValue());
         }
-        for(MultiSearchResponse.Item item : ((MultiSearchResponse)multiSearchResponse).getResponses()) {
+        for (MultiSearchResponse.Item item : ((MultiSearchResponse) multiSearchResponse).getResponses()) {
             Action action = null;
             ActionRequest request = requests.get(queryCounter);
             try {
                 action = analyticsLoader.getAction(request);
-            } catch(Exception e) {
+            } catch (Exception e) {
                 LOGGER.error("Error occurred while executing multiQuery request : {}", e);
             }
-            if(null == action) {
+            if (null == action) {
                 throw FoxtrotExceptions.queryCreationException(request, null);
             }
             String key = queryKeys.get(queryCounter++);
@@ -146,22 +145,22 @@ public class MultiQueryAction extends Action<MultiQueryRequest> {
 
     private String processForSubQueries(MultiQueryRequest multiQueryRequest, ActionInterface actionInterface) {
         List<String> results = Lists.newArrayList();
-        for(Map.Entry<String, ActionRequest> entry : multiQueryRequest.getRequests()
+        for (Map.Entry<String, ActionRequest> entry : multiQueryRequest.getRequests()
                 .entrySet()) {
             ActionRequest request = entry.getValue();
             Action action;
-            if(requestActionMap.get(request) != null) {
+            if (requestActionMap.get(request) != null) {
                 action = requestActionMap.get(request);
             } else {
                 action = analyticsLoader.getAction(request);
                 requestActionMap.put(request, action);
             }
-            if(null == action) {
+            if (null == action) {
                 throw FoxtrotExceptions.createMalformedQueryException(multiQueryRequest, Collections.singletonList(
                         "No action found for the sub request : " + request.toString()));
             }
             String result = actionInterface.invoke(action, request);
-            if(StringUtils.isNotBlank(result)) {
+            if (StringUtils.isNotBlank(result)) {
                 results.add(result);
             }
         }

@@ -1,17 +1,14 @@
 /**
  * Copyright 2014 Flipkart Internet Pvt. Ltd.
  * <p>
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
  * <p>
  * http://www.apache.org/licenses/LICENSE-2.0
  * <p>
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
+ * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations under the License.
  */
 package com.flipkart.foxtrot.common.query;
 
@@ -19,18 +16,27 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.flipkart.foxtrot.common.query.datetime.LastFilter;
-import com.flipkart.foxtrot.common.query.general.*;
-import com.flipkart.foxtrot.common.query.numeric.*;
+import com.flipkart.foxtrot.common.query.general.AnyFilter;
+import com.flipkart.foxtrot.common.query.general.EqualsFilter;
+import com.flipkart.foxtrot.common.query.general.ExistsFilter;
+import com.flipkart.foxtrot.common.query.general.InFilter;
+import com.flipkart.foxtrot.common.query.general.MissingFilter;
+import com.flipkart.foxtrot.common.query.general.NotEqualsFilter;
+import com.flipkart.foxtrot.common.query.general.NotInFilter;
+import com.flipkart.foxtrot.common.query.numeric.BetweenFilter;
+import com.flipkart.foxtrot.common.query.numeric.GreaterEqualFilter;
+import com.flipkart.foxtrot.common.query.numeric.GreaterThanFilter;
+import com.flipkart.foxtrot.common.query.numeric.LessEqualFilter;
+import com.flipkart.foxtrot.common.query.numeric.LessThanFilter;
 import com.flipkart.foxtrot.common.query.string.ContainsFilter;
 import com.flipkart.foxtrot.common.query.string.WildCardFilter;
 import com.flipkart.foxtrot.common.util.CollectionUtils;
-import org.apache.commons.lang3.builder.ToStringBuilder;
-import org.hibernate.validator.constraints.NotEmpty;
-
-import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
+import javax.validation.constraints.NotNull;
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.hibernate.validator.constraints.NotEmpty;
 
 /**
  * User: Santanu Sinha (santanu.sinha@flipkart.com)
@@ -39,26 +45,27 @@ import java.util.Set;
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.EXISTING_PROPERTY, property = "operator")
 @JsonSubTypes({
-                      //Numeric
-                      @JsonSubTypes.Type(value = GreaterEqualFilter.class, name = FilterOperator.greater_equal),
-                      @JsonSubTypes.Type(value = GreaterThanFilter.class, name = FilterOperator.greater_than),
-                      @JsonSubTypes.Type(value = LessEqualFilter.class, name = FilterOperator.less_equal),
-                      @JsonSubTypes.Type(value = LessThanFilter.class, name = FilterOperator.less_than),
-                      @JsonSubTypes.Type(value = BetweenFilter.class, name = FilterOperator.between),
+        //Numeric
+        @JsonSubTypes.Type(value = GreaterEqualFilter.class, name = FilterOperator.greater_equal),
+        @JsonSubTypes.Type(value = GreaterThanFilter.class, name = FilterOperator.greater_than),
+        @JsonSubTypes.Type(value = LessEqualFilter.class, name = FilterOperator.less_equal),
+        @JsonSubTypes.Type(value = LessThanFilter.class, name = FilterOperator.less_than),
+        @JsonSubTypes.Type(value = BetweenFilter.class, name = FilterOperator.between),
 
-                      //General
-                      @JsonSubTypes.Type(value = EqualsFilter.class, name = FilterOperator.equals), @JsonSubTypes
+        //General
+        @JsonSubTypes.Type(value = EqualsFilter.class, name = FilterOperator.equals), @JsonSubTypes
         .Type(value = InFilter.class, name = FilterOperator.in), @JsonSubTypes.Type(value = NotInFilter.class, name =
         FilterOperator.not_in), @JsonSubTypes.Type(value = NotEqualsFilter.class, name = FilterOperator.not_equals),
-                      @JsonSubTypes.Type(value = AnyFilter.class, name = FilterOperator.any), @JsonSubTypes.Type
-                              (value = ExistsFilter.class, name = FilterOperator.exists), @JsonSubTypes.Type(value = MissingFilter.class, name = FilterOperator.missing),
+        @JsonSubTypes.Type(value = AnyFilter.class, name = FilterOperator.any), @JsonSubTypes.Type
+        (value = ExistsFilter.class, name = FilterOperator.exists),
+        @JsonSubTypes.Type(value = MissingFilter.class, name = FilterOperator.missing),
 
-                      //String
-                      @JsonSubTypes.Type(value = ContainsFilter.class, name = FilterOperator.contains), @JsonSubTypes
+        //String
+        @JsonSubTypes.Type(value = ContainsFilter.class, name = FilterOperator.contains), @JsonSubTypes
         .Type(value = WildCardFilter.class, name = FilterOperator.wildcard),
 
-                      //String
-                      @JsonSubTypes.Type(value = LastFilter.class, name = FilterOperator.last)})
+        //String
+        @JsonSubTypes.Type(value = LastFilter.class, name = FilterOperator.last)})
 
 public abstract class Filter implements Serializable {
 
@@ -92,26 +99,28 @@ public abstract class Filter implements Serializable {
     public abstract <T> T accept(FilterVisitor<T> visitor);
 
     @Override
-    public boolean equals(Object o) {
-        if(this == o)
-            return true;
-        if(o == null || getClass() != o.getClass())
-            return false;
-
-        Filter filter = (Filter)o;
-
-        if(! field.equals(filter.field))
-            return false;
-        return operator.equals(filter.operator);
-    }
-
-    @Override
     public int hashCode() {
         int result = operator.hashCode();
         result = 31 * result + field.hashCode();
         return result;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        Filter filter = (Filter) o;
+
+        if (!field.equals(filter.field)) {
+            return false;
+        }
+        return operator.equals(filter.operator);
+    }
 
     @Override
     public String toString() {
@@ -127,7 +136,7 @@ public abstract class Filter implements Serializable {
 
     public Set<String> validate() {
         Set<String> validationErrors = new HashSet<>();
-        if(CollectionUtils.isNullOrEmpty(field)) {
+        if (CollectionUtils.isNullOrEmpty(field)) {
             validationErrors.add("filter field cannot be null or empty");
         }
         return validationErrors;

@@ -1,5 +1,9 @@
 package com.flipkart.foxtrot.core.querystore.actions;
 
+import static com.flipkart.foxtrot.core.TestUtils.TEST_EMAIL;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+
 import com.flipkart.foxtrot.common.Document;
 import com.flipkart.foxtrot.common.count.CountRequest;
 import com.flipkart.foxtrot.common.count.CountResponse;
@@ -7,15 +11,10 @@ import com.flipkart.foxtrot.common.query.Filter;
 import com.flipkart.foxtrot.common.query.general.EqualsFilter;
 import com.flipkart.foxtrot.core.TestUtils;
 import com.flipkart.foxtrot.core.exception.FoxtrotException;
-import org.junit.Before;
-import org.junit.Test;
-
 import java.util.ArrayList;
 import java.util.List;
-
-import static com.flipkart.foxtrot.core.TestUtils.TEST_EMAIL;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import org.junit.Before;
+import org.junit.Test;
 
 public class CountActionTest extends ActionTest {
 

@@ -7,6 +7,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 public class LastFilterTest {
+
     private final ObjectMapper objectMapper;
 
     public LastFilterTest() {
@@ -34,10 +35,10 @@ public class LastFilterTest {
         Assert.assertEquals("_timestamp", lastFilter.getField());
         Assert.assertEquals(currentTime.getMillis(), lastFilter.getCurrentTime());
         Assert.assertEquals(currentTime.withMinuteOfHour(0)
-                                    .withSecondOfMinute(0)
-                                    .withMillisOfSecond(0)
-                                    .minusHours(1)
-                                    .getMillis(), timeWindow.getStartTime());
+                .withSecondOfMinute(0)
+                .withMillisOfSecond(0)
+                .minusHours(1)
+                .getMillis(), timeWindow.getStartTime());
     }
 
     @Test
@@ -51,22 +52,22 @@ public class LastFilterTest {
         Assert.assertEquals("_timestamp", lastFilter.getField());
         Assert.assertEquals(currentTime.getMillis(), lastFilter.getCurrentTime());
         Assert.assertEquals(currentTime.withMinuteOfHour(0)
-                                    .withSecondOfMinute(0)
-                                    .withMillisOfSecond(0)
-                                    .getMillis(), timeWindow.getStartTime());
+                .withSecondOfMinute(0)
+                .withMillisOfSecond(0)
+                .getMillis(), timeWindow.getStartTime());
     }
 
     @Test
     public void testGetWindowStartNoRounding() throws Exception {
         DateTime currentTime = new DateTime();
         final String json = String.format("{ \"operator\": \"last\", \"currentTime\": %d, \"duration\": \"1h\" }",
-                                          currentTime.getMillis());
+                currentTime.getMillis());
         LastFilter lastFilter = objectMapper.readValue(json, LastFilter.class);
         TimeWindow timeWindow = lastFilter.getWindow();
         Assert.assertEquals("_timestamp", lastFilter.getField());
         Assert.assertEquals(currentTime.getMillis(), lastFilter.getCurrentTime());
         Assert.assertEquals(currentTime.minusHours(1)
-                                    .getMillis(), timeWindow.getStartTime());
+                .getMillis(), timeWindow.getStartTime());
     }
 
 }
