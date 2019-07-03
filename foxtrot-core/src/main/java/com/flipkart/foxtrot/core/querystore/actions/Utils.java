@@ -49,7 +49,8 @@ public class Utils {
 
     private Utils() {}
 
-    public static TermsAggregationBuilder buildTermsAggregation(List<ResultSort> fields, Set<AggregationBuilder> subAggregations) {
+    public static TermsAggregationBuilder buildTermsAggregation(List<ResultSort> fields,
+            Set<AggregationBuilder> subAggregations) {
         TermsAggregationBuilder rootBuilder = null;
         TermsAggregationBuilder termsBuilder = null;
         for(ResultSort nestingField : fields) {
@@ -60,7 +61,8 @@ public class Utils {
                         .field(storedFieldName(field))
                         .order(bucketOrder);
             } else {
-                TermsAggregationBuilder tempBuilder = AggregationBuilders.terms(Utils.sanitizeFieldForAggregation(field))
+                TermsAggregationBuilder tempBuilder = AggregationBuilders.terms(
+                        Utils.sanitizeFieldForAggregation(field))
                         .field(storedFieldName(field))
                         .order(bucketOrder);
                 termsBuilder.subAggregation(tempBuilder);
@@ -71,7 +73,7 @@ public class Utils {
                 rootBuilder = termsBuilder;
             }
         }
-        if(!CollectionUtils.isNullOrEmpty(subAggregations)) {
+        if(! CollectionUtils.isNullOrEmpty(subAggregations)) {
             assert termsBuilder != null;
             for(AggregationBuilder aggregationBuilder : subAggregations) {
                 termsBuilder.subAggregation(aggregationBuilder);
@@ -145,12 +147,13 @@ public class Utils {
         });
     }
 
-    public static AbstractAggregationBuilder buildPercentileAggregation(String field, Collection<Double> inputPercentiles) {
+    public static AbstractAggregationBuilder buildPercentileAggregation(String field,
+            Collection<Double> inputPercentiles) {
         return buildPercentileAggregation(field, inputPercentiles, DEFAULT_COMPRESSION);
     }
 
-    public static AbstractAggregationBuilder buildPercentileAggregation(String field, Collection<Double> inputPercentiles,
-                                                                        double compression) {
+    public static AbstractAggregationBuilder buildPercentileAggregation(String field,
+            Collection<Double> inputPercentiles, double compression) {
         double[] percentiles = inputPercentiles != null ? inputPercentiles.stream()
                 .mapToDouble(x -> x)
                 .toArray() : DEFAULT_PERCENTILES;
@@ -164,7 +167,8 @@ public class Utils {
                 .compression(compression);
     }
 
-    public static DateHistogramAggregationBuilder buildDateHistogramAggregation(String field, DateHistogramInterval interval) {
+    public static DateHistogramAggregationBuilder buildDateHistogramAggregation(String field,
+            DateHistogramInterval interval) {
         String metricKey = getDateHistogramKey(field);
         return AggregationBuilders.dateHistogram(metricKey)
                 .minDocCount(0)
@@ -192,7 +196,7 @@ public class Utils {
 
     public static DateHistogramInterval getHistogramInterval(Period period) {
         DateHistogramInterval interval;
-        switch (period) {
+        switch(period) {
             case seconds:
                 interval = DateHistogramInterval.SECOND;
                 break;

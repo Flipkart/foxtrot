@@ -32,7 +32,8 @@ import static com.flipkart.foxtrot.core.util.ElasticsearchQueryUtils.QUERY_SIZE;
  * Created by rishabh.goyal on 17/11/14.
  */
 
-@AnalyticsProvider(opcode = "distinct", request = DistinctRequest.class, response = DistinctResponse.class, cacheable = true)
+@AnalyticsProvider(opcode = "distinct", request = DistinctRequest.class, response = DistinctResponse.class, cacheable
+        = true)
 public class DistinctAction extends Action<DistinctRequest> {
     private static final Logger logger = LoggerFactory.getLogger(DistinctAction.class);
 
@@ -89,7 +90,7 @@ public class DistinctAction extends Action<DistinctRequest> {
 
             }
         }
-        if(!CollectionUtils.isNullOrEmpty(validationErrors)) {
+        if(! CollectionUtils.isNullOrEmpty(validationErrors)) {
             throw FoxtrotExceptions.createMalformedQueryException(parameter, validationErrors);
         }
     }
@@ -104,7 +105,7 @@ public class DistinctAction extends Action<DistinctRequest> {
             query.setQuery(new ElasticSearchQueryGenerator().genFilter(request.getFilters()))
                     .setSize(QUERY_SIZE)
                     .addAggregation(Utils.buildTermsAggregation(request.getNesting(), Sets.newHashSet()));
-        } catch (Exception e) {
+        } catch(Exception e) {
             throw FoxtrotExceptions.queryCreationException(request, e);
         }
 
@@ -112,7 +113,7 @@ public class DistinctAction extends Action<DistinctRequest> {
             SearchResponse response = query.execute()
                     .actionGet(getGetQueryTimeout());
             return getResponse(response, getParameter());
-        } catch (ElasticsearchException e) {
+        } catch(ElasticsearchException e) {
             throw FoxtrotExceptions.createQueryExecutionException(request, e);
         }
     }
@@ -128,7 +129,7 @@ public class DistinctAction extends Action<DistinctRequest> {
                     .setSize(QUERY_SIZE)
                     .addAggregation(Utils.buildTermsAggregation(request.getNesting(), Sets.newHashSet()));
 
-        } catch (Exception e) {
+        } catch(Exception e) {
             throw FoxtrotExceptions.queryCreationException(request, e);
         }
         return query;
@@ -159,7 +160,8 @@ public class DistinctAction extends Action<DistinctRequest> {
         return response;
     }
 
-    private void flatten(String parentKey, List<String> fields, List<List<String>> responseList, Aggregations aggregations) {
+    private void flatten(String parentKey, List<String> fields, List<List<String>> responseList,
+            Aggregations aggregations) {
         final String field = fields.get(0);
         final List<String> remainingFields = (fields.size() > 1) ? fields.subList(1, fields.size()) : new ArrayList<>();
         Terms terms = aggregations.get(Utils.sanitizeFieldForAggregation(field));
@@ -167,7 +169,8 @@ public class DistinctAction extends Action<DistinctRequest> {
             if(fields.size() == 1) {
                 responseList.add(getValueList(parentKey, String.valueOf(bucket.getKey())));
             } else {
-                flatten(getProperKey(parentKey, String.valueOf(bucket.getKey())), remainingFields, responseList, bucket.getAggregations());
+                flatten(getProperKey(parentKey, String.valueOf(bucket.getKey())), remainingFields, responseList,
+                        bucket.getAggregations());
             }
         }
     }

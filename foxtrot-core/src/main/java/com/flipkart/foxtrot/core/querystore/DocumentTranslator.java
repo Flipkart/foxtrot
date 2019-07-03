@@ -32,7 +32,8 @@ public class DocumentTranslator {
             this.rawKeyVersion = "1.0";
         } else if(hbaseConfig.getRawKeyVersion()
                 .equalsIgnoreCase("2.0")) {
-            this.keyDistributor = new RowKeyDistributorByHashPrefix(new RowKeyDistributorByHashPrefix.OneByteSimpleHash(32));
+            this.keyDistributor = new RowKeyDistributorByHashPrefix(
+                    new RowKeyDistributorByHashPrefix.OneByteSimpleHash(32));
             this.rawKeyVersion = "2.0";
         } else {
             throw new IllegalArgumentException(String.format(EXCEPTION_MESSAGE, hbaseConfig.getRawKeyVersion()));
@@ -51,7 +52,7 @@ public class DocumentTranslator {
         Document document = new Document();
         DocumentMetadata metadata = metadata(table, inDocument);
 
-        switch (rawKeyVersion) {
+        switch(rawKeyVersion) {
             case "1.0":
                 document.setId(inDocument.getId());
                 break;
@@ -89,13 +90,12 @@ public class DocumentTranslator {
     }
 
     public String rawStorageIdFromDocument(final Table table, final Document document) {
-        switch (rawKeyVersion) {
+        switch(rawKeyVersion) {
             case "1.0":
                 return document.getId() + ":" + table.getName();
             case "2.0":
                 return String.format("%s:%020d:%s:%s", table.getName(), document.getTimestamp(), document.getId(),
-                                     Constants.rawKeyVersionToSuffixMap.get(rawKeyVersion)
-                                    );
+                                     Constants.rawKeyVersionToSuffixMap.get(rawKeyVersion));
             default:
                 throw new IllegalArgumentException(String.format(EXCEPTION_MESSAGE, rawKeyVersion));
         }

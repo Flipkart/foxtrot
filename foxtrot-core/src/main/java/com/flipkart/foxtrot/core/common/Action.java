@@ -107,12 +107,12 @@ public abstract class Action<P extends ActionRequest> implements Callable<String
     public ActionValidationResponse validate(String email) {
         try {
             preProcessRequest(email);
-        } catch (MalformedQueryException e) {
+        } catch(MalformedQueryException e) {
             return ActionValidationResponse.builder()
                     .processedRequest(parameter)
                     .validationErrors(e.getReasons())
                     .build();
-        } catch (Exception e) {
+        } catch(Exception e) {
             return ActionValidationResponse.builder()
                     .processedRequest(parameter)
                     .validationErrors(Collections.singletonList(e.getMessage()))
@@ -145,7 +145,7 @@ public abstract class Action<P extends ActionRequest> implements Callable<String
             updateCachedData(result);
 
             return result;
-        } catch (FoxtrotException e) {
+        } catch(FoxtrotException e) {
             stopwatch.stop();
             // Publish failure metrics
             MetricUtil.getInstance()
@@ -158,7 +158,7 @@ public abstract class Action<P extends ActionRequest> implements Callable<String
         try {
             String query = getObjectMapper().writeValueAsString(parameter);
             logger.warn("SLOW_QUERY: Time: {} ms Query: {}", elapsed, query);
-        } catch (JsonProcessingException e) {
+        } catch(JsonProcessingException e) {
             logger.error("Error serializing slow query", e);
         }
     }
@@ -198,15 +198,15 @@ public abstract class Action<P extends ActionRequest> implements Callable<String
 
     private void validateBase(P parameter) {
         List<String> validationErrors = new ArrayList<>();
-        if(!CollectionUtils.isNullOrEmpty(parameter.getFilters())) {
+        if(! CollectionUtils.isNullOrEmpty(parameter.getFilters())) {
             for(Filter filter : parameter.getFilters()) {
                 Set<String> errors = filter.validate();
-                if(!CollectionUtils.isNullOrEmpty(errors)) {
+                if(! CollectionUtils.isNullOrEmpty(errors)) {
                     validationErrors.addAll(errors);
                 }
             }
         }
-        if(!CollectionUtils.isNullOrEmpty(validationErrors)) {
+        if(! CollectionUtils.isNullOrEmpty(validationErrors)) {
             throw FoxtrotExceptions.createMalformedQueryException(parameter, validationErrors);
         }
     }

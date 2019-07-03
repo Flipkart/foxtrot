@@ -141,24 +141,36 @@ public class MultiQueryActionTest extends ActionTest {
         MultiQueryRequest multiQueryRequest = new MultiQueryRequest(requests);
 
         List<Document> documents = new ArrayList<>();
+        documents.add(TestUtils.getDocument("W", 1397658117001L,
+                                            new Object[]{"os", "android", "device", "nexus", "battery", 99},
+                                            getMapper()));
+        documents.add(TestUtils.getDocument("X", 1397658117002L,
+                                            new Object[]{"os", "android", "device", "nexus", "battery", 74},
+                                            getMapper()));
+        documents.add(TestUtils.getDocument("Y", 1397658117003L,
+                                            new Object[]{"os", "android", "device", "nexus", "battery", 48},
+                                            getMapper()));
+        documents.add(TestUtils.getDocument("Z", 1397658117004L,
+                                            new Object[]{"os", "android", "device", "nexus", "battery", 24},
+                                            getMapper()));
+        documents.add(TestUtils.getDocument("A", 1397658118000L,
+                                            new Object[]{"os", "android", "version", 1, "device", "nexus"},
+                                            getMapper()));
+        documents.add(TestUtils.getDocument("B", 1397658118001L,
+                                            new Object[]{"os", "android", "version", 1, "device", "galaxy"},
+                                            getMapper()));
+        documents.add(TestUtils.getDocument("C", 1397658118002L,
+                                            new Object[]{"os", "android", "version", 2, "device", "nexus"},
+                                            getMapper()));
         documents.add(
-                TestUtils.getDocument("W", 1397658117001L, new Object[]{"os", "android", "device", "nexus", "battery", 99}, getMapper()));
+                TestUtils.getDocument("D", 1397658118003L, new Object[]{"os", "ios", "version", 1, "device", "iphone"},
+                                      getMapper()));
         documents.add(
-                TestUtils.getDocument("X", 1397658117002L, new Object[]{"os", "android", "device", "nexus", "battery", 74}, getMapper()));
-        documents.add(
-                TestUtils.getDocument("Y", 1397658117003L, new Object[]{"os", "android", "device", "nexus", "battery", 48}, getMapper()));
-        documents.add(
-                TestUtils.getDocument("Z", 1397658117004L, new Object[]{"os", "android", "device", "nexus", "battery", 24}, getMapper()));
-        documents.add(
-                TestUtils.getDocument("A", 1397658118000L, new Object[]{"os", "android", "version", 1, "device", "nexus"}, getMapper()));
-        documents.add(
-                TestUtils.getDocument("B", 1397658118001L, new Object[]{"os", "android", "version", 1, "device", "galaxy"}, getMapper()));
-        documents.add(
-                TestUtils.getDocument("C", 1397658118002L, new Object[]{"os", "android", "version", 2, "device", "nexus"}, getMapper()));
-        documents.add(TestUtils.getDocument("D", 1397658118003L, new Object[]{"os", "ios", "version", 1, "device", "iphone"}, getMapper()));
-        documents.add(TestUtils.getDocument("E", 1397658118004L, new Object[]{"os", "ios", "version", 2, "device", "ipad"}, getMapper()));
+                TestUtils.getDocument("E", 1397658118004L, new Object[]{"os", "ios", "version", 2, "device", "ipad"},
+                                      getMapper()));
 
-        MultiQueryResponse multiQueryResponse = MultiQueryResponse.class.cast(getQueryExecutor().execute(multiQueryRequest, TEST_EMAIL));
+        MultiQueryResponse multiQueryResponse = MultiQueryResponse.class.cast(
+                getQueryExecutor().execute(multiQueryRequest, TEST_EMAIL));
         for(Map.Entry<String, ActionResponse> response : multiQueryResponse.getResponses()
                 .entrySet()) {
             compare(documents, ((QueryResponse)response.getValue()).getDocuments());
@@ -175,11 +187,12 @@ public class MultiQueryActionTest extends ActionTest {
             assertNotNull("Actual document Id should not be null", actual.getId());
             assertNotNull("Actual document data should not be null", actual.getData());
             assertEquals("Actual Doc Id should match expected Doc Id", expected.getId(), actual.getId());
-            assertEquals("Actual Doc Timestamp should match expected Doc Timestamp", expected.getTimestamp(), actual.getTimestamp());
-            Map<String, Object> expectedMap = getMapper().convertValue(expected.getData(), new TypeReference<HashMap<String, Object>>() {
-            });
-            Map<String, Object> actualMap = getMapper().convertValue(actual.getData(), new TypeReference<HashMap<String, Object>>() {
-            });
+            assertEquals("Actual Doc Timestamp should match expected Doc Timestamp", expected.getTimestamp(),
+                         actual.getTimestamp());
+            Map<String, Object> expectedMap = getMapper().convertValue(expected.getData(),
+                                                                       new TypeReference<HashMap<String, Object>>() {});
+            Map<String, Object> actualMap = getMapper().convertValue(actual.getData(),
+                                                                     new TypeReference<HashMap<String, Object>>() {});
             assertEquals("Actual data should match expected data", expectedMap, actualMap);
         }
     }

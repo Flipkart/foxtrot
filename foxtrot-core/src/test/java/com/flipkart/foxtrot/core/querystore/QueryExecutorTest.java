@@ -16,7 +16,6 @@
 package com.flipkart.foxtrot.core.querystore;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.flipkart.foxtrot.common.ActionRequest;
 import com.flipkart.foxtrot.core.TestUtils;
 import com.flipkart.foxtrot.core.alerts.EmailConfig;
 import com.flipkart.foxtrot.core.cache.CacheManager;
@@ -42,7 +41,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-import java.io.IOException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -69,7 +67,8 @@ public class QueryExecutorTest {
         HazelcastConnection hazelcastConnection = Mockito.mock(HazelcastConnection.class);
         when(hazelcastConnection.getHazelcast()).thenReturn(hazelcastInstance);
         when(hazelcastConnection.getHazelcastConfig()).thenReturn(new Config());
-        CacheManager cacheManager = new CacheManager(new DistributedCacheFactory(hazelcastConnection, mapper, new CacheConfig()));
+        CacheManager cacheManager = new CacheManager(
+                new DistributedCacheFactory(hazelcastConnection, mapper, new CacheConfig()));
         elasticsearchConnection = ElasticsearchTestUtils.getConnection();
         ElasticsearchUtils.initializeMappings(elasticsearchConnection.getClient());
         TableMetadataManager tableMetadataManager = mock(TableMetadataManager.class);
@@ -77,9 +76,8 @@ public class QueryExecutorTest {
         when(tableMetadataManager.get(anyString())).thenReturn(TestUtils.TEST_TABLE);
         QueryStore queryStore = mock(QueryStore.class);
         analyticsLoader = spy(
-                new AnalyticsLoader(tableMetadataManager, dataStore, queryStore, elasticsearchConnection, cacheManager, mapper,
-                                    new EmailConfig()
-                ));
+                new AnalyticsLoader(tableMetadataManager, dataStore, queryStore, elasticsearchConnection, cacheManager,
+                                    mapper, new EmailConfig()));
         TestUtils.registerActions(analyticsLoader, mapper);
         ExecutorService executorService = Executors.newFixedThreadPool(1);
         queryExecutor = new QueryExecutor(analyticsLoader, executorService);
@@ -102,7 +100,7 @@ public class QueryExecutorTest {
         try {
             queryExecutor.resolve(new RequestWithNoAction());
             fail();
-        } catch (FoxtrotException e) {
+        } catch(FoxtrotException e) {
             assertEquals(ErrorCode.UNRESOLVABLE_OPERATION, e.getCode());
         }
     }

@@ -39,8 +39,8 @@ public class EsIndexOptimizationManager extends BaseJobManager {
     private final EsIndexOptimizationConfig esIndexOptimizationConfig;
 
     public EsIndexOptimizationManager(ScheduledExecutorService scheduledExecutorService,
-                                      EsIndexOptimizationConfig esIndexOptimizationConfig, ElasticsearchConnection elasticsearchConnection,
-                                      HazelcastConnection hazelcastConnection) {
+            EsIndexOptimizationConfig esIndexOptimizationConfig, ElasticsearchConnection elasticsearchConnection,
+            HazelcastConnection hazelcastConnection) {
         super(esIndexOptimizationConfig, scheduledExecutorService, hazelcastConnection);
         this.esIndexOptimizationConfig = esIndexOptimizationConfig;
         this.elasticsearchConnection = elasticsearchConnection;
@@ -66,7 +66,7 @@ public class EsIndexOptimizationManager extends BaseJobManager {
                 }
                 optimizeIndices(indicesToOptimize);
                 LOGGER.info("No of indexes optimized : {}", indicesToOptimize.size());
-            } catch (Exception e) {
+            } catch(Exception e) {
                 LOGGER.error("Error occurred while calling optimization API", e);
             }
         }, new LockConfiguration(esIndexOptimizationConfig.getJobName(), lockAtMostUntil));
@@ -88,19 +88,20 @@ public class EsIndexOptimizationManager extends BaseJobManager {
             LOGGER.info("No of indexes optimized : {}", indices.size());
             MetricUtil.getInstance()
                     .registerActionSuccess("indexesOptimized", CollectionUtils.mkString(indices, ","),
-                                           stopwatch.elapsed(TimeUnit.MILLISECONDS)
-                                          );
+                                           stopwatch.elapsed(TimeUnit.MILLISECONDS));
         }
     }
 
-    private void extractIndicesToOptimizeForIndex(String index, IndexSegments indexShardSegments, Set<String> indicesToOptimize) {
+    private void extractIndicesToOptimizeForIndex(String index, IndexSegments indexShardSegments,
+            Set<String> indicesToOptimize) {
 
         String table = ElasticsearchUtils.getTableNameFromIndex(index);
         if(StringUtils.isEmpty(table)) {
             return;
         }
         String currentIndex = ElasticsearchUtils.getCurrentIndex(table, System.currentTimeMillis());
-        String nextDayIndex = ElasticsearchUtils.getCurrentIndex(table, System.currentTimeMillis() + TimeUnit.DAYS.toMillis(1));
+        String nextDayIndex = ElasticsearchUtils.getCurrentIndex(table, System.currentTimeMillis() +
+                                                                        TimeUnit.DAYS.toMillis(1));
         if(index.equals(currentIndex) || index.equals(nextDayIndex)) {
             return;
         }

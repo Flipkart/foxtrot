@@ -18,5 +18,4 @@ package impl;
 /***
  Created by nitish.goyal on 02/08/18
  ***/
-public interface IntegrationTest {
-}
+public interface IntegrationTest {}

@@ -48,8 +48,9 @@ public class FqlStoreServiceImpl implements FqlStoreService {
                     .execute()
                     .get();
             logger.info("Saved FQL Query : {}", fqlStore.getQuery());
-        } catch (Exception e) {
-            throw new FqlPersistenceException("Couldn't save FQL query: " + fqlStore.getQuery() + " Error Message: " + e.getMessage(), e);
+        } catch(Exception e) {
+            throw new FqlPersistenceException(
+                    "Couldn't save FQL query: " + fqlStore.getQuery() + " Error Message: " + e.getMessage(), e);
         }
     }
 
@@ -72,7 +73,7 @@ public class FqlStoreServiceImpl implements FqlStoreService {
             for(SearchHit searchHit : CollectionUtils.nullAndEmptySafeValueList(searchHits.getHits())) {
                 fqlStoreList.add(objectMapper.readValue(searchHit.getSourceAsString(), FqlStore.class));
             }
-        } catch (Exception e) {
+        } catch(Exception e) {
             throw new FqlPersistenceException("Couldn't get FqlStore: " + e.getMessage(), e);
         }
         return fqlStoreList;

@@ -57,7 +57,7 @@ public class TrendResponse extends ActionResponse {
     public boolean equals(Object o) {
         if(this == o)
             return true;
-        if(!(o instanceof TrendResponse))
+        if(! (o instanceof TrendResponse))
             return false;
 
         TrendResponse that = (TrendResponse)o;
@@ -102,7 +102,7 @@ public class TrendResponse extends ActionResponse {
         public boolean equals(Object o) {
             if(this == o)
                 return true;
-            if(!(o instanceof Count))
+            if(! (o instanceof Count))
                 return false;
 
             Count count1 = (Count)o;

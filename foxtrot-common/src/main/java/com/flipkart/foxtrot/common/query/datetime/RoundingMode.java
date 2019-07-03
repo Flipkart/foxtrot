@@ -9,7 +9,7 @@ public enum RoundingMode {
     FLOOR {
         @Override
         public DateTime translate(DateTime dateTime, Duration duration) {
-            switch (duration.getUnit()) {
+            switch(duration.getUnit()) {
                 case NANOSECONDS:
                 case MICROSECONDS:
                     return dateTime;
@@ -36,7 +36,7 @@ public enum RoundingMode {
     CEILING {
         @Override
         public DateTime translate(DateTime dateTime, Duration duration) {
-            switch (duration.getUnit()) {
+            switch(duration.getUnit()) {
                 case NANOSECONDS:
                 case MICROSECONDS:
                     return dateTime;

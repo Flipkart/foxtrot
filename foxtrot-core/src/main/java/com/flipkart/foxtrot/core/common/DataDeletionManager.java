@@ -29,7 +29,7 @@ public class DataDeletionManager implements Managed {
     private final HazelcastConnection hazelcastConnection;
 
     public DataDeletionManager(DataDeletionManagerConfig deletionManagerConfig, QueryStore queryStore,
-                               ScheduledExecutorService scheduledExecutorService, HazelcastConnection hazelcastConnection) {
+            ScheduledExecutorService scheduledExecutorService, HazelcastConnection hazelcastConnection) {
         this.config = deletionManagerConfig;
         this.queryStore = queryStore;
         this.hazelcastConnection = hazelcastConnection;
@@ -46,7 +46,8 @@ public class DataDeletionManager implements Managed {
                         new HazelcastLockProvider(hazelcastConnection.getHazelcast()));
                 Instant lockAtMostUntil = Instant.now()
                         .plusSeconds(TimeUnit.HOURS.toSeconds(MAX_TIME_TO_RUN_TASK_IN_HOURS));
-                executor.executeWithLock(new DataDeletionTask(queryStore), new LockConfiguration("dataDeletion", lockAtMostUntil));
+                executor.executeWithLock(new DataDeletionTask(queryStore),
+                                         new LockConfiguration("dataDeletion", lockAtMostUntil));
             }, config.getInitialDelay(), config.getInterval(), TimeUnit.SECONDS);
             logger.info("Scheduled data deletion Job");
         } else {

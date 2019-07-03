@@ -47,13 +47,14 @@ public class ElasticsearchMappingParser {
     private Set<FieldMetadata> generateFieldMappings(String parentField, JsonNode jsonNode) {
         Set<FieldMetadata> fieldTypeMappings = new HashSet<>();
         Iterator<Map.Entry<String, JsonNode>> iterator = jsonNode.fields();
-        while (iterator.hasNext()) {
+        while(iterator.hasNext()) {
             Map.Entry<String, JsonNode> entry = iterator.next();
             if(entry.getKey()
                     .startsWith(ElasticsearchUtils.DOCUMENT_META_FIELD_NAME)) {
                 continue;
             }
-            String currentField = (parentField == null) ? entry.getKey() : (String.format("%s.%s", parentField, entry.getKey()));
+            String currentField = (parentField == null) ? entry.getKey() : (String.format("%s.%s", parentField,
+                                                                                          entry.getKey()));
             if(entry.getValue()
                     .has(PROPERTIES)) {
                 fieldTypeMappings.addAll(generateFieldMappings(currentField, entry.getValue()

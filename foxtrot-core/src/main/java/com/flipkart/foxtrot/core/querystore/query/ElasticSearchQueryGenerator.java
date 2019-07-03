@@ -106,7 +106,8 @@ public class ElasticSearchQueryGenerator implements FilterVisitor<Void> {
 
     @Override
     public Void visit(NotInFilter notInFilter) {
-        addFilter(boolQuery().mustNot(termsQuery(Utils.storedFieldName(notInFilter.getField()), notInFilter.getValues())));
+        addFilter(boolQuery().mustNot(
+                termsQuery(Utils.storedFieldName(notInFilter.getField()), notInFilter.getValues())));
         return null;
     }
 

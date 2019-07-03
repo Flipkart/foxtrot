@@ -80,7 +80,7 @@ public class HistogramResponse extends ActionResponse {
         public boolean equals(Object o) {
             if(this == o)
                 return true;
-            if(!(o instanceof Count))
+            if(! (o instanceof Count))
                 return false;
 
             Count count1 = (Count)o;

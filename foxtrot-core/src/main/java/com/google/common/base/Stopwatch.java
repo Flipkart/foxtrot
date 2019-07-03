@@ -137,7 +137,7 @@ public final class Stopwatch {
     }
 
     private static String abbreviate(TimeUnit unit) {
-        switch (unit) {
+        switch(unit) {
             case NANOSECONDS:
                 return "ns";
             case MICROSECONDS:
@@ -173,7 +173,7 @@ public final class Stopwatch {
      * @throws IllegalStateException if the stopwatch is already running.
      */
     public Stopwatch start() {
-        checkState(!isRunning, "This stopwatch is already running.");
+        checkState(! isRunning, "This stopwatch is already running.");
         isRunning = true;
         startTick = ticker.read();
         return this;

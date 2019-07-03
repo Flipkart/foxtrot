@@ -34,10 +34,10 @@ public class FoxtrotExceptionMapper implements ExceptionMapper<FoxtrotException>
         try {
             String responseString = mapper.writeValueAsString(response);
             logger.error(responseString, e);
-        } catch (JsonProcessingException e1) {
+        } catch(JsonProcessingException e1) {
             logger.error("exception_serialization_failed", e1);
         }
-        switch (e.getCode()) {
+        switch(e.getCode()) {
             case DOCUMENT_NOT_FOUND:
             case TABLE_NOT_FOUND:
                 return Response.status(Response.Status.NOT_FOUND)

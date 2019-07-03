@@ -24,10 +24,11 @@ public class AccessServiceImpl implements AccessService {
 
     @Override
     public boolean hasAccess(@Valid final ActionRequest request, UserDetails userDetails) {
-        if(!restrictAccess) {
+        if(! restrictAccess) {
             return true;
         }
         String tableName = request.accept(tableActionRequestVisitor);
-        return (userDetails.isAuthorized(SUPER_USER)) || (StringUtils.isEmpty(tableName) || userDetails.isAuthorized(tableName));
+        return (userDetails.isAuthorized(SUPER_USER)) || (StringUtils.isEmpty(tableName) || userDetails.isAuthorized(
+                tableName));
     }
 }

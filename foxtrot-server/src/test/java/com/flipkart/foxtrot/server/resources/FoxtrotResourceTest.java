@@ -106,7 +106,7 @@ public abstract class FoxtrotResourceTest {
     public FoxtrotResourceTest() throws Exception {
         try {
             dataStore = TestUtils.getDataStore();
-        } catch (FoxtrotException e) {
+        } catch(FoxtrotException e) {
             e.printStackTrace();
         }
 
@@ -121,7 +121,8 @@ public abstract class FoxtrotResourceTest {
 
         elasticsearchConnection = ElasticsearchTestUtils.getConnection();
 
-        CardinalityConfig cardinalityConfig = new CardinalityConfig("true", String.valueOf(ElasticsearchUtils.DEFAULT_SUB_LIST_SIZE));
+        CardinalityConfig cardinalityConfig = new CardinalityConfig("true", String.valueOf(
+                ElasticsearchUtils.DEFAULT_SUB_LIST_SIZE));
 
 
         IndicesExistsRequest indicesExistsRequest = new IndicesExistsRequest().indices(TableMapStore.TABLE_META_INDEX);
@@ -131,11 +132,12 @@ public abstract class FoxtrotResourceTest {
                 .exists(indicesExistsRequest)
                 .actionGet();
 
-        if(!indicesExistsResponse.isExists()) {
+        if(! indicesExistsResponse.isExists()) {
             Settings indexSettings = Settings.builder()
                     .put("number_of_replicas", 0)
                     .build();
-            CreateIndexRequest createRequest = new CreateIndexRequest(TableMapStore.TABLE_META_INDEX).settings(indexSettings);
+            CreateIndexRequest createRequest = new CreateIndexRequest(TableMapStore.TABLE_META_INDEX).settings(
+                    indexSettings);
             elasticsearchConnection.getClient()
                     .admin()
                     .indices()
@@ -143,26 +145,27 @@ public abstract class FoxtrotResourceTest {
                     .actionGet();
         }
 
-        tableMetadataManager = new DistributedTableMetadataManager(hazelcastConnection, elasticsearchConnection, mapper, cardinalityConfig);
+        tableMetadataManager = new DistributedTableMetadataManager(hazelcastConnection, elasticsearchConnection, mapper,
+                                                                   cardinalityConfig);
         tableMetadataManager.start();
         tableMetadataManager.save(Table.builder()
                                           .name(TestUtils.TEST_TABLE_NAME)
                                           .ttl(7)
                                           .build());
-        queryStore = new ElasticsearchQueryStore(tableMetadataManager, elasticsearchConnection, dataStore, mapper, cardinalityConfig);
+        queryStore = new ElasticsearchQueryStore(tableMetadataManager, elasticsearchConnection, dataStore, mapper,
+                                                 cardinalityConfig);
         queryStore = spy(queryStore);
 
-        analyticsLoader = new AnalyticsLoader(tableMetadataManager, dataStore, queryStore, elasticsearchConnection, cacheManager, mapper,
-                                              new EmailConfig()
-        );
+        analyticsLoader = new AnalyticsLoader(tableMetadataManager, dataStore, queryStore, elasticsearchConnection,
+                                              cacheManager, mapper, new EmailConfig());
         try {
             analyticsLoader.start();
-        } catch (Exception e) {
+        } catch(Exception e) {
             e.printStackTrace();
         }
         try {
             TestUtils.registerActions(analyticsLoader, mapper);
-        } catch (Exception e) {
+        } catch(Exception e) {
             e.printStackTrace();
         }
         ExecutorService executorService = Executors.newFixedThreadPool(1);

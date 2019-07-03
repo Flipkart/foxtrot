@@ -47,7 +47,7 @@ public class EmailClient {
             message.setContent(multipart);
 
             Transport.send(message, emailConfig.getUser(), emailConfig.getPassword());
-        } catch (Exception e) {
+        } catch(Exception e) {
             LOGGER.error("Error occurred while sending the email :%s", e);
             return false;
         }

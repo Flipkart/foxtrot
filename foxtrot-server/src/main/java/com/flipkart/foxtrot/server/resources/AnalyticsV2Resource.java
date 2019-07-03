@@ -44,10 +44,11 @@ public class AnalyticsV2Resource {
     @Authorize(value = {})
     public ActionResponse runSync(@Valid final ActionRequest request, @GandalfUserContext UserDetails userDetails) {
         try {
-            if(!accessService.hasAccess(request, userDetails)) {
-                throw FoxtrotExceptions.createAuthorizationException(request, new Exception(AUTHORIZATION_EXCEPTION_MESSAGE));
+            if(! accessService.hasAccess(request, userDetails)) {
+                throw FoxtrotExceptions.createAuthorizationException(request,
+                                                                     new Exception(AUTHORIZATION_EXCEPTION_MESSAGE));
             }
-        } catch (Exception e) {
+        } catch(Exception e) {
             throw FoxtrotExceptions.createAuthorizationException(request, e);
         }
         return queryExecutor.execute(request, userDetails.getEmail());
@@ -58,12 +59,14 @@ public class AnalyticsV2Resource {
     @Timed
     @ApiOperation("runSyncAsync")
     @Authorize(value = {})
-    public AsyncDataToken runSyncAsync(@Valid final ActionRequest request, @GandalfUserContext UserDetails userDetails) {
+    public AsyncDataToken runSyncAsync(@Valid final ActionRequest request,
+            @GandalfUserContext UserDetails userDetails) {
         try {
-            if(!accessService.hasAccess(request, userDetails)) {
-                throw FoxtrotExceptions.createAuthorizationException(request, new Exception(AUTHORIZATION_EXCEPTION_MESSAGE));
+            if(! accessService.hasAccess(request, userDetails)) {
+                throw FoxtrotExceptions.createAuthorizationException(request,
+                                                                     new Exception(AUTHORIZATION_EXCEPTION_MESSAGE));
             }
-        } catch (Exception e) {
+        } catch(Exception e) {
             throw FoxtrotExceptions.createAuthorizationException(request, e);
         }
         return queryExecutor.executeAsync(request, userDetails.getEmail());
@@ -74,12 +77,14 @@ public class AnalyticsV2Resource {
     @Timed
     @ApiOperation("validateQuery")
     @Authorize(value = {})
-    public ActionValidationResponse validateQuery(@Valid final ActionRequest request, @GandalfUserContext UserDetails userDetails) {
+    public ActionValidationResponse validateQuery(@Valid final ActionRequest request,
+            @GandalfUserContext UserDetails userDetails) {
         try {
-            if(!accessService.hasAccess(request, userDetails)) {
-                throw FoxtrotExceptions.createAuthorizationException(request, new Exception(AUTHORIZATION_EXCEPTION_MESSAGE));
+            if(! accessService.hasAccess(request, userDetails)) {
+                throw FoxtrotExceptions.createAuthorizationException(request,
+                                                                     new Exception(AUTHORIZATION_EXCEPTION_MESSAGE));
             }
-        } catch (Exception e) {
+        } catch(Exception e) {
             throw FoxtrotExceptions.createAuthorizationException(request, e);
         }
         return queryExecutor.validate(request, userDetails.getEmail());

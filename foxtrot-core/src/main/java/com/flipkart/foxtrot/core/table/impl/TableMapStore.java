@@ -78,7 +78,7 @@ public class TableMapStore implements MapStore<String, Table> {
                     .setRefreshPolicy(WriteRequest.RefreshPolicy.IMMEDIATE)
                     .execute()
                     .actionGet();
-        } catch (Exception e) {
+        } catch(Exception e) {
             throw new TableMapStoreException("Error saving meta: ", e);
         }
     }
@@ -106,7 +106,7 @@ public class TableMapStore implements MapStore<String, Table> {
                 bulkRequestBuilder.add(elasticsearchConnection.getClient()
                                                .prepareIndex(TABLE_META_INDEX, TABLE_META_TYPE, mapEntry.getKey())
                                                .setSource(sourceMap));
-            } catch (Exception e) {
+            } catch(Exception e) {
                 throw new TableMapStoreException("Error bulk saving meta: ", e);
             }
         }
@@ -153,12 +153,12 @@ public class TableMapStore implements MapStore<String, Table> {
                 .setId(key)
                 .execute()
                 .actionGet();
-        if(!response.isExists()) {
+        if(! response.isExists()) {
             return null;
         }
         try {
             return objectMapper.readValue(response.getSourceAsBytes(), Table.class);
-        } catch (Exception e) {
+        } catch(Exception e) {
             throw new TableMapStoreException("Error getting data for table: " + key);
         }
     }
@@ -177,7 +177,7 @@ public class TableMapStore implements MapStore<String, Table> {
                 Table table = objectMapper.readValue(multiGetItemResponse.getResponse()
                                                              .getSourceAsString(), Table.class);
                 tables.put(table.getName(), table);
-            } catch (Exception e) {
+            } catch(Exception e) {
                 throw new TableMapStoreException("Error getting data for table: " + multiGetItemResponse.getId());
             }
         }
@@ -212,8 +212,8 @@ public class TableMapStore implements MapStore<String, Table> {
                     .setScroll(new TimeValue(60000))
                     .execute()
                     .actionGet();
-        } while (response.getHits()
-                         .getHits().length != 0)
+        } while(response.getHits()
+                        .getHits().length != 0)
                 ;
         logger.info("Loaded value count: {}", ids.size());
         return ids;

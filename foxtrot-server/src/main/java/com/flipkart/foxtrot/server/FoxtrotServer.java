@@ -103,11 +103,12 @@ public class FoxtrotServer extends Application<FoxtrotServerConfiguration> {
         boolean localConfig = Boolean.parseBoolean(System.getProperty("localConfig", "false"));
         if(localConfig) {
             bootstrap.setConfigurationSourceProvider(
-                    new SubstitutingSourceProvider(bootstrap.getConfigurationSourceProvider(), new EnvironmentVariableSubstitutor()));
+                    new SubstitutingSourceProvider(bootstrap.getConfigurationSourceProvider(),
+                                                   new EnvironmentVariableSubstitutor()));
         } else {
-            bootstrap.setConfigurationSourceProvider(new SubstitutingSourceProvider(new RoseyConfigSourceProvider("platform", "foxtrot"),
-                                                                                    new EnvironmentVariableSubstitutor()
-            ));
+            bootstrap.setConfigurationSourceProvider(
+                    new SubstitutingSourceProvider(new RoseyConfigSourceProvider("platform", "foxtrot"),
+                                                   new EnvironmentVariableSubstitutor()));
         }
         bootstrap.addBundle(new AssetsBundle("/console/", "/", "index.html", "console"));
         bootstrap.addBundle(new OorBundle<FoxtrotServerConfiguration>() {
@@ -147,12 +148,14 @@ public class FoxtrotServer extends Application<FoxtrotServerConfiguration> {
             }
 
             @Override
-            protected GandalfClientConfig getGandalfClientConfig(FoxtrotServerConfiguration foxtrotServerConfiguration) {
+            protected GandalfClientConfig getGandalfClientConfig(
+                    FoxtrotServerConfiguration foxtrotServerConfiguration) {
                 return foxtrotServerConfiguration.getGandalfConfig();
             }
 
             @Override
-            protected PrimerBundleConfiguration getGandalfPrimerConfig(FoxtrotServerConfiguration foxtrotServerConfiguration) {
+            protected PrimerBundleConfiguration getGandalfPrimerConfig(
+                    FoxtrotServerConfiguration foxtrotServerConfiguration) {
                 return foxtrotServerConfiguration.getPrimerBundleConfiguration();
             }
         };
@@ -168,7 +171,8 @@ public class FoxtrotServer extends Application<FoxtrotServerConfiguration> {
 
         bootstrap.addBundle(new SwaggerBundle<FoxtrotServerConfiguration>() {
             @Override
-            protected SwaggerBundleConfiguration getSwaggerBundleConfiguration(FoxtrotServerConfiguration configuration) {
+            protected SwaggerBundleConfiguration getSwaggerBundleConfiguration(
+                    FoxtrotServerConfiguration configuration) {
                 return configuration.getSwagger();
             }
         });
@@ -202,7 +206,8 @@ public class FoxtrotServer extends Application<FoxtrotServerConfiguration> {
         ElasticsearchUtils.setTableNamePrefix(configuration.getElasticsearch());
         CardinalityConfig cardinalityConfig = configuration.getCardinality();
         if(cardinalityConfig == null) {
-            cardinalityConfig = new CardinalityConfig("false", String.valueOf(ElasticsearchUtils.DEFAULT_SUB_LIST_SIZE));
+            cardinalityConfig = new CardinalityConfig("false",
+                                                      String.valueOf(ElasticsearchUtils.DEFAULT_SUB_LIST_SIZE));
         }
         EsIndexOptimizationConfig esIndexOptimizationConfig = configuration.getEsIndexOptimizationConfig();
         if(esIndexOptimizationConfig == null) {
@@ -216,41 +221,42 @@ public class FoxtrotServer extends Application<FoxtrotServerConfiguration> {
         EmailConfig emailConfig = configuration.getEmailConfig();
 
         final ObjectMapper objectMapper = environment.getObjectMapper();
-        TableMetadataManager tableMetadataManager = new DistributedTableMetadataManager(hazelcastConnection, elasticsearchConnection,
-                                                                                        objectMapper, cardinalityConfig
-        );
-        DataStore dataStore = new HBaseDataStore(hbaseTableConnection, objectMapper, new DocumentTranslator(configuration.getHbase()));
-        QueryStore queryStore = new ElasticsearchQueryStore(tableMetadataManager, elasticsearchConnection, dataStore, objectMapper,
-                                                            cardinalityConfig
-        );
+        TableMetadataManager tableMetadataManager = new DistributedTableMetadataManager(hazelcastConnection,
+                                                                                        elasticsearchConnection,
+                                                                                        objectMapper,
+                                                                                        cardinalityConfig);
+        DataStore dataStore = new HBaseDataStore(hbaseTableConnection, objectMapper,
+                                                 new DocumentTranslator(configuration.getHbase()));
+        QueryStore queryStore = new ElasticsearchQueryStore(tableMetadataManager, elasticsearchConnection, dataStore,
+                                                            objectMapper, cardinalityConfig);
         TableActionRequestVisitor actionRequestVisitor = new TableActionRequestVisitor();
         AccessService accessService = new AccessServiceImpl(configuration.isRestrictAccess(), actionRequestVisitor);
         FqlStoreService fqlStoreService = new FqlStoreServiceImpl(elasticsearchConnection, objectMapper);
         FoxtrotTableManager tableManager = new FoxtrotTableManager(tableMetadataManager, queryStore, dataStore);
-        CacheManager cacheManager = new CacheManager(new DistributedCacheFactory(hazelcastConnection, objectMapper, cacheConfig));
-        AnalyticsLoader analyticsLoader = new AnalyticsLoader(tableMetadataManager, dataStore, queryStore, elasticsearchConnection,
-                                                              cacheManager, objectMapper, emailConfig
-        );
+        CacheManager cacheManager = new CacheManager(
+                new DistributedCacheFactory(hazelcastConnection, objectMapper, cacheConfig));
+        AnalyticsLoader analyticsLoader = new AnalyticsLoader(tableMetadataManager, dataStore, queryStore,
+                                                              elasticsearchConnection, cacheManager, objectMapper,
+                                                              emailConfig);
         QueryExecutor executor = new QueryExecutor(analyticsLoader, executorService);
         DataDeletionManagerConfig dataDeletionManagerConfig = configuration.getDeletionManagerConfig();
-        DataDeletionManager dataDeletionManager = new DataDeletionManager(dataDeletionManagerConfig, queryStore, scheduledExecutorService,
-                                                                          hazelcastConnection
-        );
-        CardinalityCalculationManager cardinalityCalculationManager = new CardinalityCalculationManager(tableMetadataManager,
-                                                                                                        cardinalityConfig,
-                                                                                                        hazelcastConnection,
-                                                                                                        scheduledExecutorService
-        );
+        DataDeletionManager dataDeletionManager = new DataDeletionManager(dataDeletionManagerConfig, queryStore,
+                                                                          scheduledExecutorService,
+                                                                          hazelcastConnection);
+        CardinalityCalculationManager cardinalityCalculationManager = new CardinalityCalculationManager(
+                tableMetadataManager, cardinalityConfig, hazelcastConnection, scheduledExecutorService);
         EsIndexOptimizationManager esIndexOptimizationManager = new EsIndexOptimizationManager(scheduledExecutorService,
                                                                                                esIndexOptimizationConfig,
-                                                                                               elasticsearchConnection, hazelcastConnection
-        );
-        ConsoleHistoryManager consoleHistoryManager = new ConsoleHistoryManager(scheduledExecutorService, consoleHistoryConfig,
-                                                                                elasticsearchConnection, hazelcastConnection, objectMapper
-        );
+                                                                                               elasticsearchConnection,
+                                                                                               hazelcastConnection);
+        ConsoleHistoryManager consoleHistoryManager = new ConsoleHistoryManager(scheduledExecutorService,
+                                                                                consoleHistoryConfig,
+                                                                                elasticsearchConnection,
+                                                                                hazelcastConnection, objectMapper);
 
         List<HealthCheck> healthChecks = new ArrayList<>();
-        ClusterManager clusterManager = new ClusterManager(hazelcastConnection, healthChecks, configuration.getServerFactory());
+        ClusterManager clusterManager = new ClusterManager(hazelcastConnection, healthChecks,
+                                                           configuration.getServerFactory());
 
         environment.lifecycle()
                 .manage(hbaseTableConnection);
@@ -286,9 +292,11 @@ public class FoxtrotServer extends Application<FoxtrotServerConfiguration> {
         environment.jersey()
                 .register(new TableFieldMappingResource(tableManager, tableMetadataManager));
         environment.jersey()
-                .register(new ConsoleResource(new ElasticsearchConsolePersistence(elasticsearchConnection, objectMapper)));
+                .register(new ConsoleResource(
+                        new ElasticsearchConsolePersistence(elasticsearchConnection, objectMapper)));
         environment.jersey()
-                .register(new ConsoleV2Resource(new ElasticsearchConsolePersistence(elasticsearchConnection, objectMapper)));
+                .register(new ConsoleV2Resource(
+                        new ElasticsearchConsolePersistence(elasticsearchConnection, objectMapper)));
         FqlEngine fqlEngine = new FqlEngine(tableMetadataManager, queryStore, executor, objectMapper);
         environment.jersey()
                 .register(new FqlResource(fqlEngine, fqlStoreService, accessService));
@@ -326,9 +334,8 @@ public class FoxtrotServer extends Application<FoxtrotServerConfiguration> {
         MetricUtil.setup(environment.metrics());
         GandalfConfiguration gandalfConfiguration = configuration.getGandalfConfiguration();
         if(gandalfConfiguration != null && StringUtils.isNotEmpty(gandalfConfiguration.getRedirectUrl())) {
-            GandalfClient.initializeUrlPatternsAuthentication(gandalfConfiguration.getRedirectUrl(), "/echo/*", "/cluster/*", "/fql/*", "/",
-                                                              "/index.html"
-                                                             );
+            GandalfClient.initializeUrlPatternsAuthentication(gandalfConfiguration.getRedirectUrl(), "/echo/*",
+                                                              "/cluster/*", "/fql/*", "/", "/index.html");
         }
 
     }

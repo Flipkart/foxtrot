@@ -12,14 +12,15 @@ import java.util.Map;
 @Getter
 public class CardinalityOverflowException extends FoxtrotException {
 
-    private static final long serialVersionUID = -8591567152701424689L;
+    private static final long serialVersionUID = - 8591567152701424689L;
 
     private final String field;
     private final ActionRequest actionRequest;
     private final double probability;
 
     protected CardinalityOverflowException(ActionRequest actionRequest, String field, double probability) {
-        super(ErrorCode.CARDINALITY_OVERFLOW, "Query blocked due to high cardinality. Consider using shorter time period");
+        super(ErrorCode.CARDINALITY_OVERFLOW,
+              "Query blocked due to high cardinality. Consider using shorter time period");
         this.field = field;
         this.actionRequest = actionRequest;
         this.probability = probability;

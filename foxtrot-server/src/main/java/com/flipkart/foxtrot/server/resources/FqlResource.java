@@ -42,7 +42,8 @@ public class FqlResource {
     @Timed
     @ApiOperation("runFqlGet")
     @Authorize(value = {})
-    public StreamingOutput runFqlGet(@QueryParam("q") final String query, @GandalfUserContext UserDetails userDetails) throws JsonProcessingException {
+    public StreamingOutput runFqlGet(@QueryParam("q") final String query, @GandalfUserContext UserDetails userDetails)
+            throws JsonProcessingException {
         Preconditions.checkNotNull(query);
         final FlatRepresentation representation = fqlEngine.parse(query, userDetails, accessService);
         return output -> FlatToCsvConverter.convert(representation, new OutputStreamWriter(output));
@@ -53,13 +54,14 @@ public class FqlResource {
     @Produces({MediaType.TEXT_PLAIN, MediaType.APPLICATION_JSON, FoxtrotExtraMediaType.TEXT_CSV})
     @ApiOperation("runFqlPost")
     @Authorize(value = {})
-    public FlatRepresentation runFqlPost(final String query, @GandalfUserContext UserDetails userDetails) throws JsonProcessingException {
+    public FlatRepresentation runFqlPost(final String query, @GandalfUserContext UserDetails userDetails)
+            throws JsonProcessingException {
         return fqlEngine.parse(query, userDetails, accessService);
     }
 
     String getMessage(Throwable e) {
         Throwable root = e;
-        while (null != root.getCause()) {
+        while(null != root.getCause()) {
             root = root.getCause();
         }
         return root.getMessage();

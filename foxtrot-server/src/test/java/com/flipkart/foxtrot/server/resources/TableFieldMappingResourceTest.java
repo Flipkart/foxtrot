@@ -135,7 +135,7 @@ public class TableFieldMappingResourceTest extends FoxtrotResourceTest {
                     .target(String.format("/v1/tables/%s/fields", TestUtils.TEST_TABLE_NAME + "-missing"))
                     .request()
                     .head();
-        } catch (WebApplicationException ex) {
+        } catch(WebApplicationException ex) {
             assertEquals(Response.Status.NOT_FOUND.getStatusCode(), ex.getResponse()
                     .getStatus());
         }
@@ -164,8 +164,7 @@ public class TableFieldMappingResourceTest extends FoxtrotResourceTest {
         Map<String, TableFieldMapping> response = resources.client()
                 .target("/v1/tables/fields")
                 .request()
-                .get(new GenericType<Map<String, TableFieldMapping>>() {
-                });
+                .get(new GenericType<Map<String, TableFieldMapping>>() {});
         //System.out.println(new ObjectMapper().writerWithDefaultPrettyPrinter().writeValueAsString(response));
         Assert.assertFalse(response.isEmpty());
         Assert.assertEquals(1, response.size());

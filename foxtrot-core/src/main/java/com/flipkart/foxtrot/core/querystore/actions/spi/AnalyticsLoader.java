@@ -62,8 +62,8 @@ public class AnalyticsLoader implements Managed {
     private final EmailConfig emailConfig;
 
     public AnalyticsLoader(TableMetadataManager tableMetadataManager, DataStore dataStore, QueryStore queryStore,
-                           ElasticsearchConnection elasticsearchConnection, CacheManager cacheManager, ObjectMapper objectMapper,
-                           EmailConfig emailConfig) {
+            ElasticsearchConnection elasticsearchConnection, CacheManager cacheManager, ObjectMapper objectMapper,
+            EmailConfig emailConfig) {
         this.tableMetadataManager = tableMetadataManager;
         this.dataStore = dataStore;
         this.queryStore = queryStore;
@@ -87,7 +87,7 @@ public class AnalyticsLoader implements Managed {
                     Constructor<? extends Action> constructor = metadata.getAction()
                             .getConstructor(metadata.getRequest(), String.class, AnalyticsLoader.class);
                     return constructor.newInstance(r, metadata.getCacheToken(), this);
-                } catch (Exception e) {
+                } catch(Exception e) {
                     throw FoxtrotExceptions.createActionResolutionException(request, e);
                 }
             }
@@ -121,7 +121,8 @@ public class AnalyticsLoader implements Managed {
                     .equalsIgnoreCase("default")) {
                 logger.warn("Action {} does not specify cache token. Using default cache.", action.getCanonicalName());
             }
-            register(new ActionMetadata(analyticsProvider.request(), action, analyticsProvider.cacheable(), analyticsProvider.opcode()));
+            register(new ActionMetadata(analyticsProvider.request(), action, analyticsProvider.cacheable(),
+                                        analyticsProvider.opcode()));
             types.add(new NamedType(analyticsProvider.request(), analyticsProvider.opcode()));
             types.add(new NamedType(analyticsProvider.response(), analyticsProvider.opcode()));
             logger.info("Registered action: {}", action.getCanonicalName());

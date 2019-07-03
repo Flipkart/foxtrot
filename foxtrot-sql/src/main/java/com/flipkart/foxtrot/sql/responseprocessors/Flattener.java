@@ -47,7 +47,9 @@ public class Flattener implements ResponseVisitor {
     public void visit(GroupResponse groupResponse) {
         final String separator = "__SEPARATOR__";
         Map<String, Integer> fieldNames = Maps.newTreeMap();
-        Map<String, MetaData> dataFields = generateFieldMappings(null, objectMapper.valueToTree(groupResponse.getResult()), separator);
+        Map<String, MetaData> dataFields = generateFieldMappings(null,
+                                                                 objectMapper.valueToTree(groupResponse.getResult()),
+                                                                 separator);
         GroupRequest groupRequest = (GroupRequest)request;
         List<Map<String, Object>> rows = Lists.newArrayList();
         for(Map.Entry<String, MetaData> groupData : dataFields.entrySet()) {
@@ -59,7 +61,7 @@ public class Flattener implements ResponseVisitor {
                 final String fieldName = groupRequest.getNesting()
                         .get(i);
                 row.put(fieldName, values[i]);
-                if(!fieldNames.containsKey(fieldName)) {
+                if(! fieldNames.containsKey(fieldName)) {
                     fieldNames.put(fieldName, 0);
                 }
                 fieldNames.put(fieldName, lengthMax(fieldNames.get(fieldName), values[i]));
@@ -108,12 +110,12 @@ public class Flattener implements ResponseVisitor {
             for(Map.Entry<String, MetaData> docField : docFields.entrySet()) {
                 String fieldName = docField.getKey();
                 String prettyFieldName = fieldName.replaceFirst("data.", "");
-                if(!isAllFields && !fieldToLookup.contains(prettyFieldName)) {
+                if(! isAllFields && ! fieldToLookup.contains(prettyFieldName)) {
                     continue;
                 }
                 row.put(prettyFieldName, docField.getValue()
                         .getData());
-                if(!fieldNames.containsKey(prettyFieldName)) {
+                if(! fieldNames.containsKey(prettyFieldName)) {
                     fieldNames.put(prettyFieldName, 0);
                 }
                 fieldNames.put(prettyFieldName, Math.max(fieldNames.get(prettyFieldName), docField.getValue()
@@ -121,7 +123,7 @@ public class Flattener implements ResponseVisitor {
             }
             rows.add(row);
         }
-        if(!rows.isEmpty()) {
+        if(! rows.isEmpty()) {
             flatRepresentation = new FlatRepresentation("query", getFieldsFromList(fieldNames), rows);
         }
     }
@@ -177,7 +179,7 @@ public class Flattener implements ResponseVisitor {
     public void visit(TrendResponse trendResponse) {
         List<FieldHeader> headers = Lists.newArrayListWithCapacity(3);
         JsonNode root = objectMapper.valueToTree(trendResponse.getTrends());
-        if(null == root || !root.isObject()) {
+        if(null == root || ! root.isObject()) {
             return;
         }
         List<String> types = Lists.newArrayList();
@@ -185,14 +187,14 @@ public class Flattener implements ResponseVisitor {
         Iterator<String> typeNameIt = root.fieldNames();
         Map<String, Map<String, Object>> representation = Maps.newTreeMap();
         int typeNameMaxLength = 0;
-        while (typeNameIt.hasNext()) {
+        while(typeNameIt.hasNext()) {
             String typeName = typeNameIt.next();
             types.add(typeName);
             typeNameMaxLength = Math.max(typeNameMaxLength, typeName.length());
             for(JsonNode dataNode : root.get(typeName)) {
                 final String time = Long.toString(dataNode.get("period")
                                                           .asLong());
-                if(!representation.containsKey(time)) {
+                if(! representation.containsKey(time)) {
                     representation.put(time, Maps.newHashMap());
                 }
                 representation.get(time)

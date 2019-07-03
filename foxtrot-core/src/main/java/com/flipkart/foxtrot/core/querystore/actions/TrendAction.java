@@ -68,7 +68,7 @@ public class TrendAction extends Action<TrendRequest> {
     @Override
     public void preprocess() {
         getParameter().setTable(ElasticsearchUtils.getValidTableName(getParameter().getTable()));
-        if(null != getParameter().getValues() && !getParameter().getValues()
+        if(null != getParameter().getValues() && ! getParameter().getValues()
                 .isEmpty()) {
             List<Object> values = (List)getParameter().getValues();
             Filter filter = new InFilter(getParameter().getField(), values);
@@ -135,7 +135,7 @@ public class TrendAction extends Action<TrendRequest> {
             validationErrors.add("unique field cannot be empty (can be null)");
         }
 
-        if(!CollectionUtils.isNullOrEmpty(validationErrors)) {
+        if(! CollectionUtils.isNullOrEmpty(validationErrors)) {
             throw FoxtrotExceptions.createMalformedQueryException(parameter, validationErrors);
         }
     }
@@ -147,7 +147,7 @@ public class TrendAction extends Action<TrendRequest> {
             SearchResponse searchResponse = searchRequestBuilder.execute()
                     .actionGet(getGetQueryTimeout());
             return getResponse(searchResponse, parameter);
-        } catch (ElasticsearchException e) {
+        } catch(ElasticsearchException e) {
             throw FoxtrotExceptions.createQueryExecutionException(parameter, e);
         }
     }
@@ -163,7 +163,7 @@ public class TrendAction extends Action<TrendRequest> {
                     .setQuery(new ElasticSearchQueryGenerator().genFilter(parameter.getFilters()))
                     .setSize(QUERY_SIZE)
                     .addAggregation(aggregationBuilder);
-        } catch (Exception e) {
+        } catch(Exception e) {
             throw FoxtrotExceptions.queryCreationException(parameter, e);
         }
         return searchRequestBuilder;
@@ -192,13 +192,13 @@ public class TrendAction extends Action<TrendRequest> {
         DateHistogramInterval interval = Utils.getHistogramInterval(request.getPeriod());
         String field = request.getField();
 
-        DateHistogramAggregationBuilder histogramBuilder = Utils.buildDateHistogramAggregation(request.getTimestamp(), interval);
-        if(!CollectionUtils.isNullOrEmpty(getParameter().getUniqueCountOn())) {
+        DateHistogramAggregationBuilder histogramBuilder = Utils.buildDateHistogramAggregation(request.getTimestamp(),
+                                                                                               interval);
+        if(! CollectionUtils.isNullOrEmpty(getParameter().getUniqueCountOn())) {
             histogramBuilder.subAggregation(Utils.buildCardinalityAggregation(getParameter().getUniqueCountOn()));
         }
         return Utils.buildTermsAggregation(Lists.newArrayList(new ResultSort(field, ResultSort.Order.asc)),
-                                           Sets.newHashSet(histogramBuilder)
-                                          );
+                                           Sets.newHashSet(histogramBuilder));
     }
 
     private TrendResponse buildResponse(TrendRequest request, Aggregations aggregations) {
@@ -211,13 +211,15 @@ public class TrendAction extends Action<TrendRequest> {
             Aggregations subAggregations = bucket.getAggregations();
             Histogram histogram = subAggregations.get(Utils.getDateHistogramKey(request.getTimestamp()));
             for(Histogram.Bucket histogramBucket : histogram.getBuckets()) {
-                if(!CollectionUtils.isNullOrEmpty(getParameter().getUniqueCountOn())) {
+                if(! CollectionUtils.isNullOrEmpty(getParameter().getUniqueCountOn())) {
                     String uniqueCountKey = Utils.sanitizeFieldForAggregation(getParameter().getUniqueCountOn());
                     Cardinality cardinality = histogramBucket.getAggregations()
                             .get(uniqueCountKey);
-                    counts.add(new TrendResponse.Count(((DateTime)histogramBucket.getKey()).getMillis(), cardinality.getValue()));
+                    counts.add(new TrendResponse.Count(((DateTime)histogramBucket.getKey()).getMillis(),
+                                                       cardinality.getValue()));
                 } else {
-                    counts.add(new TrendResponse.Count(((DateTime)histogramBucket.getKey()).getMillis(), histogramBucket.getDocCount()));
+                    counts.add(new TrendResponse.Count(((DateTime)histogramBucket.getKey()).getMillis(),
+                                                       histogramBucket.getDocCount()));
                 }
             }
             trendCounts.put(key, counts);

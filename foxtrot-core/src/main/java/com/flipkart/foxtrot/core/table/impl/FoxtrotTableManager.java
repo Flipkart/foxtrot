@@ -65,7 +65,7 @@ public class FoxtrotTableManager implements TableManager {
     @Override
     public void update(Table table) {
         validateTableParams(table);
-        if(!metadataManager.exists(table.getName())) {
+        if(! metadataManager.exists(table.getName())) {
             throw FoxtrotExceptions.createTableMissingException(table.getName());
         }
         metadataManager.save(table);
@@ -80,7 +80,8 @@ public class FoxtrotTableManager implements TableManager {
         if(table == null || table.getName() == null || table.getName()
                 .trim()
                 .isEmpty() || table.getTtl() <= 0) {
-            throw FoxtrotExceptions.createBadRequestException(table != null ? table.getName() : null, "Invalid Table Params");
+            throw FoxtrotExceptions.createBadRequestException(table != null ? table.getName() : null,
+                                                              "Invalid Table Params");
         }
     }
 }

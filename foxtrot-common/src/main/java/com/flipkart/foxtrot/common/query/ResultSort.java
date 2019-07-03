@@ -65,7 +65,7 @@ public class ResultSort implements Serializable {
 
         ResultSort that = (ResultSort)o;
 
-        if(!field.equals(that.field))
+        if(! field.equals(that.field))
             return false;
         return order == that.order;
     }

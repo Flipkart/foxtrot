@@ -58,7 +58,7 @@ public class HbaseTableConnection implements Managed {
                         .reloginFromKeytab();
             }
             return connection.getTable(TableName.valueOf(TableUtil.getTableName(hbaseConfig, table)));
-        } catch (Exception e) {
+        } catch(Exception e) {
             throw FoxtrotExceptions.createConnectionException(table, e);
         }
     }

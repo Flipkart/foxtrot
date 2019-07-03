@@ -26,13 +26,15 @@ public class FlatResponseTextProvider implements MessageBodyWriter<FlatRepresent
     }
 
     @Override
-    public long getSize(FlatRepresentation response, Class<?> type, Type genericType, Annotation[] annotations, MediaType mediaType) {
-        return -1;
+    public long getSize(FlatRepresentation response, Class<?> type, Type genericType, Annotation[] annotations,
+            MediaType mediaType) {
+        return - 1;
     }
 
     @Override
-    public void writeTo(FlatRepresentation response, Class<?> type, Type genericType, Annotation[] annotations, MediaType mediaType,
-                        MultivaluedMap<String, Object> httpHeaders, OutputStream entityStream) throws IOException {
+    public void writeTo(FlatRepresentation response, Class<?> type, Type genericType, Annotation[] annotations,
+            MediaType mediaType, MultivaluedMap<String, Object> httpHeaders, OutputStream entityStream)
+            throws IOException {
         if(null == response) {
             entityStream.write("No records found matching the specified criterion".getBytes());
             return;
@@ -61,7 +63,8 @@ public class FlatResponseTextProvider implements MessageBodyWriter<FlatRepresent
             rowBuilder.append("|");
             for(FieldHeader fieldHeader : headers) {
                 rowBuilder.append(" ");
-                rowBuilder.append(String.format("%" + fieldHeader.getMaxLength() + "s", row.get(fieldHeader.getName())));
+                rowBuilder.append(
+                        String.format("%" + fieldHeader.getMaxLength() + "s", row.get(fieldHeader.getName())));
                 rowBuilder.append(" |");
             }
             rowBuilder.append("\n");

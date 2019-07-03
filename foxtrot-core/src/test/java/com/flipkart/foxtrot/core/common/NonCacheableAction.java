@@ -27,8 +27,8 @@ import org.elasticsearch.action.search.SearchRequestBuilder;
  * Created by rishabh.goyal on 02/05/14.
  */
 @VisibleForTesting
-@AnalyticsProvider(opcode = "testCacheableFalse", request = NonCacheableActionRequest.class, response = NonCacheableActionResponse.class,
-                   cacheable = false)
+@AnalyticsProvider(opcode = "testCacheableFalse", request = NonCacheableActionRequest.class, response =
+        NonCacheableActionResponse.class, cacheable = false)
 public class NonCacheableAction extends Action<NonCacheableActionRequest> {
 
     public NonCacheableAction(NonCacheableActionRequest parameter, String cacheToken, AnalyticsLoader analyticsLoader) {
@@ -61,8 +61,8 @@ public class NonCacheableAction extends Action<NonCacheableActionRequest> {
     }
 
     @Override
-    public ActionResponse getResponse(org.elasticsearch.action.ActionResponse response, NonCacheableActionRequest parameter)
-            throws FoxtrotException {
+    public ActionResponse getResponse(org.elasticsearch.action.ActionResponse response,
+            NonCacheableActionRequest parameter) throws FoxtrotException {
         return null;
     }
 

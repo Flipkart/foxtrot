@@ -101,7 +101,7 @@ public class ElasticsearchUtils {
                 .plusDays(1)
                 .toLocalDate()
                 .toDateTimeAtStartOfDay();
-        while (start.getMillis() < end.getMillis()) {
+        while(start.getMillis() < end.getMillis()) {
             final String index = getCurrentIndex(table, start.getMillis());
             indices.add(index);
             start = start.plusDays(1);
@@ -114,7 +114,8 @@ public class ElasticsearchUtils {
     public static String getCurrentIndex(final String table, long timestamp) {
         //TODO::THROW IF TIMESTAMP IS BEYOND TABLE META.TTL
         String datePostfix = FORMATTER.print(timestamp);
-        return String.format("%s-%s-%s-%s", getTableNamePrefix(), table, ElasticsearchUtils.TABLENAME_POSTFIX, datePostfix);
+        return String.format("%s-%s-%s-%s", getTableNamePrefix(), table, ElasticsearchUtils.TABLENAME_POSTFIX,
+                             datePostfix);
     }
 
     public static PutIndexTemplateRequest getClusterTemplateMapping() {
@@ -122,7 +123,7 @@ public class ElasticsearchUtils {
             return new PutIndexTemplateRequest().name("template_foxtrot_mappings")
                     .patterns(Lists.newArrayList(String.format("%s-*", getTableNamePrefix())))
                     .mapping(DOCUMENT_TYPE_NAME, getDocumentMapping());
-        } catch (IOException ex) {
+        } catch(IOException ex) {
             logger.error("TEMPLATE_CREATION_FAILED", ex);
             return null;
         }
@@ -264,7 +265,7 @@ public class ElasticsearchUtils {
     }
 
     static boolean isIndexEligibleForDeletion(String index, Table table) {
-        if(index == null || table == null || !isIndexValidForTable(index, table.getName())) {
+        if(index == null || table == null || ! isIndexValidForTable(index, table.getName())) {
             return false;
         }
 
@@ -284,7 +285,8 @@ public class ElasticsearchUtils {
 
     public static String getTableNameFromIndex(String currentIndex) {
         if(currentIndex.contains(getTableNamePrefix()) && currentIndex.contains(TABLENAME_POSTFIX)) {
-            String tempIndex = currentIndex.substring(currentIndex.indexOf(getTableNamePrefix()) + getTableNamePrefix().length() + 1);
+            String tempIndex = currentIndex.substring(
+                    currentIndex.indexOf(getTableNamePrefix()) + getTableNamePrefix().length() + 1);
             int position = tempIndex.lastIndexOf(String.format("-%s", TABLENAME_POSTFIX));
             return tempIndex.substring(0, position);
         } else {

@@ -104,7 +104,7 @@ public class FilterAction extends Action<Query> {
             validationErrors.add("limit must be positive integer");
         }
 
-        if(!CollectionUtils.isNullOrEmpty(validationErrors)) {
+        if(! CollectionUtils.isNullOrEmpty(validationErrors)) {
             throw FoxtrotExceptions.createMalformedQueryException(parameter, validationErrors);
         }
     }
@@ -117,7 +117,7 @@ public class FilterAction extends Action<Query> {
             SearchResponse response = search.execute()
                     .actionGet(getGetQueryTimeout());
             return getResponse(response, parameter);
-        } catch (ElasticsearchException e) {
+        } catch(ElasticsearchException e) {
             throw FoxtrotExceptions.createQueryExecutionException(parameter, e);
         }
     }
@@ -137,7 +137,7 @@ public class FilterAction extends Action<Query> {
                                                            .getField()), ResultSort.Order.desc == parameter.getSort()
                             .getOrder() ? SortOrder.DESC : SortOrder.ASC)
                     .setSize(parameter.getLimit());
-        } catch (Exception e) {
+        } catch(Exception e) {
             throw FoxtrotExceptions.queryCreationException(parameter, e);
         }
         return search;

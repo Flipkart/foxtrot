@@ -24,12 +24,12 @@ public class FlatResponseErrorTextProvider implements MessageBodyWriter<Map> {
 
     @Override
     public long getSize(Map map, Class<?> type, Type genericType, Annotation[] annotations, MediaType mediaType) {
-        return -1;
+        return - 1;
     }
 
     @Override
     public void writeTo(Map map, Class<?> type, Type genericType, Annotation[] annotations, MediaType mediaType,
-                        MultivaluedMap<String, Object> httpHeaders, OutputStream entityStream) throws IOException {
+            MultivaluedMap<String, Object> httpHeaders, OutputStream entityStream) throws IOException {
         StringBuilder data = new StringBuilder();
         for(Object key : map.keySet()) {
             data.append(key.toString());

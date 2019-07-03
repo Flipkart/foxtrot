@@ -1,5 +1,5 @@
 package com.flipkart.foxtrot.core.cardinality;
-/**
+/*
  * Copyright 2014 Flipkart Internet Pvt. Ltd.
  * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -42,7 +42,7 @@ public class CardinalityCalculationManager extends BaseJobManager {
     private final CardinalityConfig cardinalityConfig;
 
     public CardinalityCalculationManager(TableMetadataManager tableMetadataManager, CardinalityConfig cardinalityConfig,
-                                         HazelcastConnection hazelcastConnection, ScheduledExecutorService scheduledExecutorService) {
+            HazelcastConnection hazelcastConnection, ScheduledExecutorService scheduledExecutorService) {
         super(cardinalityConfig, scheduledExecutorService, hazelcastConnection);
         this.tableMetadataManager = tableMetadataManager;
         this.cardinalityConfig = cardinalityConfig;
@@ -62,7 +62,7 @@ public class CardinalityCalculationManager extends BaseJobManager {
                         .map(Table::getName)
                         .collect(Collectors.toSet());
                 for(String table : tables) {
-                    if(!tableMetadataManager.cardinalityCacheContains(table)) {
+                    if(! tableMetadataManager.cardinalityCacheContains(table)) {
                         tableMetadataManager.getFieldMappings(table, true, true);
                         LOGGER.info("Cardinality calculated for table: {}", table);
                     }
@@ -72,7 +72,7 @@ public class CardinalityCalculationManager extends BaseJobManager {
                         break;
                     }
                 }
-            } catch (Exception e) {
+            } catch(Exception e) {
                 LOGGER.error("Error occurred while calculating cardinality {}", e);
             }
         }, new LockConfiguration(cardinalityConfig.getJobName(), lockAtMostUntil));

@@ -71,7 +71,7 @@ public class GroupActionTest extends ActionTest {
         try {
             getQueryExecutor().execute(groupRequest, TEST_EMAIL);
             fail();
-        } catch (FoxtrotException ex) {
+        } catch(FoxtrotException ex) {
             ex.printStackTrace();
             assertEquals(ErrorCode.ACTION_EXECUTION_ERROR, ex.getCode());
         }
@@ -100,7 +100,7 @@ public class GroupActionTest extends ActionTest {
         try {
             getQueryExecutor().execute(groupRequest, TEST_EMAIL);
             fail();
-        } catch (FoxtrotException ex) {
+        } catch(FoxtrotException ex) {
             ex.printStackTrace();
             assertEquals(ErrorCode.MALFORMED_QUERY, ex.getCode());
         }
@@ -115,14 +115,15 @@ public class GroupActionTest extends ActionTest {
         try {
             getQueryExecutor().execute(groupRequest, TEST_EMAIL);
             fail();
-        } catch (FoxtrotException ex) {
+        } catch(FoxtrotException ex) {
             ex.printStackTrace();
             assertEquals(ErrorCode.MALFORMED_QUERY, ex.getCode());
         }
     }
 
     @Test
-    public void testGroupActionSingleFieldHavingSpecialCharactersWithFilter() throws FoxtrotException, JsonProcessingException {
+    public void testGroupActionSingleFieldHavingSpecialCharactersWithFilter()
+            throws FoxtrotException, JsonProcessingException {
         GroupRequest groupRequest = new GroupRequest();
         groupRequest.setTable(TestUtils.TEST_TABLE_NAME);
 

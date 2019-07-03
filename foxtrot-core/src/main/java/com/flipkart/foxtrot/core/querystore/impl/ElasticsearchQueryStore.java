@@ -80,8 +80,8 @@ public class ElasticsearchQueryStore implements QueryStore {
     private final ObjectMapper mapper;
     private final CardinalityConfig cardinalityConfig;
 
-    public ElasticsearchQueryStore(TableMetadataManager tableMetadataManager, ElasticsearchConnection connection, DataStore dataStore,
-                                   ObjectMapper mapper, CardinalityConfig cardinalityConfig) {
+    public ElasticsearchQueryStore(TableMetadataManager tableMetadataManager, ElasticsearchConnection connection,
+            DataStore dataStore, ObjectMapper mapper, CardinalityConfig cardinalityConfig) {
         this.connection = connection;
         this.dataStore = dataStore;
         this.tableMetadataManager = tableMetadataManager;
@@ -102,8 +102,9 @@ public class ElasticsearchQueryStore implements QueryStore {
         Stopwatch stopwatch = Stopwatch.createStarted();
         String action = StringUtils.EMPTY;
         try {
-            if(!tableMetadataManager.exists(table)) {
-                throw FoxtrotExceptions.createBadRequestException(table, String.format(UNKNOWN_TABLE_ERROR_MESSAGE, table));
+            if(! tableMetadataManager.exists(table)) {
+                throw FoxtrotExceptions.createBadRequestException(table,
+                                                                  String.format(UNKNOWN_TABLE_ERROR_MESSAGE, table));
             }
             if(new DateTime().plusDays(1)
                        .minus(document.getTimestamp())
@@ -141,7 +142,7 @@ public class ElasticsearchQueryStore implements QueryStore {
             logger.info("QueryStoreTook:{}", stopwatch.elapsed(TimeUnit.MILLISECONDS));
             MetricUtil.getInstance()
                     .registerActionSuccess(action, table, stopwatch.elapsed(TimeUnit.MILLISECONDS));
-        } catch (InterruptedException | ExecutionException | TimeoutException e) {
+        } catch(InterruptedException | ExecutionException | TimeoutException e) {
             MetricUtil.getInstance()
                     .registerActionFailure(action, table, stopwatch.elapsed(TimeUnit.MILLISECONDS));
             Thread.currentThread()
@@ -157,8 +158,9 @@ public class ElasticsearchQueryStore implements QueryStore {
         Stopwatch stopwatch = Stopwatch.createStarted();
         String action = StringUtils.EMPTY;
         try {
-            if(!tableMetadataManager.exists(table)) {
-                throw FoxtrotExceptions.createBadRequestException(table, String.format(UNKNOWN_TABLE_ERROR_MESSAGE, table));
+            if(! tableMetadataManager.exists(table)) {
+                throw FoxtrotExceptions.createBadRequestException(table,
+                                                                  String.format(UNKNOWN_TABLE_ERROR_MESSAGE, table));
             }
             if(documents == null || documents.isEmpty()) {
                 throw FoxtrotExceptions.createBadRequestException(table, "Empty Document List Not Allowed");
@@ -209,17 +211,16 @@ public class ElasticsearchQueryStore implements QueryStore {
                     BulkItemResponse itemResponse = responses.getItems()[i];
                     if(itemResponse.isFailed()) {
                         String failedDocument = mapper.writeValueAsString(documents.get(i));
-                        logger.error("Table : {} Failure Message : {} Document : {}", table, itemResponse.getFailureMessage(),
-                                failedDocument
-                        );
+                        logger.error("Table : {} Failure Message : {} Document : {}", table,
+                                     itemResponse.getFailureMessage(), failedDocument);
                     }
                 }
             }
-        } catch (JsonProcessingException e) {
+        } catch(JsonProcessingException e) {
             MetricUtil.getInstance()
                     .registerActionFailure(action, table, stopwatch.elapsed(TimeUnit.MILLISECONDS));
             throw FoxtrotExceptions.createBadRequestException(table, e);
-        } catch (InterruptedException | ExecutionException | TimeoutException e) {
+        } catch(InterruptedException | ExecutionException | TimeoutException e) {
             MetricUtil.getInstance()
                     .registerActionFailure(action, table, stopwatch.elapsed(TimeUnit.MILLISECONDS));
             Thread.currentThread()
@@ -233,7 +234,7 @@ public class ElasticsearchQueryStore implements QueryStore {
     public Document get(String table, String id) {
         table = ElasticsearchUtils.getValidTableName(table);
         Table fxTable;
-        if(!tableMetadataManager.exists(table)) {
+        if(! tableMetadataManager.exists(table)) {
             throw FoxtrotExceptions.createBadRequestException(table, String.format(UNKNOWN_TABLE_ERROR_MESSAGE, table));
         }
         fxTable = tableMetadataManager.get(table);
@@ -267,19 +268,19 @@ public class ElasticsearchQueryStore implements QueryStore {
     @Timed
     public List<Document> getAll(String table, List<String> ids, boolean bypassMetalookup) {
         table = ElasticsearchUtils.getValidTableName(table);
-        if(!tableMetadataManager.exists(table)) {
+        if(! tableMetadataManager.exists(table)) {
             throw FoxtrotExceptions.createBadRequestException(table, String.format(UNKNOWN_TABLE_ERROR_MESSAGE, table));
         }
         Map<String, String> rowKeys = Maps.newLinkedHashMap();
         for(String id : ids) {
             rowKeys.put(id, id);
         }
-        if(!bypassMetalookup) {
+        if(! bypassMetalookup) {
             SearchResponse response = connection.getClient()
                     .prepareSearch(ElasticsearchUtils.getIndices(table))
                     .setTypes(ElasticsearchUtils.DOCUMENT_TYPE_NAME)
-                    .setQuery(boolQuery().filter(
-                            termsQuery(ElasticsearchUtils.DOCUMENT_META_ID_FIELD_NAME, ids.toArray(new String[ids.size()]))))
+                    .setQuery(boolQuery().filter(termsQuery(ElasticsearchUtils.DOCUMENT_META_ID_FIELD_NAME,
+                                                            ids.toArray(new String[ids.size()]))))
                     .setFetchSource(false)
                     .addStoredField(ElasticsearchUtils.DOCUMENT_META_ID_FIELD_NAME) // Used for compatibility
                     .setSize(ids.size())
@@ -327,8 +328,9 @@ public class ElasticsearchQueryStore implements QueryStore {
                     .keySet();
             indicesToDelete = getIndicesToDelete(tables, currentIndices);
             deleteIndices(indicesToDelete);
-        } catch (Exception e) {
-            throw FoxtrotExceptions.createDataCleanupException(String.format("Index Deletion Failed indexes - %s", indicesToDelete), e);
+        } catch(Exception e) {
+            throw FoxtrotExceptions.createDataCleanupException(
+                    String.format("Index Deletion Failed indexes - %s", indicesToDelete), e);
         }
     }
 
@@ -389,7 +391,7 @@ public class ElasticsearchQueryStore implements QueryStore {
 
     private void deleteIndices(List<String> indicesToDelete) {
         logger.warn("Deleting Indexes - Indexes - {}", indicesToDelete);
-        if(!indicesToDelete.isEmpty()) {
+        if(! indicesToDelete.isEmpty()) {
             List<List<String>> subLists = Lists.partition(indicesToDelete, 5);
             for(List<String> subList : subLists) {
                 try {
@@ -400,7 +402,7 @@ public class ElasticsearchQueryStore implements QueryStore {
                             .execute()
                             .actionGet(TimeValue.timeValueMinutes(5));
                     logger.warn("Deleted Indexes - Indexes - {}", subList);
-                } catch (Exception e) {
+                } catch(Exception e) {
                     logger.error("Index deletion failed - Indexes - {}", subList, e);
                 }
             }
@@ -414,12 +416,14 @@ public class ElasticsearchQueryStore implements QueryStore {
             if(table != null && tables.contains(table)) {
                 boolean indexEligibleForDeletion;
                 try {
-                    indexEligibleForDeletion = ElasticsearchUtils.isIndexEligibleForDeletion(currentIndex, tableMetadataManager.get(table));
+                    indexEligibleForDeletion = ElasticsearchUtils.isIndexEligibleForDeletion(currentIndex,
+                                                                                             tableMetadataManager.get(
+                                                                                                     table));
                     if(indexEligibleForDeletion) {
                         logger.warn("Index eligible for deletion : {}", currentIndex);
                         indicesToDelete.add(currentIndex);
                     }
-                } catch (Exception ex) {
+                } catch(Exception ex) {
                     logger.error("Unable to Get Table details for Table : {}", table, ex);
                 }
             }

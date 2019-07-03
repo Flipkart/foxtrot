@@ -75,7 +75,7 @@ public class CountAction extends Action<CountRequest> {
         if(parameter.isDistinct() && CollectionUtils.isNullOrEmpty(parameter.getField())) {
             validationErrors.add("field name cannot be null or empty");
         }
-        if(!CollectionUtils.isNullOrEmpty(validationErrors)) {
+        if(! CollectionUtils.isNullOrEmpty(validationErrors)) {
             throw FoxtrotExceptions.createMalformedQueryException(parameter, validationErrors);
         }
     }
@@ -88,7 +88,7 @@ public class CountAction extends Action<CountRequest> {
             SearchResponse response = query.execute()
                     .actionGet(getGetQueryTimeout());
             return getResponse(response, parameter);
-        } catch (ElasticsearchException e) {
+        } catch(ElasticsearchException e) {
             throw FoxtrotExceptions.createQueryExecutionException(parameter, e);
 
         }
@@ -106,7 +106,7 @@ public class CountAction extends Action<CountRequest> {
                         .setQuery(new ElasticSearchQueryGenerator().genFilter(parameter.getFilters()))
                         .addAggregation(Utils.buildCardinalityAggregation(parameter.getField()));
                 return query;
-            } catch (Exception e) {
+            } catch(Exception e) {
                 throw FoxtrotExceptions.queryCreationException(parameter, e);
             }
         } else {
@@ -117,7 +117,7 @@ public class CountAction extends Action<CountRequest> {
                         .setIndicesOptions(Utils.indicesOptions())
                         .setSize(QUERY_SIZE)
                         .setQuery(new ElasticSearchQueryGenerator().genFilter(parameter.getFilters()));
-            } catch (Exception e) {
+            } catch(Exception e) {
                 throw FoxtrotExceptions.queryCreationException(parameter, e);
             }
             return requestBuilder;

@@ -70,7 +70,8 @@ public class DocumentResource {
         if(tableName != null) {
             queryStore.save(tableName, document);
         }
-        if(tableName != null && !table.equals(tableName) && tablesToBeDuplicated != null && tablesToBeDuplicated.contains(tableName)) {
+        if(tableName != null && ! table.equals(tableName) && tablesToBeDuplicated != null &&
+           tablesToBeDuplicated.contains(tableName)) {
             queryStore.save(table, document);
         }
         return Response.created(URI.create("/" + document.getId()))
@@ -86,7 +87,7 @@ public class DocumentResource {
         Map<String, List<Document>> tableVsDocuments = preProcessSaveDocuments(table, documents);
         for(Map.Entry<String, List<Document>> entry : CollectionUtils.nullSafeSet(tableVsDocuments.entrySet())) {
             queryStore.save(entry.getKey(), entry.getValue());
-            if(!entry.getKey()
+            if(! entry.getKey()
                     .equals(table) && tablesToBeDuplicated != null && tablesToBeDuplicated.contains(entry.getKey())) {
                 queryStore.save(table, entry.getValue());
             }
@@ -107,7 +108,8 @@ public class DocumentResource {
     @GET
     @Timed
     @ApiOperation("Get Documents")
-    public Response getDocuments(@PathParam("table") final String table, @QueryParam("id") @NotNull final List<String> ids) {
+    public Response getDocuments(@PathParam("table") final String table,
+            @QueryParam("id") @NotNull final List<String> ids) {
         return Response.ok(queryStore.getAll(table, ids))
                 .build();
     }
@@ -190,7 +192,8 @@ public class DocumentResource {
                             .get(EVENT_TYPE)
                             .asText();
                     if(eventToBeIgnored(table, eventType)) {
-                        LOGGER.info("Skipped event for table: {} with eventType: {} Document: {}", table, eventType, document);
+                        LOGGER.info("Skipped event for table: {} with eventType: {} Document: {}", table, eventType,
+                                    document);
                         iter.remove();
                     }
                 }

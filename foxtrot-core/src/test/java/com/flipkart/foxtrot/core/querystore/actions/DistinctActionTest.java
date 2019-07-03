@@ -52,7 +52,8 @@ public class DistinctActionTest extends ActionTest {
         listResponse.add(Arrays.asList("3"));
         expectedResponse.setResult(listResponse);
 
-        DistinctResponse distinctResponse = DistinctResponse.class.cast(getQueryExecutor().execute(distinctRequest, TEST_EMAIL));
+        DistinctResponse distinctResponse = DistinctResponse.class.cast(
+                getQueryExecutor().execute(distinctRequest, TEST_EMAIL));
         assertNotNull(distinctResponse);
         assertEquals(expectedResponse, distinctResponse);
     }
@@ -75,7 +76,8 @@ public class DistinctActionTest extends ActionTest {
         listResponse.add(Arrays.asList("1"));
         expectedResponse.setResult(listResponse);
 
-        DistinctResponse distinctResponse = DistinctResponse.class.cast(getQueryExecutor().execute(distinctRequest, TEST_EMAIL));
+        DistinctResponse distinctResponse = DistinctResponse.class.cast(
+                getQueryExecutor().execute(distinctRequest, TEST_EMAIL));
         assertNotNull(distinctResponse);
         assertEquals(expectedResponse, distinctResponse);
     }
@@ -109,7 +111,8 @@ public class DistinctActionTest extends ActionTest {
         listResponse.add(Arrays.asList("3", "android"));
         expectedResponse.setResult(listResponse);
 
-        DistinctResponse distinctResponse = DistinctResponse.class.cast(getQueryExecutor().execute(distinctRequest, TEST_EMAIL));
+        DistinctResponse distinctResponse = DistinctResponse.class.cast(
+                getQueryExecutor().execute(distinctRequest, TEST_EMAIL));
         assertNotNull(distinctResponse);
     }
 
@@ -142,7 +145,8 @@ public class DistinctActionTest extends ActionTest {
         listResponse.add(Arrays.asList("3", "android"));
         expectedResponse.setResult(listResponse);
 
-        DistinctResponse distinctResponse = DistinctResponse.class.cast(getQueryExecutor().execute(distinctRequest, TEST_EMAIL));
+        DistinctResponse distinctResponse = DistinctResponse.class.cast(
+                getQueryExecutor().execute(distinctRequest, TEST_EMAIL));
         assertNotNull(distinctResponse);
     }
 }

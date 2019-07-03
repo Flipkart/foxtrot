@@ -29,7 +29,8 @@ public class ActionMetadata {
     private final boolean cacheable;
     private final String cacheToken;
 
-    public ActionMetadata(Class<? extends ActionRequest> request, Class<? extends Action> action, boolean cacheable, String cacheToken) {
+    public ActionMetadata(Class<? extends ActionRequest> request, Class<? extends Action> action, boolean cacheable,
+            String cacheToken) {
         this.request = request;
         this.action = action;
         this.cacheable = cacheable;

@@ -75,7 +75,7 @@ public abstract class HBaseUtil {
             configuration.set("hbase.zookeeper.quorum", hbaseConfig.getHbaseZookeeperQuorum());
         }
 
-        if(!Strings.isNullOrEmpty(hbaseConfig.getHbaseZookeeperZnodeParent())) {
+        if(! Strings.isNullOrEmpty(hbaseConfig.getHbaseZookeeperZnodeParent())) {
             configuration.set("zookeeper.znode.parent", hbaseConfig.getHbaseZookeeperZnodeParent());
         }
 
@@ -86,7 +86,7 @@ public abstract class HBaseUtil {
     }
 
     public static boolean isValidFile(String fileName) {
-        return fileName != null && !fileName.trim()
+        return fileName != null && ! fileName.trim()
                 .isEmpty() && new File(fileName).exists();
     }
 
@@ -101,19 +101,19 @@ public abstract class HBaseUtil {
         try {
             hBaseAdmin = connection.getAdmin();
             hBaseAdmin.createTable(hTableDescriptor);
-        } catch (Exception e) {
+        } catch(Exception e) {
             logger.error("Could not create table: " + tableName, e);
         } finally {
             try {
                 if(hBaseAdmin != null) {
                     hBaseAdmin.close();
                 }
-            } catch (Exception e) {
+            } catch(Exception e) {
                 logger.error("Error closing hbase admin", e);
             }
             try {
                 connection.close();
-            } catch (Exception e) {
+            } catch(Exception e) {
                 logger.error("Error closing hbase connection", e);
             }
         }

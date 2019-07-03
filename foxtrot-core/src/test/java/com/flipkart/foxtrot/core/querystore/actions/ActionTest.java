@@ -67,7 +67,8 @@ public abstract class ActionTest {
         when(hazelcastConnection.getHazelcast()).thenReturn(hazelcastInstance);
         when(hazelcastConnection.getHazelcastConfig()).thenReturn(config);
         elasticsearchConnection = ElasticsearchTestUtils.getConnection();
-        CardinalityConfig cardinalityConfig = new CardinalityConfig("true", String.valueOf(ElasticsearchUtils.DEFAULT_SUB_LIST_SIZE));
+        CardinalityConfig cardinalityConfig = new CardinalityConfig("true", String.valueOf(
+                ElasticsearchUtils.DEFAULT_SUB_LIST_SIZE));
 
         IndicesExistsRequest indicesExistsRequest = new IndicesExistsRequest().indices(TableMapStore.TABLE_META_INDEX);
         IndicesExistsResponse indicesExistsResponse = elasticsearchConnection.getClient()
@@ -76,11 +77,12 @@ public abstract class ActionTest {
                 .exists(indicesExistsRequest)
                 .actionGet();
 
-        if(!indicesExistsResponse.isExists()) {
+        if(! indicesExistsResponse.isExists()) {
             Settings indexSettings = Settings.builder()
                     .put("number_of_replicas", 0)
                     .build();
-            CreateIndexRequest createRequest = new CreateIndexRequest(TableMapStore.TABLE_META_INDEX).settings(indexSettings);
+            CreateIndexRequest createRequest = new CreateIndexRequest(TableMapStore.TABLE_META_INDEX).settings(
+                    indexSettings);
             elasticsearchConnection.getClient()
                     .admin()
                     .indices()
@@ -90,15 +92,16 @@ public abstract class ActionTest {
         Settings indexSettings = Settings.builder()
                 .put("number_of_replicas", 0)
                 .build();
-        CreateIndexRequest createIndexRequest = new CreateIndexRequest(DistributedTableMetadataManager.CARDINALITY_CACHE_INDEX).settings(
-                indexSettings);
+        CreateIndexRequest createIndexRequest = new CreateIndexRequest(
+                DistributedTableMetadataManager.CARDINALITY_CACHE_INDEX).settings(indexSettings);
         elasticsearchConnection.getClient()
                 .admin()
                 .indices()
                 .create(createIndexRequest)
                 .actionGet();
 
-        tableMetadataManager = new DistributedTableMetadataManager(hazelcastConnection, elasticsearchConnection, mapper, cardinalityConfig);
+        tableMetadataManager = new DistributedTableMetadataManager(hazelcastConnection, elasticsearchConnection, mapper,
+                                                                   cardinalityConfig);
         tableMetadataManager.start();
 
         tableMetadataManager.save(Table.builder()
@@ -107,11 +110,13 @@ public abstract class ActionTest {
                                           .build());
 
         DataStore dataStore = TestUtils.getDataStore();
-        this.queryStore = new ElasticsearchQueryStore(tableMetadataManager, elasticsearchConnection, dataStore, mapper, cardinalityConfig);
-        CacheManager cacheManager = new CacheManager(new DistributedCacheFactory(hazelcastConnection, mapper, new CacheConfig()));
-        AnalyticsLoader analyticsLoader = new AnalyticsLoader(tableMetadataManager, dataStore, queryStore, elasticsearchConnection,
-                                                              cacheManager, mapper, new EmailConfig()
-        );
+        this.queryStore = new ElasticsearchQueryStore(tableMetadataManager, elasticsearchConnection, dataStore, mapper,
+                                                      cardinalityConfig);
+        CacheManager cacheManager = new CacheManager(
+                new DistributedCacheFactory(hazelcastConnection, mapper, new CacheConfig()));
+        AnalyticsLoader analyticsLoader = new AnalyticsLoader(tableMetadataManager, dataStore, queryStore,
+                                                              elasticsearchConnection, cacheManager, mapper,
+                                                              new EmailConfig());
         analyticsLoader.start();
         ExecutorService executorService = Executors.newFixedThreadPool(1);
         this.queryExecutor = new QueryExecutor(analyticsLoader, executorService);
@@ -125,7 +130,7 @@ public abstract class ActionTest {
                     .admin()
                     .indices()
                     .delete(deleteIndexRequest);
-        } catch (Exception e) {
+        } catch(Exception e) {
             //Do Nothing
         }
         elasticsearchConnection.stop();

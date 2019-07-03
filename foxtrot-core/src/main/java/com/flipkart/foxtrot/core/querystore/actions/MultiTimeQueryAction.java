@@ -18,8 +18,8 @@ import java.util.concurrent.TimeUnit;
 /***
  Created by mudit.g on Jan, 2019
  ***/
-@AnalyticsProvider(opcode = "multi_time_query", request = MultiTimeQueryRequest.class, response = MultiTimeQueryResponse.class, cacheable
-        = false)
+@AnalyticsProvider(opcode = "multi_time_query", request = MultiTimeQueryRequest.class, response =
+        MultiTimeQueryResponse.class, cacheable = false)
 public class MultiTimeQueryAction extends Action<MultiTimeQueryRequest> {
 
     private AnalyticsLoader analyticsLoader;
@@ -36,11 +36,11 @@ public class MultiTimeQueryAction extends Action<MultiTimeQueryRequest> {
         MultiTimeQueryRequest multiTimeQueryRequest = getParameter();
         int sampleSize;
 
-        if(multiTimeQueryRequest.getActionRequest() == null && CollectionUtils.isEmpty(multiTimeQueryRequest.getFilters())) {
+        if(multiTimeQueryRequest.getActionRequest() == null && CollectionUtils.isEmpty(
+                multiTimeQueryRequest.getFilters())) {
             throw FoxtrotExceptions.createBadRequestException("multi_time_query",
-                                                              "No Between Filter found in actionRequest multiQueryRequest : " +
-                                                              multiQueryRequest.toString()
-                                                             );
+                                                              "No Between Filter found in actionRequest " +
+                                                              "multiQueryRequest : " + multiQueryRequest.toString());
         }
 
         if(CollectionUtils.isEmpty(multiTimeQueryRequest.getActionRequest()
@@ -57,11 +57,10 @@ public class MultiTimeQueryAction extends Action<MultiTimeQueryRequest> {
                 .stream()
                 .filter(filter -> filter instanceof BetweenFilter)
                 .findFirst();
-        if(!optionalBetweenFilter.isPresent()) {
+        if(! optionalBetweenFilter.isPresent()) {
             throw FoxtrotExceptions.createBadRequestException("multi_time_query",
-                                                              "No Between Filter found in actionRequest multiQueryRequest : " +
-                                                              multiQueryRequest.toString()
-                                                             );
+                                                              "No Between Filter found in actionRequest " +
+                                                              "multiQueryRequest : " + multiQueryRequest.toString());
         }
         BetweenFilter betweenFilter = (BetweenFilter)optionalBetweenFilter.get();
 
@@ -121,8 +120,10 @@ public class MultiTimeQueryAction extends Action<MultiTimeQueryRequest> {
     }
 
     @Override
-    public ActionResponse getResponse(org.elasticsearch.action.ActionResponse multiSearchResponse, MultiTimeQueryRequest parameter) {
-        MultiQueryResponse multiQueryResponse = (MultiQueryResponse)action.getResponse(multiSearchResponse, multiQueryRequest);
+    public ActionResponse getResponse(org.elasticsearch.action.ActionResponse multiSearchResponse,
+            MultiTimeQueryRequest parameter) {
+        MultiQueryResponse multiQueryResponse = (MultiQueryResponse)action.getResponse(multiSearchResponse,
+                                                                                       multiQueryRequest);
         return new MultiTimeQueryResponse(multiQueryResponse.getResponses());
     }
 
@@ -140,8 +141,7 @@ public class MultiTimeQueryAction extends Action<MultiTimeQueryRequest> {
                 if(filters.get(i) instanceof BetweenFilter) {
                     BetweenFilter tempBetweenFilter = (BetweenFilter)filters.get(i);
                     BetweenFilter tempBetweenFilter1 = new BetweenFilter(tempBetweenFilter.getField(), from, to,
-                                                                         tempBetweenFilter.isFilterTemporal()
-                    );
+                                                                         tempBetweenFilter.isFilterTemporal());
                     filters.set(i, tempBetweenFilter1);
                     break;
                 }
@@ -151,7 +151,7 @@ public class MultiTimeQueryAction extends Action<MultiTimeQueryRequest> {
             try {
                 requests.put(Long.toString(from), (ActionRequest)multiTimeQueryRequest.getActionRequest()
                         .clone());
-            } catch (Exception e) {
+            } catch(Exception e) {
                 throw FoxtrotExceptions.queryCreationException(multiTimeQueryRequest.getActionRequest(), e);
             }
 

@@ -39,7 +39,7 @@ import java.io.Serializable;
 public class Table implements Serializable {
 
     @JsonIgnore
-    private static final long serialVersionUID = -3086868483579299018L;
+    private static final long serialVersionUID = - 3086868483579299018L;
 
     @NotNull
     @NotEmpty

@@ -67,7 +67,7 @@ public class QueryTranslator extends SqlElementVisitor {
             FunctionReader functionReader = new FunctionReader();
             selectExpressionItem.accept(functionReader);
             final String columnName = functionReader.columnName;
-            if(!Strings.isNullOrEmpty(columnName)) {
+            if(! Strings.isNullOrEmpty(columnName)) {
                 selectedColumns.add(columnName);
                 continue;
             }
@@ -79,13 +79,13 @@ public class QueryTranslator extends SqlElementVisitor {
                 .accept(this); //Populate table name
         List<Expression> groupByItems = plainSelect.getGroupByColumnReferences();
         if(null != groupByItems) {
-        for(Expression groupByItem : CollectionUtils.nullSafeList(groupByItems)) {
-            queryType = FqlQueryType.GROUP;
-            if(groupByItem instanceof Column) {
-                Column column = (Column)groupByItem;
-                groupBycolumnsList.add(column.getFullyQualifiedName());
+            for(Expression groupByItem : CollectionUtils.nullSafeList(groupByItems)) {
+                queryType = FqlQueryType.GROUP;
+                if(groupByItem instanceof Column) {
+                    Column column = (Column)groupByItem;
+                    groupBycolumnsList.add(column.getFullyQualifiedName());
+                }
             }
-        }
         }
         if(FqlQueryType.SELECT == queryType) {
             List<OrderByElement> orderByElements = plainSelect.getOrderByElements();
@@ -121,7 +121,7 @@ public class QueryTranslator extends SqlElementVisitor {
                         break;
                     }
                 }
-                if(!alreadyAdded) {
+                if(! alreadyAdded) {
                     ResultSort columnWithoutSort = new ResultSort();
                     columnWithoutSort.setField(selectedColumn);
                     columnWithoutSort.setOrder(ResultSort.Order.desc);
@@ -178,13 +178,13 @@ public class QueryTranslator extends SqlElementVisitor {
         Statement statement;
         try {
             statement = ccjSqlParserManager.parse(new StringReader(sql));
-        } catch (JSQLParserException e) {
+        } catch(JSQLParserException e) {
             throw new FqlParsingException(e.getMessage(), e);
         }
         Select select = (Select)statement;
         select.accept(this);
         ActionRequest request = null;
-        switch (queryType) {
+        switch(queryType) {
             case SELECT:
                 request = createSelectActionRequest();
                 break;
@@ -341,7 +341,7 @@ public class QueryTranslator extends SqlElementVisitor {
             if(expression instanceof Function) {
                 Function function = (Function)expression;
                 queryType = getType(function.getName());
-                switch (queryType) {
+                switch(queryType) {
                     case TREND:
                         actionRequest = parseTrendFunction(function.getParameters()
                                                                    .getExpressions());
@@ -358,7 +358,8 @@ public class QueryTranslator extends SqlElementVisitor {
                         actionRequest = parseHistogramRequest(function.getParameters());
                         break;
                     case COUNT:
-                        actionRequest = parseCountRequest(function.getParameters(), function.isAllColumns(), function.isDistinct());
+                        actionRequest = parseCountRequest(function.getParameters(), function.isAllColumns(),
+                                                          function.isDistinct());
                         break;
                     case DESC:
                     case SELECT:
@@ -398,7 +399,8 @@ public class QueryTranslator extends SqlElementVisitor {
 
         private TrendRequest parseTrendFunction(List expressions) {
             if(expressions == null || expressions.isEmpty() || expressions.size() > 3) {
-                throw new FqlParsingException("trend function has following format: trend(fieldname, [period, [timestamp field]])");
+                throw new FqlParsingException(
+                        "trend function has following format: trend(fieldname, [period, [timestamp field]])");
             }
             TrendRequest trendRequest = new TrendRequest();
             trendRequest.setField(QueryUtils.expressionToString((Expression)expressions.get(0)));
@@ -414,7 +416,8 @@ public class QueryTranslator extends SqlElementVisitor {
 
         private StatsTrendRequest parseStatsTrendFunction(List expressions) {
             if(expressions == null || expressions.isEmpty() || expressions.size() > 2) {
-                throw new FqlParsingException("statstrend function has following format: statstrend(fieldname, [period])");
+                throw new FqlParsingException(
+                        "statstrend function has following format: statstrend(fieldname, [period])");
             }
             StatsTrendRequest statsTrendRequest = new StatsTrendRequest();
             statsTrendRequest.setField(QueryUtils.expressionToString((Expression)expressions.get(0)));
@@ -437,7 +440,8 @@ public class QueryTranslator extends SqlElementVisitor {
         private HistogramRequest parseHistogramRequest(ExpressionList expressionList) {
             if(expressionList != null && (expressionList.getExpressions() != null && expressionList.getExpressions()
                                                                                              .size() > 2)) {
-                throw new FqlParsingException("histogram function has the following format: histogram([period, [timestamp field]])");
+                throw new FqlParsingException(
+                        "histogram function has the following format: histogram([period, [timestamp field]])");
             }
             HistogramRequest histogramRequest = new HistogramRequest();
             if(null != expressionList) {
@@ -553,7 +557,7 @@ public class QueryTranslator extends SqlElementVisitor {
             inFilter.setField(((Column)inExpression.getLeftExpression()).getFullyQualifiedName()
                                       .replaceAll(Constants.SQL_FIELD_REGEX, ""));
             ItemsList itemsList = inExpression.getRightItemsList();
-            if(!(itemsList instanceof ExpressionList)) {
+            if(! (itemsList instanceof ExpressionList)) {
                 throw new FqlParsingException("Sub selects not supported");
             }
 
@@ -643,7 +647,8 @@ public class QueryTranslator extends SqlElementVisitor {
 
         private LastFilter parseWindowFunction(List expressions) {
             if(expressions == null || expressions.isEmpty() || expressions.size() > 3) {
-                throw new FqlParsingException("last function has following format: last(duration, [start-time, [timestamp field]])");
+                throw new FqlParsingException(
+                        "last function has following format: last(duration, [start-time, [timestamp field]])");
             }
             LastFilter lastFilter = new LastFilter();
             lastFilter.setDuration(Duration.parse(QueryUtils.expressionToString((Expression)expressions.get(0))));
@@ -698,7 +703,7 @@ public class QueryTranslator extends SqlElementVisitor {
                         .equalsIgnoreCase("temporal")) {
                     List parameters = function.getParameters()
                             .getExpressions();
-                    if(parameters.size() != 1 || !(parameters.get(0) instanceof Column)) {
+                    if(parameters.size() != 1 || ! (parameters.get(0) instanceof Column)) {
                         throw new FqlParsingException("temporal function must have a fieldname as parameter");
                     }
                     return ColumnData.temporal(((Column)parameters.get(0)).getFullyQualifiedName());
@@ -708,7 +713,8 @@ public class QueryTranslator extends SqlElementVisitor {
             if(expression instanceof Column) {
                 return new ColumnData(((Column)expression).getFullyQualifiedName());
             }
-            throw new FqlParsingException("Only the function 'temporal([fieldname)' and fieldname is supported in where clause");
+            throw new FqlParsingException(
+                    "Only the function 'temporal([fieldname)' and fieldname is supported in where clause");
         }
 
         private static final class ColumnData {

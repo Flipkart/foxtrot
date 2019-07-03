@@ -81,7 +81,7 @@ public class StatsActionTest extends ActionTest {
         request.setField("battery");
         request.setStats(EnumSet.allOf(Stat.class)
                                  .stream()
-                                 .filter(x -> !x.isExtended())
+                                 .filter(x -> ! x.isExtended())
                                  .collect(Collectors.toSet()));
 
         StatsResponse statsResponse = StatsResponse.class.cast(getQueryExecutor().execute(request, TEST_EMAIL));

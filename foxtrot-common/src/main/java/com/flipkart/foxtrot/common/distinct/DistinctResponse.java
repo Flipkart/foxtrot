@@ -70,7 +70,7 @@ public class DistinctResponse extends ActionResponse {
 
         DistinctResponse that = (DistinctResponse)o;
 
-        if(headers != null ? !headers.equals(that.headers) : that.headers != null)
+        if(headers != null ? ! headers.equals(that.headers) : that.headers != null)
             return false;
         return result != null ? result.equals(that.result) : that.result == null;
     }

@@ -27,7 +27,7 @@ public abstract class BaseJobManager implements Managed {
     private final HazelcastConnection hazelcastConnection;
 
     public BaseJobManager(BaseJobConfig baseJobConfig, ScheduledExecutorService scheduledExecutorService,
-                          HazelcastConnection hazelcastConnection) {
+            HazelcastConnection hazelcastConnection) {
         this.baseJobConfig = baseJobConfig;
         this.scheduledExecutorService = scheduledExecutorService;
         this.hazelcastConnection = hazelcastConnection;
@@ -36,7 +36,7 @@ public abstract class BaseJobManager implements Managed {
     @Override
     public void start() {
         LOGGER.info("Starting {} Manager", baseJobConfig.getJobName());
-        if(!baseJobConfig.isActive()) {
+        if(! baseJobConfig.isActive()) {
             LOGGER.info("Config is not active. Hence, aborting the {} job", baseJobConfig.getJobName());
         }
         LOGGER.info("Scheduling {} Job", baseJobConfig.getJobName());
@@ -69,7 +69,7 @@ public abstract class BaseJobManager implements Managed {
                 Instant lockAtMostUntil = Instant.now()
                         .plusSeconds(TimeUnit.MINUTES.toSeconds(lockAtMost));
                 runImpl(executor, lockAtMostUntil);
-            } catch (Exception e) {
+            } catch(Exception e) {
                 LOGGER.error("Error occurred while running the job : ", e);
             }
         }, initialDelay, baseJobConfig.getInterval(), TimeUnit.SECONDS);

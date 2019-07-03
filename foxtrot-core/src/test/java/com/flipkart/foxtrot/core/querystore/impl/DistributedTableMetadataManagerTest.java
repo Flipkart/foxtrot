@@ -74,15 +74,15 @@ public class DistributedTableMetadataManagerTest {
         when(hazelcastConnection.getHazelcastConfig()).thenReturn(new Config());
         hazelcastConnection.start();
 
-        this.distributedTableMetadataManager = new DistributedTableMetadataManager(hazelcastConnection, elasticsearchConnection,
-                                                                                   objectMapper, new CardinalityConfig()
-        );
+        this.distributedTableMetadataManager = new DistributedTableMetadataManager(hazelcastConnection,
+                                                                                   elasticsearchConnection,
+                                                                                   objectMapper,
+                                                                                   new CardinalityConfig());
         distributedTableMetadataManager.start();
 
         tableDataStore = hazelcastInstance.getMap("tablemetadatamap");
-        this.queryStore = new ElasticsearchQueryStore(distributedTableMetadataManager, elasticsearchConnection, dataStore, objectMapper,
-                                                      new CardinalityConfig()
-        );
+        this.queryStore = new ElasticsearchQueryStore(distributedTableMetadataManager, elasticsearchConnection,
+                                                      dataStore, objectMapper, new CardinalityConfig());
     }
 
     @After
@@ -94,7 +94,7 @@ public class DistributedTableMetadataManagerTest {
                     .admin()
                     .indices()
                     .delete(deleteIndexRequest);
-        } catch (Exception e) {
+        } catch(Exception e) {
             //Do Nothing
         }
         elasticsearchConnection.stop();
@@ -153,13 +153,15 @@ public class DistributedTableMetadataManagerTest {
                 .save(table, document);
         queryStore.save(TestUtils.TEST_TABLE_NAME, document);
 
-        document = TestUtils.getDocument("B", new DateTime().getMillis(), new Object[]{"os", "android", "version", "abcd"}, objectMapper);
+        document = TestUtils.getDocument("B", new DateTime().getMillis(),
+                                         new Object[]{"os", "android", "version", "abcd"}, objectMapper);
         translatedDocument = TestUtils.translatedDocumentWithRowKeyVersion1(table, document);
         doReturn(translatedDocument).when(dataStore)
                 .save(table, document);
         queryStore.save(TestUtils.TEST_TABLE_NAME, document);
 
-        TableFieldMapping tableFieldMapping = distributedTableMetadataManager.getFieldMappings(TestUtils.TEST_TABLE_NAME, true, true);
+        TableFieldMapping tableFieldMapping = distributedTableMetadataManager.getFieldMappings(
+                TestUtils.TEST_TABLE_NAME, true, true);
         assertEquals(11, tableFieldMapping.getMappings()
                 .size());
 

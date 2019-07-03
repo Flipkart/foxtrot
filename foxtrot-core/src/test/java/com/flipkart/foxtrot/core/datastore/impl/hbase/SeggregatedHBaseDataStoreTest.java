@@ -46,7 +46,6 @@ public class SeggregatedHBaseDataStoreTest {
         hbaseConfig.setSeggregatedTablePrefix("foxtrot-");
         Table table = new Table(TestUtils.TEST_TABLE_NAME, 7, true);
         Assert.assertEquals(String.format("%s%s", hbaseConfig.getSeggregatedTablePrefix(), TestUtils.TEST_TABLE_NAME),
-                            TableUtil.getTableName(hbaseConfig, table)
-                           );
+                            TableUtil.getTableName(hbaseConfig, table));
     }
 }

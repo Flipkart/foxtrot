@@ -33,7 +33,8 @@ public class ClusterManager implements Managed {
     private HazelcastConnection hazelcastConnection;
     private ScheduledExecutorService executor;
 
-    public ClusterManager(HazelcastConnection connection, List<HealthCheck> healthChecks, ServerFactory serverFactory) throws IOException {
+    public ClusterManager(HazelcastConnection connection, List<HealthCheck> healthChecks, ServerFactory serverFactory)
+            throws IOException {
         this.hazelcastConnection = connection;
         this.healthChecks = healthChecks;
         MapConfig mapConfig = new MapConfig(MAP_NAME);
@@ -47,12 +48,12 @@ public class ClusterManager implements Managed {
         String hostname = Inet4Address.getLocalHost()
                 .getCanonicalHostName();
         //Auto detect marathon environment and query for host environment variable
-        if(!Strings.isNullOrEmpty(System.getenv("HOST")))
+        if(! Strings.isNullOrEmpty(System.getenv("HOST")))
             hostname = System.getenv("HOST");
         Preconditions.checkNotNull(hostname, "Could not retrieve hostname, cannot proceed");
         int port = ServerUtils.port(serverFactory);
         //Auto detect marathon environment and query for host environment variable
-        if(!Strings.isNullOrEmpty(System.getenv("PORT_" + port)))
+        if(! Strings.isNullOrEmpty(System.getenv("PORT_" + port)))
             port = Integer.parseInt(System.getenv("PORT_" + port));
         executor = Executors.newScheduledThreadPool(1);
         clusterMember = new ClusterMember(hostname, port);
@@ -62,7 +63,8 @@ public class ClusterManager implements Managed {
     public void start() throws Exception {
         members = hazelcastConnection.getHazelcast()
                 .getMap(MAP_NAME);
-        executor.scheduleWithFixedDelay(new NodeDataUpdater(healthChecks, members, clusterMember), 0, MAP_REFRESH_TIME, TimeUnit.SECONDS);
+        executor.scheduleWithFixedDelay(new NodeDataUpdater(healthChecks, members, clusterMember), 0, MAP_REFRESH_TIME,
+                                        TimeUnit.SECONDS);
     }
 
     @Override
@@ -79,7 +81,8 @@ public class ClusterManager implements Managed {
         private final ClusterMember clusterMember;
         private IMap<String, ClusterMember> members;
 
-        private NodeDataUpdater(List<HealthCheck> healthChecks, IMap<String, ClusterMember> members, ClusterMember clusterMember) {
+        private NodeDataUpdater(List<HealthCheck> healthChecks, IMap<String, ClusterMember> members,
+                ClusterMember clusterMember) {
             this.healthChecks = ImmutableList.copyOf(healthChecks);
             this.members = members;
             this.clusterMember = clusterMember;
@@ -101,7 +104,7 @@ public class ClusterManager implements Managed {
                     members.put(clusterMember.toString(), clusterMember);
                     logger.debug("Service is healthy. Registering to map.");
                 }
-            } catch (Exception e) {
+            } catch(Exception e) {
                 logger.error("Error updating value in map: ", e);
             }
         }
