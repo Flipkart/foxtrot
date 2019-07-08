@@ -17,6 +17,8 @@ import com.flipkart.foxtrot.core.exception.FoxtrotExceptions;
 import com.flipkart.foxtrot.core.util.TableUtil;
 import io.dropwizard.lifecycle.Managed;
 import java.io.IOException;
+import java.util.concurrent.TimeUnit;
+
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.HColumnDescriptor;
 import org.apache.hadoop.hbase.HTableDescriptor;
@@ -70,6 +72,7 @@ public class HbaseTableConnection implements Managed {
         HTableDescriptor hTableDescriptor = new HTableDescriptor(TableName.valueOf(tableName));
         HColumnDescriptor hColumnDescriptor = new HColumnDescriptor(DEFAULT_FAMILY_NAME);
         hColumnDescriptor.setCompressionType(Compression.Algorithm.GZ);
+        hColumnDescriptor.setTimeToLive(Math.toIntExact(TimeUnit.HOURS.toSeconds(table.getTtl())));
         hTableDescriptor.addFamily(hColumnDescriptor);
         hBaseAdmin.createTable(hTableDescriptor);
     }

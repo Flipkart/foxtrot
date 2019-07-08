@@ -91,7 +91,7 @@ public class HBaseDataStore implements DataStore {
         Document translatedDocument = null;
         try (org.apache.hadoop.hbase.client.Table hTable = tableWrapper.getTable(table)) {
             translatedDocument = translator.translate(table, document);
-            hTable.put(getPutForDocument(table, translatedDocument));
+            hTable.put(getPutForDocument(translatedDocument));
         } catch (JsonProcessingException e) {
             throw FoxtrotExceptions.createBadRequestException(table, e);
         } catch (IOException e) {
@@ -116,7 +116,7 @@ public class HBaseDataStore implements DataStore {
                     continue;
                 }
                 Document translatedDocument = translator.translate(table, document);
-                puts.add(getPutForDocument(table, translatedDocument));
+                puts.add(getPutForDocument(translatedDocument));
                 translatedDocuments.add(translatedDocument);
             }
         } catch (JsonProcessingException e) {
@@ -231,14 +231,14 @@ public class HBaseDataStore implements DataStore {
     }
 
     @VisibleForTesting
-    public Put getPutForDocument(Table table, Document document) throws JsonProcessingException {
+    public Put getPutForDocument(Document document) throws JsonProcessingException {
         return new Put(Bytes.toBytes(document.getMetadata()
                 .getRawStorageId())).addColumn(COLUMN_FAMILY, DOCUMENT_META_FIELD_NAME,
                 mapper.writeValueAsBytes(
                         document.getMetadata()))
                 .addColumn(COLUMN_FAMILY, DOCUMENT_FIELD_NAME, mapper.writeValueAsBytes(document.getData()))
                 .addColumn(COLUMN_FAMILY, TIMESTAMP_FIELD_NAME, Bytes.toBytes(document.getTimestamp()))
-                .addColumn(COLUMN_FAMILY, DATE_FIELD_NAME, mapper.writeValueAsBytes(document.getDate())).setTTL(table.getTtl());
+                .addColumn(COLUMN_FAMILY, DATE_FIELD_NAME, mapper.writeValueAsBytes(document.getDate()));
     }
 
 }
