@@ -72,7 +72,7 @@ public class HbaseTableConnection implements Managed {
         HTableDescriptor hTableDescriptor = new HTableDescriptor(TableName.valueOf(tableName));
         HColumnDescriptor hColumnDescriptor = new HColumnDescriptor(DEFAULT_FAMILY_NAME);
         hColumnDescriptor.setCompressionType(Compression.Algorithm.GZ);
-        hColumnDescriptor.setTimeToLive(Math.toIntExact(TimeUnit.HOURS.toSeconds(table.getTtl())));
+        hColumnDescriptor.setTimeToLive(Math.toIntExact(TimeUnit.DAYS.toSeconds(table.getTtl())));
         hTableDescriptor.addFamily(hColumnDescriptor);
         hBaseAdmin.createTable(hTableDescriptor);
     }
