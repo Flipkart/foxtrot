@@ -332,7 +332,7 @@ public class HBaseDataStoreTest {
         String newId = v1FormatKey(id);
         expectedDocument = new Document(id, System.currentTimeMillis(), new DocumentMetadata(id, newId, timestamp),
                 data);
-        tableInterface.put(hbaseDataStore.getPutForDocument(expectedDocument));
+        tableInterface.put(hbaseDataStore.getPutForDocument(TEST_APP, expectedDocument));
         actualDocument = hbaseDataStore.get(TEST_APP, id);
         compare(expectedDocument, actualDocument);
 
@@ -348,7 +348,7 @@ public class HBaseDataStoreTest {
                 .getId();
         expectedDocument = new Document(newId, originalDocument.getTimestamp(),
                 new DocumentMetadata(id, newId, timestamp), data);
-        tableInterface.put(hbaseDataStore.getPutForDocument(expectedDocument));
+        tableInterface.put(hbaseDataStore.getPutForDocument(TEST_APP, expectedDocument));
         actualDocument = hbaseDataStore.get(TEST_APP, newId);
         compare(originalDocument, actualDocument);
 
@@ -374,7 +374,7 @@ public class HBaseDataStoreTest {
         Document expectedDocument = new Document(id, System.currentTimeMillis(),
                 new DocumentMetadata(id, v1FormatKey(id), System.currentTimeMillis()),
                 data);
-        tableInterface.put(hbaseDataStore.getPutForDocument(expectedDocument));
+        tableInterface.put(hbaseDataStore.getPutForDocument(TEST_APP, expectedDocument));
         doThrow(new IOException()).when(tableInterface)
                 .get(Matchers.<Get>any());
         try {
@@ -394,7 +394,7 @@ public class HBaseDataStoreTest {
         Document expectedDocument = new Document(v1FormatKey(originalDocument.getId()), originalDocument.getTimestamp(),
                 originalDocument.getMetadata(), originalDocument.getData());
 
-        tableInterface.put(hbaseDataStore.getPutForDocument(expectedDocument));
+        tableInterface.put(hbaseDataStore.getPutForDocument(TEST_APP, expectedDocument));
         doThrow(new IOException()).when(tableInterface)
                 .close();
         hbaseDataStore.get(TEST_APP, originalDocument.getId());
@@ -414,7 +414,7 @@ public class HBaseDataStoreTest {
             String rawId = v1FormatKey(id);
             ids.add(id);
             Document document = new Document(rawId, timestamp, new DocumentMetadata(id, rawId, timestamp), data);
-            putList.add(hbaseDataStore.getPutForDocument(document));
+            putList.add(hbaseDataStore.getPutForDocument(TEST_APP, document));
             idValues.put(id, new Document(id, timestamp, data));
         }
         tableInterface.put(putList);
@@ -445,7 +445,7 @@ public class HBaseDataStoreTest {
             idValues.put(document.getId(), document);
 
             Document translated = translator.translate(TEST_APP, document);
-            putList.add(hbaseDataStore.getPutForDocument(translated));
+            putList.add(hbaseDataStore.getPutForDocument(TEST_APP, translated));
 
             rawIds.add(translated.getId());
         }
@@ -497,7 +497,7 @@ public class HBaseDataStoreTest {
                     new DocumentMetadata(id, String.format("row:%d", i),
                             System.currentTimeMillis()), mapper.valueToTree(
                     Collections.singletonMap("TEST_NAME", "BULK_GET_TEST")));
-            putList.add(hbaseDataStore.getPutForDocument(document));
+            putList.add(hbaseDataStore.getPutForDocument(TEST_APP, document));
         }
         tableInterface.put(putList);
         doThrow(new IOException()).when(tableInterface)
@@ -521,7 +521,7 @@ public class HBaseDataStoreTest {
                     new DocumentMetadata(id, String.format("row:%d", i),
                             System.currentTimeMillis()), mapper.valueToTree(
                     Collections.singletonMap("TEST_NAME", "BULK_GET_TEST")));
-            putList.add(hbaseDataStore.getPutForDocument(document));
+            putList.add(hbaseDataStore.getPutForDocument(TEST_APP, document));
         }
         tableInterface.put(putList);
         doThrow(new IOException()).when(tableInterface)
