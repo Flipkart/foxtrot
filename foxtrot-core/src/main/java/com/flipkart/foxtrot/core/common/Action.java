@@ -24,13 +24,14 @@ import com.flipkart.foxtrot.common.query.Filter;
 import com.flipkart.foxtrot.common.query.general.AnyFilter;
 import com.flipkart.foxtrot.common.query.numeric.LessThanFilter;
 import com.flipkart.foxtrot.common.util.CollectionUtils;
+import com.flipkart.foxtrot.core.alerts.EmailConfig;
 import com.flipkart.foxtrot.core.cache.Cache;
 import com.flipkart.foxtrot.core.cache.CacheManager;
+import com.flipkart.foxtrot.core.datastore.DataStore;
 import com.flipkart.foxtrot.core.exception.FoxtrotException;
 import com.flipkart.foxtrot.core.exception.FoxtrotExceptions;
 import com.flipkart.foxtrot.core.exception.MalformedQueryException;
 import com.flipkart.foxtrot.core.querystore.QueryStore;
-import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsLoader;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConfig;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConnection;
 import com.flipkart.foxtrot.core.table.TableMetadataManager;
@@ -54,44 +55,50 @@ import java.util.concurrent.TimeUnit;
  * Date: 24/03/14
  * Time: 12:23 AM
  */
-public abstract class Action<P extends ActionRequest> implements Callable<String> {
+public abstract class Action<ParameterType extends ActionRequest> implements Callable<String> {
     private static final Logger logger = LoggerFactory.getLogger(Action.class.getSimpleName());
     private final TableMetadataManager tableMetadataManager;
     private final QueryStore queryStore;
     private final String cacheToken;
     private final CacheManager cacheManager;
     private final ObjectMapper objectMapper;
-    private P parameter;
+    private final EmailConfig emailConfig;
+    private ParameterType parameter;
+    private DataStore dataStore;
     private ElasticsearchConnection connection;
 
-    protected Action(P parameter, String cacheToken, AnalyticsLoader analyticsLoader) {
+    protected Action(ParameterType parameter, TableMetadataManager tableMetadataManager, DataStore dataStore, QueryStore queryStore,
+                     ElasticsearchConnection connection, String cacheToken, CacheManager cacheManager, ObjectMapper objectMapper,
+                     EmailConfig emailConfig) {
         this.parameter = parameter;
-        this.tableMetadataManager = analyticsLoader.getTableMetadataManager();
-        this.queryStore = analyticsLoader.getQueryStore();
+        this.tableMetadataManager = tableMetadataManager;
+        this.queryStore = queryStore;
         this.cacheToken = cacheToken;
-        this.cacheManager = analyticsLoader.getCacheManager();
-        this.connection = analyticsLoader.getElasticsearchConnection();
-        this.objectMapper = analyticsLoader.getObjectMapper();
+        this.cacheManager = cacheManager;
+        this.connection = connection;
+        this.dataStore = dataStore;
+        this.objectMapper = objectMapper;
+        this.emailConfig = emailConfig;
     }
 
     public String cacheKey() {
         return String.format("%s-%d", getRequestCacheKey(), System.currentTimeMillis() / 30000);
     }
 
-    public AsyncDataToken execute(ExecutorService executor, String email) {
-        preProcessRequest(email);
+    public AsyncDataToken execute(ExecutorService executor) throws FoxtrotException {
+        preProcessRequest();
         executor.submit(this);
         return new AsyncDataToken(cacheToken, cacheKey());
     }
 
-    private void preProcessRequest(String email) {
+    private void preProcessRequest() throws MalformedQueryException {
         if(parameter.getFilters() == null) {
             parameter.setFilters(Lists.newArrayList(new AnyFilter()));
         }
         preprocess();
         parameter.setFilters(checkAndAddTemporalBoundary(parameter.getFilters()));
         validateBase(parameter);
-        validateImpl(parameter, email);
+        validateImpl(parameter);
     }
 
     public abstract void preprocess();
@@ -104,9 +111,9 @@ public abstract class Action<P extends ActionRequest> implements Callable<String
         return cacheKey;
     }
 
-    public ActionValidationResponse validate(String email) {
+    public ActionValidationResponse validate() {
         try {
-            preProcessRequest(email);
+            preProcessRequest();
         } catch (MalformedQueryException e) {
             return ActionValidationResponse.builder()
                     .processedRequest(parameter)
@@ -124,8 +131,8 @@ public abstract class Action<P extends ActionRequest> implements Callable<String
                 .build();
     }
 
-    public ActionResponse execute(String email) {
-        preProcessRequest(email);
+    public ActionResponse execute() throws FoxtrotException {
+        preProcessRequest();
         ActionResponse cachedData = readCachedData();
         if(cachedData != null) {
             return cachedData;
@@ -138,7 +145,11 @@ public abstract class Action<P extends ActionRequest> implements Callable<String
             MetricUtil.getInstance()
                     .registerActionSuccess(cacheToken, getMetricKey(), elapsed);
             if(elapsed > 1000) {
-                logSlowQuery(elapsed);
+                try {
+                    logger.warn("SLOW_QUERY: Time: {} ms Query: {}", elapsed, getObjectMapper().writeValueAsString(parameter));
+                } catch (JsonProcessingException e) {
+                    logger.error("Error serializing slow query", e);
+                }
             }
 
             // Now cache data
@@ -151,15 +162,6 @@ public abstract class Action<P extends ActionRequest> implements Callable<String
             MetricUtil.getInstance()
                     .registerActionFailure(cacheToken, getMetricKey(), stopwatch.elapsed(TimeUnit.MILLISECONDS));
             throw e;
-        }
-    }
-
-    private void logSlowQuery(final long elapsed) {
-        try {
-            String query = getObjectMapper().writeValueAsString(parameter);
-            logger.warn("SLOW_QUERY: Time: {} ms Query: {}", elapsed, query);
-        } catch (JsonProcessingException e) {
-            logger.error("Error serializing slow query", e);
         }
     }
 
@@ -185,18 +187,18 @@ public abstract class Action<P extends ActionRequest> implements Callable<String
             if(cache.has(cacheKeyValue)) {
                 MetricUtil.getInstance()
                         .registerActionCacheHit(cacheToken, getMetricKey());
-                logger.info("Cache hit for key: {}", cacheKeyValue);
+                logger.info("Cache hit for key: " + cacheKeyValue);
                 return cache.get(cacheKey());
             } else {
                 MetricUtil.getInstance()
                         .registerActionCacheMiss(cacheToken, getMetricKey());
-                logger.info("Cache miss for key: {}", cacheKeyValue);
+                logger.info("Cache miss for key: " + cacheKeyValue);
             }
         }
         return null;
     }
 
-    private void validateBase(P parameter) {
+    private void validateBase(ParameterType parameter) throws MalformedQueryException {
         List<String> validationErrors = new ArrayList<>();
         if(!CollectionUtils.isNullOrEmpty(parameter.getFilters())) {
             for(Filter filter : parameter.getFilters()) {
@@ -221,25 +223,30 @@ public abstract class Action<P extends ActionRequest> implements Callable<String
      *
      * @return metric key for current action
      */
-    public abstract String getMetricKey();
+    abstract public String getMetricKey();
 
-    public abstract String getRequestCacheKey();
+    abstract public String getRequestCacheKey();
 
-    public abstract ActionRequestBuilder getRequestBuilder(P parameter);
+    public abstract ActionRequestBuilder getRequestBuilder(ParameterType parameter) throws FoxtrotException;
 
-    public abstract ActionResponse getResponse(org.elasticsearch.action.ActionResponse response, P parameter);
+    public abstract ActionResponse getResponse(org.elasticsearch.action.ActionResponse response, ParameterType parameter)
+            throws FoxtrotException;
 
 
-    public abstract void validateImpl(P parameter, String email);
+    abstract public void validateImpl(ParameterType parameter) throws MalformedQueryException;
 
-    public abstract ActionResponse execute(P parameter);
+    abstract public ActionResponse execute(ParameterType parameter) throws FoxtrotException;
 
-    protected P getParameter() {
+    protected ParameterType getParameter() {
         return parameter;
     }
 
     public final boolean isCacheable() {
         return cacheManager.getCacheFor(this.cacheToken) != null;
+    }
+
+    public DataStore getDataStore() {
+        return dataStore;
     }
 
     public ElasticsearchConnection getConnection() {

@@ -11,7 +11,7 @@
     <groupId>com.flipkart.foxtrot</groupId>
     <artifactId>foxtrot</artifactId>
     <packaging>pom</packaging>
-    <version>6.3.1-2</version>
+    <version>6.3.1-1</version>
 
     <scm>
         <connection>scm:git:https://github.com/flipkart-incubator/foxtrot.git</connection>
@@ -57,15 +57,7 @@
         <dropwizard.version>1.0.6</dropwizard.version>
         <elasticsearch.url>http://localhost:9200</elasticsearch.url>
         <lombok.version>1.16.16</lombok.version>
-        <project.version>6.3.1-2</project.version>
-        <project.version>6.3.1.0</project.version>
-        <sonar.sources>src/main</sonar.sources>
-        <sonar.tests>src/test</sonar.tests>
-        <sonar.java.coveragePlugin>jacoco</sonar.java.coveragePlugin>
-        <sonar.dynamicAnalysis>reuseReports</sonar.dynamicAnalysis>
-        <sonar.jacoco.reportPaths>${project.basedir}/target/jacoco.exec</sonar.jacoco.reportPaths>
-        <sonar.language>java</sonar.language>
-        <sonar.exclusions>**com/flipkart/foxtrot/common/**/*</sonar.exclusions>
+        <project.version>6.3.1-1</project.version>
     </properties>
 
     <modules>
@@ -154,7 +146,7 @@
         <profile>
             <id>local</id>
             <properties>
-                <project.version>6.3.1-2</project.version>
+                <project.version>6.3.1-1</project.version>
             </properties>
         </profile>
     </profiles>
@@ -456,25 +448,6 @@
                     </execution>
                 </executions>
             </plugin>-->
-            <plugin>
-                <groupId>org.jacoco</groupId>
-                <artifactId>jacoco-maven-plugin</artifactId>
-                <version>0.8.0</version>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>prepare-agent</goal>
-                        </goals>
-                    </execution>
-                    <execution>
-                        <id>report</id>
-                        <phase>prepare-package</phase>
-                        <goals>
-                            <goal>report</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
         </plugins>
     </build>
 

@@ -24,8 +24,6 @@ import org.junit.Test;
 
 import java.util.List;
 
-import static com.flipkart.foxtrot.core.TestUtils.TEST_EMAIL;
-
 /**
  * Created by rishabh.goyal on 02/05/14.
  */
@@ -47,6 +45,6 @@ public class NonCacheableActionTest extends ActionTest {
     //TODO how to verify if cache is hit or not ?
     @Test
     public void checkCacheability() throws FoxtrotException {
-        getQueryExecutor().execute(new NonCacheableActionRequest(), TEST_EMAIL);
+        getQueryExecutor().execute(new NonCacheableActionRequest());
     }
 }

@@ -1,17 +1,26 @@
 package com.flipkart.foxtrot.core.querystore.actions;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.flipkart.foxtrot.common.ActionResponse;
 import com.flipkart.foxtrot.common.distinct.DistinctRequest;
 import com.flipkart.foxtrot.common.distinct.DistinctResponse;
 import com.flipkart.foxtrot.common.query.Filter;
 import com.flipkart.foxtrot.common.query.ResultSort;
 import com.flipkart.foxtrot.common.util.CollectionUtils;
+import com.flipkart.foxtrot.core.alerts.EmailConfig;
+import com.flipkart.foxtrot.core.cache.CacheManager;
 import com.flipkart.foxtrot.core.common.Action;
+import com.flipkart.foxtrot.core.datastore.DataStore;
+import com.flipkart.foxtrot.core.exception.FoxtrotException;
 import com.flipkart.foxtrot.core.exception.FoxtrotExceptions;
+import com.flipkart.foxtrot.core.exception.MalformedQueryException;
+import com.flipkart.foxtrot.core.querystore.QueryStore;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsLoader;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsProvider;
+import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConnection;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
 import com.flipkart.foxtrot.core.querystore.query.ElasticSearchQueryGenerator;
+import com.flipkart.foxtrot.core.table.TableMetadataManager;
 import com.google.common.collect.Sets;
 import org.elasticsearch.ElasticsearchException;
 import org.elasticsearch.action.search.SearchRequestBuilder;
@@ -36,8 +45,10 @@ import static com.flipkart.foxtrot.core.util.ElasticsearchQueryUtils.QUERY_SIZE;
 public class DistinctAction extends Action<DistinctRequest> {
     private static final Logger logger = LoggerFactory.getLogger(DistinctAction.class);
 
-    public DistinctAction(DistinctRequest parameter, String cacheToken, AnalyticsLoader analyticsLoader) {
-        super(parameter, cacheToken, analyticsLoader);
+    public DistinctAction(DistinctRequest parameter, TableMetadataManager tableMetadataManager, DataStore dataStore, QueryStore queryStore,
+                          ElasticsearchConnection connection, String cacheToken, CacheManager cacheManager, ObjectMapper objectMapper,
+                          EmailConfig emailConfig, AnalyticsLoader analyticsLoader) {
+        super(parameter, tableMetadataManager, dataStore, queryStore, connection, cacheToken, cacheManager, objectMapper, emailConfig);
     }
 
     @Override
@@ -69,7 +80,7 @@ public class DistinctAction extends Action<DistinctRequest> {
     }
 
     @Override
-    public void validateImpl(DistinctRequest parameter, String email) {
+    public void validateImpl(DistinctRequest parameter) throws MalformedQueryException {
         List<String> validationErrors = new ArrayList<>();
         if(CollectionUtils.isNullOrEmpty(parameter.getTable())) {
             validationErrors.add("table name cannot be null or empty");
@@ -78,15 +89,17 @@ public class DistinctAction extends Action<DistinctRequest> {
         if(CollectionUtils.isNullOrEmpty(parameter.getNesting())) {
             validationErrors.add("At least one nesting parameter is required");
         } else {
-            for(ResultSort resultSort : com.collections.CollectionUtils.nullSafeList(parameter.getNesting())) {
-
-                if(CollectionUtils.isNullOrEmpty(resultSort.getField())) {
-                    validationErrors.add("nested parameter cannot have null name");
+            for(ResultSort resultSort : parameter.getNesting()) {
+                if(resultSort == null) {
+                    validationErrors.add("nested parameter cannot be null");
+                } else {
+                    if(CollectionUtils.isNullOrEmpty(resultSort.getField())) {
+                        validationErrors.add("nested parameter cannot have null name");
+                    }
+                    if(resultSort.getOrder() == null) {
+                        validationErrors.add("nested parameter cannot have null sorting order");
+                    }
                 }
-                if(resultSort.getOrder() == null) {
-                    validationErrors.add("nested parameter cannot have null sorting order");
-                }
-
             }
         }
         if(!CollectionUtils.isNullOrEmpty(validationErrors)) {
@@ -95,7 +108,7 @@ public class DistinctAction extends Action<DistinctRequest> {
     }
 
     @Override
-    public ActionResponse execute(DistinctRequest request) {
+    public ActionResponse execute(DistinctRequest request) throws FoxtrotException {
         SearchRequestBuilder query;
         try {
             query = getConnection().getClient()
@@ -118,7 +131,7 @@ public class DistinctAction extends Action<DistinctRequest> {
     }
 
     @Override
-    public SearchRequestBuilder getRequestBuilder(DistinctRequest request) {
+    public SearchRequestBuilder getRequestBuilder(DistinctRequest request) throws FoxtrotException {
         SearchRequestBuilder query;
         try {
             query = getConnection().getClient()
@@ -135,11 +148,11 @@ public class DistinctAction extends Action<DistinctRequest> {
     }
 
     @Override
-    public ActionResponse getResponse(org.elasticsearch.action.ActionResponse response, DistinctRequest parameter) {
+    public ActionResponse getResponse(org.elasticsearch.action.ActionResponse response, DistinctRequest parameter) throws FoxtrotException {
         Aggregations aggregations = ((SearchResponse)response).getAggregations();
         // Check if any aggregation is present or not
         if(aggregations == null) {
-            logger.error("Null response for Group. Request : {}", parameter);
+            logger.error("Null response for Group. Request : " + parameter.toString());
             return new DistinctResponse(new ArrayList<>(), new ArrayList<>());
         }
         return getDistinctResponse(parameter, aggregations);

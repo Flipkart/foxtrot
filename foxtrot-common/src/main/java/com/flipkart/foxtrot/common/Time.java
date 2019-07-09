@@ -15,18 +15,14 @@ package com.flipkart.foxtrot.common;
  * limitations under the License.
  */
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 import org.joda.time.DateTime;
 
 /***
  Created by nitish.goyal on 29/11/18
  ***/
 @Data
-@NoArgsConstructor
-@AllArgsConstructor
-public class Date {
+public class Time {
 
     private int year;
     private int monthOfYear;
@@ -36,7 +32,7 @@ public class Date {
     private int minuteOfHour;
     private int minuteOfDay;
 
-    public Date(DateTime dateTime) {
+    public Time(DateTime dateTime) {
 
         this.year = dateTime.getYear();
         this.monthOfYear = dateTime.getMonthOfYear();

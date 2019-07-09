@@ -26,35 +26,35 @@ import com.flipkart.foxtrot.common.query.string.WildCardFilter;
  * Date: 14/03/14
  * Time: 2:20 PM
  */
-public interface FilterVisitor<T> {
+public abstract class FilterVisitor<T> {
 
-    T visit(BetweenFilter betweenFilter);
+    public abstract T visit(BetweenFilter betweenFilter) throws Exception;
 
-    T visit(EqualsFilter equalsFilter);
+    public abstract T visit(EqualsFilter equalsFilter) throws Exception;
 
-    T visit(NotEqualsFilter notEqualsFilter);
+    public abstract T visit(NotEqualsFilter notEqualsFilter) throws Exception;
 
-    T visit(ContainsFilter stringContainsFilterElement);
+    public abstract T visit(ContainsFilter stringContainsFilterElement) throws Exception;
 
-    T visit(GreaterThanFilter greaterThanFilter);
+    public abstract T visit(GreaterThanFilter greaterThanFilter) throws Exception;
 
-    T visit(GreaterEqualFilter greaterEqualFilter);
+    public abstract T visit(GreaterEqualFilter greaterEqualFilter) throws Exception;
 
-    T visit(LessThanFilter lessThanFilter);
+    public abstract T visit(LessThanFilter lessThanFilter) throws Exception;
 
-    T visit(LessEqualFilter lessEqualFilter);
+    public abstract T visit(LessEqualFilter lessEqualFilter) throws Exception;
 
-    T visit(AnyFilter anyFilter);
+    public abstract T visit(AnyFilter anyFilter) throws Exception;
 
-    T visit(InFilter inFilter);
+    public abstract T visit(InFilter inFilter) throws Exception;
 
-    T visit(NotInFilter inFilter);
+    public abstract T visit(NotInFilter inFilter) throws Exception;
 
-    T visit(ExistsFilter existsFilter);
+    public abstract T visit(ExistsFilter existsFilter) throws Exception;
 
-    T visit(LastFilter lastFilter);
+    public abstract T visit(LastFilter lastFilter) throws Exception;
 
-    T visit(MissingFilter missingFilter);
+    public abstract T visit(MissingFilter missingFilter) throws Exception;
 
-    T visit(WildCardFilter wildCardFilter);
+    public abstract T visit(WildCardFilter wildCardFilter) throws Exception;
 }

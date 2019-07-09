@@ -17,6 +17,7 @@
 package com.flipkart.foxtrot.server.resources;
 
 import com.codahale.metrics.annotation.Timed;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.flipkart.foxtrot.core.querystore.QueryStore;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -36,7 +37,7 @@ import java.util.concurrent.ExecutionException;
 
 @Path("/v1/clusterhealth")
 @Produces(MediaType.APPLICATION_JSON)
-@Api(value = "/v1/clusterhealth")
+@Api(value = "/v1/clusterhealth", description = "v1 ClusterHealth API")
 public class ClusterHealthResource {
     private final QueryStore queryStore;
 
@@ -48,7 +49,7 @@ public class ClusterHealthResource {
     @GET
     @Timed
     @ApiOperation("getHealth")
-    public ClusterHealthResponse getHealth() throws ExecutionException, InterruptedException {
+    public ClusterHealthResponse getHealth() throws ExecutionException, InterruptedException, JsonProcessingException {
         return queryStore.getClusterHealth();
     }
 
@@ -56,7 +57,7 @@ public class ClusterHealthResource {
     @Timed
     @Path("/nodestats")
     @ApiOperation("getNodeStat")
-    public NodesStatsResponse getNodeStat() throws ExecutionException, InterruptedException {
+    public NodesStatsResponse getNodeStat() throws ExecutionException, InterruptedException, JsonProcessingException {
         return queryStore.getNodeStats();
     }
 
@@ -64,7 +65,7 @@ public class ClusterHealthResource {
     @Timed
     @Path("indicesstats")
     @ApiOperation("getIndicesStat")
-    public IndicesStatsResponse getIndicesStat() throws ExecutionException, InterruptedException {
+    public IndicesStatsResponse getIndicesStat() throws ExecutionException, InterruptedException, JsonProcessingException {
         return queryStore.getIndicesStats();
     }
 }

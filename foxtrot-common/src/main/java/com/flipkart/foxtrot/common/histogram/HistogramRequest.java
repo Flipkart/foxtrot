@@ -16,7 +16,6 @@
 package com.flipkart.foxtrot.common.histogram;
 
 import com.flipkart.foxtrot.common.ActionRequest;
-import com.flipkart.foxtrot.common.ActionRequestVisitor;
 import com.flipkart.foxtrot.common.Opcodes;
 import com.flipkart.foxtrot.common.Period;
 import com.flipkart.foxtrot.common.query.Filter;
@@ -58,10 +57,6 @@ public class HistogramRequest extends ActionRequest {
         this.field = field;
         this.uniqueCountOn = uniqueCountOn;
         this.period = period;
-    }
-
-    public <T> T accept(ActionRequestVisitor<T> visitor) {
-        return visitor.visit(this);
     }
 
     public String getTable() {

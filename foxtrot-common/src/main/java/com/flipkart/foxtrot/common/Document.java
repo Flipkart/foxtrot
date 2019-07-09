@@ -27,7 +27,6 @@ import org.joda.time.DateTime;
 
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
-import java.util.UUID;
 
 /**
  * User: Santanu Sinha (santanu.sinha@flipkart.com)
@@ -58,8 +57,6 @@ public class Document implements Serializable {
     private JsonNode data;
 
     public Document() {
-        this.id = UUID.randomUUID()
-                .toString();
         this.timestamp = System.currentTimeMillis();
         this.date = new Date(DateTime.now());
     }
@@ -71,7 +68,7 @@ public class Document implements Serializable {
         this.date = Utils.getDate(timestamp);
     }
 
-    public Document(String id, long timestamp, JsonNode data, Date date) {
+    public Document(String id, long timestamp, JsonNode data, Date date){
         this.id = id;
         this.timestamp = timestamp;
         this.data = data;

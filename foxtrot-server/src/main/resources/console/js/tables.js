@@ -29,24 +29,22 @@ function Tables() {
 }
 
 Tables.prototype.init = function(callback) {
-	if(isLoggedIn()) {
-        $.ajax({
-            url: hostDetails.url("/foxtrot/v1/tables"),
-            contentType: "application/json",
-            context: this,
-            success: function(tables) {
-                this.tables = [];
-                for (var i = tables.length - 1; i >= 0; i--) {
-                    var table = tables[i];
-                    this.tables.push(new Table(table.name, table.ttl));
-                };
-                this.selectedTable = this.tables[this.getSelectionIndex()];
-                for (var i = this.tableChangeHandlers.length - 1; i >= 0; i--) {
-                    this.tableChangeHandlers[i](this.tables);
-                };
-            }
-        });
-    }
+	$.ajax({
+		url: hostDetails.url("/foxtrot/v1/tables"),
+		contentType: "application/json",
+		context: this,
+		success: function(tables) {
+			this.tables = [];
+			for (var i = tables.length - 1; i >= 0; i--) {
+				var table = tables[i];
+				this.tables.push(new Table(table.name, table.ttl));
+			};
+			this.selectedTable = this.tables[this.getSelectionIndex()];
+			for (var i = this.tableChangeHandlers.length - 1; i >= 0; i--) {
+				this.tableChangeHandlers[i](this.tables);
+			};
+		}
+	});
 };
 
 Tables.prototype.forceSelectedTableAfterInit = function(tableName) {

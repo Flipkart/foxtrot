@@ -1,13 +1,9 @@
 package com.flipkart.foxtrot.common.stats;
 
 import com.flipkart.foxtrot.common.ActionRequest;
-import com.flipkart.foxtrot.common.ActionRequestVisitor;
 import com.flipkart.foxtrot.common.Opcodes;
 import com.flipkart.foxtrot.common.Period;
 import com.flipkart.foxtrot.common.query.Filter;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
 import java.util.List;
@@ -16,8 +12,6 @@ import java.util.Set;
 /**
  * Created by rishabh.goyal on 02/08/14.
  */
-@Getter
-@Setter
 public class StatsTrendRequest extends ActionRequest {
 
     private String table;
@@ -34,15 +28,16 @@ public class StatsTrendRequest extends ActionRequest {
 
     private String timestamp = "_timestamp";
 
-    private double compression = 100.0;
-
     public StatsTrendRequest() {
         super(Opcodes.STATS_TREND);
     }
 
-    @Builder
-    public StatsTrendRequest(List<Filter> filters, String table, String field, Set<Stat> stats, List<String> nesting,
-                             List<Double> percentiles, Period period, String timestamp, double compression) {
+    public StatsTrendRequest(List<Filter> filters, String table, String field,
+                             Set<Stat> stats,
+                             List<String> nesting,
+                             List<Double> percentiles,
+                             Period period,
+                             String timestamp) {
         super(Opcodes.STATS_TREND, filters);
         this.table = table;
         this.field = field;
@@ -51,12 +46,62 @@ public class StatsTrendRequest extends ActionRequest {
         this.percentiles = percentiles;
         this.period = period;
         this.timestamp = timestamp;
-        this.compression = compression;
     }
 
+    public String getTable() {
+        return table;
+    }
 
-    public <T> T accept(ActionRequestVisitor<T> visitor) {
-        return visitor.visit(this);
+    public void setTable(String table) {
+        this.table = table;
+    }
+
+    public String getField() {
+        return field;
+    }
+
+    public void setField(String field) {
+        this.field = field;
+    }
+
+    public List<String> getNesting() {
+        return nesting;
+    }
+
+    public void setNesting(List<String> nesting) {
+        this.nesting = nesting;
+    }
+
+    public Period getPeriod() {
+        return period;
+    }
+
+    public void setPeriod(Period period) {
+        this.period = period;
+    }
+
+    public String getTimestamp() {
+        return timestamp;
+    }
+
+    public void setTimestamp(String timestamp) {
+        this.timestamp = timestamp;
+    }
+
+    public List<Double> getPercentiles() {
+        return percentiles;
+    }
+
+    public void setPercentiles(List<Double> percentiles) {
+        this.percentiles = percentiles;
+    }
+
+    public Set<Stat> getStats() {
+        return stats;
+    }
+
+    public void setStats(Set<Stat> stats) {
+        this.stats = stats;
     }
 
     @Override
@@ -69,7 +114,6 @@ public class StatsTrendRequest extends ActionRequest {
                 .append("percentiles", percentiles)
                 .append("period", period)
                 .append("timestamp", timestamp)
-                .append("compression", compression)
                 .toString();
     }
 }

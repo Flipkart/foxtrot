@@ -1,5 +1,6 @@
 package com.flipkart.foxtrot.core.querystore.actions;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.flipkart.foxtrot.common.ActionResponse;
 import com.flipkart.foxtrot.common.Period;
 import com.flipkart.foxtrot.common.query.Filter;
@@ -10,12 +11,20 @@ import com.flipkart.foxtrot.common.stats.StatsTrendRequest;
 import com.flipkart.foxtrot.common.stats.StatsTrendResponse;
 import com.flipkart.foxtrot.common.stats.StatsTrendValue;
 import com.flipkart.foxtrot.common.util.CollectionUtils;
+import com.flipkart.foxtrot.core.alerts.EmailConfig;
+import com.flipkart.foxtrot.core.cache.CacheManager;
 import com.flipkart.foxtrot.core.common.Action;
+import com.flipkart.foxtrot.core.datastore.DataStore;
+import com.flipkart.foxtrot.core.exception.FoxtrotException;
 import com.flipkart.foxtrot.core.exception.FoxtrotExceptions;
+import com.flipkart.foxtrot.core.exception.MalformedQueryException;
+import com.flipkart.foxtrot.core.querystore.QueryStore;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsLoader;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsProvider;
+import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConnection;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
 import com.flipkart.foxtrot.core.querystore.query.ElasticSearchQueryGenerator;
+import com.flipkart.foxtrot.core.table.TableMetadataManager;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import io.dropwizard.util.Duration;
@@ -37,6 +46,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static com.flipkart.foxtrot.core.util.ElasticsearchQueryUtils.QUERY_SIZE;
+
 /**
  * Created by rishabh.goyal on 02/08/14.
  */
@@ -44,8 +55,10 @@ import java.util.stream.Collectors;
 @AnalyticsProvider(opcode = "statstrend", request = StatsTrendRequest.class, response = StatsTrendResponse.class, cacheable = false)
 public class StatsTrendAction extends Action<StatsTrendRequest> {
 
-    public StatsTrendAction(StatsTrendRequest parameter, String cacheToken, AnalyticsLoader analyticsLoader) {
-        super(parameter, cacheToken, analyticsLoader);
+    public StatsTrendAction(StatsTrendRequest parameter, TableMetadataManager tableMetadataManager, DataStore dataStore,
+                            QueryStore queryStore, ElasticsearchConnection connection, String cacheToken, CacheManager cacheManager,
+                            ObjectMapper objectMapper, EmailConfig emailConfig, AnalyticsLoader analyticsLoader) {
+        super(parameter, tableMetadataManager, dataStore, queryStore, connection, cacheToken, cacheManager, objectMapper, emailConfig);
     }
 
     @Override
@@ -87,7 +100,7 @@ public class StatsTrendAction extends Action<StatsTrendRequest> {
     }
 
     @Override
-    public void validateImpl(StatsTrendRequest parameter, String email) {
+    public void validateImpl(StatsTrendRequest parameter) throws MalformedQueryException {
         List<String> validationErrors = Lists.newArrayList();
         if(CollectionUtils.isNullOrEmpty(parameter.getTable())) {
             validationErrors.add("table name cannot be null or empty");
@@ -107,7 +120,7 @@ public class StatsTrendAction extends Action<StatsTrendRequest> {
     }
 
     @Override
-    public ActionResponse execute(StatsTrendRequest parameter) {
+    public ActionResponse execute(StatsTrendRequest parameter) throws FoxtrotException {
         SearchRequestBuilder searchRequestBuilder = getRequestBuilder(parameter);
 
         try {
@@ -120,7 +133,7 @@ public class StatsTrendAction extends Action<StatsTrendRequest> {
     }
 
     @Override
-    public SearchRequestBuilder getRequestBuilder(StatsTrendRequest parameter) {
+    public SearchRequestBuilder getRequestBuilder(StatsTrendRequest parameter) throws FoxtrotException {
         SearchRequestBuilder searchRequestBuilder;
         try {
             AbstractAggregationBuilder aggregation = buildAggregation(parameter);
@@ -129,7 +142,7 @@ public class StatsTrendAction extends Action<StatsTrendRequest> {
                     .setTypes(ElasticsearchUtils.DOCUMENT_TYPE_NAME)
                     .setIndicesOptions(Utils.indicesOptions())
                     .setQuery(new ElasticSearchQueryGenerator().genFilter(parameter.getFilters()))
-                    .setSize(0)
+                    .setSize(QUERY_SIZE)
                     .addAggregation(aggregation);
         } catch (Exception e) {
             throw FoxtrotExceptions.queryCreationException(parameter, e);
@@ -138,7 +151,8 @@ public class StatsTrendAction extends Action<StatsTrendRequest> {
     }
 
     @Override
-    public ActionResponse getResponse(org.elasticsearch.action.ActionResponse response, StatsTrendRequest parameter) {
+    public ActionResponse getResponse(org.elasticsearch.action.ActionResponse response, StatsTrendRequest parameter)
+            throws FoxtrotException {
         Aggregations aggregations = ((SearchResponse)response).getAggregations();
         if(aggregations != null) {
             return buildResponse(parameter, aggregations);
@@ -150,7 +164,7 @@ public class StatsTrendAction extends Action<StatsTrendRequest> {
         DateHistogramInterval interval = Utils.getHistogramInterval(request.getPeriod());
         AbstractAggregationBuilder dateHistogramBuilder = Utils.buildDateHistogramAggregation(request.getTimestamp(), interval)
                 .subAggregation(Utils.buildStatsAggregation(request.getField(), getParameter().getStats()))
-                .subAggregation(Utils.buildPercentileAggregation(request.getField(), request.getPercentiles(), request.getCompression()));
+                .subAggregation(Utils.buildPercentileAggregation(request.getField(), request.getPercentiles()));
 
         if(CollectionUtils.isNullOrEmpty(getParameter().getNesting())) {
             return dateHistogramBuilder;

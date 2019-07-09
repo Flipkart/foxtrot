@@ -17,6 +17,7 @@ package com.flipkart.foxtrot.core.datastore;
 
 import com.flipkart.foxtrot.common.Document;
 import com.flipkart.foxtrot.common.Table;
+import com.flipkart.foxtrot.core.exception.FoxtrotException;
 
 import java.util.List;
 
@@ -27,13 +28,13 @@ import java.util.List;
  */
 public interface DataStore {
 
-    void initializeTable(final Table table, boolean forceTableCreate);
+    void initializeTable(final Table table, boolean forceTableCreate) throws FoxtrotException;
 
-    Document save(final Table table, final Document document);
+    Document save(final Table table, final Document document) throws FoxtrotException;
 
-    List<Document> saveAll(final Table table, final List<Document> documents);
+    List<Document> saveAll(final Table table, final List<Document> documents) throws FoxtrotException;
 
-    Document get(final Table table, final String id);
+    Document get(final Table table, final String id) throws FoxtrotException;
 
-    List<Document> getAll(final Table table, final List<String> ids);
+    List<Document> getAll(final Table table, final List<String> ids) throws FoxtrotException;
 }

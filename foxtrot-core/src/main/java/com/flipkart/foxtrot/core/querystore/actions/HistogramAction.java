@@ -15,18 +15,27 @@
  */
 package com.flipkart.foxtrot.core.querystore.actions;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.flipkart.foxtrot.common.ActionResponse;
 import com.flipkart.foxtrot.common.histogram.HistogramRequest;
 import com.flipkart.foxtrot.common.histogram.HistogramResponse;
 import com.flipkart.foxtrot.common.query.Filter;
 import com.flipkart.foxtrot.common.query.datetime.LastFilter;
 import com.flipkart.foxtrot.common.util.CollectionUtils;
+import com.flipkart.foxtrot.core.alerts.EmailConfig;
+import com.flipkart.foxtrot.core.cache.CacheManager;
 import com.flipkart.foxtrot.core.common.Action;
+import com.flipkart.foxtrot.core.datastore.DataStore;
+import com.flipkart.foxtrot.core.exception.FoxtrotException;
 import com.flipkart.foxtrot.core.exception.FoxtrotExceptions;
+import com.flipkart.foxtrot.core.exception.MalformedQueryException;
+import com.flipkart.foxtrot.core.querystore.QueryStore;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsLoader;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsProvider;
+import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConnection;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
 import com.flipkart.foxtrot.core.querystore.query.ElasticSearchQueryGenerator;
+import com.flipkart.foxtrot.core.table.TableMetadataManager;
 import io.dropwizard.util.Duration;
 import org.elasticsearch.ElasticsearchException;
 import org.elasticsearch.action.search.SearchRequestBuilder;
@@ -54,18 +63,20 @@ import static com.flipkart.foxtrot.core.util.ElasticsearchQueryUtils.QUERY_SIZE;
 @AnalyticsProvider(opcode = "histogram", request = HistogramRequest.class, response = HistogramResponse.class, cacheable = true)
 public class HistogramAction extends Action<HistogramRequest> {
 
-    public HistogramAction(HistogramRequest parameter, String cacheToken, AnalyticsLoader analyticsLoader) {
-        super(parameter, cacheToken, analyticsLoader);
-    }
-
-    @Override
-    public String getMetricKey() {
-        return getParameter().getTable();
+    public HistogramAction(HistogramRequest parameter, TableMetadataManager tableMetadataManager, DataStore dataStore,
+                           QueryStore queryStore, ElasticsearchConnection connection, String cacheToken, CacheManager cacheManager,
+                           ObjectMapper objectMapper, EmailConfig emailConfig, AnalyticsLoader analyticsLoader) {
+        super(parameter, tableMetadataManager, dataStore, queryStore, connection, cacheToken, cacheManager, objectMapper, emailConfig);
     }
 
     @Override
     public void preprocess() {
         getParameter().setTable(ElasticsearchUtils.getValidTableName(getParameter().getTable()));
+    }
+
+    @Override
+    public String getMetricKey() {
+        return getParameter().getTable();
     }
 
     @Override
@@ -89,7 +100,7 @@ public class HistogramAction extends Action<HistogramRequest> {
     }
 
     @Override
-    public void validateImpl(HistogramRequest parameter, String email) {
+    public void validateImpl(HistogramRequest parameter) throws MalformedQueryException {
         List<String> validationErrors = new ArrayList<>();
         if(CollectionUtils.isNullOrEmpty(parameter.getTable())) {
             validationErrors.add("table name cannot be null or empty");
@@ -112,7 +123,7 @@ public class HistogramAction extends Action<HistogramRequest> {
     }
 
     @Override
-    public ActionResponse execute(HistogramRequest parameter) {
+    public ActionResponse execute(HistogramRequest parameter) throws FoxtrotException {
         SearchRequestBuilder searchRequestBuilder = getRequestBuilder(parameter);
         try {
             SearchResponse response = searchRequestBuilder.execute()
@@ -124,7 +135,7 @@ public class HistogramAction extends Action<HistogramRequest> {
     }
 
     @Override
-    public SearchRequestBuilder getRequestBuilder(HistogramRequest parameter) {
+    public SearchRequestBuilder getRequestBuilder(HistogramRequest parameter) throws FoxtrotException {
         SearchRequestBuilder searchRequestBuilder;
         AbstractAggregationBuilder aggregationBuilder = buildAggregation();
         try {
@@ -142,7 +153,8 @@ public class HistogramAction extends Action<HistogramRequest> {
     }
 
     @Override
-    public ActionResponse getResponse(org.elasticsearch.action.ActionResponse response, HistogramRequest parameter) {
+    public ActionResponse getResponse(org.elasticsearch.action.ActionResponse response, HistogramRequest parameter)
+            throws FoxtrotException {
         Aggregations aggregations = ((SearchResponse)response).getAggregations();
         return buildResponse(aggregations);
     }

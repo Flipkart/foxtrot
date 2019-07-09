@@ -36,7 +36,7 @@ import static org.elasticsearch.index.query.QueryBuilders.*;
  * Date: 14/03/14
  * Time: 2:31 PM
  */
-public class ElasticSearchQueryGenerator implements FilterVisitor<Void> {
+public class ElasticSearchQueryGenerator extends FilterVisitor<Void> {
     private final BoolQueryBuilder boolFilterBuilder;
 
     public ElasticSearchQueryGenerator() {
@@ -44,79 +44,79 @@ public class ElasticSearchQueryGenerator implements FilterVisitor<Void> {
     }
 
     @Override
-    public Void visit(BetweenFilter filter) {
+    public Void visit(BetweenFilter filter) throws Exception {
         addFilter(rangeQuery(Utils.storedFieldName(filter.getField())).from(filter.getFrom())
                           .to(filter.getTo()));
         return null;
     }
 
     @Override
-    public Void visit(EqualsFilter filter) {
+    public Void visit(EqualsFilter filter) throws Exception {
         addFilter(termQuery(Utils.storedFieldName(filter.getField()), filter.getValue()));
         return null;
     }
 
     @Override
-    public Void visit(NotEqualsFilter filter) {
+    public Void visit(NotEqualsFilter filter) throws Exception {
         addFilter(boolQuery().mustNot(termQuery(Utils.storedFieldName(filter.getField()), filter.getValue())));
         return null;
     }
 
     @Override
-    public Void visit(ContainsFilter filter) {
+    public Void visit(ContainsFilter filter) throws Exception {
         addFilter(queryStringQuery(filter.getValue()).defaultField(filter.getField()));
         return null;
     }
 
     @Override
-    public Void visit(GreaterThanFilter filter) {
+    public Void visit(GreaterThanFilter filter) throws Exception {
         addFilter(rangeQuery(Utils.storedFieldName(filter.getField())).gt(filter.getValue()));
         return null;
     }
 
     @Override
-    public Void visit(GreaterEqualFilter filter) {
+    public Void visit(GreaterEqualFilter filter) throws Exception {
         addFilter(rangeQuery(Utils.storedFieldName(filter.getField())).gte(filter.getValue()));
         return null;
     }
 
     @Override
-    public Void visit(LessThanFilter filter) {
+    public Void visit(LessThanFilter filter) throws Exception {
         addFilter(rangeQuery(Utils.storedFieldName(filter.getField())).lt(filter.getValue()));
         return null;
     }
 
     @Override
-    public Void visit(LessEqualFilter filter) {
+    public Void visit(LessEqualFilter filter) throws Exception {
         addFilter(rangeQuery(Utils.storedFieldName(filter.getField())).lte(filter.getValue()));
         return null;
     }
 
     @Override
-    public Void visit(AnyFilter filter) {
+    public Void visit(AnyFilter filter) throws Exception {
         addFilter(matchAllQuery());
         return null;
     }
 
     @Override
-    public Void visit(InFilter filter) {
+    public Void visit(InFilter filter) throws Exception {
         addFilter(termsQuery(Utils.storedFieldName(filter.getField()), filter.getValues()));
         return null;
     }
 
     @Override
-    public Void visit(NotInFilter notInFilter) {
+    public Void visit(NotInFilter notInFilter) throws Exception {
         addFilter(boolQuery().mustNot(termsQuery(Utils.storedFieldName(notInFilter.getField()), notInFilter.getValues())));
         return null;
     }
 
-    public Void visit(ExistsFilter filter) {
+    public Void visit(ExistsFilter filter) throws Exception {
         addFilter(existsQuery(Utils.storedFieldName(filter.getField())));
         return null;
     }
 
     @Override
-    public Void visit(LastFilter filter) {
+    public Void visit(LastFilter filter) throws Exception {
         addFilter(rangeQuery(Utils.storedFieldName(filter.getField())).from(filter.getWindow()
                                                                                     .getStartTime())
                           .to(filter.getWindow()
@@ -125,23 +125,24 @@ public class ElasticSearchQueryGenerator implements FilterVisitor<Void> {
     }
 
     @Override
-    public Void visit(MissingFilter filter) {
+    public Void visit(MissingFilter filter) throws Exception {
         addFilter(boolQuery().mustNot(existsQuery(Utils.storedFieldName(filter.getField()))));
         return null;
     }
 
     @Override
-    public Void visit(WildCardFilter filter) {
+    public Void visit(WildCardFilter filter) throws Exception {
         addFilter(wildcardQuery(Utils.storedFieldName(filter.getField()), filter.getValue()
                 .concat("*")));
         return null;
     }
 
-    private void addFilter(QueryBuilder queryBuilder) {
+    private Void addFilter(QueryBuilder queryBuilder) {
         boolFilterBuilder.filter(queryBuilder);
+        return null;
     }
 
-    public QueryBuilder genFilter(List<Filter> filters) {
+    public QueryBuilder genFilter(List<Filter> filters) throws Exception {
         for(Filter filter : filters) {
             filter.accept(this);
         }

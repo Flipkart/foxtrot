@@ -15,8 +15,6 @@ import org.junit.Test;
 import java.util.Collections;
 import java.util.List;
 
-import static com.flipkart.foxtrot.core.TestUtils.TEST_EMAIL;
-
 /***
  Created by nitish.goyal on 24/07/18
  ***/
@@ -47,7 +45,7 @@ public class GroupActionCardinalityTest extends ActionTest {
         groupRequest.setTable(TestUtils.TEST_TABLE_NAME);
         groupRequest.setNesting(Lists.newArrayList("os", "deviceId"));
 
-        GroupResponse response = GroupResponse.class.cast(getQueryExecutor().execute(groupRequest, TEST_EMAIL));
+        GroupResponse response = GroupResponse.class.cast(getQueryExecutor().execute(groupRequest));
         Assert.assertTrue(response.getResult()
                                   .containsKey("android"));
         Assert.assertTrue(response.getResult()
@@ -60,7 +58,7 @@ public class GroupActionCardinalityTest extends ActionTest {
         groupRequest.setTable(TestUtils.TEST_TABLE_NAME);
         groupRequest.setNesting(Lists.newArrayList("os", "registered"));
 
-        GroupResponse response = GroupResponse.class.cast(getQueryExecutor().execute(groupRequest, TEST_EMAIL));
+        GroupResponse response = GroupResponse.class.cast(getQueryExecutor().execute(groupRequest));
 
         Assert.assertTrue(response.getResult()
                                   .containsKey("android"));
@@ -74,7 +72,7 @@ public class GroupActionCardinalityTest extends ActionTest {
         groupRequest.setTable(TestUtils.TEST_TABLE_NAME);
         groupRequest.setNesting(Collections.singletonList("registered"));
 
-        GroupResponse response = GroupResponse.class.cast(getQueryExecutor().execute(groupRequest, TEST_EMAIL));
+        GroupResponse response = GroupResponse.class.cast(getQueryExecutor().execute(groupRequest));
         Assert.assertTrue(response.getResult()
                                   .containsKey("0"));
 
@@ -86,7 +84,7 @@ public class GroupActionCardinalityTest extends ActionTest {
         groupRequest.setTable(TestUtils.TEST_TABLE_NAME);
         groupRequest.setNesting(Collections.singletonList("value"));
 
-        GroupResponse response = GroupResponse.class.cast(getQueryExecutor().execute(groupRequest, TEST_EMAIL));
+        GroupResponse response = GroupResponse.class.cast(getQueryExecutor().execute(groupRequest));
         Assert.assertTrue(response.getResult()
                                   .containsKey("0"));
 

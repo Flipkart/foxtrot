@@ -77,7 +77,7 @@ public class InitializerCommand extends ConfiguredCommand<FoxtrotServerConfigura
                 .getTableName());
     }
 
-    private void createMetaIndex(final ElasticsearchConnection connection, final String indexName, int replicaCount) {
+    private void createMetaIndex(final ElasticsearchConnection connection, final String indexName, int replicaCount) throws Exception {
         try {
             logger.info("'{}' creation started", indexName);
             Settings settings = Settings.builder()

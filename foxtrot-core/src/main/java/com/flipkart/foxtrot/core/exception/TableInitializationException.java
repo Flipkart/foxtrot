@@ -1,22 +1,36 @@
 package com.flipkart.foxtrot.core.exception;
 
 import com.google.common.collect.Maps;
-import lombok.Getter;
 
 import java.util.Map;
 
 /**
  * Created by rishabh.goyal on 18/12/15.
  */
-@Getter
 public class TableInitializationException extends FoxtrotException {
 
-    private final String table;
-    private final String reason;
+    private String table;
+    private String reason;
 
     protected TableInitializationException(String table, String reason) {
         super(ErrorCode.TABLE_INITIALIZATION_ERROR);
         this.table = table;
+        this.reason = reason;
+    }
+
+    public String getTable() {
+        return table;
+    }
+
+    public void setTable(String table) {
+        this.table = table;
+    }
+
+    public String getReason() {
+        return reason;
+    }
+
+    public void setReason(String reason) {
         this.reason = reason;
     }
 

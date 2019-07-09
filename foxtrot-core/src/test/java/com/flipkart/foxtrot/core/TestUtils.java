@@ -58,7 +58,6 @@ import static org.mockito.Mockito.*;
 public class TestUtils {
 
     public static final String TEST_TABLE_NAME = "test-table";
-    public static final String TEST_EMAIL = "nitishgoyal13@gmail.com";
     public static final Table TEST_TABLE = Table.builder()
             .name(TEST_TABLE_NAME)
             .ttl(7)

@@ -128,6 +128,7 @@ function NonStackedLineTile() {
   }
   
   NonStackedLineTile.prototype.getData = function (data) {
+  
     if(data.length == 0)
       showFetchError(this.object);
     else
@@ -309,6 +310,7 @@ function NonStackedLineTile() {
         var multiValue = [];
         if(multiTotalResponseArray.hasOwnProperty(response)) {
           var final = multiTotalResponseArray[response];
+          console.log(final)
           var iteration = Object.keys(final).length;
           var allValues = Object.values(final);
           for(var i = 0; i < allValues[0].length; i++){ // loop single
@@ -439,7 +441,7 @@ function NonStackedLineTile() {
         }
       });
     
-      drawStackedLinesLegend(d, $(chartDiv.find(".legend")));
+      drawLegend(d, $(chartDiv.find(".legend")));
     
       // Series point for every time
     //  var updateLegendTimeout = null;

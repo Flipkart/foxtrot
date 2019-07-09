@@ -17,7 +17,6 @@ package com.flipkart.foxtrot.core.util;/**
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.type.MapType;
-import com.flipkart.foxtrot.core.exception.SourceMapConversionException;
 
 import java.lang.reflect.Field;
 import java.util.HashMap;
@@ -27,21 +26,20 @@ import java.util.Map;
  Created by nitish.goyal on 26/07/18
  ***/
 public class ElasticsearchQueryUtils {
-    public static final int QUERY_SIZE = 10000;
 
-    private ElasticsearchQueryUtils() {}
+    public static final int QUERY_SIZE = 1000;
 
     public static Map<String, Object> getSourceMap(Object value, Class kClass) {
         try {
             Field[] fields = kClass.getDeclaredFields();
-            Map<String, Object> sourceMap = new HashMap<>();
+            Map<String, Object> sourceMap = new HashMap<String, Object>();
             for(Field f : fields) {
                 f.setAccessible(true);
                 sourceMap.put(f.getName(), f.get(value));
             }
             return sourceMap;
         } catch (Exception e) {
-            throw new SourceMapConversionException("Exception occurred while coverting to map", e);
+            throw new RuntimeException("Exception occurred while coverting to map", e);
         }
     }
 
@@ -51,7 +49,7 @@ public class ElasticsearchQueryUtils {
                     .constructMapType(Map.class, String.class, Object.class);
             return mapper.readValue(node.toString(), type);
         } catch (Exception e) {
-            throw new SourceMapConversionException("Exception occurred while converting to map", e);
+            throw new RuntimeException("Exception occurred while converting to map", e);
         }
     }
 }
