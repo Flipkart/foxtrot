@@ -32,8 +32,7 @@ public class FoxtrotExceptionMapper implements ExceptionMapper<FoxtrotException>
         Map<String, Object> response = e.toMap();
         response.put("code", e.getCode());
         try {
-            String responseString = mapper.writeValueAsString(response);
-            logger.error(responseString, e);
+            logger.error(mapper.writeValueAsString(response), e);
         } catch (JsonProcessingException e1) {
             logger.error("exception_serialization_failed", e1);
         }

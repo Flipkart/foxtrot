@@ -16,7 +16,6 @@
 package com.flipkart.foxtrot.common.query;
 
 import com.flipkart.foxtrot.common.ActionRequest;
-import com.flipkart.foxtrot.common.ActionRequestVisitor;
 import com.flipkart.foxtrot.common.Opcodes;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
@@ -50,10 +49,6 @@ public class Query extends ActionRequest {
         this.sort = sort;
         this.from = from;
         this.limit = limit;
-    }
-
-    public <T> T accept(ActionRequestVisitor<T> visitor) {
-        return visitor.visit(this);
     }
 
     public String getTable() {

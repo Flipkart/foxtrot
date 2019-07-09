@@ -54,7 +54,6 @@ public class ConsoleHistoryManager extends BaseJobManager {
             try {
                 SearchResponse searchResponse = connection.getClient()
                         .prepareSearch(INDEX_V2)
-                        .setTypes(TYPE)
                         .setSearchType(SearchType.QUERY_THEN_FETCH)
                         .addAggregation(AggregationBuilders.terms("names")
                                                 .field("name.keyword")
@@ -67,18 +66,17 @@ public class ConsoleHistoryManager extends BaseJobManager {
                     deleteOldData(entry.getKeyAsString());
                 }
             } catch (Exception e) {
-                logger.info("Failed to get aggregations and delete data for index history. {}", e);
+                logger.info("Failed to get aggregations and delete data for index history, " + e);
             }
 
         }, new LockConfiguration(consoleHistoryConfig.getJobName(), lockAtMostUntil));
     }
 
-    private void deleteOldData(final String name) {
+    private void deleteOldData(final String name) throws Exception {
         String updatedAt = "updatedAt";
         try {
             SearchHits searchHits = connection.getClient()
                     .prepareSearch(INDEX_HISTORY)
-                    .setTypes(TYPE)
                     .setSearchType(SearchType.QUERY_THEN_FETCH)
                     .setQuery(QueryBuilders.termQuery("name.keyword", name))
                     .addSort(SortBuilders.fieldSort(updatedAt)

@@ -4,33 +4,35 @@ import com.flipkart.foxtrot.common.ActionRequest;
 import com.google.common.collect.Maps;
 import lombok.Getter;
 
+import java.util.Collections;
 import java.util.Map;
 
 /**
  * Thrown when a group by query fails cardinality check
  */
 @Getter
-public class CardinalityOverflowException extends FoxtrotException {
+public class CardinalityOverflowException extends MalformedQueryException {
 
     private static final long serialVersionUID = -8591567152701424689L;
 
-    private final String field;
-    private final ActionRequest actionRequest;
-    private final double probability;
+    private String field;
+    private double probability;
 
     protected CardinalityOverflowException(ActionRequest actionRequest, String field, double probability) {
-        super(ErrorCode.CARDINALITY_OVERFLOW, "Query blocked due to high cardinality. Consider using shorter time period");
+        super(ErrorCode.CARDINALITY_OVERFLOW, actionRequest,
+              Collections.singletonList("Query blocked due to high cardinality. Consider using shorter time period")
+             );
         this.field = field;
-        this.actionRequest = actionRequest;
         this.probability = probability;
     }
 
     @Override
     public Map<String, Object> toMap() {
         Map<String, Object> map = Maps.newHashMap();
-        map.put("field", this.field);
-        map.put("probability", this.probability);
-        map.put("request", this.actionRequest);
+        map.put("request", super.getActionRequest());
+        map.put("field", field);
+        map.put("probability", probability);
+        map.put("error", super.getReasons());
         return map;
     }
 }

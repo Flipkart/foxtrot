@@ -132,18 +132,11 @@ BarTile.prototype.getData = function (data) {
       sortable.push([vehicle, sourceObject[vehicle]]);
   }
   
-  sortable.sort(sortFunction);
+  // sorting
+  sortable.sort(function(a, b) {
+      return b[1] - a [1];
+  });
   
-  // sort by first index
-  function sortFunction(a, b) {
-    if (a[0] === b[0]) {
-      return 0;
-    }
-    else {
-      return (a[0] < b[0]) ? -1 : 1;
-    }
-  }
-
   for (var i in sortable) {
     var property = sortable[i][0];
     var value = sortable[i][1] / Math.pow(10, this.object.tileContext.ignoreDigits);

@@ -28,7 +28,6 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.validation.constraints.NotNull;
-import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -54,7 +53,7 @@ import java.util.Set;
                       //String
                       @JsonSubTypes.Type(value = LastFilter.class, name = FilterOperator.last)})
 
-public abstract class Filter implements Serializable {
+public abstract class Filter {
 
     @NotNull
     @NotEmpty
@@ -83,7 +82,7 @@ public abstract class Filter implements Serializable {
         return operator;
     }
 
-    public abstract <T> T accept(FilterVisitor<T> visitor);
+    public abstract <T> T accept(FilterVisitor<T> visitor) throws Exception;
 
     @Override
     public boolean equals(Object o) {
@@ -96,7 +95,10 @@ public abstract class Filter implements Serializable {
 
         if(!field.equals(filter.field))
             return false;
-        return operator.equals(filter.operator);
+        if(!operator.equals(filter.operator))
+            return false;
+
+        return true;
     }
 
     @Override

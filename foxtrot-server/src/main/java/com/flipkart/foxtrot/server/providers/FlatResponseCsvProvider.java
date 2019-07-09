@@ -3,6 +3,7 @@ package com.flipkart.foxtrot.server.providers;
 import com.flipkart.foxtrot.sql.responseprocessors.model.FlatRepresentation;
 
 import javax.ws.rs.Produces;
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.ext.MessageBodyWriter;
@@ -30,7 +31,7 @@ public class FlatResponseCsvProvider implements MessageBodyWriter<FlatRepresenta
 
     @Override
     public void writeTo(FlatRepresentation response, Class<?> type, Type genericType, Annotation[] annotations, MediaType mediaType,
-                        MultivaluedMap<String, Object> httpHeaders, OutputStream entityStream) throws IOException {
+                        MultivaluedMap<String, Object> httpHeaders, OutputStream entityStream) throws IOException, WebApplicationException {
         if(null == response) {
             entityStream.write("No records found matching the specified criterion".getBytes());
             return;

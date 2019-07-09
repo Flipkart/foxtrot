@@ -11,9 +11,7 @@ function loadConsole() { // load console list api
     });
 }
 
-if(isLoggedIn()) {
-    loadConsole();  
-}  
+loadConsole();
 
 function renderTable(dataRaw) {
     var data = JSON.parse(dataRaw);
@@ -59,38 +57,34 @@ function renderTable(dataRaw) {
 
 // Get query
 function fqlQuery() {
-    if(isLoggedIn()) {
-        showLoader();
-        $.ajax({
-            method: 'POST',
-            url: apiUrl + "/v1/fql",
-            data: $(".fql-query").val(),
-            dataType: "text",
-            accepts: {
-                text: 'application/json',
-                csv: 'text/csv'
-            },
-            success: function (dataRaw) {
-                hideLoader();
-                if (dataRaw) {
-                    renderTable(dataRaw);
-                    fetchedData = dataRaw;
-                } else {
-                    showErrorAlert('Oops', "No response found");
-                }
-            },
-            error: function (xhr, textStatus, error) {
-                hideLoader();
-                if (xhr.hasOwnProperty("responseText")) {
-                    var error = JSON.parse(xhr["responseText"]);
-                    if (error.hasOwnProperty('code')) {
-                        showErrorAlert('Oops', error['code']);
-                    } else {
-                        showErrorAlert('Oops', "Something went wrong");
-                    }
-                }
-            }
-        });
+  showLoader();
+  $.ajax({
+    method: 'POST',
+    url: apiUrl + "/v1/fql",
+    data: $(".fql-query").val(),
+    dataType: "text",
+    accepts: {
+      text: 'application/json',
+      csv: 'text/csv'
+    },
+    success: function (dataRaw) {
+      hideLoader();
+      if(dataRaw) {
+        renderTable(dataRaw);
+        fetchedData = dataRaw;
+      } else {
+        showErrorAlert('Oops', "No response found");
+      }
+    },error: function(xhr, textStatus, error) {
+      hideLoader();
+      if (xhr.hasOwnProperty("responseText")) {
+        var error = JSON.parse(xhr["responseText"]);
+        if (error.hasOwnProperty('code')) {
+          showErrorAlert('Oops', error['code']);
+        } else {
+          showErrorAlert('Oops', "Something went wrong");
+        }
+      }
     }
 }
 

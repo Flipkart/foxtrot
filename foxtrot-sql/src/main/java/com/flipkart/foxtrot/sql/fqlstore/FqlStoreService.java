@@ -9,5 +9,5 @@ import java.util.List;
 public interface FqlStoreService {
     void save(FqlStore fqlStore);
 
-    List<FqlStore> get(FqlGetRequest fqlGetRequest);
+    List<FqlStore> get(FqlGetRequest fqlGetRequest) throws Exception;
 }

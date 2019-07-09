@@ -16,6 +16,7 @@
 package com.flipkart.foxtrot.core.datastore.impl.hbase;
 
 import com.flipkart.foxtrot.common.Table;
+import com.flipkart.foxtrot.core.exception.FoxtrotException;
 import com.flipkart.foxtrot.core.exception.FoxtrotExceptions;
 import com.flipkart.foxtrot.core.util.TableUtil;
 import io.dropwizard.lifecycle.Managed;
@@ -51,7 +52,7 @@ public class HbaseTableConnection implements Managed {
         this.hbaseConfig = hbaseConfig;
     }
 
-    public synchronized org.apache.hadoop.hbase.client.Table getTable(final Table table) {
+    public synchronized org.apache.hadoop.hbase.client.Table getTable(final Table table) throws FoxtrotException {
         try {
             if(hbaseConfig.isSecure() && UserGroupInformation.isSecurityEnabled()) {
                 UserGroupInformation.getCurrentUser()
@@ -71,14 +72,14 @@ public class HbaseTableConnection implements Managed {
     public synchronized void createTable(final Table table) throws IOException {
         String tableName = TableUtil.getTableName(hbaseConfig, table);
 
-        HTableDescriptor hTableDescriptor = new HTableDescriptor(TableName.valueOf(tableName));
+        HTableDescriptor hTableDescriptor = new HTableDescriptor(tableName);
         HColumnDescriptor hColumnDescriptor = new HColumnDescriptor(DEFAULT_FAMILY_NAME);
         hColumnDescriptor.setCompressionType(Compression.Algorithm.GZ);
         hTableDescriptor.addFamily(hColumnDescriptor);
         hBaseAdmin.createTable(hTableDescriptor);
     }
 
-    public String getHBaseTableName(final Table table) {
+    public String getHBaseTableName(final Table table) throws IOException {
         return TableUtil.getTableName(hbaseConfig, table);
     }
 

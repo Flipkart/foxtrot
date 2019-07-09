@@ -62,7 +62,10 @@ public class TrendResponse extends ActionResponse {
 
         TrendResponse that = (TrendResponse)o;
 
-        return trends.equals(that.trends);
+        if(!trends.equals(that.trends))
+            return false;
+
+        return true;
     }
 
     @Override
@@ -109,7 +112,10 @@ public class TrendResponse extends ActionResponse {
 
             if(count != count1.count)
                 return false;
-            return period.equals(count1.period);
+            if(!period.equals(count1.period))
+                return false;
+
+            return true;
         }
 
         @Override

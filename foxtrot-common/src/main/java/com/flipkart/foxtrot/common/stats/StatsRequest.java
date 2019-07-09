@@ -1,10 +1,8 @@
 package com.flipkart.foxtrot.common.stats;
 
 import com.flipkart.foxtrot.common.ActionRequest;
-import com.flipkart.foxtrot.common.ActionRequestVisitor;
 import com.flipkart.foxtrot.common.Opcodes;
 import com.flipkart.foxtrot.common.query.Filter;
-import lombok.Data;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.hibernate.validator.constraints.NotEmpty;
 
@@ -16,7 +14,6 @@ import java.util.Set;
 /**
  * Created by rishabh.goyal on 02/08/14.
  */
-@Data
 public class StatsRequest extends ActionRequest {
 
     @NotNull
@@ -38,17 +35,14 @@ public class StatsRequest extends ActionRequest {
         super(Opcodes.STATS);
     }
 
-    public StatsRequest(List<Filter> filters, String table, String field, List<Double> percentiles, Set<Stat> stats, List<String> nesting) {
+    public StatsRequest(List<Filter> filters, String table, String field,
+                        List<Double> percentiles, Set<Stat> stats, List<String> nesting) {
         super(Opcodes.STATS, filters);
         this.table = table;
         this.field = field;
         this.percentiles = percentiles;
         this.stats = stats;
         this.nesting = nesting;
-    }
-
-    public <T> T accept(ActionRequestVisitor<T> visitor) {
-        return visitor.visit(this);
     }
 
     public String getTable() {

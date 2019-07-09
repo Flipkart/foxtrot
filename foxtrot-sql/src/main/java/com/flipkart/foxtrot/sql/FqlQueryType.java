@@ -1,14 +1,14 @@
 package com.flipkart.foxtrot.sql;
 
 public enum FqlQueryType {
-    SELECT,
-    GROUP,
-    TREND,
-    STATSTREND,
-    STATS,
-    HISTOGRAM,
-    DESC,
-    SHOWTABLES,
-    COUNT,
-    DISTINCT
+    select,
+    group,
+    trend,
+    statstrend,
+    stats,
+    histogram,
+    desc,
+    showtables,
+    count,
+    distinct
 }

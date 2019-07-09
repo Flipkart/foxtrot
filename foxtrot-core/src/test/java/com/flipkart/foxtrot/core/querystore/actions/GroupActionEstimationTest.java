@@ -19,8 +19,6 @@ import org.junit.Test;
 import java.util.Collections;
 import java.util.List;
 
-import static com.flipkart.foxtrot.core.TestUtils.TEST_EMAIL;
-
 /**
  * Tests cardinality estimation
  */
@@ -50,7 +48,7 @@ public class GroupActionEstimationTest extends ActionTest {
         groupRequest.setTable(TestUtils.TEST_TABLE_NAME);
         groupRequest.setNesting(Collections.singletonList("os"));
 
-        GroupResponse response = GroupResponse.class.cast(getQueryExecutor().execute(groupRequest, TEST_EMAIL));
+        GroupResponse response = GroupResponse.class.cast(getQueryExecutor().execute(groupRequest));
 
         Assert.assertTrue(response.getResult()
                                   .containsKey("android"));
@@ -66,7 +64,7 @@ public class GroupActionEstimationTest extends ActionTest {
         groupRequest.setTable(TestUtils.TEST_TABLE_NAME);
         groupRequest.setNesting(Collections.singletonList("deviceId"));
 
-        getQueryExecutor().execute(groupRequest, TEST_EMAIL);
+        getQueryExecutor().execute(groupRequest);
     }
 
     @Test
@@ -84,15 +82,14 @@ public class GroupActionEstimationTest extends ActionTest {
 
         log.debug(getMapper().writerWithDefaultPrettyPrinter()
                           .writeValueAsString(groupRequest));
-        GroupResponse response = GroupResponse.class.cast(getQueryExecutor().execute(groupRequest, TEST_EMAIL));
+        GroupResponse response = GroupResponse.class.cast(getQueryExecutor().execute(groupRequest));
         log.debug(getMapper().writerWithDefaultPrettyPrinter()
                           .writeValueAsString(response));
         Assert.assertTrue(response.getResult()
                                   .isEmpty());
     }
 
-
-    @Test
+   /* @Test
     // High cardinality field queries are allowed if scoped in small cardinality field
     public void testEstimationCardinalFilterHighCardinality() throws Exception {
         GroupRequest groupRequest = new GroupRequest();
@@ -105,13 +102,13 @@ public class GroupActionEstimationTest extends ActionTest {
 
         log.debug(getMapper().writerWithDefaultPrettyPrinter()
                           .writeValueAsString(groupRequest));
-        GroupResponse response = GroupResponse.class.cast(getQueryExecutor().execute(groupRequest, TEST_EMAIL));
+        GroupResponse response = GroupResponse.class.cast(getQueryExecutor().execute(groupRequest));
         log.debug(getMapper().writerWithDefaultPrettyPrinter()
                           .writeValueAsString(response));
         Assert.assertFalse(response.getResult()
                                    .isEmpty());
     }
-
+*/
     @Test(expected = CardinalityOverflowException.class)
     public void testEstimationGTFilterHighCardinality() throws Exception {
         GroupRequest groupRequest = new GroupRequest();
@@ -121,7 +118,7 @@ public class GroupActionEstimationTest extends ActionTest {
                                                          .field("value")
                                                          .value(10)
                                                          .build()));
-        getQueryExecutor().execute(groupRequest, TEST_EMAIL);
+        getQueryExecutor().execute(groupRequest);
     }
 
     @Test
@@ -136,7 +133,7 @@ public class GroupActionEstimationTest extends ActionTest {
                                                          .build()));
         log.debug(getMapper().writerWithDefaultPrettyPrinter()
                           .writeValueAsString(groupRequest));
-        GroupResponse response = GroupResponse.class.cast(getQueryExecutor().execute(groupRequest, TEST_EMAIL));
+        GroupResponse response = GroupResponse.class.cast(getQueryExecutor().execute(groupRequest));
         log.debug(getMapper().writerWithDefaultPrettyPrinter()
                           .writeValueAsString(response));
         Assert.assertFalse(response.getResult()
@@ -154,7 +151,7 @@ public class GroupActionEstimationTest extends ActionTest {
                                                          .build()));
         log.debug(getMapper().writerWithDefaultPrettyPrinter()
                           .writeValueAsString(groupRequest));
-        getQueryExecutor().execute(groupRequest, TEST_EMAIL);
+        getQueryExecutor().execute(groupRequest);
     }
 
 }

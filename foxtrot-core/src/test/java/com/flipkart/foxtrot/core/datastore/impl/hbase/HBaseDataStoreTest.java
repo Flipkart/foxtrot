@@ -22,7 +22,6 @@ import com.flipkart.foxtrot.common.DocumentMetadata;
 import com.flipkart.foxtrot.common.Table;
 import com.flipkart.foxtrot.core.MockHTable;
 import com.flipkart.foxtrot.core.TestUtils;
-import com.flipkart.foxtrot.core.exception.BadRequestException;
 import com.flipkart.foxtrot.core.exception.ErrorCode;
 import com.flipkart.foxtrot.core.exception.FoxtrotException;
 import com.flipkart.foxtrot.core.exception.StoreConnectionException;
@@ -482,11 +481,11 @@ public class HBaseDataStoreTest {
             hbaseDataStore.getAll(TEST_APP, ids);
             fail();
         } catch (FoxtrotException ex) {
-            assertEquals(ErrorCode.INVALID_REQUEST, ex.getCode());
+            assertEquals(ErrorCode.STORE_CONNECTION_ERROR, ex.getCode());
         }
     }
 
-    @Test(expected = BadRequestException.class)
+    @Test(expected = StoreConnectionException.class)
     public void testGetBulkHBaseCloseException() throws Exception {
         List<String> ids = new Vector<>();
         List<Put> putList = new Vector<>();

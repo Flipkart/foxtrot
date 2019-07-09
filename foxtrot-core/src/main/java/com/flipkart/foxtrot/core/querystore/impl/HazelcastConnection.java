@@ -25,7 +25,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.net.InetAddress;
-import java.net.UnknownHostException;
 
 /**
  * User: Santanu Sinha (santanu.sinha@flipkart.com)
@@ -38,13 +37,13 @@ public class HazelcastConnection implements Managed {
     private HazelcastInstance hazelcast;
     private Config hazelcastConfig;
 
-    public HazelcastConnection(ClusterConfig clusterConfig) throws UnknownHostException {
+    public HazelcastConnection(ClusterConfig clusterConfig) throws Exception {
         Config hzConfig = new Config();
         hzConfig.getGroupConfig()
                 .setName(clusterConfig.getName());
         switch (clusterConfig.getDiscovery()
                 .getType()) {
-            case FOXTROT_SIMPLE:
+            case foxtrot_simple:
                 final String hostName = InetAddress.getLocalHost()
                         .getCanonicalHostName();
                 hzConfig.setInstanceName(String.format("foxtrot-%s-%d", hostName, System.currentTimeMillis()));
@@ -66,7 +65,7 @@ public class HazelcastConnection implements Managed {
                             .setEnabled(true);
                 }
                 break;
-            case FOXTROT_MARATHON:
+            case foxtrot_marathon:
                 MarathonClusterDiscoveryConfig marathonClusterDiscoveryConfig =
                         (MarathonClusterDiscoveryConfig)clusterConfig.getDiscovery();
                 String appId = marathonClusterDiscoveryConfig.getApp()
@@ -98,7 +97,7 @@ public class HazelcastConnection implements Managed {
                 discoveryStrategyConfig.addProperty("port-index", marathonClusterDiscoveryConfig.getPortIndex());
                 discoveryConfig.addDiscoveryStrategyConfig(discoveryStrategyConfig);
                 break;
-            case FOXTROT_AWS:
+            case foxtrot_aws:
                 AwsClusterDiscoveryConfig awsClusterDiscoveryConfig = (AwsClusterDiscoveryConfig)clusterConfig.getDiscovery();
                 NetworkConfig hazelcastConfigNetworkConfig = hzConfig.getNetworkConfig();
                 JoinConfig hazelcastConfigNetworkConfigJoin = hazelcastConfigNetworkConfig.getJoin();
@@ -119,7 +118,6 @@ public class HazelcastConnection implements Managed {
                 hazelcastConfigNetworkConfigJoin.setAwsConfig(awsConfig);
                 hazelcastConfigNetworkConfigJoin.getAwsConfig()
                         .setEnabled(true);
-                break;
             default:
                 logger.warn("Invalid discovery config");
         }

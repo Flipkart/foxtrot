@@ -1,6 +1,5 @@
 package com.flipkart.foxtrot.sql;
 
-import com.flipkart.foxtrot.core.exception.FqlParsingException;
 import com.flipkart.foxtrot.sql.extendedsql.ExtendedSqlStatement;
 import com.flipkart.foxtrot.sql.extendedsql.desc.Describe;
 import com.flipkart.foxtrot.sql.extendedsql.showtables.ShowTables;
@@ -16,9 +15,10 @@ public class MetaStatementMatcher {
 
     public ExtendedSqlStatement parse(final String fql) {
         if(fql.matches(DESC_STATEMENT_MATCH)) {
-            final String[] parts = fql.split(DESC_STATEMENT_DELIMITER);
+            final String parts[] = fql.split(DESC_STATEMENT_DELIMITER);
             if(parts.length != 2) {
-                throw new FqlParsingException("Could not decode table name from desc statement. Table name format is: [a-zA-Z-_]+");
+                throw new RuntimeException(
+                        "Could not decode table name from desc statement. Table name format is: [a-zA-Z-_]+");
             }
             return new Describe(new Table(parts[1].toLowerCase()));
         }

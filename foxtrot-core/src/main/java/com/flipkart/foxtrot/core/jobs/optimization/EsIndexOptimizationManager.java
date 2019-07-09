@@ -1,4 +1,19 @@
 package com.flipkart.foxtrot.core.jobs.optimization;
+/*
+ * Copyright 2014 Flipkart Internet Pvt. Ltd.
+ * <p>
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 import com.collections.CollectionUtils;
 import com.flipkart.foxtrot.core.jobs.BaseJobManager;
@@ -62,58 +77,50 @@ public class EsIndexOptimizationManager extends BaseJobManager {
                 Map<String, IndexSegments> segmentResponseIndices = indicesSegmentResponse.getIndices();
                 for(Map.Entry<String, IndexSegments> entry : segmentResponseIndices.entrySet()) {
                     String index = entry.getKey();
-                    extractIndicesToOptimizeForIndex(index, entry.getValue(), indicesToOptimize);
+                    String table = ElasticsearchUtils.getTableNameFromIndex(index);
+                    if(StringUtils.isEmpty(table)) {
+                        continue;
+                    }
+                    String currentIndex = ElasticsearchUtils.getCurrentIndex(table, System.currentTimeMillis());
+                    String nextDayIndex = ElasticsearchUtils.getCurrentIndex(table, System.currentTimeMillis() + TimeUnit.DAYS.toMillis(1));
+                    if(index.equals(currentIndex) || index.equals(nextDayIndex)) {
+                        continue;
+                    }
+                    Map<Integer, IndexShardSegments> indexShardSegmentsMap = entry.getValue()
+                            .getShards();
+                    for(Map.Entry<Integer, IndexShardSegments> indexShardSegmentsEntry : indexShardSegmentsMap.entrySet()) {
+                        List<Segment> segments = indexShardSegmentsEntry.getValue()
+                                .iterator()
+                                .next()
+                                .getSegments();
+                        if(segments.size() > SEGMENTS_TO_OPTIMIZE_TO) {
+                            indicesToOptimize.add(index);
+                            break;
+                        }
+                    }
                 }
-                optimizeIndices(indicesToOptimize);
-                LOGGER.info("No of indexes optimized : {}", indicesToOptimize.size());
+                List<List<String>> batchOfIndicesToOptimize = CollectionUtils.partition(indicesToOptimize, BATCH_SIZE);
+                for(List<String> indices : batchOfIndicesToOptimize) {
+                    Stopwatch stopwatch = Stopwatch.createStarted();
+                    elasticsearchConnection.getClient()
+                            .admin()
+                            .indices()
+                            .prepareForceMerge(indices.toArray(new String[0]))
+                            .setMaxNumSegments(SEGMENTS_TO_OPTIMIZE_TO)
+                            .setFlush(true)
+                            .setOnlyExpungeDeletes(false)
+                            .execute()
+                            .actionGet();
+                    LOGGER.info("No of indexes optimized : " + indices.size());
+                    MetricUtil.getInstance()
+                            .registerActionSuccess("indexesOptimized", CollectionUtils.mkString(indices, ","),
+                                                   stopwatch.elapsed(TimeUnit.MILLISECONDS)
+                                                  );
+                }
+                LOGGER.info("No of indexes optimized : " + indicesToOptimize.size());
             } catch (Exception e) {
                 LOGGER.error("Error occurred while calling optimization API", e);
             }
         }, new LockConfiguration(esIndexOptimizationConfig.getJobName(), lockAtMostUntil));
-    }
-
-    private void optimizeIndices(Set<String> indicesToOptimize) {
-        List<List<String>> batchOfIndicesToOptimize = CollectionUtils.partition(indicesToOptimize, BATCH_SIZE);
-        for(List<String> indices : batchOfIndicesToOptimize) {
-            Stopwatch stopwatch = Stopwatch.createStarted();
-            elasticsearchConnection.getClient()
-                    .admin()
-                    .indices()
-                    .prepareForceMerge(indices.toArray(new String[0]))
-                    .setMaxNumSegments(SEGMENTS_TO_OPTIMIZE_TO)
-                    .setFlush(true)
-                    .setOnlyExpungeDeletes(false)
-                    .execute()
-                    .actionGet();
-            LOGGER.info("No of indexes optimized : {}", indices.size());
-            MetricUtil.getInstance()
-                    .registerActionSuccess("indexesOptimized", CollectionUtils.mkString(indices, ","),
-                                           stopwatch.elapsed(TimeUnit.MILLISECONDS)
-                                          );
-        }
-    }
-
-    private void extractIndicesToOptimizeForIndex(String index, IndexSegments indexShardSegments, Set<String> indicesToOptimize) {
-
-        String table = ElasticsearchUtils.getTableNameFromIndex(index);
-        if(StringUtils.isEmpty(table)) {
-            return;
-        }
-        String currentIndex = ElasticsearchUtils.getCurrentIndex(table, System.currentTimeMillis());
-        String nextDayIndex = ElasticsearchUtils.getCurrentIndex(table, System.currentTimeMillis() + TimeUnit.DAYS.toMillis(1));
-        if(index.equals(currentIndex) || index.equals(nextDayIndex)) {
-            return;
-        }
-        Map<Integer, IndexShardSegments> indexShardSegmentsMap = indexShardSegments.getShards();
-        for(Map.Entry<Integer, IndexShardSegments> indexShardSegmentsEntry : indexShardSegmentsMap.entrySet()) {
-            List<Segment> segments = indexShardSegmentsEntry.getValue()
-                    .iterator()
-                    .next()
-                    .getSegments();
-            if(segments.size() > SEGMENTS_TO_OPTIMIZE_TO) {
-                indicesToOptimize.add(index);
-                break;
-            }
-        }
     }
 }

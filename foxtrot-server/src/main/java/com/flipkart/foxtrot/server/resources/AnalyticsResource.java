@@ -20,6 +20,7 @@ import com.flipkart.foxtrot.common.ActionRequest;
 import com.flipkart.foxtrot.common.ActionResponse;
 import com.flipkart.foxtrot.common.ActionValidationResponse;
 import com.flipkart.foxtrot.core.common.AsyncDataToken;
+import com.flipkart.foxtrot.core.exception.FoxtrotException;
 import com.flipkart.foxtrot.core.querystore.QueryExecutor;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -39,7 +40,7 @@ import javax.ws.rs.core.MediaType;
 @Path("/v1/analytics")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
-@Api(value = "/v1/analytics")
+@Api(value = "/v1/analytics", description = "Analytics API")
 public class AnalyticsResource {
 
     private final QueryExecutor queryExecutor;
@@ -51,23 +52,23 @@ public class AnalyticsResource {
     @POST
     @Timed
     @ApiOperation("runSync")
-    public ActionResponse runSync(@Valid final ActionRequest request) {
-        return queryExecutor.execute(request, "");
+    public ActionResponse runSync(@Valid final ActionRequest request) throws FoxtrotException {
+        return queryExecutor.execute(request);
     }
 
     @POST
     @Path("/async")
     @Timed
     @ApiOperation("runSyncAsync")
-    public AsyncDataToken runSyncAsync(@Valid final ActionRequest request) {
-        return queryExecutor.executeAsync(request, "");
+    public AsyncDataToken runSyncAsync(@Valid final ActionRequest request) throws FoxtrotException {
+        return queryExecutor.executeAsync(request);
     }
 
     @POST
     @Path("/validate")
     @Timed
     @ApiOperation("validateQuery")
-    public ActionValidationResponse validateQuery(@Valid final ActionRequest request) {
-        return queryExecutor.validate(request, "");
+    public ActionValidationResponse validateQuery(@Valid final ActionRequest request) throws FoxtrotException {
+        return queryExecutor.validate(request);
     }
 }

@@ -20,6 +20,7 @@ import com.flipkart.foxtrot.common.ActionResponse;
 import com.flipkart.foxtrot.common.ActionValidationResponse;
 import com.flipkart.foxtrot.core.common.Action;
 import com.flipkart.foxtrot.core.common.AsyncDataToken;
+import com.flipkart.foxtrot.core.exception.FoxtrotException;
 import com.flipkart.foxtrot.core.exception.FoxtrotExceptions;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsLoader;
 
@@ -41,21 +42,25 @@ public class QueryExecutor {
         this.executorService = executorService;
     }
 
-    public <T extends ActionRequest> ActionValidationResponse validate(T request, String email) {
-        return resolve(request).validate(email);
+    public <T extends ActionRequest> ActionValidationResponse validate(T request) throws FoxtrotException {
+        return resolve(request).validate();
     }
 
-    public <T extends ActionRequest> ActionResponse execute(T request, String email) {
-        return resolve(request).execute(email);
+    public <T extends ActionRequest> ActionResponse execute(T request) throws FoxtrotException {
+        return resolve(request).execute();
     }
 
-    public <T extends ActionRequest> AsyncDataToken executeAsync(T request, String email) {
-        return resolve(request).execute(executorService, email);
+    public <T extends ActionRequest> AsyncDataToken executeAsync(T request) throws FoxtrotException {
+        return resolve(request).execute(executorService);
     }
 
-    public <T extends ActionRequest> Action resolve(T request) {
+    public <T extends ActionRequest> Action resolve(T request) throws FoxtrotException {
         Action action;
-        action = analyticsLoader.getAction(request);
+        try {
+            action = analyticsLoader.getAction(request);
+        } catch (Exception e) {
+            throw FoxtrotExceptions.createActionResolutionException(request, e);
+        }
         if(null == action) {
             throw FoxtrotExceptions.createUnresolvableActionException(request);
         }

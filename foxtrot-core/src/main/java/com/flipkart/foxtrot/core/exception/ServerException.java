@@ -1,20 +1,27 @@
 package com.flipkart.foxtrot.core.exception;
 
 import com.google.common.collect.Maps;
-import lombok.Getter;
 
 import java.util.Map;
 
 /**
  * Created by rishabh.goyal on 19/12/15.
  */
-@Getter
 public class ServerException extends FoxtrotException {
 
-    private final String message;
+    private String message;
 
     protected ServerException(String message, Throwable cause) {
         super(ErrorCode.EXECUTION_EXCEPTION, cause);
+        this.message = message;
+    }
+
+    @Override
+    public String getMessage() {
+        return message;
+    }
+
+    public void setMessage(String message) {
         this.message = message;
     }
 

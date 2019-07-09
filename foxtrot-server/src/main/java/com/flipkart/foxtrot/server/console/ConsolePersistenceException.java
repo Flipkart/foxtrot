@@ -18,14 +18,12 @@ package com.flipkart.foxtrot.server.console;
 import com.flipkart.foxtrot.core.exception.ErrorCode;
 import com.flipkart.foxtrot.core.exception.FoxtrotException;
 import com.google.common.collect.Maps;
-import lombok.Getter;
 
 import java.util.Map;
 
-@Getter
 public class ConsolePersistenceException extends FoxtrotException {
 
-    private final String consoleId;
+    private String consoleId;
 
     public ConsolePersistenceException(String consoleId, String message) {
         super(ErrorCode.CONSOLE_SAVE_EXCEPTION, message);
@@ -34,6 +32,14 @@ public class ConsolePersistenceException extends FoxtrotException {
 
     public ConsolePersistenceException(String consoleId, String message, Throwable cause) {
         super(ErrorCode.CONSOLE_SAVE_EXCEPTION, message, cause);
+        this.consoleId = consoleId;
+    }
+
+    public String getConsoleId() {
+        return consoleId;
+    }
+
+    public void setConsoleId(String consoleId) {
         this.consoleId = consoleId;
     }
 

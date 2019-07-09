@@ -2,56 +2,56 @@ package com.flipkart.foxtrot.common.stats;
 
 public enum Stat {
 
-    COUNT(false) {
+    count(false) {
         @Override
         public <T> T visit(StatVisitor<T> visitor) {
             return visitor.visitCount();
         }
     },
-    MIN(false) {
+    min(false) {
         @Override
         public <T> T visit(StatVisitor<T> visitor) {
             return visitor.visitMin();
         }
     },
-    MAX(false) {
+    max(false) {
         @Override
         public <T> T visit(StatVisitor<T> visitor) {
             return visitor.visitMax();
         }
     },
-    AVG(false) {
+    avg(false) {
         @Override
         public <T> T visit(StatVisitor<T> visitor) {
             return visitor.visitAvg();
         }
     },
-    SUM(false) {
+    sum(false) {
         @Override
         public <T> T visit(StatVisitor<T> visitor) {
             return visitor.visitSum();
         }
     },
-    SUM_OF_SQUARES(true) {
+    sum_of_squares(true) {
         @Override
         public <T> T visit(StatVisitor<T> visitor) {
             return visitor.visitSumOfSquares();
         }
     },
-    VARIANCE(true) {
+    variance(true) {
         @Override
         public <T> T visit(StatVisitor<T> visitor) {
             return visitor.visitVariance();
         }
     },
-    STD_DEVIATION(true) {
+    std_deviation(true) {
         @Override
         public <T> T visit(StatVisitor<T> visitor) {
             return visitor.visitStdDeviation();
         }
     };
 
-    private boolean extended;
+    public boolean extended;
 
     Stat(boolean extended) {
         this.extended = extended;
@@ -61,7 +61,6 @@ public enum Stat {
         return extended;
     }
 
-    public abstract <T> T visit(StatVisitor<T> visitor);
 
     public interface StatVisitor<T> {
 
@@ -81,4 +80,6 @@ public enum Stat {
 
         T visitStdDeviation();
     }
+
+    public abstract <T> T visit(StatVisitor<T> visitor);
 }
