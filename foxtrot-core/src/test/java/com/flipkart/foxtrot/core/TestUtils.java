@@ -36,6 +36,8 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.elasticsearch.action.admin.indices.create.CreateIndexRequest;
+import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsRequest;
+import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsResponse;
 import org.elasticsearch.common.settings.Settings;
 import org.joda.time.DateTime;
 import org.mockito.Matchers;
@@ -509,5 +511,26 @@ public class TestUtils {
         when(elasticsearchConnection.getClient()).thenReturn(elasticsearchServer.getClient());
         ElasticsearchUtils.initializeMappings(elasticsearchServer.getClient());
         return elasticsearchConnection;
+    }
+
+    public static void createTable(ElasticsearchConnection elasticsearchConnection, String table) {
+        IndicesExistsRequest indicesExistsRequest = new IndicesExistsRequest().indices(table);
+        IndicesExistsResponse indicesExistsResponse = elasticsearchConnection.getClient()
+                .admin()
+                .indices()
+                .exists(indicesExistsRequest)
+                .actionGet();
+
+        if(!indicesExistsResponse.isExists()) {
+            Settings indexSettings = Settings.builder()
+                    .put("number_of_replicas", 0)
+                    .build();
+            CreateIndexRequest createRequest = new CreateIndexRequest(table).settings(indexSettings);
+            elasticsearchConnection.getClient()
+                    .admin()
+                    .indices()
+                    .create(createRequest)
+                    .actionGet();
+        }
     }
 }

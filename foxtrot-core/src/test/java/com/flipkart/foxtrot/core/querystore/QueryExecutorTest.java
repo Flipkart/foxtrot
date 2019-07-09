@@ -18,6 +18,7 @@ package com.flipkart.foxtrot.core.querystore;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.flipkart.foxtrot.common.ActionRequest;
 import com.flipkart.foxtrot.core.TestUtils;
+import com.flipkart.foxtrot.core.alerts.EmailClient;
 import com.flipkart.foxtrot.core.alerts.EmailConfig;
 import com.flipkart.foxtrot.core.cache.CacheManager;
 import com.flipkart.foxtrot.core.cache.impl.DistributedCacheFactory;
@@ -76,9 +77,15 @@ public class QueryExecutorTest {
         when(tableMetadataManager.exists(anyString())).thenReturn(true);
         when(tableMetadataManager.get(anyString())).thenReturn(TestUtils.TEST_TABLE);
         QueryStore queryStore = mock(QueryStore.class);
+        EmailConfig emailConfig = new EmailConfig();
+        emailConfig.setHost("127.0.0.1");
+        emailConfig.setFrom("noreply@foxtrot.com");
+        EmailClient emailClient = Mockito.mock(EmailClient.class);
+        when(emailClient.sendEmail(any(String.class), any(String.class), any(String.class))).thenReturn(true);
+
         analyticsLoader = spy(
                 new AnalyticsLoader(tableMetadataManager, dataStore, queryStore, elasticsearchConnection, cacheManager, mapper,
-                                    new EmailConfig()
+                                    emailConfig, emailClient
                 ));
         TestUtils.registerActions(analyticsLoader, mapper);
         ExecutorService executorService = Executors.newFixedThreadPool(1);

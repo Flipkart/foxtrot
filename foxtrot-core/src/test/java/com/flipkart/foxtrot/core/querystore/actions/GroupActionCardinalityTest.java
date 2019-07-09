@@ -37,7 +37,7 @@ public class GroupActionCardinalityTest extends ActionTest {
                 .actionGet();
         getTableMetadataManager().getFieldMappings(TestUtils.TEST_TABLE_NAME, true, true);
         ((ElasticsearchQueryStore)getQueryStore()).getCardinalityConfig()
-                .setMaxCardinality(15000);
+                .setMaxCardinality(MAX_CARDINALITY);
         getTableMetadataManager().updateEstimationData(TestUtils.TEST_TABLE_NAME, 1397658117000L);
     }
 
@@ -59,7 +59,6 @@ public class GroupActionCardinalityTest extends ActionTest {
         GroupRequest groupRequest = new GroupRequest();
         groupRequest.setTable(TestUtils.TEST_TABLE_NAME);
         groupRequest.setNesting(Lists.newArrayList("os", "registered"));
-
         GroupResponse response = GroupResponse.class.cast(getQueryExecutor().execute(groupRequest, TEST_EMAIL));
 
         Assert.assertTrue(response.getResult()

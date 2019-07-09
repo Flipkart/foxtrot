@@ -779,7 +779,7 @@ public class FilterActionTest extends ActionTest {
                 .indices()
                 .getIndex(new GetIndexRequest())
                 .actionGet();
-        assertEquals(3, Arrays.stream(response.getIndices())
+        assertEquals(4, Arrays.stream(response.getIndices())
                 .filter(index -> !index.equals("table-meta"))
                 .count());
 

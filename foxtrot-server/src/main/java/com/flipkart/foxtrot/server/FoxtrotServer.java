@@ -184,7 +184,7 @@ public class FoxtrotServer extends Application<FoxtrotServerConfiguration> {
         FoxtrotTableManager tableManager = new FoxtrotTableManager(tableMetadataManager, queryStore, dataStore);
         CacheManager cacheManager = new CacheManager(new DistributedCacheFactory(hazelcastConnection, objectMapper, cacheConfig));
         AnalyticsLoader analyticsLoader = new AnalyticsLoader(tableMetadataManager, dataStore, queryStore, elasticsearchConnection,
-                                                              cacheManager, objectMapper, emailConfig
+                                                              cacheManager, objectMapper, emailConfig, null
         );
         QueryExecutor executor = new QueryExecutor(analyticsLoader, executorService);
         DataDeletionManagerConfig dataDeletionManagerConfig = configuration.getDeletionManagerConfig();

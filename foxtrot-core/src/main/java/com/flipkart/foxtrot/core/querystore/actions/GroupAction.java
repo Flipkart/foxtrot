@@ -83,7 +83,11 @@ public class GroupAction extends Action<GroupRequest> {
 
     public GroupAction(GroupRequest parameter, String cacheToken, AnalyticsLoader analyticsLoader) {
         super(parameter, cacheToken, analyticsLoader);
-        emailClient = getEmailClient(analyticsLoader.getEmailConfig());
+        if (analyticsLoader.getEmailClient() != null){
+            emailClient = analyticsLoader.getEmailClient();
+        }else {
+            emailClient = getEmailClient(analyticsLoader.getEmailConfig());
+        }
     }
 
     @Override

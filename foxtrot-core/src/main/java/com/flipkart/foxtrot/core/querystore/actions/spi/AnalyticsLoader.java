@@ -18,6 +18,7 @@ package com.flipkart.foxtrot.core.querystore.actions.spi;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.jsontype.NamedType;
 import com.flipkart.foxtrot.common.ActionRequest;
+import com.flipkart.foxtrot.core.alerts.EmailClient;
 import com.flipkart.foxtrot.core.alerts.EmailConfig;
 import com.flipkart.foxtrot.core.cache.CacheManager;
 import com.flipkart.foxtrot.core.common.Action;
@@ -60,10 +61,11 @@ public class AnalyticsLoader implements Managed {
     private final CacheManager cacheManager;
     private final ObjectMapper objectMapper;
     private final EmailConfig emailConfig;
+    private EmailClient emailClient;
 
     public AnalyticsLoader(TableMetadataManager tableMetadataManager, DataStore dataStore, QueryStore queryStore,
                            ElasticsearchConnection elasticsearchConnection, CacheManager cacheManager, ObjectMapper objectMapper,
-                           EmailConfig emailConfig) {
+                           EmailConfig emailConfig, EmailClient emailClient) {
         this.tableMetadataManager = tableMetadataManager;
         this.dataStore = dataStore;
         this.queryStore = queryStore;
@@ -71,6 +73,7 @@ public class AnalyticsLoader implements Managed {
         this.cacheManager = cacheManager;
         this.objectMapper = objectMapper;
         this.emailConfig = emailConfig;
+        this.emailClient = emailClient;
     }
 
     @SuppressWarnings("unchecked")
