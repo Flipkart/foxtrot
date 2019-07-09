@@ -55,7 +55,7 @@ public class EmailClient {
 
             Transport.send(message, emailConfig.getUser(), emailConfig.getPassword());
         } catch (Exception e) {
-            LOGGER.error("Error occurred while sending the email :%s", e);
+            LOGGER.error("Error occurred while sending the email ", e);
             return false;
         }
         return true;

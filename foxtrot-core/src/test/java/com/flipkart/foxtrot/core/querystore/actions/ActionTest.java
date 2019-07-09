@@ -1,5 +1,6 @@
 package com.flipkart.foxtrot.core.querystore.actions;
 
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.when;
 
 import ch.qos.logback.classic.Level;
@@ -7,6 +8,7 @@ import ch.qos.logback.classic.Logger;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.flipkart.foxtrot.common.Table;
 import com.flipkart.foxtrot.core.TestUtils;
+import com.flipkart.foxtrot.core.alerts.EmailClient;
 import com.flipkart.foxtrot.core.alerts.EmailConfig;
 import com.flipkart.foxtrot.core.cache.CacheManager;
 import com.flipkart.foxtrot.core.cache.impl.DistributedCacheFactory;
@@ -29,11 +31,7 @@ import com.hazelcast.test.TestHazelcastInstanceFactory;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import lombok.Getter;
-import org.elasticsearch.action.admin.indices.create.CreateIndexRequest;
 import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;
-import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsRequest;
-import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsResponse;
-import org.elasticsearch.common.settings.Settings;
 import org.joda.time.DateTimeZone;
 import org.junit.After;
 import org.junit.Before;
@@ -45,6 +43,8 @@ import org.slf4j.LoggerFactory;
  */
 @Getter
 public abstract class ActionTest {
+
+    protected static final int MAX_CARDINALITY = 10000;
 
     static {
         Logger root = (Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
@@ -66,47 +66,21 @@ public abstract class ActionTest {
         Config config = new Config();
         EmailConfig emailConfig = new EmailConfig();
         emailConfig.setHost("127.0.0.1");
+        emailConfig.setFrom("noreply@foxtrot.com");
+        EmailClient emailClient = Mockito.mock(EmailClient.class);
+        when(emailClient.sendEmail(any(String.class), any(String.class), any(String.class))).thenReturn(true);
+
         this.hazelcastInstance = new TestHazelcastInstanceFactory(1).newHazelcastInstance(config);
         when(hazelcastConnection.getHazelcast()).thenReturn(hazelcastInstance);
         when(hazelcastConnection.getHazelcastConfig()).thenReturn(config);
         elasticsearchConnection = ElasticsearchTestUtils.getConnection();
-        CardinalityConfig cardinalityConfig = new CardinalityConfig("true", String.valueOf(
-                ElasticsearchUtils.DEFAULT_SUB_LIST_SIZE));
+        CardinalityConfig cardinalityConfig = new CardinalityConfig("true",
+                String.valueOf(ElasticsearchUtils.DEFAULT_SUB_LIST_SIZE));
 
-        IndicesExistsRequest indicesExistsRequest = new IndicesExistsRequest()
-                .indices(TableMapStore.TABLE_META_INDEX);
-        IndicesExistsResponse indicesExistsResponse = elasticsearchConnection.getClient()
-                .admin()
-                .indices()
-                .exists(indicesExistsRequest)
-                .actionGet();
+        TestUtils.createTable(elasticsearchConnection, TableMapStore.TABLE_META_INDEX);
+        TestUtils.createTable(elasticsearchConnection, DistributedTableMetadataManager.CARDINALITY_CACHE_INDEX);
 
-        if (!indicesExistsResponse.isExists()) {
-            Settings indexSettings = Settings.builder()
-                    .put("number_of_replicas", 0)
-                    .build();
-            CreateIndexRequest createRequest = new CreateIndexRequest(TableMapStore.TABLE_META_INDEX)
-                    .settings(
-                            indexSettings);
-            elasticsearchConnection.getClient()
-                    .admin()
-                    .indices()
-                    .create(createRequest)
-                    .actionGet();
-        }
-        Settings indexSettings = Settings.builder()
-                .put("number_of_replicas", 0)
-                .build();
-        CreateIndexRequest createIndexRequest = new CreateIndexRequest(
-                DistributedTableMetadataManager.CARDINALITY_CACHE_INDEX).settings(indexSettings);
-        elasticsearchConnection.getClient()
-                .admin()
-                .indices()
-                .create(createIndexRequest)
-                .actionGet();
-
-        tableMetadataManager = new DistributedTableMetadataManager(hazelcastConnection,
-                elasticsearchConnection, mapper,
+        tableMetadataManager = new DistributedTableMetadataManager(hazelcastConnection, elasticsearchConnection, mapper,
                 cardinalityConfig);
         tableMetadataManager.start();
 
@@ -116,12 +90,14 @@ public abstract class ActionTest {
                 .build());
 
         DataStore dataStore = TestUtils.getDataStore();
-        this.queryStore = new ElasticsearchQueryStore(tableMetadataManager, elasticsearchConnection,
-                dataStore, mapper, cardinalityConfig);
+        this.queryStore = new ElasticsearchQueryStore(tableMetadataManager, elasticsearchConnection, dataStore, mapper,
+                cardinalityConfig);
         CacheManager cacheManager = new CacheManager(
                 new DistributedCacheFactory(hazelcastConnection, mapper, new CacheConfig()));
-        AnalyticsLoader analyticsLoader = new AnalyticsLoader(tableMetadataManager, dataStore,
-                queryStore, elasticsearchConnection, cacheManager, mapper, new EmailConfig());
+        AnalyticsLoader analyticsLoader = new AnalyticsLoader(tableMetadataManager, dataStore, queryStore,
+                elasticsearchConnection,
+                cacheManager, mapper, emailConfig, emailClient
+        );
         analyticsLoader.start();
         ExecutorService executorService = Executors.newFixedThreadPool(1);
         this.queryExecutor = new QueryExecutor(analyticsLoader, executorService);

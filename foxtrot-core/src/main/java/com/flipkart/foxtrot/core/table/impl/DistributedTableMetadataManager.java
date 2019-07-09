@@ -88,7 +88,6 @@ import org.slf4j.LoggerFactory;
  */
 
 public class DistributedTableMetadataManager implements TableMetadataManager {
-
     public static final String CARDINALITY_CACHE_INDEX = "table_cardinality_cache";
     private static final Logger logger = LoggerFactory.getLogger(DistributedTableMetadataManager.class);
     private static final String DATA_MAP = "tablemetadatamap";
@@ -353,42 +352,6 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
         estimationData = estimateSecondPhaseData(table, index, client, estimationData);
         estimationData.forEach((key, value) -> fieldMap.get(key)
                 .setEstimationData(value));
-    }
-
-    private void saveCardinalityCache(String table, TableFieldMapping tableFieldMapping) {
-        try {
-            elasticsearchConnection.getClient()
-                    .prepareIndex()
-                    .setIndex(CARDINALITY_CACHE_INDEX)
-                    .setType(ElasticsearchUtils.DOCUMENT_TYPE_NAME)
-                    .setId(table)
-                    .setSource(mapper.writeValueAsBytes(tableFieldMapping), XContentType.JSON)
-                    .execute()
-                    .get(2, TimeUnit.SECONDS);
-        } catch (Exception e) {
-            logger.error("Error in saving cardinality cache: " + e.getMessage(), e);
-        }
-    }
-
-    private List<TableFieldMapping> getAllCardinalityCache() {
-        int maxSize = 1000;
-        List<TableFieldMapping> tableFieldMappings = new ArrayList<>();
-        try {
-            SearchResponse response = elasticsearchConnection.getClient()
-                    .prepareSearch(CARDINALITY_CACHE_INDEX)
-                    .setTypes(ElasticsearchUtils.DOCUMENT_TYPE_NAME)
-                    .setSize(maxSize)
-                    .execute()
-                    .actionGet();
-            for (SearchHit hit : com.collections.CollectionUtils.nullAndEmptySafeValueList(response.getHits()
-                    .getHits())) {
-                tableFieldMappings.add(mapper.readValue(hit.getSourceAsString(), TableFieldMapping.class));
-            }
-            return tableFieldMappings;
-        } catch (Exception e) {
-            logger.error("Error in getting cardinality caches: " + e.getMessage(), e);
-            return Collections.emptyList();
-        }
     }
 
     private Map<String, EstimationData> estimateFirstPhaseData(String table, String index, Client client,
@@ -682,6 +645,43 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
     public void stop() throws Exception {
         //do nothing
     }
+
+    private void saveCardinalityCache(String table, TableFieldMapping tableFieldMapping) {
+        try {
+            elasticsearchConnection.getClient()
+                    .prepareIndex()
+                    .setIndex(CARDINALITY_CACHE_INDEX)
+                    .setType(ElasticsearchUtils.DOCUMENT_TYPE_NAME)
+                    .setId(table)
+                    .setSource(mapper.writeValueAsBytes(tableFieldMapping), XContentType.JSON)
+                    .execute()
+                    .get(2, TimeUnit.SECONDS);
+        } catch (Exception e) {
+            //logger.error("Error in saving cardinality cache: ", e);
+        }
+    }
+
+    private List<TableFieldMapping> getAllCardinalityCache() {
+        int maxSize = 1000;
+        List<TableFieldMapping> tableFieldMappings = new ArrayList<>();
+        try {
+            SearchResponse response = elasticsearchConnection.getClient()
+                    .prepareSearch(CARDINALITY_CACHE_INDEX)
+                    .setTypes(ElasticsearchUtils.DOCUMENT_TYPE_NAME)
+                    .setSize(maxSize)
+                    .execute()
+                    .actionGet();
+            for(SearchHit hit : com.collections.CollectionUtils.nullAndEmptySafeValueList(response.getHits()
+                                                                                                  .getHits())) {
+                tableFieldMappings.add(mapper.readValue(hit.getSourceAsString(), TableFieldMapping.class));
+            }
+            return tableFieldMappings;
+        } catch (Exception e) {
+            logger.error("Error in getting cardinality caches: " + e.getMessage(), e);
+            return Collections.emptyList();
+        }
+    }
+
 
     private static class FieldMetadataComparator implements Comparator<FieldMetadata>, Serializable {
 

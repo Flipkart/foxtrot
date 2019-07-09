@@ -247,11 +247,10 @@ public class FoxtrotServer extends Application<FoxtrotServerConfiguration> {
         AccessService accessService = new AccessServiceImpl(configuration.isRestrictAccess(), actionRequestVisitor);
         FqlStoreService fqlStoreService = new FqlStoreServiceImpl(elasticsearchConnection, objectMapper);
         FoxtrotTableManager tableManager = new FoxtrotTableManager(tableMetadataManager, queryStore, dataStore);
-        CacheManager cacheManager = new CacheManager(
-                new DistributedCacheFactory(hazelcastConnection, objectMapper, cacheConfig));
-        AnalyticsLoader analyticsLoader = new AnalyticsLoader(tableMetadataManager, dataStore, queryStore,
-                elasticsearchConnection, cacheManager, objectMapper,
-                emailConfig);
+        CacheManager cacheManager = new CacheManager(new DistributedCacheFactory(hazelcastConnection, objectMapper, cacheConfig));
+        AnalyticsLoader analyticsLoader = new AnalyticsLoader(tableMetadataManager, dataStore, queryStore, elasticsearchConnection,
+                                                              cacheManager, objectMapper, emailConfig, null
+        );
         QueryExecutor executor = new QueryExecutor(analyticsLoader, executorService);
         DataDeletionManagerConfig dataDeletionManagerConfig = configuration.getDeletionManagerConfig();
         DataDeletionManager dataDeletionManager = new DataDeletionManager(dataDeletionManagerConfig, queryStore,

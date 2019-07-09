@@ -13,6 +13,7 @@
 package com.flipkart.foxtrot.core.querystore.actions.spi;
 
 import com.flipkart.foxtrot.common.ActionRequest;
+import com.flipkart.foxtrot.core.alerts.EmailClient;
 import com.flipkart.foxtrot.core.common.Action;
 
 /**
@@ -26,6 +27,7 @@ public class ActionMetadata {
     private final Class<? extends Action> action;
     private final boolean cacheable;
     private final String cacheToken;
+    private EmailClient emailClient;
 
     public ActionMetadata(Class<? extends ActionRequest> request, Class<? extends Action> action, boolean cacheable,
             String cacheToken) {

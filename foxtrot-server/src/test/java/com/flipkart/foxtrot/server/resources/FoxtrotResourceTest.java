@@ -1,5 +1,6 @@
 package com.flipkart.foxtrot.server.resources;
 
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
@@ -15,6 +16,7 @@ import com.fasterxml.jackson.databind.jsontype.SubtypeResolver;
 import com.fasterxml.jackson.databind.jsontype.impl.StdSubtypeResolver;
 import com.flipkart.foxtrot.common.Table;
 import com.flipkart.foxtrot.core.TestUtils;
+import com.flipkart.foxtrot.core.alerts.EmailClient;
 import com.flipkart.foxtrot.core.alerts.EmailConfig;
 import com.flipkart.foxtrot.core.cache.CacheManager;
 import com.flipkart.foxtrot.core.cache.impl.DistributedCacheFactory;
@@ -126,28 +128,10 @@ public abstract class FoxtrotResourceTest {
 
         elasticsearchConnection = ElasticsearchTestUtils.getConnection();
 
-        CardinalityConfig cardinalityConfig = new CardinalityConfig("true", String.valueOf(
-                ElasticsearchUtils.DEFAULT_SUB_LIST_SIZE));
+        CardinalityConfig cardinalityConfig = new CardinalityConfig("true", String.valueOf(ElasticsearchUtils.DEFAULT_SUB_LIST_SIZE));
 
-        IndicesExistsRequest indicesExistsRequest = new IndicesExistsRequest().indices(TableMapStore.TABLE_META_INDEX);
-        IndicesExistsResponse indicesExistsResponse = elasticsearchConnection.getClient()
-                .admin()
-                .indices()
-                .exists(indicesExistsRequest)
-                .actionGet();
-
-        if (!indicesExistsResponse.isExists()) {
-            Settings indexSettings = Settings.builder()
-                    .put("number_of_replicas", 0)
-                    .build();
-            CreateIndexRequest createRequest = new CreateIndexRequest(TableMapStore.TABLE_META_INDEX).settings(
-                    indexSettings);
-            elasticsearchConnection.getClient()
-                    .admin()
-                    .indices()
-                    .create(createRequest)
-                    .actionGet();
-        }
+        TestUtils.createTable(elasticsearchConnection, TableMapStore.TABLE_META_INDEX);
+        TestUtils.createTable(elasticsearchConnection, DistributedTableMetadataManager.CARDINALITY_CACHE_INDEX);
 
         tableMetadataManager = new DistributedTableMetadataManager(hazelcastConnection, elasticsearchConnection, mapper,
                 cardinalityConfig);
@@ -160,8 +144,16 @@ public abstract class FoxtrotResourceTest {
                 cardinalityConfig);
         queryStore = spy(queryStore);
 
-        analyticsLoader = new AnalyticsLoader(tableMetadataManager, dataStore, queryStore, elasticsearchConnection,
-                cacheManager, mapper, new EmailConfig());
+        EmailConfig emailConfig = new EmailConfig();
+        emailConfig.setHost("127.0.0.1");
+        emailConfig.setFrom("noreply@foxtrot.com");
+        EmailClient emailClient = Mockito.mock(EmailClient.class);
+        when(emailClient.sendEmail(any(String.class), any(String.class), any(String.class))).thenReturn(true);
+
+
+        analyticsLoader = new AnalyticsLoader(tableMetadataManager, dataStore, queryStore, elasticsearchConnection, cacheManager, mapper,
+                                              emailConfig, emailClient
+        );
         try {
             analyticsLoader.start();
         } catch (Exception e) {

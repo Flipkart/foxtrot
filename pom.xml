@@ -237,11 +237,6 @@
             <version>${dropwizard.version}</version>
             <scope>test</scope>
         </dependency>
-        <!--<dependency>
-            <groupId>fr.pilato.elasticsearch.testcontainers</groupId>
-            <artifactId>testcontainers-elasticsearch</artifactId>
-            <version>0.1</version>
-        </dependency>-->
         <dependency>
             <groupId>com.google.protobuf</groupId>
             <artifactId>protobuf-java</artifactId>
@@ -332,71 +327,6 @@
                     </execution>
                 </executions>
             </plugin>
-            <!--<plugin>
-                <artifactId>maven-antrun-plugin</artifactId>
-                <version>1.8</version>
-                <executions>
-                    <execution>
-                        <id>start-es</id>
-                        <phase>pre-integration-test</phase>
-                        <goals>
-                            <goal>run</goal>
-                        </goals>
-                        <configuration>
-                            <target>
-                                <property name="target.dir" value="${project.build.directory}"/>
-                                <property name="elasticsearch.version" value="6.0.1"/>
-                                <ant antfile="${basedir}/it.xml" target="start"/>
-                            </target>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>stop-es</id>
-                        <phase>post-integration-test</phase>
-                        <goals>
-                            <goal>run</goal>
-                        </goals>
-                        <configuration>
-                            <target>
-                                <property name="target.dir" value="${project.build.directory}"/>
-                                <property name="elasticsearch.version" value="6.0.1"/>
-                                <ant antfile="${basedir}/it.xml" target="stop"/>
-                            </target>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>-->
-            <!--<plugin>
-                <artifactId>maven-failsafe-plugin</artifactId>
-                <version>2.19.1</version>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>integration-test</goal>
-                            <goal>verify</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                &lt;!&ndash;<configuration>
-                    <includes>
-                        <include>**/*.java</include>
-                    </includes>
-                    <groups>impl.IntegrationTest</groups>
-                    <skipTests>false</skipTests>
-                </configuration>&ndash;&gt;
-            </plugin>-->
-            <!--<plugin>
-                <artifactId>maven-surefire-plugin</artifactId>
-                <version>2.19.1</version>
-                <executions>
-                    <execution>
-                        <id>default-test</id>
-                        <configuration>
-                            <skip>true</skip>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>-->
             <plugin>
                 <artifactId>maven-antrun-plugin</artifactId>
                 <version>1.8</version>

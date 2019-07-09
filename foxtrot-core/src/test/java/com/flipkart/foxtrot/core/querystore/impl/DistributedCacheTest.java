@@ -28,6 +28,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.flipkart.foxtrot.common.ActionResponse;
 import com.flipkart.foxtrot.common.group.GroupResponse;
 import com.flipkart.foxtrot.core.TestUtils;
+import com.flipkart.foxtrot.core.alerts.EmailClient;
 import com.flipkart.foxtrot.core.alerts.EmailConfig;
 import com.flipkart.foxtrot.core.cache.CacheManager;
 import com.flipkart.foxtrot.core.cache.impl.DistributedCache;
@@ -70,8 +71,16 @@ public class DistributedCacheTest {
         when(tableMetadataManager.exists(TestUtils.TEST_TABLE_NAME)).thenReturn(true);
         QueryStore queryStore = Mockito.mock(QueryStore.class);
 
-        AnalyticsLoader analyticsLoader = new AnalyticsLoader(tableMetadataManager, null, queryStore, null,
-                cacheManager, mapper, new EmailConfig());
+        EmailConfig emailConfig = new EmailConfig();
+        emailConfig.setHost("127.0.0.1");
+        emailConfig.setFrom("noreply@foxtrot.com");
+        EmailClient emailClient = Mockito.mock(EmailClient.class);
+        when(emailClient.sendEmail(any(String.class), any(String.class), any(String.class))).thenReturn(true);
+
+
+        AnalyticsLoader analyticsLoader = new AnalyticsLoader(tableMetadataManager, null, queryStore, null, cacheManager, mapper,
+                                                              emailConfig, emailClient
+        );
         TestUtils.registerActions(analyticsLoader, mapper);
     }
 
