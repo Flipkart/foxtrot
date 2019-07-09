@@ -29,7 +29,7 @@ public class MarathonClusterDiscoveryConfig extends ClusterDiscoveryConfig {
     private String portIndex;
 
     public MarathonClusterDiscoveryConfig() {
-        super(ClusterDiscoveryType.FOXTROT_MARATHON);
+        super(ClusterDiscoveryType.foxtrot_marathon);
     }
 
     public String getEndpoint() {

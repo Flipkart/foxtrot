@@ -15,6 +15,7 @@
  */
 package com.flipkart.foxtrot.core.querystore.actions;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.flipkart.foxtrot.common.ActionResponse;
 import com.flipkart.foxtrot.common.Document;
 import com.flipkart.foxtrot.common.query.Filter;
@@ -22,12 +23,20 @@ import com.flipkart.foxtrot.common.query.Query;
 import com.flipkart.foxtrot.common.query.QueryResponse;
 import com.flipkart.foxtrot.common.query.ResultSort;
 import com.flipkart.foxtrot.common.util.CollectionUtils;
+import com.flipkart.foxtrot.core.alerts.EmailConfig;
+import com.flipkart.foxtrot.core.cache.CacheManager;
 import com.flipkart.foxtrot.core.common.Action;
+import com.flipkart.foxtrot.core.datastore.DataStore;
+import com.flipkart.foxtrot.core.exception.FoxtrotException;
 import com.flipkart.foxtrot.core.exception.FoxtrotExceptions;
+import com.flipkart.foxtrot.core.exception.MalformedQueryException;
+import com.flipkart.foxtrot.core.querystore.QueryStore;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsLoader;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsProvider;
+import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConnection;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
 import com.flipkart.foxtrot.core.querystore.query.ElasticSearchQueryGenerator;
+import com.flipkart.foxtrot.core.table.TableMetadataManager;
 import org.elasticsearch.ElasticsearchException;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
@@ -51,8 +60,10 @@ import java.util.List;
 public class FilterAction extends Action<Query> {
     private static final Logger logger = LoggerFactory.getLogger(FilterAction.class);
 
-    public FilterAction(Query parameter, String cacheToken, AnalyticsLoader analyticsLoader) {
-        super(parameter, cacheToken, analyticsLoader);
+    public FilterAction(Query parameter, TableMetadataManager tableMetadataManager, DataStore dataStore, QueryStore queryStore,
+                        ElasticsearchConnection connection, String cacheToken, CacheManager cacheManager, ObjectMapper objectMapper,
+                        EmailConfig emailConfig, AnalyticsLoader analyticsLoader) {
+        super(parameter, tableMetadataManager, dataStore, queryStore, connection, cacheToken, cacheManager, objectMapper, emailConfig);
     }
 
     @Override
@@ -87,7 +98,7 @@ public class FilterAction extends Action<Query> {
     }
 
     @Override
-    public void validateImpl(Query parameter, String email) {
+    public void validateImpl(Query parameter) throws MalformedQueryException {
         List<String> validationErrors = new ArrayList<>();
         if(CollectionUtils.isNullOrEmpty(parameter.getTable())) {
             validationErrors.add("table name cannot be null or empty");
@@ -110,7 +121,7 @@ public class FilterAction extends Action<Query> {
     }
 
     @Override
-    public ActionResponse execute(Query parameter) {
+    public ActionResponse execute(Query parameter) throws FoxtrotException {
         SearchRequestBuilder search = getRequestBuilder(parameter);
         try {
             logger.info("Search: {}", search);
@@ -123,7 +134,7 @@ public class FilterAction extends Action<Query> {
     }
 
     @Override
-    public SearchRequestBuilder getRequestBuilder(Query parameter) {
+    public SearchRequestBuilder getRequestBuilder(Query parameter) throws FoxtrotException {
         SearchRequestBuilder search;
         try {
             search = getConnection().getClient()
@@ -144,7 +155,7 @@ public class FilterAction extends Action<Query> {
     }
 
     @Override
-    public ActionResponse getResponse(org.elasticsearch.action.ActionResponse response, Query parameter) {
+    public ActionResponse getResponse(org.elasticsearch.action.ActionResponse response, Query parameter) throws FoxtrotException {
         List<String> ids = new ArrayList<>();
         SearchHits searchHits = ((SearchResponse)response).getHits();
         for(SearchHit searchHit : searchHits) {

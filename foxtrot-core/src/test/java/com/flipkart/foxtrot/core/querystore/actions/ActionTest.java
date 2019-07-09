@@ -42,7 +42,7 @@ import static org.mockito.Mockito.when;
  * Created by rishabh.goyal on 26/12/15.
  */
 @Getter
-public abstract class ActionTest {
+public class ActionTest {
 
     static {
         Logger root = (Logger)LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);

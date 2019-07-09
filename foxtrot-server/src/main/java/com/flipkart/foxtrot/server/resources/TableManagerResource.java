@@ -17,6 +17,7 @@ package com.flipkart.foxtrot.server.resources;
 
 import com.codahale.metrics.annotation.Timed;
 import com.flipkart.foxtrot.common.Table;
+import com.flipkart.foxtrot.core.exception.FoxtrotException;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
 import com.flipkart.foxtrot.core.table.TableManager;
 import io.swagger.annotations.Api;
@@ -30,7 +31,7 @@ import javax.ws.rs.core.Response;
 @Path("/v1/tables")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
-@Api(value = "/v1/tables")
+@Api(value = "/v1/tables", description = "Tables API")
 public class TableManagerResource {
 
     private final TableManager tableManager;
@@ -42,7 +43,8 @@ public class TableManagerResource {
     @POST
     @Timed
     @ApiOperation("Save Table")
-    public Response save(@Valid final Table table, @QueryParam("forceCreate") @DefaultValue("false") boolean forceCreate) {
+    public Response save(@Valid final Table table, @QueryParam("forceCreate") @DefaultValue("false") boolean forceCreate)
+            throws FoxtrotException {
         table.setName(ElasticsearchUtils.getValidTableName(table.getName()));
         tableManager.save(table, forceCreate);
         return Response.ok(table)
@@ -53,7 +55,7 @@ public class TableManagerResource {
     @Timed
     @Path("/{name}")
     @ApiOperation("Get Table")
-    public Response get(@PathParam("name") String name) {
+    public Response get(@PathParam("name") String name) throws FoxtrotException {
         name = ElasticsearchUtils.getValidTableName(name);
         Table table = tableManager.get(name);
         return Response.ok()
@@ -65,7 +67,7 @@ public class TableManagerResource {
     @Timed
     @Path("/{name}")
     @ApiOperation("Update Table")
-    public Response get(@PathParam("name") final String name, @Valid final Table table) {
+    public Response get(@PathParam("name") final String name, @Valid final Table table) throws FoxtrotException {
         table.setName(name);
         tableManager.update(table);
         return Response.ok()
@@ -76,7 +78,7 @@ public class TableManagerResource {
     @Timed
     @Path("/{name}/delete")
     @ApiOperation("Delete Table")
-    public Response delete(@PathParam("name") String name) {
+    public Response delete(@PathParam("name") String name) throws FoxtrotException {
         name = ElasticsearchUtils.getValidTableName(name);
         tableManager.delete(name);
         return Response.status(Response.Status.NO_CONTENT)
@@ -86,7 +88,7 @@ public class TableManagerResource {
     @GET
     @Timed
     @ApiOperation("Get all Tables")
-    public Response getAll() {
+    public Response getAll() throws FoxtrotException {
         return Response.ok()
                 .entity(tableManager.getAll())
                 .build();

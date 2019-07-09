@@ -16,6 +16,7 @@
 package com.flipkart.foxtrot.server.resources;
 
 import com.codahale.metrics.annotation.Timed;
+import com.flipkart.foxtrot.core.exception.FoxtrotException;
 import com.flipkart.foxtrot.server.console.ConsolePersistence;
 import com.flipkart.foxtrot.server.console.ConsoleV2;
 import io.swagger.annotations.Api;
@@ -28,7 +29,7 @@ import java.util.List;
 @Path("/v2/consoles")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
-@Api(value = "/v2/consoles")
+@Api(value = "/v2/consoles", description = "v2 Consoles API")
 public class ConsoleV2Resource {
 
     private ConsolePersistence consolePersistence;
@@ -40,7 +41,7 @@ public class ConsoleV2Resource {
     @POST
     @Timed
     @ApiOperation("Save Console")
-    public ConsoleV2 save(ConsoleV2 console) {
+    public ConsoleV2 save(ConsoleV2 console) throws FoxtrotException {
         consolePersistence.saveV2(console, true);
         return console;
     }
@@ -49,7 +50,7 @@ public class ConsoleV2Resource {
     @Timed
     @Path("/{id}")
     @ApiOperation("Get Console - via id")
-    public ConsoleV2 get(@PathParam("id") final String id) {
+    public ConsoleV2 get(@PathParam("id") final String id) throws FoxtrotException {
         return consolePersistence.getV2(id);
     }
 
@@ -57,14 +58,14 @@ public class ConsoleV2Resource {
     @Path("/{id}/delete")
     @Timed
     @ApiOperation("Delete Console - via id")
-    public void delete(@PathParam("id") final String id) {
+    public void delete(@PathParam("id") final String id) throws FoxtrotException {
         consolePersistence.deleteV2(id);
     }
 
     @GET
     @Timed
     @ApiOperation("Get all Consoles")
-    public List<ConsoleV2> getList() {
+    public List<ConsoleV2> getList() throws FoxtrotException {
         return consolePersistence.getV2();
     }
 
@@ -72,7 +73,7 @@ public class ConsoleV2Resource {
     @Timed
     @Path("/{id}/old/get")
     @ApiOperation("get Old Version Console - via id")
-    public ConsoleV2 getOldVersion(@PathParam("id") final String id) {
+    public ConsoleV2 getOldVersion(@PathParam("id") final String id) throws FoxtrotException {
         return consolePersistence.getOldVersion(id);
     }
 
@@ -80,7 +81,7 @@ public class ConsoleV2Resource {
     @Timed
     @Path("/{name}/old")
     @ApiOperation("Get All Old versions of console with name: {name}")
-    public List<ConsoleV2> getOldVersions(@PathParam("name") final String name) {
+    public List<ConsoleV2> getOldVersions(@PathParam("name") final String name) throws FoxtrotException {
         String sortBy = "updatedAt";
         return consolePersistence.getAllOldVersions(name, sortBy);
     }
@@ -89,7 +90,7 @@ public class ConsoleV2Resource {
     @Path("/{id}/old/delete")
     @Timed
     @ApiOperation("Delete old version console - via id")
-    public void deleteOldVersion(@PathParam("id") final String id) {
+    public void deleteOldVersion(@PathParam("id") final String id) throws FoxtrotException {
         consolePersistence.deleteOldVersion(id);
     }
 
@@ -97,7 +98,7 @@ public class ConsoleV2Resource {
     @Timed
     @Path("/{id}/old/set/current")
     @ApiOperation("Set old version console with id: {id} as current console")
-    public void setOldVersionAsCurrent(@PathParam("id") final String id) {
+    public void setOldVersionAsCurrent(@PathParam("id") final String id) throws FoxtrotException {
         consolePersistence.setOldVersionAsCurrent(id);
     }
 }

@@ -1,6 +1,11 @@
 package com.flipkart.foxtrot.sql;
 
-public interface FqlQuery {
+public abstract class FqlQuery {
+    private final FqlQueryType type;
 
-    void receive(FqlQueryVisitor visitor);
+    protected FqlQuery(FqlQueryType type) {
+        this.type = type;
+    }
+
+    abstract public void receive(FqlQueryVisitor visitor) throws Exception;
 }

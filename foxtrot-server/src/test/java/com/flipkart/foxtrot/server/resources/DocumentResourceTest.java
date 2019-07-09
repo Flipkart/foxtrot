@@ -20,14 +20,12 @@ import com.flipkart.foxtrot.common.Document;
 import com.flipkart.foxtrot.core.TestUtils;
 import com.flipkart.foxtrot.core.exception.FoxtrotExceptions;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
-import com.flipkart.foxtrot.server.config.SegregationConfiguration;
 import com.flipkart.foxtrot.server.providers.exception.FoxtrotExceptionMapper;
 import io.dropwizard.testing.junit.ResourceTestRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.Matchers;
 
-import javax.ws.rs.BadRequestException;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
@@ -50,7 +48,7 @@ public class DocumentResourceTest extends FoxtrotResourceTest {
     public DocumentResourceTest() throws Exception {
         super();
         resources = ResourceTestRule.builder()
-                .addResource(new DocumentResource(getQueryStore(), new SegregationConfiguration()))
+                .addResource(new DocumentResource(getQueryStore()))
                 .addProvider(new FoxtrotExceptionMapper(getMapper()))
                 .setMapper(objectMapper)
                 .build();
@@ -100,7 +98,7 @@ public class DocumentResourceTest extends FoxtrotResourceTest {
                 .target("/v1/document/" + TestUtils.TEST_TABLE_NAME)
                 .request()
                 .post(documentEntity);
-        assertEquals(201, response.getStatus());
+        assertEquals(422, response.getStatus());
     }
 
     @Test
@@ -220,7 +218,7 @@ public class DocumentResourceTest extends FoxtrotResourceTest {
                 .target(String.format("/v1/document/%s/bulk", TestUtils.TEST_TABLE_NAME))
                 .request()
                 .post(listEntity);
-        assertEquals(201, response.getStatus());
+        assertEquals(422, response.getStatus());
     }
 
     @Test
@@ -333,12 +331,14 @@ public class DocumentResourceTest extends FoxtrotResourceTest {
         assertEquals(expectedResponse, response);
     }
 
-    @Test(expected = BadRequestException.class)
+    @Test
     public void testGetDocumentsNoIds() throws Exception {
         String response = resources.client()
                 .target(String.format("/v1/document/%s", TestUtils.TEST_TABLE_NAME))
                 .request()
                 .get(String.class);
+        String expectedResponse = getMapper().writeValueAsString(new ArrayList<Document>());
+        assertEquals(expectedResponse, response);
     }
 
     @Test

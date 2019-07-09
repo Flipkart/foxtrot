@@ -13,8 +13,7 @@ import java.io.Serializable;
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.EXISTING_PROPERTY, property = "type")
 @JsonSubTypes({@JsonSubTypes.Type(name = "FIXED", value = FixedEstimationData.class), @JsonSubTypes.Type(name = "CARDINALITY", value =
-        CardinalityEstimationData.class), @JsonSubTypes.Type(name = "PERCENTILE", value = PercentileEstimationData.class), @JsonSubTypes
-        .Type(name = "TERM_HISTOGRAM", value = TermHistogramEstimationData.class)})
+        CardinalityEstimationData.class), @JsonSubTypes.Type(name = "PERCENTILE", value = PercentileEstimationData.class)})
 @EqualsAndHashCode
 @ToString
 public abstract class EstimationData implements Serializable {
@@ -25,16 +24,16 @@ public abstract class EstimationData implements Serializable {
 
     private long count;
 
-    EstimationData(EstimationDataType type) {
+    protected EstimationData(EstimationDataType type) {
         this.type = type;
     }
 
-    EstimationData(EstimationDataType type, long count) {
+    protected EstimationData(EstimationDataType type, long count) {
         this.type = type;
         this.count = count;
     }
 
-    public abstract <T> T accept(EstimationDataVisitor<T> estimationDataVisitor);
+    abstract public <T> T accept(EstimationDataVisitor<T> estimationDataVisitor);
 
     public long getCount() {
         return this.count;

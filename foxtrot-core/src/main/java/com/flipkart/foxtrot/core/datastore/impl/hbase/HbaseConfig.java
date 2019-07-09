@@ -15,7 +15,6 @@
  */
 package com.flipkart.foxtrot.core.datastore.impl.hbase;
 
-import lombok.NoArgsConstructor;
 import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.validation.constraints.Max;
@@ -27,7 +26,6 @@ import javax.validation.constraints.NotNull;
  * Date: 13/03/14
  * Time: 7:35 PM
  */
-@NoArgsConstructor
 public class HbaseConfig {
 
     private boolean secure = false;
@@ -53,6 +51,9 @@ public class HbaseConfig {
     @NotNull
     @NotEmpty
     private String tableName;
+
+    public HbaseConfig() {
+    }
 
     public boolean isSecure() {
         return secure;

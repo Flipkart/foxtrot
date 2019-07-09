@@ -18,7 +18,6 @@ package com.flipkart.foxtrot.core.table.impl;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.flipkart.foxtrot.common.Table;
-import com.flipkart.foxtrot.core.exception.TableMapStoreException;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConnection;
 import com.flipkart.foxtrot.core.util.ElasticsearchQueryUtils;
 import com.google.common.collect.Maps;
@@ -64,9 +63,9 @@ public class TableMapStore implements MapStore<String, Table> {
     @Override
     public void store(String key, Table value) {
         if(key == null || value == null || value.getName() == null) {
-            throw new TableMapStoreException(String.format("Illegal Store Request - %s - %s", key, value));
+            throw new RuntimeException(String.format("Illegal Store Request - %s - %s", key, value));
         }
-        logger.info("Storing key: {}", key);
+        logger.info("Storing key: " + key);
         try {
             Map<String, Object> sourceMap = ElasticsearchQueryUtils.getSourceMap(value, value.getClass());
             elasticsearchConnection.getClient()
@@ -79,17 +78,17 @@ public class TableMapStore implements MapStore<String, Table> {
                     .execute()
                     .actionGet();
         } catch (Exception e) {
-            throw new TableMapStoreException("Error saving meta: ", e);
+            throw new RuntimeException("Error saving meta: ", e);
         }
     }
 
     @Override
     public void storeAll(Map<String, Table> map) {
         if(map == null) {
-            throw new TableMapStoreException("Illegal Store Request - Null Map");
+            throw new RuntimeException("Illegal Store Request - Null Map");
         }
         if(map.containsKey(null)) {
-            throw new TableMapStoreException("Illegal Store Request - Null Key is Present");
+            throw new RuntimeException("Illegal Store Request - Null Key is Present");
         }
 
         logger.info("Store all called for multiple values");
@@ -99,15 +98,14 @@ public class TableMapStore implements MapStore<String, Table> {
         for(Map.Entry<String, Table> mapEntry : map.entrySet()) {
             try {
                 if(mapEntry.getValue() == null) {
-                    throw new TableMapStoreException(
-                            String.format("Illegal Store Request - Object is Null for Table - %s", mapEntry.getKey()));
+                    throw new RuntimeException(String.format("Illegal Store Request - Object is Null for Table - %s", mapEntry.getKey()));
                 }
                 Map<String, Object> sourceMap = ElasticsearchQueryUtils.getSourceMap(mapEntry.getValue(), Table.class);
                 bulkRequestBuilder.add(elasticsearchConnection.getClient()
                                                .prepareIndex(TABLE_META_INDEX, TABLE_META_TYPE, mapEntry.getKey())
                                                .setSource(sourceMap));
             } catch (Exception e) {
-                throw new TableMapStoreException("Error bulk saving meta: ", e);
+                throw new RuntimeException("Error bulk saving meta: ", e);
             }
         }
         bulkRequestBuilder.execute()
@@ -116,7 +114,7 @@ public class TableMapStore implements MapStore<String, Table> {
 
     @Override
     public void delete(String key) {
-        logger.info("Delete called for value: {}", key);
+        logger.info("Delete called for value: " + key);
         elasticsearchConnection.getClient()
                 .prepareDelete()
                 .setRefreshPolicy(WriteRequest.RefreshPolicy.IMMEDIATE)
@@ -125,12 +123,12 @@ public class TableMapStore implements MapStore<String, Table> {
                 .setId(key)
                 .execute()
                 .actionGet();
-        logger.info("Deleted value: {}", key);
+        logger.info("Deleted value: " + key);
     }
 
     @Override
     public void deleteAll(Collection<String> keys) {
-        logger.info("Delete all called for multiple values: {}", keys);
+        logger.info(String.format("Delete all called for multiple values: %s", keys));
         BulkRequestBuilder bulRequestBuilder = elasticsearchConnection.getClient()
                 .prepareBulk()
                 .setRefreshPolicy(WriteRequest.RefreshPolicy.IMMEDIATE);
@@ -140,12 +138,12 @@ public class TableMapStore implements MapStore<String, Table> {
         }
         bulRequestBuilder.execute()
                 .actionGet();
-        logger.info("Deleted multiple values: {}", keys);
+        logger.info(String.format("Deleted multiple values: %s", keys));
     }
 
     @Override
     public Table load(String key) {
-        logger.info("Load called for: {}", key);
+        logger.info("Load called for: " + key);
         GetResponse response = elasticsearchConnection.getClient()
                 .prepareGet()
                 .setIndex(TABLE_META_INDEX)
@@ -159,7 +157,7 @@ public class TableMapStore implements MapStore<String, Table> {
         try {
             return objectMapper.readValue(response.getSourceAsBytes(), Table.class);
         } catch (Exception e) {
-            throw new TableMapStoreException("Error getting data for table: " + key);
+            throw new RuntimeException("Error getting data for table: " + key);
         }
     }
 
@@ -178,10 +176,10 @@ public class TableMapStore implements MapStore<String, Table> {
                                                              .getSourceAsString(), Table.class);
                 tables.put(table.getName(), table);
             } catch (Exception e) {
-                throw new TableMapStoreException("Error getting data for table: " + multiGetItemResponse.getId());
+                throw new RuntimeException("Error getting data for table: " + multiGetItemResponse.getId());
             }
         }
-        logger.info("Loaded value count: {}", tables.size());
+        logger.info("Loaded value count: " + tables.size());
         return tables;
     }
 
@@ -215,7 +213,7 @@ public class TableMapStore implements MapStore<String, Table> {
         } while (response.getHits()
                          .getHits().length != 0)
                 ;
-        logger.info("Loaded value count: {}", ids.size());
+        logger.info("Loaded value count: " + ids.size());
         return ids;
     }
 

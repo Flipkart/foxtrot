@@ -16,7 +16,6 @@
 package com.flipkart.foxtrot.core.common;
 
 import com.flipkart.foxtrot.common.ActionRequest;
-import com.flipkart.foxtrot.common.ActionRequestVisitor;
 import com.google.common.annotations.VisibleForTesting;
 
 /**
@@ -27,9 +26,5 @@ import com.google.common.annotations.VisibleForTesting;
 public class NonCacheableActionRequest extends ActionRequest {
     public NonCacheableActionRequest() {
         super("test");
-    }
-
-    public <T> T accept(ActionRequestVisitor<T> visitor) {
-        return null;
     }
 }

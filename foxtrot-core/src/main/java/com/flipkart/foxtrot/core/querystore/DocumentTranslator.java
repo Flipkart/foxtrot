@@ -13,6 +13,8 @@ import com.google.common.collect.ImmutableList;
 import com.sematext.hbase.ds.AbstractRowKeyDistributor;
 import com.sematext.hbase.ds.RowKeyDistributorByHashPrefix;
 import org.apache.hadoop.hbase.util.Bytes;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
@@ -21,7 +23,7 @@ import java.util.List;
  */
 public class DocumentTranslator {
 
-    private static final String EXCEPTION_MESSAGE = "rawKeyVersion not supported version=[%s]";
+    private static final Logger logger = LoggerFactory.getLogger(DocumentTranslator.class);
     private final AbstractRowKeyDistributor keyDistributor;
     private String rawKeyVersion;
 
@@ -35,7 +37,7 @@ public class DocumentTranslator {
             this.keyDistributor = new RowKeyDistributorByHashPrefix(new RowKeyDistributorByHashPrefix.OneByteSimpleHash(32));
             this.rawKeyVersion = "2.0";
         } else {
-            throw new IllegalArgumentException(String.format(EXCEPTION_MESSAGE, hbaseConfig.getRawKeyVersion()));
+            throw new IllegalArgumentException(String.format("rawKeyVersion not supported version=[%s]", hbaseConfig.getRawKeyVersion()));
         }
     }
 
@@ -59,7 +61,7 @@ public class DocumentTranslator {
                 document.setId(metadata.getRawStorageId());
                 break;
             default:
-                throw new IllegalArgumentException(String.format(EXCEPTION_MESSAGE, rawKeyVersion));
+                throw new IllegalArgumentException(String.format("rawKeyVersion not supported version=[%s]", rawKeyVersion));
         }
         document.setTimestamp(inDocument.getTimestamp());
         document.setMetadata(metadata);
@@ -97,7 +99,7 @@ public class DocumentTranslator {
                                      Constants.rawKeyVersionToSuffixMap.get(rawKeyVersion)
                                     );
             default:
-                throw new IllegalArgumentException(String.format(EXCEPTION_MESSAGE, rawKeyVersion));
+                throw new IllegalArgumentException(String.format("rawKeyVersion not supported version=[%s]", rawKeyVersion));
         }
     }
 

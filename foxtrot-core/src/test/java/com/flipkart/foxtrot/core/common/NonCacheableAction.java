@@ -15,11 +15,18 @@
  */
 package com.flipkart.foxtrot.core.common;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.flipkart.foxtrot.common.ActionResponse;
+import com.flipkart.foxtrot.core.alerts.EmailConfig;
+import com.flipkart.foxtrot.core.cache.CacheManager;
+import com.flipkart.foxtrot.core.datastore.DataStore;
 import com.flipkart.foxtrot.core.exception.FoxtrotException;
 import com.flipkart.foxtrot.core.exception.MalformedQueryException;
+import com.flipkart.foxtrot.core.querystore.QueryStore;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsLoader;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsProvider;
+import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConnection;
+import com.flipkart.foxtrot.core.table.TableMetadataManager;
 import com.google.common.annotations.VisibleForTesting;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 
@@ -31,8 +38,10 @@ import org.elasticsearch.action.search.SearchRequestBuilder;
                    cacheable = false)
 public class NonCacheableAction extends Action<NonCacheableActionRequest> {
 
-    public NonCacheableAction(NonCacheableActionRequest parameter, String cacheToken, AnalyticsLoader analyticsLoader) {
-        super(parameter, cacheToken, analyticsLoader);
+    public NonCacheableAction(NonCacheableActionRequest parameter, TableMetadataManager tableMetadataManager, DataStore dataStore,
+                              QueryStore queryStore, ElasticsearchConnection connection, String cacheToken, CacheManager cacheManager,
+                              ObjectMapper objectMapper, EmailConfig emailConfig, AnalyticsLoader analyticsLoader) {
+        super(parameter, tableMetadataManager, dataStore, queryStore, connection, cacheToken, cacheManager, objectMapper, emailConfig);
     }
 
     @Override
@@ -51,7 +60,7 @@ public class NonCacheableAction extends Action<NonCacheableActionRequest> {
     }
 
     @Override
-    public void validateImpl(NonCacheableActionRequest parameter, String email) throws MalformedQueryException {
+    public void validateImpl(NonCacheableActionRequest parameter) throws MalformedQueryException {
 
     }
 

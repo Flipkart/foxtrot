@@ -1118,10 +1118,6 @@
             <input type="hidden" id="copy-widget-value" value="">
             <button type="button" class="copy-widget-btn">Copy Widget</button>
         </div>
-        <hr id="delete-widget-divider">
-        <div class="save-widget">
-            <button type="button" class="save-widget-btn">Save Widget</button>
-        </div>
     </div>
 </div>
 </div>
@@ -1233,14 +1229,6 @@
     <ul>
         {{#each data}}
         <li style="color:{{color}}"><span class="legend-label">{{label}} - {{data}}({{percentage}}%)</span></li>
-        {{/each}}
-    </ul>
-</script>
-
-<script id="stacked-lines-legend-template" type="text/x-handlebars-template">
-    <ul>
-        {{#each data}}
-        <li style="color:{{color}}"><span class="legend-label">{{data}}{{name}}</span></li>
         {{/each}}
     </ul>
 </script>

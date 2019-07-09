@@ -16,7 +16,6 @@
 package com.flipkart.foxtrot.core.querystore.impl;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.NoArgsConstructor;
 import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.validation.Valid;
@@ -27,7 +26,6 @@ import javax.validation.constraints.NotNull;
  * Date: 14/09/13
  * Time: 2:12 PM
  */
-@NoArgsConstructor
 public class ClusterConfig {
 
     @JsonProperty("name")
@@ -38,6 +36,10 @@ public class ClusterConfig {
 
     @JsonProperty("discovery")
     private ClusterDiscoveryConfig discovery;
+
+    public ClusterConfig() {
+
+    }
 
     public String getName() {
         return name;

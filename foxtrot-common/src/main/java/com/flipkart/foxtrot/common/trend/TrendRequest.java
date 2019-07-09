@@ -16,7 +16,6 @@
 package com.flipkart.foxtrot.common.trend;
 
 import com.flipkart.foxtrot.common.ActionRequest;
-import com.flipkart.foxtrot.common.ActionRequestVisitor;
 import com.flipkart.foxtrot.common.Opcodes;
 import com.flipkart.foxtrot.common.Period;
 import com.flipkart.foxtrot.common.query.Filter;
@@ -56,10 +55,6 @@ public class TrendRequest extends ActionRequest {
         this.period = period;
         this.values = values;
         this.uniqueCountOn = uniqueCountOn;
-    }
-
-    public <T> T accept(ActionRequestVisitor<T> visitor) {
-        return visitor.visit(this);
     }
 
     public String getTable() {

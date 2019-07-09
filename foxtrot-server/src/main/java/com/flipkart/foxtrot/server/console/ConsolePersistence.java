@@ -15,31 +15,33 @@
  */
 package com.flipkart.foxtrot.server.console;
 
+import com.flipkart.foxtrot.core.exception.FoxtrotException;
+
 import java.util.List;
 
 public interface ConsolePersistence {
 
-    void save(Console console);
+    void save(Console console) throws FoxtrotException;
 
-    Console get(final String id);
+    Console get(final String id) throws FoxtrotException;
 
-    List<Console> get();
+    List<Console> get() throws FoxtrotException;
 
-    void delete(final String id);
+    void delete(final String id) throws FoxtrotException;
 
-    void saveV2(ConsoleV2 console, boolean freshConsole);
+    void saveV2(ConsoleV2 console, boolean freshConsole) throws FoxtrotException;
 
-    ConsoleV2 getV2(final String id);
+    ConsoleV2 getV2(final String id) throws FoxtrotException;
 
-    List<ConsoleV2> getV2();
+    List<ConsoleV2> getV2() throws FoxtrotException;
 
-    void deleteV2(final String id);
+    void deleteV2(final String id) throws FoxtrotException;
 
-    List<ConsoleV2> getAllOldVersions(final String name, final String sortBy);
+    List<ConsoleV2> getAllOldVersions(final String name, final String sortBy) throws FoxtrotException;
 
-    ConsoleV2 getOldVersion(final String id);
+    ConsoleV2 getOldVersion(final String id) throws FoxtrotException;
 
-    void deleteOldVersion(String id);
+    void deleteOldVersion(String id) throws FoxtrotException;
 
-    void setOldVersionAsCurrent(final String id);
+    void setOldVersionAsCurrent(final String id) throws FoxtrotException;
 }
