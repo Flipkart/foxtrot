@@ -26,8 +26,6 @@ import com.flipkart.foxtrot.core.querystore.impl.ClusterConfig;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConfig;
 import com.flipkart.foxtrot.server.jobs.consolehistory.ConsoleHistoryConfig;
 import io.dropwizard.Configuration;
-import io.dropwizard.discovery.bundle.ServiceDiscoveryConfiguration;
-import io.dropwizard.riemann.RiemannConfig;
 import io.federecio.dropwizard.swagger.SwaggerBundleConfiguration;
 import lombok.Data;
 
@@ -55,12 +53,6 @@ public class FoxtrotServerConfiguration extends Configuration {
 
     private SwaggerBundleConfiguration swagger;
 
-    @NotNull
-    @Valid
-    private ServiceDiscoveryConfiguration serviceDiscovery;
-    @NotNull
-    @Valid
-    private RiemannConfig riemann;
     @Valid
     private CardinalityConfig cardinality;
     @Valid
@@ -86,8 +78,6 @@ public class FoxtrotServerConfiguration extends Configuration {
         this.deletionManagerConfig = new DataDeletionManagerConfig();
         this.emailConfig = new EmailConfig();
         this.segregationConfiguration = new SegregationConfiguration();
-        this.serviceDiscovery = new ServiceDiscoveryConfiguration();
-        this.riemann = new RiemannConfig();
         this.restrictAccess = true;
     }
 

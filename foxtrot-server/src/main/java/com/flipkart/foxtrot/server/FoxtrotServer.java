@@ -58,11 +58,6 @@ import io.dropwizard.Application;
 import io.dropwizard.assets.AssetsBundle;
 import io.dropwizard.configuration.EnvironmentVariableSubstitutor;
 import io.dropwizard.configuration.SubstitutingSourceProvider;
-import io.dropwizard.discovery.bundle.ServiceDiscoveryBundle;
-import io.dropwizard.discovery.bundle.ServiceDiscoveryConfiguration;
-import io.dropwizard.oor.OorBundle;
-import io.dropwizard.riemann.RiemannBundle;
-import io.dropwizard.riemann.RiemannConfig;
 import io.dropwizard.server.AbstractServerFactory;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
@@ -90,39 +85,11 @@ public class FoxtrotServer extends Application<FoxtrotServerConfiguration> {
     @Override
     public void initialize(Bootstrap<FoxtrotServerConfiguration> bootstrap) {
         bootstrap.setConfigurationSourceProvider(
-                new SubstitutingSourceProvider(bootstrap.getConfigurationSourceProvider(), new EnvironmentVariableSubstitutor(false)));
+                new SubstitutingSourceProvider(bootstrap.getConfigurationSourceProvider(),
+                        new EnvironmentVariableSubstitutor(false)
+                )
+        );
         bootstrap.addBundle(new AssetsBundle("/console/", "/", "index.html", "console"));
-        bootstrap.addBundle(new OorBundle<FoxtrotServerConfiguration>() {
-            public boolean withOor() {
-                return false;
-            }
-        });
-
-        bootstrap.addBundle(new ServiceDiscoveryBundle<FoxtrotServerConfiguration>() {
-            @Override
-            protected ServiceDiscoveryConfiguration getRangerConfiguration(FoxtrotServerConfiguration configuration) {
-                return configuration.getServiceDiscovery();
-            }
-
-            @Override
-            protected String getServiceName(FoxtrotServerConfiguration configuration) {
-                return "foxtrot-es6";
-            }
-
-            @Override
-            protected int getPort(FoxtrotServerConfiguration configuration) {
-                return configuration.getServiceDiscovery()
-                        .getPublishedPort();
-            }
-        });
-
-        bootstrap.addBundle(new RiemannBundle<FoxtrotServerConfiguration>() {
-            @Override
-            public RiemannConfig getRiemannConfiguration(FoxtrotServerConfiguration configuration) {
-                return configuration.getRiemann();
-            }
-        });
-
         bootstrap.addBundle(new SwaggerBundle<FoxtrotServerConfiguration>() {
             @Override
             protected SwaggerBundleConfiguration getSwaggerBundleConfiguration(FoxtrotServerConfiguration configuration) {
