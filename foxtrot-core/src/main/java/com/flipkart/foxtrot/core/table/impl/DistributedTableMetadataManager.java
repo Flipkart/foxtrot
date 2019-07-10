@@ -639,7 +639,7 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
                     .execute()
                     .get(2, TimeUnit.SECONDS);
         } catch (Exception e) {
-            //logger.error("Error in saving cardinality cache: ", e);
+            logger.error("Error in saving cardinality cache: ");
         }
     }
 
