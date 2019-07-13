@@ -25,6 +25,8 @@ import org.elasticsearch.action.admin.indices.create.CreateIndexRequest;
 import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;
 import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsRequest;
 import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsResponse;
+import org.elasticsearch.action.admin.indices.template.put.PutIndexTemplateRequest;
+import org.elasticsearch.action.admin.indices.template.put.PutIndexTemplateResponse;
 import org.elasticsearch.common.settings.Settings;
 import org.joda.time.DateTimeZone;
 import org.junit.After;
@@ -32,7 +34,6 @@ import org.junit.Before;
 import org.mockito.Mockito;
 import org.slf4j.LoggerFactory;
 
-import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -88,7 +89,12 @@ public abstract class ActionTest {
                     .create(createRequest)
                     .actionGet();
         }
-
+        PutIndexTemplateRequest putIndexTemplateRequest = ElasticsearchUtils.getClusterTemplateMapping();
+        PutIndexTemplateResponse response = elasticsearchConnection.getClient()
+                .admin()
+                .indices()
+                .putTemplate(putIndexTemplateRequest)
+                .actionGet();
         tableMetadataManager = new DistributedTableMetadataManager(hazelcastConnection, elasticsearchConnection, mapper, cardinalityConfig);
         tableMetadataManager.start();
 

@@ -650,6 +650,7 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
             SearchResponse response = elasticsearchConnection.getClient()
                     .prepareSearch(CARDINALITY_CACHE_INDEX)
                     .setTypes(ElasticsearchUtils.DOCUMENT_TYPE_NAME)
+                    .setIndicesOptions(Utils.indicesOptions())
                     .setSize(maxSize)
                     .execute()
                     .actionGet();
