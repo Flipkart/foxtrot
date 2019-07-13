@@ -36,6 +36,8 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.elasticsearch.action.admin.indices.create.CreateIndexRequest;
+import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsRequest;
+import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsResponse;
 import org.elasticsearch.common.settings.Settings;
 import org.joda.time.DateTime;
 import org.mockito.Matchers;
@@ -46,7 +48,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -196,14 +197,13 @@ public class TestUtils {
 
     public static List<Document> getGroupDocumentsForEstimation(ObjectMapper mapper) {
         Random random = new Random();
-        return IntStream.rangeClosed(0, 10000)
+        return IntStream.rangeClosed(0, 3_000)
                 .mapToObj(i -> Document.builder()
-                        .id(UUID.randomUUID()
-                                    .toString())
-                        .timestamp(i * 60000 + System.currentTimeMillis() - TimeUnit.DAYS.toMillis(1))
+                        .id(UUID.randomUUID().toString())
+                        .timestamp(i * 10_000 + 1397658117000L)
                         .data(mapper.valueToTree(ImmutableMap.<String, Object>builder().put("deviceId", UUID.randomUUID()
                                 .toString())
-                                                         .put("os", new String[]{"ios", "android", "android", "android"}[random.nextInt(2)])
+                                                         .put("os", new String[]{"ios", "android", "android", "android"}[random.nextInt(4)])
                                                          .put("registered", new boolean[]{true, false, false}[random.nextInt(3)])
                                                          .put("value", random.nextInt(101))
                                                          .build()))
@@ -509,5 +509,26 @@ public class TestUtils {
         when(elasticsearchConnection.getClient()).thenReturn(elasticsearchServer.getClient());
         ElasticsearchUtils.initializeMappings(elasticsearchServer.getClient());
         return elasticsearchConnection;
+    }
+
+    public static void ensureIndex(ElasticsearchConnection connection, final String table) {
+        IndicesExistsRequest indicesExistsRequest = new IndicesExistsRequest().indices(table);
+        IndicesExistsResponse indicesExistsResponse = connection.getClient()
+                .admin()
+                .indices()
+                .exists(indicesExistsRequest)
+                .actionGet();
+
+        if(!indicesExistsResponse.isExists()) {
+            Settings indexSettings = Settings.builder()
+                    .put("number_of_replicas", 0)
+                    .build();
+            CreateIndexRequest createRequest = new CreateIndexRequest(table).settings(indexSettings);
+            connection.getClient()
+                    .admin()
+                    .indices()
+                    .create(createRequest)
+                    .actionGet();
+        }
     }
 }

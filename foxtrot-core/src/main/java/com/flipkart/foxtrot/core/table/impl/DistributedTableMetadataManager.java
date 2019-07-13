@@ -57,7 +57,6 @@ import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.elasticsearch.search.aggregations.metrics.cardinality.Cardinality;
 import org.elasticsearch.search.aggregations.metrics.percentiles.Percentiles;
-import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -75,8 +74,8 @@ import java.util.stream.Stream;
  */
 
 public class DistributedTableMetadataManager implements TableMetadataManager {
+    public static final String CARDINALITY_CACHE_INDEX = "table_cardinality_cache";
     private static final Logger logger = LoggerFactory.getLogger(DistributedTableMetadataManager.class);
-    private static final String CARDINALITY_CACHE_INDEX = "table_cardinality_cache";
     private static final String DATA_MAP = "tablemetadatamap";
     private static final String FIELD_MAP = "tablefieldmap";
     private static final String CARDINALITY_FIELD_MAP = "cardinalitytablefieldmap";
@@ -234,7 +233,8 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
 
     @Override
     @Timed
-    public TableFieldMapping getFieldMappings(String tableName, boolean withCardinality, boolean calculateCardinality) {
+    public TableFieldMapping getFieldMappings(
+            String tableName, boolean withCardinality, boolean calculateCardinality, long timestamp) {
         final String table = ElasticsearchUtils.getValidTableName(tableName);
 
         if(!tableDataStore.containsKey(table)) {
@@ -251,10 +251,7 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
         } else {
             tableFieldMapping = getTableFieldMapping(table);
             if(calculateCardinality) {
-                estimateCardinality(table, tableFieldMapping.getMappings(), DateTime.now()
-                        .minusDays(1)
-                        .toDate()
-                        .getTime());
+                estimateCardinality(table, tableFieldMapping.getMappings(), timestamp);
                 fieldDataCardinalityCache.put(table, tableFieldMapping);
                 saveCardinalityCache(table, tableFieldMapping);
             } else {
@@ -321,7 +318,7 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
         if(!tableDataStore.containsKey(table)) {
             throw FoxtrotExceptions.createBadRequestException(table, String.format("unknown_table table:%s", table));
         }
-        final TableFieldMapping tableFieldMapping = getFieldMappings(table, cardinalityConfig.isEnabled(), false);
+        final TableFieldMapping tableFieldMapping = getFieldMappings(table, cardinalityConfig.isEnabled(), false, timestamp);
         fieldDataCache.put(table, tableFieldMapping);
     }
 
@@ -474,7 +471,8 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
             Percentiles percentiles = (Percentiles)value;
             double[] values = new double[10];
             for(int i = 10; i <= 100; i += 10) {
-                values[(i / 10) - 1] = percentiles.percentile(i);
+                final Double percentile = percentiles.percentile(i);
+                values[(i / 10) - 1] = percentile.isNaN() ? 0 : percentile;
             }
             logger.info("table:{} field:{} type:{} aggregationType:{} value:{}", table, key, type,
                     "percentile", values

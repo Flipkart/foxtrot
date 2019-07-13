@@ -25,7 +25,7 @@ public class ElasticsearchTestUtils {
 
     public static ElasticsearchConnection getConnection() throws Exception {
         ElasticsearchConfig config = new ElasticsearchConfig();
-        config.setCluster("docker-cluster");
+        config.setCluster("elasticsearch");
         config.setHosts("localhost");
         config.setTableNamePrefix("foxtrot");
 

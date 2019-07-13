@@ -37,10 +37,6 @@ import io.dropwizard.jetty.MutableServletContextHandler;
 import io.dropwizard.lifecycle.setup.LifecycleEnvironment;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
-import org.elasticsearch.action.admin.indices.create.CreateIndexRequest;
-import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsRequest;
-import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsResponse;
-import org.elasticsearch.common.settings.Settings;
 import org.junit.After;
 import org.mockito.Mockito;
 import org.slf4j.LoggerFactory;
@@ -122,27 +118,8 @@ public abstract class FoxtrotResourceTest {
         elasticsearchConnection = ElasticsearchTestUtils.getConnection();
 
         CardinalityConfig cardinalityConfig = new CardinalityConfig("true", String.valueOf(ElasticsearchUtils.DEFAULT_SUB_LIST_SIZE));
-
-
-        IndicesExistsRequest indicesExistsRequest = new IndicesExistsRequest().indices(TableMapStore.TABLE_META_INDEX);
-        IndicesExistsResponse indicesExistsResponse = elasticsearchConnection.getClient()
-                .admin()
-                .indices()
-                .exists(indicesExistsRequest)
-                .actionGet();
-
-        if(!indicesExistsResponse.isExists()) {
-            Settings indexSettings = Settings.builder()
-                    .put("number_of_replicas", 0)
-                    .build();
-            CreateIndexRequest createRequest = new CreateIndexRequest(TableMapStore.TABLE_META_INDEX).settings(indexSettings);
-            elasticsearchConnection.getClient()
-                    .admin()
-                    .indices()
-                    .create(createRequest)
-                    .actionGet();
-        }
-
+        TestUtils.ensureIndex(elasticsearchConnection, TableMapStore.TABLE_META_INDEX);
+        TestUtils.ensureIndex(elasticsearchConnection, DistributedTableMetadataManager.CARDINALITY_CACHE_INDEX);
         tableMetadataManager = new DistributedTableMetadataManager(hazelcastConnection, elasticsearchConnection, mapper, cardinalityConfig);
         tableMetadataManager.start();
         tableMetadataManager.save(Table.builder()
