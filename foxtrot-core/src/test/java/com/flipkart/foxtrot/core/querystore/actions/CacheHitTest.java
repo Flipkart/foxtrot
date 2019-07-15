@@ -16,21 +16,24 @@
 package com.flipkart.foxtrot.core.querystore.actions;
 
 import com.flipkart.foxtrot.common.Document;
+import com.flipkart.foxtrot.common.Period;
+import com.flipkart.foxtrot.common.histogram.HistogramRequest;
+import com.flipkart.foxtrot.common.query.Filter;
+import com.flipkart.foxtrot.common.query.numeric.GreaterThanFilter;
+import com.flipkart.foxtrot.common.query.numeric.LessThanFilter;
 import com.flipkart.foxtrot.core.TestUtils;
-import com.flipkart.foxtrot.core.common.noncacheable.NonCacheableActionRequest;
 import com.flipkart.foxtrot.core.exception.FoxtrotException;
+import com.google.common.collect.Lists;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.util.List;
 
-import static com.flipkart.foxtrot.core.TestUtils.TEST_EMAIL;
-
 /**
  * Created by rishabh.goyal on 02/05/14.
  */
-public class NonCacheableActionTest extends ActionTest {
+public class CacheHitTest extends ActionTest {
 
     @Before
     public void setUp() throws Exception {
@@ -43,10 +46,26 @@ public class NonCacheableActionTest extends ActionTest {
                 .prepareRefresh("*")
                 .execute()
                 .actionGet();
+        getCacheManager().create("histogram");
     }
 
     @Test
     public void checkCacheability() throws FoxtrotException {
-        Assert.assertFalse(getQueryExecutor().execute(new NonCacheableActionRequest(), TEST_EMAIL).isFromCache());
+        HistogramRequest histogramRequest = new HistogramRequest();
+        histogramRequest.setTable(TestUtils.TEST_TABLE_NAME);
+        histogramRequest.setPeriod(Period.days);
+
+        GreaterThanFilter greaterThanFilter = new GreaterThanFilter();
+        greaterThanFilter.setField("battery");
+        greaterThanFilter.setValue(48);
+        LessThanFilter lessThanFilter = new LessThanFilter();
+        lessThanFilter.setTemporal(true);
+        lessThanFilter.setField("_timestamp");
+        lessThanFilter.setValue(System.currentTimeMillis());
+        histogramRequest.setFilters(Lists.<Filter>newArrayList(greaterThanFilter, lessThanFilter));
+
+
+        Assert.assertFalse(getQueryExecutor().execute(histogramRequest, TestUtils.TEST_EMAIL).isFromCache());
+        Assert.assertTrue(getQueryExecutor().execute(histogramRequest, TestUtils.TEST_EMAIL).isFromCache());
     }
 }

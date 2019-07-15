@@ -13,10 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.flipkart.foxtrot.core.common;
+package com.flipkart.foxtrot.core.common.cacheable;
 
-import com.flipkart.foxtrot.common.ActionRequest;
-import com.flipkart.foxtrot.common.ActionRequestVisitor;
+import com.flipkart.foxtrot.common.ActionResponse;
+import com.flipkart.foxtrot.common.ResponseVisitor;
 import com.google.common.annotations.VisibleForTesting;
 
 /**
@@ -24,12 +24,14 @@ import com.google.common.annotations.VisibleForTesting;
  */
 
 @VisibleForTesting
-public class NonCacheableActionRequest extends ActionRequest {
-    public NonCacheableActionRequest() {
-        super("test");
+public class DummyCacheableActionResponse extends ActionResponse {
+
+    public DummyCacheableActionResponse() {
+        super("cache-hit-test");
     }
 
-    public <T> T accept(ActionRequestVisitor<T> visitor) {
-        return null;
+    @Override
+    public void accept(ResponseVisitor visitor) {
+
     }
 }

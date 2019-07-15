@@ -480,8 +480,7 @@ public class ElasticsearchQueryStoreTest {
         TableFieldMapping response = queryStore.getFieldMappings(TestUtils.TEST_TABLE_NAME);
 
         assertEquals(request.getTable(), response.getTable());
-        assertTrue(request.getMappings()
-                           .equals(response.getMappings()));
+        assertEquals(request.getMappings(), response.getMappings());
     }
 
     @Test
@@ -495,7 +494,7 @@ public class ElasticsearchQueryStoreTest {
         queryStore.save(TestUtils.TEST_TABLE_NAME, documents);
         elasticsearchConnection.refresh(ElasticsearchUtils.getIndices(TestUtils.TEST_TABLE_NAME));
         ClusterHealthResponse clusterHealth = queryStore.getClusterHealth();
-        assertEquals("elasticsearch", clusterHealth.getClusterName());
+        assertEquals("docker-cluster", clusterHealth.getClusterName());
         assertEquals(1, clusterHealth.getIndices()
                 .size());
     }

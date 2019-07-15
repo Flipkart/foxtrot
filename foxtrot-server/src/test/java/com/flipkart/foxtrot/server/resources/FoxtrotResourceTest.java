@@ -41,6 +41,7 @@ import org.junit.After;
 import org.mockito.Mockito;
 import org.slf4j.LoggerFactory;
 
+import java.util.Collections;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -143,7 +144,7 @@ public abstract class FoxtrotResourceTest {
             e.printStackTrace();
         }
         ExecutorService executorService = Executors.newFixedThreadPool(1);
-        queryExecutor = new QueryExecutor(analyticsLoader, executorService);
+        queryExecutor = new QueryExecutor(analyticsLoader, executorService, Collections.emptyList());
 
     }
 

@@ -18,27 +18,39 @@ package com.flipkart.foxtrot.core.querystore;
 import com.flipkart.foxtrot.common.ActionRequest;
 import com.flipkart.foxtrot.common.ActionResponse;
 import com.flipkart.foxtrot.common.ActionValidationResponse;
+import com.flipkart.foxtrot.core.cache.Cache;
+import com.flipkart.foxtrot.core.cache.CacheManager;
 import com.flipkart.foxtrot.core.common.Action;
 import com.flipkart.foxtrot.core.common.AsyncDataToken;
+import com.flipkart.foxtrot.core.exception.FoxtrotException;
 import com.flipkart.foxtrot.core.exception.FoxtrotExceptions;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsLoader;
+import com.google.common.base.Stopwatch;
+import lombok.extern.slf4j.Slf4j;
 
+import java.util.List;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.TimeUnit;
 
 /**
  * User: Santanu Sinha (santanu.sinha@flipkart.com)
  * Date: 24/03/14
  * Time: 12:51 PM
  */
-
+@Slf4j
 public class QueryExecutor {
 
     private final AnalyticsLoader analyticsLoader;
     private final ExecutorService executorService;
+    private final List<ActionExecutionObserver> executionObservers;
 
-    public QueryExecutor(AnalyticsLoader analyticsLoader, ExecutorService executorService) {
+    public QueryExecutor(
+            AnalyticsLoader analyticsLoader,
+            ExecutorService executorService,
+            List<ActionExecutionObserver> executionObservers) {
         this.analyticsLoader = analyticsLoader;
         this.executorService = executorService;
+        this.executionObservers = executionObservers;
     }
 
     public <T extends ActionRequest> ActionValidationResponse validate(T request, String email) {
@@ -46,11 +58,49 @@ public class QueryExecutor {
     }
 
     public <T extends ActionRequest> ActionResponse execute(T request, String email) {
-        return resolve(request).execute(email);
+        Stopwatch stopwatch = Stopwatch.createStarted();
+        Action action = null;
+        ActionEvaluationResponse evaluationResponse = null;
+        try {
+            action = resolve(request);
+            final ActionResponse cachedData = readCachedData(analyticsLoader.getCacheManager(), request, action);
+            if (cachedData != null) {
+                cachedData.setFromCache(true);
+                evaluationResponse = ActionEvaluationResponse.success(
+                        action, request, cachedData, stopwatch.elapsed(TimeUnit.MILLISECONDS), true);
+                return cachedData;
+            }
+            final ActionResponse response = action.execute(email);
+            evaluationResponse = ActionEvaluationResponse.success(
+                    action, request, response, stopwatch.elapsed(TimeUnit.MILLISECONDS), false);
+            return response;
+
+        } catch (FoxtrotException e) {
+            evaluationResponse = ActionEvaluationResponse.failure(
+                    action, request, e, stopwatch.elapsed(TimeUnit.MILLISECONDS));
+            throw e;
+        }
+        finally {
+            notifyObservers(evaluationResponse);
+        }
     }
 
     public <T extends ActionRequest> AsyncDataToken executeAsync(T request, String email) {
-        return resolve(request).execute(executorService, email);
+        final Action action = resolve(request);
+        final String cacheKey = action.cacheKey();
+        final AsyncDataToken dataToken = new AsyncDataToken(request.getOpcode(), cacheKey);
+        final ActionResponse response = readCachedData(analyticsLoader.getCacheManager(), request, action);
+        if(null != response) {
+            // If data exists in the cache nothing to do.. just return
+            return dataToken;
+        }
+        //Otherwise schedule
+        executorService.submit(() -> {
+            final ActionResponse execute = execute(request, email);
+            analyticsLoader.getCacheManager().getCacheFor(dataToken.getAction())
+                    .put(dataToken.getKey(), execute);
+        });
+        return dataToken;
     }
 
     public <T extends ActionRequest> Action resolve(T request) {
@@ -62,4 +112,29 @@ public class QueryExecutor {
         return action;
     }
 
+    private void notifyObservers(final ActionEvaluationResponse evaluationResponse) {
+        if(null == executionObservers) {
+            return;
+        }
+        executionObservers
+                .forEach(actionExecutionObserver -> actionExecutionObserver.handleExecution(evaluationResponse));
+
+    }
+
+    private ActionResponse readCachedData(final CacheManager cacheManager,
+                                          final ActionRequest request,
+                                          final Action action) {
+        final Cache cache = cacheManager.getCacheFor(request.getOpcode());
+        if (null != cache) {
+            final String cacheKey = action.cacheKey();
+            if (cache.has(cacheKey)) {
+                log.info("Cache hit for key: {}", cacheKey);
+                return cache.get(cacheKey);
+            }
+            else {
+                log.info("Cache miss for key: {}", cacheKey);
+            }
+        }
+        return null;
+    }
 }

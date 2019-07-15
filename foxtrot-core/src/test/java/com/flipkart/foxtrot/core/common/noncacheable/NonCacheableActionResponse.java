@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.flipkart.foxtrot.core.common;
+package com.flipkart.foxtrot.core.common.noncacheable;
 
 import com.flipkart.foxtrot.common.ActionResponse;
 import com.flipkart.foxtrot.common.ResponseVisitor;
@@ -26,8 +26,8 @@ import com.google.common.annotations.VisibleForTesting;
 @VisibleForTesting
 public class NonCacheableActionResponse extends ActionResponse {
 
-    protected NonCacheableActionResponse(String opcode) {
-        super(opcode);
+    public NonCacheableActionResponse() {
+        super("no-cache-test");
     }
 
     @Override
