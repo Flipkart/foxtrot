@@ -494,7 +494,7 @@ public class ElasticsearchQueryStoreTest {
         queryStore.save(TestUtils.TEST_TABLE_NAME, documents);
         elasticsearchConnection.refresh(ElasticsearchUtils.getIndices(TestUtils.TEST_TABLE_NAME));
         ClusterHealthResponse clusterHealth = queryStore.getClusterHealth();
-        assertEquals("docker-cluster", clusterHealth.getClusterName());
+        assertEquals("elasticsearch", clusterHealth.getClusterName());
         assertEquals(1, clusterHealth.getIndices()
                 .size());
     }
