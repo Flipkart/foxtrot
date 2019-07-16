@@ -36,7 +36,11 @@ public interface TableMetadataManager extends Managed {
 
     List<Table> get();
 
-    TableFieldMapping getFieldMappings(String table, boolean withCardinality, boolean calculateCardinality);
+    default TableFieldMapping getFieldMappings(String table, boolean withCardinality, boolean calculateCardinality) {
+        return getFieldMappings(table, withCardinality, calculateCardinality, System.currentTimeMillis());
+    }
+
+    TableFieldMapping getFieldMappings(String table, boolean withCardinality, boolean calculateCardinality, long timestamp);
 
     void updateEstimationData(String table, long timestamp);
 

@@ -17,6 +17,7 @@ package com.flipkart.foxtrot.core.querystore.actions;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.flipkart.foxtrot.common.Document;
 import com.flipkart.foxtrot.common.query.Filter;
 import com.flipkart.foxtrot.common.query.Query;
@@ -35,7 +36,6 @@ import com.google.common.collect.Lists;
 import org.elasticsearch.action.admin.indices.get.GetIndexRequest;
 import org.elasticsearch.action.admin.indices.get.GetIndexResponse;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.*;
@@ -763,8 +763,9 @@ public class FilterActionTest extends ActionTest {
     @SuppressWarnings("deprecation")
     @Test
     public void testMissingIndicesQuery() throws FoxtrotException {
-        List<Document> documents = TestUtils.getQueryDocumentsDifferentDate(getMapper(), new Date(2014 - 1900, 4, 1).getTime());
-        documents.addAll(TestUtils.getQueryDocumentsDifferentDate(getMapper(), new Date(2014 - 1900, 4, 5).getTime()));
+        final ObjectMapper mapper = getMapper();
+        List<Document> documents = TestUtils.getQueryDocumentsDifferentDate(mapper, new Date(2014 - 1900, 4, 1).getTime());
+        documents.addAll(TestUtils.getQueryDocumentsDifferentDate(mapper, new Date(2014 - 1900, 4, 5).getTime()));
         getQueryStore().save(TestUtils.TEST_TABLE_NAME, documents);
         for(Document document : documents) {
             getElasticsearchConnection().getClient()
@@ -779,8 +780,9 @@ public class FilterActionTest extends ActionTest {
                 .indices()
                 .getIndex(new GetIndexRequest())
                 .actionGet();
+        // Find all indices returned for this table name.. (using regex to match)
         assertEquals(3, Arrays.stream(response.getIndices())
-                .filter(index -> !index.equals("table-meta"))
+                .filter(index -> index.matches(".*-" + TestUtils.TEST_TABLE_NAME + "-.*"))
                 .count());
 
         Query query = new Query();

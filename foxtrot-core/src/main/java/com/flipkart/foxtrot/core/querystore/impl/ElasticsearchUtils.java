@@ -62,7 +62,8 @@ public class ElasticsearchUtils {
 
     private ElasticsearchUtils() {}
 
-    private static String getTableNamePrefix() {
+    @VisibleForTesting
+    public static String getTableNamePrefix() {
         return tableNamePrefix;
     }
 
