@@ -21,8 +21,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.jsontype.NamedType;
 import com.flipkart.foxtrot.core.alerts.AlertingSystemEventConsumer;
-import com.flipkart.foxtrot.core.alerts.EmailClient;
-import com.flipkart.foxtrot.core.alerts.EmailConfig;
+import com.flipkart.foxtrot.core.email.EmailClient;
+import com.flipkart.foxtrot.core.email.EmailConfig;
 import com.flipkart.foxtrot.core.cache.CacheManager;
 import com.flipkart.foxtrot.core.cache.impl.DistributedCacheFactory;
 import com.flipkart.foxtrot.core.cardinality.CardinalityCalculationManager;
@@ -32,6 +32,9 @@ import com.flipkart.foxtrot.core.common.DataDeletionManagerConfig;
 import com.flipkart.foxtrot.core.datastore.DataStore;
 import com.flipkart.foxtrot.core.datastore.impl.hbase.HBaseDataStore;
 import com.flipkart.foxtrot.core.datastore.impl.hbase.HbaseTableConnection;
+import com.flipkart.foxtrot.core.email.RichEmailBuilder;
+import com.flipkart.foxtrot.core.email.messageformatting.impl.StrSubstitutorEmailBodyBuilder;
+import com.flipkart.foxtrot.core.email.messageformatting.impl.StrSubstitutorEmailSubjectBuilder;
 import com.flipkart.foxtrot.core.internalevents.InternalEventBus;
 import com.flipkart.foxtrot.core.internalevents.impl.GuavaInternalEventBus;
 import com.flipkart.foxtrot.core.jobs.optimization.EsIndexOptimizationConfig;
@@ -192,7 +195,10 @@ public class FoxtrotServer extends Application<FoxtrotServerConfiguration> {
         AnalyticsLoader analyticsLoader = new AnalyticsLoader(tableMetadataManager, dataStore, queryStore, elasticsearchConnection,
                                                               cacheManager, objectMapper);
         InternalEventBus eventBus = new GuavaInternalEventBus();
-        eventBus.subscribe(new AlertingSystemEventConsumer(new EmailClient(emailConfig), objectMapper));
+        eventBus.subscribe(new AlertingSystemEventConsumer(
+                new EmailClient(emailConfig),
+                    new RichEmailBuilder(new StrSubstitutorEmailSubjectBuilder(),
+                                         new StrSubstitutorEmailBodyBuilder())));
         QueryExecutor executor = new QueryExecutor(analyticsLoader, executorService,
                                                    ImmutableList.<ActionExecutionObserver>builder()
                                                            .add(new MetricRecorder())

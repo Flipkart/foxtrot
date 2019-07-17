@@ -70,7 +70,7 @@ public class QueryExecutor {
                         action, request, cachedData, stopwatch.elapsed(TimeUnit.MILLISECONDS), true);
                 return cachedData;
             }
-            final ActionResponse response = action.execute(request);
+            final ActionResponse response = action.execute();
             evaluationResponse = ActionEvaluationResponse.success(
                     action, request, response, stopwatch.elapsed(TimeUnit.MILLISECONDS), false);
             return response;

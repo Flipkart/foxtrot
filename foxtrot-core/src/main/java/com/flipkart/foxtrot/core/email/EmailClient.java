@@ -1,12 +1,15 @@
-package com.flipkart.foxtrot.core.alerts;
+package com.flipkart.foxtrot.core.email;
 
+import com.google.common.base.Joiner;
 import com.google.common.base.Strings;
+import com.google.common.collect.ImmutableList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.mail.*;
 import javax.mail.internet.*;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 import java.util.Properties;
 
 /***
@@ -32,7 +35,7 @@ public class EmailClient {
         this.session = Session.getDefaultInstance(mailProps);
     }
 
-    public boolean sendEmail(final AlertEmail email) {
+    public boolean sendEmail(final Email email) {
         if(Strings.isNullOrEmpty(emailConfig.getFrom())) {
             LOGGER.warn("Mail config not set properly. No mail will be sent.");
             return false;
@@ -40,7 +43,12 @@ public class EmailClient {
         try {
             MimeMessage message = new MimeMessage(session);
             message.setFrom(new InternetAddress(emailConfig.getFrom()));
-            message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(email.getRecipients()));
+            final List<String> recipients = recipients(email);
+            if(recipients.isEmpty()) {
+                return false;
+            }
+            message.setRecipients(Message.RecipientType.TO,
+                                  InternetAddress.parse(Joiner.on(",").join(recipients)));
             message.setSubject(email.getSubject());
 
             InternetHeaders headers = new InternetHeaders();
@@ -60,5 +68,18 @@ public class EmailClient {
         }
         return true;
 
+    }
+
+    private List<String> recipients(Email email) {
+        final List<String> emailRecipients = email.getRecipients();
+        final List<String> defaultRecipients = emailConfig.getEventNotificationEmails();
+        final ImmutableList.Builder<String> recipientsBuilder = ImmutableList.builder();
+        if(null != email.getRecipients()) {
+            recipientsBuilder.addAll(emailRecipients);
+        }
+        if(null != defaultRecipients) {
+            recipientsBuilder.addAll(defaultRecipients);
+        }
+        return recipientsBuilder.build();
     }
 }

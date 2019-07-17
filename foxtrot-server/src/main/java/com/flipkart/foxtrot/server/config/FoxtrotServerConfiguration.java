@@ -16,7 +16,7 @@
 package com.flipkart.foxtrot.server.config;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.flipkart.foxtrot.core.alerts.EmailConfig;
+import com.flipkart.foxtrot.core.email.EmailConfig;
 import com.flipkart.foxtrot.core.cardinality.CardinalityConfig;
 import com.flipkart.foxtrot.core.common.DataDeletionManagerConfig;
 import com.flipkart.foxtrot.core.datastore.impl.hbase.HbaseConfig;

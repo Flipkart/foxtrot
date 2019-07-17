@@ -32,8 +32,6 @@ import com.flipkart.foxtrot.common.query.general.NotInFilter;
 import com.flipkart.foxtrot.common.query.numeric.*;
 import com.flipkart.foxtrot.common.query.string.ContainsFilter;
 import com.flipkart.foxtrot.common.util.CollectionUtils;
-import com.flipkart.foxtrot.core.alerts.EmailClient;
-import com.flipkart.foxtrot.core.alerts.EmailConfig;
 import com.flipkart.foxtrot.core.common.Action;
 import com.flipkart.foxtrot.core.common.PeriodSelector;
 import com.flipkart.foxtrot.core.exception.FoxtrotExceptions;
@@ -701,11 +699,6 @@ public class GroupAction extends Action<GroupRequest> {
 
     }
 
-    private EmailClient getEmailClient(EmailConfig emailConfig) {
-        return new EmailClient(emailConfig);
-    }
-
-
     private void validateCardinality(GroupRequest parameter) {
         // Perform cardinality analysis and see how much this fucks up the cluster
         QueryStore queryStore = getQueryStore();
@@ -727,8 +720,11 @@ public class GroupAction extends Action<GroupRequest> {
             }
 
             if(probability > PROBABILITY_CUT_OFF) {
-                throw FoxtrotExceptions.createCardinalityOverflow(parameter, parameter.getNesting()
-                        .get(0), probability);
+                final String content = requestString();
+                log.warn("Blocked query as it might have screwed up the cluster. Probability: {} Query: {}",
+                         probability, content);
+                throw FoxtrotExceptions.createCardinalityOverflow(
+                        parameter, content, parameter.getNesting().get(0), probability);
             } else {
                 log.info("Allowing group by with probability {} for query: {}", probability, parameter);
             }

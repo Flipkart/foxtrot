@@ -5,7 +5,7 @@ import ch.qos.logback.classic.Logger;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.flipkart.foxtrot.common.Table;
 import com.flipkart.foxtrot.core.TestUtils;
-import com.flipkart.foxtrot.core.alerts.EmailConfig;
+import com.flipkart.foxtrot.core.email.EmailConfig;
 import com.flipkart.foxtrot.core.cache.CacheManager;
 import com.flipkart.foxtrot.core.cache.impl.DistributedCacheFactory;
 import com.flipkart.foxtrot.core.cardinality.CardinalityConfig;

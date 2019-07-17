@@ -15,6 +15,7 @@
  */
 package com.flipkart.foxtrot.core.common;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.flipkart.foxtrot.common.ActionRequest;
 import com.flipkart.foxtrot.common.ActionResponse;
@@ -179,6 +180,15 @@ public abstract class Action<P extends ActionRequest> {
         lessThanFilter.setField("_timestamp");
         lessThanFilter.setValue(System.currentTimeMillis());
         return lessThanFilter;
+    }
+
+    protected String requestString() {
+        try {
+            return objectMapper.writeValueAsString(parameter);
+        }
+        catch (JsonProcessingException e) {
+            return "";
+        }
     }
 
     private List<Filter> checkAndAddTemporalBoundary(List<Filter> filters) {
