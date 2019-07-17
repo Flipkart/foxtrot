@@ -32,7 +32,7 @@ logging:
 
 
 cardinality:
-  cardinality: ${CARDINALITY_ENABLED}
+  cardinality: true
   batchSize: ${DEFAULT_BATCH_SIZE}
 
 deletionconfig:
