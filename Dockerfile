@@ -1,12 +1,10 @@
 FROM ubuntu:16.04
-MAINTAINER Nitish Goyal <nitishgoyal13 [at] gmail.com>
-MAINTAINER Team DevOps "teamdevops@phonepe.com"
+MAINTAINER Santanu Sinha <santanu DOT sinha [at] gmail.com>
 
 RUN apt-get clean && apt-get update && apt-get install -y --no-install-recommends software-properties-common
 RUN add-apt-repository ppa:openjdk-r/ppa && apt-get update
-RUN apt-get install -y --no-install-recommends openjdk-11-jdk ca-certificates ca-certificates-java
-RUN apt-get update
-RUN apt-get install -y curl tzdata iproute2 zip unzip wget
+RUN apt-get install -y --no-install-recommends openjdk-8-jdk ca-certificates && apt-get install -y --no-install-recommends ca-certificates-java bash curl tzdata iproute2 zip unzip wget
+
 
 EXPOSE 17000
 EXPOSE 17001
