@@ -20,8 +20,6 @@ import lombok.NoArgsConstructor;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -48,15 +46,8 @@ public class ElasticsearchConfig {
         return hosts;
     }
 
-    public void setHosts(String hostString) {
-        if(hostString == null || hostString.trim()
-                .isEmpty()) {
-            return;
-        }
-
-        String[] hostParts = hostString.split(",");
-        this.hosts = new ArrayList<>();
-        Collections.addAll(this.hosts, hostParts);
+    public void setHosts(List<String> hosts) {
+        this.hosts = hosts;
     }
 
     public String getCluster() {
@@ -86,4 +77,5 @@ public class ElasticsearchConfig {
     public long getGetQueryTimeout() {
         return getQueryTimeout > 0 ? getQueryTimeout : DEFAULT_TIMEOUT;
     }
+
 }
