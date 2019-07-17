@@ -25,11 +25,14 @@ cluster:
     disableMulticast: true
     members: ["localhost:5701"]
 
+cacheConfig:
+  maxIdleSeconds: 15
+  timeToLiveSeconds: 15
+
 logging:
   level: INFO
   loggers:
     com.flipkart.foxtrot.core.querystore.actions: DEBUG
-
 
 cardinality:
   enabled: true
@@ -43,3 +46,14 @@ deletionconfig:
   active: true
   interval: 86400
   initialdelay: 60
+
+esIndexOptimizationConfig:
+  active: true
+  interval: 86400
+  initialDelay: 6
+
+consoleHistoryConfig:
+  active: true
+  interval: 86400
+  initialDelay: 10
+
