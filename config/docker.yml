@@ -32,8 +32,12 @@ logging:
 
 
 cardinality:
-  cardinality: true
-  batchSize: ${DEFAULT_BATCH_SIZE}
+  enabled: true
+  batchSize: 10
+  active: true
+  interval: 86400
+  initialDelay: 6
+  maxCardinality: 20000
 
 deletionconfig:
   active: true
