@@ -32,7 +32,7 @@ public class EmailClient {
         this.session = Session.getDefaultInstance(mailProps);
     }
 
-    public boolean sendEmail(String subject, String content, String recipients) {
+    public boolean sendEmail(final AlertEmail email) {
         if(Strings.isNullOrEmpty(emailConfig.getFrom())) {
             LOGGER.warn("Mail config not set properly. No mail will be sent.");
             return false;
@@ -40,17 +40,19 @@ public class EmailClient {
         try {
             MimeMessage message = new MimeMessage(session);
             message.setFrom(new InternetAddress(emailConfig.getFrom()));
-            message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(recipients));
-            message.setSubject(subject);
+            message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(email.getRecipients()));
+            message.setSubject(email.getSubject());
 
             InternetHeaders headers = new InternetHeaders();
             headers.addHeader("Content-type", "text/html; charset=UTF-8");
 
-            BodyPart messageBodyPart = new MimeBodyPart(headers, content.getBytes(StandardCharsets.UTF_8));
-            Multipart multipart = new MimeMultipart();
-            multipart.addBodyPart(messageBodyPart);
-            message.setContent(multipart);
-
+            final String content = email.getContent();
+            if(null != content) {
+                BodyPart messageBodyPart = new MimeBodyPart(headers, content.getBytes(StandardCharsets.UTF_8));
+                Multipart multipart = new MimeMultipart();
+                multipart.addBodyPart(messageBodyPart);
+                message.setContent(multipart);
+            }
             Transport.send(message, emailConfig.getUser(), emailConfig.getPassword());
         } catch (Exception e) {
             LOGGER.error("Error occurred while sending the email :%s", e);

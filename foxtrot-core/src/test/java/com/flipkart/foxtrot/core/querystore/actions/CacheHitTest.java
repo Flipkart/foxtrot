@@ -65,7 +65,7 @@ public class CacheHitTest extends ActionTest {
         histogramRequest.setFilters(Lists.<Filter>newArrayList(greaterThanFilter, lessThanFilter));
 
 
-        Assert.assertFalse(getQueryExecutor().execute(histogramRequest, TestUtils.TEST_EMAIL).isFromCache());
-        Assert.assertTrue(getQueryExecutor().execute(histogramRequest, TestUtils.TEST_EMAIL).isFromCache());
+        Assert.assertFalse(getQueryExecutor().execute(histogramRequest).isFromCache());
+        Assert.assertTrue(getQueryExecutor().execute(histogramRequest).isFromCache());
     }
 }

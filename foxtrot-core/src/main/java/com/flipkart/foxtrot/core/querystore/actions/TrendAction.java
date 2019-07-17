@@ -115,7 +115,7 @@ public class TrendAction extends Action<TrendRequest> {
     }
 
     @Override
-    public void validateImpl(TrendRequest parameter, String email) {
+    public void validateImpl(TrendRequest parameter) {
         List<String> validationErrors = Lists.newArrayList();
         if(CollectionUtils.isNullOrEmpty(parameter.getTable())) {
             validationErrors.add("table name cannot be null or empty");

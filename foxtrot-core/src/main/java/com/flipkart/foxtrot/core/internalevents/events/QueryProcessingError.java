@@ -4,14 +4,12 @@ import com.flipkart.foxtrot.common.ActionRequest;
 import com.flipkart.foxtrot.core.exception.FoxtrotException;
 import com.flipkart.foxtrot.core.internalevents.InternalSystemEvent;
 import com.flipkart.foxtrot.core.internalevents.InternalSystemEventVisitor;
-import lombok.Builder;
 import lombok.Data;
 
 /**
  *
  */
 @Data
-@Builder
 public class QueryProcessingError implements InternalSystemEvent  {
     private final ActionRequest request;
     private final FoxtrotException exception;

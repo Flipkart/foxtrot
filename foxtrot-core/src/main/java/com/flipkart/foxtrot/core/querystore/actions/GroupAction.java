@@ -15,7 +15,6 @@
  */
 package com.flipkart.foxtrot.core.querystore.actions;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.flipkart.foxtrot.common.ActionResponse;
 import com.flipkart.foxtrot.common.FieldMetadata;
 import com.flipkart.foxtrot.common.Table;
@@ -49,7 +48,6 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang.StringUtils;
 import org.elasticsearch.ElasticsearchException;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
@@ -79,11 +77,9 @@ public class GroupAction extends Action<GroupRequest> {
     private static final long MAX_CARDINALITY = 50000;
     private static final long MIN_ESTIMATION_THRESHOLD = 1000;
     private static final double PROBABILITY_CUT_OFF = 0.5;
-    private EmailClient emailClient;
 
     public GroupAction(GroupRequest parameter, AnalyticsLoader analyticsLoader) {
         super(parameter, analyticsLoader);
-        emailClient = getEmailClient(analyticsLoader.getEmailConfig());
     }
 
     @Override
@@ -121,7 +117,7 @@ public class GroupAction extends Action<GroupRequest> {
     }
 
     @Override
-    public void validateImpl(GroupRequest parameter, String email) {
+    public void validateImpl(GroupRequest parameter) {
         List<String> validationErrors = new ArrayList<>();
         if(CollectionUtils.isNullOrEmpty(parameter.getTable())) {
             validationErrors.add("table name cannot be null or empty");
@@ -142,7 +138,7 @@ public class GroupAction extends Action<GroupRequest> {
             validationErrors.add("unique field cannot be empty (can be null)");
         }
 
-        validateCardinality(parameter, email);
+        validateCardinality(parameter);
 
         if(!CollectionUtils.isNullOrEmpty(validationErrors)) {
             throw FoxtrotExceptions.createMalformedQueryException(parameter, validationErrors);
@@ -319,24 +315,6 @@ public class GroupAction extends Action<GroupRequest> {
         }
     }
 
-    private void sendEmail(GroupRequest parameter, String email, double probability) {
-        try {
-            String subject = "Blocked query as it might have screwed up the cluster";
-            String content = getObjectMapper().writeValueAsString(parameter);
-            String recipients = "";
-            if(!StringUtils.isEmpty(email)) {
-                recipients = recipients + ", " + email;
-            }
-            emailClient.sendEmail(subject, content, recipients);
-            log.warn("Blocked query as it might have screwed up the cluster. Probability: {} Query: {}", probability,
-                     getObjectMapper().writeValueAsString(parameter)
-                    );
-        } catch (JsonProcessingException e) {
-            log.warn("Blocked query as it might have screwed up the cluster. Probability: {} Query: {}", probability, parameter);
-        }
-        throw FoxtrotExceptions.createCardinalityOverflow(parameter, parameter.getNesting()
-                .get(0), probability);
-    }
 
     private long extractMaxDocCount(Map<String, FieldMetadata> metaMap) {
         return metaMap.values()
@@ -728,7 +706,7 @@ public class GroupAction extends Action<GroupRequest> {
     }
 
 
-    private void validateCardinality(GroupRequest parameter, String email) {
+    private void validateCardinality(GroupRequest parameter) {
         // Perform cardinality analysis and see how much this fucks up the cluster
         QueryStore queryStore = getQueryStore();
         if(queryStore instanceof ElasticsearchQueryStore && ((ElasticsearchQueryStore)queryStore).getCardinalityConfig()
@@ -749,7 +727,8 @@ public class GroupAction extends Action<GroupRequest> {
             }
 
             if(probability > PROBABILITY_CUT_OFF) {
-                sendEmail(parameter, email, probability);
+                throw FoxtrotExceptions.createCardinalityOverflow(parameter, parameter.getNesting()
+                        .get(0), probability);
             } else {
                 log.info("Allowing group by with probability {} for query: {}", probability, parameter);
             }
