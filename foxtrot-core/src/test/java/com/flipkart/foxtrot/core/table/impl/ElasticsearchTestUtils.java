@@ -18,6 +18,8 @@ package com.flipkart.foxtrot.core.table.impl;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConfig;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConnection;
 
+import java.util.Collections;
+
 /***
  Created by nitish.goyal on 02/08/18
  ***/
@@ -26,7 +28,7 @@ public class ElasticsearchTestUtils {
     public static ElasticsearchConnection getConnection() throws Exception {
         ElasticsearchConfig config = new ElasticsearchConfig();
         config.setCluster("elasticsearch");
-        config.setHosts("localhost");
+        config.setHosts(Collections.singletonList("localhost"));
         config.setTableNamePrefix("foxtrot");
 
         ElasticsearchConnection elasticsearchConnection = new ElasticsearchConnection(config);

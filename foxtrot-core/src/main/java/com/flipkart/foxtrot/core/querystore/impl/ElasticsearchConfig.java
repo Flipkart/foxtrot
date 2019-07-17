@@ -34,6 +34,7 @@ public class ElasticsearchConfig {
     @NotNull
     @JsonProperty
     private List<String> hosts;
+
     @Valid
     @NotNull
     @JsonProperty
