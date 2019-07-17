@@ -21,8 +21,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.jsontype.NamedType;
 import com.flipkart.foxtrot.core.alerts.AlertingSystemEventConsumer;
-import com.flipkart.foxtrot.core.email.EmailClient;
-import com.flipkart.foxtrot.core.email.EmailConfig;
 import com.flipkart.foxtrot.core.cache.CacheManager;
 import com.flipkart.foxtrot.core.cache.impl.DistributedCacheFactory;
 import com.flipkart.foxtrot.core.cardinality.CardinalityCalculationManager;
@@ -32,6 +30,8 @@ import com.flipkart.foxtrot.core.common.DataDeletionManagerConfig;
 import com.flipkart.foxtrot.core.datastore.DataStore;
 import com.flipkart.foxtrot.core.datastore.impl.hbase.HBaseDataStore;
 import com.flipkart.foxtrot.core.datastore.impl.hbase.HbaseTableConnection;
+import com.flipkart.foxtrot.core.email.EmailClient;
+import com.flipkart.foxtrot.core.email.EmailConfig;
 import com.flipkart.foxtrot.core.email.RichEmailBuilder;
 import com.flipkart.foxtrot.core.email.messageformatting.impl.StrSubstitutorEmailBodyBuilder;
 import com.flipkart.foxtrot.core.email.messageformatting.impl.StrSubstitutorEmailSubjectBuilder;
@@ -67,11 +67,7 @@ import io.dropwizard.Application;
 import io.dropwizard.assets.AssetsBundle;
 import io.dropwizard.configuration.EnvironmentVariableSubstitutor;
 import io.dropwizard.configuration.SubstitutingSourceProvider;
-import io.dropwizard.discovery.bundle.ServiceDiscoveryBundle;
-import io.dropwizard.discovery.bundle.ServiceDiscoveryConfiguration;
 import io.dropwizard.oor.OorBundle;
-import io.dropwizard.riemann.RiemannBundle;
-import io.dropwizard.riemann.RiemannConfig;
 import io.dropwizard.server.AbstractServerFactory;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
@@ -107,35 +103,12 @@ public class FoxtrotServer extends Application<FoxtrotServerConfiguration> {
             }
         });
 
-        bootstrap.addBundle(new ServiceDiscoveryBundle<FoxtrotServerConfiguration>() {
-            @Override
-            protected ServiceDiscoveryConfiguration getRangerConfiguration(FoxtrotServerConfiguration configuration) {
-                return configuration.getServiceDiscovery();
-            }
-
-            @Override
-            protected String getServiceName(FoxtrotServerConfiguration configuration) {
-                return "foxtrot-es6";
-            }
-
-            @Override
-            protected int getPort(FoxtrotServerConfiguration configuration) {
-                return configuration.getServiceDiscovery()
-                        .getPublishedPort();
-            }
-        });
-
-        bootstrap.addBundle(new RiemannBundle<FoxtrotServerConfiguration>() {
-            @Override
-            public RiemannConfig getRiemannConfiguration(FoxtrotServerConfiguration configuration) {
-                return configuration.getRiemann();
-            }
-        });
+        final SwaggerBundleConfiguration swaggerBundleConfiguration = getSwaggerBundleConfiguration();
 
         bootstrap.addBundle(new SwaggerBundle<FoxtrotServerConfiguration>() {
             @Override
             protected SwaggerBundleConfiguration getSwaggerBundleConfiguration(FoxtrotServerConfiguration configuration) {
-                return configuration.getSwagger();
+                return swaggerBundleConfiguration;
             }
         });
 
@@ -304,6 +277,15 @@ public class FoxtrotServer extends Application<FoxtrotServerConfiguration> {
         objectMapper.disable(SerializationFeature.FAIL_ON_EMPTY_BEANS);
         objectMapper.registerSubtypes(new NamedType(SimpleClusterDiscoveryConfig.class, "foxtrot_simple"));
         objectMapper.registerSubtypes(new NamedType(MarathonClusterDiscoveryConfig.class, "foxtrot_marathon"));
+    }
+
+    private SwaggerBundleConfiguration getSwaggerBundleConfiguration() {
+        final SwaggerBundleConfiguration swaggerBundleConfiguration = new SwaggerBundleConfiguration();
+        swaggerBundleConfiguration.setTitle("Foxtrot");
+        swaggerBundleConfiguration.setResourcePackage("com.flipkart.foxtrot.server.resources");
+        swaggerBundleConfiguration.setUriPrefix("/foxtrot");
+        swaggerBundleConfiguration.setDescription("A store abstraction and analytics system for real-time event data.");
+        return swaggerBundleConfiguration;
     }
 
 }
