@@ -396,4 +396,35 @@ public class StatsTrendActionTest extends ActionTest {
         request.setNesting(Lists.newArrayList("os", "version"));
         getQueryExecutor().execute(request);
     }
+
+    @Test
+    public void testStatsTrendActionTextField() throws FoxtrotException {
+        StatsTrendRequest request = new StatsTrendRequest();
+        request.setTable(TestUtils.TEST_TABLE_NAME);
+        request.setTimestamp("_timestamp");
+        request.setField("os");
+        request.setStats(Collections.singleton(Stat.AVG));
+
+        BetweenFilter betweenFilter = new BetweenFilter();
+        betweenFilter.setFrom(1L);
+        betweenFilter.setTo(System.currentTimeMillis());
+        betweenFilter.setTemporal(true);
+        betweenFilter.setField("_timestamp");
+        request.setFilters(Collections.<Filter>singletonList(betweenFilter));
+
+        StatsTrendResponse statsTrendResponse = StatsTrendResponse.class.cast(getQueryExecutor().execute(request));
+        filterNonZeroCounts(statsTrendResponse);
+        assertNotNull(statsTrendResponse);
+        assertNotNull(statsTrendResponse.getResult());
+        assertEquals(1, statsTrendResponse.getResult()
+                .get(0)
+                .getStats()
+                .size());
+        assertTrue(statsTrendResponse.getResult()
+                           .get(0)
+                           .getStats()
+                           .containsKey("count"));
+        assertNull(statsTrendResponse.getBuckets());
+    }
+
 }
