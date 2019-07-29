@@ -1,19 +1,21 @@
 /**
  * Copyright 2014 Flipkart Internet Pvt. Ltd.
  * <p>
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * the License. You may obtain a copy of the License at
  * <p>
  * http://www.apache.org/licenses/LICENSE-2.0
  * <p>
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
+ * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations under the License.
  */
 package com.flipkart.foxtrot.core.querystore.actions;
+
+import static com.flipkart.foxtrot.core.TestUtils.TEST_EMAIL;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.flipkart.foxtrot.common.Document;
@@ -26,37 +28,29 @@ import com.flipkart.foxtrot.core.TestUtils;
 import com.flipkart.foxtrot.core.exception.FoxtrotException;
 import com.flipkart.foxtrot.core.exception.MalformedQueryException;
 import com.google.common.collect.Lists;
-import org.junit.Before;
-import org.junit.Test;
-
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.stream.Collectors;
-
-import static org.junit.Assert.*;
+import org.junit.Before;
+import org.junit.Test;
 
 /**
  * Created by rishabh.goyal on 29/04/14.
  */
 public class StatsTrendActionTest extends ActionTest {
+
     @Before
     public void setUp() throws Exception {
         super.setUp();
         List<Document> documents = TestUtils.getStatsTrendDocuments(getMapper());
         getQueryStore().save(TestUtils.TEST_TABLE_NAME, documents);
-        getElasticsearchServer().getClient()
+        getElasticsearchConnection().getClient()
                 .admin()
                 .indices()
                 .prepareRefresh("*")
                 .execute()
                 .actionGet();
-    }
-
-    private void filterNonZeroCounts(StatsTrendResponse statsTrendResponse) {
-        statsTrendResponse.getResult()
-                .removeIf(statsTrendValue -> statsTrendValue.getStats().containsKey("count")
-                        && statsTrendValue.getStats().get("count").equals(0L));
     }
 
     @Test
@@ -73,14 +67,30 @@ public class StatsTrendActionTest extends ActionTest {
         betweenFilter.setField("_timestamp");
         request.setFilters(Collections.<Filter>singletonList(betweenFilter));
 
-        StatsTrendResponse statsTrendResponse = StatsTrendResponse.class.cast(getQueryExecutor().execute(request));
+        StatsTrendResponse statsTrendResponse = StatsTrendResponse.class.cast(
+                getQueryExecutor().execute(request, TEST_EMAIL));
         filterNonZeroCounts(statsTrendResponse);
         assertNotNull(statsTrendResponse);
         assertNotNull(statsTrendResponse.getResult());
-        assertEquals(5, statsTrendResponse.getResult().size());
-        assertEquals(8, statsTrendResponse.getResult().get(0).getStats().size());
-        assertEquals(7, statsTrendResponse.getResult().get(0).getPercentiles().size());
+        assertEquals(5, statsTrendResponse.getResult()
+                .size());
+        assertEquals(8, statsTrendResponse.getResult()
+                .get(0)
+                .getStats()
+                .size());
+        assertEquals(7, statsTrendResponse.getResult()
+                .get(0)
+                .getPercentiles()
+                .size());
         assertNull(statsTrendResponse.getBuckets());
+    }
+
+    private void filterNonZeroCounts(StatsTrendResponse statsTrendResponse) {
+        statsTrendResponse.getResult()
+                .removeIf(statsTrendValue -> statsTrendValue.getStats()
+                        .containsKey("count") && statsTrendValue.getStats()
+                        .get("count")
+                        .equals(0L));
     }
 
     @Test
@@ -89,7 +99,10 @@ public class StatsTrendActionTest extends ActionTest {
         request.setTable(TestUtils.TEST_TABLE_NAME);
         request.setTimestamp("_timestamp");
         request.setField("battery");
-        request.setStats(EnumSet.allOf(Stat.class).stream().filter(x -> !x.isExtended()).collect(Collectors.toSet()));
+        request.setStats(EnumSet.allOf(Stat.class)
+                .stream()
+                .filter(x -> !x.isExtended())
+                .collect(Collectors.toSet()));
 
         BetweenFilter betweenFilter = new BetweenFilter();
         betweenFilter.setFrom(1L);
@@ -98,13 +111,21 @@ public class StatsTrendActionTest extends ActionTest {
         betweenFilter.setField("_timestamp");
         request.setFilters(Collections.<Filter>singletonList(betweenFilter));
 
-        StatsTrendResponse statsTrendResponse = StatsTrendResponse.class.cast(getQueryExecutor().execute(request));
+        StatsTrendResponse statsTrendResponse = StatsTrendResponse.class.cast(
+                getQueryExecutor().execute(request, TEST_EMAIL));
         filterNonZeroCounts(statsTrendResponse);
         assertNotNull(statsTrendResponse);
         assertNotNull(statsTrendResponse.getResult());
-        assertEquals(5, statsTrendResponse.getResult().size());
-        assertEquals(5, statsTrendResponse.getResult().get(0).getStats().size());
-        assertEquals(7, statsTrendResponse.getResult().get(0).getPercentiles().size());
+        assertEquals(5, statsTrendResponse.getResult()
+                .size());
+        assertEquals(5, statsTrendResponse.getResult()
+                .get(0)
+                .getStats()
+                .size());
+        assertEquals(7, statsTrendResponse.getResult()
+                .get(0)
+                .getPercentiles()
+                .size());
         assertNull(statsTrendResponse.getBuckets());
     }
 
@@ -114,7 +135,7 @@ public class StatsTrendActionTest extends ActionTest {
         request.setTable(TestUtils.TEST_TABLE_NAME);
         request.setTimestamp("_timestamp");
         request.setField("battery");
-        request.setStats(Collections.singleton(Stat.count));
+        request.setStats(Collections.singleton(Stat.COUNT));
 
         BetweenFilter betweenFilter = new BetweenFilter();
         betweenFilter.setFrom(1L);
@@ -123,12 +144,19 @@ public class StatsTrendActionTest extends ActionTest {
         betweenFilter.setField("_timestamp");
         request.setFilters(Collections.<Filter>singletonList(betweenFilter));
 
-        StatsTrendResponse statsTrendResponse = StatsTrendResponse.class.cast(getQueryExecutor().execute(request));
+        StatsTrendResponse statsTrendResponse = StatsTrendResponse.class.cast(
+                getQueryExecutor().execute(request, TEST_EMAIL));
         filterNonZeroCounts(statsTrendResponse);
         assertNotNull(statsTrendResponse);
         assertNotNull(statsTrendResponse.getResult());
-        assertEquals(1, statsTrendResponse.getResult().get(0).getStats().size());
-        assertTrue(statsTrendResponse.getResult().get(0).getStats().containsKey("count"));
+        assertEquals(1, statsTrendResponse.getResult()
+                .get(0)
+                .getStats()
+                .size());
+        assertTrue(statsTrendResponse.getResult()
+                .get(0)
+                .getStats()
+                .containsKey("count"));
         assertNull(statsTrendResponse.getBuckets());
     }
 
@@ -138,7 +166,7 @@ public class StatsTrendActionTest extends ActionTest {
         request.setTable(TestUtils.TEST_TABLE_NAME);
         request.setTimestamp("_timestamp");
         request.setField("battery");
-        request.setStats(Collections.singleton(Stat.max));
+        request.setStats(Collections.singleton(Stat.MAX));
 
         BetweenFilter betweenFilter = new BetweenFilter();
         betweenFilter.setFrom(1L);
@@ -147,12 +175,19 @@ public class StatsTrendActionTest extends ActionTest {
         betweenFilter.setField("_timestamp");
         request.setFilters(Collections.<Filter>singletonList(betweenFilter));
 
-        StatsTrendResponse statsTrendResponse = StatsTrendResponse.class.cast(getQueryExecutor().execute(request));
+        StatsTrendResponse statsTrendResponse = StatsTrendResponse.class.cast(
+                getQueryExecutor().execute(request, TEST_EMAIL));
         filterNonZeroCounts(statsTrendResponse);
         assertNotNull(statsTrendResponse);
         assertNotNull(statsTrendResponse.getResult());
-        assertEquals(1, statsTrendResponse.getResult().get(0).getStats().size());
-        assertTrue(statsTrendResponse.getResult().get(0).getStats().containsKey("max"));
+        assertEquals(1, statsTrendResponse.getResult()
+                .get(0)
+                .getStats()
+                .size());
+        assertTrue(statsTrendResponse.getResult()
+                .get(0)
+                .getStats()
+                .containsKey("max"));
         assertNull(statsTrendResponse.getBuckets());
     }
 
@@ -162,7 +197,7 @@ public class StatsTrendActionTest extends ActionTest {
         request.setTable(TestUtils.TEST_TABLE_NAME);
         request.setTimestamp("_timestamp");
         request.setField("battery");
-        request.setStats(Collections.singleton(Stat.min));
+        request.setStats(Collections.singleton(Stat.MIN));
 
         BetweenFilter betweenFilter = new BetweenFilter();
         betweenFilter.setFrom(1L);
@@ -171,12 +206,19 @@ public class StatsTrendActionTest extends ActionTest {
         betweenFilter.setField("_timestamp");
         request.setFilters(Collections.<Filter>singletonList(betweenFilter));
 
-        StatsTrendResponse statsTrendResponse = StatsTrendResponse.class.cast(getQueryExecutor().execute(request));
+        StatsTrendResponse statsTrendResponse = StatsTrendResponse.class.cast(
+                getQueryExecutor().execute(request, TEST_EMAIL));
         filterNonZeroCounts(statsTrendResponse);
         assertNotNull(statsTrendResponse);
         assertNotNull(statsTrendResponse.getResult());
-        assertEquals(1, statsTrendResponse.getResult().get(0).getStats().size());
-        assertTrue(statsTrendResponse.getResult().get(0).getStats().containsKey("min"));
+        assertEquals(1, statsTrendResponse.getResult()
+                .get(0)
+                .getStats()
+                .size());
+        assertTrue(statsTrendResponse.getResult()
+                .get(0)
+                .getStats()
+                .containsKey("min"));
         assertNull(statsTrendResponse.getBuckets());
     }
 
@@ -186,7 +228,7 @@ public class StatsTrendActionTest extends ActionTest {
         request.setTable(TestUtils.TEST_TABLE_NAME);
         request.setTimestamp("_timestamp");
         request.setField("battery");
-        request.setStats(Collections.singleton(Stat.avg));
+        request.setStats(Collections.singleton(Stat.AVG));
 
         BetweenFilter betweenFilter = new BetweenFilter();
         betweenFilter.setFrom(1L);
@@ -195,12 +237,19 @@ public class StatsTrendActionTest extends ActionTest {
         betweenFilter.setField("_timestamp");
         request.setFilters(Collections.<Filter>singletonList(betweenFilter));
 
-        StatsTrendResponse statsTrendResponse = StatsTrendResponse.class.cast(getQueryExecutor().execute(request));
+        StatsTrendResponse statsTrendResponse = StatsTrendResponse.class.cast(
+                getQueryExecutor().execute(request, TEST_EMAIL));
         filterNonZeroCounts(statsTrendResponse);
         assertNotNull(statsTrendResponse);
         assertNotNull(statsTrendResponse.getResult());
-        assertEquals(1, statsTrendResponse.getResult().get(0).getStats().size());
-        assertTrue(statsTrendResponse.getResult().get(0).getStats().containsKey("avg"));
+        assertEquals(1, statsTrendResponse.getResult()
+                .get(0)
+                .getStats()
+                .size());
+        assertTrue(statsTrendResponse.getResult()
+                .get(0)
+                .getStats()
+                .containsKey("avg"));
         assertNull(statsTrendResponse.getBuckets());
     }
 
@@ -210,8 +259,7 @@ public class StatsTrendActionTest extends ActionTest {
         request.setTable(TestUtils.TEST_TABLE_NAME);
         request.setTimestamp("_timestamp");
         request.setField("battery");
-        request.setStats(Collections.singleton(Stat.sum));
-
+        request.setStats(Collections.singleton(Stat.SUM));
         BetweenFilter betweenFilter = new BetweenFilter();
         betweenFilter.setFrom(1L);
         betweenFilter.setTo(System.currentTimeMillis());
@@ -219,12 +267,19 @@ public class StatsTrendActionTest extends ActionTest {
         betweenFilter.setField("_timestamp");
         request.setFilters(Collections.<Filter>singletonList(betweenFilter));
 
-        StatsTrendResponse statsTrendResponse = StatsTrendResponse.class.cast(getQueryExecutor().execute(request));
+        StatsTrendResponse statsTrendResponse = StatsTrendResponse.class.cast(
+                getQueryExecutor().execute(request, TEST_EMAIL));
         filterNonZeroCounts(statsTrendResponse);
         assertNotNull(statsTrendResponse);
         assertNotNull(statsTrendResponse.getResult());
-        assertEquals(1, statsTrendResponse.getResult().get(0).getStats().size());
-        assertTrue(statsTrendResponse.getResult().get(0).getStats().containsKey("sum"));
+        assertEquals(1, statsTrendResponse.getResult()
+                .get(0)
+                .getStats()
+                .size());
+        assertTrue(statsTrendResponse.getResult()
+                .get(0)
+                .getStats()
+                .containsKey("sum"));
         assertNull(statsTrendResponse.getBuckets());
     }
 
@@ -243,12 +298,19 @@ public class StatsTrendActionTest extends ActionTest {
         betweenFilter.setField("_timestamp");
         request.setFilters(Collections.<Filter>singletonList(betweenFilter));
 
-        StatsTrendResponse statsTrendResponse = StatsTrendResponse.class.cast(getQueryExecutor().execute(request));
+        StatsTrendResponse statsTrendResponse = StatsTrendResponse.class.cast(
+                getQueryExecutor().execute(request, TEST_EMAIL));
         filterNonZeroCounts(statsTrendResponse);
         assertNotNull(statsTrendResponse);
         assertNotNull(statsTrendResponse.getResult());
-        assertEquals(1, statsTrendResponse.getResult().get(0).getPercentiles().size());
-        assertTrue(statsTrendResponse.getResult().get(0).getPercentiles().containsKey(5d));
+        assertEquals(1, statsTrendResponse.getResult()
+                .get(0)
+                .getPercentiles()
+                .size());
+        assertTrue(statsTrendResponse.getResult()
+                .get(0)
+                .getPercentiles()
+                .containsKey(5d));
     }
 
     @Test
@@ -266,7 +328,8 @@ public class StatsTrendActionTest extends ActionTest {
         betweenFilter.setField("_timestamp");
         request.setFilters(Collections.<Filter>singletonList(betweenFilter));
 
-        StatsTrendResponse statsTrendResponse = StatsTrendResponse.class.cast(getQueryExecutor().execute(request));
+        StatsTrendResponse statsTrendResponse = StatsTrendResponse.class.cast(
+                getQueryExecutor().execute(request, TEST_EMAIL));
         assertNotNull(statsTrendResponse);
         assertNull(statsTrendResponse.getResult());
         assertNotNull(statsTrendResponse.getBuckets());
@@ -289,7 +352,8 @@ public class StatsTrendActionTest extends ActionTest {
         betweenFilter.setField("_timestamp");
         request.setFilters(Collections.<Filter>singletonList(betweenFilter));
 
-        StatsTrendResponse statsTrendResponse = StatsTrendResponse.class.cast(getQueryExecutor().execute(request));
+        StatsTrendResponse statsTrendResponse = StatsTrendResponse.class.cast(
+                getQueryExecutor().execute(request, TEST_EMAIL));
         assertNotNull(statsTrendResponse);
         assertNull(statsTrendResponse.getResult());
         assertNotNull(statsTrendResponse.getBuckets());
@@ -318,7 +382,8 @@ public class StatsTrendActionTest extends ActionTest {
         request.setField("battery");
         request.setNesting(Lists.newArrayList("os", "version"));
 
-        StatsTrendResponse statsTrendResponse = StatsTrendResponse.class.cast(getQueryExecutor().execute(request));
+        StatsTrendResponse statsTrendResponse = StatsTrendResponse.class.cast(
+                getQueryExecutor().execute(request, TEST_EMAIL));
         assertNull(statsTrendResponse);
     }
 
@@ -329,7 +394,7 @@ public class StatsTrendActionTest extends ActionTest {
         request.setTimestamp("_timestamp");
         request.setField("battery");
         request.setNesting(Lists.newArrayList("os", "version"));
-        getQueryExecutor().execute(request);
+        getQueryExecutor().execute(request, TEST_EMAIL);
     }
 
     @Test(expected = MalformedQueryException.class)
@@ -339,6 +404,6 @@ public class StatsTrendActionTest extends ActionTest {
         request.setTimestamp("_timestamp");
         request.setField(null);
         request.setNesting(Lists.newArrayList("os", "version"));
-        getQueryExecutor().execute(request);
+        getQueryExecutor().execute(request, TEST_EMAIL);
     }
 }

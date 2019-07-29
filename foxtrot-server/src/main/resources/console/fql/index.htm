@@ -36,7 +36,8 @@
     <!-- Custom styles for this template -->
 
     <!-- Just for debugging purposes. Don't actually copy this line! -->
-    <!--[if lt IE 9]><script src="../../assets/../js/ie8-responsive-file-warning.js"></script><![endif]-->
+    <!--[if lt IE 9]>
+    <script src="../../assets/../js/ie8-responsive-file-warning.js"></script><![endif]-->
 
     <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
     <!--[if lt IE 9]>
@@ -50,7 +51,8 @@
     <div class="header-container">
         <div class="header pageheader">
             <h1>
-                <div class="col-sm-4"><a href="/"><img src="../images/fox_logo.png" style="height: 40px;"/></a> <span class="console-name">Foxtrot Query</span></div>
+                <div class="col-sm-4"><a href="/"><img src="../images/fox_logo.png" style="height: 40px;"/></a> <span
+                        class="console-name">Foxtrot Query</span></div>
             </h1>
         </div>
         <hr class="hr-thin">
@@ -62,12 +64,16 @@
     <div class="content" style="margin-left: 20px; margin-right: 20px; margin-top: 60px;">
         <div class="row">
             <form class="form-inline fql-form" id="fql-form" role="form" autocomplete="on">
-                    <div class="form-group" style="width: 94%;">
-                        <label for="fql-query" class="sr-only">Enter query</label>
-                        <input type="text" class="form-control input-xlarge fql-query" id="fql-query" placeholder="Enter FQL query and press enter" style="width: 100%"/>
-                    </div>
-                <button class="btn btn-success" data-toggle="tooltip" data-placement="bottom" title="Run query"><span class="glyphicon glyphicon-play" aria-hidden="true"></span></button>
-                <button class="btn btn-warning csv-download" data-toggle="tooltip" data-placement="bottom" title="Download CSV"><span class="glyphicon glyphicon-cloud-download" aria-hidden="true"></span></button>
+                <div class="form-group" style="width: 94%;">
+                    <label for="fql-query" class="sr-only">Enter query</label>
+                    <input type="text" class="form-control input-xlarge fql-query" id="fql-query"
+                           placeholder="Enter FQL query and press enter" style="width: 100%"/>
+                </div>
+                <button class="btn btn-success" data-toggle="tooltip" data-placement="bottom" title="Run query"><span
+                        class="glyphicon glyphicon-play" aria-hidden="true"></span></button>
+                <button class="btn btn-warning csv-download" data-toggle="tooltip" data-placement="bottom"
+                        title="Download CSV"><span class="glyphicon glyphicon-cloud-download" aria-hidden="true"></span>
+                </button>
 
                 <!--button type="submit" class="btn btn-primary pull-right">Run</button-->
             </form>
@@ -115,7 +121,8 @@
         {{#each data}}
         <tr>
             {{#each this}}
-            <td>{{this}}</th>
+            <td>{{this}}
+            </th>
             {{/each}}
         </tr>
         {{/each}}
@@ -123,7 +130,6 @@
 
     </table>
 </script>
-
 
 
 <!-- Bootstrap core JavaScript
@@ -152,6 +158,6 @@
 <script src="../js/hostdetails.js"></script>
 <script src="../js/config.js"></script>
 <script src="../js/fql.js"></script>
-
+<script src="../js/functions.js"></script>
 </body>
 </html>

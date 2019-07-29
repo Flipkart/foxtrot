@@ -1,19 +1,23 @@
 /**
  * Copyright 2014 Flipkart Internet Pvt. Ltd.
  * <p>
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
  * <p>
  * http://www.apache.org/licenses/LICENSE-2.0
  * <p>
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
+ * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations under the License.
  */
 package com.flipkart.foxtrot.core.querystore.impl;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.when;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.flipkart.foxtrot.common.Document;
@@ -21,28 +25,22 @@ import com.flipkart.foxtrot.common.FieldType;
 import com.flipkart.foxtrot.common.Table;
 import com.flipkart.foxtrot.common.TableFieldMapping;
 import com.flipkart.foxtrot.common.group.GroupResponse;
-import com.flipkart.foxtrot.core.MockElasticsearchServer;
 import com.flipkart.foxtrot.core.TestUtils;
 import com.flipkart.foxtrot.core.alerts.EmailConfig;
 import com.flipkart.foxtrot.core.cardinality.CardinalityConfig;
 import com.flipkart.foxtrot.core.datastore.DataStore;
-import com.flipkart.foxtrot.core.reroute.ClusterRerouteConfig;
 import com.flipkart.foxtrot.core.table.impl.DistributedTableMetadataManager;
+import com.flipkart.foxtrot.core.table.impl.ElasticsearchTestUtils;
 import com.hazelcast.config.Config;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
 import com.hazelcast.test.TestHazelcastInstanceFactory;
+import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;
 import org.joda.time.DateTime;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
-
-import java.util.UUID;
-
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.when;
 
 
 /**
@@ -54,8 +52,8 @@ public class DistributedTableMetadataManagerTest {
     private ElasticsearchQueryStore queryStore;
     private HazelcastInstance hazelcastInstance;
     private DistributedTableMetadataManager distributedTableMetadataManager;
-    private MockElasticsearchServer elasticsearchServer;
     private IMap<String, Table> tableDataStore;
+    private ElasticsearchConnection elasticsearchConnection;
     private ObjectMapper objectMapper;
 
     @Before
@@ -64,13 +62,13 @@ public class DistributedTableMetadataManagerTest {
         objectMapper.registerSubtypes(GroupResponse.class);
 
         this.dataStore = Mockito.mock(DataStore.class);
-        this.elasticsearchServer = new MockElasticsearchServer(UUID.randomUUID()
-                                                                       .toString());
-        ElasticsearchConnection elasticsearchConnection = TestUtils.initESConnection(elasticsearchServer);
-        when(elasticsearchConnection.getClient()).thenReturn(elasticsearchServer.getClient());
+
+        elasticsearchConnection = ElasticsearchTestUtils.getConnection();
         ElasticsearchUtils.initializeMappings(elasticsearchConnection.getClient());
         EmailConfig emailConfig = new EmailConfig();
         emailConfig.setHost("127.0.0.1");
+
+        TestUtils.createTable(elasticsearchConnection, DistributedTableMetadataManager.CARDINALITY_CACHE_INDEX);
 
         hazelcastInstance = new TestHazelcastInstanceFactory(1).newHazelcastInstance();
         HazelcastConnection hazelcastConnection = Mockito.mock(HazelcastConnection.class);
@@ -79,28 +77,29 @@ public class DistributedTableMetadataManagerTest {
         hazelcastConnection.start();
 
         this.distributedTableMetadataManager = new DistributedTableMetadataManager(hazelcastConnection,
-                                                                                   elasticsearchConnection,
-                                                                                   objectMapper,
-                                                                                   new CardinalityConfig("true",
-                                                                                                         String.valueOf(
-                                                                                                                 ElasticsearchUtils.DEFAULT_SUB_LIST_SIZE)
-                                                                                   )
-        );
+                elasticsearchConnection,
+                objectMapper,
+                new CardinalityConfig());
         distributedTableMetadataManager.start();
 
         tableDataStore = hazelcastInstance.getMap("tablemetadatamap");
         this.queryStore = new ElasticsearchQueryStore(distributedTableMetadataManager, elasticsearchConnection,
-                                                      dataStore, objectMapper, new CardinalityConfig("true",
-                                                                                                     String.valueOf(
-                                                                                                             ElasticsearchUtils.DEFAULT_SUB_LIST_SIZE)
-        ), emailConfig, hazelcastConnection, new ClusterRerouteConfig()
-        );
+                dataStore, objectMapper, new CardinalityConfig());
     }
 
     @After
     public void tearDown() throws Exception {
         hazelcastInstance.shutdown();
-        elasticsearchServer.shutdown();
+        try {
+            DeleteIndexRequest deleteIndexRequest = new DeleteIndexRequest("*");
+            elasticsearchConnection.getClient()
+                    .admin()
+                    .indices()
+                    .delete(deleteIndexRequest);
+        } catch (Exception e) {
+            //Do Nothing
+        }
+        elasticsearchConnection.stop();
         distributedTableMetadataManager.stop();
     }
 
@@ -157,8 +156,7 @@ public class DistributedTableMetadataManagerTest {
         queryStore.save(TestUtils.TEST_TABLE_NAME, document);
 
         document = TestUtils.getDocument("B", new DateTime().getMillis(),
-                                         new Object[]{"os", "android", "version", "abcd"}, objectMapper
-                                        );
+                new Object[]{"os", "android", "version", "abcd"}, objectMapper);
         translatedDocument = TestUtils.translatedDocumentWithRowKeyVersion1(table, document);
         doReturn(translatedDocument).when(dataStore)
                 .save(table, document);
@@ -166,7 +164,7 @@ public class DistributedTableMetadataManagerTest {
 
         TableFieldMapping tableFieldMapping = distributedTableMetadataManager.getFieldMappings(
                 TestUtils.TEST_TABLE_NAME, true, true);
-        assertEquals(10, tableFieldMapping.getMappings()
+        assertEquals(11, tableFieldMapping.getMappings()
                 .size());
 
         assertEquals(FieldType.STRING, tableFieldMapping.getMappings()

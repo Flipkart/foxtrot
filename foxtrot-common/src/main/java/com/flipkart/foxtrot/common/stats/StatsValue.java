@@ -1,18 +1,16 @@
 package com.flipkart.foxtrot.common.stats;
 
 import java.util.Map;
+import lombok.NoArgsConstructor;
 
 /**
  * Created by rishabh.goyal on 24/08/14.
  */
+@NoArgsConstructor
 public class StatsValue {
 
     private Map<String, Number> stats;
     private Map<Number, Number> percentiles;
-
-    public StatsValue() {
-
-    }
 
     public Map<String, Number> getStats() {
         return stats;

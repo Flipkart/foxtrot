@@ -1,13 +1,15 @@
 package com.flipkart.foxtrot.core.exception;
 
 import java.util.Map;
+import lombok.Getter;
 
 /**
  * Created by rishabh.goyal on 13/12/15.
  */
+@Getter
 public abstract class FoxtrotException extends RuntimeException {
 
-    private ErrorCode code;
+    private final ErrorCode code;
 
     protected FoxtrotException(ErrorCode code) {
         this.code = code;
@@ -29,14 +31,5 @@ public abstract class FoxtrotException extends RuntimeException {
     }
 
     public abstract Map<String, Object> toMap();
-
-    public ErrorCode getCode() {
-        return code;
-    }
-
-    public void setCode(ErrorCode code) {
-        this.code = code;
-    }
-
 
 }

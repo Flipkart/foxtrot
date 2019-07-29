@@ -1,31 +1,35 @@
 /**
  * Copyright 2014 Flipkart Internet Pvt. Ltd.
  * <p>
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
  * <p>
  * http://www.apache.org/licenses/LICENSE-2.0
  * <p>
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
+ * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations under the License.
  */
 package com.flipkart.foxtrot.server.resources;
 
-import com.flipkart.foxtrot.core.exception.FoxtrotException;
 import com.flipkart.foxtrot.server.console.Console;
 import com.flipkart.foxtrot.server.console.ConsolePersistence;
-
-import javax.ws.rs.*;
-import javax.ws.rs.core.MediaType;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import java.util.List;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.MediaType;
 
 @Path("/v1/consoles")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
+@Api(value = "/v1/consoles")
 public class ConsoleResource {
 
     private ConsolePersistence consolePersistence;
@@ -35,25 +39,29 @@ public class ConsoleResource {
     }
 
     @POST
-    public Console save(Console console) throws FoxtrotException {
+    @ApiOperation("Save Console")
+    public Console save(Console console) {
         consolePersistence.save(console);
         return console;
     }
 
     @GET
     @Path("/{id}")
-    public Console get(@PathParam("id") final String id) throws FoxtrotException {
+    @ApiOperation("Get Console - via id")
+    public Console get(@PathParam("id") final String id) {
         return consolePersistence.get(id);
     }
 
     @DELETE
     @Path("/{id}/delete")
-    public void delete(@PathParam("id") final String id) throws FoxtrotException {
+    @ApiOperation("Delete Console - via id")
+    public void delete(@PathParam("id") final String id) {
         consolePersistence.delete(id);
     }
 
     @GET
-    public List<Console> getList() throws FoxtrotException {
+    @ApiOperation("Get All Consoles")
+    public List<Console> getList() {
         return consolePersistence.get();
     }
 

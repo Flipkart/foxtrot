@@ -1,6 +1,7 @@
 package com.flipkart.foxtrot.core.querystore.impl;
 
 import com.flipkart.foxtrot.common.ActionRequest;
+import com.flipkart.foxtrot.common.ActionRequestVisitor;
 import com.flipkart.foxtrot.common.query.Filter;
 import com.flipkart.foxtrot.common.query.datetime.LastFilter;
 import com.flipkart.foxtrot.common.query.numeric.BetweenFilter;
@@ -9,6 +10,8 @@ import com.flipkart.foxtrot.common.query.numeric.GreaterThanFilter;
 import com.flipkart.foxtrot.common.query.numeric.LessThanFilter;
 import com.flipkart.foxtrot.core.common.PeriodSelector;
 import io.dropwizard.util.Duration;
+import java.util.Arrays;
+import java.util.Collections;
 import org.joda.time.DateTimeZone;
 import org.junit.Assert;
 import org.junit.Rule;
@@ -16,11 +19,9 @@ import org.junit.Test;
 import org.junit.rules.TestWatcher;
 import org.junit.runner.Description;
 
-import java.util.Arrays;
-import java.util.Collections;
-
 
 public class ElasticsearchUtilsTest {
+
     private static final long TEST_CURRENT_TIME = 1428151913000L; //4/4/2015, 6:21:53 PM IST
 
     @Rule
@@ -47,9 +48,8 @@ public class ElasticsearchUtilsTest {
         filter.setCurrentTime(TEST_CURRENT_TIME);
         request.setFilters(Collections.<Filter>singletonList(filter));
         String indexes[] = ElasticsearchUtils.getIndices("test", request,
-                                                         new PeriodSelector(request.getFilters()).analyze(
-                                                                 TEST_CURRENT_TIME)
-                                                        );
+                new PeriodSelector(request.getFilters()).analyze(
+                        TEST_CURRENT_TIME));
         System.out.println(Arrays.toString(indexes));
         Assert.assertArrayEquals(new String[]{"foxtrot-test-table-04-4-2015"}, indexes);
     }
@@ -62,15 +62,13 @@ public class ElasticsearchUtilsTest {
         filter.setCurrentTime(TEST_CURRENT_TIME);
         request.setFilters(Collections.<Filter>singletonList(filter));
         String indexes[] = ElasticsearchUtils.getIndices("test", request,
-                                                         new PeriodSelector(request.getFilters()).analyze(
-                                                                 TEST_CURRENT_TIME)
-                                                        );
+                new PeriodSelector(request.getFilters()).analyze(
+                        TEST_CURRENT_TIME));
         System.out.println(Arrays.toString(indexes));
         Assert.assertArrayEquals(
                 new String[]{"foxtrot-test-table-02-4-2015", "foxtrot-test-table-03-4-2015",
-                             "foxtrot-test-table-04-4-2015"},
-                indexes
-                                );
+                        "foxtrot-test-table-04-4-2015"},
+                indexes);
     }
 
     @Test
@@ -82,9 +80,8 @@ public class ElasticsearchUtilsTest {
         filter.setTo(1428001200000L);   //4/3/2015, 12:30:00 AM IST
         request.setFilters(Collections.<Filter>singletonList(filter));
         String indexes[] = ElasticsearchUtils.getIndices("test", request,
-                                                         new PeriodSelector(request.getFilters()).analyze(
-                                                                 TEST_CURRENT_TIME)
-                                                        );
+                new PeriodSelector(request.getFilters()).analyze(
+                        TEST_CURRENT_TIME));
         System.out.println(Arrays.toString(indexes));
         Assert.assertArrayEquals(new String[]{"foxtrot-test-table-02-4-2015", "foxtrot-test-table-03-4-2015"}, indexes);
     }
@@ -97,15 +94,13 @@ public class ElasticsearchUtilsTest {
         filter.setValue(1427997600000L); //4/2/2015, 11:30:00 PM IST
         request.setFilters(Collections.<Filter>singletonList(filter));
         String indexes[] = ElasticsearchUtils.getIndices("test", request,
-                                                         new PeriodSelector(request.getFilters()).analyze(
-                                                                 TEST_CURRENT_TIME)
-                                                        );
+                new PeriodSelector(request.getFilters()).analyze(
+                        TEST_CURRENT_TIME));
         System.out.println(Arrays.toString(indexes));
         Assert.assertArrayEquals(
                 new String[]{"foxtrot-test-table-02-4-2015", "foxtrot-test-table-03-4-2015",
-                             "foxtrot-test-table-04-4-2015"},
-                indexes
-                                );
+                        "foxtrot-test-table-04-4-2015"},
+                indexes);
     }
 
     @Test
@@ -116,15 +111,13 @@ public class ElasticsearchUtilsTest {
         filter.setValue(1427997600000L); //4/2/2015, 11:30:00 PM IST
         request.setFilters(Collections.<Filter>singletonList(filter));
         String indexes[] = ElasticsearchUtils.getIndices("test", request,
-                                                         new PeriodSelector(request.getFilters()).analyze(
-                                                                 TEST_CURRENT_TIME)
-                                                        );
+                new PeriodSelector(request.getFilters()).analyze(
+                        TEST_CURRENT_TIME));
         System.out.println(Arrays.toString(indexes));
         Assert.assertArrayEquals(
                 new String[]{"foxtrot-test-table-02-4-2015", "foxtrot-test-table-03-4-2015",
-                             "foxtrot-test-table-04-4-2015"},
-                indexes
-                                );
+                        "foxtrot-test-table-04-4-2015"},
+                indexes);
     }
 
     @Test
@@ -135,9 +128,8 @@ public class ElasticsearchUtilsTest {
         filter.setValue(1427997600000L); //4/2/2015, 11:30:00 PM IST
         request.setFilters(Collections.<Filter>singletonList(filter));
         String indexes[] = ElasticsearchUtils.getIndices("test", request,
-                                                         new PeriodSelector(request.getFilters()).analyze(
-                                                                 TEST_CURRENT_TIME)
-                                                        );
+                new PeriodSelector(request.getFilters()).analyze(
+                        TEST_CURRENT_TIME));
         System.out.println(Arrays.toString(indexes));
         Assert.assertArrayEquals(new String[]{"foxtrot-test-table-*"}, indexes);
     }
@@ -150,9 +142,8 @@ public class ElasticsearchUtilsTest {
         filter.setValue(1427997600000L); //4/2/2015, 11:30:00 PM IST
         request.setFilters(Collections.<Filter>singletonList(filter));
         String indexes[] = ElasticsearchUtils.getIndices("test", request,
-                                                         new PeriodSelector(request.getFilters()).analyze(
-                                                                 TEST_CURRENT_TIME)
-                                                        );
+                new PeriodSelector(request.getFilters()).analyze(
+                        TEST_CURRENT_TIME));
         System.out.println(Arrays.toString(indexes));
         Assert.assertArrayEquals(new String[]{"foxtrot-test-table-*"}, indexes);
     }
@@ -168,9 +159,8 @@ public class ElasticsearchUtilsTest {
         filter.setCurrentTime(TEST_CURRENT_TIME);
         request.setFilters(Collections.<Filter>singletonList(filter));
         String indexes[] = ElasticsearchUtils.getIndices("test", request,
-                                                         new PeriodSelector(request.getFilters()).analyze(
-                                                                 TEST_CURRENT_TIME)
-                                                        );
+                new PeriodSelector(request.getFilters()).analyze(
+                        TEST_CURRENT_TIME));
         Assert.assertArrayEquals(new String[]{"azkaban-test-table-04-4-2015"}, indexes);
         config.setTableNamePrefix("foxtrot");
         ElasticsearchUtils.setTableNamePrefix(config);
@@ -187,21 +177,24 @@ public class ElasticsearchUtilsTest {
         filter.setValue(1427997600000L); //4/2/2015, 11:30:00 PM IST
         request.setFilters(Collections.<Filter>singletonList(filter));
         String indexes[] = ElasticsearchUtils.getIndices("test", request,
-                                                         new PeriodSelector(request.getFilters()).analyze(
-                                                                 TEST_CURRENT_TIME)
-                                                        );
+                new PeriodSelector(request.getFilters()).analyze(
+                        TEST_CURRENT_TIME));
         Assert.assertArrayEquals(
                 new String[]{"azkaban-test-table-02-4-2015", "azkaban-test-table-03-4-2015",
-                             "azkaban-test-table-04-4-2015"},
-                indexes
-                                );
+                        "azkaban-test-table-04-4-2015"},
+                indexes);
         config.setTableNamePrefix("foxtrot");
         ElasticsearchUtils.setTableNamePrefix(config);
     }
 
     private final static class TestRequest extends ActionRequest {
+
         private TestRequest() {
             super("test");
+        }
+
+        public <T> T accept(ActionRequestVisitor<T> visitor) {
+            return null;
         }
     }
 

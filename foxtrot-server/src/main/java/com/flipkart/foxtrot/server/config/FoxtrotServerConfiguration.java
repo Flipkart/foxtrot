@@ -1,17 +1,14 @@
 /**
  * Copyright 2014 Flipkart Internet Pvt. Ltd.
  * <p>
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
  * <p>
  * http://www.apache.org/licenses/LICENSE-2.0
  * <p>
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
+ * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations under the License.
  */
 package com.flipkart.foxtrot.server.config;
 
@@ -24,14 +21,17 @@ import com.flipkart.foxtrot.core.jobs.optimization.EsIndexOptimizationConfig;
 import com.flipkart.foxtrot.core.querystore.impl.CacheConfig;
 import com.flipkart.foxtrot.core.querystore.impl.ClusterConfig;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConfig;
-import com.flipkart.foxtrot.core.reroute.ClusterRerouteConfig;
+import com.flipkart.foxtrot.server.jobs.consolehistory.ConsoleHistoryConfig;
+import com.phonepe.gandalf.models.client.GandalfClientConfig;
 import io.dropwizard.Configuration;
 import io.dropwizard.discovery.bundle.ServiceDiscoveryConfiguration;
+import io.dropwizard.primer.model.PrimerBundleConfiguration;
 import io.dropwizard.riemann.RiemannConfig;
-import lombok.Data;
-
+import io.federecio.dropwizard.swagger.SwaggerBundleConfiguration;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
+import lombok.Data;
+import lombok.NonNull;
 
 /**
  * User: Santanu Sinha (santanu.sinha@flipkart.com)
@@ -40,6 +40,7 @@ import javax.validation.constraints.NotNull;
  */
 @Data
 public class FoxtrotServerConfiguration extends Configuration {
+
     @Valid
     private final HbaseConfig hbase;
 
@@ -51,6 +52,9 @@ public class FoxtrotServerConfiguration extends Configuration {
     @Valid
     @JsonProperty("deletionconfig")
     private final DataDeletionManagerConfig deletionManagerConfig;
+
+    private SwaggerBundleConfiguration swagger;
+
     @NotNull
     @Valid
     private ServiceDiscoveryConfiguration serviceDiscovery;
@@ -62,10 +66,24 @@ public class FoxtrotServerConfiguration extends Configuration {
     @Valid
     private EsIndexOptimizationConfig esIndexOptimizationConfig;
     @Valid
-    private ClusterRerouteConfig clusterRerouteConfig;
+    private ConsoleHistoryConfig consoleHistoryConfig;
     private EmailConfig emailConfig;
     private CacheConfig cacheConfig;
-    private CacheConfig queryStoreCacheConfig;
+
+    @NonNull
+    private GandalfClientConfig gandalfConfig = new GandalfClientConfig();
+
+    @NonNull
+    private PrimerBundleConfiguration primerBundleConfiguration;
+
+    private RangerConfiguration rangerConfiguration;
+
+    private SegregationConfiguration segregationConfiguration;
+
+    @NotNull
+    private boolean restrictAccess;
+
+    private GandalfConfiguration gandalfConfiguration;
 
     public FoxtrotServerConfiguration() {
         this.hbase = new HbaseConfig();
@@ -73,7 +91,11 @@ public class FoxtrotServerConfiguration extends Configuration {
         this.cluster = new ClusterConfig();
         this.deletionManagerConfig = new DataDeletionManagerConfig();
         this.emailConfig = new EmailConfig();
+        this.segregationConfiguration = new SegregationConfiguration();
+        this.serviceDiscovery = new ServiceDiscoveryConfiguration();
+        this.riemann = new RiemannConfig();
+        this.primerBundleConfiguration = new PrimerBundleConfiguration();
+        this.restrictAccess = true;
     }
-
 
 }

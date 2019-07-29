@@ -8,7 +8,7 @@ server:
 
 elasticsearch:
   hosts: localhost
-  cluster: elasticsearch
+  cluster: foxtrot
   tableNamePrefix: foxtrot
   getQueryTimeout: 10000
 
@@ -20,7 +20,7 @@ serviceDiscovery:
   publishedPort: 8080
 
 riemann:
-  host: riemann-stage.phonepe.int
+  host: local
   port: 5555
   prefix: phonepe.local.foxtrot
   pollingInterval: 30
@@ -32,6 +32,8 @@ hbase:
   tableName: foxtrot
   hbaseZookeeperQuorum: localhost
   hbaseZookeeperClientPort: 2181
+  seggregatedTablePrefix: foxtrot-
+  hbaseZookeeperZnodeParent: /hbase-unsecure
 
 cluster:
   name: foxtrot
@@ -60,6 +62,11 @@ esIndexOptimizationConfig:
   interval: 86400
   initialDelay: 6
 
+consoleHistoryConfig:
+  active: true
+  interval: 86400
+  initialDelay: 10
+
 deletionconfig:
   active: false
   interval: 86400
@@ -72,3 +79,52 @@ emailConfig:
   user: AKIAJLCWHAOEDK4ZDOGQ
   password: AgjCxNI68hrnj6bIzuJCiZBlDXW+TioRoU11++Yx97
   url: /
+
+swagger:
+  resourcePackage: com.flipkart.foxtrot.server.resources
+  title: Foxtrot
+  description: A store abstraction and analytics system for real-time event data.
+  uriPrefix: "/foxtrot"
+
+gandalfConfig:
+  httpConfig:
+    usingZookeeper: false
+    host: gandalf.traefik.stg.phonepe.com
+    port: 80
+    serviceName: gandalf
+    environment: stage
+    connections: 10
+    idleTimeOutSeconds: 30
+  authConfig:
+    clientId: echo
+    clientKey:  1234
+    namespace:  echo
+  permissionCacheConfig:
+    ttlSeconds: 900
+    enabled: true
+
+primerBundleConfiguration:
+  enabled: true
+  authTypesEnabled:
+    CONFIG: false
+    ANNOTATION: true
+  endpoint:
+    type: simple
+    host: primer.traefik.stg.phonepe.com
+    port: 80
+  cacheExpiry: 60
+  cacheMaxSize: 100000
+  clockSkew: 60
+  prefix: Bearer
+  privateKey: TwhjV5ujkvb41frpmqCve7ZfhqwSDMqOXe01DeDIsb2xCrW4bwfFnax9bi2uC9Kn
+
+restrictAccess: false
+
+segregationConfiguration:
+  tableEventConfigs:
+    phonepe_consumer_app_android:
+      phonepe_consumer_app_android_app_loaded:
+        - APP_LOADED
+  ignoredEventConfigs:
+    phonepe_consumer_app_android:
+      - ACTIVITY_VISITED

@@ -1,57 +1,75 @@
 /**
  * Copyright 2014 Flipkart Internet Pvt. Ltd.
  * <p>
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <<<<<<< HEAD Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in
+ * compliance with the License. You may obtain a copy of the License at
  * <p>
  * http://www.apache.org/licenses/LICENSE-2.0
  * <p>
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
+ * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations under the License. ======= Licensed under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy
+ * of the License at
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
+ * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations under the License. >>>>>>> phonepe-develop
  */
 package com.flipkart.foxtrot.common.query;
 
 import com.flipkart.foxtrot.common.query.datetime.LastFilter;
-import com.flipkart.foxtrot.common.query.general.*;
-import com.flipkart.foxtrot.common.query.numeric.*;
+import com.flipkart.foxtrot.common.query.general.AnyFilter;
+import com.flipkart.foxtrot.common.query.general.EqualsFilter;
+import com.flipkart.foxtrot.common.query.general.ExistsFilter;
+import com.flipkart.foxtrot.common.query.general.InFilter;
+import com.flipkart.foxtrot.common.query.general.MissingFilter;
+import com.flipkart.foxtrot.common.query.general.NotEqualsFilter;
+import com.flipkart.foxtrot.common.query.general.NotInFilter;
+import com.flipkart.foxtrot.common.query.numeric.BetweenFilter;
+import com.flipkart.foxtrot.common.query.numeric.GreaterEqualFilter;
+import com.flipkart.foxtrot.common.query.numeric.GreaterThanFilter;
+import com.flipkart.foxtrot.common.query.numeric.LessEqualFilter;
+import com.flipkart.foxtrot.common.query.numeric.LessThanFilter;
 import com.flipkart.foxtrot.common.query.string.ContainsFilter;
+import com.flipkart.foxtrot.common.query.string.WildCardFilter;
 
 /**
  * User: Santanu Sinha (santanu.sinha@flipkart.com)
  * Date: 14/03/14
  * Time: 2:20 PM
  */
-public abstract class FilterVisitor<T> {
+public interface FilterVisitor<T> {
 
-    public abstract T visit(BetweenFilter betweenFilter) throws Exception;
+    T visit(BetweenFilter betweenFilter);
 
-    public abstract T visit(EqualsFilter equalsFilter) throws Exception;
+    T visit(EqualsFilter equalsFilter);
 
-    public abstract T visit(NotEqualsFilter notEqualsFilter) throws Exception;
+    T visit(NotEqualsFilter notEqualsFilter);
 
-    public abstract T visit(ContainsFilter stringContainsFilterElement) throws Exception;
+    T visit(ContainsFilter stringContainsFilterElement);
 
-    public abstract T visit(GreaterThanFilter greaterThanFilter) throws Exception;
+    T visit(GreaterThanFilter greaterThanFilter);
 
-    public abstract T visit(GreaterEqualFilter greaterEqualFilter) throws Exception;
+    T visit(GreaterEqualFilter greaterEqualFilter);
 
-    public abstract T visit(LessThanFilter lessThanFilter) throws Exception;
+    T visit(LessThanFilter lessThanFilter);
 
-    public abstract T visit(LessEqualFilter lessEqualFilter) throws Exception;
+    T visit(LessEqualFilter lessEqualFilter);
 
-    public abstract T visit(AnyFilter anyFilter) throws Exception;
+    T visit(AnyFilter anyFilter);
 
-    public abstract T visit(InFilter inFilter) throws Exception;
+    T visit(InFilter inFilter);
 
-    public abstract T visit(NotInFilter inFilter) throws Exception;
+    T visit(NotInFilter inFilter);
 
-    public abstract T visit(ExistsFilter existsFilter) throws Exception;
+    T visit(ExistsFilter existsFilter);
 
-    public abstract T visit(LastFilter lastFilter) throws Exception;
+    T visit(LastFilter lastFilter);
 
-    public abstract T visit(MissingFilter missingFilter) throws Exception;
+    T visit(MissingFilter missingFilter);
+
+    T visit(WildCardFilter wildCardFilter);
 }

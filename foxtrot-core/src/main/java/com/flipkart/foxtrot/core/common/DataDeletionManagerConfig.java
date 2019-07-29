@@ -1,13 +1,14 @@
 package com.flipkart.foxtrot.core.common;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
+import lombok.NoArgsConstructor;
 
 /**
  * Created by rishabh.goyal on 11/07/14.
  */
+@NoArgsConstructor
 public class DataDeletionManagerConfig {
 
     @Min(3600)
@@ -19,9 +20,6 @@ public class DataDeletionManagerConfig {
 
     @NotNull
     private boolean active;
-
-    public DataDeletionManagerConfig() {
-    }
 
     public int getInterval() {
         return interval;

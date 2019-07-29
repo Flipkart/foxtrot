@@ -2,12 +2,10 @@ package com.flipkart.foxtrot.core.table.impl;
 
 import com.flipkart.foxtrot.common.Table;
 import com.flipkart.foxtrot.core.datastore.DataStore;
-import com.flipkart.foxtrot.core.exception.FoxtrotException;
 import com.flipkart.foxtrot.core.exception.FoxtrotExceptions;
 import com.flipkart.foxtrot.core.querystore.QueryStore;
 import com.flipkart.foxtrot.core.table.TableManager;
 import com.flipkart.foxtrot.core.table.TableMetadataManager;
-
 import java.util.List;
 
 /**
@@ -28,9 +26,9 @@ public class FoxtrotTableManager implements TableManager {
 
 
     @Override
-    public void save(Table table) throws FoxtrotException {
+    public void save(Table table) {
         validateTableParams(table);
-        if(metadataManager.exists(table.getName())) {
+        if (metadataManager.exists(table.getName())) {
             throw FoxtrotExceptions.createTableExistsException(table.getName());
         }
         queryStore.initializeTable(table.getName());
@@ -39,51 +37,51 @@ public class FoxtrotTableManager implements TableManager {
     }
 
     @Override
-    public void save(Table table, boolean forceCreateTable) throws FoxtrotException {
+    public void save(Table table, boolean forceCreateTable) {
         validateTableParams(table);
-        if(metadataManager.exists(table.getName())) {
+        if (metadataManager.exists(table.getName())) {
             throw FoxtrotExceptions.createTableExistsException(table.getName());
         }
-        dataStore.initializeTable(table, forceCreateTable);
         queryStore.initializeTable(table.getName());
+        dataStore.initializeTable(table, false);
         metadataManager.save(table);
     }
 
+
     @Override
-    public Table get(String name) throws FoxtrotException {
+    public Table get(String name) {
         Table table = metadataManager.get(name);
-        if(table == null) {
+        if (table == null) {
             throw FoxtrotExceptions.createTableMissingException(name);
         }
         return table;
     }
 
     @Override
-    public List<Table> getAll() throws FoxtrotException {
+    public List<Table> getAll() {
         return metadataManager.get();
     }
 
     @Override
-    public void update(Table table) throws FoxtrotException {
+    public void update(Table table) {
         validateTableParams(table);
-        if(!metadataManager.exists(table.getName())) {
+        if (!metadataManager.exists(table.getName())) {
             throw FoxtrotExceptions.createTableMissingException(table.getName());
         }
         metadataManager.save(table);
     }
 
     @Override
-    public void delete(String tableName) throws FoxtrotException {
+    public void delete(String tableName) {
         // TODO Implement this once downstream implications are figured out
     }
 
-    private void validateTableParams(Table table) throws FoxtrotException {
-        if(table == null || table.getName() == null || table.getName()
+    private void validateTableParams(Table table) {
+        if (table == null || table.getName() == null || table.getName()
                 .trim()
                 .isEmpty() || table.getTtl() <= 0) {
             throw FoxtrotExceptions.createBadRequestException(table != null ? table.getName() : null,
-                                                              "Invalid Table Params"
-                                                             );
+                    "Invalid Table Params");
         }
     }
 }

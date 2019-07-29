@@ -1,19 +1,21 @@
 /**
  * Copyright 2014 Flipkart Internet Pvt. Ltd.
  * <p>
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
  * <p>
  * http://www.apache.org/licenses/LICENSE-2.0
  * <p>
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
+ * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations under the License.
  */
 package com.flipkart.foxtrot.core.querystore.actions;
+
+import static com.flipkart.foxtrot.core.TestUtils.TEST_EMAIL;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
+import static org.mockito.Mockito.doReturn;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.flipkart.foxtrot.common.Document;
@@ -27,15 +29,14 @@ import com.flipkart.foxtrot.core.exception.ErrorCode;
 import com.flipkart.foxtrot.core.exception.FoxtrotException;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchQueryStore;
 import com.google.common.collect.Maps;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
-
-import java.util.*;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
-import static org.mockito.Mockito.doReturn;
 
 /**
  * Created by rishabh.goyal on 28/04/14.
@@ -47,15 +48,15 @@ public class GroupActionTest extends ActionTest {
         super.setUp();
         List<Document> documents = TestUtils.getGroupDocuments(getMapper());
         getQueryStore().save(TestUtils.TEST_TABLE_NAME, documents);
-        getElasticsearchServer().getClient()
+        getElasticsearchConnection().getClient()
                 .admin()
                 .indices()
                 .prepareRefresh("*")
                 .execute()
                 .actionGet();
         getTableMetadataManager().getFieldMappings(TestUtils.TEST_TABLE_NAME, true, true);
-        ((ElasticsearchQueryStore)getQueryStore()).getCardinalityConfig()
-                .setMaxCardinality(15000);
+        ((ElasticsearchQueryStore) getQueryStore()).getCardinalityConfig()
+                .setMaxCardinality(MAX_CARDINALITY);
         getTableMetadataManager().updateEstimationData(TestUtils.TEST_TABLE_NAME, 1397658117000L);
     }
 
@@ -68,7 +69,7 @@ public class GroupActionTest extends ActionTest {
         doReturn(null).when(getElasticsearchConnection())
                 .getClient();
         try {
-            getQueryExecutor().execute(groupRequest);
+            getQueryExecutor().execute(groupRequest, TEST_EMAIL);
             fail();
         } catch (FoxtrotException ex) {
             ex.printStackTrace();
@@ -86,7 +87,7 @@ public class GroupActionTest extends ActionTest {
         response.put("android", 7L);
         response.put("ios", 4L);
 
-        GroupResponse actualResult = GroupResponse.class.cast(getQueryExecutor().execute(groupRequest));
+        GroupResponse actualResult = GroupResponse.class.cast(getQueryExecutor().execute(groupRequest, TEST_EMAIL));
         assertEquals(response, actualResult.getResult());
     }
 
@@ -97,7 +98,7 @@ public class GroupActionTest extends ActionTest {
         groupRequest.setNesting(Collections.singletonList(""));
 
         try {
-            getQueryExecutor().execute(groupRequest);
+            getQueryExecutor().execute(groupRequest, TEST_EMAIL);
             fail();
         } catch (FoxtrotException ex) {
             ex.printStackTrace();
@@ -112,7 +113,7 @@ public class GroupActionTest extends ActionTest {
         groupRequest.setNesting(Arrays.asList(""));
 
         try {
-            getQueryExecutor().execute(groupRequest);
+            getQueryExecutor().execute(groupRequest, TEST_EMAIL);
             fail();
         } catch (FoxtrotException ex) {
             ex.printStackTrace();
@@ -134,7 +135,7 @@ public class GroupActionTest extends ActionTest {
 
         Map<String, Object> response = Maps.newHashMap();
 
-        GroupResponse actualResult = GroupResponse.class.cast(getQueryExecutor().execute(groupRequest));
+        GroupResponse actualResult = GroupResponse.class.cast(getQueryExecutor().execute(groupRequest, TEST_EMAIL));
         assertEquals(response, actualResult.getResult());
     }
 
@@ -153,7 +154,7 @@ public class GroupActionTest extends ActionTest {
         response.put("android", 5L);
         response.put("ios", 1L);
 
-        GroupResponse actualResult = GroupResponse.class.cast(getQueryExecutor().execute(groupRequest));
+        GroupResponse actualResult = GroupResponse.class.cast(getQueryExecutor().execute(groupRequest, TEST_EMAIL));
         assertEquals(response, actualResult.getResult());
     }
 
@@ -174,7 +175,7 @@ public class GroupActionTest extends ActionTest {
             put("iphone", 1L);
         }});
 
-        GroupResponse actualResult = GroupResponse.class.cast(getQueryExecutor().execute(groupRequest));
+        GroupResponse actualResult = GroupResponse.class.cast(getQueryExecutor().execute(groupRequest, TEST_EMAIL));
         assertEquals(response, actualResult.getResult());
     }
 
@@ -198,7 +199,7 @@ public class GroupActionTest extends ActionTest {
             put("ipad", 1L);
         }});
 
-        GroupResponse actualResult = GroupResponse.class.cast(getQueryExecutor().execute(groupRequest));
+        GroupResponse actualResult = GroupResponse.class.cast(getQueryExecutor().execute(groupRequest, TEST_EMAIL));
         assertEquals(response, actualResult.getResult());
     }
 
@@ -239,7 +240,7 @@ public class GroupActionTest extends ActionTest {
             put("iphone", iPhoneResponse);
         }});
 
-        GroupResponse actualResult = GroupResponse.class.cast(getQueryExecutor().execute(groupRequest));
+        GroupResponse actualResult = GroupResponse.class.cast(getQueryExecutor().execute(groupRequest, TEST_EMAIL));
         assertEquals(response, actualResult.getResult());
     }
 
@@ -276,7 +277,7 @@ public class GroupActionTest extends ActionTest {
             put("ipad", iPadResponse);
         }});
 
-        GroupResponse actualResult = GroupResponse.class.cast(getQueryExecutor().execute(groupRequest));
+        GroupResponse actualResult = GroupResponse.class.cast(getQueryExecutor().execute(groupRequest, TEST_EMAIL));
         assertEquals(response, actualResult.getResult());
     }
 }

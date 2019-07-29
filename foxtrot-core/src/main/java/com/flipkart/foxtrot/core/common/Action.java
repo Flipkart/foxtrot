@@ -1,21 +1,17 @@
 /**
  * Copyright 2014 Flipkart Internet Pvt. Ltd.
  * <p>
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
  * <p>
  * http://www.apache.org/licenses/LICENSE-2.0
  * <p>
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
+ * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations under the License.
  */
 package com.flipkart.foxtrot.core.common;
 
-import com.collections.CollectionUtils;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.flipkart.foxtrot.common.ActionRequest;
@@ -24,24 +20,20 @@ import com.flipkart.foxtrot.common.ActionValidationResponse;
 import com.flipkart.foxtrot.common.query.Filter;
 import com.flipkart.foxtrot.common.query.general.AnyFilter;
 import com.flipkart.foxtrot.common.query.numeric.LessThanFilter;
-import com.flipkart.foxtrot.core.alerts.EmailConfig;
+import com.flipkart.foxtrot.common.util.CollectionUtils;
 import com.flipkart.foxtrot.core.cache.Cache;
 import com.flipkart.foxtrot.core.cache.CacheManager;
-import com.flipkart.foxtrot.core.datastore.DataStore;
 import com.flipkart.foxtrot.core.exception.FoxtrotException;
 import com.flipkart.foxtrot.core.exception.FoxtrotExceptions;
 import com.flipkart.foxtrot.core.exception.MalformedQueryException;
 import com.flipkart.foxtrot.core.querystore.QueryStore;
+import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsLoader;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConfig;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConnection;
 import com.flipkart.foxtrot.core.table.TableMetadataManager;
 import com.flipkart.foxtrot.core.util.MetricUtil;
 import com.google.common.base.Stopwatch;
 import com.google.common.collect.Lists;
-import org.elasticsearch.action.ActionRequestBuilder;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -49,56 +41,98 @@ import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
+import org.elasticsearch.action.ActionRequestBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
- * User: Santanu Sinha (santanu.sinha@flipkart.com)
- * Date: 24/03/14
- * Time: 12:23 AM
+ * User: Santanu Sinha (santanu.sinha@flipkart.com) Date: 24/03/14 Time: 12:23 AM
  */
-public abstract class Action<ParameterType extends ActionRequest> implements Callable<String> {
+public abstract class Action<P extends ActionRequest> implements Callable<String> {
+
     private static final Logger logger = LoggerFactory.getLogger(Action.class.getSimpleName());
     private final TableMetadataManager tableMetadataManager;
     private final QueryStore queryStore;
     private final String cacheToken;
     private final CacheManager cacheManager;
     private final ObjectMapper objectMapper;
-    private final EmailConfig emailConfig;
-    private ParameterType parameter;
-    private DataStore dataStore;
+    private P parameter;
     private ElasticsearchConnection connection;
 
-    protected Action(ParameterType parameter, TableMetadataManager tableMetadataManager, DataStore dataStore,
-                     QueryStore queryStore, ElasticsearchConnection connection, String cacheToken,
-                     CacheManager cacheManager, ObjectMapper objectMapper, EmailConfig emailConfig) {
+    protected Action(P parameter, String cacheToken, AnalyticsLoader analyticsLoader) {
         this.parameter = parameter;
-        this.tableMetadataManager = tableMetadataManager;
-        this.queryStore = queryStore;
+        this.tableMetadataManager = analyticsLoader.getTableMetadataManager();
+        this.queryStore = analyticsLoader.getQueryStore();
         this.cacheToken = cacheToken;
-        this.cacheManager = cacheManager;
-        this.connection = connection;
-        this.dataStore = dataStore;
-        this.objectMapper = objectMapper;
-        this.emailConfig = emailConfig;
+        this.cacheManager = analyticsLoader.getCacheManager();
+        this.connection = analyticsLoader.getElasticsearchConnection();
+        this.objectMapper = analyticsLoader.getObjectMapper();
+    }
+
+    public AsyncDataToken execute(ExecutorService executor, String email) {
+        preProcessRequest(email);
+        executor.submit(this);
+        return new AsyncDataToken(cacheToken, cacheKey());
+    }
+
+    private void preProcessRequest(String email) {
+        if (parameter.getFilters() == null) {
+            parameter.setFilters(Lists.newArrayList(new AnyFilter()));
+        }
+        preprocess();
+        parameter.setFilters(checkAndAddTemporalBoundary(parameter.getFilters()));
+        validateBase(parameter);
+        validateImpl(parameter, email);
     }
 
     public String cacheKey() {
         return String.format("%s-%d", getRequestCacheKey(), System.currentTimeMillis() / 30000);
     }
 
-    public AsyncDataToken execute(ExecutorService executor) throws FoxtrotException {
-        preProcessRequest();
-        executor.submit(this);
-        return new AsyncDataToken(cacheToken, cacheKey());
+    public abstract void preprocess();
+
+    private List<Filter> checkAndAddTemporalBoundary(List<Filter> filters) {
+        if (null != filters) {
+            for (Filter filter : filters) {
+                if (filter.isFilterTemporal()) {
+                    return filters;
+                }
+            }
+        }
+        if (null == filters) {
+            filters = Lists.newArrayList();
+        } else {
+            filters = Lists.newArrayList(filters);
+        }
+        filters.add(getDefaultTimeSpan());
+        return filters;
     }
 
-    private void preProcessRequest() throws MalformedQueryException {
-        if(parameter.getFilters() == null) {
-            parameter.setFilters(Lists.newArrayList(new AnyFilter()));
+    private void validateBase(P parameter) {
+        List<String> validationErrors = new ArrayList<>();
+        if (!CollectionUtils.isNullOrEmpty(parameter.getFilters())) {
+            for (Filter filter : parameter.getFilters()) {
+                Set<String> errors = filter.validate();
+                if (!CollectionUtils.isNullOrEmpty(errors)) {
+                    validationErrors.addAll(errors);
+                }
+            }
         }
-        preprocess();
-        parameter.setFilters(checkAndAddTemporalBoundary(parameter.getFilters()));
-        validateBase(parameter);
-        validateImpl(parameter);
+        if (!CollectionUtils.isNullOrEmpty(validationErrors)) {
+            throw FoxtrotExceptions.createMalformedQueryException(parameter, validationErrors);
+        }
+    }
+
+    public abstract void validateImpl(P parameter, String email);
+
+    public abstract String getRequestCacheKey();
+
+    protected Filter getDefaultTimeSpan() {
+        LessThanFilter lessThanFilter = new LessThanFilter();
+        lessThanFilter.setTemporal(true);
+        lessThanFilter.setField("_timestamp");
+        lessThanFilter.setValue(System.currentTimeMillis());
+        return lessThanFilter;
     }
 
     @Override
@@ -109,9 +143,11 @@ public abstract class Action<ParameterType extends ActionRequest> implements Cal
         return cacheKey;
     }
 
-    public ActionValidationResponse validate() {
+    public abstract ActionResponse execute(P parameter);
+
+    public ActionValidationResponse validate(String email) {
         try {
-            preProcessRequest();
+            preProcessRequest(email);
         } catch (MalformedQueryException e) {
             return ActionValidationResponse.builder()
                     .processedRequest(parameter)
@@ -129,10 +165,10 @@ public abstract class Action<ParameterType extends ActionRequest> implements Cal
                 .build();
     }
 
-    public ActionResponse execute() throws FoxtrotException {
-        preProcessRequest();
+    public ActionResponse execute(String email) {
+        preProcessRequest(email);
         ActionResponse cachedData = readCachedData();
-        if(cachedData != null) {
+        if (cachedData != null) {
             return cachedData;
         }
         Stopwatch stopwatch = Stopwatch.createStarted();
@@ -142,14 +178,8 @@ public abstract class Action<ParameterType extends ActionRequest> implements Cal
             final long elapsed = stopwatch.elapsed(TimeUnit.MILLISECONDS);
             MetricUtil.getInstance()
                     .registerActionSuccess(cacheToken, getMetricKey(), elapsed);
-            if(elapsed > 1000) {
-                try {
-                    logger.warn("SLOW_QUERY: Time: {} ms Query: {}", elapsed,
-                                getObjectMapper().writeValueAsString(parameter)
-                               );
-                } catch (JsonProcessingException e) {
-                    logger.error("Error serializing slow query", e);
-                }
+            if (elapsed > 1000) {
+                logSlowQuery(elapsed);
             }
 
             // Now cache data
@@ -165,17 +195,30 @@ public abstract class Action<ParameterType extends ActionRequest> implements Cal
         }
     }
 
+    private void logSlowQuery(final long elapsed) {
+        try {
+            String query = getObjectMapper().writeValueAsString(parameter);
+            logger.warn("SLOW_QUERY: Time: {} ms Query: {}", elapsed, query);
+        } catch (JsonProcessingException e) {
+            logger.error("Error serializing slow query", e);
+        }
+    }
+
     public long getGetQueryTimeout() {
-        if(getConnection().getConfig() == null) {
+        if (getConnection().getConfig() == null) {
             return ElasticsearchConfig.DEFAULT_TIMEOUT;
         }
         return getConnection().getConfig()
                 .getGetQueryTimeout();
     }
 
+    public ElasticsearchConnection getConnection() {
+        return connection;
+    }
+
     private void updateCachedData(ActionResponse result) {
         Cache cache = cacheManager.getCacheFor(this.cacheToken);
-        if(isCacheable()) {
+        if (isCacheable()) {
             cache.put(cacheKey(), result);
         }
     }
@@ -183,73 +226,41 @@ public abstract class Action<ParameterType extends ActionRequest> implements Cal
     protected ActionResponse readCachedData() {
         Cache cache = cacheManager.getCacheFor(this.cacheToken);
         final String cacheKeyValue = cacheKey();
-        if(isCacheable()) {
-            if(cache.has(cacheKeyValue)) {
+        if (isCacheable()) {
+            if (cache.has(cacheKeyValue)) {
                 MetricUtil.getInstance()
                         .registerActionCacheHit(cacheToken, getMetricKey());
-                logger.info("Cache hit for key: " + cacheKeyValue);
+                logger.info("Cache hit for key: {}", cacheKeyValue);
                 return cache.get(cacheKey());
             } else {
                 MetricUtil.getInstance()
                         .registerActionCacheMiss(cacheToken, getMetricKey());
-                logger.info("Cache miss for key: " + cacheKeyValue);
+                logger.info("Cache miss for key: {}", cacheKeyValue);
             }
         }
         return null;
-    }
-
-    private void validateBase(ParameterType parameter) throws MalformedQueryException {
-        List<String> validationErrors = new ArrayList<>();
-        for(Filter filter : com.collections.CollectionUtils.nullSafeList(parameter.getFilters())) {
-            Set<String> errors = filter.validate();
-            if(!CollectionUtils.isEmpty(errors)) {
-                validationErrors.addAll(errors);
-            }
-        }
-        if(!CollectionUtils.isEmpty(validationErrors)) {
-            throw FoxtrotExceptions.createMalformedQueryException(parameter, validationErrors);
-        }
     }
 
     /**
      * Returns a metric key for current action. Ideally this key's cardinality should be less since each new value of
      * this key will create new JMX metric
      * <p>
-     * Sample use cases - Used for reporting per action
-     * success/failure metrics
-     * cache hit/miss metrics
+     * Sample use cases - Used for reporting per action success/failure metrics cache hit/miss metrics
      *
      * @return metric key for current action
      */
-    abstract public String getMetricKey();
+    public abstract String getMetricKey();
 
-    public abstract String getRequestCacheKey();
+    public abstract ActionRequestBuilder getRequestBuilder(P parameter);
 
-    public abstract void preprocess();
+    public abstract ActionResponse getResponse(org.elasticsearch.action.ActionResponse response, P parameter);
 
-    public abstract ActionRequestBuilder getRequestBuilder(ParameterType parameter) throws FoxtrotException;
-
-    public abstract ActionResponse getResponse(org.elasticsearch.action.ActionResponse response,
-                                               ParameterType parameter) throws FoxtrotException;
-
-    abstract public void validateImpl(ParameterType parameter) throws MalformedQueryException;
-
-    abstract public ActionResponse execute(ParameterType parameter) throws FoxtrotException;
-
-    protected ParameterType getParameter() {
+    protected P getParameter() {
         return parameter;
     }
 
     public final boolean isCacheable() {
         return cacheManager.getCacheFor(this.cacheToken) != null;
-    }
-
-    public DataStore getDataStore() {
-        return dataStore;
-    }
-
-    public ElasticsearchConnection getConnection() {
-        return connection;
     }
 
     public TableMetadataManager getTableMetadataManager() {
@@ -262,31 +273,6 @@ public abstract class Action<ParameterType extends ActionRequest> implements Cal
 
     public ObjectMapper getObjectMapper() {
         return objectMapper;
-    }
-
-    protected Filter getDefaultTimeSpan() {
-        LessThanFilter lessThanFilter = new LessThanFilter();
-        lessThanFilter.setTemporal(true);
-        lessThanFilter.setField("_timestamp");
-        lessThanFilter.setValue(System.currentTimeMillis());
-        return lessThanFilter;
-    }
-
-    private List<Filter> checkAndAddTemporalBoundary(List<Filter> filters) {
-        if(null != filters) {
-            for(Filter filter : filters) {
-                if(filter.isFilterTemporal()) {
-                    return filters;
-                }
-            }
-        }
-        if(null == filters) {
-            filters = Lists.newArrayList();
-        } else {
-            filters = Lists.newArrayList(filters);
-        }
-        filters.add(getDefaultTimeSpan());
-        return filters;
     }
 
 }

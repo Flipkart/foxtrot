@@ -385,6 +385,10 @@ h1 {
   display: none;
 }
 
+#nonStackedLine-chart-data {
+  display: none;
+}
+
 .add-child-btn {
   text-align: center;
   display: none;
@@ -2961,9 +2965,9 @@ div.tab button:first-child {
   word-wrap: break-word;
 }
 
-#fql-csv-download {
+#fql-csv-download, #open-fql-modal {
   width: 156px;
-  height: 42px;
+  /* height: 42px; */
   font-family: Open Sans Regular;
   font-size: 14px;
   font-weight: bold;
@@ -3397,6 +3401,26 @@ div.tab button:first-child {
   margin-top: 20px;
   margin-left: 19%;
 }
+
+.save-widget-btn {
+  /* font-family: Open Sans Regular;
+  background: #F96073;
+  color: #fff;
+  width: 200px;
+  border: none;
+  height: 30px;
+  margin-top: 20px;
+  margin-left: 19%; */
+  background: #F96073;
+  font-family: Open Sans Regular;
+    color: white;
+    width: 200px;
+    height: 30px;
+    border: none;
+    margin-top: 20px;
+    margin-left: 61px;
+    
+}
 .global-date{
   position: relative;
   left: 116px;
@@ -3514,7 +3538,7 @@ div.tab button:first-child {
 
 #explanation {
   position: relative;
-  top: 233px;
+  top: 191px;
   left: 33%;
   width: 200px;
   text-align: center;
@@ -3522,7 +3546,7 @@ div.tab button:first-child {
 }
 
 #percentage {
-  font-size: 2.5em;
+  font-size: 2em;
 }
 
 .sunburst-item {
@@ -3570,4 +3594,51 @@ div.tab button:first-child {
   #sequence {
     top: -9px;
   }
+<<<<<<< HEAD
+}
+#set-default {
+  width: 24px;
+  height: 24px;
+  margin-left: 20px;
+  margin-top: 24px;
+  cursor: pointer;
+}
+.fql-modal {
+  height: 310px !important;
+}
+.fql-modal-close {
+  bottom: 310px !important;
+}
+.fql-title-error {
+  display: none;
+  color: red;
+}
+#open-fql-modal:hover {
+  text-decoration: none;
+}
+#auto-suggest {
+  list-style-type: none;
+  padding-left: 0;
+  cursor: pointer;
+  display: none;
+  height: 120px;
+  overflow: scroll;
+  border: 1px solid lightgray;
+}
+#auto-suggest li {
+  padding-top: 10px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid lightgray;
+}
+#auto-suggest li label {
+  margin-left: 10px;
+}  
+#auto-suggest li:hover {
+  background: lightgray;
+}
+#auto-suggest li:first-child {
+  border-top:none;
+}
+#auto-suggest li:last-child {
+  border-bottom:none;
 }

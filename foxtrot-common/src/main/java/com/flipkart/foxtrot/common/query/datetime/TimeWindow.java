@@ -5,6 +5,7 @@ import lombok.Data;
 
 @Data
 public class TimeWindow {
+
     private long startTime = 0L;
     private long endTime = 0L;
 

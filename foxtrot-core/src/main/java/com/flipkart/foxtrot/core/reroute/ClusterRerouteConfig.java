@@ -1,16 +1,16 @@
 package com.flipkart.foxtrot.core.reroute;
 
-import lombok.Data;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import lombok.Data;
 
 /***
  Created by mudit.g on Feb, 2019
  ***/
 @Data
 public class ClusterRerouteConfig {
+
     public static final String JOB_NAME = "ClusterReroute";
 
     private boolean rerouteEnabled = true;

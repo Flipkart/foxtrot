@@ -125,7 +125,7 @@ function addFilters() { // new filter row
   $(filterType).selectpicker('refresh');
   var filterColumn = $("#filter-row-" + filterCount).find('.filter-column')
   setTimeout(function(){
-    generateDropDown(currentFieldList, filterColumn);
+    generateFiltersDropDown(currentFieldList, filterColumn);
   }, 0);
 
   $(filterValueEl).click(function () {
@@ -174,6 +174,7 @@ function clearModal() {
   $("#table-units").hide();
   $(".chart-type").show();
   $('.chart-type option').first().prop('selected', true);
+  $("#tile-description").val('');
 }
 
 function hideFilters() {
@@ -290,14 +291,14 @@ function loadParticularConsole() { // reload page based on selected console
 }
 
 function getWhereOption(fieldType) {
-  var allOption = '<option value="">Select</option><option value="equals">Equal to</option><option value="not_equals">Not Equal to</option><option value="less_than">Less than</option><option value="less_equal">Less or equal to</option><option value="greater_than">Greater than</option><option value="greater_equal">Greater or equal to</option><option value="contains">Equals</option><option value="not_equals">Not equals</option><option value="contains">Contains</option><option value="between">Between</option><option value="exits">Exist</option><option value="not_in">Not In</option>';
+  var allOption = '<option value="">Select</option><option value="equals">Equal to</option><option value="not_equals">Not Equal to</option><option value="less_than">Less than</option><option value="less_equal">Less or equal to</option><option value="greater_than">Greater than</option><option value="greater_equal">Greater or equal to</option><option value="contains">Equals</option><option value="not_equals">Not equals</option><option value="contains">Contains</option><option value="between">Between</option><option value="exists">Exist</option><option value="not_in">Not In</option>';
 
 
-  var stringOption = '<option value="">Select</option><option value="equals">Equal to</option><option value="not_equals">Not Equal to</option><option value="contains">Contains</option><option value="exits">Exist</option><option value="not_in">Not In</option>';
+  var stringOption = '<option value="">Select</option><option value="equals">Equal to</option><option value="not_equals">Not Equal to</option><option value="contains">Contains</option><option value="exists">Exist</option><option value="not_in">Not In</option>';
 
-  var boolOption = '<option value="">Select</option><option value="equals">Equal to</option><option value="not_equals">Not Equal to</option><option value="exits">Exist</option>';
+  var boolOption = '<option value="">Select</option><option value="equals">Equal to</option><option value="not_equals">Not Equal to</option><option value="exists">Exist</option>';
 
-  var intOption = '<option value="">Select</option><option value="equals">Equal to</option><option value="not_equals">Not Equal to</option><option value="less_than">Less than</option><option value="less_equal">Less or equal to</option><option value="greater_than">Greater than</option><option value="greater_equal">Greater or equal to</option><option value="between">Between</option><option value="exits">Exist</option>';
+  var intOption = '<option value="">Select</option><option value="equals">Equal to</option><option value="not_equals">Not Equal to</option><option value="less_than">Less than</option><option value="less_equal">Less or equal to</option><option value="greater_than">Greater than</option><option value="greater_equal">Greater or equal to</option><option value="between">Between</option><option value="exists">Exist</option>';
 
   var intArray = ["LONG", "INTEGER", "SHORT", "BYTE", "DATE", "FLOAT", "DOUBLE"];
   var boolArray = ["BOOLEAN"];
@@ -363,6 +364,14 @@ function showSuccessAlert(title, msg) {
     title,
     msg,
     'success'
+  );
+}
+
+function showInfoAlert(title, msg) {
+  swal(
+    title,
+    msg,
+    'info'
   );
 }
 
@@ -483,7 +492,7 @@ function splitArithmetic(arithmetic) {
  * Get opcode
  */
 function getOpcode(object) {
-  if(object.tileContext.chartType == "stackedBar")
+  if(object.tileContext.chartType == "stackedBar" || object.tileContext.chartType == "nonStackedLine")
     return "trend";
   else if(object.tileContext.chartType == "statstrend")
     return "statstrend";
@@ -556,4 +565,27 @@ function getPeriodText(text) {
   else {
     return "minutes";
   }
+<<<<<<< HEAD
+}
+
+/**
+ * Get old console list
+ */
+function getOldConsoleList(res) {
+  var consoleId = getParameterByName("console").replace('/', '');
+  var index = _.indexOf(_.pluck(res, 'id'), consoleId);
+  if (index >= 0) {
+      var consoleObject = consoleList[index];
+      var numberOfVerison = consoleObject.version;
+      if (numberOfVerison > 0) {
+          loadVersionConsoleByName(consoleObject.name);
+      }
+  }
+}
+
+/**
+ * function to reset broswer url without tab details for older versions list
+ */
+function resetBrowserUrl() {
+  window.history.pushState({}, document.title, window.location.pathname+"?console="+getParameterByName("console").replace('/',''));
 }

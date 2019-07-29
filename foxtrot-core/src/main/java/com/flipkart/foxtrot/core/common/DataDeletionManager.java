@@ -3,16 +3,15 @@ package com.flipkart.foxtrot.core.common;
 import com.flipkart.foxtrot.core.querystore.QueryStore;
 import com.flipkart.foxtrot.core.querystore.impl.HazelcastConnection;
 import io.dropwizard.lifecycle.Managed;
+import java.time.Instant;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import net.javacrumbs.shedlock.core.DefaultLockingTaskExecutor;
 import net.javacrumbs.shedlock.core.LockConfiguration;
 import net.javacrumbs.shedlock.core.LockingTaskExecutor;
 import net.javacrumbs.shedlock.provider.hazelcast.HazelcastLockProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.time.Instant;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Created by rishabh.goyal on 07/07/14.
@@ -29,8 +28,7 @@ public class DataDeletionManager implements Managed {
     private final HazelcastConnection hazelcastConnection;
 
     public DataDeletionManager(DataDeletionManagerConfig deletionManagerConfig, QueryStore queryStore,
-                               ScheduledExecutorService scheduledExecutorService,
-                               HazelcastConnection hazelcastConnection) {
+            ScheduledExecutorService scheduledExecutorService, HazelcastConnection hazelcastConnection) {
         this.config = deletionManagerConfig;
         this.queryStore = queryStore;
         this.hazelcastConnection = hazelcastConnection;
@@ -40,20 +38,15 @@ public class DataDeletionManager implements Managed {
     @Override
     public void start() throws Exception {
         logger.info("Starting Deletion Manager");
-        if(config.isActive()) {
+        if (config.isActive()) {
             logger.info("Scheduling data deletion Job");
-            scheduledExecutorService.scheduleAtFixedRate(new Runnable() {
-                @Override
-                public void run() {
-                    LockingTaskExecutor executor = new DefaultLockingTaskExecutor(
-                            new HazelcastLockProvider(hazelcastConnection.getHazelcast()));
-                    Instant lockAtMostUntil = Instant.now()
-                            .plusSeconds(TimeUnit.HOURS.toSeconds(MAX_TIME_TO_RUN_TASK_IN_HOURS));
-                    executor.executeWithLock(new DataDeletionTask(queryStore),
-                                             new LockConfiguration("dataDeletion", lockAtMostUntil)
-                                            );
-
-                }
+            scheduledExecutorService.scheduleAtFixedRate(() -> {
+                LockingTaskExecutor executor = new DefaultLockingTaskExecutor(
+                        new HazelcastLockProvider(hazelcastConnection.getHazelcast()));
+                Instant lockAtMostUntil = Instant.now()
+                        .plusSeconds(TimeUnit.HOURS.toSeconds(MAX_TIME_TO_RUN_TASK_IN_HOURS));
+                executor.executeWithLock(new DataDeletionTask(queryStore),
+                        new LockConfiguration("dataDeletion", lockAtMostUntil));
             }, config.getInitialDelay(), config.getInterval(), TimeUnit.SECONDS);
             logger.info("Scheduled data deletion Job");
         } else {

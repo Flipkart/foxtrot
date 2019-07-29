@@ -1,19 +1,21 @@
 package com.flipkart.foxtrot.common.stats;
 
 import com.flipkart.foxtrot.common.ActionRequest;
+import com.flipkart.foxtrot.common.ActionRequestVisitor;
 import com.flipkart.foxtrot.common.Opcodes;
 import com.flipkart.foxtrot.common.query.Filter;
-import org.apache.commons.lang3.builder.ToStringBuilder;
-import org.hibernate.validator.constraints.NotEmpty;
-
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
 import java.util.List;
 import java.util.Set;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
+import lombok.Data;
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.hibernate.validator.constraints.NotEmpty;
 
 /**
  * Created by rishabh.goyal on 02/08/14.
  */
+@Data
 public class StatsRequest extends ActionRequest {
 
     @NotNull
@@ -35,14 +37,29 @@ public class StatsRequest extends ActionRequest {
         super(Opcodes.STATS);
     }
 
-    public StatsRequest(List<Filter> filters, String table, String field,
-                        List<Double> percentiles, Set<Stat> stats, List<String> nesting) {
+    public StatsRequest(List<Filter> filters, String table, String field, List<Double> percentiles, Set<Stat> stats,
+            List<String> nesting) {
         super(Opcodes.STATS, filters);
         this.table = table;
         this.field = field;
         this.percentiles = percentiles;
         this.stats = stats;
         this.nesting = nesting;
+    }
+
+    public <T> T accept(ActionRequestVisitor<T> visitor) {
+        return visitor.visit(this);
+    }
+
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this).appendSuper(super.toString())
+                .append("table", table)
+                .append("field", field)
+                .append("stats", stats)
+                .append("percentiles", percentiles)
+                .append("nesting", nesting)
+                .toString();
     }
 
     public String getTable() {
@@ -83,16 +100,5 @@ public class StatsRequest extends ActionRequest {
 
     public void setStats(Set<Stat> stats) {
         this.stats = stats;
-    }
-
-    @Override
-    public String toString() {
-        return new ToStringBuilder(this).appendSuper(super.toString())
-                .append("table", table)
-                .append("field", field)
-                .append("stats", stats)
-                .append("percentiles", percentiles)
-                .append("nesting", nesting)
-                .toString();
     }
 }

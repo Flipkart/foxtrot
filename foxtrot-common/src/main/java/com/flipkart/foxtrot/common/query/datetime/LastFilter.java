@@ -6,12 +6,11 @@ import com.flipkart.foxtrot.common.query.FilterOperator;
 import com.flipkart.foxtrot.common.query.FilterVisitor;
 import com.google.common.base.Strings;
 import io.dropwizard.util.Duration;
+import javax.validation.constraints.NotNull;
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
-
-import javax.validation.constraints.NotNull;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -40,20 +39,25 @@ public class LastFilter extends Filter {
         this.roundingMode = roundingMode == null ? RoundingMode.NONE : roundingMode;
     }
 
-    @Override
-    public <T> T accept(FilterVisitor<T> visitor) throws Exception {
-        return visitor.visit(this);
+    public void setDuration(Duration duration) {
+        this.duration = duration;
+        this.roundingMode = roundingMode == null ? RoundingMode.NONE : roundingMode;
     }
 
-    @JsonIgnore
-    public TimeWindow getWindow() {
-        return WindowUtil.calculate(currentTime, duration, roundingMode);
+    @Override
+    public <T> T accept(FilterVisitor<T> visitor) {
+        return visitor.visit(this);
     }
 
     @Override
     @JsonIgnore
     public boolean isFilterTemporal() {
         return true;
+    }
+
+    @JsonIgnore
+    public TimeWindow getWindow() {
+        return WindowUtil.calculate(currentTime, duration, roundingMode);
     }
 
 }

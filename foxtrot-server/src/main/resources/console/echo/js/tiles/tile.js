@@ -56,6 +56,22 @@ function resetPeriodDropdown() { // reset all dropdown values to custom if globa
   }
 }
 
+/**
+ * To update period,periodinterval and timeframe in a tiledata
+ * it gets updated once user changes time frame in individual widgets
+ * @param {*} object 
+ */
+function changeTimeFrameInformation(object) {
+  var selectedValue = $("#"+ object.id).find(".period-select").val();
+  var separateNumberAndString = seperateStringAndNumber((selectedValue == "custom" ? $("#"+ object.id).find(".period-select").text() : selectedValue));
+  // index zero is - number, index one is - text
+  var period = getPeriodText(separateNumberAndString[1]);// seperate 23h as [23, h]
+  var periodInterval = separateNumberAndString[0]+labelPeriodString(period);
+  tileData[object.id].tileContext.period = period;
+  tileData[object.id].tileContext.periodInterval = periodInterval;
+  tileData[object.id].tileContext.timeframe = separateNumberAndString[0];
+}
+
 
 /**
  * 
@@ -65,8 +81,10 @@ function refreshSingleTile(object) {
   isLoggedIn(); // check user is logged in
   var a = new TileFactory();
   a.createGraph(object, $("#"+ object.id));
-  if(globalFilters)
+  changeTimeFrameInformation(object);
+  if(globalFilters) {
     changeDropdownValue($("#"+ key));
+  }
 }
 
 function refereshTiles() { // auto query for each tile
@@ -181,6 +199,18 @@ function pushTilesObject(object) { // save each tile data
 
 TileFactory.prototype.updateTileData = function () { // update tile details
   var selectedTile = $("#" + this.tileObject.id);
+
+
+  // adding changed timeframe units in timeunit dropdown
+  var periodSelectElement = selectedTile.find(".period-select");
+  $(periodSelectElement).find('option').get(0).remove();
+  var timeFrame = this.tileObject.tileContext.timeframe;
+  var optionValue = timeFrame+getPeroidSelectString(this.tileObject.tileContext.period);
+  var labelString = this.tileObject.tileContext.period;
+  var optionLabel = (parseInt(this.tileObject.tileContext.timeframe) <= 1 ? labelString.substring(0, labelString.length - 1)  : labelString);
+  console.log('===>', timeFrame, optionLabel)
+  $(periodSelectElement).prepend('<option selected value="custom">'+timeFrame+'  '+optionLabel+'</option>');
+
   selectedTile.find(".tile-title").find(".title-title-span").text(this.tileObject.title);
   selectedTile.find(".tile-title").find(".widget-description").tooltip();
   var widgetDesc = this.tileObject.tileContext.description == undefined ? "Description  N/A" : this.tileObject.tileContext.description;
@@ -191,16 +221,6 @@ TileFactory.prototype.updateTileData = function () { // update tile details
   var tileDataIndex = tileData[this.tileObject.id];
   delete tileData[tileDataIndex.id];
   tileData[this.tileObject.id] = this.tileObject;
-
-  // adding changed timeframe units in timeunit dropdown
-  var periodSelectElement = selectedTile.find(".period-select");
-  $(periodSelectElement).find('option').get(0).remove();
-  var timeFrame = this.tileObject.tileContext.timeframe;
-  var optionValue = timeFrame+getPeroidSelectString(this.tileObject.tileContext.period);
-  var labelString = this.tileObject.tileContext.period;
-  var optionLabel = (parseInt(this.tileObject.tileContext.timeframe) <= 1 ? labelString.substring(0, labelString.length - 1)  : labelString);
-  $(periodSelectElement).prepend('<option selected value="custom">'+timeFrame+'  '+optionLabel+'</option>');
-
 }
 TileFactory.prototype.createTileData = function (object) { // store tile list
   var selectedTile = $("#" + object.id);
@@ -263,6 +283,9 @@ function setConfigValue(object) { // set widget form values
   }
   else if (currentChartType == "sunburst") {
     setSunBurstChartFormValues(object);
+  }
+  else if (currentChartType == "nonStackedLine") {
+    setNonStackedLineFormValues(object);
   }
 }
 
@@ -525,6 +548,7 @@ TileFactory.prototype.triggerConfig = function (tileElement, object) { // code t
     setTimeout(function() { instanceVar.updateFilterCreation(object); }, 1000);
     $(".delete-widget").show();
     $("#delete-widget-divider").show();
+    $(".save-widget-btn").show();
     $("#delete-widget-value").val(object.id);
     $("#copy-widget-value").data("tile", object);
   });
@@ -604,6 +628,10 @@ TileFactory.prototype.createGraph = function (object, tileElement) { // get quer
     var sunburstGraph = new SunburstTile();
     sunburstGraph.getQuery(object);
   }
+  else if (object.tileContext.chartType == "nonStackedLine") {
+    var nonStackedLineGraph = new NonStackedLineTile();
+    nonStackedLineGraph.getQuery(object);
+  }
 }
 TileFactory.prototype.create = function () {
   var tileElement = $(handlebars("#tile-template", {
@@ -674,7 +702,7 @@ TileFactory.prototype.create = function () {
     tileElement.find(".trend-chart").remove();
     tileElement.find(".chart-item").addClass("radar-chart");
   }
-  else if (this.tileObject.tileContext.chartType == "line" || this.tileObject.tileContext.chartType == "stacked" || this.tileObject.tileContext.chartType == "stackedBar" || this.tileObject.tileContext.chartType == "pie" || this.tileObject.tileContext.chartType == "statsTrend" || this.tileObject.tileContext.chartType == "bar" || this.tileObject.tileContext.chartType == "lineRatio") {
+  else if (this.tileObject.tileContext.chartType == "line" || this.tileObject.tileContext.chartType == "stacked" || this.tileObject.tileContext.chartType == "stackedBar" || this.tileObject.tileContext.chartType == "pie" || this.tileObject.tileContext.chartType == "statsTrend" || this.tileObject.tileContext.chartType == "bar" || this.tileObject.tileContext.chartType == "lineRatio" || this.tileObject.tileContext.chartType == "nonStackedLine") {
     /*tileElement.find(".widget-header").append('<div id="' + this.tileObject.id + '-health-text" class="lineGraph-health-text">No Data available</div>');*/
     tileElement.find(".widget-header").append('<div id="' + this.tileObject.id + '-health" style=""></div>');
     tileElement.find(".chart-item").append('<div class="row"><div id="' + this.tileObject.id + '"></div><div class="legend"></div></div>');
@@ -709,8 +737,11 @@ TileFactory.prototype.create = function () {
   var timeFrame = this.tileObject.tileContext.timeframe;
   var optionValue = timeFrame+getPeroidSelectString(this.tileObject.tileContext.period);
   var labelString = this.tileObject.tileContext.period;
-  var optionLabel = (parseInt(this.tileObject.tileContext.timeframe) <= 1 ? labelString.substring(0, labelString.length - 1)  : labelString);
-  $(periodSelectElement).prepend('<option selected value="custom">'+timeFrame+'  '+optionLabel+'</option>');
+  if(labelString) { // check its not null
+    var optionLabel = (parseInt(this.tileObject.tileContext.timeframe) <= 1 ? labelString.substring(0, labelString.length - 1)  : labelString);
+    $(periodSelectElement).prepend('<option selected value="custom">'+timeFrame+'  '+optionLabel+'</option>');
+  }
+  
 
   this.createGraph(this.tileObject, tileElement);
   this.triggerConfig(tileElement, this.tileObject); // add event for tile config

@@ -123,7 +123,7 @@ function numDifferentiation(val) { // indian numbers conversion
   return val;
 }
 
-function generateDropDown(fields, element) { // generating all dropdowns
+function generateFiltersDropDown(fields, element) { // generating all dropdowns
   var el = $(element);
   var arr = fields;
   el.find('option').remove();
@@ -133,12 +133,31 @@ function generateDropDown(fields, element) { // generating all dropdowns
     , text: "none"
   }));
 
+  var option = "";
   $.each(arr, function(key, value) {
-    $(el).append($("<option></option>")
-                 .attr("value",key)
-                 .text(value.field));
+    option+= "<option value="+key+">"+value.field+"</option>"
   });
+  $(el).append(option);
   $(el).selectpicker('refresh');
+}
+
+function generateDropDown(fields, element) { // generating all dropdowns
+  
+  var arr = fields;
+  var option = "";
+  $.each(arr, function(key, value) {
+    option+= "<option value="+key+">"+value.field+"</option>"
+  });
+
+  for(var i = 0; i < element.length; i++) {
+    $(element[i]).find('option').remove();
+    $(element[i]).append($('<option>', {
+      value: ""
+      , text: "none"
+    }));   
+    $(element[i]).append(option);
+    $(element[i]).selectpicker('refresh');
+  }
 }
 
 function generateSunBurstDropDown(fields) { // generating all dropdowns
@@ -170,7 +189,7 @@ function generateSunBurstDropDown(fields) { // generating all dropdowns
 }
 
 function getWidgetType() { // widget types
-  if (currentChartType == "line" || currentChartType == "stacked" || currentChartType == "stackedBar" || currentChartType == "statsTrend" || currentChartType == "bar" || currentChartType == "lineRatio" || currentChartType == "sunburst") {
+  if (currentChartType == "line" || currentChartType == "stacked" || currentChartType == "stackedBar" || currentChartType == "statsTrend" || currentChartType == "bar" || currentChartType == "lineRatio" || currentChartType == "sunburst" || currentChartType == "nonStackedLine") {
     return "full";
   }
   else if (currentChartType == "radar" || currentChartType == "pie") {
@@ -217,44 +236,23 @@ function getFilters() { // returns filter values
   return filterDetails;
 }
 function getChartFormValues() { // get current widget form values
-  if (currentChartType == "line") {
-    return getLineChartFormValues();
-  }
-  else if (currentChartType == "trend") {
-    return getTrendChartFormValues();
-  }
-  else if (currentChartType == "stacked") {
-    return getstackedChartFormValues();
-  }
-  else if (currentChartType == "radar") {
-    return getRadarChartFormValues();
-  }
-  else if (currentChartType == "gauge") {
-    return getGaugeChartFormValues();
-  }
-  else if (currentChartType == "percentageGauge") {
-    return getPercentageGaugeChartFormValues();
-  }
-  else if (currentChartType == "stackedBar") {
-    return getstackedBarChartFormValues();
-  }
-  else if (currentChartType == "pie") {
-    return getPieChartFormValues();
-  }
-  else if(currentChartType == "statsTrend") {
-    return getStatsTrendTileChartFormValues();
-  }
-  else if(currentChartType == "bar") {
-    return getBarChartFormValues();
-  }
-  else if(currentChartType == "count") {
-    return getCountChartFormValues();
-  }
-  else if(currentChartType == "lineRatio") {
-    return getLineRatioChartFormValues();
-  }
-  else if(currentChartType == "sunburst") {
-    return getSunburstChartFormValues();
+  switch (currentChartType) 
+  {
+      case "line": return getLineChartFormValues();
+      case "trend": return getTrendChartFormValues();
+      case "stacked": return getstackedChartFormValues();
+      case "radar": return getRadarChartFormValues();
+      case "gauge": return getGaugeChartFormValues();
+      case "percentageGauge": return getPercentageGaugeChartFormValues();
+      case  "stackedBar": return getstackedBarChartFormValues();
+      case "pie": return getPieChartFormValues();
+      case "statsTrend": return getStatsTrendTileChartFormValues();
+      case "bar": return getBarChartFormValues();
+      case "count": return getCountChartFormValues();
+      case "lineRatio": return getLineRatioChartFormValues();
+      case "sunburst":  return getSunburstChartFormValues();
+      case "nonStackedLine":  return getNonStackedLineFormValues();
+      default: return {};
   }
 }
 function deleteFilterRow(el) { // delete given filter row
@@ -303,93 +301,70 @@ function setFilters(object) { // setter for filters
   }
 }
 function reloadDropdowns() { // change dropdown values for all charts when table changes
-  if (currentChartType == "line") {
-    generateDropDown(currentFieldList, "#uniqueKey");
+  switch (currentChartType) {
+    case "line":
+      generateDropDown(currentFieldList, ["#uniqueKey"]);
+      break;
+    case "trend":
+      generateDropDown(currentFieldList, ["#stats-field"]);
+      break;
+    case "stacked":
+      generateDropDown(currentFieldList, ["#stacking-key", "#stacked-uniquekey", "#stacked-grouping-key"]);
+      break;
+    case "radar":
+      generateDropDown(currentFieldList, ["#radar-nesting"]);
+      break;
+    case "gauge":
+      generateDropDown(currentFieldList, ["#gauge-nesting"]);
+      break;
+    case "percentageGauge":
+      generateDropDown(currentFieldList, ["#percentage-gauge-nesting", "#percentage-gauge-uniquekey"]);
+      break;
+    case "stackedBar":
+      generateDropDown(currentFieldList, ["#stacked-bar-field", "#stacked-bar-uniquekey"]);
+      break;
+    case "pie":
+      generateDropDown(currentFieldList, ["#eventtype-field", "#pie-uniquekey"]);
+      break;
+    case "statsTrend":
+      generateDropDown(currentFieldList, ["#stats-trend-field"]);
+      break;
+    case "bar":
+      generateDropDown(currentFieldList, ["#bar-event-field", "#bar-uniquekey"]);
+      break;
+    case "count":
+      generateDropDown(currentFieldList, ["#count-field"]);
+      break;
+    case "lineRatio":
+      generateDropDown(currentFieldList, ["#line-ratio-field", "#line-ratio-uniquekey"]);
+      break;
+    case "sunburst":
+      generateSunBurstDropDown(currentFieldList);
+      break;
+    case "nonStackedLine":
+      generateDropDown(currentFieldList, ["#non-stacked-line-field", "#non-stacked-line-uniquekey"]);
+      break;
   }
-  else if (currentChartType == "trend") {
-    generateDropDown(currentFieldList, "#stats-field");
-  }
-  else if (currentChartType == "stacked") {
-    generateDropDown(currentFieldList, "#stacking-key");
-    generateDropDown(currentFieldList, "#stacked-uniquekey");
-    generateDropDown(currentFieldList, "#stacked-grouping-key");
-  }
-  else if (currentChartType == "radar") {
-    generateDropDown(currentFieldList, "#radar-nesting");
-  }
-  else if (currentChartType == "gauge") {
-    generateDropDown(currentFieldList, "#gauge-nesting");
-  }
-  else if (currentChartType == "percentageGauge") {
-    generateDropDown(currentFieldList, "#percentage-gauge-nesting");
-    generateDropDown(currentFieldList, "#percentage-gauge-uniquekey");
-  }
-  else if (currentChartType == "stackedBar") {
-    generateDropDown(currentFieldList, "#stacked-bar-field");
-    generateDropDown(currentFieldList, "#stacked-bar-uniquekey");
-  }
-  else if (currentChartType == "pie") {
-    generateDropDown(currentFieldList, "#eventtype-field");
-    generateDropDown(currentFieldList, "#pie-uniquekey");
-  }
-  else if(currentChartType == "statsTrend") {
-    generateDropDown(currentFieldList, "#stats-trend-field");
-  }
-  else if(currentChartType == "bar") {
-    generateDropDown(currentFieldList, "#bar-event-field");
-    generateDropDown(currentFieldList, "#bar-uniquekey");
-  }
-  else if(currentChartType == "count") {
-    generateDropDown(currentFieldList, "#count-field");
-  }
-  else if (currentChartType == "lineRatio") {
-    generateDropDown(currentFieldList, "#line-ratio-field");
-    generateDropDown(currentFieldList, "#line-ratio-uniquekey");
-  }
-  else if (currentChartType == "sunburst") {
-    generateSunBurstDropDown(currentFieldList);
- }
 }
 
 function invokeClearChartForm() { // clear widget forms
-  if (currentChartType == "line") {
-    clearLineChartForm();
-  }
-  else if (currentChartType == "trend") {
-    clearTrendChartForm();
-  }
-  else if (currentChartType == "stacked") {
-    clearstackedChartForm();
-  }
-  else if (currentChartType == "radar") {
-    clearRadarChartForm();
-  }
-  else if (currentChartType == "gauge") {
-    clearGaugeChartForm();
-  }
-  else if (currentChartType == "percentageGauge") {
-    clearPercentageGaugeChartForm();
-  }
-  else if (currentChartType == "stackedBar") {
-    clearStackedBarChartForm();
-  }
-  else if (currentChartType == "pie") {
-    clearPieChartForm();
-  }
-  else if(currentChartType == "statsTrend") {
-    clearStatsTrendTileChartForm();
-  }
-  else if(currentChartType == "bar") {
-    clearBarChartForm();
-  }
-  else if(currentChartType == "count") {
-    clearCountChartForm();
-  }
-  else if(currentChartType == "lineRatio") {
-    clearLineRatioChartForm();
-  }
-  else if(currentChartType == "sunburst") {
-    clearSunburstChartForm();
+  switch (currentChartType) 
+  {
+      case "line": clearLineChartForm(); break;
+      case "trend": clearTrendChartForm(); break;
+      case "stacked": clearstackedChartForm(); break;
+      case "radar": clearRadarChartForm(); break;
+      case "gauge": clearGaugeChartForm(); break;
+      case "percentageGauge": clearPercentageGaugeChartForm(); break;
+      case  "stackedBar": clearStackedBarChartForm(); break;
+      case "pie": clearPieChartForm(); break;
+      case "statsTrend": clearStatsTrendTileChartForm(); break;
+      case "bar": clearBarChartForm(); break;
+      case "count": clearCountChartForm(); break;
+      case "lineRatio": clearLineRatioChartForm(); break;
+      case "sunburst":  clearSunburstChartForm(); break;
+      case "nonStackedLine":  clearNonStackedLineChartForm(); break;
+      default: return "";
   }
 }
 
@@ -552,17 +527,27 @@ function convertHex(hex,opacity){ // converting given hexa decial value to rgb
 }
 
 function getWidgetSize(type) { // widget types
-  if (type == "line" || type == "stacked" || type == "stackedBar" || type == "statsTrend" || type == "bar" || type == "lineRatio") {
-    return 12;
-  }
-  else if (type == "radar" || type == "pie") {
-    return 6;
-  }
-  else if (type == "gauge" || type == "percentageGauge"  || type == "trend" || type == "count") {
-    return 3;
-  }
-  else {
-    return 0;
+
+  switch (type) {
+    case "line":
+    case "stacked":
+    case "stackedBar":
+    case "statsTrend":
+    case "bar":
+    case "sunburst":
+    case "lineRatio":
+    case "nonStackedLine":
+      return 12;
+    case "radar":
+    case "pie":
+      return 6;
+    case "gauge":
+    case "percentageGauge":
+    case "trend":
+    case "count":
+      return 3;
+    default:
+      return 0;
   }
 }
 
@@ -584,17 +569,7 @@ function getLoginRedirectUrl() {
 
   var hostname = window.location.hostname;
   var redirectUrl = encodeURIComponent(window.location.href);
-  switch (hostname) {
-      case "foxtrot.traefik.stg.phonepe.com":
-          return "http://gandalf.traefik.stg.phonepe.com/login/echo?redirectUrl=" + redirectUrl;
-      case "foxtrot-internal.phonepe.com":
-      case "foxtrot-gandalf.traefik.prod.phonepe.com":
-      case "foxtrot.traefik.prod.phonepe.com":
-      case "foxtrot-es6.traefik.prod.phonepe.com":
-          return "https://gandalf-internal.phonepe.com/login/echo?redirectUrl=" + redirectUrl;
-      default:
-          return 0;
-  }
+  return 0;
 }
 
 /**
@@ -621,16 +596,24 @@ function getCookie(cname) {
  * Check user is logged in
  */
 function isLoggedIn() {
-  // check user is logged in by reading gandalf cookie
-  var loggedInCookie = getCookie(getCookieConstant());
-  if(loggedInCookie.length == 0) {
-    var redirectUrl = getLoginRedirectUrl();
-    if(redirectUrl != 0) {
-      window.location = redirectUrl;
-    } else {
-      return true; // for localhost
-    }
-  } else {
     return true; // logged in
+}
+
+/**
+ * Sort non stacked and stacked line chart legends
+ * @param {*} d 
+ * @param {*} element 
+ */
+function drawStackedLinesLegend(d, element) { // pie legend
+  if(!element) {
+    return;
   }
+  var sortingReference = [];
+  for( var i = 0; i < d.length; i++) {
+    var value = d[i].data[0][1];
+    var name = d[i].label;
+    sortingReference.push({ "value": value, "name": name, color: d[i].color});
+  }
+  sortingReference.sort( function( a, b ) { return b.value - a.value; } )
+  element.html(handlebars("#stacked-lines-legend-template", {data: sortingReference}));
 }

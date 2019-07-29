@@ -1,26 +1,20 @@
 /**
  * Copyright 2014 Flipkart Internet Pvt. Ltd.
  * <p>
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
  * <p>
  * http://www.apache.org/licenses/LICENSE-2.0
  * <p>
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
+ * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations under the License.
  */
 package com.flipkart.foxtrot.core.table;
 
 import com.flipkart.foxtrot.common.Table;
 import com.flipkart.foxtrot.common.TableFieldMapping;
-import com.flipkart.foxtrot.core.exception.FoxtrotException;
-import com.hazelcast.core.IMap;
 import io.dropwizard.lifecycle.Managed;
-
 import java.util.List;
 
 /**
@@ -32,18 +26,19 @@ public interface TableMetadataManager extends Managed {
 
     boolean cardinalityCacheContains(String table);
 
-    void save(Table table) throws FoxtrotException;
+    void save(Table table);
 
-    Table get(String tableName) throws FoxtrotException;
+    Table get(String tableName);
 
-    List<Table> get() throws FoxtrotException;
+    List<Table> get();
 
-    TableFieldMapping getFieldMappings(String table, boolean withCardinality, boolean calculateCardinality)
-            throws FoxtrotException;
+    TableFieldMapping getFieldMappings(String table, boolean withCardinality, boolean calculateCardinality);
 
-    void updateEstimationData(String table, long timestamp) throws FoxtrotException;
+    void updateEstimationData(String table, long timestamp);
 
-    boolean exists(String tableName) throws FoxtrotException;
+    boolean exists(String tableName);
 
-    void delete(String tableName) throws FoxtrotException;
+    void delete(String tableName);
+
+    void initializeCardinalityCache();
 }

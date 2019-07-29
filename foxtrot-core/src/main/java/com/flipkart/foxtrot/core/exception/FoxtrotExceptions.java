@@ -2,7 +2,6 @@ package com.flipkart.foxtrot.core.exception;
 
 import com.flipkart.foxtrot.common.ActionRequest;
 import com.flipkart.foxtrot.common.Table;
-
 import java.util.Collections;
 import java.util.List;
 
@@ -10,6 +9,9 @@ import java.util.List;
  * Created by rishabh.goyal on 03/01/16.
  */
 public class FoxtrotExceptions {
+
+    private FoxtrotExceptions() {
+    }
 
     public static TableInitializationException createTableInitializationException(Table table, String message) {
         return new TableInitializationException(table.getName(), message);
@@ -41,12 +43,12 @@ public class FoxtrotExceptions {
     }
 
     public static MalformedQueryException createMalformedQueryException(ActionRequest actionRequest,
-                                                                        List<String> reasons) {
+            List<String> reasons) {
         return new MalformedQueryException(actionRequest, reasons);
     }
 
     public static CardinalityOverflowException createCardinalityOverflow(ActionRequest actionRequest, String field,
-                                                                         double probability) {
+            double probability) {
         return new CardinalityOverflowException(actionRequest, field, probability);
     }
 
@@ -90,5 +92,7 @@ public class FoxtrotExceptions {
         return new UnresolvableActionException(actionRequest);
     }
 
-
+    public static AuthorizationException createAuthorizationException(ActionRequest actionRequest, Exception e) {
+        return new AuthorizationException(actionRequest, e);
+    }
 }

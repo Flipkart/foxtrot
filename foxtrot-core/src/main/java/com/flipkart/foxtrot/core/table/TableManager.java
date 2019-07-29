@@ -1,8 +1,6 @@
 package com.flipkart.foxtrot.core.table;
 
 import com.flipkart.foxtrot.common.Table;
-import com.flipkart.foxtrot.core.exception.FoxtrotException;
-
 import java.util.List;
 
 /**
@@ -10,16 +8,16 @@ import java.util.List;
  */
 public interface TableManager {
 
-    void save(Table table) throws FoxtrotException;
+    void save(Table table);
 
-    void save(Table table, boolean forceCreateTable) throws FoxtrotException;
+    void save(Table table, boolean forceCreateTable);
 
-    Table get(String name) throws FoxtrotException;
+    Table get(String name);
 
-    List<Table> getAll() throws FoxtrotException;
+    List<Table> getAll();
 
-    void update(Table table) throws FoxtrotException;
+    void update(Table table);
 
-    void delete(String name) throws FoxtrotException;
+    void delete(String name);
 
 }

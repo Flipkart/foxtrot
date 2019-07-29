@@ -1,5 +1,9 @@
 package com.flipkart.foxtrot.core.querystore.actions;
 
+import static com.flipkart.foxtrot.core.TestUtils.TEST_EMAIL;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.flipkart.foxtrot.common.Document;
 import com.flipkart.foxtrot.common.distinct.DistinctRequest;
@@ -7,15 +11,11 @@ import com.flipkart.foxtrot.common.distinct.DistinctResponse;
 import com.flipkart.foxtrot.common.query.ResultSort;
 import com.flipkart.foxtrot.core.TestUtils;
 import com.flipkart.foxtrot.core.exception.FoxtrotException;
-import org.junit.Before;
-import org.junit.Test;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import org.junit.Before;
+import org.junit.Test;
 
 public class DistinctActionTest extends ActionTest {
 
@@ -24,7 +24,7 @@ public class DistinctActionTest extends ActionTest {
         super.setUp();
         List<Document> documents = TestUtils.getDistinctDocuments(getMapper());
         getQueryStore().save(TestUtils.TEST_TABLE_NAME, documents);
-        getElasticsearchServer().getClient()
+        getElasticsearchConnection().getClient()
                 .admin()
                 .indices()
                 .prepareRefresh("*")
@@ -51,7 +51,8 @@ public class DistinctActionTest extends ActionTest {
         listResponse.add(Arrays.asList("3"));
         expectedResponse.setResult(listResponse);
 
-        DistinctResponse distinctResponse = DistinctResponse.class.cast(getQueryExecutor().execute(distinctRequest));
+        DistinctResponse distinctResponse = DistinctResponse.class.cast(
+                getQueryExecutor().execute(distinctRequest, TEST_EMAIL));
         assertNotNull(distinctResponse);
         assertEquals(expectedResponse, distinctResponse);
     }
@@ -74,7 +75,8 @@ public class DistinctActionTest extends ActionTest {
         listResponse.add(Arrays.asList("1"));
         expectedResponse.setResult(listResponse);
 
-        DistinctResponse distinctResponse = DistinctResponse.class.cast(getQueryExecutor().execute(distinctRequest));
+        DistinctResponse distinctResponse = DistinctResponse.class.cast(
+                getQueryExecutor().execute(distinctRequest, TEST_EMAIL));
         assertNotNull(distinctResponse);
         assertEquals(expectedResponse, distinctResponse);
     }
@@ -108,7 +110,8 @@ public class DistinctActionTest extends ActionTest {
         listResponse.add(Arrays.asList("3", "android"));
         expectedResponse.setResult(listResponse);
 
-        DistinctResponse distinctResponse = DistinctResponse.class.cast(getQueryExecutor().execute(distinctRequest));
+        DistinctResponse distinctResponse = DistinctResponse.class.cast(
+                getQueryExecutor().execute(distinctRequest, TEST_EMAIL));
         assertNotNull(distinctResponse);
     }
 
@@ -141,7 +144,8 @@ public class DistinctActionTest extends ActionTest {
         listResponse.add(Arrays.asList("3", "android"));
         expectedResponse.setResult(listResponse);
 
-        DistinctResponse distinctResponse = DistinctResponse.class.cast(getQueryExecutor().execute(distinctRequest));
+        DistinctResponse distinctResponse = DistinctResponse.class.cast(
+                getQueryExecutor().execute(distinctRequest, TEST_EMAIL));
         assertNotNull(distinctResponse);
     }
 }

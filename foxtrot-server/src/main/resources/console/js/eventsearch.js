@@ -147,7 +147,7 @@ FilterSection.prototype.runQuery = function(){
    };
    $.ajax({
         method: 'POST',
-        url: hostDetails.url("/foxtrot/v1/analytics"),
+        url: hostDetails.url("/foxtrot/v2/analytics"),
         contentType: "application/json",
         data: JSON.stringify(request),
         dataType: 'json',
