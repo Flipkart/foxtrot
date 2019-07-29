@@ -84,12 +84,5 @@ public class BetweenFilter extends Filter {
         return validationErrors;
     }
 
-    @Override
-    public String toString() {
-        return new ToStringBuilder(this).appendSuper(super.toString())
-                .append("temporal", temporal)
-                .append("from", from.toString())
-                .append("to", to.toString())
-                .toString();
-    }
+
 }

@@ -502,12 +502,8 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
                 if (fieldMetadata == null) {
                     fieldMetadata = fields.get(key.replace("_", ""));
                 }
-                SearchResponse response = item.getResponse();
-                final long hits = response.getHits()
-                        .totalHits();
-                Aggregations aggregations = response.getAggregations();
-                if(null == aggregations) {
-                    continue;
+                if (fieldMetadata == null) {
+                    return;
                 }
                 switch (fieldMetadata.getType()) {
                     case STRING:

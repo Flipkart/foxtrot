@@ -39,7 +39,6 @@ public class LastFilter extends Filter {
         this.roundingMode = roundingMode == null ? RoundingMode.NONE : roundingMode;
     }
 
-<<<<<<< HEAD
     public void setDuration(Duration duration) {
         this.duration = duration;
         this.roundingMode = roundingMode == null ? RoundingMode.NONE : roundingMode;

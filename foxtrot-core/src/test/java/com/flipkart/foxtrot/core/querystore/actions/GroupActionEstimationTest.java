@@ -6,6 +6,7 @@ import com.flipkart.foxtrot.common.Document;
 import com.flipkart.foxtrot.common.group.GroupRequest;
 import com.flipkart.foxtrot.common.group.GroupResponse;
 import com.flipkart.foxtrot.common.query.general.EqualsFilter;
+import com.flipkart.foxtrot.common.query.numeric.BetweenFilter;
 import com.flipkart.foxtrot.common.query.numeric.GreaterThanFilter;
 import com.flipkart.foxtrot.common.query.numeric.LessThanFilter;
 import com.flipkart.foxtrot.core.TestUtils;
@@ -55,7 +56,6 @@ public class GroupActionEstimationTest extends ActionTest {
                 .containsKey("android"));
         Assert.assertTrue(response.getResult()
                 .containsKey("ios"));
-                                  .containsKey("android"));
         Assert.assertTrue(response.getResult()
                                   .containsKey("ios"));
     }

@@ -2,7 +2,6 @@ package com.flipkart.foxtrot.core.cardinality;
 /**
  * Copyright 2014 Flipkart Internet Pvt. Ltd.
  * <p>
-<<<<<<< HEAD
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
  * <p>
@@ -11,37 +10,16 @@ package com.flipkart.foxtrot.core.cardinality;
  * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
  * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations under the License.
-=======
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- * <p>
- * http://www.apache.org/licenses/LICENSE-2.0
- * <p>
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
->>>>>>> phonepe-develop
  */
 
 import com.flipkart.foxtrot.core.jobs.BaseJobConfig;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
-<<<<<<< HEAD
 import javax.ws.rs.DefaultValue;
-=======
->>>>>>> phonepe-develop
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 
-<<<<<<< HEAD
-=======
-import javax.ws.rs.DefaultValue;
-
->>>>>>> phonepe-develop
 /***
  Created by nitish.goyal on 06/08/18
  ***/
@@ -64,22 +42,14 @@ public class CardinalityConfig extends BaseJobConfig {
     }
 
     public boolean isEnabled() {
-<<<<<<< HEAD
         if (StringUtils.isEmpty(enabled)) {
-=======
-        if(StringUtils.isEmpty(enabled)) {
->>>>>>> phonepe-develop
             return false;
         }
         return Boolean.valueOf(enabled);
     }
 
     public int getSubListSize() {
-<<<<<<< HEAD
         if (StringUtils.isEmpty(batchSize)) {
-=======
-        if(StringUtils.isEmpty(batchSize)) {
->>>>>>> phonepe-develop
             return ElasticsearchUtils.DEFAULT_SUB_LIST_SIZE;
         }
         return Integer.parseInt(batchSize);

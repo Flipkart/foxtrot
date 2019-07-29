@@ -51,7 +51,6 @@ import org.junit.Test;
  * Created by rishabh.goyal on 02/05/14.
  */
 public class TableMapStoreTest {
-<<<<<<< HEAD
 
     public static final String TEST_TABLE = "test-table";
     public static final String TABLE_META_INDEX = "table-meta";

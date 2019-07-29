@@ -25,6 +25,7 @@ import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.BucketOrder;
 import org.elasticsearch.search.aggregations.bucket.histogram.DateHistogramAggregationBuilder;
 import org.elasticsearch.search.aggregations.bucket.histogram.DateHistogramInterval;
+import org.elasticsearch.search.aggregations.bucket.terms.TermsAggregationBuilder;
 import org.elasticsearch.search.aggregations.metrics.avg.InternalAvg;
 import org.elasticsearch.search.aggregations.metrics.cardinality.CardinalityAggregationBuilder;
 import org.elasticsearch.search.aggregations.metrics.max.InternalMax;
@@ -186,15 +187,6 @@ public class Utils {
                 .percentiles(percentiles)
                 .field(storedFieldName(field))
                 .compression(compression);
-    }
-
-    public static AbstractAggregationBuilder buildPercentileAggregation(String field, Collection<Double> inputPercentiles) {
-        double[] percentiles = inputPercentiles != null
-                ? inputPercentiles.stream().mapToDouble(x -> x).toArray()
-                : DEFAULT_PERCENTILES;
-        String metricKey = getPercentileAggregationKey(field);
-        return AggregationBuilders.percentiles(metricKey)
-                .percentiles(percentiles)
     }
 
     public static String getPercentileAggregationKey(String field) {

@@ -217,6 +217,7 @@ public class FoxtrotServer extends Application<FoxtrotServerConfiguration> {
         HazelcastConnection hazelcastConnection = new HazelcastConnection(configuration.getCluster());
         ElasticsearchUtils.setTableNamePrefix(configuration.getElasticsearch());
         CardinalityConfig cardinalityConfig = configuration.getCardinality();
+        if (cardinalityConfig == null) {
             cardinalityConfig = new CardinalityConfig("false",
                     String.valueOf(ElasticsearchUtils.DEFAULT_SUB_LIST_SIZE));
         }

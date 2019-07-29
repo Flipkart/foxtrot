@@ -128,6 +128,7 @@ public class DocumentTranslatorTest {
         DocumentTranslator translator = new DocumentTranslator(hbaseConfig);
         Table table = new Table();
         table.setName(UUID.randomUUID()
+                .toString());
 
         Document document = new Document();
         document.setId(UUID.randomUUID()

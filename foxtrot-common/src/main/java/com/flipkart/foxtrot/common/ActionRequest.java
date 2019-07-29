@@ -73,10 +73,4 @@ public abstract class ActionRequest implements Serializable, Cloneable {
                 .toString();
     }
 
-    public Object clone() throws CloneNotSupportedException {
-        ActionRequest actionRequestClone = (ActionRequest) super.clone();
-        List<Filter> filters = new ArrayList<>(this.filters);
-        actionRequestClone.setFilters(filters);
-        return actionRequestClone;
-    }
 }
