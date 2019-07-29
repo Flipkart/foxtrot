@@ -146,6 +146,11 @@ $(".global-filter-period-select").change( function() {
   refereshTiles();
 });
 
+// when global filters is turned on/off or changed directly refresh tiles
+$(".global-filter-period-select").change( function() {
+  refereshTiles();
+});
+
 /** Refresh widgets from choosed value in dropdown ends */
 
 /**

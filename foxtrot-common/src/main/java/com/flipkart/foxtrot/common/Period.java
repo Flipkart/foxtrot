@@ -18,8 +18,5 @@ package com.flipkart.foxtrot.common;
  * Time: 12:08 AM
  */
 public enum Period {
-    seconds,
-    minutes,
-    hours,
-    days
+    seconds, minutes, hours, days
 }

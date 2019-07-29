@@ -27,6 +27,6 @@ public class ExistsFilter extends Filter {
 
     @Override
     public <T> T accept(FilterVisitor<T> visitor) {
-        return visitor.visit(this);
+       return visitor.visit(this);
     }
 }

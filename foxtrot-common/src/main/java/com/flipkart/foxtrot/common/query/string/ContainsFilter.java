@@ -9,7 +9,7 @@
  * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
  * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations under the License.
- */
+*/
 package com.flipkart.foxtrot.common.query.string;
 
 import com.flipkart.foxtrot.common.query.Filter;
@@ -45,13 +45,13 @@ public class ContainsFilter extends Filter {
 
     @Override
     public <T> T accept(FilterVisitor<T> visitor) {
-        return visitor.visit(this);
+       return visitor.visit(this);
     }
 
     @Override
     public Set<String> validate() {
         Set<String> validationErrors = super.validate();
-        if (value == null) {
+        if(value == null) {
             validationErrors.add("filter value cannot be null");
         }
         return validationErrors;

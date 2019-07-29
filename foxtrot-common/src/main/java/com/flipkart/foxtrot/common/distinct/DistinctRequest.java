@@ -74,4 +74,5 @@ public class DistinctRequest extends ActionRequest {
     public void setNesting(List<ResultSort> nesting) {
         this.nesting = nesting;
     }
+
 }

@@ -9,7 +9,7 @@
  * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
  * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations under the License.
- */
+*/
 package com.flipkart.foxtrot.server.console;
 
 import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
@@ -47,7 +47,6 @@ public class ElasticsearchConsolePersistence implements ConsolePersistence {
     private static final String INDEX_HISTORY = "consoles_history";
     private static final int SCROLL_SIZE = 500;
     private static final long SCROLL_TIMEOUT = TimeUnit.MINUTES.toMillis(2);
-
     private ElasticsearchConnection connection;
     private ObjectMapper mapper;
 
@@ -84,7 +83,7 @@ public class ElasticsearchConsolePersistence implements ConsolePersistence {
                     .setId(id)
                     .execute()
                     .actionGet();
-            if (!result.isExists()) {
+            if(!result.isExists()) {
                 return null;
             }
             return mapper.readValue(result.getSourceAsBytes(), Console.class);
@@ -117,7 +116,7 @@ public class ElasticsearchConsolePersistence implements ConsolePersistence {
                 }
                 if (0 == response.getHits()
                         .getHits().length) {
-                    break;
+                   break;
                 }
             }
             return results;
@@ -172,7 +171,7 @@ public class ElasticsearchConsolePersistence implements ConsolePersistence {
                     .setId(id)
                     .execute()
                     .actionGet();
-            if (!result.isExists()) {
+            if(!result.isExists()) {
                 return null;
             }
             return mapper.readValue(result.getSourceAsBytes(), ConsoleV2.class);
@@ -190,7 +189,7 @@ public class ElasticsearchConsolePersistence implements ConsolePersistence {
                 .setSize(SCROLL_SIZE)
                 .addSort(fieldSort("name.keyword").order(SortOrder.DESC))
                 .setScroll(new TimeValue(SCROLL_TIMEOUT))
-                .execute()
+               .execute()
                 .actionGet();
         try {
             List<ConsoleV2> results = new ArrayList<>();
@@ -201,7 +200,7 @@ public class ElasticsearchConsolePersistence implements ConsolePersistence {
                 }
                 if (SCROLL_SIZE >= response.getHits()
                         .getTotalHits()) {
-                    break;
+                   break;
                 }
 
                 response = connection.getClient()
@@ -214,6 +213,22 @@ public class ElasticsearchConsolePersistence implements ConsolePersistence {
         } catch (Exception e) {
             throw new ConsoleFetchException(e);
         }
+    }
+
+    private void preProcess(ConsoleV2 console) throws FoxtrotException {
+        if(console.getUpdatedAt() == 0L) {
+            console.setUpdatedAt(System.currentTimeMillis());
+        }
+        ConsoleV2 oldConsole = getV2(console.getId());
+        if(oldConsole == null){
+            return;
+        }
+        if(oldConsole.getUpdatedAt() != 0L && oldConsole.getUpdatedAt() > console.getUpdatedAt()) {
+            throw new ConsolePersistenceException(console.getId(), "Updated version of console exists. Kindly refresh" +
+                                                                   " your dashboard");
+        }
+        console.setUpdatedAt(System.currentTimeMillis());
+
     }
 
     @Override

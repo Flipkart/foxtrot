@@ -25,7 +25,6 @@ import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.BucketOrder;
 import org.elasticsearch.search.aggregations.bucket.histogram.DateHistogramAggregationBuilder;
 import org.elasticsearch.search.aggregations.bucket.histogram.DateHistogramInterval;
-import org.elasticsearch.search.aggregations.bucket.terms.TermsAggregationBuilder;
 import org.elasticsearch.search.aggregations.metrics.avg.InternalAvg;
 import org.elasticsearch.search.aggregations.metrics.cardinality.CardinalityAggregationBuilder;
 import org.elasticsearch.search.aggregations.metrics.max.InternalMax;
@@ -117,7 +116,6 @@ public class Utils {
         }
         val stat = stats.iterator()
                 .next();
-
         return stat.visit(new Stat.StatVisitor<AbstractAggregationBuilder>() {
             @Override
             public AbstractAggregationBuilder visitCount() {
@@ -190,6 +188,15 @@ public class Utils {
                 .compression(compression);
     }
 
+    public static AbstractAggregationBuilder buildPercentileAggregation(String field, Collection<Double> inputPercentiles) {
+        double[] percentiles = inputPercentiles != null
+                ? inputPercentiles.stream().mapToDouble(x -> x).toArray()
+                : DEFAULT_PERCENTILES;
+        String metricKey = getPercentileAggregationKey(field);
+        return AggregationBuilders.percentiles(metricKey)
+                .percentiles(percentiles)
+    }
+
     public static String getPercentileAggregationKey(String field) {
         return sanitizeFieldForAggregation(field) + "_percentile";
     }
@@ -242,7 +249,7 @@ public class Utils {
 
     public static Map<Number, Number> createPercentilesResponse(Percentiles internalPercentiles) {
         Map<Number, Number> percentiles = Maps.newHashMap();
-        for (Percentile percentile : internalPercentiles) {
+        for(Percentile percentile : internalPercentiles) {
             percentiles.put(percentile.getPercent(), percentile.getValue());
         }
         return percentiles;

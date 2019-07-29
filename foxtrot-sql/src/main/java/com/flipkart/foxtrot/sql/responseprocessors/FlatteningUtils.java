@@ -46,13 +46,13 @@ public class FlatteningUtils {
             Map<String, Object> row = Maps.newHashMap();
             for (Map.Entry<String, MetaData> elementData : element.entrySet()) {
                 if (!headerData.containsKey(elementData.getKey())) {
-                    headerData.put(elementData.getKey(), elementData.getValue()
+                   headerData.put(elementData.getKey(), elementData.getValue()
                             .getLength());
                 }
                 headerData.put(elementData.getKey(), Math.max(elementData.getValue()
                                 .getLength(),
                         headerData.get(elementData.getKey())));
-                row.put(elementData.getKey(), elementData.getValue()
+               row.put(elementData.getKey(), elementData.getValue()
                         .getData());
             }
             rows.add(row);
@@ -71,7 +71,7 @@ public class FlatteningUtils {
         if (!CollectionUtils.isNullOrEmpty(predefinedHeaders)) {
             for (String predefinedHeader : predefinedHeaders) {
                 if (headerData.containsKey(predefinedHeader)) {
-                    headers.add(new FieldHeader(predefinedHeader, headerData.get(predefinedHeader)));
+                   headers.add(new FieldHeader(predefinedHeader, headerData.get(predefinedHeader)));
                 }
             }
         } else {

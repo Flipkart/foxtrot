@@ -88,7 +88,7 @@ public abstract class HBaseUtil {
                     .toURL());
         }
 
-        if (hbaseConfig.isSecure() && isValidFile(hbaseConfig.getKeytabFileName())) {
+        if(hbaseConfig.isSecure() && isValidFile(hbaseConfig.getKeytabFileName())) {
             configuration.set("hbase.master.kerberos.principal", hbaseConfig.getAuthString());
             configuration.set("hadoop.kerberos.kinit.command", hbaseConfig.getKinitPath());
             UserGroupInformation.setConfiguration(configuration);

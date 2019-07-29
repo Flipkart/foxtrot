@@ -13,6 +13,7 @@ import static org.elasticsearch.index.query.QueryBuilders.termQuery;
 import static org.elasticsearch.index.query.QueryBuilders.termsQuery;
 
 import com.codahale.metrics.annotation.Timed;
+import com.collections.CollectionUtils;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -24,6 +25,8 @@ import com.flipkart.foxtrot.core.cardinality.CardinalityConfig;
 import com.flipkart.foxtrot.core.datastore.DataStore;
 import com.flipkart.foxtrot.core.exception.FoxtrotExceptions;
 import com.flipkart.foxtrot.core.querystore.QueryStore;
+import com.flipkart.foxtrot.core.reroute.ClusterReroute;
+import com.flipkart.foxtrot.core.reroute.ClusterRerouteConfig;
 import com.flipkart.foxtrot.core.table.TableMetadataManager;
 import com.flipkart.foxtrot.core.util.ElasticsearchQueryUtils;
 import com.flipkart.foxtrot.core.util.MetricUtil;
@@ -185,7 +188,7 @@ public class ElasticsearchQueryStore implements QueryStore {
             BulkRequestBuilder bulkRequestBuilder = connection.getClient()
                     .prepareBulk();
             DateTime dateTime = new DateTime().plusDays(1);
-            for (Document document : translatedDocuments) {
+            for(Document document : translatedDocuments) {
                 long timestamp = document.getTimestamp();
                 if (dateTime.minus(timestamp)
                         .getMillis() < 0) {
@@ -270,7 +273,7 @@ public class ElasticsearchQueryStore implements QueryStore {
             throw FoxtrotExceptions.createBadRequestException(table, String.format(UNKNOWN_TABLE_ERROR_MESSAGE, table));
         }
         Map<String, String> rowKeys = Maps.newLinkedHashMap();
-        for (String id : ids) {
+        for(String id : ids) {
             rowKeys.put(id, id);
         }
         if (!bypassMetalookup) {

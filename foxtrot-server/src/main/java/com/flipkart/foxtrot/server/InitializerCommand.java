@@ -89,7 +89,7 @@ public class InitializerCommand extends ConfiguredCommand<FoxtrotServerConfigura
                     .create(createIndexRequest)
                     .actionGet();
             logger.info("'{}' creation acknowledged: {}", indexName, response.isAcknowledged());
-            if (!response.isAcknowledged()) {
+            if(!response.isAcknowledged()) {
                 logger.error("Index {} could not be created.", indexName);
             }
         } catch (Exception e) {

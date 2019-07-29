@@ -18,7 +18,6 @@ public class TestsMultiRowParse {
         objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
         ObjectWriter writer = objectMapper.writerWithDefaultPrettyPrinter();
         final String json = "{\"table\":\"europa\",\"mappings\":[{\"field\":\"data.checkoutId\",\"type\":\"STRING\"}," +
-                "{\"field\":\"data.errorMessage\",\"type\":\"STRING\"},{\"field\":\"data.startTime\"," +
                 "\"type\":\"LONG\"},{\"field\":\"data.error\",\"type\":\"STRING\"},{\"field\":\"data" +
                 ".pin\"," +
                 "\"type\":\"LONG\"},{\"field\":\"data.version\",\"type\":\"STRING\"},{\"field\":\"data" +
@@ -58,7 +57,7 @@ public class TestsMultiRowParse {
                 "{\"field\":\"data.actionType" +
                 ".type\",\"type\":\"STRING\"},{\"field\":\"data.request.client\",\"type\":\"STRING\"}," +
                 "{\"field\":\"data.dataFlow\",\"type\":\"STRING\"}]}";
-        JsonNode root = objectMapper.readTree(json);
+       JsonNode root = objectMapper.readTree(json);
         FlatRepresentation representation = FlatteningUtils.genericMultiRowParse(root.get("mappings"), null, "field");
         System.out.println(writer.writeValueAsString(representation));
         Assert.assertEquals(2, representation.getHeaders()
@@ -85,7 +84,7 @@ public class TestsMultiRowParse {
                         +
                         "{\"name\":\"ganymede\",\"ttl\":30},{\"name\":\"santa\",\"ttl\":30},{\"name\":\"selfserve\"," +
                         "\"ttl\":15},{\"name\":\"warehouse\",\"ttl\":30},{\"name\":\"webreader\",\"ttl\":60}]";
-        JsonNode root = objectMapper.readTree(json);
+       JsonNode root = objectMapper.readTree(json);
         FlatRepresentation representation = FlatteningUtils.genericMultiRowParse(root, null, "name");
         System.out.println(writer.writeValueAsString(representation));
         Assert.assertEquals(2, representation.getHeaders()

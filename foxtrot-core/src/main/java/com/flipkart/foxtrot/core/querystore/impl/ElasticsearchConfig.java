@@ -27,7 +27,7 @@ import lombok.NoArgsConstructor;
  */
 @NoArgsConstructor
 public class ElasticsearchConfig {
-
+    
     public static final long DEFAULT_TIMEOUT = 10000L;
     @Valid
     @NotNull

@@ -18,7 +18,7 @@ public class MetaData {
         this.data = data;
     }
 
-    public int getLength() {
+   public int getLength() {
         return length;
     }
 

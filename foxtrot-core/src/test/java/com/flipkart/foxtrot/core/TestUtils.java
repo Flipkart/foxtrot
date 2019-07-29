@@ -93,11 +93,11 @@ public class TestUtils {
     public static void registerActions(AnalyticsLoader analyticsLoader, ObjectMapper mapper) throws Exception {
         Reflections reflections = new Reflections("com.flipkart.foxtrot", new SubTypesScanner());
         Set<Class<? extends Action>> actions = reflections.getSubTypesOf(Action.class);
-        if (actions.isEmpty()) {
+        if(actions.isEmpty()) {
             throw new Exception("No analytics actions found!!");
         }
         List<NamedType> types = new Vector<>();
-        for (Class<? extends Action> action : actions) {
+        for(Class<? extends Action> action : actions) {
             AnalyticsProvider analyticsProvider = action.getAnnotation(AnalyticsProvider.class);
             if (null == analyticsProvider.request() || null == analyticsProvider.opcode() || analyticsProvider.opcode()
                     .isEmpty() || null == analyticsProvider.response()) {
@@ -106,7 +106,7 @@ public class TestUtils {
             if (analyticsProvider.opcode()
                     .equalsIgnoreCase("default")) {
                 logger.warn("Action " + action.getCanonicalName() + " does not specify cache token. " +
-                        "Using default cache.");
+                            "Using default cache.");
             }
             analyticsLoader.register(
                     new ActionMetadata(analyticsProvider.request(), action, analyticsProvider.cacheable(),
@@ -208,7 +208,7 @@ public class TestUtils {
         documents.add(TestUtils.getDocument("G", 1397658118006L,
                 new Object[]{"os", "ios", "version", 2, "device", "ipad", "battery", 44},
                 mapper));
-        return documents;
+       return documents;
     }
 
     public static List<Document> getGroupDocumentsForEstimation(ObjectMapper mapper) {
@@ -320,7 +320,7 @@ public class TestUtils {
         documents.add(TestUtils.getDocument("G", 1398653118006L,
                 new Object[]{"os", "ios", "version", 2, "device", "ipad", "battery", 44},
                 mapper));
-        return documents;
+       return documents;
     }
 
     public static List<Document> getStatsDocuments(ObjectMapper mapper) {

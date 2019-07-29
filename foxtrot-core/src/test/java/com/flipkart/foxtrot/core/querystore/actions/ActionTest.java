@@ -51,6 +51,11 @@ public abstract class ActionTest {
         root.setLevel(Level.WARN);
     }
 
+    static {
+        Logger root = (Logger)LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
+        root.setLevel(Level.WARN);
+    }
+
     private ObjectMapper mapper;
     private QueryStore queryStore;
     private QueryExecutor queryExecutor;

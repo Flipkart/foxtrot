@@ -9,7 +9,7 @@
  * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
  * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations under the License.
- */
+*/
 package com.flipkart.foxtrot.core.querystore.impl;
 
 import static org.junit.Assert.assertEquals;
@@ -39,6 +39,7 @@ import com.flipkart.foxtrot.core.datastore.DataStore;
 import com.flipkart.foxtrot.core.exception.ErrorCode;
 import com.flipkart.foxtrot.core.exception.FoxtrotException;
 import com.flipkart.foxtrot.core.exception.FoxtrotExceptions;
+import com.flipkart.foxtrot.core.reroute.ClusterRerouteConfig;
 import com.flipkart.foxtrot.core.table.TableMetadataManager;
 import com.flipkart.foxtrot.core.table.impl.DistributedTableMetadataManager;
 import com.flipkart.foxtrot.core.table.impl.ElasticsearchTestUtils;
@@ -159,7 +160,7 @@ public class ElasticsearchQueryStoreTest {
         JsonNode data = mapper.valueToTree(Collections.singletonMap("TEST_NAME", "SINGLE_SAVE_TEST"));
         document.setData(data);
         return document;
-    }
+   }
 
     @Test
     public void testSaveSingleRawKeyVersion2() throws Exception {
@@ -176,7 +177,7 @@ public class ElasticsearchQueryStoreTest {
                         ElasticsearchUtils.getCurrentIndex(TestUtils.TEST_TABLE_NAME, originalDocument.getTimestamp()),
                         ElasticsearchUtils.DOCUMENT_TYPE_NAME, translatedDocument.getId())
                 .setStoredFields(ElasticsearchUtils.DOCUMENT_META_TIMESTAMP_FIELD_NAME)
-                .execute()
+               .execute()
                 .actionGet();
         assertTrue("Id should exist in ES", getResponse.isExists());
         assertEquals("Id should match requestId", translatedDocument.getId(), getResponse.getId());
@@ -198,7 +199,7 @@ public class ElasticsearchQueryStoreTest {
         Table table = tableMetadataManager.get(TestUtils.TEST_TABLE_NAME);
 
         List<Document> documents = Lists.newArrayList();
-        for (int i = 0; i < 10; i++) {
+        for(int i = 0; i < 10; i++) {
             documents.add(createDummyDocument());
         }
 
@@ -229,7 +230,7 @@ public class ElasticsearchQueryStoreTest {
         Table table = tableMetadataManager.get(TestUtils.TEST_TABLE_NAME);
 
         List<Document> documents = Lists.newArrayList();
-        for (int i = 0; i < 10; i++) {
+        for(int i = 0; i < 10; i++) {
             documents.add(createDummyDocument());
         }
 
@@ -292,7 +293,7 @@ public class ElasticsearchQueryStoreTest {
     @Test
     public void testSaveBulkInvalidTable() throws Exception {
         List<Document> documents = new Vector<Document>();
-        for (int i = 0; i < 10; i++) {
+        for(int i = 0; i < 10; i++) {
             documents.add(createDummyDocument());
         }
         try {
@@ -366,7 +367,7 @@ public class ElasticsearchQueryStoreTest {
         Map<String, Document> translatedIdValues = Maps.newLinkedHashMap();
 
         List<String> ids = new Vector<String>();
-        for (int i = 0; i < 10; i++) {
+        for(int i = 0; i < 10; i++) {
             Document document = createDummyDocument();
             Document translatedDocument = TestUtils.translatedDocumentWithRowKeyVersion1(table, document);
 
@@ -385,11 +386,11 @@ public class ElasticsearchQueryStoreTest {
 
         List<Document> responseDocuments = queryStore.getAll(TestUtils.TEST_TABLE_NAME, ids);
         HashMap<String, Document> responseIdValues = Maps.newHashMap();
-        for (Document doc : responseDocuments) {
+        for(Document doc : responseDocuments) {
             responseIdValues.put(doc.getId(), doc);
         }
         assertNotNull("List of returned Documents should not be null", responseDocuments);
-        for (String id : ids) {
+        for(String id : ids) {
             assertTrue("Requested Id should be present in response", responseIdValues.containsKey(id));
             assertNotNull(responseIdValues.get(id));
             assertEquals(id, responseIdValues.get(id)
@@ -406,7 +407,7 @@ public class ElasticsearchQueryStoreTest {
 
         List<String> ids = Lists.newArrayList();
         List<String> translatedIds = Lists.newArrayList();
-        for (int i = 0; i < 10; i++) {
+        for(int i = 0; i < 10; i++) {
             Document document = createDummyDocument();
             Document translatedDocument = TestUtils.translatedDocumentWithRowKeyVersion2(table, document);
 
@@ -426,11 +427,11 @@ public class ElasticsearchQueryStoreTest {
 
         List<Document> responseDocuments = queryStore.getAll(TestUtils.TEST_TABLE_NAME, ids);
         HashMap<String, Document> responseIdValues = Maps.newHashMap();
-        for (Document doc : responseDocuments) {
+        for(Document doc : responseDocuments) {
             responseIdValues.put(doc.getId(), doc);
         }
         assertNotNull("List of returned Documents should not be null", responseDocuments);
-        for (String id : ids) {
+        for(String id : ids) {
             assertTrue("Requested Id should be present in response", responseIdValues.containsKey(id));
             assertNotNull(responseIdValues.get(id));
             assertEquals(id, responseIdValues.get(id)
@@ -514,7 +515,7 @@ public class ElasticsearchQueryStoreTest {
     @Test
     public void testEsClusterHealth() throws ExecutionException, InterruptedException, FoxtrotException {
         List<Document> documents = Lists.newArrayList();
-        for (int i = 0; i < 10; i++) {
+        for(int i = 0; i < 10; i++) {
             documents.add(createDummyDocument());
         }
         doReturn(documents).when(dataStore)
@@ -531,7 +532,7 @@ public class ElasticsearchQueryStoreTest {
     @Ignore
     public void testEsNodesStats() throws FoxtrotException, ExecutionException, InterruptedException {
         List<Document> documents = Lists.newArrayList();
-        for (int i = 0; i < 10; i++) {
+        for(int i = 0; i < 10; i++) {
             documents.add(createDummyDocument());
         }
         doReturn(documents).when(dataStore)
@@ -548,7 +549,7 @@ public class ElasticsearchQueryStoreTest {
     @Test
     public void testIndicesStats() throws FoxtrotException, ExecutionException, InterruptedException {
         List<Document> documents = Lists.newArrayList();
-        for (int i = 0; i < 10; i++) {
+        for(int i = 0; i < 10; i++) {
             documents.add(createDummyDocument());
         }
         doReturn(documents).when(dataStore)

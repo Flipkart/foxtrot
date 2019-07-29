@@ -10,7 +10,6 @@ import com.flipkart.foxtrot.common.query.numeric.GreaterThanFilter;
 import com.flipkart.foxtrot.common.query.numeric.LessThanFilter;
 import com.flipkart.foxtrot.core.common.PeriodSelector;
 import io.dropwizard.util.Duration;
-import java.util.Arrays;
 import java.util.Collections;
 import org.joda.time.DateTimeZone;
 import org.junit.Assert;

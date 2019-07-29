@@ -67,14 +67,13 @@ public class ResultSort implements Serializable {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-
-        ResultSort that = (ResultSort) o;
+        ResultSort that = (ResultSort)o;
 
         if (!field.equals(that.field)) {
             return false;
         }
         return order == that.order;
-    }
+   }
 
     @Override
     public String toString() {

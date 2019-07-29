@@ -1,5 +1,6 @@
 package com.flipkart.foxtrot.core.querystore.actions;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.flipkart.foxtrot.common.ActionResponse;
 import com.flipkart.foxtrot.common.Period;
 import com.flipkart.foxtrot.common.query.Filter;
@@ -10,6 +11,8 @@ import com.flipkart.foxtrot.common.stats.StatsTrendRequest;
 import com.flipkart.foxtrot.common.stats.StatsTrendResponse;
 import com.flipkart.foxtrot.common.stats.StatsTrendValue;
 import com.flipkart.foxtrot.common.util.CollectionUtils;
+import com.flipkart.foxtrot.core.alerts.EmailConfig;
+import com.flipkart.foxtrot.core.cache.CacheManager;
 import com.flipkart.foxtrot.core.common.Action;
 import com.flipkart.foxtrot.core.exception.FoxtrotExceptions;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsLoader;
@@ -77,14 +80,14 @@ public class StatsTrendAction extends Action<StatsTrendRequest> {
     public String getRequestCacheKey() {
         StatsTrendRequest statsRequest = getParameter();
         long hashKey = 0L;
-        if (statsRequest.getFilters() != null) {
-            for (Filter filter : statsRequest.getFilters()) {
+        if(statsRequest.getFilters() != null) {
+            for(Filter filter : statsRequest.getFilters()) {
                 hashKey += 31 * filter.hashCode();
             }
         }
 
-        if (!CollectionUtils.isNullOrEmpty(statsRequest.getNesting())) {
-            for (String field : statsRequest.getNesting()) {
+        if(!CollectionUtils.isNullOrEmpty(statsRequest.getNesting())) {
+            for(String field : statsRequest.getNesting()) {
                 hashKey += 31 * field.hashCode();
             }
         }
@@ -160,8 +163,7 @@ public class StatsTrendAction extends Action<StatsTrendRequest> {
                 .subAggregation(Utils.buildStatsAggregation(request.getField(), getParameter().getStats()))
                 .subAggregation(Utils.buildPercentileAggregation(request.getField(), request.getPercentiles(),
                         request.getCompression()));
-
-        if (CollectionUtils.isNullOrEmpty(getParameter().getNesting())) {
+        if(CollectionUtils.isNullOrEmpty(getParameter().getNesting())) {
             return dateHistogramBuilder;
         }
         return Utils.buildTermsAggregation(getParameter().getNesting()
@@ -174,7 +176,7 @@ public class StatsTrendAction extends Action<StatsTrendRequest> {
     private StatsTrendResponse buildResponse(StatsTrendRequest request, Aggregations aggregations) {
         StatsTrendResponse response = new StatsTrendResponse();
 
-        if (CollectionUtils.isNullOrEmpty(request.getNesting())) {
+        if(CollectionUtils.isNullOrEmpty(request.getNesting())) {
             List<StatsTrendValue> trends = buildStatsTrendValue(request.getField(), aggregations);
             response.setResult(trends);
         } else {
@@ -192,10 +194,10 @@ public class StatsTrendAction extends Action<StatsTrendRequest> {
                 new ArrayList<>();
         Terms terms = aggregations.get(Utils.sanitizeFieldForAggregation(field));
         List<BucketResponse<List<StatsTrendValue>>> bucketResponses = Lists.newArrayList();
-        for (Terms.Bucket bucket : terms.getBuckets()) {
+        for(Terms.Bucket bucket : terms.getBuckets()) {
             BucketResponse<List<StatsTrendValue>> bucketResponse = new BucketResponse<>();
             bucketResponse.setKey(String.valueOf(bucket.getKey()));
-            if (nesting.size() == 1) {
+            if(nesting.size() == 1) {
                 bucketResponse.setResult(buildStatsTrendValue(getParameter().getField(), bucket.getAggregations()));
             } else {
                 bucketResponse.setBuckets(buildNestedTrendStats(remainingFields, bucket.getAggregations()));
@@ -214,9 +216,9 @@ public class StatsTrendAction extends Action<StatsTrendRequest> {
         String percentileMetricKey = Utils.getPercentileAggregationKey(field);
 
         List<StatsTrendValue> statsValueList = Lists.newArrayList();
-        for (Histogram.Bucket bucket : buckets) {
+        for(Histogram.Bucket bucket : buckets) {
             StatsTrendValue statsTrendValue = new StatsTrendValue();
-            DateTime key = (DateTime) bucket.getKey();
+            DateTime key = (DateTime)bucket.getKey();
             statsTrendValue.setPeriod(key.getMillis());
 
             val statAggregation = bucket.getAggregations()

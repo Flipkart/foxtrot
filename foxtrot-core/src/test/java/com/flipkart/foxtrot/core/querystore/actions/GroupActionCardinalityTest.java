@@ -77,7 +77,6 @@ public class GroupActionCardinalityTest extends ActionTest {
         GroupResponse response = GroupResponse.class.cast(getQueryExecutor().execute(groupRequest, TEST_EMAIL));
         Assert.assertTrue(response.getResult()
                 .containsKey("0"));
-
     }
 
     @Test
@@ -89,6 +88,5 @@ public class GroupActionCardinalityTest extends ActionTest {
         GroupResponse response = GroupResponse.class.cast(getQueryExecutor().execute(groupRequest, TEST_EMAIL));
         Assert.assertTrue(response.getResult()
                 .containsKey("0"));
-
     }
 }

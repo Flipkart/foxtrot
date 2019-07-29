@@ -43,7 +43,7 @@ public class FieldHeader {
             return false;
         }
 
-        FieldHeader that = (FieldHeader) o;
+        FieldHeader that = (FieldHeader)o;
 
         return name.equals(that.name);
     }

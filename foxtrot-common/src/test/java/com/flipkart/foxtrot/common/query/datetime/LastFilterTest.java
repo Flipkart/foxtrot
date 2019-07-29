@@ -39,7 +39,7 @@ public class LastFilterTest {
                 .withMillisOfSecond(0)
                 .minusHours(1)
                 .getMillis(), timeWindow.getStartTime());
-    }
+  }
 
     @Test
     public void testGetWindowStartCeiling() throws Exception {
@@ -61,7 +61,8 @@ public class LastFilterTest {
     public void testGetWindowStartNoRounding() throws Exception {
         DateTime currentTime = new DateTime();
         final String json = String.format("{ \"operator\": \"last\", \"currentTime\": %d, \"duration\": \"1h\" }",
-                currentTime.getMillis());
+                                          currentTime.getMillis()
+                                         );
         LastFilter lastFilter = objectMapper.readValue(json, LastFilter.class);
         TimeWindow timeWindow = lastFilter.getWindow();
         Assert.assertEquals("_timestamp", lastFilter.getField());

@@ -9,7 +9,7 @@
  * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
  * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations under the License.
- */
+*/
 package com.flipkart.foxtrot.core.datastore.impl.hbase;
 
 import com.codahale.metrics.annotation.Timed;
@@ -110,7 +110,7 @@ public class HBaseDataStore implements DataStore {
         ImmutableList.Builder<Document> translatedDocuments = ImmutableList.builder();
         List<String> errorMessages = new ArrayList<>();
         try {
-            for (int i = 0; i < documents.size(); i++) {
+            for(int i = 0; i < documents.size(); i++) {
                 Document document = documents.get(i);
                 if (!isValidDocument(document, errorMessages, i)) {
                     continue;
@@ -122,13 +122,14 @@ public class HBaseDataStore implements DataStore {
         } catch (JsonProcessingException e) {
             throw FoxtrotExceptions.createBadRequestException(table, e);
         }
-        if (!errorMessages.isEmpty()) {
+        if(!errorMessages.isEmpty()) {
             throw FoxtrotExceptions.createBadRequestException(table.getName(), errorMessages);
         }
 
         try (org.apache.hadoop.hbase.client.Table hTable = tableWrapper.getTable(table)) {
             hTable.put(puts);
         } catch (IOException e) {
+            logger.error("Error occurred while ingesting event in HBase : " + e);
             throw FoxtrotExceptions.createConnectionException(table, e);
         }
         return translatedDocuments.build();
@@ -162,7 +163,7 @@ public class HBaseDataStore implements DataStore {
                     .addColumn(COLUMN_FAMILY, TIMESTAMP_FIELD_NAME)
                     .setMaxVersions(1);
             Result getResult = hTable.get(get);
-            if (!getResult.isEmpty()) {
+            if(!getResult.isEmpty()) {
                 byte[] data = getResult.getValue(COLUMN_FAMILY, DOCUMENT_FIELD_NAME);
                 byte[] metadata = getResult.getValue(COLUMN_FAMILY, DOCUMENT_META_FIELD_NAME);
                 byte[] timestamp = getResult.getValue(COLUMN_FAMILY, TIMESTAMP_FIELD_NAME);
@@ -199,9 +200,9 @@ public class HBaseDataStore implements DataStore {
             Result[] getResults = hTable.get(gets);
             List<String> missingIds = new ArrayList<>();
             List<Document> results = new ArrayList<>(ids.size());
-            for (int index = 0; index < getResults.length; index++) {
+            for(int index = 0; index < getResults.length; index++) {
                 Result getResult = getResults[index];
-                if (!getResult.isEmpty()) {
+                if(!getResult.isEmpty()) {
                     byte[] data = getResult.getValue(COLUMN_FAMILY, DOCUMENT_FIELD_NAME);
                     byte[] metadata = getResult.getValue(COLUMN_FAMILY, DOCUMENT_META_FIELD_NAME);
                     byte[] timestamp = getResult.getValue(COLUMN_FAMILY, TIMESTAMP_FIELD_NAME);

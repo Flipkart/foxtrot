@@ -23,7 +23,6 @@ import com.hazelcast.config.EvictionPolicy;
 import com.hazelcast.config.InMemoryFormat;
 import com.hazelcast.config.MapConfig;
 import com.hazelcast.config.MaxSizeConfig;
-
 /**
  * User: Santanu Sinha (santanu.sinha@flipkart.com)
  * Date: 25/03/14

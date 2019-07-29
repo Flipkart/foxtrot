@@ -39,6 +39,10 @@ public class HistogramResponse extends ActionResponse {
         return counts;
     }
 
+    public void setCounts(List<Count> counts) {
+        this.counts = counts;
+    }
+
     @Override
     public void accept(ResponseVisitor visitor) {
         visitor.visit(this);
@@ -76,7 +80,7 @@ public class HistogramResponse extends ActionResponse {
         @Override
         public int hashCode() {
             int result = period.hashCode();
-            result = 31 * result + (int) (count ^ (count >>> 32));
+            result = 31 * result + (int)(count ^ (count >>> 32));
             return result;
         }
 

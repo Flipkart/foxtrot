@@ -105,8 +105,7 @@ public class TrendResponse extends ActionResponse {
             if (!(o instanceof Count)) {
                 return false;
             }
-
-            Count count1 = (Count) o;
+           Count count1 = (Count)o;
 
             if (count != count1.count) {
                 return false;
@@ -117,10 +116,8 @@ public class TrendResponse extends ActionResponse {
         @Override
         public int hashCode() {
             int result = period.hashCode();
-            result = 31 * result + (int) (count ^ (count >>> 32));
+            result = 31 * result + (int)(count ^ (count >>> 32));
             return result;
         }
     }
-
-
 }

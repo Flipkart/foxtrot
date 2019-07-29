@@ -29,6 +29,4 @@ public class MissingFilter extends Filter {
     public <T> T accept(FilterVisitor<T> visitor) {
         return visitor.visit(this);
     }
-
-
 }

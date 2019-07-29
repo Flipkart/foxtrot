@@ -31,7 +31,6 @@ public class CountAction extends Action<CountRequest> {
 
     public CountAction(CountRequest parameter, String cacheToken, AnalyticsLoader analyticsLoader) {
         super(parameter, cacheToken, analyticsLoader);
-
     }
 
     @Override
@@ -62,11 +61,10 @@ public class CountAction extends Action<CountRequest> {
     public String getRequestCacheKey() {
         long filterHashKey = 0L;
         CountRequest request = getParameter();
-        if (null != request.getFilters()) {
-            for (Filter filter : request.getFilters()) {
-                filterHashKey += 31 * filter.hashCode();
-            }
+        for(Filter filter : com.collections.CollectionUtils.nullSafeList(request.getFilters())) {
+            filterHashKey += 31 * filter.hashCode();
         }
+
 
         filterHashKey += 31 * (request.isDistinct() ? "TRUE".hashCode() : "FALSE".hashCode());
         filterHashKey += 31 * (request.getField() != null ? request.getField()
@@ -84,7 +82,6 @@ public class CountAction extends Action<CountRequest> {
             return getResponse(response, parameter);
         } catch (ElasticsearchException e) {
             throw FoxtrotExceptions.createQueryExecutionException(parameter, e);
-
         }
     }
 

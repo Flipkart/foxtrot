@@ -23,6 +23,9 @@ import com.flipkart.foxtrot.common.query.numeric.GreaterThanFilter;
 import com.flipkart.foxtrot.common.query.numeric.LessEqualFilter;
 import com.flipkart.foxtrot.common.query.numeric.LessThanFilter;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
+import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
+import org.joda.time.Interval;
+
 import java.util.List;
 import org.joda.time.Interval;
 

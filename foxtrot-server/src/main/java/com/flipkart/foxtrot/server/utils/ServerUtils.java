@@ -25,7 +25,7 @@ public class ServerUtils {
             DefaultServerFactory defaultServerFactory = (DefaultServerFactory) serverFactory;
             for (ConnectorFactory connectorFactory : defaultServerFactory.getApplicationConnectors()) {
                 if (connectorFactory instanceof HttpConnectorFactory) {
-                    return getPortFromConnector(connectorFactory);
+                   return getPortFromConnector(connectorFactory);
                 }
             }
 

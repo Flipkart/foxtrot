@@ -1,6 +1,7 @@
 /**
  * Copyright 2014 Flipkart Internet Pvt. Ltd.
  * <p>
+
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
  * <p>
@@ -87,8 +88,8 @@ public class HistogramAction extends Action<HistogramRequest> {
     public String getRequestCacheKey() {
         long filterHashKey = 0L;
         HistogramRequest query = getParameter();
-        if (null != query.getFilters()) {
-            for (Filter filter : query.getFilters()) {
+        if(null != query.getFilters()) {
+            for(Filter filter : query.getFilters()) {
                 filterHashKey += 31 * filter.hashCode();
             }
         }
@@ -162,7 +163,7 @@ public class HistogramAction extends Action<HistogramRequest> {
     }
 
     private HistogramResponse buildResponse(Aggregations aggregations) {
-        if (aggregations == null) {
+        if(aggregations == null) {
             return new HistogramResponse(Collections.<HistogramResponse.Count>emptyList());
         }
 
@@ -170,15 +171,15 @@ public class HistogramAction extends Action<HistogramRequest> {
         Histogram dateHistogram = aggregations.get(dateHistogramKey);
         Collection<? extends Histogram.Bucket> buckets = dateHistogram.getBuckets();
         List<HistogramResponse.Count> counts = new ArrayList<>(buckets.size());
-        for (Histogram.Bucket bucket : buckets) {
-            if (!CollectionUtils.isNullOrEmpty(getParameter().getUniqueCountOn())) {
+        for(Histogram.Bucket bucket : buckets) {
+            if(!CollectionUtils.isNullOrEmpty(getParameter().getUniqueCountOn())) {
                 String key = Utils.sanitizeFieldForAggregation(getParameter().getUniqueCountOn());
                 Cardinality cardinality = bucket.getAggregations()
                         .get(key);
                 counts.add(
                         new HistogramResponse.Count(((DateTime) bucket.getKey()).getMillis(), cardinality.getValue()));
             } else {
-                counts.add(new HistogramResponse.Count(((DateTime) bucket.getKey()).getMillis(), bucket.getDocCount()));
+                counts.add(new HistogramResponse.Count(((DateTime)bucket.getKey()).getMillis(), bucket.getDocCount()));
             }
         }
         return new HistogramResponse(counts);

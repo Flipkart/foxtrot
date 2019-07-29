@@ -103,13 +103,13 @@ public class TrendAction extends Action<TrendRequest> {
     public String getRequestCacheKey() {
         TrendRequest query = getParameter();
         long filterHashKey = 0L;
-        if (query.getFilters() != null) {
-            for (Filter filter : query.getFilters()) {
+        if(query.getFilters() != null) {
+            for(Filter filter : query.getFilters()) {
                 filterHashKey += 31 * filter.hashCode();
             }
         }
-        if (query.getValues() != null) {
-            for (String value : query.getValues()) {
+        if(query.getValues() != null) {
+            for(String value : query.getValues()) {
                 filterHashKey += 31 * value.hashCode();
             }
         }
@@ -150,7 +150,6 @@ public class TrendAction extends Action<TrendRequest> {
         }
     }
 
-    @Override
     public String getMetricKey() {
         return getParameter().getTable();
     }
@@ -199,21 +198,22 @@ public class TrendAction extends Action<TrendRequest> {
         String field = request.getField();
         Map<String, List<TrendResponse.Count>> trendCounts = new TreeMap<>();
         Terms terms = aggregations.get(Utils.sanitizeFieldForAggregation(field));
-        for (Terms.Bucket bucket : terms.getBuckets()) {
+        for(Terms.Bucket bucket : terms.getBuckets()) {
             final String key = String.valueOf(bucket.getKey());
             List<TrendResponse.Count> counts = Lists.newArrayList();
             Aggregations subAggregations = bucket.getAggregations();
             Histogram histogram = subAggregations.get(Utils.getDateHistogramKey(request.getTimestamp()));
-            for (Histogram.Bucket histogramBucket : histogram.getBuckets()) {
-                if (!CollectionUtils.isNullOrEmpty(getParameter().getUniqueCountOn())) {
+            for(Histogram.Bucket histogramBucket : histogram.getBuckets()) {
+                if(!CollectionUtils.isNullOrEmpty(getParameter().getUniqueCountOn())) {
                     String uniqueCountKey = Utils.sanitizeFieldForAggregation(getParameter().getUniqueCountOn());
                     Cardinality cardinality = histogramBucket.getAggregations()
                             .get(uniqueCountKey);
                     counts.add(new TrendResponse.Count(((DateTime) histogramBucket.getKey()).getMillis(),
                             cardinality.getValue()));
                 } else {
-                    counts.add(new TrendResponse.Count(((DateTime) histogramBucket.getKey()).getMillis(),
-                            histogramBucket.getDocCount()));
+                    counts.add(new TrendResponse.Count(((DateTime)histogramBucket.getKey()).getMillis(),
+                                                       histogramBucket.getDocCount()
+                    ));
                 }
             }
             trendCounts.put(key, counts);

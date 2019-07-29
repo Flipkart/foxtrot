@@ -20,7 +20,7 @@ import com.flipkart.foxtrot.common.ActionValidationResponse;
 import com.flipkart.foxtrot.common.query.Filter;
 import com.flipkart.foxtrot.common.query.general.AnyFilter;
 import com.flipkart.foxtrot.common.query.numeric.LessThanFilter;
-import com.flipkart.foxtrot.common.util.CollectionUtils;
+import com.flipkart.foxtrot.core.alerts.EmailConfig;
 import com.flipkart.foxtrot.core.cache.Cache;
 import com.flipkart.foxtrot.core.cache.CacheManager;
 import com.flipkart.foxtrot.core.exception.FoxtrotException;
@@ -170,7 +170,7 @@ public abstract class Action<P extends ActionRequest> implements Callable<String
     public ActionResponse execute(String email) {
         preProcessRequest(email);
         ActionResponse cachedData = readCachedData();
-        if (cachedData != null) {
+        if(cachedData != null) {
             return cachedData;
         }
         Stopwatch stopwatch = Stopwatch.createStarted();
@@ -217,10 +217,10 @@ public abstract class Action<P extends ActionRequest> implements Callable<String
     public ElasticsearchConnection getConnection() {
         return connection;
     }
-
+    
     private void updateCachedData(ActionResponse result) {
         Cache cache = cacheManager.getCacheFor(this.cacheToken);
-        if (isCacheable()) {
+        if(isCacheable()) {
             cache.put(cacheKey(), result);
         }
     }

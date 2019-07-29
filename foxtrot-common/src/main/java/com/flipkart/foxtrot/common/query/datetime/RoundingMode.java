@@ -32,8 +32,7 @@ public enum RoundingMode {
                     return dateTime;
             }
         }
-    },
-    CEILING {
+    }, CEILING {
         @Override
         public DateTime translate(DateTime dateTime, Duration duration) {
             switch (duration.getUnit()) {
@@ -59,8 +58,7 @@ public enum RoundingMode {
                     return dateTime;
             }
         }
-    },
-    NONE {
+    }, NONE {
         @Override
         public DateTime translate(DateTime dateTime, Duration duration) {
             return dateTime;

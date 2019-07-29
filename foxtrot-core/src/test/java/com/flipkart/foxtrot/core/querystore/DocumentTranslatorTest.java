@@ -40,7 +40,6 @@ public class DocumentTranslatorTest {
         document.setTimestamp(System.currentTimeMillis());
         document.setData(mapper.createObjectNode()
                 .put("name", "rishabh"));
-
         Document translatedDocument = translator.translate(table, document);
 
         assertEquals(translatedDocument.getId(), document.getId());
@@ -64,7 +63,6 @@ public class DocumentTranslatorTest {
         document.setTimestamp(System.currentTimeMillis());
         document.setData(mapper.createObjectNode()
                 .put("name", "rishabh"));
-
         Document translatedDocument = translator.translate(table, document);
 
         assertEquals(translatedDocument.getId(), document.getId());
@@ -114,7 +112,6 @@ public class DocumentTranslatorTest {
         document.setTimestamp(System.currentTimeMillis());
         document.setData(mapper.createObjectNode()
                 .put("name", "rishabh"));
-
         Document translatedDocument = translator.translate(table, document);
 
         Document translatedBackDocument = translator.translateBack(translatedDocument);
@@ -131,7 +128,6 @@ public class DocumentTranslatorTest {
         DocumentTranslator translator = new DocumentTranslator(hbaseConfig);
         Table table = new Table();
         table.setName(UUID.randomUUID()
-                .toString());
 
         Document document = new Document();
         document.setId(UUID.randomUUID()
@@ -139,7 +135,6 @@ public class DocumentTranslatorTest {
         document.setTimestamp(System.currentTimeMillis());
         document.setData(mapper.createObjectNode()
                 .put("name", "rishabh"));
-
         Document translatedDocument = translator.translate(table, document);
 
         Document translatedBackDocument = translator.translateBack(translatedDocument);

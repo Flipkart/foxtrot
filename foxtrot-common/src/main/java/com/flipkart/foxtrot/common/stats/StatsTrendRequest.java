@@ -58,6 +58,22 @@ public class StatsTrendRequest extends ActionRequest {
         return visitor.visit(this);
     }
 
+    public List<Double> getPercentiles() {
+        return percentiles;
+    }
+
+    public void setPercentiles(List<Double> percentiles) {
+        this.percentiles = percentiles;
+    }
+
+    public Set<Stat> getStats() {
+        return stats;
+    }
+
+    public void setStats(Set<Stat> stats) {
+        this.stats = stats;
+    }
+
     @Override
     public String toString() {
         return new ToStringBuilder(this).appendSuper(super.toString())

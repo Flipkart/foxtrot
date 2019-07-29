@@ -40,13 +40,13 @@ public class InFilter extends Filter {
 
     @Override
     public <T> T accept(FilterVisitor<T> visitor) {
-        return visitor.visit(this);
+       return visitor.visit(this);
     }
 
     @Override
     public Set<String> validate() {
         Set<String> validationErrors = super.validate();
-        if (CollectionUtils.isNullOrEmpty(values)) {
+        if(CollectionUtils.isNullOrEmpty(values)) {
             validationErrors.add("at least one value needs to be provided for field");
         }
         return validationErrors;

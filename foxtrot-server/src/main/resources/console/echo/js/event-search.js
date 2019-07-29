@@ -440,4 +440,3 @@ if(isLoggedIn()) {
   getBrowseTables();
   loadConsole();
 }
-

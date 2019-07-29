@@ -261,9 +261,10 @@ function listenUiFilterCheck() {
   }
 }
 
-// sort by name
-function sortConsoleArray(array) {
-   return array.sort(function(a, b){ // sort by name
+function appendConsoleList(array) { // console list to dropdown
+  var textToInsert = [];
+  var i = 0;
+  array.sort(function(a, b){ // sort by name
     var nameA=a.name.toLowerCase(), nameB=b.name.toLowerCase();
     if (nameA < nameB) //sort string ascending
       return -1;
@@ -271,29 +272,13 @@ function sortConsoleArray(array) {
       return 1;
     return 0; //default return value (no sorting)
   });
-}
 
-function prepareListOption(array, appendVersion) {
-  console.log(appendVersion)
-  var textToInsert = [];
-  var i = 0;
-  array = sortConsoleArray(array);
   for (var a = 0; a < array.length; a += 1) {
-    var versionString = " - v"+array[a].version;
     textToInsert[i++] = '<option value=' + array[a].id + '>';
-    textToInsert[i++] = array[a].name+(appendVersion == true ? versionString : '');
+    textToInsert[i++] = array[a].name;
     textToInsert[i++] = '</option>';
   }
-  return textToInsert;
-}
-
-function appendConsoleList(array) { // console list to dropdown
-  $("#listConsole").append(prepareListOption(array, false).join(''));
-}
-
-function appendVersionConsoleList(array) {
-  $("#version-list").find('option').not(':first').remove();// remove all except first 
-  $("#version-list").append(prepareListOption(array, true).join(''));
+  $("#listConsole").append(textToInsert.join(''));
 }
 
 function loadParticularConsole() { // reload page based on selected console
@@ -580,6 +565,7 @@ function getPeriodText(text) {
   else {
     return "minutes";
   }
+<<<<<<< HEAD
 }
 
 /**

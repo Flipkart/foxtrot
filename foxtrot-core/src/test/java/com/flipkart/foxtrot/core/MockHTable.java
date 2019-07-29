@@ -9,7 +9,7 @@
  * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
  * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations under the License.
- */
+*/
 package com.flipkart.foxtrot.core;
 
 import com.google.protobuf.Descriptors;
@@ -367,7 +367,7 @@ public class MockHTable implements Table {
             return data.containsKey(get.getRow());
         } else {
             byte[] row = get.getRow();
-            if (!data.containsKey(row)) {
+            if(!data.containsKey(row)) {
                 return false;
             }
             for (byte[] family : get.getFamilyMap()
@@ -438,7 +438,7 @@ public class MockHTable implements Table {
         }
         byte[] row = get.getRow();
         List<KeyValue> kvs = new ArrayList<KeyValue>();
-        if (!get.hasFamilies()) {
+        if(!get.hasFamilies()) {
             kvs = toKeyValue(row, data.get(row), get.getMaxVersions());
         } else {
             for (byte[] family : get.getFamilyMap()
@@ -473,21 +473,21 @@ public class MockHTable implements Table {
                             .lastEntry();
                     kvs.add(new KeyValue(row, family, qualifier, timestampAndValue.getKey(),
                             timestampAndValue.getValue()));
-                }
+               }
             }
         }
         Filter filter = get.getFilter();
-        if (filter != null) {
+        if(filter != null) {
             filter.reset();
             List<KeyValue> nkvs = new ArrayList<KeyValue>(kvs.size());
-            for (KeyValue kv : kvs) {
-                if (filter.filterAllRemaining()) {
+            for(KeyValue kv : kvs) {
+                if(filter.filterAllRemaining()) {
                     break;
                 }
-                if (filter.filterRowKey(kv.getBuffer(), kv.getRowOffset(), kv.getRowLength())) {
+                if(filter.filterRowKey(kv.getBuffer(), kv.getRowOffset(), kv.getRowLength())) {
                     continue;
                 }
-                if (filter.filterKeyValue(kv) == ReturnCode.INCLUDE) {
+                if(filter.filterKeyValue(kv) == ReturnCode.INCLUDE) {
                     nkvs.add(kv);
                 }
                 // ignoring next key hint which is a optimization to reduce file system IO
@@ -517,7 +517,7 @@ public class MockHTable implements Table {
         byte[] sp = scan.getStopRow();
         Filter filter = scan.getFilter();
 
-        for (byte[] row : data.keySet()) {
+        for(byte[] row : data.keySet()) {
             // if row is equal to startRow emit it. When startRow (inclusive) and
             // stopRow (exclusive) is the same, it should not be excluded which would
             // happen w/o this control.
@@ -575,27 +575,27 @@ public class MockHTable implements Table {
                                     .get(qualifier)
                                     .get(timestamp);
                             kvs.add(new KeyValue(row, family, qualifier, timestamp, value));
-                            if (kvs.size() == scan.getMaxVersions()) {
+                            if(kvs.size() == scan.getMaxVersions()) {
                                 break;
                             }
                         }
                     }
                 }
             }
-            if (filter != null) {
+            if(filter != null) {
                 filter.reset();
                 List<KeyValue> nkvs = new ArrayList<KeyValue>(kvs.size());
-                for (KeyValue kv : kvs) {
-                    if (filter.filterAllRemaining()) {
+                for(KeyValue kv : kvs) {
+                    if(filter.filterAllRemaining()) {
                         break;
                     }
-                    if (filter.filterRowKey(kv.getBuffer(), kv.getRowOffset(), kv.getRowLength())) {
+                    if(filter.filterRowKey(kv.getBuffer(), kv.getRowOffset(), kv.getRowLength())) {
                         continue;
                     }
                     ReturnCode filterResult = filter.filterKeyValue(kv);
-                    if (filterResult == ReturnCode.INCLUDE) {
+                    if(filterResult == ReturnCode.INCLUDE) {
                         nkvs.add(kv);
-                    } else if (filterResult == ReturnCode.NEXT_ROW) {
+                    } else if(filterResult == ReturnCode.NEXT_ROW) {
                         break;
                     }
                     // ignoring next key hint which is a optimization to reduce file system IO
@@ -605,7 +605,7 @@ public class MockHTable implements Table {
                 //                }
                 kvs = nkvs;
             }
-            if (!kvs.isEmpty()) {
+            if(!kvs.isEmpty()) {
                 ret.add(new Result(kvs));
             }
         }
@@ -619,9 +619,9 @@ public class MockHTable implements Table {
 
             public Result[] next(int nbRows) throws IOException {
                 ArrayList<Result> resultSets = new ArrayList<Result>(nbRows);
-                for (int i = 0; i < nbRows; i++) {
+                for(int i = 0; i < nbRows; i++) {
                     Result next = next();
-                    if (next != null) {
+                    if(next != null) {
                         resultSets.add(next);
                     } else {
                         break;
@@ -871,7 +871,6 @@ public class MockHTable implements Table {
     @Override
     public <T extends Service, R> void coprocessorService(Class<T> service, byte[] startKey, byte[] endKey,
             Call<T, R> callable, Callback<R> callback) throws ServiceException, Throwable {
-
     }
 
     @Override
@@ -883,7 +882,6 @@ public class MockHTable implements Table {
     @Override
     public void setWriteBufferSize(long writeBufferSize) throws IOException {
         // TODO Auto-generated method stub
-
     }
 
     @Override

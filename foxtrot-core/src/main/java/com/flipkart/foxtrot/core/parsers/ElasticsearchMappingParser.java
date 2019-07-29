@@ -59,9 +59,9 @@ public class ElasticsearchMappingParser {
                 FieldType fieldType = getFieldType(entry.getValue()
                         .get("type"));
                 fieldTypeMappings.add(FieldMetadata.builder()
-                        .field(currentField)
-                        .type(fieldType)
-                        .build());
+                                              .field(currentField)
+                                              .type(fieldType)
+                                              .build());
             }
         }
         return fieldTypeMappings;
