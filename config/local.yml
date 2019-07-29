@@ -7,8 +7,8 @@ server:
       port: 17001
 
 elasticsearch:
-  hosts: stg-els602.phonepe.nm2
-  cluster: prd-es6xx
+  hosts: localhost
+  cluster: foxtrot
   tableNamePrefix: foxtrot
   getQueryTimeout: 10000
 
@@ -20,7 +20,7 @@ serviceDiscovery:
   publishedPort: 8080
 
 riemann:
-  host: riemann-stage.phonepe.int
+  host: local
   port: 5555
   prefix: phonepe.local.foxtrot
   pollingInterval: 30
@@ -30,7 +30,7 @@ riemann:
 hbase:
   secure : false
   tableName: foxtrot
-  hbaseZookeeperQuorum: stg-dwhxenial002-stg-cloud005.phonepe.nm2:2181
+  hbaseZookeeperQuorum: localhost
   hbaseZookeeperClientPort: 2181
   seggregatedTablePrefix: foxtrot-
   hbaseZookeeperZnodeParent: /hbase-unsecure
