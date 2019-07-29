@@ -3220,6 +3220,26 @@ div.tab button:first-child {
   font-size: 14px;
   width: 100px;
 }
+
+#version-list {
+  position: relative;
+  background: #fff;
+  border: none;
+  font-family: Open Sans;
+  cursor: pointer;
+  width: 180px;
+}
+
+.version-list-block {
+  float: left;
+  margin-top: 15px;
+  margin: 0;
+  margin-top: 9px;
+  margin-left: 13px;
+  font-size: 14px;
+  width: 200px;
+}
+
 #top-settings {
   float: left;
 }
@@ -3594,7 +3614,6 @@ div.tab button:first-child {
   #sequence {
     top: -9px;
   }
-<<<<<<< HEAD
 }
 #set-default {
   width: 24px;

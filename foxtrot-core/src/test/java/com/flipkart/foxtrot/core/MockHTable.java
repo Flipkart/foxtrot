@@ -52,12 +52,10 @@ import org.apache.hadoop.hbase.ipc.CoprocessorRpcChannel;
 import org.apache.hadoop.hbase.util.Bytes;
 
 /**
- * Mock implementation of HTableInterface. Holds any supplied data in a
- * multi-dimensional NavigableMap which acts as a in-memory database. Useful for
- * testing classes that operate on data using an HTableInterface.
+ * Mock implementation of HTableInterface. Holds any supplied data in a multi-dimensional NavigableMap which acts as a
+ * in-memory database. Useful for testing classes that operate on data using an HTableInterface.
  * <p/>
- * Instances should be get using <code>MockHTable.create()</code>. So while a
- * DAO with a saving operation like
+ * Instances should be get using <code>MockHTable.create()</code>. So while a DAO with a saving operation like
  * <p/>
  * <pre>
  * public class MyDAO {
@@ -94,9 +92,8 @@ import org.apache.hadoop.hbase.util.Bytes;
  * }
  * </pre>
  * <p/>
- * MockHTable instances can also be initialized with pre-loaded data using one
- * of the String[][] or Map<String, Map<String, String>> data formats. While
- * String[][] parameter lets directly loading data from source code, Map can be
+ * MockHTable instances can also be initialized with pre-loaded data using one of the String[][] or Map<String,
+ * Map<String, String>> data formats. While String[][] parameter lets directly loading data from source code, Map can be
  * generated from a YAML document, using a parser.
  * <p/>
  * <pre>
@@ -115,9 +112,8 @@ import org.apache.hadoop.hbase.util.Bytes;
  * <code>MockHTable.toEString()</code> can be used to turn it into a String.
  * <p/>
  * <p/>
- * In order to simplify assertions for tests that should put anything into
- * database, MockHTable.read() works with two parameters (id and column) and
- * returns anything written to that row/column. So, previous test can be reduced to
+ * In order to simplify assertions for tests that should put anything into database, MockHTable.read() works with two
+ * parameters (id and column) and returns anything written to that row/column. So, previous test can be reduced to
  * <p/>
  * <pre>
  * &#064;Test
@@ -131,8 +127,8 @@ import org.apache.hadoop.hbase.util.Bytes;
  *
  * @author erdem
  * <p/>
- * Copied from https://gist.github.com/raw/613217/70df8a70dcac2fff1d239d43e8f52c43043d30bf/MockHTable.java.
- * See http://blog.erdemagaoglu.com/post/1254694314/unit-testing-hbase-applications.
+ * Copied from https://gist.github.com/raw/613217/70df8a70dcac2fff1d239d43e8f52c43043d30bf/MockHTable.java. See
+ * http://blog.erdemagaoglu.com/post/1254694314/unit-testing-hbase-applications.
  */
 public class MockHTable implements Table {
 
@@ -156,8 +152,8 @@ public class MockHTable implements Table {
     }
 
     /**
-     * Create a MockHTable with some pre-loaded data. Parameter should be a map of
-     * column-to-data mappings of rows. It can be created with a YAML like
+     * Create a MockHTable with some pre-loaded data. Parameter should be a map of column-to-data mappings of rows. It
+     * can be created with a YAML like
      * <p/>
      * <pre>
      * rowid:
@@ -184,10 +180,10 @@ public class MockHTable implements Table {
     /**
      * Helper method of pre-loaders, adds parameters to data.
      *
-     * @param ret    data to load into
-     * @param row    rowid
+     * @param ret data to load into
+     * @param row rowid
      * @param column family:qualifier encoded value
-     * @param val    value
+     * @param val value
      */
     private static void put(MockHTable ret, String row, String column, String val) {
         String[] fq = split(column);
@@ -217,8 +213,8 @@ public class MockHTable implements Table {
     }
 
     /**
-     * Create a MockHTable with some pre-loaded data. Parameter should be an array
-     * of string arrays which define every column value individually.
+     * Create a MockHTable with some pre-loaded data. Parameter should be an array of string arrays which define every
+     * column value individually.
      * <p/>
      * <pre>
      * new String[][] {
@@ -227,9 +223,6 @@ public class MockHTable implements Table {
      *   { "id", "family:qualifier2", "data2" }
      * });
      * </pre>
-     *
-     * @param dump
-     * @return
      */
     public static MockHTable with(String[][] dump) {
         MockHTable ret = new MockHTable();
@@ -266,8 +259,8 @@ public class MockHTable implements Table {
     /**
      * Helper method to convert some data into a list of KeyValue's
      *
-     * @param row         row value of the KeyValue's
-     * @param rowdata     data to decode
+     * @param row row value of the KeyValue's
+     * @param rowdata data to decode
      * @param maxVersions number of versions to return
      * @return List of KeyValue's
      */
@@ -277,14 +270,13 @@ public class MockHTable implements Table {
     }
 
     /**
-     * Helper method to convert some data into a list of KeyValue's with timestamp
-     * constraint
+     * Helper method to convert some data into a list of KeyValue's with timestamp constraint
      *
-     * @param row            row value of the KeyValue's
-     * @param rowdata        data to decode
+     * @param row row value of the KeyValue's
+     * @param rowdata data to decode
      * @param timestampStart start of the timestamp constraint
-     * @param timestampEnd   end of the timestamp constraint
-     * @param maxVersions    number of versions to return
+     * @param timestampEnd end of the timestamp constraint
+     * @param maxVersions number of versions to return
      * @return List of KeyValue's
      */
     private static List<KeyValue> toKeyValue(byte[] row,
@@ -318,11 +310,10 @@ public class MockHTable implements Table {
     }
 
     /**
-     * Helper method to find a key in a map. If key is not found, newObject is
-     * added to map and returned
+     * Helper method to find a key in a map. If key is not found, newObject is added to map and returned
      *
-     * @param map       map to extract value from
-     * @param key       key to look for
+     * @param map map to extract value from
+     * @param key key to look for
      * @param newObject set key to this if not found
      * @return found value or newObject if not found
      */
@@ -697,15 +688,13 @@ public class MockHTable implements Table {
     }
 
     /**
-     * Checks if the value with given details exists in database, or is
-     * non-existent in the case of value being null
+     * Checks if the value with given details exists in database, or is non-existent in the case of value being null
      *
-     * @param row       row
-     * @param family    family
+     * @param row row
+     * @param family family
      * @param qualifier qualifier
-     * @param value     value
-     * @return true if value is not null and exists in db, or value is null and
-     * not exists in db, false otherwise
+     * @param value value
+     * @return true if value is not null and exists in db, or value is null and not exists in db, false otherwise
      */
     private boolean check(byte[] row, byte[] family, byte[] qualifier, byte[] value) {
         if (value == null || value.length == 0) {
@@ -906,7 +895,7 @@ public class MockHTable implements Table {
     /**
      * Read a value saved in the object. Useful for making assertions in tests.
      *
-     * @param rowid  rowid of the data to read
+     * @param rowid rowid of the data to read
      * @param column family:qualifier of the data to read
      * @return value or null if row or column of the row does not exist
      */

@@ -148,6 +148,7 @@ public class TrendAction extends Action<TrendRequest> {
         }
     }
 
+    @Override
     public String getMetricKey() {
         return getParameter().getTable();
     }

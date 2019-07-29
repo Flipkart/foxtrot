@@ -43,7 +43,7 @@ public class FoxtrotTableManager implements TableManager {
             throw FoxtrotExceptions.createTableExistsException(table.getName());
         }
         queryStore.initializeTable(table.getName());
-        dataStore.initializeTable(table, false);
+        dataStore.initializeTable(table, forceCreateTable);
         metadataManager.save(table);
     }
 

@@ -56,8 +56,6 @@ public class GroupActionEstimationTest extends ActionTest {
                 .containsKey("android"));
         Assert.assertTrue(response.getResult()
                 .containsKey("ios"));
-        Assert.assertTrue(response.getResult()
-                .containsKey("ios"));
     }
 
 
