@@ -70,6 +70,8 @@ public class DistributedTableMetadataManagerTest {
         emailConfig.setHost("127.0.0.1");
 
         TestUtils.createTable(elasticsearchConnection, DistributedTableMetadataManager.CARDINALITY_CACHE_INDEX);
+
+        hazelcastInstance = new TestHazelcastInstanceFactory(1).newHazelcastInstance();
         HazelcastConnection hazelcastConnection = Mockito.mock(HazelcastConnection.class);
         when(hazelcastConnection.getHazelcast()).thenReturn(hazelcastInstance);
         when(hazelcastConnection.getHazelcastConfig()).thenReturn(new Config());

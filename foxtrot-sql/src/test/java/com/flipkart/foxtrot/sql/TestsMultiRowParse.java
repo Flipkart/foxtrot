@@ -18,6 +18,7 @@ public class TestsMultiRowParse {
         objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
         ObjectWriter writer = objectMapper.writerWithDefaultPrettyPrinter();
         final String json = "{\"table\":\"europa\",\"mappings\":[{\"field\":\"data.checkoutId\",\"type\":\"STRING\"}," +
+                            "{\"field\":\"data.errorMessage\",\"type\":\"STRING\"},{\"field\":\"data.startTime\"," +
                 "\"type\":\"LONG\"},{\"field\":\"data.error\",\"type\":\"STRING\"},{\"field\":\"data" +
                 ".pin\"," +
                 "\"type\":\"LONG\"},{\"field\":\"data.version\",\"type\":\"STRING\"},{\"field\":\"data" +
