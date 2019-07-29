@@ -15,7 +15,6 @@ import java.io.IOException;
 import java.net.Inet4Address;
 import java.util.Collection;
 import java.util.List;
-import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
@@ -92,7 +91,7 @@ public class ClusterManager implements Managed {
 
         @Override
         public void run() {
-            if(null == members) {
+            if (null == members) {
                 logger.error("Map not yet initialized.");
                 return;
             }
@@ -102,7 +101,7 @@ public class ClusterManager implements Managed {
                     isHealthy &= healthCheck.execute()
                             .isHealthy();
                 }
-                if(isHealthy) {
+                if (isHealthy) {
                     members.put(clusterMember.toString(), clusterMember);
                     logger.debug("Service is healthy. Registering to map.");
                 }

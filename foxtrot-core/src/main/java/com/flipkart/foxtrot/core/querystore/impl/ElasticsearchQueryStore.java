@@ -59,9 +59,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * User: Santanu Sinha (santanu.sinha@flipkart.com)
- * Date: 14/03/14
- * Time: 12:27 AM
+ * User: Santanu Sinha (santanu.sinha@flipkart.com) Date: 14/03/14 Time: 12:27 AM
  */
 @Data
 public class ElasticsearchQueryStore implements QueryStore {
@@ -185,7 +183,7 @@ public class ElasticsearchQueryStore implements QueryStore {
             BulkRequestBuilder bulkRequestBuilder = connection.getClient()
                     .prepareBulk();
             DateTime dateTime = new DateTime().plusDays(1);
-            for(Document document : translatedDocuments) {
+            for (Document document : translatedDocuments) {
                 long timestamp = document.getTimestamp();
                 if (dateTime.minus(timestamp)
                         .getMillis() < 0) {
@@ -270,7 +268,7 @@ public class ElasticsearchQueryStore implements QueryStore {
             throw FoxtrotExceptions.createBadRequestException(table, String.format(UNKNOWN_TABLE_ERROR_MESSAGE, table));
         }
         Map<String, String> rowKeys = Maps.newLinkedHashMap();
-        for(String id : ids) {
+        for (String id : ids) {
             rowKeys.put(id, id);
         }
         if (!bypassMetalookup) {

@@ -22,9 +22,7 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.hibernate.validator.constraints.NotEmpty;
 
 /**
- * User: Santanu Sinha (santanu.sinha@flipkart.com)
- * Date: 21/03/14
- * Time: 4:52 PM
+ * User: Santanu Sinha (santanu.sinha@flipkart.com) Date: 21/03/14 Time: 4:52 PM
  */
 public class GroupRequest extends ActionRequest {
 

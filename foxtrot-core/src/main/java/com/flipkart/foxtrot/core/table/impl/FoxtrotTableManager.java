@@ -39,7 +39,7 @@ public class FoxtrotTableManager implements TableManager {
     @Override
     public void save(Table table, boolean forceCreateTable) {
         validateTableParams(table);
-        if(metadataManager.exists(table.getName())) {
+        if (metadataManager.exists(table.getName())) {
             throw FoxtrotExceptions.createTableExistsException(table.getName());
         }
         queryStore.initializeTable(table.getName());
@@ -51,7 +51,7 @@ public class FoxtrotTableManager implements TableManager {
     @Override
     public Table get(String name) {
         Table table = metadataManager.get(name);
-        if(table == null) {
+        if (table == null) {
             throw FoxtrotExceptions.createTableMissingException(name);
         }
         return table;
@@ -65,7 +65,7 @@ public class FoxtrotTableManager implements TableManager {
     @Override
     public void update(Table table) {
         validateTableParams(table);
-        if(!metadataManager.exists(table.getName())) {
+        if (!metadataManager.exists(table.getName())) {
             throw FoxtrotExceptions.createTableMissingException(table.getName());
         }
         metadataManager.save(table);

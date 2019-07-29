@@ -39,9 +39,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * User: Santanu Sinha (santanu.sinha@flipkart.com)
- * Date: 24/03/14
- * Time: 1:00 PM
+ * User: Santanu Sinha (santanu.sinha@flipkart.com) Date: 24/03/14 Time: 1:00 PM
  */
 @AnalyticsProvider(opcode = "query", request = Query.class, response = QueryResponse.class, cacheable = false)
 public class FilterAction extends Action<Query> {
@@ -55,7 +53,7 @@ public class FilterAction extends Action<Query> {
     @Override
     public void preprocess() {
         getParameter().setTable(ElasticsearchUtils.getValidTableName(getParameter().getTable()));
-        if(null == getParameter().getSort()) {
+        if (null == getParameter().getSort()) {
             ResultSort resultSort = new ResultSort();
             resultSort.setField("_timestamp");
             resultSort.setOrder(ResultSort.Order.desc);
@@ -66,22 +64,22 @@ public class FilterAction extends Action<Query> {
     @Override
     public void validateImpl(Query parameter, String email) {
         List<String> validationErrors = new ArrayList<>();
-        if(CollectionUtils.isNullOrEmpty(parameter.getTable())) {
+        if (CollectionUtils.isNullOrEmpty(parameter.getTable())) {
             validationErrors.add("table name cannot be null or empty");
         }
-        if(parameter.getSort() == null) {
+        if (parameter.getSort() == null) {
             validationErrors.add("sort order needs to be specified");
         }
 
-        if(parameter.getFrom() < 0) {
+        if (parameter.getFrom() < 0) {
             validationErrors.add("from must be non-negative integer");
         }
 
-        if(parameter.getLimit() <= 0) {
+        if (parameter.getLimit() <= 0) {
             validationErrors.add("limit must be positive integer");
         }
 
-        if(!CollectionUtils.isNullOrEmpty(validationErrors)) {
+        if (!CollectionUtils.isNullOrEmpty(validationErrors)) {
             throw FoxtrotExceptions.createMalformedQueryException(parameter, validationErrors);
         }
     }

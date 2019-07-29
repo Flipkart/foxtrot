@@ -126,7 +126,7 @@ public class StatsActionTest extends ActionTest {
         assertTrue(statsResponse.getResult()
                 .getStats()
                 .containsKey("max"));
-  }
+    }
 
     @Test
     public void testStatsActionOnlyMinStat() throws FoxtrotException {
@@ -144,7 +144,7 @@ public class StatsActionTest extends ActionTest {
         assertTrue(statsResponse.getResult()
                 .getStats()
                 .containsKey("min"));
-   }
+    }
 
 
     @Test
@@ -163,7 +163,7 @@ public class StatsActionTest extends ActionTest {
         assertTrue(statsResponse.getResult()
                 .getStats()
                 .containsKey("avg"));
-   }
+    }
 
     @Test
     public void testStatsActionOnlySumStat() throws FoxtrotException {
@@ -178,7 +178,7 @@ public class StatsActionTest extends ActionTest {
         assertTrue(statsResponse.getResult()
                 .getStats()
                 .containsKey("sum"));
-   }
+    }
 
     @Test
     public void testStatsActionOnlyOnePercentile() throws FoxtrotException {
@@ -203,7 +203,7 @@ public class StatsActionTest extends ActionTest {
         assertTrue(statsResponse.getResult()
                 .getPercentiles()
                 .containsKey(5d));
-   }
+    }
 
     @Test
     public void testStatsActionWithNesting() throws FoxtrotException {

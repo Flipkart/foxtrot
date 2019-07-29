@@ -9,7 +9,7 @@
  * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
  * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations under the License.
-*/
+ */
 package com.flipkart.foxtrot.core.querystore.impl;
 
 import static org.junit.Assert.assertEquals;
@@ -77,9 +77,9 @@ public class DistributedCacheTest {
         EmailClient emailClient = Mockito.mock(EmailClient.class);
         when(emailClient.sendEmail(any(String.class), any(String.class), any(String.class))).thenReturn(true);
 
-
-        AnalyticsLoader analyticsLoader = new AnalyticsLoader(tableMetadataManager, null, queryStore, null, cacheManager, mapper,
-                                                              emailConfig, emailClient
+        AnalyticsLoader analyticsLoader = new AnalyticsLoader(tableMetadataManager, null, queryStore, null,
+                cacheManager, mapper,
+                emailConfig, emailClient
         );
         TestUtils.registerActions(analyticsLoader, mapper);
     }

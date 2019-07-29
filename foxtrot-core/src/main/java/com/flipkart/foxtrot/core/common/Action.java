@@ -21,7 +21,6 @@ import com.flipkart.foxtrot.common.query.Filter;
 import com.flipkart.foxtrot.common.query.general.AnyFilter;
 import com.flipkart.foxtrot.common.query.numeric.LessThanFilter;
 import com.flipkart.foxtrot.common.util.CollectionUtils;
-import com.flipkart.foxtrot.core.alerts.EmailConfig;
 import com.flipkart.foxtrot.core.cache.Cache;
 import com.flipkart.foxtrot.core.cache.CacheManager;
 import com.flipkart.foxtrot.core.exception.FoxtrotException;
@@ -47,9 +46,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * User: Santanu Sinha (santanu.sinha@flipkart.com)
- * Date: 24/03/14
- * Time: 12:23 AM
+ * User: Santanu Sinha (santanu.sinha@flipkart.com) Date: 24/03/14 Time: 12:23 AM
  */
 public abstract class Action<P extends ActionRequest> implements Callable<String> {
 
@@ -171,7 +168,7 @@ public abstract class Action<P extends ActionRequest> implements Callable<String
     public ActionResponse execute(String email) {
         preProcessRequest(email);
         ActionResponse cachedData = readCachedData();
-        if(cachedData != null) {
+        if (cachedData != null) {
             return cachedData;
         }
         Stopwatch stopwatch = Stopwatch.createStarted();
@@ -218,10 +215,10 @@ public abstract class Action<P extends ActionRequest> implements Callable<String
     public ElasticsearchConnection getConnection() {
         return connection;
     }
-    
+
     private void updateCachedData(ActionResponse result) {
         Cache cache = cacheManager.getCacheFor(this.cacheToken);
-        if(isCacheable()) {
+        if (isCacheable()) {
             cache.put(cacheKey(), result);
         }
     }
@@ -248,9 +245,7 @@ public abstract class Action<P extends ActionRequest> implements Callable<String
      * Returns a metric key for current action. Ideally this key's cardinality should be less since each new value of
      * this key will create new JMX metric
      * <p>
-     * Sample use cases - Used for reporting per action
-     * success/failure metrics
-     * cache hit/miss metrics
+     * Sample use cases - Used for reporting per action success/failure metrics cache hit/miss metrics
      *
      * @return metric key for current action
      */

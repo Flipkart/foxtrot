@@ -129,7 +129,7 @@ public class QueryTranslator extends SqlElementVisitor {
         if (FqlQueryType.SELECT == queryType) {
             List<OrderByElement> orderByElements = plainSelect.getOrderByElements();
             resultSort = generateResultSort(orderByElements);
-            if(null != plainSelect.getLimit()) {
+            if (null != plainSelect.getLimit()) {
                 hasLimit = true;
                 limitFrom = plainSelect.getLimit()
                         .getOffset();
@@ -225,7 +225,7 @@ public class QueryTranslator extends SqlElementVisitor {
                     columnWithoutSort.setField(selectedColumn);
                     columnWithoutSort.setOrder(ResultSort.Order.desc);
                     columnsWithSort.add(columnWithoutSort);
-               }
+                }
             }
             this.queryType = FqlQueryType.DISTINCT;
         }
@@ -270,7 +270,7 @@ public class QueryTranslator extends SqlElementVisitor {
         trend.setFilters(filters);
         return trend;
     }
-   
+
     private ActionRequest createStatsTrendActionRequest() {
         StatsTrendRequest statsTrend = (StatsTrendRequest) calledAction;
         statsTrend.setTable(tableName);
@@ -320,6 +320,7 @@ public class QueryTranslator extends SqlElementVisitor {
         distinctRequest.setNesting(columnsWithSort);
         return distinctRequest;
     }
+
     private void setUniqueCountOn(GroupRequest group) {
         if (calledAction instanceof CountRequest) {
             CountRequest countRequest = (CountRequest) this.calledAction;
@@ -383,7 +384,7 @@ public class QueryTranslator extends SqlElementVisitor {
                     case STATS:
                         actionRequest = parseStatsFunction(function.getParameters()
                                 .getExpressions());
-                       break;
+                        break;
                     case HISTOGRAM:
                         actionRequest = parseHistogramRequest(function.getParameters());
                         break;
@@ -404,7 +405,7 @@ public class QueryTranslator extends SqlElementVisitor {
                     columnName = ((Column) ((Parenthesis) expression).getExpression()).getFullyQualifiedName();
                 } else if (expression instanceof Column) {
                     columnName = ((Column) expression).getFullyQualifiedName();
-               }
+                }
             }
         }
 
@@ -440,7 +441,7 @@ public class QueryTranslator extends SqlElementVisitor {
             }
             if (expressions.size() > 2) {
                 trendRequest.setTimestamp(QueryUtils.expressionToString((Expression) expressions.get(2)));
-           }
+            }
             return trendRequest;
         }
 
@@ -455,7 +456,7 @@ public class QueryTranslator extends SqlElementVisitor {
                 statsTrendRequest
                         .setPeriod(Period.valueOf(QueryUtils.expressionToString((Expression) expressions.get(1))
                                 .toLowerCase()));
-           }
+            }
             return statsTrendRequest;
         }
 
@@ -464,7 +465,7 @@ public class QueryTranslator extends SqlElementVisitor {
                 throw new FqlParsingException("stats function has following format: stats(fieldname)");
             }
             StatsRequest statsRequest = new StatsRequest();
-            statsRequest.setField(QueryUtils.expressionToString((Expression)expressions.get(0)));
+            statsRequest.setField(QueryUtils.expressionToString((Expression) expressions.get(0)));
             return statsRequest;
         }
 
@@ -472,7 +473,7 @@ public class QueryTranslator extends SqlElementVisitor {
             if (expressionList != null && (expressionList.getExpressions() != null && expressionList.getExpressions()
                     .size() > 2)) {
                 throw new FqlParsingException(
-                       "histogram function has the following format: histogram([period, [timestamp field]])");
+                        "histogram function has the following format: histogram([period, [timestamp field]])");
             }
             HistogramRequest histogramRequest = new HistogramRequest();
             if (null != expressionList) {
@@ -481,7 +482,7 @@ public class QueryTranslator extends SqlElementVisitor {
                         .toLowerCase()));
                 if (expressions.size() > 1) {
                     histogramRequest.setField(QueryUtils.expressionToString((Expression) expressions.get(1)));
-               }
+                }
             }
             return histogramRequest;
         }
@@ -616,7 +617,7 @@ public class QueryTranslator extends SqlElementVisitor {
         public void visit(IsNullExpression isNullExpression) {
             super.visit(isNullExpression);
             ColumnData columnData = setupColumn(isNullExpression.getLeftExpression());
-            if(isNullExpression.isNot()) {
+            if (isNullExpression.isNot()) {
                 ExistsFilter existsFilter = new ExistsFilter();
 
                 existsFilter.setField(columnData.getColumnName()
@@ -689,7 +690,7 @@ public class QueryTranslator extends SqlElementVisitor {
             if (expressions.size() > 2) {
                 lastFilter.setField(QueryUtils.expressionToString((Expression) expressions.get(2))
                         .replaceAll(Constants.SQL_FIELD_REGEX, ""));
-           }
+            }
             return lastFilter;
         }
 
@@ -720,7 +721,7 @@ public class QueryTranslator extends SqlElementVisitor {
             }
             if (expression instanceof TimeValue) {
                 return ((TimeValue) expression).getValue()
-                       .getTime();
+                        .getTime();
             }
             throw new FqlParsingException("Unsupported value type.");
 
@@ -744,7 +745,7 @@ public class QueryTranslator extends SqlElementVisitor {
                 return new ColumnData(((Column) expression).getFullyQualifiedName());
             }
             throw new FqlParsingException(
-                   "Only the function 'temporal([fieldname)' and fieldname is supported in where clause");
+                    "Only the function 'temporal([fieldname)' and fieldname is supported in where clause");
         }
 
         private static final class ColumnData {

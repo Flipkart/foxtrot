@@ -20,11 +20,13 @@ public class MultiTimeQueryRequest extends ActionRequest {
 
     @NotNull
     private transient Duration skipDuration;
+    @NotNull
+    private ActionRequest actionRequest;
+
 
     public MultiTimeQueryRequest() {
         super(Opcodes.MULTI_TIME_QUERY);
     }
-
 
     public MultiTimeQueryRequest(int sampleSize, Duration skipDuration,
             ActionRequest actionRequest) {
@@ -33,9 +35,6 @@ public class MultiTimeQueryRequest extends ActionRequest {
         this.skipDuration = skipDuration;
         this.actionRequest = actionRequest;
     }
-
-    @NotNull
-    private ActionRequest actionRequest;
 
     public <T> T accept(ActionRequestVisitor<T> visitor) {
         return visitor.visit(this);

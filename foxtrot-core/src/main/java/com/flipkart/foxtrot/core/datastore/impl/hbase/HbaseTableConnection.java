@@ -18,7 +18,6 @@ import com.flipkart.foxtrot.core.util.TableUtil;
 import io.dropwizard.lifecycle.Managed;
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
-
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.HColumnDescriptor;
 import org.apache.hadoop.hbase.HTableDescriptor;
@@ -32,9 +31,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * User: Santanu Sinha (santanu.sinha@flipkart.com)
- * Date: 13/03/14
- * Time: 7:35 PM
+ * User: Santanu Sinha (santanu.sinha@flipkart.com) Date: 13/03/14 Time: 7:35 PM
  */
 public class HbaseTableConnection implements Managed {
 

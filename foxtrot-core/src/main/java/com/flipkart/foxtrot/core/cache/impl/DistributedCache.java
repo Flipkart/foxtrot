@@ -25,9 +25,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * User: Santanu Sinha (santanu.sinha@flipkart.com)
- * Date: 25/03/14
- * Time: 7:43 PM
+ * User: Santanu Sinha (santanu.sinha@flipkart.com) Date: 25/03/14 Time: 7:43 PM
  */
 
 public class DistributedCache implements Cache {
@@ -46,9 +44,9 @@ public class DistributedCache implements Cache {
     public ActionResponse put(String key, ActionResponse data) {
         try {
             final String serializedData = mapper.writeValueAsString(data);
-            if(serializedData != null) {
+            if (serializedData != null) {
                 // Only cache if size is less that 32 KB
-                if(serializedData.length() <= 32 * 1024) {
+                if (serializedData.length() <= 32 * 1024) {
                     distributedMap.put(key, mapper.writeValueAsString(data));
                 } else {
                     String responsePart = serializedData.substring(0, 1024);
@@ -64,11 +62,11 @@ public class DistributedCache implements Cache {
 
     @Override
     public ActionResponse get(String key) {
-        if(null == key) {
+        if (null == key) {
             return null; //Hazelcast map throws NPE if key is null
         }
         String data = distributedMap.get(key);
-        if(null != data) {
+        if (null != data) {
             try {
                 return mapper.readValue(data, ActionResponse.class);
             } catch (IOException e) {

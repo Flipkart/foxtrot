@@ -8,7 +8,7 @@
  * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
  * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations under the License.
-*/
+ */
 package com.flipkart.foxtrot.core.querystore.actions;
 
 import static com.flipkart.foxtrot.core.TestUtils.TEST_EMAIL;
@@ -254,7 +254,7 @@ public class StatsTrendActionTest extends ActionTest {
     }
 
     @Test
-   public void testStatsTrendActionOnlySumStat() throws FoxtrotException, JsonProcessingException {
+    public void testStatsTrendActionOnlySumStat() throws FoxtrotException, JsonProcessingException {
         StatsTrendRequest request = new StatsTrendRequest();
         request.setTable(TestUtils.TEST_TABLE_NAME);
         request.setTimestamp("_timestamp");
@@ -280,7 +280,7 @@ public class StatsTrendActionTest extends ActionTest {
                 .get(0)
                 .getStats()
                 .containsKey("sum"));
-       assertNull(statsTrendResponse.getBuckets());
+        assertNull(statsTrendResponse.getBuckets());
     }
 
     @Test
@@ -311,7 +311,7 @@ public class StatsTrendActionTest extends ActionTest {
                 .get(0)
                 .getPercentiles()
                 .containsKey(5d));
-   }
+    }
 
     @Test
     public void testStatsTrendActionWithNesting() throws FoxtrotException {

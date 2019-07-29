@@ -17,7 +17,6 @@ package com.flipkart.foxtrot.core.table.impl;
 
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConfig;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConnection;
-
 import java.util.UUID;
 
 /***

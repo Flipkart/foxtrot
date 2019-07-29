@@ -115,7 +115,7 @@ public class TableFieldMappingResourceTest extends FoxtrotResourceTest {
                 .field("date.minuteOfHour")
                 .type(FieldType.LONG)
                 .build());
-       TableFieldMapping tableFieldMapping = new TableFieldMapping(TestUtils.TEST_TABLE_NAME, mappings);
+        TableFieldMapping tableFieldMapping = new TableFieldMapping(TestUtils.TEST_TABLE_NAME, mappings);
         String response = resources.client()
                 .target(String.format("/v1/tables/%s/fields", TestUtils.TEST_TABLE_NAME))
                 .request()

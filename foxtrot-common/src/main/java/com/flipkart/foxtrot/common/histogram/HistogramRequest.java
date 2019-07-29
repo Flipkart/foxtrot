@@ -23,9 +23,7 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.hibernate.validator.constraints.NotEmpty;
 
 /**
- * User: Santanu Sinha (santanu.sinha@flipkart.com)
- * Date: 21/03/14
- * Time: 12:06 AM
+ * User: Santanu Sinha (santanu.sinha@flipkart.com) Date: 21/03/14 Time: 12:06 AM
  */
 public class HistogramRequest extends ActionRequest {
 

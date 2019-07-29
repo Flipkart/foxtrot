@@ -42,7 +42,7 @@ public class LastFilter extends Filter {
     public void setDuration(Duration duration) {
         this.duration = duration;
         this.roundingMode = roundingMode == null ? RoundingMode.NONE : roundingMode;
-   }
+    }
 
     @Override
     public <T> T accept(FilterVisitor<T> visitor) {

@@ -23,9 +23,7 @@ import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
 /**
- * User: Santanu Sinha (santanu.sinha@flipkart.com)
- * Date: 14/03/14
- * Time: 3:35 PM
+ * User: Santanu Sinha (santanu.sinha@flipkart.com) Date: 14/03/14 Time: 3:35 PM
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -53,7 +51,7 @@ public class NotEqualsFilter extends Filter {
     @Override
     public Set<String> validate() {
         Set<String> validationErrors = super.validate();
-        if(value == null) {
+        if (value == null) {
             validationErrors.add("filter field value cannot be null or empty");
         }
         return validationErrors;

@@ -11,6 +11,7 @@ import javax.validation.constraints.Size;
 import lombok.Data;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.hibernate.validator.constraints.NotEmpty;
+
 /**
  * Created by rishabh.goyal on 02/08/14.
  */

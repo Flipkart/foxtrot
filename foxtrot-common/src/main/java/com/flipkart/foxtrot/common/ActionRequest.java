@@ -22,9 +22,7 @@ import lombok.NoArgsConstructor;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
 /**
- * User: Santanu Sinha (santanu.sinha@flipkart.com)
- * Date: 26/03/14
- * Time: 7:49 PM
+ * User: Santanu Sinha (santanu.sinha@flipkart.com) Date: 26/03/14 Time: 7:49 PM
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.EXISTING_PROPERTY, property = "opcode")
 @NoArgsConstructor

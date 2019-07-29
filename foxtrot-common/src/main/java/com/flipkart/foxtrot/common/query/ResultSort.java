@@ -17,9 +17,7 @@ import javax.validation.constraints.NotNull;
 import org.hibernate.validator.constraints.NotEmpty;
 
 /**
- * User: Santanu Sinha (santanu.sinha@flipkart.com)
- * Date: 14/03/14
- * Time: 9:00 PM
+ * User: Santanu Sinha (santanu.sinha@flipkart.com) Date: 14/03/14 Time: 9:00 PM
  */
 public class ResultSort implements Serializable {
 
@@ -67,13 +65,13 @@ public class ResultSort implements Serializable {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        ResultSort that = (ResultSort)o;
+        ResultSort that = (ResultSort) o;
 
         if (!field.equals(that.field)) {
             return false;
         }
         return order == that.order;
-   }
+    }
 
     @Override
     public String toString() {

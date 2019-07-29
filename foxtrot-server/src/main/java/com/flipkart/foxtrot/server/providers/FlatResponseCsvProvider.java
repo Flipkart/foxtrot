@@ -33,7 +33,7 @@ public class FlatResponseCsvProvider implements MessageBodyWriter<FlatRepresenta
             MediaType mediaType, MultivaluedMap<String, Object> httpHeaders, OutputStream entityStream)
             throws IOException {
         if (null == response) {
-           entityStream.write("No records found matching the specified criterion".getBytes());
+            entityStream.write("No records found matching the specified criterion".getBytes());
             return;
         }
         StringWriter dataBuffer = new StringWriter();

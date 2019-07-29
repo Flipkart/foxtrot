@@ -122,7 +122,7 @@ public class ElasticsearchUtils {
                 .indices()
                 .putTemplate(templateRequest)
                 .actionGet();
-   }
+    }
 
     public static PutIndexTemplateRequest getClusterTemplateMapping() {
         try {

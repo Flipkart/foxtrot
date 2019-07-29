@@ -15,9 +15,7 @@ package com.flipkart.foxtrot.core.cache;
 import com.flipkart.foxtrot.common.ActionResponse;
 
 /**
- * User: Santanu Sinha (santanu.sinha@flipkart.com)
- * Date: 24/03/14
- * Time: 12:26 AM
+ * User: Santanu Sinha (santanu.sinha@flipkart.com) Date: 24/03/14 Time: 12:26 AM
  */
 public interface Cache {
 

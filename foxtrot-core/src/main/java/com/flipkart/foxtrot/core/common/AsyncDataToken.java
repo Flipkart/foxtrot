@@ -13,9 +13,7 @@
 package com.flipkart.foxtrot.core.common;
 
 /**
- * User: Santanu Sinha (santanu.sinha@flipkart.com)
- * Date: 26/03/14
- * Time: 7:02 PM
+ * User: Santanu Sinha (santanu.sinha@flipkart.com) Date: 26/03/14 Time: 7:02 PM
  */
 public class AsyncDataToken {
 

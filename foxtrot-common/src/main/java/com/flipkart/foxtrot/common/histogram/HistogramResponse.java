@@ -18,9 +18,7 @@ import com.flipkart.foxtrot.common.ResponseVisitor;
 import java.util.List;
 
 /**
- * User: Santanu Sinha (santanu.sinha@flipkart.com)
- * Date: 21/03/14
- * Time: 12:14 AM
+ * User: Santanu Sinha (santanu.sinha@flipkart.com) Date: 21/03/14 Time: 12:14 AM
  */
 public class HistogramResponse extends ActionResponse {
 
@@ -80,7 +78,7 @@ public class HistogramResponse extends ActionResponse {
         @Override
         public int hashCode() {
             int result = period.hashCode();
-            result = 31 * result + (int)(count ^ (count >>> 32));
+            result = 31 * result + (int) (count ^ (count >>> 32));
             return result;
         }
 

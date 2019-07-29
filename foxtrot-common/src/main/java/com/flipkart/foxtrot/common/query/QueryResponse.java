@@ -19,9 +19,7 @@ import com.flipkart.foxtrot.common.ResponseVisitor;
 import java.util.List;
 
 /**
- * User: Santanu Sinha (santanu.sinha@flipkart.com)
- * Date: 24/03/14
- * Time: 1:00 PM
+ * User: Santanu Sinha (santanu.sinha@flipkart.com) Date: 24/03/14 Time: 1:00 PM
  */
 public class QueryResponse extends ActionResponse {
 

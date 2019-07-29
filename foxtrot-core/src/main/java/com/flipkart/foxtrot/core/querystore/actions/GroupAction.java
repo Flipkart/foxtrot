@@ -77,9 +77,7 @@ import org.elasticsearch.search.aggregations.metrics.cardinality.Cardinality;
 import org.joda.time.Interval;
 
 /**
- * User: Santanu Sinha (santanu.sinha@flipkart.com)
- * Date: 27/03/14
- * Time: 7:16 PM
+ * User: Santanu Sinha (santanu.sinha@flipkart.com) Date: 27/03/14 Time: 7:16 PM
  */
 @AnalyticsProvider(opcode = "group", request = GroupRequest.class, response = GroupResponse.class, cacheable = true)
 @Slf4j
@@ -92,12 +90,12 @@ public class GroupAction extends Action<GroupRequest> {
 
     public GroupAction(GroupRequest parameter, String cacheToken, AnalyticsLoader analyticsLoader) {
         super(parameter, cacheToken, analyticsLoader);
-        if (analyticsLoader.getEmailClient() != null){
+        if (analyticsLoader.getEmailClient() != null) {
             emailClient = analyticsLoader.getEmailClient();
-        }else {
+        } else {
             emailClient = getEmailClient(analyticsLoader.getEmailConfig());
         }
-        }
+    }
 
     private EmailClient getEmailClient(EmailConfig emailConfig) {
         return new EmailClient(emailConfig);
@@ -111,11 +109,11 @@ public class GroupAction extends Action<GroupRequest> {
     @Override
     public void validateImpl(GroupRequest parameter, String email) {
         List<String> validationErrors = new ArrayList<>();
-        if(CollectionUtils.isNullOrEmpty(parameter.getTable())) {
+        if (CollectionUtils.isNullOrEmpty(parameter.getTable())) {
             validationErrors.add("table name cannot be null or empty");
         }
 
-        if(CollectionUtils.isNullOrEmpty(parameter.getNesting())) {
+        if (CollectionUtils.isNullOrEmpty(parameter.getNesting())) {
             validationErrors.add("at least one grouping parameter is required");
         } else {
             validationErrors.addAll(parameter.getNesting()
@@ -379,18 +377,18 @@ public class GroupAction extends Action<GroupRequest> {
         double days = (double) minutes / TimeUnit.DAYS.toMinutes(1);
         Table tableMetadata = tableMetadataManager.get(table);
         int maxDays = 0;
-        if(tableMetadata != null) {
+        if (tableMetadata != null) {
             maxDays = tableMetadata.getTtl();
         }
         //If we don't have it in metadata, assuming max data of 30 days
-        if(maxDays == 0) {
+        if (maxDays == 0) {
             maxDays = 30;
         }
         //This is done because we only store docs for last maxDays. Sometimes, we get startTime starting from 1970 year
-        if(days > maxDays) {
+        if (days > maxDays) {
             return currentDocCount * maxDays;
         } else {
-            return (long)(currentDocCount * days);
+            return (long) (currentDocCount * days);
         }
     }
 
@@ -403,10 +401,10 @@ public class GroupAction extends Action<GroupRequest> {
         String cacheKey = getRequestCacheKey();
 
         double overallFilterMultiplier = 1;
-        for(Filter filter : filters) {
+        for (Filter filter : filters) {
             final String filterField = filter.getField();
             FieldMetadata fieldMetadata = metaMap.get(filterField);
-            if(null == fieldMetadata || null == fieldMetadata.getEstimationData()) {
+            if (null == fieldMetadata || null == fieldMetadata.getEstimationData()) {
                 log.warn("cacheKey:{} msg:NO_FIELD_ESTIMATION_DATA field:{}", cacheKey, filterField);
                 continue;
             }
@@ -421,7 +419,7 @@ public class GroupAction extends Action<GroupRequest> {
                     overallFilterMultiplier * currentFilterMultiplier);
             overallFilterMultiplier *= currentFilterMultiplier;
         }
-        return (long)(currentDocCount * overallFilterMultiplier);
+        return (long) (currentDocCount * overallFilterMultiplier);
     }
 
     private EstimationDataVisitor<Double> getDocCountWithFilterEstimationDataVisitor(Filter filter, String cacheKey) {
@@ -751,9 +749,9 @@ public class GroupAction extends Action<GroupRequest> {
         final List<String> remainingFields = (fields.size() > 1) ? fields.subList(1, fields.size()) : new ArrayList<>();
         Terms terms = aggregations.get(Utils.sanitizeFieldForAggregation(field));
         Map<String, Object> levelCount = Maps.newHashMap();
-        for(Terms.Bucket bucket : terms.getBuckets()) {
-            if(fields.size() == 1) {
-                if(!CollectionUtils.isNullOrEmpty(getParameter().getUniqueCountOn())) {
+        for (Terms.Bucket bucket : terms.getBuckets()) {
+            if (fields.size() == 1) {
+                if (!CollectionUtils.isNullOrEmpty(getParameter().getUniqueCountOn())) {
                     String key = Utils.sanitizeFieldForAggregation(getParameter().getUniqueCountOn());
                     Cardinality cardinality = bucket.getAggregations()
                             .get(key);

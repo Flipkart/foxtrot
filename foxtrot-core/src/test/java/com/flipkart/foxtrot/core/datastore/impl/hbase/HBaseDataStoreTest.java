@@ -8,7 +8,7 @@
  * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
  * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations under the License.
-*/
+ */
 package com.flipkart.foxtrot.core.datastore.impl.hbase;
 
 import static com.flipkart.foxtrot.core.TestUtils.TEST_TABLE_NAME;
@@ -58,6 +58,7 @@ import org.mockito.Mockito;
  */
 
 public class HBaseDataStoreTest {
+
     private static final byte[] COLUMN_FAMILY = Bytes.toBytes("d");
     private static final byte[] DATA_FIELD_NAME = Bytes.toBytes("data");
     private static final Table TEST_APP = Table.builder()
@@ -77,7 +78,7 @@ public class HBaseDataStoreTest {
         when(hbaseTableConnection.getTable(Matchers.<Table>any())).thenReturn(tableInterface);
         when(hbaseTableConnection.getHbaseConfig()).thenReturn(new HbaseConfig());
         hbaseDataStore = new HBaseDataStore(hbaseTableConnection, mapper,
-                                            new DocumentTranslator(TestUtils.createHBaseConfigWithRawKeyV1())
+                new DocumentTranslator(TestUtils.createHBaseConfigWithRawKeyV1())
         );
     }
 
@@ -212,11 +213,11 @@ public class HBaseDataStoreTest {
         hbaseDataStore = new HBaseDataStore(hbaseTableConnection, mapper, documentTranslator);
 
         List<Document> documents = Lists.newArrayList();
-        for(int i = 0; i < 10; i++) {
+        for (int i = 0; i < 10; i++) {
             documents.add(createDummyDocument());
         }
         hbaseDataStore.saveAll(TEST_APP, documents);
-        for(Document document : documents) {
+        for (Document document : documents) {
             validateSave(v1FormatKey(document.getId()), document);
         }
     }
@@ -224,7 +225,7 @@ public class HBaseDataStoreTest {
     @Test
     public void testSaveBulkNullDocuments() throws Exception {
         List<Document> documents = new Vector<Document>();
-        for(int i = 0; i < 10; i++) {
+        for (int i = 0; i < 10; i++) {
             documents.add(null);
         }
         try {
@@ -415,11 +416,11 @@ public class HBaseDataStoreTest {
         }
         tableInterface.put(putList);
         List<Document> actualDocuments = hbaseDataStore.getAll(TEST_APP, ids);
-        for(Document doc : actualDocuments) {
+        for (Document doc : actualDocuments) {
             actualIdValues.put(doc.getId(), doc);
         }
         assertNotNull("List of returned Documents should not be null", actualDocuments);
-        for(String id : ids) {
+        for (String id : ids) {
             assertTrue("Requested Id should be present in response", actualIdValues.containsKey(id));
             compare(idValues.get(id), actualIdValues.get(id));
         }
@@ -435,7 +436,7 @@ public class HBaseDataStoreTest {
         List<Put> putList = Lists.newArrayList();
 
         HashMap<String, Document> actualIdValues = Maps.newHashMap();
-        for(int i = 0; i < 10; i++) {
+        for (int i = 0; i < 10; i++) {
             Document document = createDummyDocument();
             ids.add(document.getId());
             idValues.put(document.getId(), document);
@@ -447,11 +448,11 @@ public class HBaseDataStoreTest {
         }
         tableInterface.put(putList);
         List<Document> actualDocuments = hbaseDataStore.getAll(TEST_APP, rawIds);
-        for(Document doc : actualDocuments) {
+        for (Document doc : actualDocuments) {
             actualIdValues.put(doc.getId(), doc);
         }
         assertNotNull("List of returned Documents should not be null", actualDocuments);
-        for(String id : ids) {
+        for (String id : ids) {
             assertTrue("Requested Id should be present in response", actualIdValues.containsKey(id));
             compare(idValues.get(id), actualIdValues.get(id));
         }

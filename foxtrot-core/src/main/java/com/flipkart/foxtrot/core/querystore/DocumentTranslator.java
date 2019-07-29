@@ -41,7 +41,7 @@ public class DocumentTranslator {
 
     public List<Document> translate(final Table table, final List<Document> inDocuments) {
         ImmutableList.Builder<Document> docListBuilder = ImmutableList.builder();
-        for(Document document : inDocuments) {
+        for (Document document : inDocuments) {
             docListBuilder.add(translate(table, document));
         }
         return docListBuilder.build();
@@ -106,7 +106,7 @@ public class DocumentTranslator {
     }
 
     public String rawStorageIdFromDocumentId(Table table, String id) {
-        if(id.endsWith(Constants.rawKeyVersionToSuffixMap.get("2.0"))) {
+        if (id.endsWith(Constants.rawKeyVersionToSuffixMap.get("2.0"))) {
             return id;
         }
 

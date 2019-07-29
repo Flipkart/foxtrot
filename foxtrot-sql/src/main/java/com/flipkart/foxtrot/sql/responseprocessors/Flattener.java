@@ -37,6 +37,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 public class Flattener implements ResponseVisitor {
+
     private final List<String> fieldsToReturn;
     private FlatRepresentation flatRepresentation;
     private ObjectMapper objectMapper;
@@ -63,11 +64,11 @@ public class Flattener implements ResponseVisitor {
                     .split(separator);
             Map<String, Object> row = Maps.newHashMap();
             for (int i = 0; i < groupRequest.getNesting()
-                   .size(); i++) {
+                    .size(); i++) {
                 final String fieldName = groupRequest.getNesting()
                         .get(i);
                 row.put(fieldName, values[i]);
-                if(!fieldNames.containsKey(fieldName)) {
+                if (!fieldNames.containsKey(fieldName)) {
                     fieldNames.put(fieldName, 0);
                 }
                 fieldNames.put(fieldName, lengthMax(fieldNames.get(fieldName), values[i]));
@@ -78,7 +79,7 @@ public class Flattener implements ResponseVisitor {
         }
         fieldNames.put(COUNT, 10);
         List<FieldHeader> headers = Lists.newArrayList();
-        for(String fieldName : groupRequest.getNesting()) {
+        for (String fieldName : groupRequest.getNesting()) {
             headers.add(new FieldHeader(fieldName, fieldNames.get(fieldName)));
         }
         headers.add(new FieldHeader(COUNT, 10));
@@ -109,13 +110,13 @@ public class Flattener implements ResponseVisitor {
         List<Map<String, Object>> rows = Lists.newArrayList();
         Set<String> fieldToLookup = (null == fieldsToReturn) ? Collections.emptySet() : new HashSet<>(fieldsToReturn);
         boolean isAllFields = fieldToLookup.isEmpty();
-        for(Document document : queryResponse.getDocuments()) {
+        for (Document document : queryResponse.getDocuments()) {
             Map<String, MetaData> docFields = generateFieldMappings(null, objectMapper.valueToTree(document));
             Map<String, Object> row = Maps.newTreeMap();
-            for(Map.Entry<String, MetaData> docField : docFields.entrySet()) {
+            for (Map.Entry<String, MetaData> docField : docFields.entrySet()) {
                 String fieldName = docField.getKey();
                 String prettyFieldName = fieldName.replaceFirst("data.", "");
-                if(!isAllFields && !fieldToLookup.contains(prettyFieldName)) {
+                if (!isAllFields && !fieldToLookup.contains(prettyFieldName)) {
                     continue;
                 }
                 row.put(prettyFieldName, docField.getValue()
@@ -128,7 +129,7 @@ public class Flattener implements ResponseVisitor {
             }
             rows.add(row);
         }
-        if(!rows.isEmpty()) {
+        if (!rows.isEmpty()) {
             flatRepresentation = new FlatRepresentation("query", getFieldsFromList(fieldNames), rows);
         }
     }
@@ -160,7 +161,7 @@ public class Flattener implements ResponseVisitor {
     @Override
     public void visit(StatsTrendResponse statsTrendResponse) {
         List<Map<String, Object>> rows = Lists.newArrayList();
-       List<FieldHeader> fieldHeaders = Lists.newArrayList();
+        List<FieldHeader> fieldHeaders = Lists.newArrayList();
         fieldHeaders.add(new FieldHeader("period", 20));
         fieldHeaders.add(new FieldHeader("percentiles.1.0", 20));
         fieldHeaders.add(new FieldHeader("percentiles.5.0", 20));
@@ -184,7 +185,7 @@ public class Flattener implements ResponseVisitor {
     public void visit(TrendResponse trendResponse) {
         List<FieldHeader> headers = Lists.newArrayListWithCapacity(3);
         JsonNode root = objectMapper.valueToTree(trendResponse.getTrends());
-        if(null == root || !root.isObject()) {
+        if (null == root || !root.isObject()) {
             return;
         }
         List<String> types = Lists.newArrayList();
@@ -204,15 +205,15 @@ public class Flattener implements ResponseVisitor {
                 }
                 representation.get(time)
                         .put(typeName, dataNode.get(COUNT)
-                               .asLong());
+                                .asLong());
             }
         }
 
         headers.add(new FieldHeader("time", 20));
-        for(String type : types) {
+        for (String type : types) {
             headers.add(new FieldHeader(type, 20));
         }
-        for(Map.Entry<String, Map<String, Object>> element : representation.entrySet()) {
+        for (Map.Entry<String, Map<String, Object>> element : representation.entrySet()) {
             Map<String, Object> row = Maps.newTreeMap();
             row.put("time", element.getKey());
             for (Map.Entry<String, Object> data : element.getValue()
@@ -235,12 +236,12 @@ public class Flattener implements ResponseVisitor {
     @Override
     public void visit(DistinctResponse distinctResponse) {
         List<FieldHeader> fieldHeaders = Lists.newArrayList();
-        for(String header : distinctResponse.getHeaders()) {
+        for (String header : distinctResponse.getHeaders()) {
             fieldHeaders.add(new FieldHeader(header, 10));
         }
         List<List<String>> distinctResponseRows = distinctResponse.getResult();
         List<Map<String, Object>> rows = Lists.newArrayList();
-        for(List<String> responseRow : distinctResponseRows) {
+        for (List<String> responseRow : distinctResponseRows) {
             Map<String, Object> row = Maps.newHashMap();
             for (int i = 0; i < fieldHeaders.size(); i++) {
                 row.put(fieldHeaders.get(i)
@@ -254,7 +255,7 @@ public class Flattener implements ResponseVisitor {
     @Override
     public void visit(MultiQueryResponse multiQueryResponse) {
         throw new FqlParsingException("Fql query not supported for this operation");
-   }
+    }
 
     @Override
     public void visit(MultiTimeQueryResponse multiTimeQueryResponse) {
@@ -265,10 +266,10 @@ public class Flattener implements ResponseVisitor {
         List<FieldHeader> headers = Lists.newArrayList();
         if (null == fieldsToReturn || fieldsToReturn.isEmpty()) {
             for (Map.Entry<String, Integer> entry : fieldNames.entrySet()) {
-               headers.add(new FieldHeader(entry.getKey(), entry.getValue()));
+                headers.add(new FieldHeader(entry.getKey(), entry.getValue()));
             }
         } else {
-            for(String fieldName : fieldsToReturn) {
+            for (String fieldName : fieldsToReturn) {
                 headers.add(new FieldHeader(fieldName, fieldNames.get(fieldName)));
             }
         }

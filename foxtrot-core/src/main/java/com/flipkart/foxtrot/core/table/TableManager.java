@@ -13,7 +13,7 @@ public interface TableManager {
     void save(Table table, boolean forceCreateTable);
 
     Table get(String name);
-    
+
     List<Table> getAll();
 
     void update(Table table);

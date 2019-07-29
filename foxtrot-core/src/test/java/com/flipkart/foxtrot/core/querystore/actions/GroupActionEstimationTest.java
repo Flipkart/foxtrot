@@ -57,7 +57,7 @@ public class GroupActionEstimationTest extends ActionTest {
         Assert.assertTrue(response.getResult()
                 .containsKey("ios"));
         Assert.assertTrue(response.getResult()
-                                  .containsKey("ios"));
+                .containsKey("ios"));
     }
 
 
@@ -159,6 +159,6 @@ public class GroupActionEstimationTest extends ActionTest {
         log.debug(getMapper().writerWithDefaultPrettyPrinter()
                 .writeValueAsString(groupRequest));
         getQueryExecutor().execute(groupRequest, TEST_EMAIL);
-   }
+    }
 
 }

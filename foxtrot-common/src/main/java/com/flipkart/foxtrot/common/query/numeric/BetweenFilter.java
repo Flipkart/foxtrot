@@ -9,7 +9,7 @@
  * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
  * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations under the License.
-*/
+ */
 package com.flipkart.foxtrot.common.query.numeric;
 
 import com.flipkart.foxtrot.common.query.Filter;
@@ -22,6 +22,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import org.apache.commons.lang.builder.ToStringBuilder;
+
 /**
  * User: Santanu Sinha (santanu.sinha@flipkart.com)
  * Date: 14/03/14
@@ -54,7 +55,7 @@ public class BetweenFilter extends Filter {
 
     @Override
     public <T> T accept(FilterVisitor<T> visitor) {
-       return visitor.visit(this);
+        return visitor.visit(this);
     }
 
     @Override
@@ -74,11 +75,11 @@ public class BetweenFilter extends Filter {
     @Override
     public Set<String> validate() {
         Set<String> validationErrors = super.validate();
-        if(from == null) {
+        if (from == null) {
             validationErrors.add("from field cannot be null");
         }
 
-        if(to == null) {
+        if (to == null) {
             validationErrors.add("to field cannot be null");
         }
         return validationErrors;

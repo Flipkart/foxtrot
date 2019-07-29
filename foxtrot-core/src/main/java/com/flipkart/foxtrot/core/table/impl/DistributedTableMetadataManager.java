@@ -88,6 +88,7 @@ import org.slf4j.LoggerFactory;
  */
 
 public class DistributedTableMetadataManager implements TableMetadataManager {
+
     public static final String CARDINALITY_CACHE_INDEX = "table_cardinality_cache";
     private static final Logger logger = LoggerFactory.getLogger(DistributedTableMetadataManager.class);
     private static final String DATA_MAP = "tablemetadatamap";
@@ -562,6 +563,7 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
         }
         return response;
     }
+
     private void evaluateStringEstimation(Aggregation value, String table, String key, FieldType type,
             Map<String, EstimationData> estimationDataMap, long hits) {
         Cardinality cardinality = (Cardinality) value;
@@ -670,8 +672,8 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
                     .setSize(maxSize)
                     .execute()
                     .actionGet();
-            for(SearchHit hit : com.collections.CollectionUtils.nullAndEmptySafeValueList(response.getHits()
-                                                                                                  .getHits())) {
+            for (SearchHit hit : com.collections.CollectionUtils.nullAndEmptySafeValueList(response.getHits()
+                    .getHits())) {
                 tableFieldMappings.add(mapper.readValue(hit.getSourceAsString(), TableFieldMapping.class));
             }
             return tableFieldMappings;
@@ -688,11 +690,11 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
 
         @Override
         public int compare(FieldMetadata o1, FieldMetadata o2) {
-            if(o1 == null && o2 == null) {
+            if (o1 == null && o2 == null) {
                 return 0;
-            } else if(o1 == null) {
+            } else if (o1 == null) {
                 return -1;
-            } else if(o2 == null) {
+            } else if (o2 == null) {
                 return 1;
             } else {
                 return o1.getField()

@@ -27,9 +27,7 @@ import java.util.List;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
 /**
- * User: Santanu Sinha (santanu.sinha@flipkart.com)
- * Date: 13/03/14
- * Time: 6:38 PM
+ * User: Santanu Sinha (santanu.sinha@flipkart.com) Date: 13/03/14 Time: 6:38 PM
  */
 public class Query extends ActionRequest {
 

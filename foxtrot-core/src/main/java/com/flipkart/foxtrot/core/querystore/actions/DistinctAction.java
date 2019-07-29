@@ -8,8 +8,6 @@ import com.flipkart.foxtrot.common.distinct.DistinctResponse;
 import com.flipkart.foxtrot.common.query.Filter;
 import com.flipkart.foxtrot.common.query.ResultSort;
 import com.flipkart.foxtrot.common.util.CollectionUtils;
-import com.flipkart.foxtrot.core.alerts.EmailConfig;
-import com.flipkart.foxtrot.core.cache.CacheManager;
 import com.flipkart.foxtrot.core.common.Action;
 import com.flipkart.foxtrot.core.exception.FoxtrotExceptions;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsLoader;
@@ -79,7 +77,7 @@ public class DistinctAction extends Action<DistinctRequest> {
         long filterHashKey = 0L;
         DistinctRequest query = getParameter();
 
-        for(Filter filter : com.collections.CollectionUtils.nullSafeList(query.getFilters())) {
+        for (Filter filter : com.collections.CollectionUtils.nullSafeList(query.getFilters())) {
             filterHashKey += 31 * filter.hashCode();
         }
         for (int i = 0; i < query.getNesting()
@@ -166,8 +164,8 @@ public class DistinctAction extends Action<DistinctRequest> {
         final String field = fields.get(0);
         final List<String> remainingFields = (fields.size() > 1) ? fields.subList(1, fields.size()) : new ArrayList<>();
         Terms terms = aggregations.get(Utils.sanitizeFieldForAggregation(field));
-        for(Terms.Bucket bucket : terms.getBuckets()) {
-            if(fields.size() == 1) {
+        for (Terms.Bucket bucket : terms.getBuckets()) {
+            if (fields.size() == 1) {
                 responseList.add(getValueList(parentKey, String.valueOf(bucket.getKey())));
             } else {
                 flatten(getProperKey(parentKey, String.valueOf(bucket.getKey())), remainingFields, responseList,

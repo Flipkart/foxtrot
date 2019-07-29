@@ -77,14 +77,14 @@ public class StatsAction extends Action<StatsRequest> {
     public String getRequestCacheKey() {
         long statsHashKey = 0L;
         StatsRequest statsRequest = getParameter();
-        if(null != statsRequest.getFilters()) {
-            for(Filter filter : statsRequest.getFilters()) {
+        if (null != statsRequest.getFilters()) {
+            for (Filter filter : statsRequest.getFilters()) {
                 statsHashKey += 31 * filter.hashCode();
             }
         }
 
-        if(!CollectionUtils.isNullOrEmpty(statsRequest.getNesting())) {
-            for(String nestingKey : statsRequest.getNesting()) {
+        if (!CollectionUtils.isNullOrEmpty(statsRequest.getNesting())) {
+            for (String nestingKey : statsRequest.getNesting()) {
                 statsHashKey += 31 * nestingKey.hashCode();
             }
         }
@@ -157,7 +157,7 @@ public class StatsAction extends Action<StatsRequest> {
 
         // Now build nested stats if present
         List<BucketResponse<StatsValue>> buckets = null;
-        if(!CollectionUtils.isNullOrEmpty(request.getNesting())) {
+        if (!CollectionUtils.isNullOrEmpty(request.getNesting())) {
             buckets = buildNestedStats(request.getNesting(), aggregations);
         }
 
@@ -174,10 +174,10 @@ public class StatsAction extends Action<StatsRequest> {
                 new ArrayList<>();
         Terms terms = aggregations.get(Utils.sanitizeFieldForAggregation(field));
         List<BucketResponse<StatsValue>> bucketResponses = Lists.newArrayList();
-        for(Terms.Bucket bucket : terms.getBuckets()) {
+        for (Terms.Bucket bucket : terms.getBuckets()) {
             BucketResponse<StatsValue> bucketResponse = new BucketResponse<>();
             bucketResponse.setKey(String.valueOf(bucket.getKey()));
-            if(nesting.size() == 1) {
+            if (nesting.size() == 1) {
                 bucketResponse.setResult(buildStatsValue(getParameter().getField(), bucket.getAggregations()));
             } else {
                 bucketResponse.setBuckets(buildNestedStats(remainingFields, bucket.getAggregations()));

@@ -21,13 +21,11 @@ import javax.validation.constraints.NotNull;
 import lombok.NoArgsConstructor;
 
 /**
- * User: Santanu Sinha (santanu.sinha@flipkart.com)
- * Date: 14/03/14
- * Time: 12:28 AM
+ * User: Santanu Sinha (santanu.sinha@flipkart.com) Date: 14/03/14 Time: 12:28 AM
  */
 @NoArgsConstructor
 public class ElasticsearchConfig {
-    
+
     public static final long DEFAULT_TIMEOUT = 10000L;
     @Valid
     @NotNull

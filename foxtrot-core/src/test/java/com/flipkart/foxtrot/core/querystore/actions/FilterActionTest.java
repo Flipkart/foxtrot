@@ -9,7 +9,7 @@
  * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
  * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations under the License.
-*/
+ */
 package com.flipkart.foxtrot.core.querystore.actions;
 
 import static com.flipkart.foxtrot.core.TestUtils.TEST_EMAIL;
@@ -227,7 +227,7 @@ public class FilterActionTest extends ActionTest {
                         getMapper()));
 
         QueryResponse actualResponse = QueryResponse.class.cast(getQueryExecutor().execute(query, TEST_EMAIL));
-       compare(documents, actualResponse.getDocuments());
+        compare(documents, actualResponse.getDocuments());
         assertEquals(9, actualResponse.getTotalHits());
     }
 
@@ -332,7 +332,7 @@ public class FilterActionTest extends ActionTest {
                 getMapper()));
 
         QueryResponse actualResponse = QueryResponse.class.cast(getQueryExecutor().execute(query, TEST_EMAIL));
-       compare(documents, actualResponse.getDocuments());
+        compare(documents, actualResponse.getDocuments());
     }
 
     @Test
@@ -361,7 +361,7 @@ public class FilterActionTest extends ActionTest {
                         getMapper()));
 
         QueryResponse actualResponse = QueryResponse.class.cast(getQueryExecutor().execute(query, TEST_EMAIL));
-       compare(documents, actualResponse.getDocuments());
+        compare(documents, actualResponse.getDocuments());
     }
 
     @Test
@@ -410,7 +410,7 @@ public class FilterActionTest extends ActionTest {
                 getMapper()));
 
         QueryResponse actualResponse = QueryResponse.class.cast(getQueryExecutor().execute(query, TEST_EMAIL));
-       compare(documents, actualResponse.getDocuments());
+        compare(documents, actualResponse.getDocuments());
     }
 
     @Test
@@ -441,7 +441,7 @@ public class FilterActionTest extends ActionTest {
                 getMapper()));
 
         QueryResponse actualResponse = QueryResponse.class.cast(getQueryExecutor().execute(query, TEST_EMAIL));
-       compare(documents, actualResponse.getDocuments());
+        compare(documents, actualResponse.getDocuments());
     }
 
     @Test
@@ -626,7 +626,7 @@ public class FilterActionTest extends ActionTest {
                 new Object[]{"os", "android", "device", "nexus", "battery", 99},
                 getMapper()));
         QueryResponse actualResponse = QueryResponse.class.cast(getQueryExecutor().execute(query, TEST_EMAIL));
-       compare(documents, actualResponse.getDocuments());
+        compare(documents, actualResponse.getDocuments());
     }
 
     @Test
@@ -732,7 +732,7 @@ public class FilterActionTest extends ActionTest {
         compare(documents, actualResponse.getDocuments());
     }
 
-   @Test
+    @Test
     public void testQueryNullFilters() throws FoxtrotException, JsonProcessingException, InterruptedException {
         Query query = new Query();
         query.setTable(TestUtils.TEST_TABLE_NAME);
@@ -884,5 +884,5 @@ public class FilterActionTest extends ActionTest {
         QueryResponse actualResponse = QueryResponse.class.cast(getQueryExecutor().execute(query, TEST_EMAIL));
         assertEquals(documents.size(), actualResponse.getDocuments()
                 .size());
-   }
+    }
 }

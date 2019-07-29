@@ -133,7 +133,7 @@ public class TableMapStore implements MapStore<String, Table> {
                 .setRefreshPolicy(WriteRequest.RefreshPolicy.IMMEDIATE);
         for (String key : keys) {
             bulRequestBuilder.add(elasticsearchConnection.getClient()
-                                          .prepareDelete(TABLE_META_INDEX, TABLE_META_TYPE, key));
+                    .prepareDelete(TABLE_META_INDEX, TABLE_META_TYPE, key));
         }
         bulRequestBuilder.execute()
                 .actionGet();
@@ -150,7 +150,7 @@ public class TableMapStore implements MapStore<String, Table> {
                 .setId(key)
                 .execute()
                 .actionGet();
-        if(!response.isExists()) {
+        if (!response.isExists()) {
             return null;
         }
         try {
@@ -169,7 +169,7 @@ public class TableMapStore implements MapStore<String, Table> {
                 .execute()
                 .actionGet();
         Map<String, Table> tables = Maps.newHashMap();
-        for(MultiGetItemResponse multiGetItemResponse : response) {
+        for (MultiGetItemResponse multiGetItemResponse : response) {
             try {
                 Table table = objectMapper.readValue(multiGetItemResponse.getResponse()
                         .getSourceAsString(), Table.class);
@@ -217,6 +217,7 @@ public class TableMapStore implements MapStore<String, Table> {
     }
 
     public static class Factory implements MapStoreFactory<String, Table> {
+
         private final ElasticsearchConnection elasticsearchConnection;
 
         public Factory(ElasticsearchConnection elasticsearchConnection) {

@@ -24,7 +24,7 @@ public class QueryUtils {
     public static Number expressionToNumber(Expression expression) {
         if (expression instanceof StringValue) {
             return Long.valueOf(((StringValue) expression).getValue());
-       }
+        }
         if (expression instanceof LongValue) {
             return ((LongValue) expression).getValue();
         }

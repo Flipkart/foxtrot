@@ -26,9 +26,7 @@ import org.hibernate.validator.constraints.NotEmpty;
 import org.joda.time.DateTime;
 
 /**
- * User: Santanu Sinha (santanu.sinha@flipkart.com)
- * Date: 12/03/14
- * Time: 9:17 PM
+ * User: Santanu Sinha (santanu.sinha@flipkart.com) Date: 12/03/14 Time: 9:17 PM
  */
 
 @Data

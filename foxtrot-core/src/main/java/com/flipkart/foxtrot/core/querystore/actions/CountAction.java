@@ -61,10 +61,9 @@ public class CountAction extends Action<CountRequest> {
     public String getRequestCacheKey() {
         long filterHashKey = 0L;
         CountRequest request = getParameter();
-        for(Filter filter : com.collections.CollectionUtils.nullSafeList(request.getFilters())) {
+        for (Filter filter : com.collections.CollectionUtils.nullSafeList(request.getFilters())) {
             filterHashKey += 31 * filter.hashCode();
         }
-
 
         filterHashKey += 31 * (request.isDistinct() ? "TRUE".hashCode() : "FALSE".hashCode());
         filterHashKey += 31 * (request.getField() != null ? request.getField()

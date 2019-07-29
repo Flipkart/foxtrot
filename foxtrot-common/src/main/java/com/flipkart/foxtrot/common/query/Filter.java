@@ -1,7 +1,7 @@
 /**
  * Copyright 2014 Flipkart Internet Pvt. Ltd.
  * <p>
-
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
  * <p>
@@ -67,7 +67,7 @@ import org.hibernate.validator.constraints.NotEmpty;
 
         //String
         @JsonSubTypes.Type(value = LastFilter.class, name = FilterOperator.last)})
-      public abstract class Filter implements Serializable {
+public abstract class Filter implements Serializable {
 
     @NotNull
     @NotEmpty
@@ -97,7 +97,7 @@ import org.hibernate.validator.constraints.NotEmpty;
     }
 
     public abstract <T> T accept(FilterVisitor<T> visitor);
-    
+
     @Override
     public int hashCode() {
         int result = operator.hashCode();
@@ -136,7 +136,7 @@ import org.hibernate.validator.constraints.NotEmpty;
 
     public Set<String> validate() {
         Set<String> validationErrors = new HashSet<>();
-        if(CollectionUtils.isNullOrEmpty(field)) {
+        if (CollectionUtils.isNullOrEmpty(field)) {
             validationErrors.add("filter field cannot be null or empty");
         }
         return validationErrors;

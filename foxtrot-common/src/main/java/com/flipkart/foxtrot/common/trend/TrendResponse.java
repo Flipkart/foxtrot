@@ -19,9 +19,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * User: Santanu Sinha (santanu.sinha@flipkart.com)
- * Date: 30/03/14
- * Time: 2:31 PM
+ * User: Santanu Sinha (santanu.sinha@flipkart.com) Date: 30/03/14 Time: 2:31 PM
  */
 public class TrendResponse extends ActionResponse {
 
@@ -105,7 +103,7 @@ public class TrendResponse extends ActionResponse {
             if (!(o instanceof Count)) {
                 return false;
             }
-           Count count1 = (Count)o;
+            Count count1 = (Count) o;
 
             if (count != count1.count) {
                 return false;
@@ -116,7 +114,7 @@ public class TrendResponse extends ActionResponse {
         @Override
         public int hashCode() {
             int result = period.hashCode();
-            result = 31 * result + (int)(count ^ (count >>> 32));
+            result = 31 * result + (int) (count ^ (count >>> 32));
             return result;
         }
     }

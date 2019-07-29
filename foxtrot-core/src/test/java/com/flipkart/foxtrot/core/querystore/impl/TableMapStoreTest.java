@@ -9,7 +9,7 @@
  * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
  * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations under the License.
-*/
+ */
 package com.flipkart.foxtrot.core.querystore.impl;
 
 import static org.junit.Assert.assertEquals;
@@ -65,7 +65,7 @@ public class TableMapStoreTest {
 
         elasticsearchConnection = ElasticsearchTestUtils.getConnection();
         ElasticsearchUtils.initializeMappings(elasticsearchConnection.getClient());
-       //Create index for table meta. Not created automatically
+        //Create index for table meta. Not created automatically
         Settings indexSettings = Settings.builder()
                 .put("number_of_replicas", 0)
                 .build();
@@ -86,7 +86,7 @@ public class TableMapStoreTest {
                     .actionGet();
         }
         elasticsearchConnection.getClient()
-               .admin()
+                .admin()
                 .cluster()
                 .prepareHealth()
                 .setWaitForGreenStatus()
@@ -161,7 +161,7 @@ public class TableMapStoreTest {
     @Test
     public void testStoreAll() throws Exception {
         Map<String, Table> tables = Maps.newHashMap();
-        for(int i = 0; i < 10; i++) {
+        for (int i = 0; i < 10; i++) {
             Table table = new Table();
             table.setName(UUID.randomUUID()
                     .toString());
@@ -182,7 +182,7 @@ public class TableMapStoreTest {
             responseTables.put(table.getName(), table);
         }
         for (Map.Entry<String, Table> entry : tables.entrySet()) {
-           compareTables(entry.getValue(), responseTables.get(entry.getKey()));
+            compareTables(entry.getValue(), responseTables.get(entry.getKey()));
         }
     }
 
@@ -194,7 +194,7 @@ public class TableMapStoreTest {
     @Test(expected = RuntimeException.class)
     public void testStoreAllNullTableKey() throws Exception {
         Map<String, Table> tables = Maps.newHashMap();
-        for(int i = 0; i < 10; i++) {
+        for (int i = 0; i < 10; i++) {
             Table table = new Table();
             table.setName(UUID.randomUUID()
                     .toString());
@@ -217,7 +217,7 @@ public class TableMapStoreTest {
     @Test(expected = RuntimeException.class)
     public void testStoreAllNullTableKeyValue() throws Exception {
         Map<String, Table> tables = Maps.newHashMap();
-        for(int i = 0; i < 10; i++) {
+        for (int i = 0; i < 10; i++) {
             tables.put(null, null);
         }
         tableMapStore.storeAll(tables);
@@ -226,7 +226,7 @@ public class TableMapStoreTest {
     @Test(expected = RuntimeException.class)
     public void testStoreAllSomeNullKeys() throws Exception {
         Map<String, Table> tables = Maps.newHashMap();
-        for(int i = 0; i < 10; i++) {
+        for (int i = 0; i < 10; i++) {
             Table table = new Table();
             table.setName(UUID.randomUUID()
                     .toString());
@@ -245,7 +245,7 @@ public class TableMapStoreTest {
     @Test(expected = RuntimeException.class)
     public void testStoreAllSomeNullValues() throws Exception {
         Map<String, Table> tables = Maps.newHashMap();
-        for(int i = 0; i < 10; i++) {
+        for (int i = 0; i < 10; i++) {
             Table table = new Table();
             table.setName(UUID.randomUUID()
                     .toString());
@@ -264,7 +264,7 @@ public class TableMapStoreTest {
     @Test(expected = RuntimeException.class)
     public void testStoreAllSomeNullKeyValues() throws Exception {
         Map<String, Table> tables = Maps.newHashMap();
-        for(int i = 0; i < 10; i++) {
+        for (int i = 0; i < 10; i++) {
             Table table = new Table();
             table.setName(UUID.randomUUID()
                     .toString());
@@ -315,7 +315,7 @@ public class TableMapStoreTest {
     @Test
     public void testDeleteAll() throws Exception {
         Map<String, Table> tables = Maps.newHashMap();
-        for(int i = 0; i < 10; i++) {
+        for (int i = 0; i < 10; i++) {
             Table table = new Table();
             table.setName(UUID.randomUUID()
                     .toString());
@@ -412,7 +412,7 @@ public class TableMapStoreTest {
     @Test
     public void testLoadAll() throws Exception {
         Map<String, Table> tables = Maps.newHashMap();
-        for(int i = 0; i < 10; i++) {
+        for (int i = 0; i < 10; i++) {
             Table table = new Table();
             table.setName(UUID.randomUUID()
                     .toString());
@@ -433,7 +433,7 @@ public class TableMapStoreTest {
         Set<String> names = ImmutableSet.copyOf(Iterables.limit(tables.keySet(), 5));
         Map<String, Table> responseTables = tableMapStore.loadAll(names);
         assertEquals(names.size(), responseTables.size());
-        for(String name : names) {
+        for (String name : names) {
             compareTables(tables.get(name), responseTables.get(name));
         }
     }
@@ -460,7 +460,7 @@ public class TableMapStoreTest {
     @Test
     public void testLoadAllKeys() throws Exception {
         Map<String, Table> tables = Maps.newHashMap();
-        for(int i = 0; i < 10; i++) {
+        for (int i = 0; i < 10; i++) {
             Table table = new Table();
             table.setName(UUID.randomUUID()
                     .toString());
@@ -479,7 +479,7 @@ public class TableMapStoreTest {
         }
 
         Set<String> responseKeys = tableMapStore.loadAllKeys();
-        for(String name : tables.keySet()) {
+        for (String name : tables.keySet()) {
             assertTrue(responseKeys.contains(name));
         }
     }

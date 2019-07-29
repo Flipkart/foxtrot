@@ -49,10 +49,6 @@ import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import org.elasticsearch.action.admin.indices.create.CreateIndexRequest;
-import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsRequest;
-import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsResponse;
-import org.elasticsearch.common.settings.Settings;
 import org.junit.After;
 import org.mockito.Mockito;
 import org.slf4j.LoggerFactory;
@@ -97,7 +93,7 @@ public abstract class FoxtrotResourceTest {
                 .register(new FoxtrotExceptionMapper(mapper));
         mapper = environment.getObjectMapper();
 
-        Logger root = (Logger)LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
+        Logger root = (Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
         root.setLevel(Level.WARN);
     }
 
@@ -128,7 +124,8 @@ public abstract class FoxtrotResourceTest {
 
         elasticsearchConnection = ElasticsearchTestUtils.getConnection();
 
-        CardinalityConfig cardinalityConfig = new CardinalityConfig("true", String.valueOf(ElasticsearchUtils.DEFAULT_SUB_LIST_SIZE));
+        CardinalityConfig cardinalityConfig = new CardinalityConfig("true",
+                String.valueOf(ElasticsearchUtils.DEFAULT_SUB_LIST_SIZE));
 
         TestUtils.createTable(elasticsearchConnection, TableMapStore.TABLE_META_INDEX);
         TestUtils.createTable(elasticsearchConnection, DistributedTableMetadataManager.CARDINALITY_CACHE_INDEX);
@@ -150,9 +147,9 @@ public abstract class FoxtrotResourceTest {
         EmailClient emailClient = Mockito.mock(EmailClient.class);
         when(emailClient.sendEmail(any(String.class), any(String.class), any(String.class))).thenReturn(true);
 
-
-        analyticsLoader = new AnalyticsLoader(tableMetadataManager, dataStore, queryStore, elasticsearchConnection, cacheManager, mapper,
-                                              emailConfig, emailClient
+        analyticsLoader = new AnalyticsLoader(tableMetadataManager, dataStore, queryStore, elasticsearchConnection,
+                cacheManager, mapper,
+                emailConfig, emailClient
         );
         try {
             analyticsLoader.start();

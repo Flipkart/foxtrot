@@ -38,7 +38,7 @@ public class DataDeletionManager implements Managed {
     @Override
     public void start() throws Exception {
         logger.info("Starting Deletion Manager");
-        if(config.isActive()) {
+        if (config.isActive()) {
             logger.info("Scheduling data deletion Job");
             scheduledExecutorService.scheduleAtFixedRate(() -> {
                 LockingTaskExecutor executor = new DefaultLockingTaskExecutor(

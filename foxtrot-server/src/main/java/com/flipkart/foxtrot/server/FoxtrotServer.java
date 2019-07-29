@@ -103,10 +103,9 @@ import javax.servlet.FilterRegistration;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.curator.framework.CuratorFramework;
 import org.eclipse.jetty.servlets.CrossOriginFilter;
+
 /**
- * User: Santanu Sinha (santanu.sinha@flipkart.com)
- * Date: 15/03/14
- * Time: 9:38 PM
+ * User: Santanu Sinha (santanu.sinha@flipkart.com) Date: 15/03/14 Time: 9:38 PM
  */
 public class FoxtrotServer extends Application<FoxtrotServerConfiguration> {
 
@@ -127,7 +126,7 @@ public class FoxtrotServer extends Application<FoxtrotServerConfiguration> {
                     new SubstitutingSourceProvider(new RoseyConfigSourceProvider("platform", "foxtrot"),
                             new EnvironmentVariableSubstitutor()));
         }
-       bootstrap.addBundle(new AssetsBundle("/console/", "/", "index.html", "console"));
+        bootstrap.addBundle(new AssetsBundle("/console/", "/", "index.html", "console"));
         bootstrap.addBundle(new OorBundle<FoxtrotServerConfiguration>() {
             public boolean withOor() {
                 return false;
@@ -229,7 +228,7 @@ public class FoxtrotServer extends Application<FoxtrotServerConfiguration> {
         if (consoleHistoryConfig == null) {
             consoleHistoryConfig = new ConsoleHistoryConfig();
         }
-       CacheConfig cacheConfig = configuration.getCacheConfig();
+        CacheConfig cacheConfig = configuration.getCacheConfig();
         EmailConfig emailConfig = configuration.getEmailConfig();
 
         final ObjectMapper objectMapper = environment.getObjectMapper();
@@ -245,10 +244,12 @@ public class FoxtrotServer extends Application<FoxtrotServerConfiguration> {
         AccessService accessService = new AccessServiceImpl(configuration.isRestrictAccess(), actionRequestVisitor);
         FqlStoreService fqlStoreService = new FqlStoreServiceImpl(elasticsearchConnection, objectMapper);
         FoxtrotTableManager tableManager = new FoxtrotTableManager(tableMetadataManager, queryStore, dataStore);
-        CacheManager cacheManager = new CacheManager(new DistributedCacheFactory(hazelcastConnection, objectMapper, cacheConfig));
-        AnalyticsLoader analyticsLoader = new AnalyticsLoader(tableMetadataManager, dataStore, queryStore, elasticsearchConnection,
-                                                              cacheManager, objectMapper, emailConfig, null
-       );
+        CacheManager cacheManager = new CacheManager(
+                new DistributedCacheFactory(hazelcastConnection, objectMapper, cacheConfig));
+        AnalyticsLoader analyticsLoader = new AnalyticsLoader(tableMetadataManager, dataStore, queryStore,
+                elasticsearchConnection,
+                cacheManager, objectMapper, emailConfig, null
+        );
         QueryExecutor executor = new QueryExecutor(analyticsLoader, executorService);
         DataDeletionManagerConfig dataDeletionManagerConfig = configuration.getDeletionManagerConfig();
         DataDeletionManager dataDeletionManager = new DataDeletionManager(dataDeletionManagerConfig, queryStore,

@@ -233,7 +233,7 @@ public final class Stopwatch {
         long nanos = elapsedNanos();
 
         TimeUnit unit = chooseUnit(nanos);
-        double value = (double)nanos / NANOSECONDS.convert(1, unit);
+        double value = (double) nanos / NANOSECONDS.convert(1, unit);
 
         // Too bad this functionality is not exposed as a regular method call
         return formatCompact4Digits(value) + " " + abbreviate(unit);

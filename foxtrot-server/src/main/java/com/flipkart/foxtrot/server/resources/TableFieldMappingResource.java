@@ -70,7 +70,7 @@ public class TableFieldMappingResource {
                                 table -> tableMetadataManager.getFieldMappings(
                                         table.getName(), withCardinality,
                                         calculateCardinality))))
-               .build();
+                .build();
     }
 
     @POST
