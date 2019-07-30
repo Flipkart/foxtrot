@@ -81,39 +81,30 @@ for hit in data:
   for i in range(0, len(hit["_source"]["sections"])):
     # for section in hit["_source"]["sections"]:
     for tile in hit["_source"]["sections"][i]["tileData"]:
-            tableName = hit["_source"]["sections"][i]["tileData"][tile]["tileContext"]["table"]
+      tableName = hit["_source"]["sections"][i]["tileData"][tile]["tileContext"]["table"]
       if tableName not in consolesData:
         consolesData[tableName] = []
-      for j in range(0, len(
-          hit["_source"]["sections"][i]["tileData"][tile]["tileContext"][
-            "filters"])):
+      for j in range(0, len(hit["_source"]["sections"][i]["tileData"][tile]["tileContext"]["filters"])):
         # for filt in hit["_source"]["sections"][i]["tileData"][tile]["tileContext"]["filters"]:
-                if "field" in hit["_source"]["sections"][i]["tileData"][tile]["tileContext"]["filters"][j]:
+        if "field" in hit["_source"]["sections"][i]["tileData"][tile]["tileContext"]["filters"][j]:
           if (tableName in mappingsData):
-            if (hit["_source"]["sections"][i]["tileData"][tile]["tileContext"][
-              "filters"][j]["field"] in
+            if (hit["_source"]["sections"][i]["tileData"][tile]["tileContext"]["filters"][j]["field"] in
                 mappingsData[tableName]):
-              if hit["_source"]["sections"][i]["tileData"][tile]["tileContext"][
-                "filters"][j][
+              if hit["_source"]["sections"][i]["tileData"][tile]["tileContext"]["filters"][j][
                 "value"] in t:
-                hit["_source"]["sections"][i]["tileData"][tile]["tileContext"][
-                  "filters"][j][
+                hit["_source"]["sections"][i]["tileData"][tile]["tileContext"]["filters"][j][
                   "value"] = "true"
-                            elif hit["_source"]["sections"][i]["tileData"][tile]["tileContext"]["filters"][j][
+              elif hit["_source"]["sections"][i]["tileData"][tile]["tileContext"]["filters"][j][
                 "value"] in f:
-                hit["_source"]["sections"][i]["tileData"][tile]["tileContext"][
-                  "filters"][j][
+                hit["_source"]["sections"][i]["tileData"][tile]["tileContext"]["filters"][j][
                   "value"] = "false"
               print "Table Name: " + tableName + " Field Name: " + \
-                    hit["_source"]["sections"][i]["tileData"][tile][
-                      "tileContext"]["filters"][j][
+                    hit["_source"]["sections"][i]["tileData"][tile]["tileContext"]["filters"][j][
                       "field"] + "Value: " + \
-                    hit["_source"]["sections"][i]["tileData"][tile][
-                      "tileContext"]["filters"][j]["value"]
+                    hit["_source"]["sections"][i]["tileData"][tile]["tileContext"]["filters"][j]["value"]
           if filt["field"] not in consolesData[tableName]:
             consolesData[tableName].append(
-                hit["_source"]["sections"][i]["tileData"][tile]["tileContext"][
-                  "filters"][j]["field"])
+                hit["_source"]["sections"][i]["tileData"][tile]["tileContext"]["filters"][j]["field"])
   URL = "http://" + host + ":9200/consoles_v2/"
   URL = URL + hit["_type"] + "/" + hit["_id"]
   headers = {'Content-type': 'application/json', 'Accept': 'text/plain'}
