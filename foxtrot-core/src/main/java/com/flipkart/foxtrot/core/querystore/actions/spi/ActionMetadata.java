@@ -27,7 +27,6 @@ public class ActionMetadata {
     private final Class<? extends Action> action;
     private final boolean cacheable;
     private final String cacheToken;
-    private EmailClient emailClient;
 
     public ActionMetadata(Class<? extends ActionRequest> request, Class<? extends Action> action, boolean cacheable,
             String cacheToken) {
