@@ -15,6 +15,7 @@ import java.io.IOException;
 import java.net.Inet4Address;
 import java.util.Collection;
 import java.util.List;
+import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
@@ -56,6 +57,7 @@ public class ClusterManager implements Managed {
         if (!Strings.isNullOrEmpty(System.getenv("PORT_" + port))) {
             port = Integer.parseInt(System.getenv("PORT_" + port));
         }
+        executor = Executors.newScheduledThreadPool(1);
         clusterMember = new ClusterMember(hostname, port);
     }
 

@@ -162,6 +162,11 @@ public class GroupAction extends Action<GroupRequest> {
     }
 
     @Override
+    public String getMetricKey() {
+        return getParameter().getTable();
+    }
+
+    @Override
     public ActionResponse execute(GroupRequest parameter) {
         SearchRequestBuilder query = getRequestBuilder(parameter);
         try {
@@ -171,11 +176,6 @@ public class GroupAction extends Action<GroupRequest> {
         } catch (ElasticsearchException e) {
             throw FoxtrotExceptions.createQueryExecutionException(parameter, e);
         }
-    }
-
-    @Override
-    public String getMetricKey() {
-        return getParameter().getTable();
     }
 
     @Override

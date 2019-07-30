@@ -44,7 +44,7 @@ import org.slf4j.LoggerFactory;
 @Getter
 public abstract class ActionTest {
 
-    protected static final int MAX_CARDINALITY = 10000;
+    protected static final int MAX_CARDINALITY = 15000;
 
     static {
         Logger root = (Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);

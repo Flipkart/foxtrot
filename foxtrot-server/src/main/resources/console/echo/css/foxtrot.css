@@ -669,6 +669,7 @@ h1 {
 div.tab {
   overflow: hidden;
   margin-top: 32px;
+  margin-left: 14px;
 }
 
 
@@ -835,9 +836,8 @@ th, td {
 }
 
 .global-filters{
-  float: right;
   border: 1px solid #d0d7e7;
-  top: 10px;
+  top: 15px;
   left: 15px;
   padding: 7px;
   font-family: Open Sans;
@@ -3138,7 +3138,13 @@ div.tab button:first-child {
 
 #right-action-btns {
   position: relative;
-  right: 35px;
+    top: 20px;
+    float: right;
+    right: 14px;
+}
+
+#left-action-btns {
+  position: relative;
   top: 20px;
 }
 
@@ -3220,6 +3226,26 @@ div.tab button:first-child {
   font-size: 14px;
   width: 100px;
 }
+
+#version-list {
+  position: relative;
+  background: #fff;
+  border: none;
+  font-family: Open Sans;
+  cursor: pointer;
+  width: 180px;
+}
+
+.version-list-block {
+  float: left;
+  margin-top: 15px;
+  margin: 0;
+  margin-top: 9px;
+  margin-left: 13px;
+  font-size: 14px;
+  width: 200px;
+}
+
 #top-settings {
   float: left;
 }
@@ -3322,7 +3348,7 @@ div.tab button:first-child {
 .custom-modal-tab-btn span{
   margin-right: 30px;
 }
-#top-settings, .refreshtime-block {
+#top-settings, .refreshtime-block, .version-list-block, #set-default {
   display: none;
 }
 .copy-db-error, .copy-pg-error {
@@ -3594,7 +3620,6 @@ div.tab button:first-child {
   #sequence {
     top: -9px;
   }
-<<<<<<< HEAD
 }
 #set-default {
   width: 24px;
