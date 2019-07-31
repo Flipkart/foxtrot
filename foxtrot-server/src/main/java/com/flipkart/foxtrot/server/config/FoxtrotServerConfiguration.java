@@ -19,6 +19,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.flipkart.foxtrot.core.alerts.EmailConfig;
 import com.flipkart.foxtrot.core.cardinality.CardinalityConfig;
 import com.flipkart.foxtrot.core.common.DataDeletionManagerConfig;
+import com.flipkart.foxtrot.core.config.IndexConfiguration;
 import com.flipkart.foxtrot.core.datastore.impl.hbase.HbaseConfig;
 import com.flipkart.foxtrot.core.jobs.optimization.EsIndexOptimizationConfig;
 import com.flipkart.foxtrot.core.querystore.impl.CacheConfig;
@@ -78,6 +79,8 @@ public class FoxtrotServerConfiguration extends Configuration {
     private boolean restrictAccess;
 
     private GandalfConfiguration gandalfConfiguration;
+
+    private IndexConfiguration indexConfiguration;
 
     public FoxtrotServerConfiguration() {
         this.hbase = new HbaseConfig();

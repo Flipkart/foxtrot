@@ -21,6 +21,7 @@ import com.flipkart.foxtrot.common.*;
 import com.flipkart.foxtrot.common.estimation.EstimationDataType;
 import com.flipkart.foxtrot.core.TestUtils;
 import com.flipkart.foxtrot.core.cardinality.CardinalityConfig;
+import com.flipkart.foxtrot.core.config.IndexConfiguration;
 import com.flipkart.foxtrot.core.datastore.DataStore;
 import com.flipkart.foxtrot.core.exception.ErrorCode;
 import com.flipkart.foxtrot.core.exception.FoxtrotException;
@@ -90,11 +91,8 @@ public class ElasticsearchQueryStoreTest {
                                           .name(TestUtils.TEST_TABLE_NAME)
                                           .ttl(30)
                                           .build());
-/*
-        when(tableMetadataManager.exists(anyString())).thenReturn(true);
-        when(tableMetadataManager.get(anyString())).thenReturn(TestUtils.TEST_TABLE);
-*/
-        List<IndexerEventMutator> mutators = Lists.newArrayList(new LargeTextNodeRemover(mapper));
+        List<IndexerEventMutator> mutators = Lists.newArrayList(new LargeTextNodeRemover(mapper,
+                IndexConfiguration.builder().build()));
         this.queryStore = new ElasticsearchQueryStore(tableMetadataManager, elasticsearchConnection, dataStore, mutators, mapper, cardinalityConfig);
     }
 
@@ -135,6 +133,27 @@ public class ElasticsearchQueryStoreTest {
     }
 
     @Test
+    public void testSaveSingleRawKeyVersion2() throws Exception {
+        Table table = tableMetadataManager.get(TestUtils.TEST_TABLE_NAME);
+
+        Document originalDocument = createDummyDocument();
+        Document translatedDocument = TestUtils.translatedDocumentWithRowKeyVersion2(table, originalDocument);
+        doReturn(translatedDocument).when(dataStore)
+                .save(table, originalDocument);
+        queryStore.save(TestUtils.TEST_TABLE_NAME, originalDocument);
+
+        GetResponse getResponse = elasticsearchConnection.getClient()
+                .prepareGet(ElasticsearchUtils.getCurrentIndex(TestUtils.TEST_TABLE_NAME, originalDocument.getTimestamp()),
+                            ElasticsearchUtils.DOCUMENT_TYPE_NAME, translatedDocument.getId()
+                           )
+                .setStoredFields(ElasticsearchUtils.DOCUMENT_META_TIMESTAMP_FIELD_NAME)
+                .execute()
+                .actionGet();
+        assertTrue("Id should exist in ES", getResponse.isExists());
+        assertEquals("Id should match requestId", translatedDocument.getId(), getResponse.getId());
+    }
+
+    @Test
     public void testSaveBulkLargeTextNode() throws Exception {
         Table table = tableMetadataManager.get(TestUtils.TEST_TABLE_NAME);
 
@@ -156,27 +175,6 @@ public class ElasticsearchQueryStoreTest {
         assertEquals("Id should match requestId", originalDocument.getId(), getResponse.getId());
         assertNull(getResponse.getField("testLargeField"));
         assertNotNull(getResponse.getField("testField"));
-    }
-
-    @Test
-    public void testSaveSingleRawKeyVersion2() throws Exception {
-        Table table = tableMetadataManager.get(TestUtils.TEST_TABLE_NAME);
-
-        Document originalDocument = createDummyDocument();
-        Document translatedDocument = TestUtils.translatedDocumentWithRowKeyVersion2(table, originalDocument);
-        doReturn(translatedDocument).when(dataStore)
-                .save(table, originalDocument);
-        queryStore.save(TestUtils.TEST_TABLE_NAME, originalDocument);
-
-        GetResponse getResponse = elasticsearchConnection.getClient()
-                .prepareGet(ElasticsearchUtils.getCurrentIndex(TestUtils.TEST_TABLE_NAME, originalDocument.getTimestamp()),
-                            ElasticsearchUtils.DOCUMENT_TYPE_NAME, translatedDocument.getId()
-                           )
-                .setStoredFields(ElasticsearchUtils.DOCUMENT_META_TIMESTAMP_FIELD_NAME)
-                .execute()
-                .actionGet();
-        assertTrue("Id should exist in ES", getResponse.isExists());
-        assertEquals("Id should match requestId", translatedDocument.getId(), getResponse.getId());
     }
 
     @Test

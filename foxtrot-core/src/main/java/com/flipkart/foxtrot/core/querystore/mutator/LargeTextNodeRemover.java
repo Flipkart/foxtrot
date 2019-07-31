@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.flipkart.foxtrot.core.config.IndexConfiguration;
 import com.google.common.collect.Lists;
 import lombok.val;
 
@@ -11,11 +12,13 @@ import java.util.List;
 
 public class LargeTextNodeRemover implements IndexerEventMutator {
 
-    private static final int MAX_SIZE = 500;
     private final ObjectMapper objectMapper;
+    private final int textFieldMaxSize;
 
-    public LargeTextNodeRemover(ObjectMapper objectMapper) {
+    public LargeTextNodeRemover(ObjectMapper objectMapper,
+                                IndexConfiguration indexConfiguration) {
         this.objectMapper = objectMapper;
+        this.textFieldMaxSize = indexConfiguration.getTextFieldMaxSize();
     }
 
 
@@ -44,7 +47,7 @@ public class LargeTextNodeRemover implements IndexerEventMutator {
         objectNode.fields().forEachRemaining(entry -> {
             val value = entry.getValue();
             if (value.isTextual()) {
-                if(!value.isNull() && value.textValue().length() > MAX_SIZE){
+                if(!value.isNull() && value.textValue().length() > textFieldMaxSize){
                     toBeRemoved.add(entry.getKey());
                 }
             } else if (value.isArray()) {
@@ -69,7 +72,7 @@ public class LargeTextNodeRemover implements IndexerEventMutator {
                     } else if (node.isArray()) {
                         handleArrayNode((ArrayNode) node);
                     } else if (node.isTextual()) {
-                        copyNode = node.isNull() || node.textValue().length() <= MAX_SIZE;
+                        copyNode = node.isNull() || node.textValue().length() <= textFieldMaxSize;
                     }
                     if (copyNode) {
                         copy.add(node);
