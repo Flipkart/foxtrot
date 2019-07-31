@@ -4,6 +4,10 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.google.common.collect.Lists;
+import lombok.val;
+
+import java.util.List;
 
 public class LargeTextNodeRemover implements IndexerEventMutator {
 
@@ -36,17 +40,20 @@ public class LargeTextNodeRemover implements IndexerEventMutator {
         if (objectNode == null || objectNode.isNull()) {
             return;
         }
+        List<String> toBeRemoved = Lists.newArrayList();
         objectNode.fields().forEachRemaining(entry -> {
-            if (entry.getValue().isTextual()) {
-                if (entry.getValue().size() > MAX_SIZE) {
-                    objectNode.remove(entry.getKey());
+            val value = entry.getValue();
+            if (value.isTextual()) {
+                if(!value.isNull() && value.textValue().length() > MAX_SIZE){
+                    toBeRemoved.add(entry.getKey());
                 }
-            } else if (entry.getValue().isArray()) {
-                handleArrayNode((ArrayNode) entry.getValue());
-            } else if (entry.getValue().isObject()) {
-                handleObjectNode((ObjectNode) entry.getValue());
+            } else if (value.isArray()) {
+                handleArrayNode((ArrayNode) value);
+            } else if (value.isObject()) {
+                handleObjectNode((ObjectNode) value);
             }
         });
+        objectNode.remove(toBeRemoved);
     }
 
     private void handleArrayNode(ArrayNode arrayNode) {
@@ -62,7 +69,7 @@ public class LargeTextNodeRemover implements IndexerEventMutator {
                     } else if (node.isArray()) {
                         handleArrayNode((ArrayNode) node);
                     } else if (node.isTextual()) {
-                        copyNode = node.size() <= MAX_SIZE;
+                        copyNode = node.isNull() || node.textValue().length() <= MAX_SIZE;
                     }
                     if (copyNode) {
                         copy.add(node);

@@ -393,7 +393,7 @@ public class ElasticsearchQueryStore implements QueryStore {
         dataNode.set(ElasticsearchUtils.DOCUMENT_META_FIELD_NAME, metaNode);
         dataNode.set(ElasticsearchUtils.DOCUMENT_TIME_FIELD_NAME, mapper.valueToTree(document.getDate()));
         mutators.forEach(mutator-> mutator.mutate(table, dataNode));
-        return mapper.convertValue(dataNode, new TypeReference<Map<String, Object>>(){});
+        return ElasticsearchQueryUtils.toMap(mapper, dataNode);
     }
 
     private void deleteIndices(List<String> indicesToDelete) {

@@ -36,6 +36,7 @@ import com.google.common.collect.Maps;
 import com.hazelcast.config.Config;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.test.TestHazelcastInstanceFactory;
+import org.apache.commons.lang.StringUtils;
 import org.elasticsearch.action.admin.cluster.health.ClusterHealthResponse;
 import org.elasticsearch.action.admin.cluster.node.stats.NodesStatsResponse;
 import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;
@@ -131,6 +132,30 @@ public class ElasticsearchQueryStoreTest {
                 .actionGet();
         assertTrue("Id should exist in ES", getResponse.isExists());
         assertEquals("Id should match requestId", originalDocument.getId(), getResponse.getId());
+    }
+
+    @Test
+    public void testSaveBulkLargeTextNode() throws Exception {
+        Table table = tableMetadataManager.get(TestUtils.TEST_TABLE_NAME);
+
+        Document originalDocument = createLargeDummyDocument();
+        Document translatedDocument = TestUtils.translatedDocumentWithRowKeyVersion1(table, originalDocument);
+        doReturn(translatedDocument).when(dataStore)
+                .save(table, originalDocument);
+        queryStore.save(TestUtils.TEST_TABLE_NAME, Lists.newArrayList(originalDocument));
+
+        GetResponse getResponse = elasticsearchConnection.getClient()
+                .prepareGet(ElasticsearchUtils.getCurrentIndex(TestUtils.TEST_TABLE_NAME, originalDocument.getTimestamp()),
+                        ElasticsearchUtils.DOCUMENT_TYPE_NAME, originalDocument.getId()
+                )
+                .setStoredFields(ElasticsearchUtils.DOCUMENT_META_TIMESTAMP_FIELD_NAME, "testField", "testLargeField")
+                .execute()
+                .actionGet();
+        System.out.println(getResponse.getFields());
+        assertTrue("Id should exist in ES", getResponse.isExists());
+        assertEquals("Id should match requestId", originalDocument.getId(), getResponse.getId());
+        assertNull(getResponse.getField("testLargeField"));
+        assertNotNull(getResponse.getField("testField"));
     }
 
     @Test
@@ -592,6 +617,18 @@ public class ElasticsearchQueryStoreTest {
         document.setTimestamp(System.currentTimeMillis());
         JsonNode data = mapper.valueToTree(Collections.singletonMap("TEST_NAME", "SINGLE_SAVE_TEST"));
         document.setData(data);
+        return document;
+    }
+
+    private Document createLargeDummyDocument() {
+        Document document = new Document();
+        document.setId(UUID.randomUUID()
+                .toString());
+        document.setTimestamp(System.currentTimeMillis());
+        Map<String, Object> data = new HashMap<>();
+        data.put("testField", "SINGLE_SAVE");
+        data.put("testLargeField", StringUtils.repeat("*", 1000));
+        document.setData(mapper.valueToTree(data));
         return document;
     }
 
