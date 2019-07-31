@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.flipkart.foxtrot.core.config.IndexConfiguration;
+import com.flipkart.foxtrot.core.config.IndexerConfiguration;
 import com.google.common.collect.Lists;
 import lombok.val;
 
@@ -16,9 +16,9 @@ public class LargeTextNodeRemover implements IndexerEventMutator {
     private final int textFieldMaxSize;
 
     public LargeTextNodeRemover(ObjectMapper objectMapper,
-                                IndexConfiguration indexConfiguration) {
+                                IndexerConfiguration indexerConfiguration) {
         this.objectMapper = objectMapper;
-        this.textFieldMaxSize = indexConfiguration.getTextFieldMaxSize();
+        this.textFieldMaxSize = indexerConfiguration.getMaxIndexedTextFieldSize();
     }
 
 

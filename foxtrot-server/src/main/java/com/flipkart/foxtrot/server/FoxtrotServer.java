@@ -180,7 +180,7 @@ public class FoxtrotServer extends Application<FoxtrotServerConfiguration> {
                                                                                         objectMapper, cardinalityConfig
         );
 
-        List<IndexerEventMutator> mutators = Lists.newArrayList(new LargeTextNodeRemover(objectMapper, configuration.getIndexConfiguration()));
+        List<IndexerEventMutator> mutators = Lists.newArrayList(new LargeTextNodeRemover(objectMapper, configuration.getIndexerConfiguration()));
         DataStore dataStore = new HBaseDataStore(hbaseTableConnection, objectMapper, new DocumentTranslator(configuration.getHbase()));
         QueryStore queryStore = new ElasticsearchQueryStore(tableMetadataManager, elasticsearchConnection, dataStore, mutators, objectMapper,
                                                             cardinalityConfig

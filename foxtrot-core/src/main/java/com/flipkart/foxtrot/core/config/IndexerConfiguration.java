@@ -9,9 +9,9 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class IndexConfiguration {
+public class IndexerConfiguration {
 
     @Builder.Default
-    private int textFieldMaxSize = 1000;
+    private int maxIndexedTextFieldSize = 1000;
 
 }
