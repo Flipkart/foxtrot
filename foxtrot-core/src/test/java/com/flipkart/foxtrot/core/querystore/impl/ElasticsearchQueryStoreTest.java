@@ -25,6 +25,8 @@ import com.flipkart.foxtrot.core.datastore.DataStore;
 import com.flipkart.foxtrot.core.exception.ErrorCode;
 import com.flipkart.foxtrot.core.exception.FoxtrotException;
 import com.flipkart.foxtrot.core.exception.FoxtrotExceptions;
+import com.flipkart.foxtrot.core.querystore.mutator.IndexerEventMutator;
+import com.flipkart.foxtrot.core.querystore.mutator.LargeTextNodeRemover;
 import com.flipkart.foxtrot.core.table.TableMetadataManager;
 import com.flipkart.foxtrot.core.table.impl.DistributedTableMetadataManager;
 import com.flipkart.foxtrot.core.table.impl.ElasticsearchTestUtils;
@@ -91,7 +93,8 @@ public class ElasticsearchQueryStoreTest {
         when(tableMetadataManager.exists(anyString())).thenReturn(true);
         when(tableMetadataManager.get(anyString())).thenReturn(TestUtils.TEST_TABLE);
 */
-        this.queryStore = new ElasticsearchQueryStore(tableMetadataManager, elasticsearchConnection, dataStore, mapper, cardinalityConfig);
+        List<IndexerEventMutator> mutators = Lists.newArrayList(new LargeTextNodeRemover(mapper));
+        this.queryStore = new ElasticsearchQueryStore(tableMetadataManager, elasticsearchConnection, dataStore, mutators, mapper, cardinalityConfig);
     }
 
     @After

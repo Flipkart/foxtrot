@@ -14,9 +14,12 @@ import com.flipkart.foxtrot.core.querystore.QueryExecutor;
 import com.flipkart.foxtrot.core.querystore.QueryStore;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsLoader;
 import com.flipkart.foxtrot.core.querystore.impl.*;
+import com.flipkart.foxtrot.core.querystore.mutator.IndexerEventMutator;
+import com.flipkart.foxtrot.core.querystore.mutator.LargeTextNodeRemover;
 import com.flipkart.foxtrot.core.table.impl.DistributedTableMetadataManager;
 import com.flipkart.foxtrot.core.table.impl.ElasticsearchTestUtils;
 import com.flipkart.foxtrot.core.table.impl.TableMapStore;
+import com.google.common.collect.Lists;
 import com.hazelcast.config.Config;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.test.TestHazelcastInstanceFactory;
@@ -30,6 +33,7 @@ import org.junit.Before;
 import org.mockito.Mockito;
 import org.slf4j.LoggerFactory;
 
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -82,9 +86,9 @@ public abstract class ActionTest {
                                           .name(TestUtils.TEST_TABLE_NAME)
                                           .ttl(30)
                                           .build());
-
+        List<IndexerEventMutator> mutators = Lists.newArrayList(new LargeTextNodeRemover(mapper));
         DataStore dataStore = TestUtils.getDataStore();
-        this.queryStore = new ElasticsearchQueryStore(tableMetadataManager, elasticsearchConnection, dataStore, mapper, cardinalityConfig);
+        this.queryStore = new ElasticsearchQueryStore(tableMetadataManager, elasticsearchConnection, dataStore, mutators, mapper, cardinalityConfig);
         CacheManager cacheManager = new CacheManager(new DistributedCacheFactory(hazelcastConnection, mapper, new CacheConfig()));
         AnalyticsLoader analyticsLoader = new AnalyticsLoader(tableMetadataManager, dataStore, queryStore, elasticsearchConnection,
                                                               cacheManager, mapper, new EmailConfig()

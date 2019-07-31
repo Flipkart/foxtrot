@@ -21,6 +21,8 @@ import com.flipkart.foxtrot.core.querystore.QueryExecutor;
 import com.flipkart.foxtrot.core.querystore.QueryStore;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsLoader;
 import com.flipkart.foxtrot.core.querystore.impl.*;
+import com.flipkart.foxtrot.core.querystore.mutator.IndexerEventMutator;
+import com.flipkart.foxtrot.core.querystore.mutator.LargeTextNodeRemover;
 import com.flipkart.foxtrot.core.table.TableMetadataManager;
 import com.flipkart.foxtrot.core.table.impl.DistributedTableMetadataManager;
 import com.flipkart.foxtrot.core.table.impl.ElasticsearchTestUtils;
@@ -37,10 +39,12 @@ import io.dropwizard.jetty.MutableServletContextHandler;
 import io.dropwizard.lifecycle.setup.LifecycleEnvironment;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
+import org.assertj.core.util.Lists;
 import org.junit.After;
 import org.mockito.Mockito;
 import org.slf4j.LoggerFactory;
 
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -126,7 +130,9 @@ public abstract class FoxtrotResourceTest {
                                           .name(TestUtils.TEST_TABLE_NAME)
                                           .ttl(7)
                                           .build());
-        queryStore = new ElasticsearchQueryStore(tableMetadataManager, elasticsearchConnection, dataStore, mapper, cardinalityConfig);
+
+        List<IndexerEventMutator> mutators = Lists.newArrayList(new LargeTextNodeRemover(mapper));
+        queryStore = new ElasticsearchQueryStore(tableMetadataManager, elasticsearchConnection, dataStore, mutators, mapper, cardinalityConfig);
         queryStore = spy(queryStore);
 
         analyticsLoader = new AnalyticsLoader(tableMetadataManager, dataStore, queryStore, elasticsearchConnection, cacheManager, mapper,
