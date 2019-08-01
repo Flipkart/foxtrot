@@ -12,6 +12,6 @@ import lombok.NoArgsConstructor;
 public class IndexerConfiguration {
 
     @Builder.Default
-    private int maxIndexedTextFieldSize = 1000;
+    private int maxIndexedTextFieldSize = 1024;
 
 }
