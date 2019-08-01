@@ -8,6 +8,7 @@ import com.flipkart.foxtrot.common.stats.BucketResponse;
 import com.flipkart.foxtrot.common.stats.StatsTrendRequest;
 import com.flipkart.foxtrot.common.stats.StatsTrendResponse;
 import com.flipkart.foxtrot.common.stats.StatsTrendValue;
+import com.flipkart.foxtrot.common.stats.Stat;
 import com.flipkart.foxtrot.common.util.CollectionUtils;
 import com.flipkart.foxtrot.core.common.Action;
 import com.flipkart.foxtrot.core.exception.FoxtrotExceptions;
@@ -24,6 +25,7 @@ import org.elasticsearch.ElasticsearchException;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.search.aggregations.AbstractAggregationBuilder;
+import org.elasticsearch.search.aggregations.Aggregation;
 import org.elasticsearch.search.aggregations.Aggregations;
 import org.elasticsearch.search.aggregations.bucket.histogram.DateHistogramInterval;
 import org.elasticsearch.search.aggregations.bucket.histogram.Histogram;
@@ -151,13 +153,7 @@ public class StatsTrendAction extends Action<StatsTrendRequest> {
         final String field = request.getField();
         DateHistogramInterval interval = Utils.getHistogramInterval(request.getPeriod());
         AbstractAggregationBuilder dateHistogramBuilder = Utils.buildDateHistogramAggregation(request.getTimestamp(), interval);
-        final TableFieldMapping fieldMappings = getTableMetadataManager().getFieldMappings(table, false, false);
-        final FieldMetadata fieldMetadata = fieldMappings.getMappings()
-                .stream()
-                .filter(mapping -> mapping.getField().equals(field))
-                .findFirst()
-                .orElse(null);
-        boolean isNumericField = null != fieldMetadata && NUMERIC_FIELD_TYPES.contains(fieldMetadata.getType());
+        boolean isNumericField = isNumericField(table, field);
         if(isNumericField) {
             dateHistogramBuilder
                     .subAggregation(Utils.buildStatsAggregation(field, getParameter().getStats()))
@@ -166,7 +162,7 @@ public class StatsTrendAction extends Action<StatsTrendRequest> {
         }
         else {
             dateHistogramBuilder
-                    .subAggregation(Utils.buildCardinalityAggregation(field));
+                    .subAggregation(Utils.buildStatsAggregation(field, Collections.singleton(Stat.COUNT)));
         }
 
         if(CollectionUtils.isNullOrEmpty(getParameter().getNesting())) {
@@ -176,6 +172,16 @@ public class StatsTrendAction extends Action<StatsTrendRequest> {
                                                    .stream()
                                                    .map(x -> new ResultSort(x, ResultSort.Order.asc))
                                                    .collect(Collectors.toList()), Sets.newHashSet(dateHistogramBuilder));
+    }
+
+    private boolean isNumericField(String table, String field) {
+        final TableFieldMapping fieldMappings = getTableMetadataManager().getFieldMappings(table, false, false);
+        final FieldMetadata fieldMetadata = fieldMappings.getMappings()
+                .stream()
+                .filter(mapping -> mapping.getField().equals(field))
+                .findFirst()
+                .orElse(null);
+        return null != fieldMetadata && NUMERIC_FIELD_TYPES.contains(fieldMetadata.getType());
     }
 
     private StatsTrendResponse buildResponse(StatsTrendRequest request, Aggregations aggregations) {
@@ -213,43 +219,28 @@ public class StatsTrendAction extends Action<StatsTrendRequest> {
         String dateHistogramKey = Utils.getDateHistogramKey(getParameter().getTimestamp());
         Histogram dateHistogram = aggregations.get(dateHistogramKey);
         Collection<? extends Histogram.Bucket> buckets = dateHistogram.getBuckets();
-        final TableFieldMapping fieldMappings = getTableMetadataManager().getFieldMappings(
-                getParameter().getTable(), false, false);
-        final FieldMetadata fieldMetadata = fieldMappings.getMappings()
-                .stream()
-                .filter(mapping -> mapping.getField().equals(field))
-                .findFirst()
-                .orElse(null);
-        boolean isNumericField = null != fieldMetadata && NUMERIC_FIELD_TYPES.contains(fieldMetadata.getType());
         List<StatsTrendValue> statsValueList = Lists.newArrayList();
-        if(!isNumericField) {
-            for (Histogram.Bucket bucket : buckets) {
-                final StatsTrendValue statsTrendValue = new StatsTrendValue();
-                DateTime key = (DateTime) bucket.getKey();
-                statsTrendValue.setPeriod(key.getMillis());
-                statsTrendValue.setStats(Collections.singletonMap("count", bucket.getDocCount()));
-                statsValueList.add(statsTrendValue);
-            }
-        }
-        else {
-            String metricKey = Utils.getExtendedStatsAggregationKey(field);
-            String percentileMetricKey = Utils.getPercentileAggregationKey(field);
 
-            for (Histogram.Bucket bucket : buckets) {
-                StatsTrendValue statsTrendValue = new StatsTrendValue();
-                DateTime key = (DateTime) bucket.getKey();
-                statsTrendValue.setPeriod(key.getMillis());
+        final String metricKey = Utils.getExtendedStatsAggregationKey(field);
+        final String percentileMetricKey = Utils.getPercentileAggregationKey(field);
 
-                val statAggregation = bucket.getAggregations()
-                        .getAsMap()
-                        .get(metricKey);
-                statsTrendValue.setStats(Utils.toStats(statAggregation));
-                Percentiles internalPercentile = Percentiles.class.cast(bucket.getAggregations()
-                                                                                .getAsMap()
-                                                                                .get(percentileMetricKey));
+        for (Histogram.Bucket bucket : buckets) {
+            StatsTrendValue statsTrendValue = new StatsTrendValue();
+            DateTime key = (DateTime) bucket.getKey();
+            statsTrendValue.setPeriod(key.getMillis());
+
+            val statAggregation = bucket.getAggregations()
+                    .getAsMap()
+                    .get(metricKey);
+            statsTrendValue.setStats(Utils.toStats(statAggregation));
+            final Aggregation rawPercentiles = bucket.getAggregations()
+                    .getAsMap()
+                    .get(percentileMetricKey);
+            if(null != rawPercentiles) {
+                Percentiles internalPercentile = Percentiles.class.cast(rawPercentiles);
                 statsTrendValue.setPercentiles(Utils.createPercentilesResponse(internalPercentile));
-                statsValueList.add(statsTrendValue);
             }
+            statsValueList.add(statsTrendValue);
         }
         return statsValueList;
     }
