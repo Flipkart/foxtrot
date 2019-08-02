@@ -17,6 +17,7 @@ package com.flipkart.foxtrot.core.querystore.impl;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.flipkart.foxtrot.common.*;
 import com.flipkart.foxtrot.common.estimation.EstimationDataType;
 import com.flipkart.foxtrot.core.TestUtils;
@@ -34,13 +35,17 @@ import com.flipkart.foxtrot.core.table.impl.ElasticsearchTestUtils;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import com.hazelcast.config.Config;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.test.TestHazelcastInstanceFactory;
+import lombok.val;
+import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
 import org.elasticsearch.action.admin.cluster.health.ClusterHealthResponse;
 import org.elasticsearch.action.admin.cluster.node.stats.NodesStatsResponse;
 import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;
+import org.elasticsearch.action.admin.indices.mapping.get.GetFieldMappingsRequest;
 import org.elasticsearch.action.admin.indices.stats.IndicesStatsResponse;
 import org.elasticsearch.action.get.GetResponse;
 import org.junit.*;
@@ -108,6 +113,7 @@ public class ElasticsearchQueryStoreTest {
             //Do Nothing
         }
         elasticsearchConnection.stop();
+        hazelcastInstance.shutdown();
     }
 
 
@@ -161,20 +167,117 @@ public class ElasticsearchQueryStoreTest {
         Document translatedDocument = TestUtils.translatedDocumentWithRowKeyVersion1(table, originalDocument);
         doReturn(translatedDocument).when(dataStore)
                 .save(table, originalDocument);
-        queryStore.save(TestUtils.TEST_TABLE_NAME, Lists.newArrayList(originalDocument));
-
-        GetResponse getResponse = elasticsearchConnection.getClient()
-                .prepareGet(ElasticsearchUtils.getCurrentIndex(TestUtils.TEST_TABLE_NAME, originalDocument.getTimestamp()),
-                        ElasticsearchUtils.DOCUMENT_TYPE_NAME, originalDocument.getId()
-                )
+        queryStore.save(TestUtils.TEST_TABLE_NAME, originalDocument);
+        val currentIndex = ElasticsearchUtils.getCurrentIndex(TestUtils.TEST_TABLE_NAME, originalDocument.getTimestamp());
+        val response = elasticsearchConnection.getClient()
+                .prepareGet(currentIndex, ElasticsearchUtils.DOCUMENT_TYPE_NAME, originalDocument.getId())
                 .setStoredFields(ElasticsearchUtils.DOCUMENT_META_TIMESTAMP_FIELD_NAME, "testField", "testLargeField")
                 .execute()
                 .actionGet();
-        System.out.println(getResponse.getFields());
-        assertTrue("Id should exist in ES", getResponse.isExists());
-        assertEquals("Id should match requestId", originalDocument.getId(), getResponse.getId());
-        assertNull(getResponse.getField("testLargeField"));
-        assertNotNull(getResponse.getField("testField"));
+        assertTrue(response.isExists());
+        val request = new GetFieldMappingsRequest();
+        request.indices(currentIndex);
+        request.fields("*");
+
+        val mappings = elasticsearchConnection.getClient()
+                .admin()
+                .indices()
+                .getFieldMappings(request)
+                .get();
+
+        Set<String> expectedFields = Sets.newHashSet("_index", "date.minuteOfHour", "date.year",
+                "date.dayOfMonth", "testField", "testField.analyzed",
+                "_all", "date.dayOfWeek", "date.minuteOfDay",
+                "_parent", "date.monthOfYear", "__FOXTROT_METADATA__.time",
+                "time.date", "_version", "date.weekOfYear",
+                "_routing", "__FOXTROT_METADATA__.rawStorageId",
+                "_type", "__FOXTROT_METADATA__.id", "date.hourOfDay",
+                "_seq_no", "_field_names", "_source", "_id", "time", "_uid");
+        assertTrue(ObjectUtils.equals(expectedFields, mappings.mappings().get(currentIndex).get(ElasticsearchUtils.DOCUMENT_TYPE_NAME).keySet()));
+    }
+
+    @Test
+    public void testSaveBulkNestedLargeTextNode() throws Exception {
+        Table table = tableMetadataManager.get(TestUtils.TEST_TABLE_NAME);
+
+        Document originalDocument = createLargeNestedDocumentWithLargeTextNodeAsKey();
+        Document translatedDocument = TestUtils.translatedDocumentWithRowKeyVersion1(table, originalDocument);
+        doReturn(translatedDocument).when(dataStore)
+                .save(table, originalDocument);
+        queryStore.save(TestUtils.TEST_TABLE_NAME, originalDocument);
+
+        val currentIndex = ElasticsearchUtils.getCurrentIndex(TestUtils.TEST_TABLE_NAME, originalDocument.getTimestamp());
+
+        String[] fields = {ElasticsearchUtils.DOCUMENT_META_TIMESTAMP_FIELD_NAME,
+                "testField", String.format("testLargeField%s", StringUtils.repeat(".testField", 5))};
+        val response = elasticsearchConnection.getClient()
+                .prepareGet(currentIndex, ElasticsearchUtils.DOCUMENT_TYPE_NAME, originalDocument.getId())
+                .setStoredFields(fields)
+                .execute()
+                .actionGet();
+        assertTrue(response.isExists());
+
+        val request = new GetFieldMappingsRequest();
+        request.indices(currentIndex);
+        request.fields("*");
+
+        val mappings = elasticsearchConnection.getClient()
+                .admin()
+                .indices()
+                .getFieldMappings(request)
+                .get();
+
+        Set<String> expectedFields = Sets.newHashSet("_index", "date.minuteOfHour", "date.year",
+                "date.dayOfMonth", "testField", "testField.analyzed",
+                "_all", "date.dayOfWeek", "date.minuteOfDay",
+                "_parent", "date.monthOfYear", "__FOXTROT_METADATA__.time",
+                "time.date", "_version", "date.weekOfYear",
+                "_routing", "__FOXTROT_METADATA__.rawStorageId",
+                "_type", "__FOXTROT_METADATA__.id", "date.hourOfDay",
+                "_seq_no", "_field_names", "_source", "_id", "time", "_uid");
+        assertTrue(ObjectUtils.equals(expectedFields, mappings.mappings().get(currentIndex).get(ElasticsearchUtils.DOCUMENT_TYPE_NAME).keySet()));
+    }
+
+    @Test
+    public void testSaveBulkNestedArrayLargeTextNode() throws Exception {
+        Table table = tableMetadataManager.get(TestUtils.TEST_TABLE_NAME);
+
+        Document originalDocument = createLargeNestedDocumentWithLargeTextNodeAsArrayValue();
+        Document translatedDocument = TestUtils.translatedDocumentWithRowKeyVersion1(table, originalDocument);
+        doReturn(translatedDocument).when(dataStore)
+                .save(table, originalDocument);
+        queryStore.save(TestUtils.TEST_TABLE_NAME, originalDocument);
+
+        val currentIndex = ElasticsearchUtils.getCurrentIndex(TestUtils.TEST_TABLE_NAME, originalDocument.getTimestamp());
+
+        String[] fields = {ElasticsearchUtils.DOCUMENT_META_TIMESTAMP_FIELD_NAME,
+                "testField", String.format("testLargeField%s", StringUtils.repeat(".testField", 5))};
+        val response = elasticsearchConnection.getClient()
+                .prepareGet(currentIndex, ElasticsearchUtils.DOCUMENT_TYPE_NAME, originalDocument.getId())
+                .setStoredFields(fields)
+                .execute()
+                .actionGet();
+        assertTrue(response.isExists());
+
+        val request = new GetFieldMappingsRequest();
+        request.indices(currentIndex);
+        request.fields("*");
+
+        val mappings = elasticsearchConnection.getClient()
+                .admin()
+                .indices()
+                .getFieldMappings(request)
+                .get();
+        val expectedFields = Sets.newHashSet("_index", "date.minuteOfHour", "date.year",
+                "date.dayOfMonth", "testField", "testField.analyzed",
+                "_all", "date.dayOfWeek", "date.minuteOfDay",
+                "_parent", "date.monthOfYear", "__FOXTROT_METADATA__.time",
+                "time.date", "_version", "date.weekOfYear",
+                "_routing", "__FOXTROT_METADATA__.rawStorageId",
+                "_type", "__FOXTROT_METADATA__.id", "date.hourOfDay",
+                "_seq_no", "_field_names", "_source", "_id", "time", "_uid",
+                "testLargeField.testField.testField.testField.testField_array", "testLargeField.testField.testField.testField.testField_array.analyzed");
+        assertTrue(ObjectUtils.equals(expectedFields, mappings.mappings().get(currentIndex).get(ElasticsearchUtils.DOCUMENT_TYPE_NAME).keySet()));
     }
 
     @Test
@@ -611,7 +714,7 @@ public class ElasticsearchQueryStoreTest {
     private Document createDummyDocument() {
         Document document = new Document();
         document.setId(UUID.randomUUID()
-                               .toString());
+                .toString());
         document.setTimestamp(System.currentTimeMillis());
         JsonNode data = mapper.valueToTree(Collections.singletonMap("TEST_NAME", "SINGLE_SAVE_TEST"));
         document.setData(data);
@@ -625,9 +728,44 @@ public class ElasticsearchQueryStoreTest {
         document.setTimestamp(System.currentTimeMillis());
         Map<String, Object> data = new HashMap<>();
         data.put("testField", "SINGLE_SAVE");
-        data.put("testLargeField", StringUtils.repeat("*", 1000));
+        data.put("testLargeField", StringUtils.repeat("*", 5000));
         document.setData(mapper.valueToTree(data));
         return document;
     }
 
+    private Document createLargeNestedDocumentWithLargeTextNodeAsKey() {
+        return Document.builder()
+                .id(UUID.randomUUID().toString())
+                .timestamp(System.currentTimeMillis())
+                .data(mapper.createObjectNode()
+                        .put("testField", "SINGLE_SAVE")
+                        .set("testLargeField",
+                                createNestedObject("testField", StringUtils.repeat("*", 5000))))
+                .build();
+    }
+
+    private Document createLargeNestedDocumentWithLargeTextNodeAsArrayValue() {
+        return Document.builder()
+                .id(UUID.randomUUID().toString())
+                .timestamp(System.currentTimeMillis())
+                .data(mapper.createObjectNode()
+                        .put("testField", "SINGLE_SAVE")
+                        .set("testLargeField",
+                                createNestedArray("testField", StringUtils.repeat("*", 5000))))
+                .build();
+    }
+
+
+    private ObjectNode createNestedObject(String field, String value) {
+        ObjectNode objectNode = mapper.createObjectNode();
+        objectNode.with(field).with(field).with(field).put(field, value);
+        return objectNode;
+    }
+
+    private ObjectNode createNestedArray(String field, String value) {
+        ObjectNode objectNode = mapper.createObjectNode();
+        objectNode.with(field).with(field).with(field).put(field, value).put(field + "_array", UUID.randomUUID().toString());
+        System.out.println(objectNode);
+        return objectNode;
+    }
 }
