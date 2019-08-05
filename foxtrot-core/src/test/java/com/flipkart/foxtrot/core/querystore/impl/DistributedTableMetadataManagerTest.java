@@ -24,7 +24,7 @@ import com.flipkart.foxtrot.common.group.GroupResponse;
 import com.flipkart.foxtrot.core.TestUtils;
 import com.flipkart.foxtrot.core.alerts.EmailConfig;
 import com.flipkart.foxtrot.core.cardinality.CardinalityConfig;
-import com.flipkart.foxtrot.core.config.IndexerConfiguration;
+import com.flipkart.foxtrot.core.config.TextNodeRemoverConfiguration;
 import com.flipkart.foxtrot.core.datastore.DataStore;
 import com.flipkart.foxtrot.core.querystore.mutator.IndexerEventMutator;
 import com.flipkart.foxtrot.core.querystore.mutator.LargeTextNodeRemover;
@@ -81,15 +81,15 @@ public class DistributedTableMetadataManagerTest {
         hazelcastConnection.start();
 
         this.distributedTableMetadataManager = new DistributedTableMetadataManager(hazelcastConnection, elasticsearchConnection,
-                                                                                   objectMapper, new CardinalityConfig()
+                objectMapper, new CardinalityConfig()
         );
         distributedTableMetadataManager.start();
 
         tableDataStore = hazelcastInstance.getMap("tablemetadatamap");
         List<IndexerEventMutator> mutators = Lists.newArrayList(new LargeTextNodeRemover(objectMapper,
-                IndexerConfiguration.builder().build()));
+                TextNodeRemoverConfiguration.builder().build()));
         this.queryStore = new ElasticsearchQueryStore(distributedTableMetadataManager, elasticsearchConnection, dataStore, mutators, objectMapper,
-                                                      new CardinalityConfig()
+                new CardinalityConfig()
         );
     }
 

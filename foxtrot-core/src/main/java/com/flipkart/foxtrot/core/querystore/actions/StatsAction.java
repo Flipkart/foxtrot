@@ -37,8 +37,8 @@ import static com.flipkart.foxtrot.core.util.ElasticsearchQueryUtils.QUERY_SIZE;
 @AnalyticsProvider(opcode = "stats", request = StatsRequest.class, response = StatsResponse.class, cacheable = false)
 public class StatsAction extends Action<StatsRequest> {
 
-    public StatsAction(StatsRequest parameter, String cacheToken, AnalyticsLoader analyticsLoader) {
-        super(parameter, cacheToken, analyticsLoader);
+    public StatsAction(StatsRequest parameter, AnalyticsLoader analyticsLoader) {
+        super(parameter, analyticsLoader);
     }
 
     private static StatsValue buildStatsValue(String field, Aggregations aggregations) {

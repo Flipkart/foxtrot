@@ -19,7 +19,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.flipkart.foxtrot.core.alerts.EmailConfig;
 import com.flipkart.foxtrot.core.cardinality.CardinalityConfig;
 import com.flipkart.foxtrot.core.common.DataDeletionManagerConfig;
-import com.flipkart.foxtrot.core.config.IndexerConfiguration;
+import com.flipkart.foxtrot.core.config.TextNodeRemoverConfiguration;
 import com.flipkart.foxtrot.core.datastore.impl.hbase.HbaseConfig;
 import com.flipkart.foxtrot.core.jobs.optimization.EsIndexOptimizationConfig;
 import com.flipkart.foxtrot.core.querystore.impl.CacheConfig;
@@ -30,6 +30,7 @@ import io.dropwizard.Configuration;
 import io.dropwizard.discovery.bundle.ServiceDiscoveryConfiguration;
 import io.dropwizard.riemann.RiemannConfig;
 import io.federecio.dropwizard.swagger.SwaggerBundleConfiguration;
+import lombok.Builder;
 import lombok.Data;
 
 import javax.validation.Valid;
@@ -80,7 +81,9 @@ public class FoxtrotServerConfiguration extends Configuration {
 
     private GandalfConfiguration gandalfConfiguration;
 
-    private IndexerConfiguration indexerConfiguration;
+    @Valid
+    @Builder.Default
+    private TextNodeRemoverConfiguration textNodeRemover = new TextNodeRemoverConfiguration();
 
     public FoxtrotServerConfiguration() {
         this.hbase = new HbaseConfig();

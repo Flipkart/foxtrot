@@ -27,6 +27,7 @@ import com.flipkart.foxtrot.core.exception.FoxtrotExceptions;
 import com.flipkart.foxtrot.core.querystore.QueryStore;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConnection;
 import com.flipkart.foxtrot.core.table.TableMetadataManager;
+import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
 import io.dropwizard.lifecycle.Managed;
 import lombok.Getter;
@@ -85,8 +86,8 @@ public class AnalyticsLoader implements Managed {
                         .cast(request);
                 try {
                     Constructor<? extends Action> constructor = metadata.getAction()
-                            .getConstructor(metadata.getRequest(), String.class, AnalyticsLoader.class);
-                    return constructor.newInstance(r, metadata.getCacheToken(), this);
+                            .getConstructor(metadata.getRequest(), AnalyticsLoader.class);
+                    return constructor.newInstance(r, this);
                 } catch (Exception e) {
                     throw FoxtrotExceptions.createActionResolutionException(request, e);
                 }
@@ -96,11 +97,11 @@ public class AnalyticsLoader implements Managed {
     }
 
     public void register(ActionMetadata actionMetadata) {
-        actions.put(actionMetadata.getRequest()
-                            .getCanonicalName(), actionMetadata);
-        if(actionMetadata.isCacheable()) {
-            cacheManager.create(actionMetadata.getCacheToken());
-        }
+        actions.put(actionMetadata.getRequest().getCanonicalName(), actionMetadata);
+    }
+
+    public void registerCache(final String opcode) {
+        cacheManager.create(opcode);
     }
 
     @Override
@@ -113,21 +114,17 @@ public class AnalyticsLoader implements Managed {
         List<NamedType> types = new ArrayList<>();
         for(Class<? extends Action> action : actionSet) {
             AnalyticsProvider analyticsProvider = action.getAnnotation(AnalyticsProvider.class);
-            if(null == analyticsProvider.request() || null == analyticsProvider.opcode() || analyticsProvider.opcode()
-                    .isEmpty() || null == analyticsProvider.response()) {
+            final String opcode = analyticsProvider.opcode();
+            if(Strings.isNullOrEmpty(opcode)) {
                 throw new AnalyticsActionLoaderException("Invalid annotation on " + action.getCanonicalName());
             }
-            if(analyticsProvider.opcode()
-                    .equalsIgnoreCase("default")) {
-                logger.warn("Action {} does not specify cache token. Using default cache.", action.getCanonicalName());
-            }
-            register(new ActionMetadata(analyticsProvider.request(), action, analyticsProvider.cacheable(), analyticsProvider.opcode()));
-            types.add(new NamedType(analyticsProvider.request(), analyticsProvider.opcode()));
-            types.add(new NamedType(analyticsProvider.response(), analyticsProvider.opcode()));
+            register(new ActionMetadata(analyticsProvider.request(), action, analyticsProvider.cacheable()));
+            types.add(new NamedType(analyticsProvider.request(), opcode));
+            types.add(new NamedType(analyticsProvider.response(), opcode));
             logger.info("Registered action: {}", action.getCanonicalName());
         }
         objectMapper.getSubtypeResolver()
-                .registerSubtypes(types.toArray(new NamedType[types.size()]));
+                .registerSubtypes(types.toArray(new NamedType[0]));
     }
 
     @Override

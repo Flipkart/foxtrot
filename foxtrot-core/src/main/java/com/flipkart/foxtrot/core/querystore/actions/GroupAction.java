@@ -81,8 +81,8 @@ public class GroupAction extends Action<GroupRequest> {
     private static final double PROBABILITY_CUT_OFF = 0.5;
     private EmailClient emailClient;
 
-    public GroupAction(GroupRequest parameter, String cacheToken, AnalyticsLoader analyticsLoader) {
-        super(parameter, cacheToken, analyticsLoader);
+    public GroupAction(GroupRequest parameter, AnalyticsLoader analyticsLoader) {
+        super(parameter, analyticsLoader);
         emailClient = getEmailClient(analyticsLoader.getEmailConfig());
     }
 

@@ -44,8 +44,8 @@ import java.util.stream.Collectors;
 @AnalyticsProvider(opcode = "statstrend", request = StatsTrendRequest.class, response = StatsTrendResponse.class, cacheable = false)
 public class StatsTrendAction extends Action<StatsTrendRequest> {
 
-    public StatsTrendAction(StatsTrendRequest parameter, String cacheToken, AnalyticsLoader analyticsLoader) {
-        super(parameter, cacheToken, analyticsLoader);
+    public StatsTrendAction(StatsTrendRequest parameter, AnalyticsLoader analyticsLoader) {
+        super(parameter, analyticsLoader);
     }
 
     @Override

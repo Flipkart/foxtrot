@@ -51,8 +51,8 @@ import java.util.List;
 public class FilterAction extends Action<Query> {
     private static final Logger logger = LoggerFactory.getLogger(FilterAction.class);
 
-    public FilterAction(Query parameter, String cacheToken, AnalyticsLoader analyticsLoader) {
-        super(parameter, cacheToken, analyticsLoader);
+    public FilterAction(Query parameter, AnalyticsLoader analyticsLoader) {
+        super(parameter, analyticsLoader);
     }
 
     @Override

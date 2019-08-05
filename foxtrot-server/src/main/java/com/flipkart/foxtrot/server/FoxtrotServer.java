@@ -32,10 +32,14 @@ import com.flipkart.foxtrot.core.datastore.impl.hbase.HBaseDataStore;
 import com.flipkart.foxtrot.core.datastore.impl.hbase.HbaseTableConnection;
 import com.flipkart.foxtrot.core.jobs.optimization.EsIndexOptimizationConfig;
 import com.flipkart.foxtrot.core.jobs.optimization.EsIndexOptimizationManager;
+import com.flipkart.foxtrot.core.querystore.ActionExecutionObserver;
 import com.flipkart.foxtrot.core.querystore.DocumentTranslator;
 import com.flipkart.foxtrot.core.querystore.QueryExecutor;
 import com.flipkart.foxtrot.core.querystore.QueryStore;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsLoader;
+import com.flipkart.foxtrot.core.querystore.handlers.MetricRecorder;
+import com.flipkart.foxtrot.core.querystore.handlers.ResponseCacheUpdater;
+import com.flipkart.foxtrot.core.querystore.handlers.SlowQueryReporter;
 import com.flipkart.foxtrot.core.querystore.impl.*;
 import com.flipkart.foxtrot.core.querystore.mutator.IndexerEventMutator;
 import com.flipkart.foxtrot.core.querystore.mutator.LargeTextNodeRemover;
@@ -57,6 +61,7 @@ import com.flipkart.foxtrot.sql.FqlEngine;
 import com.flipkart.foxtrot.sql.fqlstore.FqlStoreService;
 import com.flipkart.foxtrot.sql.fqlstore.FqlStoreServiceImpl;
 import com.google.common.collect.Lists;
+import com.google.common.collect.ImmutableList;
 import io.dropwizard.Application;
 import io.dropwizard.assets.AssetsBundle;
 import io.dropwizard.configuration.EnvironmentVariableSubstitutor;
@@ -180,7 +185,7 @@ public class FoxtrotServer extends Application<FoxtrotServerConfiguration> {
                                                                                         objectMapper, cardinalityConfig
         );
 
-        List<IndexerEventMutator> mutators = Lists.newArrayList(new LargeTextNodeRemover(objectMapper, configuration.getIndexerConfiguration()));
+        List<IndexerEventMutator> mutators = Lists.newArrayList(new LargeTextNodeRemover(objectMapper, configuration.getTextNodeRemover()));
         DataStore dataStore = new HBaseDataStore(hbaseTableConnection, objectMapper, new DocumentTranslator(configuration.getHbase()));
         QueryStore queryStore = new ElasticsearchQueryStore(tableMetadataManager, elasticsearchConnection, dataStore, mutators, objectMapper,
                                                             cardinalityConfig
@@ -191,7 +196,12 @@ public class FoxtrotServer extends Application<FoxtrotServerConfiguration> {
         AnalyticsLoader analyticsLoader = new AnalyticsLoader(tableMetadataManager, dataStore, queryStore, elasticsearchConnection,
                                                               cacheManager, objectMapper, emailConfig
         );
-        QueryExecutor executor = new QueryExecutor(analyticsLoader, executorService);
+        QueryExecutor executor = new QueryExecutor(analyticsLoader, executorService,
+                                                   ImmutableList.<ActionExecutionObserver>builder()
+                                                           .add(new MetricRecorder())
+                                                           .add(new ResponseCacheUpdater(cacheManager))
+                                                           .add(new SlowQueryReporter())
+                                                           .build());
         DataDeletionManagerConfig dataDeletionManagerConfig = configuration.getDeletionManagerConfig();
         DataDeletionManager dataDeletionManager = new DataDeletionManager(dataDeletionManagerConfig, queryStore, scheduledExecutorService,
                                                                           hazelcastConnection

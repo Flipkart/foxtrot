@@ -13,22 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.flipkart.foxtrot.core.querystore.actions.spi;
+package com.flipkart.foxtrot.core.common.cacheable;
 
 import com.flipkart.foxtrot.common.ActionRequest;
-import com.flipkart.foxtrot.core.common.Action;
-import lombok.AllArgsConstructor;
-import lombok.Data;
+import com.flipkart.foxtrot.common.ActionRequestVisitor;
+import com.google.common.annotations.VisibleForTesting;
 
 /**
- * User: Santanu Sinha (santanu.sinha@flipkart.com)
- * Date: 27/03/14
- * Time: 1:37 AM
+ * Created by rishabh.goyal on 02/05/14.
  */
-@Data
-@AllArgsConstructor
-public class ActionMetadata {
-    private final Class<? extends ActionRequest> request;
-    private final Class<? extends Action> action;
-    private final boolean cacheable;
+
+@VisibleForTesting
+public class DummyCacheableActionRequest extends ActionRequest {
+    public DummyCacheableActionRequest() {
+        super("cache-hit-test");
+    }
+
+    public <T> T accept(ActionRequestVisitor<T> visitor) {
+        return null;
+    }
 }

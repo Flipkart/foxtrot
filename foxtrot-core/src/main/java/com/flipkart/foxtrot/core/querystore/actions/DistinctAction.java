@@ -36,8 +36,8 @@ import static com.flipkart.foxtrot.core.util.ElasticsearchQueryUtils.QUERY_SIZE;
 public class DistinctAction extends Action<DistinctRequest> {
     private static final Logger logger = LoggerFactory.getLogger(DistinctAction.class);
 
-    public DistinctAction(DistinctRequest parameter, String cacheToken, AnalyticsLoader analyticsLoader) {
-        super(parameter, cacheToken, analyticsLoader);
+    public DistinctAction(DistinctRequest parameter, AnalyticsLoader analyticsLoader) {
+        super(parameter, analyticsLoader);
     }
 
     @Override

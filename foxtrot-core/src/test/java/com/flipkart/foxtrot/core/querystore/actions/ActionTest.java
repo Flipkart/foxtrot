@@ -9,11 +9,12 @@ import com.flipkart.foxtrot.core.alerts.EmailConfig;
 import com.flipkart.foxtrot.core.cache.CacheManager;
 import com.flipkart.foxtrot.core.cache.impl.DistributedCacheFactory;
 import com.flipkart.foxtrot.core.cardinality.CardinalityConfig;
-import com.flipkart.foxtrot.core.config.IndexerConfiguration;
+import com.flipkart.foxtrot.core.config.TextNodeRemoverConfiguration;
 import com.flipkart.foxtrot.core.datastore.DataStore;
 import com.flipkart.foxtrot.core.querystore.QueryExecutor;
 import com.flipkart.foxtrot.core.querystore.QueryStore;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsLoader;
+import com.flipkart.foxtrot.core.querystore.handlers.ResponseCacheUpdater;
 import com.flipkart.foxtrot.core.querystore.impl.*;
 import com.flipkart.foxtrot.core.querystore.mutator.IndexerEventMutator;
 import com.flipkart.foxtrot.core.querystore.mutator.LargeTextNodeRemover;
@@ -34,6 +35,7 @@ import org.junit.Before;
 import org.mockito.Mockito;
 import org.slf4j.LoggerFactory;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -47,7 +49,7 @@ import static org.mockito.Mockito.when;
 public abstract class ActionTest {
 
     static {
-        Logger root = (Logger)LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
+        Logger root = (Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
         root.setLevel(Level.WARN);
     }
 
@@ -57,6 +59,7 @@ public abstract class ActionTest {
     private HazelcastInstance hazelcastInstance;
     private ElasticsearchConnection elasticsearchConnection;
     private DistributedTableMetadataManager tableMetadataManager;
+    private CacheManager cacheManager;
 
     @Before
     public void setUp() throws Exception {
@@ -84,20 +87,20 @@ public abstract class ActionTest {
         tableMetadataManager.start();
 
         tableMetadataManager.save(Table.builder()
-                                          .name(TestUtils.TEST_TABLE_NAME)
-                                          .ttl(30)
-                                          .build());
+                .name(TestUtils.TEST_TABLE_NAME)
+                .ttl(30)
+                .build());
         List<IndexerEventMutator> mutators = Lists.newArrayList(new LargeTextNodeRemover(mapper,
-                IndexerConfiguration.builder().build()));
+                TextNodeRemoverConfiguration.builder().build()));
         DataStore dataStore = TestUtils.getDataStore();
         this.queryStore = new ElasticsearchQueryStore(tableMetadataManager, elasticsearchConnection, dataStore, mutators, mapper, cardinalityConfig);
         CacheManager cacheManager = new CacheManager(new DistributedCacheFactory(hazelcastConnection, mapper, new CacheConfig()));
         AnalyticsLoader analyticsLoader = new AnalyticsLoader(tableMetadataManager, dataStore, queryStore, elasticsearchConnection,
-                                                              cacheManager, mapper, new EmailConfig()
+                cacheManager, mapper, new EmailConfig()
         );
         analyticsLoader.start();
         ExecutorService executorService = Executors.newFixedThreadPool(1);
-        this.queryExecutor = new QueryExecutor(analyticsLoader, executorService);
+        this.queryExecutor = new QueryExecutor(analyticsLoader, executorService, Collections.singletonList(new ResponseCacheUpdater(cacheManager)));
     }
 
     @After
