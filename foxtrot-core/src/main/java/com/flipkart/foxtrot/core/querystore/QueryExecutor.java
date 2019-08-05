@@ -70,6 +70,7 @@ public class QueryExecutor {
                         action, request, cachedData, stopwatch.elapsed(TimeUnit.MILLISECONDS), true);
                 return cachedData;
             }
+            notifyObserverPreExec(request);
             final ActionResponse response = action.execute(email);
             evaluationResponse = ActionEvaluationResponse.success(
                     action, request, response, stopwatch.elapsed(TimeUnit.MILLISECONDS), false);
@@ -81,7 +82,7 @@ public class QueryExecutor {
             throw e;
         }
         finally {
-            notifyObservers(evaluationResponse);
+            notifyObserverPostExec(evaluationResponse);
         }
     }
 
@@ -112,13 +113,20 @@ public class QueryExecutor {
         return action;
     }
 
-    private void notifyObservers(final ActionEvaluationResponse evaluationResponse) {
+    private void notifyObserverPreExec(final ActionRequest request) {
         if(null == executionObservers) {
             return;
         }
         executionObservers
-                .forEach(actionExecutionObserver -> actionExecutionObserver.handleExecution(evaluationResponse));
+                .forEach(actionExecutionObserver -> actionExecutionObserver.preExecution(request));
+    }
 
+    private void notifyObserverPostExec(final ActionEvaluationResponse evaluationResponse) {
+        if(null == executionObservers) {
+            return;
+        }
+        executionObservers
+                .forEach(actionExecutionObserver -> actionExecutionObserver.postExecution(evaluationResponse));
     }
 
     private ActionResponse readCachedData(final CacheManager cacheManager,

@@ -1,8 +1,11 @@
 package com.flipkart.foxtrot.core.querystore;
 
+import com.flipkart.foxtrot.common.ActionRequest;
+
 /**
  *
  */
 public interface ActionExecutionObserver {
-    void handleExecution(ActionEvaluationResponse response);
+    default void preExecution(ActionRequest request) {}
+    default void postExecution(ActionEvaluationResponse response) {}
 }
