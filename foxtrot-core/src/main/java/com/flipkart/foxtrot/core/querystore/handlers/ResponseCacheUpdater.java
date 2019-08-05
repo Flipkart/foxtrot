@@ -17,7 +17,7 @@ public class ResponseCacheUpdater implements ActionExecutionObserver {
     }
 
     @Override
-    public void handleExecution(ActionEvaluationResponse response) {
+    public void postExecution(ActionEvaluationResponse response) {
         if(null == response.getResponse() || null == response.getExecutedAction()) {
             return;
         }
