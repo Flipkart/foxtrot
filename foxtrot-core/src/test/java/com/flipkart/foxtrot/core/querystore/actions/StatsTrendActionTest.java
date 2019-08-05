@@ -19,6 +19,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.flipkart.foxtrot.common.Document;
 import com.flipkart.foxtrot.common.query.Filter;
 import com.flipkart.foxtrot.common.query.numeric.BetweenFilter;
+import com.flipkart.foxtrot.common.stats.AnalyticsRequestFlags;
 import com.flipkart.foxtrot.common.stats.Stat;
 import com.flipkart.foxtrot.common.stats.StatsTrendRequest;
 import com.flipkart.foxtrot.common.stats.StatsTrendResponse;
@@ -84,6 +85,37 @@ public class StatsTrendActionTest extends ActionTest {
                 .get(0)
                 .getPercentiles()
                 .size());
+        assertNull(statsTrendResponse.getBuckets());
+    }
+
+    @Test
+    public void testStatsTrendActionWithoutNestingSkipPercentile() throws FoxtrotException, JsonProcessingException {
+        StatsTrendRequest request = new StatsTrendRequest();
+        request.setTable(TestUtils.TEST_TABLE_NAME);
+        request.setTimestamp("_timestamp");
+        request.setField("battery");
+        request.setFlags(Collections.singleton(AnalyticsRequestFlags.STATS_TREND_SKIP_PERCENTILES));
+
+        BetweenFilter betweenFilter = new BetweenFilter();
+        betweenFilter.setFrom(1L);
+        betweenFilter.setTo(System.currentTimeMillis());
+        betweenFilter.setTemporal(true);
+        betweenFilter.setField("_timestamp");
+        request.setFilters(Collections.singletonList(betweenFilter));
+
+        StatsTrendResponse statsTrendResponse = StatsTrendResponse.class.cast(getQueryExecutor().execute(request));
+        filterNonZeroCounts(statsTrendResponse);
+        assertNotNull(statsTrendResponse);
+        assertNotNull(statsTrendResponse.getResult());
+        assertEquals(5, statsTrendResponse.getResult()
+                .size());
+        assertEquals(8, statsTrendResponse.getResult()
+                .get(0)
+                .getStats()
+                .size());
+        assertNull(statsTrendResponse.getResult()
+                .get(0)
+                .getPercentiles());
         assertNull(statsTrendResponse.getBuckets());
     }
 
@@ -358,6 +390,66 @@ public class StatsTrendActionTest extends ActionTest {
                 .get(2)
                 .getBuckets()
                 .size());
+        assertNotNull(statsTrendResponse.getBuckets()
+                           .get(0)
+                           .getBuckets()
+                           .get(0)
+                           .getResult()
+                           .get(0)
+                           .getPercentiles());
+    }
+
+    @Test
+    public void testStatsTrendActionWithMultiLevelNestingSkipPercentile() throws FoxtrotException, JsonProcessingException {
+        StatsTrendRequest request = new StatsTrendRequest();
+        request.setTable(TestUtils.TEST_TABLE_NAME);
+        request.setTimestamp("_timestamp");
+        request.setField("battery");
+        request.setNesting(Lists.newArrayList("os", "version"));
+        request.setFlags(Collections.singleton(AnalyticsRequestFlags.STATS_TREND_SKIP_PERCENTILES));
+
+        BetweenFilter betweenFilter = new BetweenFilter();
+        betweenFilter.setFrom(1L);
+        betweenFilter.setTo(System.currentTimeMillis());
+        betweenFilter.setTemporal(true);
+        betweenFilter.setField("_timestamp");
+        request.setFilters(Collections.<Filter>singletonList(betweenFilter));
+
+        StatsTrendResponse statsTrendResponse = StatsTrendResponse.class.cast(getQueryExecutor().execute(request));
+        try {
+            System.out.println(Jackson.newObjectMapper()
+                                       .writerWithDefaultPrettyPrinter()
+                                       .writeValueAsString(statsTrendResponse));
+        }
+        catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
+        assertNotNull(statsTrendResponse);
+        assertNull(statsTrendResponse.getResult());
+        assertNotNull(statsTrendResponse.getBuckets());
+        assertEquals(3, statsTrendResponse.getBuckets()
+                .size());
+
+        assertEquals(1, statsTrendResponse.getBuckets()
+                .get(0)
+                .getBuckets()
+                .size());
+        assertEquals(2, statsTrendResponse.getBuckets()
+                .get(1)
+                .getBuckets()
+                .size());
+        assertEquals(1, statsTrendResponse.getBuckets()
+                .get(2)
+                .getBuckets()
+                .size());
+        assertNull(statsTrendResponse.getBuckets()
+                  .get(0)
+                  .getBuckets()
+                  .get(0)
+                  .getResult()
+                  .get(0)
+                  .getPercentiles());
+
     }
 
     @Test

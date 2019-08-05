@@ -4,11 +4,7 @@ import com.flipkart.foxtrot.common.*;
 import com.flipkart.foxtrot.common.query.Filter;
 import com.flipkart.foxtrot.common.query.ResultSort;
 import com.flipkart.foxtrot.common.query.datetime.LastFilter;
-import com.flipkart.foxtrot.common.stats.BucketResponse;
-import com.flipkart.foxtrot.common.stats.StatsTrendRequest;
-import com.flipkart.foxtrot.common.stats.StatsTrendResponse;
-import com.flipkart.foxtrot.common.stats.StatsTrendValue;
-import com.flipkart.foxtrot.common.stats.Stat;
+import com.flipkart.foxtrot.common.stats.*;
 import com.flipkart.foxtrot.common.util.CollectionUtils;
 import com.flipkart.foxtrot.core.common.Action;
 import com.flipkart.foxtrot.core.exception.FoxtrotExceptions;
@@ -156,9 +152,11 @@ public class StatsTrendAction extends Action<StatsTrendRequest> {
         boolean isNumericField = isNumericField(table, field);
         if(isNumericField) {
             dateHistogramBuilder
-                    .subAggregation(Utils.buildStatsAggregation(field, getParameter().getStats()))
-                    .subAggregation(Utils.buildPercentileAggregation(
+                    .subAggregation(Utils.buildStatsAggregation(field, getParameter().getStats()));
+            if(!AnalyticsRequestFlags.hasFlag(request.getFlags(), AnalyticsRequestFlags.STATS_TREND_SKIP_PERCENTILES)) {
+                dateHistogramBuilder.subAggregation(Utils.buildPercentileAggregation(
                         field, request.getPercentiles(), request.getCompression()));
+            }
         }
         else {
             dateHistogramBuilder
