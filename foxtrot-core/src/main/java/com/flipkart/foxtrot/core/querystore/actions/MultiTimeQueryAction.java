@@ -26,8 +26,8 @@ public class MultiTimeQueryAction extends Action<MultiTimeQueryRequest> {
     private Action action;
     private MultiQueryRequest multiQueryRequest;
 
-    public MultiTimeQueryAction(MultiTimeQueryRequest parameter, String cacheToken, AnalyticsLoader analyticsLoader) {
-        super(parameter, cacheToken, analyticsLoader);
+    public MultiTimeQueryAction(MultiTimeQueryRequest parameter, AnalyticsLoader analyticsLoader) {
+        super(parameter, analyticsLoader);
         this.analyticsLoader = analyticsLoader;
     }
 

@@ -480,8 +480,7 @@ public class ElasticsearchQueryStoreTest {
         TableFieldMapping response = queryStore.getFieldMappings(TestUtils.TEST_TABLE_NAME);
 
         assertEquals(request.getTable(), response.getTable());
-        assertTrue(request.getMappings()
-                           .equals(response.getMappings()));
+        assertEquals(request.getMappings(), response.getMappings());
     }
 
     @Test

@@ -54,8 +54,8 @@ import static com.flipkart.foxtrot.core.util.ElasticsearchQueryUtils.QUERY_SIZE;
 @AnalyticsProvider(opcode = "histogram", request = HistogramRequest.class, response = HistogramResponse.class, cacheable = true)
 public class HistogramAction extends Action<HistogramRequest> {
 
-    public HistogramAction(HistogramRequest parameter, String cacheToken, AnalyticsLoader analyticsLoader) {
-        super(parameter, cacheToken, analyticsLoader);
+    public HistogramAction(HistogramRequest parameter, AnalyticsLoader analyticsLoader) {
+        super(parameter, analyticsLoader);
     }
 
     @Override

@@ -32,6 +32,7 @@ import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsProvider;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConnection;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
 import com.flipkart.foxtrot.core.table.impl.TableMapStore;
+import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -97,18 +98,18 @@ public class TestUtils {
         List<NamedType> types = new Vector<>();
         for(Class<? extends Action> action : actions) {
             AnalyticsProvider analyticsProvider = action.getAnnotation(AnalyticsProvider.class);
-            if(null == analyticsProvider.request() || null == analyticsProvider.opcode() || analyticsProvider.opcode()
-                    .isEmpty() || null == analyticsProvider.response()) {
+            final String opcode = analyticsProvider.opcode();
+            if(Strings.isNullOrEmpty(opcode)) {
                 throw new Exception("Invalid annotation on " + action.getCanonicalName());
             }
-            if(analyticsProvider.opcode()
-                    .equalsIgnoreCase("default")) {
-                logger.warn("Action " + action.getCanonicalName() + " does not specify cache token. " + "Using default cache.");
-            }
+
             analyticsLoader.register(
-                    new ActionMetadata(analyticsProvider.request(), action, analyticsProvider.cacheable(), analyticsProvider.opcode()));
-            types.add(new NamedType(analyticsProvider.request(), analyticsProvider.opcode()));
-            types.add(new NamedType(analyticsProvider.response(), analyticsProvider.opcode()));
+                    new ActionMetadata(analyticsProvider.request(), action, analyticsProvider.cacheable()));
+            if(analyticsProvider.cacheable()) {
+                analyticsLoader.registerCache(opcode);
+            }
+            types.add(new NamedType(analyticsProvider.request(), opcode));
+            types.add(new NamedType(analyticsProvider.response(), opcode));
             logger.info("Registered action: " + action.getCanonicalName());
         }
         mapper.getSubtypeResolver()

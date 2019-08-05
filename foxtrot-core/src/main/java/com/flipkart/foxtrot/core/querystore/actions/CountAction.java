@@ -30,8 +30,8 @@ import static com.flipkart.foxtrot.core.util.ElasticsearchQueryUtils.QUERY_SIZE;
 @AnalyticsProvider(opcode = "count", request = CountRequest.class, response = CountResponse.class, cacheable = false)
 public class CountAction extends Action<CountRequest> {
 
-    public CountAction(CountRequest parameter, String cacheToken, AnalyticsLoader analyticsLoader) {
-        super(parameter, cacheToken, analyticsLoader);
+    public CountAction(CountRequest parameter, AnalyticsLoader analyticsLoader) {
+        super(parameter, analyticsLoader);
 
     }
 

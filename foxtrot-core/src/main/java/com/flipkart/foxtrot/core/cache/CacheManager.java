@@ -17,7 +17,9 @@ public class CacheManager {
     }
 
     public void create(String name) {
-        cacheMap.put(name, cacheFactory.create(name));
+        if(!cacheMap.containsKey(name)) {
+            cacheMap.put(name, cacheFactory.create(name));
+        }
     }
 
     public Cache getCacheFor(String name) {
