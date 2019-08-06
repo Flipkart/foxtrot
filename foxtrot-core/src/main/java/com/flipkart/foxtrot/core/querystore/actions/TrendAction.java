@@ -149,6 +149,11 @@ public class TrendAction extends Action<TrendRequest> {
     }
 
     @Override
+    public String getMetricKey() {
+        return getParameter().getTable();
+    }
+
+    @Override
     public SearchRequestBuilder getRequestBuilder(TrendRequest parameter) {
         SearchRequestBuilder searchRequestBuilder;
         try {

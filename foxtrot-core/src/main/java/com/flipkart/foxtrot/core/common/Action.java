@@ -24,6 +24,7 @@ import com.flipkart.foxtrot.core.exception.FoxtrotExceptions;
 import com.flipkart.foxtrot.core.exception.MalformedQueryException;
 import com.flipkart.foxtrot.core.querystore.QueryStore;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsLoader;
+import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConfig;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConnection;
 import com.flipkart.foxtrot.core.table.TableMetadataManager;
 import com.google.common.collect.Lists;
@@ -140,6 +141,14 @@ public abstract class Action<P extends ActionRequest> {
     public ActionResponse execute(String email) {
         preProcessRequest(email);
         return execute(parameter);
+    }
+
+    public long getGetQueryTimeout() {
+        if (getConnection().getConfig() == null) {
+            return ElasticsearchConfig.DEFAULT_TIMEOUT;
+        }
+        return getConnection().getConfig()
+                .getGetQueryTimeout();
     }
 
     public ElasticsearchConnection getConnection() {
