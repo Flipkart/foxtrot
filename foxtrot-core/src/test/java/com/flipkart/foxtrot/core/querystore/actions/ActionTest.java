@@ -100,7 +100,7 @@ public abstract class ActionTest {
         this.queryStore = new ElasticsearchQueryStore(tableMetadataManager, elasticsearchConnection, dataStore, mutators,
                 mapper,
                 cardinalityConfig);
-        CacheManager cacheManager = new CacheManager(
+        cacheManager = new CacheManager(
                 new DistributedCacheFactory(hazelcastConnection, mapper, new CacheConfig()));
         AnalyticsLoader analyticsLoader = new AnalyticsLoader(tableMetadataManager, dataStore, queryStore,
                 elasticsearchConnection, cacheManager, mapper, emailConfig, emailClient);
