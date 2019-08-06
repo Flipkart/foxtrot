@@ -34,7 +34,6 @@ import org.elasticsearch.action.support.WriteRequest;
 import org.elasticsearch.common.settings.Settings;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.*;
@@ -358,7 +357,7 @@ public class TableMapStoreTest {
         Table table = new Table();
         table.setName(TEST_TABLE);
         table.setTtl(30);
-        Map<String, Object> sourceMap = ElasticsearchQueryUtils.getSourceMap(table, Table.class);
+        Map<String, Object> sourceMap = ElasticsearchQueryUtils.toMap(mapper, table);
         elasticsearchConnection.getClient()
                 .prepareIndex()
                 .setIndex(TABLE_META_INDEX)
@@ -411,7 +410,7 @@ public class TableMapStoreTest {
                                   .toString());
             table.setTtl(20);
             tables.put(table.getName(), table);
-            Map<String, Object> sourceMap = ElasticsearchQueryUtils.getSourceMap(table, Table.class);
+            Map<String, Object> sourceMap = ElasticsearchQueryUtils.toMap(mapper, table);
             elasticsearchConnection.getClient()
                     .prepareIndex()
                     .setIndex(TABLE_META_INDEX)
@@ -460,7 +459,7 @@ public class TableMapStoreTest {
                                   .toString());
             table.setTtl(20);
             tables.put(table.getName(), table);
-            Map<String, Object> sourceMap = ElasticsearchQueryUtils.getSourceMap(table, Table.class);
+            Map<String, Object> sourceMap = ElasticsearchQueryUtils.toMap(mapper, table);
             elasticsearchConnection.getClient()
                     .prepareIndex()
                     .setIndex(TABLE_META_INDEX)

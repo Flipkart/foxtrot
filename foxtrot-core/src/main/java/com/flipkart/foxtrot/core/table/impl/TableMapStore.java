@@ -68,7 +68,7 @@ public class TableMapStore implements MapStore<String, Table> {
         }
         logger.info("Storing key: {}", key);
         try {
-            Map<String, Object> sourceMap = ElasticsearchQueryUtils.getSourceMap(value, value.getClass());
+            Map<String, Object> sourceMap = ElasticsearchQueryUtils.toMap(objectMapper, value);
             elasticsearchConnection.getClient()
                     .prepareIndex()
                     .setIndex(TABLE_META_INDEX)
@@ -102,7 +102,7 @@ public class TableMapStore implements MapStore<String, Table> {
                     throw new TableMapStoreException(
                             String.format("Illegal Store Request - Object is Null for Table - %s", mapEntry.getKey()));
                 }
-                Map<String, Object> sourceMap = ElasticsearchQueryUtils.getSourceMap(mapEntry.getValue(), Table.class);
+                Map<String, Object> sourceMap = ElasticsearchQueryUtils.toMap(objectMapper, mapEntry.getValue());
                 bulkRequestBuilder.add(elasticsearchConnection.getClient()
                                                .prepareIndex(TABLE_META_INDEX, TABLE_META_TYPE, mapEntry.getKey())
                                                .setSource(sourceMap));
