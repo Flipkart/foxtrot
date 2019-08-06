@@ -86,7 +86,7 @@ public class AnalyticsLoader implements Managed {
                 try {
                     Constructor<? extends Action> constructor = metadata.getAction()
                             .getConstructor(metadata.getRequest(), String.class, AnalyticsLoader.class);
-                    return constructor.newInstance(r, metadata.getCacheToken(), this);
+                    return constructor.newInstance(r, this);
                 } catch (Exception e) {
                     throw FoxtrotExceptions.createActionResolutionException(request, e);
                 }
@@ -130,9 +130,6 @@ public class AnalyticsLoader implements Managed {
     public void register(ActionMetadata actionMetadata) {
         actions.put(actionMetadata.getRequest()
                 .getCanonicalName(), actionMetadata);
-        if (actionMetadata.isCacheable()) {
-            cacheManager.create(actionMetadata.getCacheToken());
-        }
     }
 
     @Override

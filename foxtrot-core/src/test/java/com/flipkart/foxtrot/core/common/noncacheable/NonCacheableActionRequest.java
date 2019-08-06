@@ -30,8 +30,4 @@ public class NonCacheableActionRequest extends ActionRequest {
     public <T> T accept(ActionRequestVisitor<T> visitor) {
         return null;
     }
-
-    public <T> T accept(ActionRequestVisitor<T> visitor) {
-        return null;
-    }
 }

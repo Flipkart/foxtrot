@@ -37,13 +37,6 @@ import com.flipkart.foxtrot.core.querystore.DocumentTranslator;
 import com.flipkart.foxtrot.core.querystore.QueryExecutor;
 import com.flipkart.foxtrot.core.querystore.QueryStore;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsLoader;
-import com.flipkart.foxtrot.core.querystore.impl.CacheConfig;
-import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConnection;
-import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchQueryStore;
-import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
-import com.flipkart.foxtrot.core.querystore.impl.HazelcastConnection;
-import com.flipkart.foxtrot.core.querystore.impl.MarathonClusterDiscoveryConfig;
-import com.flipkart.foxtrot.core.querystore.impl.SimpleClusterDiscoveryConfig;
 import com.flipkart.foxtrot.core.querystore.handlers.MetricRecorder;
 import com.flipkart.foxtrot.core.querystore.handlers.ResponseCacheUpdater;
 import com.flipkart.foxtrot.core.querystore.handlers.SlowQueryReporter;
@@ -64,28 +57,16 @@ import com.flipkart.foxtrot.server.providers.FlatResponseCsvProvider;
 import com.flipkart.foxtrot.server.providers.FlatResponseErrorTextProvider;
 import com.flipkart.foxtrot.server.providers.FlatResponseTextProvider;
 import com.flipkart.foxtrot.server.providers.exception.FoxtrotExceptionMapper;
-import com.flipkart.foxtrot.server.resources.AnalyticsResource;
-import com.flipkart.foxtrot.server.resources.AnalyticsV2Resource;
-import com.flipkart.foxtrot.server.resources.AsyncResource;
-import com.flipkart.foxtrot.server.resources.CacheUpdateResource;
-import com.flipkart.foxtrot.server.resources.ClusterHealthResource;
-import com.flipkart.foxtrot.server.resources.ClusterInfoResource;
-import com.flipkart.foxtrot.server.resources.ConsoleResource;
-import com.flipkart.foxtrot.server.resources.ConsoleV2Resource;
-import com.flipkart.foxtrot.server.resources.DocumentResource;
-import com.flipkart.foxtrot.server.resources.FqlResource;
-import com.flipkart.foxtrot.server.resources.TableFieldMappingResource;
-import com.flipkart.foxtrot.server.resources.TableManagerResource;
-import com.flipkart.foxtrot.server.resources.UtilResource;
+import com.flipkart.foxtrot.server.resources.*;
 import com.flipkart.foxtrot.sql.FqlEngine;
 import com.flipkart.foxtrot.sql.fqlstore.FqlStoreService;
 import com.flipkart.foxtrot.sql.fqlstore.FqlStoreServiceImpl;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
 import com.phonepe.gandalf.client.GandalfBundle;
 import com.phonepe.gandalf.client.GandalfClient;
 import com.phonepe.gandalf.models.client.GandalfClientConfig;
 import com.phonepe.rosey.dwconfig.RoseyConfigSourceProvider;
-import com.google.common.collect.Lists;
-import com.google.common.collect.ImmutableList;
 import io.dropwizard.Application;
 import io.dropwizard.assets.AssetsBundle;
 import io.dropwizard.configuration.EnvironmentVariableSubstitutor;
@@ -102,16 +83,17 @@ import io.dropwizard.setup.Environment;
 import io.dropwizard.util.Duration;
 import io.federecio.dropwizard.swagger.SwaggerBundle;
 import io.federecio.dropwizard.swagger.SwaggerBundleConfiguration;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.curator.framework.CuratorFramework;
+import org.eclipse.jetty.servlets.CrossOriginFilter;
+
+import javax.servlet.DispatcherType;
+import javax.servlet.FilterRegistration;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ScheduledExecutorService;
-import javax.servlet.DispatcherType;
-import javax.servlet.FilterRegistration;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.curator.framework.CuratorFramework;
-import org.eclipse.jetty.servlets.CrossOriginFilter;
 
 /**
  * User: Santanu Sinha (santanu.sinha@flipkart.com) Date: 15/03/14 Time: 9:38 PM
@@ -247,8 +229,11 @@ public class FoxtrotServer extends Application<FoxtrotServerConfiguration> {
                 cardinalityConfig);
         DataStore dataStore = new HBaseDataStore(hbaseTableConnection, objectMapper,
                 new DocumentTranslator(configuration.getHbase()));
+
+        List<IndexerEventMutator> mutators = Lists.newArrayList(new LargeTextNodeRemover(objectMapper,
+                configuration.getTextNodeRemover()));
         QueryStore queryStore = new ElasticsearchQueryStore(tableMetadataManager, elasticsearchConnection, dataStore,
-                objectMapper, cardinalityConfig);
+                mutators, objectMapper, cardinalityConfig);
         TableActionRequestVisitor actionRequestVisitor = new TableActionRequestVisitor();
         AccessService accessService = new AccessServiceImpl(configuration.isRestrictAccess(), actionRequestVisitor);
         FqlStoreService fqlStoreService = new FqlStoreServiceImpl(elasticsearchConnection, objectMapper);
@@ -259,7 +244,13 @@ public class FoxtrotServer extends Application<FoxtrotServerConfiguration> {
                 elasticsearchConnection,
                 cacheManager, objectMapper, emailConfig, null
         );
-        QueryExecutor executor = new QueryExecutor(analyticsLoader, executorService);
+
+        QueryExecutor executor = new QueryExecutor(analyticsLoader, executorService,
+                ImmutableList.<ActionExecutionObserver>builder()
+                        .add(new MetricRecorder())
+                        .add(new ResponseCacheUpdater(cacheManager))
+                        .add(new SlowQueryReporter())
+                        .build());
         DataDeletionManagerConfig dataDeletionManagerConfig = configuration.getDeletionManagerConfig();
         DataDeletionManager dataDeletionManager = new DataDeletionManager(dataDeletionManagerConfig, queryStore,
                 scheduledExecutorService,
