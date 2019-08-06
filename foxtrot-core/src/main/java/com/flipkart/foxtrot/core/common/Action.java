@@ -12,7 +12,6 @@
  */
 package com.flipkart.foxtrot.core.common;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.flipkart.foxtrot.common.ActionRequest;
 import com.flipkart.foxtrot.common.ActionResponse;
@@ -21,58 +20,39 @@ import com.flipkart.foxtrot.common.query.Filter;
 import com.flipkart.foxtrot.common.query.general.AnyFilter;
 import com.flipkart.foxtrot.common.query.numeric.LessThanFilter;
 import com.flipkart.foxtrot.common.util.CollectionUtils;
-import com.flipkart.foxtrot.core.cache.Cache;
-import com.flipkart.foxtrot.core.cache.CacheManager;
-import com.flipkart.foxtrot.core.exception.FoxtrotException;
 import com.flipkart.foxtrot.core.exception.FoxtrotExceptions;
 import com.flipkart.foxtrot.core.exception.MalformedQueryException;
 import com.flipkart.foxtrot.core.querystore.QueryStore;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsLoader;
-import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConfig;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConnection;
 import com.flipkart.foxtrot.core.table.TableMetadataManager;
-import com.flipkart.foxtrot.core.util.MetricUtil;
-import com.google.common.base.Stopwatch;
 import com.google.common.collect.Lists;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.TimeUnit;
 import org.elasticsearch.action.ActionRequestBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
+
 /**
  * User: Santanu Sinha (santanu.sinha@flipkart.com) Date: 24/03/14 Time: 12:23 AM
  */
-public abstract class Action<P extends ActionRequest> implements Callable<String> {
-
+public abstract class Action<P extends ActionRequest> {
     private static final Logger logger = LoggerFactory.getLogger(Action.class.getSimpleName());
     private final TableMetadataManager tableMetadataManager;
     private final QueryStore queryStore;
-    private final String cacheToken;
-    private final CacheManager cacheManager;
     private final ObjectMapper objectMapper;
     private P parameter;
     private ElasticsearchConnection connection;
 
-    protected Action(P parameter, String cacheToken, AnalyticsLoader analyticsLoader) {
+    protected Action(P parameter, AnalyticsLoader analyticsLoader) {
         this.parameter = parameter;
         this.tableMetadataManager = analyticsLoader.getTableMetadataManager();
         this.queryStore = analyticsLoader.getQueryStore();
-        this.cacheToken = cacheToken;
-        this.cacheManager = analyticsLoader.getCacheManager();
         this.connection = analyticsLoader.getElasticsearchConnection();
         this.objectMapper = analyticsLoader.getObjectMapper();
-    }
-
-    public AsyncDataToken execute(ExecutorService executor, String email) {
-        preProcessRequest(email);
-        executor.submit(this);
-        return new AsyncDataToken(cacheToken, cacheKey());
     }
 
     private void preProcessRequest(String email) {
@@ -135,14 +115,6 @@ public abstract class Action<P extends ActionRequest> implements Callable<String
         return lessThanFilter;
     }
 
-    @Override
-    public String call() throws Exception {
-        final String cacheKey = cacheKey();
-        cacheManager.getCacheFor(this.cacheToken)
-                .put(cacheKey, execute(parameter));
-        return cacheKey;
-    }
-
     public abstract ActionResponse execute(P parameter);
 
     public ActionValidationResponse validate(String email) {
@@ -167,78 +139,11 @@ public abstract class Action<P extends ActionRequest> implements Callable<String
 
     public ActionResponse execute(String email) {
         preProcessRequest(email);
-        ActionResponse cachedData = readCachedData();
-        if (cachedData != null) {
-            return cachedData;
-        }
-        Stopwatch stopwatch = Stopwatch.createStarted();
-        try {
-            ActionResponse result = execute(parameter);
-            // Publish success metrics
-            final long elapsed = stopwatch.elapsed(TimeUnit.MILLISECONDS);
-            MetricUtil.getInstance()
-                    .registerActionSuccess(cacheToken, getMetricKey(), elapsed);
-            if (elapsed > 1000) {
-                logSlowQuery(elapsed);
-            }
-
-            // Now cache data
-            updateCachedData(result);
-
-            return result;
-        } catch (FoxtrotException e) {
-            stopwatch.stop();
-            // Publish failure metrics
-            MetricUtil.getInstance()
-                    .registerActionFailure(cacheToken, getMetricKey(), stopwatch.elapsed(TimeUnit.MILLISECONDS));
-            throw e;
-        }
-    }
-
-    private void logSlowQuery(final long elapsed) {
-        try {
-            String query = getObjectMapper().writeValueAsString(parameter);
-            logger.warn("SLOW_QUERY: Time: {} ms Query: {}", elapsed, query);
-        } catch (JsonProcessingException e) {
-            logger.error("Error serializing slow query", e);
-        }
-    }
-
-    public long getGetQueryTimeout() {
-        if (getConnection().getConfig() == null) {
-            return ElasticsearchConfig.DEFAULT_TIMEOUT;
-        }
-        return getConnection().getConfig()
-                .getGetQueryTimeout();
+        return execute(parameter);
     }
 
     public ElasticsearchConnection getConnection() {
         return connection;
-    }
-
-    private void updateCachedData(ActionResponse result) {
-        Cache cache = cacheManager.getCacheFor(this.cacheToken);
-        if (isCacheable()) {
-            cache.put(cacheKey(), result);
-        }
-    }
-
-    protected ActionResponse readCachedData() {
-        Cache cache = cacheManager.getCacheFor(this.cacheToken);
-        final String cacheKeyValue = cacheKey();
-        if (isCacheable()) {
-            if (cache.has(cacheKeyValue)) {
-                MetricUtil.getInstance()
-                        .registerActionCacheHit(cacheToken, getMetricKey());
-                logger.info("Cache hit for key: {}", cacheKeyValue);
-                return cache.get(cacheKey());
-            } else {
-                MetricUtil.getInstance()
-                        .registerActionCacheMiss(cacheToken, getMetricKey());
-                logger.info("Cache miss for key: {}", cacheKeyValue);
-            }
-        }
-        return null;
     }
 
     /**
@@ -257,10 +162,6 @@ public abstract class Action<P extends ActionRequest> implements Callable<String
 
     protected P getParameter() {
         return parameter;
-    }
-
-    public final boolean isCacheable() {
-        return cacheManager.getCacheFor(this.cacheToken) != null;
     }
 
     public TableMetadataManager getTableMetadataManager() {

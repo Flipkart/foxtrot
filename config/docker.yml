@@ -19,7 +19,7 @@ hbase:
   hbaseZookeeperClientPort: ${HBASE_ZOOKEEPER_CLIENT_PORT}
 
 cluster:
-  name: ${HAZELCAST_CLUSTER_NAME}
+  name: foxtrot
   discovery:
     type: foxtrot_simple
     disableMulticast: true

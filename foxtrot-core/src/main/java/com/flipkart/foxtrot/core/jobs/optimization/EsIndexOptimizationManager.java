@@ -46,7 +46,6 @@ public class EsIndexOptimizationManager extends BaseJobManager {
     }
 
 
-    @Override
     protected void runImpl(LockingTaskExecutor executor, Instant lockAtMostUntil) {
         executor.executeWithLock(() -> {
             try {
@@ -116,4 +115,5 @@ public class EsIndexOptimizationManager extends BaseJobManager {
                             stopwatch.elapsed(TimeUnit.MILLISECONDS));
         }
     }
+
 }

@@ -31,14 +31,13 @@ import org.slf4j.LoggerFactory;
  * Created by rishabh.goyal on 17/11/14.
  */
 
-@AnalyticsProvider(opcode = "distinct", request = DistinctRequest.class, response = DistinctResponse.class, cacheable
-        = true)
+@AnalyticsProvider(opcode = "distinct", request = DistinctRequest.class, response = DistinctResponse.class, cacheable = true)
 public class DistinctAction extends Action<DistinctRequest> {
 
     private static final Logger logger = LoggerFactory.getLogger(DistinctAction.class);
 
-    public DistinctAction(DistinctRequest parameter, String cacheToken, AnalyticsLoader analyticsLoader) {
-        super(parameter, cacheToken, analyticsLoader);
+    public DistinctAction(DistinctRequest parameter, AnalyticsLoader analyticsLoader) {
+        super(parameter, analyticsLoader);
     }
 
     @Override
@@ -64,7 +63,6 @@ public class DistinctAction extends Action<DistinctRequest> {
                 if (resultSort.getOrder() == null) {
                     validationErrors.add("nested parameter cannot have null sorting order");
                 }
-
             }
         }
         if (!CollectionUtils.isNullOrEmpty(validationErrors)) {

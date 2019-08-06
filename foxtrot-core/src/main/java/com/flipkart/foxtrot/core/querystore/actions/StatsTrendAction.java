@@ -19,10 +19,6 @@ import com.flipkart.foxtrot.core.querystore.query.ElasticSearchQueryGenerator;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import io.dropwizard.util.Duration;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.stream.Collectors;
 import lombok.val;
 import org.apache.commons.lang3.StringUtils;
 import org.elasticsearch.ElasticsearchException;
@@ -36,6 +32,11 @@ import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.elasticsearch.search.aggregations.metrics.percentiles.Percentiles;
 import org.joda.time.DateTime;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.stream.Collectors;
+
 /**
  * Created by rishabh.goyal on 02/08/14.
  */
@@ -44,8 +45,8 @@ import org.joda.time.DateTime;
         cacheable = false)
 public class StatsTrendAction extends Action<StatsTrendRequest> {
 
-    public StatsTrendAction(StatsTrendRequest parameter, String cacheToken, AnalyticsLoader analyticsLoader) {
-        super(parameter, cacheToken, analyticsLoader);
+    public StatsTrendAction(StatsTrendRequest parameter, AnalyticsLoader analyticsLoader) {
+        super(parameter, analyticsLoader);
     }
 
     @Override
@@ -185,7 +186,7 @@ public class StatsTrendAction extends Action<StatsTrendRequest> {
     }
 
     private List<BucketResponse<List<StatsTrendValue>>> buildNestedTrendStats(List<String> nesting,
-            Aggregations aggregations) {
+                                                                              Aggregations aggregations) {
         final String field = nesting.get(0);
         final List<String> remainingFields = (nesting.size() > 1) ? nesting.subList(1, nesting.size()) :
                 new ArrayList<>();

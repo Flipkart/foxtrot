@@ -32,6 +32,7 @@ import com.flipkart.foxtrot.core.datastore.impl.hbase.HBaseDataStore;
 import com.flipkart.foxtrot.core.datastore.impl.hbase.HbaseTableConnection;
 import com.flipkart.foxtrot.core.jobs.optimization.EsIndexOptimizationConfig;
 import com.flipkart.foxtrot.core.jobs.optimization.EsIndexOptimizationManager;
+import com.flipkart.foxtrot.core.querystore.ActionExecutionObserver;
 import com.flipkart.foxtrot.core.querystore.DocumentTranslator;
 import com.flipkart.foxtrot.core.querystore.QueryExecutor;
 import com.flipkart.foxtrot.core.querystore.QueryStore;
@@ -43,6 +44,12 @@ import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
 import com.flipkart.foxtrot.core.querystore.impl.HazelcastConnection;
 import com.flipkart.foxtrot.core.querystore.impl.MarathonClusterDiscoveryConfig;
 import com.flipkart.foxtrot.core.querystore.impl.SimpleClusterDiscoveryConfig;
+import com.flipkart.foxtrot.core.querystore.handlers.MetricRecorder;
+import com.flipkart.foxtrot.core.querystore.handlers.ResponseCacheUpdater;
+import com.flipkart.foxtrot.core.querystore.handlers.SlowQueryReporter;
+import com.flipkart.foxtrot.core.querystore.impl.*;
+import com.flipkart.foxtrot.core.querystore.mutator.IndexerEventMutator;
+import com.flipkart.foxtrot.core.querystore.mutator.LargeTextNodeRemover;
 import com.flipkart.foxtrot.core.table.TableMetadataManager;
 import com.flipkart.foxtrot.core.table.impl.DistributedTableMetadataManager;
 import com.flipkart.foxtrot.core.table.impl.FoxtrotTableManager;
@@ -77,6 +84,8 @@ import com.phonepe.gandalf.client.GandalfBundle;
 import com.phonepe.gandalf.client.GandalfClient;
 import com.phonepe.gandalf.models.client.GandalfClientConfig;
 import com.phonepe.rosey.dwconfig.RoseyConfigSourceProvider;
+import com.google.common.collect.Lists;
+import com.google.common.collect.ImmutableList;
 import io.dropwizard.Application;
 import io.dropwizard.assets.AssetsBundle;
 import io.dropwizard.configuration.EnvironmentVariableSubstitutor;
@@ -269,7 +278,6 @@ public class FoxtrotServer extends Application<FoxtrotServerConfiguration> {
         List<HealthCheck> healthChecks = new ArrayList<>();
         ClusterManager clusterManager = new ClusterManager(hazelcastConnection, healthChecks,
                 configuration.getServerFactory());
-
         environment.lifecycle()
                 .manage(hbaseTableConnection);
         environment.lifecycle()

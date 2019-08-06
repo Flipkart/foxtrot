@@ -1,4 +1,5 @@
-package com.flipkart.foxtrot.core.util;/**
+package com.flipkart.foxtrot.core.util;
+/**
  * Copyright 2014 Flipkart Internet Pvt. Ltd.
  * <p>
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
@@ -11,10 +12,12 @@ package com.flipkart.foxtrot.core.util;/**
  * specific language governing permissions and limitations under the License.
  */
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.type.MapType;
 import com.flipkart.foxtrot.core.exception.SourceMapConversionException;
+
 import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Map;
@@ -51,5 +54,10 @@ public class ElasticsearchQueryUtils {
         } catch (Exception e) {
             throw new SourceMapConversionException("Exception occurred while converting to map", e);
         }
+    }
+
+    public static Map<String, Object> toMap(ObjectMapper mapper, Object value) {
+        return mapper.convertValue(value, new TypeReference<Map<String, Object>>() {
+        });
     }
 }

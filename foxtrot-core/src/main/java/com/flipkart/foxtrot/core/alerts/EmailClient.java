@@ -15,6 +15,7 @@ import javax.mail.internet.MimeMultipart;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.base.Strings;
 /***
  Created by nitish.goyal on 06/10/18
  ***/
@@ -39,6 +40,10 @@ public class EmailClient {
     }
 
     public boolean sendEmail(String subject, String content, String recipients) {
+        if(Strings.isNullOrEmpty(emailConfig.getFrom())) {
+            LOGGER.warn("Mail config not set properly. No mail will be sent.");
+            return false;
+        }
         try {
             MimeMessage message = new MimeMessage(session);
             message.setFrom(new InternetAddress(emailConfig.getFrom()));

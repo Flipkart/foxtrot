@@ -1,5 +1,7 @@
 package com.flipkart.foxtrot.core.exception;
 
+import lombok.Getter;
+
 import java.util.Map;
 import lombok.Getter;
 

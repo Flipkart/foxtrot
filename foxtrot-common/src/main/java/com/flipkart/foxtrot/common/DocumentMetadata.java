@@ -1,10 +1,11 @@
 package com.flipkart.foxtrot.common;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import java.io.Serializable;
 import lombok.Data;
 import lombok.ToString;
 import org.apache.commons.lang3.builder.ToStringBuilder;
+
+import java.io.Serializable;
 
 /**
  * Metadata for a document

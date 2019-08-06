@@ -1,7 +1,7 @@
 import pprint
 import requests
 
-url = "http://prd-es101.phonepe.nm1:9200/consoles_v2/_search/?size=150"
+url = "http://localhost:9200/consoles_v2/_search/?size=150"
 
 r = requests.get(url)
 data = r.json()

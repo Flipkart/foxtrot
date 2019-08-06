@@ -300,14 +300,14 @@ public class QueryTranslator extends SqlElementVisitor {
     }
 
     private ActionRequest createHistogramActionRequest() {
-        HistogramRequest histogram = (HistogramRequest) calledAction;
+        HistogramRequest histogram = (HistogramRequest)calledAction;
         histogram.setTable(tableName);
         histogram.setFilters(filters);
         return histogram;
     }
 
     private ActionRequest createCountActionRequest() {
-        CountRequest countRequest = (CountRequest) calledAction;
+        CountRequest countRequest = (CountRequest)calledAction;
         countRequest.setTable(tableName);
         countRequest.setFilters(filters);
         return countRequest;
@@ -322,10 +322,10 @@ public class QueryTranslator extends SqlElementVisitor {
     }
 
     private void setUniqueCountOn(GroupRequest group) {
-        if (calledAction instanceof CountRequest) {
-            CountRequest countRequest = (CountRequest) this.calledAction;
+        if(calledAction instanceof CountRequest) {
+            CountRequest countRequest = (CountRequest)this.calledAction;
             boolean distinct = countRequest.isDistinct();
-            if (distinct) {
+            if(distinct) {
                 group.setUniqueCountOn(countRequest.getField());
             }
         }
@@ -361,7 +361,6 @@ public class QueryTranslator extends SqlElementVisitor {
     }
 
     private static final class FunctionReader extends SqlElementVisitor {
-
         private FqlQueryType queryType = FqlQueryType.SELECT;
         private ActionRequest actionRequest;
         private String columnName = null;
@@ -598,7 +597,7 @@ public class QueryTranslator extends SqlElementVisitor {
             for (Expression expression : expressionList.getExpressions()) {
                 filterValues.add(getValueFromExpression(expression));
             }
-            if (inExpression.isNot()) {
+            if(inExpression.isNot()) {
                 NotInFilter filter = new NotInFilter();
                 filter.setField(((Column) inExpression.getLeftExpression()).getFullyQualifiedName()
                         .replaceAll(Constants.SQL_FIELD_REGEX, ""));

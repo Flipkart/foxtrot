@@ -29,5 +29,6 @@ public class Constants {
     public static final String CACHE_NAME_PREFIX = "cache-for-";
 
     private Constants() {
+
     }
 }

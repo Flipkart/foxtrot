@@ -15,11 +15,12 @@ package com.flipkart.foxtrot.common;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.flipkart.foxtrot.common.query.Filter;
 import com.google.common.collect.Lists;
+import lombok.NoArgsConstructor;
+import org.apache.commons.lang3.builder.ToStringBuilder;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
-import lombok.NoArgsConstructor;
-import org.apache.commons.lang3.builder.ToStringBuilder;
 
 /**
  * User: Santanu Sinha (santanu.sinha@flipkart.com) Date: 26/03/14 Time: 7:49 PM

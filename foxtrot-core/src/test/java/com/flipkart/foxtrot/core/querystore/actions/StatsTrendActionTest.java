@@ -104,7 +104,6 @@ public class StatsTrendActionTest extends ActionTest {
                 .stream()
                 .filter(x -> !x.isExtended())
                 .collect(Collectors.toSet()));
-
         BetweenFilter betweenFilter = new BetweenFilter();
         betweenFilter.setFrom(1L);
         betweenFilter.setTo(System.currentTimeMillis());
@@ -206,7 +205,6 @@ public class StatsTrendActionTest extends ActionTest {
         betweenFilter.setTemporal(true);
         betweenFilter.setField("_timestamp");
         request.setFilters(Collections.<Filter>singletonList(betweenFilter));
-
         StatsTrendResponse statsTrendResponse = StatsTrendResponse.class.cast(
                 getQueryExecutor().execute(request, TEST_EMAIL));
         filterNonZeroCounts(statsTrendResponse);

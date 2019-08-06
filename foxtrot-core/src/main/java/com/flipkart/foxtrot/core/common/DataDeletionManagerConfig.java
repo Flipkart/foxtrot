@@ -1,9 +1,10 @@
 package com.flipkart.foxtrot.core.common;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.NoArgsConstructor;
+
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
-import lombok.NoArgsConstructor;
 
 /**
  * Created by rishabh.goyal on 11/07/14.

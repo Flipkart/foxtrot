@@ -181,7 +181,6 @@ public class FilterActionTest extends ActionTest {
         documents.add(TestUtils.getDocument("W", 1397658117001L,
                 new Object[]{"os", "android", "device", "nexus", "battery", 99},
                 getMapper()));
-
         QueryResponse actualResponse = QueryResponse.class.cast(getQueryExecutor().execute(query, TEST_EMAIL));
         compare(documents, actualResponse.getDocuments());
     }
@@ -203,7 +202,6 @@ public class FilterActionTest extends ActionTest {
         documents.add(
                 TestUtils.getDocument("D", 1397658118003L, new Object[]{"os", "ios", "version", 1, "device", "iphone"},
                         getMapper()));
-
         QueryResponse actualResponse = QueryResponse.class.cast(getQueryExecutor().execute(query, TEST_EMAIL));
         compare(documents, actualResponse.getDocuments());
     }
@@ -225,7 +223,6 @@ public class FilterActionTest extends ActionTest {
         documents.add(
                 TestUtils.getDocument("D", 1397658118003L, new Object[]{"os", "ios", "version", 1, "device", "iphone"},
                         getMapper()));
-
         QueryResponse actualResponse = QueryResponse.class.cast(getQueryExecutor().execute(query, TEST_EMAIL));
         compare(documents, actualResponse.getDocuments());
         assertEquals(9, actualResponse.getTotalHits());
@@ -272,7 +269,6 @@ public class FilterActionTest extends ActionTest {
         documents.add(TestUtils.getDocument("W", 1397658117001L,
                 new Object[]{"os", "android", "device", "nexus", "battery", 99},
                 getMapper()));
-
         QueryResponse actualResponse = QueryResponse.class.cast(getQueryExecutor().execute(query, TEST_EMAIL));
         compare(documents, actualResponse.getDocuments());
     }
@@ -299,7 +295,6 @@ public class FilterActionTest extends ActionTest {
         documents.add(
                 TestUtils.getDocument("D", 1397658118003L, new Object[]{"os", "ios", "version", 1, "device", "iphone"},
                         getMapper()));
-
         QueryResponse actualResponse = QueryResponse.class.cast(getQueryExecutor().execute(query, TEST_EMAIL));
         compare(documents, actualResponse.getDocuments());
     }
@@ -330,7 +325,6 @@ public class FilterActionTest extends ActionTest {
         documents.add(TestUtils.getDocument("A", 1397658118000L,
                 new Object[]{"os", "android", "version", 1, "device", "nexus"},
                 getMapper()));
-
         QueryResponse actualResponse = QueryResponse.class.cast(getQueryExecutor().execute(query, TEST_EMAIL));
         compare(documents, actualResponse.getDocuments());
     }
@@ -359,7 +353,6 @@ public class FilterActionTest extends ActionTest {
         documents.add(
                 TestUtils.getDocument("D", 1397658118003L, new Object[]{"os", "ios", "version", 1, "device", "iphone"},
                         getMapper()));
-
         QueryResponse actualResponse = QueryResponse.class.cast(getQueryExecutor().execute(query, TEST_EMAIL));
         compare(documents, actualResponse.getDocuments());
     }
@@ -408,7 +401,6 @@ public class FilterActionTest extends ActionTest {
         documents.add(TestUtils.getDocument("W", 1397658117001L,
                 new Object[]{"os", "android", "device", "nexus", "battery", 99},
                 getMapper()));
-
         QueryResponse actualResponse = QueryResponse.class.cast(getQueryExecutor().execute(query, TEST_EMAIL));
         compare(documents, actualResponse.getDocuments());
     }
@@ -439,7 +431,6 @@ public class FilterActionTest extends ActionTest {
         documents.add(TestUtils.getDocument("W", 1397658117001L,
                 new Object[]{"os", "android", "device", "nexus", "battery", 99},
                 getMapper()));
-
         QueryResponse actualResponse = QueryResponse.class.cast(getQueryExecutor().execute(query, TEST_EMAIL));
         compare(documents, actualResponse.getDocuments());
     }
@@ -560,7 +551,6 @@ public class FilterActionTest extends ActionTest {
         documents.add(TestUtils.getDocument("W", 1397658117001L,
                 new Object[]{"os", "android", "device", "nexus", "battery", 99},
                 getMapper()));
-
         QueryResponse actualResponse = QueryResponse.class.cast(getQueryExecutor().execute(query, TEST_EMAIL));
         compare(documents, actualResponse.getDocuments());
     }
@@ -770,7 +760,6 @@ public class FilterActionTest extends ActionTest {
         documents.add(TestUtils.getDocument("W", 1397658117001L,
                 new Object[]{"os", "android", "device", "nexus", "battery", 99},
                 getMapper()));
-
         QueryResponse actualResponse = QueryResponse.class.cast(getQueryExecutor().execute(query, TEST_EMAIL));
         compare(documents, actualResponse.getDocuments());
     }
@@ -813,7 +802,6 @@ public class FilterActionTest extends ActionTest {
         documents.add(TestUtils.getDocument("W", 1397658117001L,
                 new Object[]{"os", "android", "device", "nexus", "battery", 99},
                 getMapper()));
-
         QueryResponse actualResponse = QueryResponse.class.cast(getQueryExecutor().execute(query, TEST_EMAIL));
         compare(documents, actualResponse.getDocuments());
     }

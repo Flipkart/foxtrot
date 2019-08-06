@@ -10,10 +10,10 @@
  * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations under the License.
  */
-package com.flipkart.foxtrot.core.common;
+package com.flipkart.foxtrot.core.common.noncacheable;
 
-import com.flipkart.foxtrot.common.ActionResponse;
-import com.flipkart.foxtrot.common.ResponseVisitor;
+import com.flipkart.foxtrot.common.ActionRequest;
+import com.flipkart.foxtrot.common.ActionRequestVisitor;
 import com.google.common.annotations.VisibleForTesting;
 
 /**
@@ -21,14 +21,17 @@ import com.google.common.annotations.VisibleForTesting;
  */
 
 @VisibleForTesting
-public class NonCacheableActionResponse extends ActionResponse {
+public class NonCacheableActionRequest extends ActionRequest {
 
-    protected NonCacheableActionResponse(String opcode) {
-        super(opcode);
+    public NonCacheableActionRequest() {
+        super("no-cache-test");
     }
 
-    @Override
-    public void accept(ResponseVisitor visitor) {
+    public <T> T accept(ActionRequestVisitor<T> visitor) {
+        return null;
+    }
 
+    public <T> T accept(ActionRequestVisitor<T> visitor) {
+        return null;
     }
 }

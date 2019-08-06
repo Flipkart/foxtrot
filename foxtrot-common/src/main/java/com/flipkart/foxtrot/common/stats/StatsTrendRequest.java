@@ -5,12 +5,13 @@ import com.flipkart.foxtrot.common.ActionRequestVisitor;
 import com.flipkart.foxtrot.common.Opcodes;
 import com.flipkart.foxtrot.common.Period;
 import com.flipkart.foxtrot.common.query.Filter;
-import java.util.List;
-import java.util.Set;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.lang3.builder.ToStringBuilder;
+
+import java.util.List;
+import java.util.Set;
 
 /**
  * Created by rishabh.goyal on 02/08/14.
@@ -41,7 +42,7 @@ public class StatsTrendRequest extends ActionRequest {
 
     @Builder
     public StatsTrendRequest(List<Filter> filters, String table, String field, Set<Stat> stats, List<String> nesting,
-            List<Double> percentiles, Period period, String timestamp, double compression) {
+                             List<Double> percentiles, Period period, String timestamp, double compression) {
         super(Opcodes.STATS_TREND, filters);
         this.table = table;
         this.field = field;

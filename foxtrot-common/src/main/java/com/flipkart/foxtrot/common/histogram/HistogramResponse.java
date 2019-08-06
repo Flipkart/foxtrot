@@ -37,10 +37,6 @@ public class HistogramResponse extends ActionResponse {
         return counts;
     }
 
-    public void setCounts(List<Count> counts) {
-        this.counts = counts;
-    }
-
     @Override
     public void accept(ResponseVisitor visitor) {
         visitor.visit(this);

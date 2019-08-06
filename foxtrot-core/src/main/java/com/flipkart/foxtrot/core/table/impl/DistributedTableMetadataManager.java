@@ -145,7 +145,7 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
                     .size() < limit) {
                 Map<K, V> map = l1.get(l1.size() - 1);
                 ListIterator<Map<K, V>> mapsIte = l2.listIterator(l2.size());
-                while (mapsIte.hasPrevious() && map.size() < limit) {
+                while(mapsIte.hasPrevious() && map.size() < limit) {
                     Iterator<Map.Entry<K, V>> ite = mapsIte.previous()
                             .entrySet()
                             .iterator();
@@ -248,7 +248,8 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
 
     @Override
     @Timed
-    public TableFieldMapping getFieldMappings(String tableName, boolean withCardinality, boolean calculateCardinality) {
+    public TableFieldMapping getFieldMappings(
+            String tableName, boolean withCardinality, boolean calculateCardinality, long timestamp) {
         final String table = ElasticsearchUtils.getValidTableName(tableName);
 
         if (!tableDataStore.containsKey(table)) {
@@ -658,7 +659,7 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
                     .execute()
                     .get(2, TimeUnit.SECONDS);
         } catch (Exception e) {
-            //logger.error("Error in saving cardinality cache: ", e);
+            logger.error("Error in saving cardinality cache: " + e.getMessage(), e);
         }
     }
 

@@ -16,12 +16,13 @@ import static com.flipkart.foxtrot.core.TestUtils.TEST_EMAIL;
 
 import com.flipkart.foxtrot.common.Document;
 import com.flipkart.foxtrot.core.TestUtils;
-import com.flipkart.foxtrot.core.common.NonCacheableActionRequest;
+import com.flipkart.foxtrot.core.common.noncacheable.NonCacheableActionRequest;
 import com.flipkart.foxtrot.core.exception.FoxtrotException;
 import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 
+import org.junit.Assert;
 /**
  * Created by rishabh.goyal on 02/05/14.
  */
@@ -40,9 +41,11 @@ public class NonCacheableActionTest extends ActionTest {
                 .actionGet();
     }
 
-    //TODO how to verify if cache is hit or not ?
     @Test
     public void checkCacheability() throws FoxtrotException {
         getQueryExecutor().execute(new NonCacheableActionRequest(), TEST_EMAIL);
+=======
+        Assert.assertFalse(getQueryExecutor().execute(new NonCacheableActionRequest(), TEST_EMAIL).isFromCache());
+>>>>>>> large_node_removal
     }
 }

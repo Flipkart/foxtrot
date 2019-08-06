@@ -2,8 +2,9 @@ package com.flipkart.foxtrot.core.exception;
 
 import com.flipkart.foxtrot.common.ActionRequest;
 import com.google.common.collect.Maps;
-import java.util.Map;
 import lombok.Getter;
+
+import java.util.Map;
 
 /**
  * Thrown when a group by query fails cardinality check
