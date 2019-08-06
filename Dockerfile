@@ -1,4 +1,4 @@
-FROM docker.phonepe.com:5000/pp-ops-xenial:0.6
+FROM docker.phonepe.com:5000/pp-ops-xenial-ojdk8:0.8.3
 EXPOSE 17000
 EXPOSE 17001
 EXPOSE 5701
