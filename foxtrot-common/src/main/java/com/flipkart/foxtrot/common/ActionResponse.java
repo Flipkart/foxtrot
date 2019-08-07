@@ -24,6 +24,7 @@ import com.flipkart.foxtrot.common.query.QueryResponse;
 import com.flipkart.foxtrot.common.stats.StatsResponse;
 import com.flipkart.foxtrot.common.stats.StatsTrendResponse;
 import com.flipkart.foxtrot.common.trend.TrendResponse;
+import lombok.Data;
 
 /**
  * User: Santanu Sinha (santanu.sinha@flipkart.com) Date: 25/03/14 Time: 9:17 PM
@@ -39,16 +40,13 @@ import com.flipkart.foxtrot.common.trend.TrendResponse;
         @JsonSubTypes.Type(value = TrendResponse.class, name = Opcodes.TREND),
         @JsonSubTypes.Type(value = StatsTrendResponse.class, name = Opcodes.STATS_TREND),
         @JsonSubTypes.Type(value = MultiTimeQueryResponse.class, name = Opcodes.MULTI_TIME_QUERY)})
+@Data
 public abstract class ActionResponse {
-
     private final String opcode;
+    private boolean fromCache;
 
     protected ActionResponse(String opcode) {
         this.opcode = opcode;
-    }
-
-    public String getOpcode() {
-        return opcode;
     }
 
     public abstract void accept(ResponseVisitor visitor);

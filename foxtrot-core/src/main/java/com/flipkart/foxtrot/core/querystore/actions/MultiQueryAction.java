@@ -12,9 +12,6 @@ import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsLoader;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsProvider;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.elasticsearch.ElasticsearchException;
 import org.elasticsearch.action.ActionRequestBuilder;
@@ -25,9 +22,10 @@ import org.glassfish.hk2.api.MultiException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/***
- Created by nitish.goyal on 22/08/18
- ***/
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+
 @AnalyticsProvider(opcode = "multi_query", request = MultiQueryRequest.class, response = MultiQueryResponse.class,
         cacheable = true)
 public class MultiQueryAction extends Action<MultiQueryRequest> {
@@ -36,14 +34,14 @@ public class MultiQueryAction extends Action<MultiQueryRequest> {
     private AnalyticsLoader analyticsLoader;
     private Map<ActionRequest, Action> requestActionMap = Maps.newHashMap();
 
-    public MultiQueryAction(MultiQueryRequest parameter, String cacheToken, AnalyticsLoader analyticsLoader) {
-        super(parameter, cacheToken, analyticsLoader);
+    public MultiQueryAction(MultiQueryRequest parameter, AnalyticsLoader analyticsLoader) {
+        super(parameter, analyticsLoader);
         this.analyticsLoader = analyticsLoader;
     }
 
     @Override
     public void preprocess() {
-        MultiQueryRequest multiQueryRequest = getParameter();
+        final MultiQueryRequest multiQueryRequest = getParameter();
         processForSubQueries(multiQueryRequest, (action, request) -> {
             action.preprocess();
             return null;
@@ -114,8 +112,7 @@ public class MultiQueryAction extends Action<MultiQueryRequest> {
 
     @Override
     public ActionResponse getResponse(org.elasticsearch.action.ActionResponse multiSearchResponse,
-            MultiQueryRequest parameter) {
-
+                                      MultiQueryRequest parameter) {
         Map<String, ActionResponse> queryVsQueryResponseMap = Maps.newHashMap();
         int queryCounter = 0;
         List<String> queryKeys = Lists.newArrayList();

@@ -1,5 +1,7 @@
 package com.flipkart.foxtrot.common.stats;
 
+import lombok.NoArgsConstructor;
+
 import java.util.Map;
 import lombok.NoArgsConstructor;
 

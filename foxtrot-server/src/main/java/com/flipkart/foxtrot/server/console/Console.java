@@ -13,12 +13,13 @@
 package com.flipkart.foxtrot.server.console;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import java.util.List;
-import java.util.Map;
-import javax.validation.constraints.NotNull;
 import lombok.NoArgsConstructor;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.hibernate.validator.constraints.NotEmpty;
+
+import javax.validation.constraints.NotNull;
+import java.util.List;
+import java.util.Map;
 
 @NoArgsConstructor
 public class Console {

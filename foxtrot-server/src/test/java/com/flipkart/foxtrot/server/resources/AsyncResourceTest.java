@@ -32,6 +32,11 @@ import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
 import org.junit.Rule;
 import org.junit.Test;
+import java.util.*;
+
+import static com.flipkart.foxtrot.core.TestUtils.TEST_EMAIL;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 /**
  * Created by rishabh.goyal on 05/05/14.

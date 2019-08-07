@@ -69,21 +69,20 @@ public class Utils {
                         .field(storedFieldName(field))
                         .order(bucketOrder);
             } else {
-                TermsAggregationBuilder tempBuilder = AggregationBuilders.terms(
-                        Utils.sanitizeFieldForAggregation(field))
+                TermsAggregationBuilder tempBuilder = AggregationBuilders.terms(Utils.sanitizeFieldForAggregation(field))
                         .field(storedFieldName(field))
                         .order(bucketOrder);
                 termsBuilder.subAggregation(tempBuilder);
                 termsBuilder = tempBuilder;
             }
             termsBuilder.size(QUERY_SIZE);
-            if (null == rootBuilder) {
+            if(null == rootBuilder) {
                 rootBuilder = termsBuilder;
             }
         }
-        if (!CollectionUtils.isNullOrEmpty(subAggregations)) {
+        if(!CollectionUtils.isNullOrEmpty(subAggregations)) {
             assert termsBuilder != null;
-            for (AggregationBuilder aggregationBuilder : subAggregations) {
+            for(AggregationBuilder aggregationBuilder : subAggregations) {
                 termsBuilder.subAggregation(aggregationBuilder);
             }
         }
@@ -106,17 +105,18 @@ public class Utils {
 
         boolean anyExtendedStat = stats == null || stats.stream()
                 .anyMatch(Stat::isExtended);
-        if (anyExtendedStat) {
+        if(anyExtendedStat) {
             return AggregationBuilders.extendedStats(metricKey)
                     .field(storedFieldName(field));
         }
 
-        if (stats.size() > 1) {
+        if(stats.size() > 1) {
             return AggregationBuilders.stats(metricKey)
                     .field(storedFieldName(field));
         }
         val stat = stats.iterator()
                 .next();
+
         return stat.visit(new Stat.StatVisitor<AbstractAggregationBuilder>() {
             @Override
             public AbstractAggregationBuilder visitCount() {
@@ -256,20 +256,20 @@ public class Utils {
     }
 
     public static Map<String, Number> toStats(Aggregation statAggregation) {
-        if (statAggregation instanceof InternalExtendedStats) {
-            return Utils.createStatsResponse((InternalExtendedStats) statAggregation);
-        } else if (statAggregation instanceof InternalStats) {
-            return Utils.createStatsResponse((InternalStats) statAggregation);
-        } else if (statAggregation instanceof InternalMax) {
-            return Utils.createStatResponse((InternalMax) statAggregation);
-        } else if (statAggregation instanceof InternalMin) {
-            return Utils.createStatResponse((InternalMin) statAggregation);
-        } else if (statAggregation instanceof InternalAvg) {
-            return Utils.createStatResponse((InternalAvg) statAggregation);
-        } else if (statAggregation instanceof InternalSum) {
-            return Utils.createStatResponse((InternalSum) statAggregation);
-        } else if (statAggregation instanceof InternalValueCount) {
-            return Utils.createStatResponse((InternalValueCount) statAggregation);
+        if(statAggregation instanceof InternalExtendedStats) {
+            return Utils.createStatsResponse((InternalExtendedStats)statAggregation);
+        } else if(statAggregation instanceof InternalStats) {
+            return Utils.createStatsResponse((InternalStats)statAggregation);
+        } else if(statAggregation instanceof InternalMax) {
+            return Utils.createStatResponse((InternalMax)statAggregation);
+        } else if(statAggregation instanceof InternalMin) {
+            return Utils.createStatResponse((InternalMin)statAggregation);
+        } else if(statAggregation instanceof InternalAvg) {
+            return Utils.createStatResponse((InternalAvg)statAggregation);
+        } else if(statAggregation instanceof InternalSum) {
+            return Utils.createStatResponse((InternalSum)statAggregation);
+        } else if(statAggregation instanceof InternalValueCount) {
+            return Utils.createStatResponse((InternalValueCount)statAggregation);
         }
         return new HashMap<>();
     }

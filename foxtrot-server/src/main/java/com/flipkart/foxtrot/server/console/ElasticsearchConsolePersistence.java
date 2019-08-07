@@ -64,7 +64,7 @@ public class ElasticsearchConsolePersistence implements ConsolePersistence {
                     .setIndex(INDEX)
                     .setType(TYPE)
                     .setId(console.getId())
-                    .setSource(ElasticsearchQueryUtils.getSourceMap(console, console.getClass()))
+                    .setSource(ElasticsearchQueryUtils.toMap(mapper, console))
                     .setRefreshPolicy(WriteRequest.RefreshPolicy.IMMEDIATE)
                     .execute()
                     .get();

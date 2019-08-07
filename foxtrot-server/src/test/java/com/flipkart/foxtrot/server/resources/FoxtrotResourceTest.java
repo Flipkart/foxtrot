@@ -21,6 +21,7 @@ import com.flipkart.foxtrot.core.alerts.EmailConfig;
 import com.flipkart.foxtrot.core.cache.CacheManager;
 import com.flipkart.foxtrot.core.cache.impl.DistributedCacheFactory;
 import com.flipkart.foxtrot.core.cardinality.CardinalityConfig;
+import com.flipkart.foxtrot.core.config.TextNodeRemoverConfiguration;
 import com.flipkart.foxtrot.core.datastore.DataStore;
 import com.flipkart.foxtrot.core.exception.FoxtrotException;
 import com.flipkart.foxtrot.core.querystore.QueryExecutor;
@@ -31,6 +32,8 @@ import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConnection;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchQueryStore;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
 import com.flipkart.foxtrot.core.querystore.impl.HazelcastConnection;
+import com.flipkart.foxtrot.core.querystore.mutator.IndexerEventMutator;
+import com.flipkart.foxtrot.core.querystore.mutator.LargeTextNodeRemover;
 import com.flipkart.foxtrot.core.table.TableMetadataManager;
 import com.flipkart.foxtrot.core.table.impl.DistributedTableMetadataManager;
 import com.flipkart.foxtrot.core.table.impl.ElasticsearchTestUtils;
@@ -49,9 +52,17 @@ import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import org.assertj.core.util.Lists;
 import org.junit.After;
 import org.mockito.Mockito;
 import org.slf4j.LoggerFactory;
+
+import java.util.Collections;
+import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
+import static org.mockito.Mockito.*;
 
 /**
  * Created by rishabh.goyal on 27/12/15.
@@ -137,8 +148,9 @@ public abstract class FoxtrotResourceTest {
                 .name(TestUtils.TEST_TABLE_NAME)
                 .ttl(7)
                 .build());
-        queryStore = new ElasticsearchQueryStore(tableMetadataManager, elasticsearchConnection, dataStore, mapper,
-                cardinalityConfig);
+        List<IndexerEventMutator> mutators = Lists.newArrayList(new LargeTextNodeRemover(mapper,
+                TextNodeRemoverConfiguration.builder().build()));
+        queryStore = new ElasticsearchQueryStore(tableMetadataManager, elasticsearchConnection, dataStore, mutators, mapper, cardinalityConfig);
         queryStore = spy(queryStore);
 
         EmailConfig emailConfig = new EmailConfig();
@@ -148,9 +160,7 @@ public abstract class FoxtrotResourceTest {
         when(emailClient.sendEmail(any(String.class), any(String.class), any(String.class))).thenReturn(true);
 
         analyticsLoader = new AnalyticsLoader(tableMetadataManager, dataStore, queryStore, elasticsearchConnection,
-                cacheManager, mapper,
-                emailConfig, emailClient
-        );
+                cacheManager, mapper, emailConfig, emailClient);
         try {
             analyticsLoader.start();
         } catch (Exception e) {
@@ -162,7 +172,7 @@ public abstract class FoxtrotResourceTest {
             e.printStackTrace();
         }
         ExecutorService executorService = Executors.newFixedThreadPool(1);
-        queryExecutor = new QueryExecutor(analyticsLoader, executorService);
+        queryExecutor = new QueryExecutor(analyticsLoader, executorService, Collections.emptyList());
 
     }
 

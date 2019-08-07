@@ -62,7 +62,6 @@ public class TrendResponse extends ActionResponse {
         }
 
         TrendResponse that = (TrendResponse) o;
-
         return trends.equals(that.trends);
     }
 

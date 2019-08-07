@@ -38,6 +38,12 @@ import java.util.Map;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.*;
+
+import static com.flipkart.foxtrot.core.TestUtils.TEST_EMAIL;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
+
 /**
  * Created by rishabh.goyal on 29/04/14.
  */

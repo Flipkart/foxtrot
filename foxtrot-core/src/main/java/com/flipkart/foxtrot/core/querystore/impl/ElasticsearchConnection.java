@@ -13,7 +13,6 @@
 package com.flipkart.foxtrot.core.querystore.impl;
 
 import io.dropwizard.lifecycle.Managed;
-import java.net.InetAddress;
 import org.elasticsearch.action.admin.indices.refresh.RefreshRequest;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.client.transport.TransportClient;
@@ -22,6 +21,8 @@ import org.elasticsearch.common.transport.TransportAddress;
 import org.elasticsearch.transport.client.PreBuiltTransportClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.net.InetAddress;
 
 /**
  * User: Santanu Sinha (santanu.sinha@flipkart.com) Date: 14/03/14 Time: 12:38 AM

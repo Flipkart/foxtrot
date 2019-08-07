@@ -16,6 +16,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.flipkart.foxtrot.core.alerts.EmailConfig;
 import com.flipkart.foxtrot.core.cardinality.CardinalityConfig;
 import com.flipkart.foxtrot.core.common.DataDeletionManagerConfig;
+import com.flipkart.foxtrot.core.config.TextNodeRemoverConfiguration;
 import com.flipkart.foxtrot.core.datastore.impl.hbase.HbaseConfig;
 import com.flipkart.foxtrot.core.jobs.optimization.EsIndexOptimizationConfig;
 import com.flipkart.foxtrot.core.querystore.impl.CacheConfig;
@@ -28,10 +29,12 @@ import io.dropwizard.discovery.bundle.ServiceDiscoveryConfiguration;
 import io.dropwizard.primer.model.PrimerBundleConfiguration;
 import io.dropwizard.riemann.RiemannConfig;
 import io.federecio.dropwizard.swagger.SwaggerBundleConfiguration;
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NonNull;
+
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 
 /**
  * User: Santanu Sinha (santanu.sinha@flipkart.com)
@@ -85,6 +88,10 @@ public class FoxtrotServerConfiguration extends Configuration {
 
     private GandalfConfiguration gandalfConfiguration;
 
+    @Valid
+    @Builder.Default
+    private TextNodeRemoverConfiguration textNodeRemover = new TextNodeRemoverConfiguration();
+
     public FoxtrotServerConfiguration() {
         this.hbase = new HbaseConfig();
         this.elasticsearch = new ElasticsearchConfig();
@@ -94,7 +101,6 @@ public class FoxtrotServerConfiguration extends Configuration {
         this.segregationConfiguration = new SegregationConfiguration();
         this.serviceDiscovery = new ServiceDiscoveryConfiguration();
         this.riemann = new RiemannConfig();
-        this.primerBundleConfiguration = new PrimerBundleConfiguration();
         this.restrictAccess = true;
     }
 

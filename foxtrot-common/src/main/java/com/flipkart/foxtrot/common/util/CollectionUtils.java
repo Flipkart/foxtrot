@@ -7,8 +7,7 @@ import java.util.Collection;
  */
 public class CollectionUtils {
 
-    private CollectionUtils() {
-    }
+    private CollectionUtils() {}
 
     public static boolean isNullOrEmpty(String s) {
         return s == null || s.trim()

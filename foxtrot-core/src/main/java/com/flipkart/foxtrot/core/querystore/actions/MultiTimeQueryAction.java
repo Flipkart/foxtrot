@@ -3,28 +3,18 @@ package com.flipkart.foxtrot.core.querystore.actions;
 import com.collections.CollectionUtils;
 import com.flipkart.foxtrot.common.ActionRequest;
 import com.flipkart.foxtrot.common.ActionResponse;
-import com.flipkart.foxtrot.common.query.Filter;
-import com.flipkart.foxtrot.common.query.MultiQueryRequest;
-import com.flipkart.foxtrot.common.query.MultiQueryResponse;
-import com.flipkart.foxtrot.common.query.MultiTimeQueryRequest;
-import com.flipkart.foxtrot.common.query.MultiTimeQueryResponse;
+import com.flipkart.foxtrot.common.query.*;
 import com.flipkart.foxtrot.common.query.numeric.BetweenFilter;
 import com.flipkart.foxtrot.core.common.Action;
 import com.flipkart.foxtrot.core.exception.FoxtrotExceptions;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsLoader;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsProvider;
 import com.google.common.collect.Lists;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.concurrent.TimeUnit;
 import org.elasticsearch.action.ActionRequestBuilder;
 
-/***
- Created by mudit.g on Jan, 2019
- ***/
+import java.util.*;
+import java.util.concurrent.TimeUnit;
+
 @AnalyticsProvider(opcode = "multi_time_query", request = MultiTimeQueryRequest.class, response =
         MultiTimeQueryResponse.class, cacheable = false)
 public class MultiTimeQueryAction extends Action<MultiTimeQueryRequest> {
@@ -33,8 +23,8 @@ public class MultiTimeQueryAction extends Action<MultiTimeQueryRequest> {
     private Action action;
     private MultiQueryRequest multiQueryRequest;
 
-    public MultiTimeQueryAction(MultiTimeQueryRequest parameter, String cacheToken, AnalyticsLoader analyticsLoader) {
-        super(parameter, cacheToken, analyticsLoader);
+    public MultiTimeQueryAction(MultiTimeQueryRequest parameter, AnalyticsLoader analyticsLoader) {
+        super(parameter, analyticsLoader);
         this.analyticsLoader = analyticsLoader;
     }
 
@@ -128,7 +118,7 @@ public class MultiTimeQueryAction extends Action<MultiTimeQueryRequest> {
 
     @Override
     public ActionResponse getResponse(org.elasticsearch.action.ActionResponse multiSearchResponse,
-            MultiTimeQueryRequest parameter) {
+                                      MultiTimeQueryRequest parameter) {
         MultiQueryResponse multiQueryResponse = (MultiQueryResponse) action.getResponse(multiSearchResponse,
                 multiQueryRequest);
         return new MultiTimeQueryResponse(multiQueryResponse.getResponses());

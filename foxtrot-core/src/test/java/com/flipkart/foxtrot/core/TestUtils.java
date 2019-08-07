@@ -33,6 +33,7 @@ import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsProvider;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConnection;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
 import com.flipkart.foxtrot.core.table.impl.TableMapStore;
+import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -78,8 +79,9 @@ public class TestUtils {
                 .getTable(Matchers.<Table>any());
         doReturn(new HbaseConfig()).when(tableConnection)
                 .getHbaseConfig();
-        HBaseDataStore hBaseDataStore = new HBaseDataStore(tableConnection, new ObjectMapper(), new DocumentTranslator(
-                TestUtils.createHBaseConfigWithRawKeyV2()));
+        HBaseDataStore hBaseDataStore = new HBaseDataStore(tableConnection, new ObjectMapper(),
+                                                           new DocumentTranslator(TestUtils.createHBaseConfigWithRawKeyV2())
+        );
         hBaseDataStore = spy(hBaseDataStore);
         return hBaseDataStore;
     }
@@ -99,8 +101,10 @@ public class TestUtils {
         List<NamedType> types = new Vector<>();
         for (Class<? extends Action> action : actions) {
             AnalyticsProvider analyticsProvider = action.getAnnotation(AnalyticsProvider.class);
-            if (null == analyticsProvider.request() || null == analyticsProvider.opcode() || analyticsProvider.opcode()
-                    .isEmpty() || null == analyticsProvider.response()) {
+            if (null == analyticsProvider.request()
+                    || null == analyticsProvider.opcode()
+                    || analyticsProvider.opcode().isEmpty()
+                    || null == analyticsProvider.response()) {
                 throw new Exception("Invalid annotation on " + action.getCanonicalName());
             }
             if (analyticsProvider.opcode()
@@ -108,11 +112,14 @@ public class TestUtils {
                 logger.warn("Action " + action.getCanonicalName() + " does not specify cache token. " +
                         "Using default cache.");
             }
+            final String opcode = analyticsProvider.opcode();
             analyticsLoader.register(
-                    new ActionMetadata(analyticsProvider.request(), action, analyticsProvider.cacheable(),
-                            analyticsProvider.opcode()));
-            types.add(new NamedType(analyticsProvider.request(), analyticsProvider.opcode()));
-            types.add(new NamedType(analyticsProvider.response(), analyticsProvider.opcode()));
+                    new ActionMetadata(analyticsProvider.request(), action, analyticsProvider.cacheable()));
+            if(analyticsProvider.cacheable()) {
+                analyticsLoader.registerCache(opcode);
+            }
+            types.add(new NamedType(analyticsProvider.request(), opcode));
+            types.add(new NamedType(analyticsProvider.response(), opcode));
             logger.info("Registered action: " + action.getCanonicalName());
         }
         mapper.getSubtypeResolver()
@@ -213,7 +220,7 @@ public class TestUtils {
 
     public static List<Document> getGroupDocumentsForEstimation(ObjectMapper mapper) {
         Random random = new Random();
-        return IntStream.rangeClosed(0, 10000)
+        return IntStream.rangeClosed(0, 3_000)
                 .mapToObj(i -> Document.builder()
                         .id(UUID.randomUUID()
                                 .toString())

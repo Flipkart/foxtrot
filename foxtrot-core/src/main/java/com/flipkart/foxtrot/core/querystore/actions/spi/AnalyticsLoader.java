@@ -27,16 +27,17 @@ import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConnection;
 import com.flipkart.foxtrot.core.table.TableMetadataManager;
 import com.google.common.collect.Maps;
 import io.dropwizard.lifecycle.Managed;
-import java.lang.reflect.Constructor;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 import lombok.Getter;
 import org.reflections.Reflections;
 import org.reflections.scanners.SubTypesScanner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.lang.reflect.Constructor;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * User: Santanu Sinha (santanu.sinha@flipkart.com)
@@ -60,8 +61,8 @@ public class AnalyticsLoader implements Managed {
     private EmailClient emailClient;
 
     public AnalyticsLoader(TableMetadataManager tableMetadataManager, DataStore dataStore, QueryStore queryStore,
-            ElasticsearchConnection elasticsearchConnection, CacheManager cacheManager, ObjectMapper objectMapper,
-            EmailConfig emailConfig, EmailClient emailClient) {
+                           ElasticsearchConnection elasticsearchConnection, CacheManager cacheManager, ObjectMapper objectMapper,
+                           EmailConfig emailConfig, EmailClient emailClient) {
         this.tableMetadataManager = tableMetadataManager;
         this.dataStore = dataStore;
         this.queryStore = queryStore;
@@ -84,8 +85,8 @@ public class AnalyticsLoader implements Managed {
                         .cast(request);
                 try {
                     Constructor<? extends Action> constructor = metadata.getAction()
-                            .getConstructor(metadata.getRequest(), String.class, AnalyticsLoader.class);
-                    return constructor.newInstance(r, metadata.getCacheToken(), this);
+                            .getConstructor(metadata.getRequest(), AnalyticsLoader.class);
+                    return constructor.newInstance(r, this);
                 } catch (Exception e) {
                     throw FoxtrotExceptions.createActionResolutionException(request, e);
                 }
@@ -93,6 +94,11 @@ public class AnalyticsLoader implements Managed {
         }
         return null;
     }
+
+    public void registerCache(final String opcode) {
+        cacheManager.create(opcode);
+    }
+
 
     @Override
     public void start() throws Exception {
@@ -104,30 +110,28 @@ public class AnalyticsLoader implements Managed {
         List<NamedType> types = new ArrayList<>();
         for (Class<? extends Action> action : actionSet) {
             AnalyticsProvider analyticsProvider = action.getAnnotation(AnalyticsProvider.class);
-            if (null == analyticsProvider.request() || null == analyticsProvider.opcode() || analyticsProvider.opcode()
-                    .isEmpty() || null == analyticsProvider.response()) {
+            if (null == analyticsProvider.request()
+                    || null == analyticsProvider.opcode()
+                    || analyticsProvider.opcode().isEmpty()
+                    || null == analyticsProvider.response()) {
                 throw new AnalyticsActionLoaderException("Invalid annotation on " + action.getCanonicalName());
             }
             if (analyticsProvider.opcode()
                     .equalsIgnoreCase("default")) {
                 logger.warn("Action {} does not specify cache token. Using default cache.", action.getCanonicalName());
             }
-            register(new ActionMetadata(analyticsProvider.request(), action, analyticsProvider.cacheable(),
-                    analyticsProvider.opcode()));
+            register(new ActionMetadata(analyticsProvider.request(), action, analyticsProvider.cacheable()));
             types.add(new NamedType(analyticsProvider.request(), analyticsProvider.opcode()));
             types.add(new NamedType(analyticsProvider.response(), analyticsProvider.opcode()));
             logger.info("Registered action: {}", action.getCanonicalName());
         }
         objectMapper.getSubtypeResolver()
-                .registerSubtypes(types.toArray(new NamedType[types.size()]));
+                .registerSubtypes(types.toArray(new NamedType[0]));
     }
 
     public void register(ActionMetadata actionMetadata) {
         actions.put(actionMetadata.getRequest()
                 .getCanonicalName(), actionMetadata);
-        if (actionMetadata.isCacheable()) {
-            cacheManager.create(actionMetadata.getCacheToken());
-        }
     }
 
     @Override

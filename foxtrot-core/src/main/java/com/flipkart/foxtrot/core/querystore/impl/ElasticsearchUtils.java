@@ -64,6 +64,19 @@ public class ElasticsearchUtils {
         return String.format("%s-%s-%s-", getTableNamePrefix(), table, ElasticsearchUtils.TABLENAME_POSTFIX);
     }
 
+    @VisibleForTesting
+    public static String getTableNamePrefix() {
+        return tableNamePrefix;
+    }
+
+    public static void setTableNamePrefix(ElasticsearchConfig config) {
+        if(StringUtils.isNotEmpty(config.getTableNamePrefix())) {
+            tableNamePrefix = config.getTableNamePrefix();
+        } else {
+            tableNamePrefix = "foxtrot";
+        }
+    }
+
     public static String[] getIndices(final String table, final ActionRequest request) {
         return getIndices(table, request, new PeriodSelector(request.getFilters()).analyze());
     }
@@ -102,18 +115,6 @@ public class ElasticsearchUtils {
         String datePostfix = FORMATTER.print(timestamp);
         return String.format("%s-%s-%s-%s", getTableNamePrefix(), table, ElasticsearchUtils.TABLENAME_POSTFIX,
                 datePostfix);
-    }
-
-    private static String getTableNamePrefix() {
-        return tableNamePrefix;
-    }
-
-    public static void setTableNamePrefix(ElasticsearchConfig config) {
-        if (StringUtils.isNotEmpty(config.getTableNamePrefix())) {
-            tableNamePrefix = config.getTableNamePrefix();
-        } else {
-            tableNamePrefix = "foxtrot";
-        }
     }
 
     public static void initializeMappings(Client client) {

@@ -10,7 +10,7 @@
  * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations under the License.
  */
-package com.flipkart.foxtrot.core.common;
+package com.flipkart.foxtrot.core.common.noncacheable;
 
 import com.flipkart.foxtrot.common.ActionRequest;
 import com.flipkart.foxtrot.common.ActionRequestVisitor;
@@ -24,7 +24,7 @@ import com.google.common.annotations.VisibleForTesting;
 public class NonCacheableActionRequest extends ActionRequest {
 
     public NonCacheableActionRequest() {
-        super("test");
+        super("no-cache-test");
     }
 
     public <T> T accept(ActionRequestVisitor<T> visitor) {

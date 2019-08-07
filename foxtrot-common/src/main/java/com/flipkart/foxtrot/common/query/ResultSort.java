@@ -12,9 +12,10 @@
  */
 package com.flipkart.foxtrot.common.query;
 
-import java.io.Serializable;
-import javax.validation.constraints.NotNull;
 import org.hibernate.validator.constraints.NotEmpty;
+
+import javax.validation.constraints.NotNull;
+import java.io.Serializable;
 
 /**
  * User: Santanu Sinha (santanu.sinha@flipkart.com) Date: 14/03/14 Time: 9:00 PM

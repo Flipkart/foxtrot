@@ -16,14 +16,15 @@ import com.flipkart.foxtrot.core.cardinality.CardinalityCalculationRunnable;
 import com.flipkart.foxtrot.core.table.TableMetadataManager;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-import java.util.concurrent.ExecutorService;
+import lombok.AllArgsConstructor;
+
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import lombok.AllArgsConstructor;
+import java.util.concurrent.ExecutorService;
 
 /***
  Created by nitish.goyal on 17/08/18

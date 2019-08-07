@@ -83,7 +83,6 @@ public class StatsActionTest extends ActionTest {
                 .stream()
                 .filter(x -> !x.isExtended())
                 .collect(Collectors.toSet()));
-
         StatsResponse statsResponse = StatsResponse.class.cast(getQueryExecutor().execute(request, TEST_EMAIL));
         assertNotNull(statsResponse);
         assertNotNull(statsResponse.getResult());
@@ -194,7 +193,7 @@ public class StatsActionTest extends ActionTest {
         betweenFilter.setField("_timestamp");
         request.setFilters(Collections.<Filter>singletonList(betweenFilter));
 
-        StatsResponse statsResponse = (StatsResponse) getQueryExecutor().execute(request, TEST_EMAIL);
+        StatsResponse statsResponse = (StatsResponse)getQueryExecutor().execute(request, TEST_EMAIL);
         assertNotNull(statsResponse);
         assertNotNull(statsResponse.getResult());
         assertEquals(1, statsResponse.getResult()

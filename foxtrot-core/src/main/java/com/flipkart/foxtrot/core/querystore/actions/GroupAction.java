@@ -88,8 +88,8 @@ public class GroupAction extends Action<GroupRequest> {
     private static final double PROBABILITY_CUT_OFF = 0.5;
     private EmailClient emailClient;
 
-    public GroupAction(GroupRequest parameter, String cacheToken, AnalyticsLoader analyticsLoader) {
-        super(parameter, cacheToken, analyticsLoader);
+    public GroupAction(GroupRequest parameter, AnalyticsLoader analyticsLoader) {
+        super(parameter, analyticsLoader);
         if (analyticsLoader.getEmailClient() != null) {
             emailClient = analyticsLoader.getEmailClient();
         } else {
@@ -141,8 +141,8 @@ public class GroupAction extends Action<GroupRequest> {
     public String getRequestCacheKey() {
         long filterHashKey = 0L;
         GroupRequest query = getParameter();
-        if (null != query.getFilters()) {
-            for (Filter filter : query.getFilters()) {
+        if(null != query.getFilters()) {
+            for(Filter filter : query.getFilters()) {
                 filterHashKey += 31 * filter.hashCode();
             }
         }
@@ -244,17 +244,17 @@ public class GroupAction extends Action<GroupRequest> {
         String cacheKey = getRequestCacheKey();
         long estimatedMaxDocCount = extractMaxDocCount(metaMap);
         log.debug("cacheKey:{} msg:DOC_COUNT_ESTIMATION_COMPLETED maxDocCount:{}", cacheKey, estimatedMaxDocCount);
-        long estimatedDocCountBasedOnTime = estimateDocCountBasedOnTime(estimatedMaxDocCount, parameter,
-                getTableMetadataManager(),
-                tableFieldMapping.getTable());
-        log.debug("cacheKey:{} msg:TIME_BASED_DOC_ESTIMATION_COMPLETED maxDocCount:{} docCountAfterTimeFilters:{}",
-                cacheKey, estimatedMaxDocCount, estimatedDocCountBasedOnTime);
-        long estimatedDocCountAfterFilters = estimateDocCountWithFilters(estimatedDocCountBasedOnTime, metaMap,
-                parameter.getFilters());
-        log.debug("cacheKey:{} msg:ALL_FILTER_ESTIMATION_COMPLETED maxDocCount:{} docCountAfterTimeFilters:{} " +
-                        "docCountAfterFilters:{}", cacheKey, estimatedMaxDocCount, estimatedDocCountBasedOnTime,
-                estimatedDocCountAfterFilters);
-        if (estimatedDocCountAfterFilters < MIN_ESTIMATION_THRESHOLD) {
+        long estimatedDocCountBasedOnTime = estimateDocCountBasedOnTime(estimatedMaxDocCount, parameter, getTableMetadataManager(),
+                                                                        tableFieldMapping.getTable()
+                                                                       );
+        log.debug("cacheKey:{} msg:TIME_BASED_DOC_ESTIMATION_COMPLETED maxDocCount:{} docCountAfterTimeFilters:{}", cacheKey,
+                  estimatedMaxDocCount, estimatedDocCountBasedOnTime
+                 );
+        long estimatedDocCountAfterFilters = estimateDocCountWithFilters(estimatedDocCountBasedOnTime, metaMap, parameter.getFilters());
+        log.debug("cacheKey:{} msg:ALL_FILTER_ESTIMATION_COMPLETED maxDocCount:{} docCountAfterTimeFilters:{} " + "docCountAfterFilters:{}",
+                  cacheKey, estimatedMaxDocCount, estimatedDocCountBasedOnTime, estimatedDocCountAfterFilters
+                 );
+        if(estimatedDocCountAfterFilters < MIN_ESTIMATION_THRESHOLD) {
             log.debug("cacheKey:{} msg:NESTING_ESTIMATION_SKIPPED estimatedDocCount:{} threshold:{}", cacheKey,
                     estimatedDocCountAfterFilters, MIN_ESTIMATION_THRESHOLD);
             return 0.0;

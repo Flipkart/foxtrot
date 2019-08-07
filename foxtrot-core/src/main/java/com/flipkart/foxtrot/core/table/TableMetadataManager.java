@@ -15,6 +15,7 @@ package com.flipkart.foxtrot.core.table;
 import com.flipkart.foxtrot.common.Table;
 import com.flipkart.foxtrot.common.TableFieldMapping;
 import io.dropwizard.lifecycle.Managed;
+
 import java.util.List;
 
 /**
@@ -32,13 +33,18 @@ public interface TableMetadataManager extends Managed {
 
     List<Table> get();
 
-    TableFieldMapping getFieldMappings(String table, boolean withCardinality, boolean calculateCardinality);
-
     void updateEstimationData(String table, long timestamp);
 
     boolean exists(String tableName);
 
     void delete(String tableName);
+
+
+    default TableFieldMapping getFieldMappings(String table, boolean withCardinality, boolean calculateCardinality) {
+        return getFieldMappings(table, withCardinality, calculateCardinality, System.currentTimeMillis());
+    }
+
+    TableFieldMapping getFieldMappings(String table, boolean withCardinality, boolean calculateCardinality, long timestamp);
 
     void initializeCardinalityCache();
 }
