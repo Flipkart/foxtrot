@@ -85,7 +85,7 @@ public class AnalyticsLoader implements Managed {
                         .cast(request);
                 try {
                     Constructor<? extends Action> constructor = metadata.getAction()
-                            .getConstructor(metadata.getRequest(), String.class, AnalyticsLoader.class);
+                            .getConstructor(metadata.getRequest(), AnalyticsLoader.class);
                     return constructor.newInstance(r, this);
                 } catch (Exception e) {
                     throw FoxtrotExceptions.createActionResolutionException(request, e);
@@ -110,8 +110,10 @@ public class AnalyticsLoader implements Managed {
         List<NamedType> types = new ArrayList<>();
         for (Class<? extends Action> action : actionSet) {
             AnalyticsProvider analyticsProvider = action.getAnnotation(AnalyticsProvider.class);
-            if (null == analyticsProvider.request() || null == analyticsProvider.opcode() || analyticsProvider.opcode()
-                    .isEmpty() || null == analyticsProvider.response()) {
+            if (null == analyticsProvider.request()
+                    || null == analyticsProvider.opcode()
+                    || analyticsProvider.opcode().isEmpty()
+                    || null == analyticsProvider.response()) {
                 throw new AnalyticsActionLoaderException("Invalid annotation on " + action.getCanonicalName());
             }
             if (analyticsProvider.opcode()
