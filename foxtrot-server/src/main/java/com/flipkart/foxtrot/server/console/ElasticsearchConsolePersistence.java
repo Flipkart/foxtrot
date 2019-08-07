@@ -67,7 +67,7 @@ public class ElasticsearchConsolePersistence implements ConsolePersistence {
                     .setIndex(INDEX)
                     .setType(TYPE)
                     .setId(console.getId())
-                    .setSource(ElasticsearchQueryUtils.getSourceMap(console, console.getClass()))
+                    .setSource(ElasticsearchQueryUtils.toMap(mapper, console))
                     .setRefreshPolicy(WriteRequest.RefreshPolicy.IMMEDIATE)
                     .execute()
                     .get();
@@ -87,7 +87,7 @@ public class ElasticsearchConsolePersistence implements ConsolePersistence {
                     .setId(id)
                     .execute()
                     .actionGet();
-            if(!result.isExists()) {
+            if (!result.isExists()) {
                 return null;
             }
             return mapper.readValue(result.getSourceAsBytes(), Console.class);
@@ -115,10 +115,10 @@ public class ElasticsearchConsolePersistence implements ConsolePersistence {
                         .execute()
                         .actionGet();
                 SearchHits hits = response.getHits();
-                for(SearchHit hit : hits) {
+                for (SearchHit hit : hits) {
                     results.add(mapper.readValue(hit.getSourceAsString(), Console.class));
                 }
-                if(0 == response.getHits()
+                if (0 == response.getHits()
                         .getHits().length) {
                     break;
                 }
@@ -162,7 +162,7 @@ public class ElasticsearchConsolePersistence implements ConsolePersistence {
             logger.info("Saved Console : {}", console);
         } catch (Exception e) {
             throw new ConsolePersistenceException(console.getId(), "console save failed", e);
-    }
+        }
     }
 
     @Override
@@ -175,7 +175,7 @@ public class ElasticsearchConsolePersistence implements ConsolePersistence {
                     .setId(id)
                     .execute()
                     .actionGet();
-            if(!result.isExists()) {
+            if (!result.isExists()) {
                 return null;
             }
             return mapper.readValue(result.getSourceAsBytes(), ConsoleV2.class);
@@ -199,10 +199,10 @@ public class ElasticsearchConsolePersistence implements ConsolePersistence {
             List<ConsoleV2> results = new ArrayList<>();
             while (true) {
                 SearchHits hits = response.getHits();
-                for(SearchHit hit : hits) {
+                for (SearchHit hit : hits) {
                     results.add(mapper.readValue(hit.getSourceAsString(), ConsoleV2.class));
                 }
-                if(SCROLL_SIZE >= response.getHits()
+                if (SCROLL_SIZE >= response.getHits()
                         .getTotalHits()) {
                     break;
                 }
@@ -227,14 +227,14 @@ public class ElasticsearchConsolePersistence implements ConsolePersistence {
                     .setSearchType(SearchType.QUERY_THEN_FETCH)
                     .setQuery(QueryBuilders.termQuery("name.keyword", name))
                     .addSort(SortBuilders.fieldSort(sortBy)
-                                     .order(SortOrder.DESC))
+                            .order(SortOrder.DESC))
                     .setFrom(0)
                     .setSize(10)
                     .execute()
                     .actionGet()
                     .getHits();
             List<ConsoleV2> results = new ArrayList<>();
-            for(SearchHit searchHit : CollectionUtils.nullAndEmptySafeValueList(searchHits.getHits())) {
+            for (SearchHit searchHit : CollectionUtils.nullAndEmptySafeValueList(searchHits.getHits())) {
                 results.add(mapper.readValue(searchHit.getSourceAsString(), ConsoleV2.class));
             }
             return results;
@@ -253,7 +253,7 @@ public class ElasticsearchConsolePersistence implements ConsolePersistence {
                     .setId(id)
                     .execute()
                     .actionGet();
-            if(!result.isExists()) {
+            if (!result.isExists()) {
                 return null;
             }
             return mapper.readValue(result.getSourceAsBytes(), ConsoleV2.class);
@@ -273,14 +273,14 @@ public class ElasticsearchConsolePersistence implements ConsolePersistence {
     }
 
     private void preProcess(ConsoleV2 console, boolean newConsole) {
-        if(console.getUpdatedAt() == 0L) {
+        if (console.getUpdatedAt() == 0L) {
             console.setUpdatedAt(System.currentTimeMillis());
         }
         ConsoleV2 oldConsole = getV2(console.getId());
-        if(oldConsole == null) {
+        if (oldConsole == null) {
             oldConsole = getOldVersion(console.getId());
             //In this case old Console Id (random Id) is passed therefore changing the id to current console Id
-            if(oldConsole != null) {
+            if (oldConsole != null) {
                 String id = oldConsole.getName()
                         .replaceAll("\\s+", "_")
                         .toLowerCase();
@@ -288,11 +288,11 @@ public class ElasticsearchConsolePersistence implements ConsolePersistence {
                 console.setId(id);
             }
         }
-        if(oldConsole == null) {
+        if (oldConsole == null) {
             console.setVersion(1);
             return;
         }
-        if(oldConsole.getUpdatedAt() != 0L && oldConsole.getUpdatedAt() > console.getUpdatedAt() && newConsole) {
+        if (oldConsole.getUpdatedAt() != 0L && oldConsole.getUpdatedAt() > console.getUpdatedAt() && newConsole) {
             throw new ConsolePersistenceException(console.getId(), "Updated version of console exists. Kindly refresh" + " your dashboard");
         }
 
@@ -300,14 +300,14 @@ public class ElasticsearchConsolePersistence implements ConsolePersistence {
         List<ConsoleV2> consoleV2s;
         int maxOldConsoleVersion = 0;
         consoleV2s = getAllOldVersions(oldConsole.getName(), sortBy);
-        if(consoleV2s != null && !consoleV2s.isEmpty()) {
+        if (consoleV2s != null && !consoleV2s.isEmpty()) {
             maxOldConsoleVersion = consoleV2s.get(0)
                     .getVersion();
         }
 
         int oldCurrentConsoleVersion = oldConsole.getVersion();
         int version = Math.max(oldCurrentConsoleVersion, maxOldConsoleVersion);
-        if(oldCurrentConsoleVersion > maxOldConsoleVersion) {
+        if (oldCurrentConsoleVersion > maxOldConsoleVersion) {
             saveOldConsole(oldConsole);
         }
         console.setUpdatedAt(System.currentTimeMillis());

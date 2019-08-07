@@ -12,7 +12,6 @@
     <artifactId>foxtrot-server</artifactId>
 
     <dependencies>
-
         <dependency>
             <groupId>io.dropwizard</groupId>
             <artifactId>dropwizard-core</artifactId>

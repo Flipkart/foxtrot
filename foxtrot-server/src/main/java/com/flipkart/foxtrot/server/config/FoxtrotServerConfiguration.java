@@ -18,6 +18,7 @@ package com.flipkart.foxtrot.server.config;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.flipkart.foxtrot.core.cardinality.CardinalityConfig;
 import com.flipkart.foxtrot.core.common.DataDeletionManagerConfig;
+import com.flipkart.foxtrot.core.config.TextNodeRemoverConfiguration;
 import com.flipkart.foxtrot.core.datastore.impl.hbase.HbaseConfig;
 import com.flipkart.foxtrot.core.email.EmailConfig;
 import com.flipkart.foxtrot.core.jobs.optimization.EsIndexOptimizationConfig;
@@ -67,6 +68,10 @@ public class FoxtrotServerConfiguration extends Configuration {
     private boolean restrictAccess;
 
     private GandalfConfiguration gandalfConfiguration;
+
+    @Valid
+    @Builder.Default
+    private TextNodeRemoverConfiguration textNodeRemover = new TextNodeRemoverConfiguration();
 
     public FoxtrotServerConfiguration() {
         this.hbase = new HbaseConfig();
