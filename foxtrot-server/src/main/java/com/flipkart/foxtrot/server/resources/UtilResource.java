@@ -20,6 +20,8 @@ import com.flipkart.foxtrot.server.config.FoxtrotServerConfiguration;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
@@ -28,9 +30,11 @@ import javax.ws.rs.core.MediaType;
 @Path("/v1/util")
 @Produces(MediaType.APPLICATION_JSON)
 @Api(value = "/v1/util")
+@Singleton
 public class UtilResource {
     private final FoxtrotServerConfiguration configuration;
 
+    @Inject
     public UtilResource(FoxtrotServerConfiguration configuration) {
         this.configuration = configuration;
     }

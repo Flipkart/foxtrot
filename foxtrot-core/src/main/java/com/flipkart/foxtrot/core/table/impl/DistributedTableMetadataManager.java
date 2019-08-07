@@ -59,7 +59,10 @@ import org.elasticsearch.search.aggregations.metrics.cardinality.Cardinality;
 import org.elasticsearch.search.aggregations.metrics.percentiles.Percentiles;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import ru.vyarus.dropwizard.guice.module.installer.order.Order;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.io.Serializable;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
@@ -72,7 +75,8 @@ import java.util.stream.Stream;
  * Date: 15/03/14
  * Time: 10:11 PM
  */
-
+@Singleton
+@Order(15)
 public class DistributedTableMetadataManager implements TableMetadataManager {
     public static final String CARDINALITY_CACHE_INDEX = "table_cardinality_cache";
     private static final Logger logger = LoggerFactory.getLogger(DistributedTableMetadataManager.class);
@@ -93,6 +97,7 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
     private IMap<String, TableFieldMapping> fieldDataCache;
     private IMap<String, TableFieldMapping> fieldDataCardinalityCache;
 
+    @Inject
     public DistributedTableMetadataManager(HazelcastConnection hazelcastConnection, ElasticsearchConnection elasticsearchConnection,
                                            ObjectMapper mapper, CardinalityConfig cardinalityConfig) {
         this.hazelcastConnection = hazelcastConnection;

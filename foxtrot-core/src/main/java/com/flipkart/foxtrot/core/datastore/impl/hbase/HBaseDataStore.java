@@ -34,6 +34,8 @@ import org.apache.hadoop.hbase.util.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -43,7 +45,7 @@ import java.util.List;
  * Date: 13/03/14
  * Time: 7:54 PM
  */
-
+@Singleton
 public class HBaseDataStore implements DataStore {
     private static final Logger logger = LoggerFactory.getLogger(HBaseDataStore.class.getSimpleName());
 
@@ -57,6 +59,7 @@ public class HBaseDataStore implements DataStore {
     private final ObjectMapper mapper;
     private final DocumentTranslator translator;
 
+    @Inject
     public HBaseDataStore(HbaseTableConnection tableWrapper, ObjectMapper mapper, DocumentTranslator translator) {
         this.tableWrapper = tableWrapper;
         this.mapper = mapper;

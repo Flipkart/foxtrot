@@ -6,6 +6,8 @@ import com.google.common.collect.ImmutableList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import javax.mail.*;
 import javax.mail.internet.*;
 import java.nio.charset.StandardCharsets;
@@ -15,6 +17,7 @@ import java.util.Properties;
 /***
  Created by nitish.goyal on 06/10/18
  ***/
+@Singleton
 public class EmailClient {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(EmailClient.class);
@@ -22,6 +25,7 @@ public class EmailClient {
     private final EmailConfig emailConfig;
     private final Session session;
 
+    @Inject
     public EmailClient(EmailConfig emailConfig) {
         this.emailConfig = emailConfig;
         Properties mailProps = new Properties();

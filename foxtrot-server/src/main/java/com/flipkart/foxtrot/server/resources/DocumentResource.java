@@ -26,6 +26,8 @@ import io.swagger.annotations.ApiOperation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.*;
@@ -45,6 +47,7 @@ import java.util.Map;
 @Path("/v1/document/{table}")
 @Produces(MediaType.APPLICATION_JSON)
 @Api(value = "/v1/document/{table}")
+@Singleton
 public class DocumentResource {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DocumentResource.class);
@@ -54,6 +57,7 @@ public class DocumentResource {
     private final Map<String, List<String>> ignoredEventConfigs;
     private final List<String> tablesToBeDuplicated;
 
+    @Inject
     public DocumentResource(QueryStore queryStore, SegregationConfiguration segregationConfiguration) {
         this.queryStore = queryStore;
         this.tableEventConfigs = segregationConfiguration.getTableEventConfigs();

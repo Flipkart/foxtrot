@@ -7,24 +7,26 @@ import com.flipkart.foxtrot.core.querystore.QueryStore;
 import com.flipkart.foxtrot.core.table.TableManager;
 import com.flipkart.foxtrot.core.table.TableMetadataManager;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.util.List;
 
 /**
  * Created by rishabh.goyal on 05/12/15.
  */
-
+@Singleton
 public class FoxtrotTableManager implements TableManager {
 
     private final TableMetadataManager metadataManager;
     private final QueryStore queryStore;
     private final DataStore dataStore;
 
+    @Inject
     public FoxtrotTableManager(TableMetadataManager metadataManager, QueryStore queryStore, DataStore dataStore) {
         this.metadataManager = metadataManager;
         this.queryStore = queryStore;
         this.dataStore = dataStore;
     }
-
 
     @Override
     public void save(Table table) {
