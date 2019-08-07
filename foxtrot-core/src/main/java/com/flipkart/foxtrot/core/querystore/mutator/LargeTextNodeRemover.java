@@ -113,8 +113,8 @@ public class LargeTextNodeRemover implements IndexerEventMutator {
         }
 
         if (random.nextInt(100) < configuration.getLogSamplingPercentage()) {
-            log.warn("LargeTextNodeDetected table: {} documentId: {} key: {} value: {}",
-                    table, documentId, key, node.textValue());
+            log.warn("LargeTextNodeDetected table: {} documentId: {} key: {} size: {} value: {}",
+                    table, documentId, key, node.textValue().length(), node.textValue());
         }
 
         return random.nextInt(100) < configuration.getBlockPercentage();
