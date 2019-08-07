@@ -62,12 +62,12 @@ public class MultiQueryAction extends Action<MultiQueryRequest> {
     }
 
     @Override
-    public void validateImpl(MultiQueryRequest parameter, String email) {
+    public void validateImpl(MultiQueryRequest parameter) {
         MultiQueryRequest multiQueryRequest = getParameter();
         MultiException multiException = new MultiException();
         processForSubQueries(multiQueryRequest, (action, request) -> {
             try {
-                action.validateImpl(request, email);
+                action.validateImpl(request);
             } catch (MalformedQueryException e) {
                 multiException.addError(e);
             }

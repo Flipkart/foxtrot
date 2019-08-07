@@ -15,6 +15,7 @@
  */
 package com.flipkart.foxtrot.core.common;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.flipkart.foxtrot.common.ActionRequest;
 import com.flipkart.foxtrot.common.ActionResponse;
@@ -68,21 +69,21 @@ public abstract class Action<P extends ActionRequest> {
         return String.format("%s-%d", getRequestCacheKey(), System.currentTimeMillis() / 30000);
     }
 
-    private void preProcessRequest(String email) {
+    private void preProcessRequest() {
         if (parameter.getFilters() == null) {
             parameter.setFilters(Lists.newArrayList(new AnyFilter()));
         }
         preprocess();
         parameter.setFilters(checkAndAddTemporalBoundary(parameter.getFilters()));
         validateBase(parameter);
-        validateImpl(parameter, email);
+        validateImpl(parameter);
     }
 
     public abstract void preprocess();
 
-    public ActionValidationResponse validate(String email) {
+    public ActionValidationResponse validate() {
         try {
-            preProcessRequest(email);
+            preProcessRequest();
         }
         catch (MalformedQueryException e) {
             return ActionValidationResponse.builder()
@@ -102,8 +103,8 @@ public abstract class Action<P extends ActionRequest> {
                 .build();
     }
 
-    public ActionResponse execute(String email) {
-        preProcessRequest(email);
+    public ActionResponse execute() {
+        preProcessRequest();
         return execute(parameter);
     }
 
@@ -149,7 +150,7 @@ public abstract class Action<P extends ActionRequest> {
     public abstract ActionResponse getResponse(org.elasticsearch.action.ActionResponse response, P parameter);
 
 
-    public abstract void validateImpl(P parameter, String email);
+    public abstract void validateImpl(P parameter);
 
     public abstract ActionResponse execute(P parameter);
 
@@ -179,6 +180,15 @@ public abstract class Action<P extends ActionRequest> {
         lessThanFilter.setField("_timestamp");
         lessThanFilter.setValue(System.currentTimeMillis());
         return lessThanFilter;
+    }
+
+    protected String requestString() {
+        try {
+            return objectMapper.writeValueAsString(parameter);
+        }
+        catch (JsonProcessingException e) {
+            return "";
+        }
     }
 
     private List<Filter> checkAndAddTemporalBoundary(List<Filter> filters) {

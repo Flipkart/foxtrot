@@ -1,7 +1,7 @@
 version: '2'
 services:
   elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch:6.3.0
+    image: docker.elastic.co/elasticsearch/elasticsearch-oss:6.0.1
     container_name: elasticsearch
     hostname: elasticsearch
     environment:
@@ -54,6 +54,3 @@ services:
      - HBASE_ZOOKEEPER_QUORUM=hbase
      - HBASE_ZOOKEEPER_CLIENT_PORT=2181
      - HAZELCAST_CLUSTER_NAME=foxtrot
-     - CONFIG_ENV=stage
-     - CARDINALITY_ENABLED=true
-     - DEFAULT_LIST_SIZE=50

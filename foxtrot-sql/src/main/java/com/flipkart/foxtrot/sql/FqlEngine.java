@@ -88,7 +88,7 @@ public class FqlEngine {
                 //ignoring the exception as it is coming while logging.
                 logger.error("Error in serializing action request.", e);
             }
-            ActionResponse actionResponse = queryExecutor.execute(fqlActionQuery.getActionRequest(), "");
+            ActionResponse actionResponse = queryExecutor.execute(fqlActionQuery.getActionRequest());
             Flattener flattener = new Flattener(mapper, fqlActionQuery.getActionRequest(), fqlActionQuery.getSelectedFields());
             actionResponse.accept(flattener);
             result = flattener.getFlatRepresentation();

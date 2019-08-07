@@ -138,10 +138,10 @@ public class ElasticsearchUtils {
                 .startObject()
                 .field("enabled", false)
                 .endObject()
-                .field("_all")
+/*                .field("_all")
                 .startObject()
                 .field("enabled", false)
-                .endObject()
+                .endObject()*/
                 .field("dynamic_templates")
                 .startArray()
 

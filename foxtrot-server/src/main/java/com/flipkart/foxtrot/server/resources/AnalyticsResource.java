@@ -52,7 +52,7 @@ public class AnalyticsResource {
     @Timed
     @ApiOperation("runSync")
     public ActionResponse runSync(@Valid final ActionRequest request) {
-        return queryExecutor.execute(request, "");
+        return queryExecutor.execute(request);
     }
 
     @POST
@@ -60,7 +60,7 @@ public class AnalyticsResource {
     @Timed
     @ApiOperation("runSyncAsync")
     public AsyncDataToken runSyncAsync(@Valid final ActionRequest request) {
-        return queryExecutor.executeAsync(request, "");
+        return queryExecutor.executeAsync(request);
     }
 
     @POST
@@ -68,6 +68,6 @@ public class AnalyticsResource {
     @Timed
     @ApiOperation("validateQuery")
     public ActionValidationResponse validateQuery(@Valid final ActionRequest request) {
-        return queryExecutor.validate(request, "");
+        return queryExecutor.validate(request);
     }
 }
