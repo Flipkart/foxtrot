@@ -45,7 +45,6 @@ public class AnalyticsResourceTest extends FoxtrotResourceTest {
     public ResourceTestRule resources;
 
     public AnalyticsResourceTest() throws Exception {
-        super();
         List<Document> documents = TestUtils.getGroupDocuments(getMapper());
         getQueryStore().save(TestUtils.TEST_TABLE_NAME, documents);
         getElasticsearchConnection().getClient()

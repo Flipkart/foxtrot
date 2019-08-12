@@ -52,7 +52,6 @@ public class FilterActionTest extends ActionTest {
 
     @Before
     public void setUp() throws Exception {
-        super.setUp();
         List<Document> documents = TestUtils.getQueryDocuments(getMapper());
         getQueryStore().save(TestUtils.TEST_TABLE_NAME, documents);
         getElasticsearchConnection().getClient()

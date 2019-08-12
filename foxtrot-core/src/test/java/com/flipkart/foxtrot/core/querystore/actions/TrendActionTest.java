@@ -43,7 +43,6 @@ import static org.junit.Assert.fail;
 public class TrendActionTest extends ActionTest {
     @Before
     public void setUp() throws Exception {
-        super.setUp();
         List<Document> documents = TestUtils.getTrendDocuments(getMapper());
         getQueryStore().save(TestUtils.TEST_TABLE_NAME, documents);
         getElasticsearchConnection().getClient()

@@ -41,6 +41,8 @@ import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
 import org.assertj.core.util.Lists;
 import org.junit.After;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
 import org.mockito.Mockito;
 import org.slf4j.LoggerFactory;
 
@@ -63,6 +65,8 @@ public abstract class FoxtrotResourceTest {
     protected final static Bootstrap<FoxtrotServerConfiguration> bootstrap = mock(Bootstrap.class);
     protected static final ObjectMapper objectMapper = new ObjectMapper();
     private static ObjectMapper mapper;
+    private static HazelcastInstance hazelcastInstance;
+    private static ElasticsearchConnection elasticsearchConnection;
 
     static {
         when(jerseyEnvironment.getResourceConfig()).thenReturn(new DropwizardResourceConfig());
@@ -95,14 +99,25 @@ public abstract class FoxtrotResourceTest {
         root.setLevel(Level.WARN);
     }
 
+    @BeforeClass
+    public static void setupClass() throws Exception {
+        hazelcastInstance = new TestHazelcastInstanceFactory(1).newHazelcastInstance(new Config());
+        elasticsearchConnection = ElasticsearchTestUtils.getConnection();
+        ElasticsearchUtils.initializeMappings(elasticsearchConnection.getClient());
+    }
+
+    @AfterClass
+    public static void tearDownClass() throws Exception {
+        hazelcastInstance.shutdown();
+        elasticsearchConnection.stop();
+    }
+
     private TableMetadataManager tableMetadataManager;
-    private HazelcastInstance hazelcastInstance;
     private QueryExecutor queryExecutor;
     private QueryStore queryStore;
     private DataStore dataStore;
     private CacheManager cacheManager;
     private AnalyticsLoader analyticsLoader;
-    private ElasticsearchConnection elasticsearchConnection;
 
     public FoxtrotResourceTest() throws Exception {
         try {
@@ -113,14 +128,11 @@ public abstract class FoxtrotResourceTest {
 
         Config config = new Config();
         //Initializing Cache Factory
-        hazelcastInstance = new TestHazelcastInstanceFactory(1).newHazelcastInstance(config);
         HazelcastConnection hazelcastConnection = Mockito.mock(HazelcastConnection.class);
         when(hazelcastConnection.getHazelcast()).thenReturn(hazelcastInstance);
         when(hazelcastConnection.getHazelcastConfig()).thenReturn(config);
 
         cacheManager = new CacheManager(new DistributedCacheFactory(hazelcastConnection, mapper, new CacheConfig()));
-
-        elasticsearchConnection = ElasticsearchTestUtils.getConnection();
 
         CardinalityConfig cardinalityConfig = new CardinalityConfig("true", String.valueOf(ElasticsearchUtils.DEFAULT_SUB_LIST_SIZE));
         TestUtils.ensureIndex(elasticsearchConnection, TableMapStore.TABLE_META_INDEX);
@@ -155,8 +167,6 @@ public abstract class FoxtrotResourceTest {
 
     @After
     public void tearDown() throws Exception {
-        elasticsearchConnection.stop();
-        hazelcastInstance.shutdown();
         tableMetadataManager.stop();
         analyticsLoader.stop();
     }

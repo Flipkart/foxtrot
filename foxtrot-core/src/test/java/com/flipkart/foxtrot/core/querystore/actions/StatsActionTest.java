@@ -42,7 +42,6 @@ import static org.junit.Assert.*;
 public class StatsActionTest extends ActionTest {
     @Before
     public void setUp() throws Exception {
-        super.setUp();
         List<Document> documents = TestUtils.getStatsDocuments(getMapper());
         getQueryStore().save(TestUtils.TEST_TABLE_NAME, documents);
         getElasticsearchConnection().getClient()
