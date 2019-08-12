@@ -13,14 +13,14 @@
 
     <profiles>
         <profile>
-            <id>ant</id>
+            <id>esTests</id>
             <build>
                 <plugins>
                     <plugin>
                         <artifactId>maven-antrun-plugin</artifactId>
                         <version>1.8</version>
                         <configuration>
-                            <skip>true</skip>
+                            <skip>${es.spawn.skip}</skip>
                         </configuration>
                     </plugin>
                 </plugins>

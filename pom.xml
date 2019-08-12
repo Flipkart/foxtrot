@@ -103,14 +103,22 @@
 
     <profiles>
         <profile>
-            <id>ant</id>
+            <id>localEs</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <properties>
+                <es.spawn.skip>false</es.spawn.skip>
+            </properties>
         </profile>
         <profile>
-            <id>integration-test</id>
+            <id>noLocalEs</id>
             <properties>
-                <skip.integration.tests>false</skip.integration.tests>
-                <skip.unit.tests>true</skip.unit.tests>
+                <es.spawn.skip>true</es.spawn.skip>
             </properties>
+        </profile>
+        <profile>
+            <id>esTests</id>
         </profile>
         <profile>
             <id>lombok-needs-tools-jar</id>

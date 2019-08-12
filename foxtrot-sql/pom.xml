@@ -51,7 +51,7 @@
 
     <profiles>
         <profile>
-            <id>ant</id>
+            <id>esTests</id>
             <build>
                 <plugins>
                     <plugin>
