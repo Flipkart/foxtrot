@@ -45,16 +45,11 @@ import static org.mockito.Mockito.doThrow;
 public class DocumentResourceTest extends FoxtrotResourceTest {
 
     @Rule
-    public ResourceTestRule resources;
-
-    public DocumentResourceTest() throws Exception {
-        super();
-        resources = ResourceTestRule.builder()
-                .addResource(new DocumentResource(getQueryStore(), new SegregationConfiguration()))
-                .addProvider(new FoxtrotExceptionMapper(getMapper()))
-                .setMapper(objectMapper)
-                .build();
-    }
+    public ResourceTestRule resources = ResourceTestRule.builder()
+            .addResource(new DocumentResource(getQueryStore(), new SegregationConfiguration()))
+            .addProvider(new FoxtrotExceptionMapper(getMapper()))
+            .setMapper(objectMapper)
+            .build();
 
     @Test
     public void testSaveDocument() throws Exception {
