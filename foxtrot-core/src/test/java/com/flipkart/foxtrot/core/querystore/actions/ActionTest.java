@@ -44,7 +44,6 @@ import static org.mockito.Mockito.when;
 /**
  * Created by rishabh.goyal on 26/12/15.
  */
-@Getter
 public abstract class ActionTest {
 
     static {
@@ -55,29 +54,23 @@ public abstract class ActionTest {
     private static HazelcastInstance hazelcastInstance;
     private static ElasticsearchConnection elasticsearchConnection;
 
-    private ObjectMapper mapper;
-    private QueryStore queryStore;
-    private QueryExecutor queryExecutor;
-    private DistributedTableMetadataManager tableMetadataManager;
-    private CacheManager cacheManager;
+    @Getter
+    private static ObjectMapper mapper;
+    @Getter
+    private static QueryStore queryStore;
+    @Getter
+    private static QueryExecutor queryExecutor;
+    @Getter
+    private static DistributedTableMetadataManager tableMetadataManager;
+    @Getter
+    private static CacheManager cacheManager;
 
     @BeforeClass
     public static void setupClass() throws Exception {
         hazelcastInstance = new TestHazelcastInstanceFactory(1).newHazelcastInstance(new Config());
         elasticsearchConnection = ElasticsearchTestUtils.getConnection();
-    }
-
-
-    @AfterClass
-    public static void tearDownClass() throws Exception {
-        hazelcastInstance.shutdown();
-        elasticsearchConnection.stop();
-    }
-
-    @Before
-    public void setUpBase() throws Exception {
         DateTimeZone.setDefault(DateTimeZone.forID("Asia/Kolkata"));
-        this.mapper = new ObjectMapper();
+        mapper = new ObjectMapper();
         HazelcastConnection hazelcastConnection = Mockito.mock(HazelcastConnection.class);
         EmailConfig emailConfig = new EmailConfig();
         emailConfig.setHost("127.0.0.1");
@@ -92,24 +85,36 @@ public abstract class ActionTest {
         tableMetadataManager.start();
 
         tableMetadataManager.save(Table.builder()
-                .name(TestUtils.TEST_TABLE_NAME)
-                .ttl(30)
-                .build());
+                                          .name(TestUtils.TEST_TABLE_NAME)
+                                          .ttl(30)
+                                          .build());
         List<IndexerEventMutator> mutators = Lists.newArrayList(new LargeTextNodeRemover(mapper,
-                TextNodeRemoverConfiguration.builder().build()));
+                                                                                         TextNodeRemoverConfiguration.builder().build()));
         DataStore dataStore = TestUtils.getDataStore();
-        this.queryStore = new ElasticsearchQueryStore(tableMetadataManager, elasticsearchConnection, dataStore, mutators, mapper, cardinalityConfig);
+        queryStore = new ElasticsearchQueryStore(tableMetadataManager, elasticsearchConnection, dataStore, mutators, mapper, cardinalityConfig);
         cacheManager = new CacheManager(new DistributedCacheFactory(hazelcastConnection, mapper, new CacheConfig()));
         AnalyticsLoader analyticsLoader = new AnalyticsLoader(tableMetadataManager, dataStore, queryStore, elasticsearchConnection,
                                                               cacheManager, mapper);
         analyticsLoader.start();
         ExecutorService executorService = Executors.newFixedThreadPool(1);
-        this.queryExecutor = new QueryExecutor(analyticsLoader, executorService, Collections.singletonList(new ResponseCacheUpdater(cacheManager)));
+        queryExecutor = new QueryExecutor(analyticsLoader, executorService, Collections.singletonList(new ResponseCacheUpdater(cacheManager)));
+    }
+
+
+    @AfterClass
+    public static void tearDownClass() throws Exception {
+        hazelcastInstance.shutdown();
+        ElasticsearchTestUtils.cleanupIndices(elasticsearchConnection);
+        elasticsearchConnection.stop();
+    }
+
+    @Before
+    public void setUpBase() throws Exception {
+
     }
 
     @After
     public void tearDownBase() throws Exception {
-        ElasticsearchTestUtils.cleanupIndices(elasticsearchConnection);
     }
 
     protected static ElasticsearchConnection getElasticsearchConnection() {
