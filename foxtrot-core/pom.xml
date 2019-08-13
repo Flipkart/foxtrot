@@ -13,7 +13,7 @@
 
     <properties>
         <hbase.version>1.2.1</hbase.version>
-        <zookeeper.version>3.4.8</zookeeper.version>
+        <zookeeper.version>3.4.14</zookeeper.version>
     </properties>
 
     <dependencies>
