@@ -27,9 +27,7 @@ import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.test.TestHazelcastInstanceFactory;
 import lombok.Getter;
 import org.joda.time.DateTimeZone;
-import org.junit.After;
 import org.junit.AfterClass;
-import org.junit.Before;
 import org.junit.BeforeClass;
 import org.mockito.Mockito;
 import org.slf4j.LoggerFactory;
@@ -100,21 +98,11 @@ public abstract class ActionTest {
         queryExecutor = new QueryExecutor(analyticsLoader, executorService, Collections.singletonList(new ResponseCacheUpdater(cacheManager)));
     }
 
-
     @AfterClass
     public static void tearDownClass() throws Exception {
         hazelcastInstance.shutdown();
         ElasticsearchTestUtils.cleanupIndices(elasticsearchConnection);
         elasticsearchConnection.stop();
-    }
-
-    @Before
-    public void setUpBase() throws Exception {
-
-    }
-
-    @After
-    public void tearDownBase() throws Exception {
     }
 
     protected static ElasticsearchConnection getElasticsearchConnection() {
