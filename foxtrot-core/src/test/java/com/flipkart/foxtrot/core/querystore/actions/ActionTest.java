@@ -50,8 +50,8 @@ public abstract class ActionTest {
     }
 
     private static HazelcastInstance hazelcastInstance;
+    @Getter
     private static ElasticsearchConnection elasticsearchConnection;
-
     @Getter
     private static ObjectMapper mapper;
     @Getter
@@ -105,7 +105,4 @@ public abstract class ActionTest {
         elasticsearchConnection.stop();
     }
 
-    protected static ElasticsearchConnection getElasticsearchConnection() {
-        return elasticsearchConnection;
-    }
 }
