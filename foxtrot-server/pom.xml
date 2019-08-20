@@ -43,6 +43,11 @@
 		<!-- Internal -->
 		<dependency>
 			<groupId>com.flipkart.foxtrot</groupId>
+			<artifactId>foxtrot-gandalf</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.flipkart.foxtrot</groupId>
 			<artifactId>foxtrot-sql</artifactId>
 			<version>${project.version}</version>
 		</dependency>
@@ -60,6 +65,11 @@
 			<groupId>com.phonepe.platform</groupId>
 			<artifactId>rosey-dropwizard-config</artifactId>
 			<version>1.6</version>
+		</dependency>
+		<dependency>
+			<groupId>com.phonepe.platform.http</groupId>
+			<artifactId>http-client</artifactId>
+			<version>1.7.7</version>
 		</dependency>
 		<dependency>
 			<groupId>com.flipkart.foxtrot</groupId>

@@ -41,6 +41,10 @@ public class Table implements Serializable {
     @NotEmpty
     private String name;
 
+    @NotNull
+    @NotEmpty
+    private String adminEmails;
+
     @Min(1)
     @Max(180)
     private int ttl;

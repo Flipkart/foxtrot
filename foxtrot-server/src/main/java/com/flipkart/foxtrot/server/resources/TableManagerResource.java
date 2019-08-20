@@ -12,12 +12,20 @@
  */
 package com.flipkart.foxtrot.server.resources;
 
+import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.annotation.Timed;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.flipkart.foxtrot.common.Table;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
 import com.flipkart.foxtrot.core.table.TableManager;
+import com.flipkart.foxtrot.gandalf.manager.PermissionManager;
+import com.phonepe.platform.http.HttpClientConfiguration;
+import com.phonepe.platform.http.OkHttpUtils;
+import com.phonepe.platform.http.ServiceEndpointProvider;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import okhttp3.OkHttpClient;
+
 import javax.validation.Valid;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -32,6 +40,7 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+
 @Path("/v1/tables")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
@@ -39,9 +48,19 @@ import javax.ws.rs.core.Response;
 public class TableManagerResource {
 
     private final TableManager tableManager;
+    private static OkHttpClient okHttp;
+    private static ServiceEndpointProvider endpointProvider;
+    private static ObjectMapper objectMapper;
 
     public TableManagerResource(TableManager tableManager) {
         this.tableManager = tableManager;
+    }
+
+    public TableManagerResource(TableManager tableManager, final ObjectMapper objectMapper, final MetricRegistry registry, ServiceEndpointProvider serviceEndpointProvider, HttpClientConfiguration httpClientConfiguration) {
+        this.objectMapper = objectMapper;
+        this.tableManager = tableManager;
+        okHttp = OkHttpUtils.createDefaultClient("http-client", registry, httpClientConfiguration);
+        endpointProvider = serviceEndpointProvider;
     }
 
     @POST
@@ -50,7 +69,9 @@ public class TableManagerResource {
     public Response save(@Valid final Table table,
             @QueryParam("forceCreate") @DefaultValue("false") boolean forceCreate) {
         table.setName(ElasticsearchUtils.getValidTableName(table.getName()));
-        tableManager.save(table, forceCreate);
+//        tableManager.save(table, forceCreate);
+        PermissionManager permissionManager = new PermissionManager(objectMapper, okHttp, endpointProvider);
+        permissionManager.manage(table);
         return Response.ok(table)
                 .build();
     }

@@ -103,5 +103,4 @@ public class FoxtrotServerConfiguration extends Configuration {
         this.riemann = new RiemannConfig();
         this.restrictAccess = true;
     }
-
 }

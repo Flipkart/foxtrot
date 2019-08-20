@@ -1,4 +1,4 @@
-package com.flipkart.foxtrot.common.access;
+package com.flipkart.foxtrot.gandalf.access;
 
 import com.flipkart.foxtrot.common.ActionRequest;
 import com.flipkart.foxtrot.common.TableActionRequestVisitor;
