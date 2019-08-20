@@ -3226,6 +3226,7 @@ div.tab button:first-child {
   margin-left: 13px;
   font-size: 14px;
   width: 100px;
+  margin-right: 17px;
 }
 
 #version-list {
@@ -3738,4 +3739,11 @@ div.tab button:first-child {
 }
 .template-filter-switch {
   left: 59px !important;
+}
+.refresh-widgets {
+  float: right;
+  position: relative;
+  left: 16px;
+  top: -21px;
+  cursor: pointer;
 }
