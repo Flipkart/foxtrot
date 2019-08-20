@@ -92,6 +92,12 @@ SunburstTile.prototype.getQuery = function(object) {
         }
     }
 
+    var templateFilters = isAppendTemplateFilters(object.tileContext.table);
+    if(templateFilters.length > 0) {
+      filters = filters.concat(templateFilters);
+    }
+    
+
     var data = {
         "opcode": "group",
         "table": object.tileContext.table,
