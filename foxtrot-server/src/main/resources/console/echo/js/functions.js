@@ -811,6 +811,10 @@ $("#template-filter-submit-values").click(function() {
   }
 });
 
+$(".refresh-widgets").click(function(){
+  refereshTiles();
+});
+
 function showTemplateFilters() {
   $("#template-filter").show();
 }
