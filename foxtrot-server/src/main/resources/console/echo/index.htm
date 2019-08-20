@@ -275,6 +275,12 @@
                     <div class="col-md-8">
                         <div id="right-action-btns">
                             <div id="top-settings">
+                                    <div class="template-filter-switch-btn"><label>Template filters&nbsp;&nbsp;<input
+                                        type="checkbox" class="ios-switch blue template-filter-switch tinyswitch"/>
+                                    <div id="switch" class="template-filter-switch">
+                                        <div></div>
+                                    </div>
+                                </label></div>
                                 <img src="img/sub-page.png" data-target="#copy-page" data-toggle="modal"
                                      title="Copy Page" id="copy-page-img" alt="Copy Page"/>
                                 <img src="img/copy-db.png" data-target="#copy-dashboard" data-toggle="modal"
@@ -301,6 +307,7 @@
                                     <option value="2h">2h</option>
                                     <option value="1d">1d</option>
                                 </select>
+                                <span title="Refresh widgets" class="glyphicon glyphicon-refresh refresh-widgets"></span>
                             </div>
                             <!-- <button type="button" >Page settings</button>
                           <button type="button" >Save Dashboard</button> -->
@@ -338,6 +345,25 @@
                 </div>
             </div>
         </div>
+        
+        <div class="col-sm-12 template-filter-content" id="template-filter">
+            <form id="template-filter-form">
+                <div class="form-group row">
+                    <div class="col-xs-3 form-group template-filter-table-div">
+                        <label class="control-label">Select Table</label>
+                        <select class="template-filter form-control" name="template-filter" id="template-filter" data-live-search="true" data-style="btn-warning"> </select>
+                    </div>
+                    <div class="template-filter-rows row col-xs-9"></div>
+                    <div class="col-xs-12 form-group">
+                        <div class="col-xs-6"><p id="template-filter-add-values" class="template-icons"><span class="glyphicon glyphicon-plus"></span> Add Value set</p></div>
+                        <div class="col-xs-6">
+                                <p id="template-filter-submit-values" class="pull-right template-icons"><span class="glyphicon glyphicon-log-in"></span> Use</p> 
+                        </div>
+                    </div>    
+                </div>
+            </form>
+        </div>
+
         <div class="tile-container" id="tileContainer">
             <div class="float-clear"></div>
         </div>

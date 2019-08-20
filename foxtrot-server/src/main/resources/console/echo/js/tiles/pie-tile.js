@@ -86,6 +86,12 @@ PieTile.prototype.getQuery = function (object) {
       values: object.tileContext.selectedValue.split(',')
     });
   }
+
+  var templateFilters = isAppendTemplateFilters(object.tileContext.table);
+  if(templateFilters.length > 0) {
+    filters = filters.concat(templateFilters);
+  }
+  
   var data = {
     "opcode": "group"
     , "table": object.tileContext.table
