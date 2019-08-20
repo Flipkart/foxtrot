@@ -3226,6 +3226,7 @@ div.tab button:first-child {
   margin-left: 13px;
   font-size: 14px;
   width: 100px;
+  margin-right: 17px;
 }
 
 #version-list {
@@ -3667,4 +3668,82 @@ div.tab button:first-child {
 }
 #auto-suggest li:last-child {
   border-bottom:none;
+}
+#template-filter {
+  margin-top: 20px;
+  margin-bottom: 20px;
+}
+
+.template-filter-rows .btn {
+  color: #000 !important;
+}
+.template-filter-rows .btn:hover {
+  color: #000 !important;
+  border: solid 1px #777a89 !important;
+}
+.template-filter .btn {
+  color: #6f6f6f !important;
+}
+.template-filter .btn:hover {
+  color: #000 !important;
+  border: solid 1px #777a89 !important;
+}
+.template-icons {
+  cursor: pointer;
+}
+.template-filter-switch-btn {
+  float: left;
+  position: relative;
+  top: 14px;
+  right: 25px;
+}
+.template-filter-content {
+  display: none;
+}
+.template-filter-rows {
+  margin-top: 46px;
+  padding-right: 26px;
+}
+.template-filter-value-box {
+  position: relative;
+  top: -19px;
+}
+.template-filter-remove-img {
+  float: right;
+  top: 7px;
+  position: relative;
+  right: -14px;
+  cursor: pointer;
+}
+#template-filter-form {
+  background: #fff;
+  -webkit-box-shadow: 0 8px 6px -6px black;
+  -moz-box-shadow: 0 8px 6px -6px black;
+  box-shadow: 0 8px 6px -6px lightgray;
+}
+.template-filter-table-div {
+  margin-top: 20px;
+}
+.templateFilter-between-value {
+  position: relative;
+  bottom: 22px;
+}
+
+.template-filter-rows .btn:focus {
+  color: #6f6f6f !important;
+  border: 1px solid#6f6f6f !important
+}
+.template-filter .btn:focus {
+  color: #6f6f6f !important;
+  border: 1px solid#6f6f6f !important
+}
+.template-filter-switch {
+  left: 59px !important;
+}
+.refresh-widgets {
+  float: right;
+  position: relative;
+  left: 16px;
+  top: -21px;
+  cursor: pointer;
 }

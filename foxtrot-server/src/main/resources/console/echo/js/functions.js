@@ -79,8 +79,36 @@ function generateOption(el, type) {
     .remove()
     .end()
     .append(getTilesFilterWhereOption(type));
-  $("#sidebar-content").find(el).selectpicker('refresh')
+  $("#sidebar-content").find(el).selectpicker('refresh');
+}
 
+function generateTemplateFilter(el, type, fieldList) {
+  var selectedColumn = $(el).val();
+  var columnType = fieldList[selectedColumn].type;
+  var rowString = $(el).attr('id');
+  var rowIdArray = rowString.split('-');
+  console.log(rowIdArray)
+  var rowId = rowIdArray[3];
+  var el = $("#filter-type-option-"+rowId);
+  $("#template-filter-form").find(".template-filter-rows").find(el)
+    .find('option')
+    .remove()
+    .end()
+    .append(getTilesFilterWhereOption(type));
+    $("#template-filter-form").find(".template-filter-rows").find(el).selectpicker('refresh')
+}
+
+
+function templateFilterFieldTriggered(el) {
+  var selectedColumn = $(el).val();
+  var rowString = $(el).attr('id');
+  var rowIdArray = rowString.split('-');
+  var rowId = rowIdArray[3];
+  if(selectedColumn == "exists") {
+    $('#filter-column-row-'+rowId).hide();
+  } else {
+    $('#filter-column-row-'+rowId).show();
+  }
 }
 
 function filterFieldTriggered(el) {
@@ -333,9 +361,9 @@ function getWhereOption(fieldType) {
 }
 
 function getTilesFilterWhereOption(fieldType) {
-  var allOption = '<option value="">Select</option><option value="equals">Equal to</option><option value="not_equals">Not Equal to</option><option value="less_than">Less than</option><option value="less_equal">Less or equal to</option><option value="greater_than">Greater than</option><option value="greater_equal">Greater or equal to</option><option value="contains">Contains</option><option value="between">Between</option><option value="last">Last</option><option value="in">In</option><option value="not_in">Not In</option><option value="exists">Exist</option>';
+  var allOption = '<option value="">Select</option><option value="equals">Equal to</option><option value="not_equals">Not Equal to</option><option value="less_than">Less than</option><option value="less_equal">Less or equal to</option><option value="greater_than">Greater than</option><option value="greater_equal">Greater or equal to</option><option value="contains">Contains</option><option value="between">Between</option><option value="in">In</option><option value="not_in">Not In</option><option value="exists">Exist</option>';
 
-  var stringOption = '<option value="">Select</option><option value="equals">Equal to</option><option value="not_equals">Not Equal to</option><option value="contains">Contains</option><option value="in">In</option><option value="not_in">Not In</option><option value="last">Last</option><option value="exists">Exist</option>';
+  var stringOption = '<option value="">Select</option><option value="equals">Equal to</option><option value="not_equals">Not Equal to</option><option value="contains">Contains</option><option value="in">In</option><option value="not_in">Not In</option><option value="exists">Exist</option>';
 
   var boolOption = '<option value="">Select</option><option value="equals">Equal to</option><option value="not_equals">Not Equal to</option><option value="exists">Exist</option>';
 
@@ -602,4 +630,235 @@ function getOldConsoleList(res) {
  */
 function resetBrowserUrl() {
   window.history.pushState({}, document.title, window.location.pathname+"?console="+getParameterByName("console").replace('/',''));
+}
+
+function getTemplateFilterTable() {
+  return $("#template-filter-form").find("#template-filter").val();
+}
+
+function queryTypeTriggered(el) {
+  var currentFieldList = tableFiledsArray[getTemplateFilterTable()].mappings;
+  var selectedColumn = $(el).val();
+  var columnType = currentFieldList[selectedColumn].type;
+  var rowString = $(el).attr('id');
+  var rowIdArray = rowString.split('-');
+  var rowId = rowIdArray[3];
+  $('#filter-column-row-' + rowId).val('');
+  if (columnType == "STRING") {
+    $('#filter-column-row-' + rowId).prop("type", "text");
+  } else if (columnType == "LONG") {
+    $('#filter-column-row-' + rowId).prop("type", "number");
+  }
+}
+
+function setBetweenInput(el) {
+  var selectedType = $(el).val();
+  var rowString = $(el).attr('id');
+
+  var rowIdArray = rowString.split('-');
+  var rowId = rowIdArray[3];
+  if (selectedType == "between") {
+    $('#filter-between-input-' + rowId).prop("disabled", false);
+    $("#template-filter-form").find("#template-filter-row-" + rowId).find(".between-element").show();
+    $("#template-filter-form").find("#template-filter-row-" + rowId).find(".filter-value-div").removeClass('col-sm-6').addClass('col-sm-3');
+    $("#template-filter-form").find("#template-filter-row-" + rowId).find(".template-filter-value").addClass('template-between-remove-top');
+    // $("#template-filter-form").find("#template-filter-row-" + rowId).find(".between-element").addClass("templateFilter-between-value");
+  } else {
+    $('#filter-between-input-' + rowId).prop("disabled", true);
+    $("#template-filter-form").find("#template-filter-row-" + rowId).find(".between-element").hide();
+    $("#template-filter-form").find("#template-filter-row-" + rowId).find(".filter-value-div").removeClass('col-sm-3').addClass('col-sm-6');
+    $("#template-filter-form").find("#template-filter-row-" + rowId).find(".template-filter-value").removeClass('template-between-remove-top');
+    // $("#template-filter-form").find("#template-filter-row-" + rowId).find(".between-element").removeClass("templateFilter-between-value");
+  }
+  $('#filter-between-input-' + rowId).val("");
+}
+
+function deletTemplateFilterQueryRow(el) {
+  var parentRow = $(el).parent();
+  var parentRowId = parentRow.attr('id');
+  var getRowId = parentRowId.split('-');
+  var rowId = getRowId[3];
+  var index = templateFilterArray.indexOf(parseInt(rowId));
+  templateFilterArray.splice(index, 1);
+  $(parentRow).remove();
+}
+
+function getTemplateFilters() {
+  templateFilterDetails = [];
+  var fieldList = tableFiledsArray[getTemplateFilterTable()].mappings;  
+  for (var filter = 0; filter < templateFilterArray.length; filter++) {
+    var filterId = templateFilterArray[filter];
+    var el = $(".template-filter-rows").find(".template-row-" + filterId);
+    var filterColumn = $(el).find("select.filter-column").val();
+    var filterType = $(el).find("select.filter-type").val();
+    var filterValue = $(el).find(".template-filter-value").val();
+    var filterObject;
+    
+    var fieldName;
+
+    if(fieldList[parseInt(filterColumn)]) {
+      fieldName = fieldList[parseInt(filterColumn)].field;
+    }
+
+    if(fieldName && filterValue) {
+      if(filterType == "in" || filterType == "not_in") {
+        filterValue = filterValue.split(',');
+        
+        var arrayValue = [];
+        for(var i = 0; i < filterValue.length; i++) {
+          arrayValue.push(filterValue[i].trim());
+        }
+
+        filterObject = {
+          "operator": filterType
+          , "values": arrayValue
+          , "field": fieldList[parseInt(filterColumn)].field
+        }
+      } else if(filterType == "exists") {
+        filterObject = {
+          "operator": filterType
+          , "field": fieldList[parseInt(filterColumn)].field
+        }
+      } else if(filterType == "between") {
+        filterObject = {
+          "operator": filterType
+          , "field": fieldList[parseInt(filterColumn)].field
+          , "from" : $(el).find(".template-filter-between-value").val()
+          , "to" : $(el).find(".template-filter-value").val()
+        }
+      } else {
+        filterObject = {
+          "operator": filterType,
+          "value": filterValue,
+          "field": fieldList[parseInt(filterColumn)].field
+        }
+      }
+      templateFilterDetails.push(filterObject);      
+    }
+
+    if(fieldName) {
+      if(filterType == "exists") {
+        filterObject = {
+          "operator": filterType
+          , "field": fieldList[parseInt(filterColumn)].field
+        }
+        templateFilterDetails.push(filterObject);
+      }
+    }
+  }
+  return templateFilterDetails;
+}
+
+function renderTemplateFilter(tableName) {
+  if(tableName != "none") {
+    var fieldList = tableFiledsArray[tableName].mappings;
+    var filterCount = templateFilterArray.length;
+  
+    if (templateFilterArray.length == 0) {
+      templateFilterArray.push(filterCount);
+    } else {
+      filterCount = templateFilterArray[templateFilterArray.length - 1] + 1;
+      templateFilterArray.push(filterCount);
+    }
+  
+    var filterRow = '<div class="row clearfix template-row-'+filterCount+'" id="template-filter-row-' + filterCount + '"><img src="img/remove.png" class="template-filter-remove-img template-filters-delete" id="' + filterCount + '" /><div class="col-sm-3"><select class="selectpicker form-control filter-column filter-background" id="template-filter-row-' + filterCount + '" data-live-search="true" name="filter-column-' + filterCount + '" required></select></div><div class="col-sm-3"><select required class="filter-type filter-type-option-' + filterCount + ' filter-background form-control" id="filter-type-option-' + filterCount + '"></select></div><div class="col-sm-3 between-element"><input id="filter-between-input-' + filterCount + '" type="number" class="form-control template-filter-between-value  form-control" id="between-value-' + filterCount + '" disabled></div><div class="col-sm-6 template-filter-value-box filter-value-div"><input id="filter-column-row-' + filterCount + '" type="text" class="form-control template-filter-value form-control" name="template-filter-value-' + filterCount + '" required></div></span></div></div>';
+    $(".template-filter-rows").append(filterRow);
+    var filterValueEl = $("#template-filter-row-" + filterCount).find('.template-filters-delete');
+    var filterType = $("#template-filter-row-" + filterCount).find('.filter-type');
+    $(filterType).selectpicker('refresh');
+    var filterColumn = $("#template-filter-row-" + filterCount).find('.filter-column');
+    setTimeout(function () {
+      generateDropDown(fieldList, filterColumn);
+    }, 0);
+  
+    $(filterValueEl).click(function () {
+      deletTemplateFilterQueryRow(this);
+    });
+    $(filterColumn).change(function () {
+      var selected = $(this).val();
+      if (selected) {
+        $(this).next().css("display", "none");
+      } else {
+        $(this).next().css("display", "block");
+      }
+      queryTypeTriggered(this);
+      generateTemplateFilter(this, fieldList[parseInt(selected)].type, tableFiledsArray[tableName].mappings);
+    });
+    $(filterType).change(function () {
+      setBetweenInput(this);
+      templateFilterFieldTriggered(this);
+    });
+  } else {
+    alert("Please select a table");
+  }
+}
+
+$(".template-filter").change( function(e) {
+  fetchTemplateFiltersFields($(this).val());
+});
+
+
+$("#template-filter-add-values").click(function() {
+  renderTemplateFilter(getTemplateFilterTable());
+});
+
+$("#template-filter-submit-values").click(function() {
+  if(templateFilterArray.length > 0) {
+    isTemplateFilter = true;
+    refereshTiles();
+  } else {
+    alert(" ADD Template Filters");
+  }
+});
+
+$(".refresh-widgets").click(function(){
+  refereshTiles();
+});
+
+function showTemplateFilters() {
+  $("#template-filter").show();
+}
+
+function hideTemplateFilters() {
+  $("#template-filter").hide();
+}
+
+function isAppendTemplateFilters(tableName) {
+  if(isTemplateFilter) {
+    var tempTableName = getTemplateFilterTable();
+    if(tableName == tempTableName) {
+      return getTemplateFilters();
+    } else {
+      return [];
+    }
+  } else {
+    return [];
+  }
+}
+
+function clearTemplateFilter() {
+  $("#template-filter").find(".template-filter-rows").empty();
+  templateFilterArray = [];
+  templateFilterDetails = [];
+}
+
+function checkIsRenderTemplateFilter(tableName) {
+  if(templateFilterArray.length == 0) {
+    renderTemplateFilter(tableName);
+  } else {
+    clearTemplateFilter();
+    renderTemplateFilter(tableName);
+  }
+}
+
+function fetchTemplateFiltersFields(tableName) { // fetching field for particular table
+  $.ajax({
+    url: apiUrl+"/v1/tables/" + tableName + "/fields",
+    contentType: "application/json",
+    context: this,
+    success: function(resp){
+      tableFiledsArray[tableName] = resp;
+      checkIsRenderTemplateFilter(tableName);
+    }
+  });
 }
