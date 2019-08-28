@@ -17,6 +17,9 @@ $.tablesorter.addParser({
     type: 'numeric'
 });
 
+var clusterLoader = 0;
+var indicesLoader = 0;
+
 function bytesToSize(bytes) {
     if (bytes == 0) return '0 Byte';
     var k = 1000;
@@ -222,6 +225,12 @@ function loadData() {
         console.log("Did not find an ES host");
         return;
     }
+
+    if(clusterLoader == 0) {
+        showLoader();
+        clusterLoader++;
+    }
+
     dataLoadComplete = false;
     $.ajax({
             type: 'GET',
@@ -253,11 +262,18 @@ function loadIndexData() {
         console.log("Did not find an ES host");
         return;
     }
+
+    if(indicesLoader == 0) {
+        showLoader();
+        indicesLoader++;
+    }
+
     indexLoadComplete = false;
     $.ajax({
             type: 'GET',
-            url: 'https://foxtrot-internal.phonepe.com/foxtrot/v1/clusterhealth/indicesstats',
+            url: '/foxtrot/v1/clusterhealth/indicesstats',
             success: function (data) {
+                hideLoader();
                 if (typeof data.primaries.docs != "undefined") {
                     cluster.documentCount = data.primaries.docs.count;
                 } else {
@@ -280,6 +296,7 @@ function loadIndexData() {
             }
         })
         .always(function () {
+            hideLoader();
             indexLoadComplete = true;
         });
 }
@@ -306,7 +323,7 @@ function loadClusterHealth() {
     clusterLoadComplete = false;
     $.ajax({
             type: 'GET',
-            url: 'https://foxtrot-internal.phonepe.com/foxtrot/v1/clusterhealth',
+            url: '/foxtrot/v1/clusterhealth',
             success: function (data) {
                 cluster.name = data.clusterName;
                 cluster.status = data.status;
@@ -346,7 +363,7 @@ $(document).ready(function () {
 
     $.ajax({
         type: 'GET',
-        url: 'https://foxtrot-internal.phonepe.com/foxtrot/v1/util/config',
+        url: '/foxtrot/v1/util/config',
         success: function (data) {
             esConfig = data['elasticsearch'];
             loadClusterHealth();
