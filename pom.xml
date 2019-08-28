@@ -73,6 +73,7 @@
         <module>foxtrot-core</module>
         <module>foxtrot-server</module>
         <module>foxtrot-sql</module>
+        <module>foxtrot-translator</module>
     </modules>
 
     <repositories>
