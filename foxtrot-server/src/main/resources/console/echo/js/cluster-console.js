@@ -200,13 +200,14 @@ var dataLoadComplete = true;
 var indexLoadComplete = true;
 
 function loadData() {
-if($('.auto-refresh:checked').length == 0) {
-    return;
-}
+// if($('.auto-refresh:checked').length == 0) {
+//     return;
+// }
 
-if(!$("#clusterTab").find("#elasticsearch-li").hasClass("active")) {
-    return;
-}
+// if(!$("#clusterTab").find("#elasticsearch-li").hasClass("active")) {
+//     return;
+// }
+
 if(!dataLoadComplete) {
     console.warn("Skipping node data load as last run is not complete...");
     return;
@@ -277,12 +278,14 @@ $.ajax({
 }
 
 function loadClusterHealth() {
-if($('.auto-refresh:checked').length == 0) {
-    return;
-}
-if(!$("#clusterTab").find("#elasticsearch-li").hasClass("active")) {
-    return;
-}
+// if($('.auto-refresh:checked').length == 0) {
+//     return;
+// }
+
+// if(!$("#cluster-menu").find("#load-elastic").hasClass("cluster-menu-active")) {
+//     return;
+// }
+
 if(!clusterLoadComplete) {
     console.warn("Skipping cluster data load as last run is not complete...");
     return;
@@ -314,21 +317,39 @@ $.ajax({
 });
 }
 
-$('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
-loadClusterHealth();
-loadData();
-  loadIndexData();
-});
+// $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
+// loadClusterHealth();
+// loadData();
+//   loadIndexData();
+// });
 
 $(document).ready(function() {
+
+    $(".load-foxtrot").click(function(){
+        $(".load-foxtrot").addClass('cluster-menu-active');
+        $(".load-elastic").removeClass('cluster-menu-active');
+        $("#elasticsearch").hide();
+        $("#foxtrot").show();
+        loadIndexData();
+    });
+    
+    $(".load-elastic").click(function(){
+        $(".load-foxtrot").removeClass('cluster-menu-active');
+        $(".load-elastic").addClass('cluster-menu-active');
+        $("#foxtrot").hide();
+        $("#elasticsearch").show();
+        loadClusterHealth();
+        loadData();
+    });
+
 $.ajax({
     type: 'GET',
     url: 'https://foxtrot-internal.phonepe.com/foxtrot/v1/util/config',
     success: function(data) {
         esConfig = data['elasticsearch'];
         $('#clusterTab a:last').tab('show');
-        loadClusterHealth();
-        loadData();
+        // loadClusterHealth();
+        // loadData();
         loadIndexData();
         // setInterval(loadClusterHealth, 10000);
         // setInterval(loadData, 10000);

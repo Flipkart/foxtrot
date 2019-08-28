@@ -3781,3 +3781,23 @@ div.tab button:first-child {
 .cluster-table-bordered>thead>tr>th, .cluster-table-bordered>tbody>tr>th, .cluster-table-bordered>tfoot>tr>th, .cluster-table-bordered>thead>tr>td, .cluster-table-bordered>tbody>tr>td, .table-bordered>tfoot>tr>td {
   border: 1px solid #dddddd;
 }
+#cluster-menu {
+  float: right;
+}
+#cluster-menu li{
+  float: left;
+  padding: 14px;
+  list-style-type: none;
+}
+#cluster-menu li a {
+  color: #000;
+}
+#cluster-menu li a:hover {
+  text-decoration: none;
+}
+.cluster-menu-active{
+  background: #008cba;
+  padding: 10px;
+  color: #fff !important;
+  border-radius: 4px;
+}
