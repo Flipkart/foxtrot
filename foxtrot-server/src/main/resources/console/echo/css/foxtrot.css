@@ -3802,3 +3802,6 @@ div.tab button:first-child {
   color: #fff !important;
   border-radius: 4px;
 }
+#cluster-menu li {
+  cursor: pointer;
+}

@@ -236,6 +236,7 @@ function loadData() {
             type: 'GET',
             url: 'https://foxtrot-internal.phonepe.com/foxtrot/v1/clusterhealth/nodestats',
             success: function (data) {
+                hideLoader();
                 EventBus.dispatch('hosts_loaded', this, data);
             }
         })
