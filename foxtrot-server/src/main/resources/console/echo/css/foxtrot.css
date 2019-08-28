@@ -3747,3 +3747,37 @@ div.tab button:first-child {
   top: -21px;
   cursor: pointer;
 }
+.fade {
+  opacity: 1 !important;
+}
+.cluster-table-bordered {
+  border: 1px solid #dddddd !important;
+  color: #000 !important;
+  width: 100% !important;
+  margin-bottom: 21px !important;
+}
+#cluster-content {
+  padding: 23px;
+}
+.cluster-table-bordered thead {
+  background-color: #f7f9fa;
+  box-shadow: 1px 1px 4px 0 rgba(195, 210, 217, 0.4);
+  border: solid 1px #e8eff3;
+  font-family: Open Sans Regular;
+  font-size: 12px;
+  text-align: left;
+  color: #7d909a;
+}
+
+.cluster-table-bordered tbody tr td {
+  background-color: #ffffff;
+  border: solid 1px #e8eff3;
+  font-family: Open Sans;
+  font-size: 12px;
+  font-weight: 600;
+  color: #282c38;
+  padding: 10px 10px;
+}
+.cluster-table-bordered>thead>tr>th, .cluster-table-bordered>tbody>tr>th, .cluster-table-bordered>tfoot>tr>th, .cluster-table-bordered>thead>tr>td, .cluster-table-bordered>tbody>tr>td, .table-bordered>tfoot>tr>td {
+  border: 1px solid #dddddd;
+}
