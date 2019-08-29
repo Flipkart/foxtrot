@@ -3747,3 +3747,61 @@ div.tab button:first-child {
   top: -21px;
   cursor: pointer;
 }
+.fade {
+  opacity: 1 !important;
+}
+.cluster-table-bordered {
+  border: 1px solid #dddddd !important;
+  color: #000 !important;
+  width: 100% !important;
+  margin-bottom: 21px !important;
+  cursor: pointer;
+}
+#cluster-content {
+  padding: 23px;
+}
+.cluster-table-bordered thead {
+  background-color: #f7f9fa;
+  box-shadow: 1px 1px 4px 0 rgba(195, 210, 217, 0.4);
+  border: solid 1px #e8eff3;
+  font-family: Open Sans Regular;
+  font-size: 12px;
+  text-align: left;
+  color: #7d909a;
+}
+
+.cluster-table-bordered tbody tr td {
+  background-color: #ffffff;
+  border: solid 1px #e8eff3;
+  font-family: Open Sans;
+  font-size: 12px;
+  font-weight: 600;
+  color: #282c38;
+  padding: 10px 10px;
+}
+.cluster-table-bordered>thead>tr>th, .cluster-table-bordered>tbody>tr>th, .cluster-table-bordered>tfoot>tr>th, .cluster-table-bordered>thead>tr>td, .cluster-table-bordered>tbody>tr>td, .table-bordered>tfoot>tr>td {
+  border: 1px solid #dddddd;
+}
+#cluster-menu {
+  float: right;
+}
+#cluster-menu li{
+  float: left;
+  padding: 14px;
+  list-style-type: none;
+}
+#cluster-menu li a {
+  color: #000;
+}
+#cluster-menu li a:hover {
+  text-decoration: none;
+}
+.cluster-menu-active{
+  background: #008cba;
+  padding: 10px;
+  color: #fff !important;
+  border-radius: 4px;
+}
+#cluster-menu li {
+  cursor: pointer;
+}
