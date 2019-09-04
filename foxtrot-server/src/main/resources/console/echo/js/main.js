@@ -1126,7 +1126,7 @@ $(document).ready(function () {
       /**
        * Initialize global date filter
        */
-      $("#myModal .modal-header h4").html("Select Your Date");
+      $("#myModal .modal-header h4").html("Select End Date");
       $("#myModal .modal-body").html('<div style="overflow:hidden;"><div class="form-group"><div class="row"><div class="col-md-8"><div id="datetimepicker12"></div></div></div></div><div id="global-date-picker-info-text"><p><span class="glyphicon glyphicon-info-sign"></span>Graph would operate between (time selected in date picker - x), where x is the value in mins/hours/days of the individual widget</p> <ul><li>If time selected in date picker is 1 pm and the widget has time range of 15 mins, widget would show data from (1pm -15 mins)</li> <li>If time selected in date picker is 1 pm and the global filters has time range of 15 mins, all widgets would show data from (1pm -15 mins)</li></ul></p></div>');
       $('#datetimepicker12').datetimepicker({
           inline: true,
