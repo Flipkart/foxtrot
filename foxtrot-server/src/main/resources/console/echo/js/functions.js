@@ -862,3 +862,10 @@ function fetchTemplateFiltersFields(tableName) { // fetching field for particula
     }
   });
 }
+
+/**
+ * get current console id
+ */
+function getCurrentConsoleId() {
+  return convertName(currentConsoleName);
+}
