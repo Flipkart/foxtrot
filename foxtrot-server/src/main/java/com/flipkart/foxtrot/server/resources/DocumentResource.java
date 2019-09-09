@@ -55,13 +55,11 @@ public class DocumentResource {
     private static final String EVENT_TYPE = "eventType";
     private final QueryStore queryStore;
     private final Map<String, Map<String, List<String>>> tableEventConfigs;
-    private final Map<String, List<String>> ignoredEventConfigs;
     private final List<String> tablesToBeDuplicated;
 
     public DocumentResource(QueryStore queryStore, SegregationConfiguration segregationConfiguration) {
         this.queryStore = queryStore;
         this.tableEventConfigs = segregationConfiguration.getTableEventConfigs();
-        this.ignoredEventConfigs = segregationConfiguration.getIgnoredEventConfigs();
         this.tablesToBeDuplicated = segregationConfiguration.getTablesToBeDuplicated();
     }
 
@@ -88,18 +86,9 @@ public class DocumentResource {
             String eventType = document.getData()
                     .get(EVENT_TYPE)
                     .asText();
-            if (eventToBeIgnored(table, eventType)) {
-                LOGGER.info("Skipped event for table: {} with eventType: {} Document: {}", table, eventType, document);
-                return null;
-            }
             return getSegregatedTableName(table, eventType);
         }
         return table;
-    }
-
-    private boolean eventToBeIgnored(String table, String eventType) {
-        return (ignoredEventConfigs != null && ignoredEventConfigs.containsKey(table) && ignoredEventConfigs.get(table)
-                .contains(eventType));
     }
 
     private String getSegregatedTableName(String table, String eventType) {
@@ -143,7 +132,6 @@ public class DocumentResource {
 
     private Map<String, List<Document>> preProcessSaveDocuments(String table, List<Document> documents) {
         Map<String, List<Document>> tableVsDocuments = new HashMap<>();
-        filterValidDocuments(table, documents);
         if (tableEventConfigs != null && tableEventConfigs.containsKey(table)) {
             for (Document document : CollectionUtils.nullSafeList(documents)) {
                 String tableName = table;
@@ -166,26 +154,6 @@ public class DocumentResource {
             tableVsDocuments.put(table, documents);
         }
         return tableVsDocuments;
-    }
-
-    private List<Document> filterValidDocuments(String table, List<Document> documents) {
-        if (ignoredEventConfigs != null && ignoredEventConfigs.containsKey(table)) {
-            for (Iterator<Document> iter = documents.listIterator(); iter.hasNext(); ) {
-                Document document = iter.next();
-                if (document.getData()
-                        .has(EVENT_TYPE)) {
-                    String eventType = document.getData()
-                            .get(EVENT_TYPE)
-                            .asText();
-                    if (eventToBeIgnored(table, eventType)) {
-                        LOGGER.info("Skipped event for table: {} with eventType: {} Document: {}", table, eventType,
-                                document);
-                        iter.remove();
-                    }
-                }
-            }
-        }
-        return documents;
     }
 
     @GET

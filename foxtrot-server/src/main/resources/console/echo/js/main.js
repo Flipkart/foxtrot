@@ -49,6 +49,9 @@ var tableNameList = [];
 var isGlobalDateFilter = false;
 var globalDateFilterValue = "";
 var isViewingVersionConsole = false;
+var templateFilterArray = [];
+var templateFilterDetails = [];
+var isTemplateFilter = false;
 
 function TablesView(id, tables) {
   this.id = id;
@@ -640,6 +643,17 @@ function consoleTabs(evt, el) { // logic for tab switching
   smallWidgetCount = 0;
   firstWidgetType = "";
 }
+
+function renderTemplateFilters() {
+  var option = "";
+  $.each(tableNameList, function(index, val) {
+    option+= "<option value="+val+">"+val+"</option>"
+  });
+  $(".template-filter").append("<option value='none'>Select</option>");
+  $(".template-filter").append(option);
+  $(".template-filter").selectpicker('refresh');
+}
+
 function getTables() { // get table list
   $.ajax({
     url: apiUrl+"/v1/tables/",
@@ -649,6 +663,7 @@ function getTables() { // get table list
       for (var i = tables.length - 1; i >= 0; i--) {
         tableNameList.push(tables[i].name)
       }
+      renderTemplateFilters();
     }});
 }
 
@@ -914,6 +929,18 @@ $(document).ready(function () {
           }
       });
 
+      $(".template-filter-switch").change(function () {
+        if (this.checked) {
+            isTemplateFilter = true;
+            showTemplateFilters();
+        } else {
+            isTemplateFilter = false;
+            hideTemplateFilters();
+        }
+    });
+
+      
+
       var consoleId = getParameterByName("console").replace('/', '');
       if (consoleId) {
           getConsoleById(consoleId);
@@ -1099,7 +1126,7 @@ $(document).ready(function () {
       /**
        * Initialize global date filter
        */
-      $("#myModal .modal-header h4").html("Select Your Date");
+      $("#myModal .modal-header h4").html("Select End Date");
       $("#myModal .modal-body").html('<div style="overflow:hidden;"><div class="form-group"><div class="row"><div class="col-md-8"><div id="datetimepicker12"></div></div></div></div><div id="global-date-picker-info-text"><p><span class="glyphicon glyphicon-info-sign"></span>Graph would operate between (time selected in date picker - x), where x is the value in mins/hours/days of the individual widget</p> <ul><li>If time selected in date picker is 1 pm and the widget has time range of 15 mins, widget would show data from (1pm -15 mins)</li> <li>If time selected in date picker is 1 pm and the global filters has time range of 15 mins, all widgets would show data from (1pm -15 mins)</li></ul></p></div>');
       $('#datetimepicker12').datetimepicker({
           inline: true,

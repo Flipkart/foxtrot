@@ -82,6 +82,11 @@ function NonStackedLineTile() {
       }
     }
   
+    var templateFilters = isAppendTemplateFilters(object.tileContext.table);
+    if(templateFilters.length > 0) {
+      filters = filters.concat(templateFilters);
+    }
+    
     var data = {
       "opcode": "multi_query"
       , "table": object.tileContext.table
