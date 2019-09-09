@@ -27,7 +27,7 @@ public class PermissionManager {
     private final OkHttpClient okHttp;
     private final Endpoint endpoint;
     private final ObjectMapper objectMapper;
-
+    private static final String AUTHORIZATION = "Authorization";
     private static final MediaType APPLICATION_JSON = MediaType.parse("application/json");
 
     public PermissionManager (ObjectMapper objectMapper, OkHttpClient okHttp, ServiceEndpointProvider endpointProvider) {
@@ -54,15 +54,14 @@ public class PermissionManager {
 
             request = new Request.Builder()
                     .url(url)
-                    .header("Authorization", String.format("Bearer %s", authToken))
+                    .header(AUTHORIZATION, String.format("Bearer %s", authToken))
                     .post(body)
                     .build();
 
             response = okHttp.newCall(request).execute();
             responseBody = OkHttpUtils.body(response);
             permissionId = objectMapper.readValue(responseBody, Permission.class).getPermissionId();
-        }
-        catch (Exception e) {
+        } catch(Exception e) {
             throw new PermissionCreationException("Not able to create new permission", e);
         }
 
@@ -101,8 +100,7 @@ public class PermissionManager {
             LoginResponse loginResponse = objectMapper.readValue(responseBody, LoginResponse.class);
 
             return loginResponse.getToken();
-        }
-        catch (Exception e) {
+        } catch(Exception e) {
             throw new AuthTokenException("Not able to generate auth token", e);
         }
     }
@@ -133,12 +131,11 @@ public class PermissionManager {
                             .build()));
             Request request = new Request.Builder()
                     .url(url)
-                    .header("Authorization", String.format("Bearer %s", authToken))
+                    .header(AUTHORIZATION, String.format("Bearer %s", authToken))
                     .post(requestBody)
                     .build();
             response = okHttp.newCall(request).execute();
-        }
-        catch (Exception e) {
+        } catch(Exception e) {
             throw new UserPermissionAdditionException("Not able to add new permission to user", e);
         }
 
@@ -155,7 +152,7 @@ public class PermissionManager {
         final HttpUrl url = endpoint.url("/v1/user/?email=" + emailId);
         Request request = new Request.Builder()
                 .url(url)
-                .header("Authorization", String.format("Bearer %s", authToken))
+                .header(AUTHORIZATION, String.format("Bearer %s", authToken))
                 .get()
                 .build();
 
@@ -167,8 +164,7 @@ public class PermissionManager {
                 return null;
             }
             return objectMapper.readValue(responseBody, User.class);
-        }
-        catch (Exception e) {
+        } catch(Exception e) {
             throw new UserNotFoundException("Not able to retrieve user details", e);
         }
     }
