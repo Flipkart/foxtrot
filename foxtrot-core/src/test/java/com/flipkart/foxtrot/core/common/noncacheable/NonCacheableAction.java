@@ -52,7 +52,7 @@ public class NonCacheableAction extends Action<NonCacheableActionRequest> {
     }
 
     @Override
-    public void validateImpl(NonCacheableActionRequest parameter, String email) throws MalformedQueryException {
+    public void validateImpl(NonCacheableActionRequest parameter) throws MalformedQueryException {
 
     }
 

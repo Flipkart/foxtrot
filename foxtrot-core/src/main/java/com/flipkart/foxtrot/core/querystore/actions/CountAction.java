@@ -67,7 +67,7 @@ public class CountAction extends Action<CountRequest> {
     }
 
     @Override
-    public void validateImpl(CountRequest parameter, String email) {
+    public void validateImpl(CountRequest parameter) {
         List<String> validationErrors = new ArrayList<>();
         if(CollectionUtils.isNullOrEmpty(parameter.getTable())) {
             validationErrors.add("table name cannot be null or empty");
