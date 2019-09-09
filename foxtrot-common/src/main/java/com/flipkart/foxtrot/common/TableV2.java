@@ -32,7 +32,7 @@ import org.hibernate.validator.constraints.NotEmpty;
 @NoArgsConstructor
 @Builder
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class Table implements Serializable {
+public class TableV2 implements Serializable {
 
     @JsonIgnore
     private static final long serialVersionUID = -3086868483579299018L;
@@ -40,6 +40,10 @@ public class Table implements Serializable {
     @NotNull
     @NotEmpty
     private String name;
+
+    @NotNull
+    @NotEmpty
+    private String adminEmails;
 
     @Min(1)
     @Max(180)

@@ -307,7 +307,10 @@ public class FoxtrotServer extends Application<FoxtrotServerConfiguration> {
         environment.jersey()
                 .register(new AnalyticsV2Resource(executor, accessService));
         environment.jersey()
-                .register(new TableManagerResource(tableManager, environment.getObjectMapper(), environment.metrics(), gandalfEndpoint, configuration.getGandalfConfig().getHttpConfig()));
+                .register(new TableManagerResource(tableManager));
+        environment.jersey()
+                .register(new TableManagerAdminResource(tableManager, environment.getObjectMapper(),
+                        environment.metrics(), gandalfEndpoint, configuration.getGandalfConfig().getHttpConfig()));
         environment.jersey()
                 .register(new TableFieldMappingResource(tableManager, tableMetadataManager));
         environment.jersey()

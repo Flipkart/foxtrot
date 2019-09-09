@@ -12,12 +12,20 @@
  */
 package com.flipkart.foxtrot.server.resources;
 
+import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.annotation.Timed;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.flipkart.foxtrot.common.Table;
+import com.flipkart.foxtrot.common.TableV2;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
 import com.flipkart.foxtrot.core.table.TableManager;
+import com.flipkart.foxtrot.gandalf.manager.PermissionManager;
+import com.phonepe.platform.http.HttpClientConfiguration;
+import com.phonepe.platform.http.OkHttpUtils;
+import com.phonepe.platform.http.ServiceEndpointProvider;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import okhttp3.OkHttpClient;
 
 import javax.validation.Valid;
 import javax.ws.rs.Consumes;
@@ -34,25 +42,33 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 
-@Path("/v1/tables")
+@Path("/v2/tables")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
-@Api(value = "/v1/tables")
-public class TableManagerResource {
+@Api(value = "/v2/tables")
+public class TableManagerAdminResource {
 
     private final TableManager tableManager;
+    private static OkHttpClient okHttp;
+    private static ServiceEndpointProvider endpointProvider;
+    private static ObjectMapper objectMapper;
 
-    public TableManagerResource(TableManager tableManager) {
+    public TableManagerAdminResource(TableManager tableManager, final ObjectMapper objectMapper, final MetricRegistry registry, ServiceEndpointProvider serviceEndpointProvider, HttpClientConfiguration httpClientConfiguration) {
+        this.objectMapper = objectMapper;
         this.tableManager = tableManager;
+        okHttp = OkHttpUtils.createDefaultClient("foxtrot-gandalf-client", registry, httpClientConfiguration);
+        endpointProvider = serviceEndpointProvider;
     }
 
     @POST
     @Timed
     @ApiOperation("Save Table")
-    public Response save(@Valid final Table table,
-            @QueryParam("forceCreate") @DefaultValue("false") boolean forceCreate) {
+    public Response save(@Valid final TableV2 table,
+                         @QueryParam("forceCreate") @DefaultValue("false") boolean forceCreate) {
         table.setName(ElasticsearchUtils.getValidTableName(table.getName()));
-        tableManager.save(table, forceCreate);
+        tableManager.save(toWireModel(table), forceCreate);
+        PermissionManager permissionManager = new PermissionManager(objectMapper, okHttp, endpointProvider);
+        permissionManager.manage(table);
         return Response.ok(table)
                 .build();
     }
@@ -97,6 +113,13 @@ public class TableManagerResource {
     public Response getAll() {
         return Response.ok()
                 .entity(tableManager.getAll())
+                .build();
+    }
+
+    private static Table toWireModel(TableV2 table) {
+        return Table.builder()
+                .name(table.getName())
+                .ttl(table.getTtl())
                 .build();
     }
 }

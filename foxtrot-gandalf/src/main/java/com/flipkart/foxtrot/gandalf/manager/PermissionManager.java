@@ -1,8 +1,8 @@
 package com.flipkart.foxtrot.gandalf.manager;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.flipkart.foxtrot.common.TableV2;
 import com.flipkart.foxtrot.gandalf.exception.*;
-import com.flipkart.foxtrot.common.Table;
 import com.phonepe.gandalf.models.authn.UserGroupNamespace;
 import com.phonepe.gandalf.models.authn.requests.LoginRequest;
 import com.phonepe.gandalf.models.authn.requests.PasswordLoginRequest;
@@ -17,6 +17,7 @@ import com.phonepe.platform.http.OkHttpUtils;
 import com.phonepe.platform.http.ServiceEndpointProvider;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.*;
+
 import java.util.Optional;
 import java.util.Set;
 
@@ -24,8 +25,10 @@ import java.util.Set;
 public class PermissionManager {
 
     private final OkHttpClient okHttp;
-    private static Endpoint endpoint;
+    private final Endpoint endpoint;
     private final ObjectMapper objectMapper;
+
+    private static final MediaType APPLICATION_JSON = MediaType.parse("application/json");
 
     public PermissionManager (ObjectMapper objectMapper, OkHttpClient okHttp, ServiceEndpointProvider endpointProvider) {
         this.objectMapper = objectMapper;
@@ -33,7 +36,7 @@ public class PermissionManager {
         this.okHttp = okHttp;
     }
 
-    public void manage (Table table) {
+    public void manage (TableV2 table) {
         okhttp3.Response response;
         byte[] responseBody;
         String permissionId;
@@ -46,7 +49,7 @@ public class PermissionManager {
         PermissionRequest permissionRequest = new PermissionRequest(table.getName(), true);
 
         try {
-            body = RequestBody.create(okhttp3.MediaType.parse("application/json"),
+            body = RequestBody.create(APPLICATION_JSON,
                     objectMapper.writeValueAsString(permissionRequest));
 
             request = new Request.Builder()
@@ -80,9 +83,13 @@ public class PermissionManager {
         okhttp3.Response response;
         byte[] responseBody;
 
-        LoginRequest loginRequest = new PasswordLoginRequest("mudit.g@phonepe.com", "gandalf@echo", TTLInfo.builder().jwtTtlSeconds(10).ttlSeconds(10).build());
+        LoginRequest loginRequest = new PasswordLoginRequest("mudit.g@phonepe.com", "gandalf@echo",
+                            TTLInfo.builder()
+                                    .jwtTtlSeconds(10)
+                                    .ttlSeconds(10)
+                                    .build());
         try {
-            requestBody = RequestBody.create(okhttp3.MediaType.parse("application/json"),
+            requestBody = RequestBody.create(APPLICATION_JSON,
                     objectMapper.writeValueAsBytes(loginRequest));
             Request request = new Request.Builder()
                     .url(url)
@@ -120,7 +127,7 @@ public class PermissionManager {
         }
 
         try {
-            requestBody = RequestBody.create(okhttp3.MediaType.parse("application/json"),
+            requestBody = RequestBody.create(APPLICATION_JSON,
                     objectMapper.writeValueAsBytes(UserPermissionRequest.builder()
                             .userGroupId(userGroupId)
                             .build()));
@@ -166,7 +173,7 @@ public class PermissionManager {
         }
     }
 
-    private static Endpoint endpoint(ServiceEndpointProvider endpointProvider) {
+    private Endpoint endpoint(ServiceEndpointProvider endpointProvider) {
         Optional<Endpoint> endpointOptional = endpointProvider.endpoint();
         if (!endpointOptional.isPresent()) {
             throw new EndpointNotFoundException("No endpoint found for Gandalf http service");
