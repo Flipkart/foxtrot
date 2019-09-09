@@ -94,6 +94,7 @@ CountTile.prototype.getQuery = function(object) {
   if(object.tileContext.field && object.tileContext.field != "none") {
     data = {
       "opcode": "count",
+      "consoleId": getCurrentConsoleId(),
       "table": object.tileContext.table,
       "filters": filters,
       "field": object.tileContext.field && object.tileContext.field != "none" ? object.tileContext.field : null,

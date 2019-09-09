@@ -75,6 +75,7 @@ LineTile.prototype.getQuery = function (object) {
 
   var data = {
     "opcode": "histogram"
+    ,"consoleId": getCurrentConsoleId()
     , "table": object.tileContext.table
     , "filters": filters
     , "field": "_timestamp"
