@@ -187,6 +187,7 @@ public abstract class Action<P extends ActionRequest> {
             return objectMapper.writeValueAsString(parameter);
         }
         catch (JsonProcessingException e) {
+            logger.error("Error serializing request: ", e);
             return "";
         }
     }

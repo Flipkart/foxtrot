@@ -37,28 +37,7 @@ class EmailBuilder implements InternalSystemEventVisitor<Email> {
                                                                           Collections.emptyList(),
                                                                           exception.toMap());
             }
-            case TABLE_INITIALIZATION_ERROR:
-            case TABLE_METADATA_FETCH_FAILURE:
-            case TABLE_NOT_FOUND:
-            case TABLE_ALREADY_EXISTS:
-            case TABLE_MAP_STORE_ERROR:
-            case INVALID_REQUEST:
-            case DOCUMENT_NOT_FOUND:
-            case MALFORMED_QUERY:
-            case ACTION_RESOLUTION_FAILURE:
-            case UNRESOLVABLE_OPERATION:
-            case ACTION_EXECUTION_ERROR:
-            case STORE_CONNECTION_ERROR:
-            case STORE_EXECUTION_ERROR:
-            case DATA_CLEANUP_ERROR:
-            case EXECUTION_EXCEPTION:
-            case CONSOLE_SAVE_EXCEPTION:
-            case CONSOLE_FETCH_EXCEPTION:
-            case AUTHORIZATION_EXCEPTION:
-            case SOURCE_MAP_CONVERSION_FAILURE:
-            case FQL_PERSISTENCE_EXCEPTION:
-            case FQL_PARSE_ERROR:
-            case PORT_EXTRACTION_ERROR:
+            default:
                 break;
         }
         return null;
