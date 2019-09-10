@@ -117,15 +117,20 @@ public class PermissionManager {
         final HttpUrl url = endpoint.url(String.format("/v1/user/%s/permission/%s", user.getUserId(), permissionId);
         Set<UserGroupNamespace> userGroupNamespaces = user.getUserGroupNamespaces();
         Long userGroupId = 0L;
+        int userGroupIdFlag = 0;
 
         for(UserGroupNamespace userGroupNamespace : userGroupNamespaces) {
             if (userGroupNamespace.getNamespace().equals(ECHO)) {
                 userGroupId = userGroupNamespace
                         .getUserRole()
                         .getUserGroupId();
+                userGroupIdFlag = 1;
+                break;
             }
         }
-
+        if (userGroupIdFlag == 0) {
+            throw new UserPermissionAdditionException("Not able to find User group ID for the given user");
+        }
         try {
             requestBody = RequestBody.create(APPLICATION_JSON,
                     mapper.writeValueAsBytes(
