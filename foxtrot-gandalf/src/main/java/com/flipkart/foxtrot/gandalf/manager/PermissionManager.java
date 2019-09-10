@@ -26,32 +26,32 @@ public class PermissionManager {
 
     private final OkHttpClient okHttp;
     private final Endpoint endpoint;
-    private final ObjectMapper objectMapper;
+    private final ObjectMapper mapper;
     private static final String AUTHORIZATION = "Authorization";
+    private static final String ECHO = "echo";
     private static final MediaType APPLICATION_JSON = MediaType.parse("application/json");
 
-    public PermissionManager (ObjectMapper objectMapper, OkHttpClient okHttp, ServiceEndpointProvider endpointProvider) {
-        this.objectMapper = objectMapper;
+    public PermissionManager(ObjectMapper mapper, OkHttpClient okHttp, ServiceEndpointProvider endpointProvider) {
+        this.mapper = mapper;
         this.endpoint = endpoint(endpointProvider);
         this.okHttp = okHttp;
     }
 
-    public void manage (TableV2 table) {
-        okhttp3.Response response;
-        byte[] responseBody;
+    public void manage(TableV2 table) {
         String permissionId;
         Request request;
         RequestBody body;
+        okhttp3.Response response;
+        byte[] responseBody;
 
-        String authToken = getAuthToken("echo");
+        String authToken = getAuthToken(ECHO);
 
         final HttpUrl url = endpoint.url("/v1/permissions");
         PermissionRequest permissionRequest = new PermissionRequest(table.getName(), true);
 
         try {
             body = RequestBody.create(APPLICATION_JSON,
-                    objectMapper.writeValueAsString(permissionRequest));
-
+                    mapper.writeValueAsString(permissionRequest));
             request = new Request.Builder()
                     .url(url)
                     .header(AUTHORIZATION, String.format("Bearer %s", authToken))
@@ -60,7 +60,7 @@ public class PermissionManager {
 
             response = okHttp.newCall(request).execute();
             responseBody = OkHttpUtils.body(response);
-            permissionId = objectMapper.readValue(responseBody, Permission.class).getPermissionId();
+            permissionId = mapper.readValue(responseBody, Permission.class).getPermissionId();
         } catch(Exception e) {
             throw new PermissionCreationException("Not able to create new permission", e);
         }
@@ -71,12 +71,12 @@ public class PermissionManager {
         }
 
         String[] emailIds = table.getAdminEmails().replaceAll("\\s+", "").split(",");
-        for (String emailId: emailIds) {
+        for(String emailId: emailIds) {
             createUserPermission(permissionId, emailId, authToken);
         }
     }
 
-    private String getAuthToken (String namespace) {
+    private String getAuthToken(String namespace) {
         final HttpUrl url = endpoint.url("/v1/auth/login");
         RequestBody requestBody;
         okhttp3.Response response;
@@ -89,7 +89,7 @@ public class PermissionManager {
                                     .build());
         try {
             requestBody = RequestBody.create(APPLICATION_JSON,
-                    objectMapper.writeValueAsBytes(loginRequest));
+                    mapper.writeValueAsBytes(loginRequest));
             Request request = new Request.Builder()
                     .url(url)
                     .header("NAMESPACE", namespace)
@@ -97,8 +97,8 @@ public class PermissionManager {
                     .build();
             response = okHttp.newCall(request).execute();
             responseBody = OkHttpUtils.body(response);
-            LoginResponse loginResponse = objectMapper.readValue(responseBody, LoginResponse.class);
 
+            LoginResponse loginResponse = mapper.readValue(responseBody, LoginResponse.class);
             return loginResponse.getToken();
         } catch(Exception e) {
             throw new AuthTokenException("Not able to generate auth token", e);
@@ -114,21 +114,25 @@ public class PermissionManager {
             throw new UserNotFoundException("Not able to retrieve user details with email : " + emailId);
         }
 
-        final HttpUrl url = endpoint.url("/v1/user/" + user.getUserId() + "/permission/" + permissionId);
+        final HttpUrl url = endpoint.url(String.format("/v1/user/%s/permission/%s", user.getUserId(), permissionId);
         Set<UserGroupNamespace> userGroupNamespaces = user.getUserGroupNamespaces();
         Long userGroupId = 0L;
 
         for(UserGroupNamespace userGroupNamespace : userGroupNamespaces) {
-            if (userGroupNamespace.getNamespace().equals("echo")) {
-                userGroupId = userGroupNamespace.getUserRole().getUserGroupId();
+            if (userGroupNamespace.getNamespace().equals(ECHO)) {
+                userGroupId = userGroupNamespace
+                        .getUserRole()
+                        .getUserGroupId();
             }
         }
 
         try {
             requestBody = RequestBody.create(APPLICATION_JSON,
-                    objectMapper.writeValueAsBytes(UserPermissionRequest.builder()
-                            .userGroupId(userGroupId)
-                            .build()));
+                    mapper.writeValueAsBytes(
+                            UserPermissionRequest
+                                    .builder()
+                                    .userGroupId(userGroupId)
+                                    .build()));
             Request request = new Request.Builder()
                     .url(url)
                     .header(AUTHORIZATION, String.format("Bearer %s", authToken))
@@ -145,17 +149,16 @@ public class PermissionManager {
         }
     }
 
-    private User getUser (String emailId, String authToken) {
+    private User getUser(String emailId, String authToken) {
         okhttp3.Response response;
         byte[] responseBody;
 
-        final HttpUrl url = endpoint.url("/v1/user/?email=" + emailId);
+        final HttpUrl url = endpoint.url(String.format("/v1/user/?email=%s", emailId));
         Request request = new Request.Builder()
                 .url(url)
                 .header(AUTHORIZATION, String.format("Bearer %s", authToken))
                 .get()
                 .build();
-
         try {
             response = okHttp.newCall(request).execute();
             responseBody = OkHttpUtils.body(response);
@@ -163,7 +166,7 @@ public class PermissionManager {
                 log.error("Error in retrieving user details get Call response {}", response);
                 return null;
             }
-            return objectMapper.readValue(responseBody, User.class);
+            return mapper.readValue(responseBody, User.class);
         } catch(Exception e) {
             throw new UserNotFoundException("Not able to retrieve user details", e);
         }

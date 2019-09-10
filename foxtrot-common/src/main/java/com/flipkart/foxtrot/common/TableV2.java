@@ -24,9 +24,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.validator.constraints.NotEmpty;
 
-/**
- * Representation for a table on foxtrot.
- */
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
