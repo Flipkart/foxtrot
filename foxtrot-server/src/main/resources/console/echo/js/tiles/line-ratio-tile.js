@@ -88,7 +88,6 @@ function LineRatioTile() {
   
     var data = {
       "opcode": "trend"
-      ,"consoleId": getCurrentConsoleId()
       , "table": object.tileContext.table
       , "filters": filters
       , "uniqueCountOn": object.tileContext.uniqueKey && object.tileContext.uniqueKey != "none" ? object.tileContext.uniqueKey : null
