@@ -29,17 +29,14 @@ import io.dropwizard.discovery.bundle.ServiceDiscoveryConfiguration;
 import io.dropwizard.primer.model.PrimerBundleConfiguration;
 import io.dropwizard.riemann.RiemannConfig;
 import io.federecio.dropwizard.swagger.SwaggerBundleConfiguration;
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NonNull;
 
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
-
 /**
- * User: Santanu Sinha (santanu.sinha@flipkart.com)
- * Date: 15/03/14
- * Time: 9:26 PM
+ * User: Santanu Sinha (santanu.sinha@flipkart.com) Date: 15/03/14 Time: 9:26 PM
  */
 @Data
 public class FoxtrotServerConfiguration extends Configuration {
@@ -73,6 +70,8 @@ public class FoxtrotServerConfiguration extends Configuration {
     private EmailConfig emailConfig;
     private CacheConfig cacheConfig;
 
+    private QueryConfig queryConfig;
+
     @NonNull
     private GandalfClientConfig gandalfConfig = new GandalfClientConfig();
 
@@ -102,6 +101,7 @@ public class FoxtrotServerConfiguration extends Configuration {
         this.serviceDiscovery = new ServiceDiscoveryConfiguration();
         this.riemann = new RiemannConfig();
         this.restrictAccess = true;
+        this.queryConfig = new QueryConfig();
     }
 
 }

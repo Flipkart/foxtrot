@@ -3,6 +3,7 @@ package com.flipkart.foxtrot.server.resources;
 import com.codahale.metrics.annotation.Timed;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.flipkart.foxtrot.common.access.AccessService;
+import com.flipkart.foxtrot.server.config.QueryConfig;
 import com.flipkart.foxtrot.server.providers.FlatToCsvConverter;
 import com.flipkart.foxtrot.server.providers.FoxtrotExtraMediaType;
 import com.flipkart.foxtrot.sql.FqlEngine;
@@ -25,19 +26,24 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.StreamingOutput;
+import lombok.extern.slf4j.Slf4j;
 
 @Path("/v1/fql")
 @Api(value = "/v1/fql")
+@Slf4j
 public class FqlResource {
 
     private FqlEngine fqlEngine;
     private FqlStoreService fqlStoreService;
     private AccessService accessService;
+    private final QueryConfig queryConfig;
 
-    public FqlResource(final FqlEngine fqlEngine, final FqlStoreService fqlStoreService, AccessService accessService) {
+    public FqlResource(final FqlEngine fqlEngine, final FqlStoreService fqlStoreService, AccessService accessService,
+            QueryConfig queryConfig) {
         this.fqlEngine = fqlEngine;
         this.fqlStoreService = fqlStoreService;
         this.accessService = accessService;
+        this.queryConfig = queryConfig;
     }
 
     @GET
@@ -85,6 +91,9 @@ public class FqlResource {
     @Path("/get")
     @ApiOperation("Get List<FqlStore>")
     public List<FqlStore> get(FqlGetRequest fqlGetRequest) {
+        if (queryConfig.isLogQueries()){
+              log.info("Fql Query : " + fqlGetRequest.toString());
+        }
         return fqlStoreService.get(fqlGetRequest);
     }
 }

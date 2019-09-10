@@ -18,6 +18,7 @@ import com.flipkart.foxtrot.common.ActionResponse;
 import com.flipkart.foxtrot.common.ActionValidationResponse;
 import com.flipkart.foxtrot.core.common.AsyncDataToken;
 import com.flipkart.foxtrot.core.querystore.QueryExecutor;
+import com.flipkart.foxtrot.server.config.QueryConfig;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import javax.validation.Valid;
@@ -26,6 +27,7 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * User: Santanu Sinha (santanu.sinha@flipkart.com)
@@ -36,18 +38,22 @@ import javax.ws.rs.core.MediaType;
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
 @Api(value = "/v1/analytics")
+@Slf4j
 public class AnalyticsResource {
 
     private final QueryExecutor queryExecutor;
+    private final QueryConfig queryConfig;
 
-    public AnalyticsResource(QueryExecutor queryExecutor) {
+    public AnalyticsResource(QueryExecutor queryExecutor, QueryConfig queryConfig) {
         this.queryExecutor = queryExecutor;
+        this.queryConfig = queryConfig;
     }
 
     @POST
     @Timed
     @ApiOperation("runSync")
     public ActionResponse runSync(@Valid final ActionRequest request) {
+        preprocess(request);
         return queryExecutor.execute(request, "");
     }
 
@@ -65,5 +71,11 @@ public class AnalyticsResource {
     @ApiOperation("validateQuery")
     public ActionValidationResponse validateQuery(@Valid final ActionRequest request) {
         return queryExecutor.validate(request, "");
+    }
+
+    private void preprocess(ActionRequest request) {
+        if (queryConfig.isLogQueries()){
+            log.info("Analytics Query");
+        }
     }
 }
