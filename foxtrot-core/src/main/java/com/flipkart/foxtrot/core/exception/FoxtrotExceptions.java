@@ -10,7 +10,8 @@ import java.util.List;
  */
 public class FoxtrotExceptions {
 
-    private FoxtrotExceptions() {}
+    private FoxtrotExceptions() {
+    }
 
     public static TableInitializationException createTableInitializationException(Table table, String message) {
         return new TableInitializationException(table.getName(), message);
@@ -46,7 +47,8 @@ public class FoxtrotExceptions {
         return new MalformedQueryException(actionRequest, reasons);
     }
 
-    public static CardinalityOverflowException createCardinalityOverflow(ActionRequest actionRequest, String field, double probability) {
+    public static CardinalityOverflowException createCardinalityOverflow(ActionRequest actionRequest, String field,
+            double probability) {
         return new CardinalityOverflowException(actionRequest, field, probability);
     }
 
@@ -92,5 +94,9 @@ public class FoxtrotExceptions {
 
     public static AuthorizationException createAuthorizationException(ActionRequest actionRequest, Exception e) {
         return new AuthorizationException(actionRequest, e);
+    }
+
+    public static ConsoleQueryBlockedException createConsoleQueryBlockedException(ActionRequest actionRequest) {
+        return new ConsoleQueryBlockedException(actionRequest);
     }
 }

@@ -8,6 +8,7 @@ import com.flipkart.foxtrot.gandalf.access.AccessService;
 import com.flipkart.foxtrot.core.common.AsyncDataToken;
 import com.flipkart.foxtrot.core.exception.FoxtrotExceptions;
 import com.flipkart.foxtrot.core.querystore.QueryExecutor;
+import com.flipkart.foxtrot.server.config.QueryConfig;
 import com.phonepe.gandalf.client.annotation.GandalfUserContext;
 import com.phonepe.gandalf.models.user.UserDetails;
 import io.dropwizard.primer.auth.annotation.Authorize;
@@ -19,6 +20,7 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
+import lombok.extern.slf4j.Slf4j;
 
 /***
  Created by mudit.g on Mar, 2019
@@ -27,15 +29,18 @@ import javax.ws.rs.core.MediaType;
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
 @Api(value = "/v2/analytics")
+@Slf4j
 public class AnalyticsV2Resource {
 
     private static final String AUTHORIZATION_EXCEPTION_MESSAGE = "User not Authorised";
     private final QueryExecutor queryExecutor;
     private final AccessService accessService;
+    private final QueryConfig queryConfig;
 
-    public AnalyticsV2Resource(QueryExecutor queryExecutor, AccessService accessService) {
+    public AnalyticsV2Resource(QueryExecutor queryExecutor, AccessService accessService, QueryConfig queryConfig) {
         this.queryExecutor = queryExecutor;
         this.accessService = accessService;
+        this.queryConfig = queryConfig;
     }
 
     @POST
@@ -43,14 +48,7 @@ public class AnalyticsV2Resource {
     @ApiOperation("runSync")
     @Authorize(value = {})
     public ActionResponse runSync(@Valid final ActionRequest request, @GandalfUserContext UserDetails userDetails) {
-        try {
-            if (!accessService.hasAccess(request, userDetails)) {
-                throw FoxtrotExceptions.createAuthorizationException(request,
-                        new Exception(AUTHORIZATION_EXCEPTION_MESSAGE));
-            }
-        } catch (Exception e) {
-            throw FoxtrotExceptions.createAuthorizationException(request, e);
-        }
+        preprocess(request, userDetails);
         return queryExecutor.execute(request, userDetails.getEmail());
     }
 
@@ -88,5 +86,23 @@ public class AnalyticsV2Resource {
             throw FoxtrotExceptions.createAuthorizationException(request, e);
         }
         return queryExecutor.validate(request, userDetails.getEmail());
+    }
+
+    private void preprocess(@Valid ActionRequest request, @GandalfUserContext UserDetails userDetails) {
+        try {
+            if (!accessService.hasAccess(request, userDetails)) {
+                throw FoxtrotExceptions.createAuthorizationException(request,
+                        new Exception(AUTHORIZATION_EXCEPTION_MESSAGE));
+            }
+        } catch (Exception e) {
+            throw FoxtrotExceptions.createAuthorizationException(request, e);
+        }
+        if (queryConfig.isBlockConsoleQueries()) {
+            log.info("Query is blocked because of high load " + request);
+            throw FoxtrotExceptions.createConsoleQueryBlockedException(request);
+        }
+        if (queryConfig.isLogQueries()) {
+            log.info("Console Query : " + request.toString());
+        }
     }
 }

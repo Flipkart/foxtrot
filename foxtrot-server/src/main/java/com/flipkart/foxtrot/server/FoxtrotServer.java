@@ -68,12 +68,12 @@ import com.phonepe.gandalf.client.GandalfClient;
 import com.phonepe.gandalf.models.client.GandalfClientConfig;
 import com.phonepe.platform.http.ServiceEndpointProviderFactory;
 import com.phonepe.rosey.dwconfig.RoseyConfigSourceProvider;
+import io.appform.dropwizard.discovery.bundle.ServiceDiscoveryBundle;
+import io.appform.dropwizard.discovery.bundle.ServiceDiscoveryConfiguration;
 import io.dropwizard.Application;
 import io.dropwizard.assets.AssetsBundle;
 import io.dropwizard.configuration.EnvironmentVariableSubstitutor;
 import io.dropwizard.configuration.SubstitutingSourceProvider;
-import io.dropwizard.discovery.bundle.ServiceDiscoveryBundle;
-import io.dropwizard.discovery.bundle.ServiceDiscoveryConfiguration;
 import io.dropwizard.oor.OorBundle;
 import io.dropwizard.primer.model.PrimerBundleConfiguration;
 import io.dropwizard.riemann.RiemannBundle;
@@ -303,9 +303,9 @@ public class FoxtrotServer extends Application<FoxtrotServerConfiguration> {
         environment.jersey()
                 .register(new AsyncResource(cacheManager));
         environment.jersey()
-                .register(new AnalyticsResource(executor));
+                .register(new AnalyticsResource(executor, configuration.getQueryConfig()));
         environment.jersey()
-                .register(new AnalyticsV2Resource(executor, accessService));
+                .register(new AnalyticsV2Resource(executor, accessService, configuration.getQueryConfig()));
         environment.jersey()
                 .register(new TableManagerResource(tableManager));
         environment.jersey()
@@ -321,7 +321,7 @@ public class FoxtrotServer extends Application<FoxtrotServerConfiguration> {
                         new ElasticsearchConsolePersistence(elasticsearchConnection, objectMapper)));
         FqlEngine fqlEngine = new FqlEngine(tableMetadataManager, queryStore, executor, objectMapper);
         environment.jersey()
-                .register(new FqlResource(fqlEngine, fqlStoreService, accessService));
+                .register(new FqlResource(fqlEngine, fqlStoreService, accessService, configuration.getQueryConfig()));
         environment.jersey()
                 .register(new ClusterInfoResource(clusterManager));
         environment.jersey()
