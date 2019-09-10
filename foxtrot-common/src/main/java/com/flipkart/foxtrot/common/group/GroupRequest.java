@@ -36,15 +36,18 @@ public class GroupRequest extends ActionRequest {
     @NotEmpty
     private List<String> nesting;
 
+    private String consoleId;
+
     public GroupRequest() {
         super(Opcodes.GROUP);
     }
 
-    public GroupRequest(List<Filter> filters, String table, String uniqueCountOn, List<String> nesting) {
+    public GroupRequest(List<Filter> filters, String table, String uniqueCountOn, List<String> nesting, String consoleId) {
         super(Opcodes.GROUP, filters);
         this.table = table;
         this.uniqueCountOn = uniqueCountOn;
         this.nesting = nesting;
+        this.consoleId = consoleId;
     }
 
     public <T> T accept(ActionRequestVisitor<T> visitor) {
@@ -57,6 +60,7 @@ public class GroupRequest extends ActionRequest {
                 .append("table", table)
                 .append("uniqueCountOn", uniqueCountOn)
                 .append("nesting", nesting)
+                .append("consoleId", consoleId)
                 .toString();
     }
 
@@ -82,5 +86,13 @@ public class GroupRequest extends ActionRequest {
 
     public void setNesting(List<String> nesting) {
         this.nesting = nesting;
+    }
+
+    public String getConsoleId() {
+        return consoleId;
+    }
+
+    public void setConsoleId(String consoleId) {
+        this.consoleId = consoleId;
     }
 }
