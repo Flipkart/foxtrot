@@ -3140,7 +3140,7 @@ div.tab button:first-child {
   position: relative;
     top: 20px;
     float: right;
-    right: 14px;
+    right: 24px;
 }
 
 #left-action-btns {
@@ -3804,4 +3804,11 @@ div.tab button:first-child {
 }
 #cluster-menu li {
   cursor: pointer;
+}
+.logout {
+  cursor: pointer;
+}
+
+#logout {
+  display: block
 }
