@@ -88,6 +88,12 @@ PercentageGaugeTile.prototype.getQuery = function (object) {
       filters.push(object.tileContext.filters[i]);
     }
   }
+
+  var templateFilters = isAppendTemplateFilters(object.tileContext.table);
+  if(templateFilters.length > 0) {
+    filters = filters.concat(templateFilters);
+  }
+  
   var data = {
     "opcode": "group"
     , "table": object.tileContext.table
