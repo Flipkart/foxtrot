@@ -27,7 +27,7 @@ import java.util.List;
 import java.util.Map;
 
 @AnalyticsProvider(opcode = "multi_query", request = MultiQueryRequest.class, response = MultiQueryResponse.class,
-        cacheable = true)
+        cacheable = false)
 public class MultiQueryAction extends Action<MultiQueryRequest> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MultiQueryAction.class);

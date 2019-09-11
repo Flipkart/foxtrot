@@ -120,8 +120,7 @@ public class AnalyticsLoader implements Managed {
                     .equalsIgnoreCase("default")) {
                 logger.warn("Action {} does not specify cache token. Using default cache.", action.getCanonicalName());
             }
-            register(new ActionMetadata(analyticsProvider.request(), action, analyticsProvider.cacheable()),
-                    analyticsProvider.opcode());
+            register(new ActionMetadata(analyticsProvider.request(), action, analyticsProvider.cacheable()), analyticsProvider.opcode());
             types.add(new NamedType(analyticsProvider.request(), analyticsProvider.opcode()));
             types.add(new NamedType(analyticsProvider.response(), analyticsProvider.opcode()));
             logger.info("Registered action: {}", action.getCanonicalName());
