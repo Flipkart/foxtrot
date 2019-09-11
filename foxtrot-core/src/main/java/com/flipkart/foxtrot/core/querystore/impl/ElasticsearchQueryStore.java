@@ -392,7 +392,7 @@ public class ElasticsearchQueryStore implements QueryStore {
                 .deepCopy();
         dataNode.set(ElasticsearchUtils.DOCUMENT_META_FIELD_NAME, metaNode);
         dataNode.set(ElasticsearchUtils.DOCUMENT_TIME_FIELD_NAME, mapper.valueToTree(document.getDate()));
-        mutators.forEach(mutator-> mutator.mutate(table, dataNode));
+        mutators.forEach(mutator-> mutator.mutate(table, document.getId(), dataNode));
         return ElasticsearchQueryUtils.toMap(mapper, dataNode);
     }
 

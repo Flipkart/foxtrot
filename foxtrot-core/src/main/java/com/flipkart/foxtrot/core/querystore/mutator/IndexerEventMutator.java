@@ -4,6 +4,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 
 public interface IndexerEventMutator {
 
-    void mutate(String table, JsonNode node);
+    void mutate(String table, String documentId, JsonNode node);
 
 }
