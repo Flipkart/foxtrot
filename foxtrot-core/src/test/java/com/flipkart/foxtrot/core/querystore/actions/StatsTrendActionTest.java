@@ -94,7 +94,7 @@ public class StatsTrendActionTest extends ActionTest {
         request.setTable(TestUtils.TEST_TABLE_NAME);
         request.setTimestamp("_timestamp");
         request.setField("battery");
-        request.setFlags(Collections.singleton(AnalyticsRequestFlags.STATS_TREND_SKIP_PERCENTILES));
+        request.setFlags(Collections.singleton(AnalyticsRequestFlags.STATS_SKIP_PERCENTILES));
 
         BetweenFilter betweenFilter = new BetweenFilter();
         betweenFilter.setFrom(1L);
@@ -406,7 +406,7 @@ public class StatsTrendActionTest extends ActionTest {
         request.setTimestamp("_timestamp");
         request.setField("battery");
         request.setNesting(Lists.newArrayList("os", "version"));
-        request.setFlags(Collections.singleton(AnalyticsRequestFlags.STATS_TREND_SKIP_PERCENTILES));
+        request.setFlags(Collections.singleton(AnalyticsRequestFlags.STATS_SKIP_PERCENTILES));
 
         BetweenFilter betweenFilter = new BetweenFilter();
         betweenFilter.setFrom(1L);

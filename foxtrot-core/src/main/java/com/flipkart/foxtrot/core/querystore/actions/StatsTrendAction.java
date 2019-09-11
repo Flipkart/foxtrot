@@ -153,7 +153,7 @@ public class StatsTrendAction extends Action<StatsTrendRequest> {
         if(isNumericField) {
             dateHistogramBuilder
                     .subAggregation(Utils.buildStatsAggregation(field, getParameter().getStats()));
-            if(!AnalyticsRequestFlags.hasFlag(request.getFlags(), AnalyticsRequestFlags.STATS_TREND_SKIP_PERCENTILES)) {
+            if(!AnalyticsRequestFlags.hasFlag(request.getFlags(), AnalyticsRequestFlags.STATS_SKIP_PERCENTILES)) {
                 dateHistogramBuilder.subAggregation(Utils.buildPercentileAggregation(
                         field, request.getPercentiles(), request.getCompression()));
             }
