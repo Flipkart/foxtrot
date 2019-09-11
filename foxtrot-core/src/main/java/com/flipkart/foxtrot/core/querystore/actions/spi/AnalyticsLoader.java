@@ -61,8 +61,8 @@ public class AnalyticsLoader implements Managed {
     private EmailClient emailClient;
 
     public AnalyticsLoader(TableMetadataManager tableMetadataManager, DataStore dataStore, QueryStore queryStore,
-                           ElasticsearchConnection elasticsearchConnection, CacheManager cacheManager, ObjectMapper objectMapper,
-                           EmailConfig emailConfig, EmailClient emailClient) {
+            ElasticsearchConnection elasticsearchConnection, CacheManager cacheManager, ObjectMapper objectMapper,
+            EmailConfig emailConfig, EmailClient emailClient) {
         this.tableMetadataManager = tableMetadataManager;
         this.dataStore = dataStore;
         this.queryStore = queryStore;
@@ -120,7 +120,8 @@ public class AnalyticsLoader implements Managed {
                     .equalsIgnoreCase("default")) {
                 logger.warn("Action {} does not specify cache token. Using default cache.", action.getCanonicalName());
             }
-            register(new ActionMetadata(analyticsProvider.request(), action, analyticsProvider.cacheable()));
+            register(new ActionMetadata(analyticsProvider.request(), action, analyticsProvider.cacheable()),
+                    analyticsProvider.opcode());
             types.add(new NamedType(analyticsProvider.request(), analyticsProvider.opcode()));
             types.add(new NamedType(analyticsProvider.response(), analyticsProvider.opcode()));
             logger.info("Registered action: {}", action.getCanonicalName());
@@ -129,9 +130,12 @@ public class AnalyticsLoader implements Managed {
                 .registerSubtypes(types.toArray(new NamedType[0]));
     }
 
-    public void register(ActionMetadata actionMetadata) {
+    public void register(ActionMetadata actionMetadata, String opcode) {
         actions.put(actionMetadata.getRequest()
                 .getCanonicalName(), actionMetadata);
+        if (actionMetadata.isCacheable()) {
+            registerCache(opcode);
+        }
     }
 
     @Override
