@@ -29,7 +29,7 @@ import java.util.Map;
 /***
  Created by nitish.goyal on 22/08/18
  ***/
-@AnalyticsProvider(opcode = "multi_query", request = MultiQueryRequest.class, response = MultiQueryResponse.class, cacheable = true)
+@AnalyticsProvider(opcode = "multi_query", request = MultiQueryRequest.class, response = MultiQueryResponse.class, cacheable = false)
 public class MultiQueryAction extends Action<MultiQueryRequest> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MultiQueryAction.class);
