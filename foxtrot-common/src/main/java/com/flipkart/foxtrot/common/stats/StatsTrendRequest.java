@@ -36,13 +36,16 @@ public class StatsTrendRequest extends ActionRequest {
 
     private double compression = 100.0;
 
+    private Set<AnalyticsRequestFlags> flags;
+
     public StatsTrendRequest() {
         super(Opcodes.STATS_TREND);
     }
 
     @Builder
     public StatsTrendRequest(List<Filter> filters, String table, String field, Set<Stat> stats, List<String> nesting,
-                             List<Double> percentiles, Period period, String timestamp, double compression) {
+                             List<Double> percentiles, Period period, String timestamp, double compression,
+                             Set<AnalyticsRequestFlags> flags) {
         super(Opcodes.STATS_TREND, filters);
         this.table = table;
         this.field = field;
@@ -52,6 +55,7 @@ public class StatsTrendRequest extends ActionRequest {
         this.period = period;
         this.timestamp = timestamp;
         this.compression = compression;
+        this.flags = flags;
     }
 
 

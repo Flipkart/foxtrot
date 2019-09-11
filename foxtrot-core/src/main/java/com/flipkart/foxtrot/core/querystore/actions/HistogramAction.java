@@ -89,7 +89,7 @@ public class HistogramAction extends Action<HistogramRequest> {
     }
 
     @Override
-    public void validateImpl(HistogramRequest parameter, String email) {
+    public void validateImpl(HistogramRequest parameter) {
         List<String> validationErrors = new ArrayList<>();
         if(CollectionUtils.isNullOrEmpty(parameter.getTable())) {
             validationErrors.add("table name cannot be null or empty");

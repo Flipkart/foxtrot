@@ -46,8 +46,8 @@ public class FoxtrotExceptions {
         return new MalformedQueryException(actionRequest, reasons);
     }
 
-    public static CardinalityOverflowException createCardinalityOverflow(ActionRequest actionRequest, String field, double probability) {
-        return new CardinalityOverflowException(actionRequest, field, probability);
+    public static CardinalityOverflowException createCardinalityOverflow(ActionRequest actionRequest, String requestStr, String field, double probability) {
+        return new CardinalityOverflowException(actionRequest, requestStr, field, probability);
     }
 
     public static DocumentMissingException createMissingDocumentException(Table table, String id) {

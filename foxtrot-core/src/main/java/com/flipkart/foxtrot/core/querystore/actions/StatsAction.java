@@ -85,7 +85,7 @@ public class StatsAction extends Action<StatsRequest> {
     }
 
     @Override
-    public void validateImpl(StatsRequest parameter, String email) {
+    public void validateImpl(StatsRequest parameter) {
         List<String> validationErrors = Lists.newArrayList();
         if(CollectionUtils.isNullOrEmpty(parameter.getTable())) {
             validationErrors.add("table name cannot be null or empty");

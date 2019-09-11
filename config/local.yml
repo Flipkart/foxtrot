@@ -7,25 +7,11 @@ server:
       port: 17001
 
 elasticsearch:
-  hosts: localhost
+  hosts:
+  - localhost
   cluster: foxtrot
   tableNamePrefix: foxtrot
   getQueryTimeout: 10000
-
-serviceDiscovery:
-  namespace: local
-  environment: local
-  zookeeper: localhost:2181
-  publishedHost: 127.0.0.1
-  publishedPort: 8080
-
-riemann:
-  host: riemann-stage.local.int
-  port: 5555
-  prefix: local.foxtrot
-  pollingInterval: 30
-  tags:
-    - foxtrot
 
 hbase:
   secure : false
@@ -71,9 +57,3 @@ deletionconfig:
   active: false
   interval: 86400
   initialdelay: 60
-
-swagger:
-  resourcePackage: com.flipkart.foxtrot.server.resources
-  title: Foxtrot
-  description: A store abstraction and analytics system for real-time event data.
-  uriPrefix: "/foxtrot"

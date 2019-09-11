@@ -18,6 +18,11 @@
             <version>${dropwizard.version}</version>
         </dependency>
         <dependency>
+            <groupId>io.raven.dropwizard</groupId>
+            <artifactId>dropwizard-oor</artifactId>
+            <version>1.3.13-1</version>
+        </dependency>
+        <dependency>
             <groupId>io.dropwizard</groupId>
             <artifactId>dropwizard-assets</artifactId>
             <version>${dropwizard.version}</version>
