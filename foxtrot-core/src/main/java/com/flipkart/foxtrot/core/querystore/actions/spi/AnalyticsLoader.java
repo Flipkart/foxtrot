@@ -94,7 +94,7 @@ public class AnalyticsLoader implements Managed {
 
     public void register(ActionMetadata actionMetadata, String opcode) {
         actions.put(actionMetadata.getRequest().getCanonicalName(), actionMetadata);
-        if (actionMetadata.isCacheable()){
+        if(actionMetadata.isCacheable()){
             registerCache(opcode);
         }
     }
