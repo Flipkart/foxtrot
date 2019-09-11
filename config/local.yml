@@ -7,7 +7,7 @@ server:
       port: 17001
 
 elasticsearch:
-  hosts: localhost
+  hosts: stg-els601.phonepe.nm2
   cluster: foxtrot
   tableNamePrefix: foxtrot
   getQueryTimeout: 10000
@@ -30,7 +30,7 @@ riemann:
 hbase:
   secure: false
   tableName: foxtrot
-  hbaseZookeeperQuorum: localhost:2181
+  hbaseZookeeperQuorum: stg-dwhxenial002-stg-cloud005.phonepe.nm2:2181
   hbaseZookeeperClientPort: 2181
   seggregatedTablePrefix: foxtrot-
   hbaseZookeeperZnodeParent: /hbase-unsecure
@@ -80,12 +80,6 @@ emailConfig:
   password: AgjCxNI68hrnj6bIzuJCiZBlDXW+TioRoU11++Yx97
   url: /
 
-swagger:
-  resourcePackage: com.flipkart.foxtrot.server.resources
-  title: Foxtrot
-  description: A store abstraction and analytics system for real-time event data.
-  uriPrefix: "/foxtrot"
-
 gandalfConfig:
   httpConfig:
     usingZookeeper: false
@@ -125,7 +119,9 @@ segregationConfiguration:
     phonepe_consumer_app_android:
       phonepe_consumer_app_android_app_loaded:
         - APP_LOADED
-  ignoredEventConfigs:
-    phonepe_consumer_app_android:
-      - ACTIVITY_VISITED
+
+swagger:
+  resourcePackage: com.flipkart.foxtrot.server.resources
+  title: Foxtrot
+  description: A store abstraction and analytics system for real-time event data.
   uriPrefix: "/foxtrot"
