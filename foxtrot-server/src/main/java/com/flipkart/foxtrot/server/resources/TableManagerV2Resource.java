@@ -12,20 +12,14 @@
  */
 package com.flipkart.foxtrot.server.resources;
 
-import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.annotation.Timed;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.flipkart.foxtrot.common.Table;
 import com.flipkart.foxtrot.common.TableV2;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
 import com.flipkart.foxtrot.core.table.TableManager;
-import com.flipkart.foxtrot.gandalf.manager.PermissionManager;
-import com.phonepe.platform.http.HttpClientConfiguration;
-import com.phonepe.platform.http.OkHttpUtils;
-import com.phonepe.platform.http.ServiceEndpointProvider;
+import com.flipkart.foxtrot.gandalf.manager.GandalfManager;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-import okhttp3.OkHttpClient;
 
 import javax.validation.Valid;
 import javax.ws.rs.Consumes;
@@ -46,18 +40,14 @@ import javax.ws.rs.core.Response;
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
 @Api(value = "/v2/tables")
-public class TableManagerAdminResource {
+public class TableManagerV2Resource {
 
     private final TableManager tableManager;
-    private static OkHttpClient okHttp;
-    private static ServiceEndpointProvider endpointProvider;
-    private static ObjectMapper objectMapper;
+    private final GandalfManager gandalfManager;
 
-    public TableManagerAdminResource(TableManager tableManager, final ObjectMapper objectMapper, final MetricRegistry registry, ServiceEndpointProvider serviceEndpointProvider, HttpClientConfiguration httpClientConfiguration) {
-        this.objectMapper = objectMapper;
+    public TableManagerV2Resource(TableManager tableManager, GandalfManager gandalfManager) {
         this.tableManager = tableManager;
-        okHttp = OkHttpUtils.createDefaultClient("foxtrot-gandalf-client", registry, httpClientConfiguration);
-        endpointProvider = serviceEndpointProvider;
+        this.gandalfManager = gandalfManager;
     }
 
     @POST
@@ -67,8 +57,7 @@ public class TableManagerAdminResource {
                          @QueryParam("forceCreate") @DefaultValue("false") boolean forceCreate) {
         table.setName(ElasticsearchUtils.getValidTableName(table.getName()));
         tableManager.save(toWireModel(table), forceCreate);
-        PermissionManager permissionManager = new PermissionManager(objectMapper, okHttp, endpointProvider);
-        permissionManager.manage(table);
+        gandalfManager.manage(table);
         return Response.ok(table)
                 .build();
     }

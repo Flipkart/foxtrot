@@ -25,7 +25,7 @@ public class SeggregatedHBaseDataStoreTest {
     public void testSameTable() {
         HbaseConfig hbaseConfig = new HbaseConfig();
         hbaseConfig.setTableName("foxtrot-test");
-        Table table = new Table(TestUtils.TEST_TABLE_NAME,7, false);
+        Table table = new Table(TestUtils.TEST_TABLE_NAME, 7, false);
         Assert.assertEquals(hbaseConfig.getTableName(), TableUtil.getTableName(hbaseConfig, table));
     }
 

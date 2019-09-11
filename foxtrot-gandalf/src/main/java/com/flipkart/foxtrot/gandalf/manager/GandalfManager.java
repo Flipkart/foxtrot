@@ -22,32 +22,49 @@ import java.util.Optional;
 import java.util.Set;
 
 @Slf4j
-public class PermissionManager {
+public class GandalfManager {
 
     private final OkHttpClient okHttp;
     private final Endpoint endpoint;
     private final ObjectMapper mapper;
+    private final String username;
+    private final String password;
     private static final String AUTHORIZATION = "Authorization";
     private static final String ECHO = "echo";
     private static final MediaType APPLICATION_JSON = MediaType.parse("application/json");
 
-    public PermissionManager(ObjectMapper mapper, OkHttpClient okHttp, ServiceEndpointProvider endpointProvider) {
+    public GandalfManager(ObjectMapper mapper,
+                          OkHttpClient okHttp,
+                          ServiceEndpointProvider endpointProvider,
+                          String username,
+                          String password) {
         this.mapper = mapper;
         this.endpoint = endpoint(endpointProvider);
         this.okHttp = okHttp;
+        this.username = username;
+        this.password = password;
     }
 
     public void manage(TableV2 table) {
+        String authToken = getAuthToken(ECHO);
+        createPermission(authToken, table.getName());
+        String adminPermissionId = createPermission(authToken, "admin_" + table.getName());
+
+        String[] emailIds = table.getAdminEmails().replaceAll("\\s+", "").split(",");
+        for(String emailId: emailIds) {
+            addPermissionToUser(adminPermissionId, emailId, authToken);
+        }
+    }
+
+    private String createPermission(String authToken, String tableName) {
         String permissionId;
         Request request;
         RequestBody body;
         okhttp3.Response response;
         byte[] responseBody;
 
-        String authToken = getAuthToken(ECHO);
-
         final HttpUrl url = endpoint.url("/v1/permissions");
-        PermissionRequest permissionRequest = new PermissionRequest(table.getName(), true);
+        PermissionRequest permissionRequest = new PermissionRequest(tableName, true);
 
         try {
             body = RequestBody.create(APPLICATION_JSON,
@@ -69,11 +86,7 @@ public class PermissionManager {
             log.error("Error in creating permission Post Call response {}", response);
             throw new PermissionCreationException("Exception while creating new permission");
         }
-
-        String[] emailIds = table.getAdminEmails().replaceAll("\\s+", "").split(",");
-        for(String emailId: emailIds) {
-            createUserPermission(permissionId, emailId, authToken);
-        }
+        return permissionId;
     }
 
     private String getAuthToken(String namespace) {
@@ -82,7 +95,7 @@ public class PermissionManager {
         okhttp3.Response response;
         byte[] responseBody;
 
-        LoginRequest loginRequest = new PasswordLoginRequest("mudit.g@phonepe.com", "gandalf@echo",
+        LoginRequest loginRequest = new PasswordLoginRequest(username, password,
                             TTLInfo.builder()
                                     .jwtTtlSeconds(10)
                                     .ttlSeconds(10)
@@ -105,7 +118,7 @@ public class PermissionManager {
         }
     }
 
-    private void createUserPermission(String permissionId, String emailId, String authToken) {
+    private void addPermissionToUser(String permissionId, String emailId, String authToken) {
         RequestBody requestBody;
         okhttp3.Response response;
 
@@ -114,9 +127,9 @@ public class PermissionManager {
             throw new UserNotFoundException("Not able to retrieve user details with email : " + emailId);
         }
 
-        final HttpUrl url = endpoint.url(String.format("/v1/user/%s/permission/%s", user.getUserId(), permissionId);
+        final HttpUrl url = endpoint.url(String.format("/v1/user/%s/permission/%s", user.getUserId(), permissionId));
         Set<UserGroupNamespace> userGroupNamespaces = user.getUserGroupNamespaces();
-        Long userGroupId = 0L;
+        long userGroupId = 0L;
         int userGroupIdFlag = 0;
 
         for(UserGroupNamespace userGroupNamespace : userGroupNamespaces) {

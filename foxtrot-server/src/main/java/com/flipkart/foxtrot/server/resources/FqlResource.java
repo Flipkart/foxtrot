@@ -2,12 +2,8 @@ package com.flipkart.foxtrot.server.resources;
 
 import com.codahale.metrics.annotation.Timed;
 import com.fasterxml.jackson.core.JsonProcessingException;
-<<<<<<< HEAD
 import com.flipkart.foxtrot.gandalf.access.AccessService;
-=======
-import com.flipkart.foxtrot.common.access.AccessService;
 import com.flipkart.foxtrot.server.config.QueryConfig;
->>>>>>> 473db36fc522c02b3b5285fc5f43f40f4d24aad0
 import com.flipkart.foxtrot.server.providers.FlatToCsvConverter;
 import com.flipkart.foxtrot.server.providers.FoxtrotExtraMediaType;
 import com.flipkart.foxtrot.sql.FqlEngine;

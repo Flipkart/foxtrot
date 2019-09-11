@@ -18,7 +18,6 @@ import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
 import com.flipkart.foxtrot.core.table.TableManager;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-
 import javax.validation.Valid;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;

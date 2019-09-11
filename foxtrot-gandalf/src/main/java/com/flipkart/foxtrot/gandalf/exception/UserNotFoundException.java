@@ -9,7 +9,7 @@ import java.util.Map;
 public class UserNotFoundException extends FoxtrotException {
     private final String message;
 
-    public UserNotFoundException (String message) {
+    public UserNotFoundException(String message) {
         super(ErrorCode.USER_NOT_FOUND);
         this.message = message;
     }

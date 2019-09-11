@@ -11,7 +11,7 @@ public class EndpointNotFoundException extends FoxtrotException {
     private final String message;
 
     public EndpointNotFoundException(String message) {
-        super(ErrorCode.INTERNAL_SERVER_ERROR);
+        super(ErrorCode.ENDPOINT_NOT_FOUND_ERROR);
         this.message = message;
     }
 
