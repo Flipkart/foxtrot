@@ -56,7 +56,7 @@ public abstract class Action<P extends ActionRequest> {
         this.objectMapper = analyticsLoader.getObjectMapper();
     }
 
-    private void preProcessRequest(String email) {
+    public void preProcessRequest(String email) {
         if (parameter.getFilters() == null) {
             parameter.setFilters(Lists.newArrayList(new AnyFilter()));
         }
@@ -138,8 +138,7 @@ public abstract class Action<P extends ActionRequest> {
                 .build();
     }
 
-    public ActionResponse execute(String email) {
-        preProcessRequest(email);
+    public ActionResponse execute() {
         return execute(parameter);
     }
 
