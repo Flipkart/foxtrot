@@ -64,14 +64,15 @@ public class HbaseTableConnection implements Managed {
     }
 
     public synchronized void createTable(final Table table) throws IOException {
+        HTableDescriptor hTableDescriptor = constructHTableDescriptor(table);
+        hBaseAdmin.createTable(hTableDescriptor);
+    }
+
+    public synchronized void updateTable(final Table table) throws IOException {
         String tableName = TableUtil.getTableName(hbaseConfig, table);
 
-        HTableDescriptor hTableDescriptor = new HTableDescriptor(TableName.valueOf(tableName));
-        HColumnDescriptor hColumnDescriptor = new HColumnDescriptor(DEFAULT_FAMILY_NAME);
-        hColumnDescriptor.setCompressionType(Compression.Algorithm.GZ);
-        hColumnDescriptor.setTimeToLive(Math.toIntExact(TimeUnit.DAYS.toSeconds(table.getTtl())));
-        hTableDescriptor.addFamily(hColumnDescriptor);
-        hBaseAdmin.createTable(hTableDescriptor);
+        HTableDescriptor hTableDescriptor = constructHTableDescriptor(table);
+        hBaseAdmin.modifyTable(TableName.valueOf(tableName), hTableDescriptor);
     }
 
     public String getHBaseTableName(final Table table) {
@@ -95,5 +96,16 @@ public class HbaseTableConnection implements Managed {
 
     public HbaseConfig getHbaseConfig() {
         return hbaseConfig;
+    }
+
+    private HTableDescriptor constructHTableDescriptor(final Table table) {
+        String tableName = TableUtil.getTableName(hbaseConfig, table);
+
+        HTableDescriptor hTableDescriptor = new HTableDescriptor(TableName.valueOf(tableName));
+        HColumnDescriptor hColumnDescriptor = new HColumnDescriptor(DEFAULT_FAMILY_NAME);
+        hColumnDescriptor.setCompressionType(Compression.Algorithm.GZ);
+        hColumnDescriptor.setTimeToLive(Math.toIntExact(TimeUnit.DAYS.toSeconds(table.getTtl())));
+        hTableDescriptor.addFamily(hColumnDescriptor);
+        return hTableDescriptor;
     }
 }
