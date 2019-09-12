@@ -253,9 +253,8 @@ public class HBaseDataStore implements DataStore {
         try {
             boolean isTableAvailable = tableWrapper.isTableAvailable(table);
             if (isTableAvailable) {
-                return;
+                tableWrapper.updateTable(table);
             }
-            tableWrapper.updateTable(table);
         } catch (IOException e) {
             throw FoxtrotExceptions.createConnectionException(table, e);
         }
