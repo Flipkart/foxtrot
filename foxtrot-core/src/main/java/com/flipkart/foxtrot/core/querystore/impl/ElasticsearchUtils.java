@@ -29,6 +29,7 @@ import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.common.xcontent.XContentFactory;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
+import org.joda.time.LocalDate;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.slf4j.Logger;
@@ -109,6 +110,7 @@ public class ElasticsearchUtils {
     public static String getIndices(final String table) {
         return String.format("%s-%s-%s-*", getTableNamePrefix(), table, ElasticsearchUtils.TABLENAME_POSTFIX);
     }
+
 
     public static String getCurrentIndex(final String table, long timestamp) {
         //TODO::THROW IF TIMESTAMP IS BEYOND TABLE META.TTL
@@ -295,5 +297,10 @@ public class ElasticsearchUtils {
 
     static String getAllIndicesPattern() {
         return String.format("%s-*-%s-*", getTableNamePrefix(), ElasticsearchUtils.TABLENAME_POSTFIX);
+    }
+
+    public static String getTodayIndicesPattern() {
+        String datePostfix = FORMATTER.print(LocalDate.now());
+        return String.format("%s-.*-%s-%s", getTableNamePrefix(), ElasticsearchUtils.TABLENAME_POSTFIX, datePostfix);
     }
 }
