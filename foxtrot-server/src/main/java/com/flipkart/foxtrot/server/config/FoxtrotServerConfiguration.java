@@ -103,5 +103,4 @@ public class FoxtrotServerConfiguration extends Configuration {
         this.restrictAccess = true;
         this.queryConfig = new QueryConfig();
     }
-
 }
