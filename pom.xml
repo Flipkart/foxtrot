@@ -179,6 +179,11 @@
                 <artifactId>slf4j-api</artifactId>
                 <version>1.7.21</version>
             </dependency>
+            <dependency>
+                <artifactId>io.github.openfeign</artifactId>
+                <groupId>feign-httpclient</groupId>
+                <version>10.1.0</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
     <dependencies>
@@ -254,6 +259,30 @@
             <groupId>com.phonepe.gandalf</groupId>
             <artifactId>gandalf-client</artifactId>
             <version>1.2.2</version>
+        </dependency>
+        <dependency>
+            <groupId>com.phonepe.gandalf</groupId>
+            <artifactId>gandalf-models</artifactId>
+            <version>1.2.2</version>
+        </dependency>
+        <dependency>
+            <groupId>com.phonepe.platform.http</groupId>
+            <artifactId>http-client</artifactId>
+            <version>1.7.13</version>
+            <exclusions>
+                <exclusion>
+                    <artifactId>io.github.openfeign</artifactId>
+                    <groupId>feign-jackson</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>io.github.openfeign</artifactId>
+                    <groupId>feign-okhttp</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>io.github.openfeign</artifactId>
+                    <groupId>feign-httpclient</groupId>
+                </exclusion>
+            </exclusions>
         </dependency>
     </dependencies>
 
