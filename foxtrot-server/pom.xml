@@ -79,6 +79,10 @@
 					<artifactId>io.github.openfeign</artifactId>
 					<groupId>feign-okhttp</groupId>
 				</exclusion>
+				<exclusion>
+					<artifactId>io.github.openfeign</artifactId>
+					<groupId>feign-httpclient</groupId>
+				</exclusion>
 			</exclusions>
 		</dependency>
 		<dependency>
