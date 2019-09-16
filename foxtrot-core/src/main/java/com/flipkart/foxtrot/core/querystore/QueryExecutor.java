@@ -60,6 +60,7 @@ public class QueryExecutor {
         ActionEvaluationResponse evaluationResponse = null;
         try {
             action = resolve(request);
+            action.preProcessRequest(email);
             final ActionResponse cachedData = readCachedData(analyticsLoader.getCacheManager(), request, action);
             if (cachedData != null) {
                 cachedData.setFromCache(true);
@@ -68,7 +69,7 @@ public class QueryExecutor {
                 return cachedData;
             }
             notifyObserverPreExec(request);
-            final ActionResponse response = action.execute(email);
+            final ActionResponse response = action.execute();
             evaluationResponse = ActionEvaluationResponse.success(
                     action, request, response, stopwatch.elapsed(TimeUnit.MILLISECONDS), false);
             return response;

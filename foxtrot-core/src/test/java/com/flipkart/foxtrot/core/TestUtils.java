@@ -33,7 +33,6 @@ import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsProvider;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConnection;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
 import com.flipkart.foxtrot.core.table.impl.TableMapStore;
-import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -114,7 +113,8 @@ public class TestUtils {
             }
             final String opcode = analyticsProvider.opcode();
             analyticsLoader.register(
-                    new ActionMetadata(analyticsProvider.request(), action, analyticsProvider.cacheable()));
+                    new ActionMetadata(analyticsProvider.request(), action, analyticsProvider.cacheable()),
+                    analyticsProvider.opcode());
             if(analyticsProvider.cacheable()) {
                 analyticsLoader.registerCache(opcode);
             }
