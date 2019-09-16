@@ -32,7 +32,6 @@
             <groupId>com.phonepe.gandalf</groupId>
             <artifactId>gandalf-models</artifactId>
             <version>1.2.2</version>
-            <scope>compile</scope>
         </dependency>
     </dependencies>
 </project>
