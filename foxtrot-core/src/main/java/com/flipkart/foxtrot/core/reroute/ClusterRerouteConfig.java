@@ -1,31 +1,20 @@
 package com.flipkart.foxtrot.core.reroute;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import com.flipkart.foxtrot.core.jobs.BaseJobConfig;
 import lombok.Data;
 
 /***
  Created by mudit.g on Feb, 2019
  ***/
 @Data
-public class ClusterRerouteConfig {
+public class ClusterRerouteConfig extends BaseJobConfig {
 
-    public static final String JOB_NAME = "ClusterReroute";
+    private static final String JOB_NAME = "ClusterReallocation";
 
-    private boolean rerouteEnabled = true;
+    private double thresholdShardCountPercentage = 20;
 
-    private int waitBeforeNextReallocationInMinutes = 20;
-
-    private int cacheSize = 20;
-
-    private String recipients = "mudit.g@phonepe.com, nitish.goyal@phonepe.com";
-
-    private int noOfRetries = 3;
-
-    private int noOfShardsToBeReallocated = 2;
-
-    private List<String> exceptionMessages = new ArrayList<>(Arrays.asList("EsRejectedExecutionException"));
-
-    private int maxTimeToRunRerouteJobInMinutes = 5;
+    @Override
+    public String getJobName() {
+        return JOB_NAME;
+    }
 }

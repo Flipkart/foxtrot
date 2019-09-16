@@ -43,6 +43,8 @@ import com.flipkart.foxtrot.core.querystore.handlers.SlowQueryReporter;
 import com.flipkart.foxtrot.core.querystore.impl.*;
 import com.flipkart.foxtrot.core.querystore.mutator.IndexerEventMutator;
 import com.flipkart.foxtrot.core.querystore.mutator.LargeTextNodeRemover;
+import com.flipkart.foxtrot.core.reroute.ClusterRerouteJob;
+import com.flipkart.foxtrot.core.reroute.ClusterRerouteManager;
 import com.flipkart.foxtrot.core.table.TableMetadataManager;
 import com.flipkart.foxtrot.core.table.impl.DistributedTableMetadataManager;
 import com.flipkart.foxtrot.core.table.impl.FoxtrotTableManager;
@@ -252,6 +254,9 @@ public class FoxtrotServer extends Application<FoxtrotServerConfiguration> {
                 cacheManager, objectMapper, emailConfig, null
         );
 
+        ClusterRerouteManager clusterRerouteManager = new ClusterRerouteManager(
+                elasticsearchConnection, configuration.getClusterRerouteConfig());
+
         QueryExecutor executor = new QueryExecutor(analyticsLoader, executorService,
                 ImmutableList.<ActionExecutionObserver>builder()
                         .add(new MetricRecorder())
@@ -272,6 +277,8 @@ public class FoxtrotServer extends Application<FoxtrotServerConfiguration> {
                 consoleHistoryConfig,
                 elasticsearchConnection,
                 hazelcastConnection, objectMapper);
+        ClusterRerouteJob clusterRerouteJob = new ClusterRerouteJob(scheduledExecutorService, configuration.getClusterRerouteConfig(),
+                clusterRerouteManager, hazelcastConnection);
 
         List<HealthCheck> healthChecks = new ArrayList<>();
         ClusterManager clusterManager = new ClusterManager(hazelcastConnection, healthChecks,
@@ -309,6 +316,8 @@ public class FoxtrotServer extends Application<FoxtrotServerConfiguration> {
                 .manage(esIndexOptimizationManager);
         environment.lifecycle()
                 .manage(consoleHistoryManager);
+        environment.lifecycle()
+                .manage(clusterRerouteJob);
 
         environment.jersey()
                 .register(new DocumentResource(queryStore, configuration.getSegregationConfiguration()));
@@ -341,6 +350,8 @@ public class FoxtrotServer extends Application<FoxtrotServerConfiguration> {
                 .register(new ClusterHealthResource(queryStore));
         environment.jersey()
                 .register(new CacheUpdateResource(executorService, tableMetadataManager));
+        environment.jersey()
+                .register(new ESClusterResource(clusterRerouteManager));
         environment.jersey()
                 .register(new FlatResponseTextProvider());
         environment.jersey()

@@ -22,6 +22,7 @@ import com.flipkart.foxtrot.core.jobs.optimization.EsIndexOptimizationConfig;
 import com.flipkart.foxtrot.core.querystore.impl.CacheConfig;
 import com.flipkart.foxtrot.core.querystore.impl.ClusterConfig;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConfig;
+import com.flipkart.foxtrot.core.reroute.ClusterRerouteConfig;
 import com.flipkart.foxtrot.server.jobs.consolehistory.ConsoleHistoryConfig;
 import com.phonepe.gandalf.models.client.GandalfClientConfig;
 import io.appform.dropwizard.discovery.bundle.ServiceDiscoveryConfiguration;
@@ -91,6 +92,8 @@ public class FoxtrotServerConfiguration extends Configuration {
     @Builder.Default
     private TextNodeRemoverConfiguration textNodeRemover = new TextNodeRemoverConfiguration();
 
+    private ClusterRerouteConfig clusterRerouteConfig;
+
     public FoxtrotServerConfiguration() {
         this.hbase = new HbaseConfig();
         this.elasticsearch = new ElasticsearchConfig();
@@ -102,5 +105,6 @@ public class FoxtrotServerConfiguration extends Configuration {
         this.riemann = new RiemannConfig();
         this.restrictAccess = true;
         this.queryConfig = new QueryConfig();
+        this.clusterRerouteConfig = new ClusterRerouteConfig();
     }
 }
