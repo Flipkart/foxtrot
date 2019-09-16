@@ -120,6 +120,10 @@ primerBundleConfiguration:
 
 restrictAccess: false
 
+gandalfConfiguration:
+  username: "mudit.g@phonepe.com"
+  password: "gandalf@echo"
+
 segregationConfiguration:
   tableEventConfigs:
     phonepe_consumer_app_android:

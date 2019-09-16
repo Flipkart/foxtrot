@@ -107,5 +107,4 @@ public class FoxtrotServerConfiguration extends Configuration {
         this.queryConfig = new QueryConfig();
         this.clusterRerouteConfig = new ClusterRerouteConfig();
     }
-
 }

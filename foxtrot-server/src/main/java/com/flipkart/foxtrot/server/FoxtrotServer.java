@@ -18,8 +18,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.jsontype.NamedType;
 import com.flipkart.foxtrot.common.TableActionRequestVisitor;
-import com.flipkart.foxtrot.common.access.AccessService;
-import com.flipkart.foxtrot.common.access.AccessServiceImpl;
+import com.flipkart.foxtrot.gandalf.access.AccessService;
+import com.flipkart.foxtrot.gandalf.access.AccessServiceImpl;
 import com.flipkart.foxtrot.core.alerts.EmailConfig;
 import com.flipkart.foxtrot.core.cache.CacheManager;
 import com.flipkart.foxtrot.core.cache.impl.DistributedCacheFactory;
@@ -49,6 +49,7 @@ import com.flipkart.foxtrot.core.table.TableMetadataManager;
 import com.flipkart.foxtrot.core.table.impl.DistributedTableMetadataManager;
 import com.flipkart.foxtrot.core.table.impl.FoxtrotTableManager;
 import com.flipkart.foxtrot.core.util.MetricUtil;
+import com.flipkart.foxtrot.gandalf.manager.GandalfManager;
 import com.flipkart.foxtrot.server.cluster.ClusterManager;
 import com.flipkart.foxtrot.server.config.FoxtrotServerConfiguration;
 import com.flipkart.foxtrot.server.config.GandalfConfiguration;
@@ -68,6 +69,9 @@ import com.google.common.collect.Lists;
 import com.phonepe.gandalf.client.GandalfBundle;
 import com.phonepe.gandalf.client.GandalfClient;
 import com.phonepe.gandalf.models.client.GandalfClientConfig;
+import com.phonepe.platform.http.OkHttpUtils;
+import com.phonepe.platform.http.ServiceEndpointProvider;
+import com.phonepe.platform.http.ServiceEndpointProviderFactory;
 import com.phonepe.rosey.dwconfig.RoseyConfigSourceProvider;
 import io.appform.dropwizard.discovery.bundle.ServiceDiscoveryBundle;
 import io.appform.dropwizard.discovery.bundle.ServiceDiscoveryConfiguration;
@@ -85,6 +89,7 @@ import io.dropwizard.setup.Environment;
 import io.dropwizard.util.Duration;
 import io.federecio.dropwizard.swagger.SwaggerBundle;
 import io.federecio.dropwizard.swagger.SwaggerBundleConfiguration;
+import okhttp3.OkHttpClient;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.curator.framework.CuratorFramework;
 import org.eclipse.jetty.servlets.CrossOriginFilter;
@@ -101,6 +106,8 @@ import java.util.concurrent.ScheduledExecutorService;
  * User: Santanu Sinha (santanu.sinha@flipkart.com) Date: 15/03/14 Time: 9:38 PM
  */
 public class FoxtrotServer extends Application<FoxtrotServerConfiguration> {
+
+    private ServiceDiscoveryBundle<FoxtrotServerConfiguration> serviceDiscoveryBundle;
 
     @Override
     public String getName() {
@@ -126,7 +133,7 @@ public class FoxtrotServer extends Application<FoxtrotServerConfiguration> {
             }
         });
 
-        ServiceDiscoveryBundle serviceDiscoveryBundle = new ServiceDiscoveryBundle<FoxtrotServerConfiguration>() {
+        this.serviceDiscoveryBundle = new ServiceDiscoveryBundle<FoxtrotServerConfiguration>() {
             @Override
             protected ServiceDiscoveryConfiguration getRangerConfiguration(FoxtrotServerConfiguration configuration) {
                 return configuration.getServiceDiscovery();
@@ -276,6 +283,19 @@ public class FoxtrotServer extends Application<FoxtrotServerConfiguration> {
         List<HealthCheck> healthChecks = new ArrayList<>();
         ClusterManager clusterManager = new ClusterManager(hazelcastConnection, healthChecks,
                 configuration.getServerFactory());
+
+        ServiceEndpointProviderFactory serviceEndpointFactory = new ServiceEndpointProviderFactory(this.serviceDiscoveryBundle.getCurator());
+        ServiceEndpointProvider gandalfEndpoint = serviceEndpointFactory.provider(configuration.getGandalfConfig().getHttpConfig(), environment);
+
+        OkHttpClient okHttp = OkHttpUtils.createDefaultClient("foxtrot-gandalf-client",
+                environment.metrics(),
+                configuration.getGandalfConfig().getHttpConfig());
+        GandalfManager gandalfManager = new GandalfManager(environment.getObjectMapper(),
+                okHttp,
+                gandalfEndpoint,
+                configuration.getGandalfConfiguration().getUsername(),
+                configuration.getGandalfConfiguration().getPassword());
+
         environment.lifecycle()
                 .manage(hbaseTableConnection);
         environment.lifecycle()
@@ -309,6 +329,8 @@ public class FoxtrotServer extends Application<FoxtrotServerConfiguration> {
                 .register(new AnalyticsV2Resource(executor, accessService, configuration.getQueryConfig()));
         environment.jersey()
                 .register(new TableManagerResource(tableManager));
+        environment.jersey()
+                .register(new TableManagerV2Resource(tableManager, gandalfManager));
         environment.jersey()
                 .register(new TableFieldMappingResource(tableManager, tableMetadataManager));
         environment.jersey()

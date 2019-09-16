@@ -4,7 +4,7 @@ import com.codahale.metrics.annotation.Timed;
 import com.flipkart.foxtrot.common.ActionRequest;
 import com.flipkart.foxtrot.common.ActionResponse;
 import com.flipkart.foxtrot.common.ActionValidationResponse;
-import com.flipkart.foxtrot.common.access.AccessService;
+import com.flipkart.foxtrot.gandalf.access.AccessService;
 import com.flipkart.foxtrot.core.common.AsyncDataToken;
 import com.flipkart.foxtrot.core.exception.FoxtrotExceptions;
 import com.flipkart.foxtrot.core.querystore.QueryExecutor;

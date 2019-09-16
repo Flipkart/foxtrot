@@ -14,10 +14,13 @@ package com.flipkart.foxtrot.server.resources;
 
 import com.codahale.metrics.annotation.Timed;
 import com.flipkart.foxtrot.common.Table;
+import com.flipkart.foxtrot.common.TableV2;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
 import com.flipkart.foxtrot.core.table.TableManager;
+import com.flipkart.foxtrot.gandalf.manager.GandalfManager;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+
 import javax.validation.Valid;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -33,25 +36,28 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 
-@Path("/v1/tables")
+@Path("/v2/tables")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
-@Api(value = "/v1/tables")
-public class TableManagerResource {
+@Api(value = "/v2/tables")
+public class TableManagerV2Resource {
 
     private final TableManager tableManager;
+    private final GandalfManager gandalfManager;
 
-    public TableManagerResource(TableManager tableManager) {
+    public TableManagerV2Resource(TableManager tableManager, GandalfManager gandalfManager) {
         this.tableManager = tableManager;
+        this.gandalfManager = gandalfManager;
     }
 
     @POST
     @Timed
     @ApiOperation("Save Table")
-    public Response save(@Valid final Table table,
-            @QueryParam("forceCreate") @DefaultValue("false") boolean forceCreate) {
+    public Response save(@Valid final TableV2 table,
+                         @QueryParam("forceCreate") @DefaultValue("false") boolean forceCreate) {
         table.setName(ElasticsearchUtils.getValidTableName(table.getName()));
-        tableManager.save(table, forceCreate);
+        tableManager.save(toWireModel(table), forceCreate);
+        gandalfManager.manage(table);
         return Response.ok(table)
                 .build();
     }
@@ -96,6 +102,13 @@ public class TableManagerResource {
     public Response getAll() {
         return Response.ok()
                 .entity(tableManager.getAll())
+                .build();
+    }
+
+    private static Table toWireModel(TableV2 table) {
+        return Table.builder()
+                .name(table.getName())
+                .ttl(table.getTtl())
                 .build();
     }
 }

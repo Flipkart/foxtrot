@@ -43,6 +43,11 @@
 		<!-- Internal -->
 		<dependency>
 			<groupId>com.flipkart.foxtrot</groupId>
+			<artifactId>foxtrot-gandalf</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.flipkart.foxtrot</groupId>
 			<artifactId>foxtrot-sql</artifactId>
 			<version>${project.version}</version>
 		</dependency>

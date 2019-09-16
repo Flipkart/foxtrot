@@ -3807,6 +3807,8 @@ div.tab button:first-child {
 }
 .logout {
   cursor: pointer;
+  width: 24px;
+  height: 24px;
 }
 
 #logout {

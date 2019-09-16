@@ -10,4 +10,7 @@ public class GandalfConfiguration {
 
     private String redirectUrl;
 
+    private String username;
+
+    private String password;
 }
