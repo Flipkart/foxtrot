@@ -72,6 +72,12 @@ deletionconfig:
   interval: 86400
   initialdelay: 60
 
+clusterRerouteConfig:
+  active: false
+  interval: 86400
+  initialDelay: 10
+  thresholdShardCountPercentage: 10
+
 emailConfig:
   from: noreply@phonepe.com
   host: ops-jump001.phonepe.nm1

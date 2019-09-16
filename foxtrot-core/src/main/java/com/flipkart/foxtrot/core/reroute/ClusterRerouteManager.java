@@ -44,7 +44,7 @@ public class ClusterRerouteManager {
         double avgShardsPerNode = Math.ceil((double) totalShards / (double) nodeIdVsNodeInfoMap.size());
         double acceptableShardsPerNode = avgShardsPerNode +
                 Math.ceil((avgShardsPerNode * clusterRerouteConfig.getThresholdShardCountPercentage()) / 100);
-        Deque<String> vacantNodeIds = getVacantNodeIs((int) avgShardsPerNode);
+        Deque<String> vacantNodeIds = getVacantNodeId((int) avgShardsPerNode);
 
         for (Map.Entry<String, NodeInfo> nodeIdVsNodeInfo: nodeIdVsNodeInfoMap.entrySet()) {
             int shardCount = nodeIdVsNodeInfo.getValue().getShardInfos().size();
@@ -73,7 +73,7 @@ public class ClusterRerouteManager {
             Thread.sleep(2000);
             return clusterRerouteResponse.isAcknowledged();
         } catch (Exception e) {
-            log.error(String.format("Error in reallocating Shard. From Node: %s To Node: %s. Error Message: %s", fromNode, toNode, e.getMessage()), e);
+            log.error(String.format("Error in Reallocating Shard. From Node: %s To Node: %s. Error Message: %s", fromNode, toNode, e.getMessage()), e);
             return false;
         }
     }
@@ -91,7 +91,8 @@ public class ClusterRerouteManager {
                     if(shardStats.getShardRouting()
                             .shardId()
                             .getIndexName()
-                            .matches(ElasticsearchUtils.getTodayIndicesPattern())) {
+                            .matches(ElasticsearchUtils.getTodayIndicesPattern())
+                            && !shardStats.getShardRouting().relocating()) {
                         ShardId shardId = shardStats.getShardRouting()
                                 .shardId();
                         ShardInfo shardInfo = ShardInfo.builder()
@@ -136,7 +137,7 @@ public class ClusterRerouteManager {
         return totalShards;
     }
 
-    private Deque<String> getVacantNodeIs(int avgShardsPerNode) {
+    private Deque<String> getVacantNodeId(int avgShardsPerNode) {
         Deque<String> vacantNodeIds = new ArrayDeque<>();
         for (Map.Entry<String, NodeInfo> nodeIdVsNodeInfo: nodeIdVsNodeInfoMap.entrySet()) {
             int shardCount = nodeIdVsNodeInfo.getValue().getShardInfos().size();
