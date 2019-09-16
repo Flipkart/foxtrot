@@ -70,6 +70,16 @@
 			<groupId>com.phonepe.platform.http</groupId>
 			<artifactId>http-client</artifactId>
 			<version>1.7.13</version>
+			<exclusions>
+				<exclusion>
+					<artifactId>io.github.openfeign</artifactId>
+					<groupId>feign-jackson</groupId>
+				</exclusion>
+				<exclusion>
+					<artifactId>io.github.openfeign</artifactId>
+					<groupId>feign-okhttp</groupId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>com.flipkart.foxtrot</groupId>
