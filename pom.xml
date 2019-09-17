@@ -78,6 +78,7 @@
         <sonar.jacoco.reportPaths>${project.basedir}/target/jacoco.exec</sonar.jacoco.reportPaths>
         <sonar.language>java</sonar.language>
         <sonar.exclusions>**com/flipkart/foxtrot/common/**/*</sonar.exclusions>
+        <sonar.test.exclusions>**com/flipkart/foxtrot/gandalf/**/*</sonar.test.exclusions>
     </properties>
 
     <modules>
