@@ -259,12 +259,12 @@
         <dependency>
             <groupId>com.phonepe.gandalf</groupId>
             <artifactId>gandalf-client</artifactId>
-            <version>1.1.16</version>
+            <version>1.2.2</version>
         </dependency>
         <dependency>
             <groupId>com.phonepe.gandalf</groupId>
             <artifactId>gandalf-models</artifactId>
-            <version>1.1.16</version>
+            <version>1.2.2</version>
         </dependency>
         <dependency>
             <groupId>com.phonepe.platform.http</groupId>
