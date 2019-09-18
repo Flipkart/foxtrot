@@ -70,7 +70,7 @@ public class ClusterRerouteManager {
                     .reroute(clusterRerouteRequest)
                     .actionGet();
             log.info(String.format("Reallocating Shard. From Node: %s To Node: %s", fromNode, toNode));
-            Thread.sleep(2000);
+            Thread.sleep(5000);
             return clusterRerouteResponse.isAcknowledged();
         } catch (Exception e) {
             log.error(String.format("Error in Reallocating Shard. From Node: %s To Node: %s. Error Message: %s", fromNode, toNode, e.getMessage()), e);
@@ -79,6 +79,7 @@ public class ClusterRerouteManager {
     }
 
     private void createNodeInfoMap() {
+        nodeIdVsNodeInfoMap.clear();
         IndicesStatsRequest indicesStatsRequest = new IndicesStatsRequest();
         indicesStatsRequest.all();
         IndicesStatsResponse indicesStatsResponse = connection.getClient()
@@ -116,6 +117,7 @@ public class ClusterRerouteManager {
     }
 
     private void createNodeNameVsNodeIdMap() {
+        nodeNameVsNodeId.clear();
         NodesInfoRequest nodesInfoRequest = new NodesInfoRequest();
         nodesInfoRequest.all();
         NodesInfoResponse nodesInfoResponse = connection.getClient()
