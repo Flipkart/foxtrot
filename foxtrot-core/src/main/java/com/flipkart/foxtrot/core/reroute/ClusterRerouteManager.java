@@ -1,5 +1,6 @@
 package com.flipkart.foxtrot.core.reroute;
 
+import com.flipkart.foxtrot.common.Date;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConnection;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
 import com.google.common.collect.BiMap;
@@ -16,6 +17,7 @@ import org.elasticsearch.cluster.routing.allocation.command.MoveAllocationComman
 import org.elasticsearch.index.shard.ShardId;
 
 import java.util.*;
+import org.joda.time.DateTime;
 
 /***
  Created by mudit.g on Sep, 2019
@@ -70,7 +72,7 @@ public class ClusterRerouteManager {
                     .reroute(clusterRerouteRequest)
                     .actionGet();
             log.info(String.format("Reallocating Shard. From Node: %s To Node: %s", fromNode, toNode));
-            Thread.sleep(5000);
+            Thread.sleep((new Date(DateTime.now()).getHourOfDay() + 1) * 4000L);
             return clusterRerouteResponse.isAcknowledged();
         } catch (Exception e) {
             log.error(String.format("Error in Reallocating Shard. From Node: %s To Node: %s. Error Message: %s", fromNode, toNode, e.getMessage()), e);
