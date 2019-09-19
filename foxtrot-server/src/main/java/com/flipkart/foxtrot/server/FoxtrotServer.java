@@ -347,7 +347,7 @@ public class FoxtrotServer extends Application<FoxtrotServerConfiguration> {
         environment.jersey()
                 .register(new UtilResource(configuration));
         environment.jersey()
-                .register(new ClusterHealthResource(queryStore));
+                .register(new ClusterHealthResource(queryStore, tableManager, tableMetadataManager));
         environment.jersey()
                 .register(new CacheUpdateResource(executorService, tableMetadataManager));
         environment.jersey()
