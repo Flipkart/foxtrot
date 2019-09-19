@@ -72,7 +72,7 @@ public class ClusterRerouteManager {
                     .reroute(clusterRerouteRequest)
                     .actionGet();
             log.info(String.format("Reallocating Shard. From Node: %s To Node: %s", fromNode, toNode));
-            Thread.sleep((new Date(DateTime.now()).getHourOfDay() + 1) * 5000L);
+            Thread.sleep((new Date(DateTime.now()).getHourOfDay() + 1) * 4000L);
             return clusterRerouteResponse.isAcknowledged();
         } catch (Exception e) {
             log.error(String.format("Error in Reallocating Shard. From Node: %s To Node: %s. Error Message: %s", fromNode, toNode, e.getMessage()), e);
