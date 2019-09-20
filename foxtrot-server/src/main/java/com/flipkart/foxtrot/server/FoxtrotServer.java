@@ -378,8 +378,8 @@ public class FoxtrotServer extends Application<FoxtrotServerConfiguration> {
         MetricUtil.setup(environment.metrics());
         GandalfConfiguration gandalfConfiguration = configuration.getGandalfConfiguration();
         if (gandalfConfiguration != null && StringUtils.isNotEmpty(gandalfConfiguration.getRedirectUrl())) {
-            GandalfClient.initializeUrlPatternsAuthentication(gandalfConfiguration.getRedirectUrl(), "/echo/*",
-                    "/cluster/*", "/fql/*", "/", "/index.html");
+            GandalfClient.initializeUrlPatternsAuthentication(gandalfConfiguration.getRedirectUrl(),
+                gandalfConfiguration.getServiceBaseUrl(), "/echo/*", "/cluster/*", "/fql/*", "/", "/index.html");
         }
 
     }
