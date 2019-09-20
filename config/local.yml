@@ -121,6 +121,7 @@ primerBundleConfiguration:
 restrictAccess: false
 
 gandalfConfiguration:
+  serviceBaseUrl: "localhost:17000"
   username: "mudit.g@phonepe.com"
   password: "gandalf@echo"
 
