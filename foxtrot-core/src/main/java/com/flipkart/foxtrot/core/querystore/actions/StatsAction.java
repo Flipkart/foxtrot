@@ -22,6 +22,7 @@ import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.elasticsearch.search.aggregations.metrics.percentiles.Percentiles;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -114,20 +115,29 @@ public class StatsAction extends Action<StatsRequest> {
     public SearchRequestBuilder getRequestBuilder(StatsRequest parameter) {
         SearchRequestBuilder searchRequestBuilder;
         try {
+            final String table = parameter.getTable();
             searchRequestBuilder = getConnection().getClient()
-                    .prepareSearch(ElasticsearchUtils.getIndices(parameter.getTable(), parameter))
+                    .prepareSearch(ElasticsearchUtils.getIndices(table, parameter))
                     .setTypes(ElasticsearchUtils.DOCUMENT_TYPE_NAME)
                     .setIndicesOptions(Utils.indicesOptions())
                     .setQuery(new ElasticSearchQueryGenerator().genFilter(parameter.getFilters()))
                     .setSize(QUERY_SIZE);
             AbstractAggregationBuilder percentiles = null;
-            if(!AnalyticsRequestFlags.hasFlag(parameter.getFlags(), AnalyticsRequestFlags.STATS_SKIP_PERCENTILES)) {
-                percentiles = Utils.buildPercentileAggregation(getParameter().getField(), getParameter().getPercentiles());
-                searchRequestBuilder.addAggregation(percentiles);
+            final String field = getParameter().getField();
+            boolean isNumericField = Utils.isNumericField(getTableMetadataManager(), table, field);
+            final AbstractAggregationBuilder extendedStats;
+            if(isNumericField) {
+                if (!AnalyticsRequestFlags.hasFlag(parameter.getFlags(),
+                                                   AnalyticsRequestFlags.STATS_SKIP_PERCENTILES)) {
+                    percentiles = Utils.buildPercentileAggregation(field, getParameter().getPercentiles());
+                    searchRequestBuilder.addAggregation(percentiles);
+                }
+                extendedStats = Utils.buildStatsAggregation(field, getParameter().getStats());
             }
-            AbstractAggregationBuilder extendedStats = Utils.buildStatsAggregation(getParameter().getField(), getParameter().getStats());
+            else {
+                extendedStats = Utils.buildStatsAggregation(field, Collections.singleton(Stat.COUNT));
+            }
             searchRequestBuilder.addAggregation(extendedStats);
-
             if(!CollectionUtils.isNullOrEmpty(getParameter().getNesting())) {
                 final HashSet<AggregationBuilder> subAggregations = new HashSet<>();
                 subAggregations.add(extendedStats);
