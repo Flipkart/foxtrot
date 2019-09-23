@@ -50,8 +50,9 @@ public class GreaterEqualFilter extends NumericBinaryFilter {
     public boolean equals(Object o) {
         if (this == o) {
             return true;
-        }
-        if (!(o instanceof GreaterEqualFilter)) {
+        } else if (!(o instanceof GreaterEqualFilter)) {
+            return false;
+        } else if (!super.equals(o)) {
             return false;
         }
 

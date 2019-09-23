@@ -50,8 +50,9 @@ public class LessEqualFilter extends NumericBinaryFilter {
     public boolean equals(Object o) {
         if (this == o) {
             return true;
-        }
-        if (!(o instanceof LessEqualFilter)) {
+        } else if (!(o instanceof LessEqualFilter)) {
+            return false;
+        } else if (!super.equals(o)) {
             return false;
         }
 
