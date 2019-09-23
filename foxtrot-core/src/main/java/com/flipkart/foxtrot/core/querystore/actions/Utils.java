@@ -1,12 +1,16 @@
 package com.flipkart.foxtrot.core.querystore.actions;
 
 
+import com.flipkart.foxtrot.common.FieldMetadata;
+import com.flipkart.foxtrot.common.FieldType;
 import com.flipkart.foxtrot.common.Period;
+import com.flipkart.foxtrot.common.TableFieldMapping;
 import com.flipkart.foxtrot.common.query.ResultSort;
 import com.flipkart.foxtrot.common.stats.Stat;
 import com.flipkart.foxtrot.common.util.CollectionUtils;
 import com.flipkart.foxtrot.core.exception.FoxtrotExceptions;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
+import com.flipkart.foxtrot.core.table.TableMetadataManager;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import lombok.val;
@@ -46,6 +50,8 @@ public class Utils {
     private static final String SUM_OF_SQUARES = "sum_of_squares";
     private static final String VARIANCE = "variance";
     private static final String STD_DEVIATION = "std_deviation";
+    private static final EnumSet<FieldType> NUMERIC_FIELD_TYPES
+            = EnumSet.of(FieldType.INTEGER, FieldType.LONG, FieldType.FLOAT, FieldType.DOUBLE);
 
     private Utils() {}
 
@@ -305,6 +311,17 @@ public class Utils {
             return Utils.createStatResponse((InternalValueCount)statAggregation);
         }
         return new HashMap<>();
+    }
+
+
+    public static boolean isNumericField(TableMetadataManager tableMetadataManager, String table, String field) {
+        final TableFieldMapping fieldMappings = tableMetadataManager.getFieldMappings(table, false, false);
+        final FieldMetadata fieldMetadata = fieldMappings.getMappings()
+                .stream()
+                .filter(mapping -> mapping.getField().equals(field))
+                .findFirst()
+                .orElse(null);
+        return null != fieldMetadata && NUMERIC_FIELD_TYPES.contains(fieldMetadata.getType());
     }
 
 }
