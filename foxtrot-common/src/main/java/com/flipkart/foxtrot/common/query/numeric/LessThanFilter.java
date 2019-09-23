@@ -25,7 +25,6 @@ import lombok.ToString;
  * Time: 8:17 PM
  */
 @Data
-@EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
 public class LessThanFilter extends NumericBinaryFilter {
 
@@ -41,5 +40,28 @@ public class LessThanFilter extends NumericBinaryFilter {
     @Override
     public <T> T accept(FilterVisitor<T> visitor) {
         return visitor.visit(this);
+    }
+
+    @Override
+    public int hashCode() {
+        int valueHashCode = 0;
+        if (!getField().equals("_timestamp")) {
+            valueHashCode = value.hashCode();
+        }
+        return 31 * super.hashCode() + valueHashCode;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        } else if (!(o instanceof LessThanFilter)) {
+            return false;
+        } else if (!super.equals(o)) {
+            return false;
+        }
+
+        LessThanFilter that = (LessThanFilter) o;
+        return value.equals(that.value);
     }
 }

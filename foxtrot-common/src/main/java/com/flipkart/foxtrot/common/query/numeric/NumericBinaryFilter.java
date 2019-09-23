@@ -25,12 +25,12 @@ import lombok.ToString;
  * Time: 2:25 PM
  */
 @Data
-@EqualsAndHashCode(callSuper = true)
+@EqualsAndHashCode(callSuper = true, exclude = "value")
 @ToString(callSuper = true)
 public abstract class NumericBinaryFilter extends Filter {
 
     @NotNull
-    private Number value;
+    protected Number value;
 
     private boolean temporal = false;
 
