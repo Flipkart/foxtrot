@@ -98,8 +98,11 @@ public class AnalyticsLoader implements Managed {
         return null;
     }
 
-    public void register(ActionMetadata actionMetadata) {
+    public void register(ActionMetadata actionMetadata, String opcode) {
         actions.put(actionMetadata.getRequest().getCanonicalName(), actionMetadata);
+        if(actionMetadata.isCacheable()){
+            registerCache(opcode);
+        }
     }
 
     public void registerCache(final String opcode) {
@@ -120,7 +123,7 @@ public class AnalyticsLoader implements Managed {
             if(Strings.isNullOrEmpty(opcode)) {
                 throw new AnalyticsActionLoaderException("Invalid annotation on " + action.getCanonicalName());
             }
-            register(new ActionMetadata(analyticsProvider.request(), action, analyticsProvider.cacheable()));
+            register(new ActionMetadata(analyticsProvider.request(), action, analyticsProvider.cacheable()), analyticsProvider.opcode());
             types.add(new NamedType(analyticsProvider.request(), opcode));
             types.add(new NamedType(analyticsProvider.response(), opcode));
             logger.info("Registered action: {}", action.getCanonicalName());
