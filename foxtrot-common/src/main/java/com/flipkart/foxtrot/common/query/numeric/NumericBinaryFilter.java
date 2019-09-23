@@ -30,7 +30,7 @@ import lombok.ToString;
 public abstract class NumericBinaryFilter extends Filter {
 
     @NotNull
-    private Number value;
+    protected Number value;
 
     private boolean temporal = false;
 

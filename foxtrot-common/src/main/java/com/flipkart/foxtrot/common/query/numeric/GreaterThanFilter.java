@@ -16,7 +16,6 @@ import com.flipkart.foxtrot.common.query.FilterOperator;
 import com.flipkart.foxtrot.common.query.FilterVisitor;
 import lombok.Builder;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
 /**
@@ -25,7 +24,6 @@ import lombok.ToString;
  * Time: 8:17 PM
  */
 @Data
-@EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
 public class GreaterThanFilter extends NumericBinaryFilter {
 
@@ -41,5 +39,23 @@ public class GreaterThanFilter extends NumericBinaryFilter {
     @Override
     public <T> T accept(FilterVisitor<T> visitor) {
         return visitor.visit(this);
+    }
+
+    @Override
+    public int hashCode() {
+        return 31 * super.hashCode() + value.hashCode();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof GreaterThanFilter)) {
+            return false;
+        }
+
+        GreaterThanFilter that = (GreaterThanFilter) o;
+        return value.equals(that.value);
     }
 }
