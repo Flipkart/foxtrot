@@ -18,6 +18,7 @@ import com.flipkart.foxtrot.common.Document;
 import com.flipkart.foxtrot.core.TestUtils;
 import com.flipkart.foxtrot.core.exception.FoxtrotException;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
+import com.flipkart.foxtrot.core.table.impl.FoxtrotTableManager;
 import com.flipkart.foxtrot.server.providers.exception.FoxtrotExceptionMapper;
 import io.dropwizard.testing.junit.ResourceTestRule;
 import org.junit.Assert;
@@ -26,8 +27,12 @@ import org.junit.Rule;
 import org.junit.Test;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
+
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /**
  * Created by swapnil on 25/01/16.
@@ -36,11 +41,15 @@ public class ClusterHealthResourceTest extends FoxtrotResourceTest {
 
     @Rule
     public ResourceTestRule resources;
+    private final FoxtrotTableManager tableManager;
 
     public ClusterHealthResourceTest() throws Exception {
         super();
+        tableManager = mock(FoxtrotTableManager.class);
+        when(tableManager.getAll()).thenReturn(Collections.singletonList(TestUtils.TEST_TABLE));
+
         resources = ResourceTestRule.builder()
-                .addResource(new ClusterHealthResource(getQueryStore()))
+                .addResource(new ClusterHealthResource(getQueryStore(),tableManager, getTableMetadataManager()))
                 .addProvider(new FoxtrotExceptionMapper(getMapper()))
                 .setMapper(getMapper())
                 .build();

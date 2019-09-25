@@ -16,7 +16,6 @@ import com.flipkart.foxtrot.common.query.FilterOperator;
 import com.flipkart.foxtrot.common.query.FilterVisitor;
 import lombok.Builder;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
 /**
@@ -25,7 +24,6 @@ import lombok.ToString;
  * Time: 8:17 PM
  */
 @Data
-@EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
 public class LessThanFilter extends NumericBinaryFilter {
 
@@ -41,5 +39,32 @@ public class LessThanFilter extends NumericBinaryFilter {
     @Override
     public <T> T accept(FilterVisitor<T> visitor) {
         return visitor.visit(this);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = getOperator().hashCode();
+        result = 31 * result + getField().hashCode();
+        if (!getField().equals("_timestamp")) {
+            result = result * 21 + (getValue() == null ? 43 : getValue().hashCode());
+        } else {
+            result = result * 21 + 11;
+        }
+        result = result * 59 + (this.isTemporal() ? 79 : 97);
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        } else if (!(o instanceof LessThanFilter)) {
+            return false;
+        }
+
+        LessThanFilter that = (LessThanFilter) o;
+
+        return getField().equals(that.getField()) && getOperator().equals(that.getOperator()) &&
+            isFilterTemporal() == that.isFilterTemporal() && getValue().equals(that.getValue());
     }
 }
