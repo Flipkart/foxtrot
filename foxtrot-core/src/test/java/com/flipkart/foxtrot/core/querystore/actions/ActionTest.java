@@ -14,7 +14,7 @@ import com.flipkart.foxtrot.core.config.TextNodeRemoverConfiguration;
 import com.flipkart.foxtrot.core.datastore.DataStore;
 import com.flipkart.foxtrot.core.querystore.QueryExecutor;
 import com.flipkart.foxtrot.core.querystore.QueryStore;
-import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsConfig;
+import com.flipkart.foxtrot.core.querystore.actions.spi.ElasticsearchTuningConfig;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsLoader;
 import com.flipkart.foxtrot.core.querystore.handlers.ResponseCacheUpdater;
 import com.flipkart.foxtrot.core.querystore.impl.*;
@@ -104,7 +104,7 @@ public abstract class ActionTest {
         cacheManager = new CacheManager(
                 new DistributedCacheFactory(hazelcastConnection, mapper, new CacheConfig()));
         AnalyticsLoader analyticsLoader = new AnalyticsLoader(tableMetadataManager, dataStore, queryStore,
-                elasticsearchConnection, cacheManager, mapper, emailConfig, emailClient, new AnalyticsConfig());
+                elasticsearchConnection, cacheManager, mapper, emailConfig, emailClient, new ElasticsearchTuningConfig());
         analyticsLoader.start();
         ExecutorService executorService = Executors.newFixedThreadPool(1);
         this.queryExecutor = new QueryExecutor(analyticsLoader, executorService, Collections.singletonList(new ResponseCacheUpdater(cacheManager)));

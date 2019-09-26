@@ -10,7 +10,7 @@ import com.flipkart.foxtrot.common.query.general.ExistsFilter;
 import com.flipkart.foxtrot.common.util.CollectionUtils;
 import com.flipkart.foxtrot.core.common.Action;
 import com.flipkart.foxtrot.core.exception.FoxtrotExceptions;
-import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsConfig;
+import com.flipkart.foxtrot.core.querystore.actions.spi.ElasticsearchTuningConfig;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsLoader;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsProvider;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
@@ -30,11 +30,11 @@ import org.elasticsearch.search.aggregations.metrics.cardinality.Cardinality;
 @AnalyticsProvider(opcode = "count", request = CountRequest.class, response = CountResponse.class, cacheable = false)
 public class CountAction extends Action<CountRequest> {
 
-    private final AnalyticsConfig analyticsConfig;
+    private final ElasticsearchTuningConfig elasticsearchTuningConfig;
 
     public CountAction(CountRequest parameter, AnalyticsLoader analyticsLoader) {
         super(parameter, analyticsLoader);
-        this.analyticsConfig = analyticsLoader.getAnalyticsConfig();
+        this.elasticsearchTuningConfig = analyticsLoader.getElasticsearchTuningConfig();
     }
 
     @Override
@@ -104,7 +104,7 @@ public class CountAction extends Action<CountRequest> {
                         .setSize(QUERY_SIZE)
                         .setQuery(new ElasticSearchQueryGenerator().genFilter(parameter.getFilters()))
                         .addAggregation(Utils.buildCardinalityAggregation(
-                                parameter.getField(), analyticsConfig.getPrecisionThreshold()));
+                                parameter.getField(), elasticsearchTuningConfig.getPrecisionThreshold()));
                 return query;
             } catch (Exception e) {
                 throw FoxtrotExceptions.queryCreationException(parameter, e);

@@ -10,7 +10,7 @@ import com.flipkart.foxtrot.common.query.ResultSort;
 import com.flipkart.foxtrot.common.util.CollectionUtils;
 import com.flipkart.foxtrot.core.common.Action;
 import com.flipkart.foxtrot.core.exception.FoxtrotExceptions;
-import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsConfig;
+import com.flipkart.foxtrot.core.querystore.actions.spi.ElasticsearchTuningConfig;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsLoader;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsProvider;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
@@ -37,11 +37,11 @@ public class DistinctAction extends Action<DistinctRequest> {
 
     private static final Logger logger = LoggerFactory.getLogger(DistinctAction.class);
 
-    private final AnalyticsConfig analyticsConfig;
+    private final ElasticsearchTuningConfig elasticsearchTuningConfig;
 
     public DistinctAction(DistinctRequest parameter, AnalyticsLoader analyticsLoader) {
         super(parameter, analyticsLoader);
-        this.analyticsConfig = analyticsLoader.getAnalyticsConfig();
+        this.elasticsearchTuningConfig = analyticsLoader.getElasticsearchTuningConfig();
     }
 
     @Override
@@ -101,7 +101,7 @@ public class DistinctAction extends Action<DistinctRequest> {
             query.setQuery(new ElasticSearchQueryGenerator().genFilter(request.getFilters()))
                     .setSize(QUERY_SIZE)
                     .addAggregation(Utils.buildTermsAggregation(
-                        request.getNesting(), Sets.newHashSet(), analyticsConfig.getAggregationSize()));
+                        request.getNesting(), Sets.newHashSet(), elasticsearchTuningConfig.getAggregationSize()));
         } catch (Exception e) {
             throw FoxtrotExceptions.queryCreationException(request, e);
         }
@@ -130,7 +130,7 @@ public class DistinctAction extends Action<DistinctRequest> {
             query.setQuery(new ElasticSearchQueryGenerator().genFilter(request.getFilters()))
                     .setSize(QUERY_SIZE)
                     .addAggregation(Utils.buildTermsAggregation(
-                        request.getNesting(), Sets.newHashSet(), analyticsConfig.getAggregationSize()));
+                        request.getNesting(), Sets.newHashSet(), elasticsearchTuningConfig.getAggregationSize()));
 
         } catch (Exception e) {
             throw FoxtrotExceptions.queryCreationException(request, e);

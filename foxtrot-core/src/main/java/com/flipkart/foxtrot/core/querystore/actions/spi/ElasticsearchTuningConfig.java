@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class AnalyticsConfig {
+public class ElasticsearchTuningConfig {
 
     private int precisionThreshold = 500;
 
