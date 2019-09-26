@@ -131,7 +131,7 @@ segregationConfiguration:
       phonepe_consumer_app_android_app_loaded:
         - APP_LOADED
 
-analyticsConfig:
+elasticsearchTuningConfig:
   precisionThreshold: 500
   aggregationSize: 10000
 
