@@ -21,6 +21,7 @@ import com.flipkart.foxtrot.common.query.datetime.LastFilter;
 import com.flipkart.foxtrot.common.util.CollectionUtils;
 import com.flipkart.foxtrot.core.common.Action;
 import com.flipkart.foxtrot.core.exception.FoxtrotExceptions;
+import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsConfig;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsLoader;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsProvider;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
@@ -50,8 +51,11 @@ import org.joda.time.DateTime;
         cacheable = true)
 public class HistogramAction extends Action<HistogramRequest> {
 
+    private final AnalyticsConfig analyticsConfig;
+
     public HistogramAction(HistogramRequest parameter, AnalyticsLoader analyticsLoader) {
         super(parameter, analyticsLoader);
+        this.analyticsConfig = analyticsLoader.getAnalyticsConfig();
     }
 
     @Override
@@ -154,7 +158,8 @@ public class HistogramAction extends Action<HistogramRequest> {
         DateHistogramAggregationBuilder histogramBuilder = Utils.buildDateHistogramAggregation(
                 getParameter().getField(), interval);
         if (!CollectionUtils.isNullOrEmpty(getParameter().getUniqueCountOn())) {
-            histogramBuilder.subAggregation(Utils.buildCardinalityAggregation(getParameter().getUniqueCountOn()));
+            histogramBuilder.subAggregation(Utils.buildCardinalityAggregation(
+                getParameter().getUniqueCountOn(), analyticsConfig.getPrecisionThreshold()));
         }
         return histogramBuilder;
     }

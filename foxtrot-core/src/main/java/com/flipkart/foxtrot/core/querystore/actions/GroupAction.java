@@ -46,6 +46,7 @@ import com.flipkart.foxtrot.core.common.Action;
 import com.flipkart.foxtrot.core.common.PeriodSelector;
 import com.flipkart.foxtrot.core.exception.FoxtrotExceptions;
 import com.flipkart.foxtrot.core.querystore.QueryStore;
+import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsConfig;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsLoader;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsProvider;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchQueryStore;
@@ -86,10 +87,12 @@ public class GroupAction extends Action<GroupRequest> {
     private static final long MAX_CARDINALITY = 50000;
     private static final long MIN_ESTIMATION_THRESHOLD = 1000;
     private static final double PROBABILITY_CUT_OFF = 0.5;
+    private final AnalyticsConfig analyticsConfig;
     private EmailClient emailClient;
 
     public GroupAction(GroupRequest parameter, AnalyticsLoader analyticsLoader) {
         super(parameter, analyticsLoader);
+        analyticsConfig = analyticsLoader.getAnalyticsConfig();
         if (analyticsLoader.getEmailClient() != null) {
             emailClient = analyticsLoader.getEmailClient();
         } else {
@@ -741,7 +744,8 @@ public class GroupAction extends Action<GroupRequest> {
                         .collect(Collectors.toList()),
                 !CollectionUtils.isNullOrEmpty(getParameter().getUniqueCountOn()) ?
                         Sets.newHashSet(Utils.buildCardinalityAggregation(
-                                getParameter().getUniqueCountOn())) : Sets.newHashSet());
+                                getParameter().getUniqueCountOn(), analyticsConfig.getPrecisionThreshold())) : Sets.newHashSet(),
+                analyticsConfig.getAggregationSize());
     }
 
     private Map<String, Object> getMap(List<String> fields, Aggregations aggregations) {

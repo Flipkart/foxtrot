@@ -57,18 +57,20 @@ public class AnalyticsLoader implements Managed {
     private final ElasticsearchConnection elasticsearchConnection;
     private final CacheManager cacheManager;
     private final ObjectMapper objectMapper;
+    private final AnalyticsConfig analyticsConfig;
     private final EmailConfig emailConfig;
     private EmailClient emailClient;
 
     public AnalyticsLoader(TableMetadataManager tableMetadataManager, DataStore dataStore, QueryStore queryStore,
             ElasticsearchConnection elasticsearchConnection, CacheManager cacheManager, ObjectMapper objectMapper,
-            EmailConfig emailConfig, EmailClient emailClient) {
+            EmailConfig emailConfig, EmailClient emailClient, AnalyticsConfig analyticsConfig) {
         this.tableMetadataManager = tableMetadataManager;
         this.dataStore = dataStore;
         this.queryStore = queryStore;
         this.elasticsearchConnection = elasticsearchConnection;
         this.cacheManager = cacheManager;
         this.objectMapper = objectMapper;
+        this.analyticsConfig = analyticsConfig;
         this.emailConfig = emailConfig;
         this.emailClient = emailClient;
     }

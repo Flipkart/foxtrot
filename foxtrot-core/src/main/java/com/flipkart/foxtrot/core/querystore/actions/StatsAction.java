@@ -11,6 +11,7 @@ import com.flipkart.foxtrot.common.stats.StatsValue;
 import com.flipkart.foxtrot.common.util.CollectionUtils;
 import com.flipkart.foxtrot.core.common.Action;
 import com.flipkart.foxtrot.core.exception.FoxtrotExceptions;
+import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsConfig;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsLoader;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsProvider;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
@@ -35,8 +36,11 @@ import org.elasticsearch.search.aggregations.metrics.percentiles.Percentiles;
 @AnalyticsProvider(opcode = "stats", request = StatsRequest.class, response = StatsResponse.class, cacheable = false)
 public class StatsAction extends Action<StatsRequest> {
 
+    private final AnalyticsConfig analyticsConfig;
+
     public StatsAction(StatsRequest parameter, AnalyticsLoader analyticsLoader) {
         super(parameter, analyticsLoader);
+        this.analyticsConfig = analyticsLoader.getAnalyticsConfig();
     }
 
     private static StatsValue buildStatsValue(String field, Aggregations aggregations) {
@@ -133,7 +137,8 @@ public class StatsAction extends Action<StatsRequest> {
                                         ResultSort.Order.asc))
                                 .collect(Collectors.toList()),
                         Sets.newHashSet(percentiles,
-                                extendedStats)));
+                                extendedStats),
+                        analyticsConfig.getAggregationSize()));
             }
         } catch (Exception e) {
             throw FoxtrotExceptions.queryCreationException(parameter, e);

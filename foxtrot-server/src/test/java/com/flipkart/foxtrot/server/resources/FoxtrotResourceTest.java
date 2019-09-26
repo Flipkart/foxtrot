@@ -26,6 +26,7 @@ import com.flipkart.foxtrot.core.datastore.DataStore;
 import com.flipkart.foxtrot.core.exception.FoxtrotException;
 import com.flipkart.foxtrot.core.querystore.QueryExecutor;
 import com.flipkart.foxtrot.core.querystore.QueryStore;
+import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsConfig;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsLoader;
 import com.flipkart.foxtrot.core.querystore.impl.CacheConfig;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConnection;
@@ -160,7 +161,7 @@ public abstract class FoxtrotResourceTest {
         when(emailClient.sendEmail(any(String.class), any(String.class), any(String.class))).thenReturn(true);
 
         analyticsLoader = new AnalyticsLoader(tableMetadataManager, dataStore, queryStore, elasticsearchConnection,
-                cacheManager, mapper, emailConfig, emailClient);
+                cacheManager, mapper, emailConfig, emailClient, new AnalyticsConfig());
         try {
             analyticsLoader.start();
         } catch (Exception e) {
