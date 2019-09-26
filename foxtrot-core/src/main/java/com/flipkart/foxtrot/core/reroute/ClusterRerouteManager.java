@@ -51,7 +51,7 @@ public class ClusterRerouteManager {
         for (Map.Entry<String, NodeInfo> nodeIdVsNodeInfo: nodeIdVsNodeInfoMap.entrySet()) {
             int shardCount = nodeIdVsNodeInfo.getValue().getShardInfos().size();
             if (shardCount > acceptableShardsPerNode) {
-                for (int i = shardCount; i > (int) avgShardsPerNode; i--) {
+                for (int i = shardCount; i >= (int) avgShardsPerNode ; i--) {
                     ShardId shardId = nodeIdVsNodeInfo.getValue().getShardInfos().get(i - 1).getShardId();
                     if (!vacantNodeIds.isEmpty()) {
                         reallocateShard(shardId, nodeIdVsNodeInfo.getKey(), vacantNodeIds.pop());
