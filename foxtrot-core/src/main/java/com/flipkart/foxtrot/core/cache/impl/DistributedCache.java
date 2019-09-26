@@ -45,8 +45,8 @@ public class DistributedCache implements Cache {
         try {
             final String serializedData = mapper.writeValueAsString(data);
             if (serializedData != null) {
-                // Only cache if size is less that 32 KB
-                if (serializedData.length() <= 32 * 1024) {
+                // Only cache if size is less that 256 KB
+                if (serializedData.length() <= 256 * 1024) {
                     distributedMap.put(key, mapper.writeValueAsString(data));
                 } else {
                     String responsePart = serializedData.substring(0, 1024);
