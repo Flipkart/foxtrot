@@ -39,6 +39,10 @@
 					<groupId>com.netflix.feign</groupId>
 					<artifactId>feign-core</artifactId>
 				</exclusion>
+				<exclusion>
+					<groupId>com.netflix.feign</groupId>
+					<artifactId>feign-httpclient</artifactId>
+				</exclusion>
 			</exclusions>
 		</dependency>
 		<dependency>
