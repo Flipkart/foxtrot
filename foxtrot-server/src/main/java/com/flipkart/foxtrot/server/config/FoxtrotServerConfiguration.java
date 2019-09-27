@@ -19,6 +19,7 @@ import com.flipkart.foxtrot.core.common.DataDeletionManagerConfig;
 import com.flipkart.foxtrot.core.config.TextNodeRemoverConfiguration;
 import com.flipkart.foxtrot.core.datastore.impl.hbase.HbaseConfig;
 import com.flipkart.foxtrot.core.jobs.optimization.EsIndexOptimizationConfig;
+import com.flipkart.foxtrot.core.querystore.actions.spi.ElasticsearchTuningConfig;
 import com.flipkart.foxtrot.core.querystore.impl.CacheConfig;
 import com.flipkart.foxtrot.core.querystore.impl.ClusterConfig;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConfig;
@@ -94,6 +95,8 @@ public class FoxtrotServerConfiguration extends Configuration {
 
     private ClusterRerouteConfig clusterRerouteConfig;
 
+    private ElasticsearchTuningConfig elasticsearchTuningConfig;
+
     public FoxtrotServerConfiguration() {
         this.hbase = new HbaseConfig();
         this.elasticsearch = new ElasticsearchConfig();
@@ -106,5 +109,6 @@ public class FoxtrotServerConfiguration extends Configuration {
         this.restrictAccess = true;
         this.queryConfig = new QueryConfig();
         this.clusterRerouteConfig = new ClusterRerouteConfig();
+        this.elasticsearchTuningConfig = new ElasticsearchTuningConfig();
     }
 }
