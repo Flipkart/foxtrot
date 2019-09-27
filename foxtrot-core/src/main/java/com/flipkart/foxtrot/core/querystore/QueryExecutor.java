@@ -75,8 +75,10 @@ public class QueryExecutor {
             return response;
 
         } catch (FoxtrotException e) {
+            long elapsedTime = stopwatch.elapsed(TimeUnit.MILLISECONDS);
+            log.info("Elapsed time in query execution: {}, request: {}, Error: {}", elapsedTime, request, e);
             evaluationResponse = ActionEvaluationResponse.failure(
-                    action, request, e, stopwatch.elapsed(TimeUnit.MILLISECONDS));
+                    action, request, e, elapsedTime);
             throw e;
         }
         finally {
