@@ -890,9 +890,7 @@ $(document).ready(function () {
               deleteConsole();
           }
       });
-      $("#listConsole").change(function () {
-          loadParticularConsoleList();
-      });
+      
       $("#addDashboardConfirm").click(function () {
           createDashboard();
       });
