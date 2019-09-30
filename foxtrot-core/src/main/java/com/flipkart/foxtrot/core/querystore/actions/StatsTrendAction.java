@@ -12,6 +12,7 @@ import com.flipkart.foxtrot.common.stats.StatsTrendValue;
 import com.flipkart.foxtrot.common.util.CollectionUtils;
 import com.flipkart.foxtrot.core.common.Action;
 import com.flipkart.foxtrot.core.exception.FoxtrotExceptions;
+import com.flipkart.foxtrot.core.querystore.actions.spi.ElasticsearchTuningConfig;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsLoader;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsProvider;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
@@ -45,8 +46,11 @@ import java.util.stream.Collectors;
         cacheable = false)
 public class StatsTrendAction extends Action<StatsTrendRequest> {
 
+    private final ElasticsearchTuningConfig elasticsearchTuningConfig;
+
     public StatsTrendAction(StatsTrendRequest parameter, AnalyticsLoader analyticsLoader) {
         super(parameter, analyticsLoader);
+        this.elasticsearchTuningConfig = analyticsLoader.getElasticsearchTuningConfig();
     }
 
     @Override
@@ -168,7 +172,8 @@ public class StatsTrendAction extends Action<StatsTrendRequest> {
                         .stream()
                         .map(x -> new ResultSort(x, ResultSort.Order.asc))
                         .collect(Collectors.toList()),
-                Sets.newHashSet(dateHistogramBuilder));
+                Sets.newHashSet(dateHistogramBuilder),
+                elasticsearchTuningConfig.getAggregationSize());
     }
 
     private StatsTrendResponse buildResponse(StatsTrendRequest request, Aggregations aggregations) {

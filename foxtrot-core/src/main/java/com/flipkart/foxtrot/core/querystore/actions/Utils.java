@@ -53,12 +53,13 @@ public class Utils {
     private static final String SUM_OF_SQUARES = "sum_of_squares";
     private static final String VARIANCE = "variance";
     private static final String STD_DEVIATION = "std_deviation";
+    private static final int PRECISION_THRESHOLD = 500;
 
     private Utils() {
     }
 
     public static TermsAggregationBuilder buildTermsAggregation(List<ResultSort> fields,
-            Set<AggregationBuilder> subAggregations) {
+            Set<AggregationBuilder> subAggregations, int aggregationSize) {
         TermsAggregationBuilder rootBuilder = null;
         TermsAggregationBuilder termsBuilder = null;
         for (ResultSort nestingField : fields) {
@@ -75,7 +76,10 @@ public class Utils {
                 termsBuilder.subAggregation(tempBuilder);
                 termsBuilder = tempBuilder;
             }
-            termsBuilder.size(QUERY_SIZE);
+            if(0 == aggregationSize) {
+                aggregationSize = QUERY_SIZE;
+            }
+            termsBuilder.size(aggregationSize);
             if(null == rootBuilder) {
                 rootBuilder = termsBuilder;
             }
@@ -207,9 +211,12 @@ public class Utils {
         return sanitizeFieldForAggregation(field) + "_date_histogram";
     }
 
-    public static CardinalityAggregationBuilder buildCardinalityAggregation(String field) {
+    public static CardinalityAggregationBuilder buildCardinalityAggregation(String field, int precisionThreshold) {
+        if(0 == precisionThreshold) {
+            precisionThreshold = PRECISION_THRESHOLD;
+        }
         return AggregationBuilders.cardinality(Utils.sanitizeFieldForAggregation(field))
-                .precisionThreshold(500)
+                .precisionThreshold(precisionThreshold)
                 .field(storedFieldName(field));
     }
 

@@ -251,7 +251,7 @@ public class FoxtrotServer extends Application<FoxtrotServerConfiguration> {
                 new DistributedCacheFactory(hazelcastConnection, objectMapper, cacheConfig));
         AnalyticsLoader analyticsLoader = new AnalyticsLoader(tableMetadataManager, dataStore, queryStore,
                 elasticsearchConnection,
-                cacheManager, objectMapper, emailConfig, null
+                cacheManager, objectMapper, emailConfig, null, configuration.getElasticsearchTuningConfig()
         );
 
         ClusterRerouteManager clusterRerouteManager = new ClusterRerouteManager(

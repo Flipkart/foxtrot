@@ -131,6 +131,10 @@ segregationConfiguration:
       phonepe_consumer_app_android_app_loaded:
         - APP_LOADED
 
+elasticsearchTuningConfig:
+  precisionThreshold: 500
+  aggregationSize: 10000
+
 swagger:
   resourcePackage: com.flipkart.foxtrot.server.resources
   title: Foxtrot
