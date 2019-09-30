@@ -4,6 +4,7 @@ import com.codahale.metrics.annotation.Timed;
 import com.flipkart.foxtrot.common.ActionRequest;
 import com.flipkart.foxtrot.common.ActionResponse;
 import com.flipkart.foxtrot.common.ActionValidationResponse;
+import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
 import com.flipkart.foxtrot.gandalf.access.AccessService;
 import com.flipkart.foxtrot.core.common.AsyncDataToken;
 import com.flipkart.foxtrot.core.exception.FoxtrotExceptions;
@@ -102,7 +103,11 @@ public class AnalyticsV2Resource {
             throw FoxtrotExceptions.createConsoleQueryBlockedException(request);
         }
         if (queryConfig.isLogQueries()) {
-            log.info("Console Query : " + request.toString());
+            if (ElasticsearchUtils.isTimeFilterPresent(request.getFilters())) {
+                log.info("Console Query : " + request.toString());
+            } else {
+                log.info("Console Query where time filter is not specified, request: {}", request.toString());
+            }
         }
     }
 }
