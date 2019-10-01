@@ -340,7 +340,12 @@ function loadConsolesWithoutRefreshing(selectedConsole) {
   setTimeout(function () { // triiger version console api
     loadVersionConsoleByName(currentConsoleName);
   }, 5000);
-  
+  isNewConsole = false;
+  globalFilters = false;
+  isEdit = false;
+  isGlobalDateFilter = false;
+  isViewingVersionConsole = false;
+  isTemplateFilter = false;
 }
 
 function loadParticularConsole() { // reload page based on selected console
