@@ -190,7 +190,11 @@ EventBus.addEventListener('indices_loaded', function (event, data) {
     $(".table-data-table").tablesorter({
         sortList: [
             [3, 1]
-        ]
+        ],
+        headers  : {
+            3 : { sorter : 'digit' },
+            4 : { sorter : 'digit' }
+          }
     });
 })
 
