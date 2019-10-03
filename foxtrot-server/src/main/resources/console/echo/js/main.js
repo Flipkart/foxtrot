@@ -922,11 +922,7 @@ $(document).ready(function () {
               globalFilters = true;
               showFilters();
           } else {
-              globalFilters = false;
-              hideFilters();
-              resetPeriodDropdown();
-              resetGloblaDateFilter();
-              refereshTiles();
+              globalFilterResetDetails();
           }
       });
 

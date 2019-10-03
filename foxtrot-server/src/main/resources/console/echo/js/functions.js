@@ -344,13 +344,30 @@ function loadConsolesWithoutRefreshing(selectedConsole) {
   isNewConsole = false;
   globalFilters = false;
   isEdit = false;
-  isGlobalDateFilter = false;
   isViewingVersionConsole = false;
   hideTemplateFilters();
   clearTemplateFilter();
   
   $('.template-filter-switch').attr('checked', false).triggerHandler('click');
+  $('.filter-switch').attr('checked', false).triggerHandler('click');
   isTemplateFilter = false;
+  globalFilterResetDetails();
+
+}
+
+function globalFilterResetDetails() {
+  globalFilters = false;
+  hideFilters();
+  resetPeriodDropdown();
+  resetGloblaDateFilter();
+  refereshTiles();
+}
+
+function resetGloblaDateFilter() {
+  isGlobalDateFilter = false;
+  globalDateFilterValue = "";
+  $("#selected-global-date span").text('');
+  $("#selected-global-date").hide();
 }
 
 function loadParticularConsole() { // reload page based on selected console
