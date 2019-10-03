@@ -649,6 +649,7 @@ function renderTemplateFilters() {
   $.each(tableNameList, function(index, val) {
     option+= "<option value="+val+">"+val+"</option>"
   });
+  
   $(".template-filter").append("<option value='none'>Select</option>");
   $(".template-filter").append(option);
   $(".template-filter").selectpicker('refresh');
@@ -660,10 +661,12 @@ function getTables() { // get table list
     contentType: "application/json",
     context: this,
     success: function(tables) {
-      for (var i = tables.length - 1; i >= 0; i--) {
-        tableNameList.push(tables[i].name)
-      }
-      renderTemplateFilters();
+      if(tableNameList.length == 0) {
+        for (var i = tables.length - 1; i >= 0; i--) {
+          tableNameList.push(tables[i].name)
+        }
+        renderTemplateFilters();
+      }      
     }});
 }
 

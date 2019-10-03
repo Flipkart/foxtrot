@@ -340,11 +340,16 @@ function loadConsolesWithoutRefreshing(selectedConsole) {
   setTimeout(function () { // triiger version console api
     loadVersionConsoleByName(currentConsoleName);
   }, 5000);
+  
   isNewConsole = false;
   globalFilters = false;
   isEdit = false;
   isGlobalDateFilter = false;
   isViewingVersionConsole = false;
+  hideTemplateFilters();
+  clearTemplateFilter();
+  
+  $('.template-filter-switch').attr('checked', false).triggerHandler('click');
   isTemplateFilter = false;
 }
 
