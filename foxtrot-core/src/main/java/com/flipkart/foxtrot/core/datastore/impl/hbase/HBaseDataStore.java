@@ -246,4 +246,18 @@ public class HBaseDataStore implements DataStore {
                 .addColumn(COLUMN_FAMILY, DATE_FIELD_NAME, mapper.writeValueAsBytes(document.getDate()));
     }
 
+    @Override
+    @Timed
+    public void updateTable(final Table table) {
+        // Check for existence of HBase table during update to make sure HBase is ready for taking writes
+        try {
+            boolean isTableAvailable = tableWrapper.isTableAvailable(table);
+            if (isTableAvailable) {
+                tableWrapper.updateTable(table);
+            }
+        } catch (IOException e) {
+            throw FoxtrotExceptions.createConnectionException(table, e);
+        }
+    }
+
 }
