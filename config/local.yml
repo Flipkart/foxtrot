@@ -72,6 +72,12 @@ deletionconfig:
   interval: 86400
   initialdelay: 60
 
+clusterRerouteConfig:
+  active: false
+  interval: 86400
+  initialDelay: 10
+  thresholdShardCountPercentage: 10
+
 emailConfig:
   from: noreply@phonepe.com
   host: ops-jump001.phonepe.nm1
@@ -114,11 +120,20 @@ primerBundleConfiguration:
 
 restrictAccess: false
 
+gandalfConfiguration:
+  serviceBaseUrl: "localhost:17000"
+  username: "mudit.g@phonepe.com"
+  password: "gandalf@echo"
+
 segregationConfiguration:
   tableEventConfigs:
     phonepe_consumer_app_android:
       phonepe_consumer_app_android_app_loaded:
         - APP_LOADED
+
+elasticsearchTuningConfig:
+  precisionThreshold: 500
+  aggregationSize: 10000
 
 swagger:
   resourcePackage: com.flipkart.foxtrot.server.resources

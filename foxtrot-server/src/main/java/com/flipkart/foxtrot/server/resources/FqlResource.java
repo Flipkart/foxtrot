@@ -2,7 +2,9 @@ package com.flipkart.foxtrot.server.resources;
 
 import com.codahale.metrics.annotation.Timed;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.flipkart.foxtrot.common.access.AccessService;
+import com.flipkart.foxtrot.common.ActionRequest;
+import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
+import com.flipkart.foxtrot.gandalf.access.AccessService;
 import com.flipkart.foxtrot.server.config.QueryConfig;
 import com.flipkart.foxtrot.server.providers.FlatToCsvConverter;
 import com.flipkart.foxtrot.server.providers.FoxtrotExtraMediaType;
@@ -55,6 +57,7 @@ public class FqlResource {
     public StreamingOutput runFqlGet(@QueryParam("q") final String query, @GandalfUserContext UserDetails userDetails)
             throws JsonProcessingException {
         Preconditions.checkNotNull(query);
+        preprocess(query, userDetails.getEmail());
         final FlatRepresentation representation = fqlEngine.parse(query, userDetails, accessService);
         return output -> FlatToCsvConverter.convert(representation, new OutputStreamWriter(output));
     }
@@ -95,5 +98,15 @@ public class FqlResource {
               log.info("Fql Query : " + fqlGetRequest.toString());
         }
         return fqlStoreService.get(fqlGetRequest);
+    }
+
+    private void preprocess(String query, String email) {
+        if(queryConfig.isLogQueries()){
+            if(query.contains("time")) {
+                log.info("Fql Query : " + query);
+            } else {
+                log.info("Fql Query where time filter is not specified, query: {} executed by: {}", query, email);
+            }
+        }
     }
 }

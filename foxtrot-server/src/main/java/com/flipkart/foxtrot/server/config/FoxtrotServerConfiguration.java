@@ -19,9 +19,11 @@ import com.flipkart.foxtrot.core.common.DataDeletionManagerConfig;
 import com.flipkart.foxtrot.core.config.TextNodeRemoverConfiguration;
 import com.flipkart.foxtrot.core.datastore.impl.hbase.HbaseConfig;
 import com.flipkart.foxtrot.core.jobs.optimization.EsIndexOptimizationConfig;
+import com.flipkart.foxtrot.core.querystore.actions.spi.ElasticsearchTuningConfig;
 import com.flipkart.foxtrot.core.querystore.impl.CacheConfig;
 import com.flipkart.foxtrot.core.querystore.impl.ClusterConfig;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConfig;
+import com.flipkart.foxtrot.core.reroute.ClusterRerouteConfig;
 import com.flipkart.foxtrot.server.jobs.consolehistory.ConsoleHistoryConfig;
 import com.phonepe.gandalf.models.client.GandalfClientConfig;
 import io.appform.dropwizard.discovery.bundle.ServiceDiscoveryConfiguration;
@@ -91,6 +93,10 @@ public class FoxtrotServerConfiguration extends Configuration {
     @Builder.Default
     private TextNodeRemoverConfiguration textNodeRemover = new TextNodeRemoverConfiguration();
 
+    private ClusterRerouteConfig clusterRerouteConfig;
+
+    private ElasticsearchTuningConfig elasticsearchTuningConfig;
+
     public FoxtrotServerConfiguration() {
         this.hbase = new HbaseConfig();
         this.elasticsearch = new ElasticsearchConfig();
@@ -102,6 +108,7 @@ public class FoxtrotServerConfiguration extends Configuration {
         this.riemann = new RiemannConfig();
         this.restrictAccess = true;
         this.queryConfig = new QueryConfig();
+        this.clusterRerouteConfig = new ClusterRerouteConfig();
+        this.elasticsearchTuningConfig = new ElasticsearchTuningConfig();
     }
-
 }

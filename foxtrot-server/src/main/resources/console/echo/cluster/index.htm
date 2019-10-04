@@ -48,7 +48,7 @@
                             <li> <input type="checkbox" checked class="auto-refresh"> Refresh</li>
                             <li>
                                 <form id="logout" method="post">
-                                    <span id="logout-icon" class="glyphicon glyphicon-log-out logout" title="Logout"></span>
+                                        <img  id="logout-icon" class="logout" src="../img/logout.png" title="Logout" alt="Logout">
                                 </form>
                             </li>
                         </ul>
@@ -164,6 +164,8 @@
                     <th># Days</th>
                     <th>Events Indexed</th>
                     <th class="section-end">Size</th>
+                    <th>Average event size</th>
+                    <th>Number of columns</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -173,6 +175,8 @@
                     <td>{{days}}</td>
                     <td>{{events}}</td>
                     <td>{{size}}</td>
+                    <td>{{avgSize}}</td>
+                    <td>{{columnCount}}</td>
                 </tr>
                 {{/each}}
                 </tbody>
