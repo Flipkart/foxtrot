@@ -329,30 +329,42 @@ function appendVersionConsoleList(array) {
  * @param {*} selectedConsole 
  */
 function loadConsolesWithoutRefreshing(selectedConsole) {
-  // fetch selected console id
-  getConsoleById(selectedConsole);
-
-  // Update broweser URL
-  var fullUrl = window.location.href;
-  var newUrl = fullUrl.substr(0, fullUrl.indexOf('?'));
-  window.history.pushState(null, "Echo", newUrl+"?console="+selectedConsole);
   
-  setTimeout(function () { // triiger version console api
-    loadVersionConsoleByName(currentConsoleName);
-  }, 5000);
-  
+  stopRefreshInterval();
+  getConsoleById(selectedConsole);  
+  //refereshTiles();
   isNewConsole = false;
-  globalFilters = false;
   isEdit = false;
+  isTemplateFilter = false;  
   isViewingVersionConsole = false;
   hideTemplateFilters();
   clearTemplateFilter();
   
   $('.template-filter-switch').attr('checked', false).triggerHandler('click');
   $('.filter-switch').attr('checked', false).triggerHandler('click');
-  isTemplateFilter = false;
-  globalFilterResetDetails();
+  globalFilterResetFromConsoleLoad();
 
+  clearForms();
+  
+  // fetch selected console id
+  // Update broweser URL
+  var fullUrl = window.location.href;
+  var newUrl = fullUrl.substr(0, fullUrl.indexOf('?'));
+  window.history.pushState(null, "Echo", newUrl+"?console="+selectedConsole);
+  
+
+  setTimeout(function () { // triiger version console api
+    loadVersionConsoleByName(currentConsoleName);
+  }, 5000);
+  
+}
+
+// same as globalFilterResetDetails excluding refresh tiles
+function globalFilterResetFromConsoleLoad() {
+  globalFilters = false;
+  hideFilters();
+  resetPeriodDropdown();
+  resetGloblaDateFilter();
 }
 
 function globalFilterResetDetails() {

@@ -1130,14 +1130,7 @@ $(document).ready(function () {
           sideBySide: true,
           format: 'DD/MM/YYYY, hh:mm:ss a'
       });
-
-      function resetGloblaDateFilter() {
-          isGlobalDateFilter = false;
-          globalDateFilterValue = "";
-          $("#selected-global-date span").text('');
-          $("#selected-global-date").hide();
-      }
-
+      
       $(".close-global-date-filter").click(function () {
           $("#myModal").modal("hide");
           //resetGloblaDateFilter();
