@@ -19,16 +19,7 @@ import org.elasticsearch.search.aggregations.*;
 import org.elasticsearch.search.aggregations.bucket.histogram.DateHistogramAggregationBuilder;
 import org.elasticsearch.search.aggregations.bucket.histogram.DateHistogramInterval;
 import org.elasticsearch.search.aggregations.bucket.terms.TermsAggregationBuilder;
-import org.elasticsearch.search.aggregations.metrics.avg.InternalAvg;
-import org.elasticsearch.search.aggregations.metrics.cardinality.CardinalityAggregationBuilder;
-import org.elasticsearch.search.aggregations.metrics.max.InternalMax;
-import org.elasticsearch.search.aggregations.metrics.min.InternalMin;
-import org.elasticsearch.search.aggregations.metrics.percentiles.Percentile;
-import org.elasticsearch.search.aggregations.metrics.percentiles.Percentiles;
-import org.elasticsearch.search.aggregations.metrics.stats.InternalStats;
-import org.elasticsearch.search.aggregations.metrics.stats.extended.InternalExtendedStats;
-import org.elasticsearch.search.aggregations.metrics.sum.InternalSum;
-import org.elasticsearch.search.aggregations.metrics.valuecount.InternalValueCount;
+import org.elasticsearch.search.aggregations.metrics.*;
 import org.joda.time.DateTimeZone;
 
 import java.util.*;
@@ -175,7 +166,7 @@ public class Utils {
         return AggregationBuilders.dateHistogram(metricKey)
                 .minDocCount(0)
                 .field(storedFieldName(field))
-                .timeZone(DateTimeZone.getDefault())
+                .timeZone(DateTimeZone.getDefault().toTimeZone().toZoneId())
                 .dateHistogramInterval(interval);
     }
 

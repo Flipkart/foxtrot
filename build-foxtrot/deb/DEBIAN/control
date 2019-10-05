@@ -1,0 +1,8 @@
+Package: _PACKAGE_
+Version: 1._VERSION_
+Architecture: all
+Section: flipkart/foxtrot
+Priority: standard
+Maintainer: CMS Team <ixp-dev@flipkart.com>
+Depends: fk-config-service-confd,cosmos-jmx,cosmos-collectd
+Description: Catalog Platform

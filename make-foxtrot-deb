@@ -1,0 +1,94 @@
+#!/bin/bash -e
+# set -x
+#export JAVA_HOME="usr/lib/jvm/jdk-8-oracle-x64/jre"
+export PAC_UID=5102
+function die() {
+	echo "Error: $1" >&2
+	exit 1
+}
+
+[ -z "$LOCAL_DIR" ] && die "No base dir specified"
+[ -z "$TARGET" ] && die "No package target specified"
+[ -z "$PACKAGE" ] && die "No package name specified"
+[ ! -d "$LOCAL_DIR" ] && die "$LOCAL_DIR does not exist"
+
+ENV="$TARGET"
+[ -z "$ENV" ] && die "Invalid target: $TARGET"
+
+cd "$LOCAL_DIR"
+
+echo $PACKAGE
+
+
+
+##### DIRS #####
+cp -r build-$PACKAGE/deb .
+
+ETC="deb/etc/$PACKAGE"
+mkdir -p $ETC
+
+mkdir -p deb/etc/init.d
+mkdir -p deb/etc/cron.d
+mkdir -p deb/etc/default
+mkdir -p $ETC/config
+mkdir -p deb/var/run/$PACKAGE
+mkdir -p deb/var/lib/$PACKAGE
+mkdir -p deb/var/cache/$PACKAGE
+mkdir -p deb/var/log/flipkart/$PACKAGE
+mkdir -p deb/usr/share/$PACKAGE/bin
+mkdir -p deb/var/lib/$PACKAGE/dropwizard/
+mkdir -p deb/usr/lib/nagios/plugins/check_fk_$PACKAGE/
+mkdir -p deb/etc/confd/conf.d
+mkdir -p deb/etc/confd/templates
+mkdir -p deb/etc/cosmos-jmx
+mkdir -p deb/etc/rsyslog.d
+mkdir -p deb/etc/$PACKAGE/plugin/
+
+cp build-$PACKAGE/etc/cosmos/$PACKAGE.json deb/etc/cosmos-jmx/$PACKAGE.json
+
+
+##### Maven Build #####
+MVN_OPTIONS="--errors -DskipTests -Dseraph"
+export MAVEN_OPTS="-Xmx512m -XX:MaxPermSize=192m"
+
+
+cp build-$PACKAGE/etc/confd/$PACKAGE.toml deb/etc/confd/conf.d
+cp build-$PACKAGE/etc/confd/$PACKAGE.tmpl deb/etc/confd/templates
+
+mvn -U $MVN_OPTIONS -Denv="$ENV" install
+cd $PACKAGE
+mvn -U $MVN_OPTIONS -Denv="$ENV" package
+#/usr/share/fk-ops-maven2/bin/mvn -U $MVN_OPTIONS -Denv="$ENV" package
+#cd ..
+
+echo "Present Working Directory :"
+pwd
+
+cp $PACKAGE-server/target/$PACKAGE-server-6.3.1-2.jar deb/var/lib/$PACKAGE/dropwizard/$PACKAGE.jar
+
+
+
+
+##### Retrieve package specific variables #####
+#. build-$PACKAGE/$PACKAGE.defaults
+
+##### Substitution in .build.json for new reposervice#####
+#sed -i -e "s/_REPO_NAME_/$PACKAGE/g" .build.json
+
+##### Substitutions and moves #####
+sed -i -e "s/_UID_/$PAC_UID/g; s/_PACKAGE_/$PACKAGE/g; s/_ENV_/$ENV/g" deb/DEBIAN/* build-$PACKAGE/etc/init.d/init-script
+cp build-$PACKAGE/etc/init.d/init-script deb/etc/init.d/$PACKAGE
+
+
+##### Generate /etc/default/packagename ######
+### see build-$PACKAGE/etc/packagename.defaults for more JAVA_OPTS ###
+
+# Create /etc/default/_PACKAGE_
+mkdir -p deb/etc/default/
+echo "# $PACKAGE
+USER=$PACKAGE
+GROUP=fk-cms
+CMS_UID=$PAC_UID
+CMS_GID=5000
+ENV=$ENV
+" > deb/etc/default/$PACKAGE

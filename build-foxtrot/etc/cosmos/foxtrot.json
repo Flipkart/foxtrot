@@ -1,0 +1,20 @@
+{
+  "servers": [
+    {
+      "port": "17002",
+      "host": "__HOST__",
+      "process": "foxtrot-server",
+      "queries": [
+        {
+          "obj": "metrics:name=org.eclipse.jetty.*",
+          "saperator": "."
+        },
+        {
+          "obj": "metrics:name=com.flipkart.foxtrot.*",
+          "saperator": "."
+        }
+      ],
+      "numQueryThreads": 2
+    }
+  ]
+}

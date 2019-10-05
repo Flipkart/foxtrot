@@ -1,0 +1,64 @@
+#! /bin/bash -e
+
+PAC=_PACKAGE_
+USER=_PACKAGE_
+GROUP=fk-cms
+CMS_UID=_UID_
+ENV=_ENV_
+CMS_GID=5000
+
+variant=base
+CMD="$1"
+
+die () {
+  # syntax: die message ...
+  #
+  # exit script with error message
+  echo "$PAC postinst error: $*"
+  echo -e "\033[31m ================================\033[0m"
+  echo -e "\033[31m Deployment FAILED on $HOSTNAME\033[0m"
+  echo -e "\033[31m ================================\033[0m"
+  exit 2
+}
+
+if [ "$CMD" == "configure" ]; then
+    ln -sfT /var/cache/$PAC /var/lib/$PAC/work
+
+    #creating user if it doesnt exist
+    if ! getent group fk-cms > /dev/null; then
+    groupadd -g 5000 fk-cms
+    fi
+
+    if ! getent passwd $CMS_UID > /dev/null; then
+        adduser --system --uid $CMS_UID --home /usr/share/$PAC --no-create-home \
+        --ingroup $GROUP --disabled-password --shell /bin/false \
+        $USER
+    fi
+
+    chown -R $CMS_UID:5000 /var/lib/$PAC
+    chown -R $CMS_UID:5000 /var/run/$PAC
+    chown $CMS_UID:5000 /var/cache/$PAC
+    chmod -R 777 /var/log/flipkart/foxtrot
+fi
+
+COSMOS_FILE="/etc/cosmos-jmx/foxtrot.json"
+
+BUCKET=foxtrot
+
+
+sed -i 's/_HOSTNAME_/'"`hostname -f`"'/' $COSMOS_FILE
+sed -i 's/_IP_/'"`hostname -i`"'/' $COSMOS_FILE
+echo "BUCKET = $BUCKET"
+
+#replace placeholder with bucket name
+sed -i 's/_BUCKET_/'"$BUCKET"'/g' /etc/confd/conf.d/*.toml
+#restart confd
+/etc/init.d/fk-config-service-confd restart
+
+#restart cosmos-jmx
+/etc/init.d/cosmos-jmx restart
+
+echo -e "\033[32m ================================\033[0m"
+echo -e "\033[32m BUILD Completed on $HOSTNAME\033[0m"
+echo -e "\033[32m ================================\033[0m"
+exit 0

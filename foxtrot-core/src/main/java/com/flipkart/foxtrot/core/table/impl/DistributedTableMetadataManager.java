@@ -55,8 +55,8 @@ import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.aggregations.Aggregation;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
-import org.elasticsearch.search.aggregations.metrics.cardinality.Cardinality;
-import org.elasticsearch.search.aggregations.metrics.percentiles.Percentiles;
+import org.elasticsearch.search.aggregations.metrics.Cardinality;
+import org.elasticsearch.search.aggregations.metrics.Percentiles;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -402,7 +402,7 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
                 continue;
             }
             final long hits = response.getHits()
-                    .getTotalHits();
+                    .getTotalHits().value;
             Map<String, Aggregation> output = response.getAggregations().asMap();
             output.forEach((key, value) -> {
                 FieldMetadata fieldMetadata = fields.get(key);
@@ -571,7 +571,7 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
                 continue;
             }
             final long hits = response.getHits()
-                    .getTotalHits();
+                    .getTotalHits().value;
             Map<String, Aggregation> output = response.getAggregations().asMap();
             output.forEach((key, value) -> {
                 Terms terms = (Terms)output.get(key);

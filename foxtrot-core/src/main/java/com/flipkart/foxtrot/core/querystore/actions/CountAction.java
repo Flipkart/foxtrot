@@ -16,7 +16,7 @@ import org.elasticsearch.ElasticsearchException;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.search.aggregations.Aggregations;
-import org.elasticsearch.search.aggregations.metrics.cardinality.Cardinality;
+import org.elasticsearch.search.aggregations.metrics.Cardinality;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -136,7 +136,7 @@ public class CountAction extends Action<CountRequest> {
             }
         } else {
             return new CountResponse(((SearchResponse)response).getHits()
-                                             .getTotalHits());
+                                             .getTotalHits().value);
         }
 
     }

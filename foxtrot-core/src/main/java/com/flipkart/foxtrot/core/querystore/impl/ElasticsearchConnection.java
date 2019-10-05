@@ -48,7 +48,6 @@ public class ElasticsearchConnection implements Managed {
                 .put("cluster.name", config.getCluster())
                 .put("client.transport.ignore_cluster_name", true)
                 .build();
-
         TransportClient esClient = new PreBuiltTransportClient(settings);
         Integer port;
         if(config.getPort() == null) {

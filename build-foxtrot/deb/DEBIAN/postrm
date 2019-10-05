@@ -1,0 +1,13 @@
+#!/bin/bash
+
+CMD="$1"
+
+FK_USER=_PACKAGE_
+FK_GROUP="fk-cms"
+
+if [ "$CMD" == "purge" ]; then
+	# Remove user and group (if empty)
+	(id "$FK_USER" >/dev/null 2>&1 && deluser $FK_USER) || true
+	(egrep "^$FK_GROUP:" /etc/group >/dev/null 2>&1 && delgroup --only-if-empty $FK_GROUP) || true
+fi
+

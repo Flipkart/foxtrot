@@ -1,0 +1,5 @@
+[template]
+prefix="/foxtrot"
+src = "foxtrot.tmpl"
+dest = "/etc/foxtrot/config/foxtrot-config.yml"
+keys = ["/server.applicationConnectors.0.type", "/server.applicationConnectors.0.port", "/server.adminConnectors.0.type", "/server.adminConnectors.0.port", "/elasticsearch.hosts", "/elasticsearch.cluster", "/elasticsearch.tableNamePrefix", "/elasticsearch.getQueryTimeout", "/hbase.secure", "/hbase.tableName", "/hbase.hbaseZookeeperQuorum", "/hbase.hbaseZookeeperClientPort", "/hbase.seggregatedTablePrefix", "/cluster.name", "/cluster.discovery.type", "/cluster.discovery.disableMulticast", "/cluster.discovery.members", "/cacheConfig.maxIdleSeconds", "/cacheConfig.timeToLiveSeconds", "/logging.level", "/cardinality.enabled", "/cardinality.batchSize", "/cardinality.active", "/cardinality.interval", "/cardinality.initialDelay", "/cardinality.maxCardinality", "/esIndexOptimizationConfig.active", "/esIndexOptimizationConfig.interval", "/esIndexOptimizationConfig.initialDelay", "/consoleHistoryConfig.active", "/consoleHistoryConfig.interval", "/consoleHistoryConfig.initialDelay", "/deletionconfig.active", "/deletionconfig.interval", "/deletionconfig.initialdelay"]

@@ -16,10 +16,9 @@ elasticsearch:
 hbase:
   secure : false
   tableName: foxtrot
-  hbaseZookeeperQuorum: localhost:2181
+  hbaseZookeeperQuorum: merlin-store-none-1495251:2181,merlin-store-none-1495250:2181,merlin-store-none-1495253:2181
   hbaseZookeeperClientPort: 2181
   seggregatedTablePrefix: foxtrot-
-  hbaseZookeeperZnodeParent: /hbase-unsecure
 
 cluster:
   name: foxtrot

@@ -28,7 +28,7 @@ import com.hazelcast.test.TestHazelcastInstanceFactory;
 import lombok.Getter;
 import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;
 import org.elasticsearch.action.admin.indices.template.put.PutIndexTemplateRequest;
-import org.elasticsearch.action.admin.indices.template.put.PutIndexTemplateResponse;
+import org.elasticsearch.action.support.master.AcknowledgedResponse;
 import org.joda.time.DateTimeZone;
 import org.junit.After;
 import org.junit.Before;
@@ -78,7 +78,7 @@ public abstract class ActionTest {
         TestUtils.ensureIndex(elasticsearchConnection, TableMapStore.TABLE_META_INDEX);
         TestUtils.ensureIndex(elasticsearchConnection, DistributedTableMetadataManager.CARDINALITY_CACHE_INDEX);
         PutIndexTemplateRequest putIndexTemplateRequest = ElasticsearchUtils.getClusterTemplateMapping();
-        PutIndexTemplateResponse response = elasticsearchConnection.getClient()
+        AcknowledgedResponse response = elasticsearchConnection.getClient()
                 .admin()
                 .indices()
                 .putTemplate(putIndexTemplateRequest)

@@ -1,0 +1,134 @@
+#!/bin/bash -e
+export PACKAGE=foxtrot
+export USER=$PACKAGE
+export MODULENAME=$PACKAGE
+STATUSFILE=appstatus.html
+
+JMX_PORT=3335
+HEALTH_CHECK_PORT=17000
+DEFAULT=/etc/default/$PACKAGE
+if [ -f "$DEFAULT" ]; then
+    . "$DEFAULT"
+fi
+
+export PACKAGE_PID="/var/run/$PACKAGE/$PACKAGE.pid"
+export DROPWIZARD_JAR="/var/lib/$PACKAGE/dropwizard/$MODULENAME.jar";
+export DROPWIZARD_CONFIG="/etc/$PACKAGE/config/$MODULENAME-config.yml";
+GC_OPTS="-Xms16G -Xmx16G -Xmn14G -XX:SurvivorRatio=2 -XX:+PrintGCApplicationStoppedTime -verbose:gc -XX:+PrintGCDateStamps -XX:+PrintGCTimeStamps -XX:+PrintGCDetails -XX:+PrintTenuringDistribution -Xloggc:/var/log/flipkart/$PACKAGE/gc.log -XX:+UseConcMarkSweepGC -XX:+UseParNewGC -XX:+DisableExplicitGC -XX:+CMSScavengeBeforeRemark -XX:+UnlockCommercialFeatures -XX:+FlightRecorder";
+REMOTE_OPTS="-Xdebug -Xrunjdwp:server=y,transport=dt_socket,address=4000,suspend=n";
+JMX_OPTS="-Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.port=$JMX_PORT";
+
+
+function start()
+{
+    serviceProcess=$(ps aux| grep drop | grep -v grep| wc -l)
+    if [ $serviceProcess -eq 0 ]; then
+        echo "$PACKAGE Breathes"
+        ulimit -n 213333
+        : > /tmp/out.log
+        sudo -u $USER nohup java -jar -Denv="$ENV" -server $REMOTE_OPTS $GC_OPTS $JMX_OPTS $DROPWIZARD_JAR server $DROPWIZARD_CONFIG > /tmp/out.log 2>&1 &
+        echo $! > $PACKAGE_PID
+        echo "{ uptime: 100, requests: 0, capacity: 50 }" > /var/lib/$PACKAGE/dropwizard/$STATUSFILE
+        #sudo /etc/$PACKAGE/plugin/fk-$PACKAGE-cosmos-plugin start
+    else
+        echo "$PACKAGE already running!!!"
+    fi
+}
+
+function stop()
+{
+    echo "$PACKAGE Shutting down!!!!"
+    if [ -f /var/lib/$PACKAGE/dropwizard/$STATUSFILE ]; then
+        mv /var/lib/$PACKAGE/dropwizard/$STATUSFILE /var/lib/$PACKAGE/dropwizard/old-$STATUSFILE
+    fi
+
+    sleep 5
+    PID=$(cat $PACKAGE_PID)
+    kill $PID
+    rm $PACKAGE_PID
+    #sudo /etc/$PACKAGE/plugin/fk-$PACKAGE-cosmos-plugin stop
+}
+
+function health_check()
+{
+       curl -w %{http_code} -s -o /dev/null "http://localhost:$HEALTH_CHECK_PORT/healthcheck"
+}
+
+function service_status()
+{
+       if [ -f $PID_FILE ]; then
+               status=$(health_check)
+               if [ $status -eq 200 ]; then
+                       echo "up"
+               else
+                       rm -f $PID_FILE
+                       echo "down"
+               fi
+       else
+               echo "down"
+       fi
+}
+
+
+case "$1" in
+    start)
+        status=$(service_status)
+        if [ "$status" == "up" ]; then
+            echo "Service is already running"
+        else
+            start
+            /etc/init.d/cosmos-jmx start
+        fi
+        ;;
+
+    stop)
+        stop
+        /etc/init.d/cosmos-jmx stop
+        ;;
+
+    restart)
+        stop
+        sleep 2
+        start
+        ;;
+
+    status)
+        status=$(service_status)
+        if [ "$status" == "up" ]; then
+            echo "Service is UP"
+            exit 0
+        else
+            echo "Service is DOWN"
+            exit 2
+        fi
+        ;;    
+    
+    kill)
+        provided_pid=$2
+        service_pid=$(cat $PACKAGE_PID)
+        pid=${provided_pid:-$service_pid}
+        if [ "x$pid" != "x" ] ; then
+            kill -9 $pid
+        fi
+        ;;
+    health-off)
+        echo "$PACKAGE maintenance mode"
+        echo "Taking $PACKAGE Out Of Rotation..." | tee -a /var/log/flipkart/$PACKAGE/$MODULENAME/$MODULENAME.log
+            mv /var/lib/$PACKAGE/dropwizard/$STATUSFILE /var/lib/$PACKAGE/dropwizard/old-$STATUSFILE
+            echo "Removed status file for OOR" | tee -a /var/log/flipkart/$PACKAGE/$MODULENAME/$MODULENAME.log
+        #todo look what to do for persistent connections
+    	;;
+    health-on)
+	echo "$PACKAGE Back In Action"
+	echo "Getting $PACKAGE Back In Rotation..." | tee -a /var/log/flipkart/$PACKAGE/$MODULENAME/$MODULENAME.log
+	echo "$PACKAGE up!" > /var/lib/$PACKAGE/dropwizard/$STATUSFILE
+    	echo "Created status file for BIR" | tee -a /var/log/flipkart/$PACKAGE/$MODULENAME/$MODULENAME.log
+    ;;
+    power)
+    ;;
+    *)
+        $1
+        echo "USAGE : $PACKAGE start | stop | restart | status"
+        ;;
+esac
+echo "DONE"

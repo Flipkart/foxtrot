@@ -203,7 +203,7 @@ public class ElasticsearchConsolePersistence implements ConsolePersistence {
                     results.add(mapper.readValue(hit.getSourceAsString(), ConsoleV2.class));
                 }
                 if (SCROLL_SIZE >= response.getHits()
-                        .getTotalHits()) {
+                        .getTotalHits().value) {
                     break;
                 }
 

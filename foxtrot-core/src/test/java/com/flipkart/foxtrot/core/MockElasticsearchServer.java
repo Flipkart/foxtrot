@@ -47,7 +47,7 @@ public class MockElasticsearchServer {
                 .put("transport.type", "local")
                 .build();
         Stopwatch stopwatch = Stopwatch.createStarted();
-        node = new Node(settings).start();
+        node = new Node(null).start();
         System.out.printf("TimeTakenForEstart: %d%n", stopwatch.elapsed(TimeUnit.MILLISECONDS));
     }
 

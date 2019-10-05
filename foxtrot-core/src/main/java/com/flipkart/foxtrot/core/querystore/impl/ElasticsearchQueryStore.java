@@ -255,7 +255,7 @@ public class ElasticsearchQueryStore implements QueryStore {
                 .execute()
                 .actionGet();
         if(searchResponse.getHits()
-                   .getTotalHits() == 0) {
+                   .getTotalHits().value == 0) {
             logger.warn("Going into compatibility mode, looks using passed in ID as the data store id: {}", id);
             lookupKey = id;
         } else {

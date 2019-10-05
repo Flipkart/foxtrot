@@ -1,0 +1,13 @@
+#!/bin/bash -e
+
+PAC=_PACKAGE_
+ENV=_ENV_
+
+CMD="$1"
+if [ "$CMD" == "remove" -o "$CMD" == "upgrade" ]; then
+    case "$PAC" in 
+        *) if [ -x "/etc/init.d/$PAC" ]; then
+              /etc/init.d/$PAC stop || true
+           fi;;
+    esac
+fi

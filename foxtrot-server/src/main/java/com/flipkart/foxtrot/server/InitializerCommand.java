@@ -29,7 +29,8 @@ import org.elasticsearch.action.admin.cluster.health.ClusterHealthResponse;
 import org.elasticsearch.action.admin.indices.create.CreateIndexRequest;
 import org.elasticsearch.action.admin.indices.create.CreateIndexResponse;
 import org.elasticsearch.action.admin.indices.template.put.PutIndexTemplateRequest;
-import org.elasticsearch.action.admin.indices.template.put.PutIndexTemplateResponse;
+
+import org.elasticsearch.action.support.master.AcknowledgedResponse;
 import org.elasticsearch.common.settings.Settings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -65,7 +66,7 @@ public class InitializerCommand extends ConfiguredCommand<FoxtrotServerConfigura
 
         logger.info("Creating mapping");
         PutIndexTemplateRequest putIndexTemplateRequest = ElasticsearchUtils.getClusterTemplateMapping();
-        PutIndexTemplateResponse response = connection.getClient()
+        AcknowledgedResponse response = connection.getClient()
                 .admin()
                 .indices()
                 .putTemplate(putIndexTemplateRequest)

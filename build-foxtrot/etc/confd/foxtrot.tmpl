@@ -1,0 +1,49 @@
+---
+server:
+  applicationConnectors:
+  - type: {{getv "/server.applicationConnectors.0.type"}}
+    port: {{getv "/server.applicationConnectors.0.port"}}
+  adminConnectors:
+  - type: {{getv "/server.adminConnectors.0.type"}}
+    port: {{getv "/server.adminConnectors.0.port"}}
+elasticsearch:
+  hosts: {{getv "/elasticsearch.hosts"}}
+  cluster: {{getv "/elasticsearch.cluster"}}
+  tableNamePrefix: {{getv "/elasticsearch.tableNamePrefix"}}
+  getQueryTimeout: {{getv "/elasticsearch.getQueryTimeout"}}
+hbase:
+  secure: {{getv "/hbase.secure"}}
+  tableName: {{getv "/hbase.tableName"}}
+  hbaseZookeeperQuorum: {{getv "/hbase.hbaseZookeeperQuorum"}}
+  hbaseZookeeperClientPort: {{getv "/hbase.hbaseZookeeperClientPort"}}
+  seggregatedTablePrefix: {{getv "/hbase.seggregatedTablePrefix"}}
+cluster:
+  name: {{getv "/cluster.name"}}
+  discovery:
+    type: {{getv "/cluster.discovery.type"}}
+    disableMulticast: {{getv "/cluster.discovery.disableMulticast"}}
+    members: {{getv "/cluster.discovery.members"}}
+cacheConfig:
+  maxIdleSeconds: {{getv "/cacheConfig.maxIdleSeconds"}}
+  timeToLiveSeconds: {{getv "/cacheConfig.timeToLiveSeconds"}}
+logging:
+  level: {{getv "/logging.level"}}
+cardinality:
+  enabled: {{getv "/cardinality.enabled"}}
+  batchSize: {{getv "/cardinality.batchSize"}}
+  active: {{getv "/cardinality.active"}}
+  interval: {{getv "/cardinality.interval"}}
+  initialDelay: {{getv "/cardinality.initialDelay"}}
+  maxCardinality: {{getv "/cardinality.maxCardinality"}}
+esIndexOptimizationConfig:
+  active: {{getv "/esIndexOptimizationConfig.active"}}
+  interval: {{getv "/esIndexOptimizationConfig.interval"}}
+  initialDelay: {{getv "/esIndexOptimizationConfig.initialDelay"}}
+consoleHistoryConfig:
+  active: {{getv "/consoleHistoryConfig.active"}}
+  interval: {{getv "/consoleHistoryConfig.interval"}}
+  initialDelay: {{getv "/consoleHistoryConfig.initialDelay"}}
+deletionconfig:
+  active: {{getv "/deletionconfig.active"}}
+  interval: {{getv "/deletionconfig.interval"}}
+  initialdelay: {{getv "/deletionconfig.initialdelay"}}

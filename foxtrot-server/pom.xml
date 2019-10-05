@@ -76,7 +76,7 @@
         <dependency>
             <groupId>com.hazelcast</groupId>
             <artifactId>hazelcast</artifactId>
-            <version>3.6</version>
+            <version>3.6.3</version>
             <type>test-jar</type>
             <scope>test</scope>
         </dependency>
