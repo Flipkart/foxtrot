@@ -6,6 +6,16 @@ server:
   adminConnectors:
   - type: {{getv "/server.adminConnectors.0.type"}}
     port: {{getv "/server.adminConnectors.0.port"}}
+  requestLog:
+    appenders:
+    - type: {{getv "/server.requestLog.appenders.0.type"}}
+      currentLogFilename: {{getv "/server.requestLog.appenders.0.currentLogFilename"}}
+      threshold: {{getv "/server.requestLog.appenders.0.threshold"}}
+      archive: {{getv "/server.requestLog.appenders.0.archive"}}
+      archivedLogFilenamePattern: {{getv "/server.requestLog.appenders.0.archivedLogFilenamePattern"}}
+      maxFileSize: {{getv "/server.requestLog.appenders.0.maxFileSize"}}
+      archivedFileCount: {{getv "/server.requestLog.appenders.0.archivedFileCount"}}
+      timeZone: {{getv "/server.requestLog.appenders.0.timeZone"}}
 elasticsearch:
   hosts: {{getv "/elasticsearch.hosts"}}
   cluster: {{getv "/elasticsearch.cluster"}}
@@ -28,6 +38,15 @@ cacheConfig:
   timeToLiveSeconds: {{getv "/cacheConfig.timeToLiveSeconds"}}
 logging:
   level: {{getv "/logging.level"}}
+  appenders:
+  - type: {{getv "/logging.appenders.0.type"}}
+    currentLogFilename: {{getv "/logging.appenders.0.currentLogFilename"}}
+    threshold: {{getv "/logging.appenders.0.threshold"}}
+    archive: {{getv "/logging.appenders.0.archive"}}
+    archivedLogFilenamePattern: {{getv "/logging.appenders.0.archivedLogFilenamePattern"}}
+    timeZone: {{getv "/logging.appenders.0.timeZone"}}
+    maxFileSize: {{getv "/logging.appenders.0.maxFileSize"}}
+    archivedFileCount: {{getv "/logging.appenders.0.archivedFileCount"}}
 cardinality:
   enabled: {{getv "/cardinality.enabled"}}
   batchSize: {{getv "/cardinality.batchSize"}}

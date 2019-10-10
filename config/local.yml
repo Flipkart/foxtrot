@@ -5,10 +5,20 @@ server:
   adminConnectors:
     - type: http
       port: 17001
+  requestLog:
+    appenders:
+      - type: file
+        currentLogFilename: /var/log/flipkart/foxtrot/access.log
+        threshold: ALL
+        archive: true
+        archivedLogFilenamePattern: /var/log/flipkart/foxtrot/access.%i.log.gz
+        maxFileSize: 50MB
+        archivedFileCount: 3
+        timeZone: IST
 
 elasticsearch:
-  hosts:
-  - localhost
+  hosts: ["10.50.34.180","10.50.99.12","10.52.178.236"]
+
   cluster: foxtrot
   tableNamePrefix: foxtrot
   getQueryTimeout: 10000
@@ -16,7 +26,7 @@ elasticsearch:
 hbase:
   secure : false
   tableName: foxtrot
-  hbaseZookeeperQuorum: merlin-store-none-1495251:2181,merlin-store-none-1495250:2181,merlin-store-none-1495253:2181
+  hbaseZookeeperQuorum: foxtrot-store-none-8050379:2181,foxtrot-store-none-8050380:2181,foxtrot-store-none-8050381:2181
   hbaseZookeeperClientPort: 2181
   seggregatedTablePrefix: foxtrot-
 
@@ -33,6 +43,15 @@ cacheConfig:
 
 logging:
   level: INFO
+  appenders:
+    - type: file
+      currentLogFilename: /var/log/flipkart/foxtrot/foxtrot.log
+      threshold: ALL
+      archive: true
+      archivedLogFilenamePattern: /var/log/flipkart/foxtrot/foxtrot.log.%i.gz
+      timeZone: IST
+      maxFileSize: 10KB
+      archivedFileCount: 3
 
 cardinality:
   enabled: true
