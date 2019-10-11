@@ -42,8 +42,9 @@ public class CardinalityCalculationManager extends BaseJobManager {
     private final TableMetadataManager tableMetadataManager;
     private final CardinalityConfig cardinalityConfig;
 
-    public CardinalityCalculationManager(TableMetadataManager tableMetadataManager, CardinalityConfig cardinalityConfig,
-                                         HazelcastConnection hazelcastConnection, ScheduledExecutorService scheduledExecutorService) {
+    public CardinalityCalculationManager(
+            TableMetadataManager tableMetadataManager, CardinalityConfig cardinalityConfig,
+            HazelcastConnection hazelcastConnection, ScheduledExecutorService scheduledExecutorService) {
         super(cardinalityConfig, scheduledExecutorService, hazelcastConnection);
         this.tableMetadataManager = tableMetadataManager;
         this.cardinalityConfig = cardinalityConfig;
@@ -73,7 +74,8 @@ public class CardinalityCalculationManager extends BaseJobManager {
                         break;
                     }
                 }
-            } catch (Exception e) {
+            }
+            catch (Exception e) {
                 LOGGER.error("Error occurred while calculating cardinality {}", e);
             }
         }, new LockConfiguration(cardinalityConfig.getJobName(), lockAtMostUntil));

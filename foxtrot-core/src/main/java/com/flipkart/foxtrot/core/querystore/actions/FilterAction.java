@@ -93,8 +93,10 @@ public class FilterAction extends Action<Query> {
                 filterHashKey += 31 * filter.hashCode();
             }
         }
-        filterHashKey += 31 * (query.getSort() != null ? query.getSort()
-                .hashCode() : "SORT".hashCode());
+        filterHashKey += 31 * (query.getSort() != null
+                               ? query.getSort()
+                                       .hashCode()
+                               : "SORT".hashCode());
 
         return String.format("%s-%d-%d-%d", query.getTable(), query.getFrom(), query.getLimit(), filterHashKey);
     }
@@ -107,7 +109,8 @@ public class FilterAction extends Action<Query> {
             SearchResponse response = search.execute()
                     .actionGet(getGetQueryTimeout());
             return getResponse(response, parameter);
-        } catch (ElasticsearchException e) {
+        }
+        catch (ElasticsearchException e) {
             throw FoxtrotExceptions.createQueryExecutionException(parameter, e);
         }
     }
@@ -129,10 +132,13 @@ public class FilterAction extends Action<Query> {
                     .setSearchType(SearchType.QUERY_THEN_FETCH)
                     .setFrom(parameter.getFrom())
                     .addSort(Utils.storedFieldName(parameter.getSort()
-                            .getField()), ResultSort.Order.desc == parameter.getSort()
-                            .getOrder() ? SortOrder.DESC : SortOrder.ASC)
+                                                           .getField()), ResultSort.Order.desc == parameter.getSort()
+                            .getOrder()
+                                                                         ? SortOrder.DESC
+                                                                         : SortOrder.ASC)
                     .setSize(parameter.getLimit());
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             throw FoxtrotExceptions.queryCreationException(parameter, e);
         }
         return search;

@@ -61,7 +61,8 @@ public class AnalyticsLoader implements Managed {
     private final EmailConfig emailConfig;
     private EmailClient emailClient;
 
-    public AnalyticsLoader(TableMetadataManager tableMetadataManager, DataStore dataStore, QueryStore queryStore,
+    public AnalyticsLoader(
+            TableMetadataManager tableMetadataManager, DataStore dataStore, QueryStore queryStore,
             ElasticsearchConnection elasticsearchConnection, CacheManager cacheManager, ObjectMapper objectMapper,
             EmailConfig emailConfig, EmailClient emailClient, ElasticsearchTuningConfig elasticsearchTuningConfig) {
         this.tableMetadataManager = tableMetadataManager;
@@ -89,7 +90,8 @@ public class AnalyticsLoader implements Managed {
                     Constructor<? extends Action> constructor = metadata.getAction()
                             .getConstructor(metadata.getRequest(), AnalyticsLoader.class);
                     return constructor.newInstance(r, this);
-                } catch (Exception e) {
+                }
+                catch (Exception e) {
                     throw FoxtrotExceptions.createActionResolutionException(request, e);
                 }
             }
@@ -122,7 +124,8 @@ public class AnalyticsLoader implements Managed {
                     .equalsIgnoreCase("default")) {
                 logger.warn("Action {} does not specify cache token. Using default cache.", action.getCanonicalName());
             }
-            register(new ActionMetadata(analyticsProvider.request(), action, analyticsProvider.cacheable()), analyticsProvider.opcode());
+            register(new ActionMetadata(analyticsProvider.request(), action, analyticsProvider.cacheable()),
+                     analyticsProvider.opcode());
             types.add(new NamedType(analyticsProvider.request(), analyticsProvider.opcode()));
             types.add(new NamedType(analyticsProvider.response(), analyticsProvider.opcode()));
             logger.info("Registered action: {}", action.getCanonicalName());
@@ -133,7 +136,7 @@ public class AnalyticsLoader implements Managed {
 
     public void register(ActionMetadata actionMetadata, String opcode) {
         actions.put(actionMetadata.getRequest()
-                .getCanonicalName(), actionMetadata);
+                            .getCanonicalName(), actionMetadata);
         if (actionMetadata.isCacheable()) {
             registerCache(opcode);
         }

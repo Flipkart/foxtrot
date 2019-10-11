@@ -1,10 +1,5 @@
 package com.flipkart.foxtrot.server.resources;
 
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.when;
-
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import com.codahale.metrics.health.HealthCheckRegistry;
@@ -26,13 +21,9 @@ import com.flipkart.foxtrot.core.datastore.DataStore;
 import com.flipkart.foxtrot.core.exception.FoxtrotException;
 import com.flipkart.foxtrot.core.querystore.QueryExecutor;
 import com.flipkart.foxtrot.core.querystore.QueryStore;
-import com.flipkart.foxtrot.core.querystore.actions.spi.ElasticsearchTuningConfig;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsLoader;
-import com.flipkart.foxtrot.core.querystore.impl.CacheConfig;
-import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConnection;
-import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchQueryStore;
-import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
-import com.flipkart.foxtrot.core.querystore.impl.HazelcastConnection;
+import com.flipkart.foxtrot.core.querystore.actions.spi.ElasticsearchTuningConfig;
+import com.flipkart.foxtrot.core.querystore.impl.*;
 import com.flipkart.foxtrot.core.querystore.mutator.IndexerEventMutator;
 import com.flipkart.foxtrot.core.querystore.mutator.LargeTextNodeRemover;
 import com.flipkart.foxtrot.core.table.TableMetadataManager;
@@ -51,8 +42,6 @@ import io.dropwizard.jetty.MutableServletContextHandler;
 import io.dropwizard.lifecycle.setup.LifecycleEnvironment;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import org.assertj.core.util.Lists;
 import org.junit.After;
 import org.mockito.Mockito;
@@ -60,6 +49,11 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.*;
 
 /**
  * Created by rishabh.goyal on 27/12/15.
@@ -117,7 +111,8 @@ public abstract class FoxtrotResourceTest {
     public FoxtrotResourceTest() throws Exception {
         try {
             dataStore = TestUtils.getDataStore();
-        } catch (FoxtrotException e) {
+        }
+        catch (FoxtrotException e) {
             e.printStackTrace();
         }
 
@@ -133,21 +128,27 @@ public abstract class FoxtrotResourceTest {
         elasticsearchConnection = ElasticsearchTestUtils.getConnection();
 
         CardinalityConfig cardinalityConfig = new CardinalityConfig("true",
-                String.valueOf(ElasticsearchUtils.DEFAULT_SUB_LIST_SIZE));
+                                                                    String.valueOf(ElasticsearchUtils.DEFAULT_SUB_LIST_SIZE));
 
         TestUtils.createTable(elasticsearchConnection, TableMapStore.TABLE_META_INDEX);
         TestUtils.createTable(elasticsearchConnection, DistributedTableMetadataManager.CARDINALITY_CACHE_INDEX);
 
         tableMetadataManager = new DistributedTableMetadataManager(hazelcastConnection, elasticsearchConnection, mapper,
-                cardinalityConfig);
+                                                                   cardinalityConfig);
         tableMetadataManager.start();
         tableMetadataManager.save(Table.builder()
-                .name(TestUtils.TEST_TABLE_NAME)
-                .ttl(7)
-                .build());
+                                          .name(TestUtils.TEST_TABLE_NAME)
+                                          .ttl(7)
+                                          .build());
         List<IndexerEventMutator> mutators = Lists.newArrayList(new LargeTextNodeRemover(mapper,
-                TextNodeRemoverConfiguration.builder().build()));
-        queryStore = new ElasticsearchQueryStore(tableMetadataManager, elasticsearchConnection, dataStore, mutators, mapper, cardinalityConfig);
+                                                                                         TextNodeRemoverConfiguration.builder()
+                                                                                                 .build()));
+        queryStore = new ElasticsearchQueryStore(tableMetadataManager,
+                                                 elasticsearchConnection,
+                                                 dataStore,
+                                                 mutators,
+                                                 mapper,
+                                                 cardinalityConfig);
         queryStore = spy(queryStore);
 
         EmailConfig emailConfig = new EmailConfig();
@@ -156,16 +157,25 @@ public abstract class FoxtrotResourceTest {
         EmailClient emailClient = Mockito.mock(EmailClient.class);
         when(emailClient.sendEmail(any(String.class), any(String.class), any(String.class))).thenReturn(true);
 
-        analyticsLoader = new AnalyticsLoader(tableMetadataManager, dataStore, queryStore, elasticsearchConnection,
-                cacheManager, mapper, emailConfig, emailClient, new ElasticsearchTuningConfig());
+        analyticsLoader = new AnalyticsLoader(tableMetadataManager,
+                                              dataStore,
+                                              queryStore,
+                                              elasticsearchConnection,
+                                              cacheManager,
+                                              mapper,
+                                              emailConfig,
+                                              emailClient,
+                                              new ElasticsearchTuningConfig());
         try {
             analyticsLoader.start();
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             e.printStackTrace();
         }
         try {
             TestUtils.registerActions(analyticsLoader, mapper);
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             e.printStackTrace();
         }
         ExecutorService executorService = Executors.newFixedThreadPool(1);

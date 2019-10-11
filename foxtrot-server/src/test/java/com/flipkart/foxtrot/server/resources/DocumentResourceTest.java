@@ -77,13 +77,13 @@ public class DocumentResourceTest extends FoxtrotResourceTest {
         assertNotNull("Actual document data should not be null", actual.getData());
         assertEquals("Actual Doc Id should match expected Doc Id", expected.getId(), actual.getId());
         assertEquals("Actual Doc Timestamp should match expected Doc Timestamp", expected.getTimestamp(),
-                actual.getTimestamp());
+                     actual.getTimestamp());
         Map<String, Object> expectedMap = getMapper().convertValue(expected.getData(),
-                new TypeReference<HashMap<String, Object>>() {
-                });
+                                                                   new TypeReference<HashMap<String, Object>>() {
+                                                                   });
         Map<String, Object> actualMap = getMapper().convertValue(actual.getData(),
-                new TypeReference<HashMap<String, Object>>() {
-                });
+                                                                 new TypeReference<HashMap<String, Object>>() {
+                                                                 });
         assertEquals("Actual data should match expected data", expectedMap, actualMap);
     }
 
@@ -120,7 +120,7 @@ public class DocumentResourceTest extends FoxtrotResourceTest {
     @Test
     public void testSaveDocumentNullData() throws Exception {
         Document document = new Document(UUID.randomUUID()
-                .toString(), System.currentTimeMillis(), null);
+                                                 .toString(), System.currentTimeMillis(), null);
         Entity<Document> documentEntity = Entity.json(document);
         Response response = resources.client()
                 .target("/v1/document/" + TestUtils.TEST_TABLE_NAME)
@@ -211,9 +211,9 @@ public class DocumentResourceTest extends FoxtrotResourceTest {
         List<Document> documents = new Vector<Document>();
         documents.add(null);
         documents.add(new Document(UUID.randomUUID()
-                .toString(), System.currentTimeMillis(), getMapper().getNodeFactory()
-                .objectNode()
-                .put("d", "d")));
+                                           .toString(), System.currentTimeMillis(), getMapper().getNodeFactory()
+                                           .objectNode()
+                                           .put("d", "d")));
         Entity<List<Document>> listEntity = Entity.json(documents);
         Response response = resources.client()
                 .target(String.format("/v1/document/%s/bulk", TestUtils.TEST_TABLE_NAME))
@@ -240,7 +240,7 @@ public class DocumentResourceTest extends FoxtrotResourceTest {
     public void testSaveDocumentsNullData() throws Exception {
         List<Document> documents = new Vector<Document>();
         documents.add(new Document(UUID.randomUUID()
-                .toString(), System.currentTimeMillis(), null));
+                                           .toString(), System.currentTimeMillis(), null));
         Entity<List<Document>> listEntity = Entity.json(documents);
         Response response = resources.client()
                 .target(String.format("/v1/document/%s/bulk", TestUtils.TEST_TABLE_NAME))
@@ -294,7 +294,8 @@ public class DocumentResourceTest extends FoxtrotResourceTest {
                     .request()
                     .get(Document.class);
             fail();
-        } catch (WebApplicationException ex) {
+        }
+        catch (WebApplicationException ex) {
             assertEquals(Response.Status.NOT_FOUND.getStatusCode(), ex.getResponse()
                     .getStatus());
         }
@@ -312,7 +313,8 @@ public class DocumentResourceTest extends FoxtrotResourceTest {
                     .request()
                     .get(Document.class);
             fail();
-        } catch (WebApplicationException ex) {
+        }
+        catch (WebApplicationException ex) {
             assertEquals(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode(), ex.getResponse()
                     .getStatus());
         }
@@ -363,7 +365,8 @@ public class DocumentResourceTest extends FoxtrotResourceTest {
                     .request()
                     .get(String.class);
             fail();
-        } catch (WebApplicationException ex) {
+        }
+        catch (WebApplicationException ex) {
             assertEquals(Response.Status.NOT_FOUND.getStatusCode(), ex.getResponse()
                     .getStatus());
         }
@@ -381,7 +384,8 @@ public class DocumentResourceTest extends FoxtrotResourceTest {
                     .request()
                     .get(String.class);
             fail();
-        } catch (WebApplicationException ex) {
+        }
+        catch (WebApplicationException ex) {
             assertEquals(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode(), ex.getResponse()
                     .getStatus());
         }

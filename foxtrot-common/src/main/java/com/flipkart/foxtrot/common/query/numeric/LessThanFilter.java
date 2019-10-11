@@ -46,11 +46,16 @@ public class LessThanFilter extends NumericBinaryFilter {
         int result = getOperator().hashCode();
         result = 31 * result + getField().hashCode();
         if (!getField().equals("_timestamp")) {
-            result = result * 21 + (getValue() == null ? 43 : getValue().hashCode());
-        } else {
+            result = result * 21 + (getValue() == null
+                                    ? 43
+                                    : getValue().hashCode());
+        }
+        else {
             result = result * 21 + 11;
         }
-        result = result * 59 + (this.isTemporal() ? 79 : 97);
+        result = result * 59 + (this.isTemporal()
+                                ? 79
+                                : 97);
         return result;
     }
 
@@ -58,13 +63,14 @@ public class LessThanFilter extends NumericBinaryFilter {
     public boolean equals(Object o) {
         if (this == o) {
             return true;
-        } else if (!(o instanceof LessThanFilter)) {
+        }
+        else if (!(o instanceof LessThanFilter)) {
             return false;
         }
 
         LessThanFilter that = (LessThanFilter) o;
 
         return getField().equals(that.getField()) && getOperator().equals(that.getOperator()) &&
-            isFilterTemporal() == that.isFilterTemporal() && getValue().equals(that.getValue());
+                isFilterTemporal() == that.isFilterTemporal() && getValue().equals(that.getValue());
     }
 }

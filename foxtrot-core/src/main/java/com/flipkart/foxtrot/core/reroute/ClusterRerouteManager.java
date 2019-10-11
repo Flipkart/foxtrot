@@ -15,9 +15,9 @@ import org.elasticsearch.action.admin.indices.stats.IndicesStatsRequest;
 import org.elasticsearch.action.admin.indices.stats.IndicesStatsResponse;
 import org.elasticsearch.cluster.routing.allocation.command.MoveAllocationCommand;
 import org.elasticsearch.index.shard.ShardId;
+import org.joda.time.DateTime;
 
 import java.util.*;
-import org.joda.time.DateTime;
 
 /***
  Created by mudit.g on Sep, 2019
@@ -48,10 +48,10 @@ public class ClusterRerouteManager {
                 Math.ceil((avgShardsPerNode * clusterRerouteConfig.getThresholdShardCountPercentage()) / 100);
         Deque<String> vacantNodeIds = getVacantNodeId((int) avgShardsPerNode);
 
-        for (Map.Entry<String, NodeInfo> nodeIdVsNodeInfo: nodeIdVsNodeInfoMap.entrySet()) {
+        for (Map.Entry<String, NodeInfo> nodeIdVsNodeInfo : nodeIdVsNodeInfoMap.entrySet()) {
             int shardCount = nodeIdVsNodeInfo.getValue().getShardInfos().size();
             if (shardCount > acceptableShardsPerNode) {
-                for (int i = shardCount; i >= (int) avgShardsPerNode ; i--) {
+                for (int i = shardCount; i >= (int) avgShardsPerNode; i--) {
                     ShardId shardId = nodeIdVsNodeInfo.getValue().getShardInfos().get(i - 1).getShardId();
                     if (!vacantNodeIds.isEmpty()) {
                         reallocateShard(shardId, nodeIdVsNodeInfo.getKey(), vacantNodeIds.pop());
@@ -62,7 +62,10 @@ public class ClusterRerouteManager {
     }
 
     private boolean reallocateShard(ShardId shardId, String fromNode, String toNode) {
-        MoveAllocationCommand moveAllocationCommand = new MoveAllocationCommand(shardId.getIndexName(), shardId.getId(), fromNode, toNode);
+        MoveAllocationCommand moveAllocationCommand = new MoveAllocationCommand(shardId.getIndexName(),
+                                                                                shardId.getId(),
+                                                                                fromNode,
+                                                                                toNode);
         ClusterRerouteRequest clusterRerouteRequest = new ClusterRerouteRequest();
         clusterRerouteRequest.add(moveAllocationCommand);
         try {
@@ -74,8 +77,12 @@ public class ClusterRerouteManager {
             log.info(String.format("Reallocating Shard. From Node: %s To Node: %s", fromNode, toNode));
             Thread.sleep((new Date(DateTime.now()).getHourOfDay() + 1) * 4000L);
             return clusterRerouteResponse.isAcknowledged();
-        } catch (Exception e) {
-            log.error(String.format("Error in Reallocating Shard. From Node: %s To Node: %s. Error Message: %s", fromNode, toNode, e.getMessage()), e);
+        }
+        catch (Exception e) {
+            log.error(String.format("Error in Reallocating Shard. From Node: %s To Node: %s. Error Message: %s",
+                                    fromNode,
+                                    toNode,
+                                    e.getMessage()), e);
             return false;
         }
     }
@@ -91,7 +98,7 @@ public class ClusterRerouteManager {
                 .actionGet();
         Arrays.stream(indicesStatsResponse.getShards())
                 .forEach(shardStats -> {
-                    if(shardStats.getShardRouting()
+                    if (shardStats.getShardRouting()
                             .shardId()
                             .getIndexName()
                             .matches(ElasticsearchUtils.getTodayIndicesPattern())
@@ -103,11 +110,12 @@ public class ClusterRerouteManager {
                                 .build();
                         String nodeId = shardStats.getShardRouting()
                                 .currentNodeId();
-                        if(nodeIdVsNodeInfoMap.containsKey(nodeId)) {
+                        if (nodeIdVsNodeInfoMap.containsKey(nodeId)) {
                             nodeIdVsNodeInfoMap.get(nodeId)
                                     .getShardInfos()
                                     .add(shardInfo);
-                        } else {
+                        }
+                        else {
                             List<ShardInfo> shardInfoList = Lists.newArrayList(shardInfo);
                             NodeInfo nodeInfo = NodeInfo.builder()
                                     .shardInfos(shardInfoList)
@@ -129,8 +137,8 @@ public class ClusterRerouteManager {
                 .actionGet();
         nodesInfoResponse.getNodes()
                 .forEach(nodeInfo -> nodeNameVsNodeId.put(nodeInfo.getNode()
-                        .getName(), nodeInfo.getNode()
-                        .getId()));
+                                                                  .getName(), nodeInfo.getNode()
+                                                                  .getId()));
     }
 
     private int getTotalShardCount() {
@@ -143,7 +151,7 @@ public class ClusterRerouteManager {
 
     private Deque<String> getVacantNodeId(int avgShardsPerNode) {
         Deque<String> vacantNodeIds = new ArrayDeque<>();
-        for (Map.Entry<String, NodeInfo> nodeIdVsNodeInfo: nodeIdVsNodeInfoMap.entrySet()) {
+        for (Map.Entry<String, NodeInfo> nodeIdVsNodeInfo : nodeIdVsNodeInfoMap.entrySet()) {
             int shardCount = nodeIdVsNodeInfo.getValue().getShardInfos().size();
             if (shardCount < avgShardsPerNode) {
                 for (int i = avgShardsPerNode; i > shardCount; i--) {

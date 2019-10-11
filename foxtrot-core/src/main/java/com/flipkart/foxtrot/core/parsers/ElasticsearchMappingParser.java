@@ -18,6 +18,7 @@ import com.flipkart.foxtrot.common.FieldMetadata;
 import com.flipkart.foxtrot.common.FieldType;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
 import org.elasticsearch.cluster.metadata.MappingMetaData;
+
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
@@ -49,19 +50,22 @@ public class ElasticsearchMappingParser {
                     .startsWith(ElasticsearchUtils.DOCUMENT_META_FIELD_NAME)) {
                 continue;
             }
-            String currentField = (parentField == null) ? entry.getKey() : (String.format("%s.%s", parentField,
-                    entry.getKey()));
+            String currentField = (parentField == null)
+                                  ? entry.getKey()
+                                  : (String.format("%s.%s", parentField,
+                                                   entry.getKey()));
             if (entry.getValue()
                     .has(PROPERTIES)) {
                 fieldTypeMappings.addAll(generateFieldMappings(currentField, entry.getValue()
                         .get(PROPERTIES)));
-            } else {
+            }
+            else {
                 FieldType fieldType = getFieldType(entry.getValue()
-                        .get("type"));
+                                                           .get("type"));
                 fieldTypeMappings.add(FieldMetadata.builder()
-                        .field(currentField)
-                        .type(fieldType)
-                        .build());
+                                              .field(currentField)
+                                              .type(fieldType)
+                                              .build());
             }
         }
         return fieldTypeMappings;

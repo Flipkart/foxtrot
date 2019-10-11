@@ -79,16 +79,17 @@ public class DistributedTableMetadataManagerTest {
         hazelcastConnection.start();
 
         this.distributedTableMetadataManager = new DistributedTableMetadataManager(hazelcastConnection,
-                elasticsearchConnection,
-                objectMapper,
-                new CardinalityConfig());
+                                                                                   elasticsearchConnection,
+                                                                                   objectMapper,
+                                                                                   new CardinalityConfig());
         distributedTableMetadataManager.start();
 
         tableDataStore = hazelcastInstance.getMap("tablemetadatamap");
         List<IndexerEventMutator> mutators = Lists.newArrayList(new LargeTextNodeRemover(objectMapper,
-                TextNodeRemoverConfiguration.builder().build()));
+                                                                                         TextNodeRemoverConfiguration.builder()
+                                                                                                 .build()));
         this.queryStore = new ElasticsearchQueryStore(distributedTableMetadataManager, elasticsearchConnection,
-                dataStore, mutators, objectMapper, new CardinalityConfig());
+                                                      dataStore, mutators, objectMapper, new CardinalityConfig());
     }
 
     @After
@@ -100,7 +101,8 @@ public class DistributedTableMetadataManagerTest {
                     .admin()
                     .indices()
                     .delete(deleteIndexRequest);
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             //Do Nothing
         }
         elasticsearchConnection.stop();
@@ -160,7 +162,7 @@ public class DistributedTableMetadataManagerTest {
         queryStore.save(TestUtils.TEST_TABLE_NAME, document);
 
         document = TestUtils.getDocument("B", new DateTime().getMillis(),
-                new Object[]{"os", "android", "version", "abcd"}, objectMapper);
+                                         new Object[]{"os", "android", "version", "abcd"}, objectMapper);
         translatedDocument = TestUtils.translatedDocumentWithRowKeyVersion1(table, document);
         doReturn(translatedDocument).when(dataStore)
                 .save(table, document);

@@ -4,5 +4,6 @@ public class FoxtrotExtraMediaType {
 
     public static final String TEXT_CSV = "text/csv";
 
-    private FoxtrotExtraMediaType() {}
+    private FoxtrotExtraMediaType() {
+    }
 }

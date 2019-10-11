@@ -7,13 +7,10 @@ import com.flipkart.foxtrot.sql.responseprocessors.model.FlatRepresentation;
 import com.flipkart.foxtrot.sql.responseprocessors.model.MetaData;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
 import org.elasticsearch.common.Strings;
+
+import java.util.*;
 
 @Slf4j
 public class FlatteningUtils {
@@ -35,7 +32,8 @@ public class FlatteningUtils {
         return new FlatRepresentation(headers, Collections.singletonList(row));
     }
 
-    public static FlatRepresentation genericMultiRowParse(JsonNode response, final List<String> predefinedHeaders,
+    public static FlatRepresentation genericMultiRowParse(
+            JsonNode response, final List<String> predefinedHeaders,
             final String sortField) {
         List<FieldHeader> headers = Lists.newArrayList();
         List<Map<String, Object>> rows = Lists.newArrayList();
@@ -50,8 +48,8 @@ public class FlatteningUtils {
                             .getLength());
                 }
                 headerData.put(elementData.getKey(), Math.max(elementData.getValue()
-                                .getLength(),
-                        headerData.get(elementData.getKey())));
+                                                                      .getLength(),
+                                                              headerData.get(elementData.getKey())));
                 row.put(elementData.getKey(), elementData.getValue()
                         .getData());
             }
@@ -66,7 +64,8 @@ public class FlatteningUtils {
         return new FlatRepresentation(headers, rows);
     }
 
-    private static void populateHeaders(List<String> predefinedHeaders, Map<String, Integer> headerData,
+    private static void populateHeaders(
+            List<String> predefinedHeaders, Map<String, Integer> headerData,
             List<FieldHeader> headers) {
         if (!CollectionUtils.isNullOrEmpty(predefinedHeaders)) {
             for (String predefinedHeader : predefinedHeaders) {
@@ -74,7 +73,8 @@ public class FlatteningUtils {
                     headers.add(new FieldHeader(predefinedHeader, headerData.get(predefinedHeader)));
                 }
             }
-        } else {
+        }
+        else {
             for (Map.Entry<String, Integer> entry : headerData.entrySet()) {
                 headers.add(new FieldHeader(entry.getKey(), entry.getValue()));
             }
@@ -85,7 +85,8 @@ public class FlatteningUtils {
         return generateFieldMappings(parentField, jsonNode, DEFAULT_SEPARATOR);
     }
 
-    public static Map<String, MetaData> generateFieldMappings(String parentField, JsonNode jsonNode,
+    public static Map<String, MetaData> generateFieldMappings(
+            String parentField, JsonNode jsonNode,
             final String separator) {
         Map<String, MetaData> fields = Maps.newTreeMap();
         if (null == jsonNode) {
@@ -97,9 +98,10 @@ public class FlatteningUtils {
             for (JsonNode arrayElement : jsonNode) {
                 if (!isArrayOrObject(arrayElement)) {
                     fields.put(parentField + separator + Integer.toString(index), new MetaData(arrayElement,
-                            arrayElement.toString()
-                                    .length()));
-                } else {
+                                                                                               arrayElement.toString()
+                                                                                                       .length()));
+                }
+                else {
                     Map<String, MetaData> tmpFields = generateFieldMappings(parentField, arrayElement, separator);
                     fields.putAll(tmpFields);
                 }
@@ -109,11 +111,14 @@ public class FlatteningUtils {
         Iterator<Map.Entry<String, JsonNode>> iterator = jsonNode.fields();
         while (iterator.hasNext()) {
             Map.Entry<String, JsonNode> entry = iterator.next();
-            String currentField = (parentField == null) ? entry.getKey() : (String.format("%s%s%s", parentField,
-                    separator, entry.getKey()));
+            String currentField = (parentField == null)
+                                  ? entry.getKey()
+                                  : (String.format("%s%s%s", parentField,
+                                                   separator, entry.getKey()));
             if (isArrayOrObject(entry.getValue())) {
                 fields.putAll(generateFieldMappings(currentField, entry.getValue(), separator));
-            } else {
+            }
+            else {
                 fields.put(currentField, new MetaData(entry.getValue(), entry.getValue()
                         .toString()
                         .length()));

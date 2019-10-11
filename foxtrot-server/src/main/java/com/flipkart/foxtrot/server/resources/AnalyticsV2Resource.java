@@ -4,24 +4,25 @@ import com.codahale.metrics.annotation.Timed;
 import com.flipkart.foxtrot.common.ActionRequest;
 import com.flipkart.foxtrot.common.ActionResponse;
 import com.flipkart.foxtrot.common.ActionValidationResponse;
-import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
-import com.flipkart.foxtrot.gandalf.access.AccessService;
 import com.flipkart.foxtrot.core.common.AsyncDataToken;
 import com.flipkart.foxtrot.core.exception.FoxtrotExceptions;
 import com.flipkart.foxtrot.core.querystore.QueryExecutor;
+import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
+import com.flipkart.foxtrot.gandalf.access.AccessService;
 import com.flipkart.foxtrot.server.config.QueryConfig;
 import com.phonepe.gandalf.client.annotation.GandalfUserContext;
 import com.phonepe.gandalf.models.user.UserDetails;
 import io.dropwizard.primer.auth.annotation.Authorize;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import lombok.extern.slf4j.Slf4j;
+
 import javax.validation.Valid;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
-import lombok.extern.slf4j.Slf4j;
 
 /***
  Created by mudit.g on Mar, 2019
@@ -58,14 +59,16 @@ public class AnalyticsV2Resource {
     @Timed
     @ApiOperation("runSyncAsync")
     @Authorize(value = {})
-    public AsyncDataToken runSyncAsync(@Valid final ActionRequest request,
+    public AsyncDataToken runSyncAsync(
+            @Valid final ActionRequest request,
             @GandalfUserContext UserDetails userDetails) {
         try {
             if (!accessService.hasAccess(request, userDetails)) {
                 throw FoxtrotExceptions.createAuthorizationException(request,
-                        new Exception(AUTHORIZATION_EXCEPTION_MESSAGE));
+                                                                     new Exception(AUTHORIZATION_EXCEPTION_MESSAGE));
             }
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             throw FoxtrotExceptions.createAuthorizationException(request, e);
         }
         return queryExecutor.executeAsync(request, userDetails.getEmail());
@@ -76,14 +79,16 @@ public class AnalyticsV2Resource {
     @Timed
     @ApiOperation("validateQuery")
     @Authorize(value = {})
-    public ActionValidationResponse validateQuery(@Valid final ActionRequest request,
+    public ActionValidationResponse validateQuery(
+            @Valid final ActionRequest request,
             @GandalfUserContext UserDetails userDetails) {
         try {
             if (!accessService.hasAccess(request, userDetails)) {
                 throw FoxtrotExceptions.createAuthorizationException(request,
-                        new Exception(AUTHORIZATION_EXCEPTION_MESSAGE));
+                                                                     new Exception(AUTHORIZATION_EXCEPTION_MESSAGE));
             }
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             throw FoxtrotExceptions.createAuthorizationException(request, e);
         }
         return queryExecutor.validate(request, userDetails.getEmail());
@@ -93,9 +98,10 @@ public class AnalyticsV2Resource {
         try {
             if (!accessService.hasAccess(request, userDetails)) {
                 throw FoxtrotExceptions.createAuthorizationException(request,
-                        new Exception(AUTHORIZATION_EXCEPTION_MESSAGE));
+                                                                     new Exception(AUTHORIZATION_EXCEPTION_MESSAGE));
             }
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             throw FoxtrotExceptions.createAuthorizationException(request, e);
         }
         if (queryConfig.isBlockConsoleQueries()) {
@@ -105,7 +111,8 @@ public class AnalyticsV2Resource {
         if (queryConfig.isLogQueries()) {
             if (ElasticsearchUtils.isTimeFilterPresent(request.getFilters())) {
                 log.info("Console Query : " + request.toString());
-            } else {
+            }
+            else {
                 log.info("Console Query where time filter is not specified, request: {}", request.toString());
             }
         }

@@ -55,7 +55,8 @@ public class MultiQueryAction extends Action<MultiQueryRequest> {
         processForSubQueries(multiQueryRequest, (action, request) -> {
             try {
                 action.validateImpl(request, email);
-            } catch (MalformedQueryException e) {
+            }
+            catch (MalformedQueryException e) {
                 multiException.addError(e);
             }
             return null;
@@ -79,7 +80,8 @@ public class MultiQueryAction extends Action<MultiQueryRequest> {
             MultiSearchResponse multiSearchResponse = multiSearchRequestBuilder.execute()
                     .actionGet();
             return getResponse(multiSearchResponse, parameter);
-        } catch (ElasticsearchException e) {
+        }
+        catch (ElasticsearchException e) {
             throw FoxtrotExceptions.createQueryExecutionException(parameter, e);
         }
     }
@@ -111,8 +113,9 @@ public class MultiQueryAction extends Action<MultiQueryRequest> {
     }
 
     @Override
-    public ActionResponse getResponse(org.elasticsearch.action.ActionResponse multiSearchResponse,
-                                      MultiQueryRequest parameter) {
+    public ActionResponse getResponse(
+            org.elasticsearch.action.ActionResponse multiSearchResponse,
+            MultiQueryRequest parameter) {
         Map<String, ActionResponse> queryVsQueryResponseMap = Maps.newHashMap();
         int queryCounter = 0;
         List<String> queryKeys = Lists.newArrayList();
@@ -127,7 +130,8 @@ public class MultiQueryAction extends Action<MultiQueryRequest> {
             ActionRequest request = requests.get(queryCounter);
             try {
                 action = analyticsLoader.getAction(request);
-            } catch (Exception e) {
+            }
+            catch (Exception e) {
                 LOGGER.error("Error occurred while executing multiQuery request : {}", e);
             }
             if (null == action) {
@@ -148,7 +152,8 @@ public class MultiQueryAction extends Action<MultiQueryRequest> {
             Action action;
             if (requestActionMap.get(request) != null) {
                 action = requestActionMap.get(request);
-            } else {
+            }
+            else {
                 action = analyticsLoader.getAction(request);
                 requestActionMap.put(request, action);
             }

@@ -14,8 +14,8 @@ import com.flipkart.foxtrot.core.config.TextNodeRemoverConfiguration;
 import com.flipkart.foxtrot.core.datastore.DataStore;
 import com.flipkart.foxtrot.core.querystore.QueryExecutor;
 import com.flipkart.foxtrot.core.querystore.QueryStore;
-import com.flipkart.foxtrot.core.querystore.actions.spi.ElasticsearchTuningConfig;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsLoader;
+import com.flipkart.foxtrot.core.querystore.actions.spi.ElasticsearchTuningConfig;
 import com.flipkart.foxtrot.core.querystore.handlers.ResponseCacheUpdater;
 import com.flipkart.foxtrot.core.querystore.impl.*;
 import com.flipkart.foxtrot.core.querystore.mutator.IndexerEventMutator;
@@ -81,33 +81,46 @@ public abstract class ActionTest {
         when(hazelcastConnection.getHazelcastConfig()).thenReturn(config);
         elasticsearchConnection = ElasticsearchTestUtils.getConnection();
         CardinalityConfig cardinalityConfig = new CardinalityConfig("true",
-                String.valueOf(ElasticsearchUtils.DEFAULT_SUB_LIST_SIZE));
+                                                                    String.valueOf(ElasticsearchUtils.DEFAULT_SUB_LIST_SIZE));
 
         TestUtils.createTable(elasticsearchConnection, TableMapStore.TABLE_META_INDEX);
         TestUtils.createTable(elasticsearchConnection, DistributedTableMetadataManager.CARDINALITY_CACHE_INDEX);
 
         tableMetadataManager = new DistributedTableMetadataManager(hazelcastConnection, elasticsearchConnection, mapper,
-                cardinalityConfig);
+                                                                   cardinalityConfig);
         tableMetadataManager.start();
 
         tableMetadataManager.save(Table.builder()
-                .name(TestUtils.TEST_TABLE_NAME)
-                .ttl(30)
-                .build());
+                                          .name(TestUtils.TEST_TABLE_NAME)
+                                          .ttl(30)
+                                          .build());
 
         DataStore dataStore = TestUtils.getDataStore();
         List<IndexerEventMutator> mutators = Lists.newArrayList(new LargeTextNodeRemover(mapper,
-                TextNodeRemoverConfiguration.builder().build()));
-        this.queryStore = new ElasticsearchQueryStore(tableMetadataManager, elasticsearchConnection, dataStore, mutators,
-                mapper,
-                cardinalityConfig);
+                                                                                         TextNodeRemoverConfiguration.builder()
+                                                                                                 .build()));
+        this.queryStore = new ElasticsearchQueryStore(tableMetadataManager,
+                                                      elasticsearchConnection,
+                                                      dataStore,
+                                                      mutators,
+                                                      mapper,
+                                                      cardinalityConfig);
         cacheManager = new CacheManager(
                 new DistributedCacheFactory(hazelcastConnection, mapper, new CacheConfig()));
-        AnalyticsLoader analyticsLoader = new AnalyticsLoader(tableMetadataManager, dataStore, queryStore,
-                elasticsearchConnection, cacheManager, mapper, emailConfig, emailClient, new ElasticsearchTuningConfig());
+        AnalyticsLoader analyticsLoader = new AnalyticsLoader(tableMetadataManager,
+                                                              dataStore,
+                                                              queryStore,
+                                                              elasticsearchConnection,
+                                                              cacheManager,
+                                                              mapper,
+                                                              emailConfig,
+                                                              emailClient,
+                                                              new ElasticsearchTuningConfig());
         analyticsLoader.start();
         ExecutorService executorService = Executors.newFixedThreadPool(1);
-        this.queryExecutor = new QueryExecutor(analyticsLoader, executorService, Collections.singletonList(new ResponseCacheUpdater(cacheManager)));
+        this.queryExecutor = new QueryExecutor(analyticsLoader,
+                                               executorService,
+                                               Collections.singletonList(new ResponseCacheUpdater(cacheManager)));
     }
 
     @After
@@ -118,7 +131,8 @@ public abstract class ActionTest {
                     .admin()
                     .indices()
                     .delete(deleteIndexRequest);
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             //Do Nothing
         }
         elasticsearchConnection.stop();

@@ -82,7 +82,8 @@ public abstract class Action<P extends ActionRequest> {
         }
         if (null == filters) {
             filters = Lists.newArrayList();
-        } else {
+        }
+        else {
             filters = Lists.newArrayList(filters);
         }
         filters.add(getDefaultTimeSpan());
@@ -121,12 +122,14 @@ public abstract class Action<P extends ActionRequest> {
     public ActionValidationResponse validate(String email) {
         try {
             preProcessRequest(email);
-        } catch (MalformedQueryException e) {
+        }
+        catch (MalformedQueryException e) {
             return ActionValidationResponse.builder()
                     .processedRequest(parameter)
                     .validationErrors(e.getReasons())
                     .build();
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             return ActionValidationResponse.builder()
                     .processedRequest(parameter)
                     .validationErrors(Collections.singletonList(e.getMessage()))

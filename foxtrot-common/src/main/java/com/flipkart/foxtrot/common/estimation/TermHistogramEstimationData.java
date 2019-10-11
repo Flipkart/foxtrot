@@ -1,10 +1,11 @@
 package com.flipkart.foxtrot.common.estimation;
 
-import java.util.Map;
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
+
+import java.util.Map;
 
 /**
  * Estimated cardinality data

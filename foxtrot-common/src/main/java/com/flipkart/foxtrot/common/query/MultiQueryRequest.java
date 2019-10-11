@@ -16,9 +16,10 @@ import com.collections.CollectionUtils;
 import com.flipkart.foxtrot.common.ActionRequest;
 import com.flipkart.foxtrot.common.ActionRequestVisitor;
 import com.flipkart.foxtrot.common.Opcodes;
-import java.util.Map;
 import lombok.Data;
 import org.junit.Assert;
+
+import java.util.Map;
 
 /***
  Created by nitish.goyal on 22/08/18

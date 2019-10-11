@@ -12,11 +12,12 @@ package com.flipkart.foxtrot.core.jobs;
  * specific language governing permissions and limitations under the License.
  */
 
-import javax.validation.constraints.Min;
-import javax.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotNull;
 
 /***
  Created by nitish.goyal on 11/09/18

@@ -6,11 +6,12 @@ import com.flipkart.foxtrot.common.query.FilterOperator;
 import com.flipkart.foxtrot.common.query.FilterVisitor;
 import com.google.common.base.Strings;
 import io.dropwizard.util.Duration;
-import javax.validation.constraints.NotNull;
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
+
+import javax.validation.constraints.NotNull;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -33,15 +34,23 @@ public class LastFilter extends Filter {
     @Builder
     public LastFilter(String field, long currentTime, Duration duration, RoundingMode roundingMode) {
         super(FilterOperator.last);
-        super.setField(Strings.isNullOrEmpty(field) ? "_timestamp" : field);
-        this.currentTime = currentTime == 0 ? System.currentTimeMillis() : currentTime;
+        super.setField(Strings.isNullOrEmpty(field)
+                       ? "_timestamp"
+                       : field);
+        this.currentTime = currentTime == 0
+                           ? System.currentTimeMillis()
+                           : currentTime;
         this.duration = duration;
-        this.roundingMode = roundingMode == null ? RoundingMode.NONE : roundingMode;
+        this.roundingMode = roundingMode == null
+                            ? RoundingMode.NONE
+                            : roundingMode;
     }
 
     public void setDuration(Duration duration) {
         this.duration = duration;
-        this.roundingMode = roundingMode == null ? RoundingMode.NONE : roundingMode;
+        this.roundingMode = roundingMode == null
+                            ? RoundingMode.NONE
+                            : roundingMode;
     }
 
     @Override

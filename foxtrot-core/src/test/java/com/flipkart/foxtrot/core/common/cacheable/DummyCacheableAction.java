@@ -29,7 +29,7 @@ import org.elasticsearch.action.search.SearchRequestBuilder;
  */
 @VisibleForTesting
 @AnalyticsProvider(opcode = "cache-hit-test", request = DummyCacheableActionRequest.class, response = DummyCacheableActionResponse.class,
-                   cacheable = false)
+        cacheable = false)
 public class DummyCacheableAction extends Action<DummyCacheableActionRequest> {
 
     public DummyCacheableAction(DummyCacheableActionRequest parameter, AnalyticsLoader analyticsLoader) {
@@ -62,7 +62,9 @@ public class DummyCacheableAction extends Action<DummyCacheableActionRequest> {
     }
 
     @Override
-    public ActionResponse getResponse(org.elasticsearch.action.ActionResponse response, DummyCacheableActionRequest parameter)
+    public ActionResponse getResponse(
+            org.elasticsearch.action.ActionResponse response,
+            DummyCacheableActionRequest parameter)
             throws FoxtrotException {
         return null;
     }

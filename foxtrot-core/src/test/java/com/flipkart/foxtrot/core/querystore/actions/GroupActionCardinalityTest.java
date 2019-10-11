@@ -1,7 +1,5 @@
 package com.flipkart.foxtrot.core.querystore.actions;
 
-import static com.flipkart.foxtrot.core.TestUtils.TEST_EMAIL;
-
 import com.flipkart.foxtrot.common.Document;
 import com.flipkart.foxtrot.common.group.GroupRequest;
 import com.flipkart.foxtrot.common.group.GroupResponse;
@@ -9,13 +7,16 @@ import com.flipkart.foxtrot.core.TestUtils;
 import com.flipkart.foxtrot.core.exception.CardinalityOverflowException;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchQueryStore;
 import com.google.common.collect.Lists;
-import java.util.Collections;
-import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
+
+import java.util.Collections;
+import java.util.List;
+
+import static com.flipkart.foxtrot.core.TestUtils.TEST_EMAIL;
 
 /***
  Created by nitish.goyal on 24/07/18
@@ -50,9 +51,9 @@ public class GroupActionCardinalityTest extends ActionTest {
 
         GroupResponse response = GroupResponse.class.cast(getQueryExecutor().execute(groupRequest, TEST_EMAIL));
         Assert.assertTrue(response.getResult()
-                .containsKey("android"));
+                                  .containsKey("android"));
         Assert.assertTrue(response.getResult()
-                .containsKey("ios"));
+                                  .containsKey("ios"));
     }
 
     @Test
@@ -63,9 +64,9 @@ public class GroupActionCardinalityTest extends ActionTest {
         GroupResponse response = GroupResponse.class.cast(getQueryExecutor().execute(groupRequest, TEST_EMAIL));
 
         Assert.assertTrue(response.getResult()
-                .containsKey("android"));
+                                  .containsKey("android"));
         Assert.assertTrue(response.getResult()
-                .containsKey("ios"));
+                                  .containsKey("ios"));
     }
 
     @Test
@@ -76,7 +77,7 @@ public class GroupActionCardinalityTest extends ActionTest {
 
         GroupResponse response = GroupResponse.class.cast(getQueryExecutor().execute(groupRequest, TEST_EMAIL));
         Assert.assertTrue(response.getResult()
-                .containsKey("0"));
+                                  .containsKey("0"));
     }
 
     @Test
@@ -87,6 +88,6 @@ public class GroupActionCardinalityTest extends ActionTest {
 
         GroupResponse response = GroupResponse.class.cast(getQueryExecutor().execute(groupRequest, TEST_EMAIL));
         Assert.assertTrue(response.getResult()
-                .containsKey("0"));
+                                  .containsKey("0"));
     }
 }

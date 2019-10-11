@@ -36,12 +36,12 @@ public class MultiTimeQueryAction extends Action<MultiTimeQueryRequest> {
         if (multiTimeQueryRequest.getActionRequest() == null && CollectionUtils.isEmpty(
                 multiTimeQueryRequest.getFilters())) {
             throw FoxtrotExceptions.createBadRequestException("multi_time_query",
-                    "No Between Filter found in actionRequest " +
-                            "multiQueryRequest : " + multiQueryRequest.toString());
+                                                              "No Between Filter found in actionRequest " +
+                                                                      "multiQueryRequest : " + multiQueryRequest.toString());
         }
 
         if (CollectionUtils.isEmpty(multiTimeQueryRequest.getActionRequest()
-                .getFilters())) {
+                                            .getFilters())) {
             multiTimeQueryRequest.getActionRequest()
                     .setFilters(Lists.newArrayList());
         }
@@ -56,18 +56,20 @@ public class MultiTimeQueryAction extends Action<MultiTimeQueryRequest> {
                 .findFirst();
         if (!optionalBetweenFilter.isPresent()) {
             throw FoxtrotExceptions.createBadRequestException("multi_time_query",
-                    "No Between Filter found in actionRequest " +
-                            "multiQueryRequest : " + multiQueryRequest.toString());
+                                                              "No Between Filter found in actionRequest " +
+                                                                      "multiQueryRequest : " + multiQueryRequest.toString());
         }
         BetweenFilter betweenFilter = (BetweenFilter) optionalBetweenFilter.get();
 
         if (multiTimeQueryRequest.getSampleSize() != 0) {
             sampleSize = multiTimeQueryRequest.getSampleSize();
-        } else if (multiTimeQueryRequest.getSkipDuration()
+        }
+        else if (multiTimeQueryRequest.getSkipDuration()
                 .toHours() > TimeUnit.DAYS.toHours(1)) {
             sampleSize = (int) (30 / (multiTimeQueryRequest.getSkipDuration()
                     .toDays()));
-        } else {
+        }
+        else {
             sampleSize = (int) (24 / (multiTimeQueryRequest.getSkipDuration()
                     .toHours()));
         }
@@ -117,10 +119,11 @@ public class MultiTimeQueryAction extends Action<MultiTimeQueryRequest> {
     }
 
     @Override
-    public ActionResponse getResponse(org.elasticsearch.action.ActionResponse multiSearchResponse,
-                                      MultiTimeQueryRequest parameter) {
+    public ActionResponse getResponse(
+            org.elasticsearch.action.ActionResponse multiSearchResponse,
+            MultiTimeQueryRequest parameter) {
         MultiQueryResponse multiQueryResponse = (MultiQueryResponse) action.getResponse(multiSearchResponse,
-                multiQueryRequest);
+                                                                                        multiQueryRequest);
         return new MultiTimeQueryResponse(multiQueryResponse.getResponses());
     }
 
@@ -138,7 +141,7 @@ public class MultiTimeQueryAction extends Action<MultiTimeQueryRequest> {
                 if (filters.get(i) instanceof BetweenFilter) {
                     BetweenFilter tempBetweenFilter = (BetweenFilter) filters.get(i);
                     BetweenFilter tempBetweenFilter1 = new BetweenFilter(tempBetweenFilter.getField(), from, to,
-                            tempBetweenFilter.isFilterTemporal());
+                                                                         tempBetweenFilter.isFilterTemporal());
                     filters.set(i, tempBetweenFilter1);
                     break;
                 }
@@ -148,7 +151,8 @@ public class MultiTimeQueryAction extends Action<MultiTimeQueryRequest> {
             try {
                 requests.put(Long.toString(from), (ActionRequest) multiTimeQueryRequest.getActionRequest()
                         .clone());
-            } catch (Exception e) {
+            }
+            catch (Exception e) {
                 throw FoxtrotExceptions.queryCreationException(multiTimeQueryRequest.getActionRequest(), e);
             }
 

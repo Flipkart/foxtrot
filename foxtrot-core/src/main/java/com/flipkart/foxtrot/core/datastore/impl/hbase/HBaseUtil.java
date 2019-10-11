@@ -14,8 +14,6 @@
 package com.flipkart.foxtrot.core.datastore.impl.hbase;
 
 import com.google.common.base.Strings;
-import java.io.File;
-import java.io.IOException;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.HBaseConfiguration;
 import org.apache.hadoop.hbase.HColumnDescriptor;
@@ -28,6 +26,9 @@ import org.apache.hadoop.hbase.io.compress.Compression;
 import org.apache.hadoop.security.UserGroupInformation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.File;
+import java.io.IOException;
 
 public abstract class HBaseUtil {
 
@@ -47,19 +48,23 @@ public abstract class HBaseUtil {
         try {
             hBaseAdmin = connection.getAdmin();
             hBaseAdmin.createTable(hTableDescriptor);
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             logger.error("Could not create table: " + tableName, e);
-        } finally {
+        }
+        finally {
             try {
                 if (hBaseAdmin != null) {
                     hBaseAdmin.close();
                 }
-            } catch (Exception e) {
+            }
+            catch (Exception e) {
                 logger.error("Error closing hbase admin", e);
             }
             try {
                 connection.close();
-            } catch (Exception e) {
+            }
+            catch (Exception e) {
                 logger.error("Error closing hbase connection", e);
             }
         }
@@ -70,22 +75,22 @@ public abstract class HBaseUtil {
 
         if (isValidFile(hbaseConfig.getCoreSite())) {
             configuration.addResource(new File(hbaseConfig.getCoreSite()).toURI()
-                    .toURL());
+                                              .toURL());
         }
 
         if (isValidFile(hbaseConfig.getHdfsSite())) {
             configuration.addResource(new File(hbaseConfig.getHdfsSite()).toURI()
-                    .toURL());
+                                              .toURL());
         }
 
         if (isValidFile(hbaseConfig.getHbasePolicy())) {
             configuration.addResource(new File(hbaseConfig.getHbasePolicy()).toURI()
-                    .toURL());
+                                              .toURL());
         }
 
         if (isValidFile(hbaseConfig.getHbaseSite())) {
             configuration.addResource(new File(hbaseConfig.getHbaseSite()).toURI()
-                    .toURL());
+                                              .toURL());
         }
 
         if (hbaseConfig.isSecure() && isValidFile(hbaseConfig.getKeytabFileName())) {

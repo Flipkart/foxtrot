@@ -12,9 +12,9 @@ import com.flipkart.foxtrot.common.stats.StatsTrendValue;
 import com.flipkart.foxtrot.common.util.CollectionUtils;
 import com.flipkart.foxtrot.core.common.Action;
 import com.flipkart.foxtrot.core.exception.FoxtrotExceptions;
-import com.flipkart.foxtrot.core.querystore.actions.spi.ElasticsearchTuningConfig;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsLoader;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsProvider;
+import com.flipkart.foxtrot.core.querystore.actions.spi.ElasticsearchTuningConfig;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
 import com.flipkart.foxtrot.core.querystore.query.ElasticSearchQueryGenerator;
 import com.google.common.collect.Lists;
@@ -99,10 +99,12 @@ public class StatsTrendAction extends Action<StatsTrendRequest> {
                 .hashCode();
         hashKey += 31 * statsRequest.getTimestamp()
                 .hashCode();
-        hashKey += 31 * (statsRequest.getField() != null ? statsRequest.getField()
-                .hashCode() : "FIELD".hashCode());
+        hashKey += 31 * (statsRequest.getField() != null
+                         ? statsRequest.getField()
+                                 .hashCode()
+                         : "FIELD".hashCode());
         return String.format("stats-trend-%s-%s-%s-%d", statsRequest.getTable(), statsRequest.getField(),
-                statsRequest.getPeriod(), hashKey);
+                             statsRequest.getPeriod(), hashKey);
     }
 
     @Override
@@ -121,7 +123,8 @@ public class StatsTrendAction extends Action<StatsTrendRequest> {
             SearchResponse response = searchRequestBuilder.execute()
                     .actionGet(getGetQueryTimeout());
             return getResponse(response, parameter);
-        } catch (ElasticsearchException e) {
+        }
+        catch (ElasticsearchException e) {
             throw FoxtrotExceptions.createQueryExecutionException(parameter, e);
         }
     }
@@ -143,7 +146,8 @@ public class StatsTrendAction extends Action<StatsTrendRequest> {
                     .setQuery(new ElasticSearchQueryGenerator().genFilter(parameter.getFilters()))
                     .setSize(0)
                     .addAggregation(aggregation);
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             throw FoxtrotExceptions.queryCreationException(parameter, e);
         }
         return searchRequestBuilder;
@@ -161,19 +165,19 @@ public class StatsTrendAction extends Action<StatsTrendRequest> {
     private AbstractAggregationBuilder buildAggregation(StatsTrendRequest request) {
         DateHistogramInterval interval = Utils.getHistogramInterval(request.getPeriod());
         AbstractAggregationBuilder dateHistogramBuilder = Utils.buildDateHistogramAggregation(request.getTimestamp(),
-                interval)
+                                                                                              interval)
                 .subAggregation(Utils.buildStatsAggregation(request.getField(), getParameter().getStats()))
                 .subAggregation(Utils.buildPercentileAggregation(request.getField(), request.getPercentiles(),
-                        request.getCompression()));
+                                                                 request.getCompression()));
         if (CollectionUtils.isNullOrEmpty(getParameter().getNesting())) {
             return dateHistogramBuilder;
         }
         return Utils.buildTermsAggregation(getParameter().getNesting()
-                        .stream()
-                        .map(x -> new ResultSort(x, ResultSort.Order.asc))
-                        .collect(Collectors.toList()),
-                Sets.newHashSet(dateHistogramBuilder),
-                elasticsearchTuningConfig.getAggregationSize());
+                                                   .stream()
+                                                   .map(x -> new ResultSort(x, ResultSort.Order.asc))
+                                                   .collect(Collectors.toList()),
+                                           Sets.newHashSet(dateHistogramBuilder),
+                                           elasticsearchTuningConfig.getAggregationSize());
     }
 
     private StatsTrendResponse buildResponse(StatsTrendRequest request, Aggregations aggregations) {
@@ -182,19 +186,23 @@ public class StatsTrendAction extends Action<StatsTrendRequest> {
         if (CollectionUtils.isNullOrEmpty(request.getNesting())) {
             List<StatsTrendValue> trends = buildStatsTrendValue(request.getField(), aggregations);
             response.setResult(trends);
-        } else {
+        }
+        else {
             List<BucketResponse<List<StatsTrendValue>>> buckets = buildNestedTrendStats(request.getNesting(),
-                    aggregations);
+                                                                                        aggregations);
             response.setBuckets(buckets);
         }
         return response;
     }
 
-    private List<BucketResponse<List<StatsTrendValue>>> buildNestedTrendStats(List<String> nesting,
-                                                                              Aggregations aggregations) {
+    private List<BucketResponse<List<StatsTrendValue>>> buildNestedTrendStats(
+            List<String> nesting,
+            Aggregations aggregations) {
         final String field = nesting.get(0);
-        final List<String> remainingFields = (nesting.size() > 1) ? nesting.subList(1, nesting.size()) :
-                new ArrayList<>();
+        final List<String> remainingFields = (nesting.size() > 1)
+                                             ? nesting.subList(1, nesting.size())
+                                             :
+                                             new ArrayList<>();
         Terms terms = aggregations.get(Utils.sanitizeFieldForAggregation(field));
         List<BucketResponse<List<StatsTrendValue>>> bucketResponses = Lists.newArrayList();
         for (Terms.Bucket bucket : terms.getBuckets()) {
@@ -202,7 +210,8 @@ public class StatsTrendAction extends Action<StatsTrendRequest> {
             bucketResponse.setKey(String.valueOf(bucket.getKey()));
             if (nesting.size() == 1) {
                 bucketResponse.setResult(buildStatsTrendValue(getParameter().getField(), bucket.getAggregations()));
-            } else {
+            }
+            else {
                 bucketResponse.setBuckets(buildNestedTrendStats(remainingFields, bucket.getAggregations()));
             }
             bucketResponses.add(bucketResponse);
@@ -229,8 +238,8 @@ public class StatsTrendAction extends Action<StatsTrendRequest> {
                     .get(metricKey);
             statsTrendValue.setStats(Utils.toStats(statAggregation));
             Percentiles internalPercentile = Percentiles.class.cast(bucket.getAggregations()
-                    .getAsMap()
-                    .get(percentileMetricKey));
+                                                                            .getAsMap()
+                                                                            .get(percentileMetricKey));
             statsTrendValue.setPercentiles(Utils.createPercentilesResponse(internalPercentile));
             statsValueList.add(statsTrendValue);
         }

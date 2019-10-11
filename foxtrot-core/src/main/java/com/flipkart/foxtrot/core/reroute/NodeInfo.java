@@ -1,10 +1,11 @@
 package com.flipkart.foxtrot.core.reroute;
 
-import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.util.List;
 
 /***
  Created by mudit.g on Feb, 2019

@@ -12,16 +12,6 @@
  */
 package com.flipkart.foxtrot.server.resources;
 
-import static com.flipkart.foxtrot.core.TestUtils.TEST_TABLE_NAME;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.anyBoolean;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.reset;
-import static org.mockito.Mockito.spy;
-
 import com.flipkart.foxtrot.common.Table;
 import com.flipkart.foxtrot.core.TestUtils;
 import com.flipkart.foxtrot.core.exception.FoxtrotExceptions;
@@ -29,14 +19,21 @@ import com.flipkart.foxtrot.core.table.TableManager;
 import com.flipkart.foxtrot.core.table.impl.FoxtrotTableManager;
 import com.flipkart.foxtrot.server.providers.exception.FoxtrotExceptionMapper;
 import io.dropwizard.testing.junit.ResourceTestRule;
-import java.io.IOException;
-import java.util.UUID;
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.core.Response;
 import org.apache.commons.httpclient.HttpStatus;
 import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.Matchers;
+
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.core.Response;
+import java.io.IOException;
+import java.util.UUID;
+
+import static com.flipkart.foxtrot.core.TestUtils.TEST_TABLE_NAME;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.*;
 
 /**
  * Created by rishabh.goyal on 04/05/14.
@@ -112,7 +109,7 @@ public class TableManagerResourceTest extends FoxtrotResourceTest {
     public void testSaveBackendError() throws Exception {
         Table table = Table.builder()
                 .name(UUID.randomUUID()
-                        .toString())
+                              .toString())
                 .ttl(30)
                 .build();
         Entity<Table> tableEntity = Entity.json(table);

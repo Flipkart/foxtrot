@@ -17,14 +17,11 @@ import com.flipkart.foxtrot.common.query.Filter;
 import com.flipkart.foxtrot.common.query.FilterVisitorAdapter;
 import com.flipkart.foxtrot.common.query.datetime.LastFilter;
 import com.flipkart.foxtrot.common.query.datetime.TimeWindow;
-import com.flipkart.foxtrot.common.query.numeric.BetweenFilter;
-import com.flipkart.foxtrot.common.query.numeric.GreaterEqualFilter;
-import com.flipkart.foxtrot.common.query.numeric.GreaterThanFilter;
-import com.flipkart.foxtrot.common.query.numeric.LessEqualFilter;
-import com.flipkart.foxtrot.common.query.numeric.LessThanFilter;
+import com.flipkart.foxtrot.common.query.numeric.*;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
-import java.util.List;
 import org.joda.time.Interval;
+
+import java.util.List;
 
 public class PeriodSelector extends FilterVisitorAdapter<Void> {
 
@@ -53,8 +50,12 @@ public class PeriodSelector extends FilterVisitorAdapter<Void> {
                 filter.accept(this);
             }
         }
-        timeWindow.setStartTime(timeWindow.getStartTime() == Long.MAX_VALUE ? 0 : timeWindow.getStartTime());
-        timeWindow.setEndTime(timeWindow.getEndTime() == Long.MIN_VALUE ? currentTime : timeWindow.getEndTime());
+        timeWindow.setStartTime(timeWindow.getStartTime() == Long.MAX_VALUE
+                                ? 0
+                                : timeWindow.getStartTime());
+        timeWindow.setEndTime(timeWindow.getEndTime() == Long.MIN_VALUE
+                              ? currentTime
+                              : timeWindow.getEndTime());
         return new Interval(timeWindow.getStartTime(), timeWindow.getEndTime());
     }
 

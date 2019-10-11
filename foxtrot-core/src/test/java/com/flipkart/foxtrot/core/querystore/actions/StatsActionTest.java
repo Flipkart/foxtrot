@@ -12,12 +12,6 @@
  */
 package com.flipkart.foxtrot.core.querystore.actions;
 
-import static com.flipkart.foxtrot.core.TestUtils.TEST_EMAIL;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-
 import com.flipkart.foxtrot.common.Document;
 import com.flipkart.foxtrot.common.query.Filter;
 import com.flipkart.foxtrot.common.query.numeric.BetweenFilter;
@@ -29,12 +23,16 @@ import com.flipkart.foxtrot.core.TestUtils;
 import com.flipkart.foxtrot.core.exception.FoxtrotException;
 import com.flipkart.foxtrot.core.exception.MalformedQueryException;
 import com.google.common.collect.Lists;
+import org.junit.Before;
+import org.junit.Test;
+
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.stream.Collectors;
-import org.junit.Before;
-import org.junit.Test;
+
+import static com.flipkart.foxtrot.core.TestUtils.TEST_EMAIL;
+import static org.junit.Assert.*;
 
 /**
  * Created by rishabh.goyal on 29/04/14.
@@ -80,9 +78,9 @@ public class StatsActionTest extends ActionTest {
         request.setTable(TestUtils.TEST_TABLE_NAME);
         request.setField("battery");
         request.setStats(EnumSet.allOf(Stat.class)
-                .stream()
-                .filter(x -> !x.isExtended())
-                .collect(Collectors.toSet()));
+                                 .stream()
+                                 .filter(x -> !x.isExtended())
+                                 .collect(Collectors.toSet()));
         StatsResponse statsResponse = StatsResponse.class.cast(getQueryExecutor().execute(request, TEST_EMAIL));
         assertNotNull(statsResponse);
         assertNotNull(statsResponse.getResult());
@@ -105,8 +103,8 @@ public class StatsActionTest extends ActionTest {
                 .getStats()
                 .size());
         assertTrue(statsResponse.getResult()
-                .getStats()
-                .containsKey("count"));
+                           .getStats()
+                           .containsKey("count"));
     }
 
     @Test
@@ -123,8 +121,8 @@ public class StatsActionTest extends ActionTest {
                 .getStats()
                 .size());
         assertTrue(statsResponse.getResult()
-                .getStats()
-                .containsKey("max"));
+                           .getStats()
+                           .containsKey("max"));
     }
 
     @Test
@@ -141,8 +139,8 @@ public class StatsActionTest extends ActionTest {
                 .getStats()
                 .size());
         assertTrue(statsResponse.getResult()
-                .getStats()
-                .containsKey("min"));
+                           .getStats()
+                           .containsKey("min"));
     }
 
 
@@ -160,8 +158,8 @@ public class StatsActionTest extends ActionTest {
                 .getStats()
                 .size());
         assertTrue(statsResponse.getResult()
-                .getStats()
-                .containsKey("avg"));
+                           .getStats()
+                           .containsKey("avg"));
     }
 
     @Test
@@ -175,8 +173,8 @@ public class StatsActionTest extends ActionTest {
         assertNotNull(statsResponse);
         assertNotNull(statsResponse.getResult());
         assertTrue(statsResponse.getResult()
-                .getStats()
-                .containsKey("sum"));
+                           .getStats()
+                           .containsKey("sum"));
     }
 
     @Test
@@ -193,15 +191,15 @@ public class StatsActionTest extends ActionTest {
         betweenFilter.setField("_timestamp");
         request.setFilters(Collections.<Filter>singletonList(betweenFilter));
 
-        StatsResponse statsResponse = (StatsResponse)getQueryExecutor().execute(request, TEST_EMAIL);
+        StatsResponse statsResponse = (StatsResponse) getQueryExecutor().execute(request, TEST_EMAIL);
         assertNotNull(statsResponse);
         assertNotNull(statsResponse.getResult());
         assertEquals(1, statsResponse.getResult()
                 .getPercentiles()
                 .size());
         assertTrue(statsResponse.getResult()
-                .getPercentiles()
-                .containsKey(5d));
+                           .getPercentiles()
+                           .containsKey(5d));
     }
 
     @Test

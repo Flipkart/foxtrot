@@ -1,9 +1,5 @@
 package com.flipkart.foxtrot.sql.responseprocessors;
 
-import static com.flipkart.foxtrot.common.Opcodes.COUNT;
-import static com.flipkart.foxtrot.sql.responseprocessors.FlatteningUtils.generateFieldMappings;
-import static com.flipkart.foxtrot.sql.responseprocessors.FlatteningUtils.genericParse;
-
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.flipkart.foxtrot.common.ActionRequest;
@@ -26,15 +22,13 @@ import com.flipkart.foxtrot.sql.responseprocessors.model.FlatRepresentation;
 import com.flipkart.foxtrot.sql.responseprocessors.model.MetaData;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+
+import java.util.*;
 import java.util.stream.Collectors;
+
+import static com.flipkart.foxtrot.common.Opcodes.COUNT;
+import static com.flipkart.foxtrot.sql.responseprocessors.FlatteningUtils.generateFieldMappings;
+import static com.flipkart.foxtrot.sql.responseprocessors.FlatteningUtils.genericParse;
 
 public class Flattener implements ResponseVisitor {
 
@@ -55,8 +49,8 @@ public class Flattener implements ResponseVisitor {
         final String separator = "__SEPARATOR__";
         Map<String, Integer> fieldNames = Maps.newTreeMap();
         Map<String, MetaData> dataFields = generateFieldMappings(null,
-                objectMapper.valueToTree(groupResponse.getResult()),
-                separator);
+                                                                 objectMapper.valueToTree(groupResponse.getResult()),
+                                                                 separator);
         GroupRequest groupRequest = (GroupRequest) request;
         List<Map<String, Object>> rows = Lists.newArrayList();
         for (Map.Entry<String, MetaData> groupData : dataFields.entrySet()) {
@@ -90,14 +84,14 @@ public class Flattener implements ResponseVisitor {
     public void visit(HistogramResponse histogramResponse) {
         List<Map<String, Object>> rows = Lists.newArrayList();
         rows.addAll(histogramResponse.getCounts()
-                .stream()
-                .map(count -> {
-                    Map<String, Object> map = new HashMap<>();
-                    map.put("timestamp", count.getPeriod());
-                    map.put(COUNT, count.getCount());
-                    return map;
-                })
-                .collect(Collectors.toList()));
+                            .stream()
+                            .map(count -> {
+                                Map<String, Object> map = new HashMap<>();
+                                map.put("timestamp", count.getPeriod());
+                                map.put(COUNT, count.getCount());
+                                return map;
+                            })
+                            .collect(Collectors.toList()));
         List<FieldHeader> headers = Lists.newArrayList();
         headers.add(new FieldHeader("timestamp", 15));
         headers.add(new FieldHeader(COUNT, 15));
@@ -108,7 +102,9 @@ public class Flattener implements ResponseVisitor {
     public void visit(QueryResponse queryResponse) {
         Map<String, Integer> fieldNames = Maps.newTreeMap();
         List<Map<String, Object>> rows = Lists.newArrayList();
-        Set<String> fieldToLookup = (null == fieldsToReturn) ? Collections.emptySet() : new HashSet<>(fieldsToReturn);
+        Set<String> fieldToLookup = (null == fieldsToReturn)
+                                    ? Collections.emptySet()
+                                    : new HashSet<>(fieldsToReturn);
         boolean isAllFields = fieldToLookup.isEmpty();
         for (Document document : queryResponse.getDocuments()) {
             Map<String, MetaData> docFields = generateFieldMappings(null, objectMapper.valueToTree(document));
@@ -199,7 +195,7 @@ public class Flattener implements ResponseVisitor {
             typeNameMaxLength = Math.max(typeNameMaxLength, typeName.length());
             for (JsonNode dataNode : root.get(typeName)) {
                 final String time = Long.toString(dataNode.get("period")
-                        .asLong());
+                                                          .asLong());
                 if (!representation.containsKey(time)) {
                     representation.put(time, Maps.newHashMap());
                 }
@@ -245,7 +241,7 @@ public class Flattener implements ResponseVisitor {
             Map<String, Object> row = Maps.newHashMap();
             for (int i = 0; i < fieldHeaders.size(); i++) {
                 row.put(fieldHeaders.get(i)
-                        .getName(), responseRow.get(i));
+                                .getName(), responseRow.get(i));
             }
             rows.add(row);
         }
@@ -268,7 +264,8 @@ public class Flattener implements ResponseVisitor {
             for (Map.Entry<String, Integer> entry : fieldNames.entrySet()) {
                 headers.add(new FieldHeader(entry.getKey(), entry.getValue()));
             }
-        } else {
+        }
+        else {
             for (String fieldName : fieldsToReturn) {
                 headers.add(new FieldHeader(fieldName, fieldNames.get(fieldName)));
             }
@@ -277,7 +274,9 @@ public class Flattener implements ResponseVisitor {
     }
 
     private int lengthMax(int currMax, final String rhs) {
-        return currMax > rhs.length() ? currMax : rhs.length();
+        return currMax > rhs.length()
+               ? currMax
+               : rhs.length();
     }
 
     public FlatRepresentation getFlatRepresentation() {

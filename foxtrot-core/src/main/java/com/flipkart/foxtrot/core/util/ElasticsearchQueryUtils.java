@@ -41,7 +41,8 @@ public class ElasticsearchQueryUtils {
                 sourceMap.put(f.getName(), f.get(value));
             }
             return sourceMap;
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             throw new SourceMapConversionException("Exception occurred while coverting to map", e);
         }
     }
@@ -51,7 +52,8 @@ public class ElasticsearchQueryUtils {
             final MapType type = mapper.getTypeFactory()
                     .constructMapType(Map.class, String.class, Object.class);
             return mapper.readValue(node.toString(), type);
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             throw new SourceMapConversionException("Exception occurred while converting to map", e);
         }
     }

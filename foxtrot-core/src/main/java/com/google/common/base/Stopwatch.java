@@ -14,19 +14,14 @@
 
 package com.google.common.base;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.base.Preconditions.checkState;
-import static java.util.concurrent.TimeUnit.DAYS;
-import static java.util.concurrent.TimeUnit.HOURS;
-import static java.util.concurrent.TimeUnit.MICROSECONDS;
-import static java.util.concurrent.TimeUnit.MILLISECONDS;
-import static java.util.concurrent.TimeUnit.MINUTES;
-import static java.util.concurrent.TimeUnit.NANOSECONDS;
-import static java.util.concurrent.TimeUnit.SECONDS;
-
 import com.google.common.annotations.GwtCompatible;
+
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
+
+import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Preconditions.checkState;
+import static java.util.concurrent.TimeUnit.*;
 
 /**
  * An object that measures elapsed time in nanoseconds. It is useful to measure elapsed time using this class instead of
@@ -222,7 +217,9 @@ public final class Stopwatch {
     }
 
     private long elapsedNanos() {
-        return isRunning ? ticker.read() - startTick + elapsedNanos : elapsedNanos;
+        return isRunning
+               ? ticker.read() - startTick + elapsedNanos
+               : elapsedNanos;
     }
 
     /**

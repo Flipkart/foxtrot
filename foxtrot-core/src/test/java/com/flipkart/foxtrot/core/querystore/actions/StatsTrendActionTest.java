@@ -12,12 +12,6 @@
  */
 package com.flipkart.foxtrot.core.querystore.actions;
 
-import static com.flipkart.foxtrot.core.TestUtils.TEST_EMAIL;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.flipkart.foxtrot.common.Document;
 import com.flipkart.foxtrot.common.query.Filter;
@@ -29,12 +23,16 @@ import com.flipkart.foxtrot.core.TestUtils;
 import com.flipkart.foxtrot.core.exception.FoxtrotException;
 import com.flipkart.foxtrot.core.exception.MalformedQueryException;
 import com.google.common.collect.Lists;
+import org.junit.Before;
+import org.junit.Test;
+
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.stream.Collectors;
-import org.junit.Before;
-import org.junit.Test;
+
+import static com.flipkart.foxtrot.core.TestUtils.TEST_EMAIL;
+import static org.junit.Assert.*;
 
 /**
  * Created by rishabh.goyal on 29/04/14.
@@ -101,9 +99,9 @@ public class StatsTrendActionTest extends ActionTest {
         request.setTimestamp("_timestamp");
         request.setField("battery");
         request.setStats(EnumSet.allOf(Stat.class)
-                .stream()
-                .filter(x -> !x.isExtended())
-                .collect(Collectors.toSet()));
+                                 .stream()
+                                 .filter(x -> !x.isExtended())
+                                 .collect(Collectors.toSet()));
         BetweenFilter betweenFilter = new BetweenFilter();
         betweenFilter.setFrom(1L);
         betweenFilter.setTo(System.currentTimeMillis());
@@ -154,9 +152,9 @@ public class StatsTrendActionTest extends ActionTest {
                 .getStats()
                 .size());
         assertTrue(statsTrendResponse.getResult()
-                .get(0)
-                .getStats()
-                .containsKey("count"));
+                           .get(0)
+                           .getStats()
+                           .containsKey("count"));
         assertNull(statsTrendResponse.getBuckets());
     }
 
@@ -185,9 +183,9 @@ public class StatsTrendActionTest extends ActionTest {
                 .getStats()
                 .size());
         assertTrue(statsTrendResponse.getResult()
-                .get(0)
-                .getStats()
-                .containsKey("max"));
+                           .get(0)
+                           .getStats()
+                           .containsKey("max"));
         assertNull(statsTrendResponse.getBuckets());
     }
 
@@ -215,9 +213,9 @@ public class StatsTrendActionTest extends ActionTest {
                 .getStats()
                 .size());
         assertTrue(statsTrendResponse.getResult()
-                .get(0)
-                .getStats()
-                .containsKey("min"));
+                           .get(0)
+                           .getStats()
+                           .containsKey("min"));
         assertNull(statsTrendResponse.getBuckets());
     }
 
@@ -246,9 +244,9 @@ public class StatsTrendActionTest extends ActionTest {
                 .getStats()
                 .size());
         assertTrue(statsTrendResponse.getResult()
-                .get(0)
-                .getStats()
-                .containsKey("avg"));
+                           .get(0)
+                           .getStats()
+                           .containsKey("avg"));
         assertNull(statsTrendResponse.getBuckets());
     }
 
@@ -276,9 +274,9 @@ public class StatsTrendActionTest extends ActionTest {
                 .getStats()
                 .size());
         assertTrue(statsTrendResponse.getResult()
-                .get(0)
-                .getStats()
-                .containsKey("sum"));
+                           .get(0)
+                           .getStats()
+                           .containsKey("sum"));
         assertNull(statsTrendResponse.getBuckets());
     }
 
@@ -307,9 +305,9 @@ public class StatsTrendActionTest extends ActionTest {
                 .getPercentiles()
                 .size());
         assertTrue(statsTrendResponse.getResult()
-                .get(0)
-                .getPercentiles()
-                .containsKey(5d));
+                           .get(0)
+                           .getPercentiles()
+                           .containsKey(5d));
     }
 
     @Test

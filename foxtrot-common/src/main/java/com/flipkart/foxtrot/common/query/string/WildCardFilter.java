@@ -3,11 +3,12 @@ package com.flipkart.foxtrot.common.query.string;
 import com.flipkart.foxtrot.common.query.Filter;
 import com.flipkart.foxtrot.common.query.FilterOperator;
 import com.flipkart.foxtrot.common.query.FilterVisitor;
-import java.util.Set;
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
+
+import java.util.Set;
 
 /***
  Created by mudit.g on Dec, 2018

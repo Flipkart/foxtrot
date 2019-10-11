@@ -8,7 +8,8 @@ import net.sf.jsqlparser.schema.Column;
 
 public class QueryUtils {
 
-    private QueryUtils() {}
+    private QueryUtils() {
+    }
 
     public static String expressionToString(Expression expression) {
         if (expression instanceof Column) {

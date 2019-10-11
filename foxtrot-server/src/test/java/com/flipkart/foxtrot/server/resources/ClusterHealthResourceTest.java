@@ -39,9 +39,9 @@ import static org.mockito.Mockito.when;
  */
 public class ClusterHealthResourceTest extends FoxtrotResourceTest {
 
+    private final FoxtrotTableManager tableManager;
     @Rule
     public ResourceTestRule resources;
-    private final FoxtrotTableManager tableManager;
 
     public ClusterHealthResourceTest() throws Exception {
         super();
@@ -49,7 +49,7 @@ public class ClusterHealthResourceTest extends FoxtrotResourceTest {
         when(tableManager.getAll()).thenReturn(Collections.singletonList(TestUtils.TEST_TABLE));
 
         resources = ResourceTestRule.builder()
-                .addResource(new ClusterHealthResource(getQueryStore(),tableManager, getTableMetadataManager()))
+                .addResource(new ClusterHealthResource(getQueryStore(), tableManager, getTableMetadataManager()))
                 .addProvider(new FoxtrotExceptionMapper(getMapper()))
                 .setMapper(getMapper())
                 .build();
@@ -64,7 +64,7 @@ public class ClusterHealthResourceTest extends FoxtrotResourceTest {
         Assert.assertEquals(1, response.get("numberOfNodes")
                 .asInt());
         Assert.assertNotNull(response.get("indices")
-                .has("table-meta"));
+                                     .has("table-meta"));
     }
 
     @Test

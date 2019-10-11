@@ -2,6 +2,7 @@ package com.flipkart.foxtrot.server.providers;
 
 import com.flipkart.foxtrot.sql.responseprocessors.model.FieldHeader;
 import com.flipkart.foxtrot.sql.responseprocessors.model.FlatRepresentation;
+
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
@@ -26,13 +27,15 @@ public class FlatResponseTextProvider implements MessageBodyWriter<FlatRepresent
     }
 
     @Override
-    public long getSize(FlatRepresentation response, Class<?> type, Type genericType, Annotation[] annotations,
+    public long getSize(
+            FlatRepresentation response, Class<?> type, Type genericType, Annotation[] annotations,
             MediaType mediaType) {
         return -1;
     }
 
     @Override
-    public void writeTo(FlatRepresentation response, Class<?> type, Type genericType, Annotation[] annotations,
+    public void writeTo(
+            FlatRepresentation response, Class<?> type, Type genericType, Annotation[] annotations,
             MediaType mediaType, MultivaluedMap<String, Object> httpHeaders, OutputStream entityStream)
             throws IOException {
         if (null == response) {
@@ -63,17 +66,18 @@ public class FlatResponseTextProvider implements MessageBodyWriter<FlatRepresent
             rowBuilder.append("|");
             for (FieldHeader fieldHeader : headers) {
                 rowBuilder.append(" ");
-                rowBuilder.append(String.format("%" + fieldHeader.getMaxLength() + "s", row.get(fieldHeader.getName())));
+                rowBuilder.append(String.format("%" + fieldHeader.getMaxLength() + "s",
+                                                row.get(fieldHeader.getName())));
                 rowBuilder.append(" |");
             }
             rowBuilder.append("\n");
             data.append(rowBuilder.toString()
-                    .replaceAll("\"", " ")
-                    .replaceAll("null", "    "));
+                                .replaceAll("\"", " ")
+                                .replaceAll("null", "    "));
         }
         hrLine(headerLine.length(), data);
         entityStream.write(data.toString()
-                .getBytes());
+                                   .getBytes());
     }
 
     public void hrLine(int length, StringBuilder stringBuilder) {
