@@ -44,16 +44,6 @@ public class FoxtrotExceptionMapper implements ExceptionMapper<FoxtrotException>
                 return Response.status(Response.Status.NOT_FOUND)
                         .entity(response)
                         .build();
-            case STORE_CONNECTION_ERROR:
-            case TABLE_INITIALIZATION_ERROR:
-            case TABLE_METADATA_FETCH_FAILURE:
-            case DATA_CLEANUP_ERROR:
-            case STORE_EXECUTION_ERROR:
-            case EXECUTION_EXCEPTION:
-            case ACTION_EXECUTION_ERROR:
-                return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-                        .entity(response)
-                        .build();
             case MALFORMED_QUERY:
             case CARDINALITY_OVERFLOW:
             case ACTION_RESOLUTION_FAILURE:
@@ -66,11 +56,15 @@ public class FoxtrotExceptionMapper implements ExceptionMapper<FoxtrotException>
                 return Response.status(Response.Status.CONFLICT)
                         .entity(response)
                         .build();
+            case STORE_CONNECTION_ERROR:
+            case TABLE_INITIALIZATION_ERROR:
+            case TABLE_METADATA_FETCH_FAILURE:
+            case DATA_CLEANUP_ERROR:
+            case STORE_EXECUTION_ERROR:
+            case EXECUTION_EXCEPTION:
+            case ACTION_EXECUTION_ERROR:
             case CONSOLE_SAVE_EXCEPTION:
             case CONSOLE_FETCH_EXCEPTION:
-                return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-                        .entity(response)
-                        .build();
             default:
                 return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
                         .entity(response)

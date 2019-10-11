@@ -14,7 +14,6 @@ import org.junit.Test;
 
 import java.util.*;
 
-import static com.flipkart.foxtrot.core.TestUtils.TEST_EMAIL;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.mockito.Mockito.when;
@@ -48,11 +47,11 @@ public class MultiTimeQueryActionTest extends ActionTest {
         resultSort.setField("_timestamp");
         query.setSort(resultSort);
         BetweenFilter betweenFilter = new BetweenFilter("_timestamp", 1397658117000L, 1397658118005L, false);
-        query.setFilters(Arrays.asList(betweenFilter));
+        query.setFilters(Collections.singletonList(betweenFilter));
 
         Duration duration = Duration.days(1);
         MultiTimeQueryRequest multiTimeQueryRequest = new MultiTimeQueryRequest(1, duration, query);
-        ActionResponse actionResponse = getQueryExecutor().execute(multiTimeQueryRequest, TEST_EMAIL);
+        ActionResponse actionResponse = getQueryExecutor().execute(multiTimeQueryRequest);
         MultiTimeQueryResponse multiTimeQueryResponse = null;
         if (actionResponse instanceof MultiTimeQueryResponse) {
             multiTimeQueryResponse = (MultiTimeQueryResponse) actionResponse;
@@ -78,7 +77,7 @@ public class MultiTimeQueryActionTest extends ActionTest {
 
         Duration duration = Duration.days(1);
         MultiTimeQueryRequest multiTimeQueryRequest = new MultiTimeQueryRequest(1, duration, query);
-        ActionResponse actionResponse = getQueryExecutor().execute(multiTimeQueryRequest, TEST_EMAIL);
+        ActionResponse actionResponse = getQueryExecutor().execute(multiTimeQueryRequest);
         MultiTimeQueryResponse multiTimeQueryResponse = null;
         if (actionResponse instanceof MultiTimeQueryResponse) {
             multiTimeQueryResponse = (MultiTimeQueryResponse) actionResponse;
@@ -107,36 +106,52 @@ public class MultiTimeQueryActionTest extends ActionTest {
         MultiTimeQueryRequest multiTimeQueryRequest = new MultiTimeQueryRequest(1, duration, query);
 
         List<Document> documents = new ArrayList<>();
-        documents.add(TestUtils.getDocument("W", 1397658117001L,
-                                            new Object[]{"os", "android", "device", "nexus", "battery", 99},
-                                            getMapper()));
-        documents.add(TestUtils.getDocument("X", 1397658117002L,
-                                            new Object[]{"os", "android", "device", "nexus", "battery", 74},
-                                            getMapper()));
-        documents.add(TestUtils.getDocument("Y", 1397658117003L,
-                                            new Object[]{"os", "android", "device", "nexus", "battery", 48},
-                                            getMapper()));
-        documents.add(TestUtils.getDocument("Z", 1397658117004L,
-                                            new Object[]{"os", "android", "device", "nexus", "battery", 24},
-                                            getMapper()));
-        documents.add(TestUtils.getDocument("A", 1397658118000L,
-                                            new Object[]{"os", "android", "version", 1, "device", "nexus"},
-                                            getMapper()));
-        documents.add(TestUtils.getDocument("B", 1397658118001L,
-                                            new Object[]{"os", "android", "version", 1, "device", "galaxy"},
-                                            getMapper()));
-        documents.add(TestUtils.getDocument("C", 1397658118002L,
-                                            new Object[]{"os", "android", "version", 2, "device", "nexus"},
-                                            getMapper()));
         documents.add(
-                TestUtils.getDocument("D", 1397658118003L, new Object[]{"os", "ios", "version", 1, "device", "iphone"},
+                TestUtils.getDocument("W",
+                                      1397658117001L,
+                                      new Object[]{"os", "android", "device", "nexus", "battery", 99},
                                       getMapper()));
         documents.add(
-                TestUtils.getDocument("E", 1397658118004L, new Object[]{"os", "ios", "version", 2, "device", "ipad"},
+                TestUtils.getDocument("X",
+                                      1397658117002L,
+                                      new Object[]{"os", "android", "device", "nexus", "battery", 74},
                                       getMapper()));
+        documents.add(
+                TestUtils.getDocument("Y",
+                                      1397658117003L,
+                                      new Object[]{"os", "android", "device", "nexus", "battery", 48},
+                                      getMapper()));
+        documents.add(
+                TestUtils.getDocument("Z",
+                                      1397658117004L,
+                                      new Object[]{"os", "android", "device", "nexus", "battery", 24},
+                                      getMapper()));
+        documents.add(
+                TestUtils.getDocument("A",
+                                      1397658118000L,
+                                      new Object[]{"os", "android", "version", 1, "device", "nexus"},
+                                      getMapper()));
+        documents.add(
+                TestUtils.getDocument("B",
+                                      1397658118001L,
+                                      new Object[]{"os", "android", "version", 1, "device", "galaxy"},
+                                      getMapper()));
+        documents.add(
+                TestUtils.getDocument("C",
+                                      1397658118002L,
+                                      new Object[]{"os", "android", "version", 2, "device", "nexus"},
+                                      getMapper()));
+        documents.add(TestUtils.getDocument("D",
+                                            1397658118003L,
+                                            new Object[]{"os", "ios", "version", 1, "device", "iphone"},
+                                            getMapper()));
+        documents.add(TestUtils.getDocument("E",
+                                            1397658118004L,
+                                            new Object[]{"os", "ios", "version", 2, "device", "ipad"},
+                                            getMapper()));
 
         MultiTimeQueryResponse multiTimeQueryResponse = MultiTimeQueryResponse.class.cast(
-                getQueryExecutor().execute(multiTimeQueryRequest, TEST_EMAIL));
+                getQueryExecutor().execute(multiTimeQueryRequest));
         for (String key : multiTimeQueryResponse.getResponses()
                 .keySet()) {
             compare(documents, ((QueryResponse) multiTimeQueryResponse.getResponses()

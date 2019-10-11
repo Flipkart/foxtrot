@@ -66,7 +66,7 @@ public class TableMapStore implements MapStore<String, Table> {
         }
         logger.info("Storing key: {}", key);
         try {
-            Map<String, Object> sourceMap = ElasticsearchQueryUtils.getSourceMap(value, value.getClass());
+            Map<String, Object> sourceMap = ElasticsearchQueryUtils.toMap(objectMapper, value);
             elasticsearchConnection.getClient()
                     .prepareIndex()
                     .setIndex(TABLE_META_INDEX)

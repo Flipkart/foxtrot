@@ -51,7 +51,7 @@ public class AnalyticsV2Resource {
     @Authorize(value = {})
     public ActionResponse runSync(@Valid final ActionRequest request, @GandalfUserContext UserDetails userDetails) {
         preprocess(request, userDetails);
-        return queryExecutor.execute(request, userDetails.getEmail());
+        return queryExecutor.execute(request);
     }
 
     @POST
@@ -71,7 +71,7 @@ public class AnalyticsV2Resource {
         catch (Exception e) {
             throw FoxtrotExceptions.createAuthorizationException(request, e);
         }
-        return queryExecutor.executeAsync(request, userDetails.getEmail());
+        return queryExecutor.executeAsync(request);
     }
 
     @POST
@@ -91,7 +91,7 @@ public class AnalyticsV2Resource {
         catch (Exception e) {
             throw FoxtrotExceptions.createAuthorizationException(request, e);
         }
-        return queryExecutor.validate(request, userDetails.getEmail());
+        return queryExecutor.validate(request);
     }
 
     private void preprocess(@Valid ActionRequest request, @GandalfUserContext UserDetails userDetails) {

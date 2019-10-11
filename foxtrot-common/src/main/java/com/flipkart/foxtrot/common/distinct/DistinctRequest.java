@@ -50,14 +50,6 @@ public class DistinctRequest extends ActionRequest {
         return visitor.visit(this);
     }
 
-    @Override
-    public String toString() {
-        return new ToStringBuilder(this).append("table", table)
-                .append("filters", getFilters())
-                .append("nesting", nesting)
-                .toString();
-    }
-
     public String getTable() {
         return table;
     }
@@ -74,4 +66,11 @@ public class DistinctRequest extends ActionRequest {
         this.nesting = nesting;
     }
 
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this).append("table", table)
+                .append("filters", getFilters())
+                .append("nesting", nesting)
+                .toString();
+    }
 }

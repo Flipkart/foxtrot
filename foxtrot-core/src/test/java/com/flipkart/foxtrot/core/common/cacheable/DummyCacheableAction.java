@@ -52,7 +52,7 @@ public class DummyCacheableAction extends Action<DummyCacheableActionRequest> {
     }
 
     @Override
-    public void validateImpl(DummyCacheableActionRequest parameter, String email) throws MalformedQueryException {
+    public void validateImpl(DummyCacheableActionRequest parameter) throws MalformedQueryException {
 
     }
 

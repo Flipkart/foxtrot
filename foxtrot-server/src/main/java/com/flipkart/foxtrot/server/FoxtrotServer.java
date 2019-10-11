@@ -18,7 +18,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.jsontype.NamedType;
 import com.flipkart.foxtrot.common.TableActionRequestVisitor;
-import com.flipkart.foxtrot.core.alerts.EmailConfig;
+import com.flipkart.foxtrot.core.alerts.AlertingSystemEventConsumer;
 import com.flipkart.foxtrot.core.cache.CacheManager;
 import com.flipkart.foxtrot.core.cache.impl.DistributedCacheFactory;
 import com.flipkart.foxtrot.core.cardinality.CardinalityCalculationManager;
@@ -28,12 +28,16 @@ import com.flipkart.foxtrot.core.common.DataDeletionManagerConfig;
 import com.flipkart.foxtrot.core.datastore.DataStore;
 import com.flipkart.foxtrot.core.datastore.impl.hbase.HBaseDataStore;
 import com.flipkart.foxtrot.core.datastore.impl.hbase.HbaseTableConnection;
+import com.flipkart.foxtrot.core.email.EmailClient;
+import com.flipkart.foxtrot.core.email.EmailConfig;
+import com.flipkart.foxtrot.core.email.RichEmailBuilder;
+import com.flipkart.foxtrot.core.email.messageformatting.impl.StrSubstitutorEmailBodyBuilder;
+import com.flipkart.foxtrot.core.email.messageformatting.impl.StrSubstitutorEmailSubjectBuilder;
+import com.flipkart.foxtrot.core.internalevents.InternalEventBus;
+import com.flipkart.foxtrot.core.internalevents.impl.GuavaInternalEventBus;
 import com.flipkart.foxtrot.core.jobs.optimization.EsIndexOptimizationConfig;
 import com.flipkart.foxtrot.core.jobs.optimization.EsIndexOptimizationManager;
-import com.flipkart.foxtrot.core.querystore.ActionExecutionObserver;
-import com.flipkart.foxtrot.core.querystore.DocumentTranslator;
-import com.flipkart.foxtrot.core.querystore.QueryExecutor;
-import com.flipkart.foxtrot.core.querystore.QueryStore;
+import com.flipkart.foxtrot.core.querystore.*;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsLoader;
 import com.flipkart.foxtrot.core.querystore.handlers.MetricRecorder;
 import com.flipkart.foxtrot.core.querystore.handlers.ResponseCacheUpdater;
@@ -188,8 +192,7 @@ public class FoxtrotServer extends Application<FoxtrotServerConfiguration> {
 
         bootstrap.addBundle(new SwaggerBundle<FoxtrotServerConfiguration>() {
             @Override
-            protected SwaggerBundleConfiguration getSwaggerBundleConfiguration(
-                    FoxtrotServerConfiguration configuration) {
+            protected SwaggerBundleConfiguration getSwaggerBundleConfiguration(FoxtrotServerConfiguration configuration) {
                 return configuration.getSwagger();
             }
         });
@@ -248,18 +251,21 @@ public class FoxtrotServer extends Application<FoxtrotServerConfiguration> {
         AccessService accessService = new AccessServiceImpl(configuration.isRestrictAccess(), actionRequestVisitor);
         FqlStoreService fqlStoreService = new FqlStoreServiceImpl(elasticsearchConnection, objectMapper);
         FoxtrotTableManager tableManager = new FoxtrotTableManager(tableMetadataManager, queryStore, dataStore);
-        CacheManager cacheManager = new CacheManager(
-                new DistributedCacheFactory(hazelcastConnection, objectMapper, cacheConfig));
+        CacheManager cacheManager = new CacheManager(new DistributedCacheFactory(hazelcastConnection,
+                                                                                 objectMapper,
+                                                                                 cacheConfig));
         AnalyticsLoader analyticsLoader = new AnalyticsLoader(tableMetadataManager,
                                                               dataStore,
                                                               queryStore,
                                                               elasticsearchConnection,
                                                               cacheManager,
                                                               objectMapper,
-                                                              emailConfig,
-                                                              null,
-                                                              configuration.getElasticsearchTuningConfig()
-        );
+                                                              configuration.getElasticsearchTuningConfig());
+        InternalEventBus eventBus = new GuavaInternalEventBus();
+        eventBus.subscribe(new AlertingSystemEventConsumer(
+                new EmailClient(emailConfig),
+                new RichEmailBuilder(new StrSubstitutorEmailSubjectBuilder(),
+                                     new StrSubstitutorEmailBodyBuilder())));
 
         ClusterRerouteManager clusterRerouteManager = new ClusterRerouteManager(
                 elasticsearchConnection, configuration.getClusterRerouteConfig());
@@ -269,6 +275,7 @@ public class FoxtrotServer extends Application<FoxtrotServerConfiguration> {
                                                            .add(new MetricRecorder())
                                                            .add(new ResponseCacheUpdater(cacheManager))
                                                            .add(new SlowQueryReporter())
+                                                           .add(new EventPublisherActionExecutionObserver(eventBus))
                                                            .build());
         DataDeletionManagerConfig dataDeletionManagerConfig = configuration.getDeletionManagerConfig();
         DataDeletionManager dataDeletionManager = new DataDeletionManager(dataDeletionManagerConfig, queryStore,

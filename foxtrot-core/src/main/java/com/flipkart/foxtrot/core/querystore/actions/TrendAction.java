@@ -77,29 +77,8 @@ public class TrendAction extends Action<TrendRequest> {
     }
 
     @Override
-    public void validateImpl(TrendRequest parameter, String email) {
-        List<String> validationErrors = Lists.newArrayList();
-        if (CollectionUtils.isNullOrEmpty(parameter.getTable())) {
-            validationErrors.add("table name cannot be null or empty");
-        }
-        if (CollectionUtils.isNullOrEmpty(parameter.getField())) {
-            validationErrors.add("field name cannot be null or empty");
-        }
-        if (CollectionUtils.isNullOrEmpty(parameter.getTimestamp())) {
-            validationErrors.add("timestamp field cannot be null or empty");
-        }
-        if (parameter.getPeriod() == null) {
-            validationErrors.add(String.format("specify time period (%s)", StringUtils.join(Period.values())));
-        }
-
-        if (parameter.getUniqueCountOn() != null && parameter.getUniqueCountOn()
-                .isEmpty()) {
-            validationErrors.add("unique field cannot be empty (can be null)");
-        }
-
-        if (!CollectionUtils.isNullOrEmpty(validationErrors)) {
-            throw FoxtrotExceptions.createMalformedQueryException(parameter, validationErrors);
-        }
+    public String getMetricKey() {
+        return getParameter().getTable();
     }
 
     @Override
@@ -136,11 +115,29 @@ public class TrendAction extends Action<TrendRequest> {
     }
 
     @Override
-    protected Filter getDefaultTimeSpan() {
-        LastFilter lastFilter = new LastFilter();
-        lastFilter.setField("_timestamp");
-        lastFilter.setDuration(Duration.days(1));
-        return lastFilter;
+    public void validateImpl(TrendRequest parameter) {
+        List<String> validationErrors = Lists.newArrayList();
+        if (CollectionUtils.isNullOrEmpty(parameter.getTable())) {
+            validationErrors.add("table name cannot be null or empty");
+        }
+        if (CollectionUtils.isNullOrEmpty(parameter.getField())) {
+            validationErrors.add("field name cannot be null or empty");
+        }
+        if (CollectionUtils.isNullOrEmpty(parameter.getTimestamp())) {
+            validationErrors.add("timestamp field cannot be null or empty");
+        }
+        if (parameter.getPeriod() == null) {
+            validationErrors.add(String.format("specify time period (%s)", StringUtils.join(Period.values())));
+        }
+
+        if (parameter.getUniqueCountOn() != null && parameter.getUniqueCountOn()
+                .isEmpty()) {
+            validationErrors.add("unique field cannot be empty (can be null)");
+        }
+
+        if (!CollectionUtils.isNullOrEmpty(validationErrors)) {
+            throw FoxtrotExceptions.createMalformedQueryException(parameter, validationErrors);
+        }
     }
 
     @Override
@@ -154,11 +151,6 @@ public class TrendAction extends Action<TrendRequest> {
         catch (ElasticsearchException e) {
             throw FoxtrotExceptions.createQueryExecutionException(parameter, e);
         }
-    }
-
-    @Override
-    public String getMetricKey() {
-        return getParameter().getTable();
     }
 
     @Override
@@ -188,6 +180,15 @@ public class TrendAction extends Action<TrendRequest> {
         else {
             return new TrendResponse(Collections.<String, List<TrendResponse.Count>>emptyMap());
         }
+    }
+
+
+    @Override
+    protected Filter getDefaultTimeSpan() {
+        LastFilter lastFilter = new LastFilter();
+        lastFilter.setField("_timestamp");
+        lastFilter.setDuration(Duration.days(1));
+        return lastFilter;
     }
 
     private AbstractAggregationBuilder buildAggregation(TrendRequest request) {

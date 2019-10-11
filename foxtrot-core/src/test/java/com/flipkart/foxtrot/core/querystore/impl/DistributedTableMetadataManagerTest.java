@@ -19,10 +19,10 @@ import com.flipkart.foxtrot.common.Table;
 import com.flipkart.foxtrot.common.TableFieldMapping;
 import com.flipkart.foxtrot.common.group.GroupResponse;
 import com.flipkart.foxtrot.core.TestUtils;
-import com.flipkart.foxtrot.core.alerts.EmailConfig;
 import com.flipkart.foxtrot.core.cardinality.CardinalityConfig;
 import com.flipkart.foxtrot.core.config.TextNodeRemoverConfiguration;
 import com.flipkart.foxtrot.core.datastore.DataStore;
+import com.flipkart.foxtrot.core.email.EmailConfig;
 import com.flipkart.foxtrot.core.querystore.mutator.IndexerEventMutator;
 import com.flipkart.foxtrot.core.querystore.mutator.LargeTextNodeRemover;
 import com.flipkart.foxtrot.core.table.impl.DistributedTableMetadataManager;
@@ -69,8 +69,6 @@ public class DistributedTableMetadataManagerTest {
         ElasticsearchUtils.initializeMappings(elasticsearchConnection.getClient());
         EmailConfig emailConfig = new EmailConfig();
         emailConfig.setHost("127.0.0.1");
-
-        TestUtils.createTable(elasticsearchConnection, DistributedTableMetadataManager.CARDINALITY_CACHE_INDEX);
 
         hazelcastInstance = new TestHazelcastInstanceFactory(1).newHazelcastInstance();
         HazelcastConnection hazelcastConnection = Mockito.mock(HazelcastConnection.class);

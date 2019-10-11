@@ -58,17 +58,6 @@ public class DistinctResponse extends ActionResponse {
     }
 
     @Override
-    public int hashCode() {
-        int result1 = headers != null
-                      ? headers.hashCode()
-                      : 0;
-        result1 = 31 * result1 + (result != null
-                                  ? result.hashCode()
-                                  : 0);
-        return result1;
-    }
-
-    @Override
     public boolean equals(Object o) {
         if (this == o) {
             return true;
@@ -87,5 +76,16 @@ public class DistinctResponse extends ActionResponse {
         return result != null
                ? result.equals(that.result)
                : that.result == null;
+    }
+
+    @Override
+    public int hashCode() {
+        int result1 = headers != null
+                      ? headers.hashCode()
+                      : 0;
+        result1 = 31 * result1 + (result != null
+                                  ? result.hashCode()
+                                  : 0);
+        return result1;
     }
 }

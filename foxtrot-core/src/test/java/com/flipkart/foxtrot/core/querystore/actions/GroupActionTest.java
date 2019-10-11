@@ -30,7 +30,6 @@ import org.junit.Test;
 
 import java.util.*;
 
-import static com.flipkart.foxtrot.core.TestUtils.TEST_EMAIL;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.doReturn;
@@ -66,7 +65,7 @@ public class GroupActionTest extends ActionTest {
         doReturn(null).when(getElasticsearchConnection())
                 .getClient();
         try {
-            getQueryExecutor().execute(groupRequest, TEST_EMAIL);
+            getQueryExecutor().execute(groupRequest);
             fail();
         }
         catch (FoxtrotException ex) {
@@ -85,7 +84,7 @@ public class GroupActionTest extends ActionTest {
         response.put("android", 7L);
         response.put("ios", 4L);
 
-        GroupResponse actualResult = GroupResponse.class.cast(getQueryExecutor().execute(groupRequest, TEST_EMAIL));
+        GroupResponse actualResult = GroupResponse.class.cast(getQueryExecutor().execute(groupRequest));
         assertEquals(response, actualResult.getResult());
     }
 
@@ -96,7 +95,7 @@ public class GroupActionTest extends ActionTest {
         groupRequest.setNesting(Collections.singletonList(""));
 
         try {
-            getQueryExecutor().execute(groupRequest, TEST_EMAIL);
+            getQueryExecutor().execute(groupRequest);
             fail();
         }
         catch (FoxtrotException ex) {
@@ -112,7 +111,7 @@ public class GroupActionTest extends ActionTest {
         groupRequest.setNesting(Arrays.asList(""));
 
         try {
-            getQueryExecutor().execute(groupRequest, TEST_EMAIL);
+            getQueryExecutor().execute(groupRequest);
             fail();
         }
         catch (FoxtrotException ex) {
@@ -134,7 +133,7 @@ public class GroupActionTest extends ActionTest {
 
         Map<String, Object> response = Maps.newHashMap();
 
-        GroupResponse actualResult = GroupResponse.class.cast(getQueryExecutor().execute(groupRequest, TEST_EMAIL));
+        GroupResponse actualResult = GroupResponse.class.cast(getQueryExecutor().execute(groupRequest));
         assertEquals(response, actualResult.getResult());
     }
 
@@ -153,7 +152,7 @@ public class GroupActionTest extends ActionTest {
         response.put("android", 5L);
         response.put("ios", 1L);
 
-        GroupResponse actualResult = GroupResponse.class.cast(getQueryExecutor().execute(groupRequest, TEST_EMAIL));
+        GroupResponse actualResult = GroupResponse.class.cast(getQueryExecutor().execute(groupRequest));
         assertEquals(response, actualResult.getResult());
     }
 
@@ -174,7 +173,7 @@ public class GroupActionTest extends ActionTest {
             put("iphone", 1L);
         }});
 
-        GroupResponse actualResult = GroupResponse.class.cast(getQueryExecutor().execute(groupRequest, TEST_EMAIL));
+        GroupResponse actualResult = GroupResponse.class.cast(getQueryExecutor().execute(groupRequest));
         assertEquals(response, actualResult.getResult());
     }
 
@@ -198,7 +197,7 @@ public class GroupActionTest extends ActionTest {
             put("ipad", 1L);
         }});
 
-        GroupResponse actualResult = GroupResponse.class.cast(getQueryExecutor().execute(groupRequest, TEST_EMAIL));
+        GroupResponse actualResult = GroupResponse.class.cast(getQueryExecutor().execute(groupRequest));
         assertEquals(response, actualResult.getResult());
     }
 
@@ -239,7 +238,8 @@ public class GroupActionTest extends ActionTest {
             put("iphone", iPhoneResponse);
         }});
 
-        GroupResponse actualResult = GroupResponse.class.cast(getQueryExecutor().execute(groupRequest, TEST_EMAIL));
+
+        GroupResponse actualResult = GroupResponse.class.cast(getQueryExecutor().execute(groupRequest));
         assertEquals(response, actualResult.getResult());
     }
 
@@ -276,7 +276,7 @@ public class GroupActionTest extends ActionTest {
             put("ipad", iPadResponse);
         }});
 
-        GroupResponse actualResult = GroupResponse.class.cast(getQueryExecutor().execute(groupRequest, TEST_EMAIL));
+        GroupResponse actualResult = GroupResponse.class.cast(getQueryExecutor().execute(groupRequest));
         assertEquals(response, actualResult.getResult());
     }
 }

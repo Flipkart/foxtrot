@@ -11,8 +11,6 @@ import com.fasterxml.jackson.databind.jsontype.SubtypeResolver;
 import com.fasterxml.jackson.databind.jsontype.impl.StdSubtypeResolver;
 import com.flipkart.foxtrot.common.Table;
 import com.flipkart.foxtrot.core.TestUtils;
-import com.flipkart.foxtrot.core.alerts.EmailClient;
-import com.flipkart.foxtrot.core.alerts.EmailConfig;
 import com.flipkart.foxtrot.core.cache.CacheManager;
 import com.flipkart.foxtrot.core.cache.impl.DistributedCacheFactory;
 import com.flipkart.foxtrot.core.cardinality.CardinalityConfig;
@@ -52,7 +50,6 @@ import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
 
 /**
@@ -130,9 +127,8 @@ public abstract class FoxtrotResourceTest {
         CardinalityConfig cardinalityConfig = new CardinalityConfig("true",
                                                                     String.valueOf(ElasticsearchUtils.DEFAULT_SUB_LIST_SIZE));
 
-        TestUtils.createTable(elasticsearchConnection, TableMapStore.TABLE_META_INDEX);
-        TestUtils.createTable(elasticsearchConnection, DistributedTableMetadataManager.CARDINALITY_CACHE_INDEX);
-
+        TestUtils.ensureIndex(elasticsearchConnection, TableMapStore.TABLE_META_INDEX);
+        TestUtils.ensureIndex(elasticsearchConnection, DistributedTableMetadataManager.CARDINALITY_CACHE_INDEX);
         tableMetadataManager = new DistributedTableMetadataManager(hazelcastConnection, elasticsearchConnection, mapper,
                                                                    cardinalityConfig);
         tableMetadataManager.start();
@@ -151,20 +147,12 @@ public abstract class FoxtrotResourceTest {
                                                  cardinalityConfig);
         queryStore = spy(queryStore);
 
-        EmailConfig emailConfig = new EmailConfig();
-        emailConfig.setHost("127.0.0.1");
-        emailConfig.setFrom("noreply@foxtrot.com");
-        EmailClient emailClient = Mockito.mock(EmailClient.class);
-        when(emailClient.sendEmail(any(String.class), any(String.class), any(String.class))).thenReturn(true);
-
         analyticsLoader = new AnalyticsLoader(tableMetadataManager,
                                               dataStore,
                                               queryStore,
                                               elasticsearchConnection,
                                               cacheManager,
                                               mapper,
-                                              emailConfig,
-                                              emailClient,
                                               new ElasticsearchTuningConfig());
         try {
             analyticsLoader.start();

@@ -26,7 +26,6 @@ import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
 import java.util.*;
 
-import static com.flipkart.foxtrot.core.TestUtils.TEST_EMAIL;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
@@ -92,7 +91,7 @@ public class AsyncResourceTest extends FoxtrotResourceTest {
             put("iphone", iPhoneResponse);
         }});
 
-        AsyncDataToken dataToken = getQueryExecutor().executeAsync(groupRequest, TEST_EMAIL);
+        AsyncDataToken dataToken = getQueryExecutor().executeAsync(groupRequest);
         Thread.sleep(1000);
 
         GroupResponse groupResponse = resources.client()
@@ -108,7 +107,7 @@ public class AsyncResourceTest extends FoxtrotResourceTest {
         groupRequest.setTable(TestUtils.TEST_TABLE_NAME);
         groupRequest.setNesting(Arrays.asList("os", "device", "version"));
 
-        AsyncDataToken dataToken = getQueryExecutor().executeAsync(groupRequest, TEST_EMAIL);
+        AsyncDataToken dataToken = getQueryExecutor().executeAsync(groupRequest);
         Thread.sleep(1000);
         GroupResponse response = resources.client()
                 .target(String.format("/v1/async/distinct/%s", dataToken.getKey()))
@@ -123,7 +122,7 @@ public class AsyncResourceTest extends FoxtrotResourceTest {
         groupRequest.setTable(TestUtils.TEST_TABLE_NAME);
         groupRequest.setNesting(Arrays.asList("os", "device", "version"));
 
-        AsyncDataToken dataToken = getQueryExecutor().executeAsync(groupRequest, TEST_EMAIL);
+        AsyncDataToken dataToken = getQueryExecutor().executeAsync(groupRequest);
         Thread.sleep(1000);
 
         GroupResponse response = resources.client()
@@ -170,7 +169,7 @@ public class AsyncResourceTest extends FoxtrotResourceTest {
             put("iphone", iPhoneResponse);
         }});
 
-        AsyncDataToken dataToken = getQueryExecutor().executeAsync(groupRequest, TEST_EMAIL);
+        AsyncDataToken dataToken = getQueryExecutor().executeAsync(groupRequest);
         Thread.sleep(5000);
 
         Entity<AsyncDataToken> asyncDataTokenEntity = Entity.json(dataToken);

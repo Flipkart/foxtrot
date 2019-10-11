@@ -66,28 +66,6 @@ public class HistogramAction extends Action<HistogramRequest> {
     }
 
     @Override
-    public void validateImpl(HistogramRequest parameter, String email) {
-        List<String> validationErrors = new ArrayList<>();
-        if (CollectionUtils.isNullOrEmpty(parameter.getTable())) {
-            validationErrors.add("table name cannot be null or empty");
-        }
-        if (CollectionUtils.isNullOrEmpty(parameter.getField())) {
-            validationErrors.add("timestamp field cannot be null or empty");
-        }
-        if (parameter.getPeriod() == null) {
-            validationErrors.add("time period cannot be null");
-        }
-
-        if (parameter.getUniqueCountOn() != null && parameter.getUniqueCountOn()
-                .isEmpty()) {
-            validationErrors.add("distinct field cannot be empty (can be null)");
-        }
-
-        if (!CollectionUtils.isNullOrEmpty(validationErrors)) {
-            throw FoxtrotExceptions.createMalformedQueryException(parameter, validationErrors);
-        }
-    }
-
     public void preprocess() {
         getParameter().setTable(ElasticsearchUtils.getValidTableName(getParameter().getTable()));
     }
@@ -117,6 +95,29 @@ public class HistogramAction extends Action<HistogramRequest> {
         lastFilter.setField("_timestamp");
         lastFilter.setDuration(Duration.days(1));
         return lastFilter;
+    }
+
+    @Override
+    public void validateImpl(HistogramRequest parameter) {
+        List<String> validationErrors = new ArrayList<>();
+        if (CollectionUtils.isNullOrEmpty(parameter.getTable())) {
+            validationErrors.add("table name cannot be null or empty");
+        }
+        if (CollectionUtils.isNullOrEmpty(parameter.getField())) {
+            validationErrors.add("timestamp field cannot be null or empty");
+        }
+        if (parameter.getPeriod() == null) {
+            validationErrors.add("time period cannot be null");
+        }
+
+        if (parameter.getUniqueCountOn() != null && parameter.getUniqueCountOn()
+                .isEmpty()) {
+            validationErrors.add("distinct field cannot be empty (can be null)");
+        }
+
+        if (!CollectionUtils.isNullOrEmpty(validationErrors)) {
+            throw FoxtrotExceptions.createMalformedQueryException(parameter, validationErrors);
+        }
     }
 
     @Override

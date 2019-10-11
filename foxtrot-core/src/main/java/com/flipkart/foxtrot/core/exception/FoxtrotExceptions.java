@@ -50,9 +50,11 @@ public class FoxtrotExceptions {
     }
 
     public static CardinalityOverflowException createCardinalityOverflow(
-            ActionRequest actionRequest, String field,
+            ActionRequest actionRequest,
+            String requestStr,
+            String field,
             double probability) {
-        return new CardinalityOverflowException(actionRequest, field, probability);
+        return new CardinalityOverflowException(actionRequest, requestStr, field, probability);
     }
 
     public static DocumentMissingException createMissingDocumentException(Table table, String id) {

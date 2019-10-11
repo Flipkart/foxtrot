@@ -13,11 +13,11 @@
 package com.flipkart.foxtrot.server.config;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.flipkart.foxtrot.core.alerts.EmailConfig;
 import com.flipkart.foxtrot.core.cardinality.CardinalityConfig;
 import com.flipkart.foxtrot.core.common.DataDeletionManagerConfig;
 import com.flipkart.foxtrot.core.config.TextNodeRemoverConfiguration;
 import com.flipkart.foxtrot.core.datastore.impl.hbase.HbaseConfig;
+import com.flipkart.foxtrot.core.email.EmailConfig;
 import com.flipkart.foxtrot.core.jobs.optimization.EsIndexOptimizationConfig;
 import com.flipkart.foxtrot.core.querystore.actions.spi.ElasticsearchTuningConfig;
 import com.flipkart.foxtrot.core.querystore.impl.CacheConfig;
@@ -31,9 +31,7 @@ import io.dropwizard.Configuration;
 import io.dropwizard.primer.model.PrimerBundleConfiguration;
 import io.dropwizard.riemann.RiemannConfig;
 import io.federecio.dropwizard.swagger.SwaggerBundleConfiguration;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NonNull;
+import lombok.*;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
@@ -42,6 +40,8 @@ import javax.validation.constraints.NotNull;
  * User: Santanu Sinha (santanu.sinha@flipkart.com) Date: 15/03/14 Time: 9:26 PM
  */
 @Data
+@EqualsAndHashCode(callSuper = true)
+@ToString(callSuper = true)
 public class FoxtrotServerConfiguration extends Configuration {
 
     @Valid

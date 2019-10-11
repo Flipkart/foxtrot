@@ -88,8 +88,11 @@ public class ElasticsearchQueryStoreTest {
         CardinalityConfig cardinalityConfig = new CardinalityConfig("true", String.valueOf(
                 ElasticsearchUtils.DEFAULT_SUB_LIST_SIZE));
 
-        this.tableMetadataManager = new DistributedTableMetadataManager(hazelcastConnection, elasticsearchConnection,
-                                                                        mapper, cardinalityConfig);
+        this.tableMetadataManager = new DistributedTableMetadataManager(hazelcastConnection,
+                                                                        elasticsearchConnection,
+                                                                        mapper,
+                                                                        cardinalityConfig
+        );
         tableMetadataManager.start();
         tableMetadataManager.save(Table.builder()
                                           .name(TestUtils.TEST_TABLE_NAME)

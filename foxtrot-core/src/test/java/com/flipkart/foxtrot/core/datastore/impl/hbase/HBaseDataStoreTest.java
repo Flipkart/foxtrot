@@ -368,9 +368,11 @@ public class HBaseDataStoreTest {
                 .toString();
         JsonNode data = mapper.valueToTree(Collections.singletonMap("TEST_NAME", "SINGLE_SAVE_TEST"));
 
-        Document expectedDocument = new Document(id, System.currentTimeMillis(),
+        Document expectedDocument = new Document(id,
+                                                 System.currentTimeMillis(),
                                                  new DocumentMetadata(id, v1FormatKey(id), System.currentTimeMillis()),
-                                                 data);
+                                                 data
+        );
         tableInterface.put(hbaseDataStore.getPutForDocument(expectedDocument));
         doThrow(new IOException()).when(tableInterface)
                 .get(Matchers.<Get>any());

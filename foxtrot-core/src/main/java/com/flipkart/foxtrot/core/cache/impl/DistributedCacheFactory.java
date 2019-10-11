@@ -43,6 +43,11 @@ public class DistributedCacheFactory implements CacheFactory {
                 .addMapConfig(getDefaultMapConfig(cacheConfig));
     }
 
+    @Override
+    public Cache create(String name) {
+        return new DistributedCache(connection, name, mapper);
+    }
+
     private MapConfig getDefaultMapConfig(CacheConfig cacheConfig) {
         MapConfig mapConfig = new MapConfig(CACHE_NAME_PREFIX + "*");
         mapConfig.setInMemoryFormat(InMemoryFormat.BINARY);
@@ -73,10 +78,5 @@ public class DistributedCacheFactory implements CacheFactory {
         }
         mapConfig.setMaxSizeConfig(maxSizeConfig);
         return mapConfig;
-    }
-
-    @Override
-    public Cache create(String name) {
-        return new DistributedCache(connection, name, mapper);
     }
 }

@@ -16,6 +16,7 @@ import com.flipkart.foxtrot.common.query.FilterOperator;
 import com.flipkart.foxtrot.common.query.FilterVisitor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
 /**
@@ -24,6 +25,7 @@ import lombok.ToString;
  * Time: 8:17 PM
  */
 @Data
+@EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
 public class LessThanFilter extends NumericBinaryFilter {
 

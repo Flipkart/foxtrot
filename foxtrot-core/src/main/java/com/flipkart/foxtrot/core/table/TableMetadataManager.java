@@ -33,13 +33,6 @@ public interface TableMetadataManager extends Managed {
 
     List<Table> get();
 
-    void updateEstimationData(String table, long timestamp);
-
-    boolean exists(String tableName);
-
-    void delete(String tableName);
-
-
     default TableFieldMapping getFieldMappings(String table, boolean withCardinality, boolean calculateCardinality) {
         return getFieldMappings(table, withCardinality, calculateCardinality, System.currentTimeMillis());
     }
@@ -49,6 +42,12 @@ public interface TableMetadataManager extends Managed {
             boolean withCardinality,
             boolean calculateCardinality,
             long timestamp);
+
+    void updateEstimationData(String table, long timestamp);
+
+    boolean exists(String tableName);
+
+    void delete(String tableName);
 
     void initializeCardinalityCache();
 }

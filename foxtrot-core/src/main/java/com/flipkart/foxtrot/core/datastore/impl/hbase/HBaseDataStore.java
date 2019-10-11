@@ -77,7 +77,8 @@ public class HBaseDataStore implements DataStore {
                 throw FoxtrotExceptions.createTableInitializationException(table,
                                                                            String.format("Create HBase Table - %s",
                                                                                          tableWrapper.getHBaseTableName(
-                                                                                                 table)));
+                                                                                                 table)
+                                                                                        ));
             }
         }
         catch (IOException e) {

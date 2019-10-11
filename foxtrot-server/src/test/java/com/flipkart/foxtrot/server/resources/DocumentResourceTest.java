@@ -70,23 +70,6 @@ public class DocumentResourceTest extends FoxtrotResourceTest {
         compare(document, response);
     }
 
-    public void compare(Document expected, Document actual) throws Exception {
-        assertNotNull(expected);
-        assertNotNull(actual);
-        assertNotNull("Actual document Id should not be null", actual.getId());
-        assertNotNull("Actual document data should not be null", actual.getData());
-        assertEquals("Actual Doc Id should match expected Doc Id", expected.getId(), actual.getId());
-        assertEquals("Actual Doc Timestamp should match expected Doc Timestamp", expected.getTimestamp(),
-                     actual.getTimestamp());
-        Map<String, Object> expectedMap = getMapper().convertValue(expected.getData(),
-                                                                   new TypeReference<HashMap<String, Object>>() {
-                                                                   });
-        Map<String, Object> actualMap = getMapper().convertValue(actual.getData(),
-                                                                 new TypeReference<HashMap<String, Object>>() {
-                                                                 });
-        assertEquals("Actual data should match expected data", expectedMap, actualMap);
-    }
-
     @Test
     public void testSaveDocumentInternalError() throws Exception {
         String id = UUID.randomUUID()
@@ -389,5 +372,23 @@ public class DocumentResourceTest extends FoxtrotResourceTest {
             assertEquals(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode(), ex.getResponse()
                     .getStatus());
         }
+    }
+
+    public void compare(Document expected, Document actual) throws Exception {
+        assertNotNull(expected);
+        assertNotNull(actual);
+        assertNotNull("Actual document Id should not be null", actual.getId());
+        assertNotNull("Actual document data should not be null", actual.getData());
+        assertEquals("Actual Doc Id should match expected Doc Id", expected.getId(), actual.getId());
+        assertEquals("Actual Doc Timestamp should match expected Doc Timestamp",
+                     expected.getTimestamp(),
+                     actual.getTimestamp());
+        Map<String, Object> expectedMap = getMapper().convertValue(expected.getData(),
+                                                                   new TypeReference<HashMap<String, Object>>() {
+                                                                   });
+        Map<String, Object> actualMap = getMapper().convertValue(actual.getData(),
+                                                                 new TypeReference<HashMap<String, Object>>() {
+                                                                 });
+        assertEquals("Actual data should match expected data", expectedMap, actualMap);
     }
 }

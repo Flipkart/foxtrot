@@ -388,27 +388,14 @@ public class ElasticsearchQueryStore implements QueryStore {
         return tableMetadataManager.getFieldMappings(table, false, false);
     }
 
-    private List<String> getIndicesToDelete(Set<String> tables, Set<String> currentIndices) {
-        List<String> indicesToDelete = new ArrayList<>();
-        for (String currentIndex : currentIndices) {
-            String table = ElasticsearchUtils.getTableNameFromIndex(currentIndex);
-            if (table != null && tables.contains(table)) {
-                boolean indexEligibleForDeletion;
-                try {
-                    indexEligibleForDeletion = ElasticsearchUtils.isIndexEligibleForDeletion(currentIndex,
-                                                                                             tableMetadataManager.get(
-                                                                                                     table));
-                    if (indexEligibleForDeletion) {
-                        logger.warn("Index eligible for deletion : {}", currentIndex);
-                        indicesToDelete.add(currentIndex);
-                    }
-                }
-                catch (Exception ex) {
-                    logger.error("Unable to Get Table details for Table : {}", table, ex);
-                }
-            }
-        }
-        return indicesToDelete;
+    private Map<String, Object> convert(String table, Document document) {
+        JsonNode metaNode = mapper.valueToTree(document.getMetadata());
+        ObjectNode dataNode = document.getData()
+                .deepCopy();
+        dataNode.set(ElasticsearchUtils.DOCUMENT_META_FIELD_NAME, metaNode);
+        dataNode.set(ElasticsearchUtils.DOCUMENT_TIME_FIELD_NAME, mapper.valueToTree(document.getDate()));
+        mutators.forEach(mutator -> mutator.mutate(table, document.getId(), dataNode));
+        return ElasticsearchQueryUtils.toMap(mapper, dataNode);
     }
 
     private void deleteIndices(List<String> indicesToDelete) {
@@ -432,13 +419,26 @@ public class ElasticsearchQueryStore implements QueryStore {
         }
     }
 
-    private Map<String, Object> convert(String table, Document translatedDocument) {
-        JsonNode metaNode = mapper.valueToTree(translatedDocument.getMetadata());
-        ObjectNode dataNode = translatedDocument.getData()
-                .deepCopy();
-        dataNode.set(ElasticsearchUtils.DOCUMENT_META_FIELD_NAME, metaNode);
-        dataNode.set(ElasticsearchUtils.DOCUMENT_TIME_FIELD_NAME, mapper.valueToTree(translatedDocument.getDate()));
-        mutators.forEach(mutator -> mutator.mutate(table, translatedDocument.getId(), dataNode));
-        return ElasticsearchQueryUtils.toMap(mapper, dataNode);
+    private List<String> getIndicesToDelete(Set<String> tables, Set<String> currentIndices) {
+        List<String> indicesToDelete = new ArrayList<>();
+        for (String currentIndex : currentIndices) {
+            String table = ElasticsearchUtils.getTableNameFromIndex(currentIndex);
+            if (table != null && tables.contains(table)) {
+                boolean indexEligibleForDeletion;
+                try {
+                    indexEligibleForDeletion = ElasticsearchUtils.isIndexEligibleForDeletion(currentIndex,
+                                                                                             tableMetadataManager.get(
+                                                                                                     table));
+                    if (indexEligibleForDeletion) {
+                        logger.warn("Index eligible for deletion : {}", currentIndex);
+                        indicesToDelete.add(currentIndex);
+                    }
+                }
+                catch (Exception ex) {
+                    logger.error("Unable to Get Table details for Table : {}", table, ex);
+                }
+            }
+        }
+        return indicesToDelete;
     }
 }

@@ -57,7 +57,6 @@ import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.elasticsearch.search.aggregations.metrics.cardinality.Cardinality;
 import org.elasticsearch.search.aggregations.metrics.percentiles.Percentiles;
-import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -406,6 +405,122 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
         return estimationDataMap;
     }
 
+    private void handleFirstPhaseMultiSearchResponse(
+            MultiSearchResponse multiResponse, String table, Map<String, FieldMetadata> fields,
+            Map<String, EstimationData> estimationDataMap) {
+        for (MultiSearchResponse.Item item : multiResponse.getResponses()) {
+            SearchResponse response = validateAndGetSearchResponse(item, table);
+            if (null == response) {
+                continue;
+            }
+            final long hits = response.getHits()
+                    .getTotalHits();
+            Map<String, Aggregation> output = response.getAggregations().asMap();
+            output.forEach((key, value) -> {
+                FieldMetadata fieldMetadata = fields.get(key);
+                if (fieldMetadata == null) {
+                    fieldMetadata = fields.get(key.replace("_", ""));
+                }
+                if (fieldMetadata == null) {
+                    return;
+                }
+                switch (fieldMetadata.getType()) {
+                    case STRING:
+                        evaluateStringEstimation(value, table, key, fieldMetadata.getType(), estimationDataMap, hits);
+                        break;
+                    case INTEGER:
+                    case LONG:
+                    case FLOAT:
+                    case DOUBLE:
+                        evaluateDoubleEstimation(value, table, key, fieldMetadata.getType(), estimationDataMap, hits);
+                        break;
+                    case BOOLEAN:
+                        evaluateBooleanEstimation(key, estimationDataMap);
+                        break;
+                    case DATE:
+                    case OBJECT:
+                    case TEXT:
+                    case KEYWORD:
+                }
+            });
+        }
+    }
+
+    private void evaluateStringAggregation(String table, String field, FieldType type, SearchRequestBuilder query) {
+        logger.info("table:{} field:{} type:{} aggregationType:{}", table, field, type, CARDINALITY);
+        query.addAggregation(AggregationBuilders.cardinality(field)
+                                     .field(field)
+                                     .precisionThreshold(PRECISION_THRESHOLD));
+    }
+
+    private void evaluateDoubleAggregation(String table, String field, FieldType type, SearchRequestBuilder query) {
+        logger.info("table:{} field:{} type:{} aggregationType:{}", table, field, type,
+                    "percentile"
+                   );
+        query.addAggregation(AggregationBuilders.percentiles(field)
+                                     .field(field)
+                                     .percentiles(10, 20, 30, 40, 50, 60, 70, 80, 90, 100));
+        query.addAggregation(AggregationBuilders.cardinality("_" + field)
+                                     .field(field)
+                                     .precisionThreshold(PRECISION_THRESHOLD));
+    }
+
+    private void evaluateStringEstimation(
+            Aggregation value, String table, String key, FieldType type,
+            Map<String, EstimationData> estimationDataMap, long hits) {
+        Cardinality cardinality = (Cardinality) value;
+        logger.info("table:{} field:{} type:{} aggregationType:{} value:{} ", table, key, type,
+                    CARDINALITY, cardinality.getValue()
+                   );
+        estimationDataMap.put(key, CardinalityEstimationData.builder()
+                .cardinality(cardinality.getValue())
+                .count(hits)
+                .build());
+    }
+
+    private void evaluateDoubleEstimation(
+            Aggregation value, String table, String key, FieldType type,
+            Map<String, EstimationData> estimationDataMap, long hits) {
+        if (value instanceof Percentiles) {
+            Percentiles percentiles = (Percentiles) value;
+            double[] values = new double[10];
+            for (int i = 10; i <= 100; i += 10) {
+                final Double percentile = percentiles.percentile(i);
+                values[(i / 10) - 1] = percentile.isNaN()
+                                       ? 0
+                                       : percentile;
+            }
+            logger.info("table:{} field:{} type:{} aggregationType:{} value:{}", table, key, type,
+                        "percentile", values
+                       );
+            estimationDataMap.put(key, PercentileEstimationData.builder()
+                    .values(values)
+                    .count(hits)
+                    .build());
+        }
+        else if (value instanceof Cardinality) {
+            Cardinality cardinality = (Cardinality) value;
+            logger.info("table:{} field:{} type:{} aggregationType:{} value:{}", table, key, type,
+                        CARDINALITY, cardinality.getValue()
+                       );
+            EstimationData estimationData = estimationDataMap.get(key.replace("_", ""));
+            if (estimationData instanceof PercentileEstimationData) {
+                ((PercentileEstimationData) estimationData).setCardinality(cardinality.getValue());
+            }
+            else {
+                estimationDataMap.put(key.replace("_", ""), PercentileEstimationData.builder()
+                        .cardinality(cardinality.getValue())
+                        .build());
+            }
+        }
+    }
+
+    private void evaluateBooleanEstimation(String key, Map<String, EstimationData> estimationDataMap) {
+        estimationDataMap.put(key, FixedEstimationData.builder()
+                .count(2)
+                .build());
+    }
+
     private Map<String, EstimationData> estimateSecondPhaseData(
             String table, String index, Client client,
             Map<String, EstimationData> estimationData) {
@@ -439,8 +554,12 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
                     if (cardinalityEstimationData.getCardinality() <= 100 ||
                             (countToCardinalityRatio > 100 && documentToCountRatio < 100 &&
                                     cardinalityEstimationData.getCardinality() <= 5000)) {
-                        logger.info("field:{} maxCount:{} countToCardinalityRatio:{} documentToCountRatio:{}", key,
-                                    maxDocuments, countToCardinalityRatio, documentToCountRatio);
+                        logger.info("field:{} maxCount:{} countToCardinalityRatio:{} documentToCountRatio:{}",
+                                    key,
+                                    maxDocuments,
+                                    countToCardinalityRatio,
+                                    documentToCountRatio
+                                   );
                         SearchRequestBuilder query = client.prepareSearch(index)
                                 .setIndicesOptions(Utils.indicesOptions())
                                 .setQuery(QueryBuilders.existsQuery(key))
@@ -465,65 +584,6 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
                 .actionGet();
         handleSecondPhaseMultiSearchResponse(multiResponse, table, estimationDataMap);
         return estimationDataMap;
-    }
-
-    private void evaluateStringAggregation(String table, String field, FieldType type, SearchRequestBuilder query) {
-        logger.info("table:{} field:{} type:{} aggregationType:{}", table, field, type, CARDINALITY);
-        query.addAggregation(AggregationBuilders.cardinality(field)
-                                     .field(field)
-                                     .precisionThreshold(PRECISION_THRESHOLD));
-    }
-
-    private void evaluateDoubleAggregation(String table, String field, FieldType type, SearchRequestBuilder query) {
-        logger.info("table:{} field:{} type:{} aggregationType:{}", table, field, type, "percentile");
-        query.addAggregation(AggregationBuilders.percentiles(field)
-                                     .field(field)
-                                     .percentiles(10, 20, 30, 40, 50, 60, 70, 80, 90, 100));
-        query.addAggregation(AggregationBuilders.cardinality("_" + field)
-                                     .field(field)
-                                     .precisionThreshold(PRECISION_THRESHOLD));
-    }
-
-    private void handleFirstPhaseMultiSearchResponse(
-            MultiSearchResponse multiResponse, String table,
-            Map<String, FieldMetadata> fields, Map<String, EstimationData> estimationDataMap) {
-        for (MultiSearchResponse.Item item : multiResponse.getResponses()) {
-            SearchResponse response = validateAndGetSearchResponse(item, table);
-            if (null == response) {
-                continue;
-            }
-            final long hits = response.getHits()
-                    .getTotalHits();
-            Map<String, Aggregation> output = response.getAggregations()
-                    .asMap();
-            output.forEach((key, value) -> {
-                FieldMetadata fieldMetadata = fields.get(key);
-                if (fieldMetadata == null) {
-                    fieldMetadata = fields.get(key.replace("_", ""));
-                }
-                if (fieldMetadata == null) {
-                    return;
-                }
-                switch (fieldMetadata.getType()) {
-                    case STRING:
-                        evaluateStringEstimation(value, table, key, fieldMetadata.getType(), estimationDataMap, hits);
-                        break;
-                    case INTEGER:
-                    case LONG:
-                    case FLOAT:
-                    case DOUBLE:
-                        evaluateDoubleEstimation(value, table, key, fieldMetadata.getType(), estimationDataMap, hits);
-                        break;
-                    case BOOLEAN:
-                        evaluateBooleanEstimation(key, estimationDataMap);
-                        break;
-                    case DATE:
-                    case OBJECT:
-                    case TEXT:
-                    case KEYWORD:
-                }
-            });
-        }
     }
 
     private void handleSecondPhaseMultiSearchResponse(
@@ -561,56 +621,6 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
             return null;
         }
         return response;
-    }
-
-    private void evaluateStringEstimation(
-            Aggregation value, String table, String key, FieldType type,
-            Map<String, EstimationData> estimationDataMap, long hits) {
-        Cardinality cardinality = (Cardinality) value;
-        logger.info("table:{} field:{} type:{} aggregationType:{} value:{} ", table, key, type, CARDINALITY,
-                    cardinality.getValue());
-        estimationDataMap.put(key, CardinalityEstimationData.builder()
-                .cardinality(cardinality.getValue())
-                .count(hits)
-                .build());
-    }
-
-    private void evaluateDoubleEstimation(
-            Aggregation value, String table, String key, FieldType type,
-            Map<String, EstimationData> estimationDataMap, long hits) {
-        if (value instanceof Percentiles) {
-            Percentiles percentiles = (Percentiles) value;
-            double[] values = new double[10];
-            for (int i = 10; i <= 100; i += 10) {
-                values[(i / 10) - 1] = percentiles.percentile(i);
-            }
-            logger.info("table:{} field:{} type:{} aggregationType:{} value:{}", table, key, type, "percentile",
-                        values);
-            estimationDataMap.put(key, PercentileEstimationData.builder()
-                    .values(values)
-                    .count(hits)
-                    .build());
-        }
-        else if (value instanceof Cardinality) {
-            Cardinality cardinality = (Cardinality) value;
-            logger.info("table:{} field:{} type:{} aggregationType:{} value:{}", table, key, type, CARDINALITY,
-                        cardinality.getValue());
-            EstimationData estimationData = estimationDataMap.get(key.replace("_", ""));
-            if (estimationData instanceof PercentileEstimationData) {
-                ((PercentileEstimationData) estimationData).setCardinality(cardinality.getValue());
-            }
-            else {
-                estimationDataMap.put(key.replace("_", ""), PercentileEstimationData.builder()
-                        .cardinality(cardinality.getValue())
-                        .build());
-            }
-        }
-    }
-
-    private void evaluateBooleanEstimation(String key, Map<String, EstimationData> estimationDataMap) {
-        estimationDataMap.put(key, FixedEstimationData.builder()
-                .count(2)
-                .build());
     }
 
     @Override
@@ -673,6 +683,7 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
             SearchResponse response = elasticsearchConnection.getClient()
                     .prepareSearch(CARDINALITY_CACHE_INDEX)
                     .setTypes(ElasticsearchUtils.DOCUMENT_TYPE_NAME)
+                    .setIndicesOptions(Utils.indicesOptions())
                     .setSize(maxSize)
                     .execute()
                     .actionGet();

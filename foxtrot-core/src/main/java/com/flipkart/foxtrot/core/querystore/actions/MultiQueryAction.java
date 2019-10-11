@@ -10,9 +10,9 @@ import com.flipkart.foxtrot.core.exception.FoxtrotExceptions;
 import com.flipkart.foxtrot.core.exception.MalformedQueryException;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsLoader;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsProvider;
+import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import org.apache.commons.lang3.StringUtils;
 import org.elasticsearch.ElasticsearchException;
 import org.elasticsearch.action.ActionRequestBuilder;
 import org.elasticsearch.action.search.MultiSearchRequestBuilder;
@@ -26,8 +26,10 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-@AnalyticsProvider(opcode = "multi_query", request = MultiQueryRequest.class, response = MultiQueryResponse.class,
-        cacheable = true)
+/***
+ Created by nitish.goyal on 22/08/18
+ ***/
+@AnalyticsProvider(opcode = "multi_query", request = MultiQueryRequest.class, response = MultiQueryResponse.class, cacheable = false)
 public class MultiQueryAction extends Action<MultiQueryRequest> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MultiQueryAction.class);
@@ -42,6 +44,7 @@ public class MultiQueryAction extends Action<MultiQueryRequest> {
     @Override
     public void preprocess() {
         final MultiQueryRequest multiQueryRequest = getParameter();
+        createActions(multiQueryRequest);
         processForSubQueries(multiQueryRequest, (action, request) -> {
             action.preprocess();
             return null;
@@ -49,12 +52,22 @@ public class MultiQueryAction extends Action<MultiQueryRequest> {
     }
 
     @Override
-    public void validateImpl(MultiQueryRequest parameter, String email) {
+    public String getMetricKey() {
+        return processForSubQueries(getParameter(), (action, request) -> action.getMetricKey());
+    }
+
+    @Override
+    public String getRequestCacheKey() {
+        return processForSubQueries(getParameter(), (action, request) -> action.getRequestCacheKey());
+    }
+
+    @Override
+    public void validateImpl(MultiQueryRequest parameter) {
         MultiQueryRequest multiQueryRequest = getParameter();
         MultiException multiException = new MultiException();
         processForSubQueries(multiQueryRequest, (action, request) -> {
             try {
-                action.validateImpl(request, email);
+                action.validateImpl(request);
             }
             catch (MalformedQueryException e) {
                 multiException.addError(e);
@@ -65,11 +78,6 @@ public class MultiQueryAction extends Action<MultiQueryRequest> {
             throw multiException;
         }
 
-    }
-
-    @Override
-    public String getRequestCacheKey() {
-        return processForSubQueries(getParameter(), (action, request) -> action.getRequestCacheKey());
     }
 
     @Override
@@ -84,11 +92,6 @@ public class MultiQueryAction extends Action<MultiQueryRequest> {
         catch (ElasticsearchException e) {
             throw FoxtrotExceptions.createQueryExecutionException(parameter, e);
         }
-    }
-
-    @Override
-    public String getMetricKey() {
-        return processForSubQueries(getParameter(), (action, request) -> action.getMetricKey());
     }
 
     @Override
@@ -144,8 +147,7 @@ public class MultiQueryAction extends Action<MultiQueryRequest> {
         return new MultiQueryResponse(queryVsQueryResponseMap);
     }
 
-    private String processForSubQueries(MultiQueryRequest multiQueryRequest, ActionInterface actionInterface) {
-        List<String> results = Lists.newArrayList();
+    private void createActions(final MultiQueryRequest multiQueryRequest) {
         for (Map.Entry<String, ActionRequest> entry : multiQueryRequest.getRequests()
                 .entrySet()) {
             ActionRequest request = entry.getValue();
@@ -161,8 +163,14 @@ public class MultiQueryAction extends Action<MultiQueryRequest> {
                 throw FoxtrotExceptions.createMalformedQueryException(multiQueryRequest, Collections.singletonList(
                         "No action found for the sub request : " + request.toString()));
             }
-            String result = actionInterface.invoke(action, request);
-            if (StringUtils.isNotBlank(result)) {
+        }
+    }
+
+    private String processForSubQueries(MultiQueryRequest multiQueryRequest, ActionInterface actionInterface) {
+        List<String> results = Lists.newArrayList();
+        for (Map.Entry<String, ActionRequest> entry : multiQueryRequest.getRequests().entrySet()) {
+            String result = actionInterface.invoke(requestActionMap.get(entry.getValue()), entry.getValue());
+            if (!Strings.isNullOrEmpty(result)) {
                 results.add(result);
             }
         }

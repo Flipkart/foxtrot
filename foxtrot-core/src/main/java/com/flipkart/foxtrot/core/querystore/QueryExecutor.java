@@ -50,17 +50,16 @@ public class QueryExecutor {
         this.executionObservers = executionObservers;
     }
 
-    public <T extends ActionRequest> ActionValidationResponse validate(T request, String email) {
-        return resolve(request).validate(email);
+    public <T extends ActionRequest> ActionValidationResponse validate(T request) {
+        return resolve(request).validate();
     }
 
-    public <T extends ActionRequest> ActionResponse execute(T request, String email) {
+    public <T extends ActionRequest> ActionResponse execute(T request) {
         Stopwatch stopwatch = Stopwatch.createStarted();
         Action action = null;
         ActionEvaluationResponse evaluationResponse = null;
         try {
             action = resolve(request);
-            action.preProcessRequest(email);
             final ActionResponse cachedData = readCachedData(analyticsLoader.getCacheManager(), request, action);
             if (cachedData != null) {
                 cachedData.setFromCache(true);
@@ -87,7 +86,7 @@ public class QueryExecutor {
         }
     }
 
-    public <T extends ActionRequest> AsyncDataToken executeAsync(T request, String email) {
+    public <T extends ActionRequest> AsyncDataToken executeAsync(T request) {
         final Action action = resolve(request);
         final String cacheKey = action.cacheKey();
         final AsyncDataToken dataToken = new AsyncDataToken(request.getOpcode(), cacheKey);
@@ -98,7 +97,7 @@ public class QueryExecutor {
         }
         //Otherwise schedule
         executorService.submit(() -> {
-            final ActionResponse execute = execute(request, email);
+            final ActionResponse execute = execute(request);
             analyticsLoader.getCacheManager().getCacheFor(dataToken.getAction())
                     .put(dataToken.getKey(), execute);
         });

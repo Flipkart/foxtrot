@@ -25,6 +25,11 @@
             <version>${dropwizard.version}</version>
         </dependency>
         <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+            <version>3.3.1</version>
+        </dependency>
+        <dependency>
             <groupId>com.sematext.hbase.ds</groupId>
             <artifactId>hbase-ds</artifactId>
             <version>0.0.2-SNAPSHOT</version>
@@ -112,7 +117,7 @@
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
-            <version>20.0</version>
+            <version>19.0</version>
         </dependency>
 
         <!-- Zookeeper -->

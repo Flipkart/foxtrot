@@ -1,12 +1,16 @@
 package com.flipkart.foxtrot.core.querystore.actions;
 
 
+import com.flipkart.foxtrot.common.FieldMetadata;
+import com.flipkart.foxtrot.common.FieldType;
 import com.flipkart.foxtrot.common.Period;
+import com.flipkart.foxtrot.common.TableFieldMapping;
 import com.flipkart.foxtrot.common.query.ResultSort;
 import com.flipkart.foxtrot.common.stats.Stat;
 import com.flipkart.foxtrot.common.util.CollectionUtils;
 import com.flipkart.foxtrot.core.exception.FoxtrotExceptions;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
+import com.flipkart.foxtrot.core.table.TableMetadataManager;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import lombok.val;
@@ -46,6 +50,8 @@ public class Utils {
     private static final String SUM_OF_SQUARES = "sum_of_squares";
     private static final String VARIANCE = "variance";
     private static final String STD_DEVIATION = "std_deviation";
+    private static final EnumSet<FieldType> NUMERIC_FIELD_TYPES
+            = EnumSet.of(FieldType.INTEGER, FieldType.LONG, FieldType.FLOAT, FieldType.DOUBLE);
     private static final int PRECISION_THRESHOLD = 500;
 
     private Utils() {
@@ -246,51 +252,6 @@ public class Utils {
         return IndicesOptions.lenientExpandOpen();
     }
 
-    public static Map<Number, Number> createPercentilesResponse(Percentiles internalPercentiles) {
-        Map<Number, Number> percentiles = Maps.newHashMap();
-        for (Percentile percentile : internalPercentiles) {
-            percentiles.put(percentile.getPercent(), percentile.getValue());
-        }
-        return percentiles;
-    }
-
-    public static double ensurePositive(long number) {
-        return number <= 0.0
-               ? 0.0
-               : number;
-    }
-
-    public static double ensureOne(long number) {
-        return number <= 0
-               ? 1
-               : number;
-    }
-
-    public static Map<String, Number> toStats(Aggregation statAggregation) {
-        if (statAggregation instanceof InternalExtendedStats) {
-            return Utils.createStatsResponse((InternalExtendedStats) statAggregation);
-        }
-        else if (statAggregation instanceof InternalStats) {
-            return Utils.createStatsResponse((InternalStats) statAggregation);
-        }
-        else if (statAggregation instanceof InternalMax) {
-            return Utils.createStatResponse((InternalMax) statAggregation);
-        }
-        else if (statAggregation instanceof InternalMin) {
-            return Utils.createStatResponse((InternalMin) statAggregation);
-        }
-        else if (statAggregation instanceof InternalAvg) {
-            return Utils.createStatResponse((InternalAvg) statAggregation);
-        }
-        else if (statAggregation instanceof InternalSum) {
-            return Utils.createStatResponse((InternalSum) statAggregation);
-        }
-        else if (statAggregation instanceof InternalValueCount) {
-            return Utils.createStatResponse((InternalValueCount) statAggregation);
-        }
-        return new HashMap<>();
-    }
-
     public static Map<String, Number> createStatsResponse(InternalExtendedStats extendedStats) {
         Map<String, Number> stats = Maps.newHashMap();
         stats.put(AVG, extendedStats.getAvg());
@@ -332,6 +293,63 @@ public class Utils {
 
     public static Map<String, Number> createStatResponse(InternalValueCount statAggregation) {
         return ImmutableMap.of(COUNT, statAggregation.getValue());
+    }
+
+    public static Map<Number, Number> createPercentilesResponse(Percentiles internalPercentiles) {
+        Map<Number, Number> percentiles = Maps.newHashMap();
+        for (Percentile percentile : internalPercentiles) {
+            percentiles.put(percentile.getPercent(), percentile.getValue());
+        }
+        return percentiles;
+    }
+
+    public static double ensurePositive(long number) {
+        return number <= 0.0
+               ? 0.0
+               : number;
+    }
+
+
+    public static double ensureOne(long number) {
+        return number <= 0
+               ? 1
+               : number;
+    }
+
+    public static Map<String, Number> toStats(Aggregation statAggregation) {
+        if (statAggregation instanceof InternalExtendedStats) {
+            return Utils.createStatsResponse((InternalExtendedStats) statAggregation);
+        }
+        else if (statAggregation instanceof InternalStats) {
+            return Utils.createStatsResponse((InternalStats) statAggregation);
+        }
+        else if (statAggregation instanceof InternalMax) {
+            return Utils.createStatResponse((InternalMax) statAggregation);
+        }
+        else if (statAggregation instanceof InternalMin) {
+            return Utils.createStatResponse((InternalMin) statAggregation);
+        }
+        else if (statAggregation instanceof InternalAvg) {
+            return Utils.createStatResponse((InternalAvg) statAggregation);
+        }
+        else if (statAggregation instanceof InternalSum) {
+            return Utils.createStatResponse((InternalSum) statAggregation);
+        }
+        else if (statAggregation instanceof InternalValueCount) {
+            return Utils.createStatResponse((InternalValueCount) statAggregation);
+        }
+        return new HashMap<>();
+    }
+
+
+    public static boolean isNumericField(TableMetadataManager tableMetadataManager, String table, String field) {
+        final TableFieldMapping fieldMappings = tableMetadataManager.getFieldMappings(table, false, false);
+        final FieldMetadata fieldMetadata = fieldMappings.getMappings()
+                .stream()
+                .filter(mapping -> mapping.getField().equals(field))
+                .findFirst()
+                .orElse(null);
+        return null != fieldMetadata && NUMERIC_FIELD_TYPES.contains(fieldMetadata.getType());
     }
 
 }
