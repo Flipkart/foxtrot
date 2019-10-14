@@ -144,6 +144,15 @@ EventBus.addEventListener('hosts_loaded', function (event, data) {
     });
 });
 
+function formatValues(bytes, convertTo) {
+    if(convertTo == "GB") {
+        return(bytes / 1073741824).toFixed(2) + " GB";
+    } else {
+        return(bytes / 1024).toFixed(2) + " KB"
+    }
+    
+}
+
 EventBus.addEventListener('indices_loaded', function (event, data) {
     if (!data.indicesStatsResponse.hasOwnProperty('indices')) {
         return;
@@ -178,10 +187,10 @@ EventBus.addEventListener('indices_loaded', function (event, data) {
         table.name = rawTable.name;
         table.days = rawTable.days;
         table.events = rawTable.events;
-        table.size = bytesToSize(rawTable.size);
+        table.size = formatValues(rawTable.size, 'GB');
         table.columnCount = data.tableColumnCount[rawTable.name];
         var calculateSize = rawTable.size/rawTable.events;
-        table.avgSize = bytesToSize(calculateSize);;
+        table.avgSize = formatValues(calculateSize, 'KB');;
         tables.push(table);
     }
     $('.table-data-area').html(handlebars("#tables-template", {
