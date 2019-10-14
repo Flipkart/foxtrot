@@ -19,8 +19,6 @@ import java.util.Set;
 import javax.validation.constraints.NotNull;
 import lombok.Builder;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.ToString;
 import org.apache.commons.lang.builder.ToStringBuilder;
 
 /**
@@ -28,8 +26,6 @@ import org.apache.commons.lang.builder.ToStringBuilder;
  * Date: 14/03/14
  * Time: 2:10 AM
  */
-@EqualsAndHashCode(callSuper = true)
-@ToString(callSuper = true)
 @Data
 public class BetweenFilter extends Filter {
 
@@ -85,5 +81,34 @@ public class BetweenFilter extends Filter {
         return validationErrors;
     }
 
+    @Override
+    public int hashCode() {
+        int result = getOperator().hashCode();
+        result = 31 * result + getField().hashCode();
+        if (!getField().equals("_timestamp")) {
+            result = result * 21 + (getFrom() == null ? 43 : getFrom().hashCode());
+            result = result * 23 + (getTo() == null ? 29 : getTo().hashCode());
+        } else {
+            result = result * 21 + Long.valueOf(getFrom().longValue() / (long)30000).hashCode();
+            result = result * 23 + Long.valueOf(getTo().longValue() / (long)30000).hashCode();
+        }
+        result = result * 59 + (this.isTemporal() ? 79 : 97);
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        } else if (!(o instanceof BetweenFilter)) {
+            return false;
+        }
+
+        BetweenFilter that = (BetweenFilter) o;
+
+        return getField().equals(that.getField()) && getOperator().equals(that.getOperator()) &&
+                isFilterTemporal() == that.isFilterTemporal() && getFrom().equals(that.getFrom()) &&
+                getTo().equals(that.getTo());
+    }
 
 }
