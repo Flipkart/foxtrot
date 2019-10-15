@@ -22,16 +22,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 
 import javax.validation.Valid;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.DELETE;
-import javax.ws.rs.DefaultValue;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.PUT;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
+import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
@@ -50,11 +41,19 @@ public class TableManagerV2Resource {
         this.gandalfManager = gandalfManager;
     }
 
+    private static Table toWireModel(TableV2 table) {
+        return Table.builder()
+                .name(table.getName())
+                .ttl(table.getTtl())
+                .build();
+    }
+
     @POST
     @Timed
     @ApiOperation("Save Table")
-    public Response save(@Valid final TableV2 table,
-                         @QueryParam("forceCreate") @DefaultValue("false") boolean forceCreate) {
+    public Response save(
+            @Valid final TableV2 table,
+            @QueryParam("forceCreate") @DefaultValue("false") boolean forceCreate) {
         table.setName(ElasticsearchUtils.getValidTableName(table.getName()));
         tableManager.save(toWireModel(table), forceCreate);
         gandalfManager.manage(table);
@@ -102,13 +101,6 @@ public class TableManagerV2Resource {
     public Response getAll() {
         return Response.ok()
                 .entity(tableManager.getAll())
-                .build();
-    }
-
-    private static Table toWireModel(TableV2 table) {
-        return Table.builder()
-                .name(table.getName())
-                .ttl(table.getTtl())
                 .build();
     }
 }

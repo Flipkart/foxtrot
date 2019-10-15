@@ -15,15 +15,16 @@ package com.flipkart.foxtrot.common;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.flipkart.foxtrot.common.util.Utils;
-import java.io.Serializable;
-import java.util.UUID;
-import javax.validation.constraints.NotNull;
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import org.hibernate.validator.constraints.NotEmpty;
 import org.joda.time.DateTime;
+
+import javax.validation.constraints.NotNull;
+import java.io.Serializable;
+import java.util.UUID;
 
 /**
  * User: Santanu Sinha (santanu.sinha@flipkart.com) Date: 12/03/14 Time: 9:17 PM

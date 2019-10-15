@@ -12,10 +12,6 @@
  */
 package com.flipkart.foxtrot.core.querystore.actions;
 
-import static com.flipkart.foxtrot.core.TestUtils.TEST_EMAIL;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.flipkart.foxtrot.common.Document;
 import com.flipkart.foxtrot.common.Period;
@@ -30,17 +26,11 @@ import com.flipkart.foxtrot.core.exception.ErrorCode;
 import com.flipkart.foxtrot.core.exception.FoxtrotException;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.util.*;
 
-import static com.flipkart.foxtrot.core.TestUtils.TEST_EMAIL;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
@@ -76,9 +66,10 @@ public class TrendActionTest extends ActionTest {
         trendRequest.setField(null);
 
         try {
-            getQueryExecutor().execute(trendRequest, TEST_EMAIL);
+            getQueryExecutor().execute(trendRequest);
             fail("Should have thrown exception");
-        } catch (FoxtrotException e) {
+        }
+        catch (FoxtrotException e) {
             assertEquals(ErrorCode.MALFORMED_QUERY, e.getCode());
         }
     }
@@ -100,7 +91,7 @@ public class TrendActionTest extends ActionTest {
         TrendResponse expectedResponse = new TrendResponse();
         expectedResponse.setTrends(new HashMap<>());
 
-        TrendResponse actualResponse = TrendResponse.class.cast(getQueryExecutor().execute(trendRequest, TEST_EMAIL));
+        TrendResponse actualResponse = TrendResponse.class.cast(getQueryExecutor().execute(trendRequest));
         assertEquals(expectedResponse, actualResponse);
     }
 
@@ -117,9 +108,10 @@ public class TrendActionTest extends ActionTest {
         trendRequest.setField("");
         trendRequest.setValues(Collections.<String>emptyList());
         try {
-            getQueryExecutor().execute(trendRequest, TEST_EMAIL);
+            getQueryExecutor().execute(trendRequest);
             fail();
-        } catch (FoxtrotException ex) {
+        }
+        catch (FoxtrotException ex) {
             assertEquals(ErrorCode.MALFORMED_QUERY, ex.getCode());
         }
     }
@@ -140,7 +132,7 @@ public class TrendActionTest extends ActionTest {
         TrendResponse expectedResponse = new TrendResponse();
         expectedResponse.setTrends(new HashMap<>());
 
-        TrendResponse actualResponse = TrendResponse.class.cast(getQueryExecutor().execute(trendRequest, TEST_EMAIL));
+        TrendResponse actualResponse = TrendResponse.class.cast(getQueryExecutor().execute(trendRequest));
         assertEquals(expectedResponse, actualResponse);
     }
 
@@ -156,9 +148,10 @@ public class TrendActionTest extends ActionTest {
         trendRequest.setField("os");
         trendRequest.setFilters(Collections.<Filter>singletonList(betweenFilter));
         try {
-            getQueryExecutor().execute(trendRequest, TEST_EMAIL);
+            getQueryExecutor().execute(trendRequest);
             fail();
-        } catch (FoxtrotException ex) {
+        }
+        catch (FoxtrotException ex) {
             assertEquals(ErrorCode.MALFORMED_QUERY, ex.getCode());
         }
     }
@@ -191,11 +184,11 @@ public class TrendActionTest extends ActionTest {
 
         expectedResponse.setTrends(trends);
 
-        TrendResponse actualResponse = TrendResponse.class.cast(getQueryExecutor().execute(trendRequest, TEST_EMAIL));
+        TrendResponse actualResponse = TrendResponse.class.cast(getQueryExecutor().execute(trendRequest));
         filterNonZeroCounts(actualResponse.getTrends()
-                .get("android"));
+                                    .get("android"));
         filterNonZeroCounts(actualResponse.getTrends()
-                .get("ios"));
+                                    .get("ios"));
         assertEquals(expectedResponse, actualResponse);
     }
 
@@ -231,11 +224,11 @@ public class TrendActionTest extends ActionTest {
 
         expectedResponse.setTrends(trends);
 
-        TrendResponse actualResponse = TrendResponse.class.cast(getQueryExecutor().execute(trendRequest, TEST_EMAIL));
+        TrendResponse actualResponse = TrendResponse.class.cast(getQueryExecutor().execute(trendRequest));
         filterNonZeroCounts(actualResponse.getTrends()
-                .get("android"));
+                                    .get("android"));
         filterNonZeroCounts(actualResponse.getTrends()
-                .get("ios"));
+                                    .get("ios"));
         assertEquals(expectedResponse, actualResponse);
     }
 
@@ -267,11 +260,11 @@ public class TrendActionTest extends ActionTest {
 
         expectedResponse.setTrends(trends);
 
-        TrendResponse actualResponse = TrendResponse.class.cast(getQueryExecutor().execute(trendRequest, TEST_EMAIL));
+        TrendResponse actualResponse = TrendResponse.class.cast(getQueryExecutor().execute(trendRequest));
         filterNonZeroCounts(actualResponse.getTrends()
-                .get("android"));
+                                    .get("android"));
         filterNonZeroCounts(actualResponse.getTrends()
-                .get("ios"));
+                                    .get("ios"));
         assertEquals(expectedResponse, actualResponse);
     }
 
@@ -298,9 +291,9 @@ public class TrendActionTest extends ActionTest {
 
         expectedResponse.setTrends(trends);
 
-        TrendResponse actualResponse = TrendResponse.class.cast(getQueryExecutor().execute(trendRequest, TEST_EMAIL));
+        TrendResponse actualResponse = TrendResponse.class.cast(getQueryExecutor().execute(trendRequest));
         filterNonZeroCounts(actualResponse.getTrends()
-                .get("android"));
+                                    .get("android"));
         assertEquals(expectedResponse, actualResponse);
     }
 
@@ -329,7 +322,7 @@ public class TrendActionTest extends ActionTest {
 
         expectedResponse.setTrends(trends);
 
-        TrendResponse actualResponse = TrendResponse.class.cast(getQueryExecutor().execute(trendRequest, TEST_EMAIL));
+        TrendResponse actualResponse = TrendResponse.class.cast(getQueryExecutor().execute(trendRequest));
         assertEquals(expectedResponse, actualResponse);
     }
 
@@ -361,7 +354,7 @@ public class TrendActionTest extends ActionTest {
 
         expectedResponse.setTrends(trends);
 
-        TrendResponse actualResponse = TrendResponse.class.cast(getQueryExecutor().execute(trendRequest, TEST_EMAIL));
+        TrendResponse actualResponse = TrendResponse.class.cast(getQueryExecutor().execute(trendRequest));
         assertEquals(expectedResponse, actualResponse);
     }
 
@@ -394,7 +387,7 @@ public class TrendActionTest extends ActionTest {
 
         expectedResponse.setTrends(trends);
 
-        TrendResponse actualResponse = TrendResponse.class.cast(getQueryExecutor().execute(trendRequest, TEST_EMAIL));
+        TrendResponse actualResponse = TrendResponse.class.cast(getQueryExecutor().execute(trendRequest));
         assertEquals(expectedResponse, actualResponse);
     }
 }

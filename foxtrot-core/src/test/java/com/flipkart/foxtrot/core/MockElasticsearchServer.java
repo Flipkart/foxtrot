@@ -13,10 +13,6 @@
 package com.flipkart.foxtrot.core;
 
 import com.google.common.base.Stopwatch;
-import java.io.File;
-import java.io.IOException;
-import java.util.UUID;
-import java.util.concurrent.TimeUnit;
 import org.apache.commons.io.FileUtils;
 import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;
 import org.elasticsearch.action.admin.indices.refresh.RefreshRequest;
@@ -24,6 +20,11 @@ import org.elasticsearch.client.Client;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.node.Node;
 import org.elasticsearch.node.NodeValidationException;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Created by rishabh.goyal on 16/04/14.

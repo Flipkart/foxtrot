@@ -21,8 +21,6 @@ import com.flipkart.foxtrot.common.query.Filter;
 import com.flipkart.foxtrot.core.common.PeriodSelector;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
-import java.io.IOException;
-import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.elasticsearch.action.admin.indices.template.put.PutIndexTemplateRequest;
 import org.elasticsearch.client.Client;
@@ -35,6 +33,9 @@ import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+import java.util.List;
 
 /**
  * User: Santanu Sinha (santanu.sinha@flipkart.com) Date: 24/03/14 Time: 3:46 PM
@@ -72,9 +73,10 @@ public class ElasticsearchUtils {
     }
 
     public static void setTableNamePrefix(ElasticsearchConfig config) {
-        if(StringUtils.isNotEmpty(config.getTableNamePrefix())) {
+        if (StringUtils.isNotEmpty(config.getTableNamePrefix())) {
             tableNamePrefix = config.getTableNamePrefix();
-        } else {
+        }
+        else {
             tableNamePrefix = "foxtrot";
         }
     }
@@ -117,7 +119,7 @@ public class ElasticsearchUtils {
         //TODO::THROW IF TIMESTAMP IS BEYOND TABLE META.TTL
         String datePostfix = FORMATTER.print(timestamp);
         return String.format("%s-%s-%s-%s", getTableNamePrefix(), table, ElasticsearchUtils.TABLENAME_POSTFIX,
-                datePostfix);
+                             datePostfix);
     }
 
     public static void initializeMappings(Client client) {
@@ -133,7 +135,8 @@ public class ElasticsearchUtils {
             return new PutIndexTemplateRequest().name("template_foxtrot_mappings")
                     .patterns(Lists.newArrayList(String.format("%s-*", getTableNamePrefix())))
                     .mapping(DOCUMENT_TYPE_NAME, getDocumentMapping());
-        } catch (IOException ex) {
+        }
+        catch (IOException ex) {
             logger.error("TEMPLATE_CREATION_FAILED", ex);
             return null;
         }
@@ -291,7 +294,8 @@ public class ElasticsearchUtils {
                     currentIndex.indexOf(getTableNamePrefix()) + getTableNamePrefix().length() + 1);
             int position = tempIndex.lastIndexOf(String.format("-%s", TABLENAME_POSTFIX));
             return tempIndex.substring(0, position);
-        } else {
+        }
+        else {
             return null;
         }
     }
@@ -306,8 +310,8 @@ public class ElasticsearchUtils {
     }
 
     public static boolean isTimeFilterPresent(List<Filter> filters) {
-        for(Filter filter : filters) {
-            if(ElasticsearchUtils.TIME_FIELD.equals(filter.getField())) {
+        for (Filter filter : filters) {
+            if (ElasticsearchUtils.TIME_FIELD.equals(filter.getField())) {
                 return true;
             }
         }

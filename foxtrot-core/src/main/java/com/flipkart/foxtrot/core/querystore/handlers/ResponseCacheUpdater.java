@@ -18,11 +18,11 @@ public class ResponseCacheUpdater implements ActionExecutionObserver {
 
     @Override
     public void postExecution(ActionEvaluationResponse response) {
-        if(null == response.getResponse() || null == response.getExecutedAction()) {
+        if (null == response.getResponse() || null == response.getExecutedAction()) {
             return;
         }
         final Cache cache = cacheManager.getCacheFor(response.getRequest().getOpcode());
-        if(null == cache) {
+        if (null == cache) {
             return;
         }
         final String cacheKey = response.getExecutedAction().cacheKey();

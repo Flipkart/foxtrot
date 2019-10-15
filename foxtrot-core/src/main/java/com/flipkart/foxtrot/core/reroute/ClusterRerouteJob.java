@@ -21,8 +21,9 @@ public class ClusterRerouteJob extends BaseJobManager {
     private final ClusterRerouteManager clusterRerouteManager;
 
 
-    public ClusterRerouteJob(ScheduledExecutorService scheduledExecutorService, ClusterRerouteConfig clusterRerouteConfig,
-                             ClusterRerouteManager clusterRerouteManager, HazelcastConnection hazelcastConnection) {
+    public ClusterRerouteJob(
+            ScheduledExecutorService scheduledExecutorService, ClusterRerouteConfig clusterRerouteConfig,
+            ClusterRerouteManager clusterRerouteManager, HazelcastConnection hazelcastConnection) {
         super(clusterRerouteConfig, scheduledExecutorService, hazelcastConnection);
         this.clusterRerouteConfig = clusterRerouteConfig;
         this.clusterRerouteManager = clusterRerouteManager;
@@ -33,7 +34,8 @@ public class ClusterRerouteJob extends BaseJobManager {
         executor.executeWithLock(() -> {
             try {
                 clusterRerouteManager.reallocate();
-            } catch (Exception e) {
+            }
+            catch (Exception e) {
                 logger.info("Failed to reallocate shards. {}", e);
             }
         }, new LockConfiguration(clusterRerouteConfig.getJobName(), lockAtMostUntil));

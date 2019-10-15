@@ -30,12 +30,14 @@ public class DocumentTranslator {
                 .equalsIgnoreCase("1.0")) {
             this.keyDistributor = new IdentityKeyDistributor();
             this.rawKeyVersion = "1.0";
-        } else if (hbaseConfig.getRawKeyVersion()
+        }
+        else if (hbaseConfig.getRawKeyVersion()
                 .equalsIgnoreCase("2.0")) {
             this.keyDistributor = new RowKeyDistributorByHashPrefix(
                     new RowKeyDistributorByHashPrefix.OneByteSimpleHash(32));
             this.rawKeyVersion = "2.0";
-        } else {
+        }
+        else {
             throw new IllegalArgumentException(String.format(EXCEPTION_MESSAGE, hbaseConfig.getRawKeyVersion()));
         }
     }
@@ -90,7 +92,7 @@ public class DocumentTranslator {
                 return document.getId() + ":" + table.getName();
             case "2.0":
                 return String.format("%s:%020d:%s:%s", table.getName(), document.getTimestamp(), document.getId(),
-                        Constants.rawKeyVersionToSuffixMap.get(rawKeyVersion));
+                                     Constants.rawKeyVersionToSuffixMap.get(rawKeyVersion));
             default:
                 throw new IllegalArgumentException(String.format(EXCEPTION_MESSAGE, rawKeyVersion));
         }
@@ -98,8 +100,10 @@ public class DocumentTranslator {
 
     public Document translateBack(final Document inDocument) {
         Document document = new Document();
-        document.setId(inDocument.getMetadata() != null ? inDocument.getMetadata()
-                .getId() : inDocument.getId());
+        document.setId(inDocument.getMetadata() != null
+                       ? inDocument.getMetadata()
+                               .getId()
+                       : inDocument.getId());
         document.setTimestamp(inDocument.getTimestamp());
         document.setData(inDocument.getData());
         document.setDate(Utils.getDate(inDocument.getTimestamp()));

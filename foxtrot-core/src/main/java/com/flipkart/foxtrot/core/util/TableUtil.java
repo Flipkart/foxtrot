@@ -28,7 +28,8 @@ public class TableUtil {
             final String tablePrefix = hbaseConfig.getSeggregatedTablePrefix();
             if (!Strings.isNullOrEmpty(tablePrefix)) {
                 return String.format("%s%s", tablePrefix, table.getName());
-            } else {
+            }
+            else {
                 return table.getName();
             }
         }

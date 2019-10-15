@@ -13,10 +13,12 @@ public class UserPermissionAdditionException extends FoxtrotException {
         super(ErrorCode.USER_PERMISSION_ADDITION_FAILURE);
         this.message = message;
     }
+
     public UserPermissionAdditionException(String message, Throwable event) {
         super(ErrorCode.USER_PERMISSION_ADDITION_FAILURE, event);
         this.message = message;
     }
+
     @Override
     public Map<String, Object> toMap() {
         Map<String, Object> map = Maps.newHashMap();

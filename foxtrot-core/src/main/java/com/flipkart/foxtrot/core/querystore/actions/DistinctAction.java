@@ -1,7 +1,5 @@
 package com.flipkart.foxtrot.core.querystore.actions;
 
-import static com.flipkart.foxtrot.core.util.ElasticsearchQueryUtils.QUERY_SIZE;
-
 import com.flipkart.foxtrot.common.ActionResponse;
 import com.flipkart.foxtrot.common.distinct.DistinctRequest;
 import com.flipkart.foxtrot.common.distinct.DistinctResponse;
@@ -10,16 +8,12 @@ import com.flipkart.foxtrot.common.query.ResultSort;
 import com.flipkart.foxtrot.common.util.CollectionUtils;
 import com.flipkart.foxtrot.core.common.Action;
 import com.flipkart.foxtrot.core.exception.FoxtrotExceptions;
-import com.flipkart.foxtrot.core.querystore.actions.spi.ElasticsearchTuningConfig;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsLoader;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsProvider;
+import com.flipkart.foxtrot.core.querystore.actions.spi.ElasticsearchTuningConfig;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
 import com.flipkart.foxtrot.core.querystore.query.ElasticSearchQueryGenerator;
 import com.google.common.collect.Sets;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.stream.Collectors;
 import org.elasticsearch.ElasticsearchException;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
@@ -27,6 +21,13 @@ import org.elasticsearch.search.aggregations.Aggregations;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import static com.flipkart.foxtrot.core.util.ElasticsearchQueryUtils.QUERY_SIZE;
 
 /**
  * Created by rishabh.goyal on 17/11/14.
@@ -50,7 +51,7 @@ public class DistinctAction extends Action<DistinctRequest> {
     }
 
     @Override
-    public void validateImpl(DistinctRequest parameter, String email) {
+    public void validateImpl(DistinctRequest parameter) {
         List<String> validationErrors = new ArrayList<>();
         if (CollectionUtils.isNullOrEmpty(parameter.getTable())) {
             validationErrors.add("table name cannot be null or empty");
@@ -58,7 +59,8 @@ public class DistinctAction extends Action<DistinctRequest> {
 
         if (CollectionUtils.isNullOrEmpty(parameter.getNesting())) {
             validationErrors.add("At least one nesting parameter is required");
-        } else {
+        }
+        else {
             for (ResultSort resultSort : com.collections.CollectionUtils.nullSafeList(parameter.getNesting())) {
 
                 if (CollectionUtils.isNullOrEmpty(resultSort.getField())) {
@@ -101,8 +103,9 @@ public class DistinctAction extends Action<DistinctRequest> {
             query.setQuery(new ElasticSearchQueryGenerator().genFilter(request.getFilters()))
                     .setSize(QUERY_SIZE)
                     .addAggregation(Utils.buildTermsAggregation(
-                        request.getNesting(), Sets.newHashSet(), elasticsearchTuningConfig.getAggregationSize()));
-        } catch (Exception e) {
+                            request.getNesting(), Sets.newHashSet(), elasticsearchTuningConfig.getAggregationSize()));
+        }
+        catch (Exception e) {
             throw FoxtrotExceptions.queryCreationException(request, e);
         }
 
@@ -110,7 +113,8 @@ public class DistinctAction extends Action<DistinctRequest> {
             SearchResponse response = query.execute()
                     .actionGet(getGetQueryTimeout());
             return getResponse(response, getParameter());
-        } catch (ElasticsearchException e) {
+        }
+        catch (ElasticsearchException e) {
             throw FoxtrotExceptions.createQueryExecutionException(request, e);
         }
     }
@@ -130,9 +134,10 @@ public class DistinctAction extends Action<DistinctRequest> {
             query.setQuery(new ElasticSearchQueryGenerator().genFilter(request.getFilters()))
                     .setSize(QUERY_SIZE)
                     .addAggregation(Utils.buildTermsAggregation(
-                        request.getNesting(), Sets.newHashSet(), elasticsearchTuningConfig.getAggregationSize()));
+                            request.getNesting(), Sets.newHashSet(), elasticsearchTuningConfig.getAggregationSize()));
 
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             throw FoxtrotExceptions.queryCreationException(request, e);
         }
         return query;
@@ -163,15 +168,19 @@ public class DistinctAction extends Action<DistinctRequest> {
         return response;
     }
 
-    private void flatten(String parentKey, List<String> fields, List<List<String>> responseList,
+    private void flatten(
+            String parentKey, List<String> fields, List<List<String>> responseList,
             Aggregations aggregations) {
         final String field = fields.get(0);
-        final List<String> remainingFields = (fields.size() > 1) ? fields.subList(1, fields.size()) : new ArrayList<>();
+        final List<String> remainingFields = (fields.size() > 1)
+                                             ? fields.subList(1, fields.size())
+                                             : new ArrayList<>();
         Terms terms = aggregations.get(Utils.sanitizeFieldForAggregation(field));
         for (Terms.Bucket bucket : terms.getBuckets()) {
             if (fields.size() == 1) {
                 responseList.add(getValueList(parentKey, String.valueOf(bucket.getKey())));
-            } else {
+            }
+            else {
                 flatten(getProperKey(parentKey, String.valueOf(bucket.getKey())), remainingFields, responseList,
                         bucket.getAggregations());
             }
@@ -179,7 +188,9 @@ public class DistinctAction extends Action<DistinctRequest> {
     }
 
     private String getProperKey(String parentKey, String currentKey) {
-        return parentKey == null ? currentKey : parentKey + Constants.SEPARATOR + currentKey;
+        return parentKey == null
+               ? currentKey
+               : parentKey + Constants.SEPARATOR + currentKey;
     }
 
     private List<String> getValueList(String parentKey, String currentKey) {

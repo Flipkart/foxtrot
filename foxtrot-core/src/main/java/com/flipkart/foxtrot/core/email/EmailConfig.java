@@ -1,9 +1,11 @@
-package com.flipkart.foxtrot.core.alerts;
+package com.flipkart.foxtrot.core.email;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.util.List;
 
 /***
  Created by nitish.goyal on 06/10/18
@@ -20,4 +22,5 @@ public class EmailConfig {
     private int port;
     private String from;
     private String url;
+    private List<String> eventNotificationEmails;
 }

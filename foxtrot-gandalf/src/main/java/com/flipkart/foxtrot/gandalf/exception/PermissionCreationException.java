@@ -13,6 +13,7 @@ public class PermissionCreationException extends FoxtrotException {
         super(ErrorCode.PERMISSION_CREATION_FAILURE, event);
         this.message = message;
     }
+
     public PermissionCreationException(String message) {
         super(ErrorCode.PERMISSION_CREATION_FAILURE);
         this.message = message;

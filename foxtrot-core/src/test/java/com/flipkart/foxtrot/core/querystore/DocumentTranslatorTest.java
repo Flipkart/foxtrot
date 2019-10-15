@@ -1,17 +1,16 @@
 package com.flipkart.foxtrot.core.querystore;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.flipkart.foxtrot.common.Document;
 import com.flipkart.foxtrot.common.Table;
 import com.flipkart.foxtrot.core.TestUtils;
 import com.flipkart.foxtrot.core.datastore.impl.hbase.HbaseConfig;
 import com.flipkart.foxtrot.core.querystore.actions.Constants;
-import java.util.UUID;
 import org.junit.Test;
+
+import java.util.UUID;
+
+import static org.junit.Assert.*;
 
 public class DocumentTranslatorTest {
 
@@ -21,7 +20,7 @@ public class DocumentTranslatorTest {
     public void testInvalidRawKeyVersion() {
         HbaseConfig hbaseConfig = new HbaseConfig();
         hbaseConfig.setRawKeyVersion(UUID.randomUUID()
-                .toString());
+                                             .toString());
         new DocumentTranslator(hbaseConfig);
     }
 
@@ -32,22 +31,22 @@ public class DocumentTranslatorTest {
         DocumentTranslator translator = new DocumentTranslator(hbaseConfig);
         Table table = new Table();
         table.setName(UUID.randomUUID()
-                .toString());
+                              .toString());
 
         Document document = new Document();
         document.setId(UUID.randomUUID()
-                .toString());
+                               .toString());
         document.setTimestamp(System.currentTimeMillis());
         document.setData(mapper.createObjectNode()
-                .put("name", "rishabh"));
+                                 .put("name", "rishabh"));
         Document translatedDocument = translator.translate(table, document);
 
         assertEquals(translatedDocument.getId(), document.getId());
         assertNotNull(translatedDocument.getMetadata());
         assertEquals(translatedDocument.getMetadata()
-                .getId(), document.getId());
+                             .getId(), document.getId());
         assertEquals(translatedDocument.getMetadata()
-                .getRawStorageId(), document.getId() + ":" + table.getName());
+                             .getRawStorageId(), document.getId() + ":" + table.getName());
     }
 
     @Test
@@ -55,22 +54,22 @@ public class DocumentTranslatorTest {
         DocumentTranslator translator = new DocumentTranslator(TestUtils.createHBaseConfigWithRawKeyV1());
         Table table = new Table();
         table.setName(UUID.randomUUID()
-                .toString());
+                              .toString());
 
         Document document = new Document();
         document.setId(UUID.randomUUID()
-                .toString());
+                               .toString());
         document.setTimestamp(System.currentTimeMillis());
         document.setData(mapper.createObjectNode()
-                .put("name", "rishabh"));
+                                 .put("name", "rishabh"));
         Document translatedDocument = translator.translate(table, document);
 
         assertEquals(translatedDocument.getId(), document.getId());
         assertNotNull(translatedDocument.getMetadata());
         assertEquals(translatedDocument.getMetadata()
-                .getId(), document.getId());
+                             .getId(), document.getId());
         assertEquals(translatedDocument.getMetadata()
-                .getRawStorageId(), document.getId() + ":" + table.getName());
+                             .getRawStorageId(), document.getId() + ":" + table.getName());
     }
 
     @Test
@@ -78,14 +77,14 @@ public class DocumentTranslatorTest {
         DocumentTranslator translator = new DocumentTranslator(TestUtils.createHBaseConfigWithRawKeyV2());
         Table table = new Table();
         table.setName(UUID.randomUUID()
-                .toString());
+                              .toString());
 
         Document document = new Document();
         document.setId(UUID.randomUUID()
-                .toString());
+                               .toString());
         document.setTimestamp(System.currentTimeMillis());
         document.setData(mapper.createObjectNode()
-                .put("name", "rishabh"));
+                                 .put("name", "rishabh"));
 
         Document translatedDocument = translator.translate(table, document);
 
@@ -93,10 +92,10 @@ public class DocumentTranslatorTest {
         assertEquals(translatedDocument.getId(), translatedDocument.getMetadata()
                 .getRawStorageId());
         assertEquals(translatedDocument.getMetadata()
-                .getId(), document.getId());
+                             .getId(), document.getId());
         assertTrue(translatedDocument.getMetadata()
-                .getRawStorageId()
-                .endsWith(Constants.rawKeyVersionToSuffixMap.get("2.0")));
+                           .getRawStorageId()
+                           .endsWith(Constants.rawKeyVersionToSuffixMap.get("2.0")));
     }
 
     @Test
@@ -104,14 +103,14 @@ public class DocumentTranslatorTest {
         DocumentTranslator translator = new DocumentTranslator(TestUtils.createHBaseConfigWithRawKeyV1());
         Table table = new Table();
         table.setName(UUID.randomUUID()
-                .toString());
+                              .toString());
 
         Document document = new Document();
         document.setId(UUID.randomUUID()
-                .toString());
+                               .toString());
         document.setTimestamp(System.currentTimeMillis());
         document.setData(mapper.createObjectNode()
-                .put("name", "rishabh"));
+                                 .put("name", "rishabh"));
         Document translatedDocument = translator.translate(table, document);
 
         Document translatedBackDocument = translator.translateBack(translatedDocument);
@@ -128,14 +127,14 @@ public class DocumentTranslatorTest {
         DocumentTranslator translator = new DocumentTranslator(hbaseConfig);
         Table table = new Table();
         table.setName(UUID.randomUUID()
-                .toString());
+                              .toString());
 
         Document document = new Document();
         document.setId(UUID.randomUUID()
-                .toString());
+                               .toString());
         document.setTimestamp(System.currentTimeMillis());
         document.setData(mapper.createObjectNode()
-                .put("name", "rishabh"));
+                                 .put("name", "rishabh"));
         Document translatedDocument = translator.translate(table, document);
 
         Document translatedBackDocument = translator.translateBack(translatedDocument);

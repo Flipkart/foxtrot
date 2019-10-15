@@ -3,7 +3,6 @@ package com.flipkart.foxtrot.core.exception;
 import lombok.Getter;
 
 import java.util.Map;
-import lombok.Getter;
 
 /**
  * Created by rishabh.goyal on 13/12/15.

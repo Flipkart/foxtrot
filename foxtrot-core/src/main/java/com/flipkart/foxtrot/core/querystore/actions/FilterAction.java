@@ -62,7 +62,30 @@ public class FilterAction extends Action<Query> {
         }
     }
 
-    public void validateImpl(Query parameter, String email) {
+    @Override
+    public String getMetricKey() {
+        return getParameter().getTable();
+    }
+
+    @Override
+    public String getRequestCacheKey() {
+        long filterHashKey = 0L;
+        Query query = getParameter();
+        if (null != query.getFilters()) {
+            for (Filter filter : query.getFilters()) {
+                filterHashKey += 31 * filter.hashCode();
+            }
+        }
+        filterHashKey += 31 * (query.getSort() != null
+                               ? query.getSort()
+                                       .hashCode()
+                               : "SORT".hashCode());
+
+        return String.format("%s-%d-%d-%d", query.getTable(), query.getFrom(), query.getLimit(), filterHashKey);
+    }
+
+    @Override
+    public void validateImpl(Query parameter) {
         List<String> validationErrors = new ArrayList<>();
         if (CollectionUtils.isNullOrEmpty(parameter.getTable())) {
             validationErrors.add("table name cannot be null or empty");
@@ -84,20 +107,6 @@ public class FilterAction extends Action<Query> {
         }
     }
 
-    @Override
-    public String getRequestCacheKey() {
-        long filterHashKey = 0L;
-        Query query = getParameter();
-        if (null != query.getFilters()) {
-            for (Filter filter : query.getFilters()) {
-                filterHashKey += 31 * filter.hashCode();
-            }
-        }
-        filterHashKey += 31 * (query.getSort() != null ? query.getSort()
-                .hashCode() : "SORT".hashCode());
-
-        return String.format("%s-%d-%d-%d", query.getTable(), query.getFrom(), query.getLimit(), filterHashKey);
-    }
 
     @Override
     public ActionResponse execute(Query parameter) {
@@ -107,15 +116,12 @@ public class FilterAction extends Action<Query> {
             SearchResponse response = search.execute()
                     .actionGet(getGetQueryTimeout());
             return getResponse(response, parameter);
-        } catch (ElasticsearchException e) {
+        }
+        catch (ElasticsearchException e) {
             throw FoxtrotExceptions.createQueryExecutionException(parameter, e);
         }
     }
 
-    @Override
-    public String getMetricKey() {
-        return getParameter().getTable();
-    }
 
     @Override
     public SearchRequestBuilder getRequestBuilder(Query parameter) {
@@ -129,10 +135,13 @@ public class FilterAction extends Action<Query> {
                     .setSearchType(SearchType.QUERY_THEN_FETCH)
                     .setFrom(parameter.getFrom())
                     .addSort(Utils.storedFieldName(parameter.getSort()
-                            .getField()), ResultSort.Order.desc == parameter.getSort()
-                            .getOrder() ? SortOrder.DESC : SortOrder.ASC)
+                                                           .getField()), ResultSort.Order.desc == parameter.getSort()
+                            .getOrder()
+                                                                         ? SortOrder.DESC
+                                                                         : SortOrder.ASC)
                     .setSize(parameter.getLimit());
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             throw FoxtrotExceptions.queryCreationException(parameter, e);
         }
         return search;

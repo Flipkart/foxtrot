@@ -13,12 +13,9 @@
 package com.flipkart.foxtrot.common;
 
 import com.flipkart.foxtrot.common.estimation.EstimationData;
+import lombok.*;
+
 import java.io.Serializable;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
 
 /**
  * Metadata about fields

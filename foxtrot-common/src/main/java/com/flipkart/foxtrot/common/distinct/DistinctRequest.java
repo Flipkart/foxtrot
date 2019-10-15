@@ -17,11 +17,12 @@ import com.flipkart.foxtrot.common.ActionRequestVisitor;
 import com.flipkart.foxtrot.common.Opcodes;
 import com.flipkart.foxtrot.common.query.Filter;
 import com.flipkart.foxtrot.common.query.ResultSort;
-import java.util.List;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.hibernate.validator.constraints.NotEmpty;
+
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
+import java.util.List;
 
 /**
  * User: Santanu Sinha (santanu.sinha@flipkart.com) Date: 21/03/14 Time: 4:52 PM
@@ -49,14 +50,6 @@ public class DistinctRequest extends ActionRequest {
         return visitor.visit(this);
     }
 
-    @Override
-    public String toString() {
-        return new ToStringBuilder(this).append("table", table)
-                .append("filters", getFilters())
-                .append("nesting", nesting)
-                .toString();
-    }
-
     public String getTable() {
         return table;
     }
@@ -73,4 +66,11 @@ public class DistinctRequest extends ActionRequest {
         this.nesting = nesting;
     }
 
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this).append("table", table)
+                .append("filters", getFilters())
+                .append("nesting", nesting)
+                .toString();
+    }
 }

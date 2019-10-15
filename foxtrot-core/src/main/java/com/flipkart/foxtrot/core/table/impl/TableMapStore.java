@@ -66,7 +66,7 @@ public class TableMapStore implements MapStore<String, Table> {
         }
         logger.info("Storing key: {}", key);
         try {
-            Map<String, Object> sourceMap = ElasticsearchQueryUtils.getSourceMap(value, value.getClass());
+            Map<String, Object> sourceMap = ElasticsearchQueryUtils.toMap(objectMapper, value);
             elasticsearchConnection.getClient()
                     .prepareIndex()
                     .setIndex(TABLE_META_INDEX)
@@ -76,7 +76,8 @@ public class TableMapStore implements MapStore<String, Table> {
                     .setRefreshPolicy(WriteRequest.RefreshPolicy.IMMEDIATE)
                     .execute()
                     .actionGet();
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             throw new TableMapStoreException("Error saving meta: ", e);
         }
     }
@@ -102,9 +103,10 @@ public class TableMapStore implements MapStore<String, Table> {
                 }
                 Map<String, Object> sourceMap = ElasticsearchQueryUtils.toMap(objectMapper, mapEntry.getValue());
                 bulkRequestBuilder.add(elasticsearchConnection.getClient()
-                        .prepareIndex(TABLE_META_INDEX, TABLE_META_TYPE, mapEntry.getKey())
-                        .setSource(sourceMap));
-            } catch (Exception e) {
+                                               .prepareIndex(TABLE_META_INDEX, TABLE_META_TYPE, mapEntry.getKey())
+                                               .setSource(sourceMap));
+            }
+            catch (Exception e) {
                 throw new TableMapStoreException("Error bulk saving meta: ", e);
             }
         }
@@ -134,7 +136,7 @@ public class TableMapStore implements MapStore<String, Table> {
                 .setRefreshPolicy(WriteRequest.RefreshPolicy.IMMEDIATE);
         for (String key : keys) {
             bulRequestBuilder.add(elasticsearchConnection.getClient()
-                    .prepareDelete(TABLE_META_INDEX, TABLE_META_TYPE, key));
+                                          .prepareDelete(TABLE_META_INDEX, TABLE_META_TYPE, key));
         }
         bulRequestBuilder.execute()
                 .actionGet();
@@ -156,7 +158,8 @@ public class TableMapStore implements MapStore<String, Table> {
         }
         try {
             return objectMapper.readValue(response.getSourceAsBytes(), Table.class);
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             throw new TableMapStoreException("Error getting data for table: " + key);
         }
     }
@@ -173,9 +176,10 @@ public class TableMapStore implements MapStore<String, Table> {
         for (MultiGetItemResponse multiGetItemResponse : response) {
             try {
                 Table table = objectMapper.readValue(multiGetItemResponse.getResponse()
-                        .getSourceAsString(), Table.class);
+                                                             .getSourceAsString(), Table.class);
                 tables.put(table.getName(), table);
-            } catch (Exception e) {
+            }
+            catch (Exception e) {
                 throw new TableMapStoreException("Error getting data for table: " + multiGetItemResponse.getId());
             }
         }

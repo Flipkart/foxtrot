@@ -25,17 +25,35 @@ cluster:
     disableMulticast: true
     members: ["localhost:5701"]
 
+cacheConfig:
+  maxIdleSeconds: 15
+  timeToLiveSeconds: 15
+
 logging:
   level: INFO
   loggers:
     com.flipkart.foxtrot.core.querystore.actions: DEBUG
 
-
 cardinality:
-  cardinality: ${CARDINALITY_ENABLED}
-  batchSize: ${DEFAULT_BATCH_SIZE}
+  enabled: true
+  batchSize: 10
+  active: true
+  interval: 86400
+  initialDelay: 6
+  maxCardinality: 20000
 
 deletionconfig:
   active: true
   interval: 86400
   initialdelay: 60
+
+esIndexOptimizationConfig:
+  active: true
+  interval: 86400
+  initialDelay: 6
+
+consoleHistoryConfig:
+  active: true
+  interval: 86400
+  initialDelay: 10
+

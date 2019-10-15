@@ -14,11 +14,12 @@ package com.flipkart.foxtrot.core.cardinality;
 
 import com.flipkart.foxtrot.core.jobs.BaseJobConfig;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
-import javax.ws.rs.DefaultValue;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
+
+import javax.ws.rs.DefaultValue;
 
 /***
  Created by nitish.goyal on 06/08/18

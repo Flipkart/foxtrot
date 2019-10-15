@@ -12,17 +12,18 @@
  */
 package com.flipkart.foxtrot.core.cache.impl;
 
-import static com.flipkart.foxtrot.core.querystore.actions.Constants.CACHE_NAME_PREFIX;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.flipkart.foxtrot.common.ActionResponse;
 import com.flipkart.foxtrot.core.cache.Cache;
 import com.flipkart.foxtrot.core.querystore.impl.HazelcastConnection;
 import com.hazelcast.core.IMap;
-import java.io.IOException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+
+import static com.flipkart.foxtrot.core.querystore.actions.Constants.CACHE_NAME_PREFIX;
 
 /**
  * User: Santanu Sinha (santanu.sinha@flipkart.com) Date: 25/03/14 Time: 7:43 PM
@@ -48,13 +49,15 @@ public class DistributedCache implements Cache {
                 // Only cache if size is less that 256 KB
                 if (serializedData.length() <= 256 * 1024) {
                     distributedMap.put(key, mapper.writeValueAsString(data));
-                } else {
+                }
+                else {
                     String responsePart = serializedData.substring(0, 1024);
                     logger.error("Size of response is too big for cache. Skipping it. Response Part : {}",
-                            responsePart);
+                                 responsePart);
                 }
             }
-        } catch (JsonProcessingException e) {
+        }
+        catch (JsonProcessingException e) {
             logger.error("Error saving value to map: ", e);
         }
         return data;
@@ -69,7 +72,8 @@ public class DistributedCache implements Cache {
         if (null != data) {
             try {
                 return mapper.readValue(data, ActionResponse.class);
-            } catch (IOException e) {
+            }
+            catch (IOException e) {
                 logger.error("Error deserializing: ", e);
             }
         }

@@ -30,6 +30,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
+
 /**
  * Created by swapnil on 20/01/16.
  */
@@ -43,9 +44,10 @@ public class ClusterHealthResource {
     private final TableManager tableManager;
     private final TableMetadataManager tableMetadataManager;
 
-    public ClusterHealthResource(QueryStore queryStore,
-                                 TableManager tableManager,
-                                 TableMetadataManager tableMetadataManager) {
+    public ClusterHealthResource(
+            QueryStore queryStore,
+            TableManager tableManager,
+            TableMetadataManager tableMetadataManager) {
         this.queryStore = queryStore;
         this.tableManager = tableManager;
         this.tableMetadataManager = tableMetadataManager;
@@ -75,9 +77,13 @@ public class ClusterHealthResource {
         return FoxtrotIndicesStatsResponse.builder()
                 .indicesStatsResponse(queryStore.getIndicesStats())
                 .tableColumnCount(tableManager.getAll().stream()
-                        .map(table -> tableMetadataManager.getFieldMappings(table.getName(), false, false))
-                        .collect(Collectors.toMap(TableFieldMapping::getTable, tableFieldMapping-> tableFieldMapping.getMappings().size()))
-                )
+                                          .map(table -> tableMetadataManager.getFieldMappings(table.getName(),
+                                                                                              false,
+                                                                                              false))
+                                          .collect(Collectors.toMap(TableFieldMapping::getTable,
+                                                                    tableFieldMapping -> tableFieldMapping.getMappings()
+                                                                            .size()))
+                                 )
                 .build();
     }
 }

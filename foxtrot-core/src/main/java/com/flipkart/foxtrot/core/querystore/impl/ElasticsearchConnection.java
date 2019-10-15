@@ -49,7 +49,8 @@ public class ElasticsearchConnection implements Managed {
         Integer port;
         if (config.getPort() == null) {
             port = 9300;
-        } else {
+        }
+        else {
             port = config.getPort();
         }
         for (String host : config.getHosts()) {

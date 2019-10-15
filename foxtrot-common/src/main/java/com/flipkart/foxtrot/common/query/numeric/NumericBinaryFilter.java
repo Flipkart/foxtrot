@@ -13,10 +13,11 @@
 package com.flipkart.foxtrot.common.query.numeric;
 
 import com.flipkart.foxtrot.common.query.Filter;
-import java.util.Set;
-import javax.validation.constraints.NotNull;
 import lombok.Data;
 import lombok.ToString;
+
+import javax.validation.constraints.NotNull;
+import java.util.Set;
 
 /**
  * User: Santanu Sinha (santanu.sinha@flipkart.com)

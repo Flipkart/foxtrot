@@ -8,14 +8,14 @@ data = r.json()
 data = data["hits"]["hits"]
 
 for hit in data:
-  for section in hit["_source"]["sections"]:
-    found = False
-    for tile in section["tileData"]:
-      chartType = section["tileData"][tile]["tileContext"]["chartType"]
-      if chartType == "sunburst":
-        pprint.pprint(hit["_source"]["name"])
-        found = True
-        break
-    if found == True:
-      found = False
-      break
+    for section in hit["_source"]["sections"]:
+        found = False
+        for tile in section["tileData"]:
+            chartType = section["tileData"][tile]["tileContext"]["chartType"]
+            if chartType == "sunburst":
+                pprint.pprint(hit["_source"]["name"])
+                found = True
+                break
+        if found == True:
+            found = False
+            break

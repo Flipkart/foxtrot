@@ -19,10 +19,10 @@ import com.flipkart.foxtrot.common.Table;
 import com.flipkart.foxtrot.common.TableFieldMapping;
 import com.flipkart.foxtrot.common.group.GroupResponse;
 import com.flipkart.foxtrot.core.TestUtils;
-import com.flipkart.foxtrot.core.alerts.EmailConfig;
 import com.flipkart.foxtrot.core.cardinality.CardinalityConfig;
 import com.flipkart.foxtrot.core.config.TextNodeRemoverConfiguration;
 import com.flipkart.foxtrot.core.datastore.DataStore;
+import com.flipkart.foxtrot.core.email.EmailConfig;
 import com.flipkart.foxtrot.core.querystore.mutator.IndexerEventMutator;
 import com.flipkart.foxtrot.core.querystore.mutator.LargeTextNodeRemover;
 import com.flipkart.foxtrot.core.table.impl.DistributedTableMetadataManager;
@@ -70,8 +70,6 @@ public class DistributedTableMetadataManagerTest {
         EmailConfig emailConfig = new EmailConfig();
         emailConfig.setHost("127.0.0.1");
 
-        TestUtils.createTable(elasticsearchConnection, DistributedTableMetadataManager.CARDINALITY_CACHE_INDEX);
-
         hazelcastInstance = new TestHazelcastInstanceFactory(1).newHazelcastInstance();
         HazelcastConnection hazelcastConnection = Mockito.mock(HazelcastConnection.class);
         when(hazelcastConnection.getHazelcast()).thenReturn(hazelcastInstance);
@@ -79,16 +77,17 @@ public class DistributedTableMetadataManagerTest {
         hazelcastConnection.start();
 
         this.distributedTableMetadataManager = new DistributedTableMetadataManager(hazelcastConnection,
-                elasticsearchConnection,
-                objectMapper,
-                new CardinalityConfig());
+                                                                                   elasticsearchConnection,
+                                                                                   objectMapper,
+                                                                                   new CardinalityConfig());
         distributedTableMetadataManager.start();
 
         tableDataStore = hazelcastInstance.getMap("tablemetadatamap");
         List<IndexerEventMutator> mutators = Lists.newArrayList(new LargeTextNodeRemover(objectMapper,
-                TextNodeRemoverConfiguration.builder().build()));
+                                                                                         TextNodeRemoverConfiguration.builder()
+                                                                                                 .build()));
         this.queryStore = new ElasticsearchQueryStore(distributedTableMetadataManager, elasticsearchConnection,
-                dataStore, mutators, objectMapper, new CardinalityConfig());
+                                                      dataStore, mutators, objectMapper, new CardinalityConfig());
     }
 
     @After
@@ -100,7 +99,8 @@ public class DistributedTableMetadataManagerTest {
                     .admin()
                     .indices()
                     .delete(deleteIndexRequest);
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             //Do Nothing
         }
         elasticsearchConnection.stop();
@@ -160,7 +160,7 @@ public class DistributedTableMetadataManagerTest {
         queryStore.save(TestUtils.TEST_TABLE_NAME, document);
 
         document = TestUtils.getDocument("B", new DateTime().getMillis(),
-                new Object[]{"os", "android", "version", "abcd"}, objectMapper);
+                                         new Object[]{"os", "android", "version", "abcd"}, objectMapper);
         translatedDocument = TestUtils.translatedDocumentWithRowKeyVersion1(table, document);
         doReturn(translatedDocument).when(dataStore)
                 .save(table, document);

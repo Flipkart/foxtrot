@@ -16,8 +16,6 @@ import com.flipkart.foxtrot.common.Table;
 import com.flipkart.foxtrot.core.exception.FoxtrotExceptions;
 import com.flipkart.foxtrot.core.util.TableUtil;
 import io.dropwizard.lifecycle.Managed;
-import java.io.IOException;
-import java.util.concurrent.TimeUnit;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.HColumnDescriptor;
 import org.apache.hadoop.hbase.HTableDescriptor;
@@ -29,6 +27,9 @@ import org.apache.hadoop.hbase.io.compress.Compression;
 import org.apache.hadoop.security.UserGroupInformation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+import java.util.concurrent.TimeUnit;
 
 /**
  * User: Santanu Sinha (santanu.sinha@flipkart.com) Date: 13/03/14 Time: 7:35 PM
@@ -53,7 +54,8 @@ public class HbaseTableConnection implements Managed {
                         .reloginFromKeytab();
             }
             return connection.getTable(TableName.valueOf(TableUtil.getTableName(hbaseConfig, table)));
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             throw FoxtrotExceptions.createConnectionException(table, e);
         }
     }

@@ -15,6 +15,6 @@ public class WindowUtil {
             return new TimeWindow(windowStartTime.getMillis(), endTime);
         }
         return new TimeWindow(roundingMode.translate(windowStartTime, duration)
-                .getMillis(), endTime);
+                                      .getMillis(), endTime);
     }
 }

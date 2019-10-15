@@ -12,7 +12,8 @@ import io.dropwizard.server.SimpleServerFactory;
  */
 public class ServerUtils {
 
-    private ServerUtils() {}
+    private ServerUtils() {
+    }
 
     public static int port(ServerFactory serverFactory) {
         if (serverFactory instanceof SimpleServerFactory) {

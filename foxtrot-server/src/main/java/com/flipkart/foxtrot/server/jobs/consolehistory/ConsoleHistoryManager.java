@@ -8,8 +8,6 @@ import com.flipkart.foxtrot.core.querystore.impl.HazelcastConnection;
 import com.flipkart.foxtrot.server.console.ConsoleFetchException;
 import com.flipkart.foxtrot.server.console.ConsoleV2;
 import com.flipkart.foxtrot.server.console.ElasticsearchConsolePersistence;
-import java.time.Instant;
-import java.util.concurrent.ScheduledExecutorService;
 import net.javacrumbs.shedlock.core.LockConfiguration;
 import net.javacrumbs.shedlock.core.LockingTaskExecutor;
 import org.elasticsearch.action.search.SearchResponse;
@@ -23,6 +21,9 @@ import org.elasticsearch.search.sort.SortBuilders;
 import org.elasticsearch.search.sort.SortOrder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.time.Instant;
+import java.util.concurrent.ScheduledExecutorService;
 
 /***
  Created by mudit.g on Dec, 2018
@@ -38,7 +39,8 @@ public class ConsoleHistoryManager extends BaseJobManager {
     private final ObjectMapper mapper;
     private final ElasticsearchConsolePersistence elasticsearchConsolePersistence;
 
-    public ConsoleHistoryManager(ScheduledExecutorService scheduledExecutorService,
+    public ConsoleHistoryManager(
+            ScheduledExecutorService scheduledExecutorService,
             ConsoleHistoryConfig consoleHistoryConfig, ElasticsearchConnection connection,
             HazelcastConnection hazelcastConnection, ObjectMapper mapper) {
         super(consoleHistoryConfig, scheduledExecutorService, hazelcastConnection);
@@ -57,8 +59,8 @@ public class ConsoleHistoryManager extends BaseJobManager {
                         .setTypes(TYPE)
                         .setSearchType(SearchType.QUERY_THEN_FETCH)
                         .addAggregation(AggregationBuilders.terms("names")
-                                .field("name.keyword")
-                                .size(1000))
+                                                .field("name.keyword")
+                                                .size(1000))
                         .execute()
                         .actionGet();
                 Terms agg = searchResponse.getAggregations()
@@ -66,7 +68,8 @@ public class ConsoleHistoryManager extends BaseJobManager {
                 for (Terms.Bucket entry : agg.getBuckets()) {
                     deleteOldData(entry.getKeyAsString());
                 }
-            } catch (Exception e) {
+            }
+            catch (Exception e) {
                 logger.info("Failed to get aggregations and delete data for index history. {}", e);
             }
 
@@ -82,7 +85,7 @@ public class ConsoleHistoryManager extends BaseJobManager {
                     .setSearchType(SearchType.QUERY_THEN_FETCH)
                     .setQuery(QueryBuilders.termQuery("name.keyword", name))
                     .addSort(SortBuilders.fieldSort(updatedAt)
-                            .order(SortOrder.DESC))
+                                     .order(SortOrder.DESC))
                     .setFrom(10)
                     .setSize(9000)
                     .execute()
@@ -92,7 +95,8 @@ public class ConsoleHistoryManager extends BaseJobManager {
                 ConsoleV2 consoleV2 = mapper.readValue(searchHit.getSourceAsString(), ConsoleV2.class);
                 elasticsearchConsolePersistence.deleteOldVersion(consoleV2.getId());
             }
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             throw new ConsoleFetchException(e);
         }
     }
