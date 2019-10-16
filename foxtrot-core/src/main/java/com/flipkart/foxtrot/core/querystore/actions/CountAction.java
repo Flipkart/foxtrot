@@ -49,6 +49,27 @@ public class CountAction extends Action<CountRequest> {
     }
 
     @Override
+    public String getMetricKey() {
+        return getParameter().getTable();
+    }
+
+    @Override
+    public String getRequestCacheKey() {
+        long filterHashKey = 0L;
+        CountRequest request = getParameter();
+        if(null != request.getFilters()) {
+            for(Filter filter : request.getFilters()) {
+                filterHashKey += 31 * filter.hashCode();
+            }
+        }
+
+        filterHashKey += 31 * (request.isDistinct() ? "TRUE".hashCode() : "FALSE".hashCode());
+        filterHashKey += 31 * (request.getField() != null ? request.getField()
+                .hashCode() : "COLUMN".hashCode());
+        return String.format("count-%s-%d", request.getTable(), filterHashKey);
+    }
+
+    @Override
     public void validateImpl(CountRequest parameter) {
         List<String> validationErrors = new ArrayList<>();
         if (CollectionUtils.isNullOrEmpty(parameter.getTable())) {
@@ -63,24 +84,6 @@ public class CountAction extends Action<CountRequest> {
     }
 
     @Override
-    public String getRequestCacheKey() {
-        long filterHashKey = 0L;
-        CountRequest request = getParameter();
-        for (Filter filter : com.collections.CollectionUtils.nullSafeList(request.getFilters())) {
-            filterHashKey += 31 * filter.hashCode();
-        }
-
-        filterHashKey += 31 * (request.isDistinct()
-                               ? "TRUE".hashCode()
-                               : "FALSE".hashCode());
-        filterHashKey += 31 * (request.getField() != null
-                               ? request.getField()
-                                       .hashCode()
-                               : "COLUMN".hashCode());
-        return String.format("count-%s-%d", request.getTable(), filterHashKey);
-    }
-
-    @Override
     public ActionResponse execute(CountRequest parameter) {
         SearchRequestBuilder query = getRequestBuilder(parameter);
 
@@ -92,11 +95,6 @@ public class CountAction extends Action<CountRequest> {
         catch (ElasticsearchException e) {
             throw FoxtrotExceptions.createQueryExecutionException(parameter, e);
         }
-    }
-
-    @Override
-    public String getMetricKey() {
-        return getParameter().getTable();
     }
 
     @Override

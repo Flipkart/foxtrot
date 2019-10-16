@@ -1,14 +1,17 @@
 /**
  * Copyright 2014 Flipkart Internet Pvt. Ltd.
  * <p>
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  * <p>
  * http://www.apache.org/licenses/LICENSE-2.0
  * <p>
- * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
- * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
- * specific language governing permissions and limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package com.flipkart.foxtrot.core.querystore.actions;
 
@@ -718,11 +721,32 @@ public class FilterActionTest extends ActionTest {
                                       new Object[]{"os", "android", "device", "nexus", "battery", 74},
                                       getMapper()));
         documents.add(
-                TestUtils.getDocument("W",
-                                      1397658117001L,
-                                      new Object[]{"os", "android", "device", "nexus", "battery", 99},
-                                      getMapper()));
+                TestUtils.getDocument("W", 1397658117001L, new Object[]{"os", "android", "device", "nexus", "battery", 99}, getMapper()));
 
+        QueryResponse actualResponse = QueryResponse.class.cast(getQueryExecutor().execute(query));
+        compare(documents, actualResponse.getDocuments());
+    }
+
+    @Test
+    public void testQueryPagination() throws FoxtrotException, JsonProcessingException {
+        Query query = new Query();
+        query.setTable(TestUtils.TEST_TABLE_NAME);
+
+        ResultSort resultSort = new ResultSort();
+        resultSort.setOrder(ResultSort.Order.desc);
+        resultSort.setField("_timestamp");
+        query.setSort(resultSort);
+
+        EqualsFilter equalsFilter = new EqualsFilter();
+        equalsFilter.setField("os");
+        equalsFilter.setValue("ios");
+        query.setFilters(Lists.<Filter>newArrayList(equalsFilter));
+
+        query.setFrom(1);
+        query.setLimit(1);
+
+        List<Document> documents = new ArrayList<Document>();
+        documents.add(TestUtils.getDocument("D", 1397658118003L, new Object[]{"os", "ios", "version", 1, "device", "iphone"}, getMapper()));
         QueryResponse actualResponse = QueryResponse.class.cast(getQueryExecutor().execute(query));
         compare(documents, actualResponse.getDocuments());
     }
@@ -757,32 +781,6 @@ public class FilterActionTest extends ActionTest {
     //        ActionResponse actionResponse = CacheUtils.getCacheFor(response.getAction()).get(response.getKey());
     //        compare(documents, QueryResponse.class.cast(actionResponse).getDocuments());
     //    }
-
-    @Test
-    public void testQueryPagination() throws FoxtrotException, JsonProcessingException {
-        Query query = new Query();
-        query.setTable(TestUtils.TEST_TABLE_NAME);
-
-        ResultSort resultSort = new ResultSort();
-        resultSort.setOrder(ResultSort.Order.desc);
-        resultSort.setField("_timestamp");
-        query.setSort(resultSort);
-
-        EqualsFilter equalsFilter = new EqualsFilter();
-        equalsFilter.setField("os");
-        equalsFilter.setValue("ios");
-        query.setFilters(Lists.<Filter>newArrayList(equalsFilter));
-
-        query.setFrom(1);
-        query.setLimit(1);
-
-        List<Document> documents = new ArrayList<Document>();
-        documents.add(
-                TestUtils.getDocument("D", 1397658118003L, new Object[]{"os", "ios", "version", 1, "device", "iphone"},
-                                      getMapper()));
-        QueryResponse actualResponse = QueryResponse.class.cast(getQueryExecutor().execute(query));
-        compare(documents, actualResponse.getDocuments());
-    }
 
     @Test
     public void testQueryNullFilters() throws FoxtrotException, JsonProcessingException, InterruptedException {

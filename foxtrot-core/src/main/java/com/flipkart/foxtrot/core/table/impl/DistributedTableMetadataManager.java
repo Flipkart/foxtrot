@@ -69,7 +69,9 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
- * User: Santanu Sinha (santanu.sinha@flipkart.com) Date: 15/03/14 Time: 10:11 PM
+ * User: Santanu Sinha (santanu.sinha@flipkart.com)
+ * Date: 15/03/14
+ * Time: 10:11 PM
  */
 
 public class DistributedTableMetadataManager implements TableMetadataManager {
@@ -150,6 +152,10 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
         });
     }
 
+    public boolean cardinalityCacheContains(String table) {
+        return fieldDataCardinalityCache.containsKey(table);
+    }
+
     private MapConfig tableMapConfig() {
         MapConfig mapConfig = new MapConfig();
         mapConfig.setReadBackupData(true);
@@ -198,10 +204,6 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
         mapConfig.setNearCacheConfig(nearCacheConfig);
 
         return mapConfig;
-    }
-
-    public boolean cardinalityCacheContains(String table) {
-        return fieldDataCardinalityCache.containsKey(table);
     }
 
     @Override
@@ -280,15 +282,6 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
                 .build();
     }
 
-    @Override
-    public void updateEstimationData(final String table, long timestamp) {
-        if (!tableDataStore.containsKey(table)) {
-            throw FoxtrotExceptions.createBadRequestException(table, String.format("unknown_table table:%s", table));
-        }
-        final TableFieldMapping tableFieldMapping = getFieldMappings(table, cardinalityConfig.isEnabled(), false);
-        fieldDataCache.put(table, tableFieldMapping);
-    }
-
     private TableFieldMapping getTableFieldMapping(String table) {
         ElasticsearchMappingParser mappingParser = new ElasticsearchMappingParser(mapper);
         final String indices = ElasticsearchUtils.getIndices(table);
@@ -330,6 +323,15 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
         final TreeSet<FieldMetadata> fieldMetadataTreeSet = new TreeSet<>(new FieldMetadataComparator());
         fieldMetadataTreeSet.addAll(fieldMetadata);
         return new TableFieldMapping(table, fieldMetadataTreeSet);
+    }
+
+    @Override
+    public void updateEstimationData(final String table, long timestamp) {
+        if(!tableDataStore.containsKey(table)) {
+            throw FoxtrotExceptions.createBadRequestException(table, String.format("unknown_table table:%s", table));
+        }
+        final TableFieldMapping tableFieldMapping = getFieldMappings(table, cardinalityConfig.isEnabled(), false, timestamp);
+        fieldDataCache.put(table, tableFieldMapping);
     }
 
     private void estimateCardinality(final String table, final Collection<FieldMetadata> fields, long time) {
@@ -639,14 +641,6 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
     }
 
     @Override
-    public void initializeCardinalityCache() {
-        List<TableFieldMapping> tableFieldMappings = getAllCardinalityCache();
-        for (TableFieldMapping tableFieldMapping : com.collections.CollectionUtils.nullSafeList(tableFieldMappings)) {
-            fieldDataCardinalityCache.put(tableFieldMapping.getTable(), tableFieldMapping);
-        }
-    }
-
-    @Override
     public void start() throws Exception {
         tableDataStore = hazelcastConnection.getHazelcast()
                 .getMap(DATA_MAP);
@@ -700,6 +694,13 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
         }
     }
 
+    @Override
+    public void initializeCardinalityCache() {
+        List<TableFieldMapping> tableFieldMappings = getAllCardinalityCache();
+        for(TableFieldMapping tableFieldMapping : com.collections.CollectionUtils.nullSafeList(tableFieldMappings)) {
+            fieldDataCardinalityCache.put(tableFieldMapping.getTable(), tableFieldMapping);
+        }
+    }
 
     private static class FieldMetadataComparator implements Comparator<FieldMetadata>, Serializable {
 

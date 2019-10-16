@@ -258,6 +258,14 @@ public class Flattener implements ResponseVisitor {
         throw new FqlParsingException("Fql query not supported for this operation");
     }
 
+    public FlatRepresentation getFlatRepresentation() {
+        return flatRepresentation;
+    }
+
+    private int lengthMax(int currMax, final String rhs) {
+        return currMax > rhs.length() ? currMax : rhs.length();
+    }
+
     private List<FieldHeader> getFieldsFromList(Map<String, Integer> fieldNames) {
         List<FieldHeader> headers = Lists.newArrayList();
         if (null == fieldsToReturn || fieldsToReturn.isEmpty()) {
@@ -271,16 +279,6 @@ public class Flattener implements ResponseVisitor {
             }
         }
         return headers;
-    }
-
-    private int lengthMax(int currMax, final String rhs) {
-        return currMax > rhs.length()
-               ? currMax
-               : rhs.length();
-    }
-
-    public FlatRepresentation getFlatRepresentation() {
-        return flatRepresentation;
     }
 
 }

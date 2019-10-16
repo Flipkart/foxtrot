@@ -15,6 +15,9 @@ import org.elasticsearch.action.ActionRequestBuilder;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
+/***
+ Created by mudit.g on Jan, 2019
+ ***/
 @AnalyticsProvider(opcode = "multi_time_query", request = MultiTimeQueryRequest.class, response =
         MultiTimeQueryResponse.class, cacheable = false)
 public class MultiTimeQueryAction extends Action<MultiTimeQueryRequest> {
@@ -36,8 +39,9 @@ public class MultiTimeQueryAction extends Action<MultiTimeQueryRequest> {
         if (multiTimeQueryRequest.getActionRequest() == null && CollectionUtils.isEmpty(
                 multiTimeQueryRequest.getFilters())) {
             throw FoxtrotExceptions.createBadRequestException("multi_time_query",
-                                                              "No Between Filter found in actionRequest " +
-                                                                      "multiQueryRequest : " + multiQueryRequest.toString());
+                                                              "No Between Filter found in actionRequest multiQueryRequest : " +
+                                                              multiQueryRequest.toString()
+                                                             );
         }
 
         if (CollectionUtils.isEmpty(multiTimeQueryRequest.getActionRequest()
@@ -56,8 +60,9 @@ public class MultiTimeQueryAction extends Action<MultiTimeQueryRequest> {
                 .findFirst();
         if (!optionalBetweenFilter.isPresent()) {
             throw FoxtrotExceptions.createBadRequestException("multi_time_query",
-                                                              "No Between Filter found in actionRequest " +
-                                                                      "multiQueryRequest : " + multiQueryRequest.toString());
+                                                              "No Between Filter found in actionRequest multiQueryRequest : " +
+                                                              multiQueryRequest.toString()
+                                                             );
         }
         BetweenFilter betweenFilter = (BetweenFilter) optionalBetweenFilter.get();
 
@@ -82,6 +87,16 @@ public class MultiTimeQueryAction extends Action<MultiTimeQueryRequest> {
     }
 
     @Override
+    public String getMetricKey() {
+        return action.getMetricKey();
+    }
+
+    @Override
+    public String getRequestCacheKey() {
+        return action.getRequestCacheKey();
+    }
+
+    @Override
     public void validateImpl(MultiTimeQueryRequest parameter) {
         List<String> validationErrors = new ArrayList<>();
         if (parameter.getActionRequest() == null) {
@@ -97,20 +112,10 @@ public class MultiTimeQueryAction extends Action<MultiTimeQueryRequest> {
     }
 
     @Override
-    public String getRequestCacheKey() {
-        return action.getRequestCacheKey();
-    }
-
-    @Override
     public ActionResponse execute(MultiTimeQueryRequest parameter) {
         MultiTimeQueryResponse multiTimeQueryResponse = new MultiTimeQueryResponse();
         multiTimeQueryResponse.setResponses(((MultiQueryResponse) action.execute(multiQueryRequest)).getResponses());
         return multiTimeQueryResponse;
-    }
-
-    @Override
-    public String getMetricKey() {
-        return action.getMetricKey();
     }
 
     @Override

@@ -5,7 +5,7 @@
     <parent>
         <artifactId>foxtrot</artifactId>
         <groupId>com.flipkart.foxtrot</groupId>
-        <version>${project.version}</version>
+        <version>6.3.1-2</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <artifactId>foxtrot-server</artifactId>
@@ -48,33 +48,23 @@
         <!-- Internal -->
         <dependency>
             <groupId>com.flipkart.foxtrot</groupId>
-            <artifactId>foxtrot-gandalf</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.flipkart.foxtrot</groupId>
             <artifactId>foxtrot-sql</artifactId>
-            <version>${project.version}</version>
+            <version>6.3.1-2</version>
         </dependency>
         <dependency>
             <groupId>com.flipkart.foxtrot</groupId>
             <artifactId>foxtrot-common</artifactId>
-            <version>${project.version}</version>
+            <version>6.3.1-2</version>
         </dependency>
         <dependency>
             <groupId>com.flipkart.foxtrot</groupId>
             <artifactId>foxtrot-core</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.phonepe.platform</groupId>
-            <artifactId>rosey-dropwizard-config</artifactId>
-            <version>1.6</version>
+            <version>6.3.1-2</version>
         </dependency>
         <dependency>
             <groupId>com.flipkart.foxtrot</groupId>
             <artifactId>foxtrot-core</artifactId>
-            <version>${project.version}</version>
+            <version>6.3.1-2</version>
             <type>test-jar</type>
             <scope>test</scope>
         </dependency>
@@ -210,29 +200,27 @@
                         <artifactId>docker-maven-plugin</artifactId>
                         <version>0.4.10</version>
                         <configuration>
-                            <imageName>docker.phonepe.com:5000/foxtrot:${project.version}
-                            </imageName>
-                            <dockerDirectory>${project.basedir}/..</dockerDirectory>
-                            <registryUrl>http://docker.phonepe.com:5000/</registryUrl>
+                            <imageName>foxtrot:${project.version}</imageName>
+                            <dockerDirectory>${project.parent.basedir}/../foxtrot</dockerDirectory>
+                            <resources>
+                                <resource>
+                                    <targetPath>/</targetPath>
+                                    <directory>${project.build.directory}</directory>
+                                    <include>${project.build.finalName}.jar</include>
+                                </resource>
+                                <resource>
+                                    <targetPath>/</targetPath>
+                                    <directory>${project.parent.basedir}/config</directory>
+                                    <include>*.yml</include>
+                                </resource>
+                            </resources>
                         </configuration>
                         <executions>
                             <execution>
-                                <id>build-image</id>
                                 <phase>package</phase>
                                 <goals>
                                     <goal>build</goal>
                                 </goals>
-                            </execution>
-                            <execution>
-                                <id>push-image</id>
-                                <phase>deploy</phase>
-                                <goals>
-                                    <goal>push</goal>
-                                </goals>
-                                <configuration>
-                                    <imageName>docker.phonepe.com:5000/foxtrot:${project.version}
-                                    </imageName>
-                                </configuration>
                             </execution>
                         </executions>
                     </plugin>

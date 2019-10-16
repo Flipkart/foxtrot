@@ -34,9 +34,8 @@ public class LargeTextNodeRemover implements IndexerEventMutator {
     }
 
 
-    private void walkTree(
-            final String table,
-            final String documentId,
+    private void walkTree(String table,
+                          String documentId,
             JsonNode node) {
         if (node == null || node.isNull()) {
             return;
@@ -123,8 +122,8 @@ public class LargeTextNodeRemover implements IndexerEventMutator {
         }
 
         if (random.nextInt(100) < configuration.getLogSamplingPercentage()) {
-            log.warn("LargeTextNodeDetected table: {} documentId: {} key: {} size: {}",
-                     table, documentId, key, node.textValue().length());
+            log.warn("LargeTextNodeDetected table: {} documentId: {} key: {} value: {}",
+                    table, documentId, key, node.textValue());
         }
 
         return random.nextInt(100) < configuration.getBlockPercentage();

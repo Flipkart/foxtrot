@@ -72,6 +72,16 @@ public class DocumentTranslator {
         return document;
     }
 
+    public Document translateBack(final Document inDocument) {
+        Document document = new Document();
+        document.setId(inDocument.getMetadata() != null ? inDocument.getMetadata()
+                .getId() : inDocument.getId());
+        document.setTimestamp(inDocument.getTimestamp());
+        document.setData(inDocument.getData());
+        document.setDate(Utils.getDate(inDocument.getTimestamp()));
+        return document;
+    }
+
     public DocumentMetadata metadata(final Table table, final Document inDocument) {
         final String rowKey = generateScalableKey(rawStorageIdFromDocument(table, inDocument));
         DocumentMetadata metadata = new DocumentMetadata();
@@ -79,11 +89,6 @@ public class DocumentTranslator {
         metadata.setId(inDocument.getId());
         metadata.setTime(inDocument.getTimestamp());
         return metadata;
-    }
-
-    @VisibleForTesting
-    public String generateScalableKey(String id) {
-        return new String(keyDistributor.getDistributedKey(Bytes.toBytes(id)));
     }
 
     public String rawStorageIdFromDocument(final Table table, final Document document) {
@@ -98,16 +103,9 @@ public class DocumentTranslator {
         }
     }
 
-    public Document translateBack(final Document inDocument) {
-        Document document = new Document();
-        document.setId(inDocument.getMetadata() != null
-                       ? inDocument.getMetadata()
-                               .getId()
-                       : inDocument.getId());
-        document.setTimestamp(inDocument.getTimestamp());
-        document.setData(inDocument.getData());
-        document.setDate(Utils.getDate(inDocument.getTimestamp()));
-        return document;
+    @VisibleForTesting
+    public String generateScalableKey(String id) {
+        return new String(keyDistributor.getDistributedKey(Bytes.toBytes(id)));
     }
 
     public String rawStorageIdFromDocumentId(Table table, String id) {

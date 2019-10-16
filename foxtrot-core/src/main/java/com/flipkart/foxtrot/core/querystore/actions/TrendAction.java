@@ -52,7 +52,9 @@ import java.util.TreeMap;
 import static com.flipkart.foxtrot.core.util.ElasticsearchQueryUtils.QUERY_SIZE;
 
 /**
- * User: Santanu Sinha (santanu.sinha@flipkart.com) Date: 30/03/14 Time: 10:27 PM
+ * User: Santanu Sinha (santanu.sinha@flipkart.com)
+ * Date: 30/03/14
+ * Time: 10:27 PM
  */
 @AnalyticsProvider(opcode = "trend", request = TrendRequest.class, response = TrendResponse.class, cacheable = true)
 public class TrendAction extends Action<TrendRequest> {
@@ -220,10 +222,8 @@ public class TrendAction extends Action<TrendRequest> {
                     String uniqueCountKey = Utils.sanitizeFieldForAggregation(getParameter().getUniqueCountOn());
                     Cardinality cardinality = histogramBucket.getAggregations()
                             .get(uniqueCountKey);
-                    counts.add(new TrendResponse.Count(((DateTime) histogramBucket.getKey()).getMillis(),
-                                                       cardinality.getValue()));
-                }
-                else {
+                    counts.add(new TrendResponse.Count(((DateTime)histogramBucket.getKey()).getMillis(), cardinality.getValue()));
+                } else {
                     counts.add(new TrendResponse.Count(((DateTime) histogramBucket.getKey()).getMillis(),
                                                        histogramBucket.getDocCount()
                     ));

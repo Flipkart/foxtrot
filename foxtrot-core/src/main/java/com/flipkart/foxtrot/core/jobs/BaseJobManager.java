@@ -53,9 +53,8 @@ public abstract class BaseJobManager implements Managed {
         ZonedDateTime timeToRunJob = zonedNow.withHour(baseJobConfig.getInitialDelay())
                 .withMinute(0)
                 .withSecond(0);
-        if (zonedNow.compareTo(timeToRunJob) > 0) {
+        if(zonedNow.compareTo(timeToRunJob) > 0)
             timeToRunJob = timeToRunJob.plusDays(1);
-        }
 
         Duration duration = Duration.between(zonedNow, timeToRunJob);
         long initialDelay = duration.getSeconds();

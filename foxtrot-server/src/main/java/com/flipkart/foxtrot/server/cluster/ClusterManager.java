@@ -49,15 +49,13 @@ public class ClusterManager implements Managed {
         String hostname = Inet4Address.getLocalHost()
                 .getCanonicalHostName();
         //Auto detect marathon environment and query for host environment variable
-        if (!Strings.isNullOrEmpty(System.getenv("HOST"))) {
+        if(!Strings.isNullOrEmpty(System.getenv("HOST")))
             hostname = System.getenv("HOST");
-        }
         Preconditions.checkNotNull(hostname, "Could not retrieve hostname, cannot proceed");
         int port = ServerUtils.port(serverFactory);
         //Auto detect marathon environment and query for host environment variable
-        if (!Strings.isNullOrEmpty(System.getenv("PORT_" + port))) {
+        if(!Strings.isNullOrEmpty(System.getenv("PORT_" + port)))
             port = Integer.parseInt(System.getenv("PORT_" + port));
-        }
         executor = Executors.newScheduledThreadPool(1);
         clusterMember = new ClusterMember(hostname, port);
     }

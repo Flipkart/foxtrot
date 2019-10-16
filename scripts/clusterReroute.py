@@ -5,7 +5,17 @@ import pprint
 import requests
 import time
 
-host = "prd-esfoxtrot601.phonepe.nm1"
+# body = {
+#     "commands" : [
+#         {
+#             "move" : {
+#                 "index" : None, "shard" : None,
+#                 "from_node" : None, "to_node" : None
+#             }
+#         }
+#     ]
+# }
+host = "localhost"
 
 
 def convertToGb(dataSize):
@@ -25,9 +35,14 @@ def convertToGb(dataSize):
 
 
 def getData():
+    # now = datetime.datetime.now()
+    # url = "http://" + host + ":9200/_cat/shards/foxtrot-*-table-%d-%d-2019" %(now.day, now.month)
+    # print url
     url = "http://" + host + ":9200/_cat/shards/"
     r = requests.get(url)
+    # print r.status_code
     data = r.text
+    # print data
     return data.splitlines()
 
 

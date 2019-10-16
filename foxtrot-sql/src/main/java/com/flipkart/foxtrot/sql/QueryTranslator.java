@@ -61,14 +61,6 @@ public class QueryTranslator extends SqlElementVisitor {
     private List<ResultSort> columnsWithSort = Lists.newArrayList();
 
     @Override
-    public void visit(Function function) {
-        List params = function.getParameters()
-                .getExpressions();
-
-        ((Expression) params.toArray()[0]).accept(this);
-    }
-
-    @Override
     public void visit(PlainSelect plainSelect) {
         List selectItems = plainSelect.getSelectItems();
         for (Object selectItem : selectItems) {
@@ -118,6 +110,63 @@ public class QueryTranslator extends SqlElementVisitor {
         }
 
         handleDistinct(plainSelect);
+    }
+
+    private void handleDistinct(PlainSelect plainSelect) {
+        List<ResultSort> tempColumnsWithSort = generateColumnSort(plainSelect.getOrderByElements());
+        if(null != plainSelect.getDistinct()) {
+            for(String selectedColumn : selectedColumns) {
+                boolean alreadyAdded = false;
+                for(ResultSort columnWithSort : tempColumnsWithSort) {
+                    if(selectedColumn.equalsIgnoreCase(columnWithSort.getField())) {
+                        columnsWithSort.add(columnWithSort);
+                        alreadyAdded = true;
+                        break;
+                    }
+                }
+                if(!alreadyAdded) {
+                    ResultSort columnWithoutSort = new ResultSort();
+                    columnWithoutSort.setField(selectedColumn);
+                    columnWithoutSort.setOrder(ResultSort.Order.desc);
+                    columnsWithSort.add(columnWithoutSort);
+                }
+            }
+            this.queryType = FqlQueryType.DISTINCT;
+        }
+    }
+
+    @Override
+    public void visit(Select select) {
+        select.getSelectBody()
+                .accept(this);
+    }
+
+    @Override
+    public void visit(Table tableName) {
+        this.tableName = tableName.getName()
+                .replaceAll(Constants.SQL_TABLE_REGEX, "");
+    }
+
+    @Override
+    public void visit(Function function) {
+        List params = function.getParameters()
+                .getExpressions();
+
+        ((Expression)params.toArray()[0]).accept(this);
+    }
+
+    @Override
+    public void visit(ExpressionList expressionList) {
+        ExpressionList expressions = (ExpressionList)expressionList.getExpressions();
+        for(Object expression : expressions.getExpressions()) {
+            logger.info("Expression: {}", expression.getClass());
+        }
+    }
+
+    @Override
+    public void visit(SelectExpressionItem selectExpressionItem) {
+        selectExpressionItem.getExpression()
+                .accept(this);
     }
 
     public FqlQuery translate(String sql) {
@@ -181,29 +230,6 @@ public class QueryTranslator extends SqlElementVisitor {
         return new FqlActionQuery(request, selectedColumns);
     }
 
-    private void handleDistinct(PlainSelect plainSelect) {
-        List<ResultSort> tempColumnsWithSort = generateColumnSort(plainSelect.getOrderByElements());
-        if (null != plainSelect.getDistinct()) {
-            for (String selectedColumn : selectedColumns) {
-                boolean alreadyAdded = false;
-                for (ResultSort columnWithSort : tempColumnsWithSort) {
-                    if (selectedColumn.equalsIgnoreCase(columnWithSort.getField())) {
-                        columnsWithSort.add(columnWithSort);
-                        alreadyAdded = true;
-                        break;
-                    }
-                }
-                if (!alreadyAdded) {
-                    ResultSort columnWithoutSort = new ResultSort();
-                    columnWithoutSort.setField(selectedColumn);
-                    columnWithoutSort.setOrder(ResultSort.Order.desc);
-                    columnsWithSort.add(columnWithoutSort);
-                }
-            }
-            this.queryType = FqlQueryType.DISTINCT;
-        }
-    }
-
     private ActionRequest createSelectActionRequest() {
         Query query = new Query();
         query.setTable(tableName);
@@ -216,12 +242,6 @@ public class QueryTranslator extends SqlElementVisitor {
         return query;
     }
 
-    @Override
-    public void visit(Select select) {
-        select.getSelectBody()
-                .accept(this);
-    }
-
     private ActionRequest createGroupActionRequest() {
         GroupRequest group = new GroupRequest();
         group.setTable(tableName);
@@ -229,12 +249,6 @@ public class QueryTranslator extends SqlElementVisitor {
         group.setFilters(filters);
         setUniqueCountOn(group);
         return group;
-    }
-
-    @Override
-    public void visit(Table tableName) {
-        this.tableName = tableName.getName()
-                .replaceAll(Constants.SQL_TABLE_REGEX, "");
     }
 
     private ActionRequest createTrendActionRequest() {
@@ -251,25 +265,11 @@ public class QueryTranslator extends SqlElementVisitor {
         return statsTrend;
     }
 
-    @Override
-    public void visit(ExpressionList expressionList) {
-        ExpressionList expressions = (ExpressionList) expressionList.getExpressions();
-        for (Object expression : expressions.getExpressions()) {
-            logger.info("Expression: {}", expression.getClass());
-        }
-    }
-
     private ActionRequest createStatsActionRequest() {
         StatsRequest stats = (StatsRequest) calledAction;
         stats.setTable(tableName);
         stats.setFilters(filters);
         return stats;
-    }
-
-    @Override
-    public void visit(SelectExpressionItem selectExpressionItem) {
-        selectExpressionItem.getExpression()
-                .accept(this);
     }
 
     private ActionRequest createHistogramActionRequest() {
@@ -294,16 +294,6 @@ public class QueryTranslator extends SqlElementVisitor {
         return distinctRequest;
     }
 
-    private void setUniqueCountOn(GroupRequest group) {
-        if (calledAction instanceof CountRequest) {
-            CountRequest countRequest = (CountRequest) this.calledAction;
-            boolean distinct = countRequest.isDistinct();
-            if (distinct) {
-                group.setUniqueCountOn(countRequest.getField());
-            }
-        }
-    }
-
     private ResultSort generateResultSort(List<OrderByElement> orderByElements) {
 
         if (CollectionUtils.isEmpty(orderByElements)) {
@@ -318,6 +308,16 @@ public class QueryTranslator extends SqlElementVisitor {
                                   : ResultSort.Order.desc);
         logger.info("ResultSort: {}", resultSortColumn);
         return resultSortColumn;
+    }
+
+    private void setUniqueCountOn(GroupRequest group) {
+        if(calledAction instanceof CountRequest) {
+            CountRequest countRequest = (CountRequest)this.calledAction;
+            boolean distinct = countRequest.isDistinct();
+            if(distinct) {
+                group.setUniqueCountOn(countRequest.getField());
+            }
+        }
     }
 
     private List<ResultSort> generateColumnSort(List<OrderByElement> orderItems) {
@@ -762,10 +762,6 @@ public class QueryTranslator extends SqlElementVisitor {
 
         private FqlQuery query;
 
-        public FqlQuery getQuery() {
-            return query;
-        }
-
         @Override
         public void visit(Describe describe) {
             query = new FqlDescribeTable(describe.getTable()
@@ -777,7 +773,9 @@ public class QueryTranslator extends SqlElementVisitor {
             query = new FqlShowTablesQuery();
         }
 
-
+        public FqlQuery getQuery() {
+            return query;
+        }
     }
 
 

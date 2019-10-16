@@ -1,14 +1,17 @@
 /**
  * Copyright 2014 Flipkart Internet Pvt. Ltd.
  * <p/>
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  * <p/>
  * http://www.apache.org/licenses/LICENSE-2.0
  * <p/>
- * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
- * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
- * specific language governing permissions and limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package com.flipkart.foxtrot.server;
 
@@ -51,12 +54,8 @@ import com.flipkart.foxtrot.core.table.TableMetadataManager;
 import com.flipkart.foxtrot.core.table.impl.DistributedTableMetadataManager;
 import com.flipkart.foxtrot.core.table.impl.FoxtrotTableManager;
 import com.flipkart.foxtrot.core.util.MetricUtil;
-import com.flipkart.foxtrot.gandalf.access.AccessService;
-import com.flipkart.foxtrot.gandalf.access.AccessServiceImpl;
-import com.flipkart.foxtrot.gandalf.manager.GandalfManager;
 import com.flipkart.foxtrot.server.cluster.ClusterManager;
 import com.flipkart.foxtrot.server.config.FoxtrotServerConfiguration;
-import com.flipkart.foxtrot.server.config.GandalfConfiguration;
 import com.flipkart.foxtrot.server.console.ElasticsearchConsolePersistence;
 import com.flipkart.foxtrot.server.jobs.consolehistory.ConsoleHistoryConfig;
 import com.flipkart.foxtrot.server.jobs.consolehistory.ConsoleHistoryManager;
@@ -68,34 +67,19 @@ import com.flipkart.foxtrot.server.resources.*;
 import com.flipkart.foxtrot.sql.FqlEngine;
 import com.flipkart.foxtrot.sql.fqlstore.FqlStoreService;
 import com.flipkart.foxtrot.sql.fqlstore.FqlStoreServiceImpl;
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
-import com.phonepe.gandalf.client.GandalfBundle;
-import com.phonepe.gandalf.client.GandalfClient;
-import com.phonepe.gandalf.models.client.GandalfClientConfig;
-import com.phonepe.platform.http.OkHttpUtils;
-import com.phonepe.platform.http.ServiceEndpointProvider;
-import com.phonepe.platform.http.ServiceEndpointProviderFactory;
-import com.phonepe.rosey.dwconfig.RoseyConfigSourceProvider;
-import io.appform.dropwizard.discovery.bundle.ServiceDiscoveryBundle;
-import io.appform.dropwizard.discovery.bundle.ServiceDiscoveryConfiguration;
+import com.google.common.collect.ImmutableList;
 import io.dropwizard.Application;
 import io.dropwizard.assets.AssetsBundle;
 import io.dropwizard.configuration.EnvironmentVariableSubstitutor;
 import io.dropwizard.configuration.SubstitutingSourceProvider;
 import io.dropwizard.oor.OorBundle;
-import io.dropwizard.primer.model.PrimerBundleConfiguration;
-import io.dropwizard.riemann.RiemannBundle;
-import io.dropwizard.riemann.RiemannConfig;
 import io.dropwizard.server.AbstractServerFactory;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
 import io.dropwizard.util.Duration;
 import io.federecio.dropwizard.swagger.SwaggerBundle;
 import io.federecio.dropwizard.swagger.SwaggerBundleConfiguration;
-import okhttp3.OkHttpClient;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.curator.framework.CuratorFramework;
 import org.eclipse.jetty.servlets.CrossOriginFilter;
 
 import javax.servlet.DispatcherType;
@@ -107,30 +91,16 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ScheduledExecutorService;
 
 /**
- * User: Santanu Sinha (santanu.sinha@flipkart.com) Date: 15/03/14 Time: 9:38 PM
+ * User: Santanu Sinha (santanu.sinha@flipkart.com)
+ * Date: 15/03/14
+ * Time: 9:38 PM
  */
 public class FoxtrotServer extends Application<FoxtrotServerConfiguration> {
 
-    private ServiceDiscoveryBundle<FoxtrotServerConfiguration> serviceDiscoveryBundle;
-
-    @Override
-    public String getName() {
-        return "foxtrot";
-    }
-
     @Override
     public void initialize(Bootstrap<FoxtrotServerConfiguration> bootstrap) {
-        boolean localConfig = Boolean.parseBoolean(System.getProperty("localConfig", "false"));
-        if (localConfig) {
             bootstrap.setConfigurationSourceProvider(
-                    new SubstitutingSourceProvider(bootstrap.getConfigurationSourceProvider(),
-                                                   new EnvironmentVariableSubstitutor()));
-        }
-        else {
-            bootstrap.setConfigurationSourceProvider(
-                    new SubstitutingSourceProvider(new RoseyConfigSourceProvider("platform", "foxtrot"),
-                                                   new EnvironmentVariableSubstitutor()));
-        }
+                new SubstitutingSourceProvider(bootstrap.getConfigurationSourceProvider(), new EnvironmentVariableSubstitutor(false)));
         bootstrap.addBundle(new AssetsBundle("/console/", "/", "index.html", "console"));
         bootstrap.addBundle(new OorBundle<FoxtrotServerConfiguration>() {
             public boolean withOor() {
@@ -138,67 +108,22 @@ public class FoxtrotServer extends Application<FoxtrotServerConfiguration> {
             }
         });
 
-        this.serviceDiscoveryBundle = new ServiceDiscoveryBundle<FoxtrotServerConfiguration>() {
-            @Override
-            protected ServiceDiscoveryConfiguration getRangerConfiguration(FoxtrotServerConfiguration configuration) {
-                return configuration.getServiceDiscovery();
-            }
-
-            @Override
-            protected String getServiceName(FoxtrotServerConfiguration configuration) {
-                if (configuration.getRangerConfiguration() != null && configuration.getRangerConfiguration()
-                        .getServiceName() != null) {
-                    return configuration.getRangerConfiguration()
-                            .getServiceName();
-                }
-                return "foxtrot-es6";
-            }
-
-            @Override
-            protected int getPort(FoxtrotServerConfiguration configuration) {
-                return configuration.getServiceDiscovery()
-                        .getPublishedPort();
-            }
-        };
-        bootstrap.addBundle(serviceDiscoveryBundle);
-
-        GandalfBundle gandalfBundle = new GandalfBundle<FoxtrotServerConfiguration>() {
-            @Override
-            protected CuratorFramework getCuratorFramework() {
-                return serviceDiscoveryBundle.getCurator();
-            }
-
-            @Override
-            protected GandalfClientConfig getGandalfClientConfig(
-                    FoxtrotServerConfiguration foxtrotServerConfiguration) {
-                return foxtrotServerConfiguration.getGandalfConfig();
-            }
-
-            @Override
-            protected PrimerBundleConfiguration getGandalfPrimerConfig(
-                    FoxtrotServerConfiguration foxtrotServerConfiguration) {
-                return foxtrotServerConfiguration.getPrimerBundleConfiguration();
-            }
-        };
-
-        bootstrap.addBundle(gandalfBundle);
-
-        bootstrap.addBundle(new RiemannBundle<FoxtrotServerConfiguration>() {
-            @Override
-            public RiemannConfig getRiemannConfiguration(FoxtrotServerConfiguration configuration) {
-                return configuration.getRiemann();
-            }
-        });
+        final SwaggerBundleConfiguration swaggerBundleConfiguration = getSwaggerBundleConfiguration();
 
         bootstrap.addBundle(new SwaggerBundle<FoxtrotServerConfiguration>() {
             @Override
             protected SwaggerBundleConfiguration getSwaggerBundleConfiguration(FoxtrotServerConfiguration configuration) {
-                return configuration.getSwagger();
+                return swaggerBundleConfiguration;
             }
         });
 
         bootstrap.addCommand(new InitializerCommand());
         configureObjectMapper(bootstrap.getObjectMapper());
+    }
+
+    @Override
+    public String getName() {
+        return "foxtrot";
     }
 
     @Override
@@ -238,17 +163,15 @@ public class FoxtrotServer extends Application<FoxtrotServerConfiguration> {
         final ObjectMapper objectMapper = environment.getObjectMapper();
         TableMetadataManager tableMetadataManager = new DistributedTableMetadataManager(hazelcastConnection,
                                                                                         elasticsearchConnection,
-                                                                                        objectMapper,
-                                                                                        cardinalityConfig);
-        DataStore dataStore = new HBaseDataStore(hbaseTableConnection, objectMapper,
-                                                 new DocumentTranslator(configuration.getHbase()));
+                                                                                        objectMapper, cardinalityConfig
+        );
 
         List<IndexerEventMutator> mutators = Lists.newArrayList(new LargeTextNodeRemover(objectMapper,
                                                                                          configuration.getTextNodeRemover()));
-        QueryStore queryStore = new ElasticsearchQueryStore(tableMetadataManager, elasticsearchConnection, dataStore,
-                                                            mutators, objectMapper, cardinalityConfig);
-        TableActionRequestVisitor actionRequestVisitor = new TableActionRequestVisitor();
-        AccessService accessService = new AccessServiceImpl(configuration.isRestrictAccess(), actionRequestVisitor);
+        DataStore dataStore = new HBaseDataStore(hbaseTableConnection, objectMapper, new DocumentTranslator(configuration.getHbase()));
+        QueryStore queryStore = new ElasticsearchQueryStore(tableMetadataManager, elasticsearchConnection, dataStore, mutators, objectMapper,
+                                                            cardinalityConfig
+        );
         FqlStoreService fqlStoreService = new FqlStoreServiceImpl(elasticsearchConnection, objectMapper);
         FoxtrotTableManager tableManager = new FoxtrotTableManager(tableMetadataManager, queryStore, dataStore);
         CacheManager cacheManager = new CacheManager(new DistributedCacheFactory(hazelcastConnection,
@@ -281,8 +204,11 @@ public class FoxtrotServer extends Application<FoxtrotServerConfiguration> {
         DataDeletionManager dataDeletionManager = new DataDeletionManager(dataDeletionManagerConfig, queryStore,
                                                                           scheduledExecutorService,
                                                                           hazelcastConnection);
-        CardinalityCalculationManager cardinalityCalculationManager = new CardinalityCalculationManager(
-                tableMetadataManager, cardinalityConfig, hazelcastConnection, scheduledExecutorService);
+        CardinalityCalculationManager cardinalityCalculationManager = new CardinalityCalculationManager(tableMetadataManager,
+                                                                                                        cardinalityConfig,
+                                                                                                        hazelcastConnection,
+                                                                                                        scheduledExecutorService
+        );
         EsIndexOptimizationManager esIndexOptimizationManager = new EsIndexOptimizationManager(scheduledExecutorService,
                                                                                                esIndexOptimizationConfig,
                                                                                                elasticsearchConnection,
@@ -299,21 +225,6 @@ public class FoxtrotServer extends Application<FoxtrotServerConfiguration> {
         List<HealthCheck> healthChecks = new ArrayList<>();
         ClusterManager clusterManager = new ClusterManager(hazelcastConnection, healthChecks,
                                                            configuration.getServerFactory());
-
-        ServiceEndpointProviderFactory serviceEndpointFactory = new ServiceEndpointProviderFactory(this.serviceDiscoveryBundle
-                                                                                                           .getCurator());
-        ServiceEndpointProvider gandalfEndpoint = serviceEndpointFactory.provider(configuration.getGandalfConfig()
-                                                                                          .getHttpConfig(),
-                                                                                  environment);
-
-        OkHttpClient okHttp = OkHttpUtils.createDefaultClient("foxtrot-gandalf-client",
-                                                              environment.metrics(),
-                                                              configuration.getGandalfConfig().getHttpConfig());
-        GandalfManager gandalfManager = new GandalfManager(environment.getObjectMapper(),
-                                                           okHttp,
-                                                           gandalfEndpoint,
-                                                           configuration.getGandalfConfiguration().getUsername(),
-                                                           configuration.getGandalfConfiguration().getPassword());
 
         environment.lifecycle()
                 .manage(hbaseTableConnection);
@@ -343,13 +254,9 @@ public class FoxtrotServer extends Application<FoxtrotServerConfiguration> {
         environment.jersey()
                 .register(new AsyncResource(cacheManager));
         environment.jersey()
-                .register(new AnalyticsResource(executor, configuration.getQueryConfig()));
-        environment.jersey()
-                .register(new AnalyticsV2Resource(executor, accessService, configuration.getQueryConfig()));
+                .register(new AnalyticsResource(executor));
         environment.jersey()
                 .register(new TableManagerResource(tableManager));
-        environment.jersey()
-                .register(new TableManagerV2Resource(tableManager, gandalfManager));
         environment.jersey()
                 .register(new TableFieldMappingResource(tableManager, tableMetadataManager));
         environment.jersey()
@@ -360,7 +267,7 @@ public class FoxtrotServer extends Application<FoxtrotServerConfiguration> {
                         new ElasticsearchConsolePersistence(elasticsearchConnection, objectMapper)));
         FqlEngine fqlEngine = new FqlEngine(tableMetadataManager, queryStore, executor, objectMapper);
         environment.jersey()
-                .register(new FqlResource(fqlEngine, fqlStoreService, accessService, configuration.getQueryConfig()));
+                .register(new FqlResource(fqlEngine, fqlStoreService));
         environment.jersey()
                 .register(new ClusterInfoResource(clusterManager));
         environment.jersey()
@@ -395,16 +302,6 @@ public class FoxtrotServer extends Application<FoxtrotServerConfiguration> {
         ((AbstractServerFactory) configuration.getServerFactory()).setJerseyRootPath("/foxtrot");
 
         MetricUtil.setup(environment.metrics());
-        GandalfConfiguration gandalfConfiguration = configuration.getGandalfConfiguration();
-        if (gandalfConfiguration != null && StringUtils.isNotEmpty(gandalfConfiguration.getRedirectUrl())) {
-            GandalfClient.initializeUrlPatternsAuthentication(gandalfConfiguration.getRedirectUrl(),
-                                                              gandalfConfiguration.getServiceBaseUrl(),
-                                                              "/echo/*",
-                                                              "/cluster/*",
-                                                              "/fql/*",
-                                                              "/",
-                                                              "/index.html");
-        }
 
     }
 
@@ -413,6 +310,15 @@ public class FoxtrotServer extends Application<FoxtrotServerConfiguration> {
         objectMapper.disable(SerializationFeature.FAIL_ON_EMPTY_BEANS);
         objectMapper.registerSubtypes(new NamedType(SimpleClusterDiscoveryConfig.class, "foxtrot_simple"));
         objectMapper.registerSubtypes(new NamedType(MarathonClusterDiscoveryConfig.class, "foxtrot_marathon"));
+    }
+
+    private SwaggerBundleConfiguration getSwaggerBundleConfiguration() {
+        final SwaggerBundleConfiguration swaggerBundleConfiguration = new SwaggerBundleConfiguration();
+        swaggerBundleConfiguration.setTitle("Foxtrot");
+        swaggerBundleConfiguration.setResourcePackage("com.flipkart.foxtrot.server.resources");
+        swaggerBundleConfiguration.setUriPrefix("/foxtrot");
+        swaggerBundleConfiguration.setDescription("A store abstraction and analytics system for real-time event data.");
+        return swaggerBundleConfiguration;
     }
 
 }

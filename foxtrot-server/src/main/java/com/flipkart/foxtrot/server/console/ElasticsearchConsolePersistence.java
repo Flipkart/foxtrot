@@ -1,20 +1,22 @@
 /**
  * Copyright 2014 Flipkart Internet Pvt. Ltd.
  * <p>
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  * <p>
  * http://www.apache.org/licenses/LICENSE-2.0
  * <p>
- * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
- * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
- * specific language governing permissions and limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package com.flipkart.foxtrot.server.console;
 
 import com.collections.CollectionUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.flipkart.foxtrot.core.exception.FoxtrotException;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConnection;
 import com.flipkart.foxtrot.core.util.ElasticsearchQueryUtils;
 import org.elasticsearch.action.get.GetResponse;
@@ -224,40 +226,6 @@ public class ElasticsearchConsolePersistence implements ConsolePersistence {
         }
     }
 
-    private void preProcess(ConsoleV2 console) throws FoxtrotException {
-        if (console.getUpdatedAt() == 0L) {
-            console.setUpdatedAt(System.currentTimeMillis());
-        }
-        ConsoleV2 oldConsole = getV2(console.getId());
-        if (oldConsole == null) {
-            return;
-        }
-        if (oldConsole.getUpdatedAt() != 0L && oldConsole.getUpdatedAt() > console.getUpdatedAt()) {
-            throw new ConsolePersistenceException(console.getId(), "Updated version of console exists. Kindly refresh" +
-                    " your dashboard");
-        }
-        console.setUpdatedAt(System.currentTimeMillis());
-
-    }
-
-    @Override
-    public void deleteV2(String id) {
-        try {
-            connection.getClient()
-                    .prepareDelete()
-                    .setRefreshPolicy(WriteRequest.RefreshPolicy.IMMEDIATE)
-                    .setIndex(INDEX_V2)
-                    .setType(TYPE)
-                    .setId(id)
-                    .execute()
-                    .actionGet();
-            logger.info("Deleted Console : {}", id);
-        }
-        catch (Exception e) {
-            throw new ConsolePersistenceException(id, "console deletion_failed", e);
-        }
-    }
-
     @Override
     public List<ConsoleV2> getAllOldVersions(final String name, final String sortBy) {
         try {
@@ -300,24 +268,6 @@ public class ElasticsearchConsolePersistence implements ConsolePersistence {
         }
         catch (Exception e) {
             throw new ConsoleFetchException(e);
-        }
-    }
-
-    @Override
-    public void deleteOldVersion(String id) {
-        try {
-            connection.getClient()
-                    .prepareDelete()
-                    .setRefreshPolicy(WriteRequest.RefreshPolicy.IMMEDIATE)
-                    .setIndex(INDEX_HISTORY)
-                    .setType(TYPE)
-                    .setId(id)
-                    .execute()
-                    .actionGet();
-            logger.info("Deleted Old Console : {}", id);
-        }
-        catch (Exception e) {
-            throw new ConsolePersistenceException(id, "old console deletion_failed", e);
         }
     }
 
@@ -373,6 +323,40 @@ public class ElasticsearchConsolePersistence implements ConsolePersistence {
         }
         console.setUpdatedAt(System.currentTimeMillis());
         console.setVersion(version + 1);
+    }
+
+    @Override
+    public void deleteV2(String id) {
+        try {
+            connection.getClient()
+                    .prepareDelete()
+                    .setRefreshPolicy(WriteRequest.RefreshPolicy.IMMEDIATE)
+                    .setIndex(INDEX_V2)
+                    .setType(TYPE)
+                    .setId(id)
+                    .execute()
+                    .actionGet();
+            logger.info("Deleted Console : {}", id);
+        } catch (Exception e) {
+            throw new ConsolePersistenceException(id, "console deletion_failed", e);
+        }
+    }
+
+    @Override
+    public void deleteOldVersion(String id) {
+        try {
+            connection.getClient()
+                    .prepareDelete()
+                    .setRefreshPolicy(WriteRequest.RefreshPolicy.IMMEDIATE)
+                    .setIndex(INDEX_HISTORY)
+                    .setType(TYPE)
+                    .setId(id)
+                    .execute()
+                    .actionGet();
+            logger.info("Deleted Old Console : {}", id);
+        } catch (Exception e) {
+            throw new ConsolePersistenceException(id, "old console deletion_failed", e);
+        }
     }
 
     private void saveOldConsole(ConsoleV2 console) {

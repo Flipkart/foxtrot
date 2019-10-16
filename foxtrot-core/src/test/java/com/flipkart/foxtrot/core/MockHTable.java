@@ -1,14 +1,17 @@
 /**
  * Copyright 2014 Flipkart Internet Pvt. Ltd.
  * <p>
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  * <p>
  * http://www.apache.org/licenses/LICENSE-2.0
  * <p>
- * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
- * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
- * specific language governing permissions and limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package com.flipkart.foxtrot.core;
 
@@ -34,10 +37,12 @@ import java.util.*;
 import java.util.Map.Entry;
 
 /**
- * Mock implementation of HTableInterface. Holds any supplied data in a multi-dimensional NavigableMap which acts as a
- * in-memory database. Useful for testing classes that operate on data using an HTableInterface.
+ * Mock implementation of HTableInterface. Holds any supplied data in a
+ * multi-dimensional NavigableMap which acts as a in-memory database. Useful for
+ * testing classes that operate on data using an HTableInterface.
  * <p/>
- * Instances should be get using <code>MockHTable.create()</code>. So while a DAO with a saving operation like
+ * Instances should be get using <code>MockHTable.create()</code>. So while a
+ * DAO with a saving operation like
  * <p/>
  * <pre>
  * public class MyDAO {
@@ -74,8 +79,9 @@ import java.util.Map.Entry;
  * }
  * </pre>
  * <p/>
- * MockHTable instances can also be initialized with pre-loaded data using one of the String[][] or Map<String,
- * Map<String, String>> data formats. While String[][] parameter lets directly loading data from source code, Map can be
+ * MockHTable instances can also be initialized with pre-loaded data using one
+ * of the String[][] or Map<String, Map<String, String>> data formats. While
+ * String[][] parameter lets directly loading data from source code, Map can be
  * generated from a YAML document, using a parser.
  * <p/>
  * <pre>
@@ -94,8 +100,9 @@ import java.util.Map.Entry;
  * <code>MockHTable.toEString()</code> can be used to turn it into a String.
  * <p/>
  * <p/>
- * In order to simplify assertions for tests that should put anything into database, MockHTable.read() works with two
- * parameters (id and column) and returns anything written to that row/column. So, previous test can be reduced to
+ * In order to simplify assertions for tests that should put anything into
+ * database, MockHTable.read() works with two parameters (id and column) and
+ * returns anything written to that row/column. So, previous test can be reduced to
  * <p/>
  * <pre>
  * &#064;Test
@@ -109,8 +116,8 @@ import java.util.Map.Entry;
  *
  * @author erdem
  * <p/>
- * Copied from https://gist.github.com/raw/613217/70df8a70dcac2fff1d239d43e8f52c43043d30bf/MockHTable.java. See
- * http://blog.erdemagaoglu.com/post/1254694314/unit-testing-hbase-applications.
+ * Copied from https://gist.github.com/raw/613217/70df8a70dcac2fff1d239d43e8f52c43043d30bf/MockHTable.java.
+ * See http://blog.erdemagaoglu.com/post/1254694314/unit-testing-hbase-applications.
  */
 public class MockHTable implements Table {
 
@@ -125,6 +132,56 @@ public class MockHTable implements Table {
     }
 
     /**
+     * Helper method to convert some data into a list of KeyValue's
+     *
+     * @param row         row value of the KeyValue's
+     * @param rowdata     data to decode
+     * @param maxVersions number of versions to return
+     * @return List of KeyValue's
+     */
+    private static List<KeyValue> toKeyValue(byte[] row, NavigableMap<byte[], NavigableMap<byte[], NavigableMap<Long, byte[]>>> rowdata,
+                                             int maxVersions) {
+        return toKeyValue(row, rowdata, 0, Long.MAX_VALUE, maxVersions);
+    }
+
+    /**
+     * Helper method to convert some data into a list of KeyValue's with timestamp
+     * constraint
+     *
+     * @param row            row value of the KeyValue's
+     * @param rowdata        data to decode
+     * @param timestampStart start of the timestamp constraint
+     * @param timestampEnd   end of the timestamp constraint
+     * @param maxVersions    number of versions to return
+     * @return List of KeyValue's
+     */
+    private static List<KeyValue> toKeyValue(byte[] row, NavigableMap<byte[], NavigableMap<byte[], NavigableMap<Long, byte[]>>> rowdata,
+                                             long timestampStart, long timestampEnd, int maxVersions) {
+        List<KeyValue> ret = new ArrayList<KeyValue>();
+        for(byte[] family : rowdata.keySet()) {
+            for(byte[] qualifier : rowdata.get(family)
+                    .keySet()) {
+                int versionsAdded = 0;
+                for(Entry<Long, byte[]> tsToVal : rowdata.get(family)
+                        .get(qualifier)
+                        .descendingMap()
+                        .entrySet()) {
+                    if(versionsAdded++ == maxVersions)
+                        break;
+                    Long timestamp = tsToVal.getKey();
+                    if(timestamp < timestampStart)
+                        continue;
+                    if(timestamp > timestampEnd)
+                        continue;
+                    byte[] value = tsToVal.getValue();
+                    ret.add(new KeyValue(row, family, qualifier, timestamp, value));
+                }
+            }
+        }
+        return ret;
+    }
+
+    /**
      * Default way of constructing a MockHTable
      *
      * @return a new MockHTable
@@ -134,8 +191,8 @@ public class MockHTable implements Table {
     }
 
     /**
-     * Create a MockHTable with some pre-loaded data. Parameter should be a map of column-to-data mappings of rows. It
-     * can be created with a YAML like
+     * Create a MockHTable with some pre-loaded data. Parameter should be a map of
+     * column-to-data mappings of rows. It can be created with a YAML like
      * <p/>
      * <pre>
      * rowid:
@@ -185,18 +242,8 @@ public class MockHTable implements Table {
     }
 
     /**
-     * Column identification helper
-     *
-     * @param column column name in the format family:qualifier
-     * @return <code>{"family", "qualifier"}</code>
-     */
-    private static String[] split(String column) {
-        return new String[]{column.substring(0, column.indexOf(':')), column.substring(column.indexOf(':') + 1)};
-    }
-
-    /**
-     * Create a MockHTable with some pre-loaded data. Parameter should be an array of string arrays which define every
-     * column value individually.
+     * Create a MockHTable with some pre-loaded data. Parameter should be an array
+     * of string arrays which define every column value individually.
      * <p/>
      * <pre>
      * new String[][] {
@@ -205,6 +252,9 @@ public class MockHTable implements Table {
      *   { "id", "family:qualifier2", "data2" }
      * });
      * </pre>
+     *
+     * @param dump
+     * @return
      */
     public static MockHTable with(String[][] dump) {
         MockHTable ret = new MockHTable();
@@ -212,6 +262,16 @@ public class MockHTable implements Table {
             put(ret, row[0], row[1], row[2]);
         }
         return ret;
+    }
+
+    /**
+     * Column identification helper
+     *
+     * @param column column name in the format family:qualifier
+     * @return <code>{"family", "qualifier"}</code>
+     */
+    private static String[] split(String column) {
+        return new String[]{column.substring(0, column.indexOf(':')), column.substring(column.indexOf(':') + 1)};
     }
 
     public static String toEString(boolean val) {
@@ -236,78 +296,6 @@ public class MockHTable implements Table {
 
     public static String toEString(short val) {
         return Bytes.toStringBinary(Bytes.toBytes(val));
-    }
-
-    /**
-     * Helper method to convert some data into a list of KeyValue's
-     *
-     * @param row         row value of the KeyValue's
-     * @param rowdata     data to decode
-     * @param maxVersions number of versions to return
-     * @return List of KeyValue's
-     */
-    private static List<KeyValue> toKeyValue(
-            byte[] row,
-            NavigableMap<byte[], NavigableMap<byte[], NavigableMap<Long, byte[]>>> rowdata, int maxVersions) {
-        return toKeyValue(row, rowdata, 0, Long.MAX_VALUE, maxVersions);
-    }
-
-    /**
-     * Helper method to convert some data into a list of KeyValue's with timestamp constraint
-     *
-     * @param row            row value of the KeyValue's
-     * @param rowdata        data to decode
-     * @param timestampStart start of the timestamp constraint
-     * @param timestampEnd   end of the timestamp constraint
-     * @param maxVersions    number of versions to return
-     * @return List of KeyValue's
-     */
-    private static List<KeyValue> toKeyValue(
-            byte[] row,
-            NavigableMap<byte[], NavigableMap<byte[], NavigableMap<Long, byte[]>>> rowdata, long timestampStart,
-            long timestampEnd, int maxVersions) {
-        List<KeyValue> ret = new ArrayList<KeyValue>();
-        for (byte[] family : rowdata.keySet()) {
-            for (byte[] qualifier : rowdata.get(family)
-                    .keySet()) {
-                int versionsAdded = 0;
-                for (Entry<Long, byte[]> tsToVal : rowdata.get(family)
-                        .get(qualifier)
-                        .descendingMap()
-                        .entrySet()) {
-                    if (versionsAdded++ == maxVersions) {
-                        break;
-                    }
-                    Long timestamp = tsToVal.getKey();
-                    if (timestamp < timestampStart) {
-                        continue;
-                    }
-                    if (timestamp > timestampEnd) {
-                        continue;
-                    }
-                    byte[] value = tsToVal.getValue();
-                    ret.add(new KeyValue(row, family, qualifier, timestamp, value));
-                }
-            }
-        }
-        return ret;
-    }
-
-    /**
-     * Helper method to find a key in a map. If key is not found, newObject is added to map and returned
-     *
-     * @param map       map to extract value from
-     * @param key       key to look for
-     * @param newObject set key to this if not found
-     * @return found value or newObject if not found
-     */
-    private <K, V> V forceFind(NavigableMap<K, V> map, K key, V newObject) {
-        V data = map.get(key);
-        if (data == null) {
-            data = newObject;
-            map.put(key, data);
-        }
-        return data;
     }
 
     @Override
@@ -373,46 +361,9 @@ public class MockHTable implements Table {
     }
 
     @Override
-    public void batch(List<? extends Row> actions, Object[] results) throws IOException, InterruptedException {
-        results = batch(actions);
-    }
-
-    @Override
-    public Object[] batch(List<? extends Row> actions) throws IOException, InterruptedException {
-        List<Result> results = new ArrayList<Result>();
-        for (Row r : actions) {
-            if (r instanceof Delete) {
-                delete((Delete) r);
-                continue;
-            }
-            if (r instanceof Put) {
-                put((Put) r);
-                continue;
-            }
-            if (r instanceof Get) {
-                results.add(get((Get) r));
-            }
-        }
-        return results.toArray();
-    }
-
-    @Override
-    public <R> void batchCallback(List<? extends Row> actions, Object[] results, Callback<R> callback)
-            throws IOException, InterruptedException {
-
-    }
-
-    @Override
-    public <R> Object[] batchCallback(List<? extends Row> actions, Callback<R> callback)
-            throws IOException, InterruptedException {
-        return new Object[0];
-    }
-
-    @Override
     public Result get(Get get) throws IOException {
-        if (!data.containsKey(get.getRow())) {
+        if(!data.containsKey(get.getRow()))
             return new Result();
-        }
         byte[] row = get.getRow();
         List<KeyValue> kvs = new ArrayList<KeyValue>();
         if (!get.hasFamilies()) {
@@ -422,29 +373,25 @@ public class MockHTable implements Table {
             for (byte[] family : get.getFamilyMap()
                     .keySet()) {
                 if (data.get(row)
-                        .get(family) == null) {
+                           .get(family) == null)
                     continue;
-                }
                 NavigableSet<byte[]> qualifiers = get.getFamilyMap()
                         .get(family);
-                if (qualifiers == null || qualifiers.isEmpty()) {
+                if(qualifiers == null || qualifiers.isEmpty())
                     qualifiers = data.get(row)
                             .get(family)
                             .navigableKeySet();
-                }
                 for (byte[] qualifier : qualifiers) {
-                    if (qualifier == null) {
+                    if(qualifier == null)
                         qualifier = "".getBytes();
-                    }
                     if (!data.get(row)
                             .containsKey(family) || !data.get(row)
                             .get(family)
                             .containsKey(qualifier) || data.get(row)
                             .get(family)
                             .get(qualifier)
-                            .isEmpty()) {
+                               .isEmpty())
                         continue;
-                    }
                     Entry<Long, byte[]> timestampAndValue = data.get(row)
                             .get(family)
                             .get(qualifier)
@@ -480,15 +427,6 @@ public class MockHTable implements Table {
     }
 
     @Override
-    public Result[] get(List<Get> gets) throws IOException {
-        List<Result> results = new ArrayList<Result>();
-        for (Get g : gets) {
-            results.add(get(g));
-        }
-        return results.toArray(new Result[results.size()]);
-    }
-
-    @Override
     public ResultScanner getScanner(Scan scan) throws IOException {
         final List<Result> ret = new ArrayList<Result>();
         byte[] st = scan.getStartRow();
@@ -501,14 +439,12 @@ public class MockHTable implements Table {
             // happen w/o this control.
             if (st != null && st.length > 0 && Bytes.BYTES_COMPARATOR.compare(st, row) != 0) {
                 // if row is before startRow do not emit, pass to next row
-                if (st != null && st.length > 0 && Bytes.BYTES_COMPARATOR.compare(st, row) > 0) {
+                if(st != null && st.length > 0 && Bytes.BYTES_COMPARATOR.compare(st, row) > 0)
                     continue;
-                }
                 // if row is equal to stopRow or after it do not emit, stop iteration
-                if (sp != null && sp.length > 0 && Bytes.BYTES_COMPARATOR.compare(sp, row) <= 0) {
+                if(sp != null && sp.length > 0 && Bytes.BYTES_COMPARATOR.compare(sp, row) <= 0)
                     break;
                 }
-            }
 
             List<KeyValue> kvs = null;
             if (!scan.hasFamilies()) {
@@ -521,34 +457,29 @@ public class MockHTable implements Table {
                 for (byte[] family : scan.getFamilyMap()
                         .keySet()) {
                     if (data.get(row)
-                            .get(family) == null) {
+                               .get(family) == null)
                         continue;
-                    }
                     NavigableSet<byte[]> qualifiers = scan.getFamilyMap()
                             .get(family);
-                    if (qualifiers == null || qualifiers.isEmpty()) {
+                    if(qualifiers == null || qualifiers.isEmpty())
                         qualifiers = data.get(row)
                                 .get(family)
                                 .navigableKeySet();
-                    }
                     for (byte[] qualifier : qualifiers) {
                         if (data.get(row)
                                 .get(family)
-                                .get(qualifier) == null) {
+                                   .get(qualifier) == null)
                             continue;
-                        }
                         for (Long timestamp : data.get(row)
                                 .get(family)
                                 .get(qualifier)
                                 .descendingKeySet()) {
                             if (timestamp < scan.getTimeRange()
-                                    .getMin()) {
+                                    .getMin())
                                 continue;
-                            }
                             if (timestamp > scan.getTimeRange()
-                                    .getMax()) {
+                                    .getMax())
                                 continue;
-                            }
                             byte[] value = data.get(row)
                                     .get(family)
                                     .get(qualifier)
@@ -662,6 +593,24 @@ public class MockHTable implements Table {
         }
     }
 
+    /**
+     * Helper method to find a key in a map. If key is not found, newObject is
+     * added to map and returned
+     *
+     * @param map       map to extract value from
+     * @param key       key to look for
+     * @param newObject set key to this if not found
+     * @return found value or newObject if not found
+     */
+    private <K, V> V forceFind(NavigableMap<K, V> map, K key, V newObject) {
+        V data = map.get(key);
+        if(data == null) {
+            data = newObject;
+            map.put(key, data);
+        }
+        return data;
+    }
+
     @Override
     public void put(List<Put> puts) throws IOException {
         for (Put put : puts) {
@@ -669,32 +618,24 @@ public class MockHTable implements Table {
         }
     }
 
-    @Override
-    public boolean checkAndPut(byte[] row, byte[] family, byte[] qualifier, byte[] value, Put put) throws IOException {
-        if (check(row, family, qualifier, value)) {
-            put(put);
-            return true;
-        }
-        return false;
-    }
-
     /**
-     * Checks if the value with given details exists in database, or is non-existent in the case of value being null
+     * Checks if the value with given details exists in database, or is
+     * non-existent in the case of value being null
      *
      * @param row       row
      * @param family    family
      * @param qualifier qualifier
      * @param value     value
-     * @return true if value is not null and exists in db, or value is null and not exists in db, false otherwise
+     * @return true if value is not null and exists in db, or value is null and
+     * not exists in db, false otherwise
      */
     private boolean check(byte[] row, byte[] family, byte[] qualifier, byte[] value) {
-        if (value == null || value.length == 0) {
+        if(value == null || value.length == 0)
             return !data.containsKey(row) || !data.get(row)
                     .containsKey(family) || !data.get(row)
                     .get(family)
                     .containsKey(qualifier);
-        }
-        else {
+        else
             return data.containsKey(row) && data.get(row)
                     .containsKey(family) && data.get(row)
                     .get(family)
@@ -707,21 +648,27 @@ public class MockHTable implements Table {
                                                         .lastEntry()
                                                         .getValue(), value);
         }
+
+    @Override
+    public boolean checkAndPut(byte[] row, byte[] family, byte[] qualifier, byte[] value, Put put) throws IOException {
+        if(check(row, family, qualifier, value)) {
+            put(put);
+            return true;
+        }
+        return false;
     }
 
     @Override
-    public boolean checkAndPut(
-            byte[] row, byte[] family, byte[] qualifier, CompareFilter.CompareOp compareOp,
-            byte[] value, Put put) throws IOException {
+    public boolean checkAndPut(byte[] row, byte[] family, byte[] qualifier, CompareFilter.CompareOp compareOp, byte[] value, Put put)
+            throws IOException {
         return false;
     }
 
     @Override
     public void delete(Delete delete) throws IOException {
         byte[] row = delete.getRow();
-        if (data.get(row) == null) {
+        if(data.get(row) == null)
             return;
-        }
         if (delete.getFamilyMap()
                 .size() == 0) {
             data.remove(row);
@@ -730,9 +677,8 @@ public class MockHTable implements Table {
         for (byte[] family : delete.getFamilyMap()
                 .keySet()) {
             if (data.get(row)
-                    .get(family) == null) {
+                       .get(family) == null)
                 continue;
-            }
             if (delete.getFamilyMap()
                     .get(family)
                     .isEmpty()) {
@@ -784,33 +730,6 @@ public class MockHTable implements Table {
     }
 
     @Override
-    public void mutateRow(RowMutations rm) throws IOException {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public Result append(Append append) throws IOException {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    @Override
-    public Result increment(Increment increment) throws IOException {
-        List<KeyValue> kvs = new ArrayList<KeyValue>();
-        NavigableMap<byte[], List<KeyValue>> famToVal = increment.getFamilyMap();
-        for (Entry<byte[], List<KeyValue>> ef : famToVal.entrySet()) {
-            byte[] family = ef.getKey();
-            List<KeyValue> qToVal = ef.getValue();
-            for (KeyValue eq : qToVal) {
-                incrementColumnValue(increment.getRow(), family, eq.getKey(), eq.getValueLength());
-                kvs.add(new KeyValue(increment.getRow(), family, eq.getKey(), eq.getValue()));
-            }
-        }
-        return new Result(kvs);
-    }
-
-    @Override
     public long incrementColumnValue(byte[] row, byte[] family, byte[] qualifier, long amount) throws IOException {
         return incrementColumnValue(row, family, qualifier, amount, Durability.ASYNC_WAL);
     }
@@ -859,36 +778,62 @@ public class MockHTable implements Table {
     }
 
     @Override
-    public long getWriteBufferSize() {
-        // TODO Auto-generated method stub
-        return 0;
+    public Object[] batch(List<? extends Row> actions) throws IOException, InterruptedException {
+        List<Result> results = new ArrayList<Result>();
+        for(Row r : actions) {
+            if(r instanceof Delete) {
+                delete((Delete)r);
+                continue;
+            }
+            if(r instanceof Put) {
+                put((Put)r);
+                continue;
+            }
+            if(r instanceof Get) {
+                results.add(get((Get)r));
+            }
+        }
+        return results.toArray();
     }
 
     @Override
-    public void setWriteBufferSize(long writeBufferSize) throws IOException {
-        // TODO Auto-generated method stub
-    }
-
-    @Override
-    public <R extends Message> Map<byte[], R> batchCoprocessorService(
-            Descriptors.MethodDescriptor methodDescriptor,
-            Message request, byte[] startKey, byte[] endKey, R responsePrototype) throws ServiceException, Throwable {
-        return null;
-    }
-
-    @Override
-    public <R extends Message> void batchCoprocessorService(
-            Descriptors.MethodDescriptor methodDescriptor,
-            Message request, byte[] startKey, byte[] endKey, R responsePrototype, Callback<R> callback)
-            throws ServiceException, Throwable {
+    public <R> void batchCallback(List<? extends Row> actions, Object[] results, Callback<R> callback)
+            throws IOException, InterruptedException {
 
     }
 
     @Override
-    public boolean checkAndMutate(
-            byte[] row, byte[] family, byte[] qualifier, CompareFilter.CompareOp compareOp,
-            byte[] value, RowMutations mutation) throws IOException {
-        return false;
+    public <R> Object[] batchCallback(List<? extends Row> actions, Callback<R> callback) throws IOException, InterruptedException {
+        return new Object[0];
+    }
+
+    @Override
+    public void batch(List<? extends Row> actions, Object[] results) throws IOException, InterruptedException {
+        results = batch(actions);
+    }
+
+    @Override
+    public Result[] get(List<Get> gets) throws IOException {
+        List<Result> results = new ArrayList<Result>();
+        for(Get g : gets) {
+            results.add(get(g));
+        }
+        return results.toArray(new Result[results.size()]);
+    }
+
+    @Override
+    public Result increment(Increment increment) throws IOException {
+        List<KeyValue> kvs = new ArrayList<KeyValue>();
+        NavigableMap<byte[], List<KeyValue>> famToVal = increment.getFamilyMap();
+        for(Entry<byte[], List<KeyValue>> ef : famToVal.entrySet()) {
+            byte[] family = ef.getKey();
+            List<KeyValue> qToVal = ef.getValue();
+            for(KeyValue eq : qToVal) {
+                incrementColumnValue(increment.getRow(), family, eq.getKey(), eq.getValueLength());
+                kvs.add(new KeyValue(increment.getRow(), family, eq.getKey(), eq.getValue()));
+            }
+        }
+        return new Result(kvs);
     }
 
     /**
@@ -901,22 +846,64 @@ public class MockHTable implements Table {
     public byte[] read(String rowid, String column) {
         NavigableMap<byte[], NavigableMap<byte[], NavigableMap<Long, byte[]>>> row = data.get(
                 Bytes.toBytesBinary(rowid));
-        if (row == null) {
+        if(row == null)
             return null;
-        }
         String[] fq = split(column);
         byte[] family = Bytes.toBytesBinary(fq[0]);
         byte[] qualifier = Bytes.toBytesBinary(fq[1]);
-        if (!row.containsKey(family)) {
+        if(!row.containsKey(family))
             return null;
-        }
         if (!row.get(family)
-                .containsKey(qualifier)) {
+                .containsKey(qualifier))
             return null;
-        }
         return row.get(family)
                 .get(qualifier)
                 .lastEntry()
                 .getValue();
+    }
+
+    @Override
+    public void mutateRow(RowMutations rm) throws IOException {
+        // TODO Auto-generated method stub
+
+    }
+
+    @Override
+    public Result append(Append append) throws IOException {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+
+    @Override
+    public long getWriteBufferSize() {
+        // TODO Auto-generated method stub
+        return 0;
+    }
+
+    @Override
+    public void setWriteBufferSize(long writeBufferSize) throws IOException {
+        // TODO Auto-generated method stub
+
+    }
+
+    @Override
+    public <R extends Message> Map<byte[], R> batchCoprocessorService(Descriptors.MethodDescriptor methodDescriptor, Message request,
+                                                                      byte[] startKey, byte[] endKey, R responsePrototype)
+            throws ServiceException, Throwable {
+        return null;
+    }
+
+    @Override
+    public <R extends Message> void batchCoprocessorService(Descriptors.MethodDescriptor methodDescriptor, Message request, byte[] startKey,
+                                                            byte[] endKey, R responsePrototype, Callback<R> callback)
+            throws ServiceException, Throwable {
+
+    }
+
+    @Override
+    public boolean checkAndMutate(byte[] row, byte[] family, byte[] qualifier, CompareFilter.CompareOp compareOp, byte[] value,
+                                  RowMutations mutation) throws IOException {
+        return false;
     }
 }

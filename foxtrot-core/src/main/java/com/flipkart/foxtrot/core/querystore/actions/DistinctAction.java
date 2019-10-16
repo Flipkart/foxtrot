@@ -51,6 +51,29 @@ public class DistinctAction extends Action<DistinctRequest> {
     }
 
     @Override
+    public String getMetricKey() {
+        return getParameter().getTable();
+    }
+
+    @Override
+    public String getRequestCacheKey() {
+        long filterHashKey = 0L;
+        DistinctRequest query = getParameter();
+        if(null != query.getFilters()) {
+            for(Filter filter : query.getFilters()) {
+                filterHashKey += 31 * filter.hashCode();
+            }
+        }
+        for(int i = 0; i < query.getNesting()
+                .size(); i++) {
+            filterHashKey += 31 * query.getNesting()
+                    .get(i)
+                    .hashCode() * (i + 1);
+        }
+        return String.format("%s-%d", query.getTable(), filterHashKey);
+    }
+
+    @Override
     public void validateImpl(DistinctRequest parameter) {
         List<String> validationErrors = new ArrayList<>();
         if (CollectionUtils.isNullOrEmpty(parameter.getTable())) {
@@ -77,23 +100,6 @@ public class DistinctAction extends Action<DistinctRequest> {
     }
 
     @Override
-    public String getRequestCacheKey() {
-        long filterHashKey = 0L;
-        DistinctRequest query = getParameter();
-
-        for (Filter filter : com.collections.CollectionUtils.nullSafeList(query.getFilters())) {
-            filterHashKey += 31 * filter.hashCode();
-        }
-        for (int i = 0; i < query.getNesting()
-                .size(); i++) {
-            filterHashKey += 31 * query.getNesting()
-                    .get(i)
-                    .hashCode() * (i + 1);
-        }
-        return String.format("%s-%d", query.getTable(), filterHashKey);
-    }
-
-    @Override
     public ActionResponse execute(DistinctRequest request) {
         SearchRequestBuilder query;
         try {
@@ -117,11 +123,6 @@ public class DistinctAction extends Action<DistinctRequest> {
         catch (ElasticsearchException e) {
             throw FoxtrotExceptions.createQueryExecutionException(request, e);
         }
-    }
-
-    @Override
-    public String getMetricKey() {
-        return getParameter().getTable();
     }
 
     @Override

@@ -38,7 +38,9 @@ import java.io.IOException;
 import java.util.List;
 
 /**
- * User: Santanu Sinha (santanu.sinha@flipkart.com) Date: 24/03/14 Time: 3:46 PM
+ * User: Santanu Sinha (santanu.sinha@flipkart.com)
+ * Date: 24/03/14
+ * Time: 3:46 PM
  */
 public class ElasticsearchUtils {
 
@@ -60,12 +62,7 @@ public class ElasticsearchUtils {
     private static final String MATCH_MAPPING_TYPE = "match_mapping_type";
     private static String tableNamePrefix = "foxtrot";
 
-    private ElasticsearchUtils() {
-    }
-
-    private static String getIndexPrefix(final String table) {
-        return String.format("%s-%s-%s-", getTableNamePrefix(), table, ElasticsearchUtils.TABLENAME_POSTFIX);
-    }
+    private ElasticsearchUtils() {}
 
     @VisibleForTesting
     public static String getTableNamePrefix() {
@@ -79,6 +76,14 @@ public class ElasticsearchUtils {
         else {
             tableNamePrefix = "foxtrot";
         }
+    }
+
+    private static String getIndexPrefix(final String table) {
+        return String.format("%s-%s-%s-", getTableNamePrefix(), table, ElasticsearchUtils.TABLENAME_POSTFIX);
+    }
+
+    public static String getIndices(final String table) {
+        return String.format("%s-%s-%s-*", getTableNamePrefix(), table, ElasticsearchUtils.TABLENAME_POSTFIX);
     }
 
     public static String[] getIndices(final String table, final ActionRequest request) {
@@ -110,24 +115,11 @@ public class ElasticsearchUtils {
         return indices.toArray(new String[0]);
     }
 
-    public static String getIndices(final String table) {
-        return String.format("%s-%s-%s-*", getTableNamePrefix(), table, ElasticsearchUtils.TABLENAME_POSTFIX);
-    }
-
-
     public static String getCurrentIndex(final String table, long timestamp) {
         //TODO::THROW IF TIMESTAMP IS BEYOND TABLE META.TTL
         String datePostfix = FORMATTER.print(timestamp);
         return String.format("%s-%s-%s-%s", getTableNamePrefix(), table, ElasticsearchUtils.TABLENAME_POSTFIX,
                              datePostfix);
-    }
-
-    public static void initializeMappings(Client client) {
-        PutIndexTemplateRequest templateRequest = getClusterTemplateMapping();
-        client.admin()
-                .indices()
-                .putTemplate(templateRequest)
-                .actionGet();
     }
 
     public static PutIndexTemplateRequest getClusterTemplateMapping() {
@@ -256,10 +248,18 @@ public class ElasticsearchUtils {
                 .endObject();
     }
 
+    public static void initializeMappings(Client client) {
+        PutIndexTemplateRequest templateRequest = getClusterTemplateMapping();
+        client.admin()
+                .indices()
+                .putTemplate(templateRequest)
+                .actionGet();
+    }
+
+
     public static String getValidTableName(String table) {
-        if (table == null) {
+        if(table == null)
             return null;
-        }
         return table.trim()
                 .toLowerCase();
     }

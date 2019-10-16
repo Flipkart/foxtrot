@@ -619,24 +619,6 @@ function drawStackedLinesLegend(d, element) { // pie legend
 }
 
 /**
- * Get logout url for gandalf
- */
-function getLogoutUrl() {
-  var hostname = window.location.hostname;
-  switch (hostname) {
-      case "foxtrot.traefik.stg.phonepe.com":
-          return "http://gandalf.traefik.stg.phonepe.com/logout/echo";
-      case "foxtrot-internal.phonepe.com":
-      case "foxtrot-gandalf.traefik.prod.phonepe.com":
-      case "foxtrot.traefik.prod.phonepe.com":
-      case "foxtrot-es6.traefik.prod.phonepe.com":
-          return "https://gandalf-internal.phonepe.com/logout/echo";
-      default:
-          return "0";
-  }
-}
-
-/**
  * submit logout form
  */
 $("#logout-icon").click(function(){

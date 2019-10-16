@@ -58,7 +58,6 @@ public class GroupActionEstimationTest extends ActionTest {
     }
 
 
-    @Ignore
     @Test(expected = CardinalityOverflowException.class)
     // Block queries on high cardinality fields
     public void testEstimationNoFilterHighCardinality() throws Exception {
@@ -87,8 +86,7 @@ public class GroupActionEstimationTest extends ActionTest {
         GroupResponse response = GroupResponse.class.cast(getQueryExecutor().execute(groupRequest));
         log.debug(getMapper().writerWithDefaultPrettyPrinter()
                           .writeValueAsString(response));
-        Assert.assertTrue(response.getResult()
-                                  .isEmpty());
+        Assert.assertFalse(response.getResult().isEmpty());
     }
 
 
@@ -112,7 +110,6 @@ public class GroupActionEstimationTest extends ActionTest {
                                    .isEmpty());
     }
 
-    @Ignore
     @Test(expected = CardinalityOverflowException.class)
     public void testEstimationGTFilterHighCardinality() throws Exception {
         GroupRequest groupRequest = new GroupRequest();

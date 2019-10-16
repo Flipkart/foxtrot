@@ -24,14 +24,15 @@ import static com.google.common.base.Preconditions.checkState;
 import static java.util.concurrent.TimeUnit.*;
 
 /**
- * An object that measures elapsed time in nanoseconds. It is useful to measure elapsed time using this class instead of
- * direct calls to {@link System#nanoTime} for a few reasons:
+ * An object that measures elapsed time in nanoseconds. It is useful to measure elapsed time using
+ * this class instead of direct calls to {@link System#nanoTime} for a few reasons:
  *
  * <ul>
  * <li>An alternate time source can be substituted, for testing or performance reasons.
  * <li>As documented by {@code nanoTime}, the value returned has no absolute meaning, and can only
- * be interpreted as relative to another timestamp returned by {@code nanoTime} at a different time. {@code Stopwatch}
- * is a more effective abstraction because it exposes only these relative values, not the absolute ones.
+ * be interpreted as relative to another timestamp returned by {@code nanoTime} at a different time.
+ * {@code Stopwatch} is a more effective abstraction because it exposes only these relative values,
+ * not the absolute ones.
  * </ul>
  *
  * <p>Basic usage:
@@ -50,8 +51,8 @@ import static java.util.concurrent.TimeUnit.*;
  * already in the desired state.
  *
  * <p>When testing code that uses this class, use {@link #createUnstarted(Ticker)} or
- * {@link #createStarted(Ticker)} to supply a fake or mock ticker. <!-- TODO(kevinb): restore the "such as" --> This
- * allows you to simulate any valid behavior of the stopwatch.
+ * {@link #createStarted(Ticker)} to supply a fake or mock ticker. <!-- TODO(kevinb): restore the
+ * "such as" --> This allows you to simulate any valid behavior of the stopwatch.
  *
  * <p><b>Note:</b> This class is not thread-safe.
  *
@@ -144,10 +145,6 @@ public final class Stopwatch {
         return NANOSECONDS;
     }
 
-    static String formatCompact4Digits(double value) {
-        return String.format(Locale.ROOT, "%.4g", value);
-    }
-
     private static String abbreviate(TimeUnit unit) {
         switch (unit) {
             case NANOSECONDS:
@@ -170,6 +167,15 @@ public final class Stopwatch {
     }
 
     /**
+     * Returns {@code true} if {@link #start()} has been called on this stopwatch, and {@link #stop()}
+     * has not been called since the last call to {@code
+     * start()}.
+     */
+    public boolean isRunning() {
+        return isRunning;
+    }
+
+    /**
      * Starts the stopwatch.
      *
      * @return this {@code Stopwatch} instance
@@ -183,15 +189,8 @@ public final class Stopwatch {
     }
 
     /**
-     * Returns {@code true} if {@link #start()} has been called on this stopwatch, and {@link #stop()} has not been
-     * called since the last call to {@code start()}.
-     */
-    public boolean isRunning() {
-        return isRunning;
-    }
-
-    /**
-     * Stops the stopwatch. Future reads will return the fixed duration that had elapsed up to this point.
+     * Stops the stopwatch. Future reads will return the fixed duration that had elapsed up to this
+     * point.
      *
      * @return this {@code Stopwatch} instance
      * @throws IllegalStateException if the stopwatch is already stopped.
@@ -215,9 +214,13 @@ public final class Stopwatch {
         return this;
     }
 
+    private long elapsedNanos() {
+        return isRunning ? ticker.read() - startTick + elapsedNanos : elapsedNanos;
+    }
+
     /**
-     * Returns the current elapsed time shown on this stopwatch, expressed in the desired time unit, with any fraction
-     * rounded down.
+     * Returns the current elapsed time shown on this stopwatch, expressed in the desired time unit,
+     * with any fraction rounded down.
      *
      * <p>Note that the overhead of measurement can be more than a microsecond, so it is generally not
      * useful to specify {@link TimeUnit#NANOSECONDS} precision here.
@@ -226,12 +229,6 @@ public final class Stopwatch {
      */
     public long elapsed(TimeUnit desiredUnit) {
         return desiredUnit.convert(elapsedNanos(), NANOSECONDS);
-    }
-
-    private long elapsedNanos() {
-        return isRunning
-               ? ticker.read() - startTick + elapsedNanos
-               : elapsedNanos;
     }
 
     /**

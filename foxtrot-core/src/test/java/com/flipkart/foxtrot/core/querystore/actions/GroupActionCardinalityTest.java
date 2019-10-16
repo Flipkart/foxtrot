@@ -40,7 +40,6 @@ public class GroupActionCardinalityTest extends ActionTest {
         getTableMetadataManager().updateEstimationData(TestUtils.TEST_TABLE_NAME, 1397658117000L);
     }
 
-    @Ignore
     @Test(expected = CardinalityOverflowException.class)
     public void testEstimationWithMultipleNestingHighCardinality() throws Exception {
         GroupRequest groupRequest = new GroupRequest();

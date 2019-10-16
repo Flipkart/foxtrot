@@ -1,14 +1,17 @@
 /**
  * Copyright 2014 Flipkart Internet Pvt. Ltd.
  * <p>
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  * <p>
  * http://www.apache.org/licenses/LICENSE-2.0
  * <p>
- * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
- * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
- * specific language governing permissions and limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package com.flipkart.foxtrot.core.datastore.impl.hbase;
 
@@ -202,8 +205,9 @@ public class HBaseDataStore implements DataStore {
         try (org.apache.hadoop.hbase.client.Table hTable = tableWrapper.getTable(table)) {
             List<Get> gets = new ArrayList<>(ids.size());
             for (String id : ids) {
-                Get get = new Get(Bytes.toBytes(translator.rawStorageIdFromDocumentId(table, id))).addColumn(
-                        COLUMN_FAMILY, DOCUMENT_FIELD_NAME)
+                Get get = new Get(Bytes.toBytes(translator.rawStorageIdFromDocumentId(table, id))).addColumn(COLUMN_FAMILY,
+                                                                                                             DOCUMENT_FIELD_NAME
+                                                                                                            )
                         .addColumn(COLUMN_FAMILY, DOCUMENT_META_FIELD_NAME)
                         .addColumn(COLUMN_FAMILY, TIMESTAMP_FIELD_NAME)
                         .setMaxVersions(1);
@@ -228,10 +232,8 @@ public class HBaseDataStore implements DataStore {
                                          ? Bytes.toString(getResult.getRow())
                                                  .split(":")[0]
                                          : documentMetadata.getRawStorageId();
-                    results.add(translator.translateBack(
-                            new Document(docId, time, documentMetadata, mapper.readTree(data))));
-                }
-                else {
+                    results.add(translator.translateBack(new Document(docId, time, documentMetadata, mapper.readTree(data))));
+                } else {
                     missingIds.add(ids.get(index));
                 }
             }

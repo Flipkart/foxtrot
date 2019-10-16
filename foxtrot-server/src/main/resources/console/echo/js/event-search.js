@@ -163,7 +163,7 @@ function runQuery(isBrowse) {
   showLoader();
   $.ajax({
     method: 'POST',
-    url: apiUrl + "/v2/analytics",
+    url: apiUrl + "/v1/analytics",
     contentType: "application/json",
     data: JSON.stringify(request),
     dataType: 'json',

@@ -37,7 +37,9 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * User: Santanu Sinha (santanu.sinha@flipkart.com) Date: 15/03/14 Time: 10:55 PM
+ * User: Santanu Sinha (santanu.sinha@flipkart.com)
+ * Date: 15/03/14
+ * Time: 10:55 PM
  */
 @Path("/v1/document/{table}")
 @Produces(MediaType.APPLICATION_JSON)
@@ -73,37 +75,6 @@ public class DocumentResource {
                 .build();
     }
 
-    private String preProcess(String table, Document document) {
-        if (document.getData()
-                .has(EVENT_TYPE)) {
-            String eventType = document.getData()
-                    .get(EVENT_TYPE)
-                    .asText();
-            return getSegregatedTableName(table, eventType);
-        }
-        return table;
-    }
-
-    private String getSegregatedTableName(String table, String eventType) {
-        if (tableEventConfigs != null && tableEventConfigs.containsKey(table)) {
-            String tableName = getTableForEventType(tableEventConfigs.get(table), eventType);
-            if (tableName != null) {
-                return tableName;
-            }
-        }
-        return table;
-    }
-
-    private String getTableForEventType(Map<String, List<String>> tableNameVsEventTypes, String eventType) {
-        for (Map.Entry<String, List<String>> entry : CollectionUtils.nullSafeSet(tableNameVsEventTypes.entrySet())) {
-            for (String tempEventType : CollectionUtils.nullSafeList(entry.getValue())) {
-                if (tempEventType.equals(eventType)) {
-                    return entry.getKey();
-                }
-            }
-        }
-        return null;
-    }
 
     @POST
     @Path("/bulk")
@@ -120,6 +91,25 @@ public class DocumentResource {
             }
         }
         return Response.created(URI.create("/" + table))
+                .build();
+    }
+
+    @GET
+    @Path("/{id}")
+    @Timed
+    @ApiOperation("Get Document")
+    public Response getDocument(@PathParam("table") final String table, @PathParam("id") @NotNull final String id) {
+        return Response.ok(queryStore.get(table, id))
+                .build();
+    }
+
+    @GET
+    @Timed
+    @ApiOperation("Get Documents")
+    public Response getDocuments(
+            @PathParam("table") final String table,
+            @QueryParam("id") @NotNull final List<String> ids) {
+        return Response.ok(queryStore.getAll(table, ids))
                 .build();
     }
 
@@ -151,23 +141,37 @@ public class DocumentResource {
         return tableVsDocuments;
     }
 
-    @GET
-    @Path("/{id}")
-    @Timed
-    @ApiOperation("Get Document")
-    public Response getDocument(@PathParam("table") final String table, @PathParam("id") @NotNull final String id) {
-        return Response.ok(queryStore.get(table, id))
-                .build();
+
+
+    private String preProcess(String table, Document document) {
+        if (document.getData()
+                .has(EVENT_TYPE)) {
+            String eventType = document.getData()
+                    .get(EVENT_TYPE)
+                    .asText();
+            return getSegregatedTableName(table, eventType);
+        }
+        return table;
     }
 
-    @GET
-    @Timed
-    @ApiOperation("Get Documents")
-    public Response getDocuments(
-            @PathParam("table") final String table,
-            @QueryParam("id") @NotNull final List<String> ids) {
-        return Response.ok(queryStore.getAll(table, ids))
-                .build();
+    private String getSegregatedTableName(String table, String eventType) {
+        if (tableEventConfigs != null && tableEventConfigs.containsKey(table)) {
+            String tableName = getTableForEventType(tableEventConfigs.get(table), eventType);
+            if (tableName != null) {
+                return tableName;
+            }
+        }
+        return table;
     }
 
+    private String getTableForEventType(Map<String, List<String>> tableNameVsEventTypes, String eventType) {
+        for (Map.Entry<String, List<String>> entry : CollectionUtils.nullSafeSet(tableNameVsEventTypes.entrySet())) {
+            for (String tempEventType : CollectionUtils.nullSafeList(entry.getValue())) {
+                if (tempEventType.equals(eventType)) {
+                    return entry.getKey();
+                }
+            }
+        }
+        return null;
+    }
 }

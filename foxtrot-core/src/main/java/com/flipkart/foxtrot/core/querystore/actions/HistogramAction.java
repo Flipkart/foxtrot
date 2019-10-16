@@ -1,14 +1,17 @@
 /**
  * Copyright 2014 Flipkart Internet Pvt. Ltd.
  * <p>
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  * <p>
  * http://www.apache.org/licenses/LICENSE-2.0
  * <p>
- * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
- * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
- * specific language governing permissions and limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package com.flipkart.foxtrot.core.querystore.actions;
 
@@ -87,14 +90,6 @@ public class HistogramAction extends Action<HistogramRequest> {
 
         return String.format("%s-%s-%s-%d", query.getTable(), query.getPeriod()
                 .name(), query.getField(), filterHashKey);
-    }
-
-    @Override
-    protected Filter getDefaultTimeSpan() {
-        LastFilter lastFilter = new LastFilter();
-        lastFilter.setField("_timestamp");
-        lastFilter.setDuration(Duration.days(1));
-        return lastFilter;
     }
 
     @Override
@@ -183,14 +178,20 @@ public class HistogramAction extends Action<HistogramRequest> {
                 String key = Utils.sanitizeFieldForAggregation(getParameter().getUniqueCountOn());
                 Cardinality cardinality = bucket.getAggregations()
                         .get(key);
-                counts.add(
-                        new HistogramResponse.Count(((DateTime) bucket.getKey()).getMillis(), cardinality.getValue()));
-            }
-            else {
+                counts.add(new HistogramResponse.Count(((DateTime)bucket.getKey()).getMillis(), cardinality.getValue()));
+            } else {
                 counts.add(new HistogramResponse.Count(((DateTime) bucket.getKey()).getMillis(), bucket.getDocCount()));
             }
         }
         return new HistogramResponse(counts);
+    }
+
+    @Override
+    protected Filter getDefaultTimeSpan() {
+        LastFilter lastFilter = new LastFilter();
+        lastFilter.setField("_timestamp");
+        lastFilter.setDuration(Duration.days(1));
+        return lastFilter;
     }
 
 }

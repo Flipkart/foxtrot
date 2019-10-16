@@ -57,9 +57,8 @@ public class Utils {
     private Utils() {
     }
 
-    public static TermsAggregationBuilder buildTermsAggregation(
-            List<ResultSort> fields,
-            Set<AggregationBuilder> subAggregations, int aggregationSize) {
+    public static TermsAggregationBuilder buildTermsAggregation(List<ResultSort> fields,
+                                                                Set<AggregationBuilder> subAggregations, int aggregationSize) {
         TermsAggregationBuilder rootBuilder = null;
         TermsAggregationBuilder termsBuilder = null;
         for (ResultSort nestingField : fields) {
@@ -92,17 +91,6 @@ public class Utils {
             }
         }
         return rootBuilder;
-    }
-
-    public static String sanitizeFieldForAggregation(String field) {
-        return field.replaceAll(Constants.FIELD_REPLACEMENT_REGEX, Constants.FIELD_REPLACEMENT_VALUE);
-    }
-
-    public static String storedFieldName(String field) {
-        if ("_timestamp".equalsIgnoreCase(field)) {
-            return ElasticsearchUtils.DOCUMENT_META_TIMESTAMP_FIELD_NAME;
-        }
-        return field;
     }
 
     public static AbstractAggregationBuilder buildStatsAggregation(String field, Set<Stat> stats) {
@@ -170,10 +158,6 @@ public class Utils {
         });
     }
 
-    public static String getExtendedStatsAggregationKey(String field) {
-        return sanitizeFieldForAggregation(field) + "_extended_stats";
-    }
-
     public static AbstractAggregationBuilder buildPercentileAggregation(
             String field,
             Collection<Double> inputPercentiles) {
@@ -198,10 +182,6 @@ public class Utils {
                 .compression(compression);
     }
 
-    public static String getPercentileAggregationKey(String field) {
-        return sanitizeFieldForAggregation(field) + "_percentile";
-    }
-
     public static DateHistogramAggregationBuilder buildDateHistogramAggregation(
             String field,
             DateHistogramInterval interval) {
@@ -213,10 +193,6 @@ public class Utils {
                 .dateHistogramInterval(interval);
     }
 
-    public static String getDateHistogramKey(String field) {
-        return sanitizeFieldForAggregation(field) + "_date_histogram";
-    }
-
     public static CardinalityAggregationBuilder buildCardinalityAggregation(String field, int precisionThreshold) {
         if (0 == precisionThreshold) {
             precisionThreshold = PRECISION_THRESHOLD;
@@ -224,6 +200,17 @@ public class Utils {
         return AggregationBuilders.cardinality(Utils.sanitizeFieldForAggregation(field))
                 .precisionThreshold(precisionThreshold)
                 .field(storedFieldName(field));
+    }
+
+    public static String sanitizeFieldForAggregation(String field) {
+        return field.replaceAll(Constants.FIELD_REPLACEMENT_REGEX, Constants.FIELD_REPLACEMENT_VALUE);
+    }
+
+    public static String storedFieldName(String field) {
+        if("_timestamp".equalsIgnoreCase(field)) {
+            return ElasticsearchUtils.DOCUMENT_META_TIMESTAMP_FIELD_NAME;
+        }
+        return field;
     }
 
     public static DateHistogramInterval getHistogramInterval(Period period) {
@@ -246,6 +233,18 @@ public class Utils {
                 break;
         }
         return interval;
+    }
+
+    public static String getExtendedStatsAggregationKey(String field) {
+        return sanitizeFieldForAggregation(field) + "_extended_stats";
+    }
+
+    public static String getPercentileAggregationKey(String field) {
+        return sanitizeFieldForAggregation(field) + "_percentile";
+    }
+
+    public static String getDateHistogramKey(String field) {
+        return sanitizeFieldForAggregation(field) + "_date_histogram";
     }
 
     public static IndicesOptions indicesOptions() {
