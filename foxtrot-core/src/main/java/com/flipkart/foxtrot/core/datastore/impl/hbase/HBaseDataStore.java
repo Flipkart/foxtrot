@@ -236,9 +236,8 @@ public class HBaseDataStore implements DataStore {
                 }
             }
             if (!missingIds.isEmpty()) {
-                String allIds = String.join(",", ids);
-                logger.error("ID's missing in HBase - {}", allIds);
-                throw FoxtrotExceptions.createMissingDocumentsException(table, ids);
+                logger.error("ID's missing in HBase - {}", missingIds);
+                throw FoxtrotExceptions.createMissingDocumentsException(table, missingIds);
             }
             return results;
         }
