@@ -94,24 +94,28 @@ public class EsIndexOptimizationManager extends BaseJobManager {
         }
     }
 
-    private void extractIndicesToOptimizeForIndex(String index, IndexSegments indexShardSegments, Set<String> indicesToOptimize) {
+    private void extractIndicesToOptimizeForIndex(
+            String index,
+            IndexSegments indexShardSegments,
+            Set<String> indicesToOptimize) {
 
         String table = ElasticsearchUtils.getTableNameFromIndex(index);
-        if(StringUtils.isEmpty(table)) {
+        if (StringUtils.isEmpty(table)) {
             return;
         }
         String currentIndex = ElasticsearchUtils.getCurrentIndex(table, System.currentTimeMillis());
-        String nextDayIndex = ElasticsearchUtils.getCurrentIndex(table, System.currentTimeMillis() + TimeUnit.DAYS.toMillis(1));
-        if(index.equals(currentIndex) || index.equals(nextDayIndex)) {
+        String nextDayIndex = ElasticsearchUtils.getCurrentIndex(table,
+                                                                 System.currentTimeMillis() + TimeUnit.DAYS.toMillis(1));
+        if (index.equals(currentIndex) || index.equals(nextDayIndex)) {
             return;
         }
         Map<Integer, IndexShardSegments> indexShardSegmentsMap = indexShardSegments.getShards();
-        for(Map.Entry<Integer, IndexShardSegments> indexShardSegmentsEntry : indexShardSegmentsMap.entrySet()) {
+        for (Map.Entry<Integer, IndexShardSegments> indexShardSegmentsEntry : indexShardSegmentsMap.entrySet()) {
             List<Segment> segments = indexShardSegmentsEntry.getValue()
                     .iterator()
                     .next()
                     .getSegments();
-            if(segments.size() > SEGMENTS_TO_OPTIMIZE_TO) {
+            if (segments.size() > SEGMENTS_TO_OPTIMIZE_TO) {
                 indicesToOptimize.add(index);
                 break;
             }

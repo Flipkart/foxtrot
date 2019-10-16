@@ -205,8 +205,9 @@ public class HBaseDataStore implements DataStore {
         try (org.apache.hadoop.hbase.client.Table hTable = tableWrapper.getTable(table)) {
             List<Get> gets = new ArrayList<>(ids.size());
             for (String id : ids) {
-                Get get = new Get(Bytes.toBytes(translator.rawStorageIdFromDocumentId(table, id))).addColumn(COLUMN_FAMILY,
-                                                                                                             DOCUMENT_FIELD_NAME
+                Get get = new Get(Bytes.toBytes(translator.rawStorageIdFromDocumentId(table, id))).addColumn(
+                        COLUMN_FAMILY,
+                        DOCUMENT_FIELD_NAME
                                                                                                             )
                         .addColumn(COLUMN_FAMILY, DOCUMENT_META_FIELD_NAME)
                         .addColumn(COLUMN_FAMILY, TIMESTAMP_FIELD_NAME)
@@ -232,8 +233,12 @@ public class HBaseDataStore implements DataStore {
                                          ? Bytes.toString(getResult.getRow())
                                                  .split(":")[0]
                                          : documentMetadata.getRawStorageId();
-                    results.add(translator.translateBack(new Document(docId, time, documentMetadata, mapper.readTree(data))));
-                } else {
+                    results.add(translator.translateBack(new Document(docId,
+                                                                      time,
+                                                                      documentMetadata,
+                                                                      mapper.readTree(data))));
+                }
+                else {
                     missingIds.add(ids.get(index));
                 }
             }

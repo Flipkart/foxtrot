@@ -59,12 +59,12 @@ public class DistinctAction extends Action<DistinctRequest> {
     public String getRequestCacheKey() {
         long filterHashKey = 0L;
         DistinctRequest query = getParameter();
-        if(null != query.getFilters()) {
-            for(Filter filter : query.getFilters()) {
+        if (null != query.getFilters()) {
+            for (Filter filter : query.getFilters()) {
                 filterHashKey += 31 * filter.hashCode();
             }
         }
-        for(int i = 0; i < query.getNesting()
+        for (int i = 0; i < query.getNesting()
                 .size(); i++) {
             filterHashKey += 31 * query.getNesting()
                     .get(i)

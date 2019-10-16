@@ -40,7 +40,7 @@ public class MultiTimeQueryAction extends Action<MultiTimeQueryRequest> {
                 multiTimeQueryRequest.getFilters())) {
             throw FoxtrotExceptions.createBadRequestException("multi_time_query",
                                                               "No Between Filter found in actionRequest multiQueryRequest : " +
-                                                              multiQueryRequest.toString()
+                                                                      multiQueryRequest.toString()
                                                              );
         }
 
@@ -61,7 +61,7 @@ public class MultiTimeQueryAction extends Action<MultiTimeQueryRequest> {
         if (!optionalBetweenFilter.isPresent()) {
             throw FoxtrotExceptions.createBadRequestException("multi_time_query",
                                                               "No Between Filter found in actionRequest multiQueryRequest : " +
-                                                              multiQueryRequest.toString()
+                                                                      multiQueryRequest.toString()
                                                              );
         }
         BetweenFilter betweenFilter = (BetweenFilter) optionalBetweenFilter.get();

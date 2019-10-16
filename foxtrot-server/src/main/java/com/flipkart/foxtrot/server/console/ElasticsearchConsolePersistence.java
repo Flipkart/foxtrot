@@ -337,7 +337,8 @@ public class ElasticsearchConsolePersistence implements ConsolePersistence {
                     .execute()
                     .actionGet();
             logger.info("Deleted Console : {}", id);
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             throw new ConsolePersistenceException(id, "console deletion_failed", e);
         }
     }
@@ -354,7 +355,8 @@ public class ElasticsearchConsolePersistence implements ConsolePersistence {
                     .execute()
                     .actionGet();
             logger.info("Deleted Old Console : {}", id);
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             throw new ConsolePersistenceException(id, "old console deletion_failed", e);
         }
     }

@@ -114,17 +114,17 @@ public class QueryTranslator extends SqlElementVisitor {
 
     private void handleDistinct(PlainSelect plainSelect) {
         List<ResultSort> tempColumnsWithSort = generateColumnSort(plainSelect.getOrderByElements());
-        if(null != plainSelect.getDistinct()) {
-            for(String selectedColumn : selectedColumns) {
+        if (null != plainSelect.getDistinct()) {
+            for (String selectedColumn : selectedColumns) {
                 boolean alreadyAdded = false;
-                for(ResultSort columnWithSort : tempColumnsWithSort) {
-                    if(selectedColumn.equalsIgnoreCase(columnWithSort.getField())) {
+                for (ResultSort columnWithSort : tempColumnsWithSort) {
+                    if (selectedColumn.equalsIgnoreCase(columnWithSort.getField())) {
                         columnsWithSort.add(columnWithSort);
                         alreadyAdded = true;
                         break;
                     }
                 }
-                if(!alreadyAdded) {
+                if (!alreadyAdded) {
                     ResultSort columnWithoutSort = new ResultSort();
                     columnWithoutSort.setField(selectedColumn);
                     columnWithoutSort.setOrder(ResultSort.Order.desc);
@@ -152,13 +152,13 @@ public class QueryTranslator extends SqlElementVisitor {
         List params = function.getParameters()
                 .getExpressions();
 
-        ((Expression)params.toArray()[0]).accept(this);
+        ((Expression) params.toArray()[0]).accept(this);
     }
 
     @Override
     public void visit(ExpressionList expressionList) {
-        ExpressionList expressions = (ExpressionList)expressionList.getExpressions();
-        for(Object expression : expressions.getExpressions()) {
+        ExpressionList expressions = (ExpressionList) expressionList.getExpressions();
+        for (Object expression : expressions.getExpressions()) {
             logger.info("Expression: {}", expression.getClass());
         }
     }
@@ -311,10 +311,10 @@ public class QueryTranslator extends SqlElementVisitor {
     }
 
     private void setUniqueCountOn(GroupRequest group) {
-        if(calledAction instanceof CountRequest) {
-            CountRequest countRequest = (CountRequest)this.calledAction;
+        if (calledAction instanceof CountRequest) {
+            CountRequest countRequest = (CountRequest) this.calledAction;
             boolean distinct = countRequest.isDistinct();
-            if(distinct) {
+            if (distinct) {
                 group.setUniqueCountOn(countRequest.getField());
             }
         }

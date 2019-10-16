@@ -66,8 +66,8 @@ import com.flipkart.foxtrot.server.resources.*;
 import com.flipkart.foxtrot.sql.FqlEngine;
 import com.flipkart.foxtrot.sql.fqlstore.FqlStoreService;
 import com.flipkart.foxtrot.sql.fqlstore.FqlStoreServiceImpl;
-import com.google.common.collect.Lists;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
 import io.dropwizard.Application;
 import io.dropwizard.assets.AssetsBundle;
 import io.dropwizard.configuration.EnvironmentVariableSubstitutor;
@@ -98,8 +98,9 @@ public class FoxtrotServer extends Application<FoxtrotServerConfiguration> {
 
     @Override
     public void initialize(Bootstrap<FoxtrotServerConfiguration> bootstrap) {
-            bootstrap.setConfigurationSourceProvider(
-                new SubstitutingSourceProvider(bootstrap.getConfigurationSourceProvider(), new EnvironmentVariableSubstitutor(false)));
+        bootstrap.setConfigurationSourceProvider(
+                new SubstitutingSourceProvider(bootstrap.getConfigurationSourceProvider(),
+                                               new EnvironmentVariableSubstitutor(false)));
         bootstrap.addBundle(new AssetsBundle("/console/", "/", "index.html", "console"));
         bootstrap.addBundle(new OorBundle<FoxtrotServerConfiguration>() {
             public boolean withOor() {
@@ -167,8 +168,14 @@ public class FoxtrotServer extends Application<FoxtrotServerConfiguration> {
 
         List<IndexerEventMutator> mutators = Lists.newArrayList(new LargeTextNodeRemover(objectMapper,
                                                                                          configuration.getTextNodeRemover()));
-        DataStore dataStore = new HBaseDataStore(hbaseTableConnection, objectMapper, new DocumentTranslator(configuration.getHbase()));
-        QueryStore queryStore = new ElasticsearchQueryStore(tableMetadataManager, elasticsearchConnection, dataStore, mutators, objectMapper,
+        DataStore dataStore = new HBaseDataStore(hbaseTableConnection,
+                                                 objectMapper,
+                                                 new DocumentTranslator(configuration.getHbase()));
+        QueryStore queryStore = new ElasticsearchQueryStore(tableMetadataManager,
+                                                            elasticsearchConnection,
+                                                            dataStore,
+                                                            mutators,
+                                                            objectMapper,
                                                             cardinalityConfig
         );
         FqlStoreService fqlStoreService = new FqlStoreServiceImpl(elasticsearchConnection, objectMapper);
@@ -203,10 +210,11 @@ public class FoxtrotServer extends Application<FoxtrotServerConfiguration> {
         DataDeletionManager dataDeletionManager = new DataDeletionManager(dataDeletionManagerConfig, queryStore,
                                                                           scheduledExecutorService,
                                                                           hazelcastConnection);
-        CardinalityCalculationManager cardinalityCalculationManager = new CardinalityCalculationManager(tableMetadataManager,
-                                                                                                        cardinalityConfig,
-                                                                                                        hazelcastConnection,
-                                                                                                        scheduledExecutorService
+        CardinalityCalculationManager cardinalityCalculationManager = new CardinalityCalculationManager(
+                tableMetadataManager,
+                cardinalityConfig,
+                hazelcastConnection,
+                scheduledExecutorService
         );
         EsIndexOptimizationManager esIndexOptimizationManager = new EsIndexOptimizationManager(scheduledExecutorService,
                                                                                                esIndexOptimizationConfig,

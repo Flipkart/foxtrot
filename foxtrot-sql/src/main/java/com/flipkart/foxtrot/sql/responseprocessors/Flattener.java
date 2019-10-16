@@ -263,7 +263,9 @@ public class Flattener implements ResponseVisitor {
     }
 
     private int lengthMax(int currMax, final String rhs) {
-        return currMax > rhs.length() ? currMax : rhs.length();
+        return currMax > rhs.length()
+               ? currMax
+               : rhs.length();
     }
 
     private List<FieldHeader> getFieldsFromList(Map<String, Integer> fieldNames) {

@@ -71,8 +71,9 @@ public class FqlResource {
     @ApiOperation("Get List<FqlStore>")
     public List<FqlStore> get(FqlGetRequest fqlGetRequest) {
         try {
-        return fqlStoreService.get(fqlGetRequest);
-        } catch (Exception e) {
+            return fqlStoreService.get(fqlGetRequest);
+        }
+        catch (Exception e) {
             throw new RuntimeException("Couldn't get FqlStore from FqlGetRequest. Error Message: " + e);
         }
     }

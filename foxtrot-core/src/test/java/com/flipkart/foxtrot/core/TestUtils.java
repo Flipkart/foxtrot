@@ -492,14 +492,29 @@ public class TestUtils {
         documents.add(TestUtils.getDocument("Z", startTimestamp,
                                             new Object[]{"os", "android", "device", "nexus", "battery", 24}, mapper));
         documents.add(
-                TestUtils.getDocument("Y", startTimestamp++, new Object[]{"os", "android", "device", "nexus", "battery", 48}, mapper));
+                TestUtils.getDocument("Y",
+                                      startTimestamp++,
+                                      new Object[]{"os", "android", "device", "nexus", "battery", 48},
+                                      mapper));
         documents.add(
-                TestUtils.getDocument("X", startTimestamp++, new Object[]{"os", "android", "device", "nexus", "battery", 74}, mapper));
+                TestUtils.getDocument("X",
+                                      startTimestamp++,
+                                      new Object[]{"os", "android", "device", "nexus", "battery", 74},
+                                      mapper));
         documents.add(
-                TestUtils.getDocument("W", startTimestamp++, new Object[]{"os", "android", "device", "nexus", "battery", 99}, mapper));
-        documents.add(TestUtils.getDocument("A", startTimestamp++, new Object[]{"os", "android", "version", 1, "device", "nexus"}, mapper));
+                TestUtils.getDocument("W",
+                                      startTimestamp++,
+                                      new Object[]{"os", "android", "device", "nexus", "battery", 99},
+                                      mapper));
+        documents.add(TestUtils.getDocument("A",
+                                            startTimestamp++,
+                                            new Object[]{"os", "android", "version", 1, "device", "nexus"},
+                                            mapper));
         documents.add(
-                TestUtils.getDocument("B", startTimestamp++, new Object[]{"os", "android", "version", 1, "device", "galaxy"}, mapper));
+                TestUtils.getDocument("B",
+                                      startTimestamp++,
+                                      new Object[]{"os", "android", "version", 1, "device", "galaxy"},
+                                      mapper));
         documents.add(TestUtils.getDocument("C",
                                             startTimestamp++,
                                             new Object[]{"os", "android", "version", 2, "device", "nexus"},

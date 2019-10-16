@@ -13,19 +13,6 @@ import java.util.concurrent.Executors;
  */
 public class GuavaInternalEventBus implements InternalEventBus {
 
-    private class Subscriber {
-        private final InternalEventBusConsumer consumer;
-
-        private Subscriber(InternalEventBusConsumer consumer) {
-            this.consumer = consumer;
-        }
-
-        @Subscribe
-        public void receive(InternalSystemEvent event) {
-            consumer.process(event);
-        }
-    }
-
     private final AsyncEventBus eventBus;
 
     public GuavaInternalEventBus() {
@@ -40,5 +27,18 @@ public class GuavaInternalEventBus implements InternalEventBus {
     @Override
     public void subscribe(InternalEventBusConsumer consumer) {
         eventBus.register(new Subscriber(consumer));
+    }
+
+    private class Subscriber {
+        private final InternalEventBusConsumer consumer;
+
+        private Subscriber(InternalEventBusConsumer consumer) {
+            this.consumer = consumer;
+        }
+
+        @Subscribe
+        public void receive(InternalSystemEvent event) {
+            consumer.process(event);
+        }
     }
 }

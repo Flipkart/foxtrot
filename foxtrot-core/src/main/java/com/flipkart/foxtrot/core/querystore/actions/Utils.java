@@ -57,8 +57,9 @@ public class Utils {
     private Utils() {
     }
 
-    public static TermsAggregationBuilder buildTermsAggregation(List<ResultSort> fields,
-                                                                Set<AggregationBuilder> subAggregations, int aggregationSize) {
+    public static TermsAggregationBuilder buildTermsAggregation(
+            List<ResultSort> fields,
+            Set<AggregationBuilder> subAggregations, int aggregationSize) {
         TermsAggregationBuilder rootBuilder = null;
         TermsAggregationBuilder termsBuilder = null;
         for (ResultSort nestingField : fields) {
@@ -207,7 +208,7 @@ public class Utils {
     }
 
     public static String storedFieldName(String field) {
-        if("_timestamp".equalsIgnoreCase(field)) {
+        if ("_timestamp".equalsIgnoreCase(field)) {
             return ElasticsearchUtils.DOCUMENT_META_TIMESTAMP_FIELD_NAME;
         }
         return field;

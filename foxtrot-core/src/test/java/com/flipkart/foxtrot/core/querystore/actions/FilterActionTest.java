@@ -721,7 +721,10 @@ public class FilterActionTest extends ActionTest {
                                       new Object[]{"os", "android", "device", "nexus", "battery", 74},
                                       getMapper()));
         documents.add(
-                TestUtils.getDocument("W", 1397658117001L, new Object[]{"os", "android", "device", "nexus", "battery", 99}, getMapper()));
+                TestUtils.getDocument("W",
+                                      1397658117001L,
+                                      new Object[]{"os", "android", "device", "nexus", "battery", 99},
+                                      getMapper()));
 
         QueryResponse actualResponse = QueryResponse.class.cast(getQueryExecutor().execute(query));
         compare(documents, actualResponse.getDocuments());
@@ -746,7 +749,10 @@ public class FilterActionTest extends ActionTest {
         query.setLimit(1);
 
         List<Document> documents = new ArrayList<Document>();
-        documents.add(TestUtils.getDocument("D", 1397658118003L, new Object[]{"os", "ios", "version", 1, "device", "iphone"}, getMapper()));
+        documents.add(TestUtils.getDocument("D",
+                                            1397658118003L,
+                                            new Object[]{"os", "ios", "version", 1, "device", "iphone"},
+                                            getMapper()));
         QueryResponse actualResponse = QueryResponse.class.cast(getQueryExecutor().execute(query));
         compare(documents, actualResponse.getDocuments());
     }

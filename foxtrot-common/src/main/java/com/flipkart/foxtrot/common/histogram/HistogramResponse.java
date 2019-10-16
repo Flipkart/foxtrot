@@ -79,22 +79,25 @@ public class HistogramResponse extends ActionResponse {
 
         @Override
         public boolean equals(Object o) {
-            if(this == o)
+            if (this == o) {
                 return true;
-            if(!(o instanceof Count))
+            }
+            if (!(o instanceof Count)) {
                 return false;
+            }
 
             Count count1 = (Count) o;
 
-            if(count != count1.count)
+            if (count != count1.count) {
                 return false;
+            }
             return period.equals(count1.period);
         }
 
         @Override
         public int hashCode() {
             int result = period.hashCode();
-            result = 31 * result + (int)(count ^ (count >>> 32));
+            result = 31 * result + (int) (count ^ (count >>> 32));
             return result;
         }
 

@@ -142,7 +142,6 @@ public class DocumentResource {
     }
 
 
-
     private String preProcess(String table, Document document) {
         if (document.getData()
                 .has(EVENT_TYPE)) {

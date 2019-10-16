@@ -72,7 +72,7 @@ public abstract class ActionRequest implements Serializable, Cloneable {
     }
 
     public Object clone() throws CloneNotSupportedException {
-        ActionRequest actionRequestClone = (ActionRequest)super.clone();
+        ActionRequest actionRequestClone = (ActionRequest) super.clone();
         actionRequestClone.setFilters(new ArrayList<>(this.filters));
         return actionRequestClone;
     }

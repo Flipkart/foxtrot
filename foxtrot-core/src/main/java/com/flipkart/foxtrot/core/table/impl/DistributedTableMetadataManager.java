@@ -327,10 +327,13 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
 
     @Override
     public void updateEstimationData(final String table, long timestamp) {
-        if(!tableDataStore.containsKey(table)) {
+        if (!tableDataStore.containsKey(table)) {
             throw FoxtrotExceptions.createBadRequestException(table, String.format("unknown_table table:%s", table));
         }
-        final TableFieldMapping tableFieldMapping = getFieldMappings(table, cardinalityConfig.isEnabled(), false, timestamp);
+        final TableFieldMapping tableFieldMapping = getFieldMappings(table,
+                                                                     cardinalityConfig.isEnabled(),
+                                                                     false,
+                                                                     timestamp);
         fieldDataCache.put(table, tableFieldMapping);
     }
 
@@ -697,7 +700,7 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
     @Override
     public void initializeCardinalityCache() {
         List<TableFieldMapping> tableFieldMappings = getAllCardinalityCache();
-        for(TableFieldMapping tableFieldMapping : com.collections.CollectionUtils.nullSafeList(tableFieldMappings)) {
+        for (TableFieldMapping tableFieldMapping : com.collections.CollectionUtils.nullSafeList(tableFieldMappings)) {
             fieldDataCardinalityCache.put(tableFieldMapping.getTable(), tableFieldMapping);
         }
     }

@@ -225,8 +225,10 @@ public class TrendAction extends Action<TrendRequest> {
                     String uniqueCountKey = Utils.sanitizeFieldForAggregation(getParameter().getUniqueCountOn());
                     Cardinality cardinality = histogramBucket.getAggregations()
                             .get(uniqueCountKey);
-                    counts.add(new TrendResponse.Count(((DateTime)histogramBucket.getKey()).getMillis(), cardinality.getValue()));
-                } else {
+                    counts.add(new TrendResponse.Count(((DateTime) histogramBucket.getKey()).getMillis(),
+                                                       cardinality.getValue()));
+                }
+                else {
                     counts.add(new TrendResponse.Count(((DateTime) histogramBucket.getKey()).getMillis(),
                                                        histogramBucket.getDocCount()
                     ));

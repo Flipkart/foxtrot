@@ -62,7 +62,8 @@ public class ElasticsearchUtils {
     private static final String MATCH_MAPPING_TYPE = "match_mapping_type";
     private static String tableNamePrefix = "foxtrot";
 
-    private ElasticsearchUtils() {}
+    private ElasticsearchUtils() {
+    }
 
     @VisibleForTesting
     public static String getTableNamePrefix() {
@@ -258,8 +259,9 @@ public class ElasticsearchUtils {
 
 
     public static String getValidTableName(String table) {
-        if(table == null)
+        if (table == null) {
             return null;
+        }
         return table.trim()
                 .toLowerCase();
     }

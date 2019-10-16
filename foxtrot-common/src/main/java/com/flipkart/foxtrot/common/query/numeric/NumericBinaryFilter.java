@@ -65,11 +65,16 @@ public abstract class NumericBinaryFilter extends Filter {
         int result = getOperator().hashCode();
         result = 31 * result + getField().hashCode();
         if (!getField().equals("_timestamp")) {
-            result = result * 21 + (getValue() == null ? 43 : getValue().hashCode());
-        } else {
-            result = result * 21 + Long.valueOf(getValue().longValue() / (long)30000).hashCode();
+            result = result * 21 + (getValue() == null
+                                    ? 43
+                                    : getValue().hashCode());
         }
-        result = result * 59 + (this.isTemporal() ? 79 : 97);
+        else {
+            result = result * 21 + Long.valueOf(getValue().longValue() / (long) 30000).hashCode();
+        }
+        result = result * 59 + (this.isTemporal()
+                                ? 79
+                                : 97);
         return result;
     }
 
@@ -77,7 +82,8 @@ public abstract class NumericBinaryFilter extends Filter {
     public boolean equals(Object o) {
         if (this == o) {
             return true;
-        } else if (!(o instanceof NumericBinaryFilter)) {
+        }
+        else if (!(o instanceof NumericBinaryFilter)) {
             return false;
         }
 

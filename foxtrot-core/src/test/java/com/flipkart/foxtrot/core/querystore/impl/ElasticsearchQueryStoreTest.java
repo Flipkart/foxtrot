@@ -812,7 +812,7 @@ public class ElasticsearchQueryStoreTest {
     private Document createDummyDocument() {
         Document document = new Document();
         document.setId(UUID.randomUUID()
-                .toString());
+                               .toString());
         document.setTimestamp(System.currentTimeMillis());
         JsonNode data = mapper.valueToTree(Collections.singletonMap("TEST_NAME", "SINGLE_SAVE_TEST"));
         document.setData(data);

@@ -29,7 +29,6 @@ import com.hazelcast.test.TestHazelcastInstanceFactory;
 import lombok.Getter;
 import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;
 import org.elasticsearch.action.admin.indices.template.put.PutIndexTemplateRequest;
-import org.elasticsearch.action.admin.indices.template.put.PutIndexTemplateResponse;
 import org.joda.time.DateTimeZone;
 import org.junit.After;
 import org.junit.Before;

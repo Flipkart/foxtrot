@@ -37,7 +37,8 @@ public abstract class HBaseUtil {
 
     private static final Logger logger = LoggerFactory.getLogger(HBaseUtil.class);
 
-    private HBaseUtil() {}
+    private HBaseUtil() {
+    }
 
     public static Configuration create(final HbaseConfig hbaseConfig) throws IOException {
         Configuration configuration = HBaseConfiguration.create();
@@ -101,19 +102,23 @@ public abstract class HBaseUtil {
         try {
             hBaseAdmin = connection.getAdmin();
             hBaseAdmin.createTable(hTableDescriptor);
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             logger.error("Could not create table: " + tableName, e);
-        } finally {
+        }
+        finally {
             try {
-                if(hBaseAdmin != null) {
+                if (hBaseAdmin != null) {
                     hBaseAdmin.close();
                 }
-            } catch (Exception e) {
+            }
+            catch (Exception e) {
                 logger.error("Error closing hbase admin", e);
             }
             try {
                 connection.close();
-            } catch (Exception e) {
+            }
+            catch (Exception e) {
                 logger.error("Error closing hbase connection", e);
             }
         }

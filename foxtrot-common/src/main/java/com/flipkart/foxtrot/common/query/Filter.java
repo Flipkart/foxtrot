@@ -92,15 +92,18 @@ public abstract class Filter implements Serializable {
 
     @Override
     public boolean equals(Object o) {
-        if(this == o)
+        if (this == o) {
             return true;
-        if(o == null || getClass() != o.getClass())
+        }
+        if (o == null || getClass() != o.getClass()) {
             return false;
+        }
 
         Filter filter = (Filter) o;
 
-        if(!field.equals(filter.field))
+        if (!field.equals(filter.field)) {
             return false;
+        }
         return operator.equals(filter.operator);
     }
 

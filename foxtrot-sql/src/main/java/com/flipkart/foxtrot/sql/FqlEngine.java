@@ -41,7 +41,10 @@ public class FqlEngine {
     public FlatRepresentation parse(final String fql) throws Exception {
         QueryTranslator translator = new QueryTranslator();
         FqlQuery query = translator.translate(fql);
-        FlatRepresentation response = new QueryProcessor(tableMetadataManager, queryStore, queryExecutor, mapper).process(query);
+        FlatRepresentation response = new QueryProcessor(tableMetadataManager,
+                                                         queryStore,
+                                                         queryExecutor,
+                                                         mapper).process(query);
         logger.debug("Flat Response: " + mapper.writerWithDefaultPrettyPrinter()
                 .writeValueAsString(response));
         return response;
@@ -56,8 +59,9 @@ public class FqlEngine {
 
         private FlatRepresentation result;
 
-        private QueryProcessor(TableMetadataManager tableMetadataManager, QueryStore queryStore, QueryExecutor queryExecutor,
-                               ObjectMapper mapper) {
+        private QueryProcessor(
+                TableMetadataManager tableMetadataManager, QueryStore queryStore, QueryExecutor queryExecutor,
+                ObjectMapper mapper) {
             this.tableMetadataManager = tableMetadataManager;
             this.queryStore = queryStore;
             this.queryExecutor = queryExecutor;
