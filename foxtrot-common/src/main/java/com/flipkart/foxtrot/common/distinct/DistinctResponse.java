@@ -64,23 +64,16 @@ public class DistinctResponse extends ActionResponse {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) {
+        if(this == o)
             return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
+        if(o == null || getClass() != o.getClass())
             return false;
-        }
 
         DistinctResponse that = (DistinctResponse) o;
 
-        if (headers != null
-            ? !headers.equals(that.headers)
-            : that.headers != null) {
+        if(headers != null ? !headers.equals(that.headers) : that.headers != null)
             return false;
-        }
-        return result != null
-               ? result.equals(that.result)
-               : that.result == null;
+        return result != null ? result.equals(that.result) : that.result == null;
     }
 
     @Override

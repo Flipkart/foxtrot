@@ -59,15 +59,6 @@ public class BetweenFilter extends Filter {
     }
 
     @Override
-    public String toString() {
-        return new ToStringBuilder(this).appendSuper(super.toString())
-                .append("temporal", temporal)
-                .append("from", from.toString())
-                .append("to", to.toString())
-                .toString();
-    }
-
-    @Override
     public boolean isFilterTemporal() {
         return temporal;
     }
@@ -113,6 +104,15 @@ public class BetweenFilter extends Filter {
         return getField().equals(that.getField()) && getOperator().equals(that.getOperator()) &&
                 isFilterTemporal() == that.isFilterTemporal() && getFrom().equals(that.getFrom()) &&
                 getTo().equals(that.getTo());
+    }
+
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this).appendSuper(super.toString())
+                .append("temporal", temporal)
+                .append("from", from.toString())
+                .append("to", to.toString())
+                .toString();
     }
 
 }

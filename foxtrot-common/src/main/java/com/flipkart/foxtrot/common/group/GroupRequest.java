@@ -42,33 +42,19 @@ public class GroupRequest extends ActionRequest {
     @NotEmpty
     private List<String> nesting;
 
-    private String consoleId;
-
     public GroupRequest() {
         super(Opcodes.GROUP);
     }
 
-    public GroupRequest(List<Filter> filters, String table, String uniqueCountOn, List<String> nesting,
-                        String consoleId) {
+    public GroupRequest(List<Filter> filters, String table, String uniqueCountOn, List<String> nesting) {
         super(Opcodes.GROUP, filters);
         this.table = table;
         this.uniqueCountOn = uniqueCountOn;
         this.nesting = nesting;
-        this.consoleId = consoleId;
     }
 
     public <T> T accept(ActionRequestVisitor<T> visitor) {
         return visitor.visit(this);
-    }
-
-    @Override
-    public String toString() {
-        return new ToStringBuilder(this).appendSuper(super.toString())
-                .append("table", table)
-                .append("uniqueCountOn", uniqueCountOn)
-                .append("nesting", nesting)
-                .append("consoleId", consoleId)
-                .toString();
     }
 
     public String getTable() {
@@ -95,11 +81,12 @@ public class GroupRequest extends ActionRequest {
         this.nesting = nesting;
     }
 
-    public String getConsoleId() {
-        return consoleId;
-    }
-
-    public void setConsoleId(String consoleId) {
-        this.consoleId = consoleId;
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this).appendSuper(super.toString())
+                .append("table", table)
+                .append("uniqueCountOn", uniqueCountOn)
+                .append("nesting", nesting)
+                .toString();
     }
 }

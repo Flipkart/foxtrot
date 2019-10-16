@@ -55,6 +55,10 @@ public class TrendActionTest extends ActionTest {
                 .actionGet();
     }
 
+    private void filterNonZeroCounts(List<TrendResponse.Count> counts) {
+        counts.removeIf(count -> count.getCount() == 0);
+    }
+
     //TODO trend action with null field is not working
     @Test
     public void testTrendActionNullField() throws FoxtrotException, JsonProcessingException {
@@ -193,10 +197,6 @@ public class TrendActionTest extends ActionTest {
         filterNonZeroCounts(actualResponse.getTrends()
                                     .get("ios"));
         assertEquals(expectedResponse, actualResponse);
-    }
-
-    private void filterNonZeroCounts(List<TrendResponse.Count> counts) {
-        counts.removeIf(count -> count.getCount() == 0);
     }
 
     @Test

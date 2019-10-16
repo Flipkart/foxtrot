@@ -147,13 +147,7 @@ public abstract class FoxtrotResourceTest {
                                                  cardinalityConfig);
         queryStore = spy(queryStore);
 
-        analyticsLoader = new AnalyticsLoader(tableMetadataManager,
-                                              dataStore,
-                                              queryStore,
-                                              elasticsearchConnection,
-                                              cacheManager,
-                                              mapper,
-                                              new ElasticsearchTuningConfig());
+        analyticsLoader = new AnalyticsLoader(tableMetadataManager, dataStore, queryStore, elasticsearchConnection, cacheManager, mapper, new ElasticsearchTuningConfig());
         try {
             analyticsLoader.start();
         }
