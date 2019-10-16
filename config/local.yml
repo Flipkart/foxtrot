@@ -13,10 +13,25 @@ elasticsearch:
   tableNamePrefix: foxtrot
   getQueryTimeout: 10000
 
+serviceDiscovery:
+  namespace: local
+  environment: local
+  zookeeper: localhost:2181
+  publishedHost: 127.0.0.1
+  publishedPort: 8080
+
+riemann:
+  host: riemann-stage.local.int
+  port: 5555
+  prefix: local.foxtrot
+  pollingInterval: 30
+  tags:
+    - foxtrot
+
 hbase:
-  secure : false
+  secure: false
   tableName: foxtrot
-  hbaseZookeeperQuorum: localhost:2181
+  hbaseZookeeperQuorum: stg-dwhxenial002-stg-cloud005.phonepe.nm2:2181
   hbaseZookeeperClientPort: 2181
   seggregatedTablePrefix: foxtrot-
   hbaseZookeeperZnodeParent: /hbase-unsecure
@@ -57,3 +72,72 @@ deletionconfig:
   active: false
   interval: 86400
   initialdelay: 60
+
+clusterRerouteConfig:
+  active: false
+  interval: 86400
+  initialDelay: 10
+  thresholdShardCountPercentage: 10
+
+emailConfig:
+  from: noreply@phonepe.com
+  host: ops-jump001.phonepe.nm1
+  port: 25
+  user: AKIAJLCWHAOEDK4ZDOGQ
+  password: AgjCxNI68hrnj6bIzuJCiZBlDXW+TioRoU11++Yx97
+  url: /
+
+gandalfConfig:
+  httpConfig:
+    usingZookeeper: false
+    host: gandalf.traefik.stg.phonepe.com
+    port: 80
+    serviceName: gandalf
+    environment: stage
+    connections: 10
+    idleTimeOutSeconds: 30
+  authConfig:
+    clientId: echo
+    clientKey:  1234
+    namespace:  echo
+  permissionCacheConfig:
+    ttlSeconds: 900
+    enabled: true
+
+primerBundleConfiguration:
+  enabled: true
+  authTypesEnabled:
+    CONFIG: false
+    ANNOTATION: true
+  endpoint:
+    type: simple
+    host: primer.traefik.stg.phonepe.com
+    port: 80
+  cacheExpiry: 60
+  cacheMaxSize: 100000
+  clockSkew: 60
+  prefix: Bearer
+  privateKey: TwhjV5ujkvb41frpmqCve7ZfhqwSDMqOXe01DeDIsb2xCrW4bwfFnax9bi2uC9Kn
+
+restrictAccess: false
+
+gandalfConfiguration:
+  serviceBaseUrl: "localhost:17000"
+  username: "mudit.g@phonepe.com"
+  password: "gandalf@echo"
+
+segregationConfiguration:
+  tableEventConfigs:
+    phonepe_consumer_app_android:
+      phonepe_consumer_app_android_app_loaded:
+        - APP_LOADED
+
+elasticsearchTuningConfig:
+  precisionThreshold: 500
+  aggregationSize: 10000
+
+swagger:
+  resourcePackage: com.flipkart.foxtrot.server.resources
+  title: Foxtrot
+  description: A store abstraction and analytics system for real-time event data.
+  uriPrefix: "/foxtrot"

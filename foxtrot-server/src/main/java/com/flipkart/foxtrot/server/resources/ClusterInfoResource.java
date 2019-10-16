@@ -20,6 +20,7 @@ import java.util.Map;
 @Produces(MediaType.APPLICATION_JSON)
 @Api(value = "/v1/cluster")
 public class ClusterInfoResource {
+
     private ClusterManager clusterManager;
 
     public ClusterInfoResource(ClusterManager clusterManager) {

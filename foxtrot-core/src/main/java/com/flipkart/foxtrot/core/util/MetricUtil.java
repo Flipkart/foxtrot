@@ -39,25 +39,22 @@ public class MetricUtil {
         registerActionCacheOperation(opcode, metricKey, "success");
     }
 
-    public void registerActionCacheMiss(String opcode, String metricKey) {
-        registerActionCacheOperation(opcode, metricKey, "failure");
-    }
-
     private void registerActionCacheOperation(String opcode, String metricKey, String status) {
         metrics.meter(String.format("%s.%s.cache.%s", PACKAGE_PREFIX, ACTION_METRIC_PREFIX, status))
                 .mark();
         metrics.meter(String.format("%s.%s.%s.cache.%s", PACKAGE_PREFIX, ACTION_METRIC_PREFIX, opcode, status))
                 .mark();
-        metrics.meter(String.format("%s.%s.%s.%s.cache.%s", PACKAGE_PREFIX, ACTION_METRIC_PREFIX, opcode, metricKey, status))
+        metrics.meter(
+                String.format("%s.%s.%s.%s.cache.%s", PACKAGE_PREFIX, ACTION_METRIC_PREFIX, opcode, metricKey, status))
                 .mark();
+    }
+
+    public void registerActionCacheMiss(String opcode, String metricKey) {
+        registerActionCacheOperation(opcode, metricKey, "failure");
     }
 
     public void registerActionSuccess(String opcode, String metricKey, long duration) {
         registerActionOperation(opcode, metricKey, "success", duration);
-    }
-
-    public void registerActionFailure(String opcode, String metricKey, long duration) {
-        registerActionOperation(opcode, metricKey, "failure", duration);
     }
 
     private void registerActionOperation(String opcode, String metricKey, String status, long duration) {
@@ -67,6 +64,10 @@ public class MetricUtil {
                 .update(duration, TimeUnit.MILLISECONDS);
         metrics.timer(String.format("%s.%s.%s.%s.%s", PACKAGE_PREFIX, ACTION_METRIC_PREFIX, opcode, metricKey, status))
                 .update(duration, TimeUnit.MILLISECONDS);
+    }
+
+    public void registerActionFailure(String opcode, String metricKey, long duration) {
+        registerActionOperation(opcode, metricKey, "failure", duration);
     }
     //////////////////////////////////////////////////////////////////////////////////////////////////////////
 

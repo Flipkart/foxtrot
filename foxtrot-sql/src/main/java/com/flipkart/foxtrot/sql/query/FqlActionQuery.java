@@ -7,6 +7,7 @@ import com.flipkart.foxtrot.sql.FqlQueryVisitor;
 import java.util.List;
 
 public class FqlActionQuery implements FqlQuery {
+
     private final ActionRequest actionRequest;
     private final List<String> selectedFields;
 

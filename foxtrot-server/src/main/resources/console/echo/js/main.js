@@ -49,6 +49,9 @@ var tableNameList = [];
 var isGlobalDateFilter = false;
 var globalDateFilterValue = "";
 var isViewingVersionConsole = false;
+var templateFilterArray = [];
+var templateFilterDetails = [];
+var isTemplateFilter = false;
 
 function TablesView(id, tables) {
   this.id = id;
@@ -319,7 +322,7 @@ function saveConsole() { // Save console api
 
 // delete given console default/versioning
 function deleteConsoleAPI(url, sucessMsg, redirect) {
-  $.ajax({
+    $.ajax({
       url: url,
       type: 'DELETE',
       contentType: 'application/json',
@@ -512,32 +515,32 @@ function clearPageSidebar() {
 }
 
 function preparePageRendering(res, selectedConsole) {
-  currentConsoleName = res.name;
-  clearContainer();
-  globalData = [];
-  globalData = res.sections;
-  generateTabBtnForConsole(res);
+      currentConsoleName = res.name;
+      clearContainer();
+      globalData = [];
+      globalData = res.sections;
+      generateTabBtnForConsole(res);
 
-  // check any tab name present in url
-  var tabName = getParameterByName("tab");
-  var tabIndex = 0;
-  if(tabName) {
-    var tabIndex = res.sections.findIndex(x => x.id == tabName);
-    renderTilesObject(res.sections[tabIndex].id);
-    tabIndex = tabIndex+1;
-  } else {
-    renderTilesObject(res.sections[0].id);
-    tabIndex = 1;
-  }
+      // check any tab name present in url
+      var tabName = getParameterByName("tab");
+      var tabIndex = 0;
+      if(tabName) {
+        var tabIndex = res.sections.findIndex(x => x.id == tabName);
+        renderTilesObject(res.sections[tabIndex].id);
+        tabIndex = tabIndex+1;
+      } else {
+        renderTilesObject(res.sections[0].id);
+        tabIndex = 1;
+      }
 
-  // make tab button active
-  $('.tab button:nth-child('+tabIndex+')').addClass('active');
+      // make tab button active
+      $('.tab button:nth-child('+tabIndex+')').addClass('active');
 
-  getTables();
+      getTables();
   clearPageSidebar();
-  generatePageList(res);
+      generatePageList(res);
   if(!isViewingVersionConsole) {
-    setTimeout(function() { setListConsole(selectedConsole); }, 2000);
+      setTimeout(function() { setListConsole(selectedConsole); }, 2000);
   }
 }
 
@@ -640,15 +643,30 @@ function consoleTabs(evt, el) { // logic for tab switching
   smallWidgetCount = 0;
   firstWidgetType = "";
 }
+
+function renderTemplateFilters() {
+  var option = "";
+  $.each(tableNameList, function(index, val) {
+    option+= "<option value="+val+">"+val+"</option>"
+  });
+  
+  $(".template-filter").append("<option value='none'>Select</option>");
+  $(".template-filter").append(option);
+  $(".template-filter").selectpicker('refresh');
+}
+
 function getTables() { // get table list
   $.ajax({
     url: apiUrl+"/v1/tables/",
     contentType: "application/json",
     context: this,
     success: function(tables) {
-      for (var i = tables.length - 1; i >= 0; i--) {
-        tableNameList.push(tables[i].name)
-      }
+      if(tableNameList.length == 0) {
+        for (var i = tables.length - 1; i >= 0; i--) {
+          tableNameList.push(tables[i].name)
+        }
+        renderTemplateFilters();
+      }      
     }});
 }
 
@@ -875,9 +893,7 @@ $(document).ready(function () {
               deleteConsole();
           }
       });
-      $("#listConsole").change(function () {
-          loadParticularConsoleList();
-      });
+      
       $("#addDashboardConfirm").click(function () {
           createDashboard();
       });
@@ -906,13 +922,21 @@ $(document).ready(function () {
               globalFilters = true;
               showFilters();
           } else {
-              globalFilters = false;
-              hideFilters();
-              resetPeriodDropdown();
-              resetGloblaDateFilter();
-              refereshTiles();
+              globalFilterResetDetails();
           }
       });
+
+      $(".template-filter-switch").change(function () {
+        if (this.checked) {
+            isTemplateFilter = true;
+            showTemplateFilters();
+        } else {
+            isTemplateFilter = false;
+            hideTemplateFilters();
+        }
+    });
+
+      
 
       var consoleId = getParameterByName("console").replace('/', '');
       if (consoleId) {
@@ -1099,21 +1123,14 @@ $(document).ready(function () {
       /**
        * Initialize global date filter
        */
-      $("#myModal .modal-header h4").html("Select Your Date");
+      $("#myModal .modal-header h4").html("Select End Date");
       $("#myModal .modal-body").html('<div style="overflow:hidden;"><div class="form-group"><div class="row"><div class="col-md-8"><div id="datetimepicker12"></div></div></div></div><div id="global-date-picker-info-text"><p><span class="glyphicon glyphicon-info-sign"></span>Graph would operate between (time selected in date picker - x), where x is the value in mins/hours/days of the individual widget</p> <ul><li>If time selected in date picker is 1 pm and the widget has time range of 15 mins, widget would show data from (1pm -15 mins)</li> <li>If time selected in date picker is 1 pm and the global filters has time range of 15 mins, all widgets would show data from (1pm -15 mins)</li></ul></p></div>');
       $('#datetimepicker12').datetimepicker({
           inline: true,
           sideBySide: true,
           format: 'DD/MM/YYYY, hh:mm:ss a'
       });
-
-      function resetGloblaDateFilter() {
-          isGlobalDateFilter = false;
-          globalDateFilterValue = "";
-          $("#selected-global-date span").text('');
-          $("#selected-global-date").hide();
-      }
-
+      
       $(".close-global-date-filter").click(function () {
           $("#myModal").modal("hide");
           //resetGloblaDateFilter();

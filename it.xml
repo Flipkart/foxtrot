@@ -37,7 +37,8 @@
             <arg value="pid"/>
         </exec>
         <waitfor maxwait="1" maxwaitunit="minute" checkevery="10" checkeveryunit="second">
-            <http url="http://localhost:9200/_cluster/health?wait_for_status=yellow&amp;timeout=5s"/>
+            <http
+                    url="http://localhost:9200/_cluster/health?wait_for_status=yellow&amp;timeout=5s"/>
         </waitfor>
         <local name="es.pid"/>
         <read-pid/>

@@ -1,17 +1,14 @@
 /**
  * Copyright 2014 Flipkart Internet Pvt. Ltd.
  * <p>
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
  * <p>
  * http://www.apache.org/licenses/LICENSE-2.0
  * <p>
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
+ * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations under the License.
  */
 package com.flipkart.foxtrot.common.distinct;
 
@@ -22,11 +19,10 @@ import com.flipkart.foxtrot.common.ResponseVisitor;
 import java.util.List;
 
 /**
- * User: Santanu Sinha (santanu.sinha@flipkart.com)
- * Date: 21/03/14
- * Time: 5:07 PM
+ * User: Santanu Sinha (santanu.sinha@flipkart.com) Date: 21/03/14 Time: 5:07 PM
  */
 public class DistinctResponse extends ActionResponse {
+
     private List<String> headers;
     private List<List<String>> result;
 
@@ -63,22 +59,33 @@ public class DistinctResponse extends ActionResponse {
 
     @Override
     public boolean equals(Object o) {
-        if(this == o)
+        if (this == o) {
             return true;
-        if(o == null || getClass() != o.getClass())
+        }
+        if (o == null || getClass() != o.getClass()) {
             return false;
+        }
 
-        DistinctResponse that = (DistinctResponse)o;
+        DistinctResponse that = (DistinctResponse) o;
 
-        if(headers != null ? !headers.equals(that.headers) : that.headers != null)
+        if (headers != null
+            ? !headers.equals(that.headers)
+            : that.headers != null) {
             return false;
-        return result != null ? result.equals(that.result) : that.result == null;
+        }
+        return result != null
+               ? result.equals(that.result)
+               : that.result == null;
     }
 
     @Override
     public int hashCode() {
-        int result1 = headers != null ? headers.hashCode() : 0;
-        result1 = 31 * result1 + (result != null ? result.hashCode() : 0);
+        int result1 = headers != null
+                      ? headers.hashCode()
+                      : 0;
+        result1 = 31 * result1 + (result != null
+                                  ? result.hashCode()
+                                  : 0);
         return result1;
     }
 }

@@ -1,6 +1,9 @@
 package com.flipkart.foxtrot.server.resources;
 
 import com.codahale.metrics.annotation.Timed;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.flipkart.foxtrot.gandalf.access.AccessService;
+import com.flipkart.foxtrot.server.config.QueryConfig;
 import com.flipkart.foxtrot.server.providers.FlatToCsvConverter;
 import com.flipkart.foxtrot.server.providers.FoxtrotExtraMediaType;
 import com.flipkart.foxtrot.sql.FqlEngine;
@@ -9,8 +12,12 @@ import com.flipkart.foxtrot.sql.fqlstore.FqlStore;
 import com.flipkart.foxtrot.sql.fqlstore.FqlStoreService;
 import com.flipkart.foxtrot.sql.responseprocessors.model.FlatRepresentation;
 import com.google.common.base.Preconditions;
+import com.phonepe.gandalf.client.annotation.GandalfUserContext;
+import com.phonepe.gandalf.models.user.UserDetails;
+import io.dropwizard.primer.auth.annotation.Authorize;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import lombok.extern.slf4j.Slf4j;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
@@ -19,14 +26,22 @@ import java.io.OutputStreamWriter;
 import java.util.List;
 
 @Path("/v1/fql")
-@Api(value = "/v1/fql", description = "FQL API")
+@Api(value = "/v1/fql")
+@Slf4j
 public class FqlResource {
+
+    private final QueryConfig queryConfig;
     private FqlEngine fqlEngine;
     private FqlStoreService fqlStoreService;
+    private AccessService accessService;
 
-    public FqlResource(final FqlEngine fqlEngine, final FqlStoreService fqlStoreService) {
+    public FqlResource(
+            final FqlEngine fqlEngine, final FqlStoreService fqlStoreService, AccessService accessService,
+            QueryConfig queryConfig) {
         this.fqlEngine = fqlEngine;
         this.fqlStoreService = fqlStoreService;
+        this.accessService = accessService;
+        this.queryConfig = queryConfig;
     }
 
     @GET
@@ -34,9 +49,12 @@ public class FqlResource {
     @Path("/download")
     @Timed
     @ApiOperation("runFqlGet")
-    public StreamingOutput runFqlGet(@QueryParam("q") final String query) throws Exception {
+    @Authorize(value = {})
+    public StreamingOutput runFqlGet(@QueryParam("q") final String query, @GandalfUserContext UserDetails userDetails)
+            throws JsonProcessingException {
         Preconditions.checkNotNull(query);
-        final FlatRepresentation representation = fqlEngine.parse(query);
+        preprocess(query, userDetails.getEmail());
+        final FlatRepresentation representation = fqlEngine.parse(query, userDetails, accessService);
         return output -> FlatToCsvConverter.convert(representation, new OutputStreamWriter(output));
     }
 
@@ -44,8 +62,10 @@ public class FqlResource {
     @Timed
     @Produces({MediaType.TEXT_PLAIN, MediaType.APPLICATION_JSON, FoxtrotExtraMediaType.TEXT_CSV})
     @ApiOperation("runFqlPost")
-    public FlatRepresentation runFqlPost(final String query) throws Exception {
-        return fqlEngine.parse(query);
+    @Authorize(value = {})
+    public FlatRepresentation runFqlPost(final String query, @GandalfUserContext UserDetails userDetails)
+            throws JsonProcessingException {
+        return fqlEngine.parse(query, userDetails, accessService);
     }
 
     String getMessage(Throwable e) {
@@ -60,7 +80,7 @@ public class FqlResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/save")
     @ApiOperation("Save FQL query")
-    public FqlStore saveFQL(final FqlStore fqlStore) throws Exception {
+    public FqlStore saveFQL(final FqlStore fqlStore) {
         fqlStoreService.save(fqlStore);
         return fqlStore;
     }
@@ -70,10 +90,20 @@ public class FqlResource {
     @Path("/get")
     @ApiOperation("Get List<FqlStore>")
     public List<FqlStore> get(FqlGetRequest fqlGetRequest) {
-        try {
-            return fqlStoreService.get(fqlGetRequest);
-        } catch (Exception e) {
-            throw new RuntimeException("Couldn't get FqlStore from FqlGetRequest. Error Message: " + e);
+        if (queryConfig.isLogQueries()) {
+            log.info("Fql Query : " + fqlGetRequest.toString());
+        }
+        return fqlStoreService.get(fqlGetRequest);
+    }
+
+    private void preprocess(String query, String email) {
+        if (queryConfig.isLogQueries()) {
+            if (query.contains("time")) {
+                log.info("Fql Query : " + query);
+            }
+            else {
+                log.info("Fql Query where time filter is not specified, query: {} executed by: {}", query, email);
+            }
         }
     }
 }

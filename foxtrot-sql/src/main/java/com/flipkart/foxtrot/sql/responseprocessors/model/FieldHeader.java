@@ -1,6 +1,7 @@
 package com.flipkart.foxtrot.sql.responseprocessors.model;
 
 public class FieldHeader {
+
     private String name;
     private int maxLength;
 
@@ -29,19 +30,21 @@ public class FieldHeader {
     }
 
     @Override
-    public boolean equals(Object o) {
-        if(this == o)
-            return true;
-        if(o == null || getClass() != o.getClass())
-            return false;
-
-        FieldHeader that = (FieldHeader)o;
-
-        return name.equals(that.name);
+    public int hashCode() {
+        return name.hashCode();
     }
 
     @Override
-    public int hashCode() {
-        return name.hashCode();
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        FieldHeader that = (FieldHeader) o;
+
+        return name.equals(that.name);
     }
 }

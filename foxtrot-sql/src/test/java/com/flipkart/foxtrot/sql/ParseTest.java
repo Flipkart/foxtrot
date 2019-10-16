@@ -13,6 +13,7 @@ import org.junit.Test;
 import java.util.ArrayList;
 
 public class ParseTest {
+
     @Test
     public void test() throws Exception {
         //TODO
@@ -77,7 +78,6 @@ public class ParseTest {
             System.out.println(writer.writeValueAsString(request));
         }*/
 
-
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
         objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
@@ -94,8 +94,8 @@ public class ParseTest {
             ImmutableList filters = ImmutableList.of(new MissingFilter("a"));
             query.setFilters(filters);
             FqlActionQuery fqlActionQuery = new FqlActionQuery(query, new ArrayList<>());
-            Assert.assertEquals(writer.writeValueAsString(fqlActionQuery), writer.writeValueAsString(queryTranslator.translate(sql)));
-
+            Assert.assertEquals(writer.writeValueAsString(fqlActionQuery),
+                                writer.writeValueAsString(queryTranslator.translate(sql)));
         }
     }
 }

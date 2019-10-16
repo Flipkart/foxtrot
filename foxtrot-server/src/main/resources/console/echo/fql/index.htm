@@ -87,9 +87,15 @@
                 </select>
                 <ul id="left-menu">
                     <li><a href="../browse-events.htm">Browse Events</a></li>
+                    <li><a href="../cluster/index.htm">Cluster</a></li>
                     <li><a id="active-fql">FQL</a></li>
                     <li id="fql-dashboard">
                         <span id="create-new-dashboard">Create New Dashboard</span>
+                    </li>
+                    <li>
+                        <form id="logout" method="post">
+                            <img id="logout-icon" class="logout" src="../img/logout.png" title="Logout" alt="Logout">
+                        </form>
                     </li>
                 </ul>
             </div>
@@ -262,7 +268,7 @@
         }
     });
 
-    $("#fql-column-chooser-close-btn").click(function() {
+   $("#fql-column-chooser-close-btn").click(function() {
       showHideColumnChooser();
     });
 
@@ -299,6 +305,7 @@
         $("#fql-run-query").trigger("click");
       }
     });
+
 
 
 

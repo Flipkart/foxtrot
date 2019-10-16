@@ -1,17 +1,14 @@
 /**
  * Copyright 2014 Flipkart Internet Pvt. Ltd.
  * <p>
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
  * <p>
  * http://www.apache.org/licenses/LICENSE-2.0
  * <p>
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
+ * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations under the License.
  */
 package com.flipkart.foxtrot.core.querystore.actions;
 
@@ -41,6 +38,7 @@ import static org.junit.Assert.fail;
  * Created by rishabh.goyal on 29/04/14.
  */
 public class TrendActionTest extends ActionTest {
+
     @Before
     public void setUp() throws Exception {
         super.setUp();
@@ -52,10 +50,6 @@ public class TrendActionTest extends ActionTest {
                 .prepareRefresh("*")
                 .execute()
                 .actionGet();
-    }
-
-    private void filterNonZeroCounts(List<TrendResponse.Count> counts) {
-        counts.removeIf(count -> count.getCount() == 0);
     }
 
     //TODO trend action with null field is not working
@@ -74,7 +68,8 @@ public class TrendActionTest extends ActionTest {
         try {
             getQueryExecutor().execute(trendRequest);
             fail("Should have thrown exception");
-        } catch (FoxtrotException e) {
+        }
+        catch (FoxtrotException e) {
             assertEquals(ErrorCode.MALFORMED_QUERY, e.getCode());
         }
     }
@@ -115,7 +110,8 @@ public class TrendActionTest extends ActionTest {
         try {
             getQueryExecutor().execute(trendRequest);
             fail();
-        } catch (FoxtrotException ex) {
+        }
+        catch (FoxtrotException ex) {
             assertEquals(ErrorCode.MALFORMED_QUERY, ex.getCode());
         }
     }
@@ -140,7 +136,6 @@ public class TrendActionTest extends ActionTest {
         assertEquals(expectedResponse, actualResponse);
     }
 
-
     @Test
     public void testTrendActionNullTable() throws FoxtrotException, JsonProcessingException {
         TrendRequest trendRequest = new TrendRequest();
@@ -155,7 +150,8 @@ public class TrendActionTest extends ActionTest {
         try {
             getQueryExecutor().execute(trendRequest);
             fail();
-        } catch (FoxtrotException ex) {
+        }
+        catch (FoxtrotException ex) {
             assertEquals(ErrorCode.MALFORMED_QUERY, ex.getCode());
         }
     }
@@ -194,6 +190,10 @@ public class TrendActionTest extends ActionTest {
         filterNonZeroCounts(actualResponse.getTrends()
                                     .get("ios"));
         assertEquals(expectedResponse, actualResponse);
+    }
+
+    private void filterNonZeroCounts(List<TrendResponse.Count> counts) {
+        counts.removeIf(count -> count.getCount() == 0);
     }
 
     @Test
@@ -312,7 +312,6 @@ public class TrendActionTest extends ActionTest {
         lessThanFilter.setField("_timestamp");
         lessThanFilter.setValue(System.currentTimeMillis());
         trendRequest.setFilters(Lists.newArrayList(equalsFilter, lessThanFilter));
-
 
         TrendResponse expectedResponse = new TrendResponse();
         Map<String, List<TrendResponse.Count>> trends = Maps.newHashMap();

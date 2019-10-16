@@ -5,7 +5,7 @@
     <parent>
         <groupId>com.flipkart.foxtrot</groupId>
         <artifactId>foxtrot</artifactId>
-        <version>6.3.1-2</version>
+        <version>${project.version}</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -14,6 +14,8 @@
     <properties>
         <hbase.version>1.2.1</hbase.version>
         <zookeeper.version>3.4.8</zookeeper.version>
+        <sonar.exclusions>**com/flipkart/foxtrot/core/querystore/impl/ElasticsearchConnection*
+        </sonar.exclusions>
     </properties>
 
     <dependencies>
@@ -36,11 +38,15 @@
         <dependency>
             <groupId>com.marathon.hazelcast.servicediscovery</groupId>
             <artifactId>hazelcast-marathon-discovery</artifactId>
-            <version>0.0.3</version>
+            <version>0.0.7</version>
             <exclusions>
                 <exclusion>
                     <groupId>com.netflix.feign</groupId>
                     <artifactId>feign-core</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.netflix.feign</groupId>
+                    <artifactId>feign-httpclient</artifactId>
                 </exclusion>
             </exclusions>
         </dependency>
@@ -111,7 +117,7 @@
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
-            <version>19.0</version>
+            <version>20.0</version>
         </dependency>
 
         <!-- Zookeeper -->
@@ -174,7 +180,7 @@
         <dependency>
             <groupId>com.flipkart.foxtrot</groupId>
             <artifactId>foxtrot-common</artifactId>
-            <version>6.3.1-2</version>
+            <version>${project.version}</version>
         </dependency>
 
         <!-- Reflections for scanning classpath to get analytics providers-->
@@ -211,8 +217,8 @@
                 </exclusion>
             </exclusions>
         </dependency>
-
     </dependencies>
+
     <build>
         <plugins>
             <plugin>

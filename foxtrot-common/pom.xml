@@ -5,10 +5,9 @@
     <parent>
         <groupId>com.flipkart.foxtrot</groupId>
         <artifactId>foxtrot</artifactId>
-        <version>6.3.1-2</version>
+        <version>${project.version}</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
-
     <artifactId>foxtrot-common</artifactId>
 
 </project>

@@ -68,12 +68,13 @@ public class MultiQueryAction extends Action<MultiQueryRequest> {
         processForSubQueries(multiQueryRequest, (action, request) -> {
             try {
                 action.validateImpl(request);
-            } catch (MalformedQueryException e) {
+            }
+            catch (MalformedQueryException e) {
                 multiException.addError(e);
             }
             return null;
         });
-        if(CollectionUtils.isNotEmpty(multiException.getErrors())) {
+        if (CollectionUtils.isNotEmpty(multiException.getErrors())) {
             throw multiException;
         }
 
@@ -87,7 +88,8 @@ public class MultiQueryAction extends Action<MultiQueryRequest> {
             MultiSearchResponse multiSearchResponse = multiSearchRequestBuilder.execute()
                     .actionGet();
             return getResponse(multiSearchResponse, parameter);
-        } catch (ElasticsearchException e) {
+        }
+        catch (ElasticsearchException e) {
             throw FoxtrotExceptions.createQueryExecutionException(parameter, e);
         }
     }
@@ -98,42 +100,44 @@ public class MultiQueryAction extends Action<MultiQueryRequest> {
         MultiSearchRequestBuilder multiSearchRequestBuilder = getConnection().getClient()
                 .prepareMultiSearch();
 
-        for(Map.Entry<String, ActionRequest> entry : parameter.getRequests()
+        for (Map.Entry<String, ActionRequest> entry : parameter.getRequests()
                 .entrySet()) {
             ActionRequest request = entry.getValue();
             Action<ActionRequest> action = analyticsLoader.getAction(request);
-            if(null == action) {
+            if (null == action) {
                 throw FoxtrotExceptions.queryCreationException(request, null);
             }
             ActionRequestBuilder requestBuilder = action.getRequestBuilder(request);
-            if(requestBuilder instanceof SearchRequestBuilder) {
-                multiSearchRequestBuilder.add((SearchRequestBuilder)requestBuilder);
+            if (requestBuilder instanceof SearchRequestBuilder) {
+                multiSearchRequestBuilder.add((SearchRequestBuilder) requestBuilder);
             }
         }
         return multiSearchRequestBuilder;
     }
 
     @Override
-    public ActionResponse getResponse(org.elasticsearch.action.ActionResponse multiSearchResponse, MultiQueryRequest parameter) {
-
+    public ActionResponse getResponse(
+            org.elasticsearch.action.ActionResponse multiSearchResponse,
+            MultiQueryRequest parameter) {
         Map<String, ActionResponse> queryVsQueryResponseMap = Maps.newHashMap();
         int queryCounter = 0;
         List<String> queryKeys = Lists.newArrayList();
         List<ActionRequest> requests = Lists.newArrayList();
-        for(Map.Entry<String, ActionRequest> entry : getParameter().getRequests()
+        for (Map.Entry<String, ActionRequest> entry : getParameter().getRequests()
                 .entrySet()) {
             queryKeys.add(entry.getKey());
             requests.add(entry.getValue());
         }
-        for(MultiSearchResponse.Item item : ((MultiSearchResponse)multiSearchResponse).getResponses()) {
+        for (MultiSearchResponse.Item item : ((MultiSearchResponse) multiSearchResponse).getResponses()) {
             Action action = null;
             ActionRequest request = requests.get(queryCounter);
             try {
                 action = analyticsLoader.getAction(request);
-            } catch (Exception e) {
+            }
+            catch (Exception e) {
                 LOGGER.error("Error occurred while executing multiQuery request : {}", e);
             }
-            if(null == action) {
+            if (null == action) {
                 throw FoxtrotExceptions.queryCreationException(request, null);
             }
             String key = queryKeys.get(queryCounter++);
@@ -144,7 +148,8 @@ public class MultiQueryAction extends Action<MultiQueryRequest> {
     }
 
     private void createActions(final MultiQueryRequest multiQueryRequest) {
-        for(Map.Entry<String, ActionRequest> entry : multiQueryRequest.getRequests().entrySet()) {
+        for (Map.Entry<String, ActionRequest> entry : multiQueryRequest.getRequests()
+                .entrySet()) {
             ActionRequest request = entry.getValue();
             Action action;
             if (requestActionMap.get(request) != null) {
@@ -163,9 +168,9 @@ public class MultiQueryAction extends Action<MultiQueryRequest> {
 
     private String processForSubQueries(MultiQueryRequest multiQueryRequest, ActionInterface actionInterface) {
         List<String> results = Lists.newArrayList();
-        for(Map.Entry<String, ActionRequest> entry : multiQueryRequest.getRequests().entrySet()) {
+        for (Map.Entry<String, ActionRequest> entry : multiQueryRequest.getRequests().entrySet()) {
             String result = actionInterface.invoke(requestActionMap.get(entry.getValue()), entry.getValue());
-            if(!Strings.isNullOrEmpty(result)) {
+            if (!Strings.isNullOrEmpty(result)) {
                 results.add(result);
             }
         }

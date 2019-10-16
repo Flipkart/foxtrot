@@ -12,6 +12,7 @@ import java.util.TimerTask;
  * Created by rishabh.goyal on 07/07/14.
  */
 public class DataDeletionTask extends TimerTask {
+
     private static final Logger logger = LoggerFactory.getLogger(DataDeletionTask.class.getSimpleName());
     private final QueryStore queryStore;
 
@@ -25,7 +26,8 @@ public class DataDeletionTask extends TimerTask {
         logger.info("Starting Deletion Job");
         try {
             queryStore.cleanupAll();
-        } catch (FoxtrotException ex) {
+        }
+        catch (FoxtrotException ex) {
             logger.error("Deletion Job Failed ", ex);
         }
         logger.info("Finished Deletion Job");

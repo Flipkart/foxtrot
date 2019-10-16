@@ -5,18 +5,12 @@
     <parent>
         <artifactId>foxtrot</artifactId>
         <groupId>com.flipkart.foxtrot</groupId>
-        <version>6.3.1-2</version>
+        <version>${project.version}</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
-
     <artifactId>foxtrot-sql</artifactId>
 
     <dependencies>
-        <!--<dependency>
-            <groupId>com.foundationdb</groupId>
-            <artifactId>fdb-sql-parser</artifactId>
-            <version>1.4.0</version>
-        </dependency>-->
         <dependency>
             <groupId>com.github.jsqlparser</groupId>
             <artifactId>jsqlparser</artifactId>
@@ -31,22 +25,26 @@
         <!-- Internal -->
         <dependency>
             <groupId>com.flipkart.foxtrot</groupId>
+            <artifactId>foxtrot-gandalf</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.flipkart.foxtrot</groupId>
             <artifactId>foxtrot-common</artifactId>
-            <version>6.3.1-2</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>com.flipkart.foxtrot</groupId>
             <artifactId>foxtrot-core</artifactId>
-            <version>6.3.1-2</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>com.flipkart.foxtrot</groupId>
             <artifactId>foxtrot-core</artifactId>
-            <version>6.3.1-2</version>
+            <version>${project.version}</version>
             <type>test-jar</type>
             <scope>test</scope>
         </dependency>
-
     </dependencies>
 
 

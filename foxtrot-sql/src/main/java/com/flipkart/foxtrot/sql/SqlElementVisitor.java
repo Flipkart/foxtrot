@@ -26,16 +26,17 @@ import net.sf.jsqlparser.statement.truncate.Truncate;
 import net.sf.jsqlparser.statement.update.Update;
 
 public class SqlElementVisitor
-        implements StatementVisitor, SelectVisitor, FromItemVisitor, ItemsListVisitor, ExpressionVisitor, SelectItemVisitor,
-                   ExtendedSqlStatementVisitor {
-    private void invalid(Object object) {
-        throw new FqlParsingException("Unsupported construct: " + object.getClass()
-                .getSimpleName());
-    }
+        implements StatementVisitor, SelectVisitor, FromItemVisitor, ItemsListVisitor, ExpressionVisitor,
+        SelectItemVisitor, ExtendedSqlStatementVisitor {
 
     @Override
     public void visit(NullValue nullValue) {
         invalid(nullValue);
+    }
+
+    private void invalid(Object object) {
+        throw new FqlParsingException("Unsupported construct: " + object.getClass()
+                .getSimpleName());
     }
 
     @Override
@@ -274,16 +275,6 @@ public class SqlElementVisitor
     }
 
     @Override
-    public void visit(ExpressionList expressionList) {
-        //supported construct
-    }
-
-    @Override
-    public void visit(MultiExpressionList multiExprList) {
-        //supported construct
-    }
-
-    @Override
     public void visit(SubJoin subjoin) {
         //supported construct
     }
@@ -295,6 +286,16 @@ public class SqlElementVisitor
 
     @Override
     public void visit(ValuesList valuesList) {
+        //supported construct
+    }
+
+    @Override
+    public void visit(ExpressionList expressionList) {
+        //supported construct
+    }
+
+    @Override
+    public void visit(MultiExpressionList multiExprList) {
         //supported construct
     }
 

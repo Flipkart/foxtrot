@@ -21,7 +21,7 @@ public class RichEmailBuilder {
     }
 
     public final Email build(final String id, final List<String> recipients, final Map<String, Object> context) {
-        if(null == subjectBuilder || null == bodyBuilder) {
+        if (null == subjectBuilder || null == bodyBuilder) {
             return Email.builder().build();
         }
         return new Email(subjectBuilder.content(id, context), bodyBuilder.content(id, context), recipients);

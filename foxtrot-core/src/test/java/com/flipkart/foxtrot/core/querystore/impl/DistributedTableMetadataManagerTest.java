@@ -1,17 +1,14 @@
 /**
  * Copyright 2014 Flipkart Internet Pvt. Ltd.
  * <p>
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
  * <p>
  * http://www.apache.org/licenses/LICENSE-2.0
  * <p>
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
+ * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations under the License.
  */
 package com.flipkart.foxtrot.core.querystore.impl;
 
@@ -22,10 +19,10 @@ import com.flipkart.foxtrot.common.Table;
 import com.flipkart.foxtrot.common.TableFieldMapping;
 import com.flipkart.foxtrot.common.group.GroupResponse;
 import com.flipkart.foxtrot.core.TestUtils;
-import com.flipkart.foxtrot.core.email.EmailConfig;
 import com.flipkart.foxtrot.core.cardinality.CardinalityConfig;
 import com.flipkart.foxtrot.core.config.TextNodeRemoverConfiguration;
 import com.flipkart.foxtrot.core.datastore.DataStore;
+import com.flipkart.foxtrot.core.email.EmailConfig;
 import com.flipkart.foxtrot.core.querystore.mutator.IndexerEventMutator;
 import com.flipkart.foxtrot.core.querystore.mutator.LargeTextNodeRemover;
 import com.flipkart.foxtrot.core.table.impl.DistributedTableMetadataManager;
@@ -47,7 +44,6 @@ import java.util.List;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.when;
-
 
 /**
  * Created by rishabh.goyal on 29/04/14.
@@ -80,17 +76,18 @@ public class DistributedTableMetadataManagerTest {
         when(hazelcastConnection.getHazelcastConfig()).thenReturn(new Config());
         hazelcastConnection.start();
 
-        this.distributedTableMetadataManager = new DistributedTableMetadataManager(hazelcastConnection, elasticsearchConnection,
-                objectMapper, new CardinalityConfig()
-        );
+        this.distributedTableMetadataManager = new DistributedTableMetadataManager(hazelcastConnection,
+                                                                                   elasticsearchConnection,
+                                                                                   objectMapper,
+                                                                                   new CardinalityConfig());
         distributedTableMetadataManager.start();
 
         tableDataStore = hazelcastInstance.getMap("tablemetadatamap");
         List<IndexerEventMutator> mutators = Lists.newArrayList(new LargeTextNodeRemover(objectMapper,
-                TextNodeRemoverConfiguration.builder().build()));
-        this.queryStore = new ElasticsearchQueryStore(distributedTableMetadataManager, elasticsearchConnection, dataStore, mutators, objectMapper,
-                new CardinalityConfig()
-        );
+                                                                                         TextNodeRemoverConfiguration.builder()
+                                                                                                 .build()));
+        this.queryStore = new ElasticsearchQueryStore(distributedTableMetadataManager, elasticsearchConnection,
+                                                      dataStore, mutators, objectMapper, new CardinalityConfig());
     }
 
     @After
@@ -102,7 +99,8 @@ public class DistributedTableMetadataManagerTest {
                     .admin()
                     .indices()
                     .delete(deleteIndexRequest);
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             //Do Nothing
         }
         elasticsearchConnection.stop();
@@ -161,13 +159,15 @@ public class DistributedTableMetadataManagerTest {
                 .save(table, document);
         queryStore.save(TestUtils.TEST_TABLE_NAME, document);
 
-        document = TestUtils.getDocument("B", new DateTime().getMillis(), new Object[]{"os", "android", "version", "abcd"}, objectMapper);
+        document = TestUtils.getDocument("B", new DateTime().getMillis(),
+                                         new Object[]{"os", "android", "version", "abcd"}, objectMapper);
         translatedDocument = TestUtils.translatedDocumentWithRowKeyVersion1(table, document);
         doReturn(translatedDocument).when(dataStore)
                 .save(table, document);
         queryStore.save(TestUtils.TEST_TABLE_NAME, document);
 
-        TableFieldMapping tableFieldMapping = distributedTableMetadataManager.getFieldMappings(TestUtils.TEST_TABLE_NAME, true, true);
+        TableFieldMapping tableFieldMapping = distributedTableMetadataManager.getFieldMappings(
+                TestUtils.TEST_TABLE_NAME, true, true);
         assertEquals(11, tableFieldMapping.getMappings()
                 .size());
 

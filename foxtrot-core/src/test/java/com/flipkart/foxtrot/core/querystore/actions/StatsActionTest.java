@@ -1,17 +1,14 @@
 /**
  * Copyright 2014 Flipkart Internet Pvt. Ltd.
  * <p>
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
  * <p>
  * http://www.apache.org/licenses/LICENSE-2.0
  * <p>
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
+ * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations under the License.
  */
 package com.flipkart.foxtrot.core.querystore.actions;
 
@@ -38,6 +35,7 @@ import static org.junit.Assert.*;
  * Created by rishabh.goyal on 29/04/14.
  */
 public class StatsActionTest extends ActionTest {
+
     @Before
     public void setUp() throws Exception {
         super.setUp();
@@ -232,7 +230,7 @@ public class StatsActionTest extends ActionTest {
         betweenFilter.setField("_timestamp");
         request.setFilters(Collections.<Filter>singletonList(betweenFilter));
 
-        StatsResponse statsResponse = (StatsResponse)getQueryExecutor().execute(request);
+        StatsResponse statsResponse = (StatsResponse) getQueryExecutor().execute(request);
         assertNotNull(statsResponse);
         assertNotNull(statsResponse.getResult());
         assertEquals(1, statsResponse.getResult()
@@ -255,7 +253,7 @@ public class StatsActionTest extends ActionTest {
         assertNotNull(statsResponse.getResult());
         assertEquals(3, statsResponse.getBuckets()
                 .size());
-        for(BucketResponse bucketResponse : statsResponse.getBuckets()) {
+        for (BucketResponse bucketResponse : statsResponse.getBuckets()) {
             assertNotNull(bucketResponse.getResult());
         }
     }
@@ -272,7 +270,7 @@ public class StatsActionTest extends ActionTest {
         assertNotNull(statsResponse.getResult());
         assertEquals(3, statsResponse.getBuckets()
                 .size());
-        for(BucketResponse bucketResponse : statsResponse.getBuckets()) {
+        for (BucketResponse bucketResponse : statsResponse.getBuckets()) {
             assertNull(bucketResponse.getResult());
             assertNotNull(bucketResponse.getBuckets());
         }

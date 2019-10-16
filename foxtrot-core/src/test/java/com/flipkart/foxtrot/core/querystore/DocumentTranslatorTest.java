@@ -39,7 +39,6 @@ public class DocumentTranslatorTest {
         document.setTimestamp(System.currentTimeMillis());
         document.setData(mapper.createObjectNode()
                                  .put("name", "rishabh"));
-
         Document translatedDocument = translator.translate(table, document);
 
         assertEquals(translatedDocument.getId(), document.getId());
@@ -63,7 +62,6 @@ public class DocumentTranslatorTest {
         document.setTimestamp(System.currentTimeMillis());
         document.setData(mapper.createObjectNode()
                                  .put("name", "rishabh"));
-
         Document translatedDocument = translator.translate(table, document);
 
         assertEquals(translatedDocument.getId(), document.getId());
@@ -113,7 +111,6 @@ public class DocumentTranslatorTest {
         document.setTimestamp(System.currentTimeMillis());
         document.setData(mapper.createObjectNode()
                                  .put("name", "rishabh"));
-
         Document translatedDocument = translator.translate(table, document);
 
         Document translatedBackDocument = translator.translateBack(translatedDocument);
@@ -138,7 +135,6 @@ public class DocumentTranslatorTest {
         document.setTimestamp(System.currentTimeMillis());
         document.setData(mapper.createObjectNode()
                                  .put("name", "rishabh"));
-
         Document translatedDocument = translator.translate(table, document);
 
         Document translatedBackDocument = translator.translateBack(translatedDocument);

@@ -39,8 +39,10 @@ public class ConsoleHistoryManager extends BaseJobManager {
     private final ObjectMapper mapper;
     private final ElasticsearchConsolePersistence elasticsearchConsolePersistence;
 
-    public ConsoleHistoryManager(ScheduledExecutorService scheduledExecutorService, ConsoleHistoryConfig consoleHistoryConfig,
-                                 ElasticsearchConnection connection, HazelcastConnection hazelcastConnection, ObjectMapper mapper) {
+    public ConsoleHistoryManager(
+            ScheduledExecutorService scheduledExecutorService,
+            ConsoleHistoryConfig consoleHistoryConfig, ElasticsearchConnection connection,
+            HazelcastConnection hazelcastConnection, ObjectMapper mapper) {
         super(consoleHistoryConfig, scheduledExecutorService, hazelcastConnection);
         this.consoleHistoryConfig = consoleHistoryConfig;
         this.connection = connection;
@@ -63,10 +65,11 @@ public class ConsoleHistoryManager extends BaseJobManager {
                         .actionGet();
                 Terms agg = searchResponse.getAggregations()
                         .get("names");
-                for(Terms.Bucket entry : agg.getBuckets()) {
+                for (Terms.Bucket entry : agg.getBuckets()) {
                     deleteOldData(entry.getKeyAsString());
                 }
-            } catch (Exception e) {
+            }
+            catch (Exception e) {
                 logger.info("Failed to get aggregations and delete data for index history. {}", e);
             }
 
@@ -88,11 +91,12 @@ public class ConsoleHistoryManager extends BaseJobManager {
                     .execute()
                     .actionGet()
                     .getHits();
-            for(SearchHit searchHit : CollectionUtils.nullAndEmptySafeValueList(searchHits.getHits())) {
+            for (SearchHit searchHit : CollectionUtils.nullAndEmptySafeValueList(searchHits.getHits())) {
                 ConsoleV2 consoleV2 = mapper.readValue(searchHit.getSourceAsString(), ConsoleV2.class);
                 elasticsearchConsolePersistence.deleteOldVersion(consoleV2.getId());
             }
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             throw new ConsoleFetchException(e);
         }
     }

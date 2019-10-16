@@ -63,6 +63,17 @@ public class StatsRequest extends ActionRequest {
         return visitor.visit(this);
     }
 
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this).appendSuper(super.toString())
+                .append("table", table)
+                .append("field", field)
+                .append("stats", stats)
+                .append("percentiles", percentiles)
+                .append("nesting", nesting)
+                .toString();
+    }
+
     public String getTable() {
         return table;
     }
@@ -101,16 +112,5 @@ public class StatsRequest extends ActionRequest {
 
     public void setStats(Set<Stat> stats) {
         this.stats = stats;
-    }
-
-    @Override
-    public String toString() {
-        return new ToStringBuilder(this).appendSuper(super.toString())
-                .append("table", table)
-                .append("field", field)
-                .append("stats", stats)
-                .append("percentiles", percentiles)
-                .append("nesting", nesting)
-                .toString();
     }
 }

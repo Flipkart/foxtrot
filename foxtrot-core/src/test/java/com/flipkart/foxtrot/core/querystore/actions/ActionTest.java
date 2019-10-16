@@ -5,15 +5,16 @@ import ch.qos.logback.classic.Logger;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.flipkart.foxtrot.common.Table;
 import com.flipkart.foxtrot.core.TestUtils;
-import com.flipkart.foxtrot.core.email.EmailConfig;
 import com.flipkart.foxtrot.core.cache.CacheManager;
 import com.flipkart.foxtrot.core.cache.impl.DistributedCacheFactory;
 import com.flipkart.foxtrot.core.cardinality.CardinalityConfig;
 import com.flipkart.foxtrot.core.config.TextNodeRemoverConfiguration;
 import com.flipkart.foxtrot.core.datastore.DataStore;
+import com.flipkart.foxtrot.core.email.EmailConfig;
 import com.flipkart.foxtrot.core.querystore.QueryExecutor;
 import com.flipkart.foxtrot.core.querystore.QueryStore;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsLoader;
+import com.flipkart.foxtrot.core.querystore.actions.spi.ElasticsearchTuningConfig;
 import com.flipkart.foxtrot.core.querystore.handlers.ResponseCacheUpdater;
 import com.flipkart.foxtrot.core.querystore.impl.*;
 import com.flipkart.foxtrot.core.querystore.mutator.IndexerEventMutator;
@@ -48,6 +49,8 @@ import static org.mockito.Mockito.when;
 @Getter
 public abstract class ActionTest {
 
+    protected static final int MAX_CARDINALITY = 15000;
+
     static {
         Logger root = (Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
         root.setLevel(Level.WARN);
@@ -73,33 +76,50 @@ public abstract class ActionTest {
         when(hazelcastConnection.getHazelcast()).thenReturn(hazelcastInstance);
         when(hazelcastConnection.getHazelcastConfig()).thenReturn(config);
         elasticsearchConnection = ElasticsearchTestUtils.getConnection();
-        CardinalityConfig cardinalityConfig = new CardinalityConfig("true", String.valueOf(ElasticsearchUtils.DEFAULT_SUB_LIST_SIZE));
+        CardinalityConfig cardinalityConfig = new CardinalityConfig("true",
+                                                                    String.valueOf(ElasticsearchUtils.DEFAULT_SUB_LIST_SIZE));
 
         TestUtils.ensureIndex(elasticsearchConnection, TableMapStore.TABLE_META_INDEX);
         TestUtils.ensureIndex(elasticsearchConnection, DistributedTableMetadataManager.CARDINALITY_CACHE_INDEX);
         PutIndexTemplateRequest putIndexTemplateRequest = ElasticsearchUtils.getClusterTemplateMapping();
-        PutIndexTemplateResponse response = elasticsearchConnection.getClient()
+        elasticsearchConnection.getClient()
                 .admin()
                 .indices()
                 .putTemplate(putIndexTemplateRequest)
                 .actionGet();
-        tableMetadataManager = new DistributedTableMetadataManager(hazelcastConnection, elasticsearchConnection, mapper, cardinalityConfig);
+        tableMetadataManager = new DistributedTableMetadataManager(hazelcastConnection,
+                                                                   elasticsearchConnection,
+                                                                   mapper,
+                                                                   cardinalityConfig);
         tableMetadataManager.start();
 
         tableMetadataManager.save(Table.builder()
-                .name(TestUtils.TEST_TABLE_NAME)
-                .ttl(30)
-                .build());
+                                          .name(TestUtils.TEST_TABLE_NAME)
+                                          .ttl(30)
+                                          .build());
         List<IndexerEventMutator> mutators = Lists.newArrayList(new LargeTextNodeRemover(mapper,
-                TextNodeRemoverConfiguration.builder().build()));
+                                                                                         TextNodeRemoverConfiguration.builder()
+                                                                                                 .build()));
         DataStore dataStore = TestUtils.getDataStore();
-        this.queryStore = new ElasticsearchQueryStore(tableMetadataManager, elasticsearchConnection, dataStore, mutators, mapper, cardinalityConfig);
+        this.queryStore = new ElasticsearchQueryStore(tableMetadataManager,
+                                                      elasticsearchConnection,
+                                                      dataStore,
+                                                      mutators,
+                                                      mapper,
+                                                      cardinalityConfig);
         cacheManager = new CacheManager(new DistributedCacheFactory(hazelcastConnection, mapper, new CacheConfig()));
-        AnalyticsLoader analyticsLoader = new AnalyticsLoader(tableMetadataManager, dataStore, queryStore, elasticsearchConnection,
-                                                              cacheManager, mapper);
+        AnalyticsLoader analyticsLoader = new AnalyticsLoader(tableMetadataManager,
+                                                              dataStore,
+                                                              queryStore,
+                                                              elasticsearchConnection,
+                                                              cacheManager,
+                                                              mapper,
+                                                              new ElasticsearchTuningConfig());
         analyticsLoader.start();
         ExecutorService executorService = Executors.newFixedThreadPool(1);
-        this.queryExecutor = new QueryExecutor(analyticsLoader, executorService, Collections.singletonList(new ResponseCacheUpdater(cacheManager)));
+        this.queryExecutor = new QueryExecutor(analyticsLoader,
+                                               executorService,
+                                               Collections.singletonList(new ResponseCacheUpdater(cacheManager)));
     }
 
     @After
@@ -110,7 +130,8 @@ public abstract class ActionTest {
                     .admin()
                     .indices()
                     .delete(deleteIndexRequest);
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             //Do Nothing
         }
         elasticsearchConnection.stop();

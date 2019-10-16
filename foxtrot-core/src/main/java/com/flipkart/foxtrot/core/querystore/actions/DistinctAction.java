@@ -10,6 +10,7 @@ import com.flipkart.foxtrot.core.common.Action;
 import com.flipkart.foxtrot.core.exception.FoxtrotExceptions;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsLoader;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsProvider;
+import com.flipkart.foxtrot.core.querystore.actions.spi.ElasticsearchTuningConfig;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
 import com.flipkart.foxtrot.core.querystore.query.ElasticSearchQueryGenerator;
 import com.google.common.collect.Sets;
@@ -34,10 +35,14 @@ import static com.flipkart.foxtrot.core.util.ElasticsearchQueryUtils.QUERY_SIZE;
 
 @AnalyticsProvider(opcode = "distinct", request = DistinctRequest.class, response = DistinctResponse.class, cacheable = true)
 public class DistinctAction extends Action<DistinctRequest> {
+
     private static final Logger logger = LoggerFactory.getLogger(DistinctAction.class);
+
+    private final ElasticsearchTuningConfig elasticsearchTuningConfig;
 
     public DistinctAction(DistinctRequest parameter, AnalyticsLoader analyticsLoader) {
         super(parameter, analyticsLoader);
+        this.elasticsearchTuningConfig = analyticsLoader.getElasticsearchTuningConfig();
     }
 
     @Override
@@ -46,52 +51,46 @@ public class DistinctAction extends Action<DistinctRequest> {
     }
 
     @Override
-    public String getMetricKey() {
-        return getParameter().getTable();
+    public void validateImpl(DistinctRequest parameter) {
+        List<String> validationErrors = new ArrayList<>();
+        if (CollectionUtils.isNullOrEmpty(parameter.getTable())) {
+            validationErrors.add("table name cannot be null or empty");
+        }
+
+        if (CollectionUtils.isNullOrEmpty(parameter.getNesting())) {
+            validationErrors.add("At least one nesting parameter is required");
+        }
+        else {
+            for (ResultSort resultSort : com.collections.CollectionUtils.nullSafeList(parameter.getNesting())) {
+
+                if (CollectionUtils.isNullOrEmpty(resultSort.getField())) {
+                    validationErrors.add("nested parameter cannot have null name");
+                }
+                if (resultSort.getOrder() == null) {
+                    validationErrors.add("nested parameter cannot have null sorting order");
+                }
+            }
+        }
+        if (!CollectionUtils.isNullOrEmpty(validationErrors)) {
+            throw FoxtrotExceptions.createMalformedQueryException(parameter, validationErrors);
+        }
     }
 
     @Override
     public String getRequestCacheKey() {
         long filterHashKey = 0L;
         DistinctRequest query = getParameter();
-        if(null != query.getFilters()) {
-            for(Filter filter : query.getFilters()) {
-                filterHashKey += 31 * filter.hashCode();
-            }
+
+        for (Filter filter : com.collections.CollectionUtils.nullSafeList(query.getFilters())) {
+            filterHashKey += 31 * filter.hashCode();
         }
-        for(int i = 0; i < query.getNesting()
+        for (int i = 0; i < query.getNesting()
                 .size(); i++) {
             filterHashKey += 31 * query.getNesting()
                     .get(i)
                     .hashCode() * (i + 1);
         }
         return String.format("%s-%d", query.getTable(), filterHashKey);
-    }
-
-    @Override
-    public void validateImpl(DistinctRequest parameter) {
-        List<String> validationErrors = new ArrayList<>();
-        if(CollectionUtils.isNullOrEmpty(parameter.getTable())) {
-            validationErrors.add("table name cannot be null or empty");
-        }
-
-        if(CollectionUtils.isNullOrEmpty(parameter.getNesting())) {
-            validationErrors.add("At least one nesting parameter is required");
-        } else {
-            for(ResultSort resultSort : com.collections.CollectionUtils.nullSafeList(parameter.getNesting())) {
-
-                if(CollectionUtils.isNullOrEmpty(resultSort.getField())) {
-                    validationErrors.add("nested parameter cannot have null name");
-                }
-                if(resultSort.getOrder() == null) {
-                    validationErrors.add("nested parameter cannot have null sorting order");
-                }
-
-            }
-        }
-        if(!CollectionUtils.isNullOrEmpty(validationErrors)) {
-            throw FoxtrotExceptions.createMalformedQueryException(parameter, validationErrors);
-        }
     }
 
     @Override
@@ -103,8 +102,10 @@ public class DistinctAction extends Action<DistinctRequest> {
                     .setIndicesOptions(Utils.indicesOptions());
             query.setQuery(new ElasticSearchQueryGenerator().genFilter(request.getFilters()))
                     .setSize(QUERY_SIZE)
-                    .addAggregation(Utils.buildTermsAggregation(request.getNesting(), Sets.newHashSet()));
-        } catch (Exception e) {
+                    .addAggregation(Utils.buildTermsAggregation(
+                            request.getNesting(), Sets.newHashSet(), elasticsearchTuningConfig.getAggregationSize()));
+        }
+        catch (Exception e) {
             throw FoxtrotExceptions.queryCreationException(request, e);
         }
 
@@ -112,9 +113,15 @@ public class DistinctAction extends Action<DistinctRequest> {
             SearchResponse response = query.execute()
                     .actionGet(getGetQueryTimeout());
             return getResponse(response, getParameter());
-        } catch (ElasticsearchException e) {
+        }
+        catch (ElasticsearchException e) {
             throw FoxtrotExceptions.createQueryExecutionException(request, e);
         }
+    }
+
+    @Override
+    public String getMetricKey() {
+        return getParameter().getTable();
     }
 
     @Override
@@ -126,9 +133,11 @@ public class DistinctAction extends Action<DistinctRequest> {
                     .setIndicesOptions(Utils.indicesOptions());
             query.setQuery(new ElasticSearchQueryGenerator().genFilter(request.getFilters()))
                     .setSize(QUERY_SIZE)
-                    .addAggregation(Utils.buildTermsAggregation(request.getNesting(), Sets.newHashSet()));
+                    .addAggregation(Utils.buildTermsAggregation(
+                            request.getNesting(), Sets.newHashSet(), elasticsearchTuningConfig.getAggregationSize()));
 
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             throw FoxtrotExceptions.queryCreationException(request, e);
         }
         return query;
@@ -136,9 +145,9 @@ public class DistinctAction extends Action<DistinctRequest> {
 
     @Override
     public ActionResponse getResponse(org.elasticsearch.action.ActionResponse response, DistinctRequest parameter) {
-        Aggregations aggregations = ((SearchResponse)response).getAggregations();
+        Aggregations aggregations = ((SearchResponse) response).getAggregations();
         // Check if any aggregation is present or not
-        if(aggregations == null) {
+        if (aggregations == null) {
             logger.error("Null response for Group. Request : {}", parameter);
             return new DistinctResponse(new ArrayList<>(), new ArrayList<>());
         }
@@ -159,21 +168,29 @@ public class DistinctAction extends Action<DistinctRequest> {
         return response;
     }
 
-    private void flatten(String parentKey, List<String> fields, List<List<String>> responseList, Aggregations aggregations) {
+    private void flatten(
+            String parentKey, List<String> fields, List<List<String>> responseList,
+            Aggregations aggregations) {
         final String field = fields.get(0);
-        final List<String> remainingFields = (fields.size() > 1) ? fields.subList(1, fields.size()) : new ArrayList<>();
+        final List<String> remainingFields = (fields.size() > 1)
+                                             ? fields.subList(1, fields.size())
+                                             : new ArrayList<>();
         Terms terms = aggregations.get(Utils.sanitizeFieldForAggregation(field));
-        for(Terms.Bucket bucket : terms.getBuckets()) {
-            if(fields.size() == 1) {
+        for (Terms.Bucket bucket : terms.getBuckets()) {
+            if (fields.size() == 1) {
                 responseList.add(getValueList(parentKey, String.valueOf(bucket.getKey())));
-            } else {
-                flatten(getProperKey(parentKey, String.valueOf(bucket.getKey())), remainingFields, responseList, bucket.getAggregations());
+            }
+            else {
+                flatten(getProperKey(parentKey, String.valueOf(bucket.getKey())), remainingFields, responseList,
+                        bucket.getAggregations());
             }
         }
     }
 
     private String getProperKey(String parentKey, String currentKey) {
-        return parentKey == null ? currentKey : parentKey + Constants.SEPARATOR + currentKey;
+        return parentKey == null
+               ? currentKey
+               : parentKey + Constants.SEPARATOR + currentKey;
     }
 
     private List<String> getValueList(String parentKey, String currentKey) {

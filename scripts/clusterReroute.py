@@ -5,17 +5,7 @@ import pprint
 import requests
 import time
 
-# body = {
-#     "commands" : [ 
-#         {
-#             "move" : {
-#                 "index" : None, "shard" : None,
-#                 "from_node" : None, "to_node" : None
-#             }
-#         }
-#     ]
-# }
-host = "localhost"
+host = "prd-esfoxtrot601.phonepe.nm1"
 
 
 def convertToGb(dataSize):
@@ -35,14 +25,9 @@ def convertToGb(dataSize):
 
 
 def getData():
-    # now = datetime.datetime.now()
-    # url = "http://" + host + ":9200/_cat/shards/foxtrot-*-table-%d-%d-2019" %(now.day, now.month)
-    # print url
     url = "http://" + host + ":9200/_cat/shards/"
     r = requests.get(url)
-    # print r.status_code
     data = r.text
-    # print data
     return data.splitlines()
 
 
@@ -97,7 +82,8 @@ def moveShard(dataSplitLines, fromHost, toHost, nodeMap):
             continue
         if "STARTED" != data[3]:
             continue
-        if (data[0] in alreadyMovedShard) and (alreadyMovedShard[data[0]] == data[1]):
+        if (data[0] in alreadyMovedShard) and (
+                alreadyMovedShard[data[0]] == data[1]):
             continue
         size = data[5]
         calSize = convertToGb(size)
@@ -139,8 +125,12 @@ parser = argparse.ArgumentParser(description='Cluster Rerouting')
 parser.add_argument('--shards', type=int, metavar='N', action='store',
                     help='Number of shards to be moved',
                     required=True)
-parser.add_argument('--f', action='store', type=str, help='Host from which the shard has to be moved', required=True)
-parser.add_argument('--t', action='store', type=str, help='Host to which the shard has to be moved', required=True)
+parser.add_argument('--f', action='store', type=str,
+                    help='Host from which the shard has to be moved',
+                    required=True)
+parser.add_argument('--t', action='store', type=str,
+                    help='Host to which the shard has to be moved',
+                    required=True)
 args = parser.parse_args()
 
 dataSplitLines = getData()

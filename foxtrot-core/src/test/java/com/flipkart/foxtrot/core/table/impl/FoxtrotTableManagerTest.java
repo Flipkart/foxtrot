@@ -51,7 +51,8 @@ public class FoxtrotTableManagerTest {
             table.setTtl(60);
             tableManager.save(table);
             fail();
-        } catch (FoxtrotException e) {
+        }
+        catch (FoxtrotException e) {
             assertEquals(ErrorCode.INVALID_REQUEST, e.getCode());
         }
     }
@@ -70,7 +71,8 @@ public class FoxtrotTableManagerTest {
             table.setTtl(60);
             tableManager.save(table);
             fail();
-        } catch (FoxtrotException e) {
+        }
+        catch (FoxtrotException e) {
             assertEquals(ErrorCode.INVALID_REQUEST, e.getCode());
         }
     }
@@ -86,7 +88,8 @@ public class FoxtrotTableManagerTest {
         try {
             tableManager.save(null);
             fail();
-        } catch (FoxtrotException e) {
+        }
+        catch (FoxtrotException e) {
             assertEquals(ErrorCode.INVALID_REQUEST, e.getCode());
         }
     }
@@ -105,7 +108,8 @@ public class FoxtrotTableManagerTest {
             table.setTtl(0);
             tableManager.save(table);
             fail();
-        } catch (FoxtrotException e) {
+        }
+        catch (FoxtrotException e) {
             assertEquals(ErrorCode.INVALID_REQUEST, e.getCode());
         }
     }
@@ -140,7 +144,8 @@ public class FoxtrotTableManagerTest {
             table.setTtl(10);
             tableManager.save(table);
             fail();
-        } catch (FoxtrotException e) {
+        }
+        catch (FoxtrotException e) {
             assertEquals(ErrorCode.TABLE_ALREADY_EXISTS, e.getCode());
         }
     }
@@ -159,7 +164,8 @@ public class FoxtrotTableManagerTest {
             table.setTtl(10);
             tableManager.save(table);
             fail();
-        } catch (FoxtrotException e) {
+        }
+        catch (FoxtrotException e) {
             assertEquals(ErrorCode.STORE_EXECUTION_ERROR, e.getCode());
         }
     }
@@ -178,7 +184,8 @@ public class FoxtrotTableManagerTest {
             table.setTtl(10);
             tableManager.save(table);
             fail();
-        } catch (FoxtrotException e) {
+        }
+        catch (FoxtrotException e) {
             assertEquals(ErrorCode.STORE_EXECUTION_ERROR, e.getCode());
         }
     }
@@ -197,7 +204,8 @@ public class FoxtrotTableManagerTest {
             table.setTtl(10);
             tableManager.save(table);
             fail();
-        } catch (FoxtrotException e) {
+        }
+        catch (FoxtrotException e) {
             assertEquals(ErrorCode.TABLE_NOT_FOUND, e.getCode());
         }
     }
@@ -234,7 +242,8 @@ public class FoxtrotTableManagerTest {
             table.setTtl(10);
             tableManager.update(table);
             fail();
-        } catch (FoxtrotException e) {
+        }
+        catch (FoxtrotException e) {
             assertEquals(ErrorCode.TABLE_NOT_FOUND, e.getCode());
         }
     }
@@ -252,7 +261,8 @@ public class FoxtrotTableManagerTest {
         try {
             tableManager.update(null);
             fail();
-        } catch (FoxtrotException e) {
+        }
+        catch (FoxtrotException e) {
             assertEquals(ErrorCode.INVALID_REQUEST, e.getCode());
         }
     }
@@ -273,7 +283,8 @@ public class FoxtrotTableManagerTest {
             table.setTtl(10);
             tableManager.update(table);
             fail();
-        } catch (FoxtrotException e) {
+        }
+        catch (FoxtrotException e) {
             assertEquals(ErrorCode.INVALID_REQUEST, e.getCode());
         }
     }
@@ -294,7 +305,8 @@ public class FoxtrotTableManagerTest {
             table.setTtl(10);
             tableManager.update(table);
             fail();
-        } catch (FoxtrotException e) {
+        }
+        catch (FoxtrotException e) {
             assertEquals(ErrorCode.INVALID_REQUEST, e.getCode());
         }
     }
@@ -315,7 +327,8 @@ public class FoxtrotTableManagerTest {
             table.setTtl(0);
             tableManager.update(table);
             fail();
-        } catch (FoxtrotException e) {
+        }
+        catch (FoxtrotException e) {
             assertEquals(ErrorCode.INVALID_REQUEST, e.getCode());
         }
     }

@@ -59,8 +59,15 @@ RadarTile.prototype.getQuery = function (object) {
       filters.push(object.tileContext.filters[i]);
     }
   }
+
+  var templateFilters = isAppendTemplateFilters(object.tileContext.table);
+  if(templateFilters.length > 0) {
+    filters = filters.concat(templateFilters);
+  }
+  
   var data = {
     "opcode": "group"
+    ,"consoleId": getCurrentConsoleId()
     , "table": object.tileContext.table
     , "filters": filters
     , "nesting": object.tileContext.nesting
@@ -72,7 +79,7 @@ RadarTile.prototype.getQuery = function (object) {
     , accepts: {
       json: 'application/json'
     }
-    , url: apiUrl + "/v1/analytics"
+    , url: apiUrl + "/v2/analytics"
     , contentType: "application/json"
     , data: JSON.stringify(data)
     , success: $.proxy(this.getData, this)

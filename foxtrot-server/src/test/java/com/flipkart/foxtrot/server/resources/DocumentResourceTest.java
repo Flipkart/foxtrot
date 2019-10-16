@@ -1,17 +1,14 @@
 /**
  * Copyright 2014 Flipkart Internet Pvt. Ltd.
  * <p>
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
  * <p>
  * http://www.apache.org/licenses/LICENSE-2.0
  * <p>
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
+ * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations under the License.
  */
 package com.flipkart.foxtrot.server.resources;
 
@@ -132,7 +129,6 @@ public class DocumentResourceTest extends FoxtrotResourceTest {
                 .post(Entity.json("{}"));
         assertEquals(422, response.getStatus());
     }
-
 
     @Test
     public void testSaveDocuments() throws Exception {
@@ -281,7 +277,8 @@ public class DocumentResourceTest extends FoxtrotResourceTest {
                     .request()
                     .get(Document.class);
             fail();
-        } catch (WebApplicationException ex) {
+        }
+        catch (WebApplicationException ex) {
             assertEquals(Response.Status.NOT_FOUND.getStatusCode(), ex.getResponse()
                     .getStatus());
         }
@@ -299,12 +296,12 @@ public class DocumentResourceTest extends FoxtrotResourceTest {
                     .request()
                     .get(Document.class);
             fail();
-        } catch (WebApplicationException ex) {
+        }
+        catch (WebApplicationException ex) {
             assertEquals(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode(), ex.getResponse()
                     .getStatus());
         }
     }
-
 
     @Test
     public void testGetDocuments() throws Exception {
@@ -351,7 +348,8 @@ public class DocumentResourceTest extends FoxtrotResourceTest {
                     .request()
                     .get(String.class);
             fail();
-        } catch (WebApplicationException ex) {
+        }
+        catch (WebApplicationException ex) {
             assertEquals(Response.Status.NOT_FOUND.getStatusCode(), ex.getResponse()
                     .getStatus());
         }
@@ -369,7 +367,8 @@ public class DocumentResourceTest extends FoxtrotResourceTest {
                     .request()
                     .get(String.class);
             fail();
-        } catch (WebApplicationException ex) {
+        }
+        catch (WebApplicationException ex) {
             assertEquals(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode(), ex.getResponse()
                     .getStatus());
         }
@@ -381,11 +380,15 @@ public class DocumentResourceTest extends FoxtrotResourceTest {
         assertNotNull("Actual document Id should not be null", actual.getId());
         assertNotNull("Actual document data should not be null", actual.getData());
         assertEquals("Actual Doc Id should match expected Doc Id", expected.getId(), actual.getId());
-        assertEquals("Actual Doc Timestamp should match expected Doc Timestamp", expected.getTimestamp(), actual.getTimestamp());
-        Map<String, Object> expectedMap = getMapper().convertValue(expected.getData(), new TypeReference<HashMap<String, Object>>() {
-        });
-        Map<String, Object> actualMap = getMapper().convertValue(actual.getData(), new TypeReference<HashMap<String, Object>>() {
-        });
+        assertEquals("Actual Doc Timestamp should match expected Doc Timestamp",
+                     expected.getTimestamp(),
+                     actual.getTimestamp());
+        Map<String, Object> expectedMap = getMapper().convertValue(expected.getData(),
+                                                                   new TypeReference<HashMap<String, Object>>() {
+                                                                   });
+        Map<String, Object> actualMap = getMapper().convertValue(actual.getData(),
+                                                                 new TypeReference<HashMap<String, Object>>() {
+                                                                 });
         assertEquals("Actual data should match expected data", expectedMap, actualMap);
     }
 }
