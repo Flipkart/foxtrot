@@ -49,7 +49,6 @@ import java.util.List;
  */
 @AnalyticsProvider(opcode = "query", request = Query.class, response = QueryResponse.class, cacheable = false)
 public class FilterAction extends Action<Query> {
-
     private static final Logger logger = LoggerFactory.getLogger(FilterAction.class);
 
     public FilterAction(Query parameter, AnalyticsLoader analyticsLoader) {
@@ -59,7 +58,7 @@ public class FilterAction extends Action<Query> {
     @Override
     public void preprocess() {
         getParameter().setTable(ElasticsearchUtils.getValidTableName(getParameter().getTable()));
-        if (null == getParameter().getSort()) {
+        if(null == getParameter().getSort()) {
             ResultSort resultSort = new ResultSort();
             resultSort.setField("_timestamp");
             resultSort.setOrder(ResultSort.Order.desc);
@@ -76,15 +75,13 @@ public class FilterAction extends Action<Query> {
     public String getRequestCacheKey() {
         long filterHashKey = 0L;
         Query query = getParameter();
-        if (null != query.getFilters()) {
-            for (Filter filter : query.getFilters()) {
+        if(null != query.getFilters()) {
+            for(Filter filter : query.getFilters()) {
                 filterHashKey += 31 * filter.hashCode();
             }
         }
-        filterHashKey += 31 * (query.getSort() != null
-                               ? query.getSort()
-                                       .hashCode()
-                               : "SORT".hashCode());
+        filterHashKey += 31 * (query.getSort() != null ? query.getSort()
+                .hashCode() : "SORT".hashCode());
 
         return String.format("%s-%d-%d-%d", query.getTable(), query.getFrom(), query.getLimit(), filterHashKey);
     }
@@ -92,26 +89,25 @@ public class FilterAction extends Action<Query> {
     @Override
     public void validateImpl(Query parameter) {
         List<String> validationErrors = new ArrayList<>();
-        if (CollectionUtils.isNullOrEmpty(parameter.getTable())) {
+        if(CollectionUtils.isNullOrEmpty(parameter.getTable())) {
             validationErrors.add("table name cannot be null or empty");
         }
-        if (parameter.getSort() == null) {
+        if(parameter.getSort() == null) {
             validationErrors.add("sort order needs to be specified");
         }
 
-        if (parameter.getFrom() < 0) {
+        if(parameter.getFrom() < 0) {
             validationErrors.add("from must be non-negative integer");
         }
 
-        if (parameter.getLimit() <= 0) {
+        if(parameter.getLimit() <= 0) {
             validationErrors.add("limit must be positive integer");
         }
 
-        if (!CollectionUtils.isNullOrEmpty(validationErrors)) {
+        if(!CollectionUtils.isNullOrEmpty(validationErrors)) {
             throw FoxtrotExceptions.createMalformedQueryException(parameter, validationErrors);
         }
     }
-
 
     @Override
     public ActionResponse execute(Query parameter) {
@@ -121,12 +117,10 @@ public class FilterAction extends Action<Query> {
             SearchResponse response = search.execute()
                     .actionGet(getGetQueryTimeout());
             return getResponse(response, parameter);
-        }
-        catch (ElasticsearchException e) {
+        } catch (ElasticsearchException e) {
             throw FoxtrotExceptions.createQueryExecutionException(parameter, e);
         }
     }
-
 
     @Override
     public SearchRequestBuilder getRequestBuilder(Query parameter) {
@@ -141,12 +135,9 @@ public class FilterAction extends Action<Query> {
                     .setFrom(parameter.getFrom())
                     .addSort(Utils.storedFieldName(parameter.getSort()
                                                            .getField()), ResultSort.Order.desc == parameter.getSort()
-                            .getOrder()
-                                                                         ? SortOrder.DESC
-                                                                         : SortOrder.ASC)
+                            .getOrder() ? SortOrder.DESC : SortOrder.ASC)
                     .setSize(parameter.getLimit());
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             throw FoxtrotExceptions.queryCreationException(parameter, e);
         }
         return search;
@@ -155,11 +146,11 @@ public class FilterAction extends Action<Query> {
     @Override
     public ActionResponse getResponse(org.elasticsearch.action.ActionResponse response, Query parameter) {
         List<String> ids = new ArrayList<>();
-        SearchHits searchHits = ((SearchResponse) response).getHits();
-        for (SearchHit searchHit : searchHits) {
+        SearchHits searchHits = ((SearchResponse)response).getHits();
+        for(SearchHit searchHit : searchHits) {
             ids.add(searchHit.getId());
         }
-        if (ids.isEmpty()) {
+        if(ids.isEmpty()) {
             return new QueryResponse(Collections.<Document>emptyList(), 0);
         }
         return new QueryResponse(getQueryStore().getAll(parameter.getTable(), ids, true), searchHits.getTotalHits());

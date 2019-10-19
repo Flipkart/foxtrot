@@ -38,7 +38,6 @@ import static org.junit.Assert.*;
  * Created by rishabh.goyal on 29/04/14.
  */
 public class StatsActionTest extends ActionTest {
-
     @Before
     public void setUp() throws Exception {
         super.setUp();
@@ -233,7 +232,7 @@ public class StatsActionTest extends ActionTest {
         betweenFilter.setField("_timestamp");
         request.setFilters(Collections.<Filter>singletonList(betweenFilter));
 
-        StatsResponse statsResponse = (StatsResponse) getQueryExecutor().execute(request);
+        StatsResponse statsResponse = (StatsResponse)getQueryExecutor().execute(request);
         assertNotNull(statsResponse);
         assertNotNull(statsResponse.getResult());
         assertEquals(1, statsResponse.getResult()
@@ -256,7 +255,7 @@ public class StatsActionTest extends ActionTest {
         assertNotNull(statsResponse.getResult());
         assertEquals(3, statsResponse.getBuckets()
                 .size());
-        for (BucketResponse bucketResponse : statsResponse.getBuckets()) {
+        for(BucketResponse bucketResponse : statsResponse.getBuckets()) {
             assertNotNull(bucketResponse.getResult());
         }
     }
@@ -273,7 +272,7 @@ public class StatsActionTest extends ActionTest {
         assertNotNull(statsResponse.getResult());
         assertEquals(3, statsResponse.getBuckets()
                 .size());
-        for (BucketResponse bucketResponse : statsResponse.getBuckets()) {
+        for(BucketResponse bucketResponse : statsResponse.getBuckets()) {
             assertNull(bucketResponse.getResult());
             assertNotNull(bucketResponse.getBuckets());
         }

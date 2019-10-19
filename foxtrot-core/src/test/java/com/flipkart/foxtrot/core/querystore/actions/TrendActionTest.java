@@ -41,7 +41,6 @@ import static org.junit.Assert.fail;
  * Created by rishabh.goyal on 29/04/14.
  */
 public class TrendActionTest extends ActionTest {
-
     @Before
     public void setUp() throws Exception {
         super.setUp();
@@ -75,8 +74,7 @@ public class TrendActionTest extends ActionTest {
         try {
             getQueryExecutor().execute(trendRequest);
             fail("Should have thrown exception");
-        }
-        catch (FoxtrotException e) {
+        } catch (FoxtrotException e) {
             assertEquals(ErrorCode.MALFORMED_QUERY, e.getCode());
         }
     }
@@ -117,8 +115,7 @@ public class TrendActionTest extends ActionTest {
         try {
             getQueryExecutor().execute(trendRequest);
             fail();
-        }
-        catch (FoxtrotException ex) {
+        } catch (FoxtrotException ex) {
             assertEquals(ErrorCode.MALFORMED_QUERY, ex.getCode());
         }
     }
@@ -143,6 +140,7 @@ public class TrendActionTest extends ActionTest {
         assertEquals(expectedResponse, actualResponse);
     }
 
+
     @Test
     public void testTrendActionNullTable() throws FoxtrotException, JsonProcessingException {
         TrendRequest trendRequest = new TrendRequest();
@@ -157,8 +155,7 @@ public class TrendActionTest extends ActionTest {
         try {
             getQueryExecutor().execute(trendRequest);
             fail();
-        }
-        catch (FoxtrotException ex) {
+        } catch (FoxtrotException ex) {
             assertEquals(ErrorCode.MALFORMED_QUERY, ex.getCode());
         }
     }
@@ -315,6 +312,7 @@ public class TrendActionTest extends ActionTest {
         lessThanFilter.setField("_timestamp");
         lessThanFilter.setValue(System.currentTimeMillis());
         trendRequest.setFilters(Lists.newArrayList(equalsFilter, lessThanFilter));
+
 
         TrendResponse expectedResponse = new TrendResponse();
         Map<String, List<TrendResponse.Count>> trends = Maps.newHashMap();

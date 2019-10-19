@@ -32,34 +32,20 @@ public class LastFilter extends Filter {
     @Builder
     public LastFilter(String field, long currentTime, Duration duration, RoundingMode roundingMode) {
         super(FilterOperator.last);
-        super.setField(Strings.isNullOrEmpty(field)
-                       ? "_timestamp"
-                       : field);
-        this.currentTime = currentTime == 0
-                           ? System.currentTimeMillis()
-                           : currentTime;
+        super.setField(Strings.isNullOrEmpty(field) ? "_timestamp" : field);
+        this.currentTime = currentTime == 0 ? System.currentTimeMillis() : currentTime;
         this.duration = duration;
-        this.roundingMode = roundingMode == null
-                            ? RoundingMode.NONE
-                            : roundingMode;
+        this.roundingMode = roundingMode == null ? RoundingMode.NONE : roundingMode;
     }
 
     public void setDuration(Duration duration) {
         this.duration = duration;
-        this.roundingMode = roundingMode == null
-                            ? RoundingMode.NONE
-                            : roundingMode;
+        this.roundingMode = roundingMode == null ? RoundingMode.NONE : roundingMode;
     }
 
     @Override
     public <T> T accept(FilterVisitor<T> visitor) {
         return visitor.visit(this);
-    }
-
-    @Override
-    @JsonIgnore
-    public boolean isFilterTemporal() {
-        return true;
     }
 
     @JsonIgnore
@@ -71,7 +57,7 @@ public class LastFilter extends Filter {
     public int hashCode() {
         int result = getOperator().hashCode();
         result = 31 * result + getField().hashCode();
-        if (!getField().equals("_timestamp")) {
+        if(!getField().equals("_timestamp")) {
             result = result * 21 + (getCurrentTime() == 0
                                     ? 43
                                     : Long.valueOf(getCurrentTime()).hashCode());
@@ -86,10 +72,10 @@ public class LastFilter extends Filter {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) {
+        if(this == o) {
             return true;
         }
-        else if (!(o instanceof LastFilter)) {
+        else if(!(o instanceof LastFilter)) {
             return false;
         }
 

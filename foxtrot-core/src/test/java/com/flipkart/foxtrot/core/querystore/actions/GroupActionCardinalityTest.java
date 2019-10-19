@@ -33,9 +33,10 @@ public class GroupActionCardinalityTest extends ActionTest {
                 .prepareRefresh("*")
                 .execute()
                 .actionGet();
-        getTableMetadataManager().getFieldMappings(TestUtils.TEST_TABLE_NAME, true, true);
-        ((ElasticsearchQueryStore) getQueryStore()).getCardinalityConfig()
-                .setMaxCardinality(MAX_CARDINALITY);
+        getTableMetadataManager().getFieldMappings(
+                TestUtils.TEST_TABLE_NAME, true, true, 1397658117000L);
+        ((ElasticsearchQueryStore)getQueryStore()).getCardinalityConfig()
+                .setMaxCardinality(15000);
         getTableMetadataManager().updateEstimationData(TestUtils.TEST_TABLE_NAME, 1397658117000L);
     }
 
@@ -75,6 +76,7 @@ public class GroupActionCardinalityTest extends ActionTest {
         GroupResponse response = GroupResponse.class.cast(getQueryExecutor().execute(groupRequest));
         Assert.assertTrue(response.getResult()
                                   .containsKey("0"));
+
     }
 
     @Test
@@ -86,5 +88,6 @@ public class GroupActionCardinalityTest extends ActionTest {
         GroupResponse response = GroupResponse.class.cast(getQueryExecutor().execute(groupRequest));
         Assert.assertTrue(response.getResult()
                                   .containsKey("0"));
+
     }
 }

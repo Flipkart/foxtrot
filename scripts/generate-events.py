@@ -8,23 +8,17 @@ import uuid
 
 # activityTemplate = [[ "Home"], ["Mini"]]
 # activityTemplate = [[ "Home"], ["Mini", "Sedan", "Prime"], ["RideNow", "RideLater"], ["Confirm", "Cancel"]]
-activityTemplate = [["Pay", "Request", "Split"],
-                    ["PhonePicked", "VpaPicked", "Cancelled"],
-                    ["Wallet", "Account"],
+activityTemplate = [["Pay", "Request", "Split"], ["PhonePicked", "VpaPicked", "Cancelled"], ["Wallet", "Account"],
                     ["Finished", "Error"]]
 
 categoryNames = ["Electronics", "Media", "Fashion"]
 cityNames = ["Kolkata", "Bangalore", "Delhi", "Chennai", "Mumbai"]
 
-eventNames = ['LOGIN', 'LOGIN', 'LOGIN', 'LOGIN', 'LOGIN', 'LOGIN', 'PAY',
-              'PAY', 'PAY', 'PAY', 'PAY', 'REQUEST',
+eventNames = ['LOGIN', 'LOGIN', 'LOGIN', 'LOGIN', 'LOGIN', 'LOGIN', 'PAY', 'PAY', 'PAY', 'PAY', 'PAY', 'REQUEST',
               'REQUEST', 'LOGOUT']
-os = [['android', 'ics'], ['android', 'jellybean'], ['android', 'lollypop'],
-      ['android', 'lollypop'],
-      ['android', 'kitkat'], ['android', 'kitkat'], ['android', 'kitkat'],
-      ['android', 'kitkat'], ['android', 'kitkat'],
-      ['android', 'marshmallow'], ['android', 'marshmallow'],
-      ['android', 'marshmallow'], ['ios', '8'], ['ios', '9'],
+os = [['android', 'ics'], ['android', 'jellybean'], ['android', 'lollypop'], ['android', 'lollypop'],
+      ['android', 'kitkat'], ['android', 'kitkat'], ['android', 'kitkat'], ['android', 'kitkat'], ['android', 'kitkat'],
+      ['android', 'marshmallow'], ['android', 'marshmallow'], ['android', 'marshmallow'], ['ios', '8'], ['ios', '9'],
       ['ios', '9'], ['ios', '9']]
 
 
@@ -51,10 +45,8 @@ def eventBatch(batchSize=100):
 
 def postBatch(args):
     events = eventBatch()
-    r = requests.post(
-        url="http://" + args.server + "/foxtrot/v1/document/test/bulk",
-        data=json.dumps(events),
-        headers={'Content-type': 'application/json'})
+    r = requests.post(url="http://" + args.server + "/foxtrot/v1/document/test/bulk", data=json.dumps(events),
+                      headers={'Content-type': 'application/json'})
     print r
     if r.status_code == requests.codes.created:
         print "Sent batch"
@@ -97,8 +89,7 @@ def postBatch(args):
 #    opts,
 #
 
-parser = argparse.ArgumentParser(
-    description='Send synthetic events to foxtrot for testing')
+parser = argparse.ArgumentParser(description='Send synthetic events to foxtrot for testing')
 parser.add_argument('--count', type=int, metavar='N', action='store',
                     default=10,
                     help='the number of events to be sent (default: 10)')

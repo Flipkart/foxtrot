@@ -5,7 +5,6 @@ import com.flipkart.foxtrot.sql.extendedsql.ExtendedSqlStatementVisitor;
 import net.sf.jsqlparser.schema.Table;
 
 public class Describe implements ExtendedSqlStatement {
-
     private final Table table;
 
     public Describe(Table table) {

@@ -148,6 +148,7 @@ public class TableManagerResourceTest extends FoxtrotResourceTest {
         doNothing().when(getQueryStore())
                 .initializeTable(any(String.class));
 
+
         Table response = resources.client()
                 .target(String.format("/v1/tables/%s", TEST_TABLE_NAME))
                 .request()

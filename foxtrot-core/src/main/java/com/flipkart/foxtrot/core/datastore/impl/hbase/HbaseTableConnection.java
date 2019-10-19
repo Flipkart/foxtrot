@@ -54,13 +54,12 @@ public class HbaseTableConnection implements Managed {
 
     public synchronized org.apache.hadoop.hbase.client.Table getTable(final Table table) {
         try {
-            if (hbaseConfig.isSecure() && UserGroupInformation.isSecurityEnabled()) {
+            if(hbaseConfig.isSecure() && UserGroupInformation.isSecurityEnabled()) {
                 UserGroupInformation.getCurrentUser()
                         .reloginFromKeytab();
             }
             return connection.getTable(TableName.valueOf(TableUtil.getTableName(hbaseConfig, table)));
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             throw FoxtrotExceptions.createConnectionException(table, e);
         }
     }
@@ -71,7 +70,12 @@ public class HbaseTableConnection implements Managed {
     }
 
     public synchronized void createTable(final Table table) throws IOException {
-        HTableDescriptor hTableDescriptor = constructHTableDescriptor(table);
+        String tableName = TableUtil.getTableName(hbaseConfig, table);
+
+        HTableDescriptor hTableDescriptor = new HTableDescriptor(TableName.valueOf(tableName));
+        HColumnDescriptor hColumnDescriptor = new HColumnDescriptor(DEFAULT_FAMILY_NAME);
+        hColumnDescriptor.setCompressionType(Compression.Algorithm.GZ);
+        hTableDescriptor.addFamily(hColumnDescriptor);
         hBaseAdmin.createTable(hTableDescriptor);
     }
 

@@ -13,7 +13,6 @@ import java.util.List;
 @NoArgsConstructor
 @Builder
 public class ActionValidationResponse {
-
     private ActionRequest processedRequest;
     @Singular
     private List<String> validationErrors;

@@ -45,7 +45,6 @@ import javax.validation.Valid;
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
 public class FoxtrotServerConfiguration extends Configuration {
-
     @Valid
     private final HbaseConfig hbase;
 
@@ -89,4 +88,5 @@ public class FoxtrotServerConfiguration extends Configuration {
         this.clusterRerouteConfig = new ClusterRerouteConfig();
         this.elasticsearchTuningConfig = new ElasticsearchTuningConfig();
     }
+
 }

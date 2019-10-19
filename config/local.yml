@@ -14,7 +14,7 @@ elasticsearch:
   getQueryTimeout: 10000
 
 hbase:
-  secure: false
+  secure : false
   tableName: foxtrot
   hbaseZookeeperQuorum: localhost:2181
   hbaseZookeeperClientPort: 2181

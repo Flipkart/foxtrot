@@ -46,14 +46,14 @@ public class CardinalityConfig extends BaseJobConfig {
     }
 
     public boolean isEnabled() {
-        if (StringUtils.isEmpty(enabled)) {
+        if(StringUtils.isEmpty(enabled)) {
             return false;
         }
         return Boolean.valueOf(enabled);
     }
 
     public int getSubListSize() {
-        if (StringUtils.isEmpty(batchSize)) {
+        if(StringUtils.isEmpty(batchSize)) {
             return ElasticsearchUtils.DEFAULT_SUB_LIST_SIZE;
         }
         return Integer.parseInt(batchSize);

@@ -1,7 +1,6 @@
 package com.flipkart.foxtrot.sql.responseprocessors.model;
 
 public class MetaData {
-
     private Object data;
     private int length;
 

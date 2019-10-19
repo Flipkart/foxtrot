@@ -52,8 +52,7 @@ import static com.flipkart.foxtrot.core.util.ElasticsearchQueryUtils.QUERY_SIZE;
  * Date: 29/03/14
  * Time: 9:22 PM
  */
-@AnalyticsProvider(opcode = "histogram", request = HistogramRequest.class, response = HistogramResponse.class,
-        cacheable = true)
+@AnalyticsProvider(opcode = "histogram", request = HistogramRequest.class, response = HistogramResponse.class, cacheable = true)
 public class HistogramAction extends Action<HistogramRequest> {
 
     private final ElasticsearchTuningConfig elasticsearchTuningConfig;
@@ -77,16 +76,17 @@ public class HistogramAction extends Action<HistogramRequest> {
     public String getRequestCacheKey() {
         long filterHashKey = 0L;
         HistogramRequest query = getParameter();
-        if (null != query.getFilters()) {
+        if(null != query.getFilters()) {
             for (Filter filter : query.getFilters()) {
                 filterHashKey += 31 * filter.hashCode();
             }
         }
 
-        if (null != query.getUniqueCountOn()) {
+        if(null != query.getUniqueCountOn()) {
             filterHashKey += 31 * query.getUniqueCountOn()
                     .hashCode();
         }
+
 
         return String.format("%s-%s-%s-%d", query.getTable(), query.getPeriod()
                 .name(), query.getField(), filterHashKey);
@@ -95,22 +95,22 @@ public class HistogramAction extends Action<HistogramRequest> {
     @Override
     public void validateImpl(HistogramRequest parameter) {
         List<String> validationErrors = new ArrayList<>();
-        if (CollectionUtils.isNullOrEmpty(parameter.getTable())) {
+        if(CollectionUtils.isNullOrEmpty(parameter.getTable())) {
             validationErrors.add("table name cannot be null or empty");
         }
-        if (CollectionUtils.isNullOrEmpty(parameter.getField())) {
+        if(CollectionUtils.isNullOrEmpty(parameter.getField())) {
             validationErrors.add("timestamp field cannot be null or empty");
         }
-        if (parameter.getPeriod() == null) {
+        if(parameter.getPeriod() == null) {
             validationErrors.add("time period cannot be null");
         }
 
-        if (parameter.getUniqueCountOn() != null && parameter.getUniqueCountOn()
+        if(parameter.getUniqueCountOn() != null && parameter.getUniqueCountOn()
                 .isEmpty()) {
             validationErrors.add("distinct field cannot be empty (can be null)");
         }
 
-        if (!CollectionUtils.isNullOrEmpty(validationErrors)) {
+        if(!CollectionUtils.isNullOrEmpty(validationErrors)) {
             throw FoxtrotExceptions.createMalformedQueryException(parameter, validationErrors);
         }
     }
@@ -122,8 +122,7 @@ public class HistogramAction extends Action<HistogramRequest> {
             SearchResponse response = searchRequestBuilder.execute()
                     .actionGet(getGetQueryTimeout());
             return getResponse(response, parameter);
-        }
-        catch (ElasticsearchException e) {
+        } catch (ElasticsearchException e) {
             throw FoxtrotExceptions.createQueryExecutionException(parameter, e);
         }
     }
@@ -140,8 +139,7 @@ public class HistogramAction extends Action<HistogramRequest> {
                     .setQuery(new ElasticSearchQueryGenerator().genFilter(parameter.getFilters()))
                     .setSize(QUERY_SIZE)
                     .addAggregation(aggregationBuilder);
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             throw FoxtrotExceptions.queryCreationException(parameter, e);
         }
         return searchRequestBuilder;
@@ -149,7 +147,7 @@ public class HistogramAction extends Action<HistogramRequest> {
 
     @Override
     public ActionResponse getResponse(org.elasticsearch.action.ActionResponse response, HistogramRequest parameter) {
-        Aggregations aggregations = ((SearchResponse) response).getAggregations();
+        Aggregations aggregations = ((SearchResponse)response).getAggregations();
         return buildResponse(aggregations);
     }
 
@@ -157,7 +155,7 @@ public class HistogramAction extends Action<HistogramRequest> {
         DateHistogramInterval interval = Utils.getHistogramInterval(getParameter().getPeriod());
         DateHistogramAggregationBuilder histogramBuilder = Utils.buildDateHistogramAggregation(
                 getParameter().getField(), interval);
-        if (!CollectionUtils.isNullOrEmpty(getParameter().getUniqueCountOn())) {
+        if(!CollectionUtils.isNullOrEmpty(getParameter().getUniqueCountOn())) {
             histogramBuilder.subAggregation(Utils.buildCardinalityAggregation(
                     getParameter().getUniqueCountOn(), elasticsearchTuningConfig.getPrecisionThreshold()));
         }
@@ -165,24 +163,23 @@ public class HistogramAction extends Action<HistogramRequest> {
     }
 
     private HistogramResponse buildResponse(Aggregations aggregations) {
-        if (aggregations == null) {
+        if(aggregations == null) {
             return new HistogramResponse(Collections.<HistogramResponse.Count>emptyList());
         }
+
 
         String dateHistogramKey = Utils.getDateHistogramKey(getParameter().getField());
         Histogram dateHistogram = aggregations.get(dateHistogramKey);
         Collection<? extends Histogram.Bucket> buckets = dateHistogram.getBuckets();
         List<HistogramResponse.Count> counts = new ArrayList<>(buckets.size());
-        for (Histogram.Bucket bucket : buckets) {
-            if (!CollectionUtils.isNullOrEmpty(getParameter().getUniqueCountOn())) {
+        for(Histogram.Bucket bucket : buckets) {
+            if(!CollectionUtils.isNullOrEmpty(getParameter().getUniqueCountOn())) {
                 String key = Utils.sanitizeFieldForAggregation(getParameter().getUniqueCountOn());
                 Cardinality cardinality = bucket.getAggregations()
                         .get(key);
-                counts.add(new HistogramResponse.Count(((DateTime) bucket.getKey()).getMillis(),
-                                                       cardinality.getValue()));
-            }
-            else {
-                counts.add(new HistogramResponse.Count(((DateTime) bucket.getKey()).getMillis(), bucket.getDocCount()));
+                counts.add(new HistogramResponse.Count(((DateTime)bucket.getKey()).getMillis(), cardinality.getValue()));
+            } else {
+                counts.add(new HistogramResponse.Count(((DateTime)bucket.getKey()).getMillis(), bucket.getDocCount()));
             }
         }
         return new HistogramResponse(counts);

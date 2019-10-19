@@ -12,19 +12,18 @@ import io.dropwizard.server.SimpleServerFactory;
  */
 public class ServerUtils {
 
-    private ServerUtils() {
-    }
+    private ServerUtils() {}
 
     public static int port(ServerFactory serverFactory) {
-        if (serverFactory instanceof SimpleServerFactory) {
-            SimpleServerFactory simpleServerFactory = (SimpleServerFactory) serverFactory;
+        if(serverFactory instanceof SimpleServerFactory) {
+            SimpleServerFactory simpleServerFactory = (SimpleServerFactory)serverFactory;
             return getPortFromConnector(simpleServerFactory.getConnector());
 
         }
-        if (serverFactory instanceof DefaultServerFactory) {
-            DefaultServerFactory defaultServerFactory = (DefaultServerFactory) serverFactory;
-            for (ConnectorFactory connectorFactory : defaultServerFactory.getApplicationConnectors()) {
-                if (connectorFactory instanceof HttpConnectorFactory) {
+        if(serverFactory instanceof DefaultServerFactory) {
+            DefaultServerFactory defaultServerFactory = (DefaultServerFactory)serverFactory;
+            for(ConnectorFactory connectorFactory : defaultServerFactory.getApplicationConnectors()) {
+                if(connectorFactory instanceof HttpConnectorFactory) {
                     return getPortFromConnector(connectorFactory);
                 }
             }
@@ -34,8 +33,8 @@ public class ServerUtils {
     }
 
     private static int getPortFromConnector(ConnectorFactory connectorFactory) {
-        if (connectorFactory instanceof HttpConnectorFactory) {
-            return ((HttpConnectorFactory) connectorFactory).getPort();
+        if(connectorFactory instanceof HttpConnectorFactory) {
+            return ((HttpConnectorFactory)connectorFactory).getPort();
         }
         throw new PortExtractionException("Cannot extract port from connector");
     }

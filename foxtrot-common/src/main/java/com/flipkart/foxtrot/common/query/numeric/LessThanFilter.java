@@ -45,5 +45,4 @@ public class LessThanFilter extends NumericBinaryFilter {
     public <T> T accept(FilterVisitor<T> visitor) {
         return visitor.visit(this);
     }
-
 }

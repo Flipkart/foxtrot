@@ -1,5 +1,4 @@
-package com.flipkart.foxtrot.core.util;
-/**
+package com.flipkart.foxtrot.core.util;/**
  * Copyright 2014 Flipkart Internet Pvt. Ltd.
  * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -30,7 +29,8 @@ public class ElasticsearchQueryUtils {
     private ElasticsearchQueryUtils() {
     }
 
-    public static Map<String, Object> toMap(ObjectMapper mapper, Object value) {
+    public static Map<String, Object> toMap(ObjectMapper mapper,
+                                            Object value) {
         return mapper.convertValue(value, new TypeReference<Map<String, Object>>() {
         });
     }

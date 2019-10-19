@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Map;
 
 public class FlatRepresentation {
-
     private String opcode;
     private List<FieldHeader> headers = Lists.newArrayList();
     private List<Map<String, Object>> rows = Lists.newArrayList();

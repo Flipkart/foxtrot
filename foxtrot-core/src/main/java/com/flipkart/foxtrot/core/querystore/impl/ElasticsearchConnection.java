@@ -33,7 +33,6 @@ import java.net.InetAddress;
  * Time: 12:38 AM
  */
 public class ElasticsearchConnection implements Managed {
-
     private static final Logger logger = LoggerFactory.getLogger(ElasticsearchConnection.class.getSimpleName());
     private final ElasticsearchConfig config;
     private Client client;
@@ -52,15 +51,14 @@ public class ElasticsearchConnection implements Managed {
 
         TransportClient esClient = new PreBuiltTransportClient(settings);
         Integer port;
-        if (config.getPort() == null) {
+        if(config.getPort() == null) {
             port = 9300;
-        }
-        else {
+        } else {
             port = config.getPort();
         }
-        for (String host : config.getHosts()) {
+        for(String host : config.getHosts()) {
             String[] tokenizedHosts = host.split(",");
-            for (String tokenizedHost : tokenizedHosts) {
+            for(String tokenizedHost : tokenizedHosts) {
                 esClient.addTransportAddress(new TransportAddress(InetAddress.getByName(tokenizedHost), port));
                 logger.info("Added ElasticSearch Node : {}", host);
             }
@@ -72,7 +70,7 @@ public class ElasticsearchConnection implements Managed {
     @Override
     public void stop() throws Exception {
         logger.info("Stopping ElasticSearch client");
-        if (client != null) {
+        if(client != null) {
             client.close();
         }
         client = null;

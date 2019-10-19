@@ -4,7 +4,6 @@ import com.flipkart.foxtrot.sql.FqlQuery;
 import com.flipkart.foxtrot.sql.FqlQueryVisitor;
 
 public class FqlDescribeTable implements FqlQuery {
-
     private final String tableName;
 
     public FqlDescribeTable(final String tableName) {

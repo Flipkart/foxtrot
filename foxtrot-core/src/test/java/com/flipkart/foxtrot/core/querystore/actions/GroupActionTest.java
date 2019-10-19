@@ -70,8 +70,7 @@ public class GroupActionTest extends ActionTest {
         try {
             getQueryExecutor().execute(groupRequest);
             fail();
-        }
-        catch (FoxtrotException ex) {
+        } catch (FoxtrotException ex) {
             ex.printStackTrace();
             assertEquals(ErrorCode.ACTION_EXECUTION_ERROR, ex.getCode());
         }
@@ -100,8 +99,7 @@ public class GroupActionTest extends ActionTest {
         try {
             getQueryExecutor().execute(groupRequest);
             fail();
-        }
-        catch (FoxtrotException ex) {
+        } catch (FoxtrotException ex) {
             ex.printStackTrace();
             assertEquals(ErrorCode.MALFORMED_QUERY, ex.getCode());
         }
@@ -116,8 +114,7 @@ public class GroupActionTest extends ActionTest {
         try {
             getQueryExecutor().execute(groupRequest);
             fail();
-        }
-        catch (FoxtrotException ex) {
+        } catch (FoxtrotException ex) {
             ex.printStackTrace();
             assertEquals(ErrorCode.MALFORMED_QUERY, ex.getCode());
         }

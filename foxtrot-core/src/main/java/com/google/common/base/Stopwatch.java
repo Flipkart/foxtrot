@@ -61,7 +61,6 @@ import static java.util.concurrent.TimeUnit.*;
  */
 @GwtCompatible
 public final class Stopwatch {
-
     private final Ticker ticker;
     private boolean isRunning;
     private long elapsedNanos;
@@ -111,27 +110,35 @@ public final class Stopwatch {
         return new Stopwatch(ticker).start();
     }
 
+    public long elapsedTime(TimeUnit desiredUnit) {
+        return desiredUnit.convert(this.elapsedNanos(), TimeUnit.NANOSECONDS);
+    }
+
+    public long elapsedMillis() {
+        return this.elapsedTime(TimeUnit.MILLISECONDS);
+    }
+
     static String formatCompact4Digits(double value) {
         return String.format(Locale.ROOT, "%.4g", value);
     }
 
     private static TimeUnit chooseUnit(long nanos) {
-        if (DAYS.convert(nanos, NANOSECONDS) > 0) {
+        if(DAYS.convert(nanos, NANOSECONDS) > 0) {
             return DAYS;
         }
-        if (HOURS.convert(nanos, NANOSECONDS) > 0) {
+        if(HOURS.convert(nanos, NANOSECONDS) > 0) {
             return HOURS;
         }
-        if (MINUTES.convert(nanos, NANOSECONDS) > 0) {
+        if(MINUTES.convert(nanos, NANOSECONDS) > 0) {
             return MINUTES;
         }
-        if (SECONDS.convert(nanos, NANOSECONDS) > 0) {
+        if(SECONDS.convert(nanos, NANOSECONDS) > 0) {
             return SECONDS;
         }
-        if (MILLISECONDS.convert(nanos, NANOSECONDS) > 0) {
+        if(MILLISECONDS.convert(nanos, NANOSECONDS) > 0) {
             return MILLISECONDS;
         }
-        if (MICROSECONDS.convert(nanos, NANOSECONDS) > 0) {
+        if(MICROSECONDS.convert(nanos, NANOSECONDS) > 0) {
             return MICROSECONDS;
         }
         return NANOSECONDS;
@@ -156,14 +163,6 @@ public final class Stopwatch {
             default:
                 throw new AssertionError();
         }
-    }
-
-    public long elapsedTime(TimeUnit desiredUnit) {
-        return desiredUnit.convert(this.elapsedNanos(), TimeUnit.NANOSECONDS);
-    }
-
-    public long elapsedMillis() {
-        return this.elapsedTime(TimeUnit.MILLISECONDS);
     }
 
     /**
@@ -215,9 +214,7 @@ public final class Stopwatch {
     }
 
     private long elapsedNanos() {
-        return isRunning
-               ? ticker.read() - startTick + elapsedNanos
-               : elapsedNanos;
+        return isRunning ? ticker.read() - startTick + elapsedNanos : elapsedNanos;
     }
 
     /**
@@ -241,7 +238,7 @@ public final class Stopwatch {
         long nanos = elapsedNanos();
 
         TimeUnit unit = chooseUnit(nanos);
-        double value = (double) nanos / NANOSECONDS.convert(1, unit);
+        double value = (double)nanos / NANOSECONDS.convert(1, unit);
 
         // Too bad this functionality is not exposed as a regular method call
         return formatCompact4Digits(value) + " " + abbreviate(unit);

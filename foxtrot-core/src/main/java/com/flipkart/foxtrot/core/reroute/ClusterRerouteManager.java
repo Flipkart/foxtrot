@@ -50,10 +50,10 @@ public class ClusterRerouteManager {
 
         for (Map.Entry<String, NodeInfo> nodeIdVsNodeInfo : nodeIdVsNodeInfoMap.entrySet()) {
             int shardCount = nodeIdVsNodeInfo.getValue().getShardInfos().size();
-            if (shardCount > acceptableShardsPerNode) {
+            if(shardCount > acceptableShardsPerNode) {
                 for (int i = shardCount; i >= (int) avgShardsPerNode; i--) {
                     ShardId shardId = nodeIdVsNodeInfo.getValue().getShardInfos().get(i - 1).getShardId();
-                    if (!vacantNodeIds.isEmpty()) {
+                    if(!vacantNodeIds.isEmpty()) {
                         reallocateShard(shardId, nodeIdVsNodeInfo.getKey(), vacantNodeIds.pop());
                     }
                 }
@@ -98,7 +98,7 @@ public class ClusterRerouteManager {
                 .actionGet();
         Arrays.stream(indicesStatsResponse.getShards())
                 .forEach(shardStats -> {
-                    if (shardStats.getShardRouting()
+                    if(shardStats.getShardRouting()
                             .shardId()
                             .getIndexName()
                             .matches(ElasticsearchUtils.getTodayIndicesPattern())
@@ -110,7 +110,7 @@ public class ClusterRerouteManager {
                                 .build();
                         String nodeId = shardStats.getShardRouting()
                                 .currentNodeId();
-                        if (nodeIdVsNodeInfoMap.containsKey(nodeId)) {
+                        if(nodeIdVsNodeInfoMap.containsKey(nodeId)) {
                             nodeIdVsNodeInfoMap.get(nodeId)
                                     .getShardInfos()
                                     .add(shardInfo);
@@ -153,7 +153,7 @@ public class ClusterRerouteManager {
         Deque<String> vacantNodeIds = new ArrayDeque<>();
         for (Map.Entry<String, NodeInfo> nodeIdVsNodeInfo : nodeIdVsNodeInfoMap.entrySet()) {
             int shardCount = nodeIdVsNodeInfo.getValue().getShardInfos().size();
-            if (shardCount < avgShardsPerNode) {
+            if(shardCount < avgShardsPerNode) {
                 for (int i = avgShardsPerNode; i > shardCount; i--) {
                     vacantNodeIds.push(nodeIdVsNodeInfo.getKey());
                 }

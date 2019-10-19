@@ -52,9 +52,9 @@ public class StatsAction extends Action<StatsRequest> {
         StatsValue statsValue = new StatsValue();
         statsValue.setStats(Utils.toStats(aggregations.getAsMap()
                                                   .get(metricKey)));
-        Percentiles internalPercentile = (Percentiles) aggregations.getAsMap()
+        Percentiles internalPercentile = (Percentiles)aggregations.getAsMap()
                 .get(percentileMetricKey);
-        if (null != internalPercentile) {
+        if(null != internalPercentile) {
             statsValue.setPercentiles(Utils.createPercentilesResponse(internalPercentile));
         }
         return statsValue;
@@ -74,14 +74,14 @@ public class StatsAction extends Action<StatsRequest> {
     public String getRequestCacheKey() {
         long statsHashKey = 0L;
         StatsRequest statsRequest = getParameter();
-        if (null != statsRequest.getFilters()) {
-            for (Filter filter : statsRequest.getFilters()) {
+        if(null != statsRequest.getFilters()) {
+            for(Filter filter : statsRequest.getFilters()) {
                 statsHashKey += 31 * filter.hashCode();
             }
         }
 
-        if (!CollectionUtils.isNullOrEmpty(statsRequest.getNesting())) {
-            for (String nestingKey : statsRequest.getNesting()) {
+        if(!CollectionUtils.isNullOrEmpty(statsRequest.getNesting())) {
+            for(String nestingKey : statsRequest.getNesting()) {
                 statsHashKey += 31 * nestingKey.hashCode();
             }
         }
@@ -92,13 +92,13 @@ public class StatsAction extends Action<StatsRequest> {
     @Override
     public void validateImpl(StatsRequest parameter) {
         List<String> validationErrors = Lists.newArrayList();
-        if (CollectionUtils.isNullOrEmpty(parameter.getTable())) {
+        if(CollectionUtils.isNullOrEmpty(parameter.getTable())) {
             validationErrors.add("table name cannot be null or empty");
         }
-        if (CollectionUtils.isNullOrEmpty(parameter.getField())) {
+        if(CollectionUtils.isNullOrEmpty(parameter.getField())) {
             validationErrors.add("field name cannot be null or empty");
         }
-        if (!CollectionUtils.isNullOrEmpty(validationErrors)) {
+        if(!CollectionUtils.isNullOrEmpty(validationErrors)) {
             throw FoxtrotExceptions.createMalformedQueryException(parameter, validationErrors);
         }
     }
@@ -110,8 +110,7 @@ public class StatsAction extends Action<StatsRequest> {
             SearchResponse response = searchRequestBuilder.execute()
                     .actionGet(getGetQueryTimeout());
             return getResponse(response, parameter);
-        }
-        catch (ElasticsearchException e) {
+        } catch (ElasticsearchException e) {
             throw FoxtrotExceptions.createQueryExecutionException(parameter, e);
         }
     }
@@ -131,7 +130,7 @@ public class StatsAction extends Action<StatsRequest> {
             final String field = getParameter().getField();
             boolean isNumericField = Utils.isNumericField(getTableMetadataManager(), table, field);
             final AbstractAggregationBuilder extendedStats;
-            if (isNumericField) {
+            if(isNumericField) {
                 if (!AnalyticsRequestFlags.hasFlag(parameter.getFlags(),
                                                    AnalyticsRequestFlags.STATS_SKIP_PERCENTILES)) {
                     percentiles = Utils.buildPercentileAggregation(field, getParameter().getPercentiles());
@@ -143,21 +142,20 @@ public class StatsAction extends Action<StatsRequest> {
                 extendedStats = Utils.buildStatsAggregation(field, Collections.singleton(Stat.COUNT));
             }
             searchRequestBuilder.addAggregation(extendedStats);
-            if (!CollectionUtils.isNullOrEmpty(getParameter().getNesting())) {
+            if(!CollectionUtils.isNullOrEmpty(getParameter().getNesting())) {
                 final HashSet<AggregationBuilder> subAggregations = new HashSet<>();
                 subAggregations.add(extendedStats);
-                if (null != percentiles) {
+                if(null != percentiles) {
                     subAggregations.add(percentiles);
                 }
                 searchRequestBuilder.addAggregation(
                         Utils.buildTermsAggregation(getParameter().getNesting()
-                                                            .stream()
-                                                            .map(x -> new ResultSort(x, ResultSort.Order.asc))
-                                                            .collect(Collectors.toList()),
-                                                    subAggregations, elasticsearchTuningConfig.getAggregationSize()));
+                                                                        .stream()
+                                                                        .map(x -> new ResultSort(x, ResultSort.Order.asc))
+                                                                        .collect(Collectors.toList()),
+                                                                        subAggregations, elasticsearchTuningConfig.getAggregationSize()));
             }
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             throw FoxtrotExceptions.queryCreationException(parameter, e);
         }
         return searchRequestBuilder;
@@ -165,8 +163,8 @@ public class StatsAction extends Action<StatsRequest> {
 
     @Override
     public ActionResponse getResponse(org.elasticsearch.action.ActionResponse response, StatsRequest parameter) {
-        Aggregations aggregations = ((SearchResponse) response).getAggregations();
-        if (aggregations != null) {
+        Aggregations aggregations = ((SearchResponse)response).getAggregations();
+        if(aggregations != null) {
             return buildResponse(parameter, aggregations);
         }
         return null;
@@ -178,7 +176,7 @@ public class StatsAction extends Action<StatsRequest> {
 
         // Now build nested stats if present
         List<BucketResponse<StatsValue>> buckets = null;
-        if (!CollectionUtils.isNullOrEmpty(request.getNesting())) {
+        if(!CollectionUtils.isNullOrEmpty(request.getNesting())) {
             buckets = buildNestedStats(request.getNesting(), aggregations);
         }
 
@@ -191,19 +189,15 @@ public class StatsAction extends Action<StatsRequest> {
 
     private List<BucketResponse<StatsValue>> buildNestedStats(List<String> nesting, Aggregations aggregations) {
         final String field = nesting.get(0);
-        final List<String> remainingFields = (nesting.size() > 1)
-                                             ? nesting.subList(1, nesting.size())
-                                             :
-                                             new ArrayList<>();
+        final List<String> remainingFields = (nesting.size() > 1) ? nesting.subList(1, nesting.size()) : new ArrayList<>();
         Terms terms = aggregations.get(Utils.sanitizeFieldForAggregation(field));
         List<BucketResponse<StatsValue>> bucketResponses = Lists.newArrayList();
-        for (Terms.Bucket bucket : terms.getBuckets()) {
+        for(Terms.Bucket bucket : terms.getBuckets()) {
             BucketResponse<StatsValue> bucketResponse = new BucketResponse<>();
             bucketResponse.setKey(String.valueOf(bucket.getKey()));
-            if (nesting.size() == 1) {
+            if(nesting.size() == 1) {
                 bucketResponse.setResult(buildStatsValue(getParameter().getField(), bucket.getAggregations()));
-            }
-            else {
+            } else {
                 bucketResponse.setBuckets(buildNestedStats(remainingFields, bucket.getAggregations()));
             }
             bucketResponses.add(bucketResponse);

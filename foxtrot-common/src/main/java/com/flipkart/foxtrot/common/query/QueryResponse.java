@@ -28,7 +28,6 @@ import java.util.List;
  * Time: 1:00 PM
  */
 public class QueryResponse extends ActionResponse {
-
     private List<Document> documents;
     private long totalHits;
 

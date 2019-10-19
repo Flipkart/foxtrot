@@ -42,7 +42,6 @@ import java.util.stream.Collectors;
 @Produces(MediaType.APPLICATION_JSON)
 @Api(value = "/v1/clusterhealth")
 public class ClusterHealthResource {
-
     private final QueryStore queryStore;
     private final TableManager tableManager;
     private final TableMetadataManager tableMetadataManager;

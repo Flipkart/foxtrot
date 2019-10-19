@@ -23,7 +23,6 @@ import com.flipkart.foxtrot.common.ActionResponse;
  * Time: 12:26 AM
  */
 public interface Cache {
-
     public ActionResponse put(final String key, ActionResponse data);
 
     public ActionResponse get(final String key);

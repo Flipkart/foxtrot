@@ -27,7 +27,6 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-
 @Path("/v1/tables")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
@@ -43,9 +42,7 @@ public class TableManagerResource {
     @POST
     @Timed
     @ApiOperation("Save Table")
-    public Response save(
-            @Valid final Table table,
-            @QueryParam("forceCreate") @DefaultValue("false") boolean forceCreate) {
+    public Response save(@Valid final Table table, @QueryParam("forceCreate") @DefaultValue("false") boolean forceCreate) {
         table.setName(ElasticsearchUtils.getValidTableName(table.getName()));
         tableManager.save(table, forceCreate);
         return Response.ok(table)

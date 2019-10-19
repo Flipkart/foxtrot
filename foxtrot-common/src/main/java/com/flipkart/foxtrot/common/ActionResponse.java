@@ -35,16 +35,14 @@ import lombok.Data;
  * Time: 9:17 PM
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.EXISTING_PROPERTY, property = "opcode")
-@JsonSubTypes({@JsonSubTypes.Type(value = CountResponse.class, name = Opcodes.COUNT),
-        @JsonSubTypes.Type(value = DistinctResponse.class, name = Opcodes.DISTINCT),
-        @JsonSubTypes.Type(value = GroupResponse.class, name = Opcodes.GROUP),
-        @JsonSubTypes.Type(value = HistogramResponse.class, name = Opcodes.HISTOGRAM),
-        @JsonSubTypes.Type(value = QueryResponse.class, name = Opcodes.QUERY),
-        @JsonSubTypes.Type(value = MultiQueryResponse.class, name = Opcodes.MULTI_QUERY),
-        @JsonSubTypes.Type(value = StatsResponse.class, name = Opcodes.STATS),
-        @JsonSubTypes.Type(value = TrendResponse.class, name = Opcodes.TREND),
-        @JsonSubTypes.Type(value = StatsTrendResponse.class, name = Opcodes.STATS_TREND),
-        @JsonSubTypes.Type(value = MultiTimeQueryResponse.class, name = Opcodes.MULTI_TIME_QUERY)})
+@JsonSubTypes({@JsonSubTypes.Type(value = CountResponse.class, name = Opcodes.COUNT), @JsonSubTypes.Type(value = DistinctResponse.class,
+                                                                                                         name = Opcodes.DISTINCT),
+               @JsonSubTypes.Type(value = GroupResponse.class, name = Opcodes.GROUP), @JsonSubTypes.Type(value = HistogramResponse.class,
+                                                                                                         name = Opcodes.HISTOGRAM),
+               @JsonSubTypes.Type(value = QueryResponse.class, name = Opcodes.QUERY), @JsonSubTypes.Type(value = MultiQueryResponse
+        .class, name = Opcodes.MULTI_QUERY), @JsonSubTypes.Type(value = StatsResponse.class, name = Opcodes.STATS), @JsonSubTypes.Type
+                       (value = TrendResponse.class, name = Opcodes.TREND), @JsonSubTypes.Type(value = StatsTrendResponse.class, name =
+        Opcodes.STATS_TREND), @JsonSubTypes.Type(value = MultiTimeQueryResponse.class, name = Opcodes.MULTI_TIME_QUERY)})
 @Data
 public abstract class ActionResponse {
     private final String opcode;

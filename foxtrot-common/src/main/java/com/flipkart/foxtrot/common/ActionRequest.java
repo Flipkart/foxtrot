@@ -52,7 +52,7 @@ public abstract class ActionRequest implements Serializable, Cloneable {
     }
 
     public List<Filter> getFilters() {
-        if (filters == null) {
+        if(filters == null) {
             return Lists.newArrayList();
         }
         return filters;
@@ -72,7 +72,7 @@ public abstract class ActionRequest implements Serializable, Cloneable {
     }
 
     public Object clone() throws CloneNotSupportedException {
-        ActionRequest actionRequestClone = (ActionRequest) super.clone();
+        ActionRequest actionRequestClone = (ActionRequest)super.clone();
         actionRequestClone.setFilters(new ArrayList<>(this.filters));
         return actionRequestClone;
     }

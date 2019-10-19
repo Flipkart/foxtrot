@@ -28,9 +28,7 @@ import lombok.Data;
 @Data
 @AllArgsConstructor
 public class ActionMetadata {
-
     private final Class<? extends ActionRequest> request;
     private final Class<? extends Action> action;
     private final boolean cacheable;
-
 }

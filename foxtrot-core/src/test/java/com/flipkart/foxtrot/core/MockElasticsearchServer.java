@@ -34,14 +34,13 @@ import java.util.concurrent.TimeUnit;
  */
 
 public class MockElasticsearchServer {
-
     private final Node node;
     private String DATA_DIRECTORY = UUID.randomUUID()
-            .toString() + "/elasticsearch-data";
+                                            .toString() + "/elasticsearch-data";
 
     public MockElasticsearchServer(String directory) throws NodeValidationException {
         this.DATA_DIRECTORY = UUID.randomUUID()
-                .toString() + "/" + directory;
+                                      .toString() + "/" + directory;
         Settings settings = Settings.builder()
                 .put("http.enabled", "false")
                 .put("path.home", "target/" + DATA_DIRECTORY)

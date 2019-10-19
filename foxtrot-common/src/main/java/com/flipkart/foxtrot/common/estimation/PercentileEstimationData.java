@@ -14,7 +14,6 @@ import java.util.Arrays;
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
 public class PercentileEstimationData extends EstimationData {
-
     private static final long serialVersionUID = -4790803356348252020L;
 
     private double[] values;

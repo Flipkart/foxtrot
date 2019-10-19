@@ -36,7 +36,7 @@ public class EmailClient {
     }
 
     public boolean sendEmail(final Email email) {
-        if (Strings.isNullOrEmpty(emailConfig.getFrom())) {
+        if(Strings.isNullOrEmpty(emailConfig.getFrom())) {
             LOGGER.warn("Mail config not set properly. No mail will be sent.");
             return false;
         }
@@ -44,7 +44,7 @@ public class EmailClient {
             MimeMessage message = new MimeMessage(session);
             message.setFrom(new InternetAddress(emailConfig.getFrom()));
             final List<String> recipients = recipients(email);
-            if (recipients.isEmpty()) {
+            if(recipients.isEmpty()) {
                 return false;
             }
             message.setRecipients(Message.RecipientType.TO,
@@ -55,15 +55,14 @@ public class EmailClient {
             headers.addHeader("Content-type", "text/html; charset=UTF-8");
 
             final String content = email.getContent();
-            if (null != content) {
+            if(null != content) {
                 BodyPart messageBodyPart = new MimeBodyPart(headers, content.getBytes(StandardCharsets.UTF_8));
                 Multipart multipart = new MimeMultipart();
                 multipart.addBodyPart(messageBodyPart);
                 message.setContent(multipart);
             }
             Transport.send(message, emailConfig.getUser(), emailConfig.getPassword());
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             LOGGER.error("Error occurred while sending the email :%s", e);
             return false;
         }
@@ -75,10 +74,10 @@ public class EmailClient {
         final List<String> emailRecipients = email.getRecipients();
         final List<String> defaultRecipients = emailConfig.getEventNotificationEmails();
         final ImmutableList.Builder<String> recipientsBuilder = ImmutableList.builder();
-        if (null != email.getRecipients()) {
+        if(null != email.getRecipients()) {
             recipientsBuilder.addAll(emailRecipients);
         }
-        if (null != defaultRecipients) {
+        if(null != defaultRecipients) {
             recipientsBuilder.addAll(defaultRecipients);
         }
         return recipientsBuilder.build();

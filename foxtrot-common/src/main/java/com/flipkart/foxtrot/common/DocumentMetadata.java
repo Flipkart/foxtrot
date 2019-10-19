@@ -14,7 +14,6 @@ import java.io.Serializable;
 @ToString
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class DocumentMetadata implements Serializable {
-
     private static final long serialVersionUID = -2513729439392513459L;
     private String id;
     private String rawStorageId;

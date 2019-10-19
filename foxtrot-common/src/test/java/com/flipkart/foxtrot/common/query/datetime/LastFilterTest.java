@@ -7,7 +7,6 @@ import org.junit.Assert;
 import org.junit.Test;
 
 public class LastFilterTest {
-
     private final ObjectMapper objectMapper;
 
     public LastFilterTest() {
@@ -29,7 +28,8 @@ public class LastFilterTest {
         DateTime currentTime = new DateTime();
         final String json = String.format(
                 "{ \"operator\": \"last\", \"currentTime\": %d, \"roundingMode\": \"FLOOR\", \"duration\": \"1h\" }",
-                currentTime.getMillis());
+                currentTime.getMillis()
+                                         );
         LastFilter lastFilter = objectMapper.readValue(json, LastFilter.class);
         TimeWindow timeWindow = lastFilter.getWindow();
         Assert.assertEquals("_timestamp", lastFilter.getField());
@@ -46,7 +46,8 @@ public class LastFilterTest {
         DateTime currentTime = new DateTime();
         final String json = String.format(
                 "{ \"operator\": \"last\", \"currentTime\": %d, \"roundingMode\": \"CEILING\", \"duration\": \"1h\" }",
-                currentTime.getMillis());
+                currentTime.getMillis()
+                                         );
         LastFilter lastFilter = objectMapper.readValue(json, LastFilter.class);
         TimeWindow timeWindow = lastFilter.getWindow();
         Assert.assertEquals("_timestamp", lastFilter.getField());
@@ -60,9 +61,7 @@ public class LastFilterTest {
     @Test
     public void testGetWindowStartNoRounding() throws Exception {
         DateTime currentTime = new DateTime();
-        final String json = String.format("{ \"operator\": \"last\", \"currentTime\": %d, \"duration\": \"1h\" }",
-                                          currentTime.getMillis()
-                                         );
+        final String json = String.format("{ \"operator\": \"last\", \"currentTime\": %d, \"duration\": \"1h\" }", currentTime.getMillis());
         LastFilter lastFilter = objectMapper.readValue(json, LastFilter.class);
         TimeWindow timeWindow = lastFilter.getWindow();
         Assert.assertEquals("_timestamp", lastFilter.getField());

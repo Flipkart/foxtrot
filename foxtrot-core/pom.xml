@@ -211,8 +211,8 @@
                 </exclusion>
             </exclusions>
         </dependency>
-    </dependencies>
 
+    </dependencies>
     <build>
         <plugins>
             <plugin>

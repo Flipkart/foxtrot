@@ -62,8 +62,7 @@ public class ElasticsearchUtils {
     private static final String MATCH_MAPPING_TYPE = "match_mapping_type";
     private static String tableNamePrefix = "foxtrot";
 
-    private ElasticsearchUtils() {
-    }
+    private ElasticsearchUtils() {}
 
     @VisibleForTesting
     public static String getTableNamePrefix() {
@@ -71,10 +70,9 @@ public class ElasticsearchUtils {
     }
 
     public static void setTableNamePrefix(ElasticsearchConfig config) {
-        if (StringUtils.isNotEmpty(config.getTableNamePrefix())) {
+        if(StringUtils.isNotEmpty(config.getTableNamePrefix())) {
             tableNamePrefix = config.getTableNamePrefix();
-        }
-        else {
+        } else {
             tableNamePrefix = "foxtrot";
         }
     }
@@ -96,7 +94,7 @@ public class ElasticsearchUtils {
         DateTime start = interval.getStart()
                 .toLocalDate()
                 .toDateTimeAtStartOfDay();
-        if (start.getYear() <= 1970) {
+        if(start.getYear() <= 1970) {
             logger.warn("Request of type {} running on all indices", request.getClass()
                     .getSimpleName());
             return new String[]{getIndices(table)};
@@ -119,8 +117,7 @@ public class ElasticsearchUtils {
     public static String getCurrentIndex(final String table, long timestamp) {
         //TODO::THROW IF TIMESTAMP IS BEYOND TABLE META.TTL
         String datePostfix = FORMATTER.print(timestamp);
-        return String.format("%s-%s-%s-%s", getTableNamePrefix(), table, ElasticsearchUtils.TABLENAME_POSTFIX,
-                             datePostfix);
+        return String.format("%s-%s-%s-%s", getTableNamePrefix(), table, ElasticsearchUtils.TABLENAME_POSTFIX, datePostfix);
     }
 
     public static PutIndexTemplateRequest getClusterTemplateMapping() {
@@ -128,8 +125,7 @@ public class ElasticsearchUtils {
             return new PutIndexTemplateRequest().name("template_foxtrot_mappings")
                     .patterns(Lists.newArrayList(String.format("%s-*", getTableNamePrefix())))
                     .mapping(DOCUMENT_TYPE_NAME, getDocumentMapping());
-        }
-        catch (IOException ex) {
+        } catch (IOException ex) {
             logger.error("TEMPLATE_CREATION_FAILED", ex);
             return null;
         }
@@ -259,9 +255,8 @@ public class ElasticsearchUtils {
 
 
     public static String getValidTableName(String table) {
-        if (table == null) {
+        if(table == null)
             return null;
-        }
         return table.trim()
                 .toLowerCase();
     }
@@ -272,7 +267,7 @@ public class ElasticsearchUtils {
     }
 
     static boolean isIndexEligibleForDeletion(String index, Table table) {
-        if (index == null || table == null || !isIndexValidForTable(index, table.getName())) {
+        if(index == null || table == null || !isIndexValidForTable(index, table.getName())) {
             return false;
         }
 
@@ -291,13 +286,11 @@ public class ElasticsearchUtils {
     }
 
     public static String getTableNameFromIndex(String currentIndex) {
-        if (currentIndex.contains(getTableNamePrefix()) && currentIndex.contains(TABLENAME_POSTFIX)) {
-            String tempIndex = currentIndex.substring(
-                    currentIndex.indexOf(getTableNamePrefix()) + getTableNamePrefix().length() + 1);
+        if(currentIndex.contains(getTableNamePrefix()) && currentIndex.contains(TABLENAME_POSTFIX)) {
+            String tempIndex = currentIndex.substring(currentIndex.indexOf(getTableNamePrefix()) + getTableNamePrefix().length() + 1);
             int position = tempIndex.lastIndexOf(String.format("-%s", TABLENAME_POSTFIX));
             return tempIndex.substring(0, position);
-        }
-        else {
+        } else {
             return null;
         }
     }
@@ -311,12 +304,4 @@ public class ElasticsearchUtils {
         return String.format("%s-.*-%s-%s", getTableNamePrefix(), ElasticsearchUtils.TABLENAME_POSTFIX, datePostfix);
     }
 
-    public static boolean isTimeFilterPresent(List<Filter> filters) {
-        for (Filter filter : filters) {
-            if (ElasticsearchUtils.TIME_FIELD.equals(filter.getField())) {
-                return true;
-            }
-        }
-        return false;
-    }
 }

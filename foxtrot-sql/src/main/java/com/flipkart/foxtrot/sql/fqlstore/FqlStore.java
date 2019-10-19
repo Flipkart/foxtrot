@@ -7,7 +7,6 @@ import lombok.Data;
  ***/
 @Data
 public class FqlStore {
-
     public static final String TITLE_FIELD = "title";
     private String id;
 

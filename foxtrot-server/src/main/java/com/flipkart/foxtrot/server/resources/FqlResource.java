@@ -72,8 +72,7 @@ public class FqlResource {
     public List<FqlStore> get(FqlGetRequest fqlGetRequest) {
         try {
             return fqlStoreService.get(fqlGetRequest);
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             throw new RuntimeException("Couldn't get FqlStore from FqlGetRequest. Error Message: " + e);
         }
     }

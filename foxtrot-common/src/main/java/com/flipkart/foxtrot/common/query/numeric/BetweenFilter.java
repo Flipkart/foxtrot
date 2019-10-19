@@ -66,11 +66,11 @@ public class BetweenFilter extends Filter {
     @Override
     public Set<String> validate() {
         Set<String> validationErrors = super.validate();
-        if (from == null) {
+        if(from == null) {
             validationErrors.add("from field cannot be null");
         }
 
-        if (to == null) {
+        if(to == null) {
             validationErrors.add("to field cannot be null");
         }
         return validationErrors;
@@ -80,7 +80,7 @@ public class BetweenFilter extends Filter {
     public int hashCode() {
         int result = getOperator().hashCode();
         result = 31 * result + getField().hashCode();
-        if (!getField().equals("_timestamp")) {
+        if(!getField().equals("_timestamp")) {
             result = result * 21 + (getFrom() == null
                                     ? 43
                                     : getFrom().hashCode());
@@ -100,10 +100,10 @@ public class BetweenFilter extends Filter {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) {
+        if(this == o) {
             return true;
         }
-        else if (!(o instanceof BetweenFilter)) {
+        else if(!(o instanceof BetweenFilter)) {
             return false;
         }
 
@@ -122,5 +122,4 @@ public class BetweenFilter extends Filter {
                 .append("to", to.toString())
                 .toString();
     }
-
 }

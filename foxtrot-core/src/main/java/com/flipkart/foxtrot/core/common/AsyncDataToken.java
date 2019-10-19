@@ -21,7 +21,6 @@ package com.flipkart.foxtrot.core.common;
  * Time: 7:02 PM
  */
 public class AsyncDataToken {
-
     private String action;
     private String key;
 

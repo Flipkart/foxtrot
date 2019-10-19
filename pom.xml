@@ -5,8 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <name>Foxtrot</name>
-    <description>Foxtrot is a scalable data and query store service for for real-time event data.
-    </description>
+    <description>Foxtrot is a scalable data and query store service for for real-time event data.</description>
     <url>https://git@github.com/flipkart-incubator/foxtrot</url>
 
     <groupId>com.flipkart.foxtrot</groupId>
@@ -16,8 +15,7 @@
 
     <scm>
         <connection>scm:git:https://github.com/flipkart-incubator/foxtrot.git</connection>
-        <developerConnection>scm:git:https://github.com/flipkart-incubator/foxtrot.git
-        </developerConnection>
+        <developerConnection>scm:git:https://github.com/flipkart-incubator/foxtrot.git</developerConnection>
         <tag>HEAD</tag>
         <url>https://github.com/flipkart-incubator/foxtrot</url>
     </scm>
@@ -256,19 +254,11 @@
                     <instrumentation>
                         <ignoreTrivial>true</ignoreTrivial>
                         <excludes>
-                            <exclude>
-                                com/flipkart/foxtrot/core/querystore/impl/HazelcastConnection.java
-                            </exclude>
-                            <exclude>
-                                com/flipkart/foxtrot/core/querystore/impl/ElasticsearchConnection.java
-                            </exclude>
-                            <exclude>
-                                com/flipkart/foxtrot/core/datastore/impl/hbase/HbaseTableConnection.java
-                            </exclude>
+                            <exclude>com/flipkart/foxtrot/core/querystore/impl/HazelcastConnection.java</exclude>
+                            <exclude>com/flipkart/foxtrot/core/querystore/impl/ElasticsearchConnection.java</exclude>
+                            <exclude>com/flipkart/foxtrot/core/datastore/impl/hbase/HbaseTableConnection.java</exclude>
                             <exclude>com/flipkart/foxtrot/server/FoxtrotServer.java</exclude>
-                            <exclude>
-                                com/flipkart/foxtrot/server/config/FoxtrotServerConfiguration.java
-                            </exclude>
+                            <exclude>com/flipkart/foxtrot/server/config/FoxtrotServerConfiguration.java</exclude>
                             <exclude>com/flipkart/foxtrot/server/App.java</exclude>
                         </excludes>
                     </instrumentation>
@@ -366,6 +356,7 @@
             </plugin>
         </plugins>
     </build>
+
     <reporting>
         <plugins>
             <plugin>

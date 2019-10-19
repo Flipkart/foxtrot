@@ -19,7 +19,6 @@ import java.util.Map;
 @Provider
 @Produces(MediaType.TEXT_PLAIN)
 public class FlatResponseTextProvider implements MessageBodyWriter<FlatRepresentation> {
-
     @Override
     public boolean isWriteable(Class<?> type, Type genericType, Annotation[] annotations, MediaType mediaType) {
         return type == FlatRepresentation.class && mediaType.toString()
@@ -27,18 +26,14 @@ public class FlatResponseTextProvider implements MessageBodyWriter<FlatRepresent
     }
 
     @Override
-    public long getSize(
-            FlatRepresentation response, Class<?> type, Type genericType, Annotation[] annotations,
-            MediaType mediaType) {
+    public long getSize(FlatRepresentation response, Class<?> type, Type genericType, Annotation[] annotations, MediaType mediaType) {
         return -1;
     }
 
     @Override
-    public void writeTo(
-            FlatRepresentation response, Class<?> type, Type genericType, Annotation[] annotations,
-            MediaType mediaType, MultivaluedMap<String, Object> httpHeaders, OutputStream entityStream)
-            throws IOException {
-        if (null == response) {
+    public void writeTo(FlatRepresentation response, Class<?> type, Type genericType, Annotation[] annotations, MediaType mediaType,
+                        MultivaluedMap<String, Object> httpHeaders, OutputStream entityStream) throws IOException {
+        if(null == response) {
             entityStream.write("No records found matching the specified criterion".getBytes());
             return;
         }
@@ -46,9 +41,9 @@ public class FlatResponseTextProvider implements MessageBodyWriter<FlatRepresent
         StringBuilder data = new StringBuilder();
         StringBuilder headerLineBuilder = new StringBuilder();
         headerLineBuilder.append("|");
-        for (FieldHeader fieldHeader : headers) {
+        for(FieldHeader fieldHeader : headers) {
             final String name = fieldHeader.getName();
-            if (name.length() > fieldHeader.getMaxLength()) {
+            if(name.length() > fieldHeader.getMaxLength()) {
                 fieldHeader.setMaxLength(name.length());
             }
             headerLineBuilder.append(" ");
@@ -61,13 +56,12 @@ public class FlatResponseTextProvider implements MessageBodyWriter<FlatRepresent
         data.append(headerLine);
         hrLine(headerLine.length(), data);
         List<Map<String, Object>> rows = response.getRows();
-        for (Map<String, Object> row : rows) {
+        for(Map<String, Object> row : rows) {
             StringBuilder rowBuilder = new StringBuilder();
             rowBuilder.append("|");
-            for (FieldHeader fieldHeader : headers) {
+            for(FieldHeader fieldHeader : headers) {
                 rowBuilder.append(" ");
-                rowBuilder.append(String.format("%" + fieldHeader.getMaxLength() + "s",
-                                                row.get(fieldHeader.getName())));
+                rowBuilder.append(String.format("%" + fieldHeader.getMaxLength() + "s", row.get(fieldHeader.getName())));
                 rowBuilder.append(" |");
             }
             rowBuilder.append("\n");

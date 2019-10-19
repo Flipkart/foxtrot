@@ -43,9 +43,8 @@ public class InitializerCommand extends ConfiguredCommand<FoxtrotServerConfigura
     }
 
     @Override
-    protected void run(
-            Bootstrap<FoxtrotServerConfiguration> bootstrap, Namespace namespace,
-            FoxtrotServerConfiguration configuration) throws Exception {
+    protected void run(Bootstrap<FoxtrotServerConfiguration> bootstrap, Namespace namespace, FoxtrotServerConfiguration configuration)
+            throws Exception {
         ElasticsearchConfig esConfig = configuration.getElasticsearch();
         ElasticsearchConnection connection = new ElasticsearchConnection(esConfig);
         connection.start();
@@ -56,9 +55,7 @@ public class InitializerCommand extends ConfiguredCommand<FoxtrotServerConfigura
                 .health(new ClusterHealthRequest())
                 .actionGet();
         int numDataNodes = clusterHealth.getNumberOfDataNodes();
-        int numReplicas = (numDataNodes < 2)
-                          ? 0
-                          : 1;
+        int numReplicas = (numDataNodes < 2) ? 0 : 1;
 
         logger.info("# data nodes: {}, Setting replica count to: {}", numDataNodes, numReplicas);
 
@@ -95,16 +92,14 @@ public class InitializerCommand extends ConfiguredCommand<FoxtrotServerConfigura
                     .create(createIndexRequest)
                     .actionGet();
             logger.info("'{}' creation acknowledged: {}", indexName, response.isAcknowledged());
-            if (!response.isAcknowledged()) {
+            if(!response.isAcknowledged()) {
                 logger.error("Index {} could not be created.", indexName);
             }
-        }
-        catch (Exception e) {
-            if (null != e.getCause()) {
+        } catch (Exception e) {
+            if(null != e.getCause()) {
                 logger.error("Index {} could not be created: {}", indexName, e.getCause()
                         .getLocalizedMessage());
-            }
-            else {
+            } else {
                 logger.error("Index {} could not be created: {}", indexName, e.getLocalizedMessage());
             }
         }

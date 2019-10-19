@@ -106,8 +106,7 @@ public class ElasticSearchQueryGenerator implements FilterVisitor<Void> {
 
     @Override
     public Void visit(NotInFilter notInFilter) {
-        addFilter(boolQuery().mustNot(
-                termsQuery(Utils.storedFieldName(notInFilter.getField()), notInFilter.getValues())));
+        addFilter(boolQuery().mustNot(termsQuery(Utils.storedFieldName(notInFilter.getField()), notInFilter.getValues())));
         return null;
     }
 
@@ -143,7 +142,7 @@ public class ElasticSearchQueryGenerator implements FilterVisitor<Void> {
     }
 
     public QueryBuilder genFilter(List<Filter> filters) {
-        for (Filter filter : filters) {
+        for(Filter filter : filters) {
             filter.accept(this);
         }
         return QueryBuilders.constantScoreQuery(boolFilterBuilder);

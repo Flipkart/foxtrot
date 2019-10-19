@@ -115,6 +115,7 @@ public class TableFieldMappingResourceTest extends FoxtrotResourceTest {
                              .field("date.minuteOfHour")
                              .type(FieldType.LONG)
                              .build());
+
         TableFieldMapping tableFieldMapping = new TableFieldMapping(TestUtils.TEST_TABLE_NAME, mappings);
         String response = resources.client()
                 .target(String.format("/v1/tables/%s/fields", TestUtils.TEST_TABLE_NAME))
@@ -134,8 +135,7 @@ public class TableFieldMappingResourceTest extends FoxtrotResourceTest {
                     .target(String.format("/v1/tables/%s/fields", TestUtils.TEST_TABLE_NAME + "-missing"))
                     .request()
                     .head();
-        }
-        catch (WebApplicationException ex) {
+        } catch (WebApplicationException ex) {
             assertEquals(Response.Status.NOT_FOUND.getStatusCode(), ex.getResponse()
                     .getStatus());
         }

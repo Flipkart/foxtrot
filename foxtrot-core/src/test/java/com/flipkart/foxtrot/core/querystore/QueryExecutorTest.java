@@ -53,7 +53,6 @@ import static org.mockito.Mockito.*;
  * Created by rishabh.goyal on 02/05/14.
  */
 public class QueryExecutorTest {
-
     private QueryExecutor queryExecutor;
     private ObjectMapper mapper = new ObjectMapper();
     private HazelcastInstance hazelcastInstance;
@@ -69,9 +68,7 @@ public class QueryExecutorTest {
         HazelcastConnection hazelcastConnection = Mockito.mock(HazelcastConnection.class);
         when(hazelcastConnection.getHazelcast()).thenReturn(hazelcastInstance);
         when(hazelcastConnection.getHazelcastConfig()).thenReturn(new Config());
-        CacheManager cacheManager = new CacheManager(new DistributedCacheFactory(hazelcastConnection,
-                                                                                 mapper,
-                                                                                 new CacheConfig()));
+        CacheManager cacheManager = new CacheManager(new DistributedCacheFactory(hazelcastConnection, mapper, new CacheConfig()));
         elasticsearchConnection = ElasticsearchTestUtils.getConnection();
         ElasticsearchUtils.initializeMappings(elasticsearchConnection.getClient());
         TableMetadataManager tableMetadataManager = mock(TableMetadataManager.class);
@@ -79,13 +76,7 @@ public class QueryExecutorTest {
         when(tableMetadataManager.get(anyString())).thenReturn(TestUtils.TEST_TABLE);
         QueryStore queryStore = mock(QueryStore.class);
         analyticsLoader = spy(
-                new AnalyticsLoader(tableMetadataManager,
-                                    dataStore,
-                                    queryStore,
-                                    elasticsearchConnection,
-                                    cacheManager,
-                                    mapper,
-                                    new ElasticsearchTuningConfig()));
+                new AnalyticsLoader(tableMetadataManager, dataStore, queryStore, elasticsearchConnection, cacheManager, mapper, new ElasticsearchTuningConfig()));
         TestUtils.registerActions(analyticsLoader, mapper);
         ExecutorService executorService = Executors.newFixedThreadPool(1);
         queryExecutor = new QueryExecutor(analyticsLoader, executorService, Collections.emptyList());
@@ -108,8 +99,7 @@ public class QueryExecutorTest {
         try {
             queryExecutor.resolve(new RequestWithNoAction());
             fail();
-        }
-        catch (FoxtrotException e) {
+        } catch (FoxtrotException e) {
             assertEquals(ErrorCode.UNRESOLVABLE_OPERATION, e.getCode());
         }
     }

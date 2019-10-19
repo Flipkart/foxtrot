@@ -24,7 +24,6 @@ import org.elasticsearch.action.admin.cluster.health.ClusterHealthResponse;
  */
 
 public class ElasticSearchHealthCheck extends HealthCheck {
-
     private ElasticsearchConnection elasticsearchConnection;
 
     public ElasticSearchHealthCheck(ElasticsearchConnection elasticsearchConnection) {
@@ -40,12 +39,9 @@ public class ElasticSearchHealthCheck extends HealthCheck {
                 .execute()
                 .actionGet();
         return (response.getStatus()
-                .name()
-                .equalsIgnoreCase("GREEN") || response.getStatus()
-                .name()
-                .equalsIgnoreCase("YELLOW"))
-               ? HealthCheck.Result.healthy()
-               : HealthCheck.Result.unhealthy(
-                       "Cluster unhealthy");
+                        .name()
+                        .equalsIgnoreCase("GREEN") || response.getStatus()
+                        .name()
+                        .equalsIgnoreCase("YELLOW")) ? HealthCheck.Result.healthy() : HealthCheck.Result.unhealthy("Cluster unhealthy");
     }
 }

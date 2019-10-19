@@ -29,7 +29,7 @@ import org.elasticsearch.action.search.SearchRequestBuilder;
  */
 @VisibleForTesting
 @AnalyticsProvider(opcode = "no-cache-test", request = NonCacheableActionRequest.class, response = NonCacheableActionResponse.class,
-        cacheable = false)
+                   cacheable = false)
 public class NonCacheableAction extends Action<NonCacheableActionRequest> {
 
     public NonCacheableAction(NonCacheableActionRequest parameter, AnalyticsLoader analyticsLoader) {
@@ -62,9 +62,7 @@ public class NonCacheableAction extends Action<NonCacheableActionRequest> {
     }
 
     @Override
-    public ActionResponse getResponse(
-            org.elasticsearch.action.ActionResponse response,
-            NonCacheableActionRequest parameter)
+    public ActionResponse getResponse(org.elasticsearch.action.ActionResponse response, NonCacheableActionRequest parameter)
             throws FoxtrotException {
         return null;
     }

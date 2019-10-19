@@ -57,7 +57,7 @@ public class EqualsFilter extends Filter {
     @Override
     public Set<String> validate() {
         Set<String> validationErrors = super.validate();
-        if (value == null) {
+        if(value == null) {
             validationErrors.add("filter field value cannot be null or empty");
         }
         return validationErrors;

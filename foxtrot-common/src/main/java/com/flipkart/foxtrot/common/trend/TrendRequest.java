@@ -47,9 +47,8 @@ public class TrendRequest extends ActionRequest {
         super(Opcodes.TREND);
     }
 
-    public TrendRequest(
-            List<Filter> filters, String table, String field, String timestamp, Period period,
-            List<String> values, String uniqueCountOn) {
+    public TrendRequest(List<Filter> filters, String table, String field, String timestamp, Period period, List<String> values,
+                        String uniqueCountOn) {
         super(Opcodes.TREND, filters);
         this.table = table;
         this.field = field;

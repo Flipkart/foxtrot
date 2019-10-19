@@ -108,8 +108,7 @@ public abstract class FoxtrotResourceTest {
     public FoxtrotResourceTest() throws Exception {
         try {
             dataStore = TestUtils.getDataStore();
-        }
-        catch (FoxtrotException e) {
+        } catch (FoxtrotException e) {
             e.printStackTrace();
         }
 
@@ -124,46 +123,30 @@ public abstract class FoxtrotResourceTest {
 
         elasticsearchConnection = ElasticsearchTestUtils.getConnection();
 
-        CardinalityConfig cardinalityConfig = new CardinalityConfig("true",
-                                                                    String.valueOf(ElasticsearchUtils.DEFAULT_SUB_LIST_SIZE));
-
+        CardinalityConfig cardinalityConfig = new CardinalityConfig("true", String.valueOf(ElasticsearchUtils.DEFAULT_SUB_LIST_SIZE));
         TestUtils.ensureIndex(elasticsearchConnection, TableMapStore.TABLE_META_INDEX);
         TestUtils.ensureIndex(elasticsearchConnection, DistributedTableMetadataManager.CARDINALITY_CACHE_INDEX);
-        tableMetadataManager = new DistributedTableMetadataManager(hazelcastConnection, elasticsearchConnection, mapper,
-                                                                   cardinalityConfig);
+        tableMetadataManager = new DistributedTableMetadataManager(hazelcastConnection, elasticsearchConnection, mapper, cardinalityConfig);
         tableMetadataManager.start();
         tableMetadataManager.save(Table.builder()
-                                          .name(TestUtils.TEST_TABLE_NAME)
-                                          .ttl(7)
-                                          .build());
+                .name(TestUtils.TEST_TABLE_NAME)
+                .ttl(7)
+                .build());
+
         List<IndexerEventMutator> mutators = Lists.newArrayList(new LargeTextNodeRemover(mapper,
-                                                                                         TextNodeRemoverConfiguration.builder()
-                                                                                                 .build()));
-        queryStore = new ElasticsearchQueryStore(tableMetadataManager,
-                                                 elasticsearchConnection,
-                                                 dataStore,
-                                                 mutators,
-                                                 mapper,
-                                                 cardinalityConfig);
+                TextNodeRemoverConfiguration.builder().build()));
+        queryStore = new ElasticsearchQueryStore(tableMetadataManager, elasticsearchConnection, dataStore, mutators, mapper, cardinalityConfig);
         queryStore = spy(queryStore);
 
-        analyticsLoader = new AnalyticsLoader(tableMetadataManager,
-                                              dataStore,
-                                              queryStore,
-                                              elasticsearchConnection,
-                                              cacheManager,
-                                              mapper,
-                                              new ElasticsearchTuningConfig());
+        analyticsLoader = new AnalyticsLoader(tableMetadataManager, dataStore, queryStore, elasticsearchConnection, cacheManager, mapper, new ElasticsearchTuningConfig());
         try {
             analyticsLoader.start();
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
         try {
             TestUtils.registerActions(analyticsLoader, mapper);
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
         ExecutorService executorService = Executors.newFixedThreadPool(1);

@@ -34,7 +34,6 @@ import static com.flipkart.foxtrot.core.querystore.actions.Constants.CACHE_NAME_
  */
 
 public class DistributedCacheFactory implements CacheFactory {
-
     private static final int DEFAULT_TIME_TO_LIVE_SECONDS = 15;
     private static final int DEFAULT_MAX_IDLE_SECONDS = 15;
     private static final int DEFAULT_SIZE = 70;
@@ -59,26 +58,23 @@ public class DistributedCacheFactory implements CacheFactory {
         mapConfig.setBackupCount(0);
         mapConfig.setEvictionPolicy(EvictionPolicy.LRU);
 
-        if (cacheConfig.getMaxIdleSeconds() == 0) {
+        if(cacheConfig.getMaxIdleSeconds() == 0) {
             mapConfig.setMaxIdleSeconds(DEFAULT_MAX_IDLE_SECONDS);
-        }
-        else {
+        } else {
             mapConfig.setMaxIdleSeconds(cacheConfig.getMaxIdleSeconds());
         }
 
-        if (cacheConfig.getTimeToLiveSeconds() == 0) {
+        if(cacheConfig.getTimeToLiveSeconds() == 0) {
             mapConfig.setTimeToLiveSeconds(DEFAULT_TIME_TO_LIVE_SECONDS);
-        }
-        else {
+        } else {
             mapConfig.setTimeToLiveSeconds(cacheConfig.getTimeToLiveSeconds());
         }
 
         MaxSizeConfig maxSizeConfig = new MaxSizeConfig();
         maxSizeConfig.setMaxSizePolicy(MaxSizeConfig.MaxSizePolicy.USED_HEAP_PERCENTAGE);
-        if (cacheConfig.getSize() == 0) {
+        if(cacheConfig.getSize() == 0) {
             maxSizeConfig.setSize(DEFAULT_SIZE);
-        }
-        else {
+        } else {
             maxSizeConfig.setSize(cacheConfig.getSize());
         }
         mapConfig.setMaxSizeConfig(maxSizeConfig);

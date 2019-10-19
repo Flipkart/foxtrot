@@ -29,7 +29,6 @@ import java.util.List;
  */
 @NoArgsConstructor
 public class ElasticsearchConfig {
-
     public static final long DEFAULT_TIMEOUT = 10000L;
     @Valid
     @NotNull
@@ -77,9 +76,7 @@ public class ElasticsearchConfig {
     }
 
     public long getGetQueryTimeout() {
-        return getQueryTimeout > 0
-               ? getQueryTimeout
-               : DEFAULT_TIMEOUT;
+        return getQueryTimeout > 0 ? getQueryTimeout : DEFAULT_TIMEOUT;
     }
 
 }

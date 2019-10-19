@@ -76,8 +76,7 @@ public class QueryExecutor {
                     action, request, response, stopwatch.elapsed(TimeUnit.MILLISECONDS), false);
             return response;
 
-        }
-        catch (FoxtrotException e) {
+        } catch (FoxtrotException e) {
             evaluationResponse = ActionEvaluationResponse.failure(
                     action, request, e, stopwatch.elapsed(TimeUnit.MILLISECONDS));
             throw e;
@@ -92,7 +91,7 @@ public class QueryExecutor {
         final String cacheKey = action.cacheKey();
         final AsyncDataToken dataToken = new AsyncDataToken(request.getOpcode(), cacheKey);
         final ActionResponse response = readCachedData(analyticsLoader.getCacheManager(), request, action);
-        if (null != response) {
+        if(null != response) {
             // If data exists in the cache nothing to do.. just return
             return dataToken;
         }
@@ -108,14 +107,14 @@ public class QueryExecutor {
     public <T extends ActionRequest> Action resolve(T request) {
         Action action;
         action = analyticsLoader.getAction(request);
-        if (null == action) {
+        if(null == action) {
             throw FoxtrotExceptions.createUnresolvableActionException(request);
         }
         return action;
     }
 
     private void notifyObserverPreExec(final ActionRequest request) {
-        if (null == executionObservers) {
+        if(null == executionObservers) {
             return;
         }
         executionObservers
@@ -123,17 +122,16 @@ public class QueryExecutor {
     }
 
     private void notifyObserverPostExec(final ActionEvaluationResponse evaluationResponse) {
-        if (null == executionObservers) {
+        if(null == executionObservers) {
             return;
         }
         executionObservers
                 .forEach(actionExecutionObserver -> actionExecutionObserver.postExecution(evaluationResponse));
     }
 
-    private ActionResponse readCachedData(
-            final CacheManager cacheManager,
-            final ActionRequest request,
-            final Action action) {
+    private ActionResponse readCachedData(final CacheManager cacheManager,
+                                          final ActionRequest request,
+                                          final Action action) {
         final Cache cache = cacheManager.getCacheFor(request.getOpcode());
         if (null != cache) {
             final String cacheKey = action.cacheKey();

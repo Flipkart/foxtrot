@@ -23,7 +23,6 @@ import org.junit.Assert;
 import org.junit.Test;
 
 public class SeggregatedHBaseDataStoreTest {
-
     @Test
     public void testSameTable() {
         HbaseConfig hbaseConfig = new HbaseConfig();
@@ -47,6 +46,7 @@ public class SeggregatedHBaseDataStoreTest {
         hbaseConfig.setSeggregatedTablePrefix("foxtrot-");
         Table table = new Table(TestUtils.TEST_TABLE_NAME, 7, true);
         Assert.assertEquals(String.format("%s%s", hbaseConfig.getSeggregatedTablePrefix(), TestUtils.TEST_TABLE_NAME),
-                            TableUtil.getTableName(hbaseConfig, table));
+                            TableUtil.getTableName(hbaseConfig, table)
+                           );
     }
 }

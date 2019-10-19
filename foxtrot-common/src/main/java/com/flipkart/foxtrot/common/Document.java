@@ -39,7 +39,6 @@ import java.util.UUID;
 @EqualsAndHashCode
 @ToString
 public class Document implements Serializable {
-
     private static final long serialVersionUID = 1394184997687819635L;
 
     @NotNull

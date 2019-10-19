@@ -8,7 +8,6 @@ import lombok.Data;
  ***/
 @Data
 public class FqlGetRequest {
-
     private String title;
 
     private int from = 0;

@@ -15,7 +15,6 @@ public final class Opcodes {
     public static final String STATS = "stats";
     public static final String TREND = "trend";
     public static final String STATS_TREND = "statstrend";
-
     private Opcodes() {
     }
 }

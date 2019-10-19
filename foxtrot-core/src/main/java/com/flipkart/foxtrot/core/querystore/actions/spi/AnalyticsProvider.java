@@ -31,7 +31,6 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
 public @interface AnalyticsProvider {
-
     public String opcode();
 
     public Class<? extends ActionRequest> request();

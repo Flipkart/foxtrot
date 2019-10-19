@@ -30,7 +30,6 @@ import java.util.Set;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.stream.Collectors;
 
-
 /***
  Created by nitish.goyal on 13/08/18
  ***/
@@ -42,9 +41,8 @@ public class CardinalityCalculationManager extends BaseJobManager {
     private final TableMetadataManager tableMetadataManager;
     private final CardinalityConfig cardinalityConfig;
 
-    public CardinalityCalculationManager(
-            TableMetadataManager tableMetadataManager, CardinalityConfig cardinalityConfig,
-            HazelcastConnection hazelcastConnection, ScheduledExecutorService scheduledExecutorService) {
+    public CardinalityCalculationManager(TableMetadataManager tableMetadataManager, CardinalityConfig cardinalityConfig,
+                                         HazelcastConnection hazelcastConnection, ScheduledExecutorService scheduledExecutorService) {
         super(cardinalityConfig, scheduledExecutorService, hazelcastConnection);
         this.tableMetadataManager = tableMetadataManager;
         this.cardinalityConfig = cardinalityConfig;
@@ -55,7 +53,7 @@ public class CardinalityCalculationManager extends BaseJobManager {
         executor.executeWithLock(() -> {
             try {
                 int maxTimeToRunJob = MAX_TIME_TO_RUN_JOB;
-                if (cardinalityConfig.getMaxTimeToRunJobInMinutes() != 0) {
+                if(cardinalityConfig.getMaxTimeToRunJobInMinutes() != 0) {
                     maxTimeToRunJob = cardinalityConfig.getMaxTimeToRunJobInMinutes();
                 }
                 Instant start = Instant.now();
@@ -63,19 +61,18 @@ public class CardinalityCalculationManager extends BaseJobManager {
                         .stream()
                         .map(Table::getName)
                         .collect(Collectors.toSet());
-                for (String table : tables) {
-                    if (!tableMetadataManager.cardinalityCacheContains(table)) {
+                for(String table : tables) {
+                    if(!tableMetadataManager.cardinalityCacheContains(table)) {
                         tableMetadataManager.getFieldMappings(table, true, true);
                         LOGGER.info("Cardinality calculated for table: {}", table);
                     }
                     Instant now = Instant.now();
                     Duration timeElapsed = Duration.between(start, now);
-                    if (timeElapsed.compareTo(Duration.ofMinutes(maxTimeToRunJob)) > 0) {
+                    if(timeElapsed.compareTo(Duration.ofMinutes(maxTimeToRunJob)) > 0) {
                         break;
                     }
                 }
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                 LOGGER.error("Error occurred while calculating cardinality {}", e);
             }
         }, new LockConfiguration(cardinalityConfig.getJobName(), lockAtMostUntil));

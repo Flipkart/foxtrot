@@ -1,6 +1,5 @@
 package com.flipkart.foxtrot.sql.extendedsql;
 
 public interface ExtendedSqlStatement {
-
-    void receive(ExtendedSqlStatementVisitor visitor);
+    public void receive(ExtendedSqlStatementVisitor visitor);
 }

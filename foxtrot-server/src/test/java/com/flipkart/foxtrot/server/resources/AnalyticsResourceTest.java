@@ -120,8 +120,7 @@ public class AnalyticsResourceTest extends FoxtrotResourceTest {
                     .request()
                     .post(serviceUserEntity, GroupResponse.class);
             fail();
-        }
-        catch (WebApplicationException ex) {
+        } catch (WebApplicationException ex) {
             assertEquals(Response.Status.NOT_FOUND.getStatusCode(), ex.getResponse()
                     .getStatus());
         }
@@ -187,9 +186,8 @@ public class AnalyticsResourceTest extends FoxtrotResourceTest {
                 .request()
                 .post(serviceUserEntity, AsyncDataToken.class);
         Thread.sleep(2000);
-        GroupResponse actualResponse = GroupResponse.class.cast(
-                getCacheManager().getCacheFor(asyncDataToken.getAction())
-                        .get(asyncDataToken.getKey()));
+        GroupResponse actualResponse = GroupResponse.class.cast(getCacheManager().getCacheFor(asyncDataToken.getAction())
+                                                                        .get(asyncDataToken.getKey()));
         assertEquals(expectedResponse.getResult(), actualResponse.getResult());
     }
 }

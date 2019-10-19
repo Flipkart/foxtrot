@@ -25,7 +25,6 @@ import com.google.common.annotations.VisibleForTesting;
 
 @VisibleForTesting
 public class NonCacheableActionRequest extends ActionRequest {
-
     public NonCacheableActionRequest() {
         super("no-cache-test");
     }

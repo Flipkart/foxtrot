@@ -54,7 +54,7 @@ public abstract class NumericBinaryFilter extends Filter {
     @Override
     public Set<String> validate() {
         Set<String> validationErrors = super.validate();
-        if (value == null) {
+        if(value == null) {
             validationErrors.add("filter value cannot be null");
         }
         return validationErrors;
@@ -64,7 +64,7 @@ public abstract class NumericBinaryFilter extends Filter {
     public int hashCode() {
         int result = getOperator().hashCode();
         result = 31 * result + getField().hashCode();
-        if (!getField().equals("_timestamp")) {
+        if(!getField().equals("_timestamp")) {
             result = result * 21 + (getValue() == null
                                     ? 43
                                     : getValue().hashCode());
@@ -80,10 +80,10 @@ public abstract class NumericBinaryFilter extends Filter {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) {
+        if(this == o) {
             return true;
         }
-        else if (!(o instanceof NumericBinaryFilter)) {
+        else if(!(o instanceof NumericBinaryFilter)) {
             return false;
         }
 

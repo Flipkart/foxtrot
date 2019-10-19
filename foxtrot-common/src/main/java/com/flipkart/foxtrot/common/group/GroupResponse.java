@@ -27,7 +27,6 @@ import java.util.Map;
  * Time: 5:07 PM
  */
 public class GroupResponse extends ActionResponse {
-
     private Map<String, Object> result;
 
     public GroupResponse() {

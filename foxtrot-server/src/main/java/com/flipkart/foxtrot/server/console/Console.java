@@ -26,7 +26,6 @@ import java.util.Map;
 
 @NoArgsConstructor
 public class Console {
-
     @NotNull
     @NotEmpty
     @JsonProperty

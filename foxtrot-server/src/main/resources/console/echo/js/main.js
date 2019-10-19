@@ -322,7 +322,7 @@ function saveConsole() { // Save console api
 
 // delete given console default/versioning
 function deleteConsoleAPI(url, sucessMsg, redirect) {
-    $.ajax({
+  $.ajax({
       url: url,
       type: 'DELETE',
       contentType: 'application/json',
@@ -515,32 +515,32 @@ function clearPageSidebar() {
 }
 
 function preparePageRendering(res, selectedConsole) {
-      currentConsoleName = res.name;
-      clearContainer();
-      globalData = [];
-      globalData = res.sections;
-      generateTabBtnForConsole(res);
+  currentConsoleName = res.name;
+  clearContainer();
+  globalData = [];
+  globalData = res.sections;
+  generateTabBtnForConsole(res);
 
-      // check any tab name present in url
-      var tabName = getParameterByName("tab");
-      var tabIndex = 0;
-      if(tabName) {
-        var tabIndex = res.sections.findIndex(x => x.id == tabName);
-        renderTilesObject(res.sections[tabIndex].id);
-        tabIndex = tabIndex+1;
-      } else {
-        renderTilesObject(res.sections[0].id);
-        tabIndex = 1;
-      }
+  // check any tab name present in url
+  var tabName = getParameterByName("tab");
+  var tabIndex = 0;
+  if(tabName) {
+    var tabIndex = res.sections.findIndex(x => x.id == tabName);
+    renderTilesObject(res.sections[tabIndex].id);
+    tabIndex = tabIndex+1;
+  } else {
+    renderTilesObject(res.sections[0].id);
+    tabIndex = 1;
+  }
 
-      // make tab button active
-      $('.tab button:nth-child('+tabIndex+')').addClass('active');
+  // make tab button active
+  $('.tab button:nth-child('+tabIndex+')').addClass('active');
 
-      getTables();
+  getTables();
   clearPageSidebar();
-      generatePageList(res);
+  generatePageList(res);
   if(!isViewingVersionConsole) {
-      setTimeout(function() { setListConsole(selectedConsole); }, 2000);
+    setTimeout(function() { setListConsole(selectedConsole); }, 2000);
   }
 }
 
@@ -1130,7 +1130,7 @@ $(document).ready(function () {
           sideBySide: true,
           format: 'DD/MM/YYYY, hh:mm:ss a'
       });
-      
+
       $(".close-global-date-filter").click(function () {
           $("#myModal").modal("hide");
           //resetGloblaDateFilter();
