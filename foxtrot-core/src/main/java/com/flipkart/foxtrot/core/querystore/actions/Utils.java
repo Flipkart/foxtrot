@@ -59,7 +59,7 @@ public class Utils {
     public static TermsAggregationBuilder buildTermsAggregation(List<ResultSort> fields, Set<AggregationBuilder> subAggregations, int aggregationSize) {
         TermsAggregationBuilder rootBuilder = null;
         TermsAggregationBuilder termsBuilder = null;
-        for (ResultSort nestingField : fields) {
+        for(ResultSort nestingField : fields) {
             String field = nestingField.getField();
             BucketOrder bucketOrder = BucketOrder.key(nestingField.getOrder() != ResultSort.Order.desc);
             if(null == termsBuilder) {

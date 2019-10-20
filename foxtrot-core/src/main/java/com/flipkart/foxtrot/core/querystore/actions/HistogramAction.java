@@ -77,7 +77,7 @@ public class HistogramAction extends Action<HistogramRequest> {
         long filterHashKey = 0L;
         HistogramRequest query = getParameter();
         if(null != query.getFilters()) {
-            for (Filter filter : query.getFilters()) {
+            for(Filter filter : query.getFilters()) {
                 filterHashKey += 31 * filter.hashCode();
             }
         }

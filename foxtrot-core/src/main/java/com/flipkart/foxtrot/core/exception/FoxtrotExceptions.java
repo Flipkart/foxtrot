@@ -90,11 +90,4 @@ public class FoxtrotExceptions {
         return new UnresolvableActionException(actionRequest);
     }
 
-    public static AuthorizationException createAuthorizationException(ActionRequest actionRequest, Exception e) {
-        return new AuthorizationException(actionRequest, e);
-    }
-
-    public static ConsoleQueryBlockedException createConsoleQueryBlockedException(ActionRequest actionRequest) {
-        return new ConsoleQueryBlockedException(actionRequest);
-    }
 }
