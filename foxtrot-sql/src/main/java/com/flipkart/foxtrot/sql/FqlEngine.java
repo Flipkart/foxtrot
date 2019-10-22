@@ -98,7 +98,7 @@ public class FqlEngine {
         @Override
         public void visit(FqlActionQuery fqlActionQuery) {
             try {
-                if (!accessService.hasAccess(fqlActionQuery.getActionRequest(), userDetails)) {
+                if (userDetails != null && !accessService.hasAccess(fqlActionQuery.getActionRequest(), userDetails)) {
                     throw FoxtrotExceptions.createAuthorizationException(fqlActionQuery.getActionRequest(),
                                                                          new Exception("User not Authorised"));
                 }
