@@ -362,6 +362,8 @@ public class FoxtrotServer extends Application<FoxtrotServerConfiguration> {
         environment.jersey()
                 .register(new FqlResource(fqlEngine, fqlStoreService, accessService, configuration.getQueryConfig()));
         environment.jersey()
+                .register(new FqlV2Resource(fqlEngine, fqlStoreService, accessService, configuration.getQueryConfig()));
+        environment.jersey()
                 .register(new ClusterInfoResource(clusterManager));
         environment.jersey()
                 .register(new UtilResource(configuration));
