@@ -106,9 +106,9 @@ public class GroupAction extends Action<GroupRequest> {
 
         for (int i = 0; i < query.getNesting()
                 .size(); i++) {
-            filterHashKey += 11 * query.getNesting()
+            filterHashKey += 31 * query.getNesting()
                     .get(i)
-                    .hashCode();
+                    .hashCode() * (i + 1);
         }
         return String.format("%s-%d", query.getTable(), filterHashKey);
     }
