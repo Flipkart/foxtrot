@@ -54,7 +54,7 @@ public class ResultSort implements Serializable {
     @Override
     public int hashCode() {
         int result = field.hashCode();
-        result = 31 * result + order.hashCode();
+        result = 31 * result + order.name().hashCode();
         return result;
     }
 
