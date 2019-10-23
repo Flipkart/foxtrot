@@ -77,7 +77,7 @@ public class LastFilter extends Filter {
             result = result * 21 + Long.valueOf(getCurrentTime() / (long)30000).hashCode();
         }
         result = result * 13 + getRoundingMode().name().hashCode();
-        result = result * 7 + getDuration().hashCode();
+        result = result * 7 + getDuration().toString().hashCode();
         return result;
     }
 
