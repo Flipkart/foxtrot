@@ -265,22 +265,38 @@
         <dependency>
             <groupId>com.phonepe.gandalf</groupId>
             <artifactId>gandalf-client</artifactId>
-            <version>1.2.2</version>
+            <version>1.2.6-SNAPSHOT</version>
             <exclusions>
                 <exclusion>
                     <groupId>com.google.guava</groupId>
                     <artifactId>guava</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.phonepe.platform.http</groupId>
+                    <artifactId>http-client</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>io.appform.dropwizard.discovery</groupId>
+                    <artifactId>dropwizard-service-discovery-bundle</artifactId>
                 </exclusion>
             </exclusions>
         </dependency>
         <dependency>
             <groupId>com.phonepe.gandalf</groupId>
             <artifactId>gandalf-models</artifactId>
-            <version>1.2.2</version>
+            <version>1.2.6-SNAPSHOT</version>
             <exclusions>
                 <exclusion>
                     <groupId>com.google.guava</groupId>
                     <artifactId>guava</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.phonepe.platform.http</groupId>
+                    <artifactId>http-client</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>io.appform.dropwizard.discovery</groupId>
+                    <artifactId>dropwizard-service-discovery-bundle</artifactId>
                 </exclusion>
             </exclusions>
         </dependency>
