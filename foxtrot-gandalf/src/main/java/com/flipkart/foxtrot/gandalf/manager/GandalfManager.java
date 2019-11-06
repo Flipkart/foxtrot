@@ -28,7 +28,7 @@ public class GandalfManager {
     private static final String ECHO = "echo";
     private static final MediaType APPLICATION_JSON = MediaType.parse("application/json");
     private final OkHttpClient okHttp;
-    private final Endpoint endpoint;
+    private final ServiceEndpointProvider endpointProvider;
     private final ObjectMapper mapper;
     private final String username;
     private final String password;
@@ -40,7 +40,7 @@ public class GandalfManager {
             String username,
             String password) {
         this.mapper = mapper;
-        this.endpoint = endpoint(endpointProvider);
+        this.endpointProvider = endpointProvider;
         this.okHttp = okHttp;
         this.username = username;
         this.password = password;
@@ -64,7 +64,7 @@ public class GandalfManager {
         okhttp3.Response response;
         byte[] responseBody;
 
-        final HttpUrl url = endpoint.url("/v1/permissions");
+        final HttpUrl url = endpoint(endpointProvider).url("/v1/permissions");
         PermissionRequest permissionRequest = new PermissionRequest(tableName, true);
 
         try {
@@ -92,7 +92,7 @@ public class GandalfManager {
     }
 
     private String getAuthToken(String namespace) {
-        final HttpUrl url = endpoint.url("/v1/auth/login");
+        final HttpUrl url = endpoint(endpointProvider).url("/v1/auth/login");
         RequestBody requestBody;
         okhttp3.Response response;
         byte[] responseBody;
@@ -130,7 +130,7 @@ public class GandalfManager {
             throw new UserNotFoundException("Not able to retrieve user details with email : " + emailId);
         }
 
-        final HttpUrl url = endpoint.url(String.format("/v1/user/%s/permission/%s", user.getUserId(), permissionId));
+        final HttpUrl url = endpoint(endpointProvider).url(String.format("/v1/user/%s/permission/%s", user.getUserId(), permissionId));
         Set<UserGroupNamespace> userGroupNamespaces = user.getUserGroupNamespaces();
         long userGroupId = 0L;
         int userGroupIdFlag = 0;
@@ -175,7 +175,7 @@ public class GandalfManager {
         okhttp3.Response response;
         byte[] responseBody;
 
-        final HttpUrl url = endpoint.url(String.format("/v1/user/?email=%s", emailId));
+        final HttpUrl url = endpoint(endpointProvider).url(String.format("/v1/user/?email=%s", emailId));
         Request request = new Request.Builder()
                 .url(url)
                 .header(AUTHORIZATION, String.format("Bearer %s", authToken))
