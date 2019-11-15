@@ -1,6 +1,7 @@
 package com.flipkart.foxtrot.core.datastore.impl.hbase;
 
 import com.flipkart.foxtrot.common.hbase.HRegionData;
+import com.flipkart.foxtrot.common.util.CollectionUtils;
 import com.flipkart.foxtrot.core.exception.HbaseRegionExtractionException;
 import com.flipkart.foxtrot.core.exception.HbaseRegionMergeException;
 import lombok.extern.slf4j.Slf4j;
@@ -36,6 +37,9 @@ public class HbaseRegions {
     public List<List<HRegionData>> getMergeableRegions(TableName tablename, double threshSizeInGB) {
         long threshSize = (long)(threshSizeInGB * BYTES_IN_GB);
         Map<String, HRegionData> hash = getRegionsMap(tablename);
+        if (hash.isEmpty()) {
+            return Collections.emptyList();
+        }
         try {
             HRegionData currentRegion = hash.get("");
             HRegionData nextRegion;
@@ -66,7 +70,10 @@ public class HbaseRegions {
             numberOfMerges = Integer.MAX_VALUE;
         }
         Map<String, HRegionData> hash = getRegionsMap(tablename);
-
+        if (hash.isEmpty()) {
+            log.info("No regions to merge!!");
+            return;
+        }
         try {
             HRegionData currentRegion = hash.get("");
             HRegionData nextRegion;
@@ -104,6 +111,10 @@ public class HbaseRegions {
             RegionLocator regionLocator = connection.getRegionLocator(tablename);
             RegionSizeCalculator regionSizeCalculator = new RegionSizeCalculator(regionLocator, hBaseAdmin);
             Map<String, HRegionData> regionsMap = new HashMap<>();
+
+            if (CollectionUtils.isNullOrEmpty(regions)) {
+                return Collections.emptyMap();
+            }
             for (HRegionInfo region : regions) {
                 regionsMap.put(new String(region.getStartKey()),
                         HRegionData.builder()
