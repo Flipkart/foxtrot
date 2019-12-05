@@ -297,6 +297,9 @@ public class Utils {
 
     public static Map<Number, Number> createPercentilesResponse(Percentiles internalPercentiles) {
         Map<Number, Number> percentiles = Maps.newHashMap();
+        if (internalPercentiles == null){
+            return percentiles;
+        }
         for (Percentile percentile : internalPercentiles) {
             percentiles.put(percentile.getPercent(), percentile.getValue());
         }
