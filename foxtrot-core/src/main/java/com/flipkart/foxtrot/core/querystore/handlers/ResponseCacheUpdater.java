@@ -18,7 +18,7 @@ public class ResponseCacheUpdater implements ActionExecutionObserver {
 
     @Override
     public void postExecution(ActionEvaluationResponse response) {
-        if (null == response.getResponse() || null == response.getExecutedAction()) {
+        if (response == null || null == response.getResponse() || null == response.getExecutedAction()) {
             return;
         }
         final Cache cache = cacheManager.getCacheFor(response.getRequest().getOpcode());
