@@ -28,25 +28,22 @@ public class ClusterRerouteManager {
     private final ElasticsearchConnection connection;
     private final ClusterRerouteConfig clusterRerouteConfig;
 
-    private Map<String, NodeInfo> nodeIdVsNodeInfoMap;
-    private BiMap<String, String> nodeNameVsNodeId;
-
     public ClusterRerouteManager(ElasticsearchConnection connection, ClusterRerouteConfig clusterRerouteConfig) {
         this.connection = connection;
         this.clusterRerouteConfig = clusterRerouteConfig;
-        this.nodeIdVsNodeInfoMap = new HashMap<>();
-        this.nodeNameVsNodeId = HashBiMap.create();
     }
 
     public void reallocate() {
-        this.createNodeInfoMap();
-        this.createNodeNameVsNodeIdMap();
+        Map<String, NodeInfo> nodeIdVsNodeInfoMap = new HashMap<>();
+        BiMap<String, String> nodeNameVsNodeId = HashBiMap.create();
+        this.createNodeInfoMap(nodeIdVsNodeInfoMap);
+        this.createNodeNameVsNodeIdMap(nodeNameVsNodeId);
 
-        int totalShards = getTotalShardCount();
+        int totalShards = getTotalShardCount(nodeIdVsNodeInfoMap);
         double avgShardsPerNode = Math.ceil((double) totalShards / (double) nodeIdVsNodeInfoMap.size());
         double acceptableShardsPerNode = avgShardsPerNode +
                 Math.ceil((avgShardsPerNode * clusterRerouteConfig.getThresholdShardCountPercentage()) / 100);
-        Deque<String> vacantNodeIds = getVacantNodeId((int) avgShardsPerNode);
+        Deque<String> vacantNodeIds = getVacantNodeId((int) avgShardsPerNode, nodeIdVsNodeInfoMap);
 
         for (Map.Entry<String, NodeInfo> nodeIdVsNodeInfo : nodeIdVsNodeInfoMap.entrySet()) {
             int shardCount = nodeIdVsNodeInfo.getValue().getShardInfos().size();
@@ -87,7 +84,8 @@ public class ClusterRerouteManager {
         }
     }
 
-    private void createNodeInfoMap() {
+    private void createNodeInfoMap(
+            Map<String, NodeInfo> nodeIdVsNodeInfoMap) {
         nodeIdVsNodeInfoMap.clear();
         IndicesStatsRequest indicesStatsRequest = new IndicesStatsRequest();
         indicesStatsRequest.all();
@@ -126,7 +124,8 @@ public class ClusterRerouteManager {
                 });
     }
 
-    private void createNodeNameVsNodeIdMap() {
+    private void createNodeNameVsNodeIdMap(
+            BiMap<String, String> nodeNameVsNodeId) {
         nodeNameVsNodeId.clear();
         NodesInfoRequest nodesInfoRequest = new NodesInfoRequest();
         nodesInfoRequest.all();
@@ -141,7 +140,8 @@ public class ClusterRerouteManager {
                                                                   .getId()));
     }
 
-    private int getTotalShardCount() {
+    private int getTotalShardCount(
+            Map<String, NodeInfo> nodeIdVsNodeInfoMap) {
         int totalShards = 0;
         for (NodeInfo nodeInfo : nodeIdVsNodeInfoMap.values()) {
             totalShards += nodeInfo.getShardInfos().size();
@@ -149,7 +149,8 @@ public class ClusterRerouteManager {
         return totalShards;
     }
 
-    private Deque<String> getVacantNodeId(int avgShardsPerNode) {
+    private Deque<String> getVacantNodeId(int avgShardsPerNode,
+            Map<String, NodeInfo> nodeIdVsNodeInfoMap) {
         Deque<String> vacantNodeIds = new ArrayDeque<>();
         for (Map.Entry<String, NodeInfo> nodeIdVsNodeInfo : nodeIdVsNodeInfoMap.entrySet()) {
             int shardCount = nodeIdVsNodeInfo.getValue().getShardInfos().size();
