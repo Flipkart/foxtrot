@@ -45,6 +45,7 @@ public class TableManagerV2Resource {
         return Table.builder()
                 .name(table.getName())
                 .ttl(table.getTtl())
+                .seggregatedBackend(table.isSeggregatedBackend())
                 .build();
     }
 
