@@ -28,6 +28,8 @@ import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConnection;
 import com.flipkart.foxtrot.core.table.TableMetadataManager;
 import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
 import io.dropwizard.lifecycle.Managed;
 import lombok.Getter;
 import org.reflections.Reflections;
@@ -48,6 +50,7 @@ import java.util.Set;
  */
 
 @Getter
+@Singleton
 public class AnalyticsLoader implements Managed {
 
     private static final Logger logger = LoggerFactory.getLogger(AnalyticsLoader.class);
@@ -60,6 +63,7 @@ public class AnalyticsLoader implements Managed {
     private final CacheManager cacheManager;
     private final ObjectMapper objectMapper;
 
+    @Inject
     public AnalyticsLoader(TableMetadataManager tableMetadataManager, DataStore dataStore, QueryStore queryStore,
                            ElasticsearchConnection elasticsearchConnection, CacheManager cacheManager, ObjectMapper objectMapper) {
         this.tableMetadataManager = tableMetadataManager;

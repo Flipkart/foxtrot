@@ -1,17 +1,14 @@
 /**
  * Copyright 2014 Flipkart Internet Pvt. Ltd.
  * <p>
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
  * <p>
  * http://www.apache.org/licenses/LICENSE-2.0
  * <p>
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
+ * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations under the License.
  */
 package com.flipkart.foxtrot.server.console;
 
@@ -19,6 +16,8 @@ import com.collections.CollectionUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConnection;
 import com.flipkart.foxtrot.core.util.ElasticsearchQueryUtils;
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
 import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.search.SearchType;
@@ -42,7 +41,9 @@ import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
 import static org.elasticsearch.index.query.QueryBuilders.matchAllQuery;
 import static org.elasticsearch.search.sort.SortBuilders.fieldSort;
 
+@Singleton
 public class ElasticsearchConsolePersistence implements ConsolePersistence {
+
     private static final Logger logger = LoggerFactory.getLogger(ElasticsearchConsolePersistence.class);
     private static final String INDEX = "consoles";
     private static final String INDEX_V2 = "consoles_v2";
@@ -54,6 +55,7 @@ public class ElasticsearchConsolePersistence implements ConsolePersistence {
     private ElasticsearchConnection connection;
     private ObjectMapper mapper;
 
+    @Inject
     public ElasticsearchConsolePersistence(ElasticsearchConnection connection, ObjectMapper mapper) {
         this.connection = connection;
         this.mapper = mapper;
@@ -293,7 +295,8 @@ public class ElasticsearchConsolePersistence implements ConsolePersistence {
             return;
         }
         if (oldConsole.getUpdatedAt() != 0L && oldConsole.getUpdatedAt() > console.getUpdatedAt() && newConsole) {
-            throw new ConsolePersistenceException(console.getId(), "Updated version of console exists. Kindly refresh" + " your dashboard");
+            throw new ConsolePersistenceException(console.getId(),
+                    "Updated version of console exists. Kindly refresh" + " your dashboard");
         }
 
         String sortBy = "version";

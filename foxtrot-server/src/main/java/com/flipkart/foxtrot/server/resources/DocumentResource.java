@@ -21,6 +21,8 @@ import com.flipkart.foxtrot.common.Document;
 import com.flipkart.foxtrot.core.querystore.QueryStore;
 import com.flipkart.foxtrot.server.config.SegregationConfiguration;
 import com.google.common.collect.Lists;
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.slf4j.Logger;
@@ -42,6 +44,7 @@ import java.util.Map;
  * Date: 15/03/14
  * Time: 10:55 PM
  */
+@Singleton
 @Path("/v1/document/{table}")
 @Produces(MediaType.APPLICATION_JSON)
 @Api(value = "/v1/document/{table}")
@@ -54,6 +57,7 @@ public class DocumentResource {
     private final Map<String, List<String>> ignoredEventConfigs;
     private final List<String> tablesToBeDuplicated;
 
+    @Inject
     public DocumentResource(QueryStore queryStore, SegregationConfiguration segregationConfiguration) {
         this.queryStore = queryStore;
         this.tableEventConfigs = segregationConfiguration.getTableEventConfigs();

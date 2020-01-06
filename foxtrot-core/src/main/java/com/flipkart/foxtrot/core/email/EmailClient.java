@@ -3,6 +3,8 @@ package com.flipkart.foxtrot.core.email;
 import com.google.common.base.Joiner;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -15,6 +17,7 @@ import java.util.Properties;
 /***
  Created by nitish.goyal on 06/10/18
  ***/
+@Singleton
 public class EmailClient {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(EmailClient.class);
@@ -22,6 +25,7 @@ public class EmailClient {
     private final EmailConfig emailConfig;
     private final Session session;
 
+    @Inject
     public EmailClient(EmailConfig emailConfig) {
         this.emailConfig = emailConfig;
         Properties mailProps = new Properties();

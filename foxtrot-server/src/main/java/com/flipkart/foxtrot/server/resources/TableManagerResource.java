@@ -19,6 +19,8 @@ import com.codahale.metrics.annotation.Timed;
 import com.flipkart.foxtrot.common.Table;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
 import com.flipkart.foxtrot.core.table.TableManager;
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 
@@ -27,6 +29,7 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+@Singleton
 @Path("/v1/tables")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
@@ -35,6 +38,7 @@ public class TableManagerResource {
 
     private final TableManager tableManager;
 
+    @Inject
     public TableManagerResource(TableManager tableManager) {
         this.tableManager = tableManager;
     }

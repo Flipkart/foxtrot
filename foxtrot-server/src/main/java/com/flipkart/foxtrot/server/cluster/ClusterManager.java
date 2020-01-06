@@ -2,10 +2,13 @@ package com.flipkart.foxtrot.server.cluster;
 
 import com.codahale.metrics.health.HealthCheck;
 import com.flipkart.foxtrot.core.querystore.impl.HazelcastConnection;
+import com.flipkart.foxtrot.server.config.FoxtrotServerConfiguration;
 import com.flipkart.foxtrot.server.utils.ServerUtils;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
 import com.hazelcast.config.EvictionPolicy;
 import com.hazelcast.config.MapConfig;
 import com.hazelcast.core.IMap;
@@ -22,6 +25,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+@Singleton
 public class ClusterManager implements Managed {
     private static final Logger logger = LoggerFactory.getLogger(ClusterManager.class.getSimpleName());
 
@@ -33,7 +37,9 @@ public class ClusterManager implements Managed {
     private HazelcastConnection hazelcastConnection;
     private ScheduledExecutorService executor;
 
-    public ClusterManager(HazelcastConnection connection, List<HealthCheck> healthChecks, ServerFactory serverFactory) throws IOException {
+    @Inject
+    public ClusterManager(HazelcastConnection connection, List<HealthCheck> healthChecks,
+            FoxtrotServerConfiguration serverConfiguration) throws IOException {
         this.hazelcastConnection = connection;
         this.healthChecks = healthChecks;
         MapConfig mapConfig = new MapConfig(MAP_NAME);
@@ -50,7 +56,7 @@ public class ClusterManager implements Managed {
         if(!Strings.isNullOrEmpty(System.getenv("HOST")))
             hostname = System.getenv("HOST");
         Preconditions.checkNotNull(hostname, "Could not retrieve hostname, cannot proceed");
-        int port = ServerUtils.port(serverFactory);
+        int port = ServerUtils.port(serverConfiguration.getServerFactory());
         //Auto detect marathon environment and query for host environment variable
         if(!Strings.isNullOrEmpty(System.getenv("PORT_" + port)))
             port = Integer.parseInt(System.getenv("PORT_" + port));

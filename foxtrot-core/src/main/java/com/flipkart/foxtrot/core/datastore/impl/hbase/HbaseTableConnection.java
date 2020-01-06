@@ -18,6 +18,8 @@ package com.flipkart.foxtrot.core.datastore.impl.hbase;
 import com.flipkart.foxtrot.common.Table;
 import com.flipkart.foxtrot.core.exception.FoxtrotExceptions;
 import com.flipkart.foxtrot.core.util.TableUtil;
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
 import io.dropwizard.lifecycle.Managed;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.HColumnDescriptor;
@@ -38,6 +40,7 @@ import java.io.IOException;
  * Date: 13/03/14
  * Time: 7:35 PM
  */
+@Singleton
 public class HbaseTableConnection implements Managed {
 
     private static final Logger logger = LoggerFactory.getLogger(HbaseTableConnection.class.getSimpleName());
@@ -47,6 +50,7 @@ public class HbaseTableConnection implements Managed {
     private Connection connection;
     private Admin hBaseAdmin;
 
+    @Inject
     public HbaseTableConnection(HbaseConfig hbaseConfig) {
         this.hbaseConfig = hbaseConfig;
     }

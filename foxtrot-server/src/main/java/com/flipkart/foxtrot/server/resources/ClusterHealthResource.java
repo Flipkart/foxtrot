@@ -18,6 +18,8 @@ package com.flipkart.foxtrot.server.resources;
 
 import com.codahale.metrics.annotation.Timed;
 import com.flipkart.foxtrot.core.querystore.QueryStore;
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.elasticsearch.action.admin.cluster.health.ClusterHealthResponse;
@@ -33,13 +35,14 @@ import java.util.concurrent.ExecutionException;
 /**
  * Created by swapnil on 20/01/16.
  */
-
+@Singleton
 @Path("/v1/clusterhealth")
 @Produces(MediaType.APPLICATION_JSON)
 @Api(value = "/v1/clusterhealth")
 public class ClusterHealthResource {
     private final QueryStore queryStore;
 
+    @Inject
     public ClusterHealthResource(QueryStore queryStore) {
         this.queryStore = queryStore;
     }

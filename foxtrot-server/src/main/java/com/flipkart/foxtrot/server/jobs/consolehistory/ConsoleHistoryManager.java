@@ -8,6 +8,8 @@ import com.flipkart.foxtrot.core.querystore.impl.HazelcastConnection;
 import com.flipkart.foxtrot.server.console.ConsoleFetchException;
 import com.flipkart.foxtrot.server.console.ConsoleV2;
 import com.flipkart.foxtrot.server.console.ElasticsearchConsolePersistence;
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
 import net.javacrumbs.shedlock.core.LockConfiguration;
 import net.javacrumbs.shedlock.core.LockingTaskExecutor;
 import org.elasticsearch.action.search.SearchResponse;
@@ -28,6 +30,7 @@ import java.util.concurrent.ScheduledExecutorService;
 /***
  Created by mudit.g on Dec, 2018
  ***/
+@Singleton
 public class ConsoleHistoryManager extends BaseJobManager {
 
     private static final Logger logger = LoggerFactory.getLogger(ConsoleHistoryManager.class.getSimpleName());
@@ -39,6 +42,7 @@ public class ConsoleHistoryManager extends BaseJobManager {
     private final ObjectMapper mapper;
     private final ElasticsearchConsolePersistence elasticsearchConsolePersistence;
 
+    @Inject
     public ConsoleHistoryManager(ScheduledExecutorService scheduledExecutorService, ConsoleHistoryConfig consoleHistoryConfig,
                                  ElasticsearchConnection connection, HazelcastConnection hazelcastConnection, ObjectMapper mapper) {
         super(consoleHistoryConfig, scheduledExecutorService, hazelcastConnection);

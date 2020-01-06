@@ -4,6 +4,8 @@ import com.collections.CollectionUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.flipkart.foxtrot.core.exception.FqlPersistenceException;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConnection;
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
 import org.elasticsearch.action.search.SearchType;
 import org.elasticsearch.common.xcontent.XContentType;
 import org.elasticsearch.index.query.QueryBuilders;
@@ -22,13 +24,16 @@ import static com.flipkart.foxtrot.sql.fqlstore.FqlStore.TITLE_FIELD;
 /***
  Created by mudit.g on Jan, 2019
  ***/
+@Singleton
 public class FqlStoreServiceImpl implements FqlStoreService {
+
     private static final Logger logger = LoggerFactory.getLogger(FqlStore.class);
     private static final String FQL_STORE_INDEX = "fql-store";
 
     private final ElasticsearchConnection elasticsearchConnection;
     private final ObjectMapper objectMapper;
 
+    @Inject
     public FqlStoreServiceImpl(ElasticsearchConnection elasticsearchConnection, ObjectMapper objectMapper) {
         this.elasticsearchConnection = elasticsearchConnection;
         this.objectMapper = objectMapper;
@@ -37,7 +42,7 @@ public class FqlStoreServiceImpl implements FqlStoreService {
     @Override
     public void save(FqlStore fqlStore) {
         fqlStore.setId(UUID.randomUUID()
-                               .toString());
+                .toString());
         try {
             elasticsearchConnection.getClient()
                     .prepareIndex()
@@ -49,7 +54,8 @@ public class FqlStoreServiceImpl implements FqlStoreService {
                     .get();
             logger.info("Saved FQL Query : {}", fqlStore.getQuery());
         } catch (Exception e) {
-            throw new FqlPersistenceException("Couldn't save FQL query: " + fqlStore.getQuery() + " Error Message: " + e.getMessage(), e);
+            throw new FqlPersistenceException(
+                    "Couldn't save FQL query: " + fqlStore.getQuery() + " Error Message: " + e.getMessage(), e);
         }
     }
 
@@ -69,7 +75,7 @@ public class FqlStoreServiceImpl implements FqlStoreService {
                     .execute()
                     .actionGet()
                     .getHits();
-            for(SearchHit searchHit : CollectionUtils.nullAndEmptySafeValueList(searchHits.getHits())) {
+            for (SearchHit searchHit : CollectionUtils.nullAndEmptySafeValueList(searchHits.getHits())) {
                 fqlStoreList.add(objectMapper.readValue(searchHit.getSourceAsString(), FqlStore.class));
             }
         } catch (Exception e) {

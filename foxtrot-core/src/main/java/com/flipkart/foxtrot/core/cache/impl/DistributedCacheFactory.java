@@ -20,6 +20,8 @@ import com.flipkart.foxtrot.core.cache.Cache;
 import com.flipkart.foxtrot.core.cache.CacheFactory;
 import com.flipkart.foxtrot.core.querystore.impl.CacheConfig;
 import com.flipkart.foxtrot.core.querystore.impl.HazelcastConnection;
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
 import com.hazelcast.config.EvictionPolicy;
 import com.hazelcast.config.InMemoryFormat;
 import com.hazelcast.config.MapConfig;
@@ -32,7 +34,7 @@ import static com.flipkart.foxtrot.core.querystore.actions.Constants.CACHE_NAME_
  * Date: 25/03/14
  * Time: 7:51 PM
  */
-
+@Singleton
 public class DistributedCacheFactory implements CacheFactory {
     private static final int DEFAULT_TIME_TO_LIVE_SECONDS = 15;
     private static final int DEFAULT_MAX_IDLE_SECONDS = 15;
@@ -40,6 +42,7 @@ public class DistributedCacheFactory implements CacheFactory {
     private final HazelcastConnection connection;
     private final ObjectMapper mapper;
 
+    @Inject
     public DistributedCacheFactory(HazelcastConnection connection, ObjectMapper mapper, CacheConfig cacheConfig) {
         this.connection = connection;
         this.mapper = mapper;

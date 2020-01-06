@@ -3,6 +3,7 @@ package com.flipkart.foxtrot.server.providers.exception;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.flipkart.foxtrot.core.exception.FoxtrotException;
+import javax.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,6 +24,7 @@ public class FoxtrotExceptionMapper implements ExceptionMapper<FoxtrotException>
 
     private final ObjectMapper mapper;
 
+    @Inject
     public FoxtrotExceptionMapper(final ObjectMapper mapper) {
         this.mapper = mapper;
     }

@@ -26,6 +26,8 @@ import com.flipkart.foxtrot.core.exception.FoxtrotException;
 import com.flipkart.foxtrot.core.exception.FoxtrotExceptions;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsLoader;
 import com.google.common.base.Stopwatch;
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
@@ -38,12 +40,14 @@ import java.util.concurrent.TimeUnit;
  * Time: 12:51 PM
  */
 @Slf4j
+@Singleton
 public class QueryExecutor {
 
     private final AnalyticsLoader analyticsLoader;
     private final ExecutorService executorService;
     private final List<ActionExecutionObserver> executionObservers;
 
+    @Inject
     public QueryExecutor(
             AnalyticsLoader analyticsLoader,
             ExecutorService executorService,

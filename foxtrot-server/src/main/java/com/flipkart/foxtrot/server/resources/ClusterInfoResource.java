@@ -3,6 +3,8 @@ package com.flipkart.foxtrot.server.resources;
 import com.codahale.metrics.annotation.Timed;
 import com.flipkart.foxtrot.server.cluster.ClusterManager;
 import com.flipkart.foxtrot.server.cluster.ClusterMember;
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 
@@ -15,6 +17,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
 
+@Singleton
 @Path("/v1/cluster")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
@@ -22,6 +25,7 @@ import java.util.Map;
 public class ClusterInfoResource {
     private ClusterManager clusterManager;
 
+    @Inject
     public ClusterInfoResource(ClusterManager clusterManager) {
         this.clusterManager = clusterManager;
     }

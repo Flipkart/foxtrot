@@ -56,6 +56,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <dropwizard.version>1.0.6</dropwizard.version>
         <elasticsearch.url>http://localhost:9200</elasticsearch.url>
+        <guiceVersion>4.2.1</guiceVersion>
         <lombok.version>1.16.16</lombok.version>
         <project.version>6.3.1-2</project.version>
         <project.version>6.3.1.0</project.version>
@@ -166,6 +167,11 @@
                 <artifactId>slf4j-api</artifactId>
                 <version>1.7.21</version>
             </dependency>
+            <dependency>
+                <groupId>ru.vyarus</groupId>
+                <artifactId>dropwizard-guicey</artifactId>
+                <version>${guiceVersion}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
     <dependencies>
@@ -227,6 +233,7 @@
                 </exclusion>
             </exclusions>
         </dependency>
+
     </dependencies>
 
     <build>

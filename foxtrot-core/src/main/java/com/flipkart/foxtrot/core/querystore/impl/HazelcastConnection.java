@@ -15,6 +15,8 @@
  */
 package com.flipkart.foxtrot.core.querystore.impl;
 
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
 import com.hazelcast.config.*;
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
@@ -32,12 +34,14 @@ import java.net.UnknownHostException;
  * Date: 15/03/14
  * Time: 10:01 PM
  */
+@Singleton
 public class HazelcastConnection implements Managed {
     private static final Logger logger = LoggerFactory.getLogger(HazelcastConnection.class.getSimpleName());
 
     private HazelcastInstance hazelcast;
     private Config hazelcastConfig;
 
+    @Inject
     public HazelcastConnection(ClusterConfig clusterConfig) throws UnknownHostException {
         Config hzConfig = new Config();
         hzConfig.getGroupConfig()

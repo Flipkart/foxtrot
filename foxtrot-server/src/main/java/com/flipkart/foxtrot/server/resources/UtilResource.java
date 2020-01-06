@@ -17,6 +17,8 @@ package com.flipkart.foxtrot.server.resources;
 
 import com.codahale.metrics.annotation.Timed;
 import com.flipkart.foxtrot.server.config.FoxtrotServerConfiguration;
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 
@@ -25,12 +27,15 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
+@Singleton
 @Path("/v1/util")
 @Produces(MediaType.APPLICATION_JSON)
 @Api(value = "/v1/util")
 public class UtilResource {
+
     private final FoxtrotServerConfiguration configuration;
 
+    @Inject
     public UtilResource(FoxtrotServerConfiguration configuration) {
         this.configuration = configuration;
     }

@@ -6,6 +6,8 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.flipkart.foxtrot.core.config.TextNodeRemoverConfiguration;
 import com.google.common.collect.Lists;
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 
@@ -13,12 +15,14 @@ import java.util.List;
 import java.util.Random;
 
 @Slf4j
+@Singleton
 public class LargeTextNodeRemover implements IndexerEventMutator {
 
     private final ObjectMapper objectMapper;
     private final TextNodeRemoverConfiguration configuration;
     private final Random random;
 
+    @Inject
     public LargeTextNodeRemover(ObjectMapper objectMapper,
                                 TextNodeRemoverConfiguration textNodeRemoverConfiguration) {
         this.objectMapper = objectMapper;

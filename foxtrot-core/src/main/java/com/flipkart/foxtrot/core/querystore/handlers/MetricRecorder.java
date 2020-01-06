@@ -4,10 +4,12 @@ import com.flipkart.foxtrot.common.ActionRequest;
 import com.flipkart.foxtrot.core.querystore.ActionEvaluationResponse;
 import com.flipkart.foxtrot.core.querystore.ActionExecutionObserver;
 import com.flipkart.foxtrot.core.util.MetricUtil;
+import com.google.inject.Singleton;
 
 /**
  *
  */
+@Singleton
 public class MetricRecorder implements ActionExecutionObserver {
     @Override
     public void postExecution(ActionEvaluationResponse response) {

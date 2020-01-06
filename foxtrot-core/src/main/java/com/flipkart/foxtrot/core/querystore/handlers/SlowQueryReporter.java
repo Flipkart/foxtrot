@@ -3,12 +3,14 @@ package com.flipkart.foxtrot.core.querystore.handlers;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.flipkart.foxtrot.core.querystore.ActionEvaluationResponse;
 import com.flipkart.foxtrot.core.querystore.ActionExecutionObserver;
+import com.google.inject.Singleton;
 import lombok.extern.slf4j.Slf4j;
 
 /**
  *
  */
 @Slf4j
+@Singleton
 public class SlowQueryReporter implements ActionExecutionObserver {
     @Override
     public void postExecution(ActionEvaluationResponse response) {

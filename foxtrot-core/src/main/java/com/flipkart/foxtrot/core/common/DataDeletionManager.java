@@ -2,6 +2,8 @@ package com.flipkart.foxtrot.core.common;
 
 import com.flipkart.foxtrot.core.querystore.QueryStore;
 import com.flipkart.foxtrot.core.querystore.impl.HazelcastConnection;
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
 import io.dropwizard.lifecycle.Managed;
 import net.javacrumbs.shedlock.core.DefaultLockingTaskExecutor;
 import net.javacrumbs.shedlock.core.LockConfiguration;
@@ -17,7 +19,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * Created by rishabh.goyal on 07/07/14.
  */
-
+@Singleton
 public class DataDeletionManager implements Managed {
 
     private static final int MAX_TIME_TO_RUN_TASK_IN_HOURS = 2;
@@ -28,6 +30,7 @@ public class DataDeletionManager implements Managed {
     private final ScheduledExecutorService scheduledExecutorService;
     private final HazelcastConnection hazelcastConnection;
 
+    @Inject
     public DataDeletionManager(DataDeletionManagerConfig deletionManagerConfig, QueryStore queryStore,
                                ScheduledExecutorService scheduledExecutorService, HazelcastConnection hazelcastConnection) {
         this.config = deletionManagerConfig;

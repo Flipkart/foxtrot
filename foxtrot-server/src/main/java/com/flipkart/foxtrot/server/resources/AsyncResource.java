@@ -19,6 +19,8 @@ import com.codahale.metrics.annotation.Timed;
 import com.flipkart.foxtrot.common.ActionResponse;
 import com.flipkart.foxtrot.core.cache.CacheManager;
 import com.flipkart.foxtrot.core.common.AsyncDataToken;
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 
@@ -32,6 +34,7 @@ import javax.ws.rs.core.Response;
  * Date: 26/03/14
  * Time: 7:09 PM
  */
+@Singleton
 @Path("/v1/async")
 @Produces(MediaType.APPLICATION_JSON)
 @Api(value = "/v1/async")
@@ -39,6 +42,7 @@ public class AsyncResource {
 
     private CacheManager cacheManager;
 
+    @Inject
     public AsyncResource(CacheManager cacheManager) {
         this.cacheManager = cacheManager;
     }

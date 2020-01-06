@@ -18,6 +18,8 @@ package com.flipkart.foxtrot.server.resources;
 import com.codahale.metrics.annotation.Timed;
 import com.flipkart.foxtrot.server.console.ConsolePersistence;
 import com.flipkart.foxtrot.server.console.ConsoleV2;
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 
@@ -25,6 +27,7 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import java.util.List;
 
+@Singleton
 @Path("/v2/consoles")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
@@ -33,6 +36,7 @@ public class ConsoleV2Resource {
 
     private ConsolePersistence consolePersistence;
 
+    @Inject
     public ConsoleV2Resource(ConsolePersistence consolePersistence) {
         this.consolePersistence = consolePersistence;
     }

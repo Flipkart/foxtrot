@@ -8,6 +8,8 @@ import com.flipkart.foxtrot.core.querystore.impl.HazelcastConnection;
 import com.flipkart.foxtrot.core.util.MetricUtil;
 import com.google.common.base.Stopwatch;
 import com.google.common.collect.Sets;
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
 import net.javacrumbs.shedlock.core.LockConfiguration;
 import net.javacrumbs.shedlock.core.LockingTaskExecutor;
 import org.apache.commons.lang3.StringUtils;
@@ -29,6 +31,7 @@ import java.util.concurrent.TimeUnit;
 /***
  Created by nitish.goyal on 11/09/18
  ***/
+@Singleton
 public class EsIndexOptimizationManager extends BaseJobManager {
 
     private static final int BATCH_SIZE = 5;
@@ -38,6 +41,7 @@ public class EsIndexOptimizationManager extends BaseJobManager {
     private final ElasticsearchConnection elasticsearchConnection;
     private final EsIndexOptimizationConfig esIndexOptimizationConfig;
 
+    @Inject
     public EsIndexOptimizationManager(ScheduledExecutorService scheduledExecutorService,
                                       EsIndexOptimizationConfig esIndexOptimizationConfig, ElasticsearchConnection elasticsearchConnection,
                                       HazelcastConnection hazelcastConnection) {

@@ -10,6 +10,8 @@ import com.flipkart.foxtrot.core.datastore.impl.hbase.IdentityKeyDistributor;
 import com.flipkart.foxtrot.core.querystore.actions.Constants;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
 import com.sematext.hbase.ds.AbstractRowKeyDistributor;
 import com.sematext.hbase.ds.RowKeyDistributorByHashPrefix;
 import org.apache.hadoop.hbase.util.Bytes;
@@ -19,12 +21,14 @@ import java.util.List;
 /**
  * Created by santanu.s on 24/11/15.
  */
+@Singleton
 public class DocumentTranslator {
 
     private static final String EXCEPTION_MESSAGE = "rawKeyVersion not supported version=[%s]";
     private final AbstractRowKeyDistributor keyDistributor;
     private String rawKeyVersion;
 
+    @Inject
     public DocumentTranslator(HbaseConfig hbaseConfig) {
         if(CollectionUtils.isNullOrEmpty(hbaseConfig.getRawKeyVersion()) || hbaseConfig.getRawKeyVersion()
                 .equalsIgnoreCase("1.0")) {

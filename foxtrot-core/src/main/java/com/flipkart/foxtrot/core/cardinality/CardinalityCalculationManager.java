@@ -19,6 +19,8 @@ import com.flipkart.foxtrot.common.Table;
 import com.flipkart.foxtrot.core.jobs.BaseJobManager;
 import com.flipkart.foxtrot.core.querystore.impl.HazelcastConnection;
 import com.flipkart.foxtrot.core.table.TableMetadataManager;
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
 import net.javacrumbs.shedlock.core.LockConfiguration;
 import net.javacrumbs.shedlock.core.LockingTaskExecutor;
 import org.slf4j.Logger;
@@ -33,6 +35,7 @@ import java.util.stream.Collectors;
 /***
  Created by nitish.goyal on 13/08/18
  ***/
+@Singleton
 public class CardinalityCalculationManager extends BaseJobManager {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CardinalityCalculationManager.class.getSimpleName());
@@ -41,6 +44,7 @@ public class CardinalityCalculationManager extends BaseJobManager {
     private final TableMetadataManager tableMetadataManager;
     private final CardinalityConfig cardinalityConfig;
 
+    @Inject
     public CardinalityCalculationManager(TableMetadataManager tableMetadataManager, CardinalityConfig cardinalityConfig,
                                          HazelcastConnection hazelcastConnection, ScheduledExecutorService scheduledExecutorService) {
         super(cardinalityConfig, scheduledExecutorService, hazelcastConnection);

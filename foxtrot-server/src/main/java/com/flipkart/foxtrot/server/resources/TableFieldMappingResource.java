@@ -19,6 +19,8 @@ import com.codahale.metrics.annotation.Timed;
 import com.flipkart.foxtrot.common.Table;
 import com.flipkart.foxtrot.core.table.TableManager;
 import com.flipkart.foxtrot.core.table.TableMetadataManager;
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 
@@ -30,6 +32,7 @@ import java.util.stream.Collectors;
 /**
  * Table metadata related apis
  */
+@Singleton
 @Path("/v1/tables")
 @Produces(MediaType.APPLICATION_JSON)
 @Api(value = "/v1/tables")
@@ -38,6 +41,7 @@ public class TableFieldMappingResource {
     private final TableManager tableManager;
     private final TableMetadataManager tableMetadataManager;
 
+    @Inject
     public TableFieldMappingResource(TableManager tableManager, TableMetadataManager tableMetadataManager) {
         this.tableManager = tableManager;
         this.tableMetadataManager = tableMetadataManager;

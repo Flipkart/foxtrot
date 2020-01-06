@@ -1,17 +1,20 @@
 package com.flipkart.foxtrot.core.cache;
 
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
 import java.util.HashMap;
 import java.util.Map;
 
 /**
  * Created by rishabh.goyal on 26/12/15.
  */
-
+@Singleton
 public class CacheManager {
 
     private final Map<String, Cache> cacheMap = new HashMap<>();
     private CacheFactory cacheFactory;
 
+    @Inject
     public CacheManager(CacheFactory cacheFactory) {
         this.cacheFactory = cacheFactory;
     }

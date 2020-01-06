@@ -9,6 +9,8 @@ import com.flipkart.foxtrot.sql.fqlstore.FqlStore;
 import com.flipkart.foxtrot.sql.fqlstore.FqlStoreService;
 import com.flipkart.foxtrot.sql.responseprocessors.model.FlatRepresentation;
 import com.google.common.base.Preconditions;
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 
@@ -18,12 +20,14 @@ import javax.ws.rs.core.StreamingOutput;
 import java.io.OutputStreamWriter;
 import java.util.List;
 
+@Singleton
 @Path("/v1/fql")
 @Api(value = "/v1/fql", description = "FQL API")
 public class FqlResource {
     private FqlEngine fqlEngine;
     private FqlStoreService fqlStoreService;
 
+    @Inject
     public FqlResource(final FqlEngine fqlEngine, final FqlStoreService fqlStoreService) {
         this.fqlEngine = fqlEngine;
         this.fqlStoreService = fqlStoreService;

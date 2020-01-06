@@ -21,6 +21,8 @@ import com.flipkart.foxtrot.common.ActionResponse;
 import com.flipkart.foxtrot.common.ActionValidationResponse;
 import com.flipkart.foxtrot.core.common.AsyncDataToken;
 import com.flipkart.foxtrot.core.querystore.QueryExecutor;
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 
@@ -36,6 +38,7 @@ import javax.ws.rs.core.MediaType;
  * Date: 27/03/14
  * Time: 2:05 AM
  */
+@Singleton
 @Path("/v1/analytics")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
@@ -44,6 +47,7 @@ public class AnalyticsResource {
 
     private final QueryExecutor queryExecutor;
 
+    @Inject
     public AnalyticsResource(QueryExecutor queryExecutor) {
         this.queryExecutor = queryExecutor;
     }

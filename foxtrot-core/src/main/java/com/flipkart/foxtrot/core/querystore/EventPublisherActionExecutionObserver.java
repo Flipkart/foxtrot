@@ -3,14 +3,18 @@ package com.flipkart.foxtrot.core.querystore;
 import com.flipkart.foxtrot.core.internalevents.InternalEventBus;
 import com.flipkart.foxtrot.core.internalevents.events.QueryProcessed;
 import com.flipkart.foxtrot.core.internalevents.events.QueryProcessingError;
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
 
 /**
  *
  */
+@Singleton
 public class EventPublisherActionExecutionObserver implements ActionExecutionObserver {
 
     private final InternalEventBus eventBus;
 
+    @Inject
     public EventPublisherActionExecutionObserver(InternalEventBus eventBus) {
         this.eventBus = eventBus;
     }

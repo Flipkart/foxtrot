@@ -4,14 +4,18 @@ import com.flipkart.foxtrot.core.cache.Cache;
 import com.flipkart.foxtrot.core.cache.CacheManager;
 import com.flipkart.foxtrot.core.querystore.ActionEvaluationResponse;
 import com.flipkart.foxtrot.core.querystore.ActionExecutionObserver;
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
 
 /**
  *
  */
+@Singleton
 public class ResponseCacheUpdater implements ActionExecutionObserver {
 
     private final CacheManager cacheManager;
 
+    @Inject
     public ResponseCacheUpdater(CacheManager cacheManager) {
         this.cacheManager = cacheManager;
     }

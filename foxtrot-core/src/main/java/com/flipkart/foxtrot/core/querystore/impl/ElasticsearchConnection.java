@@ -15,6 +15,8 @@
  */
 package com.flipkart.foxtrot.core.querystore.impl;
 
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
 import io.dropwizard.lifecycle.Managed;
 import org.elasticsearch.action.admin.indices.refresh.RefreshRequest;
 import org.elasticsearch.client.Client;
@@ -32,11 +34,13 @@ import java.net.InetAddress;
  * Date: 14/03/14
  * Time: 12:38 AM
  */
+@Singleton
 public class ElasticsearchConnection implements Managed {
     private static final Logger logger = LoggerFactory.getLogger(ElasticsearchConnection.class.getSimpleName());
     private final ElasticsearchConfig config;
     private Client client;
 
+    @Inject
     public ElasticsearchConnection(ElasticsearchConfig config) {
         this.config = config;
     }
