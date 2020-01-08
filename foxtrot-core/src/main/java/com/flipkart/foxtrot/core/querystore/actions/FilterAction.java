@@ -77,7 +77,7 @@ public class FilterAction extends Action<Query> {
         Query query = getParameter();
         if(null != query.getFilters()) {
             for(Filter filter : query.getFilters()) {
-                filterHashKey += 31 * filter.hashCode();
+                filterHashKey += 31 * (Integer) filter.accept(getCacheKeyVisitor());
             }
         }
         filterHashKey += 31 * (query.getSort() != null ? query.getSort()

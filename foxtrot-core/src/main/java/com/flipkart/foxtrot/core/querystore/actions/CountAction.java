@@ -59,7 +59,7 @@ public class CountAction extends Action<CountRequest> {
         CountRequest request = getParameter();
         if(null != request.getFilters()) {
             for(Filter filter : request.getFilters()) {
-                filterHashKey += 31 * filter.hashCode();
+                filterHashKey += 31 *  (Integer) filter.accept(getCacheKeyVisitor());
             }
         }
 

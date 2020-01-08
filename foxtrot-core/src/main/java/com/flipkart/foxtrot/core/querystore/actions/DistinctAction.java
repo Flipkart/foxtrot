@@ -60,7 +60,7 @@ public class DistinctAction extends Action<DistinctRequest> {
         DistinctRequest query = getParameter();
         if(null != query.getFilters()) {
             for(Filter filter : query.getFilters()) {
-                filterHashKey += 31 * filter.hashCode();
+                filterHashKey += 31 * (Integer) filter.accept(getCacheKeyVisitor());
             }
         }
         for(int i = 0; i < query.getNesting()

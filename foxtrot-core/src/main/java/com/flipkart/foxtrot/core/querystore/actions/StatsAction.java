@@ -76,7 +76,7 @@ public class StatsAction extends Action<StatsRequest> {
         StatsRequest statsRequest = getParameter();
         if(null != statsRequest.getFilters()) {
             for(Filter filter : statsRequest.getFilters()) {
-                statsHashKey += 31 * filter.hashCode();
+                statsHashKey += 31 * (Integer) filter.accept(getCacheKeyVisitor());
             }
         }
 

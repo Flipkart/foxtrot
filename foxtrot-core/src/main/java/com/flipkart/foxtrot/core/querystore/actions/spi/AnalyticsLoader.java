@@ -61,8 +61,13 @@ public class AnalyticsLoader implements Managed {
     private final ObjectMapper objectMapper;
     private final ElasticsearchTuningConfig elasticsearchTuningConfig;
 
-    public AnalyticsLoader(TableMetadataManager tableMetadataManager, DataStore dataStore, QueryStore queryStore,
-            ElasticsearchConnection elasticsearchConnection, CacheManager cacheManager, ObjectMapper objectMapper,
+    public AnalyticsLoader(
+            TableMetadataManager tableMetadataManager,
+            DataStore dataStore,
+            QueryStore queryStore,
+            ElasticsearchConnection elasticsearchConnection,
+            CacheManager cacheManager,
+            ObjectMapper objectMapper,
             ElasticsearchTuningConfig elasticsearchTuningConfig) {
         this.tableMetadataManager = tableMetadataManager;
         this.dataStore = dataStore;

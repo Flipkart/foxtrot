@@ -67,7 +67,7 @@ public class StatsTrendAction extends Action<StatsTrendRequest> {
         long hashKey = 0L;
         if(statsRequest.getFilters() != null) {
             for(Filter filter : statsRequest.getFilters()) {
-                hashKey += 31 * filter.hashCode();
+                hashKey += 31 * (Integer) filter.accept(getCacheKeyVisitor());
             }
         }
 

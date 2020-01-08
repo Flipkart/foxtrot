@@ -24,6 +24,7 @@ import com.flipkart.foxtrot.common.query.numeric.*;
 import com.flipkart.foxtrot.common.query.string.ContainsFilter;
 import com.flipkart.foxtrot.common.query.string.WildCardFilter;
 import com.flipkart.foxtrot.common.util.CollectionUtils;
+import lombok.Data;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.hibernate.validator.constraints.NotEmpty;
 
@@ -54,6 +55,7 @@ import java.util.Set;
                       //String
                       @JsonSubTypes.Type(value = LastFilter.class, name = FilterOperator.last)})
 
+@Data
 public abstract class Filter implements Serializable {
 
     @NotNull
@@ -61,6 +63,8 @@ public abstract class Filter implements Serializable {
     private final String operator;
 
     private String field;
+
+    private boolean cachedResultsAccepted;
 
     protected Filter(String operator) {
         this.operator = operator;
@@ -87,25 +91,33 @@ public abstract class Filter implements Serializable {
 
     @Override
     public boolean equals(Object o) {
-        if(this == o)
+        if(this == o) {
             return true;
-        if(o == null || getClass() != o.getClass())
+        }
+        if(!(o instanceof Filter)) {
             return false;
+        }
 
-        Filter filter = (Filter)o;
+        Filter filter = (Filter) o;
 
-        if(!field.equals(filter.field))
+        if(cachedResultsAccepted != filter.cachedResultsAccepted) {
             return false;
-        return operator.equals(filter.operator);
+        }
+        if(!operator.equals(filter.operator)) {
+            return false;
+        }
+        return field.equals(filter.field);
     }
 
     @Override
     public int hashCode() {
         int result = operator.hashCode();
         result = 31 * result + field.hashCode();
+        result = 31 * result + (cachedResultsAccepted
+                                ? 1
+                                : 0);
         return result;
     }
-
 
     @Override
     public String toString() {
