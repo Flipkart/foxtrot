@@ -95,9 +95,9 @@ public class TrendAction extends Action<TrendRequest> {
     public String getRequestCacheKey() {
         TrendRequest query = getParameter();
         long filterHashKey = 0L;
-        if (query.getFilters() != null) {
-            for (Filter filter : query.getFilters()) {
-                filterHashKey += 31 * filter.hashCode();
+        if(query.getFilters() != null) {
+            for(Filter filter : query.getFilters()) {
+                filterHashKey += 31 * (Integer) filter.accept(getCacheKeyVisitor());
             }
         }
         if (query.getValues() != null) {
