@@ -40,6 +40,7 @@ import io.dropwizard.lifecycle.setup.LifecycleEnvironment;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
 import org.assertj.core.util.Lists;
+import org.elasticsearch.action.admin.indices.template.put.PutIndexTemplateRequest;
 import org.junit.After;
 import org.mockito.Mockito;
 import org.slf4j.LoggerFactory;
@@ -125,6 +126,12 @@ public abstract class FoxtrotResourceTest {
         CardinalityConfig cardinalityConfig = new CardinalityConfig("true", String.valueOf(ElasticsearchUtils.DEFAULT_SUB_LIST_SIZE));
         TestUtils.ensureIndex(elasticsearchConnection, TableMapStore.TABLE_META_INDEX);
         TestUtils.ensureIndex(elasticsearchConnection, DistributedTableMetadataManager.CARDINALITY_CACHE_INDEX);
+        PutIndexTemplateRequest putIndexTemplateRequest = ElasticsearchUtils.getClusterTemplateMapping();
+        elasticsearchConnection.getClient()
+                .admin()
+                .indices()
+                .putTemplate(putIndexTemplateRequest)
+                .actionGet();
         tableMetadataManager = new DistributedTableMetadataManager(hazelcastConnection, elasticsearchConnection, mapper, cardinalityConfig);
         tableMetadataManager.start();
         tableMetadataManager.save(Table.builder()
