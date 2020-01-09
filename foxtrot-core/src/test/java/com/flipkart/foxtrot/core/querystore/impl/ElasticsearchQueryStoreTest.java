@@ -1,14 +1,17 @@
 /**
  * Copyright 2014 Flipkart Internet Pvt. Ltd.
  * <p>
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  * <p>
  * http://www.apache.org/licenses/LICENSE-2.0
  * <p>
- * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
- * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
- * specific language governing permissions and limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package com.flipkart.foxtrot.core.querystore.impl;
 
@@ -29,6 +32,7 @@ import com.flipkart.foxtrot.core.querystore.mutator.LargeTextNodeRemover;
 import com.flipkart.foxtrot.core.table.TableMetadataManager;
 import com.flipkart.foxtrot.core.table.impl.DistributedTableMetadataManager;
 import com.flipkart.foxtrot.core.table.impl.ElasticsearchTestUtils;
+import com.flipkart.foxtrot.core.table.impl.TableMapStore;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -41,7 +45,6 @@ import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
 import org.elasticsearch.action.admin.cluster.health.ClusterHealthResponse;
 import org.elasticsearch.action.admin.cluster.node.stats.NodesStatsResponse;
-import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;
 import org.elasticsearch.action.admin.indices.mapping.get.GetFieldMappingsRequest;
 import org.elasticsearch.action.admin.indices.stats.IndicesStatsResponse;
 import org.elasticsearch.action.get.GetResponse;
@@ -65,34 +68,40 @@ public class ElasticsearchQueryStoreTest {
 
     private static final ObjectMapper mapper = new ObjectMapper();
 
+    private static ElasticsearchConnection elasticsearchConnection;
+    private static HazelcastInstance hazelcastInstance;
+
     private DataStore dataStore;
     private ElasticsearchQueryStore queryStore;
     private TableMetadataManager tableMetadataManager;
-    private ElasticsearchConnection elasticsearchConnection;
-    private HazelcastInstance hazelcastInstance;
     private TextNodeRemoverConfiguration removerConfiguration;
 
+    @BeforeClass
+    public static void setupClass() throws Exception {
+        hazelcastInstance = new TestHazelcastInstanceFactory(1).newHazelcastInstance(new Config());
+        elasticsearchConnection = ElasticsearchTestUtils.getConnection();
+        ElasticsearchUtils.initializeMappings(elasticsearchConnection.getClient());
+    }
+
+    @AfterClass
+    public static void tearDownClass() throws Exception {
+        hazelcastInstance.shutdown();
+        elasticsearchConnection.stop();
+    }
 
     @Before
     public void setUp() throws Exception {
         this.dataStore = Mockito.mock(DataStore.class);
 
-        elasticsearchConnection = ElasticsearchTestUtils.getConnection();
-        ElasticsearchUtils.initializeMappings(elasticsearchConnection.getClient());
-        hazelcastInstance = new TestHazelcastInstanceFactory(1).newHazelcastInstance();
         HazelcastConnection hazelcastConnection = Mockito.mock(HazelcastConnection.class);
         when(hazelcastConnection.getHazelcast()).thenReturn(hazelcastInstance);
         when(hazelcastConnection.getHazelcastConfig()).thenReturn(new Config());
 
-        hazelcastConnection.start();
-        CardinalityConfig cardinalityConfig = new CardinalityConfig("true", String.valueOf(
-                ElasticsearchUtils.DEFAULT_SUB_LIST_SIZE));
-
-        this.tableMetadataManager = new DistributedTableMetadataManager(hazelcastConnection,
-                                                                        elasticsearchConnection,
-                                                                        mapper,
-                                                                        cardinalityConfig
-        );
+        CardinalityConfig cardinalityConfig = new CardinalityConfig("true", String.valueOf(ElasticsearchUtils.DEFAULT_SUB_LIST_SIZE));
+        TestUtils.ensureIndex(elasticsearchConnection, TableMapStore.TABLE_META_INDEX);
+        TestUtils.ensureIndex(elasticsearchConnection, DistributedTableMetadataManager.CARDINALITY_CACHE_INDEX);
+        this.tableMetadataManager = new DistributedTableMetadataManager(
+                hazelcastConnection, elasticsearchConnection, mapper, cardinalityConfig);
         tableMetadataManager.start();
         tableMetadataManager.save(Table.builder()
                                           .name(TestUtils.TEST_TABLE_NAME)
@@ -100,28 +109,12 @@ public class ElasticsearchQueryStoreTest {
                                           .build());
         this.removerConfiguration = spy(TextNodeRemoverConfiguration.builder().build());
         List<IndexerEventMutator> mutators = Lists.newArrayList(new LargeTextNodeRemover(mapper, removerConfiguration));
-        this.queryStore = new ElasticsearchQueryStore(tableMetadataManager,
-                                                      elasticsearchConnection,
-                                                      dataStore,
-                                                      mutators,
-                                                      mapper,
-                                                      cardinalityConfig);
+        this.queryStore = new ElasticsearchQueryStore(tableMetadataManager, elasticsearchConnection, dataStore, mutators, mapper, cardinalityConfig);
     }
 
     @After
     public void tearDown() throws Exception {
-        try {
-            DeleteIndexRequest deleteIndexRequest = new DeleteIndexRequest("*");
-            elasticsearchConnection.getClient()
-                    .admin()
-                    .indices()
-                    .delete(deleteIndexRequest);
-        }
-        catch (Exception e) {
-            //Do Nothing
-        }
-        elasticsearchConnection.stop();
-        hazelcastInstance.shutdown();
+        ElasticsearchTestUtils.cleanupIndices(elasticsearchConnection);
     }
 
 
@@ -729,8 +722,7 @@ public class ElasticsearchQueryStoreTest {
         elasticsearchConnection.refresh(ElasticsearchUtils.getIndices(TestUtils.TEST_TABLE_NAME));
         ClusterHealthResponse clusterHealth = queryStore.getClusterHealth();
         assertEquals("elasticsearch", clusterHealth.getClusterName());
-        assertEquals(1, clusterHealth.getIndices()
-                .size());
+        assertTrue(clusterHealth.getIndices().size() > 0);
     }
 
     @Test

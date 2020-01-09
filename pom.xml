@@ -117,14 +117,22 @@
 
     <profiles>
         <profile>
-            <id>ant</id>
+            <id>localEs</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <properties>
+                <es.spawn.skip>false</es.spawn.skip>
+            </properties>
         </profile>
         <profile>
-            <id>integration-test</id>
+            <id>noLocalEs</id>
             <properties>
-                <skip.integration.tests>false</skip.integration.tests>
-                <skip.unit.tests>true</skip.unit.tests>
+                <es.spawn.skip>true</es.spawn.skip>
             </properties>
+        </profile>
+        <profile>
+            <id>esTests</id>
         </profile>
         <profile>
             <id>lombok-needs-tools-jar</id>
@@ -168,7 +176,7 @@
         <profile>
             <id>local</id>
             <properties>
-                <project.version>6.3.1.0</project.version>
+                <project.version>6.3.1-2</project.version>
             </properties>
         </profile>
     </profiles>
@@ -319,6 +327,13 @@
                 </exclusion>
             </exclusions>
         </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>
+            <version>3.2.4</version>
+            <scope>test</scope>
+        </dependency>
+
     </dependencies>
 
     <build>
@@ -402,14 +417,13 @@
                     </execution>
                 </executions>
             </plugin>
-            <plugin>
+            <!--<plugin>
                 <artifactId>maven-antrun-plugin</artifactId>
                 <version>1.8</version>
-                <inherited>false</inherited>
                 <executions>
                     <execution>
                         <id>start-es</id>
-                        <phase>test</phase>
+                        <phase>pre-integration-test</phase>
                         <goals>
                             <goal>run</goal>
                         </goals>
@@ -417,12 +431,58 @@
                             <target>
                                 <property name="target.dir" value="${project.build.directory}"/>
                                 <property name="elasticsearch.version" value="6.0.1"/>
-                                <ant antfile="it.xml" target="start"/>
+                                <ant antfile="${basedir}/it.xml" target="start"/>
+                            </target>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>stop-es</id>
+                        <phase>post-integration-test</phase>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                        <configuration>
+                            <target>
+                                <property name="target.dir" value="${project.build.directory}"/>
+                                <property name="elasticsearch.version" value="6.0.1"/>
+                                <ant antfile="${basedir}/it.xml" target="stop"/>
                             </target>
                         </configuration>
                     </execution>
                 </executions>
-            </plugin>
+            </plugin>-->
+            <!--<plugin>
+                <artifactId>maven-failsafe-plugin</artifactId>
+                <version>2.19.1</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>integration-test</goal>
+                            <goal>verify</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                &lt;!&ndash;<configuration>
+                    <includes>
+                        <include>**/*.java</include>
+                    </includes>
+                    <groups>impl.IntegrationTest</groups>
+                    <skipTests>false</skipTests>
+                </configuration>&ndash;&gt;
+            </plugin>-->
+            <!--<plugin>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>2.19.1</version>
+                <executions>
+                    <execution>
+                        <id>default-test</id>
+                        <configuration>
+                            <skip>true</skip>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>-->
+
             <plugin>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>2.19.1</version>

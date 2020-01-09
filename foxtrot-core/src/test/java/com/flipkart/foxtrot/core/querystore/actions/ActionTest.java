@@ -27,12 +27,9 @@ import com.hazelcast.config.Config;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.test.TestHazelcastInstanceFactory;
 import lombok.Getter;
-import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;
-import org.elasticsearch.action.admin.indices.template.put.PutIndexTemplateRequest;
-import org.elasticsearch.action.admin.indices.template.put.PutIndexTemplateResponse;
 import org.joda.time.DateTimeZone;
-import org.junit.After;
-import org.junit.Before;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
 import org.mockito.Mockito;
 import org.slf4j.LoggerFactory;
 
@@ -46,7 +43,6 @@ import static org.mockito.Mockito.when;
 /**
  * Created by rishabh.goyal on 26/12/15.
  */
-@Getter
 public abstract class ActionTest {
 
     protected static final int MAX_CARDINALITY = 15000;
@@ -56,41 +52,37 @@ public abstract class ActionTest {
         root.setLevel(Level.WARN);
     }
 
-    private ObjectMapper mapper;
-    private QueryStore queryStore;
-    private QueryExecutor queryExecutor;
-    private HazelcastInstance hazelcastInstance;
-    private ElasticsearchConnection elasticsearchConnection;
-    private DistributedTableMetadataManager tableMetadataManager;
-    private CacheManager cacheManager;
+    private static HazelcastInstance hazelcastInstance;
+    @Getter
+    private static ElasticsearchConnection elasticsearchConnection;
+    @Getter
+    private static ObjectMapper mapper;
+    @Getter
+    private static QueryStore queryStore;
+    @Getter
+    private static QueryExecutor queryExecutor;
+    @Getter
+    private static DistributedTableMetadataManager tableMetadataManager;
+    @Getter
+    private static CacheManager cacheManager;
 
-    @Before
-    public void setUp() throws Exception {
+    @BeforeClass
+    public static void setupClass() throws Exception {
+        hazelcastInstance = new TestHazelcastInstanceFactory(1).newHazelcastInstance(new Config());
+        elasticsearchConnection = ElasticsearchTestUtils.getConnection();
         DateTimeZone.setDefault(DateTimeZone.forID("Asia/Kolkata"));
-        this.mapper = new ObjectMapper();
+        mapper = new ObjectMapper();
         HazelcastConnection hazelcastConnection = Mockito.mock(HazelcastConnection.class);
-        Config config = new Config();
         EmailConfig emailConfig = new EmailConfig();
         emailConfig.setHost("127.0.0.1");
-        this.hazelcastInstance = new TestHazelcastInstanceFactory(1).newHazelcastInstance(config);
         when(hazelcastConnection.getHazelcast()).thenReturn(hazelcastInstance);
-        when(hazelcastConnection.getHazelcastConfig()).thenReturn(config);
-        elasticsearchConnection = ElasticsearchTestUtils.getConnection();
-        CardinalityConfig cardinalityConfig = new CardinalityConfig("true",
-                                                                    String.valueOf(ElasticsearchUtils.DEFAULT_SUB_LIST_SIZE));
+        when(hazelcastConnection.getHazelcastConfig()).thenReturn(hazelcastInstance.getConfig());
+        CardinalityConfig cardinalityConfig = new CardinalityConfig("true", String.valueOf(ElasticsearchUtils.DEFAULT_SUB_LIST_SIZE));
 
         TestUtils.ensureIndex(elasticsearchConnection, TableMapStore.TABLE_META_INDEX);
         TestUtils.ensureIndex(elasticsearchConnection, DistributedTableMetadataManager.CARDINALITY_CACHE_INDEX);
-        PutIndexTemplateRequest putIndexTemplateRequest = ElasticsearchUtils.getClusterTemplateMapping();
-        elasticsearchConnection.getClient()
-                .admin()
-                .indices()
-                .putTemplate(putIndexTemplateRequest)
-                .actionGet();
-        tableMetadataManager = new DistributedTableMetadataManager(hazelcastConnection,
-                                                                   elasticsearchConnection,
-                                                                   mapper,
-                                                                   cardinalityConfig);
+        ElasticsearchUtils.initializeMappings(elasticsearchConnection.getClient());
+        tableMetadataManager = new DistributedTableMetadataManager(hazelcastConnection, elasticsearchConnection, mapper, cardinalityConfig);
         tableMetadataManager.start();
 
         tableMetadataManager.save(Table.builder()
@@ -98,15 +90,9 @@ public abstract class ActionTest {
                                           .ttl(30)
                                           .build());
         List<IndexerEventMutator> mutators = Lists.newArrayList(new LargeTextNodeRemover(mapper,
-                                                                                         TextNodeRemoverConfiguration.builder()
-                                                                                                 .build()));
+                                                                                         TextNodeRemoverConfiguration.builder().build()));
         DataStore dataStore = TestUtils.getDataStore();
-        this.queryStore = new ElasticsearchQueryStore(tableMetadataManager,
-                                                      elasticsearchConnection,
-                                                      dataStore,
-                                                      mutators,
-                                                      mapper,
-                                                      cardinalityConfig);
+        queryStore = new ElasticsearchQueryStore(tableMetadataManager, elasticsearchConnection, dataStore, mutators, mapper, cardinalityConfig);
         cacheManager = new CacheManager(new DistributedCacheFactory(hazelcastConnection, mapper, new CacheConfig()));
         AnalyticsLoader analyticsLoader = new AnalyticsLoader(tableMetadataManager,
                                                               dataStore,
@@ -117,24 +103,14 @@ public abstract class ActionTest {
                                                               new ElasticsearchTuningConfig());
         analyticsLoader.start();
         ExecutorService executorService = Executors.newFixedThreadPool(1);
-        this.queryExecutor = new QueryExecutor(analyticsLoader,
-                                               executorService,
-                                               Collections.singletonList(new ResponseCacheUpdater(cacheManager)));
+        queryExecutor = new QueryExecutor(analyticsLoader, executorService, Collections.singletonList(new ResponseCacheUpdater(cacheManager)));
     }
 
-    @After
-    public void tearDown() throws Exception {
-        try {
-            DeleteIndexRequest deleteIndexRequest = new DeleteIndexRequest("*");
-            elasticsearchConnection.getClient()
-                    .admin()
-                    .indices()
-                    .delete(deleteIndexRequest);
-        }
-        catch (Exception e) {
-            //Do Nothing
-        }
+    @AfterClass
+    public static void tearDownClass() throws Exception {
+        hazelcastInstance.shutdown();
+        ElasticsearchTestUtils.cleanupIndices(elasticsearchConnection);
         elasticsearchConnection.stop();
-        getHazelcastInstance().shutdown();
     }
+
 }

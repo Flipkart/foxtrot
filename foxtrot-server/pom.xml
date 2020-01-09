@@ -11,11 +11,15 @@
     <artifactId>foxtrot-server</artifactId>
 
     <dependencies>
-
         <dependency>
             <groupId>io.dropwizard</groupId>
             <artifactId>dropwizard-core</artifactId>
             <version>${dropwizard.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ru.vyarus</groupId>
+            <artifactId>dropwizard-guicey</artifactId>
+            <version>4.0.1</version>
         </dependency>
         <dependency>
             <groupId>io.raven.dropwizard</groupId>
@@ -94,108 +98,6 @@
 
     <profiles>
         <profile>
-            <id>integration-test</id>
-        </profile>
-        <profile>
-            <id>ant</id>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-dependency-plugin</artifactId>
-                        <version>2.10</version>
-                        <executions>
-                            <execution>
-                                <id>get-es</id>
-                                <phase>pre-integration-test</phase>
-                                <goals>
-                                    <goal>copy</goal>
-                                </goals>
-                                <configuration>
-                                    <artifactItems>
-                                        <artifactItem>
-                                            <groupId>org.elasticsearch.distribution.zip</groupId>
-                                            <artifactId>elasticsearch</artifactId>
-                                            <version>6.0.1</version>
-                                            <type>zip</type>
-                                        </artifactItem>
-                                    </artifactItems>
-                                    <outputDirectory>${project.build.directory}/it</outputDirectory>
-                                </configuration>
-                            </execution>
-                        </executions>
-                    </plugin>
-                    <plugin>
-                        <artifactId>maven-antrun-plugin</artifactId>
-                        <version>1.8</version>
-                        <executions>
-                            <execution>
-                                <id>start-es</id>
-                                <phase>pre-integration-test</phase>
-                                <goals>
-                                    <goal>run</goal>
-                                </goals>
-                                <configuration>
-                                    <target>
-                                        <property name="target.dir"
-                                                  value="${project.build.directory}"/>
-                                        <property name="elasticsearch.version" value="6.0.1"/>
-                                        <ant antfile="${basedir}/it.xml" target="start"/>
-                                    </target>
-                                </configuration>
-                            </execution>
-                            <execution>
-                                <id>stop-es</id>
-                                <phase>post-integration-test</phase>
-                                <goals>
-                                    <goal>run</goal>
-                                </goals>
-                                <configuration>
-                                    <target>
-                                        <property name="target.dir"
-                                                  value="${project.build.directory}"/>
-                                        <property name="elasticsearch.version" value="6.0.1"/>
-                                        <ant antfile="${basedir}/it.xml" target="stop"/>
-                                    </target>
-                                </configuration>
-                            </execution>
-                        </executions>
-                    </plugin>
-                    <plugin>
-                        <artifactId>maven-failsafe-plugin</artifactId>
-                        <version>2.19.1</version>
-                        <executions>
-                            <execution>
-                                <goals>
-                                    <goal>integration-test</goal>
-                                    <goal>verify</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                        <configuration>
-                            <includes>
-                                <include>**/*.java</include>
-                            </includes>
-                            <groups>impl.IntegrationTest</groups>
-                            <skipTests>false</skipTests>
-                        </configuration>
-                    </plugin>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-surefire-plugin</artifactId>
-                        <version>2.19.1</version>
-                        <configuration>
-                            <includes>
-                                <include>
-                                    com.flipkart.foxtrot.core.querystore.impl.DistributedTableMetadataManagerTest.java
-                                </include>
-                            </includes>
-                        </configuration>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-        <profile>
             <id>docker</id>
             <build>
                 <plugins>
@@ -210,29 +112,27 @@
                         <artifactId>docker-maven-plugin</artifactId>
                         <version>0.4.10</version>
                         <configuration>
-                            <imageName>docker.phonepe.com:5000/foxtrot:${project.version}
-                            </imageName>
-                            <dockerDirectory>${project.basedir}/..</dockerDirectory>
-                            <registryUrl>http://docker.phonepe.com:5000/</registryUrl>
+                            <imageName>foxtrot:${project.version}</imageName>
+                            <dockerDirectory>${project.parent.basedir}/../foxtrot</dockerDirectory>
+                            <resources>
+                                <resource>
+                                    <targetPath>/</targetPath>
+                                    <directory>${project.build.directory}</directory>
+                                    <include>${project.build.finalName}.jar</include>
+                                </resource>
+                                <resource>
+                                    <targetPath>/</targetPath>
+                                    <directory>${project.parent.basedir}/config</directory>
+                                    <include>*.yml</include>
+                                </resource>
+                            </resources>
                         </configuration>
                         <executions>
                             <execution>
-                                <id>build-image</id>
                                 <phase>package</phase>
                                 <goals>
                                     <goal>build</goal>
                                 </goals>
-                            </execution>
-                            <execution>
-                                <id>push-image</id>
-                                <phase>deploy</phase>
-                                <goals>
-                                    <goal>push</goal>
-                                </goals>
-                                <configuration>
-                                    <imageName>docker.phonepe.com:5000/foxtrot:${project.version}
-                                    </imageName>
-                                </configuration>
                             </execution>
                         </executions>
                     </plugin>
@@ -243,6 +143,71 @@
 
     <build>
         <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <version>2.10</version>
+                <executions>
+                    <execution>
+                        <id>get-es</id>
+                        <phase>process-test-classes</phase>
+                        <goals>
+                            <goal>copy</goal>
+                        </goals>
+                        <configuration>
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>org.elasticsearch.distribution.zip</groupId>
+                                    <artifactId>elasticsearch</artifactId>
+                                    <version>6.0.1</version>
+                                    <type>zip</type>
+                                </artifactItem>
+                            </artifactItems>
+                            <outputDirectory>${project.build.directory}/it</outputDirectory>
+                        </configuration>
+                    </execution>
+                </executions>
+                <configuration>
+                    <skip>${es.spawn.skip}</skip>
+                </configuration>
+            </plugin>
+            <plugin>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <version>1.8</version>
+                <executions>
+                    <execution>
+                        <id>start-es</id>
+                        <phase>process-test-classes</phase>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                        <configuration>
+                            <target>
+                                <property name="target.dir" value="${project.build.directory}"/>
+                                <property name="elasticsearch.version" value="6.0.1"/>
+                                <ant antfile="${basedir}/../it.xml" target="start"/>
+                            </target>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>stop-es</id>
+                        <phase>prepare-package</phase>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                        <configuration>
+                            <target>
+                                <property name="target.dir" value="${project.build.directory}"/>
+                                <property name="elasticsearch.version" value="6.0.1"/>
+                                <ant antfile="${basedir}/it.xml" target="stop"/>
+                            </target>
+                        </configuration>
+                    </execution>
+                </executions>
+                <configuration>
+                    <skip>${es.spawn.skip}</skip>
+                </configuration>
+            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>

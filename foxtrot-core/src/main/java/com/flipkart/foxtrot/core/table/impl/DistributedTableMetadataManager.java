@@ -60,7 +60,10 @@ import org.elasticsearch.search.aggregations.metrics.percentiles.Percentiles;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import ru.vyarus.dropwizard.guice.module.installer.order.Order;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.io.Serializable;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
@@ -69,9 +72,12 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
- * User: Santanu Sinha (santanu.sinha@flipkart.com) Date: 15/03/14 Time: 10:11 PM
+ * User: Santanu Sinha (santanu.sinha@flipkart.com)
+ * Date: 15/03/14
+ * Time: 10:11 PM
  */
-
+@Singleton
+@Order(15)
 public class DistributedTableMetadataManager implements TableMetadataManager {
 
     public static final String CARDINALITY_CACHE_INDEX = "table_cardinality_cache";
@@ -93,9 +99,9 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
     private IMap<String, TableFieldMapping> fieldDataCache;
     private IMap<String, TableFieldMapping> fieldDataCardinalityCache;
 
-    public DistributedTableMetadataManager(
-            HazelcastConnection hazelcastConnection,
-            ElasticsearchConnection elasticsearchConnection, ObjectMapper mapper, CardinalityConfig cardinalityConfig) {
+    @Inject
+    public DistributedTableMetadataManager(HazelcastConnection hazelcastConnection, ElasticsearchConnection elasticsearchConnection,
+                                           ObjectMapper mapper, CardinalityConfig cardinalityConfig) {
         this.hazelcastConnection = hazelcastConnection;
         this.elasticsearchConnection = elasticsearchConnection;
         this.mapper = mapper;
