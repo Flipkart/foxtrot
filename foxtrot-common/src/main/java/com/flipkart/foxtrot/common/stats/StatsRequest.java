@@ -5,6 +5,7 @@ import com.flipkart.foxtrot.common.ActionRequestVisitor;
 import com.flipkart.foxtrot.common.Opcodes;
 import com.flipkart.foxtrot.common.query.Filter;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.hibernate.validator.constraints.NotEmpty;
 
@@ -17,6 +18,7 @@ import java.util.Set;
  * Created by rishabh.goyal on 02/08/14.
  */
 @Data
+@EqualsAndHashCode(callSuper = true)
 public class StatsRequest extends ActionRequest {
 
     @NotNull
@@ -34,17 +36,27 @@ public class StatsRequest extends ActionRequest {
     @Size(max = 10)
     private List<String> nesting;
 
+    private Set<AnalyticsRequestFlags> flags;
+
     public StatsRequest() {
         super(Opcodes.STATS);
     }
 
-    public StatsRequest(List<Filter> filters, String table, String field, List<Double> percentiles, Set<Stat> stats, List<String> nesting) {
+    public StatsRequest(
+            List<Filter> filters,
+            String table,
+            String field,
+            List<Double> percentiles,
+            Set<Stat> stats,
+            List<String> nesting,
+            Set<AnalyticsRequestFlags> flags) {
         super(Opcodes.STATS, filters);
         this.table = table;
         this.field = field;
         this.percentiles = percentiles;
         this.stats = stats;
         this.nesting = nesting;
+        this.flags = flags;
     }
 
     public <T> T accept(ActionRequestVisitor<T> visitor) {

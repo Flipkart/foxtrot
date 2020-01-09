@@ -39,9 +39,6 @@ import java.util.stream.Collectors;
 @AnalyticsProvider(opcode = "statstrend", request = StatsTrendRequest.class, response = StatsTrendResponse.class, cacheable = false)
 public class StatsTrendAction extends Action<StatsTrendRequest> {
 
-    private static final EnumSet<FieldType> NUMERIC_FIELD_TYPES
-            = EnumSet.of(FieldType.INTEGER, FieldType.LONG, FieldType.FLOAT, FieldType.DOUBLE);
-
     public StatsTrendAction(StatsTrendRequest parameter, AnalyticsLoader analyticsLoader) {
         super(parameter, analyticsLoader);
     }
@@ -149,7 +146,7 @@ public class StatsTrendAction extends Action<StatsTrendRequest> {
         final String field = request.getField();
         DateHistogramInterval interval = Utils.getHistogramInterval(request.getPeriod());
         AbstractAggregationBuilder dateHistogramBuilder = Utils.buildDateHistogramAggregation(request.getTimestamp(), interval);
-        boolean isNumericField = isNumericField(table, field);
+        boolean isNumericField = Utils.isNumericField(getTableMetadataManager(), table, field);
         if(isNumericField) {
             dateHistogramBuilder
                     .subAggregation(Utils.buildStatsAggregation(field, getParameter().getStats()));
@@ -170,16 +167,6 @@ public class StatsTrendAction extends Action<StatsTrendRequest> {
                                                    .stream()
                                                    .map(x -> new ResultSort(x, ResultSort.Order.asc))
                                                    .collect(Collectors.toList()), Sets.newHashSet(dateHistogramBuilder));
-    }
-
-    private boolean isNumericField(String table, String field) {
-        final TableFieldMapping fieldMappings = getTableMetadataManager().getFieldMappings(table, false, false);
-        final FieldMetadata fieldMetadata = fieldMappings.getMappings()
-                .stream()
-                .filter(mapping -> mapping.getField().equals(field))
-                .findFirst()
-                .orElse(null);
-        return null != fieldMetadata && NUMERIC_FIELD_TYPES.contains(fieldMetadata.getType());
     }
 
     private StatsTrendResponse buildResponse(StatsTrendRequest request, Aggregations aggregations) {
