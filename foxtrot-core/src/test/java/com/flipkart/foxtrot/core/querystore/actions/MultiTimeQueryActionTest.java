@@ -46,7 +46,7 @@ public class MultiTimeQueryActionTest extends ActionTest {
         resultSort.setField("_timestamp");
         query.setSort(resultSort);
         BetweenFilter betweenFilter = new BetweenFilter("_timestamp", 1397658117000L, 1397658118005L, false);
-        query.setFilters(Collections.singletonList(betweenFilter));
+        query.setFilters(Arrays.asList(betweenFilter));
 
         Duration duration = Duration.days(1);
         MultiTimeQueryRequest multiTimeQueryRequest = new MultiTimeQueryRequest(1, duration, query);

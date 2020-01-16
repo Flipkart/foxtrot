@@ -20,6 +20,7 @@ import com.flipkart.foxtrot.common.query.Filter;
 import com.flipkart.foxtrot.common.query.general.EqualsFilter;
 import com.flipkart.foxtrot.common.query.numeric.BetweenFilter;
 import com.flipkart.foxtrot.common.stats.*;
+import com.flipkart.foxtrot.common.util.CollectionUtils;
 import com.flipkart.foxtrot.core.TestUtils;
 import com.flipkart.foxtrot.core.exception.FoxtrotException;
 import com.flipkart.foxtrot.core.exception.MalformedQueryException;
@@ -91,7 +92,7 @@ public class StatsActionTest extends ActionTest {
                 .get("count")
                 .intValue());
         assertNull(statsResponse.getBuckets());
-        assertNull(statsResponse.getResult().getPercentiles());
+        assertTrue(statsResponse.getResult().getPercentiles().isEmpty());
     }
 
     @Test
@@ -109,7 +110,7 @@ public class StatsActionTest extends ActionTest {
                 .get("count")
                 .intValue());
         assertNull(statsResponse.getBuckets());
-        assertNull(statsResponse.getResult().getPercentiles());
+        assertTrue(statsResponse.getResult().getPercentiles().isEmpty());
     }
 
     @Test

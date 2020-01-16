@@ -87,7 +87,7 @@ public class GroupActionEstimationTest extends ActionTest {
         GroupResponse response = GroupResponse.class.cast(getQueryExecutor().execute(groupRequest));
         log.debug(getMapper().writerWithDefaultPrettyPrinter()
                           .writeValueAsString(response));
-        Assert.assertTrue(response.getResult()
+        Assert.assertFalse(response.getResult()
                                   .isEmpty());
     }
 
