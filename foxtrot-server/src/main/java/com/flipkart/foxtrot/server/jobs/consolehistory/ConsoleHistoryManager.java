@@ -2,6 +2,7 @@ package com.flipkart.foxtrot.server.jobs.consolehistory;
 
 import com.collections.CollectionUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.flipkart.foxtrot.core.config.ConsoleHistoryConfig;
 import com.flipkart.foxtrot.core.jobs.BaseJobManager;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConnection;
 import com.flipkart.foxtrot.core.querystore.impl.HazelcastConnection;

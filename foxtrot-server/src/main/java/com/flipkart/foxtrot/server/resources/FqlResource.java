@@ -3,7 +3,7 @@ package com.flipkart.foxtrot.server.resources;
 import com.codahale.metrics.annotation.Timed;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.flipkart.foxtrot.gandalf.access.AccessService;
-import com.flipkart.foxtrot.server.config.QueryConfig;
+import com.flipkart.foxtrot.core.config.QueryConfig;
 import com.flipkart.foxtrot.server.providers.FlatToCsvConverter;
 import com.flipkart.foxtrot.server.providers.FoxtrotExtraMediaType;
 import com.flipkart.foxtrot.sql.FqlEngine;

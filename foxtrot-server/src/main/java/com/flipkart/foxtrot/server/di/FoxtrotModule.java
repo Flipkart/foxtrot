@@ -2,6 +2,8 @@ package com.flipkart.foxtrot.server.di;
 
 import com.codahale.metrics.health.HealthCheck;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.flipkart.foxtrot.common.ActionRequestVisitor;
+import com.flipkart.foxtrot.common.TableActionRequestVisitor;
 import com.flipkart.foxtrot.core.alerts.AlertingSystemEventConsumer;
 import com.flipkart.foxtrot.core.cache.CacheFactory;
 import com.flipkart.foxtrot.core.cache.CacheManager;
@@ -30,30 +32,41 @@ import com.flipkart.foxtrot.core.querystore.handlers.SlowQueryReporter;
 import com.flipkart.foxtrot.core.querystore.impl.*;
 import com.flipkart.foxtrot.core.querystore.mutator.IndexerEventMutator;
 import com.flipkart.foxtrot.core.querystore.mutator.LargeTextNodeRemover;
+import com.flipkart.foxtrot.core.reroute.ClusterRerouteConfig;
 import com.flipkart.foxtrot.core.table.TableManager;
 import com.flipkart.foxtrot.core.table.TableMetadataManager;
 import com.flipkart.foxtrot.core.table.impl.DistributedTableMetadataManager;
 import com.flipkart.foxtrot.core.table.impl.FoxtrotTableManager;
-import com.flipkart.foxtrot.server.config.FoxtrotServerConfiguration;
-import com.flipkart.foxtrot.server.config.QueryConfig;
-import com.flipkart.foxtrot.server.config.SegregationConfiguration;
+import com.flipkart.foxtrot.gandalf.access.AccessService;
+import com.flipkart.foxtrot.gandalf.access.AccessServiceImpl;
+import com.flipkart.foxtrot.core.config.FoxtrotServerConfiguration;
+import com.flipkart.foxtrot.core.config.QueryConfig;
+import com.flipkart.foxtrot.core.config.SegregationConfiguration;
 import com.flipkart.foxtrot.server.console.ConsolePersistence;
 import com.flipkart.foxtrot.server.console.ElasticsearchConsolePersistence;
-import com.flipkart.foxtrot.server.jobs.consolehistory.ConsoleHistoryConfig;
+import com.flipkart.foxtrot.core.config.ConsoleHistoryConfig;
 import com.flipkart.foxtrot.sql.fqlstore.FqlStoreService;
 import com.flipkart.foxtrot.sql.fqlstore.FqlStoreServiceImpl;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
+import com.google.inject.Singleton;
+import com.google.inject.TypeLiteral;
+import com.phonepe.platform.http.OkHttpUtils;
+import com.phonepe.platform.http.ServiceEndpointProvider;
+import com.phonepe.platform.http.ServiceEndpointProviderFactory;
 import io.dropwizard.server.ServerFactory;
 import io.dropwizard.setup.Environment;
 import io.dropwizard.util.Duration;
 
-import javax.inject.Singleton;
+import java.io.IOException;
+import java.security.GeneralSecurityException;
+import javax.inject.Named;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ScheduledExecutorService;
+import okhttp3.OkHttpClient;
 
 
 /**
@@ -71,6 +84,7 @@ public class FoxtrotModule extends AbstractModule {
                 .to(ElasticsearchQueryStore.class);
         bind(FqlStoreService.class)
                 .to(FqlStoreServiceImpl.class);
+        bind(AccessService.class).to(AccessServiceImpl.class);
         bind(CacheFactory.class)
                 .to(DistributedCacheFactory.class);
         bind(InternalEventBus.class)
@@ -85,6 +99,8 @@ public class FoxtrotModule extends AbstractModule {
                 .to(StrSubstitutorEmailBodyBuilder.class);
         bind(TableManager.class)
                 .to(FoxtrotTableManager.class);
+        bind(new TypeLiteral<ActionRequestVisitor<String>>() {
+        }).toInstance(new TableActionRequestVisitor());
     }
 
     @Provides
@@ -133,6 +149,14 @@ public class FoxtrotModule extends AbstractModule {
         return null == configuration.getConsoleHistoryConfig()
                 ? new ConsoleHistoryConfig()
                 : configuration.getConsoleHistoryConfig();
+    }
+
+    @Provides
+    @Singleton
+    public ClusterRerouteConfig clusterRerouteConfig(FoxtrotServerConfiguration configuration) {
+        return null == configuration.getClusterRerouteConfig()
+                ? new ClusterRerouteConfig()
+                : configuration.getClusterRerouteConfig();
     }
 
     @Provides
@@ -215,6 +239,28 @@ public class FoxtrotModule extends AbstractModule {
     @Singleton
     public ElasticsearchTuningConfig provideElasticsearchTuningConfig(FoxtrotServerConfiguration configuration) {
         return configuration.getElasticsearchTuningConfig();
+    }
+    @Provides
+    @Singleton
+    @Named("GandalfServiceEndpointProvider")
+    ServiceEndpointProvider provideGandalfServiceEndpointProvider(FoxtrotServerConfiguration configuration,
+            Environment environment) {
+        ServiceEndpointProviderFactory serviceEndpointFactory = new ServiceEndpointProviderFactory(
+                this.serviceDiscoveryBundle
+                        .getCurator());
+        return serviceEndpointFactory.provider(configuration.getGandalfConfig()
+                        .getHttpConfig(),
+                environment);
+    }
+
+    @Provides
+    @Singleton
+    @Named("GandalfOkHttpClient")
+    OkHttpClient provideGandalfOkHttpClient(Environment environment, FoxtrotServerConfiguration configuration)
+            throws GeneralSecurityException, IOException {
+        return OkHttpUtils.createDefaultClient("foxtrot-gandalf-client",
+                environment.metrics(),
+                configuration.getGandalfConfig().getHttpConfig());
     }
 
     @Provides

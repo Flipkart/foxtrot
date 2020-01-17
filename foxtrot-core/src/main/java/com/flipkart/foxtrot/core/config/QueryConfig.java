@@ -1,4 +1,4 @@
-package com.flipkart.foxtrot.server.config;
+package com.flipkart.foxtrot.core.config;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

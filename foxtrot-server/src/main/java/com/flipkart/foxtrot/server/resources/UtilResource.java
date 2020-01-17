@@ -13,7 +13,7 @@
 package com.flipkart.foxtrot.server.resources;
 
 import com.codahale.metrics.annotation.Timed;
-import com.flipkart.foxtrot.server.config.FoxtrotServerConfiguration;
+import com.flipkart.foxtrot.core.config.FoxtrotServerConfiguration;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 
