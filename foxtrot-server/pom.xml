@@ -20,7 +20,6 @@
         <dependency>
             <groupId>ru.vyarus</groupId>
             <artifactId>dropwizard-guicey</artifactId>
-            <version>4.0.1</version>
         </dependency>
         <dependency>
             <groupId>io.raven.dropwizard</groupId>

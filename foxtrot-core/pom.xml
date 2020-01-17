@@ -25,7 +25,6 @@
         <dependency>
             <groupId>ru.vyarus</groupId>
             <artifactId>dropwizard-guicey</artifactId>
-            <version>4.0.1</version>
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>
@@ -109,6 +108,14 @@
                 <exclusion>
                     <groupId>io.netty</groupId>
                     <artifactId>netty-all</artifactId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>guice</artifactId>
+                    <groupId>com.google.inject</groupId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.google.inject.extensions</groupId>
+                    <artifactId>guice-servlet</artifactId>
                 </exclusion>
             </exclusions>
         </dependency>
