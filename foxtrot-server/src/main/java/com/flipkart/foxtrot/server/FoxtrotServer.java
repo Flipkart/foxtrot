@@ -150,7 +150,7 @@ public class FoxtrotServer extends Application<FoxtrotServerConfiguration> {
         bootstrap.addBundle(GuiceBundle.<FoxtrotServerConfiguration>builder()
                                     .enableAutoConfig("com.flipkart.foxtrot")
                                     .modules(
-                                            new FoxtrotModule())
+                                            new FoxtrotModule(serviceDiscoveryBundle))
                                     .useWebInstallers()
                                     .printDiagnosticInfo()
                                     .build(Stage.PRODUCTION));

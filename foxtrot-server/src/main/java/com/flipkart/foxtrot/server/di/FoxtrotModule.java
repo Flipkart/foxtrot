@@ -55,6 +55,7 @@ import com.google.inject.TypeLiteral;
 import com.phonepe.platform.http.OkHttpUtils;
 import com.phonepe.platform.http.ServiceEndpointProvider;
 import com.phonepe.platform.http.ServiceEndpointProviderFactory;
+import io.appform.dropwizard.discovery.bundle.ServiceDiscoveryBundle;
 import io.dropwizard.server.ServerFactory;
 import io.dropwizard.setup.Environment;
 import io.dropwizard.util.Duration;
@@ -73,6 +74,12 @@ import okhttp3.OkHttpClient;
  *
  */
 public class FoxtrotModule extends AbstractModule {
+
+    private final ServiceDiscoveryBundle<FoxtrotServerConfiguration> serviceDiscoveryBundle;
+
+    public FoxtrotModule(final ServiceDiscoveryBundle<FoxtrotServerConfiguration> serviceDiscoveryBundle) {
+        this.serviceDiscoveryBundle = serviceDiscoveryBundle;
+    }
 
     @Override
     protected void configure() {
