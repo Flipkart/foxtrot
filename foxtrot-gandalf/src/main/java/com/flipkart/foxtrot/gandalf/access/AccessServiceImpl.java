@@ -4,6 +4,7 @@ import com.flipkart.foxtrot.common.ActionRequest;
 import com.flipkart.foxtrot.common.ActionRequestVisitor;
 import com.flipkart.foxtrot.common.TableActionRequestVisitor;
 import com.flipkart.foxtrot.core.config.FoxtrotServerConfiguration;
+import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.phonepe.gandalf.models.user.UserDetails;
 import lombok.Data;
@@ -22,6 +23,7 @@ public class AccessServiceImpl implements AccessService {
     private final boolean restrictAccess;
     private final ActionRequestVisitor<String> actionRequestVisitor;
 
+    @Inject
     public AccessServiceImpl(FoxtrotServerConfiguration foxtrotConfiguration,
             ActionRequestVisitor<String> actionRequestVisitor) {
         this.restrictAccess = foxtrotConfiguration.isRestrictAccess();
