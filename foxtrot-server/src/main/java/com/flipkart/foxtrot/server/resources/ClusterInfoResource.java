@@ -7,8 +7,6 @@ import com.hazelcast.core.Member;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -22,12 +20,10 @@ import java.util.Map;
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
 @Api(value = "/v1/cluster")
-@Singleton
 public class ClusterInfoResource {
 
     private ClusterManager clusterManager;
 
-    @Inject
     public ClusterInfoResource(ClusterManager clusterManager) {
         this.clusterManager = clusterManager;
     }
