@@ -1,4 +1,4 @@
-package com.flipkart.foxtrot.core.config;
+package com.flipkart.foxtrot.server.config;
 
 import lombok.Data;
 

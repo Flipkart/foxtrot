@@ -16,6 +16,7 @@ import com.flipkart.foxtrot.core.cache.impl.DistributedCacheFactory;
 import com.flipkart.foxtrot.core.cardinality.CardinalityConfig;
 import com.flipkart.foxtrot.core.config.TextNodeRemoverConfiguration;
 import com.flipkart.foxtrot.core.datastore.DataStore;
+import com.flipkart.foxtrot.core.exception.FoxtrotException;
 import com.flipkart.foxtrot.core.querystore.QueryExecutor;
 import com.flipkart.foxtrot.core.querystore.QueryStore;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsLoader;
@@ -27,12 +28,11 @@ import com.flipkart.foxtrot.core.table.TableMetadataManager;
 import com.flipkart.foxtrot.core.table.impl.DistributedTableMetadataManager;
 import com.flipkart.foxtrot.core.table.impl.ElasticsearchTestUtils;
 import com.flipkart.foxtrot.core.table.impl.TableMapStore;
-import com.flipkart.foxtrot.core.config.FoxtrotServerConfiguration;
+import com.flipkart.foxtrot.server.config.FoxtrotServerConfiguration;
 import com.flipkart.foxtrot.server.providers.exception.FoxtrotExceptionMapper;
 import com.hazelcast.config.Config;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.test.TestHazelcastInstanceFactory;
-import io.dropwizard.jackson.Jackson;
 import io.dropwizard.jersey.DropwizardResourceConfig;
 import io.dropwizard.jersey.setup.JerseyEnvironment;
 import io.dropwizard.jersey.validation.Validators;
@@ -40,9 +40,9 @@ import io.dropwizard.jetty.MutableServletContextHandler;
 import io.dropwizard.lifecycle.setup.LifecycleEnvironment;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
-import lombok.extern.slf4j.Slf4j;
 import org.assertj.core.util.Lists;
-import org.junit.Assert;
+import org.junit.After;
+import org.mockito.Mockito;
 import org.slf4j.LoggerFactory;
 
 import java.util.Collections;
@@ -55,34 +55,17 @@ import static org.mockito.Mockito.*;
 /**
  * Created by rishabh.goyal on 27/12/15.
  */
-@Slf4j
 public abstract class FoxtrotResourceTest {
 
-    protected final HealthCheckRegistry healthChecks = mock(HealthCheckRegistry.class);
-    protected final JerseyEnvironment jerseyEnvironment = mock(JerseyEnvironment.class);
-    protected final LifecycleEnvironment lifecycleEnvironment = new LifecycleEnvironment();
-    protected final Environment environment = mock(Environment.class);
-    protected final Bootstrap<FoxtrotServerConfiguration> bootstrap = mock(Bootstrap.class);
-    protected final ObjectMapper objectMapper = Jackson.newObjectMapper();
-    private final ObjectMapper mapper;
-    private final HazelcastInstance hazelcastInstance;
-    private final ElasticsearchConnection elasticsearchConnection;
-    private final TableMetadataManager tableMetadataManager;
-    private final CardinalityConfig cardinalityConfig;
-    private final List<IndexerEventMutator> mutators;
-    private final CacheManager cacheManager;
-    private AnalyticsLoader analyticsLoader;
-    private QueryExecutor queryExecutor;
-    private QueryStore queryStore;
-    private DataStore dataStore;
-
+    protected final static HealthCheckRegistry healthChecks = mock(HealthCheckRegistry.class);
+    protected final static JerseyEnvironment jerseyEnvironment = mock(JerseyEnvironment.class);
+    protected final static LifecycleEnvironment lifecycleEnvironment = new LifecycleEnvironment();
+    protected static final Environment environment = mock(Environment.class);
+    protected final static Bootstrap<FoxtrotServerConfiguration> bootstrap = mock(Bootstrap.class);
+    protected static final ObjectMapper objectMapper = new ObjectMapper();
+    private static ObjectMapper mapper;
 
     static {
-        Logger root = (Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
-        root.setLevel(Level.WARN);
-    }
-
-    protected FoxtrotResourceTest() {
         when(jerseyEnvironment.getResourceConfig()).thenReturn(new DropwizardResourceConfig());
         when(environment.jersey()).thenReturn(jerseyEnvironment);
         when(environment.lifecycle()).thenReturn(lifecycleEnvironment);
@@ -105,89 +88,126 @@ public abstract class FoxtrotResourceTest {
         SubtypeResolver subtypeResolver = new StdSubtypeResolver();
         environment.getObjectMapper()
                 .setSubtypeResolver(subtypeResolver);
-        mapper = environment.getObjectMapper();
         environment.jersey()
                 .register(new FoxtrotExceptionMapper(mapper));
+        mapper = environment.getObjectMapper();
 
-        hazelcastInstance = new TestHazelcastInstanceFactory(1).newHazelcastInstance(new Config());
+        Logger root = (Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
+        root.setLevel(Level.WARN);
+    }
+
+    private TableMetadataManager tableMetadataManager;
+    private HazelcastInstance hazelcastInstance;
+    private QueryExecutor queryExecutor;
+    private QueryStore queryStore;
+    private DataStore dataStore;
+    private CacheManager cacheManager;
+    private AnalyticsLoader analyticsLoader;
+    private ElasticsearchConnection elasticsearchConnection;
+
+    public FoxtrotResourceTest() throws Exception {
         try {
-            elasticsearchConnection = ElasticsearchTestUtils.getConnection();
-        } catch (Exception e) {
-            throw new IllegalStateException(e);
+            dataStore = TestUtils.getDataStore();
         }
-        ElasticsearchUtils.initializeMappings(elasticsearchConnection.getClient());
+        catch (FoxtrotException e) {
+            e.printStackTrace();
+        }
 
         Config config = new Config();
         //Initializing Cache Factory
-        HazelcastConnection hazelcastConnection = mock(HazelcastConnection.class);
+        hazelcastInstance = new TestHazelcastInstanceFactory(1).newHazelcastInstance(config);
+        HazelcastConnection hazelcastConnection = Mockito.mock(HazelcastConnection.class);
         when(hazelcastConnection.getHazelcast()).thenReturn(hazelcastInstance);
         when(hazelcastConnection.getHazelcastConfig()).thenReturn(config);
 
         cacheManager = new CacheManager(new DistributedCacheFactory(hazelcastConnection, mapper, new CacheConfig()));
 
-        cardinalityConfig = new CardinalityConfig("true", String.valueOf(ElasticsearchUtils.DEFAULT_SUB_LIST_SIZE));
+        elasticsearchConnection = ElasticsearchTestUtils.getConnection();
+
+        CardinalityConfig cardinalityConfig = new CardinalityConfig("true",
+                                                                    String.valueOf(ElasticsearchUtils.DEFAULT_SUB_LIST_SIZE));
+
         TestUtils.ensureIndex(elasticsearchConnection, TableMapStore.TABLE_META_INDEX);
         TestUtils.ensureIndex(elasticsearchConnection, DistributedTableMetadataManager.CARDINALITY_CACHE_INDEX);
         tableMetadataManager = new DistributedTableMetadataManager(hazelcastConnection, elasticsearchConnection, mapper,
-                cardinalityConfig);
-        try {
-            tableMetadataManager.start();
-        } catch (Exception e) {
-            throw new IllegalStateException(e);
-        }
+                                                                   cardinalityConfig);
+        tableMetadataManager.start();
         tableMetadataManager.save(Table.builder()
-                .name(TestUtils.TEST_TABLE_NAME)
-                .ttl(7)
-                .build());
-
-        mutators = Lists.newArrayList(
-                new LargeTextNodeRemover(mapper, TextNodeRemoverConfiguration.builder().build()));
-        dataStore = TestUtils.getDataStore();
-        queryStore = new ElasticsearchQueryStore(tableMetadataManager, elasticsearchConnection, dataStore, mutators,
-                mapper, cardinalityConfig);
+                                          .name(TestUtils.TEST_TABLE_NAME)
+                                          .ttl(7)
+                                          .build());
+        List<IndexerEventMutator> mutators = Lists.newArrayList(new LargeTextNodeRemover(mapper,
+                                                                                         TextNodeRemoverConfiguration.builder()
+                                                                                                 .build()));
+        queryStore = new ElasticsearchQueryStore(tableMetadataManager,
+                                                 elasticsearchConnection,
+                                                 dataStore,
+                                                 mutators,
+                                                 mapper,
+                                                 cardinalityConfig);
         queryStore = spy(queryStore);
-        analyticsLoader = new AnalyticsLoader(tableMetadataManager, dataStore, queryStore, elasticsearchConnection,
-                cacheManager, mapper, new ElasticsearchTuningConfig());
+
+        analyticsLoader = new AnalyticsLoader(tableMetadataManager,
+                                              dataStore,
+                                              queryStore,
+                                              elasticsearchConnection,
+                                              cacheManager,
+                                              mapper,
+                                              new ElasticsearchTuningConfig());
         try {
             analyticsLoader.start();
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+        try {
             TestUtils.registerActions(analyticsLoader, mapper);
-        } catch (Exception e) {
-            log.error("Error in intialization", e);
-            Assert.fail();
+        }
+        catch (Exception e) {
+            e.printStackTrace();
         }
         ExecutorService executorService = Executors.newFixedThreadPool(1);
         queryExecutor = new QueryExecutor(analyticsLoader, executorService, Collections.emptyList());
+
     }
 
-    protected TableMetadataManager getTableMetadataManager() {
+    @After
+    public void tearDown() throws Exception {
+        elasticsearchConnection.stop();
+        hazelcastInstance.shutdown();
+        tableMetadataManager.stop();
+        analyticsLoader.stop();
+    }
+
+    public TableMetadataManager getTableMetadataManager() {
         return tableMetadataManager;
     }
 
-    protected ElasticsearchConnection getElasticsearchConnection() {
+    public ElasticsearchConnection getElasticsearchConnection() {
         return elasticsearchConnection;
     }
 
-    protected HazelcastInstance getHazelcastInstance() {
+    public HazelcastInstance getHazelcastInstance() {
         return hazelcastInstance;
     }
 
-    protected QueryExecutor getQueryExecutor() {
+    public QueryExecutor getQueryExecutor() {
         return queryExecutor;
     }
 
-    protected ObjectMapper getMapper() {
+    public ObjectMapper getMapper() {
         return mapper;
     }
 
-    protected CacheManager getCacheManager() {
+    public CacheManager getCacheManager() {
         return cacheManager;
     }
 
-    protected QueryStore getQueryStore() {
+    public QueryStore getQueryStore() {
         return queryStore;
     }
 
-    protected DataStore getDataStore() {
+    public DataStore getDataStore() {
         return dataStore;
     }
 }
