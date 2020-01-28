@@ -50,5 +50,5 @@ public class Table implements Serializable {
 
     @Min(1)
     @Max(256)
-    private int defaultRegions = 8;
+    private int defaultRegions = 4;
 }
