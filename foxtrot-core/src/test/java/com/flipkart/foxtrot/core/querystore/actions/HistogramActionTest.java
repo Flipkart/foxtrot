@@ -23,6 +23,7 @@ import com.flipkart.foxtrot.common.query.numeric.LessThanFilter;
 import com.flipkart.foxtrot.core.TestUtils;
 import com.flipkart.foxtrot.core.exception.FoxtrotException;
 import com.google.common.collect.Lists;
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -37,8 +38,9 @@ import static org.junit.Assert.assertTrue;
  */
 public class HistogramActionTest extends ActionTest {
 
-    @BeforeClass
-    public static void setUp() throws Exception {
+    @Before
+    public void setup() throws Exception {
+        super.setup();
         List<Document> documents = TestUtils.getHistogramDocuments(getMapper());
         getQueryStore().save(TestUtils.TEST_TABLE_NAME, documents);
         getElasticsearchConnection().getClient()

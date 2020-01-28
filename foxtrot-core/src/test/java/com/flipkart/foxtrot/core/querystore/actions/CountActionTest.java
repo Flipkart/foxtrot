@@ -7,6 +7,7 @@ import com.flipkart.foxtrot.common.query.Filter;
 import com.flipkart.foxtrot.common.query.general.EqualsFilter;
 import com.flipkart.foxtrot.core.TestUtils;
 import com.flipkart.foxtrot.core.exception.FoxtrotException;
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -18,8 +19,9 @@ import static org.junit.Assert.assertNotNull;
 
 public class CountActionTest extends ActionTest {
 
-    @BeforeClass
-    public static void setUp() throws Exception {
+    @Before
+    public void setup() throws Exception {
+        super.setup();
         List<Document> documents = TestUtils.getCountDocuments(getMapper());
         getQueryStore().save(TestUtils.TEST_TABLE_NAME, documents);
         getElasticsearchConnection().getClient()

@@ -25,6 +25,7 @@ import com.flipkart.foxtrot.core.TestUtils;
 import com.flipkart.foxtrot.core.exception.FoxtrotException;
 import com.google.common.collect.Lists;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -35,8 +36,9 @@ import java.util.List;
  */
 public class CacheHitTest extends ActionTest {
 
-    @BeforeClass
-    public static void setUp() throws Exception {
+    @Before
+    public void setup() throws Exception {
+        super.setup();
         List<Document> documents = TestUtils.getHistogramDocuments(getMapper());
         getQueryStore().save(TestUtils.TEST_TABLE_NAME, documents);
         getElasticsearchConnection().getClient()

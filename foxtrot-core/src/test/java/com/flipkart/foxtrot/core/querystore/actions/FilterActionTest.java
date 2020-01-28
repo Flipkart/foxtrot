@@ -48,8 +48,9 @@ import static org.mockito.Mockito.when;
 
 public class FilterActionTest extends ActionTest {
 
-    @BeforeClass
-    public static void setUp() throws Exception {
+    @Before
+    public void setup() throws Exception {
+        super.setup();
         List<Document> documents = TestUtils.getQueryDocuments(getMapper());
         getQueryStore().save(TestUtils.TEST_TABLE_NAME, documents);
         getElasticsearchConnection().getClient()

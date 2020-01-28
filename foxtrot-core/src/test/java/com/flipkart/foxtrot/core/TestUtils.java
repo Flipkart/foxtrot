@@ -66,9 +66,17 @@ public class TestUtils {
 
     public static DataStore getDataStore() throws FoxtrotException {
         HbaseTableConnection tableConnection = Mockito.mock(HbaseTableConnection.class);
-        doReturn(MockHTable.create()).when(tableConnection)
+        doAnswer(action -> MockHTable.create()).when(tableConnection)
                 .getTable(Matchers.any());
         doReturn(new HbaseConfig()).when(tableConnection).getHbaseConfig();
+        HBaseDataStore hBaseDataStore = new HBaseDataStore(tableConnection, new ObjectMapper(),
+                new DocumentTranslator(TestUtils.createHBaseConfigWithRawKeyV2())
+        );
+        hBaseDataStore = spy(hBaseDataStore);
+        return hBaseDataStore;
+    }
+
+    public static DataStore getDataStore(HbaseTableConnection tableConnection) throws FoxtrotException {
         HBaseDataStore hBaseDataStore = new HBaseDataStore(tableConnection, new ObjectMapper(),
                 new DocumentTranslator(TestUtils.createHBaseConfigWithRawKeyV2())
         );

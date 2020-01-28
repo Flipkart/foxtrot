@@ -189,6 +189,7 @@ public class ElasticsearchQueryStore implements QueryStore {
                     .start();
 
             action = DATA_STORE;
+            logger.warn("elastic search query store :{}, dataStore : {}", this, dataStore);
             final List<Document> translatedDocuments = dataStore.saveAll(tableMeta, documents);
             logger.info("DataStoreTook:{}", stopwatch.elapsed(TimeUnit.MILLISECONDS));
             MetricUtil.getInstance()
@@ -311,6 +312,7 @@ public class ElasticsearchQueryStore implements QueryStore {
             }
         }
         logger.info("Get row keys: {}", rowKeys.size());
+        logger.warn("elasticsearch query store :{}",this);
         return dataStore.getAll(tableMetadataManager.get(table), ImmutableList.copyOf(rowKeys.values()));
     }
 
