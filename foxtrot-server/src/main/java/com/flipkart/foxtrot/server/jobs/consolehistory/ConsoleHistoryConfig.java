@@ -1,4 +1,4 @@
-package com.flipkart.foxtrot.core.config;
+package com.flipkart.foxtrot.server.jobs.consolehistory;
 
 import com.flipkart.foxtrot.core.jobs.BaseJobConfig;
 

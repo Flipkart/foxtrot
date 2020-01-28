@@ -649,7 +649,7 @@ function renderTemplateFilters() {
   $.each(tableNameList, function(index, val) {
     option+= "<option value="+val+">"+val+"</option>"
   });
-
+  
   $(".template-filter").append("<option value='none'>Select</option>");
   $(".template-filter").append(option);
   $(".template-filter").selectpicker('refresh');
@@ -666,7 +666,7 @@ function getTables() { // get table list
           tableNameList.push(tables[i].name)
         }
         renderTemplateFilters();
-      }
+      }      
     }});
 }
 
@@ -893,7 +893,7 @@ $(document).ready(function () {
               deleteConsole();
           }
       });
-
+      
       $("#addDashboardConfirm").click(function () {
           createDashboard();
       });
@@ -936,7 +936,7 @@ $(document).ready(function () {
         }
     });
 
-
+      
 
       var consoleId = getParameterByName("console").replace('/', '');
       if (consoleId) {
@@ -1130,7 +1130,7 @@ $(document).ready(function () {
           sideBySide: true,
           format: 'DD/MM/YYYY, hh:mm:ss a'
       });
-
+      
       $(".close-global-date-filter").click(function () {
           $("#myModal").modal("hide");
           //resetGloblaDateFilter();

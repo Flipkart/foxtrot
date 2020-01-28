@@ -9,7 +9,7 @@ import com.flipkart.foxtrot.common.query.numeric.BetweenFilter;
 import com.flipkart.foxtrot.core.TestUtils;
 import com.flipkart.foxtrot.core.exception.FoxtrotException;
 import io.dropwizard.util.Duration;
-import org.junit.BeforeClass;
+import org.junit.Before;
 import org.junit.Test;
 
 import java.util.*;
@@ -23,8 +23,9 @@ import static org.mockito.Mockito.when;
  ***/
 public class MultiTimeQueryActionTest extends ActionTest {
 
-    @BeforeClass
-    public static void setUp() throws Exception {
+    @Before
+    public void setUp() throws Exception {
+        super.setUp();
         List<Document> documents = TestUtils.getQueryDocuments(getMapper());
         getQueryStore().save(TestUtils.TEST_TABLE_NAME, documents);
         getElasticsearchConnection().getClient()
@@ -46,7 +47,7 @@ public class MultiTimeQueryActionTest extends ActionTest {
         resultSort.setField("_timestamp");
         query.setSort(resultSort);
         BetweenFilter betweenFilter = new BetweenFilter("_timestamp", 1397658117000L, 1397658118005L, false);
-        query.setFilters(Arrays.asList(betweenFilter));
+        query.setFilters(Collections.singletonList(betweenFilter));
 
         Duration duration = Duration.days(1);
         MultiTimeQueryRequest multiTimeQueryRequest = new MultiTimeQueryRequest(1, duration, query);

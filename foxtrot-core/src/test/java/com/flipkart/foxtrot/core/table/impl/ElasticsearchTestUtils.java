@@ -17,16 +17,12 @@ package com.flipkart.foxtrot.core.table.impl;
 
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConfig;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConnection;
-import lombok.extern.slf4j.Slf4j;
-import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;
-import org.elasticsearch.action.admin.indices.delete.DeleteIndexResponse;
 
 import java.util.Collections;
 
 /***
  Created by nitish.goyal on 02/08/18
  ***/
-@Slf4j
 public class ElasticsearchTestUtils {
 
     public static ElasticsearchConnection getConnection() throws Exception {
@@ -38,19 +34,5 @@ public class ElasticsearchTestUtils {
         ElasticsearchConnection elasticsearchConnection = new ElasticsearchConnection(config);
         elasticsearchConnection.start();
         return elasticsearchConnection;
-    }
-
-    public static void cleanupIndices(final ElasticsearchConnection elasticsearchConnection) {
-        try {
-            DeleteIndexRequest deleteIndexRequest = new DeleteIndexRequest("_all");
-            final DeleteIndexResponse deleteIndexResponse = elasticsearchConnection.getClient()
-                    .admin()
-                    .indices()
-                    .delete(deleteIndexRequest)
-                    .get();
-            log.info("Delete index response: {}", deleteIndexResponse);
-        } catch (Exception e) {
-            log.error("Index Cleanup failed", e);
-        }
     }
 }

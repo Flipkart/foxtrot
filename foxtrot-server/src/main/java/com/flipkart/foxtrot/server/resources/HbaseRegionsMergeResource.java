@@ -4,8 +4,6 @@ import com.codahale.metrics.annotation.Timed;
 import com.flipkart.foxtrot.common.hbase.HRegionData;
 import com.flipkart.foxtrot.core.datastore.impl.hbase.HbaseConfig;
 import com.flipkart.foxtrot.core.datastore.impl.hbase.HbaseRegions;
-import com.google.inject.Inject;
-import com.google.inject.Singleton;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.apache.hadoop.hbase.TableName;
@@ -21,7 +19,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-@Singleton
 @Path("/v1/hbase/regions")
 @Produces(MediaType.APPLICATION_JSON)
 @Api(value = "/v1/hbase/regions")
@@ -29,7 +26,6 @@ public class HbaseRegionsMergeResource {
 
     private HbaseRegions hbaseRegions;
 
-    @Inject
     public HbaseRegionsMergeResource(HbaseConfig hbaseConfig) {
         this.hbaseRegions = new HbaseRegions(hbaseConfig);
     }

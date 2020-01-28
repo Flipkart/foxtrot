@@ -15,7 +15,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Ignore;
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.util.Collections;
@@ -27,8 +26,9 @@ import java.util.List;
 @Slf4j
 public class GroupActionEstimationTest extends ActionTest {
 
-    @BeforeClass
-    public static void setUp() throws Exception {
+    @Before
+    public void setUp() throws Exception {
+        super.setUp();
         List<Document> documents = TestUtils.getGroupDocumentsForEstimation(getMapper());
         getQueryStore().save(TestUtils.TEST_TABLE_NAME, documents);
         getElasticsearchConnection().getClient()
@@ -87,7 +87,7 @@ public class GroupActionEstimationTest extends ActionTest {
         GroupResponse response = GroupResponse.class.cast(getQueryExecutor().execute(groupRequest));
         log.debug(getMapper().writerWithDefaultPrettyPrinter()
                           .writeValueAsString(response));
-        Assert.assertFalse(response.getResult()
+        Assert.assertTrue(response.getResult()
                                   .isEmpty());
     }
 

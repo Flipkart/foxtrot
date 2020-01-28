@@ -150,7 +150,7 @@ function formatValues(bytes, convertTo) {
     } else {
         return(bytes / 1024).toFixed(2) + " KB"
     }
-
+    
 }
 
 EventBus.addEventListener('indices_loaded', function (event, data) {

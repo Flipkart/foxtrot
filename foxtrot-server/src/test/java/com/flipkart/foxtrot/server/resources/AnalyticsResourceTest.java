@@ -17,7 +17,7 @@ import com.flipkart.foxtrot.common.group.GroupRequest;
 import com.flipkart.foxtrot.common.group.GroupResponse;
 import com.flipkart.foxtrot.core.TestUtils;
 import com.flipkart.foxtrot.core.common.AsyncDataToken;
-import com.flipkart.foxtrot.core.config.QueryConfig;
+import com.flipkart.foxtrot.server.config.QueryConfig;
 import com.flipkart.foxtrot.server.providers.exception.FoxtrotExceptionMapper;
 import io.dropwizard.testing.junit.ResourceTestRule;
 import org.junit.Rule;
@@ -43,6 +43,7 @@ public class AnalyticsResourceTest extends FoxtrotResourceTest {
     public ResourceTestRule resources;
 
     public AnalyticsResourceTest() throws Exception {
+        super();
         List<Document> documents = TestUtils.getGroupDocuments(getMapper());
         getQueryStore().save(TestUtils.TEST_TABLE_NAME, documents);
         getElasticsearchConnection().getClient()

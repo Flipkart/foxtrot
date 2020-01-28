@@ -24,15 +24,14 @@ import static com.google.common.base.Preconditions.checkState;
 import static java.util.concurrent.TimeUnit.*;
 
 /**
- * An object that measures elapsed time in nanoseconds. It is useful to measure elapsed time using
- * this class instead of direct calls to {@link System#nanoTime} for a few reasons:
+ * An object that measures elapsed time in nanoseconds. It is useful to measure elapsed time using this class instead of
+ * direct calls to {@link System#nanoTime} for a few reasons:
  *
  * <ul>
  * <li>An alternate time source can be substituted, for testing or performance reasons.
  * <li>As documented by {@code nanoTime}, the value returned has no absolute meaning, and can only
- * be interpreted as relative to another timestamp returned by {@code nanoTime} at a different time.
- * {@code Stopwatch} is a more effective abstraction because it exposes only these relative values,
- * not the absolute ones.
+ * be interpreted as relative to another timestamp returned by {@code nanoTime} at a different time. {@code Stopwatch}
+ * is a more effective abstraction because it exposes only these relative values, not the absolute ones.
  * </ul>
  *
  * <p>Basic usage:
@@ -51,8 +50,8 @@ import static java.util.concurrent.TimeUnit.*;
  * already in the desired state.
  *
  * <p>When testing code that uses this class, use {@link #createUnstarted(Ticker)} or
- * {@link #createStarted(Ticker)} to supply a fake or mock ticker. <!-- TODO(kevinb): restore the
- * "such as" --> This allows you to simulate any valid behavior of the stopwatch.
+ * {@link #createStarted(Ticker)} to supply a fake or mock ticker. <!-- TODO(kevinb): restore the "such as" --> This
+ * allows you to simulate any valid behavior of the stopwatch.
  *
  * <p><b>Note:</b> This class is not thread-safe.
  *
@@ -109,14 +108,6 @@ public final class Stopwatch {
      */
     public static Stopwatch createStarted(Ticker ticker) {
         return new Stopwatch(ticker).start();
-    }
-
-    public long elapsedTime(TimeUnit desiredUnit) {
-        return desiredUnit.convert(this.elapsedNanos(), TimeUnit.NANOSECONDS);
-    }
-
-    public long elapsedMillis() {
-        return this.elapsedTime(TimeUnit.MILLISECONDS);
     }
 
     private static TimeUnit chooseUnit(long nanos) {

@@ -9,9 +9,7 @@ import com.flipkart.foxtrot.core.exception.FoxtrotExceptions;
 import com.flipkart.foxtrot.core.querystore.QueryExecutor;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
 import com.flipkart.foxtrot.gandalf.access.AccessService;
-import com.flipkart.foxtrot.core.config.QueryConfig;
-import com.google.inject.Inject;
-import com.google.inject.Singleton;
+import com.flipkart.foxtrot.server.config.QueryConfig;
 import com.phonepe.gandalf.client.annotation.GandalfUserContext;
 import com.phonepe.gandalf.models.user.UserDetails;
 import io.dropwizard.primer.auth.annotation.Authorize;
@@ -29,7 +27,6 @@ import javax.ws.rs.core.MediaType;
 /***
  Created by mudit.g on Mar, 2019
  ***/
-@Singleton
 @Path("/v2/analytics")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
@@ -42,7 +39,6 @@ public class AnalyticsV2Resource {
     private final AccessService accessService;
     private final QueryConfig queryConfig;
 
-    @Inject
     public AnalyticsV2Resource(QueryExecutor queryExecutor, AccessService accessService, QueryConfig queryConfig) {
         this.queryExecutor = queryExecutor;
         this.accessService = accessService;
