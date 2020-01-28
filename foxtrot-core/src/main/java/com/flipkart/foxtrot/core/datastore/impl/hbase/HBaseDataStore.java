@@ -23,8 +23,11 @@ import com.flipkart.foxtrot.core.exception.FoxtrotExceptions;
 import com.flipkart.foxtrot.core.querystore.DocumentTranslator;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
-import java.util.Arrays;
-import lombok.extern.slf4j.Slf4j;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.apache.hadoop.hbase.client.Get;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.client.Result;
@@ -33,18 +36,11 @@ import org.apache.hadoop.hbase.util.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-
 /**
  * User: Santanu Sinha (santanu.sinha@flipkart.com)
  * Date: 13/03/14
  * Time: 7:54 PM
  */
-@Slf4j
 @Singleton
 public class HBaseDataStore implements DataStore {
 
@@ -215,9 +211,7 @@ public class HBaseDataStore implements DataStore {
                         .setMaxVersions(1);
                 gets.add(get);
             }
-            log.warn("Fetching results from table : {}", hTable);
             Result[] getResults = hTable.get(gets);
-            log.warn("results from table : {}", Arrays.asList(getResults));
             List<String> missingIds = new ArrayList<>();
             List<Document> results = new ArrayList<>(ids.size());
             for (int index = 0; index < getResults.length; index++) {
