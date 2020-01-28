@@ -47,4 +47,8 @@ public class Table implements Serializable {
     private int ttl;
 
     private boolean seggregatedBackend = false;
+
+    @Min(1)
+    @Max(256)
+    private int defaultRegions = 8;
 }
