@@ -36,7 +36,7 @@ public class DocumentTranslator {
         else if (hbaseConfig.getRawKeyVersion()
                 .equalsIgnoreCase("2.0")) {
             this.keyDistributor = new RowKeyDistributorByHashPrefix(
-                    new RowKeyDistributorByHashPrefix.OneByteSimpleHash(32));
+                    new RowKeyDistributorByHashPrefix.OneByteSimpleHash(256));
             this.rawKeyVersion = "2.0";
         }
         else {
