@@ -18,7 +18,10 @@ import org.elasticsearch.action.admin.indices.segments.IndicesSegmentsRequest;
 import org.elasticsearch.index.engine.Segment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import ru.vyarus.dropwizard.guice.module.installer.order.Order;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
@@ -29,6 +32,8 @@ import java.util.concurrent.TimeUnit;
 /***
  Created by nitish.goyal on 11/09/18
  ***/
+@Singleton
+@Order(40)
 public class EsIndexOptimizationManager extends BaseJobManager {
 
     private static final int BATCH_SIZE = 5;
@@ -38,10 +43,10 @@ public class EsIndexOptimizationManager extends BaseJobManager {
     private final ElasticsearchConnection elasticsearchConnection;
     private final EsIndexOptimizationConfig esIndexOptimizationConfig;
 
-    public EsIndexOptimizationManager(
-            ScheduledExecutorService scheduledExecutorService,
-            EsIndexOptimizationConfig esIndexOptimizationConfig, ElasticsearchConnection elasticsearchConnection,
-            HazelcastConnection hazelcastConnection) {
+    @Inject
+    public EsIndexOptimizationManager(ScheduledExecutorService scheduledExecutorService,
+                                      EsIndexOptimizationConfig esIndexOptimizationConfig, ElasticsearchConnection elasticsearchConnection,
+                                      HazelcastConnection hazelcastConnection) {
         super(esIndexOptimizationConfig, scheduledExecutorService, hazelcastConnection);
         this.esIndexOptimizationConfig = esIndexOptimizationConfig;
         this.elasticsearchConnection = elasticsearchConnection;

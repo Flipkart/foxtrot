@@ -2,7 +2,11 @@ package com.flipkart.foxtrot.gandalf.manager;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.flipkart.foxtrot.common.TableV2;
+import com.flipkart.foxtrot.core.config.GandalfConfiguration;
 import com.flipkart.foxtrot.gandalf.exception.*;
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
+import com.google.inject.name.Named;
 import com.phonepe.gandalf.models.authn.UserGroupNamespace;
 import com.phonepe.gandalf.models.authn.requests.LoginRequest;
 import com.phonepe.gandalf.models.authn.requests.PasswordLoginRequest;
@@ -22,6 +26,7 @@ import java.util.Optional;
 import java.util.Set;
 
 @Slf4j
+@Singleton
 public class GandalfManager {
 
     private static final String AUTHORIZATION = "Authorization";
@@ -33,18 +38,19 @@ public class GandalfManager {
     private final String username;
     private final String password;
 
+    @Inject
     public GandalfManager(
             ObjectMapper mapper,
-            OkHttpClient okHttp,
-            ServiceEndpointProvider endpointProvider,
-            String username,
-            String password) {
+            @Named("GandalfOkHttpClient") OkHttpClient okHttp,
+            @Named("GandalfServiceEndpointProvider") ServiceEndpointProvider endpointProvider,
+            GandalfConfiguration gandalfConfiguration) {
         this.mapper = mapper;
         this.endpointProvider = endpointProvider;
         this.okHttp = okHttp;
-        this.username = username;
-        this.password = password;
+        this.username = gandalfConfiguration.getUsername();
+        this.password = gandalfConfiguration.getPassword();
     }
+
 
     public void manage(TableV2 table) {
         String authToken = getAuthToken(ECHO);
@@ -69,7 +75,7 @@ public class GandalfManager {
 
         try {
             body = RequestBody.create(APPLICATION_JSON,
-                                      mapper.writeValueAsString(permissionRequest));
+                    mapper.writeValueAsString(permissionRequest));
             request = new Request.Builder()
                     .url(url)
                     .header(AUTHORIZATION, String.format("Bearer %s", authToken))
@@ -79,8 +85,7 @@ public class GandalfManager {
             response = okHttp.newCall(request).execute();
             responseBody = OkHttpUtils.body(response);
             permissionId = mapper.readValue(responseBody, Permission.class).getPermissionId();
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             throw new PermissionCreationException("Not able to create new permission", e);
         }
 
@@ -98,13 +103,13 @@ public class GandalfManager {
         byte[] responseBody;
 
         LoginRequest loginRequest = new PasswordLoginRequest(username, password,
-                                                             TTLInfo.builder()
-                                                                     .jwtTtlSeconds(10)
-                                                                     .ttlSeconds(10)
-                                                                     .build());
+                TTLInfo.builder()
+                        .jwtTtlSeconds(10)
+                        .ttlSeconds(10)
+                        .build());
         try {
             requestBody = RequestBody.create(APPLICATION_JSON,
-                                             mapper.writeValueAsBytes(loginRequest));
+                    mapper.writeValueAsBytes(loginRequest));
             Request request = new Request.Builder()
                     .url(url)
                     .header("NAMESPACE", namespace)
@@ -115,8 +120,7 @@ public class GandalfManager {
 
             LoginResponse loginResponse = mapper.readValue(responseBody, LoginResponse.class);
             return loginResponse.getToken();
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             throw new AuthTokenException("Not able to generate auth token", e);
         }
     }
@@ -130,7 +134,8 @@ public class GandalfManager {
             throw new UserNotFoundException("Not able to retrieve user details with email : " + emailId);
         }
 
-        final HttpUrl url = endpoint(endpointProvider).url(String.format("/v1/user/%s/permission/%s", user.getUserId(), permissionId));
+        final HttpUrl url = endpoint(endpointProvider)
+                .url(String.format("/v1/user/%s/permission/%s", user.getUserId(), permissionId));
         Set<UserGroupNamespace> userGroupNamespaces = user.getUserGroupNamespaces();
         long userGroupId = 0L;
         int userGroupIdFlag = 0;
@@ -149,19 +154,18 @@ public class GandalfManager {
         }
         try {
             requestBody = RequestBody.create(APPLICATION_JSON,
-                                             mapper.writeValueAsBytes(
-                                                     UserPermissionRequest
-                                                             .builder()
-                                                             .userGroupId(userGroupId)
-                                                             .build()));
+                    mapper.writeValueAsBytes(
+                            UserPermissionRequest
+                                    .builder()
+                                    .userGroupId(userGroupId)
+                                    .build()));
             Request request = new Request.Builder()
                     .url(url)
                     .header(AUTHORIZATION, String.format("Bearer %s", authToken))
                     .post(requestBody)
                     .build();
             response = okHttp.newCall(request).execute();
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             throw new UserPermissionAdditionException("Not able to add new permission to user", e);
         }
 
@@ -189,8 +193,7 @@ public class GandalfManager {
                 return null;
             }
             return mapper.readValue(responseBody, User.class);
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             throw new UserNotFoundException("Not able to retrieve user details", e);
         }
     }

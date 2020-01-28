@@ -35,11 +35,12 @@ public class EmailBuilderTest {
                                                                  groupRequest),
                                                  "deviceId",
                                                  0.75));
+
         final Email email = emailBuilder.visit(error);
         Assert.assertEquals("Blocked query as it might have screwed up the cluster", email.getSubject());
         Assert.assertEquals(
                 "Blocked Query: {\"opcode\":\"group\",\"filters\":[],\"table\":\"test-table\"," +
-                        "\"uniqueCountOn\":null,\"nesting\":[\"os\",\"deviceId\"]}\n" +
+                        "\"uniqueCountOn\":null,\"nesting\":[\"os\",\"deviceId\"],\"consoleId\":null}\n" +
                         "Suspect field: deviceId\n" +
                         "Probability of screwing up the cluster: 0.75",
                 email.getContent());

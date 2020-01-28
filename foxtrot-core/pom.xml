@@ -13,7 +13,7 @@
 
     <properties>
         <hbase.version>1.2.1</hbase.version>
-        <zookeeper.version>3.4.8</zookeeper.version>
+        <zookeeper.version>3.4.14</zookeeper.version>
         <sonar.exclusions>**com/flipkart/foxtrot/core/querystore/impl/ElasticsearchConnection*
         </sonar.exclusions>
     </properties>
@@ -23,6 +23,10 @@
             <groupId>io.dropwizard</groupId>
             <artifactId>dropwizard-core</artifactId>
             <version>${dropwizard.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ru.vyarus</groupId>
+            <artifactId>dropwizard-guicey</artifactId>
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>
@@ -110,6 +114,14 @@
                 <exclusion>
                     <groupId>io.netty</groupId>
                     <artifactId>netty-all</artifactId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>guice</artifactId>
+                    <groupId>com.google.inject</groupId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.google.inject.extensions</groupId>
+                    <artifactId>guice-servlet</artifactId>
                 </exclusion>
             </exclusions>
         </dependency>
@@ -232,6 +244,71 @@
                         </goals>
                     </execution>
                 </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <version>2.10</version>
+                <executions>
+                    <execution>
+                        <id>get-es</id>
+                        <phase>process-test-classes</phase>
+                        <goals>
+                            <goal>copy</goal>
+                        </goals>
+                        <configuration>
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>org.elasticsearch.distribution.zip</groupId>
+                                    <artifactId>elasticsearch</artifactId>
+                                    <version>6.0.1</version>
+                                    <type>zip</type>
+                                </artifactItem>
+                            </artifactItems>
+                            <outputDirectory>${project.build.directory}/it</outputDirectory>
+                        </configuration>
+                    </execution>
+                </executions>
+                <configuration>
+                    <skip>${es.spawn.skip}</skip>
+                </configuration>
+            </plugin>
+            <plugin>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <version>1.8</version>
+                <executions>
+                    <execution>
+                        <id>start-es</id>
+                        <phase>process-test-classes</phase>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                        <configuration>
+                            <target>
+                                <property name="target.dir" value="${project.build.directory}"/>
+                                <property name="elasticsearch.version" value="6.0.1"/>
+                                <ant antfile="${basedir}/../it.xml" target="start"/>
+                            </target>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>stop-es</id>
+                        <phase>prepare-package</phase>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                        <configuration>
+                            <target>
+                                <property name="target.dir" value="${project.build.directory}"/>
+                                <property name="elasticsearch.version" value="6.0.1"/>
+                                <ant antfile="${basedir}/it.xml" target="stop"/>
+                            </target>
+                        </configuration>
+                    </execution>
+                </executions>
+                <configuration>
+                    <skip>${es.spawn.skip}</skip>
+                </configuration>
             </plugin>
         </plugins>
     </build>

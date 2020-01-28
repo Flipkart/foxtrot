@@ -14,6 +14,7 @@ import com.sematext.hbase.ds.AbstractRowKeyDistributor;
 import com.sematext.hbase.ds.RowKeyDistributorByHashPrefix;
 import org.apache.hadoop.hbase.util.Bytes;
 
+import javax.inject.Inject;
 import java.util.List;
 
 /**
@@ -25,6 +26,7 @@ public class DocumentTranslator {
     private final AbstractRowKeyDistributor keyDistributor;
     private String rawKeyVersion;
 
+    @Inject
     public DocumentTranslator(HbaseConfig hbaseConfig) {
         if (CollectionUtils.isNullOrEmpty(hbaseConfig.getRawKeyVersion()) || hbaseConfig.getRawKeyVersion()
                 .equalsIgnoreCase("1.0")) {

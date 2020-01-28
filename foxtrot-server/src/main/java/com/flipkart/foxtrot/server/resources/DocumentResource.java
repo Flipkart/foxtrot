@@ -19,13 +19,15 @@ import com.codahale.metrics.annotation.Timed;
 import com.collections.CollectionUtils;
 import com.flipkart.foxtrot.common.Document;
 import com.flipkart.foxtrot.core.querystore.QueryStore;
-import com.flipkart.foxtrot.server.config.SegregationConfiguration;
+import com.flipkart.foxtrot.core.config.SegregationConfiguration;
 import com.google.common.collect.Lists;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.*;
@@ -42,6 +44,7 @@ import java.util.Map;
 @Path("/v1/document/{table}")
 @Produces(MediaType.APPLICATION_JSON)
 @Api(value = "/v1/document/{table}")
+@Singleton
 public class DocumentResource {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DocumentResource.class);
@@ -50,6 +53,7 @@ public class DocumentResource {
     private final Map<String, Map<String, List<String>>> tableEventConfigs;
     private final List<String> tablesToBeDuplicated;
 
+    @Inject
     public DocumentResource(QueryStore queryStore, SegregationConfiguration segregationConfiguration) {
         this.queryStore = queryStore;
         this.tableEventConfigs = segregationConfiguration.getTableEventConfigs();

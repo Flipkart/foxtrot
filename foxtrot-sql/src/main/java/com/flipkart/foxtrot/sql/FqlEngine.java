@@ -21,8 +21,11 @@ import com.phonepe.gandalf.models.user.UserDetails;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.util.List;
 
+@Singleton
 public class FqlEngine {
 
     private static final Logger logger = LoggerFactory.getLogger(FqlEngine.class.getSimpleName());
@@ -32,9 +35,8 @@ public class FqlEngine {
     private QueryExecutor queryExecutor;
     private ObjectMapper mapper;
 
-    public FqlEngine(
-            TableMetadataManager tableMetadataManager, QueryStore queryStore, QueryExecutor queryExecutor,
-            ObjectMapper mapper) {
+    @Inject
+    public FqlEngine(TableMetadataManager tableMetadataManager, QueryStore queryStore, QueryExecutor queryExecutor, ObjectMapper mapper) {
         this.tableMetadataManager = tableMetadataManager;
         this.queryStore = queryStore;
         this.queryExecutor = queryExecutor;

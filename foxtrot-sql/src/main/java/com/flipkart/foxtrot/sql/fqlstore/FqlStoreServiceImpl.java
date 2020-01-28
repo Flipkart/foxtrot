@@ -12,6 +12,8 @@ import org.elasticsearch.search.SearchHits;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -22,6 +24,7 @@ import static com.flipkart.foxtrot.sql.fqlstore.FqlStore.TITLE_FIELD;
 /***
  Created by mudit.g on Jan, 2019
  ***/
+@Singleton
 public class FqlStoreServiceImpl implements FqlStoreService {
 
     private static final Logger logger = LoggerFactory.getLogger(FqlStore.class);
@@ -30,6 +33,7 @@ public class FqlStoreServiceImpl implements FqlStoreService {
     private final ElasticsearchConnection elasticsearchConnection;
     private final ObjectMapper objectMapper;
 
+    @Inject
     public FqlStoreServiceImpl(ElasticsearchConnection elasticsearchConnection, ObjectMapper objectMapper) {
         this.elasticsearchConnection = elasticsearchConnection;
         this.objectMapper = objectMapper;
