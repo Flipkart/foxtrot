@@ -36,8 +36,13 @@ public class DocumentTranslator {
         else if (hbaseConfig.getRawKeyVersion()
                 .equalsIgnoreCase("2.0")) {
             this.keyDistributor = new RowKeyDistributorByHashPrefix(
-                    new RowKeyDistributorByHashPrefix.OneByteSimpleHash(256));
+                    new RowKeyDistributorByHashPrefix.OneByteSimpleHash(32));
             this.rawKeyVersion = "2.0";
+        }else if (hbaseConfig.getRawKeyVersion()
+                .equalsIgnoreCase("3.0")) {
+            this.keyDistributor = new RowKeyDistributorByHashPrefix(
+                    new RowKeyDistributorByHashPrefix.OneByteSimpleHash(256));
+            this.rawKeyVersion = "3.0";
         }
         else {
             throw new IllegalArgumentException(String.format(EXCEPTION_MESSAGE, hbaseConfig.getRawKeyVersion()));
