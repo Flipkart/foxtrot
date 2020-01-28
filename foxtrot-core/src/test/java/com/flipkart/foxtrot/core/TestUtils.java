@@ -66,7 +66,7 @@ public class TestUtils {
 
     public static DataStore getDataStore() throws FoxtrotException {
         HbaseTableConnection tableConnection = Mockito.mock(HbaseTableConnection.class);
-        doAnswer(action -> MockHTable.create()).when(tableConnection)
+        doReturn(MockHTable.create()).when(tableConnection)
                 .getTable(Matchers.any());
         doReturn(new HbaseConfig()).when(tableConnection).getHbaseConfig();
         HBaseDataStore hBaseDataStore = new HBaseDataStore(tableConnection, new ObjectMapper(),
