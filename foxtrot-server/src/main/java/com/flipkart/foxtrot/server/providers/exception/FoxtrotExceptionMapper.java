@@ -6,7 +6,6 @@ import com.flipkart.foxtrot.core.exception.FoxtrotException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.inject.Inject;
 import javax.inject.Singleton;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.ExceptionMapper;
@@ -24,7 +23,6 @@ public class FoxtrotExceptionMapper implements ExceptionMapper<FoxtrotException>
 
     private final ObjectMapper mapper;
 
-    @Inject
     public FoxtrotExceptionMapper(final ObjectMapper mapper) {
         this.mapper = mapper;
     }

@@ -2,8 +2,6 @@ package com.flipkart.foxtrot.core.reroute;
 
 import com.flipkart.foxtrot.core.jobs.BaseJobManager;
 import com.flipkart.foxtrot.core.querystore.impl.HazelcastConnection;
-import com.google.inject.Inject;
-import com.google.inject.Singleton;
 import net.javacrumbs.shedlock.core.LockConfiguration;
 import net.javacrumbs.shedlock.core.LockingTaskExecutor;
 import org.slf4j.Logger;
@@ -15,7 +13,6 @@ import java.util.concurrent.ScheduledExecutorService;
 /***
  Created by mudit.g on Sep, 2019
  ***/
-@Singleton
 public class ClusterRerouteJob extends BaseJobManager {
 
     private static final Logger logger = LoggerFactory.getLogger(ClusterRerouteJob.class.getSimpleName());
@@ -23,7 +20,7 @@ public class ClusterRerouteJob extends BaseJobManager {
     private final ClusterRerouteConfig clusterRerouteConfig;
     private final ClusterRerouteManager clusterRerouteManager;
 
-    @Inject
+
     public ClusterRerouteJob(
             ScheduledExecutorService scheduledExecutorService, ClusterRerouteConfig clusterRerouteConfig,
             ClusterRerouteManager clusterRerouteManager, HazelcastConnection hazelcastConnection) {

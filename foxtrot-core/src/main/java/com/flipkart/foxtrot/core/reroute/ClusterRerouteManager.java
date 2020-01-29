@@ -6,8 +6,6 @@ import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 import com.google.common.collect.Lists;
-import com.google.inject.Inject;
-import com.google.inject.Singleton;
 import lombok.extern.slf4j.Slf4j;
 import org.elasticsearch.action.admin.cluster.node.info.NodesInfoRequest;
 import org.elasticsearch.action.admin.cluster.node.info.NodesInfoResponse;
@@ -25,13 +23,11 @@ import java.util.*;
  Created by mudit.g on Sep, 2019
  ***/
 @Slf4j
-@Singleton
 public class ClusterRerouteManager {
 
     private final ElasticsearchConnection connection;
     private final ClusterRerouteConfig clusterRerouteConfig;
 
-    @Inject
     public ClusterRerouteManager(ElasticsearchConnection connection, ClusterRerouteConfig clusterRerouteConfig) {
         this.connection = connection;
         this.clusterRerouteConfig = clusterRerouteConfig;

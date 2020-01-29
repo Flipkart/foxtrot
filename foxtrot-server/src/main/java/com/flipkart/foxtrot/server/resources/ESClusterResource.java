@@ -1,8 +1,6 @@
 package com.flipkart.foxtrot.server.resources;
 
 import com.flipkart.foxtrot.core.reroute.ClusterRerouteManager;
-import com.google.inject.Inject;
-import com.google.inject.Singleton;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 
@@ -15,7 +13,6 @@ import javax.ws.rs.core.MediaType;
 /***
  Created by mudit.g on Sep, 2019
  ***/
-@Singleton
 @Path("/v1/escluster")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
@@ -24,7 +21,6 @@ public class ESClusterResource {
 
     private ClusterRerouteManager clusterRerouteManager;
 
-    @Inject
     public ESClusterResource(ClusterRerouteManager clusterRerouteManager) {
         this.clusterRerouteManager = clusterRerouteManager;
     }
