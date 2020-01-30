@@ -22,7 +22,7 @@ public class EmailBuilderTest {
     @Test
     public void testCardinalityEmailBuild() throws JsonProcessingException {
         EmailBuilder emailBuilder = new EmailBuilder(new RichEmailBuilder(new StrSubstitutorEmailSubjectBuilder(),
-                                                                          new StrSubstitutorEmailBodyBuilder()));
+                new StrSubstitutorEmailBodyBuilder()));
         GroupRequest groupRequest = new GroupRequest();
         groupRequest.setTable(TestUtils.TEST_TABLE_NAME);
         groupRequest.setNesting(Lists.newArrayList("os", "deviceId"));
@@ -30,16 +30,17 @@ public class EmailBuilderTest {
         QueryProcessingError error = new QueryProcessingError(
                 groupRequest,
                 new CardinalityOverflowException(groupRequest,
-                                                 Jackson.newObjectMapper()
-                                                         .writeValueAsString(
-                                                                 groupRequest),
-                                                 "deviceId",
-                                                 0.75));
+                        Jackson.newObjectMapper()
+                                .writeValueAsString(
+                                        groupRequest),
+                        "deviceId",
+                        0.75));
+
         final Email email = emailBuilder.visit(error);
         Assert.assertEquals("Blocked query as it might have screwed up the cluster", email.getSubject());
         Assert.assertEquals(
                 "Blocked Query: {\"opcode\":\"group\",\"filters\":[],\"table\":\"test-table\"," +
-                        "\"uniqueCountOn\":null,\"nesting\":[\"os\",\"deviceId\"]}\n" +
+                        "\"uniqueCountOn\":null,\"nesting\":[\"os\",\"deviceId\"],\"consoleId\":null}\n" +
                         "Suspect field: deviceId\n" +
                         "Probability of screwing up the cluster: 0.75",
                 email.getContent());
