@@ -5,7 +5,7 @@
     <parent>
         <artifactId>foxtrot</artifactId>
         <groupId>com.flipkart.foxtrot</groupId>
-        <version>${project.version}</version>
+        <version>6.3.1-35-SNAPSHOT </version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <artifactId>foxtrot-server</artifactId>
@@ -149,8 +149,7 @@
                         <artifactId>docker-maven-plugin</artifactId>
                         <version>0.4.10</version>
                         <configuration>
-                            <imageName>docker.phonepe.com:5000/foxtrot:${project.version}
-                            </imageName>
+                            <imageName>docker.phonepe.com:5000/foxtrot:6.3.1-35-SNAPSHOT</imageName>
                             <dockerDirectory>${project.basedir}/..</dockerDirectory>
                             <registryUrl>http://docker.phonepe.com:5000/</registryUrl>
                         </configuration>
@@ -169,7 +168,7 @@
                                     <goal>push</goal>
                                 </goals>
                                 <configuration>
-                                    <imageName>docker.phonepe.com:5000/foxtrot:${project.version}
+                                    <imageName>docker.phonepe.com:5000/foxtrot:6.3.1-35-SNAPSHOT
                                     </imageName>
                                 </configuration>
                             </execution>
@@ -206,6 +205,7 @@
                             <goal>shade</goal>
                         </goals>
                         <configuration>
+                            <outputFile>${project.build.directory}/${project.artifactId}.jar</outputFile>
                             <transformers>
                                 <transformer
                                         implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>

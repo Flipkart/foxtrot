@@ -7,5 +7,5 @@ VOLUME /var/log/foxtrot
 
 ENV JAR_FILE foxtrot.jar
 
-ADD foxtrot-server/target/foxtrot*.jar ${JAR_FILE}
+ADD foxtrot-server/target/foxtrot-server.jar ${JAR_FILE}
 CMD sh -exc "java -jar -Duser.timezone=Asia/Kolkata ${JAVA_OPTS} -Xms${JAVA_PROCESS_MIN_HEAP-512m} -Xmx${JAVA_PROCESS_MAX_HEAP-512m} ${JAR_FILE} server /rosey/config.yml"
