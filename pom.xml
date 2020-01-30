@@ -59,7 +59,7 @@
         <lombok.version>1.16.16</lombok.version>
         <dropwizard.guicey.version>4.2.1</dropwizard.guicey.version>
         <project.version>6.3.1-2</project.version>
-        <project.version>6.3.1.0</project.version>
+        <test.container.version>1.0.4</test.container.version>
         <sonar.sources>src/main</sonar.sources>
         <sonar.tests>src/test</sonar.tests>
         <sonar.java.coveragePlugin>jacoco</sonar.java.coveragePlugin>
@@ -251,7 +251,19 @@
             <version>3.2.4</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>com.phonepe.testcontainer</groupId>
+            <artifactId>testcontainer-commons</artifactId>
+            <version>${test.container.version}</version>
+            <scope>test</scope>
+        </dependency>
 
+        <dependency>
+            <groupId>com.phonepe.testcontainer</groupId>
+            <artifactId>testcontainer-elasticsearch</artifactId>
+            <version>${test.container.version}</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>
@@ -323,97 +335,6 @@
                 </configuration>
             </plugin>
             <plugin>
-                <artifactId>maven-dependency-plugin</artifactId>
-                <version>2.10</version>
-                <inherited>false</inherited>
-                <executions>
-                    <execution>
-                        <id>get-es</id>
-                        <phase>test</phase>
-                        <goals>
-                            <goal>copy</goal>
-                        </goals>
-                        <configuration>
-                            <artifactItems>
-                                <artifactItem>
-                                    <groupId>org.elasticsearch.distribution.zip</groupId>
-                                    <artifactId>elasticsearch</artifactId>
-                                    <version>6.0.1</version>
-                                    <type>zip</type>
-                                </artifactItem>
-                            </artifactItems>
-                            <outputDirectory>${project.build.directory}/it</outputDirectory>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-            <!--<plugin>
-                <artifactId>maven-antrun-plugin</artifactId>
-                <version>1.8</version>
-                <executions>
-                    <execution>
-                        <id>start-es</id>
-                        <phase>pre-integration-test</phase>
-                        <goals>
-                            <goal>run</goal>
-                        </goals>
-                        <configuration>
-                            <target>
-                                <property name="target.dir" value="${project.build.directory}"/>
-                                <property name="elasticsearch.version" value="6.0.1"/>
-                                <ant antfile="${basedir}/it.xml" target="start"/>
-                            </target>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>stop-es</id>
-                        <phase>post-integration-test</phase>
-                        <goals>
-                            <goal>run</goal>
-                        </goals>
-                        <configuration>
-                            <target>
-                                <property name="target.dir" value="${project.build.directory}"/>
-                                <property name="elasticsearch.version" value="6.0.1"/>
-                                <ant antfile="${basedir}/it.xml" target="stop"/>
-                            </target>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>-->
-            <!--<plugin>
-                <artifactId>maven-failsafe-plugin</artifactId>
-                <version>2.19.1</version>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>integration-test</goal>
-                            <goal>verify</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                &lt;!&ndash;<configuration>
-                    <includes>
-                        <include>**/*.java</include>
-                    </includes>
-                    <groups>impl.IntegrationTest</groups>
-                    <skipTests>false</skipTests>
-                </configuration>&ndash;&gt;
-            </plugin>-->
-            <!--<plugin>
-                <artifactId>maven-surefire-plugin</artifactId>
-                <version>2.19.1</version>
-                <executions>
-                    <execution>
-                        <id>default-test</id>
-                        <configuration>
-                            <skip>true</skip>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>-->
-
-            <plugin>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>2.19.1</version>
                 <executions>
@@ -426,26 +347,6 @@
                     </execution>
                 </executions>
             </plugin>
-            <!--<plugin>
-                <artifactId>maven-antrun-plugin</artifactId>
-                <version>1.8</version>
-                <executions>
-                    <execution>
-                        <id>stop-es</id>
-                        <phase>test</phase>
-                        <goals>
-                            <goal>run</goal>
-                        </goals>
-                        <configuration>
-                            <target>
-                                <property name="target.dir" value="${project.build.directory}"/>
-                                <property name="elasticsearch.version" value="6.0.1"/>
-                                <ant antfile="it.xml" target="stop"/>
-                            </target>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>-->
             <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
