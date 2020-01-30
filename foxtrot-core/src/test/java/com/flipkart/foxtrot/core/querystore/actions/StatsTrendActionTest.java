@@ -1,14 +1,17 @@
 /**
  * Copyright 2014 Flipkart Internet Pvt. Ltd.
  * <p>
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  * <p>
  * http://www.apache.org/licenses/LICENSE-2.0
  * <p>
- * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
- * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
- * specific language governing permissions and limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package com.flipkart.foxtrot.core.querystore.actions;
 
@@ -25,9 +28,11 @@ import com.flipkart.foxtrot.core.exception.FoxtrotException;
 import com.flipkart.foxtrot.core.exception.MalformedQueryException;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
+import org.junit.Before;
+import org.junit.BeforeClass;
 import io.dropwizard.jackson.Jackson;
 import org.junit.Assert;
-import org.junit.Before;
+
 import org.junit.Test;
 
 import java.util.Collections;
@@ -43,8 +48,8 @@ import static org.junit.Assert.*;
 public class StatsTrendActionTest extends ActionTest {
 
     @Before
-    public void setUp() throws Exception {
-        super.setUp();
+    public void setup() throws Exception {
+        super.setup();
         List<Document> documents = TestUtils.getStatsTrendDocuments(getMapper());
         getQueryStore().save(TestUtils.TEST_TABLE_NAME, documents);
         getElasticsearchConnection().getClient()

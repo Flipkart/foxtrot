@@ -81,6 +81,14 @@ public class TestUtils {
         return hBaseDataStore;
     }
 
+    public static DataStore getDataStore(HbaseTableConnection tableConnection) throws FoxtrotException {
+        HBaseDataStore hBaseDataStore = new HBaseDataStore(tableConnection, new ObjectMapper(),
+                new DocumentTranslator(TestUtils.createHBaseConfigWithRawKeyV2())
+        );
+        hBaseDataStore = spy(hBaseDataStore);
+        return hBaseDataStore;
+    }
+
     public static Document getDocument(String id, long timestamp, Object[] args, ObjectMapper mapper) {
         Map<String, Object> data = Maps.newHashMap();
         for (int i = 0; i < args.length; i += 2) {

@@ -33,6 +33,7 @@ import com.google.common.collect.Lists;
 import org.elasticsearch.action.admin.indices.get.GetIndexRequest;
 import org.elasticsearch.action.admin.indices.get.GetIndexResponse;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.util.*;
@@ -48,8 +49,8 @@ import static org.mockito.Mockito.when;
 public class FilterActionTest extends ActionTest {
 
     @Before
-    public void setUp() throws Exception {
-        super.setUp();
+    public void setup() throws Exception {
+        super.setup();
         List<Document> documents = TestUtils.getQueryDocuments(getMapper());
         getQueryStore().save(TestUtils.TEST_TABLE_NAME, documents);
         getElasticsearchConnection().getClient()
