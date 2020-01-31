@@ -14,22 +14,19 @@ package com.flipkart.foxtrot.common;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import lombok.AllArgsConstructor;
+import java.io.Serializable;
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotNull;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.validator.constraints.NotEmpty;
 
-import javax.validation.constraints.Max;
-import javax.validation.constraints.Min;
-import javax.validation.constraints.NotNull;
-import java.io.Serializable;
-
 /**
  * Representation for a table on foxtrot.
  */
 @Data
-@AllArgsConstructor
 @NoArgsConstructor
 @Builder
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -51,4 +48,15 @@ public class Table implements Serializable {
     @Min(1)
     @Max(256)
     private int defaultRegions = 4;
+
+    @Builder
+    public Table(String name, int ttl, boolean seggregatedBackend, int defaultRegions) {
+        this.name = name;
+        this.ttl = ttl;
+        this.seggregatedBackend = seggregatedBackend;
+        if (defaultRegions == 0) {
+            defaultRegions = 4;
+        }
+        this.defaultRegions = defaultRegions;
+    }
 }
