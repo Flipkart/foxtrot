@@ -114,16 +114,14 @@
                     <groupId>com.google.inject</groupId>
                 </exclusion>
                 <exclusion>
+                    <groupId>com.google.guava</groupId>
+                    <artifactId>guava</artifactId>
+                </exclusion>
+                <exclusion>
                     <groupId>com.google.inject.extensions</groupId>
                     <artifactId>guice-servlet</artifactId>
                 </exclusion>
             </exclusions>
-        </dependency>
-
-        <dependency>
-            <groupId>com.google.guava</groupId>
-            <artifactId>guava</artifactId>
-            <version>19.0</version>
         </dependency>
 
         <!-- Zookeeper -->
