@@ -46,6 +46,7 @@ public class TableManagerV2Resource {
                 .name(table.getName())
                 .ttl(table.getTtl())
                 .seggregatedBackend(table.isSeggregatedBackend())
+                .defaultRegions(table.getDefaultRegions())
                 .build();
     }
 

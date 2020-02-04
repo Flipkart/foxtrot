@@ -24,6 +24,7 @@ import org.apache.hadoop.hbase.client.Admin;
 import org.apache.hadoop.hbase.client.Connection;
 import org.apache.hadoop.hbase.client.ConnectionFactory;
 import org.apache.hadoop.hbase.io.compress.Compression;
+import org.apache.hadoop.hbase.util.RegionSplitter;
 import org.apache.hadoop.security.UserGroupInformation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -67,7 +68,8 @@ public class HbaseTableConnection implements Managed {
 
     public synchronized void createTable(final Table table) throws IOException {
         HTableDescriptor hTableDescriptor = constructHTableDescriptor(table);
-        hBaseAdmin.createTable(hTableDescriptor);
+        byte[][] splits = new RegionSplitter.HexStringSplit().split(table.getDefaultRegions());
+        hBaseAdmin.createTable(hTableDescriptor, splits);
     }
 
     public synchronized void updateTable(final Table table) throws IOException {
