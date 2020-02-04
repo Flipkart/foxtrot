@@ -27,9 +27,7 @@ import java.io.Serializable;
 
 
 @Data
-@AllArgsConstructor
 @NoArgsConstructor
-@Builder
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class TableV2 implements Serializable {
 
@@ -49,4 +47,20 @@ public class TableV2 implements Serializable {
     private int ttl;
 
     private boolean seggregatedBackend = false;
+
+    @Min(1)
+    @Max(256)
+    private int defaultRegions = 4;
+
+    @Builder
+    public TableV2(String name, String adminEmails, int ttl, boolean seggregatedBackend, int defaultRegions) {
+        this.name = name;
+        this.adminEmails = adminEmails;
+        this.ttl = ttl;
+        this.seggregatedBackend = seggregatedBackend;
+        if (defaultRegions == 0) {
+            defaultRegions = 4;
+        }
+        this.defaultRegions = defaultRegions;
+    }
 }

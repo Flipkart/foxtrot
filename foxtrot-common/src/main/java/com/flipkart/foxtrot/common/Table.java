@@ -28,7 +28,6 @@ import org.hibernate.validator.constraints.NotEmpty;
  */
 @Data
 @NoArgsConstructor
-@Builder
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Table implements Serializable {
 
