@@ -59,7 +59,7 @@
         <lombok.version>1.16.16</lombok.version>
         <dropwizard.guicey.version>4.2.1</dropwizard.guicey.version>
         <project.version>6.3.1-2</project.version>
-        <test.container.version>1.0.4</test.container.version>
+        <es.container.version>1.0.4</es.container.version>
         <sonar.sources>src/main</sonar.sources>
         <sonar.tests>src/test</sonar.tests>
         <sonar.java.coveragePlugin>jacoco</sonar.java.coveragePlugin>
@@ -260,14 +260,14 @@
         <dependency>
             <groupId>com.phonepe.testcontainer</groupId>
             <artifactId>testcontainer-commons</artifactId>
-            <version>${test.container.version}</version>
+            <version>${es.container.version}</version>
             <scope>test</scope>
         </dependency>
 
         <dependency>
             <groupId>com.phonepe.testcontainer</groupId>
             <artifactId>testcontainer-elasticsearch</artifactId>
-            <version>${test.container.version}</version>
+            <version>${es.container.version}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
