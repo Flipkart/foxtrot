@@ -99,6 +99,32 @@ public class DocumentTranslatorTest {
     }
 
     @Test
+    public void testTranslationWithRawKeyVersion3() {
+        DocumentTranslator translator = new DocumentTranslator(TestUtils.createHBaseConfigWithRawKeyV3());
+        Table table = new Table();
+        table.setName(UUID.randomUUID()
+                .toString());
+
+        Document document = new Document();
+        document.setId(UUID.randomUUID()
+                .toString());
+        document.setTimestamp(System.currentTimeMillis());
+        document.setData(mapper.createObjectNode()
+                .put("name", "nitish"));
+
+        Document translatedDocument = translator.translate(table, document);
+
+        assertNotNull(translatedDocument.getMetadata());
+        assertEquals(translatedDocument.getId(), translatedDocument.getMetadata()
+                .getRawStorageId());
+        assertEquals(translatedDocument.getMetadata()
+                .getId(), document.getId());
+        assertTrue(translatedDocument.getMetadata()
+                .getRawStorageId()
+                .endsWith(Constants.rawKeyVersionToSuffixMap.get("3.0")));
+    }
+
+    @Test
     public void testTranslationBackWithRawKeyVersion1() {
         DocumentTranslator translator = new DocumentTranslator(TestUtils.createHBaseConfigWithRawKeyV1());
         Table table = new Table();
