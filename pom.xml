@@ -258,15 +258,15 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>com.phonepe.testcontainer</groupId>
-            <artifactId>testcontainer-commons</artifactId>
+            <groupId>io.appform.testcontainer</groupId>
+            <artifactId>junit-testcontainer-commons</artifactId>
             <version>${es.container.version}</version>
             <scope>test</scope>
         </dependency>
 
         <dependency>
-            <groupId>com.phonepe.testcontainer</groupId>
-            <artifactId>testcontainer-elasticsearch</artifactId>
+            <groupId>io.appform.testcontainer</groupId>
+            <artifactId>junit-testcontainer-elasticsearch</artifactId>
             <version>${es.container.version}</version>
             <scope>test</scope>
         </dependency>
