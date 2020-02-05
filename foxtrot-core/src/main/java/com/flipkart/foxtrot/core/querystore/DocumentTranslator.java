@@ -13,11 +13,13 @@ import com.google.common.collect.ImmutableList;
 import com.sematext.hbase.ds.AbstractRowKeyDistributor;
 import com.sematext.hbase.ds.RowKeyDistributorByHashPrefix;
 import java.util.List;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.hadoop.hbase.util.Bytes;
 
 /**
  * Created by santanu.s on 24/11/15.
  */
+@Slf4j
 public class DocumentTranslator {
 
     private static final String EXCEPTION_MESSAGE = "rawKeyVersion not supported version=[%s]";
@@ -77,6 +79,9 @@ public class DocumentTranslator {
 
     public DocumentMetadata metadata(final Table table, final Document inDocument) {
         final String rowKey = generateScalableKey(rawStorageIdFromDocument(table, inDocument));
+        if (table.getName().contains("android")){
+            log.debug("RowKey : {}, Table : {} " + rowKey, table.getName());
+        }
         DocumentMetadata metadata = new DocumentMetadata();
         metadata.setRawStorageId(rowKey);
         metadata.setId(inDocument.getId());
