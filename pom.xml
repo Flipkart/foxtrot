@@ -60,6 +60,7 @@
         <dropwizard.guicey.version>4.2.1</dropwizard.guicey.version>
         <project.version>6.3.1-2</project.version>
         <es.container.version>1.0.4</es.container.version>
+        <guava.version>24.1.1-jre</guava.version>
         <sonar.sources>src/main</sonar.sources>
         <sonar.tests>src/test</sonar.tests>
         <sonar.java.coveragePlugin>jacoco</sonar.java.coveragePlugin>
@@ -179,6 +180,11 @@
                 <groupId>ru.vyarus</groupId>
                 <artifactId>dropwizard-guicey</artifactId>
                 <version>${dropwizard.guicey.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.google.guava</groupId>
+                <artifactId>guava</artifactId>
+                <version>${guava.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
