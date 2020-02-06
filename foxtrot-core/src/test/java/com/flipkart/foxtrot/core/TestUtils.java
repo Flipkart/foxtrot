@@ -138,6 +138,12 @@ public class TestUtils {
         return hbaseConfig;
     }
 
+    public static HbaseConfig createHBaseConfigWithRawKeyV3() {
+        HbaseConfig hbaseConfig = new HbaseConfig();
+        hbaseConfig.setRawKeyVersion("3.0");
+        return hbaseConfig;
+    }
+
     public static Document translatedDocumentWithRowKeyVersion1(Table table, Document document) {
         return new DocumentTranslator(createHBaseConfigWithRawKeyV1()).translate(table, document);
     }
