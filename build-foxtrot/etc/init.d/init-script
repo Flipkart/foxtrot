@@ -14,7 +14,7 @@ fi
 export PACKAGE_PID="/var/run/$PACKAGE/$PACKAGE.pid"
 export DROPWIZARD_JAR="/var/lib/$PACKAGE/dropwizard/$MODULENAME.jar";
 export DROPWIZARD_CONFIG="/etc/$PACKAGE/config/$MODULENAME-config.yml";
-GC_OPTS="-Xms16G -Xmx16G -Xmn14G -XX:SurvivorRatio=2 -XX:+PrintGCApplicationStoppedTime -verbose:gc -XX:+PrintGCDateStamps -XX:+PrintGCTimeStamps -XX:+PrintGCDetails -XX:+PrintTenuringDistribution -Xloggc:/var/log/flipkart/$PACKAGE/gc.log -XX:+UseConcMarkSweepGC -XX:+UseParNewGC -XX:+DisableExplicitGC -XX:+CMSScavengeBeforeRemark -XX:+UnlockCommercialFeatures -XX:+FlightRecorder";
+GC_OPTS="-Xms14G -Xmx14G -Xmn12G -XX:SurvivorRatio=2 -XX:+PrintGCApplicationStoppedTime -verbose:gc -XX:+PrintGCDateStamps -XX:+PrintGCTimeStamps -XX:+PrintGCDetails -XX:+PrintTenuringDistribution -Xloggc:/var/log/flipkart/$PACKAGE/gc.log -XX:+UseConcMarkSweepGC -XX:+UseParNewGC -XX:+DisableExplicitGC -XX:+CMSScavengeBeforeRemark -XX:+UnlockCommercialFeatures -XX:+FlightRecorder";
 REMOTE_OPTS="-Xdebug -Xrunjdwp:server=y,transport=dt_socket,address=4000,suspend=n";
 JMX_OPTS="-Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.port=$JMX_PORT";
 
