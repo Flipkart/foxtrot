@@ -10,6 +10,7 @@ import com.flipkart.foxtrot.core.datastore.impl.hbase.IdentityKeyDistributor;
 import com.flipkart.foxtrot.core.querystore.actions.Constants;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
+import com.google.inject.Inject;
 import com.sematext.hbase.ds.AbstractRowKeyDistributor;
 import com.sematext.hbase.ds.RowKeyDistributorByHashPrefix;
 import java.util.List;
