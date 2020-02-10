@@ -10,6 +10,10 @@ import com.flipkart.foxtrot.core.cache.CacheManager;
 import com.flipkart.foxtrot.core.cache.impl.DistributedCacheFactory;
 import com.flipkart.foxtrot.core.cardinality.CardinalityConfig;
 import com.flipkart.foxtrot.core.common.DataDeletionManagerConfig;
+import com.flipkart.foxtrot.core.config.ConsoleHistoryConfig;
+import com.flipkart.foxtrot.core.config.FoxtrotServerConfiguration;
+import com.flipkart.foxtrot.core.config.QueryConfig;
+import com.flipkart.foxtrot.core.config.SegregationConfiguration;
 import com.flipkart.foxtrot.core.datastore.DataStore;
 import com.flipkart.foxtrot.core.datastore.impl.hbase.HBaseDataStore;
 import com.flipkart.foxtrot.core.datastore.impl.hbase.HBaseUtil;
@@ -30,7 +34,11 @@ import com.flipkart.foxtrot.core.querystore.actions.spi.ElasticsearchTuningConfi
 import com.flipkart.foxtrot.core.querystore.handlers.MetricRecorder;
 import com.flipkart.foxtrot.core.querystore.handlers.ResponseCacheUpdater;
 import com.flipkart.foxtrot.core.querystore.handlers.SlowQueryReporter;
-import com.flipkart.foxtrot.core.querystore.impl.*;
+import com.flipkart.foxtrot.core.querystore.impl.CacheConfig;
+import com.flipkart.foxtrot.core.querystore.impl.ClusterConfig;
+import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConfig;
+import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchQueryStore;
+import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
 import com.flipkart.foxtrot.core.querystore.mutator.IndexerEventMutator;
 import com.flipkart.foxtrot.core.querystore.mutator.LargeTextNodeRemover;
 import com.flipkart.foxtrot.core.reroute.ClusterRerouteConfig;
@@ -40,20 +48,13 @@ import com.flipkart.foxtrot.core.table.impl.DistributedTableMetadataManager;
 import com.flipkart.foxtrot.core.table.impl.FoxtrotTableManager;
 import com.flipkart.foxtrot.gandalf.access.AccessService;
 import com.flipkart.foxtrot.gandalf.access.AccessServiceImpl;
-import com.flipkart.foxtrot.core.config.FoxtrotServerConfiguration;
-import com.flipkart.foxtrot.core.config.QueryConfig;
-import com.flipkart.foxtrot.core.config.SegregationConfiguration;
 import com.flipkart.foxtrot.server.console.ConsolePersistence;
 import com.flipkart.foxtrot.server.console.ElasticsearchConsolePersistence;
-import com.flipkart.foxtrot.core.config.ConsoleHistoryConfig;
-import com.flipkart.foxtrot.core.config.FoxtrotServerConfiguration;
-import com.flipkart.foxtrot.core.config.SegregationConfiguration;
 import com.flipkart.foxtrot.sql.fqlstore.FqlStoreService;
 import com.flipkart.foxtrot.sql.fqlstore.FqlStoreServiceImpl;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
-import com.google.inject.Singleton;
 import com.google.inject.TypeLiteral;
 import com.phonepe.platform.http.OkHttpUtils;
 import com.phonepe.platform.http.ServiceEndpointProvider;
@@ -62,14 +63,14 @@ import io.appform.dropwizard.discovery.bundle.ServiceDiscoveryBundle;
 import io.dropwizard.server.ServerFactory;
 import io.dropwizard.setup.Environment;
 import io.dropwizard.util.Duration;
-
 import java.io.IOException;
 import java.security.GeneralSecurityException;
-import javax.inject.Named;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ScheduledExecutorService;
+import javax.inject.Named;
+import javax.inject.Singleton;
 import okhttp3.OkHttpClient;
 import org.apache.hadoop.conf.Configuration;
 
@@ -113,6 +114,8 @@ public class FoxtrotModule extends AbstractModule {
                 .to(FoxtrotTableManager.class);
         bind(new TypeLiteral<ActionRequestVisitor<String>>() {
         }).toInstance(new TableActionRequestVisitor());
+        bind(new TypeLiteral<List<HealthCheck>>() {
+        }).toProvider(HealthcheckListProvider.class);
     }
 
     @Provides
@@ -207,81 +210,76 @@ public class FoxtrotModule extends AbstractModule {
     @Singleton
     public List<ActionExecutionObserver> actionExecutionObservers(CacheManager cacheManager,
             InternalEventBus eventBus) {
-            return ImmutableList.<ActionExecutionObserver>builder()
-                    .add(new MetricRecorder())
-                    .add(new ResponseCacheUpdater(cacheManager))
-                    .add(new SlowQueryReporter())
-                    .add(new EventPublisherActionExecutionObserver(eventBus))
-                    .build();
-        }
-
-        @Provides
-        @Singleton
-        public ExecutorService provideGlobalExecutorService (Environment environment){
-            return environment.lifecycle()
-                    .executorService("query-executor-%s")
-                    .minThreads(20)
-                    .maxThreads(30)
-                    .keepAliveTime(Duration.seconds(30))
-                    .build();
-        }
-
-        @Provides
-        @Singleton
-        public ScheduledExecutorService provideGlobalScheduledExecutorService (Environment environment){
-            return environment.lifecycle()
-                    .scheduledExecutorService("cardinality-executor")
-                    .threads(1)
-                    .build();
-        }
-
-        @Provides
-        @Singleton
-        public List<HealthCheck> provideHealthChecks (Environment environment){
-            return Collections.emptyList(); //TODO::REturn dropwizard healthchecks
-        }
-
-        @Provides
-        @Singleton
-        public Configuration provideHBaseConfiguration (HbaseConfig hbaseConfig) throws IOException {
-            return HBaseUtil.create(hbaseConfig);
-        }
-
-        @Provides
-        @Singleton
-        public ElasticsearchTuningConfig provideElasticsearchTuningConfig (FoxtrotServerConfiguration configuration){
-            return configuration.getElasticsearchTuningConfig();
-        }
-        @Provides
-        @Singleton
-        @Named("GandalfServiceEndpointProvider")
-        ServiceEndpointProvider provideGandalfServiceEndpointProvider (FoxtrotServerConfiguration configuration,
-                Environment environment){
-            ServiceEndpointProviderFactory serviceEndpointFactory = new ServiceEndpointProviderFactory(
-                    this.serviceDiscoveryBundle
-                            .getCurator());
-            return serviceEndpointFactory.provider(configuration.getGandalfConfig()
-                            .getHttpConfig(),
-                    environment);
-        }
-
-        @Provides
-        @Singleton
-        @Named("GandalfOkHttpClient")
-        OkHttpClient provideGandalfOkHttpClient (Environment environment, FoxtrotServerConfiguration configuration)
-            throws GeneralSecurityException, IOException {
-            return OkHttpUtils.createDefaultClient("foxtrot-gandalf-client",
-                    environment.metrics(),
-                    configuration.getGandalfConfig().getHttpConfig());
-        }
-
-        @Provides
-        @Singleton
-        public QueryConfig providerQueryConfig (FoxtrotServerConfiguration configuration){
-            return configuration.getQueryConfig();
-        }
-
-        public ServerFactory serverFactory (FoxtrotServerConfiguration configuration){
-            return configuration.getServerFactory();
-        }
+        return ImmutableList.<ActionExecutionObserver>builder()
+                .add(new MetricRecorder())
+                .add(new ResponseCacheUpdater(cacheManager))
+                .add(new SlowQueryReporter())
+                .add(new EventPublisherActionExecutionObserver(eventBus))
+                .build();
     }
+
+    @Provides
+    @Singleton
+    public ExecutorService provideGlobalExecutorService(Environment environment) {
+        return environment.lifecycle()
+                .executorService("query-executor-%s")
+                .minThreads(20)
+                .maxThreads(30)
+                .keepAliveTime(Duration.seconds(30))
+                .build();
+    }
+
+    @Provides
+    @Singleton
+    public ScheduledExecutorService provideGlobalScheduledExecutorService(Environment environment) {
+        return environment.lifecycle()
+                .scheduledExecutorService("cardinality-executor")
+                .threads(1)
+                .build();
+    }
+
+    @Provides
+    @Singleton
+    public Configuration provideHBaseConfiguration(HbaseConfig hbaseConfig) throws IOException {
+        return HBaseUtil.create(hbaseConfig);
+    }
+
+    @Provides
+    @Singleton
+    public ElasticsearchTuningConfig provideElasticsearchTuningConfig(FoxtrotServerConfiguration configuration) {
+        return configuration.getElasticsearchTuningConfig();
+    }
+
+    @Provides
+    @Singleton
+    @Named("GandalfServiceEndpointProvider")
+    ServiceEndpointProvider provideGandalfServiceEndpointProvider(FoxtrotServerConfiguration configuration,
+            Environment environment) {
+        ServiceEndpointProviderFactory serviceEndpointFactory = new ServiceEndpointProviderFactory(
+                this.serviceDiscoveryBundle
+                        .getCurator());
+        return serviceEndpointFactory.provider(configuration.getGandalfConfig()
+                        .getHttpConfig(),
+                environment);
+    }
+
+    @Provides
+    @Singleton
+    @Named("GandalfOkHttpClient")
+    OkHttpClient provideGandalfOkHttpClient(Environment environment, FoxtrotServerConfiguration configuration)
+            throws GeneralSecurityException, IOException {
+        return OkHttpUtils.createDefaultClient("foxtrot-gandalf-client",
+                environment.metrics(),
+                configuration.getGandalfConfig().getHttpConfig());
+    }
+
+    @Provides
+    @Singleton
+    public QueryConfig providerQueryConfig(FoxtrotServerConfiguration configuration) {
+        return configuration.getQueryConfig();
+    }
+
+    public ServerFactory serverFactory(FoxtrotServerConfiguration configuration) {
+        return configuration.getServerFactory();
+    }
+}
