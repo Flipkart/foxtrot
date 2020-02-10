@@ -1,6 +1,7 @@
 package com.flipkart.foxtrot.server.cluster;
 
 import com.codahale.metrics.health.HealthCheck;
+import com.flipkart.foxtrot.core.config.FoxtrotServerConfiguration;
 import com.flipkart.foxtrot.core.querystore.impl.HazelcastConnection;
 import com.flipkart.foxtrot.server.utils.ServerUtils;
 import com.google.common.base.Preconditions;
@@ -41,7 +42,8 @@ public class ClusterManager implements Managed {
     private ScheduledExecutorService executor;
 
     @Inject
-    public ClusterManager(HazelcastConnection connection, List<HealthCheck> healthChecks, ServerFactory serverFactory) throws IOException {
+    public ClusterManager(HazelcastConnection connection, List<HealthCheck> healthChecks,
+            FoxtrotServerConfiguration configuration) throws IOException {
         this.hazelcastConnection = connection;
         this.healthChecks = healthChecks;
         MapConfig mapConfig = new MapConfig(MAP_NAME);
@@ -59,7 +61,7 @@ public class ClusterManager implements Managed {
             hostname = System.getenv("HOST");
         }
         Preconditions.checkNotNull(hostname, "Could not retrieve hostname, cannot proceed");
-        int port = ServerUtils.port(serverFactory);
+        int port = ServerUtils.port(configuration.getServerFactory());
         //Auto detect marathon environment and query for host environment variable
         if (!Strings.isNullOrEmpty(System.getenv("PORT_" + port))) {
             port = Integer.parseInt(System.getenv("PORT_" + port));
@@ -73,7 +75,7 @@ public class ClusterManager implements Managed {
         members = hazelcastConnection.getHazelcast()
                 .getMap(MAP_NAME);
         executor.scheduleWithFixedDelay(new NodeDataUpdater(healthChecks, members, clusterMember), 0, MAP_REFRESH_TIME,
-                                        TimeUnit.SECONDS);
+                TimeUnit.SECONDS);
     }
 
     @Override
@@ -119,8 +121,7 @@ public class ClusterManager implements Managed {
                     members.put(clusterMember.toString(), clusterMember);
                     logger.debug("Service is healthy. Registering to map.");
                 }
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                 logger.error("Error updating value in map: ", e);
             }
         }
