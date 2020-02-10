@@ -86,7 +86,34 @@
         <sonar.jacoco.reportPaths>${project.basedir}/../target/jacoco.exec</sonar.jacoco.reportPaths>
         <sonar.version>3.6.0.1398</sonar.version>
         <sonar.language>java</sonar.language>
-        <sonar.exclusions>**com/flipkart/foxtrot/common/**/*</sonar.exclusions>
+        <sonar.exclusions>**com/flipkart/foxtrot/common/**/*,
+            **com/flipkart/foxtrot/server/console/*,
+            **com/flipkart/foxtrot/server/di/*,
+            **com/flipkart/foxtrot/server/healthcheck/*,
+            **com/flipkart/foxtrot/server/providers/*,
+            **com/flipkart/foxtrot/server/utils/*,
+            **com/flipkart/foxtrot/server/utils/response/*,
+            **com/flipkart/foxtrot/server/providers/exception/*,
+            **com/flipkart/foxtrot/server/resources/UtilResource.java,
+            **com/flipkart/foxtrot/server/resources/TableManagerV2Resource.java,
+            **com/flipkart/foxtrot/server/resources/HbaseRegionsMergeResource.java,
+            **com/flipkart/foxtrot/server/resources/FqlV2Resource.java,
+            **com/flipkart/foxtrot/server/resources/FqlResource.java,
+            **com/flipkart/foxtrot/server/resources/ESClusterResource.java,
+            **com/flipkart/foxtrot/server/resources/ConsoleV2Resource.java,
+            **com/flipkart/foxtrot/server/resources/ConsoleResource.java,
+            **com/flipkart/foxtrot/server/resources/ClusterInfoResource.java,
+            **com/flipkart/foxtrot/server/resources/AnalyticsV2Resource.java,
+            **com/flipkart/foxtrot/server/jobs/consolehistory/*,
+            **com/flipkart/foxtrot/core/internalevents/*,
+            **com/flipkart/foxtrot/core/jobs/optimization/*,
+            **com/flipkart/foxtrot/core/reroute/ClusterRerouteConfig.java,
+            **com/flipkart/foxtrot/core/reroute/NodeInfo.java,
+            **com/flipkart/foxtrot/core/reroute/ShardInfo.java,
+            **com/flipkart/foxtrot/core/jobs/BaseJobConfig.java,
+            **com/flipkart/foxtrot/core/internalevents/events/*,
+            **com/flipkart/foxtrot/core/jobs/optimization/EsIndexOptimizationConfig.java
+        </sonar.exclusions>
         <sonar.test.exclusions>**com/flipkart/foxtrot/gandalf/**/*</sonar.test.exclusions>
     </properties>
 
