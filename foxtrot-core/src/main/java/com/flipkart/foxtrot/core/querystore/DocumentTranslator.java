@@ -26,6 +26,7 @@ public class DocumentTranslator {
     private final AbstractRowKeyDistributor keyDistributor;
     private String rawKeyVersion;
 
+    @Inject
     public DocumentTranslator(HbaseConfig hbaseConfig) {
         if (CollectionUtils.isNullOrEmpty(hbaseConfig.getRawKeyVersion()) || hbaseConfig.getRawKeyVersion()
                 .equalsIgnoreCase("1.0")) {

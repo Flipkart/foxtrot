@@ -1,14 +1,17 @@
 /**
  * Copyright 2014 Flipkart Internet Pvt. Ltd.
  * <p>
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  * <p>
  * http://www.apache.org/licenses/LICENSE-2.0
  * <p>
- * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
- * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
- * specific language governing permissions and limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package com.flipkart.foxtrot.core.datastore.impl.hbase;
 
@@ -36,7 +39,9 @@ import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
 /**
- * User: Santanu Sinha (santanu.sinha@flipkart.com) Date: 13/03/14 Time: 7:35 PM
+ * User: Santanu Sinha (santanu.sinha@flipkart.com)
+ * Date: 13/03/14
+ * Time: 7:35 PM
  */
 @Singleton
 @Order(0)
@@ -46,11 +51,13 @@ public class HbaseTableConnection implements Managed {
     private static final String DEFAULT_FAMILY_NAME = "d";
 
     private final HbaseConfig hbaseConfig;
+    private Configuration configuration;
     private Connection connection;
     private Admin hBaseAdmin;
 
     @Inject
-    public HbaseTableConnection(HbaseConfig hbaseConfig) {
+    public HbaseTableConnection(Configuration configuration, HbaseConfig hbaseConfig) {
+        this.configuration = configuration;
         this.hbaseConfig = hbaseConfig;
     }
 
@@ -92,7 +99,6 @@ public class HbaseTableConnection implements Managed {
     @Override
     public void start() throws Exception {
         logger.info("Starting HBase Connection");
-        Configuration configuration = HBaseUtil.create(hbaseConfig);
         connection = ConnectionFactory.createConnection(configuration);
         this.hBaseAdmin = connection.getAdmin();
         logger.info("Started HBase Connection");

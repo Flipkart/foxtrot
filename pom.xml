@@ -5,8 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <name>Foxtrot</name>
-    <description>Foxtrot is a scalable data and query store service for for real-time event data.
-    </description>
+    <description>Foxtrot is a scalable data and query store service for for real-time event data.</description>
     <url>https://git@github.com/flipkart-incubator/foxtrot</url>
 
     <groupId>com.flipkart.foxtrot</groupId>
@@ -76,8 +75,9 @@
         <elasticsearch.url>http://localhost:9200</elasticsearch.url>
         <lombok.version>1.16.16</lombok.version>
         <dropwizard.guicey.version>4.2.1</dropwizard.guicey.version>
-        <project.version>6.3.1-2</project.version>
-        <test.container.version>1.0.4</test.container.version>
+        <project.version>6.3.1-3</project.version>
+        <es.container.version>1.0.4</es.container.version>
+        <guava.version>24.1.1-jre</guava.version>
         <sonar.sources>src/main</sonar.sources>
         <sonar.tests>src/test</sonar.tests>
         <jacoco.version>0.7.5.201505241946</jacoco.version>
@@ -177,7 +177,7 @@
         <profile>
             <id>local</id>
             <properties>
-                <project.version>6.3.1-2</project.version>
+                <project.version>6.3.1-3</project.version>
             </properties>
         </profile>
     </profiles>
@@ -190,14 +190,19 @@
                 <version>1.7.21</version>
             </dependency>
             <dependency>
-                <artifactId>io.github.openfeign</artifactId>
-                <groupId>feign-httpclient</groupId>
-                <version>10.1.0</version>
-            </dependency>
-            <dependency>
                 <groupId>ru.vyarus</groupId>
                 <artifactId>dropwizard-guicey</artifactId>
                 <version>${dropwizard.guicey.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.google.guava</groupId>
+                <artifactId>guava</artifactId>
+                <version>${guava.version}</version>
+            </dependency>
+            <dependency>
+                <artifactId>io.github.openfeign</artifactId>
+                <groupId>feign-httpclient</groupId>
+                <version>10.1.0</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -206,6 +211,12 @@
             <groupId>com.smoketurner</groupId>
             <artifactId>dropwizard-swagger</artifactId>
             <version>1.3.7-1</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>io.dropwizard</groupId>
+                    <artifactId>dropwizard-assets</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.projectlombok</groupId>
@@ -297,7 +308,30 @@
                     <groupId>io.appform.dropwizard.discovery</groupId>
                     <artifactId>dropwizard-service-discovery-bundle</artifactId>
                 </exclusion>
+                <exclusion>
+                    <groupId>org.sonatype.sisu</groupId>
+                    <artifactId>sisu-guice</artifactId>
+                </exclusion>
             </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>
+            <version>3.2.4</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.appform.testcontainer</groupId>
+            <artifactId>junit-testcontainer-commons</artifactId>
+            <version>${es.container.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>io.appform.testcontainer</groupId>
+            <artifactId>junit-testcontainer-elasticsearch</artifactId>
+            <version>${es.container.version}</version>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>com.phonepe.gandalf</groupId>
@@ -336,25 +370,6 @@
                     <groupId>feign-httpclient</groupId>
                 </exclusion>
             </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>org.mockito</groupId>
-            <artifactId>mockito-core</artifactId>
-            <version>3.2.4</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>io.appform.testcontainer</groupId>
-            <artifactId>junit-testcontainer-commons</artifactId>
-            <version>${test.container.version}</version>
-            <scope>test</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>io.appform.testcontainer</groupId>
-            <artifactId>junit-testcontainer-elasticsearch</artifactId>
-            <version>${test.container.version}</version>
-            <scope>test</scope>
         </dependency>
     </dependencies>
 

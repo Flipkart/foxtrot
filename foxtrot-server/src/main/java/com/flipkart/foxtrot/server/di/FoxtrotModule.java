@@ -12,6 +12,7 @@ import com.flipkart.foxtrot.core.cardinality.CardinalityConfig;
 import com.flipkart.foxtrot.core.common.DataDeletionManagerConfig;
 import com.flipkart.foxtrot.core.datastore.DataStore;
 import com.flipkart.foxtrot.core.datastore.impl.hbase.HBaseDataStore;
+import com.flipkart.foxtrot.core.datastore.impl.hbase.HBaseUtil;
 import com.flipkart.foxtrot.core.datastore.impl.hbase.HbaseConfig;
 import com.flipkart.foxtrot.core.email.EmailConfig;
 import com.flipkart.foxtrot.core.email.messageformatting.EmailBodyBuilder;
@@ -45,6 +46,11 @@ import com.flipkart.foxtrot.core.config.SegregationConfiguration;
 import com.flipkart.foxtrot.server.console.ConsolePersistence;
 import com.flipkart.foxtrot.server.console.ElasticsearchConsolePersistence;
 import com.flipkart.foxtrot.core.config.ConsoleHistoryConfig;
+import com.flipkart.foxtrot.server.config.FoxtrotServerConfiguration;
+import com.flipkart.foxtrot.server.config.SegregationConfiguration;
+import com.flipkart.foxtrot.server.console.ConsolePersistence;
+import com.flipkart.foxtrot.server.console.ElasticsearchConsolePersistence;
+import com.flipkart.foxtrot.server.jobs.consolehistory.ConsoleHistoryConfig;
 import com.flipkart.foxtrot.sql.fqlstore.FqlStoreService;
 import com.flipkart.foxtrot.sql.fqlstore.FqlStoreServiceImpl;
 import com.google.common.collect.ImmutableList;
@@ -63,11 +69,13 @@ import io.dropwizard.util.Duration;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 import javax.inject.Named;
+import javax.inject.Singleton;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ScheduledExecutorService;
 import okhttp3.OkHttpClient;
+import org.apache.hadoop.conf.Configuration;
 
 
 /**
@@ -82,6 +90,7 @@ public class FoxtrotModule extends AbstractModule {
     }
 
     @Override
+
     protected void configure() {
         bind(TableMetadataManager.class)
                 .to(DistributedTableMetadataManager.class);
@@ -202,77 +211,81 @@ public class FoxtrotModule extends AbstractModule {
     @Singleton
     public List<ActionExecutionObserver> actionExecutionObservers(CacheManager cacheManager,
             InternalEventBus eventBus) {
-        return ImmutableList.<ActionExecutionObserver>builder()
-                .add(new MetricRecorder())
-                .add(new ResponseCacheUpdater(cacheManager))
-                .add(new SlowQueryReporter())
-                .add(new EventPublisherActionExecutionObserver(eventBus))
-                .build();
-    }
+            return ImmutableList.<ActionExecutionObserver>builder()
+                    .add(new MetricRecorder())
+                    .add(new ResponseCacheUpdater(cacheManager))
+                    .add(new SlowQueryReporter())
+                    .add(new EventPublisherActionExecutionObserver(eventBus))
+                    .build();
+        }
 
-    @Provides
-    @Singleton
-    public ExecutorService provideGlobalExecutorService(Environment environment) {
-        return environment.lifecycle()
-                .executorService("query-executor-%s")
-                .minThreads(20)
-                .maxThreads(30)
-                .keepAliveTime(Duration.seconds(30))
-                .build();
-    }
+        @Provides
+        @Singleton
+        public ExecutorService provideGlobalExecutorService (Environment environment){
+            return environment.lifecycle()
+                    .executorService("query-executor-%s")
+                    .minThreads(20)
+                    .maxThreads(30)
+                    .keepAliveTime(Duration.seconds(30))
+                    .build();
+        }
 
-    @Provides
-    @Singleton
-    public ScheduledExecutorService provideGlobalScheduledExecutorService(Environment environment) {
-        return environment.lifecycle()
-                .scheduledExecutorService("cardinality-executor")
-                .threads(1)
-                .build();
-    }
+        @Provides
+        @Singleton
+        public ScheduledExecutorService provideGlobalScheduledExecutorService (Environment environment){
+            return environment.lifecycle()
+                    .scheduledExecutorService("cardinality-executor")
+                    .threads(1)
+                    .build();
+        }
 
-    @Provides
-    @Singleton
-    public List<HealthCheck> provideHealthChecks(Environment environment) {
-        return Collections.emptyList(); //TODO::REturn dropwizard healthchecks
-    }
+        @Provides
+        @Singleton
+        public List<HealthCheck> provideHealthChecks (Environment environment){
+            return Collections.emptyList(); //TODO::REturn dropwizard healthchecks
+        }
 
-    @Provides
-    @Singleton
-    public ServerFactory serverFactory(FoxtrotServerConfiguration configuration) {
-        return configuration.getServerFactory();
-    }
+        @Provides
+        @Singleton
+        public Configuration provideHBaseConfiguration (HbaseConfig hbaseConfig) throws IOException {
+            return HBaseUtil.create(hbaseConfig);
+        }
 
-    @Provides
-    @Singleton
-    public ElasticsearchTuningConfig provideElasticsearchTuningConfig(FoxtrotServerConfiguration configuration) {
-        return configuration.getElasticsearchTuningConfig();
-    }
-    @Provides
-    @Singleton
-    @Named("GandalfServiceEndpointProvider")
-    ServiceEndpointProvider provideGandalfServiceEndpointProvider(FoxtrotServerConfiguration configuration,
-            Environment environment) {
-        ServiceEndpointProviderFactory serviceEndpointFactory = new ServiceEndpointProviderFactory(
-                this.serviceDiscoveryBundle
-                        .getCurator());
-        return serviceEndpointFactory.provider(configuration.getGandalfConfig()
-                        .getHttpConfig(),
-                environment);
-    }
+        @Provides
+        @Singleton
+        public ElasticsearchTuningConfig provideElasticsearchTuningConfig (FoxtrotServerConfiguration configuration){
+            return configuration.getElasticsearchTuningConfig();
+        }
+        @Provides
+        @Singleton
+        @Named("GandalfServiceEndpointProvider")
+        ServiceEndpointProvider provideGandalfServiceEndpointProvider (FoxtrotServerConfiguration configuration,
+                Environment environment){
+            ServiceEndpointProviderFactory serviceEndpointFactory = new ServiceEndpointProviderFactory(
+                    this.serviceDiscoveryBundle
+                            .getCurator());
+            return serviceEndpointFactory.provider(configuration.getGandalfConfig()
+                            .getHttpConfig(),
+                    environment);
+        }
 
-    @Provides
-    @Singleton
-    @Named("GandalfOkHttpClient")
-    OkHttpClient provideGandalfOkHttpClient(Environment environment, FoxtrotServerConfiguration configuration)
+        @Provides
+        @Singleton
+        @Named("GandalfOkHttpClient")
+        OkHttpClient provideGandalfOkHttpClient (Environment environment, FoxtrotServerConfiguration configuration)
             throws GeneralSecurityException, IOException {
-        return OkHttpUtils.createDefaultClient("foxtrot-gandalf-client",
-                environment.metrics(),
-                configuration.getGandalfConfig().getHttpConfig());
-    }
+            return OkHttpUtils.createDefaultClient("foxtrot-gandalf-client",
+                    environment.metrics(),
+                    configuration.getGandalfConfig().getHttpConfig());
+        }
 
-    @Provides
-    @Singleton
-    public QueryConfig providerQueryConfig(FoxtrotServerConfiguration configuration) {
-        return configuration.getQueryConfig();
+        @Provides
+        @Singleton
+        public QueryConfig providerQueryConfig (FoxtrotServerConfiguration configuration){
+            return configuration.getQueryConfig();
+        }
+
+        public ServerFactory serverFactory (FoxtrotServerConfiguration configuration){
+            return configuration.getServerFactory();
+        }
     }
-}

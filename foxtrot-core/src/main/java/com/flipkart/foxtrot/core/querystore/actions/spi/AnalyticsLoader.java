@@ -94,8 +94,7 @@ public class AnalyticsLoader implements Managed {
                     Constructor<? extends Action> constructor = metadata.getAction()
                             .getConstructor(metadata.getRequest(), AnalyticsLoader.class);
                     return constructor.newInstance(r, this);
-                }
-                catch (Exception e) {
+                } catch (Exception e) {
                     throw FoxtrotExceptions.createActionResolutionException(request, e);
                 }
             }
