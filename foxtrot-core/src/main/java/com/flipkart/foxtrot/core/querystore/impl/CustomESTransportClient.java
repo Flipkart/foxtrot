@@ -3,13 +3,12 @@ package com.flipkart.foxtrot.core.querystore.impl;
 import com.google.common.collect.ImmutableList;
 import io.netty.util.ThreadDeathWatcher;
 import io.netty.util.concurrent.GlobalEventExecutor;
+import java.util.concurrent.TimeUnit;
 import org.elasticsearch.client.transport.TransportClient;
 import org.elasticsearch.common.SuppressForbidden;
 import org.elasticsearch.common.network.NetworkModule;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.transport.Netty4Plugin;
-
-import java.util.concurrent.TimeUnit;
 
 /**
  *

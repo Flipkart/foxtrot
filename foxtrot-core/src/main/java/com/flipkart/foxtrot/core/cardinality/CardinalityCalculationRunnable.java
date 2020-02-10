@@ -14,12 +14,11 @@ package com.flipkart.foxtrot.core.cardinality;
 
 import com.flipkart.foxtrot.common.Table;
 import com.flipkart.foxtrot.core.table.TableMetadataManager;
+import java.util.Set;
+import java.util.stream.Collectors;
 import net.javacrumbs.shedlock.core.SchedulerLock;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.Set;
-import java.util.stream.Collectors;
 
 /***
  Created by nitish.goyal on 13/08/18

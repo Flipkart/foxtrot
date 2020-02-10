@@ -29,10 +29,13 @@ import io.dropwizard.Configuration;
 import io.dropwizard.primer.model.PrimerBundleConfiguration;
 import io.dropwizard.riemann.RiemannConfig;
 import io.federecio.dropwizard.swagger.SwaggerBundleConfiguration;
-import lombok.*;
-
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
+import lombok.Builder;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NonNull;
+import lombok.ToString;
 
 /**
  * User: Santanu Sinha (santanu.sinha@flipkart.com) Date: 15/03/14 Time: 9:26 PM
@@ -107,6 +110,7 @@ public class FoxtrotServerConfiguration extends Configuration {
         this.riemann = new RiemannConfig();
         this.restrictAccess = true;
         this.queryConfig = new QueryConfig();
+        this.primerBundleConfiguration = new PrimerBundleConfiguration();
         this.clusterRerouteConfig = new ClusterRerouteConfig();
         this.elasticsearchTuningConfig = new ElasticsearchTuningConfig();
     }

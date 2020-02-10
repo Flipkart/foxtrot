@@ -3,17 +3,24 @@ package com.flipkart.foxtrot.core.querystore.actions;
 import com.collections.CollectionUtils;
 import com.flipkart.foxtrot.common.ActionRequest;
 import com.flipkart.foxtrot.common.ActionResponse;
-import com.flipkart.foxtrot.common.query.*;
+import com.flipkart.foxtrot.common.query.Filter;
+import com.flipkart.foxtrot.common.query.MultiQueryRequest;
+import com.flipkart.foxtrot.common.query.MultiQueryResponse;
+import com.flipkart.foxtrot.common.query.MultiTimeQueryRequest;
+import com.flipkart.foxtrot.common.query.MultiTimeQueryResponse;
 import com.flipkart.foxtrot.common.query.numeric.BetweenFilter;
 import com.flipkart.foxtrot.core.common.Action;
 import com.flipkart.foxtrot.core.exception.FoxtrotExceptions;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsLoader;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsProvider;
 import com.google.common.collect.Lists;
-import org.elasticsearch.action.ActionRequestBuilder;
-
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
+import org.elasticsearch.action.ActionRequestBuilder;
 
 @AnalyticsProvider(opcode = "multi_time_query", request = MultiTimeQueryRequest.class, response =
         MultiTimeQueryResponse.class, cacheable = false)

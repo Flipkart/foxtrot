@@ -1,7 +1,6 @@
 package com.flipkart.foxtrot.core.table;
 
 import com.flipkart.foxtrot.common.Table;
-
 import java.util.List;
 
 /**

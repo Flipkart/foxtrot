@@ -104,6 +104,10 @@
             **com/flipkart/foxtrot/server/resources/ConsoleResource.java,
             **com/flipkart/foxtrot/server/resources/ClusterInfoResource.java,
             **com/flipkart/foxtrot/server/resources/AnalyticsV2Resource.java,
+            **com/flipkart/foxtrot/server/cluster/ClusterMember.java,
+            **com/flipkart/foxtrot/server/App.java,
+            **com/flipkart/foxtrot/server/FoxtrotServer.java,
+            **com/flipkart/foxtrot/server/InitializerCommand.java,
             **com/flipkart/foxtrot/server/jobs/consolehistory/*,
             **com/flipkart/foxtrot/core/internalevents/*,
             **com/flipkart/foxtrot/core/jobs/optimization/*,
@@ -112,7 +116,17 @@
             **com/flipkart/foxtrot/core/reroute/ShardInfo.java,
             **com/flipkart/foxtrot/core/jobs/BaseJobConfig.java,
             **com/flipkart/foxtrot/core/internalevents/events/*,
-            **com/flipkart/foxtrot/core/jobs/optimization/EsIndexOptimizationConfig.java
+            **com/flipkart/foxtrot/core/jobs/optimization/EsIndexOptimizationConfig.java,
+            **com/flipkart/foxtrot/core/exception/*,
+            **com/flipkart/foxtrot/core/cardinality/CardinalityConfig.java,
+            **com/flipkart/foxtrot/core/util/MetricUtil.java,
+            **com/flipkart/foxtrot/core/datastore/impl/hbase/HbaseTableConnection.java,
+            **com/flipkart/foxtrot/core/datastore/impl/hbase/HBaseUtil.java,
+            **com/flipkart/foxtrot/core/datastore/impl/hbase/HbaseRegions.java,
+            **com/flipkart/foxtrot/core/querystore/actions/spi/ElasticsearchTuningConfig.java,
+            **com/flipkart/foxtrot/core/querystore/actions/spi/ActionMetadata.java,
+            **com/flipkart/foxtrot/gandalf/**/*,
+
         </sonar.exclusions>
         <sonar.test.exclusions>**com/flipkart/foxtrot/gandalf/**/*</sonar.test.exclusions>
     </properties>

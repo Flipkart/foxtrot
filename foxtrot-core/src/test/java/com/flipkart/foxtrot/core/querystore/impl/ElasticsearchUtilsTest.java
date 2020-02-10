@@ -10,15 +10,14 @@ import com.flipkart.foxtrot.common.query.numeric.GreaterThanFilter;
 import com.flipkart.foxtrot.common.query.numeric.LessThanFilter;
 import com.flipkart.foxtrot.core.common.PeriodSelector;
 import io.dropwizard.util.Duration;
+import java.util.Arrays;
+import java.util.Collections;
 import org.joda.time.DateTimeZone;
 import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestWatcher;
 import org.junit.runner.Description;
-
-import java.util.Arrays;
-import java.util.Collections;
 
 
 public class ElasticsearchUtilsTest {

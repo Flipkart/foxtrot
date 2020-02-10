@@ -5,9 +5,8 @@ import com.flipkart.foxtrot.core.internalevents.InternalEventBusConsumer;
 import com.flipkart.foxtrot.core.internalevents.InternalSystemEvent;
 import com.google.common.eventbus.AsyncEventBus;
 import com.google.common.eventbus.Subscribe;
-
-import javax.inject.Singleton;
 import java.util.concurrent.Executors;
+import javax.inject.Singleton;
 
 /**
  *

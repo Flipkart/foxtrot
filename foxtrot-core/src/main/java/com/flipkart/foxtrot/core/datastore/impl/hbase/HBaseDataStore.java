@@ -36,12 +36,6 @@ import org.apache.hadoop.hbase.util.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-
 /**
  * User: Santanu Sinha (santanu.sinha@flipkart.com)
  * Date: 13/03/14
@@ -145,7 +139,7 @@ public class HBaseDataStore implements DataStore {
             hTable.put(puts);
         }
         catch (IOException e) {
-            logger.error("Error occurred while ingesting event in HBase : ", e);
+            logger.error("Error occurred while ingesting event in HBase : {} {}", e.getCause(), e.getMessage());
             throw FoxtrotExceptions.createConnectionException(table, e);
         }
         return translatedDocuments.build();

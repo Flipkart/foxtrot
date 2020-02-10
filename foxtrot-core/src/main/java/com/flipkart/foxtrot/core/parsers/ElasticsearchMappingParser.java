@@ -17,12 +17,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.flipkart.foxtrot.common.FieldMetadata;
 import com.flipkart.foxtrot.common.FieldType;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
-import org.elasticsearch.cluster.metadata.MappingMetaData;
-
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
+import org.elasticsearch.cluster.metadata.MappingMetaData;
 
 /**
  * Created by rishabh.goyal on 06/05/14.

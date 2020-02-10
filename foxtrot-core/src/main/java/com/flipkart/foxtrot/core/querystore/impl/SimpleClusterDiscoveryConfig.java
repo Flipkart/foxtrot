@@ -14,7 +14,6 @@ package com.flipkart.foxtrot.core.querystore.impl;
 
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-
 import java.util.List;
 
 public class SimpleClusterDiscoveryConfig extends ClusterDiscoveryConfig {

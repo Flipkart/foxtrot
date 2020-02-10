@@ -1,9 +1,9 @@
 package com.flipkart.foxtrot.core.cache;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
 import java.util.HashMap;
 import java.util.Map;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 
 /**
  * Created by rishabh.goyal on 26/12/15.

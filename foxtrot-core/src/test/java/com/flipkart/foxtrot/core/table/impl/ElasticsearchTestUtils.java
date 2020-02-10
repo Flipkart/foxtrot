@@ -21,14 +21,11 @@ import static io.appform.testcontainers.elasticsearch.utils.ElasticsearchContain
 
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConfig;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConnection;
-import java.util.Collections;
-import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
 import io.appform.testcontainers.elasticsearch.config.ElasticsearchContainerConfiguration;
+import java.util.Collections;
 import lombok.Getter;
-import lombok.extern.slf4j.Slf4j;
 import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;
 import org.elasticsearch.action.admin.indices.delete.DeleteIndexResponse;
-import java.util.Collections;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testcontainers.containers.FixedHostPortGenericContainer;

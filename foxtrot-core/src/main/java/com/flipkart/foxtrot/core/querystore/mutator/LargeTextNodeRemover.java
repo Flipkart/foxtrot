@@ -6,11 +6,10 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.flipkart.foxtrot.core.config.TextNodeRemoverConfiguration;
 import com.google.common.collect.Lists;
-import lombok.extern.slf4j.Slf4j;
-import lombok.val;
-
 import java.util.List;
 import java.util.Random;
+import lombok.extern.slf4j.Slf4j;
+import lombok.val;
 
 @Slf4j
 public class LargeTextNodeRemover implements IndexerEventMutator {
