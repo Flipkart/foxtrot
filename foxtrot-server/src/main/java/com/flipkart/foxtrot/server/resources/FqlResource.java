@@ -3,7 +3,7 @@ package com.flipkart.foxtrot.server.resources;
 import com.codahale.metrics.annotation.Timed;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.flipkart.foxtrot.gandalf.access.AccessService;
-import com.flipkart.foxtrot.server.config.QueryConfig;
+import com.flipkart.foxtrot.core.config.QueryConfig;
 import com.flipkart.foxtrot.server.providers.FlatToCsvConverter;
 import com.flipkart.foxtrot.server.providers.FoxtrotExtraMediaType;
 import com.flipkart.foxtrot.sql.FqlEngine;
@@ -19,15 +19,18 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.StreamingOutput;
 import java.io.OutputStreamWriter;
 import java.util.List;
 
-@Path("/v1/fql")
-@Api(value = "/v1/fql")
 @Slf4j
+@Path("/v1/fql")
+@Api(value = "/v1/fql", description = "FQL API")
+@Singleton
 public class FqlResource {
 
     private final QueryConfig queryConfig;
@@ -35,6 +38,7 @@ public class FqlResource {
     private FqlStoreService fqlStoreService;
     private AccessService accessService;
 
+    @Inject
     public FqlResource(
             final FqlEngine fqlEngine, final FqlStoreService fqlStoreService, AccessService accessService,
             QueryConfig queryConfig) {

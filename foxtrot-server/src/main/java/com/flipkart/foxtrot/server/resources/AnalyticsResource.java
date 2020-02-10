@@ -22,11 +22,13 @@ import com.flipkart.foxtrot.common.ActionValidationResponse;
 import com.flipkart.foxtrot.core.common.AsyncDataToken;
 import com.flipkart.foxtrot.core.querystore.QueryExecutor;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
-import com.flipkart.foxtrot.server.config.QueryConfig;
+import com.flipkart.foxtrot.core.config.QueryConfig;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import javax.validation.Valid;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
@@ -39,16 +41,18 @@ import javax.ws.rs.core.MediaType;
  * Date: 27/03/14
  * Time: 2:05 AM
  */
+@Slf4j
 @Path("/v1/analytics")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
 @Api(value = "/v1/analytics")
-@Slf4j
+@Singleton
 public class AnalyticsResource {
 
     private final QueryExecutor queryExecutor;
     private final QueryConfig queryConfig;
 
+    @Inject
     public AnalyticsResource(QueryExecutor queryExecutor, QueryConfig queryConfig) {
         this.queryExecutor = queryExecutor;
         this.queryConfig = queryConfig;

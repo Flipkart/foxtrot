@@ -1,10 +1,14 @@
 /**
- * Copyright 2014 Flipkart Internet Pvt. Ltd. Licensed under the Apache License, Version 2.0 (the "License"); you may
- * not use this file except in compliance with the License. You may obtain a copy of the License at
- * http://www.apache.org/licenses/LICENSE-2.0 Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
- * either express or implied. See the License for the specific language governing permissions and limitations under the
- * License.
+ * Copyright 2014 Flipkart Internet Pvt. Ltd.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package com.flipkart.foxtrot.core.querystore.impl;
 
@@ -47,6 +51,8 @@ import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -59,9 +65,12 @@ import java.util.stream.Collectors;
 import static org.elasticsearch.index.query.QueryBuilders.*;
 
 /**
- * User: Santanu Sinha (santanu.sinha@flipkart.com) Date: 14/03/14 Time: 12:27 AM
+ * User: Santanu Sinha (santanu.sinha@flipkart.com)
+ * Date: 14/03/14
+ * Time: 12:27 AM
  */
 @Data
+@Singleton
 public class ElasticsearchQueryStore implements QueryStore {
 
     private static final Logger logger = LoggerFactory.getLogger(ElasticsearchQueryStore.class.getSimpleName());
@@ -77,13 +86,13 @@ public class ElasticsearchQueryStore implements QueryStore {
     private final ObjectMapper mapper;
     private final CardinalityConfig cardinalityConfig;
 
-    public ElasticsearchQueryStore(
-            TableMetadataManager tableMetadataManager,
-            ElasticsearchConnection connection,
-            DataStore dataStore,
-            List<IndexerEventMutator> mutators,
-            ObjectMapper mapper,
-            CardinalityConfig cardinalityConfig) {
+    @Inject
+    public ElasticsearchQueryStore(TableMetadataManager tableMetadataManager,
+                                   ElasticsearchConnection connection,
+                                   DataStore dataStore,
+                                   List<IndexerEventMutator> mutators,
+                                   ObjectMapper mapper,
+                                   CardinalityConfig cardinalityConfig) {
         this.connection = connection;
         this.dataStore = dataStore;
         this.tableMetadataManager = tableMetadataManager;
@@ -180,7 +189,6 @@ public class ElasticsearchQueryStore implements QueryStore {
                     .start();
 
             action = DATA_STORE;
-            logger.warn("elastic search query store :{}, dataStore : {}", this, dataStore);
             final List<Document> translatedDocuments = dataStore.saveAll(tableMeta, documents);
             logger.info("DataStoreTook:{}", stopwatch.elapsed(TimeUnit.MILLISECONDS));
             MetricUtil.getInstance()
@@ -303,7 +311,6 @@ public class ElasticsearchQueryStore implements QueryStore {
             }
         }
         logger.info("Get row keys: {}", rowKeys.size());
-        logger.warn("elasticsearch query store :{}",this);
         return dataStore.getAll(tableMetadataManager.get(table), ImmutableList.copyOf(rowKeys.values()));
     }
 

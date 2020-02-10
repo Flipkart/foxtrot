@@ -31,6 +31,7 @@ import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Matchers;
 import org.mockito.Mockito;
@@ -45,7 +46,6 @@ import static org.mockito.Mockito.*;
 /**
  * Created by rishabh.goyal on 15/04/14.
  */
-
 public class HBaseDataStoreTest {
 
     private static final byte[] COLUMN_FAMILY = Bytes.toBytes("d");

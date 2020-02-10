@@ -19,6 +19,8 @@ import com.flipkart.foxtrot.core.table.TableMetadataManager;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -30,11 +32,13 @@ import java.util.stream.Collectors;
 @Path("/v1/tables")
 @Produces(MediaType.APPLICATION_JSON)
 @Api(value = "/v1/tables")
+@Singleton
 public class TableFieldMappingResource {
 
     private final TableManager tableManager;
     private final TableMetadataManager tableMetadataManager;
 
+    @Inject
     public TableFieldMappingResource(TableManager tableManager, TableMetadataManager tableMetadataManager) {
         this.tableManager = tableManager;
         this.tableMetadataManager = tableMetadataManager;
