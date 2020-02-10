@@ -135,8 +135,15 @@ public class HazelcastConnection implements Managed {
     @Override
     public void start() throws Exception {
         logger.info("Starting Hazelcast Instance");
+        configureHealthcheck();
         hazelcast = Hazelcast.newHazelcastInstance(hazelcastConfig);
         logger.info("Started Hazelcast Instance");
+    }
+
+    private void configureHealthcheck() {
+        MapConfig mapConfig = new MapConfig("health_check");
+        mapConfig.setInMemoryFormat(InMemoryFormat.BINARY);
+        hazelcastConfig.addMapConfig(mapConfig);
     }
 
     @Override

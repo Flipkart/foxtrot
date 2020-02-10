@@ -10,6 +10,7 @@ import com.flipkart.foxtrot.core.cardinality.CardinalityConfig;
 import com.flipkart.foxtrot.core.common.DataDeletionManagerConfig;
 import com.flipkart.foxtrot.core.datastore.DataStore;
 import com.flipkart.foxtrot.core.datastore.impl.hbase.HBaseDataStore;
+import com.flipkart.foxtrot.core.datastore.impl.hbase.HBaseUtil;
 import com.flipkart.foxtrot.core.datastore.impl.hbase.HbaseConfig;
 import com.flipkart.foxtrot.core.email.EmailConfig;
 import com.flipkart.foxtrot.core.email.messageformatting.EmailBodyBuilder;
@@ -43,15 +44,19 @@ import com.flipkart.foxtrot.sql.fqlstore.FqlStoreServiceImpl;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
+import com.google.inject.TypeLiteral;
 import io.dropwizard.server.ServerFactory;
 import io.dropwizard.setup.Environment;
 import io.dropwizard.util.Duration;
 
+import java.io.IOException;
+import java.util.Set;
 import javax.inject.Singleton;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ScheduledExecutorService;
+import org.apache.hadoop.conf.Configuration;
 
 
 /**
@@ -82,6 +87,8 @@ public class FoxtrotModule extends AbstractModule {
                 .to(StrSubstitutorEmailBodyBuilder.class);
         bind(TableManager.class)
                 .to(FoxtrotTableManager.class);
+        bind(new TypeLiteral<List<HealthCheck>>() {
+        }).toProvider(HealthcheckListProvider.class);
     }
 
     @Provides
@@ -197,8 +204,8 @@ public class FoxtrotModule extends AbstractModule {
 
     @Provides
     @Singleton
-    public List<HealthCheck> provideHealthChecks(Environment environment) {
-        return Collections.emptyList(); //TODO::REturn dropwizard healthchecks
+    public Configuration provideHBaseConfiguration(HbaseConfig hbaseConfig) throws IOException {
+        return HBaseUtil.create(hbaseConfig);
     }
 
     @Provides

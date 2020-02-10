@@ -49,11 +49,13 @@ public class HbaseTableConnection implements Managed {
     private static final String DEFAULT_FAMILY_NAME = "d";
 
     private final HbaseConfig hbaseConfig;
+    private Configuration configuration;
     private Connection connection;
     private Admin hBaseAdmin;
 
     @Inject
-    public HbaseTableConnection(HbaseConfig hbaseConfig) {
+    public HbaseTableConnection(Configuration configuration, HbaseConfig hbaseConfig) {
+        this.configuration = configuration;
         this.hbaseConfig = hbaseConfig;
     }
 
@@ -91,7 +93,6 @@ public class HbaseTableConnection implements Managed {
     @Override
     public void start() throws Exception {
         logger.info("Starting HBase Connection");
-        Configuration configuration = HBaseUtil.create(hbaseConfig);
         connection = ConnectionFactory.createConnection(configuration);
         this.hBaseAdmin = connection.getAdmin();
         logger.info("Started HBase Connection");
