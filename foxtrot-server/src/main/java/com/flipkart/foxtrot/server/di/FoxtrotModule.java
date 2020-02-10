@@ -44,11 +44,13 @@ import com.flipkart.foxtrot.sql.fqlstore.FqlStoreServiceImpl;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
+import com.google.inject.TypeLiteral;
 import io.dropwizard.server.ServerFactory;
 import io.dropwizard.setup.Environment;
 import io.dropwizard.util.Duration;
 
 import java.io.IOException;
+import java.util.Set;
 import javax.inject.Singleton;
 import java.util.Collections;
 import java.util.List;
@@ -85,6 +87,8 @@ public class FoxtrotModule extends AbstractModule {
                 .to(StrSubstitutorEmailBodyBuilder.class);
         bind(TableManager.class)
                 .to(FoxtrotTableManager.class);
+        bind(new TypeLiteral<List<HealthCheck>>() {
+        }).toProvider(HealthcheckListProvider.class);
     }
 
     @Provides
@@ -196,12 +200,6 @@ public class FoxtrotModule extends AbstractModule {
                 .scheduledExecutorService("cardinality-executor")
                 .threads(1)
                 .build();
-    }
-
-    @Provides
-    @Singleton
-    public List<HealthCheck> provideHealthChecks(Environment environment) {
-        return Collections.emptyList(); //TODO::REturn dropwizard healthchecks
     }
 
     @Provides
