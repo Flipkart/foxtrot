@@ -19,6 +19,9 @@ import com.flipkart.foxtrot.core.TestUtils;
 import com.flipkart.foxtrot.core.table.impl.FoxtrotTableManager;
 import com.flipkart.foxtrot.server.providers.exception.FoxtrotExceptionMapper;
 import io.dropwizard.testing.junit.ResourceTestRule;
+import java.util.concurrent.TimeUnit;
+import org.awaitility.Awaitility;
+import org.awaitility.Durations;
 import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Rule;
@@ -32,6 +35,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import static org.awaitility.Awaitility.await;
 import static org.junit.Assert.*;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
@@ -61,7 +65,7 @@ public class TableFieldMappingResourceTest extends FoxtrotResourceTest {
     @Test
     public void testGet() throws Exception {
         getQueryStore().save(TestUtils.TEST_TABLE_NAME, TestUtils.getMappingDocuments(getMapper()));
-        Thread.sleep(500);
+        await().pollDelay(500, TimeUnit.MILLISECONDS).until(() -> true);
 
         Set<FieldMetadata> mappings = new HashSet<>();
         mappings.add(FieldMetadata.builder()
@@ -138,7 +142,6 @@ public class TableFieldMappingResourceTest extends FoxtrotResourceTest {
         }
     }
 
-    @Ignore
     @Test
     public void testGetTableWithNoDocument() throws Exception {
         TableFieldMapping request = new TableFieldMapping(TestUtils.TEST_TABLE_NAME, new HashSet<>());
@@ -147,7 +150,7 @@ public class TableFieldMappingResourceTest extends FoxtrotResourceTest {
                 .request()
                 .get(TableFieldMapping.class);
         assertEquals(request.getTable(), response.getTable());
-        assertNull(response.getMappings());
+        assertNotNull(response.getMappings());
     }
 
     @Test
@@ -156,7 +159,7 @@ public class TableFieldMappingResourceTest extends FoxtrotResourceTest {
                 .initializeTable(any(String.class));
 
         getQueryStore().save(TestUtils.TEST_TABLE_NAME, TestUtils.getMappingDocuments(getMapper()));
-        Thread.sleep(500);
+        await().pollDelay(500, TimeUnit.MILLISECONDS).until(() -> true);
 
         Map<String, TableFieldMapping> response = resources.client()
                 .target("/v1/tables/fields")

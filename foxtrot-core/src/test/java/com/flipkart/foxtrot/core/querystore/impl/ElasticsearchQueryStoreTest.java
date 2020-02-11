@@ -68,6 +68,7 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.Vector;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import lombok.val;
 import org.apache.commons.lang.ObjectUtils;
@@ -85,6 +86,16 @@ import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Mockito;
+
+import java.util.*;
+import java.util.concurrent.ExecutionException;
+import java.util.stream.Collectors;
+
+import static org.awaitility.Awaitility.await;
+import static org.junit.Assert.*;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.*;
 
 
 /**
@@ -406,8 +417,7 @@ public class ElasticsearchQueryStoreTest {
         try {
             queryStore.save(TestUtils.TEST_TABLE + "-missing", expectedDocument);
             fail();
-        }
-        catch (FoxtrotException qse) {
+        } catch (FoxtrotException qse) {
             assertEquals(ErrorCode.INVALID_REQUEST, qse.getCode());
         }
     }
@@ -492,8 +502,7 @@ public class ElasticsearchQueryStoreTest {
         try {
             queryStore.save(TestUtils.TEST_TABLE_NAME, list);
             fail();
-        }
-        catch (FoxtrotException ex) {
+        } catch (FoxtrotException ex) {
             assertEquals(ErrorCode.INVALID_REQUEST, ex.getCode());
         }
     }
@@ -504,8 +513,7 @@ public class ElasticsearchQueryStoreTest {
         try {
             queryStore.save(TestUtils.TEST_TABLE_NAME, list);
             fail();
-        }
-        catch (FoxtrotException ex) {
+        } catch (FoxtrotException ex) {
             assertEquals(ErrorCode.INVALID_REQUEST, ex.getCode());
         }
     }
@@ -519,8 +527,7 @@ public class ElasticsearchQueryStoreTest {
         try {
             queryStore.save(TestUtils.TEST_TABLE + "-missing", documents);
             fail();
-        }
-        catch (FoxtrotException qse) {
+        } catch (FoxtrotException qse) {
             assertEquals(ErrorCode.INVALID_REQUEST, qse.getCode());
         }
     }
@@ -575,8 +582,7 @@ public class ElasticsearchQueryStoreTest {
             queryStore.get(TestUtils.TEST_TABLE_NAME, UUID.randomUUID()
                     .toString());
             fail();
-        }
-        catch (FoxtrotException dse) {
+        } catch (FoxtrotException dse) {
             assertEquals(ErrorCode.DOCUMENT_NOT_FOUND, dse.getCode());
         }
     }
@@ -672,8 +678,7 @@ public class ElasticsearchQueryStoreTest {
                                                                                .toString(), UUID.randomUUID()
                                                                                .toString()));
             fail();
-        }
-        catch (FoxtrotException e) {
+        } catch (FoxtrotException e) {
             assertEquals(ErrorCode.DOCUMENT_NOT_FOUND, e.getCode());
         }
     }
@@ -684,7 +689,7 @@ public class ElasticsearchQueryStoreTest {
         doReturn(TestUtils.getMappingDocuments(mapper)).when(dataStore)
                 .saveAll(any(Table.class), anyListOf(Document.class));
         queryStore.save(TestUtils.TEST_TABLE_NAME, TestUtils.getMappingDocuments(mapper));
-        Thread.sleep(500);
+        await().pollDelay(500, TimeUnit.MILLISECONDS).until(() -> true);
 
         Set<FieldMetadata> mappings = new HashSet<FieldMetadata>();
         mappings.add(FieldMetadata.builder()
@@ -720,8 +725,7 @@ public class ElasticsearchQueryStoreTest {
         try {
             queryStore.getFieldMappings(TestUtils.TEST_TABLE + "-test");
             fail();
-        }
-        catch (FoxtrotException qse) {
+        } catch (FoxtrotException qse) {
             assertEquals(ErrorCode.INVALID_REQUEST, qse.getCode());
         }
     }

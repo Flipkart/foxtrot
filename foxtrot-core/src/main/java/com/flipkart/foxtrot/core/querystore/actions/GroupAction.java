@@ -1,14 +1,17 @@
 /**
  * Copyright 2014 Flipkart Internet Pvt. Ltd.
  * <p>
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  * <p>
  * http://www.apache.org/licenses/LICENSE-2.0
  * <p>
- * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
- * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
- * specific language governing permissions and limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package com.flipkart.foxtrot.core.querystore.actions;
 
@@ -74,7 +77,9 @@ import org.elasticsearch.search.aggregations.metrics.cardinality.Cardinality;
 import org.joda.time.Interval;
 
 /**
- * User: Santanu Sinha (santanu.sinha@flipkart.com) Date: 27/03/14 Time: 7:16 PM
+ * User: Santanu Sinha (santanu.sinha@flipkart.com)
+ * Date: 27/03/14
+ * Time: 7:16 PM
  */
 @AnalyticsProvider(opcode = "group", request = GroupRequest.class, response = GroupResponse.class, cacheable = true)
 @Slf4j
@@ -134,8 +139,7 @@ public class GroupAction extends Action<GroupRequest> {
 
         if (CollectionUtils.isNullOrEmpty(parameter.getNesting())) {
             validationErrors.add("at least one grouping parameter is required");
-        }
-        else {
+        } else {
             validationErrors.addAll(parameter.getNesting()
                                             .stream()
                                             .filter(CollectionUtils::isNullOrEmpty)
@@ -164,8 +168,7 @@ public class GroupAction extends Action<GroupRequest> {
             SearchResponse response = query.execute()
                     .actionGet(getGetQueryTimeout());
             return getResponse(response, parameter);
-        }
-        catch (ElasticsearchException e) {
+        } catch (ElasticsearchException e) {
             throw FoxtrotExceptions.createQueryExecutionException(parameter, e);
         }
     }
@@ -181,8 +184,7 @@ public class GroupAction extends Action<GroupRequest> {
             query.setQuery(new ElasticSearchQueryGenerator().genFilter(parameter.getFilters()))
                     .setSize(QUERY_SIZE)
                     .addAggregation(aggregation);
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             throw FoxtrotExceptions.queryCreationException(parameter, e);
         }
         return query;
@@ -256,8 +258,8 @@ public class GroupAction extends Action<GroupRequest> {
 
                         @Override
                         public Long visit(CardinalityEstimationData cardinalityEstimationData) {
-                            return (cardinalityEstimationData.getCardinality() * estimatedDocCountAfterFilters) /
-                                    ((long)cardinalityEstimationData.getCount());
+                            return (long)(((double)(cardinalityEstimationData.getCardinality() * estimatedDocCountAfterFilters))
+                                    / cardinalityEstimationData.getCount());
                         }
 
                         @Override
@@ -318,8 +320,7 @@ public class GroupAction extends Action<GroupRequest> {
                      tableFieldMapping,
                      parameter.toString());
             return 1.0;
-        }
-        else {
+        } else {
             return 0;
         }
     }
@@ -343,9 +344,8 @@ public class GroupAction extends Action<GroupRequest> {
         //This is done because we only store docs for last maxDays. Sometimes, we get startTime starting from 1970 year
         if (days > maxDays) {
             return currentDocCount * maxDays;
-        }
-        else {
-            return (long) (currentDocCount * days);
+        } else {
+            return (long)(currentDocCount * days);
         }
     }
 
@@ -735,12 +735,10 @@ public class GroupAction extends Action<GroupRequest> {
                     Cardinality cardinality = bucket.getAggregations()
                             .get(key);
                     levelCount.put(String.valueOf(bucket.getKey()), cardinality.getValue());
-                }
-                else {
+                } else {
                     levelCount.put(String.valueOf(bucket.getKey()), bucket.getDocCount());
                 }
-            }
-            else {
+            } else {
                 levelCount.put(String.valueOf(bucket.getKey()), getMap(remainingFields, bucket.getAggregations()));
             }
         }
@@ -766,8 +764,7 @@ public class GroupAction extends Action<GroupRequest> {
                 }
 
                 probability = estimateProbability(fieldMappings, parameter);
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                 log.error("Error running estimation", e);
             }
 
@@ -777,8 +774,7 @@ public class GroupAction extends Action<GroupRequest> {
                          probability, content);
                 throw FoxtrotExceptions.createCardinalityOverflow(
                         parameter, content, parameter.getNesting().get(0), probability);
-            }
-            else {
+            } else {
                 log.info("Allowing group by with probability {} for query: {}", probability, parameter);
             }
         }
