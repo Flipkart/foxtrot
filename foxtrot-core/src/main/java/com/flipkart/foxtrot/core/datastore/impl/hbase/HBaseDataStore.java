@@ -134,6 +134,7 @@ public class HBaseDataStore implements DataStore {
         try (org.apache.hadoop.hbase.client.Table hTable = tableWrapper.getTable(table)) {
             hTable.put(puts);
         } catch (IOException e) {
+            logger.error("Error occurred while ingesting event in HBase : {} {} {}", e, e.getCause(), e.getMessage());
             throw FoxtrotExceptions.createConnectionException(table, e);
         }
         return translatedDocuments.build();

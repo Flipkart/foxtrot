@@ -22,6 +22,7 @@ import com.flipkart.foxtrot.core.TestUtils;
 import com.flipkart.foxtrot.core.common.AsyncDataToken;
 import com.flipkart.foxtrot.server.providers.exception.FoxtrotExceptionMapper;
 import io.dropwizard.testing.junit.ResourceTestRule;
+import java.util.concurrent.TimeUnit;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -33,6 +34,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import static org.awaitility.Awaitility.await;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
@@ -166,7 +168,7 @@ public class AnalyticsResourceTest extends FoxtrotResourceTest {
                 .target("/v1/analytics/async")
                 .request()
                 .post(serviceUserEntity, AsyncDataToken.class);
-        Thread.sleep(2000);
+        await().pollDelay(2000, TimeUnit.MILLISECONDS).until(() -> true);
         GroupResponse actualResponse = GroupResponse.class.cast(getCacheManager().getCacheFor(response.getAction())
                                                                         .get(response.getKey()));
         assertEquals(expectedResponse, actualResponse.getResult());
@@ -184,7 +186,7 @@ public class AnalyticsResourceTest extends FoxtrotResourceTest {
                 .target("/v1/analytics/async")
                 .request()
                 .post(serviceUserEntity, AsyncDataToken.class);
-        Thread.sleep(2000);
+        await().pollDelay(2000, TimeUnit.MILLISECONDS).until(() -> true);
         GroupResponse actualResponse = GroupResponse.class.cast(getCacheManager().getCacheFor(asyncDataToken.getAction())
                                                                         .get(asyncDataToken.getKey()));
         assertEquals(expectedResponse.getResult(), actualResponse.getResult());

@@ -1,6 +1,5 @@
 package com.flipkart.foxtrot.core.email;
 
-import com.google.common.base.Joiner;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import org.slf4j.Logger;
@@ -52,7 +51,7 @@ public class EmailClient {
                 return false;
             }
             message.setRecipients(Message.RecipientType.TO,
-                                  InternetAddress.parse(Joiner.on(",").join(recipients)));
+                                  InternetAddress.parse(String.join(",",recipients)));
             message.setSubject(email.getSubject());
 
             InternetHeaders headers = new InternetHeaders();
