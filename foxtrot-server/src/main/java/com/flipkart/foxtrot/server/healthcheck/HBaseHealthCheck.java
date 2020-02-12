@@ -11,7 +11,7 @@ import ru.vyarus.dropwizard.guice.module.installer.feature.health.NamedHealthChe
 public class HBaseHealthCheck extends NamedHealthCheck {
 
     private Configuration configuration;
-
+    private static final String HBASE_HEALTHCHECK = "hbaseHealthcheck";
     @Inject
     public HBaseHealthCheck(Configuration configuration) {
         this.configuration = configuration;
@@ -35,6 +35,6 @@ public class HBaseHealthCheck extends NamedHealthCheck {
 
     @Override
     public String getName() {
-        return "hbase_healthcheck";
+        return HBASE_HEALTHCHECK;
     }
 }

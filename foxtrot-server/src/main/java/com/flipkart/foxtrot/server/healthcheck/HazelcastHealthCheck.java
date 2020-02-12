@@ -1,5 +1,7 @@
 package com.flipkart.foxtrot.server.healthcheck;
 
+import static com.flipkart.foxtrot.core.querystore.impl.HazelcastConnection.HEALTHCHECK_MAP;
+
 import com.flipkart.foxtrot.core.querystore.impl.HazelcastConnection;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
@@ -10,6 +12,7 @@ import ru.vyarus.dropwizard.guice.module.installer.feature.health.NamedHealthChe
 public class HazelcastHealthCheck extends NamedHealthCheck {
 
     private HazelcastConnection hazelcastConnection;
+    private static final String HAZELCAST_HEALTHCHECK = "hazelcastHealthcheck";
 
     @Inject
     public HazelcastHealthCheck(final HazelcastConnection hazelcastConnection){
@@ -30,16 +33,18 @@ public class HazelcastHealthCheck extends NamedHealthCheck {
         // Update the counter and store in the map
         counter = counter + 1;
         try {
-            hazelcastConnection.getHazelcast().getMap("health_check").put(uuid, counter);
-            int toCheck = (int) hazelcastConnection.getHazelcast().getMap("health_check").get(uuid);
-            return toCheck == counter ? Result.healthy("UUID=" + uuid + " - OK") : Result.unhealthy("UUID=" + uuid + " Something is wrong: health_check count is not updating");
+            hazelcastConnection.getHazelcast().getMap(HEALTHCHECK_MAP).put(uuid, counter);
+            int toCheck = (int) hazelcastConnection.getHazelcast().getMap(HEALTHCHECK_MAP).get(uuid);
+            return toCheck == counter ? Result.healthy("UUID:" + uuid + ", counter: " + counter + " - OK")
+                    : Result.unhealthy("UUID:" + uuid + ", counter: " + counter
+                            + " Something is wrong: healthCheck count is not updating");
         } catch (Exception e) {
-            return Result.healthy("UUID=" + uuid + " - Error: " + e.getMessage());
+            return Result.healthy("UUID:" + uuid + " - Error: " + e.getMessage());
         }
     }
 
     @Override
     public String getName() {
-        return "hazelcast_healthcheck";
+        return HAZELCAST_HEALTHCHECK;
     }
 }
