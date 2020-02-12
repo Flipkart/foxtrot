@@ -1,5 +1,7 @@
 package com.flipkart.foxtrot.server.healthcheck;
 
+import static com.flipkart.foxtrot.core.querystore.impl.HazelcastConnection.HEALTHCHECK_MAP;
+
 import com.flipkart.foxtrot.core.querystore.impl.HazelcastConnection;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
@@ -11,10 +13,13 @@ public class HazelcastHealthCheck extends NamedHealthCheck {
 
     private HazelcastConnection hazelcastConnection;
 
+    private static final String HAZELCAST_HEALTHCHECK = "hazelcastHealthcheck";
+
     @Inject
-    public HazelcastHealthCheck(final HazelcastConnection hazelcastConnection){
+    public HazelcastHealthCheck(final HazelcastConnection hazelcastConnection) {
         this.hazelcastConnection = hazelcastConnection;
     }
+
     /**
      * A random UUID to healthcheck
      */
@@ -30,9 +35,10 @@ public class HazelcastHealthCheck extends NamedHealthCheck {
         // Update the counter and store in the map
         counter = counter + 1;
         try {
-            hazelcastConnection.getHazelcast().getMap("health_check").put(uuid, counter);
-            int toCheck = (int) hazelcastConnection.getHazelcast().getMap("health_check").get(uuid);
-            return toCheck == counter ? Result.healthy("UUID=" + uuid + " - OK") : Result.unhealthy("UUID=" + uuid + " Something is wrong: health_check count is not updating");
+            hazelcastConnection.getHazelcast().getMap(HEALTHCHECK_MAP).put(uuid, counter);
+            int toCheck = (int) hazelcastConnection.getHazelcast().getMap(HEALTHCHECK_MAP).get(uuid);
+            return toCheck == counter ? Result.healthy("UUID:" + uuid + " , count: "+counter+" - OK")
+                    : Result.unhealthy("UUID:" + uuid + ", count: "+counter+" Something is wrong: healthCheck count is not updating");
         } catch (Exception e) {
             return Result.healthy("UUID=" + uuid + " - Error: " + e.getMessage());
         }
@@ -40,6 +46,6 @@ public class HazelcastHealthCheck extends NamedHealthCheck {
 
     @Override
     public String getName() {
-        return "hazelcast_healthcheck";
+        return HAZELCAST_HEALTHCHECK;
     }
 }
