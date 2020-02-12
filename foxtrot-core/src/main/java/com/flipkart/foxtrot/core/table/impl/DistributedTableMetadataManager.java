@@ -42,6 +42,7 @@ import com.hazelcast.config.MapConfig;
 import com.hazelcast.config.MapStoreConfig;
 import com.hazelcast.config.NearCacheConfig;
 import com.hazelcast.core.IMap;
+import java.util.Map.Entry;
 import lombok.SneakyThrows;
 import org.elasticsearch.action.admin.indices.mapping.get.GetMappingsResponse;
 import org.elasticsearch.action.search.MultiSearchRequestBuilder;
@@ -118,10 +119,7 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
 
     private static <K, V> Collector<Map.Entry<K, V>, ?, List<Map<K, V>>> mapSize(int limit) {
         return Collector.of(ArrayList::new, (l, e) -> {
-            if(l.isEmpty() || l.get(l.size() - 1)
-                                      .size() == limit) {
-                l.add(new HashMap<>());
-            }
+            addEmptyMap(limit, l);
             l.get(l.size() - 1)
                     .put(e.getKey(), e.getValue());
         }, (l1, l2) -> {
@@ -135,23 +133,40 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
                        .size() < limit) {
                 Map<K, V> map = l1.get(l1.size() - 1);
                 ListIterator<Map<K, V>> mapsIte = l2.listIterator(l2.size());
-                while(mapsIte.hasPrevious() && map.size() < limit) {
-                    Iterator<Map.Entry<K, V>> ite = mapsIte.previous()
-                            .entrySet()
-                            .iterator();
-                    while(ite.hasNext() && map.size() < limit) {
-                        Map.Entry<K, V> entry = ite.next();
-                        map.put(entry.getKey(), entry.getValue());
-                        ite.remove();
-                    }
-                    if(!ite.hasNext()) {
-                        mapsIte.remove();
-                    }
-                }
+                processMap(limit, map, mapsIte);
             }
             l1.addAll(l2);
             return l1;
         });
+    }
+
+    private static <K, V> void processMap(int limit, Map<K, V> map, ListIterator<Map<K, V>> mapsIte) {
+        while(mapsIte.hasPrevious() && map.size() < limit) {
+            Iterator<Entry<K, V>> ite = mapsIte.previous()
+                    .entrySet()
+                    .iterator();
+
+            processNestedMap(limit, map, ite);
+
+            if(!ite.hasNext()) {
+                mapsIte.remove();
+            }
+        }
+    }
+
+    private static <K, V> void processNestedMap(int limit, Map<K, V> map, Iterator<Entry<K, V>> ite) {
+        while(ite.hasNext() && map.size() < limit) {
+            Entry<K, V> entry = ite.next();
+            map.put(entry.getKey(), entry.getValue());
+            ite.remove();
+        }
+    }
+
+    private static <K, V> void addEmptyMap(int limit, List<Map<K, V>> l) {
+        if(l.isEmpty() || l.get(l.size() - 1)
+                                  .size() == limit) {
+            l.add(new HashMap<>());
+        }
     }
 
     public boolean cardinalityCacheContains(String table) {
