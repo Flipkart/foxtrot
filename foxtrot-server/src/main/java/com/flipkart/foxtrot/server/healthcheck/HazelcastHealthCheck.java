@@ -13,7 +13,6 @@ public class HazelcastHealthCheck extends NamedHealthCheck {
 
     private HazelcastConnection hazelcastConnection;
     private static final String HAZELCAST_HEALTHCHECK = "hazelcastHealthcheck";
-    public static final String HEALTHCHECK_MAP = "healthCheck";
 
     @Inject
     public HazelcastHealthCheck(final HazelcastConnection hazelcastConnection){
