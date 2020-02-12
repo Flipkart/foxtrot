@@ -12,7 +12,6 @@ import com.hazelcast.config.MapConfig;
 import com.hazelcast.core.IMap;
 import com.hazelcast.core.Member;
 import io.dropwizard.lifecycle.Managed;
-import io.dropwizard.server.ServerFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.vyarus.dropwizard.guice.module.installer.order.Order;

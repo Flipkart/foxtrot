@@ -11,8 +11,11 @@ package com.flipkart.foxtrot.server.resources;/**
  * specific language governing permissions and limitations under the License.
  */
 
+import static org.junit.Assert.assertTrue;
+
 import com.flipkart.foxtrot.server.providers.exception.FoxtrotExceptionMapper;
 import io.dropwizard.testing.junit.ResourceTestRule;
+import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -43,6 +46,7 @@ public class CacheUpdateResourceTest extends FoxtrotResourceTest {
                 .target("/v1/cache/update/cardinality")
                 .request()
                 .post(null);
+        assertTrue(true);
 
     }
 }

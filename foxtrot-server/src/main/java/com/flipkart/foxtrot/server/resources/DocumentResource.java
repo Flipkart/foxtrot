@@ -47,7 +47,6 @@ import java.util.Map;
 @Singleton
 public class DocumentResource {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(DocumentResource.class);
     private static final String EVENT_TYPE = "eventType";
     private final QueryStore queryStore;
     private final Map<String, Map<String, List<String>>> tableEventConfigs;
