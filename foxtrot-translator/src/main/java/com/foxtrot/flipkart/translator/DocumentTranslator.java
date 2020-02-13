@@ -95,8 +95,8 @@ public class DocumentTranslator {
                 return document.getId() + ":" + table.getName();
             case "2.0":
                 return String.format("%s:%020d:%s:%s", table.getName(), document.getTimestamp(), document.getId(),
-                        Constants.RAW_KEY_VERSION_TO_SUFFIX_MAP.get(rawKeyVersion)
-                );
+                                    Constants.RAW_KEY_VERSION_TO_SUFFIX_MAP.get(rawKeyVersion)
+                                    );
             default:
                 throw new IllegalArgumentException(String.format(EXCEPTION_MESSAGE, rawKeyVersion));
         }
@@ -108,7 +108,7 @@ public class DocumentTranslator {
     }
 
     public String rawStorageIdFromDocumentId(Table table, String id) {
-        if (id.endsWith(Constants.RAW_KEY_VERSION_TO_SUFFIX_MAP.get("2.0"))) {
+        if(id.endsWith(Constants.RAW_KEY_VERSION_TO_SUFFIX_MAP.get("2.0"))) {
             return id;
         }
 

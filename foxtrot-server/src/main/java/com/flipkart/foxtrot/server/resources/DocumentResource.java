@@ -62,10 +62,10 @@ public class DocumentResource {
     @ApiOperation("Save Document")
     public Response saveDocument(@PathParam("table") String table, @Valid final Document document) {
         String tableName = tableTranslator.getTable(table, document);
-        if (tableName != null) {
+        if(tableName != null) {
             queryStore.save(tableName, document);
         }
-        if (tableName != null && !table.equals(tableName)) {
+        if(tableName != null && !table.equals(tableName)) {
             queryStore.save(table, document);
         }
         return Response.created(URI.create("/" + document.getId()))
@@ -79,7 +79,7 @@ public class DocumentResource {
     @ApiOperation("Save list of documents")
     public Response saveDocuments(@PathParam("table") String table, @Valid final List<Document> documents) {
         Map<String, List<Document>> tableVsDocuments = getTableVsDocuments(table, documents);
-        for (Map.Entry<String, List<Document>> entry : CollectionUtils.nullSafeSet(tableVsDocuments.entrySet())) {
+        for(Map.Entry<String, List<Document>> entry : CollectionUtils.nullSafeSet(tableVsDocuments.entrySet())) {
             queryStore.save(entry.getKey(), entry.getValue());
         }
         return Response.created(URI.create("/" + table))
@@ -106,11 +106,11 @@ public class DocumentResource {
 
     private Map<String, List<Document>> getTableVsDocuments(String table, List<Document> documents) {
         Map<String, List<Document>> tableVsDocuments = new HashMap<>();
-        if (tableTranslator.isTransformableTable(table)) {
-            for (Document document : CollectionUtils.nullSafeList(documents)) {
+        if(tableTranslator.isTransformableTable(table)) {
+            for(Document document : CollectionUtils.nullSafeList(documents)) {
                 String tableName = tableTranslator.getTable(table, document);
 
-                if (tableVsDocuments.containsKey(tableName)) {
+                if(tableVsDocuments.containsKey(tableName)) {
                     tableVsDocuments.get(tableName)
                             .add(document);
                 } else {
