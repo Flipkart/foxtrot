@@ -51,8 +51,8 @@ import static java.util.concurrent.TimeUnit.*;
  * already in the desired state.
  *
  * <p>When testing code that uses this class, use {@link #createUnstarted(Ticker)} or
- * {@link #createStarted(Ticker)} to supply a fake or mock ticker. <!-- TODO(kevinb): restore the
- * "such as" --> This allows you to simulate any valid behavior of the stopwatch.
+ * {@link #createStarted(Ticker)} to supply a fake or mock ticker.
+ * This allows you to simulate any valid behavior of the stopwatch.
  *
  * <p><b>Note:</b> This class is not thread-safe.
  *
@@ -108,6 +108,14 @@ public final class Stopwatch {
      */
     public static Stopwatch createStarted(Ticker ticker) {
         return new Stopwatch(ticker).start();
+    }
+
+    public long elapsedTime(TimeUnit desiredUnit) {
+        return desiredUnit.convert(this.elapsedNanos(), TimeUnit.NANOSECONDS);
+    }
+
+    public long elapsedMillis() {
+        return this.elapsedTime(TimeUnit.MILLISECONDS);
     }
 
     static String formatCompact4Digits(double value) {

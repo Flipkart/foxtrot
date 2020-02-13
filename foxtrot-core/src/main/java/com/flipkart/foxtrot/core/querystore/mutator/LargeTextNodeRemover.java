@@ -28,24 +28,26 @@ public class LargeTextNodeRemover implements IndexerEventMutator {
 
 
     @Override
-    public void mutate(String table, JsonNode data) {
-        walkTree(table, data);
+    public void mutate(final String table, final String documentId, JsonNode data) {
+        walkTree(table, documentId, data);
     }
 
 
     private void walkTree(String table,
+                          String documentId,
                           JsonNode node) {
         if (node == null || node.isNull()) {
             return;
         }
         if (node.isObject()) {
-            handleObjectNode(table, (ObjectNode) node);
+            handleObjectNode(table, documentId, (ObjectNode) node);
         } else if (node.isArray()) {
-            handleArrayNode(table, null, (ArrayNode) node);
+            handleArrayNode(table, documentId,null, (ArrayNode) node);
         }
     }
 
     private void handleObjectNode(final String table,
+                                  final String documentId,
                                   ObjectNode objectNode) {
         if (objectNode == null || objectNode.isNull()) {
             return;
@@ -55,20 +57,21 @@ public class LargeTextNodeRemover implements IndexerEventMutator {
             val key = entry.getKey();
             val value = entry.getValue();
             if (value.isTextual()) {
-                boolean removeEntry = evaluateForRemoval(table, key, value);
+                boolean removeEntry = evaluateForRemoval(table, documentId, key, value);
                 if (removeEntry) {
                     toBeRemoved.add(entry.getKey());
                 }
             } else if (value.isArray()) {
-                handleArrayNode(table, key, (ArrayNode) value);
+                handleArrayNode(table, documentId, key, (ArrayNode) value);
             } else if (value.isObject()) {
-                handleObjectNode(table, (ObjectNode) value);
+                handleObjectNode(table, documentId, (ObjectNode) value);
             }
         });
         objectNode.remove(toBeRemoved);
     }
 
     private void handleArrayNode(final String table,
+                                 final String documentId,
                                  final String parentKey,
                                  ArrayNode arrayNode) {
         if (arrayNode == null || arrayNode.isNull()) {
@@ -79,11 +82,11 @@ public class LargeTextNodeRemover implements IndexerEventMutator {
                 .forEachRemaining(node -> {
                     boolean copyNode = true;
                     if (node.isObject()) {
-                        handleObjectNode(table, (ObjectNode) node);
+                        handleObjectNode(table, documentId, (ObjectNode) node);
                     } else if (node.isArray()) {
-                        handleArrayNode(table, parentKey, (ArrayNode) node);
+                        handleArrayNode(table, documentId, parentKey, (ArrayNode) node);
                     } else if (node.isTextual()) {
-                        copyNode = !evaluateForRemoval(table, parentKey, node);
+                        copyNode = !evaluateForRemoval(table, documentId, parentKey, node);
                     }
                     if (copyNode) {
                         copy.add(node);
@@ -94,6 +97,7 @@ public class LargeTextNodeRemover implements IndexerEventMutator {
     }
 
     private boolean evaluateForRemoval(final String table,
+                                       final String documentId,
                                        final String key,
                                        JsonNode node) {
         if (!node.isTextual()) {
@@ -109,8 +113,8 @@ public class LargeTextNodeRemover implements IndexerEventMutator {
         }
 
         if (random.nextInt(100) < configuration.getLogSamplingPercentage()) {
-            log.warn("LargeTextNodeDetected table: {} key: {} value: {}",
-                    table, key, node.textValue());
+            log.warn("LargeTextNodeDetected table: {} documentId: {} key: {} value: {}",
+                    table, documentId, key, node.textValue());
         }
 
         return random.nextInt(100) < configuration.getBlockPercentage();

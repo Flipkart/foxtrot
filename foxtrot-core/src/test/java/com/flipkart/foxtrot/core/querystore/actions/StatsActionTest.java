@@ -17,11 +17,9 @@ package com.flipkart.foxtrot.core.querystore.actions;
 
 import com.flipkart.foxtrot.common.Document;
 import com.flipkart.foxtrot.common.query.Filter;
+import com.flipkart.foxtrot.common.query.general.EqualsFilter;
 import com.flipkart.foxtrot.common.query.numeric.BetweenFilter;
-import com.flipkart.foxtrot.common.stats.BucketResponse;
-import com.flipkart.foxtrot.common.stats.Stat;
-import com.flipkart.foxtrot.common.stats.StatsRequest;
-import com.flipkart.foxtrot.common.stats.StatsResponse;
+import com.flipkart.foxtrot.common.stats.*;
 import com.flipkart.foxtrot.core.TestUtils;
 import com.flipkart.foxtrot.core.exception.FoxtrotException;
 import com.flipkart.foxtrot.core.exception.MalformedQueryException;
@@ -70,6 +68,47 @@ public class StatsActionTest extends ActionTest {
                 .get("count")
                 .intValue());
         assertNull(statsResponse.getBuckets());
+        assertNotNull(statsResponse.getResult().getPercentiles());
+    }
+
+    @Test
+    public void testStatsActionWithoutNestingNoPercentile() throws FoxtrotException {
+        StatsRequest request = new StatsRequest();
+        request.setTable(TestUtils.TEST_TABLE_NAME);
+        request.setField("battery");
+        request.setFlags(EnumSet.of(AnalyticsRequestFlags.STATS_SKIP_PERCENTILES));
+
+        StatsResponse statsResponse = StatsResponse.class.cast(getQueryExecutor().execute(request));
+        assertNotNull(statsResponse);
+        assertNotNull(statsResponse.getResult());
+        assertEquals(150, statsResponse.getResult()
+                .getStats()
+                .get("sum")
+                .intValue());
+        assertEquals(5, statsResponse.getResult()
+                .getStats()
+                .get("count")
+                .intValue());
+        assertNull(statsResponse.getBuckets());
+        assertNull(statsResponse.getResult().getPercentiles());
+    }
+
+    @Test
+    public void testStatsActionWithoutNestingNonNumericField() throws FoxtrotException {
+        StatsRequest request = new StatsRequest();
+        request.setTable(TestUtils.TEST_TABLE_NAME);
+        request.setField("os");
+        request.setFilters(Collections.singletonList(new EqualsFilter("os", "android")));
+
+        StatsResponse statsResponse = StatsResponse.class.cast(getQueryExecutor().execute(request));
+        assertNotNull(statsResponse);
+        assertNotNull(statsResponse.getResult());
+        assertEquals(2, statsResponse.getResult()
+                .getStats()
+                .get("count")
+                .intValue());
+        assertNull(statsResponse.getBuckets());
+        assertNull(statsResponse.getResult().getPercentiles());
     }
 
     @Test

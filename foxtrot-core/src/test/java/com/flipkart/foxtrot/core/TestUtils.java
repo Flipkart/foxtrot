@@ -105,7 +105,7 @@ public class TestUtils {
             }
 
             analyticsLoader.register(
-                    new ActionMetadata(analyticsProvider.request(), action, analyticsProvider.cacheable()));
+                    new ActionMetadata(analyticsProvider.request(), action, analyticsProvider.cacheable()), analyticsProvider.opcode());
             if(analyticsProvider.cacheable()) {
                 analyticsLoader.registerCache(opcode);
             }

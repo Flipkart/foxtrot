@@ -3,10 +3,7 @@ package com.flipkart.foxtrot.core.querystore.actions;
 import com.flipkart.foxtrot.common.ActionResponse;
 import com.flipkart.foxtrot.common.query.Filter;
 import com.flipkart.foxtrot.common.query.ResultSort;
-import com.flipkart.foxtrot.common.stats.BucketResponse;
-import com.flipkart.foxtrot.common.stats.StatsRequest;
-import com.flipkart.foxtrot.common.stats.StatsResponse;
-import com.flipkart.foxtrot.common.stats.StatsValue;
+import com.flipkart.foxtrot.common.stats.*;
 import com.flipkart.foxtrot.common.util.CollectionUtils;
 import com.flipkart.foxtrot.core.common.Action;
 import com.flipkart.foxtrot.core.exception.FoxtrotExceptions;
@@ -15,16 +12,18 @@ import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsProvider;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
 import com.flipkart.foxtrot.core.querystore.query.ElasticSearchQueryGenerator;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
 import org.elasticsearch.ElasticsearchException;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.search.aggregations.AbstractAggregationBuilder;
+import org.elasticsearch.search.aggregations.AggregationBuilder;
 import org.elasticsearch.search.aggregations.Aggregations;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.elasticsearch.search.aggregations.metrics.percentiles.Percentiles;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -51,7 +50,9 @@ public class StatsAction extends Action<StatsRequest> {
                                                   .get(metricKey)));
         Percentiles internalPercentile = (Percentiles)aggregations.getAsMap()
                 .get(percentileMetricKey);
-        statsValue.setPercentiles(Utils.createPercentilesResponse(internalPercentile));
+        if(null != internalPercentile) {
+            statsValue.setPercentiles(Utils.createPercentilesResponse(internalPercentile));
+        }
         return statsValue;
     }
 
@@ -114,27 +115,41 @@ public class StatsAction extends Action<StatsRequest> {
     public SearchRequestBuilder getRequestBuilder(StatsRequest parameter) {
         SearchRequestBuilder searchRequestBuilder;
         try {
+            final String table = parameter.getTable();
             searchRequestBuilder = getConnection().getClient()
-                    .prepareSearch(ElasticsearchUtils.getIndices(parameter.getTable(), parameter))
+                    .prepareSearch(ElasticsearchUtils.getIndices(table, parameter))
                     .setTypes(ElasticsearchUtils.DOCUMENT_TYPE_NAME)
                     .setIndicesOptions(Utils.indicesOptions())
                     .setQuery(new ElasticSearchQueryGenerator().genFilter(parameter.getFilters()))
                     .setSize(QUERY_SIZE);
-
-            AbstractAggregationBuilder percentiles = Utils.buildPercentileAggregation(getParameter().getField(),
-                                                                                      getParameter().getPercentiles()
-                                                                                     );
-            AbstractAggregationBuilder extendedStats = Utils.buildStatsAggregation(getParameter().getField(), getParameter().getStats());
-            searchRequestBuilder.addAggregation(percentiles);
+            AbstractAggregationBuilder percentiles = null;
+            final String field = getParameter().getField();
+            boolean isNumericField = Utils.isNumericField(getTableMetadataManager(), table, field);
+            final AbstractAggregationBuilder extendedStats;
+            if(isNumericField) {
+                if (!AnalyticsRequestFlags.hasFlag(parameter.getFlags(),
+                                                   AnalyticsRequestFlags.STATS_SKIP_PERCENTILES)) {
+                    percentiles = Utils.buildPercentileAggregation(field, getParameter().getPercentiles());
+                    searchRequestBuilder.addAggregation(percentiles);
+                }
+                extendedStats = Utils.buildStatsAggregation(field, getParameter().getStats());
+            }
+            else {
+                extendedStats = Utils.buildStatsAggregation(field, Collections.singleton(Stat.COUNT));
+            }
             searchRequestBuilder.addAggregation(extendedStats);
-
             if(!CollectionUtils.isNullOrEmpty(getParameter().getNesting())) {
-                searchRequestBuilder.addAggregation(Utils.buildTermsAggregation(getParameter().getNesting()
-                                                                                        .stream()
-                                                                                        .map(x -> new ResultSort(x, ResultSort.Order.asc))
-                                                                                        .collect(Collectors.toList()),
-                                                                                Sets.newHashSet(percentiles, extendedStats)
-                                                                               ));
+                final HashSet<AggregationBuilder> subAggregations = new HashSet<>();
+                subAggregations.add(extendedStats);
+                if(null != percentiles) {
+                    subAggregations.add(percentiles);
+                }
+                searchRequestBuilder.addAggregation(
+                        Utils.buildTermsAggregation(getParameter().getNesting()
+                                                                        .stream()
+                                                                        .map(x -> new ResultSort(x, ResultSort.Order.asc))
+                                                                        .collect(Collectors.toList()),
+                                                                        subAggregations));
             }
         } catch (Exception e) {
             throw FoxtrotExceptions.queryCreationException(parameter, e);

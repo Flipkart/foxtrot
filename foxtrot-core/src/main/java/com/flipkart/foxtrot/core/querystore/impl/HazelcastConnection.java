@@ -40,6 +40,8 @@ import java.net.UnknownHostException;
 public class HazelcastConnection implements Managed {
     private static final Logger logger = LoggerFactory.getLogger(HazelcastConnection.class.getSimpleName());
 
+    public static final String HEALTHCHECK_MAP = "healthCheck";
+
     private HazelcastInstance hazelcast;
     private Config hazelcastConfig;
 
@@ -135,8 +137,15 @@ public class HazelcastConnection implements Managed {
     @Override
     public void start() throws Exception {
         logger.info("Starting Hazelcast Instance");
+        configureHealthcheck();
         hazelcast = Hazelcast.newHazelcastInstance(hazelcastConfig);
         logger.info("Started Hazelcast Instance");
+    }
+
+    private void configureHealthcheck() {
+        MapConfig mapConfig = new MapConfig(HEALTHCHECK_MAP);
+        mapConfig.setInMemoryFormat(InMemoryFormat.BINARY);
+        hazelcastConfig.addMapConfig(mapConfig);
     }
 
     @Override
