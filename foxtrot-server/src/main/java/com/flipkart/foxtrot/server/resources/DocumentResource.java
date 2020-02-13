@@ -106,7 +106,7 @@ public class DocumentResource {
 
     private Map<String, List<Document>> getTableVsDocuments(String table, List<Document> documents) {
         Map<String, List<Document>> tableVsDocuments = new HashMap<>();
-        if (tableTranslator.isTransformTable(table)) {
+        if (tableTranslator.isTransformableTable(table)) {
             for (Document document : CollectionUtils.nullSafeList(documents)) {
                 String tableName = tableTranslator.getTable(table, document);
 

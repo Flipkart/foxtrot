@@ -18,17 +18,28 @@ public class TableTranslator {
 
     private static final String EVENT_TYPE = "eventType";
     private final Map<String, TableSegregationConfig> tableVsSegregationConfig = Maps.newHashMap();
+    private final Map<String, String> eventTypeVsNewTable = Maps.newHashMap();
 
     @Inject
     public TableTranslator(SegregationConfiguration segregationConfiguration) {
-        if (segregationConfiguration != null){
-            segregationConfiguration.getTableSegregationConfigs().forEach(tableSegregationConfig ->
-                    tableVsSegregationConfig.put(tableSegregationConfig.getOldTable(), tableSegregationConfig));
+        if(segregationConfiguration != null) {
+            segregationConfiguration.getTableSegregationConfigs().forEach(tableSegregationConfig -> {
+                tableVsSegregationConfig.putIfAbsent(tableSegregationConfig.getOldTable(), tableSegregationConfig);
+                tableSegregationConfig.getNewTableVsEventTypes().forEach((newTable, eventTypes) -> {
+                    if(CollectionUtils.isNotEmpty(eventTypes)) {
+                        eventTypes.forEach(s -> eventTypeVsNewTable.putIfAbsent(s, newTable));
+                    }
+                });
+            });
         }
+
     }
 
     public String getTable(String table, Document document) {
-        if (document.getData()
+        if(!isTransformableTable(table)) {
+            return table;
+        }
+        if(document.getData()
                 .has(EVENT_TYPE)) {
             String eventType = document.getData()
                     .get(EVENT_TYPE)
@@ -38,18 +49,12 @@ public class TableTranslator {
         return table;
     }
 
-    public boolean isTransformTable(String table) {
+    public boolean isTransformableTable(String table) {
         return tableVsSegregationConfig.get(table) != null;
     }
 
     private String getSegregatedTableName(String table, String eventType) {
-        if (CollectionUtils.isNotEmpty(tableVsSegregationConfig) && tableVsSegregationConfig.get(table) != null) {
-            TableSegregationConfig tableSegregationConfig = tableVsSegregationConfig.get(table);
-            if (tableSegregationConfig.getEventTypes().contains(eventType)) {
-                return tableSegregationConfig.getNewTable();
-            }
-        }
-        return table;
+        return eventTypeVsNewTable.getOrDefault(eventType, table);
     }
 
 }
