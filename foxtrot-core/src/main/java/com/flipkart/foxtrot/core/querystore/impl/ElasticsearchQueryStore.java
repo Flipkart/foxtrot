@@ -180,7 +180,6 @@ public class ElasticsearchQueryStore implements QueryStore {
                     .start();
 
             action = DATA_STORE;
-            logger.warn("elastic search query store :{}, dataStore : {}", this, dataStore);
             final List<Document> translatedDocuments = dataStore.saveAll(tableMeta, documents);
             logger.info("DataStoreTook:{}", stopwatch.elapsed(TimeUnit.MILLISECONDS));
             MetricUtil.getInstance()
