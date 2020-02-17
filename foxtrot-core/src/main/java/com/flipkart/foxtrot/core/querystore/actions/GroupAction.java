@@ -240,8 +240,8 @@ public class GroupAction extends Action<GroupRequest> {
 
                         @Override
                         public Long visit(CardinalityEstimationData cardinalityEstimationData) {
-                            return (cardinalityEstimationData.getCardinality() * estimatedDocCountAfterFilters) /
-                                   cardinalityEstimationData.getCount();
+                            return (long)(((double)(cardinalityEstimationData.getCardinality() * estimatedDocCountAfterFilters))
+                                    / cardinalityEstimationData.getCount());
                         }
 
                         @Override

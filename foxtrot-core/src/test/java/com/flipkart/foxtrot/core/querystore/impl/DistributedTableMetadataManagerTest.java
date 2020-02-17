@@ -22,10 +22,10 @@ import com.flipkart.foxtrot.common.Table;
 import com.flipkart.foxtrot.common.TableFieldMapping;
 import com.flipkart.foxtrot.common.group.GroupResponse;
 import com.flipkart.foxtrot.core.TestUtils;
-import com.flipkart.foxtrot.core.email.EmailConfig;
 import com.flipkart.foxtrot.core.cardinality.CardinalityConfig;
 import com.flipkart.foxtrot.core.config.TextNodeRemoverConfiguration;
 import com.flipkart.foxtrot.core.datastore.DataStore;
+import com.flipkart.foxtrot.core.email.EmailConfig;
 import com.flipkart.foxtrot.core.querystore.mutator.IndexerEventMutator;
 import com.flipkart.foxtrot.core.querystore.mutator.LargeTextNodeRemover;
 import com.flipkart.foxtrot.core.table.impl.DistributedTableMetadataManager;
@@ -35,11 +35,8 @@ import com.hazelcast.config.Config;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
 import com.hazelcast.test.TestHazelcastInstanceFactory;
-import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;
 import org.joda.time.DateTime;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.*;
 import org.mockito.Mockito;
 
 import java.util.List;
@@ -54,13 +51,27 @@ import static org.mockito.Mockito.when;
  */
 public class DistributedTableMetadataManagerTest {
 
+    private static HazelcastInstance hazelcastInstance;
+    private static ElasticsearchConnection elasticsearchConnection;
+
     private DataStore dataStore;
     private ElasticsearchQueryStore queryStore;
-    private HazelcastInstance hazelcastInstance;
     private DistributedTableMetadataManager distributedTableMetadataManager;
     private IMap<String, Table> tableDataStore;
-    private ElasticsearchConnection elasticsearchConnection;
     private ObjectMapper objectMapper;
+
+    @BeforeClass
+    public static void setupClass() throws Exception {
+        hazelcastInstance = new TestHazelcastInstanceFactory(1).newHazelcastInstance(new Config());
+        elasticsearchConnection = ElasticsearchTestUtils.getConnection();
+        ElasticsearchUtils.initializeMappings(elasticsearchConnection.getClient());
+    }
+
+    @AfterClass
+    public static void tearDownClass() throws Exception {
+        hazelcastInstance.shutdown();
+        elasticsearchConnection.stop();
+    }
 
     @Before
     public void setUp() throws Exception {
@@ -69,12 +80,9 @@ public class DistributedTableMetadataManagerTest {
 
         this.dataStore = Mockito.mock(DataStore.class);
 
-        elasticsearchConnection = ElasticsearchTestUtils.getConnection();
-        ElasticsearchUtils.initializeMappings(elasticsearchConnection.getClient());
         EmailConfig emailConfig = new EmailConfig();
         emailConfig.setHost("127.0.0.1");
 
-        hazelcastInstance = new TestHazelcastInstanceFactory(1).newHazelcastInstance();
         HazelcastConnection hazelcastConnection = Mockito.mock(HazelcastConnection.class);
         when(hazelcastConnection.getHazelcast()).thenReturn(hazelcastInstance);
         when(hazelcastConnection.getHazelcastConfig()).thenReturn(new Config());
@@ -95,17 +103,7 @@ public class DistributedTableMetadataManagerTest {
 
     @After
     public void tearDown() throws Exception {
-        hazelcastInstance.shutdown();
-        try {
-            DeleteIndexRequest deleteIndexRequest = new DeleteIndexRequest("*");
-            elasticsearchConnection.getClient()
-                    .admin()
-                    .indices()
-                    .delete(deleteIndexRequest);
-        } catch (Exception e) {
-            //Do Nothing
-        }
-        elasticsearchConnection.stop();
+        ElasticsearchTestUtils.cleanupIndices(elasticsearchConnection);
         distributedTableMetadataManager.stop();
     }
 

@@ -27,6 +27,8 @@ import io.swagger.annotations.ApiOperation;
 import org.elasticsearch.action.admin.cluster.health.ClusterHealthResponse;
 import org.elasticsearch.action.admin.cluster.node.stats.NodesStatsResponse;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
@@ -41,15 +43,14 @@ import java.util.stream.Collectors;
 @Path("/v1/clusterhealth")
 @Produces(MediaType.APPLICATION_JSON)
 @Api(value = "/v1/clusterhealth")
+@Singleton
 public class ClusterHealthResource {
     private final QueryStore queryStore;
     private final TableManager tableManager;
     private final TableMetadataManager tableMetadataManager;
 
-    public ClusterHealthResource(
-            QueryStore queryStore,
-            TableManager tableManager,
-            TableMetadataManager tableMetadataManager) {
+    @Inject
+    public ClusterHealthResource(QueryStore queryStore) {
         this.queryStore = queryStore;
         this.tableManager = tableManager;
         this.tableMetadataManager = tableMetadataManager;

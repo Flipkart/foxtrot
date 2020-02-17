@@ -14,8 +14,8 @@ import lombok.ToString;
 import javax.validation.constraints.NotNull;
 
 @Data
+@EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
-@EqualsAndHashCode(callSuper =  true)
 public class LastFilter extends Filter {
 
     private long currentTime;

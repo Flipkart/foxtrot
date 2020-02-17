@@ -24,6 +24,8 @@ import com.flipkart.foxtrot.core.querystore.QueryExecutor;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import javax.validation.Valid;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
@@ -40,10 +42,12 @@ import javax.ws.rs.core.MediaType;
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
 @Api(value = "/v1/analytics")
+@Singleton
 public class AnalyticsResource {
 
     private final QueryExecutor queryExecutor;
 
+    @Inject
     public AnalyticsResource(QueryExecutor queryExecutor) {
         this.queryExecutor = queryExecutor;
     }

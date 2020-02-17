@@ -91,14 +91,12 @@ public abstract class Filter implements Serializable {
 
     @Override
     public boolean equals(Object o) {
-        if(this == o) {
+        if(this == o)
             return true;
-        }
-        if(!(o instanceof Filter)) {
+        if(o == null || getClass() != o.getClass())
             return false;
-        }
 
-        Filter filter = (Filter) o;
+        Filter filter = (Filter)o;
 
         if(cachedResultsAccepted != filter.cachedResultsAccepted) {
             return false;
@@ -118,6 +116,7 @@ public abstract class Filter implements Serializable {
                                 : 0);
         return result;
     }
+
 
     @Override
     public String toString() {

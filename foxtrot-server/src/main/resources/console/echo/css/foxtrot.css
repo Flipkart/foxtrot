@@ -3805,12 +3805,3 @@ div.tab button:first-child {
 #cluster-menu li {
   cursor: pointer;
 }
-.logout {
-  cursor: pointer;
-  width: 24px;
-  height: 24px;
-}
-
-#logout {
-  display: block
-}

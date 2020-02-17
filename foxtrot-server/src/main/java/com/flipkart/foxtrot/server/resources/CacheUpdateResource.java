@@ -19,8 +19,9 @@ import com.flipkart.foxtrot.core.cardinality.CardinalityCalculationRunnable;
 import com.flipkart.foxtrot.core.table.TableMetadataManager;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-import lombok.AllArgsConstructor;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -35,12 +36,19 @@ import java.util.concurrent.ExecutorService;
 @Path("/v1/cache/update")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
-@AllArgsConstructor
 @Api(value = "/v1/cache/update")
+@Singleton
 public class CacheUpdateResource {
-
     private ExecutorService executorService;
     private TableMetadataManager tableMetadataManager;
+
+    @Inject
+    public CacheUpdateResource(
+            ExecutorService executorService,
+            TableMetadataManager tableMetadataManager) {
+        this.executorService = executorService;
+        this.tableMetadataManager = tableMetadataManager;
+    }
 
     @Path("/cardinality")
     @Timed

@@ -11,7 +11,7 @@
     <groupId>com.flipkart.foxtrot</groupId>
     <artifactId>foxtrot</artifactId>
     <packaging>pom</packaging>
-    <version>6.3.1-2</version>
+    <version>6.3.1-3</version>
 
     <scm>
         <connection>scm:git:https://github.com/flipkart-incubator/foxtrot.git</connection>
@@ -54,10 +54,13 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <dropwizard.version>1.0.6</dropwizard.version>
+        <dropwizard.version>1.3.13</dropwizard.version>
         <elasticsearch.url>http://localhost:9200</elasticsearch.url>
         <lombok.version>1.16.16</lombok.version>
-        <project.version>6.3.1-2</project.version>
+        <dropwizard.guicey.version>4.2.1</dropwizard.guicey.version>
+        <project.version>6.3.1-3</project.version>
+        <es.container.version>1.0.4</es.container.version>
+        <guava.version>24.1.1-jre</guava.version>
         <sonar.sources>src/main</sonar.sources>
         <sonar.tests>src/test</sonar.tests>
         <sonar.java.coveragePlugin>jacoco</sonar.java.coveragePlugin>
@@ -96,20 +99,28 @@
             </snapshots>
             <id>bintray</id>
             <name>bintray</name>
-            <url>http://jcenter.bintray.com</url>
+            <url>https://jcenter.bintray.com</url>
         </repository>
     </repositories>
 
     <profiles>
         <profile>
-            <id>ant</id>
+            <id>localEs</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <properties>
+                <es.spawn.skip>false</es.spawn.skip>
+            </properties>
         </profile>
         <profile>
-            <id>integration-test</id>
+            <id>noLocalEs</id>
             <properties>
-                <skip.integration.tests>false</skip.integration.tests>
-                <skip.unit.tests>true</skip.unit.tests>
+                <es.spawn.skip>true</es.spawn.skip>
             </properties>
+        </profile>
+        <profile>
+            <id>esTests</id>
         </profile>
         <profile>
             <id>lombok-needs-tools-jar</id>
@@ -153,7 +164,7 @@
         <profile>
             <id>local</id>
             <properties>
-                <project.version>6.3.1-2</project.version>
+                <project.version>6.3.1-3</project.version>
             </properties>
         </profile>
     </profiles>
@@ -170,6 +181,16 @@
                 <groupId>feign-httpclient</groupId>
                 <version>10.1.0</version>
             </dependency>
+            <dependency>
+                <groupId>ru.vyarus</groupId>
+                <artifactId>dropwizard-guicey</artifactId>
+                <version>${dropwizard.guicey.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.google.guava</groupId>
+                <artifactId>guava</artifactId>
+                <version>${guava.version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
     <dependencies>
@@ -177,6 +198,12 @@
             <groupId>com.smoketurner</groupId>
             <artifactId>dropwizard-swagger</artifactId>
             <version>1.3.7-1</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>io.dropwizard</groupId>
+                    <artifactId>dropwizard-assets</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.projectlombok</groupId>
@@ -224,7 +251,36 @@
                     <groupId>com.google.guava</groupId>
                     <artifactId>guava</artifactId>
                 </exclusion>
+                <exclusion>
+                    <groupId>org.sonatype.sisu</groupId>
+                    <artifactId>sisu-guice</artifactId>
+                </exclusion>
             </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>
+            <version>3.2.4</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.appform.testcontainer</groupId>
+            <artifactId>junit-testcontainer-commons</artifactId>
+            <version>${es.container.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>io.appform.testcontainer</groupId>
+            <artifactId>junit-testcontainer-elasticsearch</artifactId>
+            <version>${es.container.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.awaitility</groupId>
+            <artifactId>awaitility</artifactId>
+            <version>4.0.2</version>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 
@@ -275,52 +331,6 @@
                         <format>html</format>
                     </formats>
                 </configuration>
-            </plugin>
-            <plugin>
-                <artifactId>maven-dependency-plugin</artifactId>
-                <version>2.10</version>
-                <inherited>false</inherited>
-                <executions>
-                    <execution>
-                        <id>get-es</id>
-                        <phase>test</phase>
-                        <goals>
-                            <goal>copy</goal>
-                        </goals>
-                        <configuration>
-                            <artifactItems>
-                                <artifactItem>
-                                    <groupId>org.elasticsearch.distribution.zip</groupId>
-                                    <artifactId>elasticsearch</artifactId>
-                                    <version>6.0.1</version>
-                                    <type>zip</type>
-                                </artifactItem>
-                            </artifactItems>
-                            <outputDirectory>${project.build.directory}/it</outputDirectory>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <artifactId>maven-antrun-plugin</artifactId>
-                <version>1.8</version>
-                <inherited>false</inherited>
-                <executions>
-                    <execution>
-                        <id>start-es</id>
-                        <phase>test</phase>
-                        <goals>
-                            <goal>run</goal>
-                        </goals>
-                        <configuration>
-                            <target>
-                                <property name="target.dir" value="${project.build.directory}"/>
-                                <property name="elasticsearch.version" value="6.0.1"/>
-                                <ant antfile="it.xml" target="start"/>
-                            </target>
-                        </configuration>
-                    </execution>
-                </executions>
             </plugin>
             <plugin>
                 <artifactId>maven-surefire-plugin</artifactId>

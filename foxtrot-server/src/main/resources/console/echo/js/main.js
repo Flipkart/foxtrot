@@ -649,7 +649,6 @@ function renderTemplateFilters() {
   $.each(tableNameList, function(index, val) {
     option+= "<option value="+val+">"+val+"</option>"
   });
-  
   $(".template-filter").append("<option value='none'>Select</option>");
   $(".template-filter").append(option);
   $(".template-filter").selectpicker('refresh');
@@ -666,7 +665,7 @@ function getTables() { // get table list
           tableNameList.push(tables[i].name)
         }
         renderTemplateFilters();
-      }      
+      }
     }});
 }
 
@@ -893,7 +892,7 @@ $(document).ready(function () {
               deleteConsole();
           }
       });
-      
+
       $("#addDashboardConfirm").click(function () {
           createDashboard();
       });
@@ -936,7 +935,19 @@ $(document).ready(function () {
         }
     });
 
-      
+
+
+      $(".template-filter-switch").change(function () {
+        if (this.checked) {
+            isTemplateFilter = true;
+            showTemplateFilters();
+        } else {
+            isTemplateFilter = false;
+            hideTemplateFilters();
+        }
+    });
+
+
 
       var consoleId = getParameterByName("console").replace('/', '');
       if (consoleId) {

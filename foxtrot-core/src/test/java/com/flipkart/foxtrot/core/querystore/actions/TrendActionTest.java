@@ -29,7 +29,7 @@ import com.flipkart.foxtrot.core.exception.ErrorCode;
 import com.flipkart.foxtrot.core.exception.FoxtrotException;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.util.*;
@@ -41,9 +41,8 @@ import static org.junit.Assert.fail;
  * Created by rishabh.goyal on 29/04/14.
  */
 public class TrendActionTest extends ActionTest {
-    @Before
-    public void setUp() throws Exception {
-        super.setUp();
+    @BeforeClass
+    public static void setUp() throws Exception {
         List<Document> documents = TestUtils.getTrendDocuments(getMapper());
         getQueryStore().save(TestUtils.TEST_TABLE_NAME, documents);
         getElasticsearchConnection().getClient()

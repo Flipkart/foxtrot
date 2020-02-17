@@ -617,15 +617,3 @@ function drawStackedLinesLegend(d, element) { // pie legend
   sortingReference.sort( function( a, b ) { return b.value - a.value; } )
   element.html(handlebars("#stacked-lines-legend-template", {data: sortingReference}));
 }
-
-/**
- * submit logout form
- */
-$("#logout-icon").click(function(){
-  var logoutUrl = getLogoutUrl();
-  if(logoutUrl != 0) { // prevent for local
-    $("#logout").submit();
-  }
-});
-
-$('#logout').attr('action', getLogoutUrl());
