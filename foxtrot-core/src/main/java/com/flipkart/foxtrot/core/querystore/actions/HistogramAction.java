@@ -58,11 +58,9 @@ public class HistogramAction extends Action<HistogramRequest> {
 
     private final ElasticsearchTuningConfig elasticsearchTuningConfig;
 
-    @Inject
-    public HistogramAction(HistogramRequest parameter, AnalyticsLoader analyticsLoader,
-                           ElasticsearchTuningConfig elasticsearchTuningConfig) {
+    public HistogramAction(HistogramRequest parameter, AnalyticsLoader analyticsLoader) {
         super(parameter, analyticsLoader);
-        this.elasticsearchTuningConfig = elasticsearchTuningConfig;
+        this.elasticsearchTuningConfig = analyticsLoader.getElasticsearchTuningConfig();
     }
 
     @Override

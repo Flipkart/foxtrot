@@ -41,10 +41,9 @@ public class StatsAction extends Action<StatsRequest> {
     private final ElasticsearchTuningConfig elasticsearchTuningConfig;
 
     @Inject
-    public StatsAction(StatsRequest parameter, AnalyticsLoader analyticsLoader,
-                       ElasticsearchTuningConfig elasticsearchTuningConfig) {
+    public StatsAction(StatsRequest parameter, AnalyticsLoader analyticsLoader) {
         super(parameter, analyticsLoader);
-        this.elasticsearchTuningConfig = elasticsearchTuningConfig;
+        this.elasticsearchTuningConfig = analyticsLoader.getElasticsearchTuningConfig();
     }
 
     private static StatsValue buildStatsValue(String field, Aggregations aggregations) {

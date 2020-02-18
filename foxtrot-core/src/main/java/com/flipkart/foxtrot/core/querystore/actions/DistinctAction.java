@@ -39,10 +39,9 @@ public class DistinctAction extends Action<DistinctRequest> {
 
     private final ElasticsearchTuningConfig elasticsearchTuningConfig;
 
-    public DistinctAction(DistinctRequest parameter, AnalyticsLoader analyticsLoader,
-                          ElasticsearchTuningConfig elasticsearchTuningConfig) {
+    public DistinctAction(DistinctRequest parameter, AnalyticsLoader analyticsLoader) {
         super(parameter, analyticsLoader);
-        this.elasticsearchTuningConfig = elasticsearchTuningConfig;
+        this.elasticsearchTuningConfig = analyticsLoader.getElasticsearchTuningConfig();
     }
 
     @Override

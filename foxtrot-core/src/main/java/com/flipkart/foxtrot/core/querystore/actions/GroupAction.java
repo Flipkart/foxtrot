@@ -80,11 +80,9 @@ public class GroupAction extends Action<GroupRequest> {
 
     private final ElasticsearchTuningConfig elasticsearchTuningConfig;
 
-    @Inject
-    public GroupAction(GroupRequest parameter, AnalyticsLoader analyticsLoader,
-                       ElasticsearchTuningConfig elasticsearchTuningConfig) {
+    public GroupAction(GroupRequest parameter, AnalyticsLoader analyticsLoader) {
         super(parameter, analyticsLoader);
-        this.elasticsearchTuningConfig = elasticsearchTuningConfig;
+        this.elasticsearchTuningConfig = analyticsLoader.getElasticsearchTuningConfig();
     }
 
     @Override

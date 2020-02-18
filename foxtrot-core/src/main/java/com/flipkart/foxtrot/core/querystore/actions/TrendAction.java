@@ -65,11 +65,9 @@ public class TrendAction extends Action<TrendRequest> {
 
     private final ElasticsearchTuningConfig elasticsearchTuningConfig;
 
-    @Inject
-    public TrendAction(TrendRequest parameter, AnalyticsLoader analyticsLoader,
-                       ElasticsearchTuningConfig elasticsearchTuningConfig) {
+    public TrendAction(TrendRequest parameter, AnalyticsLoader analyticsLoader) {
         super(parameter, analyticsLoader);
-        this.elasticsearchTuningConfig = elasticsearchTuningConfig;
+        this.elasticsearchTuningConfig = analyticsLoader.getElasticsearchTuningConfig();
     }
 
     @Override

@@ -34,11 +34,9 @@ public class CountAction extends Action<CountRequest> {
 
     private final ElasticsearchTuningConfig elasticsearchTuningConfig;
 
-    @Inject
-    public CountAction(CountRequest parameter, AnalyticsLoader analyticsLoader,
-                       ElasticsearchTuningConfig elasticsearchTuningConfig) {
+    public CountAction(CountRequest parameter, AnalyticsLoader analyticsLoader) {
         super(parameter, analyticsLoader);
-        this.elasticsearchTuningConfig = elasticsearchTuningConfig;
+        this.elasticsearchTuningConfig = analyticsLoader.getElasticsearchTuningConfig();
     }
 
     @Override

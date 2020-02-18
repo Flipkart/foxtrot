@@ -64,16 +64,19 @@ public class AnalyticsLoader implements Managed {
     private final ElasticsearchConnection elasticsearchConnection;
     private final CacheManager cacheManager;
     private final ObjectMapper objectMapper;
+    private final ElasticsearchTuningConfig elasticsearchTuningConfig;
 
     @Inject
     public AnalyticsLoader(TableMetadataManager tableMetadataManager, DataStore dataStore, QueryStore queryStore,
-            ElasticsearchConnection elasticsearchConnection, CacheManager cacheManager, ObjectMapper objectMapper) {
+                           ElasticsearchConnection elasticsearchConnection, CacheManager cacheManager, ObjectMapper objectMapper,
+                           ElasticsearchTuningConfig elasticsearchTuningConfig) {
         this.tableMetadataManager = tableMetadataManager;
         this.dataStore = dataStore;
         this.queryStore = queryStore;
         this.elasticsearchConnection = elasticsearchConnection;
         this.cacheManager = cacheManager;
         this.objectMapper = objectMapper;
+        this.elasticsearchTuningConfig = elasticsearchTuningConfig;
     }
 
     @SuppressWarnings("unchecked")
