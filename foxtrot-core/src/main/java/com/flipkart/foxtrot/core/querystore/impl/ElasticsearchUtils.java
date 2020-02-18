@@ -27,6 +27,7 @@ import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.common.xcontent.XContentFactory;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
+import org.joda.time.LocalDate;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.slf4j.Logger;
@@ -45,7 +46,7 @@ public class ElasticsearchUtils {
     public static final String DOCUMENT_TYPE_NAME = "document";
     public static final String DOCUMENT_META_FIELD_NAME = "__FOXTROT_METADATA__";
     public static final String DOCUMENT_META_TIMESTAMP_FIELD_NAME = String.format("%s.time", DOCUMENT_META_FIELD_NAME);
-    public static final String TIME_FIELD = "time";
+    public static final String TIME_FIELD = "_timestamp";
     public static final int DEFAULT_SUB_LIST_SIZE = 50;
     static final String DOCUMENT_META_ID_FIELD_NAME = String.format("%s.id", DOCUMENT_META_FIELD_NAME);
     static final String DOCUMENT_TIME_FIELD_NAME = "date";
@@ -292,4 +293,10 @@ public class ElasticsearchUtils {
     static String getAllIndicesPattern() {
         return String.format("%s-*-%s-*", getTableNamePrefix(), ElasticsearchUtils.TABLENAME_POSTFIX);
     }
+
+    public static String getTodayIndicesPattern() {
+        String datePostfix = FORMATTER.print(LocalDate.now());
+        return String.format("%s-.*-%s-%s", getTableNamePrefix(), ElasticsearchUtils.TABLENAME_POSTFIX, datePostfix);
+    }
+
 }

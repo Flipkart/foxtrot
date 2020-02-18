@@ -25,6 +25,7 @@ import com.flipkart.foxtrot.core.common.Action;
 import com.flipkart.foxtrot.core.exception.FoxtrotExceptions;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsLoader;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsProvider;
+import com.flipkart.foxtrot.core.querystore.actions.spi.ElasticsearchTuningConfig;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
 import com.flipkart.foxtrot.core.querystore.query.ElasticSearchQueryGenerator;
 import io.dropwizard.util.Duration;
@@ -39,6 +40,7 @@ import org.elasticsearch.search.aggregations.bucket.histogram.Histogram;
 import org.elasticsearch.search.aggregations.metrics.cardinality.Cardinality;
 import org.joda.time.DateTime;
 
+import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -54,8 +56,13 @@ import static com.flipkart.foxtrot.core.util.ElasticsearchQueryUtils.QUERY_SIZE;
 @AnalyticsProvider(opcode = "histogram", request = HistogramRequest.class, response = HistogramResponse.class, cacheable = true)
 public class HistogramAction extends Action<HistogramRequest> {
 
-    public HistogramAction(HistogramRequest parameter, AnalyticsLoader analyticsLoader) {
+    private final ElasticsearchTuningConfig elasticsearchTuningConfig;
+
+    @Inject
+    public HistogramAction(HistogramRequest parameter, AnalyticsLoader analyticsLoader,
+                           ElasticsearchTuningConfig elasticsearchTuningConfig) {
         super(parameter, analyticsLoader);
+        this.elasticsearchTuningConfig = elasticsearchTuningConfig;
     }
 
     @Override
@@ -147,6 +154,17 @@ public class HistogramAction extends Action<HistogramRequest> {
         return buildResponse(aggregations);
     }
 
+    private AbstractAggregationBuilder buildAggregation() {
+        DateHistogramInterval interval = Utils.getHistogramInterval(getParameter().getPeriod());
+        DateHistogramAggregationBuilder histogramBuilder = Utils.buildDateHistogramAggregation(
+                getParameter().getField(), interval);
+        if(!CollectionUtils.isNullOrEmpty(getParameter().getUniqueCountOn())) {
+            histogramBuilder.subAggregation(Utils.buildCardinalityAggregation(
+                    getParameter().getUniqueCountOn(), elasticsearchTuningConfig.getPrecisionThreshold()));
+        }
+        return histogramBuilder;
+    }
+
     private HistogramResponse buildResponse(Aggregations aggregations) {
         if(aggregations == null) {
             return new HistogramResponse(Collections.<HistogramResponse.Count>emptyList());
@@ -168,15 +186,6 @@ public class HistogramAction extends Action<HistogramRequest> {
             }
         }
         return new HistogramResponse(counts);
-    }
-
-    private AbstractAggregationBuilder buildAggregation() {
-        DateHistogramInterval interval = Utils.getHistogramInterval(getParameter().getPeriod());
-        DateHistogramAggregationBuilder histogramBuilder = Utils.buildDateHistogramAggregation(getParameter().getField(), interval);
-        if(!CollectionUtils.isNullOrEmpty(getParameter().getUniqueCountOn())) {
-            histogramBuilder.subAggregation(Utils.buildCardinalityAggregation(getParameter().getUniqueCountOn()));
-        }
-        return histogramBuilder;
     }
 
     @Override

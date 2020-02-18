@@ -10,6 +10,7 @@ import com.flipkart.foxtrot.core.common.Action;
 import com.flipkart.foxtrot.core.exception.FoxtrotExceptions;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsLoader;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsProvider;
+import com.flipkart.foxtrot.core.querystore.actions.spi.ElasticsearchTuningConfig;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
 import com.flipkart.foxtrot.core.querystore.query.ElasticSearchQueryGenerator;
 import org.elasticsearch.ElasticsearchException;
@@ -18,6 +19,7 @@ import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.search.aggregations.Aggregations;
 import org.elasticsearch.search.aggregations.metrics.cardinality.Cardinality;
 
+import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -30,9 +32,13 @@ import static com.flipkart.foxtrot.core.util.ElasticsearchQueryUtils.QUERY_SIZE;
 @AnalyticsProvider(opcode = "count", request = CountRequest.class, response = CountResponse.class, cacheable = false)
 public class CountAction extends Action<CountRequest> {
 
-    public CountAction(CountRequest parameter, AnalyticsLoader analyticsLoader) {
-        super(parameter, analyticsLoader);
+    private final ElasticsearchTuningConfig elasticsearchTuningConfig;
 
+    @Inject
+    public CountAction(CountRequest parameter, AnalyticsLoader analyticsLoader,
+                       ElasticsearchTuningConfig elasticsearchTuningConfig) {
+        super(parameter, analyticsLoader);
+        this.elasticsearchTuningConfig = elasticsearchTuningConfig;
     }
 
     @Override
@@ -104,7 +110,8 @@ public class CountAction extends Action<CountRequest> {
                         .setIndicesOptions(Utils.indicesOptions())
                         .setSize(QUERY_SIZE)
                         .setQuery(new ElasticSearchQueryGenerator().genFilter(parameter.getFilters()))
-                        .addAggregation(Utils.buildCardinalityAggregation(parameter.getField()));
+                        .addAggregation(Utils.buildCardinalityAggregation(parameter.getField(),
+                                                                          elasticsearchTuningConfig.getPrecisionThreshold()));
                 return query;
             } catch (Exception e) {
                 throw FoxtrotExceptions.queryCreationException(parameter, e);

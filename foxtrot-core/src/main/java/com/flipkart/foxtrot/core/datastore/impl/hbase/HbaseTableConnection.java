@@ -35,6 +35,7 @@ import ru.vyarus.dropwizard.guice.module.installer.order.Order;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.io.IOException;
+import java.util.concurrent.TimeUnit;
 
 /**
  * User: Santanu Sinha (santanu.sinha@flipkart.com)
@@ -86,6 +87,13 @@ public class HbaseTableConnection implements Managed {
         hBaseAdmin.createTable(hTableDescriptor);
     }
 
+    public synchronized void updateTable(final Table table) throws IOException {
+        String tableName = TableUtil.getTableName(hbaseConfig, table);
+
+        HTableDescriptor hTableDescriptor = constructHTableDescriptor(table);
+        hBaseAdmin.modifyTable(TableName.valueOf(tableName), hTableDescriptor);
+    }
+
     public String getHBaseTableName(final Table table) {
         return TableUtil.getTableName(hbaseConfig, table);
     }
@@ -106,5 +114,16 @@ public class HbaseTableConnection implements Managed {
 
     public HbaseConfig getHbaseConfig() {
         return hbaseConfig;
+    }
+
+    private HTableDescriptor constructHTableDescriptor(final Table table) {
+        String tableName = TableUtil.getTableName(hbaseConfig, table);
+
+        HTableDescriptor hTableDescriptor = new HTableDescriptor(TableName.valueOf(tableName));
+        HColumnDescriptor hColumnDescriptor = new HColumnDescriptor(DEFAULT_FAMILY_NAME);
+        hColumnDescriptor.setCompressionType(Compression.Algorithm.GZ);
+        hColumnDescriptor.setTimeToLive(Math.toIntExact(TimeUnit.DAYS.toSeconds(table.getTtl())));
+        hTableDescriptor.addFamily(hColumnDescriptor);
+        return hTableDescriptor;
     }
 }

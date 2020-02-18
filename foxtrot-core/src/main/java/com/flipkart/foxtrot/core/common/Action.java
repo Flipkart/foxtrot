@@ -24,7 +24,6 @@ import com.flipkart.foxtrot.common.query.Filter;
 import com.flipkart.foxtrot.common.query.general.AnyFilter;
 import com.flipkart.foxtrot.common.query.numeric.LessThanFilter;
 import com.flipkart.foxtrot.common.util.CollectionUtils;
-import com.flipkart.foxtrot.core.cache.CacheManager;
 import com.flipkart.foxtrot.core.exception.FoxtrotExceptions;
 import com.flipkart.foxtrot.core.exception.MalformedQueryException;
 import com.flipkart.foxtrot.core.querystore.QueryStore;
@@ -51,7 +50,6 @@ public abstract class Action<P extends ActionRequest> {
     private static final Logger logger = LoggerFactory.getLogger(Action.class.getSimpleName());
     private final TableMetadataManager tableMetadataManager;
     private final QueryStore queryStore;
-    private final CacheManager cacheManager;
     private final ObjectMapper objectMapper;
     private P parameter;
     private ElasticsearchConnection connection;
@@ -60,7 +58,6 @@ public abstract class Action<P extends ActionRequest> {
         this.parameter = parameter;
         this.tableMetadataManager = analyticsLoader.getTableMetadataManager();
         this.queryStore = analyticsLoader.getQueryStore();
-        this.cacheManager = analyticsLoader.getCacheManager();
         this.connection = analyticsLoader.getElasticsearchConnection();
         this.objectMapper = analyticsLoader.getObjectMapper();
     }

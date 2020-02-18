@@ -67,7 +67,7 @@ public class AnalyticsLoader implements Managed {
 
     @Inject
     public AnalyticsLoader(TableMetadataManager tableMetadataManager, DataStore dataStore, QueryStore queryStore,
-                           ElasticsearchConnection elasticsearchConnection, CacheManager cacheManager, ObjectMapper objectMapper) {
+            ElasticsearchConnection elasticsearchConnection, CacheManager cacheManager, ObjectMapper objectMapper) {
         this.tableMetadataManager = tableMetadataManager;
         this.dataStore = dataStore;
         this.queryStore = queryStore;

@@ -28,6 +28,7 @@ import com.flipkart.foxtrot.core.common.Action;
 import com.flipkart.foxtrot.core.exception.FoxtrotExceptions;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsLoader;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsProvider;
+import com.flipkart.foxtrot.core.querystore.actions.spi.ElasticsearchTuningConfig;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
 import com.flipkart.foxtrot.core.querystore.query.ElasticSearchQueryGenerator;
 import com.google.common.collect.Lists;
@@ -46,6 +47,7 @@ import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.elasticsearch.search.aggregations.metrics.cardinality.Cardinality;
 import org.joda.time.DateTime;
 
+import javax.inject.Inject;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -61,8 +63,13 @@ import static com.flipkart.foxtrot.core.util.ElasticsearchQueryUtils.QUERY_SIZE;
 @AnalyticsProvider(opcode = "trend", request = TrendRequest.class, response = TrendResponse.class, cacheable = true)
 public class TrendAction extends Action<TrendRequest> {
 
-    public TrendAction(TrendRequest parameter, AnalyticsLoader analyticsLoader) {
+    private final ElasticsearchTuningConfig elasticsearchTuningConfig;
+
+    @Inject
+    public TrendAction(TrendRequest parameter, AnalyticsLoader analyticsLoader,
+                       ElasticsearchTuningConfig elasticsearchTuningConfig) {
         super(parameter, analyticsLoader);
+        this.elasticsearchTuningConfig = elasticsearchTuningConfig;
     }
 
     @Override
@@ -194,11 +201,12 @@ public class TrendAction extends Action<TrendRequest> {
 
         DateHistogramAggregationBuilder histogramBuilder = Utils.buildDateHistogramAggregation(request.getTimestamp(), interval);
         if(!CollectionUtils.isNullOrEmpty(getParameter().getUniqueCountOn())) {
-            histogramBuilder.subAggregation(Utils.buildCardinalityAggregation(getParameter().getUniqueCountOn()));
+            histogramBuilder.subAggregation(Utils.buildCardinalityAggregation(getParameter().getUniqueCountOn(),
+                                                                              elasticsearchTuningConfig.getPrecisionThreshold()));
         }
         return Utils.buildTermsAggregation(Lists.newArrayList(new ResultSort(field, ResultSort.Order.asc)),
-                                           Sets.newHashSet(histogramBuilder)
-                                          );
+                                           Sets.newHashSet(histogramBuilder),
+                                           elasticsearchTuningConfig.getAggregationSize());
     }
 
     private TrendResponse buildResponse(TrendRequest request, Aggregations aggregations) {

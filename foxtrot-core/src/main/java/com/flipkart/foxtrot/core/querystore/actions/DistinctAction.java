@@ -10,6 +10,7 @@ import com.flipkart.foxtrot.core.common.Action;
 import com.flipkart.foxtrot.core.exception.FoxtrotExceptions;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsLoader;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsProvider;
+import com.flipkart.foxtrot.core.querystore.actions.spi.ElasticsearchTuningConfig;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
 import com.flipkart.foxtrot.core.querystore.query.ElasticSearchQueryGenerator;
 import com.google.common.collect.Sets;
@@ -36,8 +37,12 @@ import static com.flipkart.foxtrot.core.util.ElasticsearchQueryUtils.QUERY_SIZE;
 public class DistinctAction extends Action<DistinctRequest> {
     private static final Logger logger = LoggerFactory.getLogger(DistinctAction.class);
 
-    public DistinctAction(DistinctRequest parameter, AnalyticsLoader analyticsLoader) {
+    private final ElasticsearchTuningConfig elasticsearchTuningConfig;
+
+    public DistinctAction(DistinctRequest parameter, AnalyticsLoader analyticsLoader,
+                          ElasticsearchTuningConfig elasticsearchTuningConfig) {
         super(parameter, analyticsLoader);
+        this.elasticsearchTuningConfig = elasticsearchTuningConfig;
     }
 
     @Override
@@ -103,7 +108,8 @@ public class DistinctAction extends Action<DistinctRequest> {
                     .setIndicesOptions(Utils.indicesOptions());
             query.setQuery(new ElasticSearchQueryGenerator().genFilter(request.getFilters()))
                     .setSize(QUERY_SIZE)
-                    .addAggregation(Utils.buildTermsAggregation(request.getNesting(), Sets.newHashSet()));
+                    .addAggregation(Utils.buildTermsAggregation(request.getNesting(), Sets.newHashSet(),
+                                                                elasticsearchTuningConfig.getAggregationSize()));
         } catch (Exception e) {
             throw FoxtrotExceptions.queryCreationException(request, e);
         }
@@ -126,7 +132,8 @@ public class DistinctAction extends Action<DistinctRequest> {
                     .setIndicesOptions(Utils.indicesOptions());
             query.setQuery(new ElasticSearchQueryGenerator().genFilter(request.getFilters()))
                     .setSize(QUERY_SIZE)
-                    .addAggregation(Utils.buildTermsAggregation(request.getNesting(), Sets.newHashSet()));
+                    .addAggregation(Utils.buildTermsAggregation(request.getNesting(), Sets.newHashSet(),
+                                                                elasticsearchTuningConfig.getAggregationSize()));
 
         } catch (Exception e) {
             throw FoxtrotExceptions.queryCreationException(request, e);

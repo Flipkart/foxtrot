@@ -67,6 +67,7 @@ RadarTile.prototype.getQuery = function (object) {
   
   var data = {
     "opcode": "group"
+    ,"consoleId": getCurrentConsoleId()
     , "table": object.tileContext.table
     , "filters": filters
     , "nesting": object.tileContext.nesting

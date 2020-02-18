@@ -38,6 +38,7 @@ import com.flipkart.foxtrot.core.exception.FoxtrotExceptions;
 import com.flipkart.foxtrot.core.querystore.QueryStore;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsLoader;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsProvider;
+import com.flipkart.foxtrot.core.querystore.actions.spi.ElasticsearchTuningConfig;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchQueryStore;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
 import com.flipkart.foxtrot.core.querystore.query.ElasticSearchQueryGenerator;
@@ -55,6 +56,7 @@ import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.elasticsearch.search.aggregations.metrics.cardinality.Cardinality;
 import org.joda.time.Interval;
 
+import javax.inject.Inject;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -76,8 +78,13 @@ public class GroupAction extends Action<GroupRequest> {
     private static final long MIN_ESTIMATION_THRESHOLD = 1000;
     private static final double PROBABILITY_CUT_OFF = 0.5;
 
-    public GroupAction(GroupRequest parameter, AnalyticsLoader analyticsLoader) {
+    private final ElasticsearchTuningConfig elasticsearchTuningConfig;
+
+    @Inject
+    public GroupAction(GroupRequest parameter, AnalyticsLoader analyticsLoader,
+                       ElasticsearchTuningConfig elasticsearchTuningConfig) {
         super(parameter, analyticsLoader);
+        this.elasticsearchTuningConfig = elasticsearchTuningConfig;
     }
 
     @Override
@@ -671,9 +678,13 @@ public class GroupAction extends Action<GroupRequest> {
                                                    .stream()
                                                    .map(x -> new ResultSort(x, ResultSort.Order.asc))
                                                    .collect(Collectors.toList()),
-                                           !CollectionUtils.isNullOrEmpty(getParameter().getUniqueCountOn()) ? Sets.newHashSet(
-                                                   Utils.buildCardinalityAggregation(getParameter().getUniqueCountOn())) : Sets.newHashSet()
-                                          );
+                                           !CollectionUtils.isNullOrEmpty(getParameter().getUniqueCountOn())
+                                           ?
+                                           Sets.newHashSet(Utils.buildCardinalityAggregation(
+                                                   getParameter().getUniqueCountOn(),
+                                                   elasticsearchTuningConfig.getPrecisionThreshold()))
+                                           : Sets.newHashSet(),
+                                           elasticsearchTuningConfig.getAggregationSize());
     }
 
     private Map<String, Object> getMap(List<String> fields, Aggregations aggregations) {

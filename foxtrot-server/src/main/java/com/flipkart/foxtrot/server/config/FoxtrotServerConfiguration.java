@@ -22,9 +22,11 @@ import com.flipkart.foxtrot.core.config.TextNodeRemoverConfiguration;
 import com.flipkart.foxtrot.core.datastore.impl.hbase.HbaseConfig;
 import com.flipkart.foxtrot.core.email.EmailConfig;
 import com.flipkart.foxtrot.core.jobs.optimization.EsIndexOptimizationConfig;
+import com.flipkart.foxtrot.core.querystore.actions.spi.ElasticsearchTuningConfig;
 import com.flipkart.foxtrot.core.querystore.impl.CacheConfig;
 import com.flipkart.foxtrot.core.querystore.impl.ClusterConfig;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConfig;
+import com.flipkart.foxtrot.core.reroute.ClusterRerouteConfig;
 import com.flipkart.foxtrot.server.jobs.consolehistory.ConsoleHistoryConfig;
 import io.dropwizard.Configuration;
 import lombok.Builder;
@@ -33,7 +35,6 @@ import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
 import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
 
 /**
  * User: Santanu Sinha (santanu.sinha@flipkart.com)
@@ -69,14 +70,13 @@ public class FoxtrotServerConfiguration extends Configuration {
 
     private SegregationConfiguration segregationConfiguration;
 
-    @NotNull
-    private boolean restrictAccess;
-
-    private GandalfConfiguration gandalfConfiguration;
-
     @Valid
     @Builder.Default
     private TextNodeRemoverConfiguration textNodeRemover = new TextNodeRemoverConfiguration();
+
+    private ClusterRerouteConfig clusterRerouteConfig;
+
+    private ElasticsearchTuningConfig elasticsearchTuningConfig;
 
     public FoxtrotServerConfiguration() {
         this.hbase = new HbaseConfig();
@@ -85,7 +85,8 @@ public class FoxtrotServerConfiguration extends Configuration {
         this.deletionManagerConfig = new DataDeletionManagerConfig();
         this.emailConfig = new EmailConfig();
         this.segregationConfiguration = new SegregationConfiguration();
-        this.restrictAccess = true;
+        this.clusterRerouteConfig = new ClusterRerouteConfig();
+        this.elasticsearchTuningConfig = new ElasticsearchTuningConfig();
     }
 
 }

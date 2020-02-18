@@ -24,6 +24,7 @@ import com.flipkart.foxtrot.core.jobs.optimization.EsIndexOptimizationConfig;
 import com.flipkart.foxtrot.core.querystore.ActionExecutionObserver;
 import com.flipkart.foxtrot.core.querystore.EventPublisherActionExecutionObserver;
 import com.flipkart.foxtrot.core.querystore.QueryStore;
+import com.flipkart.foxtrot.core.querystore.actions.spi.ElasticsearchTuningConfig;
 import com.flipkart.foxtrot.core.querystore.handlers.MetricRecorder;
 import com.flipkart.foxtrot.core.querystore.handlers.ResponseCacheUpdater;
 import com.flipkart.foxtrot.core.querystore.handlers.SlowQueryReporter;
@@ -149,6 +150,12 @@ public class FoxtrotModule extends AbstractModule {
     @Singleton
     public EmailConfig emailConfig(FoxtrotServerConfiguration configuration) {
         return configuration.getEmailConfig();
+    }
+
+    @Provides
+    @Singleton
+    public ElasticsearchTuningConfig elasticsearchTuningConfig(FoxtrotServerConfiguration configuration) {
+        return configuration.getElasticsearchTuningConfig();
     }
 
     @Provides

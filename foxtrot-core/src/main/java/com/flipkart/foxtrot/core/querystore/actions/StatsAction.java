@@ -9,6 +9,7 @@ import com.flipkart.foxtrot.core.common.Action;
 import com.flipkart.foxtrot.core.exception.FoxtrotExceptions;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsLoader;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsProvider;
+import com.flipkart.foxtrot.core.querystore.actions.spi.ElasticsearchTuningConfig;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
 import com.flipkart.foxtrot.core.querystore.query.ElasticSearchQueryGenerator;
 import com.google.common.collect.Lists;
@@ -21,6 +22,7 @@ import org.elasticsearch.search.aggregations.Aggregations;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.elasticsearch.search.aggregations.metrics.percentiles.Percentiles;
 
+import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -36,8 +38,13 @@ import static com.flipkart.foxtrot.core.util.ElasticsearchQueryUtils.QUERY_SIZE;
 @AnalyticsProvider(opcode = "stats", request = StatsRequest.class, response = StatsResponse.class, cacheable = false)
 public class StatsAction extends Action<StatsRequest> {
 
-    public StatsAction(StatsRequest parameter, AnalyticsLoader analyticsLoader) {
+    private final ElasticsearchTuningConfig elasticsearchTuningConfig;
+
+    @Inject
+    public StatsAction(StatsRequest parameter, AnalyticsLoader analyticsLoader,
+                       ElasticsearchTuningConfig elasticsearchTuningConfig) {
         super(parameter, analyticsLoader);
+        this.elasticsearchTuningConfig = elasticsearchTuningConfig;
     }
 
     private static StatsValue buildStatsValue(String field, Aggregations aggregations) {
@@ -149,7 +156,7 @@ public class StatsAction extends Action<StatsRequest> {
                                                                         .stream()
                                                                         .map(x -> new ResultSort(x, ResultSort.Order.asc))
                                                                         .collect(Collectors.toList()),
-                                                                        subAggregations));
+                                                                        subAggregations, elasticsearchTuningConfig.getAggregationSize()));
             }
         } catch (Exception e) {
             throw FoxtrotExceptions.queryCreationException(parameter, e);
