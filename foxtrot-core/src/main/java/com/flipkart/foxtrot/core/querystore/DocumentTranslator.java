@@ -79,9 +79,6 @@ public class DocumentTranslator {
 
     public DocumentMetadata metadata(final Table table, final Document inDocument) {
         final String rowKey = generateScalableKey(rawStorageIdFromDocument(table, inDocument));
-        if (table.getName().contains("android")){
-            log.debug("RowKey : {}, Table : {} " + rowKey, table.getName());
-        }
         DocumentMetadata metadata = new DocumentMetadata();
         metadata.setRawStorageId(rowKey);
         metadata.setId(inDocument.getId());
