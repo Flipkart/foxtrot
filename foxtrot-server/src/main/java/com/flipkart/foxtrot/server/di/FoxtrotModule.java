@@ -17,10 +17,22 @@ import com.flipkart.foxtrot.core.email.messageformatting.EmailBodyBuilder;
 import com.flipkart.foxtrot.core.email.messageformatting.EmailSubjectBuilder;
 import com.flipkart.foxtrot.core.email.messageformatting.impl.StrSubstitutorEmailBodyBuilder;
 import com.flipkart.foxtrot.core.email.messageformatting.impl.StrSubstitutorEmailSubjectBuilder;
+import com.flipkart.foxtrot.core.funnel.config.BaseEventConfig;
+import com.flipkart.foxtrot.core.funnel.config.FunnelConfiguration;
+import com.flipkart.foxtrot.core.funnel.config.FunnelDropdownConfig;
+import com.flipkart.foxtrot.core.funnel.persistence.ElasticsearchFunnelStore;
+import com.flipkart.foxtrot.core.funnel.persistence.FunnelStore;
+import com.flipkart.foxtrot.core.funnel.services.EventProcessingService;
+import com.flipkart.foxtrot.core.funnel.services.EventProcessingServiceImpl;
+import com.flipkart.foxtrot.core.funnel.services.FunnelService;
+import com.flipkart.foxtrot.core.funnel.services.FunnelServiceImplV1;
+import com.flipkart.foxtrot.core.funnel.services.FunnelServiceImplV2;
 import com.flipkart.foxtrot.core.internalevents.InternalEventBus;
 import com.flipkart.foxtrot.core.internalevents.InternalEventBusConsumer;
 import com.flipkart.foxtrot.core.internalevents.impl.GuavaInternalEventBus;
 import com.flipkart.foxtrot.core.jobs.optimization.EsIndexOptimizationConfig;
+import com.flipkart.foxtrot.core.lock.DistributedLock;
+import com.flipkart.foxtrot.core.lock.HazelcastDistributedLock;
 import com.flipkart.foxtrot.core.querystore.ActionExecutionObserver;
 import com.flipkart.foxtrot.core.querystore.EventPublisherActionExecutionObserver;
 import com.flipkart.foxtrot.core.querystore.QueryStore;
@@ -45,12 +57,12 @@ import com.google.common.collect.ImmutableList;
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
 import com.google.inject.TypeLiteral;
+import com.google.inject.name.Names;
 import io.dropwizard.server.ServerFactory;
 import io.dropwizard.setup.Environment;
 import io.dropwizard.util.Duration;
 
 import java.io.IOException;
-import java.util.Set;
 import javax.inject.Singleton;
 import java.util.Collections;
 import java.util.List;
@@ -63,6 +75,7 @@ import org.apache.hadoop.conf.Configuration;
  *
  */
 public class FoxtrotModule extends AbstractModule {
+
     @Override
     protected void configure() {
         bind(TableMetadataManager.class)
@@ -87,6 +100,11 @@ public class FoxtrotModule extends AbstractModule {
                 .to(StrSubstitutorEmailBodyBuilder.class);
         bind(TableManager.class)
                 .to(FoxtrotTableManager.class);
+        bind(FunnelService.class).annotatedWith(Names.named("FunnelServiceImplV1")).to(FunnelServiceImplV1.class);
+        bind(FunnelService.class).to(FunnelServiceImplV2.class);
+        bind(FunnelStore.class).to(ElasticsearchFunnelStore.class);
+        bind(EventProcessingService.class).to(EventProcessingServiceImpl.class);
+        bind(DistributedLock.class).to(HazelcastDistributedLock.class);
         bind(new TypeLiteral<List<HealthCheck>>() {
         }).toProvider(HealthcheckListProvider.class);
     }
@@ -113,16 +131,16 @@ public class FoxtrotModule extends AbstractModule {
     @Singleton
     public CardinalityConfig cardinalityConfig(FoxtrotServerConfiguration configuration) {
         return null == configuration.getCardinality()
-               ? new CardinalityConfig("false", String.valueOf(ElasticsearchUtils.DEFAULT_SUB_LIST_SIZE))
-               : configuration.getCardinality();
+                ? new CardinalityConfig("false", String.valueOf(ElasticsearchUtils.DEFAULT_SUB_LIST_SIZE))
+                : configuration.getCardinality();
     }
 
     @Provides
     @Singleton
     public EsIndexOptimizationConfig esIndexOptimizationConfig(FoxtrotServerConfiguration configuration) {
         return null == configuration.getEsIndexOptimizationConfig()
-               ? new EsIndexOptimizationConfig()
-               : configuration.getEsIndexOptimizationConfig();
+                ? new EsIndexOptimizationConfig()
+                : configuration.getEsIndexOptimizationConfig();
     }
 
     @Provides
@@ -135,8 +153,8 @@ public class FoxtrotModule extends AbstractModule {
     @Singleton
     public ConsoleHistoryConfig consoleHistoryConfig(FoxtrotServerConfiguration configuration) {
         return null == configuration.getConsoleHistoryConfig()
-               ? new ConsoleHistoryConfig()
-               : configuration.getConsoleHistoryConfig();
+                ? new ConsoleHistoryConfig()
+                : configuration.getConsoleHistoryConfig();
     }
 
     @Provides
@@ -173,7 +191,8 @@ public class FoxtrotModule extends AbstractModule {
 
     @Provides
     @Singleton
-    public List<ActionExecutionObserver> actionExecutionObservers(CacheManager cacheManager, InternalEventBus eventBus) {
+    public List<ActionExecutionObserver> actionExecutionObservers(CacheManager cacheManager,
+            InternalEventBus eventBus) {
         return ImmutableList.<ActionExecutionObserver>builder()
                 .add(new MetricRecorder())
                 .add(new ResponseCacheUpdater(cacheManager))
@@ -200,6 +219,28 @@ public class FoxtrotModule extends AbstractModule {
                 .scheduledExecutorService("cardinality-executor")
                 .threads(1)
                 .build();
+    }
+
+    @Provides
+    @Singleton
+    public FunnelConfiguration funnelConfig(FoxtrotServerConfiguration configuration) {
+        return configuration.getFunnelConfiguration() != null
+                ? configuration.getFunnelConfiguration()
+                : new FunnelConfiguration();
+    }
+
+    @Provides
+    @Singleton
+    public FunnelDropdownConfig funnelDropdownConfig(FoxtrotServerConfiguration configuration) {
+        return configuration.getFunnelDropdownConfig();
+    }
+
+    @Provides
+    @Singleton
+    public BaseEventConfig provideBaseEventConfig(FoxtrotServerConfiguration configuration) throws IOException {
+        return configuration.getBaseEventConfig() != null
+                ? configuration.getBaseEventConfig()
+                : new BaseEventConfig();
     }
 
     @Provides

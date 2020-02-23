@@ -23,6 +23,7 @@ import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
 import com.flipkart.foxtrot.core.querystore.impl.MarathonClusterDiscoveryConfig;
 import com.flipkart.foxtrot.core.querystore.impl.SimpleClusterDiscoveryConfig;
 import com.flipkart.foxtrot.core.util.MetricUtil;
+import com.flipkart.foxtrot.core.util.SerDe;
 import com.flipkart.foxtrot.server.config.FoxtrotServerConfiguration;
 import com.flipkart.foxtrot.server.di.FoxtrotModule;
 import com.google.inject.Stage;
@@ -113,6 +114,7 @@ public class FoxtrotServer extends Application<FoxtrotServerConfiguration> {
         objectMapper.disable(SerializationFeature.FAIL_ON_EMPTY_BEANS);
         objectMapper.registerSubtypes(new NamedType(SimpleClusterDiscoveryConfig.class, "foxtrot_simple"));
         objectMapper.registerSubtypes(new NamedType(MarathonClusterDiscoveryConfig.class, "foxtrot_marathon"));
+        SerDe.init(objectMapper);
     }
 
     private SwaggerBundleConfiguration getSwaggerBundleConfiguration() {
