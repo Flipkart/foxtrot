@@ -3,6 +3,7 @@ package com.flipkart.foxtrot.core.funnel.services;
 import static com.collections.CollectionUtils.nullSafeList;
 import static com.collections.CollectionUtils.nullSafeMap;
 import static com.flipkart.foxtrot.core.exception.ErrorCode.EXECUTION_EXCEPTION;
+import static com.flipkart.foxtrot.core.funnel.constants.FunnelAttributes.DELETED;
 import static com.flipkart.foxtrot.core.funnel.constants.FunnelAttributes.END_PERCENTAGE;
 import static com.flipkart.foxtrot.core.funnel.constants.FunnelAttributes.FIELD_VS_VALUES;
 import static com.flipkart.foxtrot.core.funnel.constants.FunnelAttributes.FUNNEL_STATUS;
@@ -153,8 +154,11 @@ public class EventProcessingServiceImpl implements EventProcessingService {
         endPercentageQueryBuilder.gte(bucket);
         outerQueryBuilder.must(endPercentageQueryBuilder);
 
-        TermQueryBuilder termQueryBuilder = new TermQueryBuilder(FUNNEL_STATUS, FunnelStatus.APPROVED.name());
-        outerQueryBuilder.must(termQueryBuilder);
+        TermQueryBuilder statusQueryBuilder = new TermQueryBuilder(FUNNEL_STATUS, FunnelStatus.APPROVED.name());
+        TermQueryBuilder deletedQueryBuilder = new TermQueryBuilder(DELETED, false);
+
+        outerQueryBuilder.must(statusQueryBuilder);
+        outerQueryBuilder.must(deletedQueryBuilder);
 
         return outerQueryBuilder;
     }
