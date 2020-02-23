@@ -31,6 +31,7 @@ import com.flipkart.foxtrot.core.util.JsonUtils;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import javax.inject.Inject;
@@ -57,17 +58,13 @@ import org.slf4j.LoggerFactory;
 public class EventProcessingServiceImpl implements EventProcessingService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(EventProcessingServiceImpl.class);
-    private static final int FUNNEL_SIZE = 100;
 
-    private final ElasticsearchConnection connection;
     private final FunnelStore funnelStore;
     private final BaseEventConfig baseEventConfig;
 
     @Inject
-    public EventProcessingServiceImpl(final ElasticsearchConnection connection,
-            final FunnelStore funnelStore,
+    public EventProcessingServiceImpl(final FunnelStore funnelStore,
             final BaseEventConfig baseEventConfig) {
-        this.connection = connection;
         this.funnelStore = funnelStore;
         this.baseEventConfig = baseEventConfig;
     }
@@ -84,93 +81,46 @@ public class EventProcessingServiceImpl implements EventProcessingService {
     }
 
     private List<Funnel> processRequest(EventProcessingRequest eventProcessingRequest) throws FoxtrotException {
-        List<Funnel> funnels = new ArrayList<>();
-        BoolQueryBuilder esRequest = buildEsRequest(eventProcessingRequest);
-        SearchHits searchHits;
-        try {
-            SearchResponse response = connection.getClient()
-                    .prepareSearch(FUNNEL_INDEX)
-                    .setIndicesOptions(Utils.indicesOptions())
-                    .setQuery(esRequest)
-                    .setSearchType(SearchType.QUERY_THEN_FETCH)
-                    .setSize(FUNNEL_SIZE)
-                    .execute()
-                    .actionGet();
-            searchHits = response.getHits();
-        } catch (Exception e) {
-            throw FunnelExceptionBuilder.builder(EXECUTION_EXCEPTION, "Error making ES request", e).build();
-        }
-        for (SearchHit searchHit : searchHits) {
-            Funnel funnel = JsonUtils.fromJson(searchHit.getSourceAsString(), Funnel.class);
+        int bucket = calculateBucket(eventProcessingRequest);
+
+        List<Map<String, String>> fieldVsValueMaps = Arrays.asList(eventProcessingRequest.getAppSpecificFields(),
+                eventProcessingRequest.getDeviceSpecificFields(),
+                eventProcessingRequest.getUserSpecificFields());
+
+        List<Funnel> funnels = funnelStore.fetchFunnels(fieldVsValueMaps, bucket);
+
+        List<Funnel> validFunnels = new ArrayList<>();
+        for (Funnel funnel : funnels) {
             if (isFunnelValid(funnel, eventProcessingRequest)) {
-                funnels.add(funnel);
+                validFunnels.add(funnel);
             }
         }
-        return funnels;
+        return validFunnels;
 
     }
 
-    // this validation checks if funnel parameters are specified in the request
-    private boolean isFunnelValid(Funnel funnel, EventProcessingRequest eventProcessingRequest) {
-        for (String attribute : CollectionUtils.nullSafeSet(funnel.getFieldVsValues()
-                .keySet())) {
-            if (CollectionUtils.nullSafeMap(eventProcessingRequest.getUserSpecificFields())
-                    .containsKey(attribute) || CollectionUtils.nullSafeMap(
-                    eventProcessingRequest.getAppSpecificFields())
-                    .containsKey(attribute) || CollectionUtils.nullSafeMap(
-                    eventProcessingRequest.getDeviceSpecificFields())
-                    .containsKey(attribute)) {
-                continue;
-            }
-            return false;
-        }
-        return true;
-    }
-
-    private BoolQueryBuilder buildEsRequest(EventProcessingRequest eventProcessingRequest) throws FoxtrotException {
-
-        BoolQueryBuilder outerQueryBuilder = QueryBuilders.boolQuery();
-        BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
-
-        addQueries(eventProcessingRequest.getAppSpecificFields(), boolQueryBuilder);
-        addQueries(eventProcessingRequest.getDeviceSpecificFields(), boolQueryBuilder);
-        addQueries(eventProcessingRequest.getUserSpecificFields(), boolQueryBuilder);
-
-        outerQueryBuilder.must(QueryBuilders.nestedQuery(FIELD_VS_VALUES, boolQueryBuilder, ScoreMode.Avg));
-
+    private int calculateBucket(EventProcessingRequest eventProcessingRequest) {
         String deviceId = CollectionUtils.nullSafeMap(eventProcessingRequest.getDeviceSpecificFields())
                 .get(FunnelConstants.DEVICE_ID);
         if (StringUtils.isEmpty(deviceId)) {
             throw FunnelExceptionBuilder.builder(EXECUTION_EXCEPTION, "Device Id is missing").build();
         }
         int hashOfDeviceId = deviceId.hashCode();
-        int bucket = Math.abs(hashOfDeviceId % 100);
-
-        RangeQueryBuilder startPercentageQueryBuilder = new RangeQueryBuilder(START_PERCENTAGE);
-        startPercentageQueryBuilder.lte(bucket);
-        outerQueryBuilder.must(startPercentageQueryBuilder);
-
-        RangeQueryBuilder endPercentageQueryBuilder = new RangeQueryBuilder(END_PERCENTAGE);
-        endPercentageQueryBuilder.gte(bucket);
-        outerQueryBuilder.must(endPercentageQueryBuilder);
-
-        TermQueryBuilder statusQueryBuilder = new TermQueryBuilder(FUNNEL_STATUS, FunnelStatus.APPROVED.name());
-        TermQueryBuilder deletedQueryBuilder = new TermQueryBuilder(DELETED, false);
-
-        outerQueryBuilder.must(statusQueryBuilder);
-        outerQueryBuilder.must(deletedQueryBuilder);
-
-        return outerQueryBuilder;
+        return Math.abs(hashOfDeviceId % 100);
     }
 
-    private void addQueries(Map<String, String> fields, BoolQueryBuilder boolQueryBuilder) {
-        for (Map.Entry<String, String> field : nullSafeMap(fields).entrySet()) {
-            BoolQueryBuilder shouldQueryBuilder = QueryBuilders.boolQuery();
-            String key = FIELD_VS_VALUES + DOT + field.getKey();
-            shouldQueryBuilder.should(new TermQueryBuilder(key, field.getValue()));
-            shouldQueryBuilder.should(new BoolQueryBuilder().mustNot(new ExistsQueryBuilder(key)));
-            boolQueryBuilder.must(shouldQueryBuilder);
+    // this validation checks if funnel parameters are specified in the request
+    private boolean isFunnelValid(Funnel funnel, EventProcessingRequest eventProcessingRequest) {
+        for (String attribute : CollectionUtils.nullSafeSet(funnel.getFieldVsValues().keySet())) {
+            if (CollectionUtils.nullSafeMap(eventProcessingRequest.getUserSpecificFields()).containsKey(attribute)
+                    || CollectionUtils.nullSafeMap(eventProcessingRequest.getAppSpecificFields()).containsKey(attribute)
+                    || CollectionUtils.nullSafeMap(eventProcessingRequest.getDeviceSpecificFields())
+                    .containsKey(attribute)) {
+                continue;
+            }
+            return false;
         }
+        return true;
     }
 
     private EventProcessingResponse parseFunnels(List<Funnel> funnels) {

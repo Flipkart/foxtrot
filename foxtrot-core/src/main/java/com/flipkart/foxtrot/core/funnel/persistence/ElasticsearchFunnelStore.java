@@ -4,8 +4,12 @@ import static com.collections.CollectionUtils.nullAndEmptySafeValueList;
 import static com.collections.CollectionUtils.nullSafeMap;
 import static com.flipkart.foxtrot.core.exception.ErrorCode.EXECUTION_EXCEPTION;
 import static com.flipkart.foxtrot.core.funnel.constants.FunnelAttributes.APPROVAL_DATE;
+import static com.flipkart.foxtrot.core.funnel.constants.FunnelAttributes.DELETED;
+import static com.flipkart.foxtrot.core.funnel.constants.FunnelAttributes.END_PERCENTAGE;
 import static com.flipkart.foxtrot.core.funnel.constants.FunnelAttributes.EVENT_ATTRIBUTES;
 import static com.flipkart.foxtrot.core.funnel.constants.FunnelAttributes.FIELD_VS_VALUES;
+import static com.flipkart.foxtrot.core.funnel.constants.FunnelAttributes.FUNNEL_STATUS;
+import static com.flipkart.foxtrot.core.funnel.constants.FunnelAttributes.START_PERCENTAGE;
 import static com.flipkart.foxtrot.core.funnel.constants.FunnelConstants.DOT;
 import static com.flipkart.foxtrot.core.funnel.constants.FunnelConstants.FUNNEL_INDEX;
 import static com.flipkart.foxtrot.core.funnel.constants.FunnelConstants.TYPE;
@@ -15,11 +19,13 @@ import com.flipkart.foxtrot.core.exception.FoxtrotException;
 import com.flipkart.foxtrot.core.funnel.config.FunnelConfiguration;
 import com.flipkart.foxtrot.core.funnel.config.FunnelDropdownConfig;
 import com.flipkart.foxtrot.core.funnel.constants.FunnelAttributes;
+import com.flipkart.foxtrot.core.funnel.constants.FunnelConstants;
 import com.flipkart.foxtrot.core.funnel.exception.FunnelException;
 import com.flipkart.foxtrot.core.funnel.exception.FunnelException.FunnelExceptionBuilder;
 import com.flipkart.foxtrot.core.funnel.model.EventAttributes;
 import com.flipkart.foxtrot.core.funnel.model.Funnel;
 import com.flipkart.foxtrot.core.funnel.model.enums.FunnelStatus;
+import com.flipkart.foxtrot.core.funnel.model.request.EventProcessingRequest;
 import com.flipkart.foxtrot.core.funnel.model.request.FilterRequest;
 import com.flipkart.foxtrot.core.funnel.model.response.FunnelFilterResponse;
 import com.flipkart.foxtrot.core.funnel.services.MappingService;
@@ -35,6 +41,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.lucene.search.join.ScoreMode;
 import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.search.SearchRequestBuilder;
@@ -45,8 +52,10 @@ import org.elasticsearch.action.support.WriteRequest.RefreshPolicy;
 import org.elasticsearch.action.update.UpdateRequest;
 import org.elasticsearch.common.xcontent.XContentType;
 import org.elasticsearch.index.query.BoolQueryBuilder;
+import org.elasticsearch.index.query.ExistsQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.index.query.RangeQueryBuilder;
 import org.elasticsearch.index.query.TermQueryBuilder;
 import org.elasticsearch.index.query.TermsQueryBuilder;
 import org.elasticsearch.search.SearchHit;
@@ -62,6 +71,8 @@ import org.slf4j.LoggerFactory;
 public class ElasticsearchFunnelStore implements FunnelStore {
 
     private static final Logger logger = LoggerFactory.getLogger(ElasticsearchFunnelStore.class);
+
+    private static final int FUNNEL_SIZE = 100;
 
     private final ElasticsearchConnection connection;
     private final MappingService mappingService;
@@ -296,6 +307,72 @@ public class ElasticsearchFunnelStore implements FunnelStore {
     public FunnelDropdownConfig getFunnelDropdownValues() {
         return funnelDropdownConfig;
     }
+
+    @Override
+    public List<Funnel> fetchFunnels(List<Map<String, String>> fieldVsValueMaps, int bucket) {
+        List<Funnel> funnels = new ArrayList<>();
+        BoolQueryBuilder esRequest = buildEsRequest(fieldVsValueMaps, bucket);
+
+        SearchHits searchHits;
+        try {
+            SearchResponse response = connection.getClient()
+                    .prepareSearch(FUNNEL_INDEX)
+                    .setIndicesOptions(Utils.indicesOptions())
+                    .setQuery(esRequest)
+                    .setSearchType(SearchType.QUERY_THEN_FETCH)
+                    .setSize(FUNNEL_SIZE)
+                    .execute()
+                    .actionGet();
+            searchHits = response.getHits();
+        } catch (Exception e) {
+            throw FunnelExceptionBuilder.builder(EXECUTION_EXCEPTION, "Error making ES request", e).build();
+        }
+        for (SearchHit searchHit : searchHits) {
+            Funnel funnel = JsonUtils.fromJson(searchHit.getSourceAsString(), Funnel.class);
+            funnels.add(funnel);
+        }
+        return funnels;
+    }
+
+    private BoolQueryBuilder buildEsRequest(List<Map<String, String>> fieldVsValues, int bucket)
+            throws FoxtrotException {
+
+        BoolQueryBuilder outerQueryBuilder = QueryBuilders.boolQuery();
+        BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
+
+        fieldVsValues.forEach(fieldVsValueMap -> {
+            addQueries(fieldVsValueMap, boolQueryBuilder);
+        });
+
+        outerQueryBuilder.must(QueryBuilders.nestedQuery(FIELD_VS_VALUES, boolQueryBuilder, ScoreMode.Avg));
+
+        RangeQueryBuilder startPercentageQueryBuilder = new RangeQueryBuilder(START_PERCENTAGE);
+        startPercentageQueryBuilder.lte(bucket);
+        outerQueryBuilder.must(startPercentageQueryBuilder);
+
+        RangeQueryBuilder endPercentageQueryBuilder = new RangeQueryBuilder(END_PERCENTAGE);
+        endPercentageQueryBuilder.gte(bucket);
+        outerQueryBuilder.must(endPercentageQueryBuilder);
+
+        TermQueryBuilder statusQueryBuilder = new TermQueryBuilder(FUNNEL_STATUS, FunnelStatus.APPROVED.name());
+        TermQueryBuilder deletedQueryBuilder = new TermQueryBuilder(DELETED, false);
+
+        outerQueryBuilder.must(statusQueryBuilder);
+        outerQueryBuilder.must(deletedQueryBuilder);
+
+        return outerQueryBuilder;
+    }
+
+    private void addQueries(Map<String, String> fields, BoolQueryBuilder boolQueryBuilder) {
+        for (Map.Entry<String, String> field : nullSafeMap(fields).entrySet()) {
+            BoolQueryBuilder shouldQueryBuilder = QueryBuilders.boolQuery();
+            String key = FIELD_VS_VALUES + DOT + field.getKey();
+            shouldQueryBuilder.should(new TermQueryBuilder(key, field.getValue()));
+            shouldQueryBuilder.should(new BoolQueryBuilder().mustNot(new ExistsQueryBuilder(key)));
+            boolQueryBuilder.must(shouldQueryBuilder);
+        }
+    }
+
 
     private BoolQueryBuilder buildSimilarFunnelSearchQuery(Funnel funnel) throws FoxtrotException {
         BoolQueryBuilder outerQueryBuilder = QueryBuilders.boolQuery();
