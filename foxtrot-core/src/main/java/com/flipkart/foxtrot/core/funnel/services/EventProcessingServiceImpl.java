@@ -1,15 +1,7 @@
 package com.flipkart.foxtrot.core.funnel.services;
 
 import static com.collections.CollectionUtils.nullSafeList;
-import static com.collections.CollectionUtils.nullSafeMap;
 import static com.flipkart.foxtrot.core.exception.ErrorCode.EXECUTION_EXCEPTION;
-import static com.flipkart.foxtrot.core.funnel.constants.FunnelAttributes.DELETED;
-import static com.flipkart.foxtrot.core.funnel.constants.FunnelAttributes.END_PERCENTAGE;
-import static com.flipkart.foxtrot.core.funnel.constants.FunnelAttributes.FIELD_VS_VALUES;
-import static com.flipkart.foxtrot.core.funnel.constants.FunnelAttributes.FUNNEL_STATUS;
-import static com.flipkart.foxtrot.core.funnel.constants.FunnelAttributes.START_PERCENTAGE;
-import static com.flipkart.foxtrot.core.funnel.constants.FunnelConstants.DOT;
-import static com.flipkart.foxtrot.core.funnel.constants.FunnelConstants.FUNNEL_INDEX;
 
 import com.collections.CollectionUtils;
 import com.flipkart.foxtrot.core.exception.FoxtrotException;
@@ -21,13 +13,9 @@ import com.flipkart.foxtrot.core.funnel.model.Funnel;
 import com.flipkart.foxtrot.core.funnel.model.FunnelData;
 import com.flipkart.foxtrot.core.funnel.model.FunnelEventResponse;
 import com.flipkart.foxtrot.core.funnel.model.FunnelInfo;
-import com.flipkart.foxtrot.core.funnel.model.enums.FunnelStatus;
 import com.flipkart.foxtrot.core.funnel.model.request.EventProcessingRequest;
 import com.flipkart.foxtrot.core.funnel.model.response.EventProcessingResponse;
 import com.flipkart.foxtrot.core.funnel.persistence.FunnelStore;
-import com.flipkart.foxtrot.core.querystore.actions.Utils;
-import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConnection;
-import com.flipkart.foxtrot.core.util.JsonUtils;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import java.util.ArrayList;
@@ -37,17 +25,7 @@ import java.util.Map;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.lucene.search.join.ScoreMode;
-import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.action.search.SearchType;
 import org.elasticsearch.common.collect.Tuple;
-import org.elasticsearch.index.query.BoolQueryBuilder;
-import org.elasticsearch.index.query.ExistsQueryBuilder;
-import org.elasticsearch.index.query.QueryBuilders;
-import org.elasticsearch.index.query.RangeQueryBuilder;
-import org.elasticsearch.index.query.TermQueryBuilder;
-import org.elasticsearch.search.SearchHit;
-import org.elasticsearch.search.SearchHits;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
