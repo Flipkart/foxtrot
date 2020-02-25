@@ -14,7 +14,7 @@ import lombok.EqualsAndHashCode;
 @EqualsAndHashCode
 public class EventAttributes {
 
-    private String eventId;
-    private String identifierId;
+    private String eventType;
+    private String category;
 
 }

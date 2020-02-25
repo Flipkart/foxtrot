@@ -19,13 +19,10 @@ import com.flipkart.foxtrot.core.exception.FoxtrotException;
 import com.flipkart.foxtrot.core.funnel.config.FunnelConfiguration;
 import com.flipkart.foxtrot.core.funnel.config.FunnelDropdownConfig;
 import com.flipkart.foxtrot.core.funnel.constants.FunnelAttributes;
-import com.flipkart.foxtrot.core.funnel.constants.FunnelConstants;
 import com.flipkart.foxtrot.core.funnel.exception.FunnelException;
-import com.flipkart.foxtrot.core.funnel.exception.FunnelException.FunnelExceptionBuilder;
 import com.flipkart.foxtrot.core.funnel.model.EventAttributes;
 import com.flipkart.foxtrot.core.funnel.model.Funnel;
 import com.flipkart.foxtrot.core.funnel.model.enums.FunnelStatus;
-import com.flipkart.foxtrot.core.funnel.model.request.EventProcessingRequest;
 import com.flipkart.foxtrot.core.funnel.model.request.FilterRequest;
 import com.flipkart.foxtrot.core.funnel.model.response.FunnelFilterResponse;
 import com.flipkart.foxtrot.core.funnel.services.MappingService;
@@ -41,7 +38,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.lucene.search.join.ScoreMode;
 import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.search.SearchRequestBuilder;
@@ -105,9 +101,7 @@ public class ElasticsearchFunnelStore implements FunnelStore {
                     .get();
         } catch (Exception e) {
             logger.error(String.format("error saving funnel with name : %s", funnel.getName()));
-            throw FunnelExceptionBuilder.builder(EXECUTION_EXCEPTION, "Funnel save failed", e)
-                    .funnelName(funnel.getName())
-                    .build();
+            throw new FunnelException(EXECUTION_EXCEPTION, "Funnel save failed", e);
         }
     }
 
@@ -125,9 +119,7 @@ public class ElasticsearchFunnelStore implements FunnelStore {
             }
             return JsonUtils.fromJson(response.getSourceAsString(), Funnel.class);
         } catch (Exception e) {
-            throw FunnelExceptionBuilder.builder(EXECUTION_EXCEPTION, "Funnel get by document id failed", e)
-                    .documentId(documentId)
-                    .build();
+            throw new FunnelException(EXECUTION_EXCEPTION, "Funnel get by document id failed", e);
         }
     }
 
@@ -148,9 +140,7 @@ public class ElasticsearchFunnelStore implements FunnelStore {
             }
             return JsonUtils.fromJson(response.getAt(0).getSourceAsString(), Funnel.class);
         } catch (Exception e) {
-            throw FunnelExceptionBuilder.builder(EXECUTION_EXCEPTION, "Funnel get by funnel id failed", e)
-                    .funnelId(funnelId)
-                    .build();
+            throw new FunnelException(EXECUTION_EXCEPTION, "Funnel get by funnel id failed", e);
         }
 
     }
@@ -173,9 +163,7 @@ public class ElasticsearchFunnelStore implements FunnelStore {
                     .actionGet();
             searchHits = response.getHits();
         } catch (Exception e) {
-            throw FunnelExceptionBuilder.builder(EXECUTION_EXCEPTION, "Error fetching similar funnels", e)
-                    .funnelName(funnel.getName())
-                    .build();
+            throw new FunnelException(EXECUTION_EXCEPTION, "Error fetching similar funnels", e);
         }
         if (searchHits.totalHits == 0) {
             return similarFunnels;
@@ -202,12 +190,8 @@ public class ElasticsearchFunnelStore implements FunnelStore {
                     .get();
             logger.info("Updated Funnel: {}", funnel);
         } catch (Exception e) {
-            throw FunnelExceptionBuilder.builder(EXECUTION_EXCEPTION,
-                    "Funnel couldn't be updated for Id: " + funnel.getId() + " Error Message: " + e.getMessage(), e)
-                    .funnelName(funnel.getName())
-                    .funnelId(funnel.getId())
-                    .documentId(funnel.getDocumentId())
-                    .build();
+            throw new FunnelException(EXECUTION_EXCEPTION,
+                    "Funnel couldn't be updated for Id: " + funnel.getId() + " Error Message: " + e.getMessage(), e);
         }
     }
 
@@ -223,7 +207,7 @@ public class ElasticsearchFunnelStore implements FunnelStore {
                     .setTypes(TYPE)
                     .setSize(maxSize);
 
-            if(!deleted){
+            if (!deleted) {
                 QueryBuilder query = new TermQueryBuilder(FunnelAttributes.DELETED, deleted);
                 searchRequestBuilder.setQuery(query);
             }
@@ -234,7 +218,7 @@ public class ElasticsearchFunnelStore implements FunnelStore {
             }
             return funnels;
         } catch (Exception e) {
-            throw FunnelExceptionBuilder.builder(EXECUTION_EXCEPTION, "Funnel get all failed", e).build();
+            throw new FunnelException(EXECUTION_EXCEPTION, "Funnel get all failed", e);
         }
     }
 
@@ -262,7 +246,7 @@ public class ElasticsearchFunnelStore implements FunnelStore {
             }
             return new FunnelFilterResponse(hitsCount, funnels);
         } catch (Exception e) {
-            throw FunnelExceptionBuilder.builder(EXECUTION_EXCEPTION, "Funnel search failed", e).build();
+            throw new FunnelException(EXECUTION_EXCEPTION, "Funnel search failed", e);
         }
     }
 
@@ -279,15 +263,13 @@ public class ElasticsearchFunnelStore implements FunnelStore {
                     .actionGet();
             logger.info("Deleted Funnel with document id: {}", documentId);
         } catch (Exception e) {
-            throw FunnelExceptionBuilder.builder(EXECUTION_EXCEPTION, "Funnel deletion_failed", e)
-                    .documentId(documentId)
-                    .build();
+            throw new FunnelException(EXECUTION_EXCEPTION, "Funnel deletion_failed", e);
         }
     }
 
     @Override
     public Funnel getLatestFunnel() throws FoxtrotException {
-        QueryBuilder query = new TermQueryBuilder(FunnelAttributes.FUNNEL_STATUS, FunnelStatus.APPROVED.name());
+        QueryBuilder query = new TermQueryBuilder(FUNNEL_STATUS, FunnelStatus.APPROVED.name());
 
         try {
             SearchResponse response = connection.getClient()
@@ -301,8 +283,7 @@ public class ElasticsearchFunnelStore implements FunnelStore {
             }
             return JsonUtils.fromJson(response.getHits().getAt(0).getSourceAsString(), Funnel.class);
         } catch (Exception e) {
-            throw FunnelExceptionBuilder.builder(EXECUTION_EXCEPTION, "Failed to get latest funnel", e)
-                    .build();
+            throw new FunnelException(EXECUTION_EXCEPTION, "Failed to get latest funnel", e);
         }
     }
 
@@ -328,7 +309,7 @@ public class ElasticsearchFunnelStore implements FunnelStore {
                     .actionGet();
             searchHits = response.getHits();
         } catch (Exception e) {
-            throw FunnelExceptionBuilder.builder(EXECUTION_EXCEPTION, "Error making ES request", e).build();
+            throw new FunnelException(EXECUTION_EXCEPTION, "Error making ES request", e);
         }
         for (SearchHit searchHit : searchHits) {
             Funnel funnel = JsonUtils.fromJson(searchHit.getSourceAsString(), Funnel.class);
@@ -439,9 +420,7 @@ public class ElasticsearchFunnelStore implements FunnelStore {
                 boolEventAttributesQueryBuilder.must(mustQueryBuilder);
             }
         } catch (IllegalAccessException e) {
-            throw FunnelExceptionBuilder.builder(EXECUTION_EXCEPTION, "Error in creating Event Attributes Query.", e)
-                    .funnelName(funnel.getName())
-                    .build();
+            throw new FunnelException(EXECUTION_EXCEPTION, "Error in creating Event Attributes Query.", e);
         }
 
         return boolEventAttributesQueryBuilder;
@@ -452,10 +431,8 @@ public class ElasticsearchFunnelStore implements FunnelStore {
         try {
             preProcessFilter.preProcess(filterRequest, mappingService);
         } catch (Exception e) {
-            throw FunnelExceptionBuilder
-                    .builder(EXECUTION_EXCEPTION,
-                            String.format("Error in preProcessing filterRequest: %s", e.getMessage()), e)
-                    .build();
+            throw new FunnelException(EXECUTION_EXCEPTION,
+                    String.format("Error in preProcessing filterRequest: %s", e.getMessage()), e);
         }
     }
 

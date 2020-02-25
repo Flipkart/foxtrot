@@ -7,7 +7,7 @@ import com.collections.CollectionUtils;
 import com.flipkart.foxtrot.core.exception.FoxtrotException;
 import com.flipkart.foxtrot.core.funnel.config.BaseEventConfig;
 import com.flipkart.foxtrot.core.funnel.constants.FunnelConstants;
-import com.flipkart.foxtrot.core.funnel.exception.FunnelException.FunnelExceptionBuilder;
+import com.flipkart.foxtrot.core.funnel.exception.FunnelException;
 import com.flipkart.foxtrot.core.funnel.model.EventAttributes;
 import com.flipkart.foxtrot.core.funnel.model.Funnel;
 import com.flipkart.foxtrot.core.funnel.model.FunnelData;
@@ -81,7 +81,7 @@ public class EventProcessingServiceImpl implements EventProcessingService {
         String deviceId = CollectionUtils.nullSafeMap(eventProcessingRequest.getDeviceSpecificFields())
                 .get(FunnelConstants.DEVICE_ID);
         if (StringUtils.isEmpty(deviceId)) {
-            throw FunnelExceptionBuilder.builder(EXECUTION_EXCEPTION, "Device Id is missing").build();
+            throw new FunnelException(EXECUTION_EXCEPTION, "Device Id is missing");
         }
         int hashOfDeviceId = deviceId.hashCode();
         return Math.abs(hashOfDeviceId % 100);
@@ -102,12 +102,12 @@ public class EventProcessingServiceImpl implements EventProcessingService {
     }
 
     private EventProcessingResponse parseFunnels(List<Funnel> funnels) {
-        Map<Tuple<String, String>, List<FunnelInfo>> eventIdentifierVsFunnelIds = Maps.newHashMap();
+        Map<Tuple<String, String>, List<FunnelInfo>> eventCategoryVsFunnelIds = Maps.newHashMap();
         for (Funnel funnel : CollectionUtils.nullSafeList(funnels)) {
             List<EventAttributes> eventAttributes = funnel.getEventAttributes();
             for (EventAttributes attributes : nullSafeList(eventAttributes)) {
-                Tuple<String, String> eventIdentifier = new Tuple<>(attributes.getEventId(),
-                        attributes.getIdentifierId());
+                Tuple<String, String> eventCategory = new Tuple<>(attributes.getEventType(),
+                        attributes.getCategory());
                 FunnelInfo funnelInfo = FunnelInfo.builder()
                         .funnelId(funnel.getId())
                         .funnelData(FunnelData.builder()
@@ -115,21 +115,25 @@ public class EventProcessingServiceImpl implements EventProcessingService {
                                 .endPercentage(funnel.getEndPercentage())
                                 .build())
                         .build();
-                if (eventIdentifierVsFunnelIds.containsKey(eventIdentifier)) {
-                    eventIdentifierVsFunnelIds.get(eventIdentifier)
+                if (eventCategoryVsFunnelIds.containsKey(eventCategory)) {
+                    eventCategoryVsFunnelIds.get(eventCategory)
                             .add(funnelInfo);
                 } else {
-                    eventIdentifierVsFunnelIds.put(eventIdentifier, Lists.newArrayList(funnelInfo));
+                    eventCategoryVsFunnelIds.put(eventCategory, Lists.newArrayList(funnelInfo));
                 }
             }
         }
         List<FunnelEventResponse> funnelEventResponses = Lists.newArrayList();
-        for (Map.Entry<Tuple<String, String>, List<FunnelInfo>> entry : eventIdentifierVsFunnelIds.entrySet()) {
+        for (Map.Entry<Tuple<String, String>, List<FunnelInfo>> entry : eventCategoryVsFunnelIds.entrySet()) {
             FunnelEventResponse funnelEventResponse = new FunnelEventResponse();
             funnelEventResponse.setEventId(entry.getKey()
                     .v1());
+            funnelEventResponse.setEventType(entry.getKey().v1());
+
             funnelEventResponse.setIdentifierId(entry.getKey()
                     .v2());
+            funnelEventResponse.setCategory(entry.getKey().v2());
+
             funnelEventResponse.setFunnelInfos(entry.getValue());
             funnelEventResponses.add(funnelEventResponse);
         }
@@ -141,8 +145,10 @@ public class EventProcessingServiceImpl implements EventProcessingService {
                         .build();
                 if (!setBaseEventInfo(funnelEventResponses, funnelInfo)) {
                     FunnelEventResponse funnelEventResponse = new FunnelEventResponse();
-                    funnelEventResponse.setEventId(baseEventConfig.getEventId());
-                    funnelEventResponse.setIdentifierId(baseEventConfig.getIdentifierId());
+                    funnelEventResponse.setEventId(baseEventConfig.getEventType());
+                    funnelEventResponse.setEventType(baseEventConfig.getEventType());
+                    funnelEventResponse.setIdentifierId(baseEventConfig.getCategory());
+                    funnelEventResponse.setCategory(baseEventConfig.getCategory());
                     funnelEventResponse.setFunnelInfos(Lists.newArrayList(funnelInfo));
                     funnelEventResponses.add(funnelEventResponse);
                 }
@@ -159,7 +165,7 @@ public class EventProcessingServiceImpl implements EventProcessingService {
 
     private boolean setBaseEventInfo(List<FunnelEventResponse> funnelEventResponses, FunnelInfo funnelInfo) {
         for (FunnelEventResponse funnelEventResponse : nullSafeList(funnelEventResponses)) {
-            if (baseEventConfig.getEventId().equals(funnelEventResponse.getEventId())) {
+            if (baseEventConfig.getEventType().equals(funnelEventResponse.getEventType())) {
                 funnelEventResponse.setFunnelInfos(Lists.newArrayList(funnelInfo));
                 return true;
             }

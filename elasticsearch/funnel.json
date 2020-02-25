@@ -71,11 +71,24 @@
           },
           "ignore_above": 256
         },
+        "percentage": {
+          "type": "long"
+        },
         "startPercentage": {
           "type": "long"
         },
         "endPercentage": {
           "type": "long"
+        },
+        "creatorEmailId": {
+          "type": "keyword",
+          "fields": {
+            "text": {
+              "type": "text",
+              "analyzer": "lowercase_keyword"
+            }
+          },
+          "ignore_above": 256
         },
         "approverEmailId": {
           "type": "keyword",
@@ -90,7 +103,7 @@
         "eventAttributes": {
           "type": "nested",
           "properties": {
-            "eventId": {
+            "eventType": {
               "type": "keyword",
               "fields": {
                 "text": {
@@ -100,7 +113,7 @@
               },
               "ignore_above": 256
             },
-            "identifierId": {
+            "category": {
               "type": "keyword",
               "fields": {
                 "text": {

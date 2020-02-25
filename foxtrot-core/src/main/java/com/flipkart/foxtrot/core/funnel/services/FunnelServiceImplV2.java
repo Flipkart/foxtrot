@@ -1,33 +1,20 @@
 package com.flipkart.foxtrot.core.funnel.services;
 
-import static com.flipkart.foxtrot.core.funnel.constants.FunnelConstants.START_ID;
-import static com.flipkart.foxtrot.core.funnel.constants.FunnelConstants.UNASSIGNED_FUNNEL_ID;
-import static com.flipkart.foxtrot.core.funnel.model.enums.FunnelStatus.APPROVED;
-import static com.flipkart.foxtrot.core.funnel.model.enums.FunnelStatus.WAITING_FOR_APPROVAL;
 import static com.flipkart.foxtrot.core.funnel.util.FunnelUtil.APPROVAL_REQUEST_SUBJECT;
 import static com.flipkart.foxtrot.core.funnel.util.FunnelUtil.getApprovalRequestBody;
 
-import com.collections.CollectionUtils;
 import com.flipkart.foxtrot.core.email.Email;
 import com.flipkart.foxtrot.core.email.EmailClient;
 import com.flipkart.foxtrot.core.funnel.config.FunnelConfiguration;
 import com.flipkart.foxtrot.core.funnel.config.FunnelDropdownConfig;
-import com.flipkart.foxtrot.core.funnel.exception.FunnelException.FunnelExceptionBuilder;
 import com.flipkart.foxtrot.core.funnel.model.Funnel;
 import com.flipkart.foxtrot.core.funnel.model.request.FilterRequest;
 import com.flipkart.foxtrot.core.funnel.model.response.FunnelFilterResponse;
-import com.flipkart.foxtrot.core.funnel.persistence.FunnelStore;
-import com.flipkart.foxtrot.core.lock.LockedExecutor;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.google.inject.name.Named;
 import java.util.Collections;
 import java.util.List;
-import java.util.UUID;
-import java.util.function.Function;
-import org.joda.time.DateTime;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 @Singleton
 public class FunnelServiceImplV2 implements FunnelService {

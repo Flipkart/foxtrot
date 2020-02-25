@@ -11,7 +11,7 @@ import static com.flipkart.foxtrot.core.funnel.model.enums.FunnelStatus.WAITING_
 import com.collections.CollectionUtils;
 import com.flipkart.foxtrot.core.exception.ErrorCode;
 import com.flipkart.foxtrot.core.funnel.config.FunnelDropdownConfig;
-import com.flipkart.foxtrot.core.funnel.exception.FunnelException.FunnelExceptionBuilder;
+import com.flipkart.foxtrot.core.funnel.exception.FunnelException;
 import com.flipkart.foxtrot.core.funnel.model.Funnel;
 import com.flipkart.foxtrot.core.funnel.model.enums.FunnelStatus;
 import com.flipkart.foxtrot.core.funnel.model.request.FilterRequest;
@@ -49,6 +49,8 @@ public class FunnelServiceImplV1 implements FunnelService {
 
         checkIfSimilarFunnelExists(funnel);
 
+        assignFunnelPercentage(funnel);
+
         try {
             funnel.setCreatedAt(new DateTime().toDate());
             funnel.setId(UNASSIGNED_FUNNEL_ID);
@@ -58,20 +60,27 @@ public class FunnelServiceImplV1 implements FunnelService {
             funnelStore.save(funnel);
             logger.info("Created Funnel: {}", funnel);
         } catch (Exception e) {
-            throw FunnelExceptionBuilder.builder(EXECUTION_EXCEPTION, "Funnel request creation failed", e)
-                    .funnelName(funnel.getName())
-                    .build();
+            throw new FunnelException(EXECUTION_EXCEPTION, "Funnel request creation failed", e);
         }
         return funnel;
+    }
+
+    /*
+        Assign funnel start and end percentage if not provided
+     */
+    private void assignFunnelPercentage(Funnel funnel) {
+        if (funnel.getStartPercentage() == 0 && funnel.getEndPercentage() == 0) {
+            int startPercentage = (int) Math.ceil(Math.random() * (100 - funnel.getPercentage()));
+            funnel.setStartPercentage(startPercentage);
+            funnel.setEndPercentage(startPercentage + funnel.getPercentage());
+        }
     }
 
     @Override
     public Funnel approve(String documentId) {
         return lockedExecutor
                 .doItInLockV6(documentId, approveAndGenerateFunnelId(), documentId1 -> {
-                    throw FunnelExceptionBuilder
-                            .builder(EXECUTION_EXCEPTION, "Could not acquire lock to approve funnel")
-                            .build();
+                    throw new FunnelException(EXECUTION_EXCEPTION, "Could not acquire lock to approve funnel");
                 }, FUNNEL_APPROVAL_LOCK_KEY);
     }
 
@@ -82,11 +91,7 @@ public class FunnelServiceImplV1 implements FunnelService {
         validateFunnelUpdateRequest(savedFunnel);
 
         if (APPROVED.equals(savedFunnel.getFunnelStatus())) {
-            throw FunnelExceptionBuilder.builder(INVALID_REQUEST, "Can not reject already approved funnel")
-                    .funnelId(savedFunnel.getId())
-                    .documentId(savedFunnel.getDocumentId())
-                    .funnelName(savedFunnel.getName())
-                    .build();
+            throw new FunnelException(INVALID_REQUEST, "Can not reject already approved funnel");
         }
 
         savedFunnel.setFunnelStatus(FunnelStatus.REJECTED);
@@ -133,9 +138,7 @@ public class FunnelServiceImplV1 implements FunnelService {
         Funnel savedFunnel = funnelStore.getByFunnelId(funnelId);
 
         if (savedFunnel == null) {
-            throw FunnelExceptionBuilder.builder(DOCUMENT_NOT_FOUND, "Funnel not found")
-                    .funnelId(funnelId)
-                    .build();
+            throw new FunnelException(DOCUMENT_NOT_FOUND, "Funnel not found");
         }
 
         savedFunnel.setDeleted(true);
@@ -166,28 +169,19 @@ public class FunnelServiceImplV1 implements FunnelService {
                     .filter(existingFunnel -> !existingFunnel.isDeleted() && funnel.isSimilar(existingFunnel))
                     .findAny()
                     .ifPresent(existingFunnel -> {
-                        throw FunnelExceptionBuilder
-                                .builder(ErrorCode.INVALID_REQUEST,
-                                        String.format("Funnel already exists with document id: %s and name: %s",
-                                                existingFunnel.getDocumentId(), existingFunnel.getName()))
-                                .funnelId(existingFunnel.getId())
-                                .funnelName(existingFunnel.getName())
-                                .documentId(existingFunnel.getDocumentId())
-                                .build();
+                        throw new FunnelException(ErrorCode.INVALID_REQUEST,
+                                String.format("Funnel already exists with document id: %s and name: %s",
+                                        existingFunnel.getDocumentId(), existingFunnel.getName()));
                     });
         }
     }
 
     private void validateFunnelUpdateRequest(Funnel funnel) {
         if (funnel == null) {
-            throw FunnelExceptionBuilder.builder(DOCUMENT_NOT_FOUND, "Funnel not found")
-                    .build();
+            throw new FunnelException(DOCUMENT_NOT_FOUND, "Funnel not found");
         }
         if (funnel.isDeleted()) {
-            throw FunnelExceptionBuilder.builder(INVALID_REQUEST, "Deleted funnel can not be updated")
-                    .documentId(funnel.getDocumentId())
-                    .funnelName(funnel.getName())
-                    .build();
+            throw new FunnelException(INVALID_REQUEST, "Deleted funnel can not be updated");
         }
     }
 

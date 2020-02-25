@@ -16,8 +16,17 @@ import lombok.NoArgsConstructor;
 @EqualsAndHashCode
 public class FunnelEventResponse implements Serializable {
 
+    @Deprecated
+    // kept for older app versions
     private String eventId;
+
+    @Deprecated
+    // kept for older app versions
     private String identifierId;
+
+    private String eventType;
+
+    private String category;
 
     private List<FunnelInfo> funnelInfos;
 }

@@ -32,10 +32,10 @@ public class Funnel {
 
     private String desc;
 
-    @Min(0)
+    private int percentage;
+
     private int startPercentage;
 
-    @Min(1)
     private int endPercentage;
 
     // stores a mapping of field vs list of values for which this funnel is applicable
@@ -44,6 +44,9 @@ public class Funnel {
 
     @NotNull
     private List<EventAttributes> eventAttributes;
+
+    @NotBlank
+    private String creatorEmailId;
 
     @NotBlank
     private String approverEmailId;

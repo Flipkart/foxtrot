@@ -4,6 +4,6 @@ import lombok.Data;
 
 @Data
 public class BaseEventConfig {
-    private String eventId = "APP_LOADED";
-    private String identifierId = "APP_LOADED";
+    private String eventType = "APP_LOADED";
+    private String category = "APP_LOADED";
 }
