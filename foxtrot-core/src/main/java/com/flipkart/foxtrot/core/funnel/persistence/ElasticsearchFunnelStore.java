@@ -214,18 +214,21 @@ public class ElasticsearchFunnelStore implements FunnelStore {
 
     @Override
     public List<Funnel> getAll(boolean deleted) throws FoxtrotException {
-        QueryBuilder query = new TermQueryBuilder(FunnelAttributes.DELETED, deleted);
 
         int maxSize = 1000;
         List<Funnel> funnels = new ArrayList<>();
         try {
-            SearchResponse response = connection.getClient()
+            SearchRequestBuilder searchRequestBuilder = connection.getClient()
                     .prepareSearch(FUNNEL_INDEX)
                     .setTypes(TYPE)
-                    .setQuery(query)
-                    .setSize(maxSize)
-                    .execute()
-                    .actionGet();
+                    .setSize(maxSize);
+
+            if(!deleted){
+                QueryBuilder query = new TermQueryBuilder(FunnelAttributes.DELETED, deleted);
+                searchRequestBuilder.setQuery(query);
+            }
+
+            SearchResponse response = searchRequestBuilder.execute().actionGet();
             for (SearchHit hit : CollectionUtils.nullAndEmptySafeValueList(response.getHits().getHits())) {
                 funnels.add(JsonUtils.fromJson(hit.getSourceAsString(), Funnel.class));
             }

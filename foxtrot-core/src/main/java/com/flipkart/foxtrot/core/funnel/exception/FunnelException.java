@@ -3,6 +3,7 @@ package com.flipkart.foxtrot.core.funnel.exception;
 import com.flipkart.foxtrot.core.exception.ErrorCode;
 import com.flipkart.foxtrot.core.exception.FoxtrotException;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Maps;
 import java.util.Map;
 import lombok.Getter;
 
@@ -81,9 +82,11 @@ public class FunnelException extends FoxtrotException {
 
     @Override
     public Map<String, Object> toMap() {
-        return ImmutableMap.of("funnelId", this.funnelId,
-                "documentId", this.documentId,
-                "funnelName", this.funnelName,
-                "message", this.getCause().getMessage());
+        Map<String, Object> map = Maps.newHashMap();
+        map.put("funnelId", this.funnelId);
+        map.put("documentId", this.documentId);
+        map.put("funnelName", this.funnelName);
+        map.put("message", this.getCause() != null ? this.getCause().getMessage() : this.getMessage());
+        return map;
     }
 }

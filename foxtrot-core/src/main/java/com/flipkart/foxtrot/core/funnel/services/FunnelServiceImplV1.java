@@ -79,9 +79,13 @@ public class FunnelServiceImplV1 implements FunnelService {
     public Funnel reject(String documentId) {
         Funnel savedFunnel = funnelStore.get(documentId);
 
-        if (savedFunnel == null) {
-            throw FunnelExceptionBuilder.builder(DOCUMENT_NOT_FOUND, "Funnel not found")
-                    .documentId(documentId)
+        validateFunnelUpdateRequest(savedFunnel);
+
+        if (APPROVED.equals(savedFunnel.getFunnelStatus())) {
+            throw FunnelExceptionBuilder.builder(INVALID_REQUEST, "Can not reject already approved funnel")
+                    .funnelId(savedFunnel.getId())
+                    .documentId(savedFunnel.getDocumentId())
+                    .funnelName(savedFunnel.getName())
                     .build();
         }
 
@@ -95,9 +99,9 @@ public class FunnelServiceImplV1 implements FunnelService {
     private Function<String, Funnel> approveAndGenerateFunnelId() {
         return documentId -> {
             Funnel savedFunnel = funnelStore.get(documentId);
-            validateFunnelApprovalRequest(savedFunnel);
+            validateFunnelUpdateRequest(savedFunnel);
 
-            if (!UNASSIGNED_FUNNEL_ID.equals(savedFunnel.getId())) {
+            if (UNASSIGNED_FUNNEL_ID.equals(savedFunnel.getId())) {
                 Funnel latestFunnel = funnelStore.getLatestFunnel();
                 if (latestFunnel == null) {
                     savedFunnel.setId(START_ID);
@@ -174,13 +178,13 @@ public class FunnelServiceImplV1 implements FunnelService {
         }
     }
 
-    private void validateFunnelApprovalRequest(Funnel funnel) {
+    private void validateFunnelUpdateRequest(Funnel funnel) {
         if (funnel == null) {
             throw FunnelExceptionBuilder.builder(DOCUMENT_NOT_FOUND, "Funnel not found")
                     .build();
         }
         if (funnel.isDeleted()) {
-            throw FunnelExceptionBuilder.builder(INVALID_REQUEST, "Deleted funnel can not be approved")
+            throw FunnelExceptionBuilder.builder(INVALID_REQUEST, "Deleted funnel can not be updated")
                     .documentId(funnel.getDocumentId())
                     .funnelName(funnel.getName())
                     .build();
