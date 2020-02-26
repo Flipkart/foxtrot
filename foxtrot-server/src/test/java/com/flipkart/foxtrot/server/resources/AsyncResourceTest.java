@@ -22,6 +22,7 @@ import com.flipkart.foxtrot.core.TestUtils;
 import com.flipkart.foxtrot.core.common.AsyncDataToken;
 import com.flipkart.foxtrot.server.providers.exception.FoxtrotExceptionMapper;
 import io.dropwizard.testing.junit.ResourceTestRule;
+import java.util.concurrent.TimeUnit;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -29,6 +30,7 @@ import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
 import java.util.*;
 
+import static org.awaitility.Awaitility.await;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
@@ -95,7 +97,7 @@ public class AsyncResourceTest extends FoxtrotResourceTest {
         }});
 
         AsyncDataToken dataToken = getQueryExecutor().executeAsync(groupRequest);
-        Thread.sleep(1000);
+        await().pollDelay(1000, TimeUnit.MILLISECONDS).until(() -> true);
 
         GroupResponse groupResponse = resources.client()
                 .target("/v1/async/" + dataToken.getAction() + "/" + dataToken.getKey())
@@ -111,7 +113,7 @@ public class AsyncResourceTest extends FoxtrotResourceTest {
         groupRequest.setNesting(Arrays.asList("os", "device", "version"));
 
         AsyncDataToken dataToken = getQueryExecutor().executeAsync(groupRequest);
-        Thread.sleep(1000);
+        await().pollDelay(1000, TimeUnit.MILLISECONDS).until(() -> true);
         GroupResponse response = resources.client()
                 .target(String.format("/v1/async/distinct/%s", dataToken.getKey()))
                 .request()
@@ -126,7 +128,7 @@ public class AsyncResourceTest extends FoxtrotResourceTest {
         groupRequest.setNesting(Arrays.asList("os", "device", "version"));
 
         AsyncDataToken dataToken = getQueryExecutor().executeAsync(groupRequest);
-        Thread.sleep(1000);
+        await().pollDelay(1000, TimeUnit.MILLISECONDS).until(() -> true);
 
         GroupResponse response = resources.client()
                 .target(String.format("/v1/async/%s/dummy", dataToken.getAction()))
@@ -173,7 +175,7 @@ public class AsyncResourceTest extends FoxtrotResourceTest {
         }});
 
         AsyncDataToken dataToken = getQueryExecutor().executeAsync(groupRequest);
-        Thread.sleep(5000);
+        await().pollDelay(5000, TimeUnit.MILLISECONDS).until(() -> true);
 
         Entity<AsyncDataToken> asyncDataTokenEntity = Entity.json(dataToken);
 

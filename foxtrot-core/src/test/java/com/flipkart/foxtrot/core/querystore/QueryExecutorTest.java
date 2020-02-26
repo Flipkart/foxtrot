@@ -35,9 +35,7 @@ import com.flipkart.foxtrot.core.table.impl.ElasticsearchTestUtils;
 import com.hazelcast.config.Config;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.test.TestHazelcastInstanceFactory;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.*;
 import org.mockito.Mockito;
 
 import java.util.Collections;
@@ -52,23 +50,33 @@ import static org.mockito.Mockito.*;
  * Created by rishabh.goyal on 02/05/14.
  */
 public class QueryExecutorTest {
+    private static HazelcastInstance hazelcastInstance;
+    private static ElasticsearchConnection elasticsearchConnection;
     private QueryExecutor queryExecutor;
     private ObjectMapper mapper = new ObjectMapper();
-    private HazelcastInstance hazelcastInstance;
     private AnalyticsLoader analyticsLoader;
-    private ElasticsearchConnection elasticsearchConnection;
+
+    @BeforeClass
+    public static void setupClass() throws Exception {
+        hazelcastInstance = new TestHazelcastInstanceFactory(1).newHazelcastInstance(new Config());
+        elasticsearchConnection = ElasticsearchTestUtils.getConnection();
+    }
+
+    @AfterClass
+    public static void tearDownClass() throws Exception {
+        hazelcastInstance.shutdown();
+        elasticsearchConnection.stop();
+    }
 
     @Before
     public void setUp() throws Exception {
         DataStore dataStore = TestUtils.getDataStore();
 
         //Initializing Cache Factory
-        hazelcastInstance = new TestHazelcastInstanceFactory(1).newHazelcastInstance();
         HazelcastConnection hazelcastConnection = Mockito.mock(HazelcastConnection.class);
         when(hazelcastConnection.getHazelcast()).thenReturn(hazelcastInstance);
         when(hazelcastConnection.getHazelcastConfig()).thenReturn(new Config());
         CacheManager cacheManager = new CacheManager(new DistributedCacheFactory(hazelcastConnection, mapper, new CacheConfig()));
-        elasticsearchConnection = ElasticsearchTestUtils.getConnection();
         ElasticsearchUtils.initializeMappings(elasticsearchConnection.getClient());
         TableMetadataManager tableMetadataManager = mock(TableMetadataManager.class);
         when(tableMetadataManager.exists(anyString())).thenReturn(true);
@@ -83,8 +91,6 @@ public class QueryExecutorTest {
 
     @After
     public void tearDown() throws Exception {
-        elasticsearchConnection.stop();
-        hazelcastInstance.shutdown();
     }
 
     @Test

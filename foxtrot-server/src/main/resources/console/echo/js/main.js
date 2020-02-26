@@ -49,6 +49,9 @@ var tableNameList = [];
 var isGlobalDateFilter = false;
 var globalDateFilterValue = "";
 var isViewingVersionConsole = false;
+var templateFilterArray = [];
+var templateFilterDetails = [];
+var isTemplateFilter = false;
 
 function TablesView(id, tables) {
   this.id = id;
@@ -640,6 +643,17 @@ function consoleTabs(evt, el) { // logic for tab switching
   smallWidgetCount = 0;
   firstWidgetType = "";
 }
+
+function renderTemplateFilters() {
+  var option = "";
+  $.each(tableNameList, function(index, val) {
+    option+= "<option value="+val+">"+val+"</option>"
+  });
+  $(".template-filter").append("<option value='none'>Select</option>");
+  $(".template-filter").append(option);
+  $(".template-filter").selectpicker('refresh');
+}
+
 function getTables() { // get table list
   $.ajax({
     url: apiUrl+"/v1/tables/",
@@ -649,6 +663,7 @@ function getTables() { // get table list
       for (var i = tables.length - 1; i >= 0; i--) {
         tableNameList.push(tables[i].name)
       }
+      renderTemplateFilters();
     }});
 }
 
@@ -913,6 +928,18 @@ $(document).ready(function () {
               refereshTiles();
           }
       });
+
+      $(".template-filter-switch").change(function () {
+        if (this.checked) {
+            isTemplateFilter = true;
+            showTemplateFilters();
+        } else {
+            isTemplateFilter = false;
+            hideTemplateFilters();
+        }
+    });
+
+      
 
       var consoleId = getParameterByName("console").replace('/', '');
       if (consoleId) {

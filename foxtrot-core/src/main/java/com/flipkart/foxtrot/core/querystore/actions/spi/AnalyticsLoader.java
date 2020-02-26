@@ -34,7 +34,10 @@ import org.reflections.Reflections;
 import org.reflections.scanners.SubTypesScanner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import ru.vyarus.dropwizard.guice.module.installer.order.Order;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.List;
@@ -48,6 +51,8 @@ import java.util.Set;
  */
 
 @Getter
+@Singleton
+@Order(20)
 public class AnalyticsLoader implements Managed {
 
     private static final Logger logger = LoggerFactory.getLogger(AnalyticsLoader.class);
@@ -60,6 +65,7 @@ public class AnalyticsLoader implements Managed {
     private final CacheManager cacheManager;
     private final ObjectMapper objectMapper;
 
+    @Inject
     public AnalyticsLoader(TableMetadataManager tableMetadataManager, DataStore dataStore, QueryStore queryStore,
                            ElasticsearchConnection elasticsearchConnection, CacheManager cacheManager, ObjectMapper objectMapper) {
         this.tableMetadataManager = tableMetadataManager;

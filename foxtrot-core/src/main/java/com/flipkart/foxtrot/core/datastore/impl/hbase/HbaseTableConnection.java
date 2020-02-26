@@ -30,7 +30,10 @@ import org.apache.hadoop.hbase.io.compress.Compression;
 import org.apache.hadoop.security.UserGroupInformation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import ru.vyarus.dropwizard.guice.module.installer.order.Order;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.io.IOException;
 
 /**
@@ -38,16 +41,21 @@ import java.io.IOException;
  * Date: 13/03/14
  * Time: 7:35 PM
  */
+@Singleton
+@Order(0)
 public class HbaseTableConnection implements Managed {
 
     private static final Logger logger = LoggerFactory.getLogger(HbaseTableConnection.class.getSimpleName());
     private static final String DEFAULT_FAMILY_NAME = "d";
 
     private final HbaseConfig hbaseConfig;
+    private Configuration configuration;
     private Connection connection;
     private Admin hBaseAdmin;
 
-    public HbaseTableConnection(HbaseConfig hbaseConfig) {
+    @Inject
+    public HbaseTableConnection(Configuration configuration, HbaseConfig hbaseConfig) {
+        this.configuration = configuration;
         this.hbaseConfig = hbaseConfig;
     }
 
@@ -85,7 +93,6 @@ public class HbaseTableConnection implements Managed {
     @Override
     public void start() throws Exception {
         logger.info("Starting HBase Connection");
-        Configuration configuration = HBaseUtil.create(hbaseConfig);
         connection = ConnectionFactory.createConnection(configuration);
         this.hBaseAdmin = connection.getAdmin();
         logger.info("Started HBase Connection");
