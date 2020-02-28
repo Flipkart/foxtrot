@@ -233,23 +233,12 @@ public class FoxtrotModule extends AbstractModule {
     public FunnelConfiguration funnelConfig(FoxtrotServerConfiguration configuration) {
         return configuration.getFunnelConfiguration() != null
                 ? configuration.getFunnelConfiguration()
-                : new FunnelConfiguration();
-    }
-
-    @Provides
-    @Singleton
-    public FunnelDropdownConfig funnelDropdownConfig(FoxtrotServerConfiguration configuration) {
-        return configuration.getFunnelDropdownConfig();
-    }
-
-    @Provides
-    @Singleton
-    public BaseFunnelEventConfig provideBaseEventConfig(FoxtrotServerConfiguration configuration) throws IOException {
-        return configuration.getBaseFunnelEventConfig() != null
-                ? configuration.getBaseFunnelEventConfig()
-                : BaseFunnelEventConfig.builder()
-                        .eventType("APP_LOADED")
-                        .category("APP_LOADED").build();
+                : FunnelConfiguration.builder()
+                        .baseFunnelEventConfig(BaseFunnelEventConfig.builder()
+                                .eventType("APP_LOADED")
+                                .category("APP_LOADED").build())
+                        .querySize(100)
+                .build();
     }
 
     @Provides
