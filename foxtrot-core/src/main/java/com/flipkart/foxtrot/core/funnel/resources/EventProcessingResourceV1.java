@@ -1,5 +1,6 @@
 package com.flipkart.foxtrot.core.funnel.resources;
 
+import com.flipkart.foxtrot.common.util.CollectionUtils;
 import com.flipkart.foxtrot.core.exception.FoxtrotException;
 import com.flipkart.foxtrot.core.funnel.model.request.EventProcessingRequest;
 import com.flipkart.foxtrot.core.funnel.model.response.EventProcessingResponseV1;
@@ -41,6 +42,11 @@ public class EventProcessingResourceV1 {
     public EventProcessingResponseV1 processRequest(EventProcessingRequest eventProcessingRequest)
             throws FoxtrotException {
         EventProcessingResponseV2 responseV2 = eventProcessingService.process(eventProcessingRequest);
+
+        if(CollectionUtils.isNullOrEmpty(responseV2.getFunnelEventResponses())) {
+            return new EventProcessingResponseV1(responseV2.getResponseHashCode());
+        }
+
         List<FunnelEventResponseV1> funnelEventResponses = responseV2.getFunnelEventResponses().stream()
                 .map(funnelEventResponseV2 ->
                         FunnelEventResponseV1.builder()
