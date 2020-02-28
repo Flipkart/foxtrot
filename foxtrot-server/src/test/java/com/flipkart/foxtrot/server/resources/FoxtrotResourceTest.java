@@ -17,6 +17,7 @@ import com.flipkart.foxtrot.core.cardinality.CardinalityConfig;
 import com.flipkart.foxtrot.core.config.TextNodeRemoverConfiguration;
 import com.flipkart.foxtrot.core.datastore.DataStore;
 import com.flipkart.foxtrot.core.funnel.config.BaseFunnelEventConfig;
+import com.flipkart.foxtrot.core.funnel.config.FunnelConfiguration;
 import com.flipkart.foxtrot.core.funnel.services.FunnelExtrapolationService;
 import com.flipkart.foxtrot.core.funnel.services.FunnelExtrapolationServiceImpl;
 import com.flipkart.foxtrot.core.querystore.QueryExecutor;
@@ -162,16 +163,19 @@ public abstract class FoxtrotResourceTest {
         ExecutorService executorService = Executors.newFixedThreadPool(1);
 
 
-        BaseFunnelEventConfig baseFunnelEventConfig = BaseFunnelEventConfig.builder()
-                .eventType("APP_LOADED")
-                .category("APP_LOADED")
+        FunnelConfiguration funnelConfiguration = FunnelConfiguration.builder()
+                .baseFunnelEventConfig(BaseFunnelEventConfig.builder()
+                        .eventType("APP_LOADED")
+                        .category("APP_LOADED")
+                        .build())
                 .build();
 
         QueryExecutor simpleQueryExecutor = new SimpleQueryExecutor(analyticsLoader, executorService,
                 Collections.singletonList(new ResponseCacheUpdater(cacheManager)));
 
         FunnelExtrapolationService funnelExtrapolationService = new FunnelExtrapolationServiceImpl(
-                baseFunnelEventConfig, simpleQueryExecutor);
+                funnelConfiguration, simpleQueryExecutor);
+
         queryExecutor = new ExtrapolatedQueryExecutor(analyticsLoader, executorService,
                 Collections.singletonList(new ResponseCacheUpdater(cacheManager)), funnelExtrapolationService);
     }
