@@ -6,7 +6,9 @@ import com.flipkart.foxtrot.server.cluster.ClusterMember;
 import com.hazelcast.core.Member;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Map;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import javax.ws.rs.Consumes;
@@ -14,9 +16,6 @@ import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Map;
 
 @Path("/v1/cluster")
 @Consumes(MediaType.APPLICATION_JSON)

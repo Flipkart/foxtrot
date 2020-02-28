@@ -8,8 +8,9 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-import org.apache.hadoop.hbase.TableName;
-
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 import javax.validation.constraints.Min;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -17,9 +18,7 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import org.apache.hadoop.hbase.TableName;
 
 @Singleton
 @Path("/v1/hbase/regions")

@@ -1,5 +1,9 @@
 package com.flipkart.foxtrot.sql.responseprocessors;
 
+import static com.flipkart.foxtrot.common.Opcodes.COUNT;
+import static com.flipkart.foxtrot.sql.responseprocessors.FlatteningUtils.generateFieldMappings;
+import static com.flipkart.foxtrot.sql.responseprocessors.FlatteningUtils.genericParse;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.flipkart.foxtrot.common.ActionRequest;
@@ -22,13 +26,15 @@ import com.flipkart.foxtrot.sql.responseprocessors.model.FlatRepresentation;
 import com.flipkart.foxtrot.sql.responseprocessors.model.MetaData;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
-
-import static com.flipkart.foxtrot.common.Opcodes.COUNT;
-import static com.flipkart.foxtrot.sql.responseprocessors.FlatteningUtils.generateFieldMappings;
-import static com.flipkart.foxtrot.sql.responseprocessors.FlatteningUtils.genericParse;
 
 public class Flattener implements ResponseVisitor<FlatRepresentation> {
 

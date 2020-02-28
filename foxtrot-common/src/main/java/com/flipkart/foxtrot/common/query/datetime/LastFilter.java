@@ -6,11 +6,10 @@ import com.flipkart.foxtrot.common.query.FilterOperator;
 import com.flipkart.foxtrot.common.query.FilterVisitor;
 import com.google.common.base.Strings;
 import io.dropwizard.util.Duration;
+import javax.validation.constraints.NotNull;
 import lombok.Builder;
 import lombok.Data;
 import lombok.ToString;
-
-import javax.validation.constraints.NotNull;
 
 @Data
 @ToString(callSuper = true)

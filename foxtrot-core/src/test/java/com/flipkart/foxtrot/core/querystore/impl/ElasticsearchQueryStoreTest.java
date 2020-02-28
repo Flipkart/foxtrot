@@ -15,6 +15,7 @@
  */
 package com.flipkart.foxtrot.core.querystore.impl;
 
+import static org.awaitility.Awaitility.await;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
@@ -86,16 +87,6 @@ import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Mockito;
-
-import java.util.*;
-import java.util.concurrent.ExecutionException;
-import java.util.stream.Collectors;
-
-import static org.awaitility.Awaitility.await;
-import static org.junit.Assert.*;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.*;
 
 
 /**
@@ -236,18 +227,14 @@ public class ElasticsearchQueryStoreTest {
                 .get();
 
         Set<String> expectedFields = Sets.newHashSet("_index", "date.minuteOfHour", "date.year",
-                                                     "date.dayOfMonth", "testField", "testField.analyzed",
-                                                     "_all", "date.dayOfWeek", "date.minuteOfDay",
-                                                     "_parent", "date.monthOfYear", "__FOXTROT_METADATA__.time",
-                                                     "time.date", "_version", "date.weekOfYear",
-                                                     "_routing", "__FOXTROT_METADATA__.rawStorageId",
-                                                     "_type", "__FOXTROT_METADATA__.id", "date.hourOfDay",
-                                                     "_seq_no", "_field_names", "_source", "_id", "time", "_uid");
-        assertTrue(ObjectUtils.equals(expectedFields,
-                                      mappings.mappings()
-                                              .get(currentIndex)
-                                              .get(ElasticsearchUtils.DOCUMENT_TYPE_NAME)
-                                              .keySet()));
+                "date.dayOfMonth", "testField", "testField.analyzed",
+                "_all", "date.dayOfWeek", "date.minuteOfDay", "eventData.funnelInfo.funnelId",
+                "_parent", "date.monthOfYear", "__FOXTROT_METADATA__.time",
+                "time.date", "_version", "date.weekOfYear",
+                "_routing", "__FOXTROT_METADATA__.rawStorageId",
+                "_type", "__FOXTROT_METADATA__.id", "date.hourOfDay",
+                "_seq_no", "_field_names", "_source", "_id", "time", "_uid");
+        assertTrue(ObjectUtils.equals(expectedFields, mappings.mappings().get(currentIndex).get(ElasticsearchUtils.DOCUMENT_TYPE_NAME).keySet()));
     }
 
     @Test
@@ -280,20 +267,16 @@ public class ElasticsearchQueryStoreTest {
                 .get();
 
         Set<String> expectedFields = Sets.newHashSet("_index", "date.minuteOfHour", "date.year",
-                                                     "date.dayOfMonth", "testField", "testField.analyzed",
-                                                     "testLargeField",
-                                                     "testLargeField.analyzed",
-                                                     "_all", "date.dayOfWeek", "date.minuteOfDay",
-                                                     "_parent", "date.monthOfYear", "__FOXTROT_METADATA__.time",
-                                                     "time.date", "_version", "date.weekOfYear",
-                                                     "_routing", "__FOXTROT_METADATA__.rawStorageId",
-                                                     "_type", "__FOXTROT_METADATA__.id", "date.hourOfDay",
-                                                     "_seq_no", "_field_names", "_source", "_id", "time", "_uid");
-        assertTrue(ObjectUtils.equals(expectedFields,
-                                      mappings.mappings()
-                                              .get(currentIndex)
-                                              .get(ElasticsearchUtils.DOCUMENT_TYPE_NAME)
-                                              .keySet()));
+                "date.dayOfMonth", "testField", "testField.analyzed",
+                "testLargeField", "eventData.funnelInfo.funnelId",
+                "testLargeField.analyzed",
+                "_all", "date.dayOfWeek", "date.minuteOfDay",
+                "_parent", "date.monthOfYear", "__FOXTROT_METADATA__.time",
+                "time.date", "_version", "date.weekOfYear",
+                "_routing", "__FOXTROT_METADATA__.rawStorageId",
+                "_type", "__FOXTROT_METADATA__.id", "date.hourOfDay",
+                "_seq_no", "_field_names", "_source", "_id", "time", "_uid");
+        assertTrue(ObjectUtils.equals(expectedFields, mappings.mappings().get(currentIndex).get(ElasticsearchUtils.DOCUMENT_TYPE_NAME).keySet()));
     }
 
     @Test
@@ -330,18 +313,14 @@ public class ElasticsearchQueryStoreTest {
                 .get();
 
         Set<String> expectedFields = Sets.newHashSet("_index", "date.minuteOfHour", "date.year",
-                                                     "date.dayOfMonth", "testField", "testField.analyzed",
-                                                     "_all", "date.dayOfWeek", "date.minuteOfDay",
-                                                     "_parent", "date.monthOfYear", "__FOXTROT_METADATA__.time",
-                                                     "time.date", "_version", "date.weekOfYear",
-                                                     "_routing", "__FOXTROT_METADATA__.rawStorageId",
-                                                     "_type", "__FOXTROT_METADATA__.id", "date.hourOfDay",
-                                                     "_seq_no", "_field_names", "_source", "_id", "time", "_uid");
-        assertTrue(ObjectUtils.equals(expectedFields,
-                                      mappings.mappings()
-                                              .get(currentIndex)
-                                              .get(ElasticsearchUtils.DOCUMENT_TYPE_NAME)
-                                              .keySet()));
+                "date.dayOfMonth", "testField", "testField.analyzed",
+                "_all", "date.dayOfWeek", "date.minuteOfDay", "eventData.funnelInfo.funnelId",
+                "_parent", "date.monthOfYear", "__FOXTROT_METADATA__.time",
+                "time.date", "_version", "date.weekOfYear",
+                "_routing", "__FOXTROT_METADATA__.rawStorageId",
+                "_type", "__FOXTROT_METADATA__.id", "date.hourOfDay",
+                "_seq_no", "_field_names", "_source", "_id", "time", "_uid");
+        assertTrue(ObjectUtils.equals(expectedFields, mappings.mappings().get(currentIndex).get(ElasticsearchUtils.DOCUMENT_TYPE_NAME).keySet()));
     }
 
     @Test
@@ -376,39 +355,16 @@ public class ElasticsearchQueryStoreTest {
                 .indices()
                 .getFieldMappings(request)
                 .get();
-        val expectedFields = Sets.newHashSet("_index",
-                                             "date.minuteOfHour",
-                                             "date.year",
-                                             "date.dayOfMonth",
-                                             "testField",
-                                             "testField.analyzed",
-                                             "_all",
-                                             "date.dayOfWeek",
-                                             "date.minuteOfDay",
-                                             "_parent",
-                                             "date.monthOfYear",
-                                             "__FOXTROT_METADATA__.time",
-                                             "time.date",
-                                             "_version",
-                                             "date.weekOfYear",
-                                             "_routing",
-                                             "__FOXTROT_METADATA__.rawStorageId",
-                                             "_type",
-                                             "__FOXTROT_METADATA__.id",
-                                             "date.hourOfDay",
-                                             "_seq_no",
-                                             "_field_names",
-                                             "_source",
-                                             "_id",
-                                             "time",
-                                             "_uid",
-                                             "testLargeField.testField.testField.testField.testField_array",
-                                             "testLargeField.testField.testField.testField.testField_array.analyzed");
-        assertTrue(ObjectUtils.equals(expectedFields,
-                                      mappings.mappings()
-                                              .get(currentIndex)
-                                              .get(ElasticsearchUtils.DOCUMENT_TYPE_NAME)
-                                              .keySet()));
+        val expectedFields = Sets.newHashSet("_index", "date.minuteOfHour", "date.year",
+                "date.dayOfMonth", "testField", "testField.analyzed",
+                "_all", "date.dayOfWeek", "date.minuteOfDay", "eventData.funnelInfo.funnelId",
+                "_parent", "date.monthOfYear", "__FOXTROT_METADATA__.time",
+                "time.date", "_version", "date.weekOfYear",
+                "_routing", "__FOXTROT_METADATA__.rawStorageId",
+                "_type", "__FOXTROT_METADATA__.id", "date.hourOfDay",
+                "_seq_no", "_field_names", "_source", "_id", "time", "_uid",
+                "testLargeField.testField.testField.testField.testField_array", "testLargeField.testField.testField.testField.testField_array.analyzed");
+        assertTrue(ObjectUtils.equals(expectedFields, mappings.mappings().get(currentIndex).get(ElasticsearchUtils.DOCUMENT_TYPE_NAME).keySet()));
     }
 
     @Test

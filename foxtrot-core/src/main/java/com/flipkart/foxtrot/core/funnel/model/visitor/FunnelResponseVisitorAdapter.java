@@ -20,12 +20,10 @@ import com.flipkart.foxtrot.common.stats.StatsTrendResponse;
 import com.flipkart.foxtrot.common.trend.TrendResponse;
 import com.flipkart.foxtrot.core.funnel.config.BaseFunnelEventConfig;
 import com.flipkart.foxtrot.core.querystore.QueryExecutor;
-import com.google.inject.internal.cglib.core.$KeyFactory;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import javax.inject.Named;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j

@@ -6,6 +6,7 @@ import com.flipkart.foxtrot.core.funnel.config.BaseFunnelEventConfig;
 import com.flipkart.foxtrot.core.funnel.model.visitor.FunnelExtrapolationValidator;
 import com.flipkart.foxtrot.core.funnel.model.visitor.FunnelResponseVisitorAdapter;
 import com.flipkart.foxtrot.core.querystore.QueryExecutor;
+import java.util.Objects;
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Singleton;
@@ -28,7 +29,8 @@ public class FunnelExtrapolationServiceImpl implements FunnelExtrapolationServic
     }
 
     public ActionResponse extrapolateResponse(ActionRequest actionRequest, ActionResponse originalResponse) {
-        if (actionRequest.accept(extrapolationValidator)) {
+        Boolean extrapolationApplicable = actionRequest.accept(extrapolationValidator);
+        if (Objects.nonNull(extrapolationApplicable) && extrapolationApplicable) {
             FunnelResponseVisitorAdapter responseVisitorAdapter = new FunnelResponseVisitorAdapter(actionRequest,
                     queryExecutor, baseFunnelEventConfig);
             return originalResponse.accept(responseVisitorAdapter);

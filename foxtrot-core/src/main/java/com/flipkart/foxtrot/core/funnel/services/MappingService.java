@@ -3,7 +3,6 @@ package com.flipkart.foxtrot.core.funnel.services;
 import static com.flipkart.foxtrot.core.funnel.constants.FunnelConstants.FUNNEL_INDEX;
 
 import com.collections.CollectionUtils;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConnection;
 import com.flipkart.foxtrot.core.util.JsonUtils;
 import java.util.Map;

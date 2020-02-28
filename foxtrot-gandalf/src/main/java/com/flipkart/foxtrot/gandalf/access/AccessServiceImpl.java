@@ -2,15 +2,13 @@ package com.flipkart.foxtrot.gandalf.access;
 
 import com.flipkart.foxtrot.common.ActionRequest;
 import com.flipkart.foxtrot.common.ActionRequestVisitor;
-import com.flipkart.foxtrot.common.TableActionRequestVisitor;
 import com.flipkart.foxtrot.core.config.FoxtrotServerConfiguration;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.phonepe.gandalf.models.user.UserDetails;
+import javax.validation.Valid;
 import lombok.Data;
 import org.apache.commons.lang.StringUtils;
-
-import javax.validation.Valid;
 
 /***
  Created by mudit.g on Apr, 2019

@@ -12,10 +12,14 @@
  */
 package com.flipkart.foxtrot.common;
 
-import lombok.*;
-
 import java.io.Serializable;
 import java.util.Set;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 /**
  * Mapping of fields in a table

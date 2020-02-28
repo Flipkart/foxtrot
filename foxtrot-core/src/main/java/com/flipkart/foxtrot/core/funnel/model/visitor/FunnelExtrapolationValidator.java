@@ -12,6 +12,7 @@ import com.flipkart.foxtrot.common.stats.Stat;
 import com.flipkart.foxtrot.common.stats.StatsRequest;
 import com.flipkart.foxtrot.common.stats.StatsTrendRequest;
 import com.flipkart.foxtrot.common.trend.TrendRequest;
+import com.flipkart.foxtrot.common.util.CollectionUtils;
 import com.google.common.base.Strings;
 import java.util.Arrays;
 import java.util.List;
@@ -35,14 +36,14 @@ public class FunnelExtrapolationValidator implements ActionRequestVisitor<Boolea
 
     @Override
     public Boolean visit(StatsRequest statsRequest) {
-        return statsRequest.getStats()
+        return !CollectionUtils.isNullOrEmpty(statsRequest.getStats()) && statsRequest.getStats()
                 .stream()
                 .anyMatch(VALID_STATS_FOR_EXTRAPOLATION::contains);
     }
 
     @Override
     public Boolean visit(StatsTrendRequest statsTrendRequest) {
-        return statsTrendRequest.getStats()
+        return !CollectionUtils.isNullOrEmpty(statsTrendRequest.getStats()) && statsTrendRequest.getStats()
                 .stream()
                 .anyMatch(VALID_STATS_FOR_EXTRAPOLATION::contains);
     }

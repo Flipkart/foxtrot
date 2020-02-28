@@ -71,16 +71,15 @@ import com.google.common.collect.ImmutableList;
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
 import com.google.inject.TypeLiteral;
+import com.google.inject.name.Names;
 import com.phonepe.platform.http.OkHttpUtils;
 import com.phonepe.platform.http.ServiceEndpointProvider;
 import com.phonepe.platform.http.ServiceEndpointProviderFactory;
 import io.appform.dropwizard.discovery.bundle.ServiceDiscoveryBundle;
-import com.google.inject.name.Names;
 import io.dropwizard.server.ServerFactory;
 import io.dropwizard.setup.Environment;
 import io.dropwizard.util.Duration;
 import java.io.IOException;
-import javax.inject.Singleton;
 import java.security.GeneralSecurityException;
 import java.util.Collections;
 import java.util.List;
@@ -282,7 +281,9 @@ public class FoxtrotModule extends AbstractModule {
     public BaseFunnelEventConfig provideBaseEventConfig(FoxtrotServerConfiguration configuration) throws IOException {
         return configuration.getBaseFunnelEventConfig() != null
                 ? configuration.getBaseFunnelEventConfig()
-                : new BaseFunnelEventConfig();
+                : BaseFunnelEventConfig.builder()
+                        .eventType("APP_LOADED")
+                        .category("APP_LOADED").build();
     }
 
     @Provides

@@ -15,12 +15,10 @@ import static org.junit.Assert.assertTrue;
 
 import com.flipkart.foxtrot.server.providers.exception.FoxtrotExceptionMapper;
 import io.dropwizard.testing.junit.ResourceTestRule;
-import org.junit.Assert;
-import org.junit.Rule;
-import org.junit.Test;
-
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import org.junit.Rule;
+import org.junit.Test;
 
 /***
  Created by nitish.goyal on 17/08/18

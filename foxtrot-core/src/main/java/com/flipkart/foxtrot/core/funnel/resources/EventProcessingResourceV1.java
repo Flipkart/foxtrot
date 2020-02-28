@@ -5,7 +5,6 @@ import com.flipkart.foxtrot.core.funnel.model.request.EventProcessingRequest;
 import com.flipkart.foxtrot.core.funnel.model.response.EventProcessingResponseV1;
 import com.flipkart.foxtrot.core.funnel.model.response.EventProcessingResponseV2;
 import com.flipkart.foxtrot.core.funnel.model.response.FunnelEventResponseV1;
-import com.flipkart.foxtrot.core.funnel.model.response.FunnelEventResponseV2;
 import com.flipkart.foxtrot.core.funnel.services.EventProcessingService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;

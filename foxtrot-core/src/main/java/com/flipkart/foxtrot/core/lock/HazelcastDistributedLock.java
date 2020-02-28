@@ -4,7 +4,6 @@ import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
 import com.flipkart.foxtrot.core.querystore.impl.HazelcastConnection;
 import com.google.common.base.Strings;
-import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.ILock;
 import java.util.concurrent.locks.Lock;
 import javax.inject.Inject;

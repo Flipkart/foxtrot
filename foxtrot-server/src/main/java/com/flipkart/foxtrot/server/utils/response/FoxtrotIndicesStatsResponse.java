@@ -1,12 +1,11 @@
 package com.flipkart.foxtrot.server.utils.response;
 
+import java.util.Map;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.elasticsearch.action.admin.indices.stats.IndicesStatsResponse;
-
-import java.util.Map;
 
 @Data
 @NoArgsConstructor
