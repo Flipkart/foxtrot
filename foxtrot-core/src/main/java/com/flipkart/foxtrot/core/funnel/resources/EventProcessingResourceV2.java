@@ -22,10 +22,10 @@ import javax.ws.rs.core.MediaType;
  Created by nitish.goyal on 25/09/18
  ***/
 @Singleton
-@Path("/events/v2")
+@Path("v2/events")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
-@Api(value = "/events/v2")
+@Api(value = "v2/events")
 public class EventProcessingResourceV2 {
 
     private EventProcessingService eventProcessingService;
