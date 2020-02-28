@@ -30,6 +30,8 @@ import com.flipkart.foxtrot.core.funnel.persistence.ElasticsearchFunnelStore;
 import com.flipkart.foxtrot.core.funnel.persistence.FunnelStore;
 import com.flipkart.foxtrot.core.funnel.services.EventProcessingService;
 import com.flipkart.foxtrot.core.funnel.services.EventProcessingServiceImpl;
+import com.flipkart.foxtrot.core.funnel.services.FunnelExtrapolationService;
+import com.flipkart.foxtrot.core.funnel.services.FunnelExtrapolationServiceImpl;
 import com.flipkart.foxtrot.core.funnel.services.FunnelService;
 import com.flipkart.foxtrot.core.funnel.services.FunnelServiceImplV1;
 import com.flipkart.foxtrot.core.funnel.services.FunnelServiceImplV2;
@@ -136,7 +138,7 @@ public class FoxtrotModule extends AbstractModule {
         bind(QueryExecutor.class).annotatedWith(Names.named("SimpleQueryExecutor")).to(SimpleQueryExecutor.class);
         bind(QueryExecutor.class).annotatedWith(Names.named("ExtrapolatedQueryExecutor"))
                 .to(ExtrapolatedQueryExecutor.class);
-
+        bind(FunnelExtrapolationService.class).to(FunnelExtrapolationServiceImpl.class);
         bind(DistributedLock.class).to(HazelcastDistributedLock.class);
         bind(new TypeLiteral<List<HealthCheck>>() {
         }).toProvider(HealthcheckListProvider.class);
