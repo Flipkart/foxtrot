@@ -17,7 +17,7 @@ import com.flipkart.foxtrot.core.email.messageformatting.EmailBodyBuilder;
 import com.flipkart.foxtrot.core.email.messageformatting.EmailSubjectBuilder;
 import com.flipkart.foxtrot.core.email.messageformatting.impl.StrSubstitutorEmailBodyBuilder;
 import com.flipkart.foxtrot.core.email.messageformatting.impl.StrSubstitutorEmailSubjectBuilder;
-import com.flipkart.foxtrot.core.funnel.config.BaseEventConfig;
+import com.flipkart.foxtrot.core.funnel.config.BaseFunnelEventConfig;
 import com.flipkart.foxtrot.core.funnel.config.FunnelConfiguration;
 import com.flipkart.foxtrot.core.funnel.config.FunnelDropdownConfig;
 import com.flipkart.foxtrot.core.funnel.persistence.ElasticsearchFunnelStore;
@@ -35,6 +35,7 @@ import com.flipkart.foxtrot.core.lock.DistributedLock;
 import com.flipkart.foxtrot.core.lock.HazelcastDistributedLock;
 import com.flipkart.foxtrot.core.querystore.ActionExecutionObserver;
 import com.flipkart.foxtrot.core.querystore.EventPublisherActionExecutionObserver;
+import com.flipkart.foxtrot.core.querystore.QueryExecutor;
 import com.flipkart.foxtrot.core.querystore.QueryStore;
 import com.flipkart.foxtrot.core.querystore.handlers.MetricRecorder;
 import com.flipkart.foxtrot.core.querystore.handlers.ResponseCacheUpdater;
@@ -42,6 +43,8 @@ import com.flipkart.foxtrot.core.querystore.handlers.SlowQueryReporter;
 import com.flipkart.foxtrot.core.querystore.impl.*;
 import com.flipkart.foxtrot.core.querystore.mutator.IndexerEventMutator;
 import com.flipkart.foxtrot.core.querystore.mutator.LargeTextNodeRemover;
+import com.flipkart.foxtrot.core.querystore.query.ExtrapolatedQueryExecutor;
+import com.flipkart.foxtrot.core.querystore.query.SimpleQueryExecutor;
 import com.flipkart.foxtrot.core.table.TableManager;
 import com.flipkart.foxtrot.core.table.TableMetadataManager;
 import com.flipkart.foxtrot.core.table.impl.DistributedTableMetadataManager;
@@ -104,6 +107,10 @@ public class FoxtrotModule extends AbstractModule {
         bind(FunnelService.class).to(FunnelServiceImplV2.class);
         bind(FunnelStore.class).to(ElasticsearchFunnelStore.class);
         bind(EventProcessingService.class).to(EventProcessingServiceImpl.class);
+        bind(QueryExecutor.class).annotatedWith(Names.named("SimpleQueryExecutor")).to(SimpleQueryExecutor.class);
+        bind(QueryExecutor.class).annotatedWith(Names.named("ExtrapolatedQueryExecutor"))
+                .to(ExtrapolatedQueryExecutor.class);
+
         bind(DistributedLock.class).to(HazelcastDistributedLock.class);
         bind(new TypeLiteral<List<HealthCheck>>() {
         }).toProvider(HealthcheckListProvider.class);
@@ -237,10 +244,10 @@ public class FoxtrotModule extends AbstractModule {
 
     @Provides
     @Singleton
-    public BaseEventConfig provideBaseEventConfig(FoxtrotServerConfiguration configuration) throws IOException {
-        return configuration.getBaseEventConfig() != null
-                ? configuration.getBaseEventConfig()
-                : new BaseEventConfig();
+    public BaseFunnelEventConfig provideBaseEventConfig(FoxtrotServerConfiguration configuration) throws IOException {
+        return configuration.getBaseFunnelEventConfig() != null
+                ? configuration.getBaseFunnelEventConfig()
+                : new BaseFunnelEventConfig();
     }
 
     @Provides

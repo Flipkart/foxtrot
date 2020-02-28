@@ -1,17 +1,14 @@
 /**
  * Copyright 2014 Flipkart Internet Pvt. Ltd.
  * <p>
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
  * <p>
  * http://www.apache.org/licenses/LICENSE-2.0
  * <p>
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
+ * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations under the License.
  */
 package com.flipkart.foxtrot.core.querystore;
 
@@ -24,6 +21,7 @@ import com.flipkart.foxtrot.core.common.Action;
 import com.flipkart.foxtrot.core.common.AsyncDataToken;
 import com.flipkart.foxtrot.core.exception.FoxtrotException;
 import com.flipkart.foxtrot.core.exception.FoxtrotExceptions;
+import com.flipkart.foxtrot.core.funnel.services.FunnelExtrapolationService;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsLoader;
 import com.google.common.base.Stopwatch;
 import lombok.extern.slf4j.Slf4j;
@@ -35,23 +33,19 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 
 /**
- * User: Santanu Sinha (santanu.sinha@flipkart.com)
- * Date: 24/03/14
- * Time: 12:51 PM
+ * User: Santanu Sinha (santanu.sinha@flipkart.com) Date: 24/03/14 Time: 12:51 PM
  */
 @Slf4j
-@Singleton
-public class QueryExecutor {
+public abstract class QueryExecutor {
 
     private final AnalyticsLoader analyticsLoader;
     private final ExecutorService executorService;
     private final List<ActionExecutionObserver> executionObservers;
 
-    @Inject
     public QueryExecutor(
-            AnalyticsLoader analyticsLoader,
-            ExecutorService executorService,
-            List<ActionExecutionObserver> executionObservers) {
+            final AnalyticsLoader analyticsLoader,
+            final ExecutorService executorService,
+            final List<ActionExecutionObserver> executionObservers) {
         this.analyticsLoader = analyticsLoader;
         this.executorService = executorService;
         this.executionObservers = executionObservers;
@@ -75,7 +69,7 @@ public class QueryExecutor {
                 return cachedData;
             }
             notifyObserverPreExec(request);
-            final ActionResponse response = action.execute();
+            ActionResponse response = execute(request, action);
             evaluationResponse = ActionEvaluationResponse.success(
                     action, request, response, stopwatch.elapsed(TimeUnit.MILLISECONDS), false);
             return response;
@@ -84,18 +78,19 @@ public class QueryExecutor {
             evaluationResponse = ActionEvaluationResponse.failure(
                     action, request, e, stopwatch.elapsed(TimeUnit.MILLISECONDS));
             throw e;
-        }
-        finally {
+        } finally {
             notifyObserverPostExec(evaluationResponse);
         }
     }
+
+    protected abstract <T extends ActionRequest> ActionResponse execute(T request, Action action);
 
     public <T extends ActionRequest> AsyncDataToken executeAsync(T request) {
         final Action action = resolve(request);
         final String cacheKey = action.cacheKey();
         final AsyncDataToken dataToken = new AsyncDataToken(request.getOpcode(), cacheKey);
         final ActionResponse response = readCachedData(analyticsLoader.getCacheManager(), request, action);
-        if(null != response) {
+        if (null != response) {
             // If data exists in the cache nothing to do.. just return
             return dataToken;
         }
@@ -111,14 +106,14 @@ public class QueryExecutor {
     public <T extends ActionRequest> Action resolve(T request) {
         Action action;
         action = analyticsLoader.getAction(request);
-        if(null == action) {
+        if (null == action) {
             throw FoxtrotExceptions.createUnresolvableActionException(request);
         }
         return action;
     }
 
     private void notifyObserverPreExec(final ActionRequest request) {
-        if(null == executionObservers) {
+        if (null == executionObservers) {
             return;
         }
         executionObservers
@@ -126,7 +121,7 @@ public class QueryExecutor {
     }
 
     private void notifyObserverPostExec(final ActionEvaluationResponse evaluationResponse) {
-        if(null == executionObservers) {
+        if (null == executionObservers) {
             return;
         }
         executionObservers
@@ -134,16 +129,15 @@ public class QueryExecutor {
     }
 
     private ActionResponse readCachedData(final CacheManager cacheManager,
-                                          final ActionRequest request,
-                                          final Action action) {
+            final ActionRequest request,
+            final Action action) {
         final Cache cache = cacheManager.getCacheFor(request.getOpcode());
         if (null != cache) {
             final String cacheKey = action.cacheKey();
             if (cache.has(cacheKey)) {
                 log.info("Cache hit for key: {}", cacheKey);
                 return cache.get(cacheKey);
-            }
-            else {
+            } else {
                 log.info("Cache miss for key: {}", cacheKey);
             }
         }

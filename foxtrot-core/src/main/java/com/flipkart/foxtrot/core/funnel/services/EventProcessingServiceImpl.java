@@ -5,16 +5,18 @@ import static com.flipkart.foxtrot.core.exception.ErrorCode.EXECUTION_EXCEPTION;
 
 import com.collections.CollectionUtils;
 import com.flipkart.foxtrot.core.exception.FoxtrotException;
-import com.flipkart.foxtrot.core.funnel.config.BaseEventConfig;
+import com.flipkart.foxtrot.core.funnel.config.BaseFunnelEventConfig;
 import com.flipkart.foxtrot.core.funnel.constants.FunnelConstants;
 import com.flipkart.foxtrot.core.funnel.exception.FunnelException;
 import com.flipkart.foxtrot.core.funnel.model.EventAttributes;
 import com.flipkart.foxtrot.core.funnel.model.Funnel;
 import com.flipkart.foxtrot.core.funnel.model.FunnelData;
-import com.flipkart.foxtrot.core.funnel.model.FunnelEventResponse;
+import com.flipkart.foxtrot.core.funnel.model.response.EventProcessingResponseV2;
+import com.flipkart.foxtrot.core.funnel.model.response.FunnelEventResponseV1;
 import com.flipkart.foxtrot.core.funnel.model.FunnelInfo;
 import com.flipkart.foxtrot.core.funnel.model.request.EventProcessingRequest;
-import com.flipkart.foxtrot.core.funnel.model.response.EventProcessingResponse;
+import com.flipkart.foxtrot.core.funnel.model.response.EventProcessingResponseV1;
+import com.flipkart.foxtrot.core.funnel.model.response.FunnelEventResponseV2;
 import com.flipkart.foxtrot.core.funnel.persistence.FunnelStore;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -38,22 +40,22 @@ public class EventProcessingServiceImpl implements EventProcessingService {
     private static final Logger LOGGER = LoggerFactory.getLogger(EventProcessingServiceImpl.class);
 
     private final FunnelStore funnelStore;
-    private final BaseEventConfig baseEventConfig;
+    private final BaseFunnelEventConfig baseFunnelEventConfig;
 
     @Inject
     public EventProcessingServiceImpl(final FunnelStore funnelStore,
-            final BaseEventConfig baseEventConfig) {
+            final BaseFunnelEventConfig baseFunnelEventConfig) {
         this.funnelStore = funnelStore;
-        this.baseEventConfig = baseEventConfig;
+        this.baseFunnelEventConfig = baseFunnelEventConfig;
     }
 
     @Override
-    public EventProcessingResponse process(EventProcessingRequest eventProcessingRequest) throws FoxtrotException {
+    public EventProcessingResponseV2 process(EventProcessingRequest eventProcessingRequest) throws FoxtrotException {
         List<Funnel> funnels = processRequest(eventProcessingRequest);
-        EventProcessingResponse eventProcessingResponse = parseFunnels(funnels);
+        EventProcessingResponseV2 eventProcessingResponse = parseFunnels(funnels);
         //if hash code matches then only sending hash value in response to save network
         if (eventProcessingResponse.getResponseHashCode() == eventProcessingRequest.getResponseHashCode()) {
-            return new EventProcessingResponse(eventProcessingRequest.getResponseHashCode());
+            return new EventProcessingResponseV2(eventProcessingRequest.getResponseHashCode());
         }
         return eventProcessingResponse;
     }
@@ -101,7 +103,7 @@ public class EventProcessingServiceImpl implements EventProcessingService {
         return true;
     }
 
-    private EventProcessingResponse parseFunnels(List<Funnel> funnels) {
+    private EventProcessingResponseV2 parseFunnels(List<Funnel> funnels) {
         Map<Tuple<String, String>, List<FunnelInfo>> eventCategoryVsFunnelIds = Maps.newHashMap();
         for (Funnel funnel : CollectionUtils.nullSafeList(funnels)) {
             List<EventAttributes> eventAttributes = funnel.getEventAttributes();
@@ -123,15 +125,10 @@ public class EventProcessingServiceImpl implements EventProcessingService {
                 }
             }
         }
-        List<FunnelEventResponse> funnelEventResponses = Lists.newArrayList();
+        List<FunnelEventResponseV2> funnelEventResponses = Lists.newArrayList();
         for (Map.Entry<Tuple<String, String>, List<FunnelInfo>> entry : eventCategoryVsFunnelIds.entrySet()) {
-            FunnelEventResponse funnelEventResponse = new FunnelEventResponse();
-            funnelEventResponse.setEventId(entry.getKey()
-                    .v1());
+            FunnelEventResponseV2 funnelEventResponse = new FunnelEventResponseV2();
             funnelEventResponse.setEventType(entry.getKey().v1());
-
-            funnelEventResponse.setIdentifierId(entry.getKey()
-                    .v2());
             funnelEventResponse.setCategory(entry.getKey().v2());
 
             funnelEventResponse.setFunnelInfos(entry.getValue());
@@ -144,11 +141,9 @@ public class EventProcessingServiceImpl implements EventProcessingService {
                         .funnelId(latestFunnel.getId())
                         .build();
                 if (!setBaseEventInfo(funnelEventResponses, funnelInfo)) {
-                    FunnelEventResponse funnelEventResponse = new FunnelEventResponse();
-                    funnelEventResponse.setEventId(baseEventConfig.getEventType());
-                    funnelEventResponse.setEventType(baseEventConfig.getEventType());
-                    funnelEventResponse.setIdentifierId(baseEventConfig.getCategory());
-                    funnelEventResponse.setCategory(baseEventConfig.getCategory());
+                    FunnelEventResponseV2 funnelEventResponse = new FunnelEventResponseV2();
+                    funnelEventResponse.setEventType(baseFunnelEventConfig.getEventType());
+                    funnelEventResponse.setCategory(baseFunnelEventConfig.getCategory());
                     funnelEventResponse.setFunnelInfos(Lists.newArrayList(funnelInfo));
                     funnelEventResponses.add(funnelEventResponse);
                 }
@@ -158,14 +153,14 @@ public class EventProcessingServiceImpl implements EventProcessingService {
         }
 
         if (CollectionUtils.isEmpty(funnelEventResponses)) {
-            return new EventProcessingResponse();
+            return new EventProcessingResponseV2();
         }
-        return new EventProcessingResponse(funnelEventResponses);
+        return new EventProcessingResponseV2(funnelEventResponses);
     }
 
-    private boolean setBaseEventInfo(List<FunnelEventResponse> funnelEventResponses, FunnelInfo funnelInfo) {
-        for (FunnelEventResponse funnelEventResponse : nullSafeList(funnelEventResponses)) {
-            if (baseEventConfig.getEventType().equals(funnelEventResponse.getEventType())) {
+    private boolean setBaseEventInfo(List<FunnelEventResponseV2> funnelEventResponsV1s, FunnelInfo funnelInfo) {
+        for (FunnelEventResponseV2 funnelEventResponse : nullSafeList(funnelEventResponsV1s)) {
+            if (baseFunnelEventConfig.getEventType().equals(funnelEventResponse.getEventType())) {
                 funnelEventResponse.setFunnelInfos(Lists.newArrayList(funnelInfo));
                 return true;
             }

@@ -49,8 +49,8 @@ public class TrendResponse extends ActionResponse {
     }
 
     @Override
-    public void accept(ResponseVisitor visitor) {
-        visitor.visit(this);
+    public <T> T accept(ResponseVisitor<T> visitor) {
+        return visitor.visit(this);
     }
 
     @Override

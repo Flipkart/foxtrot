@@ -18,7 +18,7 @@ import com.flipkart.foxtrot.core.common.DataDeletionManagerConfig;
 import com.flipkart.foxtrot.core.config.TextNodeRemoverConfiguration;
 import com.flipkart.foxtrot.core.datastore.impl.hbase.HbaseConfig;
 import com.flipkart.foxtrot.core.email.EmailConfig;
-import com.flipkart.foxtrot.core.funnel.config.BaseEventConfig;
+import com.flipkart.foxtrot.core.funnel.config.BaseFunnelEventConfig;
 import com.flipkart.foxtrot.core.funnel.config.FunnelConfiguration;
 import com.flipkart.foxtrot.core.funnel.config.FunnelDropdownConfig;
 import com.flipkart.foxtrot.core.jobs.optimization.EsIndexOptimizationConfig;
@@ -80,7 +80,7 @@ public class FoxtrotServerConfiguration extends Configuration {
 
     private HazelcastDistributedLockConfig distributedLockConfig;
 
-    private BaseEventConfig baseEventConfig;
+    private BaseFunnelEventConfig baseFunnelEventConfig;
 
     @Valid
     @Builder.Default
