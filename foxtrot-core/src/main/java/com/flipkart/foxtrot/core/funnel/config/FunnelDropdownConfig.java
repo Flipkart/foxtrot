@@ -1,5 +1,6 @@
 package com.flipkart.foxtrot.core.funnel.config;
 
+import java.util.ArrayList;
 import java.util.List;
 import lombok.Data;
 
@@ -9,9 +10,9 @@ import lombok.Data;
 @Data
 public class FunnelDropdownConfig {
 
-    private List<String> eventIds;
+    private List<String> eventTypes = new ArrayList<>();
 
-    private List<String> identifierIds;
+    private List<String> categories = new ArrayList<>();
 
-    private List<String> deviceAttributes;
+    private List<String> deviceAttributes = new ArrayList<>();
 }
