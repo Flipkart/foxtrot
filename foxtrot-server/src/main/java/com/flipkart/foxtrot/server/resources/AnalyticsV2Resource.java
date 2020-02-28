@@ -17,6 +17,7 @@ import com.phonepe.gandalf.models.user.UserDetails;
 import io.dropwizard.primer.auth.annotation.Authorize;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import javax.inject.Named;
 import javax.validation.Valid;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
@@ -42,7 +43,7 @@ public class AnalyticsV2Resource {
     private final QueryConfig queryConfig;
 
     @Inject
-    public AnalyticsV2Resource(QueryExecutor queryExecutor, AccessService accessService, QueryConfig queryConfig) {
+    public AnalyticsV2Resource(@Named("ExtrapolatedQueryExecutor") QueryExecutor queryExecutor, AccessService accessService, QueryConfig queryConfig) {
         this.queryExecutor = queryExecutor;
         this.accessService = accessService;
         this.queryConfig = queryConfig;
