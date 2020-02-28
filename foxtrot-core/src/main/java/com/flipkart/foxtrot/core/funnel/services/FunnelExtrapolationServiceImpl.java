@@ -2,10 +2,9 @@ package com.flipkart.foxtrot.core.funnel.services;
 
 import com.flipkart.foxtrot.common.ActionRequest;
 import com.flipkart.foxtrot.common.ActionResponse;
-import com.flipkart.foxtrot.core.funnel.config.BaseFunnelEventConfig;
 import com.flipkart.foxtrot.core.funnel.config.FunnelConfiguration;
 import com.flipkart.foxtrot.core.funnel.model.visitor.FunnelExtrapolationValidator;
-import com.flipkart.foxtrot.core.funnel.model.visitor.FunnelResponseVisitorAdapter;
+import com.flipkart.foxtrot.core.funnel.model.visitor.FunnelResponseExtrapolationVisitor;
 import com.flipkart.foxtrot.core.querystore.QueryExecutor;
 import java.util.Objects;
 import javax.inject.Inject;
@@ -32,7 +31,7 @@ public class FunnelExtrapolationServiceImpl implements FunnelExtrapolationServic
     public ActionResponse extrapolateResponse(ActionRequest actionRequest, ActionResponse originalResponse) {
         Boolean extrapolationApplicable = actionRequest.accept(extrapolationValidator);
         if (Objects.nonNull(extrapolationApplicable) && extrapolationApplicable) {
-            FunnelResponseVisitorAdapter responseVisitorAdapter = new FunnelResponseVisitorAdapter(actionRequest,
+            FunnelResponseExtrapolationVisitor responseVisitorAdapter = new FunnelResponseExtrapolationVisitor(actionRequest,
                     queryExecutor, funnelConfiguration.getBaseFunnelEventConfig());
             return originalResponse.accept(responseVisitorAdapter);
         }

@@ -27,7 +27,7 @@ import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-public class FunnelResponseVisitorAdapter implements ResponseVisitor<ActionResponse> {
+public class FunnelResponseExtrapolationVisitor implements ResponseVisitor<ActionResponse> {
 
     private static final String FUNNEL_ID_QUERY_FIELD = "eventData.funnelInfo.funnelId";
 
@@ -39,7 +39,7 @@ public class FunnelResponseVisitorAdapter implements ResponseVisitor<ActionRespo
 
     private final TableActionRequestVisitor tableActionRequestVisitor;
 
-    public FunnelResponseVisitorAdapter(final ActionRequest actionRequest,
+    public FunnelResponseExtrapolationVisitor(final ActionRequest actionRequest,
             final QueryExecutor queryExecutor,
             final BaseFunnelEventConfig funnelEventConfig) {
         this.actionRequest = actionRequest;

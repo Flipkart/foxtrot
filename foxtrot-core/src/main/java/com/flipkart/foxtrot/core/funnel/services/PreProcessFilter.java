@@ -1,7 +1,5 @@
 package com.flipkart.foxtrot.core.funnel.services;
 
-import static com.flipkart.foxtrot.core.funnel.constants.FunnelConstants.FUNNEL_INDEX;
-
 import com.collections.CollectionUtils;
 import com.flipkart.foxtrot.common.query.Filter;
 import com.flipkart.foxtrot.common.query.FilterVisitor;
@@ -32,16 +30,16 @@ public class PreProcessFilter implements FilterVisitor<Void> {
     }
 
     public Void visit(EqualsFilter filter) {
-        if(filter.getValue() instanceof String) {
-            String value = (String)filter.getValue();
+        if (filter.getValue() instanceof String) {
+            String value = (String) filter.getValue();
             filter.setValue(value.toLowerCase());
         }
         return null;
     }
 
     public Void visit(NotEqualsFilter filter) {
-        if(filter.getValue() instanceof String) {
-            String value = (String)filter.getValue();
+        if (filter.getValue() instanceof String) {
+            String value = (String) filter.getValue();
             filter.setValue(value.toLowerCase());
         }
         return null;
@@ -49,7 +47,7 @@ public class PreProcessFilter implements FilterVisitor<Void> {
 
     public Void visit(ContainsFilter filter) {
         filter.setValue(filter.getValue()
-                                .toLowerCase());
+                .toLowerCase());
         return null;
     }
 
@@ -74,9 +72,9 @@ public class PreProcessFilter implements FilterVisitor<Void> {
     }
 
     public Void visit(InFilter filter) {
-        for(Object value : CollectionUtils.nullAndEmptySafeValueList(filter.getValues())) {
-            if(value instanceof String) {
-                String lowerCaseValue = ((String)value).toLowerCase();
+        for (Object value : CollectionUtils.nullAndEmptySafeValueList(filter.getValues())) {
+            if (value instanceof String) {
+                String lowerCaseValue = ((String) value).toLowerCase();
                 filter.getValues()
                         .remove(value);
                 filter.getValues()
@@ -87,9 +85,9 @@ public class PreProcessFilter implements FilterVisitor<Void> {
     }
 
     public Void visit(NotInFilter notInFilter) {
-        for(Object value : CollectionUtils.nullAndEmptySafeValueList(notInFilter.getValues())) {
-            if(value instanceof String) {
-                String lowerCaseValue = ((String)value).toLowerCase();
+        for (Object value : CollectionUtils.nullAndEmptySafeValueList(notInFilter.getValues())) {
+            if (value instanceof String) {
+                String lowerCaseValue = ((String) value).toLowerCase();
                 notInFilter.getValues()
                         .remove(value);
                 notInFilter.getValues()
@@ -113,20 +111,21 @@ public class PreProcessFilter implements FilterVisitor<Void> {
 
     public Void visit(WildCardFilter filter) {
         filter.setValue(filter.getValue()
-                                .toLowerCase());
+                .toLowerCase());
         return null;
     }
 
-    public void preProcess(FilterRequest filterRequest, MappingService mappingService) throws Exception {
+    public void preProcess(FilterRequest filterRequest, MappingService mappingService, String funnelIndex)
+            throws Exception {
         String textType = "text";
         String keywordType = "keyword";
-        for(Filter filter : CollectionUtils.nullAndEmptySafeValueList(filterRequest.getFilters())) {
+        for (Filter filter : CollectionUtils.nullAndEmptySafeValueList(filterRequest.getFilters())) {
             filter.accept(this);
-            if(filter instanceof WildCardFilter) {
-                WildCardFilter wildCardFilter = (WildCardFilter)filter;
-                String fieldType = mappingService.getFieldType(wildCardFilter.getField(), FUNNEL_INDEX);
-                wildCardFilter.setField(mappingService.getAnalyzedFieldName(wildCardFilter.getField(), FUNNEL_INDEX));
-                if(!fieldType.equals(textType) && !fieldType.equals(keywordType)) {
+            if (filter instanceof WildCardFilter) {
+                WildCardFilter wildCardFilter = (WildCardFilter) filter;
+                String fieldType = mappingService.getFieldType(wildCardFilter.getField(), funnelIndex);
+                wildCardFilter.setField(mappingService.getAnalyzedFieldName(wildCardFilter.getField(), funnelIndex));
+                if (!fieldType.equals(textType) && !fieldType.equals(keywordType)) {
                     EqualsFilter equalsFilter = new EqualsFilter(wildCardFilter.getField(), wildCardFilter.getValue());
                     filterRequest.getFilters()
                             .remove(wildCardFilter);

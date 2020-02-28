@@ -1,8 +1,9 @@
 package com.flipkart.foxtrot.core.funnel.services;
 
-import static com.flipkart.foxtrot.core.funnel.constants.FunnelConstants.FUNNEL_INDEX;
 
 import com.collections.CollectionUtils;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.flipkart.foxtrot.core.funnel.config.FunnelConfiguration;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConnection;
 import com.flipkart.foxtrot.core.util.JsonUtils;
 import java.util.Map;
@@ -29,11 +30,13 @@ public class MappingService {
     private static final String KEYWORD = "keyword";
     private static final String DOT = ".";
     private final ElasticsearchConnection elasticsearchConnection;
+    private final FunnelConfiguration funnelConfiguration;
     private ImmutableOpenMap<String, ImmutableOpenMap<String, MappingMetaData>> allMappings;
 
     @Inject
-    public MappingService(ElasticsearchConnection elasticsearchConnection) {
+    public MappingService(final ElasticsearchConnection elasticsearchConnection, final FunnelConfiguration funnelConfiguration) {
         this.elasticsearchConnection = elasticsearchConnection;
+        this.funnelConfiguration = funnelConfiguration;
     }
 
     private Map<String, Object> getMapping(String index) {
@@ -47,7 +50,7 @@ public class MappingService {
 
     private ImmutableOpenMap<String, ImmutableOpenMap<String, MappingMetaData>> getAllMapping(
             ElasticsearchConnection elasticsearchConnection) {
-        GetMappingsRequest request = new GetMappingsRequest().indices(FUNNEL_INDEX)
+        GetMappingsRequest request = new GetMappingsRequest().indices(funnelConfiguration.getFunnelIndex())
                 .types(TYPE);
         GetMappingsResponse getMappingsResponse = elasticsearchConnection.getClient()
                 .admin()

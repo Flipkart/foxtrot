@@ -12,6 +12,8 @@ public class FunnelConfiguration {
 
     private int querySize = 100;
 
+    private String funnelIndex = "foxtrot_funnel";
+
     private FunnelDropdownConfig funnelDropdownConfig;
 
     private BaseFunnelEventConfig baseFunnelEventConfig;
