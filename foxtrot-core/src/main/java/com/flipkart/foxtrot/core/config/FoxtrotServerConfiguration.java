@@ -99,11 +99,8 @@ public class FoxtrotServerConfiguration extends Configuration {
 
     private FunnelConfiguration funnelConfiguration;
 
-    private FunnelDropdownConfig funnelDropdownConfig;
-
     private HazelcastDistributedLockConfig distributedLockConfig;
 
-    private BaseFunnelEventConfig baseFunnelEventConfig;
 
     @Valid
     @Builder.Default

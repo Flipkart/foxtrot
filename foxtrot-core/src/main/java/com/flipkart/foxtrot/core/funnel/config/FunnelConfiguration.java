@@ -1,14 +1,20 @@
 package com.flipkart.foxtrot.core.funnel.config;
 
+import lombok.Builder;
 import lombok.Data;
 
 /***
  Created by mudit.g on Feb, 2019
  ***/
 @Data
+@Builder
 public class FunnelConfiguration {
 
-    private int expiryInDays = 30;
     private int querySize = 100;
+
+    private FunnelDropdownConfig funnelDropdownConfig;
+
+    private BaseFunnelEventConfig baseFunnelEventConfig;
+
     private String funnelConsoleUrl;
 }

@@ -73,17 +73,14 @@ public class ElasticsearchFunnelStore implements FunnelStore {
     private final ElasticsearchConnection connection;
     private final MappingService mappingService;
     private final FunnelConfiguration funnelConfiguration;
-    private final FunnelDropdownConfig funnelDropdownConfig;
 
 
     @Inject
     public ElasticsearchFunnelStore(ElasticsearchConnection connection,
-            MappingService mappingService, FunnelConfiguration funnelConfiguration,
-            FunnelDropdownConfig funnelDropdownConfig) {
+            MappingService mappingService, FunnelConfiguration funnelConfiguration) {
         this.connection = connection;
         this.mappingService = mappingService;
         this.funnelConfiguration = funnelConfiguration;
-        this.funnelDropdownConfig = funnelDropdownConfig;
     }
 
 
@@ -289,7 +286,7 @@ public class ElasticsearchFunnelStore implements FunnelStore {
 
     @Override
     public FunnelDropdownConfig getFunnelDropdownValues() {
-        return funnelDropdownConfig;
+        return funnelConfiguration.getFunnelDropdownConfig();
     }
 
     @Override
