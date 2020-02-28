@@ -8,6 +8,7 @@ import ch.qos.logback.classic.Logger;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.flipkart.foxtrot.common.Table;
 import com.flipkart.foxtrot.core.MockHTable;
+import com.flipkart.foxtrot.common.query.Query;
 import com.flipkart.foxtrot.core.TestUtils;
 import com.flipkart.foxtrot.core.cache.CacheManager;
 import com.flipkart.foxtrot.core.cache.impl.DistributedCacheFactory;
@@ -16,6 +17,9 @@ import com.flipkart.foxtrot.core.config.TextNodeRemoverConfiguration;
 import com.flipkart.foxtrot.core.datastore.DataStore;
 import com.flipkart.foxtrot.core.datastore.impl.hbase.HbaseTableConnection;
 import com.flipkart.foxtrot.core.email.EmailConfig;
+import com.flipkart.foxtrot.core.funnel.config.BaseFunnelEventConfig;
+import com.flipkart.foxtrot.core.funnel.services.FunnelExtrapolationService;
+import com.flipkart.foxtrot.core.funnel.services.FunnelExtrapolationServiceImpl;
 import com.flipkart.foxtrot.core.querystore.QueryExecutor;
 import com.flipkart.foxtrot.core.querystore.QueryStore;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsLoader;
@@ -28,6 +32,8 @@ import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
 import com.flipkart.foxtrot.core.querystore.impl.HazelcastConnection;
 import com.flipkart.foxtrot.core.querystore.mutator.IndexerEventMutator;
 import com.flipkart.foxtrot.core.querystore.mutator.LargeTextNodeRemover;
+import com.flipkart.foxtrot.core.querystore.query.ExtrapolatedQueryExecutor;
+import com.flipkart.foxtrot.core.querystore.query.SimpleQueryExecutor;
 import com.flipkart.foxtrot.core.table.impl.DistributedTableMetadataManager;
 import com.flipkart.foxtrot.core.table.impl.ElasticsearchTestUtils;
 import com.flipkart.foxtrot.core.table.impl.TableMapStore;
@@ -88,18 +94,20 @@ public abstract class ActionTest {
         emailConfig.setHost("127.0.0.1");
         when(hazelcastConnection.getHazelcast()).thenReturn(hazelcastInstance);
         when(hazelcastConnection.getHazelcastConfig()).thenReturn(hazelcastInstance.getConfig());
-        CardinalityConfig cardinalityConfig = new CardinalityConfig("true", String.valueOf(ElasticsearchUtils.DEFAULT_SUB_LIST_SIZE));
+        CardinalityConfig cardinalityConfig = new CardinalityConfig("true",
+                String.valueOf(ElasticsearchUtils.DEFAULT_SUB_LIST_SIZE));
 
         TestUtils.ensureIndex(elasticsearchConnection, TableMapStore.TABLE_META_INDEX);
         TestUtils.ensureIndex(elasticsearchConnection, DistributedTableMetadataManager.CARDINALITY_CACHE_INDEX);
         ElasticsearchUtils.initializeMappings(elasticsearchConnection.getClient());
-        tableMetadataManager = new DistributedTableMetadataManager(hazelcastConnection, elasticsearchConnection, mapper, cardinalityConfig);
+        tableMetadataManager = new DistributedTableMetadataManager(hazelcastConnection, elasticsearchConnection, mapper,
+                cardinalityConfig);
         tableMetadataManager.start();
 
         tableMetadataManager.save(Table.builder()
-                                          .name(TestUtils.TEST_TABLE_NAME)
-                                          .ttl(30)
-                                          .build());
+                .name(TestUtils.TEST_TABLE_NAME)
+                .ttl(30)
+                .build());
         List<IndexerEventMutator> mutators = Lists.newArrayList(new LargeTextNodeRemover(mapper,
                                          TextNodeRemoverConfiguration.builder().build()));
         tableConnection = Mockito.mock(HbaseTableConnection.class);
@@ -115,7 +123,19 @@ public abstract class ActionTest {
                                                               new ElasticsearchTuningConfig());
         analyticsLoader.start();
         ExecutorService executorService = Executors.newFixedThreadPool(1);
-        queryExecutor = new QueryExecutor(analyticsLoader, executorService, Collections.singletonList(new ResponseCacheUpdater(cacheManager)));
+
+        BaseFunnelEventConfig baseFunnelEventConfig = BaseFunnelEventConfig.builder()
+                .eventType("APP_LOADED")
+                .category("APP_LOADED")
+                .build();
+
+        QueryExecutor simpleQueryExecutor = new SimpleQueryExecutor(analyticsLoader, executorService,
+                Collections.singletonList(new ResponseCacheUpdater(cacheManager)));
+
+        FunnelExtrapolationService funnelExtrapolationService = new FunnelExtrapolationServiceImpl(
+                baseFunnelEventConfig, simpleQueryExecutor);
+        queryExecutor = new ExtrapolatedQueryExecutor(analyticsLoader, executorService,
+                Collections.singletonList(new ResponseCacheUpdater(cacheManager)), funnelExtrapolationService);
     }
 
     @AfterClass

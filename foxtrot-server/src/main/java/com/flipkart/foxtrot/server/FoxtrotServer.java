@@ -195,6 +195,7 @@ public class FoxtrotServer extends Application<FoxtrotServerConfiguration> {
         objectMapper.disable(SerializationFeature.FAIL_ON_EMPTY_BEANS);
         objectMapper.registerSubtypes(new NamedType(SimpleClusterDiscoveryConfig.class, "foxtrot_simple"));
         objectMapper.registerSubtypes(new NamedType(MarathonClusterDiscoveryConfig.class, "foxtrot_marathon"));
+        SerDe.init(objectMapper);
     }
 
 }

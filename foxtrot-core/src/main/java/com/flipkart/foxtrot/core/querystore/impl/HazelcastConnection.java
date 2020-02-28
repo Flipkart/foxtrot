@@ -44,6 +44,8 @@ public class HazelcastConnection implements Managed {
 
     private static final Logger logger = LoggerFactory.getLogger(HazelcastConnection.class.getSimpleName());
 
+    public static final String HEALTHCHECK_MAP = "healthCheck";
+
     private HazelcastInstance hazelcast;
     private Config hazelcastConfig;
 
@@ -147,7 +149,7 @@ public class HazelcastConnection implements Managed {
     }
 
     private void configureHealthcheck() {
-        MapConfig mapConfig = new MapConfig("health_check");
+        MapConfig mapConfig = new MapConfig(HEALTHCHECK_MAP);
         mapConfig.setInMemoryFormat(InMemoryFormat.BINARY);
         hazelcastConfig.addMapConfig(mapConfig);
     }

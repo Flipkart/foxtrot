@@ -17,7 +17,11 @@ import com.flipkart.foxtrot.core.cardinality.CardinalityConfig;
 import com.flipkart.foxtrot.core.common.DataDeletionManagerConfig;
 import com.flipkart.foxtrot.core.datastore.impl.hbase.HbaseConfig;
 import com.flipkart.foxtrot.core.email.EmailConfig;
+import com.flipkart.foxtrot.core.funnel.config.BaseFunnelEventConfig;
+import com.flipkart.foxtrot.core.funnel.config.FunnelConfiguration;
+import com.flipkart.foxtrot.core.funnel.config.FunnelDropdownConfig;
 import com.flipkart.foxtrot.core.jobs.optimization.EsIndexOptimizationConfig;
+import com.flipkart.foxtrot.core.lock.HazelcastDistributedLockConfig;
 import com.flipkart.foxtrot.core.querystore.actions.spi.ElasticsearchTuningConfig;
 import com.flipkart.foxtrot.core.querystore.impl.CacheConfig;
 import com.flipkart.foxtrot.core.querystore.impl.ClusterConfig;
@@ -38,7 +42,9 @@ import lombok.NonNull;
 import lombok.ToString;
 
 /**
- * User: Santanu Sinha (santanu.sinha@flipkart.com) Date: 15/03/14 Time: 9:26 PM
+ * User: Santanu Sinha (santanu.sinha@flipkart.com)
+ * Date: 15/03/14
+ * Time: 9:26 PM
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -90,6 +96,14 @@ public class FoxtrotServerConfiguration extends Configuration {
     private boolean restrictAccess;
 
     private GandalfConfiguration gandalfConfiguration;
+
+    private FunnelConfiguration funnelConfiguration;
+
+    private FunnelDropdownConfig funnelDropdownConfig;
+
+    private HazelcastDistributedLockConfig distributedLockConfig;
+
+    private BaseFunnelEventConfig baseFunnelEventConfig;
 
     @Valid
     @Builder.Default

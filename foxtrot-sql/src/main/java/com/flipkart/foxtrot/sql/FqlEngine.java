@@ -18,6 +18,7 @@ import com.flipkart.foxtrot.sql.responseprocessors.FlatteningUtils;
 import com.flipkart.foxtrot.sql.responseprocessors.model.FlatRepresentation;
 import com.google.common.collect.Lists;
 import com.phonepe.gandalf.models.user.UserDetails;
+import javax.inject.Named;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,7 +37,8 @@ public class FqlEngine {
     private ObjectMapper mapper;
 
     @Inject
-    public FqlEngine(TableMetadataManager tableMetadataManager, QueryStore queryStore, QueryExecutor queryExecutor, ObjectMapper mapper) {
+    public FqlEngine(TableMetadataManager tableMetadataManager, QueryStore queryStore,
+            @Named("ExtrapolatedQueryExecutor") QueryExecutor queryExecutor, ObjectMapper mapper) {
         this.tableMetadataManager = tableMetadataManager;
         this.queryStore = queryStore;
         this.queryExecutor = queryExecutor;
@@ -87,14 +89,15 @@ public class FqlEngine {
         public void visit(FqlDescribeTable fqlDescribeTable) {
             TableFieldMapping fieldMetaData = queryStore.getFieldMappings(fqlDescribeTable.getTableName());
             result = FlatteningUtils.genericMultiRowParse(mapper.valueToTree(fieldMetaData.getMappings()),
-                                                          Lists.newArrayList("field", "type"), "field");
+                    Lists.newArrayList("field", "type"), "field"
+            );
         }
 
         @Override
         public void visit(FqlShowTablesQuery fqlShowTablesQuery) {
             List<Table> tables = tableMetadataManager.get();
-            result = FlatteningUtils.genericMultiRowParse(mapper.valueToTree(tables), Lists.newArrayList("name", "ttl"),
-                                                          "name");
+            result = FlatteningUtils
+                    .genericMultiRowParse(mapper.valueToTree(tables), Lists.newArrayList("name", "ttl"), "name");
         }
 
         @Override
@@ -111,17 +114,14 @@ public class FqlEngine {
             try {
                 String query = mapper.writeValueAsString(fqlActionQuery.getActionRequest());
                 logger.info("Generated query: {}", query);
-            }
-            catch (JsonProcessingException e) {
+            } catch (JsonProcessingException e) {
                 //ignoring the exception as it is coming while logging.
                 logger.error("Error in serializing action request.", e);
             }
             ActionResponse actionResponse = queryExecutor.execute(fqlActionQuery.getActionRequest());
-            Flattener flattener = new Flattener(mapper,
-                                                fqlActionQuery.getActionRequest(),
-                                                fqlActionQuery.getSelectedFields());
-            actionResponse.accept(flattener);
-            result = flattener.getFlatRepresentation();
+            Flattener flattener = new Flattener(mapper, fqlActionQuery.getActionRequest(),
+                    fqlActionQuery.getSelectedFields());
+            result = actionResponse.accept(flattener);
         }
 
     }

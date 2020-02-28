@@ -28,6 +28,7 @@ import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 import javax.inject.Singleton;
 import javax.validation.Valid;
 import javax.ws.rs.Consumes;
@@ -53,7 +54,8 @@ public class AnalyticsResource {
     private final QueryConfig queryConfig;
 
     @Inject
-    public AnalyticsResource(QueryExecutor queryExecutor, QueryConfig queryConfig) {
+    public AnalyticsResource(@Named("ExtrapolatedQueryExecutor") final QueryExecutor queryExecutor,
+                                QueryConfig queryConfig) {
         this.queryExecutor = queryExecutor;
         this.queryConfig = queryConfig;
     }
