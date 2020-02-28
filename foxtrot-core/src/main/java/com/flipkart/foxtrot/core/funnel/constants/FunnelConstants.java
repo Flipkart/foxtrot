@@ -10,7 +10,6 @@ public final class FunnelConstants {
     }
 
     public static final String UNASSIGNED_FUNNEL_ID = "NOT_ASSIGNED";
-    public static final String FUNNEL_INDEX = "foxtrot_funnel";
     public static final String DOT = ".";
     public static final String TYPE = "funnel_data";
     public static final String START_ID = "1";

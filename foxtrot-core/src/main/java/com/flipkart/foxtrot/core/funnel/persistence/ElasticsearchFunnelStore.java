@@ -11,7 +11,6 @@ import static com.flipkart.foxtrot.core.funnel.constants.FunnelAttributes.FIELD_
 import static com.flipkart.foxtrot.core.funnel.constants.FunnelAttributes.FUNNEL_STATUS;
 import static com.flipkart.foxtrot.core.funnel.constants.FunnelAttributes.START_PERCENTAGE;
 import static com.flipkart.foxtrot.core.funnel.constants.FunnelConstants.DOT;
-import static com.flipkart.foxtrot.core.funnel.constants.FunnelConstants.FUNNEL_INDEX;
 import static com.flipkart.foxtrot.core.funnel.constants.FunnelConstants.TYPE;
 
 import com.collections.CollectionUtils;
@@ -89,7 +88,7 @@ public class ElasticsearchFunnelStore implements FunnelStore {
         try {
             connection.getClient()
                     .prepareIndex()
-                    .setIndex(FUNNEL_INDEX)
+                    .setIndex(funnelConfiguration.getFunnelIndex())
                     .setType(TYPE)
                     .setId(funnel.getDocumentId())
                     .setSource(JsonUtils.toBytes(funnel), XContentType.JSON)
@@ -107,7 +106,7 @@ public class ElasticsearchFunnelStore implements FunnelStore {
         try {
             GetResponse response = connection.getClient()
                     .prepareGet()
-                    .setIndex(FUNNEL_INDEX)
+                    .setIndex(funnelConfiguration.getFunnelIndex())
                     .setType(TYPE)
                     .setId(documentId)
                     .get();
@@ -125,7 +124,7 @@ public class ElasticsearchFunnelStore implements FunnelStore {
         QueryBuilder query = new TermQueryBuilder(FunnelAttributes.ID, funnelId);
         try {
             SearchHits response = connection.getClient()
-                    .prepareSearch(FUNNEL_INDEX)
+                    .prepareSearch(funnelConfiguration.getFunnelIndex())
                     .setTypes(TYPE)
                     .setSize(1)
                     .setQuery(query)
@@ -149,7 +148,7 @@ public class ElasticsearchFunnelStore implements FunnelStore {
         SearchHits searchHits;
         try {
             SearchRequestBuilder requestBuilder = connection.getClient()
-                    .prepareSearch(FUNNEL_INDEX)
+                    .prepareSearch(funnelConfiguration.getFunnelIndex())
                     .setTypes(TYPE)
                     .setIndicesOptions(Utils.indicesOptions())
                     .setQuery(esRequest)
@@ -177,7 +176,7 @@ public class ElasticsearchFunnelStore implements FunnelStore {
     public void update(Funnel funnel) throws FoxtrotException {
         try {
             UpdateRequest updateRequest = new UpdateRequest();
-            updateRequest.index(FUNNEL_INDEX)
+            updateRequest.index(funnelConfiguration.getFunnelIndex())
                     .type(TYPE)
                     .id(funnel.getDocumentId())
                     .doc(JsonUtils.toBytes(funnel), XContentType.JSON)
@@ -200,7 +199,7 @@ public class ElasticsearchFunnelStore implements FunnelStore {
         List<Funnel> funnels = new ArrayList<>();
         try {
             SearchRequestBuilder searchRequestBuilder = connection.getClient()
-                    .prepareSearch(FUNNEL_INDEX)
+                    .prepareSearch(funnelConfiguration.getFunnelIndex())
                     .setTypes(TYPE)
                     .setSize(maxSize);
 
@@ -226,7 +225,7 @@ public class ElasticsearchFunnelStore implements FunnelStore {
         SearchHits searchHits;
         try {
             searchHits = connection.getClient()
-                    .prepareSearch(FUNNEL_INDEX)
+                    .prepareSearch(funnelConfiguration.getFunnelIndex())
                     .setTypes(TYPE)
                     .setQuery(new ElasticSearchQueryGenerator().genFilter(filterRequest.getFilters()))
                     .addSort(SortBuilders.fieldSort(filterRequest.getFieldName())
@@ -253,7 +252,7 @@ public class ElasticsearchFunnelStore implements FunnelStore {
             connection.getClient()
                     .prepareDelete()
                     .setRefreshPolicy(WriteRequest.RefreshPolicy.IMMEDIATE)
-                    .setIndex(FUNNEL_INDEX)
+                    .setIndex(funnelConfiguration.getFunnelIndex())
                     .setType(TYPE)
                     .setId(documentId)
                     .execute()
@@ -270,7 +269,7 @@ public class ElasticsearchFunnelStore implements FunnelStore {
 
         try {
             SearchResponse response = connection.getClient()
-                    .prepareSearch(FUNNEL_INDEX)
+                    .prepareSearch(funnelConfiguration.getFunnelIndex())
                     .setTypes(TYPE)
                     .setQuery(query)
                     .addSort(SortBuilders.fieldSort(APPROVAL_DATE).order(SortOrder.DESC))
@@ -297,7 +296,7 @@ public class ElasticsearchFunnelStore implements FunnelStore {
         SearchHits searchHits;
         try {
             SearchResponse response = connection.getClient()
-                    .prepareSearch(FUNNEL_INDEX)
+                    .prepareSearch(funnelConfiguration.getFunnelIndex())
                     .setIndicesOptions(Utils.indicesOptions())
                     .setQuery(esRequest)
                     .setSearchType(SearchType.QUERY_THEN_FETCH)
@@ -426,7 +425,7 @@ public class ElasticsearchFunnelStore implements FunnelStore {
     private void preProcessFilterRequest(FilterRequest filterRequest) throws FoxtrotException {
         PreProcessFilter preProcessFilter = new PreProcessFilter();
         try {
-            preProcessFilter.preProcess(filterRequest, mappingService);
+            preProcessFilter.preProcess(filterRequest, mappingService, funnelConfiguration.getFunnelIndex());
         } catch (Exception e) {
             throw new FunnelException(EXECUTION_EXCEPTION,
                     String.format("Error in preProcessing filterRequest: %s", e.getMessage()), e);
