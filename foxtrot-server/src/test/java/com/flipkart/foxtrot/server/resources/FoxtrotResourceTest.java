@@ -16,12 +16,18 @@ import com.flipkart.foxtrot.core.cache.impl.DistributedCacheFactory;
 import com.flipkart.foxtrot.core.cardinality.CardinalityConfig;
 import com.flipkart.foxtrot.core.config.TextNodeRemoverConfiguration;
 import com.flipkart.foxtrot.core.datastore.DataStore;
+import com.flipkart.foxtrot.core.funnel.config.BaseFunnelEventConfig;
+import com.flipkart.foxtrot.core.funnel.services.FunnelExtrapolationService;
+import com.flipkart.foxtrot.core.funnel.services.FunnelExtrapolationServiceImpl;
 import com.flipkart.foxtrot.core.querystore.QueryExecutor;
 import com.flipkart.foxtrot.core.querystore.QueryStore;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsLoader;
+import com.flipkart.foxtrot.core.querystore.handlers.ResponseCacheUpdater;
 import com.flipkart.foxtrot.core.querystore.impl.*;
 import com.flipkart.foxtrot.core.querystore.mutator.IndexerEventMutator;
 import com.flipkart.foxtrot.core.querystore.mutator.LargeTextNodeRemover;
+import com.flipkart.foxtrot.core.querystore.query.ExtrapolatedQueryExecutor;
+import com.flipkart.foxtrot.core.querystore.query.SimpleQueryExecutor;
 import com.flipkart.foxtrot.core.table.TableMetadataManager;
 import com.flipkart.foxtrot.core.table.impl.DistributedTableMetadataManager;
 import com.flipkart.foxtrot.core.table.impl.ElasticsearchTestUtils;
@@ -154,7 +160,20 @@ public abstract class FoxtrotResourceTest {
             Assert.fail();
         }
         ExecutorService executorService = Executors.newFixedThreadPool(1);
-        queryExecutor = new QueryExecutor(analyticsLoader, executorService, Collections.emptyList());
+
+
+        BaseFunnelEventConfig baseFunnelEventConfig = BaseFunnelEventConfig.builder()
+                .eventType("APP_LOADED")
+                .category("APP_LOADED")
+                .build();
+
+        QueryExecutor simpleQueryExecutor = new SimpleQueryExecutor(analyticsLoader, executorService,
+                Collections.singletonList(new ResponseCacheUpdater(cacheManager)));
+
+        FunnelExtrapolationService funnelExtrapolationService = new FunnelExtrapolationServiceImpl(
+                baseFunnelEventConfig, simpleQueryExecutor);
+        queryExecutor = new ExtrapolatedQueryExecutor(analyticsLoader, executorService,
+                Collections.singletonList(new ResponseCacheUpdater(cacheManager)), funnelExtrapolationService);
     }
 
     protected  TableMetadataManager getTableMetadataManager() {

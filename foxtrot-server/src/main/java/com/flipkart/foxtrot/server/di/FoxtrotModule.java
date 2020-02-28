@@ -247,7 +247,9 @@ public class FoxtrotModule extends AbstractModule {
     public BaseFunnelEventConfig provideBaseEventConfig(FoxtrotServerConfiguration configuration) throws IOException {
         return configuration.getBaseFunnelEventConfig() != null
                 ? configuration.getBaseFunnelEventConfig()
-                : new BaseFunnelEventConfig();
+                : BaseFunnelEventConfig.builder()
+                        .eventType("APP_LOADED")
+                        .category("APP_LOADED").build();
     }
 
     @Provides
