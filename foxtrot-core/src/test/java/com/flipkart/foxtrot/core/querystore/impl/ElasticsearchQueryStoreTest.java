@@ -191,7 +191,7 @@ public class ElasticsearchQueryStoreTest {
 
         Set<String> expectedFields = Sets.newHashSet("_index", "date.minuteOfHour", "date.year",
                 "date.dayOfMonth", "testField", "testField.analyzed",
-                "_all", "date.dayOfWeek", "date.minuteOfDay",
+                "_all", "date.dayOfWeek", "date.minuteOfDay", "eventData.funnelInfo.funnelId",
                 "_parent", "date.monthOfYear", "__FOXTROT_METADATA__.time",
                 "time.date", "_version", "date.weekOfYear",
                 "_routing", "__FOXTROT_METADATA__.rawStorageId",
@@ -230,7 +230,7 @@ public class ElasticsearchQueryStoreTest {
 
         Set<String> expectedFields = Sets.newHashSet("_index", "date.minuteOfHour", "date.year",
                 "date.dayOfMonth", "testField", "testField.analyzed",
-                "testLargeField",
+                "testLargeField", "eventData.funnelInfo.funnelId",
                 "testLargeField.analyzed",
                 "_all", "date.dayOfWeek", "date.minuteOfDay",
                 "_parent", "date.monthOfYear", "__FOXTROT_METADATA__.time",
@@ -275,7 +275,7 @@ public class ElasticsearchQueryStoreTest {
 
         Set<String> expectedFields = Sets.newHashSet("_index", "date.minuteOfHour", "date.year",
                 "date.dayOfMonth", "testField", "testField.analyzed",
-                "_all", "date.dayOfWeek", "date.minuteOfDay",
+                "_all", "date.dayOfWeek", "date.minuteOfDay", "eventData.funnelInfo.funnelId",
                 "_parent", "date.monthOfYear", "__FOXTROT_METADATA__.time",
                 "time.date", "_version", "date.weekOfYear",
                 "_routing", "__FOXTROT_METADATA__.rawStorageId",
@@ -317,7 +317,7 @@ public class ElasticsearchQueryStoreTest {
                 .get();
         val expectedFields = Sets.newHashSet("_index", "date.minuteOfHour", "date.year",
                 "date.dayOfMonth", "testField", "testField.analyzed",
-                "_all", "date.dayOfWeek", "date.minuteOfDay",
+                "_all", "date.dayOfWeek", "date.minuteOfDay", "eventData.funnelInfo.funnelId",
                 "_parent", "date.monthOfYear", "__FOXTROT_METADATA__.time",
                 "time.date", "_version", "date.weekOfYear",
                 "_routing", "__FOXTROT_METADATA__.rawStorageId",
