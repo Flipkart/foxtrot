@@ -20,7 +20,7 @@ import com.flipkart.foxtrot.common.group.GroupRequest;
 import com.flipkart.foxtrot.common.group.GroupResponse;
 import com.flipkart.foxtrot.core.TestUtils;
 import com.flipkart.foxtrot.core.common.AsyncDataToken;
-import com.flipkart.foxtrot.server.providers.exception.FoxtrotExceptionMapper;
+import com.flipkart.foxtrot.core.exception.provider.FoxtrotExceptionMapper;
 import io.dropwizard.testing.junit.ResourceTestRule;
 import java.util.concurrent.TimeUnit;
 import org.junit.Rule;

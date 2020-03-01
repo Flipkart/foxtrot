@@ -21,7 +21,7 @@ import com.flipkart.foxtrot.common.Document;
 import com.flipkart.foxtrot.core.TestUtils;
 import com.flipkart.foxtrot.core.exception.FoxtrotException;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
-import com.flipkart.foxtrot.server.providers.exception.FoxtrotExceptionMapper;
+import com.flipkart.foxtrot.core.exception.provider.FoxtrotExceptionMapper;
 import io.dropwizard.testing.junit.ResourceTestRule;
 import org.junit.Assert;
 import org.junit.Ignore;

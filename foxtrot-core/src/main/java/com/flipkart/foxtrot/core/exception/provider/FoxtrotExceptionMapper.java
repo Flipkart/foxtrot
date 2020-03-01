@@ -1,4 +1,4 @@
-package com.flipkart.foxtrot.server.providers.exception;
+package com.flipkart.foxtrot.core.exception.provider;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;

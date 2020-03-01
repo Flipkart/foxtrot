@@ -35,6 +35,7 @@ import com.flipkart.foxtrot.core.internalevents.impl.GuavaInternalEventBus;
 import com.flipkart.foxtrot.core.jobs.optimization.EsIndexOptimizationConfig;
 import com.flipkart.foxtrot.core.lock.DistributedLock;
 import com.flipkart.foxtrot.core.lock.HazelcastDistributedLock;
+import com.flipkart.foxtrot.core.lock.HazelcastDistributedLockConfig;
 import com.flipkart.foxtrot.core.querystore.ActionExecutionObserver;
 import com.flipkart.foxtrot.core.querystore.EventPublisherActionExecutionObserver;
 import com.flipkart.foxtrot.core.querystore.QueryExecutor;
@@ -240,13 +241,19 @@ public class FoxtrotModule extends AbstractModule {
                                 .eventType("APP_LOADED")
                                 .category("APP_LOADED").build())
                         .querySize(100)
-                .build();
+                        .build();
     }
 
     @Provides
     @Singleton
     public Configuration provideHBaseConfiguration(HbaseConfig hbaseConfig) throws IOException {
         return HBaseUtil.create(hbaseConfig);
+    }
+
+    @Provides
+    @Singleton
+    public HazelcastDistributedLockConfig hazelcastDistributedLockConfig(FoxtrotServerConfiguration configuration) {
+        return configuration.getDistributedLockConfig();
     }
 
     @Provides

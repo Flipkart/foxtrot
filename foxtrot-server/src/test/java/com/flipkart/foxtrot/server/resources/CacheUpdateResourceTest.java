@@ -14,7 +14,7 @@ package com.flipkart.foxtrot.server.resources;/**
  * limitations under the License.
  */
 
-import com.flipkart.foxtrot.server.providers.exception.FoxtrotExceptionMapper;
+import com.flipkart.foxtrot.core.exception.provider.FoxtrotExceptionMapper;
 import io.dropwizard.testing.junit.ResourceTestRule;
 import org.junit.Rule;
 import org.junit.Test;
