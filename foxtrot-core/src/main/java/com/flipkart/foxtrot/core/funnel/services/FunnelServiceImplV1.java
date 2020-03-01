@@ -18,12 +18,12 @@ import com.flipkart.foxtrot.core.funnel.model.request.FilterRequest;
 import com.flipkart.foxtrot.core.funnel.model.response.FunnelFilterResponse;
 import com.flipkart.foxtrot.core.funnel.persistence.FunnelStore;
 import com.flipkart.foxtrot.core.lock.LockedExecutor;
+import com.google.common.base.Strings;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import java.util.List;
 import java.util.UUID;
 import java.util.function.Function;
-import org.apache.logging.log4j.util.Strings;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -55,7 +55,7 @@ public class FunnelServiceImplV1 implements FunnelService {
         try {
             funnel.setCreatedAt(new DateTime().toDate());
             funnel.setId(UNASSIGNED_FUNNEL_ID);
-            if (Strings.isBlank(funnel.getDocumentId())) {
+            if (Strings.isNullOrEmpty(funnel.getDocumentId())) {
                 funnel.setDocumentId(UUID.randomUUID().toString());
             }
             funnel.setFunnelStatus(WAITING_FOR_APPROVAL);
