@@ -24,7 +24,6 @@ public class Funnel {
 
     private String id;
 
-    @NotBlank
     private String documentId;
 
     @NotBlank
