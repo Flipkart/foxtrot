@@ -81,9 +81,9 @@ public class HazelcastConnection implements Managed {
                         .replace("/", "")
                         .trim();
                 hzConfig.getGroupConfig()
-                        .setName("foxtrot");
+                        .setName(clusterConfig.getName());
                 hzConfig.getGroupConfig()
-                        .setPassword("foxtrot");
+                        .setPassword(clusterConfig.getName());
                 hzConfig.setProperty(GroupProperty.DISCOVERY_SPI_ENABLED, "true");
                 hzConfig.setProperty(GroupProperty.DISCOVERY_SPI_PUBLIC_IP_ENABLED, "true");
                 hzConfig.setProperty(GroupProperty.SOCKET_CLIENT_BIND_ANY, "true");
