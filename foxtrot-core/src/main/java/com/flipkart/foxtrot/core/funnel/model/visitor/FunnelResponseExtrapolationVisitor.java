@@ -1,5 +1,6 @@
 package com.flipkart.foxtrot.core.funnel.model.visitor;
 
+import com.collections.CollectionUtils;
 import com.flipkart.foxtrot.common.ActionRequest;
 import com.flipkart.foxtrot.common.ActionResponse;
 import com.flipkart.foxtrot.common.ResponseVisitor;
@@ -15,17 +16,20 @@ import com.flipkart.foxtrot.common.query.MultiTimeQueryResponse;
 import com.flipkart.foxtrot.common.query.QueryResponse;
 import com.flipkart.foxtrot.common.query.general.EqualsFilter;
 import com.flipkart.foxtrot.common.query.numeric.GreaterEqualFilter;
+import com.flipkart.foxtrot.common.stats.BucketResponse;
 import com.flipkart.foxtrot.common.stats.StatsResponse;
 import com.flipkart.foxtrot.common.stats.StatsTrendResponse;
+import com.flipkart.foxtrot.common.stats.StatsValue;
 import com.flipkart.foxtrot.common.trend.TrendResponse;
 import com.flipkart.foxtrot.core.funnel.config.BaseFunnelEventConfig;
 import com.flipkart.foxtrot.core.querystore.QueryExecutor;
-import com.google.inject.internal.cglib.core.$KeyFactory;
+import com.flipkart.foxtrot.core.querystore.actions.Utils;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import javax.inject.Named;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -40,6 +44,9 @@ public class FunnelResponseExtrapolationVisitor implements ResponseVisitor<Actio
     private final BaseFunnelEventConfig funnelEventConfig;
 
     private final TableActionRequestVisitor tableActionRequestVisitor;
+
+    private static final List<String> VALID_STATS_FOR_EXTRAPOLATION = Arrays.asList(
+            Utils.COUNT, Utils.SUM, Utils.SUM_OF_SQUARES);
 
     public FunnelResponseExtrapolationVisitor(final ActionRequest actionRequest,
             final QueryExecutor queryExecutor,
@@ -80,11 +87,41 @@ public class FunnelResponseExtrapolationVisitor implements ResponseVisitor<Actio
 
     public ActionResponse visit(StatsResponse statsResponse) {
         long extrapolationFactor = getExtrapolationFactor();
+        Map<String, Number> originalStats = statsResponse.getResult().getStats();
+        statsResponse.getResult().setStats(extrapolateStats(extrapolationFactor, originalStats));
+
+        List<BucketResponse<StatsValue>> buckets = statsResponse.getBuckets();
+        extrapolateStatsBuckets(extrapolationFactor, buckets);
+
         return statsResponse;
     }
 
     public ActionResponse visit(StatsTrendResponse statsTrendResponse) {
         return statsTrendResponse;
+    }
+
+    private void extrapolateStatsBuckets(long extrapolationFactor, List<BucketResponse<StatsValue>> buckets) {
+        if (CollectionUtils.isNotEmpty(buckets)) {
+            for (BucketResponse<StatsValue> bucketResponse : buckets) {
+                Map<String, Number> originalBucketStats = bucketResponse.getResult().getStats();
+                bucketResponse.getResult().setStats(extrapolateStats(extrapolationFactor, originalBucketStats));
+                extrapolateStatsBuckets(extrapolationFactor, bucketResponse.getBuckets());
+            }
+        }
+    }
+
+    private Map<String, Number> extrapolateStats(long extrapolationFactor,
+            Map<String, Number> originalStats) {
+        if (CollectionUtils.isNotEmpty(originalStats)) {
+            Map<String, Number> extrapolatedStats = new HashMap<>(originalStats);
+            for (Map.Entry<String, Number> entry : extrapolatedStats.entrySet()) {
+                if (VALID_STATS_FOR_EXTRAPOLATION.contains(entry.getKey())) {
+                    entry.setValue(extrapolatedValue(entry.getKey(), entry.getValue(), extrapolationFactor));
+                }
+            }
+            return extrapolatedStats;
+        }
+        return originalStats;
     }
 
     public ActionResponse visit(TrendResponse trendResponse) {
@@ -144,6 +181,19 @@ public class FunnelResponseExtrapolationVisitor implements ResponseVisitor<Actio
         long baseEventCountForFunnelId = getBaseEventCountForFunnelId(funnelId, table);
 
         return (long) ((double) totalBaseEventCount / baseEventCountForFunnelId);
+    }
+
+
+    private Number extrapolatedValue(String key, Number value, long extrapolationFactor) {
+        switch (key) {
+            case Utils.COUNT:
+                return value.longValue() * extrapolationFactor;
+            case Utils.SUM:
+            case Utils.SUM_OF_SQUARES:
+                return value.doubleValue() * extrapolationFactor;
+            default:
+                return value;
+        }
     }
 
     private long getBaseEventCountForFunnelId(long funnelId, String table) {
