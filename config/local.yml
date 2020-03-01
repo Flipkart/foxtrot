@@ -142,8 +142,14 @@ swagger:
   description: A store abstraction and analytics system for real-time event data.
   uriPrefix: "/foxtrot"
 
+distributedLockConfig:
+  locksConfig:
+    FUNNEL_APPROVAL:
+      lockExpiryTimeInMs: 2000
+
 funnelConfiguration:
   querySize: 100
+  funnelIndex: foxtrot_funnel
   funnelConsoleUrl: http://siphon-ui.traefik.stg.phonepe.com/#/
   baseFunnelEventConfig:
     eventType: APP_LOADED

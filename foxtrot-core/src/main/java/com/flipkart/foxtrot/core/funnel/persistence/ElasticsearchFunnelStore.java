@@ -38,6 +38,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.apache.lucene.search.join.ScoreMode;
+import org.elasticsearch.action.DocWriteRequest.OpType;
 import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
@@ -93,6 +94,7 @@ public class ElasticsearchFunnelStore implements FunnelStore {
                     .setId(funnel.getDocumentId())
                     .setSource(JsonUtils.toBytes(funnel), XContentType.JSON)
                     .setRefreshPolicy(RefreshPolicy.IMMEDIATE)
+                    .setOpType(OpType.CREATE)
                     .execute()
                     .get();
         } catch (Exception e) {

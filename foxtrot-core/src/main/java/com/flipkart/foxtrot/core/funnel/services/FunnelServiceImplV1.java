@@ -54,7 +54,6 @@ public class FunnelServiceImplV1 implements FunnelService {
         try {
             funnel.setCreatedAt(new DateTime().toDate());
             funnel.setId(UNASSIGNED_FUNNEL_ID);
-            funnel.setDocumentId(UUID.randomUUID().toString());
             funnel.setFunnelStatus(WAITING_FOR_APPROVAL);
             funnel.setDeleted(false);
             funnelStore.save(funnel);
