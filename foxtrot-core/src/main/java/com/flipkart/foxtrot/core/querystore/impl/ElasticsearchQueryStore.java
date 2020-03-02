@@ -217,6 +217,7 @@ public class ElasticsearchQueryStore implements QueryStore {
                         String failedDocument = mapper.writeValueAsString(documents.get(i));
                         logger.error("Table : {} Failure Message : {} Document : {}", table,
                                      itemResponse.getFailureMessage(), failedDocument);
+
                     }
                 }
             }
