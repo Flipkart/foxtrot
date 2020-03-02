@@ -24,6 +24,7 @@ import com.flipkart.foxtrot.common.stats.BucketResponse;
 import com.flipkart.foxtrot.common.stats.StatsResponse;
 import com.flipkart.foxtrot.common.stats.StatsTrendRequest;
 import com.flipkart.foxtrot.common.stats.StatsTrendResponse;
+import com.flipkart.foxtrot.common.stats.StatsTrendValue;
 import com.flipkart.foxtrot.common.stats.StatsValue;
 import com.flipkart.foxtrot.common.trend.TrendResponse;
 import com.flipkart.foxtrot.core.funnel.config.BaseFunnelEventConfig;
@@ -105,19 +106,39 @@ public class FunnelResponseExtrapolationVisitor implements ResponseVisitor<Actio
 
     public ActionResponse visit(StatsTrendResponse statsTrendResponse) {
         StatsTrendRequest statsTrendRequest = (StatsTrendRequest) actionRequest;
+
         List<Count> extrapolationFactors = computeExtrapolationFactors(statsTrendRequest.getTable(),
                 statsTrendRequest.getTimestamp(), statsTrendRequest.getPeriod());
-        if (CollectionUtils.isNotEmpty(statsTrendResponse.getResult())) {
-            statsTrendResponse.getResult().forEach(statsTrendValue -> {
-                if (CollectionUtils.isNotEmpty(statsTrendValue.getStats())
-                        && extrapolationFactors.size() == statsTrendValue.getStats().values().size()) {
-                    int i = 0;
 
-                    Map<String, Number> originalStats = statsTrendValue.getStats();
-                }
-            });
-        }
+        List<StatsTrendValue> statsTrendValues = statsTrendResponse.getResult();
+        extrapolateStatsTrendValues(extrapolationFactors, statsTrendValues);
+
+        List<BucketResponse<List<StatsTrendValue>>> buckets = statsTrendResponse.getBuckets();
+        extrapolateStatsTrendBuckets(extrapolationFactors, buckets);
+
         return statsTrendResponse;
+    }
+
+    private void extrapolateStatsTrendBuckets(List<Count> extrapolationFactors,
+            List<BucketResponse<List<StatsTrendValue>>> buckets) {
+        if (CollectionUtils.isNotEmpty(buckets)) {
+            for (BucketResponse<List<StatsTrendValue>> bucketResponse : buckets) {
+                extrapolateStatsTrendValues(extrapolationFactors, bucketResponse.getResult());
+                extrapolateStatsTrendBuckets(extrapolationFactors, bucketResponse.getBuckets());
+            }
+        }
+    }
+
+    private void extrapolateStatsTrendValues(List<Count> extrapolationFactors, List<StatsTrendValue> statsTrendValues) {
+        if (CollectionUtils.isNotEmpty(statsTrendValues)
+                && extrapolationFactors.size() == statsTrendValues.size()) {
+            for (int i = 0; i < statsTrendValues.size(); i++) {
+                Map<String, Number> originalStats = statsTrendValues.get(i).getStats();
+                Map<String, Number> extrapolatedStats = extrapolateStats(extrapolationFactors.get(i).getCount(),
+                        originalStats);
+                statsTrendValues.get(i).setStats(extrapolatedStats);
+            }
+        }
     }
 
     public ActionResponse visit(TrendResponse trendResponse) {
