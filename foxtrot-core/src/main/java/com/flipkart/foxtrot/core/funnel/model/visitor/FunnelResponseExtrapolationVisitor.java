@@ -3,14 +3,18 @@ package com.flipkart.foxtrot.core.funnel.model.visitor;
 import com.collections.CollectionUtils;
 import com.flipkart.foxtrot.common.ActionRequest;
 import com.flipkart.foxtrot.common.ActionResponse;
+import com.flipkart.foxtrot.common.Period;
 import com.flipkart.foxtrot.common.ResponseVisitor;
 import com.flipkart.foxtrot.common.TableActionRequestVisitor;
 import com.flipkart.foxtrot.common.count.CountRequest;
 import com.flipkart.foxtrot.common.count.CountResponse;
 import com.flipkart.foxtrot.common.distinct.DistinctResponse;
 import com.flipkart.foxtrot.common.group.GroupResponse;
+import com.flipkart.foxtrot.common.histogram.HistogramRequest;
 import com.flipkart.foxtrot.common.histogram.HistogramResponse;
+import com.flipkart.foxtrot.common.histogram.HistogramResponse.Count;
 import com.flipkart.foxtrot.common.query.Filter;
+import com.flipkart.foxtrot.common.query.MultiQueryRequest;
 import com.flipkart.foxtrot.common.query.MultiQueryResponse;
 import com.flipkart.foxtrot.common.query.MultiTimeQueryResponse;
 import com.flipkart.foxtrot.common.query.QueryResponse;
@@ -18,12 +22,14 @@ import com.flipkart.foxtrot.common.query.general.EqualsFilter;
 import com.flipkart.foxtrot.common.query.numeric.GreaterEqualFilter;
 import com.flipkart.foxtrot.common.stats.BucketResponse;
 import com.flipkart.foxtrot.common.stats.StatsResponse;
+import com.flipkart.foxtrot.common.stats.StatsTrendRequest;
 import com.flipkart.foxtrot.common.stats.StatsTrendResponse;
 import com.flipkart.foxtrot.common.stats.StatsValue;
 import com.flipkart.foxtrot.common.trend.TrendResponse;
 import com.flipkart.foxtrot.core.funnel.config.BaseFunnelEventConfig;
 import com.flipkart.foxtrot.core.querystore.QueryExecutor;
 import com.flipkart.foxtrot.core.querystore.actions.Utils;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -36,6 +42,8 @@ import lombok.extern.slf4j.Slf4j;
 public class FunnelResponseExtrapolationVisitor implements ResponseVisitor<ActionResponse> {
 
     private static final String FUNNEL_ID_QUERY_FIELD = "eventData.funnelInfo.funnelId";
+
+    private static final String EVENT_TYPE = "eventType";
 
     private final ActionRequest actionRequest;
 
@@ -58,9 +66,90 @@ public class FunnelResponseExtrapolationVisitor implements ResponseVisitor<Actio
     }
 
     public ActionResponse visit(GroupResponse groupResponse) {
-        long extrapolationFactor = getExtrapolationFactor();
+        long extrapolationFactor = computeExtrapolationFactor();
         extrapolateGroupResponse(extrapolationFactor, groupResponse.getResult());
         return groupResponse;
+    }
+
+    public ActionResponse visit(HistogramResponse histogramResponse) {
+        HistogramRequest histogramRequest = (HistogramRequest) this.actionRequest;
+        List<Count> extrapolationFactors = computeExtrapolationFactors(histogramRequest.getTable(),
+                histogramRequest.getField(), histogramRequest.getPeriod());
+
+        // assuming order is preserved in histogramResponse and calculated extrapolation factors
+        if (CollectionUtils.isNotEmpty(histogramResponse.getCounts())
+                && histogramResponse.getCounts().size() == extrapolationFactors.size()) {
+            for (int i = 0; i < histogramResponse.getCounts().size(); i++) {
+                Count count = histogramResponse.getCounts().get(i);
+                count.setCount(count.getCount() * extrapolationFactors.get(i).getCount());
+            }
+        }
+        return histogramResponse;
+    }
+
+    // Extrapolation not applicable
+    public ActionResponse visit(QueryResponse queryResponse) {
+        return queryResponse;
+    }
+
+    public ActionResponse visit(StatsResponse statsResponse) {
+        long extrapolationFactor = computeExtrapolationFactor();
+        Map<String, Number> originalStats = statsResponse.getResult().getStats();
+        statsResponse.getResult().setStats(extrapolateStats(extrapolationFactor, originalStats));
+
+        List<BucketResponse<StatsValue>> buckets = statsResponse.getBuckets();
+        extrapolateStatsBuckets(extrapolationFactor, buckets);
+
+        return statsResponse;
+    }
+
+    public ActionResponse visit(StatsTrendResponse statsTrendResponse) {
+        StatsTrendRequest statsTrendRequest = (StatsTrendRequest) actionRequest;
+        List<Count> extrapolationFactors = computeExtrapolationFactors(statsTrendRequest.getTable(),
+                statsTrendRequest.getTimestamp(), statsTrendRequest.getPeriod());
+        if (CollectionUtils.isNotEmpty(statsTrendResponse.getResult())) {
+            statsTrendResponse.getResult().forEach(statsTrendValue -> {
+                if (CollectionUtils.isNotEmpty(statsTrendValue.getStats())
+                        && extrapolationFactors.size() == statsTrendValue.getStats().values().size()) {
+                    int i = 0;
+
+                    Map<String, Number> originalStats = statsTrendValue.getStats();
+                }
+            });
+        }
+        return statsTrendResponse;
+    }
+
+    public ActionResponse visit(TrendResponse trendResponse) {
+        return trendResponse;
+    }
+
+    public ActionResponse visit(CountResponse countResponse) {
+        long extrapolationFactor = computeExtrapolationFactor();
+        countResponse.setCount(countResponse.getCount() * extrapolationFactor);
+        return countResponse;
+    }
+
+    // Extrapolation not applicable
+    public ActionResponse visit(DistinctResponse distinctResponse) {
+        return distinctResponse;
+    }
+
+    public ActionResponse visit(MultiQueryResponse multiQueryResponse) {
+        MultiQueryRequest multiQueryRequest = (MultiQueryRequest) actionRequest;
+        if (CollectionUtils.isNotEmpty(multiQueryResponse.getResponses())) {
+            for (Map.Entry<String, ActionResponse> entry : multiQueryResponse.getResponses().entrySet()) {
+                FunnelResponseExtrapolationVisitor funnelResponseExtrapolationVisitor =
+                        new FunnelResponseExtrapolationVisitor(multiQueryRequest.getRequests().get(entry.getKey()),
+                                queryExecutor, funnelEventConfig);
+                entry.setValue(entry.getValue().accept(funnelResponseExtrapolationVisitor));
+            }
+        }
+        return multiQueryResponse;
+    }
+
+    public ActionResponse visit(MultiTimeQueryResponse multiTimeQueryResponse) {
+        return multiTimeQueryResponse;
     }
 
     private Map<String, Object> extrapolateGroupResponse(long extrapolationFactor,
@@ -74,30 +163,6 @@ public class FunnelResponseExtrapolationVisitor implements ResponseVisitor<Actio
             }
         }
         return groupResponseResult;
-    }
-
-    public ActionResponse visit(HistogramResponse histogramResponse) {
-        return histogramResponse;
-    }
-
-    // Extrapolation not applicable
-    public ActionResponse visit(QueryResponse queryResponse) {
-        return queryResponse;
-    }
-
-    public ActionResponse visit(StatsResponse statsResponse) {
-        long extrapolationFactor = getExtrapolationFactor();
-        Map<String, Number> originalStats = statsResponse.getResult().getStats();
-        statsResponse.getResult().setStats(extrapolateStats(extrapolationFactor, originalStats));
-
-        List<BucketResponse<StatsValue>> buckets = statsResponse.getBuckets();
-        extrapolateStatsBuckets(extrapolationFactor, buckets);
-
-        return statsResponse;
-    }
-
-    public ActionResponse visit(StatsTrendResponse statsTrendResponse) {
-        return statsTrendResponse;
     }
 
     private void extrapolateStatsBuckets(long extrapolationFactor, List<BucketResponse<StatsValue>> buckets) {
@@ -124,30 +189,7 @@ public class FunnelResponseExtrapolationVisitor implements ResponseVisitor<Actio
         return originalStats;
     }
 
-    public ActionResponse visit(TrendResponse trendResponse) {
-        return trendResponse;
-    }
-
-    public ActionResponse visit(CountResponse countResponse) {
-        long extrapolationFactor = getExtrapolationFactor();
-        countResponse.setCount(countResponse.getCount() * extrapolationFactor);
-        return countResponse;
-    }
-
-    // Extrapolation not applicable
-    public ActionResponse visit(DistinctResponse distinctResponse) {
-        return distinctResponse;
-    }
-
-    public ActionResponse visit(MultiQueryResponse multiQueryResponse) {
-        return multiQueryResponse;
-    }
-
-    public ActionResponse visit(MultiTimeQueryResponse multiTimeQueryResponse) {
-        return multiTimeQueryResponse;
-    }
-
-    private long extractFunnelId(ActionRequest actionRequest) {
+    private long extractFunnelId() {
         long funnelId = 0;
 
         // Extract funnel id if equals filter is applied on eventData.funnelInfo.funnelId
@@ -164,25 +206,28 @@ public class FunnelResponseExtrapolationVisitor implements ResponseVisitor<Actio
         } catch (NumberFormatException ex) {
             log.error("Error while extracting funnel id from action request : {} ", actionRequest, ex);
         }
-
         // TODO: Extract funnelId from eventType when funnelId is not given in filter
+
+        log.info("Extracted funnel id :{} from actionRequest: {}", funnelId, actionRequest);
         return funnelId;
     }
 
-    private long getExtrapolationFactor() {
-        long funnelId = extractFunnelId(actionRequest);
-        return funnelId == 0 ? 1 : computeExtrapolationFactor(funnelId,
-                actionRequest.accept(tableActionRequestVisitor));
-    }
+    private long computeExtrapolationFactor() {
+        long funnelId = extractFunnelId();
+        if (funnelId == 0) {
+            return 1;
+        }
 
-    private long computeExtrapolationFactor(long funnelId, String table) {
+        String table = actionRequest.accept(tableActionRequestVisitor);
         long totalBaseEventCount = getTotalBaseEventCount(table);
 
         long baseEventCountForFunnelId = getBaseEventCountForFunnelId(funnelId, table);
 
-        return (long) ((double) totalBaseEventCount / baseEventCountForFunnelId);
+        if (baseEventCountForFunnelId != 0) {
+            return (long) ((double) totalBaseEventCount / baseEventCountForFunnelId);
+        }
+        return 1;
     }
-
 
     private Number extrapolatedValue(String key, Number value, long extrapolationFactor) {
         switch (key) {
@@ -197,31 +242,100 @@ public class FunnelResponseExtrapolationVisitor implements ResponseVisitor<Actio
     }
 
     private long getBaseEventCountForFunnelId(long funnelId, String table) {
-        CountRequest countRequest = CountRequest.builder()
-                .table(table)
-                .field(funnelEventConfig.getEventType())
-                .build();
+        CountRequest countRequest = buildBaseEventCountRequest(table);
+
+        countRequest.getFilters().add(funnelIdFilter(funnelId));
+
+        return ((CountResponse) queryExecutor.execute(countRequest)).getCount();
+    }
+
+    private GreaterEqualFilter funnelIdFilter(long funnelId) {
         GreaterEqualFilter greaterEqualFilter = new GreaterEqualFilter();
         greaterEqualFilter.setField(FUNNEL_ID_QUERY_FIELD);
         greaterEqualFilter.setTemporal(false);
         greaterEqualFilter.setValue(funnelId);
-        List<Filter> temporalFilters = actionRequest.getFilters().stream()
-                .filter(Filter::isFilterTemporal)
-                .collect(Collectors.toList());
-        temporalFilters.add(greaterEqualFilter);
-        countRequest.setFilters(temporalFilters);
-        return ((CountResponse) queryExecutor.execute(countRequest)).getCount();
+        return greaterEqualFilter;
     }
 
     private long getTotalBaseEventCount(String table) {
-        CountRequest totalCountRequest = CountRequest.builder()
+        CountRequest totalCountRequest = buildBaseEventCountRequest(table);
+
+        return ((CountResponse) queryExecutor.execute(totalCountRequest)).getCount();
+    }
+
+    private CountRequest buildBaseEventCountRequest(String table) {
+        CountRequest countRequest = CountRequest.builder()
                 .table(table)
-                .field(funnelEventConfig.getEventType())
                 .build();
-        List<Filter> temporalFilters = actionRequest.getFilters().stream()
+
+        List<Filter> filters = baseEventFilter();
+
+        countRequest.setFilters(filters);
+
+        return countRequest;
+    }
+
+    private List<Filter> baseEventFilter() {
+        List<Filter> filters = actionRequest.getFilters()
+                .stream()
                 .filter(Filter::isFilterTemporal)
                 .collect(Collectors.toList());
-        totalCountRequest.setFilters(temporalFilters);
-        return ((CountResponse) queryExecutor.execute(totalCountRequest)).getCount();
+
+        EqualsFilter equalsFilter = new EqualsFilter(EVENT_TYPE, funnelEventConfig.getEventType());
+        filters.add(equalsFilter);
+        return filters;
+    }
+
+    private List<Count> computeExtrapolationFactors(String table, String field, Period period) {
+        List<Count> extrapolationFactors = new ArrayList<>();
+        long funnelId = extractFunnelId();
+        if (funnelId == 0) {
+            log.info("No funnel id present for actionRequest :{}, empty extrapolation factors for histogram",
+                    actionRequest);
+            return extrapolationFactors;
+        }
+
+        List<Count> totalBaseEventCounts = getTotalBaseEventCount(table, field, period).getCounts();
+        List<Count> baseEventCountsForFunnelId = getBaseEventCountForFunnelId(funnelId, table, field, period)
+                .getCounts();
+
+        if (totalBaseEventCounts.size() != baseEventCountsForFunnelId.size()) {
+            log.error("Counts different for total base event count and base event with "
+                    + "funnel id count for actionRequest :{}", actionRequest);
+            return extrapolationFactors;
+        }
+
+        List<Count> extrapolationCounts = new ArrayList<>();
+
+        // Assuming order is preserved in totalBaseEventCounts histogram response and
+        // baseEventCountsForFunnelId histogram response we can take ratio at same indices
+        for (int i = 0; i < totalBaseEventCounts.size(); i++) {
+            if (baseEventCountsForFunnelId.get(i).getCount() != 0) {
+                long extrapolationFactor = (long) ((double) totalBaseEventCounts.get(i).getCount()
+                        / baseEventCountsForFunnelId.get(i).getCount());
+                extrapolationCounts.add(new Count(totalBaseEventCounts.get(i).getPeriod(), extrapolationFactor));
+            } else {
+                extrapolationCounts.add(new Count(totalBaseEventCounts.get(i).getPeriod(), 1));
+            }
+        }
+        log.info("Calculated extrapolation counts: {} for actionRequest:{}", extrapolationCounts, actionRequest);
+        return extrapolationCounts;
+    }
+
+    private HistogramResponse getBaseEventCountForFunnelId(long funnelId, String table, String field, Period period) {
+        List<Filter> filters = baseEventFilter();
+        filters.add(funnelIdFilter(funnelId));
+
+        HistogramRequest histogramRequest = new HistogramRequest(filters, table, field, null, period);
+
+        return (HistogramResponse) queryExecutor.execute(histogramRequest);
+    }
+
+    private HistogramResponse getTotalBaseEventCount(String table, String field, Period period) {
+        List<Filter> filters = baseEventFilter();
+
+        HistogramRequest histogramRequest = new HistogramRequest(filters, table, field, null, period);
+
+        return (HistogramResponse) queryExecutor.execute(histogramRequest);
     }
 }
