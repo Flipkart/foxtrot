@@ -26,6 +26,7 @@ import com.flipkart.foxtrot.common.stats.StatsTrendRequest;
 import com.flipkart.foxtrot.common.stats.StatsTrendResponse;
 import com.flipkart.foxtrot.common.stats.StatsTrendValue;
 import com.flipkart.foxtrot.common.stats.StatsValue;
+import com.flipkart.foxtrot.common.trend.TrendRequest;
 import com.flipkart.foxtrot.common.trend.TrendResponse;
 import com.flipkart.foxtrot.core.funnel.config.BaseFunnelEventConfig;
 import com.flipkart.foxtrot.core.querystore.QueryExecutor;
@@ -119,29 +120,24 @@ public class FunnelResponseExtrapolationVisitor implements ResponseVisitor<Actio
         return statsTrendResponse;
     }
 
-    private void extrapolateStatsTrendBuckets(List<Count> extrapolationFactors,
-            List<BucketResponse<List<StatsTrendValue>>> buckets) {
-        if (CollectionUtils.isNotEmpty(buckets)) {
-            for (BucketResponse<List<StatsTrendValue>> bucketResponse : buckets) {
-                extrapolateStatsTrendValues(extrapolationFactors, bucketResponse.getResult());
-                extrapolateStatsTrendBuckets(extrapolationFactors, bucketResponse.getBuckets());
-            }
-        }
-    }
-
-    private void extrapolateStatsTrendValues(List<Count> extrapolationFactors, List<StatsTrendValue> statsTrendValues) {
-        if (CollectionUtils.isNotEmpty(statsTrendValues)
-                && extrapolationFactors.size() == statsTrendValues.size()) {
-            for (int i = 0; i < statsTrendValues.size(); i++) {
-                Map<String, Number> originalStats = statsTrendValues.get(i).getStats();
-                Map<String, Number> extrapolatedStats = extrapolateStats(extrapolationFactors.get(i).getCount(),
-                        originalStats);
-                statsTrendValues.get(i).setStats(extrapolatedStats);
-            }
-        }
-    }
-
     public ActionResponse visit(TrendResponse trendResponse) {
+        TrendRequest trendRequest = (TrendRequest) actionRequest;
+
+        List<Count> extrapolationFactors = computeExtrapolationFactors(trendRequest.getTable(),
+                trendRequest.getTimestamp(), trendRequest.getPeriod());
+        
+        if (CollectionUtils.isNotEmpty(trendResponse.getTrends())) {
+            trendResponse.getTrends().values().forEach(
+                    counts -> {
+                        if (counts.size() == extrapolationFactors.size()) {
+                            for (int i = 0; i < counts.size(); i++) {
+                                long originalCount = counts.get(i).getCount();
+                                counts.get(i).setCount(originalCount * extrapolationFactors.get(i).getCount());
+                            }
+                        }
+                    }
+            );
+        }
         return trendResponse;
     }
 
@@ -209,6 +205,30 @@ public class FunnelResponseExtrapolationVisitor implements ResponseVisitor<Actio
         }
         return originalStats;
     }
+
+
+    private void extrapolateStatsTrendBuckets(List<Count> extrapolationFactors,
+            List<BucketResponse<List<StatsTrendValue>>> buckets) {
+        if (CollectionUtils.isNotEmpty(buckets)) {
+            for (BucketResponse<List<StatsTrendValue>> bucketResponse : buckets) {
+                extrapolateStatsTrendValues(extrapolationFactors, bucketResponse.getResult());
+                extrapolateStatsTrendBuckets(extrapolationFactors, bucketResponse.getBuckets());
+            }
+        }
+    }
+
+    private void extrapolateStatsTrendValues(List<Count> extrapolationFactors, List<StatsTrendValue> statsTrendValues) {
+        if (CollectionUtils.isNotEmpty(statsTrendValues)
+                && extrapolationFactors.size() == statsTrendValues.size()) {
+            for (int i = 0; i < statsTrendValues.size(); i++) {
+                Map<String, Number> originalStats = statsTrendValues.get(i).getStats();
+                Map<String, Number> extrapolatedStats = extrapolateStats(extrapolationFactors.get(i).getCount(),
+                        originalStats);
+                statsTrendValues.get(i).setStats(extrapolatedStats);
+            }
+        }
+    }
+
 
     private long extractFunnelId() {
         long funnelId = 0;
