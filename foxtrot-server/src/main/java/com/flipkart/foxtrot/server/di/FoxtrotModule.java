@@ -133,7 +133,7 @@ public class FoxtrotModule extends AbstractModule {
         bind(new TypeLiteral<ActionRequestVisitor<String>>() {
         }).toInstance(new TableActionRequestVisitor());
         bind(FunnelService.class).annotatedWith(Names.named("FunnelServiceImplV1")).to(FunnelServiceImplV1.class);
-        bind(FunnelService.class).to(FunnelServiceImplV2.class);
+        bind(FunnelService.class).to(FunnelServiceImplV1.class);
         bind(FunnelStore.class).to(ElasticsearchFunnelStore.class);
         bind(EventProcessingService.class).to(EventProcessingServiceImpl.class);
         bind(QueryExecutor.class).annotatedWith(Names.named("SimpleQueryExecutor")).to(SimpleQueryExecutor.class);
