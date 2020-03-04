@@ -68,6 +68,26 @@ public class FunnelServiceImplV1 implements FunnelService {
         return funnel;
     }
 
+    @Override
+    public Funnel update(String documentId, Funnel funnel) {
+        Funnel savedFunnel = funnelStore.get(documentId);
+        validateFunnelUpdateRequest(savedFunnel);
+
+        if(isFunnelWaitingForApproval(savedFunnel)){
+            assignFunnelPercentage(funnel);
+
+            // set parameters which are not updatable
+            funnel.setDocumentId(documentId);
+            funnel.setCreatedAt(savedFunnel.getCreatedAt());
+            funnel.setId(savedFunnel.getId());
+            funnel.setFunnelStatus(savedFunnel.getFunnelStatus());
+            funnel.setDeleted(savedFunnel.isDeleted());
+
+            funnelStore.update(funnel);
+        }
+        return funnel;
+    }
+
     /*
         Assign funnel start and end percentage if not provided
      */
@@ -109,7 +129,7 @@ public class FunnelServiceImplV1 implements FunnelService {
             Funnel savedFunnel = funnelStore.get(documentId);
             validateFunnelUpdateRequest(savedFunnel);
 
-            if (UNASSIGNED_FUNNEL_ID.equals(savedFunnel.getId())) {
+            if (isFunnelWaitingForApproval(savedFunnel)) {
                 Funnel latestFunnel = funnelStore.getLatestFunnel();
                 if (latestFunnel == null) {
                     savedFunnel.setId(START_ID);
@@ -123,6 +143,11 @@ public class FunnelServiceImplV1 implements FunnelService {
             }
             return savedFunnel;
         };
+    }
+
+    private boolean isFunnelWaitingForApproval(Funnel savedFunnel) {
+        return UNASSIGNED_FUNNEL_ID.equals(savedFunnel.getId())
+                && WAITING_FOR_APPROVAL.equals(savedFunnel.getFunnelStatus());
     }
 
 

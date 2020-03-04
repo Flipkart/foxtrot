@@ -16,6 +16,7 @@ import com.flipkart.foxtrot.common.histogram.HistogramResponse.Count;
 import com.flipkart.foxtrot.common.query.Filter;
 import com.flipkart.foxtrot.common.query.MultiQueryRequest;
 import com.flipkart.foxtrot.common.query.MultiQueryResponse;
+import com.flipkart.foxtrot.common.query.MultiTimeQueryRequest;
 import com.flipkart.foxtrot.common.query.MultiTimeQueryResponse;
 import com.flipkart.foxtrot.common.query.QueryResponse;
 import com.flipkart.foxtrot.common.query.general.EqualsFilter;
@@ -166,6 +167,7 @@ public class FunnelResponseExtrapolationVisitor implements ResponseVisitor<Actio
     }
 
     public ActionResponse visit(MultiTimeQueryResponse multiTimeQueryResponse) {
+        MultiTimeQueryRequest multiTimeQueryRequest = (MultiTimeQueryRequest) this.actionRequest;
         return multiTimeQueryResponse;
     }
 
