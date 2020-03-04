@@ -60,8 +60,8 @@ public class FunnelResource {
     @PUT
     @Path("/{documentId}")
     @ApiOperation("Update Funnel via document id")
-    public Response approveFunnel(@PathParam("documentId") final String documentId, Funnel updatedFunnel) {
-        Funnel updatedFunnel = funnelService.approve(documentId);
+    public Response approveFunnel(@PathParam("documentId") final String documentId, Funnel funnel) {
+        Funnel updatedFunnel = funnelService.update(documentId, funnel);
         return Response.ok(updatedFunnel).build();
     }
 
