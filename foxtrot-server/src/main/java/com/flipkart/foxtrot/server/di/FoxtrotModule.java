@@ -25,7 +25,6 @@ import com.flipkart.foxtrot.core.email.messageformatting.impl.StrSubstitutorEmai
 import com.flipkart.foxtrot.core.email.messageformatting.impl.StrSubstitutorEmailSubjectBuilder;
 import com.flipkart.foxtrot.core.funnel.config.BaseFunnelEventConfig;
 import com.flipkart.foxtrot.core.funnel.config.FunnelConfiguration;
-import com.flipkart.foxtrot.core.funnel.config.FunnelDropdownConfig;
 import com.flipkart.foxtrot.core.funnel.persistence.ElasticsearchFunnelStore;
 import com.flipkart.foxtrot.core.funnel.persistence.FunnelStore;
 import com.flipkart.foxtrot.core.funnel.services.EventProcessingService;
@@ -34,7 +33,6 @@ import com.flipkart.foxtrot.core.funnel.services.FunnelExtrapolationService;
 import com.flipkart.foxtrot.core.funnel.services.FunnelExtrapolationServiceImpl;
 import com.flipkart.foxtrot.core.funnel.services.FunnelService;
 import com.flipkart.foxtrot.core.funnel.services.FunnelServiceImplV1;
-import com.flipkart.foxtrot.core.funnel.services.FunnelServiceImplV2;
 import com.flipkart.foxtrot.core.internalevents.InternalEventBus;
 import com.flipkart.foxtrot.core.internalevents.InternalEventBusConsumer;
 import com.flipkart.foxtrot.core.internalevents.impl.GuavaInternalEventBus;

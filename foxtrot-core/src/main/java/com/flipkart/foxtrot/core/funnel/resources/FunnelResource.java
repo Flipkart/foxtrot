@@ -53,6 +53,19 @@ public class FunnelResource {
     }
 
     /**
+     * Update Funnel, only WAITING_FOR_APPROVAL Funnel can be updated
+     *
+     * @param documentId
+     */
+    @PUT
+    @Path("/{documentId}")
+    @ApiOperation("Update Funnel via document id")
+    public Response approveFunnel(@PathParam("documentId") final String documentId, Funnel updatedFunnel) {
+        Funnel updatedFunnel = funnelService.approve(documentId);
+        return Response.ok(updatedFunnel).build();
+    }
+
+    /**
      * Approve Funnel, move status to APPROVED
      *
      * @param documentId
@@ -65,8 +78,9 @@ public class FunnelResource {
         return Response.ok(approvedFunnel).build();
     }
 
+
     /**
-     * Approve Funnel, move status to REJECTED
+     * Reject Funnel, move status to REJECTED and soft delete
      *
      * @param documentId
      */

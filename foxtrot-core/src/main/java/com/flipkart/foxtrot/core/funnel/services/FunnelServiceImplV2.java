@@ -43,6 +43,13 @@ public class FunnelServiceImplV2 implements FunnelService {
     }
 
     @Override
+    public Funnel update(String documentId, Funnel funnel) {
+        Funnel updatedFunnel = funnelService.update(documentId, funnel);
+        sendForApproval(updatedFunnel.getApproverEmailId(), updatedFunnel.getName(), updatedFunnel.getDesc());
+        return updatedFunnel;
+    }
+
+    @Override
     public Funnel approve(String documentId) {
         return funnelService.approve(documentId);
     }

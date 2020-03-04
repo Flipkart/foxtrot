@@ -10,6 +10,8 @@ public interface FunnelService {
 
     Funnel save(Funnel funnel);
 
+    Funnel update(String documentId, Funnel funnel);
+
     Funnel approve(String documentId);
 
     Funnel reject(String documentId);
