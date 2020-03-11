@@ -64,6 +64,8 @@ import static org.elasticsearch.index.query.QueryBuilders.*;
 @Data
 public class ElasticsearchQueryStore implements QueryStore {
 
+    public static final String ERROR_DELIMITER = "&&&";
+
     private static final Logger logger = LoggerFactory.getLogger(ElasticsearchQueryStore.class.getSimpleName());
     private static final String TABLE_META = "tableMeta";
     private static final String DATA_STORE = "dataStore";
@@ -222,6 +224,7 @@ public class ElasticsearchQueryStore implements QueryStore {
                         logger.error("Table : {} Failure Message : {} Document : {}", table,
                                      itemResponse.getFailureMessage(), failedDocument);
                         sb.append(itemResponse.getFailureMessage());
+                        sb.append(ERROR_DELIMITER);
                     }
                 }
                 if(sb != null){
