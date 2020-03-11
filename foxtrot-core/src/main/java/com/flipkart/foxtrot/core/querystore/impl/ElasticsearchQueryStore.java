@@ -211,15 +211,21 @@ public class ElasticsearchQueryStore implements QueryStore {
                 logger.info("QueryStoreTook:{}", stopwatch.elapsed(TimeUnit.MILLISECONDS));
                 MetricUtil.getInstance()
                         .registerActionSuccess(action, table, stopwatch.elapsed(TimeUnit.MILLISECONDS));
+                StringBuilder sb = null;
                 for (int i = 0; i < responses.getItems().length; i++) {
                     BulkItemResponse itemResponse = responses.getItems()[i];
                     if (itemResponse.isFailed()) {
+                        if(sb == null){
+                            sb = new StringBuilder();
+                        }
                         String failedDocument = mapper.writeValueAsString(documents.get(i));
                         logger.error("Table : {} Failure Message : {} Document : {}", table,
                                      itemResponse.getFailureMessage(), failedDocument);
-
-                        throw new RuntimeException(itemResponse.getFailureMessage());
+                        sb.append(itemResponse.getFailureMessage());
                     }
+                }
+                if(sb != null){
+                    throw new RuntimeException(sb.toString());
                 }
             }
         }
