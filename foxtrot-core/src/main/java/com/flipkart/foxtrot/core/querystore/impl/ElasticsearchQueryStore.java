@@ -218,6 +218,7 @@ public class ElasticsearchQueryStore implements QueryStore {
                         logger.error("Table : {} Failure Message : {} Document : {}", table,
                                      itemResponse.getFailureMessage(), failedDocument);
 
+                        throw new RuntimeException(itemResponse.getFailureMessage());
                     }
                 }
             }
