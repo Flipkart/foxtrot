@@ -243,7 +243,9 @@ public class ElasticsearchQueryStore implements QueryStore {
             throw FoxtrotExceptions.createExecutionException(table, e);
         } catch (Exception e) {
             logger.error("Error while saving documents to table: {}", table, e);
-            throw e;
+            MetricUtil.getInstance()
+                    .registerActionFailure(action, table, stopwatch.elapsed(TimeUnit.MILLISECONDS));
+            throw FoxtrotExceptions.createExecutionException(table, e);
         }
     }
 
