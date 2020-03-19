@@ -59,6 +59,7 @@ import java.util.concurrent.TimeoutException;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static com.flipkart.foxtrot.core.exception.FoxtrotExceptions.ERROR_DELIMITER;
 import static org.elasticsearch.index.query.QueryBuilders.*;
 
 /**
@@ -69,8 +70,6 @@ import static org.elasticsearch.index.query.QueryBuilders.*;
 @Data
 @Singleton
 public class ElasticsearchQueryStore implements QueryStore {
-
-    public static final String ERROR_DELIMITER = "&&&";
 
     private static final Logger logger = LoggerFactory.getLogger(ElasticsearchQueryStore.class.getSimpleName());
     private static final String TABLE_META = "tableMeta";
@@ -245,7 +244,7 @@ public class ElasticsearchQueryStore implements QueryStore {
             logger.error("Error while saving documents to table: {}", table, e);
             MetricUtil.getInstance()
                     .registerActionFailure(action, table, stopwatch.elapsed(TimeUnit.MILLISECONDS));
-            throw FoxtrotExceptions.createExecutionException(table, e);
+            throw e;
         }
     }
 
