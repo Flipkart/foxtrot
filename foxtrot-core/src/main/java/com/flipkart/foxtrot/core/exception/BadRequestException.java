@@ -2,13 +2,10 @@ package com.flipkart.foxtrot.core.exception;
 
 import com.google.common.collect.Maps;
 import lombok.Getter;
-import org.apache.commons.lang.StringUtils;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-
-import static com.flipkart.foxtrot.core.exception.FoxtrotExceptions.ERROR_DELIMITER;
 
 /**
  * Created by rishabh.goyal on 19/12/15.
@@ -35,7 +32,7 @@ public class BadRequestException extends FoxtrotException {
     public Map<String, Object> toMap() {
         Map<String, Object> map = Maps.newHashMap();
         map.put("table", this.table);
-        map.put("message", StringUtils.join(messages, ERROR_DELIMITER));
+        map.put("messages", this.messages);
         return map;
     }
 }
