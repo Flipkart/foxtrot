@@ -72,10 +72,10 @@
 
     <modules>
         <module>foxtrot-common</module>
-        <module>foxtrot-core</module>
-        <module>foxtrot-server</module>
-        <module>foxtrot-sql</module>
         <module>foxtrot-translator</module>
+        <module>foxtrot-core</module>
+        <module>foxtrot-sql</module>
+        <module>foxtrot-server</module>
     </modules>
 
     <repositories>
