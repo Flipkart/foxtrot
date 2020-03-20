@@ -17,20 +17,22 @@
 package com.flipkart.foxtrot.server.resources;
 
 import com.codahale.metrics.annotation.Timed;
+import com.flipkart.foxtrot.common.TableFieldMapping;
 import com.flipkart.foxtrot.core.querystore.QueryStore;
+import com.flipkart.foxtrot.core.table.TableManager;
+import com.flipkart.foxtrot.core.table.TableMetadataManager;
+import com.flipkart.foxtrot.server.utils.response.FoxtrotIndicesStatsResponse;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.elasticsearch.action.admin.cluster.health.ClusterHealthResponse;
 import org.elasticsearch.action.admin.cluster.node.stats.NodesStatsResponse;
-import org.elasticsearch.action.admin.indices.stats.IndicesStatsResponse;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import java.util.concurrent.ExecutionException;
+import java.util.stream.Collectors;
 
 /**
  * Created by swapnil on 20/01/16.
@@ -39,13 +41,19 @@ import java.util.concurrent.ExecutionException;
 @Path("/v1/clusterhealth")
 @Produces(MediaType.APPLICATION_JSON)
 @Api(value = "/v1/clusterhealth")
-@Singleton
 public class ClusterHealthResource {
-    private final QueryStore queryStore;
 
-    @Inject
-    public ClusterHealthResource(QueryStore queryStore) {
+    private final QueryStore queryStore;
+    private final TableManager tableManager;
+    private final TableMetadataManager tableMetadataManager;
+
+    public ClusterHealthResource(
+            QueryStore queryStore,
+            TableManager tableManager,
+            TableMetadataManager tableMetadataManager) {
         this.queryStore = queryStore;
+        this.tableManager = tableManager;
+        this.tableMetadataManager = tableMetadataManager;
     }
 
 
@@ -68,7 +76,17 @@ public class ClusterHealthResource {
     @Timed
     @Path("indicesstats")
     @ApiOperation("getIndicesStat")
-    public IndicesStatsResponse getIndicesStat() throws ExecutionException, InterruptedException {
-        return queryStore.getIndicesStats();
+    public FoxtrotIndicesStatsResponse getIndicesStat() throws ExecutionException, InterruptedException {
+        return FoxtrotIndicesStatsResponse.builder()
+                .indicesStatsResponse(queryStore.getIndicesStats())
+                .tableColumnCount(tableManager.getAll().stream()
+                                          .map(table -> tableMetadataManager.getFieldMappings(table.getName(),
+                                                                                              false,
+                                                                                              false))
+                                          .collect(Collectors.toMap(TableFieldMapping::getTable,
+                                                                    tableFieldMapping -> tableFieldMapping.getMappings()
+                                                                            .size()))
+                                 )
+                .build();
     }
 }

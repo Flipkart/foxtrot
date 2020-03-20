@@ -22,7 +22,7 @@ package com.flipkart.foxtrot.server;
  */
 
 public class App {
-    public static void main(String[] args) throws Exception {
+    public static void mai n(String[] args) throws Exception {
         FoxtrotServer foxtrotServer = new FoxtrotServer();
         foxtrotServer.run(args);
     }

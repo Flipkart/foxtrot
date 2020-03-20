@@ -11,7 +11,7 @@
     <groupId>com.flipkart.foxtrot</groupId>
     <artifactId>foxtrot</artifactId>
     <packaging>pom</packaging>
-    <version>6.3.1-3</version>
+    <version>6.3.1-7</version>
 
     <scm>
         <connection>scm:git:https://github.com/flipkart-incubator/foxtrot.git</connection>
@@ -58,7 +58,7 @@
         <elasticsearch.url>http://localhost:9200</elasticsearch.url>
         <lombok.version>1.16.16</lombok.version>
         <dropwizard.guicey.version>4.2.1</dropwizard.guicey.version>
-        <project.version>6.3.1-3</project.version>
+        <project.version>6.3.1-7</project.version>
         <es.container.version>1.0.4</es.container.version>
         <guava.version>24.1.1-jre</guava.version>
         <sonar.sources>src/main</sonar.sources>
@@ -165,7 +165,7 @@
         <profile>
             <id>local</id>
             <properties>
-                <project.version>6.3.1-3</project.version>
+                <project.version>6.3.1-7</project.version>
             </properties>
         </profile>
     </profiles>

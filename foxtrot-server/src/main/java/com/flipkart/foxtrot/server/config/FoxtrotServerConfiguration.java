@@ -73,8 +73,6 @@ public class FoxtrotServerConfiguration extends Configuration {
     @NotNull
     private boolean restrictAccess;
 
-    private GandalfConfiguration gandalfConfiguration;
-
     @Valid
     @Builder.Default
     private TextNodeRemoverConfiguration textNodeRemover = new TextNodeRemoverConfiguration();
