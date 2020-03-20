@@ -125,9 +125,8 @@ public class ElasticsearchQueryStore implements QueryStore {
             stopwatch.reset()
                     .start();
             final Table tableMeta = tableMetadataManager.get(table);
-            if(logger.isDebugEnabled()){
-                logger.debug("TableMetaGetTook:{}", stopwatch.elapsed(TimeUnit.MILLISECONDS));
-            }
+            logger.debug("TableMetaGetTook:{}", stopwatch.elapsed(TimeUnit.MILLISECONDS));
+
             MetricUtil.getInstance()
                     .registerActionSuccess(action, table, stopwatch.elapsed(TimeUnit.MILLISECONDS));
             stopwatch.reset()
@@ -135,9 +134,8 @@ public class ElasticsearchQueryStore implements QueryStore {
 
             action = DATA_STORE;
             final Document translatedDocument = dataStore.save(tableMeta, document);
-            if(logger.isDebugEnabled()){
-                logger.debug("DataStoreTook:{}", stopwatch.elapsed(TimeUnit.MILLISECONDS));
-            }
+            logger.debug("DataStoreTook:{}", stopwatch.elapsed(TimeUnit.MILLISECONDS));
+
             MetricUtil.getInstance()
                     .registerActionSuccess(action, table, stopwatch.elapsed(TimeUnit.MILLISECONDS));
             stopwatch.reset()
@@ -153,9 +151,8 @@ public class ElasticsearchQueryStore implements QueryStore {
                     .setSource(convert(table, translatedDocument))
                     .execute()
                     .get(2, TimeUnit.SECONDS);
-            if(logger.isDebugEnabled()){
-                logger.debug("QueryStoreTook:{}", stopwatch.elapsed(TimeUnit.MILLISECONDS));
-            }
+            logger.debug("QueryStoreTook:{}", stopwatch.elapsed(TimeUnit.MILLISECONDS));
+
             MetricUtil.getInstance()
                     .registerActionSuccess(action, table, stopwatch.elapsed(TimeUnit.MILLISECONDS));
         } catch (InterruptedException | ExecutionException | TimeoutException e) {
