@@ -186,6 +186,11 @@
             <artifactId>foxtrot-common</artifactId>
             <version>6.3.1-3</version>
         </dependency>
+        <dependency>
+            <groupId>com.flipkart.foxtrot</groupId>
+            <artifactId>foxtrot-translator</artifactId>
+            <version>6.3.1-3</version>
+        </dependency>
 
         <!-- Reflections for scanning classpath to get analytics providers-->
         <dependency>
