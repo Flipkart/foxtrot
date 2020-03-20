@@ -26,6 +26,7 @@ import com.flipkart.foxtrot.core.querystore.impl.CacheConfig;
 import com.flipkart.foxtrot.core.querystore.impl.ClusterConfig;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConfig;
 import com.flipkart.foxtrot.server.jobs.consolehistory.ConsoleHistoryConfig;
+import com.foxtrot.flipkart.translator.config.SegregationConfiguration;
 import io.dropwizard.Configuration;
 import lombok.Builder;
 import lombok.Data;
