@@ -55,10 +55,8 @@ public class ClusterHealthResourceTest extends FoxtrotResourceTest {
                 .target("/v1/clusterhealth")
                 .request()
                 .get(JsonNode.class);
-        Assert.assertEquals(1, response.get("numberOfNodes")
-                .asInt());
-        Assert.assertNotNull(response.get("indices")
-                                     .has("table-meta"));
+        Assert.assertTrue(response.get("numberOfNodes").asInt() > 0);
+        Assert.assertTrue(response.get("indices").has("table-meta"));
     }
 
     @Test
@@ -67,8 +65,7 @@ public class ClusterHealthResourceTest extends FoxtrotResourceTest {
                 .target("/v1/clusterhealth/nodestats")
                 .request()
                 .get(JsonNode.class);
-        Assert.assertEquals(1, response.path("nodesMap")
-                .size());
+        Assert.assertTrue(response.path("nodesMap").size() > 0);
     }
 
     @Ignore

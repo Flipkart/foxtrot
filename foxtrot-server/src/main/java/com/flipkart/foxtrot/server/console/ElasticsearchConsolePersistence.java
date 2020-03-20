@@ -33,6 +33,8 @@ import org.elasticsearch.search.sort.SortOrder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -42,6 +44,7 @@ import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
 import static org.elasticsearch.index.query.QueryBuilders.matchAllQuery;
 import static org.elasticsearch.search.sort.SortBuilders.fieldSort;
 
+@Singleton
 public class ElasticsearchConsolePersistence implements ConsolePersistence {
     private static final Logger logger = LoggerFactory.getLogger(ElasticsearchConsolePersistence.class);
     private static final String INDEX = "consoles";
@@ -54,6 +57,7 @@ public class ElasticsearchConsolePersistence implements ConsolePersistence {
     private ElasticsearchConnection connection;
     private ObjectMapper mapper;
 
+    @Inject
     public ElasticsearchConsolePersistence(ElasticsearchConnection connection, ObjectMapper mapper) {
         this.connection = connection;
         this.mapper = mapper;

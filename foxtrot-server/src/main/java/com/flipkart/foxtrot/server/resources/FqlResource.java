@@ -12,6 +12,8 @@ import com.google.common.base.Preconditions;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.StreamingOutput;
@@ -20,10 +22,12 @@ import java.util.List;
 
 @Path("/v1/fql")
 @Api(value = "/v1/fql", description = "FQL API")
+@Singleton
 public class FqlResource {
     private FqlEngine fqlEngine;
     private FqlStoreService fqlStoreService;
 
+    @Inject
     public FqlResource(final FqlEngine fqlEngine, final FqlStoreService fqlStoreService) {
         this.fqlEngine = fqlEngine;
         this.fqlStoreService = fqlStoreService;

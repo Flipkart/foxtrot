@@ -21,10 +21,12 @@ import org.elasticsearch.client.Client;
 import org.elasticsearch.client.transport.TransportClient;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.transport.TransportAddress;
-import org.elasticsearch.transport.client.PreBuiltTransportClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import ru.vyarus.dropwizard.guice.module.installer.order.Order;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.net.InetAddress;
 
 /**
@@ -32,11 +34,14 @@ import java.net.InetAddress;
  * Date: 14/03/14
  * Time: 12:38 AM
  */
+@Singleton
+@Order(5)
 public class ElasticsearchConnection implements Managed {
     private static final Logger logger = LoggerFactory.getLogger(ElasticsearchConnection.class.getSimpleName());
     private final ElasticsearchConfig config;
     private Client client;
 
+    @Inject
     public ElasticsearchConnection(ElasticsearchConfig config) {
         this.config = config;
     }
@@ -49,13 +54,11 @@ public class ElasticsearchConnection implements Managed {
                 .put("client.transport.ignore_cluster_name", true)
                 .build();
 
-        TransportClient esClient = new PreBuiltTransportClient(settings);
-        Integer port;
-        if(config.getPort() == null) {
-            port = 9300;
-        } else {
-            port = config.getPort();
-        }
+        TransportClient esClient = new CustomESTransportClient(settings);
+        final int port = config.getPort() == null
+            ? 9300
+            : config.getPort();
+
         for(String host : config.getHosts()) {
             String[] tokenizedHosts = host.split(",");
             for(String tokenizedHost : tokenizedHosts) {

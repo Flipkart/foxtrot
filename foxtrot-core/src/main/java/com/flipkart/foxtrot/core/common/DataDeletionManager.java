@@ -9,7 +9,10 @@ import net.javacrumbs.shedlock.core.LockingTaskExecutor;
 import net.javacrumbs.shedlock.provider.hazelcast.HazelcastLockProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import ru.vyarus.dropwizard.guice.module.installer.order.Order;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.time.Instant;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -17,7 +20,8 @@ import java.util.concurrent.TimeUnit;
 /**
  * Created by rishabh.goyal on 07/07/14.
  */
-
+@Singleton
+@Order(25)
 public class DataDeletionManager implements Managed {
 
     private static final int MAX_TIME_TO_RUN_TASK_IN_HOURS = 2;
@@ -28,6 +32,7 @@ public class DataDeletionManager implements Managed {
     private final ScheduledExecutorService scheduledExecutorService;
     private final HazelcastConnection hazelcastConnection;
 
+    @Inject
     public DataDeletionManager(DataDeletionManagerConfig deletionManagerConfig, QueryStore queryStore,
                                ScheduledExecutorService scheduledExecutorService, HazelcastConnection hazelcastConnection) {
         this.config = deletionManagerConfig;
