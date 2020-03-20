@@ -57,3 +57,10 @@ deletionconfig:
   active: false
   interval: 86400
   initialdelay: 60
+
+
+clusterRerouteConfig:
+  active: false
+  interval: 86400
+  initialDelay: 10
+  thresholdShardCountPercentage: 10

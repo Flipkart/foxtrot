@@ -16,18 +16,24 @@ import org.elasticsearch.action.admin.indices.stats.IndicesStatsResponse;
 import org.elasticsearch.cluster.routing.allocation.command.MoveAllocationCommand;
 import org.elasticsearch.index.shard.ShardId;
 import org.joda.time.DateTime;
+import ru.vyarus.dropwizard.guice.module.installer.order.Order;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.util.*;
 
 /***
  Created by mudit.g on Sep, 2019
  ***/
 @Slf4j
+@Singleton
+@Order(20)
 public class ClusterRerouteManager {
 
     private final ElasticsearchConnection connection;
     private final ClusterRerouteConfig clusterRerouteConfig;
 
+    @Inject
     public ClusterRerouteManager(ElasticsearchConnection connection, ClusterRerouteConfig clusterRerouteConfig) {
         this.connection = connection;
         this.clusterRerouteConfig = clusterRerouteConfig;

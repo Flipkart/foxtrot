@@ -7,7 +7,10 @@ import com.flipkart.foxtrot.core.datastore.impl.hbase.HbaseRegions;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.apache.hadoop.hbase.TableName;
+import ru.vyarus.dropwizard.guice.module.installer.order.Order;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import javax.validation.constraints.Min;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -22,10 +25,13 @@ import java.util.Map;
 @Path("/v1/hbase/regions")
 @Produces(MediaType.APPLICATION_JSON)
 @Api(value = "/v1/hbase/regions")
+@Singleton
+@Order(20)
 public class HbaseRegionsMergeResource {
 
     private HbaseRegions hbaseRegions;
 
+    @Inject
     public HbaseRegionsMergeResource(HbaseConfig hbaseConfig) {
         this.hbaseRegions = new HbaseRegions(hbaseConfig);
     }
