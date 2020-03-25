@@ -134,7 +134,7 @@ public class QueryExecutor {
             final ActionRequest request,
             final Action action) {
         final Cache cache = cacheManager.getCacheFor(request.getOpcode());
-        if (null != cache) {
+        if (null != cache && !request.isBypassCache()) {
             final String cacheKey = action.cacheKey();
             if (cache.has(cacheKey)) {
                 log.info("Cache hit for key: {}", cacheKey);
