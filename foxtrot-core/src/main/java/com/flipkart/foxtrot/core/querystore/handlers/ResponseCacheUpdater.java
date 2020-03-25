@@ -22,7 +22,7 @@ public class ResponseCacheUpdater implements ActionExecutionObserver {
             return;
         }
         final Cache cache = cacheManager.getCacheFor(response.getRequest().getOpcode());
-        if(null == cache) {
+        if(null == cache || response.getRequest().isBypassCache()) {
             return;
         }
         final String cacheKey = response.getExecutedAction().cacheKey();
