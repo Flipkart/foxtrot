@@ -34,7 +34,7 @@ import static com.flipkart.foxtrot.core.util.ElasticsearchQueryUtils.QUERY_SIZE;
  * Created by rishabh.goyal on 02/08/14.
  */
 
-@AnalyticsProvider(opcode = "stats", request = StatsRequest.class, response = StatsResponse.class, cacheable = false)
+@AnalyticsProvider(opcode = "stats", request = StatsRequest.class, response = StatsResponse.class, cacheable = true)
 public class StatsAction extends Action<StatsRequest> {
 
     private final ElasticsearchTuningConfig elasticsearchTuningConfig;
