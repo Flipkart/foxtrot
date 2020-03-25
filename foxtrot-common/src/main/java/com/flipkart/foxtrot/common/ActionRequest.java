@@ -33,6 +33,8 @@ public abstract class ActionRequest implements Serializable, Cloneable {
 
     private List<Filter> filters;
 
+    private boolean bypassCache;
+
     protected ActionRequest(String opcode) {
         this.opcode = opcode;
     }
@@ -55,6 +57,14 @@ public abstract class ActionRequest implements Serializable, Cloneable {
 
     public void setFilters(List<Filter> filters) {
         this.filters = filters;
+    }
+
+    public boolean isBypassCache() {
+        return bypassCache;
+    }
+
+    public void setBypassCache(boolean bypassCache) {
+        this.bypassCache = bypassCache;
     }
 
     public abstract <T> T accept(ActionRequestVisitor<T> var1);
