@@ -11,10 +11,19 @@
 
     <artifactId>foxtrot-server</artifactId>
 
+    <properties>
+        <dropwizard.jwt.auth.version>1.2.2-0</dropwizard.jwt.auth.version>
+    </properties>
+    
     <dependencies>
         <dependency>
             <groupId>io.dropwizard</groupId>
             <artifactId>dropwizard-core</artifactId>
+            <version>${dropwizard.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.dropwizard</groupId>
+            <artifactId>dropwizard-auth</artifactId>
             <version>${dropwizard.version}</version>
         </dependency>
         <dependency>
@@ -48,7 +57,21 @@
                 </exclusion>
             </exclusions>
         </dependency>
-
+        <dependency>
+            <groupId>com.github.toastshaman</groupId>
+            <artifactId>dropwizard-auth-jwt</artifactId>
+            <version>${dropwizard.jwt.auth.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>io.dropwizard</groupId>
+                    <artifactId>dropwizard-bom</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>io.dropwizard</groupId>
+                    <artifactId>dropwizard-auth</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
         <!-- Internal -->
         <dependency>
             <groupId>com.flipkart.foxtrot</groupId>

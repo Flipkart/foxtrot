@@ -1,0 +1,41 @@
+package com.flipkart.foxtrot.server.utils;
+
+import com.flipkart.foxtrot.server.auth.JwtConfig;
+import com.flipkart.foxtrot.server.auth.Token;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
+import lombok.SneakyThrows;
+import org.jose4j.jws.AlgorithmIdentifiers;
+import org.jose4j.jws.JsonWebSignature;
+import org.jose4j.jwt.JwtClaims;
+import org.jose4j.jwt.NumericDate;
+import org.jose4j.keys.HmacKey;
+
+import java.nio.charset.StandardCharsets;
+
+/**
+ *
+ */
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
+public class AuthUtils {
+    @SneakyThrows
+    public static String createJWT(final Token token, final JwtConfig jwtConfig) {
+        JwtClaims claims = new JwtClaims();
+        claims.setIssuer(jwtConfig.getIssuerId());
+        claims.setGeneratedJwtId();
+        claims.setIssuedAtToNow();
+        claims.setJwtId(token.getId());
+        claims.setNotBeforeMinutesInThePast(2);
+        claims.setSubject(token.getUserId());
+        claims.setAudience(token.getTokenType().name());
+        if(null != token.getExpiry()) {
+            claims.setExpirationTime(NumericDate.fromMilliseconds(token.getExpiry().getTime()));
+        }
+        JsonWebSignature jws = new JsonWebSignature();
+        jws.setPayload(claims.toJson());
+        final byte[] secretKey = jwtConfig.getPrivateKey().getBytes(StandardCharsets.UTF_8);
+        jws.setKey(new HmacKey(secretKey));
+        jws.setAlgorithmHeaderValue(AlgorithmIdentifiers.HMAC_SHA512);
+        return jws.getCompactSerialization();
+    }
+}
