@@ -200,8 +200,3 @@ curl -H 'Content-type: application/json' -XPUT "http://${1}:9200/table-meta/" -d
         }
     }
 }'
-
-curl -H 'Content-type: application/json' -XPOST "http://${1}:17000/foxtrot/v1/tables" -d '{
-        "name" : "test",  "ttl" : 30, "seggregatedBackend" : true
-    }
-}'
