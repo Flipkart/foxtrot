@@ -113,15 +113,14 @@ curl -H 'Content-type: application/json' -XPUT ${1}:9200/_template/console_v2 -d
 {
   "template": "consoles_v2*",
   "settings": {
-            "index": {
-                "number_of_shards": "1",
-                "number_of_replicas": "1"
-            }
-        },
+    "index": {
+      "number_of_shards": "1",
+      "number_of_replicas": "1"
+    }
+  },
   "mappings": {
     "document": {
       "dynamic_templates": [
-
         {
           "template_object_store_analyzed": {
             "match": "*",
@@ -157,7 +156,18 @@ curl -H 'Content-type: application/json' -XPUT ${1}:9200/_template/console_v2 -d
             }
           }
         }
-      ]
+      ],
+      "properties": {
+        "name": {
+          "type": "text",
+          "fields": {
+            "raw": {
+              "type": "keyword",
+              "ignore_above": 256
+            }
+          }
+        }
+      }
     }
   }
 }'
@@ -188,5 +198,10 @@ curl -H 'Content-type: application/json' -XPUT "http://${1}:9200/table-meta/" -d
             "number_of_shards" : 1,
             "number_of_replicas" : 0
         }
+    }
+}'
+
+curl -H 'Content-type: application/json' -XPOST "http://${1}:17000/foxtrot/v1/tables" -d '{
+        "name" : "test",  "ttl" : 30, "seggregatedBackend" : true
     }
 }'
