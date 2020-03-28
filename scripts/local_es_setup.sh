@@ -113,14 +113,15 @@ curl -H 'Content-type: application/json' -XPUT ${1}:9200/_template/console_v2 -d
 {
   "template": "consoles_v2*",
   "settings": {
-    "index": {
-      "number_of_shards": "1",
-      "number_of_replicas": "1"
-    }
-  },
+            "index": {
+                "number_of_shards": "1",
+                "number_of_replicas": "1"
+            }
+        },
   "mappings": {
     "document": {
       "dynamic_templates": [
+
         {
           "template_object_store_analyzed": {
             "match": "*",
