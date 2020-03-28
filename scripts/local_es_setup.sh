@@ -172,6 +172,16 @@ curl -H 'Content-type: application/json' -XPUT "http://${1}:9200/consoles/" -d '
     }
 }'
 
+curl -H 'Content-type: application/json' -XPUT "http://${1}:9200/consoles_v2/" -d '{
+    "settings" : {
+        "index" : {
+            "number_of_shards" : 1,
+            "number_of_replicas" : 0
+        }
+    }
+}'
+
+
 curl -H 'Content-type: application/json' -XPUT "http://${1}:9200/table-meta/" -d '{
     "settings" : {
         "index" : {
