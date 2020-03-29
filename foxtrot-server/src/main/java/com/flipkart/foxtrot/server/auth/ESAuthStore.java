@@ -11,6 +11,7 @@ import org.elasticsearch.action.delete.DeleteRequest;
 import org.elasticsearch.action.get.GetRequest;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.support.WriteRequest;
+import org.elasticsearch.common.xcontent.XContentType;
 import org.elasticsearch.rest.RestStatus;
 
 import javax.inject.Inject;
@@ -91,7 +92,7 @@ public class ESAuthStore implements AuthStore {
         final String tokenId = UUID.randomUUID().toString();
         val saveStatus = connection.getClient()
                 .index(new IndexRequest(TOKENS_INDEX)
-                               .source(mapper.writeValueAsString(new Token(tokenId, tokenType, userId, expiry)))
+                               .source(mapper.writeValueAsString(new Token(tokenId, tokenType, userId, expiry)), XContentType.JSON)
                                .id(userId)
                                .type("TOKEN")
                                .create(true)
@@ -131,7 +132,7 @@ public class ESAuthStore implements AuthStore {
     private RestStatus saveUser(User user, DocWriteRequest.OpType opType) throws JsonProcessingException {
         return connection.getClient()
                 .index(new IndexRequest(USERS_INDEX)
-                               .source(mapper.writeValueAsString(user))
+                               .source(mapper.writeValueAsString(user), XContentType.JSON)
                                .id(user.getId())
                                .type("USER")
                                .opType(opType)

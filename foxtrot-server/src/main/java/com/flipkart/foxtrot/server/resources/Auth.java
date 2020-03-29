@@ -5,6 +5,7 @@ import com.flipkart.foxtrot.core.auth.User;
 import com.flipkart.foxtrot.server.auth.AuthConfig;
 import com.flipkart.foxtrot.server.auth.AuthStore;
 import com.flipkart.foxtrot.server.auth.TokenType;
+import com.flipkart.foxtrot.server.auth.io.CreateUserRequest;
 import com.flipkart.foxtrot.server.utils.AuthUtils;
 import io.swagger.annotations.Api;
 import lombok.val;
@@ -18,6 +19,7 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.Collections;
+import java.util.Date;
 
 /**
  *
@@ -38,7 +40,9 @@ public class Auth {
     @POST
     @Path("/users")
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response provisionUser(@NotNull @Valid final User user) {
+    public Response provisionUser(@NotNull @Valid final CreateUserRequest createUserRequest) {
+        val user = new User(createUserRequest.getId(), createUserRequest.getRoles(), createUserRequest.getTables(),
+                            new Date(), new Date());
         return Response.ok(authProvider.get().provision(user)).build();
     }
 
