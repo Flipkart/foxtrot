@@ -157,7 +157,18 @@ curl -H 'Content-type: application/json' -XPUT ${1}:9200/_template/console_v2 -d
             }
           }
         }
-      ]
+      ],
+      "properties": {
+        "name": {
+          "type": "text",
+          "fields": {
+            "raw": {
+              "type": "keyword",
+              "ignore_above": 256
+            }
+          }
+        }
+      }
     }
   }
 }'
@@ -171,6 +182,16 @@ curl -H 'Content-type: application/json' -XPUT "http://${1}:9200/consoles/" -d '
         }
     }
 }'
+
+curl -H 'Content-type: application/json' -XPUT "http://${1}:9200/consoles_v2/" -d '{
+    "settings" : {
+        "index" : {
+            "number_of_shards" : 1,
+            "number_of_replicas" : 0
+        }
+    }
+}'
+
 
 curl -H 'Content-type: application/json' -XPUT "http://${1}:9200/table-meta/" -d '{
     "settings" : {
