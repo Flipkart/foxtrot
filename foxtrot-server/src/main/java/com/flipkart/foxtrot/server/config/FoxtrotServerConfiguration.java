@@ -25,6 +25,7 @@ import com.flipkart.foxtrot.core.jobs.optimization.EsIndexOptimizationConfig;
 import com.flipkart.foxtrot.core.querystore.impl.CacheConfig;
 import com.flipkart.foxtrot.core.querystore.impl.ClusterConfig;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConfig;
+import com.flipkart.foxtrot.server.auth.AuthConfig;
 import com.flipkart.foxtrot.server.jobs.consolehistory.ConsoleHistoryConfig;
 import com.foxtrot.flipkart.translator.config.SegregationConfiguration;
 import io.dropwizard.Configuration;
@@ -78,6 +79,10 @@ public class FoxtrotServerConfiguration extends Configuration {
     @Valid
     @Builder.Default
     private TextNodeRemoverConfiguration textNodeRemover = new TextNodeRemoverConfiguration();
+
+    @Valid
+    @NotNull
+    private AuthConfig auth;
 
     public FoxtrotServerConfiguration() {
         this.hbase = new HbaseConfig();

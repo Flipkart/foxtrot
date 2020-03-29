@@ -34,6 +34,7 @@ import com.flipkart.foxtrot.core.table.TableManager;
 import com.flipkart.foxtrot.core.table.TableMetadataManager;
 import com.flipkart.foxtrot.core.table.impl.DistributedTableMetadataManager;
 import com.flipkart.foxtrot.core.table.impl.FoxtrotTableManager;
+import com.flipkart.foxtrot.server.auth.*;
 import com.flipkart.foxtrot.server.config.FoxtrotServerConfiguration;
 import com.flipkart.foxtrot.server.console.ConsolePersistence;
 import com.flipkart.foxtrot.server.console.ElasticsearchConsolePersistence;
@@ -41,22 +42,32 @@ import com.flipkart.foxtrot.server.jobs.consolehistory.ConsoleHistoryConfig;
 import com.flipkart.foxtrot.sql.fqlstore.FqlStoreService;
 import com.flipkart.foxtrot.sql.fqlstore.FqlStoreServiceImpl;
 import com.foxtrot.flipkart.translator.config.SegregationConfiguration;
+import com.google.common.cache.CacheBuilderSpec;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
 import com.google.inject.TypeLiteral;
+import io.dropwizard.auth.Authenticator;
+import io.dropwizard.auth.Authorizer;
+import io.dropwizard.auth.CachingAuthenticator;
 import io.dropwizard.server.ServerFactory;
 import io.dropwizard.setup.Environment;
 import io.dropwizard.util.Duration;
+import org.apache.hadoop.conf.Configuration;
+import org.jose4j.jwa.AlgorithmConstraints;
+import org.jose4j.jws.AlgorithmIdentifiers;
+import org.jose4j.jwt.consumer.JwtConsumer;
+import org.jose4j.jwt.consumer.JwtConsumerBuilder;
+import org.jose4j.jwt.consumer.JwtContext;
+import org.jose4j.keys.HmacKey;
 
-import java.io.IOException;
-import java.util.Set;
 import javax.inject.Singleton;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ScheduledExecutorService;
-import org.apache.hadoop.conf.Configuration;
 
 
 /**
@@ -87,8 +98,11 @@ public class FoxtrotModule extends AbstractModule {
                 .to(StrSubstitutorEmailBodyBuilder.class);
         bind(TableManager.class)
                 .to(FoxtrotTableManager.class);
-        bind(new TypeLiteral<List<HealthCheck>>() {
-        }).toProvider(HealthcheckListProvider.class);
+        bind(new TypeLiteral<List<HealthCheck>>() {}).toProvider(HealthcheckListProvider.class);
+        bind(AuthStore.class)
+                .to(ESAuthStore.class);
+        bind(new TypeLiteral<Authorizer<UserPrincipal>>() {})
+                .to(RoleAuthorizer.class);
     }
 
     @Provides
@@ -212,5 +226,39 @@ public class FoxtrotModule extends AbstractModule {
     @Singleton
     public ServerFactory serverFactory(FoxtrotServerConfiguration configuration) {
         return configuration.getServerFactory();
+    }
+
+    @Provides
+    @Singleton
+    public AuthConfig authConfig(FoxtrotServerConfiguration serverConfiguration) {
+        return serverConfiguration.getAuth();
+    }
+
+    @Provides
+    @com.google.inject.Singleton
+    public JwtConsumer provideJwtConsumer(AuthConfig config) {
+        final JwtConfig jwtConfig = config.getJwt();
+        final byte[] secretKey = jwtConfig.getPrivateKey().getBytes(StandardCharsets.UTF_8);
+        return new JwtConsumerBuilder()
+                .setRequireIssuedAt()
+                .setRequireSubject()
+                .setExpectedIssuer(jwtConfig.getIssuerId())
+                .setVerificationKey(new HmacKey(secretKey))
+                .setJwsAlgorithmConstraints(new AlgorithmConstraints(
+                        AlgorithmConstraints.ConstraintType.WHITELIST,
+                        AlgorithmIdentifiers.HMAC_SHA512))
+                .build();
+    }
+
+    @Provides
+    @Singleton
+    public Authenticator<JwtContext, UserPrincipal> authenticator(
+            final Environment environment,
+            final TokenAuthenticator authenticator,
+            final AuthConfig authConfig) {
+        return new CachingAuthenticator<>(
+                environment.metrics(),
+                authenticator,
+                CacheBuilderSpec.parse(authConfig.getJwt().getAuthCachePolicy()));
     }
 }

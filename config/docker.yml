@@ -57,3 +57,8 @@ consoleHistoryConfig:
   interval: 86400
   initialDelay: 10
 
+auth:
+  disabled: false
+  jwt:
+    issuerId: foxtrot-server
+    privateKey: "6/Qh1eLvF7cGJEgH1wIMYErIpi0d8Kqt5wHKw/o5iFbhfziKiux03HfFihO2+f5FKpsjk1D7UmgdAWQsY966WkyAsyo22m4g+C+rNCwMUD/UM2qop7JZBDEkgWpwK8jpxOTpYUnaNsiBaBsadoZCQ+Ns/d8RrS7QPAW+1PETbdFfo+fPW0/Sm8RUmMKkc9jJ6bhuSpFH3q/bWoyPZnj7geYQQIkgmQv9jXaszw=="
