@@ -24,10 +24,11 @@ import java.util.Map;
  ***/
 public class Constants {
 
-    public static final Map<String, String> RAW_KEY_VERSION_TO_SUFFIX_MAP = ImmutableMap.<String, String>builder().put(
+    public static final Map<String, String> RAW_KEY_VERSION_TO_SUFFIX_MAP = ImmutableMap.<String, String>of(
             "2.0",
-            "__RAW_KEY_VERSION_2__")
-            .build();
+            "__RAW_KEY_VERSION_2__",
+            "3.0",
+            "__RAW_KEY_VERSION_3__");
 
     private Constants() {
     }

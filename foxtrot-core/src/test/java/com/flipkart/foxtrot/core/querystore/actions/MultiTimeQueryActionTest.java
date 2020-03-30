@@ -11,11 +11,14 @@ import com.flipkart.foxtrot.core.exception.FoxtrotException;
 import io.dropwizard.util.Duration;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.*;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.mockito.Mockito.when;
 
 /***
  Created by mudit.g on Mar, 2019

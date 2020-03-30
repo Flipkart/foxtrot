@@ -84,7 +84,7 @@ public class TestUtils {
 
     public static DataStore getDataStore(HbaseTableConnection tableConnection) throws FoxtrotException {
         HBaseDataStore hBaseDataStore = new HBaseDataStore(tableConnection, new ObjectMapper(),
-                new DocumentTranslator(TestUtils.createHBaseConfigWithRawKeyV2())
+                new DocumentTranslator(TestUtils.createTranslatorConfigWithRawKeyV2())
         );
         hBaseDataStore = spy(hBaseDataStore);
         return hBaseDataStore;
