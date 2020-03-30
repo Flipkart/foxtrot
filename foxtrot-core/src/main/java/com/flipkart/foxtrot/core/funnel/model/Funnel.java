@@ -1,19 +1,19 @@
 package com.flipkart.foxtrot.core.funnel.model;
 
-import static com.collections.CollectionUtils.nullAndEmptySafeValueList;
-import static com.collections.CollectionUtils.nullSafeMap;
-
 import com.collections.CollectionUtils;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.flipkart.foxtrot.core.funnel.model.enums.FunnelStatus;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import javax.validation.constraints.Min;
-import javax.validation.constraints.NotNull;
 import lombok.Builder;
 import lombok.Data;
 import org.hibernate.validator.constraints.NotBlank;
+
+import javax.validation.constraints.NotNull;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+
+import static com.collections.CollectionUtils.nullAndEmptySafeValueList;
+import static com.collections.CollectionUtils.nullSafeMap;
 
 /***
  Created by nitish.goyal on 25/09/18
@@ -45,7 +45,6 @@ public class Funnel {
     @NotNull
     private List<EventAttributes> eventAttributes;
 
-    @NotBlank
     private String creatorEmailId;
 
     @NotBlank
@@ -63,10 +62,11 @@ public class Funnel {
 
 
     /**
-     *  Funnels are similar if
-     *  1. all fieldVsValues entries are same
-     *  2. all eventAttributes are same
-      * @param funnel {@link Funnel}
+     * Funnels are similar if
+     * 1. all fieldVsValues entries are same
+     * 2. all eventAttributes are same
+     *
+     * @param funnel {@link Funnel}
      * @return boolean
      */
     public boolean isSimilar(Funnel funnel) {
@@ -77,6 +77,7 @@ public class Funnel {
             for (Map.Entry<String, List<String>> field : nullSafeMap(funnel.getFieldVsValues()).entrySet()) {
                 if (!CollectionUtils.listEquals(field.getValue(), fieldVsValues.get(field.getKey()))) {
                     similarFunnel = false;
+                    break;
                 }
             }
             for (EventAttributes existingEventAttribute : nullAndEmptySafeValueList(funnel.getEventAttributes())) {
