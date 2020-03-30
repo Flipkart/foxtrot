@@ -5,6 +5,7 @@ import ch.qos.logback.classic.Logger;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.flipkart.foxtrot.common.Table;
 import com.flipkart.foxtrot.core.TestUtils;
+import com.flipkart.foxtrot.core.datastore.impl.hbase.HbaseTableConnection;
 import com.flipkart.foxtrot.core.email.EmailConfig;
 import com.flipkart.foxtrot.core.cache.CacheManager;
 import com.flipkart.foxtrot.core.cache.impl.DistributedCacheFactory;
@@ -68,6 +69,9 @@ public abstract class ActionTest {
     @Getter
     private static CacheManager cacheManager;
 
+    @Getter
+    private static HbaseTableConnection tableConnection;
+
     @BeforeClass
     public static void setupClass() throws Exception {
         hazelcastInstance = new TestHazelcastInstanceFactory(1).newHazelcastInstance(new Config());
@@ -94,7 +98,8 @@ public abstract class ActionTest {
         List<IndexerEventMutator> mutators = Lists.newArrayList(new LargeTextNodeRemover(mapper,
 
                                                                                          TextNodeRemoverConfiguration.builder().build()));
-        DataStore dataStore = TestUtils.getDataStore();
+        tableConnection = Mockito.mock(HbaseTableConnection.class);
+        DataStore dataStore = TestUtils.getDataStore(tableConnection);
         queryStore = new ElasticsearchQueryStore(tableMetadataManager, elasticsearchConnection, dataStore, mutators, mapper, cardinalityConfig);
         cacheManager = new CacheManager(new DistributedCacheFactory(hazelcastConnection, mapper, new CacheConfig()));
         AnalyticsLoader analyticsLoader = new AnalyticsLoader(tableMetadataManager,
