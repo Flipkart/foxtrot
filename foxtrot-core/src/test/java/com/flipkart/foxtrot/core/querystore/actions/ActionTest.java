@@ -4,6 +4,7 @@ import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.flipkart.foxtrot.common.Table;
+import com.flipkart.foxtrot.core.MockHTable;
 import com.flipkart.foxtrot.core.TestUtils;
 import com.flipkart.foxtrot.core.datastore.impl.hbase.HbaseTableConnection;
 import com.flipkart.foxtrot.core.email.EmailConfig;
@@ -31,7 +32,9 @@ import com.hazelcast.test.TestHazelcastInstanceFactory;
 import lombok.Getter;
 import org.joda.time.DateTimeZone;
 import org.junit.AfterClass;
+import org.junit.Before;
 import org.junit.BeforeClass;
+import org.mockito.Matchers;
 import org.mockito.Mockito;
 import org.slf4j.LoggerFactory;
 
@@ -119,6 +122,12 @@ public abstract class ActionTest {
         hazelcastInstance.shutdown();
         ElasticsearchTestUtils.cleanupIndices(elasticsearchConnection);
         elasticsearchConnection.stop();
+    }
+
+    @Before
+    public void setup() throws Exception {
+        doReturn(MockHTable.create()).when(getTableConnection())
+                .getTable(Matchers.any());
     }
 
 }

@@ -27,7 +27,6 @@ public class DocumentTranslator {
     private final AbstractRowKeyDistributor keyDistributor;
     private String rawKeyVersion;
 
-    @Inject
     public DocumentTranslator(TranslatorConfig translatorConfig) {
         if (CollectionUtils.isNullOrEmpty(translatorConfig.getRawKeyVersion()) || translatorConfig.getRawKeyVersion()
                 .equalsIgnoreCase("1.0")) {

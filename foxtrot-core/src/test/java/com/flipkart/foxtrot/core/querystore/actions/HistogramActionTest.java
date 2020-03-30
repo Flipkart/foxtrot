@@ -26,7 +26,7 @@ import com.flipkart.foxtrot.common.query.numeric.LessThanFilter;
 import com.flipkart.foxtrot.core.TestUtils;
 import com.flipkart.foxtrot.core.exception.FoxtrotException;
 import com.google.common.collect.Lists;
-import org.junit.BeforeClass;
+import org.junit.Before;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -40,8 +40,9 @@ import static org.junit.Assert.assertTrue;
  */
 public class HistogramActionTest extends ActionTest {
 
-    @BeforeClass
-    public static void setUp() throws Exception {
+    @Before
+    public void setUp() throws Exception {
+        super.setup();
         List<Document> documents = TestUtils.getHistogramDocuments(getMapper());
         getQueryStore().save(TestUtils.TEST_TABLE_NAME, documents);
         getElasticsearchConnection().getClient()
@@ -75,7 +76,7 @@ public class HistogramActionTest extends ActionTest {
         counts.add(new HistogramResponse.Count(1398653100000L, 2));
         counts.add(new HistogramResponse.Count(1398658200000L, 1));
         assertTrue(response.getCounts()
-                           .equals(counts));
+                .equals(counts));
     }
 
     private void filterNonZeroCounts(HistogramResponse response) {
@@ -156,7 +157,7 @@ public class HistogramActionTest extends ActionTest {
         counts.add(new HistogramResponse.Count(1397957400000L, 1));
         counts.add(new HistogramResponse.Count(1398655800000L, 1));
         assertTrue(response.getCounts()
-                           .equals(counts));
+                .equals(counts));
     }
 
     @Test
@@ -202,6 +203,6 @@ public class HistogramActionTest extends ActionTest {
         counts.add(new HistogramResponse.Count(1397932200000L, 1));
         counts.add(new HistogramResponse.Count(1398623400000L, 1));
         assertTrue(response.getCounts()
-                           .equals(counts));
+                .equals(counts));
     }
 }

@@ -28,6 +28,7 @@ import com.flipkart.foxtrot.core.querystore.impl.ClusterConfig;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConfig;
 import com.flipkart.foxtrot.core.reroute.ClusterRerouteConfig;
 import com.flipkart.foxtrot.server.jobs.consolehistory.ConsoleHistoryConfig;
+import com.foxtrot.flipkart.translator.config.TranslatorConfig;
 import com.phonepe.gandalf.models.client.GandalfClientConfig;
 import io.appform.dropwizard.discovery.bundle.ServiceDiscoveryConfiguration;
 import com.foxtrot.flipkart.translator.config.SegregationConfiguration;
@@ -103,6 +104,8 @@ public class FoxtrotServerConfiguration extends Configuration {
     private ClusterRerouteConfig clusterRerouteConfig;
 
     private ElasticsearchTuningConfig elasticsearchTuningConfig;
+
+    private TranslatorConfig translatorConfig;
 
     public FoxtrotServerConfiguration() {
         this.hbase = new HbaseConfig();
