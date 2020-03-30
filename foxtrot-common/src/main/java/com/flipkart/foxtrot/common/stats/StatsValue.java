@@ -1,8 +1,8 @@
 package com.flipkart.foxtrot.common.stats;
 
-import lombok.NoArgsConstructor;
-
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import java.util.Map;
+import lombok.NoArgsConstructor;
 
 /**
  * Created by rishabh.goyal on 24/08/14.
@@ -11,6 +11,8 @@ import java.util.Map;
 public class StatsValue {
 
     private Map<String, Number> stats;
+
+    @JsonDeserialize(keyUsing = StatsValueDeserializer.class)
     private Map<Number, Number> percentiles;
 
     public Map<String, Number> getStats() {
