@@ -42,7 +42,7 @@ public class HbaseConfig {
     @Max(Byte.MAX_VALUE)
     private short numBuckets = 32;
 
-    private String rawKeyVersion = "3.0";
+    private String rawKeyVersion = "2.0";
 
     @NotNull
     @NotEmpty

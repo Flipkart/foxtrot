@@ -9,7 +9,7 @@ server:
 elasticsearch:
   hosts:
   - stg-els601.phonepe.nm2
-  cluster: prd-es6xx
+  cluster: foxtrot
   tableNamePrefix: foxtrot
   getQueryTimeout: 10000
 
@@ -105,7 +105,7 @@ gandalfConfig:
     enabled: true
 
 primerBundleConfiguration:
-  enabled: true
+  enabled: false
   authTypesEnabled:
     CONFIG: false
     ANNOTATION: true

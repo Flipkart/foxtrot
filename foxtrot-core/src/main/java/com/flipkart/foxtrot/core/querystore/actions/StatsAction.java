@@ -38,7 +38,7 @@ import org.elasticsearch.search.aggregations.metrics.percentiles.Percentiles;
  * Created by rishabh.goyal on 02/08/14.
  */
 
-@AnalyticsProvider(opcode = "stats", request = StatsRequest.class, response = StatsResponse.class, cacheable = false)
+@AnalyticsProvider(opcode = "stats", request = StatsRequest.class, response = StatsResponse.class, cacheable = true)
 public class StatsAction extends Action<StatsRequest> {
 
     private final ElasticsearchTuningConfig elasticsearchTuningConfig;

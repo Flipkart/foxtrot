@@ -5,7 +5,7 @@
     <parent>
         <artifactId>foxtrot</artifactId>
         <groupId>com.flipkart.foxtrot</groupId>
-        <version>6.3.1-38-SNAPSHOT</version>
+        <version>6.3.1-57</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <artifactId>foxtrot-server</artifactId>
@@ -152,7 +152,8 @@
                         <artifactId>docker-maven-plugin</artifactId>
                         <version>0.4.10</version>
                         <configuration>
-                            <imageName>docker.phonepe.com:5000/foxtrot:${project.version}</imageName>
+                            <imageName>docker.phonepe.com:5000/foxtrot:${project.version}
+                            </imageName>
                             <dockerDirectory>${project.basedir}/..</dockerDirectory>
                             <registryUrl>http://docker.phonepe.com:5000/</registryUrl>
                         </configuration>
@@ -220,6 +221,13 @@
                         </configuration>
                     </execution>
                 </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-deploy-plugin</artifactId>
+                <configuration>
+                    <skip>true</skip>
+                </configuration>
             </plugin>
         </plugins>
     </build>

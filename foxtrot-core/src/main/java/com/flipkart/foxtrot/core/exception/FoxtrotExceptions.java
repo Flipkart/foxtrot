@@ -10,6 +10,8 @@ import java.util.List;
  */
 public class FoxtrotExceptions {
 
+    public static final String ERROR_DELIMITER = "&&&";
+
     private FoxtrotExceptions() {
     }
 
