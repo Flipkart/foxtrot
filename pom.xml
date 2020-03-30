@@ -12,7 +12,7 @@
     <groupId>com.flipkart.foxtrot</groupId>
     <artifactId>foxtrot</artifactId>
     <packaging>pom</packaging>
-    <version>6.3.1-56</version>
+    <version>6.3.1-57</version>
 
     <scm>
         <connection>scm:git:https://github.com/flipkart-incubator/foxtrot.git</connection>
@@ -72,6 +72,7 @@
         <lombok.version>1.16.16</lombok.version>
         <project.version>6.3.1-2</project.version>
         <test.container.version>1.0.4</test.container.version>
+        <gandalf.version>1.2.30</gandalf.version>
         <sonar.sources>src/main</sonar.sources>
         <sonar.tests>src/test</sonar.tests>
         <sonar.java.coveragePlugin>jacoco</sonar.java.coveragePlugin>
@@ -266,7 +267,7 @@
         <dependency>
             <groupId>com.phonepe.gandalf</groupId>
             <artifactId>gandalf-client</artifactId>
-            <version>1.2.7</version>
+            <version>${gandalf.version}</version>
             <exclusions>
                 <exclusion>
                     <groupId>com.google.guava</groupId>
@@ -285,7 +286,7 @@
         <dependency>
             <groupId>com.phonepe.gandalf</groupId>
             <artifactId>gandalf-models</artifactId>
-            <version>1.2.7</version>
+            <version>${gandalf.version}</version>
             <exclusions>
                 <exclusion>
                     <groupId>com.google.guava</groupId>
