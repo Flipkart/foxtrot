@@ -1,5 +1,5 @@
 package com.flipkart.foxtrot.core.cardinality;
-/*
+/**
  * Copyright 2014 Flipkart Internet Pvt. Ltd.
  * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -23,6 +23,7 @@ import net.javacrumbs.shedlock.core.LockConfiguration;
 import net.javacrumbs.shedlock.core.LockingTaskExecutor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import ru.vyarus.dropwizard.guice.module.installer.order.Order;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -74,8 +75,7 @@ public class CardinalityCalculationManager extends BaseJobManager {
                         break;
                     }
                 }
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                 LOGGER.error("Error occurred while calculating cardinality {}", e);
             }
         }, new LockConfiguration(cardinalityConfig.getJobName(), lockAtMostUntil));

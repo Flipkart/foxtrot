@@ -4,20 +4,17 @@ import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.flipkart.foxtrot.common.Table;
-import com.flipkart.foxtrot.core.MockHTable;
 import com.flipkart.foxtrot.core.TestUtils;
+import com.flipkart.foxtrot.core.email.EmailConfig;
 import com.flipkart.foxtrot.core.cache.CacheManager;
 import com.flipkart.foxtrot.core.cache.impl.DistributedCacheFactory;
 import com.flipkart.foxtrot.core.cardinality.CardinalityConfig;
 import com.flipkart.foxtrot.core.config.TextNodeRemoverConfiguration;
 import com.flipkart.foxtrot.core.datastore.DataStore;
-import com.flipkart.foxtrot.core.datastore.impl.hbase.HbaseConfig;
-import com.flipkart.foxtrot.core.datastore.impl.hbase.HbaseTableConnection;
 import com.flipkart.foxtrot.core.email.EmailConfig;
 import com.flipkart.foxtrot.core.querystore.QueryExecutor;
 import com.flipkart.foxtrot.core.querystore.QueryStore;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsLoader;
-import com.flipkart.foxtrot.core.querystore.actions.spi.ElasticsearchTuningConfig;
 import com.flipkart.foxtrot.core.querystore.handlers.ResponseCacheUpdater;
 import com.flipkart.foxtrot.core.querystore.impl.*;
 import com.flipkart.foxtrot.core.querystore.mutator.IndexerEventMutator;
@@ -32,9 +29,7 @@ import com.hazelcast.test.TestHazelcastInstanceFactory;
 import lombok.Getter;
 import org.joda.time.DateTimeZone;
 import org.junit.AfterClass;
-import org.junit.Before;
 import org.junit.BeforeClass;
-import org.mockito.Matchers;
 import org.mockito.Mockito;
 import org.slf4j.LoggerFactory;
 
@@ -72,9 +67,6 @@ public abstract class ActionTest {
     @Getter
     private static CacheManager cacheManager;
 
-    @Getter
-    private static HbaseTableConnection tableConnection;
-
     @BeforeClass
     public static void setupClass() throws Exception {
         hazelcastInstance = new TestHazelcastInstanceFactory(1).newHazelcastInstance(new Config());
@@ -99,9 +91,8 @@ public abstract class ActionTest {
                                           .ttl(30)
                                           .build());
         List<IndexerEventMutator> mutators = Lists.newArrayList(new LargeTextNodeRemover(mapper,
-                                         TextNodeRemoverConfiguration.builder().build()));
-        tableConnection = Mockito.mock(HbaseTableConnection.class);
-        DataStore dataStore = TestUtils.getDataStore(tableConnection);
+                                                                                         TextNodeRemoverConfiguration.builder().build()));
+        DataStore dataStore = TestUtils.getDataStore();
         queryStore = new ElasticsearchQueryStore(tableMetadataManager, elasticsearchConnection, dataStore, mutators, mapper, cardinalityConfig);
         cacheManager = new CacheManager(new DistributedCacheFactory(hazelcastConnection, mapper, new CacheConfig()));
         AnalyticsLoader analyticsLoader = new AnalyticsLoader(tableMetadataManager,
@@ -121,12 +112,6 @@ public abstract class ActionTest {
         hazelcastInstance.shutdown();
         ElasticsearchTestUtils.cleanupIndices(elasticsearchConnection);
         elasticsearchConnection.stop();
-    }
-
-    @Before
-    public void setup() throws Exception {
-        doReturn(MockHTable.create()).when(getTableConnection())
-                .getTable(Matchers.any());
     }
 
 }

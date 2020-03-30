@@ -92,8 +92,7 @@ public class CountAction extends Action<CountRequest> {
             SearchResponse response = query.execute()
                     .actionGet(getGetQueryTimeout());
             return getResponse(response, parameter);
-        }
-        catch (ElasticsearchException e) {
+        } catch (ElasticsearchException e) {
             throw FoxtrotExceptions.createQueryExecutionException(parameter, e);
         }
     }
@@ -116,12 +115,10 @@ public class CountAction extends Action<CountRequest> {
                         .addAggregation(Utils.buildCardinalityAggregation(
                                 parameter.getField(), elasticsearchTuningConfig.getPrecisionThreshold()));
                 return query;
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                 throw FoxtrotExceptions.queryCreationException(parameter, e);
             }
-        }
-        else {
+        } else {
             SearchRequestBuilder requestBuilder;
             try {
                 requestBuilder = getConnection().getClient()
@@ -129,8 +126,7 @@ public class CountAction extends Action<CountRequest> {
                         .setIndicesOptions(Utils.indicesOptions())
                         .setSize(QUERY_SIZE)
                         .setQuery(new ElasticSearchQueryGenerator().genFilter(parameter.getFilters()));
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                 throw FoxtrotExceptions.queryCreationException(parameter, e);
             }
             return requestBuilder;
@@ -144,13 +140,11 @@ public class CountAction extends Action<CountRequest> {
             Cardinality cardinality = aggregations.get(Utils.sanitizeFieldForAggregation(parameter.getField()));
             if (cardinality == null) {
                 return new CountResponse(0);
-            }
-            else {
+            } else {
                 return new CountResponse(cardinality.getValue());
             }
-        }
-        else {
-            return new CountResponse(((SearchResponse) response).getHits()
+        } else {
+            return new CountResponse(((SearchResponse)response).getHits()
                                              .getTotalHits());
         }
 

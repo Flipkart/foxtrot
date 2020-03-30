@@ -28,7 +28,6 @@ import com.flipkart.foxtrot.core.exception.FoxtrotException;
 import com.flipkart.foxtrot.core.exception.MalformedQueryException;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
-import org.junit.Before;
 import org.junit.BeforeClass;
 import io.dropwizard.jackson.Jackson;
 import org.junit.Assert;
@@ -47,9 +46,8 @@ import static org.junit.Assert.*;
  */
 public class StatsTrendActionTest extends ActionTest {
 
-    @Before
-    public void setup() throws Exception {
-        super.setup();
+    @BeforeClass
+    public static void setUp() throws Exception {
         List<Document> documents = TestUtils.getStatsTrendDocuments(getMapper());
         getQueryStore().save(TestUtils.TEST_TABLE_NAME, documents);
         getElasticsearchConnection().getClient()

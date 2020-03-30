@@ -16,11 +16,15 @@
 package com.flipkart.foxtrot.server.resources;
 
 import com.codahale.metrics.annotation.Timed;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.flipkart.foxtrot.common.ActionRequest;
 import com.flipkart.foxtrot.common.ActionResponse;
 import com.flipkart.foxtrot.common.ActionValidationResponse;
 import com.flipkart.foxtrot.core.common.AsyncDataToken;
 import com.flipkart.foxtrot.core.querystore.QueryExecutor;
+import com.flipkart.foxtrot.server.providers.FlatToCsvConverter;
+import com.flipkart.foxtrot.server.providers.FoxtrotExtraMediaType;
+import com.flipkart.foxtrot.sql.responseprocessors.Flattener;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
 import com.flipkart.foxtrot.server.config.QueryConfig;
 import io.swagger.annotations.Api;
@@ -33,6 +37,9 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.StreamingOutput;
+import java.io.OutputStreamWriter;
+import java.util.ArrayList;
 
 /**
  * User: Santanu Sinha (santanu.sinha@flipkart.com)
@@ -47,10 +54,13 @@ import javax.ws.rs.core.MediaType;
 public class AnalyticsResource {
 
     private final QueryExecutor queryExecutor;
+    private final ObjectMapper objectMapper;
     private final QueryConfig queryConfig;
 
-    public AnalyticsResource(QueryExecutor queryExecutor, QueryConfig queryConfig) {
+    public AnalyticsResource(final QueryExecutor queryExecutor, final ObjectMapper objectMapper,
+                             QueryConfig queryConfig) {
         this.queryExecutor = queryExecutor;
+        this.objectMapper = objectMapper;
         this.queryConfig = queryConfig;
     }
 
@@ -78,6 +88,18 @@ public class AnalyticsResource {
         return queryExecutor.validate(request);
     }
 
+    @POST
+    @Produces(FoxtrotExtraMediaType.TEXT_CSV)
+    @Path("/download")
+    @Timed
+    @ApiOperation("downloadAnalytics")
+    public StreamingOutput download(@Valid final ActionRequest actionRequest) {
+        ActionResponse actionResponse = queryExecutor.execute(actionRequest);
+        Flattener flattener = new Flattener(objectMapper, actionRequest, new ArrayList<>());
+        actionResponse.accept(flattener);
+        return output -> FlatToCsvConverter.convert(flattener.getFlatRepresentation(), new OutputStreamWriter(output));
+    }
+
     private void preprocess(ActionRequest request) {
         if (queryConfig.isLogQueries()) {
             if (ElasticsearchUtils.isTimeFilterPresent(request.getFilters())) {
@@ -88,4 +110,5 @@ public class AnalyticsResource {
             }
         }
     }
+
 }

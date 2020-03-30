@@ -6,25 +6,16 @@ import com.flipkart.foxtrot.common.ActionResponse;
 import com.flipkart.foxtrot.common.Document;
 import com.flipkart.foxtrot.common.query.*;
 import com.flipkart.foxtrot.common.query.numeric.BetweenFilter;
-import com.flipkart.foxtrot.core.MockHTable;
 import com.flipkart.foxtrot.core.TestUtils;
-import com.flipkart.foxtrot.core.datastore.impl.hbase.HbaseConfig;
 import com.flipkart.foxtrot.core.exception.FoxtrotException;
 import io.dropwizard.util.Duration;
-import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.util.*;
-import org.junit.runner.RunWith;
-import org.mockito.Matchers;
-import org.mockito.Mockito;
-import org.mockito.junit.MockitoJUnitRunner;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.when;
 
 /***
  Created by mudit.g on Mar, 2019
@@ -32,9 +23,8 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class MultiTimeQueryActionTest extends ActionTest {
 
-    @Before
-    public void setup() throws Exception {
-        super.setup();
+    @BeforeClass
+    public static void setUp() throws Exception {
         List<Document> documents = TestUtils.getQueryDocuments(getMapper());
         getQueryStore().save(TestUtils.TEST_TABLE_NAME, documents);
         getElasticsearchConnection().getClient()

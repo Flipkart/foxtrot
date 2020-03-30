@@ -1,18 +1,20 @@
 /**
  * Copyright 2014 Flipkart Internet Pvt. Ltd.
  * <p/>
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  * <p/>
  * http://www.apache.org/licenses/LICENSE-2.0
  * <p/>
- * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
- * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
- * specific language governing permissions and limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package com.flipkart.foxtrot.server;
 
-import com.codahale.metrics.health.HealthCheck;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
@@ -50,12 +52,17 @@ import com.flipkart.foxtrot.core.reroute.ClusterRerouteManager;
 import com.flipkart.foxtrot.core.table.TableMetadataManager;
 import com.flipkart.foxtrot.core.table.impl.DistributedTableMetadataManager;
 import com.flipkart.foxtrot.core.table.impl.FoxtrotTableManager;
+import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
+import com.flipkart.foxtrot.core.querystore.impl.MarathonClusterDiscoveryConfig;
+import com.flipkart.foxtrot.core.querystore.impl.SimpleClusterDiscoveryConfig;
 import com.flipkart.foxtrot.core.util.MetricUtil;
 import com.flipkart.foxtrot.gandalf.access.AccessService;
 import com.flipkart.foxtrot.gandalf.access.AccessServiceImpl;
 import com.flipkart.foxtrot.gandalf.manager.GandalfManager;
 import com.flipkart.foxtrot.server.cluster.ClusterManager;
 import com.flipkart.foxtrot.server.config.FoxtrotServerConfiguration;
+import com.flipkart.foxtrot.server.di.FoxtrotModule;
+import com.google.inject.Stage;
 import com.flipkart.foxtrot.server.config.GandalfConfiguration;
 import com.flipkart.foxtrot.server.console.ElasticsearchConsolePersistence;
 import com.flipkart.foxtrot.server.jobs.consolehistory.ConsoleHistoryConfig;
@@ -90,24 +97,22 @@ import io.dropwizard.riemann.RiemannConfig;
 import io.dropwizard.server.AbstractServerFactory;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
-import io.dropwizard.util.Duration;
 import io.federecio.dropwizard.swagger.SwaggerBundle;
 import io.federecio.dropwizard.swagger.SwaggerBundleConfiguration;
 import okhttp3.OkHttpClient;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.curator.framework.CuratorFramework;
 import org.eclipse.jetty.servlets.CrossOriginFilter;
+import ru.vyarus.dropwizard.guice.GuiceBundle;
 
 import javax.servlet.DispatcherType;
 import javax.servlet.FilterRegistration;
-import java.util.ArrayList;
 import java.util.EnumSet;
-import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.ScheduledExecutorService;
 
 /**
- * User: Santanu Sinha (santanu.sinha@flipkart.com) Date: 15/03/14 Time: 9:38 PM
+ * User: Santanu Sinha (santanu.sinha@flipkart.com)
+ * Date: 15/03/14
+ * Time: 9:38 PM
  */
 public class FoxtrotServer extends Application<FoxtrotServerConfiguration> {
 
@@ -409,6 +414,7 @@ public class FoxtrotServer extends Application<FoxtrotServerConfiguration> {
                                                               "/",
                                                               "/index.html");
         }
+        ElasticsearchUtils.setTableNamePrefix(configuration.getElasticsearch());
 
     }
 

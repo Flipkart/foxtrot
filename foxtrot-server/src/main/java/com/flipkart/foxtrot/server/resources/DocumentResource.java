@@ -23,8 +23,6 @@ import com.flipkart.foxtrot.server.config.SegregationConfiguration;
 import com.google.common.collect.Lists;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
@@ -37,7 +35,9 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * User: Santanu Sinha (santanu.sinha@flipkart.com) Date: 15/03/14 Time: 10:55 PM
+ * User: Santanu Sinha (santanu.sinha@flipkart.com)
+ * Date: 15/03/14
+ * Time: 10:55 PM
  */
 @Path("/v1/document/{table}")
 @Produces(MediaType.APPLICATION_JSON)
@@ -47,13 +47,11 @@ public class DocumentResource {
     private static final Logger LOGGER = LoggerFactory.getLogger(DocumentResource.class);
     private static final String EVENT_TYPE = "eventType";
     private final QueryStore queryStore;
-    private final Map<String, Map<String, List<String>>> tableEventConfigs;
-    private final List<String> tablesToBeDuplicated;
+    private final TableTranslator tableTranslator;
 
-    public DocumentResource(QueryStore queryStore, SegregationConfiguration segregationConfiguration) {
+    public DocumentResource(QueryStore queryStore, TableTranslator tableTranslator) {
         this.queryStore = queryStore;
-        this.tableEventConfigs = segregationConfiguration.getTableEventConfigs();
-        this.tablesToBeDuplicated = segregationConfiguration.getTablesToBeDuplicated();
+        this.tableTranslator = tableTranslator;
     }
 
     @POST
@@ -61,48 +59,15 @@ public class DocumentResource {
     @Timed
     @ApiOperation("Save Document")
     public Response saveDocument(@PathParam("table") String table, @Valid final Document document) {
-        String tableName = preProcess(table, document);
-        if (tableName != null) {
+        String tableName = tableTranslator.getTable(table, document);
+        if(tableName != null) {
             queryStore.save(tableName, document);
         }
-        if (tableName != null && !table.equals(tableName) && tablesToBeDuplicated != null &&
-                tablesToBeDuplicated.contains(tableName)) {
+        if(tableName != null && !table.equals(tableName)) {
             queryStore.save(table, document);
         }
         return Response.created(URI.create("/" + document.getId()))
                 .build();
-    }
-
-    private String preProcess(String table, Document document) {
-        if (document.getData()
-                .has(EVENT_TYPE)) {
-            String eventType = document.getData()
-                    .get(EVENT_TYPE)
-                    .asText();
-            return getSegregatedTableName(table, eventType);
-        }
-        return table;
-    }
-
-    private String getSegregatedTableName(String table, String eventType) {
-        if (tableEventConfigs != null && tableEventConfigs.containsKey(table)) {
-            String tableName = getTableForEventType(tableEventConfigs.get(table), eventType);
-            if (tableName != null) {
-                return tableName;
-            }
-        }
-        return table;
-    }
-
-    private String getTableForEventType(Map<String, List<String>> tableNameVsEventTypes, String eventType) {
-        for (Map.Entry<String, List<String>> entry : CollectionUtils.nullSafeSet(tableNameVsEventTypes.entrySet())) {
-            for (String tempEventType : CollectionUtils.nullSafeList(entry.getValue())) {
-                if (tempEventType.equals(eventType)) {
-                    return entry.getKey();
-                }
-            }
-        }
-        return null;
     }
 
     @POST
@@ -111,44 +76,12 @@ public class DocumentResource {
     @Timed
     @ApiOperation("Save list of documents")
     public Response saveDocuments(@PathParam("table") String table, @Valid final List<Document> documents) {
-        Map<String, List<Document>> tableVsDocuments = preProcessSaveDocuments(table, documents);
-        for (Map.Entry<String, List<Document>> entry : CollectionUtils.nullSafeSet(tableVsDocuments.entrySet())) {
+        Map<String, List<Document>> tableVsDocuments = getTableVsDocuments(table, documents);
+        for(Map.Entry<String, List<Document>> entry : CollectionUtils.nullSafeSet(tableVsDocuments.entrySet())) {
             queryStore.save(entry.getKey(), entry.getValue());
-            if (!entry.getKey()
-                    .equals(table) && tablesToBeDuplicated != null && tablesToBeDuplicated.contains(entry.getKey())) {
-                queryStore.save(table, entry.getValue());
-            }
         }
         return Response.created(URI.create("/" + table))
                 .build();
-    }
-
-    private Map<String, List<Document>> preProcessSaveDocuments(String table, List<Document> documents) {
-        Map<String, List<Document>> tableVsDocuments = new HashMap<>();
-        if (tableEventConfigs != null && tableEventConfigs.containsKey(table)) {
-            for (Document document : CollectionUtils.nullSafeList(documents)) {
-                String tableName = table;
-                if (document.getData()
-                        .has(EVENT_TYPE)) {
-                    String eventType = document.getData()
-                            .get(EVENT_TYPE)
-                            .asText();
-                    tableName = getSegregatedTableName(table, eventType);
-                }
-                if (tableVsDocuments.containsKey(tableName)) {
-                    tableVsDocuments.get(tableName)
-                            .add(document);
-                }
-                else {
-                    List<Document> tableDocuments = Lists.newArrayList(document);
-                    tableVsDocuments.put(tableName, tableDocuments);
-                }
-            }
-        }
-        else {
-            tableVsDocuments.put(table, documents);
-        }
-        return tableVsDocuments;
     }
 
     @GET
@@ -163,11 +96,30 @@ public class DocumentResource {
     @GET
     @Timed
     @ApiOperation("Get Documents")
-    public Response getDocuments(
-            @PathParam("table") final String table,
-            @QueryParam("id") @NotNull final List<String> ids) {
+    public Response getDocuments(@PathParam("table") final String table, @QueryParam("id") @NotNull final List<String> ids) {
         return Response.ok(queryStore.getAll(table, ids))
                 .build();
+    }
+
+
+    private Map<String, List<Document>> getTableVsDocuments(String table, List<Document> documents) {
+        Map<String, List<Document>> tableVsDocuments = new HashMap<>();
+        if(tableTranslator.isTransformableTable(table)) {
+            for(Document document : CollectionUtils.nullSafeList(documents)) {
+                String tableName = tableTranslator.getTable(table, document);
+
+                if(tableVsDocuments.containsKey(tableName)) {
+                    tableVsDocuments.get(tableName)
+                            .add(document);
+                } else {
+                    List<Document> tableDocuments = Lists.newArrayList(document);
+                    tableVsDocuments.put(tableName, tableDocuments);
+                }
+            }
+        } else {
+            tableVsDocuments.put(table, documents);
+        }
+        return tableVsDocuments;
     }
 
 }

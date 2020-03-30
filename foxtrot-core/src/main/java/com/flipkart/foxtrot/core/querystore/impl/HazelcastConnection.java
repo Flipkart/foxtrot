@@ -20,7 +20,10 @@ import com.marathon.hazelcast.servicediscovery.MarathonDiscoveryStrategyFactory;
 import io.dropwizard.lifecycle.Managed;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import ru.vyarus.dropwizard.guice.module.installer.order.Order;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 
@@ -29,13 +32,18 @@ import java.net.UnknownHostException;
  * Date: 15/03/14
  * Time: 10:01 PM
  */
+@Order(10)
+@Singleton
 public class HazelcastConnection implements Managed {
 
     private static final Logger logger = LoggerFactory.getLogger(HazelcastConnection.class.getSimpleName());
 
+    public static final String HEALTHCHECK_MAP = "healthCheck";
+
     private HazelcastInstance hazelcast;
     private Config hazelcastConfig;
 
+    @Inject
     public HazelcastConnection(ClusterConfig clusterConfig) throws UnknownHostException {
         Config hzConfig = new Config();
         hzConfig.getGroupConfig()
@@ -129,8 +137,15 @@ public class HazelcastConnection implements Managed {
     @Override
     public void start() throws Exception {
         logger.info("Starting Hazelcast Instance");
+        configureHealthcheck();
         hazelcast = Hazelcast.newHazelcastInstance(hazelcastConfig);
         logger.info("Started Hazelcast Instance");
+    }
+
+    private void configureHealthcheck() {
+        MapConfig mapConfig = new MapConfig(HEALTHCHECK_MAP);
+        mapConfig.setInMemoryFormat(InMemoryFormat.BINARY);
+        hazelcastConfig.addMapConfig(mapConfig);
     }
 
     @Override

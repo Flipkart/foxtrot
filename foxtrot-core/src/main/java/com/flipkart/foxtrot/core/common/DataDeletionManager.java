@@ -51,8 +51,7 @@ public class DataDeletionManager implements Managed {
                                          new LockConfiguration("dataDeletion", lockAtMostUntil));
             }, config.getInitialDelay(), config.getInterval(), TimeUnit.SECONDS);
             logger.info("Scheduled data deletion Job");
-        }
-        else {
+        } else {
             logger.info("Not scheduling data deletion Job");
         }
         logger.info("Started Deletion Manager");

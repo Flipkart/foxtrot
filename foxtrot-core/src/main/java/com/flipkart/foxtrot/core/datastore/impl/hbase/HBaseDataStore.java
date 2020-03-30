@@ -1,14 +1,17 @@
 /**
  * Copyright 2014 Flipkart Internet Pvt. Ltd.
  * <p>
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  * <p>
  * http://www.apache.org/licenses/LICENSE-2.0
  * <p>
- * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
- * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
- * specific language governing permissions and limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package com.flipkart.foxtrot.core.datastore.impl.hbase;
 
@@ -20,7 +23,7 @@ import com.flipkart.foxtrot.common.DocumentMetadata;
 import com.flipkart.foxtrot.common.Table;
 import com.flipkart.foxtrot.core.datastore.DataStore;
 import com.flipkart.foxtrot.core.exception.FoxtrotExceptions;
-import com.flipkart.foxtrot.core.querystore.DocumentTranslator;
+import com.foxtrot.flipkart.translator.DocumentTranslator;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
 import java.io.IOException;
@@ -41,7 +44,7 @@ import org.slf4j.LoggerFactory;
  * Date: 13/03/14
  * Time: 7:54 PM
  */
-@Singleton
+
 public class HBaseDataStore implements DataStore {
 
     private static final Logger logger = LoggerFactory.getLogger(HBaseDataStore.class.getSimpleName());
@@ -56,7 +59,6 @@ public class HBaseDataStore implements DataStore {
     private final ObjectMapper mapper;
     private final DocumentTranslator translator;
 
-    @Inject
     public HBaseDataStore(HbaseTableConnection tableWrapper, ObjectMapper mapper, DocumentTranslator translator) {
         this.tableWrapper = tableWrapper;
         this.mapper = mapper;
@@ -74,16 +76,12 @@ public class HBaseDataStore implements DataStore {
             }
             if (forceTableCreate) {
                 tableWrapper.createTable(table);
+            } else {
+                throw FoxtrotExceptions.createTableInitializationException(table, String.format("Create HBase Table - %s",
+                                                                                                tableWrapper.getHBaseTableName(table)
+                                                                                               ));
             }
-            else {
-                throw FoxtrotExceptions.createTableInitializationException(table,
-                                                                           String.format("Create HBase Table - %s",
-                                                                                         tableWrapper.getHBaseTableName(
-                                                                                                 table)
-                                                                                        ));
-            }
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             throw FoxtrotExceptions.createConnectionException(table, e);
         }
     }
@@ -98,11 +96,9 @@ public class HBaseDataStore implements DataStore {
         try (org.apache.hadoop.hbase.client.Table hTable = tableWrapper.getTable(table)) {
             translatedDocument = translator.translate(table, document);
             hTable.put(getPutForDocument(translatedDocument));
-        }
-        catch (JsonProcessingException e) {
+        } catch (JsonProcessingException e) {
             throw FoxtrotExceptions.createBadRequestException(table, e);
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             throw FoxtrotExceptions.createConnectionException(table, e);
         }
         return translatedDocument;
@@ -127,8 +123,7 @@ public class HBaseDataStore implements DataStore {
                 puts.add(getPutForDocument(translatedDocument));
                 translatedDocuments.add(translatedDocument);
             }
-        }
-        catch (JsonProcessingException e) {
+        } catch (JsonProcessingException e) {
             throw FoxtrotExceptions.createBadRequestException(table, e);
         }
         if (!errorMessages.isEmpty()) {
@@ -137,8 +132,7 @@ public class HBaseDataStore implements DataStore {
 
         try (org.apache.hadoop.hbase.client.Table hTable = tableWrapper.getTable(table)) {
             hTable.put(puts);
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             logger.error("Error occurred while ingesting event in HBase : ", e);
             throw FoxtrotExceptions.createConnectionException(table, e);
         }
@@ -184,13 +178,11 @@ public class HBaseDataStore implements DataStore {
                                                     :
                                                     null;
                 return translator.translateBack(new Document(id, time, documentMetadata, mapper.readTree(data)));
-            }
-            else {
+            } else {
                 logger.error("ID missing in HBase - {}", id);
                 throw FoxtrotExceptions.createMissingDocumentException(table, id);
             }
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             throw FoxtrotExceptions.createConnectionException(table, e);
         }
     }
@@ -242,11 +234,9 @@ public class HBaseDataStore implements DataStore {
                 throw FoxtrotExceptions.createMissingDocumentsException(table, missingIds);
             }
             return results;
-        }
-        catch (JsonProcessingException e) {
+        } catch (JsonProcessingException e) {
             throw FoxtrotExceptions.createBadRequestException(table, e);
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             throw FoxtrotExceptions.createConnectionException(table, e);
         }
     }

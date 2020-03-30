@@ -17,8 +17,9 @@ import com.flipkart.foxtrot.common.Document;
 import com.flipkart.foxtrot.core.TestUtils;
 import com.flipkart.foxtrot.core.exception.FoxtrotExceptions;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
-import com.flipkart.foxtrot.server.config.SegregationConfiguration;
 import com.flipkart.foxtrot.server.providers.exception.FoxtrotExceptionMapper;
+import com.foxtrot.flipkart.translator.TableTranslator;
+import com.foxtrot.flipkart.translator.config.SegregationConfiguration;
 import io.dropwizard.testing.junit.ResourceTestRule;
 import org.junit.Rule;
 import org.junit.Test;
@@ -42,16 +43,11 @@ import static org.mockito.Mockito.doThrow;
 public class DocumentResourceTest extends FoxtrotResourceTest {
 
     @Rule
-    public ResourceTestRule resources;
-
-    public DocumentResourceTest() throws Exception {
-        super();
-        resources = ResourceTestRule.builder()
-                .addResource(new DocumentResource(getQueryStore(), new SegregationConfiguration()))
-                .addProvider(new FoxtrotExceptionMapper(getMapper()))
-                .setMapper(objectMapper)
-                .build();
-    }
+    public ResourceTestRule resources = ResourceTestRule.builder()
+            .addResource(new DocumentResource(getQueryStore(), new TableTranslator(new SegregationConfiguration())))
+            .addProvider(new FoxtrotExceptionMapper(getMapper()))
+            .setMapper(objectMapper)
+            .build();
 
     @Test
     public void testSaveDocument() throws Exception {

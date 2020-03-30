@@ -68,8 +68,7 @@ public class ConsoleHistoryManager extends BaseJobManager {
                 for (Terms.Bucket entry : agg.getBuckets()) {
                     deleteOldData(entry.getKeyAsString());
                 }
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                 logger.info("Failed to get aggregations and delete data for index history. {}", e);
             }
 
@@ -95,8 +94,7 @@ public class ConsoleHistoryManager extends BaseJobManager {
                 ConsoleV2 consoleV2 = mapper.readValue(searchHit.getSourceAsString(), ConsoleV2.class);
                 elasticsearchConsolePersistence.deleteOldVersion(consoleV2.getId());
             }
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             throw new ConsoleFetchException(e);
         }
     }

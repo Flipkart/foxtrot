@@ -122,6 +122,10 @@
                     <groupId>com.google.inject</groupId>
                 </exclusion>
                 <exclusion>
+                    <groupId>com.google.guava</groupId>
+                    <artifactId>guava</artifactId>
+                </exclusion>
+                <exclusion>
                     <groupId>com.google.inject.extensions</groupId>
                     <artifactId>guice-servlet</artifactId>
                 </exclusion>
@@ -196,6 +200,11 @@
             <artifactId>foxtrot-common</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>com.flipkart.foxtrot</groupId>
+            <artifactId>foxtrot-translator</artifactId>
+            <version>${project.version}</version>
+        </dependency>
 
         <!-- Reflections for scanning classpath to get analytics providers-->
         <dependency>
@@ -230,6 +239,11 @@
                     <artifactId>log4j</artifactId>
                 </exclusion>
             </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>${guava.version}</version>
         </dependency>
     </dependencies>
 

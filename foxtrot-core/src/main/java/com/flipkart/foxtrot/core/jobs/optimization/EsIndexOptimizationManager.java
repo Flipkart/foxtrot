@@ -67,8 +67,7 @@ public class EsIndexOptimizationManager extends BaseJobManager {
                 }
                 optimizeIndices(indicesToOptimize);
                 LOGGER.info("No of indexes optimized : {}", indicesToOptimize.size());
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                 LOGGER.error("Error occurred while calling optimization API", e);
             }
         }, new LockConfiguration(esIndexOptimizationConfig.getJobName(), lockAtMostUntil));
