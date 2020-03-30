@@ -56,7 +56,7 @@ public class FoxtrotServer extends Application<FoxtrotServerConfiguration> {
     public void initialize(Bootstrap<FoxtrotServerConfiguration> bootstrap) {
         bootstrap.setConfigurationSourceProvider(
                 new SubstitutingSourceProvider(bootstrap.getConfigurationSourceProvider(), new EnvironmentVariableSubstitutor(false)));
-        bootstrap.addBundle(new AssetsBundle("/console/", "/", "index.html", "console"));
+        bootstrap.addBundle(new AssetsBundle("/console/echo/", "/", "browse-events.htm", "console"));
         bootstrap.addBundle(new OorBundle<FoxtrotServerConfiguration>() {
             public boolean withOor() {
                 return false;

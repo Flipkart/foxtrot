@@ -5,7 +5,7 @@
     <parent>
         <artifactId>foxtrot</artifactId>
         <groupId>com.flipkart.foxtrot</groupId>
-        <version>6.3.1-3</version>
+        <version>6.3.1-4-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -34,7 +34,7 @@
         <dependency>
             <groupId>io.netty</groupId>
             <artifactId>netty-all</artifactId>
-            <version>4.1.25.Final</version>
+            <version>4.1.42.Final</version>
         </dependency>
         <!-- Reflections for scanning classpath to get analytics providers-->
         <dependency>
@@ -53,22 +53,22 @@
         <dependency>
             <groupId>com.flipkart.foxtrot</groupId>
             <artifactId>foxtrot-sql</artifactId>
-            <version>6.3.1-3</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>com.flipkart.foxtrot</groupId>
             <artifactId>foxtrot-common</artifactId>
-            <version>6.3.1-3</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>com.flipkart.foxtrot</groupId>
             <artifactId>foxtrot-core</artifactId>
-            <version>6.3.1-3</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>com.flipkart.foxtrot</groupId>
             <artifactId>foxtrot-core</artifactId>
-            <version>6.3.1-3</version>
+            <version>${project.version}</version>
             <type>test-jar</type>
             <scope>test</scope>
         </dependency>

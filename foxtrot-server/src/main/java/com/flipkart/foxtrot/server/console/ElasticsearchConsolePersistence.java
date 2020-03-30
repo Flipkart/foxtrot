@@ -195,7 +195,7 @@ public class ElasticsearchConsolePersistence implements ConsolePersistence {
                 .setTypes(TYPE)
                 .setQuery(boolQuery().must(matchAllQuery()))
                 .setSize(SCROLL_SIZE)
-                .addSort(fieldSort("name.keyword").order(SortOrder.DESC))
+                .addSort(fieldSort("name.keyword").order(SortOrder.DESC).unmappedType("keyword"))
                 .setScroll(new TimeValue(SCROLL_TIMEOUT))
                 .execute()
                 .actionGet();

@@ -27,7 +27,7 @@ import static com.flipkart.foxtrot.core.util.ElasticsearchQueryUtils.QUERY_SIZE;
  * Created by rishabh.goyal on 02/11/14.
  */
 
-@AnalyticsProvider(opcode = "count", request = CountRequest.class, response = CountResponse.class, cacheable = false)
+@AnalyticsProvider(opcode = "count", request = CountRequest.class, response = CountResponse.class, cacheable = true)
 public class CountAction extends Action<CountRequest> {
 
     public CountAction(CountRequest parameter, AnalyticsLoader analyticsLoader) {
@@ -39,9 +39,12 @@ public class CountAction extends Action<CountRequest> {
     public void preprocess() {
         getParameter().setTable(ElasticsearchUtils.getValidTableName(getParameter().getTable()));
         // Null field implies complete doc count
-        if(getParameter().getField() != null) {
-            getParameter().getFilters()
-                    .add(new ExistsFilter(getParameter().getField()));
+        if (getParameter().getField() != null) {
+            Filter existsFilter = new ExistsFilter(getParameter().getField());
+            if (!getParameter().getFilters().contains(existsFilter)){
+                getParameter().getFilters()
+                        .add(new ExistsFilter(getParameter().getField()));
+            }
         }
     }
 
@@ -52,6 +55,7 @@ public class CountAction extends Action<CountRequest> {
 
     @Override
     public String getRequestCacheKey() {
+        preprocess();
         long filterHashKey = 0L;
         CountRequest request = getParameter();
         if(null != request.getFilters()) {

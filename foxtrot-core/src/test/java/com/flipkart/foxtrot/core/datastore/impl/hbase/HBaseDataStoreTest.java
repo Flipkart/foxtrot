@@ -26,7 +26,7 @@ import com.flipkart.foxtrot.core.exception.BadRequestException;
 import com.flipkart.foxtrot.core.exception.ErrorCode;
 import com.flipkart.foxtrot.core.exception.FoxtrotException;
 import com.flipkart.foxtrot.core.exception.StoreConnectionException;
-import com.flipkart.foxtrot.core.querystore.DocumentTranslator;
+import com.foxtrot.flipkart.translator.DocumentTranslator;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.apache.hadoop.hbase.client.Get;
@@ -69,14 +69,14 @@ public class HBaseDataStoreTest {
         when(hbaseTableConnection.getTable(Matchers.<Table>any())).thenReturn(tableInterface);
         when(hbaseTableConnection.getHbaseConfig()).thenReturn(new HbaseConfig());
         hbaseDataStore = new HBaseDataStore(hbaseTableConnection, mapper,
-                                            new DocumentTranslator(TestUtils.createHBaseConfigWithRawKeyV1())
+                                            new DocumentTranslator(TestUtils.createTranslatorConfigWithRawKeyV1())
         );
     }
 
     @Test
     public void testSaveSingle() throws Exception {
         // rawKeyVersion 1.0
-        DocumentTranslator documentTranslator = new DocumentTranslator(TestUtils.createHBaseConfigWithRawKeyV1());
+        DocumentTranslator documentTranslator = new DocumentTranslator(TestUtils.createTranslatorConfigWithRawKeyV1());
         hbaseDataStore = new HBaseDataStore(hbaseTableConnection, mapper, documentTranslator);
         Document expectedDocument = new Document();
         expectedDocument.setId(UUID.randomUUID()
@@ -88,7 +88,7 @@ public class HBaseDataStoreTest {
         validateSave(v1FormatKey(expectedDocument.getId()), expectedDocument);
 
         // rawKeyVersion 2.0
-        documentTranslator = new DocumentTranslator(TestUtils.createHBaseConfigWithRawKeyV2());
+        documentTranslator = new DocumentTranslator(TestUtils.createTranslatorConfigWithRawKeyV2());
         hbaseDataStore = new HBaseDataStore(hbaseTableConnection, mapper, documentTranslator);
         expectedDocument = new Document();
         expectedDocument.setId(UUID.randomUUID()
@@ -166,7 +166,7 @@ public class HBaseDataStoreTest {
 
     @Test
     public void testSaveBulk() throws Exception {
-        DocumentTranslator documentTranslator = new DocumentTranslator(TestUtils.createHBaseConfigWithRawKeyV1());
+        DocumentTranslator documentTranslator = new DocumentTranslator(TestUtils.createTranslatorConfigWithRawKeyV1());
         hbaseDataStore = new HBaseDataStore(hbaseTableConnection, mapper, documentTranslator);
 
         List<Document> documents = Lists.newArrayList();
@@ -283,7 +283,7 @@ public class HBaseDataStoreTest {
         // rawKeyVersion 1.0 with no metadata stored in the system (This will happen for documents which were indexed
         // before rawKey versioning came into place)
         hbaseDataStore = new HBaseDataStore(hbaseTableConnection, mapper,
-                                            new DocumentTranslator(TestUtils.createHBaseConfigWithRawKeyV1())
+                                            new DocumentTranslator(TestUtils.createTranslatorConfigWithRawKeyV1())
         );
 
         String id = UUID.randomUUID()
@@ -300,7 +300,7 @@ public class HBaseDataStoreTest {
 
         // rawKeyVersion 1.0
         hbaseDataStore = new HBaseDataStore(hbaseTableConnection, mapper,
-                                            new DocumentTranslator(TestUtils.createHBaseConfigWithRawKeyV1())
+                                            new DocumentTranslator(TestUtils.createTranslatorConfigWithRawKeyV1())
         );
 
         id = UUID.randomUUID()
@@ -314,7 +314,7 @@ public class HBaseDataStoreTest {
 
 
         // rawKeyVersion 2.0
-        DocumentTranslator documentTranslator = new DocumentTranslator(TestUtils.createHBaseConfigWithRawKeyV2());
+        DocumentTranslator documentTranslator = new DocumentTranslator(TestUtils.createTranslatorConfigWithRawKeyV2());
         hbaseDataStore = new HBaseDataStore(hbaseTableConnection, mapper, documentTranslator);
 
         id = UUID.randomUUID()
@@ -407,7 +407,7 @@ public class HBaseDataStoreTest {
 
     @Test
     public void testV2GetBulk() throws Exception {
-        DocumentTranslator translator = new DocumentTranslator(TestUtils.createHBaseConfigWithRawKeyV2());
+        DocumentTranslator translator = new DocumentTranslator(TestUtils.createTranslatorConfigWithRawKeyV2());
 
         Map<String, Document> idValues = Maps.newHashMap();
         List<String> ids = Lists.newArrayList();
