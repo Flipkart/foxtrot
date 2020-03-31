@@ -32,8 +32,10 @@ import com.flipkart.foxtrot.common.query.general.NotInFilter;
 import com.flipkart.foxtrot.common.query.numeric.*;
 import com.flipkart.foxtrot.common.query.string.ContainsFilter;
 import com.flipkart.foxtrot.common.util.CollectionUtils;
+import com.flipkart.foxtrot.common.visitor.CountPrecisionThresholdVisitorAdapter;
 import com.flipkart.foxtrot.core.common.Action;
 import com.flipkart.foxtrot.core.common.PeriodSelector;
+import com.flipkart.foxtrot.core.config.ElasticsearchTuningConfig;
 import com.flipkart.foxtrot.core.exception.FoxtrotExceptions;
 import com.flipkart.foxtrot.core.querystore.QueryStore;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsLoader;
@@ -75,9 +77,11 @@ public class GroupAction extends Action<GroupRequest> {
     private static final long MAX_CARDINALITY = 50000;
     private static final long MIN_ESTIMATION_THRESHOLD = 1000;
     private static final double PROBABILITY_CUT_OFF = 0.5;
+    private final ElasticsearchTuningConfig elasticsearchTuningConfig;
 
     public GroupAction(GroupRequest parameter, AnalyticsLoader analyticsLoader) {
         super(parameter, analyticsLoader);
+        this.elasticsearchTuningConfig = analyticsLoader.getElasticsearchTuningConfig();
     }
 
     @Override
@@ -164,7 +168,7 @@ public class GroupAction extends Action<GroupRequest> {
             query = getConnection().getClient()
                     .prepareSearch(ElasticsearchUtils.getIndices(parameter.getTable(), parameter))
                     .setIndicesOptions(Utils.indicesOptions());
-            AbstractAggregationBuilder aggregation = buildAggregation();
+            AbstractAggregationBuilder aggregation = buildAggregation(parameter);
             query.setQuery(new ElasticSearchQueryGenerator().genFilter(parameter.getFilters()))
                     .setSize(QUERY_SIZE)
                     .addAggregation(aggregation);
@@ -666,17 +670,20 @@ public class GroupAction extends Action<GroupRequest> {
         return count == null ? 0 : count;
     }
 
-    private AbstractAggregationBuilder buildAggregation() {
+    private AbstractAggregationBuilder buildAggregation(GroupRequest parameter) {
         return Utils.buildTermsAggregation(getParameter().getNesting()
                                                    .stream()
                                                    .map(x -> new ResultSort(x, ResultSort.Order.asc))
                                                    .collect(Collectors.toList()),
-                                           !CollectionUtils.isNullOrEmpty(getParameter().getUniqueCountOn()) ? Sets.newHashSet(
-                                                   Utils.buildCardinalityAggregation(getParameter().getUniqueCountOn())) : Sets.newHashSet()
-                                          );
-    }
+                                           !CollectionUtils.isNullOrEmpty(getParameter().getUniqueCountOn())
+                                                   ? Sets.newHashSet(
+                                                   Utils.buildCardinalityAggregation(getParameter().getUniqueCountOn(),
+                                                           parameter.accept(new CountPrecisionThresholdVisitorAdapter(
+                                                                   elasticsearchTuningConfig.getPrecisionThreshold()))))
+                                                   : Sets.newHashSet(), elasticsearchTuningConfig.getAggregationSize());
 
-    private Map<String, Object> getMap(List<String> fields, Aggregations aggregations) {
+
+        private Map<String, Object> getMap(List<String> fields, Aggregations aggregations) {
         final String field = fields.get(0);
         final List<String> remainingFields = (fields.size() > 1) ? fields.subList(1, fields.size()) : new ArrayList<>();
         Terms terms = aggregations.get(Utils.sanitizeFieldForAggregation(field));

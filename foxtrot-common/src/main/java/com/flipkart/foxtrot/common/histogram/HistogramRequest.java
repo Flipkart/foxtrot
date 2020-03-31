@@ -19,7 +19,10 @@ import com.flipkart.foxtrot.common.ActionRequest;
 import com.flipkart.foxtrot.common.ActionRequestVisitor;
 import com.flipkart.foxtrot.common.Opcodes;
 import com.flipkart.foxtrot.common.Period;
+import com.flipkart.foxtrot.common.enums.CountPrecision;
 import com.flipkart.foxtrot.common.query.Filter;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.hibernate.validator.constraints.NotEmpty;
 
@@ -31,6 +34,8 @@ import java.util.List;
  * Date: 21/03/14
  * Time: 12:06 AM
  */
+@Getter
+@Setter
 public class HistogramRequest extends ActionRequest {
 
     @NotNull
@@ -45,6 +50,8 @@ public class HistogramRequest extends ActionRequest {
     private Period period;
 
     private String uniqueCountOn;
+
+    private CountPrecision precision;
 
     public HistogramRequest() {
         super(Opcodes.HISTOGRAM);

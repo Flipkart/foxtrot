@@ -6,6 +6,7 @@ import com.flipkart.foxtrot.common.query.ResultSort;
 import com.flipkart.foxtrot.common.stats.*;
 import com.flipkart.foxtrot.common.util.CollectionUtils;
 import com.flipkart.foxtrot.core.common.Action;
+import com.flipkart.foxtrot.core.config.ElasticsearchTuningConfig;
 import com.flipkart.foxtrot.core.exception.FoxtrotExceptions;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsLoader;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsProvider;
@@ -36,8 +37,11 @@ import static com.flipkart.foxtrot.core.util.ElasticsearchQueryUtils.QUERY_SIZE;
 @AnalyticsProvider(opcode = "stats", request = StatsRequest.class, response = StatsResponse.class, cacheable = true)
 public class StatsAction extends Action<StatsRequest> {
 
+    private final ElasticsearchTuningConfig elasticsearchTuningConfig;
+
     public StatsAction(StatsRequest parameter, AnalyticsLoader analyticsLoader) {
         super(parameter, analyticsLoader);
+        this.elasticsearchTuningConfig = analyticsLoader.getElasticsearchTuningConfig();
     }
 
     private static StatsValue buildStatsValue(String field, Aggregations aggregations) {
@@ -149,7 +153,8 @@ public class StatsAction extends Action<StatsRequest> {
                                                                         .stream()
                                                                         .map(x -> new ResultSort(x, ResultSort.Order.asc))
                                                                         .collect(Collectors.toList()),
-                                                                        subAggregations));
+                                                                        subAggregations,
+                                elasticsearchTuningConfig.getAggregationSize()));
             }
         } catch (Exception e) {
             throw FoxtrotExceptions.queryCreationException(parameter, e);

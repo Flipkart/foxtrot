@@ -20,6 +20,7 @@ import com.fasterxml.jackson.databind.jsontype.NamedType;
 import com.flipkart.foxtrot.common.ActionRequest;
 import com.flipkart.foxtrot.core.cache.CacheManager;
 import com.flipkart.foxtrot.core.common.Action;
+import com.flipkart.foxtrot.core.config.ElasticsearchTuningConfig;
 import com.flipkart.foxtrot.core.datastore.DataStore;
 import com.flipkart.foxtrot.core.exception.AnalyticsActionLoaderException;
 import com.flipkart.foxtrot.core.exception.FoxtrotExceptions;
@@ -62,29 +63,32 @@ public class AnalyticsLoader implements Managed {
     private final DataStore dataStore;
     private final QueryStore queryStore;
     private final ElasticsearchConnection elasticsearchConnection;
+    private final ElasticsearchTuningConfig elasticsearchTuningConfig;
     private final CacheManager cacheManager;
     private final ObjectMapper objectMapper;
 
     @Inject
     public AnalyticsLoader(TableMetadataManager tableMetadataManager, DataStore dataStore, QueryStore queryStore,
-                           ElasticsearchConnection elasticsearchConnection, CacheManager cacheManager, ObjectMapper objectMapper) {
+                           ElasticsearchConnection elasticsearchConnection, CacheManager cacheManager,
+                           ObjectMapper objectMapper, ElasticsearchTuningConfig elasticsearchTuningConfig) {
         this.tableMetadataManager = tableMetadataManager;
         this.dataStore = dataStore;
         this.queryStore = queryStore;
         this.elasticsearchConnection = elasticsearchConnection;
         this.cacheManager = cacheManager;
         this.objectMapper = objectMapper;
+        this.elasticsearchTuningConfig = elasticsearchTuningConfig;
     }
 
     @SuppressWarnings("unchecked")
     public <R extends ActionRequest> Action<R> getAction(R request) {
         final String className = request.getClass()
                 .getCanonicalName();
-        if(actions.containsKey(className)) {
+        if (actions.containsKey(className)) {
             ActionMetadata metadata = actions.get(className);
-            if(metadata.getRequest()
+            if (metadata.getRequest()
                     .isInstance(request)) {
-                R r = (R)metadata.getRequest()
+                R r = (R) metadata.getRequest()
                         .cast(request);
                 try {
                     Constructor<? extends Action> constructor = metadata.getAction()
@@ -100,7 +104,7 @@ public class AnalyticsLoader implements Managed {
 
     public void register(ActionMetadata actionMetadata, String opcode) {
         actions.put(actionMetadata.getRequest().getCanonicalName(), actionMetadata);
-        if(actionMetadata.isCacheable()){
+        if (actionMetadata.isCacheable()) {
             registerCache(opcode);
         }
     }
@@ -113,14 +117,14 @@ public class AnalyticsLoader implements Managed {
     public void start() throws Exception {
         Reflections reflections = new Reflections("com.flipkart.foxtrot", new SubTypesScanner());
         Set<Class<? extends Action>> actionSet = reflections.getSubTypesOf(Action.class);
-        if(actionSet.isEmpty()) {
+        if (actionSet.isEmpty()) {
             throw new AnalyticsActionLoaderException("No analytics actions found!!");
         }
         List<NamedType> types = new ArrayList<>();
-        for(Class<? extends Action> action : actionSet) {
+        for (Class<? extends Action> action : actionSet) {
             AnalyticsProvider analyticsProvider = action.getAnnotation(AnalyticsProvider.class);
             final String opcode = analyticsProvider.opcode();
-            if(Strings.isNullOrEmpty(opcode)) {
+            if (Strings.isNullOrEmpty(opcode)) {
                 throw new AnalyticsActionLoaderException("Invalid annotation on " + action.getCanonicalName());
             }
             register(new ActionMetadata(analyticsProvider.request(), action, analyticsProvider.cacheable()), analyticsProvider.opcode());
