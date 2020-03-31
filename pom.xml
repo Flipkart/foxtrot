@@ -54,7 +54,7 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <dropwizard.version>1.3.13</dropwizard.version>
+        <dropwizard.version>2.0.5</dropwizard.version>
         <elasticsearch.url>http://localhost:9200</elasticsearch.url>
         <lombok.version>1.16.16</lombok.version>
         <dropwizard.guicey.version>4.2.1</dropwizard.guicey.version>
