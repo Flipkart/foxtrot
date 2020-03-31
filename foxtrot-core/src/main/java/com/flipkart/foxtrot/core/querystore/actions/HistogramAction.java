@@ -18,6 +18,7 @@ import com.flipkart.foxtrot.common.histogram.HistogramResponse;
 import com.flipkart.foxtrot.common.query.Filter;
 import com.flipkart.foxtrot.common.query.datetime.LastFilter;
 import com.flipkart.foxtrot.common.util.CollectionUtils;
+import com.flipkart.foxtrot.common.visitor.CountPrecisionThresholdVisitorAdapter;
 import com.flipkart.foxtrot.core.common.Action;
 import com.flipkart.foxtrot.core.exception.FoxtrotExceptions;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsLoader;
@@ -136,7 +137,7 @@ public class HistogramAction extends Action<HistogramRequest> {
     @Override
     public SearchRequestBuilder getRequestBuilder(HistogramRequest parameter) {
         SearchRequestBuilder searchRequestBuilder;
-        AbstractAggregationBuilder aggregationBuilder = buildAggregation();
+        AbstractAggregationBuilder aggregationBuilder = buildAggregation(parameter);
         try {
             searchRequestBuilder = getConnection().getClient()
                     .prepareSearch(ElasticsearchUtils.getIndices(parameter.getTable(), parameter))
@@ -158,13 +159,14 @@ public class HistogramAction extends Action<HistogramRequest> {
         return buildResponse(aggregations);
     }
 
-    private AbstractAggregationBuilder buildAggregation() {
+    private AbstractAggregationBuilder buildAggregation(HistogramRequest parameter) {
         DateHistogramInterval interval = Utils.getHistogramInterval(getParameter().getPeriod());
         DateHistogramAggregationBuilder histogramBuilder = Utils.buildDateHistogramAggregation(
                 getParameter().getField(), interval);
         if (!CollectionUtils.isNullOrEmpty(getParameter().getUniqueCountOn())) {
             histogramBuilder.subAggregation(Utils.buildCardinalityAggregation(
-                    getParameter().getUniqueCountOn(), elasticsearchTuningConfig.getPrecisionThreshold()));
+                    getParameter().getUniqueCountOn(), parameter.accept(new CountPrecisionThresholdVisitorAdapter(
+                            elasticsearchTuningConfig.getPrecisionThreshold()))));
         }
         return histogramBuilder;
     }

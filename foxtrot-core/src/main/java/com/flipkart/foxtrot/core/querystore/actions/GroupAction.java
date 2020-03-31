@@ -29,6 +29,7 @@ import com.flipkart.foxtrot.common.query.general.NotInFilter;
 import com.flipkart.foxtrot.common.query.numeric.*;
 import com.flipkart.foxtrot.common.query.string.ContainsFilter;
 import com.flipkart.foxtrot.common.util.CollectionUtils;
+import com.flipkart.foxtrot.common.visitor.CountPrecisionThresholdVisitorAdapter;
 import com.flipkart.foxtrot.core.common.Action;
 import com.flipkart.foxtrot.core.common.PeriodSelector;
 import com.flipkart.foxtrot.core.exception.FoxtrotExceptions;
@@ -165,7 +166,7 @@ public class GroupAction extends Action<GroupRequest> {
             query = getConnection().getClient()
                     .prepareSearch(ElasticsearchUtils.getIndices(parameter.getTable(), parameter))
                     .setIndicesOptions(Utils.indicesOptions());
-            AbstractAggregationBuilder aggregation = buildAggregation();
+            AbstractAggregationBuilder aggregation = buildAggregation(parameter);
             query.setQuery(new ElasticSearchQueryGenerator().genFilter(parameter.getFilters()))
                     .setSize(QUERY_SIZE)
                     .addAggregation(aggregation);
@@ -695,7 +696,7 @@ public class GroupAction extends Action<GroupRequest> {
                : count;
     }
 
-    private AbstractAggregationBuilder buildAggregation() {
+    private AbstractAggregationBuilder buildAggregation(GroupRequest parameter) {
         return Utils.buildTermsAggregation(getParameter().getNesting()
                                                    .stream()
                                                    .map(x -> new ResultSort(x, ResultSort.Order.asc))
@@ -704,7 +705,8 @@ public class GroupAction extends Action<GroupRequest> {
                                            ?
                                            Sets.newHashSet(Utils.buildCardinalityAggregation(
                                                    getParameter().getUniqueCountOn(),
-                                                   elasticsearchTuningConfig.getPrecisionThreshold()))
+                                                   parameter.accept(new CountPrecisionThresholdVisitorAdapter(
+                                                           elasticsearchTuningConfig.getPrecisionThreshold()))))
                                            : Sets.newHashSet(),
                                            elasticsearchTuningConfig.getAggregationSize());
     }
