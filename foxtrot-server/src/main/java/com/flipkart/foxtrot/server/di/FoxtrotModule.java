@@ -218,7 +218,8 @@ public class FoxtrotModule extends AbstractModule {
     @Provides
     @Singleton
     public ElasticsearchTuningConfig provideElasticsearchTuningConfig(FoxtrotServerConfiguration configuration) {
-        return Objects.nonNull(configuration.);
+        return Objects.nonNull(configuration.getElasticsearchTuningConfig())
+                ? configuration.getElasticsearchTuningConfig() : new ElasticsearchTuningConfig();
     }
 
 }
