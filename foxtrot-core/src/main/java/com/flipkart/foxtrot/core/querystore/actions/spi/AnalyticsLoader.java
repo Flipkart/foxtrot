@@ -68,9 +68,10 @@ public class AnalyticsLoader implements Managed {
     private final ObjectMapper objectMapper;
 
     @Inject
-    public AnalyticsLoader(TableMetadataManager tableMetadataManager, DataStore dataStore, QueryStore queryStore,
-                           ElasticsearchConnection elasticsearchConnection, CacheManager cacheManager,
-                           ObjectMapper objectMapper, ElasticsearchTuningConfig elasticsearchTuningConfig) {
+    public AnalyticsLoader(
+            TableMetadataManager tableMetadataManager, DataStore dataStore, QueryStore queryStore,
+            ElasticsearchConnection elasticsearchConnection, CacheManager cacheManager,
+            ObjectMapper objectMapper, ElasticsearchTuningConfig elasticsearchTuningConfig) {
         this.tableMetadataManager = tableMetadataManager;
         this.dataStore = dataStore;
         this.queryStore = queryStore;
@@ -94,7 +95,8 @@ public class AnalyticsLoader implements Managed {
                     Constructor<? extends Action> constructor = metadata.getAction()
                             .getConstructor(metadata.getRequest(), AnalyticsLoader.class);
                     return constructor.newInstance(r, this);
-                } catch (Exception e) {
+                }
+                catch (Exception e) {
                     throw FoxtrotExceptions.createActionResolutionException(request, e);
                 }
             }
@@ -127,7 +129,8 @@ public class AnalyticsLoader implements Managed {
             if (Strings.isNullOrEmpty(opcode)) {
                 throw new AnalyticsActionLoaderException("Invalid annotation on " + action.getCanonicalName());
             }
-            register(new ActionMetadata(analyticsProvider.request(), action, analyticsProvider.cacheable()), analyticsProvider.opcode());
+            register(new ActionMetadata(analyticsProvider.request(), action, analyticsProvider.cacheable()),
+                     analyticsProvider.opcode());
             types.add(new NamedType(analyticsProvider.request(), opcode));
             types.add(new NamedType(analyticsProvider.response(), opcode));
             logger.info("Registered action: {}", action.getCanonicalName());

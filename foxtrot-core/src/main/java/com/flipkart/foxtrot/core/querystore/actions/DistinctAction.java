@@ -81,7 +81,8 @@ public class DistinctAction extends Action<DistinctRequest> {
 
         if (CollectionUtils.isNullOrEmpty(parameter.getNesting())) {
             validationErrors.add("At least one nesting parameter is required");
-        } else {
+        }
+        else {
             for (ResultSort resultSort : com.collections.CollectionUtils.nullSafeList(parameter.getNesting())) {
 
                 if (CollectionUtils.isNullOrEmpty(resultSort.getField())) {
@@ -109,7 +110,8 @@ public class DistinctAction extends Action<DistinctRequest> {
                     .setSize(QUERY_SIZE)
                     .addAggregation(Utils.buildTermsAggregation(
                             request.getNesting(), Sets.newHashSet(), elasticsearchTuningConfig.getAggregationSize()));
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             throw FoxtrotExceptions.queryCreationException(request, e);
         }
 
@@ -117,7 +119,8 @@ public class DistinctAction extends Action<DistinctRequest> {
             SearchResponse response = query.execute()
                     .actionGet(getGetQueryTimeout());
             return getResponse(response, getParameter());
-        } catch (ElasticsearchException e) {
+        }
+        catch (ElasticsearchException e) {
             throw FoxtrotExceptions.createQueryExecutionException(request, e);
         }
     }
@@ -134,7 +137,8 @@ public class DistinctAction extends Action<DistinctRequest> {
                     .addAggregation(Utils.buildTermsAggregation(
                             request.getNesting(), Sets.newHashSet(), elasticsearchTuningConfig.getAggregationSize()));
 
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             throw FoxtrotExceptions.queryCreationException(request, e);
         }
         return query;
@@ -165,21 +169,33 @@ public class DistinctAction extends Action<DistinctRequest> {
         return response;
     }
 
-    private void flatten(String parentKey, List<String> fields, List<List<String>> responseList, Aggregations aggregations) {
+    private void flatten(
+            String parentKey,
+            List<String> fields,
+            List<List<String>> responseList,
+            Aggregations aggregations) {
         final String field = fields.get(0);
-        final List<String> remainingFields = (fields.size() > 1) ? fields.subList(1, fields.size()) : new ArrayList<>();
+        final List<String> remainingFields = (fields.size() > 1)
+                                             ? fields.subList(1, fields.size())
+                                             : new ArrayList<>();
         Terms terms = aggregations.get(Utils.sanitizeFieldForAggregation(field));
         for (Terms.Bucket bucket : terms.getBuckets()) {
             if (fields.size() == 1) {
                 responseList.add(getValueList(parentKey, String.valueOf(bucket.getKey())));
-            } else {
-                flatten(getProperKey(parentKey, String.valueOf(bucket.getKey())), remainingFields, responseList, bucket.getAggregations());
+            }
+            else {
+                flatten(getProperKey(parentKey, String.valueOf(bucket.getKey())),
+                        remainingFields,
+                        responseList,
+                        bucket.getAggregations());
             }
         }
     }
 
     private String getProperKey(String parentKey, String currentKey) {
-        return parentKey == null ? currentKey : parentKey + Constants.SEPARATOR + currentKey;
+        return parentKey == null
+               ? currentKey
+               : parentKey + Constants.SEPARATOR + currentKey;
     }
 
     private List<String> getValueList(String parentKey, String currentKey) {

@@ -57,8 +57,9 @@ public class Utils {
     private Utils() {
     }
 
-    public static TermsAggregationBuilder buildTermsAggregation(List<ResultSort> fields,
-                  Set<AggregationBuilder> subAggregations, int aggregationSize) {
+    public static TermsAggregationBuilder buildTermsAggregation(
+            List<ResultSort> fields,
+            Set<AggregationBuilder> subAggregations, int aggregationSize) {
         TermsAggregationBuilder rootBuilder = null;
         TermsAggregationBuilder termsBuilder = null;
         for (ResultSort nestingField : fields) {
@@ -68,14 +69,15 @@ public class Utils {
                 termsBuilder = AggregationBuilders.terms(Utils.sanitizeFieldForAggregation(field))
                         .field(storedFieldName(field))
                         .order(bucketOrder);
-            } else {
+            }
+            else {
                 TermsAggregationBuilder tempBuilder = AggregationBuilders.terms(Utils.sanitizeFieldForAggregation(field))
                         .field(storedFieldName(field))
                         .order(bucketOrder);
                 termsBuilder.subAggregation(tempBuilder);
                 termsBuilder = tempBuilder;
             }
-            if(0 == aggregationSize) {
+            if (0 == aggregationSize) {
                 aggregationSize = QUERY_SIZE;
             }
             termsBuilder.size(aggregationSize);
@@ -157,15 +159,20 @@ public class Utils {
         });
     }
 
-    public static AbstractAggregationBuilder buildPercentileAggregation(String field, Collection<Double> inputPercentiles) {
+    public static AbstractAggregationBuilder buildPercentileAggregation(
+            String field,
+            Collection<Double> inputPercentiles) {
         return buildPercentileAggregation(field, inputPercentiles, DEFAULT_COMPRESSION);
     }
 
-    public static AbstractAggregationBuilder buildPercentileAggregation(String field, Collection<Double> inputPercentiles,
-                                                                        double compression) {
-        double[] percentiles = inputPercentiles != null ? inputPercentiles.stream()
-                .mapToDouble(x -> x)
-                .toArray() : DEFAULT_PERCENTILES;
+    public static AbstractAggregationBuilder buildPercentileAggregation(
+            String field, Collection<Double> inputPercentiles,
+            double compression) {
+        double[] percentiles = inputPercentiles != null
+                               ? inputPercentiles.stream()
+                                       .mapToDouble(x -> x)
+                                       .toArray()
+                               : DEFAULT_PERCENTILES;
         if (compression == 0.0) {
             compression = DEFAULT_COMPRESSION;
         }
@@ -176,7 +183,9 @@ public class Utils {
                 .compression(compression);
     }
 
-    public static DateHistogramAggregationBuilder buildDateHistogramAggregation(String field, DateHistogramInterval interval) {
+    public static DateHistogramAggregationBuilder buildDateHistogramAggregation(
+            String field,
+            DateHistogramInterval interval) {
         String metricKey = getDateHistogramKey(field);
         return AggregationBuilders.dateHistogram(metricKey)
                 .minDocCount(0)
@@ -296,28 +305,38 @@ public class Utils {
     }
 
     public static double ensurePositive(long number) {
-        return number <= 0.0 ? 0.0 : number;
+        return number <= 0.0
+               ? 0.0
+               : number;
     }
 
 
     public static double ensureOne(long number) {
-        return number <= 0 ? 1 : number;
+        return number <= 0
+               ? 1
+               : number;
     }
 
     public static Map<String, Number> toStats(Aggregation statAggregation) {
         if (statAggregation instanceof InternalExtendedStats) {
             return Utils.createStatsResponse((InternalExtendedStats) statAggregation);
-        } else if (statAggregation instanceof InternalStats) {
+        }
+        else if (statAggregation instanceof InternalStats) {
             return Utils.createStatsResponse((InternalStats) statAggregation);
-        } else if (statAggregation instanceof InternalMax) {
+        }
+        else if (statAggregation instanceof InternalMax) {
             return Utils.createStatResponse((InternalMax) statAggregation);
-        } else if (statAggregation instanceof InternalMin) {
+        }
+        else if (statAggregation instanceof InternalMin) {
             return Utils.createStatResponse((InternalMin) statAggregation);
-        } else if (statAggregation instanceof InternalAvg) {
+        }
+        else if (statAggregation instanceof InternalAvg) {
             return Utils.createStatResponse((InternalAvg) statAggregation);
-        } else if (statAggregation instanceof InternalSum) {
+        }
+        else if (statAggregation instanceof InternalSum) {
             return Utils.createStatResponse((InternalSum) statAggregation);
-        } else if (statAggregation instanceof InternalValueCount) {
+        }
+        else if (statAggregation instanceof InternalValueCount) {
             return Utils.createStatResponse((InternalValueCount) statAggregation);
         }
         return new HashMap<>();

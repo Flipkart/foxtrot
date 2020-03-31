@@ -69,9 +69,13 @@ public class CountAction extends Action<CountRequest> {
             }
         }
 
-        filterHashKey += 31 * (request.isDistinct() ? "TRUE".hashCode() : "FALSE".hashCode());
-        filterHashKey += 31 * (request.getField() != null ? request.getField()
-                .hashCode() : "COLUMN".hashCode());
+        filterHashKey += 31 * (request.isDistinct()
+                               ? "TRUE".hashCode()
+                               : "FALSE".hashCode());
+        filterHashKey += 31 * (request.getField() != null
+                               ? request.getField()
+                                       .hashCode()
+                               : "COLUMN".hashCode());
         return String.format("count-%s-%d", request.getTable(), filterHashKey);
     }
 
@@ -97,7 +101,8 @@ public class CountAction extends Action<CountRequest> {
             SearchResponse response = query.execute()
                     .actionGet(getGetQueryTimeout());
             return getResponse(response, parameter);
-        } catch (ElasticsearchException e) {
+        }
+        catch (ElasticsearchException e) {
             throw FoxtrotExceptions.createQueryExecutionException(parameter, e);
 
         }
@@ -114,13 +119,15 @@ public class CountAction extends Action<CountRequest> {
                         .setSize(QUERY_SIZE)
                         .setQuery(new ElasticSearchQueryGenerator().genFilter(parameter.getFilters()))
                         .addAggregation(Utils.buildCardinalityAggregation(parameter.getField(),
-                                parameter.accept(new CountPrecisionThresholdVisitorAdapter(
-                                        elasticsearchTuningConfig.getPrecisionThreshold()))));
+                                                                          parameter.accept(new CountPrecisionThresholdVisitorAdapter(
+                                                                                  elasticsearchTuningConfig.getPrecisionThreshold()))));
                 return query;
-            } catch (Exception e) {
+            }
+            catch (Exception e) {
                 throw FoxtrotExceptions.queryCreationException(parameter, e);
             }
-        } else {
+        }
+        else {
             SearchRequestBuilder requestBuilder;
             try {
                 requestBuilder = getConnection().getClient()
@@ -128,7 +135,8 @@ public class CountAction extends Action<CountRequest> {
                         .setIndicesOptions(Utils.indicesOptions())
                         .setSize(QUERY_SIZE)
                         .setQuery(new ElasticSearchQueryGenerator().genFilter(parameter.getFilters()));
-            } catch (Exception e) {
+            }
+            catch (Exception e) {
                 throw FoxtrotExceptions.queryCreationException(parameter, e);
             }
             return requestBuilder;
@@ -142,12 +150,14 @@ public class CountAction extends Action<CountRequest> {
             Cardinality cardinality = aggregations.get(Utils.sanitizeFieldForAggregation(parameter.getField()));
             if (cardinality == null) {
                 return new CountResponse(0);
-            } else {
+            }
+            else {
                 return new CountResponse(cardinality.getValue());
             }
-        } else {
+        }
+        else {
             return new CountResponse(((SearchResponse) response).getHits()
-                    .getTotalHits());
+                                             .getTotalHits());
         }
 
     }
