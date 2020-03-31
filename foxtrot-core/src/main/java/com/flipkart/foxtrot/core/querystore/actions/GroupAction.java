@@ -676,12 +676,13 @@ public class GroupAction extends Action<GroupRequest> {
                                                    .map(x -> new ResultSort(x, ResultSort.Order.asc))
                                                    .collect(Collectors.toList()),
                                            !CollectionUtils.isNullOrEmpty(getParameter().getUniqueCountOn())
-                                                   ? Sets.newHashSet(
+                                           ? Sets.newHashSet(
                                                    Utils.buildCardinalityAggregation(getParameter().getUniqueCountOn(),
-                                                           parameter.accept(new CountPrecisionThresholdVisitorAdapter(
-                                                                   elasticsearchTuningConfig.getPrecisionThreshold()))))
-                                                   : Sets.newHashSet(), elasticsearchTuningConfig.getAggregationSize());
+                                                                                     parameter.accept(new CountPrecisionThresholdVisitorAdapter(
+                                                                                             elasticsearchTuningConfig.getPrecisionThreshold()))))
+                                           : Sets.newHashSet(), elasticsearchTuningConfig.getAggregationSize());
 
+    }
 
         private Map<String, Object> getMap(List<String> fields, Aggregations aggregations) {
         final String field = fields.get(0);
