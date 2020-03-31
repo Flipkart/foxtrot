@@ -35,8 +35,6 @@ import java.net.URI;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Logger;
-
 /**
  * User: Santanu Sinha (santanu.sinha@flipkart.com)
  * Date: 15/03/14
@@ -47,8 +45,6 @@ import java.util.logging.Logger;
 @Api(value = "/v1/document/{table}")
 public class DocumentResource {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(DocumentResource.class);
-    private static final String EVENT_TYPE = "eventType";
     private final QueryStore queryStore;
     private final TableTranslator tableTranslator;
 
