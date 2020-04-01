@@ -326,11 +326,11 @@ function appendVersionConsoleList(array) {
 
 function loadParticularConsole() { // reload page based on selected console
   var selectedConsole = $("#listConsole").val();
-  if(window.location.href.indexOf("fql") > -1 || window.location.href.indexOf("browse") > -1) {
-    window.location.href = "/echo/index.htm?console=" + selectedConsole
+  if(window.location.href.indexOf("console") > -1) {
+    loadConsolesWithoutRefreshing(selectedConsole)
  } else {
    //window.location.assign("index.htm?console=" + selectedConsole);
-   loadConsolesWithoutRefreshing(selectedConsole)
+   window.location.href = "/index.htm?console=" + selectedConsole
  }
 }
 
