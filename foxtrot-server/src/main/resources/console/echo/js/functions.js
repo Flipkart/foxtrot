@@ -324,6 +324,64 @@ function appendVersionConsoleList(array) {
   $("#version-list").append(prepareListOption(array, true).join(''));
 }
 
+/**
+ * Refresh pages without loading
+ * @param {*} selectedConsole
+ */
+function loadConsolesWithoutRefreshing(selectedConsole) {
+
+  stopRefreshInterval();
+  getConsoleById(selectedConsole);
+  //refereshTiles();
+  isNewConsole = false;
+  isEdit = false;
+  isTemplateFilter = false;
+  isViewingVersionConsole = false;
+  hideTemplateFilters();
+  clearTemplateFilter();
+
+  $('.template-filter-switch').attr('checked', false).triggerHandler('click');
+  $('.filter-switch').attr('checked', false).triggerHandler('click');
+  globalFilterResetFromConsoleLoad();
+
+  clearForms();
+
+  // fetch selected console id
+  // Update broweser URL
+  var fullUrl = window.location.href;
+  var newUrl = fullUrl.substr(0, fullUrl.indexOf('?'));
+  window.history.pushState(null, "Echo", newUrl+"?console="+selectedConsole);
+
+
+  setTimeout(function () { // triiger version console api
+    loadVersionConsoleByName(currentConsoleName);
+  }, 5000);
+
+}
+
+// same as globalFilterResetDetails excluding refresh tiles
+function globalFilterResetFromConsoleLoad() {
+  globalFilters = false;
+  hideFilters();
+  resetPeriodDropdown();
+  resetGloblaDateFilter();
+}
+
+function globalFilterResetDetails() {
+  globalFilters = false;
+  hideFilters();
+  resetPeriodDropdown();
+  resetGloblaDateFilter();
+  refereshTiles();
+}
+
+function resetGloblaDateFilter() {
+  isGlobalDateFilter = false;
+  globalDateFilterValue = "";
+  $("#selected-global-date span").text('');
+  $("#selected-global-date").hide();
+}
+
 function loadParticularConsole() { // reload page based on selected console
   var selectedConsole = $("#listConsole").val();
   if(window.location.href.indexOf("console") > -1) {
