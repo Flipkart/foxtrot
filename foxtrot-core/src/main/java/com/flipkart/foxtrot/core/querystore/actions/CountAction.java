@@ -6,6 +6,7 @@ import com.flipkart.foxtrot.common.count.CountResponse;
 import com.flipkart.foxtrot.common.query.Filter;
 import com.flipkart.foxtrot.common.query.general.ExistsFilter;
 import com.flipkart.foxtrot.common.util.CollectionUtils;
+import com.flipkart.foxtrot.common.visitor.CountPrecisionThresholdVisitorAdapter;
 import com.flipkart.foxtrot.core.common.Action;
 import com.flipkart.foxtrot.core.exception.FoxtrotExceptions;
 import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsLoader;
@@ -113,7 +114,8 @@ public class CountAction extends Action<CountRequest> {
                         .setSize(QUERY_SIZE)
                         .setQuery(new ElasticSearchQueryGenerator().genFilter(parameter.getFilters()))
                         .addAggregation(Utils.buildCardinalityAggregation(
-                                parameter.getField(), elasticsearchTuningConfig.getPrecisionThreshold()));
+                                parameter.getField(), parameter.accept(new CountPrecisionThresholdVisitorAdapter(
+                                        elasticsearchTuningConfig.getPrecisionThreshold()))));
                 return query;
             } catch (Exception e) {
                 throw FoxtrotExceptions.queryCreationException(parameter, e);
