@@ -20,7 +20,10 @@ import com.flipkart.foxtrot.core.datastore.impl.hbase.HBaseUtil;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConfig;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConnection;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
+import com.flipkart.foxtrot.core.table.impl.TableMapStore;
 import com.flipkart.foxtrot.server.config.FoxtrotServerConfiguration;
+import com.flipkart.foxtrot.server.console.ElasticsearchConsolePersistence;
+import com.flipkart.foxtrot.sql.fqlstore.FqlStoreServiceImpl;
 import io.dropwizard.cli.ConfiguredCommand;
 import io.dropwizard.setup.Bootstrap;
 import net.sourceforge.argparse4j.inf.Namespace;
@@ -59,10 +62,11 @@ public class InitializerCommand extends ConfiguredCommand<FoxtrotServerConfigura
 
         logger.info("# data nodes: {}, Setting replica count to: {}", numDataNodes, numReplicas);
 
-        createMetaIndex(connection, "consoles", numReplicas);
-        createMetaIndex(connection, "consoles_v2", numReplicas);
-        createMetaIndex(connection, "table-meta", numReplicas);
-        createMetaIndex(connection, "consoles_history", numReplicas);
+        createMetaIndex(connection, ElasticsearchConsolePersistence.INDEX, numReplicas);
+        createMetaIndex(connection, ElasticsearchConsolePersistence.INDEX_V2, numReplicas);
+        createMetaIndex(connection, TableMapStore.TABLE_META_INDEX, numReplicas);
+        createMetaIndex(connection, ElasticsearchConsolePersistence.INDEX_HISTORY, numReplicas);
+        createMetaIndex(connection, FqlStoreServiceImpl.FQL_STORE_INDEX, numReplicas);
 
         logger.info("Creating mapping");
         PutIndexTemplateRequest putIndexTemplateRequest = ElasticsearchUtils.getClusterTemplateMapping();
