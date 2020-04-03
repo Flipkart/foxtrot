@@ -122,7 +122,8 @@ public class DocumentResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Timed
     @ApiOperation("Save list of documents")
-    public Response saveDocuments(@PathParam("table") String table, @Valid final List<Document> documents) {
+    public Response saveDocuments(@PathParam("table") String table, @Valid final List<Document> documents)
+            throws BadRequestException, StoreExecutionException {
         Map<String, List<Document>> tableVsDocuments = preProcessSaveDocuments(table, documents);
 
         // Catch all StoreExecutionException and append error messages to a list
@@ -151,12 +152,12 @@ public class DocumentResource {
         if (!exceptionMessages.isEmpty()) {
             String exceptionMessage = String.join(ERROR_DELIMITER, exceptionMessages);
             throw FoxtrotExceptions.createExecutionException(table, new RuntimeException(exceptionMessage));
-        } else if (Objects.nonNull(badRequestException)) {{
+        } else if (Objects.nonNull(badRequestException)) {
             throw badRequestException;
         }
-            return Response.created(URI.create("/" + table))
-                    .build();
-        }
+
+        return Response.created(URI.create("/" + table))
+                .build();
     }
 
     private Map<String, List<Document>> preProcessSaveDocuments(String table, List<Document> documents) {
