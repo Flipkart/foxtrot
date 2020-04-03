@@ -18,8 +18,10 @@ import com.flipkart.foxtrot.common.Table;
 import com.flipkart.foxtrot.common.TableFieldMapping;
 import com.flipkart.foxtrot.core.cardinality.CardinalityConfig;
 import com.flipkart.foxtrot.core.datastore.DataStore;
+import com.flipkart.foxtrot.core.exception.BadRequestException;
 import com.flipkart.foxtrot.core.exception.FoxtrotException;
 import com.flipkart.foxtrot.core.exception.FoxtrotExceptions;
+import com.flipkart.foxtrot.core.exception.StoreExecutionException;
 import com.flipkart.foxtrot.core.querystore.QueryStore;
 import com.flipkart.foxtrot.core.querystore.mutator.IndexerEventMutator;
 import com.flipkart.foxtrot.core.table.TableMetadataManager;
@@ -164,7 +166,7 @@ public class ElasticsearchQueryStore implements QueryStore {
 
     @Override
     @Timed
-    public void save(String table, List<Document> documents) {
+    public void save(String table, List<Document> documents) throws BadRequestException, StoreExecutionException {
         table = ElasticsearchUtils.getValidTableName(table);
         Stopwatch stopwatch = Stopwatch.createStarted();
         String action = StringUtils.EMPTY;

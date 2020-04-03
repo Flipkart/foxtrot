@@ -20,7 +20,9 @@ import static com.flipkart.foxtrot.core.exception.FoxtrotExceptions.ERROR_DELIMI
 import com.codahale.metrics.annotation.Timed;
 import com.collections.CollectionUtils;
 import com.flipkart.foxtrot.common.Document;
+import com.flipkart.foxtrot.core.exception.BadRequestException;
 import com.flipkart.foxtrot.core.exception.FoxtrotExceptions;
+import com.flipkart.foxtrot.core.exception.StoreExecutionException;
 import com.flipkart.foxtrot.core.querystore.QueryStore;
 import com.flipkart.foxtrot.server.config.SegregationConfiguration;
 import com.google.common.collect.Lists;
@@ -31,6 +33,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.Consumes;
@@ -122,8 +125,11 @@ public class DocumentResource {
     public Response saveDocuments(@PathParam("table") String table, @Valid final List<Document> documents) {
         Map<String, List<Document>> tableVsDocuments = preProcessSaveDocuments(table, documents);
 
-        // Catch all exceptions and append error messages
-        List<String> exceptionMessages = new ArrayList<>();
+        // Catch all StoreExecutionException and append error messages to a list
+        // keep track of any BadRequestException,
+        // throw it if it's thrown for any batch and if no StoreExecutionException was thrown
+        List<String> storeExecutionExceptionMessages = new ArrayList<>();
+        BadRequestException badRequestException = null;
 
         for (Map.Entry<String, List<Document>> entry : CollectionUtils.nullSafeSet(tableVsDocuments.entrySet())) {
             try {
@@ -133,20 +139,24 @@ public class DocumentResource {
                         .contains(entry.getKey())) {
                     queryStore.save(table, entry.getValue());
                 }
-            } catch (Exception e) {
-                exceptionMessages.add(e.getCause() != null
+            } catch (BadRequestException e) {
+                badRequestException = e;
+            } catch (StoreExecutionException e) {
+                storeExecutionExceptionMessages.add(Objects.nonNull(e.getCause())
                         ? e.getCause().getMessage()
                         : e.getMessage());
             }
         }
 
-        if (!exceptionMessages.isEmpty()) {
-            String exceptionMessage = String.join(ERROR_DELIMITER, exceptionMessages);
+        if (!storeExecutionExceptionMessages.isEmpty()) {
+            String exceptionMessage = String.join(ERROR_DELIMITER, storeExecutionExceptionMessages);
             throw FoxtrotExceptions.createExecutionException(table, new RuntimeException(exceptionMessage));
+        } else if (Objects.nonNull(badRequestException)) {{
+            throw badRequestException;
         }
-
-        return Response.created(URI.create("/" + table))
-                .build();
+            return Response.created(URI.create("/" + table))
+                    .build();
+        }
     }
 
     private Map<String, List<Document>> preProcessSaveDocuments(String table, List<Document> documents) {
