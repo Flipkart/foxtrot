@@ -128,7 +128,7 @@ public class DocumentResource {
         // Catch all StoreExecutionException and append error messages to a list
         // keep track of any BadRequestException,
         // throw it if it's thrown for any batch and if no StoreExecutionException was thrown
-        List<String> storeExecutionExceptionMessages = new ArrayList<>();
+        List<String> exceptionMessages = new ArrayList<>();
         BadRequestException badRequestException = null;
 
         for (Map.Entry<String, List<Document>> entry : CollectionUtils.nullSafeSet(tableVsDocuments.entrySet())) {
@@ -141,15 +141,15 @@ public class DocumentResource {
                 }
             } catch (BadRequestException e) {
                 badRequestException = e;
-            } catch (StoreExecutionException e) {
-                storeExecutionExceptionMessages.add(Objects.nonNull(e.getCause())
+            } catch (Exception e) {
+                exceptionMessages.add(Objects.nonNull(e.getCause())
                         ? e.getCause().getMessage()
                         : e.getMessage());
             }
         }
 
-        if (!storeExecutionExceptionMessages.isEmpty()) {
-            String exceptionMessage = String.join(ERROR_DELIMITER, storeExecutionExceptionMessages);
+        if (!exceptionMessages.isEmpty()) {
+            String exceptionMessage = String.join(ERROR_DELIMITER, exceptionMessages);
             throw FoxtrotExceptions.createExecutionException(table, new RuntimeException(exceptionMessage));
         } else if (Objects.nonNull(badRequestException)) {{
             throw badRequestException;
