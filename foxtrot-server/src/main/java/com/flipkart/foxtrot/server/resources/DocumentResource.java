@@ -122,8 +122,7 @@ public class DocumentResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Timed
     @ApiOperation("Save list of documents")
-    public Response saveDocuments(@PathParam("table") String table, @Valid final List<Document> documents)
-            throws BadRequestException, StoreExecutionException {
+    public Response saveDocuments(@PathParam("table") String table, @Valid final List<Document> documents) {
         Map<String, List<Document>> tableVsDocuments = preProcessSaveDocuments(table, documents);
 
         // Catch all StoreExecutionException and append error messages to a list

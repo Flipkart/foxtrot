@@ -35,7 +35,7 @@ public interface QueryStore {
 
     void save(final String table, final Document document);
 
-    void save(final String table, final List<Document> documents) throws BadRequestException, StoreExecutionException;
+    void save(final String table, final List<Document> documents);
 
     Document get(final String table, final String id);
 

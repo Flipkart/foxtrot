@@ -166,7 +166,7 @@ public class ElasticsearchQueryStore implements QueryStore {
 
     @Override
     @Timed
-    public void save(String table, List<Document> documents) throws BadRequestException, StoreExecutionException {
+    public void save(String table, List<Document> documents) {
         table = ElasticsearchUtils.getValidTableName(table);
         Stopwatch stopwatch = Stopwatch.createStarted();
         String action = StringUtils.EMPTY;
