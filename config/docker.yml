@@ -21,7 +21,7 @@ hbase:
 cluster:
   name: foxtrot
   discovery:
-    type: foxtrot_simple
+    type: foxtrot_kubernetes
     disableMulticast: true
     members: ["localhost:5701"]
 
