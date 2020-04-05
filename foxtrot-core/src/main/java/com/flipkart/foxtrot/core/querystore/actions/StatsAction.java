@@ -13,22 +13,23 @@ import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsProvider;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
 import com.flipkart.foxtrot.core.querystore.query.ElasticSearchQueryGenerator;
 import com.google.common.collect.Lists;
-import org.elasticsearch.ElasticsearchException;
-import org.elasticsearch.action.search.SearchRequestBuilder;
+import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
+import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.search.aggregations.AbstractAggregationBuilder;
 import org.elasticsearch.search.aggregations.AggregationBuilder;
 import org.elasticsearch.search.aggregations.Aggregations;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.elasticsearch.search.aggregations.metrics.percentiles.Percentiles;
+import org.elasticsearch.search.builder.SearchSourceBuilder;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
-
-import static com.flipkart.foxtrot.core.util.ElasticsearchQueryUtils.QUERY_SIZE;
 
 /**
  * Created by rishabh.goyal on 02/08/14.
@@ -105,63 +106,58 @@ public class StatsAction extends Action<StatsRequest> {
 
     @Override
     public ActionResponse execute(StatsRequest parameter) {
-        SearchRequestBuilder searchRequestBuilder = getRequestBuilder(parameter);
+        SearchRequest query = getRequestBuilder(parameter);
         try {
-            SearchResponse response = searchRequestBuilder.execute()
-                    .actionGet(getGetQueryTimeout());
+            SearchResponse response = getConnection()
+                    .getClient()
+                    .search(query);
             return getResponse(response, parameter);
         }
-        catch (ElasticsearchException e) {
+        catch (IOException e) {
             throw FoxtrotExceptions.createQueryExecutionException(parameter, e);
         }
     }
 
     @Override
-    public SearchRequestBuilder getRequestBuilder(StatsRequest parameter) {
-        SearchRequestBuilder searchRequestBuilder;
-        try {
-            final String table = parameter.getTable();
-            searchRequestBuilder = getConnection().getClient()
-                    .prepareSearch(ElasticsearchUtils.getIndices(table, parameter))
-                    .setTypes(ElasticsearchUtils.DOCUMENT_TYPE_NAME)
-                    .setIndicesOptions(Utils.indicesOptions())
-                    .setQuery(new ElasticSearchQueryGenerator().genFilter(parameter.getFilters()))
-                    .setSize(QUERY_SIZE);
-            AbstractAggregationBuilder percentiles = null;
-            final String field = getParameter().getField();
-            boolean isNumericField = Utils.isNumericField(getTableMetadataManager(), table, field);
-            final AbstractAggregationBuilder extendedStats;
-            if (isNumericField) {
-                if (!AnalyticsRequestFlags.hasFlag(parameter.getFlags(),
-                                                   AnalyticsRequestFlags.STATS_SKIP_PERCENTILES)) {
-                    percentiles = Utils.buildPercentileAggregation(field, getParameter().getPercentiles());
-                    searchRequestBuilder.addAggregation(percentiles);
-                }
-                extendedStats = Utils.buildStatsAggregation(field, getParameter().getStats());
+    public SearchRequest getRequestBuilder(StatsRequest parameter) {
+        final SearchSourceBuilder sourceBuilder = new SearchSourceBuilder()
+                .size(0)
+                .timeout(new TimeValue(getGetQueryTimeout(), TimeUnit.MILLISECONDS))
+                .query(new ElasticSearchQueryGenerator().genFilter(parameter.getFilters()));
+
+        AbstractAggregationBuilder percentiles = null;
+        final String field = getParameter().getField();
+        boolean isNumericField = Utils.isNumericField(getTableMetadataManager(), parameter.getTable(), field);
+        final AbstractAggregationBuilder extendedStats;
+        if (isNumericField) {
+            if (!AnalyticsRequestFlags.hasFlag(parameter.getFlags(),
+                                               AnalyticsRequestFlags.STATS_SKIP_PERCENTILES)) {
+                percentiles = Utils.buildPercentileAggregation(field, getParameter().getPercentiles());
+                sourceBuilder.aggregation(percentiles);
             }
-            else {
-                extendedStats = Utils.buildStatsAggregation(field, Collections.singleton(Stat.COUNT));
-            }
-            searchRequestBuilder.addAggregation(extendedStats);
-            if (!CollectionUtils.isNullOrEmpty(getParameter().getNesting())) {
-                final HashSet<AggregationBuilder> subAggregations = new HashSet<>();
-                subAggregations.add(extendedStats);
-                if (null != percentiles) {
-                    subAggregations.add(percentiles);
-                }
-                searchRequestBuilder.addAggregation(
-                        Utils.buildTermsAggregation(getParameter().getNesting()
-                                                            .stream()
-                                                            .map(x -> new ResultSort(x, ResultSort.Order.asc))
-                                                            .collect(Collectors.toList()),
-                                                    subAggregations,
-                                                    elasticsearchTuningConfig.getAggregationSize()));
-            }
+            extendedStats = Utils.buildStatsAggregation(field, getParameter().getStats());
         }
-        catch (Exception e) {
-            throw FoxtrotExceptions.queryCreationException(parameter, e);
+        else {
+            extendedStats = Utils.buildStatsAggregation(field, Collections.singleton(Stat.COUNT));
         }
-        return searchRequestBuilder;
+        sourceBuilder.aggregation(extendedStats);
+        if (!CollectionUtils.isNullOrEmpty(getParameter().getNesting())) {
+            final HashSet<AggregationBuilder> subAggregations = new HashSet<>();
+            subAggregations.add(extendedStats);
+            if (null != percentiles) {
+                subAggregations.add(percentiles);
+            }
+            sourceBuilder.aggregation(
+                    Utils.buildTermsAggregation(getParameter().getNesting()
+                                                        .stream()
+                                                        .map(x -> new ResultSort(x, ResultSort.Order.asc))
+                                                        .collect(Collectors.toList()),
+                                                subAggregations,
+                                                elasticsearchTuningConfig.getAggregationSize()));
+        }
+        return new SearchRequest(ElasticsearchUtils.getIndices(parameter.getTable(), parameter))
+                .indicesOptions(Utils.indicesOptions())
+                .source(sourceBuilder);
     }
 
     @Override

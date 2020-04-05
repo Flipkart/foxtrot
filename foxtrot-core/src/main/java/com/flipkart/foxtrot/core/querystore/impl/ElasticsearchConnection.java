@@ -16,18 +16,18 @@
 package com.flipkart.foxtrot.core.querystore.impl;
 
 import io.dropwizard.lifecycle.Managed;
+import lombok.Getter;
+import lombok.SneakyThrows;
+import org.apache.http.HttpHost;
 import org.elasticsearch.action.admin.indices.refresh.RefreshRequest;
-import org.elasticsearch.client.Client;
-import org.elasticsearch.client.transport.TransportClient;
-import org.elasticsearch.common.settings.Settings;
-import org.elasticsearch.common.transport.TransportAddress;
+import org.elasticsearch.client.RestClient;
+import org.elasticsearch.client.RestHighLevelClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.vyarus.dropwizard.guice.module.installer.order.Order;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import java.net.InetAddress;
 
 /**
  * User: Santanu Sinha (santanu.sinha@flipkart.com)
@@ -38,8 +38,10 @@ import java.net.InetAddress;
 @Order(5)
 public class ElasticsearchConnection implements Managed {
     private static final Logger logger = LoggerFactory.getLogger(ElasticsearchConnection.class.getSimpleName());
+    @Getter
     private final ElasticsearchConfig config;
-    private Client client;
+    @Getter
+    private RestHighLevelClient client;
 
     @Inject
     public ElasticsearchConnection(ElasticsearchConfig config) {
@@ -49,7 +51,7 @@ public class ElasticsearchConnection implements Managed {
     @Override
     public void start() throws Exception {
         logger.info("Starting ElasticSearch Client");
-        Settings settings = Settings.builder()
+/*        Settings settings = Settings.builder()
                 .put("cluster.name", config.getCluster())
                 .put("client.transport.ignore_cluster_name", true)
                 .build();
@@ -57,16 +59,23 @@ public class ElasticsearchConnection implements Managed {
         TransportClient esClient = new CustomESTransportClient(settings);
         final int port = config.getPort() == null
             ? 9300
-            : config.getPort();
+            : config.getPort();*/
 
-        for(String host : config.getHosts()) {
+       client = new RestHighLevelClient(
+                RestClient.builder(new HttpHost(config.getHosts().get(0), config.getPort(), "http")));
+/*
+                        new HttpHost("localhost", 9200, "http"),
+                        new HttpHost("localhost", 9201, "http")));
+*/
+
+/*        for(String host : config.getHosts()) {
             String[] tokenizedHosts = host.split(",");
             for(String tokenizedHost : tokenizedHosts) {
                 esClient.addTransportAddress(new TransportAddress(InetAddress.getByName(tokenizedHost), port));
                 logger.info("Added ElasticSearch Node : {}", host);
             }
         }
-        client = esClient;
+        client = esClient;*/
         logger.info("Started ElasticSearch Client");
     }
 
@@ -79,18 +88,10 @@ public class ElasticsearchConnection implements Managed {
         client = null;
     }
 
-    public Client getClient() {
-        return client;
-    }
-
-    public ElasticsearchConfig getConfig() {
-        return config;
-    }
-
+    @SneakyThrows
     public void refresh(final String index) {
-        client.admin()
+        client
                 .indices()
-                .refresh(new RefreshRequest().indices(index))
-                .actionGet();
+                .refresh(new RefreshRequest().indices(index));
     }
 }

@@ -29,7 +29,8 @@ import org.elasticsearch.action.admin.cluster.health.ClusterHealthResponse;
 import org.elasticsearch.action.admin.indices.create.CreateIndexRequest;
 import org.elasticsearch.action.admin.indices.create.CreateIndexResponse;
 import org.elasticsearch.action.admin.indices.template.put.PutIndexTemplateRequest;
-import org.elasticsearch.action.admin.indices.template.put.PutIndexTemplateResponse;
+import org.elasticsearch.action.support.master.AcknowledgedResponse;
+import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.common.settings.Settings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,10 +51,8 @@ public class InitializerCommand extends ConfiguredCommand<FoxtrotServerConfigura
         connection.start();
 
         ClusterHealthResponse clusterHealth = connection.getClient()
-                .admin()
                 .cluster()
-                .health(new ClusterHealthRequest())
-                .actionGet();
+                .health(new ClusterHealthRequest(), RequestOptions.DEFAULT);
         int numDataNodes = clusterHealth.getNumberOfDataNodes();
         int numReplicas = (numDataNodes < 2) ? 0 : 1;
 
@@ -66,11 +65,9 @@ public class InitializerCommand extends ConfiguredCommand<FoxtrotServerConfigura
 
         logger.info("Creating mapping");
         PutIndexTemplateRequest putIndexTemplateRequest = ElasticsearchUtils.getClusterTemplateMapping();
-        PutIndexTemplateResponse response = connection.getClient()
-                .admin()
+        AcknowledgedResponse response = connection.getClient()
                 .indices()
-                .putTemplate(putIndexTemplateRequest)
-                .actionGet();
+                .putTemplate(putIndexTemplateRequest, RequestOptions.DEFAULT);
         logger.info("Created mapping: {}", response.isAcknowledged());
 
         logger.info("Creating hbase table");
@@ -88,10 +85,8 @@ public class InitializerCommand extends ConfiguredCommand<FoxtrotServerConfigura
             CreateIndexRequest createIndexRequest = new CreateIndexRequest().index(indexName)
                     .settings(settings);
             CreateIndexResponse response = connection.getClient()
-                    .admin()
                     .indices()
-                    .create(createIndexRequest)
-                    .actionGet();
+                    .create(createIndexRequest, RequestOptions.DEFAULT);
             logger.info("'{}' creation acknowledged: {}", indexName, response.isAcknowledged());
             if(!response.isAcknowledged()) {
                 logger.error("Index {} could not be created.", indexName);

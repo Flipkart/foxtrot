@@ -20,6 +20,7 @@ import com.codahale.metrics.annotation.Timed;
 import com.flipkart.foxtrot.core.querystore.QueryStore;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import lombok.SneakyThrows;
 import org.elasticsearch.action.admin.cluster.health.ClusterHealthResponse;
 import org.elasticsearch.action.admin.cluster.node.stats.NodesStatsResponse;
 import org.elasticsearch.action.admin.indices.stats.IndicesStatsResponse;
@@ -68,6 +69,7 @@ public class ClusterHealthResource {
     @Timed
     @Path("indicesstats")
     @ApiOperation("getIndicesStat")
+    @SneakyThrows
     public IndicesStatsResponse getIndicesStat() throws ExecutionException, InterruptedException {
         return queryStore.getIndicesStats();
     }
