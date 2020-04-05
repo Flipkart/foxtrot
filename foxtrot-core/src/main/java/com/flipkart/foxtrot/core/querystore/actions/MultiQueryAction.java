@@ -13,15 +13,14 @@ import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsProvider;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import org.elasticsearch.ElasticsearchException;
-import org.elasticsearch.action.ActionRequestBuilder;
-import org.elasticsearch.action.search.MultiSearchRequestBuilder;
+import org.elasticsearch.action.search.MultiSearchRequest;
 import org.elasticsearch.action.search.MultiSearchResponse;
-import org.elasticsearch.action.search.SearchRequestBuilder;
+import org.elasticsearch.action.search.SearchRequest;
 import org.glassfish.hk2.api.MultiException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -82,22 +81,23 @@ public class MultiQueryAction extends Action<MultiQueryRequest> {
 
     @Override
     public ActionResponse execute(MultiQueryRequest parameter) {
-        MultiSearchRequestBuilder multiSearchRequestBuilder = getRequestBuilder(parameter);
+        MultiSearchRequest multiSearchRequestBuilder = getRequestBuilder(parameter);
         try {
             LOGGER.info("Search: {}", multiSearchRequestBuilder);
-            MultiSearchResponse multiSearchResponse = multiSearchRequestBuilder.execute()
-                    .actionGet();
+            MultiSearchResponse multiSearchResponse = getConnection()
+                    .getClient()
+                    .multiSearch(multiSearchRequestBuilder);
             return getResponse(multiSearchResponse, parameter);
-        } catch (ElasticsearchException e) {
+        } catch (IOException e) {
             throw FoxtrotExceptions.createQueryExecutionException(parameter, e);
         }
     }
 
     @Override
-    public MultiSearchRequestBuilder getRequestBuilder(MultiQueryRequest parameter) {
+    public MultiSearchRequest getRequestBuilder(MultiQueryRequest parameter) {
 
-        MultiSearchRequestBuilder multiSearchRequestBuilder = getConnection().getClient()
-                .prepareMultiSearch();
+        MultiSearchRequest multiSearchRequest = new MultiSearchRequest();
+
 
         for(Map.Entry<String, ActionRequest> entry : parameter.getRequests()
                 .entrySet()) {
@@ -106,12 +106,12 @@ public class MultiQueryAction extends Action<MultiQueryRequest> {
             if(null == action) {
                 throw FoxtrotExceptions.queryCreationException(request, null);
             }
-            ActionRequestBuilder requestBuilder = action.getRequestBuilder(request);
-            if(requestBuilder instanceof SearchRequestBuilder) {
-                multiSearchRequestBuilder.add((SearchRequestBuilder)requestBuilder);
+            org.elasticsearch.action.ActionRequest requestBuilder = action.getRequestBuilder(request);
+            if(requestBuilder instanceof SearchRequest) {
+                multiSearchRequest.add((SearchRequest) requestBuilder);
             }
         }
-        return multiSearchRequestBuilder;
+        return multiSearchRequest;
     }
 
     @Override

@@ -21,9 +21,9 @@ import org.elasticsearch.action.admin.cluster.health.ClusterHealthResponse;
 import org.elasticsearch.action.admin.cluster.node.stats.NodesStatsResponse;
 import org.elasticsearch.action.admin.indices.stats.IndicesStatsResponse;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.ExecutionException;
 
 /**
  * User: Santanu Sinha (santanu.sinha@flipkart.com)
@@ -50,11 +50,11 @@ public interface QueryStore {
 
     void cleanup(final Set<String> tables);
 
-    ClusterHealthResponse getClusterHealth() throws ExecutionException, InterruptedException;
+    ClusterHealthResponse getClusterHealth();
 
-    NodesStatsResponse getNodeStats() throws ExecutionException, InterruptedException;
+    NodesStatsResponse getNodeStats();
 
-    IndicesStatsResponse getIndicesStats() throws ExecutionException, InterruptedException;
+    IndicesStatsResponse getIndicesStats() throws IOException;
 
     TableFieldMapping getFieldMappings(String table);
 }
