@@ -5,14 +5,21 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.flipkart.foxtrot.core.auth.User;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchConnection;
 import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.elasticsearch.action.DocWriteRequest;
 import org.elasticsearch.action.delete.DeleteRequest;
 import org.elasticsearch.action.get.GetRequest;
 import org.elasticsearch.action.index.IndexRequest;
+import org.elasticsearch.action.search.SearchRequest;
+import org.elasticsearch.action.search.SearchType;
 import org.elasticsearch.action.support.WriteRequest;
 import org.elasticsearch.common.xcontent.XContentType;
+import org.elasticsearch.index.engine.VersionConflictEngineException;
+import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.rest.RestStatus;
+import org.elasticsearch.search.SearchHits;
+import org.elasticsearch.search.builder.SearchSourceBuilder;
 
 import javax.inject.Inject;
 import java.util.Date;
@@ -23,7 +30,7 @@ import java.util.function.UnaryOperator;
 /**
  *
  */
-
+@Slf4j
 public class ESAuthStore implements AuthStore {
     private static final String USERS_INDEX = "user-meta";
     private static final String TOKENS_INDEX = "tokens";
@@ -87,20 +94,28 @@ public class ESAuthStore implements AuthStore {
     public Optional<Token> provisionToken(String userId, TokenType tokenType, Date expiry) {
         val userPresent = getUser(userId).isPresent();
         if (!userPresent) {
+            log.warn("No user found for is: {}", userId);
             return Optional.empty();
         }
         final String tokenId = UUID.randomUUID().toString();
-        val saveStatus = connection.getClient()
-                .index(new IndexRequest(TOKENS_INDEX)
-                               .source(mapper.writeValueAsString(new Token(tokenId, tokenType, userId, expiry)), XContentType.JSON)
-                               .id(userId)
-                               .type("TOKEN")
-                               .create(true)
-                               .setRefreshPolicy(WriteRequest.RefreshPolicy.IMMEDIATE))
-                .actionGet()
-                .status();
-        if (saveStatus != RestStatus.OK) {
-            return Optional.empty();
+        try {
+            val saveStatus = connection.getClient()
+                    .index(new IndexRequest(TOKENS_INDEX)
+                                   .source(mapper.writeValueAsString(new Token(tokenId, tokenType, userId, expiry)),
+                                           XContentType.JSON)
+                                   .id(userId)
+                                   .type("TOKEN")
+                                   .create(true)
+                                   .setRefreshPolicy(WriteRequest.RefreshPolicy.IMMEDIATE))
+                    .actionGet()
+                    .status();
+            if (saveStatus != RestStatus.OK) {
+                log.error("ES save status for token for user {} is: {}", userId, saveStatus);
+                return Optional.empty();
+            }
+        } catch (VersionConflictEngineException v) {
+            log.warn("A valid token exists exists already.. for id: {}", userId);
+            return getTokenForUser(userId);
         }
         return getToken(tokenId);
     }
@@ -116,6 +131,21 @@ public class ESAuthStore implements AuthStore {
             return Optional.empty();
         }
         return Optional.of(mapper.readValue(getResp.getSourceAsString(), Token.class));
+    }
+
+    @Override
+    @SneakyThrows
+    public Optional<Token> getTokenForUser(String userId) {
+        val getResp = connection.getClient()
+                .search(new SearchRequest(TOKENS_INDEX)
+                             .searchType(SearchType.QUERY_THEN_FETCH)
+                        .source(new SearchSourceBuilder().query(QueryBuilders.termQuery("userId", userId))))
+                .actionGet();
+        final SearchHits hits = getResp.getHits();
+        if (hits.totalHits <= 0) {
+            return Optional.empty();
+        }
+        return Optional.of(mapper.readValue(hits.getAt(0).getSourceAsString(), Token.class));
     }
 
     @Override

@@ -110,6 +110,13 @@ public class Auth {
                 .build();
     }
 
+    @GET
+    @Path("/tokens/{tokenId}")
+    public Response getToken(@NotNull @NotEmpty @PathParam("tokenId") final String tokenId) {
+        return Response.ok(authProvider.get().getToken(tokenId))
+                .build();
+    }
+
     @DELETE
     @Path("/tokens/{userId}")
     public Response deleteToken(@NotNull @NotEmpty @PathParam("userId") final String userId,

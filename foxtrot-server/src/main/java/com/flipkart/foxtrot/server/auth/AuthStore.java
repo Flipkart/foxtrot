@@ -2,6 +2,7 @@ package com.flipkart.foxtrot.server.auth;
 
 import com.flipkart.foxtrot.core.auth.FoxtrotRole;
 import com.flipkart.foxtrot.core.auth.User;
+import lombok.SneakyThrows;
 import lombok.val;
 
 import java.util.Date;
@@ -56,6 +57,9 @@ public interface AuthStore {
     Optional<Token> provisionToken(final String userId, TokenType tokenType, Date expiry);
 
     Optional<Token> getToken(final String tokenId);
+
+    @SneakyThrows
+    Optional<Token> getTokenForUser(String userId);
 
     boolean deleteToken(final String tokenId);
 }

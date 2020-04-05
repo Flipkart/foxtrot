@@ -64,6 +64,7 @@ import org.jose4j.keys.HmacKey;
 import javax.inject.Singleton;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
@@ -247,6 +248,9 @@ public class FoxtrotModule extends AbstractModule {
                 .setJwsAlgorithmConstraints(new AlgorithmConstraints(
                         AlgorithmConstraints.ConstraintType.WHITELIST,
                         AlgorithmIdentifiers.HMAC_SHA512))
+                .setExpectedAudience(Arrays.stream(TokenType.values())
+                                             .map(TokenType::name)
+                                             .toArray(String[]::new))
                 .build();
     }
 
