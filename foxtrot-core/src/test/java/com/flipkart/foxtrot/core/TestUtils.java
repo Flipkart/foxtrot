@@ -36,9 +36,9 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import lombok.SneakyThrows;
-import org.elasticsearch.action.admin.indices.create.CreateIndexRequest;
-import org.elasticsearch.action.admin.indices.get.GetIndexRequest;
 import org.elasticsearch.client.RequestOptions;
+import org.elasticsearch.client.indices.CreateIndexRequest;
+import org.elasticsearch.client.indices.GetIndexRequest;
 import org.elasticsearch.common.settings.Settings;
 import org.joda.time.DateTime;
 import org.mockito.Matchers;
@@ -493,7 +493,7 @@ public class TestUtils {
     public static void ensureIndex(ElasticsearchConnection connection, final String table) {
         boolean exists = connection.getClient()
                 .indices()
-                .exists(new GetIndexRequest().indices(table), RequestOptions.DEFAULT);
+                .exists(new GetIndexRequest(table), RequestOptions.DEFAULT);
 
         if(!exists) {
             Settings indexSettings = Settings.builder()

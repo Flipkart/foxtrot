@@ -12,8 +12,8 @@ import lombok.val;
 import net.javacrumbs.shedlock.core.LockConfiguration;
 import net.javacrumbs.shedlock.core.LockingTaskExecutor;
 import org.elasticsearch.action.admin.indices.forcemerge.ForceMergeRequest;
-import org.elasticsearch.action.admin.indices.get.GetIndexRequest;
 import org.elasticsearch.client.RequestOptions;
+import org.elasticsearch.client.indices.GetIndexRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.vyarus.dropwizard.guice.module.installer.order.Order;
@@ -58,7 +58,7 @@ public class EsIndexOptimizationManager extends BaseJobManager {
                 val indexes = elasticsearchConnection
                         .getClient()
                         .indices()
-                        .get(new GetIndexRequest(), RequestOptions.DEFAULT)
+                        .get(new GetIndexRequest("*"), RequestOptions.DEFAULT)
                         .getIndices();
                 val candidateIndices = Arrays.stream(indexes)
                         .filter(index -> {

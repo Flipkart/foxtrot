@@ -53,6 +53,7 @@ public class ElasticsearchTestUtils {
         static {
             try {
                 ElasticsearchContainerConfiguration configuration = new ElasticsearchContainerConfiguration();
+                configuration.setDockerImage("docker.elastic.co/elasticsearch/elasticsearch-oss:6.8.8");
                 configuration.setClusterRamMb(100);
                 GenericContainer esContainer = new FixedHostPortGenericContainer(configuration.getDockerImage())
                         .withExposedPorts(configuration.getHttpPort(), configuration.getTransportPort())

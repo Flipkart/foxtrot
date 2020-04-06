@@ -15,6 +15,7 @@ import com.flipkart.foxtrot.core.querystore.query.ElasticSearchQueryGenerator;
 import com.google.common.collect.Lists;
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
+import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.search.aggregations.AbstractAggregationBuilder;
 import org.elasticsearch.search.aggregations.AggregationBuilder;
@@ -110,7 +111,7 @@ public class StatsAction extends Action<StatsRequest> {
         try {
             SearchResponse response = getConnection()
                     .getClient()
-                    .search(query);
+                    .search(query, RequestOptions.DEFAULT);
             return getResponse(response, parameter);
         }
         catch (IOException e) {
