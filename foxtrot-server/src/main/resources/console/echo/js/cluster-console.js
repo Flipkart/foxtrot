@@ -93,41 +93,37 @@ EventBus.addEventListener('hosts_loaded', function (event, data) {
     for (var nodeId in nodes) {
         var node = nodes[nodeId];
         var host = new HostData();
-        host.name = node.node.name;
-        host.ip = node.node.hostAddress;
-        host.host = node.node.hostName;
+        host.name = node.name;
+        host.ip = node.ip;
+        host.host = node.host;
 
-        host.memoryTotal = bytesToSize(node.os.mem.total.bytes);
-        host.memoryUsed = bytesToSize(node.os.mem.used.bytes);
-        host.memoryUsedPercent = toPercentage(node.os.mem.used.bytes, node.os.mem.total.bytes);
+        host.memoryTotal = bytesToSize(node.os.mem.total_in_bytes);
+        host.memoryUsed = bytesToSize(node.os.mem.used_in_bytes);
+        host.memoryUsedPercent = toPercentage(node.os.mem.used_in_bytes, node.os.mem.total_in_bytes);
 
-        host.diskTotal = bytesToSize(node.fs.total.total.bytes);
-        host.diskUsed = bytesToSize(node.fs.total.total.bytes - node.fs.total.free.bytes);
-        host.diskUsedPercent = toPercentage(node.fs.total.total.bytes - node.fs.total.free.bytes, node.fs.total.total.bytes);
+        host.diskTotal = bytesToSize(node.fs.total.total_in_bytes);
+        host.diskUsed = bytesToSize(node.fs.total.total_in_bytes - node.fs.total.free_in_bytes);
+        host.diskUsedPercent = toPercentage(node.fs.total_in_bytes - node.fs.total.free_in_bytes, node.fs.total.total_in_bytes);
 
-        host.jvmTotal = bytesToSize(node.jvm.mem.heapCommitted.bytes);
-        host.jvmUsed = bytesToSize(node.jvm.mem.heapUsed.bytes);
-        host.jvmUsedPercent = toPercentage(node.jvm.mem.heapUsed.bytes, node.jvm.mem.heapCommitted.bytes);
+        host.jvmTotal = bytesToSize(node.jvm.mem.heap_committed_in_bytes);
+        host.jvmUsed = bytesToSize(node.jvm.mem.heap_used_in_bytes);
+        host.jvmUsedPercent = toPercentage(node.jvm.mem.heap_used_in_bytes, node.jvm.mem.heap_committed_in_bytes);
 
-        if (node.hasOwnProperty('breaker')) {
-            fieldBreaker = null;
-            for (var i = 0; i < node.breaker.allStats.length; i++) {
-                if (node.breaker.allStats[i].name == 'fielddata') {
-                    fieldBreaker = node.breaker.allStats[i];
-                }
-            }
-            host.fieldCache = toPercentage(fieldBreaker.estimated, fieldBreaker.limit);
+        if (node.hasOwnProperty('breakers')) {
+            host.fieldCache = toPercentage(
+                                    node.breakers.fielddata.estimated_size_in_bytes,
+                                    node.breakers.fielddata.limit_size_in_bytes);
         } else {
             host.fieldCache = "100";
         }
 
-        if (node.indices.fieldData.hasOwnProperty("memorySizeInBytes")) {
-            host.fieldCacheAbs = bytesToSize(node.indices.fieldData.memorySizeInBytes);
+        if (node.indices.fielddata.hasOwnProperty("memory_size_in_bytes")) {
+            host.fieldCacheAbs = bytesToSize(node.indices.fielddata.memory_size_in_bytes);
         } else {
             host.fieldCacheAbs = 'N/A'
         }
 
-        host.fieldCacheEvictions = node.indices.fieldData.evictions;
+        host.fieldCacheEvictions = node.indices.fielddata.evictions;
         hosts.push(host);
 
     }
@@ -234,7 +230,7 @@ function loadData() {
     dataLoadComplete = false;
     $.ajax({
             type: 'GET',
-            url: 'https://foxtrot-internal.phonepe.com/foxtrot/v1/clusterhealth/nodestats',
+            url: '/foxtrot/v1/clusterhealth/nodestats',
             success: function (data) {
                 hideLoader();
                 EventBus.dispatch('hosts_loaded', this, data);
