@@ -34,10 +34,10 @@ import com.flipkart.foxtrot.core.exception.FoxtrotException;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
 import com.google.common.collect.Lists;
 import lombok.SneakyThrows;
-import org.elasticsearch.action.admin.indices.get.GetIndexRequest;
-import org.elasticsearch.action.admin.indices.get.GetIndexResponse;
 import org.elasticsearch.action.admin.indices.refresh.RefreshRequest;
 import org.elasticsearch.client.RequestOptions;
+import org.elasticsearch.client.indices.GetIndexRequest;
+import org.elasticsearch.client.indices.GetIndexResponse;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -774,7 +774,7 @@ public class FilterActionTest extends ActionTest {
         }
         GetIndexResponse response = getElasticsearchConnection().getClient()
                 .indices()
-                .get(new GetIndexRequest(), RequestOptions.DEFAULT);
+                .get(new GetIndexRequest("*"), RequestOptions.DEFAULT);
         // Find all indices returned for this table name.. (using regex to match)
         assertEquals(3, Arrays.stream(response.getIndices())
                 .filter(index -> index.matches(".*-" + TestUtils.TEST_TABLE_NAME + "-.*"))
