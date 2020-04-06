@@ -15,11 +15,10 @@
  */
 package com.flipkart.foxtrot.core.querystore;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.flipkart.foxtrot.common.Document;
 import com.flipkart.foxtrot.common.TableFieldMapping;
 import org.elasticsearch.action.admin.cluster.health.ClusterHealthResponse;
-import org.elasticsearch.action.admin.cluster.node.stats.NodesStatsResponse;
-import org.elasticsearch.action.admin.indices.stats.IndicesStatsResponse;
 
 import java.io.IOException;
 import java.util.List;
@@ -52,9 +51,9 @@ public interface QueryStore {
 
     ClusterHealthResponse getClusterHealth();
 
-    NodesStatsResponse getNodeStats();
+    JsonNode getNodeStats();
 
-    IndicesStatsResponse getIndicesStats() throws IOException;
+    JsonNode getIndicesStats() throws IOException;
 
     TableFieldMapping getFieldMappings(String table);
 }

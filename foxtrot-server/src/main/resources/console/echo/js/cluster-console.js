@@ -85,10 +85,10 @@ $(".search-input").keyup(function () {
 })
 
 EventBus.addEventListener('hosts_loaded', function (event, data) {
-    if (!data.hasOwnProperty('nodesMap')) {
+    if (!data.hasOwnProperty('nodes')) {
         return;
     }
-    var nodes = data['nodesMap'];
+    var nodes = data['nodes'];
     var hosts = [];
     for (var nodeId in nodes) {
         var node = nodes[nodeId];
