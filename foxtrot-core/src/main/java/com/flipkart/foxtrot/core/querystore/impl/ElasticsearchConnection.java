@@ -62,7 +62,7 @@ public class ElasticsearchConnection implements Managed {
             : config.getPort();*/
 
        client = new RestHighLevelClient(
-                RestClient.builder(new HttpHost(config.getHosts().get(0), config.getPort(), "http")));
+                RestClient.builder(new HttpHost(config.getHosts().get(0), config.getPort(), "https")));
 /*
                         new HttpHost("localhost", 9200, "http"),
                         new HttpHost("localhost", 9201, "http")));
