@@ -23,7 +23,7 @@ hbase:
 cluster:
   name: foxtrot
   discovery:
-    type: foxtrot_kubernetes
+    type: ${DISCOVERY_TYPE}
     disableMulticast: true
     members: ["localhost:5701"]
 
