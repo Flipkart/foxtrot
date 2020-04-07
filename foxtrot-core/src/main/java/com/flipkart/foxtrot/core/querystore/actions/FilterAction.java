@@ -122,10 +122,13 @@ public class FilterAction extends Action<Query> {
         List<String> ids = new ArrayList<>();
         try {
             SearchRequest searchRequest = getRequestBuilder(parameter);
-            SearchResponse searchResponse = getConnection().getClient().search(searchRequest, RequestOptions.DEFAULT);
+            SearchResponse searchResponse = getConnection()
+                    .getClient()
+                    .search(searchRequest, RequestOptions.DEFAULT);
+
             String scrollId = searchResponse.getScrollId();
 
-            SearchHits searchHits = (searchResponse).getHits();
+            SearchHits searchHits = searchResponse.getHits();
             for(SearchHit searchHit : searchHits) {
                 ids.add(searchHit.getId());
             }
@@ -135,6 +138,9 @@ public class FilterAction extends Action<Query> {
                 SearchResponse searchScrollResponse = getConnection().getClient().scroll(scrollRequest, RequestOptions.DEFAULT);
                 scrollId = searchScrollResponse.getScrollId();
                 SearchHits hits = searchScrollResponse.getHits();
+                if (hits.getHits().length == 0){
+                    return new QueryResponse(getQueryStore().getAll(parameter.getTable(), ids, true), ids.size());
+                }
                 for(SearchHit searchHit : hits) {
                     ids.add(searchHit.getId());
                 }
