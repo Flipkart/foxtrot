@@ -54,3 +54,4 @@ services:
      - HBASE_ZOOKEEPER_QUORUM=hbase
      - HBASE_ZOOKEEPER_CLIENT_PORT=2181
      - HAZELCAST_CLUSTER_NAME=foxtrot
+     - DISCOVERY_TYPE=foxtrot_simple
