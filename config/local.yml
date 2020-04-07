@@ -8,15 +8,16 @@ server:
 
 elasticsearch:
   hosts:
-  - localhost
+  - stg-els601.phonepe.nm2
   cluster: foxtrot
   tableNamePrefix: foxtrot
   getQueryTimeout: 10000
+  port: 9200
 
 hbase:
-  secure : false
+  secure: false
   tableName: foxtrot
-  hbaseZookeeperQuorum: localhost:2181
+  hbaseZookeeperQuorum: stg-dwhxenial002-stg-cloud005.phonepe.nm2:2181
   hbaseZookeeperClientPort: 2181
   seggregatedTablePrefix: foxtrot-
   hbaseZookeeperZnodeParent: /hbase-unsecure

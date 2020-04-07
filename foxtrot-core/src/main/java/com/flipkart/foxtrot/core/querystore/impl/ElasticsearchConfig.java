@@ -16,6 +16,7 @@
 package com.flipkart.foxtrot.core.querystore.impl;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.Builder;
 import lombok.NoArgsConstructor;
 
 import javax.validation.Valid;
@@ -56,7 +57,8 @@ public class ElasticsearchConfig {
     private long getQueryTimeout;
     private Integer port;
     @NotNull
-    private ConnectionType connectionType;
+    @Builder.Default
+    private ConnectionType connectionType = ConnectionType.HTTP;
 
     public List<String> getHosts() {
         return hosts;
