@@ -144,12 +144,12 @@ EventBus.addEventListener('indices_loaded', function (event, data) {
     }
     var indices = data['indices'];
     var indexTable = {}
+    var tableNamePrefix =  (esConfig.hasOwnProperty("tableNamePrefix"))
+            ? tableNamePrefix = esConfig.tableNamePrefix
+            : tableNamePrefix = "foxtrot";
     for (var indexName in indices) {
-        var tableNamePrefix = null;
-        if (esConfig.hasOwnProperty("tableNamePrefix")) {
-            tableNamePrefix = esConfig.tableNamePrefix;
-        } else {
-            tableNamePrefix = "foxtrot";
+        if(!indexName.startsWith(tableNamePrefix)) {
+            continue;
         }
         var normalizedName = normalizedName = indexName.replace(new RegExp("^" + tableNamePrefix + "-"), "").replace(/-table-[0-9\-]+$/, "");
         if (!indexTable.hasOwnProperty(normalizedName)) {
@@ -163,7 +163,7 @@ EventBus.addEventListener('indices_loaded', function (event, data) {
         var indexData = indexTable[normalizedName];
         indexData.days += 1;
         indexData.events += indices[indexName].primaries.docs.count;
-        indexData.size += indices[indexName].primaries.store.sizeInBytes;
+        indexData.size += indices[indexName].primaries.store.size_in_bytes;
     }
     var tables = []
     for (var i in indexTable) {
@@ -271,19 +271,19 @@ function loadIndexData() {
             url: '/foxtrot/v1/clusterhealth/indicesstats',
             success: function (data) {
                 hideLoader();
-                if (typeof data.primaries.docs != "undefined") {
-                    cluster.documentCount = data.primaries.docs.count;
+                if (typeof data._all.primaries.docs != "undefined") {
+                    cluster.documentCount = data._all.primaries.docs.count;
                 } else {
                     cluster.documentCount = 0;
                 }
 
-                if (typeof data.primaries.store != "undefined") {
-                    cluster.dataSize = bytesToSize(data.primaries.store.sizeInBytes);
+                if (typeof data._all.primaries.store != "undefined") {
+                    cluster.dataSize = bytesToSize(data._all.primaries.store.size_in_bytes);
                 } else {
                     cluster.dataSize = bytesToSize(0);
                 }
-                if (typeof data.total.store != "undefined") {
-                    cluster.replicatedDataSize = bytesToSize(data.total.store.sizeInBytes);
+                if (typeof data._all.total.store != "undefined") {
+                    cluster.replicatedDataSize = bytesToSize(data._all.total.store.size_in_bytes);
                 } else {
                     cluster.replicatedDataSize = bytesToSize(0);
                 }
